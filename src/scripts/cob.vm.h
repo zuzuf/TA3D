@@ -88,8 +88,7 @@ namespace TA3D
         Stack<int>				    cur;
         Stack<int>                  sStack;         // Script stack
         Stack<SCRIPT_ENV>           local_env;      // Local COB environment
-
-        std::vector< short >        script_val;     // Tableau de valeurs retournées par les scripts
+        int                         script_val;     // Returned value
 
     public:
         COB_VM();
@@ -98,6 +97,7 @@ namespace TA3D
         virtual void load( SCRIPT_DATA *data );
 
         virtual int run(float dt, bool alone = false);  // Run the script
+        int run(float dt, bool alone, int *pParam, int nParam);  // Run the script
 
         //! functions used to call/run functions
         void call(const int functionID, int *parameters = NULL, int nb_params = 0);

@@ -67,7 +67,7 @@ namespace TA3D
         global_env = NULL;
         sStack.clear();
         local_env.clear();
-        script_val.clear();
+        script_val = 0;
     }
 
     void COB_VM::destroy()
@@ -75,10 +75,15 @@ namespace TA3D
         script = NULL;
         sStack.clear();
         local_env.clear();
-        script_val.clear();
+        script_val = 0;
     }
 
-    int COB_VM::run(float dt, bool alone)
+    int COB_VM::run(float dt, bool alone)  // Run the script
+    {
+        return run(dt, alone, NULL, 0);
+    }
+
+    int COB_VM::run(float dt, bool alone, int *pParam, int nParam)  // Run the script
     {
         if (script == NULL)
         {
@@ -472,10 +477,13 @@ namespace TA3D
                     {
                         DEBUG_PRINT_CODE("RETURN");
 #warning FIXME: this is an ugly way to get values back ...
-                        if (script_val.size() <= script_id )
-                            script_val.resize( script_id + 1 );
-                        script_val[script_id] = local_env.top().empty() ? 0 : local_env.top().front();
+                        script_val = local_env.top().empty() ? 0 : local_env.top().front();
                         cur.pop();
+
+                        if (cur.empty() && pParam)              // Get back parameter values
+                            for(int i = 0 ; i < nParam ; i++)
+                                pParam[i] = local_env.top().size() > i ? local_env.top()[i] : 0;
+
                         local_env.pop();
                         sStack.pop();		// Enlève la valeur retournée
                         if (!cur.empty())
@@ -611,10 +619,13 @@ namespace TA3D
                 default:
                     LOG_ERROR("UNKNOWN " << script->script_code[script_id][--pos] << ", Stopping script");
                     {
-                        if (script_val.size() <= script_id )
-                            script_val.resize( script_id + 1 );
-                        script_val[script_id] = local_env.top().front();
+                        script_val = local_env.top().empty() ? 0 : local_env.top().front();
                         cur.pop();
+
+                        if (cur.empty() && !local_env.empty() && pParam)              // Get back parameter values
+                            for(int i = 0 ; i < nParam ; i++)
+                                pParam[i] = local_env.top().size() > i ? local_env.top()[i] : 0;
+
                         local_env.pop();
                     }
                     if (!cur.empty())
@@ -703,16 +714,12 @@ namespace TA3D
         {
             int res = -1;
             while( cob_thread->running )
-            {
-                if (!cob_thread->local_env.empty() && cob_thread->local_env.top().size() >= nb_params)
-                    for(int i = 0 ; i < nb_params ; i++)
-                        parameters[i] = cob_thread->local_env.top()[i];
-                res = cob_thread->run(0.0f, true);
-            }
+                res = cob_thread->run(0.0f, true, parameters, nb_params);
             cob_thread->kill();
             if(nb_params > 0)
                 return parameters[0];
-            return res;
+            return script_val;
+//            return res;
         }
         return 0;
     }
