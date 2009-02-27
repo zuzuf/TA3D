@@ -119,4 +119,10 @@ namespace TA3D
         buffer = NULL;
         size = 0;
     }
+
+    int LUA_CHUNK::identify(const String &name)
+    {
+#warning TODO: fix piece identifier
+        return -1;
+    }
 }

@@ -16,18 +16,18 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*-----------------------------------------------------------------------------------\
-  |                                         fbi.h                                      |
-  |  Ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
-  | des fichiers fbi du jeu totalannihilation qui sont les fichiers de données sur les |
-  | unités du jeu. Cela inclus les classes pour gérer les différents types d'unités et |
-  | le système de gestion de liens entre unités.                                       |
-  |                                                                                    |
-  \-----------------------------------------------------------------------------------*/
+|                                         fbi.h                                      |
+|  Ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
+| des fichiers fbi du jeu totalannihilation qui sont les fichiers de données sur les |
+| unités du jeu. Cela inclus les classes pour gérer les différents types d'unités et |
+| le système de gestion de liens entre unités.                                       |
+|                                                                                    |
+\-----------------------------------------------------------------------------------*/
 
 #ifndef __TA3D_XX_FBI_H__
 # define __TA3D_XX_FBI_H__
 
-# include "scripts/cob.h"
+# include "scripts/script.data.h"
 # include <vector>
 # include <list>
 # include "ingame/weapons/weapons.h"
@@ -127,7 +127,7 @@ namespace TA3D
     class UNIT_TYPE         // Structure pour la description des unités du jeu
     {
     public:
-        COB_SCRIPT  *script;        // Scripts de l'unité
+        SCRIPT_DATA  *script;        // Scripts de l'unité
         GLuint  glpic;              // Image de l'unité sous forme de texture OpenGl
         MODEL   *model;             // Modèle associé à l'unité
         SDL_Surface  *unitpic;      // Image de l'unité / Unit picture

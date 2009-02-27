@@ -72,7 +72,7 @@ namespace Menus
         GLuint  texture;
         Camera  cam;
 
-        SCRIPT_DATA anim_data;
+        ANIMATION_DATA anim_data;
         int sel_idx;        // ID of selected object
         int cursor_idx;     // ID of the object the cursor is pointing
         int pointing_mode;  // work mode (selection, set father, ...)

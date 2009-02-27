@@ -35,7 +35,7 @@
 # include "misc/matrix.h"
 # include "gfx/glfunc.h"
 # include "gfx/shader.h"
-
+# include "scripts/script.data.h"
 
 namespace TA3D
 {
@@ -144,32 +144,32 @@ namespace TA3D
         }
     };
 
-    class SCRIPT_DATA
+    class ANIMATION_DATA
     {
     public:
-        int			nb_piece;
-        AXE			*axe[3];			// 3 axes (dans l'ordre x,y,z)
-        short		*flag;
-        short		*explosion_flag;
-        float		explode_time;
-        bool		explode;
-        Vector3D		*pos;
-        Vector3D		*dir;			// Orientation des objets (quand il n'y a qu'une ligne)
-        MATRIX_4x4	*matrix;		// Store local matrixes
-        bool		is_moving;
+        int         nb_piece;
+        AXE	        *axe[3];			// 3 axes (dans l'ordre x,y,z)
+        short       *flag;
+        short       *explosion_flag;
+        float       explode_time;
+        bool        explode;
+        Vector3D    *pos;
+        Vector3D    *dir;			// Orientation des objets (quand il n'y a qu'une ligne)
+        MATRIX_4x4  *matrix;		// Store local matrixes
+        bool        is_moving;
 
 
-        SCRIPT_DATA() {init();}
+        ANIMATION_DATA() {init();}
 
         void init();
 
         void destroy();
 
-        ~SCRIPT_DATA() {destroy();}
+        ~ANIMATION_DATA() {destroy();}
 
         void load(const int nb);
 
-        const void move(const float dt,const float g=9.81f);
+        const void move(const float dt,const float g = 9.81f);
     };
 
     /*-----------------------------------------------------------------------------------*/
@@ -238,7 +238,7 @@ namespace TA3D
 #define TRANSLATION_PERIODIC	0x20
 #define TRANSLATION_COSINE		0x40
 
-    class ANIMATION				// Class used to set default animation to a model, this animation will play if no SCRIPT_DATA is provided (ie for map features)
+    class ANIMATION				// Class used to set default animation to a model, this animation will play if no ANIMATION_DATA is provided (ie for map features)
     {
     public:
         byte	type;
@@ -249,46 +249,12 @@ namespace TA3D
         Vector3D	translate_1;
         float	translate_w;
 
-        ANIMATION()
+        inline ANIMATION()
         {
             type = 0;
         }
 
-        void animate( float &t, Vector3D &R, Vector3D& T)
-        {
-            if( type & ROTATION ) {
-                if( type & ROTATION_PERIODIC ) {
-                    float coef;
-                    if( type & ROTATION_COSINE )
-                        coef = 0.5f + 0.5f * cosf( t * angle_w );
-                    else {
-                        coef = t * angle_w;
-                        int i = (int) coef;
-                        coef = coef - i;
-                        coef = (i&1) ? (1.0f - coef) : coef;
-                    }
-                    R = coef * angle_0 + (1.0f - coef) * angle_1;
-                }
-                else
-                    R = t * angle_0;
-            }
-            if( type & TRANSLATION ) {
-                if( type & TRANSLATION_PERIODIC ) {
-                    float coef;
-                    if( type & TRANSLATION_COSINE )
-                        coef = 0.5f + 0.5f * cosf( t * translate_w );
-                    else {
-                        coef = t * translate_w;
-                        int i = (int) coef;
-                        coef = coef - i;
-                        coef = (i&1) ? (1.0f - coef) : coef;
-                    }
-                    T = coef * translate_0 + (1.0f - coef) * translate_1;
-                }
-                else
-                    T = t * translate_0;
-            }
-        }
+        void animate( float &t, Vector3D &R, Vector3D& T);
     };
 
     class OBJECT					// Classe pour la gestion des (sous-)objets des modèles 3do
@@ -384,21 +350,21 @@ namespace TA3D
 
         void create_from_2d(SDL_Surface *bmp,float w,float h,float max_h);
 
-        void compute_coord(SCRIPT_DATA *data_s=NULL,Vector3D *pos=NULL,bool c_part=false,int p_tex=0,Vector3D *target=NULL,Vector3D *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,Vector3D *center=NULL,bool reverse=false,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL);
+        void compute_coord(ANIMATION_DATA *data_s=NULL,Vector3D *pos=NULL,bool c_part=false,int p_tex=0,Vector3D *target=NULL,Vector3D *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,Vector3D *center=NULL,bool reverse=false,OBJECT *src=NULL,ANIMATION_DATA *src_data=NULL);
 
-        bool draw(float t,SCRIPT_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
-        bool draw_dl(SCRIPT_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
+        bool draw(float t,ANIMATION_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
+        bool draw_dl(ANIMATION_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
         void draw_optimised(const bool set = true);
 
-        bool draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
+        bool draw_shadow(Vector3D Dir,float t,ANIMATION_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-        bool draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
+        bool draw_shadow_basic(Vector3D Dir,float t,ANIMATION_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-        int hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M);
+        int hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,MATRIX_4x4 M);
 
-        bool hit_fast(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I);
+        bool hit_fast(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I);
 
-        int random_pos( SCRIPT_DATA *data_s, int id, Vector3D *vec );
+        int random_pos( ANIMATION_DATA *data_s, int id, Vector3D *vec );
 
         bool compute_emitter();
 
@@ -412,7 +378,7 @@ namespace TA3D
 
         ~OBJECT() {destroy();}
 
-        void Identify(int nb_piece,const String::Vector &piece_name);			// Identifie les pièces utilisées par le script
+        void Identify(SCRIPT_DATA *script);			// Identifie les pièces utilisées par le script
 
         void compute_center(Vector3D *center,Vector3D dec, int *coef);		// Calcule les coordonnées du centre de l'objet, objets liés compris
 
@@ -471,10 +437,10 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void draw(float t, SCRIPT_DATA* data_s = NULL, bool sel = false, bool notex = false,
+        void draw(float t, ANIMATION_DATA* data_s = NULL, bool sel = false, bool notex = false,
                   bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
                   MATRIX_4x4* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
-                  int side = 0, bool chg_col = true, OBJECT* src = NULL, SCRIPT_DATA* src_data = NULL);
+                  int side = 0, bool chg_col = true, OBJECT* src = NULL, ANIMATION_DATA* src_data = NULL);
 
         /*!
         ** \brief
@@ -484,35 +450,35 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void compute_coord(SCRIPT_DATA* data_s = NULL, MATRIX_4x4* M = NULL);
+        void compute_coord(ANIMATION_DATA* data_s = NULL, MATRIX_4x4* M = NULL);
 
         /*!
         ** \brief
         */
-        void draw_shadow(const Vector3D& Dir, float t,SCRIPT_DATA* data_s = NULL);
+        void draw_shadow(const Vector3D& Dir, float t,ANIMATION_DATA* data_s = NULL);
 
         /*!
         ** \brief
         */
-        void draw_shadow_basic(const Vector3D& Dir, float t, SCRIPT_DATA *data_s = NULL);
+        void draw_shadow_basic(const Vector3D& Dir, float t, ANIMATION_DATA *data_s = NULL);
 
         /*!
         ** \brief
         */
-        int hit(Vector3D &Pos, Vector3D &Dir, SCRIPT_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        int hit(Vector3D &Pos, Vector3D &Dir, ANIMATION_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
         { return obj.hit(Pos,Dir,data_s,I,M); }
 
         /*!
         ** \brief
         */
-        bool hit_fast(Vector3D& Pos, Vector3D& Dir, SCRIPT_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        bool hit_fast(Vector3D& Pos, Vector3D& Dir, ANIMATION_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
         { return obj.hit_fast(Pos,Dir*M,data_s,I); }
 
         /*!
         ** \brief
         */
-        void Identify(const int nb_piece, const String::Vector& piece_name)
-        { obj.Identify(nb_piece,piece_name); }
+        void Identify(SCRIPT_DATA *script)
+        { obj.Identify(script); }
 
         /*!
         ** \brief

@@ -403,7 +403,7 @@ namespace TA3D
             model = unit_manager.unit_type[type_id]->model;
             weapon.resize(unit_manager.unit_type[type_id]->weapon.size());
             hp = unit_manager.unit_type[type_id]->MaxDamage;
-            script = new COB_VM( unit_manager.unit_type[type_id]->script );
+            script = UNIT_SCRIPT_INTERFACE::instanciate( unit_manager.unit_type[type_id]->script );
             port[STANDINGMOVEORDERS] = unit_manager.unit_type[type_id]->StandingMoveOrder;
             port[STANDINGFIREORDERS] = unit_manager.unit_type[type_id]->StandingFireOrder;
             if (!basic)
@@ -414,8 +414,7 @@ namespace TA3D
             }
             if (script)
             {
-#warning TODO: fix model piece loader
-//                data.load(script->nb_piece);
+                data.load( script->getNbPieces() );
                 launch_script(SCRIPT_create);
             }
         }
@@ -1115,7 +1114,7 @@ namespace TA3D
                 bool reverse=false;
                 float size=0.0f;
                 OBJECT *src = NULL;
-                SCRIPT_DATA *src_data = NULL;
+                ANIMATION_DATA *src_data = NULL;
                 Vector3D v_target;				// Needed in network mode
                 UNIT *unit_target = NULL;
                 MODEL *the_model = model;

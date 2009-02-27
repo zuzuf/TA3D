@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     float ScaleFactor=1.0f;
     uint32 timer = msec_timer;
 
-    SCRIPT_DATA cur_data;
+    ANIMATION_DATA cur_data;
     cur_data.load(nb_obj());
 
     do
@@ -432,7 +432,7 @@ void SurfEdit()
     if (nb_obj()<=0) return;			// S'il n'y a rien à éditer, on quitte tout de suite la fonction, sinon ça plante
     if (nb_obj()==1 && TheModel->obj.name.empty())	return;
 
-    SCRIPT_DATA cur_data;           // needed to render the preview
+    ANIMATION_DATA cur_data;           // needed to render the preview
     cur_data.load(nb_obj());
 
     AREA surface_area;
@@ -918,7 +918,7 @@ void SurfPaint(int index)
     shader_paint_u.load("shaders/3dmpaint_u.frag","shaders/3dmpaint.vert");
     shader_paint_v.load("shaders/3dmpaint_v.frag","shaders/3dmpaint.vert");
 
-    SCRIPT_DATA	cur_data;
+    ANIMATION_DATA	cur_data;
     cur_data.load(nb_obj());
 
     GLuint brush_U,brush_V,zbuf;

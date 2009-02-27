@@ -35,11 +35,17 @@
 
 namespace TA3D
 {
-    COB_VM::COB_VM(COB_SCRIPT *p_script)
+    void COB_VM::load( SCRIPT_DATA *data )
     {
-        global_env = new SCRIPT_ENV;
-        init();
-        script = p_script;
+        COB_SCRIPT *p_script = dynamic_cast<COB_SCRIPT*>(data);
+
+        destroy();
+
+        if (p_script)
+        {
+            global_env = new SCRIPT_ENV;
+            script = p_script;
+        }
     }
 
     COB_VM::COB_VM()
@@ -125,7 +131,7 @@ namespace TA3D
             return 2;		// Erreur, ce n'est pas un script repertorié
         }
 
-        UNIT *pUnit = &(units.unit[ uid ]);
+        UNIT *pUnit = &(units.unit[ unitID ]);
 
         float divisor(I2PWR16);
         float div = 0.5f * divisor;
@@ -644,13 +650,13 @@ namespace TA3D
     {
         pMutex.lock();
 
-        COB_VM *newThread = new COB_VM(script);
+        COB_VM *newThread = new COB_VM();
 
+        newThread->script = script;
         newThread->running = false;
         newThread->sleeping = false;
         newThread->sleep_time = 0.0f;
         newThread->caller = (caller != NULL) ? caller : this;
-        delete newThread->global_env;
         newThread->global_env = global_env;
         addThread(newThread);
 
@@ -694,5 +700,17 @@ namespace TA3D
             return res;
         }
         return 0;
+    }
+
+    void COB_VM::setUnitID(uint32 ID)
+    {
+        unitID = ID;
+    }
+
+    int COB_VM::getNbPieces()
+    {
+        if (script == NULL)
+            return 0;
+        return script->nb_piece;
     }
 }

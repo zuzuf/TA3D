@@ -32,7 +32,8 @@
 # include <list>
 # include <vector>
 # include "misc/recttest.h"
-# include "scripts/script.interface.h"
+# include "scripts/unit.script.interface.h"
+# include "scripts/unit.defines.h"
 
 
 # define MISSION_FLAG_CAN_ATTACK		0x01
@@ -280,7 +281,7 @@ namespace TA3D
 
 
     public:
-        SCRIPT_INTERFACE        *script;		// Scripts concernant l'unité
+        UNIT_SCRIPT_INTERFACE   *script;		// Scripts concernant l'unité
         MODEL					*model;			// Modèle représentant l'objet
         byte					owner_id;		// Numéro du propriétaire de l'unité
         short					type_id;		// Type d'unité
@@ -292,7 +293,7 @@ namespace TA3D
         Vector3D				drawn_Angle;	// Idem drawn_Pos
         Vector3D				V_Angle;		// Variation de l'orientation dans l'espace
         bool					sel;			// Unité sélectionnée?
-        SCRIPT_DATA				data;			// Données pour l'animation de l'unité par le script
+        ANIMATION_DATA          data;			// Données pour l'animation de l'unité par le script
         bool					drawing;
         sint16					*port;			// Ports
         MISSION					*mission;		// Orders given to the unit
