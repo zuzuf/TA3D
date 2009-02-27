@@ -85,14 +85,9 @@ namespace TA3D
         {
             if (signal == signal_mask)
                 kill();
-            for(std::vector<SCRIPT_INTERFACE*>::iterator i = childs.begin() ; i != childs.end() ; )
+            for(std::vector<SCRIPT_INTERFACE*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
                 if ((*i)->signal_mask == signal)
-                {
-                    delete *i;
-                    i = childs.erase(i);
-                }
-                else
-                    ++i;
+                    (*i)->kill();
         }
     }
 
@@ -111,8 +106,8 @@ namespace TA3D
     void SCRIPT_INTERFACE::clean()
     {
         MutexLocker mLock(pMutex);
-        if (caller)
-            caller->clean();
+        if (caller)         // Don't go up to caller this would make complexity O(N²)!!
+            return;         // and it would not be safe at all!
         else
             for(std::vector<SCRIPT_INTERFACE*>::iterator i = childs.begin() ; i != childs.end() ; )
                 if (!(*i)->is_running())
