@@ -278,7 +278,8 @@ namespace TA3D
             return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY || mission->mission == MISSION_MOVE) && !mission->next)) && !port[INBUILDSTANCE];
         }
 
-
+    private:
+        void start_building(const Vector3D &dir);
 
     public:
         UNIT_SCRIPT_INTERFACE   *script;		// Scripts concernant l'unité

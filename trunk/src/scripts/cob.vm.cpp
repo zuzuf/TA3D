@@ -22,7 +22,7 @@
 /*!
  * \brief Display the executed code if enabled
  */
-#define DEBUG_USE_PRINT_CODE 0
+#define DEBUG_USE_PRINT_CODE 1
 
 #if DEBUG_USE_PRINT_CODE == 1
 #   define DEBUG_PRINT_CODE(X)  if (print_code) LOG_DEBUG(X)
@@ -90,7 +90,7 @@ namespace TA3D
             running = false;
             cur.clear();
             local_env.clear();
-            return 2;	// No associated script !!
+            return -1;	// No associated script !!
         }
 
         MutexLocker mLocker( pMutex );
@@ -124,7 +124,7 @@ namespace TA3D
             running = false;
             cur.clear();
             local_env.clear();
-            return 2;
+            return -1;
         }
 
         sint16 script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
@@ -134,7 +134,7 @@ namespace TA3D
             running = false;
             cur.clear();
             local_env.clear();
-            return 2;		// Erreur, ce n'est pas un script repertorié
+            return -1;		// Erreur, ce n'est pas un script repertorié
         }
 
         UNIT *pUnit = &(units.unit[ unitID ]);
@@ -145,8 +145,9 @@ namespace TA3D
         int nb_code = 0;
 
 #if DEBUG_USE_PRINT_CODE == 1
-        bool print_code = false;
+//        bool print_code = false;
         //bool	print_code = String::ToLower( unit_manager.unit_type[type_id]->Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
+        bool	print_code = String::ToLower( unit_manager.unit_type[pUnit->type_id]->Unitname ) == "armmex";
 #endif
 
         do
@@ -463,7 +464,7 @@ namespace TA3D
                             p_cob->local_env.top().resize( num_param );
                             for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                                 p_cob->local_env.top()[i] = sStack.pop();
-                            p_cob->setSignalMask( getSignalMask() );
+//                            p_cob->setSignalMask( getSignalMask() );
                         }
                         else
                         {
