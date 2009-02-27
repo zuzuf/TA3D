@@ -1981,9 +1981,9 @@ namespace TA3D
                                 if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
                                 {
 #warning TODO: implement start piece query properly
-                                    int start_piece = 0;
-                                    if (start_piece<0 || start_piece>=data.nb_piece)
-                                        start_piece=0;
+                                    int start_piece = run_script_function(query_f);
+                                    if (start_piece < 0 || start_piece >= data.nb_piece)
+                                        start_piece = 0;
                                     compute_model_coord();
 
                                     Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
@@ -2166,7 +2166,8 @@ namespace TA3D
                         {
                             if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
                                  || players.energy[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->energypershot)
-                                && !unit_manager.unit_type[type_id]->weapon[ i ]->stockpile) {
+                                && !unit_manager.unit_type[type_id]->weapon[ i ]->stockpile)
+                            {
                                 weapon[i].state = WEAPON_FLAG_AIM;		// Pas assez d'énergie pour tirer / not enough energy to fire
                                 weapon[i].data = -1;
                                 break;
@@ -2178,7 +2179,7 @@ namespace TA3D
                                 break;
                             }
 #warning TODO: fix start_piece here
-                            int start_piece = 0;//(*script_val)[query_id];
+                            int start_piece = run_script_function(query_f);//(*script_val)[query_id];
                             if (start_piece >= 0 && start_piece < data.nb_piece)
                             {
                                 compute_model_coord();
@@ -2210,10 +2211,11 @@ namespace TA3D
                                 launch_script( Fire_script );			// Run the fire animation script
                                 if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
 
-                                if (weapon[i].target == NULL )
+                                if (weapon[i].target == NULL)
                                     shoot(-1,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos );
-                                else {
-                                    if (weapon[i].state & WEAPON_FLAG_WEAPON )
+                                else
+                                {
+                                    if (weapon[i].state & WEAPON_FLAG_WEAPON)
                                         shoot(((WEAPON*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
                                     else
                                         shoot(((UNIT*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
@@ -3590,11 +3592,13 @@ namespace TA3D
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
                                     String script_buildinfo = "QueryBuildInfo";
-                                    if (!script_buildinfo.empty())
+                                    int buildinfo = run_script_function(script_buildinfo);
+                                    if (buildinfo >= 0)
                                     {
                                         compute_model_coord();
                                         Vector3D old_pos = target_unit->Pos;
 #warning TODO: fix build info call
+                                        target_unit->Pos = Pos + data.pos[buildinfo];
 //                                        target_unit->Pos = Pos + data.pos[(*script_val)[script_buildinfo]];
                                         if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= map->sealvl ) )
                                             target_unit->Pos.y = old_pos.y;
@@ -3610,6 +3614,7 @@ namespace TA3D
                                         }
                                         target_unit->Angle = Angle;
 #warning TODO: fix build info call
+                                        target_unit->Angle.y += data.axe[1][buildinfo].angle;
 //                                        target_unit->Angle.y += data.axe[1][(*script_val)[script_buildinfo]].angle;
                                         pMutex.unlock();
                                         target_unit->draw_on_map();
