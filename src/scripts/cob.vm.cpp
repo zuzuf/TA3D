@@ -62,6 +62,7 @@ namespace TA3D
 
     void COB_VM::init()
     {
+        caller = NULL;
         script = NULL;
         global_env = NULL;
         sStack.clear();
@@ -77,7 +78,7 @@ namespace TA3D
         script_val.clear();
     }
 
-    int COB_VM::run(float dt)
+    int COB_VM::run(float dt, bool alone)
     {
         if (script == NULL)
         {
@@ -89,7 +90,7 @@ namespace TA3D
 
         MutexLocker mLocker( pMutex );
 
-        if (caller == NULL)
+        if (caller == NULL && !alone)
         {
             clean();
             for(int i = 0 ; i < childs.size() ; i++)
@@ -454,6 +455,7 @@ namespace TA3D
                         if (p_cob)
                         {
                             p_cob->call(function_id, NULL, 0);
+                            p_cob->local_env.top().resize( num_param );
                             for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                                 p_cob->local_env.top()[i] = sStack.pop();
                             p_cob->setSignalMask( getSignalMask() );
@@ -469,9 +471,10 @@ namespace TA3D
                 case SCRIPT_RETURN:		// Retourne au script précédent
                     {
                         DEBUG_PRINT_CODE("RETURN");
+#warning FIXME: this is an ugly way to get values back ...
                         if (script_val.size() <= script_id )
                             script_val.resize( script_id + 1 );
-                        script_val[script_id] = local_env.top().front();
+                        script_val[script_id] = local_env.top().empty() ? 0 : local_env.top().front();
                         cur.pop();
                         local_env.pop();
                         sStack.pop();		// Enlève la valeur retournée
@@ -641,6 +644,7 @@ namespace TA3D
 
         if (nb_params > 0 && parameters != NULL)
         {
+            local_env.top().resize(nb_params);
             for(int i = 0 ; i < nb_params ; i++)
                 local_env.top()[i] = parameters[i];
         }
@@ -650,14 +654,25 @@ namespace TA3D
     {
         pMutex.lock();
 
+        if (!running && caller == NULL)
+        {
+            waiting = false;
+            sleeping = false;
+            sleep_time = 0.0f;
+            pMutex.unlock();
+            return this;
+        }
+
         COB_VM *newThread = new COB_VM();
 
         newThread->script = script;
         newThread->running = false;
+        newThread->waiting = false;
         newThread->sleeping = false;
         newThread->sleep_time = 0.0f;
         newThread->caller = (caller != NULL) ? caller : this;
         newThread->global_env = global_env;
+        newThread->setUnitID( unitID );
         addThread(newThread);
 
         pMutex.unlock();
@@ -687,12 +702,12 @@ namespace TA3D
         if (cob_thread)
         {
             int res = -1;
-            while( cob_thread->is_running() )
+            while( cob_thread->running )
             {
                 if (!cob_thread->local_env.empty() && cob_thread->local_env.top().size() >= nb_params)
                     for(int i = 0 ; i < nb_params ; i++)
                         parameters[i] = cob_thread->local_env.top()[i];
-                res = cob_thread->run(0.0f);
+                res = cob_thread->run(0.0f, true);
             }
             cob_thread->kill();
             if(nb_params > 0)

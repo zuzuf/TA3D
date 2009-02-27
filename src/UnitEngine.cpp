@@ -188,37 +188,12 @@ namespace TA3D
     }
 
 
-    void UNIT::run_script_function(const String &f_name, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
+    int UNIT::run_script_function(const String &f_name, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
     {
-        pMutex.lock();
-//        int script_idx = launch_script( id, nb_param, param );
-//        if (script_idx >= 0)
-//        {
-//            float dt = 1.0f / TICKS_PER_SEC;
-//            for (uint16 n = 0 ; n < 10000 && (*script_env)[ script_idx ].running && (*script_env)[ script_idx ].env != NULL ; n++ ) {
-//                if (nb_param > 0 && param != NULL)
-//                    for (int i = 0 ; i < nb_param ; ++i)
-//                        param[i] = (*script_env)[script_idx].env->var[i];
-//                if (run_script(dt, script_idx, map, 1))
-//                    break;
-//            }
-//            int e = 0;
-//            for (int i = 0; i + e < nb_running; ) // Do some cleaning so we don't use all the env table with unused data
-//            {
-//                if ((*script_env)[i+e].running)
-//                {
-//                    (*script_env)[i]=(*script_env)[i+e];
-//                    ++i;
-//                }
-//                else
-//                {
-//                    (*script_env)[i+e].destroy();
-//                    ++e;
-//                }
-//            }
-//            nb_running -= e;
-//        }
-        pMutex.unlock();
+        MutexLocker mLocker( pMutex );
+        if (script)
+            return script->execute(f_name, param, nb_param);
+        return -1;
     }
 
     void UNIT::reset_script()
@@ -414,6 +389,7 @@ namespace TA3D
             }
             if (script)
             {
+                script->setUnitID( idx );
                 data.load( script->getNbPieces() );
                 launch_script(SCRIPT_create);
             }
@@ -2231,7 +2207,7 @@ namespace TA3D
                                     players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
                                     players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
                                 }
-                                run_script_function( Fire_script );			// Run the script that tell us from where to shoot
+                                launch_script( Fire_script );			// Run the fire animation script
                                 if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
 
                                 if (weapon[i].target == NULL )
@@ -5347,6 +5323,7 @@ script_exec:
         if (!script || f_name.empty())
             return -2;
 
+#warning TODO: fix script network synchronization code
 //        if (local && network_manager.isConnected() ) // Send synchronization event
 //        {
 //            struct event event;
@@ -5358,19 +5335,10 @@ script_exec:
 //            memcpy( event.str, param, sizeof(int) * nb_param );
 //            network_manager.sendEvent( &event );
 //        }
-//
-//        if (script_env->size() <= nb_running )
-//            script_env->resize( nb_running + 1);
-//        (*script_env)[nb_running].init();
-//        (*script_env)[nb_running].env = new SCRIPT_ENV_STACK();
-//        (*script_env)[nb_running].env->init();
-//        (*script_env)[nb_running].env->cur=id;
-//        (*script_env)[nb_running].running=true;
-//        if (nb_param>0 && param!=NULL)
-//        {
-//            for(int i=0;i<nb_param;i++)
-//                (*script_env)[nb_running].env->var[i]=param[i];
-//        }
+
+        if (script->fork( f_name, param, nb_param ))
+            return -2;
+
         return 0;
     }
 

@@ -34,7 +34,7 @@ namespace TA3D
     public:
 
         AI_SCRIPT();
-        ~AI_SCRIPT();
+        virtual ~AI_SCRIPT();
         void setPlayerID(int id);
         int getPlayerID();
         void setType(int type);

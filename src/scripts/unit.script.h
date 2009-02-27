@@ -32,10 +32,10 @@ namespace TA3D
     public:
 
         UNIT_SCRIPT();
-        ~UNIT_SCRIPT();
+        virtual ~UNIT_SCRIPT();
 
         virtual void load(SCRIPT_DATA *data);
-        virtual int run(float dt);                  // Run the script
+        virtual int run(float dt, bool alone = false);                  // Run the script
 
         //! functions used to call/run Lua functions
         virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
