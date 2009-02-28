@@ -34,4 +34,19 @@ namespace TA3D
         usi->load( data );
         return usi;
     }
+
+    int UNIT_SCRIPT_INTERFACE::getReturnValue(const String &name)
+    {
+        if (caller)
+            return (static_cast<UNIT_SCRIPT_INTERFACE*>(caller))->getReturnValue( name );
+        return return_value.find(String::ToUpper(name));
+    }
+
+    void UNIT_SCRIPT_INTERFACE::setReturnValue(const String &name, int value)
+    {
+        if (caller)
+            (static_cast<UNIT_SCRIPT_INTERFACE*>(caller))->setReturnValue( name, value );
+        else
+            return_value.insertOrUpdate(String::ToUpper(name), value);
+    }
 }

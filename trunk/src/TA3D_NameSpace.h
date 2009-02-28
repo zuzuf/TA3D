@@ -203,7 +203,6 @@ namespace TA3D
 
 		// Some constant data needed by the engine ( like number of ticks/sec. to simulate )
 #define TICKS_PER_SEC				30
-#define MAX_CODE_PER_TICK			100
 	}
 
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode );

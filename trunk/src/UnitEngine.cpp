@@ -1897,9 +1897,41 @@ namespace TA3D
             weapon[i].delay += dt;
             weapon[i].time += dt;
 
+            String Query_script;
+            String Aim_script;
+            String AimFrom_script;
+            String Fire_script;
+            switch(i)
+            {
+                case 0:
+                    Query_script = "QueryPrimary";
+                    Aim_script = "AimPrimary";
+                    AimFrom_script = "AimFromPrimary";
+                    Fire_script = "FirePrimary";
+                    break;
+                case 1:
+                    Query_script = "QuerySecondary";
+                    Aim_script = "AimSecondary";
+                    AimFrom_script = "AimFromSecondary";
+                    Fire_script = "FireSecondary";
+                    break;
+                case 2:
+                    Query_script = "QueryTertiary";
+                    Aim_script = "AimTertiary";
+                    AimFrom_script = "AimFromTertiary";
+                    Fire_script = "FireTertiary";
+                    break;
+                default:
+                    Query_script = format("QueryWeapon%d",i+1);
+                    Aim_script = format("AimWeapon%d",i+1);
+                    AimFrom_script = format("AimFromWeapon%d",i+1);
+                    Fire_script = format("FireWeapon%d",i+1);
+            }
+
             switch ((weapon[i].state & 3))
             {
                 case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
+                    script->setReturnValue(Aim_script, 0);
                     if (jump_commands)	break;
                     weapon[i].data = -1;
                     break;
@@ -1921,18 +1953,6 @@ namespace TA3D
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             break;
                         }
-                        String query_f;
-                        switch(i)
-                        {
-                            case 0:
-                                query_f = "AimFromPrimary";     break;
-                            case 1:
-                                query_f = "AimFromSecondary";   break;
-                            case 2:
-                                query_f = "AimFromTertiary";    break;
-                        }
-                        if (query_f.empty())
-                            query_f = format("AimFromWeapon%d",i+1);
 
                         if (weapon[i].delay >= unit_manager.unit_type[type_id]->weapon[ i ]->reloadtime || unit_manager.unit_type[type_id]->weapon[ i ]->stockpile)
                         {
@@ -1986,7 +2006,7 @@ namespace TA3D
 
                             if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
                             {
-                                int start_piece = run_script_function(query_f);
+                                int start_piece = run_script_function(AimFrom_script);
                                 if (start_piece < 0 || start_piece >= data.nb_piece)
                                     start_piece = 0;
                                 compute_model_coord();
@@ -2058,7 +2078,7 @@ namespace TA3D
                                     Vector3D K = target;
                                     K.y = 0.0f;
                                     K.unit();
-                                    angle = acosf(K%target)*RAD2DEG;
+                                    angle = acosf(K % target) * RAD2DEG;
                                     if (target.y < 0.0f)
                                         angle = -angle;
                                     angle -= Angle.x;
@@ -2090,39 +2110,17 @@ namespace TA3D
                                     weapon[i].aim_dir = cosf(aiming[1] * TA2RAD) * (cosf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
                                                                                     + sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
                                                         + sinf(aiming[1] * TA2RAD) * IJ;
-                                String AimF;
-                                switch(i)
-                                {
-                                    case 0:
-                                        AimF = "AimPrimary";	break;
-                                    case 1:
-                                        AimF = "AimSecondary";	break;
-                                    case 2:
-                                        AimF = "AimTertiary";	break;
-                                }
-                                if (AimF.empty())
-                                    AimF = format("AimWeapon%d",i+1);
-                                launch_script(AimF,2,aiming);
+                                readyToFire = script->getReturnValue( Aim_script );
+                                launch_script(Aim_script, 2, aiming);
                             }
                             else
+                                readyToFire = true;
+                            if (readyToFire)
                             {
-                                String AimF;
-                                switch(i)
-                                {
-                                    case 0:
-                                        AimF = "AimPrimary";	break;
-                                    case 1:
-                                        AimF = "AimSecondary";	break;
-                                    case 2:
-                                        AimF = "AimTertiary";	break;
-                                }
-                                if (AimF.empty())
-                                    AimF = format("AimWeapon%d",i+1);
-                                launch_script(AimF);
+                                weapon[i].time = 0.0f;
+                                weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
+                                weapon[i].burst = 0;
                             }
-                            weapon[i].time = 0.0f;
-                            weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
-                            weapon[i].burst=0;
                         }
                     }
                     else
@@ -2138,115 +2136,93 @@ namespace TA3D
                     {
                         if (weapon[i].burst > 0 && weapon[i].delay < unit_manager.unit_type[type_id]->weapon[ i ]->burstrate)
                             break;
-                        String query_f;
-                        String Aim_script;
-                        String Fire_script;
-                        switch(i)
+                        if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
+                             || players.energy[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->energypershot)
+                            && !unit_manager.unit_type[type_id]->weapon[ i ]->stockpile)
                         {
-                            case 0:
-                                query_f = "QueryPrimary";
-                                Aim_script = "AimPrimary";
-                                Fire_script = "FirePrimary";
-                                break;
-                            case 1:
-                                query_f = "QuerySecondary";
-                                Aim_script = "AimSecondary";
-                                Fire_script = "FireSecondary";
-                                break;
-                            case 2:
-                                query_f = "QueryTertiary";
-                                Aim_script = "AimTertiary";
-                                Fire_script = "FireTertiary";
-                                break;
+                            weapon[i].state = WEAPON_FLAG_AIM;		// Pas assez d'énergie pour tirer / not enough energy to fire
+                            weapon[i].data = -1;
+                            script->setReturnValue(Aim_script, 0);
+                            break;
                         }
-                        if (query_f.empty())
-                            query_f = format("QueryWeapon%d",i+1);
-                        if (Aim_script.empty())
-                            Aim_script = format("AimWeapon%d",i+1);
-                        if (Fire_script.empty())
-                            Fire_script = format("FireWeapon%d",i+1);
-#warning TODO: reimplement aiming calls properly
-                        if (true) //!is_running(Aim_script))
+                        if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile && weapon[i].stock<=0)
                         {
-                            if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
-                                 || players.energy[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->energypershot)
-                                && !unit_manager.unit_type[type_id]->weapon[ i ]->stockpile)
-                            {
-                                weapon[i].state = WEAPON_FLAG_AIM;		// Pas assez d'énergie pour tirer / not enough energy to fire
-                                weapon[i].data = -1;
+                            weapon[i].state = WEAPON_FLAG_AIM;		// Plus rien pour tirer / nothing to fire
+                            weapon[i].data = -1;
+                            script->setReturnValue(Aim_script, 0);
+                            break;
+                        }
+                        int start_piece = run_script_function(Query_script);
+                        if (start_piece >= 0 && start_piece < data.nb_piece)
+                        {
+                            compute_model_coord();
+                            if (!unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y + data.pos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
                                 break;
-                            }
-                            if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile && weapon[i].stock<=0)
+                            Vector3D Dir = data.dir[start_piece];
+                            if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
                             {
-                                weapon[i].state = WEAPON_FLAG_AIM;		// Plus rien pour tirer / nothing to fire
-                                weapon[i].data = -1;
-                                break;
+                                Dir.x = 0.0f;
+                                Dir.y = 1.0f;
+                                Dir.z = 0.0f;
                             }
-                            int start_piece = run_script_function(query_f);
-                            if (start_piece >= 0 && start_piece < data.nb_piece)
+                            else if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
+                                Dir = weapon[i].aim_dir;
+                            if (i == 3)
                             {
-                                compute_model_coord();
-                                if (!unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y + data.pos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
-                                    break;
-                                Vector3D Dir = data.dir[start_piece];
-                                if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
-                                {
-                                    Dir.x = 0.0f;
-                                    Dir.y = 1.0f;
-                                    Dir.z = 0.0f;
-                                }
-                                else if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
-                                    Dir = weapon[i].aim_dir;
-                                if (i == 3)
-                                {
-                                    LOG_DEBUG("firing from " << (Pos+data.pos[start_piece]).y << " (" << units.map->get_unit_h((Pos+data.pos[start_piece]).x, (Pos+data.pos[start_piece]).z) << ")");
-                                    LOG_DEBUG("from piece " << start_piece << " (" << query_f << "," << Aim_script << "," << Fire_script << ")" );
-                                }
+                                LOG_DEBUG("firing from " << (Pos+data.pos[start_piece]).y << " (" << units.map->get_unit_h((Pos+data.pos[start_piece]).x, (Pos+data.pos[start_piece]).z) << ")");
+                                LOG_DEBUG("from piece " << start_piece << " (" << Query_script << "," << Aim_script << "," << Fire_script << ")" );
+                            }
 
-                                        // SHOOT NOW !!
-                                if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile )
-                                    weapon[i].stock--;
-                                else
-                                {													// We use energy and metal only for weapons with no prebuilt ammo
-                                    players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
-                                    players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
-                                }
-                                launch_script( Fire_script );			// Run the fire animation script
-                                if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
+                                    // SHOOT NOW !!
+                            if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile )
+                                weapon[i].stock--;
+                            else
+                            {													// We use energy and metal only for weapons with no prebuilt ammo
+                                players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
+                                players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
+                            }
+                            launch_script( Fire_script );			// Run the fire animation script
+                            if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
 
-                                if (weapon[i].target == NULL)
-                                    shoot(-1,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos );
+                            if (weapon[i].target == NULL)
+                                shoot(-1,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos );
+                            else
+                            {
+                                if (weapon[i].state & WEAPON_FLAG_WEAPON)
+                                    shoot(((WEAPON*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
                                 else
-                                {
-                                    if (weapon[i].state & WEAPON_FLAG_WEAPON)
-                                        shoot(((WEAPON*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
-                                    else
-                                        shoot(((UNIT*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
-                                }
-                                weapon[i].burst++;
-                                if (weapon[i].burst>=unit_manager.unit_type[type_id]->weapon[i]->burst)
-                                    weapon[i].burst=0;
-                                weapon[i].delay=0.0f;
+                                    shoot(((UNIT*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
                             }
-                            if (weapon[i].burst == 0 && unit_manager.unit_type[type_id]->weapon[ i ]->commandfire && !unit_manager.unit_type[type_id]->weapon[ i ]->dropped ) {		// Shoot only once
-                                weapon[i].state = WEAPON_FLAG_IDLE;
+                            weapon[i].burst++;
+                            if (weapon[i].burst>=unit_manager.unit_type[type_id]->weapon[i]->burst)
+                                weapon[i].burst=0;
+                            weapon[i].delay=0.0f;
+                        }
+                        if (weapon[i].burst == 0 && unit_manager.unit_type[type_id]->weapon[ i ]->commandfire && !unit_manager.unit_type[type_id]->weapon[ i ]->dropped)    // Shoot only once
+                        {
+                            weapon[i].state = WEAPON_FLAG_IDLE;
+                            weapon[i].data = -1;
+                            script->setReturnValue(Aim_script, 0);
+                            if (mission != NULL )
+                                mission->flags |= MISSION_FLAG_COMMAND_FIRED;
+                            break;
+                        }
+                        if (weapon[i].target != NULL && (weapon[i].state & WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && ((UNIT*)(weapon[i].target))->hp > 0)  // La cible est-elle détruite ?? / is target destroyed ??
+                        {
+                            if (weapon[i].burst == 0)
+                            {
+                                weapon[i].state = WEAPON_FLAG_AIM;
                                 weapon[i].data = -1;
-                                if (mission != NULL )
-                                    mission->flags |= MISSION_FLAG_COMMAND_FIRED;
-                                break;
+                                weapon[i].time = 0.0f;
+                                script->setReturnValue(Aim_script, 0);
                             }
-                            if (weapon[i].target != NULL && (weapon[i].state & WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && ((UNIT*)(weapon[i].target))->hp>0) {				// La cible est-elle détruite ?? / is target destroyed ??
-                                if (weapon[i].burst==0) {
-                                    weapon[i].state = WEAPON_FLAG_AIM;
-                                    weapon[i].data = -1;
-                                    weapon[i].time = 0.0f;
-                                }
-                            }
-                            else if (weapon[i].target != NULL || weapon[i].burst == 0 ) {
-                                launch_script(SCRIPT_TargetCleared);
-                                weapon[i].state = WEAPON_FLAG_IDLE;
-                                weapon[i].data = -1;
-                            }
+                        }
+                        else if (weapon[i].target != NULL || weapon[i].burst == 0)
+                        {
+                            launch_script(SCRIPT_TargetCleared);
+                            weapon[i].state = WEAPON_FLAG_IDLE;
+                            weapon[i].data = -1;
+                            script->setReturnValue(Aim_script, 0);
                         }
                     }
                     else
@@ -5300,7 +5276,9 @@ script_exec:
 //            network_manager.sendEvent( &event );
 //        }
 
-        if (script->fork( f_name, param, nb_param ))
+        SCRIPT_INTERFACE *newThread = script->fork( f_name, param, nb_param );
+
+        if (newThread == NULL || !newThread->is_running())
             return -2;
 
         return 0;

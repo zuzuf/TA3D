@@ -16,17 +16,30 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "../stdafx.h"
+#include "../TA3D_NameSpace.h"
 #include "script.data.h"
-#include "cob.vm.h"
+#include "cob.h"
 #include "lua.chunk.h"
 
 namespace TA3D
 {
     SCRIPT_DATA *SCRIPT_DATA::loadScriptFile(const String &filename)
     {
-#warning TODO: generic loader that detects script language
-        SCRIPT_DATA *script = new COB_SCRIPT;
-        script->load(filename);
-        return script;
+        String tmp = filename + ".lua";
+        if (TA3D::VARS::HPIManager->Exists(tmp))
+        {
+            SCRIPT_DATA *script = new LUA_CHUNK;
+            script->load(tmp);
+            return script;
+        }
+
+        tmp = filename + ".cob";
+        if (TA3D::VARS::HPIManager->Exists(tmp))
+        {
+            SCRIPT_DATA *script = new COB_SCRIPT;
+            script->load(tmp);
+            return script;
+        }
+        return NULL;
     }
 }

@@ -33,6 +33,8 @@
 
 #define SQUARE(X)  ((X)*(X))
 
+#define MAX_CODE_PER_TICK			100
+
 namespace TA3D
 {
     void COB_VM::load( SCRIPT_DATA *data )
@@ -173,8 +175,10 @@ namespace TA3D
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
                         if (pUnit->script_is_turning(obj, axis))
+                        {
                             pos -= 3;
-                        done = true;
+                            done = true;
+                        }
                         break;
                     }
                 case SCRIPT_RANDOM_NUMBER:
@@ -233,8 +237,10 @@ namespace TA3D
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
                         if (pUnit->script_is_moving(obj, axis))
+                        {
                             pos -= 3;
-                        done = true;
+                            done = true;
+                        }
                         break;
                     }
                 case SCRIPT_CREATE_LOCAL_VARIABLE:
@@ -314,7 +320,6 @@ namespace TA3D
                         local_env.top().resize( num_param );
                         for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                             local_env.top()[i] = sStack.pop();
-                        done = true;
                         pos = 0;
                         script_id = function_id;
                         break;
@@ -364,7 +369,9 @@ namespace TA3D
                         DEBUG_PRINT_CODE("SIGNAL");
                         cur.top() = script_id + (pos<<8);	    // Sauvegarde la position
                         processSignal(sStack.pop());                 // Tue tout les processus utilisant ce signal
-                        return 0;
+                        if (!running)
+                            return 0;
+                        break;
                     }
                 case SCRIPT_DONT_CACHE:
                     {
@@ -467,7 +474,6 @@ namespace TA3D
                             for (int i = 0 ; i < num_param ; ++i)		// Enlève les paramètres de la pile
                                 sStack.pop();
                         }
-                        done = true;
                         break;
                     }
                 case SCRIPT_RETURN:		// Retourne au script précédent
@@ -480,13 +486,15 @@ namespace TA3D
                                 pParam[i] = local_env.top().size() > i ? local_env.top()[i] : 0;
 
                         local_env.pop();
-                        sStack.pop();		// Enlève la valeur retournée
+                        int value = sStack.pop();		// Enlève la valeur retournée / Pops the return value
+                        setReturnValue( script->names[script_id], value );      // Set the return value
                         if (!cur.empty())
                         {
                             script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
                             pos = (cur.top() >> 8);
                         }
-                        done = true;
+                        else
+                            done = true;
                         break;
                     }
                 case SCRIPT_JUMP:						// Commande de saut
@@ -666,6 +674,7 @@ namespace TA3D
             waiting = false;
             sleeping = false;
             sleep_time = 0.0f;
+            signal_mask = 0;
             pMutex.unlock();
             return this;
         }
