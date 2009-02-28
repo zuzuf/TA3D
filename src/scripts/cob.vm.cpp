@@ -766,4 +766,83 @@ namespace TA3D
                 LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<COB_VM*>(childs[i]))->cur.top() & 0xFF] << state);
             }
     }
+
+    void COB_VM::save_thread_state(gzFile file)
+    {
+        if (caller == NULL)
+        {
+            gzputc(file, 1);
+            int t = global_env->size();
+            gzwrite(file, &t, sizeof(t));
+            for(int i = 0 ; i < t ; i++)
+                gzwrite(file, &((*global_env)[i]), sizeof(int));
+        }
+        else
+            gzputc(file, 0);
+
+        int t = cur.size();
+        gzwrite(file, &t, sizeof(t));
+        for(int i = 0 ; i < t ; i++)
+            gzwrite(file, &(cur[i]), sizeof(int));
+
+        t = sStack.size();
+        gzwrite(file, &t, sizeof(t));
+        for(int i = 0 ; i < t ; i++)
+            gzwrite(file, &(sStack[i]), sizeof(int));
+
+        t = local_env.size();
+        gzwrite(file, &t, sizeof(t));
+        for(int i = 0 ; i < t ; i++)
+        {
+            int f = local_env[i].size();
+            gzwrite(file, &f, sizeof(t));
+            for(int e = 0 ; e < f ; e++)
+                gzwrite(file, &(local_env[i][e]), sizeof(int));
+        }
+    }
+
+    void COB_VM::restore_thread_state(gzFile file)
+    {
+        if (gzgetc(file))
+        {
+            int t;
+            gzread(file, &t, sizeof(t));
+            if (global_env == NULL)
+                global_env = new SCRIPT_ENV;
+            global_env->resize(t);
+            for(int i = 0 ; i < t ; i++)
+                gzread(file, &((*global_env)[i]), sizeof(int));
+        }
+
+        int t;
+        gzread(file, &t, sizeof(t));
+        cur.clear();
+        for(int i = 0 ; i < t ; i++)
+        {
+            int v;
+            gzread(file, &v, sizeof(int));
+            cur.push(v);
+        }
+
+        gzread(file, &t, sizeof(t));
+        sStack.clear();
+        for(int i = 0 ; i < t ; i++)
+        {
+            int v;
+            gzread(file, &v, sizeof(int));
+            sStack.push(v);
+        }
+
+        gzread(file, &t, sizeof(t));
+        local_env.clear();
+        for(int i = 0 ; i < t ; i++)
+        {
+            int f;
+            gzread(file, &f, sizeof(t));
+            local_env.push( SCRIPT_ENV() );
+            local_env.top().resize(f);
+            for(int e = 0 ; e < f ; e++)
+                gzread(file, &(local_env.top()[e]), sizeof(int));
+        }
+    }
 }

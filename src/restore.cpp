@@ -413,7 +413,6 @@ void save_game( const String filename, GameData *game_data )
             if( start == units.unit[i].def_mission )	break;
         }
 
-#warning TODO: implement save/restore mechanism for scripts
         if (units.unit[i].script)
         {
             gzputc(file, 1);

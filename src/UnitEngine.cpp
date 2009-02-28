@@ -2829,12 +2829,10 @@ namespace TA3D
                                     int param[]= { target_unit->idx };
                                     launch_script(SCRIPT_TransportPickup, 1, param);
                                 }
-                                mission->last_d=-1.0f;
+                                mission->last_d = -1.0f;
                             }
                             else
                             {
-#warning TODO: clean this
-//                                if (!is_running(get_script_index(SCRIPT_TransportPickup)) && port[ BUSY ] == 0.0f )
                                 if (port[ BUSY ] == 0)
                                     next_mission();
                             }
