@@ -22,6 +22,7 @@ namespace TA3D
     void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h);
     void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h);
     void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 );
+    void stretch_blit_smooth( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 );
 
     void putpixel(SDL_Surface *bmp, int x, int y, uint32 col);
     uint32 getpixel(SDL_Surface *bmp, int x, int y);

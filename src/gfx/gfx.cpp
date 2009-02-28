@@ -624,6 +624,19 @@ namespace TA3D
             return tex;
         }
 
+        if (!g_useNonPowerOfTwoTextures && (!Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
+        {
+            int w = 1 << Math::Log2(bmp->w);
+            int h = 1 << Math::Log2(bmp->h);
+            if (w < bmp->w) w <<= 1;
+            if (h < bmp->h) h <<= 1;
+            SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
+            stretch_blit_smooth( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
+            GLuint tex = make_texture( tmp, filter_type, clamp );
+            SDL_FreeSurface( tmp );
+            return tex;
+        }
+
         if (ati_workaround && filter_type != FILTER_NONE
             && ( !Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
             filter_type = FILTER_LINEAR;
