@@ -306,13 +306,15 @@ namespace TA3D
     }
 
     //! functions used to save/restore scripts state
-    void UNIT_SCRIPT::save_state(gzFile file)
+    void UNIT_SCRIPT::save_thread_state(gzFile file)
     {
-        LUA_THREAD::save_state(file);
+        gzwrite(file, &unitID, sizeof(unitID));
+        LUA_THREAD::save_thread_state(file);
     }
 
-    void UNIT_SCRIPT::restore_state(gzFile file)
+    void UNIT_SCRIPT::restore_thread_state(gzFile file)
     {
-        LUA_THREAD::restore_state(file);
+        gzread(file, &unitID, sizeof(unitID));
+        LUA_THREAD::restore_thread_state(file);
     }
 }

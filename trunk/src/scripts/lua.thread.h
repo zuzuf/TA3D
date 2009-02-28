@@ -81,8 +81,8 @@ namespace TA3D
         LUA_THREAD *fork(lua_State *cL, int n);
 
         //! functions used to save/restore scripts state
-        void save_state(gzFile file) {};
-        void restore_state(gzFile file) {};
+        virtual void save_thread_state(gzFile file);
+        virtual void restore_thread_state(gzFile file);
     private:
         //! functions to manipulate the Lua processes
         void setThreadID();

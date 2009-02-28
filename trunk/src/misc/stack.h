@@ -40,6 +40,16 @@ namespace TA3D
                 return container.back();
             }
 
+            inline size_t size()
+            {
+                return container.size();
+            }
+
+            inline T& operator[](int idx)
+            {
+                return container[idx];
+            }
+
             inline T pop()
             {
                 if (empty())    return T();

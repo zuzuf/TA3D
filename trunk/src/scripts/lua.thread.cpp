@@ -610,4 +610,13 @@ namespace TA3D
         if (lua_threadID(L) == NULL)
             LOG_ERROR(LOG_PREFIX_LUA << "impossible to write LUA_THREAD pointer into Lua_State stack !!");
     }
+
+#warning TODO: implement save/restore mechanism for Lua scripts
+    void LUA_THREAD::save_thread_state(gzFile file)
+    {
+    }
+
+    void LUA_THREAD::restore_thread_state(gzFile file)
+    {
+    }
 }

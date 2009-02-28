@@ -68,8 +68,10 @@ namespace TA3D
         virtual int execute(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
 
         //! functions used to save/restore scripts state
-        virtual void save_state(gzFile file) = 0;
-        virtual void restore_state(gzFile file) = 0;
+        virtual void save_thread_state(gzFile file) = 0;
+        virtual void restore_thread_state(gzFile file) = 0;
+        void save_state(gzFile file);
+        void restore_state(gzFile file);
 
         //! functions used to create new threads sharing the same environment
         virtual SCRIPT_INTERFACE *fork() = 0;

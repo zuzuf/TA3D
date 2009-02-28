@@ -123,4 +123,47 @@ namespace TA3D
     {
         LOG_DEBUG(LOG_PREFIX_SCRIPT << "sorry dumpDebugInfo not implemented for this type of script");
     }
+
+    void SCRIPT_INTERFACE::save_state(gzFile file)
+    {
+        pMutex.lock();
+
+        gzwrite(file, &last, sizeof(last));
+        gzwrite(file, &running, sizeof(running));
+        gzwrite(file, &sleep_time, sizeof(sleep_time));
+        gzwrite(file, &sleeping, sizeof(sleeping));
+        gzwrite(file, &waiting, sizeof(waiting));
+        gzwrite(file, &signal_mask, sizeof(signal_mask));
+        save_thread_state(file);
+
+        int nb_childs = childs.size();
+        gzwrite(file, &nb_childs, sizeof(nb_childs));
+        for(int i = 0 ; i < nb_childs ; i++)
+            childs[i]->save_state(file);
+
+        pMutex.unlock();
+    }
+
+    void SCRIPT_INTERFACE::restore_state(gzFile file)
+    {
+        pMutex.lock();
+
+        gzread(file, &last, sizeof(last));
+        gzread(file, &running, sizeof(running));
+        gzread(file, &sleep_time, sizeof(sleep_time));
+        gzread(file, &sleeping, sizeof(sleeping));
+        gzread(file, &waiting, sizeof(waiting));
+        gzread(file, &signal_mask, sizeof(signal_mask));
+        restore_thread_state(file);
+
+        int nb_childs = childs.size();
+        gzread(file, &nb_childs, sizeof(nb_childs));
+        for(int i = 0 ; i < nb_childs ; i++)
+        {
+            SCRIPT_INTERFACE *newThread = fork();
+            newThread->restore_state(file);
+        }
+
+        pMutex.unlock();
+    }
 }
