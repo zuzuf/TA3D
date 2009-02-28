@@ -312,15 +312,8 @@ namespace TA3D
         if (unit_index == -1)
             return;
 
-#warning TODO: improve this
-        String::List file_list;
-        HPIManager->getFilelist( "scripts\\" + uprname + ".cob", file_list);
-
-        if (!file_list.empty()) 	// There is a file that match this unit
-        {
-            unit_type[unit_index]->script = SCRIPT_DATA::loadScriptFile(file_list.front());
-            // Don't delete[] data here because the script keeps a reference to it.
-        }
+        // Everything is done in the SCRIPT_DATA interface, it tries script types in priority order
+        unit_type[unit_index]->script = SCRIPT_DATA::loadScriptFile("scripts\\" + uprname);
     }
 
 

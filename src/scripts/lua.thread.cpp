@@ -496,6 +496,7 @@ namespace TA3D
             sleeping = false;
             sleep_time = 0.0f;
             waiting = false;
+            signal_mask = 0;
             pMutex.unlock();
             return this;
         }

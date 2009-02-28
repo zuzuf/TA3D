@@ -19,6 +19,7 @@
 #define __UNIT_SCRIPT_INTERFACE_H__
 
 # include "script.interface.h"
+# include "../misc/hash_table.h"
 
 namespace TA3D
 {
@@ -28,12 +29,16 @@ namespace TA3D
     class UNIT_SCRIPT_INTERFACE : public SCRIPT_INTERFACE
     {
     protected:
-        uint32      unitID;
+        uint32                  unitID;
+        UTILS::cHashTable<int>  return_value;
     public:
 
         virtual void setUnitID(uint32 ID) = 0;
 
         virtual int getNbPieces() = 0;
+
+        int getReturnValue(const String &name);
+        void setReturnValue(const String &name, int value);
 
     public:
         static UNIT_SCRIPT_INTERFACE *instanciate( SCRIPT_DATA *data );

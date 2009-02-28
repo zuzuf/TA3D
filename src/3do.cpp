@@ -2942,12 +2942,12 @@ namespace TA3D
 
     float OBJECT::print_struct(float Y, float X, TA3D::Font *fnt)
     {
-        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFF, format("%s [%d]", name.c_str(),script_index));
-        gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFF, format("(v:%d",   nb_vtx));
-        gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFF, format(",p:%d",   nb_prim));
-        gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFF, format(",t:%d",   nb_t_index));
-        gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFF, format(",l:%d",   nb_l_index));
-        gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFF, format(",p:%d)",  nb_p_index));
+        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, format("%s [%d]", name.c_str(),script_index));
+        gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, format("(v:%d",   nb_vtx));
+        gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, format(",p:%d",   nb_prim));
+        gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, format(",t:%d",   nb_t_index));
+        gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, format(",l:%d",   nb_l_index));
+        gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, format(",p:%d)",  nb_p_index));
         float nwY = Y + 8.0f;
         if (child)
             nwY = child->print_struct(nwY, X + 8.0f, fnt);
