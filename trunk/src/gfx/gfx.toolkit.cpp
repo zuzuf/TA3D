@@ -249,6 +249,8 @@ namespace TA3D
             }
             break;
         case 16:
+            dy >>= 1;
+            x1 >>= 1;
             for(int y = 0 ; y < h1 ; y++)
             {
                 int sy = (y0 + (y * dh >> 16)) * in->pitch >> 1;
@@ -264,10 +266,11 @@ namespace TA3D
             }
             break;
         case 24:
+            x1 *= 3;
             for(int y = 0 ; y < h1 ; y++)
             {
                 int sy = (y0 + (y * dh >> 16)) * in->pitch;
-                byte *d = ((byte*)out->pixels) + dy + x1 * 3;
+                byte *d = ((byte*)out->pixels) + dy + x1;
                 int sx = x0 << 16;
                 for(int x = 0 ; x < w1 ; x++)
                 {
@@ -281,18 +284,149 @@ namespace TA3D
             }
             break;
         case 32:
+            x1 <<= 2;
             for(int y = 0 ; y < h1 ; y++)
             {
-                int sy = (y0 + (y * dh >> 16)) * in->pitch >> 2;
-                uint32 *d = ((uint32*)out->pixels) + dy + x1;
+                int sy = (y0 + (y * dh >> 16)) * in->pitch;
+                uint32 *d = (uint32*) (((byte*)out->pixels) + dy + x1);
+                int sx = x0 << 16;
+                for(int x = 0 ; x < w1 ; x++)
+                {
+                    *d++ = *(uint32*)(((byte*)in->pixels) + sy + ((sx >> 16) << 2));
+                    sx += dw;
+                }
+                dy += out->pitch;
+            }
+            break;
+        };
+    }
+
+    void stretch_blit_smooth( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
+    {
+        w0--;
+        h0--;
+        sint32 dw = (w0 << 16) / w1;
+        sint32 dh = (h0 << 16) / h1;
+        int dy = y1 * out->pitch;
+        switch(in->format->BitsPerPixel)
+        {
+        case 8:
+            for(int y = 0 ; y < h1 ; y++)
+            {
+                int gy = y * dh;
+                int sy = (y0 + (gy >> 16)) * in->pitch;
+                byte *d = ((byte*)out->pixels) + x1 + dy;
                 int sx = sy + x0 << 16;
                 for(int x = 0 ; x < w1 ; x++)
                 {
-                    *d = ((uint32*)in->pixels)[sx >> 16];
-                    d++;
+                    byte *ref = ((byte*)in->pixels) + (sx >> 16);
+                    int c0 = *ref++, c1, c2, c3;
+                    c1 = *ref;
+                    ref += in->pitch - 1;
+                    c2 = *ref++;
+                    c3 = *ref;
+
+                    c0 += (c1 - c0) * (sx & 0xFFFF) >> 16;
+                    c2 += (c3 - c2) * (sx & 0xFFFF) >> 16;
+                    *d++ = c0 + ((c2 - c0) * (gy & 0xFFFF) >> 16);
                     sx += dw;
                 }
-                dy += out->pitch >> 2;
+                dy += out->pitch;
+            }
+            break;
+        case 16:
+            LOG_DEBUG(LOG_PREFIX_GFX << "stretch_blit_smooth doesn't support 16 bits images");
+            break;
+        case 24:
+            x1 *= 3;
+            for(int y = 0 ; y < h1 ; y++)
+            {
+                int gy = y * dh;
+                int sy = (y0 + (gy >> 16)) * in->pitch;
+                byte *d = ((byte*)out->pixels) + dy + x1;
+                int sx = x0 << 16;
+                for(int x = 0 ; x < w1 ; x++)
+                {
+                    byte *ref = ((byte*)in->pixels) + sy + (sx >> 16) * 3;
+                    int r0 = *ref++, r1, r2, r3;
+                    int g0 = *ref++, g1, g2, g3;
+                    int b0 = *ref++, b1, b2, b3;
+                    r1 = *ref++;
+                    g1 = *ref++;
+                    b1 = *ref;
+                    ref += in->pitch - 5;
+                    r2 = *ref++;
+                    g2 = *ref++;
+                    b2 = *ref++;
+                    r3 = *ref++;
+                    g3 = *ref++;
+                    b3 = *ref;
+
+                    r0 += (r1 - r0) * (sx & 0xFFFF) >> 16;
+                    r2 += (r3 - r2) * (sx & 0xFFFF) >> 16;
+                    *d++ = r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16);
+
+                    g0 += (g1 - g0) * (sx & 0xFFFF) >> 16;
+                    g2 += (g3 - g2) * (sx & 0xFFFF) >> 16;
+                    *d++ = g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16);
+
+                    b0 += (b1 - b0) * (sx & 0xFFFF) >> 16;
+                    b2 += (b3 - b2) * (sx & 0xFFFF) >> 16;
+                    *d++ = b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16);
+                    sx += dw;
+                }
+                dy += out->pitch;
+            }
+            break;
+        case 32:
+            x1 <<= 2;
+            for(int y = 0 ; y < h1 ; y++)
+            {
+                int gy = y * dh;
+                int sy = (y0 + (gy >> 16)) * in->pitch;
+                byte *d = ((byte*)out->pixels) + dy + x1;
+                int sx = x0 << 16;
+                for(int x = 0 ; x < w1 ; x++)
+                {
+                    byte *ref = ((byte*)in->pixels) + sy + ((sx >> 16) << 2);
+
+                    int r0 = *ref++, r1, r2, r3;
+                    int g0 = *ref++, g1, g2, g3;
+                    int b0 = *ref++, b1, b2, b3;
+                    int a0 = *ref++, a1, a2, a3;
+                    r1 = *ref++;
+                    g1 = *ref++;
+                    b1 = *ref++;
+                    a1 = *ref;
+                    ref += in->pitch - 7;
+                    r2 = *ref++;
+                    g2 = *ref++;
+                    b2 = *ref++;
+                    a2 = *ref++;
+                    r3 = *ref++;
+                    g3 = *ref++;
+                    b3 = *ref++;
+                    a3 = *ref;
+
+                    r0 += (r1 - r0) * (sx & 0xFFFF) >> 16;
+                    r2 += (r3 - r2) * (sx & 0xFFFF) >> 16;
+                    *d++ = r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16);
+
+                    g0 += (g1 - g0) * (sx & 0xFFFF) >> 16;
+                    g2 += (g3 - g2) * (sx & 0xFFFF) >> 16;
+                    *d++ = g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16);
+
+                    b0 += (b1 - b0) * (sx & 0xFFFF) >> 16;
+                    b2 += (b3 - b2) * (sx & 0xFFFF) >> 16;
+                    *d++ = b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16);
+
+                    a0 += (a1 - a0) * (sx & 0xFFFF) >> 16;
+                    a2 += (a3 - a2) * (sx & 0xFFFF) >> 16;
+                    *d++ = a0 + ((a2 - a0) * (gy & 0xFFFF) >> 16);
+
+                    sx += dw;
+                }
+                dy += out->pitch;
             }
             break;
         };
