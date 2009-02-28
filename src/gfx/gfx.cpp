@@ -1148,12 +1148,6 @@ namespace TA3D
         glTexImage2D(GL_TEXTURE_2D, 0, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
         return gl_tex;
-//
-//        SDL_Surface* tmp = create_surface(w, h);
-//        SDL_FillRect( tmp, NULL, 0 );
-//        GLuint tex = make_texture( tmp, filter_type, clamp );
-//        SDL_FreeSurface( tmp );
-//        return tex;
     }
 
     GLuint GFX::create_texture_RGB32F(int w, int h, byte filter_type, bool clamp )
