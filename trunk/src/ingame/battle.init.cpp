@@ -656,35 +656,35 @@ namespace TA3D
                 const int simulation_h = 256;
 			    water_sim2 = gfx->create_texture_RGBA16F(simulation_w, simulation_h, FILTER_LINEAR, false);
                 float *data = new float[ simulation_w * simulation_h * 4 ];
-                for (int y = 0 ; y < simulation_h ; ++y)
-                    for (int x = 0 ; x < simulation_w ; ++x)
-                    {
-                        data[(y * simulation_w + x) * 4] = 0.0f;
-                        data[(y * simulation_w + x) * 4 + 1] = 0.0f;
-                        data[(y * simulation_w + x) * 4 + 2] = 0.0f;
-                        data[(y * simulation_w + x) * 4 + 3] = 0.0f;
-                    }
-                for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
+                int water_map_size = simulation_w * simulation_h;
+                int water_map_size4 = simulation_w * simulation_h * 4;
+                memset(data, 0, water_map_size4);
+
+                for( int i = 0 ; i < 500 ; i += 1 + (rand() % 16) )                    // Initialize it with multiscale data
                 {
-                    for( int y = 0 ; y < simulation_h ; y++ )
-                        for( int x = 0 ; x < simulation_w ; x++ )
-                            data[(y * simulation_w + x) * 4 + 1] += ((rand() % 2000) * 0.000001f - 0.001f) * 5.0f * sqrtf(500 - i);
-                    for( int y = 0 ; y < simulation_h ; y++ )
-                        for( int x = 0 ; x < simulation_w ; x++ )
-                            data[(y * simulation_w + x) * 4 + 1] = (data[(y * simulation_w + x) * 4 + 1]
-                                                                  + data[(y * simulation_w + ((x+1) % simulation_w)) * 4 + 1]
-                                                                  + data[(((y+1) % simulation_h) * simulation_w + x) * 4 + 1]
-                                                                  + data[(y * simulation_w + ((x + simulation_w - 1) % simulation_w)) * 4 + 1]
-                                                                  + data[(((y + simulation_w - 1) % simulation_h) * simulation_w + x) * 4 + 1]) * 0.2f;
+                    float coef = 5.0f * sqrtf(500 - i);
+                    for( int e = 0 ; e < water_map_size ; e++ )
+                        data[(e << 2) + 1] += ((rand() % 2000) * 0.000001f - 0.001f) * coef;
+                    for( int e = 0 ; e < water_map_size ; e++ )
+                    {
+                        int offset = (e << 2) | 1;
+                        data[offset] = (data[offset]
+                                          + data[(offset + 4) % water_map_size4]
+                                          + data[(offset + simulation_w * 4) % water_map_size4]
+                                          + data[(offset + water_map_size4 - 4) % water_map_size4]
+                                          + data[(offset + water_map_size4 - simulation_w * 4) % water_map_size4]
+                                          + data[(offset + 4 + simulation_w * 4) % water_map_size4]
+                                          + data[(offset + 4 + water_map_size4 - simulation_w * 4) % water_map_size4]
+                                          + data[(offset + water_map_size4 - 4 + simulation_w * 4) % water_map_size4]
+                                          + data[(offset + water_map_size4 - 4 - simulation_w * 4) % water_map_size4]) * 0.1111111111111111111111f;
+                    }
                 }
                 float sum = 0.0f;
-                for( int y = 0 ; y < simulation_h ; y++ )
-                    for( int x = 0 ; x < simulation_w ; x++ )
-                        sum += data[(y * simulation_w + x) * 4 + 1];
+                for( int e = 0 ; e < water_map_size ; e++ )
+                    sum += data[(e << 2) | 1];
                 sum /= simulation_h * simulation_w;
-                for( int y = 0 ; y < simulation_h ; y++ )
-                    for( int x = 0 ; x < simulation_w ; x++ )
-                        data[(y * simulation_w + x) * 4 + 1] -= sum;
+                for( int e = 0 ; e < water_map_size ; e++ )
+                    data[(e << 2) | 1] -= sum;
                 for (int y = 0 ; y < simulation_h ; ++y)
                     for (int x = 0 ; x < simulation_w ; ++x)
                         data[(y * simulation_w + x) * 4 + 3] = data[(y * simulation_w + x) * 4 + 1];
