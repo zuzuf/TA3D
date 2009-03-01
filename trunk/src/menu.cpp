@@ -1062,7 +1062,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                         << side_id << " "
                                         << ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FIX_BLANK(game_data.ai_level[i]))
                                         << " " << game_data.metal[i] << " " << game_data.energy[i] << " "
-                                        << FIX_BLANK(game_data.player_names[i]) << " " << game_data.ready[i];
+                                        << FIX_BLANK(game_data.player_names[i]) << " " << (int)game_data.ready[i];
                                     network_manager.sendSpecial( msg, -1, from);
 
                                     GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.team%d", i));
