@@ -1055,12 +1055,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                 network_manager.sendSpecial(format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
                                 for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
                                 {
-                                    if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we wan't update
-                                    String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
+                                    if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
+                                    String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
                                     int side_id = String::FindInList(side_str, game_data.player_sides[i]);
                                     msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
                                         << side_id << " "
-                                        << ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? String("[C]") : FIX_BLANK(game_data.ai_level[i]))
+                                        << ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FIX_BLANK(game_data.ai_level[i]))
                                         << " " << game_data.metal[i] << " " << game_data.energy[i] << " "
                                         << FIX_BLANK(game_data.player_names[i]) << " " << game_data.ready[i];
                                     network_manager.sendSpecial( msg, -1, from);
@@ -1354,20 +1354,19 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == n_id)) // Server doesn't accept someone telling him what to do
                             {
                                 int side_id  = params[3].toInt32();
-                                int ai_level = params[4].toInt32();
                                 int metal_q  = params[5].toInt32();
                                 int energy_q = params[6].toInt32();
                                 bool ready   = params[8].toInt32();
                                 game_data.player_network_id[i] = n_id;
                                 game_data.player_sides[i] = side_str[ side_id ];
-                                game_data.ai_level[i] = ai_level >= 0 ? ai_level : 0;
+                                game_data.ai_level[i] = UNFIX_BLANK( params[4] );
                                 game_data.metal[i] = metal_q;
                                 game_data.energy[i] = energy_q;
                                 game_data.player_names[i] = UNFIX_BLANK( params[7] );
                                 game_data.ready[i] = ready;
-                                if (n_id < 0 && ai_level >= 0)
+                                if (n_id < 0 && game_data.ai_level[i].size() >= 4)
                                     game_data.player_control[i] = PLAYER_CONTROL_REMOTE_AI;     // AIs are on the server, no need to replicate them
-                                else if (n_id < 0 && ai_level < 0)
+                                else if (n_id < 0 && game_data.ai_level[i].size() < 4)
                                     game_data.player_control[i] = PLAYER_CONTROL_NONE;
                                 else
                                     game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
