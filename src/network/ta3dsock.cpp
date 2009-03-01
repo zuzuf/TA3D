@@ -490,10 +490,9 @@ namespace TA3D
                 break;
             case EVENT_UNIT_SCRIPT:
                 putShort(event->opt1);
-                putShort(event->opt2);
-                putLong(event->opt3);
-                putLong(event->opt4);
-                for (unsigned int i = 0 ; i < event->opt4 ; ++i)
+                putByte(event->opt2);
+                putByte(event->opt3);
+                for (unsigned int i = 0 ; i < event->opt3 ; ++i)
                     putLong(((sint32*)(event->str))[i]);
                 break;
             case EVENT_UNIT_DEATH:
@@ -735,10 +734,9 @@ namespace TA3D
                 break;
             case EVENT_UNIT_SCRIPT:
                 event->opt1 = getShort();
-                event->opt2 = getShort();
-                event->opt3 = getLong();
-                event->opt4 = getLong();
-                for (unsigned int i = 0 ; i < event->opt4 ; ++i)
+                event->opt2 = getByte();
+                event->opt3 = getByte();
+                for (unsigned int i = 0 ; i < event->opt3 ; ++i)
                     ((sint32*)(event->str))[i] = getLong();
                 break;
             case EVENT_UNIT_DEATH:

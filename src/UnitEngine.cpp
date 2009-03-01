@@ -5232,18 +5232,16 @@ script_exec:
         if (!script || f_name.empty())
             return -2;
 
-#warning TODO: fix script network synchronization code
-//        if (local && network_manager.isConnected() ) // Send synchronization event
-//        {
-//            struct event event;
-//            event.type = EVENT_UNIT_SCRIPT;
-//            event.opt1 = idx;
-//            event.opt2 = force;
-//            event.opt3 = id;
-//            event.opt4 = nb_param;
-//            memcpy( event.str, param, sizeof(int) * nb_param );
-//            network_manager.sendEvent( &event );
-//        }
+        if (local && network_manager.isConnected() ) // Send synchronization event
+        {
+            struct event event;
+            event.type = EVENT_UNIT_SCRIPT;
+            event.opt1 = idx;
+            event.opt2 = id;
+            event.opt3 = nb_param;
+            memcpy( event.str, param, sizeof(int) * nb_param );
+            network_manager.sendEvent( &event );
+        }
 
         SCRIPT_INTERFACE *newThread = script->fork( f_name, param, nb_param );
 
