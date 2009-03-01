@@ -3616,7 +3616,7 @@ namespace TA3D
                             {
                                 int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-                                    units.unit[i].launch_script(params[2]);
+                                    units.unit[i].launch_script( UNIT_SCRIPT_INTERFACE::get_script_id(params[2]) );
                             }
                             units.unlock();
                         }

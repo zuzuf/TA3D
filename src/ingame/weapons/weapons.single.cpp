@@ -337,9 +337,9 @@ namespace TA3D
                     Vector3D D = V * RotateY(-units.unit[hit_idx].Angle.y * DEG2RAD);
                     D.unit();
                     int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
-                    units.unit[hit_idx].launch_script("hitbyweapon", 2, param);
+                    units.unit[hit_idx].launch_script(SCRIPT_HitByWeapon, 2, param);
 
-                    units.unit[hit_idx].attacked=true;
+                    units.unit[hit_idx].attacked = true;
                 }
                 units.unit[hit_idx].unlock();
             }
@@ -493,9 +493,9 @@ namespace TA3D
                                     Vector3D D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
                                     D.unit();
                                     int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
-                                    units.unit[t_idx].launch_script("hitbyweapon", 2, param);
+                                    units.unit[t_idx].launch_script( SCRIPT_HitByWeapon, 2, param);
 
-                                    units.unit[t_idx].attacked=true;
+                                    units.unit[t_idx].attacked = true;
                                 }
                                 units.unit[t_idx].unlock();
                             }

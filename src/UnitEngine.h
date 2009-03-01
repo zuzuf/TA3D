@@ -128,50 +128,8 @@ namespace TA3D
         }
     };
 
-#define SCRIPT_QueryPrimary		0x00
-#define SCRIPT_AimPrimary		0x01
-#define SCRIPT_FirePrimary		0x02
-#define SCRIPT_QuerySecondary	0x03
-#define SCRIPT_AimSecondary		0x04
-#define SCRIPT_FireSecondary	0x05
-#define SCRIPT_QueryTertiary	0x06
-#define SCRIPT_AimTertiary		0x07
-#define SCRIPT_FireTertiary		0x08
-#define SCRIPT_TargetCleared	0x09
-#define SCRIPT_stopbuilding		0x0A
-#define SCRIPT_stop				0x0B
-#define SCRIPT_startbuilding	0x0C
-#define SCRIPT_go				0x0D
-#define SCRIPT_killed			0x0E
-#define SCRIPT_StopMoving		0x0F
-#define SCRIPT_Deactivate		0x10
-#define SCRIPT_Activate			0x11
-#define SCRIPT_create			0x12
-#define SCRIPT_MotionControl	0x13
-#define SCRIPT_startmoving		0x14
-#define SCRIPT_MoveRate1		0x15
-#define SCRIPT_MoveRate2		0x16
-#define SCRIPT_MoveRate3		0x17
-#define SCRIPT_RequestState		0x18
-#define SCRIPT_TransportPickup	0x19
-#define SCRIPT_TransportDrop	0x1A
-#define SCRIPT_QueryTransport	0x1B
-#define SCRIPT_BeginTransport	0x1C
-#define SCRIPT_EndTransport		0x1D
-#define SCRIPT_SetSpeed			0x1E
-#define SCRIPT_SetDirection		0x1F
-#define SCRIPT_SetMaxReloadTime	0x20
-#define SCRIPT_QueryBuildInfo	0x21
-#define SCRIPT_SweetSpot		0x22
-#define SCRIPT_RockUnit			0x23
-#define SCRIPT_QueryLandingPad	0x24
-#define SCRIPT_setSFXoccupy     0x25
-#define NB_SCRIPT				0x26
-
     class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
     {
-    public:
-        static String get_script_name(int id);
     public:
         //! functions called from scripts (COB/BOS and Lua) (see unit.script.func module in scripts)
         void script_explode(int obj, int explosion_type);
@@ -241,11 +199,9 @@ namespace TA3D
 
         void draw_shadow_basic(const Vector3D& Dir, MAP *map);
 
-        int launch_script(const String &f_name, int nb_param = 0, int *param = NULL);			// Start a script as a separate "thread" of the unit
         int launch_script(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
 
         int run_script_function(const int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
-        int run_script_function(const String &f_name, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
 
         void reset_script();
 

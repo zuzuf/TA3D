@@ -49,4 +49,52 @@ namespace TA3D
         else
             return_value.insertOrUpdate(String::ToUpper(name), value);
     }
+
+    const char *UNIT_SCRIPT_INTERFACE::script_name[] =
+        {
+            "QueryPrimary","AimPrimary","FirePrimary",
+            "QuerySecondary","AimSecondary","FireSecondary",
+            "QueryTertiary","AimTertiary","FireTertiary",
+            "TargetCleared","StopBuilding","Stop",
+            "StartBuilding","Go","Killed",
+            "StopMoving","Deactivate","Activate",
+            "Create","MotionControl","startmoving",
+            "MoveRate1","MoveRate2","MoveRate3",
+            "RequestState","TransportPickup","TransportDrop",
+            "QueryTransport","BeginTransport","EndTransport",
+            "SetSpeed","SetDirection","SetMaxReloadTime",
+            "QueryBuildInfo","SweetSpot","RockUnit",
+            "QueryLandingPad","SetSFXoccupy", "HitByWeapon",
+            "QueryNanoPiece", "AimFromPrimary", "AimFromSecondary",
+            "AimFromTertiary"
+        };
+
+    String UNIT_SCRIPT_INTERFACE::get_script_name(int id)
+    {
+        if (id < 0) return String();
+        if (id >= NB_SCRIPT)            // Special case for weapons
+        {
+            int weaponID = (id - NB_SCRIPT) / 4 + 4;
+            switch((id - NB_SCRIPT) % 4)
+            {
+            case 0:         // QueryWeapon
+                return format("QueryWeapon%d", weaponID);
+            case 1:         // AimWeapon
+                return format("AimWeapon%d", weaponID);
+            case 2:         // AimFromWeapon
+                return format("AimFromWeapon%d", weaponID);
+            case 3:         // FireWeapon
+                return format("FireWeapon%d", weaponID);
+            };
+        }
+        return script_name[id];
+    }
+
+    int UNIT_SCRIPT_INTERFACE::get_script_id(const String &name)
+    {
+        for(int id = 0 ; id < NB_SCRIPT ; id++)
+            if ( strcasecmp(script_name[id], name.c_str()) == 0)
+                return id;
+        return -1;
+    }
 }

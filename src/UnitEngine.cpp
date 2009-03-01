@@ -74,28 +74,6 @@ namespace TA3D
         play_sound( "build" );
     }
 
-    String UNIT::get_script_name(int id)
-    {
-        const char *script_name[]=
-        {
-            "QueryPrimary","AimPrimary","FirePrimary",
-            "QuerySecondary","AimSecondary","FireSecondary",
-            "QueryTertiary","AimTertiary","FireTertiary",
-            "TargetCleared","stopbuilding","stop",
-            "startbuilding","go","killed",
-            "StopMoving","Deactivate","Activate",
-            "create","MotionControl","startmoving",
-            "MoveRate1","MoveRate2","MoveRate3",
-            "RequestState","TransportPickup","TransportDrop",
-            "QueryTransport","BeginTransport","EndTransport",
-            "SetSpeed","SetDirection","SetMaxReloadTime",
-            "QueryBuildInfo","SweetSpot","RockUnit",
-            "QueryLandingPad","setSFXoccupy"
-        };
-        return script_name[id];
-    }
-
-
     void UNIT::start_mission_script(int mission_type)
     {
         if (NULL == script)
@@ -193,11 +171,7 @@ namespace TA3D
 
     int UNIT::run_script_function(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
     {
-        return run_script_function( get_script_name(id), nb_param, param);
-    }
-
-    int UNIT::run_script_function(const String &f_name, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
-    {
+        String f_name( UNIT_SCRIPT_INTERFACE::get_script_name(id) );
         MutexLocker mLocker( pMutex );
         if (script)
             return script->execute(f_name, param, nb_param);
@@ -1108,26 +1082,26 @@ namespace TA3D
                 {
                     unit_manager.unit_type[type_id]->emitting_points_computed = true;
                     int param[] = { -1 };
-                    run_script_function( "QueryNanoPiece", 1, param );
+                    run_script_function( SCRIPT_QueryNanoPiece, 1, param );
                     int first = param[0];
                     int i = 0;
                     do
                     {
                         model->obj.compute_emitter_point( param[ 0 ] );
-                        run_script_function( "QueryNanoPiece", 1, param );
+                        run_script_function( SCRIPT_QueryNanoPiece, 1, param );
                         ++i;
                     } while( first != param[0] && i < 1000 );
                 }
 
                 if (build_percent_left == 0.0f && mission != NULL && port[ INBUILDSTANCE ] != 0 && local )
                 {
-                    if (c_time>=0.125f)
+                    if (c_time >= 0.125f)
                     {
-                        reverse=(mission->mission==MISSION_RECLAIM);
-                        c_time=0.0f;
-                        c_part=true;
-                        upos.x=upos.y=upos.z=0.0f;
-                        upos=upos+Pos;
+                        reverse = (mission->mission==MISSION_RECLAIM);
+                        c_time = 0.0f;
+                        c_part = true;
+                        upos.x = upos.y = upos.z = 0.0f;
+                        upos = upos + Pos;
                         if (mission->p != NULL && (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD
                                                    || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_CAPTURE))
                         {
@@ -1897,41 +1871,41 @@ namespace TA3D
             weapon[i].delay += dt;
             weapon[i].time += dt;
 
-            String Query_script;
-            String Aim_script;
-            String AimFrom_script;
-            String Fire_script;
+            int Query_script;
+            int Aim_script;
+            int AimFrom_script;
+            int Fire_script;
             switch(i)
             {
                 case 0:
-                    Query_script = "QueryPrimary";
-                    Aim_script = "AimPrimary";
-                    AimFrom_script = "AimFromPrimary";
-                    Fire_script = "FirePrimary";
+                    Query_script = SCRIPT_QueryPrimary;
+                    Aim_script = SCRIPT_AimPrimary;
+                    AimFrom_script = SCRIPT_AimFromPrimary;
+                    Fire_script = SCRIPT_FirePrimary;
                     break;
                 case 1:
-                    Query_script = "QuerySecondary";
-                    Aim_script = "AimSecondary";
-                    AimFrom_script = "AimFromSecondary";
-                    Fire_script = "FireSecondary";
+                    Query_script = SCRIPT_QuerySecondary;
+                    Aim_script = SCRIPT_AimSecondary;
+                    AimFrom_script = SCRIPT_AimFromSecondary;
+                    Fire_script = SCRIPT_FireSecondary;
                     break;
                 case 2:
-                    Query_script = "QueryTertiary";
-                    Aim_script = "AimTertiary";
-                    AimFrom_script = "AimFromTertiary";
-                    Fire_script = "FireTertiary";
+                    Query_script = SCRIPT_QueryTertiary;
+                    Aim_script = SCRIPT_AimTertiary;
+                    AimFrom_script = SCRIPT_AimFromTertiary;
+                    Fire_script = SCRIPT_FireTertiary;
                     break;
                 default:
-                    Query_script = format("QueryWeapon%d",i+1);
-                    Aim_script = format("AimWeapon%d",i+1);
-                    AimFrom_script = format("AimFromWeapon%d",i+1);
-                    Fire_script = format("FireWeapon%d",i+1);
-            }
+                    Query_script = SCRIPT_QueryWeapon + (i - 3) * 4;
+                    Aim_script = SCRIPT_AimWeapon + (i - 3) * 4;
+                    AimFrom_script = SCRIPT_AimFromWeapon + (i - 3) * 4;
+                    Fire_script = SCRIPT_FireWeapon + (i - 3) * 4;
+            };
 
             switch ((weapon[i].state & 3))
             {
                 case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
-                    script->setReturnValue(Aim_script, 0);
+                    script->setReturnValue( UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
                     if (jump_commands)	break;
                     weapon[i].data = -1;
                     break;
@@ -2110,7 +2084,7 @@ namespace TA3D
                                     weapon[i].aim_dir = cosf(aiming[1] * TA2RAD) * (cosf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
                                                                                     + sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
                                                         + sinf(aiming[1] * TA2RAD) * IJ;
-                                readyToFire = script->getReturnValue( Aim_script );
+                                readyToFire = script->getReturnValue( UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script) );
                                 launch_script(Aim_script, 2, aiming);
                             }
                             else
@@ -2142,14 +2116,14 @@ namespace TA3D
                         {
                             weapon[i].state = WEAPON_FLAG_AIM;		// Pas assez d'énergie pour tirer / not enough energy to fire
                             weapon[i].data = -1;
-                            script->setReturnValue(Aim_script, 0);
+                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
                             break;
                         }
                         if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile && weapon[i].stock<=0)
                         {
                             weapon[i].state = WEAPON_FLAG_AIM;		// Plus rien pour tirer / nothing to fire
                             weapon[i].data = -1;
-                            script->setReturnValue(Aim_script, 0);
+                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
                             break;
                         }
                         int start_piece = run_script_function(Query_script);
@@ -2202,7 +2176,7 @@ namespace TA3D
                         {
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             weapon[i].data = -1;
-                            script->setReturnValue(Aim_script, 0);
+                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
                             if (mission != NULL )
                                 mission->flags |= MISSION_FLAG_COMMAND_FIRED;
                             break;
@@ -2214,7 +2188,7 @@ namespace TA3D
                                 weapon[i].state = WEAPON_FLAG_AIM;
                                 weapon[i].data = -1;
                                 weapon[i].time = 0.0f;
-                                script->setReturnValue(Aim_script, 0);
+                                script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
                             }
                         }
                         else if (weapon[i].target != NULL || weapon[i].burst == 0)
@@ -2222,7 +2196,7 @@ namespace TA3D
                             launch_script(SCRIPT_TargetCleared);
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             weapon[i].data = -1;
-                            script->setReturnValue(Aim_script, 0);
+                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
                         }
                     }
                     else
@@ -5249,13 +5223,10 @@ script_exec:
         pMutex.unlock();
     }
 
-    int UNIT::launch_script(const int id, int nb_param, int *param)			        // Start a script as a separate "thread" of the unit
+    int UNIT::launch_script(const int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
     {
-        return launch_script( get_script_name(id), nb_param, param);
-    }
+        String f_name( UNIT_SCRIPT_INTERFACE::get_script_name(id) );
 
-    int UNIT::launch_script(const String &f_name, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
-    {
         MutexLocker locker(pMutex);
 
         if (!script || f_name.empty())
