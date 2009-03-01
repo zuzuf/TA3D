@@ -696,33 +696,71 @@ namespace TA3D
                 break;
         }
 
-        //Chargement de l'image
-        switch(bmp->format->BitsPerPixel)
+#ifdef TA3D_PLATFORM_WINDOWS
+        bool softMipMaps = build_mipmaps && !can_useGenMipMaps;
+#else
+        bool softMipMaps = false;
+#endif
+
+        //Upload image data to OpenGL
+        if (!softMipMaps)
         {
-        case 8:
-            if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-                gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
-            else
-                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
-            break;
-        case 24:
-            if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-                gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
-            else
-                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
-            break;
-        case 32:
-            if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-                gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
-            else
-                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
-            break;
-        default:
-            LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
-        };
+            switch(bmp->format->BitsPerPixel)
+            {
+            case 8:
+                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
+                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
+                else
+                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
+                break;
+            case 24:
+                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
+                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
+                else
+                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
+                break;
+            case 32:
+                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
+                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
+                else
+                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
+                break;
+            default:
+                LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
+            };
+        }
+        else            // Generate mipmaps here since other methods are unreliable
+        {
+            int w = bmp->w << 1;
+            int h = bmp->h << 1;
+            int level = 0;
+            do
+            {
+                w = Math::Max( w / 2, 1 );
+                h = Math::Max( h / 2, 1 );
+                SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
+                stretch_blit(bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, w, h);
+                switch(tmp->format->BitsPerPixel)
+                {
+                case 8:
+                    glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
+                    break;
+                case 24:
+                    glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp->pixels);
+                    break;
+                case 32:
+                    glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
+                    break;
+                default:
+                    LOG_DEBUG("SDL_Surface format not supported by texture loader: " << tmp->format->BitsPerPixel << " bpp" );
+                };
+                SDL_FreeSurface( tmp );
+                level++;
+            } while(w > 1 || h > 1);
+        }
 
         if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
-            glGenerateMipmapEXT( GL_TEXTURE_2D);
+            glGenerateMipmapEXT(GL_TEXTURE_2D);
 
         if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
             use_mipmapping(true);
