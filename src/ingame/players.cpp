@@ -184,8 +184,6 @@ namespace TA3D
         if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected())
         {
             last_ticksynced = units.current_tick;
-            uint32 nbTCP(0);
-            uint32 nbTotal(0);
 
             units.lock();
             for (int e = 0; e < units.nb_unit; ++e)
@@ -229,43 +227,18 @@ namespace TA3D
                         if (g_ta3d_network->isRemoteHuman(f))
                             latest_sync = Math::Min(latest_sync, units.unit[i].last_synctick[f]);
 
-                    ++nbTotal;
-
                     bool sync_needed = need_sync(sync, units.unit[i].previous_sync);
 
-                    if ((g_ta3d_network->isTCPonly() && sync_needed)
-                        || (latest_sync < units.unit[i].previous_sync.timestamp - 10 && sync_needed)
-                        || latest_sync < units.unit[i].previous_sync.timestamp - 100
-                        || units.unit[i].previous_sync.flags != sync.flags
-                        || units.unit[i].previous_sync.hp != sync.hp
-                        || ( units.unit[i].previous_sync.build_percent_left != sync.build_percent_left && sync.build_percent_left == 0.0f ) )
-                    {		// We have to sync now
-                        network_manager.sendSyncTCP(&sync);
+                    if (sync_needed)
+                    {			// Don't send what isn't needed
+                        network_manager.sendSync( &sync );
                         units.unit[i].previous_sync = sync;
-                        if (latest_sync < units.unit[i].previous_sync.timestamp - 10)
-                            ++nbTCP;
-                        //					LOG_DEBUG("sending TCP sync packet!\n");
-                    }
-                    else
-                    {
-                        if (sync_needed)
-                        {			// Don't send what isn't needed
-                            network_manager.sendSync( &sync );
-                            units.unit[i].previous_sync = sync;
-                        }
                     }
                 }
                 units.unit[i].unlock();
                 units.lock();
             }
             units.unlock();
-
-            if (!g_ta3d_network->isTCPonly() && nbTCP * 10 > nbTotal)
-            {
-                network_manager.sendAll("TCPONLY"); // Tell everyone UDP is not enough reliable and switch to TCP only mode
-                g_ta3d_network->switchToTCPonly();
-            }
-
         }
     }
 

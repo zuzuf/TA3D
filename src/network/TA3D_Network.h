@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
-    
+
 #ifndef __TA3D__TA3D__NETWORK__H
 #define __TA3D__TA3D__NETWORK__H
 
@@ -30,7 +30,7 @@ namespace TA3D
 {
 
 
-    class TA3DNetwork : public ObjectSync 
+    class TA3DNetwork : public ObjectSync
     {
     private:
         class NetworkMessage
@@ -49,16 +49,11 @@ namespace TA3D
         GameData					*game_data;
 
         int							signal;
-        
-        bool                        TCPonly;        // Switch to TCP sync packets when UDP isn't reliable enough
 
     public:
 
         TA3DNetwork( AREA *area, GameData *game_data );
         ~TA3DNetwork();
-
-        bool isTCPonly()        {return TCPonly;}
-        bool switchToTCPonly()  {TCPonly = true; return true;}
 
         void set_signal( int s )	{	signal = s;	}
         int get_signal() const { return signal; }

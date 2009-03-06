@@ -40,11 +40,11 @@ namespace TA3D
     **
     **  outstanding problems
     **  1. the accept connection thread new/deletes too much
-    **  2. error messages in Socket do not work on windows (need to 
+    **  2. error messages in Socket do not work on windows (need to
     **     abstract this with WSAGetLastError() )
     **  3. on windows, cant convert from int* to size_t*
     **  4. probably several minor things on windows, need to build on windows
-    **  
+    **
     **  things to do
     **  1. platform specific errors in Socket
     **  2. fix the platform #ifdef directives
@@ -56,7 +56,7 @@ namespace TA3D
     **  Thread - 100% working/completed (but needs windows testing)
     **  Network - thread procs unfinished, need high level policy for sends/connects
     **
-    ** 
+    **
     **  note - there is some platform specific code in
     **  thread.h
     **  SocketClass.h
@@ -83,13 +83,9 @@ namespace TA3D
         friend class GetFileThread;
         friend class AdminThread;
         friend class BroadCastThread;
-        friend class UDPThread;
 
         TA3DSock listen_socket;
         ListenThread listen_thread;
-
-        UDPSock	udp_socket;
-        UDPThread	udp_thread;
 
         TA3DSock *tohost_socket;//administrative channel
         AdminThread admin_thread;
@@ -163,9 +159,6 @@ namespace TA3D
         String httpRequest( const String &servername, const String &request );
         bool httpGetFile( const String &filename, const String &servername, const String &request );
 
-        int sendSpecialUDP( String msg, int src_id = -1, int dst_id = -1);
-        int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);
-
         int sendPing( int src_id = -1, int dst_id = -1 );
         int sendAll( String msg );
         int sendSpecial( String msg, int src_id = -1, int dst_id = -1);
@@ -173,9 +166,7 @@ namespace TA3D
         int sendChat(struct chat* chat, int src_id = -1);
         int sendOrder(struct order* order, int src_id = -1);
         int sendSync(struct sync* sync, int src_id = -1);
-        int sendSyncTCP(struct sync* sync, int src_id = -1);
         int sendEvent(struct event* event, int src_id = -1);
-        int sendEventUDP(struct event* event, int dst_id = -1);
         int sendFile(int player, const String &filename, const String &port);
 
         int dropPlayer(int num);
