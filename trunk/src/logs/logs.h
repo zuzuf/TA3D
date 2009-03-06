@@ -101,7 +101,6 @@
 # define LOG_PREFIX_NET_UDP           "[net::udp] "
 
 # define LOG_PREFIX_SOUND             "[audio] "
-# define LOG_PREFIX_FMOD              "[audio::fmod] "
 
 //@}
 

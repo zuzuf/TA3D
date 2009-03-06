@@ -70,7 +70,7 @@ void ReadFileParameter()
         HPIManager = new cHPIHandler();
         ta3dSideData.loadData();				// Refresh side data so we load the correct values
         delete sound_manager;
-        sound_manager = new TA3D::Audio::Manager(1.0f, 0.0f, 0.0f);
+        sound_manager = new TA3D::Audio::Manager();
         sound_manager->stopMusic();
         sound_manager->loadTDFSounds(true);
         sound_manager->loadTDFSounds(false);
@@ -100,8 +100,7 @@ void ReadFileParameter()
         HPIManager = new cHPIHandler();
         ta3dSideData.loadData();				// Refresh side data so we load the correct values
         delete sound_manager;
-        sound_manager = new TA3D::Audio::Manager(1.0f, 0.0f, 0.0f);
-        sound_manager->stopMusic();
+        sound_manager = new TA3D::Audio::Manager();
         sound_manager->loadTDFSounds(true);
         sound_manager->loadTDFSounds(false);
     }
