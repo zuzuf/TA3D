@@ -697,7 +697,7 @@ namespace TA3D
         }
 
 #ifdef TA3D_PLATFORM_WINDOWS
-        bool softMipMaps = build_mipmaps && !can_useGenMipMaps;
+        bool softMipMaps = build_mipmaps;
 #else
         bool softMipMaps = false;
 #endif
