@@ -91,31 +91,31 @@ namespace TA3D
 
     public:
         COB_VM();
-        virtual ~COB_VM();
+        /*virtual*/ ~COB_VM();
 
-        virtual void load( SCRIPT_DATA *data );
+        /*virtual*/ void load( SCRIPT_DATA *data );
 
-        virtual int run(float dt, bool alone = false);  // Run the script
+        /*virtual*/ int run(float dt, bool alone = false);  // Run the script
         int run(float dt, bool alone, int *pParam, int nParam);  // Run the script
 
         //! functions used to call/run functions
         void call(const int functionID, int *parameters = NULL, int nb_params = 0);
-        virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        virtual int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        virtual COB_VM *fork();
-        virtual COB_VM *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ COB_VM *fork();
+        /*virtual*/ COB_VM *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to save/restore scripts state
-        virtual void save_thread_state(gzFile file);
-        virtual void restore_thread_state(gzFile file);
+        /*virtual*/ void save_thread_state(gzFile file);
+        /*virtual*/ void restore_thread_state(gzFile file);
 
-        virtual void setUnitID(uint32 ID);
-        virtual int getNbPieces();
+        /*virtual*/ void setUnitID(uint32 ID);
+        /*virtual*/ int getNbPieces();
 
         //! debug functions
-        virtual void dumpDebugInfo();
+        /*virtual*/ void dumpDebugInfo();
     private:
         void init();
         void destroy();
