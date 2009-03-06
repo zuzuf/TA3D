@@ -34,7 +34,7 @@ namespace TA3D
     public:
 
         AI_SCRIPT();
-        virtual ~AI_SCRIPT();
+        /*virtual*/ ~AI_SCRIPT();
         void setPlayerID(int id);
         int getPlayerID();
         void setType(int type);
@@ -47,8 +47,8 @@ namespace TA3D
         void monitor();
 
     public:
-        virtual void register_functions();
-        virtual void register_info();
+        /*virtual*/ void register_functions();
+        /*virtual*/ void register_info();
     };
 
 }

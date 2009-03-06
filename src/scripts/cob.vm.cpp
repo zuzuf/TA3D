@@ -98,7 +98,7 @@ namespace TA3D
         if (caller == NULL && !alone)
         {
             clean();
-            for(int i = 0 ; i < childs.size() ; i++)
+            for(int i = childs.size() - 1 ; i >= 0 ; i--)
             {
                 int sig = childs[i]->run(dt);
                 if (sig > 0 || sig < -3)

@@ -32,29 +32,29 @@ namespace TA3D
     public:
 
         UNIT_SCRIPT();
-        virtual ~UNIT_SCRIPT();
+        /*virtual*/ ~UNIT_SCRIPT();
 
-        virtual void load(SCRIPT_DATA *data);
-        virtual int run(float dt, bool alone = false);                  // Run the script
+        /*virtual*/ void load(SCRIPT_DATA *data);
+        /*virtual*/ int run(float dt, bool alone = false);                  // Run the script
 
         //! functions used to call/run Lua functions
-        virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        virtual int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        virtual LUA_THREAD *fork();
-        virtual LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ LUA_THREAD *fork();
+        /*virtual*/ LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to save/restore scripts state
-        virtual void save_thread_state(gzFile file);
-        virtual void restore_thread_state(gzFile file);
+        /*virtual*/ void save_thread_state(gzFile file);
+        /*virtual*/ void restore_thread_state(gzFile file);
 
     public:
-        virtual void register_functions();
-        virtual void register_info();
+        /*virtual*/ void register_functions();
+        /*virtual*/ void register_info();
 
-        virtual void setUnitID(uint32 ID);
-        virtual int getNbPieces();
+        /*virtual*/ void setUnitID(uint32 ID);
+        /*virtual*/ int getNbPieces();
     };
 
 }

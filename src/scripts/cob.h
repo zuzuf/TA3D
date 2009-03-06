@@ -53,9 +53,9 @@ namespace TA3D
         */
         int findFromName(const String& name);
 
-        virtual void load(const String &filename);
+        /*virtual*/ void load(const String &filename);
 
-        virtual int identify(const String &name);
+        /*virtual*/ int identify(const String &name);
 
     public:
         int             nb_script;      // Nombre de scripts / Number of scripts
