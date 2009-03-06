@@ -42,26 +42,18 @@ namespace Audio
 
 
 
-    Manager::Manager( const float DistanceFactor, const float DopplerFactor, const float RolloffFactor )
-        :m_FMODRunning( false ), m_InBattle(false), pBattleTunesCount(0),
-        pFMODMusicSound( NULL ), pFMODMusicchannel( NULL ),
+    Manager::Manager()
+        :m_SDLMixerRunning( false ), m_InBattle(false), pBattleTunesCount(0),
+        pMusic( NULL ), pBasicSound( NULL ),
         pCurrentItemToPlay(-1)
     {
         pMinTicks = 500;
 
-        pBasicSound = NULL;
-        pBasicChannel = NULL;
         doStartUpAudio();
         InitInterface();
 
-        if (!m_FMODRunning)
+        if (!m_SDLMixerRunning)
             return;
-
-        # ifdef TA3D_PLATFORM_MINGW
-        FMOD_System_Set3DSettings(pFMODSystem, DopplerFactor, DistanceFactor, RolloffFactor);
-        # else
-        pFMODSystem->set3DSettings(DopplerFactor, DistanceFactor, RolloffFactor);
-        # endif
     }
 
 
@@ -278,8 +270,6 @@ namespace Audio
 
         file.close();
         doUpdatePlayListFiles();
-        if (!pPlaylist.empty())
-            doPlayMusic();
     }
 
 
@@ -288,7 +278,7 @@ namespace Audio
 
     void Manager::doShutdownAudio(const bool purgeLoadedData)
     {
-        if (m_FMODRunning) // only execute stop if we are running.
+        if (m_SDLMixerRunning) // only execute stop if we are running.
             doStopMusic();
 
         if (purgeLoadedData)
@@ -297,27 +287,17 @@ namespace Audio
             doPurgePlaylist(); // purge play list
         }
 
-        if (m_FMODRunning)
+        if (m_SDLMixerRunning)
         {
-#ifdef TA3D_PLATFORM_MINGW
-            if (pBasicSound)
-                FMOD_Sound_Release(pBasicSound);
-#else
-            if (pBasicSound)
-                pBasicSound->release();
-#endif
-            pBasicSound = NULL;
-            pBasicChannel = NULL;
-#ifdef TA3D_PLATFORM_MINGW
-            FMOD_System_Close(pFMODSystem);
-            FMOD_System_Release(pFMODSystem);
-#else
-            pFMODSystem->close(); // Commented because crashes with some FMOD versions, and since we're going to end the program ...
-            pFMODSystem->release();
-#endif
+            Mix_AllocateChannels(0);
+
+            Mix_CloseAudio();
             DeleteInterface();
-            m_FMODRunning = false;
+            m_SDLMixerRunning = false;
+            pMusic = NULL;
         }
+
+        SDL_QuitSubSystem( SDL_INIT_AUDIO );
     }
 
 
@@ -325,91 +305,39 @@ namespace Audio
 
     bool Manager::doStartUpAudio()
     {
-        uint32 FMODVersion;
-
-        pFMODMusicSound = NULL;
-        pFMODMusicchannel = NULL;
+        pMusic = NULL;
         fCounter = 0;
 
-        if (m_FMODRunning)
+        if (m_SDLMixerRunning)
             return true;
 
-#ifdef TA3D_PLATFORM_MINGW
-        if (FMOD_System_Create(&pFMODSystem) != FMOD_OK)
+        if (!SDL_WasInit(SDL_INIT_AUDIO))
+            if (SDL_InitSubSystem( SDL_INIT_AUDIO ))
+            {
+                LOG_ERROR(LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_AUDIO ) failed: " << SDL_GetError());
+                return false;
+            }
+
+        // 44.1KHz, signed 16bit, system byte order,
+        // stereo, 4096 bytes for chunks
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
         {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to System_Create, sound disabled");
+            LOG_ERROR(LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError());
             return false;
         }
 
-        if (FMOD_System_GetVersion(pFMODSystem, &FMODVersion) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Invalid Version, sound disabled");
-            return false;
-        }
+        nbChannels = 16;
+        Mix_AllocateChannels(nbChannels);
 
-        LOG_INFO(LOG_PREFIX_SOUND << "FMOD Version: "
-                << format("%x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16),
-                                      ((FMODVersion & 0xFF00) >> 8),
-                                      (FMODVersion & 0xFF)) );
+        SDL_version compiled_version;
+        const SDL_version *linked_version;
+        MIX_VERSION(&compiled_version);
+        LOG_DEBUG(LOG_PREFIX_SOUND << "compiled with SDL_mixer version: " << (int)compiled_version.major << "." << (int)compiled_version.minor << "." << (int)compiled_version.patch);
+        linked_version = Mix_Linked_Version();
+        LOG_DEBUG(LOG_PREFIX_SOUND << "running with SDL_mixer version: " << (int)linked_version->major << "." << (int)linked_version->minor << "." << (int)linked_version->patch);
 
-        if (FMOD_System_SetStreamBufferSize( pFMODSystem, 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to set Stream Buffer Size, sound disabled");
-            return false;
-        }
-
-#ifndef TA3D_NO_SOUND
-        // 32 channels, normal init, with 3d right handed.
-        if (FMOD_System_Init( pFMODSystem, 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to init FMOD, sound disabled");
-            return false;
-        }
-
-        m_FMODRunning = true;
+        m_SDLMixerRunning = true;
         doLoadPlaylist();
-#endif
-#else
-        if (FMOD::System_Create(&pFMODSystem) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to System_Create, sound disabled");
-            return false;
-        }
-        if (pFMODSystem->getVersion(&FMODVersion) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Invalid Version of FMOD, sound disabled");
-            return false;
-        }
-
-        LOG_INFO(LOG_PREFIX_SOUND << "FMOD Version: "
-                << format("%x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16),
-                                      ((FMODVersion & 0xFF00) >> 8),
-                                      (FMODVersion & 0xFF)) );
-
-        if (pFMODSystem->setStreamBufferSize( 32768, FMOD_TIMEUNIT_RAWBYTES) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to set Stream Buffer Size, sound disabled");
-            return false;
-        }
-
-#ifndef TA3D_NO_SOUND
-#ifdef TA3D_PLATFORM_LINUX
-        if (pFMODSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to init FMOD, sound disabled");
-            return false;
-        }
-#endif
-        // 32 channels, normal init, with 3d right handed.
-        if (pFMODSystem->init(32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to init FMOD, sound disabled");
-            return false;
-        }
-        m_FMODRunning = true;
-        doLoadPlaylist();
-#endif
-#endif
         return true;
     }
 
@@ -431,17 +359,11 @@ namespace Audio
 
     void Manager::doStopMusic()
     {
-        if (m_FMODRunning && pFMODMusicSound != NULL)
+        if (m_SDLMixerRunning && pMusic != NULL)
         {
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_Channel_Stop(pFMODMusicchannel);
-            FMOD_Sound_Release(pFMODMusicSound);
-            # else
-            pFMODMusicchannel->stop();
-            pFMODMusicSound->release();
-            # endif
-            pFMODMusicSound = NULL;
-            pFMODMusicchannel = NULL;
+            Mix_HaltMusic();
+            Mix_FreeMusic(pMusic);
+            pMusic = NULL;
         }
     }
 
@@ -472,17 +394,12 @@ namespace Audio
     void Manager::togglePauseMusic()
     {
         pMutex.lock();
-        if (m_FMODRunning && pFMODMusicchannel != NULL)
+        if (m_SDLMixerRunning && pMusic != NULL)
         {
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_BOOL paused;
-            FMOD_Channel_GetPaused(pFMODMusicchannel, &paused);
-            FMOD_Channel_SetPaused(pFMODMusicchannel, !paused);
-            # else
-            bool paused;
-            pFMODMusicchannel->getPaused(&paused);
-            pFMODMusicchannel->setPaused(!paused);
-            # endif
+            if (Mix_PausedMusic())
+                Mix_PauseMusic();
+            else
+                Mix_ResumeMusic();
         }
         pMutex.unlock();
     }
@@ -498,14 +415,8 @@ namespace Audio
 
     void Manager::doPauseMusic()
     {
-        if (m_FMODRunning && pFMODMusicchannel != NULL)
-        {
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_Channel_SetPaused(pFMODMusicchannel, true);
-            # else
-            pFMODMusicchannel->setPaused(true);
-            # endif
-        }
+        if (m_SDLMixerRunning && pMusic != NULL)
+            Mix_PauseMusic();
     }
 
 
@@ -590,7 +501,7 @@ namespace Audio
     {
         doStopMusic();
 
-        if (!m_FMODRunning)
+        if (!m_SDLMixerRunning)
             return;
 
         if (!exists(filename))
@@ -600,43 +511,22 @@ namespace Audio
             return;
         }
 
-#ifdef TA3D_PLATFORM_MINGW
+        pMusic = Mix_LoadMUS( filename.c_str() );
 
-        if (FMOD_System_CreateStream(pFMODSystem, filename.c_str(), FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
-                                     &pFMODMusicSound) != FMOD_OK)
+        if (pMusic == NULL)
         {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to create stream. (`" << filename << "`)");
+            LOG_ERROR(LOG_PREFIX_SOUND << "Failed to open music file : `" << filename << "` (" << Mix_GetError() << ")");
             return;
         }
 
-        if (FMOD_System_PlaySound( pFMODSystem, FMOD_CHANNEL_FREE, pFMODMusicSound,
-                                   false, &pFMODMusicchannel) != FMOD_OK )
+        if (Mix_PlayMusic(pMusic, 0) == -1)
         {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to playSound/stream.");
+            LOG_ERROR(LOG_PREFIX_SOUND << "Failed to play music file : `" << filename << "` (" << Mix_GetError() << ")");
             return;
         }
 
-        LOG_DEBUG(LOG_PREFIX_SOUND << "[FMOD] Playing music file " << filename);
-        FMOD_Channel_SetVolume( pFMODMusicchannel, 1.0f);
-
-#else
-
-        if (pFMODSystem->createStream(filename.c_str(), FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
-                                      &pFMODMusicSound ) != FMOD_OK )
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to create stream. (`" << filename << "`)");
-            return;
-        }
-
-        if (pFMODSystem->playSound(FMOD_CHANNEL_FREE, pFMODMusicSound, false, &pFMODMusicchannel) != FMOD_OK)
-        {
-            LOG_ERROR(LOG_PREFIX_FMOD << "Failed to playSound/stream.");
-            return;
-        }
-
-        LOG_DEBUG(LOG_PREFIX_FMOD << "Playing music file " << filename);
-        pFMODMusicchannel->setVolume(1.0f);
-#endif
+        LOG_DEBUG(LOG_PREFIX_SOUND << "Playing music file " << filename);
+        Mix_VolumeMusic( MIX_MAX_VOLUME );
     }
 
 
@@ -650,32 +540,19 @@ namespace Audio
 
     void Manager::doPlayMusic()
     {
-        if (!m_FMODRunning)
+        if (!m_SDLMixerRunning)
             return;
 
-        if (pFMODMusicchannel != NULL)
+        if (pMusic != NULL)
         {
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_BOOL paused;
-            FMOD_Channel_GetPaused(pFMODMusicchannel, &paused);
-
-            if (paused)
+            if (Mix_PausedMusic())
             {
-                FMOD_Channel_SetPaused(pFMODMusicchannel, false);
+                Mix_ResumeMusic();
                 return;
             }
-            # else
-            bool paused;
-
-            pFMODMusicchannel->getPaused(&paused);
-            if (paused)
-            {
-                pFMODMusicchannel->setPaused(false);
-                return;
-            }
-            # endif
         }
-        doPlayMusic(doSelectNextMusic());
+        if (pMusic == NULL || !Mix_PlayingMusic())
+            doPlayMusic(doSelectNextMusic());
     }
 
 
@@ -684,18 +561,15 @@ namespace Audio
     void Manager::setListenerPos(const Vector3D& vec)
     {
         pMutex.lock();
-        if (m_FMODRunning)
+        if (m_SDLMixerRunning)
         {
-            FMOD_VECTOR pos     = { vec.x, vec.y, vec.z };
-            FMOD_VECTOR vel     = { 0, 0, 0 };
-            FMOD_VECTOR forward = { 0.0f, 0.0f, 1.0f };
-            FMOD_VECTOR up      = { 0.0f, 1.0f, 0.0f };
-
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_System_Set3DListenerAttributes(pFMODSystem, 0, &pos, &vel, &forward, &up);
-            # else
-            pFMODSystem->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
-            # endif
+#warning TODO: implement 3D stereo
+//            FMOD_VECTOR pos     = { vec.x, vec.y, vec.z };
+//            FMOD_VECTOR vel     = { 0, 0, 0 };
+//            FMOD_VECTOR forward = { 0.0f, 0.0f, 1.0f };
+//            FMOD_VECTOR up      = { 0.0f, 1.0f, 0.0f };
+//
+//            pFMODSystem->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
         }
         pMutex.unlock();
     }
@@ -709,53 +583,28 @@ namespace Audio
 
     void Manager::doUpdate3DSound()
     {
-        if (!m_FMODRunning)
+        if (!m_SDLMixerRunning)
         {
             pWorkList.clear();
             return;
         }
 
-        # ifdef TA3D_PLATFORM_MINGW
+#warning TODO: implement 3D stereo
 
-        FMOD_System_Update(pFMODSystem);
-        for (std::list<WorkListItem>::iterator i = pWorkList.begin(); i != pWorkList.end(); ++i)
-        {
-            FMOD_CHANNEL *ch;
-            if (FMOD_System_PlaySound(pFMODSystem, FMOD_CHANNEL_FREE, i->sound->sampleHandle, true, &ch) != FMOD_OK)
-            {
-                continue;
-            }
-            if (i->sound->is3DSound)
-            {
-                FMOD_VECTOR pos = { i->vec->x, i->vec->y, i->vec->z };
-                FMOD_VECTOR vel = { 0,0,0 };
-                FMOD_Channel_Set3DAttributes( ch, &pos, &vel );
-            }
-            FMOD_Channel_SetPaused(ch, false);
-        }
-
-        # else // TA3D_PLATFORM_MINGW
-
-        pFMODSystem->update();
+//        pFMODSystem->update();
 
         for (std::list< WorkListItem >::iterator i = pWorkList.begin() ; i != pWorkList.end() ; ++i)
         {
-            FMOD::Channel *ch;
-            if (pFMODSystem->playSound( FMOD_CHANNEL_FREE,
-                                           i->sound->sampleHandle, true, &ch ) != FMOD_OK )
+            if (Mix_PlayChannel(-1, i->sound->sampleHandle, 0) == -1)
                 continue;
 
             if (i->sound->is3DSound)
             {
-                FMOD_VECTOR pos = { i->vec->x, i->vec->y, i->vec->z };
-                FMOD_VECTOR vel = { 0, 0, 0 };
-                ch->set3DAttributes(&pos, &vel);
+//                FMOD_VECTOR pos = { i->vec->x, i->vec->y, i->vec->z };
+//                FMOD_VECTOR vel = { 0, 0, 0 };
+//                ch->set3DAttributes(&pos, &vel);
             }
-
-            ch->setPaused(false);
         }
-
-        # endif // TA3D_PLATFORM_MINGW
 
         pWorkList.clear();
         if ((fCounter++) < 100)
@@ -763,25 +612,15 @@ namespace Audio
 
         fCounter = 0;
 
-        if (pFMODMusicchannel == NULL)
+        if (pMusic == NULL)
         {
             doPlayMusic();
             return;
         }
 
-        # ifdef TA3D_PLATFORM_MINGW
-        FMOD_BOOL playing;
-        FMOD_Channel_IsPlaying(pFMODMusicchannel, &playing);
-        # else // TA3D_PLATFORM_MINGW
-        bool playing;
-        pFMODMusicchannel->isPlaying(&playing);
-        # endif // TA3D_PLATFORM_MINGW
-        if (!playing)
+        if (!Mix_PlayingMusic())
             doPlayMusic();
     }
-
-
-
 
     uint32 Manager::InterfaceMsg(const lpcImsg msg)
     {
@@ -818,36 +657,20 @@ namespace Audio
 
     void Manager::playSoundFileNow(const String& filename)
     {
-        if (pBasicSound)
-        {
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_Sound_Release(pBasicSound);
-            # else // TA3D_PLATFORM_MINGW
-            pBasicSound->release();
-            # endif // TA3D_PLATFORM_MINGW
-        }
+        stopSoundFileNow();
 
-        pBasicSound = NULL;
-        pBasicChannel = NULL;
         uint32 sound_file_size = 0;
         byte *data = HPIManager->PullFromHPI(filename, &sound_file_size);
         if (data)
         {
-            FMOD_CREATESOUNDEXINFO exinfo;
-            memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
-            exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-            exinfo.length = sound_file_size;
-
-#ifdef TA3D_PLATFORM_MINGW
-            FMOD_System_CreateSound( pFMODSystem, (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &pBasicSound );
-            FMOD_Sound_SetMode( pBasicSound, FMOD_LOOP_OFF );
-            FMOD_System_PlaySound( pFMODSystem, FMOD_CHANNEL_FREE, pBasicSound, 0, &pBasicChannel);
-#else
-            pFMODSystem->createSound( (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &pBasicSound);
-            pBasicSound->setMode(FMOD_LOOP_OFF);
-            pFMODSystem->playSound( FMOD_CHANNEL_FREE, pBasicSound, 0, &pBasicChannel);
-#endif
+            pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem(data, sound_file_size), 1);
             delete[] data;
+            if (pBasicSound == NULL)
+            {
+                LOG_ERROR(LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ")");
+                return;
+            }
+            Mix_PlayChannel(-1, pBasicSound, 0);
         }
     }
 
@@ -855,16 +678,15 @@ namespace Audio
     void Manager::stopSoundFileNow()
     {
         pMutex.lock();
-        # ifdef TA3D_PLATFORM_MINGW
         if (pBasicSound)
-            FMOD_Sound_Release(pBasicSound);
-        # else
-        if (pBasicSound)
-            pBasicSound->release();
-        # endif
+        {
+            for(int i = 0 ; i < nbChannels ; i++)
+                if (Mix_GetChunk(i) == pBasicSound)
+                    Mix_HaltChannel(i);
+            Mix_FreeChunk(pBasicSound);
+        }
 
         pBasicSound = NULL;
-        pBasicChannel = NULL;
         pMutex.unlock();
     }
 
@@ -900,68 +722,31 @@ namespace Audio
         byte* data = HPIManager->PullFromHPI(theSound, &Length);
         if (!data) // if no data, log a message and return false.
         {
-            LOG_DEBUG( LOG_PREFIX_SOUND << "FMOD: LoadSound(" << filename << "), no such sound found in HPI.");
+            LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
             return false;
         }
 
         SoundItemList* it = new SoundItemList(LoadAs3D);
         LOG_ASSERT(NULL != it);
-        FMOD_CREATESOUNDEXINFO exinfo;
-        memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
-        exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-        exinfo.length = Length;
 
-        # ifdef TA3D_PLATFORM_MINGW
-
-        // Now get fmod to load the sample
-        FMOD_RESULT FMODResult = FMOD_System_CreateSound( pFMODSystem, (const char*)data,
-                                                          FMOD_HARDWARE | FMOD_OPENMEMORY | ( (LoadAs3D) ? FMOD_3D : FMOD_2D ),
-                                                          &exinfo,
-                                                          &it->sampleHandle);
-        delete[] data;
-
-        if (FMODResult != FMOD_OK) // ahh crap fmod couln't load it.
-        {
-            delete it;  // delete the sound.
-            it = NULL;
-
-            // log a message and return false;
-            if (m_FMODRunning)
-                LOG_DEBUG(LOG_PREFIX_SOUND << "FMOD: LoadSound(" << filename << "), Failed to construct sample.");
-            return false;
-        }
-
-        // if its a 3d Sound we need to set min/max distance.
-        if (it->is3DSound)
-            FMOD_Sound_Set3DMinMaxDistance(it->sampleHandle, MinDistance, MaxDistance);
-
-        # else // TA3D_PLATFORM_MINGW
-
-        // Now get fmod to load the sample
-        FMOD_RESULT FMODResult = pFMODSystem->createSound( (const char *)data,
-                                                              FMOD_HARDWARE | FMOD_OPENMEMORY | ( (LoadAs3D) ? FMOD_3D : FMOD_2D ),
-                                                              &exinfo,
-                                                              &it->sampleHandle);
+        // Now get SDL_mixer to load the sample
+        it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem(data, Length), 1 );
         delete[] data; // we no longer need this.
 
-        if (FMODResult != FMOD_OK) // ahh crap fmod couln't load it.
+        if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
         {
             delete it;  // delete the sound.
             it = NULL;
             // log a message and return false;
-            if (m_FMODRunning)
-            {
-                filename = format("FMOD: LoadSound(%s), Failed to construct sample.\n", filename.c_str());
-                I_Msg(TA3D::TA3D_IM_DEBUG_MSG, (void *)filename.c_str(), NULL, NULL);
-            }
+            if (m_SDLMixerRunning)
+                LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.");
             return false;
         }
 
         // if its a 3d Sound we need to set min/max distance.
-        if (it->is3DSound)
-            it->sampleHandle->set3DMinMaxDistance(MinDistance, MaxDistance);
-
-        # endif // TA3D_PLATFORM_MINGW
+#warning TODO: implement 3D stereo
+//        if (it->is3DSound)
+//            it->sampleHandle->set3DMinMaxDistance(MinDistance, MaxDistance);
 
         // add the sound to our soundlist hash table, and return true.
         pSoundList.insertOrUpdate(filename, it);
@@ -994,6 +779,9 @@ namespace Audio
     void Manager::purgeSounds()
     {
         pMutex.lock();
+
+        Mix_HaltChannel(-1);
+
         pSoundList.emptyHashTable();
         pTable.clear();
         pWorkList.clear();
@@ -1008,7 +796,7 @@ namespace Audio
         MutexLocker locker(pMutex);
         if (vec && Camera::inGame && ((Vector3D)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
             return;
-        if (!m_FMODRunning)
+        if (!m_SDLMixerRunning)
             return;
 
         String szWav(filename); // copy string to szWav so we can work with it.
@@ -1111,13 +899,14 @@ namespace Audio
 
     Manager::SoundItemList::~SoundItemList()
     {
-        # ifdef TA3D_PLATFORM_MINGW
         if (sampleHandle)
-            FMOD_Sound_Release(sampleHandle);
-        # else
-        if (sampleHandle)
-            sampleHandle->release();
-        # endif
+        {
+            for(int i = 0 ; i < sound_manager->nbChannels ; i++)
+                if (Mix_GetChunk(i) == sampleHandle)
+                    Mix_HaltChannel(i);
+            Mix_FreeChunk(sampleHandle);
+        }
+        sampleHandle = NULL;
     }
 
 } // namespace Interfaces

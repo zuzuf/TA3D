@@ -176,23 +176,11 @@ ELSE(NOT APPLE)
 	# License
 	BUNDLE_BASIC_INSTALL("./" "./" "COPYING")
 
-    # FMOD
-    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
-		COMMAND cp ARGS -f "${FMOD_LIB_DARWIN_FOLDER}/libfmodex.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
-        DEPENDS "${FMOD_LIB_DARWIN_FOLDER}/libfmodex.dylib") 
-    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib")
-
     # LibZ
     ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
 		COMMAND cp ARGS -fH "/opt/local/lib/libz.1.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
         DEPENDS "/opt/local/lib/libz.1.dylib") 
     SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
-
-    # Allegro
-    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
-		COMMAND cp ARGS -fH "/opt/local/lib/liballeg-4.2.2.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
-        DEPENDS "/opt/local/lib/liballeg-4.2.2.dylib") 
-    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib")
 
 	# --- Resources --- 
 	# Sky
@@ -268,11 +256,7 @@ ELSE(NOT APPLE)
 
     # Relink (needed to make an independant Bundle)
     ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-        COMMAND install_name_tool ARGS -change './libfmodex.dylib' @executable_path/../Frameworks/libfmodex.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
-    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
         COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
-    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-        COMMAND install_name_tool ARGS -change '/opt/local/lib/liballeg-4.2.2.dylib' @executable_path/../Frameworks/liballeg-4.2.2.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
 
 ENDIF(NOT APPLE)
 
@@ -291,15 +275,6 @@ target_link_libraries(${TA3D_BIN}
 #
 # --- External libraries
 #   
-IF( VAR_LIB_FMODEX )
-   target_link_libraries(${TA3D_BIN} fmodex)
-   target_link_libraries(${3DMEDITOR_BIN} fmodex)
-elseif( VAR_LIB_FMODEX64 )
-   target_link_libraries(${TA3D_BIN} fmodex64)
-   target_link_libraries(${3DMEDITOR_BIN} fmodex64)
-else( VAR_LIB_FMODEX )
-   message( FATAL_ERROR "FMODex is required, please install FMODex" )
-endif( VAR_LIB_FMODEX )
 
 target_link_libraries(${TA3D_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
 target_link_libraries(${3DMEDITOR_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})

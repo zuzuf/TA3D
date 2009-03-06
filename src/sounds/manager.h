@@ -25,34 +25,7 @@
 # include <list>
 # include <vector>
 
-# ifdef TA3D_PLATFORM_DARWIN
-#   include "../tools/darwin/fmod/4.18.04/include/fmod.hpp"
-#   include "../tools/darwin/fmod/4.18.04/include/fmod_errors.h"
-#   define TA3D_FMOD_INCLUDED
-# endif
-
-# ifdef TA3D_PLATFORM_LINUX
-#   include "../tools/linux/FMOD/inc/fmod.hpp"
-#   include "../tools/linux/FMOD/inc/fmod_errors.h"
-#   undef stricmp
-#   include "../tools/linux/FMOD/inc/wincompat.h"
-#   define TA3D_FMOD_INCLUDED
-# endif
-
-# ifdef TA3D_PLATFORM_WINDOWS
-#   include <fmod/fmod.hpp>
-#   include <fmod/fmod_errors.h>
-#   ifdef TA3D_PLATFORM_MSVC
-#      pragma comment(lib, "../tools/win32/mingw32/libs/fmodex_vc.lib")
-#   endif
-#   define TA3D_FMOD_INCLUDED
-# endif
-
-# ifndef TA3D_FMOD_INCLUDED
-#   error "The FMOD headers has not been included. This operating system is not recognized."
-# endif
-
-
+# include <SDL/SDL_mixer.h>
 
 
 namespace TA3D
@@ -73,7 +46,7 @@ namespace Audio
         /*!
         ** \brief Constructor
         */
-        Manager(const float DistanceFactor, const float DopplerFactor, const float RolloffFactor);
+        Manager();
         //! Destructor
         ~Manager();
         //@}
@@ -119,7 +92,7 @@ namespace Audio
 
         /*!
         ** \brief Switch the current mode for the music
-        ** \param battleMode 
+        ** \param battleMode
         */
         void setMusicMode(const bool battleMode);
 
@@ -192,7 +165,7 @@ namespace Audio
         /*!
         ** \brief Get if the system is running
         */
-        bool isRunning() {MutexLocker locker(pMutex); return m_FMODRunning;};
+        bool isRunning() {MutexLocker locker(pMutex); return m_SDLMixerRunning;};
 
 
     private:
@@ -229,11 +202,7 @@ namespace Audio
             ~SoundItemList();
 
             bool is3DSound;
-            # ifdef TA3D_PLATFORM_MINGW
-            FMOD_SOUND* sampleHandle;
-            # else
-            FMOD::Sound* sampleHandle;
-            # endif
+            Mix_Chunk* sampleHandle;
             uint32 lastTimePlayed;
 
         }; // class SoundItemList
@@ -250,7 +219,7 @@ namespace Audio
             WorkListItem(const WorkListItem& c) : sound(c.sound), vec(c.vec) {}
             WorkListItem(SoundItemList* s, Vector3D* v) : sound(s), vec(v) {}
 
-            //! 
+            //!
             SoundItemList* sound;
             //! Vector
             Vector3D* vec;
@@ -259,22 +228,6 @@ namespace Audio
 
         //! The list of all currently played sounds
         typedef std::list<WorkListItem>  WorkList;
-
-        # ifdef TA3D_PLATFORM_MINGW
-        //! The FMOD System
-        typedef FMOD_SYSTEM   FMODSystemType;
-        //! The FMOD Sound
-        typedef FMOD_SOUND    FMODSoundType;
-        //! The FMOD Channel
-        typedef FMOD_CHANNEL  FMODChannelType;
-        # else
-        //! The FMOD System
-        typedef FMOD::System  FMODSystemType;
-        //! The FMOD Sound
-        typedef FMOD::Sound   FMODSoundType;
-        //! The FMOD Channel
-        typedef FMOD::Channel FMODChannelType;
-        # endif
 
         /*!
         ** \brief Predicate to load all single files from a hash table
@@ -343,8 +296,8 @@ namespace Audio
         //!
         TDFParser pTable;
 
-        //! Is fmod running ?
-        bool m_FMODRunning;
+        //! Is SDL_mixer running ?
+        bool m_SDLMixerRunning;
         //! Are we in battle ?
         bool m_InBattle;
         //! Number of battle tunes
@@ -352,12 +305,9 @@ namespace Audio
         //! The complete playlist
         Playlist  pPlaylist;
 
-        //!
-        FMODSystemType* pFMODSystem;
-        //!
-        FMODSoundType* pFMODMusicSound;
-        //!
-        FMODChannelType* pFMODMusicchannel;
+        Mix_Music   *pMusic;
+
+        Mix_Chunk   *pBasicSound;
 
         //! Current index to play (-1 means `none`)
         sint16  pCurrentItemToPlay;
@@ -365,17 +315,14 @@ namespace Audio
         uint32  pMinTicks;
 
         //!
+        int     nbChannels;
+
+        //!
         TA3D::UTILS::clpHashTable<SoundItemList*> pSoundList;
         //!
         WorkList pWorkList;	// List to store work to do when entering main thread
         //!
         sint32 fCounter;
-
-        //!
-        FMODSoundType* pBasicSound;
-        //!
-        FMODChannelType* pBasicChannel;
-
     }; // class Manager
 
 
