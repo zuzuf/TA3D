@@ -40,7 +40,6 @@ namespace TA3D
     /******************************/
 
     Network::Network() :
-        udp_socket(), udp_thread(),
         getfile_thread(), sendfile_thread(), transfer_progress(),
         specialq(64,sizeof(struct chat)),
         chatq(64,sizeof(struct chat)),
@@ -68,7 +67,6 @@ namespace TA3D
         listen_thread.join();
         admin_thread.join();
         broadcast_thread.join();
-        udp_thread.join();
 
         for(std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
         {
@@ -88,7 +86,6 @@ namespace TA3D
         broadcast_socket.Close();
         broadcastq.clear();
         broadcastaddressq.clear();
-        udp_socket.Close();
         players.Shutdown();
         nlShutdown();
     }
@@ -128,7 +125,6 @@ namespace TA3D
         //setup game
         strcpy(gamename,name);
         listen_socket.Open(NULL,port);
-        udp_socket.Open(NULL,port);
         if (!listen_socket.isOpen())
         {
             LOG_WARNING(LOG_PREFIX_NET << "Failed to host game on port " << port);
@@ -141,12 +137,6 @@ namespace TA3D
         params->network = this;
         LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for listening...");
         listen_thread.spawn(params);
-
-        //spawn udp thread
-        params = new net_thread_params;
-        params->network = this;
-        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for UDP...");
-        udp_thread.spawn(params);
 
         //spawn admin thread
         params = new net_thread_params;
@@ -176,7 +166,6 @@ namespace TA3D
         myID = -1;
 
         tohost_socket->Open(target,port);
-        udp_socket.Open(NULL,port);
         if (!tohost_socket->isOpen())
         {
             //error couldnt connect to game
@@ -195,12 +184,6 @@ namespace TA3D
         params->network = this;
         admin_thread.spawn(params);
 
-        //get game info or start admin thread here
-        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for UDP");
-        params = new net_thread_params;
-        params->network = this;
-        udp_thread.spawn(params);
-
         LOG_INFO(LOG_PREFIX_NET << "Successfully connected to game at [" << target << "]:" << port);
         getMyID();
         return 0;
@@ -214,9 +197,6 @@ namespace TA3D
     {
         listen_thread.join();
         listen_socket.Close();
-
-        udp_thread.join();
-        udp_socket.Close();
 
         tohost_socket = NULL;
 
@@ -280,11 +260,13 @@ namespace TA3D
             sendfile_thread.clear();
             transfer_progress.clear();
         }
-        else {
+        else
+        {
             int nb_port = atoi( port.c_str() );
             for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
             {
-                if( (*i)->port == nb_port ) {
+                if ((*i)->port == nb_port)
+                {
                     GetFileThread *p = *i;
                     getfile_thread.erase( i++ );
 
@@ -300,7 +282,8 @@ namespace TA3D
             }
             for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
             {
-                if( (*i)->port == nb_port && (to_id == -1 || to_id == (*i)->player_id ) ) {
+                if ((*i)->port == nb_port && (to_id == -1 || to_id == (*i)->player_id ))
+                {
                     SendFileThread *p = *i;
                     sendfile_thread.erase( i++ );
 
@@ -325,10 +308,10 @@ namespace TA3D
     {
         int nb_port = atoi( port.c_str() );
         for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
-            if( (*i)->port == nb_port )
+            if ((*i)->port == nb_port)
                 return false;
         for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ )
-            if( (*i)->port == nb_port )
+            if ((*i)->port == nb_port)
                 return false;
         return true;
     }
@@ -506,7 +489,7 @@ namespace TA3D
             case 1:						// Server
                 return String();
             case 2:						// Client
-                if( sendSpecial( "REQUEST STATUS" ) )
+                if (sendSpecial( "REQUEST STATUS" ))
                     return -1;
                 else
                 {
@@ -540,33 +523,6 @@ namespace TA3D
     }
 
 
-    int Network::sendSpecialUDP( String msg, int src_id, int dst_id)
-    {
-        struct chat chat;
-        return sendSpecialUDP( strtochat( &chat, msg ), src_id, dst_id );
-    }
-
-    int Network::sendSpecialUDP(struct chat* chat, int src_id, int dst_id)
-    {
-        chat->from = myID;
-        if( myMode == 1 )// Server mode
-        {
-            if( chat == NULL )	return -1;
-            int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
-                TA3DSock *sock = players.getSock( i );
-                if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
-                    v += udp_socket.sendSpecial( chat, sock->getAddress() );
-            }
-            return v;
-        }
-        else if( myMode == 2 && src_id == -1 ) {			// Client mode
-            if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
-            return udp_socket.sendSpecial( chat, tohost_socket->getAddress() );
-        }
-        return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
-    }
-
     int Network::sendAll( String msg )
     {
         LOG_DEBUG("sendAll(\"" + msg + "\")");
@@ -580,20 +536,24 @@ namespace TA3D
         return sendSpecial( strtochat( &chat, msg ), src_id, dst_id );
     }
 
-    int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
-        if( src_id == -1 )
+    int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all)
+    {
+        if (src_id == -1)
             chat->from = myID;
-        if( myMode == 1 ) {				// Server mode
+        if (myMode == 1)
+        {				// Server mode
             if( chat == NULL )	return -1;
             int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+            for(int i = 1 ; i <= players.getMaxId() ; i++)
+            {
                 TA3DSock *sock = players.getSock( i );
-                if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
+                if (sock && i != src_id && ( dst_id == -1 || i == dst_id ))
                     v += sock->sendSpecial( chat, all );
             }
             return v;
         }
-        else if( myMode == 2 && src_id == -1 ) {			// Client mode
+        else if (myMode == 2 && src_id == -1)			// Client mode
+        {
             if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
             return tohost_socket->sendSpecial( chat, all );
         }
@@ -602,37 +562,44 @@ namespace TA3D
 
     int Network::sendPing( int src_id, int dst_id )
     {
-        if( myMode == 1 ) {				// Server mode
+        if (myMode == 1)				// Server mode
+        {
             int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+            for (int i = 1 ; i <= players.getMaxId() ; i++)
+            {
                 TA3DSock *sock = players.getSock( i );
                 if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
                     v += sock->sendPing();
             }
             return v;
         }
-        else if( myMode == 2 && src_id == -1 ) {			// Client mode
+        else if (myMode == 2 && src_id == -1)			// Client mode
+        {
             if( tohost_socket == NULL || !tohost_socket->isOpen() )	return -1;
             return tohost_socket->sendPing();
         }
         return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
     }
 
-    int Network::sendChat(struct chat* chat, int src_id){
-        if( src_id == -1 )
+    int Network::sendChat(struct chat* chat, int src_id)
+    {
+        if (src_id == -1)
             chat->from = myID;
-        if( myMode == 1 ) {				// Server mode
-            if( chat == NULL )	return -1;
+        if (myMode == 1)				// Server mode
+        {
+            if (chat == NULL)	return -1;
             int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+            for (int i = 1 ; i <= players.getMaxId() ; i++)
+            {
                 TA3DSock *sock = players.getSock( i );
-                if( sock && i != src_id )
+                if (sock && i != src_id)
                     v += sock->sendChat( chat );
             }
             return v;
         }
-        else if( myMode == 2 && src_id == -1 ) {			// Client mode
-            if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
+        else if (myMode == 2 && src_id == -1)			// Client mode
+        {
+            if (tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL)	return -1;
             return tohost_socket->sendChat( chat );
         }
         return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
@@ -641,7 +608,8 @@ namespace TA3D
     int Network::sendFileData( int player, uint16 port, byte *data, int size )
     {
         TA3DSock *sock = players.getSock( player );
-        if( sock ) {
+        if (sock)
+        {
             size += 3;
             byte buffer[size];
             buffer[0] = 'F';
@@ -656,7 +624,8 @@ namespace TA3D
     int Network::sendFileResponse( int player, uint16 port, byte *data, int size )
     {
         TA3DSock *sock = players.getSock( player );
-        if( sock ) {
+        if (sock)
+        {
             size += 3;
             byte buffer[size];
             buffer[0] = 'R';
@@ -668,80 +637,55 @@ namespace TA3D
         return -1;
     }
 
-    int Network::sendOrder(struct order* order, int src_id){
+    int Network::sendOrder(struct order* order, int src_id)
+    {
         //determine who to send the order to
         //send to all other players?
         //send to 'host'?
         return 0;
     }
 
-    int Network::sendSync(struct sync* sync, int src_id){
-        if( myMode == 1 ) {				// Server mode
-            if( sync == NULL )	return -1;
+    int Network::sendSync(struct sync* sync, int src_id)
+    {
+        if (myMode == 1)				// Server mode
+        {
+            if (sync == NULL)	return -1;
             int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+            for (int i = 1 ; i <= players.getMaxId() ; i++)
+            {
                 TA3DSock *sock = players.getSock( i );
-                if( sock && i != src_id )
-                    v += udp_socket.sendSync( sync, sock->getAddress() );
-            }
-            return v;
-        }
-        else if( myMode == 2 && src_id == -1 ) {			// Client mode
-            if( tohost_socket == NULL || !tohost_socket->isOpen() || sync == NULL )	return -1;
-            return udp_socket.sendSync( sync, tohost_socket->getAddress() );
-        }
-        return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
-    }
-
-    int Network::sendSyncTCP(struct sync* sync, int src_id){
-        if( myMode == 1 ) {				// Server mode
-            if( sync == NULL )	return -1;
-            int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
-                TA3DSock *sock = players.getSock( i );
-                if( sock && i != src_id )
+                if (sock && i != src_id)
                     v += sock->sendSync( sync );
             }
             return v;
         }
-        else if( myMode == 2 && src_id == -1 ) {			// Client mode
-            if( tohost_socket == NULL || !tohost_socket->isOpen() || sync == NULL )	return -1;
+        else if (myMode == 2 && src_id == -1)			// Client mode
+        {
+            if (tohost_socket == NULL || !tohost_socket->isOpen() || sync == NULL)	return -1;
             return tohost_socket->sendSync( sync );
         }
         return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
     }
 
-    int Network::sendEvent(struct event* event, int src_id){
-        if( myMode == 1 ) {				// Server mode
+    int Network::sendEvent(struct event* event, int src_id)
+    {
+        if (myMode == 1)				// Server mode
+        {
             if( event == NULL )	return -1;
             int v = 0;
-            for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
-                if( i == src_id )	continue;
+            for (int i = 1 ; i <= players.getMaxId() ; i++)
+            {
+                if (i == src_id)	continue;
                 TA3DSock *sock = players.getSock( i );
-                if( sock )
+                if (sock)
                     v = sock->sendEvent( event );
             }
             return v;
         }
-        else if( myMode == 2 ) {			// Client mode
-            if( tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL )	return -1;
+        else if (myMode == 2)			// Client mode
+        {
+            if (tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL)	return -1;
             return tohost_socket->sendEvent( event );
-        }
-        return -1;
-    }
-
-    int Network::sendEventUDP(struct event* event, int dst_id){
-        if( myMode == 1 ) {				// Server mode
-            if( event == NULL )	return -1;
-            int v = 0;
-            TA3DSock *sock = players.getSock( dst_id );
-            if( sock )
-                v += udp_socket.sendEvent( event, sock->getAddress() );
-            return v;
-        }
-        else if( myMode == 2 ) {			// Client mode
-            if( tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL )	return -1;
-            return udp_socket.sendEvent( event, tohost_socket->getAddress() );
         }
         return -1;
     }

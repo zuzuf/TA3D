@@ -95,16 +95,6 @@ namespace TA3D
     /*!
     ** \brief
     */
-    class UDPThread : public Thread
-    {
-        virtual void proc(void* param);
-    };
-
-
-
-    /*!
-    ** \brief
-    */
     struct SERVER_DATA
     {
         //! Name of the server
