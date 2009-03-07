@@ -31,6 +31,8 @@ namespace TA3D
     {
         MutexLocker locker(pMutex);
         nonBlockingMode = mode;
+        if (mode)
+            start();
     }
 
 

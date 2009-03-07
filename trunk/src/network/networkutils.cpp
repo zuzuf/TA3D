@@ -63,7 +63,8 @@ namespace TA3D
 
 
 
-    void SocketThread::proc(void* param){
+    void SocketThread::proc(void* param)
+    {
         TA3DSock* sock;
         Network* network;
         int sockid,packtype;
@@ -80,7 +81,8 @@ namespace TA3D
         while(!pDead && sock->isOpen())
         {
             //sleep until data is coming
-            sock->check(1000);
+            sock->check(10);
+            rest(1);
             if(pDead) break;
 
             //ready for reading, absorb some bytes
@@ -92,28 +94,29 @@ namespace TA3D
             switch(packtype)
             {
                 case 'P':		// ping
-                    if( sockid != -1 )
+                    if (sockid != -1)
                         network->sendSpecial("PONG", -1, sockid);
                     sock->makePing();
                     break;
                 case 'A'://special (resend to all!!)
                 case 'X'://special
                     network->xqmutex.lock();
-                    if( pDead || sock->makeSpecial(&chat) == -1 )
+                    if (pDead || sock->makeSpecial(&chat) == -1)
                     {
                         network->xqmutex.unlock();
                         break;
                     }
-                    if( packtype != 'A' && network->isServer() )
+                    if (packtype != 'A' && network->isServer())
                         chat.from = sockid;
                     network->specialq.enqueue(&chat);
                     network->xqmutex.unlock();
-                    if( packtype == 'A' && network->isServer() )
+                    if (packtype == 'A' && network->isServer())
                         network->sendSpecial( &chat, sockid, -1, true );
                     break;
                 case 'C'://chat
                     network->cqmutex.lock();
-                    if( pDead || sock->makeChat(&chat) == -1 ){
+                    if (pDead || sock->makeChat(&chat) == -1)
+                    {
                         network->cqmutex.unlock();
                         break;
                     }
@@ -124,7 +127,8 @@ namespace TA3D
                     break;
                 case 'S'://sync
                     network->sqmutex.lock();
-                    if( pDead || sock->makeSync(&sync) == -1 ){
+                    if (pDead || sock->makeSync(&sync) == -1)
+                    {
                         network->sqmutex.unlock();
                         break;
                     }
@@ -135,7 +139,8 @@ namespace TA3D
                     break;
                 case 'E'://event
                     network->eqmutex.lock();
-                    if( pDead || sock->makeEvent(&event) == -1 ){
+                    if (pDead || sock->makeEvent(&event) == -1)
+                    {
                         network->eqmutex.unlock();
                         break;
                     }
@@ -152,16 +157,18 @@ namespace TA3D
                     {
                         int port = sock->getFilePort();
                         for(std::list< GetFileThread* >::iterator i = network->getfile_thread.begin() ; i != network->getfile_thread.end() ; i++ )
-                            if( (*i)->port == port ) {
+                            if ((*i)->port == port)
+                            {
                                 port = -1;
                                 while( !(*i)->ready && !(*i)->isDead() )	rest(1);
-                                if( !(*i)->isDead() ) {
+                                if (!(*i)->isDead())
+                                {
                                     (*i)->buffer_size = sock->getFileData( (*i)->buffer );
                                     (*i)->ready = false;
                                 }
                                 break;
                             }
-                        if( port != -1 )
+                        if (port != -1)
                             sock->getFileData( NULL );
                     }
                     break;
@@ -169,12 +176,13 @@ namespace TA3D
                     {
                         int port = sock->getFilePort();
                         for(std::list< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
-                            if( (*i)->port == port && (*i)->player_id == sockid ) {
+                            if ((*i)->port == port && (*i)->player_id == sockid)
+                            {
                                 port = -1;
                                 sock->getFileData( (byte*)&((*i)->progress) );
                                 break;
                             }
-                        if( port != -1 )
+                        if (port != -1)
                             sock->getFileData( NULL );
                     }
                     break;
@@ -187,7 +195,7 @@ namespace TA3D
         }
 
         pDead = 1;
-        if( !sock->isOpen() )
+        if (!sock->isOpen())
             network->setPlayerDirty();
 
         return;

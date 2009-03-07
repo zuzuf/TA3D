@@ -450,6 +450,7 @@ namespace TA3D
                         if( getNextSpecial( &special_msg ) == 0 )
                         {
                             String::Vector params;
+                            LOG_DEBUG("parsing `" << special_msg.message << "`");
                             String(special_msg.message).split(params, " ");
                             if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
                             {

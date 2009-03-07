@@ -1031,6 +1031,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
             int from = received_special_msg.from;
             String::Vector params;
             String(received_special_msg.message).split(params, " ");
+            LOG_DEBUG("parsing `" << received_special_msg.message << "`");
             if (params.size() == 1)
             {
                 if (params[0] == "PONG")
