@@ -205,6 +205,7 @@ namespace TA3D
         int sendOrder(struct order* order);
         int sendSync(struct sync* sync);
         int sendEvent(struct event* event);
+        int sendTick(uint32 tick, uint16 speed);
         void cleanPacket();
 
         //these are for incoming packets
@@ -214,6 +215,7 @@ namespace TA3D
         int makeSync(struct sync* sync);
         int makeEvent(struct event* event);
         int makePing();
+        void makeTick(int from);
 
         int getFilePort();				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer
         int getFileData(byte *buffer);	// Fill the buffer with the data and returns the size of the paquet

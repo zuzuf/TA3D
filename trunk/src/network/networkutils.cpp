@@ -82,7 +82,6 @@ namespace TA3D
         {
             //sleep until data is coming
             sock->check(10);
-            rest(1);
             if(pDead) break;
 
             //ready for reading, absorb some bytes
@@ -97,6 +96,9 @@ namespace TA3D
                     if (sockid != -1)
                         network->sendSpecial("PONG", -1, sockid);
                     sock->makePing();
+                    break;
+                case 'T':       // Tick synchronization
+                    sock->makeTick(sockid);
                     break;
                 case 'A'://special (resend to all!!)
                 case 'X'://special
@@ -144,7 +146,6 @@ namespace TA3D
                         network->eqmutex.unlock();
                         break;
                     }
-                    printf("received event\n");
                     network->eventq.enqueue(&event);
                     network->eqmutex.unlock();
                     if( network->isServer() )
@@ -220,7 +221,6 @@ namespace TA3D
         {
             //sleep until data is coming
             sock->check(100);
-            rest(1);
             if(pDead) break;
 
             msg = sock->getString();
