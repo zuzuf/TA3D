@@ -43,7 +43,6 @@ namespace TA3D
         getfile_thread(), sendfile_thread(), transfer_progress(),
         specialq(64,sizeof(struct chat)),
         chatq(64,sizeof(struct chat)),
-        orderq(32,sizeof(struct order)),
         syncq(128,sizeof(struct sync)),
         eventq(32,sizeof(struct event)),
         broadcastq(), broadcastaddressq()
@@ -53,12 +52,7 @@ namespace TA3D
         playerDirty = false;
         fileDirty = false;
 
-        nlInit();						// Start NL
-        nlEnable( NL_SOCKET_STATS );	// Activates statistics
-        nlEnable( NL_LITTLE_ENDIAN_DATA );	// Little endian because most copies of TA3D will probably run on little endian hardware
-        // so don't waste CPU cycles doing useless conversions
-        nlSelectNetwork( NL_IP );		// We want IP networking
-        nlHint( NL_REUSE_ADDRESS, NL_TRUE );    // We don't want to wait a timeout when we close a server and want to create another
+        SDLNet_Init();
     }
 
 
@@ -82,17 +76,18 @@ namespace TA3D
         sendfile_thread.clear();
         transfer_progress.clear();
 
-        listen_socket.Close();
-        broadcast_socket.Close();
+        listen_socket.close();
+        broadcast_socket.close();
         broadcastq.clear();
         broadcastaddressq.clear();
         players.Shutdown();
-        nlShutdown();
+
+        SDLNet_Quit();
     }
 
-    void Network::InitBroadcast( const char* port )
+    void Network::InitBroadcast( uint16 port )
     {
-        broadcast_socket.Open( port );
+        broadcast_socket.open( port );
         //spawn broadcast thread
         net_thread_params *params = new net_thread_params;
         params->network = this;
@@ -106,7 +101,7 @@ namespace TA3D
     //port is the port the game listens on for connections
     //proto 4=ipv4only 6=ipv6only 0=automatic
     //not finished
-    int Network::HostGame(const char* name,const char* port,int network)
+    int Network::HostGame(const String &name, uint16 port)
     {
         if (myMode == 0)
         {
@@ -123,8 +118,8 @@ namespace TA3D
         adminDir[0] = 1;
 
         //setup game
-        strcpy(gamename,name);
-        listen_socket.Open(NULL,port);
+        gamename = name;
+        listen_socket.open(port);
         if (!listen_socket.isOpen())
         {
             LOG_WARNING(LOG_PREFIX_NET << "Failed to host game on port " << port);
@@ -152,7 +147,7 @@ namespace TA3D
 
 
     //not finished
-    int Network::Connect(const char* target,const char* port)
+    int Network::Connect(const String &target, uint16 port)
     {
         if (myMode == 0)
             myMode = 2;
@@ -165,7 +160,7 @@ namespace TA3D
         tohost_socket = new TA3DSock();
         myID = -1;
 
-        tohost_socket->Open(target,port);
+        tohost_socket->open(target, port);
         if (!tohost_socket->isOpen())
         {
             //error couldnt connect to game
@@ -196,12 +191,12 @@ namespace TA3D
     void Network::Disconnect()
     {
         listen_thread.join();
-        listen_socket.Close();
+        listen_socket.close();
 
         tohost_socket = NULL;
 
         broadcast_thread.join();
-        broadcast_socket.Close();
+        broadcast_socket.close();
 
         ftmutex.lock();
 
@@ -226,16 +221,6 @@ namespace TA3D
         slmutex.unlock();
 
         cleanQueues();
-
-        LOG_DEBUG(LOG_PREFIX_NET << "--- Statistics ---");
-        LOG_DEBUG(LOG_PREFIX_NET << "Average received : " << nlGetInteger(NL_AVE_BYTES_RECEIVED) << " bytes/sec");
-        LOG_DEBUG(LOG_PREFIX_NET << "Maximum received : " << nlGetInteger(NL_HIGH_BYTES_RECEIVED) << " bytes/sec");
-        LOG_DEBUG(LOG_PREFIX_NET << "Total received   : " << nlGetInteger(NL_BYTES_RECEIVED) << " bytes");
-        LOG_DEBUG(LOG_PREFIX_NET << "Average sent     : " << nlGetInteger(NL_AVE_BYTES_SENT) << " bytes/sec");
-        LOG_DEBUG(LOG_PREFIX_NET << "Maximum sent     : " << nlGetInteger(NL_HIGH_BYTES_SENT) << " bytes/sec");
-        LOG_DEBUG(LOG_PREFIX_NET << "Total sent       : " << nlGetInteger(NL_BYTES_SENT) << " bytes");
-
-        nlClear(NL_ALL_STATS);
         myMode = 0;
 
     }
@@ -374,7 +359,7 @@ namespace TA3D
                 if (sock == tohost_socket)
                 {
                     broadcast_thread.join();
-                    broadcast_socket.Close();
+                    broadcast_socket.close();
 
                     tohost_socket = NULL;
                     myMode = 0;
@@ -615,7 +600,7 @@ namespace TA3D
             buffer[0] = 'F';
             memcpy( buffer+1, &port, sizeof( port ) );
             memcpy( buffer+3, data, size - 3 );
-            sock->sendTCP( buffer, size );
+            sock->send( buffer, size );
             return 0;
         }
         return -1;
@@ -631,18 +616,10 @@ namespace TA3D
             buffer[0] = 'R';
             memcpy( buffer+1, &port, sizeof( port ) );
             memcpy( buffer+3, data, size - 3 );
-            sock->sendTCP( buffer, size );
+            sock->send( buffer, size );
             return 0;
         }
         return -1;
-    }
-
-    int Network::sendOrder(struct order* order, int src_id)
-    {
-        //determine who to send the order to
-        //send to all other players?
-        //send to 'host'?
-        return 0;
     }
 
     int Network::sendSync(struct sync* sync, int src_id)
@@ -728,15 +705,6 @@ namespace TA3D
         return v;
     }
 
-    int Network::getNextOrder(struct order* order)
-    {
-        int v;
-        oqmutex.lock();
-        v = orderq.dequeue(order);
-        oqmutex.unlock();
-        return v;
-    }
-
     int Network::getNextSync(struct sync* sync)
     {
         int v;
@@ -785,7 +753,8 @@ namespace TA3D
         if( !broadcast_socket.isOpen() )
             return -1;
 
-        return broadcast_socket.sendMessage( msg );
+        broadcast_socket.send( msg, strlen(msg) + 1 );
+        return broadcast_socket.isOpen() ? 0 : -1;
     }
 
     String Network::getNextBroadcastedMessage()
@@ -816,13 +785,11 @@ namespace TA3D
     void Network::cleanQueues()
     {
         struct chat		chat;
-        struct order	order;
         struct sync		sync;
         struct event	event;
 
         while( getNextSpecial(&chat) == 0 )	{}
         while( getNextChat(&chat) == 0 )	{}
-        while( getNextOrder(&order) == 0 )	{}
         while( getNextSync(&sync) == 0 )	{}
         while( getNextEvent(&event) == 0 )	{}
 
@@ -919,32 +886,22 @@ namespace TA3D
 
     String Network::httpRequest( const String &servername, const String &request )
     {
-        NLsocket    sock;
-        NLaddress   addr;
-        NLbyte      buffer[4096];
+        SocketTCP   sock;
+        char        buffer[4096];
         String      f;
-        NLint       count;
-        NLint       crfound = 0;
-        NLint       lffound = 0;
-
-        nlGetAddrFromName( servername.c_str(), &addr);
-
-        /* use the standard HTTP port */
-        nlSetAddrPort(&addr, 80);
+        int         count;
+        int         crfound = 0;
+        int         lffound = 0;
 
         /* open the socket and connect to the server */
-        sock = nlOpen(0, NL_RELIABLE);
-        if(sock == NL_INVALID)
+        sock.open(servername, 80);
+        if(!sock.isOpen())
         {
             LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not open socket !");
-            return "";
+            return String();
         }
-        if(nlConnect(sock, &addr) == NL_FALSE)
-        {
-            nlClose(sock);
-            LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not connect to server !");
-            return "";
-        }
+
+        sock.setNonBlockingMode(true);      // We want to be able to detect end of transmission :p
 
         f.clear();
 
@@ -952,32 +909,25 @@ namespace TA3D
                 , request.c_str(), servername.c_str() );
 
         uint32 timer(msec_timer);
-        while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
+        sock.send( buffer, strlen(buffer));
+        if (!sock.isOpen())
         {
-            if(nlGetError() == NL_CON_PENDING && msec_timer - timer < 5000)     // Connection pending ? before reaching timeout ?
-            {
-                nlThreadYield();
-                continue;
-            }
             LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not send request to server !");
-            nlClose(sock);
-            return "";
+            return String();
         }
 
         while (true)
         {
-            count = nlRead(sock, (NLvoid *)buffer, (NLint)sizeof(buffer) - 1);
+            timer = msec_timer;
+            do
+                count = sock.recv(buffer, sizeof(buffer) - 1);
+            while(count == 0 && msec_timer - timer < 1000);
+            if (msec_timer - timer >= 1000)
+                sock.close();
             if(count < 0)
             {
-                NLint err = nlGetError();
-
-                /* is the connection closed? */
-                if(err == NL_MESSAGE_END)
-                    break;
-                else {
-                    nlClose( sock );
-                    return "";
-                }
+                sock.close();
+                return String();
             }
             if(count > 0)
             {
@@ -1015,19 +965,18 @@ namespace TA3D
                 }
             }
         }
-        nlClose(sock);
+        sock.close();
         return f;
     }
 
     bool Network::httpGetFile( const String &filename, const String &servername, const String &request )
     {
-        NLsocket    sock;
-        NLaddress   addr;
-        NLbyte      buffer[4096];
+        SocketTCP   sock;
+        char        buffer[4096];
         std::fstream f(filename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
-        NLint       count;
-        NLint       crfound = 0;
-        NLint       lffound = 0;
+        int         count;
+        int         crfound = 0;
+        int         lffound = 0;
 
         if (!f.is_open())
         {
@@ -1035,59 +984,41 @@ namespace TA3D
             return true;        // Error can't open file
         }
 
-        nlGetAddrFromName( servername.c_str(), &addr);
-
-        /* use the standard HTTP port */
-        nlSetAddrPort(&addr, 80);
-
         /* open the socket and connect to the server */
-        sock = nlOpen(0, NL_RELIABLE);
-        if(sock == NL_INVALID)
+        sock.open(servername, 80);
+        if(!sock.isOpen())
         {
             LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open socket !");
             f.close();
             return true;
         }
-        if(nlConnect(sock, &addr) == NL_FALSE)
-        {
-            nlClose(sock);
-            LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not connect to server !");
-            f.close();
-            return true;
-        }
 
-        sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
+        sock.setNonBlockingMode(true);      // We want it to be able to detect end of file ;)
+
+        sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n"
                 , request.c_str(), servername.c_str() );
 
         uint32 timer(msec_timer);
-        while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
+        sock.send(buffer, strlen(buffer));
+        if (!sock.isOpen())
         {
-            if(nlGetError() == NL_CON_PENDING && msec_timer - timer < 5000)     // Connection pending ? before reaching timeout ?
-            {
-                nlThreadYield();
-                continue;
-            }
             LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not send request to server !");
-            nlClose(sock);
             f.close();
             return true;
         }
 
         while (true)
         {
-            count = nlRead(sock, (NLvoid *)buffer, (NLint)sizeof(buffer) - 1);
+            timer = msec_timer;
+            do
+                count = sock.recv(buffer, sizeof(buffer) - 1);
+            while(count == 0 && msec_timer - timer < 1000);
+            if (msec_timer - timer >= 1000)
+                sock.close();
             if(count < 0)
             {
-                NLint err = nlGetError();
-
-                /* is the connection closed? */
-                if(err == NL_MESSAGE_END)
-                    break;
-                else {
-                    nlClose( sock );
-                    f.close();
-                    return true;
-                }
+                f.close();
+                return true;
             }
             if(count > 0)
             {
@@ -1121,7 +1052,7 @@ namespace TA3D
                     f.write( (char*)buffer, count );
             }
         }
-        nlClose(sock);
+        sock.close();
         f.close();
         return false;
     }

@@ -231,15 +231,6 @@ namespace TA3D
         }
 
         n = 100;
-        while(--n)	// Order message receiver
-        {
-            struct order order_msg;
-
-            if( network_manager.getNextOrder( &order_msg ) )
-                break;
-        }
-
-        n = 100;
         while(--n) // Sync message receiver
         {
             struct sync sync_msg;
