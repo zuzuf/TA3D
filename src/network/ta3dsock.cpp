@@ -51,8 +51,7 @@ namespace TA3D
     {
         if (dump_file == NULL)
             dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
-        tcpsock.open(hostname,port);
-        tcpsock.setNonBlockingMode(true);
+        tcpsock.open(hostname, port);
         if(!tcpsock.isOpen())
             return -1;
         return 0;
@@ -64,7 +63,6 @@ namespace TA3D
         if (dump_file == NULL)
             dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
         tcpsock.open(port);
-        tcpsock.setNonBlockingMode(true);
         if(!tcpsock.isOpen())
             return -1;
         return 0;
@@ -137,23 +135,19 @@ namespace TA3D
     //byte shuffling
     void TA3DSock::putLong(uint32_t x)
     {
-        uint32_t temp;
-        SDLNet_Write32(x, &temp);
-        memcpy(outbuf+obp,&temp,4);
+        SDLNet_Write32(x, outbuf + obp);
         obp += 4;
     }
 
     void TA3DSock::putShort(uint16_t x)
     {
-        uint16_t temp;
-        SDLNet_Write16(x, &temp);
-        memcpy(outbuf+obp,&temp,2);
+        SDLNet_Write16(x, outbuf + obp);
         obp += 2;
     }
 
     void TA3DSock::putByte(uint8_t x)
     {
-        memcpy(outbuf+obp,&x,1);
+        memcpy(outbuf + obp, &x, 1);
         obp += 1;
     }
 
@@ -260,6 +254,8 @@ namespace TA3D
     {
         tcpmutex.lock();
 
+        uint16 length = size;
+        tcpsock.send( (char*)&length, 2 );
         tcpsock.send( (char*)data, size );
         if (dump_file)
         {
@@ -274,6 +270,8 @@ namespace TA3D
     {
         tcpmutex.lock();
 
+        uint16 length = obp;
+        tcpsock.send((char*)&length, 2);
         tcpsock.send(outbuf, obp);
         if (dump_file)
         {
@@ -290,15 +288,26 @@ namespace TA3D
         if(!tiremain)
             return;
 
-        int p = tcpsock.recv( tcpinbuf, TA3DSOCK_BUFFER_SIZE );
-        if( p <= 0 )
+        if (tiremain == -1)
+            tibp = 0;
+
+        int p = tcpsock.recv( tcpinbuf + tibp, tiremain == -1 ? 2 : tiremain );
+        if( p <= 0 && tiremain <= 0 )
         {
             rest(1);
             tiremain = -1;
             return;
         }
-        tiremain = 0;
-        tibp = p;
+        if (tiremain == -1)
+        {
+            tiremain = *((uint16*)tcpinbuf);
+            tibp = 0;
+        }
+        else
+        {
+            tiremain -= p;
+            tibp += p;
+        }
     }
 
 
