@@ -8,15 +8,13 @@
 namespace TA3D
 {
 
-    class SocketTCP : public Socket, public Thread
+    class SocketTCP : public Socket
     {
     protected:
         TCPsocket           sock;
         SDLNet_SocketSet    set;
         bool                checked;
         bool                nonBlockingMode;
-        std::deque<char>    buffer;
-        Mutex               mBuffer;
     public:
         SocketTCP();
         ~SocketTCP();
@@ -37,9 +35,6 @@ namespace TA3D
 
         /*virtual*/ void send(const char *data, int size);
         /*virtual*/ int recv(char *data, int size);
-
-        /*virtual*/ void proc(void* param);
-        /*virtual*/ void signalExitThread();
     };
 }
 

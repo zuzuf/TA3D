@@ -52,10 +52,10 @@ namespace TA3D
     void SocketUDP::close()
     {
         MutexLocker locker(pMutex);
-        if (sock)
-            SDLNet_UDP_Close(sock);
         if (set)
             SDLNet_FreeSocketSet(set);
+        if (sock)
+            SDLNet_UDP_Close(sock);
         set = NULL;
         sock = NULL;
         checked = false;
