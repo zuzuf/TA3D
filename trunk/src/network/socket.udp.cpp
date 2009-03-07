@@ -122,7 +122,7 @@ namespace TA3D
 
     std::string SocketUDP::getRemoteIPstr() const
     {
-        return TA3D::format("%d.%d.%d.%d", (remoteIP.host >> 24), (remoteIP.host >> 16) & 0xFF, (remoteIP.host >> 8) & 0xFF, remoteIP.host & 0xFF);
+        return TA3D::format("%d.%d.%d.%d", (remoteIP.host & 0xFF), (remoteIP.host >> 8) & 0xFF, (remoteIP.host >> 16) & 0xFF, (remoteIP.host >> 24));
     }
 
     uint32 SocketUDP::getRemoteIP() const
