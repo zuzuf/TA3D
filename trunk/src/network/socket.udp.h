@@ -12,6 +12,7 @@ namespace TA3D
         UDPsocket           sock;
         SDLNet_SocketSet    set;
         bool                checked;
+        IPaddress           remoteIP;
     public:
         SocketUDP();
         ~SocketUDP();
@@ -26,6 +27,10 @@ namespace TA3D
 
         virtual void send(const char *data, int size);
         virtual int recv(char *data, int size);
+
+        IPaddress getRemoteIP_sdl() const;
+        std::string getRemoteIPstr() const;
+        uint32 getRemoteIP() const;
     };
 }
 #endif

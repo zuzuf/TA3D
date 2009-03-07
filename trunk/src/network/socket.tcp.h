@@ -8,7 +8,7 @@
 namespace TA3D
 {
 
-    class SocketTCP : public Socket, public Thread, public ObjectSync
+    class SocketTCP : public Socket, public Thread
     {
     protected:
         TCPsocket           sock;
@@ -16,6 +16,7 @@ namespace TA3D
         bool                checked;
         bool                nonBlockingMode;
         std::deque<char>    buffer;
+        Mutex               mBuffer;
     public:
         SocketTCP();
         ~SocketTCP();

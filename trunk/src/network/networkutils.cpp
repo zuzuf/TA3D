@@ -211,7 +211,8 @@ namespace TA3D
         while(!pDead && sock->isOpen() )
         {
             //sleep until data is coming
-            sock->check(1000);
+            sock->check(100);
+            rest(1);
             if(pDead) break;
 
             msg = sock->getString();
@@ -224,7 +225,7 @@ namespace TA3D
                     break;
                 }
                 network->broadcastq.push_back( msg );
-                network->broadcastaddressq.push_back( sock->getIPstr() );
+                network->broadcastaddressq.push_back( sock->getRemoteIPstr() );
                 network->mqmutex.unlock();
             }
         }

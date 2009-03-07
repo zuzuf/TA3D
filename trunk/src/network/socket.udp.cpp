@@ -24,6 +24,7 @@ namespace TA3D
 
     void SocketUDP::open(const std::string &hostname, uint16 port)
     {
+        MutexLocker locker(pMutex);
         close();
 
         SDLNet_ResolveHost( &IP, hostname.c_str(), port );
@@ -50,6 +51,7 @@ namespace TA3D
 
     void SocketUDP::close()
     {
+        MutexLocker locker(pMutex);
         if (sock)
             SDLNet_UDP_Close(sock);
         if (set)
@@ -71,11 +73,7 @@ namespace TA3D
         packet.maxlen = size;
         packet.address = IP;
 
-        if (SDLNet_UDP_Send(sock, packet.channel, &packet) == 0)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error sending data to UDP socket : " << SDLNet_GetError());
-            close();
-        }
+        SDLNet_UDP_Send(sock, packet.channel, &packet);
     }
 
     int SocketUDP::recv(char *data, int size)
@@ -94,7 +92,7 @@ namespace TA3D
             return 0;
         }
 
-        IP = packet.address;
+        remoteIP = packet.address;
 
         return packet.len;
     }
@@ -115,5 +113,20 @@ namespace TA3D
         if (set && sock && checked)
             return SDLNet_SocketReady(sock);
         return false;
+    }
+
+    IPaddress SocketUDP::getRemoteIP_sdl() const
+    {
+        return remoteIP;
+    }
+
+    std::string SocketUDP::getRemoteIPstr() const
+    {
+        return TA3D::format("%d.%d.%d.%d", (remoteIP.host >> 24), (remoteIP.host >> 16) & 0xFF, (remoteIP.host >> 8) & 0xFF, remoteIP.host & 0xFF);
+    }
+
+    uint32 SocketUDP::getRemoteIP() const
+    {
+        return remoteIP.host;
     }
 }

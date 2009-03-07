@@ -920,7 +920,10 @@ namespace TA3D
         {
             timer = msec_timer;
             do
+            {
                 count = sock.recv(buffer, sizeof(buffer) - 1);
+                rest(1);
+            }
             while(count == 0 && msec_timer - timer < 1000);
             if (msec_timer - timer >= 1000)
                 sock.close();
@@ -1011,7 +1014,10 @@ namespace TA3D
         {
             timer = msec_timer;
             do
+            {
                 count = sock.recv(buffer, sizeof(buffer) - 1);
+                rest(1);
+            }
             while(count == 0 && msec_timer - timer < 1000);
             if (msec_timer - timer >= 1000)
                 sock.close();
