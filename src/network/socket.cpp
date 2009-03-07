@@ -1,4 +1,5 @@
 #include "../stdafx.h"
+#include "../logs/logs.h"
 #include "socket.h"
 
 namespace TA3D
@@ -26,6 +27,7 @@ namespace TA3D
 
     String Socket::getString()
     {
+        MutexLocker locker(pMutex);
         char buf[2049];
         int size = recv(buf, 2048);
         return String(buf, size);

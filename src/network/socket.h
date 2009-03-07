@@ -2,11 +2,12 @@
 #define __SOCKET_H__
 
 #include <SDL/SDL_net.h>
+#include "../threads/thread.h"
 
 namespace TA3D
 {
 
-    class Socket
+    class Socket : public ObjectSync
     {
     protected:
         IPaddress  IP;

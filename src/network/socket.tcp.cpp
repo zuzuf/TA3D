@@ -20,6 +20,7 @@ namespace TA3D
 
     void SocketTCP::reset()
     {
+        MutexLocker locker(pMutex);
         sock = NULL;
         set = NULL;
         checked = false;
@@ -28,6 +29,7 @@ namespace TA3D
 
     void SocketTCP::setNonBlockingMode(bool mode)
     {
+        MutexLocker locker(pMutex);
         nonBlockingMode = mode;
     }
 
@@ -44,6 +46,7 @@ namespace TA3D
 
     void SocketTCP::open(const std::string &hostname, uint16 port)
     {
+        MutexLocker locker(pMutex);
         close();
 
         SDLNet_ResolveHost( &IP, hostname.c_str(), port );
@@ -70,6 +73,7 @@ namespace TA3D
 
     void SocketTCP::close()
     {
+        MutexLocker locker(pMutex);
         if (sock)
             SDLNet_TCP_Close(sock);
         if (set)
@@ -83,10 +87,7 @@ namespace TA3D
     {
         TCPsocket child = SDLNet_TCP_Accept(sock);
         if (child == NULL)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "could not accept TCP socket : " << SDLNet_GetError());
             return NULL;
-        }
         SocketTCP *newSock = new SocketTCP();
         newSock->sock = child;
         IPaddress *remote_addr = SDLNet_TCP_GetPeerAddress( child );
@@ -134,7 +135,7 @@ namespace TA3D
 
         if (nonBlockingMode)
         {
-            pMutex.lock();
+            mBuffer.lock();
 
             int pos = 0;
             while(pos < size && !buffer.empty())
@@ -144,7 +145,7 @@ namespace TA3D
                 pos++;
             }
 
-            pMutex.unlock();
+            mBuffer.unlock();
 
             return pos;
         }
@@ -196,9 +197,9 @@ namespace TA3D
 
             if (n == 1)
             {
-                pMutex.lock();
+                mBuffer.lock();
                 buffer.push_back(c);
-                pMutex.unlock();
+                mBuffer.unlock();
             }
         }
     }
