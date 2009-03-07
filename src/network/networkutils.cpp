@@ -47,8 +47,8 @@ namespace TA3D
 
         while(!pDead && network->listen_socket.isOpen() )
         {
-            v = network->listen_socket.Accept(&newsock,100);
-            if(v<0)
+            v = network->listen_socket.accept(&newsock,100);
+            if(v < 0)
             {
                 if(v==-1){}
             }
@@ -69,7 +69,6 @@ namespace TA3D
         int sockid,packtype;
 
         struct chat chat;
-        struct order order;
         struct sync sync;
         struct event event;
 
@@ -81,7 +80,7 @@ namespace TA3D
         while(!pDead && sock->isOpen())
         {
             //sleep until data is coming
-            sock->takeFive(1000);
+            sock->check(1000);
             if(pDead) break;
 
             //ready for reading, absorb some bytes
@@ -122,17 +121,6 @@ namespace TA3D
                     network->cqmutex.unlock();
                     if( network->isServer() )
                         network->sendChat(&chat, sockid);
-                    break;
-                case 'O'://order
-                    network->oqmutex.lock();
-                    if( pDead || sock->makeOrder(&order) == -1 ){
-                        network->oqmutex.unlock();
-                        break;
-                    }
-                    network->orderq.enqueue(&order);
-                    network->oqmutex.unlock();
-                    if( network->isServer() )
-                        network->sendOrder(&order, sockid);
                     break;
                 case 'S'://sync
                     network->sqmutex.lock();
@@ -208,7 +196,7 @@ namespace TA3D
 
     void BroadCastThread::proc(void* param)
     {
-        BroadcastSock* sock;
+        SocketBroadCast* sock;
         Network* network;
 
         network = ((struct net_thread_params*)param)->network;
@@ -223,13 +211,10 @@ namespace TA3D
         while(!pDead && sock->isOpen() )
         {
             //sleep until data is coming
-            sock->takeFive(1000);
+            sock->check(1000);
             if(pDead) break;
 
-            //ready for reading, absorb some bytes
-            sock->pumpIn();
-
-            msg = sock->makeMessage();
+            msg = sock->getString();
             if (!msg.empty())
             {
                 network->mqmutex.lock();
@@ -239,7 +224,7 @@ namespace TA3D
                     break;
                 }
                 network->broadcastq.push_back( msg );
-                network->broadcastaddressq.push_back( sock->getAddress() );
+                network->broadcastaddressq.push_back( sock->getIPstr() );
                 network->mqmutex.unlock();
             }
         }

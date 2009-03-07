@@ -598,11 +598,11 @@ void setup_game(bool client, const char *host, const char *saved_game)
     {
         if (!client)
         {
-            network_manager.InitBroadcast("1234");      // broadcast mode
-            network_manager.HostGame( (char*) host, "4242", 2);
+            network_manager.InitBroadcast(1234);      // broadcast mode
+            network_manager.HostGame( host, 4242);
         }
         else
-            network_manager.Connect( (char*) host, "4242");
+            network_manager.Connect( host, 4242);
 
         my_player_id = network_manager.getMyID();           // Get player id
 
@@ -1886,18 +1886,16 @@ void setup_game(bool client, const char *host, const char *saved_game)
 
 
 /*-----------------------------------------------------------------------------\
-  |                            void network_room(void)                           |
-  |                                                                              |
-  |    Displays the list of available servers and allow to join/host a game      |
-  \-----------------------------------------------------------------------------*/
+|                            void network_room(void)                           |
+|                                                                              |
+|    Displays the list of available servers and allow to join/host a game      |
+\-----------------------------------------------------------------------------*/
 
 #define SERVER_LIST_REFRESH_DELAY   5000
 
 void network_room(void)             // Let players create/join a game
 {
-//    set_uformat(U_UTF8);
-
-    network_manager.InitBroadcast("1234");      // broadcast mode
+    network_manager.InitBroadcast(1234);      // broadcast mode
 
     int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
     int internet_server_list_timer = msec_timer - INTERNET_AD_COUNTDOWN;

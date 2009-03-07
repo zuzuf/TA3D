@@ -99,6 +99,14 @@ namespace TA3D
 			exit(1);
 		}
 
+        // Outputs SDL_net version numbers
+        SDL_version compiled_version;
+        const SDL_version *linked_version;
+        SDL_NET_VERSION(&compiled_version);
+        LOG_DEBUG(LOG_PREFIX_NET << "compiled with SDL_net version: " << (int)compiled_version.major << "." << (int)compiled_version.minor << "." << (int)compiled_version.patch);
+        linked_version = SDLNet_Linked_Version();
+        LOG_DEBUG(LOG_PREFIX_NET << "running with SDL_net version: " << (int)linked_version->major << "." << (int)linked_version->minor << "." << (int)linked_version->patch);
+
 		// Creating Sound & Music Interface
 		sound_manager = new TA3D::Audio::Manager();
 		sound_manager->loadTDFSounds(true);

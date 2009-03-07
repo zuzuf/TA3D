@@ -20,7 +20,7 @@
 # define TA3D_NET_SOCK_H__
 
 #include "../stdafx.h"
-#include "SocketClass.h"
+#include "socket.tcp.h"
 #include "../threads/thread.h"
 #include "../threads/mutex.h"
 #include <string>
@@ -74,29 +74,19 @@ namespace TA3D
 
 #define TA3DSOCK_BUFFER_SIZE 24576
 
-        //chat order sync and event
-        //these are sent and received over the network
-        struct chat
-        {
-            uint16 from; 		//uint16 who said
-            char message[253];	//said what
-        };//max size = 254
-
-    struct order
+    //chat order sync and event
+    //these are sent and received over the network
+    struct chat
     {
-        uint32	timestamp;	//uint32 what time the order happened
-        uint16	unit;		//uin16 order what unit
-        byte	command;		//uint8 move,fire,stop,guard,reclaim,etc
-        uint32	x;
-        uint32	y;
-        uint16	target;		//uint16 enough to tell it a target unit
-        byte	additional;	//uint8 0=cancel current activity 1=add to order queue
-    };//max size = 22
+        uint16 from; 		//uint16 who said
+        char message[253];	//said what
+    };//max size = 254
 
 #define SYNC_FLAG_FLYING	0x01
 #define SYNC_FLAG_CLOAKING	0x02
 
-    struct sync{
+    struct sync
+    {
         uint32	timestamp;	//uint32 what tick is this snapshot
         uint16	unit;		//uint16 sync what unit
         real32	x,y,z;
@@ -128,7 +118,8 @@ namespace TA3D
 #define EVENT_UNIT_NANOLATHE		0x12		// Tell when a unit is nanolathing something
 #define EVENT_UNIT_PARALYZE			0x13        // A unit gets paralyzed
 
-    struct event{
+    struct event
+    {
         byte	type;		//uint8 what type of event
         uint16	opt1;		//uint16 optional parameters
         uint16	opt2;		//uint16
@@ -156,11 +147,9 @@ namespace TA3D
     //TA3DSock- specialized low-level networking
     //used internally by Network to send the data
     //to the players. It is basically a TCP socket
-    class TA3DSock{
-
-        char name[64];//player name
-
-        Socket tcpsock;
+    class TA3DSock
+    {
+        SocketTCP tcpsock;
         Mutex tcpmutex;
 
         //only touched by main thread
@@ -187,8 +176,8 @@ namespace TA3D
         void	getBuffer(char* x, int size);
         float	getFloat();
 
-        void sendTCP();
-        void recvTCP();
+        void send();
+        void recv();
 
         int max(int a, int b) {return (a>b ? a : b);}
 
@@ -196,16 +185,17 @@ namespace TA3D
         TA3DSock() {obp=0;tibp=0;tiremain=-1;}
         ~TA3DSock() {}
 
-        int Open(const char* hostname,const char* port);
-        int Accept(TA3DSock** sock);
-        int Accept(TA3DSock** sock,int timeout);
-        void Close();
+        int open(const String &hostname, uint16 port);
+        int open(uint16 port);
+        int accept(TA3DSock** sock);
+        int accept(TA3DSock** sock,int timeout);
+        void close();
 
-        void sendTCP(byte *data, int size);
+        void send(byte *data, int size);
 
-        const char* getAddress() const {return tcpsock.getNumber();}
-        const char* getPort() const {return tcpsock.getService();}
-        Socket& getSock() {return tcpsock;}
+        String getAddress() const {return tcpsock.getIPstr();}
+        uint16 getPort() const {return tcpsock.getPort();}
+        SocketTCP& getSock() {return tcpsock;}
         int isOpen();
 
         //these are for outgoing packets
@@ -228,9 +218,9 @@ namespace TA3D
         int getFilePort();				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer
         int getFileData(byte *buffer);	// Fill the buffer with the data and returns the size of the paquet
 
-        char getPacket();//if packet is ready return the type, else return -1
-        void pumpIn();//get input from sockets non-blocking
-        int takeFive(int time);//sleep until sockets will not block
+        char getPacket();               //if packet is ready return the type, else return -1
+        void pumpIn();                  //get input from sockets non-blocking
+        void check(int time);           //sleep until sockets will not block
     };
 
 

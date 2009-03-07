@@ -21,8 +21,7 @@
 
 # include "../stdafx.h"
 # include "ta3dsock.h"
-# include "udpsock.h"
-# include "broadcastsock.h"
+# include "socket.broadcast.h"
 # include "../misc/superqueue.h"
 # include "../threads/thread.h"
 # include "networkutils.h"
@@ -94,20 +93,19 @@ namespace TA3D
         std::list<SendFileThread*> sendfile_thread;
         std::list<FileTransferProgress> transfer_progress;
 
-        BroadcastSock broadcast_socket;	// Used to discover LAN servers
+        SocketBroadCast broadcast_socket;	// Used to discover LAN servers
         BroadCastThread broadcast_thread;
 
-        char gamename[128];//displays on the internet gamelist
-        char creatorName[64];//name of the game owner
-        int adminDir[10];//which players are admins
-        int myMode;//0 off, 1 'server', 2 client
-        int myID;//your id in everyone elses socklist
+        String gamename;        //displays on the internet gamelist
+        String creatorName;     //name of the game owner
+        int adminDir[10];       //which players are admins
+        int myMode;             //0 off, 1 'server', 2 client
+        int myID;               //your id in everyone elses socklist
 
         //these 5 things need to be syncronized with a mutex
         SockList players;
         SuperQueue specialq;
         SuperQueue chatq;
-        SuperQueue orderq;
         SuperQueue syncq;
         SuperQueue eventq;
 
@@ -118,7 +116,6 @@ namespace TA3D
         Mutex mqmutex;
         Mutex xqmutex;
         Mutex cqmutex;
-        Mutex oqmutex;
         Mutex sqmutex;
         Mutex eqmutex;
         Mutex ftmutex;
@@ -143,8 +140,8 @@ namespace TA3D
         Network();
         ~Network();
 
-        int HostGame(const char* name,const char* port,int network);
-        int Connect(const char* target,const char* port);
+        int HostGame(const String &name, uint16 port);
+        int Connect(const String &target, uint16 port);
         void Disconnect();
 
         void setPlayerDirty();
@@ -152,7 +149,7 @@ namespace TA3D
         bool getPlayerDropped();
         bool pollPlayer(int id);
 
-        void InitBroadcast( const char* port);
+        void InitBroadcast(uint16 port);
 
         int listNetGames(std::list<SERVER_DATA> &list);
         int registerToNetServer( const String &name, const int Slots );
@@ -164,7 +161,6 @@ namespace TA3D
         int sendSpecial( String msg, int src_id = -1, int dst_id = -1);
         int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
         int sendChat(struct chat* chat, int src_id = -1);
-        int sendOrder(struct order* order, int src_id = -1);
         int sendSync(struct sync* sync, int src_id = -1);
         int sendEvent(struct event* event, int src_id = -1);
         int sendFile(int player, const String &filename, const String &port);
@@ -176,7 +172,6 @@ namespace TA3D
 
         int getNextSpecial(struct chat* chat);
         int getNextChat(struct chat* chat);
-        int getNextOrder(struct order* order);
         int getNextSync(struct sync* sync);
         int getNextEvent(struct event* event);
         String getFile(int player, const String &filename);

@@ -47,60 +47,71 @@ namespace TA3D
     }
 
 
-    int TA3DSock::Open(const char* hostname,const char* port)
+    int TA3DSock::open(const String &hostname, uint16 port)
     {
         if (dump_file == NULL)
             dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
-        tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
+        tcpsock.open(hostname,port);
         if(!tcpsock.isOpen())
             return -1;
         return 0;
     }
 
 
-
-    int TA3DSock::Accept(TA3DSock** sock)
+    int TA3DSock::open(uint16 port)
     {
-        int v;
-        (*sock) = new TA3DSock;
-        v = tcpsock.Accept((*sock)->tcpsock);
-        if(v<0)
-        {
-            //accept error
-            delete (*sock);
+        if (dump_file == NULL)
+            dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
+        tcpsock.open(port);
+        if(!tcpsock.isOpen())
             return -1;
-        }
-
-        if(!(*sock)->tcpsock.isOpen())
-        {
-            delete *sock;
-            return -1;
-        }
-
         return 0;
     }
 
-    int TA3DSock::Accept(TA3DSock** sock,int timeout)
+    int TA3DSock::accept(TA3DSock** sock)
     {
-        int v;
-        *sock = new TA3DSock;
-        v = tcpsock.Accept((*sock)->tcpsock,timeout);
+        tcpsock.check(0);
+        SocketTCP *newSock = tcpsock.accept();
 
-        if(v<0)
+        if (newSock)
         {
-            //accept error
-            delete (*sock);
-            return -1;
+            (*sock) = new TA3DSock();
+
+            (*sock)->tcpsock = *newSock;
+            newSock->reset();
+
+            if(!(*sock)->tcpsock.isOpen())
+            {
+                delete *sock;
+                return -1;
+            }
+            return 0;
         }
 
+        return -1;
+    }
 
-        if(!(*sock)->tcpsock.isOpen() )
+    int TA3DSock::accept(TA3DSock** sock,int timeout)
+    {
+        tcpsock.check(timeout);
+        SocketTCP *newSock = tcpsock.accept();
+
+        if (newSock)
         {
-            delete *sock;
-            return -1;
+            (*sock) = new TA3DSock();
+
+            (*sock)->tcpsock = *newSock;
+            newSock->reset();
+
+            if(!(*sock)->tcpsock.isOpen())
+            {
+                delete *sock;
+                return -1;
+            }
+            return 0;
         }
 
-        return 0;
+        return -1;
     }
 
     int TA3DSock::isOpen()
@@ -108,10 +119,10 @@ namespace TA3D
         return tcpsock.isOpen();
     }
 
-    void TA3DSock::Close()
+    void TA3DSock::close()
     {
-        if( tcpsock.isOpen() )
-            tcpsock.Close();
+        if (tcpsock.isOpen())
+            tcpsock.close();
         if (dump_file)
         {
             fclose(dump_file);
@@ -125,7 +136,7 @@ namespace TA3D
     void TA3DSock::putLong(uint32_t x)
     {
         uint32_t temp;
-        temp = nlSwapl(x);
+        SDLNet_Write32(x, &temp);
         memcpy(outbuf+obp,&temp,4);
         obp += 4;
     }
@@ -133,7 +144,7 @@ namespace TA3D
     void TA3DSock::putShort(uint16_t x)
     {
         uint16_t temp;
-        temp = nlSwaps(x);
+        SDLNet_Write16(x, &temp);
         memcpy(outbuf+obp,&temp,2);
         obp += 2;
     }
@@ -162,22 +173,35 @@ namespace TA3D
 
     void TA3DSock::putFloat(float x)
     {
-        float temp;
-        temp = nlSwapf(x);
-        memcpy(outbuf+obp,&temp,4);
+        uint16 test = 1;
+        if (SDLNet_Read16( &test ) != 1)
+        {
+            union { float t;    byte b[4]; } temp;
+            temp.t = x;
+            temp.b[0] ^= temp.b[3];
+            temp.b[3] ^= temp.b[0];
+            temp.b[0] ^= temp.b[3];
+
+            temp.b[1] ^= temp.b[2];
+            temp.b[2] ^= temp.b[1];
+            temp.b[1] ^= temp.b[2];
+            x = temp.t;
+        }
+
+        memcpy(outbuf + obp, &x, 4);
         obp += 4;
     }
 
     uint32 TA3DSock::getLong()	//uint32
     {
-        uint32 result = nlSwapl( *((uint32*)(tcpinbuf+tibrp)) );
+        uint32 result = SDLNet_Read32( tcpinbuf + tibrp );
         tibrp += 4;
         return result;
     }
 
     uint16 TA3DSock::getShort()
     {
-        uint16 result = nlSwaps( *((uint16*)(tcpinbuf+tibrp)) );
+        uint16 result = SDLNet_Read16( tcpinbuf + tibrp );
         tibrp += 2;
         return result;
     }
@@ -207,64 +231,51 @@ namespace TA3D
 
     float TA3DSock::getFloat()
     {
-        float result = nlSwapf( *((float*)(tcpinbuf+tibrp)) );
+        uint16 test = 1;
+        if (SDLNet_Read16( &test ) != 1)
+        {
+            union { float t;    byte b[4]; } temp;
+            temp.t = *((float*)(tcpinbuf+tibrp));
+            temp.b[0] ^= temp.b[3];
+            temp.b[3] ^= temp.b[0];
+            temp.b[0] ^= temp.b[3];
+
+            temp.b[1] ^= temp.b[2];
+            temp.b[2] ^= temp.b[1];
+            temp.b[1] ^= temp.b[2];
+            tibrp += 4;
+
+            return temp.t;
+        }
+
+        float result = *((float*)(tcpinbuf+tibrp));
         tibrp += 4;
         return result;
     }
 
 
-    void TA3DSock::sendTCP(byte *data, int size)
+    void TA3DSock::send(byte *data, int size)
     {
         tcpmutex.lock();
 
-        int count = 0;
-        int bytes_left = size;
-        byte *buffer_cursor = data;
-        while( bytes_left > 0 && count < 10000 && isOpen() )        // waits up to 10sec (real time syncing cannot be done with too slow connections
-        {                                                           // otherwise it's not real time
-            int n = tcpsock.Send(buffer_cursor, bytes_left);
-            if (n == -1)        // We got an error, impossible to continue
-                break;
-            bytes_left -= n;
-            if (bytes_left > 0)     // We've tried to send too much bytes to fit in buffer,
-            {                       // wait a bit before sending the rest, we cannot afford losing data
-                rest(1);
-                count++;
-                buffer_cursor += n;
-            }
-        }
+        tcpsock.send( (char*)data, size );
         if (dump_file)
         {
-            fwrite(data, 1, size - bytes_left, dump_file);
+            fwrite(data, 1, size, dump_file);
             fflush(dump_file);
         }
 
         tcpmutex.unlock();
     }
 
-    void TA3DSock::sendTCP()
+    void TA3DSock::send()
     {
         tcpmutex.lock();
 
-        int count = 0;
-        int bytes_left = obp;
-        char *buffer_cursor = outbuf;
-        while( bytes_left > 0 && count < 10000 && isOpen() )        // waits up to 10sec (real time syncing cannot be done with too slow connections
-        {                                                           // otherwise it's not real time
-            int n = tcpsock.Send(buffer_cursor, bytes_left);
-            if (n == -1)        // We got an error, impossible to continue
-                break;
-            bytes_left -= n;
-            if (bytes_left > 0)     // We've tried to send too much bytes to fit in buffer,
-            {                       // wait a bit before sending the rest, we cannot afford losing data
-                rest(1);
-                count++;
-                buffer_cursor += n;
-            }
-        }
+        tcpsock.send(outbuf, obp);
         if (dump_file)
         {
-            fwrite(outbuf, 1, obp - bytes_left, dump_file);
+            fwrite(outbuf, 1, obp, dump_file);
             fflush(dump_file);
         }
         obp = 0;
@@ -272,12 +283,12 @@ namespace TA3D
         tcpmutex.unlock();
     }
 
-    void TA3DSock::recvTCP()
+    void TA3DSock::recv()
     {
         if(!tiremain)
             return;
 
-        int p = tcpsock.Recv( tcpinbuf, TA3DSOCK_BUFFER_SIZE );
+        int p = tcpsock.recv( tcpinbuf, TA3DSOCK_BUFFER_SIZE );
         if( p <= 0 )
         {
             rest(1);
@@ -291,7 +302,7 @@ namespace TA3D
 
     void TA3DSock::pumpIn()
     {
-        recvTCP();
+        recv();
     }
 
     char TA3DSock::getPacket()
@@ -314,9 +325,9 @@ namespace TA3D
 
 
 
-    int TA3DSock::takeFive(int time)
+    void TA3DSock::check(int time)
     {
-        return tcpsock.takeFive( time );
+        tcpsock.check( time );
     }
 
 
@@ -329,7 +340,7 @@ namespace TA3D
             putByte('X');
         putShort(chat->from);
         putString(chat->message);
-        sendTCP();
+        send();
         tcpmutex.unlock();
         return 0;
     }
@@ -340,23 +351,7 @@ namespace TA3D
         putByte('C');
         putShort(chat->from);
         putString(chat->message);
-        sendTCP();
-        tcpmutex.unlock();
-        return 0;
-    }
-
-    int TA3DSock::sendOrder(struct order* order)
-    {
-        tcpmutex.lock();
-        putByte('O');
-        putLong(order->timestamp);
-        putLong(order->unit);
-        putByte(order->command);
-        putFloat(order->x);
-        putFloat(order->y);
-        putLong(order->target);
-        putByte(order->additional);
-        sendTCP();
+        send();
         tcpmutex.unlock();
         return 0;
     }
@@ -379,7 +374,7 @@ namespace TA3D
         putByte(sync->build_percent_left);
         putByte(sync->flags);
 
-        sendTCP();
+        send();
 
         tcpmutex.unlock();
         return 0;
@@ -390,7 +385,7 @@ namespace TA3D
         tcpmutex.lock();
         putByte('P');
         putByte(0);
-        sendTCP();
+        send();
         tcpmutex.unlock();
 		return 1; // TODO Check this value is correct
     }
@@ -502,7 +497,7 @@ namespace TA3D
                 putString((const char*)(event->str));
                 break;
         };
-        sendTCP();
+        send();
         tcpmutex.unlock();
         return 0;
     }
@@ -555,42 +550,6 @@ namespace TA3D
         }
         if (tiremain == -1)
             return -1;
-        tibp = 0;
-        tiremain = -1;
-
-        return 0;
-    }
-
-    int TA3DSock::makeOrder(struct order* order)
-    {
-        if (tcpinbuf[0] != 'O')
-        {
-            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'O'. Impossible to give the order");
-            return -1;
-        }
-        if (tiremain == -1)
-            return -1;
-        uint32_t temp;
-
-        memcpy(&temp,tcpinbuf+1,4);
-        order->timestamp = temp;
-
-        memcpy(&temp,tcpinbuf+5,4);
-        order->unit = nlSwapl(temp);
-
-        order->command = tcpinbuf[9];
-
-        memcpy(&temp,tcpinbuf+10,4);
-        order->x = nlSwapl(temp);
-
-        memcpy(&temp,tcpinbuf+14,4);
-        order->y = nlSwapl(temp);
-
-        memcpy(&temp,tcpinbuf+18,4);
-        order->target = nlSwapl(temp);
-
-        order->additional = tcpinbuf[19];
-
         tibp = 0;
         tiremain = -1;
 
