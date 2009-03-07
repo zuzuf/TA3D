@@ -31,8 +31,6 @@ namespace TA3D
     {
         MutexLocker locker(pMutex);
         nonBlockingMode = mode;
-        if (mode)
-            start();
     }
 
 
@@ -76,10 +74,10 @@ namespace TA3D
     void SocketTCP::close()
     {
         MutexLocker locker(pMutex);
-        if (sock)
-            SDLNet_TCP_Close(sock);
         if (set)
             SDLNet_FreeSocketSet(set);
+        if (sock)
+            SDLNet_TCP_Close(sock);
         set = NULL;
         sock = NULL;
         checked = false;
@@ -137,18 +135,24 @@ namespace TA3D
 
         if (nonBlockingMode)
         {
-            mBuffer.lock();
-
             int pos = 0;
-            while(pos < size && !buffer.empty())
+            check(0);
+            while(ready() && pos < size)
             {
-                *data++ = buffer.front();
-                buffer.pop_front();
-                pos++;
+                int n = SDLNet_TCP_Recv(sock, data, 1);
+                if (n == 1)
+                {
+                    data++;
+                    pos++;
+                }
+                else
+                {
+                    LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+                    close();
+                    return pos;
+                }
+                check(0);
             }
-
-            mBuffer.unlock();
-
             return pos;
         }
 
@@ -179,35 +183,5 @@ namespace TA3D
         if (set && sock && checked)
             return SDLNet_SocketReady(sock);
         return false;
-    }
-
-    void SocketTCP::proc(void* param)
-    {
-        if (!nonBlockingMode)   return;
-
-        char c;
-
-        while(isOpen())
-        {
-            int n = SDLNet_TCP_Recv(sock, &c, 1);
-            if (n < 0)
-            {
-                LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
-                close();
-                return;
-            }
-
-            if (n == 1)
-            {
-                mBuffer.lock();
-                buffer.push_back(c);
-                mBuffer.unlock();
-            }
-        }
-    }
-
-    void SocketTCP::signalExitThread()
-    {
-        close();
     }
 }
