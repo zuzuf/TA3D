@@ -52,6 +52,7 @@ namespace TA3D
         if (dump_file == NULL)
             dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
         tcpsock.open(hostname,port);
+        tcpsock.setNonBlockingMode(true);
         if(!tcpsock.isOpen())
             return -1;
         return 0;
@@ -63,6 +64,7 @@ namespace TA3D
         if (dump_file == NULL)
             dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
         tcpsock.open(port);
+        tcpsock.setNonBlockingMode(true);
         if(!tcpsock.isOpen())
             return -1;
         return 0;
