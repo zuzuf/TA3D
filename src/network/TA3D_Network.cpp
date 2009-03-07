@@ -354,8 +354,6 @@ namespace TA3D
                     if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {		// If it's false then game is out of sync !!
                         units.unit[ event_msg.opt1 ].lock();
 
-                        printf("(%d), received order to explode %d\n", units.current_tick, event_msg.opt1 );
-
                         units.unit[ event_msg.opt1 ].severity = event_msg.opt2;
                         units.unit[ event_msg.opt1 ].Pos.x = event_msg.x;
                         units.unit[ event_msg.opt1 ].Pos.y = event_msg.y;
@@ -451,8 +449,6 @@ namespace TA3D
                         units.unit[ event_msg.opt1 ].paralyzed = damage;
 
                         units.unit[ event_msg.opt1 ].unlock();
-
-                        printf("(%d), received order to paralyze %d\n", units.current_tick, event_msg.opt1 );
                     }
                     break;
                 case EVENT_UNIT_DAMAGE:
@@ -474,8 +470,6 @@ namespace TA3D
                             units.unit[ event_msg.opt1 ].severity = Math::Max(units.unit[event_msg.opt1].severity, (int)damage);
 
                         units.unit[ event_msg.opt1 ].unlock();
-
-                        printf("(%d), received order to damage %d\n", units.current_tick, event_msg.opt1 );
                     }
                     break;
                 case EVENT_WEAPON_CREATION:
@@ -528,13 +522,11 @@ namespace TA3D
                                     weapons.weapon[w_idx].move(tick_conv,the_map);
                             }
                             else
-                                printf("WARNING: couldn't create weapon '%s'\n", (char*)event_msg.str );
+                                LOG_WARNING(LOG_PREFIX_NET << "couldn't create weapon '" << (char*)event_msg.str << "'" );
                             weapons.unlock();
                         }
                         else
-                            printf("WARNING: couldn't identify weapon '%s'\n", (char*)event_msg.str );
-
-                        printf("(%d), received order to shoot from %d\n", units.current_tick, event_msg.opt1 );
+                            LOG_WARNING(LOG_PREFIX_NET << "couldn't identify weapon '" << (char*)event_msg.str << "'" );
                     }
                     break;
                 case EVENT_UNIT_SCRIPT:
@@ -547,12 +539,11 @@ namespace TA3D
                         units.lock();
 
                         for( int i = 0 ; i < units.max_unit ; i++ )
-                            if( units.idx_list[ i ] == event_msg.opt1 ) {
+                            if (units.idx_list[ i ] == event_msg.opt1)
+                            {
                                 e = i;
                                 break;
                             }
-
-                        printf("(%d), received order to kill %d\n", units.current_tick, event_msg.opt1 );
 
                         units.unlock();
 
@@ -574,7 +565,6 @@ namespace TA3D
                             if (unit)
                             {
                                 unit->lock();
-                                printf("(%d), created unit (%s) idx = %d\n", units.current_tick, event_msg.str, unit->idx );
 
                                 if (event_msg.opt2 & 0x1000) // Created by a script, so give it 100% HP
                                 {
