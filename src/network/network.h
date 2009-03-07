@@ -164,6 +164,7 @@ namespace TA3D
         int sendSync(struct sync* sync, int src_id = -1);
         int sendEvent(struct event* event, int src_id = -1);
         int sendFile(int player, const String &filename, const String &port);
+        int sendTick(uint32 tick, uint16 speed);
 
         int dropPlayer(int num);
         int cleanPlayer();

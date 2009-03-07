@@ -46,7 +46,9 @@ namespace TA3D
         std::list<NetworkMessage>   messages;
         bool						enter;
         AREA						*area;
+    public:
         GameData					*game_data;
+    private:
 
         int							signal;
 

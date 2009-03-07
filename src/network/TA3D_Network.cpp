@@ -46,6 +46,29 @@ namespace TA3D
     const float	tick_conv = 1.0f / TICKS_PER_SEC;
 
 
+    void TA3DSock::makeTick(int from)
+    {
+        if (tcpinbuf[0] != 'T')
+        {
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'T'. Impossible to read tick data");
+            return;
+        }
+        if (tiremain == -1)
+            return;
+
+        tibrp = 1;
+        if (g_ta3d_network && g_ta3d_network->game_data)
+        {
+            int player_id = g_ta3d_network->game_data->net2id( from );
+            if (player_id >= 0)
+            {
+                units.client_tick[ player_id ] = getLong() * 1000;
+                units.client_speed[ player_id ] = getShort();
+            }
+        }
+        tibp = 0;
+        tiremain = -1;
+    }
 
 
     TA3DNetwork::TA3DNetwork( AREA *area, GameData *game_data )
@@ -66,7 +89,7 @@ namespace TA3D
 
     void TA3DNetwork::check()
     {
-        if( !network_manager.isConnected() )
+        if (!network_manager.isConnected())
         {
             lp_CONFIG->enable_shortcuts = true;
             return;		// Only works in network mode
@@ -215,17 +238,6 @@ namespace TA3D
                 {
                     String filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(ReplaceChar( params[1], 1, ' ' ), ".sav");
                     save_game(filename, game_data); // Save the game using filename given by server
-                }
-            }
-            else if (params.size() == 3)
-            {
-                if( params[0] == "TICK" )
-                {
-                    if( player_id >= 0 )
-                    {
-                        units.client_tick[ player_id ] = atoi( params[1].c_str() ) * 1000;
-                        units.client_speed[ player_id ] = atoi( params[2].c_str() );
-                    }
                 }
             }
         }

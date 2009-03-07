@@ -22,7 +22,6 @@
 #include "../logs/logs.h"
 
 
-
 namespace TA3D
 {
 
@@ -713,6 +712,17 @@ namespace TA3D
 
         tibp = 0;
         tiremain = -1;
+        return 0;
+    }
+
+    int TA3DSock::sendTick(uint32 tick, uint16 speed)
+    {
+        tcpmutex.lock();
+        putByte('T');
+        putLong(tick);
+        putShort(speed);
+        send();
+        tcpmutex.unlock();
         return 0;
     }
 

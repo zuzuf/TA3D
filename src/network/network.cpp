@@ -645,6 +645,27 @@ namespace TA3D
         return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
     }
 
+    int Network::sendTick(uint32 tick, uint16 speed)
+    {
+        if (myMode == 1)				// Server mode
+        {
+            int v = 0;
+            for (int i = 1 ; i <= players.getMaxId() ; i++)
+            {
+                TA3DSock *sock = players.getSock( i );
+                if (sock)
+                    v += sock->sendTick(tick, speed);
+            }
+            return v;
+        }
+        else if (myMode == 2)			// Client mode
+        {
+            if (tohost_socket == NULL || !tohost_socket->isOpen())	return -1;
+            return tohost_socket->sendTick(tick, speed);
+        }
+        return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
+    }
+
     int Network::sendEvent(struct event* event, int src_id)
     {
         if (myMode == 1)				// Server mode

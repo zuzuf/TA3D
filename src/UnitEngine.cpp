@@ -6518,7 +6518,7 @@ script_exec:
 
                 net_timer = msec_timer;
 
-                network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
+                network_manager.sendTick(current_tick + 1, (uint16)(1000.0f * apparent_timefactor));		// + 1 to prevent it from running too slow
                 if (current_tick > min_tick + TICKS_PER_SEC )
                 {
                     while (current_tick > min_tick && !thread_ask_to_stop)
@@ -6531,7 +6531,7 @@ script_exec:
                         lp_CONFIG->paused = false;
 
                         players_thread_sync = 0;
-                        network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
+                        network_manager.sendTick(current_tick + 1, (uint16)(1000.0f * apparent_timefactor));		// + 1 to prevent it from running too slow
                         rest(1);
 
                         min_tick = current_tick * 1000;
