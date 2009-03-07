@@ -1017,9 +1017,6 @@ void setup_game(bool client, const char *host, const char *saved_game)
                         GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
                         if (guiobj)
                             guiobj->Flag |= FLAG_HIDDEN;
-                        guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i));
-                        if (guiobj)
-                            guiobj->Flag |= FLAG_HIDDEN;
                     }
                 }
             }
