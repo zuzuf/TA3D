@@ -51,8 +51,6 @@ namespace TA3D
         tohost_socket = NULL;
         playerDirty = false;
         fileDirty = false;
-
-        SDLNet_Init();
     }
 
 
@@ -81,8 +79,6 @@ namespace TA3D
         broadcastq.clear();
         broadcastaddressq.clear();
         players.Shutdown();
-
-        SDLNet_Quit();
     }
 
     void Network::InitBroadcast( uint16 port )

@@ -86,6 +86,9 @@ namespace TA3D
 		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
 			throw ("SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
 
+        if (SDLNet_Init() == -1)
+			throw ("SDLNet_Init() failed.");
+
 		// Creating HPI Manager
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
 
@@ -149,6 +152,7 @@ namespace TA3D
 
 		if (m_SDLRunning)
 		{
+		    SDLNet_Quit();
 			SDL_Quit();
 			m_SDLRunning = false;
 		}
