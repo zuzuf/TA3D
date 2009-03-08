@@ -511,7 +511,7 @@ namespace TA3D
                     //and other things
                 }
             }
-            sleep(1);//testing
+            rest(1);//testing
         }
         return;
     }

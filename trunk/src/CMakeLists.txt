@@ -281,7 +281,7 @@ target_link_libraries(${3DMEDITOR_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
 
 IF(WIN32)
     target_link_libraries(${3DMEDITOR_BIN} lua gdi32 opengl32 glu32 ${LIBS})
-    target_link_libraries(${TA3D_BIN} lua gdi32 opengl32 glu32 NL ${LIBS})
+    target_link_libraries(${TA3D_BIN} lua gdi32 opengl32 glu32 ${LIBS})
 ENDIF(WIN32)
 
 IF(NOT APPLE)
