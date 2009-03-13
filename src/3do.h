@@ -79,11 +79,12 @@ namespace TA3D
 
     /*--------------Classes pour l'animation---------------------------------------------*/
 
-#define FLAG_HIDE			0x01
-#define FLAG_WAIT_FOR_TURN	0x02
-#define FLAG_NEED_COMPUTE	0x04
-#define FLAG_EXPLODE		0x08
-#define FLAG_ANIMATE		0x10
+#define FLAG_HIDE               0x01
+#define FLAG_WAIT_FOR_TURN      0x02
+#define FLAG_NEED_COMPUTE       0x04
+#define FLAG_EXPLODE            0x08
+#define FLAG_ANIMATE            0x10
+#define FLAG_ANIMATED_TEXTURE   0x20
 
     // a few things needed to handle explosions properly
 
@@ -279,7 +280,7 @@ namespace TA3D
         int	        *tex;				// Tableau de numéros de texture OpenGl
         byte        *usetex;			// Tableau indiquant si une texture doit être appliquée
         sint16      selprim;			// Polygone de selection
-        GLuint      gltex[10];			// Texture pour le dessin de l'objet
+        std::vector<GLuint> gltex;      // Texture pour le dessin de l'objet
         String::Vector  tex_cache_name; // Used for on-the-fly loading
         uint8       dtex;				// Indique si une texture objet doit être détruite avec l'objet
         float       *tcoord;			// Tableau de coordonnées de texture
@@ -287,7 +288,7 @@ namespace TA3D
         sint16      script_index;		// Indice donné par le script associé à l'unité
         bool        emitter;			// This object can or has sub-objects which can emit particles
         bool        emitter_point;		// This object directly emits particles
-        GLuint      gl_dlist[10];		// Display lists to speed up the drawing process
+        std::vector<GLuint> gl_dlist;   // Display lists to speed up the drawing process
 
         OBJECT_SURFACE  surface;		// Tell how this object must be drawn
         ANIMATION   *animation_data;

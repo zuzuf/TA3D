@@ -126,3 +126,6 @@ function piece(...)
     end
 end
 
+function stop_spin(piece, axis)
+    spin(piece, axis, 0)
+end

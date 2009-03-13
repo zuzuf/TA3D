@@ -140,7 +140,7 @@ namespace TA3D
         return 0;
     }
 
-    int unit_stop_spin( lua_State *L )           // stop_spin(obj, axis, speed)
+    int unit_spin( lua_State *L )               // spin(obj, axis, speed)
     {
         UNIT *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, -3);
@@ -240,10 +240,10 @@ namespace TA3D
         lua_register(L, "turn_object", unit_turn_object );                  // turn_object(obj_id, axis, angle, speed)
         lua_register(L, "get_value_from_port", unit_get_value_from_port );  // get_value_from_port(port)
         lua_register(L, "spin_object", unit_spin_object );                  // spin_object(obj_id, axis, target_speed, acceleration)
+        lua_register(L, "spin", unit_spin );                                // spin(obj_id, axis, speed)
         lua_register(L, "show_object", unit_show_object );                  // show_object(obj_id)
         lua_register(L, "hide_object", unit_hide_object );                  // hide_object(obj_id)
         lua_register(L, "emit_sfx", unit_emit_sfx );                        // emit_sfx(smoke_type, from_piece)
-        lua_register(L, "stop_spin", unit_stop_spin );                      // stop_spin(obj, axis, speed)
         lua_register(L, "move_piece_now", unit_move_piece_now );            // move_piece_now(obj, axis, pos)
         lua_register(L, "turn_piece_now", unit_turn_piece_now );            // turn_piece_now(obj, axis, angle)
         lua_register(L, "get", unit_get );                                  // get(type, v1, v2)

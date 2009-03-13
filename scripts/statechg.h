@@ -16,6 +16,9 @@ INACTIVE    = 1
 
 -- State change request functions
 
+statechg_DesiredState = INACTIVE
+statechg_StateChanging = false
+
 function InitState()
     -- Initial state
     statechg_DesiredState = INACTIVE
@@ -23,9 +26,7 @@ function InitState()
 end
 
 function RequestState( requestedstate )
-    local actualstate
-
-    -- Is it busy?
+    -- If already running, then just change the target state
     if statechg_StateChanging then
         -- Then just tell it how we want to end up.  A script is already running and will take care of it.
         statechg_DesiredState = requestedstate
@@ -36,12 +37,12 @@ function RequestState( requestedstate )
     statechg_StateChanging = true
 
     -- Since nothing was running, the actual state is the current desired state
-    actualstate = statechg_DesiredState
+    local actualstate = statechg_DesiredState
 
     -- State our desires
     statechg_DesiredState = requestedstate
 
-    -- Process until everything is right and decent
+    -- Repeat command until proper state
     while statechg_DesiredState ~= actualstate do
         -- Change the state
 
@@ -58,7 +59,7 @@ function RequestState( requestedstate )
         yield()
     end
 
-    -- Okay, we are finshed
+    -- Job done
     statechg_StateChanging = false
 end
 
