@@ -63,6 +63,8 @@ unlock_orders( unit_id )
 
 // Unit scripting prototypes
 attach_unit(unit_id, piece_id)
+cache(obj_id)
+dont_cache(obj_id)
 drop_unit(unit_id)
 emit_sfx(smoke_type, from_piece)
 explode(obj_id, explosion_type)

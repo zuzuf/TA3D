@@ -130,6 +130,24 @@ namespace TA3D
         return 0;
     }
 
+    int unit_cache( lua_State *L )          // cache(obj_id)
+    {
+        UNIT *pUnit = lua_currentUnit(L);
+        int obj = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+        pUnit->script_cache(obj);
+        return 0;
+    }
+
+    int unit_dont_cache( lua_State *L )        // dont_cache(obj_id)
+    {
+        UNIT *pUnit = lua_currentUnit(L);
+        int obj = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+        pUnit->script_dont_cache(obj);
+        return 0;
+    }
+
     int unit_emit_sfx( lua_State *L )           // emit_sfx(smoke_type, from_piece)
     {
         UNIT *pUnit = lua_currentUnit(L);
@@ -253,6 +271,8 @@ namespace TA3D
         lua_register(L, "drop_unit", unit_drop_unit );                      // drop_unit(unit_id)
         lua_register(L, "unit_position", unit_unit_position );              // unit_position(unit_id) = vector(x,y,z)
         lua_register(L, "unit_ID", unit_unit_ID );                          // unit_ID()
+        lua_register(L, "cache", unit_cache );                              // cache(obj_id)
+        lua_register(L, "dont_cache", unit_dont_cache );                    // dont_cache(obj_id)
     }
 
     void UNIT_SCRIPT::register_info()
