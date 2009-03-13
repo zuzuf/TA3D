@@ -118,3 +118,10 @@ function wait_for_turn(obj, axis)
         coroutine.yield()
     end
 end
+
+function piece(...)
+    __piece_list = {...}
+    for i = 1, #__piece_list do
+        _G[__piece_list[i]] = i - 1
+    end
+end

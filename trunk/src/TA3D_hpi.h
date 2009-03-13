@@ -262,14 +262,14 @@ namespace HPI
         */
         struct HPIITEM
         {
-            //!
+            //! Pointer to HPI data structure, if NULL then we have a real file here
             HPIFILEDATA*  hfd;
             //!
             HPIENTRY*  E1;
             //!
             sint32  IsDir;
             //!
-            sint8*  Name;
+            String  Name;
             //!
             sint32  Size;
 
@@ -278,6 +278,11 @@ namespace HPI
         # pragma pack()
 
     private:
+        /*!
+        ** \brief Add files from the real file system
+        */
+        void AddRealFS();
+
         /*!
         ** \brief
         **

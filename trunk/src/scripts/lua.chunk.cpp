@@ -18,6 +18,7 @@
 #include "../stdafx.h"
 #include <fstream>
 #include "lua.chunk.h"
+#include "lua.thread.h"
 
 using namespace std;
 
@@ -110,6 +111,7 @@ namespace TA3D
     {
         buffer = NULL;
         size = 0;
+        piece_name.clear();
     }
 
     void LUA_CHUNK::destroy()
@@ -123,6 +125,28 @@ namespace TA3D
     int LUA_CHUNK::identify(const String &name)
     {
 #warning TODO: fix piece identifier
+        if (piece_name.empty())
+        {
+            LUA_THREAD *thread = new LUA_THREAD();
+            thread->load(this);
+            thread->run();      // Initialize the thread
+            lua_getglobal(thread->L, "__piece_list");
+            if (!lua_isnil(thread->L, -1))
+            {
+                piece_name.resize(lua_objlen(thread->L, -1));
+                for(int i = 1 ; i <= piece_name.size() ; i++)
+                {
+                    lua_rawgeti(thread->L, -1, i);
+                    piece_name[i-1] = lua_tostring(thread->L, -1);
+                    lua_pop(thread->L, 1);
+                }
+            }
+            delete thread;
+        }
+        String query = String::ToLower(name);
+        for(int i = 0 ; i < piece_name.size() ; i++)
+            if (piece_name[i] == query)
+                return i;
         return -1;
     }
 }

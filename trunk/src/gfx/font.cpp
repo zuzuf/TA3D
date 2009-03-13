@@ -128,8 +128,10 @@ namespace TA3D
         else
             Paths::GlobFiles(file_list, path + "/*", true, true);
         for(String::List::iterator i = file_list.begin() ; i != file_list.end() && file_path.empty() ; ++i)
+        {
             if (String::ToLower( Paths::ExtractFileName(*i) ) == comp_name)
                 file_path = HPIManager == NULL ? path + "/" + *i : *i;
+        }
 
         if (file_path.empty() && !HPIManager)
         {

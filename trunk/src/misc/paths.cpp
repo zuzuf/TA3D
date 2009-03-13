@@ -437,12 +437,12 @@ namespace Paths
 
     bool GlobFiles(String::List& out, const String& pattern, const bool emptyListBefore, const bool relative)
     {
-        return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_FILE, 0, relative);
+        return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_FILE, FA_FILE, relative);
     }
 
     bool GlobFiles(String::Vector& out, const String& pattern, const bool emptyListBefore, const bool relative)
     {
-        return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_FILE, 0, relative);
+        return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_FILE, FA_FILE, relative);
     }
 
     bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore, const bool relative)
