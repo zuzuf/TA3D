@@ -16,10 +16,10 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*-----------------------------------------------------------------------------\
-  |                                    menu.cpp                                  |
-  |       Ce module contient les routines du menu de TA3D                        |
-  |                                                                              |
-  \-----------------------------------------------------------------------------*/
+|                                    menu.cpp                                  |
+|       Ce module contient les routines du menu de TA3D                        |
+|                                                                              |
+\-----------------------------------------------------------------------------*/
 
 #include "stdafx.h"
 #include <vector>
@@ -666,7 +666,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
     else
     {
         String::List script_list;
-        uint32 n = HPIManager->getFilelist("scripts\\*.lua", script_list);
+        uint32 n = HPIManager->getFilelist("scripts\\game\\*.lua", script_list);
 
         if (n == 0)
         {
@@ -791,7 +791,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
     if (guiobj)
     {
         String::List script_list;
-        HPIManager->getFilelist("scripts\\*.lua", script_list);
+        HPIManager->getFilelist("scripts\\game\\*.lua", script_list);
         for (String::List::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
             guiobj->Text.push_back(*i_script);
     }
@@ -2623,10 +2623,10 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
         GameData game_data;
 
         // Generate the script which will be removed later
-        TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts");
-        TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts/__campaign_script.lua", ota_parser, schema);
+        TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts//game");
+        TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts/game/__campaign_script.lua", ota_parser, schema);
 
-        game_data.game_script = "scripts/__campaign_script.lua";
+        game_data.game_script = "scripts/game/__campaign_script.lua";
         game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";     // Remember the last map we played
         game_data.fog_of_war = FOW_ALL;
 
