@@ -171,9 +171,9 @@ namespace TA3D
                     byte *buffer3 = new byte[ filesize + filesize2 ];
                     memset( buffer3, 0, filesize + filesize2 );
                     memcpy( buffer3, buffer, f - (char*)buffer );
-                    memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
-                    memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
-                    filesize += filesize2 - i - 11;
+                    memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 - 1 );
+                    memcpy( buffer3 + (f - (char*)buffer) + filesize2 - 1, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
+                    filesize += filesize2 - i - 12;
                     delete[] buffer;
                     delete[] buffer2;
                     buffer = buffer3;
@@ -199,7 +199,6 @@ namespace TA3D
             if (L == NULL)
             {
                 running = false;
-                delete[] buffer;
                 buffer = NULL;
                 return;
             }
@@ -230,7 +229,7 @@ namespace TA3D
             memcpy(buffer, header_buffer, filesize2);
             memcpy(buffer+filesize2, tmp, filesize);
             buffer[filesize2-1] = '\n';
-            filesize += filesize2;
+            filesize += filesize2 - 1;
             delete[] header_buffer;
 
             name = filename;
@@ -273,7 +272,6 @@ namespace TA3D
             if (L == NULL)
             {
                 running = false;
-                delete[] buffer;
                 buffer = NULL;
                 return;
             }
@@ -540,6 +538,7 @@ namespace TA3D
         if (lua_isnil( L, -1 ))     // Function not found
         {
             lua_pop(L, 1);
+            LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`");
             return;
         }
 
@@ -559,6 +558,7 @@ namespace TA3D
         if (lua_isnil( L, -1 ))     // Function not found
         {
             lua_pop(L, 1);
+            LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
             return 0;
         }
 

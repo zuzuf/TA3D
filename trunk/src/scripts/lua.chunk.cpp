@@ -16,6 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "../stdafx.h"
+#include "../TA3D_NameSpace.h"
 #include <fstream>
 #include "lua.chunk.h"
 #include "lua.thread.h"
@@ -29,10 +30,15 @@ namespace TA3D
         LUA_CHUNK *chunk = (LUA_CHUNK*) u;
         if (u == NULL)  return 1;
 
-        chunk->destroy();
-        chunk->size = size;
-        chunk->buffer = new char[size];
-        memcpy(chunk->buffer, p, size);
+        byte *nBuf = new byte[chunk->size + size];
+        if (chunk->buffer)
+        {
+            memcpy(nBuf, chunk->buffer, chunk->size);
+            delete[] chunk->buffer;
+        }
+        memcpy(nBuf + chunk->size, p, size);
+        chunk->size += size;
+        chunk->buffer = nBuf;
         return 0;
     }
 
@@ -54,11 +60,12 @@ namespace TA3D
 
     int LUA_CHUNK::load(lua_State *L)
     {
-        return luaL_loadbuffer(L, buffer, size, name.c_str());
+        return luaL_loadbuffer(L, (char*)buffer, size, name.c_str());
     }
 
     void LUA_CHUNK::dump(lua_State *L, const String &name)
     {
+        destroy();
         lua_dump(L, WriterFunc, (void*)this);
         this->name = name;
     }
@@ -70,24 +77,19 @@ namespace TA3D
 
     void LUA_CHUNK::load(const String &filename)                    // Load a lua chunk
     {
-        fstream file(filename.c_str(), fstream::in | fstream::binary);
-        if (file.is_open())
-        {
-            destroy();
+        destroy();
 
-            int s = name.size();
-            file.read((char*)&s, sizeof(s));
-            char *tmp = new char[s+1];
-            tmp[s] = 0;
-            file.read(tmp, s);
-            name = tmp;
-            delete[] tmp;
+        LUA_THREAD *thread = new LUA_THREAD;
+        thread->load(filename);
 
-            file.read((char*)&size, sizeof(size));
-            buffer = new char[size];
-            file.read(buffer, size);
-            file.close();
-        }
+        LUA_CHUNK *chunk = thread->dump();
+
+        buffer = chunk->buffer;
+        size = chunk->size;
+        name = chunk->name;
+        chunk->buffer = NULL;
+        delete chunk;
+        delete thread;
     }
 
     void LUA_CHUNK::save(const String &filename)                    // Save the lua chunk
@@ -97,12 +99,7 @@ namespace TA3D
         fstream file(filename.c_str(), fstream::out | fstream::binary);
         if (file.is_open())
         {
-            int s = name.size();
-            file.write((char*)&s, sizeof(s));
-            file.write(name.c_str(), s);
-
-            file.write((char*)&size, sizeof(size));
-            file.write(buffer, size);
+            file.write((char*)buffer, size);
             file.close();
         }
     }
@@ -129,7 +126,7 @@ namespace TA3D
         {
             LUA_THREAD *thread = new LUA_THREAD();
             thread->load(this);
-            thread->run();      // Initialize the thread
+            thread->run();      // Initialize the thread (read functions, pieces, ...)
             lua_getglobal(thread->L, "__piece_list");
             if (!lua_isnil(thread->L, -1))
             {

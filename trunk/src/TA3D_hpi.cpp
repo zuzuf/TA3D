@@ -693,6 +693,7 @@ namespace HPI
                     byte *data = new byte[ FileSize + 1 ];
                     fread( data, FileSize, 1, src );
                     data[FileSize] = 0;				// NULL terminated
+                    FileSize++;
                     fclose(src);
                     if (fileLength)
                         *fileLength = FileSize;
@@ -747,12 +748,14 @@ namespace HPI
             FILE* src = fopen(iterFind->Name.c_str(), "rb");
             if (src)
             {
-                byte* data = new byte [iterFind->Size + 1];
-                fread( data, iterFind->Size, 1, src );
-                data[ iterFind->Size ] = 0;				// NULL terminated
+                FileSize = iterFind->Size;
+                byte* data = new byte [FileSize + 1];
+                fread( data, FileSize, 1, src );
+                data[ FileSize ] = 0;				// NULL terminated
+                FileSize++;
                 fclose( src );
                 if (fileLength)
-                    *fileLength = iterFind->Size;
+                    *fileLength = FileSize;
                 return data;
             }
         }
@@ -784,7 +787,9 @@ namespace HPI
                 for(int i = 0 ; i < fileList.size() ; i++)
                 {
                     String filename = cur_Path + fileList[i];
-                    String key = String::ToLower(fileList[i]);
+                    String key = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
+                    key.convertSlashesIntoAntiSlashes();
+
                     HPIITEM *iterFind = m_Archive->find(key);
                     if (iterFind && iterFind->hfd && iterFind->hfd->priority)   continue;
                     iterFind = new HPIITEM;
@@ -794,9 +799,7 @@ namespace HPI
                     iterFind->Size = FILE_SIZE(filename);
                     iterFind->Name = filename;
 
-                    filename = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
-                    filename.convertSlashesIntoAntiSlashes();
-                    m_Archive->insertOrUpdate(filename, iterFind);
+                    m_Archive->insertOrUpdate(key, iterFind);
                 }
             }
         }
@@ -820,7 +823,8 @@ namespace HPI
                     for(int i = 0 ; i < fileList.size() ; i++)
                     {
                         String filename = cur_Path + fileList[i];
-                        String key = String::ToLower(fileList[i]);
+                        String key = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
+                        key.convertSlashesIntoAntiSlashes();
                         HPIITEM *iterFind;
                         iterFind = new HPIITEM;
                         iterFind->E1 = NULL;
@@ -829,8 +833,6 @@ namespace HPI
                         iterFind->Size = FILE_SIZE(filename);
                         iterFind->Name = filename;
 
-                        filename = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
-                        filename.convertSlashesIntoAntiSlashes();
                         m_Archive->insertOrUpdate(filename, iterFind);
                     }
                 }

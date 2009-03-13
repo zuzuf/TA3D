@@ -3099,7 +3099,7 @@ namespace TA3D
                     byte *data = HPIManager->PullFromHPI(*e);
                     if (data)
                     {
-                        if (data[0] == 0 )
+                        if (data[0] == 0)
                         {
                             String real_name = (char*)(data+1);
                             real_name.trim();

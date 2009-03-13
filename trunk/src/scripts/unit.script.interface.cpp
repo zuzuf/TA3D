@@ -28,7 +28,7 @@ namespace TA3D
 
         if ( dynamic_cast<COB_SCRIPT*>(data) )          // Try COB_SCRIPT (OTA COB/BOS)
             usi = new COB_VM();
-        else if ( dynamic_cast<UNIT_SCRIPT*>(data) )    // Try UNIT_SCRIPT (Lua)
+        else if ( dynamic_cast<LUA_CHUNK*>(data) )      // Try LUA_CHUNK (Lua)
             usi = new UNIT_SCRIPT();
 
         usi->load( data );
