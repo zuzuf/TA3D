@@ -28,7 +28,6 @@
 # define  __COB_H__
 
 # include "../stdafx.h"
-# include <stack>
 # include "script.data.h"
 
 #include "unit.defines.h"
