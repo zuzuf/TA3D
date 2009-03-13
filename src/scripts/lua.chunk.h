@@ -30,9 +30,10 @@ namespace TA3D
     class LUA_CHUNK : public SCRIPT_DATA
     {
     protected:
-        char        *buffer;
-        int         size;
-        String      name;
+        char            *buffer;
+        int             size;
+        String          name;
+        String::Vector  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
 
     public:
         LUA_CHUNK(lua_State *L, const String &name);

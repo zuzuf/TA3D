@@ -49,6 +49,7 @@ namespace TA3D
     */
     class LUA_THREAD : public Thread, public SCRIPT_INTERFACE
     {
+        friend class LUA_CHUNK;
     protected:
         byte        *buffer;
         lua_State   *L;             // The Lua state

@@ -352,7 +352,7 @@ namespace HPI
 
             HPIITEM *li = new HPIITEM;
             li->hfd = hi->hfd;
-            li->Name = Name;
+            li->Name = (char*)Name;
             li->E1 = Entry;
 
             if (Entry->Flag == 1)
@@ -404,7 +404,7 @@ namespace HPI
                 hi->hfd = hfd;
                 hi->IsDir = 1;
                 hi->Size = 0;
-                hi->Name = Name;
+                hi->Name = (char*)Name;
                 hi->E1 = Entry;
 
                 ProcessSubDir( hi );
@@ -495,6 +495,7 @@ namespace HPI
         }
         else
             SearchDirForArchives("");
+        AddRealFS();
     }
 
     // constructor used by the installer
@@ -504,6 +505,7 @@ namespace HPI
         m_file_cache = new std::list<CACHEFILEDATA>;
 
         SearchDirForArchives(path);
+        AddRealFS();
     }
 
     cHPIHandler::~cHPIHandler()
@@ -562,7 +564,7 @@ namespace HPI
         cacheable_filename.toLower();
         for (String::iterator i = cacheable_filename.begin(); i != cacheable_filename.end(); ++i)
         {
-            if ('/' == *i)
+            if ('/' == *i || '\\' == *i)
                 *i = 'S';
         }
 
@@ -605,7 +607,7 @@ namespace HPI
         String cacheable_filename = String::ToLower(filename);
         for (String::iterator i = cacheable_filename.begin() ; i != cacheable_filename.end(); ++i)
         {
-            if ('/' == *i)
+            if ('/' == *i || '\\' == *i)
                 *i = 'S';
         }
 
@@ -653,47 +655,23 @@ namespace HPI
 
     byte *cHPIHandler::PullFromHPI(const String& filename, uint32* fileLength)
     {
-        String UNIX_filename;
-        uint32	FileSize;
+        String key = String::ToLower(filename);
+        key.convertSlashesIntoAntiSlashes();
+        uint32 FileSize;
 
-        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
+        CACHEFILEDATA *cache = IsInCache(key);
+        if (cache)
         {
-            UNIX_filename.clear();
-            UNIX_filename << *cur_Path << filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
-
-            CACHEFILEDATA *cache_result = IsInCache(UNIX_filename); // Look for it in the cache
-            if (cache_result)
-            {
-                byte* data = new byte[cache_result->length + 1];
-                data[cache_result->length] = 0;                     // Null terminated buffer
-                memcpy(data, cache_result->data, cache_result->length);
-                if (fileLength)
-                    *fileLength = cache_result->length;
-                return data;
-            }
-
-            UNIX_filename = *cur_Path + TA3D_CURRENT_MOD + filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
-
-            if (exists(UNIX_filename.c_str())) // Current mod has priority
-            {
-                FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-                if (src)
-                {
-                    FileSize = FILE_SIZE( UNIX_filename.c_str() );
-                    byte *data = new byte[ FileSize + 1 ];
-                    fread( data, FileSize, 1, src );
-                    data[ FileSize ] = 0;				// NULL terminated
-                    fclose( src );
-                    if (fileLength)
-                        *fileLength = FileSize;
-                    PutInCache( UNIX_filename, FileSize, data );
-                    return data;
-                }
-            }
-
-            byte* data = IsInDiskCache( UNIX_filename, &FileSize );
+            if (fileLength)
+                *fileLength = cache->length;
+            byte *data = new byte[cache->length + 1];
+            memcpy(data, cache->data, cache->length);
+            data[cache->length] = 0;
+            return data;
+        }
+        else
+        {
+            byte* data = IsInDiskCache( key, &FileSize );
             if( data )
             {
                 if (fileLength)
@@ -702,57 +680,33 @@ namespace HPI
             }
         }
 
+        HPIITEM *iterFind = m_Archive->find(key);
 
-        HPIITEM *iterFind = m_Archive->find(String::ToLower(filename));
-        if (iterFind && iterFind->hfd->priority) // Priority file!!
+        if (iterFind != NULL)
         {
-            byte *data = DecodeFileToMem(iterFind , &FileSize);
-            PutInCache(UNIX_filename, FileSize, data);
-            if (fileLength)
-                *fileLength = FileSize;
-            return data;
-        }
-
-        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
-        {
-            UNIX_filename = *cur_Path + filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
-
-            if (exists(UNIX_filename.c_str()))
+            if (iterFind->hfd == NULL)  // This is a real file
             {
-                FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-                if( src )
+                FILE* src = fopen(iterFind->Name.c_str(), "rb");
+                if (src)
                 {
-                    FileSize = FILE_SIZE( UNIX_filename.c_str() );
+                    FileSize = iterFind->Size;
                     byte *data = new byte[ FileSize + 1 ];
                     fread( data, FileSize, 1, src );
                     data[FileSize] = 0;				// NULL terminated
                     fclose(src);
                     if (fileLength)
                         *fileLength = FileSize;
-                    PutInCache( UNIX_filename, FileSize, data );
                     return data;
                 }
             }
-
+            else                        // The file is in an archive
             {
-                byte* data = IsInDiskCache(UNIX_filename, &FileSize);
-                if (data)
-                {
-                    if (fileLength)
-                        *fileLength = FileSize;
-                    return data;
-                }
+                byte *data = DecodeFileToMem( iterFind , &FileSize );
+                PutInCache( key, FileSize, data );
+                if (fileLength)
+                    *fileLength = FileSize;
+                return data;
             }
-        }
-
-        if (iterFind != NULL)
-        {
-            byte *data = DecodeFileToMem( iterFind , &FileSize );
-            PutInCache( UNIX_filename, FileSize, data );
-            if (fileLength)
-                *fileLength = FileSize;
-            return data;
         }
 
         return NULL;
@@ -762,78 +716,135 @@ namespace HPI
 
     byte* cHPIHandler::PullFromHPI_zone(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
     {
-        String UNIX_filename;
-        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
-        {
-            UNIX_filename.clear();
-            UNIX_filename << *cur_Path << TA3D_CURRENT_MOD << filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
+        String key = String::ToLower(filename);
+        key.convertSlashesIntoAntiSlashes();
+        uint32 FileSize;
 
-            if (exists(UNIX_filename.c_str())) // Current mod has priority
+        CACHEFILEDATA *cache = IsInCache(key);
+        if (cache)
+        {
+            if (fileLength)
+                *fileLength = cache->length;
+            byte *data = new byte[cache->length + 1];
+            memcpy(data, cache->data, cache->length);
+            data[cache->length] = 0;
+            return data;
+        }
+        else
+        {
+            byte* data = IsInDiskCache( key, &FileSize );
+            if( data )
             {
-                FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-                if (src)
-                {
-                    byte* data = new byte [FILE_SIZE(UNIX_filename.c_str()) + 1];
-                    fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
-                    data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
-                    fclose( src );
-                    if (fileLength)
-                        *fileLength = FILE_SIZE(UNIX_filename.c_str());
-                    return data;
-                }
+                if (fileLength)
+                    *fileLength = FileSize;
+                return data;
             }
         }
 
-        HPIITEM* iterFind = m_Archive->find(String::ToLower(filename));
-        if (iterFind != NULL && iterFind->hfd->priority)				// Priority file!!
-            return DecodeFileToMem_zone(iterFind, start, length, fileLength);
-
-        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
+        HPIITEM* iterFind = m_Archive->find(key);
+        if (iterFind && iterFind->hfd == NULL)
         {
-            UNIX_filename = *cur_Path + filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
-
-            if (exists(UNIX_filename.c_str()))
+            FILE* src = fopen(iterFind->Name.c_str(), "rb");
+            if (src)
             {
-                FILE *src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-                if (src)
-                {
-                    byte* data = new byte[FILE_SIZE(UNIX_filename.c_str()) + 1];
-                    fread(data, FILE_SIZE(UNIX_filename.c_str()), 1, src);
-                    data[FILE_SIZE(UNIX_filename.c_str())] = 0; // NULL terminated
-                    fclose(src);
-                    if (fileLength)
-                        *fileLength = FILE_SIZE( UNIX_filename.c_str() );
-                    return data;
-                }
+                byte* data = new byte [iterFind->Size + 1];
+                fread( data, iterFind->Size, 1, src );
+                data[ iterFind->Size ] = 0;				// NULL terminated
+                fclose( src );
+                if (fileLength)
+                    *fileLength = iterFind->Size;
+                return data;
             }
         }
 
         return ((iterFind != NULL) ? DecodeFileToMem_zone(iterFind, start, length, fileLength) : NULL);
     }
 
+    void cHPIHandler::AddRealFS()
+    {
+        for(int e = 0 ; e < m_Path.size() ; e++)
+        {
+            String::Vector pathQueue;
+            String root = m_Path[e];
+            pathQueue.push_back( root );
+            while(!pathQueue.empty())
+            {
+                String cur_Path = pathQueue.back();
+                pathQueue.pop_back();
+
+                if (cur_Path.empty())   continue;
+                if (Paths::ExtractFileName(cur_Path).match(".*"))   continue;
+                if (cur_Path[cur_Path.size() - 1] != '\\' && cur_Path[cur_Path.size() - 1] != '/')
+                    cur_Path << '/';
+
+                String::Vector fileList;
+                Paths::GlobFiles(fileList,cur_Path + "*",true,true);
+                Paths::GlobDirs(pathQueue,cur_Path + "*",false,false);
+
+                for(int i = 0 ; i < fileList.size() ; i++)
+                {
+                    String filename = cur_Path + fileList[i];
+                    String key = String::ToLower(fileList[i]);
+                    HPIITEM *iterFind = m_Archive->find(key);
+                    if (iterFind && iterFind->hfd && iterFind->hfd->priority)   continue;
+                    iterFind = new HPIITEM;
+                    iterFind->E1 = NULL;
+                    iterFind->hfd = NULL;
+                    iterFind->IsDir = 0;
+                    iterFind->Size = FILE_SIZE(filename);
+                    iterFind->Name = filename;
+
+                    filename = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
+                    filename.convertSlashesIntoAntiSlashes();
+                    m_Archive->insertOrUpdate(filename, iterFind);
+                }
+            }
+        }
+
+        if (!TA3D_CURRENT_MOD.empty())
+        {
+            for(int e = 0 ; e < m_Path.size() ; e++)
+            {
+                String::Vector pathQueue;
+                String root = m_Path[e] + TA3D_CURRENT_MOD;
+                pathQueue.push_back( root );
+                while(!pathQueue.empty())
+                {
+                    String cur_Path = pathQueue.back();
+                    pathQueue.pop_back();
+
+                    String::Vector fileList;
+                    Paths::GlobFiles(fileList, cur_Path + "*", true, true);
+                    Paths::GlobDirs(pathQueue, cur_Path + "*", false, false);
+
+                    for(int i = 0 ; i < fileList.size() ; i++)
+                    {
+                        String filename = cur_Path + fileList[i];
+                        String key = String::ToLower(fileList[i]);
+                        HPIITEM *iterFind;
+                        iterFind = new HPIITEM;
+                        iterFind->E1 = NULL;
+                        iterFind->hfd = NULL;
+                        iterFind->IsDir = 0;
+                        iterFind->Size = FILE_SIZE(filename);
+                        iterFind->Name = filename;
+
+                        filename = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
+                        filename.convertSlashesIntoAntiSlashes();
+                        m_Archive->insertOrUpdate(filename, iterFind);
+                    }
+                }
+            }
+        }
+    }
 
 
     bool cHPIHandler::Exists(const String& filename)
     {
-        String UNIX_filename;
-        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
-        {
-            UNIX_filename.clear();
-            UNIX_filename << *cur_Path << TA3D_CURRENT_MOD << filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
-            if (exists(UNIX_filename.c_str()))
-                return true;
+        String key = String::ToLower(filename);
+        key.convertSlashesIntoAntiSlashes();
 
-            UNIX_filename = *cur_Path + filename;
-            UNIX_filename.convertAntiSlashesIntoSlashes();
-
-            if (exists(UNIX_filename.c_str()))
-                return true;
-        }
-
-        HPIITEM* iterFind = m_Archive->find(String::ToLower(filename));
+        HPIITEM* iterFind = m_Archive->find(key);
         return (iterFind != NULL);
     }
 
@@ -851,40 +862,8 @@ namespace HPI
 
     uint32 cHPIHandler::getFilelist(const String& s, String::List& li)
     {
-        uint32 list_size = m_Archive->wildCardSearch(s, li);
-
-        String UNIX_search;
-        String root = Paths::ExtractFilePath(s).findAndReplace("/","\\");
-        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
-        {
-            UNIX_search.clear();
-            UNIX_search << *cur_Path << s;
-            UNIX_search.convertAntiSlashesIntoSlashes();
-
-            String::List n_list;
-            Paths::GlobFiles(n_list,UNIX_search,false,true);
-            for(String::List::iterator it = n_list.begin() ; it != n_list.end() ; ++it)
-                li.push_back( root + *it);
-
-            li.sort();
-            li.unique();
-            list_size = li.size();
-
-            if (TA3D_CURRENT_MOD != "")
-            {
-                UNIX_search = *cur_Path;
-                UNIX_search << TA3D_CURRENT_MOD << s;
-                UNIX_search.convertAntiSlashesIntoSlashes();
-
-                Paths::GlobFiles(li,UNIX_search,false,true);
-
-                li.sort();
-                li.unique();
-                list_size = li.size();
-            }
-        }
-
-        return list_size;
+        String pattern = String::ToLower(s).convertSlashesIntoAntiSlashes();
+        return m_Archive->wildCardSearch(pattern, li);
     }
 
 
