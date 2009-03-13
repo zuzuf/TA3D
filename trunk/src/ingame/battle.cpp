@@ -2204,6 +2204,7 @@ namespace TA3D
                     can_be_there = can_be_built(target, map.get(), build, players.local_human_id);
 
                     cam.setView();
+
                     glTranslatef(target.x,target.y,target.z);
                     glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
                     float DX = (unit_manager.unit_type[build]->FootprintX<<2);
@@ -2221,28 +2222,24 @@ namespace TA3D
                         glDepthFunc( GL_LESS );
                         unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
 
-                        glColor4ub(0x7F,0x7F,0xFF,0x7F);                        // Draw a "water quad" to draw a water effect on sub water parts of the model
-                        float dec = 1.0f;
-                        if (cam.rpos.y - map->sealvl > 1.0f)
-                            dec += logf( cam.rpos.y - map->sealvl );
-                        glTranslatef( 0.0f, map->sealvl - dec - target.y, 0.0f);
-                        glDisable(GL_CULL_FACE);
-                        glDisable(GL_TEXTURE_2D);
-                        glDisable(GL_LIGHTING);
-                        glEnable(GL_BLEND);
-                        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                        float points[12] = { -DX,0.0f,-DZ,  DX,0.0f,-DZ,    DX,0.0f,DZ,     -DX,0.0f,DZ };
-                        glBegin(GL_QUADS);
-                        for (int i = 0 ; i < 4 ; i++)         // Draw it larger than the unit itself so we can view it at an angle without seeing the border
-                        {
-                            points[i*3] *= 10.0f;
-                            points[i*3+2] *= 10.0f;
-                            points[i*3] = Math::Max( Math::Min( points[i*3], map->map_w * 0.5f - target.x ), -map->map_w * 0.5f - target.x );
-                            points[i*3+2] = Math::Max( Math::Min( points[i*3+2], map->map_h * 0.5f - target.z ), -map->map_h * 0.5f - target.z );
-                            glVertex3f( points[i*3], points[i*3+1], points[i*3+2] );
-                        }
-                        glEnd();
-                        glColor4ub(0xFF,0xFF,0xFF,0xFF);
+                        bool old_mode = gfx->getShadowMapMode();
+                        gfx->setShadowMapMode(true);
+                        double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - target.y };
+                        glClipPlane(GL_CLIP_PLANE2, eqn);
+
+                        glEnable(GL_CLIP_PLANE2);
+
+                        glEnable( GL_BLEND );
+                        glBlendFunc( GL_ONE, GL_ONE );
+                        glDepthFunc( GL_EQUAL );
+                        glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                        unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
+                        glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+                        glDepthFunc( GL_LESS );
+                        glDisable( GL_BLEND );
+
+                        glDisable(GL_CLIP_PLANE2);
+                        gfx->setShadowMapMode(old_mode);
                     }
                     cam.setView();
                     glTranslatef(target.x,Math::Max( target.y, map->sealvl ),target.z);

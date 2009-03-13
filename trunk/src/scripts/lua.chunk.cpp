@@ -121,7 +121,6 @@ namespace TA3D
 
     int LUA_CHUNK::identify(const String &name)
     {
-#warning TODO: fix piece identifier
         if (piece_name.empty())
         {
             LUA_THREAD *thread = new LUA_THREAD();

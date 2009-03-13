@@ -1,7 +1,5 @@
 -- Arm Solar Plant
 
-print("running armsolar.lua")
-
 piece("base","dish1","dish2","dish3","dish4")
 
 SIG_HIT = 2
@@ -12,7 +10,6 @@ SMOKEPIECE1 = base
 #include "exptype.h"
 
 function Go()
-    print("Go()")
     turn_object( dish1, x_axis, -90, 60 )
     turn_object( dish2, x_axis, 90, 60 )
     turn_object( dish3, z_axis, -90, 60 )
@@ -25,7 +22,6 @@ function Go()
 end
 
 function Stop()
-    print("Stop()")
     set( ARMORED, true )
     turn_object( dish1, x_axis, 0, 120 )
     turn_object( dish2, x_axis, 0, 120 )
@@ -46,12 +42,10 @@ function Create()
 end
 
 function Activate()
-    print("Activate()")
     start_script( RequestState, ACTIVE )
 end
 
 function Deactivate()
-    print("Deactivate()")
     start_script( RequestState, INACTIVE )
 end
 
