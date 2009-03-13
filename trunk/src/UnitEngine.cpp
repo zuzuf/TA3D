@@ -6189,7 +6189,7 @@ script_exec:
         glDisable(GL_BLEND);
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
         float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
-        float virtual_t = (float)current_tick / TICKS_PER_SEC;
+        float virtual_t = ((float)current_tick) / TICKS_PER_SEC;
         pMutex.lock();
         bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
         if (low_def)

@@ -139,6 +139,8 @@ namespace TA3D
         void script_spin_object(int obj, int axis, float target_speed, float accel);
         void script_show_object(int obj);
         void script_hide_object(int obj);
+        void script_cache(int obj);
+        void script_dont_cache(int obj);
         void script_emit_sfx(int smoke_type, int from_piece);
         void script_stop_spin(int obj, int axis, float speed);
         void script_move_piece_now(int obj, int axis, float pos);

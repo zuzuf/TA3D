@@ -185,6 +185,16 @@ namespace TA3D
         data.flag[obj] |= FLAG_HIDE;
     }
 
+    void UNIT::script_dont_cache(int obj)
+    {
+        data.flag[obj] |= FLAG_ANIMATED_TEXTURE;
+    }
+
+    void UNIT::script_cache(int obj)
+    {
+        data.flag[obj] &= (~FLAG_ANIMATED_TEXTURE);
+    }
+
     void UNIT::script_emit_sfx(int smoke_type, int from_piece)
     {
         if (visible)

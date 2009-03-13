@@ -403,14 +403,14 @@ namespace TA3D
         usetex=NULL;
         selprim=-1;
         script_index=-1;
-        for (byte i = 0; i < 10; ++i)
-            gltex[i] = gl_dlist[i] = 0;
-        surface.Flag=0;
-        for(byte i = 0; i < 4; ++i)
-            surface.Color[i]=surface.RColor[i]=1.0f;
-        surface.NbTex=0;
-        for(byte i = 0; i < 8; ++i)
-            surface.gltex[i]=0;
+        gltex.clear();
+        gl_dlist.clear();
+        surface.Flag = 0;
+        for(int i = 0; i < 4; ++i)
+            surface.Color[i] = surface.RColor[i] = 1.0f;
+        surface.NbTex = 0;
+        for(int i = 0; i < 8; ++i)
+            surface.gltex[i] = 0;
         surface.s_shader.destroy();
         surface.frag_shader_src.clear();
         surface.vert_shader_src.clear();
@@ -438,15 +438,14 @@ namespace TA3D
         if (shadow_index)	delete[] shadow_index;
         if (tcoord)			delete[] tcoord;
         if (dtex)
-        {
-            for(int i=0;i<dtex;i++)
-                gfx->destroy_texture(gltex[i]);
-        }
-        for(int i=0;i<10;i++)
-        {
-            if (gl_dlist[ i ])
+            for(int i = 0 ; i < dtex ; i++)
+                if (gltex.size() > i)
+                    gfx->destroy_texture(gltex[i]);
+        gltex.clear();
+        for(int i = 0 ; i < gl_dlist.size() ; i++)
+            if (gl_dlist.size() > i && gl_dlist[ i ])
                 glDeleteLists(gl_dlist[i],1);
-        }
+        gl_dlist.clear();
         if (usetex)
             delete[] usetex;
         if (nb_index)
@@ -1007,11 +1006,14 @@ namespace TA3D
                 gfx->set_texture_format(GL_RGB8);
             SDL_FillRect(bmp, NULL, 0);
             tex_cache_name.clear();
-            for (short e = 0; e < expected_players; ++e)
+            int nb_sprites = 0;
+            for (i = 0; i < nb_diff_tex; ++i)
+                nb_sprites = Math::Max( (int)texture_manager.tex[index_tex[i]].nb_bmp, nb_sprites);
+            gltex.resize(nb_sprites);
+            for (short e = 0; e < nb_sprites; ++e)
             {
-                bool mtex_needed = false;
                 dtex = e + 1;
-                String cache_filename = !filename.empty() ? filename + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
+                String cache_filename = !filename.empty() ? filename + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", e ) : String( "" );
                 cache_filename = cache_filename.findAndReplace("/","S");
                 cache_filename = cache_filename.findAndReplace("\\","S");
 
@@ -1022,33 +1024,15 @@ namespace TA3D
                     {
                         for (i = 0; i < nb_diff_tex; ++i)
                         {
-                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
-                            {
-                                blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[e]], bmp,
-                                     0, 0, px[i], py[i],
-                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->w,
-                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->h);
-                                mtex_needed=true;
-                            }
-                            else
-                            {
-                                blit(texture_manager.tex[index_tex[i]].bmp[0], bmp, 0, 0,
-                                     px[i],py[i],
-                                     texture_manager.tex[index_tex[i]].bmp[0]->w,
-                                     texture_manager.tex[index_tex[i]].bmp[0]->h);
-                            }
+                            int f = e % texture_manager.tex[index_tex[i]].nb_bmp;
+                            blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[f]], bmp,
+                                 0, 0, px[i], py[i],
+                                 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->w,
+                                 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->h);
                         }
                         cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
                         if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
                             SaveTex( bmp, TA3D::Paths::Caches + cache_filename );
-                    }
-                    else
-                    {
-                        for (i = 0; i < nb_diff_tex && !mtex_needed; ++i)
-                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
-                            {
-                                mtex_needed=true;
-                            }
                     }
                     tex_cache_name.push_back( cache_filename );
                 }
@@ -1059,37 +1043,21 @@ namespace TA3D
                     {
                         for (i = 0; i < nb_diff_tex; ++i)
                         {
-                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
-                            {
-                                blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[e]], bmp,
-                                     0, 0, px[i], py[i],
-                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->w,
-                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->h);
-                                mtex_needed=true;
-                            }
-                            else
-                            {
-                                blit(texture_manager.tex[index_tex[i]].bmp[0], bmp, 0, 0,
-                                     px[i],py[i],
-                                     texture_manager.tex[index_tex[i]].bmp[0]->w,
-                                     texture_manager.tex[index_tex[i]].bmp[0]->h);
-                            }
+                            int f = e % texture_manager.tex[index_tex[i]].nb_bmp;
+                            blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[f]], bmp,
+                                 0, 0, px[i], py[i],
+                                 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->w,
+                                 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->h);
                         }
                         gltex[e] = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
                         if (!filename.empty())
                             gfx->save_texture_to_cache(cache_filename, gltex[e], bmp->w, bmp->h);
                     }
-                    else
-                        for (i = 0; i < nb_diff_tex && !mtex_needed; ++i)
-                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
-                                mtex_needed=true;
                 }
-                if (!mtex_needed)
-                    break;
             }
         }
         else
-            dtex=0;
+            dtex = 0;
         if (bmp)
             SDL_FreeSurface(bmp);
 
@@ -1458,6 +1426,7 @@ namespace TA3D
             gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
             gfx->set_texture_format(GL_RGB5_A1);
+        gltex.resize(1);
         gltex[0] = gfx->make_texture(bmp, FILTER_TRILINEAR);
         dtex = 1;
 
@@ -1514,7 +1483,7 @@ namespace TA3D
         float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
         if ( !tex_cache_name.empty() )
         {
-            for(int i = 0 ; i < 10 ; i++)
+            for(int i = 0 ; i < dtex ; i++)
                 load_texture_id(i);
             tex_cache_name.clear();
         }
@@ -1563,9 +1532,12 @@ namespace TA3D
             hide |= explodes ^ exploding_parts;
             if (!chg_col)
                 glGetFloatv(GL_CURRENT_COLOR, color_factor);
-            if (gl_dlist[ side ] && !hide && chg_col && !notex)
+            int texID = side;
+            if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE) && dtex > 0)
+                texID = ((int)(t * 10.0f)) % dtex;
+            if (gl_dlist.size() > texID && gl_dlist[ texID ] && !hide && chg_col && !notex)
             {
-                glCallList( gl_dlist[ side ] );
+                glCallList( gl_dlist[ texID ] );
                 alset = false;
                 set = false;
             }
@@ -1573,10 +1545,12 @@ namespace TA3D
                 if (!hide)
                 {
                     bool creating_list = false;
-                    if (chg_col && !notex && gl_dlist[side] == 0)
+                    if (gl_dlist.size() <= texID)
+                        gl_dlist.resize(texID + 1);
+                    if (chg_col && !notex && gl_dlist[texID] == 0)
                     {
-                        gl_dlist[side] = glGenLists(1);
-                        glNewList(gl_dlist[side], GL_COMPILE_AND_EXECUTE);
+                        gl_dlist[texID] = glGenLists(1);
+                        glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
                         alset = false;
                         set = false;
                         creating_list = true;
@@ -1730,8 +1704,8 @@ namespace TA3D
                             }
                             if (!notex && dtex)
                             {
-                                if (side<dtex && side>=0)
-                                    glBindTexture(GL_TEXTURE_2D,gltex[side]);
+                                if (texID < dtex && texID >= 0)
+                                    glBindTexture(GL_TEXTURE_2D, gltex[texID]);
                                 else
                                     glBindTexture(GL_TEXTURE_2D,gltex[0]);
                                 glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
@@ -1841,7 +1815,7 @@ namespace TA3D
     {
         if ( !tex_cache_name.empty() )
         {
-            for(int i = 0 ; i < 10 ; i++)
+            for(int i = 0 ; i < dtex ; i++)
                 load_texture_id(i);
             tex_cache_name.clear();
         }
@@ -3849,7 +3823,7 @@ namespace TA3D
             init();
             return NULL;
         }
-        if (nb_p_index>0)
+        if (nb_p_index > 0)
         {
             p_index = new GLushort[nb_p_index];
             data=read_from_mem(p_index,sizeof(GLushort)*nb_p_index,data);
@@ -3901,7 +3875,7 @@ namespace TA3D
         surface.NbTex=0;
         data=read_from_mem(&surface.NbTex,sizeof(surface.NbTex),data);
         bool compressed = surface.NbTex < 0;
-        surface.NbTex = abs( surface.NbTex );
+        dtex = surface.NbTex = abs( surface.NbTex );
         for (uint8 i = 0; i < surface.NbTex; ++i)
         {
             SDL_Surface *tex;

@@ -376,7 +376,7 @@ namespace TA3D
                 case SCRIPT_DONT_CACHE:
                     {
                         DEBUG_PRINT_CODE("DONT_CACHE");
-                        ++pos;
+                        pUnit->script_dont_cache(script->script_code[script_id][pos++]);
                         break;
                     }
                 case SCRIPT_SET_SIGNAL_MASK:
@@ -549,7 +549,7 @@ namespace TA3D
                     }
                 case SCRIPT_CACHE:
                     DEBUG_PRINT_CODE("CACHE");
-                    ++pos;
+                    pUnit->script_cache(script->script_code[script_id][pos++]);
                     break;	//added
                 case SCRIPT_COMPARE_AND:
                     {

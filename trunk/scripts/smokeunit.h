@@ -23,8 +23,6 @@ function SmokeUnit()
     local sleeptime
     local smoketype
 
-    local choice
-
     -- Wait until the unit is actually built
     while get(BUILD_PERCENT_LEFT) > 0 do
         sleep(0.4)
@@ -49,7 +47,7 @@ function SmokeUnit()
             if NUM_SMOKE_PIECES == 1 then
                 emit_sfx( smoketype, SMOKEPIECE1 )
             else
-                choice = math.random( 1, NUM_SMOKE_PIECES )
+                local choice = math.random( 1, NUM_SMOKE_PIECES )
 
                 if choice == 1 then
                     emit_sfx( smoketype, SMOKEPIECE1 )
