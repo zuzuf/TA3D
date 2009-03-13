@@ -275,7 +275,6 @@ namespace TA3D
         if (!lua_isnil(L, -1))
             nb_piece = lua_objlen(L, -1);
         lua_pop(L, 1);
-#warning TODO: fix model piece loader
         return nb_piece;
     }
 
