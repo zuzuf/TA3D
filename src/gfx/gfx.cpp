@@ -668,14 +668,6 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
 
-        if (can_useGenMipMaps)        // Automatic mipmaps generation
-        {
-            if (!build_mipmaps || glGenerateMipmapEXT)
-                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE );
-            else
-                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
-        }
-
         switch(filter_type)
         {
             case FILTER_NONE:
@@ -705,6 +697,13 @@ namespace TA3D
         //Upload image data to OpenGL
         if (!softMipMaps)
         {
+            if (can_useGenMipMaps)        // Automatic mipmaps generation
+            {
+                if (!build_mipmaps || glGenerateMipmapEXT)
+                    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE );
+                else
+                    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
+            }
             switch(bmp->format->BitsPerPixel)
             {
             case 8:
@@ -728,6 +727,8 @@ namespace TA3D
             default:
                 LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
             };
+            if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
+                glGenerateMipmapEXT(GL_TEXTURE_2D);
         }
         else            // Generate mipmaps here since other methods are unreliable
         {
@@ -758,9 +759,6 @@ namespace TA3D
                 level++;
             } while(w > 1 || h > 1);
         }
-
-        if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
-            glGenerateMipmapEXT(GL_TEXTURE_2D);
 
         if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
             use_mipmapping(true);
