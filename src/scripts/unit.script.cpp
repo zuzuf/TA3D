@@ -248,6 +248,7 @@ namespace TA3D
         lua_register(L, "turn_piece_now", unit_turn_piece_now );            // turn_piece_now(obj, axis, angle)
         lua_register(L, "get", unit_get );                                  // get(type, v1, v2)
         lua_register(L, "set_value", unit_set_value );                      // set_value(type, v)
+        lua_register(L, "set", unit_set_value );                            // set(type, v)
         lua_register(L, "attach_unit", unit_attach_unit );                  // attach_unit(unit_id, piece_id)
         lua_register(L, "drop_unit", unit_drop_unit );                      // drop_unit(unit_id)
         lua_register(L, "unit_position", unit_unit_position );              // unit_position(unit_id) = vector(x,y,z)
@@ -269,13 +270,19 @@ namespace TA3D
 
     int UNIT_SCRIPT::getNbPieces()
     {
+        int nb_piece = 0;
+        lua_getglobal(L, "__piece_list");
+        if (!lua_isnil(L, -1))
+            nb_piece = lua_objlen(L, -1);
+        lua_pop(L, 1);
 #warning TODO: fix model piece loader
-        return 0;
+        return nb_piece;
     }
 
     void UNIT_SCRIPT::load(SCRIPT_DATA *data)
     {
         LUA_THREAD::load(data);
+        LUA_THREAD::run();              // We need this to register all the functions and pieces ...
     }
 
     int UNIT_SCRIPT::run(float dt, bool alone)                  // Run the script

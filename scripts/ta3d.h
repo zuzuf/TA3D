@@ -37,7 +37,7 @@ function __vec_mul(m,v)
 end
 
 function __vec_dot(v0,v1)
-    return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
+    return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z
 end
 
 function __vec_cross(v0,v1)
@@ -80,7 +80,7 @@ function normalize(v)
     v.x = l * v.x
     v.y = l * v.y
     v.z = l * v.z
-    return v;
+    return v
 end
 
 -- returns the normalized version of v, doesn't change v
@@ -90,7 +90,7 @@ function normalized(v)
     tmp.x = l * v.x
     tmp.y = l * v.y
     tmp.z = l * v.z
-    return tmp;
+    return tmp
 end
 
 function game_signal( sig )
@@ -125,3 +125,4 @@ function piece(...)
         _G[__piece_list[i]] = i - 1
     end
 end
+

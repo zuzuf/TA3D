@@ -1,0 +1,21 @@
+--
+-- SFXtype.h -- Special Effects Type information for scripts
+--
+
+-- Vector-based special effects
+
+SFXTYPE_VTOL            = 0
+SFXTYPE_THRUST          = 1
+SFXTYPE_WAKE1           = 2
+SFXTYPE_WAKE2           = 3
+SFXTYPE_REVERSEWAKE1    = 4
+SFXTYPE_REVERSEWAKE2    = 5
+
+-- Point-based (piece origin) special effects
+
+SFXTYPE_POINTBASED      = 256
+
+SFXTYPE_WHITESMOKE      = (SFXTYPE_POINTBASED + 1)
+SFXTYPE_BLACKSMOKE      = (SFXTYPE_POINTBASED + 2)
+SFXTYPE_SUBBUBBLES      = (SFXTYPE_POINTBASED + 3)
+

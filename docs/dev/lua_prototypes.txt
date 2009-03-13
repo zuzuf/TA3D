@@ -73,6 +73,8 @@ is_moving(obj_id, axis_id)
 is_turning(obj_id, axis_id)
 move_object(obj_id, axis_id, target_pos, speed)
 move_piece_now(obj, axis, pos)
+piece("piece0","piece1","piece2",...)               // Defines global variables piece0, piece1, ... and fill the __piece_list table used by the engine to link piece IDs to model pieces
+set(type, v)
 set_value(type, v)
 show_object(obj_id)
 spin_object(obj_id, axis, target_speed, acceleration)
