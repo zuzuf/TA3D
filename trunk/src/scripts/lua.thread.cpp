@@ -126,6 +126,8 @@ namespace TA3D
     void LUA_THREAD::destroy()
     {
         join();
+        if (L)
+            lua_settop(L, 0);
         if ( L && caller == NULL )
             lua_close( L );
         if ( buffer )
@@ -391,6 +393,14 @@ namespace TA3D
         if (caller == NULL && !alone)
         {
             clean();
+            for(int i = 0 ; i < childs.size() ; i++)
+            {
+                lua_State *t_L = static_cast<LUA_THREAD*>(childs[i])->L;
+                if (t_L == NULL)
+                    continue;
+                lua_pushthread(t_L);
+                lua_setglobal(t_L, format("__thread%d",i).c_str());
+            }
             for(int i = childs.size() - 1 ; i >= 0 ; i--)
             {
                 int sig = childs[i]->run(dt);
@@ -507,8 +517,9 @@ namespace TA3D
         newThread->sleeping = false;
         newThread->sleep_time = 0.0f;
         newThread->caller = (caller != NULL) ? caller : this;
+
         newThread->L = lua_newthread(L);
-        lua_pop(L, 1);                  // We don't want to keep this thread value on top of the stack
+        lua_setglobal(L, "__newthread__");  // We don't want to keep this thread value on top of the stack
         addThread(newThread);
 
         pMutex.unlock();
