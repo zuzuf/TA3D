@@ -157,8 +157,8 @@ namespace TA3D
     int unit_emit_sfx( lua_State *L )           // emit_sfx(smoke_type, from_piece)
     {
         UNIT *pUnit = lua_currentUnit(L);
-        int from_piece = lua_tointeger(L, -2);
-        int smoke_type = lua_tointeger(L, -1);
+        int smoke_type = lua_tointeger(L, 1);
+        int from_piece = lua_tointeger(L, 2);
         lua_pop(L, 2);
         pUnit->script_emit_sfx(smoke_type, from_piece);
         return 0;
@@ -215,7 +215,7 @@ namespace TA3D
         int type = lua_tointeger(L, 1);
         int v1 = lua_isnoneornil(L,2) ? 0 : lua_tointeger(L, 2);
         int v2 = lua_isnoneornil(L,3) ? 0 : lua_tointeger(L, 3);
-        lua_pop(L, 3);
+        lua_pop(L, lua_gettop(L));
         lua_pushinteger( L, pUnit->script_get(type, v1, v2) );
         return 1;
     }
@@ -225,7 +225,7 @@ namespace TA3D
         UNIT *pUnit = lua_currentUnit(L);
         int type = lua_tointeger(L, 1);
         int v = lua_isboolean(L,2) ? lua_toboolean(L, 2) : lua_tointeger(L, 2);
-        lua_pop(L, 2);
+        lua_pop(L, lua_gettop(L));
         pUnit->script_set_value(type, v);
         return 0;
     }
