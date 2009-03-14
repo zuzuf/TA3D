@@ -34,9 +34,19 @@ function activatescr()
     wait_for_move( plate2, x_axis )
     wait_for_move( door1, x_axis )
     wait_for_move( doo2, x_axis )
+
+    turn_object( nano1, z_axis, 30, 60 )
+    turn_object( nano2, z_axis, -30, 60 )
+    wait_for_turn( nano1, z_axis )
+    wait_for_turn( nano2, z_axis )
 end
 
 function deactivatescr()
+    turn_object( nano1, z_axis, 0, 60 )
+    turn_object( nano2, z_axis, 0, 60 )
+    wait_for_turn( nano1, z_axis )
+    wait_for_turn( nano2, z_axis )
+
     move_object( door1, x_axis, 0, 10 )
     move_object( doo2, x_axis, 0, 10 )
 
