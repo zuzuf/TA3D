@@ -127,23 +127,22 @@ namespace TA3D
             return;
         }
 
-        for (std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; )
+        for (int e = 0 ; e < idx_list.size() ; )
         {
             // TODO Check if it is really necessary by now
             pMutex.unlock();// Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
             pMutex.lock();
+            if (e >= idx_list.size())
+                break;
 
-            uint32 i = *e;
+            uint32 i = idx_list[e];
             weapon[i].move(dt,map);
-            if (weapon[i].weapon_id<0) // Remove it from the "alive" list
+            if (weapon[i].weapon_id < 0) // Remove it from the "alive" list
             {
                 --nb_weapon;
                 free_idx.push_back( i );
-                bool quit = (e + 1 == idx_list.end());
-                *e = idx_list.back();
+                idx_list[e] = idx_list.back();
                 idx_list.pop_back();
-                if (quit)
-                    break;
             }
             else
                 ++e;
