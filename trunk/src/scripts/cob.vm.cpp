@@ -727,7 +727,7 @@ namespace TA3D
             while( cob_thread->running )
                 res = cob_thread->run(0.0f, true, parameters, nb_params);
             cob_thread->kill();
-            return parameters[0];
+            return parameters[nb_params-1];
         }
         return 0;
     }

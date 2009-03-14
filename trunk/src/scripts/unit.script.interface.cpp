@@ -37,6 +37,7 @@ namespace TA3D
 
     int UNIT_SCRIPT_INTERFACE::getReturnValue(const String &name)
     {
+        MutexLocker mLocker(pMutex);
         if (caller)
             return (static_cast<UNIT_SCRIPT_INTERFACE*>(caller))->getReturnValue( name );
         return return_value.find(String::ToUpper(name));
@@ -44,10 +45,12 @@ namespace TA3D
 
     void UNIT_SCRIPT_INTERFACE::setReturnValue(const String &name, int value)
     {
+        pMutex.lock();
         if (caller)
             (static_cast<UNIT_SCRIPT_INTERFACE*>(caller))->setReturnValue( name, value );
         else
             return_value.insertOrUpdate(String::ToUpper(name), value);
+        pMutex.unlock();
     }
 
     const char *UNIT_SCRIPT_INTERFACE::script_name[] =

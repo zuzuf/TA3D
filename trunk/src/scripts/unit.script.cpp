@@ -56,7 +56,7 @@ namespace TA3D
         return 1;
     }
 
-    int unit_move_object( lua_State *L )        // move_object(obj_id, axis_id, target_pos, speed)
+    int unit_move( lua_State *L )           // move(obj_id, axis_id, target_pos, speed)
     {
         UNIT *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, -4);
@@ -78,7 +78,7 @@ namespace TA3D
         return 0;
     }
 
-    int unit_turn_object( lua_State *L )        // turn_object(obj_id, axis, angle, speed)
+    int unit_turn( lua_State *L )        // turn(obj_id, axis, angle, speed)
     {
         UNIT *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, -4);
@@ -100,7 +100,7 @@ namespace TA3D
         return 1;
     }
 
-    int unit_show_object( lua_State *L )        // show_object(obj_id)
+    int unit_show( lua_State *L )        // show(obj_id)
     {
         UNIT *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, -1);
@@ -109,7 +109,7 @@ namespace TA3D
         return 0;
     }
 
-    int unit_hide_object( lua_State *L )        // hide_object(obj_id)
+    int unit_hide( lua_State *L )        // hide(obj_id)
     {
         UNIT *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, -1);
@@ -260,6 +260,17 @@ namespace TA3D
         return 1;
     }
 
+    int unit_set_script_value( lua_State *L )       // set_script_value(script_name, value)
+    {
+        UNIT *pUnit = lua_currentUnit(L);
+        String scriptName = lua_isstring(L,1) ? String(lua_tostring(L,1)) : String();
+        int value = lua_isboolean(L,2) ? lua_toboolean(L,2) : lua_tointeger(L, 2);
+        lua_pop(L, 2);
+        if (pUnit && pUnit->script)
+            pUnit->script->setReturnValue(scriptName, value);
+        return 0;
+    }
+
     int unit_unit_ID( lua_State *L )           // unit_ID()
     {
         UNIT *pUnit = lua_currentUnit(L);
@@ -271,14 +282,14 @@ namespace TA3D
     {
         lua_register(L, "is_turning", unit_is_turning );                    // is_turning(obj_id, axis_id)
         lua_register(L, "is_moving", unit_is_moving );                      // is_moving(obj_id, axis_id)
-        lua_register(L, "move_object", unit_move_object );                  // move_object(obj_id, axis_id, target_pos, speed)
+        lua_register(L, "move", unit_move );                                // move(obj_id, axis_id, target_pos, speed)
         lua_register(L, "explode", unit_explode );                          // explode(obj_id, explosion_type)
-        lua_register(L, "turn_object", unit_turn_object );                  // turn_object(obj_id, axis, angle, speed)
+        lua_register(L, "turn", unit_turn );                                // turn(obj_id, axis, angle, speed)
         lua_register(L, "get_value_from_port", unit_get_value_from_port );  // get_value_from_port(port)
         lua_register(L, "spin", unit_spin );                                // spin(obj_id, axis, speed, (accel))
         lua_register(L, "stop_spin", unit_stop_spin );                      // stop_spin(obj_id, axis, (speed))
-        lua_register(L, "show_object", unit_show_object );                  // show_object(obj_id)
-        lua_register(L, "hide_object", unit_hide_object );                  // hide_object(obj_id)
+        lua_register(L, "show", unit_show );                                // show(obj_id)
+        lua_register(L, "hide", unit_hide );                                // hide(obj_id)
         lua_register(L, "emit_sfx", unit_emit_sfx );                        // emit_sfx(smoke_type, from_piece)
         lua_register(L, "move_piece_now", unit_move_piece_now );            // move_piece_now(obj, axis, pos)
         lua_register(L, "turn_piece_now", unit_turn_piece_now );            // turn_piece_now(obj, axis, angle)
@@ -293,6 +304,7 @@ namespace TA3D
         lua_register(L, "dont_cache", unit_dont_cache );                    // dont_cache(obj_id)
         lua_register(L, "shade", unit_shade );                              // shade(obj_id)
         lua_register(L, "dont_shade", unit_dont_shade );                    // dont_shade(obj_id)
+        lua_register(L, "set_script_value", unit_set_script_value );        // set_script_value(script_name, value)
     }
 
     void UNIT_SCRIPT::register_info()

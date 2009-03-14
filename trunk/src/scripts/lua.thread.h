@@ -50,6 +50,7 @@ namespace TA3D
     class LUA_THREAD : public Thread, public SCRIPT_INTERFACE
     {
         friend class LUA_CHUNK;
+        friend class UNIT_SCRIPT;
     protected:
         byte        *buffer;
         lua_State   *L;             // The Lua state
@@ -77,9 +78,9 @@ namespace TA3D
         int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        LUA_THREAD *fork();
-        LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        LUA_THREAD *fork(lua_State *cL, int n);
+        virtual LUA_THREAD *fork();
+        virtual LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        virtual LUA_THREAD *fork(lua_State *cL, int n);
 
         //! functions used to save/restore scripts state
         virtual void save_thread_state(gzFile file);

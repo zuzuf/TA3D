@@ -12,60 +12,60 @@ ANIM_VARIABLE = true
 #include "yard.h"
 
 function activatescr()
-    turn_object( side1, z_axis, -90, 60 )
-    turn_object( side2, z_axis, 90, 60 )
+    turn( side1, z_axis, -90, 60 )
+    turn( side2, z_axis, 90, 60 )
 
     wait_for_turn( side1, z_axis )
     wait_for_turn( side2, z_axis )
 
-    turn_object( door1, z_axis, -90, 60 )
-    turn_object( doo2, z_axis, 90, 60 )
+    turn( door1, z_axis, -90, 60 )
+    turn( doo2, z_axis, 90, 60 )
 
     wait_for_turn( door1, z_axis )
     wait_for_turn( doo2, z_axis )
     
-    move_object( door1, x_axis, 10, 10 )
-    move_object( doo2, x_axis, -10, 10 )
+    move( door1, x_axis, 10, 10 )
+    move( doo2, x_axis, -10, 10 )
 
-    move_object( plate1, x_axis, -8, 8 )
-    move_object( plate2, x_axis, 7.5, 7.5 )
+    move( plate1, x_axis, -8, 8 )
+    move( plate2, x_axis, 7.5, 7.5 )
 
     wait_for_move( plate1, x_axis )
     wait_for_move( plate2, x_axis )
     wait_for_move( door1, x_axis )
     wait_for_move( doo2, x_axis )
 
-    turn_object( nano1, z_axis, 30, 60 )
-    turn_object( nano2, z_axis, -30, 60 )
+    turn( nano1, z_axis, 30, 60 )
+    turn( nano2, z_axis, -30, 60 )
     wait_for_turn( nano1, z_axis )
     wait_for_turn( nano2, z_axis )
 end
 
 function deactivatescr()
-    turn_object( nano1, z_axis, 0, 60 )
-    turn_object( nano2, z_axis, 0, 60 )
+    turn( nano1, z_axis, 0, 60 )
+    turn( nano2, z_axis, 0, 60 )
     wait_for_turn( nano1, z_axis )
     wait_for_turn( nano2, z_axis )
 
-    move_object( door1, x_axis, 0, 10 )
-    move_object( doo2, x_axis, 0, 10 )
+    move( door1, x_axis, 0, 10 )
+    move( doo2, x_axis, 0, 10 )
 
-    move_object( plate1, x_axis, 0, 8 )
-    move_object( plate2, x_axis, 0, 7.5 )
+    move( plate1, x_axis, 0, 8 )
+    move( plate2, x_axis, 0, 7.5 )
 
     wait_for_move( plate1, x_axis )
     wait_for_move( plate2, x_axis )
     wait_for_move( door1, x_axis )
     wait_for_move( doo2, x_axis )
 
-    turn_object( door1, z_axis, 0, 60 )
-    turn_object( doo2, z_axis, 0, 60 )
+    turn( door1, z_axis, 0, 60 )
+    turn( doo2, z_axis, 0, 60 )
 
     wait_for_turn( door1, z_axis )
     wait_for_turn( doo2, z_axis )
 
-    turn_object( side1, z_axis, 0, 60 )
-    turn_object( side2, z_axis, 0, 60 )
+    turn( side1, z_axis, 0, 60 )
+    turn( side2, z_axis, 0, 60 )
 
     wait_for_turn( side1, z_axis )
     wait_for_turn( side2, z_axis )
@@ -153,9 +153,8 @@ function SweetSpot(piecenum)
 	return base
 end
 
-function Killed( severity, corpsetype )
+function Killed( severity )
 	if severity <= 25 then
-		corpsetype = 1
 		explode( base,	BITMAPONLY + BITMAP1 )
 		explode( doo2,	BITMAPONLY + BITMAP4 )
 		explode( door1,	BITMAPONLY + BITMAP5 )
@@ -168,11 +167,10 @@ function Killed( severity, corpsetype )
 		explode( post2,	BITMAPONLY + BITMAP2 )
 		explode( side1,	BITMAPONLY + BITMAP3 )
 		explode( side2,	BITMAPONLY + BITMAP4 )
-		return 0
+		return 1
 	end
 
 	if severity <= 50 then
-		corpsetype = 2
 		explode( base,	BITMAPONLY + BITMAP1 )
 		explode( doo2,	FALL + BITMAP4 )
 		explode( door1,	BITMAPONLY + BITMAP5 )
@@ -185,11 +183,10 @@ function Killed( severity, corpsetype )
 		explode( post2,	FALL + BITMAP2 )
 		explode( side1,	BITMAPONLY + BITMAP3 )
 		explode( side2,	BITMAPONLY + BITMAP4 )
-		return 0
+		return 2
 	end
 
 	if severity <= 99 then
-		corpsetype = 3
 		explode( base,	BITMAPONLY + BITMAP1 )
 		explode( doo2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
 		explode( door1,	BITMAPONLY + BITMAP5 )
@@ -202,10 +199,9 @@ function Killed( severity, corpsetype )
 		explode( post2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
 		explode( side1,	BITMAPONLY + BITMAP3 )
 		explode( side2,	BITMAPONLY + BITMAP4 )
-		return 0
+		return 3
 	end
 
-	corpsetype = 3
 	explode( base,	BITMAPONLY + BITMAP1 )
 	explode( doo2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
 	explode( door1,	BITMAPONLY + BITMAP5 )
@@ -218,6 +214,6 @@ function Killed( severity, corpsetype )
 	explode( post2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
 	explode( side1,	BITMAPONLY + BITMAP3 )
 	explode( side2,	BITMAPONLY + BITMAP4 )
-	return 0
+	return 3
 end
 
