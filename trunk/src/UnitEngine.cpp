@@ -969,18 +969,19 @@ namespace TA3D
             int unit_nature = ICON_UNKNOWN;
             float size = (D % Camera::inGame->dir) * 12.0f / gfx->height;
 
-            if (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_KAMIKAZE )
+            if (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_KAMIKAZE)
                 unit_nature = ICON_KAMIKAZE;
-            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_COMMANDER ) == CLASS_COMMANDER )
+            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_COMMANDER ) == CLASS_COMMANDER)
                 unit_nature = ICON_COMMANDER;
-            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_ENERGY ) == CLASS_ENERGY )
+            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_ENERGY ) == CLASS_ENERGY)
                 unit_nature = ICON_ENERGY;
-            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_METAL ) == CLASS_METAL )
+            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_METAL ) == CLASS_METAL)
                 unit_nature = ICON_METAL;
-            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_TANK ) == CLASS_TANK )
+            else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_TANK ) == CLASS_TANK)
                 unit_nature = ICON_TANK;
-            else if (unit_manager.unit_type[type_id]->Builder ) {
-                if (!unit_manager.unit_type[type_id]->BMcode )
+            else if (unit_manager.unit_type[type_id]->Builder)
+            {
+                if (!unit_manager.unit_type[type_id]->BMcode)
                     unit_nature = ICON_FACTORY;
                 else
                     unit_nature = ICON_BUILDER;
@@ -1001,7 +1002,7 @@ namespace TA3D
             glDisable(GL_LIGHTING);
             glDisable(GL_BLEND);
             glTranslatef( model->center.x, model->center.y, model->center.z );
-            if (player_color[player_color_map[owner_id]*3] != 0.0f || player_color[player_color_map[owner_id]*3+1] != 0.0f || player_color[player_color_map[owner_id]*3+2] != 0.0f )
+            if (player_color[player_color_map[owner_id]*3] != 0.0f || player_color[player_color_map[owner_id]*3+1] != 0.0f || player_color[player_color_map[owner_id]*3+2] != 0.0f)
             {
                 glColor3f(player_color[player_color_map[owner_id]*3],player_color[player_color_map[owner_id]*3+1],player_color[player_color_map[owner_id]*3+2]);
                 glBegin(GL_QUADS);
@@ -1060,7 +1061,7 @@ namespace TA3D
                 glRotatef(Angle.x,1.0f,0.0f,0.0f);
                 glRotatef(Angle.z,0.0f,0.0f,1.0f);
                 glRotatef(Angle.y,0.0f,1.0f,0.0f);
-                float scale=unit_manager.unit_type[type_id]->Scale;
+                float scale = unit_manager.unit_type[type_id]->Scale;
                 glScalef(scale,scale,scale);
 
                 //            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
@@ -1081,16 +1082,15 @@ namespace TA3D
                 if (!unit_manager.unit_type[type_id]->emitting_points_computed ) // Compute model emitting points if not already done, do it here in UNIT::Locked code ...
                 {
                     unit_manager.unit_type[type_id]->emitting_points_computed = true;
-                    int param[] = { -1 };
-                    run_script_function( SCRIPT_QueryNanoPiece, 1, param );
-                    int first = param[0];
+                    int first = run_script_function( SCRIPT_QueryNanoPiece );;
+                    int current;
                     int i = 0;
                     do
                     {
-                        model->obj.compute_emitter_point( param[ 0 ] );
-                        run_script_function( SCRIPT_QueryNanoPiece, 1, param );
+                        current = run_script_function( SCRIPT_QueryNanoPiece );
+                        model->obj.compute_emitter_point( current );
                         ++i;
-                    } while( first != param[0] && i < 1000 );
+                    } while( first != current && i < 1000 );
                 }
 
                 if (build_percent_left == 0.0f && mission != NULL && port[ INBUILDSTANCE ] != 0 && local )

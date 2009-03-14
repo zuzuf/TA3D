@@ -85,6 +85,7 @@ namespace TA3D
 #define FLAG_EXPLODE            0x08
 #define FLAG_ANIMATE            0x10
 #define FLAG_ANIMATED_TEXTURE   0x20
+#define FLAG_DONT_SHADE         0x40
 
     // a few things needed to handle explosions properly
 

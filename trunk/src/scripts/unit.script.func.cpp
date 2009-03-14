@@ -195,6 +195,16 @@ namespace TA3D
         data.flag[obj] &= (~FLAG_ANIMATED_TEXTURE);
     }
 
+    void UNIT::script_shade(int obj)
+    {
+        data.flag[obj] &= (~FLAG_DONT_SHADE);
+    }
+
+    void UNIT::script_dont_shade(int obj)
+    {
+        data.flag[obj] |= FLAG_DONT_SHADE;
+    }
+
     void UNIT::script_emit_sfx(int smoke_type, int from_piece)
     {
         if (visible)
@@ -352,7 +362,7 @@ namespace TA3D
         switch(type)
         {
             case ACTIVATION:
-                if (v == 0 )
+                if (v == 0)
                     deactivate();
                 else
                     activate();

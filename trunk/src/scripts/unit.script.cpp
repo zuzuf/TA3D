@@ -100,18 +100,6 @@ namespace TA3D
         return 1;
     }
 
-    int unit_spin_object( lua_State *L )        // spin_object(obj_id, axis, target_speed, acceleration)
-    {
-        UNIT *pUnit = lua_currentUnit(L);
-        int obj = lua_tointeger(L, -4);
-        int type = lua_tointeger(L, -3);
-        float target_speed = (float) lua_tonumber(L, -2);
-        float accel = (float) lua_tonumber(L, -1);
-        lua_pop(L, 4);
-        pUnit->script_spin_object(obj, type, target_speed, accel);
-        return 0;
-    }
-
     int unit_show_object( lua_State *L )        // show_object(obj_id)
     {
         UNIT *pUnit = lua_currentUnit(L);
@@ -148,6 +136,24 @@ namespace TA3D
         return 0;
     }
 
+    int unit_dont_shade( lua_State *L )          // dont_shade(obj_id)
+    {
+        UNIT *pUnit = lua_currentUnit(L);
+        int obj = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+        pUnit->script_dont_shade(obj);
+        return 0;
+    }
+
+    int unit_shade( lua_State *L )          // shade(obj_id)
+    {
+        UNIT *pUnit = lua_currentUnit(L);
+        int obj = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+        pUnit->script_shade(obj);
+        return 0;
+    }
+
     int unit_emit_sfx( lua_State *L )           // emit_sfx(smoke_type, from_piece)
     {
         UNIT *pUnit = lua_currentUnit(L);
@@ -158,12 +164,24 @@ namespace TA3D
         return 0;
     }
 
-    int unit_spin( lua_State *L )               // spin(obj, axis, speed)
+    int unit_spin( lua_State *L )               // spin(obj, axis, speed, (accel))
     {
         UNIT *pUnit = lua_currentUnit(L);
-        int obj = lua_tointeger(L, -3);
-        int axis = lua_tointeger(L, -2);
-        float speed = (float) lua_tonumber(L, -1);
+        int obj = lua_tointeger(L, 1);
+        int axis = lua_tointeger(L, 2);
+        float speed = (float) lua_tonumber(L, 3);
+        float accel = lua_isnoneornil(L, 4) ? 0.0f : (float) lua_tonumber(L, 4);
+        lua_pop(L, 4);
+        pUnit->script_spin_object(obj, axis, speed, accel);
+        return 0;
+    }
+
+    int unit_stop_spin( lua_State *L )               // stop_spin(obj, axis, (speed))
+    {
+        UNIT *pUnit = lua_currentUnit(L);
+        int obj = lua_tointeger(L, 1);
+        int axis = lua_tointeger(L, 2);
+        float speed = lua_isnoneornil(L,3) ? 0.0f : (float) lua_tonumber(L, 3);
         lua_pop(L, 3);
         pUnit->script_stop_spin(obj, axis, speed);
         return 0;
@@ -195,8 +213,8 @@ namespace TA3D
     {
         UNIT *pUnit = lua_currentUnit(L);
         int type = lua_tointeger(L, 1);
-        int v1 = lua_tointeger(L, 2);
-        int v2 = lua_tointeger(L, 3);
+        int v1 = lua_isnoneornil(L,2) ? 0 : lua_tointeger(L, 2);
+        int v2 = lua_isnoneornil(L,3) ? 0 : lua_tointeger(L, 3);
         lua_pop(L, 3);
         lua_pushinteger( L, pUnit->script_get(type, v1, v2) );
         return 1;
@@ -206,7 +224,7 @@ namespace TA3D
     {
         UNIT *pUnit = lua_currentUnit(L);
         int type = lua_tointeger(L, 1);
-        int v = lua_tointeger(L, 2);
+        int v = lua_isboolean(L,2) ? lua_toboolean(L, 2) : lua_tointeger(L, 2);
         lua_pop(L, 2);
         pUnit->script_set_value(type, v);
         return 0;
@@ -257,8 +275,8 @@ namespace TA3D
         lua_register(L, "explode", unit_explode );                          // explode(obj_id, explosion_type)
         lua_register(L, "turn_object", unit_turn_object );                  // turn_object(obj_id, axis, angle, speed)
         lua_register(L, "get_value_from_port", unit_get_value_from_port );  // get_value_from_port(port)
-        lua_register(L, "spin_object", unit_spin_object );                  // spin_object(obj_id, axis, target_speed, acceleration)
-        lua_register(L, "spin", unit_spin );                                // spin(obj_id, axis, speed)
+        lua_register(L, "spin", unit_spin );                                // spin(obj_id, axis, speed, (accel))
+        lua_register(L, "stop_spin", unit_stop_spin );                      // stop_spin(obj_id, axis, (speed))
         lua_register(L, "show_object", unit_show_object );                  // show_object(obj_id)
         lua_register(L, "hide_object", unit_hide_object );                  // hide_object(obj_id)
         lua_register(L, "emit_sfx", unit_emit_sfx );                        // emit_sfx(smoke_type, from_piece)
@@ -273,6 +291,8 @@ namespace TA3D
         lua_register(L, "unit_ID", unit_unit_ID );                          // unit_ID()
         lua_register(L, "cache", unit_cache );                              // cache(obj_id)
         lua_register(L, "dont_cache", unit_dont_cache );                    // dont_cache(obj_id)
+        lua_register(L, "shade", unit_shade );                              // shade(obj_id)
+        lua_register(L, "dont_shade", unit_dont_shade );                    // dont_shade(obj_id)
     }
 
     void UNIT_SCRIPT::register_info()
@@ -317,7 +337,7 @@ namespace TA3D
 
     int UNIT_SCRIPT::execute(const String &functionName, int *parameters, int nb_params)
     {
-        LUA_THREAD::execute(functionName, parameters, nb_params);
+        return LUA_THREAD::execute(functionName, parameters, nb_params);
     }
 
     //! functions used to create new threads sharing the same environment
