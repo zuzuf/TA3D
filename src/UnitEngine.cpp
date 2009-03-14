@@ -1460,13 +1460,13 @@ namespace TA3D
         fx_manager.addFlash( Pos, power * 32 );
         fx_manager.addExplosion( Pos, V, power * 3, power * 10 );
 
-        int param[]={ severity * 100 / unit_manager.unit_type[type_id]->MaxDamage, 0 };
-        run_script_function(SCRIPT_killed, 2, param);
-        if (attached )
-            param[1] = 3;			// When we were flying we just disappear
+        int param[] = { severity * 100 / unit_manager.unit_type[type_id]->MaxDamage, 0 };
+        int corpse_type = run_script_function(SCRIPT_killed, 2, param);
+        if (attached)
+            corpse_type = 3;			// When we were flying we just disappear
         bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
 
-        switch( param[1] )
+        switch( corpse_type )
         {
             case 1:			// Some good looking corpse
                 {
@@ -1475,17 +1475,17 @@ namespace TA3D
                     clear_from_map();
                     flags = 4;
                     pMutex.lock();
-                    if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1) )
+                    if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
                         if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
                         {
                             int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id]->Corpse);
-                            if (type >= 0 )
+                            if (type >= 0)
                             {
                                 the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
-                                if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0 ) 	// Keep unit orientation
+                                if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0) 	// Keep unit orientation
                                 {
                                     features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
-                                    if (sinking )
+                                    if (sinking)
                                         features.sink_feature( the_map->map_data[ cur_py ][ cur_px ].stuff );
                                     features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
                                 }
@@ -1501,9 +1501,11 @@ namespace TA3D
                     flags = 4;
                     pMutex.lock();
                     if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
-                        if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1) {
+                        if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
+                        {
                             int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id]->name) + "_heap").c_str() );
-                            if (type >= 0 ) {
+                            if (type >= 0)
+                            {
                                 the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
                                 if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0 ) {			// Keep unit orientation
                                     features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
