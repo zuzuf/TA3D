@@ -1533,7 +1533,8 @@ namespace TA3D
             if (!chg_col)
                 glGetFloatv(GL_CURRENT_COLOR, color_factor);
             int texID = side;
-            if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE) && dtex > 0)
+            if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
+                && (data_s->flag[script_index] & FLAG_DONT_SHADE) && dtex > 0)
                 texID = ((int)(t * 10.0f)) % dtex;
             if (gl_dlist.size() > texID && gl_dlist[ texID ] && !hide && chg_col && !notex)
             {

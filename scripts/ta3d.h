@@ -125,7 +125,3 @@ function piece(...)
         _G[__piece_list[i]] = i - 1
     end
 end
-
-function stop_spin(piece, axis)
-    spin(piece, axis, 0)
-end

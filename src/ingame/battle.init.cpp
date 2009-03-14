@@ -375,7 +375,7 @@ namespace TA3D
         try
         {
             pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "gen.gui"); // Load the order interface
-            I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String(ta3dSideData.side_pref[players.side_view]) + "gen.hide").c_str(), NULL, NULL);	// Hide it
+            pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.hide" );	// Hide it
         }
         catch(...)
         {
@@ -385,7 +385,7 @@ namespace TA3D
         try
         {
             pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "dl.gui");			// Load the default build interface
-            I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3dSideData.side_pref[players.side_view]) + "dl.hide").c_str(), NULL, NULL);	// Hide it
+            pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.hide" );	// Hide it
         }
         catch(...)
         {
@@ -402,7 +402,7 @@ namespace TA3D
                 while (HPIManager->Exists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e)))
                 {
                     pArea.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e));			// Load the build interface
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (void*)( unit_manager.unit_type[i]->Unitname + String::Format("%d.hide", e)).c_str(), NULL, NULL);	// Hide it
+                    pArea.msg( unit_manager.unit_type[i]->Unitname + String::Format("%d.hide", e));	// Hide it
                     ++e;
                 }
             }

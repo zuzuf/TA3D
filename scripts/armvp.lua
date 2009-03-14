@@ -99,7 +99,6 @@ ACTIVATECMD = Go
 DEACTIVATECMD = Stop
 
 function Create()
-	unitviewer = false
 	spray = 0
 	InitState()
 	start_script( SmokeUnit )
@@ -111,7 +110,7 @@ function QueryNanoPiece(piecenum)
 	else
 		piecenum = beam2
 	end
-	spray = not spray
+	spray = (spray + 1) % 2
 	return piecenum
 end
 

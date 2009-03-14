@@ -394,7 +394,7 @@ namespace TA3D
                 case SCRIPT_DONT_SHADE:
                     {
                         DEBUG_PRINT_CODE("DONT_SHADE");
-                        ++pos;
+                        pUnit->script_dont_shade(script->script_code[script_id][pos++]);
                         break;
                     }
                 case SCRIPT_EMIT_SFX:
@@ -518,7 +518,7 @@ namespace TA3D
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
                         int v = sStack.pop();
-                        pUnit->script_stop_spin(obj, axis, v);
+                        pUnit->script_stop_spin(obj, axis, v * TA2DEG);
                         break;
                     }
                 case SCRIPT_DIVIDE:

@@ -215,8 +215,8 @@ namespace TA3D
                 {
                     if (show_gamestatus == 0.0f)
                     {
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"gamestatus.show", NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"playerstats.show", NULL, NULL);	// Show it
+                        pArea.msg( "gamestatus.show" );	// Show it
+                        pArea.msg( "playerstats.show" );	// Show it
                     }
 
                     show_gamestatus += 10.0f * dt;
@@ -231,8 +231,8 @@ namespace TA3D
 
                     if (show_gamestatus < 0.0f && pre_visible)
                     {
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"gamestatus.hide", NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"playerstats.hide", NULL, NULL);	// Hide it
+                        pArea.msg( "gamestatus.hide" );	// Hide it
+                        pArea.msg( "playerstats.hide" );	// Hide it
                     }
                     if (show_gamestatus < 0.0f)
                         show_gamestatus = 0.0f;
@@ -2368,10 +2368,10 @@ namespace TA3D
                 if (!network_manager.isConnected())             // In single player mode we want to pause the game when opening the menu
                 {
                     lp_CONFIG->pause = true;
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.hide", NULL, NULL);
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.show", NULL, NULL);
+                    pArea.msg( "esc_menu.b_pause.hide" );
+                    pArea.msg( "esc_menu.b_resume.show" );
                 }
-                I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.show", NULL, NULL);
+                pArea.msg( "esc_menu.show" );
             }
 
             if (pArea.get_state("esc_menu.b_return"))
@@ -2380,8 +2380,8 @@ namespace TA3D
                 if (!network_manager.isConnected())             // In single player mode we want to resume the game when closing the menu
                 {
                     lp_CONFIG->pause = false;
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.show", NULL, NULL);
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.hide", NULL, NULL);
+                    pArea.msg( "esc_menu.b_pause.show" );
+                    pArea.msg( "esc_menu.b_resume.hide" );
                 }
             }
 
@@ -2551,14 +2551,14 @@ namespace TA3D
 
             if (!selected && !pCurrentGUI.empty())
             {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcHide]).c_str(), NULL, NULL);	// Hide it
+                pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 pCurrentGUI.clear();
                 updateCurrentGUICacheNames();
                 old_sel = false;
             }
             if ((old_gui_sel >= 0 && old_gui_sel != n) || (!old_sel && !selected)) // Update GUI
             {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUICache[cgcHide]).c_str(), NULL, NULL);	// Hide it
+                pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 if (!pCurrentGUI.empty())
                 {
                     pCurrentGUI.clear();
@@ -2568,7 +2568,7 @@ namespace TA3D
             }
             if (n >= 0 && n != old_gui_sel)
             {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcHide]).c_str(), NULL, NULL);	// Hide it
+                pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 pCurrentGUI.clear();
                 pCurrentGUI << unit_manager.unit_type[n]->Unitname << "1";
                 if (pArea.get_wnd(pCurrentGUI) == NULL)
@@ -2580,17 +2580,17 @@ namespace TA3D
                         pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
                 }
                 updateCurrentGUICacheNames();
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcShow]).c_str(), NULL, NULL);	// Show it
+                pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
                 refresh_gui = true;
             }
             if (n < 0 && ( selected && !old_sel))
             {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcHide]).c_str(), NULL, NULL);	// Hide it
+                pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 old_sel = true;
                 pCurrentGUI.clear();
                 pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
                 updateCurrentGUICacheNames();
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcShow]).c_str(), NULL, NULL);	// Show it
+                pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
                 refresh_gui = true;
             }
             old_gui_sel = n;
@@ -2704,17 +2704,17 @@ namespace TA3D
 
                 if (canload)
                 {
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "LOAD.show").c_str(), NULL, NULL);	// Show it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BLAST.hide").c_str(), NULL, NULL);	// Hide it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUI + ".ARMLOAD.show").c_str(), NULL, NULL);	// Show it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUI + ".ARMBLAST.hide").c_str(), NULL, NULL);	// Hide it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "LOAD.show" );	// Show it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BLAST.hide" );	// Hide it
+                    pArea.msg( pCurrentGUI + ".ARMLOAD.show" );	// Show it
+                    pArea.msg( pCurrentGUI + ".ARMBLAST.hide" );	// Hide it
                 }
                 else
                 {
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view ] + "LOAD.hide").c_str(), NULL, NULL);	// Hide it
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view ] + "BLAST.show").c_str(), NULL, NULL);	// Show it
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUI + ".ARMLOAD.hide").c_str(), NULL, NULL);	// Hide it
-                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUI + ".ARMBLAST.show").c_str(), NULL, NULL);	// Show it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view ] + "LOAD.hide" );	// Hide it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view ] + "BLAST.show" );	// Show it
+                    pArea.msg( pCurrentGUI + ".ARMLOAD.hide" );	// Hide it
+                    pArea.msg( pCurrentGUI + ".ARMBLAST.show" );	// Show it
                 }
 
                 if (pCurrentGUI != String(ta3dSideData.side_pref[players.side_view]) + "gen")
@@ -2779,17 +2779,17 @@ namespace TA3D
 
                     if (canload)
                     {
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.show").c_str(), NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.hide").c_str(), NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMLOAD.show").c_str(), NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMBLAST.hide").c_str(), NULL, NULL);	// Hide it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.show" );	// Show it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.hide" );	// Hide it
+                        pArea.msg( genGUI + ".ARMLOAD.show" );	// Show it
+                        pArea.msg( genGUI + ".ARMBLAST.hide" );	// Hide it
                     }
                     else
                     {
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.hide").c_str(), NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.show").c_str(), NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMLOAD.hide").c_str(), NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMBLAST.show").c_str(), NULL, NULL);	// Show it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.hide" );	// Hide it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.show" );	// Show it
+                        pArea.msg( genGUI + ".ARMLOAD.hide" );	// Hide it
+                        pArea.msg( genGUI + ".ARMBLAST.show" );	// Show it
                     }
                 }
 
@@ -2813,11 +2813,11 @@ namespace TA3D
                 pArea.set_state(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ORDERS", false);
                 pArea.set_state(pCurrentGUI + ".ARMORDERS", false);				// Because of mod support
                 sound_manager->playTDFSound( "ORDERSBUTTON", "sound" , NULL);
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUICache[cgcHide]).c_str(), NULL, NULL);	// Hide it
+                pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 pCurrentGUI.clear();
                 pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
                 updateCurrentGUICacheNames();
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcShow]).c_str(), NULL, NULL);	// Show it
+                pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
             }
 
             if (( pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BUILD") ||
@@ -2826,7 +2826,7 @@ namespace TA3D
                 pArea.set_state(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BUILD", false);
                 pArea.set_state(pCurrentGUI + ".ARMBUILD", false);
                 sound_manager->playTDFSound( "BUILDBUTTON", "sound" , NULL);
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUICache[cgcHide]).c_str(), NULL, NULL);	// Hide it
+                pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 pCurrentGUI.clear();
                 pCurrentGUI << unit_manager.unit_type[old_gui_sel]->Unitname << "1";
                 if (pArea.get_wnd(pCurrentGUI) == NULL)
@@ -2838,7 +2838,7 @@ namespace TA3D
                         pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
                 }
                 updateCurrentGUICacheNames();
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( pCurrentGUICache[cgcShow]).c_str(), NULL, NULL);	// Show it
+                pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
             }
 
             if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "PREV")

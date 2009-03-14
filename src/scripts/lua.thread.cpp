@@ -559,7 +559,7 @@ namespace TA3D
         {
             lua_pop(L, 1);
             LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
-            return 0;
+            return -1;
         }
 
         if (parameters == NULL)
@@ -584,7 +584,7 @@ namespace TA3D
             return -1;
         }
 
-        int result = (int) lua_tointeger( L, -1 );          // Read the result
+        int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : lua_tointeger( L, -1 );    // Read the result
         lua_pop( L, 1 );
         return result;
     }
