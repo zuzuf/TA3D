@@ -48,12 +48,12 @@ namespace Interfaces
 
     void GfxTexture::draw( const float x1, const float y1 )
     {
-        gfx->drawtexture( tex, x1, y1, x1+width-1, y1+height-1 );
+        gfx->drawtexture( tex, x1, y1, x1 + width, y1 + height );
     }
 
     void GfxTexture::draw( const float x1, const float y1, const uint32 col )
     {
-        gfx->drawtexture(tex, x1, y1, x1+width-1, y1+height-1, col);
+        gfx->drawtexture(tex, x1, y1, x1 + width, y1 + height, col);
     }
 
     GfxTexture::GfxTexture( const GLuint gltex )
