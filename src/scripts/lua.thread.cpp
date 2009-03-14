@@ -349,18 +349,16 @@ namespace TA3D
     {
         LUA_THREAD *lua_thread = lua_threadID(L);
         if (lua_thread)
-            lua_thread->processSignal( lua_tointeger(L, -1) );
-        lua_pop(L, 1);
+            lua_thread->processSignal( lua_tointeger(L, 1) );
+        lua_settop(L, 0);
         return 0;
     }
 
     int thread_start_script( lua_State *L )         // start_script( function, params )
     {
-        int n = 1;
-        while(!lua_isnone(L, -n) && !lua_isfunction(L, -n))
-            n++;
+        int n = lua_gettop(L);
 
-        if (lua_isfunction(L, -n))
+        if (lua_isfunction(L, 1))
         {
             LUA_THREAD *lua_thread = lua_threadID(L);
             if (lua_thread)
@@ -496,6 +494,7 @@ namespace TA3D
             sleep_time = 0.0f;
             waiting = false;
             signal_mask = 0;
+            lua_settop(L, 0);
             pMutex.unlock();
             return this;
         }
@@ -534,6 +533,7 @@ namespace TA3D
 
         if (running)    return;     // We cannot run several functions at the same time on the same stack
 
+        lua_settop(L, 0);
         lua_getglobal( L, functionName.c_str() );
         if (lua_isnil( L, -1 ))     // Function not found
         {
@@ -554,6 +554,7 @@ namespace TA3D
     {
         MutexLocker mLocker( pMutex );
 
+        lua_settop(L, 0);
         lua_getglobal( L, functionName.c_str() );
         if (lua_isnil( L, -1 ))     // Function not found
         {
