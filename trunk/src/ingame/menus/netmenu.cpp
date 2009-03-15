@@ -98,24 +98,24 @@ namespace TA3D
                     }
                     break;
                 case LOGIN:
-                    if (!pArea->get_state("ask.b_ok"))       // User clicked ok
+                    if (pArea->get_state("ask.b_ok"))       // User clicked ok
                     {
                         login = pArea->get_caption("ask.t_result");
                         askMode = NONE;
                     }
-                    else if (!pArea->get_state("ask.b_cancel"))       // User clicked cancel
+                    else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
                     {
                         login.clear();
                         askMode = NONE;
                     }
                     break;
                 case PASSWORD:
-                    if (!pArea->get_state("ask.b_ok"))       // User clicked ok
+                    if (pArea->get_state("ask.b_ok"))       // User clicked ok
                     {
                         password = pArea->get_caption("ask.t_result");
                         askMode = NONE;
                     }
-                    else if (!pArea->get_state("ask.b_cancel"))       // User clicked cancel
+                    else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
                     {
                         login.clear();
                         password.clear();
@@ -148,24 +148,24 @@ namespace TA3D
                     }
                     break;
                 case LOGIN:
-                    if (!pArea->get_state("ask.b_ok"))       // User clicked ok
+                    if (pArea->get_state("ask.b_ok"))       // User clicked ok
                     {
                         login = pArea->get_caption("ask.t_result");
                         askMode = NONE;
                     }
-                    else if (!pArea->get_state("ask.b_cancel"))       // User clicked cancel
+                    else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
                     {
                         login.clear();
                         askMode = NONE;
                     }
                     break;
                 case PASSWORD:
-                    if (!pArea->get_state("ask.b_ok"))       // User clicked ok
+                    if (pArea->get_state("ask.b_ok"))       // User clicked ok
                     {
                         password = pArea->get_caption("ask.t_result");
                         askMode = NONE;
                     }
-                    else if (!pArea->get_state("ask.b_cancel"))       // User clicked cancel
+                    else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
                     {
                         login.clear();
                         password.clear();
