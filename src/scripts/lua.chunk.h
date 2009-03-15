@@ -38,7 +38,7 @@ namespace TA3D
     public:
         LUA_CHUNK(lua_State *L, const String &name);
         LUA_CHUNK();
-        ~LUA_CHUNK();
+        virtual ~LUA_CHUNK();
 
         /*virtual*/ void load(const String &filename);                    // Load a lua chunk
         void save(const String &filename);                    // Save the lua chunk
