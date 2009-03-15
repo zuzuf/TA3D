@@ -8,5 +8,6 @@ SET(SOURCES network.cpp network.h
             ta3dsock.cpp ta3dsock.h
             networkutils.h networkutils.cpp
             socketlist.h socketlist.cpp
-            TA3D_Network.cpp TA3D_Network.h)
+            TA3D_Network.cpp TA3D_Network.h
+            netclient.cpp netclient.h)
 ADD_LIBRARY(network STATIC ${SOURCES})
