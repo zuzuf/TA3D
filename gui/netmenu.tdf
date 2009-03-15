@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=5;
+	number of objects=7;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -42,9 +42,9 @@
 	{
 		name=peer_list;
 		type=LIST;
-		x1=64;
+		x1=1040;
 		y1=144;
-		x2=582;
+		x2=1242;
 		y2=904;
 		entry=no peer found;
 		no border=true;		// Don't draw the border since it's drawn on the background
@@ -66,10 +66,34 @@
 		name=b_register;
 		type=BUTTON;
 		caption=Register;
-		x1=639;
+		x1=637;
 		y1=964;
 		x2=785;
 		y2=997;
 		size=2;
+	}
+	[object5]		// chan list
+	{
+		name=chan_list;
+		type=LIST;
+		x1=198;
+		y1=144;
+		x2=469;
+		y2=904;
+		entry=no chan found;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
+	}
+	[object6]		// chat history
+	{
+		name=chat_history;
+		type=LIST;
+		x1=469;
+		y1=144;
+		x2=1045;
+		y2=904;
+		entry=;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
 	}
 }
