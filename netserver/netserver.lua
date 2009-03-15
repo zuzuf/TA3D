@@ -80,6 +80,10 @@ end
 
 -- Tell everyone on client's chan that client is there
 function joinChan(client)
+    -- identify * to nil
+    if client.chan == "*" then
+        client.chan = nil
+    end
     if client.chan ~= nil then
         if chans[client.chan] == nil then
             chans[client.chan] = 1
