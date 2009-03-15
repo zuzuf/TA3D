@@ -8,6 +8,7 @@ SET(SOURCES base.h base.cpp
             mapselector.h mapselector.cpp
             unitselector.h unitselector.cpp
             statistics.h statistics.cpp
-            mainmenu.h mainmenu.cpp)
+            mainmenu.h mainmenu.cpp
+            netmenu.cpp netmenu.h)
 
 ADD_LIBRARY(menus STATIC ${SOURCES})

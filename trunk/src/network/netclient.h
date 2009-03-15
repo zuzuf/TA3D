@@ -13,7 +13,10 @@ namespace TA3D
                         CONNECTED,
                         DISCONNECTED };
     private:
+        String          server;
+        uint16          port;
         String          login;
+        String          password;
         NetState        state;
         String::List    messages;
         String::Vector  peerList;
@@ -26,6 +29,7 @@ namespace TA3D
 
         void            disconnect();
         void            connect(const String &server, const uint16 port, const String &login, const String &password, bool bRegister = false);
+        void            reconnect();
         NetState        getState();
         bool            messageWaiting();
         String          getNextMessage();
@@ -36,6 +40,13 @@ namespace TA3D
 
     private:
         void            processMessage(const String &msg);
+
+    public:
+        static NetClient *instance();
+        static void destroyInstance();
+
+    private:
+        static NetClient *pInstance;
     };
 }
 
