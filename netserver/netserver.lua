@@ -349,6 +349,57 @@ end
 --                                                                        --
 --************************************************************************--
 
+-- This is the server monitor, it is responsible for warm restart and crash management
+if _G.reload == nil then
+    log_debug("Server monitor started")
+    local chunks = {}
+    while true do
+        local reloadFile = _G.reload or #chunks == 0
+        if reloadFile then
+            if _G.reload then
+                log_debug()
+                log_debug("--- Warm restart ---")
+                log_debug()
+            end
+            local chunk = loadfile("netserver.lua")
+            if chunk ~= nil then
+                if _G.reload then
+                    sendAdmins("MESSAGE Warm restart in progress")
+                end
+                table.insert(chunks, chunk)
+            else
+                if _G.reload then
+                    sendAdmins("MESSAGE Warm restart failed, resuming current version")
+                    log_error("could not load netserver.lua! Warm restart failed")
+                    log_debug("resuming current server version")
+                else
+                    log_error("could not load netserver.lua! Server start failed")
+                end
+            end
+        end
+
+        -- run the last available chunk (in case it crashes, it'll remove the last one and try with the previous one :) )
+        if #chunks > 0 then
+            local chunk = chunks[ #chunks ]
+            _G.reload = true
+            local success, msg = pcall(chunk)
+            -- on crash
+            if not success then
+                log_error("server crashed, resuming previous working version")
+                table.remove(chunks)
+                _G.crashRecovery = true
+            -- on exit (on reload request we just loop and load the new version)
+            elseif _G.reload == nil then
+                break
+            end
+        end
+    end
+    -- we're in monitor mode so don't run the server on exit :p
+    os.exit()
+end
+
+-- Normal server code
+
 log_debug("Starting " .. SERVER_VERSION)
 
 local socket = require("socket")
@@ -371,13 +422,20 @@ end
 server:settimeout(0.001)
 
 -- If server has been restarted, then update coroutines
-if _G.reload then
+if _G.reload and #clients > 0 then
     log_debug("warm restart detected, updating clients coroutines")
     for i = 1, #clients do
         clients[i].serve = coroutine.wrap(processClient)
     end
     sendAdmins("MESSAGE Warm restart successful")
 end
+
+-- Wow, we've just recovered from a crash :s
+if _G.crashRecovery then
+    _G.crashRecovery = nil
+    sendAdmins("MESSAGE Server just recovered from a crash")
+end
+
 
 -- prevent it from restarting in an infinite loop
 _G.reload = nil
@@ -402,30 +460,9 @@ while true do
             clients[i]:serve()
         end
     end
-    
+   
+    -- in case we want to reload the server, just return and let the monitor do the job
     if _G.reload == true then
-        log_debug()
-        log_debug("--- Warm restart ---")
-        log_debug()
-        local chunk = loadfile("netserver.lua")
-        if chunk ~= nil then
-            sendAdmins("MESSAGE Warm restart in progress")
-            local success, msg = pcall(chunk)
-            if not success then
-                log_error("server crashed, resuming previous working version")
-                log_debug("fixing clients coroutines if needed")
-                for i = 1, #clients do
-                    clients[i].serve = coroutine.wrap(processClient)
-                end
-                sendAdmins("MESSAGE Server just recovered from a crash")
-            else
-                break
-            end
-        else
-            sendAdmins("MESSAGE Warm restart failed, resuming current version")
-            log_error("could not load netserver.lua! Warm restart failed")
-            log_debug("current server version resuming")
-        end
-        _G.reload = nil
+        return
     end
 end
