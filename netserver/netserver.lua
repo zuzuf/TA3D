@@ -121,6 +121,7 @@ function identifyClient(client, password)
     row = cur:fetch({}, "a")
     client.ID = tonumber( row.ID )
     client.admin = tonumber( row.admin )
+    joinChan(client)
     return true
 end
 
