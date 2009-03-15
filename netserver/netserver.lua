@@ -68,10 +68,48 @@ end
 if clients_login == nil then
     clients_login = {}
 end
+-- the chan table
+if chans == nil then
+    chans = {}
+end
 
 function fixSQL(str)
     local safe_str, n = string.gsub(str, "['\"\\]", "\\%1")
     return safe_str
+end
+
+-- Tell everyone on client's chan that client is there
+function joinChan(client)
+    if client.chan ~= nil then
+        if chans[client.chan] == nil then
+            chans[client.chan] = 1
+            sendAll("CHAN " .. client.chan)
+        else
+            chans[client.chan] = chans[client.chan] + 1
+        end
+    end
+    for id, c in ipairs(clients) do
+        if c.state == STATE_CONNECTED and c.chan == client.chan then
+            c:send("USER " .. client.login)
+        end
+    end
+end
+
+-- Tell everyone on client's chan that client is leaving chan
+function leaveChan(client)
+    if client.chan ~= nil then
+        if chans[client.chan] == 1 then
+            chans[client.chan] = nil
+            sendAll("DECHAN " .. client.chan)
+        else
+            chans[client.chan] = chans[client.chan] - 1
+        end
+    end
+    for id, c in ipairs(clients) do
+        if c.state == STATE_CONNECTED and c.chan == client.chan then
+            c:send("LEAVE " .. client.login)
+        end
+    end
 end
 
 -- Identify a client, connect it if password and login match
@@ -138,6 +176,15 @@ end
 function sendAdmins(msg)
     for id, c in ipairs(clients) do
         if c.state == STATE_CONNECTED and c.admin == 1 then
+            c:send(msg)
+        end
+    end
+end
+
+-- Send all
+function sendAll(msg)
+    for id, c in ipairs(clients) do
+        if c.state == STATE_CONNECTED then
             c:send(msg)
         end
     end
@@ -227,11 +274,23 @@ function processClient(client)
                 end
             elseif client.state == STATE_CONNECTED then     -- Client is connected
 
-                -- GET CLIENT LIST : client is asking for the client list
-                if args[1] == "GET" and #args >= 3 and args[2] == "CLIENT" and args[3] == "LIST" then
+                -- GET USER LIST : client is asking for the client list (clients on the same chan)
+                if args[1] == "GET" and #args >= 3 and args[2] == "USER" and args[3] == "LIST" then
+                    for id, c in ipairs(clients) do
+                        if c.state == STATE_CONNECTED and c.chan == client.chan then
+                            client:send("USER " .. c.login)
+                        end
+                    end
+                -- GET CHAN LIST : client is asking for the chan list
+                elseif args[1] == "GET" and #args >= 3 and args[2] == "CHAN" and args[3] == "LIST" then
+                    for c, v in pairs(chans) do
+                        client:send("CHAN " .. c)
+                    end
+                -- GET CLIENT LIST : list ALL clients
+                elseif args[1] == "GET" and #args >= 3 and args[2] == "CLIENT" and args[3] == "LIST" then
                     for id, c in ipairs(clients) do
                         if c.state == STATE_CONNECTED then
-                            client:send("USER " .. c.login)
+                            client:send("CLIENT " .. c.login)
                         end
                     end
                 -- SEND to msg : client is sending a message to another client
@@ -298,6 +357,11 @@ function processClient(client)
                     else
                         client:send("ERROR you don't have the right to do that")
                     end
+                -- CHAN chan_name: change chan for client
+                elseif args[1] == "CHAN" then
+                    leaveChan(client)
+                    client.chan = args[2]
+                    joinChan(client)
                 else
                     client:send("ERROR could not parse request")
                 end
@@ -334,6 +398,7 @@ function newClient(incoming)
                                     if this.login ~= nil then       -- allow garbage collection
                                         clients_login[this.login] = nil
                                     end
+                                    leaveChan(this)                 -- don't forget to leave the chan!
                                     this:send("CLOSE")
                                     this.sock:close()
                                     this.state = STATE_DISCONNECTED

@@ -2,6 +2,10 @@
 
 local socket = require("socket")
 
+if arg[1] == nil then
+    arg[1] = "localhost"
+end
+
 local client, err = socket.connect(arg[1], 4240)
 
 if err then
@@ -10,6 +14,8 @@ if err then
 end
 
 client:settimeout(0)
+
+client:send("CLIENT NetClient\n")
 
 while true do
     local msg = client:receive()
