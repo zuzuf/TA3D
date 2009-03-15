@@ -8,6 +8,31 @@ function log_error(...)
     print(os.date() .. " [error] " .. table.concat({...}," "))
 end
 
+function copyFile(src, dst)
+    local file_src = io.open(src,"r")
+
+    if file_src == nil then
+        log_error("copyFile failed: could not open ", src)
+        return
+    end
+
+    local file_dst = io.open(dst,"w")
+
+    if file_dst == nil then
+        file_src:close()
+        log_error("copyFile failed: could not open ", dst)
+        return
+    end
+    
+    local data = file_src:read("*a")
+    file_dst:write(data)
+    file_dst:flush()
+    data = nil
+    
+    file_src:close()
+    file_dst:close()
+end
+
 SERVER_VERSION = "TA3D netserver 0.0.1"
 
 STATE_CONNECTING = 0
@@ -266,6 +291,13 @@ function processClient(client)
                     else
                         client:send("ERROR you don't have the right to do that")
                     end
+                -- CRASH SERVER: admin privilege, crash the server (thus resuming previous server version ... be careful with that)
+                elseif args[1] == "CRASH" and args[2] == "SERVER" then
+                    if client.admin == 1 then
+                        error(table.concat(args," ",3))
+                    else
+                        client:send("ERROR you don't have the right to do that")
+                    end
                 else
                     client:send("ERROR could not parse request")
                 end
@@ -372,12 +404,23 @@ while true do
     end
     
     if _G.reload == true then
+        log_debug()
         log_debug("--- Warm restart ---")
+        log_debug()
         local chunk = loadfile("netserver.lua")
         if chunk ~= nil then
             sendAdmins("MESSAGE Warm restart in progress")
-            chunk()
-            break
+            local success, msg = pcall(chunk)
+            if not success then
+                log_error("server crashed, resuming previous working version")
+                log_debug("fixing clients coroutines if needed")
+                for i = 1, #clients do
+                    clients[i].serve = coroutine.wrap(processClient)
+                end
+                sendAdmins("MESSAGE Server just recovered from a crash")
+            else
+                break
+            end
         else
             sendAdmins("MESSAGE Warm restart failed, resuming current version")
             log_error("could not load netserver.lua! Warm restart failed")
