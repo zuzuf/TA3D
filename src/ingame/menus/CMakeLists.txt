@@ -9,6 +9,6 @@ SET(SOURCES base.h base.cpp
             unitselector.h unitselector.cpp
             statistics.h statistics.cpp
             mainmenu.h mainmenu.cpp
-            netmenu.cpp netmenu.h)
+            netmenu.h netmenu.cpp)
 
 ADD_LIBRARY(menus STATIC ${SOURCES})
