@@ -58,29 +58,30 @@ namespace TA3D
     {
         String lw(message);
         lw.toLower();
+        bool old_wait_a_turn = wait_a_turn;
         wait_a_turn = true;
 
-        if (lw == "hide")            { Flag |= FLAG_HIDDEN;          return INTERFACE_RESULT_HANDLED; }
-        if (lw == "show")            { Flag &= ~FLAG_HIDDEN;         return INTERFACE_RESULT_HANDLED; }
-        if (lw == "switch")          { Flag |= FLAG_SWITCH;          return INTERFACE_RESULT_HANDLED; }
-        if (lw == "unswitch")        { Flag &= ~FLAG_SWITCH;         return INTERFACE_RESULT_HANDLED; }
-        if (lw == "fill")            { Flag |= FLAG_FILL;            return INTERFACE_RESULT_HANDLED; }
-        if (lw == "unfill")          { Flag &= ~FLAG_FILL;           return INTERFACE_RESULT_HANDLED; }
-        if (lw == "enable")          { Flag &= ~FLAG_DISABLED;       return INTERFACE_RESULT_HANDLED; }
-        if (lw == "disable")         { Flag |= FLAG_DISABLED;        return INTERFACE_RESULT_HANDLED; }
-        if (lw == "highlight")       { Flag |= FLAG_HIGHLIGHT;       return INTERFACE_RESULT_HANDLED; }
-        if (lw == "unhighlight")     { Flag &= ~FLAG_HIGHLIGHT;      return INTERFACE_RESULT_HANDLED; }
-        if (lw == "can_get_focus")   { Flag |= FLAG_CAN_GET_FOCUS;   return INTERFACE_RESULT_HANDLED; }
-        if (lw == "cant_get_focus")  { Flag &= ~FLAG_CAN_GET_FOCUS;  return INTERFACE_RESULT_HANDLED; }
-        if (lw == "can_be_clicked")  { Flag |= FLAG_CAN_BE_CLICKED;  return INTERFACE_RESULT_HANDLED; }
-        if (lw == "cant_be_clicked") { Flag &= ~FLAG_CAN_BE_CLICKED; return INTERFACE_RESULT_HANDLED; }
+        if (lw == "hide" && !(Flag & FLAG_HIDDEN))                      { Flag |= FLAG_HIDDEN;          return INTERFACE_RESULT_HANDLED; }
+        if (lw == "show" && (Flag & FLAG_HIDDEN))                       { Flag &= ~FLAG_HIDDEN;         return INTERFACE_RESULT_HANDLED; }
+        if (lw == "switch" && !(Flag & FLAG_SWITCH))                    { Flag |= FLAG_SWITCH;          return INTERFACE_RESULT_HANDLED; }
+        if (lw == "unswitch" && (Flag & FLAG_SWITCH))                   { Flag &= ~FLAG_SWITCH;         return INTERFACE_RESULT_HANDLED; }
+        if (lw == "fill" && !(Flag & FLAG_FILL))                        { Flag |= FLAG_FILL;            return INTERFACE_RESULT_HANDLED; }
+        if (lw == "unfill" && (Flag & FLAG_FILL))                       { Flag &= ~FLAG_FILL;           return INTERFACE_RESULT_HANDLED; }
+        if (lw == "enable" && (Flag & FLAG_DISABLED))                   { Flag &= ~FLAG_DISABLED;       return INTERFACE_RESULT_HANDLED; }
+        if (lw == "disable" && !(Flag & FLAG_DISABLED))                 { Flag |= FLAG_DISABLED;        return INTERFACE_RESULT_HANDLED; }
+        if (lw == "highlight" && !(Flag & FLAG_HIGHLIGHT))              { Flag |= FLAG_HIGHLIGHT;       return INTERFACE_RESULT_HANDLED; }
+        if (lw == "unhighlight" && (Flag & FLAG_HIGHLIGHT))             { Flag &= ~FLAG_HIGHLIGHT;      return INTERFACE_RESULT_HANDLED; }
+        if (lw == "can_get_focus" && !(Flag & FLAG_CAN_GET_FOCUS))      { Flag |= FLAG_CAN_GET_FOCUS;   return INTERFACE_RESULT_HANDLED; }
+        if (lw == "cant_get_focus" && (Flag & FLAG_CAN_GET_FOCUS))      { Flag &= ~FLAG_CAN_GET_FOCUS;  return INTERFACE_RESULT_HANDLED; }
+        if (lw == "can_be_clicked" && !(Flag & FLAG_CAN_BE_CLICKED))    { Flag |= FLAG_CAN_BE_CLICKED;  return INTERFACE_RESULT_HANDLED; }
+        if (lw == "cant_be_clicked" && (Flag & FLAG_CAN_BE_CLICKED))    { Flag &= ~FLAG_CAN_BE_CLICKED; return INTERFACE_RESULT_HANDLED; }
         if (StartsWith(lw ,"caption=")) // Change the GUIOBJ's caption
         {
             if (!Text.empty())
                 Text[0] = message.substr(8, message.size() - 8);
             return INTERFACE_RESULT_HANDLED;
         }
-        if (lw == "focus")
+        if (lw == "focus" && !Focus)
         {
             if (wnd)
             {
@@ -90,6 +91,7 @@ namespace TA3D
             }
             return INTERFACE_RESULT_HANDLED;
         }
+        wait_a_turn = old_wait_a_turn;
         return INTERFACE_RESULT_CONTINUE;
     }
 

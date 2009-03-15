@@ -118,7 +118,7 @@ namespace TA3D
             buffer_pos = 0;
 
             state = CONNECTING;
-            sendMessage(format("CLIENT %d", TA3D_ENGINE_VERSION));
+            sendMessage(format("CLIENT %s", TA3D_ENGINE_VERSION));
             if (bRegister)
                 sendMessage("REGISTER " + login + " " + password);
             else

@@ -1,0 +1,9 @@
+[area]
+{
+	name=netmenu area;
+	skin=gui/default.skn;
+	windows=gui/netmenu.tdf, gui/ask_dialog.tdf, gui/popup_dialog.tdf;
+	background=gfx/netmenu.jpg;
+	width=1280;
+	height=1024;
+}
