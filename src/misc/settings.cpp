@@ -178,7 +178,7 @@ namespace Settings
 
         TA3D::VARS::lp_CONFIG->skin_name = cfgFile.pullAsString("TA3D.Skin", "");
 
-        TA3D::VARS::lp_CONFIG->net_server = cfgFile.pullAsString("TA3D.Net Server", "ta3d.darkstars.co.uk");
+        TA3D::VARS::lp_CONFIG->net_server = cfgFile.pullAsString("TA3D.Net Server", TA3D_DEFAULT_SERVER_HOSTNAME);
 
         TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 

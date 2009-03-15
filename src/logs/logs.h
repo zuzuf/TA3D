@@ -93,6 +93,7 @@
 # define LOG_PREFIX_MENU_MAPSELECTOR  "[menu::mapselector] "
 # define LOG_PREFIX_MENU_UNITSELECTOR "[menu::unitselector] "
 # define LOG_PREFIX_MENU_STATS        "[menu::stats] "
+# define LOG_PREFIX_MENU_NETMENU      "[menu::netmenu] "
 
 # define LOG_PREFIX_NET               "[network] "
 # define LOG_PREFIX_NET_BROADCAST     "[net::broadcast] "

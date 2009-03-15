@@ -1,12 +1,27 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "netclient.h"
-#include <algorithm>
+#include <algorithm>        // We need std::sort
 
 #define BUFFER_SIZE     2048
 
 namespace TA3D
 {
+    NetClient *NetClient::pInstance = NULL;
+
+    NetClient *NetClient::instance()
+    {
+        if (!pInstance)
+            pInstance = new NetClient;
+        return pInstance;
+    }
+
+    void NetClient::destroyInstance()
+    {
+        if (pInstance)
+            delete pInstance;
+        pInstance = NULL;
+    }
 
     NetClient::NetClient() : peerList(), login(), state( NetClient::DISCONNECTED ), messages(), sock()
     {
@@ -25,7 +40,6 @@ namespace TA3D
         sendMessage("DISCONNECT");
         sock.close();
         state = DISCONNECTED;
-        login.clear();
         peerList.clear();
         buffer_pos = 0;
 
@@ -67,7 +81,6 @@ namespace TA3D
         {
             state = DISCONNECTED;
             peerList.clear();
-            login.clear();
         }
         pMutex.unlock();
     }
@@ -77,6 +90,11 @@ namespace TA3D
         pMutex.lock();
         messages.clear();
         pMutex.unlock();
+    }
+
+    void NetClient::reconnect()
+    {
+        connect(server, port, login, password);
     }
 
     void NetClient::connect(const String &server, const uint16 port, const String &login, const String &password, bool bRegister)
@@ -91,6 +109,11 @@ namespace TA3D
 
         if (sock.isOpen())
         {
+            this->password = password;
+            this->login = login;
+            this->port = port;
+            this->server = server;
+
             sock.setNonBlockingMode(true);
             buffer_pos = 0;
 
@@ -143,7 +166,6 @@ namespace TA3D
         {
             state = DISCONNECTED;
             peerList.clear();
-            login.clear();
             return;
         }
 
