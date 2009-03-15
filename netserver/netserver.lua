@@ -1,10 +1,14 @@
 #!/usr/bin/lua
 
 function log_debug(...)
-    print(...)
+    print(os.date() .. " [debug] " .. table.concat({...}," "))
 end
 
-SERVER_VERSION = "TA3D netserver 0.0.0"
+function log_error(...)
+    print(os.date() .. " [error] " .. table.concat({...}," "))
+end
+
+SERVER_VERSION = "TA3D netserver 0.0.1"
 
 STATE_CONNECTING = 0
 STATE_CONNECTED = 1
@@ -14,24 +18,31 @@ STATE_DISCONNECTED = 2
 
 require("luasql.mysql")
 if luasql == nil or luasql.mysql == nil then
-    log_debug("error: luasql not found")
+    log_error("luasql not found")
     os.exit()
 end
 
 mysql = luasql.mysql()
 if mysql == nil then
-    log_debug("error: could not initialize luasql.mysql")
+    log_error("could not initialize luasql.mysql")
     os.exit()
 end
 
 netserver_db = mysql:connect("netserver", "user", "password")
 if netserver_db == nil then
-    log_debug("error: could not connect to database")
+    log_error("could not connect to database")
     os.exit()
 end
 
+-- do not erase clients data if set (to allow live reloading of server code)
 -- the client table, contains all client structures
-clients = {}
+if clients == nil then
+    clients = {}
+end
+-- the login table (since it'sa hash table it's much faster than going through the whole clients table)
+if clients_login == nil then
+    clients_login = {}
+end
 
 function fixSQL(str)
     local safe_str, n = string.gsub(str, "['\"\\]", "\\%1")
@@ -68,9 +79,9 @@ end
 -- Ban a client
 function banClient(login)
     netserver_db:execute("UPDATE `clients` SET `banned` = '1' WHERE `login`='" .. fixSQL(login) .. "'")
-    if _G[login] then
-        _G[login]:send("MESSAGE you have been banned")
-        _G[login]:disconnect()
+    if clients_login[login] then
+        clients_login[login]:send("MESSAGE you have been banned")
+        clients_login[login]:disconnect()
     end
 end
 
@@ -82,12 +93,13 @@ end
 -- Kill a client
 function killClient(login)
     netserver_db:execute("DELETE FROM `clients` WHERE `login`='" .. fixSQL(login) .. "'")
-    if _G[login] then
-        _G[login]:send("MESSAGE you have been killed")
-        _G[login]:disconnect()
+    if clients_login[login] then
+        clients_login[login]:send("MESSAGE you have been killed")
+        clients_login[login]:disconnect()
     end
 end
 
+-- Get a value from the mysql database (info table)
 function getValue(name)
     cur = netserver_db:execute("SELECT value FROM `info` WHERE name='" .. fixSQL(name) .. "'")
     if cur == nil or cur == 0 or cur:numrows() ~= 1 then
@@ -95,6 +107,15 @@ function getValue(name)
     end
     row = cur:fetch({}, "a")
     return row.value
+end
+
+-- Broadcast a message to all admins
+function sendAdmins(msg)
+    for id, c in ipairs(clients) do
+        if c.state == STATE_CONNECTED and c.admin == 1 then
+            c:send(msg)
+        end
+    end
 end
 
 -- this is where the magic tooks place
@@ -109,10 +130,10 @@ function processClient(client)
         end
         -- what is client telling us ?
         if msg ~= nil then
-            log_debug(client.sock:getpeername(), " sent: ", msg)
-            -- this is temporary
-            if msg == "end" then
-                os.exit()
+            if client.login == nil then
+                log_debug(client.sock:getpeername() .. " (nil) sent: ", msg)
+            else
+                log_debug(client.sock:getpeername() .. " (" .. client.login .. ") sent: ", msg)
             end
 
             if msg == "DISCONNECT" then
@@ -190,15 +211,15 @@ function processClient(client)
                     end
                 -- SEND to msg : client is sending a message to another client
                 elseif args[1] == "SEND" and #args >= 3 then
-                    if args[2] ~= nil and args[2] ~= client.login and _G[args[2]] ~= nil and _G[args[2]].state == STATE_CONNECTED then
-                        _G[args[2]]:send("MSG " .. client.login .. " " .. table.concat(args, " ", 3))
+                    if args[2] ~= nil and args[2] ~= client.login and clients_login[args[2]] ~= nil and clients_login[args[2]].state == STATE_CONNECTED then
+                        clients_login[args[2]]:send("MSG " .. client.login .. " " .. table.concat(args, " ", 3))
                     end
                 -- KICK user : admin privilege, disconnect someone (self kick works)
                 elseif args[1] == "KICK" and #args == 2 then
                     if client.admin == 1 then
-                        if _G[args[2]] ~= nil then
-                            _G[args[2]]:send("MESSAGE You have been kicked")
-                            _G[args[2]]:disconnect()
+                        if clients_login[args[2]] ~= nil then
+                            clients_login[args[2]]:send("MESSAGE You have been kicked")
+                            clients_login[args[2]]:disconnect()
                         end
                     else
                         client:send("ERROR you don't have the right to do that")
@@ -221,6 +242,27 @@ function processClient(client)
                 elseif args[1] == "KILL" and #args == 2 then
                     if client.admin == 1 and client.login ~= args[2] then
                         killClient(args[2])
+                    else
+                        client:send("ERROR you don't have the right to do that")
+                    end
+                -- RELOAD SERVER : admin privilege, live reload of server code (update server without closing any connection)
+                elseif args[1] == "RELOAD" and args[2] == "SERVER" then
+                    if client.admin == 1 then
+                        _G.reload = true
+                    else
+                        client:send("ERROR you don't have the right to do that")
+                    end
+                -- SHUTDOWN SERVER : admin privilege, stop server (closes all connections)
+                elseif args[1] == "SHUTDOWN" and args[2] == "SERVER" then
+                    if client.admin == 1 then
+                        for id, c in ipairs(clients) do
+                            if c.state == STATE_CONNECTED then
+                                c:send("MESSAGE Server is being shut down for maintenance, sorry for the inconvenience")
+                                c:disconnect()
+                            end
+                        end
+                        log_debug("Server is being shut down")
+                        os.exit()
                     else
                         client:send("ERROR you don't have the right to do that")
                     end
@@ -252,13 +294,13 @@ function newClient(incoming)
                     version = nil,
                     serve = coroutine.wrap(processClient),
                     connect =   function(this)
-                                    _G[this.login] = this           -- we need this to do fast look ups
+                                    clients_login[this.login] = this           -- we need this to do fast look ups
                                     this.state = STATE_CONNECTED
                                     this:send("CONNECTED")
                                 end,
                     disconnect = function(this)
                                     if this.login ~= nil then       -- allow garbage collection
-                                        _G[this.login] = nil
+                                        clients_login[this.login] = nil
                                     end
                                     this:send("CLOSE")
                                     this.sock:close()
@@ -285,14 +327,28 @@ if socket == nil then
 end
 
 -- loads the luasocket library
-local server = socket.bind("*", 4240)
-
 if server == nil then
-    log_debug("error: could not create a TCP server socket :(")
-    os.exit()
+    server = socket.bind("*", 4240)
+
+    if server == nil then
+        log_debug("error: could not create a TCP server socket :(")
+        os.exit()
+    end
 end
 
 server:settimeout(0.001)
+
+-- If server has been restarted, then update coroutines
+if _G.reload then
+    log_debug("warm restart detected, updating clients coroutines")
+    for i = 1, #clients do
+        clients[i].serve = coroutine.wrap(processClient)
+    end
+    sendAdmins("MESSAGE Warm restart successful")
+end
+
+-- prevent it from restarting in an infinite loop
+_G.reload = nil
 
 while true do
     local incoming = server:accept()
@@ -313,5 +369,20 @@ while true do
             -- Serve all clients
             clients[i]:serve()
         end
+    end
+    
+    if _G.reload == true then
+        log_debug("--- Warm restart ---")
+        local chunk = loadfile("netserver.lua")
+        if chunk ~= nil then
+            sendAdmins("MESSAGE Warm restart in progress")
+            chunk()
+            break
+        else
+            sendAdmins("MESSAGE Warm restart failed, resuming current version")
+            log_error("could not load netserver.lua! Warm restart failed")
+            log_debug("current server version resuming")
+        end
+        _G.reload = nil
     end
 end
