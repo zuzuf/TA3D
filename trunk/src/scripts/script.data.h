@@ -30,6 +30,11 @@ namespace TA3D
 
     public:
         static SCRIPT_DATA *loadScriptFile(const String &filename);
+
+	public:
+		SCRIPT_DATA() {}
+		virtual ~SCRIPT_DATA() {}
+
     }; // class SCRIPT_DATA
 
 } // namespace TA3D
