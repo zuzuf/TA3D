@@ -385,6 +385,7 @@ if _G.reload == nil then
             local success, msg = pcall(chunk)
             -- on crash
             if not success then
+                log_error(msg)
                 log_error("server crashed, resuming previous working version")
                 table.remove(chunks)
                 _G.crashRecovery = true
