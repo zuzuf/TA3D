@@ -20,9 +20,11 @@ namespace TA3D
         NetState        state;
         String::List    messages;
         String::Vector  peerList;
+        String::Vector  chanList;
         SocketTCP       sock;
         char            *buffer;
         int             buffer_pos;
+        String          currentChan;
     public:
         NetClient();
         ~NetClient();
@@ -34,9 +36,14 @@ namespace TA3D
         bool            messageWaiting();
         String          getNextMessage();
         String::Vector  getPeerList();
+        String::Vector  getChanList();
         void            clearMessageQueue();
         void            sendMessage(const String &msg);
+        void            changeChan(const String &chan);
         void            receive();
+        void            sendChan(const String &msg);
+        String          getLogin();
+        String          getChan();
 
     private:
         void            processMessage(const String &msg);

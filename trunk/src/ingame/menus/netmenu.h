@@ -25,6 +25,7 @@ namespace TA3D
             virtual void doFinalize();
             virtual void waitForEvent();
             virtual bool maySwitchToAnotherMenu();
+            virtual void addChatMessage(const String &message);
 
         private:
             enum NetMode { NONE,

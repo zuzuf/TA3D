@@ -632,6 +632,8 @@ namespace TA3D
             if (!(Objets[i].Flag & FLAG_CAN_GET_FOCUS))
                 Objets[i].Focus = false;
 
+            bool previous_state = Objets[i].Etat;
+
             switch (Objets[i].Type)
             {
             case OBJ_MENU:			// Choses à faire quoi qu'il arrive
@@ -902,7 +904,9 @@ namespace TA3D
             }
             else
             {
-                if ((mouse_b!=1 || !Objets[i].MouseOn || mouse_b==AMb) && (Objets[i].Flag & FLAG_CAN_BE_CLICKED) && !(Objets[i].Flag & FLAG_SWITCH) && Objets[i].Etat && !was_on_floating_menu)
+                if ((mouse_b != 1 || !Objets[i].MouseOn || mouse_b == AMb) && (Objets[i].Flag & FLAG_CAN_BE_CLICKED)
+                    && !(Objets[i].Flag & FLAG_SWITCH) && !(Objets[i].Etat ^ previous_state)
+                    && Objets[i].Etat && !was_on_floating_menu)
                 {
                     if (Objets[i].Func!=NULL)
                         (*Objets[i].Func)(0);		// Lance la fonction associée

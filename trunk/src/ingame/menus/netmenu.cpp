@@ -40,6 +40,11 @@ namespace TA3D
             askMode = NONE;
             netMode = LOGIN;
 
+            addChatMessage("TA3D NetClient");
+            addChatMessage("start a line with '/' to send commands to the server");
+            addChatMessage("----");
+            addChatMessage("");
+
             return true;
         }
 
@@ -69,7 +74,8 @@ namespace TA3D
         bool NetMenu::maySwitchToAnotherMenu()
         {
             // First we have to parse the server messages
-            while(NetClient::instance()->messageWaiting() && !pArea->get_state("popup"))
+            while(NetClient::instance()->messageWaiting() && !pArea->get_state("popup")
+                && NetClient::instance()->getState() == NetClient::CONNECTED)
             {
                 String msg = NetClient::instance()->getNextMessage();
                 if (StartsWith(msg, "MESSAGE"))
@@ -84,9 +90,24 @@ namespace TA3D
                     pArea->set_caption("popup.msg", I18N::Translate(msg.substr(6)));
                     pArea->msg("popup.show");
                 }
+                else if (StartsWith(msg, "MSG"))
+                {
+                    String::Vector args;
+                    msg.split(args, " ");
+                    if (args.size() >= 2)
+                    {
+                        String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
+                        addChatMessage(message);
+                    }
+                }
+                else if (StartsWith(msg, "CLIENT"))
+                {
+                    addChatMessage(msg);
+                }
             }
 
             pArea->set_entry("netmenu.peer_list", NetClient::instance()->getPeerList());
+            pArea->set_entry("netmenu.chan_list", NetClient::instance()->getChanList());
 
             pArea->set_enable_flag("netmenu.b_login", !(netMode == LOGIN || NetClient::instance()->getState() == NetClient::CONNECTED));
             pArea->set_enable_flag("netmenu.b_logout", NetClient::instance()->getState() == NetClient::CONNECTED);
@@ -103,6 +124,12 @@ namespace TA3D
                 pArea->msg("netmenu.b_logout.hide");
             }
 
+            if (pArea->get_state("ask") && pArea->get_state("ask.t_result"))    // Validate on enter
+            {
+                pArea->msg("ask.hide");
+                pArea->set_state("ask.b_ok", true);
+            }
+
             // Now we run all processes to get logged/registered
             switch(netMode)
             {
@@ -115,6 +142,7 @@ namespace TA3D
                         askMode = LOGIN;
                         pArea->set_title("ask", I18N::Translate("Login"));
                         pArea->set_caption("ask.t_result", "");
+                        pArea->msg("ask.t_result.focus");
                         pArea->msg("ask.show");
                     }
                     else if (password.empty())
@@ -122,12 +150,15 @@ namespace TA3D
                         askMode = PASSWORD;
                         pArea->set_title("ask", I18N::Translate("Password"));
                         pArea->set_caption("ask.t_result", "");
+                        pArea->msg("ask.t_result.focus");
                         pArea->msg("ask.show");
                     }
                     else if (NetClient::instance()->getState() != NetClient::CONNECTED)
                     {
 
                         NetClient::instance()->connect(lp_CONFIG->net_server, 4240, login, password);
+                        if (NetClient::instance()->getState() == NetClient::CONNECTED)
+                            addChatMessage("you are logged as " + NetClient::instance()->getLogin());
                         netMode = NONE;
                     }
                     break;
@@ -169,6 +200,7 @@ namespace TA3D
                         askMode = LOGIN;
                         pArea->set_title("ask", I18N::Translate("New account - login"));
                         pArea->set_caption("ask.t_result", "");
+                        pArea->msg("ask.t_result.focus");
                         pArea->msg("ask.show");
                     }
                     else if (password.empty())
@@ -176,11 +208,17 @@ namespace TA3D
                         askMode = PASSWORD;
                         pArea->set_title("ask", I18N::Translate("New account - password"));
                         pArea->set_caption("ask.t_result", "");
+                        pArea->msg("ask.t_result.focus");
                         pArea->msg("ask.show");
                     }
                     else if (NetClient::instance()->getState() != NetClient::CONNECTED)
                     {
                         NetClient::instance()->connect(lp_CONFIG->net_server, 4240, login, password, true);
+                        if (NetClient::instance()->getState() == NetClient::CONNECTED)
+                        {
+                            addChatMessage("you successfully registered as " + NetClient::instance()->getLogin());
+                            addChatMessage("you are logged as " + NetClient::instance()->getLogin());
+                        }
                         netMode = NONE;
                     }
                     break;
@@ -217,19 +255,69 @@ namespace TA3D
             default:
                 login.clear();
                 password.clear();
-                if (pArea->get_state("netmenu.b_register"))
+                if (pArea->get_object("netmenu.chan_list") && !pArea->get_state("netmenu.chan_list"))
+                {
+                    GUIOBJ *obj = pArea->get_object("netmenu.chan_list");
+                    for(int i = 0 ; i < obj->Text.size() ; i++)
+                    {
+                        if (obj->Text[i] == NetClient::instance()->getChan())
+                        {
+                            obj->Pos = i;
+                            break;
+                        }
+                    }
+                }
+                if (pArea->get_state("netmenu.b_register"))     // register
                 {
                     netMode = REGISTER;
                     askMode = NONE;
                 }
-                else if (pArea->get_state("netmenu.b_login"))
+                else if (pArea->get_state("netmenu.b_login"))   // login
                 {
                     netMode = LOGIN;
                     askMode = NONE;
                 }
-                else if (pArea->get_state("netmenu.b_logout"))
+                else if (pArea->get_state("netmenu.b_logout"))  // logout
                 {
                     NetClient::instance()->destroyInstance();
+                }
+                else if (pArea->get_state("netmenu.chan_list")) // change chan
+                {
+                    GUIOBJ *obj = pArea->get_object("netmenu.chan_list");
+                    if (obj)
+                    {
+                        int chanID = obj->Pos;
+                        if (chanID >= 0 && chanID < obj->Text.size())
+                            NetClient::instance()->changeChan(obj->Text[chanID]);
+                    }
+                }
+                else if (pArea->get_state("netmenu.input"))     // send a message
+                {
+                    String msg = pArea->get_caption("netmenu.input");
+                    pArea->set_caption("netmenu.input", "");
+                    if (!msg.empty())
+                    {
+                        if (msg[0] == '/')      // Command mode (IRC like :p)
+                        {
+                            if (StartsWith(msg, "/CHAN"))      // Change chan (this is done using NetClient interface)
+                            {
+                                if (msg.size() > 6)
+                                    NetClient::instance()->changeChan(msg.substr(6));
+                                else
+                                    NetClient::instance()->changeChan("*");
+                            }
+                            else
+                            {
+                                NetClient::instance()->sendMessage(msg.substr(1));       // send the command to server
+                                addChatMessage(msg.substr(1));
+                            }
+                        }
+                        else                    // Chat mode
+                        {
+                            NetClient::instance()->sendChan(msg);       // send the message to all users of this chan except us
+                            addChatMessage(NetClient::instance()->getLogin() + " > " + msg);    // so we have to add it manually
+                        }
+                    }
                 }
                 break;
             };
@@ -239,6 +327,18 @@ namespace TA3D
                 return true;
 
             return false;
+        }
+
+        void NetMenu::addChatMessage(const String &message)
+        {
+            GUIOBJ *obj = pArea->get_object("netmenu.chat_history");
+            if (obj)
+            {
+                obj->Text.push_back(message);
+                if (obj->Text.size() > 25)
+                    obj->Data++;
+                obj->Pos = obj->Text.size() - 1;
+            }
         }
     }
 }

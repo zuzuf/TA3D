@@ -552,7 +552,7 @@ namespace TA3D
         ** \param len
         ** \return the substring
         */
-        String substrUTF8(int pos, int len) const;
+        String substrUTF8(int pos = 0, int len = -1) const;
 
         /*!
         ** \brief returns the String size assuming it's in UTF8
