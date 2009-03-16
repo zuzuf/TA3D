@@ -590,6 +590,8 @@ namespace TA3D
 
     String String::substrUTF8(int pos, int len) const
     {
+        if (len < 0)
+            len = sizeUTF8() - len + 1 - pos;
         String res;
         int utf8_pos = 0;
         for(; pos > 0 ; pos--)

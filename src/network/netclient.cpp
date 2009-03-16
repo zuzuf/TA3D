@@ -27,6 +27,7 @@ namespace TA3D
     {
         buffer = new char[BUFFER_SIZE];
         buffer_pos = 0;
+        currentChan = "*";
     }
 
     NetClient::~NetClient()
@@ -41,7 +42,9 @@ namespace TA3D
         sock.close();
         state = DISCONNECTED;
         peerList.clear();
+        chanList.clear();
         buffer_pos = 0;
+        currentChan = "*";
 
         pMutex.unlock();
     }
@@ -81,6 +84,7 @@ namespace TA3D
         {
             state = DISCONNECTED;
             peerList.clear();
+            chanList.clear();
         }
         pMutex.unlock();
     }
@@ -129,8 +133,10 @@ namespace TA3D
             {
                 rest(1);
                 receive();
-                while(messageWaiting())
+                int i = 0;
+                while(messageWaiting() && i < messages.size())
                 {
+                    i++;
                     String::Vector args;
                     String msg = getNextMessage();
                     msg.split(args, " ");
@@ -149,11 +155,19 @@ namespace TA3D
                         messages.push_front(msg);
                         break;
                     }
+                    else
+                        messages.push_back(msg);     // Don't remove other messages
                 }
             }
 
-            if (state == CONNECTED)     // We want to know who is there
-                sendMessage("GET CLIENT LIST");
+            if (state == CONNECTED)
+            {
+                peerList.clear();
+                chanList.clear();
+                chanList.push_back("*");
+                sendMessage("GET USER LIST");   // We want to know who is there
+                sendMessage("GET CHAN LIST");   // and the chan list
+            }
         }
 
         pMutex.unlock();
@@ -166,6 +180,7 @@ namespace TA3D
         {
             state = DISCONNECTED;
             peerList.clear();
+            chanList.clear();
             return;
         }
 
@@ -195,9 +210,14 @@ namespace TA3D
 
     void NetClient::processMessage(const String &msg)
     {
+        if (msg.empty())
+            return;
+
         String::Vector args;
         msg.split(args, " ");
-        if (args.empty())   return;
+
+        if (args.empty())
+            return;
 
         if (args[0] == "USER" && args.size() == 2)
         {
@@ -212,5 +232,79 @@ namespace TA3D
                 std::sort(peerList.begin(), peerList.end());
             }
         }
+        else if (args[0] == "LEAVE" && args.size() == 2)
+        {
+            bool found = false;
+            for(int i = 0 ; i < peerList.size() && !found ; i++)
+                if (peerList[i] == args[1])
+                {
+                    found = true;
+                    if (i + 1 < peerList.size())
+                        peerList[i] = peerList.back();
+                    peerList.resize(peerList.size() - 1);
+                }
+        }
+        else if (args[0] == "CHAN" && args.size() == 2)
+        {
+            bool found = false;
+            for(int i = 0 ; i < chanList.size() && !found ; i++)
+                if (chanList[i] == args[1])
+                    found = true;
+            if (!found)
+            {
+                chanList.push_back(args[1]);
+                // Sort the list
+                std::sort(chanList.begin(), chanList.end());
+            }
+        }
+        else if (args[0] == "DECHAN" && args.size() == 2)
+        {
+            bool found = false;
+            for(int i = 0 ; i < chanList.size() && !found ; i++)
+                if (chanList[i] == args[1])
+                {
+                    found = true;
+                    if (i + 1 < chanList.size())
+                        chanList[i] = chanList.back();
+                    chanList.resize(chanList.size() - 1);
+                }
+        }
+    }
+
+    String::Vector NetClient::getChanList()
+    {
+        MutexLocker mLock(pMutex);
+        return chanList;
+    }
+
+    void NetClient::changeChan(const String &chan)
+    {
+        pMutex.lock();
+        currentChan = chan.empty() ? "*" : chan;
+        sendMessage("CHAN " + chan);
+        sendMessage("GET USER LIST");
+        peerList.clear();
+        pMutex.unlock();
+    }
+
+    void NetClient::sendChan(const String &msg)
+    {
+        pMutex.lock();
+        for(int i = 0 ; i < peerList.size() ; i++)
+            if (peerList[i] != login)               // No self sending (server will block it, so it's useless)
+                sendMessage("SEND " + peerList[i] + " " + msg);
+        pMutex.unlock();
+    }
+
+    String NetClient::getLogin()
+    {
+        MutexLocker mLocker(pMutex);
+        return login;
+    }
+
+    String NetClient::getChan()
+    {
+        MutexLocker mLocker(pMutex);
+        return currentChan;
     }
 }

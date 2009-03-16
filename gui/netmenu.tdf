@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=7;
+	number of objects=8;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -95,5 +95,17 @@
 		entry=;
 		no border=true;		// Don't draw the border since it's drawn on the background
 		size=1.8;
+	}
+	[object7]		// input bar
+	{
+		name=input;
+		type=TEXTBAR;
+		x1=202;
+		y1=900;
+		x2=1234;
+		y2=955;
+		caption=;
+		size=1.8;
+		value=1000;
 	}
 }
