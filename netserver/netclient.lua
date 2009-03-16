@@ -22,6 +22,12 @@ while true do
     
     if msg ~= nil then
         print("server: ", msg)
+        
+        if msg == "CLOSE" then
+            print("leaving ...")
+            client:close()
+            os.exit()
+        end
     end
     
     io.stdout:write("> ")

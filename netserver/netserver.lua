@@ -60,17 +60,23 @@ if netserver_db == nil then
 end
 
 -- do not erase clients data if set (to allow live reloading of server code)
--- the client table, contains all client structures
-if clients == nil then
-    clients = {}
-end
--- the login table (since it'sa hash table it's much faster than going through the whole clients table)
+-- the login table (since it's a hash table it's much faster than going through the whole clients table)
 if clients_login == nil then
     clients_login = {}
+end
+-- the socket table ==> this will prevent going trough all sockets if they are not being used
+if socket_table == nil then
+    socket_table = {}
+end
+if socket_list == nil then
+    socket_list = {}
 end
 -- the chan table
 if chans == nil then
     chans = {}
+end
+if chans_len == nil then
+    chans_len = {}
 end
 
 function fixSQL(str)
@@ -78,16 +84,32 @@ function fixSQL(str)
     return safe_str
 end
 
+function removeSocket(sock)
+    socket_table[sock] = nil
+    for i, s in ipairs(socket_list) do
+        if s == sock then
+            table.remove(socket_list, i)
+            break
+        end
+    end
+end
+
 -- Tell everyone on client's chan that client is there
 function joinChan(client)
+    if client.state ~= STATE_CONNECTED then
+        return
+    end
+
     -- identify * to nil
     if client.chan == nil then
         client.chan = "*"
     end
     if chans[client.chan] == nil then
         chans[client.chan] = {}
+        chans_len[client.chan] = 0
         sendAll("CHAN " .. client.chan)
     end
+    chans_len[client.chan] = chans_len[client.chan] + 1
     chans[client.chan][client.login] = true
     for c, v in pairs(chans[client.chan]) do
         if c ~= client.login then               -- I guess the client knows he's joining the chan ... (also would crash at login time)
@@ -98,13 +120,19 @@ end
 
 -- Tell everyone on client's chan that client is leaving chan
 function leaveChan(client)
+    if client.state ~= STATE_CONNECTED then
+        return
+    end
+
     if client.chan == nil then
         client.chan = "*"
     end
-    if #chans[client.chan] == 1 then
+    if chans[client.chan] ~= nil and chans_len[client.chan] == 1 then
         chans[client.chan] = nil
+        chans_len[client.chan] = nil
         sendAll("DECHAN " .. client.chan)
     else
+        chans_len[client.chan] = chans_len[client.chan] - 1
         chans[client.chan][client.login] = nil
         for c, v in pairs(chans[client.chan]) do
             if c ~= client.login then           -- I guess the client knows he's leaving the chan ...
@@ -123,7 +151,6 @@ function identifyClient(client, password)
     row = cur:fetch({}, "a")
     client.ID = tonumber( row.ID )
     client.admin = tonumber( row.admin )
-    joinChan(client)
     return true
 end
 
@@ -177,8 +204,9 @@ end
 
 -- Broadcast a message to all admins
 function sendAdmins(msg)
-    for id, c in ipairs(clients) do
-        if c.state == STATE_CONNECTED and c.admin == 1 then
+    for id, s in ipairs(socket_list) do
+        local c = socket_table[s]
+        if c ~= nil and c.state == STATE_CONNECTED and c.admin == 1 then
             c:send(msg)
         end
     end
@@ -186,8 +214,9 @@ end
 
 -- Send all
 function sendAll(msg)
-    for id, c in ipairs(clients) do
-        if c.state == STATE_CONNECTED then
+    for id, s in ipairs(socket_list) do
+        local c = socket_table[s]
+        if c ~= nil and c.state == STATE_CONNECTED then
             c:send(msg)
         end
     end
@@ -243,7 +272,7 @@ function processClient(client)
                         client:send("ERROR client version unknown, send version first")
                     else
                         client.login = args[2]
-                        if _G[client.login] ~= nil then
+                        if clients_login[client.login] ~= nil then
                             client.login = nil
                             client:send("ERROR session already opened")
                         else
@@ -279,10 +308,11 @@ function processClient(client)
 
                 -- GET USER LIST : client is asking for the client list (clients on the same chan)
                 if args[1] == "GET" and #args >= 3 and args[2] == "USER" and args[3] == "LIST" then
-                    for id, c in ipairs(clients) do
-                        if c.state == STATE_CONNECTED and c.chan == client.chan then
-                            client:send("USER " .. c.login)
-                        end
+                    if client.chan == nil then
+                        client.chan = "*"
+                    end
+                    for c, v in pairs(chans[client.chan]) do
+                        client:send("USER " .. c)
                     end
                 -- GET CHAN LIST : client is asking for the chan list
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "CHAN" and args[3] == "LIST" then
@@ -291,8 +321,9 @@ function processClient(client)
                     end
                 -- GET CLIENT LIST : list ALL clients
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "CLIENT" and args[3] == "LIST" then
-                    for id, c in ipairs(clients) do
-                        if c.state == STATE_CONNECTED then
+                    for id, s in ipairs(socket_list) do
+                        local c = socket_table[s]
+                        if c ~= nil and c.state == STATE_CONNECTED then
                             client:send("CLIENT " .. c.login)
                         end
                     end
@@ -354,10 +385,14 @@ function processClient(client)
                 -- SHUTDOWN SERVER : admin privilege, stop server (closes all connections)
                 elseif args[1] == "SHUTDOWN" and args[2] == "SERVER" then
                     if client.admin == 1 then
-                        for id, c in ipairs(clients) do
-                            if c.state == STATE_CONNECTED then
-                                c:send("MESSAGE Server is being shut down for maintenance, sorry for the inconvenience")
-                                c:disconnect()
+                        for id = #socket_list, 1, -1 do
+                            local s = socket_list[id]
+                            if s ~= nil then
+                                local c = socket_table[s]
+                                if c ~= nil then
+                                    c:send("MESSAGE Server is being shut down for maintenance, sorry for the inconvenience")
+                                    c:disconnect()
+                                end
                             end
                         end
                         log_debug("Server is being shut down")
@@ -408,11 +443,13 @@ function newClient(incoming)
                                     clients_login[this.login] = this           -- we need this to do fast look ups
                                     this.state = STATE_CONNECTED
                                     this:send("CONNECTED")
+                                    joinChan(this)
                                 end,
                     disconnect = function(this)
                                     if this.login ~= nil then       -- allow garbage collection
                                         clients_login[this.login] = nil
                                     end
+                                    removeSocket(this.sock)
                                     leaveChan(this)                 -- don't forget to leave the chan!
                                     this:send("CLOSE")
                                     this.sock:close()
@@ -420,7 +457,8 @@ function newClient(incoming)
                                 end}
     client.sock:settimeout(0)
     client:send("SERVER " .. SERVER_VERSION)
-    return client
+    socket_table[client.sock] = client
+    table.insert(socket_list, client.sock)
 end
 
 --************************************************************************--
@@ -503,13 +541,14 @@ end
 server:settimeout(0.001)
 
 -- If server has been restarted, then update coroutines
-if _G.reload and #clients > 0 then
-    log_debug("warm restart detected, updating clients coroutines")
-    for i = 1, #clients do
-        clients[i].serve = coroutine.wrap(processClient)
+if _G.reload and #socket_list > 0 then
+    log_debug("warm restart detected, updating clients coroutines and socket_table")
+    for s, c in pairs(socket_table) do
+        c.serve = coroutine.wrap(processClient)
     end
     sendAdmins("MESSAGE Warm restart successful")
 end
+socket_list[1] = server
 
 -- Wow, we've just recovered from a crash :s
 if _G.crashRecovery then
@@ -522,23 +561,32 @@ end
 _G.reload = nil
 
 while true do
+    local read, write, err = socket.select( socket_list, nil, 10 )
+    print(#read,"/",#socket_list, err)
     local incoming = server:accept()
     if incoming ~= nil then
         log_debug("incoming connection from ", incoming:getpeername() )
         -- ok, we have a new client, we add it to the client list
-        table.insert(clients, newClient(incoming))
+        newClient(incoming)
     end
     
-    for i = 1, #clients do
-        if clients[i] == nil then
-            break
-        end
-        if clients[i].state == STATE_DISCONNECTED then
-            -- If the client has disconnected, remove it from the clients table
-            table.remove(clients, i)
-        else
-            -- Serve all clients
-            clients[i]:serve()
+    for i, s in ipairs(read) do
+        if s ~= server then
+            local c = socket_table[s]
+            if c == nil then
+                if socket_list[s] ~= nil then
+                    table.remove(socket_list, socket_list[s])
+                end
+                socket_list[s] = nil
+            else
+                if c.state == STATE_DISCONNECTED then
+                    -- If the client has disconnected, remove it from the clients table
+                    removeSocket(c.sock)
+                else
+                    -- Serve all clients
+                    c:serve()
+                end
+            end
         end
     end
    
