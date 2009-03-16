@@ -81,37 +81,35 @@ end
 -- Tell everyone on client's chan that client is there
 function joinChan(client)
     -- identify * to nil
-    if client.chan == "*" then
-        client.chan = nil
+    if client.chan == nil then
+        client.chan = "*"
     end
-    if client.chan ~= nil then
-        if chans[client.chan] == nil then
-            chans[client.chan] = 1
-            sendAll("CHAN " .. client.chan)
-        else
-            chans[client.chan] = chans[client.chan] + 1
-        end
+    if chans[client.chan] == nil then
+        chans[client.chan] = {}
+        sendAll("CHAN " .. client.chan)
     end
-    for id, c in ipairs(clients) do
-        if c.state == STATE_CONNECTED and c.chan == client.chan then
-            c:send("USER " .. client.login)
+    chans[client.chan][client.login] = true
+    for c, v in pairs(chans[client.chan]) do
+        if c ~= client.login then               -- I guess the client knows he's joining the chan ... (also would crash at login time)
+            clients_login[c]:send("USER " .. client.login)
         end
     end
 end
 
 -- Tell everyone on client's chan that client is leaving chan
 function leaveChan(client)
-    if client.chan ~= nil then
-        if chans[client.chan] == 1 then
-            chans[client.chan] = nil
-            sendAll("DECHAN " .. client.chan)
-        else
-            chans[client.chan] = chans[client.chan] - 1
-        end
+    if client.chan == nil then
+        client.chan = "*"
     end
-    for id, c in ipairs(clients) do
-        if c.state == STATE_CONNECTED and c.chan == client.chan then
-            c:send("LEAVE " .. client.login)
+    if #chans[client.chan] == 1 then
+        chans[client.chan] = nil
+        sendAll("DECHAN " .. client.chan)
+    else
+        chans[client.chan][client.login] = nil
+        for c, v in pairs(chans[client.chan]) do
+            if c ~= client.login then           -- I guess the client knows he's leaving the chan ...
+                clients_login[c]:send("LEAVE " .. client.login)
+            end
         end
     end
 end
@@ -302,6 +300,18 @@ function processClient(client)
                 elseif args[1] == "SEND" and #args >= 3 then
                     if args[2] ~= nil and args[2] ~= client.login and clients_login[args[2]] ~= nil and clients_login[args[2]].state == STATE_CONNECTED then
                         clients_login[args[2]]:send("MSG " .. client.login .. " " .. table.concat(args, " ", 3))
+                    end
+                -- SENDALL msg : client is sending a message to other clients in the same chan
+                elseif args[1] == "SENDALL" and #args >= 2 then
+                    if client.chan == nil then
+                        client.chan = "*"
+                    end
+                    if chans[client.chan] ~= nil then
+                        for c, v in pairs(chans[client.chan]) do
+                            if c ~= client.login then
+                                clients_login[c]:send("MSG " .. client.login .. " " .. table.concat(args, " ", 2))
+                            end
+                        end
                     end
                 -- KICK user : admin privilege, disconnect someone (self kick works)
                 elseif args[1] == "KICK" and #args == 2 then
