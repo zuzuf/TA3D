@@ -269,6 +269,10 @@ namespace TA3D
                     chanList.resize(chanList.size() - 1);
                 }
         }
+        else if (args[0] == "CLOSE")
+        {
+            disconnect();
+        }
     }
 
     String::Vector NetClient::getChanList()
@@ -290,9 +294,7 @@ namespace TA3D
     void NetClient::sendChan(const String &msg)
     {
         pMutex.lock();
-        for(int i = 0 ; i < peerList.size() ; i++)
-            if (peerList[i] != login)               // No self sending (server will block it, so it's useless)
-                sendMessage("SEND " + peerList[i] + " " + msg);
+        sendMessage("SENDALL " + msg);
         pMutex.unlock();
     }
 
