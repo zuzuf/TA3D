@@ -1,11 +1,23 @@
 #!/usr/bin/lua
 
+if log_file == nil then
+    log_file = io.open("netserver.log","w")
+end
+
 function log_debug(...)
-    print(os.date() .. " [debug] " .. table.concat({...}," "))
+    local msg = os.date() .. " [debug] " .. table.concat({...}," ")
+    print(msg)
+    log_file:write(msg)
+    log_file:write("\n")
+    log_file:flush()
 end
 
 function log_error(...)
-    print(os.date() .. " [error] " .. table.concat({...}," "))
+    local msg = os.date() .. " [error] " .. table.concat({...}," ")
+    print(msg)
+    log_file:write(msg)
+    log_file:write("\n")
+    log_file:flush()
 end
 
 function copyFile(src, dst)
