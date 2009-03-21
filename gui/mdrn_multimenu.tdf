@@ -1,0 +1,53 @@
+[window]
+{
+    name=multimenu;
+	title=Multi Menu;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=3;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Back
+	{
+		name=b_back;
+		type=BUTTON;
+		caption=Back;
+		x1=1039;
+		y1=960;
+		x2=1190;
+		y2=998;
+		size=2;
+	}
+	[object1]		// LAN
+	{
+		name=b_lan;
+		type=IMG;
+		source=gfx/mdrn_lan.png;
+		x1=160;
+		y1=300;
+		x2=580; // 420
+		y2=720; // 420
+		can be clicked=true;
+	}
+	[object2]		// NetServer
+	{
+		name=b_netserver;
+		type=IMG;
+		x1=700;
+		y1=300;
+		x2=1120;
+		y2=720;
+		source=gfx/mdrn_internet.png;
+		can be clicked=true;
+	}
+}
