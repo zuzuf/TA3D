@@ -658,7 +658,7 @@ namespace TA3D
                 float *data = new float[ simulation_w * simulation_h * 4 ];
                 int water_map_size = simulation_w * simulation_h;
                 int water_map_size4 = simulation_w * simulation_h * 4;
-                memset(data, 0, water_map_size4);
+                memset(data, 0, water_map_size4 * sizeof(float));
 
                 for( int i = 0 ; i < 500 ; i += 1 + (rand() % 16) )                    // Initialize it with multiscale data
                 {

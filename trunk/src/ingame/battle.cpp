@@ -3642,6 +3642,15 @@ namespace TA3D
                     }
                     else if (params[0] == "metal") cheat_metal ^= true;	 // cheat codes
                     else if (params[0] == "energy") cheat_energy ^= true; // cheat codes
+#ifdef TA3D_PLATFORM_LINUX
+                    else if (params.size() == 2 && params[0] == "toggle" && params[1] == "fullscreen")      // This works only on Linux/X11
+                    {
+                        if (SDL_WM_ToggleFullScreen(screen))
+                        {
+                            lp_CONFIG->fullscreen ^= true;
+                        }
+                    }
+#endif
                 }
                 params.clear();
             }
