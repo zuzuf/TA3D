@@ -1303,7 +1303,7 @@ namespace TA3D
         if (width )		*width = bmp->w;
         if (height )	*height = bmp->h;
         bmp = convert_format(bmp);
-        bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == ".tga");
+        bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == ".tga") || (String::ToLower(Paths::ExtractFileExt(file)) == ".png");
         if (with_alpha)
         {
             with_alpha = false;

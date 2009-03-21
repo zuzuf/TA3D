@@ -94,6 +94,7 @@
 # define LOG_PREFIX_MENU_UNITSELECTOR "[menu::unitselector] "
 # define LOG_PREFIX_MENU_STATS        "[menu::stats] "
 # define LOG_PREFIX_MENU_NETMENU      "[menu::netmenu] "
+# define LOG_PREFIX_MENU_MULTIMENU    "[menu::multimenu] "
 
 # define LOG_PREFIX_NET               "[network] "
 # define LOG_PREFIX_NET_BROADCAST     "[net::broadcast] "
