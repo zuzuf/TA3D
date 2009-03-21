@@ -241,6 +241,12 @@ namespace TA3D
             helpMsg = Objets[i].help_msg;
         switch (Objets[i].Type)
         {
+        case OBJ_HSLIDER:
+        case OBJ_VSLIDER:
+            skin->ScrollBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
+                            ((float)(Objets[i].Value - Objets[i].Data)) / (Objets[i].Pos - Objets[i].Data),
+                            Objets[i].Type == OBJ_VSLIDER);
+            break;
         case OBJ_TA_BUTTON:
             {
                 unsigned int cur_img = (Objets[i].Flag & FLAG_DISABLED)
@@ -896,6 +902,64 @@ namespace TA3D
                     }
                 }
                 break;
+            case OBJ_VSLIDER:
+                if (Objets[i].MouseOn)
+                {
+                    if (mouse_y - y <= Objets[i].y1 + skin->scroll[0].y1)           // Decrease
+                    {
+                    }
+                    else if (mouse_y - y >= Objets[i].y2 + skin->scroll[0].y2)      // Increase
+                    {
+                    }
+                    else if (mouse_b == 1)                    // Set
+                    {
+                        int s = skin->scroll[2].sh;
+                        int nValue = (mouse_y - y - Objets[i].y1 - skin->scroll[0].y1 - s / 2)
+                                     * (Objets[i].Pos - Objets[i].Data + 1)
+                                     / (Objets[i].y2 - Objets[i].y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
+                                     + Objets[i].Data;
+                        if (nValue >= Objets[i].Data && nValue <= Objets[i].Pos)
+                            Objets[i].Value = nValue;
+                    }
+                    else if (AMz != mouse_z)
+                    {
+                        Objets[i].Value -= mouse_z - AMz;
+                        if (Objets[i].Value < Objets[i].Data)
+                            Objets[i].Value = Objets[i].Data;
+                        else if (Objets[i].Value > Objets[i].Pos)
+                            Objets[i].Value = Objets[i].Pos;
+                    }
+                }
+                break;
+            case OBJ_HSLIDER:
+                if (Objets[i].MouseOn)
+                {
+                    if (mouse_x - x <= Objets[i].x1 + skin->scroll[1].x1)           // Decrease
+                    {
+                    }
+                    else if (mouse_x - x >= Objets[i].x2 + skin->scroll[1].x2)      // Increase
+                    {
+                    }
+                    else if (mouse_b == 1)                    // Set
+                    {
+                        int s = skin->scroll[2].sw;
+                        int nValue = (mouse_x - x - Objets[i].x1 - skin->scroll[1].x1 - s / 2)
+                                     * (Objets[i].Pos - Objets[i].Data + 1)
+                                     / (Objets[i].x2 - Objets[i].x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
+                                     + Objets[i].Data;
+                        if (nValue >= Objets[i].Data && nValue <= Objets[i].Pos)
+                            Objets[i].Value = nValue;
+                    }
+                    else if (AMz != mouse_z)
+                    {
+                        Objets[i].Value -= mouse_z - AMz;
+                        if (Objets[i].Value < Objets[i].Data)
+                            Objets[i].Value = Objets[i].Data;
+                        else if (Objets[i].Value > Objets[i].Pos)
+                            Objets[i].Value = Objets[i].Pos;
+                    }
+                }
+                break;
             }
             if (Objets[i].Flag & FLAG_DISABLED)
             {
@@ -945,6 +1009,54 @@ namespace TA3D
                     already_clicked = true;
                     switch (Objets[i].Type)
                     {
+                    case OBJ_VSLIDER:
+                        if (mouse_y - y <= Objets[i].y1 + skin->scroll[0].y1)     // Decrease
+                        {
+                            Objets[i].Value--;
+                            if (Objets[i].Value < Objets[i].Data)
+                                Objets[i].Value = Objets[i].Data;
+                        }
+                        else if (mouse_y - y >= Objets[i].y2 + skin->scroll[0].y2)     // Increase
+                        {
+                            Objets[i].Value++;
+                            if (Objets[i].Value > Objets[i].Pos)
+                                Objets[i].Value = Objets[i].Pos;
+                        }
+                        else                    // Set
+                        {
+                            int s = skin->scroll[2].sh;
+                            int nValue = (mouse_y - y - Objets[i].y1 - skin->scroll[0].y1 - s / 2)
+                                         * (Objets[i].Pos - Objets[i].Data + 1)
+                                         / (Objets[i].y2 - Objets[i].y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
+                                         + Objets[i].Data;
+                            if (nValue >= Objets[i].Data && nValue <= Objets[i].Pos)
+                                Objets[i].Value = nValue;
+                        }
+                        break;
+                    case OBJ_HSLIDER:
+                        if (mouse_x - x <= Objets[i].x1 + skin->scroll[1].x1)     // Decrease
+                        {
+                            Objets[i].Value--;
+                            if (Objets[i].Value < Objets[i].Data)
+                                Objets[i].Value = Objets[i].Data;
+                        }
+                        else if (mouse_x - x >= Objets[i].x2 + skin->scroll[1].x2)     // Increase
+                        {
+                            Objets[i].Value++;
+                            if (Objets[i].Value > Objets[i].Pos)
+                                Objets[i].Value = Objets[i].Pos;
+                        }
+                        else                    // Set
+                        {
+                            int s = skin->scroll[2].sw;
+                            int nValue = (mouse_x - x - Objets[i].x1 - skin->scroll[1].x1 - s / 2)
+                                         * (Objets[i].Pos - Objets[i].Data + 1)
+                                         / (Objets[i].x2 - Objets[i].x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
+                                         + Objets[i].Data;
+                            if (nValue >= Objets[i].Data && nValue <= Objets[i].Pos)
+                                Objets[i].Value = nValue;
+                        }
+                        break;
                     case OBJ_LIST:
                         if (skin
                             && mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].sw
@@ -1622,6 +1734,10 @@ namespace TA3D
             }
             else if (obj_type == "LIST")
                 Objets[i].create_list(X1, Y1, X2, Y2, Entry, size);
+            else if (obj_type == "HSLIDER")
+                Objets[i].create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+            else if (obj_type == "VSLIDER")
+                Objets[i].create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
 
             wndFile.pullAsString(obj_key + "on click").split(Objets[i].OnClick, ",");
             wndFile.pullAsString(obj_key + "on hover").split(Objets[i].OnHover, ",");

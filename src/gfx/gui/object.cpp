@@ -430,5 +430,41 @@ namespace TA3D
     }
 
 
+    void GUIOBJ::create_hslider(const float X1, const float Y1, const float X2, const float Y2,
+                        const int vmin, const int vmax, const int value)
+    {
+        Type = OBJ_HSLIDER;
+        x1 = X1;
+        y1 = Y1;
+        x2 = X2;
+        y2 = Y2;
+        Etat = false;
+        Focus = false;
+        Text.clear();
+        Func = NULL;
+        Data = vmin;
+        Pos = vmax;
+        Value = value;
+        Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS; // To detect when something has changed
+        s = 1.0f;
+    }
 
+    void GUIOBJ::create_vslider(const float X1, const float Y1, const float X2, const float Y2,
+                        const int vmin, const int vmax, const int value)
+    {
+        Type = OBJ_VSLIDER;
+        x1 = X1;
+        y1 = Y1;
+        x2 = X2;
+        y2 = Y2;
+        Etat = false;
+        Focus = false;
+        Text.clear();
+        Func = NULL;
+        Data = vmin;
+        Pos = vmax;
+        Value = value;
+        Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS; // To detect when something has changed
+        s = 1.0f;
+    }
 } // namespace TA3D
