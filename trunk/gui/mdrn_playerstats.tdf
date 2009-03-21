@@ -1,5 +1,6 @@
 [window]
 {
+    ingame=true;
     name=playerstats;
 	title=playerstats;
 	uformat=UTF8;
