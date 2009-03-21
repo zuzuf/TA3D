@@ -85,6 +85,10 @@
 # define OBJ_NONE           0xD
 //! Large text input
 # define OBJ_TEXTEDITOR     0xE
+//! Horizontal slider
+# define OBJ_HSLIDER        0xF
+//! Vertical slider
+# define OBJ_VSLIDER        0x10
 
 //@} // Object types
 

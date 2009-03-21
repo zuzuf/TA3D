@@ -220,6 +220,22 @@ namespace TA3D
         void create_ta_button(const float X1, const float Y1,const String::Vector& Caption,
                               const std::vector<GLuint>& states, const int nb_st);
 
+        /*!
+        ** \brief
+        **
+        ** \param X1
+        ** \param Y1
+        ** \param X2
+        ** \param Y2
+        ** \param min
+        ** \param max
+        ** \param value
+        */
+        void create_hslider(const float X1, const float Y1, const float X2, const float Y2,
+                              const int vmin, const int vmax, const int value);
+        void create_vslider(const float X1, const float Y1, const float X2, const float Y2,
+                              const int vmin, const int vmax, const int value);
+
 
     public:
         //! List of textures

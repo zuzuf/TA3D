@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=27;
+	number of objects=29;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -302,5 +302,27 @@
 		y1=500;
 		value=0;
 		size=1.5;
+	}
+	[object27]		// Option "mouse sensitivity"
+	{
+		name=t_mouse_sensitivity;
+		type=TEXT;
+		caption=Mouse sensitivity;
+		x1=0;
+		y1=535;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object28]		// Option "mouse sensitivity"
+	{
+		name=mouse_sensitivity;
+		type=HSLIDER;
+		x1=400;
+		y1=537;
+		x2=730;
+		y2=562;
+		min=0.01;
+		max=2.0;
+		value=1.0;
 	}
 }
