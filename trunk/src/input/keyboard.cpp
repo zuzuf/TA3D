@@ -48,11 +48,6 @@ namespace TA3D
 	    VARS::keybuf.clear();
 	}
 
-    void poll_keyboard()
-    {
-        poll_mouse();
-    }
-
     void init_keyboard()
     {
         SDL_EnableUNICODE(1);

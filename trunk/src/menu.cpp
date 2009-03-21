@@ -542,7 +542,7 @@ void config_menu(void)
     while (key[KEY_ESC])
     {
         rest(1);
-        poll_keyboard();
+        poll_inputs();
     }
 
     bool ask_for_quickrestart = lp_CONFIG->quickrestart;
@@ -1524,7 +1524,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 while (key[KEY_ENTER])
                 {
                     rest(20);
-                    poll_keyboard();
+                    poll_inputs();
                 }
                 clear_keybuf();
                 done = true;      // If user click "OK" or hit enter then leave the window
@@ -1827,7 +1827,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
     while (key[KEY_ESC])
     {
         rest(1);
-        poll_keyboard();
+        poll_inputs();
     }
 
     if (network_manager.isServer() && advertise )
@@ -1869,7 +1869,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
         while (key[KEY_ESC])
         {
             rest(1);
-            poll_keyboard();
+            poll_inputs();
         }
     }
     else
@@ -2099,7 +2099,7 @@ void network_room(void)             // Let players create/join a game
                     while (key[KEY_ENTER])
                     {
                         rest(20);
-                        poll_keyboard();
+                        poll_inputs();
                     }
                     clear_keybuf();
                     network_manager.Disconnect();
@@ -2115,7 +2115,7 @@ void network_room(void)             // Let players create/join a game
             while (key[KEY_ENTER])
             {
                 rest(20);
-                poll_keyboard();
+                poll_inputs();
             }
             clear_keybuf();
             network_manager.Disconnect();
@@ -2136,7 +2136,7 @@ void network_room(void)             // Let players create/join a game
             while (key[KEY_ENTER])
             {
                 rest(20);
-                poll_keyboard();
+                poll_inputs();
             }
             clear_keybuf();
             done = true;      // If user click "OK" or hit enter then leave the window
@@ -2155,7 +2155,7 @@ void network_room(void)             // Let players create/join a game
             while (key[KEY_ESC])
             {
                 rest(20);
-                poll_keyboard();
+                poll_inputs();
             }
             clear_keybuf();
             done = true;      // If user click "Cancel" or hit ESC then leave the screen returning NULL
@@ -2200,7 +2200,7 @@ void network_room(void)             // Let players create/join a game
     while (key[KEY_ESC])
     {
         rest(1);
-        poll_keyboard();
+        poll_inputs();
     }
 
     network_manager.Disconnect();
@@ -2339,7 +2339,7 @@ void campaign_main_menu(void)
             while( key[KEY_ENTER] )
             {
                 rest(20);
-                poll_keyboard();
+                poll_inputs();
             }
             clear_keybuf();
             done=true;      // If user click "OK" or hit enter then leave the window
@@ -2375,7 +2375,7 @@ void campaign_main_menu(void)
     while(key[KEY_ESC])
     {
         rest(1);
-        poll_keyboard();
+        poll_inputs();
     }
 
     if (start_game) // Open the briefing screen and start playing the campaign
@@ -2387,7 +2387,7 @@ void campaign_main_menu(void)
         while (key[KEY_ESC])
         {
             rest(1);
-            poll_keyboard();
+            poll_inputs();
         }
     }
 }
@@ -2579,7 +2579,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
             while (key[KEY_ENTER])
             {
                 rest(20);
-                poll_keyboard();
+                poll_inputs();
             }
             clear_keybuf();
             done=true;      // If user click "OK" or hit enter then leave the window
@@ -2615,7 +2615,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
     while (key[KEY_ESC])
     {
         rest(1);
-        poll_keyboard();
+        poll_inputs();
     }
 
     if (start_game)  // Open the briefing screen and start playing the campaign
@@ -2677,7 +2677,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
         while (key[KEY_ESC])
         {
             rest(1);
-            poll_keyboard();
+            poll_inputs();
         }
 
         return exit_mode;
@@ -2927,7 +2927,7 @@ void wait_room(void *p_game_data)
     while(key[KEY_ESC])
     {
         rest(1);
-        poll_keyboard();
+        poll_inputs();
     }
 }
 

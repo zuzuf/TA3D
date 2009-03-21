@@ -165,8 +165,7 @@ namespace TA3D
 
     uint16 AREA::check()
     {
-        poll_mouse();
-        poll_keyboard();
+        poll_inputs();
         key_pressed = keypressed();
         bool scroll = ((msec_timer - scroll_timer) >= 250);
         if (scroll)

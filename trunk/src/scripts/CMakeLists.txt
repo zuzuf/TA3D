@@ -6,6 +6,7 @@ SET(SOURCES cob.cpp cob.h
             lua.thread.h lua.thread.cpp
             lua.env.h lua.env.cpp
             lua.chunk.h lua.chunk.cpp
+            lua.persist.h lua.persist.cpp
             draw.list.h draw.list.cpp
             unit.script.h unit.script.cpp
             unit.script.func.cpp

@@ -18,6 +18,8 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 
+float TA3D::VARS::fmouse_x = 0.0f;
+float TA3D::VARS::fmouse_y = 0.0f;
 int TA3D::VARS::mouse_x = 0;
 int TA3D::VARS::mouse_y = 0;
 int TA3D::VARS::mouse_z = 0;
@@ -51,7 +53,18 @@ using namespace TA3D::VARS;
 
 namespace TA3D
 {
-    void poll_mouse()
+    template<typename T>
+    T clamp(T v, int m, int M)
+    {
+        if (v < m)  return m;
+        if (v > M)  return M;
+        return v;
+    }
+
+    int old_mx = 0;
+    int old_my = 0;
+
+    void poll_inputs()
     {
         SDL_Event event;
 
@@ -87,26 +100,56 @@ namespace TA3D
             };
         }
         mouse_b = 0;
-        uint8 m_b = SDL_GetMouseState( &mouse_x, &mouse_y );
+        int dx(0), dy(0);
+        int rmx(0), rmy(0);
+        uint8 m_b = SDL_GetMouseState( &rmx, &rmy );
+        dx = rmx - old_mx;
+        dy = rmy - old_my;
+        LOG_DEBUG("dx, dy = " << dx << "," << dy);
+        fmouse_x += dx * lp_CONFIG->mouse_sensivity;
+        fmouse_y += dy * lp_CONFIG->mouse_sensivity;
         if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
         if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
         if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
+        fmouse_x = clamp(fmouse_x, 0, SCREEN_W);
+        fmouse_y = clamp(fmouse_y, 0, SCREEN_H);
+        mouse_x = (int)fmouse_x;
+        mouse_y = (int)fmouse_y;
+        if (rmx != mouse_x || rmy != mouse_y)
+            SDL_WarpMouse(mouse_x,mouse_y);
+        old_mx = mouse_x;
+        old_my = mouse_y;
     }
 
-	void position_mouse(int x, int y)
+    int mouse_lx = 0;
+    int mouse_ly = 0;
+
+    void position_mouse(int x, int y)
 	{
-	    mouse_x = x;
-	    mouse_y = y;
-	    SDL_WarpMouse(x,y);
-	    poll_mouse();
-        SDL_GetRelativeMouseState(NULL, NULL);
-	}
+        mouse_lx += x - mouse_x;
+        mouse_ly += y - mouse_y;
+        mouse_x = x;
+        mouse_y = y;
+        mouse_x = clamp(mouse_x, 0, SCREEN_W);
+        mouse_y = clamp(mouse_y, 0, SCREEN_H);
+        fmouse_x = mouse_x;
+        fmouse_y = mouse_y;
+        old_mx = mouse_x;
+        old_my = mouse_y;
+        SDL_WarpMouse(mouse_x,mouse_y);
+        poll_inputs();
+    }
 
 	void get_mouse_mickeys(int *mx, int *my)
 	{
-	    poll_mouse();
-        SDL_GetRelativeMouseState(mx, my);
-	}
+        poll_inputs();
+        int dx = mouse_x - mouse_lx;
+        int dy = mouse_y - mouse_ly;
+        mouse_lx = mouse_x;
+        mouse_ly = mouse_y;
+        if (mx) *mx = dx;
+        if (my) *my = dy;
+    }
 
     uint32 start = 0;
 

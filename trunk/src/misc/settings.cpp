@@ -102,6 +102,7 @@ namespace Settings
             << "             Disable GLSL = " << TA3D::VARS::lp_CONFIG->disable_GLSL << ";\n"
             << "    Right Click Interface = " << TA3D::VARS::lp_CONFIG->right_click_interface << ";\n"
             << "      Orthographic Camera = " << TA3D::VARS::lp_CONFIG->ortho_camera << ";\n"
+            << "        Mouse Sensitivity = " << TA3D::VARS::lp_CONFIG->mouse_sensivity << ";\n"
             << "}\n";
 
         if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -197,6 +198,8 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->right_click_interface = cfgFile.pullAsBool("TA3D.Right Click Interface", false);
 
         TA3D::VARS::lp_CONFIG->ortho_camera = cfgFile.pullAsBool("TA3D.Orthographic Camera", false);
+
+        TA3D::VARS::lp_CONFIG->mouse_sensivity = cfgFile.pullAsFloat("TA3D.Mouse Sensitivity", 1.0f);
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language

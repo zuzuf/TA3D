@@ -1891,7 +1891,7 @@ namespace TA3D
 
             while (!keypressed())
             {
-                poll_keyboard();
+                poll_inputs();
                 rest( 100 );
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
                 for (int i = 0 ; i < 11 ; i++)
