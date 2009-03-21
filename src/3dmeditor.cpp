@@ -1104,7 +1104,7 @@ void SurfPaint(int index)
             while( key[KEY_ESC] )
             {
                 rest(8);
-                poll_keyboard();
+                poll_inputs();
             }
         }
 

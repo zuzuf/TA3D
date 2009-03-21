@@ -24,12 +24,13 @@ namespace TA3D
     namespace VARS
     {
 		TA3D_API_E int                              mouse_x, mouse_y, mouse_z, mouse_b;
+        TA3D_API_E float                            fmouse_x, fmouse_y;
     }
 
 	/*!
-	** \brief poll mouse events
+    ** \brief poll mouse/keyboard events
 	*/
-	void poll_mouse();
+    void poll_inputs();
 
 	/*!
 	** \brief set mouse position

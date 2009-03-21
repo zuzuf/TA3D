@@ -44,11 +44,6 @@ namespace TA3D
 	void clear_keybuf();
 
 	/*!
-	** \brief poll keyboard events
-	*/
-	void poll_keyboard();
-
-	/*!
 	** \brief initialize keyboard handler
 	*/
 	void init_keyboard();
