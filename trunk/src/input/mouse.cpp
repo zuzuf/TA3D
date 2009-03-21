@@ -105,7 +105,6 @@ namespace TA3D
         uint8 m_b = SDL_GetMouseState( &rmx, &rmy );
         dx = rmx - old_mx;
         dy = rmy - old_my;
-        LOG_DEBUG("dx, dy = " << dx << "," << dy);
         fmouse_x += dx * lp_CONFIG->mouse_sensivity;
         fmouse_y += dy * lp_CONFIG->mouse_sensivity;
         if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
