@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef NETMENU_H
-#define NETMENU_H
+#ifndef MULTIMENU_H
+#define MULTIMENU_H
 
 #include "base.h"
 
@@ -25,38 +25,25 @@ namespace TA3D
     namespace Menus
     {
 
-        class NetMenu : public Abstract
+        class MultiMenu : public Abstract
         {
         public:
             /*!
-            ** \brief Execute an instance of NetMenu
+            ** \brief Execute an instance of MultiMenu
             */
             static bool Execute();
         public:
-            NetMenu();
+            MultiMenu();
             //! Destructor
-            virtual ~NetMenu();
+            virtual ~MultiMenu();
 
         protected:
             virtual bool doInitialize();
             virtual void doFinalize();
             virtual void waitForEvent();
             virtual bool maySwitchToAnotherMenu();
-            virtual void addChatMessage(const String &message);
-
-        private:
-            enum NetMode { NONE,
-                           LOGIN,
-                           LOGGED,
-                           REGISTER,
-                           PASSWORD };
-
-            NetMode askMode;
-            NetMode netMode;
-            String  login;
-            String  password;
         };
     }
 }
 
-#endif // NETMENU_H
+#endif // MULTIMENU_H

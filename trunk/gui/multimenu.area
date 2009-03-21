@@ -1,0 +1,9 @@
+[area]
+{
+	name=multimenu area;
+	skin=gui/default.skn;
+	windows=gui/multimenu.tdf;
+	background=gfx/multimenu.jpg;
+	width=1280;
+	height=1024;
+}

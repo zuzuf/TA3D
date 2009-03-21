@@ -286,6 +286,7 @@ namespace TA3D
         case OBJ_IMG:
             if (Objets[i].Data)     // Draws the texture associated with the image
             {
+                gfx->set_alpha_blending();
                 glEnable(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, (GLuint)Objets[i].Data);
                 gfx->set_color(0xFFFFFFFF);
@@ -295,6 +296,7 @@ namespace TA3D
                 glTexCoord2f(Objets[i].u2,Objets[i].v2);  glVertex2f(x+Objets[i].x2,y+Objets[i].y2);
                 glTexCoord2f(Objets[i].u1,Objets[i].v2);  glVertex2f(x+Objets[i].x1,y+Objets[i].y2);
                 glEnd();
+                gfx->unset_alpha_blending();
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
             else                    // No texture present, draw a black frame

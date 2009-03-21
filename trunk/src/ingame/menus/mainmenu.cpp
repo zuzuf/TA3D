@@ -21,7 +21,7 @@
 #include "../../logs/logs.h"
 #include "../../ta3dbase.h"
 #include "solo.h"
-#include "netmenu.h"
+#include "multimenu.h"
 #include "../../logs/logs.h"
 #include "../../misc/settings.h"
 
@@ -231,8 +231,7 @@ namespace TA3D
         bool MainMenu::goToMenuMultiPlayers()
         {
             glPushMatrix();
-            Menus::NetMenu::Execute();
-//            network_room();
+            Menus::MultiMenu::Execute();
             glPopMatrix();
             resetScreen();
             return false;
