@@ -1,5 +1,6 @@
 [window]
 {
+    ingame=true;
     name=gamestatus;
 	title=gamestatus;
 	uformat=UTF8;

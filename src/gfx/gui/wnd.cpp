@@ -54,6 +54,7 @@ namespace TA3D
         background_wnd = false;
         size_factor = 1.0f;
         tab_was_pressed = false;
+        ingame_window = false;
     }
 
     WND::WND(const String& filename)
@@ -77,6 +78,7 @@ namespace TA3D
         background = 0;
         size_factor = 1.0f;
         tab_was_pressed = false;
+        ingame_window = false;
         load_tdf(filename);
     }
 
@@ -103,6 +105,11 @@ namespace TA3D
         // Skin
         doDrawWindowSkin(skin, focus, deg);
 
+        if (ingame_window)
+            gui_font = gfx->TA_font;
+        else
+            gui_font = gfx->ta3d_gui_font;
+
         if (NbObj > 0 && Objets != NULL)
         {
             // Background objects
@@ -117,6 +124,7 @@ namespace TA3D
                     doDrawWindowForegroundObject(skin, i);
             }
         }
+        gui_font = gfx->ta3d_gui_font;
     }
 
     void WND::doDrawWindowShadow(SKIN* skin)
@@ -1328,6 +1336,8 @@ namespace TA3D
 
     void WND::load_gui(const String& filename, TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable)
     {
+        ingame_window = true;
+
         if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
@@ -1578,6 +1588,8 @@ namespace TA3D
         if (height < 0)
             height += SCREEN_H;
         size_factor = gfx->height / 600.0f;			// For title bar
+
+        ingame_window = wndFile.pullAsBool("window.ingame", false);
 
         background_wnd = wndFile.pullAsBool("window.background window");
         Lock = wndFile.pullAsBool("window.lock");

@@ -244,6 +244,8 @@ namespace TA3D
         bool delete_gltex;
         //!
         float size_factor;
+        //!
+        bool ingame_window;
 
     }; // class WND
 
