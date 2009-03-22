@@ -244,6 +244,8 @@ namespace TA3D
             String name;
             //!
             String  filename;
+            //!
+            bool    logo;       // Logo flag, used to prevent animated logos
 
         private:
             //! True when convert() has already been called

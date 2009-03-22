@@ -583,6 +583,7 @@ namespace TA3D
 
     void Gaf::Animation::init()
     {
+        logo = false;
         nb_bmp = 0;
         bmp = NULL;
         ofs_x = ofs_y = NULL;

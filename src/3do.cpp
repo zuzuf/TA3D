@@ -123,14 +123,14 @@ namespace TA3D
         for (String::List::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
             byte *data = HPIManager->PullFromHPI(*cur_file);
-            load_gaf(data);
+            load_gaf(data, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");
             delete[] data;
         }
         return 0;
     }
 
 
-    int TEXTURE_MANAGER::load_gaf(byte* data)
+    int TEXTURE_MANAGER::load_gaf(byte* data, bool logo)
     {
         sint32 nb_entry = Gaf::RawDataEntriesCount(data);
         int n_nbtex = nbtex + nb_entry;
@@ -146,6 +146,7 @@ namespace TA3D
         for (int i = 0; i < nb_entry; ++i)
         {
             tex[nbtex + i].loadGAFFromRawData(data, i, false);
+            tex[nbtex + i].logo = logo;
             tex_hashtable.insert(tex[nbtex + i].name, nbtex + i + 1);
         }
         nbtex += nb_entry;
@@ -354,6 +355,8 @@ namespace TA3D
 
     void OBJECT::init()
     {
+        fixed_textures = false;
+
         optimised = false;
         optimised_I = NULL;
         optimised_P = NULL;
@@ -1008,7 +1011,10 @@ namespace TA3D
             tex_cache_name.clear();
             int nb_sprites = 0;
             for (i = 0; i < nb_diff_tex; ++i)
+            {
                 nb_sprites = Math::Max( (int)texture_manager.tex[index_tex[i]].nb_bmp, nb_sprites);
+                fixed_textures |= texture_manager.tex[index_tex[i]].logo;
+            }
             gltex.resize(nb_sprites);
             for (short e = 0; e < nb_sprites; ++e)
             {
@@ -1534,7 +1540,7 @@ namespace TA3D
                 glGetFloatv(GL_CURRENT_COLOR, color_factor);
             int texID = side;
             if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
-                && (data_s->flag[script_index] & FLAG_DONT_SHADE) && dtex > 0)
+                && !fixed_textures && dtex > 0)
                 texID = ((int)(t * 10.0f)) % dtex;
             if (gl_dlist.size() > texID && gl_dlist[ texID ] && !hide && chg_col && !notex)
             {
