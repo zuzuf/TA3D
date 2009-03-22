@@ -64,6 +64,7 @@ namespace Settings
             << "\n"
             << "[TA3D]\n"
             << "{\n"
+            << "                  Version = " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << "\n"
             << "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // <= 0 means `unlimited`\n"
             << "              Time Factor = " << TA3D::VARS::lp_CONFIG->timefactor << ";\n"
             << "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)\n"
@@ -200,6 +201,17 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->ortho_camera = cfgFile.pullAsBool("TA3D.Orthographic Camera", false);
 
         TA3D::VARS::lp_CONFIG->mouse_sensivity = cfgFile.pullAsFloat("TA3D.Mouse Sensitivity", 1.0f);
+
+        String cfg_version = cfgFile.pullAsString("TA3D.Version");
+        String ref_version = format("%s.%s", TA3D_VERSION_HI, TA3D_VERSION_LO);
+        if (cfg_version != ref_version)     // Update ?
+        {
+            lp_CONFIG->net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
+            if (cfg_version.empty())        // Pre-SDL versions
+            {
+                lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Show Shadows");
+            }
+        }
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language
