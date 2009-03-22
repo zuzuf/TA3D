@@ -292,7 +292,7 @@ namespace TA3D
         switch(type)
         {
             case VETERAN_LEVEL:
-                return 0;
+                return 100 * kills;
             case MIN_ID:
                 return 0;
             case MAX_ID:

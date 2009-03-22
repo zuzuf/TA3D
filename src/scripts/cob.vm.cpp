@@ -574,6 +574,7 @@ namespace TA3D
                         int num_param = script->script_code[script_id][pos++];			// Lit un code
                         cur.top() = script_id + (pos << 8);
                         local_env.push( SCRIPT_ENV() );
+                        local_env.top().resize(num_param);
                         for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                             local_env.top()[i] = sStack.pop();
                         done = true;

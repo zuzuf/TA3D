@@ -270,6 +270,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].sel );
         SAVE( units.unit[i].death_delay );
         SAVE( units.unit[i].paralyzed );
+        SAVE( units.unit[i].kills );
 
         gzwrite(file, units.unit[i].port, sizeof( sint16 ) * 21);
 
@@ -824,6 +825,7 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].sel );
         LOAD( units.unit[i].death_delay );
         LOAD( units.unit[i].paralyzed );
+        LOAD( units.unit[i].kills );
 
         gzread(file, units.unit[i].port, sizeof(sint16) * 21);
 
