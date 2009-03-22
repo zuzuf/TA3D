@@ -660,7 +660,7 @@ namespace TA3D
                 int water_map_size4 = simulation_w * simulation_h * 4;
                 memset(data, 0, water_map_size4 * sizeof(float));
 
-                for( int i = 0 ; i < 500 ; i += 1 + (rand() % 16) )                    // Initialize it with multiscale data
+                for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
                 {
                     float coef = 5.0f * sqrtf(500 - i);
                     for( int e = 0 ; e < water_map_size ; e++ )
@@ -668,15 +668,15 @@ namespace TA3D
                     for( int e = 0 ; e < water_map_size ; e++ )
                     {
                         int offset = (e << 2) | 1;
-                        data[offset] = (data[offset]
+                        data[offset] = (data[offset] * 4.0f
                                           + data[(offset + 4) % water_map_size4]
                                           + data[(offset + simulation_w * 4) % water_map_size4]
                                           + data[(offset + water_map_size4 - 4) % water_map_size4]
                                           + data[(offset + water_map_size4 - simulation_w * 4) % water_map_size4]
-                                          + data[(offset + 4 + simulation_w * 4) % water_map_size4]
-                                          + data[(offset + 4 + water_map_size4 - simulation_w * 4) % water_map_size4]
-                                          + data[(offset + water_map_size4 - 4 + simulation_w * 4) % water_map_size4]
-                                          + data[(offset + water_map_size4 - 4 - simulation_w * 4) % water_map_size4]) * 0.1111111111111111111111f;
+                                          + data[(offset + 4 + simulation_w * 4) % water_map_size4] * 0.25f
+                                          + data[(offset + 4 + water_map_size4 - simulation_w * 4) % water_map_size4] * 0.25f
+                                          + data[(offset + water_map_size4 - 4 + simulation_w * 4) % water_map_size4] * 0.25f
+                                          + data[(offset + water_map_size4 - 4 - simulation_w * 4) % water_map_size4] * 0.25f) * 0.11111111111111111f;
                     }
                 }
                 float sum = 0.0f;
