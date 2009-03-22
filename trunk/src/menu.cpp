@@ -521,7 +521,7 @@ void config_menu(void)
             if (obj && obj->Value != -1)
             {
                 obj->Text[0] = obj->Text[1 + obj->Value];
-                lp_CONFIG->skin_name = obj->Value > 0 ? "gui/" + obj->Text[0] : "";
+                lp_CONFIG->skin_name = obj->Value >= 0 ? "gui/" + obj->Text[0] : "";
             }
         }
 
