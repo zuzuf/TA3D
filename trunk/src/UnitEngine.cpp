@@ -251,6 +251,8 @@ namespace TA3D
     {
         pMutex.lock();
 
+        kills = 0;
+
         visibility_checked = false;
 
         ID = 0;

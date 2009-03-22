@@ -261,6 +261,7 @@ namespace TA3D
         MISSION					*mission;		// Orders given to the unit
         MISSION					*def_mission;	// Orders given to units built by this plant
         byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
+        int                     kills;          // How many kills did this unit
         // 0	-> nothing
         // 1	-> the unit exists
         // 4	-> being killed

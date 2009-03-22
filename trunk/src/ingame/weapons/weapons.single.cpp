@@ -326,7 +326,10 @@ namespace TA3D
                         units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
                         if(ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
                            && units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
+                        {
                             players.kills[units.unit[shooter_idx].owner_id]++;
+                            units.unit[shooter_idx].kills++;
+                        }
                         if(units.unit[hit_idx].hp<=0.0f)
                             units.unit[hit_idx].severity = Math::Max(units.unit[hit_idx].severity, (int)damage);
 
@@ -482,7 +485,10 @@ namespace TA3D
                                         units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
                                         if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
                                            && units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
+                                        {
                                             players.kills[units.unit[shooter_idx].owner_id]++;
+                                            units.unit[shooter_idx].kills++;
+                                        }
                                         if (units.unit[t_idx].hp<=0.0f)
                                             units.unit[t_idx].severity = Math::Max(units.unit[t_idx].severity,(int)cur_damage);
 
