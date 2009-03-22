@@ -67,7 +67,7 @@ namespace TA3D
 
         SDL_Surface *get_bmp_texture(const String& texture_name, const int frame = 0);
 
-        int load_gaf(byte *data);
+        int load_gaf(byte *data, bool logo);
 
         int all_texture();
 
@@ -312,6 +312,8 @@ namespace TA3D
         bool    compute_min_max;
 
         uint16  obj_id;				// Used to generate a random position on the object
+
+        bool    fixed_textures;
     public:
         uint16  nb_sub_obj;
     private:
