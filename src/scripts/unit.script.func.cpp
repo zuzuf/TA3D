@@ -291,6 +291,14 @@ namespace TA3D
     {
         switch(type)
         {
+            case VETERAN_LEVEL:
+                return 0;
+            case MIN_ID:
+                return 0;
+            case MAX_ID:
+                return units.max_unit - 1;
+            case MY_ID:
+                return idx;
             case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
                 if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
                     return units.unit[ v1 ].owner_id;
