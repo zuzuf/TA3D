@@ -43,6 +43,15 @@ YARD_OPEN           = 18    -- set or get (change which plots we occupy when bui
 BUGGER_OFF          = 19    -- set or get (ask other units to clear the area)
 ARMORED             = 20    -- set or get
 
+MIN_ID                  = 69      -- returns the lowest valid unit ID number
+MAX_ID                  = 70      -- returns the highest valid unit ID number
+MY_ID                   = 71      -- returns ID of current unit
+UNIT_TEAM               = 72      -- returns team(player ID in TA) of unit given with parameter
+UNIT_BUILD_PERCENT_LEFT = 73      -- basically BUILD_PERCENT_LEFT, but comes with a unit parameter
+UNIT_ALLIED             = 74      -- is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
+UNIT_IS_ON_THIS_COMP    = 75      -- indicates if the 1st parameter(a unit ID) is local to this computer
+VETERAN_LEVEL           = 32      -- gets kills * 100
+
 x_axis = 0
 y_axis = 1
 z_axis = 2
