@@ -1424,7 +1424,7 @@ namespace TA3D
             glFogf (GL_FOG_START, FogNear);
             glFogf (GL_FOG_END, cam.zfar);
 
-            // Dessine les reflets sur l'eau
+            // Dessine les reflets sur l'eau / Render water reflection
             if (g_useProgram && g_useFBO && lp_CONFIG->water_quality>=2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
             {
                 reflection_drawn_last_time = true;
