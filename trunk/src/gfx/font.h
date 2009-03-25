@@ -98,7 +98,12 @@ namespace TA3D
         UTILS::cHashTable<Font*>    font_table;
     }; // class FontManager
 
+
+
+	//! Font manager
     extern FontManager font_manager;
+
+
 } // namespace TA3D
 
 #endif // __TA3D_GFX_FONT_H__
