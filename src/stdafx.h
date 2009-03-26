@@ -188,6 +188,8 @@ namespace TA3D
 
     String InttoUTF8(const uint16 c);
 
+    wchar_t *UTF8toWChar_t(const String &str);
+
     bool exists(const String &filename);
 
     void rest(uint32 msec);

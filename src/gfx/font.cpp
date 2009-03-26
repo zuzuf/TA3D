@@ -59,7 +59,7 @@ namespace TA3D
 #else
         glPushMatrix();
         glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
-        font->Render( text.c_str() );
+        font->Render( UTF8toWChar_t( text ) );
         glPopMatrix();
 #endif
 		glScalef(1.0f, -1.0f, 1.0f);
@@ -87,7 +87,7 @@ namespace TA3D
 		return fabsf((box.Upper().Xf() - box.Lower().Xf()));
 #else
 		float x0, y0, z0, x1, y1, z1;
-		font->BBox( txt.c_str(), x0, y0, z0, x1, y1, z1 );
+        font->BBox( UTF8toWChar_t( txt ), x0, y0, z0, x1, y1, z1 );
 		return fabsf(x0 - x1);
 #endif
 	}
