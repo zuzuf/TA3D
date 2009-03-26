@@ -249,6 +249,32 @@ namespace TA3D
         return str;
     }
 
+    wchar_t wchar_tmp[5120];        // 5K symbols buffer
+
+    wchar_t *UTF8toWChar_t(const String &str)
+    {
+        int len = 0;
+        for(int i = 0 ; i < str.size() ; i++)
+        {
+            if (((byte)str[i]) < 0x80)
+            {
+                wchar_tmp[len++] = ((byte)str[i]);
+                continue;
+            }
+            if (((byte)str[i]) >= 0xC0)
+            {
+                wchar_t c = ((byte)str[i++]) - 0xC0;
+                while(((byte)str[i]) >= 0x80)
+                    c = (c << 6) | (((byte)str[i++]) - 0x80);
+                i--;
+                wchar_tmp[len++] = c;
+                continue;
+            }
+        }
+        wchar_tmp[len] = 0;
+        return wchar_tmp;
+    }
+
     bool exists(const String &filename)
     {
         struct stat FileInfo;
