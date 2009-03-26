@@ -126,20 +126,20 @@ SET(SOURCES
 
 
 IF(NOT APPLE)
-    ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
+	ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 ELSE(NOT APPLE)
 
 	#
 	# --- TA3D Program / OS XBundle ---
 	#
-	
+
 	# OS X : Add a single file as a bundle resource
 	MACRO(BUNDLE_INSTALL srcfolder relfolder filename)
 		File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/")
 		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}"
 			COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}"
-			  "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}"
-			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}") 
+				"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}"
+			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}")
 		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}")
 	ENDMACRO(BUNDLE_INSTALL)
 
@@ -151,7 +151,7 @@ ELSE(NOT APPLE)
 			ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}"
 				COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}"
 					"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}"
-				DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}") 
+				DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}")
 			SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}")
 		EndForEach(fl ${lst})
 	ENDMACRO(BUNDLE_INSTALL_GLOB)
@@ -160,7 +160,7 @@ ELSE(NOT APPLE)
 		File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/")
 		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
 			COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
-			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}") 
+			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}")
 		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}")
 	ENDMACRO(BUNDLE_BASIC_INSTALL)
 
@@ -176,13 +176,13 @@ ELSE(NOT APPLE)
 	# License
 	BUNDLE_BASIC_INSTALL("./" "./" "COPYING")
 
-    # LibZ
-    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
+	# LibZ
+	ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
 		COMMAND cp ARGS -fH "/opt/local/lib/libz.1.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
-        DEPENDS "/opt/local/lib/libz.1.dylib") 
-    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
+		DEPENDS "/opt/local/lib/libz.1.dylib")
+	SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
 
-	# --- Resources --- 
+	# --- Resources ---
 	# Sky
 	Message(STATUS "[bundle] Adding resources 'sky'...")
 	BUNDLE_INSTALL_GLOB("sky" "sky" "*.tdf")
@@ -224,9 +224,14 @@ ELSE(NOT APPLE)
 	Message(STATUS "[bundle] Adding resources 'objects3d'...")
 	BUNDLE_INSTALL_GLOB("objects3d" "objects3d" "*.3dm")
 	BUNDLE_INSTALL_GLOB("objects3d" "objects3d" "*.3do")
+	# Fonts
+	Message(STATUS "[bundle] Adding resources 'fonts'...")
+	BUNDLE_INSTALL_GLOB("fonts" "fonts" "*.ttf")
 	# Scripts
 	Message(STATUS "[bundle] Adding resources 'scripts'...")
 	BUNDLE_INSTALL_GLOB("scripts" "scripts" "*.lua")
+	BUNDLE_INSTALL_GLOB("scripts/game" "scripts/game" "*.lua")
+	BUNDLE_INSTALL_GLOB("scripts/game/ai" "scripts/ai" "*.lua")
 	BUNDLE_INSTALL("scripts" "scripts" "signals.h")
 	# Pictures
 	Message(STATUS "[bundle] Adding resources 'pictures'...")
@@ -236,7 +241,7 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.xcf")
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.tga")
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.icns")
-	# Intro 
+	# Intro
 	Message(STATUS "[bundle] Adding resources 'intro'...")
 	BUNDLE_INSTALL_GLOB("resources/intro" "intro" "*.txt")
 	# Translations
@@ -247,16 +252,16 @@ ELSE(NOT APPLE)
 	BUNDLE_BASIC_INSTALL("resources" "./resources" "ta3d.res")
 	BUNDLE_BASIC_INSTALL("resources" "./resources" "3dmeditor.res")
 
-    # OS X specific
-    ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})
-    SET(GUI_TYPE MACOSX_BUNDLE)
-    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
-    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
-    SET(MACOSX_BUNDLE_ICON_FILE "pictures/ta3d.icns")
+	# OS X specific
+	ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})
+	SET(GUI_TYPE MACOSX_BUNDLE)
+	SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
+	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
+	SET(MACOSX_BUNDLE_ICON_FILE "pictures/ta3d.icns")
 
-    # Relink (needed to make an independant Bundle)
-    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-        COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+	# Relink (needed to make an independant Bundle)
+	ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+		COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
 
 ENDIF(NOT APPLE)
 
@@ -265,23 +270,23 @@ ENDIF(NOT APPLE)
 # --- Internal libraries ---
 #
 target_link_libraries(${TA3D_BIN}
-        stdafx input logs console i18n ingame 3dtoolbox menus gfx
-        fileformats particles weapons ai audio hpi oldgui gui network misc scripts ta3dmath tdf
-        converters threads debuginfos)
+	stdafx input logs console i18n ingame 3dtoolbox menus gfx
+	fileformats particles weapons ai audio hpi oldgui gui network misc scripts ta3dmath tdf
+	converters threads debuginfos)
 
 
 
 
 #
 # --- External libraries
-#   
+#
 
 target_link_libraries(${TA3D_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
 target_link_libraries(${3DMEDITOR_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
 
 IF(WIN32)
-    target_link_libraries(${3DMEDITOR_BIN} lua gdi32 opengl32 glu32 ${LIBS})
-    target_link_libraries(${TA3D_BIN} lua gdi32 opengl32 glu32 ${LIBS})
+	target_link_libraries(${3DMEDITOR_BIN} lua gdi32 opengl32 glu32 ${LIBS})
+	target_link_libraries(${TA3D_BIN} lua gdi32 opengl32 glu32 ${LIBS})
 ENDIF(WIN32)
 
 IF(NOT APPLE)
