@@ -52,9 +52,16 @@ namespace TA3D
 		if (font == NULL)   return;
 
 		glScalef(1.0f, -1.0f, 1.0f);
-		font->Render( text.c_str(), -1,
+#ifdef __FTGL__lower__
+        font->Render( text.c_str(), -1,
 			FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z),
 			FTPoint(), FTGL::RENDER_ALL);
+#else
+        glPushMatrix();
+        glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
+        font->Render( text.c_str() );
+        glPopMatrix();
+#endif
 		glScalef(1.0f, -1.0f, 1.0f);
 	}
 
