@@ -24,7 +24,6 @@
 #include "../misc/paths.h"
 #include "../logs/logs.h"
 #include <fstream>
-#include <FTGL/FTGL.h>
 
 
 

@@ -46,6 +46,8 @@
 
     typedef FTGLTextureFont FTTextureFont;
     typedef FTGLPolygonFont FTPolygonFont;
+    typedef FTGLBitmapFont  FTBitmapFont;
+    typedef FTGLPixmapFont  FTPixmapFont;
 #endif
 
 #define FONT_TYPE_POLYGON           0x0
