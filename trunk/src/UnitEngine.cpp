@@ -171,7 +171,7 @@ namespace TA3D
 
     int UNIT::run_script_function(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
     {
-        String f_name( UNIT_SCRIPT_INTERFACE::get_script_name(id) );
+        String f_name( UnitScriptInterface::get_script_name(id) );
         MutexLocker mLocker( pMutex );
         if (script)
             return script->execute(f_name, param, nb_param);
@@ -362,7 +362,7 @@ namespace TA3D
             model = unit_manager.unit_type[type_id]->model;
             weapon.resize(unit_manager.unit_type[type_id]->weapon.size());
             hp = unit_manager.unit_type[type_id]->MaxDamage;
-            script = UNIT_SCRIPT_INTERFACE::instanciate( unit_manager.unit_type[type_id]->script );
+            script = UnitScriptInterface::instanciate( unit_manager.unit_type[type_id]->script );
             port[STANDINGMOVEORDERS] = unit_manager.unit_type[type_id]->StandingMoveOrder;
             port[STANDINGFIREORDERS] = unit_manager.unit_type[type_id]->StandingFireOrder;
             if (!basic)
@@ -1909,7 +1909,7 @@ namespace TA3D
             switch ((weapon[i].state & 3))
             {
                 case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
-                    script->setReturnValue( UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
+                    script->setReturnValue( UnitScriptInterface::get_script_name(Aim_script), 0);
                     if (jump_commands)	break;
                     weapon[i].data = -1;
                     break;
@@ -2088,7 +2088,7 @@ namespace TA3D
                                     weapon[i].aim_dir = cosf(aiming[1] * TA2RAD) * (cosf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
                                                                                     + sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
                                                         + sinf(aiming[1] * TA2RAD) * IJ;
-                                readyToFire = script->getReturnValue( UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script) );
+                                readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
                                 launch_script(Aim_script, 2, aiming);
                             }
                             else
@@ -2120,14 +2120,14 @@ namespace TA3D
                         {
                             weapon[i].state = WEAPON_FLAG_AIM;		// Pas assez d'énergie pour tirer / not enough energy to fire
                             weapon[i].data = -1;
-                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
+                            script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
                             break;
                         }
                         if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile && weapon[i].stock<=0)
                         {
                             weapon[i].state = WEAPON_FLAG_AIM;		// Plus rien pour tirer / nothing to fire
                             weapon[i].data = -1;
-                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
+                            script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
                             break;
                         }
                         int start_piece = run_script_function(Query_script);
@@ -2180,7 +2180,7 @@ namespace TA3D
                         {
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             weapon[i].data = -1;
-                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
+                            script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
                             if (mission != NULL )
                                 mission->flags |= MISSION_FLAG_COMMAND_FIRED;
                             break;
@@ -2192,7 +2192,7 @@ namespace TA3D
                                 weapon[i].state = WEAPON_FLAG_AIM;
                                 weapon[i].data = -1;
                                 weapon[i].time = 0.0f;
-                                script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
+                                script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
                             }
                         }
                         else if (weapon[i].target != NULL || weapon[i].burst == 0)
@@ -2200,7 +2200,7 @@ namespace TA3D
                             launch_script(SCRIPT_TargetCleared);
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             weapon[i].data = -1;
-                            script->setReturnValue(UNIT_SCRIPT_INTERFACE::get_script_name(Aim_script), 0);
+                            script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
                         }
                     }
                     else
@@ -5229,7 +5229,7 @@ script_exec:
 
     int UNIT::launch_script(const int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
     {
-        String f_name( UNIT_SCRIPT_INTERFACE::get_script_name(id) );
+        String f_name( UnitScriptInterface::get_script_name(id) );
 
         MutexLocker locker(pMutex);
 
@@ -5247,7 +5247,7 @@ script_exec:
             network_manager.sendEvent( &event );
         }
 
-        SCRIPT_INTERFACE *newThread = script->fork( f_name, param, nb_param );
+        ScriptInterface *newThread = script->fork( f_name, param, nb_param );
 
         if (newThread == NULL || !newThread->is_running())
             return -2;

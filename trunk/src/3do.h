@@ -382,7 +382,7 @@ namespace TA3D
 
         ~OBJECT() {destroy();}
 
-        void Identify(SCRIPT_DATA *script);			// Identifie les pièces utilisées par le script
+        void Identify(ScriptData *script);			// Identifie les pièces utilisées par le script
 
         void compute_center(Vector3D *center,Vector3D dec, int *coef);		// Calcule les coordonnées du centre de l'objet, objets liés compris
 
@@ -481,7 +481,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void Identify(SCRIPT_DATA *script)
+        void Identify(ScriptData *script)
         { obj.Identify(script); }
 
         /*!

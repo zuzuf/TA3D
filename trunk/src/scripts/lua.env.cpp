@@ -20,17 +20,17 @@
 
 namespace TA3D
 {
-    LUA_ENV::LUA_ENV()
+    LuaEnv::LuaEnv()
     {
         L = lua_open();
     }
 
-    LUA_ENV::~LUA_ENV()
+    LuaEnv::~LuaEnv()
     {
         lua_close( L );
     }
 
-    void LUA_ENV::set_global_string( const char *name, const char *value )
+    void LuaEnv::set_global_string( const char *name, const char *value )
     {
         pMutex.lock();
             lua_pushstring( L, value );
@@ -38,7 +38,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void LUA_ENV::set_global_number( const char *name, const double value )
+    void LuaEnv::set_global_number( const char *name, const double value )
     {
         pMutex.lock();
             lua_pushnumber( L, value );
@@ -46,7 +46,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void LUA_ENV::set_global_boolean( const char *name, const bool value )
+    void LuaEnv::set_global_boolean( const char *name, const bool value )
     {
         pMutex.lock();
             lua_pushboolean( L, value );
@@ -54,7 +54,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    const char *LUA_ENV::get_global_string( const char *name )
+    const char *LuaEnv::get_global_string( const char *name )
     {
         pMutex.lock();
             lua_getglobal( L, name );
@@ -64,7 +64,7 @@ namespace TA3D
         return result;
     }
 
-    double LUA_ENV::get_global_number( const char *name )
+    double LuaEnv::get_global_number( const char *name )
     {
         pMutex.lock();
             lua_getglobal( L, name );
@@ -74,7 +74,7 @@ namespace TA3D
         return result;
     }
 
-    bool LUA_ENV::get_global_boolean( const char *name )
+    bool LuaEnv::get_global_boolean( const char *name )
     {
         pMutex.lock();
             lua_getglobal( L, name );
@@ -84,7 +84,7 @@ namespace TA3D
         return result;
     }
 
-    bool LUA_ENV::is_global_string( const char *name )
+    bool LuaEnv::is_global_string( const char *name )
     {
         pMutex.lock();
             lua_getglobal( L, name );
@@ -94,7 +94,7 @@ namespace TA3D
         return result;
     }
 
-    bool LUA_ENV::is_global_number( const char *name )
+    bool LuaEnv::is_global_number( const char *name )
     {
         pMutex.lock();
             lua_getglobal( L, name );
@@ -104,7 +104,7 @@ namespace TA3D
         return result;
     }
 
-    bool LUA_ENV::is_global_boolean( const char *name )
+    bool LuaEnv::is_global_boolean( const char *name )
     {
         pMutex.lock();
             lua_getglobal( L, name );
@@ -114,59 +114,59 @@ namespace TA3D
         return result;
     }
 
-    LUA_ENV *LUA_ENV::global = NULL;
+    LuaEnv *LuaEnv::global = NULL;
 
-    LUA_ENV *LUA_ENV::instance()
+    LuaEnv *LuaEnv::instance()
     {
         if (global == NULL)
-            global = new LUA_ENV();
+            global = new LuaEnv();
         return global;
     }
 
-    void LUA_ENV::destroy()
+    void LuaEnv::destroy()
     {
         if (global)
             delete global;
         global = NULL;
     }
 
-    void LUA_ENV::register_global_functions( lua_State *L )
+    void LuaEnv::register_global_functions( lua_State *L )
     {
-        lua_register( L, "set_global_string", LUA_ENV::global_set_global_string);
-        lua_register( L, "set_global_number", LUA_ENV::global_set_global_number);
-        lua_register( L, "set_global_boolean", LUA_ENV::global_set_global_boolean);
+        lua_register( L, "set_global_string", LuaEnv::global_set_global_string);
+        lua_register( L, "set_global_number", LuaEnv::global_set_global_number);
+        lua_register( L, "set_global_boolean", LuaEnv::global_set_global_boolean);
 
-        lua_register( L, "get_global_string", LUA_ENV::global_get_global_string);
-        lua_register( L, "get_global_number", LUA_ENV::global_get_global_number);
-        lua_register( L, "get_global_boolean", LUA_ENV::global_get_global_boolean);
+        lua_register( L, "get_global_string", LuaEnv::global_get_global_string);
+        lua_register( L, "get_global_number", LuaEnv::global_get_global_number);
+        lua_register( L, "get_global_boolean", LuaEnv::global_get_global_boolean);
 
-        lua_register( L, "is_global_string", LUA_ENV::global_is_global_string);
-        lua_register( L, "is_global_number", LUA_ENV::global_is_global_number);
-        lua_register( L, "is_global_boolean", LUA_ENV::global_is_global_boolean);
+        lua_register( L, "is_global_string", LuaEnv::global_is_global_string);
+        lua_register( L, "is_global_number", LuaEnv::global_is_global_number);
+        lua_register( L, "is_global_boolean", LuaEnv::global_is_global_boolean);
     }
 
-    int LUA_ENV::global_set_global_string( lua_State *L )
+    int LuaEnv::global_set_global_string( lua_State *L )
     {
         instance()->set_global_string(lua_tostring(L, -2), lua_tostring(L, -1));
         lua_pop(L, 2);
         return 0;
     }
 
-    int LUA_ENV::global_set_global_number( lua_State *L )
+    int LuaEnv::global_set_global_number( lua_State *L )
     {
         instance()->set_global_number(lua_tostring(L, -2), lua_tonumber(L, -1));
         lua_pop(L, 2);
         return 0;
     }
 
-    int LUA_ENV::global_set_global_boolean( lua_State *L )
+    int LuaEnv::global_set_global_boolean( lua_State *L )
     {
         instance()->set_global_boolean(lua_tostring(L, -2), lua_toboolean(L, -1));
         lua_pop(L, 2);
         return 0;
     }
 
-    int LUA_ENV::global_get_global_string( lua_State *L )
+    int LuaEnv::global_get_global_string( lua_State *L )
     {
         const char *str = instance()->get_global_string(lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -174,7 +174,7 @@ namespace TA3D
         return 1;
     }
 
-    int LUA_ENV::global_get_global_number( lua_State *L )
+    int LuaEnv::global_get_global_number( lua_State *L )
     {
         double nb = instance()->get_global_number(lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -182,7 +182,7 @@ namespace TA3D
         return 1;
     }
 
-    int LUA_ENV::global_get_global_boolean( lua_State *L )
+    int LuaEnv::global_get_global_boolean( lua_State *L )
     {
         bool b = instance()->get_global_boolean(lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -190,7 +190,7 @@ namespace TA3D
         return 1;
     }
 
-    int LUA_ENV::global_is_global_string( lua_State *L )
+    int LuaEnv::global_is_global_string( lua_State *L )
     {
         bool b = instance()->is_global_string(lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -198,7 +198,7 @@ namespace TA3D
         return 1;
     }
 
-    int LUA_ENV::global_is_global_number( lua_State *L )
+    int LuaEnv::global_is_global_number( lua_State *L )
     {
         bool b = instance()->is_global_number(lua_tostring(L, -1));
         lua_pop(L, 1);
@@ -206,7 +206,7 @@ namespace TA3D
         return 1;
     }
 
-    int LUA_ENV::global_is_global_boolean( lua_State *L )
+    int LuaEnv::global_is_global_boolean( lua_State *L )
     {
         bool b = instance()->is_global_boolean(lua_tostring(L, -1));
         lua_pop(L, 1);

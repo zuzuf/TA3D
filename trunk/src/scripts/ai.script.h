@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __AI_SCRIPT_H__
-#define __AI_SCRIPT_H__
+#ifndef __AiScript_H__
+#define __AiScript_H__
 
 # include "lua.thread.h"
 
@@ -26,15 +26,15 @@ namespace TA3D
     ** This class represents AI scripts, it's used to script AI behavior
     ** This is a mean to implement new AIs without rebuilding the code
     */
-    class AI_SCRIPT : public LUA_THREAD
+    class AiScript : public LuaThread
     {
     private:
         int         playerID;
         String      name;
     public:
 
-        AI_SCRIPT();
-        /*virtual*/ ~AI_SCRIPT();
+        AiScript();
+        /*virtual*/ ~AiScript();
         void setPlayerID(int id);
         int getPlayerID();
         void setType(int type);

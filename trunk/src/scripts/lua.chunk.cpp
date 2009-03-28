@@ -25,9 +25,9 @@ using namespace std;
 
 namespace TA3D
 {
-    int LUA_CHUNK::WriterFunc(lua_State* L, const void* p, size_t size, void* u)
+    int LuaChunk::WriterFunc(lua_State* L, const void* p, size_t size, void* u)
     {
-        LUA_CHUNK *chunk = (LUA_CHUNK*) u;
+        LuaChunk *chunk = (LuaChunk*) u;
         if (u == NULL)  return 1;
 
         byte *nBuf = new byte[chunk->size + size];
@@ -42,47 +42,47 @@ namespace TA3D
         return 0;
     }
 
-    LUA_CHUNK::LUA_CHUNK(lua_State *L, const String &name)
+    LuaChunk::LuaChunk(lua_State *L, const String &name)
     {
         init();
         dump(L, name);
     }
 
-    LUA_CHUNK::LUA_CHUNK()
+    LuaChunk::LuaChunk()
     {
         init();
     }
 
-    LUA_CHUNK::~LUA_CHUNK()
+    LuaChunk::~LuaChunk()
     {
         destroy();
     }
 
-    int LUA_CHUNK::load(lua_State *L)
+    int LuaChunk::load(lua_State *L)
     {
         return luaL_loadbuffer(L, (char*)buffer, size, name.c_str());
     }
 
-    void LUA_CHUNK::dump(lua_State *L, const String &name)
+    void LuaChunk::dump(lua_State *L, const String &name)
     {
         destroy();
         lua_dump(L, WriterFunc, (void*)this);
         this->name = name;
     }
 
-    String LUA_CHUNK::getName()
+    String LuaChunk::getName()
     {
         return name;
     }
 
-    void LUA_CHUNK::load(const String &filename)                    // Load a lua chunk
+    void LuaChunk::load(const String &filename)                    // Load a lua chunk
     {
         destroy();
 
-        LUA_THREAD *thread = new LUA_THREAD;
+        LuaThread *thread = new LuaThread;
         thread->load(filename);
 
-        LUA_CHUNK *chunk = thread->dump();
+        LuaChunk *chunk = thread->dump();
 
         buffer = chunk->buffer;
         size = chunk->size;
@@ -92,7 +92,7 @@ namespace TA3D
         delete thread;
     }
 
-    void LUA_CHUNK::save(const String &filename)                    // Save the lua chunk
+    void LuaChunk::save(const String &filename)                    // Save the lua chunk
     {
         if (buffer == NULL || size == 0)    return;
 
@@ -104,14 +104,14 @@ namespace TA3D
         }
     }
 
-    void LUA_CHUNK::init()
+    void LuaChunk::init()
     {
         buffer = NULL;
         size = 0;
         piece_name.clear();
     }
 
-    void LUA_CHUNK::destroy()
+    void LuaChunk::destroy()
     {
         if (buffer)
             delete[] buffer;
@@ -119,11 +119,11 @@ namespace TA3D
         size = 0;
     }
 
-    int LUA_CHUNK::identify(const String &name)
+    int LuaChunk::identify(const String &name)
     {
         if (piece_name.empty())
         {
-            LUA_THREAD *thread = new LUA_THREAD();
+            LuaThread *thread = new LuaThread();
             thread->load(this);
             thread->run();      // Initialize the thread (read functions, pieces, ...)
             lua_getglobal(thread->L, "__piece_list");

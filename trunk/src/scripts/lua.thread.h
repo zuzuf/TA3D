@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __LUA_THREAD_H__
-#define __LUA_THREAD_H__
+#ifndef __LuaThread_H__
+#define __LuaThread_H__
 
 # include "../misc/vector.h"
 # include "../lua/lua.hpp"
@@ -45,12 +45,12 @@ namespace TA3D
 
     /*!
     ** This class represents a basic Lua thread without specialization
-    ** To use it, create a new class that inherits LUA_THREAD
+    ** To use it, create a new class that inherits LuaThread
     */
-    class LUA_THREAD : public Thread, public SCRIPT_INTERFACE
+    class LuaThread : public Thread, public ScriptInterface
     {
-        friend class LUA_CHUNK;
-        friend class UNIT_SCRIPT;
+        friend class LuaChunk;
+        friend class UnitScript;
     protected:
         byte        *buffer;
         lua_State   *L;             // The Lua state
@@ -60,15 +60,15 @@ namespace TA3D
 
     public:
 
-        LUA_THREAD();
-        virtual ~LUA_THREAD();
+        LuaThread();
+        virtual ~LuaThread();
 
         void init();
         void destroy();
 
         void load(const String &filename);                    // Load a lua script
-        virtual void load(SCRIPT_DATA *data);
-        LUA_CHUNK *dump();
+        virtual void load(ScriptData *data);
+        LuaChunk *dump();
 
         virtual int run(float dt, bool alone = false);      // Run the script
         int run();                          // Run the script with default delay
@@ -78,9 +78,9 @@ namespace TA3D
         int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        virtual LUA_THREAD *fork();
-        virtual LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        virtual LUA_THREAD *fork(lua_State *cL, int n);
+        virtual LuaThread *fork();
+        virtual LuaThread *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        virtual LuaThread *fork(lua_State *cL, int n);
 
         //! functions used to save/restore scripts state
         virtual void save_thread_state(gzFile file);
@@ -102,7 +102,7 @@ namespace TA3D
     /*!
     ** \brief returns a pointer to the current thread, or NULL on error
     */
-    LUA_THREAD *lua_threadID( lua_State *L );
+    LuaThread *lua_threadID( lua_State *L );
 }
 
 #endif

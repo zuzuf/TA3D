@@ -243,7 +243,7 @@ namespace TA3D
         void start_building(const Vector3D &dir);
 
     public:
-        UNIT_SCRIPT_INTERFACE   *script;		// Scripts concernant l'unité
+        UnitScriptInterface     *script;		// Scripts concernant l'unité
         MODEL					*model;			// Modèle représentant l'objet
         byte					owner_id;		// Numéro du propriétaire de l'unité
         short					type_id;		// Type d'unité

@@ -490,7 +490,7 @@ namespace TA3D
     }
 
 
-    void OBJECT::Identify(SCRIPT_DATA *script)			// Identifie les pièces utilisées par le script
+    void OBJECT::Identify(ScriptData *script)			// Identifie les pièces utilisées par le script
     {
         script_index = -1;				// Pièce non utilisée / Unused piece
         if (!name.empty())

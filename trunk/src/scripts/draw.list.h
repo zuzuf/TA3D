@@ -21,8 +21,8 @@
 | that allow Lua scripts to draw on the screen.                         |
 \----------------------------------------------------------------------*/
 
-#ifndef __DRAW_LIST_H__
-# define __DRAW_LIST_H__
+#ifndef __DrawList_H__
+# define __DrawList_H__
 
 # define DRAW_TYPE_NONE     0x0
 # define DRAW_TYPE_POINT    0x1
@@ -40,7 +40,7 @@ namespace TA3D
 {
 
 
-    struct DRAW_OBJECT                  // Pour mémoriser le traçage des primitives
+    struct DrawObject                  // Pour mémoriser le traçage des primitives
     {
         byte    type;
         float   x[4];
@@ -50,19 +50,19 @@ namespace TA3D
         GLuint  tex;
     };
 
-    class DRAW_LIST
+    class DrawList
     {
     public:
-        DRAW_OBJECT     prim;
-        DRAW_LIST       *next;
+        DrawObject     prim;
+        DrawList       *next;
 
         void init();
 
         void destroy();
 
-        inline DRAW_LIST()  {   init(); }
+        inline DrawList()  {   init(); }
 
-        void add(DRAW_OBJECT &obj);
+        void add(DrawObject &obj);
 
         void draw(Font *fnt);
     };

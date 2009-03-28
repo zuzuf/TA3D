@@ -67,17 +67,17 @@ namespace TA3D
     }; // class COBHeader
 
 
-    COB_SCRIPT::COB_SCRIPT()
+    CobScript::CobScript()
     {
         init();
     }
 
-    COB_SCRIPT::~COB_SCRIPT()
+    CobScript::~CobScript()
     {
         destroy();
     }
 
-    void COB_SCRIPT::load(const String &filename)
+    void CobScript::load(const String &filename)
     {
         destroy();				// Au cas où
 
@@ -132,7 +132,7 @@ namespace TA3D
         }
     }
 
-    void COB_SCRIPT::destroy()
+    void CobScript::destroy()
     {
         names.clear();
         if (script_code)
@@ -145,7 +145,7 @@ namespace TA3D
         init();
     }
 
-    void COB_SCRIPT::init()
+    void CobScript::init()
     {
         names.clear();
         Data = NULL;
@@ -157,7 +157,7 @@ namespace TA3D
     }
 
 
-    int COB_SCRIPT::findFromName(const String& name)
+    int CobScript::findFromName(const String& name)
     {
         String nameUpper = name;
         nameUpper.toUpper();
@@ -170,7 +170,7 @@ namespace TA3D
         return -1;
     }
 
-    int COB_SCRIPT::identify(const String &name)
+    int CobScript::identify(const String &name)
     {
         for (int i = 0; i < nb_piece; ++i)
             if (strcasecmp(name.c_str(), piece_name[i].c_str()) == 0) // Pièce identifiée / Identified :)

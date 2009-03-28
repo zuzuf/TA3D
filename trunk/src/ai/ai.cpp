@@ -102,7 +102,7 @@ namespace TA3D
                 delete ai_controller;
             ai_controller = NULL;
             if (ai_script == NULL);
-                ai_script = new AI_SCRIPT();
+                ai_script = new AiScript();
             ai_script->setPlayerID( ID );
             break;
         };

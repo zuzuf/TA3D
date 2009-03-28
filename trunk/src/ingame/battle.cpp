@@ -102,16 +102,16 @@ namespace TA3D
 
         /*----------------------------- script management --------------------------*/
 
-        LUA_PROGRAM	game_script;					// Script that will rule the game
+        LuaProgram	game_script;					// Script that will rule the game
         if (!pNetworkEnabled || pNetworkIsServer)
         {
             game_script.load(pGameData->game_script);	// Load the script
             if (!pGameData->saved_file.empty()) 		// We have something to load, so let's run initialization code in passive mode
             {
-                LUA_PROGRAM::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
+                LuaProgram::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
                 game_script.run(0.0f);
             }
-            LUA_PROGRAM::passive = false;
+            LuaProgram::passive = false;
             game_script.start();                        // Start game script thread
         }
 
@@ -3608,7 +3608,7 @@ namespace TA3D
                             {
                                 int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-                                    units.unit[i].launch_script( UNIT_SCRIPT_INTERFACE::get_script_id(params[2]) );
+                                    units.unit[i].launch_script( UnitScriptInterface::get_script_id(params[2]) );
                             }
                             units.unlock();
                         }
@@ -3705,9 +3705,9 @@ namespace TA3D
 
         sky_obj.destroy();
 
-        LUA_PROGRAM::inGame->destroyThread();
+        LuaProgram::inGame->destroyThread();
 
-        LUA_ENV::destroy();
+        LuaEnv::destroy();
 
         Camera::inGame = NULL;
 

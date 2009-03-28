@@ -35,7 +35,7 @@
 namespace TA3D
 {
 
-    class LUA_PROGRAM : public LUA_THREAD
+    class LuaProgram : public LuaThread
     {
     private:
         //  Variables to control execution flow
@@ -44,16 +44,16 @@ namespace TA3D
         int         signal;         // Current signal (0 is none)
 
     public:
-        DRAW_LIST   draw_list;      // Display commands list
+        DrawList    draw_list;      // Display commands list
 
         static bool passive;        // Passive mode, won't do anything like creating units, move units, etc... used to resync a multiplayer game
 
         void init();
         void destroy();
 
-        LUA_PROGRAM();
+        LuaProgram();
 
-        inline ~LUA_PROGRAM()  {   destroy();  }
+        inline ~LuaProgram()  {   destroy();  }
 
         int run(float dt);                  // Run the script
         int check();                        // Display DRAW_LIST commands and check if a signal was sent
@@ -65,7 +65,7 @@ namespace TA3D
         virtual void proc(void* param);
 
     public:
-        static LUA_PROGRAM	*inGame;
+        static LuaProgram	*inGame;
     };
 
     void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema = 0 );

@@ -21,32 +21,32 @@
 
 namespace TA3D
 {
-    SCRIPT_INTERFACE::SCRIPT_INTERFACE() : caller(NULL), running(false), waiting(false), sleeping(false), sleep_time(0.0f)
+    ScriptInterface::ScriptInterface() : caller(NULL), running(false), waiting(false), sleeping(false), sleep_time(0.0f)
     {
     }
 
-    void SCRIPT_INTERFACE::kill()
+    void ScriptInterface::kill()
     {
         running = false;
     }
 
-    void SCRIPT_INTERFACE::stop()
+    void ScriptInterface::stop()
     {
         waiting = true;
     }
 
-    void SCRIPT_INTERFACE::resume()
+    void ScriptInterface::resume()
     {
         waiting = false;
     }
 
-    void SCRIPT_INTERFACE::pause(float time)
+    void ScriptInterface::pause(float time)
     {
         sleeping = true;
         sleep_time = time;
     }
 
-    void SCRIPT_INTERFACE::addThread(SCRIPT_INTERFACE *pChild)
+    void ScriptInterface::addThread(ScriptInterface *pChild)
     {
         if (caller == pChild) return;
         MutexLocker mLock(pMutex);
@@ -60,14 +60,14 @@ namespace TA3D
         }
     }
 
-    void SCRIPT_INTERFACE::removeThread(SCRIPT_INTERFACE *pChild)
+    void ScriptInterface::removeThread(ScriptInterface *pChild)
     {
         if (caller == pChild) return;
         MutexLocker mLock(pMutex);
         if (caller)
             caller->removeThread(pChild);
         else
-            for(std::vector<SCRIPT_INTERFACE*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
+            for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
                 if (*i == pChild)
                 {
                     delete *i;
@@ -76,7 +76,7 @@ namespace TA3D
                 }
     }
 
-    void SCRIPT_INTERFACE::processSignal(uint32 signal)
+    void ScriptInterface::processSignal(uint32 signal)
     {
         MutexLocker mLock(pMutex);
         if (caller)
@@ -85,31 +85,31 @@ namespace TA3D
         {
             if (signal == signal_mask)
                 kill();
-            for(std::vector<SCRIPT_INTERFACE*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
+            for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
                 if ((*i)->signal_mask == signal)
                     (*i)->kill();
         }
     }
 
-    void SCRIPT_INTERFACE::setSignalMask(uint32 signal)
+    void ScriptInterface::setSignalMask(uint32 signal)
     {
         lock();
         signal_mask = signal;
         unlock();
     }
 
-    uint32 SCRIPT_INTERFACE::getSignalMask()
+    uint32 ScriptInterface::getSignalMask()
     {
         return signal_mask;
     }
 
-    void SCRIPT_INTERFACE::clean()
+    void ScriptInterface::clean()
     {
         MutexLocker mLock(pMutex);
         if (caller)         // Don't go up to caller this would make complexity O(N²)!!
             return;         // and it would not be safe at all!
         else
-            for(std::vector<SCRIPT_INTERFACE*>::iterator i = childs.begin() ; i != childs.end() ; )
+            for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; )
                 if (!(*i)->is_running())
                 {
                     delete *i;
@@ -119,12 +119,12 @@ namespace TA3D
                     ++i;
     }
 
-    void SCRIPT_INTERFACE::dumpDebugInfo()
+    void ScriptInterface::dumpDebugInfo()
     {
         LOG_DEBUG(LOG_PREFIX_SCRIPT << "sorry dumpDebugInfo not implemented for this type of script");
     }
 
-    void SCRIPT_INTERFACE::save_state(gzFile file)
+    void ScriptInterface::save_state(gzFile file)
     {
         pMutex.lock();
 
@@ -144,7 +144,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void SCRIPT_INTERFACE::restore_state(gzFile file)
+    void ScriptInterface::restore_state(gzFile file)
     {
         pMutex.lock();
 
@@ -160,7 +160,7 @@ namespace TA3D
         gzread(file, &nb_childs, sizeof(nb_childs));
         for(int i = 0 ; i < nb_childs ; i++)
         {
-            SCRIPT_INTERFACE *newThread = fork();
+            ScriptInterface *newThread = fork();
             newThread->restore_state(file);
         }
 

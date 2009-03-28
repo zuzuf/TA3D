@@ -44,7 +44,7 @@ namespace TA3D
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
         AI_CONTROLLER   *ai_controller;
-        AI_SCRIPT       *ai_script;
+        AiScript        *ai_script;
         int             type;
         int             ID;
         String          AI;
