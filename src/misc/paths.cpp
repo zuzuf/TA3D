@@ -411,6 +411,18 @@ namespace Paths
         while ((dirp = readdir(dp)) != NULL)
         {
             String name = dirp->d_name;
+            if (dirp->d_type == 0)
+            {
+                DIR *dp2;
+                if ((dp2  = opendir((root + name).c_str())))
+                {
+                    closedir(dp2);
+                    dirp->d_type |= FA_DIREC;
+                }
+                else
+                    dirp->d_type |= FA_FILE;
+            }
+
             if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).match(filename_pattern))
             {
                 if (relative)
