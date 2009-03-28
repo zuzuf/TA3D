@@ -36,19 +36,19 @@
 namespace TA3D
 {
 
-    /*! \class FEATURE
+    /*! \class Feature
     **
     ** \brief
     */
-    class FEATURE
+    class Feature
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        FEATURE();
+        Feature();
         //! Destructor
-        ~FEATURE();
+        ~Feature();
         //@}
 
         /*!
@@ -147,24 +147,24 @@ namespace TA3D
         bool	not_loaded;
         //@}
 
-    }; // class FEATURE
+    }; // class Feature
 
 
 
 
-    /*! \class FEATURE_MANAGER
+    /*! \class FeatureManager
     **
     ** \brief
     */
-    class FEATURE_MANAGER
+    class FeatureManager
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        FEATURE_MANAGER();
+        FeatureManager();
         //! Destructor
-        ~FEATURE_MANAGER();
+        ~FeatureManager();
         //@}
 
         /*!
@@ -208,18 +208,18 @@ namespace TA3D
         //! Available space in Features' array
         int max_features;
         //! All features
-        FEATURE	*feature;
+        Feature	*feature;
 
     private:
-        //! hashtable used to speed up operations on FEATURE objects
+        //! hashtable used to speed up operations on Feature objects
         cHashTable<int>  feature_hashtable;
 
-    }; // class FEATURE_MANAGER
+    }; // class FeatureManager
 
 
 
     //!
-    extern FEATURE_MANAGER feature_manager;
+    extern FeatureManager feature_manager;
 
     /*!
     ** \brief
@@ -227,11 +227,11 @@ namespace TA3D
     void load_features(void (*progress)(float percent,const String& msg)=NULL);	// Charge tout les éléments
 
 
-    /*! \class FEATURE_DATA
+    /*! \class FeatureData
     **
     ** \brief
     */
-    struct FEATURE_DATA
+    struct FeatureData
     {
         //!
         Vector3D Pos;		// Position spatiale de l'élément
@@ -279,7 +279,7 @@ namespace TA3D
         //!
         bool delete_shadow_dlist;
 
-    }; // class FEATURE_DATA
+    }; // class FeatureData
 
 
 
@@ -288,19 +288,19 @@ namespace TA3D
 
 
 
-    /*! \class FEATURES
+    /*! \class Features
     **
     ** \brief
     */
-    class FEATURES : public ObjectSync	// Moteur de gestion des éléments graphiques
+    class Features : public ObjectSync	// Moteur de gestion des éléments graphiques
     {
        public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        FEATURES();
+        Features();
         //! Destructor
-        ~FEATURES();
+        ~Features();
         //@}
 
 
@@ -395,7 +395,7 @@ namespace TA3D
         //!
         int max_features;		// Quantité maximale d'éléments que l'on peut charger dans la mémoire allouée
         //!
-        FEATURE_DATA* feature;			// Eléments
+        FeatureData* feature;			// Eléments
 
         //!
         int min_idx;			// Indices des premiers et derniers éléments du tableau à être affichés
@@ -416,9 +416,9 @@ namespace TA3D
         //!
         Vector3D* p_wind_dir;
 
-    }; // class FEATURES
+    }; // class Features
 
-    extern FEATURES features;
+    extern Features features;
 
 } // namespace TA3D
 
