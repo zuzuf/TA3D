@@ -70,6 +70,7 @@ namespace Settings
             << "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)\n"
             << "           Priority Level = " << TA3D::VARS::lp_CONFIG->priority_level << "; // 0, 1, 2\n"
             << "                     FSAA = " << TA3D::VARS::lp_CONFIG->fsaa << ";\n"
+            << "               Anisotropy = " << TA3D::VARS::lp_CONFIG->anisotropy << ";\n"
             << "                 Language = " << TA3D::VARS::lp_CONFIG->Lang << ";\n"
             << "            Water Quality = " << TA3D::VARS::lp_CONFIG->water_quality << "; // 0..5\n"
             << "             Screen Width = " << TA3D::VARS::lp_CONFIG->screen_width << ";\n"
@@ -150,6 +151,7 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Shadow Quality");
         TA3D::VARS::lp_CONFIG->priority_level = cfgFile.pullAsInt("TA3D.Priority Level");
         TA3D::VARS::lp_CONFIG->fsaa = cfgFile.pullAsInt("TA3D.FSAA");
+        TA3D::VARS::lp_CONFIG->anisotropy = cfgFile.pullAsInt("TA3D.Anisotropy", 1);
         TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsInt("TA3D.Language");
         TA3D::VARS::lp_CONFIG->water_quality = cfgFile.pullAsInt("TA3D.Water Quality");
         TA3D::VARS::lp_CONFIG->screen_width = cfgFile.pullAsInt("TA3D.Screen Width");

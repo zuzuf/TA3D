@@ -165,6 +165,7 @@ void config_menu(void)
         if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
     }
+    config_area.set_value("*.anisotropy", lp_CONFIG->anisotropy);
     config_area.set_value("*.mouse_sensitivity", (int)(lp_CONFIG->mouse_sensivity * 100.0f));
     config_area.set_state("*.disable_perspective", lp_CONFIG->ortho_camera);
     config_area.set_state("*.right_click_interface", lp_CONFIG->right_click_interface);
@@ -397,6 +398,7 @@ void config_menu(void)
             }
         }
 
+        lp_CONFIG->anisotropy = config_area.get_value("*.anisotropy");
         lp_CONFIG->mouse_sensivity = config_area.get_value("*.mouse_sensitivity") * 0.01f;
         lp_CONFIG->ortho_camera = config_area.get_state("*.disable_perspective");
         lp_CONFIG->right_click_interface = config_area.get_state("*.right_click_interface");
