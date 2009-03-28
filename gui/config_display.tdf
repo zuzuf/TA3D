@@ -109,24 +109,27 @@
 		value=0;
 		size=1.6;
 	}
-	[object9]		// Option "empty slot"
+	[object9]		// Option "anisotropy"
 	{
-		name=t_empty_slot;
+		name=t_anisotropy;
 		type=TEXT;
-		caption=empty slot;
+		caption=Level of anisotropy;
 		x1=0;
 		y1=190;
 		value=0xFFFFFFFF;
 		size=2;
 	}
-	[object10]		// Option "empty slot"
+	[object10]		// Option "anisotropy"
 	{
-		name=empty_slot;
-		type=OPTIONC;
-		caption=;
-		x1=690;
-		y1=190;
-		value=0;
+		name=anisotropy;
+		type=HSLIDER;
+		x1=400;
+		y1=192;
+		x2=730;
+		y2=217;
+		min=1;
+		max=16;
+		value=1;
 		size=1.6;
 	}
 	[object11]		// Option "height_line"
