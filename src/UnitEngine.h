@@ -128,7 +128,7 @@ namespace TA3D
         }
     };
 
-    class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
+    class Unit	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
     {
     public:
         //! functions called from scripts (COB/BOS and Lua) (see unit.script.func module in scripts)
@@ -355,7 +355,7 @@ namespace TA3D
         // Following variables are used by the renderer
     public:
         bool            visibility_checked;
-    }; // class UNIT
+    }; // class Unit
 
 #define	ICON_UNKNOWN		0x0
 #define	ICON_BUILDER		0x1
@@ -382,7 +382,7 @@ namespace TA3D
         /*----------------------- Variables générales ----------------------------------------------*/
         uint16	nb_unit;		// Nombre d'unités
         uint16	max_unit;		// Nombre maximum d'unités stockables dans le tableau
-        UNIT	*unit;			// Tableau contenant les références aux unités
+        Unit	*unit;			// Tableau contenant les références aux unités
         uint16	index_list_size;
         uint16	*idx_list;
         uint16	*free_idx;

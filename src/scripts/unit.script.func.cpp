@@ -23,7 +23,7 @@
 namespace TA3D
 {
     //! functions that are called from scripts (COB/BOS and Lua)
-    void UNIT::script_explode(int obj, int explosion_type)
+    void Unit::script_explode(int obj, int explosion_type)
     {
         data.axe[0][obj].pos = 0.0f;
         data.axe[0][obj].angle = 0.0f;
@@ -51,7 +51,7 @@ namespace TA3D
         data.explode_time = 1.0f;
     }
 
-    void UNIT::script_turn_object(int obj, int axis, float angle, float speed)
+    void Unit::script_turn_object(int obj, int axis, float angle, float speed)
     {
         if (axis != 2)
         {
@@ -76,7 +76,7 @@ namespace TA3D
         data.axe[axis][obj].rot_speed_limit = false;
     }
 
-    void UNIT::script_move_object(int obj, int axis, float pos, float speed)
+    void Unit::script_move_object(int obj, int axis, float pos, float speed)
     {
         if (axis == 0)
             pos = -pos;
@@ -91,7 +91,7 @@ namespace TA3D
             data.axe[axis][obj].move_speed = fabsf(speed * 0.5f);
     }
 
-    int UNIT::script_get_value_from_port(int portID, int *param)
+    int Unit::script_get_value_from_port(int portID, int *param)
     {
         switch(portID)
         {
@@ -148,7 +148,7 @@ namespace TA3D
         return 0;
     }
 
-    void UNIT::script_spin_object(int obj, int axis, float target_speed, float accel)
+    void Unit::script_spin_object(int obj, int axis, float target_speed, float accel)
     {
         if (axis == 1)
         {
@@ -175,37 +175,37 @@ namespace TA3D
         }
     }
 
-    void UNIT::script_show_object(int obj)
+    void Unit::script_show_object(int obj)
     {
         data.flag[obj] &= (~FLAG_HIDE);
     }
 
-    void UNIT::script_hide_object(int obj)
+    void Unit::script_hide_object(int obj)
     {
         data.flag[obj] |= FLAG_HIDE;
     }
 
-    void UNIT::script_dont_cache(int obj)
+    void Unit::script_dont_cache(int obj)
     {
         data.flag[obj] |= FLAG_ANIMATED_TEXTURE;
     }
 
-    void UNIT::script_cache(int obj)
+    void Unit::script_cache(int obj)
     {
         data.flag[obj] &= (~FLAG_ANIMATED_TEXTURE);
     }
 
-    void UNIT::script_shade(int obj)
+    void Unit::script_shade(int obj)
     {
         data.flag[obj] &= (~FLAG_DONT_SHADE);
     }
 
-    void UNIT::script_dont_shade(int obj)
+    void Unit::script_dont_shade(int obj)
     {
         data.flag[obj] |= FLAG_DONT_SHADE;
     }
 
-    void UNIT::script_emit_sfx(int smoke_type, int from_piece)
+    void Unit::script_emit_sfx(int smoke_type, int from_piece)
     {
         if (visible)
         {
@@ -242,7 +242,7 @@ namespace TA3D
         }
     }
 
-    void UNIT::script_stop_spin(int obj, int axis, float speed)
+    void Unit::script_stop_spin(int obj, int axis, float speed)
     {
         if (axis != 2)
             speed = -speed;
@@ -266,7 +266,7 @@ namespace TA3D
         }
     }
 
-    void UNIT::script_move_piece_now(int obj, int axis, float pos)
+    void Unit::script_move_piece_now(int obj, int axis, float pos)
     {
         data.axe[axis][obj].reset_move();
         data.axe[axis][obj].is_moving = true;
@@ -277,7 +277,7 @@ namespace TA3D
             data.axe[axis][obj].pos = pos;
     }
 
-    void UNIT::script_turn_piece_now(int obj, int axis, float angle)
+    void Unit::script_turn_piece_now(int obj, int axis, float angle)
     {
         data.axe[axis][obj].reset_rot();
         data.axe[axis][obj].is_moving = true;
@@ -287,7 +287,7 @@ namespace TA3D
         data.axe[axis][obj].angle = -angle;
     }
 
-    int UNIT::script_get(int type, int v1, int v2)
+    int Unit::script_get(int type, int v1, int v2)
     {
         switch(type)
         {
@@ -365,7 +365,7 @@ namespace TA3D
         return 0;
     }
 
-    void UNIT::script_set_value(int type, int v)
+    void Unit::script_set_value(int type, int v)
     {
         switch(type)
         {
@@ -420,11 +420,11 @@ namespace TA3D
         }
     }
 
-    void UNIT::script_attach_unit(int unit_id, int piece_id)
+    void Unit::script_attach_unit(int unit_id, int piece_id)
     {
         if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
         {
-            UNIT *target_unit = &(units.unit[unit_id]);
+            Unit *target_unit = &(units.unit[unit_id]);
             target_unit->hidden = (piece_id < 0);
             bool already_in = false;
             if (target_unit->attached)
@@ -447,11 +447,11 @@ namespace TA3D
         }
     }
 
-    void UNIT::script_drop_unit(int unit_id)
+    void Unit::script_drop_unit(int unit_id)
     {
         if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
         {
-            UNIT *target_unit = &(units.unit[unit_id]);
+            Unit *target_unit = &(units.unit[unit_id]);
             target_unit->attached = false;
             target_unit->hidden = false;
             nb_attached--;					// Remove the unit from the attached list
@@ -471,7 +471,7 @@ namespace TA3D
         }
     }
 
-    bool UNIT::script_is_turning(int obj, int axis)
+    bool Unit::script_is_turning(int obj, int axis)
     {
         float a = data.axe[axis][obj].rot_angle;
         if ((data.axe[axis][obj].rot_speed != 0.0f || data.axe[axis][obj].rot_accel != 0.0f) && (a != 0.0f && data.axe[axis][obj].rot_limit))
@@ -483,7 +483,7 @@ namespace TA3D
         return false;
     }
 
-    bool UNIT::script_is_moving(int obj, int axis)
+    bool Unit::script_is_moving(int obj, int axis)
     {
         return (data.axe[axis][obj].move_distance != 0.0f);
     }

@@ -137,7 +137,7 @@ namespace TA3D
             return -1;		// Erreur, ce n'est pas un script repertorié
         }
 
-        UNIT *pUnit = &(units.unit[ unitID ]);
+        Unit *pUnit = &(units.unit[ unitID ]);
 
         float divisor(I2PWR16);
         float div = 0.5f * divisor;

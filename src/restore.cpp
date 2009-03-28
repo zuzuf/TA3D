@@ -307,7 +307,7 @@ void save_game( const String filename, GameData *game_data )
             SAVE( units.unit[i].weapon[f].delay );
             SAVE( units.unit[i].weapon[f].time );
             SAVE( units.unit[i].weapon[f].target_pos );
-            int g = units.unit[i].weapon[f].target ? (int)( (units.unit[i].weapon[f].state & WEAPON_FLAG_WEAPON) ? ((WEAPON*)units.unit[i].weapon[f].target)->idx : ((UNIT*)units.unit[i].weapon[f].target)->idx ) : -1;
+            int g = units.unit[i].weapon[f].target ? (int)( (units.unit[i].weapon[f].state & WEAPON_FLAG_WEAPON) ? ((WEAPON*)units.unit[i].weapon[f].target)->idx : ((Unit*)units.unit[i].weapon[f].target)->idx ) : -1;
             SAVE( g );
             SAVE( units.unit[i].weapon[f].data );
             SAVE( units.unit[i].weapon[f].flags );
@@ -378,7 +378,7 @@ void save_game( const String filename, GameData *game_data )
                 {
                     case MISSION_ATTACK:
                         {
-                            int p = cur->p ? ( (cur->flags&MISSION_FLAG_TARGET_WEAPON) ? (int)((WEAPON*)(cur->p))->idx : ((UNIT*)(cur->p))->idx) : -1;
+                            int p = cur->p ? ( (cur->flags&MISSION_FLAG_TARGET_WEAPON) ? (int)((WEAPON*)(cur->p))->idx : ((Unit*)(cur->p))->idx) : -1;
                             SAVE( p );
                         }
                         break;
@@ -392,7 +392,7 @@ void save_game( const String filename, GameData *game_data )
                     case MISSION_REVIVE:
                     case MISSION_GET_REPAIRED:
                         {
-                            int p = cur->p ? (int)((UNIT*)(cur->p))->idx : -1;
+                            int p = cur->p ? (int)((Unit*)(cur->p))->idx : -1;
                             SAVE( p );
                         }
                         break;
@@ -779,7 +779,7 @@ void load_game( GameData *game_data )
     units.mini_col = new uint32[ units.max_unit ];
     units.mini_pos = new float[ units.max_unit * 2 ];
 
-    units.unit =  new UNIT[units.max_unit];
+    units.unit =  new Unit[units.max_unit];
     units.idx_list = new uint16[units.max_unit];
     units.free_idx = new uint16[units.max_unit];
 

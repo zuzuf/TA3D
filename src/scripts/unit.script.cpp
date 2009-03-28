@@ -30,17 +30,17 @@ namespace TA3D
         destroyThread();
     }
 
-    UNIT *lua_currentUnit(lua_State *L)
+    Unit *lua_currentUnit(lua_State *L)
     {
         lua_getfield(L, LUA_REGISTRYINDEX, "unitID");
-        UNIT *p = &(units.unit[lua_tointeger( L, -1 )]);
+        Unit *p = &(units.unit[lua_tointeger( L, -1 )]);
         lua_pop(L, 1);
         return p;
     }
 
     int unit_is_turning( lua_State *L )        // is_turning(obj_id, axis_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -50,7 +50,7 @@ namespace TA3D
 
     int unit_is_moving( lua_State *L )        // is_moving(obj_id, axis_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -60,7 +60,7 @@ namespace TA3D
 
     int unit_move( lua_State *L )           // move(obj_id, axis_id, target_pos, speed)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         float pos = (float) lua_tonumber(L, 3);
@@ -72,7 +72,7 @@ namespace TA3D
 
     int unit_explode( lua_State *L )        // explode(obj_id, explosion_type)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int type = lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -82,7 +82,7 @@ namespace TA3D
 
     int unit_turn( lua_State *L )        // turn(obj_id, axis, angle, speed)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int type = lua_tointeger(L, 2);
         float angle = (float) lua_tonumber(L, 3);
@@ -94,7 +94,7 @@ namespace TA3D
 
     int unit_get_value_from_port( lua_State *L )        // get_value_from_port(port)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int port = lua_tointeger(L, 1);
         lua_settop(L, 0);
 
@@ -104,7 +104,7 @@ namespace TA3D
 
     int unit_show( lua_State *L )        // show(obj_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_show_object(obj);
@@ -113,7 +113,7 @@ namespace TA3D
 
     int unit_hide( lua_State *L )        // hide(obj_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_hide_object(obj);
@@ -122,7 +122,7 @@ namespace TA3D
 
     int unit_cache( lua_State *L )          // cache(obj_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_cache(obj);
@@ -131,7 +131,7 @@ namespace TA3D
 
     int unit_dont_cache( lua_State *L )        // dont_cache(obj_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_dont_cache(obj);
@@ -140,7 +140,7 @@ namespace TA3D
 
     int unit_dont_shade( lua_State *L )          // dont_shade(obj_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_dont_shade(obj);
@@ -149,7 +149,7 @@ namespace TA3D
 
     int unit_shade( lua_State *L )          // shade(obj_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_shade(obj);
@@ -158,7 +158,7 @@ namespace TA3D
 
     int unit_emit_sfx( lua_State *L )           // emit_sfx(smoke_type, from_piece)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int smoke_type = lua_tointeger(L, 1);
         int from_piece = lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -168,7 +168,7 @@ namespace TA3D
 
     int unit_spin( lua_State *L )               // spin(obj, axis, speed, (accel))
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         float speed = (float) lua_tonumber(L, 3);
@@ -180,7 +180,7 @@ namespace TA3D
 
     int unit_stop_spin( lua_State *L )               // stop_spin(obj, axis, (speed))
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         float speed = lua_isnoneornil(L,3) ? 0.0f : (float) lua_tonumber(L, 3);
@@ -191,7 +191,7 @@ namespace TA3D
 
     int unit_move_piece_now( lua_State *L )           // move_piece_now(obj, axis, pos)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         float pos = (float) lua_tonumber(L, 3);
@@ -202,7 +202,7 @@ namespace TA3D
 
     int unit_turn_piece_now( lua_State *L )           // turn_piece_now(obj, axis, angle)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int obj = lua_tointeger(L, 1);
         int axis = lua_tointeger(L, 2);
         float angle = (float) lua_tonumber(L, 3);
@@ -213,7 +213,7 @@ namespace TA3D
 
     int unit_get( lua_State *L )           // get(type, v1, v2)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int type = lua_tointeger(L, 1);
         int v1 = lua_isnoneornil(L,2) ? 0 : lua_tointeger(L, 2);
         int v2 = lua_isnoneornil(L,3) ? 0 : lua_tointeger(L, 3);
@@ -224,7 +224,7 @@ namespace TA3D
 
     int unit_set_value( lua_State *L )           // set_value(type, v)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int type = lua_tointeger(L, 1);
         int v = lua_isboolean(L,2) ? lua_toboolean(L, 2) : lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -234,7 +234,7 @@ namespace TA3D
 
     int unit_attach_unit( lua_State *L )           // attach_unit(unit_id, piece_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int unit_id = lua_tointeger(L, 1);
         int piece_id = lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -244,7 +244,7 @@ namespace TA3D
 
     int unit_drop_unit( lua_State *L )           // drop_unit(unit_id)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         int unit_id = lua_tointeger(L, 1);
         lua_settop(L, 0);
         pUnit->script_drop_unit(unit_id);
@@ -264,7 +264,7 @@ namespace TA3D
 
     int unit_set_script_value( lua_State *L )       // set_script_value(script_name, value)
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         String scriptName = lua_isstring(L,1) ? String(lua_tostring(L,1)) : String();
         int value = lua_isboolean(L,2) ? lua_toboolean(L,2) : lua_tointeger(L, 2);
         lua_settop(L, 0);
@@ -275,7 +275,7 @@ namespace TA3D
 
     int unit_unit_ID( lua_State *L )           // unit_ID()
     {
-        UNIT *pUnit = lua_currentUnit(L);
+        Unit *pUnit = lua_currentUnit(L);
         lua_pushinteger( L, pUnit->idx );
         return 1;
     }

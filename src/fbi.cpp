@@ -49,9 +49,9 @@ namespace TA3D
 
 
 
-    UNIT_MANAGER unit_manager;
+    UnitManager unit_manager;
 
-    DL_DATA::~DL_DATA()
+    DlData::~DlData()
     {
         if (dl_x) delete[] dl_x;
         if (dl_y) delete[] dl_y;
@@ -61,7 +61,7 @@ namespace TA3D
 
 
 
-    void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic )
+    void UnitType::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic )
     {
         if (index < -1)
             return;
@@ -100,7 +100,7 @@ namespace TA3D
     }
 
 
-    void UNIT_MANAGER::analyse(String filename,int unit_index)
+    void UnitManager::analyse(String filename,int unit_index)
     {
         TDFParser gui_parser(filename, false, false, true);
 
@@ -191,7 +191,7 @@ namespace TA3D
 
 
 
-    void UNIT_MANAGER::analyse2(char *data,int size)
+    void UnitManager::analyse2(char *data,int size)
     {
         TDFParser parser;
         parser.loadFromMemory("analyse2", data, size, false, false, true);
@@ -219,9 +219,9 @@ namespace TA3D
 
 
 
-    int UNIT_MANAGER::load_unit(const String &filename)			// Ajoute une nouvelle unité
+    int UnitManager::load_unit(const String &filename)			// Ajoute une nouvelle unité
     {
-        unit_type.push_back(new UNIT_TYPE());
+        unit_type.push_back(new UnitType());
         int result =  unit_type[nb_unit]->load(filename);
         if (!unit_type[nb_unit]->Unitname.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Unitname ), nb_unit + 1);
@@ -239,7 +239,7 @@ namespace TA3D
 
 
 
-    void UNIT_MANAGER::gather_build_data()
+    void UnitManager::gather_build_data()
     {
         uint32 file_size=0;
         String::List file_list;
@@ -257,7 +257,7 @@ namespace TA3D
     }
 
 
-    void UNIT_MANAGER::gather_all_build_data()
+    void UnitManager::gather_all_build_data()
     {
         TDFParser sidedata_parser(ta3dSideData.gamedata_dir + "sidedata.tdf", false, true);
         for (int i = 0 ; i < nb_unit; ++i)
@@ -305,7 +305,7 @@ namespace TA3D
     }
 
 
-    void UNIT_MANAGER::load_script_file(const String &unit_name)
+    void UnitManager::load_script_file(const String &unit_name)
     {
         String uprname = String(unit_name).toUpper();
         int unit_index = get_unit_index(uprname);
@@ -317,7 +317,7 @@ namespace TA3D
     }
 
 
-    void UNIT_MANAGER::Identify()			// Identifie les pièces aux quelles les scripts font référence
+    void UnitManager::Identify()			// Identifie les pièces aux quelles les scripts font référence
     {
         for (int i = 0; i < nb_unit; ++i)
         {
@@ -326,12 +326,12 @@ namespace TA3D
         }
     }
 
-    bool UNIT_TYPE::floatting()
+    bool UnitType::floatting()
     {
         return Floater || canhover || WaterLine != 0.0f;
     }
 
-    void UNIT_TYPE::destroy()
+    void UnitType::destroy()
     {
         MovementClass.clear();
         soundcategory.clear();
@@ -378,7 +378,7 @@ namespace TA3D
         init();
     }
 
-    void UNIT_TYPE::init()
+    void UnitType::init()
     {
         not_used = false;
         commander = false;
@@ -523,7 +523,7 @@ namespace TA3D
     }
 
 
-    void UNIT_TYPE::show_info(float fade, Font *fnt)
+    void UnitType::show_info(float fade, Font *fnt)
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -569,7 +569,7 @@ namespace TA3D
 #define parseBool(x)    (unitParser.pullAsBool(x, unitParser_ci.pullAsBool(x)))
 #define parseFloat(x)   (unitParser.pullAsFloat(x, unitParser_ci.pullAsFloat(x)))
 
-    int UNIT_TYPE::load(const String &filename)
+    int UnitType::load(const String &filename)
     {
         destroy();
         int nb_inconnu=0;
@@ -836,7 +836,7 @@ namespace TA3D
         return nb_inconnu;
     }
 
-    void UNIT_TYPE::load_dl()
+    void UnitType::load_dl()
     {
         if (side.empty())
             return;
@@ -856,7 +856,7 @@ namespace TA3D
         TDFParser dl_parser;
         if (dl_parser.loadFromFile(ta3dSideData.guis_dir + ta3dSideData.side_pref[side_id] + "dl.gui", false, false, true))
         {
-            dl_data = new DL_DATA;
+            dl_data = new DlData;
             int NbObj = dl_parser.pullAsInt( "gadget0.totalgadgets" );
 
             int x_offset = dl_parser.pullAsInt( "gadget0.common.xpos" );
@@ -909,7 +909,7 @@ namespace TA3D
         return X2 - X1 < w && Y2 - Y1 < h;
     }
 
-    void UNIT_TYPE::FixBuild()
+    void UnitType::FixBuild()
     {
         if (dl_data && dl_data->dl_num > 0)
         {
@@ -996,7 +996,7 @@ namespace TA3D
         nb_pages++;
     }
 
-    void UNIT_MANAGER::destroy()
+    void UnitManager::destroy()
     {
         unit_hashtable.emptyHashTable();
         unit_hashtable.initTable( __DEFAULT_HASH_TABLE_SIZE );
@@ -1004,7 +1004,7 @@ namespace TA3D
         h_dl_data.emptyHashTable();
         h_dl_data.initTable( __DEFAULT_HASH_TABLE_SIZE );
 
-        for( std::list< DL_DATA* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
+        for( std::list< DlData* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
             delete	*i;
 
         l_dl_data.clear();
@@ -1018,7 +1018,7 @@ namespace TA3D
         init();
     }
 
-    void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &intgaf )
+    void UnitManager::load_panel_texture( const String &player_side, const String &intgaf )
     {
         panel.destroy();
         String gaf_img;
@@ -1056,7 +1056,7 @@ namespace TA3D
 
 
 
-    int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// Affiche et gère le menu des unités
+    int UnitManager::unit_build_menu(int index,int omb,float &dt, bool GUI)				// Affiche et gère le menu des unités
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -1266,7 +1266,7 @@ namespace TA3D
         return nb_inconnu;
     }
 
-    bool UNIT_TYPE::canBuild(const int index) const
+    bool UnitType::canBuild(const int index) const
     {
         for (int i = 0; i < nb_unit; ++i)
             if (BuildList[i] == index)

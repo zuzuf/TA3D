@@ -3083,7 +3083,7 @@ namespace TA3D
                     sint32 prev = -1;
                     for (int i = units.nb_unit - 1; i >= 0; --i)
                     {
-                        if (units.idx_list[i] == ((UNIT*)(units.unit[cur_sel_index].mission->p))->idx)
+                        if (units.idx_list[i] == ((Unit*)(units.unit[cur_sel_index].mission->p))->idx)
                         {
                             prev = i;
                             break;
@@ -3091,12 +3091,12 @@ namespace TA3D
                     }
                     if (prev >= 0)
                     {
-                        int type = units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].type_id;
-                        float metal_to_give_back = units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].build_percent_left * unit_manager.unit_type[type]->BuildCostMetal;
+                        int type = units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].type_id;
+                        float metal_to_give_back = units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].build_percent_left * unit_manager.unit_type[type]->BuildCostMetal;
                         int p_id = units.unit[cur_sel_index].owner_id;
-                        units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].clear_from_map();
-                        units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].flags = 0;               // Don't count it as a loss
-                        units.kill(((UNIT*)(units.unit[cur_sel_index].mission->p))->idx, map.get(), prev);
+                        units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].clear_from_map();
+                        units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].flags = 0;               // Don't count it as a loss
+                        units.kill(((Unit*)(units.unit[cur_sel_index].mission->p))->idx, map.get(), prev);
                         players.metal[p_id] += metal_to_give_back;          // Give metal back
                         players.c_metal[p_id] += metal_to_give_back;
                     }
@@ -3546,7 +3546,7 @@ namespace TA3D
                     {
                         if (selected && cur_sel != -1)	// Sur les unités sélectionnées
                         {
-                            const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
+                            const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","Unit_XZ","Unit_Y","Unit_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
                                 "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
                             units.lock();
                             for (unsigned int e = 0; e < units.index_list_size; ++e)
