@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __LUA_CHUNK_H__
-#define __LUA_CHUNK_H__
+#ifndef __LuaChunk_H__
+#define __LuaChunk_H__
 
 # include "../lua/lua.hpp"
 # include "script.data.h"
@@ -27,7 +27,7 @@ namespace TA3D
     ** This class represents a basic Lua thread without specialization
     ** To use it, create a new class that inherits LUA_THREAD
     */
-    class LUA_CHUNK : public SCRIPT_DATA
+    class LuaChunk : public ScriptData
     {
     protected:
         byte            *buffer;
@@ -36,9 +36,9 @@ namespace TA3D
         String::Vector  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
 
     public:
-        LUA_CHUNK(lua_State *L, const String &name);
-        LUA_CHUNK();
-        virtual ~LUA_CHUNK();
+        LuaChunk(lua_State *L, const String &name);
+        LuaChunk();
+        virtual ~LuaChunk();
 
         /*virtual*/ void load(const String &filename);                    // Load a lua chunk
         void save(const String &filename);                    // Save the lua chunk

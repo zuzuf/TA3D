@@ -23,12 +23,12 @@
 
 namespace TA3D
 {
-    SCRIPT_DATA *SCRIPT_DATA::loadScriptFile(const String &filename)
+    ScriptData *ScriptData::loadScriptFile(const String &filename)
     {
         String tmp = filename + ".lua";
         if (TA3D::VARS::HPIManager->Exists(tmp))
         {
-            SCRIPT_DATA *script = new LUA_CHUNK;
+            ScriptData *script = new LuaChunk;
             script->load(tmp);
             return script;
         }
@@ -36,7 +36,7 @@ namespace TA3D
         tmp = filename + ".cob";
         if (TA3D::VARS::HPIManager->Exists(tmp))
         {
-            SCRIPT_DATA *script = new COB_SCRIPT;
+            ScriptData *script = new CobScript;
             script->load(tmp);
             return script;
         }

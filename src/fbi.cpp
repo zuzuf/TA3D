@@ -313,7 +313,7 @@ namespace TA3D
             return;
 
         // Everything is done in the SCRIPT_DATA interface, it tries script types in priority order
-        unit_type[unit_index]->script = SCRIPT_DATA::loadScriptFile("scripts\\" + uprname);
+        unit_type[unit_index]->script = ScriptData::loadScriptFile("scripts\\" + uprname);
     }
 
 

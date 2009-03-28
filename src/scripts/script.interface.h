@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __SCRIPT_INTERFACE_H__
-#define __SCRIPT_INTERFACE_H__
+#ifndef __ScriptInterface_H__
+#define __ScriptInterface_H__
 
 #include "../threads/thread.h"
 #include "script.data.h"
@@ -31,7 +31,7 @@ namespace TA3D
     /*!
     ** This class is an interface for all scripts types
     */
-    class SCRIPT_INTERFACE : public ObjectSync
+    class ScriptInterface : public ObjectSync
     {
     protected:
         //! Variables to control thread execution
@@ -43,13 +43,13 @@ namespace TA3D
         bool                            waiting;        // Is the thread waiting for some user action ?
 
         uint32                          signal_mask;    // This thread will be killed as soon as it catchs this signal
-        SCRIPT_INTERFACE                *caller;        // NULL if main thread
-        std::vector<SCRIPT_INTERFACE*>  childs;         // Child processes, empty for childs this is to keep track of running threads
+        ScriptInterface                 *caller;        // NULL if main thread
+        std::vector<ScriptInterface*>   childs;         // Child processes, empty for childs this is to keep track of running threads
     public:
-        SCRIPT_INTERFACE();
-        virtual ~SCRIPT_INTERFACE() {};
+        ScriptInterface();
+        virtual ~ScriptInterface() {}
 
-        virtual void load( SCRIPT_DATA *data ) = 0;
+        virtual void load( ScriptData *data ) = 0;
 
         //! stops definitely the thread
         void kill();
@@ -74,14 +74,14 @@ namespace TA3D
         void restore_state(gzFile file);
 
         //! functions used to create new threads sharing the same environment
-        virtual SCRIPT_INTERFACE *fork() = 0;
-        virtual SCRIPT_INTERFACE *fork(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
+        virtual ScriptInterface *fork() = 0;
+        virtual ScriptInterface *fork(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
 
         //! debug functions
         virtual void dumpDebugInfo();
     protected:
-        void addThread(SCRIPT_INTERFACE *pChild);
-        void removeThread(SCRIPT_INTERFACE *pChild);
+        void addThread(ScriptInterface *pChild);
+        void removeThread(ScriptInterface *pChild);
     public:
         void clean();
         void processSignal(uint32 signal);

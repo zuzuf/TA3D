@@ -21,11 +21,11 @@
 
 namespace TA3D
 {
-    UNIT_SCRIPT::UNIT_SCRIPT()
+    UnitScript::UnitScript()
     {
     }
 
-    UNIT_SCRIPT::~UNIT_SCRIPT()
+    UnitScript::~UnitScript()
     {
         destroyThread();
     }
@@ -280,7 +280,7 @@ namespace TA3D
         return 1;
     }
 
-    void UNIT_SCRIPT::register_functions()
+    void UnitScript::register_functions()
     {
         lua_register(L, "is_turning", unit_is_turning );                    // is_turning(obj_id, axis_id)
         lua_register(L, "is_moving", unit_is_moving );                      // is_moving(obj_id, axis_id)
@@ -309,20 +309,20 @@ namespace TA3D
         lua_register(L, "set_script_value", unit_set_script_value );        // set_script_value(script_name, value)
     }
 
-    void UNIT_SCRIPT::register_info()
+    void UnitScript::register_info()
     {
         lua_pushinteger(L, unitID);
         lua_setfield(L, LUA_REGISTRYINDEX, "unitID");
     }
 
-    void UNIT_SCRIPT::setUnitID(uint32 ID)
+    void UnitScript::setUnitID(uint32 ID)
     {
         unitID = ID;
         lua_pushinteger(L, unitID);
         lua_setfield(L, LUA_REGISTRYINDEX, "unitID");
     }
 
-    int UNIT_SCRIPT::getNbPieces()
+    int UnitScript::getNbPieces()
     {
         int nb_piece = 0;
         lua_getglobal(L, "__piece_list");
@@ -332,49 +332,49 @@ namespace TA3D
         return nb_piece;
     }
 
-    void UNIT_SCRIPT::load(SCRIPT_DATA *data)
+    void UnitScript::load(ScriptData *data)
     {
-        LUA_THREAD::load(data);
-        LUA_THREAD::run();              // We need this to register all the functions and pieces ...
+        LuaThread::load(data);
+        LuaThread::run();              // We need this to register all the functions and pieces ...
     }
 
-    int UNIT_SCRIPT::run(float dt, bool alone)                  // Run the script
+    int UnitScript::run(float dt, bool alone)                  // Run the script
     {
-        return LUA_THREAD::run(dt, alone);
+        return LuaThread::run(dt, alone);
     }
 
     //! functions used to call/run Lua functions
-    void UNIT_SCRIPT::call(const String &functionName, int *parameters, int nb_params)
+    void UnitScript::call(const String &functionName, int *parameters, int nb_params)
     {
-        LUA_THREAD::call(functionName, parameters, nb_params);
+        LuaThread::call(functionName, parameters, nb_params);
     }
 
-    int UNIT_SCRIPT::execute(const String &functionName, int *parameters, int nb_params)
+    int UnitScript::execute(const String &functionName, int *parameters, int nb_params)
     {
-        return LUA_THREAD::execute(functionName, parameters, nb_params);
+        return LuaThread::execute(functionName, parameters, nb_params);
     }
 
     //! functions used to create new threads sharing the same environment
-    LUA_THREAD *UNIT_SCRIPT::fork()
+    LuaThread *UnitScript::fork()
     {
-        return LUA_THREAD::fork();
+        return LuaThread::fork();
     }
 
-    LUA_THREAD *UNIT_SCRIPT::fork(const String &functionName, int *parameters, int nb_params)
+    LuaThread *UnitScript::fork(const String &functionName, int *parameters, int nb_params)
     {
-        return LUA_THREAD::fork(functionName, parameters, nb_params);
+        return LuaThread::fork(functionName, parameters, nb_params);
     }
 
     //! functions used to save/restore scripts state
-    void UNIT_SCRIPT::save_thread_state(gzFile file)
+    void UnitScript::save_thread_state(gzFile file)
     {
         gzwrite(file, &unitID, sizeof(unitID));
-        LUA_THREAD::save_thread_state(file);
+        LuaThread::save_thread_state(file);
     }
 
-    void UNIT_SCRIPT::restore_thread_state(gzFile file)
+    void UnitScript::restore_thread_state(gzFile file)
     {
         gzread(file, &unitID, sizeof(unitID));
-        LUA_THREAD::restore_thread_state(file);
+        LuaThread::restore_thread_state(file);
     }
 }

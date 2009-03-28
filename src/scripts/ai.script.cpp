@@ -28,50 +28,50 @@ using namespace TA3D::UTILS::HPI;
 
 namespace TA3D
 {
-    void AI_SCRIPT::monitor()
+    void AiScript::monitor()
     {
         if (!isRunning())
             start();
     }
 
-    AI_SCRIPT::AI_SCRIPT()
+    AiScript::AiScript()
     {
         this->playerID = -1;
     }
 
-    AI_SCRIPT::~AI_SCRIPT()
+    AiScript::~AiScript()
     {
         destroyThread();
     }
 
-    void AI_SCRIPT::setPlayerID(int id)
+    void AiScript::setPlayerID(int id)
     {
         playerID = id;
         register_info();
     }
 
-    int AI_SCRIPT::getPlayerID()
+    int AiScript::getPlayerID()
     {
         return playerID;
     }
 
-    void AI_SCRIPT::setType(int type)
+    void AiScript::setType(int type)
     {
     }
 
-    int AI_SCRIPT::getType()
+    int AiScript::getType()
     {
         return AI_TYPE_LUA;
     }
 
-    void AI_SCRIPT::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
+    void AiScript::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
     {
         pMutex.lock();
         name = newName;
         pMutex.unlock();
     }
 
-    void AI_SCRIPT::save()
+    void AiScript::save()
     {
         String filename;
         Paths::MakeDir( Paths::Resources + "ai" );
@@ -80,7 +80,7 @@ namespace TA3D
     }
 
 
-    void AI_SCRIPT::loadAI(const String& filename, const int id)
+    void AiScript::loadAI(const String& filename, const int id)
     {
         TA3D_FILE* file = ta3d_fopen(filename);
 
@@ -398,7 +398,7 @@ namespace TA3D
         return 0;
     }
 
-    void AI_SCRIPT::register_functions()
+    void AiScript::register_functions()
     {
         lua_register(L, "playerID", ai_playerID);                                           // playerID()
         lua_register(L, "nb_players", ai_nb_players);                                       // nb_players()
@@ -423,7 +423,7 @@ namespace TA3D
         lua_register(L, "attack", ai_attack);                                               // attack( attacker_id, target_id )
     }
 
-    void AI_SCRIPT::register_info()
+    void AiScript::register_info()
     {
         if (L)
         {

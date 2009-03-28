@@ -19,7 +19,7 @@
   |                               tdf.h                              |
   |   contient toutes les fonctions et classes permettant la gestion |
   | des fichiers TDF du jeu Total Annihilation qui contienne divers  |
-  | éléments graphiques.                                             |
+  | Ã©lÃ©ments graphiques.                                             |
   \-----------------------------------------------------------------*/
 
 #ifndef __TA3D_XX_TDF_H__
@@ -117,7 +117,7 @@ namespace TA3D
         //!
         MODEL	*model;
         //!
-        bool	converted;		// Indique si l'objet a été converti en 3d depuis un sprite
+        bool	converted;		// Indique si l'objet a Ã©tÃ© converti en 3d depuis un sprite
         //!
         bool	reclaimable;
         //!
@@ -224,7 +224,7 @@ namespace TA3D
     /*!
     ** \brief
     */
-    void load_features(void (*progress)(float percent,const String& msg)=NULL);	// Charge tout les éléments
+    void load_features(void (*progress)(float percent,const String& msg)=NULL);	// Charge tout les Ã©lÃ©ments
 
 
     /*! \class FEATURE_DATA
@@ -234,9 +234,9 @@ namespace TA3D
     struct FEATURE_DATA
     {
         //!
-        Vector3D Pos;		// Position spatiale de l'élément
+        Vector3D Pos;		// Position spatiale de l'Ã©lÃ©ment
         //!
-        int	 type;		// Type d'élément
+        int	 type;		// Type d'Ã©lÃ©ment
         //!
         short frame;		// Pour l'animation
         //!
@@ -244,7 +244,7 @@ namespace TA3D
         //!
         float hp;
         //!
-        bool draw;		// Indique si l'objet est dessiné
+        bool draw;		// Indique si l'objet est dessinÃ©
         //!
         bool grey;		// Tell if it is in the fog of war
         //!
@@ -292,7 +292,7 @@ namespace TA3D
     **
     ** \brief
     */
-    class FEATURES : public ObjectSync	// Moteur de gestion des éléments graphiques
+    class FEATURES : public ObjectSync	// Moteur de gestion des Ã©lÃ©ments graphiques
     {
        public:
         //! \name Constructor & Destructor
@@ -391,14 +391,14 @@ namespace TA3D
 
     public:
         //!
-        int nb_features;		// Nombre d'éléments à gérer
+        int nb_features;		// Nombre d'Ã©lÃ©ments Ã  gÃ©rer
         //!
-        int max_features;		// Quantité maximale d'éléments que l'on peut charger dans la mémoire allouée
+        int max_features;		// QuantitÃ© maximale d'Ã©lÃ©ments que l'on peut charger dans la mÃ©moire allouÃ©e
         //!
-        FEATURE_DATA* feature;			// Eléments
+        FEATURE_DATA* feature;			// ElÃ©ments
 
         //!
-        int min_idx;			// Indices des premiers et derniers éléments du tableau à être affichés
+        int min_idx;			// Indices des premiers et derniers Ã©lÃ©ments du tableau Ã  Ãªtre affichÃ©s
         //!
         int max_idx;
 
@@ -408,7 +408,7 @@ namespace TA3D
         FeaturesList  sinking_features;	// because it's faster that way
 
         //!
-        int* list;				// Liste d'objets à afficher
+        int* list;				// Liste d'objets Ã  afficher
         //!
         int list_size;
 

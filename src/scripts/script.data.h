@@ -15,27 +15,27 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __SCRIPT_DATA_H__
-# define  __SCRIPT_DATA_H__
+#ifndef __ScriptData_H__
+# define  __ScriptData_H__
 
 namespace TA3D
 {
 
     //! Abstract class for script storage
-    class SCRIPT_DATA
+    class ScriptData
     {
     public:
         virtual void load(const String &filename) = 0;
         virtual int identify(const String &name) = 0;
 
     public:
-        static SCRIPT_DATA *loadScriptFile(const String &filename);
+        static ScriptData *loadScriptFile(const String &filename);
 
 	public:
-		SCRIPT_DATA() {}
-		virtual ~SCRIPT_DATA() {}
+        ScriptData() {}
+        virtual ~ScriptData() {}
 
-    }; // class SCRIPT_DATA
+    }; // class ScriptData
 
 } // namespace TA3D
 

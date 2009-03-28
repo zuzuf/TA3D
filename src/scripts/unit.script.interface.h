@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __UNIT_SCRIPT_INTERFACE_H__
-#define __UNIT_SCRIPT_INTERFACE_H__
+#ifndef __UnitScriptInterface_H__
+#define __UnitScriptInterface_H__
 
 # include "script.interface.h"
 # include "../misc/hash_table.h"
@@ -76,7 +76,7 @@ namespace TA3D
     /*!
     ** This class is an interface for all unit scripts types
     */
-    class UNIT_SCRIPT_INTERFACE : public SCRIPT_INTERFACE
+    class UnitScriptInterface : public ScriptInterface
     {
     protected:
         uint32                  unitID;
@@ -93,7 +93,7 @@ namespace TA3D
     private:
         static const char *script_name[];
     public:
-        static UNIT_SCRIPT_INTERFACE *instanciate( SCRIPT_DATA *data );
+        static UnitScriptInterface *instanciate( ScriptData *data );
         static String get_script_name(int id);
         static int get_script_id(const String &name);
     };

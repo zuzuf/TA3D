@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __COB_VM_H__
-#define __COB_VM_H__
+#ifndef __CobVm_H__
+#define __CobVm_H__
 
 # include "cob.h"
 # include "unit.script.interface.h"
@@ -80,20 +80,20 @@ namespace TA3D
     /*!
     ** This class represents a the COB Virtual Machine
     */
-    class COB_VM : public UNIT_SCRIPT_INTERFACE
+    class CobVm : public UnitScriptInterface
     {
     protected:
-        COB_SCRIPT                  *script;
+        CobScript                   *script;
         SCRIPT_ENV                  *global_env;    // Global COB environment
         Stack<int>				    cur;
         Stack<int>                  sStack;         // Script stack
         Stack<SCRIPT_ENV>           local_env;      // Local COB environment
 
     public:
-        COB_VM();
-        /*virtual*/ ~COB_VM();
+        CobVm();
+        /*virtual*/ ~CobVm();
 
-        /*virtual*/ void load( SCRIPT_DATA *data );
+        /*virtual*/ void load( ScriptData *data );
 
         /*virtual*/ int run(float dt, bool alone = false);  // Run the script
         int run(float dt, bool alone, int *pParam, int nParam);  // Run the script
@@ -104,8 +104,8 @@ namespace TA3D
         /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        /*virtual*/ COB_VM *fork();
-        /*virtual*/ COB_VM *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ CobVm *fork();
+        /*virtual*/ CobVm *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to save/restore scripts state
         /*virtual*/ void save_thread_state(gzFile file);

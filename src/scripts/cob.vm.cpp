@@ -37,9 +37,9 @@
 
 namespace TA3D
 {
-    void COB_VM::load( SCRIPT_DATA *data )
+    void CobVm::load( ScriptData *data )
     {
-        COB_SCRIPT *p_script = dynamic_cast<COB_SCRIPT*>(data);
+        CobScript *p_script = dynamic_cast<CobScript*>(data);
 
         destroy();
 
@@ -50,19 +50,19 @@ namespace TA3D
         }
     }
 
-    COB_VM::COB_VM()
+    CobVm::CobVm()
     {
         init();
     }
 
-    COB_VM::~COB_VM()
+    CobVm::~CobVm()
     {
         destroy();
         if (caller == NULL && global_env)
             delete global_env;
     }
 
-    void COB_VM::init()
+    void CobVm::init()
     {
         caller = NULL;
         script = NULL;
@@ -71,19 +71,19 @@ namespace TA3D
         local_env.clear();
     }
 
-    void COB_VM::destroy()
+    void CobVm::destroy()
     {
         script = NULL;
         sStack.clear();
         local_env.clear();
     }
 
-    int COB_VM::run(float dt, bool alone)  // Run the script
+    int CobVm::run(float dt, bool alone)  // Run the script
     {
         return run(dt, alone, NULL, 0);
     }
 
-    int COB_VM::run(float dt, bool alone, int *pParam, int nParam)  // Run the script
+    int CobVm::run(float dt, bool alone, int *pParam, int nParam)  // Run the script
     {
         if (script == NULL)
         {
@@ -461,7 +461,7 @@ namespace TA3D
                         DEBUG_PRINT_CODE("START_SCRIPT");
                         int function_id = script->script_code[script_id][pos++];			// Lit un code
                         int num_param = script->script_code[script_id][pos++];			// Lit un code
-                        COB_VM *p_cob = fork();
+                        CobVm *p_cob = fork();
                         if (p_cob)
                         {
                             p_cob->call(function_id, NULL, 0);
@@ -647,7 +647,7 @@ namespace TA3D
         return 0;
     }
 
-    void COB_VM::call(const int functionID, int *parameters, int nb_params)
+    void CobVm::call(const int functionID, int *parameters, int nb_params)
     {
         if (!script || functionID < 0 || functionID >= script->nb_script || !cur.empty())
             return;
@@ -664,7 +664,7 @@ namespace TA3D
         }
     }
 
-    COB_VM *COB_VM::fork()
+    CobVm *CobVm::fork()
     {
         pMutex.lock();
 
@@ -680,7 +680,7 @@ namespace TA3D
             return this;
         }
 
-        COB_VM *newThread = new COB_VM();
+        CobVm *newThread = new CobVm();
 
         newThread->script = script;
         newThread->running = false;
@@ -696,11 +696,11 @@ namespace TA3D
         return newThread;
     }
 
-    COB_VM *COB_VM::fork(const String &functionName, int *parameters, int nb_params)
+    CobVm *CobVm::fork(const String &functionName, int *parameters, int nb_params)
     {
         pMutex.lock();
 
-        COB_VM *newThread = fork();
+        CobVm *newThread = fork();
         if (newThread)
             newThread->call(functionName, parameters, nb_params);
 
@@ -708,12 +708,12 @@ namespace TA3D
         return newThread;
     }
 
-    void COB_VM::call(const String &functionName, int *parameters, int nb_params)
+    void CobVm::call(const String &functionName, int *parameters, int nb_params)
     {
         call( script->findFromName( functionName ), parameters, nb_params );
     }
 
-    int COB_VM::execute(const String &functionName, int *parameters, int nb_params)
+    int CobVm::execute(const String &functionName, int *parameters, int nb_params)
     {
         int params[1] = {-1};
         if (parameters == NULL || nb_params == 0)
@@ -721,7 +721,7 @@ namespace TA3D
             parameters = params;
             nb_params = 1;
         }
-        COB_VM *cob_thread = fork( functionName, parameters, nb_params);
+        CobVm *cob_thread = fork( functionName, parameters, nb_params);
         if (cob_thread)
         {
             int res = -1;
@@ -733,26 +733,26 @@ namespace TA3D
         return 0;
     }
 
-    void COB_VM::setUnitID(uint32 ID)
+    void CobVm::setUnitID(uint32 ID)
     {
         unitID = ID;
     }
 
-    int COB_VM::getNbPieces()
+    int CobVm::getNbPieces()
     {
         if (script == NULL)
             return 0;
         return script->nb_piece;
     }
 
-    void COB_VM::dumpDebugInfo()
+    void CobVm::dumpDebugInfo()
     {
         if (caller)
         {
             caller->dumpDebugInfo();
             return;
         }
-        LOG_DEBUG(LOG_PREFIX_SCRIPT << "COB_VM::dumpDebufInfo :");
+        LOG_DEBUG(LOG_PREFIX_SCRIPT << "CobVm::dumpDebufInfo :");
         LOG_DEBUG(LOG_PREFIX_SCRIPT << childs.size() << " child threads");
         if (running)
             LOG_DEBUG(LOG_PREFIX_SCRIPT << "main thread running : " << script->names[cur.top() & 0xFF]);
@@ -763,12 +763,12 @@ namespace TA3D
                 if (childs[i]->is_waiting())
                     state << " (waiting)";
                 if (childs[i]->is_sleeping())
-                    state << " (sleeping = " << (dynamic_cast<COB_VM*>(childs[i]))->sleep_time << ")";
-                LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<COB_VM*>(childs[i]))->cur.top() & 0xFF] << state);
+                    state << " (sleeping = " << (dynamic_cast<CobVm*>(childs[i]))->sleep_time << ")";
+                LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF] << state);
             }
     }
 
-    void COB_VM::save_thread_state(gzFile file)
+    void CobVm::save_thread_state(gzFile file)
     {
         if (caller == NULL)
         {
@@ -802,7 +802,7 @@ namespace TA3D
         }
     }
 
-    void COB_VM::restore_thread_state(gzFile file)
+    void CobVm::restore_thread_state(gzFile file)
     {
         if (gzgetc(file))
         {

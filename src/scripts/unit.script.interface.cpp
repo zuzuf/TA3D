@@ -22,38 +22,38 @@
 
 namespace TA3D
 {
-    UNIT_SCRIPT_INTERFACE *UNIT_SCRIPT_INTERFACE::instanciate( SCRIPT_DATA *data )
+    UnitScriptInterface *UnitScriptInterface::instanciate( ScriptData *data )
     {
-        UNIT_SCRIPT_INTERFACE *usi = NULL;
+        UnitScriptInterface *usi = NULL;
 
-        if ( dynamic_cast<COB_SCRIPT*>(data) )          // Try COB_SCRIPT (OTA COB/BOS)
-            usi = new COB_VM();
-        else if ( dynamic_cast<LUA_CHUNK*>(data) )      // Try LUA_CHUNK (Lua)
-            usi = new UNIT_SCRIPT();
+        if ( dynamic_cast<CobScript*>(data) )          // Try CobScript (OTA COB/BOS)
+            usi = new CobVm();
+        else if ( dynamic_cast<LuaChunk*>(data) )      // Try LuaChunk (Lua)
+            usi = new UnitScript();
 
         usi->load( data );
         return usi;
     }
 
-    int UNIT_SCRIPT_INTERFACE::getReturnValue(const String &name)
+    int UnitScriptInterface::getReturnValue(const String &name)
     {
         MutexLocker mLocker(pMutex);
         if (caller)
-            return (static_cast<UNIT_SCRIPT_INTERFACE*>(caller))->getReturnValue( name );
+            return (static_cast<UnitScriptInterface*>(caller))->getReturnValue( name );
         return return_value.find(String::ToUpper(name));
     }
 
-    void UNIT_SCRIPT_INTERFACE::setReturnValue(const String &name, int value)
+    void UnitScriptInterface::setReturnValue(const String &name, int value)
     {
         pMutex.lock();
         if (caller)
-            (static_cast<UNIT_SCRIPT_INTERFACE*>(caller))->setReturnValue( name, value );
+            (static_cast<UnitScriptInterface*>(caller))->setReturnValue( name, value );
         else
             return_value.insertOrUpdate(String::ToUpper(name), value);
         pMutex.unlock();
     }
 
-    const char *UNIT_SCRIPT_INTERFACE::script_name[] =
+    const char *UnitScriptInterface::script_name[] =
         {
             "QueryPrimary","AimPrimary","FirePrimary",
             "QuerySecondary","AimSecondary","FireSecondary",
@@ -72,7 +72,7 @@ namespace TA3D
             "AimFromTertiary"
         };
 
-    String UNIT_SCRIPT_INTERFACE::get_script_name(int id)
+    String UnitScriptInterface::get_script_name(int id)
     {
         if (id < 0) return String();
         if (id >= NB_SCRIPT)            // Special case for weapons
@@ -93,7 +93,7 @@ namespace TA3D
         return script_name[id];
     }
 
-    int UNIT_SCRIPT_INTERFACE::get_script_id(const String &name)
+    int UnitScriptInterface::get_script_id(const String &name)
     {
         for(int id = 0 ; id < NB_SCRIPT ; id++)
             if ( strcasecmp(script_name[id], name.c_str()) == 0)

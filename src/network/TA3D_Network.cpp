@@ -378,14 +378,14 @@ namespace TA3D
                     break;
                 case EVENT_CLS:
                     if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
-                        LUA_PROGRAM::inGame->lock();
-                        LUA_PROGRAM::inGame->draw_list.destroy();
-                        LUA_PROGRAM::inGame->unlock();
+                        LuaProgram::inGame->lock();
+                        LuaProgram::inGame->draw_list.destroy();
+                        LuaProgram::inGame->unlock();
                     }
                     break;
                 case EVENT_DRAW:
                     if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
-                        DRAW_OBJECT draw_obj;
+                        DrawObject draw_obj;
                         draw_obj.type = DRAW_TYPE_BITMAP;
                         draw_obj.x[0] = event_msg.x;
                         draw_obj.y[0] = event_msg.y;
@@ -393,13 +393,13 @@ namespace TA3D
                         draw_obj.y[1] = event_msg.opt3 / 16384.0f;
                         draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
                         draw_obj.tex = 0;
-                        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
+                        LuaProgram::inGame->draw_list.add( draw_obj );
                     }
                     break;
                 case EVENT_PRINT:
                     if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF) // Do it only if the packet is for us
                     {
-                        DRAW_OBJECT draw_obj;
+                        DrawObject draw_obj;
                         draw_obj.type = DRAW_TYPE_TEXT;
                         draw_obj.r[0] = 1.0f;
                         draw_obj.g[0] = 1.0f;
@@ -407,7 +407,7 @@ namespace TA3D
                         draw_obj.x[0] = event_msg.x;
                         draw_obj.y[0] = event_msg.y;
                         draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );
-                        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
+                        LuaProgram::inGame->draw_list.add( draw_obj );
                     }
                     break;
                 case EVENT_PLAY:

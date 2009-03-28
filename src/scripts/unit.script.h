@@ -15,8 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __UNIT_SCRIPT_H__
-#define __UNIT_SCRIPT_H__
+#ifndef __UnitScript_H__
+#define __UnitScript_H__
 
 # include "lua.thread.h"
 # include "unit.script.interface.h"
@@ -27,14 +27,14 @@ namespace TA3D
     ** This class represents unit scripts, it's used to script unit behavior
     ** This is a Lua version of TA COB/BOS scripts
     */
-    class UNIT_SCRIPT : public UNIT_SCRIPT_INTERFACE, public LUA_THREAD
+    class UnitScript : public UnitScriptInterface, public LuaThread
     {
     public:
 
-        UNIT_SCRIPT();
-        /*virtual*/ ~UNIT_SCRIPT();
+        UnitScript();
+        /*virtual*/ ~UnitScript();
 
-        /*virtual*/ void load(SCRIPT_DATA *data);
+        /*virtual*/ void load(ScriptData *data);
         /*virtual*/ int run(float dt, bool alone = false);                  // Run the script
 
         //! functions used to call/run Lua functions
@@ -42,8 +42,8 @@ namespace TA3D
         /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        /*virtual*/ LUA_THREAD *fork();
-        /*virtual*/ LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ LuaThread *fork();
+        /*virtual*/ LuaThread *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to save/restore scripts state
         /*virtual*/ void save_thread_state(gzFile file);

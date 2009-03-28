@@ -36,11 +36,11 @@ namespace TA3D
 {
 
     //! Class responsible for COB scripts data
-    class COB_SCRIPT : public SCRIPT_DATA
+    class CobScript : public ScriptData
     {
     public:
-        COB_SCRIPT();
-        ~COB_SCRIPT();
+        CobScript();
+        ~CobScript();
 
         void init();
         void destroy();

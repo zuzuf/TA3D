@@ -22,14 +22,14 @@
 
 namespace TA3D
 {
-    void DRAW_LIST::init()
+    void DrawList::init()
     {
         prim.type = DRAW_TYPE_NONE;
         prim.text.clear();
         next = NULL;
     }
 
-    void DRAW_LIST::destroy()
+    void DrawList::destroy()
     {
         if (prim.type == DRAW_TYPE_BITMAP)
             glDeleteTextures(1,&prim.tex);
@@ -42,21 +42,21 @@ namespace TA3D
         init();
     }
 
-    void DRAW_LIST::add(DRAW_OBJECT &obj)
+    void DrawList::add(DrawObject &obj)
     {
-        LUA_PROGRAM::inGame->lock();
+        LuaProgram::inGame->lock();
         if (next == NULL)
         {
-            next = new DRAW_LIST;
+            next = new DrawList;
             next->prim = obj;
             next->next = NULL;
         }
         else
             next->add(obj);
-        LUA_PROGRAM::inGame->unlock();
+        LuaProgram::inGame->unlock();
     }
 
-    void DRAW_LIST::draw(Font *fnt)
+    void DrawList::draw(Font *fnt)
     {
         glPushMatrix();
         switch(prim.type)

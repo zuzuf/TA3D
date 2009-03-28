@@ -17,10 +17,10 @@
 
 /*-----------------------------------------------------------------------------------\
 |                                         fbi.h                                      |
-|  Ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
-| des fichiers fbi du jeu totalannihilation qui sont les fichiers de données sur les |
-| unités du jeu. Cela inclus les classes pour gérer les différents types d'unités et |
-| le système de gestion de liens entre unités.                                       |
+|  Ce fichier contient les structures, classes et fonctions nÃ©cessaires Ã  la lecture |
+| des fichiers fbi du jeu totalannihilation qui sont les fichiers de donnÃ©es sur les |
+| unitÃ©s du jeu. Cela inclus les classes pour gÃ©rer les diffÃ©rents types d'unitÃ©s et |
+| le systÃ¨me de gestion de liens entre unitÃ©s.                                       |
 |                                                                                    |
 \-----------------------------------------------------------------------------------*/
 
@@ -37,60 +37,60 @@
 
 
 
-# define SFORDER_HOLD_FIRE       0x0
-# define SFORDER_RETURN_FIRE     0x1
-# define SFORDER_FIRE_AT_WILL    0x2
+# define SFORDER_HOLD_FIRE      0x0
+# define SFORDER_RETURN_FIRE    0x1
+# define SFORDER_FIRE_AT_WILL   0x2
 
-# define SMORDER_HOLD_POSITION   0x0
-# define SMORDER_MOVE            0x1
-# define SMORDER_ROAM            0x2
+# define SMORDER_HOLD_POSITION  0x0
+# define SMORDER_MOVE           0x1
+# define SMORDER_ROAM           0x2
 
-# define CATEGORY_COMMANDER          0x00001
-# define CATEGORY_WEAPON             0x00002
-# define CATEGORY_NOTAIR             0x00004
-# define CATEGORY_NOTSUB             0x00008
-# define CATEGORY_JAM                0x00010
-# define CATEGORY_KAMIKAZE           0x00020
-# define CATEGORY_LEVEL3             0x00040
+# define CATEGORY_COMMANDER     0x00001
+# define CATEGORY_WEAPON        0x00002
+# define CATEGORY_NOTAIR        0x00004
+# define CATEGORY_NOTSUB        0x00008
+# define CATEGORY_JAM           0x00010
+# define CATEGORY_KAMIKAZE      0x00020
+# define CATEGORY_LEVEL3        0x00040
 
-# define CLASS_UNDEF         0x0000
-# define CLASS_WATER         0x0001
-# define CLASS_SHIP          0x0002
-# define CLASS_ENERGY        0x0004
-# define CLASS_VTOL          0x0008
-# define CLASS_KBOT          0x0010
-# define CLASS_PLANT         0x0020
-# define CLASS_TANK          0x0040
-# define CLASS_SPECIAL       0x0080
-# define CLASS_FORT          0x0100
-# define CLASS_METAL         0x0200
-# define CLASS_COMMANDER     0x0400
-# define CLASS_CNSTR         0x0800
+# define CLASS_UNDEF            0x0000
+# define CLASS_WATER            0x0001
+# define CLASS_SHIP             0x0002
+# define CLASS_ENERGY           0x0004
+# define CLASS_VTOL             0x0008
+# define CLASS_KBOT             0x0010
+# define CLASS_PLANT            0x0020
+# define CLASS_TANK             0x0040
+# define CLASS_SPECIAL          0x0080
+# define CLASS_FORT             0x0100
+# define CLASS_METAL            0x0200
+# define CLASS_COMMANDER        0x0400
+# define CLASS_CNSTR            0x0800
 
-# define MISSION_STANDBY         0x00        // Aucune mission
-# define MISSION_VTOL_STANDBY    0x01
-# define MISSION_GUARD_NOMOVE    0x02        // Patrouille immobile
-# define MISSION_MOVE            0x03        // Déplacement de l'unité
-# define MISSION_BUILD           0x04        // Création d'une unité
-# define MISSION_BUILD_2         0x05        // Construction d'une unité
-# define MISSION_STOP            0x06        // Arrêt des opérations en cours
-# define MISSION_REPAIR          0x07        // Réparation d'une unité
-# define MISSION_ATTACK          0x08        // Attaque une unité
-# define MISSION_PATROL          0x09        // Patrouille
-# define MISSION_GUARD           0x0A        // Surveille une unité
-# define MISSION_RECLAIM         0x0B        // Récupère une unité/un cadavre
-# define MISSION_LOAD            0x0C        // Load other units
-# define MISSION_UNLOAD          0x0D        // Unload other units
-# define MISSION_STANDBY_MINE    0x0E        // Mine mission, must explode when an enemy gets too close
-# define MISSION_REVIVE          0x0F        // Resurrect a wreckage
-# define MISSION_CAPTURE         0x10        // Capture an enemy unit
-# define MISSION_GET_REPAIRED    0x20        // For aircrafts getting repaired by air repair pads
+# define MISSION_STANDBY        0x00        // Aucune mission
+# define MISSION_VTOL_STANDBY   0x01
+# define MISSION_GUARD_NOMOVE   0x02        // Patrouille immobile
+# define MISSION_MOVE           0x03        // DÃ©placement de l'unitÃ©
+# define MISSION_BUILD          0x04        // CrÃ©ation d'une unitÃ©
+# define MISSION_BUILD_2        0x05        // Construction d'une unitÃ©
+# define MISSION_STOP           0x06        // ArrÃªt des opÃ©rations en cours
+# define MISSION_REPAIR         0x07        // RÃ©paration d'une unitÃ©
+# define MISSION_ATTACK         0x08        // Attaque une unitÃ©
+# define MISSION_PATROL         0x09        // Patrouille
+# define MISSION_GUARD          0x0A        // Surveille une unitÃ©
+# define MISSION_RECLAIM        0x0B        // RÃ©cupÃ¨re une unitÃ©/un cadavre
+# define MISSION_LOAD           0x0C        // Load other units
+# define MISSION_UNLOAD         0x0D        // Unload other units
+# define MISSION_STANDBY_MINE   0x0E        // Mine mission, must explode when an enemy gets too close
+# define MISSION_REVIVE         0x0F        // Resurrect a wreckage
+# define MISSION_CAPTURE        0x10        // Capture an enemy unit
+# define MISSION_GET_REPAIRED   0x20        // For aircrafts getting repaired by air repair pads
 
 // Specific campaign missions
-# define MISSION_WAIT            0x21        // Wait for a specified time
-# define MISSION_WAIT_ATTACKED   0x22        // Wait until a specified unit is attacked
+# define MISSION_WAIT           0x21        // Wait for a specified time
+# define MISSION_WAIT_ATTACKED  0x22        // Wait until a specified unit is attacked
 
-# define MISSION_FLAG_AUTO       0x10000     // Mission is sent from UNIT::move so don't ignore it
+# define MISSION_FLAG_AUTO      0x10000     // Mission is sent from UNIT::move so don't ignore it
 
 
 
@@ -124,13 +124,13 @@ namespace TA3D
 
 
 
-    class UNIT_TYPE         // Structure pour la description des unités du jeu
+    class UNIT_TYPE         // Structure pour la description des unitÃ©s du jeu
     {
     public:
-        SCRIPT_DATA  *script;        // Scripts de l'unité
-        GLuint  glpic;              // Image de l'unité sous forme de texture OpenGl
-        MODEL   *model;             // Modèle associé à l'unité
-        SDL_Surface  *unitpic;      // Image de l'unité / Unit picture
+        ScriptData *script;        // Scripts de l'unitÃ©
+        GLuint  glpic;              // Image de l'unitÃ© sous forme de texture OpenGl
+        MODEL   *model;             // ModÃ¨le associÃ© Ã  l'unitÃ©
+        SDL_Surface *unitpic;      // Image de l'unitÃ© / Unit picture
         bool    isfeature;          // tell if we must turn this unit into a feature
         byte    SortBias;
         short   AltFromSeaLevel;
@@ -162,81 +162,81 @@ namespace TA3D
         bool    hoverattack;
         bool    canresurrect;       // Can this unit resurrect wreckages
         bool    commander;          // Is that a commander unit ?
-        String  name;              // Nom de l'unité
+        String  name;              // Nom de l'unitÃ©
         byte    version;            // Version
-        String  side;              // Camp de l'unité
-        String  ObjectName;        // Nom du modèle 3D
-        String  Designation_Name;  // Nom visible de l'unité
+        String  side;              // Camp de l'unitÃ©
+        String  ObjectName;        // Nom du modÃ¨le 3D
+        String  Designation_Name;  // Nom visible de l'unitÃ©
         String  Description;       // Description
-        int     BuildCostEnergy;    // Energie nécessaire pour la construire
-        int     BuildCostMetal;     // Metal nécessaire pour la construire
-        int     MaxDamage;          // Points de dégats maximum que l'unité peut encaisser
-        int     EnergyUse;          // Energie nécessaire pour faire quelque chose
+        int     BuildCostEnergy;    // Energie nÃ©cessaire pour la construire
+        int     BuildCostMetal;     // Metal nÃ©cessaire pour la construire
+        int     MaxDamage;          // Points de dÃ©gats maximum que l'unitÃ© peut encaisser
+        int     EnergyUse;          // Energie nÃ©cessaire pour faire quelque chose
         int     BuildTime;          // Temps de construction
         int     WorkerTime;         // Vitesse de construction
         bool    AutoFire;           // Tire automatique
-        int     SightDistance;      // Distance maximale de vue de l'unité
+        int     SightDistance;      // Distance maximale de vue de l'unitÃ©
         int     RadarDistance;      // Distance maximale de detection radar
         int     RadarDistanceJam;   // For Radar Jammers
-        int     EnergyStorage;      // Quantité d'énergie stockable par l'unité
-        int     MetalStorage;       // Quantité de metal stockable par l'unité
-        String  ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
+        int     EnergyStorage;      // QuantitÃ© d'Ã©nergie stockable par l'unitÃ©
+        int     MetalStorage;       // QuantitÃ© de metal stockable par l'unitÃ©
+        String  ExplodeAs;         // Type d'explosion lorsque l'unitÃ© est dÃ©truite
         String  SelfDestructAs;    // Type d'explosion lors de l'autodestruction
-        String  Corpse;            // Restes de l'unité
-        short   UnitNumber;         // ID de l'unité
-        bool    canmove;            // Indique si l'unité peut bouger
+        String  Corpse;            // Restes de l'unitÃ©
+        short   UnitNumber;         // ID de l'unitÃ©
+        bool    canmove;            // Indique si l'unitÃ© peut bouger
         bool    canpatrol;          // si elle peut patrouiller
-        bool    canstop;            // si elle peut s'arrêter
-        bool    canguard;           // si elle peut garder une autre unité
+        bool    canstop;            // si elle peut s'arrÃªter
+        bool    canguard;           // si elle peut garder une autre unitÃ©
         float   MaxVelocity;        // Vitesse maximale
         float   BrakeRate;          // Vitesse de freinage
-        float   Acceleration;       // Accélération
+        float   Acceleration;       // AccÃ©lÃ©ration
         float   TurnRate;           // Vitesse de tournage
         byte    SteeringMode;
-        bool    canfly;             // si l'unité peut voler
+        bool    canfly;             // si l'unitÃ© peut voler
         float   Scale;              // Echelle
         byte    BankScale;
         float   BuildDistance;      // Distance maximale de construction
-        bool    CanReclamate;       // si elle peut récupérer
-        short   EnergyMake;         // Production d'énergie de l'unité
-        float   MetalMake;          // Production de métal de l'unité
+        bool    CanReclamate;       // si elle peut rÃ©cupÃ©rer
+        short   EnergyMake;         // Production d'Ã©nergie de l'unitÃ©
+        float   MetalMake;          // Production de mÃ©tal de l'unitÃ©
         String  MovementClass;     // Type de mouvement
-        bool    Upright;            // Si l'unité est debout
+        bool    Upright;            // Si l'unitÃ© est debout
         std::vector<int>     WeaponID;            // Weapon IDs
-        String  BadTargetCategory;     // Type d'unité non attaquable
+        String  BadTargetCategory;     // Type d'unitÃ© non attaquable
         float   DamageModifier;
-        bool    canattack;          // Si l'unité peut attaquer
-        bool    ActivateWhenBuilt;  // L'unité s'active lorsqu'elle est achevée
-        bool    onoffable;          // (Dés)activable
-        short   MaxWaterDepth;      // Profondeur maximale où l'unité peut aller
-        short   MinWaterDepth;      // Profondeur minimale où l'unité peut aller
-        bool    NoShadow;           // Si l'unité n'a pas d'ombre
-        byte    TransMaxUnits;      // Maximum d'unités portables
-        bool    canload;            // Si elle peut charger d'autres unités
-        String::Vector  w_badTargetCategory;    // Unités non ciblable par les armes
-        bool    Floater;            // Si l'unité flotte
+        bool    canattack;          // Si l'unitÃ© peut attaquer
+        bool    ActivateWhenBuilt;  // L'unitÃ© s'active lorsqu'elle est achevÃ©e
+        bool    onoffable;          // (DÃ©s)activable
+        short   MaxWaterDepth;      // Profondeur maximale oÃ¹ l'unitÃ© peut aller
+        short   MinWaterDepth;      // Profondeur minimale oÃ¹ l'unitÃ© peut aller
+        bool    NoShadow;           // Si l'unitÃ© n'a pas d'ombre
+        byte    TransMaxUnits;      // Maximum d'unitÃ©s portables
+        bool    canload;            // Si elle peut charger d'autres unitÃ©s
+        String::Vector  w_badTargetCategory;    // UnitÃ©s non ciblable par les armes
+        bool    Floater;            // Si l'unitÃ© flotte
         bool    canhover;           // For hovercrafts
-        String  NoChaseCategory;   // Type d'unité non chassable
-        int     SonarDistance;      // Portée du sonar
+        String  NoChaseCategory;   // Type d'unitÃ© non chassable
+        int     SonarDistance;      // PortÃ©e du sonar
         int     SonarDistanceJam;   // For Sonar Jammers
-        bool    candgun;            // si l'unité peut utiliser l'arme ravage
-        int     CloakCost;          // Coût en energie pour rendre l'unité invisible
-        int     CloakCostMoving;    // Idem mais quand l'unité bouge
-        int     HealTime;           // Temps nécessaire à l'unité pour se réparer (cf commandeurs)
-        bool    CanCapture;         // Si elle peut capturer d'autres unités
-        bool    HideDamage;         // Cache la vie de l'unité aux autres joueurs
+        bool    candgun;            // si l'unitÃ© peut utiliser l'arme ravage
+        int     CloakCost;          // CoÃ»t en energie pour rendre l'unitÃ© invisible
+        int     CloakCostMoving;    // Idem mais quand l'unitÃ© bouge
+        int     HealTime;           // Temps nÃ©cessaire Ã  l'unitÃ© pour se rÃ©parer (cf commandeurs)
+        bool    CanCapture;         // Si elle peut capturer d'autres unitÃ©s
+        bool    HideDamage;         // Cache la vie de l'unitÃ© aux autres joueurs
         bool    ImmuneToParalyzer;  // Immunisation
         bool    Stealth;
-        float   MakesMetal;         // Si l'unité produit du métal
-        float   ExtractsMetal;      // métal extrait par l'unité
-        bool    TidalGenerator;     // Si l'unité est une centrale marée-motrice
-        byte    TransportMaxUnits;  // Maximum d'unités transportables
-        bool    kamikaze;           // Unité kamikaze
+        float   MakesMetal;         // Si l'unitÃ© produit du mÃ©tal
+        float   ExtractsMetal;      // mÃ©tal extrait par l'unitÃ©
+        bool    TidalGenerator;     // Si l'unitÃ© est une centrale marÃ©e-motrice
+        byte    TransportMaxUnits;  // Maximum d'unitÃ©s transportables
+        bool    kamikaze;           // UnitÃ© kamikaze
         uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
         short   WindGenerator;      // Centrale de type Eolienne
         String  yardmap;           // To tell where the unit is on the map
         std::vector<WEAPON_DEF*>  weapon;     // Weapons
-        int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
+        int     attackrunlength;    // Distance Ã  laquelle l'unitÃ© commence une attaque (bombardiers)
         bool    antiweapons;
         bool    emitting_points_computed;   // Just to test if we need to get emitting point from script
         uint8   selfdestructcountdown;
@@ -250,8 +250,8 @@ namespace TA3D
 
         /*-----------------------------------------------------------------------*/
 
-        short   nb_unit;            // Nombre d'unités que cette unité peut construire
-        std::vector<short>  BuildList;         // Liste des unités que cette unité peut construire
+        short   nb_unit;            // Nombre d'unitÃ©s que cette unitÃ© peut construire
+        std::vector<short>  BuildList;         // Liste des unitÃ©s que cette unitÃ© peut construire
         std::vector<short>  Pic_x;             // Coordinates
         std::vector<short>  Pic_y;
         std::vector<short>  Pic_w;             // Size
@@ -355,13 +355,13 @@ namespace TA3D
         bool floatting();
     };
 
-    class UNIT_MANAGER          // Classe pour charger toutes les données relatives aux unités
+    class UNIT_MANAGER          // Classe pour charger toutes les donnÃ©es relatives aux unitÃ©s
     {
     public:
         typedef std::vector<UNIT_TYPE*>  UnitList;
     public:
-        int         nb_unit;        // Nombre d'unités
-        UnitList  unit_type;     // Données sur l'unité
+        int         nb_unit;        // Nombre d'unitÃ©s
+        UnitList  unit_type;     // DonnÃ©es sur l'unitÃ©
 
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel
@@ -397,9 +397,9 @@ namespace TA3D
 
         void load_panel_texture( const String &player_side, const String &intgaf );
 
-        int load_unit(const String &filename);         // Ajoute une nouvelle unité
+        int load_unit(const String &filename);         // Ajoute une nouvelle unitÃ©
 
-        inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
+        inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unitÃ© unit_name dans la liste d'unitÃ©s
         {
             return unit_hashtable.find(String::ToLower(unit_name)) - 1;
         }
@@ -426,9 +426,9 @@ namespace TA3D
 
         void load_script_file(const String &unit_name);
 
-        int unit_build_menu(int index,int omb,float &dt,bool GUI=false);                // Affiche et gère le menu des unités
+        int unit_build_menu(int index,int omb,float &dt,bool GUI=false);                // Affiche et gÃ¨re le menu des unitÃ©s
 
-        void Identify();            // Identifie les pièces aux quelles les scripts font référence
+        void Identify();            // Identifie les piÃ¨ces aux quelles les scripts font rÃ©fÃ©rence
     };
 
     int load_all_units(void (*progress)(float percent,const String &msg)=NULL);
