@@ -654,7 +654,7 @@ void load_game( GameData *game_data )
     LOAD( features.nb_features );
     LOAD( features.max_features );
 
-    features.feature = new FEATURE_DATA[features.max_features];
+    features.feature = new FeatureData[features.max_features];
     for (int i = features.nb_features - 1; i < features.max_features; ++i)
     {
         features.feature[i].type = -1;

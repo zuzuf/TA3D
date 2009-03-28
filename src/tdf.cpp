@@ -42,21 +42,21 @@ namespace TA3D
 {
 
 
-    FEATURE_MANAGER		feature_manager;
-    FEATURES features;
+    FeatureManager		feature_manager;
+    Features features;
 
-    FEATURE::FEATURE()
+    Feature::Feature()
     {
         init();
     }
 
-    FEATURE::~FEATURE()
+    Feature::~Feature()
     {
         destroy();
     }
 
 
-    void FEATURE::init()
+    void Feature::init()
     {
         not_loaded=true;
         need_convert=true;
@@ -100,7 +100,7 @@ namespace TA3D
         anim.init();
     }
 
-    void FEATURE::destroy()
+    void Feature::destroy()
     {
         burnweapon.clear();
         feature_reclamate.clear();
@@ -117,7 +117,7 @@ namespace TA3D
     }
 
 
-    void FEATURE::convert()
+    void Feature::convert()
     {
         if (not_loaded)
         {
@@ -147,21 +147,21 @@ namespace TA3D
 
 
 
-    FEATURE_MANAGER::FEATURE_MANAGER()
+    FeatureManager::FeatureManager()
         :feature_hashtable()
     {
         init();
     }
 
 
-    FEATURE_MANAGER::~FEATURE_MANAGER()
+    FeatureManager::~FeatureManager()
     {
         destroy();
         feature_hashtable.emptyHashTable();
     }
 
 
-    void FEATURE_MANAGER::init()
+    void FeatureManager::init()
     {
         max_features = 0;
         nb_features = 0;
@@ -169,7 +169,7 @@ namespace TA3D
     }
 
 
-    int FEATURE_MANAGER::get_feature_index(const String &name)
+    int FeatureManager::get_feature_index(const String &name)
     {
         if(name.empty() || nb_features <= 0)
             return -1;
@@ -177,14 +177,14 @@ namespace TA3D
     }
 
 
-    int FEATURE_MANAGER::add_feature(const String& name)			// Ajoute un élément
+    int FeatureManager::add_feature(const String& name)			// Ajoute un élément
     {
         ++nb_features;
         if (nb_features > max_features)
         {
             if (max_features == 0)  max_features = 10;
             max_features *= 2;
-            FEATURE* n_feature = new FEATURE[max_features];
+            Feature* n_feature = new Feature[max_features];
             if (feature && nb_features > 1)
             {
                 for(int i = 0;i < nb_features-1; ++i)
@@ -203,7 +203,7 @@ namespace TA3D
         return nb_features-1;
     }
 
-    void FEATURE_MANAGER::destroy()
+    void FeatureManager::destroy()
     {
         if (nb_features > 0 && feature)			// Détruit les éléments
             for(int i = 0; i < nb_features; ++i)
@@ -217,7 +217,7 @@ namespace TA3D
     }
 
 
-    void FEATURE_MANAGER::clean()
+    void FeatureManager::clean()
     {
         if(feature)
         {
@@ -231,7 +231,7 @@ namespace TA3D
 
 
 
-    void FEATURE_MANAGER::load_tdf(char *data,int size)					// Charge un fichier tdf
+    void FeatureManager::load_tdf(char *data,int size)					// Charge un fichier tdf
     {
         TDFParser parser;
         parser.loadFromMemory("TDF",data,size,false,true,true);
@@ -397,20 +397,20 @@ namespace TA3D
 
 
 
-    FEATURES::FEATURES()
+    Features::Features()
         :nb_features(0), max_features(0), feature(NULL), min_idx(0), max_idx(0),
         burning_features(), sinking_features(),
         list(NULL), list_size(0)
     {}
 
 
-    FEATURES::~FEATURES()
+    Features::~Features()
     {
         destroy();
     }
 
 
-    void FEATURES::init()
+    void Features::init()
     {
         p_wind_dir   = NULL;
         nb_features  = 0;
@@ -423,7 +423,7 @@ namespace TA3D
     }
 
 
-    void FEATURES::destroy()
+    void Features::destroy()
     {
         if (feature)
         {
@@ -445,7 +445,7 @@ namespace TA3D
     }
 
 
-    void FEATURES::draw(bool no_flat)
+    void Features::draw(bool no_flat)
     {
         if(nb_features <= 0)
             return;
@@ -719,7 +719,7 @@ namespace TA3D
 
 
 
-    void FEATURES::draw_shadow(const Vector3D& Dir)
+    void Features::draw_shadow(const Vector3D& Dir)
     {
         if (nb_features <= 0)
             return;
@@ -784,7 +784,7 @@ namespace TA3D
 
 
 
-    void FEATURES::move(const float dt, MAP* map, bool clean)
+    void Features::move(const float dt, MAP* map, bool clean)
     {
         if (nb_features <= 0)
             return;
@@ -846,13 +846,13 @@ namespace TA3D
     }
 
 
-    void FEATURES::compute_on_map_pos(const int idx)
+    void Features::compute_on_map_pos(const int idx)
     {
         feature[idx].px = ((int)(feature[idx].Pos.x) + the_map->map_w_d + 4) >> 3;
         feature[idx].py = ((int)(feature[idx].Pos.z) + the_map->map_h_d + 4) >> 3;
     }
 
-    void FEATURES::burn_feature(const int idx)
+    void Features::burn_feature(const int idx)
     {
         pMutex.lock();
         if (idx >= 0 && idx < max_features && feature[idx].type >= 0
@@ -877,7 +877,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void FEATURES::sink_feature(const int idx)
+    void Features::sink_feature(const int idx)
     {
         pMutex.lock();
         // We get something to sink
@@ -889,7 +889,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void FEATURES::move_forest(const float dt)			// Simulates forest fires & tree reproduction
+    void Features::move_forest(const float dt)			// Simulates forest fires & tree reproduction
     {
         pMutex.lock();
 
@@ -1035,7 +1035,7 @@ namespace TA3D
     }
 
 
-    void FEATURES::display_info(const int idx) const
+    void Features::display_info(const int idx) const
     {
         if (idx < 0 || idx >= max_features || feature[idx].type < 0)
             return; // Nothing to display
@@ -1050,7 +1050,7 @@ namespace TA3D
         glDisable(GL_BLEND);
     }
 
-    void FEATURES::delete_feature(const int index)
+    void Features::delete_feature(const int index)
     {
         MutexLocker locker(pMutex);
         if (nb_features <= 0 || feature[index].type <= 0)
@@ -1068,7 +1068,7 @@ namespace TA3D
 
 
 
-    void FEATURES::resetListOfItemsToDisplay()
+    void Features::resetListOfItemsToDisplay()
     {
         if (list)
             delete[] list;
@@ -1076,7 +1076,7 @@ namespace TA3D
         list_size = 0;
     }
 
-    int FEATURES::add_feature(const Vector3D& Pos, const int type)
+    int Features::add_feature(const Vector3D& Pos, const int type)
     {
         if (type < 0 || type >= feature_manager.nb_features)
             return -1;
@@ -1088,7 +1088,7 @@ namespace TA3D
         {
             if (max_features == 0)  max_features = 250;
             max_features *= 2;				// Double memory pool size
-            FEATURE_DATA* n_feature = new FEATURE_DATA[max_features];
+            FeatureData* n_feature = new FeatureData[max_features];
             if (feature && nb_features > 0)
             {
                 for(int i = 0; i < nb_features - 1; ++i)
@@ -1138,7 +1138,7 @@ namespace TA3D
     }
 
 
-    void FEATURES::drawFeatureOnMap(const int idx)
+    void Features::drawFeatureOnMap(const int idx)
     {
         if (idx < 0 || idx >= max_features)    return;
         compute_on_map_pos(idx);
@@ -1150,7 +1150,7 @@ namespace TA3D
         }
     }
 
-    void FEATURES::removeFeatureFromMap(const int idx)
+    void Features::removeFeatureFromMap(const int idx)
     {
         if (idx < 0 || idx >= max_features)    return;
         if (feature[idx].type != -1 && feature_manager.feature[feature[idx].type].blocking)        // Check if it is a blocking feature
