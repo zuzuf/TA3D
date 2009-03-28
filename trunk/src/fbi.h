@@ -99,11 +99,11 @@ namespace TA3D
 {
 
 
-    class DL_DATA
+    class DlData
     {
     public:
-        DL_DATA() :dl_num(0), dl_x(NULL), dl_y(NULL), dl_w(NULL), dl_h(NULL) {}
-        ~DL_DATA();
+        DlData() :dl_num(0), dl_x(NULL), dl_y(NULL), dl_w(NULL), dl_h(NULL) {}
+        ~DlData();
 
     public:
         short   dl_num;             // How many build pics
@@ -112,9 +112,9 @@ namespace TA3D
         short   *dl_w;
         short   *dl_h;
 
-    }; // class DL_DATA
+    }; // class DlData
 
-    class AIM_DATA
+    class AimData
     {
         public:
         Vector3D    dir;
@@ -124,7 +124,7 @@ namespace TA3D
 
 
 
-    class UNIT_TYPE         // Structure pour la description des unités du jeu
+    class UnitType         // Structure pour la description des unités du jeu
     {
     public:
         ScriptData *script;        // Scripts de l'unité
@@ -242,7 +242,7 @@ namespace TA3D
         uint8   selfdestructcountdown;
         bool    init_cloaked;
         int     mincloakdistance;
-        std::vector<AIM_DATA> aim_data;
+        std::vector<AimData> aim_data;
 
         /*-----------------------------------------------------------------------*/
 
@@ -260,7 +260,7 @@ namespace TA3D
         std::vector<GLuint> PicList;
         short   nb_pages;
 
-        DL_DATA *dl_data;
+        DlData *dl_data;
 
         /*-----------------------------------------------------------------------*/
 
@@ -312,7 +312,7 @@ namespace TA3D
         /*!
         ** \brief Constructor
         */
-        UNIT_TYPE() : Category( 128 )
+        UnitType() : Category( 128 )
         {
             init();
         }
@@ -325,7 +325,7 @@ namespace TA3D
         /*!
         ** \brief Destructor
         */
-        ~UNIT_TYPE()
+        ~UnitType()
         {
             destroy();
         }
@@ -355,10 +355,10 @@ namespace TA3D
         bool floatting();
     };
 
-    class UNIT_MANAGER          // Classe pour charger toutes les données relatives aux unités
+    class UnitManager          // Classe pour charger toutes les données relatives aux unités
     {
     public:
-        typedef std::vector<UNIT_TYPE*>  UnitList;
+        typedef std::vector<UnitType*>  UnitList;
     public:
         int         nb_unit;        // Nombre d'unités
         UnitList  unit_type;     // Données sur l'unité
@@ -366,12 +366,12 @@ namespace TA3D
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel
         Interfaces::GfxTexture  paneltop,panelbottom;
-        cHashTable< int >   unit_hashtable;     // hashtable used to speed up operations on UNIT_TYPE objects
+        cHashTable< int >   unit_hashtable;     // hashtable used to speed up operations on UnitType objects
 
     public:
 
-        std::list< DL_DATA* >       l_dl_data;      // To clean things at the end
-        cHashTable< DL_DATA* >      h_dl_data;      // To speed things up
+        std::list< DlData* >       l_dl_data;      // To clean things at the end
+        cHashTable< DlData* >      h_dl_data;      // To speed things up
 
         inline void init()
         {
@@ -381,14 +381,14 @@ namespace TA3D
             panelbottom.init();
         }
 
-        UNIT_MANAGER() : unit_hashtable(), l_dl_data(), h_dl_data()
+        UnitManager() : unit_hashtable(), l_dl_data(), h_dl_data()
         {
             init();
         }
 
         void destroy();
 
-        ~UNIT_MANAGER()
+        ~UnitManager()
         {
             destroy();
             unit_hashtable.emptyHashTable();
@@ -433,7 +433,7 @@ namespace TA3D
 
     int load_all_units(void (*progress)(float percent,const String &msg)=NULL);
 
-    extern UNIT_MANAGER unit_manager;
+    extern UnitManager unit_manager;
 
 
 } // namespace TA3D

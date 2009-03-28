@@ -573,7 +573,7 @@ namespace TA3D
                             pos.x = event_msg.x;
                             pos.z = event_msg.z;
                             pos.y = the_map->get_unit_h( pos.x, pos.z );
-                            UNIT *unit = (UNIT*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
+                            Unit *unit = (Unit*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
                             if (unit)
                             {
                                 unit->lock();
