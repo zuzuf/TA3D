@@ -1394,7 +1394,7 @@ namespace TA3D
 
             cam.zfar = 600.0f + Math::Max((cam_h-150.0f) * 2.0f, 0.0f);
 
-            if (freecam && cam.rpos.y<map->sealvl)
+            if (freecam && cam.rpos.y < map->sealvl)
             {
                 FogD = 0.03f;
                 FogNear = 0.0f;
@@ -1425,7 +1425,7 @@ namespace TA3D
             glFogf (GL_FOG_END, cam.zfar);
 
             // Dessine les reflets sur l'eau / Render water reflection
-            if (g_useProgram && g_useFBO && lp_CONFIG->water_quality>=2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
+            if (g_useProgram && g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
             {
                 reflection_drawn_last_time = true;
 
@@ -1442,7 +1442,7 @@ namespace TA3D
                 Camera refcam = cam;
                 refcam.zfar *= 2.0f;
                 refcam.mirror = true;
-                refcam.mirrorPos = -2.0f*map->sealvl;
+                refcam.mirrorPos = -2.0f * map->sealvl;
 
                 refcam.setView();
                 glClipPlane(GL_CLIP_PLANE1, eqn);
@@ -1451,7 +1451,7 @@ namespace TA3D
                 pSun.Set(refcam);
                 pSun.Enable();
 
-                refcam.zfar*=100.0f;
+                refcam.zfar *= 100.0f;
                 refcam.setView();
                 glColor4ub(0xFF,0xFF,0xFF,0xFF);
                 glEnable(GL_TEXTURE_2D);
@@ -1650,6 +1650,11 @@ namespace TA3D
                 {
                     glTranslatef(cam.rpos.x, cam.rpos.y+cam.shakeVector.y, cam.rpos.z);
                     glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
+                    if (lp_CONFIG->ortho_camera)
+                    {
+                        float scale = cam.zoomFactor / 800.0f * sqrtf(SCREEN_H * SCREEN_H + SCREEN_W * SCREEN_W);
+                        glScalef( scale, scale, scale );
+                    }
                     sky_obj.draw();
                     if (!sky_obj.full)
                     {
