@@ -105,7 +105,7 @@ namespace TA3D
                 weapon[index].range = parser.pullAsInt( key + "range", weapon[index].range );
                 weapon[index].time_to_range *= weapon[index].range;
                 weapon[index].reloadtime = parser.pullAsFloat( key + "reloadtime", weapon[index].reloadtime );
-                weapon[index].weaponvelocity = parser.pullAsInt( key + "weaponvelocity", weapon[index].weaponvelocity * 2.0f ) * 0.5f;
+                weapon[index].weaponvelocity = parser.pullAsInt( key + "weaponvelocity", weapon[index].weaponvelocity * 2 ) * 0.5f;
                 weapon[index].time_to_range /= weapon[index].weaponvelocity;
                 weapon[index].burst = parser.pullAsInt( key + "burst", weapon[index].burst );
                 weapon[index].areaofeffect = parser.pullAsInt( key + "areaofeffect", weapon[index].areaofeffect );
@@ -148,9 +148,9 @@ namespace TA3D
                 weapon[index].burstrate = parser.pullAsFloat( key + "burstrate", weapon[index].burstrate );
                 weapon[index].duration = parser.pullAsFloat( key + "duration", weapon[index].duration );
                 weapon[index].beamweapon = parser.pullAsBool( key + "beamweapon", weapon[index].beamweapon );
-                weapon[index].startvelocity = parser.pullAsInt( key + "startvelocity", weapon[index].startvelocity * 2.0f ) * 0.5f;
+                weapon[index].startvelocity = parser.pullAsInt( key + "startvelocity", weapon[index].startvelocity * 2 ) * 0.5f;
                 weapon[index].weapontimer = parser.pullAsFloat( key + "weapontimer", weapon[index].weapontimer );
-                weapon[index].weaponacceleration = parser.pullAsInt( key + "weaponacceleration", weapon[index].weaponacceleration * 2.0f ) * 0.5f;
+                weapon[index].weaponacceleration = parser.pullAsInt( key + "weaponacceleration", weapon[index].weaponacceleration * 2 ) * 0.5f;
                 weapon[index].turnrate = parser.pullAsInt( key + "turnrate", weapon[index].turnrate );
                 weapon[index].model = model_manager.get_model( parser.pullAsString( key + "model" ) );
                 weapon[index].smokedelay = parser.pullAsFloat( key + "smokedelay", weapon[index].smokedelay );
@@ -160,7 +160,7 @@ namespace TA3D
                 weapon[index].waterweapon = parser.pullAsBool( key + "waterweapon", weapon[index].waterweapon );
                 weapon[index].smoketrail = parser.pullAsBool( key + "smoketrail", weapon[index].smoketrail );
                 weapon[index].flighttime = parser.pullAsInt( key + "flighttime", weapon[index].flighttime );
-                weapon[index].coverage = parser.pullAsInt( key + "coverage", weapon[index].coverage * 2.0f ) * 0.5f;
+                weapon[index].coverage = parser.pullAsInt( key + "coverage", weapon[index].coverage * 2 ) * 0.5f;
                 weapon[index].vlaunch = parser.pullAsBool( key + "vlaunch", weapon[index].vlaunch );
                 weapon[index].paralyzer = parser.pullAsBool( key + "paralyzer", weapon[index].paralyzer );
                 weapon[index].stockpile = parser.pullAsBool( key + "stockpile", weapon[index].stockpile );
