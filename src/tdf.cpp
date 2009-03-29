@@ -235,7 +235,7 @@ namespace TA3D
     {
         TDFParser parser;
         parser.loadFromMemory("TDF",data,size,false,true,true);
-        int	first=nb_features;
+        int	first = nb_features;
 
         for(int g = 0 ; parser.exists(format("gadget%d",g)) ; g++)
         {

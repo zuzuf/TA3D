@@ -23,6 +23,8 @@
 # include <stack>
 
 
+# define TDFPARSER_HASHTABLE_SIZE       0x400
+
 namespace TA3D
 {
 

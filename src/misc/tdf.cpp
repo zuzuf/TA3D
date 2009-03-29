@@ -65,15 +65,15 @@ namespace TA3D
 
 
     TDFParser::TDFParser()
-        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(true), special_section()
+        :pTableSize(TDFPARSER_HASHTABLE_SIZE), pTableIsEmpty(true), pIgnoreCase(true), special_section()
     {
-        pTable.initTable(4096);
+        pTable.initTable(TDFPARSER_HASHTABLE_SIZE);
     }
 
     TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS)
-        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(!caSensitive), special_section()
+        :pTableSize(TDFPARSER_HASHTABLE_SIZE), pTableIsEmpty(true), pIgnoreCase(!caSensitive), special_section()
     {
-        pTable.initTable(4096);
+        pTable.initTable(TDFPARSER_HASHTABLE_SIZE);
         loadFromFile(filename, true, toUTF8, gadgetMode, realFS);
     }
 

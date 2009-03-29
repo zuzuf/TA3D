@@ -280,7 +280,7 @@ namespace TA3D
         map->ntex = n_bmp;
         map->tex = new GLuint[n_bmp];	// Tableau d'indices de texture OpenGl
 
-        for(i=0;i<map->nbbloc;i++) // Crée les blocs
+        for(i = 0 ; i < map->nbbloc ; i++) // Crée les blocs
         {
             map->bloc[i].init();
             int tex_num = i>>5;	// Numéro de la texture associée
