@@ -1,8 +1,8 @@
 [area]
 {
-	name=game area;
-	skin=gui/modern.skn;
-	windows=gui/mdrn_esc_menu.tdf, gui/mdrn_gamestatus.tdf, gui/mdrn_playerstats.tdf, gui/mdrn_save_menu.tdf, gui/chat.tdf;
-	width=1280;
-	height=1024;
+    name=game area;
+    skin=gui/modern.skn;
+    windows=gui/mdrn_esc_menu.tdf, gui/mdrn_gamestatus.tdf, gui/mdrn_playerstats.tdf, gui/mdrn_save_menu.tdf, gui/chat.tdf, gui/help.tdf;
+    width=1280;
+    height=1024;
 }

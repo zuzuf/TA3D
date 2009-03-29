@@ -56,6 +56,7 @@ namespace TA3D
         scroll[2].init();
         scroll[1].init();
         scroll[0].init();
+        bkg_h = bkg_w = 0;
     }
 
     void SKIN::destroy()
@@ -133,7 +134,7 @@ namespace TA3D
 
         String tex_file_name (skinFile.pullAsString("skin.window.image"));
         if(HPIManager->Exists(tex_file_name))
-            wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
+            wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR, &bkg_w, &bkg_h, false );
     }
 
 // Rendering functions

@@ -4,7 +4,7 @@
 
     [button]
     {
-	    font_color=254,254,214;
+        font_color=254,254,214;
 
         [up]
         {
@@ -28,6 +28,7 @@
 
     [window]
     {
+        image=gfx/background.jpg;
         [border]
         {
             image=gfx/default_skin/window_borders.tga;
@@ -72,8 +73,8 @@
 
     [text]
     {
-	    font_color=194,194,154;
-	}
+        font_color=194,194,154;
+    }
 
     [text bar]
     {
