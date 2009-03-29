@@ -202,13 +202,22 @@ namespace TA3D
         */
         int get_feature_index(const String &name);
 
-    public:
+        /*!
+        ** \brief returns a pointer to the feature at given index
+        ** \param feature index
+        ** \return a pointer to the feature at index 'index'
+        */
+        Feature *getFeaturePointer(int index);
+
+        inline int getNbFeatures()
+        {
+            return nb_features;
+        }
+    private:
         //! Features' count
         int nb_features;
-        //! Available space in Features' array
-        int max_features;
         //! All features
-        Feature	*feature;
+        std::vector<Feature*>   feature;
 
     private:
         //! hashtable used to speed up operations on Feature objects

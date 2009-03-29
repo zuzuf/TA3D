@@ -163,9 +163,8 @@ namespace TA3D
 
     void FeatureManager::init()
     {
-        max_features = 0;
         nb_features = 0;
-        feature = NULL;
+        feature.clear();
     }
 
 
@@ -180,36 +179,18 @@ namespace TA3D
     int FeatureManager::add_feature(const String& name)			// Ajoute un élément
     {
         ++nb_features;
-        if (nb_features > max_features)
-        {
-            if (max_features == 0)  max_features = 10;
-            max_features *= 2;
-            Feature* n_feature = new Feature[max_features];
-            if (feature && nb_features > 1)
-            {
-                for(int i = 0;i < nb_features-1; ++i)
-                {
-                    n_feature[i] = feature[i];
-                    feature[i].init();
-                }
-            }
-            if (feature)
-                delete[] feature;
-            feature = n_feature;
-        }
-        feature[nb_features-1].init();
-        feature[nb_features-1].name = name;
+        feature.push_back(new Feature);
+        feature.back()->name = name;
         feature_hashtable.insert(String::ToLower(name), nb_features);
-        return nb_features-1;
+        return nb_features - 1;
     }
 
     void FeatureManager::destroy()
     {
-        if (nb_features > 0 && feature)			// Détruit les éléments
-            for(int i = 0; i < nb_features; ++i)
-                feature[i].destroy();
-        if (feature)
-            delete[] feature;
+        if (nb_features > 0 && !feature.empty())			// Détruit les éléments
+            for(int i = 0; i < feature.size(); ++i)
+                delete feature[i];
+        feature.clear();
 
         feature_hashtable.emptyHashTable();
         feature_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
@@ -219,12 +200,12 @@ namespace TA3D
 
     void FeatureManager::clean()
     {
-        if(feature)
+        if (!feature.empty())
         {
-            for(int i = 0; i < nb_features; ++i)
+            for(int i = 0; i < feature.size() ; ++i)
             {
-                if (!feature[i].need_convert)
-                    feature[i].anim.clean();
+                if (!feature[i]->need_convert)
+                    feature[i]->anim.clean();
             }
         }
     }
@@ -242,41 +223,42 @@ namespace TA3D
             String key = format("gadget%d.",g);
 
             int index = add_feature( parser.pullAsString(format("gadget%d", g)) );
-            feature[index].m3d = false;
-            feature[index].world = parser.pullAsString( key + "world", feature[index].world );
-            feature[index].description = parser.pullAsString( key + "description", feature[index].description );
-            feature[index].category = parser.pullAsString( key + "category", feature[index].category );
-            feature[index].filename = parser.pullAsString( key + "object" );
-            feature[index].m3d = !feature[index].filename.empty();
-            if (!feature[index].m3d)
+            Feature *pFeature = feature[index];
+            pFeature->m3d = false;
+            pFeature->world = parser.pullAsString( key + "world", pFeature->world );
+            pFeature->description = parser.pullAsString( key + "description", pFeature->description );
+            pFeature->category = parser.pullAsString( key + "category", pFeature->category );
+            pFeature->filename = parser.pullAsString( key + "object" );
+            pFeature->m3d = !pFeature->filename.empty();
+            if (!pFeature->m3d)
             {
-                feature[index].filename = parser.pullAsString( key + "filename");
-                feature[index].seqname = parser.pullAsString( key + "seqname");
+                pFeature->filename = parser.pullAsString( key + "filename");
+                pFeature->seqname = parser.pullAsString( key + "seqname");
             }
-            feature[index].animating = parser.pullAsBool( key + "animating",feature[index].animating );
-            feature[index].animating |= (feature[index].animtrans = parser.pullAsBool( key + "animtrans", feature[index].animtrans ));
-            feature[index].shadtrans = parser.pullAsBool( key + "shadtrans", feature[index].shadtrans );
-            feature[index].indestructible = parser.pullAsBool( key + "indestructible", feature[index].indestructible );
-            feature[index].height = parser.pullAsInt( key + "height", feature[index].height );
-            feature[index].hitdensity = parser.pullAsInt( key + "hitdensity", feature[index].hitdensity );
-            feature[index].metal = parser.pullAsInt( key + "metal", feature[index].metal );
-            feature[index].energy = parser.pullAsInt( key + "energy", feature[index].energy );
-            feature[index].damage = parser.pullAsInt( key + "damage", feature[index].damage );
-            feature[index].footprintx = parser.pullAsInt( key + "footprintx", feature[index].footprintx );
-            feature[index].footprintz = parser.pullAsInt( key + "footprintz", feature[index].footprintz );
-            feature[index].autoreclaimable = parser.pullAsBool( key + "autoreclaimable", feature[index].autoreclaimable );
-            feature[index].reclaimable = parser.pullAsBool( key + "reclaimable", feature[index].reclaimable );
-            feature[index].blocking = parser.pullAsBool( key + "blocking", feature[index].blocking );
-            feature[index].flamable = parser.pullAsBool( key + "flamable", feature[index].flamable );
-            feature[index].geothermal = parser.pullAsBool( key + "geothermal", feature[index].geothermal );
-            feature[index].feature_dead = parser.pullAsString( key + "featuredead" );
-            feature[index].burnmin = parser.pullAsInt( key + "burnmin", feature[index].burnmin );
-            feature[index].burnmax = parser.pullAsInt( key + "burnmax", feature[index].burnmax );
-            feature[index].sparktime = parser.pullAsInt( key + "sparktime", feature[index].sparktime );
-            feature[index].spreadchance = parser.pullAsInt( key + "spreadchance", feature[index].spreadchance );
-            feature[index].burnweapon = parser.pullAsString( key + "burnweapon" );
-            feature[index].feature_burnt = parser.pullAsString( key + "featureburnt" );
-            feature[index].feature_reclamate = parser.pullAsString( key + "featurereclamate" );
+            pFeature->animating = parser.pullAsBool( key + "animating",pFeature->animating );
+            pFeature->animating |= (pFeature->animtrans = parser.pullAsBool( key + "animtrans", pFeature->animtrans ));
+            pFeature->shadtrans = parser.pullAsBool( key + "shadtrans", pFeature->shadtrans );
+            pFeature->indestructible = parser.pullAsBool( key + "indestructible", pFeature->indestructible );
+            pFeature->height = parser.pullAsInt( key + "height", pFeature->height );
+            pFeature->hitdensity = parser.pullAsInt( key + "hitdensity", pFeature->hitdensity );
+            pFeature->metal = parser.pullAsInt( key + "metal", pFeature->metal );
+            pFeature->energy = parser.pullAsInt( key + "energy", pFeature->energy );
+            pFeature->damage = parser.pullAsInt( key + "damage", pFeature->damage );
+            pFeature->footprintx = parser.pullAsInt( key + "footprintx", pFeature->footprintx );
+            pFeature->footprintz = parser.pullAsInt( key + "footprintz", pFeature->footprintz );
+            pFeature->autoreclaimable = parser.pullAsBool( key + "autoreclaimable", pFeature->autoreclaimable );
+            pFeature->reclaimable = parser.pullAsBool( key + "reclaimable", pFeature->reclaimable );
+            pFeature->blocking = parser.pullAsBool( key + "blocking", pFeature->blocking );
+            pFeature->flamable = parser.pullAsBool( key + "flamable", pFeature->flamable );
+            pFeature->geothermal = parser.pullAsBool( key + "geothermal", pFeature->geothermal );
+            pFeature->feature_dead = parser.pullAsString( key + "featuredead" );
+            pFeature->burnmin = parser.pullAsInt( key + "burnmin", pFeature->burnmin );
+            pFeature->burnmax = parser.pullAsInt( key + "burnmax", pFeature->burnmax );
+            pFeature->sparktime = parser.pullAsInt( key + "sparktime", pFeature->sparktime );
+            pFeature->spreadchance = parser.pullAsInt( key + "spreadchance", pFeature->spreadchance );
+            pFeature->burnweapon = parser.pullAsString( key + "burnweapon" );
+            pFeature->feature_burnt = parser.pullAsString( key + "featureburnt" );
+            pFeature->feature_reclamate = parser.pullAsString( key + "featurereclamate" );
         }
 
         if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -286,66 +268,72 @@ namespace TA3D
 
         for (int i = first; i < nb_features; ++i)// Charge les fichiers d'animation
         {
-            if (!feature[i].category.empty())
-                feature[i].vent = (strstr(feature[i].category.c_str(), "vents") != NULL);
-            if (!feature[i].filename.empty() && !feature[i].seqname.empty() && !feature[i].m3d)
+            if (!feature[i]->category.empty())
+                feature[i]->vent = (strstr(feature[i]->category.c_str(), "vents") != NULL);
+            if (!feature[i]->filename.empty() && !feature[i]->seqname.empty() && !feature[i]->m3d)
             {
-                if (model_manager.get_model(feature[i].filename + "-" + feature[i].seqname) != NULL) // Check if there is a 3do version of it
+                if (model_manager.get_model(feature[i]->filename + "-" + feature[i]->seqname) != NULL) // Check if there is a 3do version of it
                 {
-                    feature[i].model=NULL;
-                    feature[i].m3d=true;
-                    feature[i].converted=false;
-                    feature[i].not_loaded=false;
+                    feature[i]->model=NULL;
+                    feature[i]->m3d=true;
+                    feature[i]->converted=false;
+                    feature[i]->not_loaded=false;
                 }
                 else
                 {
-                    feature[i].not_loaded=true;
-                    if (feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].blocking
-                        && strcasecmp(feature[i].description.c_str(),"Metal")!=0) // Tente une conversion en 3d
+                    feature[i]->not_loaded=true;
+                    if (feature[i]->height<=10.0f && feature[i]->height>1.0f && feature[i]->blocking
+                        && strcasecmp(feature[i]->description.c_str(),"Metal")!=0) // Tente une conversion en 3d
                     {
                         String tmp("anims\\");
-                        tmp << feature[i].filename << ".gaf";
+                        tmp << feature[i]->filename << ".gaf";
                         byte* gaf = HPIManager->PullFromHPI(tmp);
                         if (gaf)
                         {
-                            sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname);
+                            sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i]->seqname);
                             if (index >= 0)
-                                feature[i].anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
+                                feature[i]->anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i]->seqname), true, feature[i]->filename);
                             else
-                                LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display (" << feature[i].filename << ".gaf, " << feature[i].seqname << ") !");
-                            feature[i].not_loaded = false;
+                                LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i]->name << "` has no picture to display (" << feature[i]->filename << ".gaf, " << feature[i]->seqname << ") !");
+                            feature[i]->not_loaded = false;
                             delete[] gaf;
 
-                            if (index>=0 && feature[i].anim.nb_bmp>0
-                               && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16) // Tente une conversion en 3d
+                            if (index>=0 && feature[i]->anim.nb_bmp>0
+                               && feature[i]->anim.bmp[0]->w>=16 && feature[i]->anim.bmp[0]->h>=16) // Tente une conversion en 3d
                             {
-                                String st(feature[i].filename);
-                                st << "-" << feature[i].seqname;
-                                model_manager.create_from_2d(feature[i].anim.bmp[0],
-                                                             feature[i].footprintx * 8,
-                                                             feature[i].footprintz * 8,
-                                                             feature[i].height * H_DIV,
+                                String st(feature[i]->filename);
+                                st << "-" << feature[i]->seqname;
+                                model_manager.create_from_2d(feature[i]->anim.bmp[0],
+                                                             feature[i]->footprintx * 8,
+                                                             feature[i]->footprintz * 8,
+                                                             feature[i]->height * H_DIV,
                                                              st);
-                                feature[i].model = NULL;
-                                feature[i].m3d = true;
-                                feature[i].converted = true;
-                                feature[i].anim.destroy();
+                                feature[i]->model = NULL;
+                                feature[i]->m3d = true;
+                                feature[i]->converted = true;
+                                feature[i]->anim.destroy();
                                 index = -1;
                             }
                             if (index < 0)
-                                feature[i].need_convert = false;
+                                feature[i]->need_convert = false;
                         }
                     }
                 }
             }
             else
             {
-                if (!feature[i].filename.empty() && feature[i].m3d)
-                    feature[i].model = NULL;
+                if (!feature[i]->filename.empty() && feature[i]->m3d)
+                    feature[i]->model = NULL;
             }
         }
     }
 
+    Feature *FeatureManager::getFeaturePointer(int index)
+    {
+        if (index < 0 || index >= feature.size())
+            return NULL;
+        return feature[index];
+    }
 
 
     void load_features(void (*progress)(float percent, const String& msg)) // Charge tout les éléments
@@ -375,22 +363,23 @@ namespace TA3D
                 LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << *curFile << "` failed");
         }
 
-        for (int i = 0; i < feature_manager.nb_features; ++i)
+        for (int i = 0 ; i < feature_manager.getNbFeatures() ; ++i)
         {
-            if (feature_manager.feature[i].m3d && feature_manager.feature[i].model == NULL
-                && !feature_manager.feature[i].filename.empty() && !feature_manager.feature[i].seqname.empty())
+            Feature *feature = feature_manager.getFeaturePointer(i);
+            if (feature->m3d && feature->model == NULL
+                && !feature->filename.empty() && !feature->seqname.empty())
             {
-                String tmp(feature_manager.feature[i].filename);
+                String tmp(feature->filename);
                 tmp += "-";
-                tmp += feature_manager.feature[i].seqname;
-                feature_manager.feature[i].model = model_manager.get_model(tmp);
-                if (feature_manager.feature[i].model == NULL)
-                    feature_manager.feature[i].model=model_manager.get_model(String("objects3d\\")+tmp);
+                tmp += feature->seqname;
+                feature->model = model_manager.get_model(tmp);
+                if (feature->model == NULL)
+                    feature->model = model_manager.get_model(String("objects3d\\")+tmp);
             }
             else
             {
-                if (feature_manager.feature[i].m3d && feature_manager.feature[i].model == NULL && !feature_manager.feature[i].filename.empty())
-                    feature_manager.feature[i].model = model_manager.get_model(feature_manager.feature[i].filename);
+                if (feature->m3d && feature->model == NULL && !feature->filename.empty())
+                    feature->model = model_manager.get_model(feature->filename);
             }
         }
     }
@@ -548,14 +537,15 @@ namespace TA3D
             if (feature[i].type < 0 || !feature[i].draw)
                 continue;
 
-            if (Camera::inGame->mirror && ((feature_manager.feature[feature[i].type].height>5.0f && feature_manager.feature[feature[i].type].m3d)			// Perform a small visibility check
-                                || (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)) )
+            Feature *pFeature = feature_manager.getFeaturePointer(feature[i].type);
+            if (Camera::inGame->mirror && ((pFeature->height > 5.0f && pFeature->m3d)			// Perform a small visibility check
+                                || (pFeature->m3d && pFeature->model!=NULL)) )
             {
                 Vector3D Pos(feature[i].Pos);
-                if( feature_manager.feature[feature[i].type].m3d )
-                    Pos.y += feature_manager.feature[feature[i].type].model->size2;
+                if( pFeature->m3d )
+                    Pos.y += pFeature->model->size2;
                 else
-                    Pos.y += feature_manager.feature[feature[i].type].height*0.5f;
+                    Pos.y += pFeature->height * 0.5f;
 
                 float a = Camera::inGame->rpos.y - units.map->sealvl;
                 float b = Pos.y - units.map->sealvl;
@@ -569,30 +559,30 @@ namespace TA3D
                     continue;
             }
 
-            if (feature_manager.feature[feature[i].type].not_loaded)
-                feature_manager.feature[feature[i].type].convert();		// Load data and convert texture
+            if (pFeature->not_loaded)
+                pFeature->convert();		// Load data and convert texture
 
-            if (!feature_manager.feature[feature[i].type].m3d
-                && feature_manager.feature[feature[i].type].anim.nb_bmp > 0)
+            if (!pFeature->m3d
+                && pFeature->anim.nb_bmp > 0)
             {
-                feature_manager.feature[feature[i].type].convert();		// Convert texture data if needed
+                pFeature->convert();		// Convert texture data if needed
 
-                feature[i].frame = (units.current_tick >> 1) % feature_manager.feature[feature[i].type].anim.nb_bmp;
+                feature[i].frame = (units.current_tick >> 1) % pFeature->anim.nb_bmp;
 
-                if (!texture_loaded || old != feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame])
+                if (!texture_loaded || old != pFeature->anim.glbmp[feature[i].frame])
                 {
-                    old=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame];
+                    old = pFeature->anim.glbmp[feature[i].frame];
                     texture_loaded=true;
-                    glBindTexture(GL_TEXTURE_2D,feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]);
+                    glBindTexture(GL_TEXTURE_2D, pFeature->anim.glbmp[feature[i].frame]);
                 }
 
                 Vector3D Pos(feature[i].Pos);
-                float h  = feature_manager.feature[feature[i].type].height * 0.5f;
-                float dw = 0.5f * feature_manager.feature[feature[i].type].anim.w[feature[i].frame];
+                float h  = pFeature->height * 0.5f;
+                float dw = 0.5f * pFeature->anim.w[feature[i].frame];
 
-                if (feature_manager.feature[feature[i].type].height > 5.0f)
+                if (pFeature->height > 5.0f)
                 {
-                    dw *= h / feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
+                    dw *= h / pFeature->anim.h[feature[i].frame];
 
                     if(feature[i].grey)
                         glColor4ub( 127, 127, 127, 255 );
@@ -621,19 +611,19 @@ namespace TA3D
                     if (!Camera::inGame->mirror && !no_flat) 	// no need to draw things we can't see
                     {
                         dw *= 0.5f;
-                        h = 0.25f*feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
+                        h = 0.25f * pFeature->anim.h[feature[i].frame];
 
-                        quad_table.queue_quad( feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF ) );
+                        quad_table.queue_quad( pFeature->anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF ) );
                     }
                 }
             }
             else
             {
-                if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)
+                if (pFeature->m3d && pFeature->model != NULL)
                 {
-                    if (!feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking)
+                    if (!pFeature->model->animated && !feature[i].sinking)
                     {
-                        DrawingTable.queue_Instance( feature_manager.feature[feature[i].type].model->id,
+                        DrawingTable.queue_Instance( pFeature->model->id,
                                                       Instance(feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF,
                                                                feature[i].angle)  );
                     }
@@ -645,13 +635,13 @@ namespace TA3D
                             glColor4ub( 255, 255, 255, 255 );
                         glEnable(GL_LIGHTING);
                         glDisable(GL_BLEND);
-                        if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
+                        if(!pFeature->converted)				// To fix opacity with converted models
                             glDisable(GL_ALPHA_TEST);
                         glPushMatrix();
                         glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
                         glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
                         glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                        feature_manager.feature[feature[i].type].model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
+                        pFeature->model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
 
                         if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
                         {
@@ -659,7 +649,7 @@ namespace TA3D
                             glBlendFunc( GL_ONE, GL_ONE );
                             glDepthFunc( GL_EQUAL );
                             glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-                            feature_manager.feature[feature[i].type].model->draw(t,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+                            pFeature->model->draw(t,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
                             glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
                             glDepthFunc( GL_LESS );
                             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -670,7 +660,7 @@ namespace TA3D
 
                         glPopMatrix();
                         glEnable(GL_BLEND);
-                        if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
+                        if(!pFeature->converted)				// To fix opacity with converted models
                             glEnable(GL_ALPHA_TEST);
                         glDisable(GL_LIGHTING);
                         glDisable(GL_CULL_FACE);
@@ -732,14 +722,15 @@ namespace TA3D
             if (e >= list_size)         // We need this because of the unlock/lock calls above
                 break;
             int i = list[e];
-            if(feature[i].type<0)
+            if(feature[i].type < 0)
                 continue;
+            Feature *pFeature = feature_manager.getFeaturePointer(feature[i].type);
 
-            if (!(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp > 0))
+            if (!(!pFeature->m3d && pFeature->anim.nb_bmp > 0))
             {
-                if (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model != NULL)
+                if (pFeature->m3d && pFeature->model != NULL)
                 {
-                    if (!feature[i].draw || feature[i].grey || feature_manager.feature[feature[i].type].converted)	// Quelques problèmes (graphiques et plantages) avec les modèles convertis
+                    if (!feature[i].draw || feature[i].grey || pFeature->converted)	// Quelques problèmes (graphiques et plantages) avec les modèles convertis
                         continue;
 
                     if (feature[i].delete_shadow_dlist && feature[i].shadow_dlist != 0 )
@@ -749,10 +740,10 @@ namespace TA3D
                         feature[i].delete_shadow_dlist = false;
                     }
 
-                    if (feature_manager.feature[feature[i].type].model->animated || feature[i].sinking || feature[i].shadow_dlist == 0)
+                    if (pFeature->model->animated || feature[i].sinking || feature[i].shadow_dlist == 0)
                     {
                         bool create_display_list = false;
-                        if (!feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0)
+                        if (!pFeature->model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0)
                         {
                             feature[i].shadow_dlist = glGenLists (1);
                             glNewList( feature[i].shadow_dlist, GL_COMPILE_AND_EXECUTE);
@@ -764,11 +755,11 @@ namespace TA3D
                         glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
                         glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
                         glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                        Vector3D R_Dir = (sqrtf(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
+                        Vector3D R_Dir = (sqrtf(pFeature->model->size) * 2.0f + feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
                         if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
-                            feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
+                            pFeature->model->draw_shadow( R_Dir,t,NULL);
                         else
-                            feature_manager.feature[feature[i].type].model->draw_shadow_basic( R_Dir,t,NULL);
+                            pFeature->model->draw_shadow_basic( R_Dir,t,NULL);
                         glPopMatrix();
 
                         if (create_display_list)
@@ -801,7 +792,8 @@ namespace TA3D
                 delete_feature(i);
                 continue;
             }
-            if (!feature_manager.feature[feature[i].type].vent && !feature[i].burning )
+            Feature *pFeature = feature_manager.getFeaturePointer(feature[i].type);
+            if (!pFeature->vent && !feature[i].burning )
             {
                 feature[i].draw = false;
                 continue;
@@ -813,9 +805,9 @@ namespace TA3D
                 {
                     Vector3D t_mod;
                     bool random_vector = true;
-                    if (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model != NULL)
+                    if (pFeature->m3d && pFeature->model != NULL)
                     {
-                        OBJECT* obj = &(feature_manager.feature[feature[i].type].model->obj);
+                        OBJECT* obj = &(pFeature->model->obj);
                         for (int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
                             random_vector = obj->random_pos(NULL, (base_n + n) % obj->nb_sub_obj, &t_mod);
                     }
@@ -855,24 +847,28 @@ namespace TA3D
     void Features::burn_feature(const int idx)
     {
         pMutex.lock();
-        if (idx >= 0 && idx < max_features && feature[idx].type >= 0
-            && feature_manager.feature[feature[idx].type].flamable && !feature[idx].burning )// We get something to burn !!
-        {
-            feature[idx].burning = true;
-            feature[idx].burning_time = 0.0f;
-            int time_zone = abs( feature_manager.feature[feature[idx].type].burnmax - feature_manager.feature[ feature[idx].type ].burnmin ) + 1;
-            feature[ idx ].time_to_burn = (Math::RandFromTable() % time_zone ) + feature_manager.feature[ feature[idx].type ].burnmin;		// How long it burns
-            burning_features.push_back(idx);		// It's burning 8)
 
-            // Start doing damages to things around
-            if (!feature_manager.feature[feature[idx].type].burnweapon.empty())
+        if (idx >= 0 && idx < max_features)
+        {
+            Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+            if (pFeature && pFeature->flamable && !feature[idx].burning )// We get something to burn !!
             {
-                int w_idx = weapon_manager.get_weapon_index(feature_manager.feature[feature[idx].type].burnweapon);
-                feature[ idx ].BW_idx = w_idx;
+                feature[idx].burning = true;
+                feature[idx].burning_time = 0.0f;
+                int time_zone = abs( pFeature->burnmax - pFeature->burnmin ) + 1;
+                feature[ idx ].time_to_burn = (Math::RandFromTable() % time_zone ) + pFeature->burnmin;		// How long it burns
+                burning_features.push_back(idx);		// It's burning 8)
+
+                // Start doing damages to things around
+                if (!pFeature->burnweapon.empty())
+                {
+                    int w_idx = weapon_manager.get_weapon_index(pFeature->burnweapon);
+                    feature[ idx ].BW_idx = w_idx;
+                }
+                else
+                    feature[idx].BW_idx = -1;
+                feature[idx].weapon_counter = 0;
             }
-            else
-                feature[idx].BW_idx = -1;
-            feature[idx].weapon_counter = 0;
         }
         pMutex.unlock();
     }
@@ -911,6 +907,7 @@ namespace TA3D
                 pMutex.lock();
             }
             feature[*i].burning_time += dt;
+            Feature *pFeature = feature_manager.getFeaturePointer(features.feature[*i].type);
             if (feature[*i].burning_time >= feature[*i].time_to_burn) // If we aren't burning anymore :(
             {
                 if (network_manager.isServer())
@@ -922,24 +919,25 @@ namespace TA3D
                 int sx = ((int)(feature[*i].Pos.x) + the_map->map_w_d - 4) >> 3; // Delete the feature
                 int sy = ((int)(feature[*i].Pos.z) + the_map->map_h_d - 4) >> 3;
                 // Remove it from map
-                the_map->rect(sx - (feature_manager.feature[features.feature[*i].type].footprintx >> 1),
-                              sy - (feature_manager.feature[features.feature[*i].type].footprintz >> 1),
-                              feature_manager.feature[features.feature[*i].type].footprintx,
-                              feature_manager.feature[features.feature[*i].type].footprintz, -1);
+                the_map->rect(sx - (pFeature->footprintx >> 1),
+                              sy - (pFeature->footprintz >> 1),
+                              pFeature->footprintx,
+                              pFeature->footprintz, -1);
 
                 // Replace the feature if needed (with the burnt feature)
-                if (!feature_manager.feature[feature[*i].type].feature_burnt.empty())
+                if (!pFeature->feature_burnt.empty())
                 {
-                    int burnt_type = feature_manager.get_feature_index( feature_manager.feature[feature[*i].type].feature_burnt);
+                    int burnt_type = feature_manager.get_feature_index( pFeature->feature_burnt);
                     if (burnt_type >= 0)
                     {
+                        Feature *featBurn = feature_manager.getFeaturePointer(burnt_type);
                         the_map->map_data[sy][sx].stuff = features.add_feature(feature[*i].Pos, burnt_type);
-                        if( burnt_type != -1 && feature_manager.feature[ burnt_type ].blocking)
+                        if( featBurn && featBurn->blocking)
                         {
-                            the_map->rect(sx-(feature_manager.feature[ burnt_type ].footprintx >> 1),
-                                          sy-(feature_manager.feature[ burnt_type ].footprintz >> 1),
-                                          feature_manager.feature[burnt_type].footprintx,
-                                          feature_manager.feature[burnt_type].footprintz,
+                            the_map->rect(sx - (featBurn->footprintx >> 1),
+                                          sy - (featBurn->footprintz >> 1),
+                                          featBurn->footprintx,
+                                          featBurn->footprintz,
                                           -2 - the_map->map_data[sy][sx].stuff);
                         }
                         if (network_manager.isServer())
@@ -974,11 +972,11 @@ namespace TA3D
                 if (!network_manager.isConnected() || network_manager.isServer())
                 {
                     feature[*i].last_spread += dt;
-                    if (feature[*i].burning_time >= feature_manager.feature[feature[*i].type].sparktime && feature[*i].last_spread >= 0.1f) // Can spread
+                    if (feature[*i].burning_time >= pFeature->sparktime && feature[*i].last_spread >= 0.1f) // Can spread
                     {
                         feature[*i].last_spread = 0.0f;
                         int spread_score = Math::RandFromTable() % 100;
-                        if (spread_score < feature_manager.feature[feature[*i].type].spreadchance)// It tries to spread :)
+                        if (spread_score < pFeature->spreadchance)// It tries to spread :)
                         {
                             int rnd_x = feature[*i].px + (Math::RandFromTable() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
                             int rnd_y = feature[*i].py + (Math::RandFromTable() % 12) - 6 + wind_z;
@@ -1002,6 +1000,7 @@ namespace TA3D
         {
             if (feature[*i].sinking)
             {
+                Feature *pFeature = feature_manager.getFeaturePointer(feature[*i].type);
                 if (feature[*i].angle_x > -45.0f && !feature[*i].dive)
                 {
                     feature[*i].angle_x -= dt * 15.0f;
@@ -1012,9 +1011,9 @@ namespace TA3D
                 float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
                 if (sea_ground < feature[*i].Pos.y )
                 {
-                    if (sinf(-feature[*i].angle_x * DEG2RAD) * feature_manager.feature[feature[*i].type].footprintx * 8.0f > feature[*i].Pos.y - sea_ground)
+                    if (sinf(-feature[*i].angle_x * DEG2RAD) * pFeature->footprintx * 8.0f > feature[*i].Pos.y - sea_ground)
                     {
-                        feature[*i].angle_x = RAD2DEG * asinf( ( sea_ground - feature[*i].Pos.y ) / ( feature_manager.feature[feature[*i].type].footprintx * 8.0f) );
+                        feature[*i].angle_x = RAD2DEG * asinf( ( sea_ground - feature[*i].Pos.y ) / (pFeature->footprintx * 8.0f) );
                         feature[*i].dive = true;
                     }
                     feature[*i].dive_speed = (feature[*i].dive_speed + 3.0f * dt) * expf(-dt);
@@ -1040,12 +1039,14 @@ namespace TA3D
         if (idx < 0 || idx >= max_features || feature[idx].type < 0)
             return; // Nothing to display
 
-        if (!feature_manager.feature[feature[idx].type].description.empty())
+        Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+
+        if (!pFeature->description.empty())
         {
-            if (feature_manager.feature[feature[idx].type].reclaimable)
-                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",I18N::Translate( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
+            if (pFeature->reclaimable)
+                gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, format("%s M:%d E:%d",I18N::Translate( pFeature->description ).c_str(), pFeature->metal, pFeature->energy) );
             else
-                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, I18N::Translate( feature_manager.feature[ feature[ idx ].type ].description ) );
+                gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) );
         }
         glDisable(GL_BLEND);
     }
@@ -1078,7 +1079,7 @@ namespace TA3D
 
     int Features::add_feature(const Vector3D& Pos, const int type)
     {
-        if (type < 0 || type >= feature_manager.nb_features)
+        if (type < 0 || type >= feature_manager.getNbFeatures())
             return -1;
         MutexLocker locker(pMutex);
 
@@ -1121,7 +1122,7 @@ namespace TA3D
         feature[idx].type = type;
         feature[idx].frame = 0;
         feature[idx].draw = false;
-        feature[idx].hp = feature_manager.feature[type].damage;
+        feature[idx].hp = feature_manager.getFeaturePointer(type)->damage;
         feature[idx].grey = false;
         feature[idx].dt = 0.0f;
         feature[idx].angle = 0.0f;
@@ -1142,10 +1143,11 @@ namespace TA3D
     {
         if (idx < 0 || idx >= max_features)    return;
         compute_on_map_pos(idx);
-        if (feature[idx].type != -1 && feature_manager.feature[feature[idx].type].blocking)        // Check if it is a blocking feature
+        Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+        if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
         {
-            int X = feature_manager.feature[ feature[idx].type ].footprintx;
-            int Z = feature_manager.feature[ feature[idx].type ].footprintz;
+            int X = pFeature->footprintx;
+            int Z = pFeature->footprintz;
             the_map->rect( feature[idx].px - (X>>1), feature[idx].py - (Z>>1), X, Z, -2 - idx);
         }
     }
@@ -1153,10 +1155,11 @@ namespace TA3D
     void Features::removeFeatureFromMap(const int idx)
     {
         if (idx < 0 || idx >= max_features)    return;
-        if (feature[idx].type != -1 && feature_manager.feature[feature[idx].type].blocking)        // Check if it is a blocking feature
+        Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+        if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
         {
-            int X = feature_manager.feature[feature[idx].type].footprintx;
-            int Z = feature_manager.feature[feature[idx].type].footprintz;
+            int X = pFeature->footprintx;
+            int Z = pFeature->footprintz;
             the_map->rect(feature[idx].px - (X >> 1), feature[idx].py - (Z >> 1), X, Z, -1);
             the_map->map_data[feature[idx].py] [feature[idx].px].stuff = -1;
         }

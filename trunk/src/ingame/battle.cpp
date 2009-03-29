@@ -617,9 +617,10 @@ namespace TA3D
                                                 if (map->map_data[py+dy][px+dx].stuff >= 0)
                                                 {
                                                     idx = map->map_data[py+dy][px+dx].stuff;
-                                                    if (features.feature[idx].type >=0
-                                                        && feature_manager.feature[ features.feature[idx].type ].footprintx + 1 >= (abs(dx) << 1)
-                                                        && feature_manager.feature[ features.feature[idx].type ].footprintz + 1 >= (abs(dy) << 1))
+                                                    Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+                                                    if (feature
+                                                        && feature->footprintx + 1 >= (abs(dx) << 1)
+                                                        && feature->footprintz + 1 >= (abs(dy) << 1))
                                                     {
                                                         units.last_on = -idx - 2;
                                                         dy = 800;
@@ -643,8 +644,12 @@ namespace TA3D
 
                 if (!rope_selection)
                 {
-                    if (pointing < -1 && canreclamate && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1)	cursor_type = CURSOR_RECLAIM;
-                    if (pointing < -1 && canresurrect && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 && CURSOR_REVIVE != CURSOR_RECLAIM)	cursor_type = CURSOR_REVIVE;
+                    if (pointing < -1)
+                    {
+                        Feature *feature = feature_manager.getFeaturePointer(features.feature[ -pointing - 2 ].type);
+                        if (feature && canreclamate && feature->reclaimable && build == -1)	cursor_type = CURSOR_RECLAIM;
+                        if (feature && canresurrect && feature->reclaimable && build == -1 && CURSOR_REVIVE != CURSOR_RECLAIM)	cursor_type = CURSOR_REVIVE;
+                    }
                 }
 
                 if (pointing >= 0 && !rope_selection) 	// S'il y a quelque chose sous le curseur
@@ -883,11 +888,11 @@ namespace TA3D
                 order_removed = units.remove_order(players.local_human_id, target);
             }
 
-            if (cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
+            if (cursor_type == CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
             {
                 Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
-                if (idx >= 0 && features.feature[idx].type >= 0 && feature_manager.feature[features.feature[idx].type].reclaimable)
+                if (idx >= 0 && features.feature[idx].type >= 0 && feature_manager.getFeaturePointer(features.feature[idx].type)->reclaimable)
                 {
                     for (uint16 e = 0; e < units.index_list_size; ++e)
                     {
@@ -895,7 +900,7 @@ namespace TA3D
                         int i = units.idx_list[e];
                         units.unlock();
                         units.unit[i].lock();
-                        if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
+                        if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel
                             && unit_manager.unit_type[units.unit[i].type_id]->canresurrect && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                         {
                             if (TA3D_SHIFT_PRESSED)
@@ -916,7 +921,7 @@ namespace TA3D
             {
                 Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
-                if (idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable)
+                if (idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.getFeaturePointer(features.feature[ idx ].type)->reclaimable)
                 {
                     for (uint16 e = 0; e < units.index_list_size; ++e)
                     {
@@ -1170,9 +1175,10 @@ namespace TA3D
                                             if (map->map_data[py+dy][px+dx].stuff >= 0)
                                             {
                                                 idx = map->map_data[py+dy][px+dx].stuff;
-                                                if (features.feature[idx].type >= 0
-                                                    && feature_manager.feature[ features.feature[idx].type ].footprintx + 1 >= (abs(dx) << 1)
-                                                    && feature_manager.feature[ features.feature[idx].type ].footprintz + 1 >= (abs(dy) << 1))
+                                                Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+                                                if (feature
+                                                    && feature->footprintx + 1 >= (abs(dx) << 1)
+                                                    && feature->footprintz + 1 >= (abs(dy) << 1))
                                                 {
                                                     units.last_on = -idx - 2;
                                                     dy = 800;

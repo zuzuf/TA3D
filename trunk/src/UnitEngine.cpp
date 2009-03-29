@@ -1131,11 +1131,12 @@ namespace TA3D
                             if (mission->mission == MISSION_RECLAIM || mission->mission == MISSION_REVIVE ) // Reclaiming features
                             {
                                 int feature_type = features.feature[ mission->data ].type;
-                                if (mission->data >= 0 && feature_type >= 0 && feature_manager.feature[ feature_type ].model )
+                                Feature *feature = feature_manager.getFeaturePointer(feature_type);
+                                if (mission->data >= 0 && feature && feature->model )
                                 {
-                                    size = feature_manager.feature[ feature_type ].model->size2;
-                                    center = &feature_manager.feature[ feature_type ].model->center;
-                                    src = &feature_manager.feature[ feature_type ].model->obj;
+                                    size = feature->model->size2;
+                                    center = &feature->model->center;
+                                    src = &feature->model->obj;
                                     src_data = NULL;
                                 }
                                 else
@@ -1188,11 +1189,12 @@ namespace TA3D
                             {
                                 int feature_type = features.feature[ nanolathe_target ].type;
                                 v_target = features.feature[ nanolathe_target ].Pos;
-                                if (feature_type >= 0 && feature_manager.feature[ feature_type ].model )
+                                Feature *feature = feature_manager.getFeaturePointer(feature_type);
+                                if (feature && feature->model )
                                 {
-                                    size = feature_manager.feature[ feature_type ].model->size2;
-                                    center = &feature_manager.feature[ feature_type ].model->center;
-                                    src = &feature_manager.feature[ feature_type ].model->obj;
+                                    size = feature->model->size2;
+                                    center = &feature->model->center;
+                                    src = &feature->model->obj;
                                     src_data = NULL;
                                 }
                                 else
@@ -2960,18 +2962,20 @@ namespace TA3D
                                 // Reclaim the object
                                 float recup=dt*unit_manager.unit_type[type_id]->WorkerTime;
                                 if (recup>features.feature[mission->data].hp)	recup=features.feature[mission->data].hp;
-                                features.feature[mission->data].hp-=recup;
-                                if (dt > 0.0f && mission->mission == MISSION_RECLAIM ) {
-                                    metal_prod+=recup*feature_manager.feature[features.feature[mission->data].type].metal/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
-                                    energy_prod+=recup*feature_manager.feature[features.feature[mission->data].type].energy/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
+                                features.feature[mission->data].hp -= recup;
+                                Feature *feature = feature_manager.getFeaturePointer(features.feature[mission->data].type);
+                                if (dt > 0.0f && mission->mission == MISSION_RECLAIM)
+                                {
+                                    metal_prod += recup * feature->metal / (dt * feature->damage);
+                                    energy_prod += recup * feature->energy / (dt * feature->damage);
                                 }
                                 if (features.feature[mission->data].hp <= 0.0f ) {		// Job done
                                     features.removeFeatureFromMap( mission->data );		// Remove the object from map
 
                                     if (mission->mission == MISSION_REVIVE
-                                        && !feature_manager.feature[features.feature[mission->data].type].name.empty() ) {			// Creates the corresponding unit
+                                        && !feature->name.empty() ) {			// Creates the corresponding unit
                                         bool success = false;
-                                        String wreckage_name = feature_manager.feature[features.feature[mission->data].type].name;
+                                        String wreckage_name = feature->name;
                                         wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
 
                                         int wreckage_type_id = unit_manager.get_unit_index( wreckage_name.c_str() );
@@ -2983,11 +2987,13 @@ namespace TA3D
                                             g_ta3d_network->sendFeatureDeathEvent( mission->data );
                                         features.delete_feature(mission->data);			// Delete the object
 
-                                        if (wreckage_type_id >= 0 ) {
+                                        if (wreckage_type_id >= 0)
+                                        {
                                             pMutex.unlock();
                                             Unit *unit_p = (Unit*) create_unit( wreckage_type_id, owner_id, obj_pos, map );
 
-                                            if (unit_p ) {
+                                            if (unit_p)
+                                            {
                                                 unit_p->lock();
 
                                                 unit_p->Angle.y = obj_angle;
@@ -2998,14 +3004,15 @@ namespace TA3D
                                             }
                                             pMutex.lock();
 
-                                            if (unit_p ) {
+                                            if (unit_p)
+                                            {
                                                 mission->mission = MISSION_REPAIR;		// Now let's repair what we've resurrected
                                                 mission->p = unit_p;
                                                 mission->data = 1;
                                                 success = true;
                                             }
                                         }
-                                        if (!success )
+                                        if (!success)
                                         {
                                             play_sound( "cant1" );
                                             launch_script(SCRIPT_stopbuilding);
@@ -3017,7 +3024,7 @@ namespace TA3D
                                     {
                                         features.unlock();
                                         feature_locked = false;
-                                        if (network_manager.isConnected() )
+                                        if (network_manager.isConnected())
                                             g_ta3d_network->sendFeatureDeathEvent( mission->data );
                                         features.delete_feature(mission->data);			// Delete the object
                                         launch_script(SCRIPT_stopbuilding);
@@ -5686,15 +5693,16 @@ script_exec:
                 int end_x = start_x + unit_manager.unit_type[unit[i].type_id]->FootprintX;
                 for( int ry = start_y ; ry <= end_y ; ++ry)
                 {
-                    if (ry >= 0 && ry < map->bloc_h_db )
+                    if (ry >= 0 && ry < map->bloc_h_db)
                     {
                         for( int rx = start_x ; rx <= end_x ; rx++ )
                         {
-                            if (rx >= 0 && rx < map->bloc_w_db )
+                            if (rx >= 0 && rx < map->bloc_w_db)
                             {
                                 if (map->map_data[ry][rx].stuff>=0)
                                 {
-                                    metal_base = feature_manager.feature[features.feature[map->map_data[ry][rx].stuff].type].metal * unit_manager.unit_type[unit[i].type_id]->FootprintZ * unit_manager.unit_type[unit[i].type_id]->FootprintX;
+                                    Feature *feature = feature_manager.getFeaturePointer(features.feature[map->map_data[ry][rx].stuff].type);
+                                    metal_base = feature->metal * unit_manager.unit_type[unit[i].type_id]->FootprintZ * unit_manager.unit_type[unit[i].type_id]->FootprintX;
                                     ry = end_y;
                                     break;
                                 }
