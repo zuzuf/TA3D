@@ -22,7 +22,7 @@ namespace TA3D
 {
 #warning TODO: implement save/restore mechanism for Lua script
 #define WRITE(x) (gzwrite(file, &x, sizeof(x)))
-#define WRITE_STR(str, len) (gzwrite(file, str, len))
+#define WRITE_STR(str, len) (gzwrite(file, (void*)str, len))
 
     void write_TValue( TValue *v, gzFile file)
     {
