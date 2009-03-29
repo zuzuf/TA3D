@@ -326,10 +326,11 @@ namespace TA3D
                             int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
                             if( type >= 0)
                             {
+                                Feature *feature = feature_manager.getFeaturePointer(type);
                                 Vector3D feature_pos( event_msg.x, event_msg.y, event_msg.z );
                                 the_map->map_data[sy][sx].stuff = features.add_feature( feature_pos, type );
-                                if(feature_manager.feature[type].blocking)
-                                    the_map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[sy][sx].stuff);
+                                if(feature->blocking)
+                                    the_map->rect(sx - (feature->footprintx >> 1), sy - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -2 - the_map->map_data[sy][sx].stuff);
                             }
                         }
                     }
@@ -349,10 +350,13 @@ namespace TA3D
                     {
                         int sx = event_msg.opt3;		// Remove the object
                         int sy = event_msg.opt4;
-                        if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
+                        if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db)
+                        {
                             int idx = the_map->map_data[sy][sx].stuff;
-                            if( idx >= 0 ) {
-                                the_map->rect(sx-(feature_manager.feature[features.feature[idx].type].footprintx>>1),sy-(feature_manager.feature[features.feature[idx].type].footprintz>>1),feature_manager.feature[features.feature[idx].type].footprintx,feature_manager.feature[features.feature[idx].type].footprintz,-1);
+                            if (idx >= 0)
+                            {
+                                Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+                                the_map->rect(sx - (feature->footprintx >> 1), sy - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -1);
                                 features.delete_feature(idx);			// Delete it
                             }
                         }
@@ -667,8 +671,9 @@ namespace TA3D
         event.x = features.feature[ idx ].Pos.x;
         event.y = features.feature[ idx ].Pos.y;
         event.z = features.feature[ idx ].Pos.z;
-        String name = feature_manager.feature[ features.feature[ idx ].type ].name;
-        if( !name.empty() ) {
+        String name = feature_manager.getFeaturePointer( features.feature[ idx ].type )->name;
+        if (!name.empty())
+        {
             memcpy( event.str, name.c_str(), name.size() + 1 ) ;
             network_manager.sendEvent( &event );
         }
@@ -718,7 +723,8 @@ namespace TA3D
     {
         if( unit_id >= units.max_unit )	return -1;
         units.unit[ unit_id ].lock();
-        if( !(units.unit[ unit_id ].flags & 1) ) {
+        if (!(units.unit[ unit_id ].flags & 1))
+        {
             units.unit[ unit_id ].unlock();
             return -1;
         }

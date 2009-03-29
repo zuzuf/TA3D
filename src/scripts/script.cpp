@@ -1113,20 +1113,21 @@ namespace TA3D
 
         lua_pop( L, 3 );
 
-        if (feature_type_id >= 0 && feature_type_id < feature_manager.nb_features && !LuaProgram::passive)
+        Feature *feature = feature_manager.getFeaturePointer(feature_type_id);
+        if (feature && !LuaProgram::passive)
         {
             int x = (int)(X + the_map->map_w_d - 8)>>3;
             int y = (int)(Z + the_map->map_h_d - 8)>>3;
-            if (x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
-                if (the_map->map_data[y][x].stuff==-1)
+            if (x > 0 && y > 0 && x < (the_map->bloc_w << 1) && y < (the_map->bloc_h << 1))
+                if (the_map->map_data[y][x].stuff == -1)
                 {
                     Vector3D Pos;
-                    Pos.x = (x<<3)-the_map->map_w_d+8.0f;
-                    Pos.z = (y<<3)-the_map->map_h_d+8.0f;
+                    Pos.x = (x << 3) - the_map->map_w_d + 8.0f;
+                    Pos.z = (y << 3) - the_map->map_h_d + 8.0f;
                     Pos.y = the_map->get_unit_h( Pos.x, Pos.z );
                     the_map->map_data[y][x].stuff = features.add_feature( Pos, feature_type_id );
-                    if (feature_type_id!=-1 && the_map->map_data[y][x].stuff != -1 && feature_manager.feature[feature_type_id].blocking)
-                        the_map->rect(x-(feature_manager.feature[feature_type_id].footprintx>>1),y-(feature_manager.feature[feature_type_id].footprintz>>1),feature_manager.feature[feature_type_id].footprintx,feature_manager.feature[feature_type_id].footprintz,-2-the_map->map_data[y][x].stuff);
+                    if (feature && the_map->map_data[y][x].stuff != -1 && feature->blocking)
+                        the_map->rect(x - (feature->footprintx >> 1), y - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -2 - the_map->map_data[y][x].stuff);
                 }
         }
 

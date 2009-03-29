@@ -293,21 +293,22 @@ namespace TA3D
                         {
                             if(y==0 && x==0 && t_idx<=-2 && !weapon_def->unitsonly )
                             {
-                                if(!hit && -t_idx-2<features.max_features && features.feature[-t_idx-2].type>=0 && features.feature[-t_idx-2].Pos.y+feature_manager.feature[features.feature[-t_idx-2].type].height*0.5f>OPos.y)
+                                if(!hit && -t_idx - 2 < features.max_features && features.feature[-t_idx-2].type >= 0
+                                   && features.feature[-t_idx - 2].Pos.y + feature_manager.getFeaturePointer(features.feature[-t_idx - 2].type)->height * 0.5f > OPos.y)
                                 {
-                                    hit=true;
-                                    hit_vec=OPos;
-                                    hit_idx=t_idx;
+                                    hit = true;
+                                    hit_vec = OPos;
+                                    hit_idx = t_idx;
                                 }
                             }
                         }
-                        oidx=t_idx;
+                        oidx = t_idx;
                     }
                 }
-            if(hit_idx>=0)
+            if (hit_idx >= 0)
             {
                 units.unit[hit_idx].lock();
-                if( (units.unit[hit_idx].flags & 1) && units.unit[hit_idx].local )
+                if ((units.unit[hit_idx].flags & 1) && units.unit[hit_idx].local)
                 {
                     bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
                     damage = weapon_def->get_damage_for_unit(unit_manager.unit_type[units.unit[hit_idx].type_id]->Unitname) * units.unit[hit_idx].damage_modifier();
@@ -349,12 +350,13 @@ namespace TA3D
             else if (!weapon_def->paralyzer)       // We can't paralyze features :P
             {
                 features.lock();
-                if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0)	// Only local weapons here, otherwise weapons would destroy features multiple times
+                if(hit_idx <= -2 && features.feature[-hit_idx - 2].type >= 0)	// Only local weapons here, otherwise weapons would destroy features multiple times
                 {
                     damage = weapon_def->damage;
+                    Feature *feature = feature_manager.getFeaturePointer(features.feature[-hit_idx-2].type);
 
                     // Start a fire ?
-                    if (feature_manager.feature[ features.feature[-hit_idx-2].type ].flamable && !features.feature[-hit_idx-2].burning && weapon_def->firestarter && local )
+                    if (feature->flamable && !features.feature[-hit_idx - 2].burning && weapon_def->firestarter && local )
                     {
                         int starter_score = Math::RandFromTable() % 100;
                         if( starter_score < weapon_def->firestarter )
@@ -366,7 +368,7 @@ namespace TA3D
                     }
 
                     features.feature[-hit_idx-2].hp -= damage;		// The feature hit is taking damage
-                    if(features.feature[-hit_idx-2].hp<=0.0f && !features.feature[-hit_idx-2].burning && local)
+                    if(features.feature[-hit_idx-2].hp <= 0.0f && !features.feature[-hit_idx-2].burning && local)
                     {
                         if( network_manager.isConnected() )
                             g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
@@ -379,9 +381,10 @@ namespace TA3D
                         features.delete_feature(-hit_idx-2);			// Supprime l'objet
 
                         // Replace the feature if needed
-                        if( feature_type!=-1 && !feature_manager.feature[ feature_type ].feature_dead.empty() )
+                        Feature *feat2 = feature_manager.getFeaturePointer( feature_type );
+                        if( feat2 && !feat2->feature_dead.empty() )
                         {
-                            int type = feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
+                            int type = feature_manager.get_feature_index( feat2->feature_dead );
                             if( type >= 0 )
                             {
                                 map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
@@ -396,9 +399,9 @@ namespace TA3D
             }
         }
 
-        if(hit && weapon_def->areaofeffect>0) // Domages colatéraux
+        if (hit && weapon_def->areaofeffect > 0) // Domages colatéraux
         {
-            if( damage < 0 )
+            if (damage < 0)
                 damage = weapon_def->damage;
             int t_idx=-1;
             int py=((int)(OPos.z+map->map_h_d))>>3;
@@ -508,10 +511,11 @@ namespace TA3D
                             else
                             {
                                 features.lock();
-                                if(t_idx<-1 && !weapon_def->unitsonly && features.feature[-t_idx-2].type >= 0 && ((Vector3D)(features.feature[-t_idx-2].Pos-Pos)).sq()<=d)
+                                if (t_idx < -1 && !weapon_def->unitsonly && features.feature[-t_idx-2].type >= 0 && ((Vector3D)(features.feature[-t_idx-2].Pos - Pos)).sq() <= d)
                                 {
+                                    Feature *feature = feature_manager.getFeaturePointer(features.feature[-t_idx-2].type);
                                     // Start a fire ?
-                                    if( feature_manager.feature[ features.feature[-t_idx-2].type ].flamable && !features.feature[-t_idx-2].burning && weapon_def->firestarter && local )
+                                    if( feature->flamable && !features.feature[-t_idx - 2].burning && weapon_def->firestarter && local )
                                     {
                                         int starter_score = Math::RandFromTable() % 100;
                                         if( starter_score < weapon_def->firestarter ) {
@@ -522,12 +526,12 @@ namespace TA3D
                                     }
 
                                     oidx.push_back( t_idx );
-                                    if(!feature_manager.feature[features.feature[-t_idx-2].type].indestructible && !features.feature[-t_idx-2].burning )
+                                    if(!feature->indestructible && !features.feature[-t_idx-2].burning )
                                     {
                                         damage = weapon_def->damage;
                                         float cur_damage = damage * weapon_def->edgeeffectiveness;
                                         features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
-                                        if(features.feature[-t_idx-2].hp<=0.0f && local)
+                                        if (features.feature[-t_idx-2].hp <= 0.0f && local)
                                         {
                                             if( network_manager.isConnected() )
                                                 g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
@@ -539,9 +543,10 @@ namespace TA3D
                                             features.delete_feature(-t_idx-2);			// Supprime l'objet
 
                                             // Replace the feature if needed
-                                            if( feature_type!=-1 && !feature_manager.feature[ feature_type ].feature_dead.empty() )
+                                            Feature *feat2 = feature_manager.getFeaturePointer( feature_type );
+                                            if( feat2 && !feat2->feature_dead.empty() )
                                             {
-                                                int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
+                                                int type = feature_manager.get_feature_index( feat2->feature_dead );
                                                 if( type >= 0 )
                                                 {
                                                     map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);

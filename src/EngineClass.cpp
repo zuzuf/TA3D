@@ -581,7 +581,7 @@ namespace TA3D
                     if (map_data[y][x].stuff >= 0)
                     {
                         int feature_id = map_data[y][x].stuff;
-                        if(feature_manager.feature[features.feature[feature_id].type].geothermal)
+                        if(feature_manager.getFeaturePointer(features.feature[feature_id].type)->geothermal)
                             return true;
                     }
                 }
@@ -2144,9 +2144,10 @@ namespace TA3D
                         if( map_data[ry][rx].stuff >=0 )
                         {
                             int type = features.feature[ map_data[ry][rx].stuff ].type;
-                            if (!feature_manager.feature[ type ].reclaimable && !feature_manager.feature[ type ].blocking)
+                            Feature *feature = feature_manager.getFeaturePointer(type);
+                            if (!feature->reclaimable && !feature->blocking)
                             {
-                                metal_base += feature_manager.feature[ type ].metal;
+                                metal_base += feature->metal;
                                 if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
                                     *stuff_id = map_data[ry][rx].stuff;
                             }

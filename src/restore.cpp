@@ -176,7 +176,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( features.feature[i].type );
         if( features.feature[i].type >= 0 )
         {
-            writestring(file, feature_manager.feature[features.feature[i].type].name);		// Store the name so it doesn't rely on the feature order
+            writestring(file, feature_manager.getFeaturePointer(features.feature[i].type)->name);		// Store the name so it doesn't rely on the feature order
             SAVE( features.feature[i].Pos );
             SAVE( features.feature[i].frame );
             SAVE( features.feature[i].hp );
