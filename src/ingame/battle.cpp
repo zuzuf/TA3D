@@ -3269,10 +3269,14 @@ namespace TA3D
                 if (value.find('.') != String::npos)
                     value.resize(value.find('.') + 2);
                 if (show_timefactor > 0.5f)
+                {
+                    gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, makeacol32(0,0,0,0xFF), value);
                     gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value);
+                }
                 else
                 {
                     uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
+                    gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, c & makeacol32(0,0,0,0xFF), value);
                     gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, c, value);
                 }
                 show_timefactor -= dt;
