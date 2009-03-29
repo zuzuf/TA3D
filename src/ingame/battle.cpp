@@ -359,31 +359,31 @@ namespace TA3D
             {
                 cam.rpos.x = (mouse_x - 64) * map->map_w / 128.0f * 252.0f / map->mini_w;
                 cam.rpos.z = (mouse_y - 64) * map->map_h / 128.0f * 252.0f / map->mini_h;
-                cam_has_target=false;
+                cam_has_target = false;
             }
             if (mouse_x < 1)
             {
                 Vector3D move_dir(cam.side);
                 move_dir.y = 0.0f;
                 move_dir.unit();
-                cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
-                cam_has_target=false;
+                cam.rpos = cam.rpos - (SCROLL_SPEED * dt * cam_h / 151.0f) * move_dir;
+                cam_has_target = false;
             }
             else
             {
-                if (mouse_x>=SCREEN_W-1)
+                if (mouse_x >= SCREEN_W - 1)
                 {
                     Vector3D move_dir(cam.side);
                     move_dir.y = 0.0f;
                     move_dir.unit();
-                    cam.rpos = cam.rpos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
-                    cam_has_target=false;
+                    cam.rpos = cam.rpos + (SCROLL_SPEED * dt * cam_h / 151.0f) * move_dir;
+                    cam_has_target = false;
                 }
             }
             if (mouse_y < 1)
             {
                 Vector3D move_dir(cam.up);
-                if (move_dir.x==0.0f && move_dir.z==0.0f)
+                if (move_dir.x == 0.0f && move_dir.z == 0.0f)
                     move_dir = cam.dir;
                 move_dir.y = 0.0f;
                 move_dir.unit();
@@ -502,7 +502,7 @@ namespace TA3D
                 cam.rpos.x = -map->map_w_d;
                 cam_has_target = false;
             }
-            if (cam.rpos.x>map->map_w_d)
+            if (cam.rpos.x > map->map_w_d)
             {
                 cam.rpos.x = map->map_w_d;
                 cam_has_target = false;
@@ -512,10 +512,10 @@ namespace TA3D
                 cam.rpos.z = -map->map_h_d + 200.0f;
                 cam_has_target = false;
             }
-            if (cam.rpos.z>map->map_h_d && !cam_has_target)
-                cam.rpos.z=map->map_h_d;
-            if (cam.rpos.z > map->map_h_d+200.0f)
-                cam.rpos.z = map->map_h_d+200.0f;
+            if (cam.rpos.z > map->map_h_d && !cam_has_target)
+                cam.rpos.z = map->map_h_d;
+            if (cam.rpos.z > map->map_h_d + 200.0f)
+                cam.rpos.z = map->map_h_d + 200.0f;
 
             MATRIX_4x4 Rotation;
             if (lp_CONFIG->camera_zoom == ZOOM_NORMAL)

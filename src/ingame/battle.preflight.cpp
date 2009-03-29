@@ -160,6 +160,14 @@ namespace TA3D
                 if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)
                 {
                     cam_target = cursorOnMap(cam, *map);
+                    if (cam_target.x < -map->map_w_d)
+                        cam_target.x = -map->map_w_d;
+                    else if (cam_target.x > map->map_w_d)
+                        cam_target.x = map->map_w_d;
+                    if (cam_target.z < -map->map_h_d)
+                        cam_target.z = -map->map_h_d;
+                    else if (cam_target.z > map->map_h_d)
+                        cam_target.z = map->map_h_d;
                     cam_target_mx = mouse_x;
                     cam_target_my = mouse_y;
                     cam_has_target = true;
