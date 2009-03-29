@@ -148,13 +148,13 @@ namespace TA3D
         }
         else                                // Mega zoom with a perspective camera
         {
-            float angle_factor = Math::Max(fabsf(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabsf(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
+            float angle_factor = Math::Max(fabsf(-lp_CONFIG->camera_def_angle + 45.0f) / 20.0f, fabsf(-lp_CONFIG->camera_def_angle + 90.0f) / 25.0f);
 
             r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
             if (r1 > -45.0f) 		r1 = -45.0f;
             else if (r1 < -90.0f)	r1 = -90.0f;
 
-            cam_h = lp_CONFIG->camera_def_h + (expf(-camera_zscroll * 0.15f) - 1.0f) / (expf(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
+            cam_h = lp_CONFIG->camera_def_h + (expf(-camera_zscroll * 0.15f) - 1.0f) / (expf(3.75f) - 1.0f) * Math::Max(map->map_w, map->map_h);
         }
         if (delta > 0 && !IsOnGUI)
         {
