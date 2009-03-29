@@ -1,8 +1,8 @@
 [area]
 {
-	name=game area;
-	skin=gui/default.skn;
-	windows=gui/esc_menu.tdf, gui/gamestatus.tdf, gui/playerstats.tdf, gui/save_menu.tdf, gui/chat.tdf;
-	width=1280;
-	height=1024;
+    name=game area;
+    skin=gui/default.skn;
+    windows=gui/esc_menu.tdf, gui/gamestatus.tdf, gui/playerstats.tdf, gui/save_menu.tdf, gui/chat.tdf, gui/help.tdf;
+    width=1280;
+    height=1024;
 }

@@ -140,6 +140,8 @@ namespace TA3D
 
     void WND::doDrawWindowBackground(SKIN* skin)
     {
+        if (geta(color) == 0)       // We don't need to render things in full transparency
+            return;                 // we can just not render them
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         if (background == 0)
@@ -1587,6 +1589,13 @@ namespace TA3D
             width += SCREEN_W;
         if (height < 0)
             height += SCREEN_H;
+
+        if (wndFile.pullAsBool("window.centered"))
+        {
+            x = SCREEN_W - width >> 1;
+            y = SCREEN_H - height >> 1;
+        }
+
         size_factor = gfx->height / 600.0f;			// For title bar
 
         ingame_window = wndFile.pullAsBool("window.ingame", false);
@@ -1596,13 +1605,19 @@ namespace TA3D
         draw_borders = wndFile.pullAsBool("window.draw borders");
         show_title = wndFile.pullAsBool("window.show title");
         delete_gltex = false;
-        if (HPIManager->Exists(wndFile.pullAsString("window.background")))
+        String backgroundImage = wndFile.pullAsString("window.background");
+        if (HPIManager->Exists(backgroundImage))
         {
-            background = gfx->load_texture(wndFile.pullAsString("window.background"), FILTER_LINEAR, &bkg_w, &bkg_h, false);
+            background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
             delete_gltex = true;
         }
         else
-            background = 0;
+        {
+            background = skin->wnd_background;
+            bkg_w = skin->bkg_w;
+            bkg_h = skin->bkg_h;
+            delete_gltex = false;
+        }
         color = wndFile.pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
         FIX_COLOR(color);
         NbObj = wndFile.pullAsInt("window.number of objects");

@@ -76,6 +76,10 @@ namespace TA3D
     public:
         //! Default background for windows
         GLuint  wnd_background;
+        //! Default background width
+        uint32  bkg_w;
+        //! Default background height
+        uint32  bkg_h;
         //! Default background for buttons
         SKIN_OBJECT button_img[2];
         //! Color parameters for buttons
