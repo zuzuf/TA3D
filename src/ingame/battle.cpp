@@ -529,20 +529,30 @@ namespace TA3D
             if (cam_has_target)
             {
                 Vector3D cur_dir;
+                Vector3D m_pos;
                 if (lp_CONFIG->ortho_camera)
+                {
                     cur_dir = cam.dir;
+                    m_pos = cam.pos + cam.zoomFactor * ( (cam_target_mx - gfx->SCREEN_W_HALF) * cam.side - (cam_target_my - gfx->SCREEN_H_HALF) * cam.up ) + cam.znear * cam.dir;
+                }
                 else
-                    cur_dir = cam.dir + cam.widthFactor * 2.0f * (cam_target_mx-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV*cam.side - 1.5f * (cam_target_my-gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
+                {
+                    cur_dir = cam.dir + cam.widthFactor * 2.0f * (cam_target_mx - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side - 1.5f * (cam_target_my - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
+                    m_pos = cam.rpos;
+                }
                 cur_dir.unit();		// Direction pointée par le curseur
-                Vector3D moving_target(cam_target - cam.rpos);
+                Vector3D moving_target(cam_target - m_pos);
                 moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
-                float d = moving_target.sq();
-                moving_target.y = 0.0f;
-                float D = moving_target.sq();
-                if (D == 0.0f)
-                    cam_has_target = false;
-                else
-                    moving_target = d / D * moving_target;
+                if (lp_CONFIG->ortho_camera)
+                {
+                    float d = moving_target.sq();
+                    moving_target.y = 0.0f;
+                    float D = moving_target.sq();
+                    if (D == 0.0f)
+                        cam_has_target = false;
+                    else
+                        moving_target = d / D * moving_target;
+                }
                 cam.rpos = moving_target + cam.rpos;
             }
 

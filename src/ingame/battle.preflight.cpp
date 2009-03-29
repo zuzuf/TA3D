@@ -143,7 +143,7 @@ namespace TA3D
             r1 = -lp_CONFIG->camera_def_angle;      // angle is constant
             if (r1 > -45.0f) 		r1 = -45.0f;
             else if (r1 < -90.0f)	r1 = -90.0f;
-            cam.zoomFactor = 0.5f * expf(-camera_zscroll * 0.04f * logf(Math::Max(map->map_w/SCREEN_W,map->map_h/SCREEN_H)));
+            cam.zoomFactor = 0.5f * expf(-camera_zscroll * 0.05f * logf(Math::Max(map->map_w / SCREEN_W, map->map_h / SCREEN_H)));
             cam_h = lp_CONFIG->camera_def_h * 2.0f * cam.zoomFactor;
         }
         else                                // Mega zoom with a perspective camera
@@ -155,23 +155,23 @@ namespace TA3D
             else if (r1 < -90.0f)	r1 = -90.0f;
 
             cam_h = lp_CONFIG->camera_def_h + (expf(-camera_zscroll * 0.15f) - 1.0f) / (expf(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
-            if (delta > 0 && !IsOnGUI)
+        }
+        if (delta > 0 && !IsOnGUI)
+        {
+            if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)
             {
-                if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)
-                {
-                    cam_target = cursorOnMap(cam, *map);
-                    if (cam_target.x < -map->map_w_d)
-                        cam_target.x = -map->map_w_d;
-                    else if (cam_target.x > map->map_w_d)
-                        cam_target.x = map->map_w_d;
-                    if (cam_target.z < -map->map_h_d)
-                        cam_target.z = -map->map_h_d;
-                    else if (cam_target.z > map->map_h_d)
-                        cam_target.z = map->map_h_d;
-                    cam_target_mx = mouse_x;
-                    cam_target_my = mouse_y;
-                    cam_has_target = true;
-                }
+                cam_target = cursorOnMap(cam, *map);
+                if (cam_target.x < -map->map_w_d)
+                    cam_target.x = -map->map_w_d;
+                else if (cam_target.x > map->map_w_d)
+                    cam_target.x = map->map_w_d;
+                if (cam_target.z < -map->map_h_d)
+                    cam_target.z = -map->map_h_d;
+                else if (cam_target.z > map->map_h_d)
+                    cam_target.z = map->map_h_d;
+                cam_target_mx = mouse_x;
+                cam_target_my = mouse_y;
+                cam_has_target = true;
             }
         }
 
