@@ -3,8 +3,8 @@
     name=help;
     title=Help;
     uformat=UTF8;
-    width=648;
-    height=524;
+    width=520;
+    height=380;
     centered=true;
     draw borders=true;
     show title=true;
@@ -31,7 +31,7 @@
     {
         name=msg0;
         type=LIST;
-        entry=A     Attack order,E     Reclaim order;
+        entry=CTRL+A                Select all units,CTRL+C                Select the Commander,CTRL+D                Destruct selected unit(s),CTRL+S                Select all units currently on the screen,CTRL+Z                Select all units of same type,CTRL1 - CTRL9   Assign the currently selected units to a squad,ALT1 - ALT9        Select squad,SHIFT                    Hold down to queue up multiple commands,ESC                        Cancels the current command,,-                              Reduce the game speed,+                             Increase the game speed,~ (tilde)                  Toggle damage bars on the units,ENTER                  Activate the message bar;
         value=0xFFFFFFFF;
         x1=10;
         y1=30;
@@ -45,7 +45,7 @@
     {
         name=msg1;
         type=LIST;
-        entry=)     Console,Enter     Open chat bar;
+        entry=A            Give an attack order,G            Give a guard order,M            Give a move order,P             Give a patrol order,S             Give a stop order (cancel previous orders),D            Use the Disintegrator Gun,C            Give a capture order,R            Give a repair order,E            Give a reclaim order,H            Share resources with another player,N            Scroll to the next unit off screen,T             Track the selected unit;
         value=0xFFFFFFFF;
         x1=10;
         y1=30;
@@ -60,7 +60,7 @@
     {
         name=msg2;
         type=LIST;
-        entry=Esc     Menu;
+        entry=B                 Select the Build menu for the current unit,O                 Select the Orders menu for the current unit,1 - 9             Select the menu for the current unit,F1                Display information on selected unit,F2                Display the Options menu,F3                Selects the unit that last reported,F12              Clear all chat messages,PAUSE        Pause the game,CTRL+F9    Screen capture;
         value=0xFFFFFFFF;
         x1=10;
         y1=30;
