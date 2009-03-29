@@ -393,7 +393,7 @@ namespace TA3D
                                     int l = mask >> 1;
                                     while (l > 0)
                                     {
-                                        putpixel(img, x++, i, 0x00000000);
+                                        SurfaceInt(img, x++, i) = 0x00000000;
                                         --l;
                                     }
                                 }
@@ -411,7 +411,7 @@ namespace TA3D
                                             x++;
                                         }
                                         else
-                                            putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b,0xFF));
+                                            SurfaceInt(img,x++,i) = makeacol32(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b,0xFF);
                                         --l;
                                     }
                                     ++f_pos;
@@ -424,8 +424,7 @@ namespace TA3D
                                     {
                                         if (truecolor)
                                         {
-                                            putpixel(img, x++, i,
-                                                     makeacol(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b, 0xFF));
+                                            SurfaceInt(img, x++, i) = makeacol32(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b, 0xFF);
                                             ++f_pos;
                                         }
                                         else

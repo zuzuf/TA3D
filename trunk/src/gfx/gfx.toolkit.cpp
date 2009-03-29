@@ -186,6 +186,7 @@ namespace TA3D
             sx *= tmp->format->BytesPerPixel;
             dx *= tmp->format->BytesPerPixel;
             cw *= tmp->format->BytesPerPixel;
+#warning TODO: optimize
             for(int y = 0 ; y < h ; y++)
             {
                 int dy = y1 + y;

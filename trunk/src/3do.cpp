@@ -45,7 +45,7 @@ namespace TA3D
     {
         bool water = false;
         float sealvl = 0.0f;
-    };
+    }
 
 
     TEXTURE_MANAGER	texture_manager;
@@ -666,7 +666,8 @@ namespace TA3D
 
     int OBJECT::load_obj(byte *data,int offset,int dec,const String &filename)
     {
-        destroy();					// Au cas où l'objet ne serait pas vierge
+        if (index)
+            destroy();					// Au cas où l'objet ne serait pas vierge
 
         if (data == NULL)
             return -1;
@@ -1337,16 +1338,16 @@ namespace TA3D
         {
             for (x = 0; x < 8; ++x)
             {
-                uint32 c=0;
-                uint32 n=0;
-                bool zero=false;
-                for (int py = y * bmp->h >> 3; py < (y + 1) * bmp->h >> 3; ++py)
+                uint32 c = 0;
+                uint32 n = 0;
+                bool zero = false;
+                for (int py = y * bmp->h >> 3 ; py < (y + 1) * bmp->h >> 3 && !zero ; ++py)
                 {
-                    for (int px = x * bmp->w >> 3; px < (x + 1) * bmp->w >> 3; ++px)
+                    for (int px = x * bmp->w >> 3 ; px < (x + 1) * bmp->w >> 3 && !zero ; ++px)
                     {
-                        uint32 pc = getpixel(bmp,  px, py);
+                        uint32 pc = SurfaceInt(bmp, px, py);
                         c += getr(pc) + getg(pc) + getb(pc);
-                        if (geta(pc) < 128 || (pc&0xFFFFFF) == 0xFF00FF)
+                        if (geta(pc) < 128 || (pc & 0xFFFFFF) == 0xFF00FF)
                             zero = true;
                         n += 3;
                     }

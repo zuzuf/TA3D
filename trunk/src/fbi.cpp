@@ -572,7 +572,7 @@ namespace TA3D
     int UnitType::load(const String &filename)
     {
         destroy();
-        int nb_inconnu=0;
+        int nb_inconnu = 0;
         String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
         String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
         String lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
@@ -820,12 +820,12 @@ namespace TA3D
         weapon.resize( WeaponID.size() );
         w_badTargetCategory.resize( WeaponID.size() );
         for (int i = 0 ; i < WeaponID.size() ; i++)
-            if(WeaponID[i]>-1)
+            if(WeaponID[i] > -1)
                 weapon[i] = &(weapon_manager.weapon[WeaponID[i]]);
         if (!Unitname.empty())
         {
             model = model_manager.get_model(ObjectName);
-            if(model==NULL)
+            if(model == NULL)
                 LOG_ERROR("`" << Unitname << "` without a 3D model");
         }
         else

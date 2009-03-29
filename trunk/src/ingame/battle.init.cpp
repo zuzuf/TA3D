@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
+#include <fstream>
 #include "battle.h"
 #include "../network/network.h"
 #include "../logs/logs.h"
@@ -660,34 +661,54 @@ namespace TA3D
                 int water_map_size4 = simulation_w * simulation_h * 4;
                 memset(data, 0, water_map_size4 * sizeof(float));
 
-                for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
+                String water_cache = TA3D::Paths::Caches + "water_cache.sim";
+
+                if (!TA3D::Paths::Exists(water_cache))
                 {
-                    float coef = 5.0f * sqrtf(500 - i);
-                    for( int e = 0 ; e < water_map_size ; e++ )
-                        data[(e << 2) + 1] += ((rand() % 2000) * 0.000001f - 0.001f) * coef;
-                    for( int e = 0 ; e < water_map_size ; e++ )
+                    for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
                     {
-                        int offset = (e << 2) | 1;
-                        data[offset] = (data[offset] * 4.0f
-                                          + data[(offset + 4) % water_map_size4]
-                                          + data[(offset + simulation_w * 4) % water_map_size4]
-                                          + data[(offset + water_map_size4 - 4) % water_map_size4]
-                                          + data[(offset + water_map_size4 - simulation_w * 4) % water_map_size4]
-                                          + data[(offset + 4 + simulation_w * 4) % water_map_size4] * 0.25f
-                                          + data[(offset + 4 + water_map_size4 - simulation_w * 4) % water_map_size4] * 0.25f
-                                          + data[(offset + water_map_size4 - 4 + simulation_w * 4) % water_map_size4] * 0.25f
-                                          + data[(offset + water_map_size4 - 4 - simulation_w * 4) % water_map_size4] * 0.25f) * 0.11111111111111111f;
+                        float coef = 5.0f * sqrtf(500 - i);
+                        for( int e = 0 ; e < water_map_size ; e++ )
+                            data[(e << 2) + 1] += ((rand() % 2000) * 0.000001f - 0.001f) * coef;
+                        for( int e = 0 ; e < water_map_size ; e++ )
+                        {
+                            int offset = (e << 2) | 1;
+                            data[offset] = (data[offset] * 4.0f
+                                              + data[(offset + 4) % water_map_size4]
+                                              + data[(offset + simulation_w * 4) % water_map_size4]
+                                              + data[(offset + water_map_size4 - 4) % water_map_size4]
+                                              + data[(offset + water_map_size4 - simulation_w * 4) % water_map_size4]
+                                              + data[(offset + 4 + simulation_w * 4) % water_map_size4] * 0.25f
+                                              + data[(offset + 4 + water_map_size4 - simulation_w * 4) % water_map_size4] * 0.25f
+                                              + data[(offset + water_map_size4 - 4 + simulation_w * 4) % water_map_size4] * 0.25f
+                                              + data[(offset + water_map_size4 - 4 - simulation_w * 4) % water_map_size4] * 0.25f) * 0.11111111111111111f;
+                        }
+                    }
+                    float sum = 0.0f;
+                    for( int e = 0 ; e < water_map_size ; e++ )
+                        sum += data[(e << 2) | 1];
+                    sum /= simulation_h * simulation_w;
+                    for( int e = 0 ; e < water_map_size ; e++ )
+                        data[(e << 2) | 1] -= sum;
+                    for (int y = 0 ; y < simulation_h ; ++y)
+                        for (int x = 0 ; x < simulation_w ; ++x)
+                            data[(y * simulation_w + x) * 4 + 3] = data[(y * simulation_w + x) * 4 + 1];
+                    std::fstream file(water_cache.c_str(), std::fstream::out | std::fstream::binary);
+                    if (file.is_open())
+                    {
+                        file.write((char*)data, sizeof(float) * water_map_size4);
+                        file.close();
                     }
                 }
-                float sum = 0.0f;
-                for( int e = 0 ; e < water_map_size ; e++ )
-                    sum += data[(e << 2) | 1];
-                sum /= simulation_h * simulation_w;
-                for( int e = 0 ; e < water_map_size ; e++ )
-                    data[(e << 2) | 1] -= sum;
-                for (int y = 0 ; y < simulation_h ; ++y)
-                    for (int x = 0 ; x < simulation_w ; ++x)
-                        data[(y * simulation_w + x) * 4 + 3] = data[(y * simulation_w + x) * 4 + 1];
+                else
+                {
+                    std::fstream file(water_cache.c_str(), std::fstream::in | std::fstream::binary);
+                    if (file.is_open())
+                    {
+                        file.read((char*)data, sizeof(float) * water_map_size4);
+                        file.close();
+                    }
+                }
                 water_sim = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
                 delete[] data;
 

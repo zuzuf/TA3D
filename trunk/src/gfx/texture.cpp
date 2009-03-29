@@ -65,8 +65,6 @@ namespace TA3D
         void GfxTexture::set( const GLuint gltex )
         {
             tex = gltex;
-            width = gfx->texture_width( tex );
-            height = gfx->texture_height( tex );
         }
 
         void GfxTexture::destroy()
