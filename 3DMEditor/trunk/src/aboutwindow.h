@@ -1,9 +1,9 @@
 #ifndef ABOUTWINDOW_H
 #define ABOUTWINDOW_H
 
-#include <QWidget>
+#include <QDialog>
 
-class AboutWindow : public QWidget
+class AboutWindow : public QDialog
 {
     Q_OBJECT;
 public:
