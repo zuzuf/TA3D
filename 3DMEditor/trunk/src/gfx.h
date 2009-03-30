@@ -2,6 +2,7 @@
 #define GFX_H
 
 #include <QGLWidget>
+#include "misc/vector.h"
 
 class Gfx : public QGLWidget
 {
@@ -16,6 +17,10 @@ public:
     void destroyTexture(GLuint &gltex);
     void SetDefState();
     void ReInitTexSys(bool matrix_reset = true);
+
+    void drawCylinder(float r, float h, int d);
+    void drawCone(float r, float h, int d);
+    void drawArrow(const Vec &a, const Vec &b, float r);
 
 public:
     static Gfx *instance();

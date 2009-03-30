@@ -226,5 +226,6 @@ inline float VAngle(const Vector3D& A, const Vector3D& B)
     return (a == 0.0f) ? 0.0f : acosf((A % B) / a );
 }
 
+typedef Vector3D Vec;
 
 #endif // __TA3D_XX_MISC_VECTOR_H__

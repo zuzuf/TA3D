@@ -14,7 +14,8 @@ SOURCES += src/main.cpp \
     src/misc/matrix.cpp \
     src/misc/camera.cpp \
     src/misc/math.cpp \
-    src/aboutwindow.cpp
+    src/aboutwindow.cpp \
+    src/misc/material.light.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/qpopup.h \
@@ -24,6 +25,7 @@ HEADERS += src/mainwindow.h \
     src/misc/camera.h \
     src/misc/math.h \
     src/types.h \
-    src/aboutwindow.h
+    src/aboutwindow.h \
+    src/misc/material.light.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts
