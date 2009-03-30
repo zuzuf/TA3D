@@ -46,7 +46,7 @@ namespace TA3D
         shakeDuration = 0.0f;
         shakeTotalDuration = 1.0f;
         rpos  = pos;
-        dir   = up = pos;
+        dir   = up = Vec();
         dir.z = -1.0f; // direction
         up.y  = 1.0f; // Haut
         zfar  = 140000.0f;
@@ -64,7 +64,7 @@ namespace TA3D
         widthFactor = w * 0.75f / h;
     }
 
-    void Camera::setMatrix(const MATRIX_4x4& v)
+    void Camera::setMatrix(const Matrix& v)
     {
         dir.reset();
         up = dir;
@@ -172,16 +172,22 @@ namespace TA3D
     QVector<Vector3D> Camera::getFrustum()
     {
         QVector<Vector3D> frustum;
-        frustum.push_back( rpos + znear * (-widthFactor * side + 0.75 * up + dir) );
-        frustum.push_back( rpos + znear * (widthFactor * side + 0.75 * up + dir) );
-        frustum.push_back( rpos + znear * (-widthFactor * side - 0.75 * up + dir) );
-        frustum.push_back( rpos + znear * (widthFactor * side - 0.75 * up + dir) );
+        frustum.push_back( rpos + znear * (-widthFactor * side + 0.75f * up + dir) );
+        frustum.push_back( rpos + znear * (widthFactor * side + 0.75f * up + dir) );
+        frustum.push_back( rpos + znear * (-widthFactor * side - 0.75f * up + dir) );
+        frustum.push_back( rpos + znear * (widthFactor * side - 0.75f * up + dir) );
 
-        frustum.push_back( rpos + zfar * (-widthFactor * side + 0.75 * up + dir) );
-        frustum.push_back( rpos + zfar * (widthFactor * side + 0.75 * up + dir) );
-        frustum.push_back( rpos + zfar * (-widthFactor * side - 0.75 * up + dir) );
-        frustum.push_back( rpos + zfar * (widthFactor * side - 0.75 * up + dir) );
+        frustum.push_back( rpos + zfar * (-widthFactor * side + 0.75f * up + dir) );
+        frustum.push_back( rpos + zfar * (widthFactor * side + 0.75f * up + dir) );
+        frustum.push_back( rpos + zfar * (-widthFactor * side - 0.75f * up + dir) );
+        frustum.push_back( rpos + zfar * (widthFactor * side - 0.75f * up + dir) );
 
         return frustum;
     }
+
+    Vec Camera::getScreenVector(float x, float y)
+    {
+        return znear * (widthFactor * (2.0f * x - 1.0f) * side + 0.75f * (1.0f - 2.0f * y) * up + dir);
+    }
+
 } // namespace TA3D

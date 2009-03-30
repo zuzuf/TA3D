@@ -223,7 +223,10 @@ inline float operator % (const Vector3D& lhs, const Vector3D& rhs)
 inline float VAngle(const Vector3D& A, const Vector3D& B)
 {
     float a = sqrtf(A.sq() * B.sq());
-    return (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+    a = (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+    if (isnan(a))
+        return 0.0f;
+    return a;
 }
 
 typedef Vector3D Vec;

@@ -2,7 +2,7 @@
 #define GFX_H
 
 #include <QGLWidget>
-#include "misc/vector.h"
+#include "misc/matrix.h"
 
 class Gfx : public QGLWidget
 {
@@ -21,6 +21,16 @@ public:
     void drawCylinder(float r, float h, int d);
     void drawCone(float r, float h, int d);
     void drawArrow(const Vec &a, const Vec &b, float r);
+
+    void mouseMoveEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+private:
+    void arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoint &B);
+
+private:
+    QPoint              previousMousePos;
+    Qt::MouseButtons    previousMouseState;
+    Matrix              meshMatrix;
 
 public:
     static Gfx *instance();

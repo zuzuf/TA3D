@@ -21,9 +21,9 @@
 
 
 
-MATRIX_4x4 Transpose(const MATRIX_4x4 &A)
+Matrix Transpose(const Matrix &A)
 {
-    MATRIX_4x4 B;
+    Matrix B;
     for(int i = 0; i < 4; ++i)
     {
         for(int j = 0; j < 4; ++j)
@@ -32,7 +32,7 @@ MATRIX_4x4 Transpose(const MATRIX_4x4 &A)
     return B;
 }
 
-float Norme_Ligne(const MATRIX_4x4 &A)
+float Norme_Ligne(const Matrix &A)
 {
     float n,n2;
     n=0.0f;
@@ -46,7 +46,7 @@ float Norme_Ligne(const MATRIX_4x4 &A)
     return n;
 }
 
-float Norme_Colonne(const MATRIX_4x4 &A)
+float Norme_Colonne(const Matrix &A)
 {
     float n,n2;
     n=0.0f;
@@ -61,9 +61,9 @@ float Norme_Colonne(const MATRIX_4x4 &A)
     return n;
 }
 
-inline MATRIX_4x4 Invert(const MATRIX_4x4 &A,const int P)
+inline Matrix Invert(const Matrix &A,const int P)
 {
-    MATRIX_4x4 I,E,B;
+    Matrix I,E,B;
     I = Scale(1.0f);
     B = 1.0f / (Norme_Ligne(A) * Norme_Colonne(A)) * Transpose(A);
     int i;

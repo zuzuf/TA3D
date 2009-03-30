@@ -54,7 +54,7 @@ namespace TA3D
         /*!
         ** \brief Set the matrix
         */
-        void setMatrix(const MATRIX_4x4& v);
+        void setMatrix(const Matrix& v);
 
         /*!
         ** \brief Replace the OpenGL camera
@@ -70,6 +70,11 @@ namespace TA3D
         ** \brief Returns the 8 points defining the frustum volume
         */
         QVector<Vector3D> getFrustum();
+
+        /*!
+        ** \brief Return a Vec oriented in the direction of the given point on screen
+        */
+        Vec getScreenVector(float x, float y);
     public:
         Vector3D up;					// Haut de la caméra
         Vector3D side;				// Coté de la caméra(optimisation pour les particules)

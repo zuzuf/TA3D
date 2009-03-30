@@ -1,3 +1,5 @@
+#include <QMouseEvent>
+#include <QtDebug>
 #include "gfx.h"
 #include "misc/camera.h"
 #include "misc/material.light.h"
@@ -8,8 +10,14 @@ Gfx *Gfx::pInstance = NULL;
 
 Gfx::Gfx()
 {
+    QGLFormat format;
+    format.setDoubleBuffer(true);
+    setFormat(format);
     Camera::inGame = new Camera();
     HWLight::inGame = new HWLight();
+    previousMousePos = QPoint();
+    previousMouseState = Qt::NoButton;
+    meshMatrix = Scale(1.0f);
 }
 
 Gfx::~Gfx()
@@ -44,14 +52,16 @@ void Gfx::paintGL()
 
     glPushMatrix();
 
+    glMultMatrixf( meshMatrix.data() );
+
     glDisable(GL_TEXTURE_2D);
 
     glColor3ub(0xFF, 0, 0);
-    drawArrow(Vec(0,0,0), Vec(10,0,0), 1);
+    drawArrow(Vec(0,0,0), Vec(10,0,0), 0.3f);
     glColor3ub(0, 0xFF, 0);
-    drawArrow(Vec(0,0,0), Vec(0,10,0), 1);
+    drawArrow(Vec(0,0,0), Vec(0,10,0), 0.3f);
     glColor3ub(0, 0, 0xFF);
-    drawArrow(Vec(0,0,0), Vec(0,0,10), 1);
+    drawArrow(Vec(0,0,0), Vec(0,0,10), 0.3f);
 
     glColor3ub(0xFF, 0xFF, 0xFF);
 
@@ -93,6 +103,7 @@ void Gfx::SetDefState()
     glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
     glDisable(GL_BLEND);
     glEnable(GL_LIGHTING);
+    glEnable(GL_NORMALIZE);
     ReInitTexSys();
 }
 
@@ -147,7 +158,7 @@ void Gfx::drawCone(float r, float h, int d)
         Vec n = h * Vec(dx, 0.0f, dy) + r * Vec(0.0f, 1.0f, 0.0f);
         n.unit();
         glNormal3f( n.x, n.y, n.z );
-        glVertex3f( r * dx, -0.5f * h, r * dy );
+        glVertex3f( r * dx, -0.5f * h, -r * dy );
     }
     glEnd();
 
@@ -175,4 +186,64 @@ void Gfx::drawArrow(const Vec &a, const Vec &b, float r)
     glTranslatef(0.0f, h * 0.5f + r * 0.5f, 0.0f);
     drawCone(r, r, 10);
     glPopMatrix();
+}
+
+void Gfx::mouseMoveEvent(QMouseEvent *event)
+{
+    if (previousMouseState == event->buttons() && (event->buttons() & Qt::LeftButton))
+    {
+        arcballMove(Vec(), 20.0f, previousMousePos, event->pos());
+    }
+
+    previousMousePos = event->pos();
+    previousMouseState = event->buttons();
+}
+
+void Gfx::mouseReleaseEvent(QMouseEvent *event)
+{
+    previousMousePos = event->pos();
+    previousMouseState = event->buttons();
+}
+
+void Gfx::arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoint &B)
+{
+    float r2 = r * r;
+    // On screen directions
+    Vec va = Camera::inGame->getScreenVector( ((float)A.x()) / width(), ((float)A.y()) / height() );
+    Vec vb = Camera::inGame->getScreenVector( ((float)B.x()) / width(), ((float)B.y()) / height() );
+    va.unit();
+    vb.unit();
+
+    // The vector from aiming point to object center
+    Vec dir = pos - Camera::inGame->rpos;
+
+    // The projection of dir on va and vb
+    Vec ha = Camera::inGame->rpos + (dir % va) * va;
+    Vec hb = Camera::inGame->rpos + (dir % vb) * vb;
+
+    // The first intersection point with the sphere (relative to its center)
+    float da = r2 - (ha - pos).sq();
+    float db = r2 - (hb - pos).sq();
+    if (da < 0.0f || db < 0.0f)          // If we are not hitting the sphere abort now
+        return;
+    Vec sa = ha - sqrtf(da) * va - pos;
+    Vec sb = hb - sqrtf(db) * vb - pos;
+    sa.unit();
+    sb.unit();
+
+    Vec axis = sa * sb;
+    axis.unit();
+
+    float angle = VAngle(sa, sb) * 180.0f / M_PI;
+
+    makeCurrent();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glRotatef(angle, axis.x, axis.y, axis.z);
+    glMultMatrixf(meshMatrix.data());
+    glGetFloatv(GL_MODELVIEW_MATRIX, meshMatrix.data());
+    glPopMatrix();
+
+    updateGL();
 }
