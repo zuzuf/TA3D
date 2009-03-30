@@ -666,7 +666,7 @@ namespace TA3D
 
     int OBJECT::load_obj(byte *data,int offset,int dec,const String &filename)
     {
-        if (index)
+        if (nb_vtx > 0)
             destroy();					// Au cas où l'objet ne serait pas vierge
 
         if (data == NULL)
