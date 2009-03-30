@@ -7,4 +7,10 @@
 extern QSettings settings;
 extern QTranslator translator;
 
+namespace TA3D
+{
+}
+
+using namespace TA3D;
+
 #endif // CONFIG_H
