@@ -2,12 +2,14 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 AboutWindow *AboutWindow::aboutWindow = NULL;
 
 AboutWindow::AboutWindow()
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setAlignment(Qt::AlignHCenter);
     setWindowTitle(tr("About 3DMEditor"));
 
     QTextEdit *info = new QTextEdit;
@@ -18,7 +20,10 @@ AboutWindow::AboutWindow()
     QPushButton *ok = new QPushButton(tr("ok"));
     connect(ok, SIGNAL(clicked()), this, SLOT(close()));
     ok->setMaximumWidth(80);
-    layout->addWidget(ok);
+    QHBoxLayout *hlayout = new QHBoxLayout;
+    layout->addLayout(hlayout);
+    hlayout->addWidget(ok);
+    hlayout->setAlignment(Qt::AlignHCenter);
 }
 
 void AboutWindow::popup()

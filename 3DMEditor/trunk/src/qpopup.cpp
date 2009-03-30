@@ -2,6 +2,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 QPopup::QPopup(const QString &msg, const QString &title, const QAction *action)
 {
@@ -13,12 +14,16 @@ QPopup::QPopup(const QString &msg, const QString &title, const QAction *action)
     message->setText(msg);
 
     QPushButton *ok = new QPushButton(tr("ok"));
+    ok->setMaximumWidth(80);
     connect(ok, SIGNAL(clicked()), this, SLOT(close()));
     if (action)
         connect(ok, SIGNAL(clicked()), action, SLOT(trigger()));
 
     layout->addWidget(message);
-    layout->addWidget(ok);
+    QHBoxLayout *hlayout = new QHBoxLayout;
+    layout->addLayout(hlayout);
+    hlayout->addWidget(ok);
+    hlayout->setAlignment(Qt::AlignHCenter);
 }
 
 void QPopup::popup(const QString &msg, const QString &title, const QAction *action)

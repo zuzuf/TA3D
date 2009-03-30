@@ -1,11 +1,11 @@
 #ifndef QPOPUP_H
 #define QPOPUP_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QString>
 #include <QAction>
 
-class QPopup : public QWidget
+class QPopup : public QDialog
 {
     Q_OBJECT;
 public:
