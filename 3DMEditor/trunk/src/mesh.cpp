@@ -1,6 +1,8 @@
 #include "mesh.h"
 #include "gfx.h"
 
+Mesh Mesh::instance;
+
 Mesh::Mesh()
 {
     child = NULL;
@@ -30,6 +32,7 @@ void Mesh::destroy()
 
 void Mesh::load(const QString &filename)
 {
+    destroy();
     if (filename.endsWith(".3dm", Qt::CaseInsensitive))
         load3DM(filename);
     else if (filename.endsWith(".3do", Qt::CaseInsensitive))
@@ -54,4 +57,11 @@ void Mesh::load3DS(const QString &filename)
 
 void Mesh::loadASC(const QString &filename)
 {
+}
+
+void Mesh::save(const QString &filename)
+{
+    // We only save 3DM files
+    if (!filename.endsWith(".3dm", Qt::CaseInsensitive))
+        return;
 }

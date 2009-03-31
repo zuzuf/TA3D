@@ -4,15 +4,21 @@
 #include <QLayout>
 #include <QResizeEvent>
 #include <QDesktopWidget>
+#include <QFileDialog>
 #include "config.h"
 #include "qpopup.h"
 #include "gfx.h"
 #include "aboutwindow.h"
+#include "mesh.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     QMenu *mnuFile = new QMenu( tr("&File"));
+    mnuFile->addAction( tr("&New"), this, SLOT(newMesh()));
+    mnuFile->addAction( tr("&Open"), this, SLOT(loadMesh()));
+    mnuFile->addAction( tr("&Save"), this, SLOT(saveMesh()));
+    mnuFile->addAction( tr("Save as"), this, SLOT(saveMeshAs()));
     mnuFile->addAction( tr("&Exit"), this, SLOT(close()));
     menuBar()->addMenu(mnuFile);
 
@@ -85,4 +91,45 @@ void MainWindow::setStatusBarMessage(QString msg)
 void MainWindow::about()
 {
     AboutWindow::popup();
+}
+
+void MainWindow::newMesh()
+{
+    Mesh::instance.destroy();
+    Gfx::instance()->updateGL();
+}
+
+void MainWindow::loadMesh()
+{
+    QString fileToLoad = QFileDialog::getOpenFileName(this, tr("open"), QString(), tr("3DMEditor meshs(*.3dm)"));
+    if (fileToLoad.isEmpty())
+        return;
+
+    Mesh::instance.load(fileToLoad);
+
+    Gfx::instance()->updateGL();
+    setStatusBarMessage(tr("mesh loaded"));
+
+    filename = fileToLoad;
+}
+
+void MainWindow::saveMesh()
+{
+    if (filename.isEmpty())
+        filename = QFileDialog::getSaveFileName(this, tr("save"), QString(), tr("3DMEditor meshs(*.3dm)"));
+    if (filename.isEmpty())
+        return;
+
+    setStatusBarMessage(tr("mesh saved"));
+}
+
+void MainWindow::saveMeshAs()
+{
+    QString fileToSave = QFileDialog::getSaveFileName(this, tr("save as"), QString(), tr("3DMEditor meshs(*.3dm)"));
+    if (fileToSave.isEmpty())
+        return;
+
+    setStatusBarMessage(tr("mesh saved"));
+
+    filename = fileToSave;
 }

@@ -21,9 +21,14 @@ public slots:
     void setFrench();
     void setStatusBarMessage(const QString msg);
     void about();
+    void newMesh();
+    void loadMesh();
+    void saveMesh();
+    void saveMeshAs();
 
 private:
-    QStatusBar *statusBar;
+    QStatusBar  *statusBar;
+    QString     filename;
 };
 
 #endif // MAINWINDOW_H

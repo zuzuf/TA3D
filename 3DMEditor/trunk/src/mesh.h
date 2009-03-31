@@ -15,6 +15,7 @@ public:
     void destroy();
 
     void load(const QString &filename);
+    void save(const QString &filename);
 
     void load3DM(const QString &filename);
     void load3DO(const QString &filename);
@@ -29,6 +30,9 @@ private:
     QVector<Vec>    vertex;
     QVector<GLuint> index;
     QVector<GLuint> tex;
+
+public:
+    static Mesh instance;
 };
 
 #endif // MESH_H
