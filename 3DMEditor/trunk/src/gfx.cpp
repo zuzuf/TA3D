@@ -1,6 +1,7 @@
 #include <QMouseEvent>
 #include <QtDebug>
 #include "gfx.h"
+#include "mesh.h"
 #include "misc/camera.h"
 #include "misc/material.light.h"
 
@@ -68,6 +69,8 @@ void Gfx::paintGL()
     renderText(10.0, 0.0f, 0.0f, "x");
     renderText(0.0, 10.0f, 0.0f, "y");
     renderText(0.0, 0.0f, 10.0f, "z");
+
+    Mesh::instance.draw();
 
     glPopMatrix();
 }

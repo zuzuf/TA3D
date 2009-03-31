@@ -155,7 +155,7 @@ public:
     }
 
     bool operator == (const Vector3D& rhs) const
-    { return (fabsf(x-rhs.x) < 0.0001f && fabsf(y-rhs.y) < 0.0001f && fabsf(z-rhs.z) < 0.0001f); }
+    { return x == rhs.x && y == rhs.y && z == rhs.z; }
 
     bool operator != (const Vector3D& rhs) const
     { return !(*this == rhs); }

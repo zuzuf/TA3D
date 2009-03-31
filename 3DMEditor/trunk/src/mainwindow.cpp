@@ -101,7 +101,7 @@ void MainWindow::newMesh()
 
 void MainWindow::loadMesh()
 {
-    QString fileToLoad = QFileDialog::getOpenFileName(this, tr("open"), QString(), tr("3DMEditor meshs(*.3dm)"));
+    QString fileToLoad = QFileDialog::getOpenFileName(this, tr("open"), QString(), tr("3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds)"));
     if (fileToLoad.isEmpty())
         return;
 
