@@ -54,10 +54,6 @@ void Mesh::load3DO(const QString &filename)
 {
 }
 
-void Mesh::load3DS(const QString &filename)
-{
-}
-
 void Mesh::loadASC(const QString &filename, float size)
 {
     QFile file(filename);
@@ -275,6 +271,8 @@ void Mesh::draw()
     {
         glEnable(GL_TEXTURE_2D);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindTexture(GL_TEXTURE_2D, tex[0]);
+        glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
     }
 
     switch(type)

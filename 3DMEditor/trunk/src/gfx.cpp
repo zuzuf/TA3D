@@ -1,5 +1,6 @@
 #include <QMouseEvent>
 #include <QtDebug>
+#include <QPixmap>
 #include "gfx.h"
 #include "mesh.h"
 #include "misc/camera.h"
@@ -77,11 +78,16 @@ void Gfx::paintGL()
 
 GLuint Gfx::loadTexture(const QString &filename)
 {
-    return bindTexture(filename);
+    makeCurrent();
+    GLuint tex = bindTexture( QPixmap( filename ) );
+    if (tex == 0)
+        qDebug() << "could not load file " << filename;
+    return tex;
 }
 
 void Gfx::destroyTexture(GLuint &gltex)
 {
+    makeCurrent();
     if (gltex)
     {
         glDeleteTextures(1, &gltex);

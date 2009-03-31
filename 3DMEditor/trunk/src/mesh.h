@@ -24,7 +24,7 @@ public:
     void load3DM(const QString &filename);
     void load3DO(const QString &filename);
     void loadASC(const QString &filename, float size = 10.0f);
-    void load3DS(const QString &filename);
+    void load3DS(const QString &filename, float scale = 10.0f);
 
     void computeNormals();
 
