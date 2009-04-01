@@ -1,6 +1,7 @@
 #include <QMouseEvent>
 #include <QtDebug>
 #include <QPixmap>
+#include <QFile>
 #include "gfx.h"
 #include "mesh.h"
 #include "misc/camera.h"
@@ -71,6 +72,7 @@ void Gfx::paintGL()
     renderText(0.0, 10.0f, 0.0f, "y");
     renderText(0.0, 0.0f, 10.0f, "z");
 
+    glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
     Mesh::instance.draw();
 
     glPopMatrix();
@@ -78,10 +80,29 @@ void Gfx::paintGL()
 
 GLuint Gfx::loadTexture(const QString &filename)
 {
+    if (!QFile(filename).exists())
+    {
+        qDebug() << "file not found: " << filename;
+        return 0;
+    }
     makeCurrent();
     GLuint tex = bindTexture( QPixmap( filename ) );
     if (tex == 0)
         qDebug() << "could not load file " << filename;
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    }
     return tex;
 }
 

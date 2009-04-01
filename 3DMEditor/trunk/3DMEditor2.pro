@@ -5,6 +5,7 @@ QT += opengl
 CONFIG -= release
 CONFIG += debug
 TARGET = 3DMEditor2
+LIBS += -lz
 TEMPLATE = app
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \

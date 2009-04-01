@@ -1,5 +1,5 @@
-#include <QFile>
 #include <QDebug>
+#include <zlib.h>
 #include "mesh.h"
 #include "gfx.h"
 
@@ -48,6 +48,17 @@ void Mesh::load(const QString &filename)
 
 void Mesh::load3DM(const QString &filename)
 {
+    destroy();
+    QFile file(filename);
+    if (file.exists())
+    {
+        file.open(QIODevice::ReadOnly);
+        if (file.isOpen())
+        {
+            load3DMrec(file);
+            file.close();
+        }
+    }
 }
 
 void Mesh::load3DO(const QString &filename)
@@ -68,7 +79,7 @@ void Mesh::loadASC(const QString &filename, float size)
     float x, y, z;
     int offset = 0;
     float xmin = 0xFFFFFF, ymin = 0xFFFFFF, zmin = 0xFFFFFF,
-          xmax = -0xFFFFFF, ymax = -0xFFFFFF, zmax = -0xFFFFFF;
+    xmax = -0xFFFFFF, ymax = -0xFFFFFF, zmax = -0xFFFFFF;
 
     QVector<int> structD;     // Data for structure reconstruction
     QVector<QString> structName;
@@ -177,9 +188,9 @@ void Mesh::loadASC(const QString &filename, float size)
         cur->type = MESH_TRIANGLES;
         cur->pos = Vec();
 
-//        cur->surface.Flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
-//        for (int k = 0; k < 4; ++k)
-//            cur->surface.Color[k] = cur->surface.RColor[k] = 1.0f;
+        //        cur->surface.Flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
+        //        for (int k = 0; k < 4; ++k)
+        //            cur->surface.Color[k] = cur->surface.RColor[k] = 1.0f;
 
         int nbp = 0;
 
@@ -273,6 +284,10 @@ void Mesh::draw()
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glBindTexture(GL_TEXTURE_2D, tex[0]);
         glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.1f);
     }
 
     switch(type)
@@ -286,10 +301,218 @@ void Mesh::draw()
         break;
     };
 
+    glDisable(GL_BLEND);
+    glDisable(GL_ALPHA_TEST);
+
     if (child)
         child->draw();
 
     glPopMatrix();
     if (next)
         next->draw();
+}
+
+void Mesh::load3DMrec(QFile &file)
+{
+    if (file.atEnd())
+        return;
+
+    uint8 len;
+    file.getChar((char*)&len);
+    char tmp[257];
+    file.read(tmp, len);
+    tmp[len] = 0;
+    name = QString(tmp);
+
+    file.read((char*)&pos, sizeof(pos));
+
+    sint16 nb_vtx;
+    file.read((char*)&nb_vtx, sizeof(nb_vtx));
+
+    if (nb_vtx < 0)
+    {
+        name.clear();
+        return;
+    }
+    vertex.resize(nb_vtx);
+    if (nb_vtx > 0)
+        file.read((char*)vertex.data(), sizeof(Vec) * nb_vtx);
+
+    GLushort sel[4];
+    file.read((char*)sel, sizeof(GLushort) * 4);
+
+    sint16 nb_p_idx;
+    file.read((char*)&nb_p_idx, sizeof(nb_p_idx)); // Read point data
+    if (nb_p_idx < 0)
+    {
+        vertex.clear();
+        name.clear();
+        return;
+    }
+    if (nb_p_idx > 0)
+        file.read(sizeof(GLushort) * nb_p_idx);
+
+    sint16 nb_l_idx;
+    file.read((char*)&nb_l_idx, sizeof(nb_l_idx));	// Read line data
+    if (nb_l_idx < 0)
+    {
+        vertex.clear();
+        name.clear();
+        return;
+    }
+    if (nb_l_idx > 0)
+        file.read(sizeof(GLushort) * nb_l_idx);
+
+    sint16 nb_idx;
+    file.read((char*)&nb_idx, sizeof(nb_idx)); // Read triangle data
+    if (nb_idx < 0)
+    {
+        vertex.clear();
+        name.clear();
+        return;
+    }
+    index.resize(nb_idx);
+    for(int i = 0 ; i < nb_idx ; i++)
+    {
+        GLushort id;
+        file.read((char*)&id, sizeof(GLushort));
+        index[i] = id;
+    }
+
+    tcoord.resize(nb_vtx << 1);
+    file.read((char*)tcoord.data(), sizeof(float) * nb_vtx << 1);
+
+    float color[4];
+    float rColor[4];
+
+    file.read((char*)color, sizeof(float) * 4);	// Read surface data
+    file.read((char*)rColor, sizeof(float) * 4);
+    uint32 flag;
+    file.read((char*)&flag, sizeof(flag));
+    sint8 nb_tex = 0;
+    file.read((char*)&nb_tex, sizeof(nb_tex));
+    bool compressed = nb_tex < 0;
+    nb_tex = abs(nb_tex);
+    tex.resize( nb_tex );
+    for (int i = 0 ; i < nb_tex ; ++i)
+    {
+        QImage img;
+        if (!compressed)
+        {
+            int tex_w;
+            int tex_h;
+            file.read((char*)&tex_w, sizeof(tex_w));
+            file.read((char*)&tex_h, sizeof(tex_h));
+
+            img = QImage(tex_w, tex_h, QImage::Format_ARGB32);
+            for (int y = 0 ; y < tex_h ; ++y)
+                for (int x = 0 ; x < tex_w ; ++x)
+                {
+                    uint32 col;
+                    file.read((char*)&col, 4);
+                    col = ((col << 8) & 0xFF0000) | (col << 24) | ((col >> 8) & 0xFF00) | (col >> 24);     // BGRA -> ARGB
+                    col = (col >> 8) | (col << 24);     // RGBA -> ARGB
+                    img.setPixel(x, tex_h - 1 - y, col);
+                }
+        }
+        else
+        {
+            int img_size = 0;
+            uint8 bpp;
+            int w, h;
+            file.read((char*)&w, sizeof(w));
+            file.read((char*)&h, sizeof(h));
+            file.read((char*)&bpp, sizeof(bpp));
+            file.read((char*)&img_size, sizeof(img_size));	// Read RGBA data
+            byte *buffer = new byte[ img_size ];
+
+            file.read( (char*)buffer, img_size );
+
+            byte *unbuf = new byte[ bpp * w * h / 8 ];
+            uLongf len = w * h * bpp / 8;
+            uncompress ( (Bytef*) unbuf, &len, (Bytef*) buffer, img_size);
+
+            img = QImage(w, h, QImage::Format_ARGB32);
+            for (int y = 0 ; y < h ; ++y)
+                for (int x = 0 ; x < w ; ++x)
+                {
+                    uint32 col;
+                    switch(bpp)
+                    {
+                    case 8:
+                        col = unbuf[y * w + x] * 0x01010100 | 0xFF;
+                        break;
+                    case 24:
+                        col = unbuf[(y * w + x) * 3] * 0x01000000 + unbuf[(y * w + x) * 3 + 1] * 0x010000 + unbuf[(y * w + x) * 3 + 2] * 0x0100;
+                        break;
+                    case 32:
+                        col = ((uint32*)unbuf)[y * w + x];
+                        break;
+                    };
+                    col = ((col << 8) & 0xFF0000) | (col << 24) | ((col >> 8) & 0xFF00) | (col >> 24);     // BGRA -> ARGB
+                    col = (col >> 8) | (col << 24);     // RGBA -> ARGB
+                    img.setPixel(x, h - 1 - y, col);
+                }
+
+            delete[] unbuf;
+
+            delete[] buffer;
+        }
+        tex[i] = Gfx::instance()->bindTexture(img);
+    }
+
+    if (flag & SURFACE_GLSL) // Fragment & Vertex shaders
+    {
+        uint32 shader_size;
+        file.read((char*)&shader_size, 4);
+        char *buf = new char[shader_size + 1];
+        buf[shader_size] = 0;
+        file.read(buf, shader_size);
+        delete[] buf;
+
+        file.read((char*)&shader_size, 4);
+        buf = new char[shader_size + 1];
+        buf[shader_size] = 0;
+        file.read(buf, shader_size);
+        delete[] buf;
+//        surface.s_shader.load_memory(surface.frag_shader_src.c_str(),surface.frag_shader_src.size(),surface.vert_shader_src.c_str(),surface.vert_shader_src.size());
+    }
+
+    computeNormals();
+
+    byte link;
+    file.read((char*)&link, 1);
+
+    if (link == 2) // Load animation data if present
+    {
+        ANIMATION *animation_data = new ANIMATION;
+        file.read( (char*)&(animation_data->type), 1 );
+        file.read( (char*)&(animation_data->angle_0), sizeof(Vector3D) );
+        file.read( (char*)&(animation_data->angle_1), sizeof(Vector3D) );
+        file.read( (char*)&(animation_data->angle_w), sizeof(float)  );
+        file.read( (char*)&(animation_data->translate_0), sizeof(Vector3D) );
+        file.read( (char*)&(animation_data->translate_1), sizeof(Vector3D) );
+        file.read( (char*)&(animation_data->translate_w), sizeof(float) );
+
+        file.read( (char*)&link, 1 );
+
+        delete animation_data;
+    }
+
+    if (link)
+    {
+        child = new Mesh;
+        child->load3DMrec(file);
+    }
+    else
+        child = NULL;
+
+    file.read((char*)&link, 1);
+    if (link)
+    {
+        next = new Mesh;
+        next->load3DMrec(file);
+    }
+    else
+        next = NULL;
 }
