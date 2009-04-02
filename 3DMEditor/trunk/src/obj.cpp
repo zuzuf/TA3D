@@ -204,4 +204,6 @@ void Mesh::loadOBJ(const QString& filename)
 //    model_obj->size2 = sqrtf(0.5f*model_obj->size);
 //    model_obj->obj.compute_emitter();
 //    model_obj->compute_topbottom();
+
+    emit loaded();
 }

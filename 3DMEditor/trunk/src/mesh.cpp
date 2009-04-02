@@ -62,12 +62,14 @@ void Mesh::load3DM(const QString &filename)
         {
             load3DMrec(file);
             file.close();
+            emit loaded();
         }
     }
 }
 
 void Mesh::load3DO(const QString &filename)
 {
+    emit loaded();
 }
 
 void Mesh::loadASC(const QString &filename, float size)
@@ -224,6 +226,8 @@ void Mesh::loadASC(const QString &filename, float size)
         cur->computeNormals();      // Compute normals
         cur = cur->next;
     }
+
+    emit loaded();
 }
 
 void Mesh::save(const QString &filename)

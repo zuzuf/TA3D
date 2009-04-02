@@ -449,5 +449,6 @@ void Mesh::load3DS(const QString &filename, float scale)
         if (material)
             delete material;
         fclose( src_3ds );
+        emit loaded();
     }
 }

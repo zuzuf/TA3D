@@ -9,6 +9,7 @@
 #include "qpopup.h"
 #include "gfx.h"
 #include "aboutwindow.h"
+#include "geometrygraph.h"
 #include "mesh.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -26,8 +27,12 @@ MainWindow::MainWindow(QWidget *parent)
     mnuLanguage->addAction( tr("&English"), this, SLOT(setEnglish()));
     mnuLanguage->addAction( tr("&French"), this, SLOT(setFrench()));
 
+    QMenu *mnuWindows = new QMenu( tr("&Windows"));
+    mnuWindows->addAction( tr("&Geometry graph"), this, SLOT(showGeometryGraph()));
+
     QMenu *mnuInterface = new QMenu( tr("&Interface") );
     mnuInterface->addMenu(mnuLanguage);
+    mnuInterface->addMenu(mnuWindows);
     menuBar()->addMenu(mnuInterface);
 
     QMenu *mnuHelp = new QMenu( tr("&Help") );
@@ -48,6 +53,9 @@ MainWindow::MainWindow(QWidget *parent)
     setBaseSize(640, 480);
     resize( settings.value("mainwindow.size", QSize(640, 480)).toSize() );
     move( settings.value("mainwindow.pos", QPoint((desktop.width() - width()) / 2, (desktop.height() - height()) / 2) ).toPoint() );
+
+    // Some mesh related stuffs
+    connect(&Mesh::instance, SIGNAL(loaded()), GeometryGraph::instance(), SLOT(refreshTree()));
 }
 
 MainWindow::~MainWindow()
@@ -132,4 +140,9 @@ void MainWindow::saveMeshAs()
     setStatusBarMessage(tr("mesh saved"));
 
     filename = fileToSave;
+}
+
+void MainWindow::showGeometryGraph()
+{
+    GeometryGraph::instance()->show();
 }

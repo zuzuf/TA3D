@@ -25,6 +25,7 @@ public slots:
     void loadMesh();
     void saveMesh();
     void saveMeshAs();
+    void showGeometryGraph();
 
 private:
     QStatusBar  *statusBar;

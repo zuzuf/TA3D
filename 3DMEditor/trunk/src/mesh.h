@@ -39,8 +39,10 @@ public:
     float       translate_w;
 };
 
-class Mesh
+class Mesh : public QObject
 {
+    Q_OBJECT;
+    friend class GeometryGraph;
 public:
     Mesh();
     ~Mesh();
@@ -60,11 +62,14 @@ public:
 
     void computeNormals();
 
+signals:
+    void loaded();
+
 private:
     void load3DMrec(QFile &file);
     void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
 
-private:
+protected:
     QString             name;
     Vec                 pos;
     Mesh                *child;
