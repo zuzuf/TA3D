@@ -108,9 +108,9 @@ GLuint Gfx::loadTexture(const QString &filename)
 
 void Gfx::destroyTexture(GLuint &gltex)
 {
-    makeCurrent();
     if (gltex)
     {
+        makeCurrent();
         glDeleteTextures(1, &gltex);
         gltex = 0;
     }

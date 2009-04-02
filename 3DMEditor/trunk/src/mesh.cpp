@@ -14,7 +14,8 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
-    destroy();
+    if (this != &instance)
+        destroy();
 }
 
 void Mesh::destroy()
@@ -44,6 +45,10 @@ void Mesh::load(const QString &filename)
         load3DS(filename);
     else if (filename.endsWith(".asc", Qt::CaseInsensitive))
         loadASC(filename);
+    else if (filename.endsWith(".obj", Qt::CaseInsensitive))
+        loadOBJ(filename);
+    else if (!filename.isEmpty())
+        destroy();
 }
 
 void Mesh::load3DM(const QString &filename)

@@ -7,6 +7,7 @@
 #include <QFile>
 #include "misc/vector.h"
 #include "types.h"
+#include "obj.h"
 
 enum MeshType { MESH_TRIANGLES, MESH_TRIANGLE_STRIP };
 
@@ -55,11 +56,13 @@ public:
     void load3DO(const QString &filename);
     void loadASC(const QString &filename, float size = 10.0f);
     void load3DS(const QString &filename, float scale = 10.0f);
+    void loadOBJ(const QString &filename);
 
     void computeNormals();
 
 private:
     void load3DMrec(QFile &file);
+    void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
 
 private:
     QString             name;

@@ -160,7 +160,12 @@
     <message>
         <location filename="../src/mainwindow.cpp" line="104"/>
         <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds)</source>
-        <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds)</translation>
+        <translation type="obsolete">Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds)</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="104"/>
+        <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj)</source>
+        <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*obj)</translation>
     </message>
 </context>
 <context>

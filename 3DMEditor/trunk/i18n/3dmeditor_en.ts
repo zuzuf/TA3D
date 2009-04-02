@@ -148,7 +148,7 @@
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="104"/>
-        <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds)</source>
+        <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

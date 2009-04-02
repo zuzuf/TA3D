@@ -18,7 +18,8 @@ SOURCES += src/main.cpp \
     src/aboutwindow.cpp \
     src/misc/material.light.cpp \
     src/mesh.cpp \
-    src/3ds.cpp
+    src/3ds.cpp \
+    src/obj.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/qpopup.h \
@@ -31,6 +32,7 @@ HEADERS += src/mainwindow.h \
     src/aboutwindow.h \
     src/misc/material.light.h \
     src/mesh.h \
-    src/3ds.h
+    src/3ds.h \
+    src/obj.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts
