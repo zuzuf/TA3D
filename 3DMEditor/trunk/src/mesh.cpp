@@ -10,6 +10,8 @@ Mesh::Mesh()
     child = NULL;
     next = NULL;
     name.clear();
+    flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
+    color = rColor = 0xFFFFFFFF;
 }
 
 Mesh::~Mesh()
@@ -33,6 +35,8 @@ void Mesh::destroy()
     foreach(GLuint gltex, tex)
         Gfx::instance()->destroyTexture(gltex);
     tex.clear();
+    flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
+    color = rColor = 0xFFFFFFFF;
 }
 
 void Mesh::load(const QString &filename)
@@ -194,10 +198,9 @@ void Mesh::loadASC(const QString &filename, float size)
         cur->tcoord.reserve( nb_vtx * 2 );
         cur->type = MESH_TRIANGLES;
         cur->pos = Vec();
+        cur->flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
 
-        //        cur->surface.Flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
-        //        for (int k = 0; k < 4; ++k)
-        //            cur->surface.Color[k] = cur->surface.RColor[k] = 1.0f;
+        color = rColor = 0xFFFFFFFF;
 
         int nbp = 0;
 
@@ -282,7 +285,7 @@ void Mesh::draw()
     glVertexPointer(3, GL_FLOAT, 0, vertex.data());
     glNormalPointer(GL_FLOAT, 0, normal.data());
 
-    if (tex.isEmpty())
+    if (tex.isEmpty() || !(flag & SURFACE_TEXTURED))
     {
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisable(GL_TEXTURE_2D);
@@ -290,13 +293,24 @@ void Mesh::draw()
     else
     {
         glEnable(GL_TEXTURE_2D);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindTexture(GL_TEXTURE_2D, tex[0]);
-        glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
+        for(int i = 0 ; i < tex.size() ; i++)
+        {
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glBindTexture(GL_TEXTURE_2D, tex[i]);
+            glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
+        }
+    }
+    if (flag & SURFACE_BLENDED)
+    {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GREATER, 0.1f);
+    }
+    else
+    {
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
     }
 
     switch(type)
@@ -310,8 +324,11 @@ void Mesh::draw()
         break;
     };
 
-    glDisable(GL_BLEND);
-    glDisable(GL_ALPHA_TEST);
+    if (flag & SURFACE_BLENDED)
+    {
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
+    }
 
     if (child)
         child->draw();
@@ -391,12 +408,19 @@ void Mesh::load3DMrec(QFile &file)
     tcoord.resize(nb_vtx << 1);
     file.read((char*)tcoord.data(), sizeof(float) * nb_vtx << 1);
 
-    float color[4];
-    float rColor[4];
+    float colorf[4];
+    float rColorf[4];
 
-    file.read((char*)color, sizeof(float) * 4);	// Read surface data
-    file.read((char*)rColor, sizeof(float) * 4);
-    uint32 flag;
+    file.read((char*)colorf, sizeof(float) * 4);	// Read surface data
+    file.read((char*)rColorf, sizeof(float) * 4);
+    color = ((uint32)(colorf[0] * 255) << 24)
+            |((uint32)(colorf[1] * 255) << 16)
+            |((uint32)(colorf[2] * 255) << 8)
+            |((uint32)(colorf[3] * 255));
+    rColor = ((uint32)(rColorf[0] * 255) << 24)
+            |((uint32)(rColorf[1] * 255) << 16)
+            |((uint32)(rColorf[2] * 255) << 8)
+            |((uint32)(rColorf[3] * 255));
     file.read((char*)&flag, sizeof(flag));
     sint8 nb_tex = 0;
     file.read((char*)&nb_tex, sizeof(nb_tex));

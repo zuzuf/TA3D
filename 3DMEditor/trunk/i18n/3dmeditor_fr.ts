@@ -21,6 +21,14 @@
     </message>
 </context>
 <context>
+    <name>GeometryGraph</name>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="19"/>
+        <source>Geometry Graph</source>
+        <translation>Graphe de la géométrie</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.cpp" line="8"/>
@@ -28,12 +36,12 @@
         <translation type="obsolete">Fichier</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="22"/>
+        <location filename="../src/mainwindow.cpp" line="23"/>
         <source>&amp;Exit</source>
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="37"/>
+        <location filename="../src/mainwindow.cpp" line="42"/>
         <source>3DMEditor</source>
         <translation>3DMEditor</translation>
     </message>
@@ -43,117 +51,117 @@
         <translation type="obsolete">Langue</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="26"/>
+        <location filename="../src/mainwindow.cpp" line="27"/>
         <source>&amp;English</source>
         <translation>&amp;Anglais</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="27"/>
+        <location filename="../src/mainwindow.cpp" line="28"/>
         <source>&amp;French</source>
         <translation>&amp;Français</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="17"/>
+        <location filename="../src/mainwindow.cpp" line="18"/>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="25"/>
+        <location filename="../src/mainwindow.cpp" line="26"/>
         <source>&amp;Language</source>
         <translation>&amp;Langue</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="29"/>
+        <location filename="../src/mainwindow.cpp" line="33"/>
         <source>&amp;Interface</source>
         <translation>&amp;Interface</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="82"/>
+        <location filename="../src/mainwindow.cpp" line="90"/>
         <source>The program has to be restarted</source>
         <translation>Le programme doit être redémarré</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="82"/>
+        <location filename="../src/mainwindow.cpp" line="90"/>
         <source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="44"/>
+        <location filename="../src/mainwindow.cpp" line="49"/>
         <source>3DMEditor started</source>
         <translation>3DMEditor lancé</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="83"/>
+        <location filename="../src/mainwindow.cpp" line="91"/>
         <source>Language set to </source>
         <translation>Langue réglée sur</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="74"/>
+        <location filename="../src/mainwindow.cpp" line="82"/>
         <source>English</source>
         <translation>anglais</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="83"/>
+        <location filename="../src/mainwindow.cpp" line="91"/>
         <source>French</source>
         <translation>français</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="33"/>
+        <location filename="../src/mainwindow.cpp" line="38"/>
         <source>&amp;Help</source>
         <translation>&amp;Aide</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="34"/>
+        <location filename="../src/mainwindow.cpp" line="39"/>
         <source>&amp;About</source>
         <translation>&amp;A propos</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="18"/>
+        <location filename="../src/mainwindow.cpp" line="19"/>
         <source>&amp;New</source>
         <translation>&amp;Nouveau</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="19"/>
+        <location filename="../src/mainwindow.cpp" line="20"/>
         <source>&amp;Open</source>
         <translation>&amp;Ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="20"/>
+        <location filename="../src/mainwindow.cpp" line="21"/>
         <source>&amp;Save</source>
         <translation>&amp;Enregistrer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="21"/>
+        <location filename="../src/mainwindow.cpp" line="22"/>
         <source>Save as</source>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="104"/>
+        <location filename="../src/mainwindow.cpp" line="112"/>
         <source>open</source>
         <translation>ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="128"/>
+        <location filename="../src/mainwindow.cpp" line="136"/>
         <source>3DMEditor meshs(*.3dm)</source>
         <translation>Objets 3DMEditor(*.3dm)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="111"/>
+        <location filename="../src/mainwindow.cpp" line="119"/>
         <source>mesh loaded</source>
         <translation>Objet chargé</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="119"/>
+        <location filename="../src/mainwindow.cpp" line="127"/>
         <source>save</source>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="132"/>
+        <location filename="../src/mainwindow.cpp" line="140"/>
         <source>mesh saved</source>
         <translation>Objet enregistré</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="128"/>
+        <location filename="../src/mainwindow.cpp" line="136"/>
         <source>save as</source>
         <translation>Enregistrer sous</translation>
     </message>
@@ -163,9 +171,19 @@
         <translation type="obsolete">Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="104"/>
+        <location filename="../src/mainwindow.cpp" line="112"/>
         <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj)</source>
         <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*obj)</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="30"/>
+        <source>&amp;Windows</source>
+        <translation>&amp;Fenêtres</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="31"/>
+        <source>&amp;Geometry graph</source>
+        <translation>&amp;Graphe de la géométrie</translation>
     </message>
 </context>
 <context>

@@ -35,15 +35,15 @@ void Mesh::obj_finalize(QVector<int> &face, QVector<Vec> &vertex,
 
     computeNormals();
 
-    //    surface.Flag = SURFACE_ADVANCED | SURFACE_LIGHTED | SURFACE_GOURAUD;
-        if (mtl)
+    flag = SURFACE_ADVANCED | SURFACE_LIGHTED | SURFACE_GOURAUD;
+    if (mtl)
+    {
+        tex.push_back( Gfx::instance()->loadTexture( mtl->textureName ) );
+        if (tex[0])
         {
-            tex.push_back( Gfx::instance()->loadTexture( mtl->textureName ) );
-//            if (tex[0])
-//            {
-//                surface.Flag |= SURFACE_TEXTURED;
-//            }
+            flag |= SURFACE_TEXTURED;
         }
+    }
 }
 
 

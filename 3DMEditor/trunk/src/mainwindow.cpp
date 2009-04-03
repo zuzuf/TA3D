@@ -146,3 +146,13 @@ void MainWindow::showGeometryGraph()
 {
     GeometryGraph::instance()->show();
 }
+
+void MainWindow::endProgram()
+{
+    qApp->quit();
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    endProgram();
+}

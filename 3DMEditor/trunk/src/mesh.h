@@ -80,6 +80,9 @@ protected:
     QVector<GLuint>     tex;
     QVector<GLfloat>    tcoord;
     int                 type;
+    uint32              flag;
+    uint32              color;
+    uint32              rColor;
 
 public:
     static Mesh instance;

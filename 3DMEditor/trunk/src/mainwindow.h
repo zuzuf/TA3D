@@ -15,6 +15,7 @@ public:
 protected:
     void resizeEvent(QResizeEvent *);
     void moveEvent(QMoveEvent *);
+    void closeEvent(QCloseEvent *);
 
 public slots:
     void setEnglish();
@@ -26,6 +27,7 @@ public slots:
     void saveMesh();
     void saveMeshAs();
     void showGeometryGraph();
+    void endProgram();
 
 private:
     QStatusBar  *statusBar;

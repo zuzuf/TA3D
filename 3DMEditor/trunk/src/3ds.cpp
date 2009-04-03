@@ -359,18 +359,18 @@ void Mesh::load3DS(const QString &filename, float scale)
                     if (cur_mat)
                     {
                         //										printf("material found\n");
-//                        read_obj->surface.Flag |= SURFACE_ADVANCED | SURFACE_LIGHTED;
+                        read_obj->flag |= SURFACE_ADVANCED | SURFACE_LIGHTED;
                         if (!cur_mat->MAPNAME.isEmpty())
                         {
                             //											printf("loading texture %s\n", cur_mat->MAPNAME );
-//                            read_obj->surface.Flag |= SURFACE_TEXTURED;
+                            read_obj->flag |= SURFACE_TEXTURED;
                             read_obj->tex.resize(1);
                             read_obj->tex[0] = Gfx::instance()->loadTexture( cur_mat->MAPNAME );
                         }
                         if (cur_mat->TRANSPARENCY > 0.0f)
                         {
-//                            read_obj->surface.Flag |= SURFACE_BLENDED;
-//                            read_obj->surface.Color[ 3 ] = cur_mat->TRANSPARENCY;
+                            read_obj->flag |= SURFACE_BLENDED;
+                            read_obj->color = (read_obj->color & 0xFFFFFF00) | (uint32)(cur_mat->TRANSPARENCY * 255);
                         }
                     }
                     else

@@ -66,14 +66,24 @@ void Gfx::paintGL()
     glColor3ub(0, 0, 0xFF);
     drawArrow(Vec(0,0,0), Vec(0,0,10), 0.3f);
 
-    glColor3ub(0xFF, 0xFF, 0xFF);
+    glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+    Mesh::instance.draw();
 
+    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
+
+    glColor4ub(0x0, 0x0, 0x0, 0xFF);
     renderText(10.0, 0.0f, 0.0f, "x");
     renderText(0.0, 10.0f, 0.0f, "y");
     renderText(0.0, 0.0f, 10.0f, "z");
 
-    glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-    Mesh::instance.draw();
+    glColor3ub(0xFF, 0xFF, 0xFF);
+    renderText(10.0, 0.0f, 0.0f, "x");
+    renderText(0.0, 10.0f, 0.0f, "y");
+    renderText(0.0, 0.0f, 10.0f, "z");
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
 
     glPopMatrix();
 }

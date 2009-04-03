@@ -22,10 +22,7 @@ GeometryGraph::GeometryGraph()
 
     tree = new QTreeWidget;
     tree->setColumnCount(1);
-    QList<QTreeWidgetItem*> items;
-    for(int i = 0 ; i < 10 ; i++)
-        items.append(new QTreeWidgetItem((QTreeWidgetItem*)NULL, QStringList(QString("item %1").arg(i))));
-    tree->insertTopLevelItems(0, items);
+    tree->setHeaderLabel(tr("Parts"));
 
     layout->addWidget(tree);
 }
