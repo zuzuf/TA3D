@@ -24,6 +24,7 @@ public:
 
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void wheelEvent(QWheelEvent *);
 private:
     void arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoint &B);
 

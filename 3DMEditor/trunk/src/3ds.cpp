@@ -313,6 +313,7 @@ void Mesh::load3DS(const QString &filename, float scale)
                 {
                     read_obj->child = new Mesh;
                     read_obj = read_obj->child;
+                    read_obj->type = MESH_TRIANGLES;
                     read_obj->name = cur_obj->name;
                 }
                 local[0].x = 1.0f;		local[0].y = 0.0f;		local[0].z = 0.0f;
@@ -413,7 +414,7 @@ void Mesh::load3DS(const QString &filename, float scale)
                         Vector3D AB,AC;
                         AB = read_obj->vertex[ read_obj->index[ i + 1 ] ] - read_obj->vertex[ read_obj->index[ i ] ];
                         AC = read_obj->vertex[ read_obj->index[ i + 2 ] ] - read_obj->vertex[ read_obj->index[ i ] ];
-                        AB = AB * AC;
+                        AB = AB ^ AC;
                         AB.unit();
                         read_obj->normal[ read_obj->index[ i ] ] = read_obj->normal[ read_obj->index[ i ] ] + AB;
                         read_obj->normal[ read_obj->index[ i + 1 ] ] = read_obj->normal[ read_obj->index[ i + 1 ] ] + AB;
@@ -449,6 +450,8 @@ void Mesh::load3DS(const QString &filename, float scale)
         if (material)
             delete material;
         fclose( src_3ds );
+
+        computeInfo();
         emit loaded();
     }
 }

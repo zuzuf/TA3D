@@ -1,4 +1,5 @@
 #include <QMouseEvent>
+#include <QWheelEvent>
 #include <QtDebug>
 #include <QPixmap>
 #include <QFile>
@@ -217,7 +218,7 @@ void Gfx::drawArrow(const Vec &a, const Vec &b, float r)
 {
     Vec AB = b - a;
     Vec I(0.0f, 1.0f, 0.0f);
-    Vec J = I * AB;
+    Vec J = I ^ AB;
     J.unit();
     float angle = VAngle( AB, I ) * 180.0f / M_PI;
 
@@ -233,13 +234,43 @@ void Gfx::drawArrow(const Vec &a, const Vec &b, float r)
 
 void Gfx::mouseMoveEvent(QMouseEvent *event)
 {
-    if (previousMouseState == event->buttons() && (event->buttons() & Qt::LeftButton))
+    if (previousMouseState == event->buttons())
     {
-        arcballMove(Vec(), 20.0f, previousMousePos, event->pos());
+        if (event->buttons() == Qt::LeftButton)
+        {
+            float r = 20.0f;
+            Vec center;
+            if (!Mesh::instance.isEmpty())
+            {
+                Vec p;
+                Matrix inv = Invert( Transpose(meshMatrix) );
+                Vec pos = Camera::inGame->rpos * inv;
+                Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
+                if (Mesh::instance.hit(pos, dir, p))
+                {
+                    r = p.norm();
+                }
+                else
+                    r = Mesh::instance.getSize();
+            }
+            arcballMove(center, r, previousMousePos, event->pos());
+        }
+        else if (event->buttons() == Qt::RightButton)
+        {
+            QPoint move = event->pos() - previousMousePos;
+            Camera::inGame->rpos += 0.01f * (-move.x() * Camera::inGame->side + move.y() * Camera::inGame->up);
+            updateGL();
+        }
     }
 
     previousMousePos = event->pos();
     previousMouseState = event->buttons();
+}
+
+void Gfx::wheelEvent(QWheelEvent *event)
+{
+    Camera::inGame->rpos += 0.01f * event->delta() * Camera::inGame->dir;
+    updateGL();
 }
 
 void Gfx::mouseReleaseEvent(QMouseEvent *event)
@@ -261,8 +292,8 @@ void Gfx::arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoi
     Vec dir = pos - Camera::inGame->rpos;
 
     // The projection of dir on va and vb
-    Vec ha = Camera::inGame->rpos + (dir % va) * va;
-    Vec hb = Camera::inGame->rpos + (dir % vb) * vb;
+    Vec ha = Camera::inGame->rpos + (dir * va) * va;
+    Vec hb = Camera::inGame->rpos + (dir * vb) * vb;
 
     // The first intersection point with the sphere (relative to its center)
     float da = r2 - (ha - pos).sq();
@@ -274,7 +305,7 @@ void Gfx::arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoi
     sa.unit();
     sb.unit();
 
-    Vec axis = sa * sb;
+    Vec axis = sa ^ sb;
     axis.unit();
 
     float angle = VAngle(sa, sb) * 180.0f / M_PI;

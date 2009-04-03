@@ -66,6 +66,8 @@ void Mesh::load3DM(const QString &filename)
         {
             load3DMrec(file);
             file.close();
+
+            computeInfo();
             emit loaded();
         }
     }
@@ -73,6 +75,7 @@ void Mesh::load3DM(const QString &filename)
 
 void Mesh::load3DO(const QString &filename)
 {
+    computeInfo();
     emit loaded();
 }
 
@@ -230,6 +233,8 @@ void Mesh::loadASC(const QString &filename, float size)
         cur = cur->next;
     }
 
+    computeInfo();
+
     emit loaded();
 }
 
@@ -250,7 +255,7 @@ void Mesh::computeNormals()
     case MESH_TRIANGLE_STRIP:
         for(int i = 0 ; i < index.size() ; i++)
         {
-            Vec n = (vertex[ index[i + 1] ] - vertex[ index[i] ]) * (vertex[ index[i + 2] ] - vertex[ index[i] ]);
+            Vec n = (vertex[ index[i + 1] ] - vertex[ index[i] ]) ^ (vertex[ index[i + 2] ] - vertex[ index[i] ]);
             n.unit();
             normal[ index[i] ] += n;
             normal[ index[i + 1] ] += n;
@@ -261,7 +266,7 @@ void Mesh::computeNormals()
     default:
         for(int i = 0 ; i < index.size() ; i += 3)
         {
-            Vec n = (vertex[ index[i + 1] ] - vertex[ index[i] ]) * (vertex[ index[i + 2] ] - vertex[ index[i] ]);
+            Vec n = (vertex[ index[i + 1] ] - vertex[ index[i] ]) ^ (vertex[ index[i + 2] ] - vertex[ index[i] ]);
             n.unit();
             normal[ index[i] ] += n;
             normal[ index[i + 1] ] += n;
@@ -377,6 +382,8 @@ void Mesh::load3DMrec(QFile &file)
 {
     if (file.atEnd())
         return;
+
+    type = MESH_TRIANGLES;
 
     uint8 len;
     file.getChar((char*)&len);
@@ -583,4 +590,123 @@ void Mesh::load3DMrec(QFile &file)
     }
     else
         next = NULL;
+}
+
+void Mesh::computeSize()
+{
+    size = size2 = 0.0f;
+    foreach(Vec v, vertex)
+        size2 = qMax(size2, v.sq());
+    size = sqrtf(size2);
+    if (child)
+    {
+        child->computeSize();
+        for( Mesh *cur = child ; cur != NULL ; cur = cur->next )
+            size = qMax(size, cur->size + cur->pos.norm());
+        size2 = size * size;
+    }
+    if (next)
+        next->computeSize();
+}
+
+void Mesh::computeInfo()
+{
+    computeSize();
+}
+
+bool Mesh::isEmpty()
+{
+    return child == NULL && next == NULL && vertex.isEmpty();
+}
+
+bool Mesh::hit(const Vec &pos, const Vec &dir, Vec &p)
+{
+    Vec rPos = pos - this->pos;
+    bool bHit = false;
+    switch(type)
+    {
+    case MESH_TRIANGLE_STRIP:
+        // It's slow but it's only for mesh manipulation
+        for(int i = 0 ; i < index.size() ; i++)
+        {
+            Vec &a = vertex[ index[i] ];
+            Vec &b = vertex[ index[i+1] ];
+            Vec &c = vertex[ index[i+2] ];
+            Vec q;
+            if (hitTriangle(a, b, c, rPos, dir, q))
+            {
+                if (!bHit || dir * p > dir * q)
+                    p = q;
+                bHit = true;
+            }
+        }
+        break;
+    case MESH_TRIANGLES:
+    default:
+        // It's slow but it's only for mesh manipulation
+        for(int i = 0 ; i < index.size() ; i += 3)
+        {
+            Vec &a = vertex[ index[i] ];
+            Vec &b = vertex[ index[i+1] ];
+            Vec &c = vertex[ index[i+2] ];
+            Vec q;
+            if (hitTriangle(a, b, c, rPos, dir, q))
+            {
+                if (!bHit || dir * p > dir * q)
+                    p = q;
+                bHit = true;
+            }
+        }
+        break;
+    };
+
+    if (child)
+    {
+        Vec q;
+        if (child->hit(rPos, dir, q))
+        {
+            if (!bHit || dir * p > dir * q)
+                p = q;
+            bHit = true;
+        }
+    }
+    if (bHit)
+        p += this->pos;
+    if (next)
+    {
+        Vec q;
+        if (next->hit(pos, dir, q))
+        {
+            if (!bHit || dir * p > dir * q)
+                p = q;
+            bHit = true;
+        }
+    }
+    return bHit;
+}
+
+bool Mesh::hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos, const Vec &dir, Vec &p)
+{
+    Vec mid = (1.0f / 3.0f) * (a + b + c);
+    float md = qMax((mid-a).sq(), qMax((mid-b).sq(), (mid-c).sq()));
+    Vec OM = mid - pos;
+    float l = (dir ^ OM).sq();
+    if (l + l * l / OM.sq() <= md)      // Spherical intersection ?
+    {
+        Vec n = (b-a) ^ (c-a);
+        if ((dir * n) * ((a - pos) * n) > 0.0f)     // Are we aiming in the right direction ?
+        {
+            p = pos + (((a - pos) * n) / (dir * n)) * dir;      // Intersection with triangle space
+            // WARNING: fonction critique a tester abusivement
+            if (((p-a) ^ (b-a)) * ((c-a) ^ (b-a)) < 0.0f)       // First half space ?
+                return false;
+            if (((p-b) ^ (c-b)) * ((a-b) ^ (c-b)) < 0.0f)       // Second half space ?
+                return false;
+            if (((p-c) ^ (a-c)) * ((b-c) ^ (a-c)) < 0.0f)       // Third ?
+                return false;
+            return true;
+        }
+        return false;
+    }
+    return false;
 }

@@ -61,7 +61,7 @@ float Norme_Colonne(const Matrix &A)
     return n;
 }
 
-inline Matrix Invert(const Matrix &A,const int P)
+Matrix Invert(const Matrix &A,const int P)
 {
     Matrix I,E,B;
     I = Scale(1.0f);

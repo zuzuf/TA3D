@@ -60,11 +60,20 @@ public:
     void loadOBJ(const QString &filename);
 
     void computeNormals();
+    void computeSize();
+
+    bool isEmpty();
+
+    inline float getSize() {    return size;    }
+    inline float getSize2() {    return size2;    }
+
+    bool hit(const Vec &pos, const Vec &dir, Vec &p);
 
 signals:
     void loaded();
 
 private:
+    void computeInfo();
     void load3DMrec(QFile &file);
     void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
 
@@ -82,9 +91,13 @@ protected:
     uint32              flag;
     uint32              color;
     uint32              rColor;
+    float               size;
+    float               size2;
 
 public:
     static Mesh instance;
+public:
+    static bool hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos, const Vec &dir, Vec &p);
 };
 
 #endif // MESH_H

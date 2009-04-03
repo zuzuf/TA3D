@@ -16,6 +16,7 @@ void Mesh::obj_finalize(QVector<int> &face, QVector<Vec> &vertex,
     this->index.resize( nb_idx );
     this->vertex.resize( nb_vtx );
     this->tcoord.resize( 2 * nb_vtx );
+    type = MESH_TRIANGLES;
 
     for (int i = 0 ; i < nb_idx ; i++)
     {
@@ -195,15 +196,7 @@ void Mesh::loadOBJ(const QString& filename)
 
     src_obj.close();
 
-//    Vec O;
-//    int coef(0);
-//    model_obj->center.reset();
-//    model_obj->obj.compute_center(&model_obj->center, O, &coef);
-//    model_obj->center = (1.0f/coef) * model_obj->center;
-//    model_obj->size = 2.0f * model_obj->obj.compute_size_sq(model_obj->center); // On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
-//    model_obj->size2 = sqrtf(0.5f*model_obj->size);
-//    model_obj->obj.compute_emitter();
-//    model_obj->compute_topbottom();
+    computeInfo();
 
     emit loaded();
 }

@@ -50,7 +50,7 @@ namespace TA3D
         up.y  = 1.0f; // Haut
         zfar  = 140000.0f;
         znear = 1.0f;
-        side  = dir * up;
+        side  = dir ^ up;
         zfar2  = zfar * zfar;
         mirror = false;
         mirrorPos = 0.0f;
@@ -71,7 +71,7 @@ namespace TA3D
         up.y = 1.0f;
         dir = dir * v;
         up = up * v;
-        side = dir * up;
+        side = dir ^ up;
     }
 
 

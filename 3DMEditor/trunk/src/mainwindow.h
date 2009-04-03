@@ -22,6 +22,7 @@ public slots:
     void setFrench();
     void setStatusBarMessage(const QString msg);
     void about();
+    void aboutQt();
     void newMesh();
     void loadMesh();
     void saveMesh();

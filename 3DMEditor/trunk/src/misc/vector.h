@@ -143,8 +143,8 @@ public:
     Vector3D& operator *= (const float v)
                           { x *= v; y *= v; z *= v; return (*this); }
 
-    Vector3D& operator *= (const Vector3D rhs)
-                          {
+    Vector3D& operator ^= (const Vector3D rhs)
+    {
         float nx = y * rhs.z - z * rhs.y;
         float ny = -x * rhs.z + z * rhs.x;
         float nz = x * rhs.y - y * rhs.x;
@@ -190,7 +190,7 @@ inline const Vector2D operator - (const Vector2D& lhs, const Vector2D& rhs)
 inline const Vector2D operator * (const float& v, const Vector2D& lhs)
 { return Vector2D(lhs) *= v; }
 
-inline float operator % (const Vector2D& lhs, const Vector2D& rhs)
+inline float operator * (const Vector2D& lhs, const Vector2D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y; }
 
 
@@ -206,10 +206,10 @@ inline const Vector3D operator - (const Vector3D& lhs, const Vector3D& rhs)
 inline const Vector3D operator * (const float& v, const Vector3D& lhs)
 { return Vector3D(lhs) *= v; }
 
-inline const Vector3D operator * (const Vector3D& lhs, const Vector3D& rhs)
-{ return Vector3D(lhs) *= rhs; }
+inline const Vector3D operator ^ (const Vector3D& lhs, const Vector3D& rhs)
+{ return Vector3D(lhs) ^= rhs; }
 
-inline float operator % (const Vector3D& lhs, const Vector3D& rhs)
+inline float operator * (const Vector3D& lhs, const Vector3D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
 
 
@@ -223,7 +223,7 @@ inline float operator % (const Vector3D& lhs, const Vector3D& rhs)
 inline float VAngle(const Vector3D& A, const Vector3D& B)
 {
     float a = sqrtf(A.sq() * B.sq());
-    a = (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+    a = (a == 0.0f) ? 0.0f : acosf((A * B) / a );
     if (isnan(a))
         return 0.0f;
     return a;

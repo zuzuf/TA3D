@@ -5,11 +5,11 @@ QT += opengl
 CONFIG -= release
 CONFIG += debug
 TARGET = 3DMEditor2
-LIBS += -lz
+LIBS += -lz \
+    -lGLEW
 TEMPLATE = app
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \
-    src/qpopup.cpp \
     src/gfx.cpp \
     src/misc/vector.cpp \
     src/misc/matrix.cpp \
@@ -20,10 +20,10 @@ SOURCES += src/main.cpp \
     src/mesh.cpp \
     src/3ds.cpp \
     src/obj.cpp \
-    src/geometrygraph.cpp
+    src/geometrygraph.cpp \
+    src/program.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
-    src/qpopup.h \
     src/gfx.h \
     src/misc/vector.h \
     src/misc/matrix.h \
@@ -35,6 +35,7 @@ HEADERS += src/mainwindow.h \
     src/mesh.h \
     src/3ds.h \
     src/obj.h \
-    src/geometrygraph.h
+    src/geometrygraph.h \
+    src/program.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

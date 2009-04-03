@@ -27,6 +27,11 @@
         <source>Geometry Graph</source>
         <translation>Graphe de la géométrie</translation>
     </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="25"/>
+        <source>Parts</source>
+        <translation>Éléments</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -41,7 +46,7 @@
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="42"/>
+        <location filename="../src/mainwindow.cpp" line="43"/>
         <source>3DMEditor</source>
         <translation>3DMEditor</translation>
     </message>
@@ -76,32 +81,32 @@
         <translation>&amp;Interface</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="90"/>
+        <location filename="../src/mainwindow.cpp" line="89"/>
         <source>The program has to be restarted</source>
         <translation>Le programme doit être redémarré</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="90"/>
+        <location filename="../src/mainwindow.cpp" line="89"/>
         <source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="49"/>
+        <location filename="../src/mainwindow.cpp" line="50"/>
         <source>3DMEditor started</source>
         <translation>3DMEditor lancé</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="91"/>
+        <location filename="../src/mainwindow.cpp" line="88"/>
         <source>Language set to </source>
         <translation>Langue réglée sur</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="82"/>
+        <location filename="../src/mainwindow.cpp" line="80"/>
         <source>English</source>
         <translation>anglais</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="91"/>
+        <location filename="../src/mainwindow.cpp" line="88"/>
         <source>French</source>
         <translation>français</translation>
     </message>
@@ -136,32 +141,32 @@
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="112"/>
+        <location filename="../src/mainwindow.cpp" line="111"/>
         <source>open</source>
         <translation>ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="136"/>
+        <location filename="../src/mainwindow.cpp" line="140"/>
         <source>3DMEditor meshs(*.3dm)</source>
         <translation>Objets 3DMEditor(*.3dm)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="119"/>
+        <location filename="../src/mainwindow.cpp" line="118"/>
         <source>mesh loaded</source>
         <translation>Objet chargé</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="127"/>
+        <location filename="../src/mainwindow.cpp" line="126"/>
         <source>save</source>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="140"/>
+        <location filename="../src/mainwindow.cpp" line="149"/>
         <source>mesh saved</source>
         <translation>Objet enregistré</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="136"/>
+        <location filename="../src/mainwindow.cpp" line="140"/>
         <source>save as</source>
         <translation>Enregistrer sous</translation>
     </message>
@@ -173,7 +178,7 @@
     <message>
         <location filename="../src/mainwindow.cpp" line="112"/>
         <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj)</source>
-        <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*obj)</translation>
+        <translation type="obsolete">Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*obj)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="30"/>
@@ -185,13 +190,28 @@
         <source>&amp;Geometry graph</source>
         <translation>&amp;Graphe de la géométrie</translation>
     </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="40"/>
+        <source>&amp;About Qt</source>
+        <translation>&amp;A propos de Qt</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="111"/>
+        <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj);;all files(*.*)</source>
+        <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*obj);;tous les fichiers(*.*)</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="171"/>
+        <source>About Qt</source>
+        <translation>A propos de Qt</translation>
+    </message>
 </context>
 <context>
     <name>QPopup</name>
     <message>
         <location filename="../src/qpopup.cpp" line="16"/>
         <source>ok</source>
-        <translation>ok</translation>
+        <translation type="obsolete">ok</translation>
     </message>
 </context>
 </TS>
