@@ -1,12 +1,11 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <QGLWidget>
+#include "types.h"
 #include <QString>
 #include <QVector>
 #include <QFile>
 #include "misc/vector.h"
-#include "types.h"
 #include "obj.h"
 
 enum MeshType { MESH_TRIANGLES, MESH_TRIANGLE_STRIP };

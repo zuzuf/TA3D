@@ -21,6 +21,9 @@ Gfx::Gfx()
     previousMousePos = QPoint();
     previousMouseState = Qt::NoButton;
     meshMatrix = Scale(1.0f);
+
+    makeCurrent();
+    glewInit();
 }
 
 Gfx::~Gfx()

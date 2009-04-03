@@ -292,12 +292,44 @@ void Mesh::draw()
     }
     else
     {
-        glEnable(GL_TEXTURE_2D);
-        for(int i = 0 ; i < tex.size() ; i++)
+        for(int i = tex.size() - 1 ; i >= 0 ; i--)
         {
+            glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glActiveTextureARB(GL_TEXTURE0_ARB + i);
+            glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, tex[i]);
             glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
+
+            if ((flag & SURFACE_REFLEC) && i == tex.size() - 1)
+            {
+                glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                glEnable(GL_TEXTURE_GEN_S);
+                glEnable(GL_TEXTURE_GEN_T);
+                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+                glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
+                glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
+                glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                float rColorf[4] = { (rColor >> 24) / 255.0f,
+                                     ((rColor >> 16) & 0xFF) / 255.0f,
+                                     ((rColor >> 8) & 0xFF) / 255.0f,
+                                     (rColor & 0xFF) / 255.0f };
+                glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,rColorf);
+            }
+            else
+            {
+                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                glDisable(GL_TEXTURE_GEN_S);
+                glDisable(GL_TEXTURE_GEN_T);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            }
         }
     }
     if (flag & SURFACE_BLENDED)
@@ -329,6 +361,9 @@ void Mesh::draw()
         glDisable(GL_BLEND);
         glDisable(GL_ALPHA_TEST);
     }
+    if (!tex.isEmpty() && (flag & SURFACE_TEXTURED))
+        for(int i = tex.size() - 1 ; i >= 0 ; i--)
+            Gfx::instance()->ReInitTexSys();
 
     if (child)
         child->draw();

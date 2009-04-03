@@ -18,7 +18,7 @@
 #ifndef __TA3D_XX_MISC_MATERIAL_LIGHT_H__
 # define __TA3D_XX_MISC_MATERIAL_LIGHT_H__
 
-# include <GL/gl.h>
+# include "../types.h"
 # include "vector.h"
 # include "camera.h"
 

@@ -1,7 +1,7 @@
 #ifndef GFX_H
 #define GFX_H
 
-#include <QGLWidget>
+#include "types.h"
 #include "misc/matrix.h"
 
 class Gfx : public QGLWidget

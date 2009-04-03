@@ -11,4 +11,7 @@ typedef signed char sint8;
 
 typedef unsigned char byte;
 
+#include <GL/glew.h>
+#include <QGLWidget>
+
 #endif // TYPES_H
