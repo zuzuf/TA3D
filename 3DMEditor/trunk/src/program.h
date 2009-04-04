@@ -25,6 +25,8 @@ public:
     */
     void load(const QString &programFilename);
 
+    void load_memory(const QString &vertexProgram, const QString &fragmentProgram);
+
     /*!
     ** \brief On, Off ?
     */

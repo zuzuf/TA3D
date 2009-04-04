@@ -2,6 +2,72 @@
 #include <QDebug>
 #include "program.h"
 
+GLhandleARB loadFragmentProgramFromMemory(const QString& src)
+{
+    QByteArray bytes = src.toAscii();
+    if (bytes.isEmpty())
+        return 0;
+
+    GLhandleARB	program = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+
+    GLint filesizeGL = (GLint)bytes.size();
+    GLcharARB *buf = (GLcharARB*) bytes.data();
+    glShaderSourceARB(program, 1, (const GLcharARB **)&buf, &filesizeGL);
+    glCompileShaderARB(program);
+
+    int compiled = 0;
+    glGetObjectParameterivARB(program, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
+
+    if (compiled)
+    {
+        // compilation successful!
+        qDebug() << "Fragment shader compiled";
+    }
+    else
+    {
+        // compilation error! Check compiler log!
+        qDebug() << "Fragment shader failed to compile";
+        char log[10000];
+        GLsizei len = 0;
+        glGetInfoLogARB(program, 10000, &len, log);
+        qDebug() << log;
+    }
+    return program;
+}
+
+GLhandleARB loadVertexProgramFromMemory(const QString &src)
+{
+    QByteArray bytes = src.toAscii();
+    if (bytes.isEmpty())
+        return 0;
+
+    GLhandleARB	program = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+
+    int compiled = 0;
+
+    GLint filesizeGL = (GLint)bytes.size();
+    GLcharARB *buf = (GLcharARB*) bytes.data();
+    glShaderSourceARB(program, 1, (const GLcharARB **)&buf, &filesizeGL);
+    glCompileShaderARB(program);
+    glGetObjectParameterivARB(program, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
+
+    if (compiled)
+    {
+        // compilation successful!
+        qDebug() << "Vertex shader compiled";
+    }
+    else
+    {
+        // compilation error! Check compiler log!
+        qDebug() << "Vertex sharder failed to compile";
+        char log[10000];
+        GLsizei len = 0;
+        glGetInfoLogARB(program, 10000, &len, log);
+        qDebug() << log;
+    }
+    return program;
+}
+
 GLhandleARB loadFragmentProgram(const QString& filename)
 {
     QFile file(filename);
@@ -112,6 +178,33 @@ void Program::load(const QString &programFilename)
     else
     {
         qDebug() << "Failed to load shader: `" << programFilename << "`";
+        char log[10000];
+        GLsizei len = 0;
+        glGetInfoLogARB(pProgram, 10000, &len, log);
+        qDebug() << log;
+        pLoaded = false;
+    }
+}
+
+void Program::load_memory(const QString &vertexProgram, const QString &fragmentProgram)
+{
+    pProgram  = glCreateProgramObjectARB();
+    pVertexProgram   = loadVertexProgramFromMemory(vertexProgram);
+    pFragmentProgram = loadFragmentProgramFromMemory(fragmentProgram);
+
+    // OpenGL  - attach objects
+    glAttachObjectARB(pProgram, pVertexProgram);
+    glAttachObjectARB(pProgram, pFragmentProgram);
+    glLinkProgramARB(pProgram);
+    GLint link = 0;
+    glGetObjectParameterivARB(pProgram, GL_OBJECT_LINK_STATUS_ARB, &link);
+    if (link)
+    {
+        pLoaded = true;
+    }
+    else
+    {
+        qDebug() << "Failed to load shader from memory";
         char log[10000];
         GLsizei len = 0;
         glGetInfoLogARB(pProgram, 10000, &len, log);

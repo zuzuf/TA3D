@@ -290,6 +290,9 @@ void Mesh::draw()
     glVertexPointer(3, GL_FLOAT, 0, vertex.data());
     glNormalPointer(GL_FLOAT, 0, normal.data());
 
+    if (flag & SURFACE_GLSL)
+        shader.on();
+
     if (tex.isEmpty() || !(flag & SURFACE_TEXTURED))
     {
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -335,6 +338,8 @@ void Mesh::draw()
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             }
+            if (shader.isOn())
+                shader.setvar1i(QString("tex%1").arg(i).toAscii().data(), i);
         }
     }
     if (flag & SURFACE_BLENDED)
@@ -360,6 +365,9 @@ void Mesh::draw()
         glDrawElements(GL_TRIANGLES, index.size(), GL_UNSIGNED_INT, index.data());
         break;
     };
+
+    if (flag & SURFACE_GLSL)
+        shader.off();
 
     if (flag & SURFACE_BLENDED)
     {
@@ -540,17 +548,16 @@ void Mesh::load3DMrec(QFile &file)
     {
         uint32 shader_size;
         file.read((char*)&shader_size, 4);
-        char *buf = new char[shader_size + 1];
-        buf[shader_size] = 0;
-        file.read(buf, shader_size);
-        delete[] buf;
+        QByteArray buf;
+        buf.resize(shader_size);
+        file.read(buf.data(), shader_size);
+        vertexProgram = buf;
 
         file.read((char*)&shader_size, 4);
-        buf = new char[shader_size + 1];
-        buf[shader_size] = 0;
-        file.read(buf, shader_size);
-        delete[] buf;
-//        surface.s_shader.load_memory(surface.frag_shader_src.c_str(),surface.frag_shader_src.size(),surface.vert_shader_src.c_str(),surface.vert_shader_src.size());
+        buf.resize(shader_size);
+        file.read(buf.data(), shader_size);
+        fragmentProgram = buf;
+        shader.load_memory(vertexProgram, fragmentProgram);
     }
 
     computeNormals();

@@ -7,6 +7,7 @@
 #include <QFile>
 #include "misc/vector.h"
 #include "obj.h"
+#include "program.h"
 
 enum MeshType { MESH_TRIANGLES, MESH_TRIANGLE_STRIP };
 
@@ -93,6 +94,9 @@ protected:
     uint32              rColor;
     float               size;
     float               size2;
+    Program             shader;
+    QString             fragmentProgram;
+    QString             vertexProgram;
 
 public:
     static Mesh instance;
