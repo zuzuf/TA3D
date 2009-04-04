@@ -7,9 +7,9 @@ buildheading = 0
 SMOKEPIECE1     = base
 ANIM_VARIABLE   = true
 
-#include "StateChg.h"
-#include "smokeunit.h"
-#include "exptype.h"
+#include "StateChg.lh"
+#include "smokeunit.lh"
+#include "exptype.lh"
 
 function activatescr()
     turn( door1, z_axis, -90, 90 )

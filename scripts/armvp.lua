@@ -6,10 +6,10 @@ SIG_ACTIVATE = 2
 SMOKEPIECE1 = base
 ANIM_VARIABLE = true
 
-#include "StateChg.h"
-#include "smokeunit.h"
-#include "exptype.h"
-#include "yard.h"
+#include "StateChg.lh"
+#include "smokeunit.lh"
+#include "exptype.lh"
+#include "yard.lh"
 
 function activatescr()
     turn( side1, z_axis, -90, 60 )

@@ -1,4 +1,4 @@
-#include "signals.h"
+#include "signals.lh"
 
 killed = {}
 for i = 0, nb_players() - 1 do

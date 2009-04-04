@@ -1,5 +1,5 @@
 --
--- exptype.h -- Explosion Type values for Lua scripts
+-- exptype.lh -- Explosion Type values for Lua scripts
 --
 
 SHATTER         = 1     -- The piece will shatter instead of remaining whole

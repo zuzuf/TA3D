@@ -4,9 +4,9 @@ piece( "base", "arms" )
 
 SMOKEPIECE1 = base
 
-#include "StateChg.h"
-#include "smokeunit.h"
-#include "exptype.h"
+#include "StateChg.lh"
+#include "smokeunit.lh"
+#include "exptype.lh"
 
 spinspeed = 0
 spinacc = 0.5

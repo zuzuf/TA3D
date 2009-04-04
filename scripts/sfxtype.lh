@@ -1,5 +1,5 @@
 --
--- SFXtype.h -- Special Effects Type information for scripts
+-- SFXtype.lh -- Special Effects Type information for scripts
 --
 
 -- Vector-based special effects

@@ -1,4 +1,4 @@
-#include "signals.h"
+#include "signals.lh"
 
 function spawn_random( unit_type )
 	rand_x = ( math.random() - 0.5 ) * map_w()
