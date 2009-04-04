@@ -13,6 +13,7 @@ public:
 public slots:
     void refreshTree();
     void updateSelection(QTreeWidgetItem *item, int column);
+    void updateSelectionID(int ID);
 
 signals:
     void objectSelected(int ID);

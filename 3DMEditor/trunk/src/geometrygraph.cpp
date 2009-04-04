@@ -67,3 +67,10 @@ void GeometryGraph::updateSelection(QTreeWidgetItem *item, int column)
 {
     emit objectSelected(item->text(1).toInt());
 }
+
+void GeometryGraph::updateSelectionID(int ID)
+{
+    QList<QTreeWidgetItem*> items = tree->findItems(QString("%1").arg(ID), Qt::MatchExactly , 1);
+    if (!items.isEmpty())
+        tree->setCurrentItem(items.front());
+}

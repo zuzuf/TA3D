@@ -5,6 +5,7 @@
 #include <QFile>
 #include "gfx.h"
 #include "mesh.h"
+#include "geometrygraph.h"
 #include "misc/camera.h"
 #include "misc/material.light.h"
 
@@ -345,6 +346,10 @@ void Gfx::arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoi
 
 void Gfx::updateSelection(int ID)
 {
-    selectedID = ID;
-    updateGL();
+    if (selectedID != ID)           // Avoid infinite loops
+    {
+        selectedID = ID;
+        updateGL();
+        GeometryGraph::instance()->updateSelectionID(ID);
+    }
 }
