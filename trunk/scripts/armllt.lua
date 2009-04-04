@@ -5,8 +5,8 @@ piece( "base", "flare", "turret", "sleeve", "barrel" )
 SIG_AIM	        = 2
 SMOKEPIECE1     = base
 
-#include "smokeunit.h"
-#include "EXPtype.h"
+#include "smokeunit.lh"
+#include "EXPtype.lh"
 
 function Create()
 	hide( flare )

@@ -213,7 +213,7 @@ namespace TA3D
             register_functions();
 
             uint32 filesize2 = 0;
-            byte *header_buffer = loadLuaFile("scripts/ta3d.h" , filesize2);
+            byte *header_buffer = loadLuaFile("scripts/ta3d.lh" , filesize2);
             if (header_buffer == NULL)
             {
                 if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)

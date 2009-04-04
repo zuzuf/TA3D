@@ -1,4 +1,4 @@
-#include "signals.h"
+#include "signals.lh"
 
 text_print( 296, 236, "Welcome" )
 timer = time()

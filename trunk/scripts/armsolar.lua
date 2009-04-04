@@ -5,9 +5,9 @@ piece("base","dish1","dish2","dish3","dish4")
 SIG_HIT     = 2
 SMOKEPIECE1 = base
 
-#include "StateChg.h"
-#include "smokeunit.h"
-#include "exptype.h"
+#include "StateChg.lh"
+#include "smokeunit.lh"
+#include "exptype.lh"
 
 function Go()
     turn( dish1, x_axis, -90, 60 )

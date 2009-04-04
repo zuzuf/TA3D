@@ -3,8 +3,8 @@
 piece( "base", "texture" )
 
 SMOKEPIECE1 = base
-#include "smokeunit.h"
-#include "EXPtype.h"
+#include "smokeunit.lh"
+#include "EXPtype.lh"
 
 function Create()
 	dont_cache( texture )

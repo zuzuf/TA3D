@@ -1,4 +1,4 @@
--- StateChg.h -- Generic State Change support for units that activate and deactivate or whatever
+-- StateChg.lh -- Generic State Change support for units that activate and deactivate or whatever
 
 -- Due to limitiations of the scripting language, this file must be included twice.  The
 -- first time must be where the static variables are declared.  The second time must be

@@ -1,7 +1,7 @@
--- SmokeUnit.h -- Process unit smoke when damaged
+-- SmokeUnit.lh -- Process unit smoke when damaged
 
-#include "SFXtype.h"
-#include "EXPtype.h"
+#include "SFXtype.lh"
+#include "EXPtype.lh"
 
 -- Figure out how many smoking pieces are defined
 
