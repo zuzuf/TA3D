@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Some mesh related stuffs
     connect(&Mesh::instance, SIGNAL(loaded()), GeometryGraph::instance(), SLOT(refreshTree()));
+    connect(GeometryGraph::instance(), SIGNAL(objectSelected(int)), Gfx::instance(), SLOT(updateSelection(int)));
 }
 
 MainWindow::~MainWindow()

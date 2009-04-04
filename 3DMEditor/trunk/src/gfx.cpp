@@ -22,6 +22,7 @@ Gfx::Gfx()
     previousMousePos = QPoint();
     previousMouseState = Qt::NoButton;
     meshMatrix = Scale(1.0f);
+    selectedID = -1;
 
     makeCurrent();
     glewInit();
@@ -72,6 +73,26 @@ void Gfx::paintGL()
 
     glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
     Mesh::instance.draw();
+
+    if (selectedID >= 0)
+    {
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        glDisable(GL_LIGHTING);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO);
+
+        glDepthFunc(GL_EQUAL);
+
+        Mesh::whiteSurface = true;
+        Mesh::instance.draw(selectedID);
+        Mesh::whiteSurface = false;
+
+        glDepthFunc(GL_LESS);
+        glEnable(GL_LIGHTING);
+        glDisable(GL_BLEND);
+
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+    }
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
@@ -319,5 +340,11 @@ void Gfx::arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoi
     glGetFloatv(GL_MODELVIEW_MATRIX, meshMatrix.data());
     glPopMatrix();
 
+    updateGL();
+}
+
+void Gfx::updateSelection(int ID)
+{
+    selectedID = ID;
     updateGL();
 }

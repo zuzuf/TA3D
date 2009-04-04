@@ -49,7 +49,7 @@ public:
 
     void destroy();
 
-    void draw();
+    void draw(int id = -1);
 
     void load(const QString &filename);
     void save(const QString &filename);
@@ -65,8 +65,10 @@ public:
 
     bool isEmpty();
 
-    inline float getSize() {    return size;    }
-    inline float getSize2() {    return size2;    }
+    inline float getSize()  {   return size;    }
+    inline float getSize2() {   return size2;   }
+    inline uint32 getID()   {   return ID;  }
+    inline QString getName()    {   return name;    }
 
     bool hit(const Vec &pos, const Vec &dir, Vec &p);
 
@@ -74,6 +76,7 @@ signals:
     void loaded();
 
 private:
+    uint32 computeID(uint32 id = 0);
     void computeInfo();
     void load3DMrec(QFile &file);
     void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
@@ -97,8 +100,10 @@ protected:
     Program             shader;
     QString             fragmentProgram;
     QString             vertexProgram;
+    uint32              ID;
 
 public:
+    static bool whiteSurface;
     static Mesh instance;
 public:
     static bool hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos, const Vec &dir, Vec &p);

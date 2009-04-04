@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "gfx.h"
 
+bool Mesh::whiteSurface = false;
 Mesh Mesh::instance;
 
 Mesh::Mesh()
@@ -37,6 +38,10 @@ void Mesh::destroy()
     tex.clear();
     flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
     color = rColor = 0xFFFFFFFF;
+    name.clear();
+    ID = 0;
+
+    emit loaded();
 }
 
 void Mesh::load(const QString &filename)
@@ -278,7 +283,7 @@ void Mesh::computeNormals()
         normal[i].unit();
 }
 
-void Mesh::draw()
+void Mesh::draw(int id)
 {
     glPushMatrix();
 
@@ -290,100 +295,132 @@ void Mesh::draw()
     glVertexPointer(3, GL_FLOAT, 0, vertex.data());
     glNormalPointer(GL_FLOAT, 0, normal.data());
 
-    if (flag & SURFACE_GLSL)
-        shader.on();
+    if (!whiteSurface)
+    {
+        if (flag & SURFACE_GLSL)
+            shader.on();
 
-    if (tex.isEmpty() || !(flag & SURFACE_TEXTURED))
-    {
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        glDisable(GL_TEXTURE_2D);
-    }
-    else
-    {
-        for(int i = tex.size() - 1 ; i >= 0 ; i--)
+        if (tex.isEmpty() || !(flag & SURFACE_TEXTURED))
         {
-            glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glActiveTextureARB(GL_TEXTURE0_ARB + i);
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, tex[i]);
-            glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
-
-            if ((flag & SURFACE_REFLEC) && i == tex.size() - 1)
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glDisable(GL_TEXTURE_2D);
+        }
+        else
+        {
+            for(int i = tex.size() - 1 ; i >= 0 ; i--)
             {
-                glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                glEnable(GL_TEXTURE_GEN_S);
-                glEnable(GL_TEXTURE_GEN_T);
-                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-                glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+                glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, tex[i]);
+                glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
 
-                glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
-                glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
-                glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
-                float rColorf[4] = { (rColor >> 24) / 255.0f,
-                                     ((rColor >> 16) & 0xFF) / 255.0f,
-                                     ((rColor >> 8) & 0xFF) / 255.0f,
-                                     (rColor & 0xFF) / 255.0f };
-                glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,rColorf);
+                if ((flag & SURFACE_REFLEC) && i == tex.size() - 1)
+                {
+                    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                    glEnable(GL_TEXTURE_GEN_S);
+                    glEnable(GL_TEXTURE_GEN_T);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                    float rColorf[4] = { (rColor >> 24) / 255.0f,
+                                         ((rColor >> 16) & 0xFF) / 255.0f,
+                                         ((rColor >> 8) & 0xFF) / 255.0f,
+                                         (rColor & 0xFF) / 255.0f };
+                    glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,rColorf);
+                }
+                else
+                {
+                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                    glDisable(GL_TEXTURE_GEN_S);
+                    glDisable(GL_TEXTURE_GEN_T);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                }
+                if (shader.isOn())
+                    shader.setvar1i(QString("tex%1").arg(i).toAscii().data(), i);
             }
-            else
-            {
-                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                glDisable(GL_TEXTURE_GEN_S);
-                glDisable(GL_TEXTURE_GEN_T);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            }
-            if (shader.isOn())
-                shader.setvar1i(QString("tex%1").arg(i).toAscii().data(), i);
+        }
+        if (flag & SURFACE_BLENDED)
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_GREATER, 0.1f);
+        }
+        else
+        {
+            glDisable(GL_BLEND);
+            glDisable(GL_ALPHA_TEST);
         }
     }
-    if (flag & SURFACE_BLENDED)
+
+    if (id == -1 || id == ID)
+        switch(type)
+        {
+        case MESH_TRIANGLE_STRIP:
+            glDrawElements(GL_TRIANGLE_STRIP, index.size(), GL_UNSIGNED_INT, index.data());
+            break;
+        case MESH_TRIANGLES:
+        default:
+            glDrawElements(GL_TRIANGLES, index.size(), GL_UNSIGNED_INT, index.data());
+            break;
+        };
+
+    if (!whiteSurface)
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.1f);
+        if (flag & SURFACE_GLSL)
+            shader.off();
+
+        if (flag & SURFACE_BLENDED)
+        {
+            glDisable(GL_BLEND);
+            glDisable(GL_ALPHA_TEST);
+        }
+        if (!tex.isEmpty() && (flag & SURFACE_TEXTURED))
+            for(int i = tex.size() - 1 ; i >= 0 ; i--)
+            {
+                glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                Gfx::instance()->ReInitTexSys();
+            }
+    }
+
+    if (id == -1)
+    {
+        if (child)
+            child->draw();
+
+        glPopMatrix();
+        if (next)
+            next->draw();
+    }
+    else if (id != ID)
+    {
+        if (((next && next->ID > id) || next == NULL) && child)
+        {
+            child->draw(id);
+            glPopMatrix();
+        }
+        else if (next)
+        {
+            glPopMatrix();
+            next->draw(id);
+        }
+        else
+            glPopMatrix();
     }
     else
-    {
-        glDisable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
-    }
-
-    switch(type)
-    {
-    case MESH_TRIANGLE_STRIP:
-        glDrawElements(GL_TRIANGLE_STRIP, index.size(), GL_UNSIGNED_INT, index.data());
-        break;
-    case MESH_TRIANGLES:
-    default:
-        glDrawElements(GL_TRIANGLES, index.size(), GL_UNSIGNED_INT, index.data());
-        break;
-    };
-
-    if (flag & SURFACE_GLSL)
-        shader.off();
-
-    if (flag & SURFACE_BLENDED)
-    {
-        glDisable(GL_BLEND);
-        glDisable(GL_ALPHA_TEST);
-    }
-    if (!tex.isEmpty() && (flag & SURFACE_TEXTURED))
-        for(int i = tex.size() - 1 ; i >= 0 ; i--)
-            Gfx::instance()->ReInitTexSys();
-
-    if (child)
-        child->draw();
-
-    glPopMatrix();
-    if (next)
-        next->draw();
+        glPopMatrix();
 }
 
 void Mesh::load3DMrec(QFile &file)
@@ -619,6 +656,7 @@ void Mesh::computeSize()
 void Mesh::computeInfo()
 {
     computeSize();
+    computeID();
 }
 
 bool Mesh::isEmpty()
@@ -716,4 +754,14 @@ bool Mesh::hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos,
         return false;
     }
     return false;
+}
+
+uint32 Mesh::computeID(uint32 id)
+{
+    ID = id++;
+    if (child)
+        id = child->computeID(id);
+    if (next)
+        id = next->computeID(id);
+    return id;
 }

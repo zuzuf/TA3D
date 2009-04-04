@@ -1,5 +1,6 @@
 #include "geometrygraph.h"
 #include "mesh.h"
+#include <QDebug>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QQueue>
@@ -21,8 +22,9 @@ GeometryGraph::GeometryGraph()
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     tree = new QTreeWidget;
-    tree->setColumnCount(1);
-    tree->setHeaderLabel(tr("Parts"));
+    tree->setColumnCount(2);
+    tree->setHeaderLabels(QStringList(tr("Parts")) << tr("ID"));
+    connect(tree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(updateSelection(QTreeWidgetItem*,int)));
 
     layout->addWidget(tree);
 }
@@ -41,7 +43,7 @@ void GeometryGraph::refreshTree()
     {
         QTreeWidgetItem *parent = qParent.dequeue();
         Mesh *cur = qMesh.dequeue();
-        QTreeWidgetItem *item = new QTreeWidgetItem(parent, QStringList(cur->name));
+        QTreeWidgetItem *item = new QTreeWidgetItem(parent, QStringList(cur->getName()) << QString("%1").arg(cur->getID()));
         if (parent == NULL)
             items.append(item);
         if (cur->child)
@@ -59,4 +61,9 @@ void GeometryGraph::refreshTree()
     tree->insertTopLevelItems(0, items);
 
     update();
+}
+
+void GeometryGraph::updateSelection(QTreeWidgetItem *item, int column)
+{
+    emit objectSelected(item->text(1).toInt());
 }

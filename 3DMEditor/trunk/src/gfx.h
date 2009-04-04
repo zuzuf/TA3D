@@ -28,10 +28,14 @@ public:
 private:
     void arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoint &B);
 
+public slots:
+    void updateSelection(int ID);
+
 private:
     QPoint              previousMousePos;
     Qt::MouseButtons    previousMouseState;
     Matrix              meshMatrix;
+    int                 selectedID;
 
 public:
     static Gfx *instance();

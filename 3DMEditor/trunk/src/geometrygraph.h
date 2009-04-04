@@ -12,6 +12,10 @@ public:
 
 public slots:
     void refreshTree();
+    void updateSelection(QTreeWidgetItem *item, int column);
+
+signals:
+    void objectSelected(int ID);
 
 private:
     QTreeWidget *tree;
