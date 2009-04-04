@@ -279,8 +279,27 @@ void Gfx::mouseMoveEvent(QMouseEvent *event)
         }
         else if (event->buttons() == Qt::RightButton)
         {
-            QPoint move = event->pos() - previousMousePos;
-            Camera::inGame->rpos += 0.01f * (-move.x() * Camera::inGame->side + move.y() * Camera::inGame->up);
+            Vec p;
+            Matrix inv = Invert( Transpose(meshMatrix) );
+            Vec pos = Camera::inGame->rpos * inv;
+            Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
+            if (Mesh::instance.hit(pos, dir, p))
+            {
+                p = p * Transpose(meshMatrix);
+                Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
+                float dist = (p - Camera::inGame->rpos) * Camera::inGame->dir;
+                Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
+                Camera::inGame->rpos += p - np;
+            }
+            else
+            {
+                dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height());
+                float dist = (Vec() - Camera::inGame->rpos) * Camera::inGame->dir;
+                p = Camera::inGame->rpos + dist / (dir * Camera::inGame->dir) * dir;
+                Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
+                Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
+                Camera::inGame->rpos += p - np;
+            }
             updateGL();
         }
     }
