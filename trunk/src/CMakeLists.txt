@@ -211,7 +211,7 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("gfx/mdrn_teams" "gfx/mdrn_teams" "*.png")
 	BUNDLE_INSTALL_GLOB("gfx/sky" "gfx/sky" "*.jpg")
 	BUNDLE_INSTALL_GLOB("gfx/teams" "gfx/teams" "*.tga")
-	BUNDLE_INSTALL_GLOB("gfx/tactical icons" "gfx/tactical icons/" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/tactical_icons" "gfx/tactical_icons/" "*.tga")
 	# gui
 	Message(STATUS "[bundle] Adding resources 'gui'...")
 	BUNDLE_INSTALL_GLOB("gui" "gui" "*.tdf")

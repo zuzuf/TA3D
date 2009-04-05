@@ -267,7 +267,7 @@ ${MementoSection} "Resources (required)" SecResources
   ${SetOutPath} "$INSTDIR\Gfx\Sky\"
   ${File} "..\..\gfx\sky\" "*.jpg"
   ${SetOutPath} "$INSTDIR\Gfx\Tactical Icons\"
-  ${File} "..\..\gfx\tactical icons\" "*.tga"
+  ${File} "..\..\gfx\tactical_icons\" "*.tga"
   ${SetOutPath} "$INSTDIR\Gfx\Teams\"
   ${File} "..\..\gfx\teams\" "*.tga"
 

@@ -4774,19 +4774,19 @@ script_exec:
         {
             InitInterface();		// Initialization of the interface
 
-            icons[ ICON_UNKNOWN ] = gfx->load_texture( "gfx/tactical icons/unknown.tga" );
-            icons[ ICON_BUILDER ] = gfx->load_texture( "gfx/tactical icons/builder.tga" );
-            icons[ ICON_TANK ] = gfx->load_texture( "gfx/tactical icons/tank.tga" );
-            icons[ ICON_LANDUNIT ] = gfx->load_texture( "gfx/tactical icons/landunit.tga" );
-            icons[ ICON_DEFENSE ] = gfx->load_texture( "gfx/tactical icons/defense.tga" );
-            icons[ ICON_ENERGY ] = gfx->load_texture( "gfx/tactical icons/energy.tga" );
-            icons[ ICON_METAL ] = gfx->load_texture( "gfx/tactical icons/metal.tga" );
-            icons[ ICON_WATERUNIT ] = gfx->load_texture( "gfx/tactical icons/waterunit.tga" );
-            icons[ ICON_COMMANDER ] = gfx->load_texture( "gfx/tactical icons/commander.tga" );
-            icons[ ICON_SUBUNIT ] = gfx->load_texture( "gfx/tactical icons/subunit.tga" );
-            icons[ ICON_AIRUNIT ] = gfx->load_texture( "gfx/tactical icons/airunit.tga" );
-            icons[ ICON_FACTORY ] = gfx->load_texture( "gfx/tactical icons/factory.tga" );
-            icons[ ICON_KAMIKAZE ] = gfx->load_texture( "gfx/tactical icons/kamikaze.tga" );
+            icons[ ICON_UNKNOWN ] = gfx->load_texture( "gfx/tactical_icons/unknown.tga" );
+            icons[ ICON_BUILDER ] = gfx->load_texture( "gfx/tactical_icons/builder.tga" );
+            icons[ ICON_TANK ] = gfx->load_texture( "gfx/tactical_icons/tank.tga" );
+            icons[ ICON_LANDUNIT ] = gfx->load_texture( "gfx/tactical_icons/landunit.tga" );
+            icons[ ICON_DEFENSE ] = gfx->load_texture( "gfx/tactical_icons/defense.tga" );
+            icons[ ICON_ENERGY ] = gfx->load_texture( "gfx/tactical_icons/energy.tga" );
+            icons[ ICON_METAL ] = gfx->load_texture( "gfx/tactical_icons/metal.tga" );
+            icons[ ICON_WATERUNIT ] = gfx->load_texture( "gfx/tactical_icons/waterunit.tga" );
+            icons[ ICON_COMMANDER ] = gfx->load_texture( "gfx/tactical_icons/commander.tga" );
+            icons[ ICON_SUBUNIT ] = gfx->load_texture( "gfx/tactical_icons/subunit.tga" );
+            icons[ ICON_AIRUNIT ] = gfx->load_texture( "gfx/tactical_icons/airunit.tga" );
+            icons[ ICON_FACTORY ] = gfx->load_texture( "gfx/tactical_icons/factory.tga" );
+            icons[ ICON_KAMIKAZE ] = gfx->load_texture( "gfx/tactical_icons/kamikaze.tga" );
         }
 
         sound_min_ticks = 500;

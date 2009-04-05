@@ -119,42 +119,42 @@ namespace TA3D
 
 
 
-    class MAP_OTA
-    {
-    public:
-        MAP_OTA() {init();}
-        ~MAP_OTA() {destroy();}
+	class MAP_OTA
+	{
+	public:
+		MAP_OTA() {init();}
+		~MAP_OTA() {destroy();}
 
-        void init();
+		void init();
 
-        void destroy();
+		void destroy();
 
-        void load(char *data,int ota_size);
-        void load( String filename );
+		void load(char *data,int ota_size);
+		void load(const String& filename);
 
-    public:
-        String  missionname;
-        String  planet;
-        String  missiondescription;
-        String  glamour;
-        int     tidalstrength;
-        int     solarstrength;
-        bool    lavaworld;
-        short   killmul;
-        int     minwindspeed;
-        int     maxwindspeed;
-        float   gravity;
-        String  numplayers;
-        String  map_size;
-        int     SurfaceMetal;
-        int	    MohoMetal;
-        int     startX[TA3D_PLAYERS_HARD_LIMIT];
-        int     startZ[TA3D_PLAYERS_HARD_LIMIT];
-        bool    waterdoesdamage;
-        int	    waterdamage;
-        bool    network;
+	public:
+		String  missionname;
+		String  planet;
+		String  missiondescription;
+		String  glamour;
+		int     tidalstrength;
+		int     solarstrength;
+		bool    lavaworld;
+		short   killmul;
+		int     minwindspeed;
+		int     maxwindspeed;
+		float   gravity;
+		String  numplayers;
+		String  map_size;
+		int     SurfaceMetal;
+		int	    MohoMetal;
+		int     startX[TA3D_PLAYERS_HARD_LIMIT];
+		int     startZ[TA3D_PLAYERS_HARD_LIMIT];
+		bool    waterdoesdamage;
+		int	    waterdamage;
+		bool    network;
 
-    };
+	}; // class MAP_OTA
 
 
 

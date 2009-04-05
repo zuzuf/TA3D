@@ -370,13 +370,14 @@ namespace TA3D
     {
         if (yardmap.empty())
         {
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            if(y2<=y1 || x2<=x1)	return;
+            int y2 = y1 + h;
+            int x2 = x1 + w;
+            if (y1<0)	y1=0;
+            if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
+            if (x1<0)	x1=0;
+            if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
+            if (y2<=y1 || x2<=x1)
+				return;
             pMutex.lock();
             for(int y=y1;y<y2;y++)
                 for(int x=x1;x<x2;x++)
@@ -396,8 +397,9 @@ namespace TA3D
             if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
             if(x1<0)	x1=0;
             if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            int dw=w-(x2-x1);
-            if(y2<=y1 || x2<=x1)	return;
+            int dw = w - (x2 - x1);
+            if (y2 <= y1 || x2 <= x1)
+				return;
             pMutex.lock();
             for (int y = y1; y < y2; ++y)
             {
@@ -408,7 +410,7 @@ namespace TA3D
                         pMutex.unlock();
                         return;
                     }
-                    if(yardmap[i]=='G' || yardmap[i]=='o' || yardmap[i]=='w' || yardmap[i]=='f' || (yardmap[i]=='c' && !open) || (yardmap[i]=='C' && !open) || (yardmap[i]=='O' && open))
+                    if (yardmap[i]=='G' || yardmap[i]=='o' || yardmap[i]=='w' || yardmap[i]=='f' || (yardmap[i]=='c' && !open) || (yardmap[i]=='C' && !open) || (yardmap[i]=='O' && open))
                         map_data[y][x].unit_idx=c;
                     ++i;
                 }
@@ -561,20 +563,26 @@ namespace TA3D
             return true;
         int y2=y1+h;
         int x2=x1+w;
-        if(y1<0)	y1=0;
-        if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-        if(x1<0)	x1=0;
-        if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
+        if (y1<0)
+			y1=0;
+        if (y2 > bloc_h_db - 1)
+			y2 = bloc_h_db - 1;
+        if (x1 < 0)
+			x1 = 0;
+        if (x2>bloc_w_db-1)
+			x2=bloc_w_db-1;
+        if(y2<=y1 || x2<=x1)
+            return false;
+
         int dw = w - (x2-x1);
         int i = 0;
         bool ok = true;
-        if(y2<=y1 || x2<=x1)
-            return false;
         for (int y = y1; y < y2; ++y)
         {
             for (int x = x1; x < x2; ++x)
             {
-                if (yard_map.size() <= i)	return ok;
+                if (yard_map.size() <= i)
+					return ok;
                 if (yard_map[i]=='G')
                 {
                     ok = false;
@@ -740,39 +748,51 @@ namespace TA3D
         }
     }
 
-    void MAP::load_details_texture( const String &filename )
-    {
-        SDL_Surface *tex = gfx->load_image(filename);
-        if (tex)
-        {
-            uint32 average = 0;
-            for( int y = 0 ; y < tex->h ; y++ )
-                for( int x = 0 ; x < tex->w ; x++ )
-                    average += SurfaceByte(tex, x<<2, y) + SurfaceByte(tex,(x<<2)+1,y) + SurfaceByte(tex,(x<<2)+2,y);
-            average /= tex->w * tex->h * 3;
-            if( average == 0 )	average = 1;
-            color_factor = 255.0f / average;
-            details_tex = gfx->make_texture( tex, FILTER_TRILINEAR, false );
-            SDL_FreeSurface( tex );
-        }
-        else
-        {
-            details_tex = 0;
-            color_factor = 1.0f;
-        }
-    }
+	void MAP::load_details_texture( const String &filename )
+	{
+		SDL_Surface *tex = gfx->load_image(filename);
+		if (tex)
+		{
+			uint32 average = 0;
+# ifndef TA3D_PLATFORM_DARWIN
+			for (int y = 0; y < tex->h; ++y)
+			{
+				for (int x = 0; x < tex->w; ++x)
+				{
+					average += SurfaceByte(tex, (x << 2), y);
+					average += SurfaceByte(tex, (x << 2) + 1,y);
+					average += SurfaceByte(tex, (x << 2) + 2,y);
+				}
+			}
+			average /= tex->w * tex->h * 3;
+# endif
+			if (!average)
+				average = 1;
+			color_factor = 255.0f / average;
+			details_tex = gfx->make_texture(tex, FILTER_TRILINEAR, false);
+			SDL_FreeSurface(tex);
+		}
+		else
+		{
+			details_tex = 0;
+			color_factor = 1.0f;
+		}
+	}
 
-    void MAP_OTA::load( String filename )
-    {
-        uint32 ota_file_size = 0;
-        byte *data = HPIManager->PullFromHPI( filename, &ota_file_size );
-        if( data ) {
-            load( (char*)data, ota_file_size );
-            delete[] data;
-        }
-    }
 
-    void MAP_OTA::load(char *data,int ota_size)
+	void MAP_OTA::load(const String& filename)
+	{
+		uint32 ota_file_size = 0;
+		byte *data = HPIManager->PullFromHPI(filename, &ota_file_size);
+		if (data)
+		{
+			load((char*)data, ota_file_size);
+			delete[] data;
+		}
+	}
+
+
+	void MAP_OTA::load(char *data,int ota_size)
     {
         destroy();
 
