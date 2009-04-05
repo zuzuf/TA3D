@@ -125,8 +125,8 @@ const String Dialogf(const String &Title, String Filter)
                 {
                     if (obj->Pos == cur_folder_idx)     // Change current dir (double-click)
                     {
-                        if (obj->Text[ obj->Pos ] == "..")
-                            curDir = TA3D::Paths::ExtractFilePath( curDir );
+                        if (obj->Text[obj->Pos] == "..")
+                            curDir = TA3D::Paths::ExtractFilePath(curDir);
                         else
                             curDir << obj->Text[ obj->Pos ] << TA3D::Paths::Separator;
                         TA3D::Paths::GlobFiles( files, curDir + Filter );

@@ -441,13 +441,13 @@ namespace TA3D
         if (shadow_index)	delete[] shadow_index;
         if (tcoord)			delete[] tcoord;
         if (dtex)
-            for(int i = 0 ; i < dtex ; i++)
+            for(unsigned int i = 0; i < dtex; ++i)
                 if (gltex.size() > i)
                     gfx->destroy_texture(gltex[i]);
         gltex.clear();
-        for(int i = 0 ; i < gl_dlist.size() ; i++)
-            if (gl_dlist.size() > i && gl_dlist[ i ])
-                glDeleteLists(gl_dlist[i],1);
+        for (unsigned int i = 0; i < gl_dlist.size(); i++)
+            if (gl_dlist[i])
+                glDeleteLists(gl_dlist[i], 1);
         gl_dlist.clear();
         if (usetex)
             delete[] usetex;
@@ -1543,7 +1543,7 @@ namespace TA3D
             if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
                 && !fixed_textures && dtex > 0)
                 texID = ((int)(t * 10.0f)) % dtex;
-            if (gl_dlist.size() > texID && gl_dlist[ texID ] && !hide && chg_col && !notex)
+            if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && chg_col && !notex)
             {
                 glCallList( gl_dlist[ texID ] );
                 alset = false;

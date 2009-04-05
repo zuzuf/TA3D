@@ -1354,13 +1354,12 @@ namespace TA3D
                     SurfaceInt(bmp,x,y) |= makeacol(0,0,0,255);
         }
 
-        for( int y = 0 ; y < bmp->h ; y++ )
+        for (int y = 0; y < bmp->h; ++y)
         {
-            for( int x = 0 ; x < bmp->w ; x++ )
+            for (int x = 0; x < bmp->w; ++x)
             {
-                uint32 c = SurfaceInt(bmp,x,y);
-                if (getr(c) < level && getg(c) < level
-                    && getb(c) < level)
+                const uint32 c = SurfaceInt(bmp,x,y);
+                if (getr(c) < level && getg(c) < level && getb(c) < level)
                 {
                     SurfaceInt(bmp,x,y) = makeacol(getr(c), getg(c), getb(c), 0);
                     with_alpha = true;

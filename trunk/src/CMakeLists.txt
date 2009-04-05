@@ -159,7 +159,9 @@ ELSE(NOT APPLE)
 	MACRO(BUNDLE_BASIC_INSTALL srcfolder relfolder filename)
 		File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/")
 		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
-			COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
+			COMMAND cp ARGS -f
+				"${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}"
+				"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
 			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}")
 		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}")
 	ENDMACRO(BUNDLE_BASIC_INSTALL)
@@ -232,7 +234,7 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("scripts" "scripts" "*.lua")
 	BUNDLE_INSTALL_GLOB("scripts/game" "scripts/game" "*.lua")
 	BUNDLE_INSTALL_GLOB("scripts/game/ai" "scripts/ai" "*.lua")
-	BUNDLE_INSTALL("scripts" "scripts" "signals.h")
+	BUNDLE_INSTALL_GLOB("scripts" "scripts" "*.lh")
 	# Pictures
 	Message(STATUS "[bundle] Adding resources 'pictures'...")
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.jpg")

@@ -765,7 +765,7 @@ namespace HPI
 
     void cHPIHandler::AddRealFS()
     {
-        for(int e = 0 ; e < m_Path.size() ; e++)
+        for (unsigned int e = 0 ; e < m_Path.size(); ++e)
         {
             String::Vector pathQueue;
             String root = m_Path[e];
@@ -784,7 +784,7 @@ namespace HPI
                 Paths::GlobFiles(fileList,cur_Path + "*",true,true);
                 Paths::GlobDirs(pathQueue,cur_Path + "*",false,false);
 
-                for(int i = 0 ; i < fileList.size() ; i++)
+                for (unsigned int i = 0; i < fileList.size(); ++i)
                 {
                     String filename = cur_Path + fileList[i];
                     String key = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
@@ -806,7 +806,7 @@ namespace HPI
 
         if (!TA3D_CURRENT_MOD.empty())
         {
-            for(int e = 0 ; e < m_Path.size() ; e++)
+            for (unsigned int e = 0; e < m_Path.size(); ++e)
             {
                 String::Vector pathQueue;
                 String root = m_Path[e] + TA3D_CURRENT_MOD;
@@ -820,7 +820,7 @@ namespace HPI
                     Paths::GlobFiles(fileList, cur_Path + "*", true, true);
                     Paths::GlobDirs(pathQueue, cur_Path + "*", false, false);
 
-                    for(int i = 0 ; i < fileList.size() ; i++)
+                    for (unsigned int i = 0; i < fileList.size(); ++i)
                     {
                         String filename = cur_Path + fileList[i];
                         String key = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);

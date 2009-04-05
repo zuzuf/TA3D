@@ -158,7 +158,7 @@ namespace Menus
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         float fw = SCREEN_W / 1280.0f;
-        float fh = SCREEN_H / 1024.0f;
+        //float fh = SCREEN_H / 1024.0f;
 
         // The text itself
         glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
