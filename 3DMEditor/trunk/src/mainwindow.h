@@ -28,6 +28,7 @@ public slots:
     void saveMesh();
     void saveMeshAs();
     void showGeometryGraph();
+    void showTextureViewer();
     void endProgram();
 
 private:

@@ -373,6 +373,7 @@ void Gfx::updateSelection(int ID)
         selectedID = ID;
         updateGL();
         GeometryGraph::instance()->updateSelectionID(ID);
+        emit selectionChange(ID);
     }
 }
 
@@ -476,4 +477,27 @@ QImage Gfx::loadTGA(const QString &filename)                // Load a TGA file i
     file.close();
 
     return img;											// Texture Building Went Ok, Return True
+}
+
+int Gfx::getSelectionID()
+{
+    return selectedID;
+}
+
+int Gfx::getTextureWidth(GLuint tex)
+{
+    makeCurrent();
+    GLint w;
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w );
+    return w;
+}
+
+int Gfx::getTextureHeight(GLuint tex)
+{
+    makeCurrent();
+    int h;
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h );
+    return h;
 }

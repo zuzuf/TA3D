@@ -765,3 +765,14 @@ uint32 Mesh::computeID(uint32 id)
         id = next->computeID(id);
     return id;
 }
+
+Mesh *Mesh::getMesh(int id)
+{
+    if (id == ID)
+        return this;
+    if (((next && next->getID() > id) || next == NULL) && child)
+        return child->getMesh(id);
+    if (next)
+        return next->getMesh(id);
+    return NULL;
+}

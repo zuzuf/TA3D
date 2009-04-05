@@ -43,6 +43,7 @@ class Mesh : public QObject
 {
     Q_OBJECT;
     friend class GeometryGraph;
+    friend class TextureViewer;
 public:
     Mesh();
     ~Mesh();
@@ -71,6 +72,7 @@ public:
     inline QString getName()    {   return name;    }
 
     bool hit(const Vec &pos, const Vec &dir, Vec &p);
+    Mesh *getMesh(int id);
 
 signals:
     void loaded();

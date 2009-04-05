@@ -25,6 +25,10 @@ public:
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *);
+    int getSelectionID();
+
+    int getTextureWidth(GLuint tex);
+    int getTextureHeight(GLuint tex);
 private:
     void arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoint &B);
 
@@ -32,6 +36,9 @@ public slots:
     void updateSelection(int ID);
     void showSelection();
     void hideSelection();
+
+signals:
+    void selectionChange(int ID);
 
 private:
     QPoint              previousMousePos;

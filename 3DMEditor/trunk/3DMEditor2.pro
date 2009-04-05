@@ -21,7 +21,8 @@ SOURCES += src/main.cpp \
     src/3ds.cpp \
     src/obj.cpp \
     src/geometrygraph.cpp \
-    src/program.cpp
+    src/program.cpp \
+    src/textureviewer.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -36,6 +37,7 @@ HEADERS += src/mainwindow.h \
     src/3ds.h \
     src/obj.h \
     src/geometrygraph.h \
-    src/program.h
+    src/program.h \
+    src/textureviewer.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

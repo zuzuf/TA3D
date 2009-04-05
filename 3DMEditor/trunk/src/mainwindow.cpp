@@ -10,6 +10,7 @@
 #include "gfx.h"
 #include "aboutwindow.h"
 #include "geometrygraph.h"
+#include "textureviewer.h"
 #include "mesh.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QMenu *mnuWindows = new QMenu( tr("&Windows"));
     mnuWindows->addAction( tr("&Geometry graph"), this, SLOT(showGeometryGraph()));
+    mnuWindows->addAction( tr("&Texture viewer"), this, SLOT(showTextureViewer()));
 
     QMenu *mnuInterface = new QMenu( tr("&Interface") );
     mnuInterface->addMenu(mnuLanguage);
@@ -63,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Some mesh related stuffs
     connect(&Mesh::instance, SIGNAL(loaded()), GeometryGraph::instance(), SLOT(refreshTree()));
     connect(GeometryGraph::instance(), SIGNAL(objectSelected(int)), Gfx::instance(), SLOT(updateSelection(int)));
+    connect(Gfx::instance(), SIGNAL(selectionChange(int)), TextureViewer::instance(), SLOT(updateSelection(int)));
 }
 
 MainWindow::~MainWindow()
@@ -175,4 +178,9 @@ void MainWindow::closeEvent(QCloseEvent *)
 void MainWindow::aboutQt()
 {
     QMessageBox::aboutQt(this, tr("About Qt"));
+}
+
+void MainWindow::showTextureViewer()
+{
+    TextureViewer::instance()->show();
 }
