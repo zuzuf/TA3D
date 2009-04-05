@@ -23,6 +23,11 @@ MainWindow::MainWindow(QWidget *parent)
     mnuFile->addAction( tr("&Exit"), this, SLOT(close()));
     menuBar()->addMenu(mnuFile);
 
+    QMenu *mnuView = new QMenu( tr("&View"));
+    mnuView->addAction( tr("&Show selection"), Gfx::instance(), SLOT(showSelection()));
+    mnuView->addAction( tr("&Hide selection"), Gfx::instance(), SLOT(hideSelection()));
+    menuBar()->addMenu(mnuView);
+
     QMenu *mnuLanguage = new QMenu( tr("&Language"));
     mnuLanguage->addAction( tr("&English"), this, SLOT(setEnglish()));
     mnuLanguage->addAction( tr("&French"), this, SLOT(setFrench()));

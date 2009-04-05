@@ -24,6 +24,7 @@ Gfx::Gfx()
     previousMouseState = Qt::NoButton;
     meshMatrix = Scale(1.0f);
     selectedID = -1;
+    drawSelection = true;
 
     makeCurrent();
     glewInit();
@@ -75,7 +76,7 @@ void Gfx::paintGL()
     glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
     Mesh::instance.draw();
 
-    if (selectedID >= 0)
+    if (selectedID >= 0 && drawSelection)
     {
         glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
         glDisable(GL_LIGHTING);
@@ -122,7 +123,9 @@ GLuint Gfx::loadTexture(const QString &filename)
         return 0;
     }
     makeCurrent();
-    GLuint tex = bindTexture( QPixmap( filename ) );
+    GLuint tex = filename.endsWith(".tga", Qt::CaseInsensitive)
+                 ? bindTexture( loadTGA( filename) )
+                 : bindTexture( QPixmap( filename ) );
     if (tex == 0)
         qDebug() << "could not load file " << filename;
     else
@@ -371,4 +374,106 @@ void Gfx::updateSelection(int ID)
         updateGL();
         GeometryGraph::instance()->updateSelectionID(ID);
     }
+}
+
+void Gfx::showSelection()
+{
+    if (!drawSelection)
+    {
+        drawSelection = true;
+        updateGL();
+    }
+}
+
+void Gfx::hideSelection()
+{
+    if (drawSelection)
+    {
+        drawSelection = false;
+        updateGL();
+    }
+}
+
+QImage Gfx::loadTGA(const QString &filename)                // Load a TGA file into a QImage object
+{
+    byte        TGAheader[12] = {0,0,2,0,0,0,0,0,0,0,0,0};	// Uncompressed TGA Header
+    byte        TGAcompare[12];								// Used To Compare TGA Header
+    byte        header[6];									// First 6 Useful Bytes From The Header
+    int         bytesPerPixel;								// Holds Number Of Bytes Per Pixel Used In The TGA File
+    int         imageSize;									// Used To Store The Image Size When Setting Aside Ram
+
+    QFile file(filename);						// Open The TGA File
+    file.open(QIODevice::ReadOnly);
+    if (!file.exists() || !file.isOpen())
+        return QImage(1, 1, QImage::Format_ARGB32);
+
+    if (file.read((char*)TGAcompare, sizeof(TGAcompare)) != sizeof(TGAcompare))
+    {
+        qDebug() << "could not read TGA header";
+        file.close();
+        return QImage(1, 1, QImage::Format_ARGB32);
+    }
+    if (memcmp(TGAheader, TGAcompare, sizeof(TGAheader)) != 0)
+    {
+        qDebug() << "TGA header doesn't match";
+        file.close();
+        return QImage(1, 1, QImage::Format_ARGB32);
+    }
+    if (file.read((char*)header, sizeof(header)) != sizeof(header))
+    {
+        qDebug() << "could not read TGA header data";
+        file.close();
+        return QImage(1, 1, QImage::Format_ARGB32);
+    }
+
+    int w = header[1] * 256 + header[0];			// Determine The TGA Width	(highbyte*256+lowbyte)
+    int h = header[3] * 256 + header[2];			// Determine The TGA Height	(highbyte*256+lowbyte)
+    int bpp = header[4];
+
+    if(bpp != 24 && bpp != 32)					// Is The TGA 24 or 32 Bit?
+    {
+        qDebug() << "This is not a 24/32 bpp TGA file";
+        file.close();
+        return QImage(1, 1, QImage::Format_ARGB32);
+    }
+
+    bytesPerPixel	= bpp / 8;
+    imageSize		= w * h * bytesPerPixel;	// Calculate The Memory Required For The TGA Data
+
+    QByteArray imageData(imageSize, 0);
+    if (file.read((char*)imageData.data(), imageSize) != imageSize)
+    {
+        qDebug() << "could not read TGA image data";
+        file.close();
+        return QImage(1, 1, QImage::Format_ARGB32);
+    }
+
+    QImage img(w, h, bpp == 32 ? QImage::Format_ARGB32 : QImage::Format_RGB888);
+
+    for(int y = 0 ; y < h ; y++)
+    {
+        for(int x = 0 ; x < w ; x++)
+        {
+            uint32 color = 0;
+            switch(bpp)
+            {
+            case 24:
+                color = imageData[ (y * w + x) * bytesPerPixel ]
+                        | (imageData[ (y * w + x) * bytesPerPixel + 1 ] << 8)
+                        | (imageData[ (y * w + x) * bytesPerPixel + 2 ] << 16);
+                break;
+            case 32:
+                color = imageData[ (y * w + x) * bytesPerPixel ]
+                        | (imageData[ (y * w + x) * bytesPerPixel + 1 ] << 8)
+                        | (imageData[ (y * w + x) * bytesPerPixel + 2 ] << 16)
+                        | (imageData[ (y * w + x) * bytesPerPixel + 3 ] << 24);
+                break;
+            };
+            img.setPixel(x, y, color);
+        }
+    }
+
+    file.close();
+
+    return img;											// Texture Building Went Ok, Return True
 }

@@ -30,15 +30,19 @@ private:
 
 public slots:
     void updateSelection(int ID);
+    void showSelection();
+    void hideSelection();
 
 private:
     QPoint              previousMousePos;
     Qt::MouseButtons    previousMouseState;
     Matrix              meshMatrix;
     int                 selectedID;
+    bool                drawSelection;
 
 public:
     static Gfx *instance();
+    static QImage loadTGA(const QString &filename);
 
 private:
     static Gfx *pInstance;

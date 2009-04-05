@@ -67,7 +67,7 @@ public:
 
     inline float getSize()  {   return size;    }
     inline float getSize2() {   return size2;   }
-    inline uint32 getID()   {   return ID;  }
+    inline int getID()   {   return ID;  }
     inline QString getName()    {   return name;    }
 
     bool hit(const Vec &pos, const Vec &dir, Vec &p);
@@ -100,7 +100,7 @@ protected:
     Program             shader;
     QString             fragmentProgram;
     QString             vertexProgram;
-    uint32              ID;
+    sint32              ID;
 
 public:
     static bool whiteSurface;

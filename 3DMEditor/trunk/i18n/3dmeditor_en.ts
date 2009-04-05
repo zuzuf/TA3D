@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="en">
+<!DOCTYPE TS>
+<TS version="2.0" language="en">
 <context>
     <name>AboutWindow</name>
     <message>
@@ -22,13 +23,18 @@
 <context>
     <name>GeometryGraph</name>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="19"/>
+        <location filename="../src/geometrygraph.cpp" line="20"/>
         <source>Geometry Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="25"/>
+        <location filename="../src/geometrygraph.cpp" line="26"/>
         <source>Parts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="26"/>
+        <source>ID</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -40,17 +46,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="43"/>
+        <location filename="../src/mainwindow.cpp" line="48"/>
         <source>3DMEditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="27"/>
+        <location filename="../src/mainwindow.cpp" line="32"/>
         <source>&amp;English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="28"/>
+        <location filename="../src/mainwindow.cpp" line="33"/>
         <source>&amp;French</source>
         <translation type="unfinished"></translation>
     </message>
@@ -60,52 +66,55 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="26"/>
+        <location filename="../src/mainwindow.cpp" line="31"/>
         <source>&amp;Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="33"/>
+        <location filename="../src/mainwindow.cpp" line="38"/>
         <source>&amp;Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="89"/>
+        <location filename="../src/mainwindow.cpp" line="87"/>
+        <location filename="../src/mainwindow.cpp" line="95"/>
         <source>The program has to be restarted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="89"/>
+        <location filename="../src/mainwindow.cpp" line="87"/>
+        <location filename="../src/mainwindow.cpp" line="95"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="50"/>
+        <location filename="../src/mainwindow.cpp" line="55"/>
         <source>3DMEditor started</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="88"/>
+        <location filename="../src/mainwindow.cpp" line="86"/>
+        <location filename="../src/mainwindow.cpp" line="94"/>
         <source>Language set to </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="80"/>
+        <location filename="../src/mainwindow.cpp" line="86"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="88"/>
+        <location filename="../src/mainwindow.cpp" line="94"/>
         <source>French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="38"/>
+        <location filename="../src/mainwindow.cpp" line="43"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="39"/>
+        <location filename="../src/mainwindow.cpp" line="44"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -130,62 +139,76 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="111"/>
+        <location filename="../src/mainwindow.cpp" line="26"/>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="27"/>
+        <source>&amp;Show selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="28"/>
+        <source>&amp;Hide selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="117"/>
         <source>open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="140"/>
+        <location filename="../src/mainwindow.cpp" line="132"/>
+        <location filename="../src/mainwindow.cpp" line="146"/>
         <source>3DMEditor meshs(*.3dm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="118"/>
+        <location filename="../src/mainwindow.cpp" line="124"/>
         <source>mesh loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="126"/>
+        <location filename="../src/mainwindow.cpp" line="132"/>
         <source>save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="149"/>
+        <location filename="../src/mainwindow.cpp" line="141"/>
+        <location filename="../src/mainwindow.cpp" line="155"/>
         <source>mesh saved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="140"/>
+        <location filename="../src/mainwindow.cpp" line="146"/>
         <source>save as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="30"/>
+        <location filename="../src/mainwindow.cpp" line="35"/>
         <source>&amp;Windows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="31"/>
+        <location filename="../src/mainwindow.cpp" line="36"/>
         <source>&amp;Geometry graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="40"/>
+        <location filename="../src/mainwindow.cpp" line="45"/>
         <source>&amp;About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="111"/>
+        <location filename="../src/mainwindow.cpp" line="117"/>
         <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj);;all files(*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="171"/>
+        <location filename="../src/mainwindow.cpp" line="177"/>
         <source>About Qt</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QPopup</name>
 </context>
 </TS>

@@ -366,7 +366,7 @@ void Mesh::load3DS(const QString &filename, float scale)
                             //											printf("loading texture %s\n", cur_mat->MAPNAME );
                             read_obj->flag |= SURFACE_TEXTURED;
                             read_obj->tex.resize(1);
-                            read_obj->tex[0] = Gfx::instance()->loadTexture( cur_mat->MAPNAME );
+                            read_obj->tex[0] = Gfx::instance()->loadTexture( cur_mat->MAPNAME.trimmed() );
                         }
                         if (cur_mat->TRANSPARENCY > 0.0f)
                         {
