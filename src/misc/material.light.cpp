@@ -94,7 +94,7 @@ namespace TA3D
             float mx = 0.0f, Mx = 0.0f;
             float my = 0.0f, My = 0.0f;
             float mz = 0.0f, Mz = 0.0f;
-            for(int i = 0 ; i < frustum.size() ; i++)
+            for (unsigned int i = 0; i < frustum.size(); i++)
             {
                 float X = frustum[i] % Side;
                 float Z = frustum[i] % Dir;
@@ -139,7 +139,7 @@ namespace TA3D
             float zfar = 1000.0f;
             float znear = 0.01f;
             float widthFactor = 1.0f;
-            float f = 10.0f;
+            //float f = 10.0f;
 
             glMatrixMode (GL_PROJECTION);
             glLoadIdentity ();
