@@ -23,7 +23,7 @@ void TextureViewer::updateSelection(int ID)
     if (ID != selectedID)
     {
         selectedID = ID;
-        Mesh *mesh = Mesh::instance.getMesh(ID);
+        Mesh *mesh = Mesh::instance()->getMesh(ID);
         if (mesh && !mesh->tex.isEmpty())
         {
            int w = Gfx::instance()->getTextureWidth(mesh->tex[0]);
@@ -51,7 +51,7 @@ void TextureViewer::paintGL()
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    Mesh *mesh = Mesh::instance.getMesh(selectedID);
+    Mesh *mesh = Mesh::instance()->getMesh(selectedID);
 
     if (mesh)
     {

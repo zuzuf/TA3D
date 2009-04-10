@@ -64,17 +64,8 @@ void Gfx::paintGL()
 
     glMultMatrixf( meshMatrix.data() );
 
-    glDisable(GL_TEXTURE_2D);
-
-    glColor3ub(0xFF, 0, 0);
-    drawArrow(Vec(0,0,0), Vec(10,0,0), 0.3f);
-    glColor3ub(0, 0xFF, 0);
-    drawArrow(Vec(0,0,0), Vec(0,10,0), 0.3f);
-    glColor3ub(0, 0, 0xFF);
-    drawArrow(Vec(0,0,0), Vec(0,0,10), 0.3f);
-
     glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-    Mesh::instance.draw();
+    Mesh::instance()->draw();
 
     if (selectedID >= 0 && drawSelection)
     {
@@ -86,15 +77,37 @@ void Gfx::paintGL()
         glDepthFunc(GL_EQUAL);
 
         Mesh::whiteSurface = true;
-        Mesh::instance.draw(selectedID);
+        Mesh::instance()->draw(selectedID);
         Mesh::whiteSurface = false;
 
         glDepthFunc(GL_LESS);
         glEnable(GL_LIGHTING);
         glDisable(GL_BLEND);
 
+        glColor4ub(0xFF, 0x0, 0x0, 0xFF);
+
+        glDepthFunc(GL_ALWAYS);
+        glDisable(GL_TEXTURE_2D);
+
+        glPushMatrix();
+        Vec pos = Mesh::instance()->getRelativePosition(selectedID);
+        glTranslatef(pos.x, pos.y, pos.z);
+        drawCube(1.0f);
+        glDepthFunc(GL_LESS);
+        drawCube(1.0f);
+        glPopMatrix();
+
         glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
     }
+
+    glDisable(GL_TEXTURE_2D);
+
+    glColor3ub(0xFF, 0, 0);
+    drawArrow(Vec(0,0,0), Vec(10,0,0), 0.3f);
+    glColor3ub(0, 0xFF, 0);
+    drawArrow(Vec(0,0,0), Vec(0,10,0), 0.3f);
+    glColor3ub(0, 0, 0xFF);
+    drawArrow(Vec(0,0,0), Vec(0,0,10), 0.3f);
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
@@ -257,6 +270,69 @@ void Gfx::drawArrow(const Vec &a, const Vec &b, float r)
     glPopMatrix();
 }
 
+void Gfx::drawSphere(float r, int d)
+{
+    glBegin(GL_TRIANGLE_STRIP);
+    int h = d / 2;
+    for(int e = 0 ; e < h ; e++)
+    {
+        for(int i = 0 ; i <= d ; i++)
+        {
+            for(int f = e ; f <= e + 1 ; f++)
+            {
+                float dx = cosf( M_PI * 2.0f * i / d ) * cosf( M_PI * f / h - 0.5f * M_PI);
+                float dy = sinf( M_PI * f / h - 0.5f * M_PI);
+                float dz = sinf( M_PI * 2.0f * i / d ) * cosf( M_PI * f / h - 0.5f * M_PI);
+                glNormal3f( dx, dy, dz );
+                glVertex3f( r * dx, r * dy, r * dz );
+            }
+        }
+    }
+    glEnd();
+}
+
+void Gfx::drawCube(float size)
+{
+    size *= 0.5f;
+    glBegin(GL_QUADS);
+    glNormal3f(0, 1, 0);                // Up
+    glVertex3f(-size, size, size);
+    glVertex3f(size, size, size);
+    glVertex3f(size, size, -size);
+    glVertex3f(-size, size, -size);
+
+    glNormal3f(0, -1, 0);               // Down
+    glVertex3f(-size, -size, -size);
+    glVertex3f(size, -size, -size);
+    glVertex3f(size, -size, size);
+    glVertex3f(-size, -size, size);
+
+    glNormal3f(1, 0, 0);                // Right
+    glVertex3f(size, -size, -size);
+    glVertex3f(size, size, -size);
+    glVertex3f(size, size, size);
+    glVertex3f(size, -size, size);
+
+    glNormal3f(-1, 0, 0);               // Left
+    glVertex3f(-size, size, -size);
+    glVertex3f(-size, -size, -size);
+    glVertex3f(-size, -size, size);
+    glVertex3f(-size, size, size);
+
+    glNormal3f(0, 0, 1);                // Back
+    glVertex3f(-size, -size, size);
+    glVertex3f(size, -size, size);
+    glVertex3f(size, size, size);
+    glVertex3f(-size, size, size);
+
+    glNormal3f(0, 0, -1);               // Front
+    glVertex3f(size, -size, -size);
+    glVertex3f(-size, -size, -size);
+    glVertex3f(-size, size, -size);
+    glVertex3f(size, size, -size);
+    glEnd();
+}
+
 void Gfx::mouseMoveEvent(QMouseEvent *event)
 {
     if (previousMouseState == event->buttons())
@@ -265,28 +341,28 @@ void Gfx::mouseMoveEvent(QMouseEvent *event)
         {
             float r = 20.0f;
             Vec center;
-            if (!Mesh::instance.isEmpty())
+            if (!Mesh::instance()->isEmpty())
             {
                 Vec p;
                 Matrix inv = Invert( Transpose(meshMatrix) );
                 Vec pos = Camera::inGame->rpos * inv;
                 Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
-                if (Mesh::instance.hit(pos, dir, p))
+                if (Mesh::instance()->hit(pos, dir, p) >= 0)
                 {
                     r = p.norm();
                 }
                 else
-                    r = Mesh::instance.getSize();
+                    r = Mesh::instance()->getSize();
             }
             arcballMove(center, r, previousMousePos, event->pos());
         }
-        else if (event->buttons() == Qt::RightButton)
+        else if (event->buttons() == Qt::MidButton)
         {
             Vec p;
             Matrix inv = Invert( Transpose(meshMatrix) );
             Vec pos = Camera::inGame->rpos * inv;
             Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
-            if (Mesh::instance.hit(pos, dir, p))
+            if (Mesh::instance()->hit(pos, dir, p) >= 0)
             {
                 p = p * Transpose(meshMatrix);
                 Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
@@ -319,6 +395,15 @@ void Gfx::wheelEvent(QWheelEvent *event)
 
 void Gfx::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (event->button() == Qt::RightButton)
+    {
+        Vec p;
+        Matrix inv = Invert( Transpose(meshMatrix), 150 );
+        Vec pos = Camera::inGame->rpos * inv;
+        Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
+        updateSelection( Mesh::instance()->hit(pos, dir, p) );
+    }
+
     previousMousePos = event->pos();
     previousMouseState = event->buttons();
 }

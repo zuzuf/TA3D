@@ -44,6 +44,7 @@ class Mesh : public QObject
     Q_OBJECT;
     friend class GeometryGraph;
     friend class TextureViewer;
+    friend class TreeWidget;
 public:
     Mesh();
     ~Mesh();
@@ -71,14 +72,16 @@ public:
     inline int getID()   {   return ID;  }
     inline QString getName()    {   return name;    }
 
-    bool hit(const Vec &pos, const Vec &dir, Vec &p);
+    int hit(const Vec &pos, const Vec &dir, Vec &p);
     Mesh *getMesh(int id);
+    Vec getRelativePosition(int id);
+    sint32 nbSubObjects();
 
 signals:
     void loaded();
 
 private:
-    uint32 computeID(uint32 id = 0);
+    sint32 computeID(sint32 id = 0);
     void computeInfo();
     void load3DMrec(QFile &file);
     void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
@@ -103,12 +106,19 @@ protected:
     QString             fragmentProgram;
     QString             vertexProgram;
     sint32              ID;
+    sint32              nbSubObj;
 
 public:
     static bool whiteSurface;
-    static Mesh instance;
-public:
+    static Mesh *instance();
     static bool hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos, const Vec &dir, Vec &p);
+    static Mesh *createSphere(float r, int dw, int dh);
+    static Mesh *createCube(float size);
+    static Mesh *createCylinder(float r, float h, int d, bool capped);
+    static Mesh *createCone(float r, float h, int d, bool capped);
+
+private:
+    static Mesh *pInstance;
 };
 
 #endif // MESH_H

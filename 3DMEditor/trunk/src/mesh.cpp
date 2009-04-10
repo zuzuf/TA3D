@@ -4,7 +4,14 @@
 #include "gfx.h"
 
 bool Mesh::whiteSurface = false;
-Mesh Mesh::instance;
+Mesh *Mesh::pInstance = NULL;
+
+Mesh *Mesh::instance()
+{
+    if (!pInstance)
+        pInstance = new Mesh;
+    return pInstance;
+}
 
 Mesh::Mesh()
 {
@@ -17,7 +24,7 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
-    if (this != &instance)
+    if (this != pInstance)
         destroy();
 }
 
@@ -664,10 +671,10 @@ bool Mesh::isEmpty()
     return child == NULL && next == NULL && vertex.isEmpty();
 }
 
-bool Mesh::hit(const Vec &pos, const Vec &dir, Vec &p)
+int Mesh::hit(const Vec &pos, const Vec &dir, Vec &p)
 {
     Vec rPos = pos - this->pos;
-    bool bHit = false;
+    int hitId = -1;
     switch(type)
     {
     case MESH_TRIANGLE_STRIP:
@@ -680,9 +687,9 @@ bool Mesh::hit(const Vec &pos, const Vec &dir, Vec &p)
             Vec q;
             if (hitTriangle(a, b, c, rPos, dir, q))
             {
-                if (!bHit || dir * p > dir * q)
+                if (hitId < 0 || dir * p > dir * q)
                     p = q;
-                bHit = true;
+                hitId = ID;
             }
         }
         break;
@@ -697,9 +704,9 @@ bool Mesh::hit(const Vec &pos, const Vec &dir, Vec &p)
             Vec q;
             if (hitTriangle(a, b, c, rPos, dir, q))
             {
-                if (!bHit || dir * p > dir * q)
+                if (hitId < 0 || dir * p > dir * q)
                     p = q;
-                bHit = true;
+                hitId = ID;
             }
         }
         break;
@@ -708,26 +715,32 @@ bool Mesh::hit(const Vec &pos, const Vec &dir, Vec &p)
     if (child)
     {
         Vec q;
-        if (child->hit(rPos, dir, q))
+        int childId = -1;
+        if ((childId = child->hit(rPos, dir, q)) >= 0)
         {
-            if (!bHit || dir * p > dir * q)
+            if (hitId < 0 || dir * p > dir * q)
+            {
                 p = q;
-            bHit = true;
+                hitId = childId;
+            }
         }
     }
-    if (bHit)
+    if (hitId >= 0)
         p += this->pos;
     if (next)
     {
         Vec q;
-        if (next->hit(pos, dir, q))
+        int nextId = -1;
+        if ((nextId = next->hit(pos, dir, q)) >= 0)
         {
-            if (!bHit || dir * p > dir * q)
+            if (hitId < 0 || dir * p > dir * q)
+            {
                 p = q;
-            bHit = true;
+                hitId = nextId;
+            }
         }
     }
-    return bHit;
+    return hitId;
 }
 
 bool Mesh::hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos, const Vec &dir, Vec &p)
@@ -756,13 +769,14 @@ bool Mesh::hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos,
     return false;
 }
 
-uint32 Mesh::computeID(uint32 id)
+sint32 Mesh::computeID(sint32 id)
 {
     ID = id++;
     if (child)
         id = child->computeID(id);
     if (next)
         id = next->computeID(id);
+    nbSubObj = id - ID;
     return id;
 }
 
@@ -775,4 +789,224 @@ Mesh *Mesh::getMesh(int id)
     if (next)
         return next->getMesh(id);
     return NULL;
+}
+
+Vec Mesh::getRelativePosition(int id)
+{
+    if (id == ID)
+        return pos;
+    if (((next && next->getID() > id) || next == NULL) && child)
+        return child->getRelativePosition(id) + pos;
+    if (next)
+        return next->getRelativePosition(id);
+    return Vec();
+}
+
+sint32 Mesh::nbSubObjects()
+{
+    return nbSubObj;
+}
+
+Mesh *Mesh::createCube(float size)
+{
+    size *= 0.5f;
+    Mesh *mesh = new Mesh;
+    mesh->vertex.reserve(8);
+    mesh->index.reserve(24);
+    mesh->color = 0xFFFFFFFF;
+    mesh->type = MESH_TRIANGLES;
+    mesh->name = QString("cube(%1)").arg(size * 2.0f);
+
+    mesh->vertex.push_back(Vec(-size, size, -size));
+    mesh->vertex.push_back(Vec(size, size, -size));
+    mesh->vertex.push_back(Vec(size, size, size));
+    mesh->vertex.push_back(Vec(-size, size, size));
+    mesh->vertex.push_back(Vec(-size, -size, -size));
+    mesh->vertex.push_back(Vec(size, -size, -size));
+    mesh->vertex.push_back(Vec(size, -size, size));
+    mesh->vertex.push_back(Vec(-size, -size, size));
+
+    mesh->index.push_back(0);       // Top
+    mesh->index.push_back(1);
+    mesh->index.push_back(2);
+    mesh->index.push_back(0);
+    mesh->index.push_back(2);
+    mesh->index.push_back(3);
+
+    mesh->index.push_back(4);       // Bottom
+    mesh->index.push_back(6);
+    mesh->index.push_back(5);
+    mesh->index.push_back(4);
+    mesh->index.push_back(7);
+    mesh->index.push_back(6);
+
+    mesh->index.push_back(0);       // Back
+    mesh->index.push_back(1);
+    mesh->index.push_back(4);
+    mesh->index.push_back(1);
+    mesh->index.push_back(5);
+    mesh->index.push_back(4);
+
+    mesh->index.push_back(2);       // Front
+    mesh->index.push_back(6);
+    mesh->index.push_back(3);
+    mesh->index.push_back(3);
+    mesh->index.push_back(6);
+    mesh->index.push_back(7);
+
+    mesh->index.push_back(0);       // Left
+    mesh->index.push_back(1);
+    mesh->index.push_back(4);
+    mesh->index.push_back(1);
+    mesh->index.push_back(6);
+    mesh->index.push_back(4);
+
+    mesh->index.push_back(1);       // Right
+    mesh->index.push_back(5);
+    mesh->index.push_back(2);
+    mesh->index.push_back(2);
+    mesh->index.push_back(5);
+    mesh->index.push_back(7);
+
+    mesh->computeInfo();
+
+    return mesh;
+}
+
+Mesh *Mesh::createSphere(float r, int dw, int dh)
+{
+    Mesh *mesh = new Mesh;
+    mesh->color = 0xFFFFFFFF;
+    mesh->type = MESH_TRIANGLES;
+    mesh->name = QString("sphere(%1)").arg(r);
+
+    for(int i = 0 ; i <= dh ; i++)
+    {
+        for(int e = 0 ; e < dw ; e++)
+        {
+            Vec p(  cosf( M_PI * 2.0f * e / dw ) * cosf( M_PI * i / dh - 0.5f * M_PI),
+                    sinf( M_PI * i / dh - 0.5f * M_PI),
+                    sinf( M_PI * 2.0f * e / dw ) * cosf( M_PI * i / dh - 0.5f * M_PI));
+            mesh->vertex.push_back(r * p);
+            mesh->normal.push_back(p);
+        }
+    }
+
+    for(int i = 0 ; i < dh ; i++)
+    {
+        for(int e = 0 ; e < dw ; e++)
+        {
+            mesh->index.push_back(i * dw + (e % dw));
+            mesh->index.push_back(i * dw + ((e + 1) % dw));
+            mesh->index.push_back((i + 1) * dw + (e % dw));
+
+            mesh->index.push_back((i + 1) * dw + (e % dw));
+            mesh->index.push_back(i * dw + ((e + 1) % dw));
+            mesh->index.push_back((i + 1) * dw + ((e + 1) % dw));
+        }
+    }
+
+    return mesh;
+}
+
+Mesh *Mesh::createCylinder(float r, float h, int d, bool capped)
+{
+    h *= 0.5f;
+    Mesh *mesh = new Mesh;
+    mesh->color = 0xFFFFFFFF;
+    mesh->type = MESH_TRIANGLES;
+    mesh->name = QString("cylinder(%1)").arg(r);
+
+    for(int e = 0 ; e < d ; e++)
+    {
+        Vec p(  cosf( M_PI * 2.0f * e / d ),
+                h,
+                sinf( M_PI * 2.0f * e / d ));
+        mesh->vertex.push_back(r * p);
+        mesh->normal.push_back(p);
+    }
+    for(int e = 0 ; e < d ; e++)
+    {
+        Vec p(  cosf( M_PI * 2.0f * e / d ),
+                -h,
+                sinf( M_PI * 2.0f * e / d ));
+        mesh->vertex.push_back(r * p);
+        mesh->normal.push_back(p);
+    }
+
+    for(int i = 0 ; i < d ; i++)
+    {
+        mesh->index.push_back(i);
+        mesh->index.push_back((i + 1) % d);
+        mesh->index.push_back(i + d);
+
+        mesh->index.push_back(i + d);
+        mesh->index.push_back((i + 1) % d);
+        mesh->index.push_back(((i + 1) % d) + d);
+    }
+
+    if (capped)
+    {
+        mesh->vertex.push_back(Vec(0,h,0));
+        mesh->normal.push_back(Vec(0,1,0));
+        mesh->vertex.push_back(Vec(0,-h,0));
+        mesh->normal.push_back(Vec(0,-1,0));
+
+        for(int i = 0 ; i < d ; i++)
+        {
+            mesh->index.push_back(2 * d);
+            mesh->index.push_back(i);
+            mesh->index.push_back((i + 1) % d);
+        }
+        for(int i = 0 ; i < d ; i++)
+        {
+            mesh->index.push_back(2 * d + 1);
+            mesh->index.push_back(i + d);
+            mesh->index.push_back(((i + 1) % d) + d);
+        }
+    }
+
+    return mesh;
+}
+
+Mesh *Mesh::createCone(float r, float h, int d, bool capped)
+{
+    h *= 0.5f;
+    Mesh *mesh = new Mesh;
+    mesh->color = 0xFFFFFFFF;
+    mesh->type = MESH_TRIANGLES;
+    mesh->name = QString("cone(%1)").arg(r);
+
+    mesh->vertex.push_back(Vec(0,h,0));
+    mesh->normal.push_back(Vec(0,1,0));
+    for(int e = 0 ; e < d ; e++)
+    {
+        Vec p(  cosf( M_PI * 2.0f * e / d ),
+                -h,
+                sinf( M_PI * 2.0f * e / d ));
+        mesh->vertex.push_back(r * p);
+        mesh->normal.push_back(p);
+    }
+
+    for(int i = 0 ; i < d ; i++)
+    {
+        mesh->index.push_back(0);
+        mesh->index.push_back(i + 1);
+        mesh->index.push_back(((i + 1) % d) + 1);
+    }
+
+    if (capped)
+    {
+        mesh->vertex.push_back(Vec(0,-h,0));
+        mesh->normal.push_back(Vec(0,-1,0));
+
+        for(int i = 0 ; i < d ; i++)
+        {
+            mesh->index.push_back(d + 1);
+            mesh->index.push_back(i + 1);
+            mesh->index.push_back(((i + 1) % d) + 1);
+        }
+    }
+
+    return mesh;
 }

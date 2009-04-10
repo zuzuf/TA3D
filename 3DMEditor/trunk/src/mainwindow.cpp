@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     move( settings.value("mainwindow.pos", QPoint((desktop.width() - width()) / 2, (desktop.height() - height()) / 2) ).toPoint() );
 
     // Some mesh related stuffs
-    connect(&Mesh::instance, SIGNAL(loaded()), GeometryGraph::instance(), SLOT(refreshTree()));
+    connect(Mesh::instance(), SIGNAL(loaded()), GeometryGraph::instance(), SLOT(refreshTree()));
     connect(GeometryGraph::instance(), SIGNAL(objectSelected(int)), Gfx::instance(), SLOT(updateSelection(int)));
     connect(Gfx::instance(), SIGNAL(selectionChange(int)), TextureViewer::instance(), SLOT(updateSelection(int)));
 }
@@ -111,7 +111,7 @@ void MainWindow::about()
 
 void MainWindow::newMesh()
 {
-    Mesh::instance.destroy();
+    Mesh::instance()->destroy();
     Gfx::instance()->updateGL();
 }
 
@@ -121,7 +121,7 @@ void MainWindow::loadMesh()
     if (fileToLoad.isEmpty())
         return;
 
-    Mesh::instance.load(fileToLoad);
+    Mesh::instance()->load(fileToLoad);
 
     Gfx::instance()->updateGL();
     setStatusBarMessage(tr("mesh loaded"));
@@ -139,7 +139,7 @@ void MainWindow::saveMesh()
     if (!filename.endsWith(".3dm", Qt::CaseInsensitive))
         filename += ".3dm";
 
-    Mesh::instance.save(filename);
+    Mesh::instance()->save(filename);
 
     setStatusBarMessage(tr("mesh saved"));
 }
@@ -153,7 +153,7 @@ void MainWindow::saveMeshAs()
     if (!fileToSave.endsWith(".3dm", Qt::CaseInsensitive))
         fileToSave += ".3dm";
 
-    Mesh::instance.save(fileToSave);
+    Mesh::instance()->save(fileToSave);
 
     setStatusBarMessage(tr("mesh saved"));
 
