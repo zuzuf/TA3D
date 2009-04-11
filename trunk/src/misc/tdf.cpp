@@ -143,6 +143,12 @@ namespace TA3D
     {
         if (NULL == data || 0 == size)
             return true;
+		
+		// Internally, we may have to dupplicate the given buffer, to apply transformations on it
+		// It is our duty to free it
+		// This will be done at the end of the method, if the following var is not null
+		char* tmpBufferToDelete(NULL);
+
         // Convert it to UTF8 if required
         if (toUTF8)
         {
@@ -153,6 +159,7 @@ namespace TA3D
                 size = s;
                 // delete[] data; The pointer will be freed by the caller
                 data = t;
+				tmpBufferToDelete = t;
             }
             else
                 LOG_WARNING(LOG_PREFIX_TDF << "The convertion using the UTF8 charset has failed.");
@@ -271,6 +278,8 @@ namespace TA3D
             else
                 stringStarted = true;
         }
+		if (tmpBufferToDelete)
+			delete[] tmpBufferToDelete;
         return true;
     }
 
