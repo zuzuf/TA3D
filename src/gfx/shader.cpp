@@ -31,11 +31,11 @@ namespace TA3D
 	{
 
 		/*!
-		 * \brief Load an ARB fragment from a buffer
-		 *
-		 * \param data The buffer
-		 * \param size Size of the buffer
-		 */
+		* \brief Load an ARB fragment from a buffer
+		*
+		* \param data The buffer
+		* \param size Size of the buffer
+		*/
 		GLhandleARB loadFragmentFromMemory(const char* data, const int size)
 		{
 			if (lp_CONFIG->disable_GLSL)    return 0;
@@ -208,8 +208,8 @@ namespace TA3D
 			glDeleteObjectARB(pShaderProgram);
 			glDeleteObjectARB(pShaderFragment);
 			glDeleteObjectARB(pShaderVertex);
+			pLoaded = false;
 		}
-		pLoaded = false;
 	}
 
 
@@ -244,6 +244,7 @@ namespace TA3D
 			pLoaded = false;
 		}
 	}
+
 
 
 	void Shader::load(const String& fragmentFilename, const String& vertexFilename)
@@ -344,5 +345,9 @@ namespace TA3D
 			glUniformMatrix4fv(	glGetUniformLocationARB(pShaderProgram, var), 1, GL_FALSE, mat);
 	}
 
-	// } // namespace GFX
+
+
+
+
+// } // namespace GFX
 } // namespace TA3D
