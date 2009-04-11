@@ -53,14 +53,15 @@ namespace TA3D
 
 		glScalef(1.0f, -1.0f, 1.0f);
 #ifdef __FTGL__lower__
-        font->Render( text.c_str(), -1,
+		font->Render( text.c_str(), -1,
 			FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z),
 			FTPoint(), FTGL::RENDER_ALL);
 #else
-        glPushMatrix();
-        glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
-        font->Render( UTF8toWChar_t( text ) );
-        glPopMatrix();
+		glPushMatrix();
+		glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
+		WString wstr(text);
+		font->Render(wstr.cw_str());
+		glPopMatrix();
 #endif
 		glScalef(1.0f, -1.0f, 1.0f);
 	}
@@ -87,7 +88,8 @@ namespace TA3D
 		return fabsf((box.Upper().Xf() - box.Lower().Xf()));
 #else
 		float x0, y0, z0, x1, y1, z1;
-        font->BBox( UTF8toWChar_t( txt ), x0, y0, z0, x1, y1, z1 );
+		WString wstr(txt);
+		font->BBox(wstr.cw_str(), x0, y0, z0, x1, y1, z1);
 		return fabsf(x0 - x1);
 #endif
 	}

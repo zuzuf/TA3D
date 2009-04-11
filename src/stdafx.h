@@ -160,39 +160,58 @@ typedef double real64;
 namespace TA3D
 {
 
-    //! \name String manipulations
-    //@{
+	//! \name String manipulations
+	//@{
 
-    String format(const char* fmt, ...);
+	String format(const char* fmt, ...);
 
-    sint32 SearchString(const String& s, const String& StringToSearch, const bool ignoreCase);
+	sint32 SearchString(const String& s, const String& StringToSearch, const bool ignoreCase);
 
-    String ReplaceString(const String& s, const String& toSearch, const String& replaceWith, const bool ignoreCase);
+	String ReplaceString(const String& s, const String& toSearch, const String& replaceWith, const bool ignoreCase);
 
-    String ReplaceChar(const String& s, const char toSearch, const char replaceWith);
+	String ReplaceChar(const String& s, const char toSearch, const char replaceWith);
 
-    bool StartsWith(const String& a, const String& b);
+	bool StartsWith(const String& a, const String& b);
 
-    //@} String manipulations
+	//@} String manipulations
 
-    #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
+#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
 	void ExtractPathFile(const String& szFullFileName, String& szFile, String& szDir);
-    #endif
+#endif
 
 
 	String GetClientPath(void);
 
-    uint32 file_size(const String &filename);
+	uint32 file_size(const String &filename);
 
-    int ASCIItoUTF8(const byte c, byte *out);
+	int ASCIItoUTF8(const byte c, byte *out);
 
-    String InttoUTF8(const uint16 c);
+	String InttoUTF8(const uint16 c);
 
-    wchar_t *UTF8toWChar_t(const String &str);
 
-    bool exists(const String &filename);
 
-    void rest(uint32 msec);
+	/*!
+	** \brief Convert an UTF-8 String into a WideChar String
+	** \todo This class must be removed as soon as possible and is only here to prevent against
+	** stange bugs with the previous implementation
+	*/
+	struct WString
+	{
+	public:
+		WString(const char* s);
+		WString(const String& str);
+
+		void fromUtf8(const char* s, size_t length);
+		const wchar_t* cw_str() const {return pBuffer;}
+
+	private:
+		wchar_t pBuffer[5120];
+	};
+
+
+	bool exists(const String &filename);
+
+	void rest(uint32 msec);
 } // namespace TA3D
 
 #define FILE_SIZE	file_size
