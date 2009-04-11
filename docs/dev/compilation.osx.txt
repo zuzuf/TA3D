@@ -7,43 +7,76 @@ Prerequisites
 
 The developper tools must be installed (available on all Mac OS X install
 CD/DVD).
-MacPort (http://www.macports.org) or Fink (http://www.finkproject.org/)
-must be installed.
 
 
-1 - CMake
+
+A - Using MacPort (http://www.macports.org)
+===========================================
+
+
+1 - Install MacPort
+-------------------
+
+Download and install MacPort : http://www.macports.org/install.php
+
+MacPort provides command line utilities. A GUI Front-End nammed `Porticus`
+is available : http://porticus.alittledrop.com/
+
+
+2 - CMake
 ---------
 
 Install CMake via MacPort
 $ sudo port install cmake
 
 
-2 - Allegro
+3 - Subversion (optional)
+-------------------------
+
+Install Subversion via MacPort. OS X is shipped with Subversion binaries.
+However, you may want the latest available version of subversion. In this
+case you can install install it via MacPort :
+$ sudo port install subversion
+
+
+4 - FreeType / FTGL
+-------------------
+
+Install FreeType/FTGL via MacPort
+$ sudo port install freetype ftgl
+
+
+5 - SDL
 -----------
 
-Install Allegro via MacPort
-$ sudo port install allegro
+Install the SDL framework via MacPort
+$ sudo port install  libsdl libsdl-framework libsdl_gfx libsdl_gfx-framework libsdl_image libsdl_image-framework libsdl_mixer libsdl_mixer-framework libsdl_net libsdl_net-framework libsdl_pango libsdl_sound libsdl_sound-framework libsdl_ttf libsdl_ttf-framework
 
 
-3 - AllegroGL
+6 - TA3D, Getting the source
+----------------------------
+
+Get the source, in the folder of your choice.
+$ cd <somewhere>
+$ svn co http://ta3d.darkstars.co.uk/TA3D/trunk TA3D
+$ cd TA3D
+
+
+7 - Configure
 -------------
-
-Download AllegroGL : http://allegrogl.sourceforge.net/wiki/Download
-Edit the makefile make/makefile.osx :
-  Replace 
-    INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR))
-    by
-    INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR)) -I/opt/sw/local/include -I/opt/local/include
-Compile AllegroGL :
-$ ./fix.sh macosx  && make && sudo make install
+$ cmake .
 
 
-4 - TA3D
---------
+8 - Make !
+----------
 
-$ cmake . && make
+$ make
 if you want more verbosity, try :
-$ cmake . && VERBOSE=1 make
+$ make VERBOSE=1
 
-Note: libfmodex.dylib is required
+If you have a computer with more than one processor or a Multi-Core CPU you
+may want this :
+$ make -j 2
+(where `2` should be replaced by the number of Core/CPU)
+
 
