@@ -1,7 +1,8 @@
 # -------------------------------------------------
 # Project created by QtCreator 2009-03-30T19:47:07
 # -------------------------------------------------
-QT += opengl
+QT += opengl \
+    webkit
 CONFIG -= release
 CONFIG += debug
 TARGET = 3DMEditor2
@@ -22,7 +23,11 @@ SOURCES += src/main.cpp \
     src/obj.cpp \
     src/geometrygraph.cpp \
     src/program.cpp \
-    src/textureviewer.cpp
+    src/textureviewer.cpp \
+    src/surfaceproperties.cpp \
+    src/shadereditor.cpp \
+    helpviewer.cpp \
+    src/imagelistview.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -38,6 +43,10 @@ HEADERS += src/mainwindow.h \
     src/obj.h \
     src/geometrygraph.h \
     src/program.h \
-    src/textureviewer.h
+    src/textureviewer.h \
+    src/surfaceproperties.h \
+    src/shadereditor.h \
+    helpviewer.h \
+    src/imagelistview.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

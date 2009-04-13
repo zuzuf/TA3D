@@ -45,6 +45,11 @@ class Mesh : public QObject
     friend class GeometryGraph;
     friend class TextureViewer;
     friend class TreeWidget;
+    friend class MeshManip;
+    friend class MainWindow;
+    friend class SurfaceProperties;
+    friend class ShaderEditor;
+    friend class Gfx;
 public:
     Mesh();
     ~Mesh();
@@ -76,6 +81,8 @@ public:
     Mesh *getMesh(int id);
     Vec getRelativePosition(int id);
     sint32 nbSubObjects();
+    void deleteMesh(int id);
+    void invertOrientation();
 
 signals:
     void loaded();
@@ -84,7 +91,10 @@ private:
     sint32 computeID(sint32 id = 0);
     void computeInfo();
     void load3DMrec(QFile &file);
+    void save3DMrec(QFile &file);
     void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
+    void copy(const Mesh *src);
+    void clear();           // Like destroy but doesn't free memory and it's not recursive
 
 protected:
     QString             name;

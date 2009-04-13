@@ -189,4 +189,14 @@ namespace TA3D
         return znear * (widthFactor * (2.0f * x - 1.0f) * side + 0.75f * (1.0f - 2.0f * y) * up + dir);
     }
 
+    void Camera::setScreenCoordinates(int w, int h)
+    {
+        glViewport(0, 0, w, h);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.0f, w, h, 0.0f, -1.0f, 1.0f);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+    }
 } // namespace TA3D

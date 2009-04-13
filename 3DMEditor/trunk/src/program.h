@@ -23,9 +23,9 @@ public:
     /*!
     ** \brief Load programs from source files
     */
-    void load(const QString &programFilename);
+    QString load(const QString &programFilename);
 
-    void load_memory(const QString &vertexProgram, const QString &fragmentProgram);
+    QString load_memory(const QString &vertexProgram, const QString &fragmentProgram);
 
     /*!
     ** \brief On, Off ?

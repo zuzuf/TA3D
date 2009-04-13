@@ -100,6 +100,9 @@ namespace TA3D
         //! To support wide screen modes correctly
         float widthFactor;
 
+    public:
+        static void setScreenCoordinates(int w, int h);
+
     }; // class Camera
 
 

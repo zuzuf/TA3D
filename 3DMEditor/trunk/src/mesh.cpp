@@ -255,6 +255,18 @@ void Mesh::save(const QString &filename)
     // We only save 3DM files
     if (!filename.endsWith(".3dm", Qt::CaseInsensitive))
         return;
+
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly);
+    if (!file.exists() || !file.isOpen())
+    {
+        qDebug() << "could not save mesh as '" << filename << "'";
+        return;
+    }
+
+    save3DMrec(file);
+
+    file.close();
 }
 
 void Mesh::computeNormals()
@@ -299,107 +311,133 @@ void Mesh::draw(int id)
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
-    glVertexPointer(3, GL_FLOAT, 0, vertex.data());
-    glNormalPointer(GL_FLOAT, 0, normal.data());
-
-    if (!whiteSurface)
+    if (!vertex.isEmpty() && !normal.isEmpty())
     {
-        if (flag & SURFACE_GLSL)
-            shader.on();
+        glVertexPointer(3, GL_FLOAT, 0, vertex.data());
+        glNormalPointer(GL_FLOAT, 0, normal.data());
 
-        if (tex.isEmpty() || !(flag & SURFACE_TEXTURED))
+        if (!whiteSurface)
         {
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisable(GL_TEXTURE_2D);
-        }
-        else
-        {
-            for(int i = tex.size() - 1 ; i >= 0 ; i--)
+            GLfloat colorf[4] = { (color >> 24) / 255.0f,
+                                  ((color >> 16) & 0xFF) / 255.0f,
+                                  ((color >> 8) & 0xFF) / 255.0f,
+                                  (color & 0xFF) / 255.0f };
+            glColor4fv(colorf);
+
+            if (flag & SURFACE_GLSL)
+                shader.on();
+
+            if (flag & SURFACE_GOURAUD)
+                glShadeModel(GL_SMOOTH);
+            else
+                glShadeModel(GL_FLAT);
+
+            if (flag & SURFACE_LIGHTED)
+                glEnable(GL_LIGHTING);
+            else
+                glDisable(GL_LIGHTING);
+
+            if (tex.isEmpty() || !(flag & SURFACE_TEXTURED))
             {
-                glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glActiveTextureARB(GL_TEXTURE0_ARB + i);
-                glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, tex[i]);
-                glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
-
-                if ((flag & SURFACE_REFLEC) && i == tex.size() - 1)
+                for(int i = 7 ; i >= 0 ; i--)
                 {
-                    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                    glEnable(GL_TEXTURE_GEN_S);
-                    glEnable(GL_TEXTURE_GEN_T);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
-
-                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
-                    float rColorf[4] = { (rColor >> 24) / 255.0f,
-                                         ((rColor >> 16) & 0xFF) / 255.0f,
-                                         ((rColor >> 8) & 0xFF) / 255.0f,
-                                         (rColor & 0xFF) / 255.0f };
-                    glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,rColorf);
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                    glDisable(GL_TEXTURE_2D);
+                    Gfx::instance()->ReInitTexSys();
                 }
-                else
+            }
+            else
+            {
+                for(int i = tex.size() - 1 ; i >= 0 ; i--)
                 {
-                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                    glDisable(GL_TEXTURE_GEN_S);
-                    glDisable(GL_TEXTURE_GEN_T);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, tex[i]);
+                    glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
+
+                    if ((flag & SURFACE_REFLEC) && i == tex.size() - 1)
+                    {
+                        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                        glEnable(GL_TEXTURE_GEN_S);
+                        glEnable(GL_TEXTURE_GEN_T);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                        float rColorf[4] = { (rColor >> 24) / 255.0f,
+                                             ((rColor >> 16) & 0xFF) / 255.0f,
+                                             ((rColor >> 8) & 0xFF) / 255.0f,
+                                             (rColor & 0xFF) / 255.0f };
+                        glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,rColorf);
+                    }
+                    else
+                    {
+                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                        glDisable(GL_TEXTURE_GEN_S);
+                        glDisable(GL_TEXTURE_GEN_T);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    }
+                    if (shader.isOn())
+                        shader.setvar1i(QString("tex%1").arg(i).toAscii().data(), i);
                 }
-                if (shader.isOn())
-                    shader.setvar1i(QString("tex%1").arg(i).toAscii().data(), i);
+            }
+            if (flag & SURFACE_BLENDED)
+            {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.1f);
+            }
+            else
+            {
+                glDisable(GL_BLEND);
+                glDisable(GL_ALPHA_TEST);
             }
         }
-        if (flag & SURFACE_BLENDED)
-        {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_ALPHA_TEST);
-            glAlphaFunc(GL_GREATER, 0.1f);
-        }
-        else
-        {
-            glDisable(GL_BLEND);
-            glDisable(GL_ALPHA_TEST);
-        }
-    }
 
-    if (id == -1 || id == ID)
-        switch(type)
-        {
-        case MESH_TRIANGLE_STRIP:
-            glDrawElements(GL_TRIANGLE_STRIP, index.size(), GL_UNSIGNED_INT, index.data());
-            break;
-        case MESH_TRIANGLES:
-        default:
-            glDrawElements(GL_TRIANGLES, index.size(), GL_UNSIGNED_INT, index.data());
-            break;
-        };
-
-    if (!whiteSurface)
-    {
-        if (flag & SURFACE_GLSL)
-            shader.off();
-
-        if (flag & SURFACE_BLENDED)
-        {
-            glDisable(GL_BLEND);
-            glDisable(GL_ALPHA_TEST);
-        }
-        if (!tex.isEmpty() && (flag & SURFACE_TEXTURED))
-            for(int i = tex.size() - 1 ; i >= 0 ; i--)
+        if (id == -1 || id == ID)
+            switch(type)
             {
-                glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                glActiveTextureARB(GL_TEXTURE0_ARB + i);
-                Gfx::instance()->ReInitTexSys();
+            case MESH_TRIANGLE_STRIP:
+                glDrawElements(GL_TRIANGLE_STRIP, index.size(), GL_UNSIGNED_INT, index.data());
+                break;
+            case MESH_TRIANGLES:
+            default:
+                glDrawElements(GL_TRIANGLES, index.size(), GL_UNSIGNED_INT, index.data());
+                break;
+            };
+
+        if (!whiteSurface)
+        {
+            if (flag & SURFACE_GLSL)
+                shader.off();
+
+            if (flag & SURFACE_BLENDED)
+            {
+                glDisable(GL_BLEND);
+                glDisable(GL_ALPHA_TEST);
             }
+            if (!tex.isEmpty() && (flag & SURFACE_TEXTURED))
+                for(int i = tex.size() - 1 ; i >= 0 ; i--)
+                {
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB + i);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                    glDisable(GL_TEXTURE_2D);
+                    Gfx::instance()->ReInitTexSys();
+                }
+        }
     }
 
     if (id == -1)
@@ -817,14 +855,14 @@ Mesh *Mesh::createCube(float size)
     mesh->type = MESH_TRIANGLES;
     mesh->name = QString("cube(%1)").arg(size * 2.0f);
 
-    mesh->vertex.push_back(Vec(-size, size, -size));
-    mesh->vertex.push_back(Vec(size, size, -size));
-    mesh->vertex.push_back(Vec(size, size, size));
     mesh->vertex.push_back(Vec(-size, size, size));
-    mesh->vertex.push_back(Vec(-size, -size, -size));
-    mesh->vertex.push_back(Vec(size, -size, -size));
-    mesh->vertex.push_back(Vec(size, -size, size));
+    mesh->vertex.push_back(Vec(size, size, size));
+    mesh->vertex.push_back(Vec(size, size, -size));
+    mesh->vertex.push_back(Vec(-size, size, -size));
     mesh->vertex.push_back(Vec(-size, -size, size));
+    mesh->vertex.push_back(Vec(size, -size, size));
+    mesh->vertex.push_back(Vec(size, -size, -size));
+    mesh->vertex.push_back(Vec(-size, -size, -size));
 
     mesh->index.push_back(0);       // Top
     mesh->index.push_back(1);
@@ -834,18 +872,18 @@ Mesh *Mesh::createCube(float size)
     mesh->index.push_back(3);
 
     mesh->index.push_back(4);       // Bottom
+    mesh->index.push_back(7);
     mesh->index.push_back(6);
     mesh->index.push_back(5);
     mesh->index.push_back(4);
-    mesh->index.push_back(7);
     mesh->index.push_back(6);
 
     mesh->index.push_back(0);       // Back
-    mesh->index.push_back(1);
     mesh->index.push_back(4);
     mesh->index.push_back(1);
+    mesh->index.push_back(1);
+    mesh->index.push_back(4);
     mesh->index.push_back(5);
-    mesh->index.push_back(4);
 
     mesh->index.push_back(2);       // Front
     mesh->index.push_back(6);
@@ -855,10 +893,10 @@ Mesh *Mesh::createCube(float size)
     mesh->index.push_back(7);
 
     mesh->index.push_back(0);       // Left
-    mesh->index.push_back(1);
+    mesh->index.push_back(3);
     mesh->index.push_back(4);
-    mesh->index.push_back(1);
-    mesh->index.push_back(6);
+    mesh->index.push_back(3);
+    mesh->index.push_back(7);
     mesh->index.push_back(4);
 
     mesh->index.push_back(1);       // Right
@@ -866,9 +904,9 @@ Mesh *Mesh::createCube(float size)
     mesh->index.push_back(2);
     mesh->index.push_back(2);
     mesh->index.push_back(5);
-    mesh->index.push_back(7);
+    mesh->index.push_back(6);
 
-    mesh->computeInfo();
+    mesh->computeNormals();
 
     return mesh;
 }
@@ -882,13 +920,15 @@ Mesh *Mesh::createSphere(float r, int dw, int dh)
 
     for(int i = 0 ; i <= dh ; i++)
     {
-        for(int e = 0 ; e < dw ; e++)
+        for(int e = 0 ; e <= dw ; e++)
         {
             Vec p(  cosf( M_PI * 2.0f * e / dw ) * cosf( M_PI * i / dh - 0.5f * M_PI),
                     sinf( M_PI * i / dh - 0.5f * M_PI),
                     sinf( M_PI * 2.0f * e / dw ) * cosf( M_PI * i / dh - 0.5f * M_PI));
             mesh->vertex.push_back(r * p);
             mesh->normal.push_back(p);
+            mesh->tcoord.push_back(((float)e) / dw);
+            mesh->tcoord.push_back(((float)i) / dh);
         }
     }
 
@@ -896,13 +936,13 @@ Mesh *Mesh::createSphere(float r, int dw, int dh)
     {
         for(int e = 0 ; e < dw ; e++)
         {
-            mesh->index.push_back(i * dw + (e % dw));
-            mesh->index.push_back(i * dw + ((e + 1) % dw));
-            mesh->index.push_back((i + 1) * dw + (e % dw));
+            mesh->index.push_back(i * (dw + 1) + e);
+            mesh->index.push_back((i + 1) * (dw + 1) + e);
+            mesh->index.push_back(i * (dw + 1) + e + 1);
 
-            mesh->index.push_back((i + 1) * dw + (e % dw));
-            mesh->index.push_back(i * dw + ((e + 1) % dw));
-            mesh->index.push_back((i + 1) * dw + ((e + 1) % dw));
+            mesh->index.push_back((i + 1) * (dw + 1) + e);
+            mesh->index.push_back((i + 1) * (dw + 1) + e + 1);
+            mesh->index.push_back(i * (dw + 1) + e + 1);
         }
     }
 
@@ -917,52 +957,63 @@ Mesh *Mesh::createCylinder(float r, float h, int d, bool capped)
     mesh->type = MESH_TRIANGLES;
     mesh->name = QString("cylinder(%1)").arg(r);
 
-    for(int e = 0 ; e < d ; e++)
+    for(int e = 0 ; e <= d ; e++)
     {
         Vec p(  cosf( M_PI * 2.0f * e / d ),
-                h,
+                h / r,
                 sinf( M_PI * 2.0f * e / d ));
         mesh->vertex.push_back(r * p);
+        p.y = 0.0f;
         mesh->normal.push_back(p);
+        mesh->tcoord.push_back( ((float)e) / d );
+        mesh->tcoord.push_back( 0.0f );
     }
-    for(int e = 0 ; e < d ; e++)
+    for(int e = 0 ; e <= d ; e++)
     {
         Vec p(  cosf( M_PI * 2.0f * e / d ),
-                -h,
+                -h / r,
                 sinf( M_PI * 2.0f * e / d ));
         mesh->vertex.push_back(r * p);
+        p.y = 0.0f;
         mesh->normal.push_back(p);
+        mesh->tcoord.push_back( ((float)e) / d );
+        mesh->tcoord.push_back( 1.0f );
     }
 
     for(int i = 0 ; i < d ; i++)
     {
         mesh->index.push_back(i);
-        mesh->index.push_back((i + 1) % d);
-        mesh->index.push_back(i + d);
+        mesh->index.push_back(i + 1);
+        mesh->index.push_back(i + d + 1);
 
-        mesh->index.push_back(i + d);
-        mesh->index.push_back((i + 1) % d);
-        mesh->index.push_back(((i + 1) % d) + d);
+        mesh->index.push_back(i + d + 1);
+        mesh->index.push_back(i + 1);
+        mesh->index.push_back(i + 1 + d + 1);
     }
 
     if (capped)
     {
         mesh->vertex.push_back(Vec(0,h,0));
         mesh->normal.push_back(Vec(0,1,0));
+        mesh->tcoord.push_back( 0.0f );
+        mesh->tcoord.push_back( 0.0f );
+
         mesh->vertex.push_back(Vec(0,-h,0));
         mesh->normal.push_back(Vec(0,-1,0));
+        mesh->tcoord.push_back( 0.0f );
+        mesh->tcoord.push_back( 1.0f );
 
         for(int i = 0 ; i < d ; i++)
         {
-            mesh->index.push_back(2 * d);
+            mesh->index.push_back(2 * (d + 1));
+            mesh->index.push_back(i + 1);
             mesh->index.push_back(i);
-            mesh->index.push_back((i + 1) % d);
         }
         for(int i = 0 ; i < d ; i++)
         {
-            mesh->index.push_back(2 * d + 1);
-            mesh->index.push_back(i + d);
-            mesh->index.push_back(((i + 1) % d) + d);
+            mesh->index.push_back(2 * (d + 1) + 1);
+            mesh->index.push_back(i + d + 1);
+            mesh->index.push_back(i + 1 + d + 1);
         }
     }
 
@@ -979,34 +1030,264 @@ Mesh *Mesh::createCone(float r, float h, int d, bool capped)
 
     mesh->vertex.push_back(Vec(0,h,0));
     mesh->normal.push_back(Vec(0,1,0));
-    for(int e = 0 ; e < d ; e++)
+    mesh->tcoord.push_back( 0.0f );
+    mesh->tcoord.push_back( 0.0f );
+    for(int e = 0 ; e <= d ; e++)
     {
         Vec p(  cosf( M_PI * 2.0f * e / d ),
-                -h,
+                -h / r,
                 sinf( M_PI * 2.0f * e / d ));
         mesh->vertex.push_back(r * p);
+        p.y = 0.0f;
         mesh->normal.push_back(p);
+        mesh->tcoord.push_back( ((float)e) / d );
+        mesh->tcoord.push_back( 1.0f );
     }
 
     for(int i = 0 ; i < d ; i++)
     {
         mesh->index.push_back(0);
+        mesh->index.push_back(i + 1 + 1);
         mesh->index.push_back(i + 1);
-        mesh->index.push_back(((i + 1) % d) + 1);
     }
 
     if (capped)
     {
         mesh->vertex.push_back(Vec(0,-h,0));
         mesh->normal.push_back(Vec(0,-1,0));
+        mesh->tcoord.push_back( 0.0f );
+        mesh->tcoord.push_back( 1.0f );
 
         for(int i = 0 ; i < d ; i++)
         {
-            mesh->index.push_back(d + 1);
+            mesh->index.push_back(d + 1 + 1);
             mesh->index.push_back(i + 1);
-            mesh->index.push_back(((i + 1) % d) + 1);
+            mesh->index.push_back(i + 1 + 1);
         }
     }
 
     return mesh;
+}
+
+void Mesh::deleteMesh(int id)
+{
+    if (id == ID)       // delete the root mesh
+    {
+        if (child)
+        {
+            delete child;
+            child = NULL;
+        }
+        if (next)
+        {
+            Mesh *mesh = next;
+            copy(mesh);
+            mesh->clear();
+            delete mesh;
+        }
+        else
+            destroy();
+        return;
+    }
+    else
+    {
+        if (child && child->ID == id)
+        {
+            Mesh *mesh = child;
+            child = child->next;
+            mesh->next = NULL;
+            delete mesh;
+            return;
+        }
+        if (next && next->ID == id)
+        {
+            Mesh *mesh = next;
+            next = next->next;
+            mesh->next = NULL;
+            delete mesh;
+            return;
+        }
+    }
+    if (child)
+        child->deleteMesh(id);
+    if (next)
+        next->deleteMesh(id);
+}
+
+void Mesh::copy(const Mesh *src)
+{
+    name = src->name;
+    pos = src->pos;
+    child = src->child;
+    next = src->next;
+    vertex = src->vertex;
+    normal = src->normal;
+    index = src->index;
+    tex = src->tex;
+    tcoord = src->tcoord;
+    type = src->type;
+    flag = src->type;
+    color = src->color;
+    rColor = src->rColor;
+    size = src->size;
+    size2 = src->size2;
+    shader = src->shader;
+    fragmentProgram = src->fragmentProgram;
+    vertexProgram = src->vertexProgram;
+    ID = src->ID;
+    nbSubObj = src->nbSubObj;
+}
+
+void Mesh::clear()
+{
+    next = child = NULL;
+
+    vertex.clear();
+    normal.clear();
+    tcoord.clear();
+    index.clear();
+    tex.clear();
+    flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
+    color = rColor = 0xFFFFFFFF;
+    name.clear();
+    ID = 0;
+
+    emit loaded();
+}
+
+void Mesh::save3DMrec(QFile &file)
+{
+    file.putChar(name.size());
+    file.write(name.toAscii().data(), name.size());
+    file.write((char*)&pos, sizeof(pos));
+
+    sint16 nb_vtx = vertex.size();
+    file.write((char*)&nb_vtx, sizeof(nb_vtx));
+    if (nb_vtx > 0)
+        file.write((char*)vertex.data(), sizeof(Vec) * nb_vtx);
+
+    GLushort sel[4];
+    file.write((char*)sel, sizeof(GLushort) * 4);
+
+    sint16 nb_p_idx = 0;
+    file.write((char*)&nb_p_idx, sizeof(nb_p_idx)); // Write point data
+//    if (nb_p_idx > 0)
+//        file.write(sizeof(GLushort) * nb_p_idx);
+
+    sint16 nb_l_idx = 0;
+    file.write((char*)&nb_l_idx, sizeof(nb_l_idx));	// Write line data
+//    if (nb_l_idx > 0)
+//        file.write(sizeof(GLushort) * nb_l_idx);
+
+    sint16 nb_idx = index.size();
+    file.write((char*)&nb_idx, sizeof(nb_idx)); // Write triangle data
+    for(int i = 0 ; i < nb_idx ; i++)
+    {
+        GLushort id = index[i];
+        file.write((char*)&id, sizeof(GLushort));
+    }
+
+    if (tcoord.size() < nb_vtx * 2)
+        tcoord.resize(nb_vtx << 1);
+    file.write((char*)tcoord.data(), sizeof(float) * nb_vtx << 1);
+
+    float colorf[4] = { (color >> 24) / 255.0f,
+                        ((color >> 16) & 0xFF) / 255.0f,
+                        ((color >> 8) & 0xFF) / 255.0f,
+                        (color & 0xFF) / 255.0f };
+    float rColorf[4] = { (rColor >> 24) / 255.0f,
+                         ((rColor >> 16) & 0xFF) / 255.0f,
+                         ((rColor >> 8) & 0xFF) / 255.0f,
+                         (rColor & 0xFF) / 255.0f };
+
+    file.write((char*)colorf, sizeof(float) * 4);	// Read surface data
+    file.write((char*)rColorf, sizeof(float) * 4);
+    file.write((char*)&flag, sizeof(flag));
+    sint8 nb_tex = -tex.size();                 // We can safely compress texture data since it uses lossless compression (zlib)
+    file.write((char*)&nb_tex, sizeof(nb_tex));
+    for (int i = 0 ; i < tex.size() ; ++i)
+    {
+        QImage img = Gfx::instance()->textureToImage(tex[i]).rgbSwapped();
+        uint8 bpp = 32;
+        int w = img.width(), h = img.height();
+
+        file.write((char*)&w, sizeof(w));
+        file.write((char*)&h, sizeof(h));
+        file.write((char*)&bpp, sizeof(bpp));
+
+        int buf_size = w * h * 5;
+        byte *buffer = new byte[buf_size];
+        int img_size = buf_size;
+        uLongf __size = img_size;
+        compress2 ( buffer, &__size, (Bytef*) img.bits(), w * h * bpp / 8, 9);
+        img_size = __size;
+
+        file.write((char*)&img_size, sizeof(img_size)); // Save the result
+        file.write((char*)buffer, img_size);
+        delete[] buffer;
+    }
+
+    if (flag & SURFACE_GLSL) // Fragment & Vertex shaders
+    {
+        QByteArray buf = vertexProgram.toAscii();
+        uint32 shader_size = buf.size();
+        file.write((char*)&shader_size, 4);
+        file.write(buf.data(), shader_size);
+
+        buf = fragmentProgram.toAscii();
+        shader_size = buf.size();
+        file.write((char*)&shader_size, 4);
+        file.write(buf.data(), shader_size);
+    }
+
+    byte link = (child != NULL) ? 1 : 0;
+    file.write((char*)&link, 1);
+
+    if (link == 2) // Save animation data if present (currently not supported)
+    {
+        ANIMATION *animation_data = new ANIMATION;
+        file.write( (char*)&(animation_data->type), 1 );
+        file.write( (char*)&(animation_data->angle_0), sizeof(Vector3D) );
+        file.write( (char*)&(animation_data->angle_1), sizeof(Vector3D) );
+        file.write( (char*)&(animation_data->angle_w), sizeof(float)  );
+        file.write( (char*)&(animation_data->translate_0), sizeof(Vector3D) );
+        file.write( (char*)&(animation_data->translate_1), sizeof(Vector3D) );
+        file.write( (char*)&(animation_data->translate_w), sizeof(float) );
+
+        file.write( (char*)&link, 1 );
+
+        delete animation_data;
+    }
+
+    if (link)
+        child->save3DMrec(file);
+
+    link = (next != NULL) ? 1 : 0;
+    file.write((char*)&link, 1);
+    if (link)
+        next->load3DMrec(file);
+}
+
+void Mesh::invertOrientation()
+{
+    switch(type)
+    {
+    case MESH_TRIANGLE_STRIP:
+        for(int i = 0 ; i + 1 < index.size() ; i += 2)
+        {
+            index[i] ^= index[i + 1];
+            index[i + 1] ^= index[i];
+            index[i] ^= index[i + 1];
+        }
+        break;
+    case MESH_TRIANGLES:
+    default:
+        for(int i = 0 ; i < index.size() ; i += 3)
+        {
+            index[i + 1] ^= index[i + 2];
+            index[i + 2] ^= index[i + 1];
+            index[i + 1] ^= index[i + 2];
+        }
+        break;
+    };
 }

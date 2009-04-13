@@ -157,7 +157,7 @@ void Program::destroy()
     pLoaded = false;
 }
 
-void Program::load(const QString &programFilename)
+QString Program::load(const QString &programFilename)
 {
     // Reset
     pProgram  = glCreateProgramObjectARB();
@@ -170,6 +170,7 @@ void Program::load(const QString &programFilename)
     glLinkProgramARB(pProgram);
     GLint link = 0;
     glGetObjectParameterivARB(pProgram, GL_OBJECT_LINK_STATUS_ARB, &link);
+    QString sLog;
     if (link)
     {
         // LOG_DEBUG(LOG_PREFIX_GLSL << "Successfully loaded shader: `" << fragmentFilename << "`");
@@ -178,15 +179,18 @@ void Program::load(const QString &programFilename)
     else
     {
         qDebug() << "Failed to load shader: `" << programFilename << "`";
+        sLog.append("Failed to load shader: `").append(programFilename).append("`");
         char log[10000];
         GLsizei len = 0;
         glGetInfoLogARB(pProgram, 10000, &len, log);
         qDebug() << log;
+        sLog.append(log);
         pLoaded = false;
     }
+    return sLog;
 }
 
-void Program::load_memory(const QString &vertexProgram, const QString &fragmentProgram)
+QString Program::load_memory(const QString &vertexProgram, const QString &fragmentProgram)
 {
     pProgram  = glCreateProgramObjectARB();
     pVertexProgram   = loadVertexProgramFromMemory(vertexProgram);
@@ -198,6 +202,7 @@ void Program::load_memory(const QString &vertexProgram, const QString &fragmentP
     glLinkProgramARB(pProgram);
     GLint link = 0;
     glGetObjectParameterivARB(pProgram, GL_OBJECT_LINK_STATUS_ARB, &link);
+    QString sLog;
     if (link)
     {
         pLoaded = true;
@@ -205,12 +210,15 @@ void Program::load_memory(const QString &vertexProgram, const QString &fragmentP
     else
     {
         qDebug() << "Failed to load shader from memory";
+        sLog.append("Failed to load shader from memory");
         char log[10000];
         GLsizei len = 0;
         glGetInfoLogARB(pProgram, 10000, &len, log);
         qDebug() << log;
+        sLog.append(log);
         pLoaded = false;
     }
+    return sLog;
 }
 
 void Program::on()

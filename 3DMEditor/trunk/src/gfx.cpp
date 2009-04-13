@@ -28,6 +28,8 @@ Gfx::Gfx()
 
     makeCurrent();
     glewInit();
+
+    editMode = VIEW;
 }
 
 Gfx::~Gfx()
@@ -126,6 +128,20 @@ void Gfx::paintGL()
     glDepthMask(GL_TRUE);
 
     glPopMatrix();
+
+    Camera::setScreenCoordinates(width(), height());
+    switch(editMode)
+    {
+    case EDIT:
+        renderText(0.0f, height() - 5, 0.0f, tr("Editing mode"));
+        break;
+    case VIEW:
+        renderText(0.0f, height() - 5, 0.0f, tr("Viewing mode"));
+        break;
+    case ANIMATE:
+        renderText(0.0f, height() - 5, 0.0f, tr("Animation mode"));
+        break;
+    };
 }
 
 GLuint Gfx::loadTexture(const QString &filename)
@@ -335,13 +351,31 @@ void Gfx::drawCube(float size)
 
 void Gfx::mouseMoveEvent(QMouseEvent *event)
 {
-    if (previousMouseState == event->buttons())
+    switch(editMode)
     {
-        if (event->buttons() == Qt::LeftButton)
+    case VIEW:
+        if (previousMouseState == event->buttons())
         {
-            float r = 20.0f;
-            Vec center;
-            if (!Mesh::instance()->isEmpty())
+            if (event->buttons() == Qt::LeftButton)         // Rotate the camera
+            {
+                float r = 20.0f;
+                Vec center;
+                if (!Mesh::instance()->isEmpty())
+                {
+                    Vec p;
+                    Matrix inv = Invert( Transpose(meshMatrix) );
+                    Vec pos = Camera::inGame->rpos * inv;
+                    Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
+                    if (Mesh::instance()->hit(pos, dir, p) >= 0)
+                    {
+                        r = p.norm();
+                    }
+                    else
+                        r = Mesh::instance()->getSize();
+                }
+                arcballMove(center, r, previousMousePos, event->pos());
+            }
+            else if (event->buttons() == Qt::RightButton)     // Move camera // to viewing plane
             {
                 Vec p;
                 Matrix inv = Invert( Transpose(meshMatrix) );
@@ -349,39 +383,74 @@ void Gfx::mouseMoveEvent(QMouseEvent *event)
                 Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
                 if (Mesh::instance()->hit(pos, dir, p) >= 0)
                 {
-                    r = p.norm();
+                    p = p * Transpose(meshMatrix);
+                    Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
+                    float dist = (p - Camera::inGame->rpos) * Camera::inGame->dir;
+                    Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
+                    Camera::inGame->rpos += p - np;
                 }
                 else
-                    r = Mesh::instance()->getSize();
+                {
+                    dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height());
+                    float dist = (Vec() - Camera::inGame->rpos) * Camera::inGame->dir;
+                    p = Camera::inGame->rpos + dist / (dir * Camera::inGame->dir) * dir;
+                    Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
+                    Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
+                    Camera::inGame->rpos += p - np;
+                }
+                updateGL();
             }
-            arcballMove(center, r, previousMousePos, event->pos());
         }
-        else if (event->buttons() == Qt::MidButton)
+        break;
+    case EDIT:
+        if (previousMouseState == event->buttons() && selectedID >= 0)
         {
-            Vec p;
-            Matrix inv = Invert( Transpose(meshMatrix) );
-            Vec pos = Camera::inGame->rpos * inv;
-            Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
-            if (Mesh::instance()->hit(pos, dir, p) >= 0)
+            if (event->buttons() == Qt::LeftButton)         // Move attach point
             {
-                p = p * Transpose(meshMatrix);
-                Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
-                float dist = (p - Camera::inGame->rpos) * Camera::inGame->dir;
-                Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
-                Camera::inGame->rpos += p - np;
-            }
-            else
-            {
-                dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height());
+                Matrix inv = Invert( Transpose(meshMatrix) );
+                Mesh *mesh = Mesh::instance()->getMesh(selectedID);
+                Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height());
                 float dist = (Vec() - Camera::inGame->rpos) * Camera::inGame->dir;
-                p = Camera::inGame->rpos + dist / (dir * Camera::inGame->dir) * dir;
+                Vec p = Camera::inGame->rpos + dist / (dir * Camera::inGame->dir) * dir;
                 Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
                 Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
-                Camera::inGame->rpos += p - np;
+                Vec move = (np - p) * inv;
+                mesh->pos += move;
+                for(int i = 0 ; i < mesh->vertex.size() ; i++)
+                    mesh->vertex[i] -= move;
+                for( Mesh *cur = mesh->child ; cur != NULL ; cur = cur->next )
+                    cur->pos -= move;
+                updateGL();
             }
-            updateGL();
+            else if (event->buttons() == Qt::RightButton)   // Move
+            {
+                Vec p;
+                Matrix inv = Invert( Transpose(meshMatrix) );
+                Mesh *mesh = Mesh::instance()->getMesh(selectedID);
+                Vec pos = Camera::inGame->rpos * inv - Mesh::instance()->getRelativePosition(selectedID) + mesh->pos;
+                Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
+                if (mesh->hit(pos, dir, p) >= 0)
+                {
+                    p = (p + Mesh::instance()->getRelativePosition(selectedID) - mesh->pos) * Transpose(meshMatrix);
+                    Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
+                    float dist = (p - Camera::inGame->rpos) * Camera::inGame->dir;
+                    Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
+                    mesh->pos += (np - p) * inv;
+                }
+                else
+                {
+                    dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height());
+                    float dist = (Vec() - Camera::inGame->rpos) * Camera::inGame->dir;
+                    p = Camera::inGame->rpos + dist / (dir * Camera::inGame->dir) * dir;
+                    Vec dir2 = Camera::inGame->getScreenVector( ((float)event->pos().x()) / width(), ((float)event->pos().y()) / height());
+                    Vec np = Camera::inGame->rpos + dist / (dir2 * Camera::inGame->dir) * dir2;
+                    mesh->pos += (np - p) * inv;
+                }
+                updateGL();
+            }
         }
-    }
+        break;
+    };
 
     previousMousePos = event->pos();
     previousMouseState = event->buttons();
@@ -395,7 +464,7 @@ void Gfx::wheelEvent(QWheelEvent *event)
 
 void Gfx::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
+    if (event->button() == Qt::MidButton)
     {
         Vec p;
         Matrix inv = Invert( Transpose(meshMatrix), 150 );
@@ -453,6 +522,8 @@ void Gfx::arcballMove(const Vec &pos, const float r, const QPoint &A, const QPoi
 
 void Gfx::updateSelection(int ID)
 {
+    if (ID >= 0 && Mesh::instance()->getMesh(ID) == Mesh::instance() && Mesh::instance()->isEmpty())
+        ID = -1;
     if (selectedID != ID)           // Avoid infinite loops
     {
         selectedID = ID;
@@ -585,4 +656,31 @@ int Gfx::getTextureHeight(GLuint tex)
     glBindTexture(GL_TEXTURE_2D, tex);
     glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h );
     return h;
+}
+
+void Gfx::setEditMode()
+{
+    editMode = EDIT;
+    updateGL();
+}
+
+void Gfx::setViewMode()
+{
+    editMode = VIEW;
+    updateGL();
+}
+
+void Gfx::setAnimateMode()
+{
+    editMode = ANIMATE;
+    updateGL();
+}
+
+QImage Gfx::textureToImage(GLuint tex)
+{
+    int w = getTextureWidth(tex);               // From here our context is the current one
+    int h = getTextureHeight(tex);              // so following code is context safe
+    QImage img(w, h, QImage::Format_ARGB32);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA,GL_UNSIGNED_BYTE, img.bits());
+    return img;
 }

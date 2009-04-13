@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QPushButton>
+#include <QInputDialog>
 #include <QQueue>
 #include <QDropEvent>
 #include <QVariant>
@@ -40,6 +42,17 @@ GeometryGraph::GeometryGraph()
     tree->setDragDropMode(QTreeWidget::InternalMove);
 
     layout->addWidget(tree);
+
+    QPushButton *bRename = new QPushButton(tr("&Rename"));
+    QPushButton *bDelete = new QPushButton(tr("&Delete"));
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(bRename);
+    buttonLayout->addWidget(bDelete);
+    layout->addLayout(buttonLayout);
+
+    connect(bRename, SIGNAL(clicked()), this, SLOT(renameSelection()));
+    connect(bDelete, SIGNAL(clicked()), this, SLOT(deleteSelection()));
 }
 
 void GeometryGraph::refreshTree()
@@ -159,4 +172,27 @@ void TreeWidget::dropEvent(QDropEvent *event)
     }
 
     Gfx::instance()->updateGL();
+}
+
+void GeometryGraph::renameSelection()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    if (ID >= 0)
+    {
+        Mesh::instance()->getMesh(ID)->name = QInputDialog::getText(this, tr("Object name"), tr("enter new name"));
+        refreshTree();
+    }
+}
+
+void GeometryGraph::deleteSelection()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    if (ID >= 0)
+    {
+        Mesh::instance()->deleteMesh(ID);
+        Mesh::instance()->computeInfo();
+        Gfx::instance()->updateSelection(-1);
+        refreshTree();
+        Gfx::instance()->updateGL();
+    }
 }

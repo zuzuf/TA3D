@@ -1,6 +1,8 @@
 #include "textureviewer.h"
 #include "gfx.h"
 #include "mesh.h"
+#include <QTimer>
+#include <QTime>
 
 TextureViewer *TextureViewer::pInstance = NULL;
 
@@ -16,6 +18,11 @@ TextureViewer::TextureViewer()
     setWindowTitle(tr("Texture viewer"));
     ((QGLContext*)context())->create( Gfx::instance()->context() );
     selectedID = -1;
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateGL()));
+    timer->setSingleShot(false);
+    timer->setInterval(50);     // 20 times a sec.
+    timer->start();
 }
 
 void TextureViewer::updateSelection(int ID)
@@ -73,9 +80,8 @@ void TextureViewer::paintGL()
         }
         if (!mesh->tcoord.isEmpty())
         {
-            glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_ZERO);
+            int color = ((int)(cosf( QTime().msecsTo(QTime::currentTime()) * 0.003f ) * 127)) + 128;
+            glColor4ub(color, color, color, 0xFF);
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
             glEnableClientState(GL_VERTEX_ARRAY);
@@ -94,7 +100,6 @@ void TextureViewer::paintGL()
                 break;
             };
             glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-            glDisable(GL_BLEND);
         }
     }
 }

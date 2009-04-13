@@ -6,7 +6,7 @@
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+    Q_OBJECT;
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -16,6 +16,7 @@ protected:
     void resizeEvent(QResizeEvent *);
     void moveEvent(QMoveEvent *);
     void closeEvent(QCloseEvent *);
+    void keyPressEvent(QKeyEvent *);
 
 public slots:
     void setEnglish();
@@ -29,7 +30,21 @@ public slots:
     void saveMeshAs();
     void showGeometryGraph();
     void showTextureViewer();
+    void showSurfaceProperties();
+    void showHelpViewer();
     void endProgram();
+    void createCube();
+    void createSphere();
+    void createCylinder();
+    void createCone();
+    void updateTitle();
+    void mirrorX();
+    void mirrorY();
+    void mirrorZ();
+    void flipXY();
+    void flipYZ();
+    void flipXZ();
+    void scale();
 
 private:
     QStatusBar  *statusBar;

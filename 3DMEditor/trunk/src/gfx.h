@@ -7,6 +7,11 @@
 class Gfx : public QGLWidget
 {
     Q_OBJECT;
+
+    friend class MainWindow;
+
+    enum EditMode { EDIT, VIEW, ANIMATE };
+
 public:
     Gfx();
     ~Gfx();
@@ -28,6 +33,7 @@ public:
 
     int getTextureWidth(GLuint tex);
     int getTextureHeight(GLuint tex);
+    QImage textureToImage(GLuint tex);
 
 protected:
     void mouseMoveEvent(QMouseEvent *);
@@ -40,6 +46,9 @@ public slots:
     void updateSelection(int ID);
     void showSelection();
     void hideSelection();
+    void setViewMode();
+    void setEditMode();
+    void setAnimateMode();
 
 signals:
     void selectionChange(int ID);
@@ -50,6 +59,7 @@ private:
     Matrix              meshMatrix;
     int                 selectedID;
     bool                drawSelection;
+    EditMode            editMode;
 
 public:
     static Gfx *instance();
