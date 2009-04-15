@@ -4,13 +4,13 @@ root=`dirname ${0}`
 
 # Title of the DMG
 #caption="TA3D - A remake of Total Annihilation" # Really too long for a name...
-caption="TA3D" 
+caption="TA3D"
 
 # Used to get the filename
-name="ta3d"  
+name="ta3d"
 
 # Version
-version="0.5.0-wip"
+version="0.6.0-wip"
 # Revision
 revision=`svnversion  -n "${root}/../../" | cut -d':' -f2`
 
@@ -33,11 +33,11 @@ echo "Version: ${version}"
 
 echo "Cleaning..."
 if [ -f "${dmgFile}" ]; then
-    rm -f "${dmgFile}"
+	rm -f "${dmgFile}"
 fi
 # Clean up
 if [ -e "${tmp}" ]; then
-    rm -rf "${tmp}"
+	rm -rf "${tmp}"
 fi
 mkdir -p "${tmp}"
 
@@ -46,7 +46,7 @@ echo "Preparation..."
 cp -f "${trunk}/AUTHORS" "${tmp}/Authors.txt"
 cp -f "${trunk}/COPYING" "${tmp}/Copying.txt"
 if [ -d "${trunk}/ta3d.app" ]; then
-    cp -rf "${trunk}/ta3d.app" "${tmp}/"
+	cp -rf "${trunk}/ta3d.app" "${tmp}/"
 fi
 
 # Create the DMG file
