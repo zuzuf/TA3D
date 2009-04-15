@@ -10,7 +10,7 @@ caption="TA3D"
 name="ta3d"  
 
 # Version
-version="0.5.0-wip"
+version="0.5.3-wip"
 # Revision
 revision=`svnversion  -n "${root}/../../" | cut -d':' -f2`
 
