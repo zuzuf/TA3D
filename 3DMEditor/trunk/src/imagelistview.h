@@ -7,11 +7,11 @@
 #include <QFrame>
 #include <QLabel>
 
-class QImageItem : public QFrame
+class ImageItem : public QFrame
 {
     Q_OBJECT;
 public:
-    QImageItem(int ID);
+    ImageItem(int ID);
 
     void mousePressEvent(QMouseEvent *);
     void setImage(const QImage &image);
@@ -38,15 +38,14 @@ public:
     ImageListView();
     ~ImageListView();
     const QList<QImage> &getImageList();
+    int selectedIndex();
 
 private:
     void buildLabelList();
 
 public slots:
     void setImageList(const QList<QImage> &newImageList);
-
-protected slots:
-    void processClick(int ID);
+    void selectIndex(int ID);
 
 signals:
     void clicked(int ID);
@@ -54,7 +53,7 @@ signals:
 private:
     QWidget             *scrollWidget;
     QList<QImage>       imageList;
-    QList<QImageItem*>  labelList;
+    QList<ImageItem*>   labelList;
 };
 
 #endif // IMAGELISTVIEW_H

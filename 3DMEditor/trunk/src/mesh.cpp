@@ -1291,3 +1291,87 @@ void Mesh::invertOrientation()
         break;
     };
 }
+
+void Mesh::autoComputeUVcoordinates()
+{
+}
+
+void Mesh::sphericalMapping()
+{
+    computeNormals();
+    tcoord.resize(normal.size() * 2);
+    Vec I(1,0,0), J(0,0,1);
+    for(int i = 0 ; i < normal.size() ; i++)
+    {
+        Vec n = normal[i];
+        Vec p = Vec(n.x, 0.0f, n.z);
+        p.unit();
+        float v = VAngle(n, p);
+        if (n.y < 0.0f)
+            v = -v;
+        v = v / M_PI + 0.5f;
+        float u = VAngle(p, I);
+        if (p * J < 0.0f)
+            u = -u;
+        u = 0.5f * u / M_PI + 0.5f;
+        tcoord[i * 2] = u;
+        tcoord[i * 2 + 1] = v;
+    }
+}
+
+void Mesh::basicMapping()
+{
+    QVector<Vec> nVertex;
+    QVector<GLuint> nIndex;
+    tcoord.clear();
+
+    switch(type)
+    {
+    case MESH_TRIANGLE_STRIP:
+        for(int i = 0 ; i + 2 < index.size() ; i++)
+        {
+            nIndex.push_back(i);
+            nVertex.push_back( vertex[ index[i] ] );
+            nIndex.push_back(i + 1);
+            nVertex.push_back( vertex[ index[i + 1] ] );
+            nIndex.push_back(i + 2);
+            nVertex.push_back( vertex[ index[i + 2] ] );
+        }
+        break;
+    case MESH_TRIANGLES:
+    default:
+        for(int i = 0 ; i < index.size() ; i++)
+        {
+            nIndex.push_back(i);
+            nVertex.push_back( vertex[ index[i] ] );
+        }
+    };
+    int nb = ((nIndex.size() / 3) + 1) / 2;
+    int w = (int)(sqrtf(nb));
+    int h = nb / w;
+    if (h * w < nb)
+        h++;
+
+    tcoord.resize(2 * nVertex.size());
+    for(int i = 0 ; i < tcoord.size() ; i += 12)
+    {
+        int e = i / 12;
+        tcoord[i  ] = ((float)(e % w)) / w + 0.02f / w;
+        tcoord[i+1] = ((float)(e / w)) / h + 0.01f / h;
+        tcoord[i+2] = ((float)(e % w)+1) / w - 0.01f / w;
+        tcoord[i+3] = ((float)(e / w)) / h + 0.01f / h;
+        tcoord[i+4] = ((float)(e % w)+1) / w - 0.01f / w;
+        tcoord[i+5] = ((float)(e / w) + 1) / h - 0.02f / h;
+
+        tcoord[i+6] = ((float)(e % w)) / w + 0.01f / w;
+        tcoord[i+7] = ((float)(e / w)) / h + 0.02f / h;
+        tcoord[i+8] = ((float)(e % w)) / w - 0.01f / w;
+        tcoord[i+9] = ((float)(e / w) + 1) / h - 0.01f / h;
+        tcoord[i+10] = ((float)(e % w)+1) / w - 0.02f / w;
+        tcoord[i+11] = ((float)(e / w) + 1) / h - 0.01f / h;
+    }
+    index = nIndex;
+    vertex = nVertex;
+    type = MESH_TRIANGLES;
+    computeNormals();
+}

@@ -31,6 +31,15 @@ public slots:
     void refreshGUI();
     void readData();
     void updateWindowTitle();
+    void loadTexture();
+    void saveTexture();
+    void newTexture();
+    void deleteTexture();
+    void moveTextureLeft();
+    void moveTextureRight();
+    void basicUV();
+    void sphericalUV();
+    void autoUV();
 
 signals:
     void surfaceChanged();

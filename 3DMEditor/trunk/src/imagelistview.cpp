@@ -2,7 +2,7 @@
 #include <QHBoxLayout>
 #include <QMouseEvent>
 
-QImageItem::QImageItem(int ID) : id(ID)
+ImageItem::ImageItem(int ID) : id(ID)
 {
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     setLayout(new QHBoxLayout);
@@ -10,33 +10,30 @@ QImageItem::QImageItem(int ID) : id(ID)
     layout()->setAlignment(Qt::AlignCenter);
 }
 
-bool QImageItem::isSelected()
+bool ImageItem::isSelected()
 {
     return selected;
 }
 
-void QImageItem::select()
+void ImageItem::select()
 {
     selected = true;
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
 }
 
-void QImageItem::unselect()
+void ImageItem::unselect()
 {
     selected = false;
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken);
 }
 
-void QImageItem::mousePressEvent(QMouseEvent *event)
+void ImageItem::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
-    {
         emit clicked(id);
-        select();
-    }
 }
 
-void QImageItem::setImage(const QImage &image)
+void ImageItem::setImage(const QImage &image)
 {
     label.setPixmap( QPixmap::fromImage(image) );
     label.setMaximumSize(image.size());
@@ -79,9 +76,9 @@ void ImageListView::buildLabelList()
 
     for(int i = 0 ; i < imageList.size() ; i++)
     {
-        labelList.push_back( new QImageItem(i) );
+        labelList.push_back( new ImageItem(i) );
         labelList.back()->setImage( imageList[i] );
-        connect(labelList.back(), SIGNAL(clicked(int)), this, SLOT(processClick(int)));
+        connect(labelList.back(), SIGNAL(clicked(int)), this, SLOT(selectIndex(int)));
     }
 
     int w = 0, h = 0;
@@ -98,10 +95,20 @@ void ImageListView::buildLabelList()
     update();
 }
 
-void ImageListView::processClick(int ID)
+void ImageListView::selectIndex(int ID)
 {
     for(int i = 0 ; i < labelList.size() ; i++)
         if (labelList[i]->ID() != ID)
             labelList[i]->unselect();
+        else
+            labelList[i]->select();
     emit clicked(ID);
+}
+
+int ImageListView::selectedIndex()
+{
+    for(int i = 0 ; i < labelList.size() ; i++)
+        if (labelList[i]->isSelected())
+            return i;
+    return -1;
 }

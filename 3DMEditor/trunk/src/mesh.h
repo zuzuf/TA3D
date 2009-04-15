@@ -84,6 +84,11 @@ public:
     void deleteMesh(int id);
     void invertOrientation();
 
+    // Several functions related to UV mapping
+    void autoComputeUVcoordinates();
+    void sphericalMapping();
+    void basicMapping();
+
 signals:
     void loaded();
 

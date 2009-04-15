@@ -8,6 +8,8 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QFileDialog>
+#include <QInputDialog>
 
 SurfaceProperties *SurfaceProperties::pInstance = NULL;
 
@@ -91,10 +93,36 @@ SurfaceProperties::SurfaceProperties()
 
     finalLayout->addWidget( new QLabel(tr("Textures:")) );
 
+    QGridLayout *textureLayout = new QGridLayout;
+
     imageListView = new ImageListView;
-    finalLayout->addWidget( imageListView );
+    finalLayout->addWidget(imageListView);
+
+    QPushButton *bLoad = new QPushButton(tr("&Load"));
+    QPushButton *bSave = new QPushButton(tr("&Save"));
+    QPushButton *bNew = new QPushButton(tr("&New"));
+    QPushButton *bDelete = new QPushButton(tr("&Delete"));
+    QPushButton *bLeft = new QPushButton(tr("&<"));
+    QPushButton *bRight = new QPushButton(tr("&>"));
+
+    QPushButton *bBasic = new QPushButton(tr("&basic UV"));
+    QPushButton *bSpherical = new QPushButton(tr("&spherical UV"));
+    QPushButton *bAuto = new QPushButton(tr("&auto UV"));
+    textureLayout->addWidget(bLoad, 0, 0);
+    textureLayout->addWidget(bSave, 0, 1);
+    textureLayout->addWidget(bNew, 1, 0);
+    textureLayout->addWidget(bDelete, 1, 1);
+    textureLayout->addWidget(bLeft, 2, 0);
+    textureLayout->addWidget(bRight, 2, 1);
+    textureLayout->addWidget(bBasic, 3, 0);
+    textureLayout->addWidget(bSpherical, 3, 1);
+    textureLayout->addWidget(bAuto, 4, 0);
+
+    finalLayout->addLayout(textureLayout);
 
     setLayout(finalLayout);
+
+    // GUI connections
 
     connect(red, SIGNAL(valueChanged(int)), this, SLOT(readData()));
     connect(green, SIGNAL(valueChanged(int)), this, SLOT(readData()));
@@ -114,6 +142,17 @@ SurfaceProperties::SurfaceProperties()
     connect(flagTextured, SIGNAL(stateChanged(int)), this, SLOT(readData()));
 
     connect(bShader, SIGNAL(clicked()), ShaderEditor::instance(), SLOT(show()));
+
+    connect(bLoad, SIGNAL(clicked()), this, SLOT(loadTexture()));
+    connect(bSave, SIGNAL(clicked()), this, SLOT(saveTexture()));
+    connect(bNew, SIGNAL(clicked()), this, SLOT(newTexture()));
+    connect(bDelete, SIGNAL(clicked()), this, SLOT(deleteTexture()));
+    connect(bLeft, SIGNAL(clicked()), this, SLOT(moveTextureLeft()));
+    connect(bRight, SIGNAL(clicked()), this, SLOT(moveTextureRight()));
+
+    connect(bBasic, SIGNAL(clicked()), this, SLOT(basicUV()));
+    connect(bSpherical, SIGNAL(clicked()), this, SLOT(sphericalUV()));
+    connect(bAuto, SIGNAL(clicked()), this, SLOT(autoUV()));
 
     updateWindowTitle();
 
@@ -154,16 +193,13 @@ void SurfaceProperties::refreshGUI()
         flagReflec->setChecked(mesh->flag & SURFACE_REFLEC);
         flagTextured->setChecked(mesh->flag & SURFACE_TEXTURED);
 
-        if (!mesh->tex.isEmpty())
+        QList<QImage> imageList;
+        for(int i = 0 ; i < mesh->tex.size() ; i++)
         {
-            QList<QImage> imageList;
-            for(int i = 0 ; i < mesh->tex.size() ; i++)
-            {
-                QImage image = Gfx::instance()->textureToImage( mesh->tex[i] );
-                imageList.push_back( image.scaled(128, 128) );
-            }
-            imageListView->setImageList( imageList );
+            QImage image = Gfx::instance()->textureToImage( mesh->tex[i] );
+            imageList.push_back( image.scaled(128, 128) );
         }
+        imageListView->setImageList( imageList );
     }
     else
     {
@@ -216,4 +252,132 @@ void SurfaceProperties::readData()
         mesh->flag |= flagTextured->isChecked() ? SURFACE_TEXTURED : 0;
         emit surfaceChanged();
     }
+}
+
+void SurfaceProperties::newTexture()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int w = QInputDialog::getInt(this,tr("Texture width"), tr("Enter texture width:"), 128, 1, 1024);
+    int h = QInputDialog::getInt(this,tr("Texture height"), tr("Enter texture height:"), 128, 1, 1024);
+
+    Gfx::instance()->makeCurrent();
+    QImage img(w, h, QImage::Format_ARGB32);
+    mesh->tex.push_back(Gfx::instance()->bindTexture(img));
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::deleteTexture()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int textureID = imageListView->selectedIndex();
+    if (textureID < 0 || textureID >= mesh->tex.size())
+        return;
+    Gfx::instance()->deleteTexture(mesh->tex[textureID]);
+    mesh->tex.remove(textureID);
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::loadTexture()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    QString filename = QFileDialog::getOpenFileName(this,tr("Load texture"),QString(),tr("all files(*.*);;jpeg images(*.jpg);;png images(*.png)"));
+    if (filename.isEmpty())
+        return;
+    mesh->tex.push_back(Gfx::instance()->loadTexture(filename));
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::saveTexture()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int textureID = imageListView->selectedIndex();
+    if (textureID < 0 || textureID >= mesh->tex.size())
+        return;
+    QString filename = QFileDialog::getSaveFileName(this,tr("Save texture as"),QString(),tr("all files(*.*);;jpeg images(*.jpg);;png images(*.png)"));
+    if (filename.isEmpty())
+        return;
+    QImage img = Gfx::instance()->textureToImage( mesh->tex[textureID] );
+    img.save(filename);
+}
+
+void SurfaceProperties::moveTextureLeft()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int textureID = imageListView->selectedIndex();
+    if (textureID < 1 || textureID >= mesh->tex.size())
+        return;
+    mesh->tex[textureID] ^= mesh->tex[textureID - 1];
+    mesh->tex[textureID - 1] ^= mesh->tex[textureID];
+    mesh->tex[textureID] ^= mesh->tex[textureID - 1];
+    refreshGUI();
+    emit surfaceChanged();
+    imageListView->selectIndex(textureID - 1);
+}
+
+void SurfaceProperties::moveTextureRight()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int textureID = imageListView->selectedIndex();
+    if (textureID < 0 || textureID + 1>= mesh->tex.size())
+        return;
+    mesh->tex[textureID] ^= mesh->tex[textureID + 1];
+    mesh->tex[textureID + 1] ^= mesh->tex[textureID];
+    mesh->tex[textureID] ^= mesh->tex[textureID + 1];
+    refreshGUI();
+    emit surfaceChanged();
+    imageListView->selectIndex(textureID + 1);
+}
+
+void SurfaceProperties::basicUV()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    mesh->basicMapping();
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::sphericalUV()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    mesh->sphericalMapping();
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::autoUV()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    mesh->autoComputeUVcoordinates();
+    refreshGUI();
+    emit surfaceChanged();
 }
