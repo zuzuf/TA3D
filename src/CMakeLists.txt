@@ -166,6 +166,18 @@ ELSE(NOT APPLE)
 		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}")
 	ENDMACRO(BUNDLE_BASIC_INSTALL)
 
+	MACRO(BUNDLE_ADD_LIB libname)
+		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
+			COMMAND cp ARGS -fH "/opt/local/lib/${libname}" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
+			DEPENDS "/opt/local/lib/${libname}")
+		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}")
+	ENDMACRO(BUNDLE_ADD_LIB)
+
+	MACRO(BUNDLE_RELINK libname)
+		ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+			COMMAND install_name_tool ARGS -change '/opt/local/lib/${libname}' @executable_path/../Frameworks/${libname} ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+	ENDMACRO(BUNDLE_RELINK)
+
 	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/")
 	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/")
 	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/")
@@ -179,11 +191,14 @@ ELSE(NOT APPLE)
 	BUNDLE_BASIC_INSTALL("./" "./" "COPYING")
 
 	# LibZ
-	ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
-		COMMAND cp ARGS -fH "/opt/local/lib/libz.1.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
-		DEPENDS "/opt/local/lib/libz.1.dylib")
-	SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
-
+	BUNDLE_ADD_LIB("libz.1.dylib")
+	BUNDLE_ADD_LIB("libSDL-1.2.0.dylib")
+	BUNDLE_ADD_LIB("libSDL_mixer-1.2.0.dylib")
+	BUNDLE_ADD_LIB("libSDL_image-1.2.0.dylib")
+	BUNDLE_ADD_LIB("libSDL_net-1.2.0.dylib")
+	BUNDLE_ADD_LIB("libGLEW.1.5.1.dylib")
+	BUNDLE_ADD_LIB("libpng12.0.dylib")
+	
 	# --- Resources ---
 	# Sky
 	Message(STATUS "[bundle] Adding resources 'sky'...")
@@ -261,10 +276,15 @@ ELSE(NOT APPLE)
 	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
 	SET(MACOSX_BUNDLE_ICON_FILE "pictures/ta3d.icns")
 
-	# Relink (needed to make an independant Bundle)
-	ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-		COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
-
+	# Relink
+	BUNDLE_RELINK("libz.1.dylib")
+	BUNDLE_RELINK("libSDL-1.2.0.dylib")
+	BUNDLE_RELINK("libSDL_image-1.2.0.dylib")
+	BUNDLE_RELINK("libSDL_mixer-1.2.0.dylib")
+	BUNDLE_RELINK("libSDL_net-1.2.0.dylib")
+	BUNDLE_RELINK("libGLEW.1.5.1.dylib")
+	BUNDLE_RELINK("libpng12.0.dylib")
+	
 ENDIF(NOT APPLE)
 
 
