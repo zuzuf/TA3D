@@ -89,6 +89,10 @@ public:
     void sphericalMapping();
     void basicMapping();
 
+    // Simplifies geometry
+    void mergeSimilarVertices();
+    void toTriangleSoup();
+
 signals:
     void loaded();
 
@@ -131,6 +135,7 @@ public:
     static Mesh *createCube(float size);
     static Mesh *createCylinder(float r, float h, int d, bool capped);
     static Mesh *createCone(float r, float h, int d, bool capped);
+    static Mesh *createTorus(float R, float r, int D, int d);
 
 private:
     static Mesh *pInstance;

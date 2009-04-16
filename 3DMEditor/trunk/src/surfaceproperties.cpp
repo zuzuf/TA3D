@@ -108,6 +108,7 @@ SurfaceProperties::SurfaceProperties()
     QPushButton *bBasic = new QPushButton(tr("&basic UV"));
     QPushButton *bSpherical = new QPushButton(tr("&spherical UV"));
     QPushButton *bAuto = new QPushButton(tr("&auto UV"));
+    QPushButton *bMerge = new QPushButton(tr("&merge vertices"));
     textureLayout->addWidget(bLoad, 0, 0);
     textureLayout->addWidget(bSave, 0, 1);
     textureLayout->addWidget(bNew, 1, 0);
@@ -117,6 +118,7 @@ SurfaceProperties::SurfaceProperties()
     textureLayout->addWidget(bBasic, 3, 0);
     textureLayout->addWidget(bSpherical, 3, 1);
     textureLayout->addWidget(bAuto, 4, 0);
+    textureLayout->addWidget(bMerge, 4, 1);
 
     finalLayout->addLayout(textureLayout);
 
@@ -153,6 +155,7 @@ SurfaceProperties::SurfaceProperties()
     connect(bBasic, SIGNAL(clicked()), this, SLOT(basicUV()));
     connect(bSpherical, SIGNAL(clicked()), this, SLOT(sphericalUV()));
     connect(bAuto, SIGNAL(clicked()), this, SLOT(autoUV()));
+    connect(bMerge, SIGNAL(clicked()), this, SLOT(mergeVertices()));
 
     updateWindowTitle();
 
@@ -378,6 +381,17 @@ void SurfaceProperties::autoUV()
     if (mesh == NULL)
         return;
     mesh->autoComputeUVcoordinates();
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::mergeVertices()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    mesh->mergeSimilarVertices();
     refreshGUI();
     emit surfaceChanged();
 }

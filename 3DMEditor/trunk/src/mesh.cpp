@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QQueue>
 #include <zlib.h>
 #include "mesh.h"
 #include "gfx.h"
@@ -1069,6 +1070,47 @@ Mesh *Mesh::createCone(float r, float h, int d, bool capped)
     return mesh;
 }
 
+Mesh *Mesh::createTorus(float R, float r, int D, int d)
+{
+    Mesh *mesh = new Mesh;
+    mesh->color = 0xFFFFFFFF;
+    mesh->type = MESH_TRIANGLES;
+    mesh->name = QString("cone(%1)").arg(R);
+
+    for(int i = 0 ; i <= d ; i++)
+    {
+        for(int e = 0 ; e <= D ; e++)
+        {
+            Vec p(  cosf( M_PI * 2.0f * e / D ) * (R + r * cosf( M_PI * 2.0f * i / d - M_PI)),
+                    sinf( M_PI * 2.0f * i / d - M_PI) * r,
+                    sinf( M_PI * 2.0f * e / D ) * (R + r * cosf( M_PI * 2.0f * i / d - M_PI)));
+            mesh->vertex.push_back(p);
+            Vec n(  cosf( M_PI * 2.0f * e / D ) * cosf( M_PI * 2.0f * i / d - M_PI),
+                    sinf( M_PI * 2.0f * i / d - M_PI),
+                    sinf( M_PI * 2.0f * e / D ) * cosf( M_PI * 2.0f * i / d - M_PI));
+            mesh->normal.push_back(n);
+            mesh->tcoord.push_back(((float)e) / D);
+            mesh->tcoord.push_back(((float)i) / d);
+        }
+    }
+
+    for(int i = 0 ; i < d ; i++)
+    {
+        for(int e = 0 ; e < D ; e++)
+        {
+            mesh->index.push_back(i * (D + 1) + e);
+            mesh->index.push_back((i + 1) * (D + 1) + e);
+            mesh->index.push_back(i * (D + 1) + e + 1);
+
+            mesh->index.push_back((i + 1) * (D + 1) + e);
+            mesh->index.push_back((i + 1) * (D + 1) + e + 1);
+            mesh->index.push_back(i * (D + 1) + e + 1);
+        }
+    }
+
+    return mesh;
+}
+
 void Mesh::deleteMesh(int id)
 {
     if (id == ID)       // delete the root mesh
@@ -1294,19 +1336,287 @@ void Mesh::invertOrientation()
 
 void Mesh::autoComputeUVcoordinates()
 {
+    toTriangleSoup();
+    mergeSimilarVertices();
+
+    int nb_component = 0;
+    QVector< QVector< int > > neighbors;
+    neighbors.resize(vertex.size());
+    for(int i = 0 ; i < index.size() ; i += 3)      // Build neighborhood tables
+    {
+        for(int e = 0 ; e < 3 ; e++)
+        {
+            if (!neighbors[index[i + e]].contains(index[i + ((1 + e) % 3)]))
+                neighbors[index[i + e]].push_back(index[i + ((1 + e) % 3)]);
+            if (!neighbors[index[i + e]].contains(index[i + ((2 + e) % 3)]))
+                neighbors[index[i + e]].push_back(index[i + ((2 + e) % 3)]);
+        }
+    }
+    for(int i = 0 ; i < neighbors.size() ; i++)
+        qSort( neighbors[i] );
+
+    QVector< QVector< int > > componentVertex;
+    QVector< int > component;
+    QVector< int > dist;
+    for(int i = 0 ; i < vertex.size() ; i++)
+    {
+        component.push_back(-1);
+        dist.push_back(vertex.size());
+    }
+
+    QQueue< int > qWork;
+    for(int i = 0 ; i < vertex.size() ; i++)
+        qWork.enqueue(i);
+    for(int i = 0 ; i < vertex.size() ; i++)
+        qSwap( qWork[i], qWork[ qrand() % qWork.size() ] );
+
+    while(!qWork.isEmpty())         // Compute connex components
+    {
+        int A = qWork.dequeue();
+        int B = -1, C = -1;
+        for(int i = 0 ; i < neighbors[A].size() && C == -1 ; i++)
+        {
+            int n = neighbors[A][i];
+            if (component[n] == -1)
+            {
+                B = n;
+                for(int e = i + 1 ; e < neighbors[A].size() && C == -1 ; e++)
+                {
+                    n = neighbors[A][e];
+                    if (component[n] == -1 && neighbors[B].contains(n))
+                        C = n;
+                }
+            }
+        }
+        if (C == -1)                // No unattributed triangle OO! This is not possible, but for robustness ...
+        {
+            qDebug() << "error : no triangle found! ( " << __FILE__ << " l." << __LINE__ << ")";
+            continue;
+        }
+        int cmp = nb_component++;
+        component[A] = component[B] = component[C] = cmp;
+        // B and C have been chosen so we must not use them again
+        qWork.removeOne(B);
+        qWork.removeOne(C);
+        dist[A] = 0;                // Compute distance from component initializer
+        dist[B] = dist[C] = 1;
+        componentVertex.push_back(QVector<int>());
+        componentVertex.last() << A << B << C;
+
+        QQueue<int> qComponent;
+        qComponent << neighbors[A].toList() << neighbors[B].toList() << neighbors[C].toList();
+        while(!qComponent.isEmpty())
+        {
+            int i = qComponent.dequeue();
+            if (component[i] == cmp)        // Already in
+                continue;
+
+            A = i;
+            B = -1;
+            C = -1;
+            for(int j = 0 ; j < neighbors[A].size() && C == -1 ; j++)
+            {
+                int n = neighbors[A][j];
+                if (component[n] == cmp)
+                {
+                    B = n;
+                    for(int e = j + 1 ; e < neighbors[A].size() && C == -1 ; e++)
+                    {
+                        n = neighbors[A][e];
+                        if (component[n] == cmp && neighbors[B].contains(n))
+                            C = n;
+                    }
+                }
+            }
+            if (C == -1)            // It's not in
+                continue;
+            componentVertex.last() << A;
+
+            for(int j = 0 ; j < neighbors[A].size() ; j++)
+                dist[A] = qMin(dist[A], dist[ neighbors[A][j] ] + 1);
+
+            if (component[i] != -1)         // Special case, the vertex must be duplicated
+            {                               // (2 components joined by a vertex :/)
+                int orig = component[i];
+                for(int e = 0 ; e < index.size() ; e += 3)
+                {
+                    if (index[e] == A || index[e+1] == A || index[e+2] == A)
+                    {
+                        if (component[index[e]] == orig && component[index[e+1]] == orig && component[index[e+2]] == orig)
+                        {
+                            if (index[e] == A)
+                                index[e] = vertex.size();
+                            if (index[e+1] == A)
+                                index[e+1] = vertex.size();
+                            if (index[e+2] == A)
+                                index[e+2] = vertex.size();
+                        }
+                    }
+                }
+                component.push_back(orig);
+                vertex.push_back(vertex[i]);
+                neighbors.push_back(QVector<int>());
+                for(int e = 0 ; e < neighbors[i].size() ; e++)
+                    if (component[neighbors[i][e]] == orig)
+                    {
+                        neighbors.last().push_back(neighbors[i][e]);
+                        neighbors[i].remove(e--);
+                    }
+            }
+            component[i] = cmp;
+            qComponent << neighbors[i].toList();
+        }
+    }
+
+    tcoord.resize(2 * vertex.size());
+
+    // Compute texture coordinates per component (physics like stuffs)
+    for(int c = 0 ; c < nb_component ; c++)
+    {
+        QVector<int> nbDist;
+        QVector<int> nbLeft;
+        nbDist.resize( componentVertex[c].size() );
+        for(int i = 0 ; i < componentVertex[c].size() ; i++)
+            nbDist[ dist[ componentVertex[c][i] ] ]++;
+        nbLeft = nbDist;
+        for(int i = 0 ; i < componentVertex[c].size() ; i++)       // Initialize texture coordinates
+        {
+            int n = componentVertex[c][i];
+            int d = dist[n];
+            if (d == 0)
+            {
+                tcoord[n * 2] = 0.0f;
+                tcoord[n * 2 + 1] = 0.0f;
+            }
+            else
+            {
+                tcoord[n * 2] = cosf(nbLeft[d] * M_PI * 2.0f / nbDist[d]) * d;
+                tcoord[n * 2 + 1] = sinf(nbLeft[d] * M_PI * 2.0f / nbDist[d]) * d;
+                nbLeft[d]--;
+            }
+        }
+
+        // First simulation steps (tries to make the mesh occupies the texture space)
+        for(int k = 0 ; k < 200 ; k++)
+        {
+            for(int i = 0 ; i < componentVertex[c].size() ; i++)
+            {
+                Vec move;
+                int n = componentVertex[c][i];
+                Vec N(tcoord[n * 2], tcoord[n * 2 + 1], 0);
+                for(int e = 0 ; e < componentVertex[c].size() ; e++)
+                {
+                    if (e != i)
+                    {
+                        int m = componentVertex[c][e];
+                        Vec M(tcoord[m * 2], tcoord[m * 2 + 1], 0);
+                        if (neighbors[n].contains(m))
+                        {
+                            Vec D(N - M);
+                            float l = D.norm();
+                            D = 1.0f / l * D;
+                            move += (1.0f - l) * D;
+                        }
+                        else
+                        {
+                            move += 1.0f / (N - M).sq() * (N - M);
+                        }
+                    }
+                }
+                if (move.sq() > 1.0f)
+                    move.unit();
+                tcoord[n * 2] += move.x;
+                tcoord[n * 2 + 1] += move.y;
+            }
+        }
+        // First simulation steps (tries to make the texture spaces reflect 3D triangle spaces)
+        for(int k = 0 ; k < 100 ; k++)
+        {
+            float f = 0.1f / (k + 1);
+            for(int i = 0 ; i < componentVertex[c].size() ; i++)
+            {
+                Vec move;
+                int n = componentVertex[c][i];
+                Vec N(tcoord[n * 2], tcoord[n * 2 + 1], 0);
+                for(int e = 0 ; e < componentVertex[c].size() ; e++)
+                {
+                    if (e != i)
+                    {
+                        int m = componentVertex[c][e];
+                        Vec M(tcoord[m * 2], tcoord[m * 2 + 1], 0);
+                        if (neighbors[n].contains(m))
+                        {
+                            Vec D(N - M);
+                            float l = D.norm();
+                            D = 1.0f / l * D;
+                            move += ((vertex[n] - vertex[m]).norm() - l) * D;
+                        }
+                        else
+                        {
+                            move += 10.0f / (f * (N - M).sq()) * (N - M);
+                        }
+                    }
+                }
+//                for(int e = 0 ; e < neighbors[n].size() ; e++)
+//                {
+//                    int m = neighbors[n][e];
+//                    Vec M(tcoord[m * 2], tcoord[m * 2 + 1], 0);
+//                    Vec D(N - M);
+//                    float l = D.norm();
+//                    D = 1.0f / l * D;
+//                    move += ((vertex[n] - vertex[m]).norm() - l) * D;
+//                }
+                if (move.sq() > 1.0f)
+                    move.unit();
+                tcoord[n * 2] += f * move.x;
+                tcoord[n * 2 + 1] += f * move.y;
+            }
+        }
+    }
+    float umin, umax, vmin, vmax;
+    for(int i = 0 ; i < tcoord.size() ; i+=2)
+    {
+        if (i == 0)
+        {
+            umin = umax = tcoord[i];
+            vmin = vmax = tcoord[i+2];
+        }
+        else
+        {
+            umin = qMin(umin, tcoord[i]);
+            vmin = qMin(vmin, tcoord[i+1]);
+            umax = qMax(umax, tcoord[i]);
+            vmax = qMax(vmax, tcoord[i+1]);
+        }
+    }
+    umax -= umin;
+    vmax -= vmin;
+    for(int i = 0 ; i < tcoord.size() ; i+=2)
+    {
+        tcoord[i] = (tcoord[i] - umin) / umax;
+        tcoord[i+1] = (tcoord[i+1] - vmin) / vmax;
+    }
+    computeNormals();
 }
 
 void Mesh::sphericalMapping()
 {
-    computeNormals();
+    // Transform the mesh into a triangle soup
+    // then merge duplicate vertices
+    toTriangleSoup();           // These functions also compute normals
+    mergeSimilarVertices();     // so there is no need to do it again
+
     tcoord.resize(normal.size() * 2);
-    Vec I(1,0,0), J(0,0,1);
+    Vec I(1,0,0), J(0,0,1), K(0,1,0);
     for(int i = 0 ; i < normal.size() ; i++)
     {
         Vec n = normal[i];
         Vec p = Vec(n.x, 0.0f, n.z);
-        p.unit();
-        float v = VAngle(n, p);
+        if (p.sq() == 0.0f)
+            p.x = 1.0f;
+        else
+            p.unit();
+        float v = fabsf(VAngle(n, p));
         if (n.y < 0.0f)
             v = -v;
         v = v / M_PI + 0.5f;
@@ -1317,6 +1627,71 @@ void Mesh::sphericalMapping()
         tcoord[i * 2] = u;
         tcoord[i * 2 + 1] = v;
     }
+
+    // Remember we have type == MESH_TRIANGLES here :)
+    // so we can easily check for inconsistencies
+    for(int i = 0 ; i < index.size() ; i += 3)
+    {
+        Vec A = normal[index[i]];
+        Vec B = normal[index[i + 1]];
+        Vec C = normal[index[i + 2]];
+        A.y = B.y = C.y = 0.0f;
+        A.unit();
+        B.unit();
+        C.unit();
+        bool dB = ( (A ^ B) * K ) * (tcoord[index[i] * 2] - tcoord[index[i + 1] * 2]) < 0.0f;
+        bool dC = ( (A ^ C) * K ) * (tcoord[index[i] * 2] - tcoord[index[i + 2] * 2]) < 0.0f;
+        if (dB)
+        {
+            vertex.push_back( vertex[index[i+1]] );
+            normal.push_back( normal[index[i+1]] );
+            if (tcoord[index[i+1] * 2] < tcoord[index[i] * 2])
+                tcoord.push_back( tcoord[index[i+1] * 2] + 1.0f );
+            else
+                tcoord.push_back( tcoord[index[i+1] * 2] - 1.0f );
+            tcoord.push_back( tcoord[index[i+1] * 2 + 1] );
+            index[i+1] = vertex.size() - 1;
+        }
+        if (dC)
+        {
+            vertex.push_back( vertex[index[i+2]] );
+            normal.push_back( normal[index[i+2]] );
+            if (tcoord[index[i+2] * 2] < tcoord[index[i] * 2])
+                tcoord.push_back( tcoord[index[i+2] * 2] + 1.0f );
+            else
+                tcoord.push_back( tcoord[index[i+2] * 2] - 1.0f );
+            tcoord.push_back( tcoord[index[i+2] * 2 + 1] );
+            index[i+2] = vertex.size() - 1;
+        }
+        else
+        {
+            dC = ( (C ^ B) * K ) * (tcoord[index[i + 2] * 2] - tcoord[index[i + 1] * 2]) < 0.0f;
+            if (dC)
+            {
+                vertex.push_back( vertex[index[i+2]] );
+                normal.push_back( normal[index[i+2]] );
+                if (tcoord[index[i+2] * 2] < tcoord[index[i+1] * 2])
+                    tcoord.push_back( tcoord[index[i+2] * 2] + 1.0f );
+                else
+                    tcoord.push_back( tcoord[index[i+2] * 2] - 1.0f );
+                tcoord.push_back( tcoord[index[i+2] * 2 + 1] );
+                index[i+2] = vertex.size() - 1;
+            }
+        }
+    }
+    float umin = 2.0f;
+    float umax = -1.0f;
+    for(int i = 0 ; i < tcoord.size() ; i += 2)
+    {
+        umin = qMin(umin, tcoord[i]);
+        umax = qMax(umax, tcoord[i]);
+    }
+    umax -= umin;
+    if (umax == 0.0f)
+        umax = 1.0f;
+    for(int i = 0 ; i < tcoord.size() ; i += 2)
+        tcoord[i] = (tcoord[i] - umin) / umax;
+    computeNormals();
 }
 
 void Mesh::basicMapping()
@@ -1365,13 +1740,94 @@ void Mesh::basicMapping()
 
         tcoord[i+6] = ((float)(e % w)) / w + 0.01f / w;
         tcoord[i+7] = ((float)(e / w)) / h + 0.02f / h;
-        tcoord[i+8] = ((float)(e % w)) / w - 0.01f / w;
+        tcoord[i+8] = ((float)(e % w)) / w + 0.01f / w;
         tcoord[i+9] = ((float)(e / w) + 1) / h - 0.01f / h;
         tcoord[i+10] = ((float)(e % w)+1) / w - 0.02f / w;
         tcoord[i+11] = ((float)(e / w) + 1) / h - 0.01f / h;
     }
     index = nIndex;
     vertex = nVertex;
+    type = MESH_TRIANGLES;
+    computeNormals();
+}
+
+void Mesh::mergeSimilarVertices()
+{
+    QVector<Vec> nVertex;
+    QVector<GLfloat> nTcoord;
+    for(int i = 0 ; i < index.size() ; i++)
+    {
+        Vec &p = vertex[index[i]];
+        int e = -1;
+        for(int j = 0 ; j < nVertex.size() ; j++)
+        {
+            if (nVertex[j] == p)
+            {
+                e = j;
+                break;
+            }
+        }
+        if (e >= 0)
+            index[i] = e;
+        else
+        {
+            if (!tcoord.isEmpty())
+            {
+                nTcoord.push_back(tcoord[index[i] * 2]);
+                nTcoord.push_back(tcoord[index[i] * 2 + 1]);
+            }
+            index[i] = nVertex.size();
+            nVertex.push_back(p);
+        }
+    }
+
+    vertex = nVertex;
+    normal.clear();
+    tcoord = nTcoord;
+
+    computeNormals();
+}
+
+void Mesh::toTriangleSoup()     // This will result in a flat shaded mesh (vertices will be duplicated)
+{
+    QVector<Vec> nVertex;
+    QVector<GLuint> nIndex;
+    QVector<GLfloat> nTcoord;
+
+    switch(type)
+    {
+    case MESH_TRIANGLE_STRIP:
+        for(int i = 0 ; i + 2 < index.size() ; i++)
+        {
+            nIndex.push_back(i);
+            nVertex.push_back( vertex[ index[i] ] );
+            nTcoord.push_back( tcoord[ index[i] * 2 ] );
+            nTcoord.push_back( tcoord[ index[i] * 2 + 1 ] );
+
+            nIndex.push_back(i + 1);
+            nVertex.push_back( vertex[ index[i + 1] ] );
+            nTcoord.push_back( tcoord[ index[i + 1] * 2 ] );
+            nTcoord.push_back( tcoord[ index[i + 1] * 2 + 1 ] );
+
+            nIndex.push_back(i + 2);
+            nVertex.push_back( vertex[ index[i + 2] ] );
+            nTcoord.push_back( tcoord[ index[i + 2] * 2 ] );
+            nTcoord.push_back( tcoord[ index[i + 2] * 2 + 1 ] );
+        }
+        break;
+    case MESH_TRIANGLES:
+    default:
+        for(int i = 0 ; i < index.size() ; i++)
+        {
+            nIndex.push_back(i);
+            nVertex.push_back( vertex[ index[i] ] );
+            nTcoord.push_back( tcoord[ index[i] * 2 ] );
+            nTcoord.push_back( tcoord[ index[i] * 2 + 1 ] );
+        }
+    };
+    index = nIndex;
+    vertex = nVertex;
+    tcoord = nTcoord;
     type = MESH_TRIANGLES;
     computeNormals();
 }

@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     mnuCreate->addAction( tr("&Cube"), this, SLOT(createCube()));
     mnuCreate->addAction( tr("&Cylinder"), this, SLOT(createCylinder()));
     mnuCreate->addAction( tr("&Sphere"), this, SLOT(createSphere()));
+    mnuCreate->addAction( tr("&Torus"), this, SLOT(createTorus()));
 
     QMenu *mnuTransform = new QMenu( tr("&Transform") );
     mnuTransform->addAction( tr("&Mirror X"), this, SLOT(mirrorX()));
@@ -307,10 +308,24 @@ void MainWindow::createCylinder()
 void MainWindow::createSphere()
 {
     float r = (float) QInputDialog::getDouble(this, tr("Sphere ray"), tr("Sphere ray:"), 1.0);
-    int dw = QInputDialog::getInt(this, tr("Sphere horizontal resolution"), tr("Sphere horizontal resolution:"), 5, 2);
-    int dh = QInputDialog::getInt(this, tr("Sphere vertical resolution"), tr("Sphere vertical resolution:"), 5, 2);
+    int dw = QInputDialog::getInt(this, tr("Sphere horizontal resolution"), tr("Sphere horizontal resolution:"), 10, 2);
+    int dh = QInputDialog::getInt(this, tr("Sphere vertical resolution"), tr("Sphere vertical resolution:"), qMax(dw / 2, 2), 2);
     Mesh **mesh = MeshManip::getNewMeshPointer();
     *mesh = Mesh::createSphere(r, dw, dh);
+
+    Mesh::instance()->computeInfo();
+    GeometryGraph::instance()->refreshTree();
+    Gfx::instance()->updateGL();
+}
+
+void MainWindow::createTorus()
+{
+    float R = (float) QInputDialog::getDouble(this, tr("Torus big ray"), tr("Torus big ray:"), 1.0);
+    float r = (float) QInputDialog::getDouble(this, tr("Torus small ray"), tr("Torus small ray:"), R * 0.5);
+    int D = QInputDialog::getInt(this, tr("Torus big resolution"), tr("Torus resolution of big circle:"), 10, 2);
+    int d = QInputDialog::getInt(this, tr("Torus small resolution"), tr("Torus resolution of small circle:"), qMax(D / 2, 2), 2);
+    Mesh **mesh = MeshManip::getNewMeshPointer();
+    *mesh = Mesh::createTorus(R, r, D, d);
 
     Mesh::instance()->computeInfo();
     GeometryGraph::instance()->refreshTree();

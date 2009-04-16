@@ -40,6 +40,7 @@ public slots:
     void basicUV();
     void sphericalUV();
     void autoUV();
+    void mergeVertices();
 
 signals:
     void surfaceChanged();
