@@ -21,9 +21,14 @@ public slots:
     void updateGUI();
     void readData();
     void compileShader();
+    void saveFragmentProgram();
+    void saveVertexProgram();
+    void loadFragmentProgram();
+    void loadVertexProgram();
 
 public:
     static ShaderEditor *instance();
+    static QString colorize(const QString &code);
 
 private:
     static ShaderEditor *pInstance;

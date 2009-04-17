@@ -1432,9 +1432,6 @@ void Mesh::autoComputeUVcoordinates()
                 continue;
             componentVertex.last() << A;
 
-            for(int j = 0 ; j < neighbors[A].size() ; j++)
-                dist[A] = qMin(dist[A], dist[ neighbors[A][j] ] + 1);
-
             if (component[i] != -1)         // Special case, the vertex must be duplicated
             {                               // (2 components joined by a vertex :/)
                 int orig = component[i];
@@ -1453,6 +1450,8 @@ void Mesh::autoComputeUVcoordinates()
                         }
                     }
                 }
+                dist.push_back(dist[A]);
+                dist[A] = vertex.size();
                 component.push_back(orig);
                 vertex.push_back(vertex[i]);
                 neighbors.push_back(QVector<int>());
@@ -1463,6 +1462,8 @@ void Mesh::autoComputeUVcoordinates()
                         neighbors[i].remove(e--);
                     }
             }
+            for(int j = 0 ; j < neighbors[A].size() ; j++)
+                dist[A] = qMin(dist[A], dist[ neighbors[A][j] ] + 1);
             component[i] = cmp;
             qComponent << neighbors[i].toList();
         }
@@ -1473,6 +1474,46 @@ void Mesh::autoComputeUVcoordinates()
     // Compute texture coordinates per component (physics like stuffs)
     for(int c = 0 ; c < nb_component ; c++)
     {
+        // Open the mesh at its extremities (distance extremas - but not 0 - which have more than 2 neighbors)
+        // in order to have a mesh with a topology that can be mapped :)
+        for(int i = 0 ; i < componentVertex[c].size() ; i++)
+        {
+            int n = componentVertex[c][i];
+            int d = dist[n];
+            if (neighbors[n].size() > 2)
+            {
+                bool extremum = true;
+                for(int e = 0 ; e < neighbors[n].size() && extremum ; e++)
+                    extremum = dist[neighbors[n][e]] <= d;
+                if (extremum)       // Duplicate this vertex
+                {
+                    QVector<int> vParent;
+                    for(int j = 0 ; j < index.size() ; j += 3)
+                        if (index[j] == n || index[j+1] == n || index[j+2] == n)
+                            vParent.push_back(j);
+                    for(int j = 1 ; j < vParent.size() ; j++)
+                    {
+                        int k = vParent[j];
+                        if (index[k] == n)  index[k] = vertex.size();
+                        if (index[k+1] == n)  index[k+1] = vertex.size();
+                        if (index[k+2] == n)  index[k+2] = vertex.size();
+                        neighbors.push_back(QVector<int>());
+                        for(int e = 0 ; e < neighbors[n].size() ; e++)
+                        {
+                            neighbors.last().push_back(neighbors[n][e]);
+                            neighbors[n].remove(e--);
+                        }
+                        dist.push_back(dist[n]);
+                        component.push_back(c);
+                        componentVertex[c].push_back(vertex.size());
+                        vertex.push_back(vertex[n]);
+                        tcoord.push_back(0.0f);
+                        tcoord.push_back(0.0f);
+                    }
+                }
+            }
+        }
+
         QVector<int> nbDist;
         QVector<int> nbLeft;
         nbDist.resize( componentVertex[c].size() );
@@ -1536,6 +1577,7 @@ void Mesh::autoComputeUVcoordinates()
             for(int i = 0 ; i < componentVertex[c].size() ; i++)
             {
                 Vec move;
+                float constraint = 0.0f;
                 int n = componentVertex[c][i];
                 Vec N(tcoord[n * 2], tcoord[n * 2 + 1], 0);
                 for(int e = 0 ; e < componentVertex[c].size() ; e++)
@@ -1549,23 +1591,45 @@ void Mesh::autoComputeUVcoordinates()
                             Vec D(N - M);
                             float l = D.norm();
                             D = 1.0f / l * D;
-                            move += ((vertex[n] - vertex[m]).norm() - l) * D;
+                            float value = ((vertex[n] - vertex[m]).norm() - l);
+                            move += value * D;
+                            constraint += fabsf(value);
                         }
                         else
                         {
+                            float value = 10.0f / (f * (N - M).sq());
                             move += 10.0f / (f * (N - M).sq()) * (N - M);
+                            constraint += fabsf(value);
                         }
                     }
                 }
-//                for(int e = 0 ; e < neighbors[n].size() ; e++)
-//                {
-//                    int m = neighbors[n][e];
-//                    Vec M(tcoord[m * 2], tcoord[m * 2 + 1], 0);
-//                    Vec D(N - M);
-//                    float l = D.norm();
-//                    D = 1.0f / l * D;
-//                    move += ((vertex[n] - vertex[m]).norm() - l) * D;
-//                }
+                // FIXME: links that supports too much distortion should be broken, currently it doesn't work
+                if (!isnan(constraint) && false && constraint > 300.0f)        // This needs to be duplicated
+                {
+                    QVector<int> vParent;
+                    for(int j = 0 ; j < index.size() ; j += 3)
+                        if (index[j] == n || index[j+1] == n || index[j+2] == n)
+                            vParent.push_back(j);
+                    for(int j = 1 ; j < vParent.size() ; j++)
+                    {
+                        int t = vParent[j];
+                        if (index[t] == n)  index[t] = vertex.size();
+                        if (index[t+1] == n)  index[t+1] = vertex.size();
+                        if (index[t+2] == n)  index[t+2] = vertex.size();
+                        neighbors.push_back(QVector<int>());
+                        for(int e = 0 ; e < neighbors[n].size() ; e++)
+                        {
+                            neighbors.last().push_back(neighbors[n][e]);
+                            neighbors[n].remove(e--);
+                        }
+                        component.push_back(c);
+                        componentVertex[c].push_back(vertex.size());
+                        vertex.push_back(vertex[n]);
+                        tcoord.push_back(tcoord[n*2]);
+                        tcoord.push_back(tcoord[n*2+1]);
+                    }
+                }
+                qDebug() << constraint;
                 if (move.sq() > 1.0f)
                     move.unit();
                 tcoord[n * 2] += f * move.x;
