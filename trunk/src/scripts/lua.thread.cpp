@@ -233,6 +233,7 @@ namespace TA3D
             buffer[filesize2-1] = '\n';
             filesize += filesize2 - 1;
             delete[] header_buffer;
+            filesize--;     // Remove the trailing \0
 
             name = filename;
             if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))

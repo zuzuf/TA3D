@@ -2440,7 +2440,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
         byte *data = HPIManager->PullFromHPI( brief_file);
         if (data ) {
             String brief_info = (const char*)data;
-            brief_area.set_caption( "brief.info", brief_info);
+            brief_area.set_caption( "brief.info", brief_info.convertToUTF8());
             delete[] data;
         }
     }
@@ -2647,14 +2647,14 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
         String schema_type = ota_parser.pullAsString(format("GlobalHeader.Schema %d.Type", schema)).toLower();
 
         if (schema_type == "easy")
-            game_data.ai_level[ 0 ] = 0;
+            game_data.ai_level[ 0 ] = "[C] EASY";
         else
         {
             if (schema_type == "medium")
-                game_data.ai_level[ 0 ] = 1;
+                game_data.ai_level[ 0 ] = "[C] MEDIUM";
             else
                 if (schema_type == "hard")
-                    game_data.ai_level[ 0 ] = 2;
+                    game_data.ai_level[ 0 ] = "[C] HARD";
         }
 
         player_color_map[0] = 0;

@@ -3779,8 +3779,11 @@ namespace TA3D
 			case brVictory:
 							if (pGameData->campaign && !map->ota_data.glamour.empty() && HPIManager->Exists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
 							{
+                                // Disable TA palette since those images have their own palette :)
+                                disable_TA_palette();
 								GLuint	glamour_tex = gfx->load_texture("bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx");
-								gfx->set_2D_mode();
+                                enable_TA_palette();
+                                gfx->set_2D_mode();
 								gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
 								gfx->destroy_texture( glamour_tex);
 								gfx->unset_2D_mode();

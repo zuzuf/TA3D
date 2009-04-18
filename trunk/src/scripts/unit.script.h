@@ -29,6 +29,7 @@ namespace TA3D
     */
     class UnitScript : public UnitScriptInterface, public LuaThread
     {
+        virtual const char *className() { return "UnitScript"; }
     public:
 
         UnitScript();

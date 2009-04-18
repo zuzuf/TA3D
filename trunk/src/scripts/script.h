@@ -37,6 +37,7 @@ namespace TA3D
 
     class LuaProgram : public LuaThread
     {
+        virtual const char *className() { return "LuaProgram"; }
     private:
         //  Variables to control execution flow
         int         amx,amy,amz;    // Cursor coordinates

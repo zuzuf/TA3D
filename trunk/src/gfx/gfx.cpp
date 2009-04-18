@@ -39,7 +39,6 @@
 
 namespace TA3D
 {
-
 	void GFX::set_texture_format(GLuint gl_format)
 	{
 		texture_format = gl_format == 0 ? GL_RGB8 : gl_format;

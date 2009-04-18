@@ -1771,6 +1771,10 @@ namespace TA3D
 
         m_File.flush();
         m_File.close();
+
+        // Reset the HPI manager (because the VFS doesn't know what we have done)
+        delete HPIManager;
+        HPIManager = new cHPIHandler();
     }
 
 } // namespace TA3D
