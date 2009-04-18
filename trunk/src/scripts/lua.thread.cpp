@@ -238,7 +238,11 @@ namespace TA3D
             if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))
             {
                 if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                {
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+                    LOG_ERROR(LOG_PREFIX_LUA << filesize << " -> " << (int)buffer[filesize-1]);
+                    LOG_ERROR(buffer);
+                }
 
                 running = false;
                 lua_close( L );
