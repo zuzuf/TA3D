@@ -24,8 +24,8 @@ namespace TA3D
     RectTest::RectTest (Camera& cam, const Rect<int>& pos) : cam(cam)
     {
         cam.setView();
-        MATRIX_4x4 modelView;
-        MATRIX_4x4 project;
+        Matrix modelView;
+        Matrix project;
 
         int	viewportCoords[4] = {0, 0, 0, 0};
         glGetIntegerv(GL_VIEWPORT, viewportCoords);

@@ -431,7 +431,7 @@ void save_game( const String filename, GameData *game_data )
         gzwrite(file, units.unit[i].data.explosion_flag, sizeof(short) * units.unit[i].data.nb_piece);
         gzwrite(file, units.unit[i].data.pos, sizeof(Vector3D) * units.unit[i].data.nb_piece);
         gzwrite(file, units.unit[i].data.dir, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.matrix, sizeof(MATRIX_4x4) * units.unit[i].data.nb_piece);
+        gzwrite(file, units.unit[i].data.matrix, sizeof(Matrix) * units.unit[i].data.nb_piece);
 
         gzwrite(file, units.unit[i].data.axe[0], sizeof(AXE) * units.unit[i].data.nb_piece);
         gzwrite(file, units.unit[i].data.axe[1], sizeof(AXE) * units.unit[i].data.nb_piece);
@@ -1002,7 +1002,7 @@ void load_game( GameData *game_data )
         gzread(file, units.unit[i].data.explosion_flag, sizeof(short) * units.unit[i].data.nb_piece);
         gzread(file, units.unit[i].data.pos, sizeof(Vector3D) * units.unit[i].data.nb_piece);
         gzread(file, units.unit[i].data.dir, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.matrix, sizeof(MATRIX_4x4) * units.unit[i].data.nb_piece);
+        gzread(file, units.unit[i].data.matrix, sizeof(Matrix) * units.unit[i].data.nb_piece);
 
         gzread(file, units.unit[i].data.axe[0], sizeof(AXE) * units.unit[i].data.nb_piece);
         gzread(file, units.unit[i].data.axe[1], sizeof(AXE) * units.unit[i].data.nb_piece);

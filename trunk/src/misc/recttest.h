@@ -41,7 +41,7 @@ namespace TA3D
     private:
         Camera &cam;
         float VW, VH;
-        MATRIX_4x4 T;
+        Matrix T;
         int X1, Y1, X2, Y2;
     }; // class RectTest
 

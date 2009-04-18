@@ -157,7 +157,7 @@ namespace TA3D
         bool        explode;
         Vector3D    *pos;
         Vector3D    *dir;			// Orientation des objets (quand il n'y a qu'une ligne)
-        MATRIX_4x4  *matrix;		// Store local matrixes
+        Matrix      *matrix;		// Store local matrixes
         bool        is_moving;
 
 
@@ -354,7 +354,7 @@ namespace TA3D
 
         void create_from_2d(SDL_Surface *bmp,float w,float h,float max_h);
 
-        void compute_coord(ANIMATION_DATA *data_s=NULL,Vector3D *pos=NULL,bool c_part=false,int p_tex=0,Vector3D *target=NULL,Vector3D *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,Vector3D *center=NULL,bool reverse=false,OBJECT *src=NULL,ANIMATION_DATA *src_data=NULL);
+        void compute_coord(ANIMATION_DATA *data_s=NULL,Vector3D *pos=NULL,bool c_part=false,int p_tex=0,Vector3D *target=NULL,Vector3D *upos=NULL,Matrix *M=NULL,float size=0.0f,Vector3D *center=NULL,bool reverse=false,OBJECT *src=NULL,ANIMATION_DATA *src_data=NULL);
 
         bool draw(float t,ANIMATION_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
         bool draw_dl(ANIMATION_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
@@ -364,7 +364,7 @@ namespace TA3D
 
         bool draw_shadow_basic(Vector3D Dir,float t,ANIMATION_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-        int hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,MATRIX_4x4 M);
+        int hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,Matrix M);
 
         bool hit_fast(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I);
 
@@ -443,7 +443,7 @@ namespace TA3D
         */
         void draw(float t, ANIMATION_DATA* data_s = NULL, bool sel = false, bool notex = false,
                   bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
-                  MATRIX_4x4* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
+                  Matrix* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
                   int side = 0, bool chg_col = true, OBJECT* src = NULL, ANIMATION_DATA* src_data = NULL);
 
         /*!
@@ -454,7 +454,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void compute_coord(ANIMATION_DATA* data_s = NULL, MATRIX_4x4* M = NULL);
+        void compute_coord(ANIMATION_DATA* data_s = NULL, Matrix* M = NULL);
 
         /*!
         ** \brief
@@ -469,13 +469,13 @@ namespace TA3D
         /*!
         ** \brief
         */
-        int hit(Vector3D &Pos, Vector3D &Dir, ANIMATION_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        int hit(Vector3D &Pos, Vector3D &Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
         { return obj.hit(Pos,Dir,data_s,I,M); }
 
         /*!
         ** \brief
         */
-        bool hit_fast(Vector3D& Pos, Vector3D& Dir, ANIMATION_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        bool hit_fast(Vector3D& Pos, Vector3D& Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
         { return obj.hit_fast(Pos,Dir*M,data_s,I); }
 
         /*!

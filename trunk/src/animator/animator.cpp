@@ -210,7 +210,7 @@ namespace Menus
         Vector3D pos = 1.0f / zoom * cam.pos * RotateXYZ( -r1 * DEG2RAD, -r2 * DEG2RAD, -r3 * DEG2RAD );
 
         Vector3D I;
-        MATRIX_4x4 M = Scale(zoom);
+        Matrix M = Scale(zoom);
         int nidx = TA3D::VARS::TheModel->hit(pos,pointer,NULL,&I,M);
         bool result = false;
 

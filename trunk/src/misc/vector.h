@@ -40,7 +40,7 @@ public:
     Vector2D(const float ax, const float ay) : x(ax), y(ay) {}
     //@}
 
-    float sq() const { return (x*x + y*y); }         // carré scalaire
+    float sq() const { return (x*x + y*y); }         // carrÃ© scalaire
 
     /*!
     ** \brief Reset all coordinates to 0
@@ -116,7 +116,7 @@ public:
     */
     void reset() { x = 0.0f; y = 0.0f; z = 0.0f; }
 
-    // Fonction qui renvoie le carré scalaire du vecteur
+    // Fonction qui renvoie le carrÃ© scalaire du vecteur
     float sq() const { return (x*x + y*y + z*z); }
 
     // Fonction qui renvoie la norme du vecteur
@@ -224,8 +224,8 @@ inline const float operator % (const Vector3D& lhs, const Vector3D& rhs)
 inline float VAngle(const Vector3D& A, const Vector3D& B)
 {
     float a = sqrtf(A.sq() * B.sq());
-    return (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+    a = (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+    return isnan(a) ? 0.0f : a;
 }
-
 
 #endif // __TA3D_XX_MISC_VECTOR_H__

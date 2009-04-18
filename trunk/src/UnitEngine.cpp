@@ -135,7 +135,7 @@ namespace TA3D
             return;
         pMutex.lock();
         compute_coord = false;
-        MATRIX_4x4 M;
+        Matrix M;
         float scale = unit_manager.unit_type[type_id]->Scale;
 
         // Matrice pour le calcul des positions des éléments du modèle de l'unité
@@ -961,7 +961,7 @@ namespace TA3D
             visible = on_radar;
         }
 
-        MATRIX_4x4 M;
+        Matrix M;
         glPushMatrix();
         if (on_radar) // for mega zoom, draw only an icon
         {
@@ -3769,7 +3769,7 @@ namespace TA3D
                     && !( unit_manager.unit_type[type_id]->canhover && Pos.y <= map->sealvl ))
                 {
                     Vector3D I,J,K,A,B,C;
-                    MATRIX_4x4 M = RotateY((Angle.y+90.0f)*DEG2RAD);
+                    Matrix M = RotateY((Angle.y+90.0f)*DEG2RAD);
                     I.x = 4.0f;
                     J.z = 4.0f;
                     K.y = 1.0f;
@@ -4184,8 +4184,8 @@ script_exec:
             if (c_dir.norm()-length <=model->size2 )
             {
                 float scale=unit_manager.unit_type[type_id]->Scale;
-                //            MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-                MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
+                //            Matrix M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
+                Matrix M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
                 Vector3D RP=(P-Pos) * M;
                 bool is_hit = model->hit(RP,Dir,&data,hit_vec,M) >= -1;
                 if (is_hit)
@@ -4215,8 +4215,8 @@ script_exec:
             Vector3D c_dir = model->center+Pos-P;
             if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
                 float scale=unit_manager.unit_type[type_id]->Scale;
-                //            MATRIX_4x4 M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-                MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
+                //            Matrix M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
+                Matrix M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
                 Vector3D RP = (P - Pos) * M;
                 bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
                 if (is_hit) {
