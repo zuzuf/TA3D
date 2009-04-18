@@ -49,6 +49,7 @@ namespace TA3D
     */
     class LuaThread : public Thread, public ScriptInterface
     {
+        virtual const char *className() { return "LuaThread"; }
         friend class LuaChunk;
         friend class UnitScript;
     protected:

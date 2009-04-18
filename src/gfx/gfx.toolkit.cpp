@@ -24,6 +24,18 @@
 
 namespace TA3D
 {
+    bool use_TA_palette = true;
+
+    void disable_TA_palette()
+    {
+        use_TA_palette = false;
+    }
+
+    void enable_TA_palette()
+    {
+        use_TA_palette = true;
+    }
+
     SDL_Surface *convert_format(SDL_Surface *bmp)
     {
         if (bmp->format->BitsPerPixel != 32
@@ -48,7 +60,7 @@ namespace TA3D
             target_format.Bshift = 16;
             target_format.Ashift = 24;
 
-            if (bmp->format->BitsPerPixel == 8)
+            if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
                 SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
             SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
@@ -76,7 +88,7 @@ namespace TA3D
         target_format.Bshift = 16;
         target_format.Ashift = 24;
 
-        if (bmp->format->BitsPerPixel == 8)
+        if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
             SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
         SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
@@ -108,7 +120,7 @@ namespace TA3D
             target_format.Bshift = 16;
             target_format.Ashift = 24;
 
-            if (bmp->format->BitsPerPixel == 8)
+            if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
                 SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
             SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
@@ -141,7 +153,7 @@ namespace TA3D
             target_format.Bshift = 11;
             target_format.Ashift = 16;
 
-            if (bmp->format->BitsPerPixel == 8)
+            if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
                 SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
             SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
@@ -156,7 +168,7 @@ namespace TA3D
         SDL_Surface *tmp = in;
         if (in->format->BitsPerPixel != out->format->BitsPerPixel)
         {
-            if (in->format->BitsPerPixel == 8)
+            if (in->format->BitsPerPixel == 8 && use_TA_palette)
                 SDL_SetPalette(in, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
             tmp = SDL_ConvertSurface(in, out->format, SDL_SWSURFACE);

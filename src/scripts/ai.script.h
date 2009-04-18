@@ -28,6 +28,7 @@ namespace TA3D
     */
     class AiScript : public LuaThread
     {
+        virtual const char *className() { return "AiScript"; }
     private:
         int         playerID;
         String      name;

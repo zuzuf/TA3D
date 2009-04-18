@@ -25,7 +25,8 @@ namespace TA3D
 {
 	class cTA3D_Engine : public ObjectSync, public Thread
 	{
-	private:
+        virtual const char *className() { return "cTA3D_Engine"; }
+    private:
 		bool m_SDLRunning;
 		bool m_GFXModeActive;
 		bool m_SignaledToStop;

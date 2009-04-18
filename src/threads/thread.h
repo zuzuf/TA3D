@@ -16,12 +16,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 
-#ifndef TA3D_NETWORK_THREAD
-#define TA3D_NETWORK_THREAD
-
-//#ifndef TA3D_PLATFORM_WINDOWS
-//# include <pthread.h>
-//#endif
+#ifndef __TA3D_THREAD_H__
+#define __TA3D_THREAD_H__
 
 #include <SDL_thread.h>
 #include "mutex.h"
@@ -85,6 +81,9 @@ namespace TA3D
         virtual void proc(void* param) = 0;
         virtual void signalExitThread() {};
 
+        //! Helpful for debugging, this function returns the name of the class (needs to be implemented for each class)
+        virtual const char *className() = 0;
+
     public:
         // Call this to end the Thread, it will signal the thread to tell it to end
         //   and will block until the thread ends.
@@ -111,4 +110,4 @@ namespace TA3D
 
 } // namespace TA3D
 
-#endif
+#endif      // __TA3D_THREAD_H__

@@ -34,6 +34,7 @@ namespace TA3D
     */
     class INGAME_WEAPONS : public ObjectSync, public Thread
     {
+        virtual const char *className() { return "INGAME_WEAPONS"; }
     public:
         //! \name Constructor & Destructor
         //@{
