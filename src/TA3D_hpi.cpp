@@ -833,7 +833,7 @@ namespace HPI
                         iterFind->Size = FILE_SIZE(filename);
                         iterFind->Name = filename;
 
-                        m_Archive->insertOrUpdate(filename, iterFind);
+                        m_Archive->insertOrUpdate(key, iterFind);
                     }
                 }
             }
