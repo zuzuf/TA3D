@@ -28,7 +28,6 @@ public slots:
 
 public:
     static ShaderEditor *instance();
-    static QString colorize(const QString &code);
 
 private:
     static ShaderEditor *pInstance;

@@ -8,6 +8,18 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTabWidget>
+#include <QSyntaxHighlighter>
+
+class SyntaxHighlighter : public QSyntaxHighlighter
+{
+public:
+    SyntaxHighlighter(QTextEdit *parent) : QSyntaxHighlighter(parent)   {}
+protected:
+    virtual void highlightBlock ( const QString & text );
+    void colorize(const QString &text, QTextCharFormat &tokenFormat, QRegExp expression);
+    void colorizeSingleLine(const QString &text, QTextCharFormat &tokenFormat, QRegExp startExpression, QRegExp endExpression);
+    void colorizeMultiLine(const QString &text, QTextCharFormat &multiLineCommentFormat, QRegExp startExpression, QRegExp endExpression);
+};
 
 ShaderEditor *ShaderEditor::pInstance = NULL;
 
@@ -29,6 +41,8 @@ ShaderEditor::ShaderEditor()
     fragEdit->setWordWrapMode(QTextOption::NoWrap);
     vertEdit->setWordWrapMode(QTextOption::NoWrap);
     output->setWordWrapMode(QTextOption::NoWrap);
+    new SyntaxHighlighter(fragEdit);
+    new SyntaxHighlighter(vertEdit);
 
     setLayout( new QVBoxLayout );
     QTabWidget *tabs = new QTabWidget;
@@ -100,8 +114,8 @@ void ShaderEditor::updateGUI()
     if (ID >= 0)
     {
         Mesh *mesh = Mesh::instance()->getMesh(ID);
-        fragEdit->setHtml( colorize( mesh->fragmentProgram ) );
-        vertEdit->setHtml( colorize( mesh->vertexProgram ) );
+        fragEdit->setPlainText( mesh->fragmentProgram );
+        vertEdit->setPlainText( mesh->vertexProgram );
     }
     else
     {
@@ -120,25 +134,9 @@ void ShaderEditor::readData()
     int ID = Gfx::instance()->getSelectionID();
     if (ID >= 0)
     {
-        QTextCursor vertCursor( vertEdit->textCursor() );
-        QTextCursor fragCursor( fragEdit->textCursor() );
-        int vertPos = vertCursor.position();
-        int fragPos = fragCursor.position();
-
         Mesh *mesh = Mesh::instance()->getMesh(ID);
         mesh->fragmentProgram = fragEdit->toPlainText();
         mesh->vertexProgram = vertEdit->toPlainText();
-
-        updating = true;
-        fragEdit->setHtml( colorize( mesh->fragmentProgram ) );
-        vertEdit->setHtml( colorize( mesh->vertexProgram ) );
-        vertCursor = vertEdit->textCursor();
-        fragCursor = fragEdit->textCursor();
-        vertCursor.setPosition(vertPos);
-        fragCursor.setPosition(fragPos);
-        fragEdit->setTextCursor(fragCursor);
-        vertEdit->setTextCursor(vertCursor);
-        updating = false;
     }
 }
 
@@ -220,188 +218,223 @@ void ShaderEditor::loadFragmentProgram()
     readData();
 }
 
-QString ShaderEditor::colorize(const QString &code)
+void SyntaxHighlighter::highlightBlock(const QString &text)
 {
-    if (code.isEmpty())
-        return QString();
-
-    QMap< QString, QString > colorMap;
-    // comments
-    colorMap.insert("//","<font color=\"#007f00\">");
-    // basic types
-    colorMap.insert("void","<font color=\"#7f007f\">");
-    colorMap.insert("bool","<font color=\"#7f007f\">");
-    colorMap.insert("int","<font color=\"#7f007f\">");
-    colorMap.insert("float","<font color=\"#7f007f\">");
-    colorMap.insert("vec2","<font color=\"#7f007f\">");
-    colorMap.insert("vec3","<font color=\"#7f007f\">");
-    colorMap.insert("vec4","<font color=\"#7f007f\">");
-    colorMap.insert("bvec2","<font color=\"#7f007f\">");
-    colorMap.insert("bvec3","<font color=\"#7f007f\">");
-    colorMap.insert("bvec4","<font color=\"#7f007f\">");
-    colorMap.insert("ivec2","<font color=\"#7f007f\">");
-    colorMap.insert("ivec3","<font color=\"#7f007f\">");
-    colorMap.insert("ivec4","<font color=\"#7f007f\">");
-    colorMap.insert("mat2","<font color=\"#7f007f\">");
-    colorMap.insert("mat3","<font color=\"#7f007f\">");
-    colorMap.insert("mat4","<font color=\"#7f007f\">");
-    colorMap.insert("sampler1D","<font color=\"#7f007f\">");
-    colorMap.insert("sampler2D","<font color=\"#7f007f\">");
-    colorMap.insert("sampler3D","<font color=\"#7f007f\">");
-    colorMap.insert("samplerCube","<font color=\"#7f007f\">");
-    colorMap.insert("sampler1DShadow","<font color=\"#7f007f\">");
-    colorMap.insert("sampler2DShadow","<font color=\"#7f007f\">");
-    // type qualifiers
-    colorMap.insert("const","<font color=\"#7f7f7f\">");
-    colorMap.insert("uniform","<font color=\"#7f7f7f\">");
-    colorMap.insert("varying","<font color=\"#7f7f7f\">");
-    colorMap.insert("attribute","<font color=\"#7f7f7f\">");
-    colorMap.insert("in","<font color=\"#7f7f7f\">");
-    colorMap.insert("out","<font color=\"#7f7f7f\">");
-    colorMap.insert("inout","<font color=\"#7f7f7f\">");
-    // other keywords
-    colorMap.insert("struct","<font color=\"#7f7f00\">");
-    colorMap.insert("break","<font color=\"#7f7f00\">");
-    colorMap.insert("continue","<font color=\"#7f7f00\">");
-    colorMap.insert("do","<font color=\"#7f7f00\">");
-    colorMap.insert("for","<font color=\"#7f7f00\">");
-    colorMap.insert("while","<font color=\"#7f7f00\">");
-    colorMap.insert("if","<font color=\"#7f7f00\">");
-    colorMap.insert("else","<font color=\"#7f7f00\">");
-    colorMap.insert("discard","<font color=\"#7f7f00\">");
-    colorMap.insert("return","<font color=\"#7f7f00\">");
-    // reserved
-    colorMap.insert("asm","<font color=\"#ff0000\">");
-    colorMap.insert("class","<font color=\"#ff0000\">");
-    colorMap.insert("union","<font color=\"#ff0000\">");
-    colorMap.insert("enum","<font color=\"#ff0000\">");
-    colorMap.insert("typedef","<font color=\"#ff0000\">");
-    colorMap.insert("template","<font color=\"#ff0000\">");
-    colorMap.insert("this","<font color=\"#ff0000\">");
-    colorMap.insert("packed","<font color=\"#ff0000\">");
-    colorMap.insert("goto","<font color=\"#ff0000\">");
-    colorMap.insert("switch","<font color=\"#ff0000\">");
-    colorMap.insert("default","<font color=\"#ff0000\">");
-    colorMap.insert("inline","<font color=\"#ff0000\">");
-    colorMap.insert("noinline","<font color=\"#ff0000\">");
-    colorMap.insert("volatile","<font color=\"#ff0000\">");
-    colorMap.insert("public","<font color=\"#ff0000\">");
-    colorMap.insert("static","<font color=\"#ff0000\">");
-    colorMap.insert("extern","<font color=\"#ff0000\">");
-    colorMap.insert("external","<font color=\"#ff0000\">");
-    colorMap.insert("interface","<font color=\"#ff0000\">");
-    colorMap.insert("long","<font color=\"#ff0000\">");
-    colorMap.insert("short","<font color=\"#ff0000\">");
-    colorMap.insert("double","<font color=\"#ff0000\">");
-    colorMap.insert("half","<font color=\"#ff0000\">");
-    colorMap.insert("fixed","<font color=\"#ff0000\">");
-    colorMap.insert("unsigned","<font color=\"#ff0000\">");
-    colorMap.insert("input","<font color=\"#ff0000\">");
-    colorMap.insert("output","<font color=\"#ff0000\">");
-    colorMap.insert("hvec2","<font color=\"#ff0000\">");
-    colorMap.insert("hvec3","<font color=\"#ff0000\">");
-    colorMap.insert("hvec4","<font color=\"#ff0000\">");
-    colorMap.insert("dvec2","<font color=\"#ff0000\">");
-    colorMap.insert("dvec3","<font color=\"#ff0000\">");
-    colorMap.insert("dvec4","<font color=\"#ff0000\">");
-    colorMap.insert("fvec2","<font color=\"#ff0000\">");
-    colorMap.insert("fvec3","<font color=\"#ff0000\">");
-    colorMap.insert("fvec4","<font color=\"#ff0000\">");
-    colorMap.insert("sizeof","<font color=\"#ff0000\">");
-    colorMap.insert("cast","<font color=\"#ff0000\">");
-    colorMap.insert("using","<font color=\"#ff0000\">");
-    colorMap.insert("namespace","<font color=\"#ff0000\">");
-    colorMap.insert("sampler2DRect","<font color=\"#ff0000\">");
-    colorMap.insert("sampler3DRect","<font color=\"#ff0000\">");
-    colorMap.insert("sampler2DRectShadow","<font color=\"#ff0000\">");
-    // preprocessor
-    colorMap.insert("#","<font color=\"#00007f\">");
-    colorMap.insert("#define","<font color=\"#00007f\">");
-    colorMap.insert("#undef","<font color=\"#00007f\">");
-    colorMap.insert("#if","<font color=\"#00007f\">");
-    colorMap.insert("#ifdef","<font color=\"#00007f\">");
-    colorMap.insert("#ifndef","<font color=\"#00007f\">");
-    colorMap.insert("#else","<font color=\"#00007f\">");
-    colorMap.insert("#elif","<font color=\"#00007f\">");
-    colorMap.insert("#endif","<font color=\"#00007f\">");
-    colorMap.insert("#error","<font color=\"#00007f\">");
-    colorMap.insert("#pragma","<font color=\"#00007f\">");
-    colorMap.insert("#extension","<font color=\"#00007f\">");
-    colorMap.insert("#version","<font color=\"#00007f\">");
-    colorMap.insert("#line","<font color=\"#00007f\">");
-    // true/false
-    colorMap.insert("true","<font color=\"#00007f\">");
-    colorMap.insert("false","<font color=\"#00007f\">");
-
-    QString buf("<html>\n<head></head>\n<body>\n");
-    QString currentWord;
-    int commentMode = 0;
-    buf.reserve(code.size());
-    for(int i = 0 ; i < code.size() ; i++)
+    // Comments
     {
-        QChar c = code[i];
-        if ((commentMode == 1 && c != '\n') || commentMode == 2)
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0,0x7F,0));
+
+        colorizeMultiLine(text, tokenFormat, QRegExp("/\\*"), QRegExp("\\*/"));
+        colorizeSingleLine(text, tokenFormat, QRegExp("//"), QRegExp("\\n"));
+    }
+    // basic types
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0x7F,0,0x7F));
+
+        QRegExp token("\\bvoid\\b"
+                      "|\\bbool\\b"
+                      "|\\bint\\b"
+                      "|\\bfloat\\b"
+                      "|\\bvec2\\b"
+                      "|\\bvec3\\b"
+                      "|\\bvec4\\b"
+                      "|\\bbvec2\\b"
+                      "|\\bbvec3\\b"
+                      "|\\bbvec4\\b"
+                      "|\\bivec2\\b"
+                      "|\\bivec3\\b"
+                      "|\\bivec4\\b"
+                      "|\\bmat2\\b"
+                      "|\\bmat3\\b"
+                      "|\\bmat4\\b"
+                      "|\\bsampler1D\\b"
+                      "|\\bsampler2D\\b"
+                      "|\\bsampler3D\\b"
+                      "|\\bsamplerCube\\b"
+                      "|\\bsampler1DShadow\\b"
+                      "|\\bsampler2DShadow\\b");
+        colorize(text, tokenFormat, token);
+    }
+    // type qualifiers
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0x7F,0x7F,0x7F));
+
+        QRegExp token("\\bconst\\b"
+                      "|\\buniform\\b"
+                      "|\\bvarying\\b"
+                      "|\\battribute\\b"
+                      "|\\bin\\b"
+                      "|\\bout\\b"
+                      "|\\binout\\b");
+        colorize(text, tokenFormat, token);
+    }
+    // other keywords
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0x7F,0x7F,0));
+
+        QRegExp token("\\bstruct\\b"
+                      "|\\bbreak\\b"
+                      "|\\bcontinue\\b"
+                      "|\\bdo\\b"
+                      "|\\bfor\\b"
+                      "|\\bwhile\\b"
+                      "|\\bif\\b"
+                      "|\\belse\\b"
+                      "|\\bdiscard\\b"
+                      "|\\breturn\\b");
+        colorize(text, tokenFormat, token);
+    }
+    // reserved
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0xFF,0,0));
+
+        QRegExp token("\\basm\\b"
+                      "|\\bclass\\b"
+                      "|\\bunion\\b"
+                      "|\\benum\\b"
+                      "|\\btypedef\\b"
+                      "|\\btemplate\\b"
+                      "|\\bthis\\b"
+                      "|\\bpacked\\b"
+                      "|\\bgoto\\b"
+                      "|\\bswitch\\b"
+                      "|\\bdefault\\b"
+                      "|\\binline\\b"
+                      "|\\bnoinline\\b"
+                      "|\\bvolatile\\b"
+                      "|\\bpublic\\b"
+                      "|\\bstatic\\b"
+                      "|\\bextern\\b"
+                      "|\\bexternal\\b"
+                      "|\\binterface\\b"
+                      "|\\blong\\b"
+                      "|\\bshort\\b"
+                      "|\\bdouble\\b"
+                      "|\\bhalf\\b"
+                      "|\\bfixed\\b"
+                      "|\\bunsigned\\b"
+                      "|\\binput\\b"
+                      "|\\boutput\\b"
+                      "|\\bhvec2\\b"
+                      "|\\bhvec3\\b"
+                      "|\\bhvec4\\b"
+                      "|\\bdvec2\\b"
+                      "|\\bdvec3\\b"
+                      "|\\bdvec4\\b"
+                      "|\\bfvec2\\b"
+                      "|\\bfvec3\\b"
+                      "|\\bfvec4\\b"
+                      "|\\bsizeof\\b"
+                      "|\\bcast\\b"
+                      "|\\busing\\b"
+                      "|\\bnamespace\\b"
+                      "|\\bsampler2DRect\\b"
+                      "|\\bsampler3DRect\\b"
+                      "|\\bsampler2DRectShadow\\b");
+        colorize(text, tokenFormat, token);
+    }
+    // preprocessor
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0,0,0x7F));
+
+        QRegExp token("\\b#\\b"
+                      "|\\b#define\\b"
+                      "|\\b#undef\\b"
+                      "|\\b#if\\b"
+                      "|\\b#ifdef\\b"
+                      "|\\b#ifndef\\b"
+                      "|\\b#else\\b"
+                      "|\\b#elif\\b"
+                      "|\\b#endif\\b"
+                      "|\\b#error\\b"
+                      "|\\b#pragma\\b"
+                      "|\\b#extension\\b"
+                      "|\\b#version\\b"
+                      "|\\b#line\\b");
+        colorize(text, tokenFormat, token);
+    }
+    // Values
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0,0,0x7F));
+
+        QRegExp token("\\btrue\\b"
+                      "|\\bfalse\\b"
+                      "|\\b\\d+\\b"
+                      "|\\b0x\\d+\\b"
+                      "|\\b0X\\d+\\b");
+        colorize(text, tokenFormat, token);
+    }
+}
+
+void SyntaxHighlighter::colorize(const QString &text, QTextCharFormat &tokenFormat, QRegExp expression)
+{
+    int startIndex = 0;
+    startIndex = text.indexOf(expression);
+
+    while (startIndex >= 0)
+    {
+        int tokenLength = expression.matchedLength();
+        setFormat(startIndex, tokenLength, tokenFormat);
+        startIndex = text.indexOf(expression,
+                                  startIndex + tokenLength);
+    }
+}
+
+void SyntaxHighlighter::colorizeSingleLine(const QString &text, QTextCharFormat &tokenFormat, QRegExp startExpression, QRegExp endExpression)
+{
+    int startIndex = 0;
+    startIndex = text.indexOf(startExpression);
+
+    while (startIndex >= 0)
+    {
+        int endIndex = text.indexOf(endExpression, startIndex);
+        int commentLength;
+        if (endIndex == -1)
         {
-            if (c == '\n')
-                currentWord += "<br>\n";
-            else if (c.isSpace())
-                currentWord += "&nbsp;";
-            else
-                currentWord += c;
-            if (commentMode == 2 && currentWord.endsWith("*/"))
-            {
-                buf += colorMap.find("//").value();
-                buf += currentWord;
-                buf += "</font>";
-                commentMode = 0;
-                currentWord.clear();
-            }
-        }
-        else if (c.isSpace() || c == '\n')
-        {
-            QString prefix;
-            QString postfix;
-            if (commentMode)
-                prefix = colorMap.find("//").value();
-            else if (colorMap.find(currentWord) != colorMap.end())
-                prefix = colorMap.find(currentWord).value();
-            if (!prefix.isEmpty())
-                postfix = "</font>";
-            buf += prefix;
-            buf += currentWord;
-            buf += postfix;
-            if (c == '\n')
-                buf += "<br>\n";
-            else if (c.isSpace())
-                buf += "&nbsp;";
-            else
-                buf += c;
-            currentWord.clear();
-            commentMode = 0;
+            commentLength = text.length() - startIndex;
         }
         else
         {
-            currentWord += c;
-            if (currentWord.startsWith("//"))
-                commentMode = 1;
-            else if (currentWord.startsWith("/*"))
-                commentMode = 2;
+            commentLength = endIndex - startIndex
+                            + endExpression.matchedLength();
         }
+        setFormat(startIndex, commentLength, tokenFormat);
+        startIndex = text.indexOf(startExpression,
+                                  startIndex + commentLength);
     }
-    if (!currentWord.isEmpty())
+}
+
+void SyntaxHighlighter::colorizeMultiLine(const QString &text, QTextCharFormat &multiLineCommentFormat, QRegExp startExpression, QRegExp endExpression)
+{
+    setCurrentBlockState(0);
+
+    int startIndex = 0;
+    if (previousBlockState() != 1)
+        startIndex = text.indexOf(startExpression);
+
+    while (startIndex >= 0)
     {
-        QString prefix;
-        QString postfix;
-        if (commentMode)
-            prefix = colorMap.find("//").value();
-        else if (colorMap.find(currentWord) != colorMap.end())
-            prefix = colorMap.find(currentWord).value();
-        if (!prefix.isEmpty())
-            postfix = "</font>";
-        buf += prefix;
-        buf += currentWord;
-        buf += postfix;
+        int endIndex = text.indexOf(endExpression, startIndex);
+        int commentLength;
+        if (endIndex == -1)
+        {
+            setCurrentBlockState(1);
+            commentLength = text.length() - startIndex;
+        }
+        else
+        {
+            commentLength = endIndex - startIndex
+                            + endExpression.matchedLength();
+        }
+        setFormat(startIndex, commentLength, multiLineCommentFormat);
+        startIndex = text.indexOf(startExpression,
+                                  startIndex + commentLength);
     }
-    buf += "</body>\n</html>";
-    return buf;
 }
