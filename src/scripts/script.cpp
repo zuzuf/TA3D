@@ -1311,7 +1311,7 @@ namespace TA3D
             return;
         }
 
-        m_File << "#include \"signals.h\"\n";
+        m_File << "#include \"signals.lh\"\n";
         m_File << "\nclf()\ninit_res()\n";
         m_File << "set_cam_pos( 0, start_x( 0 ), start_z( 0 ) )\n";
 
@@ -1762,6 +1762,12 @@ namespace TA3D
 
         m_File << "	return 0\n";
         m_File << "end\n";
+
+        m_File << "\n";
+        m_File << "while true do\n";
+        m_File << "    game_signal( main() )\n";
+        m_File << "    sleep(0.1)\n";             // 10 times a sec max is more than enough
+        m_File << "end\n\n";
 
         m_File.flush();
         m_File.close();
