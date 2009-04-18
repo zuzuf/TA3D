@@ -517,7 +517,7 @@ namespace TA3D
 			if (cam.rpos.z > map->map_h_d + 200.0f)
 				cam.rpos.z = map->map_h_d + 200.0f;
 
-			MATRIX_4x4 Rotation;
+            Matrix Rotation;
 			if (lp_CONFIG->camera_zoom == ZOOM_NORMAL)
 				Rotation = RotateX( r1 * DEG2RAD) * RotateY( r2 * DEG2RAD) * RotateZ( r3 * DEG2RAD);
 			else

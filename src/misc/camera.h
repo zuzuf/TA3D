@@ -53,7 +53,7 @@ namespace TA3D
         /*!
         ** \brief Set the matrix
         */
-        void setMatrix(const MATRIX_4x4& v);
+        void setMatrix(const Matrix& v);
 
         /*!
         ** \brief Replace the OpenGL camera

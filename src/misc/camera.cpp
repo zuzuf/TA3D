@@ -65,7 +65,7 @@ namespace TA3D
         widthFactor = (w * 4 == h * 5)   ? (1.0f) : (w * 0.75f / h);
     }
 
-    void Camera::setMatrix(const MATRIX_4x4& v)
+    void Camera::setMatrix(const Matrix& v)
     {
 		dir.reset();
         up = dir;

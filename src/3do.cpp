@@ -197,7 +197,7 @@ namespace TA3D
         explosion_flag = new short[nb_piece];
         pos = new Vector3D[nb_piece];
         dir = new Vector3D[nb_piece];
-        matrix = new MATRIX_4x4[nb_piece];
+        matrix = new Matrix[nb_piece];
         for (int i = 0; i < nb_piece; ++i)
         {
             flag[i] = 0;
@@ -2092,11 +2092,11 @@ namespace TA3D
 
 
     void OBJECT::compute_coord(ANIMATION_DATA* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
-                               Vector3D* upos, MATRIX_4x4* M, float size, Vector3D* center, bool reverse,
+                               Vector3D* upos, Matrix* M, float size, Vector3D* center, bool reverse,
                                OBJECT* src, ANIMATION_DATA* src_data)
     {
         Vector3D opos = *pos;
-        MATRIX_4x4 OM;
+        Matrix OM;
         if (M)
             OM = *M;
         if (script_index >= 0 && data_s)
@@ -2508,11 +2508,11 @@ namespace TA3D
         return alset;
     }
 
-    int OBJECT::hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,MATRIX_4x4 M)
+    int OBJECT::hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,Matrix M)
     {
-        MATRIX_4x4 OM = M;
-        MATRIX_4x4 AM = Scale(1.0f);
-        MATRIX_4x4 M_Dir = M;
+        Matrix OM = M;
+        Matrix AM = Scale(1.0f);
+        Matrix M_Dir = M;
         bool hide = false;
         Vector3D ODir = Dir;
         Vector3D OPos = Pos;
@@ -2528,14 +2528,14 @@ namespace TA3D
                 T.x += data_s->axe[0][script_index].pos;
                 T.y += data_s->axe[1][script_index].pos;
                 T.z += data_s->axe[2][script_index].pos;
-    //            MATRIX_4x4 l_M = Scale( 1.0f );
+    //            Matrix l_M = Scale( 1.0f );
     //            if (data_s->axe[0][script_index].angle != 0.0f)
     //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
     //            if (data_s->axe[1][script_index].angle != 0.0f)
     //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
     //            if (data_s->axe[2][script_index].angle != 0.0f)
     //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-                MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
+                Matrix l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
                 M_Dir = M * l_M;
                 M = l_M;
 
@@ -2782,7 +2782,7 @@ namespace TA3D
         bool hide = false;
         Vector3D ODir = Dir;
         Vector3D OPos = Pos;
-        MATRIX_4x4 AM;
+        Matrix AM;
         bool is_hit = false;
 
 
@@ -2795,14 +2795,14 @@ namespace TA3D
                 T.x += data_s->axe[0][script_index].pos;
                 T.y += data_s->axe[1][script_index].pos;
                 T.z += data_s->axe[2][script_index].pos;
-    //            MATRIX_4x4 l_M = Scale( 1.0f );
+    //            Matrix l_M = Scale( 1.0f );
     //            if (data_s->axe[0][script_index].angle != 0.0f)
     //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle * DEG2RAD);
     //            if (data_s->axe[1][script_index].angle != 0.0f)
     //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle * DEG2RAD);
     //            if (data_s->axe[2][script_index].angle != 0.0f)
     //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle * DEG2RAD);
-                MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
+                Matrix l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
                 Dir = Dir * l_M;
                 Pos = (Pos - T) * l_M;
                 //			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
@@ -3239,7 +3239,7 @@ namespace TA3D
         compute_topbottom();
     }
 
-    void MODEL::draw(float t,ANIMATION_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,MATRIX_4x4 *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,ANIMATION_DATA *src_data)
+    void MODEL::draw(float t,ANIMATION_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,Matrix *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,ANIMATION_DATA *src_data)
     {
         gfx->enable_model_shading();
 
@@ -3311,7 +3311,7 @@ namespace TA3D
     }
 
 
-    void MODEL::compute_coord(ANIMATION_DATA* data_s, MATRIX_4x4* M)
+    void MODEL::compute_coord(ANIMATION_DATA* data_s, Matrix* M)
     {
         Vector3D pos;
         obj.compute_coord(data_s, &pos, false, 0, NULL, NULL, M);

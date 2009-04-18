@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
         glDisable( GL_DEPTH_TEST );
         glDisable( GL_CULL_FACE );
         glDisable( GL_LIGHTING );
-        MATRIX_4x4 M = Scale( 1.0f );
+        Matrix M = Scale( 1.0f );
         TheModel->compute_coord( &cur_data, &M );
         Vector3D P = cur_data.pos[ cur_part ];
 
@@ -751,7 +751,7 @@ void SurfEdit()
 
             Camera Cam;
 
-            MATRIX_4x4 Rot;				// Oriente la caméra
+            Matrix Rot;				// Oriente la caméra
             Rot = Scale(1.0f);
             Cam.setMatrix(Rot);
 
@@ -1114,7 +1114,7 @@ void SurfPaint(int index)
             r1-=(mouse_y-amy)*0.25f;
         }
 
-        MATRIX_4x4 Rot;				// Oriente la caméra
+        Matrix Rot;				// Oriente la caméra
         Rot = RotateX(r1*PI/180.0f) * RotateY(r2*PI/180.0f);
 
         Cam.setMatrix(Rot);
