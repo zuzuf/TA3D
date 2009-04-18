@@ -94,7 +94,7 @@ namespace TA3D
                     weapon[index].damage_hashtable.initTable( damage_vector.size() );
                 for(int i = 1 ; i < damage_vector.size() ; i++)        // Since it also contains its name as first element start searching at 1
                     if (damage_vector[i] != "default")
-                        weapon[index].damage_hashtable.insert( damage_vector[i], parser.pullAsInt(key + damage_vector[i]) );
+                        weapon[index].damage_hashtable.insert( damage_vector[i], parser.pullAsInt(key + "damage." + damage_vector[i]) );
                 weapon[index].damage = parser.pullAsInt( key + "damage.default", weapon[index].damage );
                 weapon[index].name = parser.pullAsString( key + "name", weapon[index].name );
                 weapon[index].weapon_id = parser.pullAsInt( key + "id", weapon[index].weapon_id );
