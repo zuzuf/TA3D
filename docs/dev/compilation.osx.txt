@@ -14,13 +14,20 @@ A - Using MacPort (http://www.macports.org)
 ===========================================
 
 
-1 - Install MacPort
+1 - MacPort
 -------------------
 
-Download and install MacPort : http://www.macports.org/install.php
+	a - If MacPort is not installed on your system
+	Download and install MacPort : http://www.macports.org/install.php
 
-MacPort provides command line utilities. A GUI Front-End nammed `Porticus`
-is available : http://porticus.alittledrop.com/
+	MacPort provides command line utilities. A GUI Front-End nammed `Porticus`
+	is available : http://porticus.alittledrop.com/
+
+
+	b - If MacPort is already installed on your system
+	Make sure the port files are up-to-date :
+	$ sudo port selfupdate
+	$ sudo port upgrade outdated
 
 
 2 - CMake
@@ -47,13 +54,20 @@ $ sudo port install freetype ftgl
 
 
 5 - SDL
------------
+-------
 
 Install the SDL framework via MacPort
-$ sudo port install  libsdl libsdl-framework libsdl_gfx libsdl_gfx-framework libsdl_image libsdl_image-framework libsdl_mixer libsdl_mixer-framework libsdl_net libsdl_net-framework libsdl_pango libsdl_sound libsdl_sound-framework libsdl_ttf libsdl_ttf-framework
+$ sudo port install  libsdl libsdl-framework libsdl_gfx libsdl_gfx-framework libsdl_image libsdl_image-framework libsdl_mixer libsdl_mixer-framework libsdl_net libsdl_net-framework libsdl_pango libsdl_sound libsdl_sound-framework libsdl_ttf libsdl_ttf-framework glew
 
 
-6 - TA3D, Getting the source
+6 - LUA
+-------
+
+Install LUA via MacPort
+$ sudo port install lua
+
+
+7 - TA3D, Getting the source
 ----------------------------
 
 Get the source, in the folder of your choice.
@@ -62,12 +76,12 @@ $ svn co http://ta3d.darkstars.co.uk/TA3D/trunk TA3D
 $ cd TA3D
 
 
-7 - Configure
+8 - Configure
 -------------
 $ cmake .
 
 
-8 - Make !
+9 - Make !
 ----------
 
 $ make
