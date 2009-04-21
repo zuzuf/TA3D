@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QQueue>
 #include <QDropEvent>
 #include <QVariant>
@@ -40,19 +41,23 @@ GeometryGraph::GeometryGraph()
 
     tree->setDragEnabled(true);
     tree->setDragDropMode(QTreeWidget::InternalMove);
+    tree->setSelectionMode(QTreeView::ExtendedSelection);
 
     layout->addWidget(tree);
 
     QPushButton *bRename = new QPushButton(tr("&Rename"));
     QPushButton *bDelete = new QPushButton(tr("&Delete"));
+    QPushButton *bMerge = new QPushButton(tr("&Merge"));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(bRename);
     buttonLayout->addWidget(bDelete);
+    buttonLayout->addWidget(bMerge);
     layout->addLayout(buttonLayout);
 
     connect(bRename, SIGNAL(clicked()), this, SLOT(renameSelection()));
     connect(bDelete, SIGNAL(clicked()), this, SLOT(deleteSelection()));
+    connect(bMerge, SIGNAL(clicked()), this, SLOT(mergeSelection()));
 }
 
 void GeometryGraph::refreshTree()
@@ -91,7 +96,8 @@ void GeometryGraph::refreshTree()
 
 void GeometryGraph::updateSelection(QTreeWidgetItem *item, int column)
 {
-    emit objectSelected(item->text(1).toInt());
+    if (tree->selectedItems().size() == 1)
+        emit objectSelected(item->text(1).toInt());
 }
 
 void GeometryGraph::updateSelectionID(int ID)
@@ -190,6 +196,43 @@ void GeometryGraph::deleteSelection()
     if (ID >= 0)
     {
         Mesh::instance()->deleteMesh(ID);
+        Mesh::instance()->computeInfo();
+        Gfx::instance()->updateSelection(-1);
+        refreshTree();
+        Gfx::instance()->updateGL();
+    }
+}
+
+QList<int> GeometryGraph::getSelection()
+{
+    QList<QTreeWidgetItem*> items = tree->selectedItems();
+    QList<int> itemIdx;
+
+    foreach(QTreeWidgetItem* item, items)
+        itemIdx.push_back( item->text(1).toInt() );
+
+    return itemIdx;
+}
+
+void GeometryGraph::mergeSelection()
+{
+    QList<int> selection = getSelection();
+    if (!selection.isEmpty())
+    {
+        int refParent = -2;
+        QList<Mesh*> lMesh;
+        foreach(int s, selection)
+        {
+            if (refParent == -2)
+                refParent = Mesh::instance()->getParent(s);
+            else if (refParent != Mesh::instance()->getParent(s))
+            {
+                QMessageBox::critical(this, tr("Merging error"), tr("Could not merge selected objects. You must select objects with the same parent"));
+                return;
+            }
+            lMesh.push_back(Mesh::instance()->getMesh(s));
+        }
+        Mesh::merge(lMesh);
         Mesh::instance()->computeInfo();
         Gfx::instance()->updateSelection(-1);
         refreshTree();

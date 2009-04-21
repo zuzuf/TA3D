@@ -24,39 +24,54 @@
 <context>
     <name>GeometryGraph</name>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="32"/>
+        <location filename="../src/geometrygraph.cpp" line="33"/>
         <source>Geometry Graph</source>
         <translation>Graphe de la géométrie</translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="38"/>
+        <location filename="../src/geometrygraph.cpp" line="39"/>
         <source>Parts</source>
         <translation>Éléments</translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="38"/>
+        <location filename="../src/geometrygraph.cpp" line="39"/>
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="46"/>
+        <location filename="../src/geometrygraph.cpp" line="48"/>
         <source>&amp;Rename</source>
         <translation>&amp;Renommer</translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="47"/>
+        <location filename="../src/geometrygraph.cpp" line="49"/>
         <source>&amp;Delete</source>
         <translation>&amp;Supprimer</translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="182"/>
+        <location filename="../src/geometrygraph.cpp" line="50"/>
+        <source>&amp;Merge</source>
+        <translation>&amp;Fusionner</translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="188"/>
         <source>Object name</source>
         <translation>Nom de l&apos;objet</translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="182"/>
+        <location filename="../src/geometrygraph.cpp" line="188"/>
         <source>enter new name</source>
         <translation>Entrer le nouveau nom</translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="230"/>
+        <source>Merging error</source>
+        <translation>Erreur de fusion</translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="230"/>
+        <source>Could not merge selected objects. You must select objects with the same parent</source>
+        <translation>Impossible de fusionner les objets. Vous devez selectionner des objets ayant le même père</translation>
     </message>
 </context>
 <context>

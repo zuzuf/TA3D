@@ -220,6 +220,8 @@ void ShaderEditor::loadFragmentProgram()
 
 void SyntaxHighlighter::highlightBlock(const QString &text)
 {
+    if (text.isEmpty())
+        return;
     // Comments
     {
         QTextCharFormat tokenFormat;

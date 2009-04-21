@@ -23,38 +23,53 @@
 <context>
     <name>GeometryGraph</name>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="32"/>
+        <location filename="../src/geometrygraph.cpp" line="33"/>
         <source>Geometry Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="38"/>
+        <location filename="../src/geometrygraph.cpp" line="39"/>
         <source>Parts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="38"/>
+        <location filename="../src/geometrygraph.cpp" line="39"/>
         <source>ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="46"/>
+        <location filename="../src/geometrygraph.cpp" line="48"/>
         <source>&amp;Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="47"/>
+        <location filename="../src/geometrygraph.cpp" line="49"/>
         <source>&amp;Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="182"/>
+        <location filename="../src/geometrygraph.cpp" line="50"/>
+        <source>&amp;Merge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="188"/>
         <source>Object name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/geometrygraph.cpp" line="182"/>
+        <location filename="../src/geometrygraph.cpp" line="188"/>
         <source>enter new name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="230"/>
+        <source>Merging error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/geometrygraph.cpp" line="230"/>
+        <source>Could not merge selected objects. You must select objects with the same parent</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

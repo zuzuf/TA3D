@@ -10,12 +10,15 @@ class GeometryGraph : public QWidget
 public:
     GeometryGraph();
 
+    QList<int> getSelection();
+
 public slots:
     void refreshTree();
     void updateSelection(QTreeWidgetItem *item, int column);
     void updateSelectionID(int ID);
     void deleteSelection();
     void renameSelection();
+    void mergeSelection();
 
 signals:
     void objectSelected(int ID);

@@ -830,6 +830,33 @@ Mesh *Mesh::getMesh(int id)
     return NULL;
 }
 
+int Mesh::getDepth(int id)
+{
+    if (id == ID)
+        return 0;
+    if (((next && next->getID() > id) || next == NULL) && child)
+        return 1 + child->getDepth(id);
+    if (next)
+        return next->getDepth(id);
+    return -1;
+}
+
+int Mesh::getParent(int id)
+{
+    if (id == ID)
+        return -1;
+    if (((next && next->getID() > id) || next == NULL) && child)
+    {
+        int childParent = child->getParent(id);
+        if (childParent == -1)
+            return ID;
+        return childParent;
+    }
+    if (next)
+        return next->getParent(id);
+    return -2;
+}
+
 Vec Mesh::getRelativePosition(int id)
 {
     if (id == ID)
@@ -2082,4 +2109,69 @@ void Mesh::splitGeometry()
     index = nIndex;
     normal = nNormal;
     tcoord = nTcoord;
+}
+
+Mesh *Mesh::merge(const QList<Mesh*> &list)
+{
+    if (list.isEmpty())
+        return NULL;
+
+    QList<Mesh*> lMesh = list;
+    qSort(lMesh);
+
+    Mesh *base = lMesh.front();
+    lMesh.pop_front();
+    base->toTriangleSoup();
+    while(!lMesh.isEmpty())
+    {
+        Mesh *mesh = lMesh.back();      // Reverse order to make sure we won't change one of the pointer in the list
+        lMesh.pop_back();
+        mesh->toTriangleSoup();
+
+        int bVtx = base->vertex.size();         // Copy mesh data
+        int bIdx = base->index.size();
+        base->tcoord.resize(bVtx * 2 + mesh->tcoord.size());
+        base->vertex.resize(bVtx + mesh->vertex.size());
+        memcpy(base->vertex.data() + bVtx, mesh->vertex.data(), mesh->vertex.size() * sizeof(Vec));
+        memcpy(base->tcoord.data() + 2 * bVtx, mesh->tcoord.data(), mesh->tcoord.size() * sizeof(GLfloat));
+        foreach(GLuint i, mesh->index)
+            base->index.push_back(i + bVtx);
+
+        if (base->child == NULL)                // Move childs
+        {
+            base->child = mesh->child;
+            mesh->child = NULL;
+        }
+        else
+        {
+            Mesh *cur = base->child;
+            while(mesh->child)
+            {
+                Mesh *tmp = cur->next;
+                cur->next = mesh->child;
+                cur = cur->next;
+                cur->next = tmp;
+                mesh->child = mesh->child->next;
+            }
+        }
+        if (mesh->next)                 // Destroy the Mesh object
+        {
+            Mesh *tmp = mesh->next;
+            mesh->copy( tmp );
+            tmp->child = NULL;
+            tmp->next = NULL;
+            delete tmp;
+        }
+        else
+        {
+            Mesh *tmp = base;
+            while(tmp != NULL && tmp->next != mesh)
+                tmp = tmp->next;
+            if (tmp)
+                tmp->next = NULL;
+            delete mesh;
+        }
+    }
+    base->computeNormals();
+    return base;
 }
