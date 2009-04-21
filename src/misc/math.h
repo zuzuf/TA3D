@@ -19,6 +19,7 @@
 # define __TA3D_XX__MATH_H__
 
 # include <cmath>
+# include <math.h>
 
 
 namespace TA3D

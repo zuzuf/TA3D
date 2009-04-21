@@ -20,8 +20,7 @@
 # define __TA3D_XX_MISC_VECTOR_H__
 
 # include "../stdafx.h"
-# include <math.h>
-
+# include "math.h"
 
 
 /*!
@@ -223,9 +222,9 @@ inline const float operator % (const Vector3D& lhs, const Vector3D& rhs)
 
 inline float VAngle(const Vector3D& A, const Vector3D& B)
 {
-    float a = sqrtf(A.sq() * B.sq());
-    a = (a == 0.0f) ? 0.0f : acosf((A % B) / a );
-    return isnan(a) ? 0.0f : a;
+	float a = sqrtf(A.sq() * B.sq());
+	a = (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+	return isNaN(a) ? 0.0f : a;
 }
 
 #endif // __TA3D_XX_MISC_VECTOR_H__
