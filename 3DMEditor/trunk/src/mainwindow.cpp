@@ -71,9 +71,13 @@ MainWindow::MainWindow(QWidget *parent)
     mnuTransform->addAction( tr("&Flip X<>Z"), this, SLOT(flipXZ()));
     mnuTransform->addAction( tr("&Scale"), this, SLOT(scale()));
 
+    QMenu *mnuGeometry = new QMenu( tr("&Geometry") );
+    mnuGeometry->addAction( tr("&Split components"), this, SLOT(splitMesh()));
+
     QMenu *mnuModel = new QMenu( tr("&Model") );
     mnuModel->addMenu(mnuCreate);
     mnuModel->addMenu(mnuTransform);
+    mnuModel->addMenu(mnuGeometry);
     menuBar()->addMenu(mnuModel);
 
     QMenu *mnuHelp = new QMenu( tr("&Help") );
@@ -473,6 +477,18 @@ void MainWindow::scale()
         if (s < 0.0f)
             mesh->invertOrientation();
         mesh->computeNormals();
+    }
+    Gfx::instance()->updateGL();
+}
+
+void MainWindow::splitMesh()
+{
+    Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
+    if (mesh)
+    {
+        mesh->splitGeometry();
+        Mesh::instance()->computeInfo();
+        GeometryGraph::instance()->refreshTree();
     }
     Gfx::instance()->updateGL();
 }

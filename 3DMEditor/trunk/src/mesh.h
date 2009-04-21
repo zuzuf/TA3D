@@ -92,6 +92,7 @@ public:
     // Simplifies geometry
     void mergeSimilarVertices();
     void toTriangleSoup();
+    void splitGeometry();       // Isolate connex components
 
 signals:
     void loaded();

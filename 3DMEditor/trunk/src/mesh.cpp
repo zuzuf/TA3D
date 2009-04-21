@@ -1895,3 +1895,191 @@ void Mesh::toTriangleSoup()     // This will result in a flat shaded mesh (verti
     type = MESH_TRIANGLES;
     computeNormals();
 }
+
+void Mesh::splitGeometry()
+{
+    toTriangleSoup();
+    mergeSimilarVertices();
+
+    int nb_component = 0;
+    QVector< QVector< int > > neighbors;
+    neighbors.resize(vertex.size());
+    for(int i = 0 ; i < index.size() ; i += 3)      // Build neighborhood tables
+    {
+        for(int e = 0 ; e < 3 ; e++)
+        {
+            if (!neighbors[index[i + e]].contains(index[i + ((1 + e) % 3)]))
+                neighbors[index[i + e]].push_back(index[i + ((1 + e) % 3)]);
+            if (!neighbors[index[i + e]].contains(index[i + ((2 + e) % 3)]))
+                neighbors[index[i + e]].push_back(index[i + ((2 + e) % 3)]);
+        }
+    }
+    for(int i = 0 ; i < neighbors.size() ; i++)
+        qSort( neighbors[i] );
+
+    QVector< QVector< int > > componentVertex;
+    QVector< int > component;
+    QVector< int > dist;
+    for(int i = 0 ; i < vertex.size() ; i++)
+    {
+        component.push_back(-1);
+        dist.push_back(vertex.size());
+    }
+
+    QQueue< int > qWork;
+    for(int i = 0 ; i < vertex.size() ; i++)
+        qWork.enqueue(i);
+    for(int i = 0 ; i < vertex.size() ; i++)
+        qSwap( qWork[i], qWork[ qrand() % qWork.size() ] );
+
+    while(!qWork.isEmpty())         // Compute connex components
+    {
+        int A = qWork.dequeue();
+        int B = -1, C = -1;
+        for(int i = 0 ; i < neighbors[A].size() && C == -1 ; i++)
+        {
+            int n = neighbors[A][i];
+            if (component[n] == -1)
+            {
+                B = n;
+                for(int e = i + 1 ; e < neighbors[A].size() && C == -1 ; e++)
+                {
+                    n = neighbors[A][e];
+                    if (component[n] == -1 && neighbors[B].contains(n))
+                        C = n;
+                }
+            }
+        }
+        if (C == -1)                // No unattributed triangle OO! This is not possible, but for robustness ...
+        {
+            qDebug() << "error : no triangle found! ( " << __FILE__ << " l." << __LINE__ << ")";
+            continue;
+        }
+        int cmp = nb_component++;
+        component[A] = component[B] = component[C] = cmp;
+        // B and C have been chosen so we must not use them again
+        qWork.removeOne(B);
+        qWork.removeOne(C);
+        dist[A] = 0;                // Compute distance from component initializer
+        dist[B] = dist[C] = 1;
+        componentVertex.push_back(QVector<int>());
+        componentVertex.last() << A << B << C;
+
+        QQueue<int> qComponent;
+        qComponent << neighbors[A].toList() << neighbors[B].toList() << neighbors[C].toList();
+        while(!qComponent.isEmpty())
+        {
+            int i = qComponent.dequeue();
+            if (component[i] == cmp)        // Already in
+                continue;
+
+            A = i;
+            B = -1;
+            C = -1;
+            for(int j = 0 ; j < neighbors[A].size() && C == -1 ; j++)
+            {
+                int n = neighbors[A][j];
+                if (component[n] == cmp)
+                {
+                    B = n;
+                    for(int e = j + 1 ; e < neighbors[A].size() && C == -1 ; e++)
+                    {
+                        n = neighbors[A][e];
+                        if (component[n] == cmp && neighbors[B].contains(n))
+                            C = n;
+                    }
+                }
+            }
+            if (C == -1)            // It's not in
+                continue;
+            componentVertex.last() << A;
+
+            if (component[i] != -1)         // Special case, the vertex must be duplicated
+            {                               // (2 components joined by a vertex :/)
+                int orig = component[i];
+                for(int e = 0 ; e < index.size() ; e += 3)
+                {
+                    if (index[e] == A || index[e+1] == A || index[e+2] == A)
+                    {
+                        if (component[index[e]] == orig && component[index[e+1]] == orig && component[index[e+2]] == orig)
+                        {
+                            if (index[e] == A)
+                                index[e] = vertex.size();
+                            if (index[e+1] == A)
+                                index[e+1] = vertex.size();
+                            if (index[e+2] == A)
+                                index[e+2] = vertex.size();
+                        }
+                    }
+                }
+                dist.push_back(dist[A]);
+                dist[A] = vertex.size();
+                component.push_back(orig);
+                vertex.push_back(vertex[i]);
+                neighbors.push_back(QVector<int>());
+                for(int e = 0 ; e < neighbors[i].size() ; e++)
+                    if (component[neighbors[i][e]] == orig)
+                    {
+                        neighbors.last().push_back(neighbors[i][e]);
+                        neighbors[i].remove(e--);
+                    }
+            }
+            for(int j = 0 ; j < neighbors[A].size() ; j++)
+                dist[A] = qMin(dist[A], dist[ neighbors[A][j] ] + 1);
+            component[i] = cmp;
+            qComponent << neighbors[i].toList();
+        }
+    }
+
+    QVector<int> convert;
+    convert.resize(vertex.size());
+    for(int i = 0 ; i < nb_component ; i++)
+        for(int e = 0 ; e < componentVertex[i].size() ; e++)
+            convert[componentVertex[i][e]] = e;
+
+    for(int i = 1 ; i < nb_component ; i++)
+    {
+        Mesh *mesh = new Mesh;
+        mesh->type = MESH_TRIANGLES;
+        mesh->child = NULL;
+        mesh->next = next;
+        next = mesh;
+
+        mesh->name = name + QString::number(i);
+        mesh->vertex.resize( componentVertex[i].size() );
+        mesh->normal.resize( componentVertex[i].size() );
+        mesh->tcoord.resize( 2 * componentVertex[i].size() );
+        for(int e = 0 ; e < componentVertex[i].size() ; e++)
+        {
+            mesh->vertex[e] = vertex[componentVertex[i][e]];
+            mesh->normal[e] = normal[componentVertex[i][e]];
+            mesh->tcoord[e * 2] = tcoord[2 * componentVertex[i][e]];
+            mesh->tcoord[e * 2 + 1] = tcoord[2 * componentVertex[i][e] + 1];
+        }
+        for(int e = 0 ; e < index.size() ; e++)
+            if (component[index[e]] == i)
+                mesh->index.push_back(convert[index[e]]);
+    }
+    name += "0";
+    QVector<Vec> nVertex;
+    QVector<GLuint> nIndex;
+    QVector<Vec> nNormal;
+    QVector<GLfloat> nTcoord;
+    nVertex.resize( componentVertex[0].size() );
+    nNormal.resize( componentVertex[0].size() );
+    nTcoord.resize( 2 * componentVertex[0].size() );
+    for(int e = 0 ; e < componentVertex[0].size() ; e++)
+    {
+        nVertex[e] = vertex[componentVertex[0][e]];
+        nNormal[e] = normal[componentVertex[0][e]];
+        nTcoord[e * 2] = tcoord[2 * componentVertex[0][e]];
+        nTcoord[e * 2 + 1] = tcoord[2 * componentVertex[0][e] + 1];
+    }
+    for(int e = 0 ; e < index.size() ; e++)
+        if (component[index[e]] == 0)
+            nIndex.push_back(convert[index[e]]);
+    vertex = nVertex;
+    index = nIndex;
+    normal = nNormal;
+    tcoord = nTcoord;
+}

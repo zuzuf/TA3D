@@ -74,7 +74,7 @@
     <message>
         <location filename="../src/gfx.cpp" line="142"/>
         <source>Animation mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode animation</translation>
     </message>
 </context>
 <context>
@@ -172,173 +172,183 @@
         <translation>&amp;Echelle</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="80"/>
+        <location filename="../src/mainwindow.cpp" line="74"/>
+        <source>&amp;Geometry</source>
+        <translation>&amp;Géométrie</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="75"/>
+        <source>&amp;Split components</source>
+        <translation>&amp;Séparer les composants</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="84"/>
         <source>&amp;Index</source>
         <translation>&amp;Sommaire</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="271"/>
+        <location filename="../src/mainwindow.cpp" line="275"/>
         <source>Cube size</source>
         <translation>Taille du cube</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="271"/>
+        <location filename="../src/mainwindow.cpp" line="275"/>
         <source>Cube size:</source>
         <translation>Taille du cube:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="282"/>
+        <location filename="../src/mainwindow.cpp" line="286"/>
         <source>Cone ray</source>
         <translation>Rayon du cône</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="282"/>
+        <location filename="../src/mainwindow.cpp" line="286"/>
         <source>Cone ray:</source>
         <translation>Rayon du cône:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="283"/>
+        <location filename="../src/mainwindow.cpp" line="287"/>
         <source>Cone height</source>
         <translation>Hauteur du cône</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="283"/>
+        <location filename="../src/mainwindow.cpp" line="287"/>
         <source>Cone height:</source>
         <translation>Hauteur du cône:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="284"/>
+        <location filename="../src/mainwindow.cpp" line="288"/>
         <source>Cone details</source>
         <translation>Détails du cône</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="284"/>
+        <location filename="../src/mainwindow.cpp" line="288"/>
         <source>Cone details:</source>
         <translation>Détails du cône:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="285"/>
+        <location filename="../src/mainwindow.cpp" line="289"/>
         <source>Cone capped ?</source>
         <translation>Cône fermé ?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="296"/>
+        <location filename="../src/mainwindow.cpp" line="300"/>
         <source>Cylinder ray</source>
         <translation>Rayon du cylindre</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="296"/>
+        <location filename="../src/mainwindow.cpp" line="300"/>
         <source>Cylinder ray:</source>
         <translation>Rayon du cylindre:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="297"/>
+        <location filename="../src/mainwindow.cpp" line="301"/>
         <source>Cylinder height</source>
         <translation>Hauteur du cylindre</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="297"/>
+        <location filename="../src/mainwindow.cpp" line="301"/>
         <source>Cylinder height:</source>
         <translation>Hauteur du cylindre:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="298"/>
+        <location filename="../src/mainwindow.cpp" line="302"/>
         <source>Cylinder details</source>
         <translation>Détails du cylindre</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="298"/>
+        <location filename="../src/mainwindow.cpp" line="302"/>
         <source>Cylinder details:</source>
         <translation>Détails du cylindre:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="299"/>
+        <location filename="../src/mainwindow.cpp" line="303"/>
         <source>Cylinder capped ?</source>
         <translation>Cylindre fermé ?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="310"/>
+        <location filename="../src/mainwindow.cpp" line="314"/>
         <source>Sphere ray</source>
         <translation>Rayon de la sphère</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="310"/>
+        <location filename="../src/mainwindow.cpp" line="314"/>
         <source>Sphere ray:</source>
         <translation>Rayon de la sphère:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="311"/>
+        <location filename="../src/mainwindow.cpp" line="315"/>
         <source>Sphere horizontal resolution</source>
         <translation>Résolution horisontale de la sphère</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="311"/>
+        <location filename="../src/mainwindow.cpp" line="315"/>
         <source>Sphere horizontal resolution:</source>
         <translation>Résolution horisontale de la sphère:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="312"/>
+        <location filename="../src/mainwindow.cpp" line="316"/>
         <source>Sphere vertical resolution</source>
         <translation>Résolution verticale de la sphère</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="312"/>
+        <location filename="../src/mainwindow.cpp" line="316"/>
         <source>Sphere vertical resolution:</source>
         <translation>Résolution verticale de la sphère:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="323"/>
+        <location filename="../src/mainwindow.cpp" line="327"/>
         <source>Torus big ray</source>
         <translation>Grand rayon du tore</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="323"/>
+        <location filename="../src/mainwindow.cpp" line="327"/>
         <source>Torus big ray:</source>
         <translation>Grand rayon du tore:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="324"/>
+        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Torus small ray</source>
         <translation>Petit rayon du tore</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="324"/>
+        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Torus small ray:</source>
         <translation>Petit rayon du tore:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="325"/>
+        <location filename="../src/mainwindow.cpp" line="329"/>
         <source>Torus big resolution</source>
         <translation>Résolution du grand cercle du tore</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="325"/>
+        <location filename="../src/mainwindow.cpp" line="329"/>
         <source>Torus resolution of big circle:</source>
         <translation>Résolution du grand cercle du tore:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="326"/>
+        <location filename="../src/mainwindow.cpp" line="330"/>
         <source>Torus small resolution</source>
         <translation>Résolution du petit cercle du tore</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="326"/>
+        <location filename="../src/mainwindow.cpp" line="330"/>
         <source>Torus resolution of small circle:</source>
         <translation>Résolution du petit cercle du tore:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="338"/>
-        <location filename="../src/mainwindow.cpp" line="340"/>
+        <location filename="../src/mainwindow.cpp" line="342"/>
+        <location filename="../src/mainwindow.cpp" line="344"/>
         <source>3DMEditor</source>
         <translation>3DMEditor</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="470"/>
+        <location filename="../src/mainwindow.cpp" line="474"/>
         <source>Scale</source>
         <translation>Echelle</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="470"/>
+        <location filename="../src/mainwindow.cpp" line="474"/>
         <source>Enter scale factor:</source>
         <translation>Entrer le facteur d&apos;échelle:</translation>
     </message>
@@ -372,45 +382,45 @@
         <translation>&amp;Interface</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="129"/>
-        <location filename="../src/mainwindow.cpp" line="137"/>
+        <location filename="../src/mainwindow.cpp" line="133"/>
+        <location filename="../src/mainwindow.cpp" line="141"/>
         <source>The program has to be restarted</source>
         <translation>Le programme doit être redémarré</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="129"/>
-        <location filename="../src/mainwindow.cpp" line="137"/>
+        <location filename="../src/mainwindow.cpp" line="133"/>
+        <location filename="../src/mainwindow.cpp" line="141"/>
         <source>Warning</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="93"/>
+        <location filename="../src/mainwindow.cpp" line="97"/>
         <source>3DMEditor started</source>
         <translation>3DMEditor lancé</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="128"/>
-        <location filename="../src/mainwindow.cpp" line="136"/>
+        <location filename="../src/mainwindow.cpp" line="132"/>
+        <location filename="../src/mainwindow.cpp" line="140"/>
         <source>Language set to </source>
         <translation>Langue réglée sur</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="128"/>
+        <location filename="../src/mainwindow.cpp" line="132"/>
         <source>English</source>
         <translation>anglais</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="136"/>
+        <location filename="../src/mainwindow.cpp" line="140"/>
         <source>French</source>
         <translation>français</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="79"/>
+        <location filename="../src/mainwindow.cpp" line="83"/>
         <source>&amp;Help</source>
         <translation>&amp;Aide</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="82"/>
+        <location filename="../src/mainwindow.cpp" line="86"/>
         <source>&amp;About</source>
         <translation>&amp;A propos</translation>
     </message>
@@ -480,39 +490,39 @@
         <translation>&amp;Sphère</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="74"/>
+        <location filename="../src/mainwindow.cpp" line="77"/>
         <source>&amp;Model</source>
         <translation>&amp;Modèle</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="162"/>
+        <location filename="../src/mainwindow.cpp" line="166"/>
         <source>open</source>
         <translation>ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="178"/>
-        <location filename="../src/mainwindow.cpp" line="193"/>
+        <location filename="../src/mainwindow.cpp" line="182"/>
+        <location filename="../src/mainwindow.cpp" line="197"/>
         <source>3DMEditor meshs(*.3dm)</source>
         <translation>Objets 3DMEditor(*.3dm)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="169"/>
+        <location filename="../src/mainwindow.cpp" line="173"/>
         <source>mesh loaded</source>
         <translation>Objet chargé</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="178"/>
+        <location filename="../src/mainwindow.cpp" line="182"/>
         <source>save</source>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="187"/>
-        <location filename="../src/mainwindow.cpp" line="202"/>
+        <location filename="../src/mainwindow.cpp" line="191"/>
+        <location filename="../src/mainwindow.cpp" line="206"/>
         <source>mesh saved</source>
         <translation>Objet enregistré</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="193"/>
+        <location filename="../src/mainwindow.cpp" line="197"/>
         <source>save as</source>
         <translation>Enregistrer sous</translation>
     </message>
@@ -535,17 +545,17 @@
         <translation>&amp;Graphe de la géométrie</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="83"/>
+        <location filename="../src/mainwindow.cpp" line="87"/>
         <source>&amp;About Qt</source>
         <translation>&amp;A propos de Qt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="162"/>
+        <location filename="../src/mainwindow.cpp" line="166"/>
         <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj);;all files(*.*)</source>
         <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*obj);;tous les fichiers(*.*)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="230"/>
+        <location filename="../src/mainwindow.cpp" line="234"/>
         <source>About Qt</source>
         <translation>A propos de Qt</translation>
     </message>
@@ -560,30 +570,106 @@
 <context>
     <name>ShaderEditor</name>
     <message>
-        <location filename="../src/shadereditor.cpp" line="26"/>
-        <source>Vertex program:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/shadereditor.cpp" line="28"/>
-        <source>Fragment program:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/shadereditor.cpp" line="30"/>
         <source>Output:</source>
-        <translation>Sortie:</translation>
+        <translation type="obsolete">Sortie:</translation>
     </message>
     <message>
-        <location filename="../src/shadereditor.cpp" line="33"/>
+        <location filename="../src/shadereditor.cpp" line="56"/>
+        <source>&amp;save vertex program</source>
+        <translation>&amp;Enregistrer le vertex program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="57"/>
+        <source>&amp;load vertex program</source>
+        <translation>&amp;Charger un vertex program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="61"/>
+        <source>&amp;Vertex program</source>
+        <translation>&amp;Vertex program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="68"/>
+        <source>&amp;save fragment program</source>
+        <translation>&amp;Enregistrer le fragment program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="69"/>
+        <source>&amp;load fragment program</source>
+        <translation>&amp;Charger un fragment program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="73"/>
+        <source>&amp;Fragment program</source>
+        <translation>&amp;Fragment program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="80"/>
         <source>&amp;Build</source>
         <translation>&amp;Compiler</translation>
     </message>
     <message>
-        <location filename="../src/shadereditor.cpp" line="54"/>
-        <location filename="../src/shadereditor.cpp" line="56"/>
+        <location filename="../src/shadereditor.cpp" line="84"/>
+        <source>&amp;Output</source>
+        <translation>&amp;Sortie</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="105"/>
+        <location filename="../src/shadereditor.cpp" line="107"/>
         <source>Shader editor</source>
         <translation>Editeur de shader</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="157"/>
+        <source>save vertex progam as</source>
+        <translation>Enregistrer le vertex program sous</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="157"/>
+        <location filename="../src/shadereditor.cpp" line="173"/>
+        <source>all files(*.*);;vertex programs(*.vert)</source>
+        <translation>tous les fichiers(*.*);;vertex programs(*.vert)</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="164"/>
+        <location filename="../src/shadereditor.cpp" line="180"/>
+        <location filename="../src/shadereditor.cpp" line="197"/>
+        <location filename="../src/shadereditor.cpp" line="213"/>
+        <source>Error opening file</source>
+        <translation>Erreur à l&apos;ouverture du fichier</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="164"/>
+        <location filename="../src/shadereditor.cpp" line="197"/>
+        <source>Error: could not open file %1 for writing</source>
+        <translation>Erreur: impossible d&apos;ouvrir le fichier %1 en écriture</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="173"/>
+        <source>load vertex progam</source>
+        <translation>Charger un vertex program</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="180"/>
+        <location filename="../src/shadereditor.cpp" line="213"/>
+        <source>Error: could not read file %1</source>
+        <translation>Erreur: impossible de lire le fichier %1</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="190"/>
+        <source>save fragment progam as</source>
+        <translation>Enregistrer le fragment program sous</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="190"/>
+        <location filename="../src/shadereditor.cpp" line="206"/>
+        <source>all files(*.*);;fragment programs(*.frag)</source>
+        <translation>tous les fichiers(*.*);;fragment programs(*.frag)</translation>
+    </message>
+    <message>
+        <location filename="../src/shadereditor.cpp" line="206"/>
+        <source>load fragment progam</source>
+        <translation>Charger un fragment program</translation>
     </message>
 </context>
 <context>
