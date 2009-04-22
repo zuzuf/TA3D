@@ -60,16 +60,22 @@ namespace TA3D
 
     void Unit::start_building(const Vector3D &dir)
     {
-        Vector3D Dir(dir);
-        Dir.y = 0.0f;
-        int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
-        if (Dir.x < 0.0f)
+#warning FIXME: due to bugs in rotation matrix generators, this is buggy
+        // Work in model coordinates
+        Vector3D Dir(dir * RotateXZY(-Angle.x * DEG2RAD, -Angle.y * DEG2RAD, -Angle.z * DEG2RAD));
+        Vector3D P(Dir);
+        P.y = 0.0f;
+        float angle = acosf( P.z / P.norm() ) * RAD2DEG;
+        if (P.x < 0.0f)
             angle = -angle;
-        angle -= (int)Angle.y;
         if (angle > 180)	angle -= 360;
-        if (angle < -180)	angle += 360;
-#warning TODO: fix building animation call, currently this is a hack
-        int param[] = { (int)(angle*DEG2TA), 0 };
+        else if (angle < -180)	angle += 360;
+
+        float angleX = asinf(Dir.y / Dir.norm()) * RAD2DEG;
+        if (angleX > 180)	angleX -= 360;
+        else if (angleX < -180)	angleX += 360;
+        LOG_DEBUG("angleX = " << angleX << "deg");
+        int param[] = { (int)(angle * DEG2TA), (int)(angleX * DEG2TA) };
         launch_script(SCRIPT_startbuilding, 2, param );
         play_sound( "build" );
     }
@@ -2827,8 +2833,10 @@ namespace TA3D
                     if (mission->p != NULL)		// Récupère une unité / It's a unit
                     {
                         Unit *target_unit=(Unit*) mission->p;
-                        if ((target_unit->flags & 1) && target_unit->ID == mission->target_ID ) {
-                            if (mission->mission == MISSION_CAPTURE ) {
+                        if ((target_unit->flags & 1) && target_unit->ID == mission->target_ID)
+                        {
+                            if (mission->mission == MISSION_CAPTURE)
+                            {
                                 if (unit_manager.unit_type[target_unit->type_id]->commander || target_unit->owner_id == owner_id)
                                 {
                                     play_sound( "cant1" );
@@ -2857,11 +2865,12 @@ namespace TA3D
                             {
                                 if (mission->last_d>=0.0f)
                                 {
-                                    start_building(Dir);
+                                    start_building(target_unit->Pos - Pos);
                                     mission->last_d=-1.0f;
                                 }
 
-                                if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
+                                if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0.0f)
+                                {
                                     if (local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
                                         nanolathe_target = target_unit->idx;
                                         g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, mission->mission == MISSION_RECLAIM );
@@ -2932,7 +2941,7 @@ namespace TA3D
                         }
                         bool feature_locked = true;
 
-                        Vector3D Dir=features.feature[mission->data].Pos-Pos;
+                        Vector3D Dir = features.feature[mission->data].Pos - Pos;
                         Dir.y=0.0f;
                         mission->target=features.feature[mission->data].Pos;
                         float dist=Dir.sq();
@@ -2947,7 +2956,7 @@ namespace TA3D
                         {
                             if (mission->last_d>=0.0f)
                             {
-                                start_building(Dir);
+                                start_building(features.feature[mission->data].Pos - Pos);
                                 mission->last_d = -1.0f;
                             }
                             if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0)
@@ -3397,7 +3406,7 @@ namespace TA3D
                             }
                             else
                             {
-                                Vector3D Dir=target_unit->Pos-Pos;
+                                Vector3D Dir = target_unit->Pos - Pos;
                                 Dir.y=0.0f;
                                 mission->target=target_unit->Pos;
                                 float dist=Dir.sq();
@@ -3415,7 +3424,7 @@ namespace TA3D
                                     if (mission->data==0)
                                     {
                                         mission->data = 1;
-                                        start_building(Dir);
+                                        start_building(target_unit->Pos - Pos);
                                     }
 
                                     if (port[ INBUILDSTANCE ] != 0.0f)
@@ -3440,7 +3449,7 @@ namespace TA3D
                         }
                         else if (target_unit!=NULL && target_unit->flags)
                         {
-                            Vector3D Dir=target_unit->Pos-Pos;
+                            Vector3D Dir = target_unit->Pos - Pos;
                             Dir.y=0.0f;
                             mission->target=target_unit->Pos;
                             float dist=Dir.sq();
@@ -3456,7 +3465,7 @@ namespace TA3D
                             {
                                 if (unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    start_building(Dir);
+                                    start_building(target_unit->Pos - Pos);
                                     mission->mission = MISSION_BUILD_2;		// Change de type de mission
                                 }
                             }
