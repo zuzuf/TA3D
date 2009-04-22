@@ -266,6 +266,8 @@ inline Matrix RotateXYZ(const float &Rx, const float &Ry, const float &Rz)
 // Returns RotateX(Rx) * RotateZ(Rz) * RotateY(Ry) but faster ;)
 inline Matrix RotateXZY(const float &Rx, const float &Rz, const float &Ry)
 {
+#warning FIXME: RotateXZY is buggy, temporarily replaced with RotateX * RotateZ * RotateY!
+    return RotateX(Rx) * RotateZ(Rz) * RotateY(Ry);
     float cx = cosf(Rx);
     float sx = sinf(Rx);
     float cy = cosf(Ry);
