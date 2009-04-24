@@ -60,9 +60,8 @@ namespace TA3D
 
     void Unit::start_building(const Vector3D &dir)
     {
-#warning FIXME: due to bugs in rotation matrix generators, this is buggy
         // Work in model coordinates
-        Vector3D Dir(dir * RotateXZY(-Angle.x * DEG2RAD, -Angle.y * DEG2RAD, -Angle.z * DEG2RAD));
+        Vector3D Dir(dir * RotateXZY(-Angle.x * DEG2RAD, -Angle.z * DEG2RAD, -Angle.y * DEG2RAD));
         Vector3D P(Dir);
         P.y = 0.0f;
         float angle = acosf( P.z / P.norm() ) * RAD2DEG;
@@ -74,7 +73,6 @@ namespace TA3D
         float angleX = asinf(Dir.y / Dir.norm()) * RAD2DEG;
         if (angleX > 180)	angleX -= 360;
         else if (angleX < -180)	angleX += 360;
-        LOG_DEBUG("angleX = " << angleX << "deg");
         int param[] = { (int)(angle * DEG2TA), (int)(angleX * DEG2TA) };
         launch_script(SCRIPT_startbuilding, 2, param );
         play_sound( "build" );
@@ -2014,7 +2012,7 @@ namespace TA3D
                                 if (unit_manager.unit_type[type_id]->aim_data[i].check)     // Check angle limitations (not in OTA)
                                 {
                                                 // Go back in model coordinates so we can compare to the weapon main direction
-                                    Vector3D dir = target * RotateXZY(-Angle.x * DEG2RAD, -Angle.y * DEG2RAD, -Angle.z * DEG2RAD);
+                                    Vector3D dir = target * RotateXZY(-Angle.x * DEG2RAD, -Angle.z * DEG2RAD, -Angle.y * DEG2RAD);
                                                     // Check weapon
                                     if (VAngle(dir, unit_manager.unit_type[type_id]->aim_data[i].dir) > unit_manager.unit_type[type_id]->aim_data[i].Maxangledif)
                                     {
