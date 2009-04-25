@@ -1501,7 +1501,8 @@ namespace TA3D
 						glEnd();
 					}
 				}
-				glDepthMask(GL_TRUE);
+                refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
+                glDepthMask(GL_TRUE);
 				glFogi (GL_FOG_MODE, FogMode);
 				glFogfv (GL_FOG_COLOR, FogColor);
 				glFogf (GL_FOG_DENSITY, FogD);
@@ -1512,7 +1513,6 @@ namespace TA3D
 				glEnable(GL_LIGHTING);
 				glEnable(GL_FOG);
 				glCullFace(GL_FRONT);
-				refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
 				refcam.setView();
 
 				if (cam.rpos.y <= gfx->low_def_limit && lp_CONFIG->water_quality >= 4)
@@ -1694,8 +1694,14 @@ namespace TA3D
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_LIGHTING);
 			glEnable(GL_FOG);
-			cam.zfar = 500.0f + (cam_h - 150.0f) * 2.0f;
-			cam.setView();
+            cam.zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+            cam.setView();
+            glFogi (GL_FOG_MODE, FogMode);
+            glFogfv (GL_FOG_COLOR, FogColor);
+            glFogf (GL_FOG_DENSITY, FogD);
+            glHint (GL_FOG_HINT, GL_NICEST);
+            glFogf (GL_FOG_START, FogNear);
+            glFogf (GL_FOG_END, cam.zfar);
 
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
