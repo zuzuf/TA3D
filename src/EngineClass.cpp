@@ -1266,23 +1266,141 @@ namespace TA3D
         if (FLAT && !water)
             return;
 
-        bool low_def_view = cam->rpos.y>gfx->low_def_limit;		// Low detail map for mega zoom
+        bool low_def_view = cam->rpos.y > gfx->low_def_limit;		// Low detail map for mega zoom
 
         if (check_visibility && !FLAT)
             units.visible_unit.clear();
 
         if (low_def_view && check_visibility && !FLAT)
         {
-            for(int i = 0 ; i < units.index_list_size ; ++i)
-                units.visible_unit.push_back( units.idx_list[i] );
+            // NB: this works because everything is of type uint16 and because we use std::vector objects
+            units.visible_unit.resize(units.index_list_size);
+            memcpy(&(units.visible_unit.front()), units.idx_list, units.index_list_size * sizeof(uint16));
         }
 
+        if (low_def_view)
+        {
+            draw_LD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
+
+            memset(view[0], 1, bloc_w * bloc_h);
+            ox1 = 0;
+            ox2 = bloc_w - 1;
+            oy1 = 0;
+            oy2 = bloc_h - 1;
+        }
+        else
+            draw_HD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
+    }
+
+
+    void MAP::draw_LD(Camera* cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
+    {
         gfx->lock();
+
+        glPushMatrix();
+
+        if(FLAT)
+            glTranslatef(0.0f, 0.0f, sea_dec);
+
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_LIGHTING);
+        if(!FLAT && ntex > 0)
+            gfx->ReInitAllTex( true );
+        if(!FLAT)
+            glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+
+        if (FLAT)
+            glTranslatef(cosf(t), 0.0f, sinf(t));
+
+        int i = 0;
+        for (int y = 0; y <= low_h; ++y)
+        {
+            int Y = y * (bloc_h_db - 2) / low_h;
+            for (int x = 0; x <= low_w; ++x)
+            {
+                int X = x * (bloc_w_db - 2) / low_w;
+                int Z = Y + get_zdec_notest(X,Y);
+                if (Z >= bloc_h_db - 1)
+                    Z = bloc_h_db - 2;
+                if (!(SurfaceByte(view_map, X >> 1, Z >> 1) & player_mask))
+                    low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = low_col[(i << 2) + 3] = 0;
+                else
+                {
+                    low_col[(i << 2) + 3] = 255;
+                    if (!(SurfaceByte(sight_map,X>>1,Z>>1) & player_mask))
+                        low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 127;
+                    else
+                        low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 255;
+                }
+                ++i;
+            }
+        }
+
+        glDisableClientState(GL_NORMAL_ARRAY);		// we don't need normal data
+        glEnableClientState(GL_COLOR_ARRAY);        // Colors are used to render fog of war
+        glColorPointer(4,GL_UNSIGNED_BYTE,0,low_col);
+        glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
+        if (FLAT)
+        {
+            glTranslatef(0.0f, niv, 0.0f);
+            glVertexPointer( 3, GL_FLOAT, 0, low_vtx_flat);
+        }
+        else
+            glVertexPointer( 3, GL_FLOAT, 0, low_vtx);
+
+        glClientActiveTextureARB(GL_TEXTURE0_ARB );
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glTexCoordPointer(2, GL_FLOAT, 0, low_tcoord);
+
+        glActiveTextureARB(GL_TEXTURE0_ARB);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,low_tex);
+
+        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
+
+        glDisableClientState(GL_COLOR_ARRAY);
+
+        glPopMatrix();
+
+        gfx->unlock();
+    }
+
+    void renderLine(std::vector<int> &xMin, std::vector<int> &xMax, int x0, int y0, int x1, int y1, int xmax)
+    {
+        if (y0 == y1)               // We don't need to handle this case here
+            return;
+        if (y0 > y1)                // We want y0 < y1
+        {
+            x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
+            y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
+        }
+        int ymax = Math::Min((int)y1, (int)xMin.size() - 1);
+        for(int y = Math::Max(y0, 0) ; y <= ymax ; y++)
+        {
+            int x = x0 + (y - y0) * (x1 - x0) / (y1 - y0);
+            if (x < 0)
+                x = 0;
+            else if (x > xmax)
+                x = xmax;
+            if (xMin[y] > x || xMin[y] == -1)
+                xMin[y] = x;
+            if (xMax[y] < x || xMax[y] == -1)
+                xMax[y] = x;
+        }
+    }
+
+    void MAP::draw_HD(Camera* cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
+    {
+        if (check_visibility && !FLAT)
+            units.visible_unit.clear();
+
+        gfx->lock();
+
+        glPushMatrix();
 
         if(FLAT)
             glTranslatef(0.0f,0.0f,sea_dec);
 
-        int i,x,y;
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
         if(!FLAT)
@@ -1292,121 +1410,138 @@ namespace TA3D
             else
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
-        Vector3D P;
-        Vector3D A, B, C, D;
-        Vector3D PA, PB, PC, PD;
 
-        if (lp_CONFIG->ortho_camera)
+        // ------------------------------------------------------------------
+        // Beginning of visible area calculations
+        // ------------------------------------------------------------------
+
+        // First we need the frustum volume
+        std::vector<Vector3D> frustum = cam->getFrustum();
+        const int nLinks = 18;
+        int fLink[][2] = { {0, 1}, {1, 2}, {2, 3}, {0, 2}, {1, 3},     // Front face
+                           {4, 5}, {5, 6}, {6, 7}, {4, 6}, {5, 7},     // Back face
+                           {0, 4}, {1, 5}, {2, 6}, {3, 7},             // Sides
+                           {0, 6}, {1, 7}, {0, 5}, {2, 7} };           // NB: fLink[i][0] < fLink[i][1] for all possible i
+
+        // Once we have the frustum volume, we compute the intersection between this volume and the map "plane" (y = ymin, then y = ymax)
+        // So we need to know what is below yref and what is above (maybe we'll have nothing to render)
+        std::vector<int> xMin;      // Those vectors will store the visible lines
+        std::vector<int> xMax;
+        xMin.resize(bloc_h, -1);    // Initializing values to -1 ensure we won't render blank lines
+        xMax.resize(bloc_h, -1);
+        int n = 0;
+        int x1 = bloc_w - 1;
+        int y1 = bloc_h - 1;
+        int x2 = 0;
+        int y2 = 0;
+        float ymin = 0.0f;
+        float ymax = 0.0f;
+        for(int i = 0 ; i < frustum.size() ; i++)
         {
-            A = B = C = D = cam->dir;
-            PA = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
-            PB = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
-            PC = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
-            PD = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
+            int x = (int)((frustum[i].x + map_w_d) * 0.0625f);
+            int y = (int)((frustum[i].z + map_h_d) * 0.0625f);
+            x1 = Math::Min(x1, x);
+            y1 = Math::Min(y1, y);
+            x2 = Math::Max(x2, x);
+            y2 = Math::Max(y2, y);
+            if (i == 0)
+                ymin = ymax = frustum[i].y;
+            ymin = Math::Min(ymin, frustum[i].y);
+            ymax = Math::Max(ymax, frustum[i].y);
         }
-        else
+        ymin = Math::Max(ymin, 0.0f);
+        ymax = Math::Min(ymax, 255.0f * H_DIV);
         {
-            A = cam->dir + cam->widthFactor * (-cam->side) - 0.75f * cam->up;
-            B = cam->dir + cam->widthFactor * (cam->side)  - 0.75f * cam->up;
-            C = cam->dir + cam->widthFactor * (cam->side)  + 0.75f * cam->up;
-            D = cam->dir + cam->widthFactor * (-cam->side) + 0.75f * cam->up;
-            PA = PB = PC = PD = cam->pos;
+            float my = ymin;
+            float My = ymax;
+            ymin = 0.9f * my + 0.1f * My;
+            ymax = 0.1f * my + 0.9f * My;
         }
-        float cx[4],cy[4];
-        if(A.y<0.0f) {
-            P = PA + PA.y / fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
-        else {
-            P = PA + 10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
-        if(B.y<0.0f) {
-            P = PB + PB.y / fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
-        else {
-            P = PB + 10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
-        if(C.y<0.0f) {
-            P = PC + PC.y / fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
-        else {
-            P = PC + 10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
-        if(D.y<0.0f) {
-            P = PD + PD.y / fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
-        else {
-            P = PD + 10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
-
-        int minx=bloc_w<<1,maxx=0;
-        int miny=bloc_h<<1,maxy=0;
-        for(i=0;i<4;i++)
+        for(int yRefIndex = 0 ; yRefIndex < 2 ; yRefIndex++)
         {
-            cx[i]=(cx[i]+0.5f*map_w)/16.0f;
-            cy[i]=(cy[i]+0.5f*map_h)/16.0f;
-            if(cx[i]<minx) minx=(int)cx[i];
-            if(cx[i]>maxx) maxx=(int)cx[i];
-            if(cy[i]<miny) miny=(int)cy[i];
-            if(cy[i]>maxy) maxy=(int)cy[i];
+            float yref;        // We must cover the extreme values to ensure everything that should be rendered will be rendered
+            switch(yRefIndex)
+            {
+            case 0: yref = ymin;    break;
+            case 1: yref = ymax;    break;
+            case 2: yref = (ymin + ymax) * 0.5f;    break;
+            };
+            bool bFrustum[8];
+            for(int i = 0 ; i < frustum.size() ; i++)
+                if (bFrustum[i] = (frustum[i].y > yref))
+                    n++;
+            if (n == 0) continue;
+
+            bool bLink[18];
+            for(int i = 0 ; i < nLinks ; i++)               // Detect intersection of links and map plane
+                bLink[i] = bFrustum[fLink[i][0]] ^ bFrustum[fLink[i][1]];
+            for(int i = 0 ; i < nLinks ; i++)
+            {
+                if (bLink[i])
+                {
+                    Vector3D A = frustum[ fLink[i][0] ];
+                    Vector3D B = frustum[ fLink[i][1] ];
+                    if (fabs(A.y - B.y) < 0.1f)
+                        continue;
+                    Vector3D I = A + (yref - A.y) / (B.y - A.y) * (B - A);
+                    int X0 = (int)((I.x + map_w_d) * 0.0625f);
+                    int Y0 = (int)((I.z + map_h_d) * 0.0625f);
+                    x1 = Math::Min(x1, X0);
+                    y1 = Math::Min(y1, Y0);
+                    x2 = Math::Max(x2, X0);
+                    y2 = Math::Max(y2, Y0);
+                    for(int e = i + 1 ; e < nLinks ; e++)
+                    {
+                        if (fLink[i][0] == fLink[e][0] || fLink[i][0] == fLink[e][1] ||
+                            fLink[i][1] == fLink[e][0] || fLink[i][1] == fLink[e][1])           // We have detected a border of the visible area
+                        {
+                            Vector3D C = frustum[ fLink[e][0] ];
+                            Vector3D D = frustum[ fLink[e][1] ];
+                            if (fabs(C.y - D.y) < 0.1f)
+                                continue;
+                            Vector3D J = C + (yref - C.y) / (D.y - C.y) * (D - C);
+                            int X1 = (int)((J.x + map_w_d) * 0.0625f);
+                            int Y1 = (int)((J.z + map_h_d) * 0.0625f);
+                            x1 = Math::Min(x1, X1);
+                            y1 = Math::Min(y1, Y1);
+                            x2 = Math::Max(x2, X1);
+                            y2 = Math::Max(y2, Y1);
+                            renderLine(xMin, xMax, X0, Y0, X1, Y1, bloc_w - 1);
+                        }
+                    }
+                }
+            }
         }
-        int y1=bloc_h,y2=0,x1=bloc_w,x2=0,mx,my;
-        float limit=cam->zfar*sqrtf(2.0f);
-        x1=(int)((cam->pos.x+0.5f*map_w-limit)/16.0f);
-        y1=(int)((cam->pos.z+0.5f*map_h-limit)/16.0f);
-        x2=(int)((cam->pos.x+0.5f*map_w+limit)/16.0f);
-        y2=(int)((cam->pos.z+0.5f*map_h+limit)/16.0f);
-        mx=(int)((cam->pos.x+0.5f*map_w)/16.0f);
-        my=(int)((cam->pos.z+0.5f*map_h)/16.0f);
-        if(x1<minx)
-            x1=minx;
-        if(x2>maxx)
-            x2=maxx;
-        if(y1<miny)
-            y1=miny;
-        if(y2>maxy)
-            y2=maxy;
-        if(x1>mx) x1=mx;
-        if(y1>my) y1=my;
-        if(x2<mx) x2=mx;
-        if(y2<my) y2=my;
+        if (n == 0)         // Nothing to render we can safely give up here
+        {
+            glPopMatrix();
+            gfx->unlock();
+            return;
+        }
+        x1 = Math::Max(x1, 0);
+        x2 = Math::Max(x2, 0);
+        y1 = Math::Max(y1, 0);
+        y2 = Math::Max(y2, 0);
+        x1 = Math::Min(x1, bloc_w - 1);
+        x2 = Math::Min(x2, bloc_w - 1);
+        y1 = Math::Min(y1, bloc_h - 1);
+        y2 = Math::Min(y2, bloc_h - 1);
 
-        if((abs(my-y2)<<4)>cam->zfar+64.0f)
-            y2 = my>y2 ? my - (int)(cam->zfar/16.0f)-4 : my + 4 + (int)(cam->zfar/16.0f);
-        if((abs(my-y1)<<4)>cam->zfar+64.0f)
-            y1 = my>y1 ? my - (int)(cam->zfar/16.0f)-4 : my + 4 + (int)(cam->zfar/16.0f);
-        if((abs(mx-x2)<<4)>cam->zfar+64.0f)
-            x2 = mx>x2 ? mx - (int)(cam->zfar/16.0f)-4 : mx + 4 + (int)(cam->zfar/16.0f);
-        if((abs(mx-x1)<<4)>cam->zfar+64.0f)
-            x1 = mx>x1 ? mx - (int)(cam->zfar/16.0f)-4 : mx + 4 + (int)(cam->zfar/16.0f);
-
-        if(y1<0) y1=0;
-        if(y2<0) y2=0;
-        if(y1>=bloc_h) y1=bloc_h-1;
-        if(y2>=bloc_h) y2=bloc_h-1;
-        if(x1<0) x1=0;
-        if(x2<0) x2=0;
-        if(x1>=bloc_w) x1=bloc_w-1;
-        if(x2>=bloc_w) x2=bloc_w-1;
-
-        y1 -= 3;
-        if (y1 < 0)
-            y1 = 0;
-
-        A = (cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side);
-        A.unit();
-
-        float ref = sq( A%cam->dir );
-        // Here we use an approximation of the right formula, assuming M should remain small compared to the rest (remember we use squared values ...)
-        // the right formula that gives the ref0 value we want is : cosf( a ) - r / D * sqrtf( 1 / tan( a ) )
-        // where 2 * a is the camera aperture angle, 2 * r the diameter of a map bloc and D the distance from the camera to the bloc
-        // with ref = cosf( a )² we compute: ref0 ~ ref - 2 * r / D * sqrtf( 1 / tan( a ) ) = ref - M / D
-        float M = H_DIV * 512.0f * sqrtf( (A%cam->dir) / sqrtf( 1.0f - sq(A%cam->dir) ) );    // H_DIV * 512 because it's twice H_DIV * 256, maximum height of a map bloc
-        float dhm=0.5f*map_h;
-        float dwm=0.5f*map_w;
+        // ------------------------------------------------------------------
+        // End of visible area calculations
+        // ------------------------------------------------------------------
 
         if(!FLAT)
-            glColor4f(1.0f,1.0f,1.0f,1.0f);
+            glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
         Vector3D flat[9];
         if (FLAT)
         {
             flat[0].x=0.0f;		flat[0].y=niv+cosf(t)*0.5f;			flat[0].z=0.0f;
-            flat[1].x=8.0f;		flat[1].y=niv+cosf(t+1.0f)*0.5f;		flat[1].z=0.0f;
+            flat[1].x=8.0f;		flat[1].y=niv+cosf(t+1.0f)*0.5f;    flat[1].z=0.0f;
             flat[2].x=16.0f;	flat[2].y=flat[0].y;				flat[2].z=0.0f;
-            flat[3].x=0.0f;		flat[3].y=niv+cosf(t+1.5f)*0.5f;		flat[3].z=8.0f;
-            flat[4].x=8.0f;		flat[4].y=niv+cosf(t+2.5f)*0.5f;		flat[4].z=8.0f;
+            flat[3].x=0.0f;		flat[3].y=niv+cosf(t+1.5f)*0.5f;	flat[3].z=8.0f;
+            flat[4].x=8.0f;		flat[4].y=niv+cosf(t+2.5f)*0.5f;	flat[4].z=8.0f;
             flat[5].x=16.0f;	flat[5].y=flat[3].y;				flat[5].z=8.0f;
             flat[6].x=0.0f;		flat[6].y=flat[0].y;				flat[6].z=16.0f;
             flat[7].x=8.0f;		flat[7].y=flat[1].y;				flat[7].z=16.0f;
@@ -1439,13 +1574,13 @@ namespace TA3D
         }
 
         if (FLAT)
-            glTranslatef(cosf(t),0.0f,sinf(t));
-        GLuint old_tex=bloc[0].tex;
+            glTranslatef(cosf(t), 0.0f, sinf(t));
+        GLuint old_tex = bloc[0].tex;
         if (!depth_only)
             glBindTexture(GL_TEXTURE_2D,old_tex);
         if (!FLAT && check_visibility)
         {
-            for(y = oy1; y <= oy2; ++y)
+            for(int y = oy1; y <= oy2; ++y)
                 memset(view[y] + ox1, 0, ox2 - ox1 + 1);
             features.min_idx = features.nb_features - 1;
             features.max_idx = 0;
@@ -1453,14 +1588,13 @@ namespace TA3D
             ox1=x1;	ox2=x2;
             oy1=y1;	oy2=y2;
         }
-        else
-            if (!check_visibility)
-            {
-                x1=ox1;	x2=ox2;
-                y1=oy1;	y2=oy2;
-                for(int i=0;i<features.list_size;i++)
-                    features.feature[features.list[i]].draw=true;
-            }
+        else if (!check_visibility)
+        {
+            x1 = ox1;	x2 = ox2;
+            y1 = oy1;	y2 = oy2;
+            for(int i = 0 ; i < features.list_size ; i++)
+                features.feature[features.list[i]].draw = true;
+        }
         int lavaprob = (int)(1000 * dt);
         Vector3D buf_p[4500]; // Tampon qui accumule les blocs pour les dessiner en chaîne
         float	buf_t[9000];
@@ -1495,564 +1629,468 @@ namespace TA3D
         glClientActiveTextureARB(GL_TEXTURE0_ARB );
         glTexCoordPointer(2, GL_FLOAT, 0, buf_t);
 
-        int	ox=x1;
-
-        if(low_def_view)							// draw the low detail map
-        {
-            detail_shader.off();
-            glActiveTextureARB(GL_TEXTURE1_ARB );
-            glDisable(GL_TEXTURE_2D);
-            glActiveTextureARB(GL_TEXTURE0_ARB );
-
-            i=0;
-            for (y = 0; y <= low_h; ++y)
-            {
-                int Y = y * (bloc_h_db - 2) / low_h;
-                for (x = 0; x <= low_w; ++x)
-                {
-                    int X = x * (bloc_w_db - 2) / low_w;
-                    int Z;
-                    Z=Y+get_zdec_notest(X,Y);					if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                    if (!(SurfaceByte(view_map,X>>1,Z>>1) & player_mask))	low_col[i<<2]=low_col[(i<<2)+1]=low_col[(i<<2)+2]=low_col[(i<<2)+3]=0;
-                    else
-                    {
-                        low_col[(i<<2)+3] = 255;
-                        if (!(SurfaceByte(sight_map,X>>1,Z>>1) & player_mask))
-                            low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 127;
-                        else
-                            low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 255;
-                    }
-                    ++i;
-                }
-            }
-            glEnableClientState(GL_COLOR_ARRAY);
-            glColorPointer(4,GL_UNSIGNED_BYTE,0,low_col);
-            if (FLAT)
-            {
-                glTranslatef(0.0f,niv,0.0f);
-                glVertexPointer( 3, GL_FLOAT, 0, low_vtx_flat);
-            }
-            else
-                glVertexPointer( 3, GL_FLOAT, 0, low_vtx);
-            glTexCoordPointer(2, GL_FLOAT, 0, low_tcoord);
-            glBindTexture(GL_TEXTURE_2D,low_tex);
-            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
-        }
-
-        if (low_def_view)
-        {
-            memset(view[0], 1, bloc_w * bloc_h);
-            ox1 = 0;
-            ox2 = bloc_w - 1;
-            oy1 = 0;
-            oy2 = bloc_h - 1;
-        }
+        int	ox = x1;
 
         Vector3D T;
         Vector3D V;
-        if (!low_def_view)
+        for (int y = y1 ; y <= y2 ; ++y) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
         {
-            for (y = y1; y <= y2; ++y) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
+            int pre_y = y<< 4;
+            int Y = y << 1;
+            int pre_y2 = y * bloc_w;
+            T.x = -map_w_d;
+            T.y = 0.0f;
+            T.z = pre_y - map_h_d;
+            buf_size = 0;
+            ox = x1;
+            bool was_clean = false;
+
+            int rx1 = xMin[y];
+            int rx2 = xMax[y];
+            if (rx1 == -1 || rx2 == -1)
+                continue;
+            if (rx1 > 0)
+                rx1--;
+            if (rx2 < bloc_w - 1)
+                rx1++;
+
+            for (int x = rx1 ; x <= rx2 ; ++x)
             {
-                int pre_y = y<< 4;
-                int Y = y << 1;
-                int pre_y2 = y * bloc_w;
-                T.x = -dwm;
-                T.y = 0.0f;
-                T.z = pre_y - dhm;
-                buf_size = 0;
-                ox = x1;
-                bool was_clean = false;
-
-                int rx1 = x1;
-                int rx2 = x2;
-
+                int X = x << 1;
                 if (!FLAT && check_visibility)
                 {
-                    for (; rx1 <= x2 ; ++rx1)
+                    if (!(SurfaceByte(view_map,x,y) & player_mask))
                     {
-                        int X = rx1<<1;
-                        V.x = (rx1<<4) - dwm;
-                        V.y = ph_map[Y|1][X|1];
-                        V.z = pre_y - dhm + get_zdec_notest(X|1,Y|1);
-                        V = V - cam->pos;
-                        if(fabsf(V%cam->dir) > cam->zfar)
+                        if (water)
                         {
-                            view[y][rx1] = 0;
-                            continue;
+                            if (map_data[Y][X].underwater && map_data[Y|1][X].underwater && map_data[Y][X|1].underwater && map_data[Y|1][X|1].underwater)
+                                view[y][x] = 2;
+                            else
+                                view[y][x] = 3;
                         }
-                        float d = V.sq();
-                        if(d > 16384.0f)
-                            if(sq(V % cam->dir) < ref * d - M * sqrtf(d))
-                            {
-                                view[y][rx1] = 0;
-                                continue;
-                            }
-                        break;
                     }
-                    for (; rx2 >= rx1; --rx2)
+                    else
                     {
-                        int X = rx2<<1;
-                        V.x = (rx2<<4) - dwm;
-                        V.y = ph_map[Y|1][X|1];
-                        V.z = pre_y - dhm + get_zdec_notest(X|1,Y|1);
-                        V = V - cam->pos;
-                        if(fabsf(V % cam->dir) > cam->zfar)
+                        if (!(SurfaceByte(sight_map,x,y) & player_mask))
                         {
-                            view[y][rx2] = 0;
-                            continue;
+                            if (map_data[Y][X].underwater || map_data[Y|1][X].underwater || map_data[Y][X|1].underwater || map_data[Y|1][X|1].underwater)
+                                view[y][x] = 2;
+                            else
+                                view[y][x] = 3;
                         }
-                        float d = V.sq();
-                        if(d > 16384.0f)
-                            if(sq(V % cam->dir) < ref * d - M * sqrtf(d))
+                        else
+                            view[y][x] = 1;
+                        check_unit_visibility(X, Y);
+                        check_unit_visibility(X, Y|1);
+                        check_unit_visibility(X|1, Y);
+                        check_unit_visibility(X|1, Y|1);
+
+                        if (map_data[Y][X].stuff >= 0 && map_data[Y][X].stuff < features.max_features) // Flag are visible objects in that bloc
+                        {
+                            if (features.feature[map_data[Y][X].stuff].type < 0)
+                                map_data[Y][X].stuff = -1;
+                            else
                             {
-                                view[y][rx2] = 0;
-                                continue;
+                                features.feature[map_data[Y][X].stuff].draw = true;
+                                features.feature[map_data[Y][X].stuff].grey = (view[y][x]&2) == 2;
+                                features.list[features.list_size++] = map_data[Y][X].stuff;
                             }
-                        break;
+                        }
+                        if (map_data[Y][X|1].stuff >= 0 && map_data[Y][X|1].stuff < features.max_features)
+                        {
+                            if (features.feature[map_data[Y][X|1].stuff].type < 0)
+                                map_data[Y][X|1].stuff = -1;
+                            else
+                            {
+                                features.feature[map_data[Y][X|1].stuff].draw = true;
+                                features.feature[map_data[Y][X|1].stuff].grey = (view[y][x]&2) == 2;
+                                features.list[features.list_size++] = map_data[Y][X|1].stuff;
+                            }
+                        }
+                        if (map_data[Y|1][X].stuff >= 0 && map_data[Y|1][X].stuff < features.max_features)
+                        {
+                            if (features.feature[map_data[Y|1][X].stuff].type < 0)
+                                map_data[Y|1][X].stuff = -1;
+                            else
+                            {
+                                features.feature[map_data[Y|1][X].stuff].draw = true;
+                                features.feature[map_data[Y|1][X].stuff].grey = (view[y][x]&2) == 2;
+                                features.list[features.list_size++] = map_data[Y|1][X].stuff;
+                            }
+                        }
+                        if (map_data[Y|1][X|1].stuff >= 0 && map_data[Y|1][X|1].stuff < features.max_features)
+                        {
+                            if (features.feature[map_data[Y|1][X|1].stuff].type < 0)
+                                map_data[Y|1][X|1].stuff = -1;
+                            else
+                            {
+                                features.feature[map_data[Y|1][X|1].stuff].draw = true;
+                                features.feature[map_data[Y|1][X|1].stuff].grey = (view[y][x]&2) == 2;
+                                features.list[features.list_size++] = map_data[Y|1][X|1].stuff;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (view[y][x] == 0)
+                        continue;
+                    if (view[y][x] == 2 && !draw_uw)
+                        continue;		// Jump this if it is under water and don't have to be drawn
+                    if (view[y][x] == 3)
+                        view[y][x] = 2;
+                    if (view[y][x]==2 && FLAT)
+                        view[y][x]=0;
+                    if (cam->mirror && map_data[Y][X].flat)
+                        continue;
+                }
+                // Si le joueur ne peut pas voir ce morceau, on ne le dessine pas en clair
+                T.x += x << 4;
+                int i = bmap[y][x];
+                if (FLAT)
+                {
+                    bloc[i].point = lvl[pre_y2 + x];
+                    if (bloc[i].point == NULL || bloc[i].point[0].y < niv || bloc[i].point[1].y < niv || bloc[i].point[2].y < niv ||
+                        bloc[i].point[3].y < niv || bloc[i].point[4].y < niv || bloc[i].point[5].y < niv ||
+                        bloc[i].point[6].y < niv || bloc[i].point[7].y < niv || bloc[i].point[8].y < niv)
+                        bloc[i].point = flat;
+                    else
+                    {
+                        T.x -= x << 4;
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (check_visibility)
+                    {
+                        bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
+
+                        if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
+                            && (Math::RandFromTable() % 1000000) <= lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
+                        {
+                            Vector3D POS( (x<<4) - map_w_d + 8.0f, sealvl - 5.0f, pre_y - map_h_d + 8.0f );
+                            V.x = (((int)(Math::RandFromTable() % 201)) - 100);
+                            V.y = (((int)(Math::RandFromTable() % 51)) + 50);
+                            V.z = (((int)(Math::RandFromTable() % 201)) - 100);
+                            V.unit();
+                            particle_engine.emit_lava(POS, V, 1, 10, (Math::RandFromTable() % 1000) * 0.01f + 30.0f);
+                        }
+                        else
+                        {
+                            if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
+                                (h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
+                                (h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
+                                (Math::RandFromTable()%4000) <= lavaprob &&
+                                (SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves )
+                            {
+                                Vector3D POS;
+                                POS.x = (x << 4) - map_w_d + 8.0f;
+                                POS.z = pre_y - map_h_d + 8.0f;
+                                POS.y = sealvl + 0.1f;
+                                Vector3D grad;
+                                grad.y = 0.0f;
+                                grad.x = 0.0f;
+                                grad.z = 0.0f;
+                                if (h_map[Y][X] >= sealvl)
+                                {
+                                    grad.x -= h_map[Y][X] - sealvl;
+                                    grad.z += h_map[Y][X] - sealvl;
+                                }
+                                if (h_map[Y|1][X] >= sealvl)
+                                {
+                                    grad.x -= h_map[Y|1][X] - sealvl;
+                                    grad.z -= h_map[Y|1][X] - sealvl;
+                                }
+                                if (h_map[Y][X|1] >= sealvl)
+                                {
+                                    grad.x += h_map[Y][X|1] - sealvl;
+                                    grad.z += h_map[Y][X|1] - sealvl;
+                                }
+                                if (h_map[Y|1][X|1] >= sealvl)
+                                {
+                                    grad.x += h_map[Y|1][X|1] - sealvl;
+                                    grad.z -= h_map[Y|1][X|1] - sealvl;
+                                }
+                                float grad_len = grad.sq();
+                                if (grad_len > 0.0f)
+                                {
+                                    grad = (1.0f / sqrtf( grad_len )) * grad;
+                                    fx_manager.addWave(POS, RAD2DEG * ((grad.x >= 0.0f) ? -acosf(grad.z) : acosf(grad.z)));
+                                }
+                            }
+                        }
+                    }
+                    bloc[i].point = lvl[pre_y2+x];
+                    if (bloc[i].point == NULL)
+                    {
+                        lvl[pre_y2+x] = bloc[i].point = new Vector3D[9];
+                        if(tnt)
+                        {
+                            bloc[i].point[0].x=T.x;			bloc[i].point[0].z=get_zdec(X,Y)+T.z;
+                            bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=get_zdec(X|1,Y)+T.z;
+                            bloc[i].point[2].x=16.0f+T.x;	bloc[i].point[2].z=get_zdec(X+2,Y)+T.z;
+                            bloc[i].point[3].x=T.x;			bloc[i].point[3].z=8.0f+get_zdec(X,Y|1)+T.z;
+                            bloc[i].point[4].x=8.0f+T.x;	bloc[i].point[4].z=8.0f+get_zdec(X|1,Y|1)+T.z;
+                            bloc[i].point[5].x=16.0f+T.x;	bloc[i].point[5].z=8.0f+get_zdec(X+2,Y|1)+T.z;
+                            bloc[i].point[6].x=T.x;			bloc[i].point[6].z=16.0f+get_zdec(X,Y+2)+T.z;
+                            bloc[i].point[7].x=8.0f+T.x;	bloc[i].point[7].z=16.0f+get_zdec(X|1,Y+2)+T.z;
+                            bloc[i].point[8].x=16.0f+T.x;	bloc[i].point[8].z=16.0f+get_zdec(X+2,Y+2)+T.z;
+                            bloc[i].point[0].y=get_nh(X,Y);
+                            bloc[i].point[1].y=get_nh(X|1,Y);
+                            bloc[i].point[2].y=get_nh(X+2,Y);
+                            bloc[i].point[3].y=get_nh(X,Y|1);
+                            bloc[i].point[4].y=get_nh(X|1,Y|1);
+                            bloc[i].point[5].y=get_nh(X+2,Y|1);
+                            bloc[i].point[6].y=get_nh(X,Y+2);
+                            bloc[i].point[7].y=get_nh(X|1,Y+2);
+                            bloc[i].point[8].y=get_nh(X+2,Y+2);
+                        }
+                        else
+                        {
+                            bloc[i].point[0].x=T.x;			bloc[i].point[0].z=T.z;
+                            bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=T.z;
+                            bloc[i].point[2].x=16.0f+T.x;	bloc[i].point[2].z=T.z;
+                            bloc[i].point[3].x=T.x;			bloc[i].point[3].z=8.0f+T.z;
+                            bloc[i].point[4].x=8.0f+T.x;	bloc[i].point[4].z=8.0f+T.z;
+                            bloc[i].point[5].x=16.0f+T.x;	bloc[i].point[5].z=8.0f+T.z;
+                            bloc[i].point[6].x=T.x;			bloc[i].point[6].z=16.0f+T.z;
+                            bloc[i].point[7].x=8.0f+T.x;	bloc[i].point[7].z=16.0f+T.z;
+                            bloc[i].point[8].x=16.0f+T.x;	bloc[i].point[8].z=16.0f+T.z;
+                            bloc[i].point[0].y=get_h(X,Y);
+                            bloc[i].point[1].y=get_h(X|1,Y);
+                            bloc[i].point[2].y=get_h(X+2,Y);
+                            bloc[i].point[3].y=get_h(X,Y|1);
+                            bloc[i].point[4].y=get_h(X|1,Y|1);
+                            bloc[i].point[5].y=get_h(X+2,Y|1);
+                            bloc[i].point[6].y=get_h(X,Y+2);
+                            bloc[i].point[7].y=get_h(X|1,Y+2);
+                            bloc[i].point[8].y=get_h(X+2,Y+2);
+                        }
+                        map_data[Y][X].flat = true;
+                        for (byte f = 1; f < 9; ++f)			// Check if it's flat
+                        {
+                            if (bloc[i].point[0].y != bloc[i].point[f].y)
+                            {
+                                map_data[Y][X].flat = false;
+                                break;
+                            }
+                        }
                     }
                 }
 
-                for (x = rx1; x <= rx2; ++x)
+                if (bloc[i].tex != old_tex || buf_size>=500 || ox + 1 < x)
                 {
-                    int X = x<< 1;
-                    if (!FLAT && check_visibility)
+                    if (buf_size > 0)
+                        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
+                    buf_size = 0;
+                    index_size = 0;
+                    was_flat = false;
+                    if (old_tex != bloc[i].tex)
                     {
-                        if (!(SurfaceByte(view_map,x,y) & player_mask))
-                        {
-                            if (water)
-                            {
-                                if (map_data[Y][X].underwater && map_data[Y|1][X].underwater && map_data[Y][X|1].underwater && map_data[Y|1][X|1].underwater)
-                                    view[y][x] = 2;
-                                else
-                                    view[y][x] = 3;
-                            }
-                        }
-                        else
-                        {
-                            if (!(SurfaceByte(sight_map,x,y) & player_mask))
-                            {
-                                if (map_data[Y][X].underwater || map_data[Y|1][X].underwater || map_data[Y][X|1].underwater || map_data[Y|1][X|1].underwater)
-                                    view[y][x]=2;
-                                else
-                                    view[y][x]=3;
-                            }
-                            else
-                                view[y][x]=1;
-                            check_unit_visibility(X, Y);
-                            check_unit_visibility(X, Y|1);
-                            check_unit_visibility(X|1, Y);
-                            check_unit_visibility(X|1, Y|1);
+                        old_tex=bloc[i].tex;
+                        glBindTexture(GL_TEXTURE_2D,bloc[i].tex);
+                    }
+                }
+                ox = x;
 
-                            if (map_data[Y][X].stuff>=0 && map_data[Y][X].stuff<features.max_features) // Indique comme affichables les objets présents sur le bloc
-                            {
-                                if (features.feature[map_data[Y][X].stuff].type<0)
-                                    map_data[Y][X].stuff=-1;
-                                else
-                                {
-                                    features.feature[map_data[Y][X].stuff].draw=true;
-                                    features.feature[map_data[Y][X].stuff].grey=(view[y][x]&2)==2;
-                                    features.list[features.list_size++]=map_data[Y][X].stuff;
-                                }
-                            }
-                            if (map_data[Y][X|1].stuff>=0 && map_data[Y][X|1].stuff<features.max_features)
-                            {
-                                if (features.feature[map_data[Y][X|1].stuff].type<0)
-                                    map_data[Y][X|1].stuff=-1;
-                                else
-                                {
-                                    features.feature[map_data[Y][X|1].stuff].draw=true;
-                                    features.feature[map_data[Y][X|1].stuff].grey=(view[y][x]&2)==2;
-                                    features.list[features.list_size++]=map_data[Y][X|1].stuff;
-                                }
-                            }
-                            if (map_data[Y|1][X].stuff>=0 && map_data[Y|1][X].stuff<features.max_features)
-                            {
-                                if (features.feature[map_data[Y|1][X].stuff].type<0)
-                                    map_data[Y|1][X].stuff=-1;
-                                else
-                                {
-                                    features.feature[map_data[Y|1][X].stuff].draw=true;
-                                    features.feature[map_data[Y|1][X].stuff].grey=(view[y][x]&2)==2;
-                                    features.list[features.list_size++]=map_data[Y|1][X].stuff;
-                                }
-                            }
-                            if (map_data[Y|1][X|1].stuff>=0 && map_data[Y|1][X|1].stuff<features.max_features)
-                            {
-                                if (features.feature[map_data[Y|1][X|1].stuff].type<0)
-                                    map_data[Y|1][X|1].stuff=-1;
-                                else
-                                {
-                                    features.feature[map_data[Y|1][X|1].stuff].draw=true;
-                                    features.feature[map_data[Y|1][X|1].stuff].grey=(view[y][x]&2)==2;
-                                    features.list[features.list_size++]=map_data[Y|1][X|1].stuff;
-                                }
-                            }
-                        }
-                    }
-                    else
+                uint16 buf_pos = buf_size * 9;
+                if (!FLAT)
+                {
+                    for (byte e = 0; e < 9; ++e) // Copie le bloc
+                        buf_p[buf_pos+e]=bloc[i].point[e];
+                }
+                else
+                {
+                    for (byte e = 0; e < 9; ++e) // Copie le bloc
                     {
-                        if (view[y][x] == 0)
-                            continue;
-                        if (view[y][x] == 2 && !draw_uw)
-                            continue;		// Jump this if it is under water and don't have to be drawn
-                        if (view[y][x] == 3)
-                            view[y][x] = 2;
-                        if (view[y][x]==2 && FLAT)
-                            view[y][x]=0;
-                        if (cam->mirror && map_data[Y][X].flat)
-                            continue;
+                        buf_p[buf_pos + e].x = flat[e].x + T.x;
+                        buf_p[buf_pos + e].y = flat[e].y;
+                        buf_p[buf_pos + e].z = flat[e].z + T.z;
                     }
-                    if (low_def_view)
-                        continue;
-                    // Si le joueur ne peut pas voir ce morceau, on ne le dessine pas en clair
-                    T.x+=x<<4;
-                    i=bmap[y][x];
-                    if (FLAT)
-                    {
-                        bloc[i].point=lvl[pre_y2+x];
-                        if (bloc[i].point==NULL || bloc[i].point[0].y<niv || bloc[i].point[1].y<niv || bloc[i].point[2].y<niv ||
-                           bloc[i].point[3].y<niv || bloc[i].point[4].y<niv || bloc[i].point[5].y<niv ||
-                           bloc[i].point[6].y<niv || bloc[i].point[7].y<niv || bloc[i].point[8].y<niv)
-                            bloc[i].point=flat;
-                        else
-                        {
-                            T.x-=x<<4;
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (check_visibility)
-                        {
-                            bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
+                }
 
-                            if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
-                                && (Math::RandFromTable()%1000000)<=lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
-                            {
-                                Vector3D POS( (x<<4) - dwm + 8.0f, sealvl - 5.0f, pre_y - dhm + 8.0f );
-                                V.x = ((Math::RandFromTable()%201)-100);
-                                V.y = ((Math::RandFromTable()%51)+50);
-                                V.z = ((Math::RandFromTable()%201)-100);
-                                V.unit();
-                                particle_engine.emit_lava(POS,V,1,10,(Math::RandFromTable()%1000)*0.01f+30.0f);
-                            }
-                            else
-                            {
-                                if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
-                                    (h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
-                                    (h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
-                                    (Math::RandFromTable()%4000)<=lavaprob &&
-                                    (SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves )
-                                {
-                                    Vector3D POS;
-                                    POS.x = (x << 4) - dwm + 8.0f;
-                                    POS.z = pre_y - dhm + 8.0f;
-                                    POS.y = sealvl + 0.1f;
-                                    Vector3D grad;
-                                    grad.y = 0.0f;
-                                    grad.x = 0.0f;
-                                    grad.z = 0.0f;
-                                    if (h_map[Y][X] >= sealvl)
-                                    {
-                                        grad.x -= h_map[Y][X] - sealvl;
-                                        grad.z += h_map[Y][X] - sealvl;
-                                    }
-                                    if (h_map[Y|1][X] >= sealvl)
-                                    {
-                                        grad.x -= h_map[Y|1][X] - sealvl;
-                                        grad.z -= h_map[Y|1][X] - sealvl;
-                                    }
-                                    if (h_map[Y][X|1] >= sealvl)
-                                    {
-                                        grad.x += h_map[Y][X|1] - sealvl;
-                                        grad.z += h_map[Y][X|1] - sealvl;
-                                    }
-                                    if (h_map[Y|1][X|1] >= sealvl)
-                                    {
-                                        grad.x += h_map[Y|1][X|1] - sealvl;
-                                        grad.z -= h_map[Y|1][X|1] - sealvl;
-                                    }
-                                    float grad_len = grad.sq();
-                                    if (grad_len > 0.0f)
-                                    {
-                                        grad = (1.0f / sqrtf( grad_len )) * grad;
-                                        fx_manager.addWave(POS, RAD2DEG * ((grad.x >= 0.0f) ? -acosf(grad.z) : acosf(grad.z)));
-                                    }
-                                }
-                            }
-                        }
-                        bloc[i].point=lvl[pre_y2+x];
-                        if (bloc[i].point==NULL)
-                        {
-                            lvl[pre_y2+x] = bloc[i].point = new Vector3D[9];
-                            if(tnt)
-                            {
-                                bloc[i].point[0].x=T.x;			bloc[i].point[0].z=get_zdec(X,Y)+T.z;
-                                bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=get_zdec(X|1,Y)+T.z;
-                                bloc[i].point[2].x=16.0f+T.x;	bloc[i].point[2].z=get_zdec(X+2,Y)+T.z;
-                                bloc[i].point[3].x=T.x;			bloc[i].point[3].z=8.0f+get_zdec(X,Y|1)+T.z;
-                                bloc[i].point[4].x=8.0f+T.x;	bloc[i].point[4].z=8.0f+get_zdec(X|1,Y|1)+T.z;
-                                bloc[i].point[5].x=16.0f+T.x;	bloc[i].point[5].z=8.0f+get_zdec(X+2,Y|1)+T.z;
-                                bloc[i].point[6].x=T.x;			bloc[i].point[6].z=16.0f+get_zdec(X,Y+2)+T.z;
-                                bloc[i].point[7].x=8.0f+T.x;	bloc[i].point[7].z=16.0f+get_zdec(X|1,Y+2)+T.z;
-                                bloc[i].point[8].x=16.0f+T.x;	bloc[i].point[8].z=16.0f+get_zdec(X+2,Y+2)+T.z;
-                                bloc[i].point[0].y=get_nh(X,Y);
-                                bloc[i].point[1].y=get_nh(X|1,Y);
-                                bloc[i].point[2].y=get_nh(X+2,Y);
-                                bloc[i].point[3].y=get_nh(X,Y|1);
-                                bloc[i].point[4].y=get_nh(X|1,Y|1);
-                                bloc[i].point[5].y=get_nh(X+2,Y|1);
-                                bloc[i].point[6].y=get_nh(X,Y+2);
-                                bloc[i].point[7].y=get_nh(X|1,Y+2);
-                                bloc[i].point[8].y=get_nh(X+2,Y+2);
-                            }
-                            else
-                            {
-                                bloc[i].point[0].x=T.x;			bloc[i].point[0].z=T.z;
-                                bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=T.z;
-                                bloc[i].point[2].x=16.0f+T.x;	bloc[i].point[2].z=T.z;
-                                bloc[i].point[3].x=T.x;			bloc[i].point[3].z=8.0f+T.z;
-                                bloc[i].point[4].x=8.0f+T.x;	bloc[i].point[4].z=8.0f+T.z;
-                                bloc[i].point[5].x=16.0f+T.x;	bloc[i].point[5].z=8.0f+T.z;
-                                bloc[i].point[6].x=T.x;			bloc[i].point[6].z=16.0f+T.z;
-                                bloc[i].point[7].x=8.0f+T.x;	bloc[i].point[7].z=16.0f+T.z;
-                                bloc[i].point[8].x=16.0f+T.x;	bloc[i].point[8].z=16.0f+T.z;
-                                bloc[i].point[0].y=get_h(X,Y);
-                                bloc[i].point[1].y=get_h(X|1,Y);
-                                bloc[i].point[2].y=get_h(X+2,Y);
-                                bloc[i].point[3].y=get_h(X,Y|1);
-                                bloc[i].point[4].y=get_h(X|1,Y|1);
-                                bloc[i].point[5].y=get_h(X+2,Y|1);
-                                bloc[i].point[6].y=get_h(X,Y+2);
-                                bloc[i].point[7].y=get_h(X|1,Y+2);
-                                bloc[i].point[8].y=get_h(X+2,Y+2);
-                            }
-                            map_data[Y][X].flat = true;
-                            for (byte f = 1; f < 9; ++f)			// Check if it's flat
-                            {
-                                if (bloc[i].point[0].y != bloc[i].point[f].y)
-                                {
-                                    map_data[Y][X].flat = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (bloc[i].tex != old_tex || buf_size>=500 || ox + 1 < x)
+                uint8 *color=buf_c+(buf_pos<<2);
+                if( FLAT )
+                    for(int e=0;e<36;e+=4)
                     {
-                        if (buf_size > 0)
-                            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
-                        buf_size = 0;
-                        index_size = 0;
-                        was_flat = false;
-                        if (old_tex != bloc[i].tex)
-                        {
-                            old_tex=bloc[i].tex;
-                            glBindTexture(GL_TEXTURE_2D,bloc[i].tex);
-                        }
-                    }
-                    ox=x;
+                    color[e] = color[e|1] = color[e|2] = 255;
+                    color[e|3] = 192;
+                }
+                else
+                    for(int e=0;e<36;e+=4)
+                        color[e]=color[e|1]=color[e|2]=color[e|3]=255;
 
-                    uint16 buf_pos = buf_size * 9;
-                    if (!FLAT)
+                bool is_clean = true;
+                if( fog_of_war != FOW_DISABLED )
+                {
+                    int Z;
+                    int grey = 0;
+                    int black = 0;
+                    Z=Y+get_zdec_notest(X,Y);									    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                    if(!(SurfaceByte(view_map,x,Z>>1) & player_mask))				{	color[0]=color[1]=color[2]=0;	black++;	}
+                    else if(!(SurfaceByte(sight_map,x,Z>>1) & player_mask))		    {	color[0]=color[1]=color[2]=127;	grey++;		}
+                    if( X + 2 < bloc_w_db )
                     {
-                        for (byte e = 0; e < 9; ++e) // Copie le bloc
-                            buf_p[buf_pos+e]=bloc[i].point[e];
+                        Z=Y+get_zdec_notest(X+2,Y);								    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                        if(!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[8]=color[9]=color[10]=0;		black++;	}
+                        else if(!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[8]=color[9]=color[10]=127;	grey++;		}
                     }
-                    else
+                    if( Y + 2 < bloc_h_db )
                     {
-                        for (byte e = 0; e < 9; ++e) // Copie le bloc
-                        {
-                            buf_p[buf_pos + e].x = flat[e].x + T.x;
-                            buf_p[buf_pos + e].y = flat[e].y;
-                            buf_p[buf_pos + e].z = flat[e].z + T.z;
-                        }
-                    }
-
-                    uint8 *color=buf_c+(buf_pos<<2);
-                    if( FLAT )
-                        for(int e=0;e<36;e+=4)
-                        {
-                            color[e] = color[e|1] = color[e|2] = 255;
-                            color[e|3] = 192;
-                        }
-                    else
-                        for(int e=0;e<36;e+=4)
-                            color[e]=color[e|1]=color[e|2]=color[e|3]=255;
-
-                    bool is_clean = true;
-                    if( fog_of_war != FOW_DISABLED )
-                    {
-                        int Z;
-                        int grey = 0;
-                        int black = 0;
-                        Z=Y+get_zdec_notest(X,Y);									    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                        if(!(SurfaceByte(view_map,x,Z>>1) & player_mask))				{	color[0]=color[1]=color[2]=0;	black++;	}
-                        else if(!(SurfaceByte(sight_map,x,Z>>1) & player_mask))		    {	color[0]=color[1]=color[2]=127;	grey++;		}
+                        Z=Y+2+get_zdec_notest(X,Y+2);							if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                        if(!(SurfaceByte(view_map,x,Z>>1) & player_mask))		{	color[24]=color[25]=color[26]=0;	black++;	}
+                        else if(!(SurfaceByte(sight_map,x,Z>>1) & player_mask))	{	color[24]=color[25]=color[26]=127;	grey++;		}
                         if( X + 2 < bloc_w_db )
                         {
-                            Z=Y+get_zdec_notest(X+2,Y);								    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                            if(!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[8]=color[9]=color[10]=0;		black++;	}
-                            else if(!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[8]=color[9]=color[10]=127;	grey++;		}
-                        }
-                        if( Y + 2 < bloc_h_db )
-                        {
-                            Z=Y+2+get_zdec_notest(X,Y+2);							if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                            if(!(SurfaceByte(view_map,x,Z>>1) & player_mask))		{	color[24]=color[25]=color[26]=0;	black++;	}
-                            else if(!(SurfaceByte(sight_map,x,Z>>1) & player_mask))	{	color[24]=color[25]=color[26]=127;	grey++;		}
-                            if( X + 2 < bloc_w_db )
-                            {
-                                Z=Y+2+get_zdec_notest(X+2,Y+2);							    if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                                if(!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[32]=color[33]=color[34]=0;	black++;	}
-                                else if(!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[32]=color[33]=color[34]=127;	grey++;		}
-                            }
-                        }
-                        is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );
-                        if( !FLAT && !map_data[Y][X].flat && !lp_CONFIG->low_definition_map )
-                        {
-                            color[4]=color[5]=color[6]= (color[0] + color[8]) >> 1;
-                            color[12]=color[13]=color[14]= (color[0] + color[24]) >> 1;
-                            color[20]=color[21]=color[22]= (color[8] + color[32]) >> 1;
-                            color[16]=color[17]=color[18]= (color[12] + color[20]) >> 1;
-                            color[28]=color[29]=color[30]= (color[24] + color[32]) >> 1;
+                            Z=Y+2+get_zdec_notest(X+2,Y+2);							    if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                            if(!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[32]=color[33]=color[34]=0;	black++;	}
+                            else if(!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[32]=color[33]=color[34]=127;	grey++;		}
                         }
                     }
+                    is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );
+                    if( !FLAT && !map_data[Y][X].flat && !lp_CONFIG->low_definition_map )
+                    {
+                        color[4]=color[5]=color[6]= (color[0] + color[8]) >> 1;
+                        color[12]=color[13]=color[14]= (color[0] + color[24]) >> 1;
+                        color[20]=color[21]=color[22]= (color[8] + color[32]) >> 1;
+                        color[16]=color[17]=color[18]= (color[12] + color[20]) >> 1;
+                        color[28]=color[29]=color[30]= (color[24] + color[32]) >> 1;
+                    }
+                }
 
-                    //#define DEBUG_UNIT_POS
+                //#define DEBUG_UNIT_POS
 
 #ifndef DEBUG_UNIT_POS
-                    if( FLAT || map_data[Y][X].flat || lp_CONFIG->low_definition_map )
+                if( FLAT || map_data[Y][X].flat || lp_CONFIG->low_definition_map )
+                {
+                    if( was_flat && bloc[i].tex_x == bloc[ bmap[y][x-1] ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data[Y][X].flat) )
                     {
-                        if( was_flat && bloc[i].tex_x == bloc[ bmap[y][x-1] ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data[Y][X].flat) )
-                        {
-                            buf_i[ index_size-4 ] = 2+buf_pos;
-                            buf_i[ index_size-2 ] = 8+buf_pos;
-                            buf_i[ index_size-1 ] = 2+buf_pos;
-                        }
-                        else
-                        {
-                            buf_i[ index_size++ ] = buf_pos;
-                            buf_i[ index_size++ ] = 2+buf_pos;
-                            buf_i[ index_size++ ] = 6+buf_pos;
-                            buf_i[ index_size++ ] = 8+buf_pos;
-                            buf_i[ index_size++ ] = 2+buf_pos;
-                            was_flat = FLAT || map_data[Y][X].flat;     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
-                        }
+                        buf_i[ index_size-4 ] = 2+buf_pos;
+                        buf_i[ index_size-2 ] = 8+buf_pos;
+                        buf_i[ index_size-1 ] = 2+buf_pos;
                     }
                     else
                     {
-#endif
-                        was_flat = false;
                         buf_i[ index_size++ ] = buf_pos;
-                        buf_i[ index_size++ ] = 1+buf_pos;
-                        buf_i[ index_size++ ] = 3+buf_pos;
-                        buf_i[ index_size++ ] = 4+buf_pos;
-                        buf_i[ index_size++ ] = 6+buf_pos;
-                        buf_i[ index_size++ ] = 7+buf_pos;
-                        buf_i[ index_size++ ] = 7+buf_pos;
-                        buf_i[ index_size++ ] = 8+buf_pos;
-                        buf_i[ index_size++ ] = 4+buf_pos;
-                        buf_i[ index_size++ ] = 5+buf_pos;
-                        buf_i[ index_size++ ] = 1+buf_pos;
                         buf_i[ index_size++ ] = 2+buf_pos;
-#ifndef DEBUG_UNIT_POS
+                        buf_i[ index_size++ ] = 6+buf_pos;
+                        buf_i[ index_size++ ] = 8+buf_pos;
+                        buf_i[ index_size++ ] = 2+buf_pos;
+                        was_flat = FLAT || map_data[Y][X].flat;     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
                     }
+                }
+                else
+                {
 #endif
-                    was_clean = is_clean;
-                    T.x-=x<<4;
-                    memcpy(buf_t+(buf_pos<<1),bloc[i].texcoord,72);		// texture
+                    was_flat = false;
+                    buf_i[ index_size++ ] = buf_pos;
+                    buf_i[ index_size++ ] = 1+buf_pos;
+                    buf_i[ index_size++ ] = 3+buf_pos;
+                    buf_i[ index_size++ ] = 4+buf_pos;
+                    buf_i[ index_size++ ] = 6+buf_pos;
+                    buf_i[ index_size++ ] = 7+buf_pos;
+                    buf_i[ index_size++ ] = 7+buf_pos;
+                    buf_i[ index_size++ ] = 8+buf_pos;
+                    buf_i[ index_size++ ] = 4+buf_pos;
+                    buf_i[ index_size++ ] = 5+buf_pos;
+                    buf_i[ index_size++ ] = 1+buf_pos;
+                    buf_i[ index_size++ ] = 2+buf_pos;
+#ifndef DEBUG_UNIT_POS
+                }
+#endif
+                was_clean = is_clean;
+                T.x-=x<<4;
+                memcpy(buf_t+(buf_pos<<1),bloc[i].texcoord,72);		// texture
 
 #ifdef DEBUG_UNIT_POS
-                    int Z;
-                    Z=Y+get_zdec_notest(X,Y);					if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                    Z&=0xFFFFFE;
-                    X&=0xFFFFFE;
-                    if(map_data[Z][X].unit_idx!=-1 )		// Shows unit's pos on map
-                    {
-                        color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
-                        if(map_data[Z][X].unit_idx>=0 )		// Shows unit's pos on map
-                            color[0]=color[4]=color[12]=color[16]=255;
-                        else		// It's a feature
-                            color[1]=color[5]=color[13]=color[17]=255;
-                    }
-                    else if( !map_data[Z][X].air_idx.isEmpty() )		// Shows unit's pos on map
-                    {
-                        color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
-                        color[2]=color[6]=color[14]=color[18]=255;
-                    }
-                    if (map_data[Z][X+1].unit_idx!=-1)		// Shows unit's pos on map
-                    {
-                        color[8]=color[9]=color[10]=color[11]=color[20]=color[21]=color[22]=color[23]=0;
-                        if(map_data[Z][X+1].unit_idx>=0 )		// Shows unit's pos on map
-                            color[8]=color[20]=255;
-                        else
-                            color[9]=color[21]=255;
-                    }
-                    else if( !map_data[Z][X+1].air_idx.isEmpty() )		// Shows unit's pos on map
-                    {
-                        color[8]=color[9]=color[10]=color[11]=color[20]=color[21]=color[22]=color[23]=0;
-                        color[10]=color[22]=255;
-                    }
-                    if(map_data[Z+1][X].unit_idx!=-1 )		// Shows unit's pos on map
-                    {
-                        color[24]=color[25]=color[26]=color[27]=color[28]=color[29]=color[30]=color[31]=0;
-                        if(map_data[Z+1][X].unit_idx>=0 )		// Shows unit's pos on map
-                            color[24]=color[28]=255;
-                        else
-                            color[25]=color[29]=255;
-                    }
-                    else if( !map_data[Z+1][X].air_idx.isEmpty() )		// Shows unit's pos on map
-                    {
-                        color[24]=color[25]=color[26]=color[27]=color[28]=color[29]=color[30]=color[31]=0;
-                        color[26]=color[30]=255;
-                    }
-                    if(map_data[Z+1][X+1].unit_idx!=-1 )		// Shows unit's pos on map
-                    {
-                        color[32]=color[33]=color[34]=color[35]=0;
-                        if(map_data[Z+1][X+1].unit_idx>=0 )		// Shows unit's pos on map
-                            color[32]=255;
-                        else
-                            color[33]=255;
-                    }
-                    else if( !map_data[Z+1][X+1].air_idx.isEmpty() )		// Shows unit's pos on map
-                    {
-                        color[32]=color[33]=color[34]=color[35]=0;
-                        color[34]=255;
-                    }
-#elif defined DEBUG_RADAR_MAP
-                    int Z;
-                    Z=Y+get_zdec_notest(X,Y);					if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                    Z&=0xFFFFFE;
-                    X&=0xFFFFFE;
-                    if( (radar_map->line[Z>>1][X>>1] & player_mask) )		// Shows unit's pos on map
-                        for(i=0;i<9;i++)
-                        {
-                            color[i<<2]=color[(i<<2)+1]=color[(i<<2)+2]=color[(i<<2)+3]=0;
-                            color[(i<<2)]=255;
-                        }
-                    else
-                    {
-                        if ((sonar_map->line[Z >> 1][X >> 1] & player_mask)) // Shows unit's pos on map
-                        {
-                            for (i = 0; i < 9; ++i)
-                            {
-                                color[i << 2] = color[(i << 2) + 1] = color[(i << 2) + 2] = color[(i << 2) + 3] = 0;
-                                color[(i << 2) + 2] = 255;
-                            }
-                        }
-                    }
-#endif
-                    ++buf_size;
-                }
-                if (buf_size > 0)
+                int Z;
+                Z=Y+get_zdec_notest(X,Y);					if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                Z&=0xFFFFFE;
+                X&=0xFFFFFE;
+                if(map_data[Z][X].unit_idx!=-1 )		// Shows unit's pos on map
                 {
-                    glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
-                    was_flat = false;
-                    index_size=0;
-                    buf_size=0;
+                    color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
+                    if(map_data[Z][X].unit_idx>=0 )		// Shows unit's pos on map
+                        color[0]=color[4]=color[12]=color[16]=255;
+                    else		// It's a feature
+                        color[1]=color[5]=color[13]=color[17]=255;
                 }
+                else if( !map_data[Z][X].air_idx.isEmpty() )		// Shows unit's pos on map
+                {
+                    color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
+                    color[2]=color[6]=color[14]=color[18]=255;
+                }
+                if (map_data[Z][X+1].unit_idx!=-1)		// Shows unit's pos on map
+                {
+                    color[8]=color[9]=color[10]=color[11]=color[20]=color[21]=color[22]=color[23]=0;
+                    if(map_data[Z][X+1].unit_idx>=0 )		// Shows unit's pos on map
+                        color[8]=color[20]=255;
+                    else
+                        color[9]=color[21]=255;
+                }
+                else if( !map_data[Z][X+1].air_idx.isEmpty() )		// Shows unit's pos on map
+                {
+                    color[8]=color[9]=color[10]=color[11]=color[20]=color[21]=color[22]=color[23]=0;
+                    color[10]=color[22]=255;
+                }
+                if(map_data[Z+1][X].unit_idx!=-1 )		// Shows unit's pos on map
+                {
+                    color[24]=color[25]=color[26]=color[27]=color[28]=color[29]=color[30]=color[31]=0;
+                    if(map_data[Z+1][X].unit_idx>=0 )		// Shows unit's pos on map
+                        color[24]=color[28]=255;
+                    else
+                        color[25]=color[29]=255;
+                }
+                else if( !map_data[Z+1][X].air_idx.isEmpty() )		// Shows unit's pos on map
+                {
+                    color[24]=color[25]=color[26]=color[27]=color[28]=color[29]=color[30]=color[31]=0;
+                    color[26]=color[30]=255;
+                }
+                if(map_data[Z+1][X+1].unit_idx!=-1 )		// Shows unit's pos on map
+                {
+                    color[32]=color[33]=color[34]=color[35]=0;
+                    if(map_data[Z+1][X+1].unit_idx>=0 )		// Shows unit's pos on map
+                        color[32]=255;
+                    else
+                        color[33]=255;
+                }
+                else if( !map_data[Z+1][X+1].air_idx.isEmpty() )		// Shows unit's pos on map
+                {
+                    color[32]=color[33]=color[34]=color[35]=0;
+                    color[34]=255;
+                }
+#elif defined DEBUG_RADAR_MAP
+                int Z;
+                Z=Y+get_zdec_notest(X,Y);					if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                Z&=0xFFFFFE;
+                X&=0xFFFFFE;
+                if( (radar_map->line[Z>>1][X>>1] & player_mask) )		// Shows unit's pos on map
+                    for(i=0;i<9;i++)
+                    {
+                    color[i<<2]=color[(i<<2)+1]=color[(i<<2)+2]=color[(i<<2)+3]=0;
+                    color[(i<<2)]=255;
+                }
+                else
+                {
+                    if ((sonar_map->line[Z >> 1][X >> 1] & player_mask)) // Shows unit's pos on map
+                    {
+                        for (i = 0; i < 9; ++i)
+                        {
+                            color[i << 2] = color[(i << 2) + 1] = color[(i << 2) + 2] = color[(i << 2) + 3] = 0;
+                            color[(i << 2) + 2] = 255;
+                        }
+                    }
+                }
+#endif
+                ++buf_size;
+            }
+            if (buf_size > 0)
+            {
+                glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
+                was_flat = false;
+                index_size=0;
+                buf_size=0;
             }
         }
         glDisableClientState(GL_COLOR_ARRAY);		// Couleurs(pour le brouillard de guerre)
@@ -2065,11 +2103,11 @@ namespace TA3D
         glActiveTextureARB(GL_TEXTURE0_ARB);
         glEnable(GL_TEXTURE_2D);
         glClientActiveTextureARB(GL_TEXTURE0_ARB);
+
+        glPopMatrix();
+
         gfx->unlock();
     }
-
-
-
 
     Vector3D MAP::hit(Vector3D Pos, Vector3D Dir, bool water, float length, bool allow_out)			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
     {
