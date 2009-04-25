@@ -524,6 +524,7 @@ namespace TA3D
 		freecam_off = gfx->load_texture("gfx/freecam_off.tga");
 		arrow_texture = gfx->load_texture("gfx/arrow.tga");
 		circle_texture = gfx->load_texture("gfx/circle.tga");
+        pause_tex = gfx->load_texture("gfx/pause.png");
 		water = 0;
 		return true;
 	}

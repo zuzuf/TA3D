@@ -2395,6 +2395,9 @@ namespace TA3D
 				pArea.msg( "esc_menu.show" );
 			}
 
+            if (key_down_event(KEY_PAUSE))      // Toggle pause mode when pressing pause
+                lp_CONFIG->pause ^= true;
+
 			if (pArea.get_state("esc_menu.b_return"))
 			{
 				pArea.set_state("esc_menu.b_return", false);
@@ -2531,7 +2534,15 @@ namespace TA3D
 				n = -1;
 			int sel = -1;
 
-			/*------------------- Draw GUI components -------------------------------------------------------*/
+            // If the game is paused, render the pause image
+            if (lp_CONFIG->paused)
+            {
+                gfx->set_alpha_blending();
+                gfx->drawtexture(pause_tex, 145.0f * SCREEN_W / 640.0f, 190 * SCREEN_H / 480.0f, 495 * SCREEN_W / 640.0f, 290 * SCREEN_H / 480.0f, 0xFFFFFFFF);
+                gfx->unset_alpha_blending();
+            }
+
+            /*------------------- Draw GUI components -------------------------------------------------------*/
 
 			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) + "gen")
 				unit_manager.unit_build_menu(n, omb2, dt, true);	// Draw GUI background
@@ -3766,6 +3777,7 @@ namespace TA3D
 		gfx->destroy_texture(reflectex);
 		gfx->destroy_texture(transtex);
 		gfx->destroy_texture(height_tex);
+        gfx->destroy_texture(pause_tex);
 
 		LOG_INFO("Total Models: " << model_manager.nb_models);
 		LOG_INFO("Total Units: " << unit_manager.nb_unit);

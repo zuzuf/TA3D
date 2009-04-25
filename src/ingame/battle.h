@@ -246,7 +246,9 @@ namespace TA3D
         GLuint	water_sim;
 		//!
         GLuint	water_sim2;
-		//@}
+        //!
+        GLuint	pause_tex;
+        //@}
 
 		//! \name Camera
 		//@{

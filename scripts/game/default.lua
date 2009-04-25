@@ -65,12 +65,12 @@ while true do
 					    end_signal[ current_player ] = SIGNAL_NUL
 				    else
 					    play_for( "VICTORY2", current_player )
-					    draw_image_for( "gfx/victory.tga", 160, 140, 480, 340, current_player )
+					    draw_image_for( "gfx/victory.png", 145, 190, 495, 290, current_player )
 					    player_timer[ current_player ] = time()
 					    end_signal[ current_player ] = SIGNAL_VICTORY
 				    end
 			    elseif not has_unit( current_player, commander( current_player ) ) then
-					    text_print_for( 288, 236, "DEFAITE!", current_player )
+					    draw_image_for( "gfx/defeat.png", 145, 190, 495, 290, current_player )
 					    player_timer[ current_player ] = time()
 					    end_signal[ current_player ] = SIGNAL_DEFEAT
 			    end
