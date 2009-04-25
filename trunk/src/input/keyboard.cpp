@@ -20,7 +20,9 @@
 #include "mouse.h"
 
 int						TA3D::VARS::ascii_to_scancode[ 256 ];
-int                     TA3D::VARS::key[0x1000];
+bool                    TA3D::VARS::key[0x1000];
+bool                    TA3D::VARS::prevkey_down[0x1000];
+bool                    TA3D::VARS::prevkey_up[0x1000];
 std::list<uint32>       TA3D::VARS::keybuf;
 int                     TA3D::VARS::remap[256];
 
@@ -126,14 +128,41 @@ namespace TA3D
     void set_key_down(uint16 keycode)
     {
         if (keycode < 256 && remap[keycode])
-            VARS::key[remap[keycode]] = 1;
-        VARS::key[keycode] = 1;
+            VARS::key[remap[keycode]] = true;
+        VARS::key[keycode] = true;
     }
 
     void set_key_up(uint16 keycode)
     {
         if (keycode < 256 && remap[keycode])
-            VARS::key[remap[keycode]] = 0;
-        VARS::key[keycode] = 0;
+            VARS::key[remap[keycode]] = false;
+        VARS::key[keycode] = false;
+    }
+
+    bool key_down_event(uint16 keycode)
+    {
+        if (!prevkey_down[keycode] && key[keycode])
+        {
+            prevkey_down[keycode] = true;
+            return true;
+        }
+        prevkey_down[keycode] = key[keycode];
+        return false;
+    }
+
+    bool key_up_event(uint16 keycode)
+    {
+        if (prevkey_up[keycode] && !key[keycode])
+        {
+            prevkey_up[keycode] = false;
+            return true;
+        }
+        prevkey_up[keycode] = key[keycode];
+        return false;
+    }
+
+    bool key_event(uint16 keycode)
+    {
+        return key_down_event(keycode) || key_up_event(keycode);
     }
 }

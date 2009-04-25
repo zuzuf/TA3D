@@ -23,8 +23,10 @@ namespace TA3D
     namespace VARS
     {
 		TA3D_API_E int								ascii_to_scancode[ 256 ];
-		TA3D_API_E int                              key[0x1000];
-		TA3D_API_E std::list<uint32>                keybuf;
+        TA3D_API_E bool                             key[0x1000];
+        TA3D_API_E bool                             prevkey_down[0x1000];
+        TA3D_API_E bool                             prevkey_up[0x1000];
+        TA3D_API_E std::list<uint32>                keybuf;
 		TA3D_API_E int                              remap[ 256 ];
     }
 
@@ -57,6 +59,21 @@ namespace TA3D
 	** \brief set a key down
 	*/
 	void set_key_down(uint16 keycode);
+
+    /*!
+    ** \brief returns true if the given key state has changed to down since last call with the same key
+    */
+    bool key_down_event(uint16 keycode);
+
+    /*!
+    ** \brief returns true if the given key state has changed to up since last call with the same key
+    */
+    bool key_up_event(uint16 keycode);
+
+    /*!
+    ** \brief returns true if the given key state has changed since last call with the same key
+    */
+    bool key_event(uint16 keycode);
 }
 
 #define KEY_ENTER       SDLK_RETURN
@@ -74,6 +91,7 @@ namespace TA3D
 #define KEY_BACKSPACE   SDLK_BACKSPACE
 #define KEY_DEL         SDLK_DELETE
 #define KEY_ALT         SDLK_LALT
+#define KEY_PAUSE       SDLK_PAUSE
 
 #define KEY_F1          SDLK_F1
 #define KEY_F2          SDLK_F2

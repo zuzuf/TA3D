@@ -36,12 +36,12 @@ while true do
 	    elseif end_signal ~= 0 then
 	    else
 	        if not has_unit( local_player, commander( local_player ) ) then
-		        text_print( 280, 236, "DEFEAT!" )
+		        draw_image( "gfx/defeat.png", 145, 190, 495, 290 )
 		        timer = time()
 		        end_signal = SIGNAL_DEFEAT
 	        elseif current_level >= 3 and annihilated( 1 ) then
 		        play( "VICTORY2" )
-		        draw_image( "gfx/victory.tga", 160, 140, 480, 340 )
+		        draw_image( "gfx/victory.png", 145, 190, 495, 290 )
 		        timer = time()
 		        end_signal = SIGNAL_VICTORY
 	        end
