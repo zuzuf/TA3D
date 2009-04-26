@@ -84,7 +84,48 @@ namespace TA3D
 		return map.hit(cam.pos, cur_dir, true, 2000000000.0f, true);
 	}
 
+    void Battle::updateFOG()
+    {
+        if (freecam && cam.rpos.y < map->sealvl)
+        {
+            FogD = 0.03f;
+            FogFar = cam.zfar;
+            FogNear = 0.0f;
+            FogMode = GL_EXP;
 
+            FogColor[0] = 0.0f;
+            FogColor[1] = 0.0f;
+            FogColor[2] = 0.3f;
+            FogColor[3] = 1.0f;
+        }
+        else
+        {
+            FogD = 0.3f;
+            FogFar = lp_CONFIG->far_sight ? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h ) : cam.zfar;
+            FogNear = FogFar * 0.5f;
+            FogMode = GL_LINEAR;
+
+            memcpy(FogColor, pSkyData->FogColor, sizeof( float) * 4);
+        }
+
+        glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
+
+        glFogi (GL_FOG_MODE, FogMode);
+        glFogfv (GL_FOG_COLOR, FogColor);
+        glFogf (GL_FOG_DENSITY, FogD);
+        glHint (GL_FOG_HINT, GL_NICEST);
+        glFogf (GL_FOG_START, FogNear);
+        glFogf (GL_FOG_END, FogFar);
+    }
+
+    void Battle::updateZFAR()
+    {
+        if (lp_CONFIG->far_sight)
+            cam.zfar = sqrtf( map->map_w * map->map_w + map->map_h * map->map_h + cam.rpos.y * cam.rpos.y);      // We want to see everything
+        else
+            cam.zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+        cam.setView();
+    }
 
 	Battle::Result Battle::execute()
 	{
@@ -1408,37 +1449,10 @@ namespace TA3D
 
 			cam_h = cam.rpos.y - map->get_unit_h(cam.rpos.x, cam.rpos.z);
 
-			cam.zfar = 600.0f + Math::Max((cam_h-150.0f) * 2.0f, 0.0f);
-
-			if (freecam && cam.rpos.y < map->sealvl)
-			{
-				FogD = 0.03f;
-				FogNear = 0.0f;
-				FogMode = GL_EXP;
-
-				FogColor[0] = 0.0f;
-				FogColor[1] = 0.0f;
-				FogColor[2] = 0.3f;
-				FogColor[3] = 1.0f;
-			}
-			else
-			{
-				FogD = 0.3f;
-				FogNear = cam.zfar * 0.5f;
-				FogMode = GL_LINEAR;
-
-				memcpy(FogColor, pSkyData->FogColor, sizeof( float) * 4);
-			}
+            updateZFAR();
 
 			gfx->SetDefState();
-			glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
-
-			glFogi (GL_FOG_MODE, FogMode);
-			glFogfv (GL_FOG_COLOR, FogColor);
-			glFogf (GL_FOG_DENSITY, FogD);
-			glHint (GL_FOG_HINT, GL_NICEST);
-			glFogf (GL_FOG_START, FogNear);
-			glFogf (GL_FOG_END, cam.zfar);
+            updateFOG();
 
 			// Dessine les reflets sur l'eau / Render water reflection
 			if (g_useProgram && g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
@@ -1473,14 +1487,9 @@ namespace TA3D
 				glEnable(GL_TEXTURE_2D);
 				if (lp_CONFIG->render_sky)
 				{
+                    glDisable(GL_FOG);
 					glBindTexture(GL_TEXTURE_2D,sky);
 					glDisable(GL_LIGHTING);
-					glFogi (GL_FOG_MODE, FogMode);
-					glFogfv (GL_FOG_COLOR, FogColor);
-					glFogf (GL_FOG_DENSITY, FogD);
-					glHint (GL_FOG_HINT, GL_NICEST);
-					glFogf (GL_FOG_START, FogNear);
-					glFogf (GL_FOG_END, refcam.zfar);
 					glDepthMask(GL_FALSE);
 					if (pSkyIsSpherical)
 					{
@@ -1503,12 +1512,6 @@ namespace TA3D
 				}
                 refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
                 glDepthMask(GL_TRUE);
-				glFogi (GL_FOG_MODE, FogMode);
-				glFogfv (GL_FOG_COLOR, FogColor);
-				glFogf (GL_FOG_DENSITY, FogD);
-				glHint (GL_FOG_HINT, GL_NICEST);
-				glFogf (GL_FOG_START, FogNear);
-				glFogf (GL_FOG_END, refcam.zfar);
 				glEnable(GL_CULL_FACE);
 				glEnable(GL_LIGHTING);
 				glEnable(GL_FOG);
@@ -1560,13 +1563,6 @@ namespace TA3D
 				glViewport(0, 0, SCREEN_W, SCREEN_H);
 
 				gfx->SetDefState();
-
-				glFogi (GL_FOG_MODE, FogMode);
-				glFogfv (GL_FOG_COLOR, FogColor);
-				glFogf (GL_FOG_DENSITY, FogD);
-				glHint (GL_FOG_HINT, GL_NICEST);
-				glFogf (GL_FOG_START, FogNear);
-				glFogf (GL_FOG_END, cam.zfar);
 			}
 			else
 				reflection_drawn_last_time = false;
@@ -1651,7 +1647,6 @@ namespace TA3D
 			glVertex3i( -map->map_w, 0, -map->map_h);
 			glEnd();
 			glDepthMask(GL_TRUE);
-			glEnable(GL_FOG);
 
 			cam.zfar *= 100.0f;
 			cam.setView();
@@ -1694,14 +1689,7 @@ namespace TA3D
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_LIGHTING);
 			glEnable(GL_FOG);
-            cam.zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
-            cam.setView();
-            glFogi (GL_FOG_MODE, FogMode);
-            glFogfv (GL_FOG_COLOR, FogColor);
-            glFogf (GL_FOG_DENSITY, FogD);
-            glHint (GL_FOG_HINT, GL_NICEST);
-            glFogf (GL_FOG_START, FogNear);
-            glFogf (GL_FOG_END, cam.zfar);
+            updateZFAR();
 
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1711,7 +1699,9 @@ namespace TA3D
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-			features.draw();		// Dessine les éléments "2D"
+            cam.setView(true);
+
+            features.draw();		// Dessine les éléments "2D"
 
 			/*----------------------------------------------------------------------------------------------*/
 
@@ -3366,6 +3356,7 @@ namespace TA3D
 						//                        save_bitmap( TA3D::Paths::Screenshots + "z.tga",bmp);
 						SDL_FreeSurface(bmp);
 					}
+                    else if (params[0] == "toggle" && params.size() == 2 && params[1] == "farsight")    lp_CONFIG->far_sight ^= true;
 					else if ((params[0] == "enable" || params[0] == "disable") && params.size() > 1)
 					{
 						if (params[1] == "right_click_interface")

@@ -1280,6 +1280,8 @@ namespace TA3D
 
         if (low_def_view)
         {
+            cam->zfar = sqrtf( map_w * map_w + map_h * map_h + cam->rpos.y * cam->rpos.y);      // We want to see everything
+            cam->setView();
             draw_LD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
 
             memset(view[0], 1, bloc_w * bloc_h);
@@ -1289,7 +1291,33 @@ namespace TA3D
             oy2 = bloc_h - 1;
         }
         else
+        {
+            bool bFarSight = lp_CONFIG->far_sight && !cam->mirror;
+            float zfar = cam->zfar;
+            float cam_h = cam->rpos.y - get_unit_h(cam->rpos.x, cam->rpos.z);
+            float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+            if (bFarSight)      // Far sight mode: renders low definition map under the HD version in order to show the whole map at the horizon
+            {
+                float znear = cam->znear;
+                cam->znear = map_zfar - 64.0f;
+                cam->setView(true);
+
+                draw_LD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
+                gfx->clearDepth();                      // We must clear the depth buffer in order to render the HD map correctly
+                cam->znear = znear;
+            }
+
+            if (lp_CONFIG->far_sight)
+            {
+                cam->setView();
+                cam->zfar = map_zfar;
+            }
+
             draw_HD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
+
+            if (lp_CONFIG->far_sight)
+                cam->zfar = zfar;
+        }
     }
 
 
@@ -1557,7 +1585,7 @@ namespace TA3D
             glClientActiveTextureARB(GL_TEXTURE0_ARB);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-            if (lp_CONFIG->detail_tex && !FLAT && enable_details)
+            if (!FLAT && enable_details)
             {
                 glClientActiveTextureARB(GL_TEXTURE1_ARB);
                 glActiveTextureARB(GL_TEXTURE1_ARB );

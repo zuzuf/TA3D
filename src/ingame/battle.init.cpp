@@ -571,7 +571,8 @@ namespace TA3D
 	bool Battle::initTheFog()
 	{
 		FogD = 0.3f;
-        FogNear = cam.zfar * 0.5f;
+        FogFar = cam.zfar;
+        FogNear = FogFar * 0.5f;
         FogColor[0] = 0.8f;
 		FogColor[1] = 0.8f;
 		FogColor[2] = 0.8f;
@@ -585,7 +586,7 @@ namespace TA3D
         glFogf(GL_FOG_DENSITY, FogD);
         glHint(GL_FOG_HINT, GL_NICEST);
         glFogf(GL_FOG_START, FogNear);
-        glFogf(GL_FOG_END, cam.zfar);
+        glFogf(GL_FOG_END, FogFar);
 		// Enable the OpenGL fog
         glEnable(GL_FOG);
 

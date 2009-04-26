@@ -72,6 +72,16 @@ namespace TA3D
         */
         void updateCurrentGUICacheNames();
 
+        /*!
+        ** \brief update fog parameters
+        */
+        void updateFOG();
+
+        /*!
+        ** \brief update camera zfar parameter
+        */
+        void updateZFAR();
+
     private:
         //! \name Preparing all data about a battle
         //@{
@@ -390,6 +400,8 @@ namespace TA3D
 		float FogD;
 		//!
         float FogNear;
+        //!
+        float FogFar;
 		//!
         float FogColor[4];
 		//!

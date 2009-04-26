@@ -1,3 +1,15 @@
+[Far sight]
+{
+    FRENCH=Vue infinie;
+}
+[enable this to see all the map (no horizon limit except for units and features)]
+{
+    FRENCH=activer cette option pour voir toute la carte sans limite d'horizon sauf pour les éléments du jeu;
+}
+[Level of anisotropy]
+{
+    FRENCH=Niveau d'anisotropie;
+}
 [Disable perspective]
 {
     FRENCH=Désactiver la perspective;

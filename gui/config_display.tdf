@@ -49,19 +49,20 @@
 		value=0;
 		size=1.5;
 	}
-	[object3]		// Option "wireframe"
+	[object3]		// Option "far_sight"
 	{
-		name=t_wireframe;
+		name=t_far_sight;
 		type=TEXT;
-		caption=wireframe;
+		caption=Far sight;
+		help=enable this to see all the map (no horizon limit except for units and features);
 		x1=0;
 		y1=85;
 		value=0xFFFFFFFF;
 		size=2;
 	}
-	[object4]		// Option "wireframe"
+	[object4]		// Option "far_sight"
 	{
-		name=wireframe;
+		name=far_sight;
 		type=OPTIONC;
 		caption=;
 		x1=690;
