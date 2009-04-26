@@ -94,16 +94,17 @@ else( WIN32 OR CMAKE_CROSSCOMPILING )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
 ADD_EXECUTABLE(${3DMEDITOR_BIN}
-        3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h
-        stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
+		3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h
+		stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
 target_link_libraries(${3DMEDITOR_BIN}
-        stdafx logs gfx input console debuginfos 3dtoolbox misc i18n
-        fileformats particles hpi oldgui gui ingame tdf
-        converters animator gfx ta3dmath audio threads)
+		stdafx logs gfx input console debuginfos 3dtoolbox misc i18n
+		fileformats particles hpi oldgui gui ingame tdf
+		converters animator gfx ta3dmath audio threads)
+
 IF(APPLE)
-    SET(GUI_TYPE MACOSX_BUNDLE)
-    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
-    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d-editor")
+	SET(GUI_TYPE MACOSX_BUNDLE)
+	SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
+	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d-editor")
 ENDIF(APPLE)
 
 
@@ -117,11 +118,19 @@ ELSE(APPLE)
 	SET(TA3D_BIN ta3d)
 ENDIF(APPLE)
 SET(SOURCES
-        ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
-        restore.cpp restore.h menu.cpp menu.h
-        EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h
-        fbi.cpp fbi.h intro.cpp intro.h  tdf.cpp tdf.h tnt.cpp tnt.h 
-        stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
+		ta3d.h
+		install.cpp
+		engine.cpp engine.h
+		restore.cpp restore.h
+		menu.cpp menu.h
+		EngineClass.cpp EngineClass.h
+		UnitEngine.cpp UnitEngine.h
+		fbi.cpp fbi.h
+		intro.cpp intro.h
+		tdf.cpp tdf.h tnt.cpp tnt.h
+		stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h
+		main.cpp
+		)
 
 
 

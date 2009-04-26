@@ -22,7 +22,6 @@
 #include "TA3D_NameSpace.h"
 #include "misc/matrix.h"
 #include "misc/paths.h"
-#include "cTA3D_Engine.h"		// The Engine
 #include "ta3dbase.h"			// Some core include
 #include "EngineClass.h"
 #include "UnitEngine.h"

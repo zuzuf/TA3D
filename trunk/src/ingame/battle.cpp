@@ -21,7 +21,6 @@
 #include "../misc/matrix.h"
 
 #include "../intro.h"			// Introduction
-#include "../cTA3D_Engine.h"	// The Engine
 #include "../ta3d.h"			// Some core include
 #include "../menu.h"			// Game menus
 #include "../restore.h"		// Save/Load mecanisms
