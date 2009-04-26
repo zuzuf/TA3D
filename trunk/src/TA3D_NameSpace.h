@@ -72,6 +72,7 @@ namespace TA3D
         bool    waves;
         bool    height_line;
         bool    fullscreen;
+        bool    far_sight;      // Enable far sight renderer (you can see all the map)
 
         bool    detail_tex;
         bool    draw_console_loading;
@@ -117,6 +118,8 @@ namespace TA3D
 
         TA3DCONFIG()
         {
+            far_sight = true;
+
             anisotropy = 1;
 
             mouse_sensivity = 1.0f;

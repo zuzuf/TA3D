@@ -165,6 +165,7 @@ void config_menu(void)
         if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
     }
+    config_area.set_state("*.far_sight", lp_CONFIG->far_sight);
     config_area.set_value("*.anisotropy", lp_CONFIG->anisotropy);
     config_area.set_value("*.mouse_sensitivity", (int)(lp_CONFIG->mouse_sensivity * 100.0f));
     config_area.set_state("*.disable_perspective", lp_CONFIG->ortho_camera);
@@ -174,7 +175,6 @@ void config_menu(void)
     config_area.set_state("*.use_texture_compression", lp_CONFIG->use_texture_compression);
     config_area.set_state("*.low_definition_map", lp_CONFIG->low_definition_map);
     config_area.set_state("*.sky", lp_CONFIG->render_sky);
-    config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
     config_area.set_state("*.particle", lp_CONFIG->particle);
     config_area.set_state("*.explosion_particles", lp_CONFIG->explosion_particles);
     config_area.set_state("*.waves", lp_CONFIG->waves);
@@ -398,6 +398,7 @@ void config_menu(void)
             }
         }
 
+        lp_CONFIG->far_sight = config_area.get_state("*.far_sight");
         lp_CONFIG->anisotropy = config_area.get_value("*.anisotropy");
         lp_CONFIG->mouse_sensivity = config_area.get_value("*.mouse_sensitivity") * 0.01f;
         lp_CONFIG->ortho_camera = config_area.get_state("*.disable_perspective");
@@ -407,7 +408,6 @@ void config_menu(void)
         lp_CONFIG->use_texture_compression = config_area.get_state("*.use_texture_compression");
         lp_CONFIG->low_definition_map = config_area.get_state("*.low_definition_map");
         lp_CONFIG->render_sky = config_area.get_state( "*.sky");
-        lp_CONFIG->wireframe = config_area.get_state( "*.wireframe");
         lp_CONFIG->particle = config_area.get_state( "*.particle");
         lp_CONFIG->explosion_particles = config_area.get_state( "*.explosion_particles");
         lp_CONFIG->waves = config_area.get_state( "*.waves");
