@@ -24,7 +24,7 @@
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "intro.h"					// intro prototypes,   TODO: phase out.
 #include "menu.h"					// menu prototypes      TODO: phase out.
-#include "cTA3D_Engine.h"			// The engine class.
+#include "engine.h"		       		// The engine class.
 #include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"
 #include "backtrace.h"				// Some debugging tools
@@ -62,7 +62,7 @@ void ReadFileParameter()
     TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
     TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
 
-    if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) // Refresh file structure
+    if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
     {
         delete HPIManager;
         TA3D_clear_cache();		// Clear the cache
@@ -92,7 +92,7 @@ void ReadFileParameter()
 
     TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
 
-    if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) // Refresh file structure
+    if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
     {
         delete HPIManager;
         TA3D_clear_cache();		// Clear the cache
@@ -108,7 +108,7 @@ void ReadFileParameter()
 
 
 
-void install_TA_files( String def_path = "" );
+void install_TA_files(String def_path = "");
 int hpiview(int argc,char *argv[]);
 
 /*
@@ -127,100 +127,88 @@ int ParseCommandLine(int argc, char *argv[])
     if (hpiview(argc, argv))
         return 1;
 
-    for (int i = 1 ; i < argc ; ++i)
-    {
-        if( !strcmp( argv[ i ], "--quick-start")) // Quick restart mecanism (bypass the intro screen)
-            lp_CONFIG->quickstart = true;
-        else if (!strcmp( argv[ i ], "--file-param" )) 		// Pass a file as parameter, used for complex things
-        {
-            if (i + 1 < argc)
-            {
-                i++;
-                lp_CONFIG->file_param = argv[ i ];		// Copy the file name
-            }
-        }
-        else if (!strcmp( argv[ i ], "--test" ))            // Runs some tests (to help find and fix bugs)
-        {
-            GFX::runTests();
-            return 1;
-        }
-        else if (!strcmp( argv[ i ], "--opengl-test" ))     // Runs some tests (to help find and fix bugs)
-        {
-            GFX::runOpenGLTests();
-            return 1;
-        }
+	if (argc > 1)
+	{
+		// Argument converted to a TA3D::String
+		String arg;
 
-    }
-    return 0;
+		for (int i = 1 ; i < argc ; ++i)
+		{
+			arg = argv[i];
+			if ("--quick-start" == arg) // Quick restart mecanism (bypass the intro screen)
+				lp_CONFIG->quickstart = true;
+			else
+			{
+				if ("--file-param" == arg) // Pass a file as parameter, used for complex things
+				{
+					if (i + 1 < argc)
+					{
+						++i;
+						lp_CONFIG->file_param = argv[i]; // Copy the file name
+					}
+				}
+				else
+				{
+					if ("--test" == arg) // Runs some tests (to help find and fix bugs)
+					{
+						GFX::runTests();
+						return 1;
+					}
+					if ("--opengl-test" == arg) // Runs some tests (to help find and fix bugs)
+					{
+						GFX::runOpenGLTests();
+						return 1;
+					}
+				}
+			}
+		}
+	}
+	return 0;
 }
 
-/*
- ** Function: main
- **    Notes: Whats this for anyhow? :)  Just kidding, this is where it all begin baby!
- */
+
+
 int main(int argc, char *argv[])
 {
-    // Initialize all modules used by ta3d
-    TA3D::Initialize(argc, argv, "ta3d");
+	// Initialize all modules used by ta3d
+	TA3D::Initialize(argc, argv, "ta3d");
 
-    // Initialize signals
-    init_signals();
+	// Initialize signals
+	init_signals();
+	// Constructing config
+	TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
 
-    // Constructing config
-    TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
+	TA3D::Settings::Load(); /* Load Config File */
+	TA3D_clear_cache();
 
-    TA3D::Settings::Load(); /* Load Config File */
-    TA3D_clear_cache();
-    SDL_Quit();
+	if (ParseCommandLine(argc, argv))
+		return 1;
 
-    if (ParseCommandLine(argc, argv))
-    {
-        exit(1);
-    }
+	// Initializing the TA3D Engine
+	TA3D::Engine engine;
 
-    /*
-     ** Allright we have now created our config structure, loaded our config file
-     **   and processed our command line arguments, its time to create the main engine
-     **   which in turn will create nearly everything it will need.
-     */
-    TA3D::cTA3D_Engine* Engine = NULL;
-    Engine = new TA3D::cTA3D_Engine;
+	// Starting the Engine
+	engine.start();
 
-    /* we can use guard here cause the entine will start in a 'paused' state
-     **     it will continue to init code and set itself as ready when all data it needs
-     **     to continue is loaded.  at which point we can poll the engine.
-     **     Once the engine is unpaused and in a go state we can no longer use GuardStart
-     **     as the engine will use it, until the engine exits.
-     */
-    Engine->start();
+	// ok, if we are here, our thread in engine class is running
+	// and doing some work loading up alot of crap so while its doing that
+	// we are going to show our intro, but first we need to start our timer.
+	start = msec_timer; // Initalize timer.
 
-    // ok, if we are here, our thread in engine class is running
-    //   and doing some work loading up alot of crap so while its doing that
-    //   we are going to show our intro, but first we need to start our timer.
-    start = msec_timer;      // Initalize timer.
+	// while our engine does some loading and intializing, lets show our intro.
+	if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
+		Menus::Intro::Execute();
 
-    // while our engine does some loading and intializing, lets show our intro.
-    if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
-        Menus::Intro::Execute();
+	// The main menu call will eventually not be here, instead
+	// we will turn control over to our engine, but for now we'll call the
+	// menu this way.
+	TA3D::Menus::MainMenu::Execute();
 
-    // The main menu call will eventually not be here, instead
-    //   we will turn control over to our engine, but for now we'll call the
-    //   menu this way.
-    // Engine->UnPause(); // unpause the engine, the engine will finish initing
-    // While( !Engine->Ready() ) { rest( 100 ); } // while its not ready rest a bit.
-    //  engines thread should now be running and managing everything for us.
-    //  we will continue to keep checking if its running and if so call a helper function
-    //  in the engine to do some non-cricticle stuff, every 100 ms or so.
-    // While( Engine-> IsRunning() ) { Engine->DoSomeNonImportantShit(); rest( 100 ); }
-    // main_menu();
-    TA3D::Menus::MainMenu::Execute();
+	// if we get here its time to exit, so delete the engine, the engine should clean itself
+	//   up and we are outa here, but first lets save our config file, we
+	//   need to try/catch this but no worries for now since its not doing anything.
+	TA3D::Settings::Save();
 
-    // if we get here its time to exit, so delete the engine, the engine should clean itself
-    //   up and we are outa here, but first lets save our config file, we
-    //   need to try/catch this but no worries for now since its not doing anything.
-    TA3D::Settings::Save();
-
-    delete Engine;
-
-    return 0; 		// thats it folks.
+	return 0;
 }
+
