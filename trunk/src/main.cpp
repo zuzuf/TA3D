@@ -1,19 +1,19 @@
 /*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
+	Copyright (C) 2005  Roland BROCHARD
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*
  **  File: main.cpp
@@ -41,69 +41,69 @@
 
 
 /*
- ** Function: ReadFileParameter
- **    Notes: This function will eventually load a file given as command line parameter
- **             and run given commands. This is used to start a multiplayer game from
- **             an external Lobby client
- */
+** Function: ReadFileParameter
+**    Notes: This function will eventually load a file given as command line parameter
+**             and run given commands. This is used to start a multiplayer game from
+**             an external Lobby client
+*/
 void ReadFileParameter()
 {
-    if(!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
-        return;
+	if(!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
+		return;
 
-    LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
+	LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
 
-    TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
+	TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
 
-    String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
+	String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
-    TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
-    TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
-    TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
-    TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
+	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
+	TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
+	TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
+	TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
 
-    if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
-    {
-        delete HPIManager;
-        TA3D_clear_cache();		// Clear the cache
+	if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
+	{
+		delete HPIManager;
+		TA3D_clear_cache();		// Clear the cache
 
-        HPIManager = new cHPIHandler();
-        ta3dSideData.loadData();				// Refresh side data so we load the correct values
-        delete sound_manager;
-        sound_manager = new TA3D::Audio::Manager();
-        sound_manager->stopMusic();
-        sound_manager->loadTDFSounds(true);
-        sound_manager->loadTDFSounds(false);
-    }
+		HPIManager = new cHPIHandler();
+		ta3dSideData.loadData();				// Refresh side data so we load the correct values
+		delete sound_manager;
+		sound_manager = new TA3D::Audio::Manager();
+		sound_manager->stopMusic();
+		sound_manager->loadTDFSounds(true);
+		sound_manager->loadTDFSounds(false);
+	}
 
-    if (parser.pullAsBool("TA3D.Network game"))
-    {
-        if (parser.pullAsBool("TA3D.Server"))// Server code
-        {
-            String host_name = parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name );
-            setup_game( false, host_name.c_str() );		// Start the game in networking mode as server
-        }
-        else // Client code
-        {
-            String host_name = parser.pullAsString( "TA3D.Server name", "" );
-            setup_game( true, host_name.c_str() );		// Start the game in networking mode as server
-        }
-    }
+	if (parser.pullAsBool("TA3D.Network game"))
+	{
+		if (parser.pullAsBool("TA3D.Server"))// Server code
+		{
+			String host_name = parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name );
+			setup_game( false, host_name.c_str() );		// Start the game in networking mode as server
+		}
+		else // Client code
+		{
+			String host_name = parser.pullAsString( "TA3D.Server name", "" );
+			setup_game( true, host_name.c_str() );		// Start the game in networking mode as server
+		}
+	}
 
-    TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
+	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
 
-    if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
-    {
-        delete HPIManager;
-        TA3D_clear_cache();		// Clear the cache
+	if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
+	{
+		delete HPIManager;
+		TA3D_clear_cache();		// Clear the cache
 
-        HPIManager = new cHPIHandler();
-        ta3dSideData.loadData();				// Refresh side data so we load the correct values
-        delete sound_manager;
-        sound_manager = new TA3D::Audio::Manager();
-        sound_manager->loadTDFSounds(true);
-        sound_manager->loadTDFSounds(false);
-    }
+		HPIManager = new cHPIHandler();
+		ta3dSideData.loadData();				// Refresh side data so we load the correct values
+		delete sound_manager;
+		sound_manager = new TA3D::Audio::Manager();
+		sound_manager->loadTDFSounds(true);
+		sound_manager->loadTDFSounds(false);
+	}
 }
 
 
@@ -112,20 +112,20 @@ void install_TA_files(String def_path = "");
 int hpiview(int argc,char *argv[]);
 
 /*
- ** Function: ParseCommandLine
- **    Notes: this will eventually break down any command line arguments passed to
- **              the application at run time.  It don't do anything yet, but eventually
- **              we will be adding lots of command parms.
- **           If something goes wrong you can safely throw a string for an error.
- **             The call to this function is tried, but it only catches exceptions
- **             and strings, ie throw( "LoadConfigFile: some error occured" );
- **           Remember if you throw an error, or generate one, you are responsible for
- **             cleaning up what you initialized!
- */
+** Function: ParseCommandLine
+**    Notes: this will eventually break down any command line arguments passed to
+**              the application at run time.  It don't do anything yet, but eventually
+**              we will be adding lots of command parms.
+**           If something goes wrong you can safely throw a string for an error.
+**             The call to this function is tried, but it only catches exceptions
+**             and strings, ie throw( "LoadConfigFile: some error occured" );
+**           Remember if you throw an error, or generate one, you are responsible for
+**             cleaning up what you initialized!
+*/
 int ParseCommandLine(int argc, char *argv[])
 {
-    if (hpiview(argc, argv))
-        return 1;
+	if (hpiview(argc, argv))
+		return 1;
 
 	if (argc > 1)
 	{
