@@ -1298,13 +1298,14 @@ namespace TA3D
             float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
             if (bFarSight)      // Far sight mode: renders low definition map under the HD version in order to show the whole map at the horizon
             {
-                float znear = cam->znear;
-                cam->znear = map_zfar - 64.0f;
                 cam->setView(true);
+                GLdouble eq[] = { cam->dir.x, cam->dir.y, cam->dir.z, -map_zfar + 64.0f - cam->rpos % cam->dir};
+                glClipPlane(GL_CLIP_PLANE3, eq);
+                glEnable(GL_CLIP_PLANE3);
 
                 draw_LD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
-                gfx->clearDepth();                      // We must clear the depth buffer in order to render the HD map correctly
-                cam->znear = znear;
+
+                glDisable(GL_CLIP_PLANE3);
             }
 
             if (lp_CONFIG->far_sight)
