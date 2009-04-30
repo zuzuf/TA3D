@@ -30,6 +30,7 @@
 #include "misc/resources.h"
 #include <fstream>
 #include <zlib.h>
+#include "EngineClass.h"
 
 
 
