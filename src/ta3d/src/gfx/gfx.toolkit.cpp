@@ -561,7 +561,7 @@ namespace TA3D
         r *= r;
         for(int sy = -y ; sy <= y ; sy++)
         {
-            int dx = sqrtf(r - sy * sy);
+            int dx = (int)sqrtf(r - sy * sy);
             int ax = x - dx;
             int bx = x + dx;
             for(int sx = ax ; sx <= bx ; sx++)
