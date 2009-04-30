@@ -445,7 +445,10 @@ ENDIF(NOT APPLE)
 # --- config.h ---
 #
 CONFIGURE_FILE( ${TA3D_SOURCE_DIR}/config.h.cmake ${TA3D_SOURCE_DIR}/config.h )
-
+IF(APPLE)
+	# Version given by Informations that CMake already has
+	CONFIGURE_FILE( ${TA3D_SOURCE_DIR}/distrib/macos/version.cmake ${TA3D_SOURCE_DIR}/distrib/macos/config.sh )
+ENDIF(APPLE)
 
 # The source code
 ADD_SUBDIRECTORY(src)

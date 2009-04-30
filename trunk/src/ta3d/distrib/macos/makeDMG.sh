@@ -2,15 +2,7 @@
 
 root=`dirname ${0}`
 
-# Title of the DMG
-#caption="TA3D - A remake of Total Annihilation" # Really too long for a name...
-caption="TA3D"
-
-# Used to get the filename
-name="ta3d"
-
-# Version
-version="0.6.0-wip"
+source "${root}/config.sh"
 # Revision
 revision=`svnversion  -n "${root}/../../" | cut -d':' -f2`
 
@@ -43,8 +35,8 @@ mkdir -p "${tmp}"
 
 # Preparation
 echo "Preparation..."
-cp -f "${trunk}/AUTHORS" "${tmp}/Authors.txt"
-cp -f "${trunk}/COPYING" "${tmp}/Copying.txt"
+cp -f "${trunk}/../../AUTHORS" "${tmp}/Authors.txt"
+cp -f "${trunk}/../../COPYING" "${tmp}/Copying.txt"
 if [ -d "${trunk}/ta3d.app" ]; then
 	cp -rf "${trunk}/ta3d.app" "${tmp}/"
 fi
