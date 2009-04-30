@@ -131,7 +131,6 @@ namespace TA3D
                 {
                     prim.tex = gfx->load_texture( prim.text );
                     prim.text.clear();
-                    prim.text = NULL;
                 }
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                 glEnable(GL_BLEND);
