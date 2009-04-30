@@ -1493,7 +1493,6 @@ namespace TA3D
             {
             case 0: yref = ymin;    break;
             case 1: yref = ymax;    break;
-            case 2: yref = (ymin + ymax) * 0.5f;    break;
             };
             bool bFrustum[8];
             for(int i = 0 ; i < frustum.size() ; i++)
@@ -1504,6 +1503,7 @@ namespace TA3D
             bool bLink[18];
             for(int i = 0 ; i < nLinks ; i++)               // Detect intersection of links and map plane
                 bLink[i] = bFrustum[fLink[i][0]] ^ bFrustum[fLink[i][1]];
+            float zOffset = yref * tnt_transform;
             for(int i = 0 ; i < nLinks ; i++)
             {
                 if (bLink[i])
@@ -1513,6 +1513,7 @@ namespace TA3D
                     if (fabs(A.y - B.y) < 0.1f)
                         continue;
                     Vector3D I = A + (yref - A.y) / (B.y - A.y) * (B - A);
+                    I.z -= zOffset;
                     int X0 = (int)((I.x + map_w_d) * 0.0625f);
                     int Y0 = (int)((I.z + map_h_d) * 0.0625f);
                     x1 = Math::Min(x1, X0);
@@ -1529,6 +1530,7 @@ namespace TA3D
                             if (fabs(C.y - D.y) < 0.1f)
                                 continue;
                             Vector3D J = C + (yref - C.y) / (D.y - C.y) * (D - C);
+                            J.z -= zOffset;
                             int X1 = (int)((J.x + map_w_d) * 0.0625f);
                             int Y1 = (int)((J.z + map_h_d) * 0.0625f);
                             x1 = Math::Min(x1, X1);
