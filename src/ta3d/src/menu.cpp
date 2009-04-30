@@ -1650,7 +1650,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
             else if (setupgame_area.get_value( format("gamesetup.ai%d", i) ) >= 0 ) // Change player level (for AI)
             {
                 int pos = setupgame_area.get_value( format("gamesetup.ai%d", i) ) + 1;
-                if (pos >= 1 && pos < AI_list.size())
+                if (pos >= 1 && pos < (int)AI_list.size())
                 {
                     String AIlevel = AI_list[pos];
                     AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? AIlevel : String("");
@@ -1677,7 +1677,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 }
                 if (f == -1)
                 {
-                    for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
+                    for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
                     {
                         if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]))
                             f = g;
