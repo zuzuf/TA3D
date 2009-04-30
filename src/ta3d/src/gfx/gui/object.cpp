@@ -424,7 +424,7 @@ namespace TA3D
         Text = Entry;
         Func = NULL;
         Data = 0;
-        Pos = -1;
+        Pos = 0;
         Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS; // To detect when something has changed
         s = size;
     }
