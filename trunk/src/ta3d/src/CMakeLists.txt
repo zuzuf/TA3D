@@ -11,16 +11,8 @@ ADD_SUBDIRECTORY(scripts)
 ADD_SUBDIRECTORY(sounds)
 ADD_SUBDIRECTORY(converters)
 ADD_SUBDIRECTORY(animator)
-IF(${TA3D_REGRESSION_TEST} EQUAL 1)
-   ADD_SUBDIRECTORY(regression)
-ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
 
 
-IF(APPLE)
-    SET(GUI_TYPE MACOSX_BUNDLE)
-    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
-    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
-ENDIF(APPLE)
 LINK_LIBRARIES("${LIBS}")
 
 
@@ -100,12 +92,6 @@ target_link_libraries(${3DMEDITOR_BIN}
 		stdafx logs gfx input console debuginfos 3dtoolbox misc i18n
 		fileformats particles hpi oldgui gui ingame tdf
 		converters animator gfx ta3dmath audio threads)
-
-IF(APPLE)
-	SET(GUI_TYPE MACOSX_BUNDLE)
-	SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
-	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d-editor")
-ENDIF(APPLE)
 
 
 
@@ -207,7 +193,7 @@ ELSE(NOT APPLE)
 	BUNDLE_ADD_LIB("libSDL_net-1.2.0.dylib")
 	BUNDLE_ADD_LIB("libGLEW.1.5.1.dylib")
 	BUNDLE_ADD_LIB("libpng12.0.dylib")
-	
+
 	# --- Resources ---
 	# Sky
 	Message(STATUS "[bundle] Adding resources 'sky'...")
@@ -293,7 +279,7 @@ ELSE(NOT APPLE)
 	BUNDLE_RELINK("libSDL_net-1.2.0.dylib")
 	BUNDLE_RELINK("libGLEW.1.5.1.dylib")
 	BUNDLE_RELINK("libpng12.0.dylib")
-	
+
 ENDIF(NOT APPLE)
 
 
