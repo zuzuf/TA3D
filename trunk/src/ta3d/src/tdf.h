@@ -25,6 +25,7 @@
 #ifndef __TA3D_XX_TDF_H__
 # define __TA3D_XX_TDF_H__
 
+# include <assert.h>
 # include "threads/thread.h"
 # include "gaf.h"
 # include "gfx/particles/particles.h"
@@ -216,9 +217,13 @@ namespace TA3D
 		** \param feature index
 		** \return a pointer to the feature at index 'index'
 		*/
-		Feature *getFeaturePointer(int index);
+		Feature *getFeaturePointer(int index) const
+		{
+			assert(index >= 0 && index < (int)feature.size() && "Out of bounds");
+			return feature[index];
+		}
 
-		inline int getNbFeatures()
+		inline int getNbFeatures() const
 		{
 			return nb_features;
 		}

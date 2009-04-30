@@ -170,7 +170,7 @@ namespace TA3D
 
 	int FeatureManager::get_feature_index(const String &name)
 	{
-		if(name.empty() || nb_features <= 0)
+		if (name.empty())
 			return -1;
 		return feature_hashtable.find(String::ToLower(name)) - 1;
 	}
@@ -188,8 +188,10 @@ namespace TA3D
 	void FeatureManager::destroy()
 	{
 		if (nb_features > 0 && !feature.empty())			// Détruit les éléments
-			for(int i = 0; i < feature.size(); ++i)
+		{
+			for (unsigned int i = 0; i < feature.size(); ++i)
 				delete feature[i];
+		}
 		feature.clear();
 
 		feature_hashtable.emptyHashTable();
@@ -202,7 +204,7 @@ namespace TA3D
 	{
 		if (!feature.empty())
 		{
-			for(int i = 0; i < feature.size() ; ++i)
+			for (unsigned int i = 0; i < feature.size(); ++i)
 			{
 				if (!feature[i]->need_convert)
 					feature[i]->anim.clean();
@@ -218,9 +220,9 @@ namespace TA3D
 		parser.loadFromMemory("TDF",data,size,false,true,true);
 		int	first = nb_features;
 
-		for(int g = 0 ; parser.exists(format("gadget%d",g)) ; g++)
+		for (int g = 0 ; parser.exists(format("gadget%d",g)) ; g++)
 		{
-			String key = format("gadget%d.",g);
+			const String& key = format("gadget%d.",g);
 
 			int index = add_feature( parser.pullAsString(format("gadget%d", g)) );
 			Feature *pFeature = feature[index];
@@ -328,12 +330,6 @@ namespace TA3D
 		}
 	}
 
-	Feature *FeatureManager::getFeaturePointer(int index)
-	{
-		if (index < 0 || index >= feature.size())
-			return NULL;
-		return feature[index];
-	}
 
 
 	void load_features(void (*progress)(float percent, const String& msg)) // Charge tout les éléments
@@ -363,15 +359,18 @@ namespace TA3D
 				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << *curFile << "` failed");
 		}
 
+		// Temporary string - Avoid multiple and unnecessary malloc if outside of the loop
+		String tmp;
+
+		// Foreach item...
 		for (int i = 0 ; i < feature_manager.getNbFeatures() ; ++i)
 		{
 			Feature *feature = feature_manager.getFeaturePointer(i);
 			if (feature->m3d && feature->model == NULL
 				&& !feature->filename.empty() && !feature->seqname.empty())
 			{
-				String tmp(feature->filename);
-				tmp += "-";
-				tmp += feature->seqname;
+				tmp = feature->filename;
+				tmp << "-" << feature->seqname;
 				feature->model = model_manager.get_model(tmp);
 				if (feature->model == NULL)
 					feature->model = model_manager.get_model(String("objects3d\\")+tmp);
@@ -547,9 +546,9 @@ namespace TA3D
 				else
 					Pos.y += pFeature->height * 0.5f;
 
-				float a = Camera::inGame->rpos.y - units.map->sealvl;
-				float b = Pos.y - units.map->sealvl;
-				float c = a + b;
+				const float a = Camera::inGame->rpos.y - units.map->sealvl;
+				const float b = Pos.y - units.map->sealvl;
+				const float c = a + b;
 				if (c == 0.0f)
 					continue;
 				Pos = (a / c) * Pos + (b / c) * Camera::inGame->rpos;
@@ -584,7 +583,7 @@ namespace TA3D
 				{
 					dw *= h / pFeature->anim.h[feature[i].frame];
 
-					if(feature[i].grey)
+					if (feature[i].grey)
 						glColor4ub( 127, 127, 127, 255 );
 					else
 						glColor4ub( 255, 255, 255, 255 );
@@ -889,7 +888,7 @@ namespace TA3D
 	{
 		pMutex.lock();
 
-		Vector3D wind = 0.1f * *p_wind_dir;
+		const Vector3D wind = 0.1f * *p_wind_dir;
 
 		int wind_x = (int)(2.0f * wind.x + 0.5f);
 		int wind_z = (int)(2.0f * wind.z + 0.5f);
