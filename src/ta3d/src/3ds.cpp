@@ -147,7 +147,7 @@ namespace TA3D
             default:
                 fseek( src, chunk.length - 6, SEEK_CUR );
         };
-        return NULL;
+        return String();
     }
 
     MODEL *load_3ds( const String &filename, float scale )
