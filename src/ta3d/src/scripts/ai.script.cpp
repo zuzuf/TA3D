@@ -501,6 +501,65 @@ namespace TA3D
         return 1;
     }
 
+    int ai_kmeans( lua_State *L )        // kmeans( array_of_vectors, k ), returns k centroids
+    {
+        int k = lua_tointeger( L, 2 );
+        int n = lua_objlen(L, 1);
+
+        std::vector<Vector3D> points;       // Read vector data
+        points.resize(n);
+        for(int i = 0 ; i < n ; i++)
+        {
+            lua_rawgeti(L, 1, i);
+            points[i] = lua_tovector(L, 3);
+            lua_pop(L, 1);
+        }
+
+        lua_pop( L, 2 );
+
+        if (n == 0)             // Returns nothing if there is no data
+            return 0;
+
+        std::vector<Vector3D> centroids;
+        for(int i = 0 ; i < k ; i++)
+            centroids.push_back(points[i % n]);
+
+        for(int i = 0 ; i < k + 2 ; k++)           // k + 2 steps for k centroids
+        {
+            std::vector<Vector3D> newCentroids;
+            std::vector<int> clusterSize;
+            newCentroids.resize(k);
+            clusterSize.resize(k);
+            for(int j = 0 ; j < n ; j++)
+            {
+                int clusterID = -1;
+                float best = 0.0f;
+                for(int l = 0 ; l < k ; l++)
+                {
+                    float dist = (points[j] - centroids[l]).sq();
+                    if (dist < best || clusterID == -1)
+                    {
+                        best = dist;
+                        clusterID = l;
+                    }
+                    newCentroids[clusterID] += points[j];
+                    clusterSize[clusterID]++;
+                }
+            }
+            for(int j = 0 ; j < k ; j++)
+                centroids[j] = clusterSize[j] ? 1.0f / clusterSize[j] * newCentroids[j] : newCentroids[j];
+        }
+
+        lua_newtable(L);
+        for(int i = 0 ; i < centroids.size() ; i++)
+        {
+            lua_pushvector(L, centroids[i]);
+            lua_rawseti(L, 1, i);
+        }
+
+        return 1;
+    }
+
     void AiScript::register_functions()
     {
         lua_register(L, "playerID", ai_playerID);                                           // playerID()
@@ -526,6 +585,7 @@ namespace TA3D
         lua_register(L, "attack", ai_attack);                                               // attack( attacker_id, target_id )
         lua_register(L, "get_unit_list", ai_get_unit_list);                                 // get_unit_list( player_id )
         lua_register(L, "get_unit_data", ai_get_unit_data);                                 // get_unit_data( index )
+        lua_register(L, "kmeans", ai_kmeans);                                               // kmeans( array_of_vector, k )
     }
 
     void AiScript::register_info()
