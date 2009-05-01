@@ -70,9 +70,7 @@ void ReadFileParameter();
 
 void config_menu(void)
 {
-    cursor_type=CURSOR_DEFAULT;
-
-    lp_CONFIG->Lang = LANG;
+    cursor_type = CURSOR_DEFAULT;
 
     if (lp_CONFIG->restorestart )
     {
@@ -184,7 +182,7 @@ void config_menu(void)
     config_area.set_state("*.draw_console_loading", lp_CONFIG->draw_console_loading);
     config_area.set_state("*.fullscreen", lp_CONFIG->fullscreen);
     if (config_area.get_object("*.LANG") )
-        config_area.set_caption( "*.LANG", config_area.get_object("*.LANG")->Text[1+lp_CONFIG->Lang]);
+        config_area.set_caption( "*.LANG", lp_CONFIG->Lang);
     if (config_area.get_object("*.camera_zoom") )
         config_area.set_caption( "*.camera_zoom", config_area.get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
     config_area.set_caption( "*.camera_def_angle", format( "%f", lp_CONFIG->camera_def_angle ));
@@ -458,7 +456,7 @@ void config_menu(void)
             if (obj && obj->Value != -1)
             {
                 obj->Text[0] = obj->Text[1 + obj->Value];
-                lp_CONFIG->Lang = obj->Value;
+                lp_CONFIG->Lang = obj->Text[0].toLower();
             }
         }
         if (config_area.get_value("*.screenres") >= 0)
@@ -585,7 +583,6 @@ void config_menu(void)
 
     config_area.destroy();
 
-    LANG = lp_CONFIG->Lang;
     I18N::CurrentLanguage(lp_CONFIG->Lang);
 
     TA3D::Settings::Save();             // Keep settings :)
@@ -2418,15 +2415,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
 
     String narration_file;
     narration_file << "camps\\briefs\\" << ota_parser.pullAsString("GlobalHeader.narration" ) << ".wav"; // The narration file
-    String language_suffix;
-    switch(LANG)
-    {
-        case TA3D_LANG_ENGLISH: language_suffix = "";           break;
-        case TA3D_LANG_FRENCH:  language_suffix = "-french";    break;
-        case TA3D_LANG_GERMAN:  language_suffix = "-german";    break;
-        case TA3D_LANG_SPANISH: language_suffix = "-spanish";   break;
-        case TA3D_LANG_ITALIAN: language_suffix = "-italian";   break;
-    }
+    String language_suffix = (lp_CONFIG->Lang == "english") ? String() : ("-" + lp_CONFIG->Lang);
     String brief_file;
     brief_file << "camps\\briefs" << language_suffix << "\\" << ota_parser.pullAsString("GlobalHeader.brief") << ".txt"; // The brief file
 

@@ -25,7 +25,7 @@
 #include "intro.h"					// intro prototypes,   TODO: phase out.
 #include "menu.h"					// menu prototypes      TODO: phase out.
 #include "engine.h"		       		// The engine class.
-#include "ta3dbase.h"				// Just for the LANG var
+//#include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"
 #include "backtrace.h"				// Some debugging tools
 #include "misc/paths.h"

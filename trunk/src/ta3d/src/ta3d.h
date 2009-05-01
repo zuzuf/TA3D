@@ -20,8 +20,6 @@
 #ifndef TA3D_BASIC_ENGINE
 int expected_players;
 
-int LANG = 1; // Deprecated
-
 int fire;
 int build_part;
 
