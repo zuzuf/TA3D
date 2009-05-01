@@ -24,6 +24,7 @@
 #include "resources.h"
 #include <stdlib.h>
 #include "../TA3D_NameSpace.h"
+#include "settings.h"
 
 
 
@@ -65,6 +66,9 @@ namespace TA3D
 
         // Interface Manager
         InterfaceManager = new IInterfaceManager();
+
+        // Load settings early only to get current mod name
+        TA3D::Settings::Load();
 
         // Creating HPI Manager
         TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
