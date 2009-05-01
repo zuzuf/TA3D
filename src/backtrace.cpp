@@ -81,7 +81,7 @@ void backtrace_handler (int signum)
 
 		String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
             + TA3D::Paths::Logs
-            + "backtrace.txt\nPlease report to our forums (http://ta3d.darkstars.co.uk/)\nand keep this file, it'll help us debugging.\n";
+            + "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
 
         # ifdef TA3D_PLATFORM_WINDOWS
 		    ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
@@ -107,7 +107,7 @@ void backtrace_handler (int signum)
 
         // The backtrace support is disabled: warns the user
 	    String szErrReport = "An error has occured.\nDebugging information could not be logged because this isn't\nnot supported for your system.\nPlease report to \
-our forums (http://ta3d.darkstars.co.uk/) so we can fix it.";
+our forums (http://www.ta3d.org/) so we can fix it.";
         # ifdef TA3D_PLATFORM_WINDOWS
 	        ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
         # else
