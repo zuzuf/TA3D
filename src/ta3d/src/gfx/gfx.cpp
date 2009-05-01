@@ -185,20 +185,20 @@ namespace TA3D
 		shadowMap = 0;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-		normal_font = font_manager.getFont("FreeSans", 10, FONT_TYPE_TEXTURE);
+		normal_font = font_manager.find("FreeSans", 10, Font::typeTexture);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-		small_font = font_manager.getFont("FreeMono", 8, FONT_TYPE_TEXTURE);
+		small_font = font_manager.find("FreeMono", 8, Font::typeTexture);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
-		TA_font = font_manager.getFont("FreeSans", 16, FONT_TYPE_TEXTURE);
+		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-		ta3d_gui_font = font_manager.getFont("FreeSerif", 10 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+		ta3d_gui_font = font_manager.find("FreeSerif", 10 * SCREEN_W / 640, Font::typeTexture);
 		gui_font = ta3d_gui_font;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
-		big_font = font_manager.getFont("FreeSans", 16 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+		big_font = font_manager.find("FreeSans", 16 * SCREEN_W / 640, Font::typeTexture);
 
 		InitInterface();
 		displayInfosAboutOpenGL();
