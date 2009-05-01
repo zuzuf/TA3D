@@ -3,6 +3,34 @@
     name=french;
     caption=Français;
 }
+[register]
+{
+    FRENCH=Créer un compte;
+}
+[log in]
+{
+    FRENCH=Connexion;
+}
+[log out]
+{
+    FRENCH=Déconnexion;
+}
+[server message]
+{
+    FRENCH=Message du serveur;
+}
+[Password]
+{
+    FRENCH=Mot de passe;
+}
+[Mouse sensitivity]
+{
+    FRENCH=sensibilité de la souris;
+}
+[explosion particles]
+{
+    FRENCH=particules des explosions;
+}
 [Far sight]
 {
     FRENCH=Vue infinie;
@@ -593,7 +621,7 @@
 }
 [antialiasing]
 {
-	FRENCH=antialiashing;
+	FRENCH=anticrénelage;
 }
 [water quality]
 {
