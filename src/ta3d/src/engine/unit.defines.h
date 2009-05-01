@@ -1,21 +1,6 @@
-/*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
+#ifndef __TA3D_ENGINE_UNIT_DEFINES_H__
+# define __TA3D_ENGINE_UNIT_DEFINES_H__
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
-#ifndef __UNIT_DEFINES_H__
-# define  __UNIT_DEFINES_H__
 
 # define  ACTIVATION          1   // set or get
 # define  STANDINGMOVEORDERS  2   // set or get
@@ -47,4 +32,5 @@
 # define  UNIT_IS_ON_THIS_COMP        75      // indicates if the 1st parameter(a unit ID) is local to this computer
 # define  VETERAN_LEVEL               32      // gets kills * 100
 
-#endif
+
+#endif // __TA3D_ENGINE_UNIT_DEFINES_H__

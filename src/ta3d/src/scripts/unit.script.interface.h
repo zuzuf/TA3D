@@ -78,6 +78,11 @@ namespace TA3D
     */
     class UnitScriptInterface : public ScriptInterface
     {
+    public:
+        static UnitScriptInterface *instanciate( ScriptData *data );
+        static const String get_script_name(int id);
+        static int get_script_id(const String &name);
+
     protected:
         uint32                  unitID;
         UTILS::cHashTable<int>  return_value;
@@ -92,10 +97,7 @@ namespace TA3D
 
     private:
         static const char *script_name[];
-    public:
-        static UnitScriptInterface *instanciate( ScriptData *data );
-        static String get_script_name(int id);
-        static int get_script_id(const String &name);
+
     };
 }
 
