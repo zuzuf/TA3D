@@ -572,6 +572,10 @@ namespace TA3D
 
     void SKIN::ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy)
     {
+        // Normalize shadow offsets
+        dx *= SCREEN_W / 800.0f;
+        dy *= SCREEN_H / 800.0f;
+
         x1 += dx;
         y1 += dy;
         x2 += dx;
