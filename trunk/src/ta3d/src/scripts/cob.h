@@ -29,8 +29,8 @@
 
 # include "../stdafx.h"
 # include "script.data.h"
+# include "../engine/unit.defines.h"
 
-#include "unit.defines.h"
 
 namespace TA3D
 {

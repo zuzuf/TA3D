@@ -98,7 +98,9 @@ target_link_libraries(${3DMEDITOR_BIN}
 SET(SRC_ENGINE
 		UnitEngine.cpp UnitEngine.h
 		EngineClass.cpp EngineClass.h
-		engine/weapondata.h  engine/weapondata.hxx)
+		engine/weapondata.h  engine/weapondata.hxx
+		engine/unit.h  engine/unit.cpp engine/unit.defines.h
+		)
 
 
 # --------------------------------------------------------------------

@@ -72,26 +72,29 @@ namespace TA3D
             "AimFromTertiary"
         };
 
-    String UnitScriptInterface::get_script_name(int id)
-    {
-        if (id < 0) return String();
-        if (id >= NB_SCRIPT)            // Special case for weapons
-        {
-            int weaponID = (id - NB_SCRIPT) / 4 + 4;
-            switch((id - NB_SCRIPT) % 4)
-            {
-            case 0:         // QueryWeapon
-                return format("QueryWeapon%d", weaponID);
-            case 1:         // AimWeapon
-                return format("AimWeapon%d", weaponID);
-            case 2:         // AimFromWeapon
-                return format("AimFromWeapon%d", weaponID);
-            case 3:         // FireWeapon
-                return format("FireWeapon%d", weaponID);
-            };
-        }
-        return script_name[id];
-    }
+
+	const String UnitScriptInterface::get_script_name(int id)
+	{
+		if (id < 0)
+			return String();
+		if (id >= NB_SCRIPT)            // Special case for weapons
+		{
+			const int weaponID = (id - NB_SCRIPT) / 4 + 4;
+			switch((id - NB_SCRIPT) % 4)
+			{
+				case 0:         // QueryWeapon
+					return format("QueryWeapon%d", weaponID);
+				case 1:         // AimWeapon
+					return format("AimWeapon%d", weaponID);
+				case 2:         // AimFromWeapon
+					return format("AimFromWeapon%d", weaponID);
+				case 3:         // FireWeapon
+					return format("FireWeapon%d", weaponID);
+			}
+		}
+		return script_name[id];
+	}
+
 
     int UnitScriptInterface::get_script_id(const String &name)
     {
