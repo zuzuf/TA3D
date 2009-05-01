@@ -25,6 +25,7 @@
 # include "../EngineClass.h"
 # include "../misc/rect.h"
 # include "../misc/material.light.h"
+# include "../scripts/script.h"
 
 
 
