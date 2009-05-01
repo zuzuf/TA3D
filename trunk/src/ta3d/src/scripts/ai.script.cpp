@@ -472,23 +472,26 @@ namespace TA3D
             ai_get_build_list(L);
             lua_setfield(L, -2, "buildlist");
 
-            lua_pushboolean(L, pType->BuildCostMetal);      // metal cost
+            lua_pushinteger(L, pType->BuildCostMetal);      // metal cost
             lua_setfield(L, -2, "metalcost");
 
-            lua_pushboolean(L, pType->BuildCostEnergy);     // energy cost
+            lua_pushinteger(L, pType->BuildCostEnergy);     // energy cost
             lua_setfield(L, -2, "energycost");
 
-            lua_pushboolean(L, pType->EnergyMake);     // energy make
+            lua_pushinteger(L, pType->EnergyMake);     // energy make
             lua_setfield(L, -2, "energymake");
 
-            lua_pushboolean(L, pType->MetalMake);     // metal make
+            lua_pushinteger(L, pType->MetalMake);     // metal make
             lua_setfield(L, -2, "metalmake");
 
-            lua_pushboolean(L, pType->EnergyUse);     // energy use
+            lua_pushinteger(L, pType->EnergyUse);     // energy use
             lua_setfield(L, -2, "energyuse");
 
-            lua_pushboolean(L, pType->EnergyStorage);     // energy storage
+            lua_pushinteger(L, pType->EnergyStorage);     // energy storage
             lua_setfield(L, -2, "energystorage");
+
+            lua_pushinteger(L, pType->MetalStorage);     // metal storage
+            lua_setfield(L, -2, "metalstorage");
 
             lua_pushboolean(L, pType->MetalStorage);     // metal storage
             lua_setfield(L, -2, "metalstorage");
