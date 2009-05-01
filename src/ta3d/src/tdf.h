@@ -376,7 +376,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		void move(const float dt, MAP* map, bool clean = true);
+		void move(const float dt, bool clean = true);
 
 		/*!
 		** \brief Simulates forest fires & tree reproduction (running in weapon thread,
