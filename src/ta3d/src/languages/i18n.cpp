@@ -241,6 +241,13 @@ namespace TA3D
         pMutex.lock();
         // Load the file
         bool r = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
+        const String &languageEnglishID = pTranslations.pullAsString( Paths::ExtractFileNameWithoutExtension(filename).toLower() + "_englishid" );
+        const String &languageCaption = pTranslations.pullAsString( Paths::ExtractFileNameWithoutExtension(filename).toLower() + "_caption" );
+        // This file register a new language
+        if (!languageEnglishID.empty() && !languageCaption.empty() && language(languageEnglishID) == NULL)
+        {
+            (void) doAddNewLanguage(languageEnglishID, languageCaption);
+        }
         pMutex.unlock();
 
         // Success

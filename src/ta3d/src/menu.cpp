@@ -181,8 +181,16 @@ void config_menu(void)
     config_area.set_state("*.use_texture_cache", lp_CONFIG->use_texture_cache);
     config_area.set_state("*.draw_console_loading", lp_CONFIG->draw_console_loading);
     config_area.set_state("*.fullscreen", lp_CONFIG->fullscreen);
-    if (config_area.get_object("*.LANG") )
-        config_area.set_caption( "*.LANG", lp_CONFIG->Lang);
+    std::vector<I18N::Language> languageList;
+    I18N::Instance()->retrieveAllLanguages(languageList);
+    if (config_area.get_object("*.LANG"))
+    {
+        GUIOBJ *objLang = config_area.get_object("*.LANG");
+        objLang->Text.clear();
+        objLang->Text.push_back(lp_CONFIG->Lang);
+        for(int i = 0 ; i < languageList.size() ; i++)
+            objLang->Text.push_back( languageList[i].caption() );
+    }
     if (config_area.get_object("*.camera_zoom") )
         config_area.set_caption( "*.camera_zoom", config_area.get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
     config_area.set_caption( "*.camera_def_angle", format( "%f", lp_CONFIG->camera_def_angle ));
@@ -456,7 +464,7 @@ void config_menu(void)
             if (obj && obj->Value != -1)
             {
                 obj->Text[0] = obj->Text[1 + obj->Value];
-                lp_CONFIG->Lang = obj->Text[0].toLower();
+                lp_CONFIG->Lang = languageList[obj->Value].englishCaption();
             }
         }
         if (config_area.get_value("*.screenres") >= 0)
