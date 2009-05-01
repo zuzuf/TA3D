@@ -27,6 +27,7 @@
 #include "stdafx.h"
 #include <vector>
 #include <list>
+#include <algorithm>
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
@@ -39,8 +40,8 @@
 #include "ingame/players.h"
 #include "misc/tdf.h"
 #include "misc/paths.h"
+#include "engine/mission.h"
 
-#define SWAP(a, b) { sint32 tmp = a; a = b; b = tmp; }
 
 
 
@@ -919,13 +920,13 @@ namespace TA3D
                 {
                     if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 )
                     {
-                        SWAP( Pic_p[e], Pic_p[i] )
-                            SWAP( Pic_x[e], Pic_x[i] )
-                            SWAP( Pic_y[e], Pic_y[i] )
-                            SWAP( Pic_w[e], Pic_w[i] )
-                            SWAP( Pic_h[e], Pic_h[i] )
-                            SWAP( PicList[e], PicList[i] )
-                            SWAP( BuildList[e], BuildList[i] )
+                        std::swap( Pic_p[e], Pic_p[i] );
+                        std::swap( Pic_x[e], Pic_x[i] );
+                        std::swap( Pic_y[e], Pic_y[i] );
+                        std::swap( Pic_w[e], Pic_w[i] );
+                        std::swap( Pic_h[e], Pic_h[i] );
+                        std::swap( PicList[e], PicList[i] );
+                        std::swap( BuildList[e], BuildList[i] );
                     }
                 }
             }
@@ -983,13 +984,13 @@ namespace TA3D
             for( int e = i + 1 ; e < nb_unit ; e++ )
                 if (Pic_p[e] < Pic_p[i])
                 {
-                    SWAP( Pic_p[e], Pic_p[i] )
-                        SWAP( Pic_x[e], Pic_x[i] )
-                        SWAP( Pic_y[e], Pic_y[i] )
-                        SWAP( Pic_w[e], Pic_w[i] )
-                        SWAP( Pic_h[e], Pic_h[i] )
-                        SWAP( PicList[e], PicList[i] )
-                        SWAP( BuildList[e], BuildList[i] )
+                    std::swap(Pic_p[e], Pic_p[i] );
+                        std::swap(Pic_x[e], Pic_x[i]);
+                        std::swap(Pic_y[e], Pic_y[i]);
+                        std::swap(Pic_w[e], Pic_w[i]);
+                        std::swap(Pic_h[e], Pic_h[i]);
+                        std::swap(PicList[e], PicList[i]);
+                        std::swap(BuildList[e], BuildList[i]);
                 }
         for (int i = 0; i < nb_unit; ++i)
             nb_pages = Math::Max(nb_pages, Pic_p[i]);

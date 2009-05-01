@@ -123,7 +123,7 @@ namespace TA3D
             target_unit->unlock();
         }
         pMutex.lock();
-        MISSION* old = mission;
+        Mission* old = mission;
         mission = mission->next;
         if (old->path)				// Détruit le chemin si nécessaire
             destroy_path(old->path);
@@ -391,7 +391,7 @@ namespace TA3D
         pMutex.lock();
         while (def_mission)
         {
-            MISSION* old = def_mission;
+            Mission* old = def_mission;
             def_mission = def_mission->next;
             if (old->path)				// Détruit le chemin si nécessaire
                 destroy_path(old->path);
@@ -492,8 +492,8 @@ namespace TA3D
         if (type_id != -1 && mission_type == MISSION_BUILD && unit_manager.unit_type[type_id]->BMcode && unit_manager.unit_type[type_id]->Builder && target != NULL)
         {
             bool removed = false;
-            MISSION *cur_mission = mission;
-            MISSION *prec = cur_mission;
+            Mission *cur_mission = mission;
+            Mission *prec = cur_mission;
             if (cur_mission)
                 cur_mission = cur_mission->next;		// Don't read the first one ( which is being executed )
 
@@ -505,7 +505,7 @@ namespace TA3D
                     && x_space < ((unit_manager.unit_type[ dat ]->FootprintX + unit_manager.unit_type[ cur_mission->data ]->FootprintX) << 2)
                     && z_space < ((unit_manager.unit_type[ dat ]->FootprintZ + unit_manager.unit_type[ cur_mission->data ]->FootprintZ) << 2) ) // Remove it
                 {
-                    MISSION *tmp = cur_mission;
+                    Mission *tmp = cur_mission;
                     cur_mission = cur_mission->next;
                     prec->next = cur_mission;
                     if (tmp->path)				// Destroy the path if needed
@@ -523,7 +523,7 @@ namespace TA3D
                 return;
         }
 
-        MISSION *new_mission = new MISSION();
+        Mission *new_mission = new Mission();
         new_mission->next = NULL;
         new_mission->mission = mission_type;
         new_mission->target_ID = target_ID;
@@ -541,11 +541,11 @@ namespace TA3D
 
         if (patrol_node == -1 && mission_type == MISSION_PATROL)
         {
-            MISSION *mission_base = def_mode ? def_mission : mission;
+            Mission *mission_base = def_mode ? def_mission : mission;
             if (mission_base) // Ajoute l'ordre aux autres
             {
-                MISSION *cur = mission_base;
-                MISSION *last = NULL;
+                Mission *cur = mission_base;
+                Mission *last = NULL;
                 patrol_node = 0;
                 while (cur != NULL)
                 {
@@ -572,7 +572,7 @@ namespace TA3D
         if (target)
             new_mission->target = *target;
 
-        MISSION* stop = !(inserted) ? new MISSION() : NULL;
+        Mission* stop = !(inserted) ? new Mission() : NULL;
         if (stop)
         {
             stop->mission = MISSION_STOP;
@@ -605,10 +605,10 @@ namespace TA3D
         }
         else
         {
-            MISSION* mission_base = def_mode ? def_mission : mission;
+            Mission* mission_base = def_mode ? def_mission : mission;
             if (mission_base && !inserted ) // Ajoute l'ordre aux autres
             {
-                MISSION* cur = mission_base;
+                Mission* cur = mission_base;
                 while (cur->next!=NULL)
                     cur=cur->next;
                 if (((( cur->mission == MISSION_MOVE || cur->mission == MISSION_PATROL || cur->mission == MISSION_STANDBY
@@ -768,7 +768,7 @@ namespace TA3D
 
         if (def_mode)
         {
-            def_mission = new MISSION();
+            def_mission = new Mission();
             def_mission->next = NULL;
             def_mission->mission = mission_type;
             def_mission->target_ID = target_ID;
@@ -786,7 +786,7 @@ namespace TA3D
 
             if (stopit)
             {
-                MISSION *stop = new MISSION();
+                Mission *stop = new Mission();
                 stop->next = def_mission;
                 stop->mission = MISSION_STOP;
                 stop->step = true;
@@ -802,7 +802,7 @@ namespace TA3D
         }
         else
         {
-            mission = new MISSION();
+            mission = new Mission();
             mission->next = NULL;
             mission->mission = mission_type;
             mission->target_ID = target_ID;
@@ -820,7 +820,7 @@ namespace TA3D
 
             if (stopit)
             {
-                MISSION *stop = new MISSION();
+                Mission *stop = new Mission();
                 stop->next = mission;
                 stop->mission = MISSION_STOP;
                 stop->step = true;
@@ -882,7 +882,7 @@ namespace TA3D
             return;
         }
         bool old_step = mission->step;
-        MISSION *old=mission;
+        Mission *old=mission;
         mission=mission->next;
         if (old->path)				// Détruit le chemin si nécessaire
             destroy_path(old->path);
@@ -3154,22 +3154,22 @@ namespace TA3D
                                 }
                             }
 
-                            MISSION* cur = mission;					// Make a copy of current list to make it loop 8)
+                            Mission* cur = mission;					// Make a copy of current list to make it loop 8)
                             while (cur->next)
                                 cur = cur->next;
-                            cur->next = new MISSION();
+                            cur->next = new Mission();
                             *(cur->next) = *mission;
                             cur->next->path = NULL;
                             cur->next->next = NULL;
                             cur->next->flags |= MISSION_FLAG_MOVE;
 
-                            MISSION *cur_start = mission->next;
+                            Mission *cur_start = mission->next;
                             while( cur_start != NULL && cur_start->mission != MISSION_PATROL )
                             {
                                 cur = cur_start;
                                 while (cur->next)
                                     cur = cur->next;
-                                cur->next = new MISSION();
+                                cur->next = new Mission();
                                 *(cur->next) = *cur_start;
                                 cur->next->path = NULL;
                                 cur->next->next = NULL;
@@ -3494,17 +3494,17 @@ namespace TA3D
                                         target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
                                     else
                                     {
-                                        target_unit->mission = new MISSION();
-                                        MISSION *target_mission = target_unit->mission;
+                                        target_unit->mission = new Mission();
+                                        Mission *target_mission = target_unit->mission;
                                         *target_mission = *def_mission;
                                         target_mission->next = NULL;
                                         target_mission->path = NULL;
                                         while (target_mission->next != NULL)
                                             target_mission = target_mission->next;
-                                        MISSION *cur = def_mission->next;
+                                        Mission *cur = def_mission->next;
                                         while (cur)// Copy mission list
                                         {
-                                            target_mission->next = new MISSION();
+                                            target_mission->next = new Mission();
                                             target_mission = target_mission->next;
                                             *target_mission = *cur;
                                             target_mission->next = NULL;
@@ -4255,7 +4255,7 @@ script_exec:
 
         bool low_def = (Camera::inGame->rpos.y > gfx->low_def_limit);
 
-        MISSION *cur = def_orders ? def_mission : mission;
+        Mission *cur = def_orders ? def_mission : mission;
         if (low_def )
         {
             glEnable(GL_BLEND);
@@ -5470,7 +5470,7 @@ script_exec:
                     int ph = unit_manager.unit_type[unit[index].type_id]->Pic_h[ i ];
 
                     int nb=0;
-                    MISSION *m=unit[index].mission;
+                    Mission *m=unit[index].mission;
                     while(m)
                     {
                         if ((m->mission==MISSION_BUILD || m->mission==MISSION_BUILD_2) && m->data==unit_manager.unit_type[unit[index].type_id]->BuildList[i])
@@ -6349,12 +6349,12 @@ script_exec:
             unit[i].lock();
             if ((unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f) // && unit_manager.unit_type[unit[i].type_id]->Builder)
             {
-                MISSION *mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
-                MISSION *prec = mission;
+                Mission *mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
+                Mission *prec = mission;
                 if (mission != NULL && unit_manager.unit_type[unit[i].type_id]->BMcode)
                     mission = mission->next;		// Don't read the first one ( which is being executed )
 
-                MISSION fake;
+                Mission fake;
                 if (!unit_manager.unit_type[unit[i].type_id]->BMcode ) // It's a hack to make sure it will work with first given order
                 {
                     fake.next = mission;
@@ -6372,7 +6372,7 @@ script_exec:
                     {
                         if (!mission->step && (mission->target - target).sq() < 256.0f) // Remove it
                         {
-                            MISSION *tmp = mission;
+                            Mission *tmp = mission;
                             mission = mission->next;
                             prec->next = mission;
                             if (tmp->path)				// Destroy the path if needed

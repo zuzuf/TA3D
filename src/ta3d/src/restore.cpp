@@ -27,6 +27,7 @@
 #include "UnitEngine.h"
 #include "restore.h"
 #include "ingame/players.h"
+#include "engine/mission.h"
 
 
 
@@ -347,9 +348,9 @@ void save_game( const String filename, GameData *game_data )
 
         SAVE( units.unit[i].command_locked );
 
-        for (MISSION *start = units.unit[i].mission; true; start = units.unit[i].def_mission)
+        for (Mission *start = units.unit[i].mission; true; start = units.unit[i].def_mission)
         {
-            for (MISSION *cur = start; cur; cur = cur->next)
+            for (Mission *cur = start; cur; cur = cur->next)
             {
                 gzputc(file, 1);
                 SAVE( cur->mission );
@@ -903,17 +904,17 @@ void load_game( GameData *game_data )
 
         LOAD( units.unit[i].command_locked );
 
-        for( MISSION **start = &(units.unit[i].mission) ; true ; start = &(units.unit[i].def_mission) )
+        for (Mission **start = &(units.unit[i].mission) ; true ; start = &(units.unit[i].def_mission) )
         {
             byte c = gzgetc( file );
             if( c == 0 )
                 *start = NULL;
             else
             {
-                MISSION **cur = start;
+                Mission **cur = start;
                 do
                 {
-                    *cur = new MISSION;
+                    *cur = new Mission();
                     (*cur)->next = NULL;
                     LOAD( (*cur)->mission );
                     LOAD( (*cur)->target );
