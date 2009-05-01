@@ -45,6 +45,7 @@
 #include "../scripts/lua.env.h"
 #include "../gfx/shader.h"
 #include "players.h"
+#include "../engine/mission.h"
 
 
 
@@ -3078,8 +3079,8 @@ namespace TA3D
 			if (sel >= 0 && mouse_b == 2 && omb2 != 2)
 			{
 				units.unit[cur_sel_index].lock();
-				MISSION*  cur = units.unit[cur_sel_index].mission;
-				MISSION** old = &(units.unit[cur_sel_index].mission);
+				Mission*  cur = units.unit[cur_sel_index].mission;
+				Mission** old = &(units.unit[cur_sel_index].mission);
 				int nb(1);
 				if (TA3D_SHIFT_PRESSED)
 					nb = 5;

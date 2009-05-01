@@ -67,32 +67,6 @@
 # define CLASS_COMMANDER        0x0400
 # define CLASS_CNSTR            0x0800
 
-# define MISSION_STANDBY        0x00        // Aucune mission
-# define MISSION_VTOL_STANDBY   0x01
-# define MISSION_GUARD_NOMOVE   0x02        // Patrouille immobile
-# define MISSION_MOVE           0x03        // Déplacement de l'unité
-# define MISSION_BUILD          0x04        // Création d'une unité
-# define MISSION_BUILD_2        0x05        // Construction d'une unité
-# define MISSION_STOP           0x06        // Arrêt des opérations en cours
-# define MISSION_REPAIR         0x07        // Réparation d'une unité
-# define MISSION_ATTACK         0x08        // Attaque une unité
-# define MISSION_PATROL         0x09        // Patrouille
-# define MISSION_GUARD          0x0A        // Surveille une unité
-# define MISSION_RECLAIM        0x0B        // Récupère une unité/un cadavre
-# define MISSION_LOAD           0x0C        // Load other units
-# define MISSION_UNLOAD         0x0D        // Unload other units
-# define MISSION_STANDBY_MINE   0x0E        // Mine mission, must explode when an enemy gets too close
-# define MISSION_REVIVE         0x0F        // Resurrect a wreckage
-# define MISSION_CAPTURE        0x10        // Capture an enemy unit
-# define MISSION_GET_REPAIRED   0x20        // For aircrafts getting repaired by air repair pads
-
-// Specific campaign missions
-# define MISSION_WAIT           0x21        // Wait for a specified time
-# define MISSION_WAIT_ATTACKED  0x22        // Wait until a specified unit is attacked
-
-# define MISSION_FLAG_AUTO      0x10000     // Mission is sent from UNIT::move so don't ignore it
-
-
 
 
 namespace TA3D

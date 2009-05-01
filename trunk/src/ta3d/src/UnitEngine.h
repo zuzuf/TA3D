@@ -35,19 +35,8 @@
 # include "scripts/unit.script.interface.h"
 # include "scripts/unit.defines.h"
 # include "engine/weapondata.h"
+# include "engine/mission.h"
 
-
-# define MISSION_FLAG_CAN_ATTACK		0x01
-# define MISSION_FLAG_SEARCH_PATH	0x02
-# define MISSION_FLAG_TARGET_WEAPON	0x04
-# define MISSION_FLAG_COMMAND_FIRE	0x08
-# define MISSION_FLAG_MOVE			0x10
-# define MISSION_FLAG_REFRESH_PATH	0x20
-# define MISSION_FLAG_DONT_STOP_MOVE	0x40
-# define MISSION_FLAG_COMMAND_FIRED	0x80
-# define MISSION_FLAG_TARGET_CHECKED	0x08			// For MISSION_CAPTURE to tell when data has been set to the time left before capture is finished
-# define MISSION_FLAG_PAD_CHECKED	0x08			// For MISSION_GET_REPAIRED to tell when data has been set to the landing pad
-# define MISSION_FLAG_BEING_REPAIRED	0x04			// For MISSION_GET_REPAIRED to tell the unit is being repaired
 
 
 
@@ -72,23 +61,6 @@ namespace TA3D
 	extern int MAX_UNIT_PER_PLAYER;
 
 	void *create_unit(int type_id, int owner, Vector3D pos, MAP *map, bool sync = true, bool script = false);
-
-	struct MISSION			// Structure pour stocker les ordres
-	{
-		uint8		mission;
-		PATH_NODE	*path;		// Chemin emprunté par l'unité si besoin pour la mission
-		Vector3D	target;
-		MISSION 	*next;		// Mission suivante
-		bool		step;		// Etape d'une mission
-		float		time;		// Temps écoulé depuis la création de l'ordre
-		int			data;		// Données de l'ordre
-		byte		flags;		// Données supplémentaires
-		float		last_d;		// Dernière distance enregistrée
-		void		*p;			// Pointer to whatever we need
-		uint32		target_ID;	// Identify a target unit
-		int			move_data;	// Required data for the moving part of the order
-		uint16		node;		// Tell which patrol node is this mission
-	};
 
 
 	class Unit	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
@@ -221,8 +193,8 @@ namespace TA3D
 		ANIMATION_DATA          data;			// Données pour l'animation de l'unité par le script
 		bool					drawing;
 		sint16					*port;			// Ports
-		MISSION					*mission;		// Orders given to the unit
-		MISSION					*def_mission;	// Orders given to units built by this plant
+		Mission					*mission;		// Orders given to the unit
+		Mission					*def_mission;	// Orders given to units built by this plant
 		byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
 		int                     kills;          // How many kills did this unit
 		// 0	-> nothing
