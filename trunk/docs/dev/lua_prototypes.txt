@@ -140,6 +140,7 @@ kmeans( array_of_vector, k )                // returns the result of the k-means
 map_h()
 map_w()
 nb_players()
+nb_unit_types()
 playerID()
 player_side( player_id )
 self_destruct_unit( unit_id )

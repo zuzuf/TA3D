@@ -620,6 +620,12 @@ namespace TA3D
         return 1;
     }
 
+    int ai_nb_unit_types( lua_State *L )        // nb_unit_types()
+    {
+        lua_pushinteger(L, unit_manager.nb_unit);
+        return 1;
+    }
+
     void AiScript::register_functions()
     {
         lua_register(L, "playerID", ai_playerID);                                           // playerID()
@@ -648,6 +654,7 @@ namespace TA3D
         lua_register(L, "kmeans", ai_kmeans);                                               // kmeans( array_of_vector, k )
         lua_register(L, "get_build_list", ai_get_build_list);                               // get_build_list( type )
         lua_register(L, "get_type_data", ai_get_type_data);                                 // get_type_data( type )
+        lua_register(L, "nb_unit_types", ai_nb_unit_types);                                 // nb_unit_types()
     }
 
     void AiScript::register_info()
