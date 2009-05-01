@@ -92,14 +92,6 @@ namespace TA3D
         return lng;
     }
 
-    I18N::Language* I18N::language(const int indx)
-    {
-        if (indx < 0)
-            return NULL;
-        MutexLocker locker(pMutex);
-        return (indx < (int)pLanguages.size()) ? pLanguages[indx] : NULL;
-    }
-
     I18N::Language* I18N::language(const String& name)
     {
         if (name.empty())
