@@ -146,16 +146,12 @@ const String Dialogf(const String &Title, String Filter)
                 }
             }
 
-            gfx->SetDefState();
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
@@ -228,16 +224,12 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
                 answer = true;
             }
 
-            gfx->SetDefState();
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
@@ -291,16 +283,12 @@ void Popup(const String &Title,const String &Msg)
             if (key[KEY_ENTER] || current_area->get_state("popup.b_ok"))
                 done = true;
 
-            gfx->SetDefState();
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
@@ -354,16 +342,12 @@ const String GetVal(const String &Title)
                 result = current_area->get_caption("ask.t_result");
             }
 
-            gfx->SetDefState();
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
