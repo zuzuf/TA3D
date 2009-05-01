@@ -265,10 +265,9 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("resources/intro" "intro" "*.txt")
 	# Translations
 	Message(STATUS "[bundle] Adding resources 'languages'...")
-	BUNDLE_INSTALL_GLOB("resources/languages" "languages" "*.txt")
+	BUNDLE_INSTALL_GLOB("resources/languages" "languages" "*.po")
 
 	# *.res
-	BUNDLE_BASIC_INSTALL("resources" "./resources" "ta3d.res")
 	BUNDLE_BASIC_INSTALL("resources" "./resources" "3dmeditor.res")
 
 	# OS X specific
