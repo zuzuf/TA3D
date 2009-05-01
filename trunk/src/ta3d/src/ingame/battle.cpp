@@ -1448,9 +1448,9 @@ namespace TA3D
 			// That code was rewritten multithreaded
 			if (!lp_CONFIG->pause)
 			{
-				float timetosimulate = dt * units.apparent_timefactor;// Physics calculations take place here
+				const float timetosimulate = dt * units.apparent_timefactor;// Physics calculations take place here
 				wind_change = false; // Don't try to run following code in separate thread
-				features.move(timetosimulate, map.get()); // Animate objects
+				features.move(timetosimulate); // Animate objects
 				fx_manager.move(timetosimulate);
 			}
 

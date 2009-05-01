@@ -120,7 +120,7 @@ namespace Logs
 	class AbstractLogMsg
 	{
 	public:
-        //! Destructor
+		//! Destructor
 		virtual ~AbstractLogMsg() {}
 
 		/*!
@@ -129,10 +129,10 @@ namespace Logs
 		*/
 		virtual std::string	header() const = 0;
 
-        /*!
-        ** \brief Reimplement this to forward the message to the console
-        */
-        virtual void forwardToConsole(const std::string& msg) const = 0;
+		/*!
+		** \brief Reimplement this to forward the message to the console
+		*/
+		virtual void forwardToConsole(const std::string& msg) const = 0;
 
 		/*!
 		** \brief Implement this to set the minimal log level for the messages to appear.
@@ -146,21 +146,21 @@ namespace Logs
 		*/
 		virtual std::string color() const
 		{
-            # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 			return "[1m";
-			# else
+# else
 			return "";
-			# endif
+# endif
 		}
 
 		//! Reimplement this to reset the color to a default value.
 		virtual std::string resetColor() const
 		{
-            # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 			return "[0m";
-			# else
+# else
 			return "";
-			# endif
+# endif
 		}
 
 		//! Used to produce the date string
@@ -170,16 +170,16 @@ namespace Logs
 
 			time(&rawtime);
 
-            # ifdef TA3D_PLATFORM_WINDOWS
+# ifdef TA3D_PLATFORM_WINDOWS
 			struct tm* timeinfo = localtime(&rawtime);
 			char* asc;
 			asc = asctime(timeinfo);
-            # else
+# else
 			struct tm* timeinfo;
-            timeinfo = localtime(&rawtime);
+			timeinfo = localtime(&rawtime);
 			char asc[32];
 			asctime_r(timeinfo, asc);
-            # endif // WINDOWS
+# endif // WINDOWS
 			asc[strlen(asc) - 1] = 0;
 			std::ostringstream s;
 			s << "[" << asc << "] ";
@@ -198,13 +198,13 @@ namespace Logs
 	public:
 		virtual int minimalLevel() const { return LOG_LEVEL_DEBUG; }
 		virtual ~LogDebugMsg() {}
-        # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() const { return "[0m"; }
-		# else
+# else
 		virtual std::string color() const { return ""; }
-		# endif
+# endif
 		virtual std::string header() const { return "[debug] "; }
-        virtual void forwardToConsole(const std::string& msg) const {}
+		virtual void forwardToConsole(const std::string&) const {}
 	};
 
 	/*!
@@ -215,13 +215,13 @@ namespace Logs
 	public:
 		virtual int minimalLevel() const { return LOG_LEVEL_INFO; }
 		virtual ~LogInfoMsg() {}
-        # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() const { return "[1;32m"; }
-		# else
+# else
 		virtual std::string color() const { return ""; }
-		# endif
+# endif
 		virtual inline std::string header() const { return "[infos] "; }
-        virtual void forwardToConsole(const std::string& msg) const;
+		virtual void forwardToConsole(const std::string& msg) const;
 	};
 
 	/*!
@@ -232,13 +232,13 @@ namespace Logs
 	public:
 		virtual int minimalLevel() const { return LOG_LEVEL_WARNING; }
 		virtual ~LogWarningMsg() {}
-        # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() const { return "[1;33m"; }
-		# else
+# else
 		virtual std::string color() const { return ""; }
-		# endif
+# endif
 		virtual inline std::string header() const { return "[warns] "; }
-        virtual void forwardToConsole(const std::string& msg) const;
+		virtual void forwardToConsole(const std::string& msg) const;
 	};
 
 	/*!
@@ -249,16 +249,16 @@ namespace Logs
 	public:
 		virtual int minimalLevel() const { return LOG_LEVEL_ERROR; }
 		virtual ~LogErrorMsg() {}
-        # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() const { return "[1;31m"; }
-		# else
+# else
 		virtual std::string color() const { return ""; }
-		# endif
+# endif
 		virtual inline std::string header() const { return "[error] "; }
-        virtual void forwardToConsole(const std::string& msg) const;
+		virtual void forwardToConsole(const std::string& msg) const;
 	};
 
-    /*!
+	/*!
 	** \brief Line terminator for critical messages, will tag messages as [critical].
 	*/
 	class LogCriticalMsg : public AbstractLogMsg
@@ -266,13 +266,13 @@ namespace Logs
 	public:
 		virtual int minimalLevel() const { return LOG_LEVEL_CRITICAL; }
 		virtual ~LogCriticalMsg() {}
-        # ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() const { return "[1;31m"; }
-		# else
+# else
 		virtual std::string color() const { return ""; }
-		# endif
+# endif
 		virtual inline std::string header() const { return "[critical] "; }
-        virtual void forwardToConsole(const std::string& msg) const;
+		virtual void forwardToConsole(const std::string& msg) const;
 	};
 
 
@@ -295,7 +295,7 @@ namespace Logs
 	** 	 logger().callbackOutput(&my_callback); // Output via the callback AND std::cerr
 	** 	 logger().streamOutput(NULL); // Do not output on std::cerr anymore
 	** 	 logger().callbackOutput(NULL); // Do not output anything anymore.
-    ** 	 logger().writeToFile("output.log"); // Redirect the output to a file
+	** 	 logger().writeToFile("output.log"); // Redirect the output to a file
 	**
 	**   When writing your callback, please do not use the Logs::logger(), as it is locked,
 	**   and this will enter a deadlock, followed by the death of your
@@ -312,7 +312,7 @@ namespace Logs
 		//! \brief Where do we output ? Anything which is an std::ostream. (cout, cerr, ostringstream...)
 		std::ostream*   pOut;
 		Callback        pCallback;
-        TA3D::Mutex     pMutex;
+		TA3D::Mutex     pMutex;
 	public:
 
 		/*!
@@ -323,19 +323,19 @@ namespace Logs
 		**/
 		void callbackOutput(Callback callback);
 
-        /*!
-        ** \brief Redirect the output to a file
-        ** \param filename The filename
-        ** \return True if the operation succeeded, False otherwise
-        */
-        bool writeToFile(const std::string& filename);
+		/*!
+		** \brief Redirect the output to a file
+		** \param filename The filename
+		** \return True if the operation succeeded, False otherwise
+		*/
+		bool writeToFile(const std::string& filename);
 
-        /*!
-        ** \brief Close the file where the output was redirected
-        **
-        ** This method can be safely called at any time
-        */
-        void closeFile();
+		/*!
+		** \brief Close the file where the output was redirected
+		**
+		** This method can be safely called at any time
+		*/
+		void closeFile();
 
 		/*!
 		** \brief Locks the object.
@@ -358,11 +358,11 @@ namespace Logs
 		** \brief The generic << operator, specialized for Log*Msg
 		**/
 		template <typename RValue>
-		Log& operator << (RValue val)
-        {
-		    *((std::ostringstream*)this) << val;
-            return *this;
-        }
+			Log& operator << (RValue val)
+			{
+				*((std::ostringstream*)this) << val;
+				return *this;
+			}
 
 	}; // class Log
 
@@ -379,20 +379,20 @@ namespace Logs
 	//! Used to make the line terminator Log::error
 	extern LogErrorMsg error;
 
-    //! Used to make the line terminator Log::critical
-    extern LogCriticalMsg critical;
+	//! Used to make the line terminator Log::critical
+	extern LogCriticalMsg critical;
 
 	//! Singleton logger. This is not meant to be used carelessly.
 	extern Log doNotUseThisLoggerDirectly;
 
-    //! The current log level
-    extern int level;
+	//! The current log level
+	extern int level;
 
-    /*!
-    ** \brief Locks and return the logger
-    ** \return A logger entity
-    */
-    Log & logger();
+	/*!
+	** \brief Locks and return the logger
+	** \return A logger entity
+	*/
+	Log & logger();
 
 
 # include "logs.hxx"

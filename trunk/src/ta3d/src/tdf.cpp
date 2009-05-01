@@ -774,7 +774,7 @@ namespace TA3D
 
 
 
-	void Features::move(const float dt, MAP* map, bool clean)
+	void Features::move(const float dt, bool clean)
 	{
 		if (nb_features <= 0)
 			return;
