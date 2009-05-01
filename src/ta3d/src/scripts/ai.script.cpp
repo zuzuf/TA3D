@@ -398,6 +398,109 @@ namespace TA3D
         return 0;
     }
 
+    int ai_get_unit_data( lua_State *L )        // get_unit_data( index )
+    {
+        int idx = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+
+        if (idx >= 0 && idx < units.max_unit)
+        {
+            Unit *pUnit = &(units.unit[idx]);
+            pUnit->lock();
+            lua_newtable(L);            // Create a new entry
+
+            lua_pushinteger(L, pUnit->idx);         // unit index
+            lua_setfield(L, -2, "index");
+
+            lua_pushinteger(L, pUnit->ID);          // unit Unique ID
+            lua_setfield(L, -2, "UID");
+
+            lua_pushinteger(L, pUnit->owner_id);    // the player this unit belongs to
+            lua_setfield(L, -2, "owner");
+
+            lua_pushnumber(L, pUnit->hp);           // unit hit points
+            lua_setfield(L, -2, "hp");
+
+            int type_id = pUnit->type_id;
+            if (type_id >= 0)
+            {
+                UnitType *pType = unit_manager.unit_type[type_id];
+                lua_pushboolean(L, pType->canattack);    // unit can attack
+                lua_setfield(L, -2, "canattack");
+
+                lua_pushboolean(L, pType->canmove);     // unit can move
+                lua_setfield(L, -2, "canmove");
+
+                lua_pushboolean(L, pType->canfly);      // unit can fly
+                lua_setfield(L, -2, "canfly");
+
+                lua_pushboolean(L, pType->canguard);    // unit can guard
+                lua_setfield(L, -2, "canguard");
+
+                lua_pushboolean(L, pType->canstop);     // unit can stop
+                lua_setfield(L, -2, "canstop");
+
+                lua_pushboolean(L, pType->candgun);     // unit can dgun
+                lua_setfield(L, -2, "candgun");
+
+                lua_pushboolean(L, pType->canhover);    // unit can hover
+                lua_setfield(L, -2, "canhover");
+
+                lua_pushboolean(L, pType->canload);     // unit can load
+                lua_setfield(L, -2, "canload");
+
+                lua_pushboolean(L, pType->canpatrol);   // unit can patrol
+                lua_setfield(L, -2, "canpatrol");
+
+                lua_pushboolean(L, pType->Builder);     // unit can build
+                lua_setfield(L, -2, "canbuild");
+
+                lua_pushboolean(L, pType->canresurrect);     // unit can resurrect
+                lua_setfield(L, -2, "canresurrect");
+
+                lua_pushboolean(L, pType->MaxDamage);   // max hit points
+                lua_setfield(L, -2, "maxhp");
+
+                lua_pushboolean(L, pType->MaxVelocity);     // speed
+                lua_setfield(L, -2, "speed");
+            }
+            pUnit->unlock();
+        }
+        else
+            lua_pushnil(L);
+        return 1;
+    }
+
+    int ai_get_unit_list( lua_State *L )        // get_unit_list( player_id ), if player_id == -1 or unset, returns all units
+    {
+        int player_id = lua_isnoneornil(L, 1) ? -1 : lua_tointeger( L, 1 );
+        if (!lua_isnone(L, 1))
+            lua_pop( L, 1 );
+
+        lua_newtable(L);
+        int n = 0;
+
+        units.lock();
+        for(int i = 0 ; i < units.index_list_size ; i++)
+        {
+            int e = units.idx_list[i];
+            units.unlock();
+
+            Unit *pUnit = &(units.unit[e]);
+            pUnit->lock();
+            if (pUnit->owner_id == player_id || player_id == -1)
+            {
+                lua_pushinteger(L, e);
+                ai_get_unit_data(L);
+                lua_rawseti(L, -2, n++);    // Add the entry to the list
+            }
+
+            units.lock();
+        }
+        units.unlock();
+        return 1;
+    }
+
     void AiScript::register_functions()
     {
         lua_register(L, "playerID", ai_playerID);                                           // playerID()
@@ -421,6 +524,8 @@ namespace TA3D
         lua_register(L, "unit_position", ai_unit_position);                                 // unit_position( unit_id )
         lua_register(L, "self_destruct_unit", ai_self_destruct_unit);                       // self_destruct_unit( unit_id )
         lua_register(L, "attack", ai_attack);                                               // attack( attacker_id, target_id )
+        lua_register(L, "get_unit_list", ai_get_unit_list);                                 // get_unit_list( player_id )
+        lua_register(L, "get_unit_data", ai_get_unit_data);                                 // get_unit_data( index )
     }
 
     void AiScript::register_info()
