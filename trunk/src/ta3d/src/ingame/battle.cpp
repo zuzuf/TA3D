@@ -62,7 +62,7 @@ namespace TA3D
 
 
 
-	static inline int CursorFromSignalOrder(const int order)
+	static inline int CursorFromSignalOrder(const int order, int defaultValue)
 	{
 		switch (order)
 		{
@@ -77,7 +77,7 @@ namespace TA3D
 			case SIGNAL_ORDER_UNLOAD:	return CURSOR_UNLOAD;
 			case SIGNAL_ORDER_REPAIR:	return CURSOR_REPAIR;
 		}
-		return SIGNAL_ORDER_NONE;
+		return defaultValue;
 	}
 
 
@@ -748,7 +748,7 @@ namespace TA3D
 							cursor_type = CURSOR_REPAIR;
 					}
 
-					cursor_type = CursorFromSignalOrder(current_order);
+					cursor_type = CursorFromSignalOrder(current_order, cursor_type);
 
 					if (cursor_type!=CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
 					{
@@ -890,7 +890,7 @@ namespace TA3D
 				{
 					if (!rope_selection)
 					{
-						cursor_type = CursorFromSignalOrder(current_order);
+						cursor_type = CursorFromSignalOrder(current_order, cursor_type);
 
 						if (left_click_activation)
 						{
