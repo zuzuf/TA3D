@@ -68,21 +68,79 @@ namespace TA3D
 	class Font : ObjectSync
 	{
 	public:
+		//! Type of a font
+		enum Type
+		{
+			typePolygon = 0x0,
+			typeTexture = 0x1,
+			typeBitmap  = 0x2,
+			typePixmap  = 0x3
+		};
+
+	public:
+		//! \name Constructors & Destructor
+		//@{
+		//! Default Constructor
 		Font();
+		//! Copy constructor
+		Font(const Font& rhs);
+		//! Destructor
+		virtual ~Font();
+		//@}
 
 		void init();
-
-		float length(const String &txt);
-		float height();
-		void load( const String &filename, const int size, const int type);
 		void destroy();
+
+		/*!
+		** \brief Get the width of a text
+		*/
+		float length(const String &txt);
+
+		/*!
+		** \brief Get the height the font
+		*/
+		float height();
+
+		/*!
+		** \brief Load a font from a file
+		**
+		** \param filename The filename of the Font
+		** \param size Size of the font
+		** \param type Type of the Font (Texture, Pixmap, Bitmap, Polygon)
+		** \return True if the operator succeeded, False otherwise
+		*/
+		bool load( const String &filename, const int size, const Type type);
+
 		int get_size();
 		void print(float x, float y, float z, const String &text);
 
+		//! \name Operators
+		//@{
+		//! Operator =
+		Font& operator = (const Font& rhs);
+		//@}
+
 	private:
+		/*!
+		** \brief Load a font from a file (Without Lock)
+		**
+		** \param filename The filename of the Font
+		** \param size Size of the font
+		** \param type Type of the Font (Texture, Pixmap, Bitmap, Polygon)
+		** \return True if the operator succeeded, False otherwise
+		*/
+		bool loadWL(const String &filename, const int size, const Type type);
+
+	private:
+		//! The FT Font
+		FTFont *font;
+		//! The filename of the font
+		String pFontFilename;
+		//! Type of the font
+		Type pType;
+		// Friend
 		friend class GFX;
 
-		FTFont *font;
 	}; // class GfxFont
 
 
@@ -96,10 +154,16 @@ namespace TA3D
 
 		void destroy();
 
-		Font *getFont(String filename, int size, int type);
+		Font *find(const String& filename, const int size, const Font::Type type);
 
 	private:
-		std::list<Font*>            font_list;
+		Font* internalRegisterFont(const String& key, const String& filename, const int size, const Font::Type type);
+
+	private:
+		//! Font list
+		typedef std::list<Font*>  FontList;
+
+		FontList  pFontList;
 		UTILS::cHashTable<Font*>    font_table;
 	}; // class FontManager
 
