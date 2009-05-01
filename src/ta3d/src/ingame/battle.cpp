@@ -210,9 +210,11 @@ namespace TA3D
 
 	Battle::Result Battle::execute()
 	{
+		LuaProgram game_script;
+
 		if (!preExecute(game_script))
 			return pResult;
-			
+
 		// Here we go Commander !
 		LOG_INFO(LOG_PREFIX_BATTLE << "*** The game has started - Good luck Commander ! ***");
 		// Reinit the counter for FPS
