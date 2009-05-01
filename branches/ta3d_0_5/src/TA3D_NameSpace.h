@@ -43,7 +43,7 @@
 # define ZOOM_FIXED_ANGLE  0x1
 
 //! Default server hostname for TA3D
-# define TA3D_DEFAULT_SERVER_HOSTNAME  "ta3d.darkstars.co.uk"
+# define TA3D_DEFAULT_SERVER_HOSTNAME  "netserver.ta3d.org"
 
 
 

@@ -80,7 +80,7 @@ namespace Settings
             << "        Camera Zoom Speed = " << TA3D::VARS::lp_CONFIG->camera_zoom_speed << ";\n"
             << "                     Skin = " << TA3D::VARS::lp_CONFIG->skin_name << ";\n"
             << "        Use Texture Cache = " << TA3D::VARS::lp_CONFIG->use_texture_cache << ";\n"
-            << "               Net Server = " << TA3D::VARS::lp_CONFIG->net_server << "; // default: ta3d.darkstars.co.uk\n"
+            << "               Net Server = " << TA3D::VARS::lp_CONFIG->net_server << "; // default: netserver.ta3d.org\n"
             << "               Render Sky = " << TA3D::VARS::lp_CONFIG->render_sky << ";\n"
             << "       Low Definition Map = " << TA3D::VARS::lp_CONFIG->low_definition_map << ";\n"
             << "  Use Texture Compression = " << TA3D::VARS::lp_CONFIG->use_texture_compression << ";\n"
@@ -166,7 +166,7 @@ namespace Settings
 
         TA3D::VARS::lp_CONFIG->skin_name = cfgFile.pullAsString("TA3D.Skin", "");
 
-        TA3D::VARS::lp_CONFIG->net_server = cfgFile.pullAsString("TA3D.Net Server", "ta3d.darkstars.co.uk");
+        TA3D::VARS::lp_CONFIG->net_server = cfgFile.pullAsString("TA3D.Net Server", "netserver.ta3d.org");
 
         TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 
