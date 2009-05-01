@@ -398,6 +398,27 @@ namespace TA3D
         return 0;
     }
 
+    int ai_get_build_list( lua_State *L )           // get_build_list( type )
+    {
+        int type = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+
+        if (type >= 0 && type < unit_manager.nb_unit)
+        {
+            UnitType *pType = unit_manager.unit_type[type];
+            lua_newtable(L);            // Create the list
+
+            for(int i = 0 ; i < pType->nb_unit ; i++)       // Fill the list
+            {
+                lua_pushinteger(L, pType->BuildList[i]);         // buildable unit index
+                lua_rawseti(L, -2, i);
+            }
+        }
+        else
+            lua_pushnil(L);
+        return 1;
+    }
+
     int ai_get_unit_data( lua_State *L )        // get_unit_data( index )
     {
         int idx = lua_tointeger(L, -1);
@@ -422,6 +443,8 @@ namespace TA3D
             lua_setfield(L, -2, "hp");
 
             int type_id = pUnit->type_id;
+            lua_pushinteger(L, pUnit->type_id);     // unit type_id
+            lua_setfield(L, -2, "type");
             if (type_id >= 0)
             {
                 UnitType *pType = unit_manager.unit_type[type_id];
@@ -463,6 +486,10 @@ namespace TA3D
 
                 lua_pushboolean(L, pType->MaxVelocity);     // speed
                 lua_setfield(L, -2, "speed");
+
+                lua_pushinteger(L, type_id);
+                ai_get_build_list(L);
+                lua_setfield(L, -2, "buildlist");
             }
             pUnit->unlock();
         }
@@ -586,6 +613,7 @@ namespace TA3D
         lua_register(L, "get_unit_list", ai_get_unit_list);                                 // get_unit_list( player_id )
         lua_register(L, "get_unit_data", ai_get_unit_data);                                 // get_unit_data( index )
         lua_register(L, "kmeans", ai_kmeans);                                               // kmeans( array_of_vector, k )
+        lua_register(L, "get_build_list", ai_get_build_list);                               // get_build_list( type )
     }
 
     void AiScript::register_info()
