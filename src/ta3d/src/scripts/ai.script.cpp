@@ -495,6 +495,9 @@ namespace TA3D
 
             lua_pushinteger(L, pType->MetalStorage);     // metal storage
             lua_setfield(L, -2, "metalstorage");
+
+            lua_pushstring(L, pType->name.c_str());     // unit name
+            lua_setfield(L, -2, "name");
         }
         else
             lua_pushnil(L);

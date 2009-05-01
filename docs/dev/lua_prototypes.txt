@@ -122,6 +122,7 @@ get_build_list( type )                      // returns the list of units units o
                                             //  energyuse
                                             //  energystorage
                                             //  metalstorage
+                                            //  name
 get_max_unit_number()
 get_type_data( type )                       // returns information about unit type:
 get_unit_data                               // get_unit_data( index )
