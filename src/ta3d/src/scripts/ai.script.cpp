@@ -419,6 +419,85 @@ namespace TA3D
         return 1;
     }
 
+    int ai_get_type_data( lua_State *L )        // get_type_data( type )
+    {
+        int type = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+
+        if (type >= 0 && type < unit_manager.nb_unit)
+        {
+            UnitType *pType = unit_manager.unit_type[type];
+            lua_newtable(L);            // Create the list
+
+            lua_pushboolean(L, pType->canattack);    // unit can attack
+            lua_setfield(L, -2, "canattack");
+
+            lua_pushboolean(L, pType->canmove);     // unit can move
+            lua_setfield(L, -2, "canmove");
+
+            lua_pushboolean(L, pType->canfly);      // unit can fly
+            lua_setfield(L, -2, "canfly");
+
+            lua_pushboolean(L, pType->canguard);    // unit can guard
+            lua_setfield(L, -2, "canguard");
+
+            lua_pushboolean(L, pType->canstop);     // unit can stop
+            lua_setfield(L, -2, "canstop");
+
+            lua_pushboolean(L, pType->candgun);     // unit can dgun
+            lua_setfield(L, -2, "candgun");
+
+            lua_pushboolean(L, pType->canhover);    // unit can hover
+            lua_setfield(L, -2, "canhover");
+
+            lua_pushboolean(L, pType->canload);     // unit can load
+            lua_setfield(L, -2, "canload");
+
+            lua_pushboolean(L, pType->canpatrol);   // unit can patrol
+            lua_setfield(L, -2, "canpatrol");
+
+            lua_pushboolean(L, pType->Builder);     // unit can build
+            lua_setfield(L, -2, "canbuild");
+
+            lua_pushboolean(L, pType->canresurrect);     // unit can resurrect
+            lua_setfield(L, -2, "canresurrect");
+
+            lua_pushboolean(L, pType->MaxDamage);   // max hit points
+            lua_setfield(L, -2, "maxhp");
+
+            lua_pushboolean(L, pType->MaxVelocity);     // speed
+            lua_setfield(L, -2, "speed");
+
+            lua_pushinteger(L, type);
+            ai_get_build_list(L);
+            lua_setfield(L, -2, "buildlist");
+
+            lua_pushboolean(L, pType->BuildCostMetal);      // metal cost
+            lua_setfield(L, -2, "metalcost");
+
+            lua_pushboolean(L, pType->BuildCostEnergy);     // energy cost
+            lua_setfield(L, -2, "energycost");
+
+            lua_pushboolean(L, pType->EnergyMake);     // energy make
+            lua_setfield(L, -2, "energymake");
+
+            lua_pushboolean(L, pType->MetalMake);     // metal make
+            lua_setfield(L, -2, "metalmake");
+
+            lua_pushboolean(L, pType->EnergyUse);     // energy use
+            lua_setfield(L, -2, "energyuse");
+
+            lua_pushboolean(L, pType->EnergyStorage);     // energy storage
+            lua_setfield(L, -2, "energystorage");
+
+            lua_pushboolean(L, pType->MetalStorage);     // metal storage
+            lua_setfield(L, -2, "metalstorage");
+        }
+        else
+            lua_pushnil(L);
+        return 1;
+    }
+
     int ai_get_unit_data( lua_State *L )        // get_unit_data( index )
     {
         int idx = lua_tointeger(L, -1);
@@ -445,52 +524,6 @@ namespace TA3D
             int type_id = pUnit->type_id;
             lua_pushinteger(L, pUnit->type_id);     // unit type_id
             lua_setfield(L, -2, "type");
-            if (type_id >= 0)
-            {
-                UnitType *pType = unit_manager.unit_type[type_id];
-                lua_pushboolean(L, pType->canattack);    // unit can attack
-                lua_setfield(L, -2, "canattack");
-
-                lua_pushboolean(L, pType->canmove);     // unit can move
-                lua_setfield(L, -2, "canmove");
-
-                lua_pushboolean(L, pType->canfly);      // unit can fly
-                lua_setfield(L, -2, "canfly");
-
-                lua_pushboolean(L, pType->canguard);    // unit can guard
-                lua_setfield(L, -2, "canguard");
-
-                lua_pushboolean(L, pType->canstop);     // unit can stop
-                lua_setfield(L, -2, "canstop");
-
-                lua_pushboolean(L, pType->candgun);     // unit can dgun
-                lua_setfield(L, -2, "candgun");
-
-                lua_pushboolean(L, pType->canhover);    // unit can hover
-                lua_setfield(L, -2, "canhover");
-
-                lua_pushboolean(L, pType->canload);     // unit can load
-                lua_setfield(L, -2, "canload");
-
-                lua_pushboolean(L, pType->canpatrol);   // unit can patrol
-                lua_setfield(L, -2, "canpatrol");
-
-                lua_pushboolean(L, pType->Builder);     // unit can build
-                lua_setfield(L, -2, "canbuild");
-
-                lua_pushboolean(L, pType->canresurrect);     // unit can resurrect
-                lua_setfield(L, -2, "canresurrect");
-
-                lua_pushboolean(L, pType->MaxDamage);   // max hit points
-                lua_setfield(L, -2, "maxhp");
-
-                lua_pushboolean(L, pType->MaxVelocity);     // speed
-                lua_setfield(L, -2, "speed");
-
-                lua_pushinteger(L, type_id);
-                ai_get_build_list(L);
-                lua_setfield(L, -2, "buildlist");
-            }
             pUnit->unlock();
         }
         else
@@ -614,6 +647,7 @@ namespace TA3D
         lua_register(L, "get_unit_data", ai_get_unit_data);                                 // get_unit_data( index )
         lua_register(L, "kmeans", ai_kmeans);                                               // kmeans( array_of_vector, k )
         lua_register(L, "get_build_list", ai_get_build_list);                               // get_build_list( type )
+        lua_register(L, "get_type_data", ai_get_type_data);                                 // get_type_data( type )
     }
 
     void AiScript::register_info()
