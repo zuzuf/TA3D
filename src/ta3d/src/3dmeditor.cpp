@@ -45,7 +45,6 @@
 
 
 int expected_players = 1;
-int LANG = TA3D_LANG_ENGLISH;
 
 namespace TA3D
 {

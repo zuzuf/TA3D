@@ -52,8 +52,6 @@ using namespace TA3D::VARS;
 extern float	player_color[30];
 extern byte		player_color_map[10];
 
-extern int LANG;				// Variable indiquant la langue
-
 extern int expected_players;
 
 #ifndef TA3D_MSEC_TIMER

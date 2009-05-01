@@ -57,8 +57,8 @@ namespace TA3D
         sint16  shadow_quality; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)
         sint16  priority_level; // 0, 1, 2
         sint16  water_quality;  // 0->4
-        sint16  fsaa;  // ?
-        sint16  Lang;
+        sint16  fsaa;   // ?
+        String  Lang;   // english, french, german, italian, spanish, japanese, chinese, ...
         sint16  anisotropy;     // Level of anisotropy for textures (1->16)
 
         uint16  screen_width;
@@ -169,7 +169,7 @@ namespace TA3D
             priority_level = 0;
             water_quality = 1;              // For now only because we have shaders issues with ati board
             fsaa = 0;
-            Lang = 0;                      // English
+            Lang = "english";               // English
             screen_width = 800;
             screen_height = 600;
             color_depth = 32;

@@ -49,7 +49,6 @@ namespace TA3D
 
         bool Save()
         {
-            lp_CONFIG->Lang = LANG;
             if (!TA3D::VARS::lp_CONFIG)
                 return false;
 
@@ -139,7 +138,7 @@ namespace TA3D
             {
                 LOG_ERROR(LOG_PREFIX_SETTINGS << "Impossible to load the settings from `" << TA3D::Paths::ConfigFile << "`");
 
-                LANG = lp_CONFIG->Lang = 0;         // Set default language to English
+                lp_CONFIG->Lang = "english";     // Set default language to English
                 // Apply settings for the current language
                 I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 
@@ -153,7 +152,7 @@ namespace TA3D
             TA3D::VARS::lp_CONFIG->priority_level = cfgFile.pullAsInt("TA3D.Priority Level");
             TA3D::VARS::lp_CONFIG->fsaa = cfgFile.pullAsInt("TA3D.FSAA");
             TA3D::VARS::lp_CONFIG->anisotropy = cfgFile.pullAsInt("TA3D.Anisotropy", 1);
-            TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsInt("TA3D.Language");
+            TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsString("TA3D.Language", "english").toLower();
             TA3D::VARS::lp_CONFIG->water_quality = cfgFile.pullAsInt("TA3D.Water Quality");
             TA3D::VARS::lp_CONFIG->screen_width = cfgFile.pullAsInt("TA3D.Screen Width");
             TA3D::VARS::lp_CONFIG->screen_height = cfgFile.pullAsInt("TA3D.Screen Height");
@@ -215,10 +214,21 @@ namespace TA3D
                 if (cfg_version.empty())        // Pre-SDL versions
                 {
                     lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Show Shadows");
+                    int langID = lp_CONFIG->Lang.toInt32();     // TA3D used to store language ID instead of language
+                    switch( langID )
+                    {
+                    case 0:     lp_CONFIG->Lang = "english";    break;
+                    case 1:     lp_CONFIG->Lang = "french";     break;
+                    case 2:     lp_CONFIG->Lang = "german";     break;
+                    case 3:     lp_CONFIG->Lang = "spanish";    break;
+                    case 4:     lp_CONFIG->Lang = "italian";    break;
+                    case 5:     lp_CONFIG->Lang = "japanese";   break;
+                    default:
+                        lp_CONFIG->Lang = "english";
+                    };
                 }
             }
 
-            LANG = lp_CONFIG->Lang;
             // Apply settings for the current language
             I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 

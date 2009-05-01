@@ -1,3 +1,67 @@
+[solo]
+{
+    CHINESE=单人游戏;
+}
+[Skirmish]
+{
+    CHINESE=遭遇战;
+}
+[FOW]
+{
+    CHINESE=雾;
+}
+[LAN]
+{
+    CHINESE=局域网;
+}
+[Internet]
+{
+    CHINESE=战网;
+}
+[login]
+{
+    CHINESE=登陆;
+}
+[Register]
+{
+    CHINESE=注册;
+}
+[Log in]
+{
+    CHINESE=登陆;
+}
+[GAME]
+{
+    CHINESE=游戏性;
+}
+[Mouse sensitivity]
+{
+    CHINESE=鼠标灵活度;
+}
+[no limit]
+{
+    CHINESE=无限制;
+}
+[extreme]
+{
+    CHINESE=极高;
+}
+[explosion particles]
+{
+    CHINESE=是否增强颗粒效果;
+}
+[audio]
+{
+    CHINESE=音乐;
+}
+[battle]
+{
+    CHINESE=战斗时;
+}
+[exit]
+{
+    CHINESE=退出;
+}
 [Far sight]
 {
     FRENCH=Vue infinie;
@@ -9,10 +73,12 @@
 [Level of anisotropy]
 {
     FRENCH=Niveau d'anisotropie;
+    CHINESE=对比度;
 }
 [Disable perspective]
 {
     FRENCH=Désactiver la perspective;
+    CHINESE=是否使用TA透视模式;
 }
 [disable perspective\nTA3D will use an orthographic camera]
 {
@@ -21,14 +87,17 @@
 [Right click interface]
 {
     FRENCH=Interface clic droit;
+    CHINESE=是否使用右键输入方式;
 }
 [ultimate]
 {
     FRENCH=ultime;
+    CHINESE=真实;
 }
 [Disable GLSL]
 {
     FRENCH=Désactiver GLSL;
+    CHINESE=是否禁止GLSL框架;
 }
 [disable GLSL shaders\nmay help if game crash]
 {
@@ -37,6 +106,7 @@
 [Unit limit]
 {
     FRENCH=Limite d'unités;
+    CHINESE=人口限制;
 }
 [chose your team]
 {
@@ -91,10 +161,12 @@
 [Highlight underwater objects]
 {
     FRENCH=Faire ressortir les objets sous-marins;
+    CHINESE=是否高亮水下物体;
 }
 [Current skin]
 {
     FRENCH=skin actuel;
+    CHINESE=菜单皮;
 }
 [Use texture compression]
 {
@@ -127,6 +199,7 @@
 [Refresh]
 {
 	FRENCH=Rafraîchir;
+	CHINESE=刷新;
 }
 [Save]
 {
@@ -135,38 +208,47 @@
 [Load]
 {
 	FRENCH=Charger;
+	CHINESE=载入存档;
 }
 [Campaign]
 {
 	FRENCH=Campagne;
+	CHINESE=战役菜单;
 }
 [server name:]
 {
 	FRENCH=nom du serveur:;
+	CHINESE=房间名称:;
 }
 [host address:]
 {
 	FRENCH=adresse IP:;
+	CHINESE=IP地址:;
 }
 [slots available:]
 {
 	FRENCH=places libres:;
+	CHINESE=空余位置:;
 }
 [no server selected]
 {
 	FRENCH=aucun serveur sélectionné;
+	CHINESE=未选择房间;
 }
 [host a game]
 {
 	FRENCH=héberger une partie;
+	CHINESE=建主;
 }
 [Join IP]
 {
 	FRENCH=Rejoindre IP;
+	CHINESE=加入IP的游戏;
 }
 [Join]
 {
 	FRENCH=Rejoindre;
+	CHINESE=加房间;
 }
 [no name]
 {
@@ -179,6 +261,7 @@
 [closed]
 {
 	FRENCH=fermé;
+	CHINESE=关闭位置;
 }
 [warning: you might have texturing\nissues with this!!]
 {
@@ -187,6 +270,7 @@
 [use texture cache]
 {
 	FRENCH=Utiliser le cache de texture;
+	CHINESE=可是否打开贴图缓存;
 }
 [Pause the game]
 {
@@ -203,10 +287,12 @@
 [units]
 {
 	FRENCH=unités;
+	CHINESE=特定单位;
 }
 [speed]
 {
 	FRENCH=vitesse;
+	CHINESE=我喜欢的游戏速度;
 }
 [click on this button\nto show game\noptions]
 {
@@ -223,18 +309,22 @@
 [click to change\nthe map]
 {
 	FRENCH=Changer la\ncarte;
+	CHINESE=进行地图设置;
 }
 [click to change\nthe script]
 {
 	FRENCH=Changer le\nscript;
+    CHINESE=进行脚本设置;
 }
 [click to set\nthe fog of war]
 {
 	FRENCH=Brouillard de\nguerre;
+	CHINESE=进行雾设置;
 }
 [Display]
 {
 	FRENCH=Affichage;
+	CHINESE=画面;
 }
 [CONFIRM_CHANGES]
 {
@@ -245,34 +335,42 @@
 {
 	FRENCH=OK;
 	ENGLISH=OK;
+	CHINESE=保存;
 }
 [Change map]
 {
 	FRENCH=Changer carte;
+	CHINESE=地图选择;
 }
 [camera zoom speed]
 {
 	FRENCH=Vitesse du zoom;
+	CHINESE=视角移动速度;
 }
 [camera zoom]
 {
 	FRENCH=Zoom caméra;
+	CHINESE=我习惯的视角角度;
 }
 [camera default angle]
 {
 	FRENCH=Angle de la caméra;
+	CHINESE=游戏开始时视角的角度;
 }
 [camera default height]
 {
 	FRENCH=Hauteur de la caméra;
+	CHINESE=游戏开始时视角的高度;
 }
 [Fixed Angle]
 {
 	FRENCH=Angle fixé;
+	CHINESE=角度固定;
 }
 [player name]
 {
 	FRENCH=Nom du joueur;
+	CHINESE=我的名字;
 }
 [gfx/victory.tga]
 {
@@ -281,10 +379,12 @@
 [Current mod]
 {
 	FRENCH=Mod chargé;
+	CHINESE=我使用的mod;
 }
 [Off]
 {
 	FRENCH=Off;
+	CHINESE=关闭;
 }
 [Fog of war:]
 {
@@ -293,14 +393,17 @@
 [grey]
 {
 	FRENCH=gris;
+	CHINESE=透明雾;
 }
 [black]
 {
 	FRENCH=noir;
+	CHINESE=黑雾（单位行过后无雾了）;
 }
 [Multiplayer]
 {
 	FRENCH=Multijoueur;
+	CHINESE=多人游戏;
 }
 [GL_ARB_texture_compression available]
 {
@@ -386,10 +489,12 @@
 {
 	FRENCH=retour;
 	JAPANESE=戻る;
+	CHINESE=返回主菜单;
 }
 [OPTIONS]
 {
 	JAPANESE=設定;
+	CHINESE=选项;
 }
 [value of %s]
 {
@@ -405,6 +510,7 @@
 {
 	FRENCH=annuler;
 	JAPANESE=取消す;
+	CHINESE=返回主菜单;
 }
 [Loading textures]
 {
@@ -461,6 +567,7 @@
 	FRENCH=joueurs: ;
 	SPANISH=jugadores: ;
 	JAPANESE=選手: ;
+	CHINESE=玩家名称: ;
 }
 [Scores]
 {
@@ -472,11 +579,13 @@
 	FRENCH=Joueurs;
 	SPANISH=Jugadores;
 	JAPANESE=選手;
+	CHINESE=玩家名称;
 }
 [Side]
 {
 	FRENCH=Camp;
 	JAPANESE=陣;
+	CHINESE=种族;
 }
 [Losses]
 {
@@ -492,11 +601,13 @@
 {
 	FRENCH=Energie;
 	JAPANESE=エネルギー;
+	CHINESE=初始能量;
 }
 [Metal]
 {
 	FRENCH=Métal;
 	JAPANESE=金属;
+	CHINESE=初始金属;
 }
 [Battle room]
 {
@@ -512,6 +623,7 @@
 {
 	FRENCH=Aucun serveur trouvé;
 	JAPANESE=サーバ見当たりません;
+	CHINESE=刷新不到房间;
 }
 [Name]
 {
@@ -557,30 +669,37 @@
 [computer]
 {
 	FRENCH=ordinateur;
+	CHINESE=AI;
 }
 [open]
 {
 	FRENCH=ouvert;
+	CHINESE=打开位置;
 }
 [easy]
 {
 	FRENCH=facile;
+	CHINESE=简单;
 }
 [medium]
 {
 	FRENCH=moyen;
+	CHINESE=中等;
 }
 [hard]
 {
 	FRENCH=difficile;
+	CHINESE=困难;
 }
 [bloody]
 {
 	FRENCH=sanglante;
+	CHINESE=冷酷;
 }
 [AI]
 {
 	FRENCH=IA;
+	CHINESE=AI;
 }
 [Change Script]
 {
@@ -622,50 +741,62 @@
 [show fps]
 {
 	FRENCH=afficher le nombre d'images/sec.;
+	CHINESE=是否显示每秒帧;
 }
 [fps limit]
 {
 	FRENCH=limite du nombre d'images/sec.;
+	CHINESE=强制FPS为;
 }
 [wireframe]
 {
 	FRENCH=mode fil de fer;
+	CHINESE=是否显示地图贴图面积;
 }
 [particles]
 {
 	FRENCH=particules;
+	CHINESE=是否显示颗粒效果;
 }
 [waves]
 {
 	FRENCH=vagues;
+    CHINESE=是否显示波浪;
 }
 [shadows]
 {
 	FRENCH=ombres;
+	CHINESE=阴影质量;
 }
 [height line]
 {
 	FRENCH=indicateur d'altitude;
+	CHINESE=是否显示等高线;
 }
 [detail texture]
 {
 	FRENCH=texture de détails;
+	CHINESE=是否显示贴图细节的优化处理;
 }
 [draw console while loading]
 {
 	FRENCH=affiche la console pendant le chargement;
+	CHINESE=是否载入游戏时显示cosole窗体;
 }
 [full screen]
 {
 	FRENCH=plein écran;
+	CHINESE=是否全屏。;
 }
 [language]
 {
 	FRENCH=langue;
+	CHINESE=我的母语;
 }
 [screen]
 {
 	FRENCH=résolution;
+	CHINESE=分辨率;
 }
 [shadow quality]
 {
@@ -678,18 +809,22 @@
 [antialiasing]
 {
 	FRENCH=antialiashing;
+	CHINESE=反锯齿;
 }
 [water quality]
 {
 	FRENCH=qualité du rendu de l'eau;
+	CHINESE=水面质量;
 }
 [normal]
 {
 	FRENCH=normal;
+	CHINESE=中;
 }
 [high]
 {
 	FRENCH=élevé;
+	CHINESE=高;
 }
 [higher]
 {
@@ -698,10 +833,12 @@
 [no fsaa]
 {
 	FRENCH=aucun;
+	CHINESE=无反锯齿;
 }
 [low]
 {
 	FRENCH=faible;
+	CHINESE=低;
 }
 [ultra high]
 {
