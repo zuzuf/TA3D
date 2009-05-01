@@ -1,19 +1,19 @@
 /*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
+	Copyright (C) 2005  Roland BROCHARD
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #ifndef __TA3D__INGAM__BATTLE_H__
 # define __TA3D__INGAM__BATTLE_H__
 
@@ -32,87 +32,86 @@ namespace TA3D
 {
 
 
-    class Battle
-    {
-    public:
-        //! Results about the battle
-        enum Result {brUnknown, brVictory, brDefeat, brPat};
+	class Battle
+	{
+	public:
+		//! Results about the battle
+		enum Result {brUnknown, brVictory, brDefeat, brPat};
 
-        /*!
-        ** \brief Launch a game
-        ** \param g Data about the game
-        ** \return The result of the game
-        */
-        static Result Execute(GameData* g);
+		/*!
+		** \brief Launch a game
+		** \param g Data about the game
+		** \return The result of the game
+		*/
+		static Result Execute(GameData* g);
 
-    public:
-        //! \name Constructors & Destructor
-        //@{
-        //! Constructor with a GameData
-        Battle(GameData* g);
-        //! Destructor
-        ~Battle();
-        //@}
+	public:
+		//! \name Constructors & Destructor
+		//@{
+		//! Constructor with a GameData
+		Battle(GameData* g);
+		//! Destructor
+		~Battle();
+		//@}
 
-        /*!
-        ** \brief Launch the battle
-        */
-        Result execute();
+		/*!
+		** \brief Launch the battle
+		*/
+		Result execute();
 
-        /*!
-        ** \brief The result of the battle
-        */
-        Result result() const {return pResult;}
+		/*!
+		** \brief The result of the battle
+		*/
+		Result result() const {return pResult;}
 
-    private:
-        /*!
-        ** \brief Reset the cache for the GUI name
-        **
-        ** To avoid multiple and expensive string manipulations
-        */
-        void updateCurrentGUICacheNames();
+	private:
+		/*!
+		** \brief Reset the cache for the GUI name
+		**
+		** To avoid multiple and expensive string manipulations
+		*/
+		void updateCurrentGUICacheNames();
 
-        /*!
-        ** \brief update fog parameters
-        */
-        void updateFOG();
+		/*!
+		** \brief update fog parameters
+		*/
+		void updateFOG();
 
-        /*!
-        ** \brief update camera zfar parameter
-        */
-        void updateZFAR();
+		/*!
+		** \brief update camera zfar parameter
+		*/
+		void updateZFAR();
 
-    private:
-        //! \name Preparing all data about a battle
-        //@{
-        /*!
-        ** \brief Load Game Data
-        */
-        bool loadFromGameData(GameData* g);
-        //! PreInitialization
-        bool initPreflight(GameData* g);
-        //! Load textures
-        bool initTextures();
-        //! Load 3D models
-        bool init3DModels();
-        //! Load graphical features
-        bool initGraphicalFeatures();
-        //! Load Weapons
-        bool initWeapons();
-        //! Load units
-        bool initUnits();
-        //! Intermediate clean up
-        bool initIntermediateCleanup();
-        //! Init the engine
-        bool initEngine();
-        //! Add players
-        bool initPlayers();
-        //! Init restrictions
-        bool initRestrictions();
-        //! Load the GUI
-        bool initGUI();
-        //! Init the map
-        bool initTheMap();
+		//! \name Preparing all data about a battle
+		//@{
+		/*!
+		** \brief Load Game Data
+		*/
+		bool loadFromGameData(GameData* g);
+		//! PreInitialization
+		bool initPreflight(GameData* g);
+		//! Load textures
+		bool initTextures();
+		//! Load 3D models
+		bool init3DModels();
+		//! Load graphical features
+		bool initGraphicalFeatures();
+		//! Load Weapons
+		bool initWeapons();
+		//! Load units
+		bool initUnits();
+		//! Intermediate clean up
+		bool initIntermediateCleanup();
+		//! Init the engine
+		bool initEngine();
+		//! Add players
+		bool initPlayers();
+		//! Init restrictions
+		bool initRestrictions();
+		//! Load the GUI
+		bool initGUI();
+		//! Init the map
+		bool initTheMap();
 		//! Init the Sky
 		bool initTheSky();
 		//! Init the sun
@@ -131,7 +130,7 @@ namespace TA3D
 		bool initTheWater();
 		//! Init miscellaneous stuff
 		bool initPostFlight();
-        //@}
+		//@}
 
 		void waitForNetworkPlayers();
 
@@ -167,123 +166,131 @@ namespace TA3D
 		*/
 		void preflightFindCursor();
 
+		/*!
+		** \brief Pre Execute
+		*/
+		bool preExecute(LuaProgram& gameScript);
 		//@}
 
-        //! \name 2D Objects && User interaction
-        //@{
-        void draw2DObjects();
-        void draw2DMouseUserSelection();
-        //@}
+		//! \name 2D Objects && User interaction
+		//@{
+		void draw2DObjects();
+		void draw2DMouseUserSelection();
+		//@}
 
-        Vector3D cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map = false);
+		//! \name Evens in Game
+		//@{
+		//@}
 
-    private:
-        //! Results
-        Result pResult;
-        //! Data about the current game
-        GameData* pGameData;
+		Vector3D cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map = false);
 
-        //! Use network communications
-        bool pNetworkEnabled;
-        //! Host a game
-        bool pNetworkIsServer;
+	private:
+		//! Results
+		Result pResult;
+		//! Data about the current game
+		GameData* pGameData;
 
-    private:
-        enum CurrentGUICache {cgcDot, cgcShow, cgcHide, cgcEnd};
-        //! The current GUI
-        String pCurrentGUI;
+		//! Use network communications
+		bool pNetworkEnabled;
+		//! Host a game
+		bool pNetworkIsServer;
+
+	private:
+		enum CurrentGUICache {cgcDot, cgcShow, cgcHide, cgcEnd};
+		//! The current GUI
+		String pCurrentGUI;
 		//!
-        String pCurrentGUICache[cgcEnd];
+		String pCurrentGUICache[cgcEnd];
 
-    private:
+	private:
 		//!
-        struct FPSInfos
-        {
+		struct FPSInfos
+		{
 			//!
-            int countSinceLastTime;
+			int countSinceLastTime;
 			//!
-            int average;
+			int average;
 			//!
-            int lastTime;
+			int lastTime;
 			//!
-            String toStr;
-        };
+			String toStr;
+		};
 
-    private:
+	private:
 		//! The area
-        AREA pArea;
+		AREA pArea;
 		//! Informations about FPS
-        FPSInfos fps;
-        //! The map of the game - TODO The auto_ptr is deprecated
-        std::auto_ptr<MAP> map;
+		FPSInfos fps;
+		//! The map of the game - TODO The auto_ptr is deprecated
+		std::auto_ptr<MAP> map;
 
 		//! \name Sky
 		//@{
-        //! The sky - TODO The auto_ptr is deprecated
-        std::auto_ptr<SKY_DATA> pSkyData;
+		//! The sky - TODO The auto_ptr is deprecated
+		std::auto_ptr<SKY_DATA> pSkyData;
 		//!
-        bool pSkyIsSpherical;
+		bool pSkyIsSpherical;
 		//!
 		float sky_angle;
 		//!
 		SKY sky_obj;
 		//@}
 
-        bool pMouseSelecting;
-        //! The bounding box of the current mouse selection (if pMouseSelecting == true)
-        Rect<int> pMouseRectSelection;
+		bool pMouseSelecting;
+		//! The bounding box of the current mouse selection (if pMouseSelecting == true)
+		Rect<int> pMouseRectSelection;
 
 		//! The sun
-        HWLight pSun;
+		HWLight pSun;
 
 		//! \name Textures
 		//@{
 		//!
 		GLuint	sky;
 		//!
-        GLuint	glow;
+		GLuint	glow;
 		//!
-        GLuint	freecam_on;
+		GLuint	freecam_on;
 		//!
-        GLuint	freecam_off;
+		GLuint	freecam_off;
 		//!
-        GLuint	arrow_texture;
+		GLuint	arrow_texture;
 		//!
-        GLuint	circle_texture;
+		GLuint	circle_texture;
 		//!
-        GLuint	water;
+		GLuint	water;
 		//!
-        GLuint	water_sim;
+		GLuint	water_sim;
 		//!
-        GLuint	water_sim2;
-        //!
-        GLuint	pause_tex;
-        //@}
+		GLuint	water_sim2;
+		//!
+		GLuint	pause_tex;
+		//@}
 
 		//! \name Camera
 		//@{
 		//!
-        Camera cam;
+		Camera cam;
 		//!
-        Vector3D cam_target;
+		Vector3D cam_target;
 		//! The position of the camera on the virtual "rail"
-        float camera_zscroll;
+		float camera_zscroll;
 		//!
 		int cam_target_mx;
 		//!
-        int cam_target_my;
+		int cam_target_my;
 		//!
-        bool cam_has_target;
+		bool cam_has_target;
 		//!
-        bool freecam;
+		bool freecam;
 		//! Just to see if the cam has been long enough at the default angle
-        int cam_def_timer;
+		int cam_def_timer;
 		//! Tracking a unit ? negative value => no
-        int track_mode;
+		int track_mode;
 		//!
-        bool last_time_activated_track_mode;
+		bool last_time_activated_track_mode;
 		//!
-        float r1;
+		float r1;
 		//!
 		float r2;
 		//!
@@ -293,49 +300,49 @@ namespace TA3D
 		//! \name Unknown vars
 		//@{
 		//!
-        bool show_model;
+		bool show_model;
 		//!
-        bool rotate_light;
+		bool rotate_light;
 		//!
-        float light_angle;
+		float light_angle;
 		//!
-        bool cheat_metal;
+		bool cheat_metal;
 		//!
-        bool cheat_energy;
+		bool cheat_energy;
 		//!
-        bool internal_name;
+		bool internal_name;
 		//!
-        bool internal_idx;
+		bool internal_idx;
 		//!
-        bool ia_debug;
+		bool ia_debug;
 		//!
-        bool view_dbg;
+		bool view_dbg;
 		//!
-        bool show_mission_info;
+		bool show_mission_info;
 		//!
-        bool speed_changed;
+		bool speed_changed;
 		//!
-        float show_timefactor;
+		float show_timefactor;
 		//!
-        float show_gamestatus;
+		float show_gamestatus;
 		//!
-        float unit_info;
+		float unit_info;
 		//!
-        int	unit_info_id;
+		int	unit_info_id;
 		//!
-        float speed_limit;
+		float speed_limit;
 		//!
-        float delay;
+		float delay;
 		//!
-        int nb_shoot;
+		int nb_shoot;
 		//!
-        bool shoot;
+		bool shoot;
 		//!
-        bool ordered_destruct;
+		bool ordered_destruct;
 		//!
-        bool tilde;
+		bool tilde;
 		//!
-        bool done;
+		bool done;
 		//!
 		int mx;
 		//!
@@ -351,47 +358,47 @@ namespace TA3D
 		//!
 		int amy;
 		//!
-        int cur_sel;
+		int cur_sel;
 		//!
-        int old_gui_sel;
+		int old_gui_sel;
 		//!
-        bool old_sel;
+		bool old_sel;
 		//!
-        bool selected;
+		bool selected;
 		//!
-        int	build; // Indique si l'utilisateur veut construire quelque chose
+		int	build; // Indique si l'utilisateur veut construire quelque chose
 		//!
-        bool build_order_given;
+		bool build_order_given;
 		//!
-        int cur_sel_index;
+		int cur_sel_index;
 		//!
-        int omz;
+		int omz;
 		//!
-        float cam_h;
+		float cam_h;
 		//!
-        float Conv;
+		float Conv;
 		//!
-        float dt;
+		float dt;
 		//!
-        float t;
+		float t;
 		//!
-        int count;
+		int count;
 		//!
-        bool reflection_drawn_last_time;
+		bool reflection_drawn_last_time;
 		//!
-        int video_timer;
+		int video_timer;
 		//!
-        bool video_shoot;
+		bool video_shoot;
 		//!
-        int current_order;
+		int current_order;
 		//@}
 
 		//! \name Wind
 		//@{
 		//!
-        float wind_t;
+		float wind_t;
 		//!
-        bool wind_change;
+		bool wind_change;
 		//@}
 
 		//! \name Fog
@@ -399,13 +406,13 @@ namespace TA3D
 		//!
 		float FogD;
 		//!
-        float FogNear;
-        //!
-        float FogFar;
+		float FogNear;
 		//!
-        float FogColor[4];
+		float FogFar;
 		//!
-        GLuint FogMode;
+		float FogColor[4];
+		//!
+		GLuint FogMode;
 		//@}
 
 		//! \name Water
@@ -462,7 +469,7 @@ namespace TA3D
 		bool rope_selection;
 		//@}
 
-    }; // class Battle
+	}; // class Battle
 
 
 
