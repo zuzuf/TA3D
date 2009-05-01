@@ -100,11 +100,33 @@ add_patrol_mission( unit_id, pos_x, pos_z )
 add_wait_mission( unit_id, time )
 allied( id0, id1 )
 attack( attacker_id, target_id )
+get_build_list( type )                      // returns the list of units units of type `type` can build
 get_max_unit_number()
+get_unit_data                               // get_unit_data( index )
 get_unit_health( unit_id )
+get_unit_list                               // get_unit_list( player_id )
+                                            // returns an array of tables containing unit data: (should be self explanatory I hope)
+                                            //  index
+                                            //  UID
+                                            //  owner
+                                            //  hp
+                                            //  canattack
+                                            //  canmove
+                                            //  canfly
+                                            //  canguard
+                                            //  canstop
+                                            //  candgun
+                                            //  canhover
+                                            //  canload
+                                            //  canpatrol
+                                            //  canbuild
+                                            //  canresurrect
+                                            //  maxhp
+                                            //  speed
 get_unit_number()
 get_unit_number_for_player( player_id )
 get_unit_owner( unit_id )
+kmeans( array_of_vector, k )                // returns the result of the k-means algorithm on array_of_vector after k + 2 steps
 map_h()
 map_w()
 nb_players()
