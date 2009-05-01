@@ -101,15 +101,6 @@ add_wait_mission( unit_id, time )
 allied( id0, id1 )
 attack( attacker_id, target_id )
 get_build_list( type )                      // returns the list of units units of type `type` can build
-get_max_unit_number()
-get_unit_data                               // get_unit_data( index )
-get_unit_health( unit_id )
-get_unit_list                               // get_unit_list( player_id )
-                                            // returns an array of tables containing unit data: (should be self explanatory I hope)
-                                            //  index
-                                            //  UID
-                                            //  owner
-                                            //  hp
                                             //  canattack
                                             //  canmove
                                             //  canfly
@@ -123,8 +114,25 @@ get_unit_list                               // get_unit_list( player_id )
                                             //  canresurrect
                                             //  maxhp
                                             //  speed
-                                            //  type (ID of unit type)
                                             //  buildlist
+                                            //  metalcost
+                                            //  energycost
+                                            //  energymake
+                                            //  metalmake
+                                            //  energyuse
+                                            //  energystorage
+                                            //  metalstorage
+get_max_unit_number()
+get_type_data( type )                       // returns information about unit type:
+get_unit_data                               // get_unit_data( index )
+get_unit_health( unit_id )
+get_unit_list                               // get_unit_list( player_id )
+                                            // returns an array of tables containing unit data: (should be self explanatory I hope)
+                                            //  index
+                                            //  UID
+                                            //  owner
+                                            //  hp
+                                            //  type (ID of unit type)
 get_unit_number()
 get_unit_number_for_player( player_id )
 get_unit_owner( unit_id )
