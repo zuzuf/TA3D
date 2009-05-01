@@ -123,6 +123,8 @@ get_unit_list                               // get_unit_list( player_id )
                                             //  canresurrect
                                             //  maxhp
                                             //  speed
+                                            //  type (ID of unit type)
+                                            //  buildlist
 get_unit_number()
 get_unit_number_for_player( player_id )
 get_unit_owner( unit_id )
