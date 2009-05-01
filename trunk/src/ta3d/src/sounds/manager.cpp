@@ -219,7 +219,7 @@ namespace TA3D
                 file.open(filename.c_str(), std::ios::in);
                 if (!file.is_open())
                 {
-                    LOG_WARNING(LOG_PREFIX_SOUND << "Impossible to load the playlist");
+                    LOG_WARNING(LOG_PREFIX_SOUND << "Impossible to load the playlist : '" << filename << "'");
                     return;
                 }
             }
