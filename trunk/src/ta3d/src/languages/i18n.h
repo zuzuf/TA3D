@@ -234,14 +234,6 @@ namespace TA3D
         ~I18N();
 
         /*!
-        ** \brief Retreive a language according its index
-        **
-        ** \param indx Index the language
-        ** \return A pointer to the language that has been found, NULL otherwise
-        */
-        Language* language(const int indx);
-
-        /*!
         ** \brief Retrieve a language according its name
         **
         ** \param name Name of the language (can be the english version or the translated one)
@@ -281,14 +273,6 @@ namespace TA3D
         ** \return True if language has been changed, false otherwise
         */
         bool currentLanguage(const String& n) { return currentLanguage(language(n)); }
-
-        /*!
-        ** \brief Set the current language according its index
-        **
-        ** \param i index of the language (may be out of bounds)
-        ** \return True if language has been changed, false otherwise
-        */
-        bool currentLanguage(const int i) { return currentLanguage(language(i)); }
 
         /*!
         ** \brief Try to find out the language according the system settings
