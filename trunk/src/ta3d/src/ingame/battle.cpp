@@ -2442,7 +2442,7 @@ namespace TA3D
 			if (pArea.get_state("save_menu.l_file")) // Click on the list
 			{
 				GUIOBJ *obj = pArea.get_object("save_menu.l_file");
-				if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
+                if (obj && obj->Pos < obj->Text.size())
 					pArea.set_caption("save_menu.t_name", obj->Text[ obj->Pos]);
 			}
 

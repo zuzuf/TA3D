@@ -687,16 +687,15 @@ void load_game( GameData *game_data )
             LOAD( features.feature[i].dive );
             LOAD( features.feature[i].angle_x );
 
-            if( features.feature[i].px < 0 || features.feature[i].py < 0
-                || features.feature[i].px >= the_map->bloc_w_db || features.feature[i].py >= the_map->bloc_h_db ) // Out of the map ?
+            if (features.feature[i].px >= the_map->bloc_w_db || features.feature[i].py >= the_map->bloc_h_db) // Out of the map ?
             {
                 features.feature[i].type = -1;
                 features.nb_features--;
                 continue;
             }
 
-            if( features.feature[i].burning )	features.burning_features.push_back( i );
-            if( features.feature[i].sinking )	features.sinking_features.push_back( i );
+            if (features.feature[i].burning)    features.burning_features.push_back( i );
+            if (features.feature[i].sinking)    features.sinking_features.push_back( i );
 
             the_map->map_data[features.feature[i].py][features.feature[i].px].stuff = i;
             features.drawFeatureOnMap( i );

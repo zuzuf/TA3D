@@ -156,7 +156,7 @@ namespace TA3D
             }
             else
             {
-                if (guiObj->Pos >= 0 && guiObj->Pos < guiObj->Text.size())
+                if (guiObj->Pos < guiObj->Text.size())
                 {
                     GameData game_data;
                     bool network = load_game_data(TA3D::Paths::Savegames + guiObj->Text[guiObj->Pos], &game_data);

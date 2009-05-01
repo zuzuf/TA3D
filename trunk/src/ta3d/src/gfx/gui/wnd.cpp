@@ -235,7 +235,7 @@ namespace TA3D
 				break;
 			case OBJ_TA_BUTTON:
 				{
-					unsigned int cur_img = (Objets[i].Flag & FLAG_DISABLED)
+                    int cur_img = (Objets[i].Flag & FLAG_DISABLED)
 						? Objets[i].gltex_states.size() - 1
 						: ((Objets[i].activated && Objets[i].nb_stages == 1)
 						   ? Objets[i].gltex_states.size() - 2
@@ -717,18 +717,12 @@ namespace TA3D
 				case OBJ_TEXTEDITOR:				// Permet l'entrée de texte / Enable text input
 					if (Objets[i].Text.empty())
 						Objets[i].Text.push_back(String());
-					if (Objets[i].Data < 0)
-						Objets[i].Data = 0;
-					else
-					{
-						if (Objets[i].Data >= Objets[i].Text.size())
-							Objets[i].Data = Objets[i].Text.size() - 1;
-					}
+                    if (Objets[i].Data >= Objets[i].Text.size())
+                        Objets[i].Data = Objets[i].Text.size() - 1;
 
-					if (Objets[i].Pos < 0)  Objets[i].Pos = 0;
-					else if(Objets[i].Pos > Objets[i].Text[Objets[i].Data].sizeUTF8())
+                    if(Objets[i].Pos > Objets[i].Text[Objets[i].Data].sizeUTF8())
 						Objets[i].Pos = Objets[i].Text[Objets[i].Pos].sizeUTF8();
-					Objets[i].Etat=false;
+                    Objets[i].Etat = false;
 					if (Objets[i].Focus && keypressed())
 					{
 						uint32 keyCode = readkey();
