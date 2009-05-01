@@ -187,7 +187,11 @@ void config_menu(void)
     {
         GUIOBJ *objLang = config_area.get_object("*.LANG");
         objLang->Text.clear();
-        objLang->Text.push_back(lp_CONFIG->Lang);
+        I18N::Language *l = I18N::Instance()->language(lp_CONFIG->Lang);
+        if (l)
+            objLang->Text.push_back(l->caption());
+        else
+            objLang->Text.push_back(lp_CONFIG->Lang);
         for(int i = 0 ; i < languageList.size() ; i++)
             objLang->Text.push_back( languageList[i].caption() );
     }

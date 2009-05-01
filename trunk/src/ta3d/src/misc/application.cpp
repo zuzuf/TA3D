@@ -63,6 +63,16 @@ namespace TA3D
         SDL_Init(SDL_INIT_VIDEO);
         atexit(Finalize);
 
+        // Interface Manager
+        InterfaceManager = new IInterfaceManager();
+
+        // Creating HPI Manager
+        TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+
+        // Creating translation manager
+        I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
+        I18N::Instance()->loadFromResources();
+
         // Display usefull infos for debugging
         System::DisplayInformations();
         System::DisplayInformationsAboutSDL();
