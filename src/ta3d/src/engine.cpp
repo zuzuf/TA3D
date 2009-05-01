@@ -61,11 +61,7 @@ namespace TA3D
 		:pSDLRunning(false), pGFXModeActive(false), pSignaledToStop(false)
 	{
 		VARS::sound_manager = NULL;
-		VARS::HPIManager = NULL;
 		VARS::gfx = NULL;
-
-		// Interface Manager
-		InterfaceManager = new IInterfaceManager();
 
 		String str = format("%s initializing started:\n\n", TA3D_ENGINE_VERSION);
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL);
@@ -86,13 +82,6 @@ namespace TA3D
 
 		if (SDLNet_Init() == -1)
 			throw ("SDLNet_Init() failed.");
-
-		// Creating HPI Manager
-		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
-
-		// Creating translation manager
-		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
-		I18N::Instance()->loadFromFile("ta3d.res", false);   // Loads translation data (TA3D translations in UTF8)
 
 		if (!HPIManager->Exists("gamedata\\sidedata.tdf") || !HPIManager->Exists("gamedata\\allsound.tdf") || !HPIManager->Exists("gamedata\\sound.tdf"))
 		{

@@ -1,3 +1,8 @@
+[info]
+{
+    name=chinese;
+    caption=中文;
+}
 [solo]
 {
     CHINESE=单人游戏;

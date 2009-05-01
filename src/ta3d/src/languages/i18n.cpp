@@ -241,8 +241,8 @@ namespace TA3D
         pMutex.lock();
         // Load the file
         bool r = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
-        const String &languageEnglishID = pTranslations.pullAsString( Paths::ExtractFileNameWithoutExtension(filename).toLower() + "_englishid" );
-        const String &languageCaption = pTranslations.pullAsString( Paths::ExtractFileNameWithoutExtension(filename).toLower() + "_caption" );
+        const String &languageEnglishID = pTranslations.pullAsString( "info.name" );
+        const String &languageCaption = pTranslations.pullAsString( "info.caption" );
         // This file register a new language
         if (!languageEnglishID.empty() && !languageCaption.empty() && language(languageEnglishID) == NULL)
         {
@@ -266,7 +266,7 @@ namespace TA3D
         {
             for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
             {
-                if (loadFromFile(*i, false))
+                if (loadFromFile("languages" + Paths::SeparatorAsString + Paths::ExtractFileName(*i), false))
                     res = true;
             }
         }
@@ -290,16 +290,6 @@ namespace TA3D
         pDefaultLanguage = doAddNewLanguage("english", "English");
         pCurrentLanguage = pDefaultLanguage;
         resetPrefix();
-        //French
-        (void) doAddNewLanguage("french", "Français");
-        // German
-        (void) doAddNewLanguage("german", "Deutsch");
-        // Spanish
-        (void) doAddNewLanguage("spanish", "Español");
-        // Italian
-        (void) doAddNewLanguage("italian", "Italiano");
-        // japanese
-        (void) doAddNewLanguage("japanese", "日本語");
     }
 
 
