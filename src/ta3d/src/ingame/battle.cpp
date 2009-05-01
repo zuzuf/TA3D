@@ -62,6 +62,27 @@ namespace TA3D
 
 
 
+	static inline int CursorFromSignalOrder(const int order)
+	{
+		switch (order)
+		{
+			case SIGNAL_ORDER_CAPTURE:	return CURSOR_CAPTURE;
+			case SIGNAL_ORDER_MOVE:		return CURSOR_MOVE;
+			case SIGNAL_ORDER_PATROL:	return CURSOR_PATROL;
+			case SIGNAL_ORDER_GUARD:	return CURSOR_GUARD;
+			case SIGNAL_ORDER_DGUN:		return CURSOR_ATTACK;
+			case SIGNAL_ORDER_ATTACK:	return CURSOR_ATTACK;
+			case SIGNAL_ORDER_RECLAM:	return CURSOR_RECLAIM;
+			case SIGNAL_ORDER_LOAD:		return CURSOR_LOAD;
+			case SIGNAL_ORDER_UNLOAD:	return CURSOR_UNLOAD;
+			case SIGNAL_ORDER_REPAIR:	return CURSOR_REPAIR;
+		}
+		return SIGNAL_ORDER_NONE;
+	}
+
+
+
+
 	Vector3D Battle::cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map)
 	{
 		if (on_mini_map) // If the cursor is on the mini_map;
@@ -84,76 +105,76 @@ namespace TA3D
 		return map.hit(cam.pos, cur_dir, true, 2000000000.0f, true);
 	}
 
-    void Battle::updateFOG()
-    {
-        if (freecam && cam.rpos.y < map->sealvl)
-        {
-            FogD = 0.03f;
-            FogFar = cam.zfar;
-            FogNear = 0.0f;
-            FogMode = GL_EXP;
+	void Battle::updateFOG()
+	{
+		if (freecam && cam.rpos.y < map->sealvl)
+		{
+			FogD = 0.03f;
+			FogFar = cam.zfar;
+			FogNear = 0.0f;
+			FogMode = GL_EXP;
 
-            FogColor[0] = 0.0f;
-            FogColor[1] = 0.0f;
-            FogColor[2] = 0.3f;
-            FogColor[3] = 1.0f;
-        }
-        else
-        {
-            FogD = 0.3f;
-            FogFar = lp_CONFIG->far_sight ? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h ) : cam.zfar;
-            FogNear = FogFar * 0.5f;
-            FogMode = GL_LINEAR;
+			FogColor[0] = 0.0f;
+			FogColor[1] = 0.0f;
+			FogColor[2] = 0.3f;
+			FogColor[3] = 1.0f;
+		}
+		else
+		{
+			FogD = 0.3f;
+			FogFar = lp_CONFIG->far_sight ? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h ) : cam.zfar;
+			FogNear = FogFar * 0.5f;
+			FogMode = GL_LINEAR;
 
-            memcpy(FogColor, pSkyData->FogColor, sizeof( float) * 4);
-        }
+			memcpy(FogColor, pSkyData->FogColor, sizeof( float) * 4);
+		}
 
-        glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
+		glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
 
-        glFogi (GL_FOG_MODE, FogMode);
-        glFogfv (GL_FOG_COLOR, FogColor);
-        glFogf (GL_FOG_DENSITY, FogD);
-        glHint (GL_FOG_HINT, GL_NICEST);
-        glFogf (GL_FOG_START, FogNear);
-        glFogf (GL_FOG_END, FogFar);
-    }
+		glFogi (GL_FOG_MODE, FogMode);
+		glFogfv (GL_FOG_COLOR, FogColor);
+		glFogf (GL_FOG_DENSITY, FogD);
+		glHint (GL_FOG_HINT, GL_NICEST);
+		glFogf (GL_FOG_START, FogNear);
+		glFogf (GL_FOG_END, FogFar);
+	}
 
-    void Battle::updateZFAR()
-    {
-        if (lp_CONFIG->far_sight)
-            cam.zfar = sqrtf( map->map_w * map->map_w + map->map_h * map->map_h + cam.rpos.y * cam.rpos.y);      // We want to see everything
-        else
-            cam.zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
-        cam.setView();
-    }
+	void Battle::updateZFAR()
+	{
+		cam.zfar = (lp_CONFIG->far_sight)
+			// We want to see everything
+			? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h + cam.rpos.y * cam.rpos.y)
+			: 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+		// Set View
+		cam.setView();
+	}
 
-	Battle::Result Battle::execute()
+
+	bool Battle::preExecute(LuaProgram& gameScript)
 	{
 		if (!pGameData) // no gamedata, nothing to do
-			return pResult;
+			return false;
 
 		if (pNetworkEnabled) // prepare the network connections if any
 			network_manager.cleanQueues();
 
 		if (!loadFromGameData(pGameData)) // Reinit data
-			return pResult;
+			return false;
 
 		// Network synchronization
 		waitForNetworkPlayers();
 
-		/*----------------------------- script management --------------------------*/
-
-		LuaProgram	game_script;					// Script that will rule the game
+		// Script Management
 		if (!pNetworkEnabled || pNetworkIsServer)
 		{
-			game_script.load(pGameData->game_script);	// Load the script
+			gameScript.load(pGameData->game_script);	// Load the script
 			if (!pGameData->saved_file.empty()) 		// We have something to load, so let's run initialization code in passive mode
 			{
 				LuaProgram::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
-				game_script.run(0.0f);
+				gameScript.run(0.0f);
 			}
 			LuaProgram::passive = false;
-			game_script.start();                        // Start game script thread
+			gameScript.start();                        // Start game script thread
 		}
 
 		if (!pGameData->saved_file.empty()) 			// We have something to load
@@ -162,29 +183,38 @@ namespace TA3D
 			done = !pGameData->saved_file.empty();		// If loading the game fails, then exit
 		}
 
-		//-----------------------   Code related to threads   ------------------------
-
+		// Code Related to Threads
 		unit_engine_thread_sync = 0;
 		weapon_engine_thread_sync = 0;
 		particle_engine_thread_sync = 0;
 
-		units.start();			// Start the Unit Engine
+		// Start the Unit engine
+		units.start();
 
+		// Start the particle engine
 		particle_engine.set_data( map->ota_data.gravity, map->wind_vec);
-		particle_engine.start();		// Start the particle engine
+		particle_engine.start();
 
 		// Start the weapon engine
 		weapons.set_data(map.get());
-		features.set_data(map->wind_vec);		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
+		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
+		features.set_data(map->wind_vec);
 		weapons.start();
 
-		/*---------------------------- players management --------------------------*/
-
+		// Players
 		players.start();
 
+		return true;
+	}
+
+
+	Battle::Result Battle::execute()
+	{
+		if (!preExecute(game_script))
+			return pResult;
+			
 		// Here we go Commander !
 		LOG_INFO(LOG_PREFIX_BATTLE << "*** The game has started - Good luck Commander ! ***");
-
 		// Reinit the counter for FPS
 		fps.lastTime = msec_timer;
 
@@ -252,12 +282,12 @@ namespace TA3D
 
 			if (players.local_human_id >= 0 && !console.activated() && !pArea.get_state("chat"))
 			{
-				if (key[KEY_SPACE]) 				// Show gamestatus window
+				if (key[KEY_SPACE]) // Show gamestatus window
 				{
 					if (show_gamestatus == 0.0f)
 					{
-						pArea.msg( "gamestatus.show" );	// Show it
-						pArea.msg( "playerstats.show" );	// Show it
+						pArea.msg("gamestatus.show");	// Show it
+						pArea.msg("playerstats.show");	// Show it
 					}
 
 					show_gamestatus += 10.0f * dt;
@@ -266,14 +296,14 @@ namespace TA3D
 				}
 				else
 				{									// Hide gamestatus window
-					bool pre_visible = show_gamestatus > 0.0f;
+					const bool pre_visible = (show_gamestatus > 0.);
 
 					show_gamestatus -= 10.0f * dt;
 
 					if (show_gamestatus < 0.0f && pre_visible)
 					{
-						pArea.msg( "gamestatus.hide" );	// Hide it
-						pArea.msg( "playerstats.hide" );	// Hide it
+						pArea.msg("gamestatus.hide");	// Hide it
+						pArea.msg("playerstats.hide");	// Hide it
 					}
 					if (show_gamestatus < 0.0f)
 						show_gamestatus = 0.0f;
@@ -558,7 +588,7 @@ namespace TA3D
 			if (cam.rpos.z > map->map_h_d + 200.0f)
 				cam.rpos.z = map->map_h_d + 200.0f;
 
-            Matrix Rotation;
+			Matrix Rotation;
 			if (lp_CONFIG->camera_zoom == ZOOM_NORMAL)
 				Rotation = RotateX( r1 * DEG2RAD) * RotateY( r2 * DEG2RAD) * RotateZ( r3 * DEG2RAD);
 			else
@@ -716,19 +746,7 @@ namespace TA3D
 							cursor_type = CURSOR_REPAIR;
 					}
 
-					switch (current_order)
-					{
-						case SIGNAL_ORDER_CAPTURE:	cursor_type=CURSOR_CAPTURE;	break;
-						case SIGNAL_ORDER_MOVE:		cursor_type=CURSOR_MOVE;	break;
-						case SIGNAL_ORDER_PATROL:	cursor_type=CURSOR_PATROL;	break;
-						case SIGNAL_ORDER_GUARD:	cursor_type=CURSOR_GUARD;	break;
-						case SIGNAL_ORDER_DGUN:		cursor_type=CURSOR_ATTACK;	break;
-						case SIGNAL_ORDER_ATTACK:	cursor_type=CURSOR_ATTACK;	break;
-						case SIGNAL_ORDER_RECLAM:	cursor_type=CURSOR_RECLAIM;	break;
-						case SIGNAL_ORDER_LOAD:		cursor_type=CURSOR_LOAD;	break;
-						case SIGNAL_ORDER_UNLOAD:	cursor_type=CURSOR_UNLOAD;	break;
-						case SIGNAL_ORDER_REPAIR:	cursor_type=CURSOR_REPAIR;	break;
-					}
+					cursor_type = CursorFromSignalOrder(current_order);
 
 					if (cursor_type!=CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
 					{
@@ -770,56 +788,31 @@ namespace TA3D
 							if (!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 							click_activated = true;
 						}
-						else if (cursor_type == CURSOR_CAPTURE && can_be_captured)
-						{
-							for (uint16 e = 0 ; e < units.index_list_size ; e++)
-							{
-								units.lock();
-								int i = units.idx_list[e];
-								units.unlock();
-								units.unit[i].lock();
-								if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
-								{
-									if (TA3D_SHIFT_PRESSED)
-										units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL);
-									else
-										units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL);
-								}
-								units.unit[i].unlock();
-							}
-							if (!TA3D_SHIFT_PRESSED)
-								current_order = SIGNAL_ORDER_NONE;
-							click_activated = true;
-						}
 						else
-						{
-							if (cursor_type==CURSOR_REPAIR)
+							if (cursor_type == CURSOR_CAPTURE && can_be_captured)
 							{
-								for (uint16 e = 0; e < units.index_list_size; ++e)
+								for (uint16 e = 0 ; e < units.index_list_size ; e++)
 								{
 									units.lock();
 									int i = units.idx_list[e];
 									units.unlock();
 									units.unit[i].lock();
-									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-										&& unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+									if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
 									{
-										if (!TA3D_SHIFT_PRESSED)
-											units.unit[ i ].play_sound("repair");
 										if (TA3D_SHIFT_PRESSED)
-											units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+											units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL);
 										else
-											units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+											units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL);
 									}
 									units.unit[i].unlock();
 								}
 								if (!TA3D_SHIFT_PRESSED)
-									current_order=SIGNAL_ORDER_NONE;
+									current_order = SIGNAL_ORDER_NONE;
 								click_activated = true;
 							}
 							else
 							{
-								if (cursor_type == CURSOR_RECLAIM)
+								if (cursor_type==CURSOR_REPAIR)
 								{
 									for (uint16 e = 0; e < units.index_list_size; ++e)
 									{
@@ -828,12 +821,14 @@ namespace TA3D
 										units.unlock();
 										units.unit[i].lock();
 										if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-											&& unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+											&& unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
 										{
+											if (!TA3D_SHIFT_PRESSED)
+												units.unit[ i ].play_sound("repair");
 											if (TA3D_SHIFT_PRESSED)
-												units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+												units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
 											else
-												units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+												units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
 										}
 										units.unit[i].unlock();
 									}
@@ -843,45 +838,57 @@ namespace TA3D
 								}
 								else
 								{
-									if (cursor_type==CURSOR_GUARD) // Le curseur donne un ordre
+									if (cursor_type == CURSOR_RECLAIM)
 									{
-										units.give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+										for (uint16 e = 0; e < units.index_list_size; ++e)
+										{
+											units.lock();
+											int i = units.idx_list[e];
+											units.unlock();
+											units.unit[i].lock();
+											if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
+												&& unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+											{
+												if (TA3D_SHIFT_PRESSED)
+													units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+												else
+													units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+											}
+											units.unit[i].unlock();
+										}
 										if (!TA3D_SHIFT_PRESSED)
 											current_order=SIGNAL_ORDER_NONE;
 										click_activated = true;
 									}
 									else
 									{
-										if (cursor_type==CURSOR_LOAD) 	// Le curseur donne un ordre
+										if (cursor_type==CURSOR_GUARD) // Le curseur donne un ordre
 										{
-											units.give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+											units.give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
 											if (!TA3D_SHIFT_PRESSED)
 												current_order=SIGNAL_ORDER_NONE;
 											click_activated = true;
 										}
+										else
+										{
+											if (cursor_type==CURSOR_LOAD) 	// Le curseur donne un ordre
+											{
+												units.give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+												if (!TA3D_SHIFT_PRESSED)
+													current_order=SIGNAL_ORDER_NONE;
+												click_activated = true;
+											}
+										}
 									}
 								}
 							}
-						}
 					}
 				}
 				else
 				{
 					if (!rope_selection)
 					{
-						switch(current_order)
-						{
-							case SIGNAL_ORDER_CAPTURE:	cursor_type=CURSOR_CAPTURE;	break;
-							case SIGNAL_ORDER_MOVE:		cursor_type=CURSOR_MOVE;	break;
-							case SIGNAL_ORDER_PATROL:	cursor_type=CURSOR_PATROL;	break;
-							case SIGNAL_ORDER_GUARD:	cursor_type=CURSOR_GUARD;	break;
-							case SIGNAL_ORDER_DGUN:		cursor_type=CURSOR_ATTACK;	break;
-							case SIGNAL_ORDER_ATTACK:	cursor_type=CURSOR_ATTACK;	break;
-							case SIGNAL_ORDER_RECLAM:	cursor_type=CURSOR_RECLAIM;	break;
-							case SIGNAL_ORDER_LOAD:		cursor_type=CURSOR_LOAD;	break;
-							case SIGNAL_ORDER_UNLOAD:	cursor_type=CURSOR_UNLOAD;	break;
-							case SIGNAL_ORDER_REPAIR:	cursor_type=CURSOR_REPAIR;	break;
-						}
+						cursor_type = CursorFromSignalOrder(current_order);
 
 						if (left_click_activation)
 						{
@@ -1449,10 +1456,10 @@ namespace TA3D
 
 			cam_h = cam.rpos.y - map->get_unit_h(cam.rpos.x, cam.rpos.z);
 
-            updateZFAR();
+			updateZFAR();
 
 			gfx->SetDefState();
-            updateFOG();
+			updateFOG();
 
 			// Dessine les reflets sur l'eau / Render water reflection
 			if (g_useProgram && g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
@@ -1487,7 +1494,7 @@ namespace TA3D
 				glEnable(GL_TEXTURE_2D);
 				if (lp_CONFIG->render_sky)
 				{
-                    glDisable(GL_FOG);
+					glDisable(GL_FOG);
 					glBindTexture(GL_TEXTURE_2D,sky);
 					glDisable(GL_LIGHTING);
 					glDepthMask(GL_FALSE);
@@ -1510,8 +1517,8 @@ namespace TA3D
 						glEnd();
 					}
 				}
-                refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
-                glDepthMask(GL_TRUE);
+				refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
+				glDepthMask(GL_TRUE);
 				glEnable(GL_CULL_FACE);
 				glEnable(GL_LIGHTING);
 				glEnable(GL_FOG);
@@ -1689,7 +1696,7 @@ namespace TA3D
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_LIGHTING);
 			glEnable(GL_FOG);
-            updateZFAR();
+			updateZFAR();
 
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1699,9 +1706,9 @@ namespace TA3D
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-            cam.setView(true);
+			cam.setView(true);
 
-            features.draw();		// Dessine les éléments "2D"
+			features.draw();		// Dessine les éléments "2D"
 
 			/*----------------------------------------------------------------------------------------------*/
 
@@ -2391,8 +2398,8 @@ namespace TA3D
 				pArea.msg( "esc_menu.show" );
 			}
 
-            if (key_down_event(KEY_PAUSE))      // Toggle pause mode when pressing pause
-                lp_CONFIG->pause ^= true;
+			if (key_down_event(KEY_PAUSE))      // Toggle pause mode when pressing pause
+				lp_CONFIG->pause ^= true;
 
 			if (pArea.get_state("esc_menu.b_return"))
 			{
@@ -2530,15 +2537,15 @@ namespace TA3D
 				n = -1;
 			int sel = -1;
 
-            // If the game is paused, render the pause image
-            if (lp_CONFIG->paused)
-            {
-                gfx->set_alpha_blending();
-                gfx->drawtexture(pause_tex, 145.0f * SCREEN_W / 640.0f, 190 * SCREEN_H / 480.0f, 495 * SCREEN_W / 640.0f, 290 * SCREEN_H / 480.0f, 0xFFFFFFFF);
-                gfx->unset_alpha_blending();
-            }
+			// If the game is paused, render the pause image
+			if (lp_CONFIG->paused)
+			{
+				gfx->set_alpha_blending();
+				gfx->drawtexture(pause_tex, 145.0f * SCREEN_W / 640.0f, 190 * SCREEN_H / 480.0f, 495 * SCREEN_W / 640.0f, 290 * SCREEN_H / 480.0f, 0xFFFFFFFF);
+				gfx->unset_alpha_blending();
+			}
 
-            /*------------------- Draw GUI components -------------------------------------------------------*/
+			/*------------------- Draw GUI components -------------------------------------------------------*/
 
 			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) + "gen")
 				unit_manager.unit_build_menu(n, omb2, dt, true);	// Draw GUI background
@@ -3245,8 +3252,14 @@ namespace TA3D
 
 			if (last_on != -1 && show_mission_info) // Sur les unités sélectionnées
 			{
-				const char *unit_info[]={"MISSION_STANDBY","MISSION_VTOL_STANDBY","MISSION_GUARD_NOMOVE","MISSION_MOVE","MISSION_BUILD","MISSION_BUILD_2","MISSION_STOP","MISSION_REPAIR","MISSION_ATTACK",
-					"MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD","MISSION_UNLOAD","MISSION_STANDBY_MINE"};
+				static const char *unit_info[] =
+				{
+					"MISSION_STANDBY", "MISSION_VTOL_STANDBY","MISSION_GUARD_NOMOVE",
+					"MISSION_MOVE","MISSION_BUILD","MISSION_BUILD_2","MISSION_STOP",
+					"MISSION_REPAIR","MISSION_ATTACK",
+					"MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD",
+					"MISSION_UNLOAD","MISSION_STANDBY_MINE"
+				};
 				float y(32.0f);
 				for (int i = 0; i < units.max_unit; ++i)
 				{
@@ -3256,7 +3269,7 @@ namespace TA3D
 						if (units.unit[i].mission != NULL && units.unit[i].mission->mission<=0x0E)
 						{
 							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
-							String flags = "";
+							String flags;
 							if (units.unit[i].mission->flags & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
 							if (units.unit[i].mission->flags & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
 							if (units.unit[i].mission->flags & MISSION_FLAG_TARGET_WEAPON)	flags += "TARGET_WEAPON; ";
@@ -3356,7 +3369,7 @@ namespace TA3D
 						//                        save_bitmap( TA3D::Paths::Screenshots + "z.tga",bmp);
 						SDL_FreeSurface(bmp);
 					}
-                    else if (params[0] == "toggle" && params.size() == 2 && params[1] == "farsight")    lp_CONFIG->far_sight ^= true;
+					else if (params[0] == "toggle" && params.size() == 2 && params[1] == "farsight")    lp_CONFIG->far_sight ^= true;
 					else if ((params[0] == "enable" || params[0] == "disable") && params.size() > 1)
 					{
 						if (params[1] == "right_click_interface")
@@ -3579,8 +3592,14 @@ namespace TA3D
 					{
 						if (selected && cur_sel != -1)	// Sur les unités sélectionnées
 						{
-							const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","Unit_XZ","Unit_Y","Unit_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
-								"HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
+							static const char *unit_info[] =
+							{
+								"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS",
+								"HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","Unit_XZ","Unit_Y",
+								"Unit_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
+								"HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN",
+								"BUGGER_OFF","ARMORED"
+							};
 							units.lock();
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
@@ -3589,7 +3608,7 @@ namespace TA3D
 								{
 									printf("flags=%d\n", units.unit[i].flags);
 									for (int f = 1; f < 21; ++f)
-										printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
+										printf("%s=%d\n", unit_info[f-1], units.unit[i].port[f]);
 								}
 							}
 							units.unlock();
@@ -3774,7 +3793,7 @@ namespace TA3D
 		gfx->destroy_texture(reflectex);
 		gfx->destroy_texture(transtex);
 		gfx->destroy_texture(height_tex);
-        gfx->destroy_texture(pause_tex);
+		gfx->destroy_texture(pause_tex);
 
 		LOG_INFO("Total Models: " << model_manager.nb_models);
 		LOG_INFO("Total Units: " << unit_manager.nb_unit);
@@ -3788,11 +3807,11 @@ namespace TA3D
 			case brVictory:
 							if (pGameData->campaign && !map->ota_data.glamour.empty() && HPIManager->Exists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
 							{
-                                // Disable TA palette since those images have their own palette :)
-                                disable_TA_palette();
+								// Disable TA palette since those images have their own palette :)
+								disable_TA_palette();
 								GLuint	glamour_tex = gfx->load_texture("bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx");
-                                enable_TA_palette();
-                                gfx->set_2D_mode();
+								enable_TA_palette();
+								gfx->set_2D_mode();
 								gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
 								gfx->destroy_texture( glamour_tex);
 								gfx->unset_2D_mode();
@@ -3826,11 +3845,11 @@ namespace TA3D
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		gfx->rect(pMouseRectSelection.x1 + 1, pMouseRectSelection.y1 + 1,
-			pMouseRectSelection.x2 + 1, pMouseRectSelection.y2 + 1);
+				  pMouseRectSelection.x2 + 1, pMouseRectSelection.y2 + 1);
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		gfx->rect(pMouseRectSelection.x1, pMouseRectSelection.y1,
-			pMouseRectSelection.x2, pMouseRectSelection.y2);
+				  pMouseRectSelection.x2, pMouseRectSelection.y2);
 	}
 
 
