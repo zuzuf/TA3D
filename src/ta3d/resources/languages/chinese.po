@@ -5,7 +5,7 @@
 }
 [solo]
 {
-    CHINESE=单人游戏;
+    CHINESE=单人;
 }
 [Skirmish]
 {
@@ -17,7 +17,7 @@
 }
 [LAN]
 {
-    CHINESE=局域网;
+    CHINESE=LAN;
 }
 [Internet]
 {
@@ -53,7 +53,7 @@
 }
 [explosion particles]
 {
-    CHINESE=是否增强颗粒效果;
+    CHINESE=增强颗粒效果;
 }
 [audio]
 {
@@ -61,7 +61,7 @@
 }
 [battle]
 {
-    CHINESE=战斗时;
+    CHINESE=战斗中;
 }
 [exit]
 {
@@ -73,11 +73,11 @@
 }
 [Disable perspective]
 {
-    CHINESE=是否使用TA透视模式;
+    CHINESE=透视模式;
 }
 [Right click interface]
 {
-    CHINESE=是否使用右键输入方式;
+    CHINESE=右键输入方式;
 }
 [ultimate]
 {
@@ -85,7 +85,7 @@
 }
 [Disable GLSL]
 {
-    CHINESE=是否禁止GLSL框架;
+    CHINESE=禁止GLSL框架;
 }
 [Unit limit]
 {
@@ -109,283 +109,283 @@
 }
 [MULTI_SOLO_MISMATCH_ERROR]
 {
-    CHINESE=This is a multiplayer game, you cannot load it\nfrom here;
+    CHINESE=这是一个多人游戏的存档\n单机时无法载入;
 }
 [Highlight underwater objects]
 {
-    CHINESE=是否高亮水下物体;
+    CHINESE=高亮水下物体;
 }
 [Current skin]
 {
-    CHINESE=菜单皮;
+    CHINESE=菜单皮肤;
 }
 [Refresh]
 {
-	CHINESE=刷新;
+   CHINESE=刷新;
 }
 [Load]
 {
-	CHINESE=载入存档;
+   CHINESE=载入;
 }
 [Campaign]
 {
-	CHINESE=战役菜单;
+   CHINESE=战役菜单;
 }
 [server name:]
 {
-	CHINESE=房间名称:;
+   CHINESE=房间名称:;
 }
 [host address:]
 {
-	CHINESE=IP地址:;
+   CHINESE=IP地址:;
 }
 [slots available:]
 {
-	CHINESE=空余位置:;
+   CHINESE=空余位置:;
 }
 [no server selected]
 {
-	CHINESE=未选择房间;
+   CHINESE=未选择房间;
 }
 [host a game]
 {
-	CHINESE=建主;
+   CHINESE=建主;
 }
 [Join IP]
 {
-	CHINESE=加入IP的游戏;
+   CHINESE=用IP刷新;
 }
 [Join]
 {
-	CHINESE=加房间;
+   CHINESE=加房间;
 }
 [closed]
 {
-	CHINESE=关闭位置;
+   CHINESE=关闭;
 }
 [use texture cache]
 {
-	CHINESE=可是否打开贴图缓存;
+   CHINESE=打开贴图缓存;
 }
 [units]
 {
-	CHINESE=特定单位;
+   CHINESE=单位;
 }
 [speed]
 {
-	CHINESE=我喜欢的游戏速度;
+   CHINESE=游戏速度;
 }
 [click to change\nthe map]
 {
-	CHINESE=进行地图设置;
+   CHINESE=选择地图;
 }
 [click to change\nthe script]
 {
-    CHINESE=进行脚本设置;
+    CHINESE=选择脚本;
 }
 [click to set\nthe fog of war]
 {
-	CHINESE=进行雾设置;
+   CHINESE=选择雾;
 }
 [Display]
 {
-	CHINESE=画面;
+   CHINESE=画面;
 }
 [CONFIRM_CHANGES]
 {
-	CHINESE=Changes have been made\nDo you want to keep them ?;
+   CHINESE=设置已改变\n是否保存设置?;
 }
 [Ok]
 {
-	CHINESE=保存;
+   CHINESE=保存;
 }
 [Change map]
 {
-	CHINESE=地图选择;
+   CHINESE=设置地图;
 }
 [camera zoom speed]
 {
-	CHINESE=视角移动速度;
+   CHINESE=视角移动速度;
 }
 [camera zoom]
 {
-	CHINESE=我习惯的视角角度;
+   CHINESE=拖动速度;
 }
 [camera default angle]
 {
-	CHINESE=游戏开始时视角的角度;
+   CHINESE=视角角度;
 }
 [camera default height]
 {
-	CHINESE=游戏开始时视角的高度;
+   CHINESE=视角高度;
 }
 [Fixed Angle]
 {
-	CHINESE=角度固定;
+   CHINESE=固定角度;
 }
 [player name]
 {
-	CHINESE=我的名字;
+   CHINESE=我的名字;
 }
 [Current mod]
 {
-	CHINESE=我使用的mod;
+   CHINESE=使用mod:;
 }
 [Off]
 {
-	CHINESE=关闭;
+   CHINESE=关闭;
 }
 [grey]
 {
-	CHINESE=透明雾;
+   CHINESE=透明雾;
 }
 [black]
 {
-	CHINESE=黑雾（单位行过后无雾了）;
+   CHINESE=黑雾;
 }
 [Multiplayer]
 {
-	CHINESE=多人游戏;
+   CHINESE=多人游戏;
 }
 [back]
 {
-	CHINESE=返回主菜单;
+   CHINESE=主菜单;
 }
 [OPTIONS]
 {
-	CHINESE=选项;
+   CHINESE=选项;
 }
 [cancel]
 {
-	CHINESE=返回主菜单;
+   CHINESE=返回;
 }
 [players: ]
 {
-	CHINESE=玩家名称: ;
+   CHINESE=玩家名称: ;
 }
 [Players]
 {
-	CHINESE=玩家名称;
+   CHINESE=玩家;
 }
 [Side]
 {
-	CHINESE=种族;
+   CHINESE=种族;
 }
 [Energy]
 {
-	CHINESE=初始能量;
+   CHINESE=初始能量;
 }
 [Metal]
 {
-	CHINESE=初始金属;
+   CHINESE=初始金属;
 }
 [No server found]
 {
-	CHINESE=刷新不到房间;
+   CHINESE=刷新不到房间;
 }
 [computer]
 {
-	CHINESE=AI;
+   CHINESE=AI;
 }
 [open]
 {
-	CHINESE=打开位置;
+   CHINESE=打开;
 }
 [easy]
 {
-	CHINESE=简单;
+   CHINESE=简单;
 }
 [medium]
 {
-	CHINESE=中等;
+   CHINESE=中等;
 }
 [hard]
 {
-	CHINESE=困难;
+   CHINESE=困难;
 }
 [bloody]
 {
-	CHINESE=冷酷;
+   CHINESE=冷酷;
 }
 [AI]
 {
-	CHINESE=AI;
+   CHINESE=AI;
 }
 [show fps]
 {
-	CHINESE=是否显示每秒帧;
+   CHINESE=显示FPS;
 }
 [fps limit]
 {
-	CHINESE=强制FPS为;
+   CHINESE=强制FPS;
 }
 [wireframe]
 {
-	CHINESE=是否显示地图贴图面积;
+   CHINESE=贴图面积;
 }
 [particles]
 {
-	CHINESE=是否显示颗粒效果;
+   CHINESE=颗粒效果;
 }
 [waves]
 {
-    CHINESE=是否显示波浪;
+    CHINESE=水浪;
 }
 [shadows]
 {
-	CHINESE=阴影质量;
+   CHINESE=阴影;
 }
 [height line]
 {
-	CHINESE=是否显示等高线;
+   CHINESE=等高线;
 }
 [detail texture]
 {
-	CHINESE=是否显示贴图细节的优化处理;
+   CHINESE=更丰富贴图细节;
 }
 [draw console while loading]
 {
-	CHINESE=是否载入游戏时显示cosole窗体;
+   CHINESE=载入游戏时显示cosole窗体;
 }
 [full screen]
 {
-	CHINESE=是否全屏。;
+   CHINESE=全屏;
 }
 [language]
 {
-	CHINESE=我的母语;
+   CHINESE=语言;
 }
 [screen]
 {
-	CHINESE=分辨率;
+   CHINESE=分辨率;
 }
 [antialiasing]
 {
-	CHINESE=反锯齿;
+   CHINESE=反锯齿;
 }
 [water quality]
 {
-	CHINESE=水面质量;
+   CHINESE=水面质量;
 }
 [normal]
 {
-	CHINESE=中;
+   CHINESE=中;
 }
 [high]
 {
-	CHINESE=高;
+   CHINESE=高;
 }
 [no fsaa]
 {
-	CHINESE=无反锯齿;
+   CHINESE=无反锯齿;
 }
 [low]
 {
-	CHINESE=低;
+   CHINESE=低;
 }
 [RESOURCES ERROR]
 {
-	CHINESE=Resources files missing. TA3D needs *.hpi/*.ufo/*.ccx files\nfrom TA's CDs or demo, or stand-alone mod to run;
+   CHINESE=缺少资源文件.TA3D需要TA CD/试用版/TA MODs中的\n.ccx/.hpi/.gp*文件以运行.;
 }
 [UNITTYPE_NAME]
 {
