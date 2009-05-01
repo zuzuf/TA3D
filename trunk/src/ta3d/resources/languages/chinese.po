@@ -311,10 +311,6 @@
 {
 	CHINESE=AI;
 }
-[FMOD WARNING]
-{
-	CHINESE=FMOD couldn't be started, sound will be disabled;
-}
 [show fps]
 {
 	CHINESE=是否显示每秒帧;
