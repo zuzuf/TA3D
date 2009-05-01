@@ -106,7 +106,7 @@ const String Dialogf(const String &Title, String Filter)
             if (current_area->get_state("open.file_list"))
             {
                 GUIOBJ *obj = current_area->get_object("open.file_list");
-                if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
+                if (obj && obj->Pos < obj->Text.size())
                 {
                     if (current_area->get_caption("open.t_filename") == obj->Text[ obj->Pos ])      // Double-click
                     {
@@ -121,7 +121,7 @@ const String Dialogf(const String &Title, String Filter)
             if (current_area->get_state("open.folder_list"))
             {
                 GUIOBJ *obj = current_area->get_object("open.folder_list");
-                if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
+                if (obj && obj->Pos < obj->Text.size())
                 {
                     if (obj->Pos == cur_folder_idx)     // Change current dir (double-click)
                     {

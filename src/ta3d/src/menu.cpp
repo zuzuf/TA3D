@@ -355,7 +355,7 @@ void config_menu(void)
 		if (config_area.get_state( "*.b_activate"))
 		{
 			GUIOBJ *obj = config_area.get_object("*.l_files");
-			if (obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos)
+            if (obj && obj->Text.size() > obj->Pos)
 			{
 				sound_manager->setPlayListFileMode( obj->Pos, false, false);
 				obj->Text[ obj->Pos ][ 1 ] = '*';
@@ -364,7 +364,7 @@ void config_menu(void)
 		if (config_area.get_state( "*.b_deactivate"))
 		{
 			GUIOBJ *obj = config_area.get_object("*.l_files");
-			if (obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos)
+            if (obj && obj->Text.size() > obj->Pos)
 			{
 				sound_manager->setPlayListFileMode( obj->Pos, false, true);
 				obj->Text[ obj->Pos ][ 1 ] = ' ';
@@ -373,7 +373,7 @@ void config_menu(void)
 		if (config_area.get_state( "*.b_battle" ) )
 		{
 			GUIOBJ *obj = config_area.get_object("*.l_files");
-			if (obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos)
+            if (obj && obj->Text.size() > obj->Pos)
 			{
 				sound_manager->setPlayListFileMode(obj->Pos, true, false);
 				obj->Text[ obj->Pos ][1] = 'B';
@@ -1515,7 +1515,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 		if (setupgame_area.get_state( "scripts.b_ok" ) && !client && !saved_game)
 		{
 			guiobj = setupgame_area.get_object( "scripts.script_list");
-			if (guiobj && guiobj->Pos >= 0 && guiobj->Pos < guiobj->num_entries())
+            if (guiobj && guiobj->Pos < guiobj->num_entries())
 			{
 				setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ]);
 				game_data.game_script = guiobj->Text[ guiobj->Pos ];
@@ -2101,7 +2101,7 @@ void network_room(void)             // Let players create/join a game
 		if (networkgame_area.get_state( "load_menu.b_load" ) || (key[KEY_ENTER] && networkgame_area.get_state( "load_menu" )))    // Loading a game
 		{
 			GUIOBJ* obj = networkgame_area.get_object("load_menu.l_file");
-			if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
+            if (obj && obj->Pos < obj->Text.size())
 			{
 				GameData game_data;
 				String host = obj->Text[obj->Pos];
@@ -2178,7 +2178,7 @@ void network_room(void)             // Let players create/join a game
 		if (networkgame_area.get_object("networkgame.server_list") && !done )
 		{
 			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
-			sel_index = obj->Pos >= 0 && obj->Pos < obj->Text.size() ? obj->Text[ obj->Pos ]: "";
+            sel_index = (obj->Pos < obj->Text.size()) ? obj->Text[ obj->Pos ] : String("");
 
 			if (sel_index != o_sel) // Update displayed server info
 			{
@@ -2299,7 +2299,7 @@ void campaign_main_menu(void)
 		if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0) // If we don't have campaign data, then load them
 		{
 			GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
-			if (guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
+            if (guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
 			{
 				if (!campaign_parser)
 					delete campaign_parser;
@@ -2340,10 +2340,10 @@ void campaign_main_menu(void)
 			}
 		}
 
-		if (campaign_area.get_object("campaign.mission_list") )
+        if (campaign_area.get_object("campaign.mission_list"))
 		{
 			GUIOBJ *guiobj = campaign_area.get_object("campaign.mission_list");
-			if (guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() )
+            if (guiobj->Pos < guiobj->Text.size())
 				mission_id = guiobj->Pos;
 		}
 
