@@ -95,6 +95,12 @@ target_link_libraries(${3DMEDITOR_BIN}
 
 
 
+SET(SRC_ENGINE
+		UnitEngine.cpp UnitEngine.h
+		EngineClass.cpp EngineClass.h
+		engine/weapondata.h  engine/weapondata.hxx)
+
+
 # --------------------------------------------------------------------
 # --- TA3D
 # --------------------------------------------------------------------
@@ -104,13 +110,12 @@ ELSE(APPLE)
 	SET(TA3D_BIN ta3d)
 ENDIF(APPLE)
 SET(SOURCES
+		${SRC_ENGINE}
 		ta3d.h
 		install.cpp
 		engine.cpp engine.h
 		restore.cpp restore.h
 		menu.cpp menu.h
-		EngineClass.cpp EngineClass.h
-		UnitEngine.cpp UnitEngine.h
 		fbi.cpp fbi.h
 		intro.cpp intro.h
 		tdf.cpp tdf.h tnt.cpp tnt.h
