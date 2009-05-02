@@ -826,7 +826,7 @@ namespace TA3D
 											&& unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
 										{
 											if (!TA3D_SHIFT_PRESSED)
-												units.unit[ i ].play_sound("repair");
+												units.unit[i].playSound("repair");
 											if (TA3D_SHIFT_PRESSED)
 												units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
 											else
@@ -1171,7 +1171,7 @@ namespace TA3D
 							cur_sel_index=cur_sel;
 							cur_sel=units.unit[cur_sel].type_id;
 							// Let's do some noise
-							units.unit[ cur_sel_index ].play_sound( "select1");
+							units.unit[ cur_sel_index ].playSound( "select1");
 						}
 					}
 				}
@@ -3581,10 +3581,10 @@ namespace TA3D
 							units.lock();
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
-								int i = units.idx_list[e];
+								const int i = units.idx_list[e];
 								units.unlock();
 								if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-									units.unit[i].reset_script();
+									units.unit[i].resetScript();
 								units.lock();
 							}
 							units.unlock();
@@ -3660,9 +3660,9 @@ namespace TA3D
 							units.lock();
 							for (int e = 0; e < units.index_list_size; ++e)
 							{
-								int i = units.idx_list[e];
+								const int i = units.idx_list[e];
 								if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-									units.unit[i].launch_script( UnitScriptInterface::get_script_id(params[2]) );
+									units.unit[i].launchScript(UnitScriptInterface::get_script_id(params[2]));
 							}
 							units.unlock();
 						}

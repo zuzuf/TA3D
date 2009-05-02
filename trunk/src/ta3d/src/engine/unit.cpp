@@ -119,8 +119,8 @@ namespace TA3D
 		if (angleX > 180)	angleX -= 360;
 		else if (angleX < -180)	angleX += 360;
 		int param[] = { (int)(angle * DEG2TA), (int)(angleX * DEG2TA) };
-		launch_script(SCRIPT_startbuilding, 2, param );
-		play_sound( "build" );
+		launchScript(SCRIPT_startbuilding, 2, param );
+		playSound( "build" );
 	}
 
 
@@ -216,7 +216,7 @@ namespace TA3D
 		return t >= 0 && t < units.max_unit && !(players.team[units.unit[t].owner_id] & players.team[owner_id]);
 	}
 
-	int Unit::run_script_function(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
+	int Unit::runScriptFunction(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
 	{
 		String f_name( UnitScriptInterface::get_script_name(id) );
 		MutexLocker mLocker( pMutex );
@@ -225,14 +225,14 @@ namespace TA3D
 		return -1;
 	}
 
-	void Unit::reset_script()
+	void Unit::resetScript()
 	{
 		pMutex.lock();
 		pMutex.unlock();
 	}
 
 
-	void Unit::stop_moving()
+	void Unit::stopMoving()
 	{
 		if (mission->flags & MISSION_FLAG_MOVE)
 		{
@@ -244,7 +244,7 @@ namespace TA3D
 				V.x = V.y = V.z = 0.0f;
 			}
 			if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
-				launch_script(SCRIPT_StopMoving);
+				launchScript(SCRIPT_StopMoving);
 			else
 				was_moving = false;
 			if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE))
@@ -273,8 +273,8 @@ namespace TA3D
 		pMutex.lock();
 		if (port[ACTIVATION] == 0)
 		{
-			play_sound("activate");
-			launch_script(SCRIPT_Activate);
+			playSound("activate");
+			launchScript(SCRIPT_Activate);
 			port[ACTIVATION] = 1;
 		}
 		pMutex.unlock();
@@ -285,8 +285,8 @@ namespace TA3D
 		pMutex.lock();
 		if (port[ACTIVATION] != 0)
 		{
-			play_sound("deactivate");
-			launch_script(SCRIPT_Deactivate);
+			playSound("deactivate");
+			launchScript(SCRIPT_Deactivate);
 			port[ACTIVATION] = 0;
 		}
 		pMutex.unlock();
@@ -422,7 +422,7 @@ namespace TA3D
 			{
 				script->setUnitID( idx );
 				data.load( script->getNbPieces() );
-				launch_script(SCRIPT_create);
+				launchScript(SCRIPT_create);
 			}
 		}
 		pMutex.unlock();
@@ -733,7 +733,7 @@ namespace TA3D
 			case MISSION_REPAIR:
 			case MISSION_RECLAIM:
 			case MISSION_BUILD_2: {
-									  launch_script(SCRIPT_stopbuilding);
+									  launchScript(SCRIPT_stopbuilding);
 									  deactivate();
 									  if (type_id != -1 && !unit_manager.unit_type[type_id]->BMcode) // Delete the unit we were building
 									  {
@@ -750,7 +750,7 @@ namespace TA3D
 											  units.kill(((Unit*)(mission->p))->idx,units.map,prev);
 									  }
 									  else
-										  launch_script(SCRIPT_stop);
+										  launchScript(SCRIPT_stop);
 									  break;
 								  }
 			case MISSION_ATTACK: {
@@ -885,7 +885,7 @@ namespace TA3D
 			case MISSION_BUILD_2:
 				if (mission->next == NULL || (type_id != -1 && unit_manager.unit_type[type_id]->BMcode) || mission->next->mission != MISSION_BUILD)
 				{
-					launch_script(SCRIPT_stopbuilding);
+					launchScript(SCRIPT_stopbuilding);
 					deactivate();
 				}
 				break;
@@ -1106,12 +1106,12 @@ namespace TA3D
 				if (!unit_manager.unit_type[type_id]->emitting_points_computed ) // Compute model emitting points if not already done, do it here in Unit::Locked code ...
 				{
 					unit_manager.unit_type[type_id]->emitting_points_computed = true;
-					int first = run_script_function( SCRIPT_QueryNanoPiece );;
+					int first = runScriptFunction( SCRIPT_QueryNanoPiece );;
 					int current;
 					int i = 0;
 					do
 					{
-						current = run_script_function( SCRIPT_QueryNanoPiece );
+						current = runScriptFunction( SCRIPT_QueryNanoPiece );
 						model->obj.compute_emitter_point( current );
 						++i;
 					} while( first != current && i < 1000 );
@@ -1404,7 +1404,7 @@ namespace TA3D
 	}
 
 
-	void Unit::draw_shadow_basic(const Vector3D& Dir,MAP *map)
+	void Unit::drawShadowBasic(const Vector3D& Dir,MAP *map)
 	{
 		pMutex.lock();
 		if (!(flags & 1))
@@ -1458,7 +1458,7 @@ namespace TA3D
 			Vector3D D = map->hit( H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
-		//    model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
+		//    model->drawShadowBasic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
 		model->draw_shadow_basic(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
 
 		glPopMatrix();
@@ -1487,7 +1487,7 @@ namespace TA3D
 		fx_manager.addExplosion( Pos, V, power * 3, power * 10 );
 
 		int param[] = { severity * 100 / unit_manager.unit_type[type_id]->MaxDamage, 0 };
-		int corpse_type = run_script_function(SCRIPT_killed, 2, param);
+		int corpse_type = runScriptFunction(SCRIPT_killed, 2, param);
 		if (attached)
 			corpse_type = 3;			// When we were flying we just disappear
 		bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
@@ -1644,7 +1644,7 @@ namespace TA3D
 			int old = (int)self_destruct;
 			self_destruct -= dt;
 			if (old != (int)self_destruct) // Play a sound :-)
-				play_sound( format( "count%d", old));
+				playSound( format( "count%d", old));
 			if (self_destruct <= 0.0f)
 			{
 				self_destruct = 0.0f;
@@ -2013,7 +2013,7 @@ namespace TA3D
 
 							if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
 							{
-								int start_piece = run_script_function(AimFrom_script);
+								int start_piece = runScriptFunction(AimFrom_script);
 								if (start_piece < 0 || start_piece >= data.nb_piece)
 									start_piece = 0;
 								compute_model_coord();
@@ -2023,7 +2023,7 @@ namespace TA3D
 								if (target_unit != NULL )
 								{
 									if (weapon[i].data == -1 )
-										weapon[i].data = target_unit->run_script_function( SCRIPT_SweetSpot );
+										weapon[i].data = target_unit->runScriptFunction( SCRIPT_SweetSpot );
 									if (weapon[i].data >= 0 )
 										target_pos_on_unit = target_unit->data.pos[ weapon[i].data ];
 								}
@@ -2118,7 +2118,7 @@ namespace TA3D
 																					+ sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
 										+ sinf(aiming[1] * TA2RAD) * IJ;
 								readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
-								launch_script(Aim_script, 2, aiming);
+								launchScript(Aim_script, 2, aiming);
 							}
 							else
 								readyToFire = true;
@@ -2132,7 +2132,7 @@ namespace TA3D
 					}
 					else
 					{
-						launch_script(SCRIPT_TargetCleared);
+						launchScript(SCRIPT_TargetCleared);
 						weapon[i].state = WEAPON_FLAG_IDLE;
 						weapon[i].data = -1;
 					}
@@ -2159,7 +2159,7 @@ namespace TA3D
 							script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
 							break;
 						}
-						int start_piece = run_script_function(Query_script);
+						int start_piece = runScriptFunction(Query_script);
 						if (start_piece >= 0 && start_piece < data.nb_piece)
 						{
 							compute_model_coord();
@@ -2188,7 +2188,7 @@ namespace TA3D
 								players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
 								players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
 							}
-							launch_script( Fire_script );			// Run the fire animation script
+							launchScript( Fire_script );			// Run the fire animation script
 							if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
 
 							if (weapon[i].target == NULL)
@@ -2226,7 +2226,7 @@ namespace TA3D
 						}
 						else if (weapon[i].target != NULL || weapon[i].burst == 0)
 						{
-							launch_script(SCRIPT_TargetCleared);
+							launchScript(SCRIPT_TargetCleared);
 							weapon[i].state = WEAPON_FLAG_IDLE;
 							weapon[i].data = -1;
 							script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
@@ -2234,7 +2234,7 @@ namespace TA3D
 					}
 					else
 					{
-						launch_script(SCRIPT_TargetCleared);
+						launchScript(SCRIPT_TargetCleared);
 						weapon[i].state = WEAPON_FLAG_IDLE;
 						weapon[i].data = -1;
 					}
@@ -2260,11 +2260,11 @@ namespace TA3D
 				{
 					if (unit_manager.unit_type[type_id]->canfly)
 						activate();
-					launch_script(SCRIPT_startmoving);
+					launchScript(SCRIPT_startmoving);
 					if (nb_attached==0)
-						launch_script(SCRIPT_MoveRate1);		// For the armatlas
+						launchScript(SCRIPT_MoveRate1);		// For the armatlas
 					else
-						launch_script(SCRIPT_MoveRate2);
+						launchScript(SCRIPT_MoveRate2);
 					was_moving = true;
 				}
 				Vector3D J,I,K;
@@ -2333,19 +2333,19 @@ namespace TA3D
 									}
 									else
 										mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Retry later
-									launch_script(SCRIPT_StopMoving);
+									launchScript(SCRIPT_StopMoving);
 									was_moving = false;
 								}
 
 								if (mission->path == NULL)					// Can't find a path to get where it has been ordered to go
-									play_sound("cant1");
+									playSound("cant1");
 							}
 							if (mission->path)// Update required data
 								Target = mission->path->Pos;
 						}
 					}
 					else
-						stop_moving();
+						stopMoving();
 				}
 
 				if (mission->path) // If we have a path, follow it
@@ -2373,13 +2373,13 @@ namespace TA3D
 							if (J.sq() <= 256.0f || flying)
 							{
 								if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
-									play_sound( "arrived1" );
+									playSound( "arrived1" );
 								mission->flags &= ~MISSION_FLAG_MOVE;
 							}
 							else										// We are not where we are supposed to be !!
 								mission->flags |= MISSION_FLAG_REFRESH_PATH;
 							if (!( unit_manager.unit_type[type_id]->canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
-								launch_script(SCRIPT_StopMoving);
+								launchScript(SCRIPT_StopMoving);
 								was_moving = false;
 							}
 							if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) )
@@ -2614,7 +2614,7 @@ namespace TA3D
 						if (!(mission->flags & MISSION_FLAG_PAD_CHECKED) ) {
 							mission->flags |= MISSION_FLAG_PAD_CHECKED;
 							int param[] = { 0, 1 };
-							target_unit->run_script_function( SCRIPT_QueryLandingPad, 2, param );
+							target_unit->runScriptFunction( SCRIPT_QueryLandingPad, 2, param );
 							mission->data = param[ 0 ];
 						}
 
@@ -2744,7 +2744,7 @@ namespace TA3D
 								{
 									if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
 										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
-										launch_script(SCRIPT_EndTransport);
+										launchScript(SCRIPT_EndTransport);
 
 										Unit *target_unit = &(units.unit[ attached_list[0] ]);
 										target_unit->attached = false;
@@ -2766,7 +2766,7 @@ namespace TA3D
 										&& units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->target, map, units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
 										int idx = attached_list[ nb_attached - 1 ];
 										int param[]= { idx, PACKXZ( mission->target.x * 2.0f + map->map_w, mission->target.z * 2.0f + map->map_h ) };
-										launch_script(SCRIPT_TransportDrop, 2, param);
+										launchScript(SCRIPT_TransportDrop, 2, param);
 									}
 									else if (attached_list[ nb_attached - 1 ] < 0 || attached_list[ nb_attached - 1 ] >= units.max_unit
 											 || units.unit[ attached_list[ nb_attached - 1 ] ].flags == 0 )
@@ -2816,8 +2816,8 @@ namespace TA3D
 									{
 										//										int param[] = { (int)((Pos.y - target_unit->Pos.y - target_unit->model->top)*2.0f) << 16 };
 										int param[] = { (int)((Pos.y - target_unit->Pos.y)*2.0f) << 16 };
-										launch_script(SCRIPT_BeginTransport, 1, param);
-										run_script_function( SCRIPT_QueryTransport, 1, param);
+										launchScript(SCRIPT_BeginTransport, 1, param);
+										runScriptFunction( SCRIPT_QueryTransport, 1, param);
 										target_unit->attached = true;
 										link_list[nb_attached] = param[0];
 										target_unit->hidden = param[0] < 0;
@@ -2834,7 +2834,7 @@ namespace TA3D
 										break;
 									}
 									int param[]= { target_unit->idx };
-									launch_script(SCRIPT_TransportPickup, 1, param);
+									launchScript(SCRIPT_TransportPickup, 1, param);
 								}
 								mission->last_d = -1.0f;
 							}
@@ -2860,7 +2860,7 @@ namespace TA3D
 							{
 								if (unit_manager.unit_type[target_unit->type_id]->commander || target_unit->owner_id == owner_id)
 								{
-									play_sound( "cant1" );
+									playSound( "cant1" );
 									next_mission();
 									break;
 								}
@@ -2897,7 +2897,7 @@ namespace TA3D
 										g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, mission->mission == MISSION_RECLAIM );
 									}
 
-									play_sound( "working" );
+									playSound( "working" );
 									// Récupère l'unité
 									float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id]->MaxDamage / unit_manager.unit_type[type_id]->WorkerTime;
 									if (mission->mission == MISSION_CAPTURE)
@@ -2928,8 +2928,8 @@ namespace TA3D
 											target_unit->unlock();
 
 											pMutex.lock();
-											launch_script(SCRIPT_stopbuilding);
-											launch_script(SCRIPT_stop);
+											launchScript(SCRIPT_stopbuilding);
+											launchScript(SCRIPT_stop);
 											next_mission();
 										}
 									}
@@ -2941,8 +2941,8 @@ namespace TA3D
 											metal_prod += recup * unit_manager.unit_type[target_unit->type_id]->BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id]->MaxDamage);
 										if (target_unit->hp <= 0.0f)		// Work done
 										{
-											launch_script(SCRIPT_stopbuilding);
-											launch_script(SCRIPT_stop);
+											launchScript(SCRIPT_stopbuilding);
+											launchScript(SCRIPT_stop);
 											target_unit->flags |= 0x10;			// This unit is being reclaimed it doesn't explode!
 											next_mission();
 										}
@@ -2988,7 +2988,7 @@ namespace TA3D
 									g_ta3d_network->sendUnitNanolatheEvent( idx, mission->data, true, true );
 								}
 
-								play_sound( "working" );
+								playSound( "working" );
 								// Reclaim the object
 								float recup=dt*unit_manager.unit_type[type_id]->WorkerTime;
 								if (recup>features.feature[mission->data].hp)	recup=features.feature[mission->data].hp;
@@ -3044,9 +3044,9 @@ namespace TA3D
 										}
 										if (!success)
 										{
-											play_sound( "cant1" );
-											launch_script(SCRIPT_stopbuilding);
-											launch_script(SCRIPT_stop);
+											playSound("cant1");
+											launchScript(SCRIPT_stopbuilding);
+											launchScript(SCRIPT_stop);
 											next_mission();
 										}
 									}
@@ -3057,8 +3057,8 @@ namespace TA3D
 										if (network_manager.isConnected())
 											g_ta3d_network->sendFeatureDeathEvent( mission->data );
 										features.delete_feature(mission->data);			// Delete the object
-										launch_script(SCRIPT_stopbuilding);
-										launch_script(SCRIPT_stop);
+										launchScript(SCRIPT_stopbuilding);
+										launchScript(SCRIPT_stop);
 										next_mission();
 									}
 								}
@@ -3353,7 +3353,7 @@ namespace TA3D
 								for( int i = 0 ; i < weapon.size() ; i++ )
 									if (unit_manager.unit_type[type_id]->weapon[ i ])
 										param[ 0 ] = Math::Max(param[0], (int)( unit_manager.unit_type[type_id]->weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)unit_manager.unit_type[type_id]->weapon[i]->burst));
-								launch_script(SCRIPT_SetMaxReloadTime, 1, param);
+								launchScript(SCRIPT_SetMaxReloadTime, 1, param);
 							}
 
 							if (mission->flags & MISSION_FLAG_COMMAND_FIRED)
@@ -3397,12 +3397,12 @@ namespace TA3D
 					{
 						if (mission->data==0)
 						{
-							launch_script(SCRIPT_StopMoving);		// Arrête tout / stop everything
-							launch_script(SCRIPT_stopbuilding);
+							launchScript(SCRIPT_StopMoving);		// Arrête tout / stop everything
+							launchScript(SCRIPT_stopbuilding);
 							for( int i = 0 ; i < weapon.size() ; i++ )
 								if (weapon[i].state)
 								{
-									launch_script(SCRIPT_TargetCleared);
+									launchScript(SCRIPT_TargetCleared);
 									break;
 								}
 							for( int i = 0 ; i < weapon.size() ; i++ )			// Stop weapons
@@ -3563,7 +3563,7 @@ namespace TA3D
 								}
 								if (!unit_manager.unit_type[type_id]->BMcode)
 								{
-									int buildinfo = run_script_function(SCRIPT_QueryBuildInfo);
+									int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
 									if (buildinfo >= 0)
 									{
 										compute_model_coord();
@@ -3623,8 +3623,8 @@ namespace TA3D
 						}
 						else
 						{
-							if (mission->flags & MISSION_FLAG_MOVE )			// Stop moving if needed
-								stop_moving();
+							if (mission->flags & MISSION_FLAG_MOVE) // Stop moving if needed
+								stopMoving();
 							if (unit_manager.unit_type[type_id]->BMcode || (!unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF]))
 							{
 								/*								pMutex.unlock();
@@ -3635,7 +3635,7 @@ namespace TA3D
 								V.z = 0.0f;
 								if (!unit_manager.unit_type[type_id]->BMcode)
 								{
-									int buildinfo = run_script_function(SCRIPT_QueryBuildInfo);
+									int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
 									if (buildinfo >= 0)
 									{
 										compute_model_coord();
@@ -4133,7 +4133,7 @@ script_exec:
 			if (unit_manager.unit_type[type_id]->canhover)
 			{
 				int param[1] = { hover_on_water ? ( map->sealvl - min_h >= 8.0f ? 2 : 1) : 4 };
-				run_script_function(SCRIPT_setSFXoccupy, 1, param);
+				runScriptFunction(SCRIPT_setSFXoccupy, 1, param);
 			}
 			if (min_h>Pos.y)
 			{
@@ -4585,7 +4585,7 @@ script_exec:
 		int owner = owner_id;
 		Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
 		int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };
-		launch_script( SCRIPT_RockUnit, 2, param );
+		launchScript( SCRIPT_RockUnit, 2, param );
 
 		if (pW->startsmoke && visible)
 			particle_engine.make_smoke(startpos, 0, 1, 0.0f, -1.0f, 0.0f, 0.3f);
@@ -4777,7 +4777,7 @@ script_exec:
 
 
 
-	void Unit::play_sound(const String &key)
+	void Unit::playSound(const String &key)
 	{
 		pMutex.lock();
 		if (owner_id == players.local_human_id && msec_timer - last_time_sound >= units.sound_min_ticks )
@@ -4790,7 +4790,7 @@ script_exec:
 
 
 
-	int Unit::launch_script(const int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
+	int Unit::launchScript(const int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
 	{
 		const String& f_name = UnitScriptInterface::get_script_name(id);
 		if (f_name.empty())
