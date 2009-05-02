@@ -197,7 +197,7 @@ inline const Vector2D operator - (const Vector2D& lhs, const Vector2D& rhs)
 inline const Vector2D operator * (const float& v, const Vector2D& lhs)
 { return Vector2D(lhs) *= v; }
 
-inline const float operator % (const Vector2D& lhs, const Vector2D& rhs)
+inline float operator % (const Vector2D& lhs, const Vector2D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y; }
 
 
@@ -216,7 +216,7 @@ inline const Vector3D operator * (const float& v, const Vector3D& lhs)
 inline const Vector3D operator * (const Vector3D& lhs, const Vector3D& rhs)
 { return Vector3D(lhs) *= rhs; }
 
-inline const float operator % (const Vector3D& lhs, const Vector3D& rhs)
+inline float operator % (const Vector3D& lhs, const Vector3D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
 
 
