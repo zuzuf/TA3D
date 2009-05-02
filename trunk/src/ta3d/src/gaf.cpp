@@ -161,10 +161,11 @@ namespace TA3D
             return first_try;
         }
 
-        byte *data = HPIManager->PullFromHPI(filename);
+        uint32 file_length(0);
+        byte *data = HPIManager->PullFromHPI(filename, &file_length);
         if (data)
         {
-            sint32 idx = RawDataGetEntryIndex(data, imgname);
+            sint32 idx = file_length > 0 ? RawDataGetEntryIndex(data, imgname) : -1;
             if (idx != -1)
             {
                 SDL_Surface *img = Gaf::RawDataToBitmap(data, idx, 0, NULL, NULL, truecolor);
@@ -275,7 +276,7 @@ namespace TA3D
     SDL_Surface* Gaf::RawDataToBitmap(const byte* buf, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
     {
         LOG_ASSERT(buf != NULL);
-        if (entry_idx < 0)
+        if (entry_idx < 0 || img_idx < 0)
             return NULL;
         Gaf::Header header(buf);
         if (entry_idx >= header.Entries) // Si le fichier contient moins d'images que img_idx, il y a erreur
@@ -295,6 +296,9 @@ namespace TA3D
         convertGAFCharToString(buf + pointers[entry_idx] + 8, entry.name);
         f_pos = pointers[entry_idx]+40;
 
+        if (entry.Frames < 0)
+            return NULL;
+
         Gaf::Frame::Entry* frame = new Gaf::Frame::Entry[entry.Frames];
 
         for (sint32 i = 0; i < entry.Frames; ++i)
@@ -305,236 +309,246 @@ namespace TA3D
             f_pos += 4;
         }
 
-        f_pos = frame[img_idx].PtrFrameTable;
-        Gaf::Frame::Data framedata(buf, f_pos);
-        uint32 *frames = (uint32*) (buf + framedata.PtrFrameData);
-
-        if (ofs_x)
-            *ofs_x = framedata.XPos;
-        if (ofs_y)
-            *ofs_y = framedata.YPos;
-
-        sint32 nb_subframe = framedata.FramePointers;
-        sint32 frame_x = framedata.XPos;
-        sint32 frame_y = framedata.YPos;
-        sint32 frame_w = framedata.Width;
-        sint32 frame_h = framedata.Height;
-
         SDL_Surface *frame_img = NULL;
 
-        if (header.IDVersion == TA3D_GAF_TRUECOLOR)
+        try
         {
-            f_pos = framedata.PtrFrameData;
-            sint32 img_size = 0;
-            img_size = *((sint32*)(buf+f_pos));
-            f_pos += 4;
+            f_pos = frame[img_idx].PtrFrameTable;
+            if (f_pos < 0)
+                return NULL;
+            Gaf::Frame::Data framedata(buf, f_pos);
+            uint32 *frames = (uint32*) (buf + framedata.PtrFrameData);
 
-            frame_img = gfx->create_surface_ex( framedata.Transparency ? 32 : 24, framedata.Width, framedata.Height );
-            uLongf len = frame_img->w * frame_img->h * frame_img->format->BytesPerPixel;
-            uncompress ( (Bytef*) frame_img->pixels, &len, (Bytef*) buf + f_pos, img_size);
-            f_pos += img_size;
-        }
-        else
-        {
-            for (int subframe = 0; subframe < nb_subframe || subframe < 1 ; ++subframe)
+            if (ofs_x)
+                *ofs_x = framedata.XPos;
+            if (ofs_y)
+                *ofs_y = framedata.YPos;
+
+            sint32 nb_subframe = framedata.FramePointers;
+            sint32 frame_x = framedata.XPos;
+            sint32 frame_y = framedata.YPos;
+            sint32 frame_w = framedata.Width;
+            sint32 frame_h = framedata.Height;
+
+            if (header.IDVersion == TA3D_GAF_TRUECOLOR)
             {
-                if (nb_subframe)
+                f_pos = framedata.PtrFrameData;
+                sint32 img_size = 0;
+                img_size = *((sint32*)(buf+f_pos));
+                f_pos += 4;
+
+                frame_img = gfx->create_surface_ex( framedata.Transparency ? 32 : 24, framedata.Width, framedata.Height );
+                uLongf len = frame_img->w * frame_img->h * frame_img->format->BytesPerPixel;
+                uncompress ( (Bytef*) frame_img->pixels, &len, (Bytef*) buf + f_pos, img_size);
+                f_pos += img_size;
+            }
+            else
+            {
+                for (int subframe = 0; subframe < nb_subframe || subframe < 1 ; ++subframe)
                 {
-                    f_pos = frames[subframe];
-
-                    framedata.Width  = *((sint16*)(buf+f_pos));	f_pos += 2;
-                    framedata.Height = *((sint16*)(buf+f_pos));	f_pos += 2;
-                    framedata.XPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
-                    framedata.YPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
-
-                    framedata.Transparency  = *((char*)(buf+f_pos));    f_pos += 1;
-                    framedata.Compressed    = *((char*)(buf+f_pos));	f_pos += 1;
-                    framedata.FramePointers = *((sint16*)(buf+f_pos));	f_pos += 2;
-                    framedata.Unknown2      = *((sint32*)(buf+f_pos));	f_pos += 4;
-                    framedata.PtrFrameData  = *((sint32*)(buf+f_pos));	f_pos += 4;
-                    framedata.Unknown3      = *((sint32*)(buf+f_pos));	f_pos += 4;
-                }
-
-                SDL_Surface *img = NULL;
-
-                if (framedata.Compressed) // Si l'image est comprimée
-                {
-                    LOG_ASSERT(framedata.Width  >= 0 && framedata.Width  < 4096);
-                    LOG_ASSERT(framedata.Height >= 0 && framedata.Height < 4096);
-                    if (!truecolor)
+                    if (nb_subframe)
                     {
-                        img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
-                        SDL_FillRect(img, NULL, 0);
+                        f_pos = frames[subframe];
+
+                        framedata.Width  = *((sint16*)(buf+f_pos));	f_pos += 2;
+                        framedata.Height = *((sint16*)(buf+f_pos));	f_pos += 2;
+                        framedata.XPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
+                        framedata.YPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
+
+                        framedata.Transparency  = *((char*)(buf+f_pos));    f_pos += 1;
+                        framedata.Compressed    = *((char*)(buf+f_pos));	f_pos += 1;
+                        framedata.FramePointers = *((sint16*)(buf+f_pos));	f_pos += 2;
+                        framedata.Unknown2      = *((sint32*)(buf+f_pos));	f_pos += 4;
+                        framedata.PtrFrameData  = *((sint32*)(buf+f_pos));	f_pos += 4;
+                        framedata.Unknown3      = *((sint32*)(buf+f_pos));	f_pos += 4;
+                    }
+
+                    SDL_Surface *img = NULL;
+
+                    if (framedata.Compressed) // Si l'image est comprimée
+                    {
+                        LOG_ASSERT(framedata.Width  >= 0 && framedata.Width  < 4096);
+                        LOG_ASSERT(framedata.Height >= 0 && framedata.Height < 4096);
+                        if (!truecolor)
+                        {
+                            img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
+                            SDL_FillRect(img, NULL, 0);
+                        }
+                        else
+                        {
+                            img = gfx->create_surface_ex(32, framedata.Width, framedata.Height);
+                            SDL_FillRect(img, NULL, 0);
+                        }
+
+                        sint16 length;
+                        f_pos = framedata.PtrFrameData;
+                        for (int i = 0; i < img->h; ++i) // Décode les lignes les unes après les autres
+                        {
+                            length = *((sint16*)(buf+f_pos));
+                            f_pos += 2;
+                            int x(0);
+                            int e(0);
+                            do
+                            {
+                                byte mask = buf[f_pos++];
+                                ++e;
+                                if (mask & 0x01)
+                                {
+                                    if (!truecolor)
+                                        x += mask >> 1;
+                                    else
+                                    {
+                                        int l = mask >> 1;
+                                        while (l > 0)
+                                        {
+                                            SurfaceInt(img, x++, i) = 0x00000000;
+                                            --l;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (mask & 0x02)
+                                    {
+                                        int l = (mask >> 2) + 1;
+                                        while (l > 0)
+                                        {
+                                            if (!truecolor)
+                                            {
+                                                SurfaceByte(img, x, i) = buf[f_pos];
+                                                x++;
+                                            }
+                                            else
+                                                SurfaceInt(img,x++,i) = makeacol32(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b,0xFF);
+                                            --l;
+                                        }
+                                        ++f_pos;
+                                        ++e;
+                                    }
+                                    else
+                                    {
+                                        int l = (mask >> 2) + 1;
+                                        while (l > 0)
+                                        {
+                                            if (truecolor)
+                                            {
+                                                SurfaceInt(img, x++, i) = makeacol32(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b, 0xFF);
+                                                ++f_pos;
+                                            }
+                                            else
+                                            {
+                                                SurfaceByte(img, x, i) = buf[f_pos++];
+                                                x++;
+                                            }
+                                            ++e;
+                                            --l;
+                                        }
+                                    }
+                                }
+                            } while (e < length && x < img->w);
+                            f_pos += length-e;
+                        }
                     }
                     else
                     {
-                        img = gfx->create_surface_ex(32, framedata.Width, framedata.Height);
+                        // Si l'image n'est pas comprimée
+                        img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
                         SDL_FillRect(img, NULL, 0);
+
+                        f_pos = framedata.PtrFrameData;
+                        SDL_LockSurface(img);
+                        for (int i = 0; i < img->h; ++i) // Copie les octets de l'image
+                        {
+                            memcpy(((char*)(img->pixels)) + i * img->pitch, buf + f_pos, img->w);
+                            f_pos += img->w;
+                        }
+                        SDL_UnlockSurface(img);
+
+                        if (truecolor)
+                        {
+                            SDL_Surface *tmp = convert_format_copy(img);
+                            for (int y = 0 ; y < tmp->h; ++y)
+                            {
+                                for (int x = 0; x < tmp->w; ++x)
+                                {
+                                    if (SurfaceByte(img, x, y) == framedata.Transparency)
+                                        SurfaceInt(tmp, x, y) = 0x00000000;
+                                    else
+                                        SurfaceInt(tmp, x, y) |= makeacol(0,0,0, 0xFF);
+                                }
+                            }
+                            SDL_FreeSurface(img);
+                            img = tmp;
+                        }
                     }
 
-                    sint16 length;
-                    f_pos = framedata.PtrFrameData;
-                    for (int i = 0; i < img->h; ++i) // Décode les lignes les unes après les autres
+                    if (nb_subframe == 0)
+                        frame_img = img;
+                    else
                     {
-                        length = *((sint16*)(buf+f_pos));
-                        f_pos += 2;
-                        int x(0);
-                        int e(0);
-                        do
+                        if (subframe == 0)
                         {
-                            byte mask = buf[f_pos++];
-                            ++e;
-                            if (mask & 0x01)
+                            if (!truecolor)
                             {
-                                if (!truecolor)
-                                    x += mask >> 1;
-                                else
+                                frame_img = gfx->create_surface_ex(8,frame_w,frame_h);
+                                SDL_FillRect(frame_img, NULL, 0);
+                            }
+                            else
+                            {
+                                frame_img = gfx->create_surface_ex(32,frame_w,frame_h);
+                                SDL_FillRect(frame_img, NULL, 0);
+                            }
+                            blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h);
+                        }
+                        else
+                        {
+                            if (truecolor)
+                            {
+                                for (int y = 0; y < img->h; ++y)
                                 {
-                                    int l = mask >> 1;
-                                    while (l > 0)
+                                    int Y = y + frame_y - framedata.YPos;
+                                    if (Y < 0 || Y >= frame_img->h)
+                                        continue;
+                                    int X = frame_x - framedata.XPos;
+                                    for (int x = 0; x < img->w; ++x)
                                     {
-                                        SurfaceInt(img, x++, i) = 0x00000000;
-                                        --l;
+                                        if (X >= 0 && X < frame_img->w)
+                                        {
+                                            uint32 c = SurfaceInt(frame_img, X, Y);
+                                            int r = getr(c);
+                                            int g = getg(c);
+                                            int b = getb(c);
+                                            int a = geta(c);
+
+                                            c = SurfaceInt(img, x, y);
+                                            int r2 = getr(c);
+                                            int g2 = getg(c);
+                                            int b2 = getb(c);
+                                            int a2 = geta(c);
+
+                                            r = (r * (255 - a2) + r2 * a2) >> 8;
+                                            g = (g * (255 - g2) + g2 * a2) >> 8;
+                                            b = (b * (255 - b2) + b2 * a2) >> 8;
+
+                                            SurfaceInt(frame_img, X, Y) = makeacol(r, g, b, a);
+                                        }
+                                        ++X;
                                     }
                                 }
                             }
                             else
-                            {
-                                if (mask & 0x02)
-                                {
-                                    int l = (mask >> 2) + 1;
-                                    while (l > 0)
-                                    {
-                                        if (!truecolor)
-                                        {
-                                            SurfaceByte(img, x, i) = buf[f_pos];
-                                            x++;
-                                        }
-                                        else
-                                            SurfaceInt(img,x++,i) = makeacol32(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b,0xFF);
-                                        --l;
-                                    }
-                                    ++f_pos;
-                                    ++e;
-                                }
-                                else
-                                {
-                                    int l = (mask >> 2) + 1;
-                                    while (l > 0)
-                                    {
-                                        if (truecolor)
-                                        {
-                                            SurfaceInt(img, x++, i) = makeacol32(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b, 0xFF);
-                                            ++f_pos;
-                                        }
-                                        else
-                                        {
-                                            SurfaceByte(img, x, i) = buf[f_pos++];
-                                            x++;
-                                        }
-                                        ++e;
-                                        --l;
-                                    }
-                                }
-                            }
-                        } while (e < length && x < img->w);
-                        f_pos += length-e;
-                    }
-                }
-                else
-                {
-                    // Si l'image n'est pas comprimée
-                    img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
-                    SDL_FillRect(img, NULL, 0);
-
-                    f_pos = framedata.PtrFrameData;
-                    SDL_LockSurface(img);
-                    for (int i = 0; i < img->h; ++i) // Copie les octets de l'image
-                    {
-                        memcpy(((char*)(img->pixels)) + i * img->pitch, buf + f_pos, img->w);
-                        f_pos += img->w;
-                    }
-                    SDL_UnlockSurface(img);
-
-                    if (truecolor)
-                    {
-                        SDL_Surface *tmp = convert_format_copy(img);
-                        for (int y = 0 ; y < tmp->h; ++y)
-                        {
-                            for (int x = 0; x < tmp->w; ++x)
-                            {
-                                if (SurfaceByte(img, x, y) == framedata.Transparency)
-                                    SurfaceInt(tmp, x, y) = 0x00000000;
-                                else
-                                    SurfaceInt(tmp, x, y) |= makeacol(0,0,0, 0xFF);
-                            }
+                                masked_blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h );
                         }
                         SDL_FreeSurface(img);
-                        img = tmp;
                     }
-                }
-
-                if (nb_subframe == 0)
-                    frame_img = img;
-                else
-                {
-                    if (subframe == 0)
-                    {
-                        if (!truecolor)
-                        {
-                            frame_img = gfx->create_surface_ex(8,frame_w,frame_h);
-                            SDL_FillRect(frame_img, NULL, 0);
-                        }
-                        else
-                        {
-                            frame_img = gfx->create_surface_ex(32,frame_w,frame_h);
-                            SDL_FillRect(frame_img, NULL, 0);
-                        }
-                        blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h);
-                    }
-                    else
-                    {
-                        if (truecolor)
-                        {
-                            for (int y = 0; y < img->h; ++y)
-                            {
-                                int Y = y + frame_y - framedata.YPos;
-                                if (Y < 0 || Y >= frame_img->h)
-                                    continue;
-                                int X = frame_x - framedata.XPos;
-                                for (int x = 0; x < img->w; ++x)
-                                {
-                                    if (X >= 0 && X < frame_img->w)
-                                    {
-                                        uint32 c = SurfaceInt(frame_img, X, Y);
-                                        int r = getr(c);
-                                        int g = getg(c);
-                                        int b = getb(c);
-                                        int a = geta(c);
-
-                                        c = SurfaceInt(img, x, y);
-                                        int r2 = getr(c);
-                                        int g2 = getg(c);
-                                        int b2 = getb(c);
-                                        int a2 = geta(c);
-
-                                        r = (r * (255 - a2) + r2 * a2) >> 8;
-                                        g = (g * (255 - g2) + g2 * a2) >> 8;
-                                        b = (b * (255 - b2) + b2 * a2) >> 8;
-
-                                        SurfaceInt(frame_img, X, Y) = makeacol(r, g, b, a);
-                                    }
-                                    ++X;
-                                }
-                            }
-                        }
-                        else
-                            masked_blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h );
-                    }
-                    SDL_FreeSurface(img);
                 }
             }
         }
+        catch(...)
+        {
+            LOG_ERROR("GAF data corrupt!");
+            return NULL;
+        };
 
         delete[] pointers;
         delete[] frame;
