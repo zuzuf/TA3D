@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QPaintEngine>
 
 SurfaceProperties *SurfaceProperties::pInstance = NULL;
 
@@ -268,6 +269,35 @@ void SurfaceProperties::newTexture()
 
     Gfx::instance()->makeCurrent();
     QImage img(w, h, QImage::Format_ARGB32);
+    img.fill(0xFFFFFFFF);       // Fill image with white
+    if (!mesh->tcoord.isEmpty())    // If we have a set of UV coordinates, then draw them on the image
+    {
+        QPainter painter(&img);
+        switch(mesh->type)
+        {
+        case MESH_TRIANGLES:
+            for(int i = 0 ; i < mesh->index.size() ; i += 3)
+            {
+                QVector<QLineF> triangle;
+                triangle.push_back( QLineF(mesh->tcoord[mesh->index[i] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i] * 2 + 1]) * h,
+                                           mesh->tcoord[mesh->index[i + 1] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i + 1] * 2 + 1]) * h) );
+                triangle.push_back( QLineF(mesh->tcoord[mesh->index[i] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i] * 2 + 1]) * h,
+                                           mesh->tcoord[mesh->index[i + 2] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i + 2] * 2 + 1]) * h) );
+                triangle.push_back( QLineF(mesh->tcoord[mesh->index[i + 2] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i + 2] * 2 + 1]) * h,
+                                           mesh->tcoord[mesh->index[i + 1] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i + 1] * 2 + 1]) * h) );
+                painter.drawLines(triangle);
+            }
+            break;
+        case MESH_TRIANGLE_STRIP:
+            for(int i = 0 ; i < mesh->index.size() - 1 ; i++)
+            {
+                QLineF line(mesh->tcoord[mesh->index[i] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i] * 2 + 1]) * h,
+                            mesh->tcoord[mesh->index[i + 1] * 2] * w, (1.0f - mesh->tcoord[mesh->index[i + 1] * 2 + 1]) * h);
+                painter.drawLine(line);
+            }
+            break;
+        };
+    }
     mesh->tex.push_back(Gfx::instance()->bindTexture(img));
     refreshGUI();
     emit surfaceChanged();
