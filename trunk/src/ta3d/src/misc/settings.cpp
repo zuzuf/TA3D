@@ -207,7 +207,7 @@ namespace TA3D
             TA3D::VARS::lp_CONFIG->far_sight = cfgFile.pullAsBool("TA3D.Far Sight", true);
 
             String cfg_version = cfgFile.pullAsString("TA3D.Version");
-            String ref_version = format("%s.%s", TA3D_VERSION_HI, TA3D_VERSION_LO);
+            String ref_version = format("%d.%d", TA3D_VERSION_HI, TA3D_VERSION_LO);
             if (cfg_version != ref_version)     // Update ?
             {
                 lp_CONFIG->net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
