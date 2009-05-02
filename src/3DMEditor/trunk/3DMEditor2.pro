@@ -3,8 +3,6 @@
 # -------------------------------------------------
 QT += opengl \
     webkit
-CONFIG -= release
-CONFIG += debug
 TARGET = 3DMEditor2
 LIBS += -lz
 win32:LIBS += -lglew32.dll
