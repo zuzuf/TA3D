@@ -111,7 +111,7 @@ namespace TA3D
 				else
 					unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, NULL, flags);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
-					unit[i].play_sound("ok1");
+					unit[i].playSound("ok1");
 			}
 		}
 		pMutex.unlock();
@@ -131,7 +131,7 @@ namespace TA3D
 				else
 					unit[i].add_mission(MISSION_PATROL, &target, false, 0, NULL, NULL);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
-					unit[i].play_sound("ok1");
+					unit[i].playSound("ok1");
 			}
 		}
 		pMutex.unlock();
@@ -151,7 +151,7 @@ namespace TA3D
 				else
 					unit[i].add_mission(MISSION_GUARD,&unit[target].Pos,false,0,&(unit[target]),NULL);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
-					unit[i].play_sound( "ok1" );
+					unit[i].playSound( "ok1" );
 			}
 		}
 		pMutex.unlock();
@@ -170,7 +170,7 @@ namespace TA3D
 				if (set)
 				{
 					unit[i].set_mission(MISSION_UNLOAD, &target, false, 0, true, NULL, NULL);
-					unit[i].play_sound("ok1");
+					unit[i].playSound("ok1");
 				}
 				else
 					unit[i].add_mission(MISSION_UNLOAD, &target, false, 0, NULL, NULL);
@@ -210,7 +210,7 @@ namespace TA3D
 				if (set)
 				{
 					unit[i].set_mission(MISSION_LOAD, &unit[target].Pos, false, 0, true, &(unit[target]), NULL);
-					unit[i].play_sound("ok1");
+					unit[i].playSound("ok1");
 				}
 				else
 					unit[i].add_mission(MISSION_LOAD, &unit[target].Pos, false, 0, &(unit[target]), NULL);
@@ -934,7 +934,7 @@ namespace TA3D
 
 		uint32 i;
 		pMutex.lock();
-		for (uint16 e = 0; e < index_list_size; ++e) // Compte les stocks de ressources et les productions
+		for (unsigned int e = 0; e < index_list_size; ++e) // Compte les stocks de ressources et les productions
 		{
 			i = idx_list[e];
 			pMutex.unlock();
@@ -957,7 +957,7 @@ namespace TA3D
 				int start_y = py - (unit_manager.unit_type[unit[i].type_id]->FootprintZ >> 1 );
 				int end_y = start_y + unit_manager.unit_type[unit[i].type_id]->FootprintZ;
 				int end_x = start_x + unit_manager.unit_type[unit[i].type_id]->FootprintX;
-				for( int ry = start_y ; ry <= end_y ; ++ry)
+				for (int ry = start_y; ry <= end_y; ++ry)
 				{
 					if (ry >= 0 && ry < map->bloc_h_db)
 					{
@@ -981,7 +981,7 @@ namespace TA3D
 				unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
 
 				int param[] = { metal_base << 2 };
-				unit[i].launch_script( SCRIPT_SetSpeed, 1, param);
+				unit[i].launchScript( SCRIPT_SetSpeed, 1, param);
 				unit[i].just_created = false;
 			}
 
@@ -1007,10 +1007,10 @@ namespace TA3D
 						if (wind_change)
 						{
 							int param[] = { (int)(map->wind*50.0f) };
-							unit[i].launch_script( SCRIPT_SetSpeed, 1, param);
+							unit[i].launchScript( SCRIPT_SetSpeed, 1, param);
 							param[0]=(int)((map->wind_dir-unit[i].Angle.y)*DEG2TA);
-							unit[i].launch_script( SCRIPT_SetDirection, 1, param);
-							unit[i].launch_script( SCRIPT_go );
+							unit[i].launchScript(SCRIPT_SetDirection, 1, param);
+							unit[i].launchScript(SCRIPT_go);
 						}
 					}
 					if (unit_manager.unit_type[unit[i].type_id]->TidalGenerator)	// Tidal Generator
@@ -1035,13 +1035,13 @@ namespace TA3D
 		int *path_exec = new int[players.nb_player];
 		memset( path_exec, 0, sizeof( int ) * players.nb_player);
 		pMutex.lock();
-		for (uint16 e = 0 ; e < index_list_size ; ++e)
+		for (unsigned int e = 0; e < index_list_size; ++e)
 		{
 			i = idx_list[e];
 			pMutex.unlock();
 			unit[ i ].lock();
 
-			if (unit[ i ].flags == 0 ) // ho ho what is it doing there ??
+			if (unit[ i ].flags == 0) // ho ho what is it doing there ??
 			{
 				unit[ i ].unlock();
 				kill(i,map,e);
@@ -1558,7 +1558,7 @@ namespace TA3D
 				gfx->lock();
 				unit[i].lock();
 				if (unit[i].flags & 1) // Si il y a une unité
-					unit[i].draw_shadow_basic(Dir, map);
+					unit[i].drawShadowBasic(Dir, map);
 				unit[i].unlock();
 				gfx->unlock();
 			}

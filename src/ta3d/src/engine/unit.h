@@ -98,15 +98,15 @@ namespace TA3D
 
 		void draw_shadow(const Vector3D& Dir, MAP *map);
 
-		void draw_shadow_basic(const Vector3D& Dir, MAP *map);
+		void drawShadowBasic(const Vector3D& Dir, MAP *map);
 
-		int launch_script(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
+		int launchScript(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
 
-		int run_script_function(const int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
+		int runScriptFunction(const int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
 
-		void reset_script();
+		void resetScript();
 
-		void play_sound(const String& key);
+		void playSound(const String& key);
 
 		const int move( const float dt,MAP *map, int *path_exec, const int key_frame = 0 );
 
@@ -122,7 +122,7 @@ namespace TA3D
 
 		bool hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length = 100.0f);
 
-		void stop_moving();
+		void stopMoving();
 
 		void explode();
 
