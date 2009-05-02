@@ -667,6 +667,11 @@ namespace HPI
             byte *data = new byte[cache->length + 1];
             memcpy(data, cache->data, cache->length);
             data[cache->length] = 0;
+            if (cache->length == 0)
+            {
+                delete[] data;
+                return NULL;
+            }
             return data;
         }
         else
@@ -676,6 +681,11 @@ namespace HPI
             {
                 if (fileLength)
                     *fileLength = FileSize;
+                if (FileSize == 0)
+                {
+                    delete[] data;
+                    return NULL;
+                }
                 return data;
             }
         }
@@ -697,6 +707,11 @@ namespace HPI
                     fclose(src);
                     if (fileLength)
                         *fileLength = FileSize;
+                    if (FileSize == 0)
+                    {
+                        delete[] data;
+                        return NULL;
+                    }
                     return data;
                 }
             }
@@ -706,6 +721,11 @@ namespace HPI
                 PutInCache( key, FileSize, data );
                 if (fileLength)
                     *fileLength = FileSize;
+                if (FileSize == 0)
+                {
+                    delete[] data;
+                    return NULL;
+                }
                 return data;
             }
         }
