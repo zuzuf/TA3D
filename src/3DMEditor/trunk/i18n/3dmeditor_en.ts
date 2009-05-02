@@ -12,7 +12,7 @@
         <location filename="../src/aboutwindow.cpp" line="16"/>
         <source>ABOUT_TEXT</source>
         <comment>text of about window</comment>
-        <translation type="unfinished">3DMEditor 2&lt;br&gt;developped by TA3D&apos;s team for TA3D&lt;br&gt;see &lt;a href=&quot;http://www.ta3d.org/&quot;&gt;http://www.ta3d.org/&lt;/a&gt;</translation>
+        <translation>3DMEditor 2&lt;br&gt;developped by TA3D&apos;s team for TA3D&lt;br&gt;see &lt;a href=&quot;http://www.ta3d.org/&quot;&gt;http://www.ta3d.org/&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/aboutwindow.cpp" line="20"/>
@@ -94,12 +94,12 @@
 <context>
     <name>HelpViewer</name>
     <message>
-        <location filename="../helpviewer.cpp" line="20"/>
+        <location filename="../src/helpviewer.cpp" line="20"/>
         <source>help/en/index.html</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../helpviewer.cpp" line="16"/>
+        <location filename="../src/helpviewer.cpp" line="16"/>
         <source>3DMEditor - Help</source>
         <translation type="unfinished"></translation>
     </message>
@@ -208,12 +208,52 @@
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="286"/>
-        <source>Cone ray</source>
+        <source>Cone radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="286"/>
-        <source>Cone ray:</source>
+        <source>Cone radius:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="300"/>
+        <source>Cylinder radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="300"/>
+        <source>Cylinder radius:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="314"/>
+        <source>Sphere radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="314"/>
+        <source>Sphere radius:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="327"/>
+        <source>Torus big radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="327"/>
+        <source>Torus big radius:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="328"/>
+        <source>Torus small radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="328"/>
+        <source>Torus small radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -242,16 +282,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="300"/>
-        <source>Cylinder ray</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="300"/>
-        <source>Cylinder ray:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/mainwindow.cpp" line="301"/>
         <source>Cylinder height</source>
         <translation type="unfinished"></translation>
@@ -277,16 +307,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
-        <source>Sphere ray</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
-        <source>Sphere ray:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/mainwindow.cpp" line="315"/>
         <source>Sphere horizontal resolution</source>
         <translation type="unfinished"></translation>
@@ -304,26 +324,6 @@
     <message>
         <location filename="../src/mainwindow.cpp" line="316"/>
         <source>Sphere vertical resolution:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="327"/>
-        <source>Torus big ray</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="327"/>
-        <source>Torus big ray:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
-        <source>Torus small ray</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
-        <source>Torus small ray:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

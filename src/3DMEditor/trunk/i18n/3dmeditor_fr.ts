@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="fr">
-<defaultcodec></defaultcodec>
 <context>
     <name>AboutWindow</name>
     <message>
@@ -95,12 +94,12 @@
 <context>
     <name>HelpViewer</name>
     <message>
-        <location filename="../helpviewer.cpp" line="20"/>
+        <location filename="../src/helpviewer.cpp" line="20"/>
         <source>help/en/index.html</source>
         <translation>help/fr/index.html</translation>
     </message>
     <message>
-        <location filename="../helpviewer.cpp" line="16"/>
+        <location filename="../src/helpviewer.cpp" line="16"/>
         <source>3DMEditor - Help</source>
         <translation>3DMEditor - Aide</translation>
     </message>
@@ -213,13 +212,61 @@
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="286"/>
-        <source>Cone ray</source>
+        <source>Cone radius</source>
         <translation>Rayon du cône</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="286"/>
-        <source>Cone ray:</source>
+        <source>Cone radius:</source>
         <translation>Rayon du cône:</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="300"/>
+        <source>Cylinder radius</source>
+        <translation>Rayon du cylindre</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="300"/>
+        <source>Cylinder radius:</source>
+        <translation>Rayon du cylindre:</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="314"/>
+        <source>Sphere radius</source>
+        <translation>Rayon de la sphère</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="314"/>
+        <source>Sphere radius:</source>
+        <translation>Rayon de la sphère:</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="327"/>
+        <source>Torus big radius</source>
+        <translation>Grand rayon du tore</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="327"/>
+        <source>Torus big radius:</source>
+        <translation>Grand rayon du tore:</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="328"/>
+        <source>Torus small radius</source>
+        <translation>Petit rayon du tore</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="328"/>
+        <source>Torus small radius:</source>
+        <translation>Petit rayon du tore:</translation>
+    </message>
+    <message>
+        <source>Cone ray</source>
+        <translation type="obsolete">Rayon du cône</translation>
+    </message>
+    <message>
+        <source>Cone ray:</source>
+        <translation type="obsolete">Rayon du cône:</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="287"/>
@@ -247,14 +294,12 @@
         <translation>Cône fermé ?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="300"/>
         <source>Cylinder ray</source>
-        <translation>Rayon du cylindre</translation>
+        <translation type="obsolete">Rayon du cylindre</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="300"/>
         <source>Cylinder ray:</source>
-        <translation>Rayon du cylindre:</translation>
+        <translation type="obsolete">Rayon du cylindre:</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="301"/>
@@ -282,14 +327,12 @@
         <translation>Cylindre fermé ?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
         <source>Sphere ray</source>
-        <translation>Rayon de la sphère</translation>
+        <translation type="obsolete">Rayon de la sphère</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
         <source>Sphere ray:</source>
-        <translation>Rayon de la sphère:</translation>
+        <translation type="obsolete">Rayon de la sphère:</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="315"/>
@@ -312,24 +355,20 @@
         <translation>Résolution verticale de la sphère:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="327"/>
         <source>Torus big ray</source>
-        <translation>Grand rayon du tore</translation>
+        <translation type="obsolete">Grand rayon du tore</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="327"/>
         <source>Torus big ray:</source>
-        <translation>Grand rayon du tore:</translation>
+        <translation type="obsolete">Grand rayon du tore:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Torus small ray</source>
-        <translation>Petit rayon du tore</translation>
+        <translation type="obsolete">Petit rayon du tore</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Torus small ray:</source>
-        <translation>Petit rayon du tore:</translation>
+        <translation type="obsolete">Petit rayon du tore:</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="329"/>
