@@ -6,8 +6,10 @@ QT += opengl \
 CONFIG -= release
 CONFIG += debug
 TARGET = 3DMEditor2
-LIBS += -lz \
-    -lGLEW
+LIBS += -lz
+win32:LIBS += -lglew32.dll
+unix:LIBS += -lGLEW
+macos:LIBS += -lGLEW
 TEMPLATE = app
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \
