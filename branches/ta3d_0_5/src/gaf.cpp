@@ -165,10 +165,11 @@ namespace TA3D
             return first_try;
         }
 
-        byte *data = HPIManager->PullFromHPI(filename);
+        uint32 file_length(0);
+        byte *data = HPIManager->PullFromHPI(filename, &file_length);
         if (data)
         {
-            sint32 idx = RawDataGetEntryIndex(data, imgname);
+            sint32 idx = file_length > 0 ? RawDataGetEntryIndex(data, imgname) : -1;
             if (idx != -1)
             {
                 set_palette(pal); // Activate the palette
@@ -282,7 +283,7 @@ namespace TA3D
     BITMAP* Gaf::RawDataToBitmap(const byte* buf, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
     {
         LOG_ASSERT(buf != NULL);
-        if (entry_idx < 0)
+        if (entry_idx < 0 || img_idx < 0)
             return NULL;
         Gaf::Header header(buf);
         if (entry_idx >= header.Entries) // Si le fichier contient moins d'images que img_idx, il y a erreur
@@ -302,6 +303,8 @@ namespace TA3D
         convertGAFCharToString(buf + pointers[entry_idx] + 8, entry.name);
         f_pos = pointers[entry_idx]+40;
 
+        if (entry.Frames < 0)
+            return NULL;
         Gaf::Frame::Entry* frame = new Gaf::Frame::Entry[entry.Frames];
 
         for (sint32 i = 0; i < entry.Frames; ++i)
@@ -313,6 +316,8 @@ namespace TA3D
         }
 
         f_pos = frame[img_idx].PtrFrameTable;
+        if (f_pos < 0)
+            return NULL;
         Gaf::Frame::Data framedata(buf, f_pos);
         uint32 *frames = (uint32*) (buf + framedata.PtrFrameData);
 

@@ -659,6 +659,11 @@ namespace HPI
                 memcpy(data, cache_result->data, cache_result->length);
                 if (fileLength)
                     *fileLength = cache_result->length;
+                if (cache_result->length == 0)
+                {
+                    delete[] data;
+                    return NULL;
+                }
                 return data;
             }
 
@@ -678,6 +683,11 @@ namespace HPI
                     if (fileLength)
                         *fileLength = FileSize;
                     PutInCache( UNIX_filename, FileSize, data );
+                    if (FileSize == 0)
+                    {
+                        delete[] data;
+                        return NULL;
+                    }
                     return data;
                 }
             }
@@ -687,6 +697,11 @@ namespace HPI
             {
                 if (fileLength)
                     *fileLength = FileSize;
+                if (FileSize == 0)
+                {
+                    delete[] data;
+                    return NULL;
+                }
                 return data;
             }
         }
@@ -699,6 +714,11 @@ namespace HPI
             PutInCache(UNIX_filename, FileSize, data);
             if (fileLength)
                 *fileLength = FileSize;
+            if (FileSize == 0)
+            {
+                delete[] data;
+                return NULL;
+            }
             return data;
         }
 
@@ -720,6 +740,11 @@ namespace HPI
                     if (fileLength)
                         *fileLength = FileSize;
                     PutInCache( UNIX_filename, FileSize, data );
+                    if (FileSize == 0)
+                    {
+                        delete[] data;
+                        return NULL;
+                    }
                     return data;
                 }
             }
@@ -730,6 +755,11 @@ namespace HPI
                 {
                     if (fileLength)
                         *fileLength = FileSize;
+                    if (FileSize == 0)
+                    {
+                        delete[] data;
+                        return NULL;
+                    }
                     return data;
                 }
             }
@@ -741,6 +771,11 @@ namespace HPI
             PutInCache( UNIX_filename, FileSize, data );
             if (fileLength)
                 *fileLength = FileSize;
+            if (FileSize == 0)
+            {
+                delete[] data;
+                return NULL;
+            }
             return data;
         }
 
