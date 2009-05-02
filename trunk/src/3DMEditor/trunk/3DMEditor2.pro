@@ -28,7 +28,7 @@ SOURCES += src/main.cpp \
     src/textureviewer.cpp \
     src/surfaceproperties.cpp \
     src/shadereditor.cpp \
-    helpviewer.cpp \
+    src/helpviewer.cpp \
     src/imagelistview.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
@@ -48,7 +48,7 @@ HEADERS += src/mainwindow.h \
     src/textureviewer.h \
     src/surfaceproperties.h \
     src/shadereditor.h \
-    helpviewer.h \
+    src/helpviewer.h \
     src/imagelistview.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

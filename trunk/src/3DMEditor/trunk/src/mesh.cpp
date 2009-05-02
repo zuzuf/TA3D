@@ -1464,15 +1464,15 @@ void Mesh::autoComputeUVcoordinates()
                 int orig = component[i];
                 for(int e = 0 ; e < index.size() ; e += 3)
                 {
-                    if (index[e] == A || index[e+1] == A || index[e+2] == A)
+                    if (index[e] == (uint32)A || index[e+1] == (uint32)A || index[e+2] == (uint32)A)
                     {
                         if (component[index[e]] == orig && component[index[e+1]] == orig && component[index[e+2]] == orig)
                         {
-                            if (index[e] == A)
+                            if (index[e] == (uint32)A)
                                 index[e] = vertex.size();
-                            if (index[e+1] == A)
+                            if (index[e+1] == (uint32)A)
                                 index[e+1] = vertex.size();
-                            if (index[e+2] == A)
+                            if (index[e+2] == (uint32)A)
                                 index[e+2] = vertex.size();
                         }
                     }
@@ -1505,7 +1505,7 @@ void Mesh::autoComputeUVcoordinates()
         // in order to have a mesh with a topology that can be mapped :)
         for(int i = 0 ; i < componentVertex[c].size() ; i++)
         {
-            int n = componentVertex[c][i];
+            uint32 n = componentVertex[c][i];
             int d = dist[n];
             if (neighbors[n].size() > 2)
             {
@@ -1605,7 +1605,7 @@ void Mesh::autoComputeUVcoordinates()
             {
                 Vec move;
                 float constraint = 0.0f;
-                int n = componentVertex[c][i];
+                uint32 n = componentVertex[c][i];
                 Vec N(tcoord[n * 2], tcoord[n * 2 + 1], 0);
                 for(int e = 0 ; e < componentVertex[c].size() ; e++)
                 {
@@ -2026,15 +2026,15 @@ void Mesh::splitGeometry()
                 int orig = component[i];
                 for(int e = 0 ; e < index.size() ; e += 3)
                 {
-                    if (index[e] == A || index[e+1] == A || index[e+2] == A)
+                    if (index[e] == (uint32)A || index[e+1] == (uint32)A || index[e+2] == (uint32)A)
                     {
                         if (component[index[e]] == orig && component[index[e+1]] == orig && component[index[e+2]] == orig)
                         {
-                            if (index[e] == A)
+                            if (index[e] == (uint32)A)
                                 index[e] = vertex.size();
-                            if (index[e+1] == A)
+                            if (index[e+1] == (uint32)A)
                                 index[e+1] = vertex.size();
-                            if (index[e+2] == A)
+                            if (index[e+2] == (uint32)A)
                                 index[e+2] = vertex.size();
                         }
                     }
@@ -2129,7 +2129,6 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
         mesh->toTriangleSoup();
 
         int bVtx = base->vertex.size();         // Copy mesh data
-        int bIdx = base->index.size();
         base->tcoord.resize(bVtx * 2 + mesh->tcoord.size());
         base->vertex.resize(bVtx + mesh->vertex.size());
         memcpy(base->vertex.data() + bVtx, mesh->vertex.data(), mesh->vertex.size() * sizeof(Vec));

@@ -94,7 +94,7 @@ void GeometryGraph::refreshTree()
     update();
 }
 
-void GeometryGraph::updateSelection(QTreeWidgetItem *item, int column)
+void GeometryGraph::updateSelection(QTreeWidgetItem *item, int)
 {
     if (tree->selectedItems().size() == 1)
         emit objectSelected(item->text(1).toInt());

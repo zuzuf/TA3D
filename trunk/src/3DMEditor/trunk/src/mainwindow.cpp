@@ -283,7 +283,7 @@ void MainWindow::createCube()
 
 void MainWindow::createCone()
 {
-    float r = (float) QInputDialog::getDouble(this, tr("Cone ray"), tr("Cone ray:"), 1.0);
+    float r = (float) QInputDialog::getDouble(this, tr("Cone radius"), tr("Cone radius:"), 1.0);
     float h = (float) QInputDialog::getDouble(this, tr("Cone height"), tr("Cone height:"), 1.0);
     int d = QInputDialog::getInt(this, tr("Cone details"), tr("Cone details:"), 5, 2);
     bool capped = QMessageBox::question(this, tr("Cone capped ?"), tr("Cone capped ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
@@ -297,7 +297,7 @@ void MainWindow::createCone()
 
 void MainWindow::createCylinder()
 {
-    float r = (float) QInputDialog::getDouble(this, tr("Cylinder ray"), tr("Cylinder ray:"), 1.0);
+    float r = (float) QInputDialog::getDouble(this, tr("Cylinder radius"), tr("Cylinder radius:"), 1.0);
     float h = (float) QInputDialog::getDouble(this, tr("Cylinder height"), tr("Cylinder height:"), 1.0);
     int d = QInputDialog::getInt(this, tr("Cylinder details"), tr("Cylinder details:"), 5, 2);
     bool capped = QMessageBox::question(this, tr("Cylinder capped ?"), tr("Cylinder capped ?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
@@ -311,7 +311,7 @@ void MainWindow::createCylinder()
 
 void MainWindow::createSphere()
 {
-    float r = (float) QInputDialog::getDouble(this, tr("Sphere ray"), tr("Sphere ray:"), 1.0);
+    float r = (float) QInputDialog::getDouble(this, tr("Sphere radius"), tr("Sphere radius:"), 1.0);
     int dw = QInputDialog::getInt(this, tr("Sphere horizontal resolution"), tr("Sphere horizontal resolution:"), 10, 2);
     int dh = QInputDialog::getInt(this, tr("Sphere vertical resolution"), tr("Sphere vertical resolution:"), qMax(dw / 2, 2), 2);
     Mesh **mesh = MeshManip::getNewMeshPointer();
@@ -324,8 +324,8 @@ void MainWindow::createSphere()
 
 void MainWindow::createTorus()
 {
-    float R = (float) QInputDialog::getDouble(this, tr("Torus big ray"), tr("Torus big ray:"), 1.0);
-    float r = (float) QInputDialog::getDouble(this, tr("Torus small ray"), tr("Torus small ray:"), R * 0.5);
+    float R = (float) QInputDialog::getDouble(this, tr("Torus big radius"), tr("Torus big radius:"), 1.0);
+    float r = (float) QInputDialog::getDouble(this, tr("Torus small radius"), tr("Torus small radius:"), R * 0.5);
     int D = QInputDialog::getInt(this, tr("Torus big resolution"), tr("Torus resolution of big circle:"), 10, 2);
     int d = QInputDialog::getInt(this, tr("Torus small resolution"), tr("Torus resolution of small circle:"), qMax(D / 2, 2), 2);
     Mesh **mesh = MeshManip::getNewMeshPointer();
