@@ -174,8 +174,6 @@ namespace TA3D
 		ati_workaround(false), max_tex_size(0), default_texture(0),
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false)
 	{
-		memset(shadowMapProjectionMatrix, 0, sizeof(GLfloat) * sizeof(shadowMapProjectionMatrix));
-
 		// Initialize the GFX Engine
 		initSDL();
 		ati_workaround = checkVideoCardWorkaround();
