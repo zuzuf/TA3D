@@ -14,7 +14,7 @@ public:
 
 public slots:
     void refreshTree();
-    void updateSelection(QTreeWidgetItem *item, int column);
+    void updateSelection(QTreeWidgetItem *item, int);
     void updateSelectionID(int ID);
     void deleteSelection();
     void renameSelection();
