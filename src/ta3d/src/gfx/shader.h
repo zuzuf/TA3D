@@ -23,8 +23,7 @@
 namespace TA3D
 {
 
-	/*! \class Shader
-	**
+	/*!
 	** \brief Shader
 	*/
 	class Shader
@@ -103,7 +102,6 @@ namespace TA3D
 
 
 
-	// } // namespace GFX
 } // namespace TA3D
 
 #endif // __TA3D_GFX_Shader_H__

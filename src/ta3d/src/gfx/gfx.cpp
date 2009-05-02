@@ -135,7 +135,7 @@ namespace TA3D
 			set_texture_format(GL_RGB8);
 		glViewport(0,0,SCREEN_W,SCREEN_H);
 
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
+		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
 	}
 
 
@@ -166,23 +166,21 @@ namespace TA3D
 
 
 	GFX::GFX()
+		:width(0), height(0), x(0), y(0),
+		normal_font(NULL), small_font(NULL), TA_font(NULL), ta3d_gui_font(NULL), big_font(NULL),
+		SCREEN_W_HALF(0), SCREEN_H_HALF(0), SCREEN_W_INV(0.), SCREEN_H_INV(0.), SCREEN_W_TO_640(0.), SCREEN_H_TO_480(0.),
+		low_def_limit(600.), glfond(0), textureFBO(0), textureDepth(0), textureColor(0), shadowMap(0),
+		model_shader(),
+		ati_workaround(false), max_tex_size(0), default_texture(0),
+		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false)
 	{
+		memset(shadowMapProjectionMatrix, 0, sizeof(GLfloat) * sizeof(shadowMapProjectionMatrix));
+
+		// Initialize the GFX Engine
 		initSDL();
 		ati_workaround = checkVideoCardWorkaround();
 
 		TA3D::VARS::pal = NULL;
-
-		width = SCREEN_W;
-		height = SCREEN_H;
-		x = 0;
-		y = 0;
-		low_def_limit = 600.0f;
-
-		textureFBO = 0;
-		textureDepth = 0;
-		textureColor = 0;
-		glfond = 0;
-		shadowMap = 0;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
 		normal_font = font_manager.find("FreeSans", 10, Font::typeTexture);
