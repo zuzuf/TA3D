@@ -95,8 +95,12 @@ namespace TA3D
 #else
 		glPushMatrix();
 		glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
+# ifndef TA3D_PLATFORM_DARWIN
 		WString wstr(text);
 		font->Render(wstr.cw_str());
+# else
+		font->Render(text.c_str());
+# endif
 		glPopMatrix();
 #endif
 		glScalef(1.0f, -1.0f, 1.0f);
