@@ -1221,7 +1221,7 @@ namespace TA3D
             int cur = atoi( params[0].c_str() );
             if( cur != old ) 						// We've all we need for this one
             {
-                if( server_version != TA3D_ENGINE_VERSION || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
+                if( server_version.substr(0,3) != String(TA3D_ENGINE_VERSION).substr(0,3) || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
                     nb_servers--;
                 else
                     list.push_back( cur_server );
@@ -1249,8 +1249,9 @@ namespace TA3D
 
             old = cur;
         }
-        if( old != -1 ) {
-            if( server_version != TA3D_ENGINE_VERSION || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
+        if (old != -1)
+        {
+            if( server_version.substr(0,3) != String(TA3D_ENGINE_VERSION).substr(0, 3) || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
                 nb_servers--;
             else
                 list.push_back( cur_server );
