@@ -29,7 +29,8 @@ SOURCES += src/main.cpp \
     src/helpviewer.cpp \
     src/imagelistview.cpp \
     src/progressdialog.cpp \
-    src/meshtree.cpp
+    src/meshtree.cpp \
+    src/ambientocclusionthread.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -51,6 +52,7 @@ HEADERS += src/mainwindow.h \
     src/helpviewer.h \
     src/imagelistview.h \
     src/progressdialog.h \
-    src/meshtree.h
+    src/meshtree.h \
+    src/ambientocclusionthread.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

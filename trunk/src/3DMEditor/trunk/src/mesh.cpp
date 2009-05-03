@@ -6,6 +6,7 @@
 #include "gfx.h"
 #include "progressdialog.h"
 #include "meshtree.h"
+#include "ambientocclusionthread.h"
 
 bool Mesh::whiteSurface = false;
 Mesh *Mesh::pInstance = NULL;
@@ -2219,104 +2220,29 @@ void Mesh::computeAmbientOcclusion(int w, int h, Mesh *base, int precision)     
         step = 1;
         break;
     };
-    for(int i = 0 ; i < limit ; i += step)          // Render triangles using (1 - ambient occlusion) as color
+
+    int n = 4;          // 4 Threads
+    AmbientOcclusionThread threads[n];
+    for(int i = 0 ; i < n ; i++)        // Give them data to process
     {
-        if ((i-step) * 100 / limit != i * 100 / limit)
-            ProgressDialog::setProgress(i * 100 / limit);
-
-        Vec2 a(tcoord[index[i] * 2] * w, tcoord[index[i] * 2 + 1] * h);
-        Vec2 b(tcoord[index[i + 1] * 2] * w, tcoord[index[i + 1] * 2 + 1] * h);
-        Vec2 c(tcoord[index[i + 2] * 2] * w, tcoord[index[i + 2] * 2 + 1] * h);
-        Vec A(vertex[index[i]]);
-        Vec B(vertex[index[i + 1]]);
-        Vec C(vertex[index[i + 2]]);
-
-        Vec I(B - A);
-        Vec J(C - A);
-        Vec N(I ^J);
-        N.unit();
-        I = N ^ J;  I.unit();
-        J = N ^ I;
-
-        if (a.y > b.y)
-        {
-            qSwap(a, b);
-            qSwap(A, B);
-        }
-        if (b.y > c.y)
-        {
-            qSwap(c, b);
-            qSwap(C, B);
-        }
-        if (a.y > b.y)
-        {
-            qSwap(a, b);
-            qSwap(A, B);
-        }
-
-        if (a.y != b.y)
-            for(int y = a.y ; y < b.y ; y++)
-            {
-                float fb = (y - a.y) / (b.y - a.y);
-                float fc = (y - a.y) / (c.y - a.y);
-                float x0 = a.x + (b.x - a.x) * fb;
-                float x1 = a.x + (c.x - a.x) * fc;
-                Vec P0 = A + fb * (B - A);
-                Vec P1 = A + fc * (C - A);
-                if (x0 > x1)
-                {
-                    qSwap(x0, x1);
-                    qSwap(P0, P1);
-                }
-                for(int x = x0 ; x <= x1 ; x++)
-                {
-                    Vec D = P0 + ((float)(x - x0)) / (x1 - x0) * (P1 - P0) + relativePosition;
-                    D += 0.001f * N;        // We don't want to detect a collision with ourselves
-
-                    int n = 0;      // Number of occluders detected
-                    for(int i = 0 ; i < dirs.size() ; i++)
-                    {
-                        Vec Dir = dirs[i].x * I + dirs[i].y * J + dirs[i].z * N;
-                        if (baseTree.collision(D, Dir))
-                            n++;
-                    }
-                    n = 255 - n * 255 / dirs.size();
-
-                    img.setPixel(x, h - 1 - y, qRgb(n, n, n));
-                }
-            }
-        if (b.y != c.y)
-            for(int y = b.y ; y <= c.y ; y++)
-            {
-                float fa = (y - a.y) / (c.y - a.y);
-                float fb = (y - b.y) / (c.y - b.y);
-                float x0 = b.x + (c.x - b.x) * fb;
-                float x1 = a.x + (c.x - a.x) * fa;
-                Vec P0 = B + fb * (C - B);
-                Vec P1 = A + fa * (C - A);
-                if (x0 > x1)
-                {
-                    qSwap(x0, x1);
-                    qSwap(P0, P1);
-                }
-                for(int x = x0 ; x <= x1 ; x++)
-                {
-                    Vec D = P0 + ((float)(x - x0)) / (x1 - x0) * (P1 - P0) + relativePosition;
-                    D += 0.001f * N;        // We don't want to detect a collision with ourselves
-
-                    int n = 0;      // Number of occluders detected
-                    for(int i = 0 ; i < dirs.size() ; i++)
-                    {
-                        Vec Dir = dirs[i].x * I + dirs[i].y * J + dirs[i].z * N;
-                        if (baseTree.collision(D, Dir))
-                            n++;
-                    }
-                    n = 255 - n * 255 / dirs.size();
-
-                    img.setPixel(x, h - 1 - y, qRgb(n, n, n));
-                }
-            }
+        threads[i].setList(threads, n);
+        threads[i].setMesh(this);
+        threads[i].setImage(&img);
+        threads[i].setTree(&baseTree);
+        threads[i].setVecs(dirs, relativePosition);
     }
+
+    for(int i = 0 ; i < limit ; i += step)          // Render triangles using (1 - ambient occlusion) as color
+        threads[(i / step) % n].pushTodoIdx(i);
+
+    for(int i = 1 ; i < n ; i++)            // Start threads
+        threads[i].start();
+
+    threads[0].run();           // The first one will run here (otherwise GUI is not updated)
+
+    for(int i = 0 ; i < n ; i++)            // Wait for work to be done
+        threads[i].wait();
+
     tex.push_back(Gfx::instance()->bindTexture(img));
     ProgressDialog::setProgress(100);
 }

@@ -51,6 +51,7 @@ class Mesh : public QObject
     friend class ShaderEditor;
     friend class Gfx;
     friend class MeshTree;
+    friend class AmbientOcclusionThread;
 public:
     Mesh();
     ~Mesh();
