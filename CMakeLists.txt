@@ -13,7 +13,7 @@ SET(CPACK_PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}")
 
 SET(TA3D_WEBSITE                "http://www.ta3d.org")
 SET(TA3D_WEBSITE_FORUM          "http://www.ta3d.org/forums/")
-SET(TA3D_MAIL_BUGREPORT         "zuzuf86@gmail.com")
+SET(TA3D_MAIL_BUGREPORT         "dev@ta3d.org")
 SET(TA3D_WEBSITE_NEW_BUGREPORT  "http://trac.ta3d.org/newticket")
 
 #
