@@ -1245,6 +1245,7 @@ namespace TA3D
                 server_version = "";
                 for(unsigned int i = 2 ; i < params.size() ; ++i)
                     server_version += i > 2 ? " " + params[i] : params[i];
+                cur_server.version = server_version;
             }
 
             old = cur;

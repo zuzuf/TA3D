@@ -1955,6 +1955,7 @@ void network_room(void)             // Let players create/join a game
                             new_server.timer = msec_timer;
                             new_server.nb_open = nb_open;
                             new_server.host = host_address;
+                            new_server.version = version;
                             servers.push_back( new_server);
                         }
                     }
@@ -2160,6 +2161,7 @@ void network_room(void)             // Let players create/join a game
                     networkgame_area.set_caption("networkgame.server_name", i_server->name);
                     networkgame_area.set_caption("networkgame.host", i_server->host);
                     networkgame_area.set_caption("networkgame.open_slots", format( "%d", i_server->nb_open ));
+                    networkgame_area.set_caption("networkgame.server_version", i_server->version);
                 }
             }
         }

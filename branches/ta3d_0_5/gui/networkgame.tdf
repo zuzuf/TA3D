@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=13;
+	number of objects=15;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -162,5 +162,27 @@
 		caption=Load;
 		size=2;
 		on click=load_menu.show;
+	}
+	[object13]
+	{
+		name=l_server_version;
+		type=TEXT;
+		x1=940;
+		y1=724;
+		caption=server version:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object14]
+	{
+		name=server_version;
+		type=TEXT;
+		x1=940;
+		y1=790;
+		caption=;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
 	}
 }

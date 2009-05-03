@@ -99,6 +99,8 @@ namespace TA3D
         String host;
         //! Is an Internet (non-local) server ?
         bool internet;
+        //! Which version of TA3D is it running ?
+        String version;
     };
 
 
