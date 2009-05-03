@@ -13,15 +13,26 @@ MeshTree::~MeshTree()
         delete[] child;
 }
 
-bool MeshTree::collision(const Vec &pos, const Vec &dir)
+bool MeshTree::quickTest(const Vec &pos, const Vec &dir, int idx)
+{
+    if (idx < 0)
+        return false;
+    Vec &a = mesh->vertex[ mesh->index[idx] ];
+    Vec &b = mesh->vertex[ mesh->index[idx + 1] ];
+    Vec &c = mesh->vertex[ mesh->index[idx + 2] ];
+    Vec Z;
+    return mesh->hitTriangle(a, b, c, pos, dir, Z);
+}
+
+int MeshTree::collision(const Vec &pos, const Vec &dir)
 {
     Vec OM = center - pos;
     float dist = OM.sq();
-    if (dir * OM <= 0.0f && dist >= ray)        // On est dehors et on regarde ailleurs ==> meme avec de la bonne volonte on ne voit pas l'objet
-        return false;
+    if (dir * OM <= 0.0f && dist >= ray)        // We are out and looking away ==> even if we wanted we couldn't see the object
+        return -1;
     float l = (dir ^ OM).sq();
     Vec Z;
-    if (l + l * l / dist <= ray)      // Collision sphérique ?
+    if (l + l * l / dist <= ray)      // Spherical collision ?
     {
         foreach(int f, faces)
         {
@@ -29,16 +40,17 @@ bool MeshTree::collision(const Vec &pos, const Vec &dir)
             Vec &b = mesh->vertex[ mesh->index[f+1] ];
             Vec &c = mesh->vertex[ mesh->index[f+2] ];
             if (mesh->hitTriangle(a, b, c, pos, dir, Z))
-                return true;
+                return f;
         }
         if (child)
         {
-            if (child[0].collision(pos, dir))
-                return true;
+            int idx = child[0].collision(pos, dir);
+            if (idx >= 0)
+                return idx;
             return child[1].collision(pos, dir);
         }
     }
-    return false;
+    return -1;
 }
 
 void MeshTree::build(Mesh *mesh)

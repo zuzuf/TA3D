@@ -18,7 +18,10 @@ public:
 
     void build(Mesh *mesh);
     void build(Mesh *mesh, QVector<int> &facesToProcess);
-    bool collision(const Vec &pos, const Vec &dir);
+    // The real processing function
+    int collision(const Vec &pos, const Vec &dir);
+    // Useful for caching
+    bool quickTest(const Vec &pos, const Vec &dir, int idx);
 
 private:
     QVector<Vec> kmeans(int n, const QVector<int> &faceIndex);
