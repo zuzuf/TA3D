@@ -98,6 +98,7 @@ public:
     void toTriangleSoup();
     void splitGeometry();               // Isolate connex components
     void computeAmbientOcclusion(int w, int h, Mesh *base = NULL, int precision = 25);     // This is not recursive !!
+    Mesh *toSingleMesh();               // Builds a single mesh containing all the geometry
 
 signals:
     void loaded();

@@ -2197,8 +2197,10 @@ void Mesh::computeAmbientOcclusion(int w, int h, Mesh *base, int precision)     
 
     Vec relativePosition = base->getRelativePosition(ID);
 
+    Mesh *singleMesh = base->toSingleMesh();
+
     MeshTree baseTree;
-    baseTree.build(base);           // Build a tree to compute collisions faster
+    baseTree.build(singleMesh);           // Build a tree to compute collisions faster
 
     QVector<Vec> dirs;
     for(int i = 0 ; i < precision ; i++)
@@ -2248,4 +2250,45 @@ void Mesh::computeAmbientOcclusion(int w, int h, Mesh *base, int precision)     
 
     tex.push_back(Gfx::instance()->bindTexture(img));
     ProgressDialog::setProgress(100);
+
+    delete singleMesh;
+}
+
+Mesh *Mesh::toSingleMesh()
+{
+    Mesh *mesh = new Mesh;
+    mesh->copy(this);
+    mesh->child = NULL;
+    mesh->next = NULL;
+    mesh->toTriangleSoup();
+    mesh->tcoord.clear();
+    mesh->normal.clear();
+    mesh->tex.clear();
+
+    for(int i = 0 ; i < mesh->vertex.size() ; i++)
+        mesh->vertex[i] += mesh->pos;
+
+    QVector<Mesh*> meshList;
+
+    if (next)
+        meshList.push_back(next->toSingleMesh());
+    if (child)
+    {
+        meshList.push_back(child->toSingleMesh());
+        for(int i = 0 ; i < meshList.back()->vertex.size() ; i++)
+            meshList.back()->vertex[i] += mesh->pos;
+    }
+    mesh->pos.reset();
+
+    foreach(Mesh *m, meshList)
+    {
+        int base = mesh->vertex.size();
+        for(int i = 0 ; i < m->vertex.size() ; i++)
+            mesh->vertex.push_back(m->vertex[i]);
+
+        for(int i = 0 ; i < m->index.size() ; i++)
+            mesh->index.push_back(base + m->index[i]);
+    }
+
+    return mesh;
 }

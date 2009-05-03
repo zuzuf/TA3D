@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QMenu *mnuGeometry = new QMenu( tr("&Geometry") );
     mnuGeometry->addAction( tr("&Split components"), this, SLOT(splitMesh()));
+    mnuGeometry->addAction( tr("&Merge all"), this, SLOT(mergeAll()));
 
     QMenu *mnuModel = new QMenu( tr("&Model") );
     mnuModel->addMenu(mnuCreate);
@@ -491,4 +492,15 @@ void MainWindow::splitMesh()
         GeometryGraph::instance()->refreshTree();
     }
     Gfx::instance()->updateGL();
+}
+
+void MainWindow::mergeAll()
+{
+    Mesh *mesh = Mesh::instance()->toSingleMesh();
+    Mesh::instance()->destroy();
+    Mesh::instance()->copy(mesh);
+    Mesh::instance()->computeInfo();
+    GeometryGraph::instance()->refreshTree();
+    Gfx::instance()->updateGL();
+    delete mesh;
 }
