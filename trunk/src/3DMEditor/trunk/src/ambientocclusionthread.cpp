@@ -36,6 +36,8 @@ void AmbientOcclusionThread::run()
     for(int e = 0 ; e < listSize ; e++)
         total += list[e].todo.size();
 
+    QVector<int> collisionCache;
+    collisionCache.resize(dirs.size());
     foreach(uint32 i, todo)
     {
         progress++;
@@ -51,9 +53,9 @@ void AmbientOcclusionThread::run()
             prev = cur;
         }
 
-        Vec2 a(mesh->tcoord[mesh->index[i] * 2] * w, mesh->tcoord[mesh->index[i] * 2 + 1] * h);
-        Vec2 b(mesh->tcoord[mesh->index[i + 1] * 2] * w, mesh->tcoord[mesh->index[i + 1] * 2 + 1] * h);
-        Vec2 c(mesh->tcoord[mesh->index[i + 2] * 2] * w, mesh->tcoord[mesh->index[i + 2] * 2 + 1] * h);
+        Vec2 a(mesh->tcoord[mesh->index[i] * 2] * (w - 1), mesh->tcoord[mesh->index[i] * 2 + 1] * (h - 1));
+        Vec2 b(mesh->tcoord[mesh->index[i + 1] * 2] * (w - 1), mesh->tcoord[mesh->index[i + 1] * 2 + 1] * (h - 1));
+        Vec2 c(mesh->tcoord[mesh->index[i + 2] * 2] * (w - 1), mesh->tcoord[mesh->index[i + 2] * 2 + 1] * (h - 1));
         Vec A(mesh->vertex[mesh->index[i]]);
         Vec B(mesh->vertex[mesh->index[i + 1]]);
         Vec C(mesh->vertex[mesh->index[i + 2]]);
@@ -81,6 +83,9 @@ void AmbientOcclusionThread::run()
             qSwap(A, B);
         }
 
+        for(int e = 0 ; e < dirs.size() ; e++)
+            collisionCache[e] = -1;
+
         if (a.y != b.y)
             for(int y = a.y ; y < b.y ; y++)
             {
@@ -101,11 +106,20 @@ void AmbientOcclusionThread::run()
                     D += 0.001f * N;        // We don't want to detect a collision with ourselves
 
                     int n = 0;      // Number of occluders detected
-                    for(int i = 0 ; i < dirs.size() ; i++)
+                    for(int j = 0 ; j < dirs.size() ; j++)
                     {
-                        Vec Dir = dirs[i].x * I + dirs[i].y * J + dirs[i].z * N;
-                        if (tree->collision(D, Dir))
+                        Vec Dir = dirs[j].x * I + dirs[j].y * J + dirs[j].z * N;
+                        if (tree->quickTest(D, Dir, collisionCache[j]))
                             n++;
+                        else
+                        {
+                            int idx = tree->collision(D, Dir);
+                            if (idx >= 0)
+                            {
+                                collisionCache[j] = idx;
+                                n++;
+                            }
+                        }
                     }
                     n = 255 - n * 255 / dirs.size();
 
@@ -132,11 +146,20 @@ void AmbientOcclusionThread::run()
                     D += 0.001f * N;        // We don't want to detect a collision with ourselves
 
                     int n = 0;      // Number of occluders detected
-                    for(int i = 0 ; i < dirs.size() ; i++)
+                    for(int j = 0 ; j < dirs.size() ; j++)
                     {
-                        Vec Dir = dirs[i].x * I + dirs[i].y * J + dirs[i].z * N;
-                        if (tree->collision(D, Dir))
+                        Vec Dir = dirs[j].x * I + dirs[j].y * J + dirs[j].z * N;
+                        if (tree->quickTest(D, Dir, collisionCache[j]))
                             n++;
+                        else
+                        {
+                            int idx = tree->collision(D, Dir);
+                            if (idx >= 0)
+                            {
+                                collisionCache[j] = idx;
+                                n++;
+                            }
+                        }
                     }
                     n = 255 - n * 255 / dirs.size();
 

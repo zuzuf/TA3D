@@ -792,13 +792,14 @@ bool Mesh::hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos,
     float md = qMax((mid-a).sq(), qMax((mid-b).sq(), (mid-c).sq()));
     Vec OM = mid - pos;
     float l = (dir ^ OM).sq();
-    if (l + l * l / OM.sq() <= md)      // Spherical intersection ?
+    float OMsq = OM.sq();
+    if (l * (OMsq + l) <= md * OMsq)      // Spherical intersection ?
     {
         Vec n = (b-a) ^ (c-a);
         if ((dir * n) * ((a - pos) * n) > 0.0f)     // Are we aiming in the right direction ?
         {
             p = pos + (((a - pos) * n) / (dir * n)) * dir;      // Intersection with triangle space
-            // WARNING: fonction critique a tester abusivement
+            // WARNING: critical function, don't hesitate to test/improve
             if (((p-a) ^ (b-a)) * ((c-a) ^ (b-a)) < 0.0f)       // First half space ?
                 return false;
             if (((p-b) ^ (c-b)) * ((a-b) ^ (c-b)) < 0.0f)       // Second half space ?
@@ -1823,25 +1824,27 @@ void Mesh::basicMapping()
         h++;
 
     tcoord.resize(2 * nVertex.size());
+    float delta = 0.02f;
+    float delta2 = 2 * delta;
     for(int i = 0 ; i < tcoord.size() ; i += 12)
     {
         int e = i / 12;
-        tcoord[i  ] = ((float)(e % w)) / w + 0.02f / w;
-        tcoord[i+1] = ((float)(e / w)) / h + 0.01f / h;
-        tcoord[i+2] = ((float)(e % w)+1) / w - 0.01f / w;
-        tcoord[i+3] = ((float)(e / w)) / h + 0.01f / h;
-        tcoord[i+4] = ((float)(e % w)+1) / w - 0.01f / w;
-        tcoord[i+5] = ((float)(e / w) + 1) / h - 0.02f / h;
+        tcoord[i  ] = ((float)(e % w)) / w + delta2 / w;
+        tcoord[i+1] = ((float)(e / w)) / h + delta / h;
+        tcoord[i+2] = ((float)(e % w)+1) / w - delta / w;
+        tcoord[i+3] = ((float)(e / w)) / h + delta / h;
+        tcoord[i+4] = ((float)(e % w)+1) / w - delta / w;
+        tcoord[i+5] = ((float)(e / w) + 1) / h - delta2 / h;
 
         if (i + 6 >= tcoord.size())
             break;
 
-        tcoord[i+6] = ((float)(e % w)) / w + 0.01f / w;
-        tcoord[i+7] = ((float)(e / w)) / h + 0.02f / h;
-        tcoord[i+8] = ((float)(e % w)) / w + 0.01f / w;
-        tcoord[i+9] = ((float)(e / w) + 1) / h - 0.01f / h;
-        tcoord[i+10] = ((float)(e % w)+1) / w - 0.02f / w;
-        tcoord[i+11] = ((float)(e / w) + 1) / h - 0.01f / h;
+        tcoord[i+6] = ((float)(e % w)) / w + delta / w;
+        tcoord[i+7] = ((float)(e / w)) / h + delta2 / h;
+        tcoord[i+8] = ((float)(e % w)) / w + delta / w;
+        tcoord[i+9] = ((float)(e / w) + 1) / h - delta / h;
+        tcoord[i+10] = ((float)(e % w)+1) / w - delta2 / w;
+        tcoord[i+11] = ((float)(e / w) + 1) / h - delta / h;
     }
     index = nIndex;
     vertex = nVertex;
