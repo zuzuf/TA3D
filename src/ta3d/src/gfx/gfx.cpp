@@ -178,6 +178,11 @@ namespace TA3D
 		initSDL();
 		ati_workaround = checkVideoCardWorkaround();
 
+		// Initialize the width/height of the screen
+		// This must be done after initSDL() because `screen` is not initialized
+		width = SCREEN_W;
+		height = SCREEN_H;
+
 		TA3D::VARS::pal = NULL;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
