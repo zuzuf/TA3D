@@ -43,11 +43,6 @@ using namespace TA3D::VARS;
 
 #define TIME_UNIT				0.04f	// Pour la simulation physique
 
-#define EXIT_NONE		0x0
-#define EXIT_VICTORY	0x1
-#define EXIT_DEFEAT		0x2
-
-
 
 extern float	player_color[30];
 extern byte		player_color_map[10];

@@ -2385,7 +2385,7 @@ void campaign_main_menu(void)
 		delete campaign_parser;
 
 	reset_mouse();
-	while(key[KEY_ESC])
+	while (key[KEY_ESC])
 	{
 		rest(1);
 		poll_inputs();
@@ -2393,9 +2393,14 @@ void campaign_main_menu(void)
 
 	if (start_game) // Open the briefing screen and start playing the campaign
 	{
-		int exit_mode = 0;
-		while( mission_id < nb_mission && (exit_mode = brief_screen( campaign_name, mission_id )) != Battle::brUnknown )
-			if (exit_mode == EXIT_VICTORY ) mission_id++;
+		// The result of the last battle
+		Battle::Result exitStatus = Battle::brUnknown;
+
+		while (mission_id < nb_mission && (exitStatus = brief_screen(campaign_name, mission_id)))
+		{
+			if (Battle::brVictory == exitStatus)
+				++mission_id;
+		}
 
 		while (key[KEY_ESC])
 		{
