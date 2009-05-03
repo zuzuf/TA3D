@@ -679,7 +679,10 @@ namespace TA3D
 		if (HWLight::inGame)
 			glNormal3fv( (GLfloat*)&(HWLight::inGame->Dir) );
 
-		glEnable(GL_POLYGON_OFFSET_FILL);
+        if (!gfx->getShadowMapMode())
+            Camera::inGame->setView(lp_CONFIG->shadow_quality < 2);
+
+        glEnable(GL_POLYGON_OFFSET_FILL);
 		quad_table.draw_all();
 		glDisable(GL_POLYGON_OFFSET_FILL);
 

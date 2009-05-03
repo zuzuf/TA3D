@@ -1708,14 +1708,15 @@ namespace TA3D
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-			cam.setView(true);
+            cam.setView(true);
 
-			features.draw();		// Dessine les éléments "2D"
+            features.draw();		// Dessine les éléments "2D"
 
-			/*----------------------------------------------------------------------------------------------*/
+            /*----------------------------------------------------------------------------------------------*/
 
 			// Dessine les unités sous l'eau / Draw units which are under water
-			if (cam.rpos.y <= gfx->low_def_limit)
+            cam.setView(lp_CONFIG->shadow_quality < 2);
+            if (cam.rpos.y <= gfx->low_def_limit)
 				units.draw(map.get(), true, false, true, lp_CONFIG->height_line);
 
 			// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
@@ -2344,7 +2345,7 @@ namespace TA3D
 				}
 			}
 
-			cam.setView();
+            cam.setView(lp_CONFIG->shadow_quality < 2);
 			// Dessine les unités non encore dessinées / Draw units which have not been drawn
 			units.draw(map.get(), false, false, true, lp_CONFIG->height_line);
 
