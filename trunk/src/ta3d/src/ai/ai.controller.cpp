@@ -666,6 +666,8 @@ namespace TA3D
 
     void AI_CONTROLLER::loadAI(const String& filename, const int id)
     {
+        using namespace TA3D::UTILS::HPI;
+
         TA3D_FILE* file = ta3d_fopen(filename);
 
         // Length of the name

@@ -248,8 +248,11 @@ namespace TA3D
     //NEED TESTING
     void SendFileThread::proc(void* param)
     {
+        using namespace TA3D::UTILS::HPI;
+
         Network* network;
         int sockid;
+
         TA3D_FILE* file;
         int length,n;
         byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];

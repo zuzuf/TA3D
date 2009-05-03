@@ -381,7 +381,7 @@ namespace TA3D
                                     //											printf("loading texture %s\n", cur_mat->MAPNAME );
                                     read_obj->surface.Flag |= SURFACE_TEXTURED;
                                     read_obj->surface.NbTex = 1;
-                                    cHPIHandler *backup = HPIManager;
+                                    UTILS::HPI::cHPIHandler *backup = HPIManager;
                                     HPIManager = NULL;
                                     read_obj->surface.gltex[ 0 ] = gfx->load_texture( cur_mat->MAPNAME );
                                     HPIManager = backup;
