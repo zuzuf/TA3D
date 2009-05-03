@@ -27,7 +27,6 @@
 #define TA3D_SHIFT_PRESSED	( key[KEY_LSHIFT] || key[KEY_RSHIFT] )
 #define TA3D_CTRL_PRESSED	( key[KEY_LCONTROL] || key[KEY_RCONTROL] )
 
-using namespace TA3D::UTILS::HPI;
 
 namespace TA3D
 {
@@ -35,13 +34,12 @@ namespace TA3D
     {
         extern SDL_Color *pal;
 
-        extern cHPIHandler *HPIManager;
+        extern UTILS::HPI::cHPIHandler *HPIManager;
     }
 }
 
 using namespace TA3D::VARS;
 
-#define TIME_UNIT				0.04f	// Pour la simulation physique
 
 
 extern float	player_color[30];
