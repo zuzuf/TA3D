@@ -4220,7 +4220,6 @@ namespace TA3D
     {
         if (queue.empty())
             return;
-        glPushMatrix();
 
         int i = 0;
         for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
@@ -4289,14 +4288,12 @@ namespace TA3D
                 glDisable( GL_TEXTURE_2D );
                 glBlendFunc( GL_ONE, GL_ONE );
                 glDepthFunc( GL_EQUAL );
-                glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
+                glDrawArrays(GL_QUADS, 0, i);		// draw those quads
                 glDepthFunc( GL_LESS );
                 glEnable( GL_TEXTURE_2D );
-                glDisable( GL_BLEND );
+                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
             }
         }
-
-        glPopMatrix();
     }
 
     void ANIMATION::animate( float &t, Vector3D &R, Vector3D& T)
