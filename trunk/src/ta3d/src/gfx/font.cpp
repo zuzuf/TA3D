@@ -245,13 +245,12 @@ namespace TA3D
 
 		if (font)
 		{
-			LOG_DEBUG(LOG_PREFIX_FONT << "Destroying Font object");
 			delete font;
 			font = NULL;
 		}
 		if (!filename.empty())
 		{
-			LOG_DEBUG(LOG_PREFIX_FONT << "Creating FTFont object for " << filename);
+			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");
 			switch(type)
 			{
 				case typeBitmap:
@@ -272,9 +271,7 @@ namespace TA3D
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "'" << filename << "' loaded");
 			font->FaceSize(size);
-			LOG_DEBUG(LOG_PREFIX_FONT << "face size set");
 			font->UseDisplayList(false);
-			LOG_DEBUG(LOG_PREFIX_FONT << "parameters set '" << filename << "'");
 		}
 		else
 			LOG_ERROR(LOG_PREFIX_FONT << "Could not load file : " << filename);
@@ -310,16 +307,12 @@ namespace TA3D
 					: find_font(SYSTEM_FONT_PATH, "FreeSerif");
 		}
 
-		LOG_DEBUG(LOG_PREFIX_FONT << "creating new Font object for " << foundFilename);
 		Font *font = new Font();
-		LOG_DEBUG(LOG_PREFIX_FONT << "loading file " << foundFilename);
 		font->load(foundFilename, size, type);
 
-		LOG_DEBUG(LOG_PREFIX_FONT << "inserting " << foundFilename << " into Font tables");
 		pFontList.push_back(font);
 		font_table.insertOrUpdate(key, font);
 
-		LOG_DEBUG(LOG_PREFIX_FONT << "Font loader : job done");
 		return font;
 	}
 
