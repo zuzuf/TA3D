@@ -1627,7 +1627,7 @@ namespace TA3D
             glEnable(GL_CULL_FACE);
             glEnable(GL_LIGHTING);
             glEnable(GL_FOG);
-            cam.zfar = 500.0f + (cam_h - 150.0f) * 2.0f;
+            cam.zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
             cam.setView();
 
             if (lp_CONFIG->wireframe)

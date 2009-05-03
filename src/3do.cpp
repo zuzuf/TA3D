@@ -294,7 +294,7 @@ namespace TA3D
                         {
                             if ((b <= axe[i][e].rot_target_speed && axe[i][e].rot_speed >= axe[i][e].rot_target_speed)
                                 || (b >= axe[i][e].rot_target_speed && axe[i][e].rot_speed <= axe[i][e].rot_target_speed))
-                            {
+                                {
                                 axe[i][e].rot_accel = 0.0f;
                                 axe[i][e].rot_speed = axe[i][e].rot_target_speed;
                                 axe[i][e].rot_speed_limit = false;
@@ -494,12 +494,12 @@ namespace TA3D
         if (!name.empty())
             for (int i = 0; i < nb_piece; ++i)
             {
-                if (strcasecmp(name.c_str(),piece_name[i].c_str()) == 0) // Pièce identifiée
-                {
-                    script_index = i;
-                    break;
-                }
+            if (strcasecmp(name.c_str(),piece_name[i].c_str()) == 0) // Pièce identifiée
+            {
+                script_index = i;
+                break;
             }
+        }
         if (next)
             next->Identify(nb_piece,piece_name);
         if (child)
@@ -790,23 +790,23 @@ namespace TA3D
 
             switch(primitive.NumberOfVertexIndexes)
             {
-                case 1:		++nb_p_index;    break;
-                case 2:		nb_l_index += 2; break;
-                default:
-                            if (i == header.OffsetToselectionPrimitive)
-                            {
-                                selprim = 1;//nb_t_index;
-                                break;
-                            }
-                            else
-                            {
-                                if (primitive.IsColored && primitive.ColorIndex == 1)
-                                    break;
-                                if (!primitive.IsColored && (!primitive.OffsetToTextureName || !data[primitive.OffsetToTextureName]))
-                                    break;
-                            }
-                            n_index += primitive.NumberOfVertexIndexes;
-                            ++nb_t_index;
+            case 1:		++nb_p_index;    break;
+            case 2:		nb_l_index += 2; break;
+            default:
+                if (i == header.OffsetToselectionPrimitive)
+                {
+                    selprim = 1;//nb_t_index;
+                    break;
+                }
+                else
+                {
+                    if (primitive.IsColored && primitive.ColorIndex == 1)
+                        break;
+                    if (!primitive.IsColored && (!primitive.OffsetToTextureName || !data[primitive.OffsetToTextureName]))
+                        break;
+                }
+                n_index += primitive.NumberOfVertexIndexes;
+                ++nb_t_index;
             }
         }
 #ifdef DEBUG_MODE
@@ -847,56 +847,56 @@ namespace TA3D
 
             switch (primitive.NumberOfVertexIndexes)
             {
-                case 1:
-                    p_index[pos_p++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
+            case 1:
+                p_index[pos_p++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
+                break;
+            case 2:
+                l_index[pos_l++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
+                l_index[pos_l++] = *((short*)(data+primitive.OffsetToVertexIndexArray + 2));
+                break;
+            default:
+                if (i != header.OffsetToselectionPrimitive)
+                {
+                    if (primitive.IsColored && primitive.ColorIndex == 1)
+                        break;
+                    if (!primitive.IsColored && (!primitive.OffsetToTextureName || !data[primitive.OffsetToTextureName]))
+                        break;
+                }
+                else
+                {
+                    for (int e = 0; e < primitive.NumberOfVertexIndexes && e < 4; ++e)
+                        sel[e] = *((short*)(data + primitive.OffsetToVertexIndexArray + (e << 1)));
                     break;
-                case 2:
-                    l_index[pos_l++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
-                    l_index[pos_l++] = *((short*)(data+primitive.OffsetToVertexIndexArray + 2));
-                    break;
-                default:
-                    if (i != header.OffsetToselectionPrimitive)
+                }
+                nb_index[cur] = primitive.NumberOfVertexIndexes;
+                tex[cur] = t_m = texture_manager.get_texture_index((char*)(data+primitive.OffsetToTextureName));
+                usetex[cur] = 1;
+                if (t_m == -1)
+                {
+                    if (primitive.ColorIndex >= 0 && primitive.ColorIndex < 256)
                     {
-                        if (primitive.IsColored && primitive.ColorIndex == 1)
-                            break;
-                        if (!primitive.IsColored && (!primitive.OffsetToTextureName || !data[primitive.OffsetToTextureName]))
-                            break;
+                        usetex[cur] = 1;
+                        tex[cur] = t_m = primitive.ColorIndex;
                     }
                     else
-                    {
-                        for (int e = 0; e < primitive.NumberOfVertexIndexes && e < 4; ++e)
-                            sel[e] = *((short*)(data + primitive.OffsetToVertexIndexArray + (e << 1)));
+                        usetex[cur] = 0;
+                }
+                if (t_m >= 0)
+                {														// Code pour la création d'une texture propre à chaque modèle
+                    bool al_in = false;
+                    int indx = t_m;
+                    for (int e = 0; e < nb_diff_tex; ++e)
+                        if (index_tex[e] == indx)
+                        {
+                        al_in=true;
                         break;
                     }
-                    nb_index[cur] = primitive.NumberOfVertexIndexes;
-                    tex[cur] = t_m = texture_manager.get_texture_index((char*)(data+primitive.OffsetToTextureName));
-                    usetex[cur] = 1;
-                    if (t_m == -1)
-                    {
-                        if (primitive.ColorIndex >= 0 && primitive.ColorIndex < 256)
-                        {
-                            usetex[cur] = 1;
-                            tex[cur] = t_m = primitive.ColorIndex;
-                        }
-                        else
-                            usetex[cur] = 0;
-                    }
-                    if (t_m >= 0)
-                    {														// Code pour la création d'une texture propre à chaque modèle
-                        bool al_in = false;
-                        int indx = t_m;
-                        for (int e = 0; e < nb_diff_tex; ++e)
-                            if (index_tex[e] == indx)
-                            {
-                                al_in=true;
-                                break;
-                            }
-                        if (!al_in)
-                            index_tex[nb_diff_tex++]=indx;
-                    }
-                    for (int e = 0; e < nb_index[cur]; ++e)
-                        t_index[pos_t++] = *((short*)(data + primitive.OffsetToVertexIndexArray + (e << 1)));
-                    ++cur;
+                    if (!al_in)
+                        index_tex[nb_diff_tex++]=indx;
+                }
+                for (int e = 0; e < nb_index[cur]; ++e)
+                    t_index[pos_t++] = *((short*)(data + primitive.OffsetToVertexIndexArray + (e << 1)));
+                ++cur;
             }
         }
 
@@ -914,90 +914,90 @@ namespace TA3D
             if (i!=0)
                 for (int e = 0; e < i; ++e)
                 {
-                    int fx = texture_manager.tex[index_tex[e]].bmp[0]->w, fy=texture_manager.tex[index_tex[e]].bmp[0]->h;
-                    bool found[3];
-                    found[0] = found[1] = found[2] = true;
-                    int j;
+                int fx = texture_manager.tex[index_tex[e]].bmp[0]->w, fy=texture_manager.tex[index_tex[e]].bmp[0]->h;
+                bool found[3];
+                found[0] = found[1] = found[2] = true;
+                int j;
 
-                    px[i] = px[e] + fx;
-                    py[i] = py[e];
-                    for (j = 0; j < i; ++j)
+                px[i] = px[e] + fx;
+                py[i] = py[e];
+                for (j = 0; j < i; ++j)
+                {
+                    int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy=texture_manager.tex[index_tex[j]].bmp[0]->h;
+                    if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
                     {
-                        int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy=texture_manager.tex[index_tex[j]].bmp[0]->h;
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-                        {
-                            found[0] = false;
-                            break;
-                        }
+                        found[0] = false;
+                        break;
                     }
+                }
 
-                    px[i] = px[e];
-                    py[i] = py[e] + fy;
-                    for (j = 0; j < i; ++j)
+                px[i] = px[e];
+                py[i] = py[e] + fy;
+                for (j = 0; j < i; ++j)
+                {
+                    int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
+                    if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
                     {
-                        int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-                        {
-                            found[2] = false;
-                            break;
-                        }
+                        found[2] = false;
+                        break;
                     }
+                }
+                px[i] = px[e] + fx;
+                py[i] = 0;
+
+                for (j = 0; j < i; ++j)
+                {
+                    int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
+                    if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                    {
+                        found[1] = false;
+                        break;
+                    }
+                }
+                bool deborde = false;
+                bool found_one = false;
+                int deb = 0;
+
+                if (found[1])
+                {
                     px[i] = px[e] + fx;
                     py[i] = 0;
-
-                    for (j = 0; j < i; ++j)
-                    {
-                        int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-                        {
-                            found[1] = false;
-                            break;
-                        }
-                    }
-                    bool deborde = false;
-                    bool found_one = false;
-                    int deb = 0;
-
-                    if (found[1])
-                    {
-                        px[i] = px[e] + fx;
-                        py[i] = 0;
-                        deborde = false;
-                        if (px[i] + dx > mx || py[i] + dy > my)
-                            deborde = true;
-                        deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-                        found_one = true;
-                    }
-                    if (found[0] && (!found_one || deborde))
-                    {
-                        px[i] = px[e]+fx;
-                        py[i] = py[e];
-                        deborde = false;
-                        if (px[i] + dx > mx || py[i] + dy > my)
-                            deborde = true;
-                        deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-                        found_one = true;
-                    }
-                    if (found[2] && deborde)
-                    {
-                        int ax = px[i],ay = py[i];
-                        px[i] = px[e];
-                        py[i] = py[e] + fy;
-                        deborde = false;
-                        if (px[i]+dx>mx || py[i] + dy > my)
-                            deborde = true;
-                        int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-                        if (found_one && deb<deb2)
-                        {
-                            px[i] = ax;
-                            py[i] = ay;
-                        }
-                        else
-                            found_one=true;
-                    }
-                    if (found_one)			// On a trouvé une position qui convient
-                        break;
+                    deborde = false;
+                    if (px[i] + dx > mx || py[i] + dy > my)
+                        deborde = true;
+                    deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+                    found_one = true;
                 }
+                if (found[0] && (!found_one || deborde))
+                {
+                    px[i] = px[e]+fx;
+                    py[i] = py[e];
+                    deborde = false;
+                    if (px[i] + dx > mx || py[i] + dy > my)
+                        deborde = true;
+                    deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+                    found_one = true;
+                }
+                if (found[2] && deborde)
+                {
+                    int ax = px[i],ay = py[i];
+                    px[i] = px[e];
+                    py[i] = py[e] + fy;
+                    deborde = false;
+                    if (px[i]+dx>mx || py[i] + dy > my)
+                        deborde = true;
+                    int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+                    if (found_one && deb<deb2)
+                    {
+                        px[i] = ax;
+                        py[i] = ay;
+                    }
+                    else
+                        found_one=true;
+                }
+                if (found_one)			// On a trouvé une position qui convient
+                    break;
+            }
             if (px[i] + dx > mx)   mx = px[i] + dx;
             if (py[i] + dy > my)   my = py[i] + dy;
         }
@@ -1051,8 +1051,8 @@ namespace TA3D
                         for (i = 0; i < nb_diff_tex && !mtex_needed; ++i)
                             if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
                             {
-                                mtex_needed=true;
-                            }
+                            mtex_needed=true;
+                        }
                     }
                     tex_cache_name.push_back( cache_filename );
                 }
@@ -1174,16 +1174,16 @@ namespace TA3D
                 {
                     switch (e & 3)
                     {
-                        case 1:
-                            tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
-                            break;
-                        case 2:
-                            tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
-                            tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
-                            break;
-                        case 3:
-                            tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
-                            break;
+                    case 1:
+                        tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
+                        break;
+                    case 2:
+                        tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
+                        tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
+                        break;
+                    case 3:
+                        tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
+                        break;
                     };
                     tcoord[curt]     += ((float)px[indx] + 0.5f) / (mx - 1);
                     tcoord[curt + 1] += ((float)py[indx] + 0.5f) / (my - 1);
@@ -1239,7 +1239,7 @@ namespace TA3D
         if (id < 0 || id >= 10) return;
         if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt( tex_cache_name[id] ) == ".tga" )
         {
-                    // Use global texture configuration
+            // Use global texture configuration
             if (surface.Flag&SURFACE_ADVANCED)
             {
                 if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -1534,11 +1534,11 @@ namespace TA3D
                 else
                     if (!explodes ^ exploding_parts)
                     {
-                        glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-                        glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-                        glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-                        glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-                    }
+                    glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
+                    glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
+                    glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
+                    glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+                }
                 hide = data_s->flag[script_index]&FLAG_HIDE;
             }
             else
@@ -1567,208 +1567,208 @@ namespace TA3D
             else
                 if (!hide)
                 {
-                    bool creating_list = false;
-                    if (chg_col && !notex && gl_dlist[side] == 0)
+                bool creating_list = false;
+                if (chg_col && !notex && gl_dlist[side] == 0)
+                {
+                    gl_dlist[side] = glGenLists(1);
+                    glNewList(gl_dlist[side], GL_COMPILE_AND_EXECUTE);
+                    alset = false;
+                    set = false;
+                    creating_list = true;
+                }
+                if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
+                {
+                    bool activated_tex=false;
+                    if (surface.Flag&SURFACE_ADVANCED)
                     {
-                        gl_dlist[side] = glGenLists(1);
-                        glNewList(gl_dlist[side], GL_COMPILE_AND_EXECUTE);
-                        alset = false;
-                        set = false;
-                        creating_list = true;
-                    }
-                    if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
-                    {
-                        bool activated_tex=false;
-                        if (surface.Flag&SURFACE_ADVANCED)
+                        glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                        glEnableClientState(GL_NORMAL_ARRAY);
+                        alset=false;
+                        set=false;
+                        if (chg_col || notex)
                         {
-                            glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-                            glEnableClientState(GL_NORMAL_ARRAY);
-                            alset=false;
-                            set=false;
-                            if (chg_col || notex)
-                            {
-                                if (surface.Flag&SURFACE_PLAYER_COLOR)
-                                    glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
-                                else
-                                    glColor4fv(surface.Color);		// Couleur de matière
-                            }
+                            if (surface.Flag&SURFACE_PLAYER_COLOR)
+                                glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
                             else
-                                if (!chg_col && !notex)
-                                {
-                                    if (surface.Flag&SURFACE_PLAYER_COLOR)
-                                        glColor4f(player_color[player_color_map[side]*3]*color_factor[0],player_color[player_color_map[side]*3+1]*color_factor[1],player_color[player_color_map[side]*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
-                                    else
-                                        glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
-                                }
-
-                            if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
-                            {
-                                surface.s_shader.on();
-                                for (int j = 0; j < surface.NbTex; ++j)
-                                    surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
-                            }
-
-                            if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
-                                glShadeModel (GL_SMOOTH);
-                            else
-                                glShadeModel (GL_FLAT);
-
-                            if (surface.Flag&SURFACE_LIGHTED)			// Eclairage
-                                glEnable(GL_LIGHTING);
-                            else
-                                glDisable(GL_LIGHTING);
-
-                            if (chg_col || !notex)
-                            {
-                                if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
-                                {
-                                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                                    glEnable(GL_BLEND);
-                                    glAlphaFunc( GL_GREATER, 0.1 );
-                                    glEnable( GL_ALPHA_TEST );
-                                }
-                                else
-                                {
-                                    glDisable(GL_ALPHA_TEST);
-                                    glDisable(GL_BLEND);
-                                }
-                            }
-
-                            if (surface.Flag&SURFACE_TEXTURED && !notex) // Les textures et effets de texture
-                            {
-                                activated_tex = true;
-                                for (int j = 0; j < surface.NbTex; ++j)
-                                {
-                                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                    glEnable(GL_TEXTURE_2D);
-                                    glBindTexture(GL_TEXTURE_2D,surface.gltex[j]);
-                                    if (j==surface.NbTex-1 && surface.Flag&SURFACE_REFLEC)
-                                    {
-                                        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                                        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                                        glEnable(GL_TEXTURE_GEN_S);
-                                        glEnable(GL_TEXTURE_GEN_T);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
-
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
-                                        glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,surface.RColor);
-                                    }
-                                    else
-                                    {
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                                        glDisable(GL_TEXTURE_GEN_S);
-                                        glDisable(GL_TEXTURE_GEN_T);
-                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                                    }
-                                }
-                                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                                for (int j = 0; j < surface.NbTex; ++j)
-                                {
-                                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                    glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-                                }
-                            }
-                            else
-                            {
-                                for (int j = 7; j >= 0; --j)
-                                {
-                                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                    glDisable(GL_TEXTURE_2D);
-                                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                                }
-                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                            }
+                                glColor4fv(surface.Color);		// Couleur de matière
                         }
                         else
-                        {
-                            if (!alset)
+                            if (!chg_col && !notex)
                             {
-                                glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-                                glEnableClientState(GL_NORMAL_ARRAY);
-                                if (notex)
-                                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                                else
-                                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                                glEnable(GL_LIGHTING);
-                                if (notex)
-                                    glDisable(GL_TEXTURE_2D);
-                                else
-                                    glEnable(GL_TEXTURE_2D);
-                                alset=true;
-                            }
-                            if (chg_col || !notex)
-                            {
-                                if (!chg_col && color_factor[3] != 1.0f) // La transparence
-                                {
-                                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                                    glEnable(GL_BLEND);
-                                }
-                                else
-                                    glDisable(GL_BLEND);
-                            }
-                            set = true;
-                            if (!dtex)
-                            {
-                                alset=false;
-                                glDisable(GL_TEXTURE_2D);
-                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                            }
-                            if (!notex && dtex)
-                            {
-                                if (side<dtex && side>=0)
-                                    glBindTexture(GL_TEXTURE_2D,gltex[side]);
-                                else
-                                    glBindTexture(GL_TEXTURE_2D,gltex[0]);
-                                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-                            }
-                        }
-                        glVertexPointer(3, GL_FLOAT, 0, points);
-                        glNormalPointer(GL_FLOAT, 0, N);
-                        if (!use_strips)
-                            glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);				// draw everything
-                        else
-                        {
-                            glDisable( GL_CULL_FACE );
-                            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);		// draw everything
-                            glEnable( GL_CULL_FACE );
+                            if (surface.Flag&SURFACE_PLAYER_COLOR)
+                                glColor4f(player_color[player_color_map[side]*3]*color_factor[0],player_color[player_color_map[side]*3+1]*color_factor[1],player_color[player_color_map[side]*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
+                            else
+                                glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
                         }
 
-                        if ((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
+                        if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
+                        {
+                            surface.s_shader.on();
+                            for (int j = 0; j < surface.NbTex; ++j)
+                                surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
+                        }
+
+                        if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
                             glShadeModel (GL_SMOOTH);
-                        if ((surface.Flag&SURFACE_GLSL) && (surface.Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
-                            surface.s_shader.off();
+                        else
+                            glShadeModel (GL_FLAT);
 
-                        if (activated_tex)
+                        if (surface.Flag&SURFACE_LIGHTED)			// Eclairage
+                            glEnable(GL_LIGHTING);
+                        else
+                            glDisable(GL_LIGHTING);
+
+                        if (chg_col || !notex)
                         {
+                            if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
+                            {
+                                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                                glEnable(GL_BLEND);
+                                glAlphaFunc( GL_GREATER, 0.1 );
+                                glEnable( GL_ALPHA_TEST );
+                            }
+                            else
+                            {
+                                glDisable(GL_ALPHA_TEST);
+                                glDisable(GL_BLEND);
+                            }
+                        }
+
+                        if (surface.Flag&SURFACE_TEXTURED && !notex) // Les textures et effets de texture
+                        {
+                            activated_tex = true;
+                            for (int j = 0; j < surface.NbTex; ++j)
+                            {
+                                glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                glEnable(GL_TEXTURE_2D);
+                                glBindTexture(GL_TEXTURE_2D,surface.gltex[j]);
+                                if (j==surface.NbTex-1 && surface.Flag&SURFACE_REFLEC)
+                                {
+                                    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                                    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                                    glEnable(GL_TEXTURE_GEN_S);
+                                    glEnable(GL_TEXTURE_GEN_T);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                                    glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,surface.RColor);
+                                }
+                                else
+                                {
+                                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                                    glDisable(GL_TEXTURE_GEN_S);
+                                    glDisable(GL_TEXTURE_GEN_T);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                                }
+                            }
+                            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                             for (int j = 0; j < surface.NbTex; ++j)
                             {
                                 glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+                                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                            }
+                        }
+                        else
+                        {
+                            for (int j = 7; j >= 0; --j)
+                            {
                                 glActiveTextureARB(GL_TEXTURE0_ARB + j);
                                 glDisable(GL_TEXTURE_2D);
-                                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                                glDisable(GL_TEXTURE_GEN_S);
-                                glDisable(GL_TEXTURE_GEN_T);
-                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                                glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                             }
-                            glClientActiveTextureARB(GL_TEXTURE0_ARB);
-                            glActiveTextureARB(GL_TEXTURE0_ARB);
-                            glEnable(GL_TEXTURE_2D);
+                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                         }
                     }
-                    if (creating_list)
-                        glEndList();
+                    else
+                    {
+                        if (!alset)
+                        {
+                            glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                            glEnableClientState(GL_NORMAL_ARRAY);
+                            if (notex)
+                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                            else
+                                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                            glEnable(GL_LIGHTING);
+                            if (notex)
+                                glDisable(GL_TEXTURE_2D);
+                            else
+                                glEnable(GL_TEXTURE_2D);
+                            alset=true;
+                        }
+                        if (chg_col || !notex)
+                        {
+                            if (!chg_col && color_factor[3] != 1.0f) // La transparence
+                            {
+                                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                                glEnable(GL_BLEND);
+                            }
+                            else
+                                glDisable(GL_BLEND);
+                        }
+                        set = true;
+                        if (!dtex)
+                        {
+                            alset=false;
+                            glDisable(GL_TEXTURE_2D);
+                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                        }
+                        if (!notex && dtex)
+                        {
+                            if (side<dtex && side>=0)
+                                glBindTexture(GL_TEXTURE_2D,gltex[side]);
+                            else
+                                glBindTexture(GL_TEXTURE_2D,gltex[0]);
+                            glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                        }
+                    }
+                    glVertexPointer(3, GL_FLOAT, 0, points);
+                    glNormalPointer(GL_FLOAT, 0, N);
+                    if (!use_strips)
+                        glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);				// draw everything
+                    else
+                    {
+                        glDisable( GL_CULL_FACE );
+                        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);		// draw everything
+                        glEnable( GL_CULL_FACE );
+                    }
+
+                    if ((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
+                        glShadeModel (GL_SMOOTH);
+                    if ((surface.Flag&SURFACE_GLSL) && (surface.Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
+                        surface.s_shader.off();
+
+                    if (activated_tex)
+                    {
+                        for (int j = 0; j < surface.NbTex; ++j)
+                        {
+                            glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                            glDisable(GL_TEXTURE_2D);
+                            glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                            glDisable(GL_TEXTURE_GEN_S);
+                            glDisable(GL_TEXTURE_GEN_T);
+                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                        }
+                        glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                        glActiveTextureARB(GL_TEXTURE0_ARB);
+                        glEnable(GL_TEXTURE_2D);
+                    }
                 }
+                if (creating_list)
+                    glEndList();
+            }
 #ifdef DEBUG_MODE_3DO
             if (nb_l_index > 0 && nb_vtx > 0)
             {
@@ -1938,9 +1938,9 @@ namespace TA3D
                 else
                     for (int j = 7; j >= 0; --j)
                     {
-                        glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                        glDisable(GL_TEXTURE_2D);
-                    }
+                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glDisable(GL_TEXTURE_2D);
+                }
             }
             else
             {
@@ -2112,14 +2112,14 @@ namespace TA3D
                 ipos.y = data_s->axe[1][script_index].pos;
                 ipos.z = data_s->axe[2][script_index].pos;
                 *pos = *pos + (pos_from_parent + ipos) * (*M);
-//                *M = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
-//                    * RotateY(data_s->axe[1][script_index].angle * DEG2RAD)
-//                    * RotateX(data_s->axe[0][script_index].angle * DEG2RAD)
-//                    * (*M);
+                //                *M = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
+                //                    * RotateY(data_s->axe[1][script_index].angle * DEG2RAD)
+                //                    * RotateX(data_s->axe[0][script_index].angle * DEG2RAD)
+                //                    * (*M);
                 *M = RotateZYX( data_s->axe[2][script_index].angle * DEG2RAD,
                                 data_s->axe[1][script_index].angle * DEG2RAD,
                                 data_s->axe[0][script_index].angle * DEG2RAD)
-                    * (*M);
+                * (*M);
                 data_s->matrix[script_index] = *M;
                 if (nb_l_index==2)
                 {
@@ -2371,22 +2371,22 @@ namespace TA3D
                     glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
                     glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
                 }
-    //            Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                //            Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
                 Dir = Dir*RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
                 hide=data_s->flag[script_index]&FLAG_HIDE;
             }
             else
                 if (animation_data )
                 {
-                    Vector3D R,T;
-                    animation_data->animate( t, R, T );
-                    glTranslatef( T.x, T.y, T.z );
-                    glRotatef( R.x, 1.0f, 0.0f, 0.0f );
-                    glRotatef( R.y, 0.0f, 1.0f, 0.0f );
-                    glRotatef( R.z, 0.0f, 0.0f, 1.0f );
-    //                Dir=((Dir*RotateX(-R.x*DEG2RAD))*RotateY(-R.y*DEG2RAD))*RotateZ(-R.z*DEG2RAD);
-                    Dir = Dir*RotateXYZ(-R.x*DEG2RAD, -R.y*DEG2RAD, -R.z*DEG2RAD);
-                }
+                Vector3D R,T;
+                animation_data->animate( t, R, T );
+                glTranslatef( T.x, T.y, T.z );
+                glRotatef( R.x, 1.0f, 0.0f, 0.0f );
+                glRotatef( R.y, 0.0f, 1.0f, 0.0f );
+                glRotatef( R.z, 0.0f, 0.0f, 1.0f );
+                //                Dir=((Dir*RotateX(-R.x*DEG2RAD))*RotateY(-R.y*DEG2RAD))*RotateZ(-R.z*DEG2RAD);
+                Dir = Dir*RotateXYZ(-R.x*DEG2RAD, -R.y*DEG2RAD, -R.z*DEG2RAD);
+            }
             hide |= explodes ^ exploding_parts;
             if (nb_t_index>0 && !hide)
             {
@@ -2414,30 +2414,30 @@ namespace TA3D
                     for (short i = 0; i < nb_t_index; i += 3)
                         for (byte a = 0; a < 3; ++a)
                         {
-                            short idx=-1;
-                            face_reverse[ i + a ] = 0;
-                            for (short e = 0;e < nb_line; ++e)
-                                if (line_v_idx[0][e] == t_index[i+a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
-                                {
-                                    idx=e;
-                                    break;
-                                }
-                                else
-                                    if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i+a])
-                                    {
-                                        idx=e;
-                                        face_reverse[ i + a ] = 2;
-                                        break;
-                                    }
-                            if (idx == -1)
+                        short idx=-1;
+                        face_reverse[ i + a ] = 0;
+                        for (short e = 0;e < nb_line; ++e)
+                            if (line_v_idx[0][e] == t_index[i+a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
                             {
-                                line_v_idx[0][nb_line]=t_index[i+a];
-                                line_v_idx[1][nb_line]=t_index[i+((a+1)%3)];
-                                idx = nb_line;
-                                ++nb_line;
-                            }
-                            t_line[i+a]=idx;
+                            idx=e;
+                            break;
                         }
+                        else
+                            if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i+a])
+                            {
+                            idx=e;
+                            face_reverse[ i + a ] = 2;
+                            break;
+                        }
+                        if (idx == -1)
+                        {
+                            line_v_idx[0][nb_line]=t_index[i+a];
+                            line_v_idx[1][nb_line]=t_index[i+((a+1)%3)];
+                            idx = nb_line;
+                            ++nb_line;
+                        }
+                        t_line[i+a]=idx;
+                    }
                     line_on = new byte[nb_line];
                 }
 
@@ -2530,13 +2530,13 @@ namespace TA3D
                 T.x += data_s->axe[0][script_index].pos;
                 T.y += data_s->axe[1][script_index].pos;
                 T.z += data_s->axe[2][script_index].pos;
-    //            MATRIX_4x4 l_M = Scale( 1.0f );
-    //            if (data_s->axe[0][script_index].angle != 0.0f)
-    //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
-    //            if (data_s->axe[1][script_index].angle != 0.0f)
-    //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
-    //            if (data_s->axe[2][script_index].angle != 0.0f)
-    //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                //            MATRIX_4x4 l_M = Scale( 1.0f );
+                //            if (data_s->axe[0][script_index].angle != 0.0f)
+                //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
+                //            if (data_s->axe[1][script_index].angle != 0.0f)
+                //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
+                //            if (data_s->axe[2][script_index].angle != 0.0f)
+                //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
                 MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
                 M_Dir = M * l_M;
                 M = l_M;
@@ -2544,7 +2544,7 @@ namespace TA3D
                 //			M_Dir=M*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
                 //			M=RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
                 AM = RotateZYX(data_s->axe[2][script_index].angle*DEG2RAD, data_s->axe[1][script_index].angle*DEG2RAD, data_s->axe[0][script_index].angle*DEG2RAD);
-    //            AM=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
+                //            AM=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
                 hide=data_s->flag[script_index]&FLAG_HIDE;
             }
             else
@@ -2765,9 +2765,9 @@ namespace TA3D
                 if (nhit >= -1 && is_hit)
                     if ((MP2 - MP) % Dir < 0.0f)
                     {
-                        MP = MP2;
-                        hit_idx = nhit;
-                    }
+                    MP = MP2;
+                    hit_idx = nhit;
+                }
             }
             is_hit |= nhit;
         }
@@ -2797,21 +2797,21 @@ namespace TA3D
                 T.x += data_s->axe[0][script_index].pos;
                 T.y += data_s->axe[1][script_index].pos;
                 T.z += data_s->axe[2][script_index].pos;
-    //            MATRIX_4x4 l_M = Scale( 1.0f );
-    //            if (data_s->axe[0][script_index].angle != 0.0f)
-    //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle * DEG2RAD);
-    //            if (data_s->axe[1][script_index].angle != 0.0f)
-    //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle * DEG2RAD);
-    //            if (data_s->axe[2][script_index].angle != 0.0f)
-    //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle * DEG2RAD);
+                //            MATRIX_4x4 l_M = Scale( 1.0f );
+                //            if (data_s->axe[0][script_index].angle != 0.0f)
+                //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle * DEG2RAD);
+                //            if (data_s->axe[1][script_index].angle != 0.0f)
+                //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle * DEG2RAD);
+                //            if (data_s->axe[2][script_index].angle != 0.0f)
+                //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle * DEG2RAD);
                 MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
                 Dir = Dir * l_M;
                 Pos = (Pos - T) * l_M;
                 //			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
                 //			Pos = (((Pos - T) * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
                 AM = RotateZYX(data_s->axe[2][script_index].angle * DEG2RAD, data_s->axe[1][script_index].angle * DEG2RAD, data_s->axe[0][script_index].angle * DEG2RAD);
-    //            AM = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
-    //                * RotateY(data_s->axe[1][script_index].angle * DEG2RAD) * RotateX(data_s->axe[0][script_index].angle * DEG2RAD);
+                //            AM = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
+                //                * RotateY(data_s->axe[1][script_index].angle * DEG2RAD) * RotateX(data_s->axe[0][script_index].angle * DEG2RAD);
                 hide = data_s->flag[script_index]&FLAG_HIDE;
             }
             else
@@ -3373,7 +3373,7 @@ namespace TA3D
         int test;
         float dx,dy,dz;
         float xmin=0xFFFFFF,ymin=0xFFFFFF,zmin=0xFFFFFF,
-              xmax=-0xFFFFFF,ymax=-0xFFFFFF,zmax=-0xFFFFFF;
+        xmax=-0xFFFFFF,ymax=-0xFFFFFF,zmax=-0xFFFFFF;
 
         int StructD[4096];     // Données pour la restitution de la structure
         String StructName[4096];
@@ -3704,20 +3704,20 @@ namespace TA3D
                         for(int y = 0 ; y < tex->h ; y++)
                             for(int x = 0 ; x < tex->w ; x++)
                             {
-                                uint32 c = getpixel(tex, x, y);
-                                tex->line[y][x*4] = getr(c);
-                                tex->line[y][x*4+1] = getg(c);
-                                tex->line[y][x*4+2] = getb(c);
-                                tex->line[y][x*4+3] = geta(c);
-                            }
+                        uint32 c = getpixel(tex, x, y);
+                        tex->line[y][x*4] = getr(c);
+                        tex->line[y][x*4+1] = getg(c);
+                        tex->line[y][x*4+2] = getb(c);
+                        tex->line[y][x*4+3] = geta(c);
+                    }
                     else
                         for(int y = 0 ; y < tex->h ; y++)
                             for(int x = 0 ; x < tex->w ; x++)
                             {
-                                tex->line[y][x*3] ^= tex->line[y][x*3+1];
-                                tex->line[y][x*3+1] ^= tex->line[y][x*3];
-                                tex->line[y][x*3] ^= tex->line[y][x*3+1];
-                            }
+                        tex->line[y][x*3] ^= tex->line[y][x*3+1];
+                        tex->line[y][x*3+1] ^= tex->line[y][x*3];
+                        tex->line[y][x*3] ^= tex->line[y][x*3+1];
+                    }
 
                     int img_size = buf_size;
                     uLongf __size = img_size;
@@ -4233,7 +4233,6 @@ namespace TA3D
     {
         if (queue.empty())
             return;
-        glPushMatrix();
 
         int i = 0;
         for (std::list<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
@@ -4302,16 +4301,15 @@ namespace TA3D
                 glDisable( GL_TEXTURE_2D );
                 glBlendFunc( GL_ONE, GL_ONE );
                 glDepthFunc( GL_EQUAL );
-                glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
+                glDrawArrays(GL_QUADS, 0, i);		// draw those quads
                 glDepthFunc( GL_LESS );
                 glEnable( GL_TEXTURE_2D );
-                glDisable( GL_BLEND );
+                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
             }
         }
 
-        glPopMatrix();
     }
 
 
-    } // namespace TA3D
+} // namespace TA3D
 
