@@ -20,6 +20,7 @@ ProgressDialog::ProgressDialog()
     pbar->setValue(0);
     layout->addWidget(pbar);
     setWindowTitle(tr("Work in progress"));
+    resize(200, 60);
 }
 
 void ProgressDialog::setProgress(int pcent)

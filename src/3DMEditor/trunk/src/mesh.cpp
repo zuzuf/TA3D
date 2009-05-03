@@ -1517,7 +1517,7 @@ void Mesh::autoComputeUVcoordinates()
                 bool extremum = true;
                 for(int e = 0 ; e < neighbors[n].size() && extremum ; e++)
                     extremum = dist[neighbors[n][e]] <= d;
-                if (extremum)       // Duplicate this vertex
+                if (extremum && false)       // Duplicate this vertex
                 {
                     QVector<int> vParent;
                     for(int j = 0 ; j < index.size() ; j += 3)
@@ -1572,34 +1572,40 @@ void Mesh::autoComputeUVcoordinates()
         // First simulation steps (tries to make the mesh occupies the texture space)
         for(int k = 0 ; k < 200 ; k++)
         {
+            float f = 10.0f / (k + 10);
             for(int i = 0 ; i < componentVertex[c].size() ; i++)
             {
-                Vec move;
+                Vec2 move;
                 int n = componentVertex[c][i];
-                Vec N(tcoord[n * 2], tcoord[n * 2 + 1], 0);
+                Vec2 N(tcoord[n * 2], tcoord[n * 2 + 1]);
                 for(int e = 0 ; e < componentVertex[c].size() ; e++)
                 {
                     if (e != i)
                     {
                         int m = componentVertex[c][e];
-                        Vec M(tcoord[m * 2], tcoord[m * 2 + 1], 0);
+                        Vec2 M(tcoord[m * 2], tcoord[m * 2 + 1]);
                         if (neighbors[n].contains(m))
                         {
-                            Vec D(N - M);
+                            Vec2 D(N - M);
                             float l = D.norm();
-                            D = 1.0f / l * D;
-                            move += (1.0f - l) * D;
+                            if (!isnan(l))
+                            {
+                                D = 1.0f / l * D;
+                                move += (1.0f - l) * D;
+                            }
                         }
                         else
                         {
-                            move += 1.0f / (N - M).sq() * (N - M);
+                            float value = 1.0f / (N - M).sq();
+                            if (!isnan(value))
+                                move += value * (N - M);
                         }
                     }
                 }
                 if (move.sq() > 1.0f)
                     move.unit();
-                tcoord[n * 2] += move.x;
-                tcoord[n * 2 + 1] += move.y;
+                tcoord[n * 2] += f * move.x;
+                tcoord[n * 2 + 1] += f * move.y;
             }
         }
         // First simulation steps (tries to make the texture spaces reflect 3D triangle spaces)
@@ -1608,35 +1614,26 @@ void Mesh::autoComputeUVcoordinates()
             float f = 0.1f / (k + 1);
             for(int i = 0 ; i < componentVertex[c].size() ; i++)
             {
-                Vec move;
+                Vec2 move;
                 float constraint = 0.0f;
                 uint32 n = componentVertex[c][i];
-                Vec N(tcoord[n * 2], tcoord[n * 2 + 1], 0);
-                for(int e = 0 ; e < componentVertex[c].size() ; e++)
+                Vec2 N(tcoord[n * 2], tcoord[n * 2 + 1]);
+                for(int e = 0 ; e < neighbors[n].size() ; e++)
                 {
-                    if (e != i)
+                    int m = neighbors[n][e];
+                    Vec2 M(tcoord[m * 2], tcoord[m * 2 + 1]);
+                    Vec2 D(N - M);
+                    float l = D.norm();
+                    D = 1.0f / l * D;
+                    float value = ((vertex[n] - vertex[m]).norm() - l);
+                    if (!isnan(value))
                     {
-                        int m = componentVertex[c][e];
-                        Vec M(tcoord[m * 2], tcoord[m * 2 + 1], 0);
-                        if (neighbors[n].contains(m))
-                        {
-                            Vec D(N - M);
-                            float l = D.norm();
-                            D = 1.0f / l * D;
-                            float value = ((vertex[n] - vertex[m]).norm() - l);
-                            move += value * D;
-                            constraint += fabsf(value);
-                        }
-                        else
-                        {
-                            float value = 10.0f / (f * (N - M).sq());
-                            move += 10.0f / (f * (N - M).sq()) * (N - M);
-                            constraint += fabsf(value);
-                        }
+                        move += value * D;
+                        constraint += fabsf(value);
                     }
                 }
                 // FIXME: links that supports too much distortion should be broken, currently it doesn't work
-                if (!isnan(constraint) && false && constraint > 300.0f)        // This needs to be duplicated
+                if (!isnan(constraint) && constraint > 300.0f)        // This needs to be duplicated
                 {
                     QVector<int> vParent;
                     for(int j = 0 ; j < index.size() ; j += 3)
@@ -1685,6 +1682,10 @@ void Mesh::autoComputeUVcoordinates()
             vmax = qMax(vmax, tcoord[i+1]);
         }
     }
+    qDebug() << "umin = " << umin;
+    qDebug() << "umax = " << umax;
+    qDebug() << "vmin = " << vmin;
+    qDebug() << "vmax = " << vmax;
     umax -= umin;
     vmax -= vmin;
     for(int i = 0 ; i < tcoord.size() ; i+=2)
