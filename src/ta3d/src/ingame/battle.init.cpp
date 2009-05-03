@@ -104,7 +104,7 @@ namespace TA3D
 		}
         // Reset the HPI manager
         delete HPIManager;
-        HPIManager = new cHPIHandler();
+        HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
 
         gfx->set_2D_mode();
         gfx->ReInitTexSys();

@@ -1774,7 +1774,7 @@ namespace TA3D
 
         // Reset the HPI manager (because the VFS doesn't know what we have done)
         delete HPIManager;
-        HPIManager = new cHPIHandler();
+        HPIManager = new UTILS::HPI::cHPIHandler();
     }
 
 } // namespace TA3D
