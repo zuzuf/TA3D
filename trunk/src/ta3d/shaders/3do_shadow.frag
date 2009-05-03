@@ -15,6 +15,6 @@ void main()
     vec4 light_eq = (diffuse_coef * shaded + gl_LightModel.ambient) * gl_Color;
     vec4 texture_color = texture2D( tex0, gl_TexCoord[0].xy );
 
-    gl_FragColor = light_eq * texture_color;
+    gl_FragColor = vec4(light_eq.rgb, 1.0) * texture_color;
     gl_FragColor.rgb = mix( gl_FragColor.rgb, gl_Fog.color.rgb, fog_coef);
 }
