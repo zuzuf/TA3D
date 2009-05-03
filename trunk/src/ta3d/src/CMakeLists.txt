@@ -296,7 +296,7 @@ target_link_libraries(${TA3D_BIN}
 	stdafx input logs console i18n ingame 3dtoolbox menus gfx
 	fileformats particles weapons ai audio hpi oldgui gui network misc scripts ta3dmath tdf
 	converters threads debuginfos
-	#${YUNI_STATIC_CORE}
+	${YUNI_STATIC_CORE}
 	)
 
 
