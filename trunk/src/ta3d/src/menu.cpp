@@ -582,7 +582,7 @@ void config_menu(void)
 			delete HPIManager;
 			TA3D_clear_cache(true);     // Force cache reset
 
-			HPIManager = new cHPIHandler();
+			HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
 			ta3dSideData.loadData();                // Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();

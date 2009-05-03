@@ -99,7 +99,7 @@ void install_TA_files( String def_path )
 		}
 	}
 
-	HPIManager = new cHPIHandler( path_to_TA_cd );
+	HPIManager = new TA3D::UTILS::HPI::cHPIHandler(path_to_TA_cd);
 
 	uint32 file_size32 = 0;
 	byte *data = HPIManager->PullFromHPI_zone( "install\\totala1.hpi", 0, buf_size, &file_size32);			// Extract the totala1.hpi file from the TA CD
