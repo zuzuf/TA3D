@@ -1,3 +1,7 @@
+[server version:]
+{
+    FRENCH=version du serveur:;
+}
 [Disable perspective]
 {
     FRENCH=Désactiver la perspective;
