@@ -50,6 +50,7 @@ class Mesh : public QObject
     friend class SurfaceProperties;
     friend class ShaderEditor;
     friend class Gfx;
+    friend class MeshTree;
 public:
     Mesh();
     ~Mesh();
@@ -95,7 +96,7 @@ public:
     void mergeSimilarVertices();
     void toTriangleSoup();
     void splitGeometry();               // Isolate connex components
-    void computeAmbientOcclusion(int w, int h, Mesh *base = NULL);     // This is not recursive !!
+    void computeAmbientOcclusion(int w, int h, Mesh *base = NULL, int precision = 25);     // This is not recursive !!
 
 signals:
     void loaded();
