@@ -51,8 +51,8 @@ namespace TA3D
 {
     typedef struct TA3DCONFIG
     {
-        real32  fps_limit;
-        real32  timefactor;      // 1.0 -> 10.0
+        float  fps_limit;
+        float  timefactor;      // 1.0 -> 10.0
 
         sint16  shadow_quality; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)
         sint16  priority_level; // 0, 1, 2
