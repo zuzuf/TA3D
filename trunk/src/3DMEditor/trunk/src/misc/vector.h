@@ -193,6 +193,9 @@ inline const Vector2D operator * (const float& v, const Vector2D& lhs)
 inline float operator * (const Vector2D& lhs, const Vector2D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y; }
 
+inline float operator ^ (const Vector2D& lhs, const Vector2D& rhs)
+{ return lhs.x*rhs.y - lhs.y*rhs.x; }
+
 
 inline const Vector3D operator + (const Vector3D& lhs, const Vector3D& rhs)
 { return Vector3D(lhs) += rhs; }
@@ -230,5 +233,7 @@ inline float VAngle(const Vector3D& A, const Vector3D& B)
 }
 
 typedef Vector3D Vec;
+typedef Vector3D Vec3;
+typedef Vector2D Vec2;
 
 #endif // __TA3D_XX_MISC_VECTOR_H__

@@ -94,7 +94,8 @@ public:
     // Simplifies geometry
     void mergeSimilarVertices();
     void toTriangleSoup();
-    void splitGeometry();       // Isolate connex components
+    void splitGeometry();               // Isolate connex components
+    void computeAmbientOcclusion(int w, int h, Mesh *base = NULL);     // This is not recursive !!
 
 signals:
     void loaded();
