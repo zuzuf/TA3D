@@ -65,7 +65,11 @@ namespace TA3D
     {
         LOG_INFO(LOG_PREFIX_BATTLE << "Releasing unused resources...");
 
-		DELETEANDNIL(water_obj);
+		if (water_obj)
+		{
+			delete water_obj;
+			water_obj = NULL;
+		}
 
         LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for 3d models");
         model_manager.destroy();

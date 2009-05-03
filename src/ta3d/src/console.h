@@ -87,7 +87,7 @@ namespace TA3D
         //!
         uint16 pMaxItemsToDisplay;
         //!
-        real32 pVisible;
+        float pVisible;
         //!
         bool pShow;
         //!

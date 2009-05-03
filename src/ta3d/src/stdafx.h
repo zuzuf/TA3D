@@ -42,42 +42,22 @@
 # endif
 
 
+# include <yuni/yuni.h>
 
-# ifndef TA3D_PLATFORM_MSVC
-#    include <stdint.h>
-# endif
 
-# if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-#   if defined (_INTEGRAL_MAX_BITS) && _INTEGRAL_MAX_BITS >= 64 // For Visual 6.x and later
-    // 64-bit ints, guaranteed to be 4 bytes in size
-	typedef unsigned __int64  uint64;
-	typedef signed __int64    sint64;
-#   else
-#       error __int64 type not supported
-#   endif
-	// 32-bit ints, guaranteed to be 4 bytes in size
-	typedef unsigned __int32  uint32;
-	typedef signed __int32    sint32;
-	// 16-bit ints, guaranteed to be 2 bytes in size
-	typedef unsigned __int16  uint16;
-	typedef signed __int16    sint16;
-	// 8-bit ints, guaranteed to be 1 byte in size
-	typedef unsigned __int8   uint8;
-	typedef signed __int8     sint8;
-# else
-    // 64-bit ints, guaranteed to be 8 bytes in size
-	typedef uint64_t  uint64;
-	typedef int64_t   sint64;
-	// 32-bit ints, guaranteed to be 4 bytes in size
-	typedef uint32_t  uint32;
-	typedef int32_t   sint32;
-	// 16-bit ints, guaranteed to be 2 bytes in size
-	typedef uint16_t uint16;
-	typedef int16_t  sint16;
-	// 8-bit ints, guaranteed to be 1 byte in size
-	typedef uint8_t uint8;
-	typedef int8_t  sint8;
-# endif
+// Fundamental types
+typedef Yuni::uint64   uint64;
+typedef Yuni::uint32   uint32;
+typedef Yuni::uint16   uint16;
+typedef Yuni::uint8    uint8;
+typedef Yuni::sint64   sint64;
+typedef Yuni::sint32   sint32;
+typedef Yuni::sint16   sint16;
+typedef Yuni::sint8    sint8;
+
+typedef uint8         byte;
+typedef unsigned char uchar;
+typedef signed char   schar;
 
 
 
@@ -86,7 +66,7 @@
 ** The SDL library
 */
 # if defined TA3D_PLATFORM_WINDOWS //&& defined TA3D_PLATFORM_MSVC
-#   include <windows.h>
+#	include <yuni/toolbox/system/windows.hdr.h>
 #   ifdef TA3D_PLATFORM_MSVC
 #      pragma warning(disable : 4554)
 #      pragma warning(disable : 4996)
@@ -95,19 +75,10 @@
 #      pragma comment( lib, "glaux.lib" )
 #      pragma comment( lib, "tools/win32/msvc/libs/glew32.lib" )
 #      include "tools/win32/include/GL/glew.h"
-    // Cire: I had to setup a pragma on c4312, 4005 warnings, because allgero include
-    //  was generating alot of compiler noise.
-#      pragma warning( disable : 4312 )
-#      pragma warning( disable : 4005 )
 #   endif
 #   include "tools/win32/mingw32/include/GL/glew.h"
 #   include "SDL.h"
 #   include "SDL_image.h"
-    // Cire: Restore warning states
-#   ifdef TA3D_PLATFORM_MSVC
-#      pragma warning( default : 4005 )
-#      pragma warning( default : 4312 )
-#   endif
 # else
 /*
 ** The OpenGL library
@@ -120,27 +91,12 @@
 # include "misc/string.h"
 
 
-// Cire:
-//   Since byte seems to be common throughout the project we'll typedef here.
-typedef uint8         byte;
-typedef unsigned char uchar;
-typedef signed char   schar;
-
-// Floating point types, defined for consistencies sakes.
-typedef float  real32;
-typedef double real64;
-
 
 
 #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
 	#define strcasecmp(x,xx) _stricmp( x, xx )
 #endif
 
-
-/*!
-** \brief Delete a variable if != NULL then sets it to NULL
-*/
-# define DELETEANDNIL(X) do { if (X) { delete X; X = NULL; } } while(0)
 
 
 

@@ -346,7 +346,7 @@ namespace HPI
 
         for (count = 0; count < *Entries; ++count)
         {
-            Name = hi->hfd->Directory + Entry->NameOffset;
+            Name = (schar*) (hi->hfd->Directory + Entry->NameOffset);
             FileCount = (sint32 *) (hi->hfd->Directory + Entry->CountOffset);
             FileLength = FileCount + 1;
 
@@ -389,7 +389,7 @@ namespace HPI
 
         for (sint32 count = 0; count < *Entries; ++count)
         {
-            Name = hfd->Directory + Entry->NameOffset;
+            Name = (schar*)(hfd->Directory + Entry->NameOffset);
             FileCount = (sint32 *) (hfd->Directory + Entry->CountOffset);
             if (Entry->Flag == 1)
             {

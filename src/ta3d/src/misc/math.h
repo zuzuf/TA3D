@@ -86,19 +86,19 @@ namespace Math
 */
 #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
 
-	inline const real32 asinh(const real32 f)
+	inline const float asinh(const float f)
 	{
-		return (real32)logf((real32)(f + sqrtf(f * f + 1)));
+		return (float)logf((float)(f + sqrtf(f * f + 1)));
 	}
 
-	inline const real32 acosh(const real32 f)
+	inline const float acosh(const float f)
 	{
-		return (real32)logf((real32)( f + sqrtf( f * f- 1)));
+		return (float)logf((float)( f + sqrtf( f * f- 1)));
 	}
 
-	inline const real32 atanh(const real32 f)
+	inline const float atanh(const float f)
 	{
-		return (real32)logf((real32)((real32)(1.0f / f + 1.0f) / (real32)(1.0f / f - 1.0f))) / 2.0f;
+		return (float)logf((float)((float)(1.0f / f + 1.0f) / (float)(1.0f / f - 1.0f))) / 2.0f;
 	}
 
 #endif

@@ -89,8 +89,8 @@ namespace TA3D
     {
         uint32	timestamp;	//uint32 what tick is this snapshot
         uint16	unit;		//uint16 sync what unit
-        real32	x,y,z;
-        real32	vx,vy,vz;
+        float	x,y,z;
+        float	vx,vy,vz;
         uint16	orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
         uint16	hp;
         uint8	build_percent_left;
@@ -126,12 +126,12 @@ namespace TA3D
         uint32	opt3;		//uint32
         uint32	opt4;		//uint32
         byte	opt5;		//byte
-        real32	x;			//real32
-        real32	y;			//real32
-        real32	z;			//real32
-        real32	vx;			//real32
-        real32	vy;			//real32
-        real32	vz;			//real32
+        float	x;			//float
+        float	y;			//float
+        float	z;			//float
+        float	vx;			//float
+        float	vy;			//float
+        float	vz;			//float
         sint16	dx;			//sint16
         sint16	dy;			//sint16
         sint16	dz;			//sint16

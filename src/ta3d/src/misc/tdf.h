@@ -132,7 +132,7 @@ namespace TA3D
         ** \param def The default value if the key could not be found
         ** \return The value of the key that has been found, def otherwise
         */
-        real32  pullAsFloat(const String& key, const real32 def = 0.0f);
+        float  pullAsFloat(const String& key, const float def = 0.0f);
 
         /*!
         ** \brief Get the value for a given key

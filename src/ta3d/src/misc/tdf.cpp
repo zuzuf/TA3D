@@ -303,7 +303,7 @@ namespace TA3D
                    : iterFind.toInt32()));		// Uses ustrtol to deal with hexa numbers
     }
 
-    real32 TDFParser::pullAsFloat(const String& key, const real32 def)
+    float TDFParser::pullAsFloat(const String& key, const float def)
     {
         if (pIgnoreCase)
         {
