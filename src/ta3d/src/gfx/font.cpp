@@ -134,8 +134,12 @@ namespace TA3D
 		return fabsf((box.Upper().Xf() - box.Lower().Xf()));
 #else
 		float x0, y0, z0, x1, y1, z1;
+# ifndef TA3D_PLATFORM_DARWIN
 		WString wstr(txt);
 		font->BBox(wstr.cw_str(), x0, y0, z0, x1, y1, z1);
+# else
+		font->BBox(txt.c_str(), x0, y0, z0, x1, y1, z1);
+# endif
 		return fabsf(x0 - x1);
 #endif
 	}
