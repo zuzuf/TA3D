@@ -32,6 +32,7 @@
 # include "gaf.h"
 # include <vector>
 # include <list>
+# include <string.h>
 # include "misc/matrix.h"
 # include "gfx/glfunc.h"
 # include "gfx/shader.h"
@@ -185,53 +186,81 @@ namespace TA3D
 #define SURFACE_PLAYER_COLOR	0x40		// The color is the owner's color
 #define SURFACE_GLSL			0x80		// Use a shader to create a surface effect
 
-    struct OBJECT_SURFACE
-    {
-        float	Color[4];
-        float	RColor[4];
-        uint32	Flag;
-        sint8	NbTex;
-        GLuint	gltex[8];
-        String	frag_shader_src;
-        String	vert_shader_src;
-        Shader	s_shader;
-    };
+	struct OBJECT_SURFACE
+	{
+	public:
+		OBJECT_SURFACE()
+			:Flag(0), NbTex(0), frag_shader_src(), vert_shader_src(), s_shader()
+		{
+			memset(&this->Color,  0, sizeof(float) * 4);
+			memset(&this->RColor, 0, sizeof(float) * 4);
+			memset(&this->gltex,  0, sizeof(GLuint) * 8);
+		}
 
-    struct tagObject				// Structure pour l'en-tête du fichier
-    {
-        int		VersionSignature;
-        int		NumberOfVertexes;
-        int		NumberOfPrimitives;
-        int		OffsetToselectionPrimitive;
-        int		XFromParent;
-        int		YFromParent;
-        int		ZFromParent;
-        int		OffsetToObjectName;
-        int		Always_0;
-        int		OffsetToVertexArray;
-        int		OffsetToPrimitiveArray;
-        int		OffsetToSiblingObject;
-        int		OffsetToChildObject;
-    };
+		~OBJECT_SURFACE() {}
 
-    struct tagPrimitive
-    {
-        int		ColorIndex;
-        int		NumberOfVertexIndexes;
-        int		Always_0;
-        int		OffsetToVertexIndexArray;
-        int		OffsetToTextureName;
-        int		Unknown_1;
-        int		Unknown_2;
-        int		IsColored;
-    };
+		float	Color[4];
+		float	RColor[4];
+		uint32	Flag;
+		sint8	NbTex;
+		GLuint	gltex[8];
+		String	frag_shader_src;
+		String	vert_shader_src;
+		Shader	s_shader;
+	};
 
-    struct tagVertex		// Structure pour lire les coordonnées des points
-    {
-        int	x;
-        int	y;
-        int	z;
-    };
+	struct tagObject				// Structure pour l'en-tête du fichier
+	{
+		tagObject()
+		{
+			// Set the whole structure to 0
+			memset(this, 0, sizeof(tagObject));
+		}
+		~tagObject() {}
+
+		int		VersionSignature;
+		int		NumberOfVertexes;
+		int		NumberOfPrimitives;
+		int		OffsetToselectionPrimitive;
+		int		XFromParent;
+		int		YFromParent;
+		int		ZFromParent;
+		int		OffsetToObjectName;
+		int		Always_0;
+		int		OffsetToVertexArray;
+		int		OffsetToPrimitiveArray;
+		int		OffsetToSiblingObject;
+		int		OffsetToChildObject;
+	};
+
+	struct tagPrimitive
+	{
+		tagPrimitive()
+		{
+			memset(this, 0, sizeof(tagPrimitive));
+		}
+		~tagPrimitive() {}
+
+		int		ColorIndex;
+		int		NumberOfVertexIndexes;
+		int		Always_0;
+		int		OffsetToVertexIndexArray;
+		int		OffsetToTextureName;
+		int		Unknown_1;
+		int		Unknown_2;
+		int		IsColored;
+	};
+
+	struct tagVertex		// Structure pour lire les coordonnées des points
+	{
+		tagVertex()
+			:x(0), y(0), z(0)
+		{}
+		~tagVertex() {}
+		int	x;
+		int	y;
+		int	z;
+	};
 
 #define ROTATION				0x01
 #define ROTATION_PERIODIC		0x02
@@ -251,10 +280,9 @@ namespace TA3D
         Vector3D	translate_1;
         float	translate_w;
 
-        inline ANIMATION()
-        {
-            type = 0;
-        }
+        ANIMATION()
+			:type(0), angle_w(0.), translate_w(0.)
+        {}
 
         void animate( float &t, Vector3D &R, Vector3D& T);
     };
