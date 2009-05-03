@@ -27,7 +27,8 @@ SOURCES += src/main.cpp \
     src/surfaceproperties.cpp \
     src/shadereditor.cpp \
     src/helpviewer.cpp \
-    src/imagelistview.cpp
+    src/imagelistview.cpp \
+    src/progressdialog.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -47,6 +48,7 @@ HEADERS += src/mainwindow.h \
     src/surfaceproperties.h \
     src/shadereditor.h \
     src/helpviewer.h \
-    src/imagelistview.h
+    src/imagelistview.h \
+    src/progressdialog.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

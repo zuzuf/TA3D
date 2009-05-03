@@ -41,6 +41,7 @@ public slots:
     void sphericalUV();
     void autoUV();
     void mergeVertices();
+    void computeAmbientOcclusion();
 
 signals:
     void surfaceChanged();

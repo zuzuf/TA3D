@@ -110,6 +110,7 @@ SurfaceProperties::SurfaceProperties()
     QPushButton *bSpherical = new QPushButton(tr("&spherical UV"));
     QPushButton *bAuto = new QPushButton(tr("&auto UV"));
     QPushButton *bMerge = new QPushButton(tr("&merge vertices"));
+    QPushButton *bAmbientOcclusion = new QPushButton(tr("&ambient occlusion"));
     textureLayout->addWidget(bLoad, 0, 0);
     textureLayout->addWidget(bSave, 0, 1);
     textureLayout->addWidget(bNew, 1, 0);
@@ -120,6 +121,7 @@ SurfaceProperties::SurfaceProperties()
     textureLayout->addWidget(bSpherical, 3, 1);
     textureLayout->addWidget(bAuto, 4, 0);
     textureLayout->addWidget(bMerge, 4, 1);
+    textureLayout->addWidget(bAmbientOcclusion, 5, 0);
 
     finalLayout->addLayout(textureLayout);
 
@@ -157,6 +159,7 @@ SurfaceProperties::SurfaceProperties()
     connect(bSpherical, SIGNAL(clicked()), this, SLOT(sphericalUV()));
     connect(bAuto, SIGNAL(clicked()), this, SLOT(autoUV()));
     connect(bMerge, SIGNAL(clicked()), this, SLOT(mergeVertices()));
+    connect(bAmbientOcclusion, SIGNAL(clicked()), this, SLOT(computeAmbientOcclusion()));
 
     updateWindowTitle();
 
@@ -422,6 +425,21 @@ void SurfaceProperties::mergeVertices()
     if (mesh == NULL)
         return;
     mesh->mergeSimilarVertices();
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::computeAmbientOcclusion()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int w = QInputDialog::getInt(this,tr("Texture width"), tr("Enter texture width:"), 128, 1, 1024);
+    int h = QInputDialog::getInt(this,tr("Texture height"), tr("Enter texture height:"), 128, 1, 1024);
+
+    Gfx::instance()->makeCurrent();
+    mesh->computeAmbientOcclusion(w, h, Mesh::instance());
     refreshGUI();
     emit surfaceChanged();
 }
