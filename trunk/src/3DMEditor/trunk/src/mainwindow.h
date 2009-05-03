@@ -47,6 +47,7 @@ public slots:
     void flipXZ();
     void scale();
     void splitMesh();
+    void mergeAll();
 
 private:
     QStatusBar  *statusBar;
