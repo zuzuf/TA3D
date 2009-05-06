@@ -35,6 +35,10 @@
 {
     CHINESE=登陆;
 }
+[Password]
+{
+    CHINESE=密码;
+}
 [GAME]
 {
     CHINESE=游戏性;
@@ -55,6 +59,14 @@
 {
     CHINESE=增强颗粒效果;
 }
+[Far sight]
+{
+    CHINESE=最远视野;
+}
+[enable this to see all the map (no horizon limit except for units and features)]
+{
+    CHINESE=打开这个选项可以看到整个地图上物件，没有地平线限制
+}
 [audio]
 {
     CHINESE=音乐;
@@ -73,7 +85,11 @@
 }
 [Disable perspective]
 {
-    CHINESE=透视模式;
+    CHINESE=禁止透视;
+}
+[disable perspective\nTA3D will use an orthographic camera]
+{
+    CHINESE=禁止透视\nTA3D会跟现实一样;
 }
 [Right click interface]
 {
@@ -87,9 +103,17 @@
 {
     CHINESE=禁止GLSL框架;
 }
+[disable GLSL shaders\nmay help if game crash]
+{
+    CHINESE=禁止GLSL渲染\n也许可减少非法;
+}
 [Unit limit]
 {
     CHINESE=人口限制;
+}
+[chose your team]
+{
+    CHINESE=选择你的队伍;
 }
 [UNITTYPE_NAME]
 {
@@ -119,9 +143,41 @@
 {
     CHINESE=菜单皮肤;
 }
+[Use texture compression]
+{
+    CHINESE=压缩贴图;
+}
+[Low definition map]
+{
+    CHINESE=精简型单位标示;
+}
+[Render sky]
+{
+    CHINESE=渲染天空;
+}
+[Loading maps, please wait ...]
+{
+    CHINESE=载入地图，请等待...;
+}
+[Please wait ...]
+{
+    CHINESE=请等待...;
+}
+[enable if you want to be\nvisible from Internet]
+{
+   CHINESE=如果你想在战网\n中隐身，打开这个;
+}
+[Advertise on Internet]
+{
+   CHINESE=战网上的房间;
+}
 [Refresh]
 {
    CHINESE=刷新;
+}
+[Save]
+{
+   CHINESE=储存;
 }
 [Load]
 {
@@ -151,6 +207,10 @@
 {
    CHINESE=建主;
 }
+[Enter server IP/Name]
+{
+   CHINESE=输入IP/房间;
+}
 [Join IP]
 {
    CHINESE=用IP刷新;
@@ -167,6 +227,22 @@
 {
    CHINESE=打开贴图缓存;
 }
+[warning: you might have texturing\nissues with this!!]
+{
+   CHINESE=警告:也许会导致贴图\n消失;
+}
+[Pause the game]
+{
+   CHINESE=暂停游戏;
+}
+[Resume the game]
+{
+   CHINESE=继续游戏;
+}
+[game time]
+{
+   CHINESE=游戏时间;
+}
 [units]
 {
    CHINESE=单位;
@@ -174,6 +250,18 @@
 [speed]
 {
    CHINESE=游戏速度;
+}
+[click on this button\nto show game\noptions]
+{
+   CHINESE=单击此按钮\n以显示游戏选项;
+}
+[click on this button\nto show audio\noptions]
+{
+   CHINESE=单击此按钮\n以显示声音选项;
+}
+[click on this button\nto show display\noptions]
+{
+   CHINESE=单击此按钮\n以显示画质选项;
 }
 [click to change\nthe map]
 {
@@ -205,7 +293,7 @@
 }
 [camera zoom speed]
 {
-   CHINESE=视角移动速度;
+   CHINESE=缩放速度;
 }
 [camera zoom]
 {
@@ -394,4 +482,188 @@
 [UNITTYPE_DESCRIPTION]
 {
     CHINESE=description;
+}
+[support for MP3 format]
+{
+   CHINESE=支持MP3格式;
+}
+[support for OGG format]
+{
+   CHINESE=支持OGG格式;
+}
+[support for JPG format]
+{
+   CHINESE=支持JPG格式;
+}
+[Loading color palette]
+{
+   CHINESE=加载色彩;
+}
+[Starting intro]
+{
+   CHINESE=前言;
+}
+[Initialising engine]
+{
+   CHINESE=初始化引擎;
+}
+[Initialising the random number generator]
+{
+   CHINESE=初始化随机生成器;
+}
+[Launching main menu]
+{
+   CHINESE=载入主菜单;
+}
+[Starting a game]
+{
+   CHINESE=开始游戏;
+}
+[End of program]
+{
+   CHINESE=结束游戏;
+}
+[Maps]
+{
+   CHINESE=地图;
+}
+[value of %s]
+{
+   CHINESE=%s的值;
+}
+[Enter a value for %s]
+{
+   CHINESE=输入%s的值;
+}
+[Loading textures]
+{
+   CHINESE=载入贴图;
+}
+[Loading 3D Models]
+{
+   CHINESE=载入模型;
+}
+[Loading GUI]
+{
+   CHINESE=载入控制界面;
+}
+[Loading graphical features]
+{
+   CHINESE=载入视图框架;
+}
+[Loading weapons]
+{
+   CHINESE=载入武器;
+}
+[Loading units]
+{
+   CHINESE=载入单位;
+}
+[Free unused memory]
+{
+   CHINESE=释放无用内存;
+}
+[Loading the map]
+{
+   CHINESE=载入地图;
+}
+[Load finished]
+{
+   CHINESE=载入完成;
+}
+[weapon]
+{
+   CHINESE=武器;
+}
+[Scores]
+{
+   CHINESE=得分;
+}
+[Losses]
+{
+   CHINESE=死伤;
+}
+[Kills]
+{
+   CHINESE=消灭;
+}
+[Battle room]
+{
+   CHINESE=战场控制室;
+}
+[Internal name]
+{
+   CHINESE=网络名称;
+}
+[Cost]
+{
+   CHINESE=消耗;
+}
+[weapons]
+{
+   CHINESE=武器;
+}
+[Build time]
+{
+   CHINESE=造时;
+}
+[Error]
+{
+   CHINESE=错误;
+}
+[No maps found]
+{
+   CHINESE=没有地图文件;
+}
+[Game Setup]
+{
+   CHINESE=游戏设置;
+}
+[Change Script]
+{
+   CHINESE=变更脚本;
+}
+[Scripts available]
+{
+   CHINESE=脚本可用;
+}
+[CHINESE]
+{
+   CHINESE=法语;
+}
+[German]
+{
+   CHINESE=德语;
+}
+[English]
+{
+   CHINESE=英语;
+}
+[Italian]
+{
+   CHINESE=意大利语;
+}
+[Japanese]
+{
+   CHINESE=日语;
+}
+[Spanish]
+{
+   CHINESE=西班牙语;
+}
+[Chinese]
+{
+    CHINESE=汉语;
+}
+[What do you want to do?]
+{
+   CHINESE=你想做什么?
+}
+[Return to game]
+{
+   CHINESE=继续游戏;
+}
+[Leave game]
+{
+   CHINESE=离开游戏;
 }
