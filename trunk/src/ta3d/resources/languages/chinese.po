@@ -3,6 +3,14 @@
     name=chinese;
     caption=中文;
 }
+[Log out]
+{
+CHINESE=注销;
+}
+[enabled]
+{
+CHINESE=开启;
+}
 [solo]
 {
     CHINESE=单人;
