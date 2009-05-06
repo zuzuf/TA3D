@@ -73,28 +73,6 @@ ADD_LIBRARY(hpi STATIC ${SOURCES})
 
 
 
-
-# --------------------------------------------------------------------
-# --- EDITOR
-# --------------------------------------------------------------------
-
-
-if( WIN32 OR CMAKE_CROSSCOMPILING )
-	SET( 3DMEDITOR_BIN 3dmeditor )
-else( WIN32 OR CMAKE_CROSSCOMPILING )
-	SET( 3DMEDITOR_BIN 3dmeditor )
-endif( WIN32 OR CMAKE_CROSSCOMPILING )
-
-ADD_EXECUTABLE(${3DMEDITOR_BIN}
-		3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h
-		stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
-target_link_libraries(${3DMEDITOR_BIN}
-		stdafx logs gfx input console debuginfos 3dtoolbox misc i18n
-		fileformats particles hpi oldgui gui ingame tdf
-		converters animator gfx ta3dmath audio threads)
-
-
-
 SET(SRC_ENGINE
 		UnitEngine.cpp UnitEngine.h
 		EngineClass.cpp EngineClass.h
@@ -306,15 +284,12 @@ target_link_libraries(${TA3D_BIN}
 #
 
 target_link_libraries(${TA3D_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
-target_link_libraries(${3DMEDITOR_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
 
 IF(WIN32)
-	target_link_libraries(${3DMEDITOR_BIN} lua gdi32 opengl32 glu32 ${LIBS})
 	target_link_libraries(${TA3D_BIN} lua gdi32 opengl32 glu32 ${LIBS})
 ENDIF(WIN32)
 
 IF(NOT APPLE)
 	install(TARGETS ${TA3D_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
-	install(TARGETS ${3DMEDITOR_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
 ENDIF(NOT APPLE)
 
