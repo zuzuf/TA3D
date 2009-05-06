@@ -3,6 +3,10 @@
     name=french;
     caption=Français;
 }
+[enabled]
+{
+    FRENCH=activé;
+}
 [register]
 {
     FRENCH=Créer un compte;
