@@ -360,6 +360,8 @@ IF(NOT APPLE)
 	# copy the file that will add TA3D and 3DMEditor to the desktop menu
 	install(FILES distrib/linux/ta3d DESTINATION share/menu)
 	install(FILES distrib/linux/ta3d.desktop DESTINATION share/applications)
+	install(FILES ota_resources_installer.sh DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
+	install(FILES distrib/linux/ta3d_installer.desktop DESTINATION share/applications)
 	install(FILES ta3d.png DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
 	install(FILES distrib/linux/3dmeditor.desktop DESTINATION share/applications)
 	install(FILES 3dmeditor.png DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
