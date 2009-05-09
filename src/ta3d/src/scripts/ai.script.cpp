@@ -462,10 +462,10 @@ namespace TA3D
             lua_pushboolean(L, pType->canresurrect);     // unit can resurrect
             lua_setfield(L, -2, "canresurrect");
 
-            lua_pushboolean(L, pType->MaxDamage);   // max hit points
+            lua_pushinteger(L, pType->MaxDamage);   // max hit points
             lua_setfield(L, -2, "maxhp");
 
-            lua_pushboolean(L, pType->MaxVelocity);     // speed
+            lua_pushinteger(L, pType->MaxVelocity);     // speed
             lua_setfield(L, -2, "speed");
 
             lua_pushinteger(L, type);
