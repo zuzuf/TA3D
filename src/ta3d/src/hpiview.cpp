@@ -44,15 +44,16 @@ using namespace TA3D::UTILS::HPI;
 
 //using namespace TA3D::UTILS::HPI;
 
-void install_TA_files( String def_path = "" );
+void install_TA_files( String HPI_file, String filename );
 
 
 namespace TA3D
 {
 namespace
 {
+    String appName;
 
-    bool hpiviewCmdHelp(char** argv)
+    bool hpiviewCmdHelp(String::Vector &args)
     {
         std::cout << "Available commands :" << std::endl
             << PREFIX << "create_gaf     : create a 24/32bits gaf from sprites" << std::endl
@@ -65,9 +66,10 @@ namespace
             << PREFIX << "minimap        : extract a minimap" << std::endl
             << PREFIX << "print          : show the content of a file" << std::endl
             << PREFIX << "show           : show files matching a pattern" << std::endl
+            << PREFIX << "quiet          : runs in quiet mode (no logs)" << std::endl
             << std::endl
             << "For more information on a command type :" << std::endl
-            << "# " << argv[0] << " command_name" << std::endl;
+            << "# " << appName << " command_name" << std::endl;
         return true;
     }
 
@@ -75,21 +77,23 @@ namespace
     /*!
      * \brief
      */
-    bool hpiviewCmdShow(int argc, char** argv)
+    bool hpiviewCmdShow(String::Vector &args)
     {
-        if( argc >= 3 )
+        if( args.size() >= 1 )
         {
             HPIManager = new cHPIHandler();
             String::List file_list;
-            String ext = (argc > 2) ? argv[2] : "";
+            String ext = args[0];
             HPIManager->getFilelist(ext, file_list);
             file_list.sort();
-            for (String::List::const_iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
+            for (String::List::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
                 std::cout << *cur_file << std::endl;
             delete HPIManager;
+
+            args.erase(args.begin());
             return true;
         }
-        std::cerr << "SYNTAX: " << argv[0] << " show <pattern>" << std::endl;
+        std::cerr << "SYNTAX: " << appName << " show <pattern>" << std::endl;
         return true;
     }
 
@@ -97,26 +101,30 @@ namespace
     /*!
      * \brief Extract a mini map from a .tnt file
      */
-    bool hpiviewCmdMiniMap(int argc, char** argv)
+    bool hpiviewCmdMiniMap(String::Vector &args)
     {
-        if(argc >= 4)
+        if(args.size() >= 2)
         {
             HPIManager = new cHPIHandler();
             TA3D::VARS::pal = new SDL_Color[256];
             TA3D::UTILS::HPI::load_palette(pal);
 
-            SDL_Surface* minimap = load_tnt_minimap_fast_bmp( argv[2] );
+            SDL_Surface* minimap = load_tnt_minimap_fast_bmp( args[0] );
             if(minimap)
             {
                 SDL_SetPalette(minimap, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
-                SDL_SaveBMP( minimap, argv[3] );
+                SDL_SaveBMP( minimap, args[1].c_str() );
             }
 
             delete[] TA3D::VARS::pal;
             delete HPIManager;
+
+            args.erase(args.begin());
+            args.erase(args.begin());
+
             return true;
         }
-        std::cerr << "SYNTAX: " << argv[0] << " minimap \"maps\\map.tnt\" minimap_file.jpg" << std::endl;
+        std::cerr << "SYNTAX: " << appName << " minimap \"maps\\map.tnt\" minimap_file.jpg" << std::endl;
         return true;
     }
 
@@ -124,15 +132,15 @@ namespace
     /*!
      * \brief
      */
-    bool hpiviewCmdMapDescription(int argc, char** argv)
+    bool hpiviewCmdMapDescription(String::Vector &args)
     {
-        if(argc >= 4)
+        if(args.size() >= 2)
         {
             HPIManager = new cHPIHandler();
             MAP_OTA map_data;
-            map_data.load( argv[2] );
+            map_data.load( args[0] );
             std::ofstream   m_File;
-            m_File.open(argv[3], std::ios::out | std::ios::trunc);
+            m_File.open(args[1].c_str(), std::ios::out | std::ios::trunc);
 
             if (m_File.is_open())
             {
@@ -151,9 +159,11 @@ namespace
                 m_File.close();
             }
             delete HPIManager;
+            args.erase(args.begin());
+            args.erase(args.begin());
             return true;
         }
-        std::cerr << "SYNTAX: " << argv[0] << " mapdescription \"maps\\map.ota\" description.tdf" << std::endl;
+        std::cerr << "SYNTAX: " << appName << " mapdescription \"maps\\map.ota\" description.tdf" << std::endl;
         return true;
     }
 
@@ -161,13 +171,13 @@ namespace
     /*!
      * \brief
      */
-    bool hpiviewCmdListMods(int argc, char** argv)
+    bool hpiviewCmdListMods(String::Vector &args)
     {
-        if(argc >= 3)
+        if(args.size() >= 1)
         {
             HPIManager = new cHPIHandler();
             std::ofstream m_File;
-            m_File.open( argv[2], std::ios::out | std::ios::trunc );
+            m_File.open( args[0].c_str(), std::ios::out | std::ios::trunc );
 
             if( m_File.is_open() )
             {
@@ -184,9 +194,10 @@ namespace
                 m_File.close();
             }
             delete HPIManager;
+            args.erase(args.begin());
             return true;
         }
-        LOG_ERROR("Syntax: " << argv[0] << " listmods modlist.txt");
+        LOG_ERROR("Syntax: " << appName << " listmods modlist.txt");
         return true;
     }
 
@@ -195,33 +206,27 @@ namespace
     /*!
      * \brief
      */
-    bool hpiviewCmdExtract(int argc, char** argv)
+    bool hpiviewCmdExtract(String::Vector &args)
     {
-        if(argc >= 3)
+        if(args.size() >= 1)
         {
             HPIManager = new cHPIHandler();
             uint32 file_size32 = 0;
-            byte *data = HPIManager->PullFromHPI(argv[2], &file_size32);
+            byte *data = HPIManager->PullFromHPI(args[0], &file_size32);
 
             if(data)
             {
-                char *name = argv[2];
-                char *f = argv[2];
-                while(f[0])
-                {
-                    if(f[0]=='\\' || f[0]=='/')
-                        name=f+1;
-                    f++;
-                }
-                FILE *dst = TA3D_OpenFile(name,"wb");
-                fwrite(data,file_size32,1,dst);
+                String name = Paths::ExtractFileName(args[0]);
+                FILE *dst = TA3D_OpenFile(name, "wb");
+                fwrite(data, file_size32, 1, dst);
                 fclose(dst);
                 delete[] data;
             }
             delete HPIManager;
+            args.erase(args.begin());
             return true;
         }
-        std::cerr << "SYNTAX: " << argv[0]<< " extract <filename>" << std::endl;
+        std::cerr << "SYNTAX: " << appName << " extract <filename>" << std::endl;
         return true;
     }
 
@@ -229,13 +234,13 @@ namespace
     /*!
      * \brief
      */
-    bool hpiviewCmdPrint(int argc, char** argv)
+    bool hpiviewCmdPrint(String::Vector &args)
     {
-        if(argc >= 3)
+        if(args.size() >= 1)
         {
             HPIManager = new cHPIHandler();
             String::List file_list;
-            String ext = argc > 2 ? argv[2] : "";
+            String ext = args[0];
             HPIManager->getFilelist(ext, file_list);
             file_list.sort();
 
@@ -250,9 +255,10 @@ namespace
                 }
             }
             delete HPIManager;
+            args.erase(args.begin());
             return true;
         }
-        std::cerr << "SYNTAX: " << argv[0] << " print pattern" << std::endl;
+        std::cerr << "SYNTAX: " << appName << " print pattern" << std::endl;
         return true;
     }
 
@@ -260,9 +266,16 @@ namespace
     /*!
      * \brief
      */
-    bool hpiviewCmdInstallTAFiles(int argc, char** argv)
+    bool hpiviewCmdInstallTAFiles(String::Vector &args)
     {
-        install_TA_files((argc >= 3) ? argv[2] : "");
+        if (args.size() >= 2)
+        {
+            install_TA_files(args[0], args[1]);
+            args.erase(args.begin());
+            args.erase(args.begin());
+        }
+        else
+            std::cerr << "SYNTAX: " << appName << " install HPI_file file_in_HPI" << std::endl;
         return true;
     }
 
@@ -270,13 +283,13 @@ namespace
     /*!
      * \brief Extract images from a GAF file
      */
-    bool hpiviewCmdExtractGAF(int argc, char** argv)
+    bool hpiviewCmdExtractGAF(String::Vector &args)
     {
-        if(argc >= 3)
+        if(args.size() >= 1)
         {
-            HPIManager=new cHPIHandler();
+            HPIManager = new cHPIHandler();
             uint32 file_size32 = 0;
-            byte *data = HPIManager->PullFromHPI(argv[2],&file_size32);
+            byte *data = HPIManager->PullFromHPI(args[0],&file_size32);
 
             if(data)
             {
@@ -287,10 +300,10 @@ namespace
                 Gaf::AnimationList anims;
                 anims.loadGAFFromRawData(data);
                 std::ofstream   m_File;
-                m_File.open( format("%s.txt", Paths::ExtractFileName( argv[2] ).c_str()).c_str(), std::ios::out | std::ios::trunc );
+                m_File.open( format("%s.txt", Paths::ExtractFileName( args[0] ).c_str()).c_str(), std::ios::out | std::ios::trunc );
 
                 m_File << "[gadget0]\n{\n";
-                m_File << "    filename=" << argv[2] << ";\n";
+                m_File << "    filename=" << args[0] << ";\n";
                 m_File << "    entries=" << anims.size() << ";\n";
                 m_File << "}\n";
 
@@ -319,9 +332,10 @@ namespace
                 delete[] TA3D::VARS::pal;
             }
             delete HPIManager;
+            args.erase(args.begin());
             return true;
         }
-        std::cerr << "SYNTAX: " << argv[0] << " extract_gaf <filename.gaf>" << std::endl;
+        std::cerr << "SYNTAX: " << appName << " extract_gaf <filename.gaf>" << std::endl;
         return true;
     }
 
@@ -331,11 +345,11 @@ namespace
     /*!
      * \brief Create a truecolor GAF from images
      */
-    bool hpiviewCmdCreateGAF(int argc, char** argv)
+    bool hpiviewCmdCreateGAF(String::Vector &args)
     {
-        if(argc >= 3)
+        if(args.size() >= 1)
         {
-            TDFParser parser( argv[2], false, false, false );
+            TDFParser parser( args[0], false, false, false );
             String filename = parser.pullAsString( "gadget0.filename" );
             FILE *gaf_file = TA3D_OpenFile( Paths::ExtractFileName( filename ), "wb" );
 
@@ -438,9 +452,10 @@ namespace
             }
             else
                 std::cerr << "Error: Could not create file!" << std::endl;
+            args.erase(args.begin());
         }
         else
-            std::cerr << "SYNTAX: " << argv[0] << " create_gaf gafdescription.txt" << std::endl;
+            std::cerr << "SYNTAX: " << appName << " create_gaf gafdescription.txt" << std::endl;
         return true;
     }
 
@@ -460,28 +475,40 @@ int hpiview(int argc, char *argv[])
 
     if(argc >= 2)
     {
+        appName = argv[0];
+
         // TODO Use a better implementation to parse arguments
-        String act(argv[1]);
-        if (act == "help" || act == "--help" || act == "/help" || act == "-h" || act == "/?")
-            return hpiviewCmdHelp(argv);
-        if (act == "show" || act == "/show" || act == "--show")
-            return hpiviewCmdShow(argc, argv);
-        if (act == "minimap" || act == "/minimap" || act == "--minimap")
-            return hpiviewCmdMiniMap(argc, argv);
-        if (act == "mapdescription" || act == "--mapdescription" || act == "/mapdescription")
-            return hpiviewCmdMapDescription(argc, argv);
-        if (act == "listmods" || act == "--listmods" || act == "/listmods")
-            return hpiviewCmdListMods(argc, argv);
-        if (act == "extract" || act == "--extract" || act == "/extract")
-            return hpiviewCmdExtract(argc, argv);
-        if (act == "print" || act == "--print" || act == "/print")
-            return hpiviewCmdPrint(argc, argv);
-        if (act == "install" || act == "--install" || act == "/install")
-            return hpiviewCmdInstallTAFiles(argc, argv);
-        if (act == "extract_gaf" || act == "--extract_gaf" || act == "/extract_gaf")
-            return hpiviewCmdExtractGAF(argc, argv);
-        if (act == "create_gaf" || act == "--create_gaf" || act == "/create_gaf")
-            return hpiviewCmdCreateGAF(argc, argv);
+        String::Vector args;
+        for (int i = 1 ; i < argc ; i++)
+            args.push_back(argv[i]);
+        bool ok = false;
+        while (!args.empty())
+        {
+            String act = args.front();
+            args.erase(args.begin());
+            if (act == "help" || act == "--help" || act == "/help" || act == "-h" || act == "/?")
+                ok |= hpiviewCmdHelp(args);
+            else if (act == "show" || act == "/show" || act == "--show")
+                ok |= hpiviewCmdShow(args);
+            else if (act == "minimap" || act == "/minimap" || act == "--minimap")
+                ok |= hpiviewCmdMiniMap(args);
+            else if (act == "mapdescription" || act == "--mapdescription" || act == "/mapdescription")
+                ok |= hpiviewCmdMapDescription(args);
+            else if (act == "listmods" || act == "--listmods" || act == "/listmods")
+                ok |= hpiviewCmdListMods(args);
+            else if (act == "extract" || act == "--extract" || act == "/extract")
+                ok |= hpiviewCmdExtract(args);
+            else if (act == "print" || act == "--print" || act == "/print")
+                ok |= hpiviewCmdPrint(args);
+            else if (act == "install" || act == "--install" || act == "/install")
+                ok |= hpiviewCmdInstallTAFiles(args);
+            else if (act == "extract_gaf" || act == "--extract_gaf" || act == "/extract_gaf")
+                ok |= hpiviewCmdExtractGAF(args);
+            else if (act == "create_gaf" || act == "--create_gaf" || act == "/create_gaf")
+                ok |= hpiviewCmdCreateGAF(args);
+        }
+        if (ok)
+            return true;
     }
     SDL_Quit();
     return false;

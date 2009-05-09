@@ -57,6 +57,10 @@ namespace TA3D
     void Initialize(int argc, char* argv[], const String& programName)
     {
         Logs::level = LOG_LEVEL_DEBUG;
+        for(int i = 1 ; i < argc ; i++)
+            if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "/quiet") == 0)
+                Logs::level = LOG_LEVEL_QUIET;
+
         // Load and prepare output directories
         if (!TA3D::Paths::Initialize(argc, argv, "ta3d"))
             exit(1);

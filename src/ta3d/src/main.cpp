@@ -108,7 +108,6 @@ void ReadFileParameter()
 
 
 
-void install_TA_files(String def_path = "");
 int hpiview(int argc,char *argv[]);
 
 /*

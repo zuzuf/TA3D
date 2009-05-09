@@ -77,7 +77,7 @@ namespace HPI
         //@{
         // constructor:
         cHPIHandler();
-        cHPIHandler(const String &path);
+        cHPIHandler(const String &archiveName);
 
         //! Destructor
         ~cHPIHandler();

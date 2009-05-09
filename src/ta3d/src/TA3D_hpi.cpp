@@ -499,13 +499,12 @@ namespace HPI
     }
 
     // constructor used by the installer
-    cHPIHandler::cHPIHandler(const String &path)
+    cHPIHandler::cHPIHandler(const String &archiveName)
     {
         m_Archive = new TA3D::UTILS::clpHashTable<HPIITEM*>(16384, true);
         m_file_cache = new std::list<CACHEFILEDATA>;
 
-        SearchDirForArchives(path);
-        AddRealFS();
+        AddArchive( archiveName, true );
     }
 
     cHPIHandler::~cHPIHandler()
