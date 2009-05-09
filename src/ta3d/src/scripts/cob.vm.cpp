@@ -45,8 +45,8 @@ namespace TA3D
 
         if (p_script)
         {
-            global_env = new SCRIPT_ENV;
             script = p_script;
+            global_env = new int[script->nbStaticVar];
         }
     }
 
@@ -434,18 +434,14 @@ namespace TA3D
                 case SCRIPT_PUSH_STATIC_VAR:
                     {
                         DEBUG_PRINT_CODE("PUSH_STATIC_VAR");
-                        if (script->script_code[script_id][pos] >= global_env->size() )
-                            global_env->resize( script->script_code[script_id][pos] + 1 );
-                        sStack.push((*global_env)[script->script_code[script_id][pos]]);
+                        sStack.push(global_env[script->script_code[script_id][pos]]);
                         ++pos;
                         break;
                     }
                 case SCRIPT_SET_STATIC_VAR:
                     {
                         DEBUG_PRINT_CODE("SET_STATIC_VAR");
-                        if (script->script_code[script_id][pos] >= global_env->size() )
-                            global_env->resize( script->script_code[script_id][pos] + 1 );
-                        (*global_env)[script->script_code[script_id][pos]] = sStack.pop();
+                        global_env[script->script_code[script_id][pos]] = sStack.pop();
                         ++pos;
                         break;
                     }
@@ -773,10 +769,9 @@ namespace TA3D
         if (caller == NULL)
         {
             gzputc(file, 1);
-            int t = global_env->size();
+            int t = script->nbStaticVar;
             gzwrite(file, &t, sizeof(t));
-            for(int i = 0 ; i < t ; i++)
-                gzwrite(file, &((*global_env)[i]), sizeof(int));
+            gzwrite(file, global_env, t * sizeof(int));
         }
         else
             gzputc(file, 0);
@@ -808,11 +803,10 @@ namespace TA3D
         {
             int t;
             gzread(file, &t, sizeof(t));
-            if (global_env == NULL)
-                global_env = new SCRIPT_ENV;
-            global_env->resize(t);
-            for(int i = 0 ; i < t ; i++)
-                gzread(file, &((*global_env)[i]), sizeof(int));
+            if (global_env != NULL)
+                delete[] global_env;
+            global_env = new int[t];
+            gzread(file, global_env, t * sizeof(int));
         }
 
         int t;

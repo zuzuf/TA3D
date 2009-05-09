@@ -84,7 +84,7 @@ namespace TA3D
     {
     protected:
         CobScript                   *script;
-        SCRIPT_ENV                  *global_env;    // Global COB environment
+        int                         *global_env;    // Global COB environment
         Stack<int>				    cur;
         Stack<int>                  sStack;         // Script stack
         Stack<SCRIPT_ENV>           local_env;      // Local COB environment
