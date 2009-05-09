@@ -105,8 +105,9 @@ namespace TA3D
                     << "      Orthographic Camera = " << TA3D::VARS::lp_CONFIG->ortho_camera << ";\n"
                     << "        Mouse Sensitivity = " << TA3D::VARS::lp_CONFIG->mouse_sensivity << ";\n"
                     << "                Far Sight = " << TA3D::VARS::lp_CONFIG->far_sight << ";\n"
-                    << "             Sound Volume = " << lp_CONFIG->sound_volume << ";\n"
-                    << "             Music Volume = " << lp_CONFIG->music_volume << ";\n"
+                    << "             Sound Volume = " << TA3D::VARS::lp_CONFIG->sound_volume << ";\n"
+                    << "             Music Volume = " << TA3D::VARS::lp_CONFIG->music_volume << ";\n"
+                    << "              Grab Inputs = " << TA3D::VARS::lp_CONFIG->grab_inputs << ";\n"
                     << "}\n";
 
             if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -210,6 +211,8 @@ namespace TA3D
 
             TA3D::VARS::lp_CONFIG->sound_volume = cfgFile.pullAsInt("TA3D.Sound Volume", 128);
             TA3D::VARS::lp_CONFIG->music_volume = cfgFile.pullAsInt("TA3D.Music Volume", 128);
+
+            TA3D::VARS::lp_CONFIG->grab_inputs = cfgFile.pullAsBool("TA3D.Grab Inputs", false);
 
             String cfg_version = cfgFile.pullAsString("TA3D.Version");
             String ref_version = format("%d.%d", TA3D_VERSION_HI, TA3D_VERSION_LO);

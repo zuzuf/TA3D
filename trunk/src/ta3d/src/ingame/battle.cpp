@@ -3396,6 +3396,11 @@ namespace TA3D
 							lp_CONFIG->ortho_camera = params[0] == "disable";
 						else if (params[1] == "camera_orthographic")
 							lp_CONFIG->ortho_camera = params[0] == "enable";
+                        else if (params[1] == "grab_inputs")
+                        {
+                            lp_CONFIG->grab_inputs = params[0] == "enable";
+                            grab_mouse(lp_CONFIG->grab_inputs);
+                        }
 					}
 					else if (params.size() == 2 && params[0] == "video" && params[1] == "shoot") video_shoot ^= true;		// Capture video
 					else if (params[0] == "shoot") shoot = true;					// Prend une capture d'écran

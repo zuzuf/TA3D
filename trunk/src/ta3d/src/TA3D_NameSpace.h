@@ -110,6 +110,8 @@ namespace TA3D
         int     sound_volume;               // Self explanatory
         int     music_volume;               // 0 - 128
 
+        bool    grab_inputs;                // Capture inputs ?
+
         // Variables used to communicate with all the code
         bool    quickrestart;                // Should be false, set to true when need to restart to enable options/parameters
         bool    quickstart;                    // Tell to speed up the starting process
@@ -121,6 +123,8 @@ namespace TA3D
 
         TA3DCONFIG()
         {
+            grab_inputs = false;
+
             sound_volume = music_volume = 128;
 
             far_sight = true;

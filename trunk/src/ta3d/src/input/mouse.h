@@ -56,6 +56,11 @@ namespace TA3D
 	** \brief initialize mouse handler
 	*/
 	void init_mouse();
+
+    /*!
+    ** \brief enable grabing mouse inside the window when in windowed mode
+    */
+    void grab_mouse(bool);
 }
 
 extern int CURSOR_MOVE;

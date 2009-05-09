@@ -163,6 +163,7 @@ void config_menu(void)
 		if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
 			config_area.set_caption("*.fps_limit", *i);
 	}
+    config_area.set_state("*.grab_inputs", lp_CONFIG->grab_inputs);
     config_area.set_value("*.sound_volume", lp_CONFIG->sound_volume);
     config_area.set_value("*.music_volume", lp_CONFIG->music_volume);
     config_area.set_state("*.far_sight", lp_CONFIG->far_sight);
@@ -410,6 +411,11 @@ void config_menu(void)
 			}
 		}
 
+        if (lp_CONFIG->grab_inputs != config_area.get_state("*.grab_inputs"))
+        {
+            lp_CONFIG->grab_inputs = config_area.get_state("*.grab_inputs");
+            grab_mouse(lp_CONFIG->grab_inputs);
+        }
         if (lp_CONFIG->sound_volume != config_area.get_value("*.sound_volume"))
         {
             lp_CONFIG->sound_volume = config_area.get_value("*.sound_volume");
@@ -603,6 +609,7 @@ void config_menu(void)
 		}
 	}
 
+    grab_mouse(lp_CONFIG->grab_inputs);
     sound_manager->setVolume(lp_CONFIG->sound_volume);
     sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 
