@@ -12,6 +12,11 @@ mkdir ~/.ta3d/resources
 # here we set up our file installer
 export INSTALL_CMD="./ta3d --quiet --install"
 
+if [ -f "/usr/games/ta3d" ]; then
+    echo "TA3D installation found!"
+    export INSTALL_CMD="ta3d --quiet --install"
+fi
+
 function copy_file {
     echo -n "."
     for i in `find /mnt/* 2> /dev/null | grep $1\$`; do
