@@ -1847,9 +1847,9 @@ namespace TA3D
 								{
 									const Vector3D pos(
 											(x << 4) - map_w_d + 8.0f,
-											pre_y - map_h_d + 8.0f,
-											sealvl + 0.1f);
-									grad = (1.0f / sqrtf( grad_len )) * grad;
+                                            sealvl + 0.1f,
+                                            pre_y - map_h_d + 8.0f);
+                                    grad = (1.0f / sqrtf( grad_len )) * grad;
 									fx_manager.addWave(pos, RAD2DEG * ((grad.x >= 0.0f) ? -acosf(grad.z) : acosf(grad.z)));
 								}
 							}
