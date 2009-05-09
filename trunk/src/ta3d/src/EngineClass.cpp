@@ -755,15 +755,36 @@ namespace TA3D
 		{
 			uint32 average = 0;
 # ifndef TA3D_PLATFORM_DARWIN
-			for (int y = 0; y < tex->h; ++y)
-			{
-				for (int x = 0; x < tex->w; ++x)
-				{
-					average += SurfaceByte(tex, (x << 2), y);
-					average += SurfaceByte(tex, (x << 2) + 1,y);
-					average += SurfaceByte(tex, (x << 2) + 2,y);
-				}
-			}
+            switch(tex->format->BitsPerPixel)
+            {
+            case 8:
+                for (int y = 0; y < tex->h; ++y)
+                    for (int x = 0; x < tex->w; ++x)
+                        average += SurfaceByte(tex, x, y) * 3;
+                break;
+            case 24:
+                for (int y = 0; y < tex->h; ++y)
+                {
+                    for (int x = 0; x < tex->w; ++x)
+                    {
+                        average += SurfaceByte(tex, x * 3, y);
+                        average += SurfaceByte(tex, x * 3 + 1,y);
+                        average += SurfaceByte(tex, x * 3 + 2,y);
+                    }
+                }
+                break;
+            case 32:
+                for (int y = 0; y < tex->h; ++y)
+                {
+                    for (int x = 0; x < tex->w; ++x)
+                    {
+                        average += SurfaceByte(tex, (x << 2), y);
+                        average += SurfaceByte(tex, (x << 2) + 1,y);
+                        average += SurfaceByte(tex, (x << 2) + 2,y);
+                    }
+                }
+                break;
+            };
 			average /= tex->w * tex->h * 3;
 # endif
 			if (!average)
