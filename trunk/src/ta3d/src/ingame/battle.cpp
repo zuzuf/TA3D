@@ -1736,8 +1736,8 @@ namespace TA3D
 
 				if (!g_useProgram || !g_useFBO || lp_CONFIG->water_quality < 2)
 				{
-					gfx->set_alpha_blending();
-					if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
+                    gfx->set_alpha_blending();
+                    if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
 					{
 						glColor4f(1.0f,1.0f,1.0f,0.5f);
 
@@ -1749,14 +1749,14 @@ namespace TA3D
 					}
 					else 	// lp_CONFIG->water_quality=0
 					{
-						glColor4f(1.0f,1.0f,1.0f,0.5f);
+                        glColor4f(1.0f,1.0f,1.0f,0.5f);
 						glDisable(GL_LIGHTING);
 
 						glActiveTextureARB(GL_TEXTURE0_ARB);
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
-						cam.setView();
+                        cam.setView(true);
 						glTranslatef(0.0f, map->sealvl, map->sea_dec);
 						water_obj->draw(t,cam.rpos.x,cam.rpos.z,false);
 						glColor4f(1.0f,1.0f,1.0f,0.75f);
@@ -2191,8 +2191,8 @@ namespace TA3D
 					water_simulator_reflec.off();
 				}
 				gfx->ReInitAllTex(true);
-				cam.setView();
 			}
+            cam.setView();
 
 			if (build >= 0 && !IsOnGUI)	// Display the building we want to build (with nice selection quads)
 			{

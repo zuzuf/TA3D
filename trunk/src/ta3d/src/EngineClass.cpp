@@ -1302,7 +1302,7 @@ namespace TA3D
 		if (low_def_view)
 		{
 			cam->zfar = sqrtf( map_w * map_w + map_h * map_h + cam->rpos.y * cam->rpos.y);      // We want to see everything
-			cam->setView();
+            cam->setView(true);
 			draw_LD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
 
 			memset(view[0], 1, bloc_w * bloc_h);
@@ -1329,11 +1329,9 @@ namespace TA3D
 				glDisable(GL_CLIP_PLANE3);
 			}
 
+            cam->setView(lp_CONFIG->shadow_quality < 2 || FLAT);
 			if (lp_CONFIG->far_sight)
-			{
-				cam->setView();
 				cam->zfar = map_zfar;
-			}
 
 			draw_HD(cam, player_mask, FLAT, niv, t, dt, depth_only, check_visibility, draw_uw);
 
