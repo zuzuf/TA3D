@@ -1525,7 +1525,7 @@ namespace TA3D
 			bool bLink[18];
 			for(int i = 0 ; i < nLinks ; i++)               // Detect intersection of links and map plane
 				bLink[i] = bFrustum[fLink[i][0]] ^ bFrustum[fLink[i][1]];
-			float zOffset = yref * tnt_transform;
+            float zOffset = yref * tnt_transform * H_DIV;
 			for (int i = 0 ; i < nLinks; ++i)
 			{
 				if (bLink[i])
@@ -1536,8 +1536,8 @@ namespace TA3D
 						continue;
 					Vector3D I = A + (yref - A.y) / (B.y - A.y) * (B - A);
 					I.z -= zOffset;
-					int X0 = (int)((I.x + map_w_d) * 0.0625f);
-					int Y0 = (int)((I.z + map_h_d) * 0.0625f);
+                    int X0 = (int)((I.x + map_w_d) * 0.0625f + 0.5f);
+                    int Y0 = (int)((I.z + map_h_d) * 0.0625f + 0.5f);
 					x1 = Math::Min(x1, X0);
 					y1 = Math::Min(y1, Y0);
 					x2 = Math::Max(x2, X0);
@@ -1553,8 +1553,8 @@ namespace TA3D
 								continue;
 							Vector3D J = C + (yref - C.y) / (D.y - C.y) * (D - C);
 							J.z -= zOffset;
-							int X1 = (int)((J.x + map_w_d) * 0.0625f);
-							int Y1 = (int)((J.z + map_h_d) * 0.0625f);
+                            int X1 = (int)((J.x + map_w_d) * 0.0625f + 0.5f);
+                            int Y1 = (int)((J.z + map_h_d) * 0.0625f + 0.5f);
 							x1 = Math::Min(x1, X1);
 							y1 = Math::Min(y1, Y1);
 							x2 = Math::Max(x2, X1);
@@ -1708,7 +1708,7 @@ namespace TA3D
 			if (rx1 > 0)
 				rx1--;
 			if (rx2 < bloc_w - 1)
-				rx1++;
+                rx2++;
 
 			for (int x = rx1 ; x <= rx2 ; ++x)
 			{
