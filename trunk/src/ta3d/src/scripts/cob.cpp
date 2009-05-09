@@ -46,11 +46,11 @@ namespace TA3D
         int NumberOfPieces;
 
         //!
-        int Unknown_0;
+        int CodeLength;
         //!
-        int Unknown_1;
+        int StaticVariableCount ;
         //! Always seems to be 0
-        int Unknown_2;
+        int Unknown_0;
 
         //!
         int OffsetToScriptCodeIndexArray;
@@ -62,7 +62,7 @@ namespace TA3D
         int OffsetToScriptCode;
 
         //! Always seems to point to first script name
-        int Unknown_3;
+        int Unknown_1;
 
     }; // class COBHeader
 
@@ -91,14 +91,14 @@ namespace TA3D
         header.VersionSignature = *((int*)data);
         header.NumberOfScripts = *((int*)(data + 4));
         header.NumberOfPieces = *((int*)(data + 8));
-        header.Unknown_0 = *((int*)(data + 12));
-        header.Unknown_1 = *((int*)(data + 16));
-        header.Unknown_2 = *((int*)(data + 20));
+        header.CodeLength = *((int*)(data + 12));
+        header.StaticVariableCount = *((int*)(data + 16));
+        header.Unknown_0 = *((int*)(data + 20));
         header.OffsetToScriptCodeIndexArray  = *((int*)(data + 24));
         header.OffsetToScriptNameOffsetArray = *((int*)(data + 28));
         header.OffsetToPieceNameOffsetArray = *((int*)(data + 32));
         header.OffsetToScriptCode = *((int*)(data + 36));
-        header.Unknown_3 = *((int*)(data + 40));
+        header.Unknown_1 = *((int*)(data + 40));
 
 #ifdef DEBUG_MODE
         /*		printf("header.NumberOfScripts=%d\n",header.NumberOfScripts);
@@ -109,8 +109,9 @@ namespace TA3D
                 printf("header.OffsetToScriptCode=%d\n",header.OffsetToScriptCode);*/
 #endif
 
-        nb_script=header.NumberOfScripts;
-        nb_piece=header.NumberOfPieces;
+        nbStaticVar = header.StaticVariableCount;
+        nb_script = header.NumberOfScripts;
+        nb_piece = header.NumberOfPieces;
         names.resize(nb_script);
         piece_name.resize( nb_piece );
 
@@ -118,18 +119,21 @@ namespace TA3D
         int i;
         for (i = 0; i < nb_script; ++i)
             names[i] = String( (char*)(data + (*((int*)(data + f_pos + 4 * i)))) ).toUpper();
-        f_pos=header.OffsetToPieceNameOffsetArray;
+        f_pos = header.OffsetToPieceNameOffsetArray;
         for(i = 0; i < nb_piece; ++i)
             piece_name[i] = (char*)(data+(*((int*)(data+f_pos+4*i))));
-        Data = data;
+        codeSize = header.CodeLength * 4;
+        Data = new byte[codeSize];
+        memcpy(Data, data + header.OffsetToScriptCode, codeSize);
         script_code = new int*[nb_script];
         dec_offset = new int[nb_script];
         for (i = 0; i < nb_script; ++i)
         {
             dec_offset[i]  = (*((int*)(data + header.OffsetToScriptCodeIndexArray + 4 * i)));
-            script_code[i] = (int*)(data + header.OffsetToScriptCode
-                                    + 4 * (*((int*)(data + header.OffsetToScriptCodeIndexArray + 4 * i))));
+            script_code[i] = (int*)(Data + 4 * dec_offset[i]);
         }
+
+        delete[] data;
     }
 
     void CobScript::destroy()
@@ -154,6 +158,8 @@ namespace TA3D
         script_code = NULL;
         piece_name.clear();
         dec_offset = NULL;
+        nbStaticVar = 0;
+        codeSize = 0;
     }
 
 

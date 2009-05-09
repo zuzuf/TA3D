@@ -64,6 +64,8 @@ namespace TA3D
         int             nb_piece;       // Nombre de pièces / Number of pieces
         String::Vector  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
         int             *dec_offset;
+        int             nbStaticVar;    // Number of static variables
+        int             codeSize;       // Size of the code chunk
 
     }; // class SCRIPT
 
