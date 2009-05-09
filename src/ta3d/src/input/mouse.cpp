@@ -183,6 +183,8 @@ namespace TA3D
 
     void init_mouse()
     {
+        grab_mouse(lp_CONFIG->grab_inputs);
+
         mouse_b = 0;
         position_mouse(SCREEN_W >> 1, SCREEN_H >> 1);
 
@@ -225,5 +227,10 @@ namespace TA3D
             exit(2);
         }
         cursor_type = CURSOR_DEFAULT;
+    }
+
+    void grab_mouse(bool grab)
+    {
+        SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
     }
 }

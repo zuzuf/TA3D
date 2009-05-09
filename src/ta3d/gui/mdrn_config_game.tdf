@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=29;
+	number of objects=31;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -324,5 +324,24 @@
 		min=1;
 		max=200;
 		value=100;
+	}
+	[object29]		// Option "grab_inputs"
+	{
+		name=t_grab_inputs;
+		type=TEXT;
+		caption=Grab inputs;
+		x1=0;
+		y1=570;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object30]		// Option "grab_inputs"
+	{
+		name=grab_inputs;
+		type=OPTIONC;
+		x1=690;
+		y1=570;
+		value=0;
+		size=1.5;
 	}
 }
