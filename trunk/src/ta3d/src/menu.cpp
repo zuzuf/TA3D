@@ -163,7 +163,9 @@ void config_menu(void)
 		if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
 			config_area.set_caption("*.fps_limit", *i);
 	}
-	config_area.set_state("*.far_sight", lp_CONFIG->far_sight);
+    config_area.set_value("*.sound_volume", lp_CONFIG->sound_volume);
+    config_area.set_value("*.music_volume", lp_CONFIG->music_volume);
+    config_area.set_state("*.far_sight", lp_CONFIG->far_sight);
 	config_area.set_value("*.anisotropy", lp_CONFIG->anisotropy);
 	config_area.set_value("*.mouse_sensitivity", (int)(lp_CONFIG->mouse_sensivity * 100.0f));
 	config_area.set_state("*.disable_perspective", lp_CONFIG->ortho_camera);
@@ -408,7 +410,17 @@ void config_menu(void)
 			}
 		}
 
-		lp_CONFIG->far_sight = config_area.get_state("*.far_sight");
+        if (lp_CONFIG->sound_volume != config_area.get_value("*.sound_volume"))
+        {
+            lp_CONFIG->sound_volume = config_area.get_value("*.sound_volume");
+            sound_manager->setVolume(lp_CONFIG->sound_volume);
+        }
+        if (lp_CONFIG->music_volume != config_area.get_value("*.music_volume"))
+        {
+            lp_CONFIG->music_volume = config_area.get_value("*.music_volume");
+            sound_manager->setMusicVolume(lp_CONFIG->music_volume);
+        }
+        lp_CONFIG->far_sight = config_area.get_state("*.far_sight");
 		lp_CONFIG->anisotropy = config_area.get_value("*.anisotropy");
 		lp_CONFIG->mouse_sensivity = config_area.get_value("*.mouse_sensitivity") * 0.01f;
 		lp_CONFIG->ortho_camera = config_area.get_state("*.disable_perspective");
@@ -590,6 +602,9 @@ void config_menu(void)
 			sound_manager->loadTDFSounds(false);
 		}
 	}
+
+    sound_manager->setVolume(lp_CONFIG->sound_volume);
+    sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 
 	lp_CONFIG->quickrestart |= ask_for_quickrestart;
 
