@@ -340,6 +340,9 @@ namespace TA3D
 
             m_SDLMixerRunning = true;
             doLoadPlaylist();
+
+            setVolume(lp_CONFIG->sound_volume);
+            setMusicVolume(lp_CONFIG->music_volume);
             return true;
         }
 
@@ -528,7 +531,7 @@ namespace TA3D
             }
 
             LOG_DEBUG(LOG_PREFIX_SOUND << "Playing music file " << filename);
-            Mix_VolumeMusic( MIX_MAX_VOLUME );
+            setMusicVolume( lp_CONFIG->music_volume );
         }
 
 
@@ -914,6 +917,16 @@ namespace TA3D
                 Mix_FreeChunk(sampleHandle);
             }
             sampleHandle = NULL;
+        }
+
+        void Manager::setVolume(int volume)
+        {
+            Mix_Volume(-1, volume);
+        }
+
+        void Manager::setMusicVolume(int volume)
+        {
+            Mix_VolumeMusic( volume );
         }
 
     } // namespace Interfaces

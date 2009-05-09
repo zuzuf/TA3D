@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=5;
+	number of objects=9;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -35,7 +35,7 @@
 		x1=10;
 		y1=120;
 		x2=728;
-		y2=710;
+		y2=640;
 		value=0xFFFFFFFF;
 		size=2;
 	}
@@ -74,5 +74,51 @@
 		y2=100;
 		value=0xFFFFFFFF;
 		size=2;
+	}
+	[object5]		// Option "sound volume"
+	{
+		name=t_sound_volume;
+		type=TEXT;
+		caption=Sound volume:;
+		x1=10;
+		y1=640;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object6]		// Option "sound volume"
+	{
+		name=sound_volume;
+		type=HSLIDER;
+		x1=400;
+		y1=642;
+		x2=730;
+		y2=667;
+		min=0;
+		max=128;
+		value=1;
+		size=1.6;
+	}
+	[object7]		// Option "music volume"
+	{
+		name=t_music_volume;
+		type=TEXT;
+		caption=Music volume:;
+		x1=10;
+		y1=675;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object8]		// Option "music volume"
+	{
+		name=music_volume;
+		type=HSLIDER;
+		x1=400;
+		y1=677;
+		x2=730;
+		y2=702;
+		min=0;
+		max=128;
+		value=1;
+		size=1.6;
 	}
 }

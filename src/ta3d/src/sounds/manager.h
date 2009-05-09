@@ -51,7 +51,19 @@ namespace TA3D
 			~Manager();
 			//@}
 
-			/*!
+            /*!
+            ** \brief Set sound volume
+            ** \param The volume (0 - 128)
+            */
+            void setVolume(int volume);
+
+            /*!
+            ** \brief Set music volume
+            ** \param The volume (0 - 128)
+            */
+            void setMusicVolume(int volume);
+
+            /*!
 			** \brief Get a copy of the playlist
 			** \param[out] The playlist
 			** \return True if the playlist is not empty, false otherwise
@@ -165,7 +177,7 @@ namespace TA3D
 			/*!
 			** \brief Get if the system is running
 			*/
-			bool isRunning() {MutexLocker locker(pMutex); return m_SDLMixerRunning;};
+            bool isRunning() {MutexLocker locker(pMutex); return m_SDLMixerRunning;}
 
 
 		private:

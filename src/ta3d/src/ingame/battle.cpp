@@ -3373,6 +3373,19 @@ namespace TA3D
 						SDL_FreeSurface(bmp);
 					}
 					else if (params[0] == "toggle" && params.size() == 2 && params[1] == "farsight")    lp_CONFIG->far_sight ^= true;
+                    else if (params[0] == "set" && params.size() == 4 && params[2] == "volume")
+                    {
+                        if (params[1] == "sound")
+                        {
+                            lp_CONFIG->sound_volume = params[3].toUInt32();
+                            sound_manager->setVolume(lp_CONFIG->sound_volume);
+                        }
+                        else if (params[1] == "music")
+                        {
+                            lp_CONFIG->music_volume = params[3].toUInt32();
+                            sound_manager->setMusicVolume(lp_CONFIG->music_volume);
+                        }
+                    }
 					else if ((params[0] == "enable" || params[0] == "disable") && params.size() > 1)
 					{
 						if (params[1] == "right_click_interface")
