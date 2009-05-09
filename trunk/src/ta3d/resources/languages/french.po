@@ -3,6 +3,18 @@
     name=french;
     caption=Français;
 }
+[Sound volume:]
+{
+    FRENCH=Volume des effets:;
+}
+[Music volume:]
+{
+    FRENCH=Volume de la musique:;
+}
+[Grab inputs]
+{
+    FRENCH=Capturer les entrées;
+}
 [enabled]
 {
     FRENCH=activé;
