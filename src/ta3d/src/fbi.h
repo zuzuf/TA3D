@@ -247,6 +247,9 @@ namespace TA3D
 
         bool    not_used;           // Do we have the right to use this unit ? (campaign mode)
 
+        /*-----------------------------------------------------------------------*/
+
+        int     sweetspot_cached;
 
         /*!
         ** \brief Add a unit to the list of units this unit can build

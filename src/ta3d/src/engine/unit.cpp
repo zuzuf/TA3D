@@ -1941,7 +1941,8 @@ namespace TA3D
 					weapon[i].data = -1;
 					break;
 				case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
-					if (weapon[i].target == NULL || ((weapon[i].state&WEAPON_FLAG_WEAPON)==WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
+                    if (jump_commands)	break;
+                    if (weapon[i].target == NULL || ((weapon[i].state&WEAPON_FLAG_WEAPON)==WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
 						|| ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags&1)))
 					{
 						if ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((Unit*)(weapon[i].target))->cloaked
@@ -2012,25 +2013,29 @@ namespace TA3D
 							if (target_unit != NULL)
 								target_translation = ( target.norm() / unit_manager.unit_type[type_id]->weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
-							if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
+                            if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
 							{
-								int start_piece = runScriptFunction(AimFrom_script);
+                                readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
+
+                                int start_piece = weapon[i].aim_piece;
+                                if (weapon[i].aim_piece < 0)
+                                    weapon[i].aim_piece = start_piece = runScriptFunction(AimFrom_script);
 								if (start_piece < 0 || start_piece >= data.nb_piece)
 									start_piece = 0;
 								compute_model_coord();
 
 								Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
 								target_pos_on_unit.x = target_pos_on_unit.y = target_pos_on_unit.z = 0.0f;
-								if (target_unit != NULL )
+								if (target_unit != NULL)
 								{
-									if (weapon[i].data == -1 )
-										weapon[i].data = target_unit->runScriptFunction( SCRIPT_SweetSpot );
-									if (weapon[i].data >= 0 )
+                                    if (weapon[i].data == -1)
+                                        weapon[i].data = target_unit->get_sweet_spot();
+                                    if (weapon[i].data >= 0)
 										target_pos_on_unit = target_unit->data.pos[ weapon[i].data ];
 								}
 
 								target = target + target_translation - data.pos[start_piece];
-								if (target_unit!=NULL )
+                                if (target_unit != NULL)
 									target = target + target_pos_on_unit;
 
 								if (unit_manager.unit_type[type_id]->aim_data[i].check)     // Check angle limitations (not in OTA)
@@ -2100,27 +2105,30 @@ namespace TA3D
 									}
 									aiming[1] = (int)(angle*DEG2TA);
 								}
-								if (unit_manager.unit_type[type_id]->weapon[i]->lineofsight)
-								{
-									if (!target_unit)
-									{
-										if (target_weapon == NULL )
-											weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.pos[start_piece]);
-										else
-											weapon[i].aim_dir = ((WEAPON*)(weapon[i].target))->Pos - (Pos + data.pos[start_piece]);
-									}
-									else
-										weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.pos[start_piece]);
-									weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
-									weapon[i].aim_dir.unit();
-								}
-								else
-									weapon[i].aim_dir = cosf(aiming[1] * TA2RAD) * (cosf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
-																					+ sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
-										+ sinf(aiming[1] * TA2RAD) * IJ;
-								readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
-								launchScript(Aim_script, 2, aiming);
-							}
+                                if (readyToFire)
+                                {
+                                    if (unit_manager.unit_type[type_id]->weapon[i]->lineofsight)
+                                    {
+                                        if (!target_unit)
+                                        {
+                                            if (target_weapon == NULL )
+                                                weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.pos[start_piece]);
+                                            else
+                                                weapon[i].aim_dir = ((WEAPON*)(weapon[i].target))->Pos - (Pos + data.pos[start_piece]);
+                                        }
+                                        else
+                                            weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.pos[start_piece]);
+                                        weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
+                                        weapon[i].aim_dir.unit();
+                                    }
+                                    else
+                                        weapon[i].aim_dir = cosf(aiming[1] * TA2RAD) * (cosf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
+                                                                                        + sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
+                                            + sinf(aiming[1] * TA2RAD) * IJ;
+                                }
+                                if (!readyToFire)
+                                    launchScript(Aim_script, 2, aiming);
+                            }
 							else
 								readyToFire = true;
 							if (readyToFire)
@@ -2139,7 +2147,7 @@ namespace TA3D
 					}
 					break;
 				case WEAPON_FLAG_SHOOT:											// Tire sur une unité / fire!
-					if (weapon[i].target == NULL || (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
+                    if (weapon[i].target == NULL || (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
 						|| (( weapon[i].state & WEAPON_FLAG_WEAPON ) != WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags&1)))
 					{
 						if (weapon[i].burst > 0 && weapon[i].delay < unit_manager.unit_type[type_id]->weapon[ i ]->burstrate)
@@ -2202,9 +2210,10 @@ namespace TA3D
 									shoot(((Unit*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
 							}
 							weapon[i].burst++;
-							if (weapon[i].burst>=unit_manager.unit_type[type_id]->weapon[i]->burst)
-								weapon[i].burst=0;
-							weapon[i].delay=0.0f;
+                            if (weapon[i].burst >= unit_manager.unit_type[type_id]->weapon[i]->burst)
+                                weapon[i].burst = 0;
+                            weapon[i].delay = 0.0f;
+                            weapon[i].aim_piece = -1;
 						}
 						if (weapon[i].burst == 0 && unit_manager.unit_type[type_id]->weapon[ i ]->commandfire && !unit_manager.unit_type[type_id]->weapon[ i ]->dropped)    // Shoot only once
 						{
@@ -4582,20 +4591,20 @@ script_exec:
 
 	int Unit::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D &target_pos)
 	{
-		WEAPON_DEF *pW = unit_manager.unit_type[type_id]->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
+        WEAPON_DEF *pW = unit_manager.unit_type[type_id]->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
 		int owner = owner_id;
 		Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
 		int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };
-		launchScript( SCRIPT_RockUnit, 2, param );
+        launchScript( SCRIPT_RockUnit, 2, param );
 
-		if (pW->startsmoke && visible)
+        if (pW->startsmoke && visible)
 			particle_engine.make_smoke(startpos, 0, 1, 0.0f, -1.0f, 0.0f, 0.3f);
 
-		pMutex.unlock();
+        pMutex.unlock();
 
 		weapons.lock();
 
-		int w_idx = weapons.add_weapon(pW->nb_id,idx);
+        int w_idx = weapons.add_weapon(pW->nb_id,idx);
 
 		if (network_manager.isConnected() && local) // Send synchronization packet
 		{
@@ -4821,7 +4830,18 @@ script_exec:
 		return 0;
 	}
 
-
+    int Unit::get_sweet_spot()
+    {
+        if (type_id < 0)
+            return -1;
+        if (unit_manager.unit_type[type_id]->sweetspot_cached == -1)
+        {
+            lock();
+            unit_manager.unit_type[type_id]->sweetspot_cached = runScriptFunction(SCRIPT_SweetSpot);
+            unlock();
+        }
+        return unit_manager.unit_type[type_id]->sweetspot_cached;
+    }
 
 
 } // namespace TA3D

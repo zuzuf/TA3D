@@ -76,6 +76,8 @@ namespace TA3D
 		sint16	data;
 		//! Aim direction
 		Vector3D aim_dir;
+        //! Piece from where weapon aims
+        int aim_piece;
 
 
 	}; // class WeaponData

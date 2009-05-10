@@ -381,7 +381,9 @@ namespace TA3D
 
 	void UnitType::init()
 	{
-		not_used = false;
+        sweetspot_cached = -1;
+
+        not_used = false;
 		commander = false;
 		selfdestructcountdown = 5;
 
