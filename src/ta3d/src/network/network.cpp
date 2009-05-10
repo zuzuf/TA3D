@@ -762,7 +762,7 @@ namespace TA3D
         thread->spawn(params);
 
         ftmutex.unlock();
-        return format("%d", port);
+        return String(port);
     }
 
 
@@ -1159,7 +1159,7 @@ namespace TA3D
 
     int Network::registerToNetServer( const String &name, const int Slots )
     {
-        String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", ReplaceString( name, " ", "%20", false ).c_str(), ReplaceString( TA3D_CURRENT_MOD, " ", "%20", false ).c_str(), ReplaceString( TA3D_ENGINE_VERSION, " ", "%20", false ).c_str(), Slots );
+        String request = String::Format("/register.php?name=%s&mod=%s&version=%s&slots=%d", ReplaceString( name, " ", "%20", false ).c_str(), ReplaceString( TA3D_CURRENT_MOD, " ", "%20", false ).c_str(), ReplaceString( TA3D_ENGINE_VERSION, " ", "%20", false ).c_str(), Slots );
         String result = httpRequest( lp_CONFIG->net_server, request );
         return 0; // TODO Fixe me with the good value !
     }

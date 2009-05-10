@@ -16,7 +16,7 @@ namespace TA3D
 
         virtual bool isOpen() const = 0;
 
-        virtual void open(const std::string &hostname, uint16 port) = 0;
+        virtual void open(const String &hostname, uint16 port) = 0;
         virtual void close() = 0;
 
         virtual void send(const char *data, int size) = 0;
@@ -27,7 +27,7 @@ namespace TA3D
         virtual bool ready() const = 0;
 
         virtual IPaddress getIP_sdl() const;
-        virtual std::string getIPstr() const;
+        virtual String getIPstr() const;
         virtual uint32 getIP() const;
         virtual uint16 getPort() const;
     };

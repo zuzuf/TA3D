@@ -106,7 +106,7 @@ namespace TA3D
             tex[i].ofs_y = new short[1];
             tex[i].w = new short[1];
             tex[i].h = new short[1];
-            tex[i].name = TA3D::format("_%d", i);
+            tex[i].name = String::Format("_%d", i);
 
             tex[i].ofs_x[0] = 0;
             tex[i].ofs_y[0] = 0;
@@ -1020,7 +1020,7 @@ namespace TA3D
             for (short e = 0; e < nb_sprites; ++e)
             {
                 dtex = e + 1;
-                String cache_filename = !filename.empty() ? filename + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", e ) : String( "" );
+                String cache_filename = !filename.empty() ? filename + String::Format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", e ) : String( "" );
                 cache_filename = cache_filename.findAndReplace("/","S");
                 cache_filename = cache_filename.findAndReplace("\\","S");
 
@@ -1592,7 +1592,7 @@ namespace TA3D
                             {
                                 surface.s_shader.on();
                                 for (int j = 0; j < surface.NbTex; ++j)
-                                    surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
+                                    surface.s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
                             }
 
                             if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
@@ -1865,7 +1865,7 @@ namespace TA3D
                 {
                     surface.s_shader.on();
                     for (int j = 0; j < surface.NbTex; ++j)
-                        surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
+                        surface.s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
                 }
 
                 if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
@@ -2924,12 +2924,12 @@ namespace TA3D
 
     float OBJECT::print_struct(float Y, float X, TA3D::Font *fnt)
     {
-        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, format("%s [%d]", name.c_str(),script_index));
-        gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, format("(v:%d",   nb_vtx));
-        gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, format(",p:%d",   nb_prim));
-        gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, format(",t:%d",   nb_t_index));
-        gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, format(",l:%d",   nb_l_index));
-        gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, format(",p:%d)",  nb_p_index));
+        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, String::Format("%s [%d]", name.c_str(),script_index));
+        gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, String::Format("(v:%d",   nb_vtx));
+        gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",p:%d",   nb_prim));
+        gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",t:%d",   nb_t_index));
+        gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",l:%d",   nb_l_index));
+        gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",p:%d)",  nb_p_index));
         float nwY = Y + 8.0f;
         if (child)
             nwY = child->print_struct(nwY, X + 8.0f, fnt);
@@ -3943,7 +3943,7 @@ namespace TA3D
 
             if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
             {
-                String cache_filename = !filename.empty() ? filename + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
+                String cache_filename = !filename.empty() ? filename + String::Format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
                 cache_filename = cache_filename.findAndReplace("/","S");
                 cache_filename = cache_filename.findAndReplace("\\","S");
 
@@ -4216,7 +4216,7 @@ namespace TA3D
     }
 
 
-    void QUAD_QUEUE::draw_queue(Vector3D *P, uint32 *C, GLfloat* T)
+    void QUAD_QUEUE::draw_queue(Vector3D *P, uint32 *C, GLfloat*)
     {
         if (queue.empty())
             return;

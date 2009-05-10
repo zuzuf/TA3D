@@ -122,21 +122,21 @@ namespace TA3D
         gfx->set_texture_format(GL_RGB8);
         for (int i = 1; i <= NbObj; ++i)
         {
-            int attribs = gui_parser.pullAsInt( format( "gadget%d.common.commonattribs", i ) );
+            int attribs = gui_parser.pullAsInt( String::Format( "gadget%d.common.commonattribs", i ) );
             if (attribs & 4) // Unit Build Pic
             {
-                int x = gui_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-                int y = gui_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-                int w = gui_parser.pullAsInt( format( "gadget%d.common.width", i ) );
-                int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
-                String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
+                int x = gui_parser.pullAsInt( String::Format( "gadget%d.common.xpos", i ) ) + x_offset;
+                int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
+                int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
+                int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
+                String name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i ) );
                 int idx = get_unit_index( name );
 
                 if (idx >= 0)
                 {
-                    String name(gui_parser.pullAsString(format("gadget%d.common.name", i)));
+                    String name(gui_parser.pullAsString(String::Format("gadget%d.common.name", i)));
 
-                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
+                    byte *gaf_file = HPIManager->PullFromHPI(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
                     if (gaf_file)
                     {
                         SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -162,13 +162,13 @@ namespace TA3D
             else
                 if (attribs & 8) // Weapon Build Pic
                 {
-                    int x = gui_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-                    int y = gui_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-                    int w = gui_parser.pullAsInt( format( "gadget%d.common.width", i ) );
-                    int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
-                    String name = gui_parser.pullAsString( format( "gadget%d.common.name", i));
+                    int x = gui_parser.pullAsInt( String::Format( "gadget%d.common.xpos", i ) ) + x_offset;
+                    int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
+                    int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
+                    int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
+                    String name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
 
-                    byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
+                    byte* gaf_file = HPIManager->PullFromHPI( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
                     if (gaf_file)
                     {
                         SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -197,10 +197,10 @@ namespace TA3D
         TDFParser parser;
         parser.loadFromMemory("analyse2", data, size, false, false, true);
 
-        for(int g = 0 ; parser.exists(format("gadget%d", g)) ; g++)
+        for(int g = 0 ; parser.exists(String::Format("gadget%d", g)) ; g++)
         {
-            String unitmenu = parser.pullAsString(format("gadget%d.unitmenu", g));
-            String unitname = parser.pullAsString(format("gadget%d.unitname", g));
+            String unitmenu = parser.pullAsString(String::Format("gadget%d.unitmenu", g));
+            String unitname = parser.pullAsString(String::Format("gadget%d.unitname", g));
 
             if (unitmenu.empty() || unitname.empty()) continue;
 
@@ -264,10 +264,10 @@ namespace TA3D
         for (int i = 0 ; i < nb_unit; ++i)
         {
             int n = 1;
-            while(!sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) ).empty())  n++;
+            while(!sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) ).empty())  n++;
 
             n--;
-            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
+            String canbuild = sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
             while (n>0)
             {
                 int idx = get_unit_index( canbuild );
@@ -276,7 +276,7 @@ namespace TA3D
                 else
                     LOG_DEBUG("unit '" << canbuild << "' not found");
                 --n;
-                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
+                canbuild = sidedata_parser.pullAsString( String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
             }
         }
 
@@ -625,11 +625,11 @@ namespace TA3D
                 w_badTargetCategory.resize(1);
             w_badTargetCategory[0] = parseString("UNITINFO.wpri_badTargetCategory");
         }
-        for (int i = 4 ; !parseString( format("UNITINFO.w%d_badTargetCategory",i) ).empty() ; ++i)
+        for (int i = 4 ; !parseString( String::Format("UNITINFO.w%d_badTargetCategory",i) ).empty() ; ++i)
         {
             if (w_badTargetCategory.size() < i)
                 w_badTargetCategory.resize(i);
-            w_badTargetCategory[i-1] = parseString(format("UNITINFO.w%d_badTargetCategory",i));
+            w_badTargetCategory[i-1] = parseString(String::Format("UNITINFO.w%d_badTargetCategory",i));
         }
         NoChaseCategory = parseString("UNITINFO.NoChaseCategory");
         BadTargetCategory = parseString("UNITINFO.BadTargetCategory");
@@ -733,11 +733,11 @@ namespace TA3D
         kamikazedistance = parseInt("UNITINFO.kamikazedistance")>>1;
 
         int i = 1;
-        while (i <= 3 || !parseString( format("UNITINFO.Weapon%d",i) ).empty())
+        while (i <= 3 || !parseString( String::Format("UNITINFO.Weapon%d",i) ).empty())
         {
             if (WeaponID.size() < i)
                 WeaponID.resize(i,-1);
-            WeaponID[i-1] = weapon_manager.get_weapon_index( parseString( format("UNITINFO.Weapon%d",i) ) );
+            WeaponID[i-1] = weapon_manager.get_weapon_index( parseString( String::Format("UNITINFO.Weapon%d",i) ) );
             ++i;
         }
         yardmap = parseString("UNITINFO.YardMap");
@@ -796,7 +796,7 @@ namespace TA3D
             aim_data[i].check = false;
             if(WeaponID[i]>-1)
             {
-                String aimdir = parseString( format("UNITINFO.WeaponMainDir%d",i) );
+                String aimdir = parseString( String::Format("UNITINFO.WeaponMainDir%d",i) );
                 if (!aimdir.empty())
                 {
                     String::Vector vec;
@@ -808,7 +808,7 @@ namespace TA3D
                         aim_data[i].dir.y = vec[1].toFloat();
                         aim_data[i].dir.z = vec[2].toFloat();
                                                                 // Should read almost every possible case
-                        aim_data[i].Maxangledif = parseFloat( format("UNITINFO.Maxangledif%d", i) );
+                        aim_data[i].Maxangledif = parseFloat( String::Format("UNITINFO.Maxangledif%d", i) );
                     }
                     else
                         LOG_DEBUG("FBI parser error: '" << aimdir << "' could not be parsed correctly");
@@ -867,7 +867,7 @@ namespace TA3D
 
             for (int i = 1; i <= NbObj; ++i)
             {
-                if (dl_parser.pullAsInt(format("gadget%d.common.attribs", i)) == 32)
+                if (dl_parser.pullAsInt(String::Format("gadget%d.common.attribs", i)) == 32)
                     dl_data->dl_num++;
             }
 
@@ -879,12 +879,12 @@ namespace TA3D
             int e = 0;
             for (int i = 1; i <= NbObj; ++i)
             {
-                if( dl_parser.pullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
+                if( dl_parser.pullAsInt( String::Format( "gadget%d.common.attribs", i ) ) == 32 )
                 {
-                    dl_data->dl_x[e] = dl_parser.pullAsInt(format("gadget%d.common.xpos", i)) + x_offset;
-                    dl_data->dl_y[e] = dl_parser.pullAsInt(format("gadget%d.common.ypos", i)) + y_offset;
-                    dl_data->dl_w[e] = dl_parser.pullAsInt(format("gadget%d.common.width", i));
-                    dl_data->dl_h[e] = dl_parser.pullAsInt(format("gadget%d.common.height", i));
+                    dl_data->dl_x[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.xpos", i)) + x_offset;
+                    dl_data->dl_y[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.ypos", i)) + y_offset;
+                    dl_data->dl_w[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.width", i));
+                    dl_data->dl_h[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.height", i));
                     ++e;
                 }
             }
@@ -1243,7 +1243,7 @@ namespace TA3D
         // Correct some data given in the FBI file using data from the moveinfo.tdf file
         TDFParser parser(ta3dSideData.gamedata_dir + "moveinfo.tdf");
         n = 0;
-        while (!parser.pullAsString(format("CLASS%d.name", n)).empty())
+        while (!parser.pullAsString(String::Format("CLASS%d.name", n)).empty())
             ++n;
 
         for (int i = 0; i < unit_manager.nb_unit; ++i)
@@ -1252,13 +1252,13 @@ namespace TA3D
             {
                 for (int e = 0; e < n; ++e)
                 {
-                    if (parser.pullAsString(format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
+                    if (parser.pullAsString(String::Format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
                     {
-                        unit_manager.unit_type[i]->FootprintX = parser.pullAsInt(format( "CLASS%d.footprintx", e), unit_manager.unit_type[i]->FootprintX );
-                        unit_manager.unit_type[i]->FootprintZ = parser.pullAsInt(format( "CLASS%d.footprintz", e), unit_manager.unit_type[i]->FootprintZ );
-                        unit_manager.unit_type[i]->MinWaterDepth = parser.pullAsInt(format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i]->MinWaterDepth );
-                        unit_manager.unit_type[i]->MaxWaterDepth = parser.pullAsInt(format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i]->MaxWaterDepth );
-                        unit_manager.unit_type[i]->MaxSlope = parser.pullAsInt(format( "CLASS%d.maxslope", e), unit_manager.unit_type[i]->MaxSlope );
+                        unit_manager.unit_type[i]->FootprintX = parser.pullAsInt(String::Format( "CLASS%d.footprintx", e), unit_manager.unit_type[i]->FootprintX );
+                        unit_manager.unit_type[i]->FootprintZ = parser.pullAsInt(String::Format( "CLASS%d.footprintz", e), unit_manager.unit_type[i]->FootprintZ );
+                        unit_manager.unit_type[i]->MinWaterDepth = parser.pullAsInt(String::Format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i]->MinWaterDepth );
+                        unit_manager.unit_type[i]->MaxWaterDepth = parser.pullAsInt(String::Format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i]->MaxWaterDepth );
+                        unit_manager.unit_type[i]->MaxSlope = parser.pullAsInt(String::Format( "CLASS%d.maxslope", e), unit_manager.unit_type[i]->MaxSlope );
                         break;
                     }
                 }

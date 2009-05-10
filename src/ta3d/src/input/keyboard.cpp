@@ -19,17 +19,21 @@
 #include "keyboard.h"
 #include "mouse.h"
 
-int						TA3D::VARS::ascii_to_scancode[ 256 ];
-bool                    TA3D::VARS::key[0x1000];
-bool                    TA3D::VARS::prevkey_down[0x1000];
-bool                    TA3D::VARS::prevkey_up[0x1000];
-std::list<uint32>       TA3D::VARS::keybuf;
-int                     TA3D::VARS::remap[256];
-
 using namespace TA3D::VARS;
 
 namespace TA3D
 {
+namespace VARS
+{
+	int						ascii_to_scancode[ 256 ];
+	bool                    key[0x1000];
+	bool                    prevkey_down[0x1000];
+	bool                    prevkey_up[0x1000];
+	std::list<uint32>       keybuf;
+	int                     remap[256];
+}
+
+
 	uint32 readkey()
 	{
 	    if (VARS::keybuf.empty())

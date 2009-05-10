@@ -44,7 +44,7 @@ namespace TA3D
         open("", port);
     }
 
-    void SocketTCP::open(const std::string &hostname, uint16 port)
+    void SocketTCP::open(const String &hostname, uint16 port)
     {
         MutexLocker locker(pMutex);
         close();

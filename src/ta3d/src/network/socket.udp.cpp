@@ -22,7 +22,7 @@ namespace TA3D
         return sock != NULL;
     }
 
-    void SocketUDP::open(const std::string &hostname, uint16 port)
+    void SocketUDP::open(const String &hostname, uint16 port)
     {
         MutexLocker locker(pMutex);
         close();
@@ -120,9 +120,9 @@ namespace TA3D
         return remoteIP;
     }
 
-    std::string SocketUDP::getRemoteIPstr() const
+    String SocketUDP::getRemoteIPstr() const
     {
-        return TA3D::format("%d.%d.%d.%d", (remoteIP.host & 0xFF), (remoteIP.host >> 8) & 0xFF, (remoteIP.host >> 16) & 0xFF, (remoteIP.host >> 24));
+        return String::Format("%d.%d.%d.%d", (remoteIP.host & 0xFF), (remoteIP.host >> 8) & 0xFF, (remoteIP.host >> 16) & 0xFF, (remoteIP.host >> 24));
     }
 
     uint32 SocketUDP::getRemoteIP() const

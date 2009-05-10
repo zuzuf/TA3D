@@ -215,7 +215,8 @@ namespace TA3D
             TA3D::VARS::lp_CONFIG->grab_inputs = cfgFile.pullAsBool("TA3D.Grab Inputs", false);
 
             String cfg_version = cfgFile.pullAsString("TA3D.Version");
-            String ref_version = format("%d.%d", TA3D_VERSION_HI, TA3D_VERSION_LO);
+            String ref_version;
+			ref_version << TA3D_VERSION_HI << "." << TA3D_VERSION_LO;
             if (cfg_version != ref_version)     // Update ?
             {
                 lp_CONFIG->net_server = TA3D_DEFAULT_SERVER_HOSTNAME;

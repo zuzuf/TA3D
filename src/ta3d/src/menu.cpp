@@ -160,7 +160,7 @@ void config_menu(void)
 	config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
 	for (String::Vector::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
 	{
-		if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
+		if (String::Format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
 			config_area.set_caption("*.fps_limit", *i);
 	}
     config_area.set_state("*.grab_inputs", lp_CONFIG->grab_inputs);
@@ -200,9 +200,9 @@ void config_menu(void)
 	}
 	if (config_area.get_object("*.camera_zoom") )
 		config_area.set_caption( "*.camera_zoom", config_area.get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
-	config_area.set_caption( "*.camera_def_angle", format( "%f", lp_CONFIG->camera_def_angle ));
-	config_area.set_caption( "*.camera_def_h", format( "%f", lp_CONFIG->camera_def_h ));
-	config_area.set_caption( "*.camera_zoom_speed", format( "%f", lp_CONFIG->camera_zoom_speed ));
+	config_area.set_caption( "*.camera_def_angle", String::Format( "%f", lp_CONFIG->camera_def_angle ));
+	config_area.set_caption( "*.camera_def_h", String::Format( "%f", lp_CONFIG->camera_def_h ));
+	config_area.set_caption( "*.camera_zoom_speed", String::Format( "%f", lp_CONFIG->camera_zoom_speed ));
 	if (config_area.get_object("*.screenres") )
 	{
 		GUIOBJ *obj = config_area.get_object("*.screenres");
@@ -214,13 +214,13 @@ void config_menu(void)
 				 || res_bpp[ current ] != lp_CONFIG->color_depth ) )
 			current++;
 		if (current >= nb_res ) current = 0;
-		obj->Text.push_back( format( "%dx%dx%d", res_width[ current ], res_height[ current ], res_bpp[ current ] ));
+		obj->Text.push_back( String::Format( "%dx%dx%d", res_width[ current ], res_height[ current ], res_bpp[ current ] ));
 		for( int i = 0 ; i < nb_res ; i++ )
-			obj->Text.push_back( format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ));
+			obj->Text.push_back( String::Format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ));
 	}
 	if (config_area.get_object("*.shadow_quality"))
 		config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1 + Math::Max( 0, Math::Min((int)lp_CONFIG->shadow_quality, 2) )]);
-	config_area.set_caption("*.timefactor", format( "%d", (int)lp_CONFIG->timefactor ));
+	config_area.set_caption("*.timefactor", String::Format( "%d", (int)lp_CONFIG->timefactor ));
 	switch( lp_CONFIG->fsaa )
 	{
 		case 2: config_area.set_caption("*.fsaa", "x2");    break;
@@ -753,7 +753,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 			if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
 				my_old_id = net_id_table[i];
 		}
-		network_manager.sendSpecial( format("NOTIFY PLAYER_BACK %d", my_old_id) );
+		network_manager.sendSpecial( String::Format("NOTIFY PLAYER_BACK %d", my_old_id) );
 		rest(10);
 		network_manager.sendSpecial( "REQUEST GameData" );
 	}
@@ -771,27 +771,27 @@ void setup_game(bool client, const char *host, const char *saved_game)
 		setupgame_area.background = gfx->glfond;
 	for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 	{
-		setupgame_area.set_caption( format("gamesetup.name%d", i), game_data.player_names[i]);
-		setupgame_area.set_caption( format("gamesetup.side%d", i), game_data.player_sides[i]);
+		setupgame_area.set_caption( String::Format("gamesetup.name%d", i), game_data.player_names[i]);
+		setupgame_area.set_caption( String::Format("gamesetup.side%d", i), game_data.player_sides[i]);
 		AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
-		setupgame_area.set_entry( format("gamesetup.ai%d", i), AI_list);
-		GUIOBJ *guiobj = setupgame_area.get_object( format("gamesetup.color%d", i));
+		setupgame_area.set_entry( String::Format("gamesetup.ai%d", i), AI_list);
+		GUIOBJ *guiobj = setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 		if (guiobj)
 		{
 			guiobj->Flag |= (game_data.player_control[i] == PLAYER_CONTROL_NONE ? FLAG_HIDDEN : 0);
 			guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3], player_color[player_color_map[i]*3+1], player_color[player_color_map[i]*3+2]);
 		}
-		guiobj = setupgame_area.get_object( format("gamesetup.team%d", i));
+		guiobj = setupgame_area.get_object( String::Format("gamesetup.team%d", i));
 		if (guiobj)
 			guiobj->current_state = i;
-		setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]));
-		setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));
+		setupgame_area.set_caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));
+		setupgame_area.set_caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));
 	}
 
 	if (setupgame_area.get_object("gamesetup.max_units"))
 	{
 		GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
-		obj->Text[0] = format("%d", game_data.max_unit_per_player);
+		obj->Text[0] = String::Format("%d", game_data.max_unit_per_player);
 	}
 
 	GUIOBJ *minimap_obj = setupgame_area.get_object( "gamesetup.minimap");
@@ -850,7 +850,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 
 	if (!host)
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-			setupgame_area.msg(format("gamesetup.ready%d.hide",i));
+			setupgame_area.msg(String::Format("gamesetup.ready%d.hide",i));
 	uint32 player_timer[TA3D_PLAYERS_HARD_LIMIT];
 	for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		player_timer[i] = msec_timer;
@@ -894,7 +894,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 		setupgame_area.msg("gamesetup.FOW.disable");
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
-			GUIOBJ *obj = setupgame_area.get_object(format("gamesetup.team%d",i));
+			GUIOBJ *obj = setupgame_area.get_object(String::Format("gamesetup.team%d",i));
 			if (obj)
 				obj->Flag &= ~FLAG_CAN_BE_CLICKED;
 		}
@@ -913,7 +913,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 		if (host)
 			for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			{
-				GUIOBJ *obj = setupgame_area.get_object(format("gamesetup.ready%d",i));
+				GUIOBJ *obj = setupgame_area.get_object(String::Format("gamesetup.ready%d",i));
 				if (obj)
 				{
 					if (game_data.player_control[i] != PLAYER_CONTROL_LOCAL_HUMAN
@@ -932,7 +932,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 				{
 					if (!game_data.ready[i])
 					{
-						setupgame_area.set_state(format("gamesetup.ready%d",i),true);
+						setupgame_area.set_state(String::Format("gamesetup.ready%d",i),true);
 						game_data.ready[i] = true;
 						network_manager.sendSpecial("NOTIFY UPDATE");
 					}
@@ -985,7 +985,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 			internet_ad_timer = msec_timer; // Resend every 150 sec
 			uint16 nb_open = 0;
 			for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
-				if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2])
+				if (setupgame_area.get_caption(String::Format("gamesetup.name%d", f)) == player_str[2])
 					++nb_open;
 			network_manager.registerToNetServer( host, nb_open);
 		}
@@ -1033,7 +1033,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 				{
 					if (saved_game)
 					{
-						setupgame_area.set_state(format("gamesetup.ready%d",i), false);     // He's not there
+						setupgame_area.set_state(String::Format("gamesetup.ready%d",i), false);     // He's not there
 						game_data.ready[i] = false;
 					}
 					else
@@ -1044,12 +1044,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
 						game_data.ai_level[i] = AI_TYPE_EASY;
 						game_data.player_network_id[i] = -1;
 
-						setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
+						setupgame_area.set_caption( String::Format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
 						AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
-						setupgame_area.set_entry( format( "gamesetup.ai%d", i ), AI_list);
-						setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
+						setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
+						setupgame_area.set_caption( String::Format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
 
-						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+						GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 						if (guiobj)
 							guiobj->Flag |= FLAG_HIDDEN;
 					}
@@ -1078,12 +1078,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
 					if (params[0] == "REQUEST")
 					{
 						if (params[1] == "PLAYER_ID")                  // Sending player's network ID
-							network_manager.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from);
+							network_manager.sendSpecial( String::Format( "RESPONSE PLAYER_ID %d", from ), -1, from);
 						else
 						{
 							if (params[1] == "GameData") // Sending game information
 							{
-								network_manager.sendSpecial(format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
+								network_manager.sendSpecial(String::Format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
 								for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
 								{
 									if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
@@ -1096,7 +1096,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 										<< FIX_BLANK(game_data.player_names[i]) << " " << (int)game_data.ready[i];
 									network_manager.sendSpecial( msg, -1, from);
 
-									GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.team%d", i));
+									GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.team%d", i));
 									if (guiobj)
 									{
 										msg.clear();
@@ -1108,10 +1108,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
 								{
 									String msg("PLAYERCOLORMAP");
 									for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-										msg += format(" %d", player_color_map[i]);
+										msg += String::Format(" %d", player_color_map[i]);
 									network_manager.sendSpecial( msg, -1, from);
 
-									network_manager.sendSpecial(format("SET FOW %d", game_data.fog_of_war ), -1, from);
+									network_manager.sendSpecial(String::Format("SET FOW %d", game_data.fog_of_war ), -1, from);
 									network_manager.sendSpecial("SET SCRIPT " + FIX_BLANK( game_data.game_script), -1, from);
 									network_manager.sendSpecial("SET MAP " + FIX_BLANK( game_data.map_filename), -1, from);
 								}
@@ -1143,7 +1143,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 										{
 											if (saved_game)
 											{
-												setupgame_area.set_state(format("gamesetup.ready%d", i),false);
+												setupgame_area.set_state(String::Format("gamesetup.ready%d", i),false);
 												game_data.ready[i] = false;
 											}
 											else
@@ -1152,9 +1152,9 @@ void setup_game(bool client, const char *host, const char *saved_game)
 												game_data.player_control[i] = player_control[2];
 												game_data.player_names[i] = player_str[2];
 
-												setupgame_area.set_caption(format("gamesetup.name%d", i),game_data.player_names[i]);
+												setupgame_area.set_caption(String::Format("gamesetup.name%d", i),game_data.player_names[i]);
 
-												GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+												GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 												if (guiobj)
 													guiobj->Flag |= FLAG_HIDDEN;
 											}
@@ -1196,9 +1196,9 @@ void setup_game(bool client, const char *host, const char *saved_game)
 									game_data.player_network_id[slot] = from;
 									game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 									game_data.player_names[slot] = UNFIX_BLANK( params[2] );
-									setupgame_area.set_caption( format( "gamesetup.name%d", slot ), game_data.player_names[slot]);                      // Update gui
+									setupgame_area.set_caption( String::Format( "gamesetup.name%d", slot ), game_data.player_names[slot]);                      // Update gui
 
-									GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", slot));
+									GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", slot));
 									if (guiobj)
 									{
 										guiobj->Data = gfx->makeintcol( player_color[player_color_map[slot] * 3],
@@ -1266,10 +1266,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
 										player_color_map[i] = g;                                // update game data
 										player_color_map[f] = e;
 
-										guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+										guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 										if (guiobj)
 											guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-										guiobj =  setupgame_area.get_object( format("gamesetup.color%d", f));
+										guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", f));
 										if (guiobj)
 											guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
 									}
@@ -1356,7 +1356,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 								int n_team = params[3].toInt32();
 								if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
 								{
-									GUIOBJ *guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ) );
+									GUIOBJ *guiobj = setupgame_area.get_object( String::Format( "gamesetup.team%d", i ) );
 									if (guiobj)
 									{
 										guiobj->current_state = n_team;
@@ -1372,7 +1372,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 								game_data.max_unit_per_player = params[3].toInt32();
 								GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
 								if (obj)
-									obj->Text[0] = format("%d", game_data.max_unit_per_player);
+									obj->Text[0] = String::Format("%d", game_data.max_unit_per_player);
 							}
 						}
 					}
@@ -1402,15 +1402,15 @@ void setup_game(bool client, const char *host, const char *saved_game)
 								else
 									game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
 
-								setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
+								setupgame_area.set_caption( String::Format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
 								AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
-								setupgame_area.set_entry( format( "gamesetup.ai%d", i ), AI_list);
-								setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[side_id]);                         // Update gui
-								setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]));         // Update gui
-								setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));               // Update gui
-								setupgame_area.set_state( format("gamesetup.ready%d", i), ready);                                           // Update gui
+								setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
+								setupgame_area.set_caption( String::Format("gamesetup.side%d", i) , side_str[side_id]);                         // Update gui
+								setupgame_area.set_caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));         // Update gui
+								setupgame_area.set_caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));               // Update gui
+								setupgame_area.set_state( String::Format("gamesetup.ready%d", i), ready);                                           // Update gui
 
-								GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+								GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 								if (guiobj)
 								{
 									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
@@ -1433,7 +1433,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 							for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 							{
 								player_color_map[i] = params[i + 1].toInt32();
-								GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+								GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 								if (guiobj)
 									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
 							}
@@ -1478,13 +1478,13 @@ void setup_game(bool client, const char *host, const char *saved_game)
 					uint16 nb_open = 0;
 					for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
 					{
-						if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2])
+						if (setupgame_area.get_caption(String::Format("gamesetup.name%d", f)) == player_str[2])
 							++nb_open;
 					}
 					if (TA3D_CURRENT_MOD.empty())
-						network_manager.broadcastMessage( format( "PONG SERVER %s . %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ', 1 ).c_str(), nb_open).c_str());
+						network_manager.broadcastMessage( String::Format( "PONG SERVER %s . %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ', 1 ).c_str(), nb_open).c_str());
 					else
-						network_manager.broadcastMessage( format( "PONG SERVER %s %s %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_CURRENT_MOD, ' ', 1 ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ',1 ).c_str(), nb_open ).c_str());
+						network_manager.broadcastMessage( String::Format( "PONG SERVER %s %s %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_CURRENT_MOD, ' ', 1 ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ',1 ).c_str(), nb_open ).c_str());
 				}
 			}
 			broadcast_msg = network_manager.getNextBroadcastedMessage();
@@ -1527,7 +1527,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 				obj->Text[0] = obj->Text[1 + obj->Value];
 				game_data.fog_of_war = obj->Value;
 				if (host)
-					network_manager.sendSpecial(format("SET FOW %d", obj->Value));
+					network_manager.sendSpecial(String::Format("SET FOW %d", obj->Value));
 			}
 		}
 
@@ -1578,12 +1578,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
 			GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
 			obj->Text[0] = obj->Text[1+obj->Value];
 			game_data.max_unit_per_player = obj->Text[0].toInt32();
-			network_manager.sendSpecial(format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
+			network_manager.sendSpecial(String::Format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
 		}
 
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
-			if (setupgame_area.get_state( format("gamesetup.ready%d", i)) != game_data.ready[i])
+			if (setupgame_area.get_state( String::Format("gamesetup.ready%d", i)) != game_data.ready[i])
 			{
 				if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN && !saved_game)
 				{
@@ -1591,10 +1591,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
 					game_data.ready[i] = !game_data.ready[i];
 				}
 				else
-					setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i]);
+					setupgame_area.set_state( String::Format("gamesetup.ready%d", i ), game_data.ready[i]);
 			}
 			if (saved_game) continue;            // We mustn't change any thing for a saved game
-			guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
+			guiobj = setupgame_area.get_object( String::Format( "gamesetup.team%d", i ));
 			if (guiobj != NULL && (1 << guiobj->current_state) != game_data.team[i])           // Change team
 			{
 				if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
@@ -1608,7 +1608,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 			}
 			if (client && game_data.player_network_id[i] != my_player_id )
 				continue;                           // You cannot change other player's settings
-			if (setupgame_area.get_state(format("gamesetup.b_name%d", i) ) && !client ) // Change player type
+			if (setupgame_area.get_state(String::Format("gamesetup.b_name%d", i) ) && !client ) // Change player type
 			{
 				if (game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) // Kick player !!
 				{
@@ -1618,7 +1618,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 				uint16 e = 0;
 				for (uint16 f = 0; f<player_str_n; ++f)
 				{
-					if (setupgame_area.get_caption(format("gamesetup.name%d", i)) == player_str[f].c_str())
+					if (setupgame_area.get_caption(String::Format("gamesetup.name%d", i)) == player_str[f].c_str())
 					{
 						e = f;
 						break;
@@ -1645,11 +1645,11 @@ void setup_game(bool client, const char *host, const char *saved_game)
 				else
 					game_data.player_network_id[i] = -1;
 
-				setupgame_area.set_caption( format( "gamesetup.name%d", i ),player_str[e]);         // Update gui
+				setupgame_area.set_caption( String::Format( "gamesetup.name%d", i ),player_str[e]);         // Update gui
 				AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 				LOG_DEBUG(LOG_PREFIX_GFX << "nb AIs : " << AI_list.size());
-				setupgame_area.set_entry( format( "gamesetup.ai%d", i ), AI_list);
-				guiobj = setupgame_area.get_object( format( "gamesetup.color%d", i ));
+				setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
+				guiobj = setupgame_area.get_object( String::Format( "gamesetup.color%d", i ));
 				if (guiobj)
 				{
 					if (player_control[e] == PLAYER_CONTROL_NONE || player_control[e] == PLAYER_CONTROL_CLOSED)
@@ -1659,43 +1659,43 @@ void setup_game(bool client, const char *host, const char *saved_game)
 				}
 				if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
-			if (setupgame_area.get_state( format("gamesetup.b_side%d", i))) // Change player side
+			if (setupgame_area.get_state( String::Format("gamesetup.b_side%d", i))) // Change player side
 			{
 				uint16 e = 0;
 				for (uint16 f = 0 ; f < side_str_n; ++f)
 				{
-					if (setupgame_area.get_caption(format("gamesetup.side%d", i)) == side_str[f])
+					if (setupgame_area.get_caption(String::Format("gamesetup.side%d", i)) == side_str[f])
 					{
 						e = f;
 						break;
 					}
 				}
 				e = (e+1) % side_str_n;
-				setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[e]);           // Update gui
+				setupgame_area.set_caption( String::Format("gamesetup.side%d", i) , side_str[e]);           // Update gui
 
 				game_data.player_sides[i] = side_str[e];                                // update game data
 				if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
 			if (!(game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI))
-				setupgame_area.set_state(format("gamesetup.ai%d", i), false);
-			else if (setupgame_area.get_value( format("gamesetup.ai%d", i) ) >= 0 ) // Change player level (for AI)
+				setupgame_area.set_state(String::Format("gamesetup.ai%d", i), false);
+			else if (setupgame_area.get_value( String::Format("gamesetup.ai%d", i) ) >= 0 ) // Change player level (for AI)
 			{
-				int pos = setupgame_area.get_value( format("gamesetup.ai%d", i) ) + 1;
+				int pos = setupgame_area.get_value( String::Format("gamesetup.ai%d", i) ) + 1;
 				if (pos >= 1 && pos < (int)AI_list.size())
 				{
 					String AIlevel = AI_list[pos];
 					AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? AIlevel : String("");
-					setupgame_area.set_entry( format("gamesetup.ai%d", i), AI_list);          // Update gui
+					setupgame_area.set_entry( String::Format("gamesetup.ai%d", i), AI_list);          // Update gui
 
 					game_data.ai_level[i] = AIlevel;                              // update game data
 					if (host)
 						network_manager.sendSpecial("NOTIFY UPDATE");
 				}
 			}
-			if (setupgame_area.get_state( format("gamesetup.b_color%d", i))) // Change player color
+			if (setupgame_area.get_state( String::Format("gamesetup.b_color%d", i))) // Change player color
 			{
 				if (client)
-					network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
+					network_manager.sendSpecial(String::Format("NOTIFY COLORCHANGE %d", i));
 				sint16 e = player_color_map[i];
 				sint16 f = -1;
 				for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
@@ -1720,30 +1720,30 @@ void setup_game(bool client, const char *host, const char *saved_game)
 					player_color_map[i] = g;                                // update game data
 					player_color_map[f] = e;
 
-					guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+					guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 					if (guiobj )
 						guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-					guiobj =  setupgame_area.get_object( format("gamesetup.color%d", f));
+					guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", f));
 					if (guiobj )
 						guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
 				}
 				if (host && !client)
 					network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
-			if (setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) // Change player energy stock
+			if (setupgame_area.get_state( String::Format("gamesetup.b_energy%d", i) ) ) // Change player energy stock
 			{
 				game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
 				if (game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
-				setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]));         // Update gui
+				setupgame_area.set_caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));         // Update gui
 				if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
-			if (setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
+			if (setupgame_area.get_state( String::Format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
 			{
 				game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
 				if (game_data.metal[i] == 0 ) game_data.metal[i] = 500;
 
-				setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));           // Update gui
+				setupgame_area.set_caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));           // Update gui
 				if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
 		}
@@ -1795,7 +1795,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 			{
 				set_map.clear();
 				if (host && !client)
-					network_manager.sendSpecial(format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
+					network_manager.sendSpecial(String::Format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
 
 				String new_map_name = new_map;
 
@@ -2213,7 +2213,7 @@ void network_room(void)             // Let players create/join a game
 				{
 					networkgame_area.set_caption("networkgame.server_name", i_server->name);
 					networkgame_area.set_caption("networkgame.host", i_server->host);
-					networkgame_area.set_caption("networkgame.open_slots", format( "%d", i_server->nb_open ));
+					networkgame_area.set_caption("networkgame.open_slots", String::Format( "%d", i_server->nb_open ));
 				}
 			}
 		}
@@ -2337,7 +2337,7 @@ void campaign_main_menu(void)
 					guiobj->Text.clear();
 					int i = 0;
 					String current_name;
-					while (!(current_name = campaign_parser->pullAsString(format( "MISSION%d.missionname", i))).empty())
+					while (!(current_name = campaign_parser->pullAsString(String::Format( "MISSION%d.missionname", i))).empty())
 					{
 						guiobj->Text.push_back( current_name);
 						++nb_mission;
@@ -2449,7 +2449,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
 	TDFParser brief_parser(campaign_name);           // Loads the campaign file
 
 	String map_filename;
-	map_filename << "maps\\" << brief_parser.pullAsString(format("MISSION%d.missionfile", mission_id));
+	map_filename << "maps\\" << brief_parser.pullAsString(String::Format("MISSION%d.missionfile", mission_id));
 	TDFParser ota_parser(map_filename);
 
 	String narration_file;
@@ -2505,7 +2505,7 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
 		obj->Text.clear();
 		obj->Text.resize(ota_parser.pullAsInt("GlobalHeader.SCHEMACOUNT") + 1);
 		for (unsigned int i = 0 ; i < obj->Text.size() - 1; ++i)
-			obj->Text[i + 1] = I18N::Translate(ota_parser.pullAsString(format("GlobalHeader.Schema %d.Type", i)));
+			obj->Text[i + 1] = I18N::Translate(ota_parser.pullAsString(String::Format("GlobalHeader.Schema %d.Type", i)));
 		if (obj->Text.size() > 1)
 			obj->Text[0] = obj->Text[1];
 	}
@@ -2669,10 +2669,10 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
 		game_data.player_control[0] = PLAYER_CONTROL_LOCAL_HUMAN;
 		game_data.player_names[0] = brief_parser.pullAsString( "HEADER.campaignside");
 		game_data.player_sides[0] = brief_parser.pullAsString( "HEADER.campaignside");
-		game_data.energy[0] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ));
-		game_data.metal[0] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ));
+		game_data.energy[0] = ota_parser.pullAsInt( String::Format( "GlobalHeader.Schema %d.humanenergy", schema ));
+		game_data.metal[0] = ota_parser.pullAsInt( String::Format( "GlobalHeader.Schema %d.humanmetal", schema ));
 
-		String schema_type = ota_parser.pullAsString(format("GlobalHeader.Schema %d.Type", schema)).toLower();
+		String schema_type = ota_parser.pullAsString(String::Format("GlobalHeader.Schema %d.Type", schema)).toLower();
 
 		if (schema_type == "easy")
 			game_data.ai_level[ 0 ] = "[C] EASY";
@@ -2693,8 +2693,8 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
 			game_data.player_names[ i ] = brief_parser.pullAsString( "HEADER.campaignside");
 			game_data.player_sides[ i ] = brief_parser.pullAsString( "HEADER.campaignside");            // Has no meaning here since we are in campaign mode units are spawned by a script
 			game_data.ai_level[ i ] = game_data.ai_level[ 0 ];
-			game_data.energy[ i ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.computerenergy", schema ));
-			game_data.metal[ i ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.computermetal", schema ));
+			game_data.energy[ i ] = ota_parser.pullAsInt( String::Format( "GlobalHeader.Schema %d.computerenergy", schema ));
+			game_data.metal[ i ] = ota_parser.pullAsInt( String::Format( "GlobalHeader.Schema %d.computermetal", schema ));
 
 			player_color_map[ i ] = i;
 		}
@@ -2740,9 +2740,9 @@ void wait_room(void *p_game_data)
 	for (short int i = game_data->nb_players; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 	{
 		dead_player[i] = true;
-		wait_area.msg(format("wait.name%d.hide",i));
-		wait_area.msg(format("wait.progress%d.hide",i));
-		wait_area.msg(format("wait.ready%d.hide",i));
+		wait_area.msg(String::Format("wait.name%d.hide",i));
+		wait_area.msg(String::Format("wait.progress%d.hide",i));
+		wait_area.msg(String::Format("wait.ready%d.hide",i));
 	}
 
 	for (short int i = 0; i < game_data->nb_players; ++i)
@@ -2751,12 +2751,12 @@ void wait_room(void *p_game_data)
 		dead_player[i] = false;
 		if ((game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI) || game_data->player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN )
 		{
-			wait_area.set_data( format("wait.progress%d", i), 100);
-			wait_area.set_state( format("wait.ready%d", i), true);
+			wait_area.set_data( String::Format("wait.progress%d", i), 100);
+			wait_area.set_state( String::Format("wait.ready%d", i), true);
 		}
 		else
-			wait_area.set_state( format("wait.ready%d", i), false);
-		wait_area.set_caption( format("wait.name%d", i), game_data->player_names[i]);
+			wait_area.set_state( String::Format("wait.ready%d", i), false);
+		wait_area.set_caption( String::Format("wait.name%d", i), game_data->player_names[i]);
 	}
 
 	bool done = false;
@@ -2831,9 +2831,9 @@ void wait_room(void *p_game_data)
 				if (game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]))     // A player is disconnected
 				{
 					dead_player[i] = true;
-					wait_area.msg(format("wait.name%d.hide",i));
-					wait_area.msg(format("wait.progress%d.hide",i));
-					wait_area.msg(format("wait.ready%d.hide",i));
+					wait_area.msg(String::Format("wait.name%d.hide",i));
+					wait_area.msg(String::Format("wait.progress%d.hide",i));
+					wait_area.msg(String::Format("wait.ready%d.hide",i));
 				}
 		}
 
@@ -2853,13 +2853,13 @@ void wait_room(void *p_game_data)
 				else
 				{
 					if (params[0] == "NOT_READY")
-						wait_area.set_state(format("wait.ready%d", player_id), false);
+						wait_area.set_state(String::Format("wait.ready%d", player_id), false);
 					else
 					{
 						if (params[0] == "READY")
 						{
-							wait_area.set_data(format("wait.progress%d", player_id), 100);
-							wait_area.set_state(format("wait.ready%d", player_id), true);
+							wait_area.set_data(String::Format("wait.progress%d", player_id), 100);
+							wait_area.set_state(String::Format("wait.ready%d", player_id), true);
 							check_ready = true;
 						}
 						else
@@ -2877,7 +2877,7 @@ void wait_room(void *p_game_data)
 					if (params[0] == "LOADING")
 					{
 						int percent = Math::Min(100, Math::Max(0, params[1].toInt32()));
-						wait_area.set_data( format( "wait.progress%d", player_id ), percent);
+						wait_area.set_data( String::Format( "wait.progress%d", player_id ), percent);
 					}
 					else
 					{
@@ -2916,7 +2916,7 @@ void wait_room(void *p_game_data)
 			bool ready = true;
 			for (short int i = 0; i < game_data->nb_players && ready; ++i)
 			{
-				if (!wait_area.get_state(format("wait.ready%d", i)) && !dead_player[i] && game_data->player_network_id[i] > 0)
+				if (!wait_area.get_state(String::Format("wait.ready%d", i)) && !dead_player[i] && game_data->player_network_id[i] > 0)
 					ready = false;
 			}
 

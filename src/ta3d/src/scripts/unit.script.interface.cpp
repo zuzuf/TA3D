@@ -83,13 +83,13 @@ namespace TA3D
 			switch((id - NB_SCRIPT) % 4)
 			{
 				case 0:         // QueryWeapon
-					return format("QueryWeapon%d", weaponID);
+					return String::Format("QueryWeapon%d", weaponID);
 				case 1:         // AimWeapon
-					return format("AimWeapon%d", weaponID);
+					return String::Format("AimWeapon%d", weaponID);
 				case 2:         // AimFromWeapon
-					return format("AimFromWeapon%d", weaponID);
+					return String::Format("AimFromWeapon%d", weaponID);
 				case 3:         // FireWeapon
-					return format("FireWeapon%d", weaponID);
+					return String::Format("FireWeapon%d", weaponID);
 			}
 		}
 		return script_name[id];

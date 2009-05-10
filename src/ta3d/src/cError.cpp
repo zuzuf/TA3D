@@ -49,9 +49,8 @@ namespace TA3D
 
 		String szErrReport;
 
-		szErrReport = format( "***** Error Report *****\nWhere:%s\n Desc:%s\n",
-			m_szWhere.c_str(), m_szDesc.c_str() );
-
+		szErrReport << "***** Error Report *****\nWhere:" << m_szWhere <<
+			"\n Desc:" << m_szDesc << "\n";
 		I_Msg( TA3D_IM_DEBUG_MSG, (void *)szErrReport.c_str(), NULL, NULL );
 		m_Logged = true;
 	}
@@ -84,7 +83,7 @@ namespace TA3D
 	{
 		String szErrReport;
 
-		szErrReport = format( "A error has just occured within the application.\n%s\nPlease report this to our forums so that we might fix it.\n\nWhere:%s\n Desc:%s\n",
+		szErrReport = String::Format( "A error has just occured within the application.\n%s\nPlease report this to our forums so that we might fix it.\n\nWhere:%s\n Desc:%s\n",
 		    ( (m_Logged) ? "It was trapped and logged." : "It was trapped but NOT logged." ),
 		    m_szWhere.c_str(), m_szDesc.c_str() );
 
@@ -109,7 +108,7 @@ namespace TA3D
 		}
 
 		m_Logged = true;
-		String szErrReport = format( "***** Error Report *****\n%s%s\n",
+		String szErrReport = String::Format( "***** Error Report *****\n%s%s\n",
 		    m_szWhere.c_str(), m_szDesc.c_str() );
 
 		m_File << szErrReport;

@@ -46,22 +46,6 @@
 # endif
 
 
-// Fundamental types
-typedef Yuni::uint64   uint64;
-typedef Yuni::uint32   uint32;
-typedef Yuni::uint16   uint16;
-typedef Yuni::uint8    uint8;
-typedef Yuni::sint64   sint64;
-typedef Yuni::sint32   sint32;
-typedef Yuni::sint16   sint16;
-typedef Yuni::sint8    sint8;
-
-typedef uint8         byte;
-typedef unsigned char uchar;
-typedef signed char   schar;
-
-
-
 // TODO : Should removed
 /*
 ** The SDL library
@@ -98,9 +82,6 @@ typedef signed char   schar;
 
 
 
-// Should be removed
-# include "misc/string.h"
-
 
 
 
@@ -113,18 +94,31 @@ typedef signed char   schar;
 namespace TA3D
 {
 
+	// Fundamental types
+	typedef Yuni::uint64   uint64;
+	typedef Yuni::uint32   uint32;
+	typedef Yuni::uint16   uint16;
+	typedef Yuni::uint8    uint8;
+	typedef Yuni::sint64   sint64;
+	typedef Yuni::sint32   sint32;
+	typedef Yuni::sint16   sint16;
+	typedef Yuni::sint8    sint8;
+
+	typedef uint8         byte;
+	typedef unsigned char uchar;
+	typedef signed char   schar;
+}
+
+// Should be removed
+# include "misc/string.h"
+
+
+
+namespace TA3D
+{
+
 	//! \name String manipulations
 	//@{
-
-	String format(const char* fmt, ...);
-
-	sint32 SearchString(const String& s, const String& StringToSearch, const bool ignoreCase);
-
-	String ReplaceString(const String& s, const String& toSearch, const String& replaceWith, const bool ignoreCase);
-
-	String ReplaceChar(const String& s, const char toSearch, const char replaceWith);
-
-	bool StartsWith(const String& a, const String& b);
 
 	//@} String manipulations
 
@@ -135,48 +129,11 @@ namespace TA3D
 
 	String GetClientPath(void);
 
-	uint32 file_size(const String &filename);
-
-	int ASCIItoUTF8(const byte c, byte *out);
-
-	String InttoUTF8(const uint16 c);
-
-
-
-	/*!
-	** \brief Convert an UTF-8 String into a WideChar String
-	** \todo This class must be removed as soon as possible and is only here to prevent against
-	** stange bugs with the previous implementation
-	*/
-	struct WString
-	{
-	public:
-		WString(const char* s);
-		WString(const String& str);
-
-		void fromUtf8(const char* s, size_t length);
-		const wchar_t* cw_str() const {return pBuffer;}
-
-	private:
-		wchar_t pBuffer[5120];
-	};
-
 
 	void rest(uint32 msec);
 
 } // namespace TA3D
 
-#define FILE_SIZE	file_size
-
-#ifdef TA3D_PLATFORM_WINDOWS
-# define FA_FILE     1
-# define FA_DIREC    2
-#else
-# define FA_FILE     DT_REG
-# define FA_DIREC    DT_DIR
-#endif
-
-#define FA_ALL      (FA_FILE | FA_DIREC)
 
 // zuzuf: to prevent some warnings
 # undef PACKAGE_BUGREPORT

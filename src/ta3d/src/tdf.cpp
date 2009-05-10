@@ -220,11 +220,11 @@ namespace TA3D
 		parser.loadFromMemory("TDF",data,size,false,true,true);
 		int	first = nb_features;
 
-		for (int g = 0 ; parser.exists(format("gadget%d",g)) ; g++)
+		for (int g = 0 ; parser.exists(String::Format("gadget%d",g)) ; g++)
 		{
-			const String& key = format("gadget%d.",g);
+			const String& key = String::Format("gadget%d.",g);
 
-			int index = add_feature( parser.pullAsString(format("gadget%d", g)) );
+			int index = add_feature( parser.pullAsString(String::Format("gadget%d", g)) );
 			Feature *pFeature = feature[index];
 			pFeature->m3d = false;
 			pFeature->world = parser.pullAsString( key + "world", pFeature->world );
@@ -1046,7 +1046,7 @@ namespace TA3D
 		if (!pFeature->description.empty())
 		{
 			if (pFeature->reclaimable)
-				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, format("%s M:%d E:%d",I18N::Translate( pFeature->description ).c_str(), pFeature->metal, pFeature->energy) );
+				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, String::Format("%s M:%d E:%d",I18N::Translate( pFeature->description ).c_str(), pFeature->metal, pFeature->energy) );
 			else
 				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) );
 		}

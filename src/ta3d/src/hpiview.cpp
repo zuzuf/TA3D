@@ -300,7 +300,7 @@ namespace
                 Gaf::AnimationList anims;
                 anims.loadGAFFromRawData(data);
                 std::ofstream   m_File;
-                m_File.open( format("%s.txt", Paths::ExtractFileName( args[0] ).c_str()).c_str(), std::ios::out | std::ios::trunc );
+                m_File.open( String::Format("%s.txt", Paths::ExtractFileName( args[0] ).c_str()).c_str(), std::ios::out | std::ios::trunc );
 
                 m_File << "[gadget0]\n{\n";
                 m_File << "    filename=" << args[0] << ";\n";
@@ -314,7 +314,7 @@ namespace
                     m_File << "    name=" << anims[i].name << ";\n";
                     for (int e = 0; e < anims[i].nb_bmp; ++e)
                     {
-                        String filename = format("%s%d.tga", anims[i].name.c_str(), e);
+                        String filename = String::Format("%s%d.tga", anims[i].name.c_str(), e);
                         m_File << "    [frame" << e << "]\n    {\n";
                         m_File << "        XPos=" << anims[i].ofs_x[ e ] << ";\n";
                         m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
@@ -375,10 +375,10 @@ namespace
 
                     Gaf::Entry Entry;
 
-                    Entry.Frames = parser.pullAsInt( format( "gadget%d.frames", i + 1 ) );
+                    Entry.Frames = parser.pullAsInt( String::Format( "gadget%d.frames", i + 1 ) );
                     Entry.Unknown1 = 1;
                     Entry.Unknown2 = 0;
-                    Entry.name = parser.pullAsString( format( "gadget%d.name", i + 1 ) );
+                    Entry.name = parser.pullAsString( String::Format( "gadget%d.name", i + 1 ) );
 
                     fwrite( &Entry.Frames, 2, 1, gaf_file );
                     fwrite( &Entry.Unknown1, 2, 1, gaf_file );
@@ -404,13 +404,13 @@ namespace
                         fseek( gaf_file, pos, SEEK_SET );
 
                         Gaf::Frame::Data FrameData;
-                        FrameData.XPos = parser.pullAsInt( format( "gadget%d.frame%d.XPos", i + 1, e ) );
-                        FrameData.YPos = parser.pullAsInt( format( "gadget%d.frame%d.YPos", i + 1, e ) );
+                        FrameData.XPos = parser.pullAsInt( String::Format( "gadget%d.frame%d.XPos", i + 1, e ) );
+                        FrameData.YPos = parser.pullAsInt( String::Format( "gadget%d.frame%d.YPos", i + 1, e ) );
                         FrameData.FramePointers = 0;
                         FrameData.Unknown2 = 0;
                         FrameData.Compressed = 1;
 
-                        SDL_Surface *frame_img = gfx->load_image( parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ) );
+                        SDL_Surface *frame_img = gfx->load_image( parser.pullAsString( String::Format( "gadget%d.frame%d.filename", i + 1, e ) ) );
                         if( frame_img )
                         {
                             FrameData.Width = frame_img->w;
@@ -443,7 +443,7 @@ namespace
                         else
                         {
                             std::cerr << "Error: In frame " << e << ", could not load "
-                                << parser.pullAsString(format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() << std::endl;
+                                << parser.pullAsString(String::Format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() << std::endl;
                             i = header.Entries;
                             break;
                         }

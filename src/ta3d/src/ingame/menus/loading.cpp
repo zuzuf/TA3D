@@ -119,7 +119,7 @@ namespace Menus
     {
         // Broadcast informations
         if (pBroadcastInformations && network_manager.isConnected() && pLastPercent != pPercent)
-            network_manager.sendAll(format("LOADING %d", pPercent));
+            network_manager.sendAll(String::Format("LOADING %d", pPercent));
     }
 
 

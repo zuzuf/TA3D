@@ -1644,7 +1644,7 @@ namespace TA3D
 			int old = (int)self_destruct;
 			self_destruct -= dt;
 			if (old != (int)self_destruct) // Play a sound :-)
-				playSound( format( "count%d", old));
+				playSound( String::Format( "count%d", old));
 			if (self_destruct <= 0.0f)
 			{
 				self_destruct = 0.0f;

@@ -19,7 +19,7 @@ namespace TA3D
 
         virtual bool isOpen() const;
 
-        virtual void open(const std::string &hostname, uint16 port);
+        virtual void open(const String &hostname, uint16 port);
         virtual void close();
 
         virtual void check(uint32 msec);
@@ -29,7 +29,7 @@ namespace TA3D
         virtual int recv(char *data, int size);
 
         IPaddress getRemoteIP_sdl() const;
-        std::string getRemoteIPstr() const;
+        String getRemoteIPstr() const;
         uint32 getRemoteIP() const;
     };
 }

@@ -287,7 +287,9 @@ namespace TA3D
 
 	Font *FontManager::find(const String& filename, const int size, const Font::Type type)
 	{
-		const String& key = String::ToLower(filename + format("_%d_%d", int(type), size));
+		String key(filename);
+		key << "_" << type << "_" << size;
+		key.toLower();
 
 		return (font_table.exists(key))
 			? font_table.find(key)
