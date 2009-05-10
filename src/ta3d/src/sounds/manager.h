@@ -18,6 +18,7 @@
 #ifndef __TA3D_SOUNDS_MANAGER_H__
 # define __TA3D_SOUNDS_MANAGER_H__
 
+# include "../misc/string.h"
 # include "../misc/vector.h"
 # include "../misc/tdf.h"
 # include "../misc/interface.h"

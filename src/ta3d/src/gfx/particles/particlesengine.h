@@ -17,6 +17,8 @@
 #ifndef __TA3D_GFX_PARTICLES_ENGINE_H__
 # define __TA3D_GFX_PARTICLES_ENGINE_H__
 
+# include "../../stdafx.h"
+# include "../../misc/string.h"
 # include "../../threads/thread.h"
 # include "../../misc/vector.h"
 # include "../../ta3dbase.h"

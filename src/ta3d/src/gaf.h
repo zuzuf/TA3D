@@ -27,6 +27,7 @@
 # define __TA3D_MISC_GAF_H__
 
 # include "stdafx.h"
+# include "misc/string.h"
 # include <vector>
 # include "logs/logs.h"
 

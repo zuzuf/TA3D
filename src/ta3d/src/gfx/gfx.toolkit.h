@@ -17,6 +17,10 @@
 #ifndef __TA3D_GFX_TOOLKIT_H__
 #define __TA3D_GFX_TOOLKIT_H__
 
+# include "../stdafx.h"
+# include "../misc/string.h"
+
+
 namespace TA3D
 {
     void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h);

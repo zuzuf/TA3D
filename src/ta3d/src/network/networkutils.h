@@ -19,6 +19,7 @@
 # define __TA3D_NET_NETWORK_UTILS_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../threads/thread.h"
 
 

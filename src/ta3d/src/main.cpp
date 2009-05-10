@@ -40,87 +40,97 @@
 #include "sounds/manager.h"
 
 
-/*
-** Function: ReadFileParameter
-**    Notes: This function will eventually load a file given as command line parameter
-**             and run given commands. This is used to start a multiplayer game from
-**             an external Lobby client
-*/
-void ReadFileParameter()
+
+namespace TA3D
 {
-	if(!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
-		return;
 
-	LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
-
-	TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
-
-	String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
-
-	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
-	TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
-	TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
-	TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
-
-	if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
+	/*
+	** Function: ReadFileParameter
+	**    Notes: This function will eventually load a file given as command line parameter
+	**             and run given commands. This is used to start a multiplayer game from
+	**             an external Lobby client
+	*/
+	void ReadFileParameter()
 	{
-		delete HPIManager;
-		TA3D_clear_cache();		// Clear the cache
+		if(!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
+			return;
 
-		HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
-		ta3dSideData.loadData();				// Refresh side data so we load the correct values
-		delete sound_manager;
-		sound_manager = new TA3D::Audio::Manager();
-		sound_manager->stopMusic();
-		sound_manager->loadTDFSounds(true);
-		sound_manager->loadTDFSounds(false);
-	}
+		LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
 
-	if (parser.pullAsBool("TA3D.Network game"))
-	{
-		if (parser.pullAsBool("TA3D.Server"))// Server code
+		TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
+
+		TA3D::String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
+
+		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
+		TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
+		TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
+		TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
+
+		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
-			String host_name = parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name );
-			setup_game( false, host_name.c_str() );		// Start the game in networking mode as server
+			delete HPIManager;
+			TA3D_clear_cache();		// Clear the cache
+
+			HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+			ta3dSideData.loadData();				// Refresh side data so we load the correct values
+			delete sound_manager;
+			sound_manager = new TA3D::Audio::Manager();
+			sound_manager->stopMusic();
+			sound_manager->loadTDFSounds(true);
+			sound_manager->loadTDFSounds(false);
 		}
-		else // Client code
+
+		if (parser.pullAsBool("TA3D.Network game"))
 		{
-			String host_name = parser.pullAsString( "TA3D.Server name", "" );
-			setup_game( true, host_name.c_str() );		// Start the game in networking mode as server
+			if (parser.pullAsBool("TA3D.Server"))// Server code
+			{
+				String host_name = parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name );
+				setup_game( false, host_name.c_str() );		// Start the game in networking mode as server
+			}
+			else // Client code
+			{
+				String host_name = parser.pullAsString( "TA3D.Server name", "" );
+				setup_game( true, host_name.c_str() );		// Start the game in networking mode as server
+			}
+		}
+
+		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
+
+		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
+		{
+			delete HPIManager;
+			TA3D_clear_cache();		// Clear the cache
+
+			HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+			ta3dSideData.loadData();				// Refresh side data so we load the correct values
+			delete sound_manager;
+			sound_manager = new TA3D::Audio::Manager();
+			sound_manager->loadTDFSounds(true);
+			sound_manager->loadTDFSounds(false);
 		}
 	}
 
-	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
+} // namespace TA3D
 
-	if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
-	{
-		delete HPIManager;
-		TA3D_clear_cache();		// Clear the cache
 
-		HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
-		ta3dSideData.loadData();				// Refresh side data so we load the correct values
-		delete sound_manager;
-		sound_manager = new TA3D::Audio::Manager();
-		sound_manager->loadTDFSounds(true);
-		sound_manager->loadTDFSounds(false);
-	}
-}
 
+
+using namespace TA3D;
 
 
 int hpiview(int argc,char *argv[]);
 
 /*
-** Function: ParseCommandLine
-**    Notes: this will eventually break down any command line arguments passed to
-**              the application at run time.  It don't do anything yet, but eventually
-**              we will be adding lots of command parms.
-**           If something goes wrong you can safely throw a string for an error.
-**             The call to this function is tried, but it only catches exceptions
-**             and strings, ie throw( "LoadConfigFile: some error occured" );
-**           Remember if you throw an error, or generate one, you are responsible for
-**             cleaning up what you initialized!
-*/
+ ** Function: ParseCommandLine
+ **    Notes: this will eventually break down any command line arguments passed to
+ **              the application at run time.  It don't do anything yet, but eventually
+ **              we will be adding lots of command parms.
+ **           If something goes wrong you can safely throw a string for an error.
+ **             The call to this function is tried, but it only catches exceptions
+ **             and strings, ie throw( "LoadConfigFile: some error occured" );
+ **           Remember if you throw an error, or generate one, you are responsible for
+ **             cleaning up what you initialized!
+ */
 int ParseCommandLine(int argc, char *argv[])
 {
 	if (hpiview(argc, argv))
@@ -129,7 +139,7 @@ int ParseCommandLine(int argc, char *argv[])
 	if (argc > 1)
 	{
 		// Argument converted to a TA3D::String
-		String arg;
+		TA3D::String arg;
 
 		for (int i = 1 ; i < argc ; ++i)
 		{

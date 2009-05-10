@@ -18,13 +18,14 @@
 #ifndef __ScriptInterface_H__
 #define __ScriptInterface_H__
 
-#include "../threads/thread.h"
-#include "script.data.h"
-#include <zlib.h>
+# include "../misc/string.h"
+# include "../threads/thread.h"
+# include "script.data.h"
+# include <zlib.h>
 
-#define UNPACKX(xz) ((sint16)((xz)>>16))
-#define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
-#define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
+# define UNPACKX(xz) ((sint16)((xz)>>16))
+# define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
+# define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
 
 namespace TA3D
 {

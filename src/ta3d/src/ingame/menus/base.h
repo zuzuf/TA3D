@@ -22,6 +22,7 @@
 # include <memory>
 # include "../../gui.h"
 # include "../../gfx/gui/area.h"
+# include "../../misc/string.h"
 
 
 # define TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING  8

@@ -3,6 +3,7 @@
 
 # include <vector>
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../misc/vector.h"
 
 

@@ -18,6 +18,8 @@
 #ifndef __LuaThread_H__
 #define __LuaThread_H__
 
+# include "../stdafx.h"
+# include "../misc/string.h"
 # include "../misc/vector.h"
 # include "../lua/lua.hpp"
 # include "../threads/thread.h"

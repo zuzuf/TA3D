@@ -28,17 +28,23 @@
 #include "gl.extensions.h"
 #include <stdio.h>
 
-extern bool	MultiTexturing;
-extern bool g_useTextureCompression;
-extern bool g_useStencilTwoSide;
-extern bool g_useProgram;
-extern bool g_useFBO;
-extern bool g_useGenMipMaps;
-extern bool g_useNonPowerOfTwoTextures;
+namespace TA3D
+{
 
-/*!
-** \brief Try to enable some specific OpenGL extensions
-*/
-void installOpenGLExtensions();
+	extern bool	MultiTexturing;
+	extern bool g_useTextureCompression;
+	extern bool g_useStencilTwoSide;
+	extern bool g_useProgram;
+	extern bool g_useFBO;
+	extern bool g_useGenMipMaps;
+	extern bool g_useNonPowerOfTwoTextures;
+
+	/*!
+	** \brief Try to enable some specific OpenGL extensions
+	*/
+	void installOpenGLExtensions();
+
+
+} // namespace TA3D
 
 #endif // __TA3D_GFX_GL_FUNCTIONS_H__

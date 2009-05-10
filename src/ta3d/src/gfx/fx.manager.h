@@ -18,6 +18,7 @@
 # define __TA3D_GFX_FXMANAGER_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../threads/thread.h"
 # include "../gaf.h"
 # include "../ta3dbase.h"

@@ -1,8 +1,9 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
-#include <SDL/SDL_net.h>
-#include "../threads/thread.h"
+# include "../misc/string.h"
+# include <SDL/SDL_net.h>
+# include "../threads/thread.h"
 
 namespace TA3D
 {

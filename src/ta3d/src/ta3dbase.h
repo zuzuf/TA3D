@@ -36,25 +36,27 @@ namespace TA3D
 
         extern UTILS::HPI::cHPIHandler *HPIManager;
     }
-}
 
-using namespace TA3D::VARS;
-
+	using namespace TA3D::VARS;
 
 
-extern float	player_color[30];
-extern byte		player_color_map[10];
 
-extern int expected_players;
+	extern float	player_color[30];
+	extern byte		player_color_map[10];
+
+	extern int expected_players;
 
 #ifndef TA3D_MSEC_TIMER
 #define TA3D_MSEC_TIMER
 #define msec_timer  (SDL_GetTicks())
 #endif
 
-extern int start;
+	extern int start;
 
-extern int fire;
-extern int build_part;
+	extern int fire;
+	extern int build_part;
+
+
+}
 
 #endif

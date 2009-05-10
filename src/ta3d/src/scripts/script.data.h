@@ -18,6 +18,11 @@
 #ifndef __ScriptData_H__
 # define  __ScriptData_H__
 
+
+# include "../stdafx.h"
+# include "../misc/string.h"
+
+
 namespace TA3D
 {
 

@@ -18,6 +18,9 @@
 #ifndef __CobVm_H__
 #define __CobVm_H__
 
+
+# include "../stdafx.h"
+# include "../misc/string.h"
 # include "cob.h"
 # include "unit.script.interface.h"
 # include "../misc/stack.hxx"

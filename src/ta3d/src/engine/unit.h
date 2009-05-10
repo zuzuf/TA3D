@@ -2,6 +2,7 @@
 # define __TA3D_ENGINE_UNIT_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../threads/thread.h"
 # include "../misc/vector.h"
 # include "../ai/pathfinding.h"

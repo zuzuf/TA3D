@@ -20,25 +20,31 @@
 #include "misc/math.h"
 #include "misc/paths.h"
 
+
+namespace TA3D
+{
+
 void install_TA_files( String HPI_file, String filename )
 {
-    HPIManager = new TA3D::UTILS::HPI::cHPIHandler(HPI_file);
+	HPIManager = new TA3D::UTILS::HPI::cHPIHandler(HPI_file);
 
-    uint32 file_size32 = 0;
-    byte *data = HPIManager->PullFromHPI( filename, &file_size32);			// Extract the file
-    if (data)
-    {
-        FILE *dst = TA3D_OpenFile(Paths::Resources + Paths::ExtractFileName(filename), "wb");
+	uint32 file_size32 = 0;
+	byte *data = HPIManager->PullFromHPI( filename, &file_size32);			// Extract the file
+	if (data)
+	{
+		FILE *dst = TA3D_OpenFile(Paths::Resources + Paths::ExtractFileName(filename), "wb");
 
-        if (dst)
-        {
-            fwrite(data, file_size32, 1, dst);
+		if (dst)
+		{
+			fwrite(data, file_size32, 1, dst);
 
-            fflush(dst);
-            fclose(dst);
-        }
-        delete[] data;
-    }
+			fflush(dst);
+			fclose(dst);
+		}
+		delete[] data;
+	}
 
-    delete HPIManager;
+	delete HPIManager;
 }
+
+} // namespace TA3D

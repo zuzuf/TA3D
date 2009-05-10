@@ -44,10 +44,12 @@
 
 
 
-int expected_players = 1;
 
 namespace TA3D
 {
+	int expected_players = 1;
+
+
     namespace VARS
     {
         MODEL *TheModel;

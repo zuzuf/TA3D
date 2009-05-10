@@ -18,6 +18,7 @@
 # define __TA3D_IMPORTERS_OBJ_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../3do.h"
 
 

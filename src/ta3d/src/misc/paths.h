@@ -19,6 +19,7 @@
 # define _TA3D_TOOLS_PATHS_H__
 
 # include "../stdafx.h"
+# include "string.h"
 # include <vector>
 # include <list>
 

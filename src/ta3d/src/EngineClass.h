@@ -34,6 +34,7 @@
 # include "misc/camera.h"
 # include <vector>
 # include "misc/math.h"
+# include "misc/string.h"
 
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules

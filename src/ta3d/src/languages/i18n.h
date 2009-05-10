@@ -18,6 +18,7 @@
 # define __TA3D_XX_I18N_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../threads/mutex.h"
 # include "../misc/tdf.h"
 # include <vector>

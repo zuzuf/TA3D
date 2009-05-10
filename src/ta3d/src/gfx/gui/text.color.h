@@ -21,23 +21,30 @@
 #include "../../misc/string.h"
 #include "../font.h"
 
+
+namespace TA3D
+{
+
 class TEXT_COLOR
 {
 public:
-    TEXT_COLOR();
+	TEXT_COLOR();
 
-    void load(TA3D::TDFParser& parser, const String &prefix, float scale);
+	void load(TA3D::TDFParser& parser, const String &prefix, float scale);
 
-    void print(Font *font, float x, float y, const String &text);
+	void print(Font *font, float x, float y, const String &text);
 
-    void print(Font *font, float x, float y, uint32 col, const String &text);
+	void print(Font *font, float x, float y, uint32 col, const String &text);
 
 public:
-    uint32      font_color;
-    uint32      shadow_color;
-    bool        shadow;
-    float       shadow_dx;
-    float       shadow_dy;
+	uint32      font_color;
+	uint32      shadow_color;
+	bool        shadow;
+	float       shadow_dx;
+	float       shadow_dy;
 };
+
+} // namespace TA3D
+
 
 #endif

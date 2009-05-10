@@ -5,8 +5,7 @@ LINK_LIBRARIES("${LIBS}")
 #
 # STDAFX
 #
-SET(SRC_STDAFX stdafx.h stdafx.cpp
-		ta3d.h)
+SET(SRC_STDAFX stdafx.h ta3d.h)
 
 #
 #
@@ -400,9 +399,6 @@ ELSE(NOT APPLE)
 	# Translations
 	Message(STATUS "[bundle] Adding resources 'languages'...")
 	BUNDLE_INSTALL_GLOB("resources/languages" "languages" "*.po")
-
-	# *.res
-	BUNDLE_BASIC_INSTALL("resources" "./resources" "3dmeditor.res")
 
 	# OS X specific
 	ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${TA3D_SOURCES})

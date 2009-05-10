@@ -170,7 +170,7 @@ namespace TA3D
 	{
 		Init();
 		while (!pSignaledToStop)
-			::rest(100);
+			TA3D::rest(100);
 	}
 
 
@@ -178,6 +178,13 @@ namespace TA3D
 	void Engine::signalExitThread()
 	{
 		pSignaledToStop = true;
+	}
+
+
+
+	void rest(uint32 msec)
+	{
+		SDL_Delay(msec);
 	}
 
 

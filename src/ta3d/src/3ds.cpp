@@ -26,7 +26,6 @@
 #define TA3D_BASIC_ENGINE
 #include "ta3dbase.h"		// Moteur
 #include "3ds.h"
-#include "3dmeditor.h"
 #include "misc/paths.h"
 
 namespace TA3D

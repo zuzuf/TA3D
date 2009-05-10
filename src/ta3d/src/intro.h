@@ -26,8 +26,13 @@
 # define __TA3D_INTO_H__
 
 
+# include "misc/string.h"
 
-void loading(const float percent, const String& msg);
+namespace TA3D
+{
 
+	void loading(const float percent, const String& msg);
+
+} // namespace TA3D
 
 #endif // __TA3D_INTO_H__

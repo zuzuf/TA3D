@@ -18,6 +18,7 @@
 # define __TA3D_INGAME_GAMEDATA_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include <vector>
 
 # define FOW_DISABLED  0x0

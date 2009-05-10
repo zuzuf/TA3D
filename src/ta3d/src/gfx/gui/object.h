@@ -17,6 +17,8 @@
 #ifndef __TA3D_GFX_GUI_OBJECT_H__
 # define __TA3D_GFX_GUI_OBJECT_H__
 
+# include "../../stdafx.h"
+# include "../../misc/string.h"
 # include "base.h"
 # include <vector>
 # include "wnd.h"

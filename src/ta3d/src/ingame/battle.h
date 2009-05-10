@@ -18,6 +18,7 @@
 # define __TA3D__INGAM__BATTLE_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "gamedata.h"
 # include <memory> // auto_ptr
 # include "../gfx/gui/area.h"

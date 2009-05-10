@@ -19,11 +19,11 @@
 #ifndef TA3D_NET_SOCK_H__
 # define TA3D_NET_SOCK_H__
 
-#include "../stdafx.h"
-#include "socket.tcp.h"
-#include "../threads/thread.h"
-#include "../threads/mutex.h"
-#include <string>
+# include "../stdafx.h"
+# include "socket.tcp.h"
+# include "../threads/thread.h"
+# include "../threads/mutex.h"
+# include "../misc/string.h"
 
 
 namespace TA3D
