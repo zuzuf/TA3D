@@ -421,9 +421,9 @@ ENDIF(NOT APPLE)
 #
 # --- Internal libraries ---
 #
-SET(LIBS  ${LIBS} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
+SET(LIBS  "${LIBS} ${FREETYPE_LIBRARIES}")
 IF(WIN32)
-	SET(${LIBS} ${LIBS} lua gdi32 opengl32 glu32)
+	SET(${LIBS} "${LIBS} -llua -lgdi32 -lopengl32 -lglu32")
 ENDIF(WIN32)
 
 
