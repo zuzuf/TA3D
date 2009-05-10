@@ -21,7 +21,6 @@
 #include "../misc/matrix.h"
 
 #include "../intro.h"			// Introduction
-#include "../ta3d.h"			// Some core include
 #include "../menu.h"			// Game menus
 #include "../restore.h"		// Save/Load mecanisms
 #include "../network/TA3D_Network.h"	// Network functionnalities such as chat
@@ -59,6 +58,12 @@
 
 namespace TA3D
 {
+	int expected_players;
+
+	int fire;
+	int build_part;
+
+	int start=0;
 
 
 

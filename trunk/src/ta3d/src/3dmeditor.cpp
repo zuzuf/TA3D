@@ -21,8 +21,6 @@
 #include "threads/thread.h"
 #include "gfx/shader.h"
 
-#define TA3D_BASIC_ENGINE
-#include "ta3d.h"			// Moteur
 #include "gui.h"			// Interface utilisateur
 #include "TA3D_hpi.h"		// Interface HPI requis pour 3do.h
 #include "gfx/particles/particles.h"
