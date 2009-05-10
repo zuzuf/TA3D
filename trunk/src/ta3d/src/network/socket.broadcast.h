@@ -9,7 +9,7 @@ namespace TA3D
     class SocketBroadCast : public SocketUDP
     {
     public:
-        /*virtual*/ void open(const std::string &hostname, uint16 port);
+        /*virtual*/ void open(const String &hostname, uint16 port);
         /*virtual*/ void open(uint16 port);
     };
 }

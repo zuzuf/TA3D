@@ -33,6 +33,16 @@
 #include <errno.h>
 
 
+#ifdef TA3D_PLATFORM_WINDOWS
+# define FA_FILE     1
+# define FA_DIREC    2
+#else
+# define FA_FILE     DT_REG
+# define FA_DIREC    DT_DIR
+#endif
+
+#define FA_ALL      (FA_FILE | FA_DIREC)
+
 
 
 namespace TA3D
@@ -72,7 +82,7 @@ namespace TA3D
 			 * \brief Get the absolute path to the local application data folder
 			 * (from the Windows registry)
 			 */
-			std::string localAppData()
+			String localAppData()
 			{
 				LPITEMIDLIST pidl;
 				HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);

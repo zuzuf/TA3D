@@ -47,7 +47,8 @@ namespace TA3D
 
     SKIN *SKIN_MANAGER::load(const String& filename, const float scale)
     {
-        String key = filename + format("-%.2f", scale);
+        String key(filename);
+		key += String::Format("-%.2f", scale);
         SKIN *pSkin = hash_skin.find(key);
         if (pSkin)
             return pSkin;

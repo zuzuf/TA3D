@@ -76,7 +76,7 @@ namespace Logs
         unlock();
     }
 
-    bool Log::writeToFile(const std::string& filename)
+    bool Log::writeToFile(const String& filename)
     {
         if (pOut)
         {
@@ -101,22 +101,22 @@ namespace Logs
 
 
 
-    void LogErrorMsg::forwardToConsole(const std::string& msg) const
+    void LogErrorMsg::forwardToConsole(const String& msg) const
     {
         console.addEntry("[error] " + msg);
     }
 
-    void LogWarningMsg::forwardToConsole(const std::string& msg) const
+    void LogWarningMsg::forwardToConsole(const String& msg) const
     {
         console.addEntry("[!!] " + msg);
     }
 
-    void LogCriticalMsg::forwardToConsole(const std::string& msg) const
+    void LogCriticalMsg::forwardToConsole(const String& msg) const
     {
         console.addEntry("[critical] " + msg);
     }
 
-    void LogInfoMsg::forwardToConsole(const std::string& msg) const
+    void LogInfoMsg::forwardToConsole(const String& msg) const
     {
         console.addEntry(msg);
     }

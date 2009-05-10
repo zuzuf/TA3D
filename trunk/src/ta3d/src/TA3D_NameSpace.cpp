@@ -63,8 +63,8 @@ namespace TA3D
 		bool rebuild_cache = false;
 		// Check cache date
 		String cache_date = lp_CONFIG
-            ? format("build info : %s , %s\ncurrent mod : %s\n", __DATE__, __TIME__, lp_CONFIG->last_MOD.c_str())
-            : format("build info : %s , %s\ncurrent mod : \n", __DATE__, __TIME__ );
+            ? String::Format("build info : %s , %s\ncurrent mod : %s\n", __DATE__, __TIME__, lp_CONFIG->last_MOD.c_str())
+            : String::Format("build info : %s , %s\ncurrent mod : \n", __DATE__, __TIME__ );
 
 		if(TA3D::Paths::Exists(TA3D::Paths::Caches + "cache_info.txt") && !force)
         {

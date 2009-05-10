@@ -8,7 +8,7 @@
     { \
       if (l.minimalLevel() <= level) \
       { \
-        std::string msg(str()); \
+        String msg(str()); \
         if (pOut) \
         { \
             (*pOut) << l.date() << l.header() << msg << std::endl; \

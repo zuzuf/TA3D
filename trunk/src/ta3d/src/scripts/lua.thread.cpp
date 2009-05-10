@@ -404,9 +404,11 @@ namespace TA3D
                 if (t_L == NULL)
                     continue;
                 lua_pushthread(t_L);
-                lua_setglobal(t_L, format("__thread%d",i).c_str());
+				String s("__thread%d");
+				s += i;
+                lua_setglobal(t_L, s.c_str());
             }
-            for(int i = childs.size() - 1 ; i >= 0 ; i--)
+            for (int i = childs.size() - 1 ; i >= 0 ; i--)
             {
                 int sig = childs[i]->run(dt);
                 if (sig > 0 || sig < -3)

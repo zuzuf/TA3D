@@ -447,7 +447,8 @@ namespace TA3D
         progress_bar[1].draw( x1 + progress_bar[0].x1, y1 + progress_bar[0].y1, x1 + progress_bar[0].x1 + (progress_bar[0].x2 + x2 - x1 - progress_bar[0].x1) * Value * 0.01f, y2 + progress_bar[0].y2 );			// Draw the bar
         gfx->unset_alpha_blending();
 
-        String Buf = format("%d", Value) + "%%";
+        String Buf;
+		Buf << Value << "%%";
 
         gfx->print(gui_font,(x1+x2)*0.5f-gui_font->length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font->height()*0.5f,0.0f,White,Buf);
     }

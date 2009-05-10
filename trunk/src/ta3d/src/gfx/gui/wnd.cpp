@@ -1401,7 +1401,7 @@ namespace TA3D
 			obj_key << "gadget" << i + 1 << ".";
 			int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 
-			Objets[i].Name = wndFile.pullAsString(obj_key + "common.name", format("gadget%d", i + 1));
+			Objets[i].Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
 			obj_hashtable.insert(String::ToLower(Objets[i].Name), i + 1);
 
 			int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
@@ -1609,9 +1609,10 @@ namespace TA3D
 
 		for (uint16 i = 0 ; i < NbObj ; ++i) // Loads each object
 		{
-			String obj_key = format("window.object%d." , i);
+			String obj_key("window.object");
+			obj_key << i << ".";
 			String obj_type = wndFile.pullAsString(obj_key + "type");
-			Objets[i].Name = wndFile.pullAsString(obj_key + "name", format("object%d", i));
+			Objets[i].Name = wndFile.pullAsString(obj_key + "name", String::Format("object%d", i));
 			obj_hashtable.insert(String::ToLower(Objets[i].Name), i + 1);
 			Objets[i].help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 

@@ -63,10 +63,12 @@ namespace TA3D
 		VARS::sound_manager = NULL;
 		VARS::gfx = NULL;
 
-		String str = format("%s initializing started:\n\n", TA3D_ENGINE_VERSION);
+		String str(TA3D_ENGINE_VERSION);
+		str << " initializing started:\n\n";
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL);
 
-		str = format("Build info : %s , %s\n\n", __DATE__, __TIME__);
+		str.clear();
+		str << "Build info : " << __DATE__ << " , " << __TIME__ << "%s\n\n";
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL);
 
 		// Initalizing SDL video

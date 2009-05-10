@@ -43,7 +43,7 @@ void loading(const float percent, const String& msg)
     if( network_manager.isConnected() && last_percent != (int)percent )
     {
         last_percent = (int)percent;
-        network_manager.sendAll(format("LOADING %d", last_percent));
+        network_manager.sendAll(String::Format("LOADING %d", last_percent));
     }
 
     bool init=(Glfond==0);
@@ -134,7 +134,6 @@ void loading(const float percent, const String& msg)
         gfx->destroy_texture( Glfond );
     }
 
-//    set_uformat(U_ASCII);
 }
 
 

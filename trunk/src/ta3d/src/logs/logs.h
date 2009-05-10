@@ -18,6 +18,7 @@
 #ifndef __XX_LIB_LOGS_H__
 # define __XX_LIB_LOGS_H__
 
+# include "../stdafx.h"
 # include <iostream>
 # include <sstream>
 # include <cstring>
@@ -25,6 +26,7 @@
 # include <errno.h>
 # include <string>
 # include "../threads/mutex.h"
+# include "../misc/string.h"
 
 
 # ifdef LOGS_USE_DEBUG
@@ -127,12 +129,12 @@ namespace Logs
 		** \brief Implement this to produce a string to put
 		** between the date and the log string.
 		*/
-		virtual std::string	header() const = 0;
+		virtual String	header() const = 0;
 
 		/*!
 		** \brief Reimplement this to forward the message to the console
 		*/
-		virtual void forwardToConsole(const std::string& msg) const = 0;
+		virtual void forwardToConsole(const String& msg) const = 0;
 
 		/*!
 		** \brief Implement this to set the minimal log level for the messages to appear.
@@ -144,7 +146,7 @@ namespace Logs
 		** \brief Reimplement this to color your log lines.
 		** This is filtered if output is not std::cout.
 		*/
-		virtual std::string color() const
+		virtual String color() const
 		{
 # ifndef TA3D_PLATFORM_WINDOWS
 			return "[1m";
@@ -154,7 +156,7 @@ namespace Logs
 		}
 
 		//! Reimplement this to reset the color to a default value.
-		virtual std::string resetColor() const
+		virtual String resetColor() const
 		{
 # ifndef TA3D_PLATFORM_WINDOWS
 			return "[0m";
@@ -164,7 +166,7 @@ namespace Logs
 		}
 
 		//! Used to produce the date string
-		virtual std::string date() const
+		virtual String date() const
 		{
 			time_t rawtime;
 
@@ -183,7 +185,7 @@ namespace Logs
 			asc[strlen(asc) - 1] = 0;
 			std::ostringstream s;
 			s << "[" << asc << "] ";
-			return std::string(s.str());
+			return String(s.str());
 		}
 
 	}; // class AbstractLogMsg
@@ -199,12 +201,12 @@ namespace Logs
 		virtual int minimalLevel() const { return LOG_LEVEL_DEBUG; }
 		virtual ~LogDebugMsg() {}
 # ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() const { return "[0m"; }
+		virtual String color() const { return "[0m"; }
 # else
-		virtual std::string color() const { return ""; }
+		virtual String color() const { return ""; }
 # endif
-		virtual std::string header() const { return "[debug] "; }
-		virtual void forwardToConsole(const std::string&) const {}
+		virtual String header() const { return "[debug] "; }
+		virtual void forwardToConsole(const String&) const {}
 	};
 
 	/*!
@@ -216,12 +218,12 @@ namespace Logs
 		virtual int minimalLevel() const { return LOG_LEVEL_INFO; }
 		virtual ~LogInfoMsg() {}
 # ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() const { return "[1;32m"; }
+		virtual String color() const { return "[1;32m"; }
 # else
-		virtual std::string color() const { return ""; }
+		virtual String color() const { return ""; }
 # endif
-		virtual inline std::string header() const { return "[infos] "; }
-		virtual void forwardToConsole(const std::string& msg) const;
+		virtual inline String header() const { return "[infos] "; }
+		virtual void forwardToConsole(const String& msg) const;
 	};
 
 	/*!
@@ -233,12 +235,12 @@ namespace Logs
 		virtual int minimalLevel() const { return LOG_LEVEL_WARNING; }
 		virtual ~LogWarningMsg() {}
 # ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() const { return "[1;33m"; }
+		virtual String color() const { return "[1;33m"; }
 # else
-		virtual std::string color() const { return ""; }
+		virtual String color() const { return ""; }
 # endif
-		virtual inline std::string header() const { return "[warns] "; }
-		virtual void forwardToConsole(const std::string& msg) const;
+		virtual inline String header() const { return "[warns] "; }
+		virtual void forwardToConsole(const String& msg) const;
 	};
 
 	/*!
@@ -250,12 +252,12 @@ namespace Logs
 		virtual int minimalLevel() const { return LOG_LEVEL_ERROR; }
 		virtual ~LogErrorMsg() {}
 # ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() const { return "[1;31m"; }
+		virtual String color() const { return "[1;31m"; }
 # else
-		virtual std::string color() const { return ""; }
+		virtual String color() const { return ""; }
 # endif
-		virtual inline std::string header() const { return "[error] "; }
-		virtual void forwardToConsole(const std::string& msg) const;
+		virtual inline String header() const { return "[error] "; }
+		virtual void forwardToConsole(const String& msg) const;
 	};
 
 	/*!
@@ -267,12 +269,12 @@ namespace Logs
 		virtual int minimalLevel() const { return LOG_LEVEL_CRITICAL; }
 		virtual ~LogCriticalMsg() {}
 # ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() const { return "[1;31m"; }
+		virtual String color() const { return "[1;31m"; }
 # else
-		virtual std::string color() const { return ""; }
+		virtual String color() const { return ""; }
 # endif
-		virtual inline std::string header() const { return "[critical] "; }
-		virtual void forwardToConsole(const std::string& msg) const;
+		virtual inline String header() const { return "[critical] "; }
+		virtual void forwardToConsole(const String& msg) const;
 	};
 
 
@@ -328,7 +330,7 @@ namespace Logs
 		** \param filename The filename
 		** \return True if the operation succeeded, False otherwise
 		*/
-		bool writeToFile(const std::string& filename);
+		bool writeToFile(const String& filename);
 
 		/*!
 		** \brief Close the file where the output was redirected

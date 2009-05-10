@@ -835,9 +835,9 @@ namespace TA3D
 		map_size = parser.pullAsString("GlobalHeader.size");
 		SurfaceMetal = parser.pullAsInt("GlobalHeader.Schema 0.SurfaceMetal");
 		MohoMetal = parser.pullAsInt("GlobalHeader.Schema 0.MohoMetal");
-		for(int s = 0 ; parser.exists( format("globalheader.schema 0.specials.special%d", s) ) ; s++)
+		for(int s = 0 ; parser.exists( String::Format("globalheader.schema 0.specials.special%d", s) ) ; s++)
 		{
-			String key = format("GlobalHeader.Schema 0.specials.special%d.", s);
+			String key = String::Format("GlobalHeader.Schema 0.specials.special%d.", s);
 			String specialWhat = parser.pullAsString(key + "specialwhat");
 			if (StartsWith( specialWhat.toLower(), "startpos"))
 			{

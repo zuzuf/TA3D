@@ -415,7 +415,7 @@ namespace TA3D
 
         for(int i = 0 ; i < players.nb_player ; ++i)
         {
-            GUIOBJ *obj = pArea.get_object( format("playerstats.team%d",i) );
+            GUIOBJ *obj = pArea.get_object(String("playerstats.team") << i);
             if (obj)
             {
                 obj->current_state = TA3D::Math::Log2( players.team[i] );
@@ -838,7 +838,7 @@ namespace TA3D
         do
         {
             nb_shoot = (nb_shoot+1)%1000000;
-        }while(TA3D::Paths::Exists(TA3D::Paths::Screenshots + format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
+        }while (TA3D::Paths::Exists(TA3D::Paths::Screenshots + String::Format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
 
 		return true;
 	}

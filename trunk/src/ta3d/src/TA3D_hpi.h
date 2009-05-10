@@ -271,7 +271,7 @@ namespace HPI
             //!
             String  Name;
             //!
-            sint32  Size;
+            uint64  Size;
 
         }; // class HPIITEM
 

@@ -738,7 +738,8 @@ namespace TA3D
 					}
 					if (nb>0)
 					{
-						String buf = format("%d",nb);
+						String buf;
+						buf << nb;
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 						gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
 						gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
@@ -749,9 +750,9 @@ namespace TA3D
 						{
 							String buf;
 							if ((int)unit[index].planned_weapons==unit[index].planned_weapons)
-								buf = format("%d(%d)",(int)unit[index].planned_weapons,stock);
+								buf = String::Format("%d(%d)",(int)unit[index].planned_weapons,stock);
 							else
-								buf = format("%d(%d)",(int)unit[index].planned_weapons+1,stock);
+								buf = String::Format("%d(%d)",(int)unit[index].planned_weapons+1,stock);
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 							gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
 							gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
@@ -807,12 +808,12 @@ namespace TA3D
 				if (unit[index].owner_id == players.local_human_id  )
 				{
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,format("+%.2f",unit[index].cur_metal_prod));
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,format("-%.2f",unit[index].cur_metal_cons));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,String::Format("+%.2f",unit[index].cur_metal_prod));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,String::Format("-%.2f",unit[index].cur_metal_cons));
 
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,format("+%.2f",unit[index].cur_energy_prod));
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,format("-%.2f",unit[index].cur_energy_cons));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,String::Format("+%.2f",unit[index].cur_energy_prod));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,String::Format("-%.2f",unit[index].cur_energy_cons));
 				}
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -909,7 +910,6 @@ namespace TA3D
 			glDisable( GL_TEXTURE_2D );
 		}
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-		//        set_uformat(U_UTF8);
 
 		pMutex.unlock();
 	}

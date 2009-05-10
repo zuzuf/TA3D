@@ -25,7 +25,7 @@ namespace TA3D
 
         /*virtual*/ bool isOpen() const;
 
-        /*virtual*/ void open(const std::string &hostname, uint16 port);
+        /*virtual*/ void open(const String &hostname, uint16 port);
         /*virtual*/ void close();
         void open(uint16 port);
         SocketTCP *accept();

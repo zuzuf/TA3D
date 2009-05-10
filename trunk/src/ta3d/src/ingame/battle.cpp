@@ -326,11 +326,11 @@ namespace TA3D
 						statuswnd->x = (int)(SCREEN_W - (statuswnd->width + 10) * show_gamestatus);
 					for (short int i = 0; i < players.nb_player; ++i)
 					{
-						GUIOBJ *obj = pArea.get_object( format("playerstats.p%d_box", i));
+						GUIOBJ *obj = pArea.get_object( String::Format("playerstats.p%d_box", i));
 						if (obj)
 							obj->Data = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ], 0.5f);
-						pArea.set_caption(format("playerstats.p%d_kills", i), format( "%d", players.kills[i]));
-						pArea.set_caption(format("playerstats.p%d_losses", i), format( "%d", players.losses[i]));
+						pArea.set_caption(String::Format("playerstats.p%d_kills", i), String::Format( "%d", players.kills[i]));
+						pArea.set_caption(String::Format("playerstats.p%d_losses", i), String::Format( "%d", players.losses[i]));
 					}
 				}
 			}
@@ -3243,11 +3243,11 @@ namespace TA3D
 			}
 
 			if (internal_idx && last_on >= 0)
-				gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("idx = %d", last_on));
+				gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String::Format("idx = %d", last_on));
 			else
 			{
 				if (internal_idx && cur_sel_index >= 0)
-					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("idx = %d", cur_sel_index));
+					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String::Format("idx = %d", cur_sel_index));
 			}
 
 			if (unit_info>0.0f && unit_info_id>=0)
@@ -3271,7 +3271,7 @@ namespace TA3D
 					{
 						if (units.unit[i].mission != NULL && units.unit[i].mission->mission<=0x0E)
 						{
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
 							String flags;
 							if (units.unit[i].mission->flags & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
 							if (units.unit[i].mission->flags & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
@@ -3280,10 +3280,10 @@ namespace TA3D
 							if (units.unit[i].mission->flags & MISSION_FLAG_MOVE)	flags += "MOVE; ";
 							if (units.unit[i].mission->flags & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
 							y += gfx->normal_font->height();
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("FLAGS: %s", flags.c_str()));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("FLAGS: %s", flags.c_str()));
 						}
 						else
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: NONE"));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("MISSION: NONE"));
 						y += gfx->normal_font->height();
 					}
 					units.unit[i].unlock();
@@ -3294,7 +3294,7 @@ namespace TA3D
 
 			if (show_timefactor > 0.0f)
 			{
-				String value = format("x %f", lp_CONFIG->timefactor);
+				String value = String::Format("x %f", lp_CONFIG->timefactor);
 				if (value.find('.') != String::npos)
 					value.resize(value.find('.') + 2);
 				if (show_timefactor > 0.5f)
@@ -3345,7 +3345,7 @@ namespace TA3D
 			{
 				SDL_Surface *shoot_bmp = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
 				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp->pixels);
-				String nom = format("ta3d-shoot%.6d.tga", nb_shoot);
+				String nom = String::Format("ta3d-shoot%.6d.tga", nb_shoot);
 				nb_shoot = (nb_shoot+1)%1000000;
 				save_bitmap(TA3D::Paths::Screenshots + nom, shoot_bmp);
 				SDL_FreeSurface(shoot_bmp);
