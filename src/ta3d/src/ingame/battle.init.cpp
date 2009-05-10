@@ -36,10 +36,6 @@
 #include "../menu.h"
 
 
-// Should be removed
-#define TA3D_BASIC_ENGINE
-#include "../ta3d.h"
-
 
 
 

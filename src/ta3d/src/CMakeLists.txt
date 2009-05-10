@@ -5,7 +5,7 @@ LINK_LIBRARIES("${LIBS}")
 #
 # STDAFX
 #
-SET(SRC_STDAFX stdafx.h ta3d.h)
+SET(SRC_STDAFX stdafx.h)
 
 #
 #
@@ -51,7 +51,7 @@ SET(SRC_MISC
 		misc/osinfo.h misc/osinfo.cpp
 		misc/application.h misc/application.cpp
 		misc/point.h misc/rect.h
-		
+
 		misc/vector.cpp misc/vector.h
 		misc/matrix.h misc/matrix.cpp
 		misc/material.light.h misc/material.light.cpp
@@ -59,8 +59,7 @@ SET(SRC_MISC
 		misc/recttest.h misc/recttest.cpp
 
 		misc/math.h misc/math.cpp
-		misc/tdf.h  misc/tdf.cpp
-   )
+		misc/tdf.h  misc/tdf.cpp)
 
 
 #
@@ -102,7 +101,7 @@ SET(SRC_GFX
 		gfx/fx.particle.h gfx/fx.particle.cpp
 		gfx/fx.electric.h gfx/fx.electric.cpp
 		gfx/fx.manager.h gfx/fx.manager.cpp
-		gfx/fx.h 
+		gfx/fx.h
 		gfx/shader.h gfx/shader.cpp
 		gfx/gl.extensions.h
 		gfx/texture.cpp gfx/texture.h)
@@ -121,7 +120,7 @@ SET(SRC_GFX_GUI
 		gfx/gui/area.h gfx/gui/area.cpp)
 
 SET(SRC_GFX_PARTICLES
-		gfx/particles/particles.h gfx/particles/particle.h 
+		gfx/particles/particles.h gfx/particles/particle.h
 		gfx/particles/particlessystem.h gfx/particles/particlessystem.cpp
 		gfx/particles/particlesengine.h gfx/particles/particlesengine.cpp
 )
