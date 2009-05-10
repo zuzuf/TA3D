@@ -464,6 +464,7 @@ namespace TA3D
                             p_cob->local_env.top().resize( num_param );
                             for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                                 p_cob->local_env.top()[i] = sStack.pop();
+                            p_cob->setSignalMask( signal_mask );
                         }
                         else
                         {

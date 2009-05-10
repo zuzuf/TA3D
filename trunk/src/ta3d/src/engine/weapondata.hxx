@@ -8,13 +8,13 @@ namespace TA3D
 
 	inline WeaponData::WeaponData()
 		:delay(0.), time(0.), burst(0), stock(0), state(WEAPON_FLAG_IDLE),
-		flags(0), target_pos(), target(NULL), data(-1), aim_dir()
+        flags(0), target_pos(), target(NULL), data(-1), aim_dir(), aim_piece(-1)
 	{}
 
 	inline WeaponData::WeaponData(const WeaponData& copy)
 		:delay(copy.delay), time(copy.time), burst(copy.burst), stock(copy.stock),
 		state(copy.state), flags(copy.flags), target_pos(copy.target_pos), target(copy.target),
-		data(copy.data), aim_dir(copy.aim_dir)
+        data(copy.data), aim_dir(copy.aim_dir), aim_piece(copy.aim_piece)
 	{}
 
 
@@ -34,6 +34,7 @@ namespace TA3D
 		target = NULL;
 		data = -1;
 		aim_dir.reset();
+        aim_piece = -1;
 	}
 
 
@@ -49,6 +50,7 @@ namespace TA3D
 		target = rhs.target;
 		data = rhs.data;
 		aim_dir = rhs.aim_dir;
+        aim_piece = rhs.aim_piece;
 		return *this;
 	}
 

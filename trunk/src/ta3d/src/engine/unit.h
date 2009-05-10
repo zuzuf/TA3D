@@ -53,6 +53,8 @@ namespace TA3D
 		bool script_is_turning(int obj, int axis);
 		bool script_is_moving(int obj, int axis);
 
+        int get_sweet_spot();
+
 		float damage_modifier() const
 		{return port[ARMORED] ? unit_manager.unit_type[type_id]->DamageModifier : 1.0f;}
 
