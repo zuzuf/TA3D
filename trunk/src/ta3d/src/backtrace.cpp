@@ -41,7 +41,7 @@
 #include <stdlib.h>
 #include <fstream>
 
-
+using namespace TA3D;
 
 /*!
  * \brief Obtain a backtrace and print it to stdout.
@@ -79,7 +79,7 @@ void backtrace_handler (int signum)
 		for (int i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 
-		String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
+        String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
             + TA3D::Paths::Logs
             + "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
 
