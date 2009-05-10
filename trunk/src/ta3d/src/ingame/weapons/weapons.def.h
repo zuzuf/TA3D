@@ -19,6 +19,7 @@
 
 # include "../../stdafx.h"
 # include "../../3do.h"
+# include "../../misc/string.h"
 
 
 

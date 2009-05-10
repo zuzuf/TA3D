@@ -150,7 +150,7 @@ namespace TA3D
         if (my) *my = dy;
     }
 
-    uint32 start = 0;
+    static uint32 start = 0;
 
     int anim_cursor(const int type)
     {

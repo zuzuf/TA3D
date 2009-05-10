@@ -19,6 +19,7 @@
 
 # include "../../stdafx.h"
 # include "../../threads/mutex.h"
+# include "../../misc/string.h"
 # include <list>
 
 namespace TA3D

@@ -24,6 +24,7 @@
 #ifndef __AI_CONTROLLER_H__
 # define __AI_CONTROLLER_H__
 
+# include "../misc/string.h"
 # include "../threads/thread.h"
 # include "brain.h"
 # include "weight.h"

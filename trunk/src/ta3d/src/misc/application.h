@@ -17,6 +17,7 @@
 #ifndef __TA3D_XX__MISC_APPLICATION_H__
 # define __TA3D_XX__MISC_APPLICATION_H__
 
+# include "string.h"
 
 namespace TA3D
 {

@@ -26,6 +26,7 @@
 #ifndef __TA3D_UTILS_TNT_H__
 # define __TA3D_UTILS_TNT_H__
 
+# include "misc/string.h"
 # include "EngineClass.h"
 
 

@@ -18,12 +18,15 @@
 #include "ta3dbase.h"
 
 #ifndef TA3D_BASIC_ENGINE
+namespace TA3D
+{
 int expected_players;
 
 int fire;
 int build_part;
 
 int start=0;
+}
 #endif
 
 

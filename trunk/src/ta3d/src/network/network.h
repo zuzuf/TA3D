@@ -20,6 +20,7 @@
 # define __TA3D_NET_NETWORK_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "ta3dsock.h"
 # include "socket.broadcast.h"
 # include "../misc/superqueue.h"

@@ -18,8 +18,8 @@
 # define __EDITOR_MENUS_BASE_H__
 
 # include "../stdafx.h"
-# include <string>
 # include <memory>
+# include "../misc/string.h"
 # include "../gui.h"
 # include "../gfx/gui/area.h"
 

@@ -18,11 +18,12 @@
 #ifndef __TA3D_XX_HASH_TABLE_H__
 # define __TA3D_XX_HASH_TABLE_H__
 
+# include "../stdafx.h"
+# include "string.h"
 # include <list>
 # include <vector>
 # include <string>
 #include <algorithm>
-# include "../stdafx.h"
 
 # define __DEFAULT_HASH_TABLE_SIZE   0x1000      // 4096
 

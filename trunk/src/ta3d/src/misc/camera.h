@@ -17,7 +17,9 @@
 #ifndef __TA3D_XX_MISC_CAMERA_H__
 # define __TA3D_XX_MISC_CAMERA_H__
 
+# include <vector>
 # include "matrix.h"
+# include "vector.h"
 
 
 namespace TA3D

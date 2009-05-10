@@ -39,28 +39,28 @@
 
 
 
-byte player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-
-float	player_color[TA3D_PLAYERS_HARD_LIMIT * 3]=
-{	0.11f,	0.28f,	0.91f,
-	0.83f,	0.17f,	0.0f,
-	1.0f,	1.0f,	1.0f,
-	0.11f,	0.62f,	0.07f,
-	0.03f,	0.12f,	0.48f,
-	0.5f,	0.34f,	0.62f,
-	1.0f,	1.0f,	0.0f,
-	0.0f,	0.0f,	0.0f,
-	0.61f,	0.8f,	0.87f,
-	0.67f,	0.67f,	0.51f
-};
-
-
-
-
 
 namespace TA3D
 {
+
+
+	byte player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+
+	float	player_color[TA3D_PLAYERS_HARD_LIMIT * 3]=
+	{	0.11f,	0.28f,	0.91f,
+		0.83f,	0.17f,	0.0f,
+		1.0f,	1.0f,	1.0f,
+		0.11f,	0.62f,	0.07f,
+		0.03f,	0.12f,	0.48f,
+		0.5f,	0.34f,	0.62f,
+		1.0f,	1.0f,	0.0f,
+		0.0f,	0.0f,	0.0f,
+		0.61f,	0.8f,	0.87f,
+		0.67f,	0.67f,	0.51f
+	};
+
+
 
 	MAP* the_map = NULL;
 

@@ -33,6 +33,7 @@
 # include "ingame/weapons/weapons.h"
 # include "ingame/sidedata.h"
 # include "gfx/texture.h"
+# include "misc/string.h"
 
 
 

@@ -17,6 +17,8 @@
 #ifndef __TA3D_GFX_GUI_SKIN_H__
 # define __TA3D_GFX_GUI_SKIN_H__
 
+# include "../../stdafx.h"
+# include "../../misc/string.h"
 # include "skin.object.h"
 # include "text.color.h"
 

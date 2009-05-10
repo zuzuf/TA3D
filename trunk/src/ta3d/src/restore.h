@@ -19,13 +19,19 @@
 # define __TA3D_XX_RESTORE_H__
 
 
+# include "misc/string.h"
 # include "ingame/gamedata.h"
 
 
-void save_game( const String filename, GameData *game_data );
+namespace TA3D
+{
 
-bool load_game_data( const String filename, GameData *game_data, bool loading = false );
+	void save_game( const String filename, GameData *game_data );
 
-void load_game( GameData *game_data );
+	bool load_game_data( const String filename, GameData *game_data, bool loading = false );
+
+	void load_game( GameData *game_data );
+
+} // namespace TA3D
 
 #endif // __TA3D_XX_RESTORE_H__

@@ -16,9 +16,11 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #ifndef NETMENU_H
-#define NETMENU_H
+# define NETMENU_H
 
-#include "base.h"
+# include "../../stdafx.h"
+# include "../../misc/string.h"
+# include "base.h"
 
 namespace TA3D
 {

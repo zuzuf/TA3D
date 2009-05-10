@@ -17,6 +17,8 @@
 #ifndef __TA3D_INGAME_MENUS_X_MAIN_MENU_H__
 # define __TA3D_INGAME_MENUS_X_MAIN_MENU_H__
 
+# include "../../stdafx.h"
+# include "../../misc/string.h"
 # include "base.h"
 
 

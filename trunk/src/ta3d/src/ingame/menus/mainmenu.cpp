@@ -30,13 +30,15 @@
 #include "../../menu.h"
 
 
-// TODO Must be removed
-void ReadFileParameter();
-
 
 
 namespace TA3D
 {
+
+	// TODO Must be removed
+	void ReadFileParameter();
+
+
     namespace Menus
     {
 

@@ -25,8 +25,9 @@
 # define __TA3D_GFX_H__
 
 
-using namespace TA3D; // TODO Remove this
 
+# include "../stdafx.h"
+# include "../misc/string.h"
 # include "gfx.toolkit.h"
 # include "font.h"
 # include "texture.h"
@@ -42,6 +43,8 @@ using namespace TA3D; // TODO Remove this
 
 
 # define BYTE_TO_FLOAT  0.00390625f
+
+
 
 namespace TA3D
 {

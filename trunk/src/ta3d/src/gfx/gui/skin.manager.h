@@ -17,8 +17,10 @@
 #ifndef __TA3D_GFX_GUI_SKIN_MANAGER_H__
 # define __TA3D_GFX_GUI_SKIN_MANAGER_H__
 
-#include "skin.h"
-#include "../../misc/hash_table.h"
+# include "../../stdafx.h"
+# include "../../misc/string.h"
+# include "skin.h"
+# include "../../misc/hash_table.h"
 
 namespace TA3D
 {

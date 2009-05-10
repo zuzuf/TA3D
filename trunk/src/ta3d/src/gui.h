@@ -23,15 +23,16 @@
 \---------------------------------------------------------------------------------*/
 
 #ifndef MODULE_GUI
-#define MODULE_GUI
+# define MODULE_GUI
 
-#include "gfx/gfx.h"
-#include "misc/hash_table.h"
-#include "threads/thread.h"
-#include "TA3D_NameSpace.h"
-#include <vector>
-#include "gfx/gui/base.h"
-#include "gfx/gui/skin.h"
+# include "gfx/gfx.h"
+# include "misc/hash_table.h"
+# include "threads/thread.h"
+# include "TA3D_NameSpace.h"
+# include <vector>
+# include "gfx/gui/base.h"
+# include "gfx/gui/skin.h"
+# include "misc/string.h"
 
 
 namespace TA3D

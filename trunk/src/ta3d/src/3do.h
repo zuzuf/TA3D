@@ -27,6 +27,7 @@
 #define __CLASSE_3DO
 
 # include "stdafx.h"
+# include "misc/string.h"
 # include "misc/hash_table.h"
 # include "ta3dbase.h"
 # include "gaf.h"

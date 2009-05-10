@@ -19,6 +19,7 @@
 # define __TA3D_MISC_SETTINGS_H__
 
 # include "../stdafx.h"
+# include "string.h"
 
 
 

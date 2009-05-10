@@ -1,6 +1,7 @@
 #ifndef __SOCKET_UDP_H__
 #define __SOCKET_UDP_H__
 
+# include "../misc/string.h"
 #include "socket.h"
 
 namespace TA3D

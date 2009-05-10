@@ -18,6 +18,7 @@
 # define __TA3D_GFX_GUI_AREA_H__
 
 # include "../../stdafx.h"
+# include "../../misc/string.h"
 # include "../../threads/thread.h"
 # include <vector>
 # include "../../misc/interface.h"

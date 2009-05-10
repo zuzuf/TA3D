@@ -1,6 +1,7 @@
 #ifndef __SOCKET_TCP_H__
 #define __SOCKET_TCP_H__
 
+# include "../misc/string.h"
 #include "socket.h"
 #include "../threads/thread.h"
 #include <deque>

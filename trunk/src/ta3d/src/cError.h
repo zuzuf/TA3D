@@ -18,6 +18,11 @@
 #ifndef __TA3D_XX_ERRORS_H__
 # define __TA3D_XX_ERRORS_H__
 
+
+# include "stdafx.h"
+# include "misc/string.h"
+
+
 namespace TA3D
 {
 #ifdef TA3D_PLATFORM_WINDOWS

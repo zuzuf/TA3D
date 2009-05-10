@@ -24,6 +24,10 @@
 #ifndef __DrawList_H__
 # define __DrawList_H__
 
+# include "../misc/string.h"
+
+
+
 # define DRAW_TYPE_NONE     0x0
 # define DRAW_TYPE_POINT    0x1
 # define DRAW_TYPE_LINE     0x2

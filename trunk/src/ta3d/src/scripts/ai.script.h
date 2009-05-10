@@ -18,6 +18,7 @@
 #ifndef __AiScript_H__
 #define __AiScript_H__
 
+# include "../misc/string.h"
 # include "lua.thread.h"
 
 namespace TA3D

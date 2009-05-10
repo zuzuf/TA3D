@@ -17,9 +17,11 @@
 #ifndef __TA3D_GFX_FONT_H__
 # define __TA3D_GFX_FONT_H__
 
+# include "../stdafx.h"
 # include "gfx.h"
 # include "../misc/hash_table.h"
 # include "../threads/thread.h"
+# include "../misc/string.h"
 
 # ifdef __FTGL__lower__
 #	include <FTGL/ftgl.h>

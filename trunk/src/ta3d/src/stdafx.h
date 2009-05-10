@@ -109,9 +109,6 @@ namespace TA3D
 	typedef signed char   schar;
 }
 
-// Should be removed
-# include "misc/string.h"
-
 
 
 namespace TA3D

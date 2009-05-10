@@ -26,6 +26,8 @@
 # define __TA3D_XX_TDF_H__
 
 # include <assert.h>
+# include "stdafx.h"
+# include "misc/string.h"
 # include "threads/thread.h"
 # include "gaf.h"
 # include "gfx/particles/particles.h"

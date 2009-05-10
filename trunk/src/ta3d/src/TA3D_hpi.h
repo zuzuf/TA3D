@@ -36,6 +36,7 @@
 # include <list>
 # include <vector>
 # include "misc/hash_table.h"
+# include "misc/string.h"
 
 
 # define HEX_HAPI 0x49504148

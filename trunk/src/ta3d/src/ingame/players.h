@@ -18,6 +18,7 @@
 # define __TA3D_INGAME_PLAYERS_H__
 
 # include "../stdafx.h"
+# include "../misc/string.h"
 # include "../threads/thread.h"
 # include "../ai/ai.h"
 # include "../network/TA3D_Network.h"

@@ -18,6 +18,8 @@
 #ifndef __LuaChunk_H__
 #define __LuaChunk_H__
 
+# include "../stdafx.h"
+# include "../misc/string.h"
 # include "../lua/lua.hpp"
 # include "script.data.h"
 
