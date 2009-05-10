@@ -1296,7 +1296,7 @@ namespace TA3D
 
 	GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
 	{
-		if (!exists( file.c_str()) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
+		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
 			return 0;
 
 		SDL_Surface *bmp = load_image( file );
@@ -1330,7 +1330,7 @@ namespace TA3D
 
 	GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
-		if (!exists( file.c_str()) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
+		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
 			return 0;
 
 		SDL_Surface *bmp = load_image(file);
@@ -1559,8 +1559,8 @@ namespace TA3D
 
 	GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
 	{
-		if ( (!exists( file.c_str()) && (HPIManager == NULL || !HPIManager->Exists(file)))
-			 || (!exists( mask.c_str()) && (HPIManager == NULL || !HPIManager->Exists(mask))))
+		if ( (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file)))
+			 || (!Paths::Exists(mask) && (HPIManager == NULL || !HPIManager->Exists(mask))))
 			return 0;		// The file doesn't exist
 
 		SDL_Surface *bmp = load_image(file);

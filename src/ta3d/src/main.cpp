@@ -169,12 +169,12 @@ int ParseCommandLine(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    // Initialize signals
-    init_signals();
-    // Constructing config
-    TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
+	// Initialize signals
+	init_signals();
+	// Constructing config
+	TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
 
-    // Initialize all modules used by ta3d
+	// Initialize all modules used by ta3d
 	TA3D::Initialize(argc, argv, "ta3d");
 
 	TA3D::Settings::Load(); /* Load Config File */
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 	start = msec_timer; // Initalize timer.
 
 	// while our engine does some loading and intializing, lets show our intro.
-	if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
+	if (!lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
 		Menus::Intro::Execute();
 
 	// The main menu call will eventually not be here, instead

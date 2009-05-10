@@ -268,7 +268,7 @@ namespace TA3D
 	void WString::fromUtf8(const char* str, size_t length)
 	{
 		int len = 0;
-		for(int i = 0 ; i < length; i++)
+		for (size_t i = 0 ; i < length; i++)
 		{
 			if (((byte)str[i]) < 0x80)
 			{
@@ -287,15 +287,6 @@ namespace TA3D
 		}
 		pBuffer[len] = 0;
 	}
-
-
-
-	bool exists(const String &filename)
-	{
-		struct stat FileInfo;
-		return stat(filename.c_str(),&FileInfo) == 0;
-	}
-
 
 
 
