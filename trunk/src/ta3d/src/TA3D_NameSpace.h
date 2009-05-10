@@ -205,21 +205,21 @@ namespace TA3D
 
 	namespace VARS
 	{
-		TA3D_API_E SDL_Surface                      *screen;
-		TA3D_API_E TA3D::IInterfaceManager          *InterfaceManager;
-		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler    *HPIManager;
-		TA3D_API_E TA3D::GFX* gfx;
+		extern SDL_Surface                      *screen;
+		extern TA3D::IInterfaceManager          *InterfaceManager;
+		extern TA3D::UTILS::HPI::cHPIHandler    *HPIManager;
+		extern TA3D::GFX* gfx;
 
-		TA3D_API_E SDL_Color                        *pal;
-		TA3D_API_E TA3D::TA3DCONFIG                 *lp_CONFIG;
+		extern SDL_Color                        *pal;
+		extern TA3D::TA3DCONFIG                 *lp_CONFIG;
 
-		TA3D_API_E uint8                            unit_engine_thread_sync;
-		TA3D_API_E uint8                            weapon_engine_thread_sync;
-		TA3D_API_E uint8                            particle_engine_thread_sync;
-		TA3D_API_E uint8                            players_thread_sync;
+		extern uint8                            unit_engine_thread_sync;
+		extern uint8                            weapon_engine_thread_sync;
+		extern uint8                            particle_engine_thread_sync;
+		extern uint8                            players_thread_sync;
 
-		TA3D_API_E ObjectSync                       *ThreadSynchroniser;
-		TA3D_API_E String                           TA3D_CURRENT_MOD;
+		extern ObjectSync                       *ThreadSynchroniser;
+		extern String                           TA3D_CURRENT_MOD;
 
 		// Some constant data needed by the engine ( like number of ticks/sec. to simulate )
 		#define TICKS_PER_SEC                30

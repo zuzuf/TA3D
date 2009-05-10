@@ -21,16 +21,16 @@
 
 namespace TA3D
 {
-    namespace VARS
-    {
-		TA3D_API_E int                              mouse_x, mouse_y, mouse_z, mouse_b;
-        TA3D_API_E float                            fmouse_x, fmouse_y;
-    }
+	namespace VARS
+	{
+		extern int                              mouse_x, mouse_y, mouse_z, mouse_b;
+		extern float                            fmouse_x, fmouse_y;
+	}
 
 	/*!
-    ** \brief poll mouse/keyboard events
+	** \brief poll mouse/keyboard events
 	*/
-    void poll_inputs();
+	void poll_inputs();
 
 	/*!
 	** \brief set mouse position
@@ -45,22 +45,22 @@ namespace TA3D
 	/*!
 	** \brief draw mouse cursor at mouse position
 	*/
-    void draw_cursor();
+	void draw_cursor();
 
 	/*!
 	** \brief compute cursor animation
 	*/
-    int anim_cursor(const int type = -1);
+	int anim_cursor(const int type = -1);
 
 	/*!
 	** \brief initialize mouse handler
 	*/
 	void init_mouse();
 
-    /*!
-    ** \brief enable grabing mouse inside the window when in windowed mode
-    */
-    void grab_mouse(bool);
+	/*!
+	** \brief enable grabing mouse inside the window when in windowed mode
+	*/
+	void grab_mouse(bool);
 }
 
 extern int CURSOR_MOVE;

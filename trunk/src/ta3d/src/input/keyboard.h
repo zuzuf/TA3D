@@ -25,15 +25,15 @@
 
 namespace TA3D
 {
-    namespace VARS
-    {
-		TA3D_API_E int								ascii_to_scancode[ 256 ];
-        TA3D_API_E bool                             key[0x1000];
-        TA3D_API_E bool                             prevkey_down[0x1000];
-        TA3D_API_E bool                             prevkey_up[0x1000];
-        TA3D_API_E std::list<uint32>                keybuf;
-		TA3D_API_E int                              remap[ 256 ];
-    }
+	namespace VARS
+	{
+		extern int								ascii_to_scancode[ 256 ];
+		extern bool                             key[0x1000];
+		extern bool                             prevkey_down[0x1000];
+		extern bool                             prevkey_up[0x1000];
+		extern std::list<uint32>                keybuf;
+		extern int                              remap[ 256 ];
+	}
 
 	/*!
 	** \brief return true is there are key codes waiting in the buffer, false otherwise
