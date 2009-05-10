@@ -4205,7 +4205,7 @@ namespace TA3D
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
             for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
-                (*e)->draw_queue(P, C, T);
+                (*e)->draw_queue(P, C);
         }
 
         glDisableClientState(GL_COLOR_ARRAY);
@@ -4216,7 +4216,7 @@ namespace TA3D
     }
 
 
-    void QUAD_QUEUE::draw_queue(Vector3D *P, uint32 *C, GLfloat*)
+    void QUAD_QUEUE::draw_queue(Vector3D *P, uint32 *C)
     {
         if (queue.empty())
             return;
