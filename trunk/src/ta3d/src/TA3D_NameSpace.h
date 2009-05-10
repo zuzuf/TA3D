@@ -42,9 +42,6 @@
 # define ZOOM_NORMAL       0x0
 # define ZOOM_FIXED_ANGLE  0x1
 
-//! Default server hostname for TA3D
-# define TA3D_DEFAULT_SERVER_HOSTNAME  "netserver.ta3d.org"
-
 
 
 

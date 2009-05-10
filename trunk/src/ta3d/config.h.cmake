@@ -25,12 +25,17 @@
 //! The current revision
 # define TA3D_CURRENT_REVISION   "@SVN_REV@"
 
+
 //! The website
-# define TA3D_WEBSITE                "@TA3D_WEBSITE@"
+# define TA3D_WEBSITE                  "@TA3D_WEBSITE@"
 //! The forum
-# define TA3D_WEBSITE_FORUMS         "@TA3D_WEBSITE_FORUM@"
+# define TA3D_WEBSITE_FORUMS           "@TA3D_WEBSITE_FORUM@"
 //! URL for a new bug report
-# define TA3D_WEBSITE_NEW_BUGREPORT  "@TA3D_WEBSITE_NEW_BUGREPORT@"
+# define TA3D_WEBSITE_NEW_BUGREPORT    "@TA3D_WEBSITE_NEW_BUGREPORT@"
+
+
+//! Default server hostname
+# define TA3D_DEFAULT_SERVER_HOSTNAME  "netserver.ta3d.org"
 
 
 
