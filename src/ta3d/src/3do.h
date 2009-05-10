@@ -666,7 +666,7 @@ namespace TA3D
 
         ~QUAD_QUEUE() {}
 
-        void draw_queue( Vector3D *P, uint32 *C, GLfloat	*T );
+        void draw_queue( Vector3D *P, uint32 *C );
     };
 
 
