@@ -58,12 +58,6 @@
 
 
 
-#define TA3D_API_SI static inline
-#define TA3D_API_EI extern inline
-#define TA3D_API_S static
-#define TA3D_API_E extern
-
-
 namespace TA3D
 {
 
