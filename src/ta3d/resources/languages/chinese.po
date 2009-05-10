@@ -13,7 +13,7 @@ CHINESE=开启;
 }
 [solo]
 {
-    CHINESE=单人;
+    CHINESE=单人游戏;
 }
 [Skirmish]
 {
@@ -305,7 +305,7 @@ CHINESE=开启;
 }
 [camera zoom]
 {
-   CHINESE=拖动速度;
+   CHINESE=镜头类型;
 }
 [camera default angle]
 {
@@ -465,7 +465,7 @@ CHINESE=开启;
 }
 [normal]
 {
-   CHINESE=中;
+   CHINESE=正常;
 }
 [high]
 {
@@ -674,4 +674,32 @@ CHINESE=开启;
 [Leave game]
 {
    CHINESE=离开游戏;
+}
+[done]
+{
+   CHINESE=好;
+}
+[Grab inputs]
+{
+   CHINESE=限位鼠标;
+}
+[save game]
+{
+   CHINESE=保存游戏;
+}
+[shadow quality]
+{
+   CHINESE=阴影质量;
+}
+[Sound volume]
+{
+   CHINESE=音效响度;
+}
+[Music volume]
+{
+   CHINESE=音乐响度;
+}
+[game speed]
+{
+   CHINESE=默认速度;
 }
