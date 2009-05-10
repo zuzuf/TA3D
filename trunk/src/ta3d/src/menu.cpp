@@ -50,7 +50,8 @@
 #include "scripts/script.h"
 #include "ingame/battle.h"
 #include "ai/ai.h"
-
+#include "input/mouse.h"
+#include "input/keyboard.h"
 
 
 

@@ -41,7 +41,8 @@
 #include "scripts/cob.vm.h"
 #include "scripts/unit.script.h"
 #include "engine/unit.h"
-
+#include "input/mouse.h"
+#include "input/keyboard.h"
 
 
 
