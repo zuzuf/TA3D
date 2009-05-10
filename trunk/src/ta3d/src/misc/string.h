@@ -15,6 +15,22 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+/*
+#ifndef __TA3D_TOOLBOX_STRING_H__
+# define __TA3D_TOOLBOX_STRING_H__
+
+# include <yuni/toolbox/string.h>
+
+
+namespace TA3D
+{
+	typedef Yuni::String  String;
+}
+
+#endif // __TA3D_TOOLBOX_STRING_H__
+
+*/
+
 #ifndef __TA3D_LIB_W_STRING_H__
 # define __TA3D_LIB_W_STRING_H__
 

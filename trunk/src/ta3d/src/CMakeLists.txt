@@ -2,18 +2,44 @@ ADD_SUBDIRECTORY(logs)
 ADD_SUBDIRECTORY(languages)
 ADD_SUBDIRECTORY(threads)
 ADD_SUBDIRECTORY(misc)
-ADD_SUBDIRECTORY(gfx)
+ADD_SUBDIRECTORY(gfx/gui)
+ADD_SUBDIRECTORY(gfx/particles)
 ADD_SUBDIRECTORY(input)
 ADD_SUBDIRECTORY(network)
 ADD_SUBDIRECTORY(ai)
 ADD_SUBDIRECTORY(ingame)
 ADD_SUBDIRECTORY(scripts)
-ADD_SUBDIRECTORY(sounds)
 ADD_SUBDIRECTORY(converters)
 
 
 LINK_LIBRARIES("${LIBS}")
 
+
+
+#
+# GFX
+#
+SET(SRC_GFX
+		gfx/gfx.h gfx/gfx.cpp
+		gfx/gfx.toolkit.h gfx/gfx.toolkit.cpp
+		gfx/font.cpp gfx/font.h
+		gfx/glfunc.h gfx/glfunc.cpp
+		gfx/fx.base.h gfx/fx.base.cpp
+		gfx/fx.particle.h gfx/fx.particle.cpp
+		gfx/fx.electric.h gfx/fx.electric.cpp
+		gfx/fx.manager.h gfx/fx.manager.cpp
+		gfx/fx.h 
+		gfx/shader.h gfx/shader.cpp
+		gfx/gl.extensions.h
+		gfx/texture.cpp gfx/texture.h)
+
+
+#
+# Sound
+#
+SET(SRC_SOUND
+		sounds/manager.h sounds/manager.cpp
+		)
 
 
 # --------------------------------------------------------------------
@@ -80,16 +106,20 @@ SET(SRC_ENGINE
 		)
 
 
+
+
+
+
 # --------------------------------------------------------------------
 # --- TA3D
 # --------------------------------------------------------------------
-IF(APPLE)
-	SET(TA3D_BIN ta3d)
-ELSE(APPLE)
-	SET(TA3D_BIN ta3d)
-ENDIF(APPLE)
-SET(SOURCES
+SET(TA3D_BIN ta3d)
+
+
+SET(TA3D_SOURCES
 		${SRC_ENGINE}
+		${SRC_GFX}
+		${SRC_SOUND}
 		ta3d.h
 		install.cpp
 		engine.cpp engine.h
@@ -104,8 +134,13 @@ SET(SOURCES
 
 
 
+
+
+
 IF(NOT APPLE)
-	ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
+
+	ADD_EXECUTABLE(${TA3D_BIN} ${TA3D_SOURCES})
+
 ELSE(NOT APPLE)
 
 	#
@@ -119,7 +154,7 @@ ELSE(NOT APPLE)
 			COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}"
 				"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}"
 			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}")
-		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}")
+		SET(TA3D_SOURCES ${TA3D_SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}")
 	ENDMACRO(BUNDLE_INSTALL)
 
 	MACRO(BUNDLE_INSTALL_GLOB srcfolder relfolder globfiles)
@@ -131,7 +166,7 @@ ELSE(NOT APPLE)
 				COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}"
 					"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}"
 				DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}")
-			SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}")
+			SET(TA3D_SOURCES ${TA3D_SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}")
 		EndForEach(fl ${lst})
 	ENDMACRO(BUNDLE_INSTALL_GLOB)
 
@@ -142,14 +177,14 @@ ELSE(NOT APPLE)
 				"${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}"
 				"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
 			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}")
-		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}")
+		SET(TA3D_SOURCES ${TA3D_SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}")
 	ENDMACRO(BUNDLE_BASIC_INSTALL)
 
 	MACRO(BUNDLE_ADD_LIB libname)
 		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
 			COMMAND cp ARGS -fH "/opt/local/lib/${libname}" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
 			DEPENDS "/opt/local/lib/${libname}")
-		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}")
+		SET(TA3D_SOURCES ${TA3D_SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}")
 	ENDMACRO(BUNDLE_ADD_LIB)
 
 	MACRO(BUNDLE_RELINK libname)
@@ -248,7 +283,7 @@ ELSE(NOT APPLE)
 	BUNDLE_BASIC_INSTALL("resources" "./resources" "3dmeditor.res")
 
 	# OS X specific
-	ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})
+	ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${TA3D_SOURCES})
 	SET(GUI_TYPE MACOSX_BUNDLE)
 	SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
 	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
@@ -270,8 +305,8 @@ ENDIF(NOT APPLE)
 # --- Internal libraries ---
 #
 target_link_libraries(${TA3D_BIN}
-	stdafx input logs console i18n ingame 3dtoolbox menus gfx
-	fileformats particles weapons ai audio hpi oldgui gui network misc scripts ta3dmath tdf
+	stdafx input logs console i18n ingame 3dtoolbox menus
+	fileformats particles weapons ai hpi oldgui gui network misc scripts ta3dmath tdf
 	converters threads debuginfos
 	${YUNI_STATIC_CORE}
 	)

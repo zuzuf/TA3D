@@ -1,5 +1,5 @@
-#ifndef __CONFIG_H__
-# define __CONFIG_H__
+#ifndef __TA3D_CONFIG_FILE_FROM_CMAKE_H__
+# define __TA3D_CONFIG_FILE_FROM_CMAKE_H__
 
 
 //! Define to the address where bug reports for this package should be sent
@@ -33,10 +33,20 @@
 # define TA3D_WEBSITE_NEW_BUGREPORT  "@TA3D_WEBSITE_NEW_BUGREPORT@"
 
 
+
+/*!
+** \brief The hard limit for the number of players
+*/
+# define TA3D_PLAYERS_HARD_LIMIT   @TA3D_MAX_PLAYERS_HARD_LIMIT@
+
+
+
+
+
 //! Paths related stuffs in order to have better OS integration
 # define TA3D_RESOURCES_PATH     "@TA3D_RESOURCES_PATH@"
 #cmakedefine TA3D_OVERRIDE_PATHS
 
 #cmakedefine __FTGL__lower__
 
-#endif // __CONFIG_H__
+#endif // __TA3D_CONFIG_FILE_FROM_CMAKE_H__
