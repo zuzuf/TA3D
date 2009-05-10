@@ -231,8 +231,6 @@ namespace TA3D
 	void TA3D_clear_cache(bool force=false);
 } // namespace TA3D
 
-#include "input/mouse.h"
-#include "input/keyboard.h"
 
 #define SCREEN_W    (screen->w)
 #define SCREEN_H    (screen->h)

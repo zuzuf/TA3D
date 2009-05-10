@@ -32,6 +32,8 @@
 #include "../logs/logs.h"
 #include <strings.h>
 #include "../misc/math.h"
+#include "../input/keyboard.h"
+#include "../input/mouse.h"
 
 
 #define YESNO(X)  (X ? "Yes" : "No")

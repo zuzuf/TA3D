@@ -22,6 +22,8 @@
 #include "../../console.h"
 #include "../../gfx/glfunc.h"
 #include "../../misc/tdf.h"
+#include "../../input/keyboard.h"
+#include "../../input/mouse.h"
 
 #define FIX_COLOR(col)  col = makeacol(getb(col), getg(col), getr(col), getr(col))
 

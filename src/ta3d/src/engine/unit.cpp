@@ -4,6 +4,7 @@
 #include "../ingame/players.h"
 #include "../gfx/fx.manager.h"
 #include "../sounds/manager.h"
+#include "../input/mouse.h"
 
 
 

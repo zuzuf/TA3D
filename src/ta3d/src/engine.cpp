@@ -36,6 +36,8 @@
 #include "languages/i18n.h"
 #include "sounds/manager.h"
 #include "misc/math.h"
+#include "input/mouse.h"
+#include "input/keyboard.h"
 
 
 
