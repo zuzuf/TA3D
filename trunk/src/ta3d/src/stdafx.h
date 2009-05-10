@@ -46,33 +46,6 @@
 # endif
 
 
-// TODO : Should removed
-/*
-** The SDL library
-*/
-# if defined TA3D_PLATFORM_WINDOWS //&& defined TA3D_PLATFORM_MSVC
-#	include <yuni/toolbox/system/windows.hdr.h>
-#   ifdef TA3D_PLATFORM_MSVC
-#      pragma warning(disable : 4554)
-#      pragma warning(disable : 4996)
-#      pragma comment( lib, "opengl32.lib" )
-#      pragma comment( lib, "glu32.lib" )
-#      pragma comment( lib, "glaux.lib" )
-#      pragma comment( lib, "tools/win32/msvc/libs/glew32.lib" )
-#      include "tools/win32/include/GL/glew.h"
-#   endif
-#   include "tools/win32/mingw32/include/GL/glew.h"
-#   include "SDL.h"
-#   include "SDL_image.h"
-# else
-/*
-** The OpenGL library
-*/
-#   include <GL/glew.h>
-#   include "SDL.h"
-#   include "SDL_image.h"
-#endif
-
 
 
 
@@ -109,14 +82,6 @@ namespace TA3D
 	typedef signed char   schar;
 }
 
-
-
-namespace TA3D
-{
-
-	void rest(uint32 msec);
-
-} // namespace TA3D
 
 
 // zuzuf: to prevent some warnings
