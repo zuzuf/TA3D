@@ -1,19 +1,94 @@
-ADD_SUBDIRECTORY(logs)
-ADD_SUBDIRECTORY(languages)
-ADD_SUBDIRECTORY(threads)
-ADD_SUBDIRECTORY(misc)
-ADD_SUBDIRECTORY(gfx/gui)
-ADD_SUBDIRECTORY(gfx/particles)
-ADD_SUBDIRECTORY(input)
-ADD_SUBDIRECTORY(network)
-ADD_SUBDIRECTORY(ai)
-ADD_SUBDIRECTORY(ingame)
-ADD_SUBDIRECTORY(scripts)
-ADD_SUBDIRECTORY(converters)
-
 
 LINK_LIBRARIES("${LIBS}")
 
+
+#
+# STDAFX
+#
+SET(SRC_STDAFX stdafx.h stdafx.cpp
+		ta3d.h)
+
+#
+#
+#
+SET(SRC_FILEFORMATS
+		gaf.cpp gaf.h
+		3do.cpp 3do.h
+		3ds.cpp 3ds.h)
+
+#
+# Logs
+#
+SET(SRC_LOGS
+		logs/logs.h logs/logs.hxx logs/logs.cpp)
+
+#
+# Languages
+SET(SRC_I18N
+		languages/i18n.h languages/i18n.cpp)
+
+
+#
+# Threads
+#
+SET(SRC_THREADS
+		threads/mutex.h threads/mutex.cpp
+		threads/thread.h threads/thread.cpp)
+
+#
+# Misc
+# TODO Must of those files should be removed/cleaned
+#
+SET(SRC_MISC
+		misc/string.h misc/string.cpp
+		misc/stack.hxx
+		misc/paths.h misc/paths.cpp
+		misc/files.h misc/files.cpp
+		misc/resources.h misc/resources.cpp
+		misc/settings.h misc/settings.cpp
+		misc/interface.h misc/interface.cpp
+		misc/hash_table.h misc/hashtable.hxx
+		misc/superqueue.h misc/superqueue.cpp
+		misc/osinfo.h misc/osinfo.cpp
+		misc/application.h misc/application.cpp
+		misc/point.h misc/rect.h
+		
+		misc/vector.cpp misc/vector.h
+		misc/matrix.h misc/matrix.cpp
+		misc/material.light.h misc/material.light.cpp
+		misc/camera.h misc/camera.cpp
+		misc/recttest.h misc/recttest.cpp
+
+		misc/math.h misc/math.cpp
+		misc/tdf.h  misc/tdf.cpp
+   )
+
+
+#
+# Scripts
+#
+SET(SRC_SCRIPTS
+		scripts/cob.cpp scripts/cob.h
+		scripts/cob.vm.h scripts/cob.vm.cpp
+		scripts/lua.thread.h scripts/lua.thread.cpp
+		scripts/lua.env.h scripts/lua.env.cpp
+		scripts/lua.chunk.h scripts/lua.chunk.cpp
+		scripts/lua.persist.h scripts/lua.persist.cpp
+		scripts/draw.list.h scripts/draw.list.cpp
+		scripts/unit.script.h scripts/unit.script.cpp
+		scripts/unit.script.func.cpp
+		scripts/script.interface.h scripts/script.interface.cpp
+		scripts/unit.script.interface.h scripts/unit.script.interface.cpp
+		scripts/ai.script.h scripts/ai.script.cpp
+		scripts/script.data.h scripts/script.data.cpp
+		scripts/script.h scripts/script.cpp)
+
+#
+# Converters
+#
+SET(SRC_CONVERTERS
+		converters/all.h
+		converters/obj.h converters/obj.cpp)
 
 
 #
@@ -33,6 +108,24 @@ SET(SRC_GFX
 		gfx/gl.extensions.h
 		gfx/texture.cpp gfx/texture.h)
 
+#
+# GFX - GUI
+#
+SET(SRC_GFX_GUI
+		gfx/gui/base.h gfx/gui/base.cpp
+		gfx/gui/object.h gfx/gui/object.cpp
+		gfx/gui/skin.h gfx/gui/skin.cpp
+		gfx/gui/skin.object.h gfx/gui/skin.object.cpp
+		gfx/gui/text.color.h gfx/gui/text.color.cpp
+		gfx/gui/skin.manager.h gfx/gui/skin.manager.cpp
+		gfx/gui/wnd.h gfx/gui/wnd.cpp
+		gfx/gui/area.h gfx/gui/area.cpp)
+
+SET(SRC_GFX_PARTICLES
+		gfx/particles/particles.h gfx/particles/particle.h 
+		gfx/particles/particlessystem.h gfx/particles/particlessystem.cpp
+		gfx/particles/particlesengine.h gfx/particles/particlesengine.cpp
+)
 
 #
 # Sound
@@ -42,59 +135,31 @@ SET(SRC_SOUND
 		)
 
 
-# --------------------------------------------------------------------
-# --- STDAFX
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES stdafx.h stdafx.cpp)
-ADD_LIBRARY(stdafx STATIC ${SOURCES})
-
-# --------------------------------------------------------------------
-# --- Debug Informations
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES backtrace.cpp backtrace.h
-            cError.cpp cError.h)
-ADD_LIBRARY(debuginfos STATIC ${SOURCES})
-
-# --------------------------------------------------------------------
-# --- Console
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES console.cpp console.h)
-ADD_LIBRARY(console STATIC ${SOURCES})
-
-# --------------------------------------------------------------------
-# --- GUI
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES gui.cpp gui.h)
-ADD_LIBRARY(oldgui STATIC ${SOURCES})
-
-# --------------------------------------------------------------------
-# --- File formats
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES gaf.cpp gaf.h
-            3do.cpp 3do.h
-            3ds.cpp 3ds.h)
-ADD_LIBRARY(fileformats STATIC ${SOURCES})
-
-# --------------------------------------------------------------------
-# --- HPI
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES TA3D_hpi.cpp TA3D_hpi.h
-            hpiview.cpp)
-ADD_LIBRARY(hpi STATIC ${SOURCES})
+#
+# Debug
+#
+SET(SRC_DEBUG
+		backtrace.cpp backtrace.h
+		cError.cpp cError.h)
 
 
+#
+# Console
+#
+SET(SRC_CONSOLE
+		console.cpp console.h)
+
+#
+# GUI
+#
+SET(SRC_OLDGUI  gui.cpp gui.h)
+
+#
+# HPI
+#
+SET(SRC_HPI
+		TA3D_hpi.cpp TA3D_hpi.h
+		hpiview.cpp)
 
 
 
@@ -103,10 +168,59 @@ SET(SRC_ENGINE
 		EngineClass.cpp EngineClass.h
 		engine/weapondata.h  engine/weapondata.hxx
 		engine/unit.h  engine/unit.cpp engine/unit.defines.h
+		engine.cpp engine.h
 		)
 
 
+SET(SRC_INPUT
+		input/mouse.h input/mouse.cpp
+		input/keyboard.cpp input/keyboard.h)
 
+SET(SRC_NETWORK
+		network/network.cpp network/network.h
+		network/socket.cpp network/socket.h
+		network/socket.tcp.cpp network/socket.tcp.h
+		network/socket.broadcast.cpp network/socket.broadcast.h
+		network/socket.udp.cpp network/socket.udp.h
+		network/ta3dsock.cpp network/ta3dsock.h
+		network/networkutils.h network/networkutils.cpp
+		network/socketlist.h network/socketlist.cpp
+		network/TA3D_Network.cpp network/TA3D_Network.h
+		network/netclient.cpp network/netclient.h)
+
+SET(SRC_AI
+		ai/ai.h ai/ai.cpp
+		ai/brain.h ai/brain.cpp
+		ai/weight.h ai/weight.cpp
+		ai/ai.controller.h ai/ai.controller.cpp
+		ai/pathfinding.h ai/pathfinding.cpp	)
+
+
+SET(SRC_INGAME
+		ingame/sidedata.h ingame/sidedata.cpp
+		ingame/gamedata.h ingame/gamedata.cpp
+		ingame/players.h ingame/players.cpp
+		ingame/battle.h ingame/battle.init.cpp
+		ingame/battle.preflight.cpp ingame/battle.cpp)
+
+SET(SRC_INGAME_WEAPONS
+		ingame/weapons/weapons.h ingame/weapons/weapons.cpp
+		ingame/weapons/weapons.def.h ingame/weapons/weapons.def.cpp
+		ingame/weapons/weapons.ingame.h ingame/weapons/weapons.ingame.cpp
+		ingame/weapons/weapons.manager.h ingame/weapons/weapons.manager.cpp
+		ingame/weapons/weapons.single.h ingame/weapons/weapons.single.cpp)
+
+SET(SRC_INGAME_MENUS
+		ingame/menus/base.h ingame/menus/base.cpp
+		ingame/menus/intro.h ingame/menus/intro.cpp
+		ingame/menus/loading.h ingame/menus/loading.cpp
+		ingame/menus/solo.h ingame/menus/solo.cpp
+		ingame/menus/mapselector.h ingame/menus/mapselector.cpp
+		ingame/menus/unitselector.h ingame/menus/unitselector.cpp
+		ingame/menus/statistics.h ingame/menus/statistics.cpp
+		ingame/menus/mainmenu.h ingame/menus/mainmenu.cpp
+		ingame/menus/netmenu.h ingame/menus/netmenu.cpp
+		ingame/menus/multimenu.h ingame/menus/multimenu.cpp)
 
 
 
@@ -117,18 +231,26 @@ SET(TA3D_BIN ta3d)
 
 
 SET(TA3D_SOURCES
-		${SRC_ENGINE}
-		${SRC_GFX}
+		${SRC_STDAFX} ${SRC_LOGS} ${SRC_I18N} ${SRC_MISC}
+		${SRC_THREADS} ${SRC_DEBUG} ${SRC_CONSOLE}
+		${SRC_GFX} ${SRC_GFX_GUI}
+		${SRC_GFX_PARTICLES}
+		${SRC_OLDGUI}
 		${SRC_SOUND}
-		ta3d.h
+		${SRC_SCRIPTS}
+		${SRC_ENGINE}
+		${SRC_INPUT}
+		${SRC_CONVERTERS} ${SRC_FILEFORMATS} ${SRC_HPI}
+		${SRC_NETWORK}
+		${SRC_AI}
+		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
 		install.cpp
-		engine.cpp engine.h
 		restore.cpp restore.h
 		menu.cpp menu.h
 		fbi.cpp fbi.h
 		intro.cpp intro.h
 		tdf.cpp tdf.h tnt.cpp tnt.h
-		stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h
+		TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h
 		main.cpp
 		)
 
@@ -304,25 +426,20 @@ ENDIF(NOT APPLE)
 #
 # --- Internal libraries ---
 #
-target_link_libraries(${TA3D_BIN}
-	stdafx input logs console i18n ingame 3dtoolbox menus
-	fileformats particles weapons ai hpi oldgui gui network misc scripts ta3dmath tdf
-	converters threads debuginfos
-	${YUNI_STATIC_CORE}
-	)
-
-
-
-#
-# --- External libraries
-#
-
-target_link_libraries(${TA3D_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
-
+SET(LIBS  ${LIBS} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
 IF(WIN32)
-	target_link_libraries(${TA3D_BIN} lua gdi32 opengl32 glu32 ${LIBS})
+	SET(${LIBS} ${LIBS} lua gdi32 opengl32 glu32)
 ENDIF(WIN32)
 
+
+
+target_link_libraries(${TA3D_BIN}  ${YUNI_STATIC_CORE} ${LIBS})
+
+
+
+#
+# Install
+#
 IF(NOT APPLE)
 	install(TARGETS ${TA3D_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
 ENDIF(NOT APPLE)
