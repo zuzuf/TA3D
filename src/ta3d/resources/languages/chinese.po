@@ -293,7 +293,7 @@ CHINESE=开启;
 }
 [Ok]
 {
-   CHINESE=保存;
+   CHINESE=好;
 }
 [Change map]
 {
@@ -669,7 +669,7 @@ CHINESE=开启;
 }
 [Return to game]
 {
-   CHINESE=继续游戏;
+   CHINESE=返回游戏;
 }
 [Leave game]
 {
@@ -677,7 +677,19 @@ CHINESE=开启;
 }
 [done]
 {
-   CHINESE=好;
+   CHINESE=完成;
+}
+[Help]
+{
+   CHINESE=帮助;
+}
+[Previous]
+{
+   CHINESE=上一个;
+}
+[Next]
+{
+   CHINESE=下一个;
 }
 [Grab inputs]
 {
@@ -691,13 +703,13 @@ CHINESE=开启;
 {
    CHINESE=阴影质量;
 }
-[Sound volume]
+[Sound volume:]
 {
-   CHINESE=音效响度;
+   CHINESE=音效响度:;
 }
-[Music volume]
+[Music volume:]
 {
-   CHINESE=音乐响度;
+   CHINESE=音乐响度:;
 }
 [game speed]
 {
