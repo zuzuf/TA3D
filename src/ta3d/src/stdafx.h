@@ -117,19 +117,6 @@ namespace TA3D
 namespace TA3D
 {
 
-	//! \name String manipulations
-	//@{
-
-	//@} String manipulations
-
-#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-	void ExtractPathFile(const String& szFullFileName, String& szFile, String& szDir);
-#endif
-
-
-	String GetClientPath(void);
-
-
 	void rest(uint32 msec);
 
 } // namespace TA3D

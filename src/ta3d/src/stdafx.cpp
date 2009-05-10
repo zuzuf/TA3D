@@ -52,41 +52,6 @@ namespace TA3D
 
 
 
-#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-	void
-		ExtractPathFile(const String& szFullFileName, String& szFile, String& szDir)
-		{
-			char drive[_MAX_DRIVE];
-			char dir[_MAX_DIR];
-			char fname[_MAX_FNAME];
-			char ext[_MAX_EXT];
-			// Below extracts our path where the application is being run.
-			::_splitpath_s( szFullFileName.c_str(), drive, dir, fname, ext );
-
-			szFile = fname;
-			szDir = drive;
-			szDir += dir;
-		}
-#endif
-
-
-	String GetClientPath(void)
-	{
-		static bool bName = false;
-		static String szName = "";
-
-		if (!bName)
-		{
-# if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-			char fPath[ MAX_PATH ];
-			String Tmp;
-			::GetModuleFileNameA( NULL, fPath, MAX_PATH );
-			ExtractPathFile( fPath, Tmp, szName );
-# endif
-			bName = true;
-		}
-		return szName;
-	}
 
 	void rest(uint32 msec)
 	{
