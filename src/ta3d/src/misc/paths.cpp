@@ -187,7 +187,8 @@ namespace TA3D
 
 			String ret;
 			String::Vector::size_type n = parts.size();
-			--n;
+            if (n > 0)
+                --n;
 			for (String::Vector::size_type i = 0; i != n; ++i)
 			{
 				if (parts[i] != ".")
