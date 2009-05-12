@@ -351,9 +351,15 @@ static bool hpiviewCmdCreateGAF(String::Vector &args)
 {
 	if(args.size() >= 1)
 	{
-		TDFParser parser( args[0], false, false, false );
+        TDFParser parser( args[0], false, false, true, true );
 		String filename = parser.pullAsString( "gadget0.filename" );
 		FILE *gaf_file = TA3D_OpenFile( Paths::ExtractFileName( filename ), "wb" );
+
+        LOG_DEBUG("opening '" << filename << "'");
+        TA3D::UTILS::HPI::cHPIHandler *oldHPIManager = HPIManager;
+        HPIManager = NULL;
+
+        disable_TA_palette();
 
 		if (gaf_file)
 		{
@@ -434,14 +440,14 @@ static bool hpiviewCmdCreateGAF(String::Vector &args)
 						int img_size = buf_size;
 						uLongf __size = img_size;
 						compress2 ( buffer, &__size, (Bytef*) frame_img->pixels, frame_img->w * frame_img->h * frame_img->format->BytesPerPixel, 9);
-						img_size = __size;
+                        img_size = __size;
 
-						fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
+                        fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
 						fwrite( buffer, img_size, 1, gaf_file );
 
 						delete[] buffer;
 						SDL_FreeSurface( frame_img );
-					}
+                    }
 					else
 					{
 						std::cerr << "Error: In frame " << e << ", could not load "
@@ -449,13 +455,15 @@ static bool hpiviewCmdCreateGAF(String::Vector &args)
 						i = header.Entries;
 						break;
 					}
-				}
-			}
-		}
+                }
+            }
+        }
 		else
 			std::cerr << "Error: Could not create file!" << std::endl;
-		args.erase(args.begin());
-	}
+        enable_TA_palette();
+        HPIManager = oldHPIManager;
+        args.erase(args.begin());
+    }
 	else
 		std::cerr << "SYNTAX: " << appName << " create_gaf gafdescription.txt" << std::endl;
 	return true;
