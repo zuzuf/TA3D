@@ -3,8 +3,6 @@
 root=`dirname ${0}`
 
 source "${root}/config.sh"
-# Revision
-revision=`svnversion  -n "${root}/../../" | cut -d':' -f2`
 
 
 # Folders
@@ -13,7 +11,7 @@ trunk="${root}/../../"
 tmp="/tmp/__ta3d__osx__"
 
 # The target DMG File
-dmgFile="${targetDirectory}/${name}-${version}-r${revision}.dmg"
+dmgFile="${targetDirectory}/${name}-${version}.dmg"
 
 
 
