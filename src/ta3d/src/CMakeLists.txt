@@ -1,4 +1,5 @@
 
+STRING(STRIP "${LIBS}" LIBS)
 LINK_LIBRARIES("${LIBS}")
 
 
@@ -427,7 +428,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 
-
+STRING(STRIP "${LIBS}" LIBS)
 target_link_libraries(${TA3D_BIN}  ${YUNI_STATIC_CORE} ${LIBS})
 
 
