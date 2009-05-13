@@ -8,7 +8,7 @@ revision=`svnversion  -n "${root}/../../" | cut -d':' -f2`
 
 
 # Folders
-targetDirectory="${root}/../../bin"
+targetDirectory="${root}/../.."
 trunk="${root}/../../"
 tmp="/tmp/__ta3d__osx__"
 
@@ -46,7 +46,11 @@ captionOfTheDMG="${caption} - ${version}"
 echo "Building the Disk image..."
 echo "Caption: ${captionOfTheDMG}"
 echo "Target: ${dmgFile}"
-hdiutil create -anyowners -format UDZO -imagekey zlib-level=9 -volname "${captionOfTheDMG}" -uid 99 -gid 99 -srcfolder "${tmp}/"  "${dmgFile}"
+if [ -f "${dmgFile}" ]; then
+	echo " !! Please remove the target file before"
+	exit 1
+fi
+hdiutil create -nospotlight -anyowners -imagekey zlib-level=9 -volname "${captionOfTheDMG}" -uid 99 -gid 99 -srcfolder "${tmp}/"  "${dmgFile}"
 
 # Last clean up
 rm -rf "${tmp}"
