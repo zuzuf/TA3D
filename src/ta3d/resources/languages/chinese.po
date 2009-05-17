@@ -19,14 +19,16 @@ CHINESE=开启;
 {
     CHINESE=遭遇战;
 }
-[FOW]
+[FOW:]
 {
-    CHINESE=雾;
+    CHINESE=雾:;
 }
 [LAN]
 {
     CHINESE=LAN;
 }
+
+
 [Internet]
 {
     CHINESE=战网;
@@ -58,6 +60,10 @@ CHINESE=开启;
 [no limit]
 {
     CHINESE=无限制;
+}
+[ultra high]
+{
+   CHINESE=更高;
 }
 [extreme]
 {
@@ -357,7 +363,7 @@ CHINESE=开启;
 }
 [players: ]
 {
-   CHINESE=玩家名称: ;
+   CHINESE=玩家: ;
 }
 [Players]
 {
@@ -387,19 +393,19 @@ CHINESE=开启;
 {
    CHINESE=打开;
 }
-[easy]
+[[C]Eazy]
 {
    CHINESE=简单;
 }
-[medium]
+[[C]medium]
 {
    CHINESE=中等;
 }
-[hard]
+[[c]hard]
 {
    CHINESE=困难;
 }
-[bloody]
+[[c]bloody]
 {
    CHINESE=冷酷;
 }
@@ -601,7 +607,15 @@ CHINESE=开启;
 }
 [Internal name]
 {
-   CHINESE=网络名称;
+   CHINESE=内部名称;
+}
+[Name]
+{
+   CHINESE=名称;
+}
+[HP]
+{
+   CHINESE=血量;
 }
 [Cost]
 {
