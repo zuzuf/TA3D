@@ -8,7 +8,7 @@
 ** The SDL library
 */
 # if defined TA3D_PLATFORM_WINDOWS //&& defined TA3D_PLATFORM_MSVC
-#	include <yuni/toolbox/system/windows.hdr.h>
+#	include <yuni/core/system/windows.hdr.h>
 #   include "tools/win32/mingw32/include/GL/glew.h"
 #   include <SDL.h>
 #   include <SDL_image.h>
