@@ -148,13 +148,19 @@ static bool hpiviewCmdMapDescription(String::Vector &args)
 		{
 			m_File << "[MAP]\n{\n";
 			m_File << " missionname=" << map_data.missionname << ";\n";
-			m_File << " missiondescription=" << ReplaceString( map_data.missiondescription, "\n", "\\n", false ) << ";\n";
+			String tmp(map_data.missiondescription);
+			tmp.replace("\n", "\\n");
+			m_File << " missiondescription=" << tmp << ";\n";
 			m_File << " planet=" << map_data.planet << ";\n";
 			m_File << " tidalstrength=" << map_data.tidalstrength << ";\n";
 			m_File << " solarstrength=" << map_data.solarstrength << ";\n";
 			m_File << " gravity=" << map_data.gravity << ";\n";
-			m_File << " numplayers=" << ReplaceString( map_data.numplayers, "\n", "\\n", false ) << ";\n";
-			m_File << " size=" << ReplaceString( map_data.map_size, "\n", "\\n", false ) << ";\n";
+			tmp = map_data.numplayers;
+			tmp.replace("\n", "\\n");
+			m_File << " numplayers=" << tmp << ";\n";
+			tmp = map_data.map_size;
+			tmp.replace("\n", "\\n");
+			m_File << " size=" << tmp << ";\n";
 			m_File << " minwindspeed=" << map_data.minwindspeed << ";\n";
 			m_File << " maxwindspeed=" << map_data.maxwindspeed << ";\n";
 			m_File << "}\n";

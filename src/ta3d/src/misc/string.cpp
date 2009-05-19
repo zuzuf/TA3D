@@ -1,19 +1,146 @@
-/*  TA3D, a remake of Total Annihilation
-	Copyright (C) 2005  Roland BROCHARD
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+#include "string.h"
+#include "../logs/logs.h"
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
+
+namespace TA3D
+{
+
+	sint32 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase)
+	{
+		String sz1, sz2;
+
+		if(ignoreCase)
+		{
+			sz1 = String::ToUpper(s);
+			sz2 = String::ToUpper(stringToSearch);
+		}
+		else
+		{
+			sz1 = s;
+			sz2 = stringToSearch;
+		}
+		String::Size iFind = sz1.find(sz2);
+
+		return ((String::npos == iFind) ? -1 : (sint32)iFind);
+	}
+
+
+
+	String InttoUTF8(const uint16 c)
+	{
+		if (c < 0x80)
+		{
+			String str;
+			str << (char)c;
+			return str;
+		}
+		if (c < 0x800)
+		{
+			String str;
+			byte b = 0xC0 | (c >> 6);
+			str << (char)b;
+
+			b = 0x80 | (c & 0x3F);
+			str << (char)b;
+			return str;
+		}
+
+		String str;
+		byte b = 0xC0 | (c >> 12);
+		str << (char)b;
+
+		b = 0x80 | ((c >> 6) & 0x3F);
+		str << (char)b;
+
+		b = 0x80 | (c & 0x3F);
+		str << (char)b;
+		return str;
+	}
+
+
+
+	int ASCIItoUTF8(const byte c, byte *out)
+	{
+		if (c < 0x80)
+		{
+			*out = c;
+			return 1;
+		}
+		else if(c < 0xC0)
+		{
+			out[0] = 0xC2;
+			out[1] = c;
+			return 2;
+		}
+		out[0] = 0xC3;
+		out[1] = c - 0x40;
+		return 2;
+	}
+
+
+
+	char* ConvertToUTF8(const char* s)
+	{
+		if (NULL != s && *s != '\0')
+			return ConvertToUTF8(s, strlen(s));
+		char* ret = new char[1];
+		LOG_ASSERT(NULL != ret);
+		*ret = '\0';
+		return ret;
+	}
+
+	char* ConvertToUTF8(const char* s, const uint32 len)
+	{
+		uint32 nws;
+		return ConvertToUTF8(s, len, nws);
+	}
+
+	char* ConvertToUTF8(const char* s, uint32 len, uint32& newSize)
+	{
+		if (NULL == s || '\0' == *s)
+		{
+			char* ret = new char[1];
+			LOG_ASSERT(NULL != ret);
+			*ret = '\0';
+			return ret;
+		}
+		byte tmp[4];
+		newSize = 1;
+		for(byte *p = (byte*)s ; *p ; p++)
+			newSize += ASCIItoUTF8(*p, tmp);
+
+		char* ret = new char[newSize];
+		LOG_ASSERT(NULL != ret);
+
+		byte *q = (byte*)ret;
+		for(byte *p = (byte*)s ; *p ; p++)
+			q += ASCIItoUTF8(*p, q);
+		*q = '\0'; // A bit paranoid
+		return ret;
+	}
+
+
+	String ConvertToUTF8(const String& s)
+	{
+		if (s.empty())
+			return String();
+		char* ret = ConvertToUTF8(s.c_str(), s.size());
+		if (ret)
+		{
+			String s(ret); // TODO Find a way to not use a temporary string
+			delete[] ret;
+			return s;
+		}
+		return String();
+	}
+
+}
+
+
+
+#ifdef PIKOLI
 
 #include "../stdafx.h"
 #include "string.h"
@@ -343,62 +470,6 @@ namespace TA3D
 	}
 
 
-	char* String::ConvertToUTF8(const char* s)
-	{
-		if (NULL != s && *s != '\0')
-			return ConvertToUTF8(s, strlen(s));
-		char* ret = new char[1];
-		LOG_ASSERT(NULL != ret);
-		*ret = '\0';
-		return ret;
-	}
-
-	char* String::ConvertToUTF8(const char* s, const uint32 len)
-	{
-		uint32 nws;
-		return ConvertToUTF8(s, len, nws);
-	}
-
-	char* String::ConvertToUTF8(const char* s, uint32 len, uint32& newSize)
-	{
-		if (NULL == s || '\0' == *s)
-		{
-			char* ret = new char[1];
-			LOG_ASSERT(NULL != ret);
-			*ret = '\0';
-			return ret;
-		}
-		byte tmp[4];
-		newSize = 1;
-		for(byte *p = (byte*)s ; *p ; p++)
-			newSize += ASCIItoUTF8(*p, tmp);
-
-		char* ret = new char[newSize];
-		LOG_ASSERT(NULL != ret);
-
-		byte *q = (byte*)ret;
-		for(byte *p = (byte*)s ; *p ; p++)
-			q += ASCIItoUTF8(*p, q);
-		*q = '\0'; // A bit paranoid
-		return ret;
-	}
-
-
-	String String::ConvertToUTF8(const String& s)
-	{
-		if (s.empty())
-			return String();
-		char* ret = ConvertToUTF8(s.c_str(), s.size());
-		if (ret)
-		{
-			String s(ret); // TODO Find a way to not use a temporary string
-			delete[] ret;
-			return s;
-		}
-		return String();
-	}
-
-
 	String& String::findAndReplace(char toSearch, const char replaceWith, const enum String::CharCase option)
 	{
 		if (option == soIgnoreCase)
@@ -725,9 +796,6 @@ namespace TA3D
 
 	sint32 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase)
 	{
-		static const std::basic_string <char>::size_type NotFound = std::string::npos;
-
-		std::basic_string <char>::size_type iFind;
 		String sz1, sz2;
 
 		if(ignoreCase)
@@ -740,9 +808,9 @@ namespace TA3D
 			sz1 = s;
 			sz2 = stringToSearch;
 		}
-		iFind = sz1.find(sz2);
+		String::Size iFind = sz1.find(sz2);
 
-		return ((NotFound == iFind) ? -1 : (sint32)iFind);
+		return ((String::npos == iFind) ? -1 : (sint32)iFind);
 	}
 
 
@@ -787,3 +855,4 @@ namespace TA3D
 
 }
 
+#endif

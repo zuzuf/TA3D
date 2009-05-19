@@ -15,23 +15,54 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-/*
 #ifndef __TA3D_TOOLBOX_STRING_H__
 # define __TA3D_TOOLBOX_STRING_H__
 
-# include <yuni/toolbox/string.h>
+# include "../stdafx.h"
+# include <yuni/core/string.h>
 
 
 namespace TA3D
 {
 	typedef Yuni::String  String;
+
+
+	int ASCIItoUTF8(const byte c, byte *out);
+
+	String InttoUTF8(const uint16 c);
+
+	/*!
+	** \brief Convert a string from ASCII to UTF8
+	** \param s The string to convert
+	** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
+	*/
+	char* ConvertToUTF8(const char* s);
+
+	/*!
+	** \brief Convert a string from ASCII to UTF8
+	** \param s The string to convert
+	** \param len The length of the string
+	** \param[out] The new size
+	** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
+	*/
+	char* ConvertToUTF8(const char* s, const uint32 len);
+	char* ConvertToUTF8(const char* s, const uint32 len, uint32& newSize);
+
+	/*!
+	** \brief Convert a string from ASCII to UTF8
+	** \param s The string to convert
+	** \return A new String
+	*/
+	String ConvertToUTF8(const String& s);
+
+
+	sint32 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase);
 }
 
 #endif // __TA3D_TOOLBOX_STRING_H__
 
-*/
 
-#ifndef __TA3D_LIB_W_STRING_H__
+#ifdef __TA3D_LIB_W_STRING_H__
 # define __TA3D_LIB_W_STRING_H__
 
 # include "../stdafx.h"
@@ -55,14 +86,14 @@ namespace TA3D
 
 //! Macro to append some data to the string
 # define TA3D_WSTR_APPEND      std::stringstream out; \
-                                out << v; \
-                                append(out.str());\
-                                return *this
+	out << v; \
+append(out.str());\
+return *this
 
 //! Macro to convert the string into a given type
 # define TA3D_WSTR_CAST_OP(X)  X v; \
-                                fromString<X>(v, *this); \
-                                return v;
+	fromString<X>(v, *this); \
+return v;
 
 //! Macro to append the value of a boolean (true -> "true", false -> "false")
 # define TA3D_WSTR_APPEND_BOOL(X)   append(X ? "true" : "false")
@@ -237,30 +268,6 @@ namespace TA3D
 		*/
 		static int FindInList(const String::Vector& l, const char* s);
 		static int FindInList(const String::Vector& l, const String& s);
-
-
-		/*!
-		** \brief Convert a string from ASCII to UTF8
-		** \param s The string to convert
-		** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
-		*/
-		static char* ConvertToUTF8(const char* s);
-		/*!
-		** \brief Convert a string from ASCII to UTF8
-		** \param s The string to convert
-		** \param len The length of the string
-		** \param[out] The new size
-		** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
-		*/
-		static char* ConvertToUTF8(const char* s, const uint32 len);
-		static char* ConvertToUTF8(const char* s, const uint32 len, uint32& newSize);
-
-		/*!
-		** \brief Convert a string from ASCII to UTF8
-		** \param s The string to convert
-		** \return A new String
-		*/
-		static String ConvertToUTF8(const String& s);
 
 		/*!
 		** \brief Formatted string
@@ -632,7 +639,7 @@ namespace TA3D
 
 
 
-//	String format(const char* fmt, ...);
+	//	String format(const char* fmt, ...);
 
 	sint32 SearchString(const String& s, const String& StringToSearch, const bool ignoreCase);
 
@@ -650,6 +657,6 @@ namespace TA3D
 
 
 
-} // namespace TA3D
+	} // namespace TA3D
 
 #endif // __TA3D_LIB_W_STRING_H__

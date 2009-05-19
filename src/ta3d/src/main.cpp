@@ -62,9 +62,11 @@ namespace TA3D
 		TA3D::String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
 		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
-		TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
-		TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
-		TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
+		TA3D::VARS::lp_CONFIG->last_script = parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script);
+		TA3D::VARS::lp_CONFIG->last_script.replace('/', '\\');
+		TA3D::VARS::lp_CONFIG->last_map = parser.pullAsString("TA3D.Map", TA3D::VARS::lp_CONFIG->last_map);
+		TA3D::VARS::lp_CONFIG->last_map.replace('/', '\\');
+		TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW);
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{

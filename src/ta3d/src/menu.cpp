@@ -58,9 +58,6 @@
 #define p_size          10.0f
 #define MENU_NB_PART    200
 
-#define FIX_BLANK(str) (ReplaceChar(str, ' ', 1))
-#define UNFIX_BLANK(str) (ReplaceChar(str, 1, ' '))
-
 // Some functions from main.cpp used to deal with config file
 
 
@@ -72,6 +69,19 @@ namespace TA3D
 	void ReadFileParameter();
 
 
+	static inline String FixBlank(const String& s)
+	{
+		String t(s);
+		t.replace(' ', char(1));
+		return t;
+	}
+
+	static inline String UnfixBlank(const String& s)
+	{
+		String t(s);
+		t.replace(char(1), ' ');
+		return t;
+	}
 
 
 	void config_menu(void)
@@ -201,8 +211,8 @@ namespace TA3D
 				objLang->Text.push_back(l->caption());
 			else
 				objLang->Text.push_back(lp_CONFIG->Lang);
-			for(int i = 0 ; i < languageList.size() ; i++)
-				objLang->Text.push_back( languageList[i].caption() );
+			for (unsigned int i = 0; i < languageList.size(); i++)
+				objLang->Text.push_back(languageList[i].caption());
 		}
 		if (config_area.get_object("*.camera_zoom") )
 			config_area.set_caption( "*.camera_zoom", config_area.get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
@@ -224,8 +234,14 @@ namespace TA3D
 			for( int i = 0 ; i < nb_res ; i++ )
 				obj->Text.push_back( String::Format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ));
 		}
-		if (config_area.get_object("*.shadow_quality"))
-			config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1 + Math::Max( 0, Math::Min((int)lp_CONFIG->shadow_quality, 2) )]);
+		GUIOBJ* tmpO = config_area.get_object("*.shadow_quality");
+		if (tmpO)
+		{
+			const unsigned int indx = 1 + Math::Max(0, Math::Min((int)lp_CONFIG->shadow_quality, 2));
+			if (indx < tmpO->Text.size())
+				config_area.set_caption( "*.shadow_quality", tmpO->Text[indx]);
+		}
+
 		config_area.set_caption("*.timefactor", String::Format( "%d", (int)lp_CONFIG->timefactor ));
 		switch( lp_CONFIG->fsaa )
 		{
@@ -658,7 +674,7 @@ namespace TA3D
 				}
 				else
 				{
-					network_manager.sendSpecial("NOTIFY NEW_PLAYER " + ReplaceChar( lp_CONFIG->player_name, ' ', 1 ));
+					network_manager.sendSpecial("NOTIFY NEW_PLAYER " + FixBlank(lp_CONFIG->player_name));
 					rest(10);
 					network_manager.sendSpecial( "REQUEST GameData" );
 				}
@@ -1068,7 +1084,7 @@ namespace TA3D
 			{
 				int from = received_special_msg.from;
 				String::Vector params;
-				String(received_special_msg.message).split(params, " ");
+				String(received_special_msg.message).explode(params, " ");
 				if (params.size() == 1)
 				{
 					if (params[0] == "PONG")
@@ -1097,9 +1113,9 @@ namespace TA3D
 										int side_id = String::FindInList(side_str, game_data.player_sides[i]);
 										msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
 											<< side_id << " "
-											<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FIX_BLANK(game_data.ai_level[i]))
+											<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FixBlank(game_data.ai_level[i]))
 											<< " " << game_data.metal[i] << " " << game_data.energy[i] << " "
-											<< FIX_BLANK(game_data.player_names[i]) << " " << (int)game_data.ready[i];
+											<< FixBlank(game_data.player_names[i]) << " " << (int)game_data.ready[i];
 										network_manager.sendSpecial( msg, -1, from);
 
 										GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.team%d", i));
@@ -1118,14 +1134,14 @@ namespace TA3D
 										network_manager.sendSpecial( msg, -1, from);
 
 										network_manager.sendSpecial(String::Format("SET FOW %d", game_data.fog_of_war ), -1, from);
-										network_manager.sendSpecial("SET SCRIPT " + FIX_BLANK( game_data.game_script), -1, from);
-										network_manager.sendSpecial("SET MAP " + FIX_BLANK( game_data.map_filename), -1, from);
+										network_manager.sendSpecial("SET SCRIPT " + FixBlank( game_data.game_script), -1, from);
+										network_manager.sendSpecial("SET MAP " + FixBlank( game_data.map_filename), -1, from);
 									}
 								}
 								else if (params[1] == "STATUS")
 								{
 									if (saved_game)
-										network_manager.sendSpecial("STATUS SAVED " + FIX_BLANK( Paths::ExtractFileName(saved_game) ), -1, from);
+										network_manager.sendSpecial("STATUS SAVED " + FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
 									else
 										network_manager.sendSpecial("STATUS NEW", -1, from);
 								}
@@ -1201,7 +1217,7 @@ namespace TA3D
 										player_timer[ slot ] = msec_timer;              // If we forget this, player will be droped immediately
 										game_data.player_network_id[slot] = from;
 										game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
-										game_data.player_names[slot] = UNFIX_BLANK( params[2] );
+										game_data.player_names[slot] = UnfixBlank( params[2] );
 										setupgame_area.set_caption( String::Format( "gamesetup.name%d", slot ), game_data.player_names[slot]);                      // Update gui
 
 										GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", slot));
@@ -1222,11 +1238,11 @@ namespace TA3D
 								}
 								else if (params[1] == "PLAYER_BACK" && saved_game) // A player is back in the game :), let's find who it is
 								{
-									LOG_DEBUG("received identifier from " << from << " : " << params[2].toInt32());
+									LOG_DEBUG("received identifier from " << from << " : " << params[2].to<sint32>());
 									int slot = -1;
 									for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 									{
-										if (net_id_table[i] == params[2].toInt32())
+										if (net_id_table[i] == params[2].to<sint32>())
 										{
 											slot = i;
 											break;
@@ -1248,7 +1264,7 @@ namespace TA3D
 								}
 								else if (params[1] == "COLORCHANGE")
 								{
-									int i = params[2].toInt32();
+									int i = params[2].to<sint32>();
 									if (!client) // From client to server only
 									{
 										sint16 e = player_color_map[i];
@@ -1287,7 +1303,7 @@ namespace TA3D
 							{
 								if (params[1] == "FOW")
 								{
-									int value = params[2].toInt32();
+									int value = params[2].to<sint32>();
 									GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW");
 									if (obj && value >= 0 && value < 4)
 									{
@@ -1298,7 +1314,7 @@ namespace TA3D
 								}
 								else if (params[1] == "MAP")
 								{
-									set_map = UNFIX_BLANK( params[2] );
+									set_map = UnfixBlank( params[2] );
 									if (set_map != game_data.map_filename )
 									{
 										if (!previous_tnt_port.empty() )
@@ -1310,22 +1326,27 @@ namespace TA3D
 										String new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
 										if (client && !HPIManager->Exists( new_map_name ))
 										{
-											previous_tnt_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/'));
-											network_manager.sendSpecial( "REQUEST FILE " + FIX_BLANK(new_map_name) + " " + previous_tnt_port );
+											String sMpN(new_map_name);
+											sMpN.replace('\\', '/');
+											previous_tnt_port = network_manager.getFile( 1, sMpN);
+											network_manager.sendSpecial( "REQUEST FILE " + FixBlank(new_map_name) + " " + previous_tnt_port );
 										}
 
 										new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
 
 										if (client && !HPIManager->Exists( new_map_name ))
 										{
-											previous_ota_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/'));
-											network_manager.sendSpecial( "REQUEST FILE " + FIX_BLANK(new_map_name) + previous_ota_port );
+											String sMpN(new_map_name);
+											sMpN.replace('\\', '/');
+
+											previous_ota_port = network_manager.getFile( 1, sMpN);
+											network_manager.sendSpecial( "REQUEST FILE " + FixBlank(new_map_name) + previous_ota_port );
 										}
 									}
 								}
 								else if (params[1] == "SCRIPT")
 								{
-									String script_name = UNFIX_BLANK( params[2] );
+									String script_name = UnfixBlank( params[2] );
 									if (script_name != game_data.game_script)
 									{
 										setupgame_area.set_caption( "gamesetup.script_name", script_name);
@@ -1335,8 +1356,12 @@ namespace TA3D
 										{
 											if (!previous_lua_port.empty())
 												network_manager.stopFileTransfer( previous_lua_port);
-											previous_lua_port = network_manager.getFile( 1, ReplaceChar( script_name, '\\', '/'));
-											network_manager.sendSpecial( "REQUEST FILE " + FIX_BLANK(script_name) + " " + previous_lua_port);
+
+											String sSpS(script_name);
+											sSpS.replace('\\', '/');
+
+											previous_lua_port = network_manager.getFile( 1, sSpS);
+											network_manager.sendSpecial("REQUEST FILE " + FixBlank(script_name) + " " + previous_lua_port);
 										}
 									}
 								}
@@ -1348,7 +1373,7 @@ namespace TA3D
 							{
 								if (params[1] == "FILE")
 								{
-									String file_name = UNFIX_BLANK( params[2] );
+									String file_name = UnfixBlank( params[2] );
 									LOG_DEBUG(LOG_PREFIX_NET << "received file request : '" << file_name << "'");
 									network_manager.stopFileTransfer( params[3], from);
 									network_manager.sendFile( from, file_name, params[3]);
@@ -1358,8 +1383,8 @@ namespace TA3D
 							{
 								if (params[1] == "TEAM")
 								{
-									int i = params[2].toInt32();
-									int n_team = params[3].toInt32();
+									int i = params[2].to<sint32>();
+									int n_team = params[3].to<sint32>();
 									if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
 									{
 										GUIOBJ *guiobj = setupgame_area.get_object( String::Format( "gamesetup.team%d", i ) );
@@ -1375,7 +1400,7 @@ namespace TA3D
 							{
 								if (params[1] == "UNIT" && params[2] == "LIMIT")
 								{
-									game_data.max_unit_per_player = params[3].toInt32();
+									game_data.max_unit_per_player = params[3].to<sint32>();
 									GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
 									if (obj)
 										obj->Text[0] = String::Format("%d", game_data.max_unit_per_player);
@@ -1386,20 +1411,20 @@ namespace TA3D
 						{
 							if (params[0] == "PLAYER_INFO") // We've received player information, let's update :)
 							{
-								int i = params[1].toInt32();
-								int n_id = params[2].toInt32();
+								int i = params[1].to<sint32>();
+								int n_id = params[2].to<sint32>();
 								if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == n_id)) // Server doesn't accept someone telling him what to do
 								{
-									int side_id  = params[3].toInt32();
-									int metal_q  = params[5].toInt32();
-									int energy_q = params[6].toInt32();
-									bool ready   = params[8].toInt32();
+									int side_id  = params[3].to<sint32>();
+									int metal_q  = params[5].to<sint32>();
+									int energy_q = params[6].to<sint32>();
+									bool ready   = params[8].to<sint32>();
 									game_data.player_network_id[i] = n_id;
 									game_data.player_sides[i] = side_str[ side_id ];
-									game_data.ai_level[i] = UNFIX_BLANK( params[4] );
+									game_data.ai_level[i] = UnfixBlank( params[4] );
 									game_data.metal[i] = metal_q;
 									game_data.energy[i] = energy_q;
-									game_data.player_names[i] = UNFIX_BLANK( params[7] );
+									game_data.player_names[i] = UnfixBlank( params[7] );
 									game_data.ready[i] = ready;
 									if (n_id < 0 && game_data.ai_level[i].size() >= 4)
 										game_data.player_control[i] = PLAYER_CONTROL_REMOTE_AI;     // AIs are on the server, no need to replicate them
@@ -1438,7 +1463,7 @@ namespace TA3D
 							{
 								for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 								{
-									player_color_map[i] = params[i + 1].toInt32();
+									player_color_map[i] = params[i + 1].to<sint32>();
 									GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 									if (guiobj)
 										guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
@@ -1476,7 +1501,7 @@ namespace TA3D
 			while (!broadcast_msg.empty())  // Broadcast message receiver
 			{
 				String::Vector params;
-				broadcast_msg.split(params, " ");
+				broadcast_msg.explode(params, " ");
 				if (params.size() == 3 && params[0] == "PING" && params[1] == "SERVER")
 				{
 					if (params[2] == "LIST" && host ) // Sending information about this server
@@ -1487,10 +1512,25 @@ namespace TA3D
 							if (setupgame_area.get_caption(String::Format("gamesetup.name%d", f)) == player_str[2])
 								++nb_open;
 						}
+
+						String hostFixed(host);
+						hostFixed.replace(' ', char(1));
+
+						String engineV(TA3D_ENGINE_VERSION);
+						engineV.replace(' ', char(1));
 						if (TA3D_CURRENT_MOD.empty())
-							network_manager.broadcastMessage( String::Format( "PONG SERVER %s . %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ', 1 ).c_str(), nb_open).c_str());
+						{
+							network_manager.broadcastMessage(String::Format("PONG SERVER %s . %s %d", hostFixed.c_str(),
+								engineV.c_str(), nb_open).c_str());
+						}
 						else
-							network_manager.broadcastMessage( String::Format( "PONG SERVER %s %s %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_CURRENT_MOD, ' ', 1 ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ',1 ).c_str(), nb_open ).c_str());
+						{
+							String mod(TA3D_CURRENT_MOD);
+							mod.replace(' ', char(1));
+							network_manager.broadcastMessage(String::Format("PONG SERVER %s %s %s %d", hostFixed.c_str(),
+								mod.c_str(), engineV.c_str(),
+								nb_open).c_str());
+						}
 					}
 				}
 				broadcast_msg = network_manager.getNextBroadcastedMessage();
@@ -1548,7 +1588,7 @@ namespace TA3D
 					setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ]);
 					game_data.game_script = guiobj->Text[ guiobj->Pos ];
 					if (host)
-						network_manager.sendSpecial("SET SCRIPT " + ReplaceChar( guiobj->Text[ guiobj->Pos ], ' ', 1));
+						network_manager.sendSpecial("SET SCRIPT " + FixBlank(guiobj->Text[guiobj->Pos]));
 				}
 			}
 
@@ -1583,7 +1623,7 @@ namespace TA3D
 			{
 				GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
 				obj->Text[0] = obj->Text[1+obj->Value];
-				game_data.max_unit_per_player = obj->Text[0].toInt32();
+				game_data.max_unit_per_player = obj->Text[0].to<sint32>();
 				network_manager.sendSpecial(String::Format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
 			}
 
@@ -1801,7 +1841,11 @@ namespace TA3D
 				{
 					set_map.clear();
 					if (host && !client)
-						network_manager.sendSpecial(String::Format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
+					{
+						String tmp(new_map);
+						tmp.replace(' ', char(1));
+						network_manager.sendSpecial(String::Format("SET MAP %s", tmp.c_str()));
+					}
 
 					String new_map_name = new_map;
 
@@ -1980,16 +2024,16 @@ namespace TA3D
 				while (!msg.empty())
 				{
 					String::Vector params;
-					msg.split(params, " ");
+					msg.explode(params, " ");
 					if (params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER") // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
 					{
-						String name = ReplaceChar( params[2], 1, ' ');
-						String mod = ReplaceChar( params[3], 1, ' ');
+						String name = UnfixBlank(params[2]);
+						String mod = UnfixBlank(params[3]);
 						if (mod == ".")
 							mod.clear();
-						String version = ReplaceChar( params[4], 1, ' ');
+						String version = UnfixBlank(params[4]);
 						String host_address = network_manager.getLastMessageAddress();
-						int nb_open = params[5].toInt32();
+						int nb_open = params[5].to<sint32>();
 
 						if (version.substr(0, 3) == String(TA3D_ENGINE_VERSION).substr(0, 3) && version.size() == String(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
 						{
@@ -2472,9 +2516,11 @@ namespace TA3D
 			if (!HPIManager->Exists( brief_file ) )         // try without the suffix if we cannot find it
 				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief");
 			byte *data = HPIManager->PullFromHPI( brief_file);
-			if (data ) {
+			if (data)
+			{
 				String brief_info = (const char*)data;
-				brief_area.set_caption( "brief.info", brief_info.convertToUTF8());
+				brief_info.toUTF8();
+				brief_area.set_caption( "brief.info", brief_info);
 				delete[] data;
 			}
 		}
@@ -2848,7 +2894,7 @@ namespace TA3D
 				int from = received_special_msg.from;
 				int player_id = game_data->net2id(from);
 				String::Vector params;
-				String(received_special_msg.message).split(params, " ");
+				String(received_special_msg.message).explode(params, " ");
 				if (params.size() == 1)
 				{
 					if (params[0] == "PONG" )
@@ -2882,7 +2928,7 @@ namespace TA3D
 					{
 						if (params[0] == "LOADING")
 						{
-							int percent = Math::Min(100, Math::Max(0, params[1].toInt32()));
+							int percent = Math::Min(100, Math::Max(0, params[1].to<int>()));
 							wait_area.set_data( String::Format( "wait.progress%d", player_id ), percent);
 						}
 						else

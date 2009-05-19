@@ -233,11 +233,13 @@ namespace Audio
 
 		while (!file.eof())
 		{
-			std::getline(file, line, '\n');
+			std::string getlineLine;
+			std::getline(file, getlineLine, '\n');
 
-			line = String::Trim(line); // strip off spaces, linefeeds, tabs, newlines
+			line = getlineLine;
+			line.trim(); // strip off spaces, linefeeds, tabs, newlines
 
-			if (!line.length())
+			if (line.empty())
 				continue;
 			if (line[0] == '#' || line[0] == ';')
 				continue;
@@ -712,7 +714,7 @@ namespace Audio
 		// if it has a .wav extension then remove it.
 		String::size_type i = filename.find("wav");
 		if (i != String::npos)
-			filename.resize(filename.length() - 4);
+			filename.truncate(filename.length() - 4);
 
 		// if its already loaded return true.
 		if (pSoundList.exists(filename))
@@ -812,7 +814,7 @@ namespace Audio
 		// if it has a .wav extension then remove it.
 		String::size_type i = szWav.toLower().find(".wav");
 		if (i != String::npos)
-			szWav.resize(szWav.length() - 4);
+			szWav.truncate(szWav.length() - 4);
 
 		SoundItemList* sound = pSoundList.find(szWav);
 		if (!sound)
@@ -846,7 +848,7 @@ namespace Audio
 		String szWav = pTable.pullAsString(String::ToLower(Key)); // copy string to szWav so we can work with it.
 		String::size_type i = szWav.toLower().find(".wav");
 		if (i != String::npos)
-			szWav.resize(szWav.length() - 4);
+			szWav.truncate(szWav.length() - 4);
 
 		SoundItemList* it = pSoundList.find(szWav);
 		if (it)

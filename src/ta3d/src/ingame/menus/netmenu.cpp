@@ -98,29 +98,29 @@ namespace Menus
 			  && NetClient::instance()->getState() == NetClient::CONNECTED)
 		{
 			String msg = NetClient::instance()->getNextMessage();
-			if (StartsWith(msg, "MESSAGE"))
+			if (msg.startsWith("MESSAGE"))
 			{
 				pArea->set_title("popup", I18N::Translate("Server message"));
 				pArea->set_caption("popup.msg", I18N::Translate(msg.substr(8)));
 				pArea->msg("popup.show");
 			}
-			else if (StartsWith(msg, "ERROR"))
+			else if (msg.startsWith("ERROR"))
 			{
 				pArea->set_title("popup", I18N::Translate("Server error"));
 				pArea->set_caption("popup.msg", I18N::Translate(msg.substr(6)));
 				pArea->msg("popup.show");
 			}
-			else if (StartsWith(msg, "MSG"))
+			else if (msg.startsWith("MSG"))
 			{
 				String::Vector args;
-				msg.split(args, " ");
+				msg.explode(args, " ");
 				if (args.size() >= 2)
 				{
 					String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
 					addChatMessage(message);
 				}
 			}
-			else if (StartsWith(msg, "CLIENT"))
+			else if (msg.startsWith("CLIENT"))
 			{
 				addChatMessage(msg);
 			}
@@ -319,7 +319,7 @@ namespace Menus
 					{
 						if (msg[0] == '/')      // Command mode (IRC like :p)
 						{
-							if (StartsWith(msg, "/CHAN"))      // Change chan (this is done using NetClient interface)
+							if (msg.startsWith("/CHAN"))      // Change chan (this is done using NetClient interface)
 							{
 								if (msg.size() > 6)
 									NetClient::instance()->changeChan(msg.substr(6));

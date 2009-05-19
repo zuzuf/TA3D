@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
+#include <yuni/core/fs/paths.h>
 
 
 #ifdef TA3D_PLATFORM_WINDOWS
@@ -50,17 +51,17 @@ namespace TA3D
 	namespace Paths
 	{
 
-		String ApplicationRoot = "";
-		String Caches = "";
-		String Savegames = "";
-		String Logs = "";
-		String LogFile = "";
-		String Preferences = "";
-		String ConfigFile = "";
-		String Screenshots = "";
-		String Resources = "";
+		String ApplicationRoot;
+		String Caches;
+		String Savegames;
+		String Logs;
+		String LogFile;
+		String Preferences;
+		String ConfigFile;
+		String Screenshots;
+		String Resources;
 # ifdef TA3D_PLATFORM_WINDOWS
-		String LocalData = "";
+		String LocalData;
 # endif
 
 
@@ -79,9 +80,9 @@ namespace TA3D
 # ifdef TA3D_PLATFORM_WINDOWS
 
 			/*!
-			 * \brief Get the absolute path to the local application data folder
-			 * (from the Windows registry)
-			 */
+			** \brief Get the absolute path to the local application data folder
+			** (from the Windows registry)
+			*/
 			String localAppData()
 			{
 				LPITEMIDLIST pidl;
@@ -92,7 +93,7 @@ namespace TA3D
 				hr = SHGetMalloc(&pMalloc);
 				pMalloc->Free(pidl);
 				pMalloc->Release();
-				return szPath;
+				return String(szPath, strlen(szPath));
 			}
 
 			void initForWindows()
@@ -144,9 +145,9 @@ namespace TA3D
 # endif // ifdef TA3D_PLATFORM_WINDOWS
 
 			/*!
-			 * \brief Initialize the ApplicationRoot variable
-			 * \param argv0 Equivalent to argv[0] from the main
-			 */
+			** \brief Initialize the ApplicationRoot variable
+			** \param argv0 Equivalent to argv[0] from the main
+			*/
 			void initApplicationRootPath(const char* argv0)
 			{
 				LOG_ASSERT(NULL != argv0);
@@ -179,77 +180,34 @@ namespace TA3D
 
 		String ExtractFilePath(const String& p, const bool systemDependant)
 		{
-			String::Vector parts;
-			if (systemDependant)
-				p.split(parts, SeparatorAsString, false);
-			else
-				p.split(parts, "\\/", false);
-
-			String ret;
-			String::Vector::size_type n = parts.size();
-            if (n > 0)
-                --n;
-			for (String::Vector::size_type i = 0; i != n; ++i)
-			{
-				if (parts[i] != ".")
-					ret << parts[i] << Separator;
-			}
-			if (ret.size() > 0 && p.size() > 0 && ret[0] != p[0])        // Make sure the result begins like p
-				ret = p[0] + ret;
-			return ret;
+			return Yuni::Toolbox::Paths::ExtractFilePath(p, systemDependant);
 		}
 
 		String ExtractFileName(const String& p, const bool systemDependant)
 		{
-			String::size_type pos;
-			if (systemDependant)
-				pos = p.find_last_of(Separator);
-			else
-				pos = p.find_last_of("\\/");
-			if (String::npos == pos)
-				return p;
-			return p.substr(pos+1);
+			return Yuni::Toolbox::Paths::ExtractFileName(p, systemDependant);
 		}
 
 		void ExtractFileName(String::List& p, const bool systemDependant)
 		{
-			for(String::List::iterator i = p.begin() ; i != p.end() ; i++)
-				*i = ExtractFileName( *i, systemDependant );
+			return Yuni::Toolbox::Paths::ExtractFileName(p, systemDependant);
 		}
 
 		void ExtractFileName(String::Vector& p, const bool systemDependant)
 		{
-			for(String::Vector::iterator i = p.begin() ; i != p.end() ; i++)
-				*i = ExtractFileName( *i, systemDependant );
+			return Yuni::Toolbox::Paths::ExtractFileName(p, systemDependant);
 		}
 
 		String ExtractFileNameWithoutExtension(const String& p)
 		{
-			String::size_type pos = p.find_last_of("\\/");
-			String::size_type n = p.find_last_of('.');
-			if (String::npos == n && String::npos == pos)
-				return p;
-			if (n == pos)
-				return "";
-			if (n == String::npos && n > pos + 1)
-			{
-				if (String::npos == pos)
-					return p;
-				return p.substr(pos + 1);
-			}
-			if (pos == String::npos)
-				return p.substr(0, n);
-			return p.substr(pos + 1, n - pos - 1);
+			return Yuni::Toolbox::Paths::ExtractFileNameWithoutExtension(p);
 		}
 
 
 
 		String ExtractFileExt(const String& s)
 		{
-			String::size_type n = s.find_last_of(".\\/");
-			if (n == String::npos || '.' != s[n])
-				return "";
-			return String(s, n).toLower();
+			return Yuni::Toolbox::Paths::ExtractFileExt(s);
 		}
 
 
@@ -327,7 +285,7 @@ namespace TA3D
 				return true;
 			// TODO Use the boost library, which has a better implementation that this one
 			String::Vector parts;
-			p.split(parts, SeparatorAsString, false);
+			p.explode(parts, SeparatorAsString, false);
 			String pth;
 			bool hasBeenCreated(false);
 			if (p[0] == '/' || p[0] == '\\')
@@ -373,7 +331,7 @@ namespace TA3D
 				String root = ExtractFilePath(pattern);
 				String root_path = root;
 				if (root.size() > 1 && (root[ root.size() - 1 ] == '/' || root[ root.size() - 1 ] == '\\'))
-					root_path.resize(root_path.size()-1);
+					root_path.removeLast();
 
 #ifdef TA3D_PLATFORM_WINDOWS
 				String strFilePath; // Filepath
@@ -436,7 +394,7 @@ namespace TA3D
 							dirp->d_type |= FA_FILE;
 					}
 
-					if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).match(filename_pattern))
+					if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).glob(filename_pattern))
 					{
 						if (relative)
 							out.push_back(name);

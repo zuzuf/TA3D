@@ -279,13 +279,13 @@ namespace TA3D
 		skin = NULL;
 		TDFParser* areaFile = new TDFParser(real_filename);
 
-		area_stack.push_front( this );     // Just in case we want to grab it from elsewhere
+		area_stack.push_front(this);     // Just in case we want to grab it from elsewhere
 
 		name = filename;		// Grab the area's name
 		String::size_type e = name.find('.');		// Extracts the file name
 
 		if (e != String::npos)
-			name = name.substr( 0, e );
+			name.truncate(e);
 		e = name.find_last_of( "/\\" );
 		if (e != String::npos)
 			name = name.substr(e + 1, name.size() - e - 1);
@@ -304,7 +304,7 @@ namespace TA3D
 		}
 
 		String::Vector windows_to_load;
-		areaFile->pullAsString("area.windows").split(windows_to_load, ",");
+		areaFile->pullAsString("area.windows").explode(windows_to_load, ',');
 		for (String::Vector::const_iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
 			load_window(*i);
 

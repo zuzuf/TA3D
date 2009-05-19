@@ -35,7 +35,7 @@ namespace TA3D
 			0, m_LastError, 0, &szError[0], 511, NULL) )
 			m_szDesc = String( "Unable to extract error code from system." );
 		else
-			m_szDesc = szError;
+			m_szDesc.assign(szError, strlen(szError));
 #else
 		m_szDesc = String( strerror( m_LastError ) );
 #endif

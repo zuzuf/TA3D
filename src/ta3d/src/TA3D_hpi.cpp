@@ -604,7 +604,8 @@ namespace HPI
 		if (SearchString(filename, ".lua", true) >= 0)
 			return NULL;
 
-		String cacheable_filename = String::ToLower(filename);
+		String cacheable_filename(filename);
+		cacheable_filename.toLower();
 		for (String::iterator i = cacheable_filename.begin() ; i != cacheable_filename.end(); ++i)
 		{
 			if ('/' == *i || '\\' == *i)
@@ -657,7 +658,7 @@ namespace HPI
 	byte *cHPIHandler::PullFromHPI(const String& filename, uint32* fileLength)
 	{
 		String key = String::ToLower(filename);
-		key.convertSlashesIntoAntiSlashes();
+		key.convertSlashesIntoBackslashes();
 		uint32 FileSize;
 
 		CACHEFILEDATA *cache = IsInCache(key);
@@ -739,7 +740,7 @@ namespace HPI
 	byte* cHPIHandler::PullFromHPI_zone(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
 	{
 		String key = String::ToLower(filename);
-		key.convertSlashesIntoAntiSlashes();
+		key.convertSlashesIntoBackslashes();
 		uint32 FileSize;
 
 		CACHEFILEDATA *cache = IsInCache(key);
@@ -797,7 +798,7 @@ namespace HPI
 				pathQueue.pop_back();
 
 				if (cur_Path.empty())   continue;
-				if (Paths::ExtractFileName(cur_Path).match(".*"))   continue;
+				if (Paths::ExtractFileName(cur_Path).glob(".*"))   continue;
 				if (cur_Path[cur_Path.size() - 1] != '\\' && cur_Path[cur_Path.size() - 1] != '/')
 					cur_Path << '/';
 
@@ -809,7 +810,7 @@ namespace HPI
 				{
 					String filename = cur_Path + fileList[i];
 					String key = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
-					key.convertSlashesIntoAntiSlashes();
+					key.convertSlashesIntoBackslashes();
 
 					HPIITEM *iterFind = m_Archive->find(key);
 					if (iterFind && iterFind->hfd && iterFind->hfd->priority)   continue;
@@ -845,7 +846,7 @@ namespace HPI
 					{
 						String filename = cur_Path + fileList[i];
 						String key = String::ToLower(cur_Path.substr(root.size(), cur_Path.size() - root.size()) + fileList[i]);
-						key.convertSlashesIntoAntiSlashes();
+						key.convertSlashesIntoBackslashes();
 						HPIITEM *iterFind;
 						iterFind = new HPIITEM;
 						iterFind->E1 = NULL;
@@ -865,7 +866,7 @@ namespace HPI
 	bool cHPIHandler::Exists(const String& filename)
 	{
 		String key = String::ToLower(filename);
-		key.convertSlashesIntoAntiSlashes();
+		key.convertSlashesIntoBackslashes();
 
 		HPIITEM* iterFind = m_Archive->find(key);
 		return (iterFind != NULL);
@@ -885,7 +886,9 @@ namespace HPI
 
 	uint32 cHPIHandler::getFilelist(const String& s, String::List& li)
 	{
-		String pattern = String::ToLower(s).convertSlashesIntoAntiSlashes();
+		String pattern(s);
+		pattern.toLower();
+		pattern.convertSlashesIntoBackslashes();
 		return m_Archive->wildCardSearch(pattern, li);
 	}
 
@@ -903,7 +906,7 @@ namespace HPI
 		}
 
 		String win_filename(filename);
-		win_filename.convertSlashesIntoAntiSlashes();
+		win_filename.convertSlashesIntoBackslashes();
 
 		data = HPIManager->PullFromHPI(win_filename, &length);
 		pos = 0;

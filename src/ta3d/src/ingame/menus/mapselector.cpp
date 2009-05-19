@@ -345,11 +345,13 @@ namespace Menus
 		byte* data = HPIManager->PullFromHPI_zone(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
 		ota_size = Math::Min( (int)ota_size, 10240 );
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "ota data extracted");
-		if(data)
+		if (data)
 		{
 			TDFParser ota_parser;
 			ota_parser.loadFromMemory("ota", (const char*)data, ota_size, false, false, false);
-			bool isNetworkGame = StartsWith( ota_parser.pullAsString("GlobalHeader.Schema 0.Type").toLower(), "network");
+			String tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
+			tmp.toLower();
+			bool isNetworkGame = tmp.startsWith("network");
 			delete[] data;
 			LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done (true)");
 			return isNetworkGame;
