@@ -1,0 +1,426 @@
+[window]
+{
+	title=Display;
+	uformat=UTF8;
+	x=446;
+	y=166;
+	width=738;
+	height=720;
+	draw borders=false;
+	show title=false;
+	number of objects=39;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=false;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Title "Display"
+	{
+		name=t_display;
+		type=TEXT;
+		caption=Display;
+		x1=369;
+		y1=0;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=3;
+	}
+	[object1]		// Option "fps_limit"
+	{
+		name=t_fps_limit;
+		type=TEXT;
+		caption=fps limit;
+		x1=0;
+		y1=50;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object2]		// Option "fps_limit"
+	{
+		name=fps_limit;
+		type=MENU;
+		entry=,50,60,70,80,90,100,no limit;
+		x1=600;
+		y1=50;
+		x2=730;
+		y2=80;
+		value=0;
+		size=1.5;
+	}
+	[object3]		// Option "wireframe"
+	{
+		name=t_wireframe;
+		type=TEXT;
+		caption=wireframe;
+		x1=0;
+		y1=85;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object4]		// Option "wireframe"
+	{
+		name=wireframe;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=85;
+		value=0;
+		size=1.6;
+	}
+	[object5]		// Option "particle"
+	{
+		name=t_particle;
+		type=TEXT;
+		caption=particles;
+		x1=0;
+		y1=120;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object6]		// Option "particle"
+	{
+		name=particle;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=120;
+		value=0;
+		size=1.6;
+	}
+	[object7]		// Option "waves"
+	{
+		name=t_waves;
+		type=TEXT;
+		caption=waves;
+		x1=0;
+		y1=155;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object8]		// Option "waves"
+	{
+		name=waves;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=155;
+		value=0;
+		size=1.6;
+	}
+	[object9]		// Option "shadow"
+	{
+		name=t_shadow;
+		type=TEXT;
+		caption=shadows;
+		x1=0;
+		y1=190;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object10]		// Option "shadow"
+	{
+		name=shadow;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=190;
+		value=0;
+		size=1.6;
+	}
+	[object11]		// Option "height_line"
+	{
+		name=t_height_line;
+		type=TEXT;
+		caption=height line;
+		x1=0;
+		y1=225;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object12]		// Option "height_line"
+	{
+		name=height_line;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=225;
+		value=0;
+		size=1.6;
+	}
+	[object13]		// Option "detail_tex"
+	{
+		name=t_detail_tex;
+		type=TEXT;
+		caption=detail texture;
+		x1=0;
+		y1=260;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object14]		// Option "detail_tex"
+	{
+		name=detail_tex;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=260;
+		value=0;
+		size=1.6;
+	}
+	[object15]		// Option "fullscreen"
+	{
+		name=t_fullscreen;
+		type=TEXT;
+		caption=full screen;
+		x1=0;
+		y1=295;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object16]		// Option "fullscreen"
+	{
+		name=fullscreen;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=295;
+		value=0;
+		size=1.6;
+	}
+	[object17]		// Option "screenres"
+	{
+		name=t_screenres;
+		type=TEXT;
+		caption=screen;
+		x1=0;
+		y1=330;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object18]		// Option "screenres"
+	{
+		name=screenres;
+		type=MENU;
+		entry=,800x600;
+		x1=500;
+		y1=330;
+		x2=730;
+		y2=360;
+		value=0;
+		size=1.5;
+	}
+	[object19]		// Option "shadow_quality"
+	{
+		name=t_shadow_quality;
+		type=TEXT;
+		caption=shadow quality;
+		x1=0;
+		y1=365;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object20]		// Option "shadow_quality"
+	{
+		name=shadow_quality;
+		type=MENU;
+		entry=,normal,high,higher;
+		x1=600;
+		y1=365;
+		x2=730;
+		y2=395;
+		value=0;
+		size=1.5;
+	}
+	[object21]		// Option "fsaa"
+	{
+		name=t_fsaa;
+		type=TEXT;
+		caption=antialiasing;
+		x1=0;
+		y1=400;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object22]		// Option "fsaa"
+	{
+		name=fsaa;
+		type=MENU;
+		entry=,no fsaa,x2,x4,x6,x8;
+		x1=600;
+		y1=400;
+		x2=730;
+		y2=430;
+		value=0;
+		size=1.5;
+	}
+	[object23]		// Option "water_quality"
+	{
+		name=t_water_quality;
+		type=TEXT;
+		caption=water quality;
+		x1=0;
+		y1=435;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object24]		// Option "water_quality"
+	{
+		name=water_quality;
+		type=MENU;
+		entry=,low,normal,high,ultra high,extreme,ultimate;
+		x1=600;
+		y1=435;
+		x2=730;
+		y2=465;
+		value=0;
+		size=1.5;
+	}
+	[object25]		// Option "use_texture_cache"
+	{
+		name=t_use_texture_cache;
+		type=TEXT;
+		caption=use texture cache;
+		help=warning: you might have texturing\nissues with this!!;
+		x1=0;
+		y1=470;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object26]		// Option "use_texture_cache"
+	{
+		name=use_texture_cache;
+		type=OPTIONC;
+		caption=;
+		help=warning: you might have texturing\nissues with this!!;
+		x1=690;
+		y1=470;
+		value=0;
+		size=1.6;
+	}
+	[object27]		// Option "explosion_particles"
+	{
+		name=t_explosion_particles;
+		type=TEXT;
+		caption=explosion particles;
+		x1=0;
+		y1=505;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object28]		// Option "explosion_particles"
+	{
+		name=explosion_particles;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=505;
+		value=0;
+		size=1.6;
+	}
+	[object29]		// Option "render sky"
+	{
+		name=t_sky;
+		type=TEXT;
+		caption=Render sky;
+		x1=0;
+		y1=540;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object30]		// Option "render sky"
+	{
+		name=sky;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=540;
+		value=0;
+		size=1.6;
+	}
+	[object31]		// Option "low defintion map"
+	{
+		name=t_low_definition_map;
+		type=TEXT;
+		caption=Low definition map;
+		x1=0;
+		y1=575;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object32]		// Option "low definition map"
+	{
+		name=low_definition_map;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=575;
+		value=0;
+		size=1.6;
+	}
+	[object33]		// Option "use texture compression"
+	{
+		name=t_use_texture_compression;
+		type=TEXT;
+		caption=Use texture compression;
+		x1=0;
+		y1=610;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object34]		// Option "use texture compression"
+	{
+		name=use_texture_compression;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=610;
+		value=1;
+		size=1.6;
+	}
+	[object35]		// Option "disable GLSL"
+	{
+		name=t_disable_GLSL;
+		type=TEXT;
+		caption=Disable GLSL;
+		help=disable GLSL shaders\nmay help if game crash;
+		x1=0;
+		y1=650;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object36]		// Option "disable GLSL"
+	{
+		name=disable_GLSL;
+		type=OPTIONC;
+		caption=;
+		help=disable GLSL shaders\nmay help if game crash;
+		x1=690;
+		y1=650;
+		value=1;
+		size=1.6;
+	}
+	[object37]		// Option "disable perspective"
+	{
+		name=t_disable_perspective;
+		type=TEXT;
+		caption=Disable perspective;
+		help=disable perspective\nTA3D will use an orthographic camera;
+		x1=0;
+		y1=690;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object38]		// Option "disable perspective"
+	{
+		name=disable_perspective;
+		type=OPTIONC;
+		caption=;
+		help=disable perspective\nTA3D will use an orthographic camera;
+		x1=690;
+		y1=690;
+		value=1;
+		size=1.6;
+	}
+}

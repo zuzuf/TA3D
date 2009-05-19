@@ -1,1 +1,0 @@
-cmake -G "MSYS Makefiles" ./

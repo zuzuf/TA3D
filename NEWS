@@ -1,8 +1,8 @@
-TA3D version 0.5.0
+TA3D version 0.5.4
 
 this software is under GPL (see COPYING)
 
-summary of changes from 0.4.2 to 0.5.0
+summary of changes from 0.4.2 to 0.5
 -----------------------------------------
 for full list of changes see our SVN log :p (more than 1200 commits since 0.4.2 !!)
 *full support for multiplayer games
@@ -25,7 +25,7 @@ for full list of changes see our SVN log :p (more than 1200 commits since 0.4.2 
 
 ce logiciel est distribué sous licence GPL (voir COPYING)
 
-résumé des changements apportés par la version 0.5.0
+résumé des changements apportés par la version 0.5
 -----------------------------------------
 pour la liste complète des modifications apportées voir les logs du dépot SVN  :p (plus de 1200 commits depuis la 0.4.2 !!)
 *support complet du multijoueurs
