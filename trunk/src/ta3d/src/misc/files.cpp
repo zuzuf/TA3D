@@ -53,7 +53,7 @@ namespace Files
             }
             file.seekg(0, std::ios_base::beg);
         }
-        String line;
+		std::string line;
         while (std::getline(file, line))
             out.push_back(line);
         return true;

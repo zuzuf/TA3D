@@ -2462,7 +2462,9 @@ namespace TA3D
 				{
 					if (network_manager.isServer())          // Ask all clients to save the game too, otherwise they won't be able to load it
 					{
-						network_manager.sendSpecial("SAVE " + ReplaceChar( filename, ' ', 1) );
+						String tmp(filename);
+						tmp.replace(' ', char(1));
+						network_manager.sendSpecial("SAVE " + tmp);
 
 						// Save multiplayer games in their own folder
 						filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(filename, ".sav");
@@ -3303,7 +3305,7 @@ namespace TA3D
 			{
 				String value = String::Format("x %f", lp_CONFIG->timefactor);
 				if (value.find('.') != String::npos)
-					value.resize(value.find('.') + 2);
+					value.truncate(value.find('.') + 2);
 				if (show_timefactor > 0.5f)
 				{
 					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, makeacol32(0,0,0,0xFF), value);
@@ -3366,7 +3368,7 @@ namespace TA3D
 			if (!cmd.empty()) // Analyse les commandes tapées dans la console
 			{
 				String::Vector params;
-				cmd.split(params, " ");
+				cmd.explode(params, " ");
 				if (params.size() > 0)
 				{
 					if (params[0] == "fps_on") lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
@@ -3384,12 +3386,12 @@ namespace TA3D
                     {
                         if (params[1] == "sound")
                         {
-                            lp_CONFIG->sound_volume = params[3].toUInt32();
+                            lp_CONFIG->sound_volume = params[3].to<uint32>();
                             sound_manager->setVolume(lp_CONFIG->sound_volume);
                         }
                         else if (params[1] == "music")
                         {
-                            lp_CONFIG->music_volume = params[3].toUInt32();
+                            lp_CONFIG->music_volume = params[3].to<uint32>();
                             sound_manager->setMusicVolume(lp_CONFIG->music_volume);
                         }
                     }
@@ -3447,12 +3449,12 @@ namespace TA3D
 					else if (params.size() == 2 && params[0] == "internal" && params[1] == "idx") internal_idx^=true;		// Show/Hide unit indexes in unit array
 					else if (params[0] == "exit") done=true;					// Quitte le programme
 					else if (params[0] == "wireframe") 	lp_CONFIG->wireframe^=true;
-					else if (params[0] == "priority" && params.size() == 2) lp_CONFIG->priority_level = params[1].toInt32();
-					else if ( params.size() == 3 && params[0] == "water" && params[1] == "quality") lp_CONFIG->water_quality = params[2].toInt32() % 6;
+					else if (params[0] == "priority" && params.size() == 2) lp_CONFIG->priority_level = params[1].to<sint32>();
+					else if ( params.size() == 3 && params[0] == "water" && params[1] == "quality") lp_CONFIG->water_quality = params[2].to<sint32>() % 6;
 					else if (params[0] == "shadow" && params.size() == 3)
 					{
 						if (params[1] == "quality")
-							lp_CONFIG->shadow_quality = params[2].toInt32();
+							lp_CONFIG->shadow_quality = params[2].to<sint32>();
 					}
 					else if (params[0] == "details")	lp_CONFIG->detail_tex ^= true;
 					else if (params[0] == "particle")	lp_CONFIG->particle^=true;
@@ -3475,7 +3477,7 @@ namespace TA3D
 					}
 					else if (params[0] == "fps_limit" && params.size() == 2)
 					{
-						speed_limit = params[1].toInt32();
+						speed_limit = params[1].to<sint32>();
 						if (speed_limit == 0.0f)
 							speed_limit = -1.0f;
 						delay = 1.0f / speed_limit;
@@ -3488,9 +3490,9 @@ namespace TA3D
 						unit_type = unit_manager.get_unit_index( params[1] );
 						if (params.size() >= 3)
 						{
-							player_id = params[2].toInt32();
+							player_id = params[2].to<sint32>();
 							if (params.size() >= 4)
-								nb_to_spawn = params[3].toInt32();
+								nb_to_spawn = params[3].to<sint32>();
 						}
 						ThreadSynchroniser->lock();		// Make sure we won't destroy something we mustn't
 						units.lock();
@@ -3547,12 +3549,12 @@ namespace TA3D
 						ThreadSynchroniser->unlock();
 					}
 					else if (params[0] == "timefactor" && params.size() == 2)
-						lp_CONFIG->timefactor = params[1].toFloat();
+						lp_CONFIG->timefactor = params[1].to<float>();
 					else if (params[0] == "addhp" && params.size() == 2)
 					{
 						if (selected) // Sur les unités sélectionnées
 						{
-							int value = params[1].toInt32();
+							int value = params[1].to<sint32>();
 							units.lock();
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
@@ -3700,8 +3702,8 @@ namespace TA3D
 						bool success = false;
 						if (params.size() == 4)
 						{
-							int player_id = params[2].toInt32();
-							int amount = params[3].toInt32();
+							int player_id = params[2].to<sint32>();
+							int amount = params[3].to<sint32>();
 							if (player_id >= 0 && player_id < players.nb_player)
 							{
 								if (params[1] == "metal" || params[1] == "both")

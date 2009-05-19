@@ -81,10 +81,12 @@ namespace TA3D
 
 
 
-	void Font::print(float x, float y, float z, const String &text)
+	void Font::print(float x, float y, float z, const String& text)
 	{
+		if (text.empty())
+			return;
 		MutexLocker locker(pMutex);
-		if (font == NULL)
+		if (NULL == font)
 			return;
 
 		glScalef(1.0f, -1.0f, 1.0f);
@@ -202,7 +204,7 @@ namespace TA3D
 			String::List dir_list;
 			Paths::GlobDirs(dir_list, path + "/*", true, true);
 			for(String::List::iterator i = dir_list.begin() ; i != dir_list.end() && file_path.empty() ; ++i)
-				if (!StartsWith(*i, "."))
+				if (!i->empty() && i->at(0) == '.')
 					file_path = find_font(path + "/" + *i, name);
 		}
 
@@ -221,10 +223,12 @@ namespace TA3D
 					tmp_file.write((char*)data, font_size);
 					tmp_file.flush();
 					tmp_file.close();
+					file_path.clear();
 #ifdef TA3D_PLATFORM_WINDOWS
-					file_path = String::ConvertSlashesIntoAntiSlashes( TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf" );
+					file_path << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
+					file_path.convertSlashesIntoBackslashes();
 #else
-					file_path = TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf";
+					file_path << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
 #endif
 				}
 				delete[] data;
@@ -288,7 +292,7 @@ namespace TA3D
 	Font *FontManager::find(const String& filename, const int size, const Font::Type type)
 	{
 		String key(filename);
-		key << "_" << type << "_" << size;
+		key << "_" << int(type) << "_" << size;
 		key.toLower();
 
 		return (font_table.exists(key))

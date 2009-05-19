@@ -190,7 +190,7 @@ namespace TA3D
 			int player_id = game_data->net2id( received_special_msg.from );
 
 			String::Vector params;
-			special_msg.split(params, " ");
+			special_msg.explode(params, " ");
 			if (params.size() == 1)
 			{
 				if (params[0] == "GONE")       // Someone tell us he's gone !! Remove it from remote players otherwise game
@@ -237,14 +237,18 @@ namespace TA3D
 				}
 				else if (params[0] == "SAVE")           // Server order to save the game
 				{
-					String filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(ReplaceChar( params[1], 1, ' ' ), ".sav");
+					String sParam(params[1]);
+					sParam.replace(char(1), ' ');
+					String filename;
+					filename << Paths::Savegames << "multiplayer" << Paths::Separator
+						<< Paths::Files::ReplaceExtension(sParam, ".sav");
 					save_game(filename, game_data); // Save the game using filename given by server
 				}
 			}
 		}
 
 		n = 100;
-		while(--n) // Sync message receiver
+		while (--n) // Sync message receiver
 		{
 			struct sync sync_msg;
 

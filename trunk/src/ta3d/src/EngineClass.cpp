@@ -839,16 +839,19 @@ namespace TA3D
 		{
 			String key = String::Format("GlobalHeader.Schema 0.specials.special%d.", s);
 			String specialWhat = parser.pullAsString(key + "specialwhat");
-			if (StartsWith( specialWhat.toLower(), "startpos"))
+			specialWhat.toLower();
+			if (specialWhat.startsWith("startpos"))
 			{
-				int index = String(specialWhat.substr(8, specialWhat.size() - 8)).toInt32() - 1;
+				int index = String(specialWhat.substr(8, specialWhat.size() - 8)).to<int>() - 1;
 				startX[index] = parser.pullAsInt(key + "xpos");
 				startZ[index] = parser.pullAsInt(key + "zpos");
 			}
 		}
 		waterdoesdamage = parser.pullAsBool("GlobalHeader.waterdoesdamage");
 		waterdamage = parser.pullAsInt("GlobalHeader.waterdamage");
-		network = StartsWith( parser.pullAsString("GlobalHeader.Schema 0.type").toLower(), "network");
+		String tmp = parser.pullAsString("GlobalHeader.Schema 0.type");
+		tmp.toLower();
+		network = tmp.startsWith("network");
 
 		if(waterdamage==0)
 			waterdoesdamage=false;
@@ -2395,12 +2398,12 @@ namespace TA3D
 		rotation_speed = parser.pullAsFloat("sky.rotation speed");
 		rotation_offset = parser.pullAsFloat("sky.rotation offset");
 		texture_name = parser.pullAsString("sky.texture name");
-		parser.pullAsString("sky.planet").split(planet, ",");
+		parser.pullAsString("sky.planet").explode(planet, ",");
 		FogColor[0] = parser.pullAsFloat("sky.fog R");
 		FogColor[1] = parser.pullAsFloat("sky.fog G");
 		FogColor[2] = parser.pullAsFloat("sky.fog B");
 		FogColor[3] = parser.pullAsFloat("sky.fog A");
-		parser.pullAsString("sky.map").split(MapName, ",");
+		parser.pullAsString("sky.map").explode(MapName, ",");
 	}
 
 

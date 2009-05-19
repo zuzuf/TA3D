@@ -153,7 +153,7 @@ namespace TA3D
 
 	int anim_cursor(const int type)
 	{
-		return (type == -1)
+		return (type < 0)
 			? ((msec_timer-start) / 100) % cursor[cursor_type].nb_bmp
 			: ((msec_timer-start) / 100) % cursor[type].nb_bmp;
 	}

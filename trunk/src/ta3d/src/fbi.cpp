@@ -639,7 +639,7 @@ namespace TA3D
 		String category = String::ToLower( parseString("UNITINFO.Category") );
 		Category.initTable(16);
 		categories.clear();
-		category.split(categories, " ");
+		category.explode(categories, " ");
 		for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
 			if (!i->empty())
 				Category.insertOrUpdate(*i, 1);
@@ -751,9 +751,9 @@ namespace TA3D
 					i++;
 				else
 					yardmap[e-i] = yardmap[e];
-			yardmap.resize( yardmap.size() - i );
-			while(yardmap.size() < FootprintX * FootprintZ)     // Complete the yardmap if needed
-				yardmap += yardmap[yardmap.size()-1];
+			yardmap.truncate(yardmap.size() - i);
+			while (yardmap.size() < FootprintX * FootprintZ)     // Complete the yardmap if needed
+				yardmap += yardmap.at(yardmap.size() - 1);
 		}
 
 		CruiseAlt = parseInt("UNITINFO.cruisealt");
@@ -802,13 +802,13 @@ namespace TA3D
 				if (!aimdir.empty())
 				{
 					String::Vector vec;
-					aimdir.split(vec, " ");
+					aimdir.explode(vec, " ");
 					if (vec.size() == 3)
 					{
 						aim_data[i].check = true;
-						aim_data[i].dir.x = vec[0].toFloat();
-						aim_data[i].dir.y = vec[1].toFloat();
-						aim_data[i].dir.z = vec[2].toFloat();
+						aim_data[i].dir.x = vec[0].to<float>();
+						aim_data[i].dir.y = vec[1].to<float>();
+						aim_data[i].dir.z = vec[2].to<float>();
 						// Should read almost every possible case
 						aim_data[i].Maxangledif = parseFloat( String::Format("UNITINFO.Maxangledif%d", i) );
 					}

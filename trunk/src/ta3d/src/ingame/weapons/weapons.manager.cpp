@@ -89,7 +89,7 @@ namespace TA3D
             {
                 String damage = parser.pullAsString( key + "damage" );
                 String::Vector damage_vector;
-                damage.split(damage_vector, ",");
+                damage.explode(damage_vector, ",");
                 weapon[index].damage_hashtable.emptyHashTable();
                 if (damage_vector.size() > 1)
                     weapon[index].damage_hashtable.initTable( damage_vector.size() );
