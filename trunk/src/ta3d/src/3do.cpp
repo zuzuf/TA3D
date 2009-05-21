@@ -228,7 +228,7 @@ namespace TA3D
 
 
 
-	const void ANIMATION_DATA::move(const float dt, const float g)
+	void ANIMATION_DATA::move(const float dt, const float g)
 	{
 		if (!is_moving)
 			return;

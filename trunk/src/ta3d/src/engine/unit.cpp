@@ -1578,7 +1578,7 @@ namespace TA3D
 		return RAD2DEG*atanf(v2gd-0.5f*sqrtf(a));
 	}
 
-	const int Unit::move(const float dt, MAP* map, int* path_exec, const int key_frame)
+	int Unit::move(const float dt, MAP* map, int* path_exec, const int key_frame)
 	{
 		pMutex.lock();
 

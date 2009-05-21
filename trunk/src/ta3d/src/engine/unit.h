@@ -111,7 +111,7 @@ namespace TA3D
 
 		void playSound(const String& key);
 
-		const int move( const float dt,MAP *map, int *path_exec, const int key_frame = 0 );
+		int move( const float dt,MAP *map, int *path_exec, const int key_frame = 0 );
 
 		void show_orders( bool only_build_commands=false, bool def_orders=false );				// Dessine les ordres reçus
 
