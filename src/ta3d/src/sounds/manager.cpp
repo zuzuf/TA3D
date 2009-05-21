@@ -730,7 +730,7 @@ namespace Audio
 		byte* data = HPIManager->PullFromHPI(theSound, &Length);
 		if (!data) // if no data, log a message and return false.
 		{
-			LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
+	//		LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
 			return false;
 		}
 

@@ -330,7 +330,7 @@ namespace TA3D
 					background_name = areaFile->pullAsString("area.background");
 					// Loads a background image
 					if (HPIManager->Exists(background_name))
-						background = gfx->load_texture( background_name );
+						background = gfx->load_texture(background_name);
 				}
 			}
 		}
