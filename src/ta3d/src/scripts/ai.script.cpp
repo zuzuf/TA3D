@@ -117,7 +117,7 @@ namespace TA3D
 
     int ai_nb_players(lua_State *L)                 // nb_players()
     {
-        lua_pushinteger(L, players.nb_player);
+        lua_pushinteger(L, players.count());
         return 1;
     }
 

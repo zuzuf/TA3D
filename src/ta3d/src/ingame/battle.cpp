@@ -331,7 +331,7 @@ namespace TA3D
 					statuswnd = pArea.get_wnd( "playerstats");
 					if (statuswnd)
 						statuswnd->x = (int)(SCREEN_W - (statuswnd->width + 10) * show_gamestatus);
-					for (short int i = 0; i < players.nb_player; ++i)
+					for (unsigned int i = 0; i < players.count(); ++i)
 					{
 						GUIOBJ *obj = pArea.get_object( String::Format("playerstats.p%d_box", i));
 						if (obj)
@@ -3702,18 +3702,18 @@ namespace TA3D
 						bool success = false;
 						if (params.size() == 4)
 						{
-							int player_id = params[2].to<sint32>();
-							int amount = params[3].to<sint32>();
-							if (player_id >= 0 && player_id < players.nb_player)
+							const unsigned int playerID = params[2].to<unsigned int>();
+							if (playerID < players.count())
 							{
+								const int amount = params[3].to<int>();
 								if (params[1] == "metal" || params[1] == "both")
 								{
-									players.metal[ player_id ] = players.c_metal[ player_id ] = players.c_metal[ player_id ] + amount;					// cheat codes
+									players.metal[playerID] = players.c_metal[playerID] = players.c_metal[playerID] + amount;					// cheat codes
 									success = true;
 								}
 								if (params[1] == "energy" || params[1] == "both")
 								{
-									players.energy[ player_id ] = players.c_energy[ player_id ] = players.c_energy[ player_id ] + amount;					// cheat codes
+									players.energy[playerID] = players.c_energy[playerID] = players.c_energy[playerID] + amount;					// cheat codes
 									success = true;
 								}
 							}
@@ -3748,9 +3748,9 @@ namespace TA3D
 			if ((!pNetworkEnabled || pNetworkIsServer) && signal == -1)	// Si le script est terminé, on reprend les règles standard
 			{
 				bool win = true;
-				for (short int i = 0; i < players.nb_player; ++i)
+				for (unsigned int i = 0; i != players.count(); ++i)
 				{
-					if (!players.annihilated[i] && i!=players.local_human_id)
+					if (!players.annihilated[i] && i != players.local_human_id)
 					{
 						win = false;
 						break;

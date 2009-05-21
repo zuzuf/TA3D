@@ -426,12 +426,13 @@ namespace TA3D
 				case EVENT_CLF:
 					the_map->clear_FOW();
 					units.lock();
-					for( int i = 0 ; i < units.index_list_size ; i++ )
+					for (int i = 0 ; i < units.index_list_size ; i++ )
 						units.unit[ units.idx_list[ i ] ].old_px = -10000;
 					units.unlock();
 					break;
 				case EVENT_INIT_RES:
-					for( uint16 i = 0 ; i < players.nb_player ; i++ ) {
+					for (unsigned int i = 0; i < players.count(); ++i)
+					{
 						players.metal[i] = players.com_metal[i];
 						players.energy[i] = players.com_energy[i];
 					}
@@ -539,7 +540,7 @@ namespace TA3D
 								weapons.weapon[w_idx].stime = 0.0f;
 								weapons.weapon[w_idx].visible = true;
 
-								for( uint32 i = event_msg.opt3 ; i < units.current_tick && weapons.weapon[w_idx].weapon_id >= 0 ; i++ )		// Guess what happened (compensate latency)
+								for (uint32 i = event_msg.opt3 ; i < units.current_tick && weapons.weapon[w_idx].weapon_id >= 0 ; i++ )		// Guess what happened (compensate latency)
 									weapons.weapon[w_idx].move(tick_conv,the_map);
 							}
 							else
@@ -559,12 +560,14 @@ namespace TA3D
 						int e = -1;
 						units.lock();
 
-						for( int i = 0 ; i < units.max_unit ; i++ )
+						for (int i = 0 ; i < units.max_unit ; i++)
+						{
 							if (units.idx_list[ i ] == event_msg.opt1)
 							{
 								e = i;
 								break;
 							}
+						}
 
 						units.unlock();
 
@@ -638,15 +641,18 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	bool TA3DNetwork::isLocal( int player_id )
+
+	bool TA3DNetwork::isLocal(const unsigned int id) const
 	{
-		return !(game_data->player_control[ player_id ] & PLAYER_CONTROL_FLAG_REMOTE);
+		return !(game_data->player_control[id] & PLAYER_CONTROL_FLAG_REMOTE);
 	}
 
-	bool TA3DNetwork::isRemoteHuman( int player_id )
+
+	bool TA3DNetwork::isRemoteHuman(const unsigned int id) const
 	{
-		return game_data->player_control[ player_id ] == PLAYER_CONTROL_REMOTE_HUMAN;
+		return game_data->player_control[id] == PLAYER_CONTROL_REMOTE_HUMAN;
 	}
+
 
 	void TA3DNetwork::sendDamageEvent( int idx, float damage )
 	{

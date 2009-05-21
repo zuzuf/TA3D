@@ -64,7 +64,7 @@ namespace Menus
 		loadAreaFromTDF("statistics", "gui/statistics.area");
 
 		// Statistics for All players
-		for (short i = 0; i < players.nb_player; ++i)
+		for (unsigned int i = 0; i < players.count(); ++i)
 		{
 			uint32 color = gfx->makeintcol(player_color[3 * player_color_map[i]],
 										   player_color[3 * player_color_map[i] + 1],
@@ -112,6 +112,8 @@ namespace Menus
 		// Exit
 		return (key[KEY_SPACE] || key[KEY_ENTER] || key[KEY_ESC] || pArea->get_state("statistics.b_ok"));
 	}
+
+
 
 
 } // namespace Menus
