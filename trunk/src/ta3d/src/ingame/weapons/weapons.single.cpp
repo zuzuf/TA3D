@@ -60,7 +60,7 @@ namespace TA3D
 
 	void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 	{
-		if( weapon_id < 0 )
+		if (weapon_id < 0 )
 			return;
 
 		WEAPON_DEF *weapon_def = &(weapon_manager.weapon[weapon_id]);
@@ -71,27 +71,27 @@ namespace TA3D
 		Vector3D A;
 		if (weapon_def->twophase && phase == 1)
 		{
-			if(!dying && a_time>=weapon_def->weapontimer) 	// Entre dans la seconde phase
+			if (!dying && a_time>=weapon_def->weapontimer) 	// Entre dans la seconde phase
 			{
 				phase=2;
 				f_time=weapon_def->flighttime;
 				stime=0.0f;
 			}
-			if(weapon_def->vlaunch)
+			if (weapon_def->vlaunch)
 			{
 				V.x=0.0f;
 				V.z=0.0f;
-				if(V.y<weapon_def->weaponvelocity)
+				if (V.y<weapon_def->weaponvelocity)
 					A.y=weapon_def->weaponacceleration;
 				else
 					V.y=weapon_def->weaponvelocity;
 			}
 		}
-		if(!dying && weapon_def->selfprop && f_time<=0.0f && ((weapon_def->twophase && phase==2) || !weapon_def->twophase))	dying=true;
-		if(weapon_def->smoketrail && weapon_def->smokedelay<smoke_time) // Trainée de fumée des missiles
+		if (!dying && weapon_def->selfprop && f_time<=0.0f && ((weapon_def->twophase && phase==2) || !weapon_def->twophase))	dying=true;
+		if (weapon_def->smoketrail && weapon_def->smokedelay<smoke_time) // Trainée de fumée des missiles
 		{
 			smoke_time=0.0f;
-			if(visible)
+			if (visible)
 				particle_engine.make_smoke(Pos,0,1,0.0f,-1.0f, -2.0f, 0.3f);
 		}
 
@@ -99,7 +99,7 @@ namespace TA3D
 		Vector3D OPos(Pos);
 
 		float h=map->get_unit_h(Pos.x,Pos.z);
-		if(dying)
+		if (dying)
 			killtime-=dt;
 		else
 		{
@@ -107,11 +107,11 @@ namespace TA3D
 				|| (weapon_def->waterweapon && Pos.y > map->sealvl))		// Arme soumise à la gravité
 				A.y -= map->ota_data.gravity;
 
-			if(weapon_def->guidance && ((weapon_def->twophase && phase==2) || !weapon_def->twophase)
+			if (weapon_def->guidance && ((weapon_def->twophase && phase==2) || !weapon_def->twophase)
 			   && ((weapon_def->waterweapon && Pos.y<map->sealvl) || !weapon_def->waterweapon))// Traque sa cible
 			{
 				float speed = V.norm();
-				if(weapon_def->tracks && target>=0)
+				if (weapon_def->tracks && target>=0)
 				{
 					Vector3D target_V;
 					if (weapon_def->interceptor && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
@@ -146,7 +146,7 @@ namespace TA3D
 				K=J*I;
 				if (speed < weapon_def->weaponvelocity)
 				{
-					if( speed > 0.0f )
+					if (speed > 0.0f )
 						A = A + weapon_def->weaponacceleration * I;
 					else
 						A = A + weapon_def->weaponacceleration * Dir;
@@ -167,11 +167,11 @@ namespace TA3D
 			stime+=dt;
 		}
 
-		if( weapon_def->waterweapon && Pos.y <= map->sealvl && OPos.y > map->sealvl )			// A weapon that gets into water slows down
+		if (weapon_def->waterweapon && Pos.y <= map->sealvl && OPos.y > map->sealvl )			// A weapon that gets into water slows down
 			V = 0.5f * V;
 
 		float length = ((Vector3D)(OPos - Pos)).norm();
-		if(!dying)
+		if (!dying)
 		{
 			if (weapon_def->waterweapon && Pos.y > map->sealvl && OPos.y <= map->sealvl)			// Une arme aquatique ne sort pas de l'eau
 			{
@@ -181,10 +181,10 @@ namespace TA3D
 			else
 			{
 				hit_vec = map->hit(Pos,V,!weapon_def->waterweapon,length);
-				if( !weapon_def->waterweapon && Pos.y <= map->sealvl && h < map->sealvl )
+				if (!weapon_def->waterweapon && Pos.y <= map->sealvl && h < map->sealvl )
 				{
 					hit_vec = map->hit(Pos,V,!weapon_def->waterweapon,length);
-					if( V.y != 0.0f )
+					if (V.y != 0.0f )
 						hit_vec = Pos - (map->sealvl - hit_vec.y ) / V.y * V;
 					else
 						hit_vec = Pos;
@@ -193,27 +193,27 @@ namespace TA3D
 			}
 		}
 
-		if(!dying && weapon_def->cruise && ((weapon_def->twophase && phase==2) || phase==1))
-			if(((Vector3D)(target_pos-Pos)).norm()>2.0f*fabsf(Pos.y-h) && V.y<0.0f)
+		if (!dying && weapon_def->cruise && ((weapon_def->twophase && phase==2) || phase==1))
+			if (((Vector3D)(target_pos-Pos)).norm()>2.0f*fabsf(Pos.y-h) && V.y<0.0f)
 				V.y=0.0f;
 
 		bool hit=false;
-		if(!dying)
+		if (!dying)
 			hit=((hit_vec-Pos)%V)<=0.0f && ((hit_vec-OPos)%V>=0.0f);
 		bool u_hit=false;
 
-		if( just_explode )
+		if (just_explode )
 		{
 			hit_vec = Pos;
 			hit = true;
 			just_explode = false;
 		}
 
-		if(weapon_def->interceptor && ((Vector3D)(Pos-target_pos)).sq()<1024.0f)
+		if (weapon_def->interceptor && ((Vector3D)(Pos-target_pos)).sq()<1024.0f)
 		{
 			hit=true;
 			hit_vec=Pos;
-			if(target >= 0 && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
+			if (target >= 0 && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
 			{
 				weapons.weapon[target].dying=true;
 				weapons.weapon[target].killtime=0.0f;
@@ -221,7 +221,7 @@ namespace TA3D
 		}
 
 		int hit_idx=-1;
-		if(!dying && !hit)
+		if (!dying && !hit)
 		{
 			int t_idx=-1;
 			int py=((int)(OPos.z)+map->map_h_d)>>3;
@@ -232,8 +232,8 @@ namespace TA3D
 			for(int y=-5;y<=5;y++)
 				for(int x=-5;x<=5;x++)
 				{
-					if(px+x<0 || px+x>=map->bloc_w_db)	continue;
-					if(py+y<0 || py+y>=map->bloc_h_db)	continue;
+					if (px+x<0 || px+x>=map->bloc_w_db)	continue;
+					if (py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 					bool land_test = true;
 
@@ -248,7 +248,7 @@ namespace TA3D
 
 					for( ; land_test || cur != air_list.end() ; )
 					{
-						if( land_test )
+						if (land_test )
 						{
 							t_idx = map->map_data[py+y][px+x].unit_idx;
 							land_test = false;
@@ -259,24 +259,24 @@ namespace TA3D
 							++cur;
 						}
 
-						if(t_idx == -1 || t_idx == oidx || t_idx == shooter_idx || t_idx == hit_idx)
+						if (t_idx == -1 || t_idx == oidx || t_idx == shooter_idx || t_idx == hit_idx)
 							continue;
-						if( t_idx >= 0 && t_idx < units.max_unit && ( units.unit[t_idx].owner_id != owner || target == t_idx ) && (units.unit[ t_idx ].flags & 1) ) // No Friendly Fire
+						if (t_idx >= 0 && t_idx < units.max_unit && ( units.unit[t_idx].owner_id != owner || target == t_idx ) && (units.unit[ t_idx ].flags & 1) ) // No Friendly Fire
 						{
 							Vector3D t_vec;
 							t_vec.x = t_vec.y=t_vec.z=0.0f;
 							u_hit = units.unit[t_idx].hit_fast(OPos,Dir,&t_vec, length);
-							if(u_hit)
+							if (u_hit)
 							{
 								if ((t_vec-Pos)%V<=0.0f) // Touché
 								{
-									if(!hit)
+									if (!hit)
 									{
 										hit_vec=t_vec;
 										hit_idx=t_idx;
 									}
 									else
-										if(hit_vec%Dir>=t_vec%Dir)
+										if (hit_vec%Dir>=t_vec%Dir)
 										{
 											hit_vec=t_vec;
 											hit_idx=t_idx;
@@ -291,9 +291,9 @@ namespace TA3D
 						}
 						else
 						{
-							if(y==0 && x==0 && t_idx<=-2 && !weapon_def->unitsonly )
+							if (y==0 && x==0 && t_idx<=-2 && !weapon_def->unitsonly )
 							{
-								if(!hit && -t_idx - 2 < features.max_features && features.feature[-t_idx-2].type >= 0
+								if (!hit && -t_idx - 2 < features.max_features && features.feature[-t_idx-2].type >= 0
 								   && features.feature[-t_idx - 2].Pos.y + feature_manager.getFeaturePointer(features.feature[-t_idx - 2].type)->height * 0.5f > OPos.y)
 								{
 									hit = true;
@@ -317,7 +317,7 @@ namespace TA3D
 						if (!unit_manager.unit_type[units.unit[hit_idx].type_id]->ImmuneToParalyzer)
 						{
 							units.unit[hit_idx].paralyzed = damage / 60.0f;		// Get paralyzed (900 dmg <-> 15sec according to WEAPONS.TDF)
-							if( network_manager.isConnected() )			// Send damage event
+							if (network_manager.isConnected() )			// Send damage event
 								g_ta3d_network->sendParalyzeEvent( hit_idx, damage );
 						}
 					}
@@ -325,16 +325,16 @@ namespace TA3D
 					{
 						units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
 						units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-						if(ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+						if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.count()
 						   && units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 						{
 							players.kills[units.unit[shooter_idx].owner_id]++;
 							units.unit[shooter_idx].kills++;
 						}
-						if(units.unit[hit_idx].hp<=0.0f)
+						if (units.unit[hit_idx].hp<=0.0f)
 							units.unit[hit_idx].severity = Math::Max(units.unit[hit_idx].severity, (int)damage);
 
-						if( network_manager.isConnected() )			// Send damage event
+						if (network_manager.isConnected() )			// Send damage event
 							g_ta3d_network->sendDamageEvent( hit_idx, damage );
 					}
 
@@ -350,7 +350,7 @@ namespace TA3D
 			else if (!weapon_def->paralyzer)       // We can't paralyze features :P
 			{
 				features.lock();
-				if(hit_idx <= -2 && features.feature[-hit_idx - 2].type >= 0)	// Only local weapons here, otherwise weapons would destroy features multiple times
+				if (hit_idx <= -2 && features.feature[-hit_idx - 2].type >= 0)	// Only local weapons here, otherwise weapons would destroy features multiple times
 				{
 					damage = weapon_def->damage;
 					Feature *feature = feature_manager.getFeaturePointer(features.feature[-hit_idx-2].type);
@@ -359,18 +359,18 @@ namespace TA3D
 					if (feature->flamable && !features.feature[-hit_idx - 2].burning && weapon_def->firestarter && local )
 					{
 						int starter_score = Math::RandFromTable() % 100;
-						if( starter_score < weapon_def->firestarter )
+						if (starter_score < weapon_def->firestarter )
 						{
 							features.burn_feature( -hit_idx-2 );
-							if( network_manager.isConnected() )
+							if (network_manager.isConnected() )
 								g_ta3d_network->sendFeatureFireEvent( -hit_idx-2 );
 						}
 					}
 
 					features.feature[-hit_idx-2].hp -= damage;		// The feature hit is taking damage
-					if(features.feature[-hit_idx-2].hp <= 0.0f && !features.feature[-hit_idx-2].burning && local)
+					if (features.feature[-hit_idx-2].hp <= 0.0f && !features.feature[-hit_idx-2].burning && local)
 					{
-						if( network_manager.isConnected() )
+						if (network_manager.isConnected() )
 							g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
 
 						int sx = features.feature[-hit_idx-2].px;		// Delete the feature
@@ -382,14 +382,14 @@ namespace TA3D
 
 						// Replace the feature if needed
 						Feature *feat2 = feature_manager.getFeaturePointer( feature_type );
-						if( feat2 && !feat2->feature_dead.empty() )
+						if (feat2 && !feat2->feature_dead.empty() )
 						{
 							int type = feature_manager.get_feature_index( feat2->feature_dead );
-							if( type >= 0 )
+							if (type >= 0 )
 							{
 								map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
 								features.drawFeatureOnMap( map->map_data[sy][sx].stuff );
-								if( network_manager.isConnected() )
+								if (network_manager.isConnected() )
 									g_ta3d_network->sendFeatureCreationEvent( map->map_data[sy][sx].stuff );
 							}
 						}
@@ -412,8 +412,8 @@ namespace TA3D
 			for(int y=-s;y<=s;y++)
 				for(int x=-s;x<=s;x++)
 				{
-					if(px+x<0 || px+x>=map->bloc_w_db)	continue;
-					if(py+y<0 || py+y>=map->bloc_h_db)	continue;
+					if (px+x<0 || px+x>=map->bloc_w_db)	continue;
+					if (py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 					bool land_test = true;
 
@@ -428,7 +428,7 @@ namespace TA3D
 
 					for( ; land_test || cur != air_list.end() ; )
 					{
-						if( land_test )
+						if (land_test )
 						{
 							t_idx = map->map_data[py+y][px+x].unit_idx;
 							land_test = false;
@@ -438,12 +438,12 @@ namespace TA3D
 							t_idx = *cur;
 							cur++;
 						}
-						if(t_idx==-1)
+						if (t_idx==-1)
 							continue;
-						if( t_idx >= 0 )
+						if (t_idx >= 0 )
 						{
 							units.unit[ t_idx ].lock();
-							if( !(units.unit[ t_idx ].flags & 1) )
+							if (!(units.unit[ t_idx ].flags & 1) )
 							{
 								units.unit[ t_idx ].unlock();
 								continue;
@@ -451,11 +451,11 @@ namespace TA3D
 							units.unit[ t_idx ].unlock();
 						}
 						bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx >= units.max_unit);
-						if(!already)
+						if (!already)
 						{
 							for (std::list<int>::const_iterator i = oidx.begin(); i != oidx.end(); ++i)
 							{
-								if( t_idx == *i )
+								if (t_idx == *i )
 								{
 									already=true;
 									break;
@@ -486,7 +486,7 @@ namespace TA3D
 									{
 										units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
 										units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-										if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+										if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.count()
 											&& units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 										{
 											players.kills[units.unit[shooter_idx].owner_id]++;
@@ -515,25 +515,25 @@ namespace TA3D
 								{
 									Feature *feature = feature_manager.getFeaturePointer(features.feature[-t_idx-2].type);
 									// Start a fire ?
-									if( feature->flamable && !features.feature[-t_idx - 2].burning && weapon_def->firestarter && local )
+									if (feature->flamable && !features.feature[-t_idx - 2].burning && weapon_def->firestarter && local )
 									{
 										int starter_score = Math::RandFromTable() % 100;
-										if( starter_score < weapon_def->firestarter ) {
+										if (starter_score < weapon_def->firestarter ) {
 											features.burn_feature( -t_idx-2 );
-											if( network_manager.isConnected() )
+											if (network_manager.isConnected() )
 												g_ta3d_network->sendFeatureFireEvent( -t_idx-2 );
 										}
 									}
 
 									oidx.push_back( t_idx );
-									if(!feature->indestructible && !features.feature[-t_idx-2].burning )
+									if (!feature->indestructible && !features.feature[-t_idx-2].burning )
 									{
 										damage = weapon_def->damage;
 										float cur_damage = damage * weapon_def->edgeeffectiveness;
 										features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
 										if (features.feature[-t_idx-2].hp <= 0.0f && local)
 										{
-											if( network_manager.isConnected() )
+											if (network_manager.isConnected() )
 												g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
 											int sx = features.feature[-t_idx-2].px;		// Remove the object
 											int sy = features.feature[-t_idx-2].py;
@@ -544,14 +544,14 @@ namespace TA3D
 
 											// Replace the feature if needed
 											Feature *feat2 = feature_manager.getFeaturePointer( feature_type );
-											if( feat2 && !feat2->feature_dead.empty() )
+											if (feat2 && !feat2->feature_dead.empty() )
 											{
 												int type = feature_manager.get_feature_index( feat2->feature_dead );
-												if( type >= 0 )
+												if (type >= 0 )
 												{
 													map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
 													features.drawFeatureOnMap( map->map_data[sy][sx].stuff );
-													if( network_manager.isConnected() )
+													if (network_manager.isConnected() )
 														g_ta3d_network->sendFeatureCreationEvent( map->map_data[sy][sx].stuff );
 												}
 											}
@@ -566,7 +566,7 @@ namespace TA3D
 			oidx.clear();
 		}
 
-		if(hit && visible && weapon_def->areaofeffect>=256) // Effet de souffle / Shock wave
+		if (hit && visible && weapon_def->areaofeffect>=256) // Effet de souffle / Shock wave
 		{
 			fx_manager.addFlash( Pos, weapon_def->areaofeffect >> 1 );
 			particle_engine.make_shockwave( Pos,1,weapon_def->areaofeffect,weapon_def->areaofeffect*0.75f);
@@ -574,15 +574,15 @@ namespace TA3D
 			particle_engine.make_nuke( Pos,1,weapon_def->areaofeffect>>1,weapon_def->areaofeffect*0.25f);
 		}
 
-		if(hit && weapon_def->interceptor)
+		if (hit && weapon_def->interceptor)
 		{
 			units.unit[shooter_idx].lock();
-			if(units.unit[shooter_idx].flags & 1)
+			if (units.unit[shooter_idx].flags & 1)
 			{
 				int e=0;
 				for(int i=0;i+e<units.unit[shooter_idx].mem_size;i++)
 				{
-					if(units.unit[shooter_idx].memory[i+e]==target)
+					if (units.unit[shooter_idx].memory[i+e]==target)
 					{
 						e++;
 						i--;
@@ -595,10 +595,10 @@ namespace TA3D
 			units.unit[shooter_idx].unlock();
 		}
 
-		if(((stime > 0.5f * weapon_def->time_to_range && (!weapon_def->noautorange || weapon_def->burnblow))
+		if (((stime > 0.5f * weapon_def->time_to_range && (!weapon_def->noautorange || weapon_def->burnblow))
 			|| hit) && !dying)
 		{
-			if(hit)
+			if (hit)
 			{
 				Pos=hit_vec;
 				if (visible)
@@ -606,53 +606,53 @@ namespace TA3D
 			}
 			if (Pos.y == map->sealvl)
 			{
-				if( !weapon_def->soundwater.empty() )
+				if (!weapon_def->soundwater.empty() )
 					sound_manager->playSound( weapon_def->soundwater , &Pos);
 			}
 			else
-				if( !weapon_def->soundhit.empty() )	sound_manager->playSound( weapon_def->soundhit , &Pos );
-			if(hit && !weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty() && Pos.y!=map->sealvl)
+				if (!weapon_def->soundhit.empty() )	sound_manager->playSound( weapon_def->soundhit , &Pos );
+			if (hit && !weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty() && Pos.y!=map->sealvl)
 			{
-				if( visible && weapon_def->areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
+				if (visible && weapon_def->areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
 					fx_manager.add(weapon_def->explosiongaf, weapon_def->explosionart, Pos, 1.0f);
 			}
 			else
-				if(hit && Pos.y==map->sealvl)
+				if (hit && Pos.y==map->sealvl)
 				{
 					int px=((int)(Pos.x+0.5f)+map->map_w_d)>>4;
 					int py=((int)(Pos.z+0.5f)+map->map_h_d)>>4;
 					Vector3D P = Pos;
 					P.y += 3.0f;
-					if(px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h)
+					if (px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h)
 					{
-						if(map->bloc[map->bmap[py][px]].lava && !weapon_def->lavaexplosiongaf.empty() && !weapon_def->lavaexplosionart.empty())
+						if (map->bloc[map->bmap[py][px]].lava && !weapon_def->lavaexplosiongaf.empty() && !weapon_def->lavaexplosionart.empty())
 						{
-							if(visible)
+							if (visible)
 								fx_manager.add(weapon_def->lavaexplosiongaf,weapon_def->lavaexplosionart,Pos,1.0f);
 						}
 						else
-							if(!map->bloc[map->bmap[py][px]].lava && !weapon_def->waterexplosiongaf.empty() && !weapon_def->waterexplosionart.empty())
-								if(visible)
+							if (!map->bloc[map->bmap[py][px]].lava && !weapon_def->waterexplosiongaf.empty() && !weapon_def->waterexplosionart.empty())
+								if (visible)
 									fx_manager.add(weapon_def->waterexplosiongaf,weapon_def->waterexplosionart,Pos,1.0f);
 					}
 					else
-						if(!weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty())
-							if(visible)
+						if (!weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty())
+							if (visible)
 								fx_manager.add(weapon_def->explosiongaf,weapon_def->explosionart,Pos,1.0f);
 				}
-			if(weapon_def->endsmoke)
+			if (weapon_def->endsmoke)
 			{
-				if(visible)
+				if (visible)
 					particle_engine.make_smoke( Pos,0,1,0.0f,-1.0f);
 			}
-			if( weapon_def->noexplode && hit )	// Special flag used by dguns
+			if (weapon_def->noexplode && hit )	// Special flag used by dguns
 			{
 				dying = false;
 				Pos.y += fabsf( 3.0f * dt * V.y );
 			}
 			else
 			{
-				if(weapon_def->rendertype==RENDER_TYPE_LASER)
+				if (weapon_def->rendertype==RENDER_TYPE_LASER)
 				{
 					dying=true;
 					killtime=weapon_def->duration;
@@ -662,10 +662,10 @@ namespace TA3D
 			}
 		}
 		else
-			if(dying && killtime<=0.0f)
+			if (dying && killtime<=0.0f)
 				weapon_id = -1;
 			else
-				if( Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )		// We're out of the map
+				if (Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )		// We're out of the map
 					weapon_id = -1;
 	}
 
@@ -674,13 +674,13 @@ namespace TA3D
 	void WEAPON::draw(MAP *map)				// Dessine les objets produits par les armes
 	{
 		visible = false;
-		if(map)
+		if (map)
 		{
 			int px=((int)(Pos.x+0.5f)+map->map_w_d)>>4;
 			int py=((int)(Pos.z+0.5f)+map->map_h_d)>>4;
-			if(px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)	return;
+			if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)	return;
 			byte player_mask = 1 << players.local_human_id;
-			if(map->view[py][px]!=1
+			if (map->view[py][px]!=1
 			   || !(SurfaceByte(map->sight_map, px, py) & player_mask))	return;
 		}
 		glPushMatrix();
@@ -694,9 +694,9 @@ namespace TA3D
 				{
 					Vector3D P(Pos);
 					float length=weapon_def->duration;
-					if(weapon_def->duration>stime)
+					if (weapon_def->duration>stime)
 						length=stime;
-					if(dying && length>killtime)
+					if (dying && length>killtime)
 						length=killtime;
 					P=P-length*V;
 					glDisable(GL_LIGHTING);
@@ -710,7 +710,7 @@ namespace TA3D
 					Vector3D D(Pos - Camera::inGame->pos);
 					Vector3D Up(D * V);
 					Up.unit();
-					if( damage < 0 )
+					if (damage < 0 )
 						damage = weapon_def->damage;
 					Up = Math::Min(damage / 60.0f + weapon_def->firestarter / 200.0f + weapon_def->areaofeffect / 40.0f, 1.0f) * Up; // Variable width!!
 					glDisable(GL_CULL_FACE);
@@ -745,7 +745,7 @@ namespace TA3D
 				}
 				glEnable(GL_LIGHTING);
 				glEnable(GL_TEXTURE_2D);
-				if(weapon_def->model)
+				if (weapon_def->model)
 				{
 					glDisable(GL_CULL_FACE);
 					weapon_def->model->draw(0.0f);
@@ -756,7 +756,7 @@ namespace TA3D
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
-				if(weapon_manager.cannonshell.nb_bmp>0)
+				if (weapon_manager.cannonshell.nb_bmp>0)
 				{
 					anim_sprite=((int)(stime*15.0f))%weapon_manager.cannonshell.nb_bmp;
 					gfx->set_alpha_blending();
@@ -801,7 +801,7 @@ namespace TA3D
 				}
 				glEnable(GL_LIGHTING);
 				glEnable(GL_TEXTURE_2D);
-				if(weapon_def->model)
+				if (weapon_def->model)
 				{
 					glDisable(GL_CULL_FACE);
 					weapon_def->model->draw(0.0f);
@@ -812,33 +812,35 @@ namespace TA3D
 				{
 					Vector3D P=Pos;
 					float length=weapon_def->duration;
-					if(weapon_def->duration>stime)
+					if (weapon_def->duration>stime)
 						length=stime;
-					if(dying && length>killtime)
+					if (dying && length>killtime)
 						length=killtime;
-					P=P-length*V;
+					P = P - length * V;
 					glDisable(GL_LIGHTING);
 					glDisable(GL_TEXTURE_2D);
 					int color0=weapon_def->color[0];
 					int color1=weapon_def->color[1];
 					float coef=(cosf(stime)+1.0f)*0.5f;
-					int r = (int)(coef*((color0>>16)&0xFF)+coef*((color1>>16)&0xFF));
-					int g = (int)(coef*((color0>>8)&0xFF)+coef*((color1>>8)&0xFF));
-					int b = (int)(coef*(color0&0xFF)+coef*(color1&0xFF));
+
+					const int r = (int)(coef*((color0>>16)&0xFF)+coef*((color1>>16)&0xFF));
+					const int g = (int)(coef*((color0>>8)&0xFF)+coef*((color1>>8)&0xFF));
+					const int b = (int)(coef*(color0&0xFF)+coef*(color1&0xFF));
 					glColor4ub(r,g,b,0xFF);
 					glBegin(GL_LINE_STRIP);
-					for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+
+					float x = 0.f;
+					float y = 0.f;
+					float z = 0.f;
+					for (unsigned int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 					{
-						float x,y,z;
 						if (i > 0 && i < 9)
 						{
 							x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
 							y = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
 							z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
 						}
-						else
-							x = y = z = 0.0f;
-						glVertex3f(Pos.x+(P.x-Pos.x)*i/9+x,Pos.y+(P.y-Pos.y)*i/9+y,Pos.z+(P.z-Pos.z)*i/9+z);
+						glVertex3f(Pos.x + (P.x - Pos.x) * i / 9 + x, Pos.y + (P.y - Pos.y) * i / 9 + y, Pos.z + (P.z - Pos.z) * i / 9 + z);
 					}
 					glEnd();
 				}
@@ -847,18 +849,16 @@ namespace TA3D
 				glTranslatef(Pos.x,Pos.y,Pos.z);
 				{
 					Vector3D I, J, Dir;
-					I.y = I.x = 0.0f;
 					I.z = 1.0f;
 					Dir = V;
 					Dir.unit();
 					J = V * I;
 					J.unit();
-					float theta = -acosf( Dir.z ) * RAD2DEG;
-					glRotatef( theta, J.x, J.y, J.z );
+					glRotatef((float)(-acosf(Dir.z) * RAD2DEG), J.x, J.y, J.z);
 				}
 				glEnable(GL_LIGHTING);
 				glEnable(GL_TEXTURE_2D);
-				if(weapon_def->model)
+				if (weapon_def->model)
 				{
 					glDisable(GL_CULL_FACE);
 					weapon_def->model->draw(0.0f);
@@ -869,7 +869,7 @@ namespace TA3D
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_POINTS);
-				glColor3ub(0xBF,0xBF,0xBF);
+				glColor3ub(0xBF, 0xBF, 0xBF);
 				glVertex3f(Pos.x,Pos.y,Pos.z);
 				glEnd();
 				break;
@@ -877,12 +877,13 @@ namespace TA3D
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_POINTS);
-				glColor3ub(0xBF,0xBF,0xBF);
+				glColor3ub(0xBF, 0xBF, 0xBF);
 				for (int i = 0; i < 10; ++i)
 				{
-					glVertex3f(Pos.x + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
-							   Pos.y + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
-							   Pos.z + (Math::RandFromTable() % 201) * 0.01f - 1.0f);
+					glVertex3f(
+						Pos.x + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
+						Pos.y + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
+						Pos.z + (Math::RandFromTable() % 201) * 0.01f - 1.0f);
 				}
 				glEnd();
 				break;

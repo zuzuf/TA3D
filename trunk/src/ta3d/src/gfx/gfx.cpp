@@ -496,8 +496,8 @@ namespace TA3D
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D,tex);
 
-		float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		float tcoord[8] = { u1,v1, u2,v1, u2,v2, u1,v2 };
+		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+		const float tcoord[8] = { u1,v1, u2,v1, u2,v2, u1,v2 };
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -505,15 +505,17 @@ namespace TA3D
 		glDisableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, points);
 		glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-		glDrawArrays( GL_QUADS, 0, 4 );
+		glDrawArrays(GL_QUADS, 0, 4);
 	}
+
+
 	void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2)
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D,tex);
 
-		float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		float tcoord[8] = { 0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f };
+		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+		static const float tcoord[8] = { 0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f };
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -523,13 +525,15 @@ namespace TA3D
 		glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 		glDrawArrays( GL_QUADS, 0, 4 );
 	}
+
+
 	void GFX::drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2)
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D,tex);
 
-		float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		float tcoord[8] = { 0.0f,0.0f, 0.0f,1.0f, 1.0f,1.0f, 1.0f,0.0f };
+		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+		static const float tcoord[8] = {0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f};
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -539,6 +543,8 @@ namespace TA3D
 		glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 		glDrawArrays( GL_QUADS, 0, 4 );
 	}
+
+
 	void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
 		set_color(col);
@@ -556,6 +562,8 @@ namespace TA3D
 		glEnable(GL_TEXTURE_2D);
 		font->print(x, y, z, text);
 	}
+
+
 	void GFX::print(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
 	{
 		set_color(col);
@@ -564,17 +572,20 @@ namespace TA3D
 
 	void GFX::print_center(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
 	{
-		if (!font)  return;
+		if (font)
+		{
+			ReInitTexSys( false );
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-		ReInitTexSys( false );
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+			const float X = x - 0.5f * font->length( text );
 
-		float X = x - 0.5f * font->length( text );
-
-		glEnable(GL_TEXTURE_2D);
-		font->print(X, y, z, text);
+			glEnable(GL_TEXTURE_2D);
+			font->print(X, y, z, text);
+		}
 	}
+
+
 	void GFX::print_center(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
 	{
 		set_color(col);
@@ -671,7 +682,7 @@ namespace TA3D
 		}
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
 
-		switch(filter_type)
+		switch (filter_type)
 		{
 			case FILTER_NONE:
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -707,7 +718,7 @@ namespace TA3D
 				else
 					glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
 			}
-			switch(bmp->format->BitsPerPixel)
+			switch (bmp->format->BitsPerPixel)
 			{
 				case 8:
 					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
@@ -729,7 +740,8 @@ namespace TA3D
 					break;
 				default:
 					LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
-			};
+			}
+
 			if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
 				glGenerateMipmapEXT(GL_TEXTURE_2D);
 		}
@@ -740,11 +752,11 @@ namespace TA3D
 			int level = 0;
 			do
 			{
-				w = Math::Max( w / 2, 1 );
-				h = Math::Max( h / 2, 1 );
+				w = Math::Max(w / 2, 1);
+				h = Math::Max(h / 2, 1);
 				SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
 				stretch_blit(bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, w, h);
-				switch(tmp->format->BitsPerPixel)
+				switch (tmp->format->BitsPerPixel)
 				{
 					case 8:
 						glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
@@ -757,9 +769,9 @@ namespace TA3D
 						break;
 					default:
 						LOG_DEBUG("SDL_Surface format not supported by texture loader: " << tmp->format->BitsPerPixel << " bpp" );
-				};
-				SDL_FreeSurface( tmp );
-				level++;
+				}
+				SDL_FreeSurface(tmp);
+				++level;
 			} while(w > 1 || h > 1);
 		}
 
@@ -768,6 +780,7 @@ namespace TA3D
 
 		return gl_tex;
 	}
+
 
 	GLuint GFX::make_texture_A32F( int w, int h, float *data, byte filter_type, bool clamp )
 	{
@@ -831,6 +844,8 @@ namespace TA3D
 
 		return gl_tex;
 	}
+
+
 
 	GLuint GFX::make_texture_A16F( int w, int h, float *data, byte filter_type, bool clamp )
 	{

@@ -1033,8 +1033,8 @@ namespace TA3D
 		exp_dt_2=expf(-2.0f*dt);
 		exp_dt_4=expf(-4.0f*dt);
 		g_dt=dt*map->ota_data.gravity;
-		int *path_exec = new int[players.nb_player];
-		memset( path_exec, 0, sizeof( int ) * players.nb_player);
+		int *path_exec = new int[players.count()];
+		memset(path_exec, 0, sizeof(int) * players.count());
 		pMutex.lock();
 		for (unsigned int e = 0; e < index_list_size; ++e)
 		{
@@ -1075,7 +1075,7 @@ namespace TA3D
 		delete[] path_exec;
 
 		pMutex.lock();
-		for (uint16 e = 0 ; e < index_list_size ; ++e)
+		for (unsigned int e = 0 ; e < index_list_size ; ++e)
 		{
 			i = idx_list[e];
 			pMutex.unlock();
@@ -1102,7 +1102,7 @@ namespace TA3D
 
 		pMutex.lock();
 
-		for(i=0;i<players.nb_player; ++i)
+		for (i = 0; i < players.count(); ++i)
 		{
 			players.c_annihilated[i] = !players.c_nb_unit[i]; // Has this player units ?
 			if (players.c_commander[i])
@@ -1111,7 +1111,7 @@ namespace TA3D
 				players.c_energy_s[i]+=players.com_energy[i];
 			}
 		}
-		for (i=0; i < players.nb_player; ++i)
+		for (i = 0; i < players.count(); ++i)
 		{
 			players.c_metal[i]+=dt*(players.c_metal_t[i]-players.c_metal_u[i]);
 			players.c_energy[i]+=dt*(players.c_energy_t[i]-players.c_energy_u[i]);
@@ -1228,13 +1228,13 @@ namespace TA3D
 		glPointSize(3.0f);
 
 		byte mask=1<<players.local_human_id;
-		int b_w=(int)map_w>>3;
-		int b_h=(int)map_h>>3;
+		int b_w = (int) map_w >> 3;
+		int b_h = (int) map_h >> 3;
 		int nb = 0;
 
 		uint32 player_col_32[TA3D_PLAYERS_HARD_LIMIT];
 		uint32 player_col_32_h[TA3D_PLAYERS_HARD_LIMIT];
-		for (short int i = 0; i < players.nb_player; ++i)
+		for (int i = 0; i < players.count(); ++i)
 		{
 			player_col_32[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
 										  (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),
@@ -1247,7 +1247,7 @@ namespace TA3D
 		}
 
 		pMutex.lock();
-		for (uint16 e=0 ; e < index_list_size ; e++)
+		for (unsigned int e = 0; e < index_list_size; ++e)
 		{
 			uint16 i = idx_list[e];
 			pMutex.unlock();
@@ -1747,14 +1747,16 @@ namespace TA3D
 			{
 				if (network_manager.isServer() )
 				{
-					for (sint8 i = 0 ; i < players.nb_player ; ++i)
+					for (unsigned int i = 0 ; i < players.count(); ++i)
 						if (g_ta3d_network->isRemoteHuman( i ) )
 							min_tick = Math::Min(min_tick, client_tick[i]);
 				}
 				else
-					for (sint8 i = 0 ; i < players.nb_player ; ++i)
-						if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
+				{
+					for (unsigned int i = 0 ; i < players.count(); ++i)
+						if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0)
 							min_tick = Math::Min(min_tick, client_tick[i]);
+				}
 			}
 			min_tick /= 1000;
 
@@ -1789,10 +1791,10 @@ namespace TA3D
 			if (network_manager.isConnected())
 			{
 				net_timer = msec_timer - net_timer;
-				for (sint8 i = 0 ; i < players.nb_player ; ++i)
+				for (unsigned int i = 0 ; i < players.count(); ++i)
 				{
-					if (g_ta3d_network->isRemoteHuman( i ))
-						client_tick[ i ] += client_speed[ i ] * net_timer / (1000 * TICKS_PER_SEC);
+					if (g_ta3d_network->isRemoteHuman(i))
+						client_tick[i] += client_speed[i] * net_timer / (1000 * TICKS_PER_SEC);
 				}
 
 				net_timer = msec_timer;
@@ -1816,17 +1818,17 @@ namespace TA3D
 						min_tick = current_tick * 1000;
 						if (network_manager.isServer())
 						{
-							for(sint8 i = 0; i < players.nb_player; ++i)
+							for(unsigned int i = 0; i < players.count(); ++i)
 							{
-								if (g_ta3d_network->isRemoteHuman( i ))
+								if (g_ta3d_network->isRemoteHuman(i))
 									min_tick = Math::Min(min_tick, client_tick[i]);
 							}
 						}
 						else
 						{
-							for (int i = 0; i < players.nb_player; ++i)
+							for (unsigned int i = 0; i < players.count(); ++i)
 							{
-								if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0)
+								if (g_ta3d_network->isRemoteHuman(i) && client_tick[i] > 0)
 									min_tick = Math::Min(min_tick, client_tick[i]);
 							}
 						}
@@ -1836,7 +1838,7 @@ namespace TA3D
 				else
 				{
 					if (current_tick > min_tick)
-						tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
+						tick += (current_tick - min_tick) * 250 / TICKS_PER_SEC;
 				}
 			}
 

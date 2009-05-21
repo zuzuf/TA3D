@@ -1004,7 +1004,7 @@ namespace TA3D
 		int player_id = lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (player_id >= 0 && player_id < players.nb_player )
+		if (player_id >= 0 && player_id < players.count())
 			lua_pushnumber( L, (the_map->ota_data.startX[ player_id ] - the_map->map_w) * 0.5f );
 		else
 			lua_pushnumber( L, 0 );
@@ -1016,7 +1016,7 @@ namespace TA3D
 		int player_id = lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (player_id >= 0 && player_id < players.nb_player )
+		if (player_id >= 0 && player_id < players.count())
 			lua_pushnumber( L, (the_map->ota_data.startZ[ player_id ] - the_map->map_h) * 0.5f );
 		else
 			lua_pushnumber( L, 0 );
@@ -1025,7 +1025,7 @@ namespace TA3D
 
 	int program_init_res( lua_State *L )			// init_res()
 	{
-		for( uint16 i = 0 ; i < players.nb_player ; i++ )
+		for (unsigned int i = 0 ; i < players.count(); ++i)
 		{
 			players.metal[i] = players.com_metal[i];
 			players.energy[i] = players.com_energy[i];
@@ -1047,7 +1047,7 @@ namespace TA3D
 		float amount = (float) lua_tonumber( L, 2 );
 		lua_pop( L, 2 );
 
-		if (player_id >= 0 && player_id < players.nb_player && !LuaProgram::passive)
+		if (player_id >= 0 && player_id < players.count() && !LuaProgram::passive)
 		{
 			units.lock();
 			players.metal[ player_id ] += amount;
@@ -1063,7 +1063,7 @@ namespace TA3D
 		float amount = (float) lua_tonumber( L, 2 );
 		lua_pop( L, 2 );
 
-		if (player_id >= 0 && player_id < players.nb_player && !LuaProgram::passive)
+		if (player_id >= 0 && player_id < players.count() && !LuaProgram::passive)
 		{
 			units.lock();
 			players.energy[ player_id ] += amount;

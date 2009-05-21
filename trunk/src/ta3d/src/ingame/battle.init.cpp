@@ -410,12 +410,12 @@ namespace TA3D
 			}
 		}
 
-		for(int i = 0 ; i < players.nb_player ; ++i)
+		for (unsigned int i = 0; i < players.count(); ++i)
 		{
 			GUIOBJ *obj = pArea.get_object(String("playerstats.team") << i);
 			if (obj)
 			{
-				obj->current_state = TA3D::Math::Log2( players.team[i] );
+				obj->current_state = TA3D::Math::Log2(players.team[i]);
 				obj->Flag &= ~FLAG_HIDDEN;
 			}
 		}
