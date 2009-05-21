@@ -180,34 +180,34 @@ namespace TA3D
 
 		String ExtractFilePath(const String& p, const bool systemDependant)
 		{
-			return Yuni::Toolbox::Paths::ExtractFilePath(p, systemDependant);
+			return Yuni::Core::Paths::ExtractFilePath(p, systemDependant);
 		}
 
 		String ExtractFileName(const String& p, const bool systemDependant)
 		{
-			return Yuni::Toolbox::Paths::ExtractFileName(p, systemDependant);
+			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
 		}
 
 		void ExtractFileName(String::List& p, const bool systemDependant)
 		{
-			return Yuni::Toolbox::Paths::ExtractFileName(p, systemDependant);
+			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
 		}
 
 		void ExtractFileName(String::Vector& p, const bool systemDependant)
 		{
-			return Yuni::Toolbox::Paths::ExtractFileName(p, systemDependant);
+			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
 		}
 
 		String ExtractFileNameWithoutExtension(const String& p)
 		{
-			return Yuni::Toolbox::Paths::ExtractFileNameWithoutExtension(p);
+			return Yuni::Core::Paths::ExtractFileNameWithoutExtension(p);
 		}
 
 
 
 		String ExtractFileExt(const String& s)
 		{
-			return Yuni::Toolbox::Paths::ExtractFileExt(s);
+			return Yuni::Core::Paths::ExtractFileExt(s);
 		}
 
 
