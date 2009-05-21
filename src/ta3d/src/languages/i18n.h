@@ -117,7 +117,7 @@ namespace TA3D
 			//@}
 
 			//! Index of this language
-			const int index() const { return pIndx;}
+			int index() const { return pIndx;}
 
 			//! Name of this language in english
 			const String& englishCaption() const { return pEnglishID; }

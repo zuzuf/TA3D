@@ -173,7 +173,7 @@ namespace TA3D
 
         void load(const int nb);
 
-        const void move(const float dt,const float g = 9.81f);
+        void move(const float dt,const float g = 9.81f);
     };
 
     /*-----------------------------------------------------------------------------------*/
