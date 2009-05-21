@@ -69,7 +69,6 @@ namespace TA3D
 		String filename = parser.pullAsString(prefix + "image");
 		if (HPIManager && HPIManager->Exists(filename))
 		{
-			std::cout << "Load texture : " << filename << std::endl;
 			tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
 
 			x1 = parser.pullAsInt(prefix + "x1");

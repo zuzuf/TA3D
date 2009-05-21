@@ -1311,41 +1311,52 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
+	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
 	{
 		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
 			return 0;
 
-		SDL_Surface *bmp = load_image( file );
-		if (bmp == NULL )	return 0;					// Operation failed
-		if (width )		*width = bmp->w;
-		if (height )	*height = bmp->h;
+		std::cout << "LOAD : " << file << std::endl;
+		SDL_Surface* bmp = load_image(file);
+		if (bmp == NULL)
+		{
+			LOG_ERROR("Failed to load texture `" << file << "`");
+			return 0;
+		}
+
+		if (width)
+			*width = bmp->w;
+		if (height)
+			*height = bmp->h;
 		bmp = convert_format(bmp);
-		bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == ".tga") || (String::ToLower(Paths::ExtractFileExt(file)) == ".png");
+
+		String ext = Paths::ExtractFileExt(file);
+		ext.toLower();
+		bool with_alpha = (ext == ".tga" || ext == ".png");
 		if (with_alpha)
 		{
 			with_alpha = false;
-			for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
+			for (int y = 0 ; y < bmp->h && !with_alpha; ++y)
 			{
-				for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
-					with_alpha |= geta(SurfaceInt(bmp,x,y)) != 255;
+				for (int x = 0; x < bmp->w && !with_alpha; ++x)
+					with_alpha |= geta(SurfaceInt(bmp, x, y)) != 255;
 			}
 		}
 		if (texFormat == 0)
 		{
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-				set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+				set_texture_format(with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB);
 			else
-				set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+				set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
 		}
 		else
-			set_texture_format( texFormat );
-		GLuint gl_tex = make_texture( bmp, filter_type, clamp );
+			set_texture_format(texFormat);
+		GLuint gl_tex = make_texture(bmp, filter_type, clamp);
 		SDL_FreeSurface(bmp);
 		return gl_tex;
 	}
 
-	GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+	GLuint	GFX::load_texture_mask(const String& file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
 		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
 			return 0;
@@ -1356,7 +1367,7 @@ namespace TA3D
 		if (height )	*height = bmp->h;
 		if (bmp->format->BitsPerPixel != 32 )
 			bmp = convert_format( bmp );
-		bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == "tga");
+		bool with_alpha = (Paths::ExtractFileExt(file).toLower() == "tga");
 		if (with_alpha)
 		{
 			with_alpha = false;
@@ -1392,14 +1403,15 @@ namespace TA3D
 		return gl_tex;
 	}
 
-	bool GFX::is_texture_in_cache( String file )
+	bool GFX::is_texture_in_cache(const String& file)
 	{
-		if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
+		if (ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
 			return false;
-		file = TA3D::Paths::Caches + file;
-		if (TA3D::Paths::Exists(file))
+		String realFile(TA3D::Paths::Caches);
+		realFile += file;
+		if (TA3D::Paths::Exists(realFile))
 		{
-			FILE *cache_file = TA3D_OpenFile(file, "rb");
+			FILE *cache_file = TA3D_OpenFile(realFile, "rb");
 			uint32 mod_hash;
 			fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
 			fclose(cache_file);
@@ -1410,17 +1422,18 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+	GLuint GFX::load_texture_from_cache(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
-		if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps || !g_useNonPowerOfTwoTextures)
+		if (ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps || !g_useNonPowerOfTwoTextures)
 			return 0;
 
-		file = TA3D::Paths::Caches + file;
-		if(TA3D::Paths::Exists(file))
+		String realFile(TA3D::Paths::Caches);
+		realFile += file;
+		if(TA3D::Paths::Exists(realFile))
 		{
-			FILE *cache_file = TA3D_OpenFile(file, "rb");
+			FILE *cache_file = TA3D_OpenFile(realFile, "rb");
 			uint32 mod_hash;
-			fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
+			fread(&mod_hash, sizeof(mod_hash), 1, cache_file);
 
 			if (mod_hash != TA3D_CURRENT_MOD.hashValue()) // Doesn't correspond to current mod
 			{
@@ -1429,8 +1442,8 @@ namespace TA3D
 			}
 
 			uint32 rw, rh;
-			fread( &rw, 4, 1, cache_file );
-			fread( &rh, 4, 1, cache_file );
+			fread(&rw, 4, 1, cache_file);
+			fread(&rh, 4, 1, cache_file);
 			if(width)  *width = rw;
 			if(height) *height = rh;
 
