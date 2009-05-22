@@ -41,31 +41,76 @@ SET(PACKAGE_STRING "TA3D ${PACKAGE_VERSION}")
 SET(TA3D_ENGINE_VERSION "${PACKAGE_STRING}")
 
 
-#
-# Default C++ Compiler Options
-#
-# We want -O2 -g -ffast-math (-pipe) as default options, but we want to be able to
-# override CXX_FLAGS from commandline
-#
-String( LENGTH "${CMAKE_CXX_FLAGS}" VA )
-IF (${VA} EQUAL 0)
-	IF(WIN32)
-        # -Wall / -Wextra can not be enabled since they produced
-        # a lot of warnings from the STL
-		SET( CMAKE_CXX_FLAGS "-O2 -g -ffast-math " )
-	ELSE(WIN32)
-		SET( CMAKE_CXX_FLAGS "-O2 -g -Wall -Wextra -ffast-math -pipe " )
-	ENDIF(WIN32)
-ENDIF(${VA} EQUAL 0)
-Message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
-
-
 
 #
-# DEBUG
+# Command line options for G++ (Debug)
 #
-MESSAGE(STATUS "[DEBUG] The Debug mode has been enabled")
-ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
+# Ex: cmake . -DCMAKE_BUILD_TYPE=release
+#
+IF("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+
+	#
+	# Build Configuration: Release
+	#
+	Message(STATUS "Build Configuration: Release")
+
+	IF(NOT WIN32)
+		String(LENGTH "${CMAKE_CXX_FLAGS}" VA)
+		IF(${VA} EQUAL 0)
+			Set(CMAKE_CXX_FLAGS "-O3 -fomit-frame-pointer -Wall  -Wextra -mfpmath=sse -msse -msse2 -Wuninitialized -Wunused-parameter -Winit-self")
+		ENDIF(${VA} EQUAL 0)
+		Message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
+	Else(NOT WIN32)
+		IF(MINGW)
+			Set(CMAKE_CXX_OTHER_FLAGS "-O3 -fomit-frame-pointer -Wextra ")
+			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
+			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
+		ENDIF(MINGW)
+		IF(MSVC)
+			Set(CMAKE_CXX_OTHER_FLAGS "/Ob2 /Ot /O2 /MDd /Wp64 /Oy /MT /GL /GS-")
+			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
+			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
+		ENDIF(MSVC)
+	ENDIF(NOT WIN32)
+	ADD_DEFINITIONS("-DNDEBUG") # Remove asserts
+
+Else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+
+	#
+	# Build Configuration: Debug
+	#
+	Message(STATUS "Build Configuration: Debug")
+
+	IF(NOT WIN32)
+		String(LENGTH "${CMAKE_CXX_FLAGS}" VA)
+		IF(${VA} EQUAL 0)
+			Set(CMAKE_CXX_FLAGS "-g -ggdb2 -Wall -Woverloaded-virtual -Wextra -Wconversion -Wredundant-decls -Wundef -Wcast-align -Wcast-qual -Wfloat-equal -Wunused-parameter")
+			If(APPLE)
+				Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gfull")
+			ENdif(APPLE)
+		ENDIF(${VA} EQUAL 0)
+		Message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
+	Else(NOT WIN32)
+		IF(MINGW)
+			Set(CMAKE_CXX_OTHER_FLAGS "-g2 -Woverloaded-virtual -Wextra -Wconversion")
+			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
+			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
+		ENDIF(MINGW)
+		IF(MSVC)
+			Set(CMAKE_CXX_OTHER_FLAGS "/GR /Ob2 /Ot /MDd /MTd /fp:except")
+			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
+			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
+		ENDIF(MSVC)
+	ENDIF(NOT WIN32)
+	ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
+
+EndIF("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+
+
+IF(APPLE)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+ENDIF(APPLE)
+
 
 
 
@@ -75,7 +120,6 @@ ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
 IF(UNIX AND NOT CMAKE_CROSSCOMPILING)
 	IF(APPLE)
 		ADD_DEFINITIONS("-DTA3D_PLATFORM_DARWIN -DTA3D_PLATFORM_MAC")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 	ELSE(APPLE)
 		SET(LINUX 1)
 		ADD_DEFINITIONS("-DTA3D_PLATFORM_LINUX")
@@ -341,7 +385,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 #
 # OS X Note : There is no need of CPake under OS X. On this platform,
 # an application is an independant bundle that embeds all needed data files.
-# A graphical application is only working if launched from a its bundle.
+# A graphical application is only working if launched from its bundle.
 # So We cannot wait to install the application to be able to run it.
 #
 IF(NOT APPLE)
