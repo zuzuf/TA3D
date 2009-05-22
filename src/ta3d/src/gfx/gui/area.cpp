@@ -32,7 +32,11 @@
 
 namespace TA3D
 {
+
+
 	std::list<AREA*> AREA::area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
+
+
 
 	WND	*AREA::doGetWnd(const String& message)
 	{
@@ -92,6 +96,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
+
 	void AREA::set_data(const String& message, const sint32 data)
 	{
 		pMutex.lock();
@@ -101,11 +106,12 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
+
 	void AREA::set_caption(const String& message, const String& caption)
 	{
 		pMutex.lock();
 		GUIOBJ* guiobj = doGetObject(message);
-		if (guiobj && guiobj->Text.size() > 0)
+		if (guiobj && !guiobj->Text.empty())
 		{
 			if (guiobj->Type == OBJ_TEXTEDITOR)
 			{
@@ -114,15 +120,16 @@ namespace TA3D
 				String::const_iterator end = caption.end();
 				for (String::const_iterator i = caption.begin(); i != end; ++i)      // Split the entry in several lines
 					if ('\n' == *i)
-						guiobj->Text.push_back("");
+						guiobj->Text.push_back(String());
 					else
 						guiobj->Text.back() += *i;
 			}
 			else
-				guiobj->set_caption( caption );
+				guiobj->set_caption(caption);
 		}
 		pMutex.unlock();
 	}
+
 
 	void AREA::set_action(const String& message, void (*Func)(int))
 	{
@@ -133,6 +140,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
+
 	void AREA::set_entry(const String& message, const std::list<String>& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
 	{
 		pMutex.lock();
@@ -140,11 +148,12 @@ namespace TA3D
 		if (guiobj)
 		{
 			guiobj->Text.clear();
-			for( std::list<String>::const_iterator i = entry.begin() ; i != entry.end() ; i++ )
-				guiobj->Text.push_back( *i );
+			for (std::list<String>::const_iterator i = entry.begin(); i != entry.end(); ++i)
+				guiobj->Text.push_back(*i);
 		}
 		pMutex.unlock();
 	}
+
 
 	void AREA::set_entry(const String& message, const std::vector<String>& entry)	// Set the entry of specified object in the specified window to entry
 	{
@@ -155,6 +164,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
+
 	void AREA::set_title(const String& message, const String& title)
 	{
 		pMutex.lock();
@@ -163,6 +173,7 @@ namespace TA3D
 			wnd->Title = title;
 		pMutex.unlock();
 	}
+
 
 	uint16 AREA::check()
 	{
@@ -175,9 +186,9 @@ namespace TA3D
 				scroll_timer += 250;
 		}
 
-		uint16 is_on_gui = 0;
+		unsigned int is_on_gui = 0;
 		pMutex.lock();
-		for (uint16 i = 0; i < vec_wnd.size(); ++i)
+		for (unsigned int i = 0; i < vec_wnd.size(); ++i)
 		{
 			if (!is_on_gui || (vec_wnd[vec_z_order[i]]->get_focus && !vec_wnd[vec_z_order[i]]->hidden))
 			{
@@ -221,7 +232,7 @@ namespace TA3D
 		else
 			vec_wnd[wnd_idx]->load_tdf(filename, skin);	// Loads the window from a *.tdf file
 
-		for (uint16 i = wnd_idx; i > 0; --i)		// The new window appear on top of the others
+		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];
 		vec_z_order[0] = wnd_idx;
 		wnd_hashtable.insert(String::ToLower(vec_wnd[wnd_idx]->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
@@ -242,16 +253,18 @@ namespace TA3D
 		// Draws all the windows in focus reversed order so the focused window is drawn on top of the others
 		for (sint32 i = vec_wnd.size() - 1; i >=0 ; --i)
 			vec_wnd[vec_z_order[i]]->draw(help_msg, i == 0, true, skin);
-		if( !help_msg.empty())
-			skin->PopupMenu( mouse_x + 20, mouse_y + 20, help_msg);
+		if (!help_msg.empty())
+			skin->PopupMenu(mouse_x + 20, mouse_y + 20, help_msg);
 
 		pMutex.unlock();
 	}
+
 
 	void AREA::load_tdf(const String& filename)
 	{
 		doLoadTDF(filename);
 	}
+
 
 	void AREA::doLoadTDF(const String& filename)
 	{
@@ -277,7 +290,8 @@ namespace TA3D
 				real_filename = filename;
 		}
 		skin = NULL;
-		TDFParser* areaFile = new TDFParser(real_filename);
+
+		TDFParser areaFile(real_filename);
 
 		area_stack.push_front(this);     // Just in case we want to grab it from elsewhere
 
@@ -290,25 +304,25 @@ namespace TA3D
 		if (e != String::npos)
 			name = name.substr(e + 1, name.size() - e - 1);
 
-		name = areaFile->pullAsString("area.name", name);					// The TDF may override the area name
+		name = areaFile.pullAsString("area.name", name);					// The TDF may override the area name
 		skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty())
 			? lp_CONFIG->skin_name
-			: areaFile->pullAsString("area.skin");
+			: areaFile.pullAsString("area.skin");
 
 		if (HPIManager->Exists(skin_name)) // Loads a skin
 		{
-			int area_width = areaFile->pullAsInt("area.width", SCREEN_W);
-			int area_height = areaFile->pullAsInt("area.height", SCREEN_W);
-			float skin_scale = Math::Min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
+			const int area_width   = areaFile.pullAsInt("area.width", SCREEN_W);
+			const int area_height  = areaFile.pullAsInt("area.height", SCREEN_W);
+			const float skin_scale = Math::Min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
 			skin = skin_manager.load(skin_name, skin_scale);
 		}
 
 		String::Vector windows_to_load;
-		areaFile->pullAsString("area.windows").explode(windows_to_load, ',');
+		areaFile.pullAsString("area.windows").explode(windows_to_load, ',');
 		for (String::Vector::const_iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
 			load_window(*i);
 
-		String background_name = areaFile->pullAsString("area.background", "none");
+		String background_name = areaFile.pullAsString("area.background", "none");
 		if (background_name.toLower() != "none")           // If we have a background set then load it
 		{
 			if(skin && !skin->prefix.empty())
@@ -327,7 +341,7 @@ namespace TA3D
 				if (skin && !skin->prefix.empty())
 				{
 					// No prefixed version, retry with default background
-					background_name = areaFile->pullAsString("area.background");
+					background_name = areaFile.pullAsString("area.background");
 					// Loads a background image
 					if (HPIManager->Exists(background_name))
 						background = gfx->load_texture(background_name);
@@ -336,31 +350,22 @@ namespace TA3D
 		}
 		else
 			background = 0;
-		delete areaFile;
 	}
 
 
 
 	AREA::AREA(const String& area_name)
-		:gui_hashtable(), wnd_hashtable()
+		:scrolling(false), background(0), name(area_name), skin(NULL), gui_hashtable(), wnd_hashtable(), cached_wnd(NULL)
 	{
-		cached_wnd = NULL;
-		name = area_name;		// Gives it a name
-
 		vec_wnd.clear();		// Starts with an empty vector
 		vec_z_order.clear();	// No windows at start
-
-		background = 0;			// By default we have no background
 
 		amx = mouse_x;
 		amy = mouse_y;
 		amz = mouse_z;
 		amb = mouse_b;
 
-		skin = NULL;			// Default: no skin
-
 		scroll_timer = msec_timer;
-		scrolling = false;
 
 		InitInterface();		// Initialization of the interface
 	}
