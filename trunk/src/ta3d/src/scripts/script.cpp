@@ -982,7 +982,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int program_clf( lua_State *L )				// clf()
+	int program_clf(lua_State* /*L*/)
 	{
 		the_map->clear_FOW();
 		units.lock();
@@ -1001,29 +1001,29 @@ namespace TA3D
 
 	int program_start_x( lua_State *L )			// start_x( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
-		lua_pop( L, 1 );
+		unsigned int player_id = lua_tointeger(L, 1);
+		lua_pop(L, 1);
 
-		if (player_id >= 0 && player_id < players.count())
-			lua_pushnumber( L, (the_map->ota_data.startX[ player_id ] - the_map->map_w) * 0.5f );
+		if (player_id < players.count())
+			lua_pushnumber(L, (the_map->ota_data.startX[ player_id ] - the_map->map_w) * 0.5f);
 		else
-			lua_pushnumber( L, 0 );
+			lua_pushnumber(L, 0);
 		return 1;
 	}
 
 	int program_start_z( lua_State *L )			// start_z( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		unsigned int player_id = lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (player_id >= 0 && player_id < players.count())
-			lua_pushnumber( L, (the_map->ota_data.startZ[ player_id ] - the_map->map_h) * 0.5f );
+		if (player_id < players.count())
+			lua_pushnumber(L, (the_map->ota_data.startZ[ player_id ] - the_map->map_h) * 0.5f);
 		else
-			lua_pushnumber( L, 0 );
+			lua_pushnumber(L, 0);
 		return 1;
 	}
 
-	int program_init_res( lua_State *L )			// init_res()
+	int program_init_res(lua_State* /*L*/) // init_res()
 	{
 		for (unsigned int i = 0 ; i < players.count(); ++i)
 		{
@@ -1043,11 +1043,11 @@ namespace TA3D
 
 	int program_give_metal( lua_State *L )			// give_metal( player_id, amount )
 	{
-		int player_id = lua_tointeger( L, 1 );
-		float amount = (float) lua_tonumber( L, 2 );
+		unsigned int player_id = lua_tointeger(L, 1);
+		float amount = (float) lua_tonumber(L, 2);
 		lua_pop( L, 2 );
 
-		if (player_id >= 0 && player_id < players.count() && !LuaProgram::passive)
+		if (player_id < players.count() && !LuaProgram::passive)
 		{
 			units.lock();
 			players.metal[ player_id ] += amount;
@@ -1059,11 +1059,11 @@ namespace TA3D
 
 	int program_give_energy( lua_State *L )			// give_energy( player_id, amount )
 	{
-		int player_id = lua_tointeger( L, 1 );
-		float amount = (float) lua_tonumber( L, 2 );
-		lua_pop( L, 2 );
+		unsigned int player_id = lua_tointeger(L, 1);
+		float amount = (float) lua_tonumber(L, 2);
+		lua_pop(L, 2);
 
-		if (player_id >= 0 && player_id < players.count() && !LuaProgram::passive)
+		if (player_id < players.count() && !LuaProgram::passive)
 		{
 			units.lock();
 			players.energy[ player_id ] += amount;
@@ -1075,18 +1075,22 @@ namespace TA3D
 
 	int program_commander( lua_State *L )				// commander( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
-		lua_pop( L, 1 );
+		const unsigned int player_id = lua_tointeger(L, 1);
+		lua_pop(L, 1);
 
-		if (player_id >= 0 && player_id < NB_PLAYERS )		// make sure we have a player
-			for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
-				if (String::ToLower(ta3dSideData.side_name[ i ]) == String::ToLower(players.side[ player_id ]) )
+		if (player_id < NB_PLAYERS) // make sure we have a player
+		{
+			for (int i = 0; i < ta3dSideData.nb_side; ++i)
+			{
+				if (String::ToLower(ta3dSideData.side_name[i]) == String::ToLower(players.side[ player_id ]) )
 				{
-					lua_pushstring( L, ta3dSideData.side_com[ i ].c_str() );
+					lua_pushstring(L, ta3dSideData.side_com[i].c_str() );
 					break;
 				}
 				else
-					lua_pushstring( L, "" );
+					lua_pushstring(L, "");
+			}
+		}
 		return 1;
 	}
 
@@ -1263,7 +1267,7 @@ namespace TA3D
 		return ret;
 	}
 
-	void LuaProgram::proc(void* param)
+	void LuaProgram::proc(void* /*param*/)
 	{
 		uint32 last_tick = units.current_tick;
 		signal = 0;

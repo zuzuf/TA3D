@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 	TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
 
 	// Initialize all modules used by ta3d
-	TA3D::Initialize(argc, argv, "ta3d");
+	TA3D::Initialize(argc, argv);
 
 	TA3D::Settings::Load(); /* Load Config File */
 	TA3D_clear_cache();

@@ -69,6 +69,9 @@ namespace TA3D
 
 	void WND::draw(String& helpMsg, const bool focus, const bool deg, SKIN* skin)
 	{
+		/* Asserts */
+		assert(NULL != skin);
+
 		MutexLocker locker(pMutex);
 		if (!hidden) // If it's hidden don't draw it
 		{
@@ -82,7 +85,7 @@ namespace TA3D
 			// Gui Font
 			gui_font = (ingame_window) ? gfx->TA_font : gfx->ta3d_gui_font;
 
-			if (NbObj > 0 && Objets)
+			if (NbObj && Objets)
 			{
 				// Background objects
 				for (int i = 0; i < NbObj; ++i)
@@ -450,7 +453,7 @@ namespace TA3D
 			delete_gltex = false;
 		}
 		background = 0;
-		if (NbObj > 0 && Objets != NULL)
+		if (NbObj && Objets != NULL)
 		{
 			delete[] Objets;
 			NbObj = 0;
@@ -507,7 +510,7 @@ namespace TA3D
 		}
 		if (was_hidden)
 		{
-			for (int i = 0; i < NbObj; ++i)
+			for (unsigned int i = 0; i < NbObj; ++i)
 			{
 				if (Objets[i].Type == OBJ_MENU || Objets[i].Type == OBJ_FMENU)
 					Objets[i].Etat = false;
@@ -518,11 +521,11 @@ namespace TA3D
 		// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
 		IsOnGUI = WinMov(AMx, AMy, AMb, mouse_x, mouse_y, mouse_b, skin);
 		// S'il n'y a pas d'objets, on arrête
-		if (NbObj <= 0 || Objets == NULL)
+		if (!NbObj || Objets == NULL)
 			return IsOnGUI;
 
 		// Interactions utilisateur/objets
-		int index,e;
+		unsigned int index,e;
 		uint16 Key;
 		bool was_on_floating_menu = false;
 		int  on_menu = -1;
@@ -530,7 +533,7 @@ namespace TA3D
 		bool already_clicked = false;
 		int hasFocus = -1;
 
-		for (int i = 0; i < NbObj; ++i)
+		for (unsigned int i = 0; i < NbObj; ++i)
 		{
 			if (Objets[i].Type != OBJ_NONE)
 				doCheckWasOnFLoattingMenu(i, was_on_floating_menu, on_menu, skin);
@@ -539,7 +542,7 @@ namespace TA3D
 		}
 		if (hasFocus >= 0 && key[KEY_TAB] && !tab_was_pressed)      // Select another widget with TAB key
 		{
-			for (e = 1; e < NbObj; ++e)
+			for (unsigned int e = 1; e < NbObj; ++e)
 			{
 				int i = (e + hasFocus) % NbObj;
 				if (Objets[i].Flag & FLAG_CAN_GET_FOCUS)
@@ -552,7 +555,7 @@ namespace TA3D
 		}
 		tab_was_pressed = key[KEY_TAB];
 
-		for (int i = 0; i < NbObj; ++i)
+		for (unsigned int i = 0; i < NbObj; ++i)
 		{
 			if (Objets[i].Type == OBJ_NONE)
 				continue;
@@ -589,8 +592,6 @@ namespace TA3D
 
 					m_width += skin->menu_background.x1 - skin->menu_background.x2;
 				}
-				else
-					m_width = 168.0f;
 
 				if (mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
 					&& mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].Text.size())

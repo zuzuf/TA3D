@@ -167,7 +167,7 @@ namespace TA3D
 		//! Objects within the window
 		GUIOBJ* Objets;
 		//! Number of objects
-		int  NbObj;
+		unsigned int  NbObj;
 		//! hashtable used to speed up operations on GUIOBJ objects
 		TA3D::UTILS::cHashTable<int>  obj_hashtable;
 
