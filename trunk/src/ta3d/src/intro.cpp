@@ -51,20 +51,18 @@ namespace TA3D
 
 		bool init=(Glfond==0);
 
-		if(init)
+		if (init)
 		{
 			messages.clear();
-			if( !lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name)) // Loads a skin
+			if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name)) // Loads a skin
 			{
-				SKIN *skin = new SKIN;
-				skin->load_tdf( lp_CONFIG->skin_name );
+				Skin skin;
+				skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
-				if( !skin->prefix.empty() )
-					Glfond = gfx->load_texture_mask("gfx/" + skin->prefix + "load.jpg", 7);
+				if (!skin.prefix().empty())
+					Glfond = gfx->load_texture_mask(String("gfx/") << skin.prefix() << "load.jpg", 7);
 				else
 					Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
-
-				delete skin;
 			}
 			else
 				Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
@@ -77,7 +75,7 @@ namespace TA3D
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
-		gfx->drawtexture(Glfond,0.0f,0.0f,SCREEN_W,SCREEN_H);
+		gfx->drawtexture(Glfond, 0.f, 0.f, SCREEN_W, SCREEN_H);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -86,8 +84,8 @@ namespace TA3D
 		if (messages.empty() || String::ToLower(messages.front()) != String::ToLower(msg))
 		{
 			if (!messages.empty())
-				messages.front() = messages.front() + " - " + I18N::Translate( "done" );
-			messages.push_front( msg );
+				messages.front() << " - " << I18N::Translate("done");
+			messages.push_front(msg);
 		}
 
 		float fw = SCREEN_W / 1280.0f;

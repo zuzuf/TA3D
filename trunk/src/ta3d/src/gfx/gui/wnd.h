@@ -25,6 +25,7 @@
 # include "../../misc/hash_table.h"
 # include "../../misc/interface.h"
 # include "../texture.h"
+# include <yuni/core/smartptr.h>
 
 
 
@@ -39,6 +40,10 @@ namespace TA3D
 	*/
 	class WND : public ObjectSync
 	{
+	public:
+		//! The most suitable smart pointer for a class `WND`
+		typedef Yuni::SmartPtr<WND> Ptr;
+
 	public:
 		//! \name Constructors & Destructor
 		//@{
@@ -61,7 +66,7 @@ namespace TA3D
 		** \param[out] helpMsg
 		** \param focus
 		*/
-		void draw(String& helpMsg, const bool focus = true, const bool deg = true, SKIN* skin = NULL);
+		void draw(String& helpMsg, const bool focus = true, const bool deg = true, Skin* skin = NULL);
 
 		/*!
 		** \brief Handles Window's moves
@@ -75,7 +80,7 @@ namespace TA3D
 		** \param skin
 		** \return
 		*/
-		byte WinMov(const int AMx, const int AMy, const int AMb, const int Mx, const int My, const int Mb, SKIN* skin = NULL);						// Handle window's moves
+		byte WinMov(const int AMx, const int AMy, const int AMb, const int Mx, const int My, const int Mb, Skin* skin = NULL);						// Handle window's moves
 
 		/*!
 		** \brief Handle window's events
@@ -88,7 +93,7 @@ namespace TA3D
 		** \param skin
 		** \return
 		*/
-		int check(int AMx, int AMy, int AMz, int AMb, bool timetoscroll = true, SKIN* skin = NULL);
+		int check(int AMx, int AMy, int AMz, int AMb, bool timetoscroll = true, Skin* skin = NULL);
 
 
 		/*!
@@ -97,7 +102,7 @@ namespace TA3D
 		** \param filename
 		** \param skin
 		*/
-		void load_tdf(const String& filename, SKIN* skin = NULL);
+		void load_tdf(const String& filename, Skin* skin = NULL);
 
 		/*!
 		** \brief Load a window from a TA *.GUI file describing the interface
@@ -137,7 +142,7 @@ namespace TA3D
 		** \param message
 		** \return
 		*/
-		String  get_caption(const String& message);
+		String  caption(const String& message);
 
 		/*!
 		** \brief pointer to the specified object
@@ -205,25 +210,25 @@ namespace TA3D
 		** \brief Draw the shadow of the window if it has one
 		** \see draw()
 		*/
-		void doDrawWindowShadow(SKIN* skin);
+		void doDrawWindowShadow(Skin* skin);
 		/*!
 		** \brief Draw the background of the window
 		** \see draw()
 		*/
-		void doDrawWindowBackground(SKIN* skin);
+		void doDrawWindowBackground(Skin* skin);
 		/*!
 		** \brief Draw the skin of the windows
 		** \see draw()
 		*/
-		void doDrawWindowSkin(SKIN* skin, const bool focus, const bool deg);
+		void doDrawWindowSkin(Skin* skin, const bool focus, const bool deg);
 		/*!
 		** \brief Draw a background object
 		*/
-		void doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, SKIN* skin);
+		void doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin);
 		/*!
 		** \brief Draw a foreground object
 		*/
-		void doDrawWindowForegroundObject(SKIN* skin, const int i);
+		void doDrawWindowForegroundObject(Skin* skin, const int i);
 
 
 		/*!
@@ -231,7 +236,7 @@ namespace TA3D
 		** \param wasOnFloattingMenu
 		** \param indxMenu
 		*/
-		void doCheckWasOnFLoattingMenu(const int i, bool& wasOnFloattingMenu, int& indxMenu, SKIN* skin);
+		void doCheckWasOnFLoattingMenu(const int i, bool& wasOnFloattingMenu, int& indxMenu, Skin* skin);
 
 		/*!
 		** \brief Same as get_object

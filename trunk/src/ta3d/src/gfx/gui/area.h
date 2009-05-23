@@ -19,10 +19,12 @@
 
 # include "../../stdafx.h"
 # include "../../misc/string.h"
-# include "../../threads/thread.h"
+# include "wnd.h"
 # include <vector>
 # include "../../misc/interface.h"
-# include "wnd.h"
+# include <yuni/core/smartptr.h>
+
+
 
 
 namespace TA3D
@@ -33,8 +35,14 @@ namespace TA3D
 	** \brief This class is a window handler, so it will manage windows
 	** and signals given to them
 	*/
-	class AREA:	public ObjectSync, protected IInterface
+	class AREA:	public Yuni::Policy::ObjectLevelLockable<AREA>, protected IInterface
 	{
+	public:
+		//! The threading policy
+		typedef Yuni::Policy::ObjectLevelLockable<AREA> ThreadingPolicy;
+		//! The best suitable smart pointer for an area
+		typedef Yuni::SmartPtr<AREA>  Ptr;
+
 	public:
 		//! \name Constructor && Destructor
 		//@{
@@ -89,7 +97,7 @@ namespace TA3D
 		**
 		** \param message
 		*/
-		WND* get_wnd(const String& message);
+		WND::Ptr get_wnd(const String& message);
 
 		/*!
 		** \brief Return the state of specified object in the specified window
@@ -124,20 +132,12 @@ namespace TA3D
 		sint32 get_value(const String& message);
 
 		/*!
-		** \brief Return the caption of specified object in the specified window
-		**
-		** \param message
-		** \return
-		*/
-		String get_caption(const String& message);
-
-		/*!
 		** \brief Return a pointer to the specified object
 		**
 		** \param message
 		** \return
 		*/
-		GUIOBJ* get_object(const String& message, bool skip_hidden = false);
+		GUIOBJ* get_object(const String& message);
 
 		/*!
 		** \brief Set the state of specified object in the specified window
@@ -171,13 +171,22 @@ namespace TA3D
 		*/
 		void set_enable_flag(const String& message, const bool enable);
 
+
+		/*!
+		** \brief Return the caption of specified object in the specified window
+		**
+		** \param message
+		** \return
+		*/
+		String caption(const String& message);
+
 		/*!
 		** \brief Set the caption of specified object in the specified window
 		**
 		** \param message
 		** \return
 		*/
-		void set_caption(const String& message, const String& caption);
+		void caption(const String& message, const String& caption);
 
 		/*!
 		** \brief Set the title of specified window to title
@@ -185,7 +194,7 @@ namespace TA3D
 		** \param message
 		** \return
 		*/
-		void set_title(const String& message, const String& title);
+		void title(const String& message, const String& title);
 
 		/*!
 		** \brief Set the entry of specified object in the specified window to entry
@@ -234,13 +243,13 @@ namespace TA3D
 		** \brief Same as get_object, but not thread-safe
 		** \see get_object()
 		*/
-		GUIOBJ* doGetObject(const String& message);
+		GUIOBJ* getObjectWL(const String& message);
 
 		/*!
 		** \brief Same as get_wnd, but not thread-safe
 		** \see get_wnd()
 		*/
-		WND* doGetWnd(const String& message);
+		WND::Ptr getWindowWL(const String& message);
 
 		/*!
 		** \brief Same as load_tdf(), but not thread-safe
@@ -250,9 +259,11 @@ namespace TA3D
 	private:
 		//! This list stores the stack of all AREA objects so you can grab the current one at any time
 		static std::list<AREA*> area_stack;
+		//! Window list
+		typedef std::vector<WND::Ptr> WindowList;
 
 		//! This vector stores all the windows the area object deals with
-		std::vector<WND*>  vec_wnd;
+		WindowList  pWindowList;
 		//! This vector stores data about the z order of windows
 		std::vector<uint16> vec_z_order;
 
@@ -269,7 +280,7 @@ namespace TA3D
 		int amb;
 
 		//! The skin used by the ares
-		SKIN* skin;
+		Skin* skin;
 
 		//! hashtable used to speed up loading of *.gui files and save memory
 		TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;
@@ -279,7 +290,7 @@ namespace TA3D
 		//!
 		String  cached_key;
 		//!
-		WND* cached_wnd;
+		WND::Ptr cached_wnd;
 
 		//!
 		uint32  scroll_timer;

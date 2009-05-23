@@ -32,6 +32,7 @@ namespace Menus
 		pTypeName = typeid(*this).name();
 	}
 
+
 	bool Abstract::execute()
 	{
 		// Executing if initializing succeeded
@@ -64,7 +65,7 @@ namespace Menus
 
 	void Abstract::doGuardFinalize()
 	{
-		if (pArea.get() && pArea->background == gfx->glfond)
+		if (pArea && pArea->background == gfx->glfond)
 			pArea->background = 0;
 		doFinalize();
 		reset_keyboard();
@@ -74,7 +75,7 @@ namespace Menus
 
 	void Abstract::loadAreaFromTDF(const String& caption, const String& relFilename)
 	{
-		pArea.reset(new AREA(caption));
+		pArea = new AREA(caption);
 		pArea->load_tdf(relFilename);
 		if (!pArea->background)
 			pArea->background = gfx->glfond;
@@ -125,6 +126,7 @@ namespace Menus
 		}
 		textVar = newValue;
 	}
+
 
 
 

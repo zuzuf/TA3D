@@ -55,7 +55,7 @@ namespace TA3D
 		{
 			if (current_area->get_wnd( "open" ) == NULL)            // The window isn't loaded => load it now !
 				current_area->load_window( "gui/open_dialog.tdf" );
-			current_area->set_title("open",Title);
+			current_area->title("open", Title);
 
 			if (curDir.empty())                         // If empty grab current directory
 				curDir = TA3D::Paths::CurrentDirectory() + TA3D::Paths::Separator;
@@ -101,7 +101,7 @@ namespace TA3D
 				if (key[KEY_ENTER] || current_area->get_state("open.b_ok"))
 				{
 					done = true;
-					result = curDir + TA3D::Paths::Separator + current_area->get_caption("open.t_filename");
+					result = curDir + TA3D::Paths::Separator + current_area->caption("open.t_filename");
 				}
 
 				if (current_area->get_state("open.file_list"))
@@ -109,13 +109,13 @@ namespace TA3D
 					GUIOBJ *obj = current_area->get_object("open.file_list");
 					if (obj && obj->Pos < obj->Text.size())
 					{
-						if (current_area->get_caption("open.t_filename") == obj->Text[ obj->Pos ])      // Double-click
+						if (current_area->caption("open.t_filename") == obj->Text[ obj->Pos ])      // Double-click
 						{
 							done = true;
-							result = curDir + TA3D::Paths::Separator + current_area->get_caption("open.t_filename");
+							result = curDir + TA3D::Paths::Separator + current_area->caption("open.t_filename");
 						}
 						else
-							current_area->set_caption("open.t_filename", obj->Text[ obj->Pos ]);
+							current_area->caption("open.t_filename", obj->Text[obj->Pos]);
 					}
 				}
 
@@ -177,21 +177,21 @@ namespace TA3D
 		{
 			if (current_area->get_wnd( "yesno" ) == NULL)            // The window isn't loaded => load it now !
 				current_area->load_window( "gui/yesno_dialog.tdf" );
-			current_area->set_title("yesno",Title);
+			current_area->title("yesno", Title);
 
 			current_area->msg("yesno.show");
-			current_area->set_caption("yesno.msg", Msg);
+			current_area->caption("yesno.msg", Msg);
 
 			// Boutons OK/Oui et Annuler/Non
 			if (ASW_TYPE==ASW_OKCANCEL)
 			{
-				current_area->set_caption("yesno.b_ok",I18N::Translate("OK"));
-				current_area->set_caption("yesno.b_cancel",I18N::Translate("Cancel"));
+				current_area->caption("yesno.b_ok", I18N::Translate("OK"));
+				current_area->caption("yesno.b_cancel", I18N::Translate("Cancel"));
 			}
 			else
 			{
-				current_area->set_caption("yesno.b_ok",I18N::Translate("Yes"));
-				current_area->set_caption("yesno.b_cancel",I18N::Translate("No"));
+				current_area->caption("yesno.b_ok", I18N::Translate("Yes"));
+				current_area->caption("yesno.b_cancel", I18N::Translate("No"));
 			}
 
 			bool done = false;
@@ -256,10 +256,10 @@ namespace TA3D
 		{
 			if (current_area->get_wnd( "popup" ) == NULL)            // The window isn't loaded => load it now !
 				current_area->load_window( "gui/popup_dialog.tdf" );
-			current_area->set_title("popup",Title);
+			current_area->title("popup", Title);
 
 			current_area->msg("popup.show");
-			current_area->set_caption("popup.msg", Msg);
+			current_area->caption("popup.msg", Msg);
 
 			bool done = false;
 			int amx, amy, amz, amb;
@@ -312,7 +312,7 @@ namespace TA3D
 		{
 			if (current_area->get_wnd( "ask" ) == NULL)            // The window isn't loaded => load it now !
 				current_area->load_window( "gui/ask_dialog.tdf" );
-			current_area->set_title("ask",Title);
+			current_area->title("ask",Title);
 
 			current_area->msg("ask.show");
 			current_area->msg("ask.t_result.focus");
@@ -340,7 +340,7 @@ namespace TA3D
 				if (key[KEY_ENTER] || current_area->get_state("ask.b_ok"))
 				{
 					done = true;
-					result = current_area->get_caption("ask.t_result");
+					result = current_area->caption("ask.t_result");
 				}
 
 				// Clear screen

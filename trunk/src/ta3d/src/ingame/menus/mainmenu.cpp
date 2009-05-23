@@ -75,8 +75,8 @@ namespace Menus
 		// Loading the area
 		loadAreaFromTDF("main", "gui/main.area");
 
-		// Current mod
-		getInfosAboutTheCurrentMod();
+		resetCaptions();
+
 		// If there is a file parameter, read it
 		ReadFileParameter();
 		// Misc
@@ -85,6 +85,15 @@ namespace Menus
 	}
 
 
+	void MainMenu::resetCaptions()
+	{
+		// Current mod
+		getInfosAboutTheCurrentMod();
+
+		// Reset the caption
+		pArea->caption("main.t_version", "Pokemon !");//TA3D_ENGINE_VERSION );
+		pArea->caption("main.t_mod", pCurrentModCaption);
+	}
 
 	bool MainMenu::doExecute()
 	{
@@ -95,10 +104,6 @@ namespace Menus
 
 	void MainMenu::redrawTheScreen()
 	{
-		// Reset the caption
-		pArea->set_caption("main.t_version", TA3D_ENGINE_VERSION );
-		pArea->set_caption("main.t_mod", pCurrentModCaption);
-
 		Abstract::redrawTheScreen();
 	}
 
@@ -109,16 +114,18 @@ namespace Menus
 		LOG_DEBUG(LOG_PREFIX_MENU_MAIN << "Done.");
 	}
 
+
 	void MainMenu::getInfosAboutTheCurrentMod()
 	{
-		pCurrentMod = TA3D_CURRENT_MOD.length() > 6
-			? TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.length() - 6)
-			: "";
-		if (pCurrentMod.empty())
-			pCurrentModCaption = "";
-		else
-			pCurrentModCaption = "MOD: " + pCurrentMod;
+		pCurrentMod.clear();
+		pCurrentModCaption.clear();
+
+		if (TA3D_CURRENT_MOD.length() > 6)
+			pCurrentMod += TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.length() - 6);
+		if (!pCurrentMod.empty())
+			pCurrentModCaption << "MOD: " << pCurrentMod;
 	}
+
 
 	void MainMenu::resetScreen()
 	{
@@ -130,7 +137,7 @@ namespace Menus
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
 
-		getInfosAboutTheCurrentMod();
+		resetCaptions();
 
 		// To have mouse sensibility undependent from the resolution
 		gfx->SCREEN_W_TO_640 = 1.0f;
@@ -141,7 +148,7 @@ namespace Menus
 	bool MainMenu::maySwitchToAnotherMenu()
 	{
 		// Exit
-		if (key[KEY_ESC] || pArea->get_state( "main.b_exit"))
+		if (key[KEY_ESC] || pArea->get_state("main.b_exit"))
 			return true;
 
 		// Options
@@ -149,7 +156,7 @@ namespace Menus
 			return goToMenuOptions();
 
 		// Solo
-		if( key[KEY_ENTER] || key[KEY_S] || pArea->get_state( "main.b_solo"))
+		if( key[KEY_ENTER] || key[KEY_S] || pArea->get_state("main.b_solo"))
 			return goToMenuSolo();
 
 		// Multi player room
@@ -186,7 +193,7 @@ namespace Menus
 
 	void MainMenu::changeVideoSettings()
 	{
-		pArea.reset(NULL);          // Destroy current GUI area
+		pArea = NULL;          // Destroy current GUI area
 		cursor.clear();             // Destroy cursor data (it's OpenGL textures so they won't survive)
 		ta3dSideData.destroy();     // We're going to reset video settings, so this will become obsolete
 
@@ -232,6 +239,7 @@ namespace Menus
 		delete[] data;
 	}
 
+
 	bool MainMenu::goToMenuMultiPlayers()
 	{
 		glPushMatrix();
@@ -273,6 +281,7 @@ namespace Menus
 		// Should wait the an event the next time
 		pDontWaitForEvent = false;
 	}
+
 
 
 

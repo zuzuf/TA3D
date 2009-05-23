@@ -67,9 +67,10 @@ namespace TA3D
 
 
 
-	void WND::draw(String& helpMsg, const bool focus, const bool deg, SKIN* skin)
+	void WND::draw(String& helpMsg, const bool focus, const bool deg, Skin* skin)
 	{
 		/* Asserts */
+		assert(NULL != this);
 		assert(NULL != skin);
 
 		MutexLocker locker(pMutex);
@@ -107,7 +108,7 @@ namespace TA3D
 
 
 
-	void WND::doDrawWindowShadow(SKIN* skin)
+	void WND::doDrawWindowShadow(Skin* skin)
 	{
 		if (!skin || !draw_borders || Lock)
 			return;
@@ -119,7 +120,7 @@ namespace TA3D
 	}
 
 
-	void WND::doDrawWindowBackground(SKIN* skin)
+	void WND::doDrawWindowBackground(Skin* skin)
 	{
 		if (!geta(color))       // We don't need to render things in full transparency
 			return;             // we can just not render them
@@ -153,7 +154,7 @@ namespace TA3D
 	}
 
 
-	void WND::doDrawWindowSkin(SKIN* skin, const bool focus, const bool deg)
+	void WND::doDrawWindowSkin(Skin* skin, const bool focus, const bool deg)
 	{
 		if (skin)
 		{
@@ -226,7 +227,7 @@ namespace TA3D
 	}
 
 
-	void WND::doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, SKIN* skin)
+	void WND::doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin)
 	{
 		if (Objets[i].MouseOn && !Objets[i].help_msg.empty())
 			helpMsg = Objets[i].help_msg;
@@ -388,7 +389,7 @@ namespace TA3D
 
 
 
-	void WND::doDrawWindowForegroundObject(SKIN* skin, const int i)
+	void WND::doDrawWindowForegroundObject(Skin* skin, const int i)
 	{
 		switch (Objets[i].Type)
 		{
@@ -412,7 +413,7 @@ namespace TA3D
 	}
 
 
-	byte WND::WinMov(const int AMx, const int AMy, const int AMb, const int Mx, const int My, const int Mb, SKIN* skin)
+	byte WND::WinMov(const int AMx, const int AMy, const int AMb, const int Mx, const int My, const int Mb, Skin* skin)
 	{
 		MutexLocker locker(pMutex);
 		if (AMb == 1 && Mb == 1 && !Lock)
@@ -463,7 +464,7 @@ namespace TA3D
 	}
 
 
-	void WND::doCheckWasOnFLoattingMenu(const int i, bool& wasOnFloattingMenu, int& indxMenu, SKIN* skin)
+	void WND::doCheckWasOnFLoattingMenu(const int i, bool& wasOnFloattingMenu, int& indxMenu, Skin* skin)
 	{
 		if (Objets[i].Type == OBJ_TA_BUTTON && Objets[i].current_state < Objets[i].gltex_states.size())
 		{
@@ -500,7 +501,7 @@ namespace TA3D
 	}
 
 
-	int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin)
+	int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, Skin* skin)
 	{
 		MutexLocker locker(pMutex);
 		if (hidden)
@@ -639,7 +640,7 @@ namespace TA3D
 			switch (Objets[i].Type)
 			{
 				case OBJ_MENU:			// Choses à faire quoi qu'il arrive
-					Objets[i].Data = -1;		// Pas de séléction
+					Objets[i].Data = (unsigned int)(-1);		// Pas de séléction
 					if (!Objets[i].Etat)
 						Objets[i].Value = -1;
 					{
@@ -667,17 +668,17 @@ namespace TA3D
 							}
 							Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font->height())+Objets[i].Pos);
 							if (Objets[i].Data>=Objets[i].Text.size() - 1)
-								Objets[i].Data = -1;
+								Objets[i].Data = (unsigned int)(-1);
 						}
 					}
 					break;
 				case OBJ_FMENU:
-					Objets[i].Data = -1;		// Pas de séléction
+					Objets[i].Data = (unsigned int)(-1);		// Pas de séléction
 					if (Objets[i].MouseOn && mouse_y>=y+Objets[i].y1+4 && mouse_y<=y+Objets[i].y2-4)
 					{
 						Objets[i].Data = (int)((mouse_y-y-Objets[i].y1-4)/(gui_font->height()));
 						if (Objets[i].Data>=Objets[i].Text.size())
-							Objets[i].Data = -1;
+							Objets[i].Data = (unsigned int)(-1);
 					}
 					break;
 				case OBJ_TEXTBAR:				// Permet l'entrée de texte
@@ -1284,7 +1285,7 @@ namespace TA3D
 		return (obj) ? obj->Value : -1;
 	}
 
-	String WND::get_caption(const String& message)
+	String WND::caption(const String& message)
 	{
 		MutexLocker locker(pMutex);
 		GUIOBJ *obj = doGetObject(message);
@@ -1528,7 +1529,7 @@ namespace TA3D
 
 
 
-	void WND::load_tdf(const String& filename, SKIN *skin)
+	void WND::load_tdf(const String& filename, Skin* skin)
 	{
 		TDFParser wndFile(filename);
 

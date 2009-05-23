@@ -60,7 +60,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		void set_caption(const String& caption);
+		void caption(const String& caption);
 
 
 		/*!
@@ -89,7 +89,7 @@ namespace TA3D
 		** \param size
 		*/
 		void create_optionc(const float X1, const float Y1, const String& caption, const bool ETAT,
-							void (*F)(int), SKIN *skin = NULL, const float size = 1.0f);
+							void (*F)(int), Skin *skin = NULL, const float size = 1.0f);
 
 		/*!
 		** \brief Option button
@@ -98,7 +98,7 @@ namespace TA3D
 		** \param Y1
 		*/
 		void create_optionb(const float X1, const float Y1, const String& Caption, const bool ETAT, void (*F)(int),
-							SKIN* skin = NULL, const float size = 1.0f);
+							Skin* skin = NULL, const float size = 1.0f);
 
 		/*!
 		** \brief Create a Text edit
@@ -263,8 +263,8 @@ namespace TA3D
 		String::Vector Text;			// Text displayed by the object
 		//!
 		void (*Func)(int);	// Pointer to linked function
-		//!
-		uint32 Data;			// Additional data
+		//! TODO Must be renammed
+		GLuint Data;			// Additional data
 		//!
 		uint32 Pos;			// Position in a list
 		//!

@@ -27,7 +27,7 @@ namespace TA3D
 {
 	namespace VARS
 	{
-		extern int								ascii_to_scancode[ 256 ];
+		extern int								ascii_to_scancode[256];
 		extern bool                             key[0x1000];
 		extern bool                             prevkey_down[0x1000];
 		extern bool                             prevkey_up[0x1000];

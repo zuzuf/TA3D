@@ -27,16 +27,23 @@ namespace TA3D
 {
 
 
-	SKIN::~SKIN()
+	Skin::Skin()
+		:wnd_background(0), bkg_w(0), bkg_h(0), text_y_offset(0.f)
+	{
+		init();
+	}
+
+	Skin::~Skin()
 	{
 		destroy();
 	}
 
 
-	void SKIN::init()
+	void Skin::init()
 	{
-		prefix.clear();
-		text_y_offset = 0;
+		pPrefix.clear();
+		pName.clear();
+		text_y_offset = 0.f;
 
 		for (int i = 0; i < 2 ; ++i)
 			button_img[i].init();
@@ -59,7 +66,7 @@ namespace TA3D
 		bkg_h = bkg_w = 0;
 	}
 
-	void SKIN::destroy()
+	void Skin::destroy()
 	{
 		for (int i = 0; i < 2; ++i)
 		{
@@ -75,34 +82,47 @@ namespace TA3D
 		wnd_border.destroy();
 		wnd_title_bar.destroy();
 		selection_gfx.destroy();
-		prefix.clear();
-		Name.clear();
+		pPrefix.clear();
+		pName.clear();
 		gfx->destroy_texture(wnd_background);
 	}
 
 
-	void SKIN::load_tdf(const String& filename, const float scale)
+	void Skin::loadTDFFromFile(const String& filename, const float scale)
 	{
 		destroy();		// In case there is a skin loaded so we don't waste memory
 
-		LOG_DEBUG("loading " << filename);
+		if (filename.empty())
+		{
+			LOG_WARNING("TDF: Attempting to load an empty file");
+			return;
+		}
 		TDFParser skinFile(filename);
 
 		// Grab the skin's name, so we can now if a skin is already in use
+		String tmp(filename);
 		String::size_type e = filename.find('.');
+		if (0 == e)
+		{
+			LOG_WARNING("TDF: Attempting to load an empty file (after extension extraction)");
+			return;
+		}
+
 		if (e != String::npos)
-			Name = filename.substr(0, e);
-		else
-			Name = filename;
+			tmp.truncate(e);
 
-		e = Name.find_last_of("/\\");
+		e = tmp.find_last_of("/\\");
 
 		if (e != String::npos)
-			Name = Name.substr(e + 1, Name.size() - e - 1);
+		{
+			String t = pName.substr(e + 1, pName.size() - e - 1);
+			tmp = t;
+		}
 
-		Name = skinFile.pullAsString("skin.name", Name); // The TDF may override the skin name
+		std::cout << "LOADING : " << tmp << std::endl;
+		pName = skinFile.pullAsString("skin.name", tmp); // The TDF may override the skin name
 
-		prefix = skinFile.pullAsString("skin.prefix", String()); // The prefix to use for
+		pPrefix = skinFile.pullAsString("skin.pPrefix", String()); // The pPrefix to use for
 		text_y_offset = skinFile.pullAsInt("skin.text.y offset", 0) * scale;
 
 		wnd_border.load(skinFile, "skin.window.border.", scale);
@@ -137,13 +157,8 @@ namespace TA3D
 			wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR, &bkg_w, &bkg_h, false );
 	}
 
-	// Rendering functions
 
-	/*---------------------------------------------------------------------------\
-	|        Draw a button between (x,y) and (x2,y2) with Title and State        |
-	\---------------------------------------------------------------------------*/
-
-	void SKIN::button (float x,float y,float x2,float y2,const String &Title,bool State)
+	void Skin::button (float x,float y,float x2,float y2,const String &Title,bool State)
 	{
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
@@ -164,7 +179,7 @@ namespace TA3D
 	|        Draw a list box displaying the content of Entry                     |
 	\---------------------------------------------------------------------------*/
 
-	void SKIN::ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, uint32 flags )
+	void Skin::ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, uint32 flags )
 	{
 		gfx->set_color( 0xFFFFFFFF );
 
@@ -175,30 +190,31 @@ namespace TA3D
 			gfx->unset_alpha_blending();
 		}
 
-		int i;
-		for( i = 0 ; i < Entry.size() ; i++ )
+		for (unsigned int i = 0; i < Entry.size(); ++i)
 		{
-			int e = i+Scroll;
+			int e = i + Scroll;
 			if (e >= Entry.size() || gui_font->height() * (i+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
 			if (e == Index)
 				selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + gui_font->height() * i, x2 + text_background.x2, y1 + text_background.y1 + gui_font->height() * (i+1) );
 			String str = Entry[ e ];
-			if (str.substr(0,3) == "<H>")       // Highlight this line
+			if (str.size() > 3 && str[0] == '<'  && str[1] == 'H' && str[2] == '>')       // Highlight this line
 			{
 				str = str.substr(3, str.size() - 3);
-				glEnable( GL_BLEND );
-				glDisable( GL_TEXTURE_2D );
-				glBlendFunc( GL_ONE, GL_ONE );
-				gfx->rectfill( x1 + text_background.x1, y1 + text_background.y1 + gui_font->height() * i, x2 + text_background.x2, y1 + text_background.y1 + gui_font->height() * (i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ) );
-				glDisable( GL_BLEND );
+				glEnable(GL_BLEND);
+				glDisable(GL_TEXTURE_2D);
+				glBlendFunc(GL_ONE, GL_ONE);
+				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + gui_font->height() * i,
+					x2 + text_background.x2, y1 + text_background.y1 + gui_font->height() * (i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ) );
+				glDisable(GL_BLEND);
 			}
-			while( gui_font->length( str ) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw && str.size() > 0)
+			while (gui_font->length(str) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw && str.size() > 0)
 				str.removeLast();
 			gfx->print(gui_font, x1 + text_background.x1, y1 + text_background.y1 + gui_font->height() * i, 0.0f, White, str);
 		}
 
-		int TotalScroll = Entry.size() - (int)( (y2 - y1 - text_background.y1 + text_background.y2) / gui_font->height() );
-		if (TotalScroll < 0)	TotalScroll = 0;
+		int TotalScroll = Entry.size() - (int)((y2 - y1 - text_background.y1 + text_background.y2) / gui_font->height());
+		if (TotalScroll < 0)
+			TotalScroll = 0;
 
 		ScrollBar(	x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1,
 					x2 + text_background.x2, y2 + text_background.y2,
@@ -209,18 +225,20 @@ namespace TA3D
 	  |        Draw a popup menu displaying the text msg using the skin object     |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::PopupMenu( float x1, float y1, const String &msg)
+	void Skin::PopupMenu( float x1, float y1, const String &msg)
 	{
 		float x2 = x1;
 		std::vector< String > Entry;
-		int last = 0;
+		unsigned int last = 0;
 		for (unsigned int i = 0; i < msg.length(); ++i)
+		{
 			if (msg[i] == '\n')
 			{
-				Entry.push_back( msg.substr( last, i - last ) );
+				Entry.push_back(msg.substr(last, i - last));
 				x2 = Math::Max(x2, x1 + gui_font->length(Entry.back()));
-				last = i+1;
+				last = i + 1;
 			}
+		}
 		if (last + 1 < msg.length())
 		{
 			Entry.push_back( msg.substr( last, msg.length() - last));
@@ -251,7 +269,7 @@ namespace TA3D
 		menu_background.draw( x1, y1, x2, y2 );
 		gfx->unset_alpha_blending();
 
-		for( int e = 0 ; e < Entry.size() ; e++ )
+		for (unsigned int e = 0; e < Entry.size(); ++e)
 			text_color.print(gui_font,x1 + menu_background.x1, y1 + menu_background.y1 + gui_font->height() * e,Entry[e]);
 		Entry.clear();
 	}
@@ -260,39 +278,41 @@ namespace TA3D
 	  |        Draw a floatting menu with the parameters from Entry[]              |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry)
+	void Skin::FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry)
 	{
-		int i;
-		float width = 168.0f;
-		for (i = 0; i < Entry.size() - StartEntry; ++i)
-			width = Math::Max(width, gui_font->length(Entry[i]));
-
-		width += menu_background.x1 - menu_background.x2;
-
-		ObjectShadow( x, y,
-					  x + width, y + menu_background.y1 - menu_background.y2 + gui_font->height() * (Entry.size() - StartEntry),
-					  2, 2,
-					  0.5f, 4.0f);
-
-		gfx->set_color( 0xFFFFFFFF );
-		gfx->set_alpha_blending();
-		menu_background.draw( x, y, x + width, y + menu_background.y1 - menu_background.y2 + gui_font->height() * (Entry.size() - StartEntry) );
-
-		for (i = 0; i < Entry.size() - StartEntry; ++i)
+		if (StartEntry < Entry.size())
 		{
-			int e = i + StartEntry;
-			if( e == Index )
-				selection_gfx.draw( x + menu_background.x1, y + menu_background.y1 + gui_font->height() * i, x + width + menu_background.x2, y + menu_background.y1 + gui_font->height() * (i + 1) );
-			gfx->print(gui_font, x + menu_background.x1, y + menu_background.y1 + gui_font->height() * i, 0.0f, White, Entry[e]);
+			float width = 168.0f;
+			for (unsigned int i = 0; i < Entry.size() - StartEntry; ++i)
+				width = Math::Max(width, gui_font->length(Entry[i]));
+
+			width += menu_background.x1 - menu_background.x2;
+
+			ObjectShadow( x, y,
+						  x + width, y + menu_background.y1 - menu_background.y2 + gui_font->height() * (Entry.size() - StartEntry),
+						  2, 2,
+						  0.5f, 4.0f);
+
+			gfx->set_color( 0xFFFFFFFF );
+			gfx->set_alpha_blending();
+			menu_background.draw( x, y, x + width, y + menu_background.y1 - menu_background.y2 + gui_font->height() * (Entry.size() - StartEntry) );
+
+			for (unsigned int i = 0; i < Entry.size() - StartEntry; ++i)
+			{
+				unsigned int e = i + StartEntry;
+				if (e == Index)
+					selection_gfx.draw( x + menu_background.x1, y + menu_background.y1 + gui_font->height() * i, x + width + menu_background.x2, y + menu_background.y1 + gui_font->height() * (i + 1) );
+				gfx->print(gui_font, x + menu_background.x1, y + menu_background.y1 + gui_font->height() * i, 0.0f, White, Entry[e]);
+			}
+			gfx->unset_alpha_blending();
 		}
-		gfx->unset_alpha_blending();
 	}
 
 	/*---------------------------------------------------------------------------\
 	  |        Draw an option button with text Title                               |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::OptionButton(float x,float y,const String &Title,bool State)
+	void Skin::OptionButton(float x,float y,const String &Title,bool State)
 	{
 		gfx->set_color( 0xFFFFFFFF );
 		gfx->set_alpha_blending();
@@ -307,7 +327,7 @@ namespace TA3D
 	  |        Draw an option case with text Title                                 |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::OptionCase(float x,float y,const String &Title,bool State)
+	void Skin::OptionCase(float x,float y,const String &Title,bool State)
 	{
 		gfx->set_color( 0xFFFFFFFF );
 		gfx->set_alpha_blending();
@@ -322,7 +342,7 @@ namespace TA3D
 	  |        Draw a TEXTEDITOR widget (a large text input widget)                |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State)
+	void Skin::TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State)
 	{
 		bool blink = State && (msec_timer % 1000) >= 500;
 
@@ -360,7 +380,8 @@ namespace TA3D
 					y++;
 					H--;
 					strtoprint.clear();
-					if (gui_font->height() * (y+1) >= maxheight)    break;
+					if (gui_font->height() * (y+1) >= maxheight)
+						break;
 				}
 				if (row == y+H && x == col && blink)
 					xdec = gui_font->length( strtoprint );
@@ -375,41 +396,46 @@ namespace TA3D
 				gfx->print( gui_font,x1+text_background.x1+xdec,
 							y1+text_background.y1+text_y_offset+gui_font->height() * y,
 							0.0f,White,"_");
-			y++;
+			++y;
 		}
 	}
+
+
 
 	/*---------------------------------------------------------------------------\
 	  |        Draw a text input bar, a way for user to enter text                 |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool State)
+	void Skin::TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool State)
 	{
 		bool blink = State && (msec_timer % 1000) >= 500;
 
-		gfx->set_color( 0xFFFFFFFF );
+		gfx->set_color(0xFFFFFFFF);
 		gfx->set_alpha_blending();
 
 		text_background.draw( x1, y1, x2, y2 );
 		gfx->unset_alpha_blending();
 
-		float maxlength = x2 - x1 + text_background.x2 - text_background.x1 - gui_font->length( "_" );
+		const float maxlength = x2 - x1 + text_background.x2 - text_background.x1 - gui_font->length( "_" );
 		int dec = 0;
 		String strtoprint = Caption.substr( dec, Caption.length() - dec );
 		while (gui_font->length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length())
 		{
-			dec++;
-			strtoprint = Caption.substr( dec, Caption.length() - dec );
+			++dec;
+			strtoprint = Caption.substr(dec, Caption.length() - dec);
 		}
 
 		gfx->print(gui_font,x1+text_background.x1,y1+text_background.y1+text_y_offset,0.0f,White,strtoprint);
-		if (blink) gfx->print(gui_font,x1+text_background.x1+gui_font->length( strtoprint ),y1+text_background.y1+text_y_offset,0.0f,White,"_");
+		if (blink)
+			gfx->print(gui_font,x1+text_background.x1+gui_font->length( strtoprint ),y1+text_background.y1+text_y_offset,0.0f,White,"_");
 	}
+
+
 
 	/*---------------------------------------------------------------------------\
 	  |                              Draw a scroll bar                             |
 	  \---------------------------------------------------------------------------*/
-	void SKIN::ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical)
+	void Skin::ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical)
 	{
 		gfx->set_color( 0xFFFFFFFF );
 		gfx->set_alpha_blending();
@@ -439,7 +465,7 @@ namespace TA3D
 	  |                     Draw a progress bar                                    |
 	  \---------------------------------------------------------------------------*/
 
-	void SKIN::ProgressBar(float x1,float y1,float x2,float y2,int Value)
+	void Skin::ProgressBar(float x1,float y1,float x2,float y2,int Value)
 	{
 		gfx->set_color( 0xFFFFFFFF );
 		gfx->set_alpha_blending();
@@ -457,55 +483,63 @@ namespace TA3D
 	  |        Draw a the given text within the given space                        |
 	  \---------------------------------------------------------------------------*/
 
-	int SKIN::draw_text_adjust(float x1, float y1, float x2, float y2, String msg, int pos, bool mission_mode)
+	int Skin::draw_text_adjust(float x1, float y1, float x2, float y2, String msg, int pos, bool mission_mode)
 	{
-		String current = "";
-		String current_word = "";
+		String current;
+		String current_word;
 		std::vector< String > Entry;
 		int last = 0;
-		for( int i = 0 ; i < msg.length() ; i++ )
+		String str;
+		for (unsigned int i = 0 ; i < msg.length(); ++i)
 		{
-			String str;
+			str.clear();
 			if (((byte)msg[i]) < 0x80)
 				str << msg[i];
-			else if (i + 1 < msg.length())
-			{
-				str << msg[i] << msg[i+1];
-				i++;
-			}
-
-			if (str == "\r")	continue;
-			else if (str == "\n" || gui_font->length( current + ' ' + current_word + str ) >= x2 - x1)
-			{
-				bool line_too_long = true;
-				if (gui_font->length( current + ' ' + current_word + str ) < x2 - x1)
-				{
-					current << ' ' << current_word;
-					current_word.clear();
-					line_too_long = false;
-				}
-				else if (str != "\n")
-					current_word << str;
-				Entry.push_back( current );
-				last = i + 1;
-				current.clear();
-				if (str == "\n" && line_too_long)
-				{
-					Entry.push_back( current_word );
-					current_word.clear();
-				}
-			}
 			else
 			{
-				if (str == " ")
+				if (i + 1 < msg.length())
 				{
-					if (!current.empty())
-						current << ' ';
-					current << current_word;
-					current_word.clear();
+					str << msg[i] << msg[i+1];
+					i++;
+				}
+			}
+
+			if (str == "\r")
+				continue;
+			else
+			{
+				if (str == "\n" || gui_font->length( current + ' ' + current_word + str ) >= x2 - x1)
+				{
+					bool line_too_long = true;
+					if (gui_font->length( current + ' ' + current_word + str ) < x2 - x1)
+					{
+						current << ' ' << current_word;
+						current_word.clear();
+						line_too_long = false;
+					}
+					else if (str != "\n")
+						current_word << str;
+					Entry.push_back( current );
+					last = i + 1;
+					current.clear();
+					if (str == "\n" && line_too_long)
+					{
+						Entry.push_back( current_word );
+						current_word.clear();
+					}
 				}
 				else
-					current_word << str;
+				{
+					if (str == " ")
+					{
+						if (!current.empty())
+							current << ' ';
+						current << current_word;
+						current_word.clear();
+					}
+					else
+						current_word << str;
+				}
 			}
 		}
 
@@ -522,20 +556,24 @@ namespace TA3D
 		if (mission_mode)
 		{
 			uint32	current_color = 0xFFFFFFFF;
-			for( int e = pos ; e < Entry.size() ; e++ )
+			for (unsigned int e = pos ; e < Entry.size() ; ++e)
+			{
 				if (y1 + gui_font->height() * (e + 1 - pos) <= y2)
 				{
 					float x_offset = 0.0f;
 					String buf;
-					for( int i = 0 ; i < Entry[e].size() ; i++ )
+					for (unsigned int i = 0 ; i < Entry[e].size(); ++i)
 					{
-						String str;
+						str.clear();
 						if (((byte)Entry[e][i]) < 0x80)
 							str << Entry[e][i];
-						else if (i + 1 < Entry[e].size())
+						else
 						{
-							str << Entry[e][i] << Entry[e][i + 1];
-							i++;
+							if (i + 1 < Entry[e].size())
+							{
+								str << Entry[e][i] << Entry[e][i + 1];
+								i++;
+							}
 						}
 						if (str == "&")
 						{
@@ -549,10 +587,13 @@ namespace TA3D
 								current_color = 0xFF0000FF;								// Red
 								i++;
 							}
-							else if (i + 1 < Entry[e].size() && Entry[e][i+1] == 'Y')
+							else
 							{
-								current_color = 0xFF00FFFF;								// Yellow
-								i++;
+								if (i + 1 < Entry[e].size() && Entry[e][i+1] == 'Y')
+								{
+									current_color = 0xFF00FFFF;								// Yellow
+									i++;
+								}
 							}
 						}
 						else
@@ -560,18 +601,23 @@ namespace TA3D
 					}
 					text_color.print( gui_font, x1 + x_offset, y1 + gui_font->height() * (e - pos), current_color, buf );
 				}
+			}
 		}
 		else
 		{
-			for( int e = pos ; e < Entry.size() ; e++ )
-				if( y1 + gui_font->height() * (e + 1 - pos) <= y2 )
-					text_color.print( gui_font, x1, y1 + gui_font->height() * (e - pos), Entry[e] );
+			for (unsigned int e = pos; e < Entry.size(); ++e)
+			{
+				if (y1 + gui_font->height() * (e + 1 - pos) <= y2)
+					text_color.print(gui_font, x1, y1 + gui_font->height() * (e - pos), Entry[e]);
+			}
 		}
 
 		return Entry.size();
 	}
 
-	void SKIN::ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy)
+
+
+	void Skin::ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy)
 	{
 		// Normalize shadow offsets
 		dx *= SCREEN_W / 800.0f;
@@ -680,4 +726,9 @@ namespace TA3D
 		gfx->unset_alpha_blending();
 		glEnable(GL_TEXTURE_2D);
 	}
+
+
+
+
 } // namespace TA3D
+

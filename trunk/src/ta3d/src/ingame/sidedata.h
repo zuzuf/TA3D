@@ -20,6 +20,7 @@
 # include "../stdafx.h"
 # include "../ta3dbase.h"
 # include "../misc/string.h"
+# include "../tdf.h"
 
 
 namespace TA3D

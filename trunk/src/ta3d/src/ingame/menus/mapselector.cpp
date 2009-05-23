@@ -55,9 +55,10 @@ namespace Menus
 	bool MapSelector::Execute(const String& preSelectedMap, String& mapName)
 	{
 		MapSelector m(preSelectedMap);
-		bool r = m.execute();
-		mapName = (r) ? mapName = m.selected() : "";
-		return (r && (!mapName.empty()));
+		mapName.clear();
+		if (m.execute())
+			mapName = m.selected();
+		return !mapName.empty();
 	}
 
 
@@ -334,7 +335,7 @@ namespace Menus
 			title << "\n" << mapOTA.missiondescription;
 
 		// Change the caption
-		pArea->set_caption("mapsetup.map_info", title);
+		pArea->caption("mapsetup.map_info", title);
 	}
 
 

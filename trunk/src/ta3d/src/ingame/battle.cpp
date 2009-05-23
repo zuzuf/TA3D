@@ -320,13 +320,13 @@ namespace TA3D
 
 				if (show_gamestatus > 0.0f)
 				{
-					WND *statuswnd = pArea.get_wnd("gamestatus");
+					WND::Ptr statuswnd = pArea.get_wnd("gamestatus");
 					if (statuswnd)
 						statuswnd->y = (int)(SCREEN_H - (statuswnd->height + 32) * show_gamestatus);
 					uint32 game_time = units.current_tick / TICKS_PER_SEC;
-					pArea.set_caption("gamestatus.time_label",  I18N::Translate("game time") + String::Format(" : %d:%d:%d", game_time / 3600, (game_time / 60) % 60, game_time % 60));
-					pArea.set_caption("gamestatus.units_label", I18N::Translate("units") + String::Format(" : %d/%d", players.nb_unit[ players.local_human_id ], MAX_UNIT_PER_PLAYER));
-					pArea.set_caption("gamestatus.speed_label", I18N::Translate("speed") + String::Format(" : %d (%d)", (int)lp_CONFIG->timefactor, (int)units.apparent_timefactor));
+					pArea.caption("gamestatus.time_label",  I18N::Translate("game time") + String::Format(" : %d:%d:%d", game_time / 3600, (game_time / 60) % 60, game_time % 60));
+					pArea.caption("gamestatus.units_label", I18N::Translate("units") + String::Format(" : %d/%d", players.nb_unit[ players.local_human_id ], MAX_UNIT_PER_PLAYER));
+					pArea.caption("gamestatus.speed_label", I18N::Translate("speed") + String::Format(" : %d (%d)", (int)lp_CONFIG->timefactor, (int)units.apparent_timefactor));
 
 					statuswnd = pArea.get_wnd( "playerstats");
 					if (statuswnd)
@@ -336,8 +336,8 @@ namespace TA3D
 						GUIOBJ *obj = pArea.get_object( String::Format("playerstats.p%d_box", i));
 						if (obj)
 							obj->Data = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ], 0.5f);
-						pArea.set_caption(String::Format("playerstats.p%d_kills", i), String::Format( "%d", players.kills[i]));
-						pArea.set_caption(String::Format("playerstats.p%d_losses", i), String::Format( "%d", players.losses[i]));
+						pArea.caption(String::Format("playerstats.p%d_kills", i), String::Format( "%d", players.kills[i]));
+						pArea.caption(String::Format("playerstats.p%d_losses", i), String::Format( "%d", players.losses[i]));
 					}
 				}
 			}
@@ -2451,13 +2451,13 @@ namespace TA3D
 			{
 				GUIOBJ *obj = pArea.get_object("save_menu.l_file");
                 if (obj && obj->Pos < obj->Text.size())
-					pArea.set_caption("save_menu.t_name", obj->Text[ obj->Pos]);
+					pArea.caption("save_menu.t_name", obj->Text[obj->Pos]);
 			}
 
 			if (pArea.get_state("save_menu.b_save")) // Save the game
 			{
 				pArea.set_state("save_menu.b_save", false);
-				String filename = pArea.get_caption("save_menu.t_name");
+				String filename = pArea.caption("save_menu.t_name");
 				if (!filename.empty())
 				{
 					if (network_manager.isServer())          // Ask all clients to save the game too, otherwise they won't be able to load it
@@ -2568,8 +2568,8 @@ namespace TA3D
 
 			/*------------------- End of GUI drawings -------------------------------------------------------*/
 
-			/*WND *current_wnd =*/ pArea.get_wnd(pCurrentGUI);
-			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) + "gen")
+			/*WND *current_wnd =*/ //pArea.get_wnd(pCurrentGUI);
+			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) << "gen")
 				sel = unit_manager.unit_build_menu(n,omb2,dt);	// Menu correspondant à l'unité / Unit's menu
 			else
 				sel = unit_manager.unit_build_menu(-1,omb2,dt);	// Menu correspondant à l'unité / Unit's menu

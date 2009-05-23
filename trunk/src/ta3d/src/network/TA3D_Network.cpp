@@ -96,27 +96,27 @@ namespace TA3D
 			return;		// Only works in network mode
 		}
 
-		if( key[KEY_ENTER] && !console.activated())
+		if (key[KEY_ENTER] && !console.activated())
 		{
-			if( !enter )
+			if (!enter )
 			{
-				if( area->get_state("chat") ) // Chat is visible, so hide it and send the message is not empty
+				if (area->get_state("chat") ) // Chat is visible, so hide it and send the message is not empty
 				{
 					area->msg("chat.hide");
-					String msg = area->get_caption("chat.msg");
-					area->set_caption("chat.msg", "");
+					String msg = area->caption("chat.msg");
+					area->caption("chat.msg", "");
 
-					if( !msg.empty() ) // If not empty send the message
+					if (!msg.empty() ) // If not empty send the message
 					{
 						struct chat chat;
 						strtochat( &chat, msg );
 						network_manager.sendChat( &chat );
 
 						int player_id = game_data->net2id( chat.from );
-						if( player_id >= 0 )
+						if (player_id >= 0 )
 						{
 							pMutex.lock();
-							if( messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
+							if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
 								messages.pop_front();
 							msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
 							messages.push_back( NetworkMessage( msg, msec_timer ) );
@@ -126,7 +126,7 @@ namespace TA3D
 				}
 				else
 				{								// Chat is hidden, so show it
-					area->set_caption("chat.msg", "");
+					area->caption("chat.msg", "");
 					area->msg("chat.show");
 					area->msg("chat.msg.focus");
 				}
@@ -135,7 +135,7 @@ namespace TA3D
 		}
 		else
 			enter = false;
-		if( area->get_state("chat") )		// Chat is visible, so give it the focus so we can type the message
+		if (area->get_state("chat") )		// Chat is visible, so give it the focus so we can type the message
 		{
 			area->msg("chat.focus");
 			lp_CONFIG->enable_shortcuts = false;
@@ -149,16 +149,16 @@ namespace TA3D
 			String chat_msg;
 			struct chat received_chat_msg;
 
-			if( network_manager.getNextChat( &received_chat_msg ) == 0 )
+			if (network_manager.getNextChat( &received_chat_msg ) == 0 )
 				chat_msg = received_chat_msg.message;
 			else
 				break;
 
 			int player_id = game_data->net2id( received_chat_msg.from );
-			if( player_id >= 0 )
+			if (player_id >= 0 )
 			{
 				pMutex.lock();
-				if( messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
+				if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
 					messages.pop_front();
 				chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
 				messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
@@ -169,7 +169,7 @@ namespace TA3D
 		pMutex.lock();
 		for (std::list<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); )
 		{
-			if( msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
+			if (msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
 				messages.erase(i++);
 			else
 				++i;
@@ -182,7 +182,7 @@ namespace TA3D
 			String special_msg;
 			special received_special_msg;
 
-			if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
+			if (network_manager.getNextSpecial( &received_special_msg ) == 0 )
 				special_msg = received_special_msg.message;
 			else
 				break;
@@ -252,13 +252,13 @@ namespace TA3D
 		{
 			struct sync sync_msg;
 
-			if( network_manager.getNextSync( &sync_msg ) )
+			if (network_manager.getNextSync( &sync_msg ) )
 				break;
 
-			if( sync_msg.unit < units.max_unit )
+			if (sync_msg.unit < units.max_unit )
 			{
 				units.unit[sync_msg.unit].lock();
-				if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )
+				if (!(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )
 				{
 					units.unit[sync_msg.unit].unlock();
 					continue;
@@ -298,20 +298,20 @@ namespace TA3D
 		{
 			struct event event_msg;
 
-			if( network_manager.getNextEvent( &event_msg ) )
+			if (network_manager.getNextEvent( &event_msg ) )
 				break;
 
 			switch( event_msg.type )
 			{
 				case EVENT_UNIT_NANOLATHE:				// Sync nanolathe effect
-					if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) ) {
+					if (event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) ) {
 						units.unit[ event_msg.opt1 ].lock();
-						if( event_msg.opt2 & 4 )		// Stop nanolathing
+						if (event_msg.opt2 & 4 )		// Stop nanolathing
 							units.unit[ event_msg.opt1 ].nanolathe_target = -1;
 						else {							// Start nanolathing
 							units.unit[ event_msg.opt1 ].nanolathe_reverse = event_msg.opt2 & 2;
 							units.unit[ event_msg.opt1 ].nanolathe_feature = event_msg.opt2 & 1;
-							if( event_msg.opt2 & 1 ) {		// It's a feature
+							if (event_msg.opt2 & 1 ) {		// It's a feature
 								int sx = event_msg.opt3;
 								int sy = event_msg.opt4;
 								units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data[sy][sx].stuff;
@@ -326,10 +326,10 @@ namespace TA3D
 					{
 						int sx = event_msg.opt3;		// Burn the object
 						int sy = event_msg.opt4;
-						if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db )
+						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db )
 						{
 							int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
-							if( type >= 0)
+							if (type >= 0)
 							{
 								Feature *feature = feature_manager.getFeaturePointer(type);
 								Vector3D feature_pos( event_msg.x, event_msg.y, event_msg.z );
@@ -344,9 +344,9 @@ namespace TA3D
 					{
 						int sx = event_msg.opt3;		// Burn the object
 						int sy = event_msg.opt4;
-						if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
+						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
 							int idx = the_map->map_data[sy][sx].stuff;
-							if( !features.feature[idx].burning )
+							if (!features.feature[idx].burning )
 								features.burn_feature( idx );
 						}
 					}
@@ -368,11 +368,11 @@ namespace TA3D
 					}
 					break;
 				case EVENT_SCRIPT_SIGNAL:
-					if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF )				// Do it only if the packet is for us
+					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF )				// Do it only if the packet is for us
 						g_ta3d_network->set_signal( event_msg.opt2 );
 					break;
 				case EVENT_UNIT_EXPLODE:				// BOOOOM and corpse creation :)
-					if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {		// If it's false then game is out of sync !!
+					if (event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {		// If it's false then game is out of sync !!
 						units.unit[ event_msg.opt1 ].lock();
 
 						units.unit[ event_msg.opt1 ].severity = event_msg.opt2;
@@ -386,14 +386,14 @@ namespace TA3D
 					}
 					break;
 				case EVENT_CLS:
-					if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
+					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
 						LuaProgram::inGame->lock();
 						LuaProgram::inGame->draw_list.destroy();
 						LuaProgram::inGame->unlock();
 					}
 					break;
 				case EVENT_DRAW:
-					if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
+					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
 						DrawObject draw_obj;
 						draw_obj.type = DRAW_TYPE_BITMAP;
 						draw_obj.x[0] = event_msg.x;
@@ -438,19 +438,19 @@ namespace TA3D
 					}
 					break;
 				case EVENT_CAMERA_POS:
-					if( event_msg.opt1 == players.local_human_id ) 	// Move the camera only if the packet is for us
+					if (event_msg.opt1 == players.local_human_id ) 	// Move the camera only if the packet is for us
 					{
 						Camera::inGame->rpos.x = event_msg.x;
 						Camera::inGame->rpos.z = event_msg.z;
 					}
 					break;
 				case EVENT_UNIT_SYNCED:
-					if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
+					if (event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
 						units.unit[ event_msg.opt1 ].lock();
 
 						int player_id = game_data->net2id( event_msg.opt2 );
 
-						if( player_id >= 0 )
+						if (player_id >= 0 )
 							units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.opt3;
 
 						units.unit[ event_msg.opt1 ].unlock();
@@ -488,7 +488,7 @@ namespace TA3D
 						units.unit[ event_msg.opt1 ].hp -= damage;
 
 						units.unit[ event_msg.opt1 ].flags &= 0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-						if( units.unit[ event_msg.opt1 ].hp <= 0.0f )
+						if (units.unit[ event_msg.opt1 ].hp <= 0.0f )
 							units.unit[ event_msg.opt1 ].severity = Math::Max(units.unit[event_msg.opt1].severity, (int)damage);
 
 						units.unit[ event_msg.opt1 ].unlock();
@@ -521,15 +521,15 @@ namespace TA3D
 									weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].weaponvelocity*Dir;
 								else
 									weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].startvelocity*Dir;
-								if( weapon_manager.weapon[w_type].dropped || !(weapon_manager.weapon[w_type].rendertype & RENDER_TYPE_LASER) ) {
+								if (weapon_manager.weapon[w_type].dropped || !(weapon_manager.weapon[w_type].rendertype & RENDER_TYPE_LASER) ) {
 									units.unit[ event_msg.opt1 ].lock();
-									if( (units.unit[ event_msg.opt1 ].flags & 1) )
+									if ((units.unit[ event_msg.opt1 ].flags & 1) )
 										weapons.weapon[w_idx].V = weapons.weapon[w_idx].V + units.unit[ event_msg.opt1 ].V;
 									units.unit[ event_msg.opt1 ].unlock();
 								}
 								weapons.weapon[w_idx].owner = player_id;
 								weapons.weapon[w_idx].target = event_msg.opt2;
-								if( event_msg.opt2 < weapons.weapon.size() ) {
+								if (event_msg.opt2 < weapons.weapon.size() ) {
 									if(weapon_manager.weapon[w_type].interceptor)
 										weapons.weapon[w_idx].target_pos = weapons.weapon[event_msg.opt2].Pos;
 									else
@@ -552,7 +552,7 @@ namespace TA3D
 					}
 					break;
 				case EVENT_UNIT_SCRIPT:
-					if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) )
+					if (event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) )
 						units.unit[ event_msg.opt1 ].launchScript( event_msg.opt2, event_msg.opt3, (int*)event_msg.str );
 					break;
 				case EVENT_UNIT_DEATH:
@@ -619,17 +619,17 @@ namespace TA3D
 
 	void TA3DNetwork::draw()
 	{
-		if( !network_manager.isConnected() )	return;		// Only works in network mode
+		if (!network_manager.isConnected() )	return;		// Only works in network mode
 
 		pMutex.lock();
-		if( !messages.empty() )
+		if (!messages.empty() )
 		{
 			const float Y_ref = 32 + gfx->TA_font->height();
 			float Y = Y_ref;
 			for (std::list<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
 			{
 				int color = 0xFFFFFFFF;
-				if( (int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 )
+				if ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 )
 				{
 					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
 					Y -= Math::Min(1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
@@ -674,7 +674,7 @@ namespace TA3D
 
 	void TA3DNetwork::sendFeatureCreationEvent( int idx )
 	{
-		if( idx < 0 || features.feature[ idx ].type < 0 )	return;
+		if (idx < 0 || features.feature[ idx ].type < 0 )	return;
 		struct event event;
 		event.type = EVENT_FEATURE_CREATION;
 		event.opt3 = features.feature[ idx ].px;
@@ -692,7 +692,7 @@ namespace TA3D
 
 	void TA3DNetwork::sendFeatureDeathEvent( int idx )
 	{
-		if( idx < 0 || features.feature[ idx ].type < 0 )	return;
+		if (idx < 0 || features.feature[ idx ].type < 0 )	return;
 
 		struct event event;
 		event.type = EVENT_FEATURE_DEATH;
@@ -703,7 +703,7 @@ namespace TA3D
 
 	void TA3DNetwork::sendFeatureFireEvent( int idx )
 	{
-		if( idx < 0 || features.feature[ idx ].type < 0 )	return;
+		if (idx < 0 || features.feature[ idx ].type < 0 )	return;
 
 		struct event event;
 		event.type = EVENT_FEATURE_FIRE;
@@ -714,14 +714,14 @@ namespace TA3D
 
 	void TA3DNetwork::sendUnitNanolatheEvent( int idx, int target, bool feature, bool reverse )
 	{
-		if( idx < 0 || idx >= units.max_unit || !( units.unit[ idx ].flags & 1 ) )	return;
+		if (idx < 0 || idx >= units.max_unit || !( units.unit[ idx ].flags & 1 ) )	return;
 
 		struct event event;
 		event.type = EVENT_UNIT_NANOLATHE;
 		event.opt1 = idx;
 		event.opt2 = (reverse ? 1 : 0) | (feature ? 2 : 0) | (target < 0 ? 4 : 0);
-		if( feature ) {
-			if( target < 0 || target >= features.max_features || features.feature[ target ].type < 0 )	return;
+		if (feature ) {
+			if (target < 0 || target >= features.max_features || features.feature[ target ].type < 0 )	return;
 			event.opt3 = features.feature[ target ].px;
 			event.opt4 = features.feature[ target ].py;
 		}
@@ -732,7 +732,8 @@ namespace TA3D
 
 	int TA3DNetwork::getNetworkID( int unit_id )
 	{
-		if( unit_id >= units.max_unit )	return -1;
+		if (unit_id >= units.max_unit )
+			return -1;
 		units.unit[ unit_id ].lock();
 		if (!(units.unit[ unit_id ].flags & 1))
 		{
@@ -743,6 +744,9 @@ namespace TA3D
 		units.unit[ unit_id ].unlock();
 		return result;
 	}
+
+
+
 
 
 } // namespace TA3D
