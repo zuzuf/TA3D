@@ -70,8 +70,7 @@ namespace TA3D
 		{
 			if (wnd)
 			{
-				for (int i = 0; i < wnd->NbObj; ++i)
-					wnd->Objets[i].Focus = false;
+				wnd->focus(false);
 				Focus = true;
 			}
 			return INTERFACE_RESULT_HANDLED;
@@ -99,7 +98,7 @@ namespace TA3D
 								  x2 -= (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
 							  }
 							  Text[0] = caption;
-		};
+		}
 		switch (Type)
 		{
 			case OBJ_OPTIONC:
@@ -336,6 +335,7 @@ namespace TA3D
 	// Crée un objet text
 	void GUIOBJ::create_text(const float X1, const float Y1, const String& Caption, const int Col, const float size)
 	{
+		std::cout << "LABEL : " << Caption << std::endl;
 		Type = OBJ_TEXT;
 		x1 = X1;
 		y1 = Y1;
@@ -343,8 +343,8 @@ namespace TA3D
 		y2 = (int)(Y1 + gui_font->height());
 		Etat = false;
 		Focus = false;
-		Text.resize(1);
-		Text[0] = Caption;
+		Text.clear();
+		Text.push_back(Caption);
 		Func = NULL;
 		Data = Col;
 		s = size;
@@ -454,6 +454,16 @@ namespace TA3D
 		s = 1.0f;
 	}
 
+
+
+	void GUIOBJ::print(std::ostream& out)
+	{
+		out << "\t[object]\n\t{\n";
+		out << "\t\tx = " << x1 << "\n";
+		out << "\t\ty = " << y1 << "\n";
+		out << "\t\tname = " << Name << "\n";
+		out << "\t}\n" << std::endl;
+	}
 
 
 } // namespace TA3D

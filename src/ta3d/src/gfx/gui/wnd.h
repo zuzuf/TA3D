@@ -149,7 +149,18 @@ namespace TA3D
 		** \param message
 		** \return
 		*/
-		GUIOBJ* get_object(String message);
+		GUIOBJ::Ptr get_object(String message);
+
+
+		unsigned int count();
+		unsigned int size();
+
+		GUIOBJ::Ptr object(unsigned int indx);
+
+		/*!
+		** \brief Set the focus for all objects
+		*/
+		void focus(bool value);
 
 
 	public:
@@ -169,10 +180,6 @@ namespace TA3D
 		//! Name of the window
 		String  Name;
 
-		//! Objects within the window
-		GUIOBJ* Objets;
-		//! Number of objects
-		unsigned int  NbObj;
 		//! hashtable used to speed up operations on GUIOBJ objects
 		TA3D::UTILS::cHashTable<int>  obj_hashtable;
 
@@ -242,15 +249,21 @@ namespace TA3D
 		** \brief Same as get_object
 		** \see get_object()
 		*/
-		GUIOBJ* doGetObject(String message);
+		GUIOBJ::Ptr doGetObject(String message);
+
+		void print(std::ostream& out);
 
 	private:
+		typedef std::vector<GUIOBJ::Ptr> ObjectList;
 		//!
 		bool delete_gltex;
 		//!
 		float size_factor;
 		//!
 		bool ingame_window;
+
+		//! Objects within the window
+		ObjectList pObjects;
 
 	}; // class WND
 

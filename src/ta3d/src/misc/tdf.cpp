@@ -147,7 +147,7 @@ namespace TA3D
 		if (NULL == data || 0 == size)
 			return true;
 
-		write(1, data, size);
+		//write(1, data, size);
 		// Internally, we may have to dupplicate the given buffer, to apply transformations on it
 		// It is our duty to free it
 		// This will be done at the end of the method, if the following var is not null
@@ -293,17 +293,19 @@ namespace TA3D
 
 	sint32 TDFParser::pullAsInt(const String& key, const sint32 def)
 	{
-		String keyToFind(key);
 		if (pIgnoreCase)
+		{
+			String keyToFind(key);
 			keyToFind.toLower();
-		if (!pTable.exists(keyToFind))
+			if (!pTable.exists(keyToFind))
+				return def;
+			String iterFind = pTable.find(keyToFind);
+			return (iterFind.empty() ? def : iterFind.to<sint32>());
+		}
+		if (!pTable.exists(key))
 			return def;
-		String iterFind = pTable.find(keyToFind);
-		return ((iterFind.empty())
-				? def
-				: (iterFind.size() == 10 && String(iterFind.substr(0,4)).to<uint32>() > 127
-				   ? (0xFF000000 | String("0x"+ iterFind.substr(4,6)).to<uint32>())
-				   : iterFind.to<sint32>())); // Uses ustrtol to deal with hexa numbers
+		String iterFind = pTable.find(key);
+		return (iterFind.empty() ? def : iterFind.to<sint32>());
 	}
 
 	float TDFParser::pullAsFloat(const String& key, const float def)

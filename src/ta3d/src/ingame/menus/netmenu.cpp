@@ -277,7 +277,7 @@ namespace Menus
 				password.clear();
 				if (pArea->get_object("netmenu.chan_list") && !pArea->get_state("netmenu.chan_list"))
 				{
-					GUIOBJ *obj = pArea->get_object("netmenu.chan_list");
+					GUIOBJ::Ptr obj = pArea->get_object("netmenu.chan_list");
 					for(int i = 0 ; i < obj->Text.size() ; i++)
 					{
 						if (obj->Text[i] == NetClient::instance()->getChan())
@@ -303,7 +303,7 @@ namespace Menus
 				}
 				else if (pArea->get_state("netmenu.chan_list")) // change chan
 				{
-					GUIOBJ *obj = pArea->get_object("netmenu.chan_list");
+					GUIOBJ::Ptr obj = pArea->get_object("netmenu.chan_list");
 					if (obj)
 					{
 						int chanID = obj->Pos;
@@ -353,7 +353,7 @@ namespace Menus
 
 	void NetMenu::addChatMessage(const String &message)
 	{
-		GUIOBJ *obj = pArea->get_object("netmenu.chat_history");
+		GUIOBJ::Ptr obj = pArea->get_object("netmenu.chat_history");
 		if (obj)
 		{
 			obj->Text.push_back(message);

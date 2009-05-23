@@ -137,7 +137,7 @@ namespace TA3D
 		** \param message
 		** \return
 		*/
-		GUIOBJ* get_object(const String& message);
+		GUIOBJ::Ptr get_object(const String& message);
 
 		/*!
 		** \brief Set the state of specified object in the specified window
@@ -243,7 +243,7 @@ namespace TA3D
 		** \brief Same as get_object, but not thread-safe
 		** \see get_object()
 		*/
-		GUIOBJ* getObjectWL(const String& message);
+		GUIOBJ::Ptr getObjectWL(const String& message);
 
 		/*!
 		** \brief Same as get_wnd, but not thread-safe

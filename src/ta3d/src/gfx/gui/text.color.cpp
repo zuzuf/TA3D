@@ -23,6 +23,7 @@
 namespace TA3D
 {
 
+
 	TEXT_COLOR::TEXT_COLOR()
 	{
 		font_color = makeacol(0xFF,0xFF,0xFF,0xFF);
@@ -31,6 +32,7 @@ namespace TA3D
 		shadow_dx = 1.0f;
 		shadow_dy = 1.0f;
 	}
+
 
 	void TEXT_COLOR::load(TDFParser& parser, const String &prefix, float scale)
 	{
@@ -41,32 +43,38 @@ namespace TA3D
 		shadow_dy = parser.pullAsFloat( prefix + "shadow_dy", 1.0f ) * scale;
 	}
 
+
 	void TEXT_COLOR::print(Font *font, float x, float y, const String &text)
 	{
-		if (font == NULL)
+		if (!text.empty())
 		{
-			LOG_WARNING(LOG_PREFIX_GFX << "font == NULL !! cannot render text");
-			return;
+			if (!font)
+			{
+				LOG_WARNING(LOG_PREFIX_GFX << "font == NULL !! cannot render text");
+				return;
+			}
+
+			if (shadow)
+				gfx->print(font, x + shadow_dx, y + shadow_dy, 0.0f, shadow_color, text);
+			gfx->print(font, x, y, 0.0f, font_color, text);
 		}
-
-		if (shadow)
-			gfx->print(font, x + shadow_dx, y + shadow_dy, 0.0f, shadow_color, text);
-
-		gfx->print(font, x, y, 0.0f, font_color, text);
 	}
 
 	void TEXT_COLOR::print(Font *font, float x, float y, uint32 col, const String &text)
 	{
-		if (font == NULL)
+		if (!text.empty())
 		{
-			LOG_WARNING(LOG_PREFIX_GFX << "font == NULL !! cannot render text");
-			return;
+			if (!font)
+			{
+				LOG_WARNING(LOG_PREFIX_GFX << "font == NULL !! cannot render text");
+				return;
+			}
+
+			if (shadow)
+				gfx->print(font, x + shadow_dx, y + shadow_dy, 0.0f, shadow_color, text);
+
+			gfx->print(font, x, y, 0.0f, col, text);
 		}
-
-		if (shadow)
-			gfx->print(font, x + shadow_dx, y + shadow_dy, 0.0f, shadow_color, text);
-
-		gfx->print(font, x, y, 0.0f, col, text);
 	}
 
 

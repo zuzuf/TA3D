@@ -66,7 +66,7 @@ namespace TA3D
 	void AREA::set_enable_flag(const String& message, const bool enable)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 		{
 			if (enable)
@@ -80,7 +80,7 @@ namespace TA3D
 	void AREA::set_state(const String& message, const bool state)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Etat = state;
 	}
@@ -88,7 +88,7 @@ namespace TA3D
 	void AREA::set_value(const String& message, const sint32 value)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Value = value;
 	}
@@ -97,7 +97,7 @@ namespace TA3D
 	void AREA::set_data(const String& message, const sint32 data)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Data = data;
 	}
@@ -106,7 +106,7 @@ namespace TA3D
 	void AREA::caption(const String& message, const String& caption)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj && !guiobj->Text.empty())
 		{
 			if (guiobj->Type == OBJ_TEXTEDITOR)
@@ -130,7 +130,7 @@ namespace TA3D
 	void AREA::set_action(const String& message, void (*Func)(int))
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Func = Func;
 	}
@@ -139,7 +139,7 @@ namespace TA3D
 	void AREA::set_entry(const String& message, const std::list<String>& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 		{
 			guiobj->Text.clear();
@@ -152,7 +152,7 @@ namespace TA3D
 	void AREA::set_entry(const String& message, const std::vector<String>& entry)	// Set the entry of specified object in the specified window to entry
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ* guiobj = getObjectWL(message);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Text = entry;
 	}
@@ -226,7 +226,9 @@ namespace TA3D
 		if (Paths::ExtractFileExt(filename) == ".gui")
 			newWindow->load_gui(filename, gui_hashtable); // Loads the window from a *.gui file
 		else
+		{
 			newWindow->load_tdf(filename, skin);	// Loads the window from a *.tdf file
+		}
 
 		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];
@@ -278,7 +280,7 @@ namespace TA3D
 			skin = skin_manager.load(skin_name, 1.0f);
 
 		String real_filename = filename;
-		if (skin != NULL && !skin->prefix().empty())
+		if (skin && !skin->prefix().empty())
 		{
 			const int name_len = Paths::ExtractFileName(real_filename).size();
 			if (name_len > 0)
@@ -491,7 +493,7 @@ namespace TA3D
 				const WindowList::iterator end = pWindowList.end();
 				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ* the_obj = (*e)->get_object(obj_name);
+					GUIOBJ::Ptr the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 						return the_obj->Etat;
 				}
@@ -516,7 +518,7 @@ namespace TA3D
 	bool AREA::is_activated(const String& message)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ *obj = getObjectWL(message);
+		GUIOBJ::Ptr obj = getObjectWL(message);
 		return (obj) ? obj->activated : false;
 	}
 
@@ -525,12 +527,8 @@ namespace TA3D
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 
-		GUIOBJ *obj = getObjectWL(message);
-
-		if (obj)
-			return obj->MouseOn;
-
-		return false;
+		GUIOBJ::Ptr obj = getObjectWL(message);
+		return (!obj) ? false : obj->MouseOn;
 	}
 
 
@@ -548,7 +546,7 @@ namespace TA3D
 				const WindowList::iterator end = pWindowList.end();
 				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ* the_obj = (*e)->get_object(obj_name);
+					GUIOBJ::Ptr the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 						return the_obj->Value;
 				}
@@ -579,7 +577,7 @@ namespace TA3D
 				const WindowList::iterator end = pWindowList.end();
 				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ* the_obj = (*e)->get_object(obj_name);
+					GUIOBJ::Ptr the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 					{
 						if (the_obj->Text.size() > 0)
@@ -609,7 +607,7 @@ namespace TA3D
 
 
 
-	GUIOBJ* AREA::getObjectWL(const String& message)
+	GUIOBJ::Ptr AREA::getObjectWL(const String& message)
 	{
 		String::size_type i = message.find('.');
 		if (i != String::npos)
@@ -621,7 +619,7 @@ namespace TA3D
 				const WindowList::iterator end = pWindowList.end();
 				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ *the_obj = (*e)->get_object(obj_name);
+					GUIOBJ::Ptr the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 						return the_obj;
 				}
@@ -638,7 +636,7 @@ namespace TA3D
 
 
 
-	GUIOBJ* AREA::get_object(const String& message)
+	GUIOBJ::Ptr AREA::get_object(const String& message)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 		return getObjectWL(message);

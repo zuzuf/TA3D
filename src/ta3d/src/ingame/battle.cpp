@@ -333,7 +333,7 @@ namespace TA3D
 						statuswnd->x = (int)(SCREEN_W - (statuswnd->width + 10) * show_gamestatus);
 					for (unsigned int i = 0; i < players.count(); ++i)
 					{
-						GUIOBJ *obj = pArea.get_object( String::Format("playerstats.p%d_box", i));
+						GUIOBJ::Ptr obj = pArea.get_object( String::Format("playerstats.p%d_box", i));
 						if (obj)
 							obj->Data = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ], 0.5f);
 						pArea.caption(String::Format("playerstats.p%d_kills", i), String::Format( "%d", players.kills[i]));
@@ -2431,7 +2431,7 @@ namespace TA3D
 			if (pArea.get_state("esc_menu.b_save")) 	// Fill the file list
 			{
 				pArea.set_state("esc_menu.b_save", false);
-				GUIOBJ *obj_file_list = pArea.get_object("save_menu.l_file");
+				GUIOBJ::Ptr obj_file_list = pArea.get_object("save_menu.l_file");
 				if (obj_file_list)
 				{
 					String::List file_list;
@@ -2449,8 +2449,8 @@ namespace TA3D
 
 			if (pArea.get_state("save_menu.l_file")) // Click on the list
 			{
-				GUIOBJ *obj = pArea.get_object("save_menu.l_file");
-                if (obj && obj->Pos < obj->Text.size())
+				GUIOBJ::Ptr obj = pArea.get_object("save_menu.l_file");
+				if (obj && obj->Pos < obj->Text.size())
 					pArea.caption("save_menu.t_name", obj->Text[obj->Pos]);
 			}
 
@@ -2728,22 +2728,22 @@ namespace TA3D
 				pArea.set_enable_flag(pCurrentGUI + ".ARMCLOAK", cancloak);
 				pArea.set_enable_flag(pCurrentGUI + ".ARMBLAST", candgun);
 
-				GUIOBJ *onoff_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
-				if (onoff_gui == NULL)
+				GUIOBJ::Ptr onoff_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
+				if (!onoff_gui)
 					onoff_gui = pArea.get_object(pCurrentGUI + ".ARMONOFF");
 
 				if (onoff_gui)
 					onoff_gui->current_state = onoff_state - 1;
 
-				GUIOBJ *sorder_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
-				if (sorder_gui == NULL)
+				GUIOBJ::Ptr sorder_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
+				if (!sorder_gui)
 					sorder_gui = pArea.get_object(pCurrentGUI + ".ARMFIREORD");
 
 				if (sorder_gui)
 					sorder_gui->current_state = sforder;
 
 				sorder_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
-				if (sorder_gui == NULL)
+				if (!sorder_gui)
 					sorder_gui = pArea.get_object( pCurrentGUI + ".ARMMOVEORD");
 
 				if (sorder_gui)
@@ -2907,13 +2907,13 @@ namespace TA3D
 				|| pArea.get_state( pCurrentGUI + ".ARMONOFF")) // Toggle the on/off value
 			{
 				signal_order = SIGNAL_ORDER_ONOFF;
-				GUIOBJ *onoff_obj = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
-				if (onoff_obj == NULL)
+				GUIOBJ::Ptr onoff_obj = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
+				if (!onoff_obj)
 					onoff_obj = pArea.get_object( pCurrentGUI + ".ARMONOFF");
-				if (onoff_obj != NULL)
+				if (onoff_obj)
 				{
 					units.lock();
-					for (uint16 e = 0 ; e < units.index_list_size ; ++e)
+					for (unsigned int e = 0 ; e < units.index_list_size ; ++e)
 					{
 						uint16 i = units.idx_list[e];
 						units.unlock();
@@ -2946,13 +2946,13 @@ namespace TA3D
 			if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK")
 				|| pArea.get_state( pCurrentGUI + ".ARMCLOAK")) // Toggle the cloak value
 			{
-				GUIOBJ *cloak_obj = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK");
-				if (cloak_obj == NULL)
+				GUIOBJ::Ptr cloak_obj = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK");
+				if (!cloak_obj)
 					cloak_obj = pArea.get_object( pCurrentGUI + ".ARMCLOAK");
-				if (cloak_obj != NULL)
+				if (cloak_obj)
 				{
 					units.lock();
-					for (uint16 e = 0; e < units.index_list_size; ++e)
+					for (unsigned int e = 0; e < units.index_list_size; ++e)
 					{
 						uint16 i = units.idx_list[e];
 						units.unlock();
@@ -2978,10 +2978,10 @@ namespace TA3D
 				|| pArea.get_state( pCurrentGUI + ".ARMFIREORD")) // Toggle the fireorder value
 			{
 				sound_manager->playTDFSound( "SETFIREORDERS", "sound" , NULL);
-				GUIOBJ *sorder_obj = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
-				if (sorder_obj == NULL)
+				GUIOBJ::Ptr sorder_obj = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
+				if (!sorder_obj)
 					sorder_obj = pArea.get_object(pCurrentGUI + ".ARMFIREORD");
-				if (sorder_obj != NULL)
+				if (sorder_obj)
 				{
 					sorder_obj->current_state %= 3;
 					units.lock();
@@ -3012,14 +3012,14 @@ namespace TA3D
 				|| pArea.get_state( pCurrentGUI + ".ARMMOVEORD")) // Toggle the moveorder value
 			{
 				sound_manager->playTDFSound("SETMOVEORDERS", "sound" , NULL);
-				GUIOBJ *sorder_obj = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
-				if (sorder_obj == NULL)
+				GUIOBJ::Ptr sorder_obj = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
+				if (!sorder_obj)
 					sorder_obj = pArea.get_object(pCurrentGUI + ".ARMMOVEORD");
-				if (sorder_obj != NULL)
+				if (sorder_obj)
 				{
 					sorder_obj->current_state %= 3;
 					units.lock();
-					for (uint16 e = 0 ; e < units.index_list_size; ++e)
+					for (unsigned int e = 0 ; e < units.index_list_size; ++e)
 					{
 						uint16 i = units.idx_list[e];
 						units.unlock();
@@ -3077,7 +3077,7 @@ namespace TA3D
 				case SIGNAL_ORDER_STOP:
 					sound_manager->playTDFSound( "IMMEDIATEORDERS", "sound" , NULL);
 					units.lock();
-					for (uint16 e = 0; e < units.index_list_size; ++e)
+					for (unsigned int e = 0; e < units.index_list_size; ++e)
 					{
 						uint16 i = units.idx_list[e];
 						units.unlock();
