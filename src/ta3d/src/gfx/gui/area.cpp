@@ -38,35 +38,35 @@ namespace TA3D
 
 
 
-	WND	*AREA::doGetWnd(const String& message)
+	WND::Ptr AREA::getWindowWL(const String& message)
 	{
 		String lmsg (message);
 		lmsg.toLower();
 		if (lmsg == cached_key && cached_wnd)
 			return cached_wnd;
-		sint16 e = wnd_hashtable.find(lmsg) - 1;
+		int e = wnd_hashtable.find(lmsg) - 1;
 		if (e >= 0)
 		{
 			cached_key = lmsg;
-			cached_wnd = vec_wnd[e];
+			cached_wnd = pWindowList[e];
 			return cached_wnd;
 		}
-		return NULL;
+		return WND::Ptr();
 	}
 
 
 
-	WND	*AREA::get_wnd(const String& message)
+	WND::Ptr AREA::get_wnd(const String& message)
 	{
-		MutexLocker locker(pMutex);
-		return doGetWnd(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		return getWindowWL(message);
 	}
 
 
 	void AREA::set_enable_flag(const String& message, const bool enable)
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 		{
 			if (enable)
@@ -74,104 +74,96 @@ namespace TA3D
 			else
 				guiobj->Flag |= FLAG_DISABLED;
 		}
-		pMutex.unlock();
 	}
 
 
 	void AREA::set_state(const String& message, const bool state)
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Etat = state;
-		pMutex.unlock();
 	}
 
 	void AREA::set_value(const String& message, const sint32 value)
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Value = value;
-		pMutex.unlock();
 	}
 
 
 	void AREA::set_data(const String& message, const sint32 data)
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Data = data;
-		pMutex.unlock();
 	}
 
 
-	void AREA::set_caption(const String& message, const String& caption)
+	void AREA::caption(const String& message, const String& caption)
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj && !guiobj->Text.empty())
 		{
 			if (guiobj->Type == OBJ_TEXTEDITOR)
 			{
-				guiobj->Text.resize(1);
-				guiobj->Text[0].clear();
-				String::const_iterator end = caption.end();
-				for (String::const_iterator i = caption.begin(); i != end; ++i)      // Split the entry in several lines
-					if ('\n' == *i)
-						guiobj->Text.push_back(String());
-					else
-						guiobj->Text.back() += *i;
+				caption.explode(guiobj->Text, '\n');
+				LOG_DEBUG("AREA caption ASSIGN :  " << message << " = " << caption << " (List)");
 			}
 			else
-				guiobj->set_caption(caption);
+			{
+				guiobj->caption(caption);
+				LOG_DEBUG("AREA caption ASSIGN :  " << message << " = " << caption);
+			}
 		}
-		pMutex.unlock();
+		else
+		{
+			LOG_WARNING("AREA caption : " << message << " not found");
+		}
 	}
 
 
 	void AREA::set_action(const String& message, void (*Func)(int))
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Func = Func;
-		pMutex.unlock();
 	}
 
 
 	void AREA::set_entry(const String& message, const std::list<String>& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 		{
 			guiobj->Text.clear();
 			for (std::list<String>::const_iterator i = entry.begin(); i != entry.end(); ++i)
 				guiobj->Text.push_back(*i);
 		}
-		pMutex.unlock();
 	}
 
 
 	void AREA::set_entry(const String& message, const std::vector<String>& entry)	// Set the entry of specified object in the specified window to entry
 	{
-		pMutex.lock();
-		GUIOBJ* guiobj = doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ* guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Text = entry;
-		pMutex.unlock();
 	}
 
 
-	void AREA::set_title(const String& message, const String& title)
+	void AREA::title(const String& message, const String& title)
 	{
-		pMutex.lock();
-		WND* wnd = doGetWnd(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		WND::Ptr wnd = getWindowWL(message);
 		if (wnd)
 			wnd->Title = title;
-		pMutex.unlock();
 	}
 
 
@@ -187,32 +179,34 @@ namespace TA3D
 		}
 
 		unsigned int is_on_gui = 0;
-		pMutex.lock();
-		for (unsigned int i = 0; i < vec_wnd.size(); ++i)
+
 		{
-			if (!is_on_gui || (vec_wnd[vec_z_order[i]]->get_focus && !vec_wnd[vec_z_order[i]]->hidden))
+			ThreadingPolicy::MutexLocker locker(*this);
+
+			for (unsigned int i = 0; i < pWindowList.size(); ++i)
 			{
-				is_on_gui |= vec_wnd[vec_z_order[i]]->check(amx, amy, amz, amb, scroll, skin);
-				if (((is_on_gui && mouse_b && !vec_wnd[vec_z_order[0]]->get_focus)
-					 || vec_wnd[ vec_z_order[i]]->get_focus) && i > 0 && !vec_wnd[ vec_z_order[i]]->background_wnd)
+				if (!is_on_gui || (pWindowList[vec_z_order[i]]->get_focus && !pWindowList[vec_z_order[i]]->hidden))
 				{
-					uint16 old = vec_z_order[i];
-					for (uint16 e = i; e > 0; --e)
-						vec_z_order[e] = vec_z_order[e - 1];
-					vec_z_order[0] = old; // Get the focus
+					is_on_gui |= pWindowList[vec_z_order[i]]->check(amx, amy, amz, amb, scroll, skin);
+					if (((is_on_gui && mouse_b && !pWindowList[vec_z_order[0]]->get_focus)
+						 || pWindowList[ vec_z_order[i]]->get_focus) && i > 0 && !pWindowList[ vec_z_order[i]]->background_wnd)
+					{
+						uint16 old = vec_z_order[i];
+						for (unsigned int e = i; e > 0; --e)
+							vec_z_order[e] = vec_z_order[e - 1];
+						vec_z_order[0] = old; // Get the focus
+					}
 				}
 			}
-		}
 
+			scrolling = scroll;
+			amx = mouse_x;
+			amy = mouse_y;
+			amz = mouse_z;
+			amb = mouse_b;
+		}
 		if (!console.activated())
 			clear_keybuf();
-
-		scrolling = scroll;
-		amx = mouse_x;
-		amy = mouse_y;
-		amz = mouse_z;
-		amb = mouse_b;
-		pMutex.unlock();
 
 		return is_on_gui;
 	}
@@ -221,42 +215,51 @@ namespace TA3D
 
 	uint16 AREA::load_window(const String& filename)
 	{
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 
-		uint16 wnd_idx = vec_wnd.size();
-		vec_wnd.push_back(new WND());				// Adds a window to the vector
+		WND::Ptr newWindow = new WND();
+		uint16 wnd_idx = pWindowList.size();
+
+		pWindowList.push_back(newWindow);				// Adds a window to the vector
 		vec_z_order.push_back(wnd_idx);
 
 		if (Paths::ExtractFileExt(filename) == ".gui")
-			vec_wnd[wnd_idx]->load_gui(filename, gui_hashtable); // Loads the window from a *.gui file
+			newWindow->load_gui(filename, gui_hashtable); // Loads the window from a *.gui file
 		else
-			vec_wnd[wnd_idx]->load_tdf(filename, skin);	// Loads the window from a *.tdf file
+			newWindow->load_tdf(filename, skin);	// Loads the window from a *.tdf file
 
 		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];
+
 		vec_z_order[0] = wnd_idx;
-		wnd_hashtable.insert(String::ToLower(vec_wnd[wnd_idx]->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
+		wnd_hashtable.insert(String::ToLower(newWindow->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
 		return wnd_idx;
 	}
 
 
 	void AREA::draw()
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
+
 		if (background)
 		{
 			gfx->drawtexture(background, 0, 0, gfx->width, gfx->height);
 			glDisable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-		String help_msg;
 		// Draws all the windows in focus reversed order so the focused window is drawn on top of the others
-		for (sint32 i = vec_wnd.size() - 1; i >=0 ; --i)
-			vec_wnd[vec_z_order[i]]->draw(help_msg, i == 0, true, skin);
+		String help_msg;
+		if (!pWindowList.empty())
+		{
+			unsigned int i = pWindowList.size();
+			do
+			{
+				--i;
+				pWindowList[vec_z_order[i]]->draw(help_msg, (i == 0), true, skin);
+			} while (i);
+		}
 		if (!help_msg.empty())
 			skin->PopupMenu(mouse_x + 20, mouse_y + 20, help_msg);
-
-		pMutex.unlock();
 	}
 
 
@@ -275,17 +278,17 @@ namespace TA3D
 			skin = skin_manager.load(skin_name, 1.0f);
 
 		String real_filename = filename;
-		if (skin != NULL && !skin->prefix.empty())
+		if (skin != NULL && !skin->prefix().empty())
 		{
-			int name_len = Paths::ExtractFileName(real_filename).size();
+			const int name_len = Paths::ExtractFileName(real_filename).size();
 			if (name_len > 0)
 			{
 				real_filename.clear();
-				real_filename << filename.substr(0, filename.size() - name_len) << skin->prefix
+				real_filename << filename.substr(0, filename.size() - name_len) << skin->prefix()
 					<< Paths::ExtractFileName(filename);
 			}
 			else
-				real_filename << skin->prefix;
+				real_filename << skin->prefix();
 			if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
@@ -325,20 +328,20 @@ namespace TA3D
 		String background_name = areaFile.pullAsString("area.background", "none");
 		if (background_name.toLower() != "none")           // If we have a background set then load it
 		{
-			if(skin && !skin->prefix.empty())
+			if(skin && !skin->prefix().empty())
 			{
 				int name_len = Paths::ExtractFileName(background_name).size();
 				if (name_len > 0)
-					background_name = background_name.substr(0, background_name.size() - name_len) + skin->prefix + Paths::ExtractFileName(background_name);
+					background_name = background_name.substr(0, background_name.size() - name_len) << skin->prefix() << Paths::ExtractFileName(background_name);
 				else
-					background_name += skin->prefix;
+					background_name += skin->prefix();
 			}
 
 			if (HPIManager->Exists(background_name)) // Loads a background image
 				background = gfx->load_texture(background_name);
 			else
 			{
-				if (skin && !skin->prefix.empty())
+				if (skin && !skin->prefix().empty())
 				{
 					// No prefixed version, retry with default background
 					background_name = areaFile.pullAsString("area.background");
@@ -355,11 +358,8 @@ namespace TA3D
 
 
 	AREA::AREA(const String& area_name)
-		:scrolling(false), background(0), name(area_name), skin(NULL), gui_hashtable(), wnd_hashtable(), cached_wnd(NULL)
+		:scrolling(false), background(0), name(area_name), skin(NULL), gui_hashtable(), wnd_hashtable()
 	{
-		vec_wnd.clear();		// Starts with an empty vector
-		vec_z_order.clear();	// No windows at start
-
 		amx = mouse_x;
 		amy = mouse_y;
 		amz = mouse_z;
@@ -385,9 +385,7 @@ namespace TA3D
 
 		name.clear();
 
-		for (std::vector<WND*>::iterator i = vec_wnd.begin(); i != vec_wnd.end(); ++i)
-			delete *i;
-		vec_wnd.clear();			// Empty the window vector
+		pWindowList.clear();			// Empty the window vector
 		vec_z_order.clear();		// No more windows at end
 
 		gfx->destroy_texture(background);		// Destroy the texture (using safe destroyer)
@@ -395,11 +393,10 @@ namespace TA3D
 		skin = NULL;
 	}
 
+
 	AREA *AREA::current()
 	{
-		if (area_stack.empty())
-			return NULL;
-		return area_stack.front();
+		return (!area_stack.empty()) ? area_stack.front() : NULL;
 	}
 
 
@@ -414,9 +411,7 @@ namespace TA3D
 		wnd_hashtable.emptyHashTable();
 		name.clear();
 
-		for (std::vector<WND*>::iterator i = vec_wnd.begin(); i != vec_wnd.end(); ++i)
-			delete *i;
-		vec_wnd.clear();			// Empty the window vector
+		pWindowList.clear();			// Empty the window vector
 		vec_z_order.clear();		// No more windows at end
 
 		if (background == gfx->glfond)      // Don't remove the background texture
@@ -424,6 +419,7 @@ namespace TA3D
 		else
 			gfx->destroy_texture(background); // Destroy the texture
 	}
+
 
 	uint32 AREA::InterfaceMsg(const lpcImsg msg)
 	{
@@ -442,9 +438,10 @@ namespace TA3D
 		return this->msg((char*) msg->lpParm1);
 	}
 
+
 	int	AREA::msg(String message)				// Send that message to the area
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 
 		uint32 result = INTERFACE_RESULT_CONTINUE;
 		message.toLower(); // Get the string associated with the signal
@@ -455,7 +452,7 @@ namespace TA3D
 			String key = message.substr(0, i); // Extracts the key
 			message = message.substr(i + 1, message.size() - i - 1); // Extracts the end of the message
 
-			WND* the_wnd = doGetWnd(key);
+			WND::Ptr the_wnd = getWindowWL(key);
 			if (the_wnd)
 				result = the_wnd->msg(message);
 		}
@@ -463,9 +460,7 @@ namespace TA3D
 		{
 			if (message == "clear")
 			{
-				for (std::vector<WND*>::iterator i = vec_wnd.begin(); i != vec_wnd.end(); ++i)
-					delete *i;
-				vec_wnd.clear();
+				pWindowList.clear();
 				vec_z_order.clear();
 				wnd_hashtable.emptyHashTable();
 				wnd_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
@@ -474,15 +469,16 @@ namespace TA3D
 				if (message == "end_the_game")
 				{
 					// TODO Code here ?
+					LOG_ERROR(" area.cpp: message received `end_the_game not handled`");
 				}
 		}
-		pMutex.unlock();
 		return result;				// Ok we're done with it
 	}
 
+
 	bool AREA::get_state(const String& message)
 	{
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 
 		String::size_type i = message.find('.');
 		if (i != String::npos)
@@ -492,25 +488,26 @@ namespace TA3D
 
 			if (key == "*")
 			{
-				for ( uint16 e = 0; e < vec_wnd.size(); ++e)// Search the window containing the object corresponding to the key
+				const WindowList::iterator end = pWindowList.end();
+				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ* the_obj = vec_wnd[e]->get_object(obj_name);
+					GUIOBJ* the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 						return the_obj->Etat;
 				}
 			}
 			else
 			{
-				WND* the_wnd = doGetWnd(key);
+				WND::Ptr the_wnd = getWindowWL(key);
 				if (the_wnd)
 					return the_wnd->get_state(obj_name);
 			}
 		}
 		else
 		{
-			WND* the_wnd = doGetWnd(message);
+			WND::Ptr the_wnd = getWindowWL(message);
 			if (the_wnd)
-				return the_wnd->get_state("");
+				return the_wnd->get_state(String());
 		}
 		return false;
 	}
@@ -518,21 +515,17 @@ namespace TA3D
 
 	bool AREA::is_activated(const String& message)
 	{
-		MutexLocker locker(pMutex);
-
-		GUIOBJ *obj = doGetObject(message);
-
-		if (obj)
-			return obj->activated;
-
-		return false;
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ *obj = getObjectWL(message);
+		return (obj) ? obj->activated : false;
 	}
+
 
 	bool AREA::is_mouse_over(const String& message)
 	{
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 
-		GUIOBJ *obj = doGetObject(message);
+		GUIOBJ *obj = getObjectWL(message);
 
 		if (obj)
 			return obj->MouseOn;
@@ -540,9 +533,10 @@ namespace TA3D
 		return false;
 	}
 
+
 	sint32 AREA::get_value(const String& message)
 	{
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 
 		String::size_type i = message.find('.');
 		if (i != String::npos)
@@ -551,16 +545,17 @@ namespace TA3D
 			String obj_name = message.substr(i + 1, message.size() - i - 1);
 			if (key == "*")
 			{
-				for (uint16 e = 0; e < vec_wnd.size(); ++e)	// Search the window containing the object corresponding to the key
+				const WindowList::iterator end = pWindowList.end();
+				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ *the_obj = vec_wnd[e]->get_object(obj_name);
+					GUIOBJ* the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 						return the_obj->Value;
 				}
 			}
 			else
 			{
-				WND* the_wnd = doGetWnd(key);
+				WND::Ptr the_wnd = getWindowWL(key);
 				if (the_wnd)
 					return the_wnd->get_value(obj_name);
 			}
@@ -570,9 +565,9 @@ namespace TA3D
 
 
 
-	String AREA::get_caption(const String& message)
+	String AREA::caption(const String& message)
 	{
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 
 		String::size_type i = message.find('.');
 		if (String::npos != i)
@@ -581,9 +576,10 @@ namespace TA3D
 			String obj_name = message.substr(i + 1, message.size() - i - 1);
 			if (!key.empty() && key == "*")
 			{
-				for (uint16 e = 0; e < vec_wnd.size(); ++e)// Search the window containing the object corresponding to the key
+				const WindowList::iterator end = pWindowList.end();
+				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ* the_obj = vec_wnd[e]->get_object(obj_name);
+					GUIOBJ* the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 					{
 						if (the_obj->Text.size() > 0)
@@ -597,23 +593,23 @@ namespace TA3D
 							}
 							return the_obj->Text[0];	// Return what we found
 						}
-						return "";
+						return String();
 					}
 				}
 			}
 			else
 			{
-				WND* the_wnd = doGetWnd(key);
+				WND::Ptr the_wnd = getWindowWL(key);
 				if (the_wnd)
-					return the_wnd->get_caption(obj_name);
+					return the_wnd->caption(obj_name);
 			}
 		}
-		return "";
+		return String();
 	}
 
 
 
-	GUIOBJ* AREA::doGetObject(const String& message)
+	GUIOBJ* AREA::getObjectWL(const String& message)
 	{
 		String::size_type i = message.find('.');
 		if (i != String::npos)
@@ -622,16 +618,17 @@ namespace TA3D
 			String obj_name = message.substr(i + 1, message.size() - i -1);
 			if (key == "*")
 			{
-				for (uint16 e = 0; e < vec_wnd.size(); ++e)	// Search the window containing the object corresponding to the key
+				const WindowList::iterator end = pWindowList.end();
+				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
 				{
-					GUIOBJ *the_obj = vec_wnd[e]->get_object(obj_name);
+					GUIOBJ *the_obj = (*e)->get_object(obj_name);
 					if (the_obj)
 						return the_obj;
 				}
 			}
 			else
 			{
-				WND* the_wnd = doGetWnd(key);
+				WND::Ptr the_wnd = getWindowWL(key);
 				if (the_wnd)
 					return the_wnd->get_object(obj_name);
 			}
@@ -641,10 +638,10 @@ namespace TA3D
 
 
 
-	GUIOBJ* AREA::get_object(const String& message, bool /*skip_hidden*/)
+	GUIOBJ* AREA::get_object(const String& message)
 	{
-		MutexLocker locker(pMutex);
-		return doGetObject(message);
+		ThreadingPolicy::MutexLocker locker(*this);
+		return getObjectWL(message);
 	}
 
 

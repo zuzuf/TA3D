@@ -82,7 +82,7 @@ namespace TA3D
 
 
 
-	void GUIOBJ::set_caption(const String& caption)
+	void GUIOBJ::caption(const String& caption)
 	{
 		switch (Type)
 		{
@@ -163,7 +163,7 @@ namespace TA3D
 
 
 	void GUIOBJ::create_optionc(const float X1, const float Y1, const String& caption, const bool ETAT,
-								void (*F)(int), SKIN *skin, const float size)
+								void (*F)(int), Skin *skin, const float size)
 	{
 		Type = OBJ_OPTIONC;
 		x1 = X1;
@@ -194,7 +194,7 @@ namespace TA3D
 
 
 	void GUIOBJ::create_optionb(const float X1, const float Y1, const String& Caption, const bool ETAT,
-								void (*F)(int), SKIN* skin, const float size)
+								void (*F)(int), Skin* skin, const float size)
 	{
 		Type = OBJ_OPTIONB;
 		x1 = X1;

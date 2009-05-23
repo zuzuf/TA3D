@@ -172,8 +172,8 @@ namespace Menus
 				}
 				else if (network)
 				{
-					pArea->set_caption("popup.msg",I18N::Translate("MULTI_SOLO_MISMATCH_ERROR"));
-					pArea->set_title("popup",I18N::Translate("Error"));
+					pArea->caption("popup.msg", I18N::Translate("MULTI_SOLO_MISMATCH_ERROR"));
+					pArea->title("popup", I18N::Translate("Error"));
 					pArea->msg("popup.show");
 				}
 			}

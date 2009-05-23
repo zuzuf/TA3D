@@ -31,7 +31,6 @@
 # include "TA3D_NameSpace.h"
 # include <vector>
 # include "gfx/gui/base.h"
-# include "gfx/gui/skin.h"
 # include "misc/string.h"
 
 

@@ -100,20 +100,20 @@ namespace Menus
 			String msg = NetClient::instance()->getNextMessage();
 			if (msg.startsWith("MESSAGE"))
 			{
-				pArea->set_title("popup", I18N::Translate("Server message"));
-				pArea->set_caption("popup.msg", I18N::Translate(msg.substr(8)));
+				pArea->title("popup", I18N::Translate("Server message"));
+				pArea->caption("popup.msg", I18N::Translate(msg.substr(8)));
 				pArea->msg("popup.show");
 			}
 			else if (msg.startsWith("ERROR"))
 			{
-				pArea->set_title("popup", I18N::Translate("Server error"));
-				pArea->set_caption("popup.msg", I18N::Translate(msg.substr(6)));
+				pArea->title("popup", I18N::Translate("Server error"));
+				pArea->caption("popup.msg", I18N::Translate(msg.substr(6)));
 				pArea->msg("popup.show");
 			}
 			else if (msg.startsWith("MSG"))
 			{
 				String::Vector args;
-				msg.explode(args, " ");
+				msg.explode(args, ' ');
 				if (args.size() >= 2)
 				{
 					String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
@@ -160,16 +160,16 @@ namespace Menus
 						if (login.empty())
 						{
 							askMode = LOGIN;
-							pArea->set_title("ask", I18N::Translate("Login"));
-							pArea->set_caption("ask.t_result", "");
+							pArea->title("ask", I18N::Translate("Login"));
+							pArea->caption("ask.t_result", "");
 							pArea->msg("ask.t_result.focus");
 							pArea->msg("ask.show");
 						}
 						else if (password.empty())
 						{
 							askMode = PASSWORD;
-							pArea->set_title("ask", I18N::Translate("Password"));
-							pArea->set_caption("ask.t_result", "");
+							pArea->title("ask", I18N::Translate("Password"));
+							pArea->caption("ask.t_result", "");
 							pArea->msg("ask.t_result.focus");
 							pArea->msg("ask.show");
 						}
@@ -185,7 +185,7 @@ namespace Menus
 					case LOGIN:
 						if (pArea->get_state("ask.b_ok"))       // User clicked ok
 						{
-							login = pArea->get_caption("ask.t_result");
+							login = pArea->caption("ask.t_result");
 							askMode = NONE;
 						}
 						else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
@@ -198,7 +198,7 @@ namespace Menus
 					case PASSWORD:
 						if (pArea->get_state("ask.b_ok"))       // User clicked ok
 						{
-							password = pArea->get_caption("ask.t_result");
+							password = pArea->caption("ask.t_result");
 							askMode = NONE;
 						}
 						else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
@@ -218,16 +218,16 @@ namespace Menus
 						if (login.empty())
 						{
 							askMode = LOGIN;
-							pArea->set_title("ask", I18N::Translate("New account - login"));
-							pArea->set_caption("ask.t_result", "");
+							pArea->title("ask", I18N::Translate("New account - login"));
+							pArea->caption("ask.t_result", "");
 							pArea->msg("ask.t_result.focus");
 							pArea->msg("ask.show");
 						}
 						else if (password.empty())
 						{
 							askMode = PASSWORD;
-							pArea->set_title("ask", I18N::Translate("New account - password"));
-							pArea->set_caption("ask.t_result", "");
+							pArea->title("ask", I18N::Translate("New account - password"));
+							pArea->caption("ask.t_result", "");
 							pArea->msg("ask.t_result.focus");
 							pArea->msg("ask.show");
 						}
@@ -245,7 +245,7 @@ namespace Menus
 					case LOGIN:
 						if (pArea->get_state("ask.b_ok"))       // User clicked ok
 						{
-							login = pArea->get_caption("ask.t_result");
+							login = pArea->caption("ask.t_result");
 							askMode = NONE;
 						}
 						else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
@@ -258,7 +258,7 @@ namespace Menus
 					case PASSWORD:
 						if (pArea->get_state("ask.b_ok"))       // User clicked ok
 						{
-							password = pArea->get_caption("ask.t_result");
+							password = pArea->caption("ask.t_result");
 							askMode = NONE;
 						}
 						else if (pArea->get_state("ask.b_cancel"))       // User clicked cancel
@@ -313,8 +313,8 @@ namespace Menus
 				}
 				else if (pArea->get_state("netmenu.input"))     // send a message
 				{
-					String msg = pArea->get_caption("netmenu.input");
-					pArea->set_caption("netmenu.input", "");
+					String msg = pArea->caption("netmenu.input");
+					pArea->caption("netmenu.input", "");
 					if (!msg.empty())
 					{
 						if (msg[0] == '/')      // Command mode (IRC like :p)
@@ -349,6 +349,8 @@ namespace Menus
 		return false;
 	}
 
+
+
 	void NetMenu::addChatMessage(const String &message)
 	{
 		GUIOBJ *obj = pArea->get_object("netmenu.chat_history");
@@ -356,9 +358,12 @@ namespace Menus
 		{
 			obj->Text.push_back(message);
 			if (obj->Text.size() > 25)
-				obj->Data++;
+				++(obj->Data);
 			obj->Pos = obj->Text.size() - 1;
 		}
 	}
-}
-}
+
+
+
+} // namespace Menus
+} // namespace TA3D

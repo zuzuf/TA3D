@@ -133,11 +133,11 @@ namespace Menus
 
 		if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name))
 		{
-			SKIN skin;
-			skin.load_tdf(lp_CONFIG->skin_name);
+			Skin skin;
+			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
-			if (!skin.prefix.empty())
-				ResetTexture(pBackgroundTexture, gfx->load_texture("gfx" + Paths::SeparatorAsString + skin.prefix + "intro.jpg"));
+			if (!skin.prefix().empty())
+				ResetTexture(pBackgroundTexture, gfx->load_texture("gfx" + Paths::SeparatorAsString + skin.prefix() + "intro.jpg"));
 			else
 				ResetTexture(pBackgroundTexture, gfx->load_texture("gfx" + Paths::SeparatorAsString + "intro.jpg"));
 		}

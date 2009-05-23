@@ -71,12 +71,14 @@ namespace TA3D
 		pTable.initTable(TDFPARSER_HASHTABLE_SIZE);
 	}
 
+
 	TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS)
 		:pTableSize(TDFPARSER_HASHTABLE_SIZE), pTableIsEmpty(true), pIgnoreCase(!caSensitive), special_section()
 	{
 		pTable.initTable(TDFPARSER_HASHTABLE_SIZE);
 		loadFromFile(filename, true, toUTF8, gadgetMode, realFS);
 	}
+
 
 	TDFParser::~TDFParser()
 	{}
@@ -145,6 +147,7 @@ namespace TA3D
 		if (NULL == data || 0 == size)
 			return true;
 
+		write(1, data, size);
 		// Internally, we may have to dupplicate the given buffer, to apply transformations on it
 		// It is our duty to free it
 		// This will be done at the end of the method, if the following var is not null

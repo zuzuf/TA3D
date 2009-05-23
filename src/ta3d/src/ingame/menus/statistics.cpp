@@ -50,7 +50,7 @@ namespace Menus
 	{
 		String nameID("statistics.");
 		nameID << id << indx;
-		pArea->set_caption(nameID, value);
+		pArea->caption(nameID, value);
 		GUIOBJ* o = pArea->get_object(nameID);
 		if (o)
 			o->Data = color;

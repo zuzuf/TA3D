@@ -173,11 +173,11 @@ namespace TA3D
 		}
 
 		config_area.set_state("*.showfps", lp_CONFIG->showfps);
-		config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
+		config_area.caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
 		for (String::Vector::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
 		{
 			if (String::Format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
-				config_area.set_caption("*.fps_limit", *i);
+				config_area.caption("*.fps_limit", *i);
 		}
 		config_area.set_state("*.grab_inputs", lp_CONFIG->grab_inputs);
 		config_area.set_value("*.sound_volume", lp_CONFIG->sound_volume);
@@ -215,10 +215,10 @@ namespace TA3D
 				objLang->Text.push_back(languageList[i].caption());
 		}
 		if (config_area.get_object("*.camera_zoom") )
-			config_area.set_caption( "*.camera_zoom", config_area.get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
-		config_area.set_caption( "*.camera_def_angle", String::Format( "%f", lp_CONFIG->camera_def_angle ));
-		config_area.set_caption( "*.camera_def_h", String::Format( "%f", lp_CONFIG->camera_def_h ));
-		config_area.set_caption( "*.camera_zoom_speed", String::Format( "%f", lp_CONFIG->camera_zoom_speed ));
+			config_area.caption( "*.camera_zoom", config_area.get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
+		config_area.caption( "*.camera_def_angle", String::Format( "%f", lp_CONFIG->camera_def_angle ));
+		config_area.caption( "*.camera_def_h", String::Format( "%f", lp_CONFIG->camera_def_h ));
+		config_area.caption( "*.camera_zoom_speed", String::Format( "%f", lp_CONFIG->camera_zoom_speed ));
 		if (config_area.get_object("*.screenres") )
 		{
 			GUIOBJ *obj = config_area.get_object("*.screenres");
@@ -239,22 +239,22 @@ namespace TA3D
 		{
 			const unsigned int indx = 1 + Math::Max(0, Math::Min((int)lp_CONFIG->shadow_quality, 2));
 			if (indx < tmpO->Text.size())
-				config_area.set_caption( "*.shadow_quality", tmpO->Text[indx]);
+				config_area.caption("*.shadow_quality", tmpO->Text[indx]);
 		}
 
-		config_area.set_caption("*.timefactor", String::Format( "%d", (int)lp_CONFIG->timefactor ));
+		config_area.caption("*.timefactor", String::Format( "%d", (int)lp_CONFIG->timefactor ));
 		switch( lp_CONFIG->fsaa )
 		{
-			case 2: config_area.set_caption("*.fsaa", "x2");    break;
-			case 4: config_area.set_caption("*.fsaa", "x4");    break;
-			case 6: config_area.set_caption("*.fsaa", "x6");    break;
-			case 8: config_area.set_caption("*.fsaa", "x8");    break;
-			default: config_area.set_caption("*.fsaa", "no fsaa");
+			case 2: config_area.caption("*.fsaa", "x2");    break;
+			case 4: config_area.caption("*.fsaa", "x4");    break;
+			case 6: config_area.caption("*.fsaa", "x6");    break;
+			case 8: config_area.caption("*.fsaa", "x8");    break;
+			default: config_area.caption("*.fsaa", "no fsaa");
 		}
 		if (config_area.get_object("*.water_quality"))
 		{
 			GUIOBJ *obj = config_area.get_object("*.water_quality");
-			config_area.set_caption("*.water_quality", obj->Text[1 + lp_CONFIG->water_quality]);
+			config_area.caption("*.water_quality", obj->Text[1 + lp_CONFIG->water_quality]);
 		}
 
 		if (config_area.get_object("*.mod"))
@@ -281,7 +281,7 @@ namespace TA3D
 			}
 		}
 
-		config_area.set_caption("*.player_name", lp_CONFIG->player_name);
+		config_area.caption("*.player_name", lp_CONFIG->player_name);
 
 		if (config_area.get_object("*.skin"))
 		{
@@ -614,7 +614,7 @@ namespace TA3D
 				(lp_CONFIG->fullscreen != saved_config.fullscreen) )            // Need to restart
 				lp_CONFIG->quickrestart = true;
 
-			lp_CONFIG->player_name = config_area.get_caption("*.player_name");
+			lp_CONFIG->player_name = config_area.caption("*.player_name");
 
 			if (lp_CONFIG->last_MOD != TA3D_CURRENT_MOD) // Refresh the file structure
 			{
@@ -793,8 +793,8 @@ namespace TA3D
 			setupgame_area.background = gfx->glfond;
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
-			setupgame_area.set_caption( String::Format("gamesetup.name%d", i), game_data.player_names[i]);
-			setupgame_area.set_caption( String::Format("gamesetup.side%d", i), game_data.player_sides[i]);
+			setupgame_area.caption( String::Format("gamesetup.name%d", i), game_data.player_names[i]);
+			setupgame_area.caption( String::Format("gamesetup.side%d", i), game_data.player_sides[i]);
 			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 			setupgame_area.set_entry( String::Format("gamesetup.ai%d", i), AI_list);
 			GUIOBJ *guiobj = setupgame_area.get_object( String::Format("gamesetup.color%d", i));
@@ -806,8 +806,8 @@ namespace TA3D
 			guiobj = setupgame_area.get_object( String::Format("gamesetup.team%d", i));
 			if (guiobj)
 				guiobj->current_state = i;
-			setupgame_area.set_caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));
-			setupgame_area.set_caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));
+			setupgame_area.caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));
+			setupgame_area.caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));
 		}
 
 		if (setupgame_area.get_object("gamesetup.max_units"))
@@ -852,7 +852,7 @@ namespace TA3D
 			for (String::List::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
 				guiobj->Text.push_back(*i_script);
 		}
-		setupgame_area.set_caption( "gamesetup.script_name", game_data.game_script);
+		setupgame_area.caption( "gamesetup.script_name", game_data.game_script);
 		{
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW");
 			if (obj )
@@ -867,7 +867,7 @@ namespace TA3D
 				map_info << map_data.numplayers << "\n";
 			if (!map_data.missiondescription.empty())
 				map_info << map_data.missiondescription;
-			setupgame_area.set_caption("gamesetup.map_info", map_info);
+			setupgame_area.caption("gamesetup.map_info", map_info);
 		}
 
 		if (!host)
@@ -1006,10 +1006,12 @@ namespace TA3D
 			{
 				internet_ad_timer = msec_timer; // Resend every 150 sec
 				uint16 nb_open = 0;
-				for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
-					if (setupgame_area.get_caption(String::Format("gamesetup.name%d", f)) == player_str[2])
+				for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
+				{
+					if (setupgame_area.caption(String::Format("gamesetup.name%d", f)) == player_str[2])
 						++nb_open;
-				network_manager.registerToNetServer( host, nb_open);
+				}
+				network_manager.registerToNetServer(host, nb_open);
 			}
 
 			if (host && !client && msec_timer - ping_timer >= 2000) // Send a ping request
@@ -1017,7 +1019,7 @@ namespace TA3D
 				network_manager.sendPing();
 				ping_timer = msec_timer;
 
-				for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // ping time out
+				for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // ping time out
 				{
 					if (game_data.player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000)
 					{
@@ -1066,10 +1068,10 @@ namespace TA3D
 							game_data.ai_level[i] = AI_TYPE_EASY;
 							game_data.player_network_id[i] = -1;
 
-							setupgame_area.set_caption( String::Format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
+							setupgame_area.caption( String::Format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
 							AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 							setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
-							setupgame_area.set_caption( String::Format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
+							setupgame_area.caption( String::Format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
 
 							GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 							if (guiobj)
@@ -1174,7 +1176,7 @@ namespace TA3D
 													game_data.player_control[i] = player_control[2];
 													game_data.player_names[i] = player_str[2];
 
-													setupgame_area.set_caption(String::Format("gamesetup.name%d", i),game_data.player_names[i]);
+													setupgame_area.caption(String::Format("gamesetup.name%d", i),game_data.player_names[i]);
 
 													GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 													if (guiobj)
@@ -1218,7 +1220,7 @@ namespace TA3D
 										game_data.player_network_id[slot] = from;
 										game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 										game_data.player_names[slot] = UnfixBlank( params[2] );
-										setupgame_area.set_caption( String::Format( "gamesetup.name%d", slot ), game_data.player_names[slot]);                      // Update gui
+										setupgame_area.caption( String::Format( "gamesetup.name%d", slot ), game_data.player_names[slot]);                      // Update gui
 
 										GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", slot));
 										if (guiobj)
@@ -1349,7 +1351,7 @@ namespace TA3D
 									String script_name = UnfixBlank( params[2] );
 									if (script_name != game_data.game_script)
 									{
-										setupgame_area.set_caption( "gamesetup.script_name", script_name);
+										setupgame_area.caption( "gamesetup.script_name", script_name);
 										game_data.game_script = script_name;
 
 										if (client && !HPIManager->Exists( script_name.c_str()))
@@ -1433,12 +1435,12 @@ namespace TA3D
 									else
 										game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
 
-									setupgame_area.set_caption( String::Format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
+									setupgame_area.caption( String::Format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
 									AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 									setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
-									setupgame_area.set_caption( String::Format("gamesetup.side%d", i) , side_str[side_id]);                         // Update gui
-									setupgame_area.set_caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));         // Update gui
-									setupgame_area.set_caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));               // Update gui
+									setupgame_area.caption( String::Format("gamesetup.side%d", i) , side_str[side_id]);                         // Update gui
+									setupgame_area.caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));         // Update gui
+									setupgame_area.caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));               // Update gui
 									setupgame_area.set_state( String::Format("gamesetup.ready%d", i), ready);                                           // Update gui
 
 									GUIOBJ *guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
@@ -1507,9 +1509,9 @@ namespace TA3D
 					if (params[2] == "LIST" && host ) // Sending information about this server
 					{
 						uint16 nb_open = 0;
-						for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
+						for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
 						{
-							if (setupgame_area.get_caption(String::Format("gamesetup.name%d", f)) == player_str[2])
+							if (setupgame_area.caption(String::Format("gamesetup.name%d", f)) == player_str[2])
 								++nb_open;
 						}
 
@@ -1543,10 +1545,10 @@ namespace TA3D
 			amz = mouse_z;
 			amb = mouse_b;
 
-			if (key[KEY_ENTER] && !setupgame_area.get_caption("gamesetup.t_chat").empty())
+			if (key[KEY_ENTER] && !setupgame_area.caption("gamesetup.t_chat").empty())
 			{
 				String message;
-				message << "<" << lp_CONFIG->player_name << "> " << setupgame_area.get_caption("gamesetup.t_chat");
+				message << "<" << lp_CONFIG->player_name << "> " << setupgame_area.caption("gamesetup.t_chat");
 				if (host)
 				{
 					struct chat msg;
@@ -1562,7 +1564,7 @@ namespace TA3D
 					chat_list->Pos = chat_list->Text.size() - 1;
 				}
 
-				setupgame_area.set_caption("gamesetup.t_chat", "");
+				setupgame_area.caption("gamesetup.t_chat", "");
 			}
 
 			if (setupgame_area.get_value("gamesetup.FOW") >= 0 && !client && !saved_game)
@@ -1585,7 +1587,7 @@ namespace TA3D
 				guiobj = setupgame_area.get_object( "scripts.script_list");
 				if (guiobj && guiobj->Pos < guiobj->num_entries())
 				{
-					setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ]);
+					setupgame_area.caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ]);
 					game_data.game_script = guiobj->Text[ guiobj->Pos ];
 					if (host)
 						network_manager.sendSpecial("SET SCRIPT " + FixBlank(guiobj->Text[guiobj->Pos]));
@@ -1662,9 +1664,9 @@ namespace TA3D
 						network_manager.sendSpecial( "NOTIFY UPDATE");
 					}
 					uint16 e = 0;
-					for (uint16 f = 0; f<player_str_n; ++f)
+					for (unsigned int f = 0; f < player_str_n; ++f)
 					{
-						if (setupgame_area.get_caption(String::Format("gamesetup.name%d", i)) == player_str[f].c_str())
+						if (setupgame_area.caption(String::Format("gamesetup.name%d", i)) == player_str[f].c_str())
 						{
 							e = f;
 							break;
@@ -1674,7 +1676,7 @@ namespace TA3D
 
 					if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
 					{
-						for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
+						for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
 						{
 							if (f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN) // If we already have a local human player pass this player type value
 							{
@@ -1691,7 +1693,7 @@ namespace TA3D
 					else
 						game_data.player_network_id[i] = -1;
 
-					setupgame_area.set_caption( String::Format( "gamesetup.name%d", i ),player_str[e]);         // Update gui
+					setupgame_area.caption( String::Format( "gamesetup.name%d", i ),player_str[e]);         // Update gui
 					AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 					LOG_DEBUG(LOG_PREFIX_GFX << "nb AIs : " << AI_list.size());
 					setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
@@ -1710,14 +1712,14 @@ namespace TA3D
 					uint16 e = 0;
 					for (uint16 f = 0 ; f < side_str_n; ++f)
 					{
-						if (setupgame_area.get_caption(String::Format("gamesetup.side%d", i)) == side_str[f])
+						if (setupgame_area.caption(String::Format("gamesetup.side%d", i)) == side_str[f])
 						{
 							e = f;
 							break;
 						}
 					}
 					e = (e+1) % side_str_n;
-					setupgame_area.set_caption( String::Format("gamesetup.side%d", i) , side_str[e]);           // Update gui
+					setupgame_area.caption( String::Format("gamesetup.side%d", i) , side_str[e]);           // Update gui
 
 					game_data.player_sides[i] = side_str[e];                                // update game data
 					if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
@@ -1744,7 +1746,7 @@ namespace TA3D
 						network_manager.sendSpecial(String::Format("NOTIFY COLORCHANGE %d", i));
 					sint16 e = player_color_map[i];
 					sint16 f = -1;
-					for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
+					for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
 					{
 						if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
 							&& player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]))
@@ -1781,7 +1783,7 @@ namespace TA3D
 					game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
 					if (game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
-					setupgame_area.set_caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));         // Update gui
+					setupgame_area.caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));         // Update gui
 					if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
 				}
 				if (setupgame_area.get_state( String::Format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
@@ -1789,7 +1791,7 @@ namespace TA3D
 					game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
 					if (game_data.metal[i] == 0 ) game_data.metal[i] = 500;
 
-					setupgame_area.set_caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));           // Update gui
+					setupgame_area.caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));           // Update gui
 					if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
 				}
 			}
@@ -1807,8 +1809,8 @@ namespace TA3D
 				String new_map;
 				if (!client)
 				{
-					setupgame_area.set_caption("popup.msg",I18N::Translate("Loading maps, please wait ..."));       // Show a small popup displaying a wait message
-					setupgame_area.set_title("popup",I18N::Translate("Please wait ..."));
+					setupgame_area.caption("popup.msg", I18N::Translate("Loading maps, please wait ..."));       // Show a small popup displaying a wait message
+					setupgame_area.title("popup", I18N::Translate("Please wait ..."));
 					setupgame_area.msg("popup.show");
 					gfx->set_2D_mode();
 					setupgame_area.draw();
@@ -1871,7 +1873,7 @@ namespace TA3D
 						map_info << map_data.numplayers << "\n";
 					if (!map_data.missiondescription.empty())
 						map_info << map_data.missiondescription;
-					setupgame_area.set_caption("gamesetup.map_info", map_info);
+					setupgame_area.caption("gamesetup.map_info", map_info);
 				}
 
 				minimap_obj->Data = glimg;      // Synchronize the picture on GUI
@@ -2204,7 +2206,7 @@ namespace TA3D
 				}
 				clear_keybuf();
 				network_manager.Disconnect();
-				String host = networkgame_area.get_caption( "hosting.t_hostname");
+				String host = networkgame_area.caption( "hosting.t_hostname");
 
 				setup_game(false, host.c_str());   // Host a game
 				done = true;
@@ -2212,7 +2214,7 @@ namespace TA3D
 
 			if (networkgame_area.get_state( "joinip.b_ok"))
 			{
-				join_host = networkgame_area.get_caption( "joinip.t_hostname");
+				join_host = networkgame_area.caption( "joinip.t_hostname");
 				done = true;
 			}
 
@@ -2261,9 +2263,9 @@ namespace TA3D
 
 					if (i_server != servers.end())
 					{
-						networkgame_area.set_caption("networkgame.server_name", i_server->name);
-						networkgame_area.set_caption("networkgame.host", i_server->host);
-						networkgame_area.set_caption("networkgame.open_slots", String::Format( "%d", i_server->nb_open ));
+						networkgame_area.caption("networkgame.server_name", i_server->name);
+						networkgame_area.caption("networkgame.host", i_server->host);
+						networkgame_area.caption("networkgame.open_slots", String::Format("%d", i_server->nb_open ));
 					}
 				}
 			}
@@ -2520,7 +2522,7 @@ namespace TA3D
 			{
 				String brief_info = (const char*)data;
 				brief_info.toUTF8();
-				brief_area.set_caption( "brief.info", brief_info);
+				brief_area.caption( "brief.info", brief_info);
 				delete[] data;
 			}
 		}
@@ -2808,7 +2810,7 @@ namespace TA3D
 			}
 			else
 				wait_area.set_state( String::Format("wait.ready%d", i), false);
-			wait_area.set_caption( String::Format("wait.name%d", i), game_data->player_names[i]);
+			wait_area.caption(String::Format("wait.name%d", i), game_data->player_names[i]);
 		}
 
 		bool done = false;

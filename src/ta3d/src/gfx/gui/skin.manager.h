@@ -1,19 +1,19 @@
 /*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
+	Copyright (C) 2005  Roland BROCHARD
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #ifndef __TA3D_GFX_GUI_SKIN_MANAGER_H__
 # define __TA3D_GFX_GUI_SKIN_MANAGER_H__
 
@@ -26,45 +26,47 @@ namespace TA3D
 {
 
 
-    /*! \class SKIN_MANAGER
-    **
-    ** \brief
-    */
-    class SKIN_MANAGER
-    {
-    public:
-        //! \name Constructor & Destructor
-        //@{
-        //! Default constructor
-        SKIN_MANAGER();
-        //! Destructor
-        ~SKIN_MANAGER();
-        //@}
+	/*! \class SKIN_MANAGER
+	**
+	** \brief
+	*/
+	class SKIN_MANAGER
+	{
+	public:
+		//! \name Constructor & Destructor
+		//@{
+		//! Default constructor
+		SKIN_MANAGER();
+		//! Destructor
+		~SKIN_MANAGER();
+		//@}
 
-        /*!
-        ** \brief
-        */
-        void init();
+		/*!
+		** \brief
+		*/
+		void init();
 
-        /*!
-        ** \brief
-        */
-        void destroy();
+		/*!
+		** \brief
+		*/
+		void destroy();
 
-        /*!
-        ** \brief
-        **
-        ** \param filename
-        */
-        SKIN *load(const String& filename, const float scale = 1.0f);
+		/*!
+		** \brief
+		**
+		** \param filename
+		*/
+		Skin *load(const String& filename, const float scale = 1.0f);
 
-    private:
-        std::vector<SKIN*>          skins;
-        UTILS::cHashTable<SKIN*>    hash_skin;
-    }; // class SKIN_MANAGER
+	private:
+		std::vector<Skin*>          skins;
+		UTILS::cHashTable<Skin*>    hash_skin;
+	}; // class SKIN_MANAGER
 
-    extern SKIN_MANAGER skin_manager;
+	extern SKIN_MANAGER skin_manager;
 
-}
+
+
+} // namespace TA3D
 
 #endif // __TA3D_GFX_GUI_SKIN_MANAGER_H__
