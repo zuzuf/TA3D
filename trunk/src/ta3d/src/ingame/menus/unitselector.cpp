@@ -48,8 +48,6 @@ namespace Menus
 		:Abstract(),
 		pUseOnly(),
 		pDefaultUseOnly(),
-		pUnitPicObj(NULL),
-		pUnitListObj(NULL),
 		pLastUnitIndex(-1)
 	{}
 
@@ -58,8 +56,6 @@ namespace Menus
 		:Abstract(),
 		pUseOnly(preSelectedUnits),
 		pDefaultUseOnly(preSelectedUnits),
-		pUnitPicObj(NULL),
-		pUnitListObj(NULL),
 		pLastUnitIndex(-1)
 	{}
 

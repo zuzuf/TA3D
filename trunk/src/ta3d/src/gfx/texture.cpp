@@ -29,59 +29,60 @@
 
 namespace TA3D
 {
-    namespace Interfaces
-    {
-
-        GfxTexture::GfxTexture()
-            :width(0), height(0), tex(0), destroy_tex(false)
-        {}
+namespace Interfaces
+{
 
 
-        void GfxTexture::init()
-        {
-            width = 0;
-            height = 0;
-            tex = 0;
-            destroy_tex = false;
-        }
+	GfxTexture::GfxTexture()
+		:width(0), height(0), tex(0), destroy_tex(false)
+	{}
 
 
-        void GfxTexture::draw( const float x1, const float y1 )
-        {
-            gfx->drawtexture( tex, x1, y1, x1 + width, y1 + height );
-        }
-
-        void GfxTexture::draw( const float x1, const float y1, const uint32 col )
-        {
-            gfx->drawtexture(tex, x1, y1, x1 + width, y1 + height, col);
-        }
-
-        GfxTexture::GfxTexture( const GLuint gltex )
-        {
-            destroy_tex = true;
-            set( gltex );
-        }
-
-        void GfxTexture::set( const GLuint gltex )
-        {
-            tex = gltex;
-        }
-
-        void GfxTexture::destroy()
-        {
-            width = 0;
-            height = 0;
-            if(destroy_tex)
-            {
-                gfx->destroy_texture(tex);
-                destroy_tex = false;
-            }
-            else
-                tex = 0;
-        }
+	void GfxTexture::init()
+	{
+		width = 0;
+		height = 0;
+		tex = 0;
+		destroy_tex = false;
+	}
 
 
+	void GfxTexture::draw( const float x1, const float y1 )
+	{
+		gfx->drawtexture( tex, x1, y1, x1 + width, y1 + height );
+	}
+
+	void GfxTexture::draw( const float x1, const float y1, const uint32 col )
+	{
+		gfx->drawtexture(tex, x1, y1, x1 + width, y1 + height, col);
+	}
+
+	GfxTexture::GfxTexture(const GLuint gltex)
+	{
+		destroy_tex = true;
+		set( gltex );
+	}
+
+	void GfxTexture::set(const GLuint gltex)
+	{
+		tex = gltex;
+	}
+
+	void GfxTexture::destroy()
+	{
+		width = 0;
+		height = 0;
+		if(destroy_tex)
+		{
+			gfx->destroy_texture(tex);
+			destroy_tex = false;
+		}
+		else
+			tex = 0;
+	}
 
 
-    }
-}
+
+
+} // namespace Interfaces
+} // namespace Ta3D

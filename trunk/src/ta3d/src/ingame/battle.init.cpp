@@ -412,7 +412,7 @@ namespace TA3D
 
 		for (unsigned int i = 0; i < players.count(); ++i)
 		{
-			GUIOBJ *obj = pArea.get_object(String("playerstats.team") << i);
+			GUIOBJ::Ptr obj = pArea.get_object(String("playerstats.team") << i);
 			if (obj)
 			{
 				obj->current_state = TA3D::Math::Log2(players.team[i]);

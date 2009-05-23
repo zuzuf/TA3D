@@ -26,24 +26,27 @@ namespace TA3D
 namespace Interfaces
 {
 
-    class GfxTexture
-    {
-    public:
-        uint32		width;
-        uint32		height;
-        GLuint		tex;
-        bool		destroy_tex;
 
-        void init();
-        GfxTexture();
-        GfxTexture(const GLuint gltex);
-        void set(const GLuint gltex);
-        void draw(const float x1, const float y1);
-        void draw(const float x1, const float y1, const uint32 col);
+	class GfxTexture
+	{
+	public:
+		GfxTexture();
+		GfxTexture(const GLuint gltex);
 
-        void destroy();
+	public:
+		uint32		width;
+		uint32		height;
+		GLuint		tex;
+		bool		destroy_tex;
 
-    }; // class GfxTexture
+		void init();
+		void set(const GLuint gltex);
+		void draw(const float x1, const float y1);
+		void draw(const float x1, const float y1, const uint32 col);
+
+		void destroy();
+
+	}; // class GfxTexture
 
 
 

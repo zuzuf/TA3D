@@ -18,11 +18,12 @@
 # define __TA3D_GFX_GUI_OBJECT_H__
 
 # include "../../stdafx.h"
+# include <vector>
+# include <yuni/core/smartptr.h>
 # include "../../misc/string.h"
 # include "base.h"
-# include <vector>
-# include "wnd.h"
 # include "../texture.h"
+# include "skin.h"
 
 
 
@@ -38,6 +39,10 @@ namespace TA3D
 	*/
 	class GUIOBJ
 	{
+	public:
+		//! The most suitable smart pointer
+		typedef Yuni::SmartPtr<GUIOBJ>  Ptr;
+
 	public:
 		//! \name Constructor & Destructor
 		//@{
@@ -238,6 +243,7 @@ namespace TA3D
 		void create_vslider(const float X1, const float Y1, const float X2, const float Y2,
 							const int vmin, const int vmax, const int value);
 
+		void print(std::ostream& out);
 
 	public:
 		//! List of textures
@@ -319,5 +325,7 @@ namespace TA3D
 
 
 } // namespace TA3D
+
+# include "wnd.h"
 
 #endif // __TA3D_GFX_GUI_OBJECT_H__

@@ -554,13 +554,15 @@ namespace TA3D
 
 	void GFX::print(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
 	{
-		if (!font)  return;
-
-		ReInitTexSys( false );
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_TEXTURE_2D);
-		font->print(x, y, z, text);
+		assert(NULL != font);
+		if (!text.empty())
+		{
+			ReInitTexSys(false);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_TEXTURE_2D);
+			font->print(x, y, z, text);
+		}
 	}
 
 
@@ -1316,7 +1318,6 @@ namespace TA3D
 		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
 			return 0;
 
-		std::cout << "LOAD : " << file << std::endl;
 		SDL_Surface* bmp = load_image(file);
 		if (bmp == NULL)
 		{

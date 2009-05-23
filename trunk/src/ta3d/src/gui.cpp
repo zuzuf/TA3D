@@ -106,7 +106,7 @@ namespace TA3D
 
 				if (current_area->get_state("open.file_list"))
 				{
-					GUIOBJ *obj = current_area->get_object("open.file_list");
+					GUIOBJ::Ptr obj = current_area->get_object("open.file_list");
 					if (obj && obj->Pos < obj->Text.size())
 					{
 						if (current_area->caption("open.t_filename") == obj->Text[ obj->Pos ])      // Double-click
@@ -121,7 +121,7 @@ namespace TA3D
 
 				if (current_area->get_state("open.folder_list"))
 				{
-					GUIOBJ *obj = current_area->get_object("open.folder_list");
+					GUIOBJ::Ptr obj = current_area->get_object("open.folder_list");
 					if (obj && obj->Pos < obj->Text.size())
 					{
 						if (obj->Pos == cur_folder_idx)     // Change current dir (double-click)
