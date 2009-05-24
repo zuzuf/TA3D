@@ -2398,12 +2398,12 @@ namespace TA3D
 		rotation_speed = parser.pullAsFloat("sky.rotation speed");
 		rotation_offset = parser.pullAsFloat("sky.rotation offset");
 		texture_name = parser.pullAsString("sky.texture name");
-		parser.pullAsString("sky.planet").explode(planet, ",");
+		parser.pullAsString("sky.planet").explode(planet, ',');
 		FogColor[0] = parser.pullAsFloat("sky.fog R");
 		FogColor[1] = parser.pullAsFloat("sky.fog G");
 		FogColor[2] = parser.pullAsFloat("sky.fog B");
 		FogColor[3] = parser.pullAsFloat("sky.fog A");
-		parser.pullAsString("sky.map").explode(MapName, ",");
+		parser.pullAsString("sky.map").explode(MapName, ',');
 	}
 
 

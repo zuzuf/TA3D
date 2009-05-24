@@ -143,7 +143,7 @@ namespace TA3D
 					i++;
 					String::Vector args;
 					String msg = getNextMessage();
-					msg.explode(args, " ");
+					msg.explode(args, ' ');
 
 					if (args.empty())   continue;
 
@@ -218,7 +218,7 @@ namespace TA3D
 			return;
 
 		String::Vector args;
-		msg.explode(args, " ");
+		msg.explode(args, ' ');
 
 		if (args.empty())
 			return;
