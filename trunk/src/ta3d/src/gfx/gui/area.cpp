@@ -110,15 +110,9 @@ namespace TA3D
 		if (guiobj && !guiobj->Text.empty())
 		{
 			if (guiobj->Type == OBJ_TEXTEDITOR)
-			{
 				caption.explode(guiobj->Text, '\n');
-				LOG_DEBUG("AREA caption ASSIGN :  " << message << " = " << caption << " (List)");
-			}
 			else
-			{
 				guiobj->caption(caption);
-				LOG_DEBUG("AREA caption ASSIGN :  " << message << " = " << caption);
-			}
 		}
 		else
 		{
