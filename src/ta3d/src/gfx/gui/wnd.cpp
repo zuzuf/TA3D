@@ -1637,15 +1637,26 @@ namespace TA3D
 
 		pObjects.clear();
 
+		String obj_key;
+		String obj_type;
+		String caption;
+		String::Vector Entry;
 		for (unsigned int i = 0 ; i < NbObj; ++i) // Loads each object
 		{
+			obj_key.clear();
+			obj_key << "window.object" << i << ".";
+
+			// Type of the new object
+			obj_type = wndFile.pullAsString(obj_key + "type");
+			if (obj_type.empty())
+				continue;
+			obj_type.toUpper();
+
+			// Creating a new instance
 			GUIOBJ::Ptr object = new GUIOBJ();
 			pObjects.push_back(object);
 
-			String obj_key("window.object");
-			obj_key << i << ".";
-			String obj_type = wndFile.pullAsString(obj_key + "type");
-			object->Name = wndFile.pullAsString(obj_key + "name", String::Format("object%d", i));
+			object->Name = wndFile.pullAsString(obj_key + "name", String("object") << i);
 			obj_hashtable.insert(String::ToLower(object->Name), i + 1);
 			object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 
@@ -1653,7 +1664,7 @@ namespace TA3D
 			float Y1 = wndFile.pullAsFloat(obj_key + "y1") * y_factor;
 			float X2 = wndFile.pullAsFloat(obj_key + "x2") * x_factor;
 			float Y2 = wndFile.pullAsFloat(obj_key + "y2") * y_factor;
-			String caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
+			caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
 			float size_factor = wndFile.pullAsFloat(obj_key + "size", 1.0f);
 			float size = size_factor * Math::Min(x_factor, y_factor);
 			int val = wndFile.pullAsInt(obj_key + "value");
@@ -1692,98 +1703,169 @@ namespace TA3D
 				X1 -= gui_font->length(caption) * 0.5f;
 			}
 
-			String::Vector Entry;
-			wndFile.pullAsString(obj_key + "entry").explode(Entry, ',');
+			wndFile.pullAsString(obj_key + "entry").explode(Entry, ',', true);
 			I18N::Translate(Entry);
 
-			if (obj_type == "BUTTON")
-				object->create_button(X1, Y1, X2, Y2, caption, NULL, size);
-			else if (obj_type == "FMENU")
-				object->create_menu(X1, Y1, Entry, NULL, size);
-			else if (obj_type == "OPTIONB")
-				object->create_optionb(X1, Y1, caption, val, NULL, skin, size);
-			else if (obj_type == "PBAR")
-				object->create_pbar(X1, Y1, X2, Y2, val, size);
-			else if (obj_type == "TEXTEDITOR")
-				object->create_texteditor(X1, Y1, X2, Y2, caption, size);
-			else if (obj_type == "TEXTBAR")
-				object->create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
-			else if (obj_type == "OPTIONC")
-				object->create_optionc(X1, Y1, caption, val, NULL, skin, size);
-			else if (obj_type == "MENU")
-				object->create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
-			else if (obj_type == "TABUTTON" || obj_type == "MULTISTATE")
+			switch (obj_type.first())
 			{
-				String::Vector imageNames;
-				caption.explode(imageNames, ',');
-				std::vector<GLuint> gl_imgs;
-				std::vector<uint32> t_w;
-				std::vector<uint32> t_h;
-
-				for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
-				{
-					uint32 tw, th;
-					GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
-					if (texHandle)
+				case 'B' :
 					{
-						gl_imgs.push_back(texHandle);
-						t_w.push_back(tw);
-						t_h.push_back(th);
+						if (obj_type == "BUTTON")
+						{
+							object->create_button(X1, Y1, X2, Y2, caption, NULL, size);
+							break;
+						}
+						if (obj_type == "BOX")
+						{
+							FIX_COLOR(val);
+							object->create_box(X1, Y1, X2, Y2, val);
+						}
+						break;
 					}
-				}
+				case 'F' :
+					{
+						if (obj_type == "FMENU")
+							object->create_menu(X1, Y1, Entry, NULL, size);
+						break;
+					}
+				case 'H' :
+					{
+						if (obj_type == "HSLIDER")
+						{
+							object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+							break;
+						}
+						break;
+					}
+				case 'I' :
+					{
+						if (obj_type == "IMG")
+						{
+							object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
+							object->destroy_img = object->Data != 0 ? true : false;
+						}
+						break;
+					}
+				case 'M' :
+					{
+						if (obj_type == "MENU")
+						{
+							object->create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
+							break;
+						}
+						if (obj_type == "MULTISTATE")
+						{
+							String::Vector imageNames;
+							caption.explode(imageNames, ',');
+							std::vector<GLuint> gl_imgs;
+							std::vector<uint32> t_w;
+							std::vector<uint32> t_h;
 
-				object->create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
-				for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
-				{
-					object->x2 = X1 + t_w[e] * size_factor * x_factor;
-					object->y2 = Y1 + t_h[e] * size_factor * y_factor;
-					object->gltex_states[e].width = t_w[e] * size_factor * x_factor;
-					object->gltex_states[e].height = t_h[e] * size_factor * x_factor;
-					object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
-				}
+							for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
+							{
+								uint32 tw, th;
+								GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
+								if (texHandle)
+								{
+									gl_imgs.push_back(texHandle);
+									t_w.push_back(tw);
+									t_h.push_back(th);
+								}
+							}
+
+							object->create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
+							for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
+							{
+								object->x2 = X1 + t_w[e] * size_factor * x_factor;
+								object->y2 = Y1 + t_h[e] * size_factor * y_factor;
+								object->gltex_states[e].width = t_w[e] * size_factor * x_factor;
+								object->gltex_states[e].height = t_h[e] * size_factor * x_factor;
+								object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
+							}
+							break;
+						}
+						if (obj_type == "MISSION")
+						{
+							object->create_text(X1, Y1, caption, val, size);
+							if (X2 > 0 && Y2 > Y1)
+							{
+								object->x2 = X2;
+								object->y2 = Y2;
+								object->Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
+							}
+							break;
+						}
+						break;
+					}
+				case 'L' :
+					{
+						if (obj_type == "LINE")
+						{
+							FIX_COLOR(val);
+							object->create_line(X1, Y1, X2, Y2, val);
+							break;
+						}
+						if (obj_type == "LIST")
+							object->create_list(X1, Y1, X2, Y2, Entry, size);
+						break;
+					}
+				case 'O' :
+					{
+						if (obj_type == "OPTIONB")
+						{
+							object->create_optionb(X1, Y1, caption, val, NULL, skin, size);
+							break;
+						}
+						if (obj_type == "OPTIONC")
+						{
+							object->create_optionc(X1, Y1, caption, val, NULL, skin, size);
+							break;
+						}
+						break;
+					}
+				case 'P' :
+					{
+						if (obj_type == "PBAR")
+							object->create_pbar(X1, Y1, X2, Y2, val, size);
+						break;
+					}
+				case 'T' :
+					{
+						if (obj_type == "TEXTEDITOR")
+						{
+							object->create_texteditor(X1, Y1, X2, Y2, caption, size);
+							break;
+						}
+						if (obj_type == "TEXTBAR")
+						{
+							object->create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
+							break;
+						}
+						if (obj_type == "TEXT")
+						{
+							FIX_COLOR(val);
+							object->create_text(X1, Y1, caption, val, size);
+							if (X2 > 0 && Y2 > Y1)
+							{
+								object->x2 = X2;
+								object->y2 = Y2;
+								object->Flag |= FLAG_TEXT_ADJUST;
+							}
+							break;
+						}
+						break;
+					}
+				case 'V' :
+					{
+						if (obj_type == "VSLIDER")
+						{
+							object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+							break;
+						}
+
+						break;
+					}
 			}
-			else if (obj_type == "TEXT")
-			{
-				FIX_COLOR(val);
-				object->create_text(X1, Y1, caption, val, size);
-				if (X2 > 0 && Y2 > Y1)
-				{
-					object->x2 = X2;
-					object->y2 = Y2;
-					object->Flag |= FLAG_TEXT_ADJUST;
-				}
-			}
-			else if (obj_type == "MISSION")
-			{
-				object->create_text(X1, Y1, caption, val, size);
-				if (X2 > 0 && Y2 > Y1)
-				{
-					object->x2 = X2;
-					object->y2 = Y2;
-					object->Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
-				}
-			}
-			else if (obj_type == "LINE")
-			{
-				FIX_COLOR(val);
-				object->create_line(X1, Y1, X2, Y2, val);
-			}
-			else if (obj_type == "BOX")
-			{
-				FIX_COLOR(val);
-				object->create_box(X1, Y1, X2, Y2, val);
-			}
-			else if (obj_type == "IMG")
-			{
-				object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
-				object->destroy_img = object->Data != 0 ? true : false;
-			}
-			else if (obj_type == "LIST")
-				object->create_list(X1, Y1, X2, Y2, Entry, size);
-			else if (obj_type == "HSLIDER")
-				object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
-			else if (obj_type == "VSLIDER")
-				object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
 
 			wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',');
 			wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',');
@@ -1828,4 +1910,4 @@ namespace TA3D
 
 
 
-} // namespace TA3D
+	} // namespace TA3D
