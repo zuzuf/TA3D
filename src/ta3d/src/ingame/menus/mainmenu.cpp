@@ -91,7 +91,7 @@ namespace Menus
 		getInfosAboutTheCurrentMod();
 
 		// Reset the caption
-		pArea->caption("main.t_version", "Pokemon !");//TA3D_ENGINE_VERSION );
+		pArea->caption("main.t_version", TA3D_ENGINE_VERSION);
 		pArea->caption("main.t_mod", pCurrentModCaption);
 	}
 
