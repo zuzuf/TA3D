@@ -249,7 +249,7 @@ namespace Audio
 			if (line[0] == '*')
 			{
 				isBattle = true;
-				line = line.erase(0, 1);
+                                line.erase(0, 1);
 				++pBattleTunesCount;
 			}
 			else
