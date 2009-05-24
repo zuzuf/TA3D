@@ -1086,7 +1086,7 @@ namespace TA3D
 			{
 				int from = received_special_msg.from;
 				String::Vector params;
-				String(received_special_msg.message).explode(params, " ");
+				String(received_special_msg.message).explode(params, ' ');
 				if (params.size() == 1)
 				{
 					if (params[0] == "PONG")
@@ -1503,7 +1503,7 @@ namespace TA3D
 			while (!broadcast_msg.empty())  // Broadcast message receiver
 			{
 				String::Vector params;
-				broadcast_msg.explode(params, " ");
+				broadcast_msg.explode(params, ' ');
 				if (params.size() == 3 && params[0] == "PING" && params[1] == "SERVER")
 				{
 					if (params[2] == "LIST" && host ) // Sending information about this server
@@ -2026,7 +2026,7 @@ namespace TA3D
 				while (!msg.empty())
 				{
 					String::Vector params;
-					msg.explode(params, " ");
+					msg.explode(params, ' ');
 					if (params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER") // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
 					{
 						String name = UnfixBlank(params[2]);
@@ -2896,7 +2896,7 @@ namespace TA3D
 				int from = received_special_msg.from;
 				int player_id = game_data->net2id(from);
 				String::Vector params;
-				String(received_special_msg.message).explode(params, " ");
+				String(received_special_msg.message).explode(params, ' ');
 				if (params.size() == 1)
 				{
 					if (params[0] == "PONG" )

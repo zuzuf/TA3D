@@ -360,9 +360,9 @@ namespace TA3D
 
 	uint32 TDFParser::pullAsColor(const String& key, const uint32 def)
 	{
-		String str = pullAsString(key);
+		const String& str = pullAsString(key);
 		String::Vector params;
-		str.explode(params, ",");
+		str.explode(params, ',');
 		if (params.size() < 3)
 			return def;
 		if (params.size() == 3)

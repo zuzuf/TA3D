@@ -639,7 +639,7 @@ namespace TA3D
 		String category = String::ToLower( parseString("UNITINFO.Category") );
 		Category.initTable(16);
 		categories.clear();
-		category.explode(categories, " ");
+		category.explode(categories, ' ');
 		for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
 			if (!i->empty())
 				Category.insertOrUpdate(*i, 1);
@@ -802,7 +802,7 @@ namespace TA3D
 				if (!aimdir.empty())
 				{
 					String::Vector vec;
-					aimdir.explode(vec, " ");
+					aimdir.explode(vec, ' ');
 					if (vec.size() == 3)
 					{
 						aim_data[i].check = true;

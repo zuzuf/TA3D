@@ -447,7 +447,7 @@ namespace TA3D
 						{
 							String::Vector params;
 							LOG_DEBUG("parsing `" << special_msg.message << "`");
-							String(special_msg.message).explode(params, " ");
+							String(special_msg.message).explode(params, ' ');
 							if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
 							{
 								myID = atoi( params[2].c_str() );
@@ -484,7 +484,7 @@ namespace TA3D
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
 							String::Vector params;
-							String(special_msg.message).explode(params, " ");
+							String(special_msg.message).explode(params, ' ');
 							if( params.size() == 3 && params[0] == "STATUS")
 							{
 								if (params[1] == "NEW")
@@ -1101,7 +1101,7 @@ namespace TA3D
 			return 0;
 
 		String::Vector line;
-		gamelist.explode(line, "\n");
+		gamelist.explode(line, '\n');
 
 		int nb_servers = 0;
 		int old = -1;
@@ -1112,7 +1112,7 @@ namespace TA3D
 		for (String::Vector::const_iterator entry = line.begin(); entry != line.end(); ++entry)
 		{
 			String::Vector params;
-			entry->explode(params, " ");
+			entry->explode(params, ' ');
 			if (params.size() < 2)
 				continue;
 			if (params.size() == 2 && params[1] == "servers")

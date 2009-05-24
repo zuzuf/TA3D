@@ -1441,7 +1441,7 @@ namespace TA3D
 				obj_flags |= FLAG_HIDDEN;
 
 			String::Vector Caption;
-			wndFile.pullAsString(obj_key + "text").explode(Caption, ",");
+			wndFile.pullAsString(obj_key + "text").explode(Caption, ',');
 			I18N::Translate(Caption);
 
 			if (TA_ID_BUTTON == obj_type)
@@ -1693,7 +1693,7 @@ namespace TA3D
 			}
 
 			String::Vector Entry;
-			wndFile.pullAsString(obj_key + "entry").explode(Entry, ",");
+			wndFile.pullAsString(obj_key + "entry").explode(Entry, ',');
 			I18N::Translate(Entry);
 
 			if (obj_type == "BUTTON")
@@ -1715,7 +1715,7 @@ namespace TA3D
 			else if (obj_type == "TABUTTON" || obj_type == "MULTISTATE")
 			{
 				String::Vector imageNames;
-				caption.explode(imageNames, ",");
+				caption.explode(imageNames, ',');
 				std::vector<GLuint> gl_imgs;
 				std::vector<uint32> t_w;
 				std::vector<uint32> t_h;
@@ -1785,10 +1785,10 @@ namespace TA3D
 			else if (obj_type == "VSLIDER")
 				object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
 
-			wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ",");
-			wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ",");
-			wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ",");
-			wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ",");
+			wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',');
+			wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',');
+			wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ',');
+			wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ',');
 
 			object->Flag |= obj_flags;
 			object->Flag &= ~obj_negative_flags;
