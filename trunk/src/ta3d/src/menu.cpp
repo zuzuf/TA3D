@@ -1933,18 +1933,21 @@ namespace TA3D
 					game_data.nb_players = 0;
 					for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Move players to the top of the vector, so it's easier to access data
 					{
-						if (game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED )
+                        if (game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED)
 						{
-							game_data.team[game_data.nb_players] = game_data.team[i];
-							game_data.player_control[game_data.nb_players] = game_data.player_control[i];
-							game_data.player_names[game_data.nb_players] = game_data.player_names[i];
-							game_data.player_sides[game_data.nb_players] = game_data.player_sides[i];
-							game_data.ai_level[game_data.nb_players] = game_data.ai_level[i];
-							game_data.energy[game_data.nb_players] = game_data.energy[i];
-							game_data.metal[game_data.nb_players] = game_data.metal[i];
-							uint16 e = player_color_map[game_data.nb_players];
-							player_color_map[game_data.nb_players] = player_color_map[i];
-							player_color_map[i] = e;
+                            if (i != game_data.nb_players)
+                            {
+                                game_data.team[game_data.nb_players] = game_data.team[i];
+                                game_data.player_control[game_data.nb_players] = game_data.player_control[i];
+                                game_data.player_names[game_data.nb_players] = game_data.player_names[i];
+                                game_data.player_sides[game_data.nb_players] = game_data.player_sides[i];
+                                game_data.ai_level[game_data.nb_players] = game_data.ai_level[i];
+                                game_data.energy[game_data.nb_players] = game_data.energy[i];
+                                game_data.metal[game_data.nb_players] = game_data.metal[i];
+                                uint16 e = player_color_map[game_data.nb_players];
+                                player_color_map[game_data.nb_players] = player_color_map[i];
+                                player_color_map[i] = e;
+                            }
 							game_data.nb_players++;
 						}
 					}

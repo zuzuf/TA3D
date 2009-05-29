@@ -36,7 +36,7 @@ namespace Menus
 	{
 		UnitSelector m(preSelectedUnits);
 		bool r = m.execute();
-		useOnly = (r) ? useOnly = m.selected() : preSelectedUnits;
+        useOnly = (r) ? m.selected() : preSelectedUnits;
 		return (r && (!useOnly.empty()));
 	}
 
