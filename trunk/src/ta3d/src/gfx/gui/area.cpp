@@ -276,32 +276,18 @@ namespace TA3D
 		String real_filename = filename;
 		if (skin && !skin->prefix().empty())
 		{
-			const int name_len = Paths::ExtractFileName(real_filename).size();
-			if (name_len > 0)
-			{
-				real_filename.clear();
-				real_filename << filename.substr(0, filename.size() - name_len) << skin->prefix()
-					<< Paths::ExtractFileName(filename);
-			}
-			else
-				real_filename << skin->prefix();
-			if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
+            real_filename.clear();
+            real_filename << Paths::ExtractFilePath(filename) << skin->prefix() << Paths::ExtractFileName(filename);
+            if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
-		skin = NULL;
+        skin = NULL;
 
 		TDFParser areaFile(real_filename);
 
 		area_stack.push_front(this);     // Just in case we want to grab it from elsewhere
 
-		name = filename;		// Grab the area's name
-		String::size_type e = name.find('.');		// Extracts the file name
-
-		if (e != String::npos)
-			name.truncate(e);
-		e = name.find_last_of( "/\\" );
-		if (e != String::npos)
-			name = name.substr(e + 1, name.size() - e - 1);
+        name = Paths::ExtractFileNameWithoutExtension(filename);		// Grab the area's name
 
 		name = areaFile.pullAsString("area.name", name);					// The TDF may override the area name
 		skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty())
@@ -322,7 +308,7 @@ namespace TA3D
 			load_window(*i);
 
 		String background_name = areaFile.pullAsString("area.background", "none");
-		if (background_name.toLower() != "none")           // If we have a background set then load it
+        if (background_name.toLower() != "none")           // If we have a background set then load it
 		{
 			if(skin && !skin->prefix().empty())
 			{

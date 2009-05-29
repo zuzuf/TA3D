@@ -22,6 +22,7 @@
 #include "../../console.h"
 #include "../../gfx/glfunc.h"
 #include "../../misc/tdf.h"
+#include "../../misc/paths.h"
 #include "../../input/keyboard.h"
 #include "../../input/mouse.h"
 
@@ -1559,13 +1560,7 @@ namespace TA3D
 	{
 		TDFParser wndFile(filename);
 
-		Name = filename; // Grab the window's name, so we can send signals to it (to hide/show for example)
-		String::size_type e = Name.find('.'); // Extracts the file name
-		if (e != String::npos)
-			Name = Name.substr(0, e);
-		e = Name.find_last_of("/\\");
-		if (e != String::npos)
-			Name = Name.substr(e + 1, Name.size() - e - 1);
+        Name = Paths::ExtractFileNameWithoutExtension(filename); // Grab the window's name, so we can send signals to it (to hide/show for example)
 
 		Name = wndFile.pullAsString("window.name", Name);
 		hidden = wndFile.pullAsBool("window.hidden");
