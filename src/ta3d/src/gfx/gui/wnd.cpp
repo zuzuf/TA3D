@@ -1349,13 +1349,7 @@ namespace TA3D
 		TDFParser wndFile(filename, false, false, true);
 
 		// Grab the window's name, so we can send signals to it (to hide/show for example)
-		Name = filename;
-		String::size_type e = Name.find('.');		// Extracts the file name
-		if (e != String::npos)
-			Name = Name.substr(0, e);
-		e = Name.find_last_of("/\\");
-		if (e != String::npos)
-			Name = Name.substr(e + 1, Name.size() - e - 1);
+        Name = Paths::ExtractFileNameWithoutExtension(filename);
 
 		hidden = !wndFile.pullAsBool("gadget0.common.active");
 
@@ -1411,18 +1405,20 @@ namespace TA3D
 		color = background ? makeacol(0xFF, 0xFF, 0xFF, 0xFF) : 0x0;
 		unsigned int NbObj = wndFile.pullAsInt("gadget0.totalgadgets");
 
+        pObjects.clear();
 		pObjects.reserve(NbObj);
 
-		for (unsigned int i = 0; i < pObjects.size(); ++i)
+        for (unsigned int i = 0; i < NbObj ; ++i)
 		{
 			GUIOBJ::Ptr object = new GUIOBJ();
-			pObjects[i] = object;
+            pObjects.push_back( object );
 
 			String obj_key;
 			obj_key << "gadget" << i + 1 << ".";
 			int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 
 			object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
+            LOG_DEBUG("name = '" << object->Name << "'");
 			obj_hashtable.insert(String::ToLower(object->Name), i + 1);
 
 			int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
@@ -1442,7 +1438,7 @@ namespace TA3D
 				obj_flags |= FLAG_HIDDEN;
 
 			String::Vector Caption;
-			wndFile.pullAsString(obj_key + "text").explode(Caption, ',');
+            wndFile.pullAsString(obj_key + "text").explode(Caption, ',', true, true, true);
 			I18N::Translate(Caption);
 
 			if (TA_ID_BUTTON == obj_type)
@@ -1698,8 +1694,9 @@ namespace TA3D
 				X1 -= gui_font->length(caption) * 0.5f;
 			}
 
-			wndFile.pullAsString(obj_key + "entry").explode(Entry, ',', true);
-			I18N::Translate(Entry);
+            String entryList = " " + wndFile.pullAsString(obj_key + "entry");
+            entryList.explode(Entry, ',', true, true, true);
+            I18N::Translate(Entry);
 
 			switch (obj_type.first())
 			{
@@ -1751,7 +1748,7 @@ namespace TA3D
 						if (obj_type == "MULTISTATE")
 						{
 							String::Vector imageNames;
-							caption.explode(imageNames, ',');
+                            caption.explode(imageNames, ',', false, true, true);
 							std::vector<GLuint> gl_imgs;
 							std::vector<uint32> t_w;
 							std::vector<uint32> t_h;
@@ -1862,10 +1859,10 @@ namespace TA3D
 					}
 			}
 
-			wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',');
-			wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',');
-			wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ',');
-			wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ',');
+            wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',', true, true, true);
+            wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',', true, true, true);
+            wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ',', true, true, true);
+            wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ',', true, true, true);
 
 			object->Flag |= obj_flags;
 			object->Flag &= ~obj_negative_flags;

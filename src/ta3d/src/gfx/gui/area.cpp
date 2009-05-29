@@ -107,10 +107,10 @@ namespace TA3D
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
-		if (guiobj && !guiobj->Text.empty())
+        if (guiobj)
 		{
 			if (guiobj->Type == OBJ_TEXTEDITOR)
-				caption.explode(guiobj->Text, '\n');
+                caption.explode(guiobj->Text, '\n', true, true, true);
 			else
 				guiobj->caption(caption);
 		}
@@ -303,7 +303,7 @@ namespace TA3D
 		}
 
 		String::Vector windows_to_load;
-		areaFile.pullAsString("area.windows").explode(windows_to_load, ',');
+        areaFile.pullAsString("area.windows").explode(windows_to_load, ',', false, true, true);
 		for (String::Vector::const_iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
 			load_window(*i);
 

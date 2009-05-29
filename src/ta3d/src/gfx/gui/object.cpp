@@ -113,7 +113,6 @@ namespace TA3D
 	void GUIOBJ::create_ta_button(float X1, float Y1, const String::Vector& Caption,
 								  const std::vector<GLuint>& states, int nb_st)
 	{
-		std::cout << "BUTTON !!!" << std::endl;
 		gltex_states.clear();
 		gltex_states.resize(states.size());
 		for (unsigned int i = 0 ; i < states.size(); ++i) // Create the texture Vector
