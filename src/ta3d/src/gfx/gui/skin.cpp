@@ -100,29 +100,12 @@ namespace TA3D
 		TDFParser skinFile(filename);
 
 		// Grab the skin's name, so we can now if a skin is already in use
-		String tmp(filename);
-		String::size_type e = filename.find('.');
-		if (0 == e)
-		{
-			LOG_WARNING("TDF: Attempting to load an empty file (after extension extraction)");
-			return;
-		}
+        String tmp(Paths::ExtractFileNameWithoutExtension(filename));
 
-		if (e != String::npos)
-			tmp.truncate(e);
-
-		e = tmp.find_last_of("/\\");
-
-		if (e != String::npos)
-		{
-			String t = pName.substr(e + 1, pName.size() - e - 1);
-			tmp = t;
-		}
-
-		std::cout << "LOADING : " << tmp << std::endl;
+        std::cout << "LOADING : " << tmp << std::endl;
 		pName = skinFile.pullAsString("skin.name", tmp); // The TDF may override the skin name
 
-		pPrefix = skinFile.pullAsString("skin.pPrefix", String()); // The pPrefix to use for
+        pPrefix = skinFile.pullAsString("skin.prefix", String()); // The pPrefix to use for
 		text_y_offset = skinFile.pullAsInt("skin.text.y offset", 0) * scale;
 
 		wnd_border.load(skinFile, "skin.window.border.", scale);
