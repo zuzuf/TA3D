@@ -53,7 +53,10 @@ namespace TA3D
 
 	void GFX::initSDL()
 	{
-		SDL_Surface *icon = load_image("gfx\\icon.png");
+        // First we need to load the OpenGL library
+        SDL_GL_LoadLibrary(NULL);
+
+        SDL_Surface *icon = load_image("gfx\\icon.png");
 		if (icon)
 		{
 			SDL_WM_SetIcon(icon, NULL);
