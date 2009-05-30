@@ -1351,7 +1351,7 @@ namespace TA3D
 		// Grab the window's name, so we can send signals to it (to hide/show for example)
         Name = Paths::ExtractFileNameWithoutExtension(filename);
 
-		hidden = !wndFile.pullAsBool("gadget0.common.active");
+        hidden = !wndFile.pullAsBool("gadget0.common.active");
 
 		Title.clear();
 		x = wndFile.pullAsInt("gadget0.common.xpos");
@@ -1418,7 +1418,6 @@ namespace TA3D
 			int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 
 			object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
-            LOG_DEBUG("name = '" << object->Name << "'");
 			obj_hashtable.insert(String::ToLower(object->Name), i + 1);
 
 			int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
