@@ -611,6 +611,8 @@ namespace TA3D
 					{
 						dw *= 0.5f;
 						h = 0.25f * pFeature->anim.h[feature[i].frame];
+                        Pos.x += pFeature->anim.ofs_x[feature[i].frame] * 0.5f - dw;
+                        Pos.z += pFeature->anim.ofs_y[feature[i].frame] * 0.5f - h;
 
 						quad_table.queue_quad( pFeature->anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF ) );
 					}

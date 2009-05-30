@@ -565,24 +565,29 @@ namespace TA3D
 		LOG_DEBUG("MAP: reading map features data");
 		// Ajoute divers éléments(végétation,...)
 		f_pos=header.PTRmapattr+1;
-		for (y = 0; y < (map->bloc_h << 1); ++y)
+        for (y = 0; y < (map->bloc_h << 1); ++y)
+            for (x = 0; x < (map->bloc_w << 1); ++x)
+                map->map_data[y][x].stuff = -1;
+        for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
 			{
 				unsigned short type = *((unsigned short*)(data + f_pos));
-				map->map_data[y][x].stuff = -1;
 				if (type <= header.tileanims)
 				{
 					Vector3D Pos;
-					Pos.x = (x<<3) - map->map_w_d + 8.0f;
-					Pos.z = (y<<3) - map->map_h_d + 8.0f;
-					Feature *feature = feature_manager.getFeaturePointer(TDF_index[type]);
+                    Pos.x = (x<<3) - map->map_w_d + 8.0f;
+                    Pos.z = (y<<3) - map->map_h_d + 8.0f;
+                    Feature *feature = feature_manager.getFeaturePointer(TDF_index[type]);
 					if (feature && !feature->m3d)
 						Pos.y = map->get_max_rect_h( x, y, feature->footprintx, feature->footprintz);
 					else
 						Pos.y = map->get_unit_h( Pos.x, Pos.z);
-					map->map_data[y][x].stuff = features.add_feature(Pos,TDF_index[type]);
-					features.drawFeatureOnMap( map->map_data[y][x].stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
+                    if (x + 1 < map->bloc_w_db && y + 1 < map->bloc_h_db)
+                    {
+                        map->map_data[y + 1][x + 1].stuff = features.add_feature(Pos,TDF_index[type]);
+                        features.drawFeatureOnMap( map->map_data[y + 1][x + 1].stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
+                    }
 				}
 				f_pos+=4;
 			}
