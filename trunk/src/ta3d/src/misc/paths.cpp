@@ -198,9 +198,9 @@ namespace TA3D
 			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
 		}
 
-		String ExtractFileNameWithoutExtension(const String& p)
+        String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::Paths::ExtractFileNameWithoutExtension(p);
+            return Yuni::Core::Paths::ExtractFileNameWithoutExtension(p, systemDependant);
 		}
 
 

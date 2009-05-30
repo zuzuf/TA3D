@@ -158,7 +158,7 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-	String ExtractFileNameWithoutExtension(const String& p);
+    String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant = false);
 
 	/*!
 	** \brief Extract the extention of a file name
