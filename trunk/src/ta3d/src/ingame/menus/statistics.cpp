@@ -72,10 +72,10 @@ namespace Menus
 
 			doUpdateObject("player", i, color, players.nom[i]);
 			doUpdateObject("side",   i, color, players.side[i]);
-			doUpdateObject("losses", i, color, players.losses[i]);
-			doUpdateObject("kills",  i, color, players.kills[i]);
-			doUpdateObject("energy", i, color, round(players.energy_total[i]));
-			doUpdateObject("metal",  i, color, round(players.metal_total[i]));
+            doUpdateObject("losses", i, color, String(players.losses[i]));
+            doUpdateObject("kills",  i, color, String(players.kills[i]));
+            doUpdateObject("energy", i, color, String((int)players.energy_total[i]));
+            doUpdateObject("metal",  i, color, String((int)players.metal_total[i]));
 		}
 		return true;
 	}
