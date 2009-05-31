@@ -90,7 +90,9 @@ namespace Menus
 		// Current mod
 		getInfosAboutTheCurrentMod();
 
-		// Reset the caption
+        if (!pArea)
+            return;
+        // Reset the caption
 		pArea->caption("main.t_version", TA3D_ENGINE_VERSION);
 		pArea->caption("main.t_mod", pCurrentModCaption);
 	}
