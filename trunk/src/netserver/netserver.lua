@@ -165,6 +165,21 @@ function leaveChan(client)
     end
 end
 
+-- Returns a table containing all the results returned by MySQL
+function getFromDB(req)
+    cur = netserver_db:execute(req)
+    if cur == nil or cur == 0 or cur:numrows() == 0 then
+        return {}
+    end
+    local table = {}
+    local nbResults = cur:numrows()
+
+	for i = 1, nbResults do
+    	table[i] = cur:fetch({}, "a")
+    end
+    return table
+end
+
 -- Identify a client, connect it if password and login match
 function identifyClient(client, password)
     cur = netserver_db:execute("SELECT * FROM `clients` WHERE `login`='" .. fixSQL(client.login) .. "' AND `password`='" .. fixSQL(password) .. "' AND `banned`=0")
@@ -245,7 +260,7 @@ function sendAll(msg)
     end
 end
 
--- this is where the magic tooks place
+-- this is where the magic takes place
 function processClient(client)
     while true do
         local msg, err = client:receive()
@@ -342,6 +357,12 @@ function processClient(client)
                     for c, v in pairs(chans) do
                         client:send("CHAN " .. c)
                     end
+                -- GET MOD LIST : client is asking for the mod list
+                elseif args[1] == "GET" and #args >= 3 and args[2] == "MOD" and args[3] == "LIST" then
+                	local mod_list = getFromDB("SELECT * FROM mods")
+                    for i, mod in ipairs(mod_list) do
+	                   	client:send("MOD " .. mod.ID .. " \"" .. mod.version .. "\" \"" .. mod.name .. "\" \"" .. mod.file .. "\" \"" .. mod.author .. "\" \"" .. mod.comment .. "\"")
+	                end
                 -- GET CLIENT LIST : list ALL clients
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "CLIENT" and args[3] == "LIST" then
                     for id, s in ipairs(socket_list) do
