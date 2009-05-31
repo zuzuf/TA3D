@@ -1549,7 +1549,8 @@ namespace TA3D
 
 					// Dessine les éléments "2D" / "sprites"
 					features.draw();
-					// Dessine les unités / draw units
+                    refcam.setView();
+                    // Dessine les unités / draw units
 					units.draw(map.get(), false, true, false, lp_CONFIG->height_line);
 
 					glDisable(GL_CULL_FACE);
