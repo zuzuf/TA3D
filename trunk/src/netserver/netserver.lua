@@ -65,7 +65,18 @@ if mysql == nil then
     os.exit()
 end
 
-netserver_db = mysql:connect("netserver", "user", "password")
+cfg_file = io.open("db.cfg")
+if cfg_file ~= nil then
+    db_host = cfg_file:read()
+    db_user = cfg_file:read()
+    db_pass = cfg_file:read()
+    cfg_file:close()
+else
+    db_host = "localhost"
+    db_user = "user"
+    db_pass = "password"
+end
+netserver_db = mysql:connect("netserver", db_user, db_pass, db_host)
 if netserver_db == nil then
     log_error("could not connect to database")
     os.exit()
