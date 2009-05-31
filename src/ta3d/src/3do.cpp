@@ -1537,13 +1537,13 @@ namespace TA3D
 			}
 
 			hide |= explodes ^ exploding_parts;
-			if (!chg_col)
+            if (chg_col)
 				glGetFloatv(GL_CURRENT_COLOR, color_factor);
 			int texID = side;
 			if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && dtex > 0)
 				texID = ((int)(t * 10.0f)) % dtex;
-			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && chg_col && !notex)
+            if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex)
 			{
 				glCallList( gl_dlist[ texID ] );
 				alset = false;
@@ -1555,7 +1555,7 @@ namespace TA3D
 					bool creating_list = false;
 					if (gl_dlist.size() <= texID)
 						gl_dlist.resize(texID + 1);
-					if (chg_col && !notex && gl_dlist[texID] == 0)
+                    if (!chg_col && !notex && gl_dlist[texID] == 0)
 					{
 						gl_dlist[texID] = glGenLists(1);
 						glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
@@ -1572,7 +1572,7 @@ namespace TA3D
 							glEnableClientState(GL_NORMAL_ARRAY);
 							alset=false;
 							set=false;
-							if (chg_col || notex)
+                            if (!chg_col || !notex)
 							{
 								if (surface.Flag&SURFACE_PLAYER_COLOR)
 									glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
@@ -1580,7 +1580,7 @@ namespace TA3D
 									glColor4fv(surface.Color);		// Couleur de matière
 							}
 							else
-								if (!chg_col && !notex)
+                                if (chg_col && notex)
 								{
 									if (surface.Flag&SURFACE_PLAYER_COLOR)
 										glColor4f(player_color[player_color_map[side]*3]*color_factor[0],player_color[player_color_map[side]*3+1]*color_factor[1],player_color[player_color_map[side]*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
@@ -1607,7 +1607,7 @@ namespace TA3D
 
 							if (chg_col || !notex)
 							{
-								if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
+                                if (surface.Flag&SURFACE_BLENDED || (chg_col && color_factor[3] != 1.0f)) // La transparence
 								{
 									glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 									glEnable(GL_BLEND);
@@ -1695,7 +1695,7 @@ namespace TA3D
 							}
 							if (chg_col || !notex)
 							{
-								if (!chg_col && color_factor[3] != 1.0f) // La transparence
+                                if (chg_col && color_factor[3] != 1.0f) // La transparence
 								{
 									glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 									glEnable(GL_BLEND);
@@ -1780,7 +1780,8 @@ namespace TA3D
 				glDisableClientState(GL_NORMAL_ARRAY);
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
-				if (!set)
+                glDisable(GL_FOG);
+                if (!set)
 					glVertexPointer( 3, GL_FLOAT, 0, points);
 				glColor3ub(0,0xFF,0);
 				glTranslatef( 0.0f, 2.0f, 0.0f );
@@ -1795,8 +1796,9 @@ namespace TA3D
 					glColor3ub(0xFF,0xFF,0xFF);
 				alset=false;
 				gfx->enable_model_shading();
-			}
-			if (!chg_col)
+                glEnable(GL_FOG);
+            }
+            if (chg_col)
 				glColor4fv(color_factor);
 			if (child && !(explodes && !exploding_parts))
 			{
@@ -3247,16 +3249,11 @@ namespace TA3D
 
 			if (notex)
 				glDisable(GL_TEXTURE_2D);
-			if (chg_col)
-			{
-				if (notex)
-				{
-					byte var = abs(255 - (((int)(t * 256) & 0xFF)<<1));
-					glColor3ub(0,var,0);
-				}
-				else
-					glColor3ub(255,255,255);
-			}
+            if (chg_col && notex)
+            {
+                byte var = abs(255 - (((int)(t * 256) & 0xFF)<<1));
+                glColor3ub(0,var,0);
+            }
 
 			if (data_s == NULL && animated)
 				obj.draw(t,NULL,sel,false,notex,side,chg_col);
@@ -3291,7 +3288,9 @@ namespace TA3D
 				Vector3D pos;
 				obj.compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);
 			}
-		}
+            if (chg_col && notex)
+                glColor3ub(0xFF,0xFF,0xFF);
+        }
 
 
 		void MODEL::draw_shadow(const Vector3D& Dir, float t, ANIMATION_DATA* data_s)

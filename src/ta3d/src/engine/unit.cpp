@@ -1238,8 +1238,8 @@ namespace TA3D
 				{
 					if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
 						glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
-					the_model->draw(t,&data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,!cloaked,src,src_data);
-					if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
+                    the_model->draw(t, &data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,cloaked,src,src_data);
+                    if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
 						gfx->set_color( 0xFFFFFFFF );
 					if (height_line && h>1.0f && unit_manager.unit_type[type_id]->canfly) // For flying units, draw a line that shows how high is the unit
 					{
@@ -1267,15 +1267,15 @@ namespace TA3D
 
 						glClipPlane(GL_CLIP_PLANE0, eqn);
 						glEnable(GL_CLIP_PLANE0);
-						the_model->draw(0.0f,&data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+                        the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
 
 						eqn[1]=-eqn[1];	eqn[3]=-eqn[3];
 						glClipPlane(GL_CLIP_PLANE0, eqn);
-						the_model->draw(0.0f,&data,owner_id==players.local_human_id && sel,false,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+                        the_model->draw(t, &data,owner_id==players.local_human_id && sel,false,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 						glDisable(GL_CLIP_PLANE0);
 
 						glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-						the_model->draw(0.0f,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+                        the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 						glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 					}
 					else
@@ -1289,18 +1289,18 @@ namespace TA3D
 							glClipPlane(GL_CLIP_PLANE0, eqn);
 							glEnable(GL_CLIP_PLANE0);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-							the_model->draw(0.0f,&data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+                            the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 							eqn[1]=-eqn[1];	eqn[3]=-eqn[3];
 							glClipPlane(GL_CLIP_PLANE0, eqn);
-							the_model->draw(0.0f,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+                            the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 							glDisable(GL_CLIP_PLANE0);
 						}
 						else
 						{
 							glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-							the_model->draw(0.0f,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+                            the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 						}
 					}

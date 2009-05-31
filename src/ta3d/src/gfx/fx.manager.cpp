@@ -281,7 +281,7 @@ namespace TA3D
         glDisable(GL_CULL_FACE);
         glDepthMask(GL_FALSE);
         gfx->set_alpha_blending();
-        cam.setView();
+        cam.setView(true);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(0.0f,-1600.0f);
         if(UW)
