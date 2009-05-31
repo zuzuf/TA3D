@@ -574,7 +574,6 @@ _G.reload = nil
 
 while true do
     local read, write, err = socket.select( socket_list, nil, 10 )
-    print(#read,"/",#socket_list, err)
     local incoming = server:accept()
     if incoming ~= nil then
         log_debug("incoming connection from ", incoming:getpeername() )
