@@ -215,12 +215,14 @@ namespace TA3D
 		int get_feature_index(const String &name);
 
 		/*!
-		** \brief returns a pointer to the feature at given index
+        ** \brief returns a pointer to the feature at given index, index = -1 corresponds to no feature type
 		** \param feature index
-		** \return a pointer to the feature at index 'index'
+        ** \return a pointer to the feature at index 'index' or NULL if index == -1
 		*/
 		Feature *getFeaturePointer(int index) const
 		{
+            if (index == -1)
+                return NULL;
 			assert(index >= 0 && index < (int)feature.size() && "Out of bounds");
 			return feature[index];
 		}

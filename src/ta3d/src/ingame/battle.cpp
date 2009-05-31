@@ -694,9 +694,10 @@ namespace TA3D
 										{
 											if (px + dx >= 0 && px + dx < map->bloc_w_db)
 											{
-												if (map->map_data[py+dy][px+dx].stuff >= 0)
+                                                int feature_idx = map->map_data[py+dy][px+dx].stuff;    // This is thread-safe
+                                                if (feature_idx >= 0)
 												{
-													idx = map->map_data[py+dy][px+dx].stuff;
+                                                    idx = feature_idx;
 													Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
 													if (feature
 														&& feature->footprintx + 1 >= (abs(dx) << 1)
