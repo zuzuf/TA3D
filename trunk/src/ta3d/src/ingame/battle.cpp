@@ -1725,7 +1725,12 @@ namespace TA3D
 			// Dessine les unités sous l'eau / Draw units which are under water
             cam.setView(lp_CONFIG->shadow_quality < 2);
             if (cam.rpos.y <= gfx->low_def_limit)
-				units.draw(map.get(), true, false, true, lp_CONFIG->height_line);
+            {
+                if (lp_CONFIG->shadow_quality >= 2)
+                    glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+                units.draw(map.get(), true, false, true, lp_CONFIG->height_line);
+                glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+            }
 
 			// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
 			weapons.draw(map.get(), true);
@@ -2204,6 +2209,7 @@ namespace TA3D
 
 			if (build >= 0 && !IsOnGUI)	// Display the building we want to build (with nice selection quads)
 			{
+                glDisable(GL_FOG);
 				Vector3D target(cursorOnMap(cam, *map));
 				pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
 				pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
@@ -2322,12 +2328,14 @@ namespace TA3D
 					glEnable(GL_LIGHTING);
 					glEnable(GL_CULL_FACE);
 				}
-			}
+                glEnable(GL_FOG);
+            }
 
 
 			if (selected && TA3D_SHIFT_PRESSED)
 			{
-				cam.setView();
+                glDisable(GL_FOG);
+                cam.setView();
 				bool builders = false;
 				for (unsigned int e = 0; e < units.index_list_size; ++e)
 				{
@@ -2351,11 +2359,15 @@ namespace TA3D
 						}
 					}
 				}
-			}
+                glEnable(GL_FOG);
+            }
 
             cam.setView(lp_CONFIG->shadow_quality < 2);
-			// Dessine les unités non encore dessinées / Draw units which have not been drawn
+            if (lp_CONFIG->shadow_quality >= 2)
+                glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+            // Dessine les unités non encore dessinées / Draw units which have not been drawn
 			units.draw(map.get(), false, false, true, lp_CONFIG->height_line);
+            glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 
 			// Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
 			weapons.draw(map.get(), false);
