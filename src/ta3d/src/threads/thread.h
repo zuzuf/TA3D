@@ -39,19 +39,23 @@ namespace TA3D
 
 	class BaseThread
 	{
-	private:
-		virtual void proc(void* param) = 0;
+	public:
+		//! \name Constructor & Destructor
+		//@{
+		BaseThread();
+		virtual ~BaseThread();
+		//@}
+		virtual void spawn(void* param) = 0;
+		virtual void join() = 0;
+		virtual bool isDead() const { return (pDead != 0); }
 
 	protected:
 		int pDead;
 
-	public:
-		BaseThread();
-		virtual ~BaseThread();
-		virtual void spawn(void* param) = 0;
-		virtual void join() = 0;
-		virtual bool isDead() { return (pDead != 0); }
-	};
+	private:
+		virtual void proc(void* param) = 0;
+
+	}; // class BaseThread
 
 
 
