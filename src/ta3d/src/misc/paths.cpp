@@ -277,6 +277,27 @@ namespace TA3D
 			# endif
 		}
 
+        void RemoveDir(const String& p)
+        {
+            // Remove files first
+            String::Vector files;
+            GlobFiles(files, p + Paths::SeparatorAsString + "*", false, false);
+            for(int i = 0 ; i < files.size() ; i++)
+            {
+                LOG_WARNING("removing '" << files[i] << "'");
+                remove(files[i].c_str());
+            }
+
+            // Remove subfolders
+            String::Vector dirs;
+            GlobDirs(dirs, p + Paths::SeparatorAsString + "*", false, false);
+            for(int i = 0 ; i < dirs.size() ; i++)
+                RemoveDir(dirs[i]);
+            String cur = p;
+            cur.removeTrailingSlash();
+            LOG_WARNING("removing '" << p << "'");
+            remove(cur.c_str());
+        }
 
 
 		bool MakeDir(const String& p)

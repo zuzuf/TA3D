@@ -214,26 +214,40 @@ namespace Menus
                             pArea->caption("mods.m_version", pIdx->getVersion());
                             pArea->caption("mods.m_author", pIdx->getAuthor());
                             pArea->caption("mods.m_comment", pIdx->getComment());
-                            pArea->msg("mods.b_install.show");
-                            pArea->msg("mods.b_remove.hide");
+                            String dir = Paths::Resources;
+                            dir << "mods" << Paths::SeparatorAsString << pIdx->getName();
+
+                            if (Paths::Exists(dir))
+                            {
+                                pArea->msg("mods.b_install.hide");
+                                pArea->msg("mods.b_remove.show");
+                            }
+                            else
+                            {
+                                pArea->msg("mods.b_install.show");
+                                pArea->msg("mods.b_remove.hide");
+                            }
                             pArea->msg("mods.b_update.hide");
 
                             if (pArea->get_state("mods.b_install"))     // Start download
                             {
-                                String filename = Paths::Resources;
-                                filename << "mods" << Paths::SeparatorAsString << pIdx->getName() << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
+                                String filename = dir;
+                                filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
                                 Download *download = new Download;
                                 download->start(filename, pIdx->getUrl());
                                 downloadList.push_back(download);
                             }
                             if (pArea->get_state("mods.b_remove"))     // Remove mod
+                                Paths::RemoveDir(dir);
+                            if (pArea->get_state("mods.b_update"))     // Remove old files and start download
                             {
-                                String dir = Paths::Resources;
-                                dir << "mods" << Paths::SeparatorAsString << pIdx->getName();
+                                Paths::RemoveDir(dir);
+
                                 String filename = dir;
                                 filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
-                                remove(filename.c_str());
-                                rmdir(dir.c_str());
+                                Download *download = new Download;
+                                download->start(filename, pIdx->getUrl());
+                                downloadList.push_back(download);
                             }
                         }
                         else

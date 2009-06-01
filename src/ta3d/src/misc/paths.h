@@ -114,6 +114,13 @@ namespace Paths
 	*/
 	bool MakeDir(const String& p);
 
+    /*!
+    ** \brief Remove Folder Recursively
+    **
+    ** \param p The folder to remove
+    */
+    void RemoveDir(const String& p);
+
 	/*!
 	** \brief Retrieve the current directory
 	*/
