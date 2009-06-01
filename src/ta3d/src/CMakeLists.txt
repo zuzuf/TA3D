@@ -13,8 +13,7 @@ SET(SRC_STDAFX stdafx.h)
 #
 SET(SRC_FILEFORMATS
 		gaf.cpp gaf.h
-		3do.cpp 3do.h
-		3ds.cpp 3ds.h)
+		3do.cpp 3do.h)
 
 #
 # Logs
@@ -82,14 +81,6 @@ SET(SRC_SCRIPTS
 		scripts/ai.script.h scripts/ai.script.cpp
 		scripts/script.data.h scripts/script.data.cpp
 		scripts/script.h scripts/script.cpp)
-
-#
-# Converters
-#
-SET(SRC_CONVERTERS
-		converters/all.h
-		converters/obj.h converters/obj.cpp)
-
 
 #
 # GFX
@@ -240,7 +231,7 @@ SET(TA3D_SOURCES
 		${SRC_SCRIPTS}
 		${SRC_ENGINE}
 		${SRC_INPUT}
-		${SRC_CONVERTERS} ${SRC_FILEFORMATS} ${SRC_HPI}
+		${SRC_FILEFORMATS} ${SRC_HPI}
 		${SRC_NETWORK}
 		${SRC_AI}
 		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
