@@ -107,6 +107,11 @@ function fixSQL(str)
     return safe_str
 end
 
+function escape(str)
+    local escaped_str, n = string.gsub(str, "[\"\\]", "\\%1")
+    return escaped_str
+end
+
 function removeSocket(sock)
     socket_table[sock] = nil
     for i, s in ipairs(socket_list) do
@@ -361,7 +366,7 @@ function processClient(client)
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "MOD" and args[3] == "LIST" then
                 	local mod_list = getFromDB("SELECT * FROM mods")
                     for i, mod in ipairs(mod_list) do
-	                   	client:send("MOD " .. mod.ID .. " \"" .. mod.version .. "\" \"" .. mod.name .. "\" \"" .. mod.file .. "\" \"" .. mod.author .. "\" \"" .. mod.comment .. "\"")
+	                   	client:send("MOD \"" .. escape(mod.ID) .. "\" \"" .. escape(mod.version) .. "\" \"" .. escape(mod.name) .. "\" \"" .. escape(mod.file) .. "\" \"" .. escape(mod.author) .. "\" \"" .. escape(mod.comment) .. "\"")
 	                end
                 -- GET CLIENT LIST : list ALL clients
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "CLIENT" and args[3] == "LIST" then
