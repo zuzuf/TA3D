@@ -251,6 +251,7 @@ namespace TA3D
 		// Misc
 		pMouseRectSelection.reset();
 		pMouseSelecting = false;
+		pCacheShowGameStatus = false;
 
 		return true;
 	}
@@ -536,7 +537,7 @@ namespace TA3D
 
 	bool Battle::initTheCamera()
 	{
-		r1 = r2 = r3 = 0.0f;
+		r1 = r2 = r3 = 0.f;
 
 		cam.reset();
 		cam_target.reset();
@@ -551,7 +552,7 @@ namespace TA3D
 		last_time_activated_track_mode = false;
 		Camera::inGame = &cam;
 
-		cam.rpos.x = cam.rpos.y = cam.rpos.z = 0.0f;
+		cam.rpos.x = cam.rpos.y = cam.rpos.z = 0.f;
 		cam.rpos.z += 150.0f;
 		cam.rpos.y = lp_CONFIG->camera_def_h;
 		cam.zfar = 500.0f;

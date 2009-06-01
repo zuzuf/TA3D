@@ -84,6 +84,7 @@ namespace TA3D
 
 	void Battle::showGameStatus()
 	{
+		return;
 		Gui::WND::Ptr statuswnd = pArea.get_wnd("gamestatus");
 		if (statuswnd)
 			statuswnd->y = (int)(SCREEN_H - (statuswnd->height + 32) * show_gamestatus);
@@ -173,6 +174,47 @@ namespace TA3D
 			cam_has_target = false;
 		}
 	}
+
+
+	void Battle::handleGameStatusEvents()
+	{
+		// Enable the game status if the `space` is pressed
+		if (!pCacheShowGameStatus && key[KEY_SPACE])
+		{
+			pCacheShowGameStatus = true;
+			pArea.msg("gamestatus.show");	// Show it
+			pArea.msg("playerstats.show");	// Show it
+		}
+
+		if (pCacheShowGameStatus)
+		{
+			if (key[KEY_SPACE]) // Show gamestatus window
+			{
+				if (show_gamestatus < 1.f)
+				{
+					show_gamestatus += 10.f * dt;
+					if (show_gamestatus > 1.f)
+						show_gamestatus = 1.f;
+				}
+			}
+			else
+			{									// Hide gamestatus window
+				show_gamestatus -= 10.f * dt;
+
+				if (show_gamestatus < 0.f)
+				{
+					show_gamestatus = 0.f;
+					pCacheShowGameStatus = false;
+					pArea.msg("gamestatus.hide");	// Hide it
+					pArea.msg("playerstats.hide");	// Hide it
+					return;
+				}
+			}
+
+			showGameStatus();
+		}
+	}
+
 
 
 

@@ -259,7 +259,7 @@ namespace TA3D
 						continue;
 					axe[i][e].is_moving = false;
 					float a = axe[i][e].move_distance;
-					if (a != 0.0f)
+					if (!Yuni::Math::Zero(a))
 					{
 						axe[i][e].is_moving = true;
 						is_moving = true;
@@ -279,7 +279,7 @@ namespace TA3D
 						axe[i][e].angle+=360.0f;
 
 					a = axe[i][e].rot_angle;
-					if ((axe[i][e].rot_speed!=0.0f || axe[i][e].rot_accel!=0.0f) && ((a!=0.0f && axe[i][e].rot_limit) || !axe[i][e].rot_limit))
+					if ((!Yuni::Math::Zero(axe[i][e].rot_speed) || !Yuni::Math::Zero(axe[i][e].rot_accel)) && ((!Yuni::Math::Zero(a) && axe[i][e].rot_limit) || !axe[i][e].rot_limit))
 					{
 						axe[i][e].is_moving = true;
 						is_moving = true;
@@ -2530,21 +2530,11 @@ namespace TA3D
 					T.x += data_s->axe[0][script_index].pos;
 					T.y += data_s->axe[1][script_index].pos;
 					T.z += data_s->axe[2][script_index].pos;
-					//            Matrix l_M = Scale( 1.0f );
-					//            if (data_s->axe[0][script_index].angle != 0.0f)
-					//                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
-					//            if (data_s->axe[1][script_index].angle != 0.0f)
-					//                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
-					//            if (data_s->axe[2][script_index].angle != 0.0f)
-					//                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
 					Matrix l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
 					M_Dir = M * l_M;
 					M = l_M;
 
-					//			M_Dir=M*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-					//			M=RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
 					AM = RotateZYX(data_s->axe[2][script_index].angle*DEG2RAD, data_s->axe[1][script_index].angle*DEG2RAD, data_s->axe[0][script_index].angle*DEG2RAD);
-					//            AM=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
 					hide=data_s->flag[script_index]&FLAG_HIDE;
 				}
 				else
@@ -2583,14 +2573,14 @@ namespace TA3D
 						float c;		// Coefficients pour que P soit le barycentre de A,B,C
 						Vector3D AP = P_p - A;
 						float pre_cal = AB.x * AC.y - AB.y * AC.x;
-						if (AC.y != 0.0f && pre_cal != 0.0f)
+						if (!Yuni::Math::Zero(AC.y) && !Yuni::Math::Zero(pre_cal))
 						{
 							b = (AP.x * AC.y - AP.y * AC.x) / pre_cal;
 							a = (AP.y - b * AB.y) / AC.y;
 						}
 						else
 						{
-							if (AB.x != 0.0f && pre_cal != 0.0f)
+							if (!Yuni::Math::Zero(AB.x) && !Yuni::Math::Zero(pre_cal))
 							{
 								a = (AP.y * AB.x - AP.x * AB.y) / pre_cal;
 								b = (AP.x - a * AC.x) / AB.x;
@@ -2598,7 +2588,7 @@ namespace TA3D
 							else
 							{
 								pre_cal = AB.x * AC.z - AB.z * AC.x;
-								if (AC.z != 0.0f && pre_cal != 0.0f)
+								if (!Yuni::Math::Zero(AC.z) && !Yuni::Math::Zero(pre_cal))
 								{
 									b=(AP.x*AC.z-AP.z*AC.x)/pre_cal;
 									a=(AP.z-b*AB.z)/AC.z;
@@ -2606,7 +2596,7 @@ namespace TA3D
 								else
 								{
 									pre_cal=-pre_cal;
-									if (AB.z!=0.0f && pre_cal!=0.0f)
+									if (!Yuni::Math::Zero(AB.z) && !Yuni::Math::Zero(pre_cal))
 									{
 										a =(AP.x*AB.z-AP.z*AB.x)/pre_cal;
 										b=(AP.z-a*AC.z)/AB.z;
@@ -2614,14 +2604,14 @@ namespace TA3D
 									else
 									{
 										pre_cal = AB.y*AC.x-AB.x*AC.y;
-										if (AC.x!=0.0f && pre_cal!=0.0f)
+										if (!Yuni::Math::Zero(AC.x) && !Yuni::Math::Zero(pre_cal))
 										{
 											b=(AP.y*AC.x-AP.x*AC.y)/pre_cal;
 											a=(AP.x-b*AB.x)/AC.x;
 										}
 										else
 										{
-											if (AB.y!=0.0f && pre_cal!=0.0f)
+											if (!Yuni::Math::Zero(AB.y) && !Yuni::Math::Zero(pre_cal))
 											{
 												a=(AP.x*AB.y-AP.y*AB.x)/pre_cal;
 												b=(AP.y-a*AC.y)/AB.y;
@@ -2665,14 +2655,14 @@ namespace TA3D
 							float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
 							Vector3D AP = P_p - A;
 							float pre_cal = AB.x * AC.y - AB.y * AC.x;
-							if (AC.y != 0.0f && pre_cal != 0.0f)
+							if (!Yuni::Math::Zero(AC.y) && !Yuni::Math::Zero(pre_cal))
 							{
 								b = (AP.x * AC.y - AP.y * AC.x) / pre_cal;
 								a = (AP.y - b * AB.y) / AC.y;
 							}
 							else
 							{
-								if (AB.x != 0.0f && pre_cal != 0.0f)
+								if (!Yuni::Math::Zero(AB.x) && !Yuni::Math::Zero(pre_cal))
 								{
 									a = (AP.y * AB.x - AP.x * AB.y) / pre_cal;
 									b = (AP.x - a * AC.x) / AB.x;
@@ -2680,7 +2670,7 @@ namespace TA3D
 								else
 								{
 									pre_cal = AB.x * AC.z - AB.z * AC.x;
-									if (AC.z != 0.0f && pre_cal != 0.0f)
+									if (!Yuni::Math::Zero(AC.z) && !Yuni::Math::Zero(pre_cal))
 									{
 										b = (AP.x * AC.z - AP.z * AC.x) / pre_cal;
 										a = (AP.z - b * AB.z) / AC.z;
@@ -2688,7 +2678,7 @@ namespace TA3D
 									else
 									{
 										pre_cal = -pre_cal;
-										if (AB.z != 0.0f && pre_cal != 0.0f)
+										if (!Yuni::Math::Zero(AB.z) && !Yuni::Math::Zero(pre_cal))
 										{
 											a = (AP.x * AB.z - AP.z * AB.x) / pre_cal;
 											b = (AP.z - a * AC.z) / AB.z;
@@ -2696,14 +2686,14 @@ namespace TA3D
 										else
 										{
 											pre_cal = AB.y*AC.x-AB.x*AC.y;
-											if (AC.x!=0.0f && pre_cal!=0.0f)
+											if (!Yuni::Math::Zero(AC.x) && !Yuni::Math::Zero(pre_cal))
 											{
 												b=(AP.y*AC.x-AP.x*AC.y)/pre_cal;
 												a=(AP.x-b*AB.x)/AC.x;
 											}
 											else
 											{
-												if (AB.y != 0.0f && pre_cal != 0.0f)
+												if (!Yuni::Math::Zero(AB.y) && !Yuni::Math::Zero(pre_cal))
 												{
 													a = (AP.x * AB.y - AP.y * AB.x) / pre_cal;
 													b = (AP.y - a * AC.y) / AB.y;
@@ -2797,21 +2787,10 @@ namespace TA3D
 					T.x += data_s->axe[0][script_index].pos;
 					T.y += data_s->axe[1][script_index].pos;
 					T.z += data_s->axe[2][script_index].pos;
-					//            Matrix l_M = Scale( 1.0f );
-					//            if (data_s->axe[0][script_index].angle != 0.0f)
-					//                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle * DEG2RAD);
-					//            if (data_s->axe[1][script_index].angle != 0.0f)
-					//                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle * DEG2RAD);
-					//            if (data_s->axe[2][script_index].angle != 0.0f)
-					//                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle * DEG2RAD);
 					Matrix l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
 					Dir = Dir * l_M;
 					Pos = (Pos - T) * l_M;
-					//			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-					//			Pos = (((Pos - T) * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
 					AM = RotateZYX(data_s->axe[2][script_index].angle * DEG2RAD, data_s->axe[1][script_index].angle * DEG2RAD, data_s->axe[0][script_index].angle * DEG2RAD);
-					//            AM = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
-					//                * RotateY(data_s->axe[1][script_index].angle * DEG2RAD) * RotateX(data_s->axe[0][script_index].angle * DEG2RAD);
 					hide = data_s->flag[script_index]&FLAG_HIDE;
 				}
 				else
@@ -2851,7 +2830,7 @@ namespace TA3D
 					}
 					else
 					{
-						if (Dir.x != 0.0f ) // 2 x planes
+						if (!Yuni::Math::Zero(Dir.x)) // 2 x planes
 						{
 							MP = Pos + ( (min_x - Pos.x) / Dir.x) * Dir;
 							if (MP.y >= min_y && MP.y <= max_y && MP.z >= min_z && MP.z <= max_z )
@@ -2863,7 +2842,7 @@ namespace TA3D
 									is_hit = true;
 							}
 						}
-						if (!is_hit && Dir.y != 0.0f )// 2 y planes
+						if (!is_hit && !Yuni::Math::Zero(Dir.y))// 2 y planes
 						{
 							MP = Pos + ( (min_y - Pos.y) / Dir.y) * Dir;
 							if (MP.x >= min_x && MP.x <= max_x && MP.z >= min_z && MP.z <= max_z )
@@ -2875,7 +2854,7 @@ namespace TA3D
 									is_hit = true;
 							}
 						}
-						if (!is_hit && Dir.z != 0.0f )// 2 z planes
+						if (!is_hit && !Yuni::Math::Zero(Dir.z))// 2 z planes
 						{
 							MP = Pos + ( (min_z - Pos.z) / Dir.z) * Dir;
 							if (MP.y >= min_y && MP.y <= max_y && MP.x >= min_x && MP.x <= max_x )
