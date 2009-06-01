@@ -34,6 +34,17 @@ namespace TA3D
         */
         void parse(const String &info);
 
+        /*!
+        ** \brief Write mod information to the associated info.mod file
+        */
+        void write();
+
+        /*!
+        ** \brief Load mod information from the given info.mod file
+        ** \param modName the name of the mod to read
+        */
+        void read(const String &modName);
+
         inline int getID()          {   return ID;  }
         inline String getName()     {   return name;  }
         inline String getVersion()  {   return version;  }
