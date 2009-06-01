@@ -154,8 +154,6 @@ namespace TA3D
 
         int listNetGames(std::list<SERVER_DATA> &list);
         int registerToNetServer( const String &name, const int Slots );
-        String httpRequest( const String &servername, const String &request );
-        bool httpGetFile( const String &filename, const String &servername, const String &request );
 
         int sendPing( int src_id = -1, int dst_id = -1 );
         int sendAll( String msg );

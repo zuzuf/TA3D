@@ -179,7 +179,8 @@ SET(SRC_NETWORK
 		network/networkutils.h network/networkutils.cpp
 		network/socketlist.h network/socketlist.cpp
 		network/TA3D_Network.cpp network/TA3D_Network.h
-		network/netclient.cpp network/netclient.h)
+		network/netclient.cpp network/netclient.h
+		network/http.cpp network/http.h)
 
 SET(SRC_AI
 		ai/ai.h ai/ai.cpp

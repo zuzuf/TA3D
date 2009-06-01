@@ -209,9 +209,15 @@ namespace Gui
 		return is_on_gui;
 	}
 
+    String AREA::get_window_name(const int idx)
+    {
+        ThreadingPolicy::MutexLocker locker(*this);
+        if (idx < 0 || idx >= pWindowList.size())
+            return String();
+        return pWindowList[idx]->Name;
+    }
 
-
-	uint16 AREA::load_window(const String& filename)
+    uint16 AREA::load_window(const String& filename, const String &name)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 
@@ -230,6 +236,9 @@ namespace Gui
 
 		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];
+
+        if (!name.empty())
+            newWindow->Name = name;
 
 		vec_z_order[0] = wnd_idx;
 		wnd_hashtable.insert(String::ToLower(newWindow->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure

@@ -22,6 +22,7 @@
 #include "../misc/math.h"
 #include "../logs/logs.h"
 #include <fstream>
+#include "http.h"
 
 using namespace TA3D::UTILS::HPI;
 
@@ -905,188 +906,9 @@ namespace TA3D
 		ftmutex.unlock();
 	}
 
-	String Network::httpRequest( const String &servername, const String &request )
-	{
-		SocketTCP   sock;
-		char        buffer[4096];
-		String      f;
-		int         count;
-		int         crfound = 0;
-		int         lffound = 0;
-
-		/* open the socket and connect to the server */
-		sock.open(servername, 80);
-		if(!sock.isOpen())
-		{
-			LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not open socket !");
-			return String();
-		}
-
-		sock.setNonBlockingMode(true);      // We want to be able to detect end of transmission :p
-
-		f.clear();
-
-		sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
-				, request.c_str(), servername.c_str() );
-
-		uint32 timer(msec_timer);
-		sock.send( buffer, strlen(buffer));
-		if (!sock.isOpen())
-		{
-			LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not send request to server !");
-			return String();
-		}
-
-		while (true)
-		{
-			timer = msec_timer;
-			do
-			{
-				count = sock.recv(buffer, sizeof(buffer) - 1);
-				rest(1);
-			}
-			while(count == 0 && msec_timer - timer < 1000);
-			if (msec_timer - timer >= 1000)
-				sock.close();
-			if(count < 0)
-			{
-				sock.close();
-				return String();
-			}
-			if(count > 0)
-			{
-				/* parse out the HTTP header */
-				if(lffound < 2)
-				{
-					int i;
-
-					for (i = 0; i < count; ++i)
-					{
-						if(buffer[i] == 0x0D)
-							++crfound;
-						else
-						{
-							if (buffer[i] == 0x0A)
-								++lffound;
-							else
-								/* reset the CR and LF counters back to 0 */
-								crfound = lffound = 0;
-						}
-						if (lffound == 2)
-						{
-							/* i points to the second LF */
-							/* NUL terminate the string and put it in the buffer string */
-							buffer[count] = 0x0;
-							f += buffer+i+1;
-							break;
-						}
-					}
-				}
-				else
-				{
-					buffer[count] = 0x0;
-					f += buffer;
-				}
-			}
-		}
-		sock.close();
-		return f;
-	}
-
-	bool Network::httpGetFile( const String &filename, const String &servername, const String &request )
-	{
-		SocketTCP   sock;
-		char        buffer[4096];
-		std::fstream f(filename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
-		int         count;
-		int         crfound = 0;
-		int         lffound = 0;
-
-		if (!f.is_open())
-		{
-			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open file " << filename << " for writing !");
-			return true;        // Error can't open file
-		}
-
-		/* open the socket and connect to the server */
-		sock.open(servername, 80);
-		if(!sock.isOpen())
-		{
-			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open socket !");
-			f.close();
-			return true;
-		}
-
-		sock.setNonBlockingMode(true);      // We want it to be able to detect end of file ;)
-
-		sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n"
-				, request.c_str(), servername.c_str() );
-
-		uint32 timer(msec_timer);
-		sock.send(buffer, strlen(buffer));
-		if (!sock.isOpen())
-		{
-			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not send request to server !");
-			f.close();
-			return true;
-		}
-
-		while (true)
-		{
-			timer = msec_timer;
-			do
-			{
-				count = sock.recv(buffer, sizeof(buffer) - 1);
-				rest(1);
-			}
-			while(count == 0 && msec_timer - timer < 1000);
-			if (msec_timer - timer >= 1000)
-				sock.close();
-			if(count < 0)
-			{
-				f.close();
-				return true;
-			}
-			if(count > 0)
-			{
-				/* parse out the HTTP header */
-				if(lffound < 2)
-				{
-					int i;
-
-					for (i = 0; i < count; ++i)
-					{
-						if(buffer[i] == 0x0D)
-							++crfound;
-						else
-						{
-							if (buffer[i] == 0x0A)
-								++lffound;
-							else
-								/* reset the CR and LF counters back to 0 */
-								crfound = lffound = 0;
-						}
-						if (lffound == 2)
-						{
-							/* i points to the second LF */
-							/* output the buffer to the file */
-							f.write( (char*)(buffer+i+1), count-i-1 );
-							break;
-						}
-					}
-				}
-				else
-					f.write( (char*)buffer, count );
-			}
-		}
-		sock.close();
-		f.close();
-		return false;
-	}
-
 	int Network::listNetGames(std::list<SERVER_DATA>& list)
 	{
-		String gamelist = httpRequest( lp_CONFIG->net_server, "/getserverlist.php" );
+        String gamelist = Http::request( lp_CONFIG->net_server, "/getserverlist.php" );
 
 		// Remove internet servers to get a clean list
 		for (std::list<SERVER_DATA>::iterator i = list.begin(); i != list.end(); )
@@ -1172,7 +994,7 @@ namespace TA3D
 
 		String request = String::Format("/register.php?name=%s&mod=%s&version=%s&slots=%d",
 			rName.c_str(), rMode.c_str(), rEngine.c_str(), Slots);
-		String result = httpRequest(lp_CONFIG->net_server, request);
+        String result = Http::request(lp_CONFIG->net_server, request);
 		return 0; // TODO Fixe me with the good value !
 	}
 
