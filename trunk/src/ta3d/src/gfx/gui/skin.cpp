@@ -25,6 +25,9 @@
 
 namespace TA3D
 {
+namespace Gui
+{
+
 
 
 	Skin::Skin()
@@ -100,12 +103,11 @@ namespace TA3D
 		TDFParser skinFile(filename);
 
 		// Grab the skin's name, so we can now if a skin is already in use
-        String tmp(Paths::ExtractFileNameWithoutExtension(filename));
+		String tmp(Paths::ExtractFileNameWithoutExtension(filename));
 
-        std::cout << "LOADING : " << tmp << std::endl;
 		pName = skinFile.pullAsString("skin.name", tmp); // The TDF may override the skin name
 
-        pPrefix = skinFile.pullAsString("skin.prefix", String()); // The pPrefix to use for
+		pPrefix = skinFile.pullAsString("skin.prefix", String()); // The pPrefix to use for
 		text_y_offset = skinFile.pullAsInt("skin.text.y offset", 0) * scale;
 
 		wnd_border.load(skinFile, "skin.window.border.", scale);
@@ -713,5 +715,6 @@ namespace TA3D
 
 
 
+} // namespace Gui
 } // namespace TA3D
 

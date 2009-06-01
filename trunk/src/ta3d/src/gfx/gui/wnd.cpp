@@ -31,6 +31,8 @@
 
 namespace TA3D
 {
+namespace Gui
+{
 
 
 	WND::WND()
@@ -1405,13 +1407,13 @@ namespace TA3D
 		color = background ? makeacol(0xFF, 0xFF, 0xFF, 0xFF) : 0x0;
 		unsigned int NbObj = wndFile.pullAsInt("gadget0.totalgadgets");
 
-        pObjects.clear();
+		pObjects.clear();
 		pObjects.reserve(NbObj);
 
-        for (unsigned int i = 0; i < NbObj ; ++i)
+		for (unsigned int i = 0; i < NbObj ; ++i)
 		{
 			GUIOBJ::Ptr object = new GUIOBJ();
-            pObjects.push_back( object );
+			pObjects.push_back( object );
 
 			String obj_key;
 			obj_key << "gadget" << i + 1 << ".";
@@ -1437,7 +1439,7 @@ namespace TA3D
 				obj_flags |= FLAG_HIDDEN;
 
 			String::Vector Caption;
-            wndFile.pullAsString(obj_key + "text").explode(Caption, ',', true, true, true);
+			wndFile.pullAsString(obj_key + "text").explode(Caption, ',', true, true, true);
 			I18N::Translate(Caption);
 
 			if (TA_ID_BUTTON == obj_type)
@@ -1477,9 +1479,9 @@ namespace TA3D
 					gaf_imgs.resize(result->size());
 					for (unsigned int e = 0 ; e < result->size() ; ++e)
 					{
-						gaf_imgs[ e ] = (*result)[ e ].tex;
-						t_w[ e ] = (*result)[ e ].width;
-						t_h[ e ] = (*result)[ e ].height;
+						gaf_imgs[e] = (*result)[e].tex;
+						t_w[e] = (*result)[e].width;
+						t_h[e] = (*result)[e].height;
 					}
 				}
 
@@ -1504,401 +1506,402 @@ namespace TA3D
 				if (wndFile.pullAsInt(obj_key + "common.attribs") == 32)
 					object->Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
 			}
-			else
-			{
-				if (obj_type == TA_ID_TEXT_FIELD)
-					object->create_textbar(X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile.pullAsInt(obj_key + "maxchars"), NULL);
 				else
 				{
-					if (obj_type == TA_ID_LABEL)
-						object->create_text(X1, Y1, Caption.size() ? Caption[0] : "", 0xFFFFFFFF, 1.0f);
+					if (obj_type == TA_ID_TEXT_FIELD)
+						object->create_textbar(X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile.pullAsInt(obj_key + "maxchars"), NULL);
 					else
 					{
-						if (obj_type == TA_ID_BLANK_IMG || obj_type == TA_ID_IMG)
-						{
-							object->create_img(X1, Y1, X1 + W, Y1 + H, gfx->load_texture(wndFile.pullAsString(obj_key + "source"),FILTER_LINEAR));
-							object->destroy_img = object->Data != 0 ? true : false;
-						}
+						if (obj_type == TA_ID_LABEL)
+							object->create_text(X1, Y1, Caption.size() ? Caption[0] : "", 0xFFFFFFFF, 1.0f);
 						else
 						{
-							if (obj_type == TA_ID_LIST_BOX)
-								object->create_list(X1, Y1, X1+W, Y1+H, Caption);
+							if (obj_type == TA_ID_BLANK_IMG || obj_type == TA_ID_IMG)
+							{
+								object->create_img(X1, Y1, X1 + W, Y1 + H, gfx->load_texture(wndFile.pullAsString(obj_key + "source"),FILTER_LINEAR));
+								object->destroy_img = object->Data != 0 ? true : false;
+							}
 							else
-								object->Type = OBJ_NONE;
+							{
+								if (obj_type == TA_ID_LIST_BOX)
+									object->create_list(X1, Y1, X1+W, Y1+H, Caption);
+								else
+									object->Type = OBJ_NONE;
+							}
 						}
 					}
 				}
+
+				object->OnClick.clear();
+				object->OnHover.clear();
+				object->SendDataTo.clear();
+				object->SendPosTo.clear();
+
+				object->Flag |= obj_flags;
+			}
+		}
+
+
+		void WND::print(std::ostream& out)
+		{
+			out << "[Window]\n{\n";
+			out << "\tx = " << x << "\n";
+			out << "\ty = " << y << "\n";
+			out << "\tname = " << Name << "\n";
+			out << "\ttitle = " << Title << "\n";
+			out << "}\n" << std::endl;
+		}
+
+
+		void WND::load_tdf(const String& filename, Skin* skin)
+		{
+			TDFParser wndFile(filename);
+
+			Name = Paths::ExtractFileNameWithoutExtension(filename); // Grab the window's name, so we can send signals to it (to hide/show for example)
+
+			Name = wndFile.pullAsString("window.name", Name);
+			hidden = wndFile.pullAsBool("window.hidden");
+
+			Title = I18N::Translate(wndFile.pullAsString("window.title"));
+			x = wndFile.pullAsInt("window.x");
+			y = wndFile.pullAsInt("window.y");
+			width = wndFile.pullAsInt("window.width");
+			height = wndFile.pullAsInt("window.height");
+			repeat_bkg = wndFile.pullAsBool("window.repeat background", false);
+			get_focus = wndFile.pullAsBool("window.get focus", false);
+
+			float x_factor = 1.0f;
+			float y_factor = 1.0f;
+			if (wndFile.pullAsBool("window.fullscreen"))
+			{
+				int ref_width = wndFile.pullAsInt("window.screen width", width);
+				int ref_height = wndFile.pullAsInt("window.screen height", height);
+				if (ref_width > 0.0f)
+					x_factor = ((float)gfx->width) / ref_width;
+				if (ref_height > 0.0f)
+					y_factor = ((float)gfx->height) / ref_height;
+				width  = (int)(width  * x_factor);
+				height = (int)(height * y_factor);
+				x = (int)(x * x_factor);
+				y = (int)(y * y_factor);
 			}
 
-			object->OnClick.clear();
-			object->OnHover.clear();
-			object->SendDataTo.clear();
-			object->SendPosTo.clear();
+			if (x < 0)
+				x += SCREEN_W;
+			if (y < 0)
+				y += SCREEN_H;
+			if (width < 0)
+				width += SCREEN_W;
+			if (height < 0)
+				height += SCREEN_H;
 
-			object->Flag |= obj_flags;
-		}
-	}
+			if (wndFile.pullAsBool("window.centered"))
+			{
+				x = SCREEN_W - width >> 1;
+				y = SCREEN_H - height >> 1;
+			}
 
+			size_factor = gfx->height / 600.0f;			// For title bar
 
-	void WND::print(std::ostream& out)
-	{
-		out << "[Window]\n{\n";
-		out << "\tx = " << x << "\n";
-		out << "\ty = " << y << "\n";
-		out << "\tname = " << Name << "\n";
-		out << "\ttitle = " << Title << "\n";
-		out << "}\n" << std::endl;
-	}
+			ingame_window = wndFile.pullAsBool("window.ingame", false);
 
-
-	void WND::load_tdf(const String& filename, Skin* skin)
-	{
-		TDFParser wndFile(filename);
-
-        Name = Paths::ExtractFileNameWithoutExtension(filename); // Grab the window's name, so we can send signals to it (to hide/show for example)
-
-		Name = wndFile.pullAsString("window.name", Name);
-		hidden = wndFile.pullAsBool("window.hidden");
-
-		Title = I18N::Translate(wndFile.pullAsString("window.title"));
-		x = wndFile.pullAsInt("window.x");
-		y = wndFile.pullAsInt("window.y");
-		width = wndFile.pullAsInt("window.width");
-		height = wndFile.pullAsInt("window.height");
-		repeat_bkg = wndFile.pullAsBool("window.repeat background", false);
-		get_focus = wndFile.pullAsBool("window.get focus", false);
-
-		float x_factor = 1.0f;
-		float y_factor = 1.0f;
-		if (wndFile.pullAsBool("window.fullscreen"))
-		{
-			int ref_width = wndFile.pullAsInt("window.screen width", width);
-			int ref_height = wndFile.pullAsInt("window.screen height", height);
-			if (ref_width > 0.0f)
-				x_factor = ((float)gfx->width) / ref_width;
-			if (ref_height > 0.0f)
-				y_factor = ((float)gfx->height) / ref_height;
-			width  = (int)(width  * x_factor);
-			height = (int)(height * y_factor);
-			x = (int)(x * x_factor);
-			y = (int)(y * y_factor);
-		}
-
-		if (x < 0)
-			x += SCREEN_W;
-		if (y < 0)
-			y += SCREEN_H;
-		if (width < 0)
-			width += SCREEN_W;
-		if (height < 0)
-			height += SCREEN_H;
-
-		if (wndFile.pullAsBool("window.centered"))
-		{
-			x = SCREEN_W - width >> 1;
-			y = SCREEN_H - height >> 1;
-		}
-
-		size_factor = gfx->height / 600.0f;			// For title bar
-
-		ingame_window = wndFile.pullAsBool("window.ingame", false);
-
-		background_wnd = wndFile.pullAsBool("window.background window");
-		Lock = wndFile.pullAsBool("window.lock");
-		draw_borders = wndFile.pullAsBool("window.draw borders");
-		show_title = wndFile.pullAsBool("window.show title");
-		delete_gltex = false;
-		String backgroundImage = wndFile.pullAsString("window.background");
-		if (HPIManager->Exists(backgroundImage))
-		{
-			background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
-			delete_gltex = true;
-		}
-		else
-		{
-			background = skin->wnd_background;
-			bkg_w = skin->bkg_w;
-			bkg_h = skin->bkg_h;
+			background_wnd = wndFile.pullAsBool("window.background window");
+			Lock = wndFile.pullAsBool("window.lock");
+			draw_borders = wndFile.pullAsBool("window.draw borders");
+			show_title = wndFile.pullAsBool("window.show title");
 			delete_gltex = false;
-		}
-		color = wndFile.pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
-		FIX_COLOR(color);
-		unsigned int NbObj = wndFile.pullAsInt("window.number of objects");
-
-		pObjects.clear();
-
-		String obj_key;
-		String obj_type;
-		String caption;
-		String::Vector Entry;
-		for (unsigned int i = 0 ; i < NbObj; ++i) // Loads each object
-		{
-			obj_key.clear();
-			obj_key << "window.object" << i << ".";
-
-			// Type of the new object
-			obj_type = wndFile.pullAsString(obj_key + "type");
-			if (obj_type.empty())
-				continue;
-			obj_type.toUpper();
-
-			// Creating a new instance
-			GUIOBJ::Ptr object = new GUIOBJ();
-			pObjects.push_back(object);
-
-			object->Name = wndFile.pullAsString(obj_key + "name", String("object") << i);
-			obj_hashtable.insert(String::ToLower(object->Name), i + 1);
-			object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
-
-			float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF
-			float Y1 = wndFile.pullAsFloat(obj_key + "y1") * y_factor;
-			float X2 = wndFile.pullAsFloat(obj_key + "x2") * x_factor;
-			float Y2 = wndFile.pullAsFloat(obj_key + "y2") * y_factor;
-			caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
-			float size_factor = wndFile.pullAsFloat(obj_key + "size", 1.0f);
-			float size = size_factor * Math::Min(x_factor, y_factor);
-			int val = wndFile.pullAsInt(obj_key + "value");
-			uint32 obj_flags = 0;
-			uint32 obj_negative_flags = 0;
-
-			if (X1<0) X1 += width;
-			if (X2<0) X2 += width;
-			if (Y1<0) Y1 += height;
-			if (Y2<0) Y2 += height;
-			//		if (X1<0)	X1+=SCREEN_W;
-			//		if (X2<0)	X2+=SCREEN_W;
-			//		if (Y1<0)	Y1+=SCREEN_H;
-			//		if (Y2<0)	Y2+=SCREEN_H;
-
-			if (wndFile.pullAsBool(obj_key + "can be clicked"))
-				obj_flags |= FLAG_CAN_BE_CLICKED;
-			if (wndFile.pullAsBool(obj_key + "can get focus"))
-				obj_flags |= FLAG_CAN_GET_FOCUS;
-			if (wndFile.pullAsBool(obj_key + "highlight"))
-				obj_flags |= FLAG_HIGHLIGHT;
-			if (wndFile.pullAsBool(obj_key + "fill"))
-				obj_flags |= FLAG_FILL;
-			if (wndFile.pullAsBool(obj_key + "hidden"))
-				obj_flags |= FLAG_HIDDEN;
-			if (wndFile.pullAsBool(obj_key + "no border"))
-				obj_flags |= FLAG_NO_BORDER;
-			if (wndFile.pullAsBool(obj_key + "cant be clicked"))
-				obj_negative_flags |= FLAG_CAN_BE_CLICKED;
-			if (wndFile.pullAsBool(obj_key + "cant get focus"))
-				obj_negative_flags |= FLAG_CAN_GET_FOCUS;
-
-			if (wndFile.pullAsBool(obj_key + "centered"))
+			String backgroundImage = wndFile.pullAsString("window.background");
+			if (HPIManager->Exists(backgroundImage))
 			{
-				obj_flags |= FLAG_CENTERED;
-				X1 -= gui_font->length(caption) * 0.5f;
+				background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
+				delete_gltex = true;
 			}
-
-            String entryList = " " + wndFile.pullAsString(obj_key + "entry");
-            entryList.explode(Entry, ',', true, true, true);
-            I18N::Translate(Entry);
-
-			switch (obj_type.first())
+			else
 			{
-				case 'B' :
-					{
-						if (obj_type == "BUTTON")
-						{
-							object->create_button(X1, Y1, X2, Y2, caption, NULL, size);
-							break;
-						}
-						if (obj_type == "BOX")
-						{
-							FIX_COLOR(val);
-							object->create_box(X1, Y1, X2, Y2, val);
-						}
-						break;
-					}
-				case 'F' :
-					{
-						if (obj_type == "FMENU")
-							object->create_menu(X1, Y1, Entry, NULL, size);
-						break;
-					}
-				case 'H' :
-					{
-						if (obj_type == "HSLIDER")
-						{
-							object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
-							break;
-						}
-						break;
-					}
-				case 'I' :
-					{
-						if (obj_type == "IMG")
-						{
-							object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
-							object->destroy_img = object->Data != 0 ? true : false;
-						}
-						break;
-					}
-				case 'M' :
-					{
-						if (obj_type == "MENU")
-						{
-							object->create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
-							break;
-						}
-						if (obj_type == "MULTISTATE")
-						{
-							String::Vector imageNames;
-                            caption.explode(imageNames, ',', false, true, true);
-							std::vector<GLuint> gl_imgs;
-							std::vector<uint32> t_w;
-							std::vector<uint32> t_h;
+				background = skin->wnd_background;
+				bkg_w = skin->bkg_w;
+				bkg_h = skin->bkg_h;
+				delete_gltex = false;
+			}
+			color = wndFile.pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+			FIX_COLOR(color);
+			unsigned int NbObj = wndFile.pullAsInt("window.number of objects");
 
-							for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
+			pObjects.clear();
+
+			String obj_key;
+			String obj_type;
+			String caption;
+			String::Vector Entry;
+			for (unsigned int i = 0 ; i < NbObj; ++i) // Loads each object
+			{
+				obj_key.clear();
+				obj_key << "window.object" << i << ".";
+
+				// Type of the new object
+				obj_type = wndFile.pullAsString(obj_key + "type");
+				if (obj_type.empty())
+					continue;
+				obj_type.toUpper();
+
+				// Creating a new instance
+				GUIOBJ::Ptr object = new GUIOBJ();
+				pObjects.push_back(object);
+
+				object->Name = wndFile.pullAsString(obj_key + "name", String("object") << i);
+				obj_hashtable.insert(String::ToLower(object->Name), i + 1);
+				object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
+
+				float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF
+				float Y1 = wndFile.pullAsFloat(obj_key + "y1") * y_factor;
+				float X2 = wndFile.pullAsFloat(obj_key + "x2") * x_factor;
+				float Y2 = wndFile.pullAsFloat(obj_key + "y2") * y_factor;
+				caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
+				float size_factor = wndFile.pullAsFloat(obj_key + "size", 1.0f);
+				float size = size_factor * Math::Min(x_factor, y_factor);
+				int val = wndFile.pullAsInt(obj_key + "value");
+				uint32 obj_flags = 0;
+				uint32 obj_negative_flags = 0;
+
+				if (X1<0) X1 += width;
+				if (X2<0) X2 += width;
+				if (Y1<0) Y1 += height;
+				if (Y2<0) Y2 += height;
+				//		if (X1<0)	X1+=SCREEN_W;
+				//		if (X2<0)	X2+=SCREEN_W;
+				//		if (Y1<0)	Y1+=SCREEN_H;
+				//		if (Y2<0)	Y2+=SCREEN_H;
+
+				if (wndFile.pullAsBool(obj_key + "can be clicked"))
+					obj_flags |= FLAG_CAN_BE_CLICKED;
+				if (wndFile.pullAsBool(obj_key + "can get focus"))
+					obj_flags |= FLAG_CAN_GET_FOCUS;
+				if (wndFile.pullAsBool(obj_key + "highlight"))
+					obj_flags |= FLAG_HIGHLIGHT;
+				if (wndFile.pullAsBool(obj_key + "fill"))
+					obj_flags |= FLAG_FILL;
+				if (wndFile.pullAsBool(obj_key + "hidden"))
+					obj_flags |= FLAG_HIDDEN;
+				if (wndFile.pullAsBool(obj_key + "no border"))
+					obj_flags |= FLAG_NO_BORDER;
+				if (wndFile.pullAsBool(obj_key + "cant be clicked"))
+					obj_negative_flags |= FLAG_CAN_BE_CLICKED;
+				if (wndFile.pullAsBool(obj_key + "cant get focus"))
+					obj_negative_flags |= FLAG_CAN_GET_FOCUS;
+
+				if (wndFile.pullAsBool(obj_key + "centered"))
+				{
+					obj_flags |= FLAG_CENTERED;
+					X1 -= gui_font->length(caption) * 0.5f;
+				}
+
+				String entryList = " " + wndFile.pullAsString(obj_key + "entry");
+				entryList.explode(Entry, ',', true, true, true);
+				I18N::Translate(Entry);
+
+				switch (obj_type.first())
+				{
+					case 'B' :
+						{
+							if (obj_type == "BUTTON")
 							{
-								uint32 tw, th;
-								GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
-								if (texHandle)
+								object->create_button(X1, Y1, X2, Y2, caption, NULL, size);
+								break;
+							}
+							if (obj_type == "BOX")
+							{
+								FIX_COLOR(val);
+								object->create_box(X1, Y1, X2, Y2, val);
+							}
+							break;
+						}
+					case 'F' :
+						{
+							if (obj_type == "FMENU")
+								object->create_menu(X1, Y1, Entry, NULL, size);
+							break;
+						}
+					case 'H' :
+						{
+							if (obj_type == "HSLIDER")
+							{
+								object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+								break;
+							}
+							break;
+						}
+					case 'I' :
+						{
+							if (obj_type == "IMG")
+							{
+								object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
+								object->destroy_img = object->Data != 0 ? true : false;
+							}
+							break;
+						}
+					case 'M' :
+						{
+							if (obj_type == "MENU")
+							{
+								object->create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
+								break;
+							}
+							if (obj_type == "MULTISTATE")
+							{
+								String::Vector imageNames;
+								caption.explode(imageNames, ',', false, true, true);
+								std::vector<GLuint> gl_imgs;
+								std::vector<uint32> t_w;
+								std::vector<uint32> t_h;
+
+								for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
 								{
-									gl_imgs.push_back(texHandle);
-									t_w.push_back(tw);
-									t_h.push_back(th);
+									uint32 tw, th;
+									GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
+									if (texHandle)
+									{
+										gl_imgs.push_back(texHandle);
+										t_w.push_back(tw);
+										t_h.push_back(th);
+									}
 								}
+
+								object->create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
+								for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
+								{
+									object->x2 = X1 + t_w[e] * size_factor * x_factor;
+									object->y2 = Y1 + t_h[e] * size_factor * y_factor;
+									object->gltex_states[e].width = t_w[e] * size_factor * x_factor;
+									object->gltex_states[e].height = t_h[e] * size_factor * x_factor;
+									object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
+								}
+								break;
+							}
+							if (obj_type == "MISSION")
+							{
+								object->create_text(X1, Y1, caption, val, size);
+								if (X2 > 0 && Y2 > Y1)
+								{
+									object->x2 = X2;
+									object->y2 = Y2;
+									object->Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
+								}
+								break;
+							}
+							break;
+						}
+					case 'L' :
+						{
+							if (obj_type == "LINE")
+							{
+								FIX_COLOR(val);
+								object->create_line(X1, Y1, X2, Y2, val);
+								break;
+							}
+							if (obj_type == "LIST")
+								object->create_list(X1, Y1, X2, Y2, Entry, size);
+							break;
+						}
+					case 'O' :
+						{
+							if (obj_type == "OPTIONB")
+							{
+								object->create_optionb(X1, Y1, caption, val, NULL, skin, size);
+								break;
+							}
+							if (obj_type == "OPTIONC")
+							{
+								object->create_optionc(X1, Y1, caption, val, NULL, skin, size);
+								break;
+							}
+							break;
+						}
+					case 'P' :
+						{
+							if (obj_type == "PBAR")
+								object->create_pbar(X1, Y1, X2, Y2, val, size);
+							break;
+						}
+					case 'T' :
+						{
+							if (obj_type == "TEXTEDITOR")
+							{
+								object->create_texteditor(X1, Y1, X2, Y2, caption, size);
+								break;
+							}
+							if (obj_type == "TEXTBAR")
+							{
+								object->create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
+								break;
+							}
+							if (obj_type == "TEXT")
+							{
+								FIX_COLOR(val);
+								object->create_text(X1, Y1, caption, val, size);
+								if (X2 > 0 && Y2 > Y1)
+								{
+									object->x2 = X2;
+									object->y2 = Y2;
+									object->Flag |= FLAG_TEXT_ADJUST;
+								}
+								break;
+							}
+							break;
+						}
+					case 'V' :
+						{
+							if (obj_type == "VSLIDER")
+							{
+								object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+								break;
 							}
 
-							object->create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
-							for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
-							{
-								object->x2 = X1 + t_w[e] * size_factor * x_factor;
-								object->y2 = Y1 + t_h[e] * size_factor * y_factor;
-								object->gltex_states[e].width = t_w[e] * size_factor * x_factor;
-								object->gltex_states[e].height = t_h[e] * size_factor * x_factor;
-								object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
-							}
 							break;
 						}
-						if (obj_type == "MISSION")
-						{
-							object->create_text(X1, Y1, caption, val, size);
-							if (X2 > 0 && Y2 > Y1)
-							{
-								object->x2 = X2;
-								object->y2 = Y2;
-								object->Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
-							}
-							break;
-						}
-						break;
-					}
-				case 'L' :
-					{
-						if (obj_type == "LINE")
-						{
-							FIX_COLOR(val);
-							object->create_line(X1, Y1, X2, Y2, val);
-							break;
-						}
-						if (obj_type == "LIST")
-							object->create_list(X1, Y1, X2, Y2, Entry, size);
-						break;
-					}
-				case 'O' :
-					{
-						if (obj_type == "OPTIONB")
-						{
-							object->create_optionb(X1, Y1, caption, val, NULL, skin, size);
-							break;
-						}
-						if (obj_type == "OPTIONC")
-						{
-							object->create_optionc(X1, Y1, caption, val, NULL, skin, size);
-							break;
-						}
-						break;
-					}
-				case 'P' :
-					{
-						if (obj_type == "PBAR")
-							object->create_pbar(X1, Y1, X2, Y2, val, size);
-						break;
-					}
-				case 'T' :
-					{
-						if (obj_type == "TEXTEDITOR")
-						{
-							object->create_texteditor(X1, Y1, X2, Y2, caption, size);
-							break;
-						}
-						if (obj_type == "TEXTBAR")
-						{
-							object->create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
-							break;
-						}
-						if (obj_type == "TEXT")
-						{
-							FIX_COLOR(val);
-							object->create_text(X1, Y1, caption, val, size);
-							if (X2 > 0 && Y2 > Y1)
-							{
-								object->x2 = X2;
-								object->y2 = Y2;
-								object->Flag |= FLAG_TEXT_ADJUST;
-							}
-							break;
-						}
-						break;
-					}
-				case 'V' :
-					{
-						if (obj_type == "VSLIDER")
-						{
-							object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
-							break;
-						}
+				}
 
-						break;
-					}
+				wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',', true, true, true);
+				wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',', true, true, true);
+				wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ',', true, true, true);
+				wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ',', true, true, true);
+
+				object->Flag |= obj_flags;
+				object->Flag &= ~obj_negative_flags;
 			}
-
-            wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',', true, true, true);
-            wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',', true, true, true);
-            wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ',', true, true, true);
-            wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ',', true, true, true);
-
-			object->Flag |= obj_flags;
-			object->Flag &= ~obj_negative_flags;
 		}
-	}
 
 
-	unsigned int WND::size()
-	{
-		MutexLocker locker(pMutex);
-		return pObjects.size();
-	}
+		unsigned int WND::size()
+		{
+			MutexLocker locker(pMutex);
+			return pObjects.size();
+		}
 
-	unsigned int WND::count()
-	{
-		MutexLocker locker(pMutex);
-		return pObjects.size();
-	}
-
-
-
-	void WND::focus(bool value)
-	{
-		MutexLocker locker(pMutex);
-		const ObjectList::iterator end = pObjects.end();
-		for (ObjectList::iterator i = pObjects.begin(); i != end; ++i)
-			(*i)->Focus = value;
-	}
-
-
-	GUIOBJ::Ptr WND::object(unsigned int indx)
-	{
-		MutexLocker locker(pMutex);
-		assert(indx < pObjects.size());
-		return pObjects[indx];
-	}
+		unsigned int WND::count()
+		{
+			MutexLocker locker(pMutex);
+			return pObjects.size();
+		}
 
 
 
-	} // namespace TA3D
+		void WND::focus(bool value)
+		{
+			MutexLocker locker(pMutex);
+			const ObjectList::iterator end = pObjects.end();
+			for (ObjectList::iterator i = pObjects.begin(); i != end; ++i)
+				(*i)->Focus = value;
+		}
+
+
+		GUIOBJ::Ptr WND::object(unsigned int indx)
+		{
+			MutexLocker locker(pMutex);
+			assert(indx < pObjects.size());
+			return pObjects[indx];
+		}
+
+
+
+} // namespace Gui
+} // namespace TA3D

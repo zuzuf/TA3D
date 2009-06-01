@@ -36,7 +36,7 @@ namespace Menus
 	{
 		UnitSelector m(preSelectedUnits);
 		bool r = m.execute();
-        useOnly = (r) ? m.selected() : preSelectedUnits;
+		useOnly = (r) ? m.selected() : preSelectedUnits;
 		return (r && (!useOnly.empty()));
 	}
 
@@ -121,10 +121,10 @@ namespace Menus
 			// Load all units
 			pUnitListObj->Text.resize(pUnitList.size());
 			String::List::iterator it = pUnitList.begin();
-			for (int i = 0 ; i < pUnitList.size() ; ++i, ++it)
+			for (unsigned int i = 0 ; i < pUnitList.size() ; ++i, ++it)
 			{
 				pUnitListObj->Text[i] = *it;
-				int type_id = unit_manager.get_unit_index( *it );
+				int type_id = unit_manager.get_unit_index(*it);
 				if (type_id >= 0 && !unit_manager.unit_type[type_id]->not_used)
 					pUnitListObj->Text[i] = "<H>" + pUnitListObj->Text[i];
 			}

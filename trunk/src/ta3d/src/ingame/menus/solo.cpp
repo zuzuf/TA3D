@@ -127,7 +127,7 @@ namespace Menus
 
 	bool Solo::doDisplayAllSavegames()
 	{
-		GUIOBJ::Ptr obj = pArea->get_object("load_menu.l_file");
+		Gui::GUIOBJ::Ptr obj = pArea->get_object("load_menu.l_file");
 		if (obj)
 		{
 			String::List fileList;
@@ -151,7 +151,7 @@ namespace Menus
 	bool Solo::doGoMenuLoadSingleGame()
 	{
 		pArea->set_state("load_menu.b_load", false);
-		GUIOBJ::Ptr guiObj = pArea->get_object("load_menu.l_file");
+		Gui::GUIOBJ::Ptr guiObj = pArea->get_object("load_menu.l_file");
 		if (!guiObj)
 		{
 			LOG_ERROR("Impossible to get an area object : `load_menu.l_file`");

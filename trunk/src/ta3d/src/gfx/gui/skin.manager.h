@@ -24,10 +24,11 @@
 
 namespace TA3D
 {
+namespace Gui
+{
 
 
-	/*! \class SKIN_MANAGER
-	**
+	/*!
 	** \brief
 	*/
 	class SKIN_MANAGER
@@ -59,14 +60,19 @@ namespace TA3D
 		Skin *load(const String& filename, const float scale = 1.0f);
 
 	private:
-		std::vector<Skin*>          skins;
-		UTILS::cHashTable<Skin*>    hash_skin;
+		std::vector<Skin*>  skins;
+		UTILS::cHashTable<Skin*>  hash_skin;
 	}; // class SKIN_MANAGER
+
+
+
 
 	extern SKIN_MANAGER skin_manager;
 
 
 
+
+} // namespace Gui
 } // namespace TA3D
 
 #endif // __TA3D_GFX_GUI_SKIN_MANAGER_H__

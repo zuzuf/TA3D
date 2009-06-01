@@ -70,8 +70,7 @@ namespace Menus
 		LOG_ASSERT(NULL != gfx);
 
 		gfx->set_2D_mode();
-
-		pCurrentFontHeight = gui_font->height();
+		pCurrentFontHeight = Gui::gui_font->height();
 	}
 
 	void Loading::finalizeDrawing()
@@ -103,7 +102,7 @@ namespace Menus
 
 		if (!lp_CONFIG->skin_name.empty() && TA3D::Paths::Exists(lp_CONFIG->skin_name))
 		{
-			Skin skin;
+			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 			if (!skin.prefix().empty())
 				pBackgroundTexture = gfx->load_texture_mask("gfx" + Paths::SeparatorAsString + "load.jpg", 7);
@@ -118,7 +117,7 @@ namespace Menus
 	void Loading::doNoticeOtherPlayers()
 	{
 		// Broadcast informations
-		if (pBroadcastInformations && network_manager.isConnected() && pLastPercent != pPercent)
+		if (pBroadcastInformations && network_manager.isConnected() && Yuni::Math::Equals(pLastPercent, pPercent))
 			network_manager.sendAll(String::Format("LOADING %d", pPercent));
 	}
 
@@ -200,7 +199,7 @@ namespace Menus
 		LOG_ASSERT(NULL != gfx);
 		MutexLocker locker(pMutex);
 
-		if (pLastPercent == pPercent)
+		if (Yuni::Math::Equals(pLastPercent, pPercent))
 			return;
 		pLastPercent = pPercent;
 		// Notice other players about the progression
@@ -219,7 +218,7 @@ namespace Menus
 		// Draw all previous messages
 		int indx(0);
 		for (String::List::const_iterator i = pMessages.begin() ; i != pMessages.end() ; ++i, ++indx)
-			gfx->print(gui_font, 105.0f * fw, 175.0f * fh + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
+			gfx->print(Gui::gui_font, 105.0f * fw, 175.0f * fh + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
 
 		// Draw the progress bar
 		glDisable(GL_BLEND);

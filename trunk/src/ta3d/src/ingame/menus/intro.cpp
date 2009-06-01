@@ -29,7 +29,7 @@
 
 # define TA3D_INTRO_BOTTOM (950.0f * SCREEN_H / 1024.0f)
 
-# define TA3D_INTRO_MAX_LINES ((int)((TA3D_INTRO_BOTTOM - TA3D_INTRO_TOP) / pCurrentFontHeight) + 2)
+# define TA3D_INTRO_MAX_LINES ((unsigned int)((TA3D_INTRO_BOTTOM - TA3D_INTRO_TOP) / pCurrentFontHeight) + 2)
 
 # define TA3D_INTRO_SPEED  60.0f
 
@@ -60,7 +60,7 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
-		pCurrentFontHeight = gui_font->height();
+		pCurrentFontHeight = Gui::gui_font->height();
 
 		reloadContent();
 		loadBackgroundTexture();
@@ -111,7 +111,7 @@ namespace Menus
 		pContent.clear();
 		String::Vector list;
 		// A big space before
-		for (int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
+		for (unsigned int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
 			pContent.push_back("");
 		// Load all text files
 		if (Resources::Glob(list, "intro" + Paths::SeparatorAsString + "*.txt"))
@@ -133,7 +133,7 @@ namespace Menus
 
 		if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name))
 		{
-			Skin skin;
+			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
 			if (!skin.prefix().empty())
@@ -163,9 +163,9 @@ namespace Menus
 
 		// The text itself
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		int indx = 0;
+		unsigned int indx = 0;
 		for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
-			gfx->print(gui_font, 220.0f * fw, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
+			gfx->print(Gui::gui_font, 220.0f * fw, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
 
 		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
 		glBindTexture(GL_TEXTURE_2D, pBackgroundTexture);

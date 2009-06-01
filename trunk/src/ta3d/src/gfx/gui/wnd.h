@@ -31,6 +31,9 @@
 
 namespace TA3D
 {
+namespace Gui
+{
+
 
 	class GUIOBJ;
 
@@ -269,6 +272,9 @@ namespace TA3D
 
 
 
+
+
+} // namespace Gui
 } // namespace TA3D
 
 #endif // __TA3D_GFX_GUI_WND_H__

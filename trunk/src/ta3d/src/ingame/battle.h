@@ -30,6 +30,12 @@
 
 
 
+# ifndef SCROLL_SPEED
+#   define SCROLL_SPEED		400.0f
+# endif
+
+
+
 namespace TA3D
 {
 
@@ -186,6 +192,14 @@ namespace TA3D
 
 		Vector3D cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map = false);
 
+		/*!
+		** \brief Display some game informations (key `SPACE`)
+		*/
+		void showGameStatus();
+
+		void keyArrowsInFreeCam();
+		void keyArrowsNotInFreeCam();
+
 	private:
 		//! Results
 		Result pResult;
@@ -220,7 +234,7 @@ namespace TA3D
 
 	private:
 		//! The area
-		AREA pArea;
+		Gui::AREA pArea;
 		//! Informations about FPS
 		FPSInfos fps;
 		//! The map of the game - TODO The auto_ptr is deprecated

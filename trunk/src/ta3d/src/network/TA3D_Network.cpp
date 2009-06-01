@@ -72,14 +72,9 @@ namespace TA3D
 	}
 
 
-	TA3DNetwork::TA3DNetwork( AREA *area, GameData *game_data )
-		:messages()
-	{
-		enter = false;
-		this->area = area;
-		this->game_data = game_data;
-		signal = 0;
-	}
+	TA3DNetwork::TA3DNetwork(Gui::AREA *a, GameData *g)
+		:messages(), enter(false), area(a), game_data(g), signal(0)
+	{}
 
 	TA3DNetwork::~TA3DNetwork()
 	{
@@ -634,8 +629,8 @@ namespace TA3D
 					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
 					Y -= Math::Min(1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
 				}
-				gfx->print( gui_font, 136, Y, 0.0f, color, i->text );
-				Y += gui_font->height();
+				gfx->print(Gui::gui_font, 136, Y, 0.0f, color, i->text);
+				Y += Gui::gui_font->height();
 			}
 		}
 		pMutex.unlock();

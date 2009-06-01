@@ -201,7 +201,7 @@ namespace TA3D
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
 		ta3d_gui_font = font_manager.find("FreeSerif", 10 * SCREEN_W / 640, Font::typeTexture);
-		gui_font = ta3d_gui_font;
+		Gui::gui_font = ta3d_gui_font;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
 		big_font = font_manager.find("FreeSans", 16 * SCREEN_W / 640, Font::typeTexture);
@@ -233,7 +233,7 @@ namespace TA3D
 		ta3d_gui_font = NULL;
 
 		font_manager.destroy();
-		skin_manager.destroy();
+		Gui::skin_manager.destroy();
 	}
 
 

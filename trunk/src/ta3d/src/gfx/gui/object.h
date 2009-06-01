@@ -29,6 +29,10 @@
 
 namespace TA3D
 {
+namespace Gui
+{
+
+
 
 	class WND;
 
@@ -66,7 +70,6 @@ namespace TA3D
 		** \brief
 		*/
 		void caption(const String& caption);
-
 
 		/*!
 		** \brief
@@ -324,6 +327,7 @@ namespace TA3D
 
 
 
+} // namespace Gui
 } // namespace TA3D
 
 # include "wnd.h"

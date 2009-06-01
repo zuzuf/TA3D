@@ -21,163 +21,173 @@
 
 # include "../stdafx.h"
 # include "math.h"
+# include <yuni/core/math.h>
 
 
-/*!
-** \brief 2-dimensional vector
-*/
-class Vector2D
+namespace TA3D
 {
-public:
-	//! \name Constructors
-	//@{
-	//! Default constructor
-	Vector2D() :x(0.0f), y(0.0f) {}
-	//! Constructor by copy
-	Vector2D(const Vector2D& c) : x(c.x), y(c.y) {}
-	//! Constructor with initial values
-	Vector2D(const float ax, const float ay) : x(ax), y(ay) {}
-	//@}
-
-	float sq() const { return (x*x + y*y); }         // carré scalaire
-
-	/*!
-	** \brief Reset all coordinates to 0
-	*/
-	void reset() { x = 0.0f; y = 0.0f; }
-
-	/*!
-	** \brief Vector norm
-	** \return The value of the vector norm
-	*/
-	float norm() const { return sqrtf(x*x+y*y); }
-
-	// Rend le vecteur unitaire si possible(de norme 1)
-	void unit();
-
-	bool isNull() const
-	{ return (fabs(x) < 0.000001 && fabs(y) < 0.000001); }
-
-	//! \name Operators
-	//@{
-
-	/*!
-	** \brief Operator += with another Vector2D
-	*/
-	Vector2D& operator += (const Vector2D& rhs)
-	{ x += rhs.x; y += rhs.y; return (*this); }
-
-	Vector2D& operator -= (const Vector2D& rhs)
-	{ x -= rhs.x; y -= rhs.y; return (*this); }
-
-	Vector2D& operator *= (const float v)
-	{ x *= v; y *= v; return (*this); }
-
-	bool operator == (const Vector2D& rhs) const
-	{ return (x == rhs.x && y == rhs.y); }
-
-	bool operator != (const Vector2D& rhs) const
-	{ return !(*this == rhs); }
-
-	Vector2D& operator = (const Vector2D& rhs)
-	{ x = rhs.x; y = rhs.y; return *this; }
-
-	//@}
-
-public:
-	//! The X-Coordinate
-	float x;
-	//! The Y-Coordinate
-	float y;
-
-}; // class Vector2D
-
-
-
-
-
-/*!
-** \brief 3-dimensional vector
-*/
-class Vector3D
-{
-public:
-	//! \name Constructors
-	//@{
-	//! Default constructor
-	Vector3D() :x(0.0f), y(0.0f), z(0.0f) {}
-	//! Constructor by copy
-	Vector3D(const Vector3D& c) :x(c.x), y(c.y), z(c.z) {}
-	//! Constructor with initial values
-	Vector3D(const float ax, const float ay, const float az)
-		:x(ax), y(ay), z(az) {}
-	//@}
-
-	/*!
-	** \brief Reset all coordinates to 0
-	*/
-	void reset() { x = 0.0f; y = 0.0f; z = 0.0f; }
-
-	// Fonction qui renvoie le carré scalaire du vecteur
-	float sq() const { return (x*x + y*y + z*z); }
-
-	// Fonction qui renvoie la norme du vecteur
-	float norm() const { return sqrtf(x*x + y*y + z*z); }
-
-	// Rend le vecteur unitaire si possible(de norme 1)
-	void unit();
 
 
 	/*!
-	** \brief Get if the vector is a null vector
-	** \return True if the vector is a null vector, false otherwise
+	** \brief 2-dimensional vector
 	*/
-	bool isNull() const
-	{ return (fabs(x) < 0.000001 && fabs(y) < 0.000001 && fabs(z) < 0.000001); }
-
-	//! \name Operators
-	//@{
-
-	Vector3D& operator += (const Vector3D& rhs)
-	{ x += rhs.x; y += rhs.y; z += rhs.z; return (*this); }
-
-	Vector3D& operator -= (const Vector3D& rhs)
-	{ x -= rhs.x; y -= rhs.y; z -= rhs.z; return (*this); }
-
-	Vector3D& operator *= (const float v)
-	{ x *= v; y *= v; z *= v; return (*this); }
-
-	Vector3D& operator *= (const Vector3D rhs)
+	class Vector2D
 	{
-		const float nx =  y * rhs.z - z * rhs.y;
-		const float ny = -x * rhs.z + z * rhs.x;
-		const float nz =  x * rhs.y - y * rhs.x;
-		x = nx;
-		y = ny;
-		z = nz;
-		return (*this);
-	}
+	public:
+		//! \name Constructors
+		//@{
+		//! Default constructor
+		Vector2D() :x(0.f), y(0.f) {}
+		//! Constructor by copy
+		Vector2D(const Vector2D& c) : x(c.x), y(c.y) {}
+		//! Constructor with initial values
+		Vector2D(const float ax, const float ay) : x(ax), y(ay) {}
+		//@}
 
-	bool operator == (const Vector3D& rhs) const
-	{ return (fabsf(x-rhs.x) < 0.0001f && fabsf(y-rhs.y) < 0.0001f && fabsf(z-rhs.z) < 0.0001f); }
+		float sq() const { return (x*x + y*y); }         // carré scalaire
 
-	bool operator != (const Vector3D& rhs) const
-	{ return !(*this == rhs); }
+		/*!
+		** \brief Reset all coordinates to 0
+		*/
+		void reset() { x = 0.0f; y = 0.0f; }
 
-	Vector3D& operator = (const Vector3D& rhs)
-	{ x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
+		/*!
+		** \brief Vector norm
+		** \return The value of the vector norm
+		*/
+		float norm() const { return sqrtf(x*x+y*y); }
 
-	//@}
+		// Rend le vecteur unitaire si possible(de norme 1)
+		void unit();
 
-public:
-	//! The X-Coordinate
-	float x;
-	//! The Y-Coordinate
-	float y;
-	//! The Z-Coordinate
-	float z;
+		bool isNull() const
+		{ return (fabs(x) < 0.000001 && fabs(y) < 0.000001); }
 
-}; // class Vector3D
+		//! \name Operators
+		//@{
+
+		/*!
+		** \brief Operator += with another Vector2D
+		*/
+		Vector2D& operator += (const Vector2D& rhs)
+		{ x += rhs.x; y += rhs.y; return (*this); }
+
+		Vector2D& operator -= (const Vector2D& rhs)
+		{ x -= rhs.x; y -= rhs.y; return (*this); }
+
+		Vector2D& operator *= (const float v)
+		{ x *= v; y *= v; return (*this); }
+
+		bool operator == (const Vector2D& rhs) const
+		{ return (Yuni::Math::Equals(x, rhs.x) && Yuni::Math::Equals(y, rhs.y)); }
+
+		bool operator != (const Vector2D& rhs) const
+		{ return !(*this == rhs); }
+
+		Vector2D& operator = (const Vector2D& rhs)
+		{ x = rhs.x; y = rhs.y; return *this; }
+
+		//@}
+
+	public:
+		//! The X-Coordinate
+		float x;
+		//! The Y-Coordinate
+		float y;
+
+	}; // class Vector2D
+
+
+
+
+
+	/*!
+	** \brief 3-dimensional vector
+	*/
+	class Vector3D
+	{
+	public:
+		//! \name Constructors
+		//@{
+		//! Default constructor
+		Vector3D() :x(0.0f), y(0.0f), z(0.0f) {}
+		//! Constructor by copy
+		Vector3D(const Vector3D& c) :x(c.x), y(c.y), z(c.z) {}
+		//! Constructor with initial values
+		Vector3D(const float ax, const float ay, const float az)
+			:x(ax), y(ay), z(az) {}
+		//@}
+
+		/*!
+		** \brief Reset all coordinates to 0
+		*/
+		void reset() { x = 0.0f; y = 0.0f; z = 0.0f; }
+
+		// Fonction qui renvoie le carré scalaire du vecteur
+		float sq() const { return (x*x + y*y + z*z); }
+
+		// Fonction qui renvoie la norme du vecteur
+		float norm() const { return sqrtf(x*x + y*y + z*z); }
+
+		// Rend le vecteur unitaire si possible(de norme 1)
+		void unit();
+
+
+		/*!
+		** \brief Get if the vector is a null vector
+		** \return True if the vector is a null vector, false otherwise
+		*/
+		bool isNull() const
+		{ return (fabs(x) < 0.000001 && fabs(y) < 0.000001 && fabs(z) < 0.000001); }
+
+		//! \name Operators
+		//@{
+
+		Vector3D& operator += (const Vector3D& rhs)
+		{ x += rhs.x; y += rhs.y; z += rhs.z; return (*this); }
+
+		Vector3D& operator -= (const Vector3D& rhs)
+		{ x -= rhs.x; y -= rhs.y; z -= rhs.z; return (*this); }
+
+		Vector3D& operator *= (const float v)
+		{ x *= v; y *= v; z *= v; return (*this); }
+
+		Vector3D& operator *= (const Vector3D rhs)
+		{
+			const float nx =  y * rhs.z - z * rhs.y;
+			const float ny = -x * rhs.z + z * rhs.x;
+			const float nz =  x * rhs.y - y * rhs.x;
+			x = nx;
+			y = ny;
+			z = nz;
+			return (*this);
+		}
+
+		bool operator == (const Vector3D& rhs) const
+		{ return (fabsf(x-rhs.x) < 0.0001f && fabsf(y-rhs.y) < 0.0001f && fabsf(z-rhs.z) < 0.0001f); }
+
+		bool operator != (const Vector3D& rhs) const
+		{ return !(*this == rhs); }
+
+		Vector3D& operator = (const Vector3D& rhs)
+		{ x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
+
+		//@}
+
+	public:
+		//! The X-Coordinate
+		float x;
+		//! The Y-Coordinate
+		float y;
+		//! The Z-Coordinate
+		float z;
+
+	}; // class Vector3D
+
+
+
+} // namespace TA3D
+
 
 
 
@@ -185,53 +195,54 @@ public:
 //! \name Operators for Vectors
 //@{
 
-inline const Vector2D operator + (const Vector2D& lhs, const Vector2D& rhs)
-{ return Vector2D(lhs) += rhs; }
+inline const TA3D::Vector2D operator + (const TA3D::Vector2D& lhs, const TA3D::Vector2D& rhs)
+{ return TA3D::Vector2D(lhs) += rhs; }
 
-inline const Vector2D operator - (const Vector2D& lhs)
-{ Vector2D r(lhs); r.x = -r.x; r.y = -r.y; return r; }
+inline const TA3D::Vector2D operator - (const TA3D::Vector2D& lhs)
+{ TA3D::Vector2D r(lhs); r.x = -r.x; r.y = -r.y; return r; }
 
-inline const Vector2D operator - (const Vector2D& lhs, const Vector2D& rhs)
-{ return Vector2D(lhs) -= rhs; }
+inline const TA3D::Vector2D operator - (const TA3D::Vector2D& lhs, const TA3D::Vector2D& rhs)
+{ return TA3D::Vector2D(lhs) -= rhs; }
 
-inline const Vector2D operator * (const float& v, const Vector2D& lhs)
-{ return Vector2D(lhs) *= v; }
+inline const TA3D::Vector2D operator * (const float v, const TA3D::Vector2D& lhs)
+{ return TA3D::Vector2D(lhs) *= v; }
 
-inline float operator % (const Vector2D& lhs, const Vector2D& rhs)
+inline float operator % (const TA3D::Vector2D& lhs, const TA3D::Vector2D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y; }
 
 
-inline const Vector3D operator + (const Vector3D& lhs, const Vector3D& rhs)
-{ return Vector3D(lhs) += rhs; }
+inline const TA3D::Vector3D operator + (const TA3D::Vector3D& lhs, const TA3D::Vector3D& rhs)
+{ return TA3D::Vector3D(lhs) += rhs; }
 
-inline const Vector3D operator - (const Vector3D& lhs)
-{ Vector3D r(lhs); r.x = -r.x; r.y = -r.y; r.z = -r.z; return r; }
+inline const TA3D::Vector3D operator - (const TA3D::Vector3D& lhs)
+{ TA3D::Vector3D r(lhs); r.x = -r.x; r.y = -r.y; r.z = -r.z; return r; }
 
-inline const Vector3D operator - (const Vector3D& lhs, const Vector3D& rhs)
-{ return Vector3D(lhs) -= rhs; }
+inline const TA3D::Vector3D operator - (const TA3D::Vector3D& lhs, const TA3D::Vector3D& rhs)
+{ return TA3D::Vector3D(lhs) -= rhs; }
 
-inline const Vector3D operator * (const float& v, const Vector3D& lhs)
-{ return Vector3D(lhs) *= v; }
+inline const TA3D::Vector3D operator * (const float v, const TA3D::Vector3D& lhs)
+{ return TA3D::Vector3D(lhs) *= v; }
 
-inline const Vector3D operator * (const Vector3D& lhs, const Vector3D& rhs)
-{ return Vector3D(lhs) *= rhs; }
+inline const TA3D::Vector3D operator * (const TA3D::Vector3D& lhs, const TA3D::Vector3D& rhs)
+{ return TA3D::Vector3D(lhs) *= rhs; }
 
-inline float operator % (const Vector3D& lhs, const Vector3D& rhs)
+inline float operator % (const TA3D::Vector3D& lhs, const TA3D::Vector3D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
 
 
 //@}
 
 
-/*------------------------------------------------------------------------
-  |              Retourne l'angle en radians entre deux vecteurs
-  \-------------------------------------*/
 
-inline float VAngle(const Vector3D& A, const Vector3D& B)
+/*!
+** \brief Retourne l'angle en radians entre deux vecteurs
+*/
+inline float VAngle(const TA3D::Vector3D& A, const TA3D::Vector3D& B)
 {
 	float a = sqrtf(A.sq() * B.sq());
-	a = (a == 0.0f) ? 0.0f : acosf((A % B) / a );
+	a = (Yuni::Math::Zero(a)) ? 0.0f : acosf((A % B) / a);
 	return isNaN(a) ? 0.0f : a;
 }
+
 
 #endif // __TA3D_XX_MISC_VECTOR_H__

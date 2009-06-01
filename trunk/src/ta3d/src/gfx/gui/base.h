@@ -1,19 +1,19 @@
 /*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
+	Copyright (C) 2005  Roland BROCHARD
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #ifndef __TA3D_GFX_GUI_BASE_H__
 # define __TA3D_GFX_GUI_BASE_H__
 
@@ -22,7 +22,6 @@
 
 //! \name Standard colors
 //@{
-
 //!
 # define MGray	    makeacol(128,128,128,255)
 //!
@@ -45,7 +44,6 @@
 # define LMGrey	    makeacol(170,170,170,255)
 //!
 # define DRed       makeacol(128,0,0,255)
-
 //@}
 
 
@@ -54,7 +52,6 @@
 
 //! \name Object types
 //@{
-
 //! Button
 # define OBJ_BUTTON		    0x0
 //! Floatting menu
@@ -89,7 +86,6 @@
 # define OBJ_HSLIDER        0xF
 //! Vertical slider
 # define OBJ_VSLIDER        0x10
-
 //@} // Object types
 
 
@@ -98,7 +94,6 @@
 
 //! \name IDs
 //@{
-
 //! The ID 0 is always used in Cavedog GUI files to represent the first gadget
 //! that defines the interface
 # define TA_ID_0	                    0x0
@@ -118,7 +113,6 @@
 # define TA_ID_FONT	                    0x7
 //! Used to display a picture box
 # define TA_ID_IMG                      0x12
-
 //@}
 
 
@@ -131,7 +125,6 @@
 
 //! \name Flags
 //@{
-
 //! If you can click it
 #define	FLAG_CAN_BE_CLICKED                 0x0001
 //! If it can be selected
@@ -158,15 +151,20 @@
 #define FLAG_NO_BORDER                      0x0800
 //! Tell the object not to draw its borders so you can see the background instead
 #define FLAG_MISSION_MODE                   0x1000
-
 //@}
+
 
 
 namespace TA3D
 {
+namespace Gui
+{
 
-    extern TA3D::Font *gui_font;
+	extern TA3D::Font *gui_font;
 
+} // namespace Gui
 } // namespace TA3D
+
+
 
 #endif // __TA3D_GFX_GUI_BASE_H__

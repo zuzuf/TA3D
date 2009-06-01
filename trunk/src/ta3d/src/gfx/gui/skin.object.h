@@ -25,10 +25,11 @@
 
 namespace TA3D
 {
+namespace Gui
+{
 
 
-	/*! \class SKIN_OBJECT
-	**
+	/*!
 	** \brief
 	*/
 	class SKIN_OBJECT
@@ -109,7 +110,8 @@ namespace TA3D
 
 
 
-} // namespace TA3D
 
+} // namespace Gui
+} // namespace TA3D
 
 #endif // __TA3D_GFX_GUI_SKIN_OBJECT_H__

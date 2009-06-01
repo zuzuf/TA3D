@@ -25,9 +25,12 @@
 
 namespace TA3D
 {
+namespace Gui
+{
 
-	/*! \class SKIN
-	**
+
+
+	/*!
 	** \brief manage skins for the GUI
 	*/
 	class Skin
@@ -112,7 +115,7 @@ namespace TA3D
 		SKIN_OBJECT option[2];
 		//! Scroll bar
 		SKIN_OBJECT scroll[3];
-		
+
 		//! offset to display text at the right place
 		float text_y_offset;
 
@@ -128,6 +131,7 @@ namespace TA3D
 
 
 
+} // namespace Gui
 } // namespace TA3D
 
 #endif // __TA3D_GFX_GUI_SKIN_H__

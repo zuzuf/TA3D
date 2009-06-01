@@ -24,6 +24,10 @@
 
 namespace TA3D
 {
+namespace Gui
+{
+
+
 
 	SKIN_OBJECT::SKIN_OBJECT()
 		:tex(0), x1(0), y1(0), x2(0), y2(0),
@@ -116,4 +120,6 @@ namespace TA3D
 
 
 
+
+} // namespace Gui
 } // namespace TA3D

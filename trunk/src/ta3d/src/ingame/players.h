@@ -40,6 +40,19 @@
 namespace TA3D
 {
 
+
+	class SinglePlayer
+	{
+	public:
+		SinglePlayer() {}
+		~SinglePlayer() {}
+
+
+	};
+
+
+
+
 	class PLAYERS : public Thread
 	{
 		virtual const char *className() { return "PLAYERS"; }

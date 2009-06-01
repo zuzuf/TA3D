@@ -495,7 +495,7 @@ namespace TA3D
 		return run(dt);
 	}
 
-	void LuaThread::proc(void* param)
+	void LuaThread::proc(void* /*param*/)
 	{
 		while (isRunning() && is_running())
 		{
@@ -653,7 +653,9 @@ namespace TA3D
 		}
 	}
 
-	void LuaThread::restore_thread_state(gzFile file)
+	void LuaThread::restore_thread_state(gzFile)
 	{
 	}
-}
+
+
+} // namespace TA3D
