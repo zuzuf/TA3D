@@ -56,13 +56,12 @@ namespace TA3D
 
 	void init_keyboard()
 	{
+		// Initialize the SDL Stuff
 		SDL_EnableUNICODE(1);
-
-		SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 		// We need some remapping hack to support some keyboards (french keyboards don't access KEY_0..9)
-		for (int i = 0 ; i < 256; ++i)
-			remap[i] = 0;
+		memset(remap, 0, 256 * sizeof(int));
 
 		remap[38]  = KEY_1;
 		remap[233] = KEY_2;
@@ -75,13 +74,11 @@ namespace TA3D
 		remap[231] = KEY_9;
 		remap[224] = KEY_0;
 
-		for (int i = 0 ; i < 0x1000; ++i)
-			VARS::key[i] = 0;
+		memset(VARS::key, 0, 0x1000 * sizeof(bool));
 		VARS::keybuf.clear();
 
 		// Initializing the ascii to scancode table
-		for (int i = 0; i < 256; ++i)
-			ascii_to_scancode[i] = 0;
+		memset(ascii_to_scancode, 0, 256 * sizeof(int));
 
 		ascii_to_scancode[int('a')] = KEY_A;
 		ascii_to_scancode[int('b')] = KEY_B;
@@ -173,6 +170,8 @@ namespace TA3D
 	{
 		return key_down_event(keycode) || key_up_event(keycode);
 	}
+
+
 
 
 

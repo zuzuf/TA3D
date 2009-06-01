@@ -70,7 +70,7 @@ namespace UTILS
         typedef typename std::vector< BucketsList >  VectorOfBucketsList;
 
     public:
-        virtual void initTable(const uint32 TableSize);
+        virtual void initTable(const uint32 TableSize,  const bool freeDataOnErase = false);
 
         //! \name Constructors & Destructor
         //@{

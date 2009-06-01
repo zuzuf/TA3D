@@ -192,6 +192,8 @@ namespace TA3D
 
 		Vector3D cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map = false);
 
+		
+		void handleGameStatusEvents();
 		/*!
 		** \brief Display some game informations (key `SPACE`)
 		*/
@@ -484,6 +486,9 @@ namespace TA3D
 		//!
 		bool rope_selection;
 		//@}
+
+	private:
+		bool pCacheShowGameStatus;
 
 	}; // class Battle
 

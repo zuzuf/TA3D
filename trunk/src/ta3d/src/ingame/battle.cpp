@@ -142,6 +142,9 @@ namespace TA3D
 	}
 
 
+
+
+
 	Battle::Result Battle::execute()
 	{
 		LuaProgram game_script;
@@ -217,37 +220,7 @@ namespace TA3D
 			/*------------bloc regroupant ce qui est relatif aux commandes----------------*/
 
 			if (players.local_human_id >= 0 && !console.activated() && !pArea.get_state("chat"))
-			{
-				if (key[KEY_SPACE]) // Show gamestatus window
-				{
-					if (Yuni::Math::Zero(show_gamestatus))
-					{
-						pArea.msg("gamestatus.show");	// Show it
-						pArea.msg("playerstats.show");	// Show it
-					}
-
-					show_gamestatus += 10.f * dt;
-					if (show_gamestatus > 1.f)
-						show_gamestatus = 1.f;
-				}
-				else
-				{									// Hide gamestatus window
-					const bool pre_visible = (show_gamestatus > 0.);
-
-					show_gamestatus -= 10.f * dt;
-
-					if (show_gamestatus < 0.f && pre_visible)
-					{
-						pArea.msg("gamestatus.hide");	// Hide it
-						pArea.msg("playerstats.hide");	// Hide it
-					}
-					if (show_gamestatus < 0.f)
-						show_gamestatus = 0.f;
-				}
-
-				if (show_gamestatus > 0.f)
-					showGameStatus();
-			}
+				handleGameStatusEvents();
 
 			if (TA3D_CTRL_PRESSED && key[KEY_D])
 			{
@@ -1630,8 +1603,8 @@ namespace TA3D
 
 				if (!g_useProgram || !g_useFBO || lp_CONFIG->water_quality < 2)
 				{
-                    gfx->set_alpha_blending();
-                    if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
+					gfx->set_alpha_blending();
+					if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
 					{
 						glColor4f(1.0f,1.0f,1.0f,0.5f);
 
@@ -1643,16 +1616,16 @@ namespace TA3D
 					}
 					else 	// lp_CONFIG->water_quality=0
 					{
-                        glColor4f(1.0f,1.0f,1.0f,0.5f);
+						glColor4f(1.0f,1.0f,1.0f,0.5f);
 						glDisable(GL_LIGHTING);
 
 						glActiveTextureARB(GL_TEXTURE0_ARB);
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
-                        cam.setView(true);
+						cam.setView(true);
 						glTranslatef(0.0f, map->sealvl, map->sea_dec);
-						water_obj->draw(t,cam.rpos.x,cam.rpos.z,false);
+						water_obj->draw(t,false);
 						glColor4f(1.0f,1.0f,1.0f,0.75f);
 
 						glEnable(GL_LIGHTING);
@@ -1705,7 +1678,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef(0.0f,map->sealvl,0.0f);
-					water_obj->draw(t, cam.rpos.x, cam.rpos.z, true);
+					water_obj->draw(t, true);
 
 					if (lp_CONFIG->water_quality == 2)
 						water_pass1_low.off();
@@ -1727,7 +1700,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef(0.0f,map->sealvl,0.0f);
-					water_obj->draw(t,cam.rpos.x,cam.rpos.z,true);
+					water_obj->draw(t, true);
 
 					water_pass2.off();
 
@@ -1743,7 +1716,7 @@ namespace TA3D
 
 						cam.setView();
 						glTranslatef( 0.0f, map->sealvl, map->sea_dec);
-						water_obj->draw(t,cam.rpos.x,cam.rpos.z,false);
+						water_obj->draw(t, false);
 					}
 
 					glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
@@ -1770,7 +1743,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef(0.0f,map->sealvl,0.0f);
-					water_obj->draw(t,cam.rpos.x,cam.rpos.z,true);
+					water_obj->draw(t, true);
 
 					glDisable(GL_STENCIL_TEST);
 
@@ -1952,7 +1925,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef(0.0f,map->sealvl,0.0f);
-					water_obj->draw(t, cam.rpos.x, cam.rpos.z, true);
+					water_obj->draw(t, true);
 
 					water_simulator_shader4.off();
 
@@ -1970,7 +1943,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef(0.0f,map->sealvl,0.0f);
-					water_obj->draw(t,cam.rpos.x,cam.rpos.z,true);
+					water_obj->draw(t, true);
 
 					water_pass2.off();
 
@@ -1984,7 +1957,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef( 0.0f, map->sealvl, map->sea_dec);
-					water_obj->draw(t,cam.rpos.x,cam.rpos.z,false);
+					water_obj->draw(t, false);
 
 					gfx->renderToTexture( 0 );
 
@@ -2007,7 +1980,7 @@ namespace TA3D
 
 					cam.setView(true);
 					glTranslatef(0.0f,map->sealvl,0.0f);
-					water_obj->draw(t,cam.rpos.x,cam.rpos.z,true);
+					water_obj->draw(t, true);
 
 					glDisable(GL_STENCIL_TEST);
 

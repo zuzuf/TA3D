@@ -134,7 +134,6 @@ namespace TA3D
 		fmouse_y = mouse_y;
 		old_mx = mouse_x;
 		old_my = mouse_y;
-		SDL_WarpMouse(mouse_x,mouse_y);
 		poll_inputs();
 	}
 
