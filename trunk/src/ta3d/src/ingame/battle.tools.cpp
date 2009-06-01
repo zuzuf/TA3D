@@ -84,7 +84,6 @@ namespace TA3D
 
 	void Battle::showGameStatus()
 	{
-		return;
 		Gui::WND::Ptr statuswnd = pArea.get_wnd("gamestatus");
 		if (statuswnd)
 			statuswnd->y = (int)(SCREEN_H - (statuswnd->height + 32) * show_gamestatus);
