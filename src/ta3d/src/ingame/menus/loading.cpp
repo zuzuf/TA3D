@@ -117,7 +117,7 @@ namespace Menus
 	void Loading::doNoticeOtherPlayers()
 	{
 		// Broadcast informations
-		if (pBroadcastInformations && network_manager.isConnected() && Yuni::Math::Equals(pLastPercent, pPercent))
+        if (pBroadcastInformations && network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, pPercent))
 			network_manager.sendAll(String::Format("LOADING %d", pPercent));
 	}
 
