@@ -2,6 +2,7 @@
 #define NETCLIENT_H
 
 #include "../misc/string.h"
+#include "../misc/modinfo.h"
 #include "socket.tcp.h"
 
 namespace TA3D
@@ -21,6 +22,7 @@ namespace TA3D
         String::List    messages;
         String::Vector  peerList;
         String::Vector  chanList;
+        ModInfo::List   modList;
         SocketTCP       sock;
         char            *buffer;
         int             buffer_pos;
@@ -37,6 +39,7 @@ namespace TA3D
         String          getNextMessage();
         String::Vector  getPeerList();
         String::Vector  getChanList();
+        ModInfo::List   getModList();
         void            clearMessageQueue();
         void            sendMessage(const String &msg);
         void            changeChan(const String &chan);

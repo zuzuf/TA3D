@@ -171,7 +171,8 @@ namespace TA3D
 				chanList.push_back("*");
 				sendMessage("GET USER LIST");   // We want to know who is there
 				sendMessage("GET CHAN LIST");   // and the chan list
-			}
+                sendMessage("GET MOD LIST");    // and the mod list
+            }
 		}
 
 		pMutex.unlock();
@@ -277,6 +278,22 @@ namespace TA3D
 		{
 			disconnect();
 		}
+        else if (args[0] == "MOD")
+        {
+            ModInfo mod(msg);
+            if (mod.getID() >= 0)
+            {
+                bool found = false;
+                for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() && !found ; ++i)
+                {
+                    found = i->getID() == mod.getID();
+                    if (found)
+                        *i = mod;
+                }
+                if (!found)
+                    modList.push_back(mod);
+            }
+        }
 	}
 
 	String::Vector NetClient::getChanList()
