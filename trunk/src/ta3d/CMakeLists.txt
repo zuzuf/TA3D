@@ -343,7 +343,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 #
-# --- CPake: Installation process ---
+# --- CPack: Installation process ---
 #
 # OS X Note : There is no need of CPake under OS X. On this platform,
 # an application is an independant bundle that embeds all needed data files.
@@ -375,8 +375,6 @@ IF(NOT APPLE)
 	install(FILES ota_resources_installer.sh DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
 	install(FILES distrib/linux/ta3d_installer.desktop DESTINATION share/applications)
 	install(FILES ta3d.png DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
-	install(FILES distrib/linux/3dmeditor.desktop DESTINATION share/applications)
-	install(FILES 3dmeditor.png DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
 	install(FILES readme.html DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
 	install(FILES readme_fr.html DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
 	install(FILES ../../TODO DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
@@ -415,10 +413,10 @@ IF(NOT APPLE)
 	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl, zlib")
 
 	IF(NOT WIN32 AND UNIX)
-		SET(CPACK_STRIP_FILES "ta3d" "3dmeditor")
+		SET(CPACK_STRIP_FILES "ta3d")
 		SET(CPACK_SOURCE_STRIP_FILES "")
 	ENDIF(NOT WIN32 AND UNIX)
-	SET(CPACK_PACKAGE_EXECUTABLES "ta3d" "3dmeditor")
+	SET(CPACK_PACKAGE_EXECUTABLES "ta3d")
 	INCLUDE(CPack)
 
 ELSE(NOT APPLE)
