@@ -43,20 +43,20 @@ namespace TA3D
 		static String::List messages;
 		static GLuint Glfond = 0;
 
-		if( network_manager.isConnected() && last_percent != (int)percent )
+		if (network_manager.isConnected() && last_percent != (int)percent )
 		{
 			last_percent = (int)percent;
 			network_manager.sendAll(String::Format("LOADING %d", last_percent));
 		}
 
-		bool init=(Glfond==0);
+		bool init = (!Glfond);
 
 		if (init)
 		{
 			messages.clear();
 			if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name)) // Loads a skin
 			{
-				Skin skin;
+				Gui::Skin skin;
 				skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
 				if (!skin.prefix().empty())
@@ -71,7 +71,7 @@ namespace TA3D
 		gfx->set_2D_mode();
 		glPushMatrix();
 
-		float h = gui_font->height();
+		float h = Gui::gui_font->height();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
@@ -93,7 +93,7 @@ namespace TA3D
 
 		int e = 0;
 		for (String::List::const_iterator i = messages.begin(); i != messages.end(); ++i, ++e)
-			gfx->print(gui_font, 105.0f * fw, 175.0f * fh + h * e, 0.0f, 0xFFFFFFFF, *i);
+			gfx->print(Gui::gui_font, 105.0f * fw, 175.0f * fh + h * e, 0.0f, 0xFFFFFFFF, *i);
 
 		glDisable(GL_BLEND);
 
@@ -117,24 +117,23 @@ namespace TA3D
 		glEnable(GL_TEXTURE_2D);
 
 		glEnable(GL_BLEND);
-		gfx->print(gui_font,640.0f * fw - 0.5f * gui_font->length(msg),830 * fh - h * 0.5f,0.0f,0xFFFFFFFF,msg);
+		gfx->print(Gui::gui_font, 640.0f * fw - 0.5f * Gui::gui_font->length(msg),830 * fh - h * 0.5f,0.0f,0xFFFFFFFF,msg);
 		glDisable(GL_BLEND);
 
 		glPopMatrix();
 
-		if( lp_CONFIG->draw_console_loading ) // If set in config
-			String cmd = console.draw(gui_font, 0.0f, true);			// Display something to show what's happening
+		if (lp_CONFIG->draw_console_loading ) // If set in config
+			String cmd = console.draw(Gui::gui_font, 0.0f, true);			// Display something to show what's happening
 
 		gfx->flip();
 
 		gfx->unset_2D_mode();
 
-		if(percent>=100.0f)
+		if (percent >= 100.0f)
 		{
 			messages.clear();
-			gfx->destroy_texture( Glfond );
+			gfx->destroy_texture(Glfond);
 		}
-
 	}
 
 

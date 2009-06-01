@@ -91,13 +91,13 @@ namespace Menus
 		String::List pUnitList;
 
 		//! Reference to the unit picture object (Gui)
-		GUIOBJ::Ptr pUnitPicObj;
+		Gui::GUIOBJ::Ptr pUnitPicObj;
 
 		//! Last selected index
 		int pLastUnitIndex;
 
 		//! The list of units (Gui)
-		GUIOBJ::Ptr pUnitListObj;
+		Gui::GUIOBJ::Ptr pUnitListObj;
 
 	}; // class MapSelector
 

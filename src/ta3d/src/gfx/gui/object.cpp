@@ -11,7 +11,8 @@
 
 namespace TA3D
 {
-
+namespace Gui
+{
 
 
 
@@ -334,7 +335,6 @@ namespace TA3D
 	// Crée un objet text
 	void GUIOBJ::create_text(const float X1, const float Y1, const String& Caption, const int Col, const float size)
 	{
-		std::cout << "LABEL : " << Caption << std::endl;
 		Type = OBJ_TEXT;
 		x1 = X1;
 		y1 = Y1;
@@ -465,4 +465,8 @@ namespace TA3D
 	}
 
 
+
+
+
+} // namespace Gui
 } // namespace TA3D

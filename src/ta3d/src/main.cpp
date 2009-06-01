@@ -36,6 +36,7 @@
 #include "ingame/menus/intro.h"
 #include "ingame/menus/mainmenu.h"
 #include "languages/i18n.h"
+#include "languages/table.h"
 #include "misc/application.h"
 #include "sounds/manager.h"
 
@@ -86,13 +87,13 @@ namespace TA3D
 		{
 			if (parser.pullAsBool("TA3D.Server"))// Server code
 			{
-				String host_name = parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name );
-				setup_game( false, host_name.c_str() );		// Start the game in networking mode as server
+				String host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
+				setup_game(false, host_name.c_str());		// Start the game in networking mode as server
 			}
 			else // Client code
 			{
-				String host_name = parser.pullAsString( "TA3D.Server name", "" );
-				setup_game( true, host_name.c_str() );		// Start the game in networking mode as server
+				String host_name = parser.pullAsString("TA3D.Server name", "");
+				setup_game(true, host_name.c_str());		// Start the game in networking mode as server
 			}
 		}
 
@@ -110,6 +111,9 @@ namespace TA3D
 			sound_manager->loadTDFSounds(true);
 			sound_manager->loadTDFSounds(false);
 		}
+
+		// Update the translation table
+		TranslationTable::Update();
 	}
 
 } // namespace TA3D

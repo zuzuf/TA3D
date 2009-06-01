@@ -29,7 +29,8 @@
 
 namespace TA3D
 {
-
+namespace Gui
+{
 
 	/*!
 	** \brief This class is a window handler, so it will manage windows
@@ -50,7 +51,7 @@ namespace TA3D
 		** \brief Constructor
 		** \param area_name Name of the area
 		*/
-		AREA(const String& area_name = "unnamed_area");
+		AREA(const String& nm = "unnamed_area");
 		//! Destructor
 		virtual ~AREA();
 		//@}
@@ -301,6 +302,7 @@ namespace TA3D
 
 
 
+} // namespace Gui
 } // namespace TA3D
 
 #endif // __TA3D_GFX_GUI_AREA_H__

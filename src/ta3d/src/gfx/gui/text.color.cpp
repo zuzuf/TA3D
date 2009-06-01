@@ -22,6 +22,8 @@
 
 namespace TA3D
 {
+namespace Gui
+{
 
 
 	TEXT_COLOR::TEXT_COLOR()
@@ -60,6 +62,7 @@ namespace TA3D
 		}
 	}
 
+
 	void TEXT_COLOR::print(Font *font, float x, float y, uint32 col, const String &text)
 	{
 		if (!text.empty())
@@ -78,5 +81,8 @@ namespace TA3D
 	}
 
 
+
+
+} // namespace Gui
 } // namespace TA3D
 

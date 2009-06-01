@@ -21,6 +21,7 @@
 #include "../gfx/gfx.h"
 #include "../TA3D_NameSpace.h"
 #include "../languages/i18n.h"
+#include "../languages/table.h"
 #include "../intro.h"
 #include "../3do.h"
 #include "../tdf.h"
@@ -212,9 +213,12 @@ namespace TA3D
 			"initParticules()",
 			"initTheWater()",
 			"initPostFlight()" };
-		for(int i = 0 ; i < 20 ; i++)
+		for (int i = 0 ; i < 20; i++)
 			LOG_INFO(LOG_PREFIX_BATTLE << functionName[i] << " done in " << timer[i+1] - timer[i] << " msec.");
 #endif
+
+		TranslationTable::Update();
+
 		return true;
 	}
 
@@ -412,7 +416,7 @@ namespace TA3D
 
 		for (unsigned int i = 0; i < players.count(); ++i)
 		{
-			GUIOBJ::Ptr obj = pArea.get_object(String("playerstats.team") << i);
+			Gui::GUIOBJ::Ptr obj = pArea.get_object(String("playerstats.team") << i);
 			if (obj)
 			{
 				obj->current_state = TA3D::Math::Log2(players.team[i]);
@@ -798,7 +802,7 @@ namespace TA3D
 		cam_h = lp_CONFIG->camera_def_h;
 
 		speed_limit = lp_CONFIG->fps_limit;
-		delay = (speed_limit == 0.0f) ? 0.0f : (1.0f / speed_limit);
+		delay = (speed_limit < 1.0f) ? 0.0f : (1.0f / speed_limit);
 		ordered_destruct = false;
 		tilde = false;
 		done = false;

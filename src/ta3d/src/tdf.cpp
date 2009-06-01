@@ -549,7 +549,7 @@ namespace TA3D
 				const float a = Camera::inGame->rpos.y - units.map->sealvl;
 				const float b = Pos.y - units.map->sealvl;
 				const float c = a + b;
-				if (c == 0.0f)
+				if (Yuni::Math::Zero(c))
 					continue;
 				Pos = (a / c) * Pos + (b / c) * Camera::inGame->rpos;
 				Pos.y = units.map->get_unit_h( Pos.x, Pos.z );

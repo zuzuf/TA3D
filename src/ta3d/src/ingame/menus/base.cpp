@@ -75,7 +75,7 @@ namespace Menus
 
 	void Abstract::loadAreaFromTDF(const String& caption, const String& relFilename)
 	{
-		pArea = new AREA(caption);
+		pArea = new Gui::AREA(caption);
 		pArea->load_tdf(relFilename);
 		if (!pArea->background)
 			pArea->background = gfx->glfond;

@@ -113,16 +113,16 @@ namespace TA3D
 
 	void PLAYERS::show_resources()
 	{
-		units.lock();
-
-		const int _id = (local_human_id != -1) ? local_human_id : 0;
-
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
 		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 
-		gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalNum.x1,ta3dSideData.side_int_data[ players.side_view ].MetalNum.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String::Format("%d",(int)metal[_id]));
+		units.lock();
+
+		const int _id = (local_human_id != -1) ? local_human_id : 0;
+
+			gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalNum.x1,ta3dSideData.side_int_data[ players.side_view ].MetalNum.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String::Format("%d",(int)metal[_id]));
 		gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalProduced.x1,ta3dSideData.side_int_data[ players.side_view ].MetalProduced.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String::Format("%.2f", metal_t[_id]));
 
 		gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalConsumed.x1,ta3dSideData.side_int_data[ players.side_view ].MetalConsumed.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String::Format("%.2f", metal_u[_id]));
@@ -163,10 +163,11 @@ namespace TA3D
 			glVertex2f(ta3dSideData.side_int_data[players.side_view].EnergyBar.x1 + energy_percent * (ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x2-ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1), ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y2 );
 			glVertex2f(ta3dSideData.side_int_data[players.side_view].EnergyBar.x1, ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y2 );
 		}
-		glEnd();
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
 
 		units.unlock();
+
+		glEnd();
+		glColor4f(1.0f,1.0f,1.0f,1.0f);
 	}
 
 

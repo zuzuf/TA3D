@@ -32,6 +32,9 @@
 
 namespace TA3D
 {
+namespace Gui
+{
+
 
 
 	std::list<AREA*> AREA::area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
@@ -44,6 +47,7 @@ namespace TA3D
 		lmsg.toLower();
 		if (lmsg == cached_key && cached_wnd)
 			return cached_wnd;
+
 		int e = wnd_hashtable.find(lmsg) - 1;
 		if (e >= 0)
 		{
@@ -276,18 +280,18 @@ namespace TA3D
 		String real_filename = filename;
 		if (skin && !skin->prefix().empty())
 		{
-            real_filename.clear();
-            real_filename << Paths::ExtractFilePath(filename) << skin->prefix() << Paths::ExtractFileName(filename);
-            if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
+			real_filename.clear();
+			real_filename << Paths::ExtractFilePath(filename) << skin->prefix() << Paths::ExtractFileName(filename);
+			if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
-        skin = NULL;
+		skin = NULL;
 
 		TDFParser areaFile(real_filename);
 
 		area_stack.push_front(this);     // Just in case we want to grab it from elsewhere
 
-        name = Paths::ExtractFileNameWithoutExtension(filename);		// Grab the area's name
+		name = Paths::ExtractFileNameWithoutExtension(filename);		// Grab the area's name
 
 		name = areaFile.pullAsString("area.name", name);					// The TDF may override the area name
 		skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty())
@@ -303,12 +307,12 @@ namespace TA3D
 		}
 
 		String::Vector windows_to_load;
-        areaFile.pullAsString("area.windows").explode(windows_to_load, ',', false, true, true);
+		areaFile.pullAsString("area.windows").explode(windows_to_load, ',', false, true, true);
 		for (String::Vector::const_iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
 			load_window(*i);
 
 		String background_name = areaFile.pullAsString("area.background", "none");
-        if (background_name.toLower() != "none")           // If we have a background set then load it
+		if (background_name.toLower() != "none")           // If we have a background set then load it
 		{
 			if(skin && !skin->prefix().empty())
 			{
@@ -339,8 +343,8 @@ namespace TA3D
 
 
 
-	AREA::AREA(const String& area_name)
-		:scrolling(false), background(0), name(area_name), skin(NULL), gui_hashtable(), wnd_hashtable()
+	AREA::AREA(const String& nm)
+		:scrolling(false), background(0), name(nm), skin(NULL), gui_hashtable(), wnd_hashtable()
 	{
 		amx = mouse_x;
 		amy = mouse_y;
@@ -384,7 +388,8 @@ namespace TA3D
 
 	AREA::~AREA()
 	{
-		if (current() == this)  area_stack.pop_front();     // Just in case we want to destroy an empty object
+		if (current() == this)
+			area_stack.pop_front();     // Just in case we want to destroy an empty object
 		DeleteInterface();			// Shut down the interface
 
 		cached_key.clear();
@@ -624,4 +629,5 @@ namespace TA3D
 
 
 
+} // namespace Gui
 } // namespace TA3D

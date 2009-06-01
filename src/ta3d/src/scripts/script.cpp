@@ -1237,9 +1237,10 @@ namespace TA3D
 		init();
 	}
 
-	int LuaProgram::run(float dt)									// Run the script
+	int LuaProgram::run(float dt, bool /*alone*/)									// Run the script
 	{
-		if (!is_running())	return	-1;
+		if (!is_running())
+			return -1;
 
 		LuaProgram::inGame = this;
 
@@ -1255,6 +1256,7 @@ namespace TA3D
 
 		return result;
 	}
+
 
 	int LuaProgram::check()
 	{

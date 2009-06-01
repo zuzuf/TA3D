@@ -186,10 +186,10 @@ namespace Menus
 		int pLastMapIndex;
 
 		//! Reference to the mini map object (Gui)
-		GUIOBJ::Ptr pMiniMapObj;
+		Gui::GUIOBJ::Ptr pMiniMapObj;
 
 		//! The list of map (Gui)
-		GUIOBJ::Ptr pMapListObj;
+		Gui::GUIOBJ::Ptr pMapListObj;
 
 		//! Cached value for the width of the mini map
 		int dx;

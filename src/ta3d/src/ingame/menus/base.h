@@ -98,7 +98,7 @@ namespace Menus
 		/*!
 		** \brief Init the area	with a given TDF filename
 		**
-		** \see AREA::load_tdf()
+		** \see Gui::AREA::load_tdf()
 		** \see pArea
 		*/
 		void loadAreaFromTDF(const String& caption, const String& relFilename);
@@ -130,7 +130,7 @@ namespace Menus
 
 	protected:
 		//! Our Window handle
-		AREA::Ptr pArea;
+		Gui::AREA::Ptr pArea;
 
 		//! Last value of `mouse_x`
 		int pMouseX;

@@ -19,6 +19,9 @@
 
 namespace TA3D
 {
+namespace Gui
+{
+
 
 
 	SKIN_MANAGER skin_manager;
@@ -63,4 +66,10 @@ namespace TA3D
 		}
 		return pSkin;
 	}
-}
+
+
+
+
+} // namespace Gui
+} // namespace TA3D
+

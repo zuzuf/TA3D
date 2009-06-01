@@ -96,7 +96,7 @@ namespace TA3D
 
 		TA3DCONFIG  saved_config = *lp_CONFIG;
 
-		AREA config_area("config");
+		Gui::AREA config_area("config");
 		config_area.load_tdf("gui/config.area");
 		if (!config_area.background )   config_area.background = gfx->glfond;
 
@@ -204,7 +204,7 @@ namespace TA3D
 		I18N::Instance()->retrieveAllLanguages(languageList);
 		if (config_area.get_object("*.LANG"))
 		{
-			GUIOBJ::Ptr objLang = config_area.get_object("*.LANG");
+			Gui::GUIOBJ::Ptr objLang = config_area.get_object("*.LANG");
 			objLang->Text.clear();
 			I18N::Language *l = I18N::Instance()->language(lp_CONFIG->Lang);
 			if (l)
@@ -221,7 +221,7 @@ namespace TA3D
 		config_area.caption( "*.camera_zoom_speed", String::Format( "%f", lp_CONFIG->camera_zoom_speed ));
 		if (config_area.get_object("*.screenres") )
 		{
-			GUIOBJ::Ptr obj = config_area.get_object("*.screenres");
+			Gui::GUIOBJ::Ptr obj = config_area.get_object("*.screenres");
 			obj->Text.clear();
 			int current = 0;
 			while( current < nb_res &&
@@ -234,7 +234,7 @@ namespace TA3D
 			for( int i = 0 ; i < nb_res ; i++ )
 				obj->Text.push_back( String::Format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ));
 		}
-		GUIOBJ::Ptr tmpO = config_area.get_object("*.shadow_quality");
+		Gui::GUIOBJ::Ptr tmpO = config_area.get_object("*.shadow_quality");
 		if (tmpO)
 		{
 			const unsigned int indx = 1 + Math::Max(0, Math::Min((int)lp_CONFIG->shadow_quality, 2));
@@ -253,13 +253,13 @@ namespace TA3D
 		}
 		if (config_area.get_object("*.water_quality"))
 		{
-			GUIOBJ::Ptr obj = config_area.get_object("*.water_quality");
+			Gui::GUIOBJ::Ptr obj = config_area.get_object("*.water_quality");
 			config_area.caption("*.water_quality", obj->Text[1 + lp_CONFIG->water_quality]);
 		}
 
 		if (config_area.get_object("*.mod"))
 		{
-			GUIOBJ::Ptr obj = config_area.get_object("*.mod");
+			Gui::GUIOBJ::Ptr obj = config_area.get_object("*.mod");
 
 			if (obj->Text.size() >= 2)
 				obj->Text[0] = obj->Text[1];
@@ -285,7 +285,7 @@ namespace TA3D
 
 		if (config_area.get_object("*.skin"))
 		{
-			GUIOBJ::Ptr obj = config_area.get_object("*.skin");
+			Gui::GUIOBJ::Ptr obj = config_area.get_object("*.skin");
 
 			obj->Text.resize(1);
 			obj->Text[0] = I18N::Translate( "default.skn");
@@ -304,7 +304,7 @@ namespace TA3D
 
 		if (config_area.get_object("*.l_files"))
 		{
-			GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
+			Gui::GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
 			sound_manager->getPlayListFiles(obj->Text);
 		}
 
@@ -331,7 +331,7 @@ namespace TA3D
 				rest(1);
 				if (lp_CONFIG->quickstart)
 				{
-					GUIOBJ::Ptr pbar = config_area.get_object( "config_confirm.p_wait");
+					Gui::GUIOBJ::Ptr pbar = config_area.get_object( "config_confirm.p_wait");
 					if (pbar)
 					{
 						unsigned int new_value = (msec_timer - timer) / 50;
@@ -379,7 +379,7 @@ namespace TA3D
 
 			if (config_area.get_state( "*.b_activate"))
 			{
-				GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
 				if (obj && obj->Text.size() > obj->Pos)
 				{
 					sound_manager->setPlayListFileMode( obj->Pos, false, false);
@@ -388,7 +388,7 @@ namespace TA3D
 			}
 			if (config_area.get_state( "*.b_deactivate"))
 			{
-				GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
 				if (obj && obj->Text.size() > obj->Pos)
 				{
 					sound_manager->setPlayListFileMode( obj->Pos, false, true);
@@ -397,7 +397,7 @@ namespace TA3D
 			}
 			if (config_area.get_state( "*.b_battle" ) )
 			{
-				GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object("*.l_files");
 				if (obj && obj->Text.size() > obj->Pos)
 				{
 					sound_manager->setPlayListFileMode(obj->Pos, true, false);
@@ -416,7 +416,7 @@ namespace TA3D
 			lp_CONFIG->showfps = config_area.get_state( "*.showfps");
 			if (config_area.get_value("*.fps_limit") >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object("*.fps_limit");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object("*.fps_limit");
 				if (obj && obj->Data != uint32(-1))
 				{
 					obj->Text[0] = fps_limits[obj->Value];
@@ -468,7 +468,7 @@ namespace TA3D
 			lp_CONFIG->use_texture_cache = config_area.get_state( "*.use_texture_cache");
 			if (config_area.get_value( "*.camera_zoom" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.camera_zoom");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.camera_zoom");
 				if (obj && obj->Value >= -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
@@ -477,7 +477,7 @@ namespace TA3D
 			}
 			if (config_area.get_value( "*.camera_def_angle" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.camera_def_angle");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.camera_def_angle");
 				if (obj && obj->Value >= 0)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
@@ -486,7 +486,7 @@ namespace TA3D
 			}
 			if (config_area.get_value( "*.camera_def_h" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.camera_def_h");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.camera_def_h");
 				if (obj && obj->Value >= 0)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
@@ -495,7 +495,7 @@ namespace TA3D
 			}
 			if (config_area.get_value( "*.camera_zoom_speed" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.camera_zoom_speed");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.camera_zoom_speed");
 				if (obj && obj->Value >= 0)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
@@ -504,7 +504,7 @@ namespace TA3D
 			}
 			if (config_area.get_value( "*.LANG" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.LANG");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.LANG");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
@@ -513,7 +513,7 @@ namespace TA3D
 			}
 			if (config_area.get_value("*.screenres") >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.screenres");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.screenres");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
@@ -524,7 +524,7 @@ namespace TA3D
 			}
 			if (config_area.get_value("*.shadow_quality") >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object("*.shadow_quality");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object("*.shadow_quality");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
@@ -533,7 +533,7 @@ namespace TA3D
 			}
 			if (config_area.get_value("*.timefactor") >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.timefactor");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.timefactor");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
@@ -542,7 +542,7 @@ namespace TA3D
 			}
 			if (config_area.get_value( "*.fsaa" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.fsaa");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.fsaa");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
@@ -551,7 +551,7 @@ namespace TA3D
 			}
 			if (config_area.get_value("*.water_quality") >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object("*.water_quality");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object("*.water_quality");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
@@ -560,7 +560,7 @@ namespace TA3D
 			}
 			if (config_area.get_value("*.mod") >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.mod");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.mod");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value];
@@ -569,7 +569,7 @@ namespace TA3D
 			}
 			if (config_area.get_value( "*.skin" ) >= 0)
 			{
-				GUIOBJ::Ptr obj = config_area.get_object( "*.skin");
+				Gui::GUIOBJ::Ptr obj = config_area.get_object( "*.skin");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
@@ -787,7 +787,7 @@ namespace TA3D
 		float ldx = dx*70.0f/252.0f;
 		float ldy = dy*70.0f/252.0f;
 
-		AREA setupgame_area("setup");
+		Gui::AREA setupgame_area("setup");
 		setupgame_area.load_tdf("gui/setupgame.area");
 		if (!setupgame_area.background)
 			setupgame_area.background = gfx->glfond;
@@ -797,7 +797,7 @@ namespace TA3D
 			setupgame_area.caption( String::Format("gamesetup.side%d", i), game_data.player_sides[i]);
 			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 			setupgame_area.set_entry( String::Format("gamesetup.ai%d", i), AI_list);
-			GUIOBJ::Ptr guiobj = setupgame_area.get_object( String::Format("gamesetup.color%d", i));
+			Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 			if (guiobj)
 			{
 				guiobj->Flag |= (game_data.player_control[i] == PLAYER_CONTROL_NONE ? FLAG_HIDDEN : 0);
@@ -812,11 +812,11 @@ namespace TA3D
 
 		if (setupgame_area.get_object("gamesetup.max_units"))
 		{
-			GUIOBJ::Ptr obj = setupgame_area.get_object("gamesetup.max_units");
+			Gui::GUIOBJ::Ptr obj = setupgame_area.get_object("gamesetup.max_units");
 			obj->Text[0] = String::Format("%d", game_data.max_unit_per_player);
 		}
 
-		GUIOBJ::Ptr minimap_obj = setupgame_area.get_object( "gamesetup.minimap");
+		Gui::GUIOBJ::Ptr minimap_obj = setupgame_area.get_object( "gamesetup.minimap");
 		float mini_map_x1 = 0.0f;
 		float mini_map_y1 = 0.0f;
 		float mini_map_x2 = 0.0f;
@@ -844,7 +844,7 @@ namespace TA3D
 			minimap_obj->v2 = dy / 252.0f;
 		}
 
-		GUIOBJ::Ptr guiobj = setupgame_area.get_object( "scripts.script_list");
+		Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( "scripts.script_list");
 		if (guiobj)
 		{
 			String::List script_list;
@@ -854,7 +854,7 @@ namespace TA3D
 		}
 		setupgame_area.caption( "gamesetup.script_name", game_data.game_script);
 		{
-			GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.FOW");
+			Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.FOW");
 			if (obj )
 				obj->Text[0] = obj->Text[ 1 + game_data.fog_of_war ];
 		}
@@ -916,7 +916,7 @@ namespace TA3D
 			setupgame_area.msg("gamesetup.FOW.disable");
 			for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			{
-				GUIOBJ::Ptr obj = setupgame_area.get_object(String::Format("gamesetup.team%d",i));
+				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object(String::Format("gamesetup.team%d",i));
 				if (obj)
 					obj->Flag &= ~FLAG_CAN_BE_CLICKED;
 			}
@@ -935,7 +935,7 @@ namespace TA3D
 			if (host)
 				for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 				{
-					GUIOBJ::Ptr obj = setupgame_area.get_object(String::Format("gamesetup.ready%d",i));
+					Gui::GUIOBJ::Ptr obj = setupgame_area.get_object(String::Format("gamesetup.ready%d",i));
 					if (obj)
 					{
 						if (game_data.player_control[i] != PLAYER_CONTROL_LOCAL_HUMAN
@@ -1034,7 +1034,7 @@ namespace TA3D
 			if (network_manager.getFileTransferProgress() != 100.0f)
 			{
 				progress_timer = msec_timer;
-				GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.p_transfer");
+				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.p_transfer");
 				if (obj)
 				{
 					obj->Flag &= ~FLAG_HIDDEN;
@@ -1044,7 +1044,7 @@ namespace TA3D
 			}
 			else
 			{
-				GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.p_transfer");
+				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.p_transfer");
 				if (obj)
 					obj->Flag |= FLAG_HIDDEN;
 			}
@@ -1073,7 +1073,7 @@ namespace TA3D
 							setupgame_area.set_entry( String::Format( "gamesetup.ai%d", i ), AI_list);
 							setupgame_area.caption( String::Format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
 
-							GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
+							Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 							if (guiobj)
 								guiobj->Flag |= FLAG_HIDDEN;
 						}
@@ -1120,7 +1120,7 @@ namespace TA3D
 											<< FixBlank(game_data.player_names[i]) << " " << (int)game_data.ready[i];
 										network_manager.sendSpecial( msg, -1, from);
 
-										GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.team%d", i));
+										Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.team%d", i));
 										if (guiobj)
 										{
 											msg.clear();
@@ -1178,7 +1178,7 @@ namespace TA3D
 
 													setupgame_area.caption(String::Format("gamesetup.name%d", i),game_data.player_names[i]);
 
-													GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
+													Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 													if (guiobj)
 														guiobj->Flag |= FLAG_HIDDEN;
 												}
@@ -1222,7 +1222,7 @@ namespace TA3D
 										game_data.player_names[slot] = UnfixBlank( params[2] );
 										setupgame_area.caption( String::Format( "gamesetup.name%d", slot ), game_data.player_names[slot]);                      // Update gui
 
-										GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", slot));
+										Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", slot));
 										if (guiobj)
 										{
 											guiobj->Data = gfx->makeintcol( player_color[player_color_map[slot] * 3],
@@ -1306,7 +1306,7 @@ namespace TA3D
 								if (params[1] == "FOW")
 								{
 									int value = params[2].to<sint32>();
-									GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.FOW");
+									Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.FOW");
 									if (obj && value >= 0 && value < 4)
 									{
 										obj->Value = value;
@@ -1389,7 +1389,7 @@ namespace TA3D
 									int n_team = params[3].to<sint32>();
 									if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
 									{
-										GUIOBJ::Ptr guiobj = setupgame_area.get_object( String::Format( "gamesetup.team%d", i ) );
+										Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( String::Format( "gamesetup.team%d", i ) );
 										if (guiobj)
 										{
 											guiobj->current_state = n_team;
@@ -1403,7 +1403,7 @@ namespace TA3D
 								if (params[1] == "UNIT" && params[2] == "LIMIT")
 								{
 									game_data.max_unit_per_player = params[3].to<sint32>();
-									GUIOBJ::Ptr obj = setupgame_area.get_object("gamesetup.max_units");
+									Gui::GUIOBJ::Ptr obj = setupgame_area.get_object("gamesetup.max_units");
 									if (obj)
 										obj->Text[0] = String::Format("%d", game_data.max_unit_per_player);
 								}
@@ -1443,7 +1443,7 @@ namespace TA3D
 									setupgame_area.caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));               // Update gui
 									setupgame_area.set_state( String::Format("gamesetup.ready%d", i), ready);                                           // Update gui
 
-									GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
+									Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 									if (guiobj)
 									{
 										guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
@@ -1466,7 +1466,7 @@ namespace TA3D
 								for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 								{
 									player_color_map[i] = params[i + 1].to<sint32>();
-									GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
+									Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 									if (guiobj)
 										guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
 								}
@@ -1483,7 +1483,7 @@ namespace TA3D
 
 			while (!chat_msg.empty()) // Chat receiver
 			{
-				GUIOBJ::Ptr chat_list = setupgame_area.get_object("gamesetup.chat_list");
+				Gui::GUIOBJ::Ptr chat_list = setupgame_area.get_object("gamesetup.chat_list");
 				if (chat_list)
 				{
 					chat_list->Text.push_back(chat_msg);
@@ -1554,7 +1554,7 @@ namespace TA3D
 					struct chat msg;
 					network_manager.sendChat( strtochat( &msg, message ));
 				}
-				GUIOBJ::Ptr chat_list = setupgame_area.get_object("gamesetup.chat_list");
+				Gui::GUIOBJ::Ptr chat_list = setupgame_area.get_object("gamesetup.chat_list");
 
 				if (chat_list)
 				{
@@ -1569,7 +1569,7 @@ namespace TA3D
 
 			if (setupgame_area.get_value("gamesetup.FOW") >= 0 && !client && !saved_game)
 			{
-				GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.FOW");
+				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.FOW");
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
@@ -1623,7 +1623,7 @@ namespace TA3D
 
 			if (!saved_game && setupgame_area.get_value("gamesetup.max_units") >= 0 && !client)
 			{
-				GUIOBJ::Ptr obj = setupgame_area.get_object("gamesetup.max_units");
+				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object("gamesetup.max_units");
 				obj->Text[0] = obj->Text[1+obj->Value];
 				game_data.max_unit_per_player = obj->Text[0].to<sint32>();
 				network_manager.sendSpecial(String::Format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
@@ -1989,7 +1989,7 @@ namespace TA3D
 
 		std::list< SERVER_DATA >    servers;                    // the server list
 
-		AREA networkgame_area("network game area");
+		Gui::AREA networkgame_area("network game area");
 		networkgame_area.load_tdf("gui/networkgame.area");
 		if (!networkgame_area.background)
 			networkgame_area.background = gfx->glfond;
@@ -2078,7 +2078,7 @@ namespace TA3D
 					else
 						server_i++;
 
-				GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
+				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
 				if (obj)
 				{
 					obj->Text.resize( servers.size());
@@ -2107,7 +2107,7 @@ namespace TA3D
 				internet_server_list_timer = msec_timer;
 				network_manager.listNetGames( servers);
 
-				GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
+				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
 				if (obj)
 				{
 					obj->Text.resize( servers.size());
@@ -2133,7 +2133,7 @@ namespace TA3D
 						server_i++;
 				}
 
-				GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
+				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
 				if (obj)
 				{
 					obj->Text.resize(servers.size());
@@ -2155,7 +2155,7 @@ namespace TA3D
 
 			if (networkgame_area.get_state( "networkgame.b_load"))
 			{
-				GUIOBJ::Ptr obj = networkgame_area.get_object("load_menu.l_file");
+				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("load_menu.l_file");
 				if (obj)
 				{
 					String::List fileList;
@@ -2177,7 +2177,7 @@ namespace TA3D
 
 			if (networkgame_area.get_state( "load_menu.b_load" ) || (key[KEY_ENTER] && networkgame_area.get_state( "load_menu" )))    // Loading a game
 			{
-				GUIOBJ::Ptr obj = networkgame_area.get_object("load_menu.l_file");
+				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("load_menu.l_file");
 				if (obj && obj->Pos < obj->Text.size())
 				{
 					GameData game_data;
@@ -2254,7 +2254,7 @@ namespace TA3D
 
 			if (networkgame_area.get_object("networkgame.server_list") && !done )
 			{
-				GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
+				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
 				sel_index = (obj->Pos < obj->Text.size()) ? obj->Text[ obj->Pos ] : String("");
 
 				if (sel_index != o_sel) // Update displayed server info
@@ -2311,7 +2311,7 @@ namespace TA3D
 	{
 		cursor_type=CURSOR_DEFAULT;
 
-		AREA campaign_area("campaign");
+		Gui::AREA campaign_area("campaign");
 		campaign_area.load_tdf("gui/campaign.area");
 		if (!campaign_area.background)
 			campaign_area.background = gfx->glfond;
@@ -2328,7 +2328,7 @@ namespace TA3D
 
 		if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0)
 		{
-			GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.campaign_list");
+			Gui::GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.campaign_list");
 			guiobj->Text.clear();
 			guiobj->Text.resize( campaign_list.size());
 			int n = 0;
@@ -2375,7 +2375,7 @@ namespace TA3D
 
 			if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0) // If we don't have campaign data, then load them
 			{
-				GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.campaign_list");
+				Gui::GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.campaign_list");
 				if (guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
 				{
 					if (!campaign_parser)
@@ -2419,7 +2419,7 @@ namespace TA3D
 
 			if (campaign_area.get_object("campaign.mission_list"))
 			{
-				GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.mission_list");
+				Gui::GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.mission_list");
 				if (guiobj->Pos < guiobj->Text.size())
 					mission_id = guiobj->Pos;
 			}
@@ -2496,7 +2496,7 @@ namespace TA3D
 	{
 		cursor_type=CURSOR_DEFAULT;
 
-		AREA brief_area("brief");
+		Gui::AREA brief_area("brief");
 		brief_area.load_tdf("gui/brief.area");
 		if (!brief_area.background)
 			brief_area.background = gfx->glfond;
@@ -2558,7 +2558,7 @@ namespace TA3D
 
 		if (brief_area.get_object("brief.schema"))
 		{
-			GUIOBJ::Ptr obj = brief_area.get_object("brief.schema");
+			Gui::GUIOBJ::Ptr obj = brief_area.get_object("brief.schema");
 			obj->Text.clear();
 			obj->Text.resize(ota_parser.pullAsInt("GlobalHeader.SCHEMACOUNT") + 1);
 			for (unsigned int i = 0 ; i < obj->Text.size() - 1; ++i)
@@ -2621,7 +2621,7 @@ namespace TA3D
 
 			if (brief_area.get_value("brief.schema") >= 0)
 			{
-				GUIOBJ::Ptr obj = brief_area.get_object( "brief.schema");
+				Gui::GUIOBJ::Ptr obj = brief_area.get_object( "brief.schema");
 				if (obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[obj->Value + 1];
@@ -2634,7 +2634,7 @@ namespace TA3D
 
 			if (brief_area.get_object( "brief.planet"))
 			{
-				GUIOBJ::Ptr guiobj = brief_area.get_object("brief.planet");
+				Gui::GUIOBJ::Ptr guiobj = brief_area.get_object("brief.planet");
 				if (guiobj)
 					guiobj->Data = planet_animation[rotate_id].glbmp[((int)planet_frame) % planet_animation[rotate_id].nb_bmp];
 			}
@@ -2643,7 +2643,7 @@ namespace TA3D
 
 			if (brief_area.get_object("brief.panning0"))
 			{
-				GUIOBJ::Ptr guiobj = brief_area.get_object("brief.panning0");
+				Gui::GUIOBJ::Ptr guiobj = brief_area.get_object("brief.panning0");
 				if (guiobj)
 				{
 					guiobj->Data = planet_animation[pan_id].glbmp[ ((int)pan_frame) % planet_animation[pan_id].nb_bmp ];
@@ -2654,7 +2654,7 @@ namespace TA3D
 
 			if (brief_area.get_object( "brief.panning1"))
 			{
-				GUIOBJ::Ptr guiobj = brief_area.get_object("brief.panning1");
+				Gui::GUIOBJ::Ptr guiobj = brief_area.get_object("brief.panning1");
 				if (guiobj)
 				{
 					guiobj->Data = planet_animation[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation[pan_id].nb_bmp ];
@@ -2786,7 +2786,7 @@ namespace TA3D
 
 		cursor_type=CURSOR_DEFAULT;
 
-		AREA wait_area("wait");
+		Gui::AREA wait_area("wait");
 		wait_area.load_tdf("gui/wait.area");
 		if (!wait_area.background)
 			wait_area.background = gfx->glfond;

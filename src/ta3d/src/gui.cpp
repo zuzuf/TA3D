@@ -48,7 +48,7 @@ namespace TA3D
 
 	const String Dialogf(const String &Title, String Filter)
 	{
-		AREA *current_area = AREA::current();
+		Gui::AREA *current_area = Gui::AREA::current();
 		String result;
 
 		if (current_area)
@@ -106,7 +106,7 @@ namespace TA3D
 
 				if (current_area->get_state("open.file_list"))
 				{
-					GUIOBJ::Ptr obj = current_area->get_object("open.file_list");
+					Gui::GUIOBJ::Ptr obj = current_area->get_object("open.file_list");
 					if (obj && obj->Pos < obj->Text.size())
 					{
 						if (current_area->caption("open.t_filename") == obj->Text[ obj->Pos ])      // Double-click
@@ -121,7 +121,7 @@ namespace TA3D
 
 				if (current_area->get_state("open.folder_list"))
 				{
-					GUIOBJ::Ptr obj = current_area->get_object("open.folder_list");
+					Gui::GUIOBJ::Ptr obj = current_area->get_object("open.folder_list");
 					if (obj && obj->Pos < obj->Text.size())
 					{
 						if (obj->Pos == cur_folder_idx)     // Change current dir (double-click)
@@ -171,7 +171,7 @@ namespace TA3D
 
 	bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 	{
-		AREA *current_area = AREA::current();
+		Gui::AREA *current_area = Gui::AREA::current();
 
 		if (current_area)
 		{
@@ -250,7 +250,7 @@ namespace TA3D
 
 	void Popup(const String &Title,const String &Msg)
 	{
-		AREA *current_area = AREA::current();
+		Gui::AREA *current_area = Gui::AREA::current();
 
 		if (current_area)
 		{
@@ -305,13 +305,13 @@ namespace TA3D
 
 	const String GetVal(const String &Title)
 	{
-		AREA *current_area = AREA::current();
-		String result = "";
+		Gui::AREA *current_area = Gui::AREA::current();
+		String result;
 
 		if (current_area)
 		{
-			if (current_area->get_wnd( "ask" ) == NULL)            // The window isn't loaded => load it now !
-				current_area->load_window( "gui/ask_dialog.tdf" );
+			if (current_area->get_wnd("ask") == NULL)            // The window isn't loaded => load it now !
+				current_area->load_window( "gui/ask_dialog.tdf");
 			current_area->title("ask",Title);
 
 			current_area->msg("ask.show");
