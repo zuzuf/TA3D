@@ -70,9 +70,18 @@ namespace Gui
 		** \brief Load a window from a TDF file
 		**
 		** \param filename TDF File to load
-		** \return
+        ** \param name is not empty, overrides the window name (allow having multiple copies of the same window)
+        ** \return
 		*/
-		uint16 load_window(const String& filename);
+        uint16 load_window(const String& filename, const String &name = String());
+
+        /*!
+        ** \brief Returns the name of the idxth window
+        **
+        ** \param idx window number
+        ** \return
+        */
+        String get_window_name(const int idx);
 
 		/*!
 		** \brief Check the user interface, manage events

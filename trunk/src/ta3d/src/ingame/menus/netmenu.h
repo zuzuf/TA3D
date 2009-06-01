@@ -21,6 +21,7 @@
 # include "../../stdafx.h"
 # include "../../misc/string.h"
 # include "base.h"
+# include "../../network/http.h"
 
 namespace TA3D
 {
@@ -29,6 +30,23 @@ namespace TA3D
 
         class NetMenu : public Abstract
         {
+        private:
+            class Download
+            {
+            public:
+                typedef std::list<Download*> List;
+            public:
+                ~Download();
+                void start(const String &filename, const String &url);
+                void stop();
+                void update();
+                bool downloading();
+            private:
+                String wnd;
+                Http http;
+                static int wndNumber;
+            };
+
         public:
             /*!
             ** \brief Execute an instance of NetMenu
@@ -59,6 +77,7 @@ namespace TA3D
             NetMode netMode;
             String  login;
             String  password;
+            Download::List downloadList;
         };
     }
 }

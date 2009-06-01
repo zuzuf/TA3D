@@ -459,7 +459,7 @@ namespace Gui
 		gfx->unset_alpha_blending();
 
 		String Buf;
-		Buf << Value << "%%";
+        Buf << Value << "%";
 
 		gfx->print(gui_font,(x1+x2)*0.5f-gui_font->length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font->height()*0.5f,0.0f,White,Buf);
 	}

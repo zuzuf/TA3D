@@ -1,0 +1,30 @@
+[window]
+{
+    name=progress;
+    title=Progress dialog;
+    uformat=UTF8;
+    centered=true;
+    width=400;
+    height=100;
+    fullscreen=true;
+    screen width=1280;
+    screen height=1024;
+    draw borders=true;
+    show title=true;
+    lock=false;
+    number of objects=1;
+    hidden=true;
+    color=0xFFFFFFFF;
+    repeat background=true;
+    get focus=true;
+    [object0]
+    {
+        name=progress;
+        type=PBAR;
+        value=0;
+        x1=10;
+        y1=40;
+        x2=-10;
+        y2=90;
+    }
+}

@@ -20,14 +20,57 @@
 #include "../../network/netclient.h"
 #include "../../input/mouse.h"
 #include "../../input/keyboard.h"
+#include "../../misc/paths.h"
 
 
 namespace TA3D
 {
 namespace Menus
 {
+    int NetMenu::Download::wndNumber = 0;
 
-	bool NetMenu::Execute()
+    NetMenu::Download::~Download()
+    {
+        stop();
+    }
+
+    void NetMenu::Download::start(const String &filename, const String &url)
+    {
+        if (Gui::AREA::current())
+        {
+            int idx = Gui::AREA::current()->load_window("gui/progress.tdf", String("dl") << wndNumber++);
+            wnd = Gui::AREA::current()->get_window_name(idx);
+            Gui::AREA::current()->title(wnd, url);
+            Gui::AREA::current()->set_data(wnd + ".progress", 0);
+            Gui::AREA::current()->msg(wnd + ".show");
+        }
+        http.get(filename, url);
+    }
+
+    bool NetMenu::Download::downloading()
+    {
+        return http.isDownloading();
+    }
+
+    void NetMenu::Download::stop()
+    {
+        if (Gui::AREA::current())
+            Gui::AREA::current()->msg(wnd + ".hide");
+        http.stop();
+    }
+
+    void NetMenu::Download::update()
+    {
+        if (Gui::AREA::current())
+        {
+            if (http.isDownloading())
+                Gui::AREA::current()->set_data(wnd + ".progress", (int)http.getProgress());
+            else
+                Gui::AREA::current()->msg(wnd + ".hide");
+        }
+    }
+
+    bool NetMenu::Execute()
 	{
 		NetMenu m;
 		return m.execute();
@@ -40,7 +83,10 @@ namespace Menus
 
 	NetMenu::~NetMenu()
 	{
-	}
+        for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; ++i)
+            delete *i;
+        downloadList.clear();
+    }
 
 
 	void NetMenu::doFinalize()
@@ -171,6 +217,24 @@ namespace Menus
                             pArea->msg("mods.b_install.show");
                             pArea->msg("mods.b_remove.hide");
                             pArea->msg("mods.b_update.hide");
+
+                            if (pArea->get_state("mods.b_install"))     // Start download
+                            {
+                                String filename = Paths::Resources;
+                                filename << "mods" << Paths::SeparatorAsString << pIdx->getName() << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
+                                Download *download = new Download;
+                                download->start(filename, pIdx->getUrl());
+                                downloadList.push_back(download);
+                            }
+                            if (pArea->get_state("mods.b_remove"))     // Remove mod
+                            {
+                                String dir = Paths::Resources;
+                                dir << "mods" << Paths::SeparatorAsString << pIdx->getName();
+                                String filename = dir;
+                                filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
+                                remove(filename.c_str());
+                                rmdir(dir.c_str());
+                            }
                         }
                         else
                             idx = -1;
@@ -190,6 +254,19 @@ namespace Menus
                     NetClient::instance()->sendMessage("GET MOD LIST");
             }
         }
+        else
+            pArea->msg("mods.hide");            // Hide mods when not in connected mode
+        for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; )
+            if ((*i)->downloading())
+            {
+                (*i)->update();
+                ++i;
+            }
+            else
+            {
+                delete *i;
+                downloadList.erase(i++);
+            }
     }
 
 	bool NetMenu::maySwitchToAnotherMenu()

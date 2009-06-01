@@ -77,7 +77,8 @@ namespace TA3D
 		static int run(void* param)
 		{
 			((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
-			return 0;
+            ((struct thread_params*)param)->thisthread->pDead = 1;
+            return 0;
 		}
 
 	protected:
@@ -86,7 +87,7 @@ namespace TA3D
 
 		virtual ~Thread() {}
 		virtual void proc(void* param) = 0;
-		virtual void signalExitThread() {};
+        virtual void signalExitThread() {}
 
 		//! Helpful for debugging, this function returns the name of the class (needs to be implemented for each class)
 		virtual const char *className() = 0;
