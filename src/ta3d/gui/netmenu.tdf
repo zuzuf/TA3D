@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=8;
+	number of objects=9;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -107,5 +107,16 @@
 		caption=;
 		size=1.8;
 		value=1000;
+	}
+	[object8]	// mods
+	{
+		name=b_mods;
+		type=BUTTON;
+		x1=30;
+		y1=190;
+		x2=181;
+		y2=227;
+		caption=Mods;
+		on click=mods.show;
 	}
 }

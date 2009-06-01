@@ -365,6 +365,7 @@ function processClient(client)
                 -- GET MOD LIST : client is asking for the mod list
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "MOD" and args[3] == "LIST" then
                 	local mod_list = getFromDB("SELECT * FROM mods")
+                	client:send("CLEAR MOD LIST")		-- this is used to force refresh of mod list
                     for i, mod in ipairs(mod_list) do
 	                   	client:send("MOD \"" .. escape(mod.ID) .. "\" \"" .. escape(mod.version) .. "\" \"" .. escape(mod.name) .. "\" \"" .. escape(mod.file) .. "\" \"" .. escape(mod.author) .. "\" \"" .. escape(mod.comment) .. "\"")
 	                end
