@@ -90,59 +90,115 @@ namespace Menus
 				 && !NetClient::instance()->messageWaiting());
 	}
 
+    void NetMenu::parseServerMessages()
+    {
+        while(NetClient::instance()->messageWaiting() && !pArea->get_state("popup")
+              && NetClient::instance()->getState() == NetClient::CONNECTED)
+        {
+            String msg = NetClient::instance()->getNextMessage();
+            if (msg.startsWith("MESSAGE"))
+            {
+                pArea->title("popup", I18N::Translate("Server message"));
+                pArea->caption("popup.msg", I18N::Translate(msg.substr(8)));
+                pArea->msg("popup.show");
+            }
+            else if (msg.startsWith("ERROR"))
+            {
+                pArea->title("popup", I18N::Translate("Server error"));
+                pArea->caption("popup.msg", I18N::Translate(msg.substr(6)));
+                pArea->msg("popup.show");
+            }
+            else if (msg.startsWith("MSG"))
+            {
+                String::Vector args;
+                msg.explode(args, ' ');
+                if (args.size() >= 2)
+                {
+                    String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
+                    addChatMessage(message);
+                }
+            }
+            else if (msg.startsWith("CLIENT"))
+            {
+                addChatMessage(msg);
+            }
+        }
+    }
+
+    void NetMenu::updateGUI()
+    {
+        pArea->set_entry("netmenu.peer_list", NetClient::instance()->getPeerList());
+        pArea->set_entry("netmenu.chan_list", NetClient::instance()->getChanList());
+
+        pArea->set_enable_flag("netmenu.b_login", !(netMode == LOGIN || NetClient::instance()->getState() == NetClient::CONNECTED));
+        pArea->set_enable_flag("netmenu.b_logout", NetClient::instance()->getState() == NetClient::CONNECTED);
+        pArea->set_enable_flag("netmenu.b_register", NetClient::instance()->getState() != NetClient::CONNECTED);
+
+        if (NetClient::instance()->getState() == NetClient::CONNECTED)
+        {
+            pArea->msg("netmenu.b_login.hide");
+            pArea->msg("netmenu.b_logout.show");
+        }
+        else
+        {
+            pArea->msg("netmenu.b_login.show");
+            pArea->msg("netmenu.b_logout.hide");
+        }
+
+        if (NetClient::instance()->getState() == NetClient::CONNECTED)
+        {
+            if (pArea->get_state("mods"))
+            {
+                Gui::GUIOBJ::Ptr modListObj = pArea->get_object("mods.l_mods");
+                if (modListObj)
+                {
+                    ModInfo::List modList = NetClient::instance()->getModList();
+                    modListObj->Text.clear();
+                    for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() ; ++i)
+                        modListObj->Text.push_back(i->getName());
+                    int idx = modListObj->Pos;
+                    if (idx >= 0)
+                    {
+                        ModInfo::List::iterator pIdx = modList.begin();
+                        for( ; pIdx != modList.end() && idx > 0 ; ++pIdx)
+                            --idx;
+                        if (pIdx != modList.end())
+                        {
+                            pArea->caption("mods.m_name", pIdx->getName());
+                            pArea->caption("mods.m_version", pIdx->getVersion());
+                            pArea->caption("mods.m_author", pIdx->getAuthor());
+                            pArea->caption("mods.m_comment", pIdx->getComment());
+                            pArea->msg("mods.b_install.show");
+                            pArea->msg("mods.b_remove.hide");
+                            pArea->msg("mods.b_update.hide");
+                        }
+                        else
+                            idx = -1;
+                    }
+                    if (idx < 0)
+                    {
+                        pArea->caption("mods.m_name", String());
+                        pArea->caption("mods.m_version", String());
+                        pArea->caption("mods.m_author", String());
+                        pArea->caption("mods.m_comment", String());
+                        pArea->msg("mods.b_install.hide");
+                        pArea->msg("mods.b_remove.hide");
+                        pArea->msg("mods.b_update.hide");
+                    }
+                }
+                if (pArea->get_state("mods.b_refresh"))     // Refresh mod list
+                    NetClient::instance()->sendMessage("GET MOD LIST");
+            }
+        }
+    }
 
 	bool NetMenu::maySwitchToAnotherMenu()
 	{
 		// First we have to parse the server messages
-		while(NetClient::instance()->messageWaiting() && !pArea->get_state("popup")
-			  && NetClient::instance()->getState() == NetClient::CONNECTED)
-		{
-			String msg = NetClient::instance()->getNextMessage();
-			if (msg.startsWith("MESSAGE"))
-			{
-				pArea->title("popup", I18N::Translate("Server message"));
-				pArea->caption("popup.msg", I18N::Translate(msg.substr(8)));
-				pArea->msg("popup.show");
-			}
-			else if (msg.startsWith("ERROR"))
-			{
-				pArea->title("popup", I18N::Translate("Server error"));
-				pArea->caption("popup.msg", I18N::Translate(msg.substr(6)));
-				pArea->msg("popup.show");
-			}
-			else if (msg.startsWith("MSG"))
-			{
-				String::Vector args;
-				msg.explode(args, ' ');
-				if (args.size() >= 2)
-				{
-					String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
-					addChatMessage(message);
-				}
-			}
-			else if (msg.startsWith("CLIENT"))
-			{
-				addChatMessage(msg);
-			}
-		}
+        parseServerMessages();
 
-		pArea->set_entry("netmenu.peer_list", NetClient::instance()->getPeerList());
-		pArea->set_entry("netmenu.chan_list", NetClient::instance()->getChanList());
-
-		pArea->set_enable_flag("netmenu.b_login", !(netMode == LOGIN || NetClient::instance()->getState() == NetClient::CONNECTED));
-		pArea->set_enable_flag("netmenu.b_logout", NetClient::instance()->getState() == NetClient::CONNECTED);
-		pArea->set_enable_flag("netmenu.b_register", NetClient::instance()->getState() != NetClient::CONNECTED);
-
-		if (NetClient::instance()->getState() == NetClient::CONNECTED)
-		{
-			pArea->msg("netmenu.b_login.hide");
-			pArea->msg("netmenu.b_logout.show");
-		}
-		else
-		{
-			pArea->msg("netmenu.b_login.show");
-			pArea->msg("netmenu.b_logout.hide");
-		}
+        // Then update GUI info and buttons state
+        updateGUI();
 
 		if (pArea->get_state("ask") && pArea->get_state("ask.t_result"))    // Validate on enter
 		{

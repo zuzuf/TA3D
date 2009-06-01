@@ -278,6 +278,8 @@ namespace TA3D
 		{
 			disconnect();
 		}
+        else if (args[0] == "CLEAR" && args.size() == 3 && args[1] == "MOD" && args[2] == "LIST")
+            modList.clear();
         else if (args[0] == "MOD")
         {
             ModInfo mod(msg);
@@ -295,6 +297,12 @@ namespace TA3D
             }
         }
 	}
+
+    ModInfo::List NetClient::getModList()
+    {
+        MutexLocker mLock(pMutex);
+        return modList;
+    }
 
 	String::Vector NetClient::getChanList()
 	{
