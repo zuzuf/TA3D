@@ -134,7 +134,8 @@ namespace TA3D
 		fmouse_y = mouse_y;
 		old_mx = mouse_x;
 		old_my = mouse_y;
-		poll_inputs();
+        SDL_WarpMouse(mouse_x,mouse_y);
+        poll_inputs();
 	}
 
 	void get_mouse_mickeys(int *mx, int *my)
