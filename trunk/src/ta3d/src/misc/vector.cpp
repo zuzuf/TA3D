@@ -39,7 +39,7 @@ namespace TA3D
 		if(!isNull()) // Si le vecteur n'est pas nul
 		{
 			float n = norm(); // Inverse de la norme du vecteur
-			if (Yuni::Math::Zero(n))
+            if (!Yuni::Math::Zero(n))
 			{
 				n = 1.0f / n;
 				x *= n;
