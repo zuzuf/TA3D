@@ -25,7 +25,7 @@
         x2=-5;
         y2=-5;
         size=1;
-        on click=help.hide;
+        on click=help.hide, resume game;
     }
     [object1]
     {
