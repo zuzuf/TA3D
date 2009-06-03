@@ -670,6 +670,50 @@ namespace TA3D
 		return 1;
 	}
 
+    int ai_get_path_length_for_unit_type( lua_State *L )    // get_path_length_for_unit_type( start_x, start_z, end_x, end_z, unit_id, max_dist ) = path length if any, -1 if none was found
+    {
+        float start_x = (float) lua_tonumber( L, 1 );
+        float start_z = (float) lua_tonumber( L, 2 );
+        float end_x = (float) lua_tonumber( L, 3 );
+        float end_z = (float) lua_tonumber( L, 4 );
+        int unit_id = lua_tointeger( L, 5 );
+        int max_dist = (float) lua_tonumber( L, 6 );
+        int type_id = unit_id < 0 || unit_id >= units.max_unit ? -1 : units.unit[unit_id].type_id;
+        lua_pop( L, 6 );
+
+        if (type_id >= 0)
+        {
+            Vector3D start(start_x, 0.0f, start_z);
+            Vector3D end(end_x, 0.0f, end_z);
+            float dh_max = unit_manager.unit_type[type_id]->MaxSlope * H_DIV;
+            float h_min = unit_manager.unit_type[type_id]->canhover ? -100.0f : the_map->sealvl - unit_manager.unit_type[type_id]->MaxWaterDepth * H_DIV;
+            float h_max = the_map->sealvl - unit_manager.unit_type[type_id]->MinWaterDepth * H_DIV;
+            float hover_h = unit_manager.unit_type[type_id]->canhover ? the_map->sealvl : -100.0f;
+            PATH_NODE *path = NULL;
+            if (max_dist <= 0)
+                path = find_path(the_map->map_data, the_map->h_map, the_map->path, the_map->map_w, the_map->map_h, the_map->bloc_w<<1, the_map->bloc_h<<1,
+                                 dh_max, h_min, h_max, start, end, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, unit_id, 0, hover_h );
+            else
+                path = find_path(the_map->map_data, the_map->h_map, the_map->path, the_map->map_w, the_map->map_h, the_map->bloc_w<<1, the_map->bloc_h<<1,
+                                 dh_max, h_min, h_max, start, end, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, unit_id, max_dist, hover_h );
+            if (path)
+            {
+                PATH_NODE *cur = path;
+                while(cur)
+                {
+                    make_path_direct(the_map->map_data, the_map->h_map, dh_max, h_min, h_max, cur, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, the_map->bloc_w, the_map->bloc_h, unit_id, hover_h);
+                    cur = cur->next;
+                }
+                compute_coord(path, the_map->map_w, the_map->map_h, the_map->bloc_w, the_map->bloc_h);
+                lua_pushnumber(L, path_length(path));
+            }
+            else
+                lua_pushnumber(L, -1);
+        }
+        else
+            lua_pushnumber(L, -1);
+        return 1;
+    }
 
 	void AiScript::register_functions()
 	{
@@ -701,6 +745,7 @@ namespace TA3D
 		lua_register(L, "get_type_data", ai_get_type_data);                                 // get_type_data( type )
 		lua_register(L, "nb_unit_types", ai_nb_unit_types);                                 // nb_unit_types()
         lua_register(L, "add_area_build_mission", ai_add_area_build_mission);               // add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )
+        lua_register(L, "get_path_length_for_unit_type", ai_get_path_length_for_unit_type); // get_path_length_for_unit_type( start_x, start_z, end_x, end_z, unit_id, max_dist ) = path length if any, -1 if none was found
 	}
 
 
