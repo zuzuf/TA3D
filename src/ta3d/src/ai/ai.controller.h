@@ -25,6 +25,7 @@
 # define __AI_CONTROLLER_H__
 
 # include "../misc/string.h"
+# include "../misc/vector.h"
 # include "../threads/thread.h"
 # include "brain.h"
 # include "weight.h"
@@ -115,6 +116,9 @@ namespace TA3D
         void scan_unit();
         void refresh_unit_weights();
         void think();
+
+    public:
+        static bool findBuildPlace(Vector3D &target, int unit_idx, int playerID, int minRadius, int radius);
     };
 
 
