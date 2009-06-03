@@ -306,6 +306,7 @@ namespace TA3D
             return NULL;			// So we can't find a path
         }
 
+        the_map->lock();
         while( n < PATH_MAX_LENGTH && ( ( m_dist == 0 && ( path->x != END_X || path->y != END_Y ) ) || ( m_dist > 0 && sq( path->x - END_X ) + sq( path->y - END_Y ) > m_dist ) ) ) {
             zone[ path->y ][ path->x ]++;
 
@@ -421,6 +422,7 @@ namespace TA3D
             delete path;
             path = tmp;		// The unit is already at Start!! So remove it
         }
+        the_map->unlock();
 
         return path;
     }
