@@ -500,7 +500,13 @@ namespace TA3D
 
 			lua_pushstring(L, pType->name.c_str());     // unit name
 			lua_setfield(L, -2, "name");
-		}
+
+            lua_pushinteger(L, pType->BuildTime);       // build time
+            lua_setfield(L, -2, "buildtime");
+
+            lua_pushinteger(L, pType->WorkerTime);      // worker time
+            lua_setfield(L, -2, "workertime");
+        }
 		else
 			lua_pushnil(L);
 		return 1;

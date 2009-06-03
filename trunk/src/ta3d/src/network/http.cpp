@@ -138,9 +138,7 @@ namespace TA3D
                         if (offset != String::npos)
                         {
                             header.erase(0, offset + 16);
-                            offset = header.find_first_of(" \n\r");
-                            if (offset != String::npos)
-                                header.truncate(offset);
+                            header.trimRight();
                             size = header.to<int>();
                             LOG_DEBUG("header = " << header);
                             LOG_DEBUG("Http: size = " << size);

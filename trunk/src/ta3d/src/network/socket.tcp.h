@@ -34,6 +34,7 @@ namespace TA3D
         /*virtual*/ void check(uint32 msec);
         /*virtual*/ bool ready() const;
 
+        /*virtual*/ void send(const String &str);
         /*virtual*/ void send(const char *data, int size);
         /*virtual*/ int recv(char *data, int size);
     };
