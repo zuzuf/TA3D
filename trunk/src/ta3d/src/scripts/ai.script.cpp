@@ -145,7 +145,37 @@ namespace TA3D
 		return 1;
 	}
 
-	int ai_add_build_mission( lua_State *L )		// add_build_mission( unit_id, pos_x, pos_z, unit_type )
+    int ai_add_area_build_mission( lua_State *L )		// add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )
+    {
+        int unit_id = lua_tointeger( L, 1 );
+        float pos_x = (float) lua_tonumber( L, 2 );
+        float pos_z = (float) lua_tonumber( L, 3 );
+        float radius = (float) lua_tonumber( L, 4 );
+        int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : lua_tointeger( L, 5 ) ;
+        lua_pop( L, 5 );
+
+        if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
+            && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder)
+        {
+            Vector3D target(pos_x, 0.0f, pos_z);
+            bool ok = AI_CONTROLLER::findBuildPlace(target, unit_type_id, lua_currentPlayerID(L), 5, radius);
+
+            if (ok)
+            {
+                units.lock();
+                if (units.unit[ unit_id ].flags )
+                    units.unit[ unit_id ].add_mission(MISSION_BUILD,&target,false,unit_type_id);
+                units.unlock();
+            }
+            lua_pushboolean(L, ok);
+        }
+        else
+            lua_pushboolean(L, false);
+
+        return 1;
+    }
+
+    int ai_add_build_mission( lua_State *L )		// add_build_mission( unit_id, pos_x, pos_z, unit_type )
 	{
 		int unit_id = lua_tointeger( L, 1 );
 		float pos_x = (float) lua_tonumber( L, 2 );
@@ -670,6 +700,7 @@ namespace TA3D
 		lua_register(L, "get_build_list", ai_get_build_list);                               // get_build_list( type )
 		lua_register(L, "get_type_data", ai_get_type_data);                                 // get_type_data( type )
 		lua_register(L, "nb_unit_types", ai_nb_unit_types);                                 // nb_unit_types()
+        lua_register(L, "add_area_build_mission", ai_add_area_build_mission);               // add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )
 	}
 
 

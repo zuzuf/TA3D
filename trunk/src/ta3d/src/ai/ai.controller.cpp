@@ -391,81 +391,10 @@ namespace TA3D
 						}
 					}
 				Vector3D target = units.unit[ *i ].Pos;
-				int px = (int)(target.x + the_map->map_w_d) >> 3;
-				int py = (int)(target.z + the_map->map_h_d) >> 3;
-
-				int spx = px;
-				int spy = py;
-				bool found = selected_idx < 0;
-				int best_metal = 0;
-				int metal_stuff_id = -1;
-				bool extractor = selected_idx >= 0 ? unit_manager.unit_type[selected_idx]->ExtractsMetal > 0.0f : false;
-				for (int r = 5 ; r < 50 && !found ; r++ ) 	// Circular check
-				{
-					int r2 = r * r;
-					for (int y = (r>>1) ; y <= r && !found ; y++ )
-					{
-						int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
-
-						int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
-						int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
-						int rand_t[8];
-						int rand_t2[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-						for (int e = 0 ; e < 8 ; ++e)
-						{
-							int t = Math::RandFromTable() % (8 - e);
-							rand_t[e] = rand_t2[t];
-							for (int f = t; f < 7 - e; ++f)
-								rand_t2[f] = rand_t2[f + 1];
-						}
-
-						for (int f = 0 ; f < 8 ; f++ )
-						{
-							int e = rand_t[ f ];
-							if (can_be_there_ai( px + cx[e], py + cy[e], the_map, selected_idx, playerID ))
-							{
-								int stuff_id = -1;
-								int metal_found = extractor ? the_map->check_metal( px + cx[e], py + cy[e], selected_idx, &stuff_id ) : 0;
-								if ((extractor && metal_found > best_metal) || !extractor)
-								{
-									// Prevent AI from filling a whole area with metal extractors
-									if (extractor && stuff_id == -1
-										&& !can_be_there_ai( px + cx[e], py + cy[e], the_map, selected_idx, playerID, -1, true ))
-										continue;
-									spx = px + cx[e];
-									spy = py + cy[e];
-									if (metal_found > 0 && extractor)
-									{
-										best_metal = metal_found;
-										metal_stuff_id = stuff_id;
-										if (metal_stuff_id != -1)
-											break;
-									}
-									else
-									{
-										found = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-
-				px = spx;
-				py = spy;
-				found |= best_metal > 0;
+                bool found = findBuildPlace(target, selected_idx, playerID, 5, 50);
 
 				if (found && selected_idx >= 0)
 				{
-					if (metal_stuff_id >= 0)        // We have a valid metal patch
-					{
-						px = features.feature[ metal_stuff_id ].px;
-						py = features.feature[ metal_stuff_id ].py;
-					}
-					target.x = (px << 3) - the_map->map_w_d;
-					target.z = (py << 3) - the_map->map_h_d;
-					target.y = Math::Max( the_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[selected_idx]->FootprintX, unit_manager.unit_type[selected_idx]->FootprintZ ), the_map->sealvl);
 					units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
 # ifdef AI_DEBUG
 					LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msec_timer
@@ -725,5 +654,90 @@ namespace TA3D
 	{
 		return AI_type;
 	}
+
+    bool AI_CONTROLLER::findBuildPlace(Vector3D &target, int unit_idx, int playerID, int minRadius, int radius)
+    {
+        if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
+            return false;
+
+        int px = (int)(target.x + the_map->map_w_d) >> 3;
+        int py = (int)(target.z + the_map->map_h_d) >> 3;
+
+        int spx = px;
+        int spy = py;
+        bool found = false;
+        int best_metal = 0;
+        int metal_stuff_id = -1;
+        bool extractor = unit_manager.unit_type[unit_idx]->ExtractsMetal > 0.0f;
+        for (int r = minRadius ; r < radius && !found ; r++ ) 	// Circular check
+        {
+            int r2 = r * r;
+            for (int y = (r>>1) ; y <= r && !found ; y++ )
+            {
+                int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
+
+                int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
+                int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
+                int rand_t[8];
+                int rand_t2[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+                for (int e = 0 ; e < 8 ; ++e)
+                {
+                    int t = Math::RandFromTable() % (8 - e);
+                    rand_t[e] = rand_t2[t];
+                    for (int f = t; f < 7 - e; ++f)
+                        rand_t2[f] = rand_t2[f + 1];
+                }
+
+                for (int f = 0 ; f < 8 ; f++ )
+                {
+                    int e = rand_t[ f ];
+                    if (can_be_there_ai( px + cx[e], py + cy[e], the_map, unit_idx, playerID ))
+                    {
+                        int stuff_id = -1;
+                        int metal_found = extractor ? the_map->check_metal( px + cx[e], py + cy[e], unit_idx, &stuff_id ) : 0;
+                        if ((extractor && metal_found > best_metal) || !extractor)
+                        {
+                            // Prevent AI from filling a whole area with metal extractors
+                            if (extractor && stuff_id == -1
+                                && !can_be_there_ai( px + cx[e], py + cy[e], the_map, unit_idx, playerID, -1, true ))
+                                continue;
+                            spx = px + cx[e];
+                            spy = py + cy[e];
+                            if (metal_found > 0 && extractor)
+                            {
+                                best_metal = metal_found;
+                                metal_stuff_id = stuff_id;
+                                if (metal_stuff_id != -1)
+                                    break;
+                            }
+                            else
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        px = spx;
+        py = spy;
+        found |= best_metal > 0;
+
+        if (found && unit_idx >= 0)
+        {
+            if (metal_stuff_id >= 0)        // We have a valid metal patch
+            {
+                px = features.feature[ metal_stuff_id ].px;
+                py = features.feature[ metal_stuff_id ].py;
+            }
+            target.x = (px << 3) - the_map->map_w_d;
+            target.z = (py << 3) - the_map->map_h_d;
+            target.y = Math::Max( the_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[unit_idx]->FootprintX, unit_manager.unit_type[unit_idx]->FootprintZ ), the_map->sealvl);
+            return true;
+        }
+        return false;
+    }
 } // namespace TA3D
 
