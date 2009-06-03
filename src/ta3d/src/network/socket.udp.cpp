@@ -61,6 +61,11 @@ namespace TA3D
         checked = false;
     }
 
+    void SocketUDP::send(const String &str)
+    {
+        send(str.c_str(), str.size());
+    }
+
     void SocketUDP::send(const char *data, int size)
     {
         if (!sock)  return;

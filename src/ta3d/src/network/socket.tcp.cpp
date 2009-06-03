@@ -116,6 +116,11 @@ namespace TA3D
         return newSock;
     }
 
+    void SocketTCP::send(const String &str)
+    {
+        send(str.c_str(), str.size());
+    }
+
     void SocketTCP::send(const char *data, int size)
     {
         if (!sock)  return;
