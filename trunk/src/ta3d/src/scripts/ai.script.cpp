@@ -23,6 +23,8 @@
 #include "../ingame/players.h"
 #include "script.h"
 #include "../UnitEngine.h"
+#include <map>
+#include <utility>
 
 using namespace TA3D::UTILS::HPI;
 
@@ -722,6 +724,56 @@ namespace TA3D
         return 1;
     }
 
+    int ai_get_area_units ( lua_State *L )     // get_area_units (nx, ny, sx, sy, Type, playerID)
+    {
+        float nx = (float) lua_tonumber(L, 1);
+        float ny = (float) lua_tonumber(L, 2);
+        float sx = (float) lua_tonumber(L, 3);
+        float sy = (float) lua_tonumber(L, 4);
+        int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : lua_tointeger( L, 5 ) ;
+        int player_id = lua_isnoneornil(L, 6) ? -1 : lua_tointeger( L, 6 );
+        int x0 = Math::Min( Math::Max( (int)((nx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
+        int y0 = Math::Min( Math::Max( (int)((ny + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
+        int x1 = Math::Min( Math::Max( (int)((sx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
+        int y1 = Math::Min( Math::Max( (int)((sy + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
+        lua_pop(L, 6);
+
+        lua_newtable(L);
+
+        std::map<int, bool> seen;
+        int n = 1;
+        the_map->lock();
+        for(int y = y0 ; y < y1 ; ++y)
+            for(int x = x0 ; x < x1 ; ++x)
+            {
+                bool ok = false;
+                IDX_LIST_NODE *cur = the_map->map_data[y][x].air_idx.head;
+                while(cur || !ok)
+                {
+                    int idx = cur ? cur->idx : the_map->map_data[y][x].unit_idx;
+                    if (!cur)
+                        ok = true;
+                    else
+                        cur = cur->next;
+                    int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
+                    if (idx >= 0 && (units.unit[idx].owner_id == player_id || player_id == -1) && type_id >= 0 &&
+                        (unit_type_id == -1 || type_id == unit_type_id ||
+                         (unit_type_id == -2 && unit_manager.unit_type[type_id]->canattack) ||
+                         (unit_type_id == -3 && unit_manager.unit_type[type_id]->Builder)) &&
+                        !seen[idx])
+                    {
+                        seen[idx] = true;
+                        lua_pushinteger(L, idx);
+                        ai_get_unit_data(L);
+                        lua_rawseti(L, -2, n++);
+                    }
+                }
+            }
+        the_map->unlock();
+
+        return 1;
+    }
+
 	void AiScript::register_functions()
 	{
 		lua_register(L, "playerID", ai_playerID);                                           // playerID()
@@ -753,6 +805,7 @@ namespace TA3D
 		lua_register(L, "nb_unit_types", ai_nb_unit_types);                                 // nb_unit_types()
         lua_register(L, "add_area_build_mission", ai_add_area_build_mission);               // add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )
         lua_register(L, "get_path_length_for_unit_type", ai_get_path_length_for_unit_type); // get_path_length_for_unit_type( start_x, start_z, end_x, end_z, unit_id, max_dist ) = path length if any, -1 if none was found
+        lua_register(L, "get_area_units", ai_get_area_units);                               // get_area_units (nx, ny, sx, sy, Type, playerID)
 	}
 
 
