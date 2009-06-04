@@ -239,7 +239,7 @@ end
 function getValue(name)
     cur = netserver_db:execute("SELECT value FROM `info` WHERE name='" .. fixSQL(name) .. "'")
     if cur == nil or cur == 0 or cur:numrows() ~= 1 then
-        return nil
+        return ""
     end
     row = cur:fetch({}, "a")
     return row.value
