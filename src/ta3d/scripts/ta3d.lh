@@ -126,6 +126,77 @@ function piece(...)
     end
 end
 
+__unit_virtual_table = {}	-- This is the table that will store additionnal data, so virtually we don't lose anything
+
+function __unit_virtual_index (table, key)
+	local v = rawget(table, key)
+	if v == nil then
+		v = rawget(__unit_virtual_table, rawget(table, "index"))
+		if v == nil then
+			return nil
+		elseif rawget(v, "UID") == rawget(table, "UID") then		-- We need this because we don't want to face an UID mismatch :)
+			return rawget(v, key)
+		else
+			return nil
+		end
+	end
+	return v
+end
+
+function __unit_virtual_newindex (table, key, value)
+	local v = rawget(table, key)
+	if v == nil then
+		local idx = rawget(table, "index")
+		v = rawget(__unit_virtual_table, idx)
+		if v == nil or rawget(v, "UID") ~= rawget(table, "UID") then
+			v = {index=idx, UID=rawget(table, "UID")}
+			rawset(v, key, value)
+			rawset(__unit_virtual_table, idx, v)
+		else
+			rawset(v, key, value)
+		end
+	else
+		rawset(table, key, value)
+	end
+end
+
+__unit_metatable = {__index=__unit_virtual_index, __newindex=__unit_virtual_newindex}
+
+-- Let's do the same thing with unit types :P
+__type_virtual_table = {}	-- This is the table that will store additionnal data, so virtually we don't lose anything
+
+function __type_virtual_index (table, key)
+	local v = rawget(table, key)
+	if v == nil then
+		v = rawget(__type_virtual_table, rawget(table, "name"))
+		if v == nil then
+			return nil
+		else
+			return rawget(v, key)
+		end
+	end
+	return v
+end
+
+function __type_virtual_newindex (table, key, value)
+	local v = rawget(table, key)
+	if v == nil then
+		local name = rawget(table, "name")
+		v = rawget(__type_virtual_table, name)
+		if v == nil then
+			v = {name=name}
+			rawset(v, key, value)
+			rawset(__type_virtual_table, name, v)
+		else
+			rawset(v, key, value)
+		end
+	else
+		rawset(table, key, value)
+	end
+end
+
+__type_metatable = {__index=__type_virtual_index, __newindex=__type_virtual_newindex}
+
 DEG2RAD = 0.017453292519943295
 RAD2DEG = 57.29577951308232
 

@@ -536,6 +536,9 @@ namespace TA3D
 
             lua_pushinteger(L, pType->WorkerTime);      // worker time
             lua_setfield(L, -2, "workertime");
+
+            lua_getglobal(L, "__type_metatable");   // Set the magic metatable that will virtually keep all user specified data
+            lua_setmetatable(L, -2);
         }
 		else
 			lua_pushnil(L);
@@ -567,7 +570,10 @@ namespace TA3D
 
 			lua_pushinteger(L, pUnit->type_id);     // unit type_id
 			lua_setfield(L, -2, "type");
-			pUnit->unlock();
+
+            lua_getglobal(L, "__unit_metatable");   // Set the magic metatable that will virtually keep all user specified data
+            lua_setmetatable(L, -2);
+            pUnit->unlock();
 		}
 		else
 			lua_pushnil(L);
@@ -581,7 +587,7 @@ namespace TA3D
 			lua_pop( L, 1 );
 
 		lua_newtable(L);
-		int n = 0;
+        int n = 1;
 
 		units.lock();
 		for(int i = 0 ; i < units.index_list_size ; i++)
@@ -597,6 +603,7 @@ namespace TA3D
 				ai_get_unit_data(L);
 				lua_rawseti(L, -2, n++);    // Add the entry to the list
 			}
+            pUnit->unlock();
 
 			units.lock();
 		}
