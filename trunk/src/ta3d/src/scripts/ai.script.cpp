@@ -774,6 +774,45 @@ namespace TA3D
         return 1;
     }
 
+    int ai_get_player_resources ( lua_State *L )     // get_player_resources (playerID)
+    {
+        int player_id = lua_isnoneornil(L, 1) ? -1 : lua_tointeger( L, 1 );
+        lua_pop(L, 1);
+
+        if (player_id >= 0 && player_id < players.count())
+        {
+            lua_newtable(L);
+
+            lua_pushnumber(L, players.metal[player_id]);
+            lua_setfield(L, -2, "metal");
+
+            lua_pushinteger(L, players.metal_s[player_id]);
+            lua_setfield(L, -2, "metal_storage");
+
+            lua_pushnumber(L, players.metal_t[player_id]);
+            lua_setfield(L, -2, "metal_produced");
+
+            lua_pushnumber(L, players.metal_u[player_id]);
+            lua_setfield(L, -2, "metal_used");
+
+            lua_pushnumber(L, players.energy[player_id]);
+            lua_setfield(L, -2, "energy");
+
+            lua_pushinteger(L, players.energy_s[player_id]);
+            lua_setfield(L, -2, "energy_storage");
+
+            lua_pushnumber(L, players.energy_t[player_id]);
+            lua_setfield(L, -2, "energy_produced");
+
+            lua_pushnumber(L, players.energy_u[player_id]);
+            lua_setfield(L, -2, "energy_used");
+        }
+        else
+            lua_pushnil(L);
+
+        return 1;
+    }
+
 	void AiScript::register_functions()
 	{
 		lua_register(L, "playerID", ai_playerID);                                           // playerID()
@@ -806,6 +845,7 @@ namespace TA3D
         lua_register(L, "add_area_build_mission", ai_add_area_build_mission);               // add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )
         lua_register(L, "get_path_length_for_unit_type", ai_get_path_length_for_unit_type); // get_path_length_for_unit_type( start_x, start_z, end_x, end_z, unit_id, max_dist ) = path length if any, -1 if none was found
         lua_register(L, "get_area_units", ai_get_area_units);                               // get_area_units (nx, ny, sx, sy, Type, playerID)
+        lua_register(L, "get_player_resources", ai_get_player_resources);                   // get_player_resources (playerID)
 	}
 
 
