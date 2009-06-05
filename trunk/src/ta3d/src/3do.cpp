@@ -1032,10 +1032,10 @@ namespace TA3D
 						for (i = 0; i < nb_diff_tex; ++i)
 						{
 							int f = e % texture_manager.tex[index_tex[i]].nb_bmp;
-							blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[f]], bmp,
+                            blit(texture_manager.tex[index_tex[i]].bmp[f], bmp,
 								 0, 0, px[i], py[i],
-								 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->w,
-								 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->h);
+                                 texture_manager.tex[index_tex[i]].bmp[f]->w,
+                                 texture_manager.tex[index_tex[i]].bmp[f]->h);
 						}
 						cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
 						if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
@@ -1051,10 +1051,10 @@ namespace TA3D
 						for (i = 0; i < nb_diff_tex; ++i)
 						{
 							int f = e % texture_manager.tex[index_tex[i]].nb_bmp;
-							blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[f]], bmp,
+                            blit(texture_manager.tex[index_tex[i]].bmp[f], bmp,
 								 0, 0, px[i], py[i],
-								 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->w,
-								 texture_manager.tex[index_tex[i]].bmp[player_color_map[f]]->h);
+                                 texture_manager.tex[index_tex[i]].bmp[f]->w,
+                                 texture_manager.tex[index_tex[i]].bmp[f]->h);
 						}
 						gltex[e] = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
 						if (!filename.empty())
@@ -1539,7 +1539,7 @@ namespace TA3D
 			hide |= explodes ^ exploding_parts;
             if (chg_col)
 				glGetFloatv(GL_CURRENT_COLOR, color_factor);
-			int texID = side;
+            int texID = player_color_map[side];
 			if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && dtex > 0)
 				texID = ((int)(t * 10.0f)) % dtex;
