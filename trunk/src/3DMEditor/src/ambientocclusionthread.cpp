@@ -89,8 +89,9 @@ void AmbientOcclusionThread::run()
         if (a.y != b.y)
             for(int y = a.y ; y < b.y ; y++)
             {
-                float fb = (y - a.y) / (b.y - a.y);
-                float fc = (y - a.y) / (c.y - a.y);
+                float ry = qMax((float)y, a.y);
+                float fb = (ry - a.y) / (b.y - a.y);
+                float fc = (c.y != a.y) ? (ry - a.y) / (c.y - a.y) : 0.0f;
                 float x0 = a.x + (b.x - a.x) * fb;
                 float x1 = a.x + (c.x - a.x) * fc;
                 Vec P0 = A + fb * (B - A);
@@ -100,9 +101,10 @@ void AmbientOcclusionThread::run()
                     qSwap(x0, x1);
                     qSwap(P0, P1);
                 }
-                for(int x = x0 ; x <= x1 ; x++)
+                for(int x = x0 ; x <= ceil(x1) ; x++)
                 {
-                    Vec D = P0 + ((float)(x - x0)) / (x1 - x0) * (P1 - P0) + relativePosition;
+                    float rx = qMin( qMax((float)x, x0), x1);
+                    Vec D = P0 + ((float)(rx - x0)) / (x1 - x0) * (P1 - P0) + relativePosition;
                     D += 0.001f * N;        // We don't want to detect a collision with ourselves
 
                     int n = 0;      // Number of occluders detected
@@ -126,46 +128,47 @@ void AmbientOcclusionThread::run()
                     img->setPixel(x, h - 1 - y, qRgb(n, n, n));
                 }
             }
-        if (b.y != c.y)
-            for(int y = b.y ; y <= c.y ; y++)
+        for(int y = b.y ; y <= ceil(c.y) ; y++)
+        {
+            float ry = qMin( qMax((float)y, a.y), c.y );
+            float fa = (c.y != a.y) ? (ry - a.y) / (c.y - a.y) : 0.0f;
+            float fb = (c.y != b.y) ? (ry - b.y) / (c.y - b.y) : 0.0f;
+            float x0 = b.x + (c.x - b.x) * fb;
+            float x1 = a.x + (c.x - a.x) * fa;
+            Vec P0 = B + fb * (C - B);
+            Vec P1 = A + fa * (C - A);
+            if (x0 > x1)
             {
-                float fa = (y - a.y) / (c.y - a.y);
-                float fb = (y - b.y) / (c.y - b.y);
-                float x0 = b.x + (c.x - b.x) * fb;
-                float x1 = a.x + (c.x - a.x) * fa;
-                Vec P0 = B + fb * (C - B);
-                Vec P1 = A + fa * (C - A);
-                if (x0 > x1)
-                {
-                    qSwap(x0, x1);
-                    qSwap(P0, P1);
-                }
-                for(int x = x0 ; x <= x1 ; x++)
-                {
-                    Vec D = P0 + ((float)(x - x0)) / (x1 - x0) * (P1 - P0) + relativePosition;
-                    D += 0.001f * N;        // We don't want to detect a collision with ourselves
+                qSwap(x0, x1);
+                qSwap(P0, P1);
+            }
+            for(int x = x0 ; x <= ceil(x1) ; x++)
+            {
+                float rx = qMin( qMax((float)x, x0), x1);
+                Vec D = P0 + ((float)(rx - x0)) / (x1 - x0) * (P1 - P0) + relativePosition;
+                D += 0.001f * N;        // We don't want to detect a collision with ourselves
 
-                    int n = 0;      // Number of occluders detected
-                    for(int j = 0 ; j < dirs.size() ; j++)
+                int n = 0;      // Number of occluders detected
+                for(int j = 0 ; j < dirs.size() ; j++)
+                {
+                    Vec Dir = dirs[j].x * I + dirs[j].y * J + dirs[j].z * N;
+                    if (tree->quickTest(D, Dir, collisionCache[j]))
+                        n++;
+                    else
                     {
-                        Vec Dir = dirs[j].x * I + dirs[j].y * J + dirs[j].z * N;
-                        if (tree->quickTest(D, Dir, collisionCache[j]))
-                            n++;
-                        else
+                        int idx = tree->collision(D, Dir);
+                        if (idx >= 0)
                         {
-                            int idx = tree->collision(D, Dir);
-                            if (idx >= 0)
-                            {
-                                collisionCache[j] = idx;
-                                n++;
-                            }
+                            collisionCache[j] = idx;
+                            n++;
                         }
                     }
-                    n = 255 - n * 255 / dirs.size();
-
-                    img->setPixel(x, h - 1 - y, qRgb(n, n, n));
                 }
+                n = 255 - n * 255 / dirs.size();
+
+                img->setPixel(x, h - 1 - y, qRgb(n, n, n));
             }
+        }
     }
 }
 
