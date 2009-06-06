@@ -871,6 +871,4 @@ namespace TA3D
 		wait_room(pGameData);
 	}
 
-
-
 } // namespace TA3D

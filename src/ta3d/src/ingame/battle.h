@@ -90,6 +90,11 @@ namespace TA3D
 		*/
 		void updateZFAR();
 
+        /*!
+        ** \brief parse and process console commands
+        */
+        void parseCommands(const String &cmd);
+
 		//! \name Preparing all data about a battle
 		//@{
 		/*!
