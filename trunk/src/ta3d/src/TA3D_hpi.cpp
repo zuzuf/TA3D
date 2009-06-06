@@ -26,6 +26,7 @@
 #include "logs/logs.h"
 #include "misc/resources.h"
 #include "misc/files.h"
+#include <sstream>
 
 #include <zlib.h>
 #if defined TA3D_PLATFORM_WINDOWS
@@ -1046,6 +1047,44 @@ namespace HPI
 		return true;
 	}
 
+    template<class T>
+    bool TmplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    {
+        if (emptyListBefore)
+            out.clear();
+
+        uint32 file_length(0);
+        byte *data = HPIManager->PullFromHPI(filename, &file_length);
+        if (data == NULL)
+        {
+            LOG_WARNING("Impossible to open the file `" << filename << "`");
+            return false;
+        }
+        if (sizeLimit && file_length > sizeLimit)
+        {
+            delete[] data;
+            LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
+            return false;
+        }
+        std::stringstream file;
+        file.write((const char*)data, file_length);
+        delete[] data;
+        std::string line;
+        while (std::getline(file, line))
+            out.push_back(line);
+        return true;
+    }
+
+
+    bool TA3D_FILE::Load(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    {
+        return TmplLoadFromFile< String::List >(out, filename, sizeLimit, emptyListBefore);
+    }
+
+    bool TA3D_FILE::Load(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    {
+        return TmplLoadFromFile< String::Vector >(out, filename, sizeLimit, emptyListBefore);
+    }
 
 } // namespace HPI
 } // namespace UTILS

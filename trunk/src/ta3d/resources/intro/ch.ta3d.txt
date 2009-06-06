@@ -1,0 +1,38 @@
+TA3D, 一个横扫千军 (c) 2005的重制版
+Roland BROCHARD
+
+此程序是一个免费软件；
+你可以重新架构、修改它，但必须符合GNU组织的求规则,
+即遵守Free Software Foundation系列软件的规则; 在以后版
+本附加的新条约， 或什么也需要你遵守（可以选择不更新
+而只考虑旧的规则）。
+
+此程序被公开是希望它会对大家有用, 但 没有任何的保修;
+不有可订购， 不会因特定请求而制作特别版本; 更多细节
+见GNU的协议。
+
+你在使用此程序时应该拥有一份GNU软件; 无且希望得到
+GNU, 发送邮件到:
+Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+在此谢谢所有参与到TA3D项目的成员:
+
+Roland BROCHARD (zuzuf86@gmail.com)
+Evan Rinehart (erineh1@lsu.edu)
+Garret Wiens-Kind
+Damien Gerard (damien@shikami.org)
+Balthazar (sk_is@mail.ru)
+Cire (support - markb@nbnet.nb.ca)
+Jari Viitanen (artist - peeweeassault@hotmail.com)
+Julien Saurin (artist - cylence2097@gmail.com)
+Doors
+
+一并感谢:
+Saruman, Bobban 等 Total Annihilation
+文件格式文档的作者
+
+TA3D一部分树木模型的作者:
+
+Reiner Prokein, http://www.reinerstileset.de, Email: reiner.prokein@t-online.de
+
+以及所有未考虑到的朋友

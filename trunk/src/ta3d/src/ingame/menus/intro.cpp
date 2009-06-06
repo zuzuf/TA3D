@@ -22,6 +22,7 @@
 #include "../../gfx/gui/skin.h"
 #include "../../input/mouse.h"
 #include "../../input/keyboard.h"
+#include "../../languages/i18n.h"
 
 
 //!
@@ -109,16 +110,11 @@ namespace Menus
 	void Intro::reloadContent()
 	{
 		pContent.clear();
-		String::Vector list;
 		// A big space before
 		for (unsigned int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
 			pContent.push_back("");
 		// Load all text files
-		if (Resources::Glob(list, "intro" + Paths::SeparatorAsString + "*.txt"))
-		{
-			for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-				Paths::Files::Load(pContent, *i, 5 * 1024 /* Max 5Ko */, false);
-		}
+        UTILS::HPI::TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);
 		pContentSize = pContent.size();
 		if (pContentSize == TA3D_INTRO_MAX_LINES)
 		{

@@ -695,3 +695,7 @@
 {
     FRENCH=frenchdescription;
 }
+[en.ta3d.txt]
+{
+    FRENCH=fr.ta3d.txt;
+}

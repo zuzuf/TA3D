@@ -729,3 +729,7 @@ CHINESE=开启;
 {
    CHINESE=默认速度;
 }
+[en.ta3d.txt]
+{
+   CHINESE=ch.ta3d.txt;
+}

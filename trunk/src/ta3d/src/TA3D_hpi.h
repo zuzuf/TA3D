@@ -484,7 +484,10 @@ namespace HPI
 		//!
 		uint32 length;
 
-	}; // class TA3D_FILE
+    public:
+        static bool Load(String::List& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
+        static bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
+    }; // class TA3D_FILE
 
 
 	TA3D_FILE	*ta3d_fopen(const String& filename );
