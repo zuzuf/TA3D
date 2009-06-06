@@ -90,6 +90,12 @@ namespace TA3D
         //! functions used to save/restore scripts state
         virtual void save_thread_state(gzFile file);
         virtual void restore_thread_state(gzFile file);
+
+        //! functions used for debugging
+        inline bool is_crashed()    {   return crashed;  }
+        inline void crash()         {   crashed = true;  }
+        inline void uncrash()       {   crashed = false; }
+        bool runCommand(const String &cmd);
     private:
         //! functions to manipulate the Lua processes
         void setThreadID();

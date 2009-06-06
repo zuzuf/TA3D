@@ -62,7 +62,8 @@ namespace TA3D
 	void Console::toggleShow()
 	{
 		pMutex.lock();
-		pShow ^= true;
+        if (!pShow || pInputText.empty())       // Need to clear the input text before closing console
+            pShow ^= true;
 		pMutex.unlock();
 	}
 
@@ -215,9 +216,11 @@ namespace TA3D
 					cursorPos = pInputText.sizeUTF8();
 				}
 				break;
-			case KEY_TILDE:
 			case KEY_ESC:
 				break;
+            case KEY_TILDE:
+                if (pInputText.empty())     // If text input is empty, then we're just closing the console
+                    break;
 			default:
 				if (keyb != 0 && pInputText.sizeUTF8() < 199)
 				{
