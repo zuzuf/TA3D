@@ -117,6 +117,9 @@ namespace TA3D
 		if (!g)
 			return true;
 
+        // We don't want to load things we won't be able to use
+        gfx->checkConfig();
+
 		// Here we go
 		uint64 startTime = msec_timer;
 		uint64 timer[22];

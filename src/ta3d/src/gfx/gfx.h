@@ -105,6 +105,11 @@ namespace TA3D
 
 		void Init();
 
+        /*!
+        ** \brief Check that current settings don't try to use unavailable OpenGL extensions. Update config data if needed
+        */
+        void checkConfig() const;
+
 		//! \name Color management
 		//@{
 
