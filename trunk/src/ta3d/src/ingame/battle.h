@@ -218,6 +218,9 @@ namespace TA3D
 		//! Host a game
 		bool pNetworkIsServer;
 
+        //! The game script
+        LuaProgram game_script;
+
 	private:
 		enum CurrentGUICache {cgcDot, cgcShow, cgcHide, cgcEnd};
 		//! The current GUI
@@ -238,6 +241,13 @@ namespace TA3D
 			//!
 			String toStr;
 		};
+
+        //!
+        struct DebugInfo
+        {
+            //!
+            LuaThread *process;
+        };
 
 	private:
 		//! The area
@@ -494,6 +504,9 @@ namespace TA3D
 
 	private:
 		bool pCacheShowGameStatus;
+
+        //! \name Debug information
+        DebugInfo debugInfo;
 
 	}; // class Battle
 

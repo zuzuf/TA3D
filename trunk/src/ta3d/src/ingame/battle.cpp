@@ -147,8 +147,6 @@ namespace TA3D
 
 	Battle::Result Battle::execute()
 	{
-		LuaProgram game_script;
-
 		if (!preExecute(game_script))
 			return pResult;
 

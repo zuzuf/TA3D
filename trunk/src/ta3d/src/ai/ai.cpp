@@ -53,6 +53,11 @@ namespace TA3D
         destroy();
     }
 
+    AiScript* AI_PLAYER::getAiScript()
+    {
+        return ai_script;
+    }
+
     void AI_PLAYER::stop()
     {
         if (ai_controller)

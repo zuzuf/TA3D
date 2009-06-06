@@ -93,47 +93,51 @@ namespace TA3D
 
 		String tmp;
 
-		// Time
-		tmp << TranslationTable::gameTime << " : " << (game_time / 3600) << ':'
-			<< ((game_time / 60) % 60) << ':' << (game_time % 60);
-		pArea.caption("gamestatus.time_label", tmp);
+        if (pArea.get_state("gamestatus"))                         // Don't update things if we don't display them
+        {
+            // Time
+            tmp << TranslationTable::gameTime << " : " << (game_time / 3600) << ':'
+                << ((game_time / 60) % 60) << ':' << (game_time % 60);
+            pArea.caption("gamestatus.time_label", tmp);
 
-		// Units
-		tmp.clear();
-		tmp << TranslationTable::units << " : " << players.nb_unit[players.local_human_id] << '/' << MAX_UNIT_PER_PLAYER;
-		pArea.caption("gamestatus.units_label", tmp);
+            // Units
+            tmp.clear();
+            tmp << TranslationTable::units << " : " << players.nb_unit[players.local_human_id] << '/' << MAX_UNIT_PER_PLAYER;
+            pArea.caption("gamestatus.units_label", tmp);
 
-		// Speed
-		tmp.clear();
-		tmp << TranslationTable::speed << " : " << (int)round(lp_CONFIG->timefactor) << '('
-			<< (int)round(units.apparent_timefactor) << ')';
-		pArea.caption("gamestatus.speed_label", tmp);
+            // Speed
+            tmp.clear();
+            tmp << TranslationTable::speed << " : " << (int)round(lp_CONFIG->timefactor) << '('
+                << (int)round(units.apparent_timefactor) << ')';
+            pArea.caption("gamestatus.speed_label", tmp);
+        }
 
 		statuswnd = pArea.get_wnd("playerstats");
 		if (statuswnd)
 			statuswnd->x = (int)(SCREEN_W - (statuswnd->width + 10) * show_gamestatus);
 
-		for (unsigned int i = 0; i < players.count(); ++i)
-		{
-			tmp.clear();
-			tmp << "playerstats.p" << i << "d_box";
-			Gui::GUIOBJ::Ptr obj = pArea.get_object(tmp);
-			if (obj)
-			{
-				obj->Data = gfx->makeintcol(
-					player_color[3 * player_color_map[i]],
-					player_color[3 * player_color_map[i] + 1],
-					player_color[3 * player_color_map[i] + 2], 0.5f);
-			}
-			// Kills
-			tmp.clear();
-			tmp += players.kills[i];
-			pArea.caption(String::Format("playerstats.p%d_kills", i), tmp);
-			// Losses
-			tmp.clear();
-			tmp += players.losses[i];
-			pArea.caption(String::Format("playerstats.p%d_losses", i), tmp);
-		}
+        if (pArea.get_state("playerstats"))                         // Don't update things if we don't display them
+            for (unsigned int i = 0; i < players.count(); ++i)
+            {
+                tmp.clear();
+                tmp << "playerstats.p" << i << "d_box";
+                Gui::GUIOBJ::Ptr obj = pArea.get_object(tmp);
+                if (obj)
+                {
+                    obj->Data = gfx->makeintcol(
+                        player_color[3 * player_color_map[i]],
+                        player_color[3 * player_color_map[i] + 1],
+                        player_color[3 * player_color_map[i] + 2], 0.5f);
+                }
+                // Kills
+                tmp.clear();
+                tmp += players.kills[i];
+                pArea.caption(String::Format("playerstats.p%d_kills", i), tmp);
+                // Losses
+                tmp.clear();
+                tmp += players.losses[i];
+                pArea.caption(String::Format("playerstats.p%d_losses", i), tmp);
+            }
 	}
 
 
@@ -577,6 +581,77 @@ namespace TA3D
                }
                else if (params[0] == "metal") cheat_metal ^= true;	 // cheat codes
                else if (params[0] == "energy") cheat_energy ^= true; // cheat codes
+               // ---------------    Debug commands    ---------------
+               else if (params[0] == "lua" && params.size() > 1)
+               {
+                   if (params[1] == "debug" && params.size() > 2)              // Switch debug context
+                   {
+                       if (params[2] == "mission")
+                           debugInfo.process = &game_script;
+                       else if (params[2] == "AI" && params.size() > 3)
+                       {
+                           int pid = params[3].to<sint32>();
+                           if (pid >= 0 && pid < players.count())
+                               debugInfo.process = players.ai_command[pid].getAiScript();
+                           else
+                               debugInfo.process = NULL;
+                       }
+                       else
+                       {
+                           LOG_INFO(LOG_PREFIX_LUA << "could not find specified LuaThread");
+                           debugInfo.process = NULL;
+                       }
+                   }
+                   else if (params[1] == "state" && debugInfo.process)                               // Print LuaThread state
+                   {
+                      if (debugInfo.process->is_waiting())
+                          LOG_INFO(LOG_PREFIX_LUA << "LuaThread is paused");
+                      if (debugInfo.process->is_sleeping())
+                          LOG_INFO(LOG_PREFIX_LUA << "LuaThread is sleeping");
+                      if (debugInfo.process->is_running())
+                          LOG_INFO(LOG_PREFIX_LUA << "LuaThread is running");
+                      if (debugInfo.process->is_crashed())
+                          LOG_INFO(LOG_PREFIX_LUA << "LuaThread is crashed");
+                   }
+                   else if (params[1] == "load" && params.size() > 2 && debugInfo.process)          // Load a Lua script into the Lua thread
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "Lua script is being loaded");
+                       debugInfo.process->load(params[2]);
+                   }
+                   else if (params[1] == "stop" && debugInfo.process)                               // Stop the LuaThread (it doesn't kill it)
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being stopped");
+                       debugInfo.process->stop();
+                   }
+                   else if (params[1] == "resume" && debugInfo.process)                             // Resume the LuaThread (it doesn't uncrash it)
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being resumed");
+                       debugInfo.process->resume();
+                   }
+                   else if (params[1] == "kill" && debugInfo.process)                               // Kill the LuaThread
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being killed");
+                       debugInfo.process->kill();
+                   }
+                   else if (params[1] == "crash" && debugInfo.process)                              // Crash the LuaThread
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being crashed");
+                       debugInfo.process->crash();
+                   }
+                   else if (params[1] == "continue" && debugInfo.process)                           // Uncrash the LuaThread
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being uncrashed");
+                       debugInfo.process->uncrash();
+                   }
+                   else if (params[1] == "run" && debugInfo.process)
+                   {
+                       String code = cmd.substr(cmd.find("run") + 3, String::npos);
+                       LOG_INFO(LOG_PREFIX_LUA << "running : '" << code << "'");
+                       if (!debugInfo.process->runCommand(code))
+                           LOG_INFO(LOG_PREFIX_LUA << "running given code failed");
+                   }
+               }
+               // ---------------    OS specific commands    ---------------
 #ifdef TA3D_PLATFORM_LINUX
                else if (params.size() == 2 && params[0] == "toggle" && params[1] == "fullscreen")      // This works only on Linux/X11
                {

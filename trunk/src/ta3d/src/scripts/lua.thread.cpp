@@ -139,6 +139,7 @@ namespace TA3D
 		if ( buffer )
 			delete[] buffer;
 		running = false;
+        crashed = false;
 
 		init();
 	}
@@ -557,6 +558,8 @@ namespace TA3D
 
 		if (running)    return;     // We cannot run several functions at the same time on the same stack
 
+        crashed = false;
+
 		lua_settop(L, 0);
 		lua_getglobal( L, functionName.c_str() );
 		if (lua_isnil( L, -1 ))     // Function not found
@@ -578,7 +581,9 @@ namespace TA3D
 	{
 		MutexLocker mLocker( pMutex );
 
-		lua_settop(L, 0);
+        crashed = false;
+
+        lua_settop(L, 0);
 		lua_getglobal( L, functionName.c_str() );
 		if (lua_isnil( L, -1 ))     // Function not found
 		{
@@ -659,5 +664,39 @@ namespace TA3D
 	{
 	}
 
+    bool LuaThread::runCommand(const String &cmd)
+    {
+        MutexLocker mLocker( pMutex );
+        if (L == NULL)
+            return false;
 
+        if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), "user command" ))
+        {
+            if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+                LOG_ERROR(cmd);
+            }
+            return false;
+        }
+        else
+        {
+            try
+            {
+                if (lua_pcall(L, 0, 0, 0))
+                {
+                    if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                        LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                    return false;
+                }
+            }
+            catch(...)
+            {
+                if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                return false;
+            }
+        }
+        return true;
+    }
 } // namespace TA3D

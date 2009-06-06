@@ -64,6 +64,8 @@ namespace TA3D
         void setType(int type);
         int getType();
 
+        AiScript* getAiScript();
+
         void setAI(const String &AI);
 
         void setPlayerID(int id);
