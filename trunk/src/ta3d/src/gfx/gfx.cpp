@@ -143,6 +143,23 @@ namespace TA3D
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
 	}
 
+    void GFX::checkConfig() const
+    {
+        if (!g_useFBO)
+            lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
+        if (!g_useProgram)
+        {
+            lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
+            lp_CONFIG->disable_GLSL = true;
+            lp_CONFIG->detail_tex = false;
+            lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
+        }
+        if (!g_useTextureCompression)
+            lp_CONFIG->use_texture_compression = false;
+        if (!glewIsSupported("GL_ARB_shadow"))
+            lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
+    }
+
 
 	bool GFX::checkVideoCardWorkaround() const
 	{

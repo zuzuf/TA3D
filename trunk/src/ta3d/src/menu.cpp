@@ -607,7 +607,10 @@ namespace TA3D
 		{
 			sound_manager->savePlaylist();              // Save the playlist
 
-			if (lp_CONFIG->screen_width != saved_config.screen_width ||
+            // Check we're not trying to crash the game :P
+            gfx->checkConfig();
+
+            if (lp_CONFIG->screen_width != saved_config.screen_width ||
 				lp_CONFIG->screen_height != saved_config.screen_height ||
 				lp_CONFIG->color_depth != saved_config.color_depth ||
 				lp_CONFIG->fsaa != saved_config.fsaa ||
