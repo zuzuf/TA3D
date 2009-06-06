@@ -1,0 +1,38 @@
+TA3D, un remake de Total Annihilation
+Copyright (C) 2005  Roland BROCHARD
+
+Ce programme est un logiciel libre ; vous pouvez le redistribuer et/ou le modifier
+au titre des clauses de la Licence Publique Générale GNU, telle que publiée par
+la Free Software Foundation ; soit la version 2 de la Licence, ou (à votre discrétion)
+une version ultérieure quelconque.
+
+Ce programme est distribué dans l'espoir qu'il sera utile,
+mais SANS AUCUNE GARANTIE ; sans même une garantie implicite de
+COMMERCIABILITE ou DE CONFORMITE A UNE UTILISATION PARTICULIERE.
+Voir la Licence Publique Générale GNU pour plus de détails.
+
+Vous devriez avoir reçu un exemplaire de la Licence Publique Générale GNU
+avec ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+Foundation Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+Merci à tout ceux qui ont contribué à ce projet:
+
+Roland BROCHARD (zuzuf86@gmail.com)
+Evan Rinehart (erineh1@lsu.edu)
+Garret Wiens-Kind
+Damien Gerard (damien@shikami.org)
+Balthazar (sk_is@mail.ru)
+Cire (support - markb@nbnet.nb.ca)
+Jari Viitanen (artist - peeweeassault@hotmail.com)
+Julien Saurin (artist - cylence2097@gmail.com)
+Doors
+
+merci à:
+Saruman, Bobban et autres auteurs
+de documents sur les formats de fichier de Total Annihilation
+
+TA3D utilise des modèles d'arbres de:
+
+Reiner Prokein, http://www.reinerstileset.de, Email: reiner.prokein@t-online.de
+
+et merci à tout ceux qui auraient pu être oubliés dans cette liste
