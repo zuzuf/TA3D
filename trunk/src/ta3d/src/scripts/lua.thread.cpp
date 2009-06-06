@@ -125,6 +125,8 @@ namespace TA3D
 		waiting = false;
 
 		n_args = 0;
+
+        crashed = false;
 	}
 
 	void LuaThread::destroy()
@@ -482,7 +484,7 @@ namespace TA3D
 			if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 			running = false;
-			return -1;
+            return -0xFFFF;         // Crashed
 		}
 		return 0;
 	}
@@ -497,7 +499,7 @@ namespace TA3D
 
 	void LuaThread::proc(void* /*param*/)
 	{
-		while (isRunning() && is_running())
+        while (isRunning() && is_running() && !crashed)
 		{
 			run();
 			rest(1);

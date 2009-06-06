@@ -61,6 +61,8 @@ namespace TA3D
 
         String      name;
 
+        bool        crashed;
+
     public:
 
         LuaThread();
