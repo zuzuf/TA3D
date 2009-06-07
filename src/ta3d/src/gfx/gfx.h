@@ -202,7 +202,6 @@ namespace TA3D
 
 		//@} // Text manipilation
 
-
 		GLuint	make_texture( SDL_Surface *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
 		GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
 		void	blit_texture( SDL_Surface *src, GLuint dst);

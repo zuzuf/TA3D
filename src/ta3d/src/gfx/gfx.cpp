@@ -702,7 +702,8 @@ namespace TA3D
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 		}
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
+        if (GLEW_EXT_texture_filter_anisotropic)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
 
 		switch (filter_type)
 		{
@@ -746,19 +747,19 @@ namespace TA3D
 					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
 						gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
 					else
-						glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
+                        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
 					break;
 				case 24:
 					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
 						gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
 					else
-						glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
+                        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
 					break;
 				case 32:
 					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
 						gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
 					else
-						glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
+                        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
 					break;
 				default:
 					LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
@@ -781,13 +782,13 @@ namespace TA3D
 				switch (tmp->format->BitsPerPixel)
 				{
 					case 8:
-						glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
+                        glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
 						break;
 					case 24:
-						glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp->pixels);
+                        glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp->pixels);
 						break;
 					case 32:
-						glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
+                        glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
 						break;
 					default:
 						LOG_DEBUG("SDL_Surface format not supported by texture loader: " << tmp->format->BitsPerPixel << " bpp" );

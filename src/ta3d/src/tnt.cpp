@@ -416,13 +416,28 @@ namespace TA3D
 				f_pos+=2;
 			}
 		}
-		for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
+        LOG_INFO("Low definition map and lava image in " << (msec_timer - event_timer) * 0.001f << "s.");
+        event_timer = msec_timer;
+
+        for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
 			SDL_FreeSurface(bmp_tex[i]);
-		map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
+        gfx->set_texture_format(GL_RGB5);
+        map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
 		SDL_FreeSurface(low_def);
+
+        LOG_INFO("Low definition texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
+        event_timer = msec_timer;
 
 		map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
 		SDL_FreeSurface(lava_map);
+
+        LOG_INFO("Lava texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
+        event_timer = msec_timer;
+
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+            gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
+        else
+            gfx->set_texture_format(GL_RGB8);
 
 		LOG_DEBUG("MAP: computing height data (step 1)");
 		// Charge d'autres données sur les blocs
