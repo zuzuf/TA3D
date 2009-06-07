@@ -144,7 +144,7 @@ namespace TA3D
 		init();
 	}
 
-	LuaThread::LuaThread()
+    LuaThread::LuaThread() : nextID(0)
 	{
 		init();
 	}
@@ -411,16 +411,6 @@ namespace TA3D
 		if (caller == NULL && !alone)
 		{
 			clean();
-			for(int i = 0 ; i < childs.size() ; i++)
-			{
-				lua_State *t_L = static_cast<LuaThread*>(childs[i])->L;
-				if (t_L == NULL)
-					continue;
-				lua_pushthread(t_L);
-				String s("__thread%d");
-				s += i;
-				lua_setglobal(t_L, s.c_str());
-			}
 			for (int i = childs.size() - 1 ; i >= 0 ; i--)
 			{
 				int sig = childs[i]->run(dt);
@@ -539,7 +529,22 @@ namespace TA3D
 			return this;
 		}
 
-		LuaThread *newThread = new LuaThread();
+        LuaThread *newThread = static_cast<LuaThread*>(getFreeThread());
+        if (newThread)
+        {
+            newThread->running = false;
+            newThread->waiting = false;
+            newThread->sleeping = false;
+            newThread->sleep_time = 0.0f;
+            newThread->signal_mask = 0;
+            lua_settop(newThread->L, 0);
+            addThread(newThread);
+
+            pMutex.unlock();
+            return newThread;
+        }
+
+        newThread = new LuaThread();
 
 		newThread->running = false;
 		newThread->buffer = NULL;
@@ -549,7 +554,8 @@ namespace TA3D
 		newThread->caller = (caller != NULL) ? caller : this;
 
 		newThread->L = lua_newthread(L);
-		lua_setglobal(L, "__newthread__");  // We don't want to keep this thread value on top of the stack
+        String globalName( String::Format("__thread%d", getNextID()) );
+        lua_setglobal(L, globalName.c_str());  // We don't want to keep this thread value on top of the stack
 		addThread(newThread);
 
 		pMutex.unlock();

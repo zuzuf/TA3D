@@ -109,14 +109,24 @@ namespace TA3D
         if (caller)         // Don't go up to caller this would make complexity O(N²)!!
             return;         // and it would not be safe at all!
         else
-            for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; )
-                if (!(*i)->is_running())
+        {
+            int e = 0;
+            for(int i = 0 ; i + e < childs.size() ; )
+            {
+                if (!childs[i + e]->is_running())
                 {
-                    delete *i;
-                    i = childs.erase(i);
+                    freeThreads.push_back(childs[i + e]);      // Put it in the queue
+                    ++e;
                 }
                 else
+                {
+                    childs[i] = childs[i + e];
                     ++i;
+                }
+            }
+            if (e)
+                childs.resize(childs.size() - e);
+        }
     }
 
     void ScriptInterface::dumpDebugInfo()

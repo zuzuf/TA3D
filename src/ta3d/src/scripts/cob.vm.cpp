@@ -677,7 +677,24 @@ namespace TA3D
             return this;
         }
 
-        CobVm *newThread = new CobVm();
+        CobVm *newThread = static_cast<CobVm*>(getFreeThread());
+        if (newThread)
+        {
+            newThread->sStack.clear();
+            newThread->local_env.clear();
+            newThread->cur.clear();
+            newThread->signal_mask = 0;
+            newThread->running = false;
+            newThread->waiting = false;
+            newThread->sleeping = false;
+            newThread->sleep_time = 0.0f;
+            addThread(newThread);
+
+            pMutex.unlock();
+            return newThread;
+        }
+
+        newThread = new CobVm();
 
         newThread->script = script;
         newThread->running = false;

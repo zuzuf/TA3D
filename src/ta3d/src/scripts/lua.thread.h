@@ -63,10 +63,20 @@ namespace TA3D
 
         bool        crashed;
 
+        int         nextID;
+
     public:
 
         LuaThread();
         virtual ~LuaThread();
+
+        inline int getNextID()
+        {
+            if (caller)
+                return static_cast<LuaThread*>(caller)->getNextID();
+            MutexLocker mLocker(pMutex);
+            return nextID++;
+        }
 
         void init();
         void destroy();
