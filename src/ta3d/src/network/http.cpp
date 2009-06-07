@@ -96,9 +96,14 @@ namespace TA3D
             {
                 sock.close();
                 f.close();
-                Paths::Files::Copy(tmpFile, realFilename, true);
+                if (pos == size)
+                {
+                    Paths::Files::Copy(tmpFile, realFilename, true);
+                    LOG_DEBUG(LOG_PREFIX_NET << "File successfully downloaded : " << realFilename);
+                }
+                else
+                    LOG_DEBUG(LOG_PREFIX_NET << "Download failed : " << realFilename);
                 remove(tmpFile.c_str());
-                LOG_DEBUG(LOG_PREFIX_NET << "File successfully downloaded : " << realFilename);
                 return;
             }
             if(count > 0)

@@ -44,6 +44,7 @@ namespace Menus
             Gui::AREA::current()->set_data(wnd + ".progress", 0);
             Gui::AREA::current()->msg(wnd + ".show");
         }
+        this->filename = filename;
         http.get(filename, url);
     }
 
@@ -286,6 +287,20 @@ namespace Menus
             }
             else
             {
+                String filename = (*i)->getFilename();
+                if (Paths::Exists(filename))        // Success, check if this is an RAR, TAR, 7Z, ZIP archive
+                {
+                    String ext = Paths::ExtractFileExt(filename).toLower();
+                    LOG_INFO(LOG_PREFIX_SYSTEM << "archive extension is '" << ext << "'");
+                    if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar" || ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
+                    {
+                        String command = lp_CONFIG->system7zCommand + " x " + filename + " -o" + Paths::ExtractFilePath(filename);
+                        LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
+                        system(command.c_str());
+                    }
+                }
+                else        // Download has failed, remove the mod folder
+                    Paths::RemoveDir(Paths::ExtractFilePath(filename));
                 delete *i;
                 downloadList.erase(i++);
             }

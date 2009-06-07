@@ -41,7 +41,9 @@ namespace TA3D
                 void stop();
                 void update();
                 bool downloading();
+                inline String getFilename() {   return filename;    }
             private:
+                String filename;
                 String wnd;
                 Http http;
                 static int wndNumber;
