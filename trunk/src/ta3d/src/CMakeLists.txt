@@ -161,6 +161,7 @@ SET(SRC_ENGINE
 		EngineClass.cpp EngineClass.h
 		engine/weapondata.h  engine/weapondata.hxx
 		engine/unit.h  engine/unit.cpp engine/unit.defines.h
+		engine/mission.h engine/mission.hxx
 		engine.cpp engine.h
 		)
 

@@ -3200,7 +3200,11 @@ namespace TA3D
 
 							Mission* cur = mission;					// Make a copy of current list to make it loop 8)
 							while (cur->next)
+                            {
+                                if (cur->next == cur)       // Repair things if needed
+                                    cur->next = NULL;
 								cur = cur->next;
+                            }
 							cur->next = new Mission();
 							*(cur->next) = *mission;
 							cur->next->path = NULL;
