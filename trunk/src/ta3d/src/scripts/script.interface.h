@@ -22,6 +22,7 @@
 # include "../threads/thread.h"
 # include "script.data.h"
 # include <zlib.h>
+#include <deque>
 
 # define UNPACKX(xz) ((sint16)((xz)>>16))
 # define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
@@ -46,6 +47,7 @@ namespace TA3D
         uint32                          signal_mask;    // This thread will be killed as soon as it catchs this signal
         ScriptInterface                 *caller;        // NULL if main thread
         std::vector<ScriptInterface*>   childs;         // Child processes, empty for childs this is to keep track of running threads
+        std::deque<ScriptInterface*>    freeThreads;    // Old childs processes that are not used, we keep them to prevent allocating/freeing things uselessly
     public:
         ScriptInterface();
         virtual ~ScriptInterface() {}
@@ -80,6 +82,20 @@ namespace TA3D
         //! functions used to create new threads sharing the same environment
         virtual ScriptInterface *fork() = 0;
         virtual ScriptInterface *fork(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
+
+        inline ScriptInterface *getFreeThread()
+        {
+            if (caller)
+                return caller->getFreeThread();
+
+            MutexLocker mLock(pMutex);
+
+            if (freeThreads.empty())
+                return NULL;
+            ScriptInterface *newThread = freeThreads.front();
+            freeThreads.pop_front();
+            return newThread;
+        }
 
         //! debug functions
         virtual void dumpDebugInfo();
