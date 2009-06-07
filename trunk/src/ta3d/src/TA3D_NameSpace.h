@@ -110,6 +110,8 @@ namespace TA3D
 
 		bool    grab_inputs;                // Capture inputs ?
 
+        String  system7zCommand;            // Command used by system() to run 7zip (used to extract archives when needed by the mods manager)
+
 		// Variables used to communicate with all the code
 		bool    quickrestart;                // Should be false, set to true when need to restart to enable options/parameters
 		bool    quickstart;                    // Tell to speed up the starting process
@@ -119,9 +121,11 @@ namespace TA3D
 		String  file_param;                    // File parameter (command line parameter), used to give complex instructions
 		bool    enable_shortcuts;           // Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
 
-		TA3DCONFIG()
+        inline TA3DCONFIG()
 		{
-			grab_inputs = false;
+            system7zCommand = "7z";
+
+            grab_inputs = false;
 
 			sound_volume = music_volume = 128;
 
