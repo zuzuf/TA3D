@@ -602,6 +602,11 @@ namespace TA3D
                     {
                         map->map_data[y + 1][x + 1].stuff = features.add_feature(Pos,TDF_index[type]);
                         features.drawFeatureOnMap( map->map_data[y + 1][x + 1].stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
+                        if (map->map_data[y + 1][x + 1].stuff >= 0)
+                        {
+                            if (feature_manager.getFeaturePointer(TDF_index[type])->category == "trees")        // Randomize trees angle for more realism
+                                features.feature[ map->map_data[y + 1][x + 1].stuff ].angle = TA3D_RAND() % 360;
+                        }
                     }
 				}
 				f_pos+=4;
