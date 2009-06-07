@@ -29,7 +29,7 @@ namespace TA3D
     ** This class represents unit scripts, it's used to script unit behavior
     ** This is a Lua version of TA COB/BOS scripts
     */
-    class UnitScript : public UnitScriptInterface, public LuaThread
+    class UnitScript : public LuaThread, public UnitScriptInterface
     {
         virtual const char *className() { return "UnitScript"; }
     public:

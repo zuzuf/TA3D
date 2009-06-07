@@ -1005,6 +1005,11 @@ namespace TA3D
 			if (feature[*i].sinking)
 			{
 				Feature *pFeature = feature_manager.getFeaturePointer(feature[*i].type);
+                if (pFeature == NULL)
+                {
+                    sinking_features.erase(i++);
+                    continue;
+                }
 				if (feature[*i].angle_x > -45.0f && !feature[*i].dive)
 				{
 					feature[*i].angle_x -= dt * 15.0f;

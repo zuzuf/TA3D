@@ -60,6 +60,7 @@ namespace TA3D
 
         virtual int run(float dt, bool alone = false) = 0;      // Run the script
 
+        inline bool is_self_running() { return running; }
         inline bool is_running() { return running || !childs.empty(); }
         inline bool is_waiting() { return waiting; }
         inline bool is_sleeping() { return sleeping; }

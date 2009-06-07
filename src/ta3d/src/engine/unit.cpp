@@ -219,10 +219,21 @@ namespace TA3D
 
 	int Unit::runScriptFunction(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
 	{
+        int type = type_id;
+        if (!script || type == -1 || !unit_manager.unit_type[type]->script || !unit_manager.unit_type[type]->script->isCached(id))
+            return -1;
 		String f_name( UnitScriptInterface::get_script_name(id) );
 		MutexLocker mLocker( pMutex );
 		if (script)
-			return script->execute(f_name, param, nb_param);
+        {
+            int result = script->execute(f_name, param, nb_param);
+            if (result == -2)
+            {
+                unit_manager.unit_type[type]->script->Uncache(id);
+                return -1;
+            }
+            return result;
+        }
 		return -1;
 	}
 
@@ -4802,14 +4813,14 @@ script_exec:
 
 	int Unit::launchScript(const int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
 	{
-		const String& f_name = UnitScriptInterface::get_script_name(id);
+        int type = type_id;
+        if (!script || type == -1 || !unit_manager.unit_type[type]->script || !unit_manager.unit_type[type]->script->isCached(id))
+            return -2;
+        const String& f_name = UnitScriptInterface::get_script_name(id);
 		if (f_name.empty())
 			return -2;
 
 		MutexLocker locker(pMutex);
-
-		if (!script)
-			return -2;
 
 		if (local && network_manager.isConnected()) // Send synchronization event
 		{
@@ -4824,8 +4835,11 @@ script_exec:
 
 		ScriptInterface *newThread = script->fork( f_name, param, nb_param );
 
-		if (newThread == NULL || !newThread->is_running())
+        if (newThread == NULL || !newThread->is_self_running())
+        {
+            unit_manager.unit_type[type]->script->Uncache(id);
 			return -2;
+        }
 
 		return 0;
 	}
