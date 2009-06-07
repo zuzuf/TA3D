@@ -245,9 +245,10 @@ namespace TA3D
 			name = filename;
 			if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))
 			{
-				if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				{
-					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
 					LOG_ERROR(LOG_PREFIX_LUA << filesize << " -> " << (int)buffer[filesize-1]);
 					LOG_ERROR(buffer);
 				}
@@ -261,8 +262,8 @@ namespace TA3D
 			else
 			{
 				// This may not help debugging
-				delete[] buffer;
-				buffer = NULL;
+                delete[] buffer;
+                buffer = NULL;
 
 				running = true;
 				setThreadID();
@@ -300,8 +301,11 @@ namespace TA3D
 			name = chunk->getName();
 			if (chunk->load(L))
 			{
-				if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+                }
 
 				running = false;
 				lua_close( L );
@@ -401,6 +405,8 @@ namespace TA3D
 	int LuaThread::run(float dt, bool alone)               // Run the script
 	{
 		MutexLocker mLocker( pMutex );
+        if (!L)
+            return -1;
 
 		if (caller == NULL && !alone)
 		{
@@ -440,18 +446,22 @@ namespace TA3D
 		{
 			int result = lua_resume(L, n_args);
 			n_args = 0;
-			if (result != LUA_YIELD)
+            if (result != LUA_YIELD && result != 0)
 			{
-				if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
-					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                }
 				running = false;
-				return -1;
+                crashed = true;
+                return -1;
 			}
-			else
+            else if (lua_gettop(L) > 0)
 			{
-				running = true;
+                running = result == LUA_YIELD;
 				result = 0;
-				while(!lua_isnone(L, -1) && !lua_isfunction(L, -1))
+                while(lua_gettop(L) > 0 && !lua_isnone(L, -1) && !lua_isfunction(L, -1))
 				{
 					switch(result)
 					{
@@ -479,12 +489,18 @@ namespace TA3D
 				}
 				return result;
 			}
-		}
+            running = result == LUA_YIELD;
+            return 0;
+        }
 		catch(...)
 		{
-			if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            }
 			running = false;
+            crashed = true;
             return -0xFFFF;         // Crashed
 		}
 		return 0;
@@ -589,7 +605,7 @@ namespace TA3D
 		{
 			lua_pop(L, 1);
 			LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
-			return -1;
+            return -2;
 		}
 
 		if (parameters == NULL)
@@ -600,23 +616,33 @@ namespace TA3D
 		{
 			if (lua_pcall( L, nb_params, 1, 0))
 			{
-				if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
-					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                }
 				running = false;
 				return -1;
 			}
 		}
 		catch(...)
 		{
-			if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            }
 			running = false;
 			return -1;
 		}
 
-		int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : lua_tointeger( L, -1 );    // Read the result
-		lua_pop( L, 1 );
-		return result;
+        if (lua_gettop(L) > 0)
+        {
+            int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : lua_tointeger( L, -1 );    // Read the result
+            lua_pop( L, 1 );
+            return result;
+        }
+        return 0;
 	}
 
 	LuaThread *LuaThread::fork(lua_State *cL, int n)
@@ -672,7 +698,7 @@ namespace TA3D
 
         if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), "user command" ))
         {
-            if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+            if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
             {
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
                 LOG_ERROR(cmd);
@@ -685,15 +711,21 @@ namespace TA3D
             {
                 if (lua_pcall(L, 0, 0, 0))
                 {
-                    if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                    if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                    {
+                        LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                         LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                    }
                     return false;
                 }
             }
             catch(...)
             {
-                if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                }
                 return false;
             }
         }

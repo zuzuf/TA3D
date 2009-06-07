@@ -126,15 +126,18 @@ namespace TA3D
             LuaThread *thread = new LuaThread();
             thread->load(this);
             thread->run();      // Initialize the thread (read functions, pieces, ...)
-            lua_getglobal(thread->L, "__piece_list");
-            if (!lua_isnil(thread->L, -1))
+            if (thread->L)
             {
-                piece_name.resize(lua_objlen(thread->L, -1));
-                for(int i = 1 ; i <= piece_name.size() ; i++)
+                lua_getglobal(thread->L, "__piece_list");
+                if (lua_istable(thread->L, -1))
                 {
-                    lua_rawgeti(thread->L, -1, i);
-                    piece_name[i-1] = lua_tostring(thread->L, -1);
-                    lua_pop(thread->L, 1);
+                    piece_name.resize(lua_objlen(thread->L, -1));
+                    for(int i = 1 ; i <= piece_name.size() ; i++)
+                    {
+                        lua_rawgeti(thread->L, -1, i);
+                        piece_name[i-1] = lua_tostring(thread->L, -1);
+                        lua_pop(thread->L, 1);
+                    }
                 }
             }
             delete thread;
