@@ -652,7 +652,7 @@ namespace TA3D
 
 			units.lock();
 			if (units.unit[ unit_id ].flags )
-				units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),NULL,MISSION_FLAG_COMMAND_FIRE );
+                units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),PATH(),MISSION_FLAG_COMMAND_FIRE );
 			units.unlock();
 		}
 
@@ -726,7 +726,7 @@ namespace TA3D
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
-				units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]),NULL);
+                units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]));
 			units.unlock();
 		}
 

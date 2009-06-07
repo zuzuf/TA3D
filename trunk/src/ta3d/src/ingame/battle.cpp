@@ -640,9 +640,9 @@ namespace TA3D
 											break;
 										}
 									if (TA3D_SHIFT_PRESSED)
-										units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),NULL,commandfire);
+                                        units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),PATH(),commandfire);
 									else
-										units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),NULL,commandfire);
+                                        units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),PATH(),commandfire);
 								}
 								units.unit[i].unlock();
 							}
@@ -661,9 +661,9 @@ namespace TA3D
 									if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
 									{
 										if (TA3D_SHIFT_PRESSED)
-											units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL);
+                                            units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]));
 										else
-											units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL);
+                                            units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]));
 									}
 									units.unit[i].unlock();
 								}
@@ -771,9 +771,9 @@ namespace TA3D
 												break;
 											}
 										if (TA3D_SHIFT_PRESSED)
-											units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL,NULL,commandfire);
+                                            units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL,PATH(),commandfire);
 										else
-											units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,NULL,commandfire);
+                                            units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,PATH(),commandfire);
 									}
 									units.unit[i].unlock();
 								}

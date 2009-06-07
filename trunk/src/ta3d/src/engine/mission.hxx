@@ -7,7 +7,7 @@ namespace TA3D
 
 
 	inline Mission::Mission()
-		:time(0.), last_d(0.), data(0), move_data(0), next(NULL), mission(0), path(NULL),
+        :time(0.), last_d(0.), data(0), move_data(0), next(NULL), mission(0), path(),
 		target(), step(false), flags(0), p(NULL), target_ID(0), node(0)
 	{}
 

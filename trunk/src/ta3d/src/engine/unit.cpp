@@ -170,8 +170,6 @@ namespace TA3D
 		pMutex.lock();
 		Mission* old = mission;
 		mission = mission->next;
-		if (old->path)				// Détruit le chemin si nécessaire
-			destroy_path(old->path);
 		delete old;
 		pMutex.unlock();
 	}
@@ -249,10 +247,9 @@ namespace TA3D
 		if (mission->flags & MISSION_FLAG_MOVE)
 		{
 			mission->flags &= ~MISSION_FLAG_MOVE;
-			if (mission->path)
+            if (!mission->path.empty())
 			{
-				destroy_path(mission->path);
-				mission->path = NULL;
+                mission->path.clear();
 				V.x = V.y = V.z = 0.0f;
 			}
 			if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
@@ -448,8 +445,6 @@ namespace TA3D
 		{
 			Mission* old = def_mission;
 			def_mission = def_mission->next;
-			if (old->path)				// Détruit le chemin si nécessaire
-				destroy_path(old->path);
 			delete old;
 		}
 		pMutex.unlock();
@@ -469,7 +464,7 @@ namespace TA3D
 	}
 
 	void Unit::add_mission(int mission_type, const Vector3D* target, bool step, int dat, void* pointer,
-						   PATH_NODE* path, byte m_flags, int move_data, int patrol_node)
+                           PATH path, byte m_flags, int move_data, int patrol_node)
 	{
 		MutexLocker locker(pMutex);
 
@@ -538,8 +533,6 @@ namespace TA3D
 					Mission *tmp = cur_mission;
 					cur_mission = cur_mission->next;
 					prec->next = cur_mission;
-					if (tmp->path)				// Destroy the path if needed
-						destroy_path(tmp->path);
 					delete tmp;
 					removed = true;
 				}
@@ -584,7 +577,7 @@ namespace TA3D
 						patrol_node = cur->node;
 						last = cur;
 					}
-					cur=cur->next;
+                    cur = cur->next;
 				}
 				new_mission->node = patrol_node + 1;
 
@@ -610,7 +603,7 @@ namespace TA3D
 			stop->time = 0.0f;
 			stop->p = NULL;
 			stop->data = 0;
-			stop->path = NULL;
+            stop->path.clear();
 			stop->last_d = 9999999.0f;
 			stop->flags = m_flags & ~MISSION_FLAG_MOVE;
 			stop->move_data = move_data;
@@ -639,8 +632,8 @@ namespace TA3D
 			if (mission_base && !inserted ) // Ajoute l'ordre aux autres
 			{
 				Mission* cur = mission_base;
-				while (cur->next!=NULL)
-					cur=cur->next;
+                while (cur && cur->next)
+                    cur = cur->next;
 				if (((( cur->mission == MISSION_MOVE || cur->mission == MISSION_PATROL || cur->mission == MISSION_STANDBY
 						|| cur->mission == MISSION_VTOL_STANDBY || cur->mission == MISSION_STOP )		// Don't stop if it's not necessary
 					  && ( mission_type == MISSION_MOVE || mission_type == MISSION_PATROL ) )
@@ -653,7 +646,7 @@ namespace TA3D
 					new_mission = stop;
 					new_mission->next = NULL;
 				}
-				cur->next=new_mission;
+                cur->next = new_mission;
 			}
 			else
 			{
@@ -674,7 +667,7 @@ namespace TA3D
 
 
 	void Unit::set_mission(int mission_type, const Vector3D* target, bool step, int dat, bool stopit,
-						   void* pointer, PATH_NODE* path, byte m_flags, int move_data)
+                           void* pointer, PATH path, byte m_flags, int move_data)
 	{
 		MutexLocker locker(pMutex);
 
@@ -823,7 +816,7 @@ namespace TA3D
 				stop->time = 0.0f;
 				stop->p = NULL;
 				stop->data = 0;
-				stop->path = NULL;
+                stop->path.clear();
 				stop->last_d = 9999999.0f;
 				stop->flags = m_flags & ~MISSION_FLAG_MOVE;
 				stop->move_data = move_data;
@@ -846,7 +839,7 @@ namespace TA3D
 			mission->move_data = move_data;
 			mission->node = 1;
 			if (target)
-				mission->target=*target;
+                mission->target = *target;
 
 			if (stopit)
 			{
@@ -857,7 +850,7 @@ namespace TA3D
 				stop->time = 0.0f;
 				stop->p = NULL;
 				stop->data = 0;
-				stop->path = NULL;
+                stop->path.clear();
 				stop->last_d = 9999999.0f;
 				stop->flags = m_flags & ~MISSION_FLAG_MOVE;
 				stop->move_data = move_data;
@@ -905,7 +898,7 @@ namespace TA3D
 				deactivate();
 				break;
 		}
-		if (mission->mission==MISSION_STOP && mission->next==NULL)
+        if (mission->mission == MISSION_STOP && mission->next == NULL)
 		{
 			command_locked = false;
 			mission->data=0;
@@ -913,11 +906,9 @@ namespace TA3D
 		}
 		bool old_step = mission->step;
 		Mission *old=mission;
-		mission=mission->next;
-		if (old->path)				// Détruit le chemin si nécessaire
-			destroy_path(old->path);
+        mission = mission->next;
 		delete old;
-		if (mission==NULL)
+        if (mission == NULL)
 		{
 			command_locked = false;
 			if (type_id != -1)
@@ -929,8 +920,6 @@ namespace TA3D
 		{
 			old = mission;
 			mission = mission->next;
-			if (old->path)				// Détruit le chemin si nécessaire
-				destroy_path(old->path);
 			delete old;
 		}
 
@@ -1757,7 +1746,7 @@ namespace TA3D
 					target.z = -map->map_h_d+256;
 				else if (target.z > map->map_h_d-256)
 					target.z = map->map_h_d-256;
-				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,NULL,0,1);		// Stay on map
+                add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,PATH(),0,1);		// Stay on map
 			}
 
 		flags &= 0xEF;		// To fix a bug
@@ -2293,15 +2282,14 @@ namespace TA3D
 				K.y = 1.0f;
 				K.z = 0.0f;
 				Vector3D Target(mission->target);
-				if (mission->path && ( !(mission->flags & MISSION_FLAG_REFRESH_PATH) || last_path_refresh < 5.0f ) )
-					Target = mission->path->Pos;
+                if (!mission->path.empty() && ( !(mission->flags & MISSION_FLAG_REFRESH_PATH) || last_path_refresh < 5.0f ) )
+                    Target = mission->path.front().Pos;
 				else
 				{// Look for a path to the target
-					if (mission->path)// If we want to refresh the path
+                    if (!mission->path.empty())// If we want to refresh the path
 					{
 						Target = mission->target;//mission->path->Pos;
-						destroy_path( mission->path );
-						mission->path = NULL;
+                        mission->path.clear();
 					}
 					mission->flags &= ~MISSION_FLAG_REFRESH_PATH;
 					float dist = (Target-Pos).sq();
@@ -2344,7 +2332,7 @@ namespace TA3D
 									mission->path = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
 															  dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, mission->move_data, hover_h );
 
-								if (mission->path == NULL)
+                                if (mission->path.empty())
 								{
 									bool place_is_empty = map->check_rect( cur_px-(unit_manager.unit_type[type_id]->FootprintX>>1), cur_py-(unit_manager.unit_type[type_id]->FootprintZ>>1), unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx);
 									if (!place_is_empty)
@@ -2358,36 +2346,36 @@ namespace TA3D
 									was_moving = false;
 								}
 
-								if (mission->path == NULL)					// Can't find a path to get where it has been ordered to go
+                                if (mission->path.empty())					// Can't find a path to get where it has been ordered to go
 									playSound("cant1");
 							}
-							if (mission->path)// Update required data
-								Target = mission->path->Pos;
+                            if (!mission->path.empty())// Update required data
+                                Target = mission->path.front().Pos;
 						}
 					}
 					else
 						stopMoving();
 				}
 
-				if (mission->path) // If we have a path, follow it
+                if (!mission->path.empty()) // If we have a path, follow it
 				{
 					if ((mission->target - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
 						mission->flags |= MISSION_FLAG_REFRESH_PATH;
 					J = Target - Pos;
 					J.y = 0.0f;
 					float dist = J.norm();
-					if ((dist > mission->last_d && dist < 15.0f) || mission->path == NULL)
+                    if ((dist > mission->last_d && dist < 15.0f) || mission->path.empty())
 					{
-						if (mission->path)
+                        if (!mission->path.empty())
 						{
 							float dh_max = unit_manager.unit_type[type_id]->MaxSlope * H_DIV;
 							float h_min = unit_manager.unit_type[type_id]->canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id]->MaxWaterDepth * H_DIV;
 							float h_max = map->sealvl - unit_manager.unit_type[type_id]->MinWaterDepth * H_DIV;
 							float hover_h = unit_manager.unit_type[type_id]->canhover ? map->sealvl : -100.0f;
-							mission->path = next_node(mission->path, map->map_data, map->h_map, map->bloc_w_db, map->bloc_h_db, dh_max, h_min, h_max, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, hover_h );
+                            next_node(mission->path, map->map_data, map->h_map, map->bloc_w_db, map->bloc_h_db, dh_max, h_min, h_max, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, hover_h );
 						}
 						mission->last_d = 9999999.0f;
-						if (mission->path == NULL) // End of path reached
+                        if (mission->path.empty()) // End of path reached
 						{
 							J = move_target_computed - Pos;
 							J.y = 0.0f;
@@ -2520,11 +2508,7 @@ namespace TA3D
 									n_py = cur_py;
 									mission->flags |= MISSION_FLAG_MOVE;
 									if (fabsf( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle) // Don't prevent unit from rotating!!
-									{
-										if (mission->path)
-											destroy_path(mission->path);
-										mission->path = NULL;
-									}
+                                        mission->path.clear();
 								}
 								else
 									LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
@@ -2543,7 +2527,7 @@ namespace TA3D
 									else if (target.z > map->map_h_d-256)
 										target.z = map->map_h_d-256;
 									next_mission();
-									add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,NULL,0,1);		// Stay on map
+                                    add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,PATH(),0,1);		// Stay on map
 								}
 								else
 									if (!can_be_there( cur_px, cur_py, map, type_id, owner_id, idx ))
@@ -2555,8 +2539,7 @@ namespace TA3D
 										target.x += ((sint32)(Math::RandFromTable()&0x1F))-16;		// Look for a place to land
 										target.z += ((sint32)(Math::RandFromTable()&0x1F))-16;
 										mission->flags |= MISSION_FLAG_MOVE;
-										if (mission->path )
-											destroy_path(mission->path);
+                                        mission->path.clear();
 										mission->path = direct_path( target );
 									}
 							}
@@ -2652,8 +2635,8 @@ namespace TA3D
 							c_time = 0.0f;
 							mission->flags |= MISSION_FLAG_MOVE;
 							mission->move_data = maxdist*8/80;
-							if (mission->path )
-								mission->path->Pos = mission->target;			// Update path in real time!
+                            if (!mission->path.empty())
+                                mission->path.front().Pos = mission->target;			// Update path in real time!
 						}
 						else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
 							b_TargetAngle = true;
@@ -3098,13 +3081,13 @@ namespace TA3D
 						{
 							if (((Unit*)mission->p)->build_percent_left > 0.0f || ((Unit*)mission->p)->hp<unit_manager.unit_type[((Unit*)mission->p)->type_id]->MaxDamage) // Répare l'unité
 							{
-								add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((Unit*)mission->p)->Pos,true,0,((Unit*)mission->p),NULL);
+                                add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((Unit*)mission->p)->Pos,true,0,((Unit*)mission->p));
 								break;
 							}
 							else
 								if (((Unit*)mission->p)->mission!=NULL && (((Unit*)mission->p)->mission->mission==MISSION_BUILD_2 || ((Unit*)mission->p)->mission->mission==MISSION_REPAIR)) // L'aide à construire
 								{
-									add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((Unit*)mission->p)->mission->target,true,0,((Unit*)mission->p)->mission->p,NULL);
+                                    add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((Unit*)mission->p)->mission->target,true,0,((Unit*)mission->p)->mission->p);
 									break;
 								}
 						}
@@ -3112,7 +3095,7 @@ namespace TA3D
 						{
 							if (((Unit*)mission->p)->mission!=NULL && ((Unit*)mission->p)->mission->mission==MISSION_ATTACK) // L'aide à attaquer
 							{
-								add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&((Unit*)mission->p)->mission->target,true,0,((Unit*)mission->p)->mission->p,NULL);
+                                add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&((Unit*)mission->p)->mission->target,true,0,((Unit*)mission->p)->mission->p);
 								break;
 							}
 						}
@@ -3133,7 +3116,7 @@ namespace TA3D
 						pad_timer += dt;
 
 						if (mission->next == NULL )
-							add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
+                            add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,PATH(),MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
 						mission->flags |= MISSION_FLAG_CAN_ATTACK;
 						if (unit_manager.unit_type[type_id]->canfly ) // Don't stop moving and check if it can be repaired
@@ -3168,7 +3151,7 @@ namespace TA3D
 												int target_idx = *i;
 												units.unit[ target_idx ].unlock();
 												pMutex.lock();
-												add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
+                                                add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]));
 												pMutex.unlock();
 												units.repair_pads[ owner_id ].erase(i);
 												units.repair_pads[ owner_id ].push_back( target_idx );		// So we don't try it before others :)
@@ -3207,7 +3190,7 @@ namespace TA3D
                             }
 							cur->next = new Mission();
 							*(cur->next) = *mission;
-							cur->next->path = NULL;
+                            cur->next->path.clear();
 							cur->next->next = NULL;
 							cur->next->flags |= MISSION_FLAG_MOVE;
 
@@ -3219,7 +3202,7 @@ namespace TA3D
 									cur = cur->next;
 								cur->next = new Mission();
 								*(cur->next) = *cur_start;
-								cur->next->path = NULL;
+                                cur->next->path.clear();
 								cur->next->next = NULL;
 								cur_start = cur_start->next;
 							}
@@ -3539,14 +3522,14 @@ namespace TA3D
 									Vector3D target=Pos;
 									target.z+=128.0f;
 									if (def_mission == NULL)
-										target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
+                                        target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,PATH(),0,5);		// Fait sortir l'unité du bâtiment
 									else
 									{
 										target_unit->mission = new Mission();
 										Mission *target_mission = target_unit->mission;
 										*target_mission = *def_mission;
 										target_mission->next = NULL;
-										target_mission->path = NULL;
+                                        target_mission->path.clear();
 										while (target_mission->next != NULL)
 											target_mission = target_mission->next;
 										Mission *cur = def_mission->next;
@@ -3556,7 +3539,7 @@ namespace TA3D
 											target_mission = target_mission->next;
 											*target_mission = *cur;
 											target_mission->next = NULL;
-											target_mission->path = NULL;
+                                            target_mission->path.clear();
 											cur = cur->next;
 										}
 									}
@@ -3949,7 +3932,7 @@ namespace TA3D
 					if (enemy_idx>=0)			// Si on a trouvé une unité, on l'attaque
 					{
 						if (do_nothing() )
-							set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]),NULL);
+                            set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]));
 						else
 							for( int i = 0 ; i < weapon.size() ; i++ )
 								if (weapon[i].state == WEAPON_FLAG_IDLE && unit_manager.unit_type[type_id]->weapon[ i ] != NULL
@@ -4020,7 +4003,7 @@ namespace TA3D
 					weapons.unlock();
 					lock();
 					if (enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
-						add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),NULL,12);	// 12 = 4 | 8, targets a weapon and automatic fire
+                        add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),PATH(),12);	// 12 = 4 | 8, targets a weapon and automatic fire
 				}
 			}
 		}

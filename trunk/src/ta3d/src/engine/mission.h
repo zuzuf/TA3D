@@ -74,7 +74,7 @@ namespace TA3D
 		int			move_data;	// Required data for the moving part of the order
 		Mission 	*next;		// Mission suivante
 		uint8		mission;
-		PATH_NODE	*path;		// Chemin emprunté par l'unité si besoin pour la mission
+        PATH        path;		// Chemin emprunté par l'unité si besoin pour la mission
 		Vector3D	target;
 		bool		step;		// Etape d'une mission
 		byte		flags;		// Données supplémentaires

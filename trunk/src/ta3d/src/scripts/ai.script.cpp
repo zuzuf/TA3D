@@ -240,7 +240,7 @@ namespace TA3D
 
 			units.lock();
 			if (units.unit[ unit_id ].flags)
-				units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),NULL,MISSION_FLAG_COMMAND_FIRE );
+                units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),PATH(),MISSION_FLAG_COMMAND_FIRE );
 			units.unlock();
 		}
 
@@ -298,7 +298,7 @@ namespace TA3D
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
-				units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]),NULL);
+                units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]));
 			units.unlock();
 		}
 
@@ -698,23 +698,24 @@ namespace TA3D
             float h_min = unit_manager.unit_type[type_id]->canhover ? -100.0f : the_map->sealvl - unit_manager.unit_type[type_id]->MaxWaterDepth * H_DIV;
             float h_max = the_map->sealvl - unit_manager.unit_type[type_id]->MinWaterDepth * H_DIV;
             float hover_h = unit_manager.unit_type[type_id]->canhover ? the_map->sealvl : -100.0f;
-            PATH_NODE *path = NULL;
+            PATH path;
             if (max_dist <= 0)
                 path = find_path(the_map->map_data, the_map->h_map, the_map->path, the_map->map_w, the_map->map_h, the_map->bloc_w<<1, the_map->bloc_h<<1,
                                  dh_max, h_min, h_max, start, end, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, unit_id, 0, hover_h );
             else
                 path = find_path(the_map->map_data, the_map->h_map, the_map->path, the_map->map_w, the_map->map_h, the_map->bloc_w<<1, the_map->bloc_h<<1,
                                  dh_max, h_min, h_max, start, end, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, unit_id, max_dist, hover_h );
-            if (path)
+            if (!path.empty())
             {
-                PATH_NODE *cur = path;
-                while(cur)
+                PATH real_path;
+                for(PATH::iterator cur = path.begin() ; cur != path.end() ; )
                 {
-                    make_path_direct(the_map->map_data, the_map->h_map, dh_max, h_min, h_max, cur, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, the_map->bloc_w, the_map->bloc_h, unit_id, hover_h);
-                    cur = cur->next;
+                    make_path_direct(the_map->map_data, the_map->h_map, dh_max, h_min, h_max, path, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, the_map->bloc_w, the_map->bloc_h, unit_id, hover_h);
+                    real_path.push_back(*cur);
+                    path.erase(cur++);
                 }
                 compute_coord(path, the_map->map_w, the_map->map_h, the_map->bloc_w, the_map->bloc_h);
-                lua_pushnumber(L, path_length(path));
+                lua_pushnumber(L, path_length(real_path));
             }
             else
                 lua_pushnumber(L, -1);
