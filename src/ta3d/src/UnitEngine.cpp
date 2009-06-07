@@ -108,9 +108,9 @@ namespace TA3D
 			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canmove)
 			{
 				if (set)
-					unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, NULL, flags);
+                    unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, PATH(), flags);
 				else
-					unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, NULL, flags);
+                    unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, PATH(), flags);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
 					unit[i].playSound("ok1");
 			}
@@ -128,9 +128,9 @@ namespace TA3D
 			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canpatrol)
 			{
 				if (set)
-					unit[i].set_mission(MISSION_PATROL, &target, false, 0, true, NULL, NULL);
+                    unit[i].set_mission(MISSION_PATROL, &target, false, 0, true, NULL, PATH());
 				else
-					unit[i].add_mission(MISSION_PATROL, &target, false, 0, NULL, NULL);
+                    unit[i].add_mission(MISSION_PATROL, &target, false, 0, NULL, PATH());
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
 					unit[i].playSound("ok1");
 			}
@@ -148,9 +148,9 @@ namespace TA3D
 			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canguard)
 			{
 				if (set)
-					unit[i].set_mission(MISSION_GUARD,&unit[target].Pos,false,0,true,&(unit[target]),NULL);
+                    unit[i].set_mission(MISSION_GUARD,&unit[target].Pos,false,0,true,&(unit[target]));
 				else
-					unit[i].add_mission(MISSION_GUARD,&unit[target].Pos,false,0,&(unit[target]),NULL);
+                    unit[i].add_mission(MISSION_GUARD,&unit[target].Pos,false,0,&(unit[target]));
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
 					unit[i].playSound( "ok1" );
 			}
@@ -170,11 +170,11 @@ namespace TA3D
 			{
 				if (set)
 				{
-					unit[i].set_mission(MISSION_UNLOAD, &target, false, 0, true, NULL, NULL);
+                    unit[i].set_mission(MISSION_UNLOAD, &target, false, 0, true, NULL);
 					unit[i].playSound("ok1");
 				}
 				else
-					unit[i].add_mission(MISSION_UNLOAD, &target, false, 0, NULL, NULL);
+                    unit[i].add_mission(MISSION_UNLOAD, &target, false, 0, NULL);
 			}
 		}
 		pMutex.unlock();
@@ -210,11 +210,11 @@ namespace TA3D
 			{
 				if (set)
 				{
-					unit[i].set_mission(MISSION_LOAD, &unit[target].Pos, false, 0, true, &(unit[target]), NULL);
+                    unit[i].set_mission(MISSION_LOAD, &unit[target].Pos, false, 0, true, &(unit[target]));
 					unit[i].playSound("ok1");
 				}
 				else
-					unit[i].add_mission(MISSION_LOAD, &unit[target].Pos, false, 0, &(unit[target]), NULL);
+                    unit[i].add_mission(MISSION_LOAD, &unit[target].Pos, false, 0, &(unit[target]));
 			}
 		}
 		pMutex.unlock();
@@ -1635,12 +1635,11 @@ namespace TA3D
 							Mission *tmp = mission;
 							mission = mission->next;
 							prec->next = mission;
-							if (tmp->path)				// Destroy the path if needed
-								destroy_path(tmp->path);
-							delete tmp;
+                            delete tmp;         // Path is a std::list so it'll be cleared automatically
 							removed_something = true;
 						}
-						else {
+                        else
+                        {
 							prec = mission;
 							mission = mission->next;
 						}

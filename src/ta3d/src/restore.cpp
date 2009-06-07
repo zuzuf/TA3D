@@ -371,7 +371,7 @@ namespace TA3D
 					SAVE( cur->move_data );
 					SAVE( cur->node );
 
-					for( PATH_NODE *path = cur->path; path ; path = path->next)
+                    for (PATH::iterator path = cur->path.begin() ; path != cur->path.end() ; ++path)
 					{
 						gzputc(file, 1);
 						SAVE( path->x );
@@ -933,17 +933,15 @@ namespace TA3D
 						LOAD( (*cur)->move_data );
 						LOAD( (*cur)->node );
 
-						(*cur)->path = NULL;
-						PATH_NODE **path = &((*cur)->path);
+                        (*cur)->path.clear();
 						while( gzgetc( file ) )
 						{
-							*path = new PATH_NODE;
-							(*path)->next = NULL;
-							LOAD( (*path)->x );
-							LOAD( (*path)->y );
-							LOAD( (*path)->Pos );
-							LOAD( (*path)->made_direct );
-							path = &((*path)->next);
+                            PATH_NODE node;
+                            LOAD( node.x );
+                            LOAD( node.y );
+                            LOAD( node.Pos );
+                            LOAD( node.made_direct );
+                            (*cur)->path.push_back(node);
 						}
 
 						switch( (*cur)->mission )

@@ -74,11 +74,11 @@ namespace TA3D
 		void clear_mission();
 
 		void add_mission(int mission_type, const Vector3D* target = NULL, bool step = false, int dat = 0,
-						 void* pointer = NULL, PATH_NODE* path = NULL, byte m_flags = 0,
+                         void* pointer = NULL, PATH path = PATH(), byte m_flags = 0,
 						 int move_data = 0, int patrol_node = -1);
 
 		void set_mission(int mission_type, const Vector3D* target = NULL, bool step = false, int dat = 0,
-						 bool stopit = true, void* pointer = NULL, PATH_NODE* path = NULL, byte m_flags = 0,
+                         bool stopit = true, void* pointer = NULL, PATH path = PATH(), byte m_flags = 0,
 						 int move_data = 0);
 
 		void compute_model_coord();
