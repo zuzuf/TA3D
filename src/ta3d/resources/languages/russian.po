@@ -1,0 +1,735 @@
+[info]
+{
+    name=russian;
+    caption=Русский;
+}
+[Sound volume:]
+{
+    RUSSIAN=Громкость звука:;
+}
+[Music volume:]
+{
+    RUSSIAN=Громкость музыки:;
+}
+[Grab inputs]
+{
+    RUSSIAN=Установка клавиш;
+}
+[enabled]
+{
+    RUSSIAN=Включено;
+}
+[register]
+{
+    RUSSIAN=Регистрация;
+}
+[log in]
+{
+    RUSSIAN=Вход;
+}
+[log out]
+{
+    RUSSIAN=Выход;
+}
+[server message]
+{
+    RUSSIAN=Сообщение от сервера;
+}
+[Password]
+{
+    RUSSIAN=Пароль;
+}
+[Mouse sensitivity]
+{
+    RUSSIAN=Чувствительность мыши;
+}
+[explosion particles]
+{
+    RUSSIAN=Частицы взрыва;
+}
+[Far sight]
+{
+    RUSSIAN=Полная видимость;
+}
+[enable this to see all the map (no horizon limit except for units and features)]
+{
+    RUSSIAN=Включите эту опцию для снятия ограничения на растояние видимости ;
+}
+[Level of anisotropy]
+{
+    RUSSIAN=Уровень анизатропии;
+}
+[Disable perspective]
+{
+    RUSSIAN=Выключить перспективу;
+}
+[disable perspective\nTA3D will use an orthographic camera]
+{
+    RUSSIAN=выключить перспективу\nTA3D будет использовать ортографическую проекцию;
+}
+[Right click interface]
+{
+    RUSSIAN=Поменять кнопки мыши местами;
+}
+[ultimate]
+{
+    RUSSIAN=абсолютное;
+}
+[Disable GLSL]
+{
+    RUSSIAN=Выключить GLSL;
+}
+[disable GLSL shaders\nmay help if game crash]
+{
+    RUSSIAN= выключить GLSL шейдеры\nможет помочь в случае появления ошибок;
+}
+[Unit limit]
+{
+    RUSSIAN=Ограничение числа юнитов;
+}
+[chose your team]
+{
+    RUSSIAN=Выбор команды;
+}
+[UNITTYPE_NAME]
+{
+    RUSSIAN=UNITINFO.RussianName;
+}
+[UNITTYPE_NAME_ALT]
+{
+    RUSSIAN=UNITINFO.RussianName;
+}
+[UNITTYPE_DESCRIPTION]
+{
+    RUSSIAN=UNITINFO.RussianDescription;
+}
+[UNITTYPE_DESCRIPTION_ALT]
+{
+    RUSSIAN=UNITINFO.Russiandescription;
+}
+[MULTI_SOLO_MISMATCH_ERROR]
+{
+    RUSSIAN=Ошибка MULTI_SOLO_MISMATCH_ERROR\n в процессе перевода;
+}
+[Highlight underwater objects]
+{
+    RUSSIAN=Подсвечивать подводные объекты;
+}
+[Current skin]
+{
+    RUSSIAN=текущее оформление;
+}
+[Use texture compression]
+{
+    RUSSIAN=использовать сжатие текстур;
+}
+[Low definition map]
+{
+    RUSSIAN=использовать карты низкого качества;
+}
+[Render sky]
+{
+    RUSSIAN=отрисовывать небо;
+}
+[Loading maps, please wait ...]
+{
+    RUSSIAN=Загрузка карты, пожалуйста подождите ...;
+}
+[Please wait ...]
+{
+    RUSSIAN=Пожалуйста подождите ...;
+}
+[enable if you want to be\nvisible from Internet]
+{
+	RUSSIAN=включить, если Вы хотите чтобы\nсервер был виден из Internet;
+}
+[Advertise on Internet]
+{
+	RUSSIAN=Internet - сервер;
+}
+[Refresh]
+{
+	RUSSIAN=Обновить;
+}
+[Save]
+{
+	RUSSIAN=Сохранить;
+}
+[Load]
+{
+	RUSSIAN=Загрузить;
+}
+[Campaign]
+{
+	RUSSIAN=Компания;
+}
+[Skirmish]
+{
+	RUSSIAN=Сражение;
+}
+[server name:]
+{
+	RUSSIAN=имя сервера:;
+}
+[host address:]
+{
+	RUSSIAN=IP адресс:;
+}
+[slots available:]
+{
+	RUSSIAN=свободные слоты:;
+}
+[no server selected]
+{
+	RUSSIAN=сервер не выбран;
+}
+[host a game]
+{
+	RUSSIAN=создать сервер;
+}
+[Join IP]
+{
+	RUSSIAN=Присоединиться по IP;
+}
+[Join]
+{
+	RUSSIAN=Присоединиться;
+}
+[no name]
+{
+	RUSSIAN=имя не введено;
+}
+[Enter server IP/Name]
+{
+	RUSSIAN=Введите IP адрес сервера/Имя сервера;
+}
+[closed]
+{
+	RUSSIAN=Закрыто;
+}
+[warning: you might have texturing\nissues with this!!]
+{
+	RUSSIAN=внимание: включение этой опции может приводить\nк дефектам текстур!!;
+}
+[use texture cache]
+{
+	RUSSIAN=Использовать кэширование текстур;
+}
+[Pause the game]
+{
+	RUSSIAN=Пауза;
+}
+[Resume the game]
+{
+	RUSSIAN=Вернуться к игре;
+}
+[game time]
+{
+	RUSSIAN=игровое время;
+}
+[units]
+{
+	RUSSIAN=юниты;
+}
+[speed]
+{
+	RUSSIAN=скорость;
+}
+[click on this button\nto show game\noptions]
+{
+	RUSSIAN=Нажмите на кнопку\nдля показа меню игровых\nопций;
+}
+[click on this button\nto show audio\noptions]
+{
+	RUSSIAN=Нажмите на кнопку\nдля показа меню звуковых\nопций;
+}
+[click on this button\nto show display\noptions]
+{
+	RUSSIAN=Нажмите на кнопку\nдля показа меню графических\nопций;
+}
+[click to change\nthe map]
+{
+	RUSSIAN=Нажмите для выбора\nкарты;
+}
+[click to change\nthe script]
+{
+	RUSSIAN=Нажмите для выбора\nскрипта;
+}
+[click to set\nthe fog of war]
+{
+	RUSSIAN=Нажмите для выбора\nтумана войны;
+}
+[Display]
+{
+	RUSSIAN=Дисплей;
+}
+[CONFIRM_CHANGES]
+{
+	RUSSIAN=Вы хотите сохранить\nсделанные изменения ?;
+}
+[Ok]
+{
+	RUSSIAN=Да;
+}
+[Change map]
+{
+	RUSSIAN=Смена карты;
+}
+[camera zoom speed]
+{
+	RUSSIAN=Скорость приближения/удаления;
+}
+[camera zoom]
+{
+	RUSSIAN=Приближение/удаление;
+}
+[camera default angle]
+{
+	RUSSIAN=Угол наклона камеры по умолчанию;
+}
+[camera default height]
+{
+	RUSSIAN=Высота камеры по умолчанию;
+}
+[Fixed Angle]
+{
+	RUSSIAN=Фиксированный угол;
+}
+[player name]
+{
+	RUSSIAN=Имя игрока;
+}
+[Current mod]
+{
+	RUSSIAN=Текущий мод;
+}
+[Off]
+{
+	RUSSIAN=Выключено;
+}
+[Fog of war:]
+{
+	RUSSIAN=Туман войны:;
+}
+[grey]
+{
+	RUSSIAN=серый;
+}
+[black]
+{
+	RUSSIAN=чёрный;
+}
+[Solo]
+{
+	RUSSIAN=Одиночная игра;
+}
+[Multiplayer]
+{
+	RUSSIAN=Мультиплеер;
+}
+[Options]
+{
+	RUSSIAN=Опции;
+}
+[Exit]
+{
+	RUSSIAN=Выход;
+}
+[Game]
+{
+	RUSSIAN=Игра;
+}
+[Audio]
+{
+	RUSSIAN=Звук;
+}
+[no limit]
+{
+	RUSSIAN=отключено;
+}
+
+
+[GL_ARB_texture_compression available]
+{
+	RUSSIAN=GL_ARB_texture_компрессия доступна;
+}
+[GL_EXT_stencil_two_side available]
+{
+	RUSSIAN=GL_EXT_stencil_two_side доступна;
+}
+[GL_NV_copy_depth_to_color available]
+{
+	RUSSIAN=GL_NV_copy_depth_to_color доступна;
+}
+[GLSL available]
+{
+	RUSSIAN=GLSL доступен;
+}
+[GL_EXT_framebuffer_object available]
+{
+	RUSSIAN=GL_EXT_framebuffer_object доступен;
+}
+[support for MP3 format]
+{
+	RUSSIAN=поддержка формата MP3;
+}
+[support for OGG format]
+{
+	RUSSIAN=поддержка формата OGG;
+}
+[support for JPG format]
+{
+	RUSSIAN=поддержка формата JPG;
+}
+[Loading color palette]
+{
+	RUSSIAN=Загрузка цветовой гаммы;
+}
+[Starting intro]
+{
+	RUSSIAN=Заставка;
+}
+[Initialising engine]
+{
+	RUSSIAN=Инициализация игрового движка;
+}
+[Initialising the random number generator]
+{
+	RUSSIAN=Инициализация генератора случайных чисел;
+}
+[Launching main menu]
+{
+	RUSSIAN=Запуск главного меню;
+}
+[Starting a game]
+{
+	RUSSIAN=Запуск игры;
+}
+[End of program]
+{
+	RUSSIAN=Завершение программы;
+}
+[Maps]
+{
+	RUSSIAN=Карты;
+}
+[back]
+{
+	RUSSIAN=Назад;
+}
+[value of %s]
+{
+	RUSSIAN=значение %s;
+}
+[Enter a value for %s]
+{
+	RUSSIAN=введите значение %s;
+}
+[cancel]
+{
+	RUSSIAN=отмена;
+}
+[Loading textures]
+{
+	RUSSIAN=Загрузка текстур;
+}
+[Loading 3D Models]
+{
+	RUSSIAN=Загрузка 3D моделей;
+}
+[Loading GUI]
+{
+	RUSSIAN=Загрузка интерфейса;
+}
+[Loading graphical features]
+{
+	RUSSIAN=Загрузка графических элементов;
+}
+[Loading weapons]
+{
+	RUSSIAN=Загрузка оружия;
+}
+[Loading units]
+{
+	RUSSIAN=Загрузка юнитов;
+}
+[Free unused memory]
+{
+	RUSSIAN=освобождение неиспользуемой памяти;
+}
+[Loading the map]
+{
+	RUSSIAN=Загрузка карты;
+}
+[Load finished]
+{
+	RUSSIAN=Загрузка завершена;
+}
+[weapon]
+{
+	RUSSIAN=оружие;
+}
+[players: ]
+{
+	RUSSIAN=игроки: ;
+}
+[Scores]
+{
+	RUSSIAN=Счёт;
+}
+[Players]
+{
+	RUSSIAN=Игроки;
+}
+[Side]
+{
+	RUSSIAN=Сторона;
+}
+[Losses]
+{
+	RUSSIAN=Потери;
+}
+[Kills]
+{
+	RUSSIAN=Убито;
+}
+[Energy]
+{
+	RUSSIAN=Энергия;
+}
+[Metal]
+{
+	RUSSIAN=Метал;
+}
+[Battle room]
+{
+	RUSSIAN=Игровой чат;
+}
+[Server list]
+{
+	RUSSIAN=Список серверов;
+}
+[No server found]
+{
+	RUSSIAN=Нет доступных серверов;
+}
+[Name]
+{
+	RUSSIAN=Имя;
+}
+[Internal name]
+{
+	RUSSIAN=Внутреннее имя;
+}
+[Cost]
+{
+	RUSSIAN=Стоимость;
+}
+[weapons]
+{
+	RUSSIAN=оружия;
+}
+[Build time]
+{
+	RUSSIAN=Время строительства;
+}
+[Error]
+{
+	RUSSIAN=Ошибка;
+}
+[No maps found]
+{
+	RUSSIAN=Нет доступных карт;
+}
+[Game Setup]
+{
+	RUSSIAN=Установка игры;
+}
+[player]
+{
+	RUSSIAN=игрок;
+}
+[computer]
+{
+	RUSSIAN=компьютер;
+}
+[open]
+{
+	RUSSIAN=открыто;
+}
+[easy]
+{
+	RUSSIAN=лёгкий;
+}
+[medium]
+{
+	RUSSIAN=средний;
+}
+[hard]
+{
+	RUSSIAN=тяжёлый;
+}
+[bloody]
+{
+	RUSSIAN=выносмозга;
+}
+[AI]
+{
+	RUSSIAN=AI;
+}
+[Change Script]
+{
+	RUSSIAN=Изменить скрипт;
+}
+[Scripts available]
+{
+	RUSSIAN=Доступные скрипты;
+}
+[RUSSIAN]
+{
+	RUSSIAN=Французский;
+}
+[German]
+{
+	RUSSIAN=Немецкий;
+}
+[English]
+{
+	RUSSIAN=Английский;
+}
+[Italian]
+{
+	RUSSIAN=Итальянский;
+}
+[Japanese]
+{
+	RUSSIAN=Японский;
+}
+[Spanish]
+{
+	RUSSIAN=Испанский;
+}
+[show fps]
+{
+	RUSSIAN=отображение числа кадров в секунду.;
+}
+[fps limit]
+{
+	RUSSIAN=ограничение числа кадров в секунду.;
+}
+[wireframe]
+{
+	RUSSIAN=каркас полигонов;
+}
+[particles]
+{
+	RUSSIAN=частицы;
+}
+[waves]
+{
+	RUSSIAN=волны;
+}
+[shadows]
+{
+	RUSSIAN=тени;
+}
+[height line]
+{
+	RUSSIAN=линия высоты;
+}
+[detail texture]
+{
+	RUSSIAN=детализированные текстуры;
+}
+[draw console while loading]
+{
+	RUSSIAN=отображать консоль в процессе загрузки;
+}
+[full screen]
+{
+	RUSSIAN=полный экран;
+}
+[language]
+{
+	RUSSIAN=язык;
+}
+[screen]
+{
+	RUSSIAN=экран;
+}
+[shadow quality]
+{
+	RUSSIAN=качество теней;
+}
+[game speed]
+{
+	RUSSIAN=скорость игры;
+}
+[antialiasing]
+{
+	RUSSIAN=полноэкранное сглаживание;
+}
+[water quality]
+{
+	RUSSIAN=качество воды;
+}
+[normal]
+{
+	RUSSIAN=нормальное;
+}
+[high]
+{
+	RUSSIAN=высокое;
+}
+[higher]
+{
+	RUSSIAN=очень высокое;
+}
+[no fsaa]
+{
+	RUSSIAN=отключено;
+}
+[no limit]
+{
+	RUSSIAN=без ограничения;
+}
+[low]
+{
+	RUSSIAN=низкое;
+}
+[ultra high]
+{
+	RUSSIAN=высочайшее;
+}
+[Welcome]
+{
+	RUSSIAN=Здравствуйте;
+}
+[RESOURCES ERROR]
+{
+	RUSSIAN=Игра не может быть запущена. Для запуска TA3D необходимы ресурсы *.hpi/*.ufo/*.ccx\nкоторые можно взять на CD-диске с TA, или из модов;
+}
+[What do you want to do?]
+{
+	RUSSIAN=Сделайте выбор;
+}
+[Return to game]
+{
+	RUSSIAN=Вернуться к игре;
+}
+[Leave game]
+{
+	RUSSIAN=Выйти из игры;
+}
+[UNITTYPE_NAME]
+{
+    RUSSIAN=russianname;
+}
+[UNITTYPE_DESCRIPTION]
+{
+    RUSSIAN=russiandescription;
+}
+[en.ta3d.txt]
+{
+    RUSSIAN=ru.ta3d.txt;
+}

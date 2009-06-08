@@ -23,12 +23,6 @@ CHINESE=开启;
 {
     CHINESE=雾:;
 }
-[LAN]
-{
-    CHINESE=LAN;
-}
-
-
 [Internet]
 {
     CHINESE=战网;
@@ -103,7 +97,7 @@ CHINESE=开启;
 }
 [disable perspective\nTA3D will use an orthographic camera]
 {
-    CHINESE=禁止透视\nTA3D会跟现实一样;
+    CHINESE=禁止透视\nTA3D会跟TA一样;
 }
 [Right click interface]
 {
@@ -203,7 +197,7 @@ CHINESE=开启;
 }
 [server name:]
 {
-   CHINESE=房间名称:;
+   CHINESE=房间名号:;
 }
 [host address:]
 {
@@ -223,7 +217,7 @@ CHINESE=开启;
 }
 [Enter server IP/Name]
 {
-   CHINESE=输入IP/房间;
+   CHINESE=输入主机IP或名号;
 }
 [Join IP]
 {
@@ -231,7 +225,7 @@ CHINESE=开启;
 }
 [Join]
 {
-   CHINESE=加房间;
+   CHINESE=加入;
 }
 [closed]
 {
@@ -409,10 +403,6 @@ CHINESE=开启;
 {
    CHINESE=冷酷;
 }
-[AI]
-{
-   CHINESE=AI;
-}
 [show fps]
 {
    CHINESE=显示FPS;
@@ -479,7 +469,7 @@ CHINESE=开启;
 }
 [no fsaa]
 {
-   CHINESE=无反锯齿;
+   CHINESE=无;
 }
 [low]
 {
@@ -547,7 +537,7 @@ CHINESE=开启;
 }
 [Enter a value for %s]
 {
-   CHINESE=输入%s的值;
+   CHINESE=输入将作为%s;
 }
 [Loading textures]
 {
@@ -591,11 +581,11 @@ CHINESE=开启;
 }
 [Scores]
 {
-   CHINESE=得分;
+   CHINESE=评分;
 }
 [Losses]
 {
-   CHINESE=死伤;
+   CHINESE=损失;
 }
 [Kills]
 {
