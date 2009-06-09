@@ -328,8 +328,8 @@ static bool hpiviewCmdExtractGAF(String::Vector &args)
 					m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
 					m_File << "        filename=" << filename << ";\n";
 					m_File << "    }\n";
-					SDL_SetPalette(anims[i].bmp[e], SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
-					SDL_SaveBMP( anims[i].bmp[e], filename.c_str() );
+//					SDL_SetPalette(anims[i].bmp[e], SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
+                    save_bitmap( filename, anims[i].bmp[e] );
 				}
 				m_File << "}\n";
 			}

@@ -581,6 +581,28 @@ namespace TA3D
 		SDL_FillRect(bmp, &rect, col);
 	}
 
+    void vflip_bitmap(SDL_Surface* bmp)
+    {
+        for(int y = 0 ; y < (bmp->h + 1 >> 1) ; ++y)
+            for(int x = 0 ; x < bmp->w ; ++x)
+            {
+                uint32 c = getpixel(bmp, x, y);
+                putpixel(bmp, x, y, getpixel(bmp, x, bmp->h - 1 - y));
+                putpixel(bmp, x, bmp->h - 1 - y, c);
+            }
+    }
+
+    void hflip_bitmap(SDL_Surface* bmp)
+    {
+        for(int y = 0 ; y < bmp->h ; ++y)
+            for(int x = 0 ; x < (bmp->w + 1 >> 1) ; ++x)
+            {
+                uint32 c = getpixel(bmp, x, y);
+                putpixel(bmp, x, y, getpixel(bmp, bmp->w - 1 - x, y));
+                putpixel(bmp, bmp->w - 1 - x, y, c);
+            }
+    }
+
 	void SaveTex(SDL_Surface *bmp, const String &filename)
 	{
 		gzFile file = gzopen(filename.c_str(), "wb");
@@ -680,7 +702,38 @@ namespace TA3D
 		if (file.is_open())
 		{
 			file.write( (char*)&header, sizeof(header) );
-			file.write( (char*)bmp->pixels, bmp->w * bmp->h * bmp->format->BytesPerPixel );
+            for(int y = bmp->h - 1 ; y >= 0 ; --y)
+            {
+                for(int x = 0 ; x < bmp->w ; ++x)
+                {
+                    switch(bmp->format->BitsPerPixel)
+                    {
+                    case 8:
+                        file.put( getpixel(bmp, x, y) );
+                        break;
+                    case 16:
+                        file.write( (char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+                        break;
+                    case 24:
+                        {
+                            uint32 c = getpixel(bmp, x, y);
+                            file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
+                            file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
+                            file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
+                        }
+                        break;
+                    case 32:
+                        {
+                            uint32 c = getpixel(bmp, x, y);
+                            file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
+                            file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
+                            file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
+                            file.put( (bmp->format->Amask & c) >> bmp->format->Ashift);
+                        }
+                        break;
+                    };
+                }
+            }
 			file.close();
 		}
 	}
