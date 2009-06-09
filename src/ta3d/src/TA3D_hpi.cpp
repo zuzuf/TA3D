@@ -873,6 +873,17 @@ namespace HPI
 		return (iterFind != NULL);
 	}
 
+    int cHPIHandler::Priority(const String& filename)
+    {
+        String key = String::ToLower(filename);
+        key.convertSlashesIntoBackslashes();
+
+        HPIITEM* iterFind = m_Archive->find(key);
+        if (iterFind != NULL && iterFind->hfd)
+            return iterFind->hfd->priority;
+        else
+            return 0;
+    }
 
 
 	uint32 cHPIHandler::getFilelist(const String& s, String::Vector& li)

@@ -25,19 +25,19 @@ namespace TA3D
 {
     ScriptData *ScriptData::loadScriptFile(const String &filename)
     {
-        String tmp = filename + ".lua";
-        if (TA3D::VARS::HPIManager->Exists(tmp))
+        String tmp_cob = filename + ".cob";
+        String tmp_lua = filename + ".lua";
+        if (TA3D::VARS::HPIManager->Exists(tmp_lua) && TA3D::VARS::HPIManager->Priority(tmp_lua) >= TA3D::VARS::HPIManager->Priority(tmp_cob))
         {
             ScriptData *script = new LuaChunk;
-            script->load(tmp);
+            script->load(tmp_lua);
             return script;
         }
 
-        tmp = filename + ".cob";
-        if (TA3D::VARS::HPIManager->Exists(tmp))
+        if (TA3D::VARS::HPIManager->Exists(tmp_cob))
         {
             ScriptData *script = new CobScript;
-            script->load(tmp);
+            script->load(tmp_cob);
             return script;
         }
         return NULL;
