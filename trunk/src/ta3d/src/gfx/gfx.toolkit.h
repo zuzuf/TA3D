@@ -74,6 +74,9 @@ namespace TA3D
 
 	void save_bitmap(const String &filename, SDL_Surface* bmp);
 
+    void vflip_bitmap(SDL_Surface* bmp);
+    void hflip_bitmap(SDL_Surface* bmp);
+
 	SDL_Surface *LoadTex(const String &filename);
 	void SaveTex(SDL_Surface *bmp, const String &filename);
 
