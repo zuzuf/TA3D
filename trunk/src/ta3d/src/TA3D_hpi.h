@@ -141,6 +141,13 @@ namespace HPI
 		*/
 		bool Exists(const String& filename);
 
+        /*!
+        ** \brief returns the priority level of a file
+        ** \param filename
+        ** \return
+        */
+        int Priority(const String& filename);
+
 # if defined(DEBUG)
 		/*!
 		** \brief
