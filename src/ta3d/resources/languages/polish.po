@@ -1,0 +1,760 @@
+[info]
+{
+    name=polish;
+    caption=Polski;
+}
+[Sound volume:]
+{
+    POLISH=Dźwięki;
+}
+[Music volume:]
+{
+    POLISH=Muzyka;
+}
+[Grab inputs]
+{
+    POLISH=Sprawdzaj czy nie podłączono nowych urządzeń sterujących;
+}
+[enabled]
+{
+    POLISH=Włączone;
+}
+[register]
+{
+    POLISH=Rejestracja;
+}
+[log in]
+{
+    POLISH=Zaloguj;
+}
+[log out]
+{
+    POLISH=Wyloguj;
+}
+[server message]
+{
+    POLISH=Wiadomośc serwera;
+}
+[Password]
+{
+    POLISH=Hasło;
+}
+[Mouse sensitivity]
+{
+    POLISH=Czułość myszki;
+}
+[explosion particles]
+{
+    POLISH=Odłamki po eksplozjach;
+}
+[Far sight]
+{
+    POLISH=Daleki zwiad;
+}
+[enable this to see all the map (no horizon limit except for units and features)]
+{
+    POLISH=Włącz to aby widzieć całą mapę z nielimitowanym horyzontem (Z wyjątkiem jednostek i kilku innych cech)  ;
+}
+[Level of anisotropy]
+{
+    POLISH=Poziom filtrowania anizotropowego;
+}
+[Disable perspective]
+{
+    POLISH=Wyłącz perspektywę;
+}
+[disable perspective\nTA3D will use an orthographic camera]
+{
+    POLISH=Wyłącz perspektywę\nTA3D będzie używać domyślnej kamery;
+}
+[Right click interface]
+{
+    POLISH=Menu po naciśnięciu PPM;
+}
+[ultimate]
+{
+    POLISH=przesadzona;
+}
+[Disable GLSL]
+{
+    POLISH=Wyłącz GLSL;
+}
+[disable GLSL shaders\nmay help if game crash]
+{
+    POLISH= wyłącz cienie GLSL\nmoże to zapobiec wieszaniu się gry;
+}
+[Unit limit]
+{
+    POLISH=Limit jednostek;
+}
+[chose your team]
+{
+    POLISH=Wybierz drużynę;
+}
+[UNITTYPE_NAME]
+{
+    POLISH=UNITINFO.POLISHName;
+}
+[UNITTYPE_NAME_ALT]
+{
+    POLISH=UNITINFO.POLISHName;
+}
+[UNITTYPE_DESCRIPTION]
+{
+    POLISH=UNITINFO.POLISHDescription;
+}
+[UNITTYPE_DESCRIPTION_ALT]
+{
+    POLISH=UNITINFO.POLISHdescription;
+}
+[MULTI_SOLO_MISMATCH_ERROR]
+{
+    POLISH=MULTI_SOLO_MISMATCH_ERROR\n Pliki gry na serwerze do którego próbujesz się podłączyć \nróżnią się od twoich.;
+}
+[Highlight underwater objects]
+{
+    POLISH=Podświetlaj obiekty podwodne;
+}
+[Current skin]
+{
+    POLISH=Obecna skórka;
+}
+[Use texture compression]
+{
+    POLISH=Użyj kompresji tekstur;
+}
+[Low definition map]
+{
+    POLISH=Mała jakość mapy;
+}
+[Render sky]
+{
+    POLISH=Wyświetlaj niebo;
+}
+[Loading maps, please wait ...]
+{
+    POLISH=Wczytywanie map, proszę czekać ...;
+}
+[Please wait ...]
+{
+    POLISH=Proszę czekać ...;
+}
+[enable if you want to be\nvisible from Internet]
+{
+	POLISH=Włącz jeśli chcesz być\nwidoczny przez Internet;
+}
+[Advertise on Internet]
+{
+	POLISH=Raportuj w Internecie;
+}
+[Refresh]
+{
+	POLISH=Odśwież;
+}
+[Save]
+{
+	POLISH=Zapisz grę;
+}
+[Load]
+{
+	POLISH=Wczytaj grę;
+}
+[Campaign]
+{
+	POLISH=Kampania;
+}
+[Skirmish]
+{
+	POLISH=Bitwa;
+}
+[server name:]
+{
+	POLISH=nazwa serwera:;
+}
+[host address:]
+{
+	POLISH=Adres hosta:;
+}
+[slots available:]
+{
+	POLISH=Dostępne sloty:;
+}
+[no server selected]
+{
+	POLISH=Brak zaznaczonego serwera;
+}
+[host a game]
+{
+	POLISH=Załóż grę;
+}
+[Join IP]
+{
+	POLISH=Dołącz do gry przez IP;
+}
+[Join]
+{
+	POLISH=Dołącz;
+}
+[no name]
+{
+	POLISH=Brak nazwy;
+}
+[Enter server IP/Name]
+{
+	POLISH=Wpisz nazwę/adres serwera;
+}
+[closed]
+{
+	POLISH=Zamknięte;
+}
+[warning: you might have texturing\nissues with this!!]
+{
+	POLISH=Uwaga: Mogą z tym wystąpić\nproblemy z teksturami!!;
+}
+[use texture cache]
+{
+	POLISH=Używaj pamięci na tekstury;
+}
+[Pause the game]
+{
+	POLISH=Zatrzymaj grę;
+}
+[Resume the game]
+{
+	POLISH=Wznów grę;
+}
+[game time]
+{
+	POLISH=czas gry;
+}
+[units]
+{
+	POLISH=jednostki;
+}
+[speed]
+{
+	POLISH=szybkość;
+}
+[click on this button\nto show game\noptions]
+{
+	POLISH=Kliknij na ten przycisk\naby zobaczyć\nopcje gry;
+}
+[click on this button\nto show audio\noptions]
+{
+	POLISH=Kliknij na ten przycisk\naby zobaczyć\nopcje dźwięków;
+}
+[click on this button\nto show display\noptions]
+{
+	POLISH=Kliknij na ten przycisk\naby zobaczyć\nopcje;
+}
+[click to change\nthe map]
+{
+	POLISH=Kliknij aby zmienić\nmapę;
+}
+[click to change\nthe script]
+{
+	POLISH=Kliknij aby zmienić\nskrypt;
+}
+[click to set\nthe fog of war]
+{
+	POLISH=Kliknij aby ustawić\nmgłę wojny;
+}
+[Display]
+{
+	POLISH=Grafika;
+}
+[CONFIRM_CHANGES]
+{
+	POLISH=Potwierdź zmiany;
+}
+[Ok]
+{
+	POLISH=Ok;
+}
+[Change map]
+{
+	POLISH=Zmień mapę;
+}
+[camera zoom speed]
+{
+	POLISH=Szybkość przybliżania/noddalania kamery;
+}
+[camera zoom]
+{
+	POLISH=Kamera;
+}
+[camera default angle]
+{
+	POLISH=Domyślny kąt kamery;
+}
+[camera default height]
+{
+	POLISH=Domyślna wysokość kamery;
+}
+[Fixed Angle]
+{
+	POLISH=Zablokowana;
+}
+[player name]
+{
+	POLISH=Nazwa gracza;
+}
+[Current mod]
+{
+	POLISH=Obecny mod;
+}
+[Off]
+{
+	POLISH=Wyłącz;
+}
+[Fog of war:]
+{
+	POLISH=Mgła wojny:;
+}
+[grey]
+{
+	POLISH=Prześwitująca;
+}
+[black]
+{
+	POLISH=Ciemna;
+}
+[on]
+{
+	POLISH=Pełna;
+}
+[Solo]
+{
+	POLISH=Jeden gracz;
+}
+[Multiplayer]
+{
+	POLISH=Gra przez sieć;
+}
+[Options]
+{
+	POLISH=Opcje;
+}
+[Exit]
+{
+	POLISH=Wyjdź;
+}
+[Game]
+{
+	POLISH=Gra;
+}
+[Audio]
+{
+	POLISH=Dźwięki;
+}
+[no limit]
+{
+	POLISH=Brak limitów;
+}
+
+
+[GL_ARB_texture_compression available]
+{
+	POLISH=GL_ARB_texture_compression jest dostępne;
+}
+[GL_EXT_stencil_two_side available]
+{
+	POLISH=GL_EXT_stencil_two_side jest dostępne;
+}
+[GL_NV_copy_depth_to_color available]
+{
+	POLISH=GL_NV_copy_depth_to_color jest dostępne;
+}
+[GLSL available]
+{
+	POLISH=GLSL jest dostępne;
+}
+[GL_EXT_framebuffer_object available]
+{
+	POLISH=GL_EXT_framebuffer_object jest dostępne;
+}
+[support for MP3 format]
+{
+	POLISH=Obsługa MP3;
+}
+[support for OGG format]
+{
+	POLISH=Obsługa OGG;
+}
+[support for JPG format]
+{
+	POLISH=Obsługa JPG;
+}
+[Loading color palette]
+{
+	POLISH=Wczytywanie palety kolorów;
+}
+[Starting intro]
+{
+	POLISH=Włączanie intra;
+}
+[Initialising engine]
+{
+	POLISH=Inicjalizacja silnika;
+}
+[Initialising the random number generator]
+{
+	POLISH=Inicjalizacja generatora losowych liczb;
+}
+[Launching main menu]
+{
+	POLISH=Uruchamianie menu głównego;
+}
+[Starting a game]
+{
+	POLISH=Rozpoczynanie gry;
+}
+[End of program]
+{
+	POLISH=Koniec programu;
+}
+[Maps]
+{
+	POLISH=Mapy;
+}
+[back]
+{
+	POLISH=Wstecz;
+}
+[value of %s]
+{
+	POLISH=Wartość dla %s;
+}
+[Enter a value for %s]
+{
+	POLISH=Podaj wartość dla %s;
+}
+[cancel]
+{
+	POLISH=Anuluj;
+}
+[Loading textures]
+{
+	POLISH=Wczytywanie tekstur;
+}
+[Loading 3D Models]
+{
+	POLISH=Wczytywanie modeli 3D;
+}
+[Loading GUI]
+{
+	POLISH=Wczytywanie Interface;
+}
+[Loading graphical features]
+{
+	POLISH=Wczytywanie dodatkowej grafiki;
+}
+[Loading weapons]
+{
+	POLISH=Wczytywanie broni;
+}
+[Loading units]
+{
+	POLISH=Wczytywanie jednostek;
+}
+[- done]
+{
+	POLISH=- zrobione;
+}
+[Free unused memory]
+{
+	POLISH=Wolna pamięć;
+}
+[Loading the map]
+{
+	POLISH=Wczytywanie mapy;
+}
+[Load finished]
+{
+	POLISH=Ładowanie zakończone;
+}
+[weapon]
+{
+	POLISH=Broń;
+}
+[players: ]
+{
+	POLISH=gracze: ;
+}
+[Scores]
+{
+	POLISH=Punktacja;
+}
+[Players]
+{
+	POLISH=Gracze;
+}
+[Side]
+{
+	POLISH=Strona;
+}
+[Losses]
+{
+	POLISH=Przegrani;
+}
+[Kills]
+{
+	POLISH=Zabicia;
+}
+[Energy]
+{
+	POLISH=Energia;
+}
+[Metal]
+{
+	POLISH=Metal;
+}
+[Battle room]
+{
+	POLISH=Pokój walki;
+}
+[Battle]
+{
+	POLISH=Walka;
+}
+[Server list]
+{
+	POLISH=Lista serwerów;
+}
+[No server found]
+{
+	POLISH=Nie znaleziono żadnego serwera;
+}
+[Name]
+{
+	POLISH=Nazwa;
+}
+[Internal name]
+{
+	POLISH=Internal name;
+}
+[Cost]
+{
+	POLISH=Koszt;
+}
+[weapons]
+{
+	POLISH=bronie;
+}
+[Build time]
+{
+	POLISH=Czas budowy;
+}
+[Error]
+{
+	POLISH=Błąd;
+}
+[No maps found]
+{
+	POLISH=nie znaleziono żadnej mapy;
+}
+[Game Setup]
+{
+	POLISH=Ustawienia gry;
+}
+[player]
+{
+	POLISH=gracz;
+}
+[computer]
+{
+	POLISH=Komputer;
+}
+[open]
+{
+	POLISH=Otwarte;
+}
+[easy]
+{
+	POLISH=łatwy;
+}
+[medium]
+{
+	POLISH=normalny;
+}
+[hard]
+{
+	POLISH=ciężki;
+}
+[bloody]
+{
+	POLISH=koszmar;
+}
+
+[AI]
+{
+	POLISH=AI;
+}
+[Change Script]
+{
+	POLISH=Zmień skrypt;
+}
+[Scripts available]
+{
+	POLISH=Dostępne skrypty;
+}
+[POLISH]
+{
+	POLISH=Polski;
+}
+[German]
+{
+	POLISH=Niemiecki;
+}
+[English]
+{
+	POLISH=Angielski;
+}
+[Italian]
+{
+	POLISH=Włoski;
+}
+[Japanese]
+{
+	POLISH=Japoński;
+}
+[Spanish]
+{
+	POLISH=Hiszpański;
+}
+[show fps]
+{
+	POLISH=Pokaż FPS;
+}
+[fps limit]
+{
+	POLISH=Limit fps;
+}
+[wireframe]
+{
+	POLISH=Tryb wireframe;
+}
+[particles]
+{
+	POLISH=Odłamki;
+}
+[waves]
+{
+	POLISH=Fale;
+}
+[shadows]
+{
+	POLISH=cienie;
+}
+[height line]
+{
+	POLISH=Linia wysokości;
+}
+[detail texture]
+{
+	POLISH=Ładniejsze tekstury;
+}
+[draw console while loading]
+{
+	POLISH=Wyświetlaj konsolę podczas ładowania;
+}
+[full screen]
+{
+	POLISH=Tryb pełnego ekranu;
+}
+[language]
+{
+	POLISH=Język;
+}
+[screen]
+{
+	POLISH=Ekran;
+}
+[shadow quality]
+{
+	POLISH=Jakość cieni;
+}
+[game speed]
+{
+	POLISH=Szybkość gry;
+}
+[antialiasing]
+{
+	POLISH=Antyanalysing;
+}
+[water quality]
+{
+	POLISH=Jakość wody;
+}
+[normal]
+{
+	POLISH=normalna;
+}
+[high]
+{
+	POLISH=wysoka;
+}
+[higher]
+{
+	POLISH=bardzo wysoka;
+}
+[no fsaa]
+{
+	POLISH=Bez FSAA;
+}
+[no limit]
+{
+	POLISH=Bez limitów;
+}
+[low]
+{
+	POLISH=niska;
+}
+[ultra high]
+{
+	POLISH=bardzo wysoka;
+}
+[extreme]
+{
+	POLISH=ekstremalna;
+}
+[Welcome]
+{
+	POLISH=Witaj;
+}
+[RESOURCES ERROR]
+{
+	POLISH=Gra nie może być uruchomiona. TA3D wymaga plików *.hpi/*.ufo/*.ccx\n do działania. \nZnajdziesz je na CD z Total Annihilation oraz w niektórych modach.;
+}
+[What do you want to do?]
+{
+	POLISH=Co chcesz zrobić?;
+}
+[Return to game]
+{
+	POLISH=Wróć;
+}
+[Leave game]
+{
+	POLISH=Wyjdź z gry;
+}
+[UNITTYPE_NAME]
+{
+    POLISH=POLISHname;
+}
+[UNITTYPE_DESCRIPTION]
+{
+    POLISH=POLISHdescription;
+}
+[en.ta3d.txt]
+{
+    POLISH=pl.ta3d.txt;
+}
+[none]
+{
+	POLISH=brak;
+}
+[help]
+{
+	POLISH=Pomoc;
+}
