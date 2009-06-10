@@ -44,13 +44,13 @@ namespace TA3D
                 int priority;
                 Archive *parent;
             public:
-                inline String getName()     {   return name;    }
-                inline int getPriority()    {   return priority;    }
-                inline void setPriority(int p)   {  priority = p;   }
-                inline Archive *getParent() {   return parent;  }
+                inline String getName()  const  {   return name;    }
+                inline int getPriority() const  {   return priority;    }
+                inline void setPriority(int p)  {  priority = p;   }
+                inline Archive *getParent() const {   return parent;  }
                 byte* read(uint32* file_length = NULL);
                 byte* readRange(const uint32 start, const uint32 length, uint32* file_length = NULL);
-                bool needsCaching();
+                bool needsCaching() const;
             };
         protected:
             String  name;
@@ -99,8 +99,8 @@ namespace TA3D
             typedef void (*ArchiveFinder)(String::List &fileList, const String &path);
             typedef Archive* (*ArchiveLoader)(const String &filename);
         private:
-            static std::list<ArchiveFinder> listArchiveFinder;
-            static std::list<ArchiveLoader> listArchiveLoader;
+            static std::list<ArchiveFinder> *listArchiveFinder;
+            static std::list<ArchiveLoader> *listArchiveLoader;
         public:
             static void registerArchiveFinder(ArchiveFinder finder);
             static void registerArchiveLoader(ArchiveLoader loader);
