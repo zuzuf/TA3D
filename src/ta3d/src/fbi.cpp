@@ -603,7 +603,7 @@ namespace TA3D
 		EnergyUse = parseInt("UNITINFO.EnergyUse");
 		BuildTime = parseInt("UNITINFO.BuildTime");
 		WorkerTime = parseIntDef("UNITINFO.WorkerTime",1);
-		Builder = parseBool("UNITINFO.Builder");
+        Builder = parseBool("UNITINFO.Builder") | parseBool("UNITINFO.canbuild");
 		ThreeD = parseBoolDef("UNITINFO.ThreeD",true);
 		SightDistance = parseIntDef("UNITINFO.SightDistance",100) >> 1;
 		RadarDistance = parseInt("UNITINFO.RadarDistance") >> 1;
