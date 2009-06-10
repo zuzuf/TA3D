@@ -148,11 +148,19 @@ SET(SRC_CONSOLE
 SET(SRC_OLDGUI  gui.cpp gui.h)
 
 #
+# VFS (HPI, archives)
+#
+SET(SRC_VFS
+		vfs/vfs.cpp vfs/vfs.h
+		vfs/archive.cpp vfs/archive.h
+		vfs/hpi.cpp vfs/hpi.h
+		vfs/realfs.cpp vfs/realfs.h)
+
+#
 # HPI
 #
 SET(SRC_HPI
-		TA3D_hpi.cpp TA3D_hpi.h
-		hpiview.cpp)
+		TA3D_hpi.cpp TA3D_hpi.h)
 
 
 
@@ -236,6 +244,7 @@ SET(TA3D_SOURCES
 		${SRC_ENGINE}
 		${SRC_INPUT}
 		${SRC_FILEFORMATS} ${SRC_HPI}
+		${SRC_VFS}
 		${SRC_NETWORK}
 		${SRC_AI}
 		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
@@ -246,7 +255,8 @@ SET(TA3D_SOURCES
 		intro.cpp intro.h
 		tdf.cpp tdf.h tnt.cpp tnt.h
 		TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h
-		main.cpp
+		hpiview.cpp
+		main.cpp sdl.h
 		)
 
 
