@@ -3650,7 +3650,12 @@ namespace TA3D
 										mission->target = Pos + data.pos[ buildinfo ];
 									}
 								}
-								if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintZ>>1),unit_manager.unit_type[mission->data]->FootprintX,unit_manager.unit_type[mission->data]->FootprintZ,-1)) // Check it we have an empty place to build our unit
+                                if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintX>>1),
+                                                    (((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintZ>>1),
+                                                    unit_manager.unit_type[mission->data]->FootprintX,
+                                                    unit_manager.unit_type[mission->data]->FootprintZ,
+                                                    -1)
+                                    || unit_manager.unit_type[mission->data]->yardmap.empty()) // Check it we have an empty place to build our unit or if the unit is "empty" on the map
 								{
 									pMutex.unlock();
 									mission->p = create_unit(mission->data,owner_id,mission->target,map);
