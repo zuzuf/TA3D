@@ -37,12 +37,6 @@ namespace TA3D
         class RealFS : public Archive
         {
         public:
-            class RealFile : public Archive::File
-            {
-            public:
-                FILE *pFile;
-            };
-        public:
             //! Constructor
             RealFS(const String &filename);
             //! Destructor
