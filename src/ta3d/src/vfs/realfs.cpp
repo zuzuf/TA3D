@@ -40,39 +40,54 @@ namespace TA3D
         void RealFS::close()
         {
             Archive::name.clear();
+            for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
+                delete i->second;
+            files.clear();
         }
 
         void RealFS::getFileList(std::list<File*> &lFiles)
         {
-            String::List dirs;
-            dirs.push_back(name);
-            String::List files;
-            while(!dirs.empty())
+            if (files.empty())
             {
-                String current = dirs.front() + Paths::Separator + "*";
-                dirs.pop_front();
+                String::List dirs;
+                dirs.push_back(name);
+                String::List fileList;
+                while(!dirs.empty())
+                {
+                    String current = dirs.front() + Paths::Separator + "*";
+                    dirs.pop_front();
 
-                Paths::GlobFiles(files, current, false, false);
+                    Paths::GlobFiles(fileList, current, false, false);
 
-                Paths::GlobDirs(dirs, current, false, false);
+                    Paths::GlobDirs(dirs, current, false, false);
+                }
+
+                for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
+                {
+                    RealFile *file = new RealFile;
+                    i->convertSlashesIntoBackslashes();
+                    file->setName(*i);
+                    file->setParent(this);
+                    files[*i] = file;
+                    lFiles.push_back(file);
+                }
             }
-
-            for(String::List::iterator i = files.begin() ; i != files.end() ; ++i)
+            else
             {
-                RealFile *file = new RealFile;
-                file->setName(*i);
-                file->setParent(this);
-                lFiles.push_back(file);
+                for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
+                    lFiles.push_back(i->second);
             }
         }
 
         byte* RealFS::readFile(const String& filename, uint32* file_length)
         {
-            FILE *file = fopen(filename.c_str(), "rb");
+            String unixFilename = filename;
+            unixFilename.convertBackslashesIntoSlashes();
+            FILE *file = fopen(unixFilename.c_str(), "rb");
             if (file == NULL)
                 return NULL;
             uint64 filesize(0);
-            if (!Paths::Files::Size(filename, filesize))
+            if (!Paths::Files::Size(unixFilename, filesize))
             {
                 fclose(file);
                 return NULL;
@@ -93,11 +108,13 @@ namespace TA3D
 
         byte* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length)
         {
-            FILE *file = fopen(filename.c_str(), "rb");
+            String unixFilename = filename;
+            unixFilename.convertBackslashesIntoSlashes();
+            FILE *file = fopen(unixFilename.c_str(), "rb");
             if (file == NULL)
                 return NULL;
             uint64 filesize(0);
-            if (!Paths::Files::Size(filename, filesize))
+            if (!Paths::Files::Size(unixFilename, filesize))
             {
                 fclose(file);
                 return NULL;
