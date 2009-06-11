@@ -39,6 +39,9 @@ namespace TA3D
         public:
             class HpiFile : public Archive::File
             {
+            public:
+                inline void setName(const String &name)   {  Archive::File::name = name; }
+                inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
             };
         public:
             //! Constructor

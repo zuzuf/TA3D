@@ -37,6 +37,13 @@ namespace TA3D
         class RealFS : public Archive
         {
         public:
+            class RealFile : public Archive::File
+            {
+            public:
+                inline void setName(const String &name)   {  Archive::File::name = name; }
+                inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
+            };
+        public:
             //! Constructor
             RealFS(const String &filename);
             //! Destructor

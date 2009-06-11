@@ -1,5 +1,7 @@
 #include "../misc/files.h"
+#include "../misc/paths.h"
 #include "../misc/math.h"
+#include "../misc/string.h"
 #include "realfs.h"
 #include <cstdio>
 
@@ -42,6 +44,26 @@ namespace TA3D
 
         void RealFS::getFileList(std::list<File*> &lFiles)
         {
+            String::List dirs;
+            dirs.push_back(name);
+            String::List files;
+            while(!dirs.empty())
+            {
+                String current = dirs.front() + Paths::Separator + "*";
+                dirs.pop_front();
+
+                Paths::GlobFiles(files, current, false, false);
+
+                Paths::GlobDirs(dirs, current, false, false);
+            }
+
+            for(String::List::iterator i = files.begin() ; i != files.end() ; ++i)
+            {
+                RealFile *file = new RealFile;
+                file->setName(*i);
+                file->setParent(this);
+                lFiles.push_back(file);
+            }
         }
 
         byte* RealFS::readFile(const String& filename, uint32* file_length)
@@ -56,7 +78,7 @@ namespace TA3D
                 return NULL;
             }
             if (file_length)
-                *file_length = filesize;
+                *file_length = (uint32)filesize;
             byte *data = new byte[filesize + 1];
             fread(data, filesize, 1, file);
             data[filesize] = 0;
@@ -81,7 +103,7 @@ namespace TA3D
                 return NULL;
             }
             if (file_length)
-                *file_length = filesize;
+                *file_length = (uint32)filesize;
             byte *data = new byte[filesize + 1];
             fseek(file, start, SEEK_SET);
             fread(data + start, Math::Min((uint32)(filesize - start), length), 1, file);
