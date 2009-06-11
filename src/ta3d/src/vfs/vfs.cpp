@@ -57,6 +57,16 @@ namespace TA3D
             if (archive)
             {
                 archives.push_back(archive);
+                std::list<Archive::File*> archiveFiles;
+                archive->getFileList(archiveFiles);
+                for(std::list<Archive::File*>::iterator i = archiveFiles.begin() ; i != archiveFiles.end() ; ++i)
+                {
+                    (*i)->setPriority((*i)->getPriority() + priority);      // Update file priority
+
+                    Archive::File *file = files->find((*i)->getName());
+                    if ((file && file->getPriority() < (*i)->getPriority()) || file == NULL)
+                        files->insertOrUpdate((*i)->getName(), *i);
+                }
             }
         }
 
@@ -169,7 +179,7 @@ namespace TA3D
                     uint64 FileSize;
                     Paths::Files::Size(cache_filename, FileSize);
                     if (filesize)
-                        *filesize = FileSize;
+                        *filesize = (uint32)FileSize;
 
                     byte *data = new byte[FileSize + 1];
                     fread(data, FileSize, 1, cache_file);
@@ -419,7 +429,7 @@ namespace TA3D
 
         char fgetc(TA3D_FILE *file)
         {
-            return (file) ? file->tgetc() : 0;
+            return (file) ? file->tgetc() : (char)0;
         }
 
 
