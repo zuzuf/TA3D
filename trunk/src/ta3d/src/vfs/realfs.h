@@ -25,6 +25,7 @@
 # define __TA3D_UTILS_VFS_REALFS_H__
 
 # include "archive.h"
+# include <map>
 
 namespace TA3D
 {
@@ -85,6 +86,9 @@ namespace TA3D
             ** \return
             */
             virtual bool needsCaching();
+
+        private:
+            std::map<String, File*> files;
 
         public:
             static void finder(String::List &fileList, const String &path);

@@ -25,6 +25,10 @@
 # define __TA3D_UTILS_VFS_HPI_H__
 
 # include "archive.h"
+# include <map>
+
+# define HEX_HAPI 0x49504148
+# define HPI_V1 0x00010000
 
 namespace TA3D
 {
@@ -36,9 +40,101 @@ namespace TA3D
         */
         class Hpi : public Archive
         {
+        private:
+# pragma pack(1) // Byte alignment.
+
+            /*! \class HPIVERSION
+        **
+        ** \brief
+        */
+            struct HPIVERSION
+            {
+                //!
+                sint32 HPIMarker; /* Must be HEX_HAPI */
+                //!
+                sint32 Version;   /* Must be HPI_V1 */
+            };
+
+            /*! \class HPIHEADER
+        **
+        ** \brief
+        */
+            struct HPIHEADER
+            {
+                //!
+                HPIHEADER() :DirectorySize(0), Key(0), Start(0) {}
+
+                //!
+                sint32 DirectorySize; /* Directory size */
+                //!
+                sint32 Key;           /* Decode key */
+                //!
+                sint32 Start;         /* Directory offset */
+
+            }; // class HPIHEADER
+
+
+            /*! \class HPIENTRY
+        **
+        ** \brief
+        */
+            struct HPIENTRY
+            {
+                //!
+                sint32 NameOffset;
+                //!
+                sint32 CountOffset;
+                //!
+                sint8 Flag;
+
+            }; // class HPIENTRY
+
+
+            /*! \class HPICHUNK
+        **
+        ** \brief
+        */
+            struct HPICHUNK
+            {
+                //! always 0x48535153 (SQSH)
+                sint32 Marker;
+                //! I have no idea what these mean
+                sint8  Unknown1;
+                //! 1 = lz77, 2 = zlib
+                sint8  CompMethod;
+                //! Is the chunk encrypted ?
+                sint8  Encrypt;
+                //! The length of the compressed data
+                sint32 CompressedSize;
+                //! The length of the decompressed data
+                sint32 DecompressedSize;
+                //! Checksum
+                sint32 Checksum;
+
+            }; // class HPICHUNK
+
+
+            /*!
+        ** \brief Used for strict-aliasing safety
+        */
+            union HPICHUNK_U
+            {
+                //!
+                HPICHUNK chunk;
+                //!
+                byte bytes[sizeof(HPICHUNK)];
+            };
+
+
+# pragma pack()
         public:
             class HpiFile : public Archive::File
             {
+            public:
+                //!
+                HPIENTRY  entry;
+                //!
+                uint64  size;
             public:
                 inline void setName(const String &name)   {  Archive::File::name = name; }
                 inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
@@ -89,6 +185,73 @@ namespace TA3D
         public:
             static void finder(String::List &fileList, const String &path);
             static Archive* loader(const String &filename);
+
+        private:
+            //!
+            String m_cDir;
+            //!
+            HPIHEADER header;
+            //!
+            sint8 key;
+            //!
+            sint8* directory;
+            //!
+            FILE* HPIFile;
+            //!
+            std::map<String, HpiFile*> files;
+        private:
+            /*!
+        ** \brief
+        **
+        ** \param hfd
+        ** \param startPath
+        ** \param offset
+        */
+            void processRoot(const String& startPath, const sint32 offset);
+
+            /*!
+        ** \brief
+        */
+            void processSubDir(HPIENTRY *base);
+
+            /*!
+        ** \brief
+        **
+        ** \param fpos
+        ** \param buff
+        ** \param buffsize
+        ** \return
+        */
+            sint32 readAndDecrypt(const sint32 fpos, byte *buff, sint32 buffsize);
+
+            /*!
+        ** \brief
+        **
+        ** \param[out] out
+        ** \param[in] in
+        ** \param Chunk
+        ** \return
+        */
+            sint32 ZLibDecompress(byte *out, byte *in, HPICHUNK *Chunk);
+
+            /*!
+        ** \brief
+        **
+        ** \param out
+        ** \param in
+        ** \return
+        */
+            sint32 LZ77Decompress(byte *out, byte *in);
+
+            /*!
+        ** \brief
+        **
+        ** \param out
+        ** \param in
+        ** \param Chunk
+        ** \return
+        */
+            sint32 decompress(byte *out, byte *in, HPICHUNK *Chunk);
         }; // class Hpi
     } // namespace utils
 } // namespace TA3D

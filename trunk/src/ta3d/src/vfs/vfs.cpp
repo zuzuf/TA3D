@@ -73,7 +73,7 @@ namespace TA3D
         // constructor:
         VFS::VFS() : fileCache(), archives()
         {
-            files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, true);
+            files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, false);
 
             m_Path = TA3D::Resources::GetPaths();
             if (!m_Path.empty())
@@ -88,8 +88,8 @@ namespace TA3D
         VFS::~VFS()
         {
             // Cleanup:
-            //   First delete the hash, the hash table will erase all values
-            // since we created it to manage values for us.
+            //   First delete the hash, we don't need to delete the File objects since they are completely
+            //   handled by the associated Archive classes
             if (files)
                 delete files;
             files = NULL;
