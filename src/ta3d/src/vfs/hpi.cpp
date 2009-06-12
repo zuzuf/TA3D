@@ -47,6 +47,14 @@ namespace TA3D
             close();
 
             Archive::name = filename;
+            String ext = Paths::ExtractFileExt(filename).toLower();
+            priority = 0;
+            if (ext == ".ccx")
+                priority = 1;
+            else if (ext == ".gp3")
+                priority = 2;
+            if (Paths::ExtractFileName(filename).toLower() == "ta3d.hpi")
+                priority = 3;
 
             HPIFile = fopen(filename.c_str(), "rb");
             if (!HPIFile)
@@ -428,6 +436,7 @@ namespace TA3D
                     String f(String::ToLower(m_cDir + (char *)Name));
                     li->setName(f);
                     li->setParent(this);
+                    li->setPriority(priority);
                     li->entry = *Entry;
                     li->size = *FileLength;
                     files[f] = li;
@@ -467,6 +476,7 @@ namespace TA3D
                     String f(String::ToLower(m_cDir + (char *)Name));
                     li->setName(f);
                     li->setParent(this);
+                    li->setPriority(priority);
                     li->entry = *Entry;
                     li->size = *FileLength;
                     files[f] = li;

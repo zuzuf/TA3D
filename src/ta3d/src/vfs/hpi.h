@@ -199,6 +199,8 @@ namespace TA3D
             FILE* HPIFile;
             //!
             std::map<String, HpiFile*> files;
+            //!
+            int priority;
         private:
             /*!
         ** \brief
