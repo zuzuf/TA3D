@@ -3654,8 +3654,7 @@ namespace TA3D
                                                     (((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintZ>>1),
                                                     unit_manager.unit_type[mission->data]->FootprintX,
                                                     unit_manager.unit_type[mission->data]->FootprintZ,
-                                                    -1)
-                                    || unit_manager.unit_type[mission->data]->yardmap.empty()) // Check it we have an empty place to build our unit or if the unit is "empty" on the map
+                                                    -1)) // Check it we have an empty place to build our unit
 								{
 									pMutex.unlock();
 									mission->p = create_unit(mission->data,owner_id,mission->target,map);

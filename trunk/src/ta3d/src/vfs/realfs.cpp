@@ -77,6 +77,7 @@ namespace TA3D
                     i->toLower();
                     file->setName(*i);
                     file->setParent(this);
+                    file->setPriority(0xFFFF);
                     files[*i] = file;
                     lFiles.push_back(file);
                 }
