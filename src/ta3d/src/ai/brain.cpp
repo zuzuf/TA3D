@@ -19,7 +19,7 @@
 #include "brain.h"
 #include "../misc/math.h"
 
-using namespace TA3D::UTILS::HPI;
+using namespace TA3D::UTILS;
 
 namespace TA3D
 {
@@ -194,38 +194,38 @@ namespace TA3D
 	{
 		char tmp[6];
 
-		ta3d_fread(tmp,5,file); // File format ID
-		tmp[5]=0;
+        fread(tmp, 5, file); // File format ID
+        tmp[5] = 0;
 		if (strcmp(tmp,"BRAIN") != 0)	// Check if it is what is expected
 			return 1;
 
 		destroy();		// clean the object
 
-		ta3d_fread(&n,sizeof(int),file);		// Inputs
-		ta3d_fread(&p,sizeof(int),file);		// Outputs
-		ta3d_fread(&q,sizeof(int),file);		// Size of middle layer
-		nb_neuron=p+q+n;
+        fread(&n, sizeof(int), file);		// Inputs
+        fread(&p, sizeof(int), file);		// Outputs
+        fread(&q, sizeof(int), file);		// Size of middle layer
+        nb_neuron = p + q + n;
 
 		neuron = new NEURON[nb_neuron];
 		n_out = new float[p];
 
-		for(int i=0;i<p; ++i)
-			n_out[i]=0.0f;
+        for(int i = 0 ; i < p ; ++i)
+            n_out[i] = 0.0f;
 
-		for(int i=0;i<n; ++i)
+        for(int i = 0 ; i < n ; ++i)
 			neuron[i].weight = NULL;
 
-		for(int i=n;i<nb_neuron; ++i)		// Read weights
+        for(int i = n ; i < nb_neuron ; ++i)		// Read weights
 		{
 			if (i<n+q)
 			{
 				neuron[i].weight = new float[n];
-				ta3d_fread(neuron[i].weight,sizeof(float)*n,file);
+                fread(neuron[i].weight,sizeof(float)*n,file);
 			}
 			else
 			{
 				neuron[i].weight = new float[q];
-				ta3d_fread(neuron[i].weight,sizeof(float)*q,file);
+                fread(neuron[i].weight,sizeof(float)*q,file);
 			}
 		}
 		return 0;

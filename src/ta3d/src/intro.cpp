@@ -54,7 +54,7 @@ namespace TA3D
 		if (init)
 		{
 			messages.clear();
-			if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name)) // Loads a skin
+            if (!lp_CONFIG->skin_name.empty() && VFS::instance()->fileExists(lp_CONFIG->skin_name)) // Loads a skin
 			{
 				Gui::Skin skin;
 				skin.loadTDFFromFile(lp_CONFIG->skin_name);

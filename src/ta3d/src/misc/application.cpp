@@ -79,8 +79,8 @@ namespace TA3D
 		// Load settings early only to get current mod name
 		TA3D::Settings::Load();
 
-		// Creating HPI Manager
-		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+        // Creating VFS Manager (useless, but doing it that way we know when it takes place)
+        VFS::instance();
 
 		// Creating translation manager
 		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);

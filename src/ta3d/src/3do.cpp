@@ -119,10 +119,10 @@ namespace TA3D
 		}
 
 		String::List file_list;
-		HPIManager->getFilelist("textures\\*.gaf", file_list);
+        VFS::instance()->getFilelist("textures\\*.gaf", file_list);
 		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
 		{
-			byte *data = HPIManager->PullFromHPI(*cur_file);
+            byte *data = VFS::instance()->readFile(*cur_file);
 			load_gaf(data, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");
 			delete[] data;
 		}
@@ -3031,7 +3031,7 @@ namespace TA3D
 			const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
 			String::List file_list;
-			sint32 new_nb_models = HPIManager->getFilelist(ta3dSideData.model_dir + "*.3dm", file_list);
+            sint32 new_nb_models = VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.3dm", file_list);
 
 			if (new_nb_models > 0)
 			{
@@ -3059,7 +3059,7 @@ namespace TA3D
 
 					if (get_model( name[i+nb_models].substr(0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
 					{
-						byte *data = HPIManager->PullFromHPI(*e);
+                        byte *data = VFS::instance()->readFile(*e);
 						if (data)
 						{
 							if (data[0] == 0)
@@ -3068,7 +3068,7 @@ namespace TA3D
 								real_name.trim();
 								delete[] data;
 								LOG_DEBUG("loading alternate : " << real_name);
-								data = HPIManager->PullFromHPI( real_name );
+                                data = VFS::instance()->readFile( real_name );
 							}
 							if (data)
 							{
@@ -3089,7 +3089,7 @@ namespace TA3D
 			}
 
 			file_list.clear();
-			new_nb_models = HPIManager->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
+            new_nb_models = VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
 
 			if (new_nb_models > 0)
 			{
@@ -3117,7 +3117,7 @@ namespace TA3D
 					if (get_model(name[i+nb_models].substr(0, e->size() - 4) ) == NULL) // Vérifie si le modèle n'est pas déjà chargé
 					{
 						uint32 data_size = 0;
-						byte *data = HPIManager->PullFromHPI(*e, &data_size);
+                        byte *data = VFS::instance()->readFile(*e, &data_size);
 						if (data)
 						{
 							if (data_size > 0 )						// If the file isn't empty

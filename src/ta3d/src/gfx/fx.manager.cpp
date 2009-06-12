@@ -64,7 +64,7 @@ namespace TA3D
         {
             byte *data;
             if (strcasecmp(filename.c_str(),"fx"))
-                data = HPIManager->PullFromHPI(tmp);
+                data = VFS::instance()->readFile(tmp);
             else
                 data = fx_data;
             if (data)

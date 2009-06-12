@@ -2,6 +2,7 @@
 #include "../misc/paths.h"
 #include "../misc/math.h"
 #include "../misc/string.h"
+#include "../logs/logs.h"
 #include "realfs.h"
 #include <cstdio>
 
@@ -19,7 +20,9 @@ namespace TA3D
 
         Archive* RealFS::loader(const String &filename)
         {
-            return new RealFS(filename);
+            if (!filename.empty() && (filename.last() == '/' || filename.last() == '\\'))
+                return new RealFS(filename);
+            return NULL;
         }
 
         RealFS::RealFS(const String &filename)
@@ -65,7 +68,13 @@ namespace TA3D
                 for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
                     RealFile *file = new RealFile;
+                    file->pathToFile = *i;      // Store full path here
+                    // make VFS path
+                    i->erase(0, name.size());
+                    while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
+                        i->erase(0, 1);
                     i->convertSlashesIntoBackslashes();
+                    i->toLower();
                     file->setName(*i);
                     file->setParent(this);
                     files[*i] = file;
@@ -81,29 +90,33 @@ namespace TA3D
 
         byte* RealFS::readFile(const String& filename, uint32* file_length)
         {
-            String unixFilename = filename;
+            std::map<String, File*>::iterator file = files.find(filename);
+            if (file != files.end())
+                return readFile(file->second, file_length);
+            else
+                return NULL;
+        }
+
+        byte* RealFS::readFile(const File *file, uint32* file_length)
+        {
+            String unixFilename = ((RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
-            FILE *file = fopen(unixFilename.c_str(), "rb");
-            if (file == NULL)
+            FILE *pFile = fopen(unixFilename.c_str(), "rb");
+            if (pFile == NULL)
                 return NULL;
             uint64 filesize(0);
             if (!Paths::Files::Size(unixFilename, filesize))
             {
-                fclose(file);
+                fclose(pFile);
                 return NULL;
             }
             if (file_length)
                 *file_length = (uint32)filesize;
             byte *data = new byte[filesize + 1];
-            fread(data, filesize, 1, file);
+            fread(data, filesize, 1, pFile);
             data[filesize] = 0;
-            fclose(file);
+            fclose(pFile);
             return data;
-        }
-
-        byte* RealFS::readFile(const File *file, uint32* file_length)
-        {
-            return readFile(file->getName(), file_length);
         }
 
         byte* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length)

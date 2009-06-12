@@ -18,7 +18,7 @@
 #ifndef __BRAIN_H__
 #define __BRAIN_H__
 
-#include "../TA3D_hpi.h"
+#include "../vfs/vfs.h"
 
 namespace TA3D
 {
@@ -55,7 +55,7 @@ namespace TA3D
 
         void save(FILE *file);		// Save the network
 
-        int load(TA3D::UTILS::HPI::TA3D_FILE *file);		// Load the network
+        int load(TA3D::UTILS::TA3D_FILE *file);		// Load the network
     };
 
     BRAIN *copy_brain(BRAIN *brain, BRAIN *dst = NULL);		// Make a copy

@@ -138,7 +138,7 @@ namespace Gui
 		scroll[2].load(skinFile, "skin.scroll.s.", scale);
 
 		String tex_file_name (skinFile.pullAsString("skin.window.image"));
-		if (HPIManager->Exists(tex_file_name))
+        if (VFS::instance()->fileExists(tex_file_name))
 			wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR, &bkg_w, &bkg_h, false );
 	}
 

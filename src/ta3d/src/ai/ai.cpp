@@ -165,7 +165,7 @@ namespace TA3D
     String::Vector AI_PLAYER::getAvailableAIs()
     {
         String::Vector l_AI;
-        TA3D::VARS::HPIManager->getFilelist("scripts/ai/*.lua", l_AI);
+        VFS::instance()->getFilelist("scripts/ai/*.lua", l_AI);
 
         for(String::Vector::iterator i = l_AI.begin() ; i != l_AI.end() ; ++i)
         {

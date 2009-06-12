@@ -87,7 +87,7 @@ namespace TA3D
 		if (SDLNet_Init() == -1)
 			throw ("SDLNet_Init() failed.");
 
-		if (!HPIManager->Exists("gamedata\\sidedata.tdf") || !HPIManager->Exists("gamedata\\allsound.tdf") || !HPIManager->Exists("gamedata\\sound.tdf"))
+        if (!VFS::instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::instance()->fileExists("gamedata\\allsound.tdf") || !VFS::instance()->fileExists("gamedata\\sound.tdf"))
 		{
 			showError("RESOURCES ERROR");
 			exit(1);
@@ -134,7 +134,6 @@ namespace TA3D
 		cursor.clear();
 		ta3dSideData.destroy();
 
-		delete HPIManager;
 		delete sound_manager;
 
 		delete gfx;

@@ -157,7 +157,7 @@ namespace TA3D
 	byte *loadLuaFile(const String &filename, uint32 &filesize)
 	{
 		filesize = 0;
-		byte *buffer = (byte*)HPIManager->PullFromHPI(filename , &filesize);
+        byte *buffer = (byte*)VFS::instance()->readFile(filename , &filesize);
 		if (buffer)
 		{
 			String path = Paths::ExtractFilePath(filename);
@@ -169,12 +169,12 @@ namespace TA3D
 				int i;
 				for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
 					name << f[ i + 10 ];
-				if (!HPIManager->Exists(path + name))
+                if (!VFS::instance()->fileExists(path + name))
 					name = "scripts/" + name;
 				else
 					name = path + name;
 				uint32 filesize2 = 0;
-				byte *buffer2 = (byte*)HPIManager->PullFromHPI(name, &filesize2);
+                byte *buffer2 = (byte*)VFS::instance()->readFile(name, &filesize2);
 				if (buffer2)
 				{
 					byte *buffer3 = new byte[ filesize + filesize2 ];
@@ -240,7 +240,6 @@ namespace TA3D
 			buffer[filesize2-1] = '\n';
 			filesize += filesize2 - 1;
 			delete[] header_buffer;
-			filesize--;     // Remove the trailing \0
 
 			name = filename;
 			if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))

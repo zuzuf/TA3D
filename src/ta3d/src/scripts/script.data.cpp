@@ -27,14 +27,14 @@ namespace TA3D
     {
         String tmp_cob = filename + ".cob";
         String tmp_lua = filename + ".lua";
-        if (TA3D::VARS::HPIManager->Exists(tmp_lua) && TA3D::VARS::HPIManager->Priority(tmp_lua) >= TA3D::VARS::HPIManager->Priority(tmp_cob))
+        if (VFS::instance()->fileExists(tmp_lua) && VFS::instance()->filePriority(tmp_lua) >= VFS::instance()->filePriority(tmp_cob))
         {
             ScriptData *script = new LuaChunk;
             script->load(tmp_lua);
             return script;
         }
 
-        if (TA3D::VARS::HPIManager->Exists(tmp_cob))
+        if (VFS::instance()->fileExists(tmp_cob))
         {
             ScriptData *script = new CobScript;
             script->load(tmp_cob);

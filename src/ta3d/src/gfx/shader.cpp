@@ -20,7 +20,7 @@
 #include "glfunc.h"
 #include "../logs/logs.h"
 #include "../misc/files.h"
-#include "../TA3D_hpi.h"
+#include "../vfs/vfs.h"
 
 
 
@@ -100,16 +100,11 @@ namespace TA3D
 
 			uint64 filesize;
 			char* buf = NULL;
-			if (HPIManager)
-			{
-				uint32 fs(0);
-				buf = (char*)HPIManager->PullFromHPI(filename, &fs);
-				filesize = fs;
-			}
-			else
-				buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
-			if (!buf)
-			{
+            uint32 fs(0);
+            buf = (char*)VFS::instance()->readFile(filename, &fs);
+            filesize = fs;
+            if (!buf)
+            {
 				LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
 				return 0;
 			}
@@ -149,15 +144,10 @@ namespace TA3D
 
 			uint64 filesize;
 			char* buf = NULL;
-			if (HPIManager)
-			{
-				uint32 fs(0);
-				buf = (char*)HPIManager->PullFromHPI(filename, &fs);
-				filesize = fs;
-			}
-			else
-				buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
-			if (!buf)
+            uint32 fs(0);
+            buf = (char*)VFS::instance()->readFile(filename, &fs);
+            filesize = fs;
+            if (!buf)
 			{
 				LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
 				return 0;

@@ -33,7 +33,7 @@
 # include "cError.h"
 # include "misc/vector.h"
 # include "misc/string.h"
-# include "TA3D_hpi.h"
+# include "vfs/vfs.h"
 # include "gfx/gfx.h"
 # include "network/network.h"
 # include "threads/thread.h"
@@ -208,7 +208,6 @@ namespace TA3D
 	{
 		extern SDL_Surface                      *screen;
 		extern TA3D::IInterfaceManager          *InterfaceManager;
-		extern TA3D::UTILS::HPI::cHPIHandler    *HPIManager;
 		extern TA3D::GFX* gfx;
 
 		extern SDL_Color                        *pal;

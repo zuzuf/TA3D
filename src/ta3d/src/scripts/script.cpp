@@ -1779,9 +1779,8 @@ namespace TA3D
 		m_File.flush();
 		m_File.close();
 
-		// Reset the HPI manager (because the VFS doesn't know what we have done)
-		delete HPIManager;
-		HPIManager = new UTILS::HPI::cHPIHandler();
+        // Reset the VFS manager (because the VFS doesn't know what we have done)
+        VFS::instance()->reload();
 	}
 
 } // namespace TA3D

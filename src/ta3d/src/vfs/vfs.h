@@ -72,6 +72,11 @@ namespace TA3D
             //@}
 
             /*!
+            ** \brief reload all archives
+            */
+            void reload();
+
+            /*!
             ** \brief
             ** \param path
             */
@@ -114,6 +119,16 @@ namespace TA3D
             int filePriority(const String& filename);
 
         private:
+            /*!
+            ** \brief load all archives
+            */
+            void load();
+
+            /*!
+            ** \brief unload all archives
+            */
+            void unload();
+
             /*!
             ** \brief
             **

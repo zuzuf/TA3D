@@ -666,7 +666,7 @@ namespace Audio
 		stopSoundFileNow();
 
 		uint32 sound_file_size = 0;
-		byte *data = HPIManager->PullFromHPI(filename, &sound_file_size);
+        byte *data = VFS::instance()->readFile(filename, &sound_file_size);
 		if (data)
 		{
 			pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem(data, sound_file_size), 1);
@@ -727,7 +727,7 @@ namespace Audio
 		String theSound;
 		uint32 Length;
 		theSound << "sounds\\" << filename << ".wav";
-		byte* data = HPIManager->PullFromHPI(theSound, &Length);
+        byte* data = VFS::instance()->readFile(theSound, &Length);
 		if (!data) // if no data, log a message and return false.
 		{
 	//		LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");

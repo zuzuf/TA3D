@@ -1,6 +1,7 @@
 #include "hpi.h"
 #include "../misc/paths.h"
 #include <zlib.h>
+#include "../logs/logs.h"
 
 namespace TA3D
 {
@@ -12,7 +13,7 @@ namespace TA3D
         void Hpi::finder(String::List &fileList, const String &path)
         {
             String::List files;
-            Paths::GlobFiles(files, path + Paths::Separator + "*", false, true);
+            Paths::GlobFiles(files, path + Paths::Separator + "*", false, false);
             for(String::List::iterator i = files.begin() ; i != files.end() ; ++i)
             {
                 String ext = Paths::ExtractFileExt(*i).toLower();
@@ -23,7 +24,10 @@ namespace TA3D
 
         Archive* Hpi::loader(const String &filename)
         {
-            return new Hpi(filename);
+            String ext = Paths::ExtractFileExt(filename).toLower();
+            if (ext == ".hpi" || ext == ".gp3" || ext == ".ccx" || ext == ".ufo")
+                return new Hpi(filename);
+            return NULL;
         }
 
         Hpi::Hpi(const String &filename)
@@ -48,7 +52,7 @@ namespace TA3D
             if (!HPIFile)
             {
                 close();
-                //      GlobalDebugger-> Failed to open hpi file for reading.
+                LOG_DEBUG(LOG_PREFIX_VFS << "failed to open hpi file for reading : '" << filename << "'");
                 return;
             }
 
@@ -58,6 +62,7 @@ namespace TA3D
             if (hv.Version != HPI_V1 || hv.HPIMarker != HEX_HAPI)
             {
                 close();
+                LOG_DEBUG(LOG_PREFIX_VFS << "failed to load hpi file '" << filename << "' : wrong format or file corrupt");
                 return;
             }
 
@@ -420,12 +425,12 @@ namespace TA3D
                 else
                 {
                     HpiFile *li = new HpiFile;
-                    li->setName(String((char*)Name));
+                    String f(String::ToLower(m_cDir + (char *)Name));
+                    li->setName(f);
                     li->setParent(this);
                     li->entry = *Entry;
-                    String f(String::ToLower(m_cDir + (char *)Name));
                     li->size = *FileLength;
-                    files[m_cDir + li->getName()] = li;
+                    files[f] = li;
                 }
                 ++Entry;
             }
@@ -459,12 +464,12 @@ namespace TA3D
                 else
                 {
                     HpiFile *li = new HpiFile;
-                    li->setName(String((char*)Name));
+                    String f(String::ToLower(m_cDir + (char *)Name));
+                    li->setName(f);
                     li->setParent(this);
                     li->entry = *Entry;
-                    String f(String::ToLower(m_cDir + (char *)Name));
                     li->size = *FileLength;
-                    files[m_cDir + li->getName()] = li;
+                    files[f] = li;
                 }
                 ++Entry;
             }

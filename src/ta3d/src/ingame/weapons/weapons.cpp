@@ -36,7 +36,7 @@ namespace TA3D
     void load_weapons(void (*progress)(float percent,const String &msg))				// Charge toutes les armes
     {
         String::List file_list;
-        HPIManager->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
+        VFS::instance()->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
 
         int n = 0;
 
@@ -47,7 +47,7 @@ namespace TA3D
             ++n;
 
             uint32 file_size(0);
-            byte *data=HPIManager->PullFromHPI(cur_file->c_str(),&file_size);
+            byte *data = VFS::instance()->readFile(cur_file->c_str(),&file_size);
             if (data)
             {
                 weapon_manager.load_tdf((char*)data,file_size);
@@ -55,7 +55,7 @@ namespace TA3D
             }
         }
 
-        fx_manager.fx_data = HPIManager->PullFromHPI("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
+        fx_manager.fx_data = VFS::instance()->readFile("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
         if (fx_manager.fx_data)
         {
             weapon_manager.cannonshell.loadGAFFromRawData(fx_manager.fx_data, Gaf::RawDataGetEntryIndex(fx_manager.fx_data, "cannonshell"));

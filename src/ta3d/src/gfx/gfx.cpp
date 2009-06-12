@@ -261,7 +261,7 @@ namespace TA3D
 		TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
 
 		LOG_DEBUG("Loading TA's palette...");
-		bool palette = TA3D::UTILS::HPI::load_palette(pal);
+		bool palette = TA3D::UTILS::load_palette(pal);
 		if (!palette)
 			LOG_WARNING("Failed to load the palette");
 
@@ -1289,55 +1289,41 @@ namespace TA3D
 	// FIXME: ugly thing, we shouldn't need an extra temporary file, image should be loaded directly from memory
 	SDL_Surface *GFX::load_image(const String filename)
 	{
-		if (HPIManager)
-		{
-			uint32 image_file_size;
-			byte *data = HPIManager->PullFromHPI( filename, &image_file_size );
-			if (data)
-			{
-				SDL_RWops *file = SDL_RWFromMem( data, image_file_size);
-				SDL_Surface *img = NULL;
-				if (Paths::ExtractFileExt(filename).toLower() == ".tga")
-					img = IMG_LoadTGA_RW(file);
-				else
-					img = IMG_Load_RW( file, 0);
-				SDL_RWclose( file );
+        uint32 image_file_size;
+        byte *data = VFS::instance()->readFile( filename, &image_file_size );
+        if (data)
+        {
+            SDL_RWops *file = SDL_RWFromMem( data, image_file_size);
+            SDL_Surface *img = NULL;
+            if (Paths::ExtractFileExt(filename).toLower() == ".tga")
+                img = IMG_LoadTGA_RW(file);
+            else
+                img = IMG_Load_RW( file, 0);
+            SDL_RWclose( file );
 
-				delete[] data;
+            delete[] data;
 
-				if (img)
-				{
-					if (img->format->BitsPerPixel == 32)
-						img = convert_format(img);
-					else
-						img = convert_format_24(img);
-				}
-				else
-					LOG_ERROR(LOG_PREFIX_GFX << "could not load image file: " << filename << " (vfs)");
-				return img;
-			}
-			else
-				LOG_ERROR(LOG_PREFIX_GFX << "could not read image file: " << filename << " (vfs)");
-			return NULL;
-		}
-		SDL_Surface *img = IMG_Load(filename.c_str());
-		if (img)
-		{
-			if (img->format->BitsPerPixel == 32)
-				img = convert_format(img);
-			else
-				img = convert_format_24(img);
-		}
-		else
-			LOG_ERROR(LOG_PREFIX_GFX << "could not load image file: " << filename);
-		return img;
+            if (img)
+            {
+                if (img->format->BitsPerPixel == 32)
+                    img = convert_format(img);
+                else
+                    img = convert_format_24(img);
+            }
+            else
+                LOG_ERROR(LOG_PREFIX_GFX << "could not load image file: " << filename << " (vfs)");
+            return img;
+        }
+        else
+            LOG_ERROR(LOG_PREFIX_GFX << "could not read image file: " << filename << " (vfs)");
+        return NULL;
 	}
 
 
 	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
 	{
-		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
-			return 0;
+        if (!VFS::instance()->fileExists(file)) // The file doesn't exist
+            return 0;
 
 		SDL_Surface* bmp = load_image(file);
 		if (bmp == NULL)
@@ -1380,7 +1366,7 @@ namespace TA3D
 
 	GLuint	GFX::load_texture_mask(const String& file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
-		if (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
+        if (!VFS::instance()->fileExists(file)) // The file doesn't exist
 			return 0;
 
 		SDL_Surface *bmp = load_image(file);
@@ -1611,8 +1597,8 @@ namespace TA3D
 
 	GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
 	{
-		if ( (!Paths::Exists(file) && (HPIManager == NULL || !HPIManager->Exists(file)))
-			 || (!Paths::Exists(mask) && (HPIManager == NULL || !HPIManager->Exists(mask))))
+        if ( (!VFS::instance()->fileExists(file))
+             || (!VFS::instance()->fileExists(mask)))
 			return 0;		// The file doesn't exist
 
 		SDL_Surface *bmp = load_image(file);

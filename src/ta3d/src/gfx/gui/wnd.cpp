@@ -1391,7 +1391,7 @@ namespace Gui
 			if (background == 0)
 			{
 				String::List file_list;
-				HPIManager->getFilelist("anims\\*.gaf", file_list);
+                VFS::instance()->getFilelist("anims\\*.gaf", file_list);
 				for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
 				{
 					LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
@@ -1464,7 +1464,7 @@ namespace Gui
 					if (!gaf_imgs.size())
 					{
 						String::List file_list;
-						HPIManager->getFilelist("anims\\*.gaf", file_list);
+                        VFS::instance()->getFilelist("anims\\*.gaf", file_list);
 						for (String::List::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
 						{
 							LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
@@ -1611,7 +1611,7 @@ namespace Gui
 			show_title = wndFile.pullAsBool("window.show title");
 			delete_gltex = false;
 			String backgroundImage = wndFile.pullAsString("window.background");
-			if (HPIManager->Exists(backgroundImage))
+            if (VFS::instance()->fileExists(backgroundImage))
 			{
 				background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
 				delete_gltex = true;

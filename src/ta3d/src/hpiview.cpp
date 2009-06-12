@@ -35,7 +35,6 @@
 
 
 using namespace TA3D;
-using namespace TA3D::UTILS::HPI;
 
 # ifdef TA3D_PLATFORM_WINDOWS
 #   define PREFIX "  /"
@@ -83,14 +82,12 @@ static bool hpiviewCmdShow(String::Vector &args)
 {
 	if( args.size() >= 1 )
 	{
-		HPIManager = new cHPIHandler();
 		String::List file_list;
 		String ext = args[0];
-		HPIManager->getFilelist(ext, file_list);
+        VFS::instance()->getFilelist(ext, file_list);
 		file_list.sort();
 		for (String::List::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
 			std::cout << *cur_file << std::endl;
-		delete HPIManager;
 
 		args.erase(args.begin());
 		return true;
@@ -107,9 +104,8 @@ static bool hpiviewCmdMiniMap(String::Vector &args)
 {
 	if(args.size() >= 2)
 	{
-		HPIManager = new cHPIHandler();
 		TA3D::VARS::pal = new SDL_Color[256];
-		TA3D::UTILS::HPI::load_palette(pal);
+        TA3D::UTILS::load_palette(pal);
 
 		SDL_Surface* minimap = load_tnt_minimap_fast_bmp( args[0] );
 		if(minimap)
@@ -119,7 +115,6 @@ static bool hpiviewCmdMiniMap(String::Vector &args)
 		}
 
 		delete[] TA3D::VARS::pal;
-		delete HPIManager;
 
 		args.erase(args.begin());
 		args.erase(args.begin());
@@ -138,7 +133,6 @@ static bool hpiviewCmdMapDescription(String::Vector &args)
 {
 	if(args.size() >= 2)
 	{
-		HPIManager = new cHPIHandler();
 		MAP_OTA map_data;
 		map_data.load( args[0] );
 		std::ofstream   m_File;
@@ -166,7 +160,6 @@ static bool hpiviewCmdMapDescription(String::Vector &args)
 			m_File << "}\n";
 			m_File.close();
 		}
-		delete HPIManager;
 		args.erase(args.begin());
 		args.erase(args.begin());
 		return true;
@@ -183,7 +176,6 @@ static bool hpiviewCmdListMods(String::Vector &args)
 {
 	if(args.size() >= 1)
 	{
-		HPIManager = new cHPIHandler();
 		std::ofstream m_File;
 		m_File.open( args[0].c_str(), std::ios::out | std::ios::trunc );
 
@@ -201,7 +193,6 @@ static bool hpiviewCmdListMods(String::Vector &args)
 			}
 			m_File.close();
 		}
-		delete HPIManager;
 		args.erase(args.begin());
 		return true;
 	}
@@ -218,9 +209,8 @@ static bool hpiviewCmdExtract(String::Vector &args)
 {
 	if(args.size() >= 1)
 	{
-		HPIManager = new cHPIHandler();
 		uint32 file_size32 = 0;
-		byte *data = HPIManager->PullFromHPI(args[0], &file_size32);
+        byte *data = VFS::instance()->readFile(args[0], &file_size32);
 
 		if(data)
 		{
@@ -230,7 +220,6 @@ static bool hpiviewCmdExtract(String::Vector &args)
 			fclose(dst);
 			delete[] data;
 		}
-		delete HPIManager;
 		args.erase(args.begin());
 		return true;
 	}
@@ -246,23 +235,23 @@ static bool hpiviewCmdPrint(String::Vector &args)
 {
 	if(args.size() >= 1)
 	{
-		HPIManager = new cHPIHandler();
 		String::List file_list;
 		String ext = args[0];
-		HPIManager->getFilelist(ext, file_list);
+        VFS::instance()->getFilelist(ext, file_list);
 		file_list.sort();
 
 		for (String::List::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
 		{
 			uint32 file_size32 = 0;
-			byte* data = HPIManager->PullFromHPI( *cur_file, &file_size32 );
+            byte* data = VFS::instance()->readFile(*cur_file, &file_size32);
 			if(data)
 			{
 				std::cout << (const char*)data << std::endl;
 				delete[] data;
 			}
+            else
+                LOG_ERROR("could not open file '" << *cur_file << "'");
 		}
-		delete HPIManager;
 		args.erase(args.begin());
 		return true;
 	}
@@ -295,15 +284,14 @@ static bool hpiviewCmdExtractGAF(String::Vector &args)
 {
 	if(args.size() >= 1)
 	{
-		HPIManager = new cHPIHandler();
 		uint32 file_size32 = 0;
-		byte *data = HPIManager->PullFromHPI(args[0],&file_size32);
+        byte *data = VFS::instance()->readFile(args[0],&file_size32);
 
 		if(data)
 		{
 			SDL_SetVideoMode(320, 200, 32, 0);
 			TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
-			TA3D::UTILS::HPI::load_palette(pal);
+            TA3D::UTILS::load_palette(pal);
 
 			Gaf::AnimationList anims;
 			anims.loadGAFFromRawData(data);
@@ -339,7 +327,6 @@ static bool hpiviewCmdExtractGAF(String::Vector &args)
 			delete[] data;
 			delete[] TA3D::VARS::pal;
 		}
-		delete HPIManager;
 		args.erase(args.begin());
 		return true;
 	}
@@ -362,8 +349,6 @@ static bool hpiviewCmdCreateGAF(String::Vector &args)
 		FILE *gaf_file = TA3D_OpenFile( Paths::ExtractFileName( filename ), "wb" );
 
         LOG_DEBUG("opening '" << filename << "'");
-        TA3D::UTILS::HPI::cHPIHandler *oldHPIManager = HPIManager;
-        HPIManager = NULL;
 
         disable_TA_palette();
 
@@ -467,7 +452,6 @@ static bool hpiviewCmdCreateGAF(String::Vector &args)
 		else
 			std::cerr << "Error: Could not create file!" << std::endl;
         enable_TA_palette();
-        HPIManager = oldHPIManager;
         args.erase(args.begin());
     }
 	else

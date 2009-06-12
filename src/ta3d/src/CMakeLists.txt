@@ -156,13 +156,6 @@ SET(SRC_VFS
 		vfs/hpi.cpp vfs/hpi.h
 		vfs/realfs.cpp vfs/realfs.h)
 
-#
-# HPI
-#
-SET(SRC_HPI
-		TA3D_hpi.cpp TA3D_hpi.h)
-
-
 
 SET(SRC_ENGINE
 		UnitEngine.cpp UnitEngine.h
@@ -243,7 +236,7 @@ SET(TA3D_SOURCES
 		${SRC_SCRIPTS}
 		${SRC_ENGINE}
 		${SRC_INPUT}
-		${SRC_FILEFORMATS} ${SRC_HPI}
+		${SRC_FILEFORMATS}
 		${SRC_VFS}
 		${SRC_NETWORK}
 		${SRC_AI}
