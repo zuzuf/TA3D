@@ -288,7 +288,7 @@ namespace Menus
 		otaMap += ".ota";
 		uint32 otaSize(0);
 		MAP_OTA mapOTA;
-		if (byte* data = HPIManager->PullFromHPI(otaMap, &otaSize))
+        if (byte* data = VFS::instance()->readFile(otaMap, &otaSize))
 		{
 			LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "loading OTA data");
 			mapOTA.load((char*)data, otaSize);
@@ -343,7 +343,7 @@ namespace Menus
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "MapIsForNetworkGame(" << mapShortName << ")");
 		uint32 ota_size = 10240;
-		byte* data = HPIManager->PullFromHPI_zone(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
+        byte* data = VFS::instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
 		ota_size = Math::Min( (int)ota_size, 10240 );
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "ota data extracted");
 		if (data)
@@ -370,7 +370,7 @@ namespace Menus
 
 		// Load all available maps, without any distinction
 		ListOfMaps allMaps;
-		if (HPIManager->getFilelist("maps\\*.tnt", allMaps) > 0)
+        if (VFS::instance()->getFilelist("maps\\*.tnt", allMaps) > 0)
 		{
 			LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "checking found maps");
 			for (ListOfMaps::const_iterator it = allMaps.begin(); it != allMaps.end(); ++it)

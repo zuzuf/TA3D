@@ -46,7 +46,7 @@ namespace TA3D
         nuclogo.init();
         if (real)
         {
-            byte *data = HPIManager->PullFromHPI("anims\\fx.gaf");
+            byte *data = VFS::instance()->readFile("anims\\fx.gaf");
             if (data)
             {
                 nuclogo.loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, "nuclogo"));

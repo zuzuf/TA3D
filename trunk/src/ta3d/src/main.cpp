@@ -71,10 +71,9 @@ namespace TA3D
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
-			delete HPIManager;
 			TA3D_clear_cache();		// Clear the cache
 
-			HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+            VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();
@@ -101,10 +100,9 @@ namespace TA3D
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
-			delete HPIManager;
 			TA3D_clear_cache();		// Clear the cache
 
-			HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+            VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();

@@ -189,30 +189,18 @@ namespace TA3D
 		String file_path;
 		String::List file_list;
 		String comp_name = String::ToLower(name + ".ttf");
-		if (HPIManager)
-			HPIManager->getFilelist(path + "/*", file_list);
-		else
-			Paths::GlobFiles(file_list, path + "/*", true, true);
+        VFS::instance()->getFilelist(path + "/*", file_list);
 		for (String::List::iterator i = file_list.begin() ; i != file_list.end() && file_path.empty() ; ++i)
 		{
 			if (String::ToLower( Paths::ExtractFileName(*i) ) == comp_name)
-				file_path = HPIManager == NULL ? path + "/" + *i : *i;
+                file_path = *i;
 		}
 
-		if (file_path.empty() && !HPIManager)
-		{
-			String::List dir_list;
-			Paths::GlobDirs(dir_list, path + "/*", true, true);
-			for(String::List::iterator i = dir_list.begin() ; i != dir_list.end() && file_path.empty() ; ++i)
-				if (!i->empty() && i->at(0) == '.')
-					file_path = find_font(path + "/" + *i, name);
-		}
-
-		if (HPIManager && !file_path.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
-		{                                           // in order to load it with FTGL
+        if (!file_path.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
+        {                             // in order to load it with FTGL
 			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << file_path);
 			uint32 font_size = 0;
-			byte *data = HPIManager->PullFromHPI(file_path, &font_size);
+            byte *data = VFS::instance()->readFile(file_path, &font_size);
 			if (data)
 			{
 				LOG_DEBUG(LOG_PREFIX_FONT << "creating temporary file for " << name);
@@ -305,16 +293,12 @@ namespace TA3D
 	Font* FontManager::internalRegisterFont(const String& key, const String& filename, const int size,
 		const Font::Type type)
 	{
-		String foundFilename = (HPIManager)
-				? find_font(TA3D_FONT_PATH, filename)
-				: find_font(SYSTEM_FONT_PATH, filename);
+        String foundFilename = find_font(TA3D_FONT_PATH, filename);
 
 		if (foundFilename.empty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << filename);
-			foundFilename = (HPIManager)
-					? find_font(TA3D_FONT_PATH, "FreeSerif")
-					: find_font(SYSTEM_FONT_PATH, "FreeSerif");
+            foundFilename = find_font(TA3D_FONT_PATH, "FreeSerif");
 		}
 
 		Font *font = new Font();

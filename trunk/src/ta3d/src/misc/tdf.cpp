@@ -97,10 +97,10 @@ namespace TA3D
 	{
 		uint64 size;
 		char* data;
-		if (TA3D::VARS::HPIManager && !realFS)
+        if (!realFS)
 		{
 			uint32 ms;
-			data = (char*)TA3D::VARS::HPIManager->PullFromHPI(filename, &ms);
+            data = (char*)VFS::instance()->readFile(filename, &ms);
 			size = ms;
 			if (NULL != data && size != 0)
 			{

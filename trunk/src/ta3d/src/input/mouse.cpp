@@ -190,7 +190,7 @@ namespace TA3D
 		SDL_ShowCursor(SDL_DISABLE);
 
 		// Loading and creating cursors
-		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
+        byte *data = VFS::instance()->readFile("anims\\cursors.gaf");	// Load cursors
 		if (data)
 		{
 			cursor.loadGAFFromRawData(data, true);

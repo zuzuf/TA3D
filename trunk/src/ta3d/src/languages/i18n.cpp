@@ -232,7 +232,7 @@ namespace TA3D
 	bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
 	{
 		String res;
-		if (!TA3D::VARS::HPIManager->Exists(filename))
+        if (!VFS::instance()->fileExists(filename))
 		{
 			LOG_WARNING(LOG_PREFIX_I18N << "Impossible to load translations from `"
 						<< filename << "` (file not found)");

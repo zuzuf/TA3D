@@ -211,7 +211,7 @@ namespace Menus
 		ta3dSideData.loadData();
 
 		// Reloading and creating cursors
-		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
+        byte *data = VFS::instance()->readFile("anims\\cursors.gaf");	// Load cursors
 		cursor.loadGAFFromRawData(data, true);
 		cursor.convert();
 

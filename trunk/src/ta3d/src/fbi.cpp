@@ -136,7 +136,7 @@ namespace TA3D
 				{
 					String name(gui_parser.pullAsString(String::Format("gadget%d.common.name", i)));
 
-					byte *gaf_file = HPIManager->PullFromHPI(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
+                    byte *gaf_file = VFS::instance()->readFile(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
 					if (gaf_file)
 					{
 						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -168,7 +168,7 @@ namespace TA3D
 					int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
 					String name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
 
-					byte* gaf_file = HPIManager->PullFromHPI( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
+                    byte* gaf_file = VFS::instance()->readFile( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
 					if (gaf_file)
 					{
 						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -244,11 +244,11 @@ namespace TA3D
 	{
 		uint32 file_size=0;
 		String::List file_list;
-		HPIManager->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
+        VFS::instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
 		for (String::List::const_iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
-			byte* data = HPIManager->PullFromHPI(*file, &file_size);		// Lit le fichier
+            byte* data = VFS::instance()->readFile(*file, &file_size);		// Lit le fichier
 			if (data)
 			{
 				analyse2((char*)data,file_size);
@@ -283,7 +283,7 @@ namespace TA3D
 		gather_build_data();			// Read additionnal build data
 
 		String::List file_list;
-		HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
+        VFS::instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
 		for (String::List::iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
@@ -1041,7 +1041,7 @@ namespace TA3D
 		if (panel_tex == 0)
 		{
 			String::List file_list;
-			HPIManager->getFilelist( "anims\\*.gaf", file_list);
+            VFS::instance()->getFilelist( "anims\\*.gaf", file_list);
 			for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
 				panel_tex = Gaf::ToTexture(*i, gaf_img, &w, &h, true);
 		}
@@ -1202,7 +1202,7 @@ namespace TA3D
 		unit_manager.init();
 		int nb_inconnu=0;
 		String::List file_list;
-		HPIManager->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
+        VFS::instance()->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
 
 		int n = 0;
 

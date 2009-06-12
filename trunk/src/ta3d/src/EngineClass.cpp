@@ -804,7 +804,7 @@ namespace TA3D
 	void MAP_OTA::load(const String& filename)
 	{
 		uint32 ota_file_size = 0;
-		byte *data = HPIManager->PullFromHPI(filename, &ota_file_size);
+        byte *data = VFS::instance()->readFile(filename, &ota_file_size);
 		if (data)
 		{
 			load((char*)data, ota_file_size);
@@ -2425,7 +2425,7 @@ namespace TA3D
 		sky_list.clear();
 
 		String::List file_list;
-		HPIManager->getFilelist("sky\\*.tdf", file_list);
+        VFS::instance()->getFilelist("sky\\*.tdf", file_list);
 		uint32	nb_sky = 0;
 
 		for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)

@@ -20,7 +20,7 @@
 
 #include "gaf.h"				// read pictures/animations from GAF files
 #include "gui.h"				// Graphical User Interface
-#include "TA3D_hpi.h"			// HPI handler
+#include "vfs/vfs.h"			// Virtual FileSystem handler
 #include "ingame/gamedata.h"
 
 
@@ -33,8 +33,6 @@ namespace TA3D
     namespace VARS
     {
         extern SDL_Color *pal;
-
-        extern UTILS::HPI::cHPIHandler *HPIManager;
     }
 
 	using namespace TA3D::VARS;

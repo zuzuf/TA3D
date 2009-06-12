@@ -3332,7 +3332,7 @@ namespace TA3D
 			case brDefeat:
 			case brUnknown: break;
 			case brVictory:
-							if (pGameData->campaign && !map->ota_data.glamour.empty() && HPIManager->Exists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
+                            if (pGameData->campaign && !map->ota_data.glamour.empty() && VFS::instance()->fileExists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
 							{
 								// Disable TA palette since those images have their own palette :)
 								disable_TA_palette();

@@ -100,9 +100,8 @@ namespace TA3D
 			delete g_ta3d_network;
 			g_ta3d_network = NULL;
 		}
-		// Reset the HPI manager
-		delete HPIManager;
-		HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
+        // Reset the VFS manager
+        VFS::instance()->reload();
 
 		gfx->set_2D_mode();
 		gfx->ReInitTexSys();
@@ -409,7 +408,7 @@ namespace TA3D
 			if (String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
 			{
 				int e(1);
-				while (HPIManager->Exists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e)))
+                while (VFS::instance()->fileExists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e)))
 				{
 					pArea.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e));			// Load the build interface
 					pArea.msg( unit_manager.unit_type[i]->Unitname + String::Format("%d.hide", e));	// Hide it
@@ -437,7 +436,7 @@ namespace TA3D
 		loading(600.0f / 7.0f, I18N::Translate("Loading the map"));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 
-		byte* map_file = HPIManager->PullFromHPI(pGameData->map_filename);
+        byte* map_file = VFS::instance()->readFile(pGameData->map_filename);
 		if (!map_file)
 			return false;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "`" << pGameData->map_filename << "` extracted");
@@ -458,7 +457,7 @@ namespace TA3D
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 		uint32 ota_size(0);
-		map_file = HPIManager->PullFromHPI(pGameData->map_filename, &ota_size);
+        map_file = VFS::instance()->readFile(pGameData->map_filename, &ota_size);
 		if (map_file)
 		{
 			LOG_INFO(LOG_PREFIX_BATTLE << "Loading map informations...");

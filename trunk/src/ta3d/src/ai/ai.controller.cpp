@@ -600,24 +600,22 @@ namespace TA3D
 
 	void AI_CONTROLLER::loadAI(const String& filename, const int id)
 	{
-		using namespace TA3D::UTILS::HPI;
-
 		TA3D_FILE* file = ta3d_fopen(filename);
 
 		// Length of the name
 		byte l;
-		ta3d_fread(&l,1,file);
+        fread(&l,1,file);
 
 		// Reading the name
 		char* n = new char[l+1];
-		n[l]=0;
-		ta3d_fread(n, l, file);
+        n[l] = 0;
+        fread(n, l, file);
 		name = n;
 		delete[] n;
 
 		decide.load(file);
 		anticipate.load(file);
-		ta3d_fclose(file);
+        fclose(file);
 		playerID = id;
 	}
 

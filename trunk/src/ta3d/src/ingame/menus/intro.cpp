@@ -114,7 +114,7 @@ namespace Menus
 		for (unsigned int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
 			pContent.push_back("");
 		// Load all text files
-        UTILS::HPI::TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);
+        TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);
 		pContentSize = pContent.size();
 		if (pContentSize == TA3D_INTRO_MAX_LINES)
 		{
@@ -127,7 +127,7 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name))
+        if (!lp_CONFIG->skin_name.empty() && VFS::instance()->fileExists(lp_CONFIG->skin_name))
 		{
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);

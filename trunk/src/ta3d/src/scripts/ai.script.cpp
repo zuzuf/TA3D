@@ -26,8 +26,6 @@
 #include <map>
 #include <utility>
 
-using namespace TA3D::UTILS::HPI;
-
 namespace TA3D
 {
 
@@ -90,16 +88,16 @@ namespace TA3D
 
 		// Length of the name
 		byte l;
-		ta3d_fread(&l,1,file);
+        fread(&l, 1, file);
 
 		// Reading the name
 		char* n = new char[l+1];
 		n[l]=0;
-		ta3d_fread(n, l, file);
+        fread(n, l, file);
 		name = n;
 		delete[] n;
 
-		ta3d_fclose(file);
+        fclose(file);
 		playerID = id;
 
 		register_info();

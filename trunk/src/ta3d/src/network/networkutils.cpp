@@ -248,8 +248,6 @@ namespace TA3D
     //NEED TESTING
     void SendFileThread::proc(void* param)
     {
-        using namespace TA3D::UTILS::HPI;
-
         Network* network;
         int sockid;
 
@@ -276,7 +274,7 @@ namespace TA3D
             return;
         }
 
-        length = ta3d_fsize(file);
+        length = fsize(file);
 
         int timer = msec_timer;
 
@@ -290,7 +288,7 @@ namespace TA3D
         LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
         while (!pDead)
         {
-            n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);            // Read data into the buffer
+            n = fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);            // Read data into the buffer
             uLongf compressed_size = FILE_TRANSFER_BUFFER_SIZE * 2 + 12;
             int res = compress2(compressed_buffer, &compressed_size, buffer, n, 9);   // Compress the data
             switch(res)
@@ -326,12 +324,12 @@ namespace TA3D
                     pDead = 1;
                     network->updateFileTransferInformation(filename + String::Format("%d", sockid), 0, 0);
                     network->setFileDirty();
-                    ta3d_fclose(file);
+                    fclose(file);
                     return;
                 }
             }
 
-            if (ta3d_feof(file))
+            if (feof(file))
                 break;
 
             rest(1);
@@ -345,7 +343,7 @@ namespace TA3D
 
         network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
         pDead = 1;
-        ta3d_fclose( file );
+        fclose( file );
         network->setFileDirty();
         delete[] buffer;
         delete[] compressed_buffer;

@@ -17,15 +17,11 @@
 
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
-#include "../TA3D_hpi.h"
 #include "TA3D_Network.h"
 #include "../misc/math.h"
 #include "../logs/logs.h"
 #include <fstream>
 #include "http.h"
-
-using namespace TA3D::UTILS::HPI;
-
 
 
 namespace TA3D

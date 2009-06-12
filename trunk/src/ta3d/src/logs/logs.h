@@ -75,6 +75,8 @@
 # define LOG_PREFIX_SHADER            "[shader] "
 # define LOG_PREFIX_FONT              "[font] "
 
+# define LOG_PREFIX_VFS               "[VFS] "
+
 # define LOG_PREFIX_I18N              "[i18n] "
 # define LOG_PREFIX_SYSTEM            "[system] "
 # define LOG_PREFIX_PATHS             "[paths] "

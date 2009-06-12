@@ -68,6 +68,8 @@ namespace TA3D
                         files->insertOrUpdate((*i)->getName(), *i);
                 }
             }
+            else
+                LOG_ERROR(LOG_PREFIX_VFS << "could not load archive '" << filename << "'");
         }
 
 
@@ -81,21 +83,17 @@ namespace TA3D
 
 
         // constructor:
-        VFS::VFS() : fileCache(), archives()
+        VFS::VFS() : fileCache(), archives(), files(NULL), m_Path()
         {
-            files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, false);
-
-            m_Path = TA3D::Resources::GetPaths();
-            if (!m_Path.empty())
-            {
-                for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
-                    locateAndReadArchives(*i, 0);
-            }
-            else
-                locateAndReadArchives("", 0);
+            load();
         }
 
         VFS::~VFS()
+        {
+            unload();
+        }
+
+        void VFS::unload()
         {
             // Cleanup:
             //   First delete the hash, we don't need to delete the File objects since they are completely
@@ -112,6 +110,33 @@ namespace TA3D
             for(std::list<Archive*>::iterator i = archives.begin() ; i != archives.end() ; ++i)
                 delete *i;
             archives.clear();
+        }
+
+        void VFS::load()
+        {
+            if (files)
+                unload();
+
+            files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, false);
+
+            m_Path = TA3D::Resources::GetPaths();
+            if (m_Path.empty())
+                m_Path.push_back("");
+            for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
+                locateAndReadArchives(*i, 0);
+            if (!TA3D_CURRENT_MOD.empty())
+            {
+                for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
+                {
+                    locateAndReadArchives(*i + TA3D_CURRENT_MOD, 0x10000);
+                }
+            }
+        }
+
+        void VFS::reload()
+        {
+            unload();
+            load();
         }
 
         void VFS::putInCache(const String& filename, const uint32 filesize, const byte* data)

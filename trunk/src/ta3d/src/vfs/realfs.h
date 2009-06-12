@@ -41,6 +41,8 @@ namespace TA3D
             class RealFile : public Archive::File
             {
             public:
+                String pathToFile;
+            public:
                 inline void setName(const String &name)   {  Archive::File::name = name; }
                 inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
             };

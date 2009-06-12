@@ -26,10 +26,8 @@ namespace TA3D
 
 void install_TA_files( String HPI_file, String filename )
 {
-	HPIManager = new TA3D::UTILS::HPI::cHPIHandler(HPI_file);
-
 	uint32 file_size32 = 0;
-	byte *data = HPIManager->PullFromHPI( filename, &file_size32);			// Extract the file
+    byte *data = VFS::instance()->readFile( filename, &file_size32);			// Extract the file
 	if (data)
 	{
 		FILE *dst = TA3D_OpenFile(Paths::Resources + Paths::ExtractFileName(filename), "wb");
@@ -43,8 +41,6 @@ void install_TA_files( String HPI_file, String filename )
 		}
 		delete[] data;
 	}
-
-	delete HPIManager;
 }
 
 } // namespace TA3D

@@ -82,7 +82,7 @@ namespace TA3D
         destroy();				// Au cas où
 
         uint32 cob_size(0);
-        byte *data = TA3D::VARS::HPIManager->PullFromHPI(filename, &cob_size);
+        byte *data = VFS::instance()->readFile(filename, &cob_size);
 
         if (data == NULL)
             return;
