@@ -69,12 +69,13 @@ namespace TA3D
 
                 for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
+                    i->erase(0, root.size() + 1);   // Remove root path + path separator since we don't need them in VFS name and we can add them when accessing the files
+                    while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
+                        i->erase(0, 1);
+
                     RealFile *file = new RealFile;
                     file->pathToFile = *i;      // Store full path here
                     // make VFS path
-                    i->erase(0, root.size() + 1);   // Remove root path + path separator
-                    while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
-                        i->erase(0, 1);
                     i->convertSlashesIntoBackslashes();
                     i->toLower();
                     if (i->find(".svn") != String::npos || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
@@ -111,6 +112,12 @@ namespace TA3D
         {
             String unixFilename = ((const RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
+
+            String root = name;
+            root.removeTrailingSlash();
+
+            unixFilename = root + Paths::SeparatorAsString + unixFilename;
+
             FILE *pFile = fopen(unixFilename.c_str(), "rb");
             if (pFile == NULL)
                 return NULL;
@@ -131,30 +138,40 @@ namespace TA3D
 
         byte* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length)
         {
-            String unixFilename = filename;
+            std::map<String, File*>::iterator file = files.find(filename);
+            if (file != files.end())
+                return readFileRange(file->second, start, length, file_length);
+            else
+                return NULL;
+        }
+
+        byte* RealFS::readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length)
+        {
+            String unixFilename = ((const RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
-            FILE *file = fopen(unixFilename.c_str(), "rb");
-            if (file == NULL)
+
+            String root = name;
+            root.removeTrailingSlash();
+
+            unixFilename = root + Paths::SeparatorAsString + unixFilename;
+
+            FILE *pFile = fopen(unixFilename.c_str(), "rb");
+            if (pFile == NULL)
                 return NULL;
             uint64 filesize(0);
             if (!Paths::Files::Size(unixFilename, filesize))
             {
-                fclose(file);
+                fclose(pFile);
                 return NULL;
             }
             if (file_length)
                 *file_length = (uint32)filesize;
             byte *data = new byte[filesize + 1];
-            fseek(file, start, SEEK_SET);
-            fread(data + start, Math::Min((uint32)(filesize - start), length), 1, file);
+            fseek(pFile, start, SEEK_SET);
+            fread(data + start, Math::Min((uint32)(filesize - start), length), 1, pFile);
             data[filesize] = 0;
-            fclose(file);
+            fclose(pFile);
             return data;
-        }
-
-        byte* RealFS::readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length)
-        {
-            return readFileRange(file->getName(), start, length, file_length);
         }
 
         bool RealFS::needsCaching()

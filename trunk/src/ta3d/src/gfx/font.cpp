@@ -262,7 +262,7 @@ namespace TA3D
 				default:
 					font = new FTTextureFont(filename.c_str());
 			}
-		}
+        }
 		if (font)
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "'" << filename << "' loaded");

@@ -63,7 +63,7 @@ namespace Menus
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
 		pCurrentFontHeight = Gui::gui_font->height();
 
-		reloadContent();
+        reloadContent();
 		loadBackgroundTexture();
 
 		gfx->set_2D_mode();
