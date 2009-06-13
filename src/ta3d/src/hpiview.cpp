@@ -412,6 +412,7 @@ static bool hpiviewCmdCreateGAF(String::Vector &args)
                     SDL_Surface *frame_img = IMG_Load( parser.pullAsString( String::Format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
                     if (frame_img)
 					{
+                        frame_img = convert_format(frame_img);
 						FrameData.Width = frame_img->w;
 						FrameData.Height = frame_img->h;
 						bool alpha = false;
