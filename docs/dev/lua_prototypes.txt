@@ -92,6 +92,7 @@ wait_for_move(obj_id, axis_id)
 wait_for_turn(obj_id, axis_id)
 
 // AI scripting prototypes
+add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )		// Like add_build_mission except it looks for a place to build the unit around given coordinates (at a maximum distance of radius in blocs - C API uses radius = 50)
 add_attack_mission( unit_id, target_id )
 add_build_mission( unit_id, pos_x, pos_z, unit_type )
 add_guard_mission( unit_id, target_id )
@@ -100,7 +101,20 @@ add_patrol_mission( unit_id, pos_x, pos_z )
 add_wait_mission( unit_id, time )
 allied( id0, id1 )
 attack( attacker_id, target_id )
+get_area_units (nx, ny, sx, sy, Type, playerID)		// Type can be a normal unit type, or -1 for all, or Builder for builders only, or CanAttack for units which can attack
 get_build_list( type )                      // returns the list of units units of type `type` can build
+get_max_unit_number()
+get_path_length_for_unit_type( start_x, start_z, end_x, end_z, unit_id, max_dist ) // returns path length if any, -1 if none was found
+get_player_resources (playerID)				// Returns nil if playerID is incorrect or a table with the following fields set:
+											//  energy
+											//  energy_produced
+											//  energy_used
+											//  energy_storage
+											//  metal
+											//  metal_produced
+											//  metal_used
+											//  metal_storage
+get_type_data( type )                       // returns information about unit type:
                                             //  canattack
                                             //  canmove
                                             //  canfly
@@ -123,8 +137,8 @@ get_build_list( type )                      // returns the list of units units o
                                             //  energystorage
                                             //  metalstorage
                                             //  name
-get_max_unit_number()
-get_type_data( type )                       // returns information about unit type:
+                                            //  buildtime
+                                           	//  workertime
 get_unit_data                               // get_unit_data( index )
 get_unit_health( unit_id )
 get_unit_list                               // get_unit_list( player_id )
