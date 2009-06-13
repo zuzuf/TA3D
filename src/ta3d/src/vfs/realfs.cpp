@@ -32,7 +32,7 @@ namespace TA3D
 
         RealFS::~RealFS()
         {
-            // Nothing to do
+            close();
         }
 
         void RealFS::open(const String& filename)
@@ -52,8 +52,10 @@ namespace TA3D
         {
             if (files.empty())
             {
+                String root = name;
+                root.removeTrailingSlash();
                 String::List dirs;
-                dirs.push_back(name);
+                dirs.push_back(root);
                 String::List fileList;
                 while(!dirs.empty())
                 {
@@ -67,22 +69,29 @@ namespace TA3D
 
                 for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
-                    if (i->find(".svn") != String::npos)        // Don't include SVN folders (they are huge and useless to us here)
-                        continue;
                     RealFile *file = new RealFile;
                     file->pathToFile = *i;      // Store full path here
                     // make VFS path
-                    i->erase(0, name.size());
+                    i->erase(0, root.size() + 1);   // Remove root path + path separator
                     while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
                         i->erase(0, 1);
                     i->convertSlashesIntoBackslashes();
                     i->toLower();
+                    if (i->find(".svn") != String::npos || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
+                    {
+                        delete file;
+                        continue;
+                    }
                     file->setName(*i);
                     file->setParent(this);
                     file->setPriority(0xFFFF);
-                    if (files[*i])          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
-                        delete files[*i];
-                    files[*i] = file;
+                    std::map<String, File*>::iterator it = files.find(*i);
+                    if (it != files.end())          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
+                    {
+                        delete it->second;
+                        files.erase(it);
+                    }
+                    files.insert( std::pair<String, File*>(*i, file) );
                 }
             }
             for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
