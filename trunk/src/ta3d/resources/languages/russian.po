@@ -117,19 +117,19 @@
 }
 [Current skin]
 {
-    RUSSIAN=текущее оформление;
+    RUSSIAN=Текущее оформление;
 }
 [Use texture compression]
 {
-    RUSSIAN=использовать сжатие текстур;
+    RUSSIAN=Использовать сжатие текстур;
 }
 [Low definition map]
 {
-    RUSSIAN=использовать карты низкого качества;
+    RUSSIAN=Снижать качество карты;
 }
 [Render sky]
 {
-    RUSSIAN=отрисовывать небо;
+    RUSSIAN=Отрисовка неба;
 }
 [Loading maps, please wait ...]
 {
@@ -427,7 +427,7 @@
 }
 [cancel]
 {
-	RUSSIAN=отмена;
+	RUSSIAN=Отмена;
 }
 [Loading textures]
 {
@@ -455,7 +455,7 @@
 }
 [Free unused memory]
 {
-	RUSSIAN=освобождение неиспользуемой памяти;
+	RUSSIAN=Освобождение неиспользуемой памяти;
 }
 [Loading the map]
 {
@@ -611,11 +611,11 @@
 }
 [show fps]
 {
-	RUSSIAN=отображение числа кадров в секунду.;
+	RUSSIAN=Отображение числа кадров в секунду;
 }
 [fps limit]
 {
-	RUSSIAN=ограничение числа кадров в секунду.;
+	RUSSIAN=Ограничение числа кадров в секунду;
 }
 [wireframe]
 {
@@ -623,11 +623,11 @@
 }
 [particles]
 {
-	RUSSIAN=частицы;
+	RUSSIAN=Частицы;
 }
 [waves]
 {
-	RUSSIAN=волны;
+	RUSSIAN=Волны;
 }
 [shadows]
 {
@@ -635,43 +635,43 @@
 }
 [height line]
 {
-	RUSSIAN=линия высоты;
+	RUSSIAN=Линия высоты;
 }
 [detail texture]
 {
-	RUSSIAN=детализированные текстуры;
+	RUSSIAN=Детализированные текстуры;
 }
 [draw console while loading]
 {
-	RUSSIAN=отображать консоль в процессе загрузки;
+	RUSSIAN=Показывать консоль в процессе загрузки;
 }
 [full screen]
 {
-	RUSSIAN=полный экран;
+	RUSSIAN=Полный экран;
 }
 [language]
 {
-	RUSSIAN=язык;
+	RUSSIAN=Язык;
 }
 [screen]
 {
-	RUSSIAN=экран;
+	RUSSIAN=Разрешение;
 }
 [shadow quality]
 {
-	RUSSIAN=качество теней;
+	RUSSIAN=Качество теней;
 }
 [game speed]
 {
-	RUSSIAN=скорость игры;
+	RUSSIAN=Скорость игры;
 }
 [antialiasing]
 {
-	RUSSIAN=полноэкранное сглаживание;
+	RUSSIAN=Полноэкранное сглаживание;
 }
 [water quality]
 {
-	RUSSIAN=качество воды;
+	RUSSIAN=Качество воды;
 }
 [normal]
 {
@@ -691,7 +691,7 @@
 }
 [no limit]
 {
-	RUSSIAN=без ограничения;
+	RUSSIAN=не ограничено;
 }
 [low]
 {
