@@ -483,7 +483,7 @@ namespace TA3D
 	bool Battle::initTheSky()
 	{
 		// The sky
-		pSkyData.reset(choose_a_sky(pGameData->map_filename, map->ota_data.planet));
+        pSkyData.reset(choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), String::ToLower(map->ota_data.planet)));
 		if (pSkyData.get() == NULL)
 		{
 			pSkyData.reset(new SKY_DATA());
