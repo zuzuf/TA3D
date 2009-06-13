@@ -27,7 +27,15 @@ namespace TA3D
 void install_TA_files( String HPI_file, String filename )
 {
 	uint32 file_size32 = 0;
-    byte *data = VFS::instance()->readFile( filename, &file_size32);			// Extract the file
+    Archive *archive = Archive::load(HPI_file);
+    if (archive == NULL)
+    {
+        LOG_ERROR("archive not found : '" << HPI_file << "'");
+        return;
+    }
+    std::list<Archive::File*> lFiles;
+    archive->getFileList(lFiles);
+    byte *data = archive->readFile( filename, &file_size32);			// Extract the file
 	if (data)
 	{
 		FILE *dst = TA3D_OpenFile(Paths::Resources + Paths::ExtractFileName(filename), "wb");
@@ -41,6 +49,7 @@ void install_TA_files( String HPI_file, String filename )
 		}
 		delete[] data;
 	}
+    delete archive;
 }
 
 } // namespace TA3D
