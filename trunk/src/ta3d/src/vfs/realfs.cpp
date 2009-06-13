@@ -67,6 +67,8 @@ namespace TA3D
 
                 for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
+                    if (i->find(".svn") != String::npos)        // Don't include SVN folders (they are huge and useless to us here)
+                        continue;
                     RealFile *file = new RealFile;
                     file->pathToFile = *i;      // Store full path here
                     // make VFS path
@@ -78,15 +80,13 @@ namespace TA3D
                     file->setName(*i);
                     file->setParent(this);
                     file->setPriority(0xFFFF);
+                    if (files[*i])          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
+                        delete files[*i];
                     files[*i] = file;
-                    lFiles.push_back(file);
                 }
             }
-            else
-            {
-                for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
-                    lFiles.push_back(i->second);
-            }
+            for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
+                lFiles.push_back(i->second);
         }
 
         byte* RealFS::readFile(const String& filename, uint32* file_length)
@@ -100,7 +100,7 @@ namespace TA3D
 
         byte* RealFS::readFile(const File *file, uint32* file_length)
         {
-            String unixFilename = ((RealFile*)file)->pathToFile;
+            String unixFilename = ((const RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
             FILE *pFile = fopen(unixFilename.c_str(), "rb");
             if (pFile == NULL)
