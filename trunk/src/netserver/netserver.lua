@@ -45,7 +45,7 @@ function copyFile(src, dst)
     file_dst:close()
 end
 
-SERVER_VERSION = "TA3D netserver 0.0.1"
+SERVER_VERSION = "TA3D netserver 0.0.2"
 
 STATE_CONNECTING = 0
 STATE_CONNECTED = 1
@@ -204,7 +204,7 @@ function registerClient(client, password)
         return false
     end
     
-    cur = netserver_db:execute("INSERT INTO clients(`login`, `password`) VALUES('" .. fixSQL(client.login) .. "','" .. fixSQL(password) .. "')")
+    cur = netserver_db:execute("INSERT INTO clients(`login`, `password`,`ID`,`admin`,`banned`) VALUES('" .. fixSQL(client.login) .. "','" .. fixSQL(password) .. "',NULL,'0','0')")
     if cur == nil or cur == 0 then
         return false
     end
