@@ -4201,66 +4201,66 @@ namespace TA3D
 			if (queue.empty())
 				return;
 
-			int i = 0;
+            Vector3D *p = P;
+            uint32 *c = C;
 			for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
 			{
-				P[i].x = e->pos.x - e->size_x;
-				P[i].y = e->pos.y;
-				P[i].z = e->pos.z - e->size_z;
-				C[i] = e->col;
-				++i;
+                p->x = e->pos.x - e->size_x;
+                p->y = e->pos.y;
+                p->z = e->pos.z - e->size_z;
+                *c++ = e->col;
+                ++p;
 
-				P[i].x = e->pos.x + e->size_x;
-				P[i].y = e->pos.y;
-				P[i].z = e->pos.z - e->size_z;
-				C[i] = e->col;
-				++i;
+                p->x = e->pos.x + e->size_x;
+                p->y = e->pos.y;
+                p->z = e->pos.z - e->size_z;
+                *c++ = e->col;
+                ++p;
 
-				P[i].x = e->pos.x + e->size_x;
-				P[i].y = e->pos.y;
-				P[i].z = e->pos.z + e->size_z;
-				C[i] = e->col;
-				++i;
+                p->x = e->pos.x + e->size_x;
+                p->y = e->pos.y;
+                p->z = e->pos.z + e->size_z;
+                *c++ = e->col;
+                ++p;
 
-				P[i].x = e->pos.x - e->size_x;
-				P[i].y = e->pos.y;
-				P[i].z = e->pos.z + e->size_z;
-				C[i] = e->col;
-				++i;
+                p->x = e->pos.x - e->size_x;
+                p->y = e->pos.y;
+                p->z = e->pos.z + e->size_z;
+                *c++ = e->col;
+                ++p;
 			}
 			glBindTexture( GL_TEXTURE_2D, texture_id );
 			glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
 
 			if (lp_CONFIG->underwater_bright && INSTANCING::water)
 			{
-				i = 0;
-				for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+                p = P;
+                int i = 0;
+                for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
 				{
 					if (e->pos.y >= INSTANCING::sealvl) continue;
-					P[i].x = e->pos.x - e->size_x;
-					P[i].y = e->pos.y;
-					P[i].z = e->pos.z - e->size_z;
-					C[i] = 0x7F7F7F7F;
-					++i;
+                    p->x = e->pos.x - e->size_x;
+                    p->y = e->pos.y;
+                    p->z = e->pos.z - e->size_z;
+                    ++p;
 
-					P[i].x = e->pos.x + e->size_x;
-					P[i].y = e->pos.y;
-					P[i].z = e->pos.z - e->size_z;
-					C[i] = 0x7F7F7F7F;
-					++i;
+                    p->x = e->pos.x + e->size_x;
+                    p->y = e->pos.y;
+                    p->z = e->pos.z - e->size_z;
+                    ++p;
 
-					P[i].x = e->pos.x + e->size_x;
-					P[i].y = e->pos.y;
-					P[i].z = e->pos.z + e->size_z;
-					C[i] = 0x7F7F7F7F;
-					++i;
+                    p->x = e->pos.x + e->size_x;
+                    p->y = e->pos.y;
+                    p->z = e->pos.z + e->size_z;
+                    ++p;
 
-					P[i].x = e->pos.x - e->size_x;
-					P[i].y = e->pos.y;
-					P[i].z = e->pos.z + e->size_z;
-					C[i] = 0x7F7F7F7F;
-					++i;
+                    p->x = e->pos.x - e->size_x;
+                    p->y = e->pos.y;
+                    p->z = e->pos.z + e->size_z;
+                    ++p;
+                    ++i;
 				}
+                memset(C, 0x7F, i * 16);
 
 				if (i > 0)
 				{
@@ -4268,7 +4268,7 @@ namespace TA3D
 					glDisable( GL_TEXTURE_2D );
 					glBlendFunc( GL_ONE, GL_ONE );
 					glDepthFunc( GL_EQUAL );
-					glDrawArrays(GL_QUADS, 0, i);		// draw those quads
+                    glDrawArrays(GL_QUADS, 0, i << 2);		// draw those quads
 					glDepthFunc( GL_LESS );
 					glEnable( GL_TEXTURE_2D );
 					glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

@@ -614,7 +614,7 @@ namespace TA3D
                         Pos.x += pFeature->anim.ofs_x[feature[i].frame] * 0.5f - dw;
                         Pos.z += pFeature->anim.ofs_y[feature[i].frame] * 0.5f - h;
 
-						quad_table.queue_quad( pFeature->anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF ) );
+                        quad_table.queue_quad( pFeature->anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0xFF7F7F7F : 0xFFFFFFFF ) );
 					}
 				}
 			}
@@ -625,7 +625,7 @@ namespace TA3D
 					if (!pFeature->model->animated && !feature[i].sinking)
 					{
 						DrawingTable.queue_Instance( pFeature->model->id,
-													 Instance(feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF,
+                                                     Instance(feature[i].Pos, feature[i].grey ? 0xFF7F7F7F : 0xFFFFFFFF,
 															  feature[i].angle)  );
 					}
 					else
