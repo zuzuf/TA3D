@@ -263,15 +263,13 @@ namespace TA3D
 	{
 		bool res(false);
 		String::Vector list;
-		if (Resources::Glob(list, "languages" + Paths::SeparatorAsString + "*.po"))
-		{
-			for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-			{
-				if (loadFromFile("languages" + Paths::SeparatorAsString + Paths::ExtractFileName(*i), false))
-					res = true;
-			}
-		}
-		return res;
+                VFS::instance()->getFilelist("languages" + Paths::SeparatorAsString + "*.po", list);
+                for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+                {
+                    if (loadFromFile("languages" + Paths::SeparatorAsString + Paths::ExtractFileName(*i), false))
+                        res = true;
+                }
+                return res;
 	}
 
 	void I18N::doClearLanguages()

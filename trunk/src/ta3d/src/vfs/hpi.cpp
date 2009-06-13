@@ -439,7 +439,7 @@ namespace TA3D
                     li->setPriority(priority);
                     li->entry = *Entry;
                     li->size = *FileLength;
-                    files[f] = li;
+                    files.insert( std::pair<String, HpiFile*>(f, li) );
                 }
                 ++Entry;
             }
@@ -479,7 +479,7 @@ namespace TA3D
                     li->setPriority(priority);
                     li->entry = *Entry;
                     li->size = *FileLength;
-                    files[f] = li;
+                    files.insert( std::pair<String, HpiFile*>(f, li) );
                 }
                 ++Entry;
             }
