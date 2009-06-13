@@ -2714,10 +2714,10 @@ namespace TA3D
 			GameData game_data;
 
 			// Generate the script which will be removed later
-			TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts//game");
-			TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts/game/__campaign_script.lua", ota_parser, schema);
+            TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game");
+            TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game" + Paths::SeparatorAsString + "__campaign_script.lua", ota_parser, schema);
 
-			game_data.game_script = "scripts/game/__campaign_script.lua";
+            game_data.game_script = "scripts/game/__campaign_script.lua";
 			game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";     // Remember the last map we played
 			game_data.fog_of_war = FOW_ALL;
 

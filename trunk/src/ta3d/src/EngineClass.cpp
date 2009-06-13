@@ -2463,8 +2463,9 @@ namespace TA3D
 				delete sky_data;
 		}
 
-		if (nb_sky == 0 )// Look for a default sky
+        if (nb_sky == 0)    // Look for a default sky
 		{
+            LOG_DEBUG(LOG_PREFIX_GFX << "no sky associated with this map('" << mapname << "') or this planet('" << planet << "') found, looking for default skies");
 			for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
 			{
 				SKY_DATA *sky_data = new SKY_DATA;
