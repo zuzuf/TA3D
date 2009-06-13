@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "$1" != "ta3d" ] && [ "$1" != "" ];
 then
