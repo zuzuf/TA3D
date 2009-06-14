@@ -97,13 +97,16 @@ namespace TA3D
 		// Network
 		if (g_ta3d_network)
 		{
-			delete g_ta3d_network;
+            LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for network object...");
+            delete g_ta3d_network;
 			g_ta3d_network = NULL;
 		}
         // Reset the VFS manager
+        LOG_DEBUG(LOG_PREFIX_BATTLE << "Reloading VFS manager...");
         VFS::instance()->reload();
 
-		gfx->set_2D_mode();
+        LOG_DEBUG(LOG_PREFIX_BATTLE << "Reinitializing 2D menus environment...");
+        gfx->set_2D_mode();
 		gfx->ReInitTexSys();
 		LOG_INFO(LOG_PREFIX_BATTLE << "Done.");
 	}
