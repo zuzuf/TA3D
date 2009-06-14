@@ -1732,13 +1732,7 @@ namespace TA3D
 
 		if (ota_parser.pullAsInt( "GlobalHeader.DestroyAllUnits" ) == 1 )
 		{
-			m_File << "	annihilated = 0\n";
-			m_File << "	for i = 1, nb_players() do\n";
-			m_File << "		if annihilated( i ) then\n";
-			m_File << "			annihilated = annihilated + 1\n";
-			m_File << "		end\n";
-			m_File << "	end\n";
-			m_File << "	if annihilated == nb_players() - 1 and not DestroyAllUnits then\n";
+            m_File << "	if annihilated( 1 ) and not DestroyAllUnits then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 			m_File << "		DestroyAllUnits = true\n";
 			m_File << "	end\n\n";
