@@ -95,21 +95,26 @@ namespace TA3D
 
         void VFS::unload()
         {
+            LOG_DEBUG(LOG_PREFIX_VFS << "unloading VFS");
             // Cleanup:
             //   First delete the hash, we don't need to delete the File objects since they are completely
             //   handled by the associated Archive classes
+            LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS file hashtable");
             if (files)
                 delete files;
             files = NULL;
 
+            LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS cache");
             for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != fileCache.end() ; ++i)
                 delete i->data;
             fileCache.clear();
 
             // Now close and free archives.
+            LOG_DEBUG(LOG_PREFIX_VFS << "closing and freeing archives");
             for(std::list<Archive*>::iterator i = archives.begin() ; i != archives.end() ; ++i)
                 delete *i;
             archives.clear();
+            LOG_DEBUG(LOG_PREFIX_VFS << "VFS unloaded");
         }
 
         void VFS::load()
@@ -117,6 +122,7 @@ namespace TA3D
             if (files)
                 unload();
 
+            LOG_DEBUG(LOG_PREFIX_VFS << "loading VFS");
             files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, false);
 
             m_Path = TA3D::Resources::GetPaths();
@@ -131,6 +137,7 @@ namespace TA3D
                     locateAndReadArchives(*i + TA3D_CURRENT_MOD, 0x10000);
                 }
             }
+            LOG_DEBUG(LOG_PREFIX_VFS << "VFS loaded");
         }
 
         void VFS::reload()
