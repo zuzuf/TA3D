@@ -1233,6 +1233,7 @@ namespace TA3D
 				}
 
 				bool old_mode = gfx->getShadowMapMode();
+                glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
 
 				if (build_percent_left == 0.0f)
 				{
