@@ -287,7 +287,7 @@ namespace TA3D
 
 		for (String::List::iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
-			char *f = NULL;
+                        const char *f = NULL;
 			for (int i = 0; i < nb_unit; ++i)
 			{
 				String fileUp = String::ToUpper(*file);

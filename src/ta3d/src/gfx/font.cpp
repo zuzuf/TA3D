@@ -98,8 +98,9 @@ namespace TA3D
 		glPushMatrix();
 		glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
 # ifndef TA3D_PLATFORM_DARWIN
-		WString wstr(text);
-		font->Render(wstr.cw_str());
+//		WString wstr(text);
+//		font->Render(wstr.cw_str());
+                font->Render(text.c_str());
 # else
 		font->Render(text.c_str());
 # endif
@@ -137,8 +138,9 @@ namespace TA3D
 #else
 		float x0, y0, z0, x1, y1, z1;
 # ifndef TA3D_PLATFORM_DARWIN
-		WString wstr(txt);
-		font->BBox(wstr.cw_str(), x0, y0, z0, x1, y1, z1);
+//		WString wstr(txt);
+//		font->BBox(wstr.cw_str(), x0, y0, z0, x1, y1, z1);
+                font->BBox(txt.c_str(), x0, y0, z0, x1, y1, z1);
 # else
 		font->BBox(txt.c_str(), x0, y0, z0, x1, y1, z1);
 # endif

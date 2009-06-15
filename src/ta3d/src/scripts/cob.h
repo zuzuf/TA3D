@@ -41,7 +41,7 @@ namespace TA3D
     {
     public:
         CobScript();
-        ~CobScript();
+        virtual ~CobScript();
 
         void init();
         void destroy();
