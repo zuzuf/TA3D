@@ -94,7 +94,7 @@ namespace TA3D
 
     public:
         CobVm();
-        /*virtual*/ ~CobVm();
+        virtual ~CobVm();
 
         /*virtual*/ void load( ScriptData *data );
 

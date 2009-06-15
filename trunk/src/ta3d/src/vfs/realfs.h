@@ -43,6 +43,7 @@ namespace TA3D
             public:
                 String pathToFile;
             public:
+                virtual ~RealFile() {}
                 inline void setName(const String &name)   {  Archive::File::name = name; }
                 inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
             };

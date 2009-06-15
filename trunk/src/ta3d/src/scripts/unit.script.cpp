@@ -28,6 +28,7 @@ namespace TA3D
     UnitScript::~UnitScript()
     {
         destroyThread();
+        destroy();
     }
 
     Unit *lua_currentUnit(lua_State *L)

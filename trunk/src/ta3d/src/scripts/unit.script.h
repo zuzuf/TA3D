@@ -35,7 +35,7 @@ namespace TA3D
     public:
 
         UnitScript();
-        /*virtual*/ ~UnitScript();
+        virtual ~UnitScript();
 
         /*virtual*/ void load(ScriptData *data);
         /*virtual*/ int run(float dt, bool alone = false);                  // Run the script

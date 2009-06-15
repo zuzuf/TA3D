@@ -44,6 +44,7 @@ namespace TA3D
                 int priority;
                 Archive *parent;
             public:
+                virtual ~File() {}
                 inline String getName()  const  {   return name;    }
                 inline int getPriority() const  {   return priority;    }
                 inline void setPriority(int p)  {  priority = p;   }
@@ -55,6 +56,8 @@ namespace TA3D
         protected:
             String  name;
         public:
+            virtual ~Archive() {}
+
             //! \brief returns the name of the opened archive
             inline String getName() {   return name;    }
 

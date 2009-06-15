@@ -136,6 +136,7 @@ namespace TA3D
                 //!
                 uint64  size;
             public:
+                virtual ~HpiFile() {}
                 inline void setName(const String &name)   {  Archive::File::name = name; }
                 inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
             };
