@@ -18,7 +18,7 @@ namespace TA3D
         bool                nonBlockingMode;
     public:
         SocketTCP();
-        ~SocketTCP();
+        virtual ~SocketTCP();
 
         void setNonBlockingMode(bool mode);
 

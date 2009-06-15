@@ -13,7 +13,7 @@ namespace TA3D
     protected:
         IPaddress  IP;
     public:
-        virtual ~Socket() {};
+        virtual ~Socket() {}
 
         virtual bool isOpen() const = 0;
 
