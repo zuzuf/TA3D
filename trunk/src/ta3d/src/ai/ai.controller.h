@@ -93,7 +93,7 @@ namespace TA3D
     public:
 
         AI_CONTROLLER();
-        ~AI_CONTROLLER();
+        virtual ~AI_CONTROLLER();
 
     private:
         void init();

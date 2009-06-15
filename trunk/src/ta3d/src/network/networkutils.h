@@ -33,6 +33,8 @@ namespace TA3D
     {
         virtual void proc(void* param);
         virtual const char *className() { return "ListenThread"; }
+    public:
+        virtual ~ListenThread() {   destroyThread();    }
     };
 
 
@@ -43,6 +45,8 @@ namespace TA3D
     {
         virtual void proc(void* param);
         virtual const char *className() { return "SocketThread"; }
+    public:
+        virtual ~SocketThread() {   destroyThread();    }
     };
 
     /*!
@@ -52,6 +56,8 @@ namespace TA3D
     {
         virtual void proc(void* param);
         virtual const char *className() { return "SendFileThread"; }
+    public:
+        virtual ~SendFileThread()   {   destroyThread();    }
     public :
         int		port;
         int		player_id;
@@ -68,6 +74,7 @@ namespace TA3D
         virtual const char *className() { return "GetFileThread"; }
     public :
         GetFileThread();
+        virtual ~GetFileThread()    {   destroyThread();    }
 
         int		port;
         byte	*buffer;
@@ -84,6 +91,8 @@ namespace TA3D
     {
         virtual void proc(void* param);
         virtual const char *className() { return "AdminThread"; }
+    public:
+        virtual ~AdminThread()  {   destroyThread();    }
     };
 
 
@@ -95,6 +104,8 @@ namespace TA3D
     {
         virtual void proc(void* param);
         virtual const char *className() { return "BroadCastThread"; }
+    public:
+        virtual ~BroadCastThread()  {   destroyThread();    }
     };
 
 

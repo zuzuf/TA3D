@@ -16,7 +16,7 @@ namespace TA3D
         IPaddress           remoteIP;
     public:
         SocketUDP();
-        ~SocketUDP();
+        virtual ~SocketUDP();
 
         virtual bool isOpen() const;
 

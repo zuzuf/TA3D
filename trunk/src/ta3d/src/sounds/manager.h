@@ -49,7 +49,7 @@ namespace TA3D
 			*/
 			Manager();
 			//! Destructor
-			~Manager();
+            virtual ~Manager();
 			//@}
 
             /*!
