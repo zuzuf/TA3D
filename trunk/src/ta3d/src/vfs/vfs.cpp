@@ -106,7 +106,7 @@ namespace TA3D
 
             LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS cache");
             for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != fileCache.end() ; ++i)
-                delete i->data;
+                delete[] i->data;
             fileCache.clear();
 
             // Now close and free archives.

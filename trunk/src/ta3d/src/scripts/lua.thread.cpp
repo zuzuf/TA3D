@@ -127,12 +127,17 @@ namespace TA3D
 		n_args = 0;
 
         crashed = false;
+
+        last = msec_timer;
 	}
 
 	void LuaThread::destroy()
 	{
 		join();
-		if (L)
+
+        deleteThreads();
+
+        if (L)
 			lua_settop(L, 0);
 		if ( L && caller == NULL )
 			lua_close( L );
@@ -266,6 +271,7 @@ namespace TA3D
 
 				running = true;
 				setThreadID();
+                last = msec_timer;
 			}
 		}
 		else

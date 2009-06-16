@@ -44,7 +44,7 @@ namespace TA3D
 	AiScript::~AiScript()
 	{
 		destroyThread();
-                destroy();
+        destroy();
 	}
 
 	void AiScript::setPlayerID(int id)

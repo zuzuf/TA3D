@@ -50,7 +50,7 @@ namespace TA3D
         std::deque<ScriptInterface*>    freeThreads;    // Old childs processes that are not used, we keep them to prevent allocating/freeing things uselessly
     public:
         ScriptInterface();
-        virtual ~ScriptInterface() {}
+        virtual ~ScriptInterface() {    deleteThreads();  }
 
         virtual void load( ScriptData *data ) = 0;
 
@@ -102,6 +102,7 @@ namespace TA3D
     protected:
         void addThread(ScriptInterface *pChild);
         void removeThread(ScriptInterface *pChild);
+        void deleteThreads();
     public:
         void clean();
         void processSignal(uint32 signal);
