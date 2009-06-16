@@ -21,7 +21,7 @@
 
 namespace TA3D
 {
-    ScriptInterface::ScriptInterface() : caller(NULL), running(false), waiting(false), sleeping(false), sleep_time(0.0f)
+    ScriptInterface::ScriptInterface() : caller(NULL), running(false), waiting(false), sleeping(false), sleep_time(0.0f), signal_mask(0)
     {
     }
 
@@ -101,6 +101,16 @@ namespace TA3D
     uint32 ScriptInterface::getSignalMask()
     {
         return signal_mask;
+    }
+
+    void ScriptInterface::deleteThreads()
+    {
+        for(int i = 0 ; i < childs.size() ; ++i)
+            delete childs[i];
+        childs.clear();
+        for(std::deque<ScriptInterface*>::iterator i = freeThreads.begin() ; i != freeThreads.end() ; ++i)
+            delete *i;
+        freeThreads.clear();
     }
 
     void ScriptInterface::clean()

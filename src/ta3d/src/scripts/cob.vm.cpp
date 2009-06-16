@@ -59,7 +59,7 @@ namespace TA3D
     {
         destroy();
         if (caller == NULL && global_env)
-            delete global_env;
+            delete[] global_env;
     }
 
     void CobVm::init()
@@ -73,6 +73,7 @@ namespace TA3D
 
     void CobVm::destroy()
     {
+        deleteThreads();
         script = NULL;
         sStack.clear();
         local_env.clear();
