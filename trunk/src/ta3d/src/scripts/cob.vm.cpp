@@ -46,7 +46,12 @@ namespace TA3D
         if (p_script)
         {
             script = p_script;
-            global_env = new int[script->nbStaticVar];
+			// TODO Find a better way than this hack to avoid new[] of 0 bytes...
+			// May be a vector
+			if (script->nbStaticVar)
+	            global_env = new int[script->nbStaticVar];
+			else
+	            global_env = new int[1];
         }
     }
 

@@ -82,7 +82,7 @@ namespace TA3D
             }
         }
         else
-            use[anm_idx]++;
+            ++use[anm_idx];
         fx[idx].load(anm_idx, pos, size);
 
         return idx;
@@ -257,6 +257,8 @@ namespace TA3D
                 delete[] cache_anm;
             }
         }
+		if (use)
+			delete[] use;
         init();
     }
 

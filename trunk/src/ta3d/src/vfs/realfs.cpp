@@ -43,9 +43,12 @@ namespace TA3D
         void RealFS::close()
         {
             Archive::name.clear();
-            for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
-                delete i->second;
-            files.clear();
+			if (!files.empty())
+			{
+            	for (std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
+               		delete i->second;
+            	files.clear();
+			}
         }
 
         void RealFS::getFileList(std::list<File*> &lFiles)
@@ -57,7 +60,7 @@ namespace TA3D
                 String::List dirs;
                 dirs.push_back(root);
                 String::List fileList;
-                while(!dirs.empty())
+                while (!dirs.empty())
                 {
                     String current = dirs.front() + Paths::Separator + "*";
                     dirs.pop_front();
@@ -67,7 +70,7 @@ namespace TA3D
                     Paths::GlobDirs(dirs, current, false, false);
                 }
 
-                for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
+                for (String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
                     if (i->last() == '~' || Paths::ExtractFileExt(*i).toLower() == ".bak")      // Don't take useless files into account
                         continue;
@@ -80,7 +83,7 @@ namespace TA3D
                     // make VFS path
                     i->convertSlashesIntoBackslashes();
                     i->toLower();
-                    if (i->find(".svn") != String::npos || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
+                    if (i->first() == '.' || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
                     {
                         delete file;
                         continue;
@@ -101,16 +104,18 @@ namespace TA3D
                 lFiles.push_back(i->second);
         }
 
-        byte* RealFS::readFile(const String& filename, uint32* file_length)
-        {
-            std::map<String, File*>::iterator file = files.find(filename);
-            if (file != files.end())
-                return readFile(file->second, file_length);
-            else
-                return NULL;
-        }
+		byte* RealFS::readFile(const String& filename, uint32* file_length)
+		{
+			if (!files.empty())
+			{
+				std::map<String, File*>::iterator file = files.find(filename);
+				if (file != files.end())
+					return readFile(file->second, file_length);
+			}
+			return NULL;
+		}
 
-        byte* RealFS::readFile(const File *file, uint32* file_length)
+		byte* RealFS::readFile(const File *file, uint32* file_length)
         {
             String unixFilename = ((const RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
