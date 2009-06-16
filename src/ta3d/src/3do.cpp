@@ -208,6 +208,8 @@ namespace TA3D
 		}
 		for (int i = 0; i < 3; ++i)
 		{
+			if (axe[i])
+				delete axe[i];
 			axe[i] = new AXE[nb_piece];
 			for (int e = 0; e < nb_piece; ++e)
 			{

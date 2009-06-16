@@ -22,48 +22,57 @@
 
 namespace TA3D
 {
-    template< typename T >
-    class Stack
-    {
-        private:
-            std::deque<T> container;
-        public:
 
-            inline Stack() : container()   {}
 
-            inline ~Stack()    {   container.clear();  }
+	template< typename T >
+	class Stack
+	{
+	private:
+		std::deque<T> container;
 
-            inline void clear() {   container.clear();  }
+	public:
 
-            inline T& top()
-            {
-                return container.back();
-            }
+		Stack() {}
 
-            inline size_t size()
-            {
-                return container.size();
-            }
+		~Stack()    {   container.clear();  }
 
-            inline T& operator[](int idx)
-            {
-                return container[idx];
-            }
+		void clear() {   container.clear();  }
 
-            inline T pop()
-            {
-                if (empty())    return T();
-                T t = container.back();
-                container.pop_back();
-                return t;
-            }
+		T& top()
+		{
+			return container.back();
+		}
 
-            inline bool empty() {   return container.empty();   }
+		size_t size()
+		{
+			return container.size();
+		}
 
-            inline void push(const T &t)
-            {
-                container.push_back(t);
-            }
-    };
+		T& operator[](int idx)
+		{
+			return container[idx];
+		}
+
+		T pop()
+		{
+			if (empty())
+				return T();
+			T t = container.back();
+			container.pop_back();
+			return t;
+		}
+
+		bool empty() {   return container.empty();   }
+
+		void push(const T &t)
+		{
+			container.push_back(t);
+		}
+	};
+
+
+
+
+
 }
 #endif
