@@ -18,7 +18,7 @@
 #ifndef __TA3D_THREADS_MUTEX_H__
 # define __TA3D_THREADS_MUTEX_H__
 
-# include <yuni/core/policies/threading.h>
+# include <yuni/threads/mutex.h>
 
 
 namespace TA3D
