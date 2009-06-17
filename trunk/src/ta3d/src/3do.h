@@ -163,13 +163,13 @@ namespace TA3D
         bool        is_moving;
 
 
-        ANIMATION_DATA() {init();}
+        inline ANIMATION_DATA() {init();}
 
         void init();
 
         void destroy();
 
-        ~ANIMATION_DATA() {destroy();}
+        inline ~ANIMATION_DATA() {destroy();}
 
         void load(const int nb);
 
