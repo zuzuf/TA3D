@@ -451,7 +451,7 @@ namespace TA3D
                 }
 				running = false;
                 crashed = true;
-                return -1;
+                return -0xFFFF;         // Crashed
 			}
             else if (lua_gettop(L) > 0)
 			{

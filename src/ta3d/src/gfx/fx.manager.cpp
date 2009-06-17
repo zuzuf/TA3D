@@ -256,8 +256,6 @@ namespace TA3D
                 }
                 delete[] cache_anm;
             }
-            if (use)
-                delete[] use;
         }
 		if (use)
 			delete[] use;
