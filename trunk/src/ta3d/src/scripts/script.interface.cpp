@@ -70,7 +70,6 @@ namespace TA3D
             for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
                 if (*i == pChild)
                 {
-                    delete *i;
                     childs.erase(i);
                     return;
                 }

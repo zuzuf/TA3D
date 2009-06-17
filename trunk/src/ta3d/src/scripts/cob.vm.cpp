@@ -250,6 +250,7 @@ namespace TA3D
                 case SCRIPT_CREATE_LOCAL_VARIABLE:
                     {
                         DEBUG_PRINT_CODE("CREATE_LOCAL_VARIABLE");
+                        local_env.top().push_back(0);
                         break;
                     }
                 case SCRIPT_SUBTRACT:

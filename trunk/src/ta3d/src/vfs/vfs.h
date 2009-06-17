@@ -32,6 +32,7 @@
 # include "../misc/hash_table.h"
 # include "../misc/string.h"
 # include "../sdl.h"
+# include "../threads/mutex.h"
 
 # ifndef MAX_PATH
 #   define MAX_PATH 260
@@ -49,7 +50,7 @@ namespace TA3D
         */
         class VFS
         {
-        public:
+        private:
             /*! \class CacheFileData
             **
             ** \brief
@@ -61,7 +62,9 @@ namespace TA3D
                 String		name;
             }; // class CacheFileData
 
-        public:
+            Mutex mCache;
+
+        private:
             //! \name Constructor & Destructor
             //@{
             // constructor:
@@ -70,6 +73,7 @@ namespace TA3D
             //! Destructor
             ~VFS();
             //@}
+        public:
 
             /*!
             ** \brief reload all archives
@@ -177,8 +181,9 @@ namespace TA3D
             //! A list of Archive*, needed only for cleanup.
             std::list< Archive* > archives;
 
-        public:
+        private:
             static VFS *pInstance;
+        public:
             static VFS *instance();
         }; // class VFS;
 

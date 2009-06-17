@@ -168,6 +168,8 @@ namespace TA3D
             if (filesize >= 0x100000)	// Don't store big files to prevent filling memory with cache data ;)
                 return;
 
+            mCache.lock();
+
             if (fileCache.size() >= 10) // Cycle the data within the list
             {
                 delete[] fileCache.front().data;
@@ -182,6 +184,8 @@ namespace TA3D
             memcpy(newentry.data, data, filesize);
 
             fileCache.push_back(newentry);
+
+            mCache.unlock();
         }
 
 
@@ -225,6 +229,8 @@ namespace TA3D
 
         VFS::CacheFileData* VFS::isInCache(const String& filename)
         {
+            MutexLocker mLock(mCache);
+
             if (fileCache.empty())
                 return NULL;
 
