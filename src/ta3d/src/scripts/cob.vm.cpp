@@ -31,8 +31,6 @@
 #endif
 
 
-#define SQUARE(X)  ((X)*(X))
-
 #define MAX_CODE_PER_TICK			100
 
 namespace TA3D

@@ -213,6 +213,7 @@ namespace TA3D
 			if (L == NULL)
 			{
 				running = false;
+                delete[] buffer;
 				buffer = NULL;
 				return;
 			}

@@ -91,7 +91,7 @@ namespace TA3D
             virtual bool needsCaching();
 
         private:
-            std::map<String, File*> files;
+            std::map<String, RealFile*> files;
 
         public:
             static void finder(String::List &fileList, const String &path);

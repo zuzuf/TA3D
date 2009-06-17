@@ -79,6 +79,7 @@ namespace TA3D
 		while (mission)
 			clear_mission();
 		clear_def_mission();
+        data.destroy();
 		init();
 		flags=0;
 		groupe=0;

@@ -45,7 +45,7 @@ namespace TA3D
             Archive::name.clear();
 			if (!files.empty())
 			{
-            	for (std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
+            	for (std::map<String, RealFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
                		delete i->second;
             	files.clear();
 			}
@@ -91,16 +91,16 @@ namespace TA3D
                     file->setName(*i);
                     file->setParent(this);
                     file->setPriority(0xFFFF);
-                    std::map<String, File*>::iterator it = files.find(*i);
+                    std::map<String, RealFile*>::iterator it = files.find(*i);
                     if (it != files.end())          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
                     {
                         delete it->second;
                         files.erase(it);
                     }
-                    files.insert( std::pair<String, File*>(*i, file) );
+                    files.insert( std::pair<String, RealFile*>(*i, file) );
                 }
             }
-            for(std::map<String, File*>::iterator i = files.begin() ; i != files.end() ; ++i)
+            for(std::map<String, RealFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
                 lFiles.push_back(i->second);
         }
 
@@ -108,7 +108,7 @@ namespace TA3D
 		{
 			if (!files.empty())
 			{
-				std::map<String, File*>::iterator file = files.find(filename);
+				std::map<String, RealFile*>::iterator file = files.find(filename);
 				if (file != files.end())
 					return readFile(file->second, file_length);
 			}
@@ -145,7 +145,7 @@ namespace TA3D
 
         byte* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length)
         {
-            std::map<String, File*>::iterator file = files.find(filename);
+            std::map<String, RealFile*>::iterator file = files.find(filename);
             if (file != files.end())
                 return readFileRange(file->second, start, length, file_length);
             else
