@@ -351,6 +351,7 @@ namespace TA3D
 		// Charge les données sur la position des blocs
 		int max_tex_size;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
+        max_tex_size = Math::Min(max_tex_size, 2048);           // This texture can be very big, so let's reduce it
 
 		/*---------- code to convert the map to new format -------------------*/
 		/*	map->macro_w = map->bloc_w+15>>4;
@@ -385,8 +386,6 @@ namespace TA3D
 
 		SDL_Surface *low_def = gfx->create_surface_ex(24, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
 		SDL_FillRect(low_def, NULL, 0x0);
-		SDL_Surface *lava_map = gfx->create_surface_ex(24, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
-		SDL_FillRect(lava_map, NULL, 0x0);
 		f_pos = header.PTRmapdata;
 		for (y = 0; y < map->bloc_h; ++y)
 		{
@@ -411,8 +410,6 @@ namespace TA3D
 							 (y + 1) * (low_def->h - 1) / map->bloc_h - y * (low_def->h - 1) / map->bloc_h);
 				/*--------------------------------------------------------------------*/
 
-				if (map->bloc[map->bmap[y][x]].lava)
-					circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFFFFFFFF);
 				f_pos+=2;
 			}
 		}
@@ -428,7 +425,13 @@ namespace TA3D
         LOG_INFO("Low definition texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
         event_timer = msec_timer;
 
-		map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
+        SDL_Surface *lava_map = gfx->create_surface_ex(8, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
+        SDL_FillRect(lava_map, NULL, 0x0);
+        for (y = 0; y < map->bloc_h; ++y)               // Build the lava map
+            for (x = 0; x < map->bloc_w; ++x)
+                if (map->bloc[map->bmap[y][x]].lava)
+                    circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFF);
+        map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
 		SDL_FreeSurface(lava_map);
 
         LOG_INFO("Lava texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
