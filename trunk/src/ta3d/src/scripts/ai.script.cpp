@@ -815,8 +815,12 @@ namespace TA3D
 
 	void AiScript::register_functions()
 	{
-		lua_register(L, "playerID", ai_playerID);                                           // playerID()
-		lua_register(L, "nb_players", ai_nb_players);                                       // nb_players()
+        lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
+        luaL_openlibs( L );
+        lua_gc( L, LUA_GCRESTART, 0 );
+
+        lua_register(L, "playerID", ai_playerID);                                           // playerID()
+        lua_register(L, "nb_players", ai_nb_players);                                       // nb_players()
 		lua_register(L, "get_unit_number_for_player", ai_get_unit_number_for_player);       // get_unit_number_for_player( player_id )
 		lua_register(L, "get_unit_owner", ai_get_unit_owner);                               // get_unit_owner( unit_id )
 		lua_register(L, "get_unit_number", ai_get_unit_number);                             // get_unit_number()

@@ -70,6 +70,8 @@ namespace TA3D
         LuaThread();
         virtual ~LuaThread();
 
+        int getMem();
+
         inline int getNextID()
         {
             if (caller)
