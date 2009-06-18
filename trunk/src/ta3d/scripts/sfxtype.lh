@@ -4,18 +4,18 @@
 
 -- Vector-based special effects
 
-local SFXTYPE_VTOL            = 0
-local SFXTYPE_THRUST          = 1
-local SFXTYPE_WAKE1           = 2
-local SFXTYPE_WAKE2           = 3
-local SFXTYPE_REVERSEWAKE1    = 4
-local SFXTYPE_REVERSEWAKE2    = 5
+SFXTYPE_VTOL            = 0
+SFXTYPE_THRUST          = 1
+SFXTYPE_WAKE1           = 2
+SFXTYPE_WAKE2           = 3
+SFXTYPE_REVERSEWAKE1    = 4
+SFXTYPE_REVERSEWAKE2    = 5
 
 -- Point-based (piece origin) special effects
 
-local SFXTYPE_POINTBASED      = 256
+SFXTYPE_POINTBASED      = 256
 
-local SFXTYPE_WHITESMOKE      = (SFXTYPE_POINTBASED + 1)
-local SFXTYPE_BLACKSMOKE      = (SFXTYPE_POINTBASED + 2)
-local SFXTYPE_SUBBUBBLES      = (SFXTYPE_POINTBASED + 3)
+SFXTYPE_WHITESMOKE      = (SFXTYPE_POINTBASED + 1)
+SFXTYPE_BLACKSMOKE      = (SFXTYPE_POINTBASED + 2)
+SFXTYPE_SUBBUBBLES      = (SFXTYPE_POINTBASED + 3)
 

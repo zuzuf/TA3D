@@ -15,41 +15,34 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __UnitScriptInterface_H__
-# define __UnitScriptInterface_H__
+#ifndef __LuaData_H__
+#define __LuaData_H__
 
+# include "../stdafx.h"
 # include "../misc/string.h"
-# include "script.interface.h"
-# include "../misc/hash_table.h"
-
+# include "../lua/lua.hpp"
+# include "script.data.h"
 
 namespace TA3D
 {
-    /*!
-    ** This class is an interface for all unit scripts types
-    */
-    class UnitScriptInterface : public ScriptInterface
+    class LuaData : public ScriptData
     {
-    public:
-        static UnitScriptInterface *instanciate( ScriptData *data );
-        static const String get_script_name(int id);
-        static int get_script_id(const String &name);
-
     protected:
-        uint32                  unitID;
-        UTILS::cHashTable<int>  return_value;
+        String          name;
+        String::Vector  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
+
     public:
-        virtual ~UnitScriptInterface()  {}
+        LuaData();
+        virtual ~LuaData();
 
-        virtual void setUnitID(uint32 ID) = 0;
+        /*virtual*/ void load(const String &filename);                    // Load a lua chunk
 
-        virtual int getNbPieces() = 0;
+        String getName();
 
-        int getReturnValue(const String &name);
-        void setReturnValue(const String &name, int value);
-
+        virtual int identify(const String &name);
     private:
-        static const char *script_name[];
+        void init();
+        void destroy();
     };
 }
 

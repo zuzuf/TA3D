@@ -122,6 +122,15 @@ namespace TA3D
         virtual void proc(void* param);
     };
 
+    int thread_logmsg( lua_State *L );
+    int thread_mouse_x( lua_State *L );
+    int thread_mouse_y( lua_State *L );
+    int thread_mouse_z( lua_State *L );
+    int thread_mouse_b( lua_State *L );
+    int thread_time( lua_State *L );
+    int thread_signal( lua_State *L );
+    int thread_start_script( lua_State *L );
+
     /*!
     ** \brief returns a pointer to the current thread, or NULL on error
     */

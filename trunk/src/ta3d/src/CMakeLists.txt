@@ -74,6 +74,7 @@ SET(SRC_SCRIPTS
 		scripts/lua.thread.h scripts/lua.thread.cpp
 		scripts/lua.env.h scripts/lua.env.cpp
 		scripts/lua.chunk.h scripts/lua.chunk.cpp
+		scripts/lua.data.h scripts/lua.data.cpp
 		scripts/lua.persist.h scripts/lua.persist.cpp
 		scripts/draw.list.h scripts/draw.list.cpp
 		scripts/unit.script.h scripts/unit.script.cpp
