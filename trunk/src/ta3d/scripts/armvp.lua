@@ -2,9 +2,9 @@
 
 piece( "base", "pad", "beam1", "beam2", "doo2", "door1", "nano1", "nano2", "plate1", "plate2", "post1", "post2", "side1", "side2" )
 
-SIG_ACTIVATE = 2
-SMOKEPIECE1 = base
-ANIM_VARIABLE = true
+local SIG_ACTIVATE = 2
+local SMOKEPIECE1 = base
+local ANIM_VARIABLE = true
 
 #include "StateChg.lh"
 #include "smokeunit.lh"

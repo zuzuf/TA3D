@@ -1,70 +1,70 @@
-function sleep(delay)
+local function sleep(delay)
     coroutine.yield(delay, 1)
 end
 
-function wait()
+local function wait()
     coroutine.yield(0, 2)
 end
 
-function end_thread()
+local function end_thread()
     coroutine.yield(0, 4)
 end
 
-function yield()
+local function yield()
     coroutine.yield()
 end
 
-function set_signal_mask(sig)
+local function set_signal_mask(sig)
     coroutine.yield(sig, 3)
 end
 
-function vector()
+local function vector()
     local vec = {x=0, y=0, z=0}
     return setmetatable(vec, __vector_metatable)
 end
 
 -- conservative functions that don't overwrite "permanent" objects but produce a temporary one
-function __vec_add(v0,v1)
+local function __vec_add(v0,v1)
     return setmetatable({x=v0.x + v1.x, y=v0.y + v1.y, z=v0.z + v1.z}, __fast_vector_metatable)
 end
 
-function __vec_sub(v0,v1)
+local function __vec_sub(v0,v1)
     return setmetatable({x=v0.x - v1.x, y=v0.y - v1.y, z=v0.z - v1.z}, __fast_vector_metatable)
 end
 
-function __vec_mul(m,v)
+local function __vec_mul(m,v)
     return setmetatable({x=m * v.x, y=m * v.y, z=m * v.z}, __fast_vector_metatable)
 end
 
-function __vec_dot(v0,v1)
+local function __vec_dot(v0,v1)
     return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z
 end
 
-function __vec_cross(v0,v1)
+local function __vec_cross(v0,v1)
     return setmetatable({x=v0.y * v1.z - v0.z * v1.y, y=v0.z * v1.x - v0.x * v1.z, z=v0.x * v1.y - v0.y * v1.x}, __fast_vector_metatable)
 end
 
 -- convert a temporary object into a "permanent" one
-function fix_vector(v)
+local function fix_vector(v)
     return setmetatable(v, __vector_metatable)
 end
 
 -- use fast functions for temporary objects (we don't need to create new tables since we already have one we won't reuse)
-function __fast_vec_add(v0,v1)
+local function __fast_vec_add(v0,v1)
     v0.x = v0.x + v1.x
     v0.y = v0.y + v1.y
     v0.z = v0.z + v1.z
     return v0
 end
 
-function __fast_vec_sub(v0,v1)
+local function __fast_vec_sub(v0,v1)
     v0.x = v0.x - v1.x
     v0.y = v0.y - v1.y
     v0.z = v0.z - v1.z
     return v0
 end
 
-function __fast_vec_mul(m,v)
+local function __fast_vec_mul(m,v)
     v.x = m * v.x
     v.y = m * v.y
     v.z = m * v.z
@@ -75,7 +75,7 @@ __vector_metatable = {__add=__vec_add, __sub=__vec_sub, __mul=__vec_mul, __mod=_
 __fast_vector_metatable = {__add=__fast_vec_add, __sub=__fast_vec_sub, __mul=__fast_vec_mul, __mod=__vec_dot, __pow=__vec_cross}
 
 -- normalize v, modifies the content of v
-function normalize(v)
+local function normalize(v)
     local l = 1.0 / math.sqrt( v * v )
     v.x = l * v.x
     v.y = l * v.y
@@ -84,7 +84,7 @@ function normalize(v)
 end
 
 -- returns the normalized version of v, doesn't change v
-function normalized(v)
+local function normalized(v)
     local l = 1.0 / math.sqrt( v * v )
     local tmp = vector()
     tmp.x = l * v.x
@@ -93,11 +93,11 @@ function normalized(v)
     return tmp
 end
 
-function game_signal( sig )
+local function game_signal( sig )
     coroutine.yield(sig)
 end
 
-function set_cam_mode( mode )
+local function set_cam_mode( mode )
     if mode == CAM_NORMAL_MODE then
         game_signal( SIGNAL_CAM_DEF )
     else
@@ -107,19 +107,19 @@ function set_cam_mode( mode )
     end
 end
 
-function wait_for_move(obj, axis)
+local function wait_for_move(obj, axis)
     while is_moving(obj, axis) do
         coroutine.yield()
     end
 end
 
-function wait_for_turn(obj, axis)
+local function wait_for_turn(obj, axis)
     while is_turning(obj, axis) do
         coroutine.yield()
     end
 end
 
-function piece(...)
+local function piece(...)
     __piece_list = {...}
     for i = 1, #__piece_list do
         _G[__piece_list[i]] = i - 1
@@ -128,7 +128,7 @@ end
 
 __unit_virtual_table = {}	-- This is the table that will store additionnal data, so virtually we don't lose anything
 
-function __unit_virtual_index (table, key)
+local function __unit_virtual_index (table, key)
 	local v = rawget(table, key)
 	if v == nil then
 		v = rawget(__unit_virtual_table, rawget(table, "index"))
@@ -143,7 +143,7 @@ function __unit_virtual_index (table, key)
 	return v
 end
 
-function __unit_virtual_newindex (table, key, value)
+local function __unit_virtual_newindex (table, key, value)
 	local v = rawget(table, key)
 	if v == nil then
 		local idx = rawget(table, "index")
@@ -165,7 +165,7 @@ __unit_metatable = {__index=__unit_virtual_index, __newindex=__unit_virtual_newi
 -- Let's do the same thing with unit types :P
 __type_virtual_table = {}	-- This is the table that will store additionnal data, so virtually we don't lose anything
 
-function __type_virtual_index (table, key)
+local function __type_virtual_index (table, key)
 	local v = rawget(table, key)
 	if v == nil then
 		v = rawget(__type_virtual_table, rawget(table, "name"))
@@ -178,7 +178,7 @@ function __type_virtual_index (table, key)
 	return v
 end
 
-function __type_virtual_newindex (table, key, value)
+local function __type_virtual_newindex (table, key, value)
 	local v = rawget(table, key)
 	if v == nil then
 		local name = rawget(table, "name")
@@ -197,14 +197,14 @@ end
 
 __type_metatable = {__index=__type_virtual_index, __newindex=__type_virtual_newindex}
 
-DEG2RAD = 0.017453292519943295
-RAD2DEG = 57.29577951308232
+local DEG2RAD = 0.017453292519943295
+local RAD2DEG = 57.29577951308232
 
-DEG2TA = 182.04444444444445
-TA2DEG = 0.0054931640625
+local DEG2TA = 182.04444444444445
+local TA2DEG = 0.0054931640625
 
-RAD2TA = 20860.756700940907
-TA2RAD = 0.000047936899621426287
+local RAD2TA = 20860.756700940907
+local TA2RAD = 0.000047936899621426287
 
-Builder = -3
-CanAttack = -2
+local Builder = -3
+local CanAttack = -2

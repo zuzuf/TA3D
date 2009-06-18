@@ -2,8 +2,8 @@
 
 piece("base","dish1","dish2","dish3","dish4")
 
-SIG_HIT     = 2
-SMOKEPIECE1 = base
+local SIG_HIT     = 2
+local SMOKEPIECE1 = base
 
 #include "StateChg.lh"
 #include "smokeunit.lh"

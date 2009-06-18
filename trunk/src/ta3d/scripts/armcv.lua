@@ -2,10 +2,10 @@
 
 piece( "base", "beam", "arm", "door1", "door2", "nano", "plate", "turret" )
 
-buildheading = 0
+local buildheading = 0
 
-SMOKEPIECE1     = base
-ANIM_VARIABLE   = true
+local SMOKEPIECE1     = base
+local ANIM_VARIABLE   = true
 
 #include "StateChg.lh"
 #include "smokeunit.lh"
