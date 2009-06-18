@@ -218,10 +218,6 @@ namespace TA3D
 				return;
 			}
 
-			lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
-			luaL_openlibs( L );
-			lua_gc( L, LUA_GCRESTART, 0 );
-
 			register_basic_functions();
 			register_functions();
 
@@ -296,10 +292,6 @@ namespace TA3D
 				buffer = NULL;
 				return;
 			}
-
-			lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
-			luaL_openlibs( L );
-			lua_gc( L, LUA_GCRESTART, 0 );
 
 			register_basic_functions();
 			register_functions();
@@ -663,9 +655,14 @@ namespace TA3D
 
 		LuaThread *newThread = fork();
 
-		lua_xmove(cL, newThread->L, n);
-		newThread->n_args = n - 1;
-		newThread->running = true;
+        if (lua_isfunction(cL, -n))
+        {
+            lua_xmove(cL, newThread->L, n);
+            newThread->n_args = n - 1;
+            newThread->running = true;
+        }
+        else
+            newThread->running = false;
 
 		pMutex.unlock();
 		return newThread;
@@ -743,4 +740,13 @@ namespace TA3D
         }
         return true;
     }
+
+    int LuaThread::getMem()
+    {
+        lock();
+        int mem = L != NULL ? lua_gc(L, LUA_GCCOUNT, 0) * 1024 + lua_gc(L, LUA_GCCOUNTB, 0) : 0;
+        unlock();
+        return mem;
+    }
+
 } // namespace TA3D

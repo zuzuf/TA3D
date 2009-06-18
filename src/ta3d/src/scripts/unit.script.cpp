@@ -283,6 +283,11 @@ namespace TA3D
 
     void UnitScript::register_functions()
     {
+        lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
+        luaopen_base( L );
+        luaopen_math( L );
+        lua_gc( L, LUA_GCRESTART, 0 );
+
         lua_register(L, "is_turning", unit_is_turning );                    // is_turning(obj_id, axis_id)
         lua_register(L, "is_moving", unit_is_moving );                      // is_moving(obj_id, axis_id)
         lua_register(L, "move", unit_move );                                // move(obj_id, axis_id, target_pos, speed)

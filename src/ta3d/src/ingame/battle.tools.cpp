@@ -650,6 +650,10 @@ namespace TA3D
                        if (!debugInfo.process->runCommand(code))
                            LOG_INFO(LOG_PREFIX_LUA << "running given code failed");
                    }
+                   else if (params[1] == "memory" && debugInfo.process)                             // Show the memory used by the select Lua VM
+                   {
+                       LOG_INFO(LOG_PREFIX_LUA << "Lua GC reports " << debugInfo.process->getMem() << " bytes used");
+                   }
                }
                // ---------------    OS specific commands    ---------------
 #ifdef TA3D_PLATFORM_LINUX

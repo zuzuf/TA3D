@@ -1168,7 +1168,11 @@ namespace TA3D
 
 	void LuaProgram::register_functions()
 	{
-		lua_register( L, "text_print", program_print );
+        lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
+        luaL_openlibs( L );
+        lua_gc( L, LUA_GCRESTART, 0 );
+
+        lua_register( L, "text_print", program_print );
 		lua_register( L, "text_print_for", program_print_for );
 		lua_register( L, "line", program_line );
 		lua_register( L, "cls", program_cls );
