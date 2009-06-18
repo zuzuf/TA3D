@@ -2,10 +2,10 @@
 
 piece( "flare1", "flare2", "base", "turret", "sleeves", "barrel1", "barrel2" )
 
-fire = 0
+local fire = 0
 
-SIG_AIM     = 2
-SMOKEPIECE1 = base
+local SIG_AIM     = 2
+local SMOKEPIECE1 = base
 
 #include "smokeunit.lh"
 #include "EXPtype.lh"

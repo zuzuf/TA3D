@@ -2,7 +2,7 @@
 
 piece( "base", "texture" )
 
-SMOKEPIECE1 = base
+local SMOKEPIECE1 = base
 #include "smokeunit.lh"
 #include "EXPtype.lh"
 

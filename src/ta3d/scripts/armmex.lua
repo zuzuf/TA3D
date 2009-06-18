@@ -2,15 +2,15 @@
 
 piece( "base", "arms" )
 
-SMOKEPIECE1 = base
+local SMOKEPIECE1 = base
 
 #include "StateChg.lh"
 #include "smokeunit.lh"
 #include "exptype.lh"
 
-spinspeed = 0
-spinacc = 0.5
-spindec = 1.0
+local spinspeed = 0
+local spinacc = 0.5
+local spindec = 1.0
 
 function Go()
 	spin( arms, y_axis, spinspeed, spinacc )
