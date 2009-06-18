@@ -30,7 +30,7 @@
 namespace TA3D
 {
 
-	LuaThread *lua_threadID( lua_State *L )
+    LuaThread *lua_threadID( lua_State *L )
 	{
 		lua_getfield(L, LUA_REGISTRYINDEX, "threadID");
 		LuaThread *p = (LuaThread*) lua_touserdata( L, -1 );

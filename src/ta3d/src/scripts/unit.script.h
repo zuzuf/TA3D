@@ -20,8 +20,8 @@
 
 # include "../stdafx.h"
 # include "../misc/string.h"
-# include "lua.thread.h"
 # include "unit.script.interface.h"
+# include "../lua/lua.hpp"
 
 namespace TA3D
 {
@@ -29,8 +29,9 @@ namespace TA3D
     ** This class represents unit scripts, it's used to script unit behavior
     ** This is a Lua version of TA COB/BOS scripts
     */
-    class UnitScript : public LuaThread, public UnitScriptInterface
+    class UnitScript : public UnitScriptInterface
     {
+        friend class LuaData;
         virtual const char *className() { return "UnitScript"; }
     public:
 
@@ -45,19 +46,44 @@ namespace TA3D
         /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        /*virtual*/ LuaThread *fork();
-        /*virtual*/ LuaThread *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ UnitScript *fork();
+        /*virtual*/ UnitScript *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        UnitScript *fork(lua_State *cL, int n);
 
         //! functions used to save/restore scripts state
         /*virtual*/ void save_thread_state(gzFile file);
         /*virtual*/ void restore_thread_state(gzFile file);
 
-    public:
-        /*virtual*/ void register_functions();
-        /*virtual*/ void register_info();
+        inline int getNextID()
+        {
+            if (caller)
+                return static_cast<UnitScript*>(caller)->getNextID();
+            return nextID++;
+        }
+
+    private:
+        lua_State *L;
+
+        int nextID;
+
+        int n_args;
+
+        String name;
+
+    private:
+        static void register_functions(lua_State *L);
+        void register_info();
 
         /*virtual*/ void setUnitID(uint32 ID);
         /*virtual*/ int getNbPieces();
+
+        void lua_getUnitTable();
+
+        void init();
+        void destroy();
+    private:
+        static lua_State *pLuaVM;
+        static lua_State *luaVM();
     };
 
 }

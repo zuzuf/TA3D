@@ -1,219 +1,221 @@
 -- Arm Vehicle Plant Script
 
-piece( "base", "pad", "beam1", "beam2", "doo2", "door1", "nano1", "nano2", "plate1", "plate2", "post1", "post2", "side1", "side2" )
+createUnitScript("armvp")
 
-local SIG_ACTIVATE = 2
-local SMOKEPIECE1 = base
-local ANIM_VARIABLE = true
+__this:piece( "base", "pad", "beam1", "beam2", "doo2", "door1", "nano1", "nano2", "plate1", "plate2", "post1", "post2", "side1", "side2" )
+
+__this.SIG_ACTIVATE = 2
+__this.SMOKEPIECE1 = base
+__this.ANIM_VARIABLE = true
 
 #include "StateChg.lh"
 #include "smokeunit.lh"
 #include "exptype.lh"
 #include "yard.lh"
 
-function activatescr()
-    turn( side1, z_axis, -90, 60 )
-    turn( side2, z_axis, 90, 60 )
+__this.activatescr = function (this)
+    this:turn( this.side1, z_axis, -90, 60 )
+    this:turn( this.side2, z_axis, 90, 60 )
 
-    wait_for_turn( side1, z_axis )
-    wait_for_turn( side2, z_axis )
+    this:wait_for_turn( this.side1, z_axis )
+    this:wait_for_turn( this.side2, z_axis )
 
-    turn( door1, z_axis, -90, 60 )
-    turn( doo2, z_axis, 90, 60 )
+    this:turn( this.door1, z_axis, -90, 60 )
+    this:turn( this.doo2, z_axis, 90, 60 )
 
-    wait_for_turn( door1, z_axis )
-    wait_for_turn( doo2, z_axis )
+    this:wait_for_turn( this.door1, z_axis )
+    this:wait_for_turn( this.doo2, z_axis )
     
-    move( door1, x_axis, 10, 10 )
-    move( doo2, x_axis, -10, 10 )
+    this:move( this.door1, x_axis, 10, 10 )
+    this:move( this.doo2, x_axis, -10, 10 )
 
-    move( plate1, x_axis, -8, 8 )
-    move( plate2, x_axis, 7.5, 7.5 )
+    this:move( this.plate1, x_axis, -8, 8 )
+    this:move( this.plate2, x_axis, 7.5, 7.5 )
 
-    wait_for_move( plate1, x_axis )
-    wait_for_move( plate2, x_axis )
-    wait_for_move( door1, x_axis )
-    wait_for_move( doo2, x_axis )
+    this:wait_for_move( this.plate1, x_axis )
+    this:wait_for_move( this.plate2, x_axis )
+    this:wait_for_move( this.door1, x_axis )
+    this:wait_for_move( this.doo2, x_axis )
 
-    turn( nano1, z_axis, 30, 60 )
-    turn( nano2, z_axis, -30, 60 )
-    wait_for_turn( nano1, z_axis )
-    wait_for_turn( nano2, z_axis )
+    this:turn( this.nano1, z_axis, 30, 60 )
+    this:turn( this.nano2, z_axis, -30, 60 )
+    this:wait_for_turn( this.nano1, z_axis )
+    this:wait_for_turn( this.nano2, z_axis )
 end
 
-function deactivatescr()
-    turn( nano1, z_axis, 0, 60 )
-    turn( nano2, z_axis, 0, 60 )
-    wait_for_turn( nano1, z_axis )
-    wait_for_turn( nano2, z_axis )
+__this.deactivatescr = function (this)
+    this:turn( this.nano1, z_axis, 0, 60 )
+    this:turn( this.nano2, z_axis, 0, 60 )
+    this:wait_for_turn( this.nano1, z_axis )
+    this:wait_for_turn( this.nano2, z_axis )
 
-    move( door1, x_axis, 0, 10 )
-    move( doo2, x_axis, 0, 10 )
+    this:move( this.door1, x_axis, 0, 10 )
+    this:move( this.doo2, x_axis, 0, 10 )
 
-    move( plate1, x_axis, 0, 8 )
-    move( plate2, x_axis, 0, 7.5 )
+    this:move( this.plate1, x_axis, 0, 8 )
+    this:move( this.plate2, x_axis, 0, 7.5 )
 
-    wait_for_move( plate1, x_axis )
-    wait_for_move( plate2, x_axis )
-    wait_for_move( door1, x_axis )
-    wait_for_move( doo2, x_axis )
+    this:wait_for_move( this.plate1, x_axis )
+    this:wait_for_move( this.plate2, x_axis )
+    this:wait_for_move( this.door1, x_axis )
+    this:wait_for_move( this.doo2, x_axis )
 
-    turn( door1, z_axis, 0, 60 )
-    turn( doo2, z_axis, 0, 60 )
+    this:turn( this.door1, z_axis, 0, 60 )
+    this:turn( this.doo2, z_axis, 0, 60 )
 
-    wait_for_turn( door1, z_axis )
-    wait_for_turn( doo2, z_axis )
+    this:wait_for_turn( this.door1, z_axis )
+    this:wait_for_turn( this.doo2, z_axis )
 
-    turn( side1, z_axis, 0, 60 )
-    turn( side2, z_axis, 0, 60 )
+    this:turn( this.side1, z_axis, 0, 60 )
+    this:turn( this.side2, z_axis, 0, 60 )
 
-    wait_for_turn( side1, z_axis )
-    wait_for_turn( side2, z_axis )
+    this:wait_for_turn( this.side1, z_axis )
+    this:wait_for_turn( this.side2, z_axis )
 end
 
-function Go()
-	dont_cache( doo2 )
-	dont_cache( door1 )
-	dont_cache( nano1 )
-	dont_cache( nano2 )
-	dont_cache( pad )
-	dont_cache( plate1 )
-	dont_cache( plate2 )
-	dont_cache( post1 )
-	dont_cache( post2 )
-	dont_cache( side1 )
-	dont_cache( side2 )
-	activatescr()
-	OpenYard()
-	set( INBUILDSTANCE, true )
+__this.Go = function (this)
+	this:dont_cache( this.doo2 )
+	this:dont_cache( this.door1 )
+	this:dont_cache( this.nano1 )
+	this:dont_cache( this.nano2 )
+	this:dont_cache( this.pad )
+	this:dont_cache( this.plate1 )
+	this:dont_cache( this.plate2 )
+	this:dont_cache( this.post1 )
+	this:dont_cache( this.post2 )
+	this:dont_cache( this.side1 )
+	this:dont_cache( this.side2 )
+	this:activatescr()
+	this:OpenYard()
+	this:set( INBUILDSTANCE, true )
 end
 
-function Stop()
-	set( INBUILDSTANCE, false )
-	CloseYard()
-	deactivatescr()
-	cache( doo2 )
-	cache( door1 )
-	cache( nano1 )
-	cache( nano2 )
-	cache( pad )
-	cache( plate1 )
-	cache( plate2 )
-	cache( post1 )
-	cache( post2 )
-	cache( side1 )
-	cache( side2 )
+__this.Stop = function(this)
+	this:set( INBUILDSTANCE, false )
+	this:CloseYard()
+	this:deactivatescr()
+	this:cache( this.doo2 )
+	this:cache( this.door1 )
+	this:cache( this.nano1 )
+	this:cache( this.nano2 )
+	this:cache( this.pad )
+	this:cache( this.plate1 )
+	this:cache( this.plate2 )
+	this:cache( this.post1 )
+	this:cache( this.post2 )
+	this:cache( this.side1 )
+	this:cache( this.side2 )
 end
 
-ACTIVATECMD = Go
-DEACTIVATECMD = Stop
+__this.ACTIVATECMD = __this.Go
+__this.DEACTIVATECMD = __this.Stop
 
-function Create()
-	spray = 0
-	InitState()
-	start_script( SmokeUnit )
+__this.Create = function(this)
+	this.spray = 0
+	this:InitState()
+	this:start_script( wrap(this, this.SmokeUnit) )
 end
 
-function QueryNanoPiece(piecenum)
-	if spray == 0 then
-		piecenum = beam1
+__this.QueryNanoPiece = function(this, piecenum)
+	if this.spray == 0 then
+		piecenum = this.beam1
 	else
-		piecenum = beam2
+		piecenum = this.beam2
 	end
-	spray = (spray + 1) % 2
+	this.spray = (this.spray + 1) % 2
 	return piecenum
 end
 
-function Activate()
-	signal( SIG_ACTIVATE )
-	start_script( RequestState, ACTIVE )
+__this.Activate = function(this)
+	this:signal( this.SIG_ACTIVATE )
+	this:start_script( wrap(this, this.RequestState), ACTIVE )
 end
 
-function Deactivate()
-	signal( SIG_ACTIVATE )
-	set_signal_mask( SIG_ACTIVATE )
+__this.Deactivate = function(this)
+	this:signal( this.SIG_ACTIVATE )
+	set_signal_mask( this.SIG_ACTIVATE )
 	sleep( 5 )
 	set_signal_mask( 0 )
-	start_script( RequestState, INACTIVE )
+	this:start_script( wrap(this, this.RequestState), INACTIVE )
 end
 
-function StartBuilding()
-	spin( pad, y_axis, 30 )
+__this.StartBuilding = function(this)
+	this:spin( this.pad, y_axis, 30 )
 end
 
-function StopBuilding()
-	stop_spin( pad, y_axis )
+__this.StopBuilding = function(this)
+	this:stop_spin( this.pad, y_axis )
 end
 
-function QueryBuildInfo(piecenum)
-	return pad
+__this.QueryBuildInfo = function(this, piecenum)
+	return this.pad
 end
 
-function SweetSpot(piecenum)
-	return base
+__this.SweetSpot = function (this,piecenum)
+	return this.base
 end
 
-function Killed( severity )
+__this.Killed = function(this, severity )
 	if severity <= 25 then
-		explode( base,	BITMAPONLY + BITMAP1 )
-		explode( doo2,	BITMAPONLY + BITMAP4 )
-		explode( door1,	BITMAPONLY + BITMAP5 )
-		explode( nano1,	BITMAPONLY + BITMAP1 )
-		explode( nano2,	BITMAPONLY + BITMAP2 )
-		explode( pad,	BITMAPONLY + BITMAP3 )
-		explode( plate1,	BITMAPONLY + BITMAP4 )
-		explode( plate2,	BITMAPONLY + BITMAP5 )
-		explode( post1,	BITMAPONLY + BITMAP1 )
-		explode( post2,	BITMAPONLY + BITMAP2 )
-		explode( side1,	BITMAPONLY + BITMAP3 )
-		explode( side2,	BITMAPONLY + BITMAP4 )
+		this:explode( this.base,	BITMAPONLY + BITMAP1 )
+		this:explode( this.doo2,	BITMAPONLY + BITMAP4 )
+		this:explode( this.door1,	BITMAPONLY + BITMAP5 )
+		this:explode( this.nano1,	BITMAPONLY + BITMAP1 )
+		this:explode( this.nano2,	BITMAPONLY + BITMAP2 )
+		this:explode( this.pad,	BITMAPONLY + BITMAP3 )
+		this:explode( this.plate1,	BITMAPONLY + BITMAP4 )
+		this:explode( this.plate2,	BITMAPONLY + BITMAP5 )
+		this:explode( this.post1,	BITMAPONLY + BITMAP1 )
+		this:explode( this.post2,	BITMAPONLY + BITMAP2 )
+		this:explode( this.side1,	BITMAPONLY + BITMAP3 )
+		this:explode( this.side2,	BITMAPONLY + BITMAP4 )
 		return 1
 	end
 
 	if severity <= 50 then
-		explode( base,	BITMAPONLY + BITMAP1 )
-		explode( doo2,	FALL + BITMAP4 )
-		explode( door1,	BITMAPONLY + BITMAP5 )
-		explode( nano1,	BITMAPONLY + BITMAP1 )
-		explode( nano2,	FALL + BITMAP2 )
-		explode( pad,	BITMAPONLY + BITMAP3 )
-		explode( plate1,	SHATTER + BITMAP4 )
-		explode( plate2,	BITMAPONLY + BITMAP5 )
-		explode( post1,	FALL + BITMAP1 )
-		explode( post2,	FALL + BITMAP2 )
-		explode( side1,	BITMAPONLY + BITMAP3 )
-		explode( side2,	BITMAPONLY + BITMAP4 )
+		this:explode( this.base,	BITMAPONLY + BITMAP1 )
+		this:explode( this.doo2,	FALL + BITMAP4 )
+		this:explode( this.door1,	BITMAPONLY + BITMAP5 )
+		this:explode( this.nano1,	BITMAPONLY + BITMAP1 )
+		this:explode( this.nano2,	FALL + BITMAP2 )
+		this:explode( this.pad,	BITMAPONLY + BITMAP3 )
+		this:explode( this.plate1,	SHATTER + BITMAP4 )
+		this:explode( this.plate2,	BITMAPONLY + BITMAP5 )
+		this:explode( this.post1,	FALL + BITMAP1 )
+		this:explode( this.post2,	FALL + BITMAP2 )
+		this:explode( this.side1,	BITMAPONLY + BITMAP3 )
+		this:explode( this.side2,	BITMAPONLY + BITMAP4 )
 		return 2
 	end
 
 	if severity <= 99 then
-		explode( base,	BITMAPONLY + BITMAP1 )
-		explode( doo2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
-		explode( door1,	BITMAPONLY + BITMAP5 )
-		explode( nano1,	BITMAPONLY + BITMAP1 )
-		explode( nano2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
-		explode( pad,	BITMAPONLY + BITMAP3 )
-		explode( plate1,	SHATTER + BITMAP4 )
-		explode( plate2,	SHATTER + BITMAP5 )
-		explode( post1,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-		explode( post2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
-		explode( side1,	BITMAPONLY + BITMAP3 )
-		explode( side2,	BITMAPONLY + BITMAP4 )
+		this:explode( this.base,	BITMAPONLY + BITMAP1 )
+		this:explode( this.doo2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
+		this:explode( this.door1,	BITMAPONLY + BITMAP5 )
+		this:explode( this.nano1,	BITMAPONLY + BITMAP1 )
+		this:explode( this.nano2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
+		this:explode( this.pad,	BITMAPONLY + BITMAP3 )
+		this:explode( this.plate1,	SHATTER + BITMAP4 )
+		this:explode( this.plate2,	SHATTER + BITMAP5 )
+		this:explode( this.post1,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+		this:explode( this.post2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
+		this:explode( this.side1,	BITMAPONLY + BITMAP3 )
+		this:explode( this.side2,	BITMAPONLY + BITMAP4 )
 		return 3
 	end
 
-	explode( base,	BITMAPONLY + BITMAP1 )
-	explode( doo2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
-	explode( door1,	BITMAPONLY + BITMAP5 )
-	explode( nano1,	BITMAPONLY + BITMAP1 )
-	explode( nano2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
-	explode( pad,	BITMAPONLY + BITMAP3 )
-	explode( plate1,    SHATTER + EXPLODE_ON_HIT + BITMAP4 )
-	explode( plate2,	SHATTER + EXPLODE_ON_HIT + BITMAP5 )
-	explode( post1,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-	explode( post2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
-	explode( side1,	BITMAPONLY + BITMAP3 )
-	explode( side2,	BITMAPONLY + BITMAP4 )
+	this:explode( this.base,	BITMAPONLY + BITMAP1 )
+	this:explode( this.doo2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
+	this:explode( this.door1,	BITMAPONLY + BITMAP5 )
+	this:explode( this.nano1,	BITMAPONLY + BITMAP1 )
+	this:explode( this.nano2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
+	this:explode( this.pad,	BITMAPONLY + BITMAP3 )
+	this:explode( this.plate1,    SHATTER + EXPLODE_ON_HIT + BITMAP4 )
+	this:explode( this.plate2,	SHATTER + EXPLODE_ON_HIT + BITMAP5 )
+	this:explode( this.post1,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+	this:explode( this.post2,	FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
+	this:explode( this.side1,	BITMAPONLY + BITMAP3 )
+	this:explode( this.side2,	BITMAPONLY + BITMAP4 )
 	return 3
 end
 

@@ -19,6 +19,7 @@
 #include "unit.script.interface.h"
 #include "cob.vm.h"
 #include "unit.script.h"
+#include "lua.data.h"
 
 namespace TA3D
 {
@@ -28,7 +29,7 @@ namespace TA3D
 
         if ( dynamic_cast<CobScript*>(data) )          // Try CobScript (OTA COB/BOS)
             usi = new CobVm();
-        else if ( dynamic_cast<LuaChunk*>(data) )      // Try LuaChunk (Lua)
+        else if ( dynamic_cast<LuaData*>(data) )       // Try LuaData (Lua)
             usi = new UnitScript();
 
         usi->load( data );

@@ -20,6 +20,7 @@
 #include "script.data.h"
 #include "cob.h"
 #include "lua.chunk.h"
+#include "lua.data.h"
 
 namespace TA3D
 {
@@ -29,7 +30,7 @@ namespace TA3D
         String tmp_lua = filename + ".lua";
         if (VFS::instance()->fileExists(tmp_lua) && VFS::instance()->filePriority(tmp_lua) >= VFS::instance()->filePriority(tmp_cob))
         {
-            ScriptData *script = new LuaChunk;
+            ScriptData *script = new LuaData;
             script->load(tmp_lua);
             return script;
         }

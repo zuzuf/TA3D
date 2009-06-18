@@ -1,24 +1,24 @@
-local function sleep(delay)
+function sleep(delay)
     coroutine.yield(delay, 1)
 end
 
-local function wait()
+function wait()
     coroutine.yield(0, 2)
 end
 
-local function end_thread()
+function end_thread()
     coroutine.yield(0, 4)
 end
 
-local function yield()
+function yield()
     coroutine.yield()
 end
 
-local function set_signal_mask(sig)
+function set_signal_mask(sig)
     coroutine.yield(sig, 3)
 end
 
-local function vector()
+function vector()
     local vec = {x=0, y=0, z=0}
     return setmetatable(vec, __vector_metatable)
 end
@@ -75,7 +75,7 @@ __vector_metatable = {__add=__vec_add, __sub=__vec_sub, __mul=__vec_mul, __mod=_
 __fast_vector_metatable = {__add=__fast_vec_add, __sub=__fast_vec_sub, __mul=__fast_vec_mul, __mod=__vec_dot, __pow=__vec_cross}
 
 -- normalize v, modifies the content of v
-local function normalize(v)
+function normalize(v)
     local l = 1.0 / math.sqrt( v * v )
     v.x = l * v.x
     v.y = l * v.y
@@ -84,7 +84,7 @@ local function normalize(v)
 end
 
 -- returns the normalized version of v, doesn't change v
-local function normalized(v)
+function normalized(v)
     local l = 1.0 / math.sqrt( v * v )
     local tmp = vector()
     tmp.x = l * v.x
@@ -93,7 +93,7 @@ local function normalized(v)
     return tmp
 end
 
-local function game_signal( sig )
+function game_signal( sig )
     coroutine.yield(sig)
 end
 
@@ -119,11 +119,61 @@ local function wait_for_turn(obj, axis)
     end
 end
 
-local function piece(...)
+local function piece(this, ...)
     __piece_list = {...}
     for i = 1, #__piece_list do
-        _G[__piece_list[i]] = i - 1
+        this[__piece_list[i]] = i - 1
     end
+    this["__piece_list"] = __piece_list
+end
+
+__units = {}
+
+local function createUnitScript(name)
+	_G["__name"] = name
+	local script = {name=name}
+	script.piece = piece
+	script.is_turning = is_turning
+	script.is_moing = is_moving
+	script.move = move
+	script.explode = explode
+	script.turn = turn
+	script.get_value_from_port = get_value_from_port
+	script.spin = spin
+	script.stop_spin = stop_spin
+	script.show = show
+	script.hide = hide
+	script.emit_sfx = emit_sfx
+	script.move_piece_now = move_piece_now
+	script.turn_piece_now = turn_piece_now
+	script.get = get
+	script.set_value = set_value
+	script.set = set
+	script.attach_unit = attach_unit
+	script.drop_unit = drop_unit
+	script.unit_position = unit_position
+	script.cache = cache
+	script.dont_cache = dont_cache
+	script.shade = shade
+	script.dont_shade = dont_shade
+	script.set_script_value = set_script_value
+	script.signal = _signal
+	script.set_signal_mask = function(this, ...) set_signal_mask(...)	end
+	script.start_script = _start_script
+	_G[name] = script
+	_G["__this"] = script
+end
+
+function cloneUnitScript(name, unitID)
+	local script = _G[name]
+	local unit = {unitID = unitID, __threads = {} }
+	
+	for v, k in pairs(script) do		-- clone the script table
+		unit[k] = v
+	end
+	
+	logmsg("creating the unit")
+	__units[unitID] = unit
 end
 
 __unit_virtual_table = {}	-- This is the table that will store additionnal data, so virtually we don't lose anything
@@ -195,16 +245,20 @@ local function __type_virtual_newindex (table, key, value)
 	end
 end
 
+function wrap(this, func)
+	return function(this, func, ...) func(this, ...) end
+end
+
 __type_metatable = {__index=__type_virtual_index, __newindex=__type_virtual_newindex}
 
-local DEG2RAD = 0.017453292519943295
-local RAD2DEG = 57.29577951308232
+DEG2RAD = 0.017453292519943295
+RAD2DEG = 57.29577951308232
 
-local DEG2TA = 182.04444444444445
-local TA2DEG = 0.0054931640625
+DEG2TA = 182.04444444444445
+TA2DEG = 0.0054931640625
 
-local RAD2TA = 20860.756700940907
-local TA2RAD = 0.000047936899621426287
+RAD2TA = 20860.756700940907
+TA2RAD = 0.000047936899621426287
 
-local Builder = -3
-local CanAttack = -2
+Builder = -3
+CanAttack = -2
