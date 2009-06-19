@@ -5,7 +5,7 @@ createUnitScript("armvp")
 __this:piece( "base", "pad", "beam1", "beam2", "doo2", "door1", "nano1", "nano2", "plate1", "plate2", "post1", "post2", "side1", "side2" )
 
 __this.SIG_ACTIVATE = 2
-__this.SMOKEPIECE1 = base
+__this.SMOKEPIECE1 = __this.base
 __this.ANIM_VARIABLE = true
 
 #include "StateChg.lh"
@@ -113,7 +113,7 @@ __this.DEACTIVATECMD = __this.Stop
 __this.Create = function(this)
 	this.spray = 0
 	this:InitState()
-	this:start_script( wrap(this, this.SmokeUnit) )
+	this:start_script( this.SmokeUnit, this )
 end
 
 __this.QueryNanoPiece = function(this, piecenum)
@@ -128,7 +128,7 @@ end
 
 __this.Activate = function(this)
 	this:signal( this.SIG_ACTIVATE )
-	this:start_script( wrap(this, this.RequestState), ACTIVE )
+	this:start_script( this.RequestState, this, ACTIVE )
 end
 
 __this.Deactivate = function(this)
@@ -136,7 +136,7 @@ __this.Deactivate = function(this)
 	set_signal_mask( this.SIG_ACTIVATE )
 	sleep( 5 )
 	set_signal_mask( 0 )
-	this:start_script( wrap(this, this.RequestState), INACTIVE )
+	this:start_script( this.RequestState, this, INACTIVE )
 end
 
 __this.StartBuilding = function(this)

@@ -1,121 +1,123 @@
 -- Arm Plasma Defense Battery
 
-piece( "flare1", "flare2", "base", "turret", "sleeves", "barrel1", "barrel2" )
+createUnitScript("armguard")
 
-local fire = 0
+__this:piece( "flare1", "flare2", "base", "turret", "sleeves", "barrel1", "barrel2" )
 
-local SIG_AIM     = 2
-local SMOKEPIECE1 = base
+__this.fire = 0
+
+__this.SIG_AIM     = 2
+__this.SMOKEPIECE1 = __this.base
 
 #include "smokeunit.lh"
 #include "EXPtype.lh"
 
-function Create()
-	hide( flare1 )
-	hide( flare2 )
-	dont_cache( flare1 )
-	dont_cache( flare2 )
-	dont_cache( barrel1 )
-	dont_cache( barrel2 )
-	dont_cache( sleeves )
-	dont_cache( turret )
-	fire = 0
-	start_script( SmokeUnit )
+__this.Create = function(this)
+	this:hide( this.flare1 )
+	this:hide( this.flare2 )
+	this:dont_cache( this.flare1 )
+	this:dont_cache( this.flare2 )
+	this:dont_cache( this.barrel1 )
+	this:dont_cache( this.barrel2 )
+	this:dont_cache( this.sleeves )
+	this:dont_cache( this.turret )
+	this.fire = 0
+	this:start_script( this.SmokeUnit, this )
 end
 
-function AimPrimary(heading,pitch)
-	set_script_value("AimPrimary", false)
+__this.AimPrimary = function(this, heading, pitch)
+	this:set_script_value("AimPrimary", false)
 
-	signal( SIG_AIM )
+	this:signal( SIG_AIM )
 	set_signal_mask( SIG_AIM )
 	
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG
 
-	turn( turret, y_axis, heading, 30 )
-	turn( sleeves, x_axis, -pitch, 45 )
-	wait_for_turn( turret, y_axis )
-	wait_for_turn( sleeves, x_axis )
+	this:turn( this.turret, y_axis, heading, 30 )
+	this:turn( this.sleeves, x_axis, -pitch, 45 )
+	this:wait_for_turn( this.turret, y_axis )
+	this:wait_for_turn( this.sleeves, x_axis )
 
-	set_script_value("AimPrimary", true)
+	this:set_script_value("AimPrimary", true)
 end
 
-function FirePrimary()
+__this.FirePrimary = function(this)
 	if fire == 0 then
-		move_piece_now( barrel1, z_axis, -2.5 )
-		show( flare1 )
+		this:move_piece_now( this.barrel1, z_axis, -2.5 )
+		this:show( this.flare1 )
 		sleep( 0.15 )
-		hide( flare1 )
-		move( barrel1, z_axis, 0, 1 )
+		this:hide( this.flare1 )
+		this:move( this.barrel1, z_axis, 0, 1 )
 		fire = 1
 	else
-		move_piece_now( barrel2, z_axis, -2.5 )
-		show( flare2 )
+		this:move_piece_now( this.barrel2, z_axis, -2.5 )
+		this:show( this.flare2 )
 		sleep( 0.15 )
-		hide( flare2 )
-		move( barrel2, z_axis, 0, 1 )
+		this:hide( this.flare2 )
+		this:move( this.barrel2, z_axis, 0, 1 )
 		fire = 0
 	end
 end
 
-function QueryPrimary()
+__this.QueryPrimary = function(this)
     if fire == 0 then
-    	return flare1
+    	return this.flare1
     end
-    return flare2
+    return this.flare2
 end
 
-function AimFromPrimary()
-	return turret
+__this.AimFromPrimary = function(this)
+	return this.turret
 end
 
-function SweetSpot()
-	return base
+__this.SweetSpot = function(this)
+	return this.base
 end
 
-function Killed( severity )
-	hide( flare1 )
-	hide( flare2 )
+__this.Killed = function( this, severity )
+	this:hide( this.flare1 )
+	this:hide( this.flare2 )
 	if severity <= 25 then
-		explode( barrel1, BITMAPONLY + BITMAP1 )
-		explode( barrel2, BITMAPONLY + BITMAP2 )
-		explode( base, BITMAPONLY + BITMAP3 )
-		explode( flare1, BITMAPONLY + BITMAP4 )
-		explode( flare1, BITMAPONLY + BITMAP5 )
-		explode( sleeves, BITMAPONLY + BITMAP1 )
-		explode( turret, BITMAPONLY + BITMAP2 )
+		this:explode( this.barrel1, BITMAPONLY + BITMAP1 )
+		this:explode( this.barrel2, BITMAPONLY + BITMAP2 )
+		this:explode( this.base, BITMAPONLY + BITMAP3 )
+		this:explode( this.flare1, BITMAPONLY + BITMAP4 )
+		this:explode( this.flare1, BITMAPONLY + BITMAP5 )
+		this:explode( this.sleeves, BITMAPONLY + BITMAP1 )
+		this:explode( this.turret, BITMAPONLY + BITMAP2 )
 		return 1
 	end
 
 	if severity <= 50 then
-		explode( barrel1, FALL + BITMAP1 )
-		explode( barrel2, FALL + BITMAP2 )
-		explode( base, BITMAPONLY + BITMAP3 )
-		explode( flare1, FALL + BITMAP4 )
-		explode( flare1, FALL + BITMAP5 )
-		explode( sleeves, SHATTER + BITMAP1 )
-		explode( turret, BITMAPONLY + BITMAP2 )
+		this:explode( this.barrel1, FALL + BITMAP1 )
+		this:explode( this.barrel2, FALL + BITMAP2 )
+		this:explode( this.base, BITMAPONLY + BITMAP3 )
+		this:explode( this.flare1, FALL + BITMAP4 )
+		this:explode( this.flare1, FALL + BITMAP5 )
+		this:explode( this.sleeves, SHATTER + BITMAP1 )
+		this:explode( this.turret, BITMAPONLY + BITMAP2 )
 		return 2
 	end
 
 	if severity <= 99 then
-		explode( barrel1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-		explode( barrel2, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
-		explode( base, BITMAPONLY + BITMAP3 )
-		explode( flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
-		explode( flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP5 )
-		explode( sleeves, SHATTER + BITMAP1 )
-		explode( turret, BITMAPONLY + BITMAP2 )
+		this:explode( this.barrel1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+		this:explode( this.barrel2, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
+		this:explode( this.base, BITMAPONLY + BITMAP3 )
+		this:explode( this.flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
+		this:explode( this.flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP5 )
+		this:explode( this.sleeves, SHATTER + BITMAP1 )
+		this:explode( this.turret, BITMAPONLY + BITMAP2 )
 		return 3
 	end
 
-	explode( barrel1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-	explode( barrel2, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
-	explode( base, BITMAPONLY + BITMAP3 )
-	explode( flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
-	explode( flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP5 )
-	explode( sleeves, SHATTER + EXPLODE_ON_HIT + BITMAP1 )
-	explode( turret, BITMAPONLY + BITMAP2 )
+	this:explode( this.barrel1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+	this:explode( this.barrel2, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP2 )
+	this:explode( this.base, BITMAPONLY + BITMAP3 )
+	this:explode( this.flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP4 )
+	this:explode( this.flare1, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP5 )
+	this:explode( this.sleeves, SHATTER + EXPLODE_ON_HIT + BITMAP1 )
+	this:explode( this.turret, BITMAPONLY + BITMAP2 )
 	return 3
 end
 

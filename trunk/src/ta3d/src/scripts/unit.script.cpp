@@ -25,29 +25,30 @@ namespace TA3D
 {
     lua_State *UnitScript::pLuaVM = NULL;
 
-    inline UnitScript *lua_scriptID( lua_State *L, int pos )
+    inline Unit *lua_currentUnit(lua_State *L, int pos)
     {
-        if (lua_isuserdata( L, pos))
-        {
-            UnitScript *p = (UnitScript*) lua_touserdata( L, pos );
-            return p;
-        }
-        lua_getfield( L, pos, "unitID");
-        UnitScript *p = (UnitScript*) lua_touserdata( L, -1 );
-        lua_pop( L, 1 );
+        lua_getfield(L, pos, "unitID");
+        Unit *p = &(units.unit[lua_tointeger( L, -1 )]);
+        lua_pop(L, 1);
         return p;
     }
 
-    int unit_thread_signal( lua_State *L )       // signal( threadID, sig )
+    inline UnitScript *lua_scriptID( lua_State *L, int pos )
+    {
+        Unit *unit = lua_currentUnit(L, pos);
+        UnitScript *p = static_cast<UnitScript*>(unit->script);
+        return p;
+    }
+
+    int unit_thread_signal( lua_State *L )       // signal( unitID, sig )
     {
         UnitScript *lua_script = lua_scriptID(L, 1);
         if (lua_script)
             lua_script->processSignal( lua_tointeger(L, 2) );
-        lua_settop(L, 0);
         return 0;
     }
 
-    int unit_thread_start_script( lua_State *L )         // start_script( threadID, function, params )
+    int unit_thread_start_script( lua_State *L )         // start_script( unitID, function, params )
     {
         int n = lua_gettop(L);
 
@@ -56,7 +57,7 @@ namespace TA3D
             UnitScript *lua_script = lua_scriptID(L, 1);
             if (lua_script)
             {
-                UnitScript *newThread = lua_script->fork(L, n);
+                UnitScript *newThread = lua_script->fork(L, n - 1);
                 newThread->setSignalMask( lua_script->getSignalMask() );
             }
         }
@@ -97,12 +98,6 @@ namespace TA3D
     UnitScript::~UnitScript()
     {
         destroy();
-    }
-
-    inline Unit *lua_currentUnit(lua_State *L, int pos)
-    {
-        Unit *p = &(units.unit[lua_tointeger( L, pos )]);
-        return p;
     }
 
     int unit_is_turning( lua_State *L )        // is_turning(unitID, obj_id, axis_id)
@@ -363,9 +358,9 @@ namespace TA3D
         if (L == NULL)
         {
             L = luaVM();
+            lua_getglobal(L, "cloneUnitScript");
             lua_pushstring(L, name.c_str());
             lua_pushinteger(L, unitID);
-            lua_getglobal(L, "cloneUnitScript");
             lua_call(L, 2, 0);
             lua_settop(L, 0);
         }
@@ -536,9 +531,9 @@ namespace TA3D
         if (parameters == NULL)
             nb_params = 0;
         lua_getUnitTable();         // the this parameter
-        ++nb_params;
         for(int i = 0 ; i < nb_params ; i++)
             lua_pushinteger(L, parameters[i]);
+        ++nb_params;
         try
         {
             if (lua_pcall( L, nb_params, 1, 0))
@@ -596,6 +591,7 @@ namespace TA3D
         newThread->sleeping = false;
         newThread->sleep_time = 0.0f;
         newThread->caller = (caller != NULL) ? caller : this;
+        newThread->unitID = unitID;
 
         lua_getUnitTable();
         lua_getfield(L, -1, "__threads");

@@ -1,75 +1,76 @@
 -- Arm Metal Extractor Script
+createUnitScript("armmex")
 
-piece( "base", "arms" )
+__this:piece( "base", "arms" )
 
-local SMOKEPIECE1 = base
+__this.SMOKEPIECE1 = __this.base
 
 #include "StateChg.lh"
 #include "smokeunit.lh"
 #include "exptype.lh"
 
-local spinspeed = 0
-local spinacc = 0.5
-local spindec = 1.0
+__this.spinspeed = 0
+__this.spinacc = 0.5
+__this.spindec = 1.0
 
-function Go()
-	spin( arms, y_axis, spinspeed, spinacc )
+__this.Go = function(this)
+	this:spin( this.arms, y_axis, this.spinspeed, this.spinacc )
 end
 
-function Stop()
-	stop_spin( arms, y_axis, spindec )
-	wait_for_turn( arms, y_axis )
+__this.Stop = function(this)
+	this:stop_spin( this.arms, y_axis, this.spindec )
+	this:wait_for_turn( this.arms, y_axis )
 end
 
-ACTIVATECMD = Go
-DEACTIVATECMD = Stop
+__this.ACTIVATECMD = __this.Go
+__this.DEACTIVATECMD = __this.Stop
 
-function Create()
-	spinspeed = 0
-	spinacc = 0.5
-	spindec = 1.0
-	dont_shade( arms )
-	dont_cache( arms )
-	InitState()
-	start_script( SmokeUnit )
+__this.Create = function(this)
+	this.spinspeed = 0
+	this.spinacc = 0.5
+	this.spindec = 1.0
+	this:dont_shade( this.arms )
+	this:dont_cache( this.arms )
+	this:InitState()
+	this:start_script( this.SmokeUnit, this )
 end
 
-function Activate()
-	start_script( RequestState, ACTIVE )
+__this.Activate = function(this)
+	this:start_script( this.RequestState, this, ACTIVE )
 end
 
-function Deactivate()
-	start_script( RequestState, INACTIVE )
+__this.Deactivate = function(this)
+	this:start_script( this.RequestState, this, INACTIVE )
 end
 
-function SweetSpot()
-	return base
+__this.SweetSpot = function(this)
+	return this.base
 end
 
-function SetSpeed(the_speed)
-	spinspeed = the_speed * 0.25
+__this.SetSpeed = function(this, the_speed)
+	this.spinspeed = the_speed * 0.25
 end
 
-function Killed( severity )
+__this.Killed = function(this, severity )
 	if severity <= 25 then
-		explode( arms, BITMAPONLY + BITMAP1 )
-		explode( base, BITMAPONLY + BITMAP2 )
+		this:explode( this.arms, BITMAPONLY + BITMAP1 )
+		this:explode( this.base, BITMAPONLY + BITMAP2 )
 		return 1
 	end
 
 	if severity <= 50 then
-		explode( arms, SHATTER + BITMAP1 )
-		explode( base, BITMAPONLY + BITMAP2 )
+		this:explode( this.arms, SHATTER + BITMAP1 )
+		this:explode( this.base, BITMAPONLY + BITMAP2 )
 		return 2
 	end
 
 	if severity <= 99 then
-		explode( arms, SHATTER + EXPLODE_ON_HIT + BITMAP1 )
-		explode( base, BITMAPONLY + BITMAP2 )
+		this:explode( this.arms, SHATTER + EXPLODE_ON_HIT + BITMAP1 )
+		this:explode( this.base, BITMAPONLY + BITMAP2 )
 		return 3
 	end
 
-	explode( arms, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-	explode( base, SHATTER + EXPLODE_ON_HIT + BITMAP2 )
+	this:explode( this.arms, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+	this:explode( this.base, SHATTER + EXPLODE_ON_HIT + BITMAP2 )
 	return 3
 end

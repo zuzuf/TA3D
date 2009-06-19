@@ -1,140 +1,142 @@
 -- Arm Construction Vehicle
 
-piece( "base", "beam", "arm", "door1", "door2", "nano", "plate", "turret" )
+createUnitScript("armcv")
 
-local buildheading = 0
+__this:piece( "base", "beam", "arm", "door1", "door2", "nano", "plate", "turret" )
 
-local SMOKEPIECE1     = base
-local ANIM_VARIABLE   = true
+__this.buildheading = 0
+
+__this.SMOKEPIECE1     = __this.base
+__this.ANIM_VARIABLE   = true
 
 #include "StateChg.lh"
 #include "smokeunit.lh"
 #include "exptype.lh"
 
-function activatescr()
-    turn( door1, z_axis, -90, 90 )
-    turn( door2, z_axis, 90, 90 )
+__this.activatescr = function(this)
+    this:turn( this.door1, z_axis, -90, 90 )
+    this:turn( this.door2, z_axis, 90, 90 )
     
-    wait_for_turn( door1, z_axis )
-    wait_for_turn( door2, z_axis )
+    this:wait_for_turn( this.door1, z_axis )
+    this:wait_for_turn( this.door2, z_axis )
     
-    turn( arm, x_axis, 90, 90 )
-    turn( nano, x_axis, -90, 90 )
+    this:turn( this.arm, x_axis, 90, 90 )
+    this:turn( this.nano, x_axis, -90, 90 )
 
-    wait_for_turn( arm, x_axis )
-    wait_for_turn( nano, x_axis )
+    this:wait_for_turn( this.arm, x_axis )
+    this:wait_for_turn( this.nano, x_axis )
 end
 
-function deactivatescr()
-    turn( arm, x_axis, 0, 90 )
-    turn( nano, x_axis, 0, 90 )
+__this.deactivatescr = function(this)
+    this:turn( this.arm, x_axis, 0, 90 )
+    this:turn( this.nano, x_axis, 0, 90 )
 
-    wait_for_turn( arm, x_axis )
-    wait_for_turn( nano, x_axis )
+    this:wait_for_turn( this.arm, x_axis )
+    this:wait_for_turn( this.nano, x_axis )
 
-    turn( door1, z_axis, 0, 90 )
-    turn( door2, z_axis, 0, 90 )
+    this:turn( this.door1, z_axis, 0, 90 )
+    this:turn( this.door2, z_axis, 0, 90 )
     
-    wait_for_turn( door1, z_axis )
-    wait_for_turn( door2, z_axis )
+    this:wait_for_turn( this.door1, z_axis )
+    this:wait_for_turn( this.door2, z_axis )
 end
 
-function Go()
-	activatescr()
-	turn( turret, y_axis, buildheading, 160 )
-	wait_for_turn( turret, y_axis )
-	set( INBUILDSTANCE, true )
+__this.Go = function(this)
+	this:activatescr()
+	this:turn( this.turret, y_axis, buildheading, 160 )
+	this:wait_for_turn( this.turret, y_axis )
+	this:set( INBUILDSTANCE, true )
 end
 
-function Stop()
-	set( INBUILDSTANCE, false )
-	turn( turret, y_axis, 0, 160 )
-	wait_for_turn( turret, y_axis )
-	deactivatescr()
+__this.Stop = function(this)
+	this:set( INBUILDSTANCE, false )
+	this:turn( this.turret, y_axis, 0, 160 )
+	this:wait_for_turn( this.turret, y_axis )
+	this:deactivatescr()
 end
 
-ACTIVATECMD     = Go
-DEACTIVATECMD   = Stop
+__this.ACTIVATECMD     = __this.Go
+__this.DEACTIVATECMD   = __this.Stop
 
-function Create()
-	buildheading = 0
-	InitState()
-	start_script( SmokeUnit )
+__this.Create = function(this)
+	this.buildheading = 0
+	this:InitState()
+	this:start_script( this.SmokeUnit, this )
 end
 
-function Activate()
-	start_script( RequestState, ACTIVE )
+__this.Activate = function(this)
+	this:start_script( this.RequestState, this, ACTIVE )
 end
 
-function Deactivate()
-	start_script( RequestState, INACTIVE )
+__this.Deactivate = function(this)
+	this:start_script( this.RequestState, this, INACTIVE )
 end
 
-function StartBuilding(heading)
-	buildheading = heading * TA2DEG
-	start_script( RequestState, ACTIVE )
+__this.StartBuilding = function(this, heading)
+	this.buildheading = heading * TA2DEG
+	this:start_script( this.RequestState, this, ACTIVE )
 end
 
-function StopBuilding()
-	start_script( RequestState, INACTIVE )
+__this.StopBuilding = function(this)
+	this:start_script( this.RequestState, this, INACTIVE )
 end
 
-function QueryNanoPiece()
-	return beam
+__this.QueryNanoPiece = function(this)
+	return this.beam
 end
 
-function TargetHeading( heading )
-	buildheading = -heading * TA2DEG
+__this.TargetHeading = function(this, heading)
+	this.buildheading = -heading * TA2DEG
 end
 
-function SweetSpot()
-	return base
+__this.SweetSpot = function(this)
+	return this.base
 end
 
-function Killed( severity )
+__this.Killed = function(this, severity)
 	if severity <= 25 then
-		explode( arm, BITMAPONLY + BITMAP1 )
-		explode( base, BITMAPONLY + BITMAP2 )
-		explode( beam, BITMAPONLY + BITMAP3 )
-		explode( door1, BITMAPONLY + BITMAP4 )
-		explode( door2, BITMAPONLY + BITMAP5 )
-		explode( nano, BITMAPONLY + BITMAP1 )
-		explode( plate, BITMAPONLY + BITMAP2 )
-		explode( turret, BITMAPONLY + BITMAP3 )
+		this:explode( this.arm, BITMAPONLY + BITMAP1 )
+		this:explode( this.base, BITMAPONLY + BITMAP2 )
+		this:explode( this.beam, BITMAPONLY + BITMAP3 )
+		this:explode( this.door1, BITMAPONLY + BITMAP4 )
+		this:explode( this.door2, BITMAPONLY + BITMAP5 )
+		this:explode( this.nano, BITMAPONLY + BITMAP1 )
+		this:explode( this.plate, BITMAPONLY + BITMAP2 )
+		this:explode( this.turret, BITMAPONLY + BITMAP3 )
 		return 1
 	end
 
 	if severity <= 50 then
-		explode( arm, FALL + BITMAP1 )
-		explode( base, BITMAPONLY + BITMAP2 )
-		explode( beam, FALL + BITMAP3 )
-		explode( door1, BITMAPONLY + BITMAP4 )
-		explode( door2, BITMAPONLY + BITMAP5 )
-		explode( nano, SHATTER + BITMAP1 )
-		explode( plate, BITMAPONLY + BITMAP2 )
-		explode( turret, FALL + BITMAP3 )
+		this:explode( this.arm, FALL + BITMAP1 )
+		this:explode( this.base, BITMAPONLY + BITMAP2 )
+		this:explode( this.beam, FALL + BITMAP3 )
+		this:explode( this.door1, BITMAPONLY + BITMAP4 )
+		this:explode( this.door2, BITMAPONLY + BITMAP5 )
+		this:explode( this.nano, SHATTER + BITMAP1 )
+		this:explode( this.plate, BITMAPONLY + BITMAP2 )
+		this:explode( this.turret, FALL + BITMAP3 )
 		return 2
 	end
 
 	if severity <= 99 then
-		explode( arm, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-		explode( base, BITMAPONLY + BITMAP2 )
-		explode( beam, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
-		explode( door1, BITMAPONLY + BITMAP4 )
-		explode( door2, BITMAPONLY + BITMAP5 )
-		explode( nano, SHATTER + BITMAP1 )
-		explode( plate, BITMAPONLY + BITMAP2 )
-		explode( turret, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
+		this:explode( this.arm, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+		this:explode( this.base, BITMAPONLY + BITMAP2 )
+		this:explode( this.beam, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
+		this:explode( this.door1, BITMAPONLY + BITMAP4 )
+		this:explode( this.door2, BITMAPONLY + BITMAP5 )
+		this:explode( this.nano, SHATTER + BITMAP1 )
+		this:explode( this.plate, BITMAPONLY + BITMAP2 )
+		this:explode( this.turret, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
 		return 3
 	end
 
-	explode( arm, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
-	explode( base, BITMAPONLY + BITMAP2 )
-	explode( beam, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
-	explode( door1, BITMAPONLY + BITMAP4 )
-	explode( door2, BITMAPONLY + BITMAP5 )
-	explode( nano, SHATTER + EXPLODE_ON_HIT + BITMAP1 )
-	explode( plate, BITMAPONLY + BITMAP2 )
-	explode( turret, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
+	this:explode( this.arm, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP1 )
+	this:explode( this.base, BITMAPONLY + BITMAP2 )
+	this:explode( this.beam, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
+	this:explode( this.door1, BITMAPONLY + BITMAP4 )
+	this:explode( this.door2, BITMAPONLY + BITMAP5 )
+	this:explode( this.nano, SHATTER + EXPLODE_ON_HIT + BITMAP1 )
+	this:explode( this.plate, BITMAPONLY + BITMAP2 )
+	this:explode( this.turret, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
 	return 3
 end

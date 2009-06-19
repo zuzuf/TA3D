@@ -1,40 +1,42 @@
 -- Arm Energy Storage Facility
 
-piece( "base", "texture" )
+createUnitScript("armestor")
 
-local SMOKEPIECE1 = base
+__this:piece( "base", "texture" )
+
+__this.SMOKEPIECE1 = __this.base
 #include "smokeunit.lh"
 #include "EXPtype.lh"
 
-function Create()
-	dont_cache( texture )
-	dont_shade( texture )
-	start_script( SmokeUnit )
+__this.Create = function(this)
+	this:dont_cache( this.texture )
+	this:dont_shade( this.texture )
+	this:start_script( this.SmokeUnit, this )
 end
 
-function SweetSpot()
-	return base
+__this.SweetSpot = function(this)
+	return this.base
 end
 
-function Killed( severity )
+__this.Killed = function( this, severity )
 	if severity <= 25 then
-		explode( base, BITMAPONLY + BITMAP1 )
-		explode( texture, BITMAPONLY + BITMAP2 )
+		this:explode( this.base, BITMAPONLY + BITMAP1 )
+		this:explode( this.texture, BITMAPONLY + BITMAP2 )
 		return 1
 	end
 
 	if severity <= 50 then
-		explode( base, BITMAPONLY + BITMAP1 )
-		explode( texture, SHATTER + BITMAP2 )
+		this:explode( this.base, BITMAPONLY + BITMAP1 )
+		this:explode( this.texture, SHATTER + BITMAP2 )
 		return 2
 	end
 
 	if severity <= 99 then
-	    explode( base, BITMAPONLY + BITMAP1 )
-	    explode( texture, SHATTER + BITMAP2 )
+	    this:explode( this.base, BITMAPONLY + BITMAP1 )
+	    this:explode( this.texture, SHATTER + BITMAP2 )
 		return 3
 	end
-	explode( base, BITMAPONLY + BITMAP1 )
-	explode( texture, SHATTER + EXPLODE_ON_HIT + BITMAP2 )
+	this:explode( this.base, BITMAPONLY + BITMAP1 )
+	this:explode( this.texture, SHATTER + EXPLODE_ON_HIT + BITMAP2 )
 	return 3
 end
