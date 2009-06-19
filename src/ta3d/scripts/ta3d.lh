@@ -107,19 +107,19 @@ local function set_cam_mode( mode )
     end
 end
 
-local function wait_for_move(obj, axis)
-    while is_moving(obj, axis) do
+function wait_for_move(this, obj, axis)
+    while is_moving(this, obj, axis) do
         coroutine.yield()
     end
 end
 
-local function wait_for_turn(obj, axis)
-    while is_turning(obj, axis) do
+function wait_for_turn(this, obj, axis)
+    while is_turning(this, obj, axis) do
         coroutine.yield()
     end
 end
 
-local function piece(this, ...)
+function piece(this, ...)
     __piece_list = {...}
     for i = 1, #__piece_list do
         this[__piece_list[i]] = i - 1
@@ -134,7 +134,9 @@ local function createUnitScript(name)
 	local script = {name=name}
 	script.piece = piece
 	script.is_turning = is_turning
-	script.is_moing = is_moving
+	script.is_moving = is_moving
+	script.wait_for_turn = wait_for_turn
+	script.wait_for_move = wait_for_move
 	script.move = move
 	script.explode = explode
 	script.turn = turn
@@ -168,11 +170,10 @@ function cloneUnitScript(name, unitID)
 	local script = _G[name]
 	local unit = {unitID = unitID, __threads = {} }
 	
-	for v, k in pairs(script) do		-- clone the script table
+	for k, v in pairs(script) do		-- clone the script table
 		unit[k] = v
 	end
 	
-	logmsg("creating the unit")
 	__units[unitID] = unit
 end
 

@@ -69,7 +69,7 @@ namespace TA3D
             for(int i = 1 ; i <= piece_name.size() ; i++)
             {
                 lua_rawgeti(L, -1, i);
-                piece_name[i - 1] = lua_tostring(L, -1);
+                piece_name[i - 1] = String::ToLower( lua_tostring(L, -1) );
                 lua_pop(L, 1);
             }
         }

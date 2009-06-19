@@ -82,10 +82,10 @@ namespace TA3D
             caller->processSignal(signal);
         else
         {
-            if (signal == signal_mask)
+            if (signal & signal_mask)
                 kill();
             for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
-                if ((*i)->signal_mask == signal)
+                if ((*i)->signal_mask & signal)
                     (*i)->kill();
         }
     }

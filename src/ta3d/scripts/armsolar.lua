@@ -11,7 +11,7 @@ armsolar.SMOKEPIECE1 = armsolar.base
 #include "smokeunit.lh"
 #include "exptype.lh"
 
-armsolar.Go = function (this)
+__this.Go = function (this)
     this:turn( this.dish1, x_axis, -90, 60 )
     this:turn( this.dish2, x_axis, 90, 60 )
     this:turn( this.dish3, z_axis, -90, 60 )
@@ -23,7 +23,7 @@ armsolar.Go = function (this)
     this:set( ARMORED, false )
 end
 
-armsolar.Stop = function (this)
+__this.Stop = function (this)
     this:set( ARMORED, true )
     this:turn( this.dish1, x_axis, 0, 120 )
     this:turn( this.dish2, x_axis, 0, 120 )
@@ -35,23 +35,23 @@ armsolar.Stop = function (this)
     this:wait_for_turn( this.dish4, z_axis )
 end
 
-armsolar.ACTIVATECMD = __this.Go
-armsolar.DEACTIVATECMD = __this.Stop
+__this.ACTIVATECMD = __this.Go
+__this.DEACTIVATECMD = __this.Stop
 
-armsolar.Create = function (this)
+__this.Create = function (this)
     this:InitState()
-    this:start_script( wrap(this, this.SmokeUnit) )
+    this:start_script( this.SmokeUnit, this )
 end
 
-armsolar.Activate = function (this)
-    this:start_script( wrap(this, this.RequestState), ACTIVE )
+__this.Activate = function (this)
+    this:start_script( this.RequestState, this, ACTIVE )
 end
 
-armsolar.Deactivate = function (this)
-    this:start_script( wrap(this, this.RequestState), INACTIVE )
+__this.Deactivate = function (this)
+    this:start_script( this.RequestState, this, INACTIVE )
 end
 
-armsolar.HitByWeapon = function(this, anglex, anglez)
+__this.HitByWeapon = function(this, anglex, anglez)
     this:signal( SIG_HIT )
     set_signal_mask( SIG_HIT )
     this:set( ACTIVATION, 0 )
@@ -59,11 +59,11 @@ armsolar.HitByWeapon = function(this, anglex, anglez)
     this:set( ACTIVATION, 1 )
 end
 
-armsolar.SweetSpot = function (this)
+__this.SweetSpot = function (this)
     return this.base
 end
 
-armsolar.Killed = function ( this, severity )
+__this.Killed = function ( this, severity )
     if severity <= 25 then
         this:explode( this.dish1,    BITMAPONLY + BITMAP1 )
         this:explode( this.dish2,    BITMAPONLY + BITMAP2 )

@@ -21,8 +21,8 @@ __this.statechg_StateChanging = false
 
 __this.InitState = function(this)
     -- Initial state
-    statechg_DesiredState = INACTIVE
-    statechg_StateChanging = false
+    this.statechg_DesiredState = INACTIVE
+    this.statechg_StateChanging = false
 end
 
 __this.RequestState = function ( this, requestedstate )
@@ -51,7 +51,7 @@ __this.RequestState = function ( this, requestedstate )
             actualstate = ACTIVE
         end
 
-        if statechg_DesiredState == INACTIVE then
+        if this.statechg_DesiredState == INACTIVE then
             this:DEACTIVATECMD()
             actualstate = INACTIVE
         end
