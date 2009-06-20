@@ -71,6 +71,7 @@ namespace TA3D
     {
         if (caller)
             return static_cast<UnitScript*>(caller)->getNextID();
+        LOG_DEBUG("using ID " << nextID);
         return nextID++;
     }
 
@@ -471,7 +472,7 @@ namespace TA3D
             }
             else if (lua_gettop(L) > 0)
             {
-                running = result == LUA_YIELD;
+                running = (result == LUA_YIELD);
                 result = 0;
                 while(lua_gettop(L) > 0 && !lua_isnone(L, -1) && !lua_isfunction(L, -1))
                 {
@@ -501,7 +502,7 @@ namespace TA3D
                 }
                 return result;
             }
-            running = result == LUA_YIELD;
+            running = (result == LUA_YIELD);
             return 0;
         }
         catch(...)
@@ -599,9 +600,22 @@ namespace TA3D
     //! functions used to create new threads sharing the same environment
     UnitScript *UnitScript::fork()
     {
+        if (caller)
+            caller->clean();
+        else
+            clean();
+
         UnitScript *newThread = static_cast<UnitScript*>(getFreeThread());
         if (newThread)
         {
+            if (lua_status(newThread->L) == LUA_YIELD)     // Some work ir required
+            {
+                lua_getUnitTable();
+                lua_getfield(L, -1, "__threads");
+                newThread->L = lua_newthread(L);
+                lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
+                lua_pop(L, 2);
+            }
             newThread->running = false;
             newThread->waiting = false;
             newThread->sleeping = false;
@@ -626,7 +640,8 @@ namespace TA3D
         lua_getUnitTable();
         lua_getfield(L, -1, "__threads");
         newThread->L = lua_newthread(L);
-        lua_rawseti(L, -2, getNextID());  // We don't want to keep this thread value on top of the stack
+        newThread->nextID = getNextID();
+        lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
         lua_pop(L, 2);
 
         addThread(newThread);

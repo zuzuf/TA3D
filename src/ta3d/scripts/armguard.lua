@@ -40,7 +40,6 @@ __this.AimPrimary = function(this, heading, pitch)
 	this:wait_for_turn( this.sleeves, x_axis )
 
 	this:set_script_value("AimPrimary", true)
-	logmsg( #(this.__threads) .. " threads allocated")
 end
 
 __this.FirePrimary = function(this)

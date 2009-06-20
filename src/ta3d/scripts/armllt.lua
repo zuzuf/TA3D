@@ -25,7 +25,7 @@ end
 __this.AimPrimary = function(this, heading, pitch)
     this:set_script_value("AimPrimary", false)
 	this:signal( this.SIG_AIM )
-	set_signal_mask( this.SIG_AIM )
+	this:set_signal_mask( this.SIG_AIM )
 
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG
@@ -39,7 +39,7 @@ end
 
 __this.FirePrimary = function(this)
 	this:show( this.flare )
-	sleep( 0.15 )
+	this:sleep( 0.15 )
 	this:hide( this.flare )
 end
 
@@ -56,7 +56,7 @@ __this.SweetSpot = function(this)
 end
 
 __this.Killed = function(this, severity )
-	hide( this.flare )
+	this:hide( this.flare )
 	if severity <= 25 then
 		this:explode( this.barrel, BITMAPONLY + BITMAP1 )
 		this:explode( this.base, BITMAPONLY + BITMAP2 )
