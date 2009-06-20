@@ -24,8 +24,8 @@ end
 
 __this.AimPrimary = function(this, heading, pitch)
     this:set_script_value("AimPrimary", false)
-	this:signal( SIG_AIM )
-	set_signal_mask( SIG_AIM )
+	this:signal( this.SIG_AIM )
+	set_signal_mask( this.SIG_AIM )
 
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG

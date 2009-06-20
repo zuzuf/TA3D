@@ -54,12 +54,7 @@ namespace TA3D
         /*virtual*/ void save_thread_state(gzFile file);
         /*virtual*/ void restore_thread_state(gzFile file);
 
-        inline int getNextID()
-        {
-            if (caller)
-                return static_cast<UnitScript*>(caller)->getNextID();
-            return nextID++;
-        }
+        int getNextID();
 
     private:
         lua_State *L;

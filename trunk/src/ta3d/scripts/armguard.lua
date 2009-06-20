@@ -26,10 +26,11 @@ __this.Create = function(this)
 end
 
 __this.AimPrimary = function(this, heading, pitch)
+	local memuse = collectgarbage("count")
 	this:set_script_value("AimPrimary", false)
 
-	this:signal( SIG_AIM )
-	set_signal_mask( SIG_AIM )
+	this:signal( this.SIG_AIM )
+	this:set_signal_mask( this.SIG_AIM )
 	
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG
@@ -40,28 +41,34 @@ __this.AimPrimary = function(this, heading, pitch)
 	this:wait_for_turn( this.sleeves, x_axis )
 
 	this:set_script_value("AimPrimary", true)
+	memuse = collectgarbage("count") - memuse
+	logmsg("AimPrimary(" .. this.unitID .. ") wasted " .. memuse .. " kb of memory")
+	logmsg( #(this.__threads) .. " threads allocated")
 end
 
 __this.FirePrimary = function(this)
-	if fire == 0 then
+	local memuse = collectgarbage("count")
+	if this.fire == 0 then
 		this:move_piece_now( this.barrel1, z_axis, -2.5 )
 		this:show( this.flare1 )
-		sleep( 0.15 )
+		this:sleep( 0.15 )
 		this:hide( this.flare1 )
 		this:move( this.barrel1, z_axis, 0, 1 )
-		fire = 1
+		this.fire = 1
 	else
 		this:move_piece_now( this.barrel2, z_axis, -2.5 )
 		this:show( this.flare2 )
-		sleep( 0.15 )
+		this:sleep( 0.15 )
 		this:hide( this.flare2 )
 		this:move( this.barrel2, z_axis, 0, 1 )
-		fire = 0
+		this.fire = 0
 	end
+	memuse = collectgarbage("count") - memuse
+	logmsg("FirePrimary wasted " .. memuse .. " kb of memory")
 end
 
 __this.QueryPrimary = function(this)
-    if fire == 0 then
+    if this.fire == 0 then
     	return this.flare1
     end
     return this.flare2
