@@ -83,19 +83,7 @@ namespace TA3D
         virtual ScriptInterface *fork() = 0;
         virtual ScriptInterface *fork(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
 
-        inline ScriptInterface *getFreeThread()
-        {
-            if (caller)
-                return caller->getFreeThread();
-
-            MutexLocker mLock(pMutex);
-
-            if (freeThreads.empty())
-                return NULL;
-            ScriptInterface *newThread = freeThreads.front();
-            freeThreads.pop_front();
-            return newThread;
-        }
+        ScriptInterface *getFreeThread();
 
         //! debug functions
         virtual void dumpDebugInfo();

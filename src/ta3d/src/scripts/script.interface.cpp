@@ -112,6 +112,20 @@ namespace TA3D
         freeThreads.clear();
     }
 
+    ScriptInterface *ScriptInterface::getFreeThread()
+    {
+        if (caller)
+            return caller->getFreeThread();
+
+        MutexLocker mLock(pMutex);
+
+        if (freeThreads.empty())
+            return NULL;
+        ScriptInterface *newThread = freeThreads.front();
+        freeThreads.pop_front();
+        return newThread;
+    }
+
     void ScriptInterface::clean()
     {
         MutexLocker mLock(pMutex);
@@ -122,7 +136,7 @@ namespace TA3D
             int e = 0;
             for(int i = 0 ; i + e < childs.size() ; )
             {
-                if (!childs[i + e]->is_running())
+                if (!childs[i + e]->is_self_running())
                 {
                     freeThreads.push_back(childs[i + e]);      // Put it in the queue
                     ++e;
