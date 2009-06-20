@@ -71,7 +71,6 @@ namespace TA3D
     {
         if (caller)
             return static_cast<UnitScript*>(caller)->getNextID();
-        LOG_DEBUG("using ID " << nextID);
         return nextID++;
     }
 

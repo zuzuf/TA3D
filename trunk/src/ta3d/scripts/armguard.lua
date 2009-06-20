@@ -6,7 +6,6 @@ __this:piece( "flare1", "flare2", "base", "turret", "sleeves", "barrel1", "barre
 
 __this.fire = 0
 
-__this.SIG_AIM     = 2
 __this.SMOKEPIECE1 = __this.base
 
 #include "smokeunit.lh"
@@ -22,24 +21,30 @@ __this.Create = function(this)
 	this:dont_cache( this.sleeves )
 	this:dont_cache( this.turret )
 	this.fire = 0
+	this.aiming = false
 	this:start_script( this.SmokeUnit, this )
 end
 
 __this.AimPrimary = function(this, heading, pitch)
-	this:signal( this.SIG_AIM )
-	this:set_signal_mask( this.SIG_AIM )
 
 	this:set_script_value("AimPrimary", false)
-	
+
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG
 
 	this:turn( this.turret, y_axis, heading, 30 )
 	this:turn( this.sleeves, x_axis, -pitch, 45 )
-	this:wait_for_turn( this.turret, y_axis )
-	this:wait_for_turn( this.sleeves, x_axis )
 
+	if this.aiming then			-- already aiming
+		return
+	end
+	
+	this.aiming = true
+	while this:is_turning( this.turret, y_axis ) or this:is_turning( this.sleeves, x_axis ) do
+		this.yield()
+	end
 	this:set_script_value("AimPrimary", true)
+	this.aiming = false
 end
 
 __this.FirePrimary = function(this)

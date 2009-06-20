@@ -3,7 +3,6 @@ createUnitScript("armllt")
 
 __this:piece( "base", "flare", "turret", "sleeve", "barrel" )
 
-__this.SIG_AIM	        = 2
 __this.SMOKEPIECE1     = __this.base
 
 #include "smokeunit.lh"
@@ -19,22 +18,29 @@ __this.Create = function(this)
 	this:dont_shade( this.turret )
 	this:dont_shade( this.sleeve )
 	this:dont_shade( this.barrel )
+	this.aiming = false
 	this:start_script( this.SmokeUnit, this )
 end
 
 __this.AimPrimary = function(this, heading, pitch)
     this:set_script_value("AimPrimary", false)
-	this:signal( this.SIG_AIM )
-	this:set_signal_mask( this.SIG_AIM )
 
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG
 
 	this:turn( this.turret, y_axis, heading, 300 )
 	this:turn( this.sleeve, x_axis, -pitch, 200 )
-	this:wait_for_turn( this.turret, y_axis )
-	this:wait_for_turn( this.sleeve, x_axis )
+	if this.aiming then
+		return
+	end
+
+	this.aiming = true
+	while this:is_turning( this.turret, y_axis ) or this:is_turning( this.sleeve, x_axis ) do
+		this.yield()
+	end
+
     this:set_script_value("AimPrimary", true)
+	this.aiming = false
 end
 
 __this.FirePrimary = function(this)
