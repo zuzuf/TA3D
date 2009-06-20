@@ -438,7 +438,7 @@ namespace TA3D
 
         if (caller == NULL && !alone)
         {
-            for (int i = childs.size() - 1 ; i >= 0 ; i--)
+            for (int i = childs.size() - 1 ; i >= 0 ; --i)
                 childs[i]->run(dt);
             clean();
         }
@@ -522,7 +522,7 @@ namespace TA3D
     {
         if (running)    return;     // We cannot run several functions at the same time on the same stack
 
-        LOG_DEBUG(LOG_PREFIX_LUA << "calling '" << functionName << "'");
+        name = functionName;
 
         lua_settop(L, 0);
         lua_getUnitTable();
@@ -621,6 +621,7 @@ namespace TA3D
         newThread->sleep_time = 0.0f;
         newThread->caller = (caller != NULL) ? caller : this;
         newThread->unitID = unitID;
+        newThread->name = name;
 
         lua_getUnitTable();
         lua_getfield(L, -1, "__threads");
