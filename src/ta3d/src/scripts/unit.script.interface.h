@@ -39,6 +39,7 @@ namespace TA3D
         uint32                  unitID;
         UTILS::cHashTable<int>  return_value;
     public:
+        inline UnitScriptInterface() : return_value(50)  {}
         virtual ~UnitScriptInterface()  {}
 
         virtual void setUnitID(uint32 ID) = 0;
