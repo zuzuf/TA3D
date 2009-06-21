@@ -720,9 +720,11 @@ namespace TA3D
 			map_list.clear();
 		}
 		game_data.nb_players = 2;
-        if (VFS::instance()->fileExists(lp_CONFIG->last_script) && String::ToLower(lp_CONFIG->last_script.substr(lp_CONFIG->last_script.length() - 3 , 3)) == "lua")
+        if (VFS::instance()->fileExists(lp_CONFIG->last_script) && String::ToLower(Paths::ExtractFileExt(lp_CONFIG->last_script)) == ".lua")
 			game_data.game_script = lp_CONFIG->last_script;
-		else
+        else if (VFS::instance()->fileExists("scripts\\game\\default.lua"))
+            game_data.game_script = "scripts\\game\\default.lua";
+        else
 		{
 			String::List script_list;
             uint32 n = VFS::instance()->getFilelist("scripts\\game\\*.lua", script_list);
@@ -735,7 +737,12 @@ namespace TA3D
 				reset_mouse();
 				return;
 			}
-			game_data.game_script = *(script_list.begin());
+            for(String::List::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
+            {
+                game_data.game_script = *i;
+                if (i->size() > 1 && (*i)[0] != '_')            // Avoid selecting a special file as default script if possible
+                    break;
+            }
 			script_list.clear();
 		}
 		game_data.fog_of_war = lp_CONFIG->last_FOW;
@@ -851,6 +858,7 @@ namespace TA3D
 		{
 			String::List script_list;
             VFS::instance()->getFilelist("scripts\\game\\*.lua", script_list);
+            guiobj->Text.clear();
 			for (String::List::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
 				guiobj->Text.push_back(*i_script);
 		}
