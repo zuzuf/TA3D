@@ -45,7 +45,7 @@ function copyFile(src, dst)
     file_dst:close()
 end
 
-SERVER_VERSION = "TA3D netserver 0.0.2"
+SERVER_VERSION = "TA3D netserver 0.0.3"
 
 STATE_CONNECTING = 0
 STATE_CONNECTED = 1
@@ -80,6 +80,29 @@ netserver_db = mysql:connect("netserver", db_user, db_pass, db_host)
 if netserver_db == nil then
     log_error("could not connect to database")
     os.exit()
+end
+
+function mysql_reconnect()		-- when connection to MySQL database is closed, let's reopen it :D
+	log_debug("reconnecting to MySQL server")
+	netserver_db:close()
+	log_debug("connection to MySQL server closed")
+	netserver_db = mysql:connect("netserver", db_user, db_pass, db_host)
+	if netserver_db then
+		log_debug("connected to MySQL server")
+	else
+		log_error("impossible to connect to MySQL server!")
+	end
+end
+
+function mysql_safe_request(req)
+	local cur, err = netserver_db:execute(req)
+	if err ~= nil then
+		log_error( err )
+		log_debug( "I am going to reconnect to MySQL server and retry request : '" .. req .. "'")
+		mysql_reconnect()
+		cur, err = netserver_db:execute(req)
+	end
+	return cur, err
 end
 
 -- do not erase clients data if set (to allow live reloading of server code)
@@ -172,8 +195,9 @@ end
 
 -- Returns a table containing all the results returned by MySQL
 function getFromDB(req)
-    cur = netserver_db:execute(req)
+    local cur, err = mysql_safe_request(req)
     if cur == nil or cur == 0 or cur:numrows() == 0 then
+    	log_error( err )
         return {}
     end
     local table = {}
@@ -187,11 +211,12 @@ end
 
 -- Identify a client, connect it if password and login match
 function identifyClient(client, password)
-    cur = netserver_db:execute("SELECT * FROM `clients` WHERE `login`='" .. fixSQL(client.login) .. "' AND `password`='" .. fixSQL(password) .. "' AND `banned`=0")
+    local cur, err = mysql_safe_request("SELECT * FROM `clients` WHERE `login`='" .. fixSQL(client.login) .. "' AND `password`=PASSWORD('" .. fixSQL(password) .. "') AND `banned`=0")
     if cur == nil or cur == 0 or cur:numrows() ~= 1 then
+        log_error( err )
         return false
     end
-    row = cur:fetch({}, "a")
+    local row = cur:fetch({}, "a")
     client.ID = tonumber( row.ID )
     client.admin = tonumber( row.admin )
     return true
@@ -199,13 +224,15 @@ end
 
 -- Register a new client if there is no account with the same name
 function registerClient(client, password)
-    cur = netserver_db:execute("SELECT * FROM `clients` WHERE `login`='" .. fixSQL(client.login) .. "'")
+    local cur, err = mysql_safe_request("SELECT * FROM `clients` WHERE `login`='" .. fixSQL(client.login) .. "'")
     if cur == nil or cur == 0 or cur:numrows() ~= 0 then
+    	log_error( err )
         return false
     end
     
-    cur = netserver_db:execute("INSERT INTO clients(`login`, `password`,`ID`,`admin`,`banned`) VALUES('" .. fixSQL(client.login) .. "','" .. fixSQL(password) .. "',NULL,'0','0')")
+    cur, err = mysql_safe_request("INSERT INTO clients(`login`, `password`,`ID`,`admin`,`banned`) VALUES('" .. fixSQL(client.login) .. "', PASSWORD('" .. fixSQL(password) .. "'),NULL,'0','0')")
     if cur == nil or cur == 0 then
+    	log_error( err )
         return false
     end
     
@@ -214,7 +241,7 @@ end
 
 -- Ban a client
 function banClient(login)
-    netserver_db:execute("UPDATE `clients` SET `banned` = '1' WHERE `login`='" .. fixSQL(login) .. "'")
+    mysql_safe_request("UPDATE `clients` SET `banned` = '1' WHERE `login`='" .. fixSQL(login) .. "'")
     if clients_login[login] then
         clients_login[login]:send("MESSAGE you have been banned")
         clients_login[login]:disconnect()
@@ -223,12 +250,12 @@ end
 
 -- Unban a client
 function unbanClient(login)
-    netserver_db:execute("UPDATE `clients` SET `banned` = '0' WHERE `login`='" .. fixSQL(login) .. "'")
+    mysql_safe_request("UPDATE `clients` SET `banned` = '0' WHERE `login`='" .. fixSQL(login) .. "'")
 end
 
 -- Kill a client
 function killClient(login)
-    netserver_db:execute("DELETE FROM `clients` WHERE `login`='" .. fixSQL(login) .. "'")
+    mysql_safe_request("DELETE FROM `clients` WHERE `login`='" .. fixSQL(login) .. "'")
     if clients_login[login] then
         clients_login[login]:send("MESSAGE you have been killed")
         clients_login[login]:disconnect()
@@ -237,11 +264,12 @@ end
 
 -- Get a value from the mysql database (info table)
 function getValue(name)
-    cur = netserver_db:execute("SELECT value FROM `info` WHERE name='" .. fixSQL(name) .. "'")
+    local cur, err = mysql_safe_request("SELECT value FROM `info` WHERE name='" .. fixSQL(name) .. "'")
     if cur == nil or cur == 0 or cur:numrows() ~= 1 then
+    	log_error( err )
         return ""
     end
-    row = cur:fetch({}, "a")
+    local row = cur:fetch({}, "a")
     return row.value
 end
 
