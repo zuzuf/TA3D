@@ -5,58 +5,70 @@ then
 	exit 0
 fi
 
+uname=`uname`
+if [ "x${uname}" = "xDarwin" ]; then
+	resourcesFolder="${HOME}/Library/Application Support/ta3d/"
+else
+	resourcesFolder="${HOME}/.ta3d/resources"
+fi
+
+
 # create the required directories
-mkdir ~/.ta3d
-mkdir ~/.ta3d/resources
+echo "Resources folder : '${resourcesFolder}'"
+mkdir -p ${resourcesFolder}
+
 
 # here we set up our file installer
 export INSTALL_CMD="./ta3d --quiet --install"
 
 if [ -f "/usr/games/ta3d" ]; then
-    echo "TA3D installation found!"
-    export INSTALL_CMD="ta3d --quiet --install"
+	echo "TA3D installation found!"
+	export INSTALL_CMD="ta3d --quiet --install"
 fi
 
-function copy_file {
-    echo -n "."
-    for i in `find /mnt/* 2> /dev/null | grep $1\$`; do
-        echo -e -n "\n"
-        echo "copying $i"
-        cp $i ~/.ta3d/resources/
-    done
-    for i in `find /media/* 2> /dev/null | grep $1\$`; do
-        echo -e -n "\n"
-        echo copying $i
-        cp $i ~/.ta3d/resources/
-    done
+function copy_file
+{
+	echo -n "."
+	for i in `find /mnt/* 2> /dev/null | grep $1\$`; do
+		echo -e -n "\n"
+		echo "copying $i"
+		cp $i ~/.ta3d/resources/
+	done
+	for i in `find /media/* 2> /dev/null | grep $1\$`; do
+		echo -e -n "\n"
+		echo copying $i
+		cp $i ~/.ta3d/resources/
+	done
 }
 
-function copy_file_from_hpi {
-    echo -n "."
-    for i in `find /mnt/* 2> /dev/null | grep $1\$`; do
-        echo -e -n "\n"
-        echo "copying hpi://$i:$2"
-        ${INSTALL_CMD} $i $2
-    done
-    for i in `find /media/* 2> /dev/null | grep $1\$`; do
-        echo -e -n "\n"
-        echo "copying hpi://$i:$2"
-        ${INSTALL_CMD} $i $2
-    done
+function copy_file_from_hpi
+{
+	echo -n "."
+	for i in `find /mnt/* 2> /dev/null | grep $1\$`; do
+		echo -e -n "\n"
+		echo "copying hpi://$i:$2"
+		${INSTALL_CMD} $i $2
+	done
+	for i in `find /media/* 2> /dev/null | grep $1\$`; do
+		echo -e -n "\n"
+		echo "copying hpi://$i:$2"
+		${INSTALL_CMD} $i $2
+	done
 }
 
-function header {
-    # make things clear
-    clear
+function header
+{
+	# make things clear
+	clear
 
-    # some intro text :)
-    echo "*-----------------------------------------------------------*"
-    echo "|              Total Annihilation files installer           |"
-    echo "|                                                           |"
-    echo "|  Installateur de ressources Total Annihilation pour TA3D  |"
-    echo "*-----------------------------------------------------------*"
-    echo -n -e "\n"
-    }
+	# some intro text :)
+	echo "*-----------------------------------------------------------*"
+	echo "|             Total Annihilation files installer            |"
+	echo "|                                                           |"
+	echo "|  Installateur de ressources Total Annihilation pour TA3D  |"
+	echo "*-----------------------------------------------------------*"
+	echo -n -e "\n"
+}
 
 # OTA CD 1
 header
