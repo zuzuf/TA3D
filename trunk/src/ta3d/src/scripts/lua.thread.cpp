@@ -182,12 +182,12 @@ namespace TA3D
                 byte *buffer2 = (byte*)VFS::instance()->readFile(name, &filesize2);
 				if (buffer2)
 				{
-					byte *buffer3 = new byte[ filesize + filesize2 ];
-					memset( buffer3, 0, filesize + filesize2 );
+                    byte *buffer3 = new byte[ filesize + filesize2 + 1 ];
+                    memset( buffer3, 0, filesize + filesize2 + 1 );
 					memcpy( buffer3, buffer, f - (char*)buffer );
-					memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 - 1 );
-					memcpy( buffer3 + (f - (char*)buffer) + filesize2 - 1, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
-					filesize += filesize2 - i - 12;
+                    memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
+                    memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
+                    filesize += filesize2 - i - 11;
 					delete[] buffer;
 					delete[] buffer2;
 					buffer = buffer3;
@@ -236,11 +236,12 @@ namespace TA3D
 				return;
 			}
 			byte *tmp = buffer;
-			buffer = new byte[filesize + filesize2];
+            buffer = new byte[filesize + filesize2 + 2];
 			memcpy(buffer, header_buffer, filesize2);
-			memcpy(buffer+filesize2, tmp, filesize);
-			buffer[filesize2-1] = '\n';
-			filesize += filesize2 - 1;
+            memcpy(buffer + filesize2 + 1, tmp, filesize);
+            buffer[filesize2] = '\n';
+            filesize += filesize2;
+            buffer[filesize] = 0;
 			delete[] header_buffer;
             delete[] tmp;
 

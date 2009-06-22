@@ -140,3 +140,4 @@ __this.Killed = function(this, severity)
 	this:explode( this.turret, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
 	return 3
 end
+
