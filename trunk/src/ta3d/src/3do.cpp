@@ -1231,7 +1231,7 @@ namespace TA3D
 
 			SDL_Surface *bmp = LoadTex( TA3D::Paths::Caches + tex_cache_name[id] );
 			GLuint texid = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
-			if (surface.Flag&SURFACE_ADVANCED)
+            if (surface.Flag & SURFACE_ADVANCED)
 				surface.gltex[id] = texid;
 			else
 				gltex[id] = texid;
@@ -3172,8 +3172,8 @@ namespace TA3D
 			animated = obj.has_animation_data();
 
 			Vector3D O;
-			int coef=0;
-			center.x=center.y=center.z=0.0f;
+            int coef(0);
+            center = Vector3D(0.0f, 0.0f, 0.0f);
 			obj.compute_center(&center,O,&coef);
 			center=(1.0f/coef)*center;
 			size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
@@ -3857,13 +3857,14 @@ namespace TA3D
 				t_index=NULL;
 
 			tcoord = new float[nb_vtx<<1];
-			data=read_from_mem(tcoord,sizeof(float)*nb_vtx<<1,data);
+            data = read_from_mem(tcoord,sizeof(float)*nb_vtx<<1,data);
 
-			data=read_from_mem(surface.Color,sizeof(float)*4,data);	// Read surface data
-			data=read_from_mem(surface.RColor,sizeof(float)*4,data);
-			data=read_from_mem(&surface.Flag,sizeof(surface.Flag),data);
-			surface.NbTex=0;
-			data=read_from_mem(&surface.NbTex,sizeof(surface.NbTex),data);
+            data = read_from_mem(surface.Color, sizeof(float) * 4, data);	// Read surface data
+            data = read_from_mem(surface.RColor, sizeof(float) * 4, data);
+            data = read_from_mem(&surface.Flag, sizeof(surface.Flag), data);
+            surface.Flag |= SURFACE_ADVANCED;           // a 3DM cannot use 3DO specific stuffs
+            surface.NbTex = 0;
+            data = read_from_mem(&surface.NbTex,sizeof(surface.NbTex),data);
 			bool compressed = surface.NbTex < 0;
 			dtex = surface.NbTex = abs( surface.NbTex );
 			for (uint8 i = 0; i < surface.NbTex; ++i)
