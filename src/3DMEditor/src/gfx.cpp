@@ -105,11 +105,25 @@ void Gfx::paintGL()
     glDisable(GL_TEXTURE_2D);
 
     glColor3ub(0xFF, 0, 0);
-    drawArrow(Vec(0,0,0), Vec(10,0,0), 0.3f);
+    drawArrow(Vec(0,0,0), Vec(8,0,0), 0.3f);
     glColor3ub(0, 0xFF, 0);
-    drawArrow(Vec(0,0,0), Vec(0,10,0), 0.3f);
+    drawArrow(Vec(0,0,0), Vec(0,8,0), 0.3f);
     glColor3ub(0, 0, 0xFF);
-    drawArrow(Vec(0,0,0), Vec(0,0,10), 0.3f);
+    drawArrow(Vec(0,0,0), Vec(0,0,8), 0.3f);
+
+    glColor3ub(0xFF, 0xFF, 0xFF);           // Render a small grid using TA3D's length unit as spacing
+    glBegin(GL_LINES);
+    for(int z = -10 ; z <= 10 ; ++z)
+    {
+        glVertex3f(-80.0f, 0.0f, 8.0f * z);
+        glVertex3f(80.0f, 0.0f, 8.0f * z);
+    }
+    for(int x = -10 ; x <= 10 ; ++x)
+    {
+        glVertex3f(8.0f * x, 0.0f, -80.0f);
+        glVertex3f(8.0f * x, 0.0f, 80.0f);
+    }
+    glEnd();
 
     glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
