@@ -606,7 +606,7 @@ void Mesh::load3DMrec(QFile &file)
             for (int y = 0 ; y < h ; ++y)
                 for (int x = 0 ; x < w ; ++x)
                 {
-                    uint32 col;
+                    uint32 col(0);
                     switch(bpp)
                     {
                     case 8:
@@ -1276,6 +1276,7 @@ void Mesh::save3DMrec(QFile &file)
 
     file.write((char*)colorf, sizeof(float) * 4);	// Read surface data
     file.write((char*)rColorf, sizeof(float) * 4);
+    flag |= SURFACE_ADVANCED;
     file.write((char*)&flag, sizeof(flag));
     sint8 nb_tex = -tex.size();                 // We can safely compress texture data since it uses lossless compression (zlib)
     file.write((char*)&nb_tex, sizeof(nb_tex));
