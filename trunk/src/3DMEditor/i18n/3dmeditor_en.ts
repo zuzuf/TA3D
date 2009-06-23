@@ -76,17 +76,17 @@
 <context>
     <name>Gfx</name>
     <message>
-        <location filename="../src/gfx.cpp" line="136"/>
+        <location filename="../src/gfx.cpp" line="150"/>
         <source>Editing mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gfx.cpp" line="139"/>
+        <location filename="../src/gfx.cpp" line="153"/>
         <source>Viewing mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gfx.cpp" line="142"/>
+        <location filename="../src/gfx.cpp" line="156"/>
         <source>Animation mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -192,173 +192,183 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="84"/>
+        <location filename="../src/mainwindow.cpp" line="76"/>
+        <source>&amp;Merge all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="85"/>
         <source>&amp;Index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="275"/>
+        <location filename="../src/mainwindow.cpp" line="167"/>
+        <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;Spring Model(*.s3o);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj);;all files(*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="276"/>
         <source>Cube size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="275"/>
+        <location filename="../src/mainwindow.cpp" line="276"/>
         <source>Cube size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="286"/>
+        <location filename="../src/mainwindow.cpp" line="287"/>
         <source>Cone radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="286"/>
+        <location filename="../src/mainwindow.cpp" line="287"/>
         <source>Cone radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="300"/>
+        <location filename="../src/mainwindow.cpp" line="301"/>
         <source>Cylinder radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="300"/>
+        <location filename="../src/mainwindow.cpp" line="301"/>
         <source>Cylinder radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
+        <location filename="../src/mainwindow.cpp" line="315"/>
         <source>Sphere radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
+        <location filename="../src/mainwindow.cpp" line="315"/>
         <source>Sphere radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="327"/>
+        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Torus big radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="327"/>
+        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Torus big radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
+        <location filename="../src/mainwindow.cpp" line="329"/>
         <source>Torus small radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
+        <location filename="../src/mainwindow.cpp" line="329"/>
         <source>Torus small radius:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="287"/>
+        <location filename="../src/mainwindow.cpp" line="288"/>
         <source>Cone height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="287"/>
+        <location filename="../src/mainwindow.cpp" line="288"/>
         <source>Cone height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="288"/>
+        <location filename="../src/mainwindow.cpp" line="289"/>
         <source>Cone details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="288"/>
+        <location filename="../src/mainwindow.cpp" line="289"/>
         <source>Cone details:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="289"/>
+        <location filename="../src/mainwindow.cpp" line="290"/>
         <source>Cone capped ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="301"/>
+        <location filename="../src/mainwindow.cpp" line="302"/>
         <source>Cylinder height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="301"/>
+        <location filename="../src/mainwindow.cpp" line="302"/>
         <source>Cylinder height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="302"/>
+        <location filename="../src/mainwindow.cpp" line="303"/>
         <source>Cylinder details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="302"/>
+        <location filename="../src/mainwindow.cpp" line="303"/>
         <source>Cylinder details:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="303"/>
+        <location filename="../src/mainwindow.cpp" line="304"/>
         <source>Cylinder capped ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="315"/>
+        <location filename="../src/mainwindow.cpp" line="316"/>
         <source>Sphere horizontal resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="315"/>
+        <location filename="../src/mainwindow.cpp" line="316"/>
         <source>Sphere horizontal resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="316"/>
+        <location filename="../src/mainwindow.cpp" line="317"/>
         <source>Sphere vertical resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="316"/>
+        <location filename="../src/mainwindow.cpp" line="317"/>
         <source>Sphere vertical resolution:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="329"/>
+        <location filename="../src/mainwindow.cpp" line="330"/>
         <source>Torus big resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="329"/>
+        <location filename="../src/mainwindow.cpp" line="330"/>
         <source>Torus resolution of big circle:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="330"/>
+        <location filename="../src/mainwindow.cpp" line="331"/>
         <source>Torus small resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="330"/>
+        <location filename="../src/mainwindow.cpp" line="331"/>
         <source>Torus resolution of small circle:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="342"/>
-        <location filename="../src/mainwindow.cpp" line="344"/>
+        <location filename="../src/mainwindow.cpp" line="343"/>
+        <location filename="../src/mainwindow.cpp" line="345"/>
         <source>3DMEditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="474"/>
+        <location filename="../src/mainwindow.cpp" line="475"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="474"/>
+        <location filename="../src/mainwindow.cpp" line="475"/>
         <source>Enter scale factor:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -388,45 +398,45 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="133"/>
-        <location filename="../src/mainwindow.cpp" line="141"/>
+        <location filename="../src/mainwindow.cpp" line="134"/>
+        <location filename="../src/mainwindow.cpp" line="142"/>
         <source>The program has to be restarted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="133"/>
-        <location filename="../src/mainwindow.cpp" line="141"/>
+        <location filename="../src/mainwindow.cpp" line="134"/>
+        <location filename="../src/mainwindow.cpp" line="142"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="97"/>
+        <location filename="../src/mainwindow.cpp" line="98"/>
         <source>3DMEditor started</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="132"/>
-        <location filename="../src/mainwindow.cpp" line="140"/>
+        <location filename="../src/mainwindow.cpp" line="133"/>
+        <location filename="../src/mainwindow.cpp" line="141"/>
         <source>Language set to </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="132"/>
+        <location filename="../src/mainwindow.cpp" line="133"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="140"/>
+        <location filename="../src/mainwindow.cpp" line="141"/>
         <source>French</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="83"/>
+        <location filename="../src/mainwindow.cpp" line="84"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="86"/>
+        <location filename="../src/mainwindow.cpp" line="87"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -496,39 +506,39 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="77"/>
+        <location filename="../src/mainwindow.cpp" line="78"/>
         <source>&amp;Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="166"/>
+        <location filename="../src/mainwindow.cpp" line="167"/>
         <source>open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="182"/>
-        <location filename="../src/mainwindow.cpp" line="197"/>
+        <location filename="../src/mainwindow.cpp" line="183"/>
+        <location filename="../src/mainwindow.cpp" line="198"/>
         <source>3DMEditor meshs(*.3dm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="173"/>
+        <location filename="../src/mainwindow.cpp" line="174"/>
         <source>mesh loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="182"/>
+        <location filename="../src/mainwindow.cpp" line="183"/>
         <source>save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="191"/>
-        <location filename="../src/mainwindow.cpp" line="206"/>
+        <location filename="../src/mainwindow.cpp" line="192"/>
+        <location filename="../src/mainwindow.cpp" line="207"/>
         <source>mesh saved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="197"/>
+        <location filename="../src/mainwindow.cpp" line="198"/>
         <source>save as</source>
         <translation type="unfinished"></translation>
     </message>
@@ -543,18 +553,46 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="87"/>
+        <location filename="../src/mainwindow.cpp" line="88"/>
         <source>&amp;About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="166"/>
-        <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj);;all files(*.*)</source>
+        <location filename="../src/mainwindow.cpp" line="235"/>
+        <source>About Qt</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Mesh</name>
+    <message>
+        <location filename="../src/springmodelloader.cpp" line="14"/>
+        <location filename="../src/springmodelloader.cpp" line="20"/>
+        <location filename="../src/springmodelloader.cpp" line="32"/>
+        <source>Spring Model Loader error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="234"/>
-        <source>About Qt</source>
+        <location filename="../src/springmodelloader.cpp" line="14"/>
+        <source>File doesn&apos;t exist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/springmodelloader.cpp" line="20"/>
+        <source>File could not be open for reading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/springmodelloader.cpp" line="32"/>
+        <source>File is corrupt or in wrong format</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDialog</name>
+    <message>
+        <location filename="../src/progressdialog.cpp" line="22"/>
+        <source>Work in progress</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -662,174 +700,198 @@
 <context>
     <name>SurfaceProperties</name>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="52"/>
+        <location filename="../src/surfaceproperties.cpp" line="53"/>
         <source>Blended</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="53"/>
+        <location filename="../src/surfaceproperties.cpp" line="54"/>
         <source>GLSL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="54"/>
+        <location filename="../src/surfaceproperties.cpp" line="55"/>
         <source>Gouraud</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="55"/>
+        <location filename="../src/surfaceproperties.cpp" line="56"/>
         <source>Lighted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="56"/>
+        <location filename="../src/surfaceproperties.cpp" line="57"/>
         <source>Player Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="57"/>
+        <location filename="../src/surfaceproperties.cpp" line="58"/>
         <source>Reflective</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="58"/>
+        <location filename="../src/surfaceproperties.cpp" line="59"/>
         <source>Textured</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="61"/>
-        <source>object color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/surfaceproperties.cpp" line="62"/>
-        <location filename="../src/surfaceproperties.cpp" line="69"/>
-        <source>red</source>
+        <source>object color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/surfaceproperties.cpp" line="63"/>
         <location filename="../src/surfaceproperties.cpp" line="70"/>
-        <source>green</source>
+        <source>red</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/surfaceproperties.cpp" line="64"/>
         <location filename="../src/surfaceproperties.cpp" line="71"/>
-        <source>blue</source>
+        <source>green</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/surfaceproperties.cpp" line="65"/>
         <location filename="../src/surfaceproperties.cpp" line="72"/>
+        <source>blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/surfaceproperties.cpp" line="66"/>
+        <location filename="../src/surfaceproperties.cpp" line="73"/>
         <source>alpha</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="68"/>
+        <location filename="../src/surfaceproperties.cpp" line="69"/>
         <source>reflection color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="87"/>
+        <location filename="../src/surfaceproperties.cpp" line="88"/>
         <source>Shader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="94"/>
+        <location filename="../src/surfaceproperties.cpp" line="95"/>
         <source>Textures:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="101"/>
+        <location filename="../src/surfaceproperties.cpp" line="102"/>
         <source>&amp;Load</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="102"/>
+        <location filename="../src/surfaceproperties.cpp" line="103"/>
         <source>&amp;Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="103"/>
+        <location filename="../src/surfaceproperties.cpp" line="104"/>
         <source>&amp;New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="104"/>
+        <location filename="../src/surfaceproperties.cpp" line="105"/>
         <source>&amp;Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="105"/>
+        <location filename="../src/surfaceproperties.cpp" line="106"/>
         <source>&amp;&lt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="106"/>
+        <location filename="../src/surfaceproperties.cpp" line="107"/>
         <source>&amp;&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="108"/>
+        <location filename="../src/surfaceproperties.cpp" line="109"/>
         <source>&amp;basic UV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="109"/>
+        <location filename="../src/surfaceproperties.cpp" line="110"/>
         <source>&amp;spherical UV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="110"/>
+        <location filename="../src/surfaceproperties.cpp" line="111"/>
         <source>&amp;auto UV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="111"/>
+        <location filename="../src/surfaceproperties.cpp" line="112"/>
         <source>&amp;merge vertices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="169"/>
-        <location filename="../src/surfaceproperties.cpp" line="171"/>
+        <location filename="../src/surfaceproperties.cpp" line="113"/>
+        <source>&amp;ambient occlusion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/surfaceproperties.cpp" line="114"/>
+        <source>&amp;flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/surfaceproperties.cpp" line="176"/>
+        <location filename="../src/surfaceproperties.cpp" line="178"/>
         <source>Surface properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="266"/>
+        <location filename="../src/surfaceproperties.cpp" line="273"/>
+        <location filename="../src/surfaceproperties.cpp" line="457"/>
         <source>Texture width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="266"/>
+        <location filename="../src/surfaceproperties.cpp" line="273"/>
+        <location filename="../src/surfaceproperties.cpp" line="457"/>
         <source>Enter texture width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="267"/>
+        <location filename="../src/surfaceproperties.cpp" line="274"/>
+        <location filename="../src/surfaceproperties.cpp" line="458"/>
         <source>Texture height</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="267"/>
+        <location filename="../src/surfaceproperties.cpp" line="274"/>
+        <location filename="../src/surfaceproperties.cpp" line="458"/>
         <source>Enter texture height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="297"/>
+        <location filename="../src/surfaceproperties.cpp" line="333"/>
         <source>Load texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="297"/>
-        <location filename="../src/surfaceproperties.cpp" line="314"/>
+        <location filename="../src/surfaceproperties.cpp" line="333"/>
+        <location filename="../src/surfaceproperties.cpp" line="366"/>
         <source>all files(*.*);;jpeg images(*.jpg);;png images(*.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/surfaceproperties.cpp" line="314"/>
+        <location filename="../src/surfaceproperties.cpp" line="366"/>
         <source>Save texture as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/surfaceproperties.cpp" line="459"/>
+        <source>Precision</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/surfaceproperties.cpp" line="459"/>
+        <source>Enter required precision (1-1024)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

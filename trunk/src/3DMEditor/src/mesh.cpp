@@ -68,6 +68,8 @@ void Mesh::load(const QString &filename)
         loadASC(filename);
     else if (filename.endsWith(".obj", Qt::CaseInsensitive))
         loadOBJ(filename);
+    else if (filename.endsWith(".s3o", Qt::CaseInsensitive))
+        load3SO(filename);
     else if (!filename.isEmpty())
         destroy();
 }
