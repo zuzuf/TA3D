@@ -111,6 +111,7 @@ SurfaceProperties::SurfaceProperties()
     QPushButton *bAuto = new QPushButton(tr("&auto UV"));
     QPushButton *bMerge = new QPushButton(tr("&merge vertices"));
     QPushButton *bAmbientOcclusion = new QPushButton(tr("&ambient occlusion"));
+    QPushButton *bFlip = new QPushButton(tr("&flip"));
     textureLayout->addWidget(bLoad, 0, 0);
     textureLayout->addWidget(bSave, 0, 1);
     textureLayout->addWidget(bNew, 1, 0);
@@ -122,6 +123,7 @@ SurfaceProperties::SurfaceProperties()
     textureLayout->addWidget(bAuto, 4, 0);
     textureLayout->addWidget(bMerge, 4, 1);
     textureLayout->addWidget(bAmbientOcclusion, 5, 0);
+    textureLayout->addWidget(bFlip, 5, 1);
 
     finalLayout->addLayout(textureLayout);
 
@@ -160,6 +162,7 @@ SurfaceProperties::SurfaceProperties()
     connect(bAuto, SIGNAL(clicked()), this, SLOT(autoUV()));
     connect(bMerge, SIGNAL(clicked()), this, SLOT(mergeVertices()));
     connect(bAmbientOcclusion, SIGNAL(clicked()), this, SLOT(computeAmbientOcclusion()));
+    connect(bFlip, SIGNAL(clicked()), this, SLOT(flipTexture()));
 
     updateWindowTitle();
 
@@ -331,6 +334,22 @@ void SurfaceProperties::loadTexture()
     if (filename.isEmpty())
         return;
     mesh->tex.push_back(Gfx::instance()->loadTexture(filename));
+    refreshGUI();
+    emit surfaceChanged();
+}
+
+void SurfaceProperties::flipTexture()
+{
+    int ID = Gfx::instance()->getSelectionID();
+    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    if (mesh == NULL)
+        return;
+    int textureID = imageListView->selectedIndex();
+    if (textureID < 0 || textureID >= mesh->tex.size())
+        return;
+    QImage tex = Gfx::instance()->textureToImage(mesh->tex[textureID]);//.mirrored(false, true);
+    Gfx::instance()->deleteTexture(mesh->tex[textureID]);
+    mesh->tex[textureID] = Gfx::instance()->bindTexture(tex);
     refreshGUI();
     emit surfaceChanged();
 }

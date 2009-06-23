@@ -19,6 +19,7 @@ enum MeshType { MESH_TRIANGLES, MESH_TRIANGLE_STRIP };
 #define SURFACE_BLENDED			0x20		// Alpha Blending
 #define SURFACE_PLAYER_COLOR	0x40		// The color is the owner's color
 #define SURFACE_GLSL			0x80		// Use a shader to create a surface effect
+#define SURFACE_ROOT_TEXTURE    0X100       // Use only the textures of the root object (all objects share the same texture set)
 
 #define ROTATION				0x01
 #define ROTATION_PERIODIC		0x02
@@ -52,6 +53,7 @@ class Mesh : public QObject
     friend class Gfx;
     friend class MeshTree;
     friend class AmbientOcclusionThread;
+    friend class SpringModelLoader;
 public:
     Mesh();
     ~Mesh();
@@ -64,6 +66,7 @@ public:
     void save(const QString &filename);
 
     void load3DM(const QString &filename);
+    void load3SO(const QString &filename);
     void load3DO(const QString &filename);
     void loadASC(const QString &filename, float size = 10.0f);
     void load3DS(const QString &filename, float scale = 10.0f);

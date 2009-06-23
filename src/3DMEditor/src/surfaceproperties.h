@@ -34,6 +34,7 @@ public slots:
     void loadTexture();
     void saveTexture();
     void newTexture();
+    void flipTexture();
     void deleteTexture();
     void moveTextureLeft();
     void moveTextureRight();

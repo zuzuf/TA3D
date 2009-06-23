@@ -640,7 +640,7 @@ QImage Gfx::loadTGA(const QString &filename)                // Load a TGA file i
                         | (imageData[ (y * w + x) * bytesPerPixel + 3 ] << 24);
                 break;
             };
-            img.setPixel(x, y, color);
+            img.setPixel(x, h - 1 - y, color);
         }
     }
 
