@@ -64,6 +64,8 @@ Mesh* SpringModelLoader::LoadPiece(byte* buf, int offset, Mesh* model)
 
     Piece* fp = (Piece*)&buf[offset];
 
+    piece->flag = SURFACE_ADVANCED | SURFACE_ROOT_TEXTURE | SURFACE_TEXTURED;
+
     piece->pos.x = fp->xoffset;
     piece->pos.y = fp->yoffset;
     piece->pos.z = fp->zoffset;
