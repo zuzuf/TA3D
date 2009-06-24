@@ -5,12 +5,17 @@
 #include <QCheckBox>
 #include <QSpinBox>
 #include "imagelistview.h"
+#include "mesh.h"
 
 class SurfaceProperties : public QWidget
 {
     Q_OBJECT;
 public:
     SurfaceProperties();
+
+private:
+    Mesh *getMeshWithTextures();
+    void computeTexturePartition();
 
 private:
     QSpinBox        *red, *green, *blue, *alpha;
@@ -23,6 +28,7 @@ private:
     QCheckBox       *flagBlended;
     QCheckBox       *flagPlayerColor;
     QCheckBox       *flagGLSL;
+    QCheckBox       *flagRootTexture;
 
     ImageListView   *imageListView;
     bool            updating;

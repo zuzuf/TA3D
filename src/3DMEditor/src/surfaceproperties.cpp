@@ -57,6 +57,7 @@ SurfaceProperties::SurfaceProperties()
     flagPlayerColor = new QCheckBox(tr("Player Color"));
     flagReflec = new QCheckBox(tr("Reflective"));
     flagTextured = new QCheckBox(tr("Textured"));
+    flagRootTexture = new QCheckBox(tr("Share textures"));
 
     QFormLayout *colorLayout = new QFormLayout;
     colorLayout->addRow( new QLabel(tr("object color:")));
@@ -85,8 +86,9 @@ SurfaceProperties::SurfaceProperties()
     flagLayout->addWidget(flagPlayerColor, 0, 1);
     flagLayout->addWidget(flagReflec, 1, 1);
     flagLayout->addWidget(flagTextured, 2, 1);
+    flagLayout->addWidget(flagRootTexture, 3, 1);
     QPushButton *bShader = new QPushButton(tr("Shader"));
-    flagLayout->addWidget(bShader, 3, 1);
+    flagLayout->addWidget(bShader, 4, 0);
 
     QVBoxLayout *finalLayout = new QVBoxLayout;
     finalLayout->addLayout(colorsLayout);
@@ -147,6 +149,7 @@ SurfaceProperties::SurfaceProperties()
     connect(flagPlayerColor, SIGNAL(stateChanged(int)), this, SLOT(readData()));
     connect(flagReflec, SIGNAL(stateChanged(int)), this, SLOT(readData()));
     connect(flagTextured, SIGNAL(stateChanged(int)), this, SLOT(readData()));
+    connect(flagRootTexture, SIGNAL(stateChanged(int)), this, SLOT(readData()));
 
     connect(bShader, SIGNAL(clicked()), ShaderEditor::instance(), SLOT(show()));
 
@@ -204,6 +207,7 @@ void SurfaceProperties::refreshGUI()
         flagTextured->setChecked(mesh->flag & SURFACE_TEXTURED);
 
         QList<QImage> imageList;
+        mesh = getMeshWithTextures();
         for(int i = 0 ; i < mesh->tex.size() ; i++)
         {
             QImage image = Gfx::instance()->textureToImage( mesh->tex[i] );
@@ -229,6 +233,7 @@ void SurfaceProperties::refreshGUI()
         flagPlayerColor->setChecked(false);
         flagReflec->setChecked(false);
         flagTextured->setChecked(false);
+        imageListView->setImageList( QList<QImage>() );
     }
     updating = false;
 }
@@ -252,7 +257,7 @@ void SurfaceProperties::readData()
         mesh->rColor |= blueR->value() << 8;
         mesh->rColor |= alphaR->value();
 
-        mesh->flag = 0;
+        mesh->flag = SURFACE_ADVANCED;
         mesh->flag |= flagBlended->isChecked() ? SURFACE_BLENDED : 0;
         mesh->flag |= flagGLSL->isChecked() ? SURFACE_GLSL : 0;
         mesh->flag |= flagGouraud->isChecked() ? SURFACE_GOURAUD : 0;
@@ -260,16 +265,31 @@ void SurfaceProperties::readData()
         mesh->flag |= flagPlayerColor->isChecked() ? SURFACE_PLAYER_COLOR : 0;
         mesh->flag |= flagReflec->isChecked() ? SURFACE_REFLEC : 0;
         mesh->flag |= flagTextured->isChecked() ? SURFACE_TEXTURED : 0;
+
+        QList<Mesh*> lMesh = Mesh::instance()->getSubList();                             // SURFACE_ROOT_TEXTURE should have the same value across all sub meshes
+        foreach(Mesh *cur, lMesh)
+            cur->flag = (cur->flag & ~SURFACE_ROOT_TEXTURE) | (flagRootTexture->isChecked() ? SURFACE_ROOT_TEXTURE : 0);
+
+        refreshGUI();
         emit surfaceChanged();
     }
 }
 
+Mesh *SurfaceProperties::getMeshWithTextures()
+{
+    if (Mesh::instance()->flag & SURFACE_ROOT_TEXTURE)
+        return Mesh::instance();
+    int ID = Gfx::instance()->getSelectionID();
+    return Mesh::instance()->getMesh(ID);
+}
+
 void SurfaceProperties::newTexture()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
+    if (mesh->flag & SURFACE_ROOT_TEXTURE)
+        mesh = Mesh::instance();
     int w = QInputDialog::getInt(this,tr("Texture width"), tr("Enter texture width:"), 128, 1, 1024);
     int h = QInputDialog::getInt(this,tr("Texture height"), tr("Enter texture height:"), 128, 1, 1024);
 
@@ -311,8 +331,7 @@ void SurfaceProperties::newTexture()
 
 void SurfaceProperties::deleteTexture()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     int textureID = imageListView->selectedIndex();
@@ -326,8 +345,7 @@ void SurfaceProperties::deleteTexture()
 
 void SurfaceProperties::loadTexture()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     QString filename = QFileDialog::getOpenFileName(this,tr("Load texture"),QString(),tr("all files(*.*);;jpeg images(*.jpg);;png images(*.png)"));
@@ -340,8 +358,7 @@ void SurfaceProperties::loadTexture()
 
 void SurfaceProperties::flipTexture()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     int textureID = imageListView->selectedIndex();
@@ -356,8 +373,7 @@ void SurfaceProperties::flipTexture()
 
 void SurfaceProperties::saveTexture()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     int textureID = imageListView->selectedIndex();
@@ -372,8 +388,7 @@ void SurfaceProperties::saveTexture()
 
 void SurfaceProperties::moveTextureLeft()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     int textureID = imageListView->selectedIndex();
@@ -389,8 +404,7 @@ void SurfaceProperties::moveTextureLeft()
 
 void SurfaceProperties::moveTextureRight()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     int textureID = imageListView->selectedIndex();
@@ -404,43 +418,78 @@ void SurfaceProperties::moveTextureRight()
     imageListView->selectIndex(textureID + 1);
 }
 
+void SurfaceProperties::computeTexturePartition()
+{
+    QList<Mesh*> lMesh = Mesh::instance()->getSubList();
+    int i = 0;
+    int s = sqrt(lMesh.size());
+    if (s * s < lMesh.size())
+        ++s;
+    foreach(Mesh *cur, lMesh)
+    {
+        for(int e = 0 ; e < cur->tcoord.size() ; e += 2)
+        {
+            cur->tcoord[e] = cur->tcoord[e] / s + ((float)(i % s)) / s;
+            cur->tcoord[e+1] = cur->tcoord[e+1] / s + ((float)(i / s)) / s;
+        }
+        ++i;
+    }
+}
+
 void SurfaceProperties::basicUV()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
-    mesh->basicMapping();
+    if (mesh->flag & SURFACE_ROOT_TEXTURE)
+    {
+        foreach(Mesh *cur, Mesh::instance()->getSubList())
+            cur->basicMapping();
+        computeTexturePartition();
+    }
+    else
+        mesh->basicMapping();
     refreshGUI();
     emit surfaceChanged();
 }
 
 void SurfaceProperties::sphericalUV()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
-    mesh->sphericalMapping();
+    if (mesh->flag & SURFACE_ROOT_TEXTURE)
+    {
+        foreach(Mesh *cur, Mesh::instance()->getSubList())
+            cur->sphericalMapping();
+        computeTexturePartition();
+    }
+    else
+        mesh->sphericalMapping();
     refreshGUI();
     emit surfaceChanged();
 }
 
 void SurfaceProperties::autoUV()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
-    mesh->autoComputeUVcoordinates();
+    if (mesh->flag & SURFACE_ROOT_TEXTURE)
+    {
+        foreach(Mesh *cur, Mesh::instance()->getSubList())
+            cur->autoComputeUVcoordinates();
+        computeTexturePartition();
+    }
+    else
+        mesh->autoComputeUVcoordinates();
     refreshGUI();
     emit surfaceChanged();
 }
 
 void SurfaceProperties::mergeVertices()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     mesh->mergeSimilarVertices();
@@ -450,8 +499,7 @@ void SurfaceProperties::mergeVertices()
 
 void SurfaceProperties::computeAmbientOcclusion()
 {
-    int ID = Gfx::instance()->getSelectionID();
-    Mesh *mesh = Mesh::instance()->getMesh(ID);
+    Mesh *mesh = getMeshWithTextures();
     if (mesh == NULL)
         return;
     int w = QInputDialog::getInt(this,tr("Texture width"), tr("Enter texture width:"), 128, 1, 1024);

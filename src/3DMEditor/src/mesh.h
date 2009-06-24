@@ -9,6 +9,8 @@
 #include "obj.h"
 #include "program.h"
 
+class MeshTree;
+
 enum MeshType { MESH_TRIANGLES, MESH_TRIANGLE_STRIP };
 
 #define SURFACE_ADVANCED		0x01		// Tell it is not a 3Do surface
@@ -60,7 +62,7 @@ public:
 
     void destroy();
 
-    void draw(int id = -1);
+    void draw(int id = -1, Mesh *root = NULL);
 
     void load(const QString &filename);
     void save(const QString &filename);
@@ -100,8 +102,10 @@ public:
     void mergeSimilarVertices();
     void toTriangleSoup();
     void splitGeometry();               // Isolate connex components
-    void computeAmbientOcclusion(int w, int h, Mesh *base = NULL, int precision = 25);     // This is not recursive !!
+    void computeAmbientOcclusion(int w, int h, Mesh *base = NULL, int precision = 25, MeshTree *baseTree = NULL, QImage *img = NULL);     // This is recursive only if SURFACE_ROOT_TEXTURE is set !!
     Mesh *toSingleMesh();               // Builds a single mesh containing all the geometry
+
+    QList<Mesh*> getSubList();
 
 signals:
     void loaded();
