@@ -1247,6 +1247,7 @@ namespace TA3D
 		}
 
 		pMutex.lock();
+        byte player_mask = 1 << players.local_human_id;
 		for (unsigned int e = 0; e < index_list_size; ++e)
 		{
 			uint16 i = idx_list[e];
@@ -1264,7 +1265,7 @@ namespace TA3D
 					pMutex.lock();
 					continue;
 				}
-				if ((!(SurfaceByte(map->view_map,px>>1,py>>1) & mask) || !(SurfaceByte(map->sight_map,px>>1,py>>1) & mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar )
+                if ((!(SurfaceByte(map->view_map,px>>1,py>>1) & mask) || !(SurfaceByte(map->sight_map,px>>1,py>>1) & mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].is_on_radar(player_mask) )
 				{
 					units.unit[ i ].unlock();
 					pMutex.lock();
@@ -1474,24 +1475,26 @@ namespace TA3D
 		if (low_def)
 			glDisable(GL_DEPTH_TEST);
 
-		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+        for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
 			uint16 i = *e;
 			pMutex.unlock();
 
-			unit[i].lock();
-			if ((unit[i].flags & 1)
-				&& (low_def || (unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater)
-					|| (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
+            Unit *pUnit = &(unit[i]);
+
+            pUnit->lock();
+            if ((pUnit->flags & 1)
+                && (low_def || (pUnit->Pos.y + pUnit->model->bottom <= map->sealvl && underwater)
+                    || (pUnit->Pos.y + pUnit->model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
 			{
-				unit[i].unlock();
-				unit[i].draw(virtual_t, map, height_line);
+                pUnit->unlock();
+                pUnit->draw(virtual_t, map, height_line);
 			}
 			else
-				unit[i].unlock();
+                pUnit->unlock();
 			pMutex.lock();
 		}
-		pMutex.unlock();
+        pMutex.unlock();
 
 		glDisable(GL_ALPHA_TEST);
 
