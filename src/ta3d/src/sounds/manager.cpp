@@ -45,7 +45,7 @@ namespace Audio
 	Manager::Manager()
 		:m_SDLMixerRunning( false ), m_InBattle(false), pBattleTunesCount(0),
 		pMusic( NULL ), pBasicSound( NULL ),
-		pCurrentItemToPlay(-1)
+        pCurrentItemToPlay(-1), pCurrentItemPlaying(-1)
 	{
 		pMinTicks = 500;
 
@@ -83,14 +83,17 @@ namespace Audio
 		for (String::Vector::iterator i = out.begin(); i != out.end(); ++i, ++indx)
 		{
 			i->clear();
+            String name = pPlaylist[indx]->filename;
+            if (pPlaylist[indx]->cdromID >= 0)
+                name = "[CD] " + name;
 			if (pPlaylist[indx]->battleTune)
-				*i << "[B] " << pPlaylist[indx]->filename;
+                *i << "[B] " << name;
 			else
 			{
 				if (pPlaylist[indx]->disabled)
-					*i << "[ ] " << pPlaylist[indx]->filename;
+                    *i << "[ ] " << name;
 				else
-					*i << "[*] " << pPlaylist[indx]->filename;
+                    *i << "[*] " << name;
 			}
 		}
 		return !out.empty();
@@ -151,6 +154,51 @@ namespace Audio
 			}
 		}
 
+        // Check for audio tracks in cdrom drives
+        int nbDrives = SDL_CDNumDrives();
+        for(int i = 0 ; i < nbDrives ; ++i)
+        {
+            SDL_CD *cd = SDL_CDOpen(i);
+            if (!CD_INDRIVE(SDL_CDStatus(cd)))
+            {
+                SDL_CDClose(cd);
+                continue;
+            }
+            LOG_INFO(LOG_PREFIX_SOUND << "cdrom found : " << SDL_CDName(i));
+            LOG_INFO(LOG_PREFIX_SOUND << cd->numtracks << " tracks found");
+            for(int e = 0 ; e < cd->numtracks ; ++e)
+            {
+                LOG_INFO(LOG_PREFIX_SOUND << "track " << e << " is " << (cd->track[e].type == SDL_AUDIO_TRACK ? "audio" : "data"));
+                if (cd->track[e].type != SDL_AUDIO_TRACK)   continue;
+
+                String name = String(SDL_CDName(i)) << "_" << e;
+                Playlist::const_iterator it;
+                for (it = pPlaylist.begin(); it != pPlaylist.end(); ++it)
+                {
+                    if ((*it)->filename == name)
+                    {
+                        (*it)->checked = true;
+                        break;
+                    }
+                }
+
+                PlaylistItem *m_Tune = (it == pPlaylist.end()) ? new PlaylistItem() : *it;      // We have to update things
+                if (it == pPlaylist.end())
+                {
+                    m_Tune->battleTune = false;
+                    m_Tune->disabled = default_deactivation;
+                    m_Tune->checked = true;
+                }
+                m_Tune->filename = name;
+                m_Tune->cdromID = i;
+                m_Tune->trackID = e;
+                if (it == pPlaylist.end()) // It's missing, add it
+                    pPlaylist.push_back(m_Tune);
+            }
+
+            SDL_CDClose(cd);
+        }
+
 		int e = 0;
 		for (unsigned int i = 0 ; i + e < pPlaylist.size() ; ) // Do some cleaning
 		{
@@ -190,15 +238,14 @@ namespace Audio
 		for (Playlist::const_iterator i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
 		{
 			if ((*i)->battleTune)
-				play_list_file << "*" << (*i)->filename << "\n";
+                play_list_file << "*";
 			else
 			{
 				if ((*i)->disabled)
-					play_list_file << "!" << (*i)->filename << "\n";
-				else
-					play_list_file << (*i)->filename << "\n";
+                    play_list_file << "!";
 			}
-		}
+            play_list_file << (*i)->filename << "\n";
+        }
 		play_list_file.flush();
 		play_list_file.close();
 	}
@@ -249,7 +296,7 @@ namespace Audio
 			if (line[0] == '*')
 			{
 				isBattle = true;
-                                line.erase(0, 1);
+                line.erase(0, 1);
 				++pBattleTunesCount;
 			}
 			else
@@ -298,7 +345,8 @@ namespace Audio
 			pMusic = NULL;
 		}
 
-		SDL_QuitSubSystem( SDL_INIT_AUDIO );
+        SDL_QuitSubSystem( SDL_INIT_CDROM );
+        SDL_QuitSubSystem( SDL_INIT_AUDIO );
 	}
 
 
@@ -320,14 +368,32 @@ namespace Audio
 				return false;
 			}
 		}
+        if (!SDL_WasInit(SDL_INIT_CDROM))
+        {
+            if (SDL_InitSubSystem( SDL_INIT_CDROM ))
+            {
+                LOG_ERROR(LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_CDROM ) failed: " << SDL_GetError());
+                return false;
+            }
+        }
+        if (!SDL_WasInit(SDL_INIT_TIMER))
+        {
+            if (SDL_InitSubSystem( SDL_INIT_TIMER ))
+            {
+                LOG_ERROR(LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_TIMER ) failed: " << SDL_GetError());
+                return false;
+            }
+        }
 
 		// 44.1KHz, signed 16bit, system byte order,
 		// stereo, 4096 bytes for chunks
-		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
-		{
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
+        {
 			LOG_ERROR(LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError());
 			return false;
 		}
+
+        pCurrentItemPlaying = -1;
 
 		nbChannels = 16;
 		Mix_AllocateChannels(nbChannels);
@@ -371,6 +437,14 @@ namespace Audio
 			Mix_FreeMusic(pMusic);
 			pMusic = NULL;
 		}
+        else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cd)        // We're playing a track from an audio CD
+        {
+            SDL_CDStop(pPlaylist[pCurrentItemPlaying]->cd);
+            SDL_CDClose(pPlaylist[pCurrentItemPlaying]->cd);
+            pPlaylist[pCurrentItemPlaying]->cd = NULL;
+        }
 	}
 
 
@@ -407,7 +481,16 @@ namespace Audio
 			else
 				Mix_ResumeMusic();
 		}
-		pMutex.unlock();
+        else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cd)
+        {
+            if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING)
+                SDL_CDPause(pPlaylist[pCurrentItemPlaying]->cd);
+            else if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
+                SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
+        }
+        pMutex.unlock();
 	}
 
 
@@ -423,6 +506,10 @@ namespace Audio
 	{
 		if (m_SDLMixerRunning && pMusic != NULL)
 			Mix_PauseMusic();
+        else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cd)
+            SDL_CDPause(pPlaylist[pCurrentItemPlaying]->cd);
 	}
 
 
@@ -446,13 +533,18 @@ namespace Audio
 			{
 				if ((*cur)->battleTune && mCount >= cIndex)		// If we get one that match our needs we take it
 				{
-					szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
-					break;
+                    if ((*cur)->cdromID >= 0)
+                        szResult = (*cur)->filename;
+                    else
+                        szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
+                    break;
 				}
 				else
 				{
 					if ((*cur)->battleTune) // Take the last one that can be taken if we try to go too far
-						szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
+                    {
+                        szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : (TA3D::Paths::Resources + "music/" + (*cur)->filename);
+                    }
 				}
 			}
 			return szResult;
@@ -472,7 +564,7 @@ namespace Audio
 
 			if (pCurrentItemToPlay <= mCount || pCurrentItemToPlay <= 0)
 			{
-				szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
+                szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : (TA3D::Paths::Resources + "music/" + (*cur)->filename);
 				pCurrentItemToPlay = mCount + 1;
 				found = true;
 				break;
@@ -509,6 +601,33 @@ namespace Audio
 
 		if (!m_SDLMixerRunning)
 			return;
+
+        pCurrentItemPlaying = -1;
+        for(int i = 0 ; i < pPlaylist.size() ; ++i)
+            if (pPlaylist[i]->filename == filename)
+            {
+                pCurrentItemPlaying = i;
+                break;
+            }
+
+        if (pCurrentItemPlaying >= 0 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0)
+        {
+            SDL_CDClose(NULL);
+            SDL_ClearError();
+            pPlaylist[pCurrentItemPlaying]->cd = SDL_CDOpen(pPlaylist[pCurrentItemPlaying]->cdromID);
+            if (pPlaylist[pCurrentItemPlaying]->cd == NULL)
+                LOG_ERROR(LOG_PREFIX_SOUND << "could not open cdrom " << pPlaylist[pCurrentItemPlaying]->cdromID <<  " : " << SDL_GetError());
+            else
+            {
+                SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd);
+                if (SDL_CDPlayTracks(pPlaylist[pCurrentItemPlaying]->cd, pPlaylist[pCurrentItemPlaying]->trackID, 0, 1, 0))
+                    LOG_ERROR(LOG_PREFIX_SOUND << "Error playing track "  << pPlaylist[pCurrentItemPlaying]->trackID << " from CD " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) << " : " << SDL_GetError());
+                else
+                    LOG_DEBUG(LOG_PREFIX_SOUND << "Playing audio cd " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) <<  " track " << pPlaylist[pCurrentItemPlaying]->trackID);
+                setMusicVolume( lp_CONFIG->music_volume );
+            }
+            return;
+        }
 
 		if (!Paths::Exists(filename))
 		{
@@ -549,6 +668,8 @@ namespace Audio
 		if (!m_SDLMixerRunning)
 			return;
 
+        bool playing = false;
+
 		if (pMusic != NULL)
 		{
 			if (Mix_PausedMusic())
@@ -556,8 +677,19 @@ namespace Audio
 				Mix_ResumeMusic();
 				return;
 			}
+            playing = Mix_PlayingMusic();
 		}
-		if (pMusic == NULL || !Mix_PlayingMusic())
+        else if (pCurrentItemPlaying >= 0
+                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0 && pPlaylist[pCurrentItemPlaying]->cd)
+        {
+            if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
+            {
+                SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
+                return;
+            }
+            playing = SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING;
+        }
+        if (!playing)
 			doPlayMusic(doSelectNextMusic());
 	}
 
@@ -618,14 +750,15 @@ namespace Audio
 
 		fCounter = 0;
 
-		if (pMusic == NULL)
+        if (((pMusic == NULL || !Mix_PlayingMusic()) && (pCurrentItemPlaying == -1 || pPlaylist[pCurrentItemPlaying]->cdromID < 0))
+            || (pCurrentItemPlaying >= 0
+                && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+                && (pPlaylist[pCurrentItemPlaying]->cd == NULL
+                    || SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) != CD_PLAYING)) )
 		{
 			doPlayMusic();
 			return;
 		}
-
-		if (!Mix_PlayingMusic())
-			doPlayMusic();
 	}
 
 	uint32 Manager::InterfaceMsg(const lpcImsg msg)
