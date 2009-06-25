@@ -189,15 +189,21 @@ namespace TA3D
 			struct PlaylistItem
 			{
 				//! Default constructor
-				PlaylistItem() :battleTune(false), disabled(false), checked(false) {}
+                PlaylistItem() :battleTune(false), disabled(false), checked(false), cdromID(-1), trackID(0), cd(NULL) {}
 				//! Filename
 				String filename;
 				//!
 				bool battleTune;
-				//! Only to tell the file is theres
+                //! Only to tell the file is there
 				bool disabled;
 				//! Used by the playlist generator
 				bool checked;
+                //! Does it come from an audio CD ?
+                int cdromID;
+                //! What track is it ? (audio cd only)
+                int trackID;
+                //! The SDL CD handler
+                SDL_CD *cd;
 
 			}; // class PlaylistItem
 
@@ -324,7 +330,9 @@ namespace TA3D
 
 			//! Current index to play (-1 means `none`)
 			sint16  pCurrentItemToPlay;
-			//!
+            //! Current index to play (-1 means `none`)
+            sint16  pCurrentItemPlaying;
+            //!
 			uint32  pMinTicks;
 
 			//!
