@@ -1738,6 +1738,13 @@ namespace TA3D
 							else
 								view[y][x] = 3;
 						}
+                        if ((SurfaceByte(radar_map,x,y) & player_mask) || (SurfaceByte(sonar_map,x,y) & player_mask))       // We need to check that in case there is a radar or a sonar around
+                        {
+                            check_unit_visibility(X, Y);
+                            check_unit_visibility(X, Y|1);
+                            check_unit_visibility(X|1, Y);
+                            check_unit_visibility(X|1, Y|1);
+                        }
 					}
 					else
 					{
