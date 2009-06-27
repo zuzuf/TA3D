@@ -264,15 +264,15 @@ namespace TA3D
             return WriteBuff;
         }
 
-        sint32  Hpi::readAndDecrypt(const sint32 fpos, byte *buff, const sint32 buffsize)
+        sint32  Hpi::readAndDecrypt(sint32 fpos, byte *buff, const sint32 buffsize)
         {
-            sint32 count, result;
+            sint32 result;
             fseek(HPIFile, fpos, SEEK_SET);
             result = (sint32)fread(buff, buffsize, 1, HPIFile);
             if (key)
             {
-                for (count = 0; count < buffsize; ++count)
-                    buff[count] ^= (fpos + count) ^ key;
+                for (byte *end = buff + buffsize ; buff != end ; ++buff, ++fpos)
+                    *buff ^= fpos ^ key;
             }
             return result;
         }
@@ -325,41 +325,38 @@ namespace TA3D
 
         sint32 Hpi::LZ77Decompress(byte *out, byte *in)
         {
-            sint32 x, work1, work2, work3, inptr, outptr, done, DPtr;
+            byte *out0 = out;
+            sint32 work1, work2, work3;
             schar DBuff[4096];
 
-            done = 0;
-            inptr = 0;
-            outptr = 0;
             work1 = 1;
             work2 = 1;
-            work3 = in[inptr++];
+            work3 = *in++;
 
-            while (!done)
+            while (true)
             {
                 if ((work2 & work3) == 0)
                 {
-                    out[outptr++] = in[inptr];
-                    DBuff[work1] = in[inptr];
+                    *out++ = *in;
+                    DBuff[work1] = *in;
                     work1 = (work1 + 1) & 0xFFF;
-                    ++inptr;
+                    ++in;
                 }
                 else
                 {
-                    int count = *((uint16 *) (in+inptr));
-                    inptr += 2;
-                    DPtr = count >> 4;
+                    int count = *((uint16 *) (in));
+                    in += 2;
+                    int DPtr = count >> 4;
                     if (DPtr == 0)
-                        return outptr;
+                        return out - out0;
                     else
                     {
                         count = (count & 0x0f) + 2;
                         if (count >= 0)
                         {
-                            for (x = 0; x < count; ++x)
+                            for (byte *end = out + count ; out != end ; ++out)
                             {
-                                out[outptr++] = DBuff[DPtr];
-                                DBuff[work1] = DBuff[DPtr];
+                                *out = DBuff[work1] = DBuff[DPtr];
                                 DPtr = (DPtr + 1) & 0xFFF;
                                 work1 = (work1 + 1) & 0xFFF;
                             }
@@ -371,10 +368,10 @@ namespace TA3D
                 if (work2 & 0x0100)
                 {
                     work2 = 1;
-                    work3 = in[inptr++];
+                    work3 = *in++;
                 }
             }
-            return outptr;
+            return out - out0;
         }
 
         sint32 Hpi::decompress(byte *out, byte *in, HPICHUNK* Chunk)
