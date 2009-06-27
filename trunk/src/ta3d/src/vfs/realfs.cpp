@@ -78,16 +78,14 @@ namespace TA3D
                     while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
                         i->erase(0, 1);
 
+                    if (i->first() == '.' || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
+                        continue;
+
                     RealFile *file = new RealFile;
                     file->pathToFile = *i;      // Store full path here
                     // make VFS path
                     i->convertSlashesIntoBackslashes();
                     i->toLower();
-                    if (i->first() == '.' || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
-                    {
-                        delete file;
-                        continue;
-                    }
                     file->setName(*i);
                     file->setParent(this);
                     file->setPriority(0xFFFF);
@@ -95,9 +93,10 @@ namespace TA3D
                     if (it != files.end())          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
                     {
                         delete it->second;
-                        files.erase(it);
+                        it->second = file;
                     }
-                    files.insert( std::pair<String, RealFile*>(*i, file) );
+                    else
+                        files.insert( std::pair<String, RealFile*>(*i, file) );
                 }
             }
             for(std::map<String, RealFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
