@@ -69,7 +69,7 @@ namespace TA3D
 		geothermal=false;
 		blocking=false;
 		reclaimable=false;
-		autoreclaimable=false;
+        autoreclaimable=true;
 		energy=0;
 		converted=false;
 		m3d=false;
@@ -248,8 +248,8 @@ namespace TA3D
 			pFeature->damage = parser.pullAsInt( key + "damage", pFeature->damage );
 			pFeature->footprintx = parser.pullAsInt( key + "footprintx", pFeature->footprintx );
 			pFeature->footprintz = parser.pullAsInt( key + "footprintz", pFeature->footprintz );
-			pFeature->autoreclaimable = parser.pullAsBool( key + "autoreclaimable", pFeature->autoreclaimable );
 			pFeature->reclaimable = parser.pullAsBool( key + "reclaimable", pFeature->reclaimable );
+            pFeature->autoreclaimable = parser.pullAsBool( key + "autoreclaimable", pFeature->autoreclaimable ) && pFeature->reclaimable;
 			pFeature->blocking = parser.pullAsBool( key + "blocking", pFeature->blocking );
 			pFeature->flamable = parser.pullAsBool( key + "flamable", pFeature->flamable );
 			pFeature->geothermal = parser.pullAsBool( key + "geothermal", pFeature->geothermal );
