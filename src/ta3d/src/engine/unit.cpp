@@ -3767,44 +3767,88 @@ namespace TA3D
 					LOG_WARNING("Unknown type :" << unit_manager.unit_type[type_id]->TEDclass);
 			};
 
-			switch(mission->mission)		// Pour le code post déplacement
+            switch(mission->mission)		// Quelques animations spéciales / Some special animation code
 			{
-				case MISSION_ATTACK:
-					//                    if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack ) 			// Un avion??
-					if (unit_manager.unit_type[type_id]->canfly)			// Un avion??
-					{
-						activate();
-						mission->flags &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
-						Vector3D J,I,K;
-						K.x=K.z=0.0f;
-						K.y=1.0f;
-						Vector3D Target = mission->target;
-						J = Target-Pos;
-						J.y = 0.0f;
-						float dist = J.norm();
-						mission->last_d = dist;
-						if (dist > 0.0f)
-							J = 1.0f / dist * J;
-						if (dist > unit_manager.unit_type[type_id]->ManeuverLeashLength * 0.5f)
-						{
-							b_TargetAngle = true;
-							f_TargetAngle = acosf(J.z) * RAD2DEG;
-							if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
-						}
+            case MISSION_ATTACK:
+                if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack)			// Un avion?? / A plane ?
+                {
+                    activate();
+                    mission->flags &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
+                    Vector3D J,I,K;
+                    K.x=K.z=0.0f;
+                    K.y=1.0f;
+                    Vector3D Target = mission->target;
+                    J = Target-Pos;
+                    J.y = 0.0f;
+                    float dist = J.norm();
+                    mission->last_d = dist;
+                    if (dist > 0.0f)
+                        J = 1.0f / dist * J;
+                    if (dist > unit_manager.unit_type[type_id]->ManeuverLeashLength * 0.5f)
+                    {
+                        b_TargetAngle = true;
+                        f_TargetAngle = acosf(J.z) * RAD2DEG;
+                        if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
+                    }
 
-						J.z = cosf(Angle.y * DEG2RAD);
-						J.x = sinf(Angle.y * DEG2RAD);
-						J.y = 0.0f;
-						I.z = -J.x;
-						I.x = J.z;
-						I.y = 0.0f;
-						V = (V%K)*K+(V%J)*J+units.exp_dt_4*(V%I)*I;
-						float speed = V.sq();
-						if (speed < unit_manager.unit_type[type_id]->MaxVelocity * unit_manager.unit_type[type_id]->MaxVelocity)
-							V=V+unit_manager.unit_type[type_id]->Acceleration*dt*J;
-					}
-					break;
-			}
+                    J.z = cosf(Angle.y * DEG2RAD);
+                    J.x = sinf(Angle.y * DEG2RAD);
+                    J.y = 0.0f;
+                    I.z = -J.x;
+                    I.x = J.z;
+                    I.y = 0.0f;
+                    V = (V%K)*K+(V%J)*J+units.exp_dt_4*(V%I)*I;
+                    float speed = V.sq();
+                    if (speed < unit_manager.unit_type[type_id]->MaxVelocity * unit_manager.unit_type[type_id]->MaxVelocity)
+                        V=V+unit_manager.unit_type[type_id]->Acceleration*dt*J;
+                }
+                if (!unit_manager.unit_type[type_id]->hoverattack)
+                    break;
+            case MISSION_CAPTURE:
+            case MISSION_RECLAIM:
+            case MISSION_REPAIR:
+            case MISSION_BUILD_2:
+            case MISSION_REVIVE:
+                if (flying)             // Brawler and construction aircrafts animation
+                {
+                    activate();
+                    mission->flags &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
+                    Vector3D K(0.0f, 1.0f, 0.0f);
+                    Vector3D J = mission->target - Pos;
+                    J.y = 0.0f;
+                    float dist = J.norm();
+                    if (dist > 0.0f)
+                        J = 1.0f / dist * J;
+                    b_TargetAngle = true;
+                    f_TargetAngle = acosf(J.z) * RAD2DEG;
+                    if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
+
+                    float ideal_dist = unit_manager.unit_type[type_id]->SightDistance * 0.25f;
+                    switch (mission->mission)
+                    {
+                    case MISSION_BUILD_2:
+                    case MISSION_CAPTURE:
+                    case MISSION_REPAIR:
+                    case MISSION_RECLAIM:
+                    case MISSION_REVIVE:
+                        ideal_dist = unit_manager.unit_type[type_id]->BuildDistance * 0.5f;
+                    };
+
+                    V += (Math::Clamp(dist - ideal_dist, -unit_manager.unit_type[type_id]->Acceleration, unit_manager.unit_type[type_id]->Acceleration) * dt) * J;
+
+                    if (dist < 2.0f * ideal_dist)
+                    {
+                        J.z = sinf(Angle.y * DEG2RAD);
+                        J.x = -cosf(Angle.y * DEG2RAD);
+                        J.y = 0.0f;
+                        V = units.exp_dt_4 * V + (dt * dist * Math::Max(8.0f * (cosf(PI * ((float)units.current_tick) / TICKS_PER_SEC) - 0.5f), 0.0f)) * J;
+                    }
+                    float speed = V.sq();
+                    if (speed > unit_manager.unit_type[type_id]->MaxVelocity * unit_manager.unit_type[type_id]->MaxVelocity)
+                        V = unit_manager.unit_type[type_id]->MaxVelocity / V.norm() * V;
+                }
+                break;
+            }
 
 			if (( (mission->flags & MISSION_FLAG_MOVE) || !local ) && !jump_commands )// Set unit orientation if it's on the ground
 			{
@@ -4041,9 +4085,9 @@ namespace TA3D
 				if (virtual_G.x > 0.0f)	angle_2 = -angle_2;
 
 				if (fabsf( angle_1 - Angle.x ) < 360.0f )
-					Angle.x += dt*( angle_1 - Angle.x );				// We need something continuous
+                    Angle.x += 5.0f * dt * ( angle_1 - Angle.x );				// We need something continuous
 				if (fabsf( angle_2 - Angle.z ) < 360.0f )
-					Angle.z += dt*( angle_2 - Angle.z );
+                    Angle.z += 5.0f * dt * ( angle_2 - Angle.z );
 
 				if (Angle.x < -360.0f || Angle.x > 360.0f )		Angle.x = 0.0f;
 				if (Angle.z < -360.0f || Angle.z > 360.0f )		Angle.z = 0.0f;
