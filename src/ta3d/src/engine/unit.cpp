@@ -8,7 +8,8 @@
 
 
 
-#define SQUARE(X)  ((X)*(X))
+template<class T>
+    inline T SQUARE(T X)   { return ((X)*(X)); }
 
 
 
@@ -3134,6 +3135,48 @@ namespace TA3D
 						if (mission->next == NULL )
                             add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,PATH(),MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
+                        if (pType->CanReclamate                                                 // Auto reclaim things on the battle field when needed
+                            && (players.r_energy[owner_id] >= players.energy_t[owner_id]
+                                || players.r_metal[owner_id] >= players.metal_t[owner_id]))
+                        {
+                            LOG_DEBUG("autoreclamation code is running");
+                            bool energyLack = players.r_energy[owner_id] >= players.energy_t[owner_id];
+                            bool metalLack = players.r_metal[owner_id] >= players.metal_t[owner_id];
+                            int dx = pType->SightDistance >> 3;
+                            int dx2 = SQUARE(dx);
+                            int feature_idx = -1;
+                            int sx = Math::RandFromTable()&0xF;
+                            int sy = Math::RandFromTable()&0xF;
+                            byte mask = 1 << owner_id;
+                            for(int y = cur_py - dx + sy ; y <= cur_py + dx && feature_idx == -1 ; y += 0x8)
+                            {
+                                if (y >= 0 && y < map->bloc_h_db - 1)
+                                {
+                                    for(int x = cur_px - dx + sx ; x <= cur_px + dx && feature_idx == -1 ; x += 0x8)
+                                    {
+                                        if (SQUARE(cur_px - x) + SQUARE(cur_py - y) > dx2)  continue;
+                                        if (x >= 0 && x < map->bloc_w_db - 1)
+                                        {
+                                            int cur_idx = map->map_data[y][x].stuff;
+                                            if (cur_idx >= 0)      // There is a feature
+                                            {
+                                                Feature *pFeature = feature_manager.getFeaturePointer(features.feature[cur_idx].type);
+                                                if (pFeature && pFeature->autoreclaimable
+                                                    && ((pFeature->metal > 0 && metalLack)
+                                                        || (pFeature->energy > 0 && energyLack)))
+                                                    feature_idx = cur_idx;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (feature_idx >= 0)           // We've something to recycle :P
+                            {
+                                add_mission(MISSION_RECLAIM, &(features.feature[feature_idx].Pos), true, feature_idx, NULL);
+                                break;
+                            }
+                        }
+
 						mission->flags |= MISSION_FLAG_CAN_ATTACK;
                         if (pType->canfly ) // Don't stop moving and check if it can be repaired
 						{
@@ -3848,7 +3891,7 @@ namespace TA3D
                         ideal_dist = pType->BuildDistance * 0.5f;
                     };
 
-                    V += (Math::Clamp(dist - ideal_dist, -pType->Acceleration, pType->Acceleration) * dt) * J;
+                    V += (Math::Clamp(10.0f * (dist - ideal_dist), -pType->Acceleration, pType->Acceleration) * dt) * J;
 
                     if (dist < 2.0f * ideal_dist)
                     {
@@ -3856,6 +3899,14 @@ namespace TA3D
                         J.x = -cosf(Angle.y * DEG2RAD);
                         J.y = 0.0f;
                         V = units.exp_dt_4 * V + (dt * dist * Math::Max(8.0f * (cosf(PI * ((float)units.current_tick) / TICKS_PER_SEC) - 0.5f), 0.0f)) * J;
+                    }
+                    else
+                    {
+                        J.z = sinf(Angle.y * DEG2RAD);
+                        J.x = -cosf(Angle.y * DEG2RAD);
+                        J.y = 0.0f;
+                        J = (J % V) * J;
+                        V = (V - J) + units.exp_dt_4 * J;
                     }
                     float speed = V.sq();
                     if (speed > pType->MaxVelocity * pType->MaxVelocity)
