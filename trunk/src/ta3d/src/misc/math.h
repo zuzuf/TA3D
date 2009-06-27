@@ -38,6 +38,8 @@ namespace Math
     template<typename T> inline T Min(const T a, const T b)
     { return (a > b) ? b : a; }
 
+    template<typename T> inline T Clamp(const T &v, const T m, const T M)
+    { return (v > M) ? M : v < m ? m : v; }
 
 	inline bool IsPowerOfTwo(const int x)
     { return !(x & (x - 1)) && x; }
