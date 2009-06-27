@@ -225,7 +225,7 @@ namespace TA3D
         ** \param buffsize
         ** \return
         */
-            sint32 readAndDecrypt(const sint32 fpos, byte *buff, sint32 buffsize);
+            sint32 readAndDecrypt(sint32 fpos, byte *buff, sint32 buffsize);
 
             /*!
         ** \brief
