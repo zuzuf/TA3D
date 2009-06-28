@@ -51,6 +51,7 @@ namespace TA3D
         vert_shader_src.clear();
         s_shader.destroy();
         glColorTexture = 0;
+        root = NULL;
     }
 
 
@@ -65,6 +66,7 @@ namespace TA3D
         frag_shader_src.clear();
         vert_shader_src.clear();
         s_shader.destroy();
+        root = NULL;
     }
 
     bool MESH_3DM::draw(float t, ANIMATION_DATA *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
@@ -107,13 +109,15 @@ namespace TA3D
                 glRotatef(R.z, 0.0f, 0.0f, 1.0f);
             }
 
+            std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+
             hide |= explodes ^ exploding_parts;
             if (chg_col)
                 glGetFloatv(GL_CURRENT_COLOR, color_factor);
             int texID = player_color_map[side];
             if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
-                && !fixed_textures && !gltex.empty())
-                texID = ((int)(t * 10.0f)) % gltex.size();
+                && !fixed_textures && !pTex->empty())
+                texID = ((int)(t * 10.0f)) % pTex->size();
             if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
             {
                 glCallList( gl_dlist[ texID ] );
@@ -164,7 +168,7 @@ namespace TA3D
                     if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
                     {
                         s_shader.on();
-                        for (int j = 0; j < gltex.size() ; ++j)
+                        for (int j = 0; j < pTex->size() ; ++j)
                             s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
                     }
 
@@ -197,12 +201,12 @@ namespace TA3D
                     if ((Flag&SURFACE_TEXTURED) && !notex) // Les textures et effets de texture
                     {
                         activated_tex = true;
-                        for (int j = 0; j < gltex.size() ; ++j)
+                        for (int j = 0; j < pTex->size() ; ++j)
                         {
                             glActiveTextureARB(GL_TEXTURE0_ARB + j);
                             glEnable(GL_TEXTURE_2D);
-                            glBindTexture(GL_TEXTURE_2D, gltex[j]);
-                            if (j == gltex.size() - 1 && Flag&SURFACE_REFLEC)
+                            glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+                            if (j == pTex->size() - 1 && Flag&SURFACE_REFLEC)
                             {
                                 glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
                                 glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
@@ -233,7 +237,7 @@ namespace TA3D
                             }
                         }
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        for (int j = 0; j < gltex.size() ; ++j)
+                        for (int j = 0; j < pTex->size() ; ++j)
                         {
                             glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
                             glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
@@ -273,7 +277,7 @@ namespace TA3D
 
                     if (activated_tex)
                     {
-                        for (int j = 0; j < gltex.size() ; ++j)
+                        for (int j = 0; j < pTex->size() ; ++j)
                         {
                             glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
                             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -318,10 +322,12 @@ namespace TA3D
             glEnableClientState(GL_NORMAL_ARRAY);
             alset = false;
 
+            std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+
             if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
             {
                 s_shader.on();
-                for (int j = 0; j < gltex.size() ; ++j)
+                for (int j = 0; j < pTex->size() ; ++j)
                     s_shader.setvar1i( String::Format("tex%d",j).c_str(), j + 1 );
             }
 
@@ -348,23 +354,23 @@ namespace TA3D
                 glDisable(GL_BLEND);
             }
 
-            glClientActiveTextureARB(GL_TEXTURE0_ARB + gltex.size());
+            glClientActiveTextureARB(GL_TEXTURE0_ARB + pTex->size());
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glActiveTextureARB(GL_TEXTURE0_ARB + gltex.size());
+            glActiveTextureARB(GL_TEXTURE0_ARB + pTex->size());
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, glColorTexture);
             glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 
-            for (int j = 0; j < gltex.size() ; ++j)
+            for (int j = 0; j < pTex->size() ; ++j)
             {
                 glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 glActiveTextureARB(GL_TEXTURE0_ARB + j);
                 glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, gltex[j]);
+                glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
                 glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 
-                if (j == gltex.size() - 1 && (Flag & SURFACE_REFLEC))
+                if (j == pTex->size() - 1 && (Flag & SURFACE_REFLEC))
                 {
                     glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
                     glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
@@ -405,7 +411,7 @@ namespace TA3D
             if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
                 s_shader.off();
 
-            for (int j = 0; j < gltex.size() + 1 ; ++j)
+            for (int j = 0; j < pTex->size() + 1 ; ++j)
             {
                 glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -437,9 +443,12 @@ namespace TA3D
         return data + len;
     }
 
-    byte *MESH_3DM::load(byte *data, const String &filename)
+    byte *MESH_3DM::load(byte *data, const String &filename, MESH_3DM *root)
     {
         destroy();
+        if (root == NULL)
+            root = this;
+        this->root = root;
 
         if (data == NULL)
             return NULL;
@@ -693,7 +702,7 @@ namespace TA3D
         {
             MESH_3DM *pChild = new MESH_3DM;
             child = pChild;
-            data = pChild->load(data,filename);
+            data = pChild->load(data,filename,root);
             if (data == NULL)
             {
                 destroy();
@@ -708,7 +717,7 @@ namespace TA3D
         {
             MESH_3DM *pNext = new MESH_3DM;
             next = pNext;
-            data = pNext->load(data, filename);
+            data = pNext->load(data, filename, root);
             if (data == NULL)
             {
                 destroy();

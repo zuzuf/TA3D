@@ -50,6 +50,7 @@ namespace TA3D
 #define SURFACE_BLENDED                 0x20            // Alpha Blending
 #define SURFACE_PLAYER_COLOR            0x40            // The color is the owner's color
 #define SURFACE_GLSL                    0x80            // Use a shader to create a surface effect
+#define SURFACE_ROOT_TEXTURE            0X100           // Use only the textures of the root object (all objects share the same texture set)
 
     class MESH_3DM : public MESH        // Classe pour la gestion des (sous-)objets des modèles 3do
     {
@@ -61,9 +62,10 @@ namespace TA3D
         String  vert_shader_src;
         Shader  s_shader;
         GLuint  glColorTexture;     // This is a small texture filled with color Color (just to prevent rendering color from being changed)
+        MESH_3DM *root;
     public:
 
-        byte *load(byte *data, const String &filename);
+        byte *load(byte *data, const String &filename, MESH_3DM *root = NULL);
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);
