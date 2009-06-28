@@ -65,6 +65,7 @@
 
 # define LOG_PREFIX_3DM               "[3dm] "
 # define LOG_PREFIX_3DO               "[3do] "
+# define LOG_PREFIX_S3O               "[s3o] "
 # define LOG_PREFIX_MODEL             "[model] "
 
 # define LOG_PREFIX_AI                "[AI] "

@@ -445,7 +445,7 @@ namespace TA3D
 
     byte *MESH_3DM::load(byte *data, const String &filename, MESH_3DM *root)
     {
-        destroy();
+        destroy3DM();
         if (root == NULL)
             root = this;
         this->root = root;
