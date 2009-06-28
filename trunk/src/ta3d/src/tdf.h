@@ -31,7 +31,7 @@
 # include "threads/thread.h"
 # include "gaf.h"
 # include "gfx/particles/particles.h"
-# include "3do.h"
+# include "mesh/mesh.h"
 # include "misc/camera.h"
 # include <list>
 # include "EngineClass.h"

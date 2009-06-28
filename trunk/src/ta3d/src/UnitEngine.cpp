@@ -27,7 +27,7 @@
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
-#include "3do.h"					// To handle 3D models
+#include "mesh/mesh.h"              // To handle 3D models
 #include "tdf.h"					// For map features
 #include "EngineClass.h"
 #include "UnitEngine.h"

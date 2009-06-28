@@ -35,6 +35,7 @@
 #include "misc/math.h"
 #include "misc/material.light.h"
 #include "ingame/players.h"
+# include "mesh/instancing.h"
 
 
 
@@ -811,8 +812,8 @@ namespace TA3D
 					bool random_vector = true;
 					if (pFeature->m3d && pFeature->model != NULL)
 					{
-						OBJECT* obj = &(pFeature->model->obj);
-						for (int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
+                        MESH* obj = pFeature->model->mesh;
+                        for (int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
 							random_vector = obj->random_pos(NULL, (base_n + n) % obj->nb_sub_obj, &t_mod);
 					}
 					else

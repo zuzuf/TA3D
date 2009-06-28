@@ -15,11 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#include "../TA3D_NameSpace.h"
 #include "fx.electric.h"
-#include "../EngineClass.h"
-#include "fx.manager.h"
-#include "../3do.h"
-#include "../ingame/players.h"
 
 namespace TA3D
 {

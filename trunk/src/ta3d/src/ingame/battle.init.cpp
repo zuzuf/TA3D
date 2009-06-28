@@ -23,7 +23,9 @@
 #include "../languages/i18n.h"
 #include "../languages/table.h"
 #include "../intro.h"
-#include "../3do.h"
+#include "../mesh/textures.h"
+#include "../mesh/instancing.h"
+#include "../mesh/mesh.h"
 #include "../tdf.h"
 #include "weapons/weapons.h"
 #include "../fbi.h"
@@ -276,7 +278,6 @@ namespace TA3D
 		loading(100.0f / 7.0f, I18N::Translate("Loading 3D Models"));
 		model_manager.init();
 		model_manager.load_all(loading);
-		model_manager.optimise_all();
 		return true;
 	}
 

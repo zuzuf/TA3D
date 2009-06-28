@@ -19,7 +19,8 @@
 #include "particles/particles.h"
 #include "../EngineClass.h"
 #include "fx.manager.h"
-#include "../3do.h"
+#include "../mesh/mesh.h"
+#include "../mesh/instancing.h"
 #include "../ingame/players.h"
 
 namespace TA3D

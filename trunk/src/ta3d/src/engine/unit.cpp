@@ -1108,7 +1108,7 @@ namespace TA3D
 				bool c_part=false;
 				bool reverse=false;
 				float size=0.0f;
-				OBJECT *src = NULL;
+                MESH *src = NULL;
 				ANIMATION_DATA *src_data = NULL;
 				Vector3D v_target;				// Needed in network mode
 				Unit *unit_target = NULL;
@@ -1124,7 +1124,7 @@ namespace TA3D
 					do
 					{
 						current = runScriptFunction( SCRIPT_QueryNanoPiece );
-						model->obj.compute_emitter_point( current );
+                        model->mesh->compute_emitter_point( current );
 						++i;
 					} while( first != current && i < 1000 );
 				}
@@ -1146,10 +1146,10 @@ namespace TA3D
 							unit_target->lock();
 							if ((unit_target->flags & 1) && unit_target->model!=NULL)
 							{
-								size=unit_target->model->size2;
-								center=&unit_target->model->center;
-								src = &unit_target->model->obj;
-								src_data = &unit_target->data;
+                                size = unit_target->model->size2;
+                                center = &(unit_target->model->center);
+                                src = unit_target->model->mesh;
+                                src_data = &(unit_target->data);
 								unit_target->compute_model_coord();
 							}
 							else
@@ -1169,8 +1169,8 @@ namespace TA3D
 								if (mission->data >= 0 && feature && feature->model )
 								{
 									size = feature->model->size2;
-									center = &feature->model->center;
-									src = &feature->model->obj;
+                                    center = &(feature->model->center);
+                                    src = feature->model->mesh;
 									src_data = NULL;
 								}
 								else
@@ -1205,9 +1205,9 @@ namespace TA3D
 								if ((unit_target->flags & 1) && unit_target->model )
 								{
 									size = unit_target->model->size2;
-									center = &unit_target->model->center;
-									src = &unit_target->model->obj;
-									src_data = &unit_target->data;
+                                    center = &(unit_target->model->center);
+                                    src = unit_target->model->mesh;
+                                    src_data = &(unit_target->data);
 									unit_target->compute_model_coord();
 									v_target = unit_target->Pos;
 								}
@@ -1227,8 +1227,8 @@ namespace TA3D
 								if (feature && feature->model )
 								{
 									size = feature->model->size2;
-									center = &feature->model->center;
-									src = &feature->model->obj;
+                                    center = &(feature->model->center);
+                                    src = feature->model->mesh;
 									src_data = NULL;
 								}
 								else
@@ -1836,8 +1836,8 @@ namespace TA3D
 				Vector3D randVec;
 				bool random_vector=false;
 				int n = 0;
-                for ( int base_n = Math::RandFromTable() ; !random_vector && n < pType->model->obj.nb_sub_obj ; n++ )
-                    random_vector = pType->model->obj.random_pos( &data, (base_n + n) % pType->model->obj.nb_sub_obj, &randVec );
+                for ( int base_n = Math::RandFromTable() ; !random_vector && n < pType->model->nb_obj ; n++ )
+                    random_vector = pType->model->mesh->random_pos( &data, (base_n + n) % pType->model->nb_obj, &randVec );
 				if (random_vector)
 					fx_manager.addElectric( Pos + randVec );
 			}
@@ -4558,7 +4558,7 @@ script_exec:
 						glEnable(GL_TEXTURE_2D);
 						glEnable(GL_CULL_FACE);
 						glPopMatrix();
-						if (unit_manager.unit_type[cur->data]->model!=NULL)
+                        if (unit_manager.unit_type[cur->data]->model != NULL)
 						{
 							glEnable(GL_LIGHTING);
 							glEnable(GL_CULL_FACE);
@@ -4567,9 +4567,9 @@ script_exec:
 							glTranslatef(cur->target.x,cur->target.y,cur->target.z);
 							glColor4f(0.0f,green,blue,0.5f);
 							glDepthFunc( GL_GREATER );
-							unit_manager.unit_type[cur->data]->model->obj.draw(0.0f,NULL,false,false,false);
+                            unit_manager.unit_type[cur->data]->model->mesh->draw(0.0f,NULL,false,false,false);
 							glDepthFunc( GL_LESS );
-							unit_manager.unit_type[cur->data]->model->obj.draw(0.0f,NULL,false,false,false);
+                            unit_manager.unit_type[cur->data]->model->mesh->draw(0.0f,NULL,false,false,false);
 							glPopMatrix();
 							glEnable(GL_BLEND);
 							glEnable(GL_TEXTURE_2D);

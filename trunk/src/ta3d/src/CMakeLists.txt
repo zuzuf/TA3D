@@ -12,8 +12,17 @@ SET(SRC_STDAFX stdafx.h)
 #
 #
 SET(SRC_FILEFORMATS
-		gaf.cpp gaf.h
-		3do.cpp 3do.h)
+		gaf.cpp gaf.h)
+
+#
+# Meshs
+#
+SET(SRC_MESHES
+		mesh/mesh.cpp mesh/mesh.h
+		mesh/3do.cpp mesh/3do.h
+		mesh/textures.cpp mesh/textures.h
+		mesh/instancing.cpp mesh/instancing.h
+		mesh/3dm.cpp mesh/3dm.h)
 
 #
 # Logs
@@ -232,6 +241,7 @@ SET(TA3D_SOURCES
 		${SRC_THREADS} ${SRC_DEBUG} ${SRC_CONSOLE}
 		${SRC_GFX} ${SRC_GFX_GUI}
 		${SRC_GFX_PARTICLES}
+		${SRC_MESHES}
 		${SRC_OLDGUI}
 		${SRC_SOUND}
 		${SRC_SCRIPTS}
