@@ -41,9 +41,9 @@
 
 namespace TA3D
 {
-    void MESH_3DM::init()
+    void MESH_3DM::init3DM()
     {
-        MESH::init();
+        init();
         Color = 0;
         RColor = 0;
         Flag = 0;
@@ -54,9 +54,9 @@ namespace TA3D
 
 
 
-    void MESH_3DM::destroy()
+    void MESH_3DM::destroy3DM()
     {
-        MESH::destroy();
+        destroy();
         Color = 0;
         RColor = 0;
         Flag = 0;
@@ -67,7 +67,7 @@ namespace TA3D
 
     bool MESH_3DM::draw(float t, ANIMATION_DATA *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
     {
-        bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
+        bool explodes = script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide = false;
         bool set = false;
         float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -78,9 +78,9 @@ namespace TA3D
             tex_cache_name.clear();
         }
 
-        glPushMatrix();
         if (!(explodes && !exploding_parts))
         {
+            glPushMatrix();
 
             glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
             if (script_index >= 0 && data_s)
@@ -94,7 +94,7 @@ namespace TA3D
                 }
                 hide = data_s->flag[script_index] & FLAG_HIDE;
             }
-            else if (animation_data)
+            else if (animation_data && data_s == NULL)
             {
                 Vector3D R;
                 Vector3D T;
@@ -112,7 +112,7 @@ namespace TA3D
             if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
                 && !fixed_textures && !gltex.empty())
                 texID = ((int)(t * 10.0f)) % gltex.size();
-            if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex)
+            if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
             {
                 glCallList( gl_dlist[ texID ] );
                 alset = false;
@@ -123,7 +123,7 @@ namespace TA3D
                 bool creating_list = false;
                 if (gl_dlist.size() <= texID)
                     gl_dlist.resize(texID + 1);
-                if (!chg_col && !notex && gl_dlist[texID] == 0)
+                if (!chg_col && !notex && gl_dlist[texID] == 0 && false)
                 {
                     gl_dlist[texID] = glGenLists(1);
                     glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
@@ -295,21 +295,11 @@ namespace TA3D
             if (chg_col)
                 glColor4fv(color_factor);
             if (child && !(explodes && !exploding_parts))
-            {
-                glPushMatrix();
                 alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
-                glPopMatrix();
-            }
+            glPopMatrix();
         }
         if (next)
-        {
-            glPopMatrix();
-            glPushMatrix();
             alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
-            glPopMatrix();
-        }
-        else
-            glPopMatrix();
 
         return alset;
     }
@@ -613,6 +603,7 @@ namespace TA3D
         if (data[0] == 0)       // This is a pointer file
         {
             String realFilename = (char*)data + 1;
+            realFilename.trim();
             LOG_INFO(LOG_PREFIX_3DM << "file '" << filename << "' points to '" << realFilename << "'");
             delete[] data;
             data = VFS::instance()->readFile(realFilename, &file_length);

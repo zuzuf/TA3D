@@ -49,17 +49,17 @@ namespace TA3D
     }
 
 
-    void MESH_3DO::init()
+    void MESH_3DO::init3DO()
     {
-        MESH::init();
+        init();
         selprim = -1;
     }
 
 
 
-    void MESH_3DO::destroy()
+    void MESH_3DO::destroy3DO()
     {
-        MESH::destroy();
+        destroy();
         init();
     }
 
@@ -413,6 +413,7 @@ namespace TA3D
                 gfx->set_texture_format(GL_RGB8);
             SDL_FillRect(bmp, NULL, 0);
             tex_cache_name.clear();
+            gltex.clear();
             int nb_sprites = 0;
             for (i = 0; i < nb_diff_tex; ++i)
             {
@@ -569,8 +570,7 @@ namespace TA3D
         {
             N = new Vector3D[nb_vtx << 1];
             F_N = new Vector3D[nb_t_index / 3];
-            for (i = 0; i  < nb_vtx << 1; ++i)
-                N[i].x=N[i].z=N[i].y=0.0f;
+            memset(N, 0, nb_vtx * 2 * sizeof(Vector3D));
             int e = 0;
             for (i = 0; i < nb_t_index; i += 3)
             {
@@ -775,8 +775,7 @@ namespace TA3D
 
         N = new Vector3D[nb_vtx];
         F_N = NULL;
-        for (i = 0; i < nb_vtx; ++i)
-            N[i].x = N[i].z = N[i].y = 0.0f;
+        memset(N, 0, nb_vtx * sizeof(Vector3D));
         for (i = 0; i < nb_t_index - 2; ++i)
         {
             Vector3D AB = points[t_index[i + 1]] - points[t_index[i]];
@@ -807,10 +806,14 @@ namespace TA3D
                 load_texture_id(i);
             tex_cache_name.clear();
         }
+//        alset = false;
+//        glDisable(GL_CULL_FACE);
+//        glFrontFace(GL_CCW);
+//        glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-        glPushMatrix();
         if (!(explodes && !exploding_parts))
         {
+            glPushMatrix();
 
             glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
             if (script_index >= 0 && data_s)
@@ -832,7 +835,7 @@ namespace TA3D
             if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
                 && !fixed_textures && !gltex.empty())
                 texID = ((int)(t * 10.0f)) % gltex.size();
-            if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex)
+            if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
             {
                 glCallList( gl_dlist[ texID ] );
                 alset = false;
@@ -843,7 +846,7 @@ namespace TA3D
                 bool creating_list = false;
                 if (gl_dlist.size() <= texID)
                     gl_dlist.resize(texID + 1);
-                if (!chg_col && !notex && gl_dlist[texID] == 0)
+                if (!chg_col && !notex && gl_dlist[texID] == 0 && false)
                 {
                     gl_dlist[texID] = glGenLists(1);
                     glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
@@ -953,21 +956,11 @@ namespace TA3D
             if (chg_col)
                 glColor4fv(color_factor);
             if (child && !(explodes && !exploding_parts))
-            {
-                glPushMatrix();
                 alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
-                glPopMatrix();
-            }
+            glPopMatrix();
         }
         if (next)
-        {
-            glPopMatrix();
-            glPushMatrix();
             alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
-            glPopMatrix();
-        }
-        else
-            glPopMatrix();
 
         return alset;
     }

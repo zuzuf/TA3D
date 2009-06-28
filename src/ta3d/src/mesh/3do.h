@@ -103,13 +103,13 @@ namespace TA3D
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
 
-        void init();
+        void init3DO();
 
-        inline MESH_3DO() {init();}
+        inline MESH_3DO() {init3DO();}
 
-        void destroy();
+        void destroy3DO();
 
-        virtual ~MESH_3DO() {destroy();}
+        virtual ~MESH_3DO() {destroy3DO();}
 
     public:
         static MODEL *load(const String &filename);

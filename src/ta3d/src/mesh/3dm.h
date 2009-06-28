@@ -66,13 +66,13 @@ namespace TA3D
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
 
-        void init();
+        void init3DM();
 
-        inline MESH_3DM() {init();}
+        inline MESH_3DM() {init3DM();}
 
-        void destroy();
+        void destroy3DM();
 
-        virtual ~MESH_3DM() {destroy();}
+        virtual ~MESH_3DM() {destroy3DM();}
 
     public:
         static MODEL *load(const String &filename);
