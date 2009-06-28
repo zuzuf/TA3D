@@ -242,6 +242,7 @@ namespace TA3D
                            ANIMATION_DATA *src_data = NULL);
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false) = 0;
+        virtual bool draw_nodl(bool alset = false) = 0;
 
         bool draw_shadow(Vector3D Dir, float t, ANIMATION_DATA *data_s = NULL, bool alset = false, bool exploding_parts = false);
 

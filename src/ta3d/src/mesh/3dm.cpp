@@ -304,6 +304,156 @@ namespace TA3D
         return alset;
     }
 
+    bool MESH_3DM::draw_nodl(bool alset)
+    {
+        glPushMatrix();
+
+        glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
+
+        if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
+        {
+            bool activated_tex = false;
+            glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+            glEnableClientState(GL_NORMAL_ARRAY);
+            alset = false;
+            glColor4ubv((GLubyte*)&Color);		// Couleur de matière
+
+            if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
+            {
+                s_shader.on();
+                for (int j = 0; j < gltex.size() ; ++j)
+                    s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
+            }
+
+            if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
+                glShadeModel (GL_SMOOTH);
+            else
+                glShadeModel (GL_FLAT);
+
+            if (Flag & SURFACE_LIGHTED)			// Eclairage
+                glEnable(GL_LIGHTING);
+            else
+                glDisable(GL_LIGHTING);
+
+            if (Flag & SURFACE_BLENDED) // La transparence
+            {
+                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_BLEND);
+                glAlphaFunc( GL_GREATER, 0.1 );
+                glEnable( GL_ALPHA_TEST );
+            }
+            else
+            {
+                glDisable(GL_ALPHA_TEST);
+                glDisable(GL_BLEND);
+            }
+
+            if (Flag & SURFACE_TEXTURED) // Les textures et effets de texture
+            {
+                activated_tex = true;
+                for (int j = 0; j < gltex.size() ; ++j)
+                {
+                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, gltex[j]);
+                    if (j == gltex.size() - 1 && Flag&SURFACE_REFLEC)
+                    {
+                        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                        glEnable(GL_TEXTURE_GEN_S);
+                        glEnable(GL_TEXTURE_GEN_T);
+                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, TA3D_GL_COMBINE_EXT);
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE1_RGB_EXT,TA3D_GL_PREVIOUS_EXT);
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
+                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND2_RGB_EXT, GL_SRC_COLOR);
+                        float RColorf[4] = { getr32(RColor) / 255.0f,
+                                             getg32(RColor) / 255.0f,
+                                             getb32(RColor) / 255.0f,
+                                             geta32(RColor) / 255.0f};
+                        glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR, RColorf);
+                    }
+                    else
+                    {
+                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                        glDisable(GL_TEXTURE_GEN_S);
+                        glDisable(GL_TEXTURE_GEN_T);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    }
+                }
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                for (int j = 0; j < gltex.size() ; ++j)
+                {
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                }
+            }
+            else
+            {
+                for (int j = 6; j >= 0; --j)
+                {
+                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glDisable(GL_TEXTURE_2D);
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                }
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
+            }
+            glVertexPointer(3, GL_FLOAT, 0, points);
+            glNormalPointer(GL_FLOAT, 0, N);
+            switch(type)
+            {
+            case MESH_TYPE_TRIANGLES:
+                glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+                break;
+            case MESH_TYPE_TRIANGLE_STRIP:
+                glDisable( GL_CULL_FACE );
+                glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+                glEnable( GL_CULL_FACE );
+                break;
+            };
+
+            if ((Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD)) == SURFACE_ADVANCED)
+                glShadeModel (GL_SMOOTH);
+            if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
+                s_shader.off();
+
+            if (activated_tex)
+            {
+                for (int j = 0; j < gltex.size() ; ++j)
+                {
+                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                    glDisable(GL_TEXTURE_2D);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                    glDisable(GL_TEXTURE_GEN_S);
+                    glDisable(GL_TEXTURE_GEN_T);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                }
+                glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                glActiveTextureARB(GL_TEXTURE0_ARB);
+                glEnable(GL_TEXTURE_2D);
+            }
+        }
+        if (child)
+            alset = child->draw_nodl(alset);
+        glPopMatrix();
+        if (next)
+            alset = next->draw_nodl(alset);
+
+        return alset;
+    }
+
     inline byte* read_from_mem(void* buf, const int len, byte* data)
     {
         memcpy(buf, data, len);
