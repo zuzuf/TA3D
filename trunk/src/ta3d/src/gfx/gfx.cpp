@@ -1184,6 +1184,33 @@ namespace TA3D
 		return gl_tex;
 	}
 
+    GLuint GFX::create_color_texture(uint32 color)
+    {
+        MutexLocker locker(pMutex);
+
+        GLuint gl_tex = 0;
+        glGenTextures(1,&gl_tex);
+
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+        SDL_Surface *tmp = create_surface_ex(32, 1, 1);
+        SurfaceInt(tmp, 0, 0) = color;
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
+        SDL_FreeSurface(tmp);
+
+        return gl_tex;
+    }
+
 	GLuint GFX::create_texture(int w, int h, byte filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);

@@ -50,6 +50,7 @@ namespace TA3D
         frag_shader_src.clear();
         vert_shader_src.clear();
         s_shader.destroy();
+        glColorTexture = 0;
     }
 
 
@@ -57,6 +58,7 @@ namespace TA3D
     void MESH_3DM::destroy3DM()
     {
         destroy();
+        gfx->destroy_texture(glColorTexture);
         Color = 0;
         RColor = 0;
         Flag = 0;
@@ -312,17 +314,15 @@ namespace TA3D
 
         if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
         {
-            bool activated_tex = false;
             glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
             glEnableClientState(GL_NORMAL_ARRAY);
             alset = false;
-            glColor4ubv((GLubyte*)&Color);		// Couleur de matière
 
             if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
             {
                 s_shader.on();
                 for (int j = 0; j < gltex.size() ; ++j)
-                    s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
+                    s_shader.setvar1i( String::Format("tex%d",j).c_str(), j + 1 );
             }
 
             if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -348,63 +348,43 @@ namespace TA3D
                 glDisable(GL_BLEND);
             }
 
-            if (Flag & SURFACE_TEXTURED) // Les textures et effets de texture
-            {
-                activated_tex = true;
-                for (int j = 0; j < gltex.size() ; ++j)
-                {
-                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                    glEnable(GL_TEXTURE_2D);
-                    glBindTexture(GL_TEXTURE_2D, gltex[j]);
-                    if (j == gltex.size() - 1 && Flag&SURFACE_REFLEC)
-                    {
-                        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                        glEnable(GL_TEXTURE_GEN_S);
-                        glEnable(GL_TEXTURE_GEN_T);
-                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, TA3D_GL_COMBINE_EXT);
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+            glClientActiveTextureARB(GL_TEXTURE0_ARB + gltex.size());
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glActiveTextureARB(GL_TEXTURE0_ARB + gltex.size());
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D, glColorTexture);
+            glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE1_RGB_EXT,TA3D_GL_PREVIOUS_EXT);
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
-                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND2_RGB_EXT, GL_SRC_COLOR);
-                        float RColorf[4] = { getr32(RColor) / 255.0f,
-                                             getg32(RColor) / 255.0f,
-                                             getb32(RColor) / 255.0f,
-                                             geta32(RColor) / 255.0f};
-                        glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR, RColorf);
-                    }
-                    else
-                    {
-                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                        glDisable(GL_TEXTURE_GEN_S);
-                        glDisable(GL_TEXTURE_GEN_T);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                    }
-                }
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                for (int j = 0; j < gltex.size() ; ++j)
-                {
-                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                    glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-                }
-            }
-            else
+            for (int j = 0; j < gltex.size() ; ++j)
             {
-                for (int j = 6; j >= 0; --j)
-                {
-                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                    glDisable(GL_TEXTURE_2D);
-                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                }
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                glActiveTextureARB(GL_TEXTURE0_ARB + j);
                 glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
+                glBindTexture(GL_TEXTURE_2D, gltex[j]);
+                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+
+                if (j == gltex.size() - 1 && (Flag & SURFACE_REFLEC))
+                {
+                    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                    glEnable(GL_TEXTURE_GEN_S);
+                    glEnable(GL_TEXTURE_GEN_T);
+                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, TA3D_GL_COMBINE_EXT);
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE1_RGB_EXT,TA3D_GL_PREVIOUS_EXT);
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
+                    glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND2_RGB_EXT, GL_SRC_COLOR);
+                    float RColorf[4] = { getr32(RColor) / 255.0f,
+                                         getg32(RColor) / 255.0f,
+                                         getb32(RColor) / 255.0f,
+                                         geta32(RColor) / 255.0f};
+                    glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR, RColorf);
+                }
             }
             glVertexPointer(3, GL_FLOAT, 0, points);
             glNormalPointer(GL_FLOAT, 0, N);
@@ -425,25 +405,22 @@ namespace TA3D
             if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
                 s_shader.off();
 
-            if (activated_tex)
+            for (int j = 0; j < gltex.size() + 1 ; ++j)
             {
-                for (int j = 0; j < gltex.size() ; ++j)
-                {
-                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                    glDisable(GL_TEXTURE_2D);
-                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                    glDisable(GL_TEXTURE_GEN_S);
-                    glDisable(GL_TEXTURE_GEN_T);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                }
-                glClientActiveTextureARB(GL_TEXTURE0_ARB);
-                glActiveTextureARB(GL_TEXTURE0_ARB);
-                glEnable(GL_TEXTURE_2D);
+                glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                glDisable(GL_TEXTURE_2D);
+                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                glDisable(GL_TEXTURE_GEN_S);
+                glDisable(GL_TEXTURE_GEN_T);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             }
+            glClientActiveTextureARB(GL_TEXTURE0_ARB);
+            glActiveTextureARB(GL_TEXTURE0_ARB);
+            glEnable(GL_TEXTURE_2D);
         }
         if (child)
             alset = child->draw_nodl(alset);
@@ -572,7 +549,10 @@ namespace TA3D
         Color = makeacol32((int)(Colorf[0] * 255), (int)(Colorf[1] * 255), (int)(Colorf[2] * 255), (int)(Colorf[3] * 255));
         RColor = makeacol32((int)(RColorf[0] * 255), (int)(RColorf[1] * 255), (int)(RColorf[2] * 255), (int)(RColorf[3] * 255));
         data = read_from_mem(&Flag, sizeof(Flag), data);
-        Flag |= SURFACE_ADVANCED;           // a 3DM cannot use 3DO specific stuffs
+        Flag |= SURFACE_ADVANCED;           // This is default flag ... not very useful now that 3DM and 3DO codes have been separated
+
+        glColorTexture = gfx->create_color_texture(Color);
+
         sint8 NbTex = 0;
         data = read_from_mem(&NbTex,sizeof(NbTex),data);
         bool compressed = NbTex < 0;
