@@ -25,6 +25,14 @@ __this.Create = function(this)
 	this:start_script( this.SmokeUnit, this )
 end
 
+__this.Save = function(this)
+	return tostring(this.fire)
+end
+
+__this.Restore = function(this, data)
+	this.fire = tonumber(data)
+end
+
 __this.AimPrimary = function(this, heading, pitch)
 
 	this:set_script_value("AimPrimary", false)

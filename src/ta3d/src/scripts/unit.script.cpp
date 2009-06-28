@@ -707,15 +707,116 @@ namespace TA3D
     //! functions used to save/restore scripts state
     void UnitScript::save_thread_state(gzFile file)
     {
-#warning TODO: implement Lua save/restore mecanism
-//        gzwrite(file, &unitID, sizeof(unitID));
-//        LuaThread::save_thread_state(file);
+        gzwrite(file, &unitID, sizeof(unitID));
+        if (caller == NULL)         // Save unit data (calling the "Save" function if any)
+        {
+            lua_settop(L, 0);
+            lua_getUnitTable();
+            lua_getfield( L, -1, "Save" );
+            lua_remove(L, -2);
+            if (lua_isnil( L, -1 ))     // Function not found
+            {
+                lua_pop(L, 1);
+                LOG_DEBUG(LOG_PREFIX_LUA << "save_thread_state: function not found `Save`");
+                int size = 0;
+                gzwrite(file, &size, sizeof(size));
+                return;
+            }
+
+            lua_getUnitTable();         // the this parameter
+            try
+            {
+                if (lua_pcall( L, 1, 1, 0))
+                {
+                    if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                    {
+                        LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                        LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                    }
+                    int size = 0;
+                    gzwrite(file, &size, sizeof(size));
+                    return;
+                }
+            }
+            catch(...)
+            {
+                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                }
+                int size = 0;
+                gzwrite(file, &size, sizeof(size));
+                return;
+            }
+
+            String data;
+            if (lua_gettop(L) > 0)
+            {
+                data = lua_tostring(L,-1) ? lua_tostring(L,-1) : "";    // Read the result
+                lua_pop( L, 1 );
+            }
+            int size = data.size();
+            gzwrite(file, &size, sizeof(size));
+            gzwrite(file, data.c_str(), size);
+        }
     }
 
     void UnitScript::restore_thread_state(gzFile file)
     {
-#warning TODO: implement Lua save/restore mecanism
-//        gzread(file, &unitID, sizeof(unitID));
-//        LuaThread::restore_thread_state(file);
+        gzread(file, &unitID, sizeof(unitID));
+        if (caller == NULL)         // Load the unit data (calling the "Restore" function if any)
+        {
+            int size;
+            gzread(file, &size, sizeof(size));
+            char *buf = new char[size + 1];
+            if (size > 0)
+                gzread(file, buf, size);
+            buf[size] = 0;
+
+            lua_settop(L, 0);
+            lua_getUnitTable();
+            lua_getfield( L, -1, "Restore" );
+            lua_remove(L, -2);
+            if (lua_isnil( L, -1 ))     // Function not found
+            {
+                lua_pop(L, 1);
+                LOG_DEBUG(LOG_PREFIX_LUA << "save_thread_state: function not found `Restore`");
+                delete[] buf;
+                return;
+            }
+
+            lua_getUnitTable();         // the this parameter
+            lua_pushstring(L, buf);     // the data parameter
+            try
+            {
+                if (lua_pcall( L, 2, 1, 0))
+                {
+                    if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                    {
+                        LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                        LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                    }
+                    delete[] buf;
+                    return;
+                }
+            }
+            catch(...)
+            {
+                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                }
+                delete[] buf;
+                return;
+            }
+
+            delete[] buf;
+        }
+        else
+        {
+            running = false;
+        }
     }
 }
