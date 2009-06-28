@@ -9,11 +9,11 @@ __this.SMOKEPIECE1 = __this.base
 
 __this.Create = function(this)
 	this:start_script( this.SmokeUnit, this )
-	end
+end
 
 __this.SweetSpot = function(this)
 	return this.base
-	end
+end
 
 __this.Killed = function( this, severity )
 	if severity <= 25 then

@@ -23,6 +23,14 @@ __this.Create = function(this)
 	this:start_script( this.SmokeUnit, this )
 end
 
+__this.Save = function(this)
+	return tostring(this.next_barrel1)
+end
+
+__this.Restore = function(this, data)
+	this.next_barrel1 = tonumber(data)
+end
+
 __this.AimPrimary = function(this, heading, pitch)
 	this:set_script_value("AimPrimary", false)
 	if this.next_barrel1 == 1 then
