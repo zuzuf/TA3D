@@ -60,6 +60,7 @@ namespace TA3D
         String  frag_shader_src;
         String  vert_shader_src;
         Shader  s_shader;
+        GLuint  glColorTexture;     // This is a small texture filled with color Color (just to prevent rendering color from being changed)
     public:
 
         byte *load(byte *data, const String &filename);
