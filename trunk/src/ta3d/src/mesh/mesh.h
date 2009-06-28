@@ -382,7 +382,7 @@ namespace TA3D
         //! \name Constructor & Destructor
         //@{
         //! Default Constructor
-        inline MODEL_MANAGER() :nb_models(0), model(NULL) {}
+        inline MODEL_MANAGER() :nb_models(0), model() {}
         //! Destructor
         ~MODEL_MANAGER();
         //@}
