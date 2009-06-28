@@ -89,7 +89,7 @@ namespace TA3D
             model->check_textures();
             model->dlist = glGenLists (1);
             glNewList (model->dlist, GL_COMPILE);
-            model->mesh->draw(0.0f, NULL, false, false, false, 0, false);
+            model->mesh->draw_nodl();
             glEndList();
         }
 

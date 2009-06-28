@@ -806,10 +806,6 @@ namespace TA3D
                 load_texture_id(i);
             tex_cache_name.clear();
         }
-//        alset = false;
-//        glDisable(GL_CULL_FACE);
-//        glFrontFace(GL_CCW);
-//        glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
         if (!(explodes && !exploding_parts))
         {
@@ -961,6 +957,59 @@ namespace TA3D
         }
         if (next)
             alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
+
+        return alset;
+    }
+
+    bool MESH_3DO::draw_nodl(bool alset)
+    {
+        glPushMatrix();
+
+        glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+
+        if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
+        {
+            if (!alset)
+            {
+                glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                glEnableClientState(GL_NORMAL_ARRAY);
+                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                glEnable(GL_LIGHTING);
+                glEnable(GL_TEXTURE_2D);
+                alset = true;
+                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_BLEND);
+            }
+            if (gltex.empty())
+            {
+                alset = false;
+                glDisable(GL_TEXTURE_2D);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            }
+            if (!gltex.empty())
+            {
+                glBindTexture(GL_TEXTURE_2D,gltex[0]);
+                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+            }
+            glVertexPointer(3, GL_FLOAT, 0, points);
+            glNormalPointer(GL_FLOAT, 0, N);
+            switch(type)
+            {
+            case MESH_TYPE_TRIANGLES:
+                glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+                break;
+            case MESH_TYPE_TRIANGLE_STRIP:
+                glDisable( GL_CULL_FACE );
+                glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+                glEnable( GL_CULL_FACE );
+                break;
+            };
+        }
+        if (child)
+            alset = child->draw_nodl(alset);
+        glPopMatrix();
+        if (next)
+            alset = next->draw_nodl(alset);
 
         return alset;
     }

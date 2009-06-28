@@ -1568,10 +1568,9 @@ namespace TA3D
             {
                 check_textures();
                 dlist = glGenLists (1);
-                glNewList (dlist, GL_COMPILE);
-                mesh->draw(0.0f, data_s, false, false, false, 0, false);
+                glNewList (dlist, GL_COMPILE_AND_EXECUTE);
+                mesh->draw_nodl();
                 glEndList();
-                glCallList( dlist );
             }
             else
             {
