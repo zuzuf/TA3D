@@ -27,7 +27,6 @@
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
-#include "3do.h"
 #include "EngineClass.h"
 #include "tdf.h"
 #include "tnt.h"

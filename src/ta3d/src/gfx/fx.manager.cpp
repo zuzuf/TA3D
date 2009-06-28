@@ -17,7 +17,7 @@
 
 #include "fx.manager.h"
 #include "../misc/math.h"
-#include "../3do.h"         // Because we need the RenderQueue object
+#include "../mesh/instancing.h"         // Because we need the RenderQueue object
 #include "../ingame/players.h"
 
 

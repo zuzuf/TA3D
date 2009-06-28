@@ -18,7 +18,7 @@
 # define __TA3D_INGAME_WEAPONS_DEF_H__
 
 # include "../../stdafx.h"
-# include "../../3do.h"
+# include "../../mesh/mesh.h"
 # include "../../misc/string.h"
 
 

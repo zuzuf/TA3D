@@ -21,7 +21,6 @@
 #include "engine.h"
 #include "ta3dbase.h"
 
-#include "3do.h"               // For 3DO/3DM management
 #include "scripts/cob.h"               // For unit scripts management
 #include "tdf.h"               // For 2D features
 #include "EngineClass.h"         // The Core Engine

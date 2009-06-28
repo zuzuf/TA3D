@@ -25,7 +25,6 @@
 #include "../misc/matrix.h"
 #include "../TA3D_NameSpace.h"
 #include "../ta3dbase.h"
-#include "../3do.h"             // To read 3D files
 #include "../scripts/cob.h"             // To read and execute scripts
 #include "../EngineClass.h"
 #include "../UnitEngine.h"

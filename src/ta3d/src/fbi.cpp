@@ -31,7 +31,7 @@
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
-#include "3do.h"
+#include "mesh/mesh.h"
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "languages/i18n.h"
