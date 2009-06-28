@@ -758,7 +758,7 @@ namespace TA3D
             }
             int size = data.size();
             gzwrite(file, &size, sizeof(size));
-            gzwrite(file, data.c_str(), size);
+            gzwrite(file, (void*)data.c_str(), size);
         }
     }
 
