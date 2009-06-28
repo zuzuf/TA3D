@@ -340,9 +340,9 @@ namespace TA3D
         if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tex")
         {
             if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-                gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
+                gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
             else
-                gfx->set_texture_format(GL_RGB8);
+                gfx->set_texture_format(GL_RGBA8);
 
             SDL_Surface *bmp = LoadTex( TA3D::Paths::Caches + tex_cache_name[id] );
             GLuint texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
@@ -647,15 +647,15 @@ namespace TA3D
 
     bool MESH::draw_shadow(Vector3D Dir, float t, ANIMATION_DATA *data_s, bool alset, bool exploding_parts)
     {
-        bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
-        bool hide=false;
-        Vector3D ODir=Dir;
+        bool explodes = script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
+        bool hide = false;
+        Vector3D ODir = Dir;
         glPushMatrix();
         if (!(explodes && !exploding_parts))
         {
             glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
 
-            if (script_index>=0 && data_s)
+            if (script_index >= 0 && data_s)
             {
                 if (!explodes ^ exploding_parts)
                 {
