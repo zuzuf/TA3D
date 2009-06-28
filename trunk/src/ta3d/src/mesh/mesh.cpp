@@ -31,6 +31,7 @@
 #include "mesh.h"
 #include "3do.h"
 #include "3dm.h"
+#include "s3o.h"
 
 namespace TA3D
 {
@@ -1389,6 +1390,10 @@ namespace TA3D
         if (e >= 0)
             return model[e];
 
+        e = model_hashtable.find("objects3d\\" + l + ".s3o") - 1;
+        if (e >= 0)
+            return model[e];
+
         e = model_hashtable.find(l) - 1;
         if (e >= 0)
             return model[e];
@@ -1398,6 +1403,10 @@ namespace TA3D
             return model[e];
 
         e = model_hashtable.find(l + ".3dm") - 1;
+        if (e >= 0)
+            return model[e];
+
+        e = model_hashtable.find(l + ".s3o") - 1;
         if (e >= 0)
             return model[e];
         return NULL;
@@ -1455,6 +1464,7 @@ namespace TA3D
 
         String::List file_list;
         VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.3dm", file_list);
+        VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.s3o", file_list);
         VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
 
         if (!file_list.empty())
@@ -1639,6 +1649,8 @@ namespace TA3D
             return MESH_3DO::load(filename);
         if (ext == ".3dm")
             return MESH_3DM::load(filename);
+        if (ext == ".s3o")
+            return MESH_S3O::load(filename);
         LOG_WARNING(LOG_PREFIX_MODEL << "model could not be loaded : file extension unknown");
         return NULL;
     }

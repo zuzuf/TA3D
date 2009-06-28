@@ -60,13 +60,13 @@ namespace TA3D
     void MESH_3DO::destroy3DO()
     {
         destroy();
-        init();
+        init3DO();
     }
 
     int MESH_3DO::load(byte *data, int offset, int dec, const String &filename)
     {
         if (nb_vtx > 0)
-            destroy();					// Au cas où l'objet ne serait pas vierge
+            destroy3DO();					// Au cas où l'objet ne serait pas vierge
 
         if (data == NULL)
             return -1;
