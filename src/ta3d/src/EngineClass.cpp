@@ -588,7 +588,8 @@ namespace TA3D
 					if (map_data[y][x].stuff >= 0)
 					{
 						int feature_id = map_data[y][x].stuff;
-						if (feature_manager.getFeaturePointer(features.feature[feature_id].type)->geothermal)
+                        Feature *pFeature = feature_manager.getFeaturePointer(features.feature[feature_id].type);
+                        if (pFeature && pFeature->geothermal)
 							return true;
 					}
 				}
