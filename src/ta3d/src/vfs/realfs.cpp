@@ -93,10 +93,9 @@ namespace TA3D
                     if (it != files.end())          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
                     {
                         delete it->second;
-                        it->second = file;
+                        files.erase(it);
                     }
-                    else
-                        files.insert( std::pair<String, RealFile*>(*i, file) );
+                    files.insert( std::pair<String, RealFile*>(*i, file) );
                 }
             }
             for(std::map<String, RealFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
