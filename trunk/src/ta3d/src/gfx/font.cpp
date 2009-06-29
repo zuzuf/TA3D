@@ -260,7 +260,7 @@ namespace TA3D
 					break;
 				case typeTexture:
 				default:
-					font = new FTTextureFont(filename.c_str());
+                    font = new FTBufferFont(filename.c_str());
 			}
         }
 		if (font)
