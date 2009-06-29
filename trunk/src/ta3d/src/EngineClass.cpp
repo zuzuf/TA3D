@@ -2275,15 +2275,20 @@ namespace TA3D
 					{
 						if (map_data[ry][rx].stuff >=0 )
 						{
-							int type = features.feature[ map_data[ry][rx].stuff ].type;
-							Feature *feature = feature_manager.getFeaturePointer(type);
-							if (!feature->reclaimable && !feature->blocking)
-							{
-								metal_base += feature->metal;
-								if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
-									*stuff_id = map_data[ry][rx].stuff;
-							}
-						}
+                            features.lock();
+                            if (map_data[ry][rx].stuff >=0 )            // We have to recheck this in case it has changed before locking
+                            {
+                                int type = features.feature[ map_data[ry][rx].stuff ].type;
+                                Feature *feature = feature_manager.getFeaturePointer(type);
+                                if (feature && !feature->reclaimable && !feature->blocking)
+                                {
+                                    metal_base += feature->metal;
+                                    if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
+                                        *stuff_id = map_data[ry][rx].stuff;
+                                }
+                            }
+                            features.unlock();
+                        }
 					}
 				}
 			}

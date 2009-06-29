@@ -31,105 +31,105 @@
 
 namespace TA3D
 {
-namespace UTILS
-{
-
-
-
-    template <class T>
-    class cBucket
+    namespace UTILS
     {
-    public:
-        String		m_szKey;
-        T			m_T_data;
-
-    public:
-        cBucket( const String &k, const T &myData) :
-            m_szKey(k), m_T_data( myData ) {}
-
-        const String &Key() const { return m_szKey; }
-    };
 
 
-    template <class T>
-    struct ModHashFind : public std::binary_function< cBucket<T>, const String, bool >
-    {
-        bool operator()( const cBucket< T > &d, const String &ref ) const
+
+        template <class T>
+                class cBucket
         {
-            return d.Key() == ref;
-        }
-    };
+        public:
+            String		m_szKey;
+            T			m_T_data;
 
-    template <class T>
-    class cHashTable : protected std::vector< std::list< TA3D::UTILS::cBucket<T> > >
-    {
-    public:
-        //! \brief List of buckets
-        typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
-        //! \brief Vector of list of buckets
-        typedef typename std::vector< BucketsList >  VectorOfBucketsList;
+        public:
+            cBucket( const String &k, const T &myData) :
+                    m_szKey(k), m_T_data( myData ) {}
 
-    public:
-        virtual void initTable(const uint32 TableSize,  const bool freeDataOnErase = false);
+            const String &Key() const { return m_szKey; }
+        };
 
-        //! \name Constructors & Destructor
-        //@{
-        //! Default Constructor
-        cHashTable();
-        /*!
+
+        template <class T>
+                struct ModHashFind : public std::binary_function< cBucket<T>, const String, bool >
+        {
+            bool operator()( const cBucket< T > &d, const String &ref ) const
+            {
+                return d.Key() == ref;
+            }
+        };
+
+        template <class T>
+                class cHashTable
+        {
+        public:
+            //! \brief List of buckets
+            typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
+            //! \brief Vector of list of buckets
+            typedef typename std::vector< BucketsList >  VectorOfBucketsList;
+
+        public:
+            virtual void initTable(const uint32 TableSize,  const bool freeDataOnErase = false);
+
+            //! \name Constructors & Destructor
+            //@{
+            //! Default Constructor
+            cHashTable();
+            /*!
         ** \brief Constructor
         ** \param TableSize Initial Size of the table
         */
-        cHashTable(const uint32 TableSize);
-        //! Destructor
-        virtual ~cHashTable();
-        //@}
+            cHashTable(const uint32 TableSize);
+            //! Destructor
+            virtual ~cHashTable();
+            //@}
 
-        virtual void emptyHashTable();
+            virtual void emptyHashTable();
 
-        /*!
+            /*!
         ** \brief Test the existence of a key
         ** \param key The key to find
         ** \return True if the key exists, False otherwise
         */
-        bool exists(const String& key);
+            bool exists(const String& key);
 
-        /*!
+            /*!
         ** \brief Find the value of a key
         ** \param key The key to find
         ** \return The value of the key if found, T(0) otherwise
         */
-        T find(const String& key);
+            T find(const String& key);
 
-        /*!
+            /*!
         ** \brief Insert a new key/value if the key not already exists
         ** \param key The key to insert
         ** \param v Its value
         */
-        bool insert(const String& key, T v);
+            bool insert(const String& key, T v);
 
-        /*!
+            /*!
         ** \brief Insert or update the value of a given key
         ** \param key The key to insert or update
         ** \param v The new value of the key
         */
-        virtual void insertOrUpdate(const String &key, T v);
+            virtual void insertOrUpdate(const String &key, T v);
 
-        /*!
+            /*!
         ** \brief Search for all keys matching a pattern
         **
         ** \param pattern The pattern to search
         ** \param[out] li The results
         */
-        uint32 wildCardSearch(const String& pattern, String::List& li);
+            uint32 wildCardSearch(const String& pattern, String::List& li);
 
-        /*!
+            /*!
         ** \brief Remove an existing entry
         ** \param key the key to remove
         */
-        virtual void remove(const String &key);
+            virtual void remove(const String &key);
 
-        /*!
+            /*!
         ** \brief Call a callback for each key
         ** \param callback The callback
         **
@@ -153,71 +153,73 @@ namespace UTILS
         ** }
         ** \endcode
         */
-        template<typename C>
-        void forEach(C callback);
+            template<typename C>
+                    void forEach(C callback);
 
 
-    protected:
-        uint32 pTableSize;
-        /*!
+        protected:
+            //! This is the actual container that contains the data
+            VectorOfBucketsList table;
+
+            /*!
         ** \brief Hash of a string
         ** \param key 
         ** \return The hash value of the string
         */
-        uint32 generateHash(const String& key) const;
+            uint32 generateHash(const String& key) const;
 
-    }; // class cHashTable
-
-
+        }; // class cHashTable
 
 
-    template <class T>
-    class clpHashTable : public cHashTable<T>
-    {
-    public:
-        //! \brief List of buckets
-        typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
-        //! \brief Vector of list of buckets
-        typedef typename std::vector< BucketsList >  VectorOfBucketsList;
-
-    public:
-
-        // Constructors.
-        clpHashTable();
-
-        clpHashTable(const uint32 TableSize, const bool FreeDataOnErase);
 
 
-        // Destructor
-        virtual ~clpHashTable();
+        template <class T>
+                class clpHashTable : public cHashTable<T>
+        {
+        public:
+            //! \brief List of buckets
+            typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
+            //! \brief Vector of list of buckets
+            typedef typename std::vector< BucketsList >  VectorOfBucketsList;
 
-        void initTable(const uint32 tableSize, const bool freeDataOnErase);
+        public:
 
-        /*!
+            // Constructors.
+            clpHashTable();
+
+            clpHashTable(const uint32 TableSize, const bool FreeDataOnErase);
+
+
+            // Destructor
+            virtual ~clpHashTable();
+
+            void initTable(const uint32 tableSize, const bool freeDataOnErase);
+
+            /*!
         ** \brief
         */
-        void emptyHashTable();
+            void emptyHashTable();
 
-        /*!
+            /*!
         ** \brief
         */
-        void insertOrUpdate(const String& key, T v);
+            void insertOrUpdate(const String& key, T v);
 
-        /*!
+            /*!
         ** \brief
         */
-        void remove(const String& key);
+            void remove(const String& key);
 
 
-    private:
-        //!
-        bool m_bFreeDataOnErase;
+        private:
+            //!
+            bool m_bFreeDataOnErase;
 
 
-    }; // class cHashTable
+        }; // class cHashTable
 
 
-} // namespace UTILS
+    } // namespace UTILS
 } // namespace TA3D 
 
 

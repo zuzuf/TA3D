@@ -3139,7 +3139,6 @@ namespace TA3D
                             && (players.r_energy[owner_id] >= players.energy_t[owner_id]
                                 || players.r_metal[owner_id] >= players.metal_t[owner_id]))
                         {
-                            LOG_DEBUG("autoreclamation code is running");
                             bool energyLack = players.r_energy[owner_id] >= players.energy_t[owner_id];
                             bool metalLack = players.r_metal[owner_id] >= players.metal_t[owner_id];
                             int dx = pType->SightDistance >> 3;
