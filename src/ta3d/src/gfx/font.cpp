@@ -260,7 +260,11 @@ namespace TA3D
 					break;
 				case typeTexture:
 				default:
+#ifdef __FTGL__lower__
                     font = new FTBufferFont(filename.c_str());
+#else
+                    font = new FTTextureFont(filename.c_str());
+#endif
 			}
         }
 		if (font)
