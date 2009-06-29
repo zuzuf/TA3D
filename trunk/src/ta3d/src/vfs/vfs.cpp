@@ -52,13 +52,17 @@ namespace TA3D
 
         void VFS::addArchive(const String& filename, const int priority)
         {
+            LOG_DEBUG(LOG_PREFIX_VFS << "loading archive '" << filename << "'");
             Archive *archive = Archive::load(filename);
 
             if (archive)
             {
+                LOG_DEBUG(LOG_PREFIX_VFS << "adding archive to the archive list");
                 archives.push_back(archive);
                 std::list<Archive::File*> archiveFiles;
+                LOG_DEBUG(LOG_PREFIX_VFS << "getting file list from archive");
                 archive->getFileList(archiveFiles);
+                LOG_DEBUG(LOG_PREFIX_VFS << "inserting archive files into file hash table");
                 for(std::list<Archive::File*>::iterator i = archiveFiles.begin() ; i != archiveFiles.end() ; ++i)
                 {
                     (*i)->setPriority((*i)->getPriority() + priority);      // Update file priority
@@ -76,7 +80,9 @@ namespace TA3D
         void VFS::locateAndReadArchives(const String& path, const int priority)
         {
             String::List fileList;
+            LOG_DEBUG(LOG_PREFIX_VFS << "getting archive list");
             Archive::getArchiveList(fileList, path);
+            LOG_DEBUG(LOG_PREFIX_VFS << "adding archives to the VFS");
             for(String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 addArchive(*i, priority);
         }
@@ -123,15 +129,19 @@ namespace TA3D
                 unload();
 
             LOG_DEBUG(LOG_PREFIX_VFS << "loading VFS");
+            LOG_DEBUG(LOG_PREFIX_VFS << "creating new file hash table");
             files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, false);
 
+            LOG_DEBUG(LOG_PREFIX_VFS << "reading root path");
             m_Path = TA3D::Resources::GetPaths();
             if (m_Path.empty())
                 m_Path.push_back("");
+            LOG_DEBUG(LOG_PREFIX_VFS << "browse archives");
             for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
                 locateAndReadArchives(*i, 0);
             if (!TA3D_CURRENT_MOD.empty())
             {
+                LOG_DEBUG(LOG_PREFIX_VFS << "browse mod archives");
                 for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
                 {
                     locateAndReadArchives(*i + TA3D_CURRENT_MOD, 0x10000);
