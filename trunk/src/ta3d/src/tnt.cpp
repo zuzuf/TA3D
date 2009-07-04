@@ -392,7 +392,7 @@ namespace TA3D
 			{
 				map->bmap[y][x] = *((short*)(data+f_pos));
 
-				if (map->bmap[y][x] >= map->nbbloc)		// To add some security
+                if (map->bmap[y][x] >= map->nbbloc || map->bmap[y][x] < 0)		// To add some security
 					map->bmap[y][x] = 0;
 
 				/*---------- code to build the low def map (mega zoom) ---------------*/
@@ -412,7 +412,7 @@ namespace TA3D
 				f_pos+=2;
 			}
 		}
-        LOG_INFO("Low definition map and lava image in " << (msec_timer - event_timer) * 0.001f << "s.");
+        LOG_INFO("Low definition map image built in " << (msec_timer - event_timer) * 0.001f << "s.");
         event_timer = msec_timer;
 
         for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
@@ -430,6 +430,9 @@ namespace TA3D
             for (x = 0; x < map->bloc_w; ++x)
                 if (map->bloc[map->bmap[y][x]].lava)
                     circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFF);
+        LOG_INFO("Lava image built in " << (msec_timer - event_timer) * 0.001f << "s.");
+        event_timer = msec_timer;
+
         map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
 		SDL_FreeSurface(lava_map);
 
