@@ -122,6 +122,13 @@ namespace TA3D
             */
             int filePriority(const String& filename);
 
+            /*!
+            ** \brief extract the given file and return an absolute path to it
+            ** \param filename
+            ** \return
+            */
+            String extractFile(const String& filename);
+
         private:
             /*!
             ** \brief load all archives

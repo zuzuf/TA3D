@@ -112,11 +112,12 @@ namespace Audio
 	{
 		MutexLocker locker(pMutex);
 
-		String search;
-		search << TA3D::Paths::Resources << "music/*";
-
-		String::List file_list;
-		Paths::GlobFiles( file_list, search, false, true);
+        String::List file_list;
+        VFS::instance()->getFilelist("music/*.ogg", file_list);
+        VFS::instance()->getFilelist("music/*.mp3", file_list);
+        VFS::instance()->getFilelist("music/*.mid", file_list);
+        VFS::instance()->getFilelist("music/*.wav", file_list);
+        VFS::instance()->getFilelist("music/*.mod", file_list);
 
 		file_list.sort();
 
@@ -126,6 +127,7 @@ namespace Audio
 
 		for (String::List::iterator i = file_list.begin() ; i != file_list.end() ; ++i) // Add missing files
 		{
+            *i = Paths::ExtractFileName(*i);
 			if (String::ToLower(*i) == "playlist.txt" || (*i)[0] == '.')
 				continue;
 
@@ -536,15 +538,13 @@ namespace Audio
                     if ((*cur)->cdromID >= 0)
                         szResult = (*cur)->filename;
                     else
-                        szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
+                        szResult = VFS::instance()->extractFile("music/" + (*cur)->filename);
                     break;
 				}
 				else
 				{
 					if ((*cur)->battleTune) // Take the last one that can be taken if we try to go too far
-                    {
-                        szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : (TA3D::Paths::Resources + "music/" + (*cur)->filename);
-                    }
+                        szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : VFS::instance()->extractFile("music/" + (*cur)->filename);
 				}
 			}
 			return szResult;
@@ -564,7 +564,7 @@ namespace Audio
 
 			if (pCurrentItemToPlay <= mCount || pCurrentItemToPlay <= 0)
 			{
-                szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : (TA3D::Paths::Resources + "music/" + (*cur)->filename);
+                szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : VFS::instance()->extractFile("music/" + (*cur)->filename);
 				pCurrentItemToPlay = mCount + 1;
 				found = true;
 				break;
