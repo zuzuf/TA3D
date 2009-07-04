@@ -28,6 +28,7 @@
 #include "../misc/files.h"
 #include "vfs.h"
 #include <sstream>
+#include <fstream>
 
 #include <zlib.h>
 #if defined TA3D_PLATFORM_WINDOWS
@@ -387,6 +388,28 @@ namespace TA3D
             return files->wildCardSearch(pattern, li);
         }
 
+        String VFS::extractFile(const String& filename)
+        {
+            String targetName = Paths::Caches + Paths::ExtractFileName(filename);
+            std::fstream file(targetName.c_str(), std::fstream::out | std::fstream::binary);
+            if (!file.is_open())
+            {
+                LOG_ERROR(LOG_PREFIX_VFS << "impossible to create file '" << targetName << "'");
+                return targetName;
+            }
+            uint32 file_length(0);
+            byte *data = readFile(filename, &file_length);
+            if (data)
+            {
+                file.write((char*)data, file_length);
+                delete[] data;
+            }
+            else
+                LOG_WARNING(LOG_PREFIX_VFS << "could not extract file '" << filename << "'");
+            file.flush();
+            file.close();
+            return targetName;
+        }
 
 
 
