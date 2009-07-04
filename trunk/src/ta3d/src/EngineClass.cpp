@@ -2459,7 +2459,7 @@ namespace TA3D
 			{
 				for (String::Vector::const_iterator i = sky_data->planet.begin(); i != sky_data->planet.end(); ++i)
 				{
-					if (*i == planet)
+                    if (String::ToLower(*i) == String::ToLower(planet))
 					{
 						keep = true;
 						break;
@@ -2500,7 +2500,7 @@ namespace TA3D
 		{
 			int select = TA3D_RAND() % nb_sky;
 			for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
-				if (select == 0 )
+                if (select == 0)
 				{
 					selected_sky = *it;
 					*it = NULL;
