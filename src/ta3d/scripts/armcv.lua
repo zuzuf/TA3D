@@ -43,7 +43,7 @@ end
 
 __this.Go = function(this)
 	this:activatescr()
-	this:turn( this.turret, y_axis, buildheading, 160 )
+	this:turn( this.turret, y_axis, this.buildheading, 160 )
 	this:wait_for_turn( this.turret, y_axis )
 	this:set( INBUILDSTANCE, true )
 end
