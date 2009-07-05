@@ -982,9 +982,9 @@ namespace TA3D
 				playerDropped = network_manager.getPlayerDropped();
 				broadcast_msg = network_manager.getNextBroadcastedMessage();
 				if (network_manager.getNextChat(&received_chat_msg ) == 0)
-					chat_msg = received_chat_msg.message;
+                    chat_msg = (char*)received_chat_msg.message;
 				if (network_manager.getNextSpecial(&received_special_msg ) == 0)
-					special_msg = received_special_msg.message;
+                    special_msg = (char*)received_special_msg.message;
 				if (host && !network_manager.isConnected()) // We're disconnected !!
 				{
 					LOG_DEBUG("disconnected from server");
@@ -1096,7 +1096,7 @@ namespace TA3D
 				int from = received_special_msg.from;
 				String::Vector params;
                 LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << received_special_msg.message << "'");
-                String(received_special_msg.message).explode(params, ' ', true, false, true);
+                String((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
 				if (params.size() == 1)
 				{
 					if (params[0] == "PONG")
@@ -1484,7 +1484,7 @@ namespace TA3D
 						}
 
 				if (network_manager.getNextSpecial(&received_special_msg) == 0)
-					special_msg = received_special_msg.message;
+                    special_msg = (char*)received_special_msg.message;
 				else
 					special_msg.clear();
 			}
@@ -1503,7 +1503,7 @@ namespace TA3D
 				}
 
 				if (network_manager.getNextChat( &received_chat_msg ) == 0 )
-					chat_msg = received_chat_msg.message;
+                    chat_msg = (char*)received_chat_msg.message;
 				else
 					chat_msg.clear();
 			}
