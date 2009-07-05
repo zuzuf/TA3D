@@ -477,7 +477,10 @@ namespace TA3D
         if( pDead && sofar < length )				// Delete the file if transfer has been aborted
             remove( (filename + ".part").c_str() );
         else
+        {
             rename( (filename + ".part").c_str(), filename.c_str() );
+            VFS::instance()->reload();
+        }
 
         pDead = 1;
         network->setFileDirty();
