@@ -444,7 +444,7 @@ namespace TA3D
 						{
 							String::Vector params;
 							LOG_DEBUG("parsing `" << special_msg.message << "`");
-							String(special_msg.message).explode(params, ' ');
+                            String(special_msg.message).explode(params, ' ', true, false, true);
 							if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
 							{
 								myID = atoi( params[2].c_str() );
@@ -481,7 +481,7 @@ namespace TA3D
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
 							String::Vector params;
-							String(special_msg.message).explode(params, ' ');
+                            String(special_msg.message).explode(params, ' ', true, false, true);
 							if( params.size() == 3 && params[0] == "STATUS")
 							{
 								if (params[1] == "NEW")
@@ -494,7 +494,7 @@ namespace TA3D
 								break;
 							}
 						}
-						if( (timeout % 1000) == 0 )				// Resend
+                        if( (timeout % 1000) == 0 )				// Resend
 							sendSpecial( strtochat( &special_msg, "REQUEST STATUS" ) );
 					}
 					return (!timeout) ? String() /* timeout reached*/ : status;
