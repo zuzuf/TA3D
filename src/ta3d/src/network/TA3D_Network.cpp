@@ -145,7 +145,7 @@ namespace TA3D
 			struct chat received_chat_msg;
 
 			if (network_manager.getNextChat( &received_chat_msg ) == 0 )
-				chat_msg = received_chat_msg.message;
+                chat_msg = (char*)received_chat_msg.message;
 			else
 				break;
 
@@ -178,7 +178,7 @@ namespace TA3D
 			special received_special_msg;
 
 			if (network_manager.getNextSpecial( &received_special_msg ) == 0 )
-				special_msg = received_special_msg.message;
+                special_msg = (char*)received_special_msg.message;
 			else
 				break;
 
@@ -395,7 +395,7 @@ namespace TA3D
 						draw_obj.y[0] = event_msg.y;
 						draw_obj.x[1] = event_msg.z;
 						draw_obj.y[1] = event_msg.opt3 / 16384.0f;
-						draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
+                        draw_obj.text = I18N::Translate( (char*)event_msg.str );		// We can't load it now because of thread safety
 						draw_obj.tex = 0;
 						LuaProgram::inGame->draw_list.add( draw_obj );
 					}
@@ -410,7 +410,7 @@ namespace TA3D
 						draw_obj.b[0] = 1.0f;
 						draw_obj.x[0] = event_msg.x;
 						draw_obj.y[0] = event_msg.y;
-						draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );
+                        draw_obj.text = I18N::Translate( (char*)event_msg.str );
 						LuaProgram::inGame->draw_list.add( draw_obj );
 					}
 					break;
