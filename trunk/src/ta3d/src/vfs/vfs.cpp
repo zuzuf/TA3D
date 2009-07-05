@@ -53,6 +53,7 @@ namespace TA3D
 
         void VFS::addArchive(const String& filename, const int priority)
         {
+            MutexLocker mLock(mCache);
             LOG_DEBUG(LOG_PREFIX_VFS << "loading archive '" << filename << "'");
             Archive *archive = Archive::load(filename);
 
@@ -80,6 +81,7 @@ namespace TA3D
 
         void VFS::locateAndReadArchives(const String& path, const int priority)
         {
+            MutexLocker mLock(mCache);
             String::List fileList;
             LOG_DEBUG(LOG_PREFIX_VFS << "getting archive list");
             Archive::getArchiveList(fileList, path);
@@ -102,6 +104,7 @@ namespace TA3D
 
         void VFS::unload()
         {
+            MutexLocker mLock(mCache);
             LOG_DEBUG(LOG_PREFIX_VFS << "unloading VFS");
             // Cleanup:
             //   First delete the hash, we don't need to delete the File objects since they are completely
@@ -126,6 +129,7 @@ namespace TA3D
 
         void VFS::load()
         {
+            MutexLocker mLock(mCache);
             if (files)
                 unload();
 
@@ -153,6 +157,7 @@ namespace TA3D
 
         void VFS::reload()
         {
+            MutexLocker mLock(mCache);
             unload();
             load();
         }
@@ -262,6 +267,7 @@ namespace TA3D
 
         byte *VFS::readFile(const String& filename, uint32* fileLength)
         {
+            MutexLocker mLock(mCache);
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
             uint32 FileSize;
@@ -321,6 +327,7 @@ namespace TA3D
 
         byte* VFS::readFileRange(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
         {
+            MutexLocker mLock(mCache);
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
             uint32 FileSize;
@@ -353,6 +360,7 @@ namespace TA3D
 
         bool VFS::fileExists(const String& filename)
         {
+            MutexLocker mLock(mCache);
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
 
@@ -362,6 +370,7 @@ namespace TA3D
 
         int VFS::filePriority(const String& filename)
         {
+            MutexLocker mLock(mCache);
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
 
@@ -372,6 +381,7 @@ namespace TA3D
 
         uint32 VFS::getFilelist(const String& s, String::Vector& li)
         {
+            MutexLocker mLock(mCache);
             String::List l;
             uint32 r = getFilelist(s, l);
             for (String::List::const_iterator i = l.begin(); i != l.end(); ++i)
@@ -382,6 +392,7 @@ namespace TA3D
 
         uint32 VFS::getFilelist(const String& s, String::List& li)
         {
+            MutexLocker mLock(mCache);
             String pattern(s);
             pattern.toLower();
             pattern.convertSlashesIntoBackslashes();
@@ -390,6 +401,7 @@ namespace TA3D
 
         String VFS::extractFile(const String& filename)
         {
+            MutexLocker mLock(mCache);
             String targetName = Paths::Caches + Paths::ExtractFileName(filename);
             std::fstream file(targetName.c_str(), std::fstream::out | std::fstream::binary);
             if (!file.is_open())
