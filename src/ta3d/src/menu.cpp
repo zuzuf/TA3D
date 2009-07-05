@@ -480,7 +480,7 @@ namespace TA3D
 				if (obj && obj->Value >= 0)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
-					lp_CONFIG->camera_def_angle = atof( obj->Text[0].c_str());
+                    lp_CONFIG->camera_def_angle = obj->Text[0].to<float>();
 				}
 			}
 			if (config_area.get_value( "*.camera_def_h" ) >= 0)
@@ -489,7 +489,7 @@ namespace TA3D
 				if (obj && obj->Value >= 0)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
-					lp_CONFIG->camera_def_h = atof( obj->Text[0].c_str());
+                    lp_CONFIG->camera_def_h = obj->Text[0].to<float>();
 				}
 			}
 			if (config_area.get_value( "*.camera_zoom_speed" ) >= 0)
@@ -498,7 +498,7 @@ namespace TA3D
 				if (obj && obj->Value >= 0)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
-					lp_CONFIG->camera_zoom_speed = atof( obj->Text[0].c_str());
+                    lp_CONFIG->camera_zoom_speed = obj->Text[0].to<float>();
 				}
 			}
 			if (config_area.get_value( "*.LANG" ) >= 0)
@@ -1352,7 +1352,7 @@ namespace TA3D
 											sMpN.replace('\\', '/');
 
 											previous_ota_port = network_manager.getFile( 1, sMpN);
-											network_manager.sendSpecial( "REQUEST FILE " + FixBlank(new_map_name) + previous_ota_port );
+                                            network_manager.sendSpecial( "REQUEST FILE " + FixBlank(new_map_name) + " " + previous_ota_port );
 										}
 									}
 								}
@@ -1364,7 +1364,7 @@ namespace TA3D
 										setupgame_area.caption( "gamesetup.script_name", script_name);
 										game_data.game_script = script_name;
 
-                                        if (client && !VFS::instance()->fileExists( script_name.c_str()))
+                                        if (client && !VFS::instance()->fileExists( script_name ))
 										{
 											if (!previous_lua_port.empty())
 												network_manager.stopFileTransfer( previous_lua_port);
@@ -1676,7 +1676,7 @@ namespace TA3D
 					uint16 e = 0;
 					for (unsigned int f = 0; f < player_str_n; ++f)
 					{
-						if (setupgame_area.caption(String::Format("gamesetup.name%d", i)) == player_str[f].c_str())
+                        if (setupgame_area.caption(String::Format("gamesetup.name%d", i)) == player_str[f])
 						{
 							e = f;
 							break;
@@ -1856,7 +1856,7 @@ namespace TA3D
 					{
 						String tmp(new_map);
 						tmp.replace(' ', char(1));
-						network_manager.sendSpecial(String::Format("SET MAP %s", tmp.c_str()));
+                        network_manager.sendSpecial("SET MAP " + tmp);
 					}
 
 					String new_map_name = new_map;

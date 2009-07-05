@@ -443,10 +443,7 @@ namespace TA3D
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
 							String::Vector params;
-							LOG_DEBUG("parsing `" << special_msg.message << "`");
                             String((char*)(special_msg.message)).explode(params, ' ');
-                            for(int i = 0 ; i < params.size() ; ++i)
-                                LOG_DEBUG("params[" << i << "] = '" << params[i] << "'");
 							if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
 							{
 								myID = atoi( params[2].c_str() );
