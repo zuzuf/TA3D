@@ -22,6 +22,7 @@
 #include "ta3dsock.h"
 #include "TA3D_Network.h"
 #include "../logs/logs.h"
+#include "../misc/paths.h"
 
 
 
@@ -374,7 +375,7 @@ namespace TA3D
         sockid = ((struct net_thread_params*)param)->sockid;
 
         //blank file open for writing
-        filename = ((struct net_thread_params*)param)->filename;
+        filename = Paths::Resources + ((struct net_thread_params*)param)->filename;
         file = TA3D_OpenFile( filename + ".part", "wb" );
 
         delete ((struct net_thread_params*)param);
