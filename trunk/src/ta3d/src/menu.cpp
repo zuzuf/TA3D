@@ -2859,7 +2859,7 @@ namespace TA3D
 			{
 				playerDropped = network_manager.getPlayerDropped();
 				if (network_manager.getNextSpecial( &received_special_msg ) == 0)
-					special_msg = received_special_msg.message;
+                    special_msg = (char*)received_special_msg.message;
 				if (!network_manager.isConnected()) // We're disconnected !!
 				{
 					done = true;
@@ -2909,7 +2909,7 @@ namespace TA3D
 				int from = received_special_msg.from;
 				int player_id = game_data->net2id(from);
 				String::Vector params;
-				String(received_special_msg.message).explode(params, ' ');
+                String((char*)received_special_msg.message).explode(params, ' ');
 				if (params.size() == 1)
 				{
 					if (params[0] == "PONG" )
