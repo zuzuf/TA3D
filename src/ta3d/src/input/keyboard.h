@@ -153,6 +153,8 @@ namespace TA3D
 #define KEY_X           SDLK_x
 #define KEY_Y           SDLK_y
 #define KEY_Z           SDLK_z
+#define KEY_PAGEUP      SDLK_PAGEUP
+#define KEY_PAGEDOWN    SDLK_PAGEDOWN
 
 // This is used to show/hide the console
 #ifdef TA3D_PLATFORM_WINDOWS

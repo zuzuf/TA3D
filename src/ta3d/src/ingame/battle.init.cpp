@@ -786,7 +786,6 @@ namespace TA3D
 
 	bool Battle::initPostFlight()
 	{
-		Conv = 0.001f;
 		dt = 0.0f;
 		t = 0.0f;
 		count = msec_timer;
