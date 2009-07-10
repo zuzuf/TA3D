@@ -192,7 +192,7 @@ namespace TA3D
 				cursor_type = CURSOR_DEFAULT;
 
 
-			dt = (msec_timer - count) * Conv; // Regulate frame rate
+            dt = (msec_timer - count) * 0.001f; // Regulate frame rate
 			while (dt < delay)
 			{
 				switch (lp_CONFIG->priority_level)
@@ -200,7 +200,7 @@ namespace TA3D
 					case 0: rest(1); break;
 					case 1: rest(0); break;
 				}
-				dt = (msec_timer - count) * Conv;
+                dt = (msec_timer - count) * 0.001f;
 			}
 			count = msec_timer;
 
@@ -3198,8 +3198,7 @@ namespace TA3D
 				++fps.countSinceLastTime;
 				if (msec_timer - fps.lastTime >= 1000 /* 1s */)
 				{
-					//fps = (int)(fps.countSinceLastTime / ((msec_timer - fps.lastTime) * Conv));
-					fps.average = lrint(fps.countSinceLastTime / ((msec_timer - fps.lastTime) * Conv));
+                    fps.average = fps.countSinceLastTime * 1000 / (msec_timer - fps.lastTime);
 					fps.countSinceLastTime = 0;
 					fps.lastTime = msec_timer;
 					fps.toStr.clear();

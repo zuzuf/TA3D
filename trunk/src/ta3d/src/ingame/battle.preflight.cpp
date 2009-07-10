@@ -19,6 +19,7 @@
 #include "../sounds/manager.h"
 #include "../UnitEngine.h"
 #include "../input/mouse.h"
+#include "../input/keyboard.h"
 
 
 namespace TA3D
@@ -58,7 +59,7 @@ namespace TA3D
 
 		if (video_shoot)
 		{
-			if ((msec_timer - video_timer) * Conv >= 1.0f / 15.0f)
+            if (msec_timer - video_timer >= 1000 / 15)
 			{
 				video_timer = msec_timer;
 				shoot = true;
@@ -117,7 +118,11 @@ namespace TA3D
 	void Battle::preflightAutomaticCamera()
 	{
 		float old_zscroll = camera_zscroll;
-        int delta = IsOnGUI ? 0 : mouse_z - omz;
+        float delta = IsOnGUI ? 0.0f : mouse_z - omz;
+        if (key[KEY_PAGEUP])
+            delta = -10.0f * dt;
+        else if (key[KEY_PAGEDOWN])
+            delta = 10.0f * dt;
         if (lp_CONFIG->ortho_camera)        // 2D zoom with orthographic camera
         {
             camera_zscroll += delta * lp_CONFIG->camera_zoom_speed;
@@ -135,7 +140,7 @@ namespace TA3D
                 if (camera_zscroll > 20.0f) camera_zscroll = 20.0f;
         }
 
-		if ((msec_timer - cam_def_timer) * Conv >= 1.0f && delta != 0
+        if (msec_timer - cam_def_timer >= 1000 && delta != 0
 			&& ( ( camera_zscroll > 0.0f && old_zscroll <= 0.0f)
 				 || ( camera_zscroll < 0.0f && old_zscroll >= 0.0f)))			// Just to make it lock near def position
 		{
@@ -147,7 +152,7 @@ namespace TA3D
 				old_zscroll -= 0.00001f;
 		}
 
-		if ((msec_timer - cam_def_timer) * Conv < 0.5f)
+        if (msec_timer - cam_def_timer < 500)
 			camera_zscroll = old_zscroll;
 
 		if (lp_CONFIG->ortho_camera)        // 2D zoom with orthographic camera

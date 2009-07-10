@@ -409,8 +409,6 @@ namespace TA3D
 		//!
 		float cam_h;
 		//!
-		float Conv;
-		//!
 		float dt;
 		//!
 		float t;
