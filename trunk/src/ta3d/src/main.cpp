@@ -121,8 +121,10 @@ namespace TA3D
 
 using namespace TA3D;
 
-
-int hpiview(int argc,char *argv[]);
+namespace TA3D
+{
+    int hpiview(int argc,char *argv[]);
+}
 
 /*
  ** Function: ParseCommandLine
