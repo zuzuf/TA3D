@@ -72,10 +72,10 @@ namespace TA3D
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
-			Cache::Clear(); // Clear the cache
+			Cache::Clear();
 
 			VFS::instance()->reload();
-			ta3dSideData.loadData();				// Refresh side data so we load the correct values
+			ta3dSideData.loadData(); // Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();
 			sound_manager->stopMusic();
@@ -85,7 +85,7 @@ namespace TA3D
 
 		if (parser.pullAsBool("TA3D.Network game"))
 		{
-			if (parser.pullAsBool("TA3D.Server"))// Server code
+			if (parser.pullAsBool("TA3D.Server")) // Server code
 			{
 				const String& host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
 				setup_game(false, host_name.c_str());		// Start the game in networking mode as server
@@ -124,20 +124,20 @@ using namespace TA3D;
 
 namespace TA3D
 {
-    int hpiview(int argc,char *argv[]);
+	int hpiview(int argc,char *argv[]);
 }
 
 /*
- ** Function: ParseCommandLine
- **    Notes: this will eventually break down any command line arguments passed to
- **              the application at run time.  It don't do anything yet, but eventually
- **              we will be adding lots of command parms.
- **           If something goes wrong you can safely throw a string for an error.
- **             The call to this function is tried, but it only catches exceptions
- **             and strings, ie throw( "LoadConfigFile: some error occured" );
- **           Remember if you throw an error, or generate one, you are responsible for
- **             cleaning up what you initialized!
- */
+** Function: ParseCommandLine
+**    Notes: this will eventually break down any command line arguments passed to
+**              the application at run time.  It don't do anything yet, but eventually
+**              we will be adding lots of command parms.
+**           If something goes wrong you can safely throw a string for an error.
+**             The call to this function is tried, but it only catches exceptions
+**             and strings, ie throw( "LoadConfigFile: some error occured" );
+**           Remember if you throw an error, or generate one, you are responsible for
+**             cleaning up what you initialized!
+*/
 static int ParseCommandLine(int argc, char *argv[])
 {
 	if (hpiview(argc, argv))
