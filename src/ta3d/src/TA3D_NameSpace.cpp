@@ -60,52 +60,6 @@ namespace TA3D
 	}
 
 
-	void TA3D_clear_cache(bool force)							// Clear the cache if needed (useful when mod has changed)
-	{
-		bool rebuild_cache = false;
-		// Check cache date
-		String cache_date = lp_CONFIG
-			? String::Format("build info : %s , %s\ncurrent mod : %s\n", __DATE__, __TIME__, lp_CONFIG->last_MOD.c_str())
-			: String::Format("build info : %s , %s\ncurrent mod : \n", __DATE__, __TIME__ );
-
-		if(TA3D::Paths::Exists(TA3D::Paths::Caches + "cache_info.txt") && !force)
-		{
-			FILE *cache_info = TA3D_OpenFile(TA3D::Paths::Caches + "cache_info.txt", "rb");
-			if(cache_info)
-			{
-				char *buf = new char[cache_date.size() + 1];
-				if(buf)
-				{
-					memset(buf, 0, cache_date.size() + 1);
-					fread(buf, cache_date.size(), 1, cache_info);
-					if( buf == cache_date )
-						rebuild_cache = false;
-					else
-						rebuild_cache = true;
-					delete[] buf;
-				}
-				fclose( cache_info );
-			}
-		}
-		else
-			rebuild_cache = true;
-
-		if(rebuild_cache)
-		{
-			String::List file_list;
-			Paths::GlobFiles(file_list, TA3D::Paths::Caches + "*");
-			for(String::List::iterator i = file_list.begin() ; i != file_list.end() ; ++i)
-				remove( i->c_str() );
-			// Update cache date
-			FILE *cache_info = TA3D_OpenFile(TA3D::Paths::Caches + "cache_info.txt", "wb");
-			if(cache_info)
-			{
-				fwrite( cache_date.c_str(), cache_date.size(), 1, cache_info);
-				putc( 0, cache_info );
-				fclose( cache_info );
-			}
-		}
-	}
 } // namespace TA3D
 
 
