@@ -207,7 +207,7 @@ namespace TA3D
 			bmp_tex[i] = gfx->create_surface_ex(8, 1024, 32);
 
 		f_pos=header.PTRtilegfx;
-		for(i = 0; i < header.tiles; ++i) // Lit tout les morceaux
+		for (i = 0; i < header.tiles; ++i) // Lit tout les morceaux
 		{
 			int tex_num = i>>5;	// Numéro de la texture associée
 			int tx = (i&0x1F)<<5;			// Coordonnées sur la texture
@@ -231,7 +231,7 @@ namespace TA3D
 		map->map2blocdb_h = ((float)map->bloc_h_db)/map->map_h;
 		map->bmap = new unsigned short*[map->bloc_h];
 		map->bmap[0] = new unsigned short[map->bloc_w*map->bloc_h];
-		for(i = 1; i < map->bloc_h; ++i)
+		for (i = 1; i < map->bloc_h; ++i)
 			map->bmap[i] = &(map->bmap[0][i*map->bloc_w]);
 		map->view = new byte*[map->bloc_h];
 		map->view[0] = new byte[map->bloc_w*map->bloc_h];
@@ -392,7 +392,7 @@ namespace TA3D
 			{
 				map->bmap[y][x] = *((short*)(data+f_pos));
 
-                if (map->bmap[y][x] >= map->nbbloc || map->bmap[y][x] < 0)		// To add some security
+				if (map->bmap[y][x] >= map->nbbloc || map->bmap[y][x] < 0)		// To add some security
 					map->bmap[y][x] = 0;
 
 				/*---------- code to build the low def map (mega zoom) ---------------*/
@@ -404,45 +404,45 @@ namespace TA3D
 					bmp_tex[tex_num] = convert_format_24(bmp_tex[tex_num]);
 
 				stretch_blit(bmp_tex[tex_num], low_def, tx, 0, 32, 32,
-							 x * (low_def->w - 1) / map->bloc_w, y * (low_def->h - 1) / map->bloc_h,
-							 (x + 1) * (low_def->w - 1) / map->bloc_w - x * (low_def->w - 1) / map->bloc_w,
-							 (y + 1) * (low_def->h - 1) / map->bloc_h - y * (low_def->h - 1) / map->bloc_h);
+					x * (low_def->w - 1) / map->bloc_w, y * (low_def->h - 1) / map->bloc_h,
+					(x + 1) * (low_def->w - 1) / map->bloc_w - x * (low_def->w - 1) / map->bloc_w,
+					(y + 1) * (low_def->h - 1) / map->bloc_h - y * (low_def->h - 1) / map->bloc_h);
 				/*--------------------------------------------------------------------*/
 
 				f_pos+=2;
 			}
 		}
-        LOG_INFO("Low definition map image built in " << (msec_timer - event_timer) * 0.001f << "s.");
-        event_timer = msec_timer;
+		LOG_INFO("Low definition map image built in " << (msec_timer - event_timer) * 0.001f << "s.");
+		event_timer = msec_timer;
 
-        for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
+		for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
 			SDL_FreeSurface(bmp_tex[i]);
-        gfx->set_texture_format(GL_RGB5);
-        map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
+		gfx->set_texture_format(GL_RGB5);
+		map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
 		SDL_FreeSurface(low_def);
 
-        LOG_INFO("Low definition texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
-        event_timer = msec_timer;
+		LOG_INFO("Low definition texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
+		event_timer = msec_timer;
 
-        SDL_Surface *lava_map = gfx->create_surface_ex(8, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
-        SDL_FillRect(lava_map, NULL, 0x0);
-        for (y = 0; y < map->bloc_h; ++y)               // Build the lava map
-            for (x = 0; x < map->bloc_w; ++x)
-                if (map->bloc[map->bmap[y][x]].lava)
-                    circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFF);
-        LOG_INFO("Lava image built in " << (msec_timer - event_timer) * 0.001f << "s.");
-        event_timer = msec_timer;
+		SDL_Surface *lava_map = gfx->create_surface_ex(8, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
+		SDL_FillRect(lava_map, NULL, 0x0);
+		for (y = 0; y < map->bloc_h; ++y)               // Build the lava map
+			for (x = 0; x < map->bloc_w; ++x)
+				if (map->bloc[map->bmap[y][x]].lava)
+					circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFF);
+		LOG_INFO("Lava image built in " << (msec_timer - event_timer) * 0.001f << "s.");
+		event_timer = msec_timer;
 
-        map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
+		map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
 		SDL_FreeSurface(lava_map);
 
-        LOG_INFO("Lava texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
-        event_timer = msec_timer;
+		LOG_INFO("Lava texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
+		event_timer = msec_timer;
 
-        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-            gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
-        else
-            gfx->set_texture_format(GL_RGB8);
+		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
+		else
+			gfx->set_texture_format(GL_RGB8);
 
 		LOG_DEBUG("MAP: computing height data (step 1)");
 		// Charge d'autres données sur les blocs
@@ -460,7 +460,7 @@ namespace TA3D
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 2)");
-		for(y=0;y<(map->bloc_h<<1);y++)				// Calcule les informations complémentaires sur la carte
+		for (y=0;y<(map->bloc_h<<1);y++) // Calcule les informations complémentaires sur la carte
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
 			{
@@ -496,7 +496,7 @@ namespace TA3D
 		LOG_DEBUG("MAP: computing height data (step 3)");
 		for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
-			for(x = 0; x < (map->bloc_w << 1); ++x)	// Projete la carte du relief
+			for (x = 0; x < (map->bloc_w << 1); ++x)	// Projete la carte du relief
 			{
 				int rec_y;
 				float h=map->ph_map[y][x];
@@ -513,7 +513,7 @@ namespace TA3D
 		map->sea_dec=map->sealvl*tnt_transform*H_DIV;			// Calcule le décalage nécessaire pour restituer les océans
 		for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
-			for(x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
+			for (x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
 			{
 				if (map->ph_map[y][x] == -1.0f && y == 0)
 				{
@@ -525,7 +525,7 @@ namespace TA3D
 					while (map->ph_map[cy][x] == -1.0f)
 					{
 						map->ph_map[cy][x]=h;
-						cy++;
+						++cy;
 					}
 				}
 				else

@@ -65,8 +65,8 @@ namespace TA3D
 		energy_u[pPlayerCount]     = 0.f;
 		metal_t[pPlayerCount]      = 0.f;
 		energy_t[pPlayerCount]     = 0.f;
-		kills[pPlayerCount]        = 0.f;
-		losses[pPlayerCount]       = 0.f;
+		kills[pPlayerCount]        = 0;
+		losses[pPlayerCount]       = 0;
 		nom[pPlayerCount]          = name;
 		control[pPlayerCount]      = _control;
 		nb_unit[pPlayerCount]      = 0;
@@ -315,19 +315,19 @@ namespace TA3D
 			requested_metal[i]  = 0;
 			c_energy[i]         = energy[i];
 			c_metal[i]          = metal[i];
-			c_energy_s[i]       = c_metal_s[i]=0;			// Stocks
-			c_metal_t[i]        = c_energy_t[i]=0.0f;		// Production
-			c_metal_u[i]        = c_energy_u[i]=0.0f;		// Consommation
+			c_energy_s[i]       = c_metal_s[i]=0;         // Stocks
+			c_metal_t[i]        = c_energy_t[i] = 0.0f;   // Production
+			c_metal_u[i]        = c_energy_u[i] = 0.0f;   // Consommation
 			c_commander[i]      = false;
 			c_annihilated[i]    = true;
 			c_nb_unit[i]        = 0;
 
-			if (r_energy[i] <= energy[i] || r_energy[i] == 0.0f)
+			if (r_energy[i] <= energy[i] || Yuni::Math::Zero(r_energy[i]))
 				energy_factor[i] = 1.0f;
 			else
 				energy_factor[i] = 0.9f * energy[i] / r_energy[i];
 
-			if (r_metal[i] <= metal[i] || r_metal[i] == 0.0f)
+			if (r_metal[i] <= metal[i] || Yuni::Math::Zero(r_metal[i]))
 				metal_factor[i] = 1.0f;
 			else
 				metal_factor[i] = 0.9f * metal[i] / r_metal[i];

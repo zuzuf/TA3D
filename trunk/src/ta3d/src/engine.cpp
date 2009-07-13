@@ -86,7 +86,8 @@ namespace TA3D
 		if (SDLNet_Init() == -1)
 			throw ("SDLNet_Init() failed.");
 
-        if (!VFS::instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::instance()->fileExists("gamedata\\allsound.tdf") || !VFS::instance()->fileExists("gamedata\\sound.tdf"))
+		if (!VFS::instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::instance()->fileExists("gamedata\\allsound.tdf")
+			|| !VFS::instance()->fileExists("gamedata\\sound.tdf"))
 		{
 			showError("RESOURCES ERROR");
 			exit(1);
@@ -100,7 +101,7 @@ namespace TA3D
 		linked_version = SDLNet_Linked_Version();
 		LOG_DEBUG(LOG_PREFIX_NET << "Running with SDL_net version: " << (int)linked_version->major << "." << (int)linked_version->minor << "." << (int)linked_version->patch);
 
-        // Creating Sound & Music Interface
+		// Creating Sound & Music Interface
 		sound_manager = new TA3D::Audio::Manager();
 		sound_manager->loadTDFSounds(true);
 		sound_manager->loadTDFSounds(false);
@@ -113,11 +114,11 @@ namespace TA3D
 		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and message may not be shown ...
 		pGFXModeActive = true;
 
-        gfx->Init();
+		gfx->Init();
 
 		SDL_WM_SetCaption("Total Annihilation 3D", "TA3D");
 
-        // Initialize the mouse handler
+		// Initialize the mouse handler
 		init_mouse();
 		// Initialize the keyboard handler
 		init_keyboard();
@@ -134,10 +135,8 @@ namespace TA3D
 		ta3dSideData.destroy();
 
 		delete sound_manager;
-
 		delete gfx;
 		pGFXModeActive = false;
-
 		delete InterfaceManager;
 
 		if (pSDLRunning)
@@ -147,7 +146,6 @@ namespace TA3D
 			SDL_Quit();
 		}
 	}
-
 
 
 	void Engine::Init()
@@ -174,12 +172,10 @@ namespace TA3D
 	}
 
 
-
 	void Engine::signalExitThread()
 	{
 		pSignaledToStop = true;
 	}
-
 
 
 	void rest(uint32 msec)

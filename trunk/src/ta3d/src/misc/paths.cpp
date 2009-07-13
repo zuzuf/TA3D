@@ -198,9 +198,9 @@ namespace TA3D
 			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
 		}
 
-        String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant)
+		String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant)
 		{
-            return Yuni::Core::Paths::ExtractFileNameWithoutExtension(p, systemDependant);
+			return Yuni::Core::Paths::ExtractFileNameWithoutExtension(p, systemDependant);
 		}
 
 
@@ -213,28 +213,28 @@ namespace TA3D
 
 
 
-		bool Initialize(int argc, char* argv[], const String& programName)
+		bool Initialize(int /*argc*/, char* argv[], const String& programName)
 		{
 			LOG_ASSERT(NULL != argv);
 			LOG_ASSERT(!programName.empty());
 
 			initApplicationRootPath(argv[0]);
 
-# ifdef TA3D_PLATFORM_WINDOWS
+			# ifdef TA3D_PLATFORM_WINDOWS
 			initForWindows();
-# else
-#   ifndef TA3D_PLATFORM_DARWIN
+			# else
+			#   ifndef TA3D_PLATFORM_DARWIN
 			initForDefaultUnixes();
-#   else
+			#   else
 			initForDarwin();
-#   endif
-# endif
+			#   endif
+			# endif
 
 			bool logFileOpened = Logs::logger().writeToFile(Paths::Logs + programName + ".log");
 
 			LOG_INFO("*** Welcome to TA3D ***");
 			LOG_INFO("Version: " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << "-" << TA3D_VERSION_TAG
-					 << " (r" << TA3D_CURRENT_REVISION << ")");
+				<< " (r" << TA3D_CURRENT_REVISION << ")");
 			LOG_INFO(LOG_PREFIX_PATHS << "Started from: `" << ApplicationRoot << "`");
 			ConfigFile = Preferences;
 			ConfigFile += "ta3d.cfg";
@@ -277,27 +277,32 @@ namespace TA3D
 			# endif
 		}
 
-        void RemoveDir(const String& p)
-        {
-            // Remove files first
-            String::Vector files;
-            GlobFiles(files, p + Paths::SeparatorAsString + "*", false, false);
-            for(int i = 0 ; i < files.size() ; i++)
-            {
-                LOG_WARNING("removing '" << files[i] << "'");
-                remove(files[i].c_str());
-            }
+		void RemoveDir(const String& p)
+		{
+			String::Vector list;
+			String s(p);
+			s << Paths::SeparatorAsString << '*';
 
-            // Remove subfolders
-            String::Vector dirs;
-            GlobDirs(dirs, p + Paths::SeparatorAsString + "*", false, false);
-            for(int i = 0 ; i < dirs.size() ; i++)
-                RemoveDir(dirs[i]);
-            String cur = p;
-            cur.removeTrailingSlash();
-            LOG_WARNING("removing '" << p << "'");
-            remove(cur.c_str());
-        }
+			// Remove files first
+			GlobFiles(list, s, false, false);
+			String::Vector::const_iterator end = list.end();
+			for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
+			{
+				LOG_WARNING("removing '" << *i << "'");
+				::remove(i->c_str());
+			}
+
+			// Remove subfolders
+			GlobDirs(list, s, false, false);
+			end = list.end();
+			for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
+				RemoveDir(*i);
+
+			s = p;
+			s.removeTrailingSlash();
+			LOG_WARNING("removing '" << p << "'");
+			::remove(s.c_str());
+		}
 
 
 		bool MakeDir(const String& p)
@@ -344,90 +349,93 @@ namespace TA3D
 		}
 
 		template<class T>
-			bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore, const uint32 fileAttribs = FA_ALL, const uint32 required = 0, const bool relative = false)
+		bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore, const uint32 fileAttribs = FA_ALL, const uint32 required = 0, const bool relative = false)
+		{
+			if (emptyListBefore)
+				out.clear();
+
+			String root = ExtractFilePath(pattern);
+			String root_path = root;
+			if (root.size() > 1 && (root[ root.size() - 1 ] == '/' || root[ root.size() - 1 ] == '\\'))
+				root_path.removeLast();
+
+			# ifdef TA3D_PLATFORM_WINDOWS
+			String strFilePath; // Filepath
+			String strExtension; // Extension
+			HANDLE hFile; // Handle to file
+			WIN32_FIND_DATA FileInformation; // File information
+
+			hFile = ::FindFirstFile(pattern.c_str(), &FileInformation);
+			if (hFile != INVALID_HANDLE_VALUE)
 			{
-				if (emptyListBefore)
-					out.clear();
-
-				String root = ExtractFilePath(pattern);
-				String root_path = root;
-				if (root.size() > 1 && (root[ root.size() - 1 ] == '/' || root[ root.size() - 1 ] == '\\'))
-					root_path.removeLast();
-
-#ifdef TA3D_PLATFORM_WINDOWS
-				String strFilePath; // Filepath
-				String strExtension; // Extension
-				HANDLE hFile; // Handle to file
-				WIN32_FIND_DATA FileInformation; // File information
-
-				hFile = ::FindFirstFile(pattern.c_str(), &FileInformation);
-				if(hFile != INVALID_HANDLE_VALUE)
+				do
 				{
-					do
+					if (FileInformation.cFileName.first() != '.')
 					{
-						if(FileInformation.cFileName[0] != '.')
+						String name = FileInformation.cFileName;
+
+						if((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fileAttribs & FA_DIREC) && !(required & FA_FILE))
 						{
-							String name = FileInformation.cFileName;
-
-							if((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fileAttribs & FA_DIREC) && !(required & FA_FILE))
-							{
-								if (relative)
-									out.push_back(name);
-								else
-									out.push_back(root + name);
-							}
-							else if (!(required & FA_DIREC) && (fileAttribs & FA_FILE))
-							{
-								if (relative)
-									out.push_back(name);
-								else
-									out.push_back(root + name);
-							}
+							if (relative)
+								out.push_back(name);
+							else
+								out.push_back(root + name);
 						}
-					} while(::FindNextFile(hFile, &FileInformation) == TRUE);
-
-					// Close handle
-					::FindClose(hFile);
-				}
-#else
-				String filename_pattern = String::ToUpper(ExtractFileName(pattern));
-				DIR *dp;
-				struct dirent *dirp;
-				if((dp  = opendir(root_path.c_str())) == NULL)
-				{
-					// Following line is commented out because it may be useful later, but for now it only floods the logs
-					//            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
-					return true;
-				}
-
-				while ((dirp = readdir(dp)) != NULL)
-				{
-					String name = dirp->d_name;
-					if (dirp->d_type == 0)
-					{
-						DIR *dp2;
-						if ((dp2  = opendir((root + name).c_str())))
+						else if (!(required & FA_DIREC) && (fileAttribs & FA_FILE))
 						{
-							closedir(dp2);
-							dirp->d_type |= FA_DIREC;
+							if (relative)
+								out.push_back(name);
+							else
+								out.push_back(root + name);
 						}
-						else
-							dirp->d_type |= FA_FILE;
 					}
+				} while(::FindNextFile(hFile, &FileInformation) == TRUE);
 
-					if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).glob(filename_pattern))
-					{
-						if (relative)
-							out.push_back(name);
-						else
-							out.push_back(root + name);
-					}
-				}
-				closedir(dp);
-#endif
-
-				return !out.empty();
+				// Close handle
+				::FindClose(hFile);
 			}
+
+			# else /* ifdef WINDOWS */
+
+			String filename_pattern = String::ToUpper(ExtractFileName(pattern));
+			DIR *dp;
+			struct dirent *dirp;
+			if ((dp  = opendir(root_path.c_str())) == NULL)
+			{
+				// Following line is commented out because it may be useful later, but for now it only floods the logs
+				//            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
+				return true;
+			}
+
+			while ((dirp = readdir(dp)) != NULL)
+			{
+				String name = dirp->d_name;
+				if (dirp->d_type == 0)
+				{
+					DIR *dp2;
+					if ((dp2  = opendir((root + name).c_str())))
+					{
+						closedir(dp2);
+						dirp->d_type |= FA_DIREC;
+					}
+					else
+						dirp->d_type |= FA_FILE;
+				}
+
+				if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).glob(filename_pattern))
+				{
+					if (relative)
+						out.push_back(name);
+					else
+						out.push_back(root + name);
+				}
+			}
+			closedir(dp);
+			# endif
+
+			return !out.empty();
+		}
+
 
 		bool Glob(String::List& out, const String& pattern, const bool emptyListBefore, const bool relative)
 		{
@@ -462,14 +470,16 @@ namespace TA3D
 
 		bool IsAbsolute(const String& p)
 		{
-# ifdef TA3D_PLATFORM_WINDOWS
+			# ifdef TA3D_PLATFORM_WINDOWS
 			return (p.empty() || (p.size() > 2 && ':' == p[1] && '\\' == p[2]));
-# else
-			return (p.empty() || '/' == p[0]);
-# endif
+			# else
+			return ('/' == p.first());
+			# endif
 		}
 
 
-	} // namespace Paths
+
+
+} // namespace Paths
 } // namespace TA3D
 
