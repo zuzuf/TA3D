@@ -228,10 +228,6 @@ namespace TA3D
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode );
 
 
-	/*!
-	** \brief Clear the cache if needed (useful when mod has changed)
-	*/
-	void TA3D_clear_cache(bool force=false);
 } // namespace TA3D
 
 

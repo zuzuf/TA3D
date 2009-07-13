@@ -39,6 +39,7 @@
 #include "languages/table.h"
 #include "misc/application.h"
 #include "sounds/manager.h"
+#include "cache.h"
 
 
 
@@ -53,25 +54,25 @@ namespace TA3D
 	*/
 	void ReadFileParameter()
 	{
-		if(!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
+		if (!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
 			return;
 
 		LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
 
 		TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
 
-		TA3D::String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
+		String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
-		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
-		TA3D::VARS::lp_CONFIG->last_script = parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script);
-		TA3D::VARS::lp_CONFIG->last_script.replace('/', '\\');
-		TA3D::VARS::lp_CONFIG->last_map = parser.pullAsString("TA3D.Map", TA3D::VARS::lp_CONFIG->last_map);
-		TA3D::VARS::lp_CONFIG->last_map.replace('/', '\\');
-		TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW);
+		VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
+		VARS::lp_CONFIG->last_script = parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script);
+		VARS::lp_CONFIG->last_script.replace('/', '\\');
+		VARS::lp_CONFIG->last_map = parser.pullAsString("TA3D.Map", TA3D::VARS::lp_CONFIG->last_map);
+		VARS::lp_CONFIG->last_map.replace('/', '\\');
+		VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW);
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
-			TA3D_clear_cache();		// Clear the cache
+			Cache::Clear(); // Clear the cache
 
 			VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
@@ -86,12 +87,12 @@ namespace TA3D
 		{
 			if (parser.pullAsBool("TA3D.Server"))// Server code
 			{
-				String host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
+				const String& host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
 				setup_game(false, host_name.c_str());		// Start the game in networking mode as server
 			}
 			else // Client code
 			{
-				String host_name = parser.pullAsString("TA3D.Server name", "");
+				const String& host_name = parser.pullAsString("TA3D.Server name");
 				setup_game(true, host_name.c_str());		// Start the game in networking mode as server
 			}
 		}
@@ -100,7 +101,7 @@ namespace TA3D
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
-			TA3D_clear_cache();		// Clear the cache
+			Cache::Clear();		// Clear the cache
 
 			VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
@@ -194,7 +195,7 @@ int main(int argc, char *argv[])
 	TA3D::Initialize(argc, argv);
 
 	TA3D::Settings::Load(); /* Load Config File */
-	TA3D_clear_cache();
+	TA3D::Cache::Clear();
 
 	if (ParseCommandLine(argc, argv))
 		return 1;
