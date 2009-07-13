@@ -73,7 +73,7 @@ namespace TA3D
 		{
 			TA3D_clear_cache();		// Clear the cache
 
-            VFS::instance()->reload();
+			VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();
@@ -102,7 +102,7 @@ namespace TA3D
 		{
 			TA3D_clear_cache();		// Clear the cache
 
-            VFS::instance()->reload();
+			VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();
@@ -137,7 +137,7 @@ namespace TA3D
  **           Remember if you throw an error, or generate one, you are responsible for
  **             cleaning up what you initialized!
  */
-int ParseCommandLine(int argc, char *argv[])
+static int ParseCommandLine(int argc, char *argv[])
 {
 	if (hpiview(argc, argv))
 		return 1;
