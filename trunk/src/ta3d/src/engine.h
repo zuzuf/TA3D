@@ -15,41 +15,49 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-
 #ifndef __TA3D_ENGINE_H__
 # define __TA3D_ENGINE_H__
 
 #include "threads/thread.h"
+#include <yuni/threads.h>
+
+
 
 namespace TA3D
 {
 
 
-
-	class Engine : public ObjectSync, public Thread
+	class Engine : public Yuni::Threads::AThread
 	{
 	public:
 		//! \name Constructor & Destructor
 		//@{
-		Engine( void );
-		virtual ~Engine( void );
+		//! Default Constructor
+		Engine();
+		//! Destructor
+		virtual ~Engine();
 		//@}
 
 		bool GFXModeActive() const { return pGFXModeActive; }
 		bool SDLRunning() const { return pSDLRunning; }
 
+		/*!
+		** \brief Make initialization (from the main thread only) after the engine was initialized from another thread
+		*/
+		void initializationFromTheMainThread();
+
 	protected:
-		void proc(void*);
-		void signalExitThread();
+		virtual void onExecute();
 
 	private:
-		virtual const char *className() { return "Engine"; }
-		void Init();
+		/*!
+		** \brief Didplay informations about the current configuration of OpenGL
+		*/
+		void displayInfosAboutOpenGL() const;
 
 	private:
 		bool pSDLRunning;
 		bool pGFXModeActive;
-		bool pSignaledToStop;
 
 	}; // class Engine
 

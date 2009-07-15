@@ -219,6 +219,7 @@ SET(SRC_INGAME_WEAPONS
 
 SET(SRC_INGAME_MENUS
 		ingame/menus/base.h ingame/menus/base.cpp
+		ingame/menus/splash.h ingame/menus/splash.cpp
 		ingame/menus/intro.h ingame/menus/intro.cpp
 		ingame/menus/loading.h ingame/menus/loading.cpp
 		ingame/menus/solo.h ingame/menus/solo.cpp
@@ -362,6 +363,8 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.jpg")
 	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.png")
 	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/splash" "gfx/splash" "*.jpg")
+	BUNDLE_INSTALL_GLOB("gfx/splash" "gfx/splash" "*.png")
 	BUNDLE_INSTALL_GLOB("gfx/default_skin" "gfx/default_skin" "*.tga")
 	BUNDLE_INSTALL_GLOB("gfx/default_skin" "gfx/default_skin" "*.jpg")
 	BUNDLE_INSTALL_GLOB("gfx/default_skin" "gfx/default_skin" "*.png")

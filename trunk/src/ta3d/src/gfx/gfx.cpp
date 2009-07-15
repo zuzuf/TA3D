@@ -36,11 +36,11 @@
 #include "../input/mouse.h"
 
 
-#define YESNO(X)  (X ? "Yes" : "No")
-
 
 namespace TA3D
 {
+
+
 	void GFX::set_texture_format(GLuint gl_format)
 	{
 		texture_format = gl_format == 0 ? GL_RGB8 : gl_format;
@@ -53,10 +53,10 @@ namespace TA3D
 
 	void GFX::initSDL()
 	{
-        // First we need to load the OpenGL library
-        SDL_GL_LoadLibrary(NULL);
+		// First we need to load the OpenGL library
+		SDL_GL_LoadLibrary(NULL);
 
-        SDL_Surface *icon = load_image("gfx\\icon.png");
+		SDL_Surface *icon = load_image("gfx\\icon.png");
 		if (icon)
 		{
 			SDL_WM_SetIcon(icon, NULL);
@@ -143,22 +143,23 @@ namespace TA3D
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
 	}
 
-    void GFX::checkConfig() const
-    {
-        if (!g_useFBO)
-            lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
-        if (!g_useProgram)
-        {
-            lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
-            lp_CONFIG->disable_GLSL = true;
-            lp_CONFIG->detail_tex = false;
-            lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
-        }
-        if (!g_useTextureCompression)
-            lp_CONFIG->use_texture_compression = false;
-        if (!glewIsSupported("GL_ARB_shadow"))
-            lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
-    }
+
+	void GFX::checkConfig() const
+	{
+		if (!g_useFBO)
+			lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
+		if (!g_useProgram)
+		{
+			lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
+			lp_CONFIG->disable_GLSL = true;
+			lp_CONFIG->detail_tex = false;
+			lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
+		}
+		if (!g_useTextureCompression)
+			lp_CONFIG->use_texture_compression = false;
+		if (!glewIsSupported("GL_ARB_shadow"))
+			lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
+	}
 
 
 	bool GFX::checkVideoCardWorkaround() const
@@ -169,22 +170,6 @@ namespace TA3D
 		workaround |= strstr(String::ToUpper((const char*)glGetString(GL_VENDOR)).c_str(), "SIS") != NULL;
 		return workaround;
 	}
-
-	void GFX::displayInfosAboutOpenGL() const
-	{
-		LOG_INFO(LOG_PREFIX_OPENGL << "OpenGL informations:");
-		LOG_INFO(LOG_PREFIX_OPENGL << "Vendor: " << glGetString(GL_VENDOR));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Renderer: " << glGetString(GL_RENDERER));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Version: " << glGetString(GL_VERSION));
-		if (ati_workaround)
-			LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
-		LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << YESNO(g_useTextureCompression));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Stencil Two Side: " << YESNO(g_useStencilTwoSide));
-		LOG_INFO(LOG_PREFIX_OPENGL << "FBO: " << YESNO(g_useFBO));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Shaders: " << YESNO(g_useProgram));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Multi texturing: " << YESNO(MultiTexturing));
-	}
-
 
 
 	GFX::GFX()
@@ -205,26 +190,15 @@ namespace TA3D
 		width = SCREEN_W;
 		height = SCREEN_H;
 
-		TA3D::VARS::pal = NULL;
+		LOG_DEBUG("Allocating palette memory...");
+		TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
 
-		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-		normal_font = font_manager.find("FreeSans", 10, Font::typeTexture);
-
-		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-		small_font = font_manager.find("FreeMono", 8, Font::typeTexture);
-
-		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
-		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
-
-		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-		ta3d_gui_font = font_manager.find("FreeSerif", 10 * SCREEN_W / 640, Font::typeTexture);
-		Gui::gui_font = ta3d_gui_font;
-
-		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
-		big_font = font_manager.find("FreeSans", 16 * SCREEN_W / 640, Font::typeTexture);
+		LOG_DEBUG("Loading TA's palette...");
+		bool palette = TA3D::UTILS::load_palette(pal);
+		if (!palette)
+			LOG_WARNING("Failed to load the palette");
 
 		InitInterface();
-		displayInfosAboutOpenGL();
 	}
 
 
@@ -255,16 +229,8 @@ namespace TA3D
 
 
 
-	void GFX::Init()
+	void GFX::loadDefaultTextures()
 	{
-		LOG_DEBUG("Allocating palette memory...");
-		TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
-
-		LOG_DEBUG("Loading TA's palette...");
-		bool palette = TA3D::UTILS::load_palette(pal);
-		if (!palette)
-			LOG_WARNING("Failed to load the palette");
-
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading background...");
 		load_background();
 
@@ -272,10 +238,27 @@ namespace TA3D
 		default_texture = load_texture("gfx/default.png");
 
 		alpha_blending_set = false;
-
-		LOG_INFO(LOG_PREFIX_GFX << "Graphics are initialized.");
 	}
 
+
+	void GFX::loadFonts()
+	{
+		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
+		normal_font = font_manager.find("FreeSans", 10, Font::typeTexture);
+
+		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
+		small_font = font_manager.find("FreeMono", 8, Font::typeTexture);
+
+		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
+		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
+
+		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
+		ta3d_gui_font = font_manager.find("FreeSerif", 10 * SCREEN_W / 640, Font::typeTexture);
+		Gui::gui_font = ta3d_gui_font;
+
+		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
+		big_font = font_manager.find("FreeSans", 16 * SCREEN_W / 640, Font::typeTexture);
+	}
 
 
 	void GFX::set_alpha(const float a) const
@@ -514,7 +497,7 @@ namespace TA3D
 	void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
 
 		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
 		const float tcoord[8] = { u1,v1, u2,v1, u2,v2, u1,v2 };
@@ -1317,16 +1300,16 @@ namespace TA3D
 	SDL_Surface *GFX::load_image(const String filename)
 	{
         uint32 image_file_size;
-        byte *data = VFS::instance()->readFile( filename, &image_file_size );
+        byte *data = VFS::instance()->readFile(filename, &image_file_size);
         if (data)
         {
-            SDL_RWops *file = SDL_RWFromMem( data, image_file_size);
+            SDL_RWops *file = SDL_RWFromMem(data, image_file_size);
             SDL_Surface *img = NULL;
             if (Paths::ExtractFileExt(filename).toLower() == ".tga")
                 img = IMG_LoadTGA_RW(file);
             else
-                img = IMG_Load_RW( file, 0);
-            SDL_RWclose( file );
+                img = IMG_Load_RW(file, 0);
+            SDL_RWclose(file);
 
             delete[] data;
 
@@ -1391,6 +1374,7 @@ namespace TA3D
 		return gl_tex;
 	}
 
+
 	GLuint	GFX::load_texture_mask(const String& file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
         if (!VFS::instance()->fileExists(file)) // The file doesn't exist
@@ -1406,14 +1390,14 @@ namespace TA3D
 		if (with_alpha)
 		{
 			with_alpha = false;
-			for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
-				for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
+			for (int y = 0 ; y < bmp->h && !with_alpha ; y++ )
+				for (int x = 0 ; x < bmp->w && !with_alpha ; x++ )
 					with_alpha |= (geta(SurfaceInt(bmp,x,y)) != 255);
 		}
 		else
 		{
-			for( int y = 0 ; y < bmp->h ; y++ )
-				for( int x = 0 ; x < bmp->w ; x++ )
+			for (int y = 0 ; y < bmp->h ; y++ )
+				for (int x = 0 ; x < bmp->w ; x++ )
 					SurfaceInt(bmp,x,y) |= makeacol(0,0,0,255);
 		}
 
@@ -1437,6 +1421,7 @@ namespace TA3D
 		SDL_FreeSurface(bmp);
 		return gl_tex;
 	}
+
 
 	bool GFX::is_texture_in_cache(const String& file)
 	{
@@ -1514,7 +1499,7 @@ namespace TA3D
 
 			delete[] img;
 
-			fclose( cache_file );
+			fclose(cache_file);
 
 			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
@@ -1532,7 +1517,7 @@ namespace TA3D
 			}
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
 
-			switch(filter_type)
+			switch (filter_type)
 			{
 				case FILTER_NONE:
 					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -1574,7 +1559,7 @@ namespace TA3D
 
 		FILE* cache_file = TA3D_OpenFile( file, "wb" );
 
-		if (cache_file == NULL )
+		if (cache_file == NULL)
 			return;
 
 		uint32 mod_hash = TA3D_CURRENT_MOD.hashValue(); // Save a hash of current mod
@@ -1617,27 +1602,27 @@ namespace TA3D
 
 		delete[] img;
 
-		fclose( cache_file );
+		fclose(cache_file);
 	}
 
 
 
 	GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
 	{
-        if ( (!VFS::instance()->fileExists(file))
-             || (!VFS::instance()->fileExists(mask)))
-			return 0;		// The file doesn't exist
+		if ( (!VFS::instance()->fileExists(file)) || (!VFS::instance()->fileExists(mask)))
+			return 0; // The file doesn't exist
 
 		SDL_Surface *bmp = load_image(file);
-		if (bmp == NULL )	return 0;					// Operation failed
-		SDL_Surface *alpha = load_image( mask );
+		if (bmp == NULL)
+			return 0;					// Operation failed
+		SDL_Surface *alpha = load_image(mask);
 		if(!alpha)
 		{
-			SDL_FreeSurface( bmp );
+			SDL_FreeSurface(bmp);
 			return 0;
 		}
-		for(int y = 0; y < bmp->h; ++y)
-			for(int x=0;x<bmp->w;x++)
+		for (int y = 0; y < bmp->h; ++y)
+			for (int x=0;x<bmp->w;x++)
 			{
 				uint32 c = SurfaceInt(bmp, x, y);
 				SurfaceInt(bmp, x, y) = makeacol( getr(c), getg(c), getb(c), geta(SurfaceInt(alpha,x,y)) );
@@ -1687,6 +1672,7 @@ namespace TA3D
 		return gltex;
 	}
 
+
 	void GFX::set_alpha_blending()
 	{
 		glEnable(GL_BLEND);
@@ -1694,11 +1680,13 @@ namespace TA3D
 		alpha_blending_set = true;
 	}
 
+
 	void GFX::unset_alpha_blending()
 	{
 		glDisable(GL_BLEND);
 		alpha_blending_set = false;
 	}
+
 
 	void GFX::ReInitTexSys(bool matrix_reset)
 	{
@@ -1713,11 +1701,12 @@ namespace TA3D
 		}
 	}
 
+
 	void GFX::ReInitAllTex(bool disable)
 	{
 		if (MultiTexturing)
 		{
-			for(uint32 i = 0; i < 7; ++i)
+			for (unsigned int i = 0; i < 7; ++i)
 			{
 				glActiveTextureARB(GL_TEXTURE0_ARB + i);
 				ReInitTexSys();
@@ -1730,6 +1719,7 @@ namespace TA3D
 			glClientActiveTexture(GL_TEXTURE0_ARB);
 		}
 	}
+
 
 	void GFX::SetDefState()
 	{
@@ -1752,6 +1742,7 @@ namespace TA3D
 		alpha_blending_set = false;
 	}
 
+
 	void GFX::ReInitArrays()
 	{
 		glDisableClientState(GL_VERTEX_ARRAY);
@@ -1768,25 +1759,30 @@ namespace TA3D
 		return INTERFACE_RESULT_CONTINUE;
 	}
 
+
 	void GFX::clearAll()
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
+
 
 	void GFX::clearScreen()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
+
 	void GFX::clearDepth()
 	{
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
+
 	void GFX::disable_texturing()
 	{
 		glDisable( GL_TEXTURE_2D );
 	}
+
 
 	void GFX::enable_texturing()
 	{
@@ -1807,19 +1803,14 @@ namespace TA3D
 
 	void GFX::load_background()
 	{
-		if (SCREEN_W<=800)
-			glfond = load_texture( "gfx/menu800.jpg", FILTER_LINEAR);
+		if (SCREEN_W > 1024)
+			glfond = load_texture("gfx/menu1280.jpg", FILTER_LINEAR);
 		else
-		{
-			if(SCREEN_W<=1024)
-				glfond = load_texture( "gfx/menu1024.jpg", FILTER_LINEAR);
-			else
-				glfond = load_texture( "gfx/menu1280.jpg", FILTER_LINEAR);
-		}
+			glfond = load_texture(((SCREEN_W <= 800) ? "gfx/menu800.jpg" : "gfx/menu1024.jpg"), FILTER_LINEAR);
 	}
 
 
-	void GFX::renderToTexture( const GLuint tex, bool useDepth )
+	void GFX::renderToTexture(const GLuint tex, bool useDepth)
 	{
 		if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
 		{
@@ -1870,7 +1861,8 @@ namespace TA3D
 		}
 	}
 
-	void GFX::renderToTextureDepth( const GLuint tex )
+
+	void GFX::renderToTextureDepth(const GLuint tex)
 	{
 		if (tex == 0)       // Release the texture
 		{
@@ -1902,6 +1894,7 @@ namespace TA3D
 		}
 	}
 
+
 	void GFX::PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2)
 	{
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -1922,20 +1915,21 @@ namespace TA3D
 		glEnd();
 	}
 
+
 	void GFX::runTests()
 	{
 		InterfaceManager = new IInterfaceManager();
 
 		// Initalizing SDL video
-		if( SDL_Init(SDL_INIT_VIDEO) < 0 )
+		if (SDL_Init(SDL_INIT_VIDEO) < 0 )
 			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
 
 		// Installing SDL timer
-		if( SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
+		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
 			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
 
 		// Installing SDL timer
-		if( SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
+		if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
 			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
 		GFX *test_gfx = new GFX();
@@ -2100,16 +2094,16 @@ namespace TA3D
 	void GFX::runOpenGLTests()
 	{
 		// Initalizing SDL video
-		if( SDL_Init(SDL_INIT_VIDEO) < 0 )
-			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
+		if (SDL_Init(SDL_INIT_VIDEO) < 0)
+			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
 
 		// Installing SDL timer
-		if( SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
-			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
+		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
+			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
 
 		// Installing SDL timer
-		if( SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
-			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
+		if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0)
+			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
 
 		int w = 800;
 		int h = 600;
@@ -2123,36 +2117,36 @@ namespace TA3D
 		SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
 
 
-		for(int stencil = 0 ; stencil < 2 ; stencil++)
+		for (int stencil = 0 ; stencil < 2 ; stencil++)
 		{
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencil ? 8 : 0);
-			for(int fsaa = 0 ; fsaa < 4 ; fsaa++)
+			for (int fsaa = 0 ; fsaa < 4; ++fsaa)
 			{
 				SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, fsaa > 1);
 				SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
-				for(int db_buf = 0 ; db_buf < 2 ; db_buf++)
+				for (int db_buf = 0 ; db_buf < 2 ; db_buf++)
 				{
 					SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, db_buf);
-					for(int r = 8 ; r > 0 ; r--)
+					for (int r = 8 ; r > 0 ; r--)
 					{
 						SDL_GL_SetAttribute(SDL_GL_RED_SIZE, r);
-						for(int g = 8 ; g > 0 ; g--)
+						for (int g = 8 ; g > 0 ; g--)
 						{
 							SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, g);
-							for(int b = 8 ; b > 0 ; b--)
+							for (int b = 8 ; b > 0 ; b--)
 							{
 								SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
-								for(int a = 8 ; a > 0 ; a--)
+								for (int a = 8 ; a > 0 ; a--)
 								{
 									SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, a);
 
-									for(int depth = 0 ; depth < 2 ; depth++)
+									for (int depth = 0; depth < 2; ++depth)
 									{
 										SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth ? 24 : 16);
 
 										if (SDL_SetVideoMode( w, h, bpp, SDL_OPENGL | SDL_HWSURFACE ))
 										{
-											if (String((char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
+											if (String((const char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
 											{
 												std::cout << "test passed for following settings:" << std::endl;
 												std::cout << "stencil = " << (stencil ? 8 : 0) << std::endl;
@@ -2177,6 +2171,7 @@ namespace TA3D
 		std::cout << "Test finished" << std::endl;
 	}
 
+
 	void GFX::readShadowMapProjectionMatrix()
 	{
 		GLfloat backup[16];
@@ -2184,8 +2179,8 @@ namespace TA3D
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glScalef(0.5f,0.5f,0.5f);
-		glTranslatef(1.0f,1.0f,1.0f);
+		glScalef(0.5f, 0.5f, 0.5f);
+		glTranslatef(1.0f, 1.0f, 1.0f);
 		glMultMatrixf(backup);
 		glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
 
@@ -2193,4 +2188,9 @@ namespace TA3D
 		glMultMatrixf(backup);
 		glMatrixMode(GL_MODELVIEW);
 	}
+
+
+
+
+
 } // namespace TA3D

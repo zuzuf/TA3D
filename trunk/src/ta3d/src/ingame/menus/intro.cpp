@@ -61,9 +61,10 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
-		pCurrentFontHeight = Gui::gui_font->height();
+		if (Gui::gui_font)
+			pCurrentFontHeight = Gui::gui_font->height();
 
-        reloadContent();
+		reloadContent();
 		loadBackgroundTexture();
 
 		gfx->set_2D_mode();
@@ -86,7 +87,7 @@ namespace Menus
 	void Intro::waitForEvent()
 	{
 		// Do nothing
-		rest(1);
+		rest(5);
 		poll_inputs();
 	}
 
@@ -112,9 +113,10 @@ namespace Menus
 		pContent.clear();
 		// A big space before
 		for (unsigned int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
-			pContent.push_back("");
+			pContent.push_back(String());
+
 		// Load all text files
-        TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);
+		TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);
 		pContentSize = pContent.size();
 		if (pContentSize == TA3D_INTRO_MAX_LINES)
 		{
@@ -123,11 +125,12 @@ namespace Menus
 		}
 	}
 
+
 	void Intro::loadBackgroundTexture()
 	{
 		LOG_ASSERT(NULL != gfx);
 
-        if (!lp_CONFIG->skin_name.empty() && VFS::instance()->fileExists(lp_CONFIG->skin_name))
+		if (!lp_CONFIG->skin_name.empty() && VFS::instance()->fileExists(lp_CONFIG->skin_name))
 		{
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
@@ -159,9 +162,12 @@ namespace Menus
 
 		// The text itself
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		unsigned int indx = 0;
-		for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
-			gfx->print(Gui::gui_font, 220.0f * fw, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
+		if (Gui::gui_font)
+		{
+			unsigned int indx = 0;
+			for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
+				gfx->print(Gui::gui_font, 220.0f * fw, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
+		}
 
 		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
 		glBindTexture(GL_TEXTURE_2D, pBackgroundTexture);
@@ -197,6 +203,7 @@ namespace Menus
 		// Flip
 		gfx->flip();
 	}
+
 
 
 } // namespace Menus

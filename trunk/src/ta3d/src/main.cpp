@@ -33,6 +33,7 @@
 #include "logs/logs.h"
 #include "misc/settings.h"
 #include "ingame/sidedata.h"
+#include "ingame/menus/splash.h"
 #include "ingame/menus/intro.h"
 #include "ingame/menus/mainmenu.h"
 #include "languages/i18n.h"
@@ -103,6 +104,7 @@ namespace TA3D
 		{
 			Cache::Clear();		// Clear the cache
 
+			std::cout << "Nyuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu" << std::endl;
 			VFS::instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
 			delete sound_manager;
@@ -184,6 +186,18 @@ static int ParseCommandLine(int argc, char *argv[])
 
 
 
+static void InitializeTheEngine(TA3D::Engine& engine)
+{
+	// Engine: Start the loading of data in background (thread)
+	engine.start();
+	// Make the user wait while loading
+	Menus::Splash::Execute(engine);
+
+	LOG_INFO("The engine is ready.");
+}
+
+
+
 int main(int argc, char *argv[])
 {
 	// Initialize signals
@@ -194,7 +208,6 @@ int main(int argc, char *argv[])
 	// Initialize all modules used by ta3d
 	TA3D::Initialize(argc, argv);
 
-	TA3D::Settings::Load(); /* Load Config File */
 	TA3D::Cache::Clear();
 
 	if (ParseCommandLine(argc, argv))
@@ -202,14 +215,15 @@ int main(int argc, char *argv[])
 
 	// Initializing the TA3D Engine
 	TA3D::Engine engine;
-
-	// Starting the Engine
-	engine.start();
+	InitializeTheEngine(engine);
 
 	// ok, if we are here, our thread in engine class is running
 	// and doing some work loading up alot of crap so while its doing that
 	// we are going to show our intro, but first we need to start our timer.
 	start = msec_timer; // Initalize timer.
+
+	// Make some initialization which must be done in the main thread only
+	engine.initializationFromTheMainThread();
 
 	// while our engine does some loading and intializing, lets show our intro.
 	if (!lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())

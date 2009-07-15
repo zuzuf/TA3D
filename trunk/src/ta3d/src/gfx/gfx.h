@@ -103,16 +103,30 @@ namespace TA3D
 
 		void destroy_background() { destroy_texture(glfond); }
 
-		void Init();
+		/*!
+		** \brief Load the default textures (background + default.png)
+		**
+		** This method must be called from the main thread
+		*/
+		void loadDefaultTextures();
 
-        /*!
-        ** \brief Check that current settings don't try to use unavailable OpenGL extensions. Update config data if needed
-        */
-        void checkConfig() const;
+		/*!
+		** \brief Load font from files
+		*/
+		void loadFonts();
+
+		/*!
+		** \brief Check that current settings don't try to use unavailable OpenGL extensions. Update config data if needed
+		*/
+		void checkConfig() const;
+
+		/*!
+		** \brief Get if we have to deal with some specific ATI workaround
+		*/
+		bool atiWorkaround() const {return ati_workaround;}
 
 		//! \name Color management
 		//@{
-
 		void set_color(const float r, const float g, const float b) const
 		{ glColor3f(r,g,b); }
 
@@ -190,7 +204,6 @@ namespace TA3D
 
 		//! \name Text manipulation
 		//@{
-
 		void print(Font *font, const float x, const float y, const float z, const String &text);		// Font related routines
 		void print(Font *font, const float x, const float y, const float z, const uint32 col, const String &text);
 
@@ -199,12 +212,11 @@ namespace TA3D
 
 		void print_right(Font *font, const float x, const float y, const float z, const String &text);		// Font related routines
 		void print_right(Font *font, const float x, const float y, const float z, const uint32 col, const String &text);
-
 		//@} // Text manipilation
 
 		GLuint	make_texture( SDL_Surface *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
-        GLuint	create_color_texture(uint32 color);
-        GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
+		GLuint	create_color_texture(uint32 color);
+		GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
 		void	blit_texture( SDL_Surface *src, GLuint dst);
 		GLuint	load_texture(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0);
 		GLuint	load_texture_mask(const String& file, int level, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
@@ -322,7 +334,6 @@ namespace TA3D
 		*/
 		bool checkVideoCardWorkaround() const;
 
-		void displayInfosAboutOpenGL() const;
 
 	private:
 		// One of our friend
