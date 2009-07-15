@@ -59,8 +59,11 @@ namespace TA3D
 
 
 	Engine::Engine()
-		:pSDLRunning(false), pGFXModeActive(false), pSignaledToStop(false)
+		:pSDLRunning(false), pGFXModeActive(false)
 	{
+		// How many CPU we've got ?
+		LOG_INFO("CPU: " << Yuni::Threads::AThread::CPUCount());
+
 		VARS::sound_manager = NULL;
 		VARS::gfx = NULL;
 
@@ -73,17 +76,13 @@ namespace TA3D
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL);
 
 		// Initalizing SDL video
-		if (SDL_Init(SDL_INIT_VIDEO))
+		if (::SDL_Init(SDL_INIT_VIDEO))
 			throw ("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
-
-		// set SDL running status;
-		pSDLRunning = true;
-
 		// Installing SDL timer
-		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
+		if (::SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
 			throw ("SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
-
-		if (SDLNet_Init() == -1)
+		// Initializing SDL Net
+		if (::SDLNet_Init() == -1)
 			throw ("SDLNet_Init() failed.");
 
 		if (!VFS::instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::instance()->fileExists("gamedata\\allsound.tdf")
@@ -93,6 +92,10 @@ namespace TA3D
 			exit(1);
 		}
 
+		// set SDL running status;
+		pSDLRunning = true;
+
+
 		// Outputs SDL_net version numbers
 		SDL_version compiled_version;
 		const SDL_version *linked_version;
@@ -101,35 +104,27 @@ namespace TA3D
 		linked_version = SDLNet_Linked_Version();
 		LOG_DEBUG(LOG_PREFIX_NET << "Running with SDL_net version: " << (int)linked_version->major << "." << (int)linked_version->minor << "." << (int)linked_version->patch);
 
-		// Creating Sound & Music Interface
-		sound_manager = new TA3D::Audio::Manager();
-		sound_manager->loadTDFSounds(true);
-		sound_manager->loadTDFSounds(false);
-
-		if (!sound_manager->isRunning() && !lp_CONFIG->quickstart)
-			showError("FMOD WARNING");
 
 		// Creating GFX Interface
 		// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
 		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and message may not be shown ...
 		pGFXModeActive = true;
 
-		gfx->Init();
 
+
+		// Title of the Window / Application
 		SDL_WM_SetCaption("Total Annihilation 3D", "TA3D");
 
-		// Initialize the mouse handler
-		init_mouse();
-		// Initialize the keyboard handler
-		init_keyboard();
-
 		ThreadSynchroniser = new ObjectSync;
+
+		// Display informations about OpenGL
+		displayInfosAboutOpenGL();
 	}
 
 
 	Engine::~Engine(void)
 	{
-		destroyThread();
+		stop();
 		delete ThreadSynchroniser;
 		cursor.clear();
 		ta3dSideData.destroy();
@@ -148,8 +143,41 @@ namespace TA3D
 	}
 
 
-	void Engine::Init()
+	void Engine::initializationFromTheMainThread()
 	{
+		// Load the default textures
+		gfx->loadDefaultTextures();
+
+
+		// Initialize the mouse handler
+		LOG_INFO("Initializing the mouse device handler");
+		init_mouse();
+		// Initialize the keyboard handler
+		LOG_INFO("Initializing the keyboard device handler");
+		init_keyboard();
+
+		if (!sound_manager->isRunning() && !lp_CONFIG->quickstart)
+			showError("FMOD WARNING");
+	}
+
+
+	void Engine::onExecute()
+	{
+		// Creating VFS Manager (useless, but doing it that way we know when it takes place)
+		VFS::instance();
+
+		// Creating translation manager
+		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
+		I18N::Instance()->loadFromResources();
+
+		// Creating Sound & Music Interface
+		sound_manager = new TA3D::Audio::Manager();
+		sound_manager->loadTDFSounds(true);
+		sound_manager->loadTDFSounds(false);
+
+		// Load ftons
+		gfx->loadFonts();
+
 		model_manager.init();
 		unit_manager.init();
 		feature_manager.init();
@@ -164,24 +192,28 @@ namespace TA3D
 	}
 
 
-	void Engine::proc(void*)
-	{
-		Init();
-		while (!pSignaledToStop)
-			TA3D::rest(100);
-	}
-
-
-	void Engine::signalExitThread()
-	{
-		pSignaledToStop = true;
-	}
-
-
 	void rest(uint32 msec)
 	{
-		SDL_Delay(msec);
+		::SDL_Delay(msec);
 	}
+
+
+	void Engine::displayInfosAboutOpenGL() const
+	{
+		LOG_INFO(LOG_PREFIX_OPENGL << "OpenGL informations:");
+		LOG_INFO(LOG_PREFIX_OPENGL << "Vendor: " << glGetString(GL_VENDOR));
+		LOG_INFO(LOG_PREFIX_OPENGL << "Renderer: " << glGetString(GL_RENDERER));
+		LOG_INFO(LOG_PREFIX_OPENGL << "Version: " << glGetString(GL_VERSION));
+		if (gfx->atiWorkaround())
+			LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
+		LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << (g_useTextureCompression ? "Yes" : "No"));
+		LOG_INFO(LOG_PREFIX_OPENGL << "Stencil Two Side: " << (g_useStencilTwoSide ? "Yes" : "No"));
+		LOG_INFO(LOG_PREFIX_OPENGL << "FBO: " << (g_useFBO ? "Yes" : "No"));
+		LOG_INFO(LOG_PREFIX_OPENGL << "Shaders: " << (g_useProgram ? "Yes" : "No"));
+		LOG_INFO(LOG_PREFIX_OPENGL << "Multi texturing: " << (MultiTexturing ? "Yes" : "No"));
+	}
+
+
 
 
 } // namespace TA3D

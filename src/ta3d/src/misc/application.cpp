@@ -58,9 +58,11 @@ namespace TA3D
 	void Initialize(int argc, char* argv[])
 	{
 		Logs::level = LOG_LEVEL_DEBUG;
-		for(int i = 1 ; i < argc ; i++)
-			if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "/quiet") == 0)
+		for (int i = 1 ; i < argc; i++)
+		{
+			if (!strcmp(argv[i], "--quiet") || !strcmp(argv[i], "/quiet"))
 				Logs::level = LOG_LEVEL_QUIET;
+		}
 
 		// Load and prepare output directories
 		if (!TA3D::Paths::Initialize(argc, argv, "ta3d"))
@@ -79,17 +81,12 @@ namespace TA3D
 		// Load settings early only to get current mod name
 		TA3D::Settings::Load();
 
-        // Creating VFS Manager (useless, but doing it that way we know when it takes place)
-        VFS::instance();
-
-		// Creating translation manager
-		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
-		I18N::Instance()->loadFromResources();
-
 		// Display usefull infos for debugging
 		System::DisplayInformations();
 		System::DisplayInformationsAboutSDL();
 	}
+
+
 
 
 } // namespace TA3D

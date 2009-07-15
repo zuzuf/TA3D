@@ -195,13 +195,14 @@ namespace Menus
 
 	void MainMenu::changeVideoSettings()
 	{
-		pArea = NULL;          // Destroy current GUI area
-		cursor.clear();             // Destroy cursor data (it's OpenGL textures so they won't survive)
-		ta3dSideData.destroy();     // We're going to reset video settings, so this will become obsolete
+		pArea = NULL;                 // Destroy current GUI area
+		cursor.clear();               // Destroy cursor data (it's OpenGL textures so they won't survive)
+		ta3dSideData.destroy();       // We're going to reset video settings, so this will become obsolete
 
-		delete gfx;                 // Delete current GFX object
-		gfx = new GFX;              // Create a new one with new settings
-		gfx->Init();                // Initialize GFX object
+		delete gfx;                   // Delete current GFX object
+		gfx = new GFX;                // Create a new one with new settings
+		gfx->loadFonts();
+		gfx->loadDefaultTextures();  // Initialize GFX object
 
 		gfx->set_2D_mode();         // Back to 2D mode :)
 
@@ -211,7 +212,7 @@ namespace Menus
 		ta3dSideData.loadData();
 
 		// Reloading and creating cursors
-        byte *data = VFS::instance()->readFile("anims\\cursors.gaf");	// Load cursors
+		byte *data = VFS::instance()->readFile("anims\\cursors.gaf");	// Load cursors
 		cursor.loadGAFFromRawData(data, true);
 		cursor.convert();
 
