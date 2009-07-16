@@ -34,6 +34,19 @@ MESSAGE(STATUS "Version : v${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_
 Message(STATUS " System : ${CMAKE_SYSTEM} (${CMAKE_SYSTEM_PROCESSOR})")
 
 
+#
+# Temporary Fix for a Yuni workaround
+#
+# Yuni does not provide a way to get all compilation flags.
+# It is especially annoying on Windows with MinGW where PThread is missing.
+# This must be removed as soon as possible.
+#
+IF(WIN32)
+	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/yuni/devpacks/pthreads/2.8.0/r3/i386/mingw/include")
+	SET(YUNI_TEMP_FIX_STATICLIB_PTHREAD "${CMAKE_CURRENT_SOURCE_DIR}/libs/yuni/devpacks/pthreads/2.8.0/r3/i386/mingw/lib/static/libpthreadGC2.a")
+	LINK_LIBRARIES(${YUNI_TEMP_FIX_STATICLIB_PTHREAD})
+ENDIF(WIN32)
+
 # Yuni
 SET(YUNI_STATIC_CORE "yuni-static-core")
 SET(YUNI_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/libs/yuni/src")
