@@ -439,6 +439,9 @@ IF(APPLE)
 	CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/distrib/macos/version.cmake ${CMAKE_CURRENT_SOURCE_DIR}/distrib/macos/config.sh )
 ENDIF(APPLE)
 
+
+
+
 # The source code
 ADD_SUBDIRECTORY(src)
 
