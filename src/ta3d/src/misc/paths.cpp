@@ -370,7 +370,7 @@ namespace TA3D
 			{
 				do
 				{
-					if (FileInformation.cFileName.first() != '.')
+					if (FileInformation.cFileName[0] != '.')
 					{
 						String name = FileInformation.cFileName;
 
