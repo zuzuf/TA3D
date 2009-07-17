@@ -73,7 +73,7 @@ namespace Menus
 	void Splash::waitForEvent()
 	{
 		// Do nothing
-		SleepMilliSeconds(60);
+		SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING * 3);
 	}
 
 
