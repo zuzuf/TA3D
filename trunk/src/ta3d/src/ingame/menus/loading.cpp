@@ -33,7 +33,8 @@ namespace Menus
 		:pNbTasksCompleted(0.0f), pMaxTasksCompleted(100.0f),
 		pPercent(0.0f), pLastPercent(-1.0f), pBroadcastInformations(true),
 		pCaption("Loading..."),
-		pBackgroundTexture(0), pCurrentFontHeight(0.0f)
+		pBackgroundTexture(0), pCurrentFontHeight(0.0f),
+		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f), pCacheCaptionLength(0.f)
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
 		pStartTime = msec_timer;
@@ -46,7 +47,8 @@ namespace Menus
 		:pNbTasksCompleted(0.0f), pMaxTasksCompleted(maxTasks),
 		pPercent(0.0f), pLastPercent(-1.0f), pBroadcastInformations(true),
 		pCaption("Loading..."),
-		pBackgroundTexture(0), pCurrentFontHeight(0.0f)
+		pBackgroundTexture(0), pCurrentFontHeight(0.0f),
+		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f), pCacheCaptionLength(0.f)
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
 		pStartTime = msec_timer;
@@ -71,6 +73,9 @@ namespace Menus
 
 		gfx->set_2D_mode();
 		pCurrentFontHeight = Gui::gui_font->height();
+
+		pCacheScreenRatioWidth  = SCREEN_W / 1280.0f;
+		pCacheScreenRatioHeight = SCREEN_H / 1024.0f;
 	}
 
 	void Loading::finalizeDrawing()
@@ -92,6 +97,7 @@ namespace Menus
 		{
 			pMutex.lock();
 			pCaption = s;
+			pCacheCaptionLength = gfx->TA_font->length(pCaption);
 			pMutex.unlock();
 		}
 	}
@@ -117,7 +123,7 @@ namespace Menus
 	void Loading::doNoticeOtherPlayers()
 	{
 		// Broadcast informations
-        if (pBroadcastInformations && network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, pPercent))
+		if (pBroadcastInformations && network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, pPercent))
 			network_manager.sendAll(String::Format("LOADING %d", pPercent));
 	}
 
@@ -212,38 +218,37 @@ namespace Menus
 		// Draw the texture
 		gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, SCREEN_W, SCREEN_H);
 
-		float fw = SCREEN_W / 1280.0f;
-		float fh = SCREEN_H / 1024.0f;
-
 		// Draw all previous messages
 		int indx(0);
-		for (String::List::const_iterator i = pMessages.begin() ; i != pMessages.end() ; ++i, ++indx)
-			gfx->print(Gui::gui_font, 105.0f * fw, 175.0f * fh + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
+		const String::List::const_iterator end = pMessages.end();
+		for (String::List::const_iterator i = pMessages.begin() ; i != end ; ++i, ++indx)
+			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
 
 		// Draw the progress bar
 		glDisable(GL_BLEND);
 		glDisable(GL_TEXTURE_2D);
 		glColor3f(0.5f, 0.8f, 0.3f);
 		glBegin(GL_QUADS);
-		glVertex2f(100.0f * fw, 858.0f * fh);
-		glVertex2f((100.0f + 10.72f * pPercent) * fw, 858.0f * fh);
-		glVertex2f((100.0f + 10.72f * pPercent) * fw, 917.0f * fh);
-		glVertex2f(100.0f * fw, 917.0f * fh);
+		glVertex2f(100.0f * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
+		glVertex2f((100.0f + 10.72f * pPercent) * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
+		glVertex2f((100.0f + 10.72f * pPercent) * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
+		glVertex2f(100.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
 		glEnd();
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-		gfx->drawtexture(pBackgroundTexture, 100.0f * fw, 856.0f * fh, 1172.0f * fw, 917.0f * fh,
-						 100.0f / 1280.0f, 862.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
+		gfx->drawtexture(pBackgroundTexture, 100.0f * pCacheScreenRatioWidth, 856.0f * pCacheScreenRatioHeight,
+			1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
+			100.0f / 1280.0f, 862.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
 		glDisable(GL_BLEND);
 
 		// Draw the caption (horizontally centered)
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
-		gfx->print(gfx->TA_font, 640.0f * fw - 0.5f * gfx->TA_font->length(pCaption),
-				   830 * fh - pCurrentFontHeight * 0.5f, 0.0f, 0xFFFFFFFF,
-				   pCaption);
+		gfx->print(gfx->TA_font, 640.0f * pCacheScreenRatioWidth - 0.5f * pCacheCaptionLength,
+			830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f, 0.0f, 0xFFFFFFFF,
+			pCaption);
 		glDisable(GL_BLEND);
 
 		glPopMatrix();

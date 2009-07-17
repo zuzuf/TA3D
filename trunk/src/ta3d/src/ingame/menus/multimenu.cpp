@@ -71,7 +71,7 @@ namespace Menus
 			pArea->check();
 
 			// Wait to reduce CPU consumption
-			rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 
 		} while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
 				 && mouse_b == 0

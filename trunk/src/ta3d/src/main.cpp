@@ -148,7 +148,7 @@ static int ParseCommandLine(int argc, char *argv[])
 	if (argc > 1)
 	{
 		// Argument converted to a TA3D::String
-		TA3D::String arg;
+		String arg;
 
 		for (int i = 1 ; i < argc ; ++i)
 		{

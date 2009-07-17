@@ -87,7 +87,7 @@ namespace Menus
 	void Intro::waitForEvent()
 	{
 		// Do nothing
-		rest(5);
+		SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 		poll_inputs();
 	}
 

@@ -76,6 +76,7 @@ namespace TA3D
 	typedef signed char   schar;
 }
 
+using namespace Yuni;
 
 
 // zuzuf: to prevent some warnings

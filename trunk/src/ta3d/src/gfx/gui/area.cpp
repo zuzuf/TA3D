@@ -209,15 +209,19 @@ namespace Gui
 		return is_on_gui;
 	}
 
-    String AREA::get_window_name(const int idx)
-    {
-        ThreadingPolicy::MutexLocker locker(*this);
-        if (idx < 0 || idx >= pWindowList.size())
-            return String();
-        return pWindowList[idx]->Name;
-    }
 
-    uint16 AREA::load_window(const String& filename, const String &name)
+	String AREA::get_window_name(const int idx)
+	{
+		if (idx < 0)
+			return String();
+		ThreadingPolicy::MutexLocker locker(*this);
+		if ((unsigned int)idx >= pWindowList.size())
+			return String();
+		return pWindowList[idx]->Name;
+	}
+
+
+	uint16 AREA::load_window(const String& filename, const String &name)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 
@@ -237,8 +241,8 @@ namespace Gui
 		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];
 
-        if (!name.empty())
-            newWindow->Name = name;
+		if (!name.empty())
+			newWindow->Name = name;
 
 		vec_z_order[0] = wnd_idx;
 		wnd_hashtable.insert(String::ToLower(newWindow->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
@@ -257,18 +261,20 @@ namespace Gui
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		// Draws all the windows in focus reversed order so the focused window is drawn on top of the others
-		String help_msg;
 		if (!pWindowList.empty())
 		{
+			pCacheHelpMsg.clear();
 			unsigned int i = pWindowList.size();
 			do
 			{
 				--i;
-				pWindowList[vec_z_order[i]]->draw(help_msg, (i == 0), true, skin);
+				pWindowList[vec_z_order[i]]->draw(pCacheHelpMsg, (i == 0), true, skin);
 			} while (i);
+
+			// Display the popup menu
+			if (pCacheHelpMsg.notEmpty())
+				skin->PopupMenu(mouse_x + 20, mouse_y + 20, pCacheHelpMsg);
 		}
-		if (!help_msg.empty())
-			skin->PopupMenu(mouse_x + 20, mouse_y + 20, help_msg);
 	}
 
 
@@ -283,7 +289,7 @@ namespace Gui
 		destroy();		// In case there is an area loaded so we don't waste memory
 
 		String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : "";
-        if (!skin_name.empty() && VFS::instance()->fileExists(skin_name))
+		if (!skin_name.empty() && VFS::instance()->fileExists(skin_name))
 			skin = skin_manager.load(skin_name, 1.0f);
 
 		String real_filename = filename;
@@ -291,15 +297,13 @@ namespace Gui
 		{
 			real_filename.clear();
 			real_filename << Paths::ExtractFilePath(filename) << skin->prefix() << Paths::ExtractFileName(filename);
-            if (!VFS::instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
+			if (!VFS::instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
+
 		skin = NULL;
-
 		TDFParser areaFile(real_filename);
-
 		area_stack.push_front(this);     // Just in case we want to grab it from elsewhere
-
 		name = Paths::ExtractFileNameWithoutExtension(filename);		// Grab the area's name
 
 		name = areaFile.pullAsString("area.name", name);					// The TDF may override the area name
@@ -307,7 +311,7 @@ namespace Gui
 			? lp_CONFIG->skin_name
 			: areaFile.pullAsString("area.skin");
 
-        if (VFS::instance()->fileExists(skin_name)) // Loads a skin
+		if (VFS::instance()->fileExists(skin_name)) // Loads a skin
 		{
 			const int area_width   = areaFile.pullAsInt("area.width", SCREEN_W);
 			const int area_height  = areaFile.pullAsInt("area.height", SCREEN_W);
@@ -317,13 +321,14 @@ namespace Gui
 
 		String::Vector windows_to_load;
 		areaFile.pullAsString("area.windows").explode(windows_to_load, ',', false, true, true);
-		for (String::Vector::const_iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
+		const String::Vector::const_iterator end = windows_to_load.end();
+		for (String::Vector::const_iterator i = windows_to_load.begin(); i != end; ++i)
 			load_window(*i);
 
 		String background_name = areaFile.pullAsString("area.background", "none");
-		if (background_name.toLower() != "none")           // If we have a background set then load it
+		if (!background_name.empty() && background_name.toLower() != "none") // If we have a background set then load it
 		{
-			if(skin && !skin->prefix().empty())
+			if (skin && !skin->prefix().empty())
 			{
 				int name_len = Paths::ExtractFileName(background_name).size();
 				if (name_len > 0)
@@ -332,7 +337,7 @@ namespace Gui
 					background_name += skin->prefix();
 			}
 
-            if (VFS::instance()->fileExists(background_name)) // Loads a background image
+			if (VFS::instance()->fileExists(background_name)) // Loads a background image
 				background = gfx->load_texture(background_name);
 			else
 			{
@@ -341,7 +346,7 @@ namespace Gui
 					// No prefixed version, retry with default background
 					background_name = areaFile.pullAsString("area.background");
 					// Loads a background image
-                    if (VFS::instance()->fileExists(background_name))
+					if (VFS::instance()->fileExists(background_name))
 						background = gfx->load_texture(background_name);
 				}
 			}
