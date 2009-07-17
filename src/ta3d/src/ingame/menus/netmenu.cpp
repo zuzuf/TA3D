@@ -123,196 +123,195 @@ namespace Menus
 		{
 			// Grab user events
 			pArea->check();
-
 			// Wait to reduce CPU consumption
-			rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
-
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			// Listen to server
 			NetClient::instance()->receive();
 
 		} while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
-				 && mouse_b == 0
-				 && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
-				 && !pArea->key_pressed && !pArea->scrolling
-				 && !NetClient::instance()->messageWaiting());
+			&& mouse_b == 0
+			&& !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
+			&& !pArea->key_pressed && !pArea->scrolling
+			&& !NetClient::instance()->messageWaiting());
 	}
 
-    void NetMenu::parseServerMessages()
-    {
-        while(NetClient::instance()->messageWaiting() && !pArea->get_state("popup")
-              && NetClient::instance()->getState() == NetClient::CONNECTED)
-        {
-            String msg = NetClient::instance()->getNextMessage();
-            if (msg.startsWith("MESSAGE"))
-            {
-                pArea->title("popup", I18N::Translate("Server message"));
-                pArea->caption("popup.msg", I18N::Translate(msg.substr(8)));
-                pArea->msg("popup.show");
-            }
-            else if (msg.startsWith("ERROR"))
-            {
-                pArea->title("popup", I18N::Translate("Server error"));
-                pArea->caption("popup.msg", I18N::Translate(msg.substr(6)));
-                pArea->msg("popup.show");
-            }
-            else if (msg.startsWith("MSG"))
-            {
-                String::Vector args;
-                msg.explode(args, ' ');
-                if (args.size() >= 2)
-                {
-                    String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
-                    addChatMessage(message);
-                }
-            }
-            else if (msg.startsWith("CLIENT"))
-            {
-                addChatMessage(msg);
-            }
-        }
-    }
+	void NetMenu::parseServerMessages()
+	{
+		while(NetClient::instance()->messageWaiting() && !pArea->get_state("popup")
+			&& NetClient::instance()->getState() == NetClient::CONNECTED)
+		{
+			String msg = NetClient::instance()->getNextMessage();
+			if (msg.startsWith("MESSAGE"))
+			{
+				pArea->title("popup", I18N::Translate("Server message"));
+				pArea->caption("popup.msg", I18N::Translate(msg.substr(8)));
+				pArea->msg("popup.show");
+			}
+			else if (msg.startsWith("ERROR"))
+			{
+				pArea->title("popup", I18N::Translate("Server error"));
+				pArea->caption("popup.msg", I18N::Translate(msg.substr(6)));
+				pArea->msg("popup.show");
+			}
+			else if (msg.startsWith("MSG"))
+			{
+				String::Vector args;
+				msg.explode(args, ' ');
+				if (args.size() >= 2)
+				{
+					String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
+					addChatMessage(message);
+				}
+			}
+			else if (msg.startsWith("CLIENT"))
+			{
+				addChatMessage(msg);
+			}
+		}
+	}
 
-    void NetMenu::updateGUI()
-    {
-        pArea->set_entry("netmenu.peer_list", NetClient::instance()->getPeerList());
-        pArea->set_entry("netmenu.chan_list", NetClient::instance()->getChanList());
 
-        pArea->set_enable_flag("netmenu.b_login", !(netMode == LOGIN || NetClient::instance()->getState() == NetClient::CONNECTED));
-        pArea->set_enable_flag("netmenu.b_logout", NetClient::instance()->getState() == NetClient::CONNECTED);
-        pArea->set_enable_flag("netmenu.b_register", NetClient::instance()->getState() != NetClient::CONNECTED);
+	void NetMenu::updateGUI()
+	{
+		pArea->set_entry("netmenu.peer_list", NetClient::instance()->getPeerList());
+		pArea->set_entry("netmenu.chan_list", NetClient::instance()->getChanList());
 
-        if (NetClient::instance()->getState() == NetClient::CONNECTED)
-        {
-            pArea->msg("netmenu.b_login.hide");
-            pArea->msg("netmenu.b_logout.show");
-        }
-        else
-        {
-            pArea->msg("netmenu.b_login.show");
-            pArea->msg("netmenu.b_logout.hide");
-        }
+		pArea->set_enable_flag("netmenu.b_login", !(netMode == LOGIN || NetClient::instance()->getState() == NetClient::CONNECTED));
+		pArea->set_enable_flag("netmenu.b_logout", NetClient::instance()->getState() == NetClient::CONNECTED);
+		pArea->set_enable_flag("netmenu.b_register", NetClient::instance()->getState() != NetClient::CONNECTED);
 
-        if (NetClient::instance()->getState() == NetClient::CONNECTED)
-        {
-            if (pArea->get_state("mods"))
-            {
-                Gui::GUIOBJ::Ptr modListObj = pArea->get_object("mods.l_mods");
-                if (modListObj)
-                {
-                    ModInfo::List modList = NetClient::instance()->getModList();
-                    modListObj->Text.clear();
-                    for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() ; ++i)
-                        modListObj->Text.push_back(i->getName());
-                    int idx = modListObj->Pos;
-                    if (idx >= 0)
-                    {
-                        ModInfo::List::iterator pIdx = modList.begin();
-                        for( ; pIdx != modList.end() && idx > 0 ; ++pIdx)
-                            --idx;
-                        if (pIdx != modList.end())
-                        {
-                            pArea->caption("mods.m_name", pIdx->getName());
-                            pArea->caption("mods.m_version", pIdx->getVersion());
-                            pArea->caption("mods.m_author", pIdx->getAuthor());
-                            pArea->caption("mods.m_comment", pIdx->getComment());
-                            String dir = Paths::Resources;
-                            dir << "mods" << Paths::SeparatorAsString << pIdx->getName();
-                            String filename = dir;
-                            filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
+		if (NetClient::instance()->getState() == NetClient::CONNECTED)
+		{
+			pArea->msg("netmenu.b_login.hide");
+			pArea->msg("netmenu.b_logout.show");
+		}
+		else
+		{
+			pArea->msg("netmenu.b_login.show");
+			pArea->msg("netmenu.b_logout.hide");
+		}
 
-                            if (Paths::Exists(dir) && Paths::Exists(filename))
-                            {
-                                pArea->msg("mods.b_install.hide");
-                                pArea->msg("mods.b_remove.show");
-                                ModInfo modInfo;
-                                modInfo.read(pIdx->getName());
-                                if (modInfo.getVersion() != pIdx->getVersion())
-                                    pArea->msg("mods.b_update.show");
-                                else
-                                    pArea->msg("mods.b_update.hide");
-                            }
-                            else
-                            {
-                                pArea->msg("mods.b_install.show");
-                                pArea->msg("mods.b_remove.hide");
-                                pArea->msg("mods.b_update.hide");
-                            }
+		if (NetClient::instance()->getState() == NetClient::CONNECTED)
+		{
+			if (pArea->get_state("mods"))
+			{
+				Gui::GUIOBJ::Ptr modListObj = pArea->get_object("mods.l_mods");
+				if (modListObj)
+				{
+					ModInfo::List modList = NetClient::instance()->getModList();
+					modListObj->Text.clear();
+					for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() ; ++i)
+						modListObj->Text.push_back(i->getName());
+					int idx = modListObj->Pos;
+					if (idx >= 0)
+					{
+						ModInfo::List::iterator pIdx = modList.begin();
+						for( ; pIdx != modList.end() && idx > 0 ; ++pIdx)
+							--idx;
+						if (pIdx != modList.end())
+						{
+							pArea->caption("mods.m_name", pIdx->getName());
+							pArea->caption("mods.m_version", pIdx->getVersion());
+							pArea->caption("mods.m_author", pIdx->getAuthor());
+							pArea->caption("mods.m_comment", pIdx->getComment());
+							String dir = Paths::Resources;
+							dir << "mods" << Paths::SeparatorAsString << pIdx->getName();
+							String filename = dir;
+							filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
 
-                            if (pArea->get_state("mods.b_install"))     // Start download
-                            {
-                                Paths::MakeDir(dir);
-                                Download *download = new Download;
-                                download->start(filename, pIdx->getUrl());
-                                downloadList.push_back(download);
-                                pIdx->write();
-                            }
-                            if (pArea->get_state("mods.b_remove"))     // Remove mod
-                                Paths::RemoveDir(dir);
-                            if (pArea->get_state("mods.b_update"))     // Remove old files and start download
-                            {
-                                Paths::RemoveDir(dir);
-                                Paths::MakeDir(dir);
+							if (Paths::Exists(dir) && Paths::Exists(filename))
+							{
+								pArea->msg("mods.b_install.hide");
+								pArea->msg("mods.b_remove.show");
+								ModInfo modInfo;
+								modInfo.read(pIdx->getName());
+								if (modInfo.getVersion() != pIdx->getVersion())
+									pArea->msg("mods.b_update.show");
+								else
+									pArea->msg("mods.b_update.hide");
+							}
+							else
+							{
+								pArea->msg("mods.b_install.show");
+								pArea->msg("mods.b_remove.hide");
+								pArea->msg("mods.b_update.hide");
+							}
 
-                                Download *download = new Download;
-                                download->start(filename, pIdx->getUrl());
-                                downloadList.push_back(download);
-                                pIdx->write();
-                            }
-                        }
-                        else
-                            idx = -1;
-                    }
-                    if (idx < 0)
-                    {
-                        pArea->caption("mods.m_name", String());
-                        pArea->caption("mods.m_version", String());
-                        pArea->caption("mods.m_author", String());
-                        pArea->caption("mods.m_comment", String());
-                        pArea->msg("mods.b_install.hide");
-                        pArea->msg("mods.b_remove.hide");
-                        pArea->msg("mods.b_update.hide");
-                    }
-                }
-                if (pArea->get_state("mods.b_refresh"))     // Refresh mod list
-                    NetClient::instance()->sendMessage("GET MOD LIST");
-            }
-        }
-        else
-            pArea->msg("mods.hide");            // Hide mods when not in connected mode
-        for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; )
-            if ((*i)->downloading())
-            {
-                (*i)->update();
-                ++i;
-            }
-            else
-            {
-                String filename = (*i)->getFilename();
-                if (Paths::Exists(filename))        // Success, check if this is an RAR, TAR, 7Z, ZIP archive
-                {
-                    String ext = Paths::ExtractFileExt(filename).toLower();
-                    LOG_INFO(LOG_PREFIX_SYSTEM << "archive extension is '" << ext << "'");
-                    if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar" || ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
-                    {
-                        String command = lp_CONFIG->system7zCommand + " x " + filename + " -o" + Paths::ExtractFilePath(filename);
-                        LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
-                        system(command.c_str());
-                    }
-                }
-                else        // Download has failed, remove the mod folder
-                    Paths::RemoveDir(Paths::ExtractFilePath(filename));
-                delete *i;
-                downloadList.erase(i++);
-            }
-    }
+							if (pArea->get_state("mods.b_install"))     // Start download
+							{
+								Paths::MakeDir(dir);
+								Download *download = new Download;
+								download->start(filename, pIdx->getUrl());
+								downloadList.push_back(download);
+								pIdx->write();
+							}
+							if (pArea->get_state("mods.b_remove"))     // Remove mod
+								Paths::RemoveDir(dir);
+							if (pArea->get_state("mods.b_update"))     // Remove old files and start download
+							{
+								Paths::RemoveDir(dir);
+								Paths::MakeDir(dir);
+
+								Download *download = new Download;
+								download->start(filename, pIdx->getUrl());
+								downloadList.push_back(download);
+								pIdx->write();
+							}
+						}
+						else
+							idx = -1;
+					}
+					if (idx < 0)
+					{
+						pArea->caption("mods.m_name", String());
+						pArea->caption("mods.m_version", String());
+						pArea->caption("mods.m_author", String());
+						pArea->caption("mods.m_comment", String());
+						pArea->msg("mods.b_install.hide");
+						pArea->msg("mods.b_remove.hide");
+						pArea->msg("mods.b_update.hide");
+					}
+				}
+				if (pArea->get_state("mods.b_refresh"))     // Refresh mod list
+					NetClient::instance()->sendMessage("GET MOD LIST");
+			}
+		}
+		else
+			pArea->msg("mods.hide");            // Hide mods when not in connected mode
+		for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; )
+			if ((*i)->downloading())
+			{
+				(*i)->update();
+				++i;
+			}
+			else
+			{
+				String filename = (*i)->getFilename();
+				if (Paths::Exists(filename))        // Success, check if this is an RAR, TAR, 7Z, ZIP archive
+				{
+					String ext = Paths::ExtractFileExt(filename).toLower();
+					LOG_INFO(LOG_PREFIX_SYSTEM << "archive extension is '" << ext << "'");
+					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar" || ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
+					{
+						String command = lp_CONFIG->system7zCommand + " x " + filename + " -o" + Paths::ExtractFilePath(filename);
+						LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
+						system(command.c_str());
+					}
+				}
+				else        // Download has failed, remove the mod folder
+					Paths::RemoveDir(Paths::ExtractFilePath(filename));
+				delete *i;
+				downloadList.erase(i++);
+			}
+	}
 
 	bool NetMenu::maySwitchToAnotherMenu()
 	{
 		// First we have to parse the server messages
-        parseServerMessages();
+		parseServerMessages();
 
-        // Then update GUI info and buttons state
-        updateGUI();
+		// Then update GUI info and buttons state
+		updateGUI();
 
 		if (pArea->get_state("ask") && pArea->get_state("ask.t_result"))    // Validate on enter
 		{

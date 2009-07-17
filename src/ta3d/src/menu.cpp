@@ -53,6 +53,7 @@
 #include "input/keyboard.h"
 #include "cache.h"
 #include <yuni/core/math.h>
+#include <yuni/core/sleep.h>
 
 
 
@@ -329,7 +330,7 @@ namespace TA3D
 			{
 				config_area.check();
 				key_is_pressed = config_area.key_pressed;
-				rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				if (lp_CONFIG->quickstart)
 				{
 					Gui::GUIOBJ::Ptr pbar = config_area.get_object( "config_confirm.p_wait");
@@ -346,8 +347,8 @@ namespace TA3D
 					}
 				}
 			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
-					 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed
-					 && !config_area.scrolling);
+				&& !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed
+				&& !config_area.scrolling);
 
 			amx = mouse_x;
 			amy = mouse_y;
@@ -596,7 +597,7 @@ namespace TA3D
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(1);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 
@@ -680,7 +681,7 @@ namespace TA3D
 				else
 				{
 					network_manager.sendSpecial("NOTIFY NEW_PLAYER " + FixBlank(lp_CONFIG->player_name));
-					rest(10);
+					SleepMilliSeconds(10);
 					network_manager.sendSpecial( "REQUEST GameData" );
 				}
 			}
@@ -695,7 +696,7 @@ namespace TA3D
 		String::Vector  side_str;
 		String::Vector  AI_list = AI_PLAYER::getAvailableAIs();
 		AI_list.resize(AI_list.size() + 1);
-		for(int i = AI_list.size() - 1 ; i > 0; --i)
+		for (int i = AI_list.size() - 1 ; i > 0; --i)
 			AI_list[i] = AI_list[i-1];
 
 		side_str.resize( ta3dSideData.nb_side);
@@ -788,7 +789,7 @@ namespace TA3D
 					my_old_id = net_id_table[i];
 			}
 			network_manager.sendSpecial( String::Format("NOTIFY PLAYER_BACK %d", my_old_id) );
-			rest(10);
+			SleepMilliSeconds(10);
 			network_manager.sendSpecial( "REQUEST GameData" );
 		}
 
@@ -1001,7 +1002,7 @@ namespace TA3D
 				}
 				setupgame_area.check();
 				key_is_pressed = setupgame_area.key_pressed;
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				if (msec_timer - progress_timer >= 500 && Yuni::Math::Equals(network_manager.getFileTransferProgress(), 100.0f))
 					break;
 			} while (amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
@@ -1048,7 +1049,7 @@ namespace TA3D
 				}
 			}
 
-			if (Yuni::Math::Equals(network_manager.getFileTransferProgress(), 100.0f))
+			if (network_manager.getFileTransferProgress() >= 100.0f)
 			{
 				progress_timer = msec_timer;
 				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.p_transfer");
@@ -1068,7 +1069,7 @@ namespace TA3D
 
 			if (playerDropped)
 			{
-				for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+				for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 				{
 					if (game_data.player_network_id[i] > 0 && !network_manager.pollPlayer( game_data.player_network_id[i]))
 					{
@@ -1628,7 +1629,7 @@ namespace TA3D
 				{
 					while (key[KEY_ENTER])
 					{
-						rest(20);
+						SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 						poll_inputs();
 					}
 					clear_keybuf();
@@ -1694,7 +1695,7 @@ namespace TA3D
 							break;
 						}
 					}
-					e = (e+1) % player_str_n;
+					e = (e + 1) % player_str_n;
 
 					if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
 					{
@@ -1733,7 +1734,7 @@ namespace TA3D
 				if (setupgame_area.get_state( String::Format("gamesetup.b_side%d", i))) // Change player side
 				{
 					uint16 e = 0;
-					for (uint16 f = 0 ; f < side_str_n; ++f)
+					for (unsigned int f = 0 ; f < side_str_n; ++f)
 					{
 						if (setupgame_area.caption(String::Format("gamesetup.side%d", i)) == side_str[f])
 						{
@@ -1920,7 +1921,7 @@ namespace TA3D
 			// Affiche
 			gfx->flip();
 
-		} while(!done);
+		} while (!done);
 
 		if (!previous_lua_port.empty() && network_manager.isConnected())
 			TA3D::network_manager.stopFileTransfer(previous_lua_port);
@@ -1939,7 +1940,7 @@ namespace TA3D
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(1);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 
@@ -1984,7 +1985,7 @@ namespace TA3D
 
 			while (key[KEY_ESC])
 			{
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				poll_inputs();
 			}
 		}
@@ -2040,9 +2041,9 @@ namespace TA3D
 				key_is_pressed = msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN;
 				networkgame_area.check();
 				key_is_pressed |= networkgame_area.key_pressed;
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
-					 && !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling && !network_manager.BroadcastedMessages());
+				&& !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling && !network_manager.BroadcastedMessages());
 
 			amx = mouse_x;
 			amy = mouse_y;
@@ -2055,7 +2056,7 @@ namespace TA3D
 				while (!msg.empty())
 				{
 					String::Vector params;
-                    msg.explode(params, ' ', true, false, true);
+					msg.explode(params, ' ', true, false, true);
 					if (params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER") // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
 					{
 						String name = UnfixBlank(params[2]);
@@ -2214,7 +2215,7 @@ namespace TA3D
 					{
 						while (key[KEY_ENTER])
 						{
-							rest(20);
+							SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 							poll_inputs();
 						}
 						clear_keybuf();
@@ -2230,7 +2231,7 @@ namespace TA3D
 			{
 				while (key[KEY_ENTER])
 				{
-					rest(20);
+					SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 					poll_inputs();
 				}
 				clear_keybuf();
@@ -2251,7 +2252,7 @@ namespace TA3D
 			{
 				while (key[KEY_ENTER])
 				{
-					rest(20);
+					SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 					poll_inputs();
 				}
 				clear_keybuf();
@@ -2270,7 +2271,7 @@ namespace TA3D
 			{
 				while (key[KEY_ESC])
 				{
-					rest(20);
+					SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 					poll_inputs();
 				}
 				clear_keybuf();
@@ -2315,7 +2316,7 @@ namespace TA3D
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(1);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 
@@ -2343,7 +2344,7 @@ namespace TA3D
 			campaign_area.background = gfx->glfond;
 
 		String::List campaign_list;
-        VFS::instance()->getFilelist("camps\\*.tdf", campaign_list);
+		VFS::instance()->getFilelist("camps\\*.tdf", campaign_list);
 		for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
 		{
 			if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)
@@ -2389,7 +2390,7 @@ namespace TA3D
 			{
 				campaign_area.check();
 				key_is_pressed = campaign_area.key_pressed;
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
 					 && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ]
 					 && !done && !key_is_pressed && !campaign_area.scrolling);
@@ -2452,9 +2453,9 @@ namespace TA3D
 
 			if ((campaign_area.get_state( "campaign.b_ok") || key[KEY_ENTER]) && campaign_list.size())
 			{
-				while( key[KEY_ENTER] )
+				while (key[KEY_ENTER])
 				{
-					rest(20);
+					SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 					poll_inputs();
 				}
 				clear_keybuf();
@@ -2490,7 +2491,7 @@ namespace TA3D
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(1);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 
@@ -2507,7 +2508,7 @@ namespace TA3D
 
 			while (key[KEY_ESC])
 			{
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				poll_inputs();
 			}
 		}
@@ -2634,7 +2635,7 @@ namespace TA3D
 			{
 				brief_area.check();
 				key_is_pressed = brief_area.key_pressed;
-				rest( 1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
 					 && !key[ KEY_ESC ] && !done && !key_is_pressed && !brief_area.scrolling && (int)planet_frame == (int)((msec_timer - time_ref) * 0.01f));
 
@@ -2693,7 +2694,7 @@ namespace TA3D
 			{
 				while (key[KEY_ENTER])
 				{
-					rest(20);
+					SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 					poll_inputs();
 				}
 				clear_keybuf();
@@ -2729,7 +2730,7 @@ namespace TA3D
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(1);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 
@@ -2738,10 +2739,10 @@ namespace TA3D
 			GameData game_data;
 
 			// Generate the script which will be removed later
-            TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game");
-            TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game" + Paths::SeparatorAsString + "__campaign_script.lua", ota_parser, schema);
+			TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game");
+			TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game" + Paths::SeparatorAsString + "__campaign_script.lua", ota_parser, schema);
 
-            game_data.game_script = "scripts/game/__campaign_script.lua";
+			game_data.game_script = "scripts/game/__campaign_script.lua";
 			game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";     // Remember the last map we played
 			game_data.fog_of_war = FOW_ALL;
 
@@ -2791,7 +2792,7 @@ namespace TA3D
 
 			while (key[KEY_ESC])
 			{
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				poll_inputs();
 			}
 
@@ -2883,7 +2884,7 @@ namespace TA3D
 				}
 				wait_area.check();
 				key_is_pressed = wait_area.key_pressed;
-				rest(1);
+				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 					 && !key_is_pressed && !wait_area.scrolling && special_msg.empty() && !playerDropped
 					 && ( msec_timer - ping_timer < 2000 || !network_manager.isServer() ));
@@ -3041,7 +3042,7 @@ namespace TA3D
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(1);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 	}

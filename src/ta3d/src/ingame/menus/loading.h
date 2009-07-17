@@ -95,7 +95,6 @@ namespace Menus
 
 		//! \name SDL interaction
 		//@{
-
 		/*!
 		** \brief Re Draw the entire screen
 		**
@@ -108,7 +107,6 @@ namespace Menus
 		** done by the main thread.
 		*/
 		void draw();
-
 		//@}
 
 
@@ -173,6 +171,10 @@ namespace Menus
 
 		//! Start time
 		int pStartTime;
+
+		float pCacheScreenRatioWidth;
+		float pCacheScreenRatioHeight;
+		float pCacheCaptionLength;
 
 	}; // class Loading
 

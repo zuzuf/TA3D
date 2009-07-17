@@ -208,7 +208,9 @@ SET(SRC_INGAME
 		ingame/gamedata.h ingame/gamedata.cpp
 		ingame/players.h ingame/players.hxx ingame/players.cpp
 		ingame/battle.h ingame/battle.init.cpp
-		ingame/battle.preflight.cpp ingame/battle.cpp ingame/battle.tools.cpp)
+		ingame/battle.preflight.cpp ingame/battle.cpp ingame/battle.tools.cpp
+		ingame/fps.h ingame/fps.cpp
+		)
 
 SET(SRC_INGAME_WEAPONS
 		ingame/weapons/weapons.h ingame/weapons/weapons.cpp

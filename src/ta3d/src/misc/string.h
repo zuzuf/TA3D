@@ -24,7 +24,6 @@
 
 namespace TA3D
 {
-	typedef Yuni::String  String;
 
 
 	int ASCIItoUTF8(const byte c, byte *out);
@@ -58,24 +57,27 @@ namespace TA3D
 
 	sint32 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase);
 
-    /*!
-    ** \brief Convert an UTF-8 String into a WideChar String
-    ** \todo This class is here only to provide compatibility with FTGL 2.1.2 API which doesn't support UTF-8 encoding :/
-    **  everyone will agree it's nasty, but it'll remain here until we get something better
-    */
-    struct WString
-    {
-    public:
-        WString(const char* s);
-        WString(const String& str);
+	/*!
+	** \brief Convert an UTF-8 String into a WideChar String
+	** \todo This class is here only to provide compatibility with FTGL 2.1.2 API which doesn't support UTF-8 encoding :/
+	**  everyone will agree it's nasty, but it'll remain here until we get something better
+	*/
+	struct WString
+	{
+	public:
+		WString(const char* s);
+		WString(const String& str);
 
-        const wchar_t* cw_str() const {return pBuffer;}
-    private:
-        void fromUtf8(const char* s, size_t length);
+		const wchar_t* cw_str() const {return pBuffer;}
+	private:
+		void fromUtf8(const char* s, size_t length);
 
-    private:
-        wchar_t pBuffer[5120];
-    };
-}
+	private:
+		wchar_t pBuffer[5120];
+
+	}; // class WString
+
+
+} // namespace TA3D
 
 #endif // __TA3D_TOOLBOX_STRING_H__

@@ -84,6 +84,8 @@ namespace TA3D
 	}
 
 
+
+
 	bool Battle::preExecute(LuaProgram& gameScript)
 	{
 		if (!pGameData) // no gamedata, nothing to do
@@ -3195,42 +3197,32 @@ namespace TA3D
 			// Informations about FPS
 			if (lp_CONFIG->showfps)
 			{
-				++fps.countSinceLastTime;
-				if (msec_timer - fps.lastTime >= 1000 /* 1s */)
-				{
-                    fps.average = fps.countSinceLastTime * 1000 / (msec_timer - fps.lastTime);
-					fps.countSinceLastTime = 0;
-					fps.lastTime = msec_timer;
-					fps.toStr.clear();
-					fps.toStr << "fps: " << fps.average;
-				}
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-				gfx->print(gfx->TA_font, 0.0f, 0.0f, 0.0f, 0xFFFFFFFF, fps.toStr);
-				glDisable(GL_BLEND);
+				// A new frame has been rendered
+				fps.statisticsAddFrame();
+				// Display
+				fps.draw();
 			}
 
 
-			if (mouse_b!=4 || TA3D_CTRL_PRESSED)
+			if (mouse_b != 4 || TA3D_CTRL_PRESSED)
 				draw_cursor();
 
 			if (shoot)
 			{
 				SDL_Surface *shoot_bmp = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
 				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp->pixels);
-                vflip_bitmap(shoot_bmp);
+				vflip_bitmap(shoot_bmp);
 				String nom = String::Format("ta3d-shoot%.6d.tga", nb_shoot);
-				nb_shoot = (nb_shoot+1)%1000000;
+				nb_shoot = (nb_shoot + 1) % 1000000;
 				save_bitmap(TA3D::Paths::Screenshots + nom, shoot_bmp);
 				SDL_FreeSurface(shoot_bmp);
 				shoot = false;
 			}
 
 			gfx->unset_2D_mode();
-
 			gfx->flip();
 
-            parseCommands(cmd);
+			parseCommands(cmd);
 
 			if (cheat_metal)
 				players.metal[players.local_human_id] = players.c_metal[players.local_human_id]=players.metal_s[players.local_human_id];					// cheat codes

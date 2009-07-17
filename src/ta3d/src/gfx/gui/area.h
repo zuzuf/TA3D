@@ -305,6 +305,9 @@ namespace Gui
 		//!
 		uint32  scroll_timer;
 
+		//! Message to display as popup hint
+		String pCacheHelpMsg;
+
 	}; // class AREA
 
 

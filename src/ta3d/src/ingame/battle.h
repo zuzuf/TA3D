@@ -27,11 +27,12 @@
 # include "../misc/rect.h"
 # include "../misc/material.light.h"
 # include "../scripts/script.h"
+# include "fps.h"
 
 
 
 # ifndef SCROLL_SPEED
-#   define SCROLL_SPEED		400.0f
+#	define SCROLL_SPEED 	400.0f
 # endif
 
 
@@ -230,24 +231,13 @@ namespace TA3D
 
 	private:
 		//!
-		struct FPSInfos
+		
+		//!
+		struct DebugInfo
 		{
 			//!
-			int countSinceLastTime;
-			//!
-			int average;
-			//!
-			int lastTime;
-			//!
-			String toStr;
+			LuaThread *process;
 		};
-
-        //!
-        struct DebugInfo
-        {
-            //!
-            LuaThread *process;
-        };
 
 	private:
 		//! The area

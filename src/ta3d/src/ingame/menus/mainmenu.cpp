@@ -26,6 +26,7 @@
 #include "../../misc/settings.h"
 #include "../../input/keyboard.h"
 #include "../../input/mouse.h"
+#include <yuni/core/sleep.h>
 
 
 // TODO Must be removed
@@ -272,14 +273,14 @@ namespace Menus
 			// Get if a key was pressed
 			keyIsPressed = pArea->key_pressed;
 			// Wait to reduce CPU consumption
-			rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 
 		} while (!pDontWaitForEvent
-				 && pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
-				 && mouse_b == 0
-				 && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_B]
-				 && !key[KEY_O] && !key[KEY_M] && !key[KEY_S]
-				 && !keyIsPressed && !pArea->scrolling);
+			&& pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
+			&& mouse_b == 0
+			&& !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_B]
+			&& !key[KEY_O] && !key[KEY_M] && !key[KEY_S]
+			&& !keyIsPressed && !pArea->scrolling);
 
 		// Should wait the an event the next time
 		pDontWaitForEvent = false;
