@@ -272,7 +272,7 @@ namespace TA3D
 			TA3D::Resources::GlobDirs(mod_list,"mods/*");
 			mod_list.sort();
 			mod_list.unique();
-			for(String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
+			for (String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
 			{
 				String namae( TA3D::Paths::ExtractFileName(*i) );
 				if ( namae == ".." || namae == "." )  continue;   // Have to exclude both .. & . because of windows finding . as something interesting
@@ -292,7 +292,7 @@ namespace TA3D
 			obj->Text[0] = I18N::Translate( "default.skn");
 
 			String::List skin_list;
-            VFS::instance()->getFilelist("gui\\*.skn", skin_list);
+			VFS::instance()->getFilelist("gui\\*.skn", skin_list);
 
 			for (String::List::iterator i = skin_list.begin(); i != skin_list.end(); ++i)
 			{
@@ -329,7 +329,7 @@ namespace TA3D
 			{
 				config_area.check();
 				key_is_pressed = config_area.key_pressed;
-				rest(1);
+				rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				if (lp_CONFIG->quickstart)
 				{
 					Gui::GUIOBJ::Ptr pbar = config_area.get_object( "config_confirm.p_wait");
