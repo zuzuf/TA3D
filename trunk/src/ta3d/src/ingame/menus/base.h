@@ -27,7 +27,7 @@
 # include <yuni/core/sleep.h>
 
 
-# define TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING  20
+# define TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING  16
 
 
 
