@@ -263,10 +263,10 @@ namespace Menus
 					}
 					if (idx < 0)
 					{
-						pArea->caption("mods.m_name", String());
-						pArea->caption("mods.m_version", String());
-						pArea->caption("mods.m_author", String());
-						pArea->caption("mods.m_comment", String());
+						pArea->caption("mods.m_name", nullptr);
+						pArea->caption("mods.m_version", nullptr);
+						pArea->caption("mods.m_author", nullptr);
+						pArea->caption("mods.m_comment", nullptr);
 						pArea->msg("mods.b_install.hide");
 						pArea->msg("mods.b_remove.hide");
 						pArea->msg("mods.b_update.hide");

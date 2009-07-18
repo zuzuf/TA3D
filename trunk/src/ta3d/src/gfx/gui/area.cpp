@@ -213,10 +213,10 @@ namespace Gui
 	String AREA::get_window_name(const int idx)
 	{
 		if (idx < 0)
-			return String();
+			return nullptr;
 		ThreadingPolicy::MutexLocker locker(*this);
 		if ((unsigned int)idx >= pWindowList.size())
-			return String();
+			return nullptr;
 		return pWindowList[idx]->Name;
 	}
 
@@ -508,7 +508,7 @@ namespace Gui
 		{
 			WND::Ptr the_wnd = getWindowWL(message);
 			if (the_wnd)
-				return the_wnd->get_state(String());
+				return the_wnd->get_state(nullptr);
 		}
 		return false;
 	}
@@ -590,7 +590,7 @@ namespace Gui
 							}
 							return the_obj->Text[0];	// Return what we found
 						}
-						return String();
+						return nullptr;
 					}
 				}
 			}
@@ -601,7 +601,7 @@ namespace Gui
 					return the_wnd->caption(obj_name);
 			}
 		}
-		return String();
+		return nullptr;
 	}
 
 

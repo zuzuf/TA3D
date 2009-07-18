@@ -156,7 +156,7 @@ namespace TA3D
         int registerToNetServer( const String &name, const int Slots );
 
         int sendPing( int src_id = -1, int dst_id = -1 );
-        int sendAll( String msg );
+        int sendAll(const String& msg);
         int sendSpecial( String msg, int src_id = -1, int dst_id = -1);
         int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
         int sendChat(struct chat* chat, int src_id = -1);

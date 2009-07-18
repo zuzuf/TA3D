@@ -125,7 +125,7 @@ namespace TA3D
 	String ConvertToUTF8(const String& s)
 	{
 		if (s.empty())
-			return String();
+			return nullptr;
 		char* ret = ConvertToUTF8(s.c_str(), s.size());
 		if (ret)
 		{
@@ -133,7 +133,7 @@ namespace TA3D
 			delete[] ret;
 			return s;
 		}
-		return String();
+		return nullptr;
 	}
 
     WString::WString(const char* s)

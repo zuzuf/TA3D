@@ -75,12 +75,15 @@ namespace Gui
 		void ProgressBar(float x1, float y1, float x2, float y2, int Value);
 		void PopupMenu(float x1, float y1, const String &msg);
 		void ScrollBar(float x1, float y1, float x2, float y2, float Value, bool vertical=true);
-		int draw_text_adjust(float x1, float y1, float x2, float y2, String msg, int pos = 0, bool mission_mode = false);
+		int draw_text_adjust(float x1, float y1, float x2, float y2, const String& msg, int pos = 0, bool missionMode = false);
 		void ObjectShadow( float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy);
 		//@}
 
 		//! Get the prefix
 		const String& prefix() const {return pPrefix;}
+
+		template<typename U> void caption(const U& u);
+		const String& caption() const;
 
 	public:
 		//! Default background for windows
@@ -124,6 +127,15 @@ namespace Gui
 		String pName;
 		//! Prefix for various files
 		String pPrefix;
+
+		//! Cache: The Font height
+		float pCacheFontHeight;
+		//! Cache: 
+		//! Cache: A string always used to draw a text within a box
+		String pCacheDrawTextStr;
+		String pCacheDrawTextWord;
+		String pCacheDrawTextCurrent;
+		String::Vector pCacheDrawTextVector;
 
 	}; // class Skin
 

@@ -268,6 +268,9 @@ namespace Gui
 		//! Objects within the window
 		ObjectList pObjects;
 
+		//! Cache : Font height
+		float pCacheFontHeight;
+
 	}; // class WND
 
 
