@@ -205,10 +205,10 @@ namespace TA3D
 	{
 		LOG_ASSERT(buf != NULL);
 		if (entry_idx < 0)
-			return String();
+			return nullptr;
 		Gaf::Header header(buf);
 		if (entry_idx >= header.Entries)
-			return String();
+			return nullptr;
 
 		sint32 f_pos = 12;
 		sint32 *pointers = new sint32[header.Entries];
@@ -235,7 +235,7 @@ namespace TA3D
 		sint32 nb_entry = RawDataEntriesCount(buf);
 		String cmpString = name;
 		cmpString.toUpper();
-		for (sint32 i = 0; i < nb_entry; ++i)
+		for (int i = 0; i < nb_entry; ++i)
 		{
 			if (Gaf::RawDataGetEntryName(buf, i).toUpper() == cmpString)
 				return i;

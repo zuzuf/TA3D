@@ -125,7 +125,7 @@ namespace TA3D
 	{
 		if (txt.empty())
 			return 0.0f;
-		if (' ' == txt[txt.size() - 1])
+		if (' ' == txt.last())
 			return length(txt + "_") - length("_");
 
 		MutexLocker locker(pMutex);

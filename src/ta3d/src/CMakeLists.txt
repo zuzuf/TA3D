@@ -70,7 +70,7 @@ SET(SRC_MISC
 		misc/recttest.h misc/recttest.cpp
 
 		misc/math.h misc/math.cpp
-		misc/tdf.h  misc/tdf.cpp
+		misc/tdf.h misc/tdf.hxx misc/tdf.cpp
 		
 		misc/modinfo.h misc/modinfo.cpp)
 

@@ -113,7 +113,7 @@ namespace Menus
 		pContent.clear();
 		// A big space before
 		for (unsigned int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
-			pContent.push_back(String());
+			pContent.push_back(nullptr);
 
 		// Load all text files
 		TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);

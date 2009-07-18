@@ -465,7 +465,7 @@ namespace TA3D
 		switch( myMode )
 		{
 			case 1:						// Server
-				return String();
+				return nullptr;
 			case 2:						// Client
 				if (sendSpecial( "REQUEST STATUS" ))
 					return -1;
@@ -496,19 +496,19 @@ namespace TA3D
                         if( (timeout % 1000) == 0 )				// Resend
 							sendSpecial( strtochat( &special_msg, "REQUEST STATUS" ) );
 					}
-					return (!timeout) ? String() /* timeout reached*/ : status;
+					return (!timeout) ? nullptr /* timeout reached*/ : status;
 				}
 				break;
 		}
-		return String();	// Not connected
+		return nullptr; // Not connected
 	}
 
 
-	int Network::sendAll( String msg )
+	int Network::sendAll(const String& msg)
 	{
 		LOG_DEBUG("sendAll(\"" + msg + "\")");
 		struct chat chat;
-		return sendSpecial( strtochat( &chat, msg ), -1, -1, true );
+		return sendSpecial( strtochat( &chat, msg ), -1, -1, true);
 	}
 
 	int Network::sendSpecial( String msg, int src_id, int dst_id)

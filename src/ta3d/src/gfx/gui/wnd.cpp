@@ -44,6 +44,7 @@ namespace Gui
 		ingame_window(false)
 	{
 		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
+		pCacheFontHeight = gui_font ->height();
 	}
 
 
@@ -57,6 +58,7 @@ namespace Gui
 
 	{
 		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
+		pCacheFontHeight = gui_font ->height();
 		load_tdf(filename);
 	}
 
@@ -147,8 +149,7 @@ namespace Gui
 		{
 			gfx->set_color(color);
 			if (repeat_bkg)
-				gfx->drawtexture(background, x, y, x + width, y + height, 0.0f, 0.0f,
-								 ((float)width) / bkg_w, ((float)height) / bkg_h);
+				gfx->drawtexture(background, x, y, x + width, y + height, 0.0f, 0.0f, ((float)width) / bkg_w, ((float)height) / bkg_h);
 			else
 				gfx->drawtexture(background, x, y, x + width, y + height);
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -173,10 +174,10 @@ namespace Gui
 			}
 			if (show_title && skin->wnd_title_bar.tex)
 			{
-				title_h = (int)(Math::Max(2 + gui_font->height(), (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
+				title_h = (int)(Math::Max(2 + pCacheFontHeight, (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
 				skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h);
 				gfx->print(gui_font, x + 5 + skin->wnd_title_bar.x1,
-						   y + 3 + (title_h - gui_font->height()) * 0.5f,
+						   y + 3 + (title_h - pCacheFontHeight) * 0.5f,
 						   0, White, Title);
 			}
 			glDisable(GL_BLEND);
@@ -195,7 +196,7 @@ namespace Gui
 			}
 			if (show_title)
 			{
-				title_h = (int)(2 + gui_font->height());
+				title_h = (int)(2 + pCacheFontHeight);
 				if (deg)
 				{
 					if (focus)
@@ -203,8 +204,8 @@ namespace Gui
 						glBegin(GL_QUADS);
 						glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 3);
 						glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 3);
-						glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 5 + gui_font->height());
-						glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 5 + gui_font->height());
+						glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 5 + pCacheFontHeight);
+						glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 5 + pCacheFontHeight);
 						glEnd();
 					}
 					else
@@ -212,17 +213,17 @@ namespace Gui
 						glBegin(GL_QUADS);
 						glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 3);
 						glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 3);
-						glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 5 + gui_font->height());
-						glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 5 + gui_font->height());
+						glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 5 + pCacheFontHeight);
+						glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 5 + pCacheFontHeight);
 						glEnd();
 					}
 				}
 				else
 				{
 					if (focus)
-						gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + gui_font->height(), Blue);
+						gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + pCacheFontHeight, Blue);
 					else
-						gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + gui_font->height(), DGray);
+						gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + pCacheFontHeight, DGray);
 				}
 				gfx->print(gui_font, x + 4 , y + 4 , 0 , White, Title);
 			}
@@ -232,21 +233,64 @@ namespace Gui
 
 	void WND::doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin)
 	{
-		GUIOBJ::Ptr object = pObjects[i];
+		// Keeping a reference to the object
+		GUIOBJ::Ptr objectPtr = pObjects[i];
+		// For performance reason, we will directly working on the pointer
+		// It is safe due to the reference is guaranted to be valid until the end of the scope
+		GUIOBJ* object = GUIOBJ::Ptr::WeakPointer(objectPtr);
 
 		if (object->MouseOn && !object->help_msg.empty())
 			helpMsg = object->help_msg;
 		switch (object->Type)
 		{
-			case OBJ_HSLIDER:
-			case OBJ_VSLIDER:
-				skin->ScrollBar(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
-								((float)(object->Value - object->Data)) / (object->Pos - object->Data),
-								object->Type == OBJ_VSLIDER);
-				break;
+
+			case OBJ_IMG:
+				{
+					if (object->Data)     // Draws the texture associated with the image
+					{
+						gfx->set_alpha_blending();
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, (GLuint)object->Data);
+						gfx->set_color(0xFFFFFFFF);
+						glBegin(GL_QUADS);
+						glTexCoord2f(object->u1,object->v1);  glVertex2f(x+object->x1,y+object->y1);
+						glTexCoord2f(object->u2,object->v1);  glVertex2f(x+object->x2,y+object->y1);
+						glTexCoord2f(object->u2,object->v2);  glVertex2f(x+object->x2,y+object->y2);
+						glTexCoord2f(object->u1,object->v2);  glVertex2f(x+object->x1,y+object->y2);
+						glEnd();
+						gfx->unset_alpha_blending();
+						glBindTexture(GL_TEXTURE_2D, 0);
+					}
+					else                    // No texture present, draw a black frame
+					{
+						gfx->rect( x+object->x1,y+object->y1, x+object->x2,y+object->y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+						gfx->line( x+object->x1,y+object->y1, x+object->x2,y+object->y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+						gfx->line( x+object->x2,y+object->y1, x+object->x1,y+object->y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+					}
+					break;
+				}
+			case OBJ_TEXT:
+				{
+					if (object->Text.empty())
+						object->Text.push_back(nullptr);
+					if (!(object->Flag & FLAG_TEXT_ADJUST))
+					{
+						skin->text_color.print(gui_font, x + object->x1, object->y1 + y, object->Data, object->Text.front());
+					}
+					else
+					{
+						object->Data = skin->draw_text_adjust(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
+							object->Text[0], object->Pos, object->Flag & FLAG_MISSION_MODE);
+						if (object->Data > 0)
+							object->Pos %= object->Data;
+					}
+					break;
+				}
+
+			// Button
 			case OBJ_TA_BUTTON:
 				{
-                    int cur_img = (object->Flag & FLAG_DISABLED)
+					int cur_img = (object->Flag & FLAG_DISABLED)
 						? object->gltex_states.size() - 1
 						: ((object->activated && object->nb_stages == 1)
 						   ? object->gltex_states.size() - 2
@@ -260,7 +304,22 @@ namespace Gui
 					}
 					break;
 				}
-			case OBJ_LIST:
+			case OBJ_BUTTON:		// Button
+				{
+					if (object->Text.empty())
+						object->Text.push_back(nullptr);
+					skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2, object->Text.front(), object->activated);
+					if (object->Focus && focus)
+						gfx->rectdot(object->x1+x-2,object->y1+y-2,object->x2+x+2,object->y2+y+2,DGray);
+				}
+				break;
+			case OBJ_HSLIDER:
+			case OBJ_VSLIDER:
+				skin->ScrollBar(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
+								((float)(object->Value - object->Data)) / (object->Pos - object->Data),
+								object->Type == OBJ_VSLIDER);
+				break;
+						case OBJ_LIST:
 				skin->ListBox(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
 					object->Text, object->Pos, object->Data, object->Flag);
 				break;
@@ -280,46 +339,16 @@ namespace Gui
 				gfx->enable_texturing();
 				gfx->unset_alpha_blending();
 				break;
-			case OBJ_IMG:
-				if (object->Data)     // Draws the texture associated with the image
-				{
-					gfx->set_alpha_blending();
-					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D, (GLuint)object->Data);
-					gfx->set_color(0xFFFFFFFF);
-					glBegin(GL_QUADS);
-					glTexCoord2f(object->u1,object->v1);  glVertex2f(x+object->x1,y+object->y1);
-					glTexCoord2f(object->u2,object->v1);  glVertex2f(x+object->x2,y+object->y1);
-					glTexCoord2f(object->u2,object->v2);  glVertex2f(x+object->x2,y+object->y2);
-					glTexCoord2f(object->u1,object->v2);  glVertex2f(x+object->x1,y+object->y2);
-					glEnd();
-					gfx->unset_alpha_blending();
-					glBindTexture(GL_TEXTURE_2D, 0);
-				}
-				else                    // No texture present, draw a black frame
-				{
-					gfx->rect( x+object->x1,y+object->y1, x+object->x2,y+object->y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF) );
-					gfx->line( x+object->x1,y+object->y1, x+object->x2,y+object->y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF) );
-					gfx->line( x+object->x2,y+object->y1, x+object->x1,y+object->y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF) );
-				}
-				break;
-			case OBJ_BUTTON:		// Button
-				if (object->Text.empty())
-					object->Text.push_back(String());
-				skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2, object->Text.front(), object->activated);
-				if (object->Focus && focus)
-					gfx->rectdot(object->x1+x-2,object->y1+y-2,object->x2+x+2,object->y2+y+2,DGray);
-				break;
 			case OBJ_OPTIONC:		// Checkbox
 				if (object->Text.empty())
-					object->Text.push_back(String());
+					object->Text.push_back(nullptr);
 				skin->OptionCase(x + object->x1, y + object->y1, object->Text[0], object->Etat);
 				if (object->Focus && focus)
 					gfx->rectdot(object->x1 + x - 2, object->y1 + y - 2, object->x2 + x + 2, object->y2 + y + 2, DGray);
 				break;
 			case OBJ_OPTIONB:		// Boutton d'option
 				if (object->Text.empty())
-					object->Text.push_back(String());
+					object->Text.push_back(nullptr);
 				skin->OptionButton(x + object->x1, y + object->y1, object->Text[0], object->Etat);
 				if (object->Focus && focus)
 					gfx->rectdot(object->x1 + x - 2, object->y1 + y - 2, object->x2 + x + 2, object->y2 + y + 2, DGray);
@@ -331,38 +360,21 @@ namespace Gui
 				break;
 			case OBJ_TEXTBAR:		// Text edit
 				if (object->Text.empty())
-					object->Text.push_back(String());
+					object->Text.push_back(nullptr);
 				skin->TextBar(x + object->x1, y + object->y1, x + object->x2, y + object->y2, object->Text[0], object->Focus);
 				if (object->Focus && focus)
 					gfx->rectdot(object->x1 + x - 2, object->y1 + y - 2, object->x2 + x + 2, object->y2 + y + 2, DGray);
 				break;
 			case OBJ_TEXTEDITOR:	// Large text edit
 				if (object->Text.empty())
-					object->Text.push_back(String());
+					object->Text.push_back(nullptr);
 				skin->TextEditor(x + object->x1, y + object->y1, x + object->x2, y + object->y2, object->Text, object->Data, object->Pos, object->Focus);
 				if (object->Focus && focus)
 					gfx->rectdot(object->x1 + x - 2, object->y1 + y - 2, object->x2 + x + 2, object->y2 + y + 2, DGray);
 				break;
-			case OBJ_TEXT:
-				{
-					if (object->Text.empty())
-						object->Text.push_back(String());
-					if (!(object->Flag & FLAG_TEXT_ADJUST))
-					{
-						skin->text_color.print(gui_font, x + object->x1, object->y1 + y, object->Data, object->Text.front());
-					}
-					else
-					{
-						object->Data = skin->draw_text_adjust(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
-															  object->Text[0], object->Pos, object->Flag & FLAG_MISSION_MODE);
-						if (object->Data > 0)
-							object->Pos %= object->Data;
-					}
-					break;
-				}
 			case OBJ_MENU:			// Menu
 				if (object->Text.empty())
-					object->Text.push_back(String());
+					object->Text.push_back(nullptr);
 				if (!object->Etat)
 				{
 					skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
@@ -499,7 +511,7 @@ namespace Gui
 
 			if (mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
 				&& mouse_y > y + object->y2
-				&& mouse_y <= y + object->y2 + 1 + gui_font->height() * object->Text.size())
+				&& mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size())
 			{
 				wasOnFloattingMenu = true;
 				indxMenu = i;
@@ -608,7 +620,7 @@ namespace Gui
 				}
 
 				if (mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
-					&& mouse_y > y + object->y2 && mouse_y <= y + object->y2 + 1 + gui_font->height() * object->Text.size())
+					&& mouse_y > y + object->y2 && mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size())
 					object->MouseOn = true;
 			}
 
@@ -653,326 +665,340 @@ namespace Gui
 			switch (object->Type)
 			{
 				case OBJ_MENU:			// Choses à faire quoi qu'il arrive
-					object->Data = (unsigned int)(-1);		// Pas de séléction
-					if (!object->Etat)
-						object->Value = -1;
 					{
-						float m_width = 168.0f;
-						if (skin)
+						object->Data = (unsigned int)(-1);		// Pas de séléction
+						if (!object->Etat)
+							object->Value = -1;
 						{
-							for (unsigned int e = 0; e < object->Text.size() - (1 + object->Pos); ++e)
-								m_width = Math::Max(m_width, gui_font->length(object->Text[e]));
-
-							m_width += skin->menu_background.x1 - skin->menu_background.x2;
-						}
-						else
-							m_width = 168.0f;
-
-						if (object->MouseOn && mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
-							&& mouse_y > y + object->y2 + 4 && mouse_y <= y + object->y2 + 1 + gui_font->height() * object->Text.size()
-							&& object->Etat)
-						{
-							if (timetoscroll)
+							float m_width = 168.0f;
+							if (skin)
 							{
-								if (mouse_y<y+object->y2+12 && object->Pos>0)
-									object->Pos--;
-								if (mouse_y>SCREEN_H-8 && y+object->y2+1+gui_font->height()*(object->Text.size()-object->Pos)>SCREEN_H)
-									object->Pos++;
+								for (unsigned int e = 0; e < object->Text.size() - (1 + object->Pos); ++e)
+									m_width = Math::Max(m_width, gui_font->length(object->Text[e]));
+
+								m_width += skin->menu_background.x1 - skin->menu_background.x2;
 							}
-							object->Data=(int)((mouse_y-y-object->y2-5)/(gui_font->height())+object->Pos);
-							if (object->Data >= object->Text.size() - 1)
-								object->Data = (unsigned int)(-1);
-						}
-					}
-					break;
-				case OBJ_FMENU:
-					object->Data = (unsigned int)(-1);		// Pas de séléction
-					if (object->MouseOn && mouse_y>=y+object->y1+4 && mouse_y<=y+object->y2-4)
-					{
-						object->Data = (int)((mouse_y-y-object->y1-4)/(gui_font->height()));
-						if (object->Data>=object->Text.size())
-							object->Data = (unsigned int)(-1);
-					}
-					break;
-				case OBJ_TEXTBAR:				// Permet l'entrée de texte
-					object->Etat=false;
-					if (object->Focus && keypressed())
-					{
-						uint32 keyCode = readkey();
-						Key = keyCode & 0xFFFF;
-						uint16 scancode = keyCode >> 16;
+							else
+								m_width = 168.0f;
 
-						switch(scancode)
-						{
-							case KEY_ENTER:
-								object->Etat=true;
-								if (object->Func!=NULL)
-									(*object->Func)(object->Text[0].sizeUTF8());
-								break;
-							case KEY_BACKSPACE:
-								if (object->Text[0].sizeUTF8()>0)
-									object->Text[0] = object->Text[0].substrUTF8(0, object->Text[0].sizeUTF8() - 1);
-								break;
-							case KEY_TAB:
-							case KEY_ESC:
-								break;
-							default:
-								switch (Key)
+							if (object->MouseOn && mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
+								&& mouse_y > y + object->y2 + 4 && mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size()
+								&& object->Etat)
+							{
+								if (timetoscroll)
 								{
-									case 9:
-									case 27:
-									case 0:
-										break;
-									default:
-										if (object->Text[0].sizeUTF8() + 1 < object->Data)
-											object->Text[0] << InttoUTF8( Key );
-								}
-						}
-					}
-					break;
-
-				case OBJ_TEXTEDITOR:				// Permet l'entrée de texte / Enable text input
-					if (object->Text.empty())
-						object->Text.push_back(String());
-                    if (object->Data >= object->Text.size())
-                        object->Data = object->Text.size() - 1;
-
-                    if(object->Pos > object->Text[object->Data].sizeUTF8())
-						object->Pos = object->Text[object->Pos].sizeUTF8();
-                    object->Etat = false;
-					if (object->Focus && keypressed())
-					{
-						uint32 keyCode = readkey();
-						Key = keyCode & 0xFFFF;
-						uint16 scancode = (keyCode >> 16);
-						switch (scancode)
-						{
-							case KEY_ESC:
-								break;
-							case KEY_TAB:
-								object->Text[object->Data] << "    ";
-								object->Pos += 4;
-								break;
-							case KEY_ENTER:
-								object->Text.push_back(String());
-								if (object->Data + 1 < object->Text.size())
-								{
-									for(int e = object->Text.size() - 1 ; e > object->Data + 1 ; e--)
-										object->Text[e] = object->Text[e-1];
-								}
-
-								if (object->Text[ object->Data ].sizeUTF8() - object->Pos > 0)
-									object->Text[ object->Data + 1 ] = object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos );
-								else
-									object->Text[ object->Data + 1 ].clear();
-								object->Text[ object->Data ] = object->Text[ object->Data ].substrUTF8( 0, object->Pos );
-								object->Pos = 0;
-								object->Data++;
-								break;
-							case KEY_DEL:
-								// Remove next character
-								if (object->Pos < object->Text[object->Data].sizeUTF8())
-								{
-									object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos)
-										+ object->Text[object->Data].substrUTF8(object->Pos+1, object->Text[object->Data].sizeUTF8() - object->Pos-1);
-								}
-								else if (object->Data + 1 < object->Text.size())
-								{
-									object->Text[object->Data] << object->Text[object->Data+1];
-									for( int e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
-										object->Text[e] = object->Text[e+1];
-									object->Text.resize(object->Text.size()-1);
-								}
-								break;
-							case KEY_BACKSPACE:                                 // Remove previous character
-								if (object->Pos > 0)
-								{
-									object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos-1)
-										+ object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
-									object->Pos--;
-								}
-								else if (object->Data > 0)
-								{
-									object->Data--;
-									object->Pos = object->Text[object->Data].sizeUTF8();
-									object->Text[object->Data] << object->Text[object->Data + 1];
-									for (unsigned int e = object->Data + 1 ; e < object->Text.size() - 1; ++e)
-										object->Text[e] = object->Text[e + 1];
-									object->Text.resize(object->Text.size() - 1);
-								}
-								break;
-							case KEY_LEFT:            // Left
-								if (object->Pos > 0)
-									object->Pos--;
-								else if (object->Data > 0)
-								{
-									object->Data--;
-									object->Pos = object->Text[object->Data].sizeUTF8();
-								}
-								break;
-							case KEY_RIGHT:            // Right
-								if (object->Pos < object->Text[object->Data].sizeUTF8())
-									object->Pos++;
-								else if (object->Data + 1 < object->Text.size())
-								{
-									object->Data++;
-									object->Pos = 0;
-								}
-								break;
-							case KEY_UP:            // Up
-								if (object->Data > 0)
-								{
-									object->Data--;
-									object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos );
-								}
-								break;
-							case KEY_DOWN:            // Down
-								if (object->Data + 1 < object->Text.size())
-								{
-									object->Data++;
-									object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos );
-								}
-								break;
-							default:
-								switch (Key)
-								{
-									case 0:
-									case 27:
-										break;
-									default:
-										object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
-											+ InttoUTF8( Key )
-											+ object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos );
+									if (mouse_y<y+object->y2+12 && object->Pos>0)
+										object->Pos--;
+									if (mouse_y>SCREEN_H-8 && y+object->y2+1+pCacheFontHeight*(object->Text.size()-object->Pos)>SCREEN_H)
 										object->Pos++;
 								}
+								object->Data=(int)((mouse_y-y-object->y2-5)/(pCacheFontHeight)+object->Pos);
+								if (object->Data >= object->Text.size() - 1)
+									object->Data = (unsigned int)(-1);
+							}
 						}
+						break;
 					}
-					break;
+				case OBJ_FMENU:
+					{
+						object->Data = (unsigned int)(-1);		// Pas de séléction
+						if (object->MouseOn && mouse_y>=y+object->y1+4 && mouse_y<=y+object->y2-4)
+						{
+							object->Data = (int)((mouse_y-y-object->y1-4)/(pCacheFontHeight));
+							if (object->Data>=object->Text.size())
+								object->Data = (unsigned int)(-1);
+						}
+						break;
+					}
+				case OBJ_TEXTBAR:				// Permet l'entrée de texte
+					{
+						object->Etat = false;
+						if (object->Focus && keypressed())
+						{
+							uint32 keyCode = readkey();
+							Key = keyCode & 0xFFFF;
+							uint16 scancode = keyCode >> 16;
+
+							switch(scancode)
+							{
+								case KEY_ENTER:
+									object->Etat=true;
+									if (object->Func!=NULL)
+										(*object->Func)(object->Text[0].sizeUTF8());
+									break;
+								case KEY_BACKSPACE:
+									if (object->Text[0].sizeUTF8()>0)
+										object->Text[0] = object->Text[0].substrUTF8(0, object->Text[0].sizeUTF8() - 1);
+									break;
+								case KEY_TAB:
+								case KEY_ESC:
+									break;
+								default:
+									switch (Key)
+									{
+										case 9:
+										case 27:
+										case 0:
+											break;
+										default:
+											if (object->Text[0].sizeUTF8() + 1 < object->Data)
+												object->Text[0] << InttoUTF8( Key);
+									}
+							}
+						}
+						break;
+					}
+
+				case OBJ_TEXTEDITOR:				// Permet l'entrée de texte / Enable text input
+					{
+						if (object->Text.empty())
+							object->Text.push_back(nullptr);
+						if (object->Data >= object->Text.size())
+							object->Data = object->Text.size() - 1;
+
+						if(object->Pos > object->Text[object->Data].sizeUTF8())
+							object->Pos = object->Text[object->Pos].sizeUTF8();
+						object->Etat = false;
+						if (object->Focus && keypressed())
+						{
+							uint32 keyCode = readkey();
+							Key = keyCode & 0xFFFF;
+							uint16 scancode = (keyCode >> 16);
+							switch (scancode)
+							{
+								case KEY_ESC:
+									break;
+								case KEY_TAB:
+									object->Text[object->Data] << "    ";
+									object->Pos += 4;
+									break;
+								case KEY_ENTER:
+									object->Text.push_back(nullptr);
+									if (object->Data + 1 < object->Text.size())
+									{
+										for(int e = object->Text.size() - 1 ; e > object->Data + 1 ; e--)
+											object->Text[e] = object->Text[e-1];
+									}
+
+									if (object->Text[ object->Data ].sizeUTF8() - object->Pos > 0)
+										object->Text[ object->Data + 1 ] = object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+									else
+										object->Text[ object->Data + 1 ].clear();
+									object->Text[ object->Data ] = object->Text[ object->Data ].substrUTF8( 0, object->Pos);
+									object->Pos = 0;
+									object->Data++;
+									break;
+								case KEY_DEL:
+									// Remove next character
+									if (object->Pos < object->Text[object->Data].sizeUTF8())
+									{
+										object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos)
+											+ object->Text[object->Data].substrUTF8(object->Pos+1, object->Text[object->Data].sizeUTF8() - object->Pos-1);
+									}
+									else if (object->Data + 1 < object->Text.size())
+									{
+										object->Text[object->Data] << object->Text[object->Data+1];
+										for( int e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
+											object->Text[e] = object->Text[e+1];
+										object->Text.resize(object->Text.size()-1);
+									}
+									break;
+								case KEY_BACKSPACE:                                 // Remove previous character
+									if (object->Pos > 0)
+									{
+										object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos-1)
+											+ object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
+										object->Pos--;
+									}
+									else if (object->Data > 0)
+									{
+										object->Data--;
+										object->Pos = object->Text[object->Data].sizeUTF8();
+										object->Text[object->Data] << object->Text[object->Data + 1];
+										for (unsigned int e = object->Data + 1 ; e < object->Text.size() - 1; ++e)
+											object->Text[e] = object->Text[e + 1];
+										object->Text.resize(object->Text.size() - 1);
+									}
+									break;
+								case KEY_LEFT:            // Left
+									if (object->Pos > 0)
+										object->Pos--;
+									else if (object->Data > 0)
+									{
+										object->Data--;
+										object->Pos = object->Text[object->Data].sizeUTF8();
+									}
+									break;
+								case KEY_RIGHT:            // Right
+									if (object->Pos < object->Text[object->Data].sizeUTF8())
+										object->Pos++;
+									else if (object->Data + 1 < object->Text.size())
+									{
+										object->Data++;
+										object->Pos = 0;
+									}
+									break;
+								case KEY_UP:            // Up
+									if (object->Data > 0)
+									{
+										object->Data--;
+										object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
+									}
+									break;
+								case KEY_DOWN:            // Down
+									if (object->Data + 1 < object->Text.size())
+									{
+										object->Data++;
+										object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
+									}
+									break;
+								default:
+									switch (Key)
+									{
+										case 0:
+										case 27:
+											break;
+										default:
+											object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
+												+ InttoUTF8( Key )
+												+ object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+											object->Pos++;
+									}
+							}
+						}
+						break;
+					}
 
 				case OBJ_LIST:
-					if ((object->MouseOn || object->Focus) && skin)
 					{
-						bool onDeco = (mouse_x - x <= object->x1 + skin->text_background.x1
-									   || mouse_x - x >= object->x2 + skin->text_background.x2
-									   || mouse_y - y <= object->y1 + skin->text_background.y1
-									   || mouse_y - y >= object->y2 + skin->text_background.y2);			// We're on ListBox decoration!
-						int widgetSize = (int)((object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font->height());
-						int TotalScroll = object->Text.size() - widgetSize;
-						if (TotalScroll < 0)
-							TotalScroll = 0;
-
-						if (mouse_b == 1 && !onDeco
-							&& mouse_x - x >= object->x2 + skin->text_background.x2 - skin->scroll[0].sw
-							&& mouse_x - x <= object->x2 + skin->text_background.x2
-							&& mouse_y - y >= object->y1 + skin->text_background.y1
-							&& mouse_y - y <= object->y2 + skin->text_background.y2) // We're on the scroll bar!
+						if ((object->MouseOn || object->Focus) && skin)
 						{
+							bool onDeco = (mouse_x - x <= object->x1 + skin->text_background.x1
+										|| mouse_x - x >= object->x2 + skin->text_background.x2
+										|| mouse_y - y <= object->y1 + skin->text_background.y1
+										|| mouse_y - y >= object->y2 + skin->text_background.y2);			// We're on ListBox decoration!
+							int widgetSize = (int)((object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2) / pCacheFontHeight);
+							int TotalScroll = object->Text.size() - widgetSize;
+							if (TotalScroll < 0)
+								TotalScroll = 0;
 
-							if (mouse_y - y > object->y1 + skin->text_background.y1 + skin->scroll[0].y1
-								&& mouse_y - y < object->y2 + skin->text_background.y2 + skin->scroll[0].y2) // Set scrolling position
+							if (mouse_b == 1 && !onDeco
+								&& mouse_x - x >= object->x2 + skin->text_background.x2 - skin->scroll[0].sw
+								&& mouse_x - x <= object->x2 + skin->text_background.x2
+								&& mouse_y - y >= object->y1 + skin->text_background.y1
+								&& mouse_y - y <= object->y2 + skin->text_background.y2) // We're on the scroll bar!
 							{
-								object->Data = (int)(0.5f + TotalScroll
-													   * (mouse_y - y - object->y1 - skin->text_background.y1 - skin->scroll[0].y1
-														  - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f)
-													   / (object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2
-														  - skin->scroll[0].y1 + skin->scroll[0].y2
-														  - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
-							}
-							if (object->Data > (unsigned int)TotalScroll)
-								object->Data = TotalScroll;
-						}
-						else
-						{
-							int nscroll = (int)object->Data - mouse_z + AMz;
-							int npos = object->Pos;
-							if (object->Focus)
-							{
-								int key_code = (readkey() >> 16) & 0xFFFF;
-								if (key_code == KEY_UP)
-									npos--;
-								if (key_code == KEY_DOWN)
-									npos++;
-								if (npos != object->Pos)
+
+								if (mouse_y - y > object->y1 + skin->text_background.y1 + skin->scroll[0].y1
+									&& mouse_y - y < object->y2 + skin->text_background.y2 + skin->scroll[0].y2) // Set scrolling position
 								{
-									if (npos < 0)   npos = 0;
-									if (npos >= object->Text.size())
-										npos = object->Text.size() - 1;
-									if (nscroll > npos)
-										nscroll = npos;
-									if (nscroll + widgetSize <= npos)
-										nscroll = npos - widgetSize + 1;
+									object->Data = (int)(0.5f + TotalScroll
+														 * (mouse_y - y - object->y1 - skin->text_background.y1 - skin->scroll[0].y1
+															- (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f)
+														 / (object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2
+															- skin->scroll[0].y1 + skin->scroll[0].y2
+															- (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
 								}
+								if (object->Data > (unsigned int)TotalScroll)
+									object->Data = TotalScroll;
 							}
-
-							if (nscroll < 0)
-								nscroll = 0;
 							else
-								if (nscroll > TotalScroll)
-									nscroll = TotalScroll;
+							{
+								int nscroll = (int)object->Data - mouse_z + AMz;
+								int npos = object->Pos;
+								if (object->Focus)
+								{
+									int key_code = (readkey() >> 16) & 0xFFFF;
+									if (key_code == KEY_UP)
+										npos--;
+									if (key_code == KEY_DOWN)
+										npos++;
+									if (npos != object->Pos)
+									{
+										if (npos < 0)   npos = 0;
+										if (npos >= object->Text.size())
+											npos = object->Text.size() - 1;
+										if (nscroll > npos)
+											nscroll = npos;
+										if (nscroll + widgetSize <= npos)
+											nscroll = npos - widgetSize + 1;
+									}
+								}
 
-							object->Data = nscroll;
-							object->Pos = npos;
+								if (nscroll < 0)
+									nscroll = 0;
+								else
+									if (nscroll > TotalScroll)
+										nscroll = TotalScroll;
+
+								object->Data = nscroll;
+								object->Pos = npos;
+							}
 						}
+						break;
 					}
-					break;
 				case OBJ_VSLIDER:
-					if (object->MouseOn)
 					{
-						if (mouse_y - y <= object->y1 + skin->scroll[0].y1)           // Decrease
+						if (object->MouseOn)
 						{
+							if (mouse_y - y <= object->y1 + skin->scroll[0].y1)           // Decrease
+							{
+							}
+							else if (mouse_y - y >= object->y2 + skin->scroll[0].y2)      // Increase
+							{
+							}
+							else if (mouse_b == 1)                    // Set
+							{
+								const int s = skin->scroll[2].sh;
+								const int nValue = (mouse_y - y - object->y1 - skin->scroll[0].y1 - s / 2)
+									* (object->Pos - object->Data + 1)
+									/ (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
+									+ object->Data;
+								if (nValue >= object->Data && nValue <= object->Pos)
+									object->Value = nValue;
+							}
+							else if (AMz != mouse_z)
+							{
+								object->Value -= mouse_z - AMz;
+								if (object->Value < object->Data)
+									object->Value = object->Data;
+								else if (object->Value > object->Pos)
+									object->Value = object->Pos;
+							}
 						}
-						else if (mouse_y - y >= object->y2 + skin->scroll[0].y2)      // Increase
-						{
-						}
-						else if (mouse_b == 1)                    // Set
-						{
-							const int s = skin->scroll[2].sh;
-							const int nValue = (mouse_y - y - object->y1 - skin->scroll[0].y1 - s / 2)
-								* (object->Pos - object->Data + 1)
-								/ (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
-								+ object->Data;
-							if (nValue >= object->Data && nValue <= object->Pos)
-								object->Value = nValue;
-						}
-						else if (AMz != mouse_z)
-						{
-							object->Value -= mouse_z - AMz;
-							if (object->Value < object->Data)
-								object->Value = object->Data;
-							else if (object->Value > object->Pos)
-								object->Value = object->Pos;
-						}
+						break;
 					}
-					break;
 				case OBJ_HSLIDER:
-					if (object->MouseOn)
 					{
-						if (mouse_x - x <= object->x1 + skin->scroll[1].x1)           // Decrease
+						if (object->MouseOn)
 						{
+							if (mouse_x - x <= object->x1 + skin->scroll[1].x1)           // Decrease
+							{
+							}
+							else if (mouse_x - x >= object->x2 + skin->scroll[1].x2)      // Increase
+							{
+							}
+							else if (mouse_b == 1)                    // Set
+							{
+								int s = skin->scroll[2].sw;
+								int nValue = (mouse_x - x - object->x1 - skin->scroll[1].x1 - s / 2)
+									* (object->Pos - object->Data + 1)
+									/ (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
+									+ object->Data;
+								if (nValue >= object->Data && nValue <= object->Pos)
+									object->Value = nValue;
+							}
+							else if (AMz != mouse_z)
+							{
+								object->Value -= mouse_z - AMz;
+								if (object->Value < object->Data)
+									object->Value = object->Data;
+								else if (object->Value > object->Pos)
+									object->Value = object->Pos;
+							}
 						}
-						else if (mouse_x - x >= object->x2 + skin->scroll[1].x2)      // Increase
-						{
-						}
-						else if (mouse_b == 1)                    // Set
-						{
-							int s = skin->scroll[2].sw;
-							int nValue = (mouse_x - x - object->x1 - skin->scroll[1].x1 - s / 2)
-								* (object->Pos - object->Data + 1)
-								/ (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
-								+ object->Data;
-							if (nValue >= object->Data && nValue <= object->Pos)
-								object->Value = nValue;
-						}
-						else if (AMz != mouse_z)
-						{
-							object->Value -= mouse_z - AMz;
-							if (object->Value < object->Data)
-								object->Value = object->Data;
-							else if (object->Value > object->Pos)
-								object->Value = object->Pos;
-						}
+						break;
 					}
-					break;
 			}
 			if (object->Flag & FLAG_DISABLED)
 			{
@@ -1023,53 +1049,57 @@ namespace Gui
 					switch (object->Type)
 					{
 						case OBJ_VSLIDER:
-							if (mouse_y - y <= object->y1 + skin->scroll[0].y1)     // Decrease
 							{
-								object->Value--;
-								if (object->Value < object->Data)
-									object->Value = object->Data;
+								if (mouse_y - y <= object->y1 + skin->scroll[0].y1)     // Decrease
+								{
+									object->Value--;
+									if (object->Value < object->Data)
+										object->Value = object->Data;
+								}
+								else if (mouse_y - y >= object->y2 + skin->scroll[0].y2)     // Increase
+								{
+									object->Value++;
+									if (object->Value > object->Pos)
+										object->Value = object->Pos;
+								}
+								else                    // Set
+								{
+									int s = skin->scroll[2].sh;
+									int nValue = (mouse_y - y - object->y1 - skin->scroll[0].y1 - s / 2)
+										* (object->Pos - object->Data + 1)
+										/ (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
+										+ object->Data;
+									if (nValue >= object->Data && nValue <= object->Pos)
+										object->Value = nValue;
+								}
+								break;
 							}
-							else if (mouse_y - y >= object->y2 + skin->scroll[0].y2)     // Increase
-							{
-								object->Value++;
-								if (object->Value > object->Pos)
-									object->Value = object->Pos;
-							}
-							else                    // Set
-							{
-								int s = skin->scroll[2].sh;
-								int nValue = (mouse_y - y - object->y1 - skin->scroll[0].y1 - s / 2)
-									* (object->Pos - object->Data + 1)
-									/ (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
-									+ object->Data;
-								if (nValue >= object->Data && nValue <= object->Pos)
-									object->Value = nValue;
-							}
-							break;
 						case OBJ_HSLIDER:
-							if (mouse_x - x <= object->x1 + skin->scroll[1].x1)     // Decrease
 							{
-								object->Value--;
-								if (object->Value < object->Data)
-									object->Value = object->Data;
+								if (mouse_x - x <= object->x1 + skin->scroll[1].x1)     // Decrease
+								{
+									object->Value--;
+									if (object->Value < object->Data)
+										object->Value = object->Data;
+								}
+								else if (mouse_x - x >= object->x2 + skin->scroll[1].x2)     // Increase
+								{
+									object->Value++;
+									if (object->Value > object->Pos)
+										object->Value = object->Pos;
+								}
+								else                    // Set
+								{
+									int s = skin->scroll[2].sw;
+									int nValue = (mouse_x - x - object->x1 - skin->scroll[1].x1 - s / 2)
+										* (object->Pos - object->Data + 1)
+										/ (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
+										+ object->Data;
+									if (nValue >= object->Data && nValue <= object->Pos)
+										object->Value = nValue;
+								}
+								break;
 							}
-							else if (mouse_x - x >= object->x2 + skin->scroll[1].x2)     // Increase
-							{
-								object->Value++;
-								if (object->Value > object->Pos)
-									object->Value = object->Pos;
-							}
-							else                    // Set
-							{
-								int s = skin->scroll[2].sw;
-								int nValue = (mouse_x - x - object->x1 - skin->scroll[1].x1 - s / 2)
-									* (object->Pos - object->Data + 1)
-									/ (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
-									+ object->Data;
-								if (nValue >= object->Data && nValue <= object->Pos)
-									object->Value = nValue;
-							}
-							break;
 						case OBJ_LIST:
 							if (skin
 								&& mouse_x - x >= object->x2 + skin->text_background.x2 - skin->scroll[0].sw
@@ -1078,7 +1108,7 @@ namespace Gui
 								&& mouse_y - y <= object->y2 + skin->text_background.y2) // We're on the scroll bar!
 							{
 
-								int TotalScroll = object->Text.size() - (int)((object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font->height());
+								int TotalScroll = object->Text.size() - (int)((object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2) / pCacheFontHeight);
 								if (TotalScroll < 0)
 									TotalScroll = 0;
 
@@ -1116,7 +1146,7 @@ namespace Gui
 											 || mouse_y - y <= object->y1 + skin->text_background.y1
 											 || mouse_y - y >= object->y2 + skin->text_background.y2))			// We're on ListBox decoration!
 									break;
-								object->Pos = (uint32) ((mouse_y - y - object->y1 - (skin ? skin->text_background.y1:4)) / gui_font->height() + object->Data);
+								object->Pos = (uint32) ((mouse_y - y - object->y1 - (skin ? skin->text_background.y1:4)) / pCacheFontHeight + object->Data);
 								object->Etat = true;
 							}
 							break;
@@ -1160,7 +1190,7 @@ namespace Gui
 						case OBJ_FMENU:			// Menu Flottant
 							if (mouse_y >= y + object->y1 + (skin ? skin->menu_background.y1 : 0) + 4 && mouse_y <= y + object->y2 + (skin ? skin->menu_background.y2 : 0) - 4)
 							{
-								index = (int)((mouse_y - y - object->y1 - 4 - (skin ? skin->menu_background.y1 : 0)) / gui_font->height());
+								index = (int)((mouse_y - y - object->y1 - 4 - (skin ? skin->menu_background.y1 : 0)) / pCacheFontHeight);
 								if (index >= (int)(object->Text.size()))
 									index = object->Text.size() - 1;
 								if (object->Func!=NULL)
@@ -1180,10 +1210,10 @@ namespace Gui
 								else
 									m_width = 168.0f;
 								if (mouse_x >= x + object->x1 + (skin ? skin->menu_background.x1 : 0) && mouse_x <= x + object->x1 + m_width + (skin ? skin->menu_background.x2 : 0)
-									&& mouse_y > y + object->y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + object->y2 + (skin ? skin->menu_background.y2 : 0) + 1 + gui_font->height() * object->Text.size()
+									&& mouse_y > y + object->y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + object->y2 + (skin ? skin->menu_background.y2 : 0) + 1 + pCacheFontHeight * object->Text.size()
 									&& object->Etat)
 								{
-									index = (int)((mouse_y - y - object->y2 - 5 - (skin ? skin->menu_background.y1 : 0)) / gui_font->height() + object->Pos);
+									index = (int)((mouse_y - y - object->y2 - 5 - (skin ? skin->menu_background.y1 : 0)) / pCacheFontHeight + object->Pos);
 									if (index >= (int)(object->Text.size() - 1))
 										index = object->Text.size()-2;
 									if (object->Func != NULL)
@@ -1318,9 +1348,9 @@ namespace Gui
 				}
 				return  obj->Text[0];
 			}
-			return String();
+			return nullptr;
 		}
-		return (message.empty()) ? Title : String();
+		return (message.empty()) ? Title : nullptr;
 	}
 
 
@@ -1410,12 +1440,13 @@ namespace Gui
 		pObjects.clear();
 		pObjects.reserve(NbObj);
 
+		String obj_key;
 		for (unsigned int i = 0; i < NbObj ; ++i)
 		{
 			GUIOBJ::Ptr object = new GUIOBJ();
-			pObjects.push_back( object );
+			pObjects.push_back(object);
 
-			String obj_key;
+			obj_key.clear();
 			obj_key << "gadget" << i + 1 << ".";
 			int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 

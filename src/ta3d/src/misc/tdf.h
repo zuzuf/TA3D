@@ -120,7 +120,8 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		sint32  pullAsInt(const String& key, const sint32 def = 0);
+		template<class K> sint32  pullAsInt(const K& key, const sint32 def);
+		template<class K> sint32  pullAsInt(const K& key);
 
 		/*!
 		** \brief Get the value for a given key
@@ -136,7 +137,8 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		String pullAsString(const String& key, const String& def = String());
+		template<class K, class V> String pullAsString(const K& key, const V& def);
+		template<class K> String pullAsString(const K& key);
 
 		/*!
 		** \brief Get the value for a given key
@@ -199,8 +201,7 @@ namespace TA3D
 		** }
 		** \endcode
 		*/
-		template<typename C>
-			void forEach(C callback) {pTable.forEach(callback);}
+		template<typename C> void forEach(C callback) {pTable.forEach(callback);}
 
 		//@}
 
@@ -222,8 +223,11 @@ namespace TA3D
 	}; // class TDFParser
 
 
+
+
+
 } // namespace TA3D
 
-
+# include "tdf.hxx"
 
 #endif // __TA3D_XX__TDF_H__

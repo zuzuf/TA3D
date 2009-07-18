@@ -2536,7 +2536,7 @@ namespace TA3D
 
 		String narration_file;
 		narration_file << "camps\\briefs\\" << ota_parser.pullAsString("GlobalHeader.narration" ) << ".wav"; // The narration file
-		String language_suffix = (lp_CONFIG->Lang == "english") ? String() : ("-" + lp_CONFIG->Lang);
+		String language_suffix = (lp_CONFIG->Lang == "english") ? nullptr : ("-" + lp_CONFIG->Lang);
 		String brief_file;
 		brief_file << "camps\\briefs" << language_suffix << "\\" << ota_parser.pullAsString("GlobalHeader.brief") << ".txt"; // The brief file
 

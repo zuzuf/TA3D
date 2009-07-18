@@ -291,23 +291,6 @@ namespace TA3D
 		special_section = section;
 	}
 
-	sint32 TDFParser::pullAsInt(const String& key, const sint32 def)
-	{
-		if (pIgnoreCase)
-		{
-			String keyToFind(key);
-			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
-				return def;
-			String iterFind = pTable.find(keyToFind);
-			return (iterFind.empty() ? def : iterFind.to<sint32>());
-		}
-		if (!pTable.exists(key))
-			return def;
-		String iterFind = pTable.find(key);
-		return (iterFind.empty() ? def : iterFind.to<sint32>());
-	}
-
 	float TDFParser::pullAsFloat(const String& key, const float def)
 	{
 		float f;
@@ -323,22 +306,6 @@ namespace TA3D
 			return def;
 		return pTable.find(key).to<float>(f) ? f : def;
 
-	}
-
-
-	String TDFParser::pullAsString(const String& key, const String& def)
-	{
-		if (pIgnoreCase)
-		{
-			String keyToFind(key);
-			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
-				return def;
-			return pTable.find(keyToFind);
-		}
-		if (!pTable.exists(key))
-			return def;
-		return pTable.find(key);
 	}
 
 

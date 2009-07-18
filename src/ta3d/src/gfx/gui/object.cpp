@@ -105,7 +105,7 @@ namespace Gui
 			case OBJ_OPTIONC:
 			case OBJ_OPTIONB:
 				x2 = x1 + (int)gui_font->length(caption) + 4;
-		};
+		}
 		if (Type == OBJ_TEXTBAR && Text[0].size() >= Data)
 			Text[0].truncate(Data - 1);
 	}
@@ -283,7 +283,7 @@ namespace Gui
 		Focus = false;
 		Text = Entry;
 		if (Text.empty())
-			Text.push_back(String());
+			Text.push_back(nullptr);
 		Func = F;
 		Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
 		s = size;
@@ -303,7 +303,7 @@ namespace Gui
 		Focus = false;
 		Text = Entry;
 		if (Text.empty())
-			Text.push_back(String());
+			Text.push_back(nullptr);
 		Pos = 0; // Position sur la liste
 		Func = F;
 		Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
