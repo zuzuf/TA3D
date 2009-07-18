@@ -232,7 +232,7 @@ namespace TA3D
 	bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
 	{
 		String res;
-        if (!VFS::instance()->fileExists(filename))
+		if (!VFS::Instance()->fileExists(filename))
 		{
 			LOG_WARNING(LOG_PREFIX_I18N << "Impossible to load translations from `"
 						<< filename << "` (file not found)");
@@ -263,13 +263,14 @@ namespace TA3D
 	{
 		bool res(false);
 		String::Vector list;
-                VFS::instance()->getFilelist("languages" + Paths::SeparatorAsString + "*.po", list);
-                for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-                {
-                    if (loadFromFile("languages" + Paths::SeparatorAsString + Paths::ExtractFileName(*i), false))
-                        res = true;
-                }
-                return res;
+		VFS::Instance()->getFilelist("languages" + Paths::SeparatorAsString + "*.po", list);
+		const String::Vector::const_iterator end = list.end();
+		for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
+		{
+			if (loadFromFile("languages" + Paths::SeparatorAsString + Paths::ExtractFileName(*i), false))
+				res = true;
+		}
+		return res;
 	}
 
 	void I18N::doClearLanguages()

@@ -24,23 +24,27 @@
 
 namespace TA3D
 {
-    ScriptData *ScriptData::loadScriptFile(const String &filename)
-    {
-        String tmp_cob = filename + ".cob";
-        String tmp_lua = filename + ".lua";
-        if (VFS::instance()->fileExists(tmp_lua) && VFS::instance()->filePriority(tmp_lua) >= VFS::instance()->filePriority(tmp_cob))
-        {
-            ScriptData *script = new LuaData;
-            script->load(tmp_lua);
-            return script;
-        }
 
-        if (VFS::instance()->fileExists(tmp_cob))
-        {
-            ScriptData *script = new CobScript;
-            script->load(tmp_cob);
-            return script;
-        }
-        return NULL;
-    }
+
+	ScriptData *ScriptData::loadScriptFile(const String &filename)
+	{
+		String tmp_cob = filename + ".cob";
+		String tmp_lua = filename + ".lua";
+		if (VFS::Instance()->fileExists(tmp_lua) && VFS::Instance()->filePriority(tmp_lua) >= VFS::Instance()->filePriority(tmp_cob))
+		{
+			ScriptData *script = new LuaData;
+			script->load(tmp_lua);
+			return script;
+		}
+
+		if (VFS::Instance()->fileExists(tmp_cob))
+		{
+			ScriptData *script = new CobScript;
+			script->load(tmp_cob);
+			return script;
+		}
+		return NULL;
+	}
+
+
 }

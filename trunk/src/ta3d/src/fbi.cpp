@@ -73,7 +73,7 @@ namespace TA3D
 			{
 				if (BuildList[i] == index && Pic_p[i] < 0) // Update the data we have
 				{
-					if( Pic != 0 )
+					if (Pic != 0 )
 					{
 						gfx->destroy_texture(PicList[i]);
 						PicList[i] = Pic;
@@ -120,6 +120,7 @@ namespace TA3D
 		int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
 		gfx->set_texture_format(GL_RGB8);
+		String name;
 		for (int i = 1; i <= NbObj; ++i)
 		{
 			int attribs = gui_parser.pullAsInt( String::Format( "gadget%d.common.commonattribs", i ) );
@@ -129,14 +130,14 @@ namespace TA3D
 				int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
 				int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
 				int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
-				String name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i ) );
-				int idx = get_unit_index( name );
+				name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i ) );
+				int idx = get_unit_index(name);
 
 				if (idx >= 0)
 				{
 					String name(gui_parser.pullAsString(String::Format("gadget%d.common.name", i)));
 
-                    byte *gaf_file = VFS::instance()->readFile(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
+					byte *gaf_file = VFS::Instance()->readFile(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
 					if (gaf_file)
 					{
 						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -166,9 +167,9 @@ namespace TA3D
 					int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
 					int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
 					int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
-					String name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
+					name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
 
-                    byte* gaf_file = VFS::instance()->readFile( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
+					byte* gaf_file = VFS::Instance()->readFile( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
 					if (gaf_file)
 					{
 						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -244,11 +245,11 @@ namespace TA3D
 	{
 		uint32 file_size=0;
 		String::List file_list;
-        VFS::instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
+		VFS::Instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
 		for (String::List::const_iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
-            byte* data = VFS::instance()->readFile(*file, &file_size);		// Lit le fichier
+			byte* data = VFS::Instance()->readFile(*file, &file_size);		// Lit le fichier
 			if (data)
 			{
 				analyse2((char*)data,file_size);
@@ -283,19 +284,24 @@ namespace TA3D
 		gather_build_data();			// Read additionnal build data
 
 		String::List file_list;
-        VFS::instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
+		VFS::Instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
-		for (String::List::iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+		String fileUp;
+		String unitnameUp;
+		const String::List::const_iterator end = file_list.end();
+		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+		for (String::List::const_iterator file = file_list.begin(); file != end; ++file) 
 		{
-                        const char *f = NULL;
+			const char *f = NULL;
 			for (int i = 0; i < nb_unit; ++i)
 			{
-				String fileUp = String::ToUpper(*file);
-				String unitnameUp = String::ToUpper(unit_type[i]->Unitname);
+				fileUp = *file;
+				fileUp.toUpper();
+				unitnameUp = unit_type[i]->Unitname;
+				unitnameUp.toUpper();
 				if ((f = strstr(fileUp.c_str(), unitnameUp.c_str())))
 				{
-					if(f[unit_type[i]->Unitname.size()]=='.'
-					   ||(f[unit_type[i]->Unitname.size()]>='0' && f[unit_type[i]->Unitname.size()]<='9'))
+					if (f[unit_type[i]->Unitname.size()]=='.' || (f[unit_type[i]->Unitname.size()]>='0' && f[unit_type[i]->Unitname.size()]<='9'))
 						analyse(*file,i);
 				}
 			}
@@ -329,7 +335,7 @@ namespace TA3D
 
 	bool UnitType::floatting()
 	{
-		return Floater || canhover || WaterLine != 0.0f;
+		return Floater || canhover || !Yuni::Math::Zero(WaterLine);
 	}
 
 	void UnitType::destroy()
@@ -338,7 +344,7 @@ namespace TA3D
 		soundcategory.clear();
 		ExplodeAs.clear();
 		SelfDestructAs.clear();
-		if(script)
+		if (script)
 			delete script;
 
 		w_badTargetCategory.clear();
@@ -355,15 +361,15 @@ namespace TA3D
 
 		if (!PicList.empty())
 		{
-			for (int i = 0; i < PicList.size(); ++i)
+			for (unsigned int i = 0; i < PicList.size(); ++i)
 				gfx->destroy_texture(PicList[i]);
 			PicList.clear();
 		}
 
 		yardmap.clear();
-		if(model)
+		if (model)
 			model = NULL;
-		if(unitpic)
+		if (unitpic)
 			SDL_FreeSurface(unitpic);
 		gfx->destroy_texture(glpic);
 		Corpse.clear();
@@ -554,7 +560,7 @@ namespace TA3D
 		gfx->print(fnt,x+16,y+124,0.0f,I18N::Translate("weapons") + ":");
 		int Y=y+136;
 		for( std::vector<WEAPON_DEF*>::iterator i = weapon.begin() ; i != weapon.end() ; i++ )
-			if(*i)
+			if (*i)
 			{
 				gfx->print(fnt,x+16,Y,0.0f,(*i)->name + ": " + String( (*i)->damage));
 				Y+=12;
@@ -627,7 +633,7 @@ namespace TA3D
 				w_badTargetCategory.resize(1);
 			w_badTargetCategory[0] = parseString("UNITINFO.wpri_badTargetCategory");
 		}
-		for (int i = 4 ; !parseString( String::Format("UNITINFO.w%d_badTargetCategory",i) ).empty() ; ++i)
+		for (unsigned int i = 4 ; !parseString( String::Format("UNITINFO.w%d_badTargetCategory",i) ).empty() ; ++i)
 		{
 			if (w_badTargetCategory.size() < i)
 				w_badTargetCategory.resize(i);
@@ -644,13 +650,13 @@ namespace TA3D
 			if (!i->empty())
 				Category.insertOrUpdate(*i, 1);
 		fastCategory = 0;
-		if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
-		if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
-		if( checkCategory( "notsub" ) )		fastCategory |= CATEGORY_NOTSUB;
-		if( checkCategory( "jam" ) )		fastCategory |= CATEGORY_JAM;
-		if( checkCategory( "commander" ) )	fastCategory |= CATEGORY_COMMANDER;
-		if( checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
-		if( checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
+		if (checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
+		if (checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
+		if (checkCategory( "notsub" ) )		fastCategory |= CATEGORY_NOTSUB;
+		if (checkCategory( "jam" ) )		fastCategory |= CATEGORY_JAM;
+		if (checkCategory( "commander" ) )	fastCategory |= CATEGORY_COMMANDER;
+		if (checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
+		if (checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
 
 		UnitNumber = parseInt("UNITINFO.UnitNumber");
 		canmove = parseBool("UNITINFO.canmove");
@@ -734,7 +740,7 @@ namespace TA3D
 		kamikaze = parseBool("UNITINFO.kamikaze");
 		kamikazedistance = parseInt("UNITINFO.kamikazedistance")>>1;
 
-		int i = 1;
+		unsigned int i = 1;
 		while (i <= 3 || !parseString( String::Format("UNITINFO.Weapon%d",i) ).empty())
 		{
 			if (WeaponID.size() < i)
@@ -746,7 +752,7 @@ namespace TA3D
 		if (!yardmap.empty())
 		{
 			i = 0;
-			for (int e = 0 ; e < yardmap.size() ; e++)
+			for (unsigned int e = 0 ; e < yardmap.size() ; e++)
 				if (yardmap[e] == ' ')
 					i++;
 				else
@@ -762,11 +768,11 @@ namespace TA3D
 		ManeuverLeashLength = parseIntDef("UNITINFO.maneuverleashlength",640);
 
 		String DefaultMissionTypeString = String::ToLower( parseString("UNITINFO.DefaultMissionType") );
-		if(DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
-		else if(DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
-		else if(DefaultMissionTypeString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
-		else if(DefaultMissionTypeString == "standby_mine")		DefaultMissionType=MISSION_STANDBY_MINE;
-		else if(!DefaultMissionTypeString.empty())
+		if (DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
+		else if (DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
+		else if (DefaultMissionTypeString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
+		else if (DefaultMissionTypeString == "standby_mine")		DefaultMissionType=MISSION_STANDBY_MINE;
+		else if (!DefaultMissionTypeString.empty())
 		{
 			LOG_ERROR("Unknown constant: `" << DefaultMissionTypeString << "`");
 			++nb_inconnu;
@@ -792,11 +798,11 @@ namespace TA3D
 		selfdestructcountdown = parseIntDef("UNITINFO.selfdestructcountdown",5);
 		canresurrect = parseBool("UNITINFO.canresurrect") || parseBool("UNITINFO.resurrect");
 
-		aim_data.resize( WeaponID.size() );
-		for (int i = 0 ; i < WeaponID.size() ; i++)
+		aim_data.resize(WeaponID.size());
+		for (unsigned int i = 0 ; i < WeaponID.size(); i++)
 		{
 			aim_data[i].check = false;
-			if(WeaponID[i]>-1)
+			if (WeaponID[i]>-1)
 			{
 				String aimdir = parseString( String::Format("UNITINFO.WeaponMainDir%d",i) );
 				if (!aimdir.empty())
@@ -818,17 +824,19 @@ namespace TA3D
 			}
 		}
 
-		if( canresurrect && BuildDistance == 0.0f )
+		if (canresurrect && Yuni::Math::Zero(BuildDistance))
 			BuildDistance = SightDistance;
 		weapon.resize( WeaponID.size() );
 		w_badTargetCategory.resize( WeaponID.size() );
-		for (int i = 0 ; i < WeaponID.size() ; i++)
-			if(WeaponID[i] > -1)
+		for (unsigned int i = 0; i < WeaponID.size(); ++i)
+		{
+			if (WeaponID[i] > -1)
 				weapon[i] = &(weapon_manager.weapon[WeaponID[i]]);
+		}
 		if (!Unitname.empty())
 		{
 			model = model_manager.get_model(ObjectName);
-			if(model == NULL)
+			if (model == NULL)
 				LOG_ERROR("`" << Unitname << "` without a 3D model");
 		}
 		else
@@ -850,7 +858,7 @@ namespace TA3D
 
 		int side_id = -1;
 		for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
-			if( String::ToLower( ta3dSideData.side_name[ i ] ) == String::ToLower( side ) )
+			if (String::ToLower( ta3dSideData.side_name[ i ] ) == String::ToLower( side ) )
 				side_id = i;
 		if (side_id == -1)
 			return;
@@ -881,7 +889,7 @@ namespace TA3D
 			int e = 0;
 			for (int i = 1; i <= NbObj; ++i)
 			{
-				if( dl_parser.pullAsInt( String::Format( "gadget%d.common.attribs", i ) ) == 32 )
+				if (dl_parser.pullAsInt( String::Format( "gadget%d.common.attribs", i ) ) == 32 )
 				{
 					dl_data->dl_x[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.xpos", i)) + x_offset;
 					dl_data->dl_y[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.ypos", i)) + y_offset;
@@ -920,7 +928,7 @@ namespace TA3D
 			{
 				for (int e = i + 1; e < nb_unit; ++e)
 				{
-					if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 )
+					if ((Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 )
 					{
 						std::swap( Pic_p[e], Pic_p[i] );
 						std::swap( Pic_x[e], Pic_x[i] );
@@ -953,9 +961,9 @@ namespace TA3D
 				first_time = false;
 			}
 
-		if( nb_pages == -1 )	nb_pages = 0;
+		if (nb_pages == -1 )	nb_pages = 0;
 
-		if( dl_data && dl_data->dl_num > 0 )
+		if (dl_data && dl_data->dl_num > 0 )
 			for( int i = 0 ; i < nb_unit ; i++ )
 				if (Pic_p[ i ] == -1)
 				{
@@ -972,7 +980,7 @@ namespace TA3D
 						filled = false;
 					}
 				}
-		if( !filled )	nb_pages--;
+		if (!filled )	nb_pages--;
 		for( int i = nb_unit - 1 ; i > 0 ; i-- )
 		{
 			for( int e = i - 1 ; e >= 0 ; e-- )
@@ -1041,7 +1049,7 @@ namespace TA3D
 		if (panel_tex == 0)
 		{
 			String::List file_list;
-            VFS::instance()->getFilelist( "anims\\*.gaf", file_list);
+            VFS::Instance()->getFilelist( "anims\\*.gaf", file_list);
 			for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
 				panel_tex = Gaf::ToTexture(*i, gaf_img, &w, &h, true);
 		}
@@ -1070,16 +1078,16 @@ namespace TA3D
 		glColor4f(1.0f,1.0f,1.0f,0.75f);
 		if (GUI)
 		{
-			if( panel.tex && nothing )
+			if (panel.tex && nothing )
 				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + panel.height );
 
-			if( paneltop.tex )
+			if (paneltop.tex )
 			{
 				gfx->drawtexture( paneltop.tex, 128.0f, 0.0f, 128.0f + paneltop.width, paneltop.height );
-				for (int k = 0 ; 128 + paneltop.width + panelbottom.width * k < SCREEN_W ; ++k)
+				for (int k = 0 ; 128 + paneltop.width + panelbottom.width * k < SCREEN_W; ++k)
 				{
 					gfx->drawtexture(panelbottom.tex, 128.0f + paneltop.width + k * panelbottom.width, 0.0f,
-									 128.0f + paneltop.width + panelbottom.width * (k+1), panelbottom.height );
+							128.0f + paneltop.width + panelbottom.width * (k+1), panelbottom.height );
 				}
 			}
 
@@ -1088,7 +1096,7 @@ namespace TA3D
 				for (int k = 0; 128 + panelbottom.width * k < SCREEN_W; ++k)
 				{
 					gfx->drawtexture( panelbottom.tex, 128.0f + k * panelbottom.width,
-									  SCREEN_H - panelbottom.height, 128.0f + panelbottom.width * (k+1), SCREEN_H );
+							SCREEN_H - panelbottom.height, 128.0f + panelbottom.width * (k+1), SCREEN_H );
 				}
 			}
 
@@ -1111,7 +1119,7 @@ namespace TA3D
 
 		glEnable(GL_TEXTURE_2D);
 
-		if(index<0 || index>=nb_unit) return -1;		// L'indice est incorrect
+		if (index<0 || index>=nb_unit) return -1;		// L'indice est incorrect
 
 		int page=unit_type[index]->page;
 
@@ -1120,39 +1128,39 @@ namespace TA3D
 		glDisable(GL_BLEND);
 		for( int i = 0 ; i < unit_type[index]->nb_unit ; ++i) // Affiche les différentes images d'unités constructibles
 		{
-			if( unit_type[index]->Pic_p[i] != page)
+			if (unit_type[index]->Pic_p[i] != page)
 				continue;
 			int px = unit_type[index]->Pic_x[ i ];
 			int py = unit_type[index]->Pic_y[ i ];
 			int pw = unit_type[index]->Pic_w[ i ];
 			int ph = unit_type[index]->Pic_h[ i ];
 			bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
-			if( unused )
+			if (unused )
 				glColor4f(0.3f,0.3f,0.3f,1.0f);			// Make it darker
 			else
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-			if(unit_type[index]->PicList[i])							// If a texture is given use it
+			if (unit_type[index]->PicList[i])							// If a texture is given use it
 				gfx->drawtexture(unit_type[index]->PicList[i],px,py,px+pw,py+ph);
 			else
 				gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic,px,py,px+pw,py+ph);
 
-			if(mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph && !unused)
+			if (mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph && !unused)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 				glColor4f(1.0f,1.0f,1.0f,0.75f);
-				if(unit_type[index]->PicList[i])							// If a texture is given use it
+				if (unit_type[index]->PicList[i])							// If a texture is given use it
 					gfx->drawtexture(unit_type[index]->PicList[i],px,py,px+pw,py+ph);
 				else
 					gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic,px,py,px+pw,py+ph);
 				glDisable(GL_BLEND);
 				sel = unit_type[index]->BuildList[i];
-				if(sel == -1)
+				if (sel == -1)
 					sel = -2;
 			}
 
-			if( ( unit_type[index]->BuildList[i] == unit_type[index]->last_click
+			if (( unit_type[index]->BuildList[i] == unit_type[index]->last_click
 				  || ( unit_type[index]->last_click == -2 && unit_type[index]->BuildList[i] == -1 ) )
 				&& unit_type[index]->click_time > 0.0f )
 			{
@@ -1175,7 +1183,7 @@ namespace TA3D
 		}
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
-		if( unit_type[index]->last_click != -1 )
+		if (unit_type[index]->last_click != -1 )
 			unit_type[index]->click_time -= dt;
 
 		if (sel>-1)
@@ -1202,7 +1210,7 @@ namespace TA3D
 		unit_manager.init();
 		int nb_inconnu=0;
 		String::List file_list;
-        VFS::instance()->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
+		VFS::Instance()->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
 
 		int n = 0;
 

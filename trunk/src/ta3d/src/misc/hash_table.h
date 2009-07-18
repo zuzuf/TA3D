@@ -89,6 +89,9 @@ namespace UTILS
 
 			virtual void emptyHashTable();
 
+			void clear() {emptyHashTable();}
+
+
 			/*!
 			** \brief Test the existence of a key
 			** \param key The key to find

@@ -54,8 +54,8 @@ namespace TA3D
 #warning FIXME: ugly print to console instead of a nice window
 			std::cerr << I18N::Translate(s) << additional << std::endl;
 		}
-
 	}
+
 
 
 	Engine::Engine()
@@ -85,8 +85,11 @@ namespace TA3D
 		if (::SDLNet_Init() == -1)
 			throw ("SDLNet_Init() failed.");
 
-		if (!VFS::instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::instance()->fileExists("gamedata\\allsound.tdf")
-			|| !VFS::instance()->fileExists("gamedata\\sound.tdf"))
+		// Load the VFS
+		VFS::Instance()->reload();
+
+		if (!VFS::Instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::Instance()->fileExists("gamedata\\allsound.tdf")
+			|| !VFS::Instance()->fileExists("gamedata\\sound.tdf"))
 		{
 			showError("RESOURCES ERROR");
 			exit(1);
@@ -163,9 +166,6 @@ namespace TA3D
 
 	void Engine::onExecute()
 	{
-		// Creating VFS Manager (useless, but doing it that way we know when it takes place)
-		VFS::instance();
-
 		// Creating translation manager
 		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
 		I18N::Instance()->loadFromResources();

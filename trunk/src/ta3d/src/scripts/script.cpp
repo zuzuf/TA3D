@@ -652,7 +652,7 @@ namespace TA3D
 
 			units.lock();
 			if (units.unit[ unit_id ].flags )
-                units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),PATH(),MISSION_FLAG_COMMAND_FIRE );
+				units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),PATH(),MISSION_FLAG_COMMAND_FIRE );
 			units.unlock();
 		}
 
@@ -726,7 +726,7 @@ namespace TA3D
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
-                units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]));
+				units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]));
 			units.unlock();
 		}
 
@@ -1168,11 +1168,11 @@ namespace TA3D
 
 	void LuaProgram::register_functions()
 	{
-        lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
-        luaL_openlibs( L );
-        lua_gc( L, LUA_GCRESTART, 0 );
+		lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
+		luaL_openlibs( L );
+		lua_gc( L, LUA_GCRESTART, 0 );
 
-        lua_register( L, "text_print", program_print );
+		lua_register( L, "text_print", program_print );
 		lua_register( L, "text_print_for", program_print_for );
 		lua_register( L, "line", program_line );
 		lua_register( L, "cls", program_cls );
@@ -1363,7 +1363,7 @@ namespace TA3D
 
 				params[0].toLower();
 
-                if (params[0][0] == 'p' && params[0].size() > 1) // something like p3000 2000, convert it to p 3000 2000
+				if (params[0][0] == 'p' && params[0].size() > 1) // something like p3000 2000, convert it to p 3000 2000
 				{
 					params.resize( params.size() + 1 );
 					for (int i = params.size() - 1; i > 0; ++i)
@@ -1376,7 +1376,7 @@ namespace TA3D
 							params[ i ] = params[ i - 1 ];
 				}
 
-                if (params[ 0 ] == "m") // Move
+				if (params[ 0 ] == "m") // Move
 				{
 					if (params.size() >= 3)
 					{
@@ -1386,32 +1386,32 @@ namespace TA3D
 					}
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "a")		// Attack
-                {
-                    if (params.size() >= 2)
+				else if (params[ 0 ] == "a")		// Attack
+				{
+					if (params.size() >= 2)
 						m_File << "add_attack_mission( unit_id, " + params[ 1 ] + " )\n";
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "b")		// Build
-                {
-                    if (params.size() == 3)			// Factories
-                    {
+				else if (params[ 0 ] == "b")		// Build
+				{
+					if (params.size() == 3)			// Factories
+					{
 						m_File << "for i = 1, " + params[ 2 ] + " do\n";
 						m_File << "	add_build_mission( unit_id, unit_x( unit_id ), unit_z( unit_id ), " + params[ 1 ] + " )\n";
 						m_File << "end\n";
 					}
-                    else if (params.size() == 4)		// Mobile builders
-                    {
+					else if (params.size() == 4)		// Mobile builders
+					{
 						float pos_x = atof( params[ 2 ].c_str() ) * 0.5f;
 						float pos_z = atof( params[ 3 ].c_str() ) * 0.5f;
 						m_File << String::Format( "add_build_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h(), ", pos_x, pos_z ) + params[ 1 ] + " )\n";
 					}
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "d")		// Destroy
+				else if (params[ 0 ] == "d")		// Destroy
 					m_File << "kill_unit( unit_id )\n";
-                else if (params[ 0 ] == "p")		// Patrol
-                {
+				else if (params[ 0 ] == "p")		// Patrol
+				{
 					unsigned int e = 0;
 					while (params.size() >= 3 + e * 2)
 					{
@@ -1422,39 +1422,39 @@ namespace TA3D
 					}
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "w")		// Wait
-                {
-                    if (params.size() >= 2)
-                    {
+				else if (params[ 0 ] == "w")		// Wait
+				{
+					if (params.size() >= 2)
+					{
 						float time = atof( params[ 1 ].c_str() );
 						m_File << String::Format( "add_wait_mission( unit_id, %f )\n", time );
 					}
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "wa")		// Wait attacked
-                {
-                    if (params.size() >= 2)
+				else if (params[ 0 ] == "wa")		// Wait attacked
+				{
+					if (params.size() >= 2)
 						m_File << "add_wait_mission( unit_id, " + params[ 1 ] + " )\n";
 					else
 						m_File << "add_wait_mission( unit_id, unit_id )\n";
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "g")		// Guard
-                {
-                    if (params.size() >= 2)
+				else if (params[ 0 ] == "g")		// Guard
+				{
+					if (params.size() >= 2)
 						m_File << "add_guard_mission( unit_id, " + params[ 1 ] + " )\n";
 					orders_given = true;
 				}
-                else if (params[ 0 ] == "o")		// Set standing orders
-                {
-                    if (params.size() >= 3)
+				else if (params[ 0 ] == "o")		// Set standing orders
+				{
+					if (params.size() >= 3)
 						m_File << "set_standing_orders( unit_id, " << params[ 1 ] << ", " << params[ 2 ] << " )\n";
 				}
-                else if (params[ 0 ] == "s")		// Make it selectable
+				else if (params[ 0 ] == "s")		// Make it selectable
 					selectable = true;
 			}
 
-            if (!selectable && orders_given)
+			if (!selectable && orders_given)
 				m_File << "lock_orders( unit_id )\n";
 
 			++i;
@@ -1540,7 +1540,7 @@ namespace TA3D
 
 		if (ota_parser.pullAsInt( "GlobalHeader.DeathTimerRunsOut" ) > 0 ) {
 			m_File << "	if time() >= " << ota_parser.pullAsString( "GlobalHeader.DeathTimerRunsOut" ) << " then\n";
-            m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
@@ -1555,7 +1555,7 @@ namespace TA3D
 				m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
 				m_File << "	end\n";
 				m_File << "	if UnitTypeKilled_count >= " << params[ 1 ] << " then\n";
-                m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+				m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 				m_File << "	end\n";
 				m_File << "	UnitTypeKilled_nb = new_UnitTypeKilled_nb\n\n";
 			}
@@ -1564,21 +1564,21 @@ namespace TA3D
 		if (ota_parser.pullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 )
 		{
 			m_File << "	if annihilated( 0 ) then\n";
-            m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
 		if (!ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
 			String type = ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" );
 			m_File << "	if not has_unit( 0, \"" << type << "\" ) and not has_unit( 1, \"" << type << "\" ) then\n";
-            m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
 		if (ota_parser.pullAsInt( "GlobalHeader.CommanderKilled" ) == 1 ) {
 			m_File << "	if not has_unit( 0, commander( 0 ) ) then\n";
-            m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
-            m_File << "	end\n\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "	end\n\n";
 		}
 
 		// VICTORY conditions
@@ -1736,7 +1736,7 @@ namespace TA3D
 
 		if (ota_parser.pullAsInt( "GlobalHeader.DestroyAllUnits" ) == 1 )
 		{
-            m_File << "	if annihilated( 1 ) and not DestroyAllUnits then\n";
+			m_File << "	if annihilated( 1 ) and not DestroyAllUnits then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 			m_File << "		DestroyAllUnits = true\n";
 			m_File << "	end\n\n";
@@ -1754,7 +1754,7 @@ namespace TA3D
 			m_File << "			dx = unit_x( i ) + 0.5 * (map_w() - " << params[ 1 ] << " )\n";
 			m_File << "			dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
 			m_File << "			dist = dx * dx + dz * dz\n";
-            float dist = params[ 3 ].to<sint32>() * 0.5f;
+			float dist = params[ 3 ].to<sint32>() * 0.5f;
 			m_File << "			if dist <= " << String::Format("%f", dist * dist ) << " then\n";
 			m_File << "				if not first_launch and not check[ i ] and not MoveUnitToRadius then\n";
 			m_File << "					victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -1768,7 +1768,7 @@ namespace TA3D
 
 		m_File << "	if victory_conditions == " << nb_victory_conditions << " then\n";
 		m_File << "		play( \"VICTORY2\" )\n";
-        m_File << "		draw_image( \"gfx/victory.png\", 145, 190, 495, 290 )\n";
+		m_File << "		draw_image( \"gfx/victory.png\", 145, 190, 495, 290 )\n";
 		m_File << "		timer = time()\n";
 		m_File << "		end_signal = SIGNAL_VICTORY\n";
 		m_File << "	end\n";
@@ -1787,9 +1787,12 @@ namespace TA3D
 		m_File.flush();
 		m_File.close();
 
-        // Reset the VFS manager (because the VFS doesn't know what we have done)
-        VFS::instance()->reload();
+		// Reset the VFS manager (because the VFS doesn't know what we have done)
+		VFS::Instance()->reload();
 	}
+
+
+
 
 } // namespace TA3D
 

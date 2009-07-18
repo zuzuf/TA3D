@@ -3321,25 +3321,28 @@ namespace TA3D
 		{
 			case brPat:
 			case brDefeat:
-			case brUnknown: break;
+			case brUnknown:
+				break;
 			case brVictory:
-                            if (pGameData->campaign && !map->ota_data.glamour.empty() && VFS::instance()->fileExists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
-							{
-								// Disable TA palette since those images have their own palette :)
-								disable_TA_palette();
-								GLuint	glamour_tex = gfx->load_texture("bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx");
-								enable_TA_palette();
-								gfx->set_2D_mode();
-								gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
-								gfx->destroy_texture( glamour_tex);
-								gfx->unset_2D_mode();
-								gfx->flip();
+				{
+					if (pGameData->campaign && !map->ota_data.glamour.empty() && VFS::Instance()->fileExists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
+					{
+						// Disable TA palette since those images have their own palette :)
+						disable_TA_palette();
+						GLuint	glamour_tex = gfx->load_texture("bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx");
+						enable_TA_palette();
+						gfx->set_2D_mode();
+						gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
+						gfx->destroy_texture( glamour_tex);
+						gfx->unset_2D_mode();
+						gfx->flip();
 
-								while( !keypressed() && mouse_b == 0) {	rest(1);	poll_inputs();	}
-								while( mouse_b)	poll_inputs();
-								while( keypressed())	readkey();
-							}
-							break;
+						while( !keypressed() && mouse_b == 0) {	rest(1);	poll_inputs();	}
+						while( mouse_b)	poll_inputs();
+						while( keypressed())	readkey();
+					}
+					break;
+				}
 		}
 
 		// Statistics

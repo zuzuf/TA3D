@@ -1472,9 +1472,9 @@ namespace TA3D
 		const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
 		String::List file_list;
-		VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.3dm", file_list);
-		VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.s3o", file_list);
-		VFS::instance()->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
+		VFS::Instance()->getFilelist(ta3dSideData.model_dir + "*.3dm", file_list);
+		VFS::Instance()->getFilelist(ta3dSideData.model_dir + "*.s3o", file_list);
+		VFS::Instance()->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
 
 		if (!file_list.empty())
 		{

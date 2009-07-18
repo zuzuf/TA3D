@@ -125,7 +125,7 @@ namespace TA3D
 			not_loaded = false;
 			String tmp("anims\\");
 			tmp << filename << ".gaf";
-            byte* gaf = VFS::instance()->readFile(tmp);
+            byte* gaf = VFS::Instance()->readFile(tmp);
 			if (gaf)
 			{
 				sint32 index = Gaf::RawDataGetEntryIndex(gaf, seqname);
@@ -290,7 +290,7 @@ namespace TA3D
 					{
 						String tmp("anims\\");
 						tmp << feature[i]->filename << ".gaf";
-                        byte* gaf = VFS::instance()->readFile(tmp);
+                        byte* gaf = VFS::Instance()->readFile(tmp);
 						if (gaf)
 						{
 							sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i]->seqname);
@@ -336,20 +336,18 @@ namespace TA3D
 	void load_features(void (*progress)(float percent, const String& msg)) // Charge tout les éléments
 	{
 		String::List files;
-        VFS::instance()->getFilelist("features\\*.tdf", files);
+		VFS::Instance()->getFilelist("features\\*.tdf", files);
 		int n = 0;
 
-		for (String::List::const_iterator curFile = files.begin(); curFile != files.end(); ++curFile)
+		const String::List::const_iterator end = files.end();
+		for (String::List::const_iterator curFile = files.begin(); curFile != end; ++curFile)
 		{
 			if (progress != NULL && !(n & 0xF))
-			{
-				progress((200.0f + n * 50.0f / (files.size() + 1)) / 7.0f,
-						 I18N::Translate("Loading graphical features"));
-			}
+				progress((200.0f + n * 50.0f / (files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
 
 			++n;
 			uint32 file_size(0);
-            byte* data = VFS::instance()->readFile(curFile->c_str(), &file_size);
+			byte* data = VFS::Instance()->readFile(curFile->c_str(), &file_size);
 			if (data)
 			{
 				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << *curFile << "`...");

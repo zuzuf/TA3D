@@ -289,7 +289,7 @@ namespace Gui
 		destroy();		// In case there is an area loaded so we don't waste memory
 
 		String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : "";
-		if (!skin_name.empty() && VFS::instance()->fileExists(skin_name))
+		if (!skin_name.empty() && VFS::Instance()->fileExists(skin_name))
 			skin = skin_manager.load(skin_name, 1.0f);
 
 		String real_filename = filename;
@@ -297,7 +297,7 @@ namespace Gui
 		{
 			real_filename.clear();
 			real_filename << Paths::ExtractFilePath(filename) << skin->prefix() << Paths::ExtractFileName(filename);
-			if (!VFS::instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
+			if (!VFS::Instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
 
@@ -311,7 +311,7 @@ namespace Gui
 			? lp_CONFIG->skin_name
 			: areaFile.pullAsString("area.skin");
 
-		if (VFS::instance()->fileExists(skin_name)) // Loads a skin
+		if (VFS::Instance()->fileExists(skin_name)) // Loads a skin
 		{
 			const int area_width   = areaFile.pullAsInt("area.width", SCREEN_W);
 			const int area_height  = areaFile.pullAsInt("area.height", SCREEN_W);
@@ -337,7 +337,7 @@ namespace Gui
 					background_name += skin->prefix();
 			}
 
-			if (VFS::instance()->fileExists(background_name)) // Loads a background image
+			if (VFS::Instance()->fileExists(background_name)) // Loads a background image
 				background = gfx->load_texture(background_name);
 			else
 			{
@@ -346,7 +346,7 @@ namespace Gui
 					// No prefixed version, retry with default background
 					background_name = areaFile.pullAsString("area.background");
 					// Loads a background image
-					if (VFS::instance()->fileExists(background_name))
+					if (VFS::Instance()->fileExists(background_name))
 						background = gfx->load_texture(background_name);
 				}
 			}

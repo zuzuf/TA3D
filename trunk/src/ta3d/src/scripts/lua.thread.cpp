@@ -149,7 +149,7 @@ namespace TA3D
 		init();
 	}
 
-    LuaThread::LuaThread() : nextID(0)
+	LuaThread::LuaThread() : nextID(0)
 	{
 		init();
 	}
@@ -162,32 +162,33 @@ namespace TA3D
 	byte *loadLuaFile(const String &filename, uint32 &filesize)
 	{
 		filesize = 0;
-        byte *buffer = (byte*)VFS::instance()->readFile(filename , &filesize);
+		byte *buffer = (byte*)VFS::Instance()->readFile(filename , &filesize);
 		if (buffer)
 		{
 			String path = Paths::ExtractFilePath(filename);
+			String name;
 			int n = 0;
 			char *f = NULL;
 			while ((f = strstr( (char*)buffer, "#include" ) ) != NULL && n < 20)
 			{
-				String name;
 				int i;
+				name.clear();
 				for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
 					name << f[ i + 10 ];
-                if (!VFS::instance()->fileExists(path + name))
+				if (!VFS::Instance()->fileExists(path + name))
 					name = "scripts/" + name;
 				else
 					name = path + name;
 				uint32 filesize2 = 0;
-                byte *buffer2 = (byte*)VFS::instance()->readFile(name, &filesize2);
+				byte *buffer2 = (byte*)VFS::Instance()->readFile(name, &filesize2);
 				if (buffer2)
 				{
-                    byte *buffer3 = new byte[ filesize + filesize2 + 1 ];
-                    memset( buffer3, 0, filesize + filesize2 + 1 );
+					byte *buffer3 = new byte[ filesize + filesize2 + 1 ];
+					memset( buffer3, 0, filesize + filesize2 + 1 );
 					memcpy( buffer3, buffer, f - (char*)buffer );
-                    memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
-                    memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
-                    filesize += filesize2 - i - 11;
+					memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
+					memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
+					filesize += filesize2 - i - 11;
 					delete[] buffer;
 					delete[] buffer2;
 					buffer = buffer3;

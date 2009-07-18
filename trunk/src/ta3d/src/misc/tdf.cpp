@@ -97,10 +97,10 @@ namespace TA3D
 	{
 		uint64 size;
 		char* data;
-        if (!realFS)
+		if (!realFS)
 		{
 			uint32 ms;
-            data = (char*)VFS::instance()->readFile(filename, &ms);
+			data = (char*)VFS::Instance()->readFile(filename, &ms);
 			size = ms;
 			if (NULL != data && size != 0)
 			{
