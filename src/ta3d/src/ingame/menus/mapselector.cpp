@@ -168,9 +168,10 @@ namespace Menus
 		if (l < 9)
 			return;
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "autoSelectMap()");
-		const String s(shortName.substr(5, l - 9));
+		const String& s = shortName.substr(5, l - 9);
 		int indx(0);
-		for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != pListOfMaps.end(); ++i, ++indx)
+		const ListOfMaps::const_iterator end = pListOfMaps.end();
+		for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != end; ++i, ++indx)
 		{
 			if (s == *i)
 			{
@@ -190,13 +191,12 @@ namespace Menus
 
 	void MapSelector::scaleAndRePosTheMiniMap(const float coef /* = 504.0f */)
 	{
-		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "scaleAndRePosTheMiniMap()");
 		LOG_ASSERT(!Yuni::Math::Zero(coef)); // Division by zero
 
 		if (pMiniMapObj)
 		{
-			float ldx = dx * (pMiniMapX2 - pMiniMapX1) / coef;
-			float ldy = dy * (pMiniMapY2 - pMiniMapY1) / coef;
+			const float ldx = dx * (pMiniMapX2 - pMiniMapX1) / coef;
+			const float ldy = dy * (pMiniMapY2 - pMiniMapY1) / coef;
 			pMiniMapObj->x1 = pMiniMapMiddleX - ldx;
 			pMiniMapObj->y1 = pMiniMapMiddleY - ldy;
 			pMiniMapObj->x2 = pMiniMapMiddleX + ldx;
@@ -204,8 +204,8 @@ namespace Menus
 			pMiniMapObj->u2 = dx / 252.0f;
 			pMiniMapObj->v2 = dy / 252.0f;
 		}
-		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
 	}
+
 
 	void MapSelector::doFinalize()
 	{
@@ -230,9 +230,9 @@ namespace Menus
 			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 
 		} while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
-				 && mouse_b == 0
-				 && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
-				 && !keyIsPressed && !pArea->scrolling);
+				&& mouse_b == 0
+				&& !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
+				&& !keyIsPressed && !pArea->scrolling);
 	}
 
 
@@ -244,15 +244,12 @@ namespace Menus
 			pSelectedMap = pDefaultSelectedMap;
 			return true;
 		}
-
 		// Go ! Select the map !
 		if (pArea->get_state("mapsetup.b_ok") || key[KEY_ENTER])
 			return true;
-
 		// Selection change
 		if (pMapListObj)
 			return doGoSelectSingleMap(pMapListObj->Pos);
-
 		return false;
 	}
 
@@ -267,18 +264,14 @@ namespace Menus
 		pLastMapIndex = mapIndex;
 
 		// The new map name
-		pSelectedMap = "maps";
-		pSelectedMap += '\\'; // Paths::Separator;
-		pSelectedMap += pListOfMaps[mapIndex];
-		pSelectedMap += ".tnt";
+		pSelectedMap.clear();
+		pSelectedMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".tnt";
 		// Reload the mini map
 		ResetTexture(pMiniMapTexture, load_tnt_minimap_fast(pSelectedMap, dx, dy));
 
 		// OTA
-		String otaMap("maps");
-		otaMap += '\\'; // Paths::Separator;
-		otaMap += pListOfMaps[mapIndex];
-		otaMap += ".ota";
+		String otaMap;
+		otaMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".ota";
 		uint32 otaSize(0);
 		MAP_OTA mapOTA;
 		if (byte* data = VFS::instance()->readFile(otaMap, &otaSize))
@@ -330,18 +323,17 @@ namespace Menus
 
 	bool MapSelector::MapIsForNetworkGame(const String& mapShortName)
 	{
-		uint32 ota_size = 10240;
+		unsigned int ota_size = 10240;
 		byte* data = VFS::instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
-		ota_size = Math::Min( (int)ota_size, 10240 );
+		ota_size = Yuni::Math::Min<unsigned int>(ota_size, (unsigned int)10240);
 		if (data)
 		{
 			TDFParser ota_parser;
 			ota_parser.loadFromMemory("ota", (const char*)data, ota_size, false, false, false);
 			String tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
 			tmp.toLower();
-			bool isNetworkGame = tmp.startsWith("network");
 			delete[] data;
-			return isNetworkGame;
+			return tmp.startsWith("network");
 		}
 		return false;
 	}
@@ -361,7 +353,7 @@ namespace Menus
 				const String::size_type l(it->length());
 				if (l < 9)
 					continue;
-				const String newMapName(it->substr(5, l - 9));
+				const String& newMapName = it->substr(5, l - 9);
 				if (MapSelector::MapIsForNetworkGame(newMapName))
 					out.push_back(newMapName);
 			}
@@ -389,5 +381,4 @@ namespace Menus
 
 } // namespace Menus
 } // namespace TA3D
-
 

@@ -183,20 +183,17 @@ namespace Gui
 			if (e >= Entry.size() || pCacheFontHeight * (i+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
 			if (e == Index)
 				selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, x2 + text_background.x2, y1 + text_background.y1 + pCacheFontHeight * (i+1));
-			String str = Entry[ e ];
-			if (str.size() > 3 && str[0] == '<'  && str[1] == 'H' && str[2] == '>')       // Highlight this line
+			pCacheDrawTextStr = Entry[e];
+			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
-				str = str.substr(3, str.size() - 3);
-				glEnable(GL_BLEND);
-				glDisable(GL_TEXTURE_2D);
-				glBlendFunc(GL_ONE, GL_ONE);
+				pCacheDrawTextStr = pCacheDrawTextStr.substr(3, pCacheDrawTextStr.size() - 3);
 				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i,
 					x2 + text_background.x2, y1 + text_background.y1 + pCacheFontHeight * (i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
-				glDisable(GL_BLEND);
 			}
-			while (gui_font->length(str) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw && str.size() > 0)
-				str.removeLast();
-			gfx->print(gui_font, x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, 0.0f, White, str);
+			while (!pCacheDrawTextStr.empty() && gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+				pCacheDrawTextStr.removeLast();
+			gfx->print(gui_font, 10 + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i,
+				0.0f, White, pCacheDrawTextStr);
 		}
 
 		int TotalScroll = Entry.size() - (int)((y2 - y1 - text_background.y1 + text_background.y2) / pCacheFontHeight);
