@@ -293,12 +293,14 @@ namespace TA3D
 			obj->Text[0] = I18N::Translate( "default.skn");
 
 			String::List skin_list;
-			VFS::instance()->getFilelist("gui\\*.skn", skin_list);
+			VFS::Instance()->getFilelist("gui\\*.skn", skin_list);
 
-			for (String::List::iterator i = skin_list.begin(); i != skin_list.end(); ++i)
+			String skin_name;
+			const String::List::iterator end = skin_list.end();
+			for (String::List::iterator i = skin_list.begin(); i != end; ++i)
 			{
-				String skin_name = Paths::ExtractFileName( *i, false );
-				obj->Text.push_back( skin_name );
+				skin_name = Paths::ExtractFileName(*i, false);
+				obj->Text.push_back(skin_name);
 				if ("gui/" + String::ToLower(skin_name) == String::ToLower(lp_CONFIG->skin_name))
 					obj->Text[0] = skin_name;
 			}
@@ -628,7 +630,7 @@ namespace TA3D
 				TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
 				Cache::Clear(true); // Force cache reset
 
-				VFS::instance()->reload();
+				VFS::Instance()->reload();
 				ta3dSideData.loadData();                // Refresh side data so we load the correct values
 				delete sound_manager;
 				sound_manager = new TA3D::Audio::Manager();
@@ -705,12 +707,12 @@ namespace TA3D
 
 		GameData game_data;
 
-		if (VFS::instance()->fileExists(lp_CONFIG->last_map))
+		if (VFS::Instance()->fileExists(lp_CONFIG->last_map))
 			game_data.map_filename = lp_CONFIG->last_map;
 		else
 		{
 			String::List map_list;
-			const uint32 n = VFS::instance()->getFilelist("maps\\*.tnt", map_list);
+			const uint32 n = VFS::Instance()->getFilelist("maps\\*.tnt", map_list);
 
 			if (n == 0)
 			{
@@ -724,14 +726,14 @@ namespace TA3D
 			map_list.clear();
 		}
 		game_data.nb_players = 2;
-		if (VFS::instance()->fileExists(lp_CONFIG->last_script) && String::ToLower(Paths::ExtractFileExt(lp_CONFIG->last_script)) == ".lua")
+		if (VFS::Instance()->fileExists(lp_CONFIG->last_script) && String::ToLower(Paths::ExtractFileExt(lp_CONFIG->last_script)) == ".lua")
 			game_data.game_script = lp_CONFIG->last_script;
-		else if (VFS::instance()->fileExists("scripts\\game\\default.lua"))
+		else if (VFS::Instance()->fileExists("scripts\\game\\default.lua"))
 			game_data.game_script = "scripts\\game\\default.lua";
 		else
 		{
 			String::List script_list;
-			uint32 n = VFS::instance()->getFilelist("scripts\\game\\*.lua", script_list);
+			uint32 n = VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 
 			if (n == 0)
 			{
@@ -861,7 +863,7 @@ namespace TA3D
 		if (guiobj)
 		{
 			String::List script_list;
-			VFS::instance()->getFilelist("scripts\\game\\*.lua", script_list);
+			VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 			guiobj->Text.clear();
 			for (String::List::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
 				guiobj->Text.push_back(*i_script);
@@ -1345,7 +1347,7 @@ namespace TA3D
 										previous_ota_port.empty();
 										previous_tnt_port.empty();
 										String new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
-										if (client && !VFS::instance()->fileExists( new_map_name ))
+										if (client && !VFS::Instance()->fileExists( new_map_name ))
 										{
 											String sMpN(new_map_name);
 											sMpN.replace('\\', '/');
@@ -1355,7 +1357,7 @@ namespace TA3D
 
 										new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
 
-										if (client && !VFS::instance()->fileExists( new_map_name ))
+										if (client && !VFS::Instance()->fileExists( new_map_name ))
 										{
 											String sMpN(new_map_name);
 											sMpN.replace('\\', '/');
@@ -1373,7 +1375,7 @@ namespace TA3D
 										setupgame_area.caption( "gamesetup.script_name", script_name);
 										game_data.game_script = script_name;
 
-										if (client && !VFS::instance()->fileExists( script_name ))
+										if (client && !VFS::Instance()->fileExists( script_name ))
 										{
 											if (!previous_lua_port.empty())
 												network_manager.stopFileTransfer( previous_lua_port);
@@ -1865,8 +1867,8 @@ namespace TA3D
 				cursor_type=CURSOR_DEFAULT;
 				gfx->set_2D_mode();
 
-				if (!new_map.empty() && (set_map.empty() || (client && VFS::instance()->fileExists( Paths::Files::ReplaceExtension(new_map, ".tnt"))
-					&& VFS::instance()->fileExists( Paths::Files::ReplaceExtension(new_map, ".ota")))))
+				if (!new_map.empty() && (set_map.empty() || (client && VFS::Instance()->fileExists( Paths::Files::ReplaceExtension(new_map, ".tnt"))
+					&& VFS::Instance()->fileExists( Paths::Files::ReplaceExtension(new_map, ".ota")))))
 				{
 					set_map.clear();
 					if (host.notEmpty() && !client)
@@ -2344,7 +2346,7 @@ namespace TA3D
 			campaign_area.background = gfx->glfond;
 
 		String::List campaign_list;
-		VFS::instance()->getFilelist("camps\\*.tdf", campaign_list);
+		VFS::Instance()->getFilelist("camps\\*.tdf", campaign_list);
 		for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
 		{
 			if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)
@@ -2364,7 +2366,7 @@ namespace TA3D
 		}
 
 		Gaf::AnimationList side_logos;
-        byte *data = VFS::instance()->readFile( "anims\\newgame.gaf");
+        byte *data = VFS::Instance()->readFile( "anims\\newgame.gaf");
 		side_logos.loadGAFFromRawData(data, true);
 		if (data)
 			delete[] data;
@@ -2521,7 +2523,7 @@ namespace TA3D
 
 	Battle::Result brief_screen(String campaign_name, int mission_id)
 	{
-		cursor_type=CURSOR_DEFAULT;
+		cursor_type = CURSOR_DEFAULT;
 
 		Gui::AREA brief_area("brief");
 		brief_area.load_tdf("gui/brief.area");
@@ -2541,13 +2543,13 @@ namespace TA3D
 		brief_file << "camps\\briefs" << language_suffix << "\\" << ota_parser.pullAsString("GlobalHeader.brief") << ".txt"; // The brief file
 
 		{
-            if (!VFS::instance()->fileExists( brief_file ) )         // try without the .txt
+			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the .txt
 				brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.pullAsString( "GlobalHeader.brief");
-            if (!VFS::instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
+			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
 				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";
-            if (!VFS::instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
+			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
 				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief");
-            byte *data = VFS::instance()->readFile(brief_file);
+			byte *data = VFS::Instance()->readFile(brief_file);
 			if (data)
 			{
 				String brief_info = (const char*)data;
@@ -2574,7 +2576,7 @@ namespace TA3D
 		else if (planet_file == "slate" )               planet_file = "anims\\slatebrief.gaf";
 		else if (planet_file == "water world" )         planet_file = "anims\\waterbrief.gaf";
 
-        byte *data = VFS::instance()->readFile(planet_file);
+		byte *data = VFS::Instance()->readFile(planet_file);
 		if (data)
 		{
 			planet_animation.loadGAFFromRawData(data, true);

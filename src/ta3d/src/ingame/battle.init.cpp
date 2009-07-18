@@ -99,16 +99,16 @@ namespace TA3D
 		// Network
 		if (g_ta3d_network)
 		{
-            LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for network object...");
-            delete g_ta3d_network;
+			LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for network object...");
+			delete g_ta3d_network;
 			g_ta3d_network = NULL;
 		}
-        // Reset the VFS manager
-        LOG_DEBUG(LOG_PREFIX_BATTLE << "Reloading VFS manager...");
-        VFS::instance()->reload();
+		// Reset the VFS manager
+		LOG_DEBUG(LOG_PREFIX_BATTLE << "Reloading VFS manager...");
+		VFS::Instance()->reload();
 
-        LOG_DEBUG(LOG_PREFIX_BATTLE << "Reinitializing 2D menus environment...");
-        gfx->set_2D_mode();
+		LOG_DEBUG(LOG_PREFIX_BATTLE << "Reinitializing 2D menus environment...");
+		gfx->set_2D_mode();
 		gfx->ReInitTexSys();
 		LOG_INFO(LOG_PREFIX_BATTLE << "Done.");
 	}
@@ -121,8 +121,8 @@ namespace TA3D
 		if (!g)
 			return true;
 
-        // We don't want to load things we won't be able to use
-        gfx->checkConfig();
+		// We don't want to load things we won't be able to use
+		gfx->checkConfig();
 
 		// Here we go
 		uint64 startTime = msec_timer;
@@ -412,7 +412,7 @@ namespace TA3D
 			if (String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
 			{
 				int e(1);
-                while (VFS::instance()->fileExists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e)))
+                while (VFS::Instance()->fileExists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e)))
 				{
 					pArea.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e));			// Load the build interface
 					pArea.msg( unit_manager.unit_type[i]->Unitname + String::Format("%d.hide", e));	// Hide it
@@ -440,7 +440,7 @@ namespace TA3D
 		loading(600.0f / 7.0f, I18N::Translate("Loading the map"));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 
-        byte* map_file = VFS::instance()->readFile(pGameData->map_filename);
+		byte* map_file = VFS::Instance()->readFile(pGameData->map_filename);
 		if (!map_file)
 			return false;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "`" << pGameData->map_filename << "` extracted");
@@ -461,7 +461,7 @@ namespace TA3D
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 		uint32 ota_size(0);
-        map_file = VFS::instance()->readFile(pGameData->map_filename, &ota_size);
+		map_file = VFS::Instance()->readFile(pGameData->map_filename, &ota_size);
 		if (map_file)
 		{
 			LOG_INFO(LOG_PREFIX_BATTLE << "Loading map informations...");
@@ -487,7 +487,7 @@ namespace TA3D
 	bool Battle::initTheSky()
 	{
 		// The sky
-        pSkyData.reset(choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), String::ToLower(map->ota_data.planet)));
+		pSkyData.reset(choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), String::ToLower(map->ota_data.planet)));
 		if (pSkyData.get() == NULL)
 		{
 			pSkyData.reset(new SKY_DATA());

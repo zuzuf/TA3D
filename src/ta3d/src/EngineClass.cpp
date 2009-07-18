@@ -804,7 +804,7 @@ namespace TA3D
 	void MAP_OTA::load(const String& filename)
 	{
 		uint32 ota_file_size = 0;
-        byte *data = VFS::instance()->readFile(filename, &ota_file_size);
+        byte *data = VFS::Instance()->readFile(filename, &ota_file_size);
 		if (data)
 		{
 			load((char*)data, ota_file_size);
@@ -2437,7 +2437,7 @@ namespace TA3D
 		sky_list.clear();
 
 		String::List file_list;
-        VFS::instance()->getFilelist("sky\\*.tdf", file_list);
+		VFS::Instance()->getFilelist("sky\\*.tdf", file_list);
 		uint32	nb_sky = 0;
 
 		for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
@@ -2457,9 +2457,13 @@ namespace TA3D
 			}
 			if (!keep)
 			{
+				String sky;
+				String p;
 				for (String::Vector::const_iterator i = sky_data->planet.begin(); i != sky_data->planet.end(); ++i)
 				{
-                    if (String::ToLower(*i) == String::ToLower(planet))
+					sky = *i;
+					p = planet;
+					if (sky.toLower() == p.toLower())
 					{
 						keep = true;
 						break;
@@ -2475,9 +2479,9 @@ namespace TA3D
 				delete sky_data;
 		}
 
-        if (nb_sky == 0)    // Look for a default sky
+		if (nb_sky == 0)    // Look for a default sky
 		{
-            LOG_DEBUG(LOG_PREFIX_GFX << "no sky associated with this map('" << mapname << "') or this planet('" << planet << "') found, looking for default skies");
+			LOG_DEBUG(LOG_PREFIX_GFX << "no sky associated with this map('" << mapname << "') or this planet('" << planet << "') found, looking for default skies");
 			for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
 			{
 				SKY_DATA *sky_data = new SKY_DATA;
@@ -2500,12 +2504,14 @@ namespace TA3D
 		{
 			int select = TA3D_RAND() % nb_sky;
 			for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
-                if (select == 0)
+			{
+				if (select == 0)
 				{
 					selected_sky = *it;
 					*it = NULL;
 					break;
 				}
+			}
 		}
 
 		for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)

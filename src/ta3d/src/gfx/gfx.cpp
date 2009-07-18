@@ -1300,7 +1300,7 @@ namespace TA3D
 	SDL_Surface *GFX::load_image(const String filename)
 	{
         uint32 image_file_size;
-        byte *data = VFS::instance()->readFile(filename, &image_file_size);
+        byte *data = VFS::Instance()->readFile(filename, &image_file_size);
         if (data)
         {
             SDL_RWops *file = SDL_RWFromMem(data, image_file_size);
@@ -1332,7 +1332,7 @@ namespace TA3D
 
 	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
 	{
-        if (!VFS::instance()->fileExists(file)) // The file doesn't exist
+        if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
 
 		SDL_Surface* bmp = load_image(file);
@@ -1377,7 +1377,7 @@ namespace TA3D
 
 	GLuint	GFX::load_texture_mask(const String& file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
-        if (!VFS::instance()->fileExists(file)) // The file doesn't exist
+        if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
 			return 0;
 
 		SDL_Surface *bmp = load_image(file);
@@ -1609,7 +1609,7 @@ namespace TA3D
 
 	GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
 	{
-		if ( (!VFS::instance()->fileExists(file)) || (!VFS::instance()->fileExists(mask)))
+		if ( (!VFS::Instance()->fileExists(file)) || (!VFS::Instance()->fileExists(mask)))
 			return 0; // The file doesn't exist
 
 		SDL_Surface *bmp = load_image(file);
@@ -1622,12 +1622,14 @@ namespace TA3D
 			return 0;
 		}
 		for (int y = 0; y < bmp->h; ++y)
+		{
 			for (int x=0;x<bmp->w;x++)
 			{
 				uint32 c = SurfaceInt(bmp, x, y);
 				SurfaceInt(bmp, x, y) = makeacol( getr(c), getg(c), getb(c), geta(SurfaceInt(alpha,x,y)) );
 			}
-		if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
+		}
+		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			set_texture_format(GL_COMPRESSED_RGBA_ARB);
 		else
 			set_texture_format(GL_RGBA8);

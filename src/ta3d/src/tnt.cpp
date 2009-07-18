@@ -80,14 +80,14 @@ namespace TA3D
 
 		SDL_Surface *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
 		{
-            byte *headerBytes = VFS::instance()->readFileRange(filename.c_str(),0,sizeof(TNTHEADER),NULL);
-            if (headerBytes == NULL)
+			byte *headerBytes = VFS::Instance()->readFileRange(filename.c_str(),0,sizeof(TNTHEADER),NULL);
+			if (headerBytes == NULL)
 			{
 				return 0;
 			}
 			TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
 
-            byte *minimapdata = VFS::instance()->readFileRange(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
+			byte *minimapdata = VFS::Instance()->readFileRange(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
 			if (minimapdata==NULL)
 			{
 				delete[] headerBytes;

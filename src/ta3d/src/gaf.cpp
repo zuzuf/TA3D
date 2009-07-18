@@ -80,7 +80,7 @@ namespace TA3D
 	{
 		out.clear();
 
-        const byte* data = VFS::instance()->readFile(filename);
+        const byte* data = VFS::Instance()->readFile(filename);
 		if (data)
 		{
 			sint32 idx = RawDataGetEntryIndex(data, imgname);
@@ -163,7 +163,7 @@ namespace TA3D
 		}
 
 		uint32 file_length(0);
-        byte *data = VFS::instance()->readFile(filename, &file_length);
+		byte *data = VFS::Instance()->readFile(filename, &file_length);
 		if (data)
 		{
 			sint32 idx = file_length > 0 ? RawDataGetEntryIndex(data, imgname) : -1;

@@ -42,17 +42,31 @@ namespace TA3D
 namespace UTILS
 {
 
-
-
-	VFS *VFS::pInstance = NULL;
-
-
-
-	VFS *VFS::instance()
+	class Piko
 	{
-		if (!pInstance)
-			pInstance = new VFS();
-		return pInstance;
+	public:
+		Piko()
+		{
+			std::cout << "------------------------" << std::endl;
+		}
+		~Piko()
+		{
+			std::cout << "------------------------" << std::endl;
+		}
+
+		bool operator () (const String& key, const TA3D::UTILS::Archive::File* value)
+		{
+			std::cout << " >> " << key << " = " << (void*)value << "\n";
+			return true;
+		}
+	};
+
+
+
+	VFS *VFS::Instance()
+	{
+		static VFS instance;
+		return &instance;
 	}
 
 
@@ -71,13 +85,14 @@ namespace UTILS
 			archive->getFileList(archiveFiles);
 			LOG_DEBUG(LOG_PREFIX_VFS << "inserting archive files into file hash table");
 
-			for (std::list<Archive::File*>::iterator i = archiveFiles.begin() ; i != archiveFiles.end() ; ++i)
+			const std::list<Archive::File*>::iterator end = archiveFiles.end();
+			for (std::list<Archive::File*>::iterator i = archiveFiles.begin() ; i != end; ++i)
 			{
-				(*i)->setPriority((*i)->getPriority() + priority);      // Update file priority
+				(*i)->setPriority((*i)->getPriority() + priority); // Update file priority
 
-				Archive::File *file = files->find((*i)->getName());
-				if ((file && file->getPriority() < (*i)->getPriority()) || file == NULL)
-					files->insertOrUpdate((*i)->getName(), *i);
+				Archive::File* file = pFiles.find((*i)->getName());
+				if (!file || (file->getPriority() < (*i)->getPriority()))
+					pFiles.insertOrUpdate((*i)->getName(), *i);
 			}
 		}
 		else
@@ -101,9 +116,8 @@ namespace UTILS
 
 	// constructor:
 	VFS::VFS()
-		:fileCache(), archives(), files(NULL), m_Path()
+		:pFiles(16384, false)
 	{
-		load();
 	}
 
 	VFS::~VFS()
@@ -111,66 +125,81 @@ namespace UTILS
 		unload();
 	}
 
+
 	void VFS::unload()
 	{
 		MutexLocker mLock(mCache);
+		unloadWL();
+	}
+
+
+	void VFS::unloadWL()
+	{
 		LOG_DEBUG(LOG_PREFIX_VFS << "unloading VFS");
 		// Cleanup:
 		//   First delete the hash, we don't need to delete the File objects since they are completely
 		//   handled by the associated Archive classes
-		LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS file hashtable");
-		if (files)
-			delete files;
-		files = NULL;
+		pFiles.initTable(16384, false);
+
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS cache");
-		for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != fileCache.end() ; ++i)
-			delete[] i->data;
-		fileCache.clear();
+		if (!fileCache.empty())
+		{
+			const std::list<CacheFileData>::iterator end = fileCache.end();
+			for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != end; ++i)
+				delete[] i->data;
+			fileCache.clear();
+		}
 
 		// Now close and free archives.
 		LOG_DEBUG(LOG_PREFIX_VFS << "closing and freeing archives");
-		for(std::list<Archive*>::iterator i = archives.begin() ; i != archives.end() ; ++i)
-			delete *i;
-		archives.clear();
-		LOG_DEBUG(LOG_PREFIX_VFS << "VFS unloaded");
+		if (!archives.empty())
+		{
+			const std::list<Archive*>::iterator end = archives.end();
+			for (std::list<Archive*>::iterator i = archives.begin() ; i != end; ++i)
+				delete *i;
+			archives.clear();
+		}
+		LOG_DEBUG(LOG_PREFIX_VFS << "VFS unloaded.");
 	}
 
 
 	void VFS::load()
 	{
 		MutexLocker mLock(mCache);
-		if (files)
-			unload();
+		loadWL();
+	}
+
+
+	void VFS::loadWL()
+	{
+		unloadWL();
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "loading VFS");
-		LOG_DEBUG(LOG_PREFIX_VFS << "creating new file hash table");
-		files = new TA3D::UTILS::clpHashTable<Archive::File*>(16384, false);
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "reading root path");
-		m_Path = TA3D::Resources::GetPaths();
-		if (m_Path.empty())
-			m_Path.push_back("");
+		pPaths = TA3D::Resources::GetPaths();
+		if (pPaths.empty())
+			pPaths.push_back(nullptr);
 		LOG_DEBUG(LOG_PREFIX_VFS << "browse archives");
-		for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
+		for (String::Vector::iterator i = pPaths.begin(); i != pPaths.end(); ++i)
 			locateAndReadArchives(*i, 0);
+
 		if (!TA3D_CURRENT_MOD.empty())
 		{
 			LOG_DEBUG(LOG_PREFIX_VFS << "browse mod archives");
-			for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
-			{
+			for (String::Vector::iterator i = pPaths.begin(); i != pPaths.end(); ++i)
 				locateAndReadArchives(*i + TA3D_CURRENT_MOD, 0x10000);
-			}
 		}
 		LOG_DEBUG(LOG_PREFIX_VFS << "VFS loaded");
 	}
 
 
+
 	void VFS::reload()
 	{
 		MutexLocker mLock(mCache);
-		unload();
-		load();
+		loadWL();
 	}
 
 
@@ -193,7 +222,7 @@ namespace UTILS
 			fclose(cache_file);
 		}
 
-		if (filesize >= 0x100000)	// Don't store big files to prevent filling memory with cache data ;)
+		if (filesize >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
 			return;
 
 		mCache.lock();
@@ -315,7 +344,7 @@ namespace UTILS
 			return data;
 		}
 
-		Archive::File *file = files->find(key);
+		Archive::File *file = pFiles.find(key);
 
 		if (file)
 		{
@@ -365,19 +394,18 @@ namespace UTILS
 			}
 		}
 
-		Archive::File *file = files->find(key);
+		Archive::File *file = pFiles.find(key);
 		return file ? file->readRange(start, length, fileLength) : NULL;
 	}
 
 
-	bool VFS::fileExists(const String& filename)
+
+	bool VFS::fileExists(String filename)
 	{
 		MutexLocker mLock(mCache);
-		String key = String::ToLower(filename);
-		key.convertSlashesIntoBackslashes();
-
-		Archive::File *file = files->find(key);
-		return (file != NULL);
+		filename.toLower();
+		filename.convertSlashesIntoBackslashes();
+		return NULL != pFiles.find(filename);
 	}
 
 
@@ -387,7 +415,7 @@ namespace UTILS
 		String key = String::ToLower(filename);
 		key.convertSlashesIntoBackslashes();
 
-		Archive::File *file = files->find(key);
+		Archive::File *file = pFiles.find(key);
 		return file ? file->getPriority() : -0xFFFFFF;     // If it doesn't exist it has a lower priority than anything else
 	}
 
@@ -409,7 +437,7 @@ namespace UTILS
 		String pattern(s);
 		pattern.toLower();
 		pattern.convertSlashesIntoBackslashes();
-		return files->wildCardSearch(pattern, li);
+		return pFiles.wildCardSearch(pattern, li);
 	}
 
 
@@ -446,7 +474,7 @@ namespace UTILS
 		String win_filename(filename);
 		win_filename.convertSlashesIntoBackslashes();
 
-		data = VFS::instance()->readFile(win_filename, &length);
+		data = VFS::Instance()->readFile(win_filename, &length);
 		pos = 0;
 	}
 
@@ -571,7 +599,7 @@ namespace UTILS
 
 	bool load_palette(SDL_Color *pal, const String& filename)
 	{
-		byte* palette = VFS::instance()->readFile(filename);
+		byte* palette = VFS::Instance()->readFile(filename);
 		if (palette == NULL)
 			return false;
 
@@ -592,7 +620,7 @@ namespace UTILS
 			out.clear();
 
 		uint32 file_length(0);
-		byte *data = VFS::instance()->readFile(filename, &file_length);
+		byte *data = VFS::Instance()->readFile(filename, &file_length);
 		if (data == NULL)
 		{
 			LOG_WARNING("Impossible to open the file `" << filename << "`");

@@ -24,6 +24,7 @@
 #include "../misc/paths.h"
 #include "../logs/logs.h"
 #include <fstream>
+#include <yuni/core/paths.h>
 
 
 
@@ -183,47 +184,74 @@ namespace TA3D
 
 
 
-	String find_font(const String &path, const String &name)
+	static void find_font(String& out, const String &path, const String &name)
 	{
 		LOG_DEBUG(LOG_PREFIX_FONT << "looking for " << name);
-		String file_path;
+		out.clear();
 		String::List file_list;
-		String comp_name = String::ToLower(name + ".ttf");
-        VFS::instance()->getFilelist(path + "/*", file_list);
-		for (String::List::iterator i = file_list.begin() ; i != file_list.end() && file_path.empty() ; ++i)
-		{
-			if (String::ToLower( Paths::ExtractFileName(*i) ) == comp_name)
-                file_path = *i;
-		}
+		String tmp;
 
-        if (!file_path.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
-        {                             // in order to load it with FTGL
-			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << file_path);
-			uint32 font_size = 0;
-            byte *data = VFS::instance()->readFile(file_path, &font_size);
-			if (data)
+		String comp_name;
+		(comp_name << name << ".ttf").toLower();
+
+		VFS::Instance()->getFilelist(path + "/*", file_list);
+		// Looking for the file
+		{
+			const String::List::iterator end = file_list.end();
+			for (String::List::iterator i = file_list.begin() ; i != end; ++i)
 			{
-				LOG_DEBUG(LOG_PREFIX_FONT << "creating temporary file for " << name);
-				std::fstream tmp_file;
-				tmp_file.open( (TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf").c_str(), std::fstream::out | std::fstream::binary);
-				if (tmp_file.is_open())
+				tmp = Paths::ExtractFileName(*i);
+				tmp.toLower();
+				if (tmp == comp_name)
 				{
-					tmp_file.write((char*)data, font_size);
-					tmp_file.flush();
-					tmp_file.close();
-					file_path.clear();
-#ifdef TA3D_PLATFORM_WINDOWS
-					file_path << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
-					file_path.convertSlashesIntoBackslashes();
-#else
-					file_path << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
-#endif
+					out = *i;
+					break;
 				}
-				delete[] data;
 			}
 		}
 
-		return file_path;
+		if (!out.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
+		{                             // in order to load it with FTGL
+			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << out);
+			tmp.clear();
+			tmp << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
+
+			if (!Yuni::Core::Paths::Exists(tmp))
+			{
+				uint32 font_size = 0;
+				byte *data = VFS::Instance()->readFile(out, &font_size);
+				if (data)
+				{
+					std::fstream tmp_file;
+					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
+
+					tmp_file.open(tmp.c_str(), std::fstream::out | std::fstream::binary);
+					if (tmp_file.is_open())
+					{
+						tmp_file.write((char*)data, font_size);
+						tmp_file.flush();
+						tmp_file.close();
+						out.clear();
+						out << tmp;
+						# ifdef TA3D_PLATFORM_WINDOWS
+						out.convertSlashesIntoBackslashes();
+						# endif
+					}
+					else
+						LOG_ERROR(LOG_PREFIX_FONT << "Impossible to create the temporary file `" << tmp << "`");
+					delete[] data;
+				}
+			}
+			else
+			{
+				out.clear();
+				out << tmp;
+				# ifdef TA3D_PLATFORM_WINDOWS
+				out.convertSlashesIntoBackslashes();
+				# endif
+				LOG_INFO(LOG_PREFIX_FONT << " Font from cache : " << out);
+			}
+		}
 	}
 
 
@@ -261,12 +289,12 @@ namespace TA3D
 				case typeTexture:
 				default:
 #ifdef __FTGL__lower__
-                    font = new FTBufferFont(filename.c_str());
+					font = new FTBufferFont(filename.c_str());
 #else
-                    font = new FTTextureFont(filename.c_str());
+					font = new FTTextureFont(filename.c_str());
 #endif
 			}
-        }
+		}
 		if (font)
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "'" << filename << "' loaded");
@@ -297,12 +325,13 @@ namespace TA3D
 	Font* FontManager::internalRegisterFont(const String& key, const String& filename, const int size,
 		const Font::Type type)
 	{
-        String foundFilename = find_font(TA3D_FONT_PATH, filename);
+		String foundFilename;
+		find_font(foundFilename, TA3D_FONT_PATH, filename);
 
 		if (foundFilename.empty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << filename);
-            foundFilename = find_font(TA3D_FONT_PATH, "FreeSerif");
+			find_font(foundFilename, TA3D_FONT_PATH, "FreeSerif");
 		}
 
 		Font *font = new Font();

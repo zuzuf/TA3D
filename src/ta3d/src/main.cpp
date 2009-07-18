@@ -75,7 +75,7 @@ namespace TA3D
 		{
 			Cache::Clear();
 
-			VFS::instance()->reload();
+			VFS::Instance()->reload();
 			ta3dSideData.loadData(); // Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();
@@ -104,8 +104,7 @@ namespace TA3D
 		{
 			Cache::Clear();		// Clear the cache
 
-			std::cout << "Nyuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu" << std::endl;
-			VFS::instance()->reload();
+			VFS::Instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
 			delete sound_manager;
 			sound_manager = new TA3D::Audio::Manager();

@@ -130,7 +130,7 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (!lp_CONFIG->skin_name.empty() && VFS::instance()->fileExists(lp_CONFIG->skin_name))
+		if (!lp_CONFIG->skin_name.empty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
 		{
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);

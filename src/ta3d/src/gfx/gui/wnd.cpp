@@ -1421,7 +1421,7 @@ namespace Gui
 			if (background == 0)
 			{
 				String::List file_list;
-                VFS::instance()->getFilelist("anims\\*.gaf", file_list);
+                VFS::Instance()->getFilelist("anims\\*.gaf", file_list);
 				for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
 				{
 					LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
@@ -1495,7 +1495,7 @@ namespace Gui
 					if (!gaf_imgs.size())
 					{
 						String::List file_list;
-                        VFS::instance()->getFilelist("anims\\*.gaf", file_list);
+                        VFS::Instance()->getFilelist("anims\\*.gaf", file_list);
 						for (String::List::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
 						{
 							LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
@@ -1642,7 +1642,7 @@ namespace Gui
 			show_title = wndFile.pullAsBool("window.show title");
 			delete_gltex = false;
 			String backgroundImage = wndFile.pullAsString("window.background");
-            if (VFS::instance()->fileExists(backgroundImage))
+			if (VFS::Instance()->fileExists(backgroundImage))
 			{
 				background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
 				delete_gltex = true;
@@ -1664,6 +1664,8 @@ namespace Gui
 			String obj_type;
 			String caption;
 			String::Vector Entry;
+			String entryList;
+
 			for (unsigned int i = 0 ; i < NbObj; ++i) // Loads each object
 			{
 				obj_key.clear();
@@ -1698,10 +1700,6 @@ namespace Gui
 				if (X2<0) X2 += width;
 				if (Y1<0) Y1 += height;
 				if (Y2<0) Y2 += height;
-				//		if (X1<0)	X1+=SCREEN_W;
-				//		if (X2<0)	X2+=SCREEN_W;
-				//		if (Y1<0)	Y1+=SCREEN_H;
-				//		if (Y2<0)	Y2+=SCREEN_H;
 
 				if (wndFile.pullAsBool(obj_key + "can be clicked"))
 					obj_flags |= FLAG_CAN_BE_CLICKED;
@@ -1726,7 +1724,8 @@ namespace Gui
 					X1 -= gui_font->length(caption) * 0.5f;
 				}
 
-				String entryList = " " + wndFile.pullAsString(obj_key + "entry");
+				entryList.clear();
+				entryList << " " << wndFile.pullAsString(obj_key + "entry");
 				entryList.explode(Entry, ',', true, true, true);
 				I18N::Translate(Entry);
 

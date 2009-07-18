@@ -274,7 +274,7 @@ namespace Menus
 		otaMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".ota";
 		uint32 otaSize(0);
 		MAP_OTA mapOTA;
-		if (byte* data = VFS::instance()->readFile(otaMap, &otaSize))
+		if (byte* data = VFS::Instance()->readFile(otaMap, &otaSize))
 		{
 			mapOTA.load((char*)data, otaSize);
 			delete[] data;
@@ -324,7 +324,7 @@ namespace Menus
 	bool MapSelector::MapIsForNetworkGame(const String& mapShortName)
 	{
 		unsigned int ota_size = 10240;
-		byte* data = VFS::instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
+		byte* data = VFS::Instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
 		ota_size = Yuni::Math::Min<unsigned int>(ota_size, (unsigned int)10240);
 		if (data)
 		{
@@ -346,7 +346,7 @@ namespace Menus
 
 		// Load all available maps, without any distinction
 		ListOfMaps allMaps;
-		if (VFS::instance()->getFilelist("maps\\*.tnt", allMaps) > 0)
+		if (VFS::Instance()->getFilelist("maps\\*.tnt", allMaps) > 0)
 		{
 			for (ListOfMaps::const_iterator it = allMaps.begin(); it != allMaps.end(); ++it)
 			{

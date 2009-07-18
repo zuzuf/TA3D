@@ -101,7 +101,7 @@ namespace TA3D
 			uint64 filesize;
 			char* buf = NULL;
             uint32 fs(0);
-            buf = (char*)VFS::instance()->readFile(filename, &fs);
+            buf = (char*)VFS::Instance()->readFile(filename, &fs);
             filesize = fs;
             if (!buf)
             {
@@ -140,14 +140,14 @@ namespace TA3D
 
 		GLhandleARB loadVertexShader(const String& filename)
 		{
-			if (lp_CONFIG->disable_GLSL)    return 0;
+			if (lp_CONFIG->disable_GLSL)
+				return 0;
 
 			uint64 filesize;
-			char* buf = NULL;
-            uint32 fs(0);
-            buf = (char*)VFS::instance()->readFile(filename, &fs);
-            filesize = fs;
-            if (!buf)
+			uint32 fs(0);
+			char* buf = (char*)VFS::Instance()->readFile(filename, &fs);
+			filesize = fs;
+			if (!buf)
 			{
 				LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
 				return 0;
