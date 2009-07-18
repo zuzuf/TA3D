@@ -249,7 +249,7 @@ namespace TA3D
 				# ifdef TA3D_PLATFORM_WINDOWS
 				out.convertSlashesIntoBackslashes();
 				# endif
-				LOG_INFO(LOG_PREFIX_FONT << " Font from cache : " << out);
+				LOG_INFO(LOG_PREFIX_FONT << "`" << name << "`: From cache (`" << out << "`)");
 			}
 		}
 	}
