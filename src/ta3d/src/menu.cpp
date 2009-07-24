@@ -1009,7 +1009,7 @@ namespace TA3D
 					break;
 			} while (amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 				&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped
-				&& ( (msec_timer - ping_timer < 2000 && (msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN || !advertise) ) || host == NULL || client ));
+				&& ( (msec_timer - ping_timer < 2000 && (msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN || !advertise) ) || host.empty() || client ));
 
 			//-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
