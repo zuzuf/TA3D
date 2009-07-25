@@ -270,6 +270,8 @@ ${MementoSection} "Resources (required)" SecResources
   ${File} "..\..\gfx\tactical_icons\" "*.tga"
   ${SetOutPath} "$INSTDIR\Gfx\Teams\"
   ${File} "..\..\gfx\teams\" "*.tga"
+  ${SetOutPath} "$INSTDIR\Gfx\Splash\"
+  ${File} "..\..\gfx\splash\" "*.jpg"
 
 
   ${SetOutPath} "$INSTDIR\Ai\"
