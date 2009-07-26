@@ -58,7 +58,6 @@
 
 
 #define p_size          10.0f
-#define MENU_NB_PART    200
 
 // Some functions from main.cpp used to deal with config file
 
