@@ -172,6 +172,9 @@ namespace TA3D
 		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
 		I18N::Instance()->loadFromResources();
 
+        // Apply settings for the current language (required since it failed when loading settings because languages were not loaded)
+        I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+
 		// Creating Sound & Music Interface
 		sound_manager = new TA3D::Audio::Manager();
 		sound_manager->loadTDFSounds(true);
