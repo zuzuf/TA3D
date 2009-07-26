@@ -1050,7 +1050,7 @@ namespace TA3D
 				}
 			}
 
-			if (network_manager.getFileTransferProgress() >= 100.0f)
+            if (network_manager.getFileTransferProgress() < 100.0f)
 			{
 				progress_timer = msec_timer;
 				Gui::GUIOBJ::Ptr obj = setupgame_area.get_object( "gamesetup.p_transfer");
