@@ -4,15 +4,15 @@ Roland BROCHARD
 此程序是完全免费的；
 你可以重新架构、修改它，但前提是符合GNU组织的规则(,
 即遵守Free Software Foundation系列软件的规则); 以及遵守在之后版
-本附加的新条约等（可以只使用旧版本
+本新增的新条约等（可以只使用旧版本
 而只需遵守旧的规则）。
 
-此程序设计的初衷是希望它会对每个人有用, 但注意 没有任何义务进行保修;
+此程序设计的初衷是希望它对每个人都有用, 但注意 开发团队没有任何义务进行保修;
  也不会依特定请求而制作特别版本; 更多细节
 见GNU的协议。
 
-你在使用此程序时应拥有了一份GNU软件; 无且希望得到
-GNU可发送邮件到:
+你在使用此程序时应拥有了一份GNU软件; 无且希望进行
+交流可联系:
 Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 在此谢谢所有参与到TA3D项目的兄弟:
@@ -35,4 +35,4 @@ TA3D一部分树木模型的作者:
 
 Reiner Prokein, http://www.reinerstileset.de, Email: reiner.prokein@t-online.de
 
-再度感谢所有未列出的朋友
+感谢所有未列出的朋友
