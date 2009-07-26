@@ -151,6 +151,8 @@ namespace TA3D
 		// Load the default textures
 		gfx->loadDefaultTextures();
 
+        // Load fonts (it crashes on some systems if not run from the main thread)
+        gfx->loadFonts();
 
 		// Initialize the mouse handler
 		LOG_INFO("Initializing the mouse device handler");
@@ -174,9 +176,6 @@ namespace TA3D
 		sound_manager = new TA3D::Audio::Manager();
 		sound_manager->loadTDFSounds(true);
 		sound_manager->loadTDFSounds(false);
-
-		// Load ftons
-		gfx->loadFonts();
 
 		model_manager.init();
 		unit_manager.init();
