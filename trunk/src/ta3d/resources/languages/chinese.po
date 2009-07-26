@@ -221,7 +221,7 @@ CHINESE=开启;
 }
 [Join IP]
 {
-   CHINESE=用IP刷新;
+   CHINESE=用IP加入;
 }
 [Join]
 {
