@@ -329,7 +329,7 @@ namespace TA3D
 # ifdef TA3D_PLATFORM_WINDOWS
 					if (mkdir(pth.c_str()))
 # else
-						if (mkdir(pth.c_str(), 01755))
+                        if (mkdir(pth.c_str(), 0755))
 # endif
 						{
 							// TODO Use the logging system instead
