@@ -76,6 +76,7 @@ Mesh* SpringModelLoader::LoadPiece(byte* buf, int offset, Mesh* model)
         piece->type = MESH_TRIANGLES;
         break;
     case S3O_PRIMTYPE_TRIANGLE_STRIP:
+        piece->type = MESH_TRIANGLE_STRIP;
         break;
     };
     piece->name = (char*) &buf[fp->name];
