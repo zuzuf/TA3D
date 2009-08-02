@@ -104,6 +104,9 @@ void Gfx::paintGL()
 
     glDisable(GL_TEXTURE_2D);
 
+    glEnable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
+
     glColor3ub(0xFF, 0, 0);
     drawArrow(Vec(0,0,0), Vec(8,0,0), 0.3f);
     glColor3ub(0, 0xFF, 0);
@@ -697,4 +700,9 @@ QImage Gfx::textureToImage(GLuint tex)
     QImage img(w, h, QImage::Format_ARGB32);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA,GL_UNSIGNED_BYTE, img.bits());
     return img;
+}
+
+Gfx::EditMode Gfx::getEditMode()
+{
+    return editMode;
 }

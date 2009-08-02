@@ -17,6 +17,7 @@ protected:
     void moveEvent(QMoveEvent *);
     void closeEvent(QCloseEvent *);
     void keyPressEvent(QKeyEvent *);
+    void keyReleaseEvent(QKeyEvent *);
 
 public slots:
     void setEnglish();
@@ -52,6 +53,7 @@ public slots:
 private:
     QStatusBar  *statusBar;
     QString     filename;
+    bool        ctrlPressed;
 };
 
 #endif // MAINWINDOW_H
