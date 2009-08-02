@@ -95,7 +95,7 @@ SurfaceProperties::SurfaceProperties() : QDockWidget(MainWindow::instance())
     flagLayout->addWidget(flagReflec, 1, 1);
     flagLayout->addWidget(flagTextured, 2, 1);
     flagLayout->addWidget(flagRootTexture, 3, 1);
-    QPushButton *bShader = new QPushButton(tr("Shader"));
+    QPushButton *bShader = new QPushButton(QIcon("icons/shader.png"), tr("Shader"));
     flagLayout->addWidget(bShader, 4, 0);
 
     QVBoxLayout *finalLayout = new QVBoxLayout;
@@ -109,17 +109,17 @@ SurfaceProperties::SurfaceProperties() : QDockWidget(MainWindow::instance())
     imageListView = new ImageListView;
     finalLayout->addWidget(imageListView);
 
-    QPushButton *bLoad = new QPushButton(tr("&Load"));
-    QPushButton *bSave = new QPushButton(tr("&Save"));
-    QPushButton *bNew = new QPushButton(tr("&New"));
-    QPushButton *bDelete = new QPushButton(tr("&Delete"));
-    QPushButton *bLeft = new QPushButton(tr("&<"));
-    QPushButton *bRight = new QPushButton(tr("&>"));
+    QPushButton *bLoad = new QPushButton(QIcon("icons/open.png"), tr("&Load"));
+    QPushButton *bSave = new QPushButton(QIcon("icons/save.png"), tr("&Save"));
+    QPushButton *bNew = new QPushButton(QIcon("icons/add.png"), tr("&New"));
+    QPushButton *bDelete = new QPushButton(QIcon("icons/delete.png"), tr("&Delete"));
+    QPushButton *bLeft = new QPushButton(QIcon("icons/left.png"), tr(""));
+    QPushButton *bRight = new QPushButton(QIcon("icons/right.png"), tr(""));
 
     QPushButton *bBasic = new QPushButton(tr("&basic UV"));
     QPushButton *bSpherical = new QPushButton(tr("&spherical UV"));
     QPushButton *bAuto = new QPushButton(tr("&auto UV"));
-    QPushButton *bMerge = new QPushButton(tr("&merge vertices"));
+    QPushButton *bMerge = new QPushButton(QIcon("icons/merge.png"), tr("&merge vertices"));
     QPushButton *bAmbientOcclusion = new QPushButton(tr("&ambient occlusion"));
     QPushButton *bFlip = new QPushButton(tr("&flip"));
     textureLayout->addWidget(bLoad, 0, 0);

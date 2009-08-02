@@ -1,13 +1,5 @@
 #include "mainwindow.h"
-#include <QApplication>
-#include <QMenuBar>
-#include <QLayout>
-#include <QResizeEvent>
-#include <QKeyEvent>
-#include <QDesktopWidget>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QInputDialog>
+#include <QtGui>
 #include "config.h"
 #include "gfx.h"
 #include "aboutwindow.h"
@@ -33,17 +25,17 @@ MainWindow::MainWindow(QWidget *parent)
     pInstance = this;
 
     QMenu *mnuFile = new QMenu( tr("&File"));
-    mnuFile->addAction( tr("&New"), this, SLOT(newMesh()));
-    mnuFile->addAction( tr("&Open"), this, SLOT(loadMesh()));
-    mnuFile->addAction( tr("&Save"), this, SLOT(saveMesh()));
-    mnuFile->addAction( tr("Save as"), this, SLOT(saveMeshAs()));
-    mnuFile->addAction( tr("&Exit"), this, SLOT(close()));
+    mnuFile->addAction( QIcon("icons/new.png"), tr("&New"), this, SLOT(newMesh()));
+    mnuFile->addAction( QIcon("icons/open.png"), tr("&Open"), this, SLOT(loadMesh()));
+    mnuFile->addAction( QIcon("icons/save.png"), tr("&Save"), this, SLOT(saveMesh()));
+    mnuFile->addAction( QIcon("icons/save-as.png"), tr("Save as"), this, SLOT(saveMeshAs()));
+    mnuFile->addAction( QIcon("icons/exit.png"), tr("&Exit"), this, SLOT(close()));
     menuBar()->addMenu(mnuFile);
 
     QMenu *mnuEdit = new QMenu( tr("&Edit"));
-    mnuEdit->addAction( tr("&Edit mode"), Gfx::instance(), SLOT(setEditMode()));
-    mnuEdit->addAction( tr("&View mode"), Gfx::instance(), SLOT(setViewMode()));
-    mnuEdit->addAction( tr("&Animation mode"), Gfx::instance(), SLOT(setAnimateMode()));
+    mnuEdit->addAction( QIcon("icons/edit.png"), tr("&Edit mode"), Gfx::instance(), SLOT(setEditMode()));
+    mnuEdit->addAction( QIcon("icons/view.png"), tr("&View mode"), Gfx::instance(), SLOT(setViewMode()));
+    mnuEdit->addAction( QIcon("icons/animation.png"), tr("&Animation mode"), Gfx::instance(), SLOT(setAnimateMode()));
     menuBar()->addMenu(mnuEdit);
 
     QMenu *mnuView = new QMenu( tr("&View"));
@@ -58,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
     QMenu *mnuWindows = new QMenu( tr("&Windows"));
     mnuWindows->addAction( tr("&Geometry graph"), this, SLOT(showGeometryGraph()));
     mnuWindows->addAction( tr("&Texture viewer"), this, SLOT(showTextureViewer()));
-    mnuWindows->addAction( tr("&Surface properties"), this, SLOT(showSurfaceProperties()));
+    mnuWindows->addAction( QIcon("icons/configure.png"), tr("&Surface properties"), this, SLOT(showSurfaceProperties()));
 
     QMenu *mnuInterface = new QMenu( tr("&Interface") );
     mnuInterface->addMenu(mnuLanguage);
@@ -67,10 +59,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     QMenu *mnuCreate = new QMenu( tr("&Create") );
     mnuCreate->addAction( tr("&Cone"), this, SLOT(createCone()));
-    mnuCreate->addAction( tr("&Cube"), this, SLOT(createCube()));
+    mnuCreate->addAction( QIcon("icons/cube.png"), tr("&Cube"), this, SLOT(createCube()));
     mnuCreate->addAction( tr("&Cylinder"), this, SLOT(createCylinder()));
-    mnuCreate->addAction( tr("&Sphere"), this, SLOT(createSphere()));
-    mnuCreate->addAction( tr("&Torus"), this, SLOT(createTorus()));
+    mnuCreate->addAction( QIcon("icons/sphere.png"), tr("&Sphere"), this, SLOT(createSphere()));
+    mnuCreate->addAction( QIcon("icons/torus.png"), tr("&Torus"), this, SLOT(createTorus()));
 
     QMenu *mnuTransform = new QMenu( tr("&Transform") );
     mnuTransform->addAction( tr("&Mirror X"), this, SLOT(mirrorX()));
@@ -82,25 +74,30 @@ MainWindow::MainWindow(QWidget *parent)
     mnuTransform->addAction( tr("&Scale"), this, SLOT(scale()));
 
     QMenu *mnuGeometry = new QMenu( tr("&Geometry") );
-    mnuGeometry->addAction( tr("&Split components"), this, SLOT(splitMesh()));
-    mnuGeometry->addAction( tr("&Merge all"), this, SLOT(mergeAll()));
+    mnuGeometry->addAction( QIcon("icons/split.png"), tr("&Split components"), this, SLOT(splitMesh()));
+    mnuGeometry->addAction( QIcon("icons/merge.png"), tr("&Merge all"), this, SLOT(mergeAll()));
 
     QMenu *mnuModel = new QMenu( tr("&Model") );
+    mnuCreate->setIcon(QIcon("icons/add.png"));
     mnuModel->addMenu(mnuCreate);
     mnuModel->addMenu(mnuTransform);
     mnuModel->addMenu(mnuGeometry);
     menuBar()->addMenu(mnuModel);
 
     QMenu *mnuHelp = new QMenu( tr("&Help") );
-    mnuHelp->addAction(tr("&Index"), this, SLOT(showHelpViewer()));
+    mnuHelp->addAction(QIcon("icons/help.png"), tr("&Index"), this, SLOT(showHelpViewer()));
     mnuHelp->addSeparator();
-    mnuHelp->addAction(tr("&About"), this, SLOT(about()));
-    mnuHelp->addAction(tr("&About Qt"), this, SLOT(aboutQt()));
+    mnuHelp->addAction(QIcon("icons/about.png"), tr("&About"), this, SLOT(about()));
+    mnuHelp->addAction(QIcon("icons/about.png"), tr("&About Qt"), this, SLOT(aboutQt()));
     menuBar()->addMenu(mnuHelp);
 
     updateTitle();
 
     setCentralWidget(Gfx::instance());
+
+    QToolBar *editToolBar = addToolBar(tr("edit"));
+    editToolBar->addActions(mnuEdit->actions());
+    editToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     statusBar = new QStatusBar();
     setStatusBar(statusBar);
