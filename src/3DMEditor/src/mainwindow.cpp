@@ -49,8 +49,8 @@ MainWindow::MainWindow(QWidget *parent)
     mnuLanguage->addAction( tr("&French"), this, SLOT(setFrench()));
 
     QMenu *mnuWindows = new QMenu( tr("&Windows"));
-    mnuWindows->addAction( tr("&Geometry graph"), this, SLOT(showGeometryGraph()));
-    mnuWindows->addAction( tr("&Texture viewer"), this, SLOT(showTextureViewer()));
+    mnuWindows->addAction( QIcon("icons/tree.png"), tr("&Geometry graph"), this, SLOT(showGeometryGraph()));
+    mnuWindows->addAction( QIcon("icons/texture.png"), tr("&Texture viewer"), this, SLOT(showTextureViewer()));
     mnuWindows->addAction( QIcon("icons/configure.png"), tr("&Surface properties"), this, SLOT(showSurfaceProperties()));
 
     QMenu *mnuInterface = new QMenu( tr("&Interface") );
