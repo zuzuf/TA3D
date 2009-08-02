@@ -2,6 +2,7 @@
 #define TEXTUREVIEWER_H
 
 #include "types.h"
+#include <QDockWidget>
 
 class TextureViewer : public QGLWidget
 {
@@ -11,6 +12,7 @@ public:
 
     void initializeGL();
     void paintGL();
+    void resize(int w, int h);
 
 public slots:
     void updateSelection(int ID);
@@ -18,6 +20,7 @@ public slots:
 
 private:
     int selectedID;
+    QDockWidget *dock;
 
 public:
     static TextureViewer *instance();

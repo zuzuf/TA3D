@@ -53,9 +53,9 @@ GeometryGraph::GeometryGraph() : QDockWidget(MainWindow::instance())
 
     layout->addWidget(tree);
 
-    QPushButton *bRename = new QPushButton(tr("&Rename"));
-    QPushButton *bDelete = new QPushButton(tr("&Delete"));
-    QPushButton *bMerge = new QPushButton(tr("&Merge"));
+    QPushButton *bRename = new QPushButton(QIcon("icons/rename.png"), tr("&Rename"));
+    QPushButton *bDelete = new QPushButton(QIcon("icons/delete.png"), tr("&Delete"));
+    QPushButton *bMerge = new QPushButton(QIcon("icons/merge.png"), tr("&Merge"));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(bRename);

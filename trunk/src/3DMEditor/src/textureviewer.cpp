@@ -4,7 +4,6 @@
 #include <QTimer>
 #include <QTime>
 #include "mainwindow.h"
-#include <QDockWidget>
 
 TextureViewer *TextureViewer::pInstance = NULL;
 
@@ -18,7 +17,7 @@ TextureViewer *TextureViewer::instance()
 TextureViewer::TextureViewer()
 {
     // Docking options
-    QDockWidget *dock = new QDockWidget(MainWindow::instance());
+    dock = new QDockWidget(MainWindow::instance());
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     MainWindow::instance()->addDockWidget(Qt::RightDockWidgetArea, dock);
     dock->setWidget(this);
@@ -32,6 +31,12 @@ TextureViewer::TextureViewer()
     timer->setSingleShot(false);
     timer->setInterval(50);     // 20 times a sec.
     timer->start();
+}
+
+void TextureViewer::resize(int w, int h)
+{
+    if (dock->isFloating())
+        dock->resize(w, h);
 }
 
 void TextureViewer::updateSelection(int ID)
