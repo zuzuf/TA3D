@@ -10,6 +10,7 @@
 #include "mesh.h"
 #include "misc/camera.h"
 #include "helpviewer.h"
+#include "toolbox.h"
 
 MainWindow *MainWindow::pInstance = NULL;
 MainWindow *MainWindow::instance()
@@ -52,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
     mnuWindows->addAction( QIcon("icons/tree.png"), tr("&Geometry graph"), this, SLOT(showGeometryGraph()));
     mnuWindows->addAction( QIcon("icons/texture.png"), tr("&Texture viewer"), this, SLOT(showTextureViewer()));
     mnuWindows->addAction( QIcon("icons/configure.png"), tr("&Surface properties"), this, SLOT(showSurfaceProperties()));
+    mnuWindows->addAction( QIcon("icons/toolbox.png"), tr("&Toolbox"), this, SLOT(showToolBox()));
 
     QMenu *mnuInterface = new QMenu( tr("&Interface") );
     mnuInterface->addMenu(mnuLanguage);
@@ -285,6 +287,11 @@ void MainWindow::showGeometryGraph()
 void MainWindow::showSurfaceProperties()
 {
     SurfaceProperties::instance()->show();
+}
+
+void MainWindow::showToolBox()
+{
+    ToolBox::instance()->show();
 }
 
 void MainWindow::endProgram()
