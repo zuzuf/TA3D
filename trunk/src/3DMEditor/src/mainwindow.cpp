@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     pInstance = this;
 
+    // Menus
     QMenu *mnuFile = new QMenu( tr("&File"));
     mnuFile->addAction( QIcon("icons/new.png"), tr("&New"), this, SLOT(newMesh()));
     mnuFile->addAction( QIcon("icons/open.png"), tr("&Open"), this, SLOT(loadMesh()));
@@ -33,9 +34,9 @@ MainWindow::MainWindow(QWidget *parent)
     menuBar()->addMenu(mnuFile);
 
     QMenu *mnuEdit = new QMenu( tr("&Edit"));
-    mnuEdit->addAction( QIcon("icons/edit.png"), tr("&Edit mode"), Gfx::instance(), SLOT(setEditMode()));
-    mnuEdit->addAction( QIcon("icons/view.png"), tr("&View mode"), Gfx::instance(), SLOT(setViewMode()));
-    mnuEdit->addAction( QIcon("icons/animation.png"), tr("&Animation mode"), Gfx::instance(), SLOT(setAnimateMode()));
+    mnuEdit->addAction( QIcon("icons/edit.png"), tr("&Edit mode"), this, SLOT(setEditMode()));
+    mnuEdit->addAction( QIcon("icons/view.png"), tr("&View mode"), this, SLOT(setViewMode()));
+    mnuEdit->addAction( QIcon("icons/animation.png"), tr("&Animation mode"), this, SLOT(setAnimateMode()));
     menuBar()->addMenu(mnuEdit);
 
     QMenu *mnuView = new QMenu( tr("&View"));
@@ -58,9 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
     menuBar()->addMenu(mnuInterface);
 
     QMenu *mnuCreate = new QMenu( tr("&Create") );
-    mnuCreate->addAction( tr("&Cone"), this, SLOT(createCone()));
+    mnuCreate->addAction( QIcon("icons/cone.png"), tr("&Cone"), this, SLOT(createCone()));
     mnuCreate->addAction( QIcon("icons/cube.png"), tr("&Cube"), this, SLOT(createCube()));
-    mnuCreate->addAction( tr("&Cylinder"), this, SLOT(createCylinder()));
+    mnuCreate->addAction( QIcon("icons/cylinder.png"), tr("&Cylinder"), this, SLOT(createCylinder()));
     mnuCreate->addAction( QIcon("icons/sphere.png"), tr("&Sphere"), this, SLOT(createSphere()));
     mnuCreate->addAction( QIcon("icons/torus.png"), tr("&Torus"), this, SLOT(createTorus()));
 
@@ -91,14 +92,47 @@ MainWindow::MainWindow(QWidget *parent)
     mnuHelp->addAction(QIcon("icons/about.png"), tr("&About Qt"), this, SLOT(aboutQt()));
     menuBar()->addMenu(mnuHelp);
 
+    // Global stuffs
     updateTitle();
 
     setCentralWidget(Gfx::instance());
 
-    QToolBar *editToolBar = addToolBar(tr("edit"));
-    editToolBar->addActions(mnuEdit->actions());
-    editToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    // Toolbars
+#define TOOLBAR(mnu) \
+    QToolBar *mnu##ToolBar = addToolBar(mnu->title());\
+    mnu##ToolBar->addActions(mnu->actions());\
+    mnu##ToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);\
+    mnu##ToolBar->addSeparator();
 
+    TOOLBAR(mnuFile);
+    TOOLBAR(mnuCreate);
+    TOOLBAR(mnuGeometry);
+
+    QToolBar *mnuEditToolBar = addToolBar(mnuEdit->title());
+    bEdit = new QToolButton;
+    bEdit->setCheckable(true);
+    bEdit->setIcon(QIcon("icons/edit.png"));
+    bEdit->setText(tr("&Edit mode"));
+    connect(bEdit, SIGNAL(clicked()), this, SLOT(setEditMode()));
+    mnuEditToolBar->addWidget(bEdit);
+
+    bView = new QToolButton;
+    bView->setCheckable(true);
+    bView->setIcon(QIcon("icons/view.png"));
+    bView->setText(tr("&View mode"));
+    connect(bView, SIGNAL(clicked()), this, SLOT(setViewMode()));
+    mnuEditToolBar->addWidget(bView);
+
+    bAnim = new QToolButton;
+    bAnim->setCheckable(true);
+    bAnim->setIcon(QIcon("icons/animation.png"));
+    bAnim->setText(tr("&Animation mode"));
+    connect(bAnim, SIGNAL(clicked()), this, SLOT(setAnimateMode()));
+    mnuEditToolBar->addWidget(bAnim);
+
+    mnuEditToolBar->addSeparator();
+
+    // Status bar
     statusBar = new QStatusBar();
     setStatusBar(statusBar);
 
@@ -117,11 +151,37 @@ MainWindow::MainWindow(QWidget *parent)
     connect(Gfx::instance(), SIGNAL(selectionChange(int)), SurfaceProperties::instance(), SLOT(refreshGUI()));
     connect(SurfaceProperties::instance(), SIGNAL(surfaceChanged()), Gfx::instance(), SLOT(updateGL()));
     connect(Gfx::instance(), SIGNAL(selectionChange(int)), ShaderEditor::instance(), SLOT(updateGUI()));
+
+    setViewMode();
 }
 
 MainWindow::~MainWindow()
 {
     delete statusBar;
+}
+
+void MainWindow::setEditMode()
+{
+    bEdit->setChecked(true);
+    bView->setChecked(false);
+    bAnim->setChecked(false);
+    Gfx::instance()->setEditMode();
+}
+
+void MainWindow::setViewMode()
+{
+    bEdit->setChecked(false);
+    bView->setChecked(true);
+    bAnim->setChecked(false);
+    Gfx::instance()->setViewMode();
+}
+
+void MainWindow::setAnimateMode()
+{
+    bEdit->setChecked(false);
+    bView->setChecked(false);
+    bAnim->setChecked(true);
+    Gfx::instance()->setAnimateMode();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *)
@@ -385,7 +445,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                 if (Gfx::instance()->getEditMode() == Gfx::VIEW)
                 {
                     ctrlPressed = true;
-                    Gfx::instance()->setEditMode();
+                    setEditMode();
                 }
             }
             break;
@@ -413,7 +473,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         {
             ctrlPressed = false;
             if (Gfx::instance()->getEditMode() == Gfx::EDIT)
-                Gfx::instance()->setViewMode();
+                setViewMode();
         }
         break;
     default:

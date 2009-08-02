@@ -3,6 +3,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QStatusBar>
+#include <QToolButton>
 
 class MainWindow : public QMainWindow
 {
@@ -49,11 +50,17 @@ public slots:
     void scale();
     void splitMesh();
     void mergeAll();
+    void setEditMode();
+    void setViewMode();
+    void setAnimateMode();
 
 private:
     QStatusBar  *statusBar;
     QString     filename;
     bool        ctrlPressed;
+    QToolButton *bEdit;
+    QToolButton *bView;
+    QToolButton *bAnim;
 
 private:
     static MainWindow   *pInstance;
