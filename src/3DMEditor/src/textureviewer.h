@@ -14,6 +14,7 @@ public:
 
 public slots:
     void updateSelection(int ID);
+    void show();
 
 private:
     int selectedID;

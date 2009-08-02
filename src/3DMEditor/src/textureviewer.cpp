@@ -3,6 +3,8 @@
 #include "mesh.h"
 #include <QTimer>
 #include <QTime>
+#include "mainwindow.h"
+#include <QDockWidget>
 
 TextureViewer *TextureViewer::pInstance = NULL;
 
@@ -15,7 +17,14 @@ TextureViewer *TextureViewer::instance()
 
 TextureViewer::TextureViewer()
 {
-    setWindowTitle(tr("Texture viewer"));
+    // Docking options
+    QDockWidget *dock = new QDockWidget(MainWindow::instance());
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
+    MainWindow::instance()->addDockWidget(Qt::RightDockWidgetArea, dock);
+    dock->setWidget(this);
+
+    // Normal initialization
+    dock->setWindowTitle(tr("Texture viewer"));
     ((QGLContext*)context())->create( Gfx::instance()->context() );
     selectedID = -1;
     QTimer *timer = new QTimer(this);
@@ -39,6 +48,11 @@ void TextureViewer::updateSelection(int ID)
         }
         updateGL();
     }
+}
+
+void TextureViewer::show()
+{
+    parentWidget()->show();
 }
 
 void TextureViewer::initializeGL()

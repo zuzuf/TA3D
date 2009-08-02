@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QPaintEngine>
+#include "mainwindow.h"
 
 SurfaceProperties *SurfaceProperties::pInstance = NULL;
 
@@ -21,8 +22,15 @@ SurfaceProperties *SurfaceProperties::instance()
     return pInstance;
 }
 
-SurfaceProperties::SurfaceProperties()
+SurfaceProperties::SurfaceProperties() : QDockWidget(MainWindow::instance())
 {
+    // Docking options
+    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    MainWindow::instance()->addDockWidget(Qt::LeftDockWidgetArea, this);
+    QWidget *wnd = new QWidget();
+    setWidget(wnd);
+
+    // Normal initialization
     updating = true;
     red = new QSpinBox;
     green = new QSpinBox;
@@ -129,7 +137,7 @@ SurfaceProperties::SurfaceProperties()
 
     finalLayout->addLayout(textureLayout);
 
-    setLayout(finalLayout);
+    wnd->setLayout(finalLayout);
 
     // GUI connections
 
