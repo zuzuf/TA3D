@@ -20,7 +20,7 @@
 #include "helpviewer.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), ctrlPressed(false)
 {
     QMenu *mnuFile = new QMenu( tr("&File"));
     mnuFile->addAction( tr("&New"), this, SLOT(newMesh()));
@@ -347,6 +347,11 @@ void MainWindow::updateTitle()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if (event->isAutoRepeat())
+    {
+        event->ignore();
+        return;
+    }
     if (event->modifiers() == Qt::ControlModifier)
     {
         switch(event->key())
@@ -366,12 +371,47 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             Gfx::instance()->meshMatrix = Transpose( Scale(1.0f) );
             Camera::inGame->rpos = Vec(0,0,30);
             break;
+        case Qt::Key_Control:
+            event->accept();
+            if (!ctrlPressed)
+            {
+                if (Gfx::instance()->getEditMode() == Gfx::VIEW)
+                {
+                    ctrlPressed = true;
+                    Gfx::instance()->setEditMode();
+                }
+            }
+            break;
         default:
             event->ignore();
         };
     }
     else
         event->ignore();
+    Gfx::instance()->updateGL();
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->isAutoRepeat())
+    {
+        event->ignore();
+        return;
+    }
+    switch(event->key())
+    {
+    case Qt::Key_Control:
+        event->accept();
+        if (ctrlPressed)
+        {
+            ctrlPressed = false;
+            if (Gfx::instance()->getEditMode() == Gfx::EDIT)
+                Gfx::instance()->setViewMode();
+        }
+        break;
+    default:
+        event->ignore();
+    };
     Gfx::instance()->updateGL();
 }
 

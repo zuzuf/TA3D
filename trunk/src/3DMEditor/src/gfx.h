@@ -35,6 +35,8 @@ public:
     int getTextureHeight(GLuint tex);
     QImage textureToImage(GLuint tex);
 
+    EditMode getEditMode();
+
 protected:
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
