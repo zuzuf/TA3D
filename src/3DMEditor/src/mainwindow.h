@@ -34,6 +34,7 @@ public slots:
     void showTextureViewer();
     void showSurfaceProperties();
     void showHelpViewer();
+    void showToolBox();
     void endProgram();
     void createCube();
     void createSphere();

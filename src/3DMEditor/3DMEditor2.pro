@@ -31,7 +31,9 @@ SOURCES += src/main.cpp \
     src/progressdialog.cpp \
     src/meshtree.cpp \
     src/ambientocclusionthread.cpp \
-    src/springmodelloader.cpp
+    src/springmodelloader.cpp \
+    src/toolbox.cpp \
+    src/flowlayout.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -55,6 +57,8 @@ HEADERS += src/mainwindow.h \
     src/progressdialog.h \
     src/meshtree.h \
     src/ambientocclusionthread.h \
-    src/springmodelloader.h
+    src/springmodelloader.h \
+    src/toolbox.h \
+    src/flowlayout.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts
