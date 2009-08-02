@@ -5,6 +5,7 @@
 
 class HelpViewer : public QWidget
 {
+    Q_OBJECT;
 public:
     HelpViewer();
 public:
