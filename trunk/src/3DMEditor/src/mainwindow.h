@@ -54,6 +54,11 @@ private:
     QStatusBar  *statusBar;
     QString     filename;
     bool        ctrlPressed;
+
+private:
+    static MainWindow   *pInstance;
+public:
+    static MainWindow   *instance();
 };
 
 #endif // MAINWINDOW_H

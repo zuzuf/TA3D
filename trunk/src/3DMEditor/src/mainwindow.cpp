@@ -19,9 +19,19 @@
 #include "misc/camera.h"
 #include "helpviewer.h"
 
+MainWindow *MainWindow::pInstance = NULL;
+MainWindow *MainWindow::instance()
+{
+    if (!pInstance)
+        new MainWindow;
+    return pInstance;
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ctrlPressed(false)
 {
+    pInstance = this;
+
     QMenu *mnuFile = new QMenu( tr("&File"));
     mnuFile->addAction( tr("&New"), this, SLOT(newMesh()));
     mnuFile->addAction( tr("&Open"), this, SLOT(loadMesh()));

@@ -1,10 +1,10 @@
 #ifndef GEOMETRYGRAPH_H
 #define GEOMETRYGRAPH_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QTreeWidget>
 
-class GeometryGraph : public QWidget
+class GeometryGraph : public QDockWidget
 {
     Q_OBJECT;
 public:

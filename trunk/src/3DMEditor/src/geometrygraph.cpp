@@ -11,6 +11,7 @@
 #include <QDropEvent>
 #include <QVariant>
 #include <QPair>
+#include "mainwindow.h"
 
 GeometryGraph *GeometryGraph::pInstance = NULL;
 
@@ -28,11 +29,18 @@ GeometryGraph *GeometryGraph::instance()
     return pInstance;
 }
 
-GeometryGraph::GeometryGraph()
+GeometryGraph::GeometryGraph() : QDockWidget(MainWindow::instance())
 {
+    // Docking options
+    setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    MainWindow::instance()->addDockWidget(Qt::RightDockWidgetArea, this);
+    QWidget *wnd = new QWidget();
+    setWidget(wnd);
+
+    // Normal initialization
     setWindowTitle(tr("Geometry Graph"));
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(wnd);
 
     tree = new TreeWidget;
     tree->setColumnCount(2);

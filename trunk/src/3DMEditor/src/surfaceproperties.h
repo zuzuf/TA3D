@@ -1,13 +1,13 @@
 #ifndef SURFACEPROPERTIES_H
 #define SURFACEPROPERTIES_H
 
-#include <QWidget>
+#include <QDockWidget>
 #include <QCheckBox>
 #include <QSpinBox>
 #include "imagelistview.h"
 #include "mesh.h"
 
-class SurfaceProperties : public QWidget
+class SurfaceProperties : public QDockWidget
 {
     Q_OBJECT;
 public:
