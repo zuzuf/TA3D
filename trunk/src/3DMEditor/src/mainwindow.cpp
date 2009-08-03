@@ -11,6 +11,7 @@
 #include "misc/camera.h"
 #include "helpviewer.h"
 #include "toolbox.h"
+#include "animation.h"
 
 MainWindow *MainWindow::pInstance = NULL;
 MainWindow *MainWindow::instance()
@@ -54,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     mnuWindows->addAction( QIcon("icons/texture.png"), tr("&Texture viewer"), this, SLOT(showTextureViewer()));
     mnuWindows->addAction( QIcon("icons/configure.png"), tr("&Surface properties"), this, SLOT(showSurfaceProperties()));
     mnuWindows->addAction( QIcon("icons/toolbox.png"), tr("&Toolbox"), this, SLOT(showToolBox()));
+    mnuWindows->addAction( QIcon("icons/animation.png"), tr("&Animation"), this, SLOT(showAnimation()));
 
     QMenu *mnuInterface = new QMenu( tr("&Interface") );
     mnuInterface->addMenu(mnuLanguage);
@@ -282,6 +284,11 @@ void MainWindow::saveMeshAs()
 void MainWindow::showGeometryGraph()
 {
     GeometryGraph::instance()->show();
+}
+
+void MainWindow::showAnimation()
+{
+    Animation::instance()->show();
 }
 
 void MainWindow::showSurfaceProperties()

@@ -33,6 +33,7 @@ public slots:
     void showGeometryGraph();
     void showTextureViewer();
     void showSurfaceProperties();
+    void showAnimation();
     void showHelpViewer();
     void showToolBox();
     void endProgram();

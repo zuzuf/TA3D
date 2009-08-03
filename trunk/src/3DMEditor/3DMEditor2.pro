@@ -33,7 +33,8 @@ SOURCES += src/main.cpp \
     src/ambientocclusionthread.cpp \
     src/springmodelloader.cpp \
     src/toolbox.cpp \
-    src/flowlayout.cpp
+    src/flowlayout.cpp \
+    src/animation.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -59,6 +60,7 @@ HEADERS += src/mainwindow.h \
     src/ambientocclusionthread.h \
     src/springmodelloader.h \
     src/toolbox.h \
-    src/flowlayout.h
+    src/flowlayout.h \
+    src/animation.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts
