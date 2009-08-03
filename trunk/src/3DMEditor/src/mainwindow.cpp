@@ -155,6 +155,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(Gfx::instance(), SIGNAL(selectionChange(int)), SurfaceProperties::instance(), SLOT(refreshGUI()));
     connect(SurfaceProperties::instance(), SIGNAL(surfaceChanged()), Gfx::instance(), SLOT(updateGL()));
     connect(Gfx::instance(), SIGNAL(selectionChange(int)), ShaderEditor::instance(), SLOT(updateGUI()));
+    connect(Gfx::instance(), SIGNAL(selectionChange(int)), Animation::instance(), SLOT(updateGUI()));
 
     setViewMode();
 }

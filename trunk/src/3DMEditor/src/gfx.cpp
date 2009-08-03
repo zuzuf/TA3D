@@ -3,6 +3,7 @@
 #include <QtDebug>
 #include <QPixmap>
 #include <QFile>
+#include <QTimer>
 #include "gfx.h"
 #include "mesh.h"
 #include "geometrygraph.h"
@@ -30,6 +31,11 @@ Gfx::Gfx()
     glewInit();
 
     editMode = VIEW;
+
+    tRefresh.setInterval(1000/60);
+    tRefresh.setSingleShot(false);
+    connect(&tRefresh, SIGNAL(timeout()), this, SLOT(updateGL()));
+    tRefresh.stop();
 }
 
 Gfx::~Gfx()
@@ -677,19 +683,25 @@ int Gfx::getTextureHeight(GLuint tex)
 
 void Gfx::setEditMode()
 {
+    tRefresh.stop();
     editMode = EDIT;
+    Mesh::animated = false;
     updateGL();
 }
 
 void Gfx::setViewMode()
 {
+    tRefresh.stop();
     editMode = VIEW;
+    Mesh::animated = false;
     updateGL();
 }
 
 void Gfx::setAnimateMode()
 {
     editMode = ANIMATE;
+    Mesh::animated = true;
+    tRefresh.start();
     updateGL();
 }
 

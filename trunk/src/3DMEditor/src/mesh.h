@@ -40,6 +40,9 @@ public:
     Vector3D    translate_0;
     Vector3D    translate_1;
     float       translate_w;
+
+    inline ANIMATION() : type(0), angle_w(0.), translate_w(0.) {}
+    void animate( double &t, Vector3D &R, Vector3D& T);
 };
 
 class Mesh : public QObject
@@ -56,6 +59,7 @@ class Mesh : public QObject
     friend class MeshTree;
     friend class AmbientOcclusionThread;
     friend class SpringModelLoader;
+    friend class Animation;
 public:
     Mesh();
     ~Mesh();
@@ -140,9 +144,11 @@ protected:
     QString             vertexProgram;
     sint32              ID;
     sint32              nbSubObj;
+    ANIMATION           defaultAnim;
 
 public:
     static bool whiteSurface;
+    static bool animated;
     static Mesh *instance();
     static bool hitTriangle(const Vec &a, const Vec &b, const Vec &c, const Vec &pos, const Vec &dir, Vec &p);
     static Mesh *createSphere(float r, int dw, int dh);
