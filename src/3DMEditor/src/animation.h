@@ -7,6 +7,7 @@
 
 class Animation : public QDockWidget
 {
+    Q_OBJECT;
 public:
     Animation();
 
@@ -34,6 +35,11 @@ private:
 
     QDoubleSpinBox *sbRW;
     QDoubleSpinBox *sbTW;
+    bool updating;
+
+public slots:
+    void updateData();
+    void updateGUI();
 
 private:
     static Animation *pInstance;

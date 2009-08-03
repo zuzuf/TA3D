@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "misc/matrix.h"
+#include <QTimer>
 
 class Gfx : public QGLWidget
 {
@@ -62,6 +63,7 @@ private:
     int                 selectedID;
     bool                drawSelection;
     EditMode            editMode;
+    QTimer              tRefresh;
 
 public:
     static Gfx *instance();

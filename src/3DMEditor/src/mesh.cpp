@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QQueue>
 #include <QPainter>
+#include <QTime>
 #include <zlib.h>
 #include "mesh.h"
 #include "gfx.h"
@@ -10,6 +11,8 @@
 
 bool Mesh::whiteSurface = false;
 Mesh *Mesh::pInstance = NULL;
+bool Mesh::animated = false;
+
 
 Mesh *Mesh::instance()
 {
@@ -31,6 +34,47 @@ Mesh::~Mesh()
 {
     if (this != pInstance)
         destroy();
+}
+
+void ANIMATION::animate( double &t, Vector3D &R, Vector3D& T)
+{
+    if (type & ROTATION)
+    {
+        if (type & ROTATION_PERIODIC)
+        {
+            float coef;
+            if( type & ROTATION_COSINE )
+                coef = 0.5f + 0.5f * cos( t * angle_w );
+            else {
+                coef = t * angle_w;
+                int i = (int) coef;
+                coef = coef - i;
+                coef = (i&1) ? (1.0f - coef) : coef;
+            }
+            R = coef * angle_0 + (1.0f - coef) * angle_1;
+        }
+        else
+            R = t * angle_0;
+    }
+    if (type & TRANSLATION)
+    {
+        if (type & TRANSLATION_PERIODIC)
+        {
+            float coef;
+            if (type & TRANSLATION_COSINE)
+                coef = 0.5f + 0.5f * cos( t * translate_w );
+            else
+            {
+                coef = t * translate_w;
+                int i = (int) coef;
+                coef = coef - i;
+                coef = (i&1) ? (1.0f - coef) : coef;
+            }
+            T = coef * translate_0 + (1.0f - coef) * translate_1;
+        }
+        else
+            T = t * translate_0;
+    }
 }
 
 void Mesh::destroy()
@@ -316,6 +360,18 @@ void Mesh::draw(int id, Mesh *root)
     glPushMatrix();
 
     glTranslatef(pos.x, pos.y, pos.z);
+
+    if (animated)
+    {
+        double t = QTime().msecsTo(QTime::currentTime()) * 0.001;
+        Vector3D R;
+        Vector3D T;
+        defaultAnim.animate(t, R, T);
+        glTranslatef(T.x, T.y, T.z);
+        glRotatef(R.x, 1.0f, 0.0f, 0.0f);
+        glRotatef(R.y, 0.0f, 1.0f, 0.0f);
+        glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+    }
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
@@ -662,7 +718,7 @@ void Mesh::load3DMrec(QFile &file)
 
     if (link == 2) // Load animation data if present
     {
-        ANIMATION *animation_data = new ANIMATION;
+        ANIMATION *animation_data = &defaultAnim;
         file.read( (char*)&(animation_data->type), 1 );
         file.read( (char*)&(animation_data->angle_0), sizeof(Vector3D) );
         file.read( (char*)&(animation_data->angle_1), sizeof(Vector3D) );
@@ -672,9 +728,9 @@ void Mesh::load3DMrec(QFile &file)
         file.read( (char*)&(animation_data->translate_w), sizeof(float) );
 
         file.read( (char*)&link, 1 );
-
-        delete animation_data;
     }
+    else
+        defaultAnim = ANIMATION();
 
     if (link)
     {
@@ -1334,12 +1390,11 @@ void Mesh::save3DMrec(QFile &file)
         file.write(buf.data(), shader_size);
     }
 
-    byte link = (child != NULL) ? 1 : 0;
-    file.write((char*)&link, 1);
-
-    if (link == 2) // Save animation data if present (currently not supported)
+    if ((defaultAnim.type & (ROTATION | TRANSLATION)) != 0) // Save animation data if present (currently not supported)
     {
-        ANIMATION *animation_data = new ANIMATION;
+        file.putChar(2);
+
+        ANIMATION *animation_data = &defaultAnim;
         file.write( (char*)&(animation_data->type), 1 );
         file.write( (char*)&(animation_data->angle_0), sizeof(Vector3D) );
         file.write( (char*)&(animation_data->angle_1), sizeof(Vector3D) );
@@ -1347,12 +1402,10 @@ void Mesh::save3DMrec(QFile &file)
         file.write( (char*)&(animation_data->translate_0), sizeof(Vector3D) );
         file.write( (char*)&(animation_data->translate_1), sizeof(Vector3D) );
         file.write( (char*)&(animation_data->translate_w), sizeof(float) );
-
-        file.write( (char*)&link, 1 );
-
-        delete animation_data;
     }
 
+    byte link = (child != NULL) ? 1 : 0;
+    file.write((char*)&link, 1);
     if (link)
         child->save3DMrec(file);
 
