@@ -376,6 +376,7 @@ void Gfx::mouseMoveEvent(QMouseEvent *event)
 {
     switch(editMode)
     {
+    case ANIMATE:
     case VIEW:
         if (previousMouseState == event->buttons())
         {

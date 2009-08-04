@@ -8,6 +8,7 @@
 #include "progressdialog.h"
 #include "meshtree.h"
 #include "ambientocclusionthread.h"
+#include "animation.h"
 
 bool Mesh::whiteSurface = false;
 Mesh *Mesh::pInstance = NULL;
@@ -361,7 +362,7 @@ void Mesh::draw(int id, Mesh *root)
 
     glTranslatef(pos.x, pos.y, pos.z);
 
-    if (animated)
+    if (animated && Animation::instance()->isInDefaultAnimationMode())
     {
         double t = QTime().msecsTo(QTime::currentTime()) * 0.001;
         Vector3D R;

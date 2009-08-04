@@ -4,12 +4,15 @@
 #include <QDockWidget>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QToolBox>
 
 class Animation : public QDockWidget
 {
     Q_OBJECT;
 public:
     Animation();
+
+    bool isInDefaultAnimationMode();
 
 private:
     QCheckBox *cbRotation;
@@ -36,6 +39,7 @@ private:
     QDoubleSpinBox *sbRW;
     QDoubleSpinBox *sbTW;
     bool updating;
+    QToolBox *wnd;
 
 public slots:
     void updateData();

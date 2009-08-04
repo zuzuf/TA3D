@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "mesh.h"
 #include "gfx.h"
+#include "luaeditor.h"
 #include <QtGui>
 
 Animation *Animation::pInstance = NULL;
@@ -18,13 +19,15 @@ Animation::Animation() : QDockWidget(MainWindow::instance())
     // Docking options
     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     MainWindow::instance()->addDockWidget(Qt::RightDockWidgetArea, this);
-    QWidget *wnd = new QWidget;
+    wnd = new QToolBox;
     setWidget(wnd);
 
     // Normal initialization
     setWindowTitle(tr("Animation"));
 
-    QHBoxLayout *mainLayout = new QHBoxLayout(wnd);
+    QWidget *defaultAnim = new QWidget;
+    wnd->addItem(defaultAnim, tr("default animation"));
+    QHBoxLayout *mainLayout = new QHBoxLayout(defaultAnim);
     QWidget *left = new QWidget;
     QWidget *right = new QWidget;
     QFormLayout *layoutL = new QFormLayout(left);
@@ -55,7 +58,7 @@ Animation::Animation() : QDockWidget(MainWindow::instance())
     layoutL->addRow(tr("w :"), sbRW = new QDoubleSpinBox);
     layoutR->addRow(tr("w :"), sbTW = new QDoubleSpinBox);
 
-#define INFINITE(x)  x->setRange(-0x7FFFFFFF, 0x7FFFFFFF); \
+#define INFINITE(x)  x->setRange(-0x7FFF, 0x7FFF); \
     x->setDecimals(4);
 
     INFINITE(sbAngle0X);
@@ -100,6 +103,14 @@ Animation::Animation() : QDockWidget(MainWindow::instance())
 
     connect(sbRW, SIGNAL(valueChanged(double)), this, SLOT(updateData()));
     connect(sbTW, SIGNAL(valueChanged(double)), this, SLOT(updateData()));
+
+    QWidget *scriptedAnim = new QWidget;
+    wnd->addItem(scriptedAnim, tr("scripting"));
+    QGridLayout *scriptLayout = new QGridLayout(scriptedAnim);
+    QPushButton *bEditor = new QPushButton(QIcon("icons/edit.png"), tr("Lua editor"));
+    scriptLayout->addWidget(bEditor, 0, 0);
+
+    connect(bEditor, SIGNAL(clicked()), LuaEditor::instance(), SLOT(show()));
 
     updateGUI();
 }
@@ -185,4 +196,9 @@ void Animation::updateGUI()
         delete pAnim;
 
     updating = false;
+}
+
+bool Animation::isInDefaultAnimationMode()
+{
+    return wnd->currentIndex() == 0;
 }
