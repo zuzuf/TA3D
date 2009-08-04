@@ -4,7 +4,7 @@
 QT += opengl \
     webkit
 TARGET = 3DMEditor2
-LIBS += -lz
+LIBS += -lz -L../ta3d/src/lua -llua
 win32:LIBS += -lglew32.dll
 unix:LIBS += -lGLEW
 macos:LIBS += -lGLEW
@@ -34,7 +34,13 @@ SOURCES += src/main.cpp \
     src/springmodelloader.cpp \
     src/toolbox.cpp \
     src/flowlayout.cpp \
-    src/animation.cpp
+    src/animation.cpp \
+    src/luaeditor.cpp \
+    src/scripts/lua.thread.cpp \
+    src/scripts/script.interface.cpp \
+    src/scripts/unit.script.cpp \
+    src/scripts/unit.script.func.cpp \
+    src/scripts/unit.script.interface.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -61,6 +67,12 @@ HEADERS += src/mainwindow.h \
     src/springmodelloader.h \
     src/toolbox.h \
     src/flowlayout.h \
-    src/animation.h
+    src/animation.h \
+    src/luaeditor.h \
+    src/scripts/lua.thread.h \
+    src/scripts/script.h \
+    src/scripts/script.interface.h \
+    src/scripts/unit.script.h \
+    src/scripts/unit.script.interface.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts

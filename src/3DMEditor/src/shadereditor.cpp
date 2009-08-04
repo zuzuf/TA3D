@@ -222,14 +222,6 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
 {
     if (text.isEmpty())
         return;
-    // Comments
-    {
-        QTextCharFormat tokenFormat;
-        tokenFormat.setForeground(QColor::fromRgb(0,0x7F,0));
-
-        colorizeMultiLine(text, tokenFormat, QRegExp("/\\*"), QRegExp("\\*/"));
-        colorizeSingleLine(text, tokenFormat, QRegExp("//"), QRegExp("\\n"));
-    }
     // basic types
     {
         QTextCharFormat tokenFormat;
@@ -372,6 +364,14 @@ void SyntaxHighlighter::highlightBlock(const QString &text)
                       "|\\b0x\\d+\\b"
                       "|\\b0X\\d+\\b");
         colorize(text, tokenFormat, token);
+    }
+    // Comments
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0,0x7F,0));
+
+        colorizeMultiLine(text, tokenFormat, QRegExp("/\\*"), QRegExp("\\*/"));
+        colorizeSingleLine(text, tokenFormat, QRegExp("//"), QRegExp("\\n"));
     }
 }
 
