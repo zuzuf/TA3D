@@ -123,6 +123,9 @@ namespace TA3D
     private:
         static lua_State *pLuaVM;
         static lua_State *luaVM();
+        static UnitScript *pInstance;
+    public:
+        static UnitScript *instance();
     };
 
     void script_explode(int obj, int explosion_type);

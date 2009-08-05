@@ -364,6 +364,7 @@ void Mesh::draw(int id, Mesh *root)
     glPushMatrix();
 
     glTranslatef(pos.x, pos.y, pos.z);
+    bool hidden = false;
 
     if (animated && Animation::instance()->isInDefaultAnimationMode())
     {
@@ -376,11 +377,19 @@ void Mesh::draw(int id, Mesh *root)
         glRotatef(R.y, 0.0f, 1.0f, 0.0f);
         glRotatef(R.z, 0.0f, 0.0f, 1.0f);
     }
+    else if (animated)      // Script animation
+    {
+        glTranslatef(axe[0].pos, axe[1].pos, axe[2].pos);
+        glRotatef(axe[0].angle, 1.0f, 0.0f, 0.0f);
+        glRotatef(axe[1].angle, 0.0f, 1.0f, 0.0f);
+        glRotatef(axe[2].angle, 0.0f, 0.0f, 1.0f);
+        hidden = anim_flag & FLAG_HIDE;
+    }
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
-    if (!vertex.isEmpty() && !normal.isEmpty())
+    if (!vertex.isEmpty() && !normal.isEmpty() && !hidden)
     {
         QVector<GLuint> *pTex = &tex;
         if (flag & SURFACE_ROOT_TEXTURE)
@@ -2493,6 +2502,10 @@ void Mesh::move(const float dt)
             }
         }
     }
+    if (child)
+        child->move(dt);
+    if (next)
+        next->move(dt);
 }
 
 Vec Mesh::getRelativePositionAnim(int id)

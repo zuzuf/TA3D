@@ -1,0 +1,28 @@
+-- keep trying to open building's yard until we succeed
+__this.OpenYard = function(this)
+	this:set( YARD_OPEN, true )
+
+	while this:get( YARD_OPEN ) == 0 do
+		this:set( BUGGER_OFF, true )
+		sleep( 1.500 )
+		this:set( YARD_OPEN, true )
+	end
+
+	this:set( BUGGER_OFF, false )
+end
+
+
+-- keep trying to close building's yard until we succeed
+__this.CloseYard = function (this)
+	this:set( YARD_OPEN, false )
+
+	while this:get( YARD_OPEN ) == 1 do
+		this:set( BUGGER_OFF, true )
+		sleep( 1.5 )
+		this:set( YARD_OPEN, false )
+	end
+
+	this:set( BUGGER_OFF, false )
+end
+
+
