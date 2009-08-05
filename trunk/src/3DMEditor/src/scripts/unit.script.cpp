@@ -399,17 +399,8 @@ namespace TA3D
         L = UnitScript::luaVM();
 
         uint32 buffersize(0);
-        byte *buffer = loadLuaCode(code, buffersize);
-        if (!buffer)
-        {
-            LOG_ERROR(LOG_PREFIX_LUA << "could not load code into a buffer");
-            return;
-        }
         QByteArray qBuffer;
-        qBuffer.append((char*)buffer, buffersize - 1);
-        qBuffer.append('\n');
-        delete[] buffer;
-        buffer = readFile("scripts/ta3d.lh", &buffersize);
+        byte *buffer = readFile("scripts/ta3d.lh", &buffersize);
         if (!buffer)
         {
             LOG_ERROR(LOG_PREFIX_LUA << "could not load file 'scripts/ta3d.lh'");
@@ -418,6 +409,16 @@ namespace TA3D
         QByteArray buf2((char*)buffer, buffersize);
         delete[] buffer;
         buffer = loadLuaCode(QString(buf2), buffersize);
+        if (!buffer)
+        {
+            LOG_ERROR(LOG_PREFIX_LUA << "could not load code into a buffer");
+            return;
+        }
+        qBuffer.append((char*)buffer, buffersize - 1);
+        qBuffer.append('\n');
+        delete[] buffer;
+
+        buffer = loadLuaCode(code, buffersize);
         if (!buffer)
         {
             LOG_ERROR(LOG_PREFIX_LUA << "could not load code into a buffer");
@@ -444,7 +445,6 @@ namespace TA3D
             buffer = NULL;
 
             running = true;
-            setUnitID(0);
             last = QTime().msecsTo(QTime::currentTime());
         }
 
@@ -454,6 +454,7 @@ namespace TA3D
             {
                 LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                LOG_ERROR(qBuffer.data());
             }
             running = false;
             return;
@@ -482,6 +483,8 @@ namespace TA3D
         }
         lua_pop(L, 2);
 		L = NULL;
+
+        setUnitID(0);
     }
 
 	int UnitScript::run(float dt, bool alone)                  // Run the script
@@ -606,7 +609,7 @@ namespace TA3D
 		if (lua_isnil( L, -1 ))     // Function not found
 		{
 			lua_pop(L, 1);
-			LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
+            LOG_ERROR(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
 			return -2;
 		}
 
