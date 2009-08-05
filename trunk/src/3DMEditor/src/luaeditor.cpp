@@ -78,6 +78,10 @@ LuaEditor::LuaEditor()
     connect(bSave, SIGNAL(clicked()), this, SLOT(saveProgram()));
     connect(bLoad, SIGNAL(clicked()), this, SLOT(loadProgram()));
 
+    luaTimer.setInterval(1000 / 30);            // Run at game speed
+    luaTimer.setSingleShot(false);
+    connect(&luaTimer, SIGNAL(timeout()), this, SLOT(runLuaCode()));
+
     updating = false;
 
     stream.setString(&logs, QIODevice::WriteOnly);
@@ -247,4 +251,13 @@ void LuaSyntaxHighlighter::colorizeSingleLine(const QString &text, QTextCharForm
         startIndex = text.indexOf(startExpression,
                                   startIndex + commentLength);
     }
+}
+
+uint32 __lua_timer = 0;
+
+void LuaEditor::runLuaCode()
+{
+    uint32 msec_timer = QTime().msecsTo(QTime::currentTime());
+    UnitScript::instance()->run((msec_timer - __lua_timer) * 0.001f);
+    __lua_timer = msec_timer;
 }

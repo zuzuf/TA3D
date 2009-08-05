@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTextEdit>
 #include <QTextStream>
+#include <QTimer>
 
 class LuaEditor : public QWidget
 {
@@ -18,6 +19,7 @@ private:
     bool      updating;
     QString   logs;
     QTextStream stream;
+    QTimer    luaTimer;
 
 public slots:
     void updateWindowTitle();
@@ -25,6 +27,7 @@ public slots:
     void compileCode();
     void saveProgram();
     void loadProgram();
+    void runLuaCode();
 
 public:
     static LuaEditor *instance();
