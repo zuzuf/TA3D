@@ -32,6 +32,7 @@ Mesh::Mesh()
     flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
     color = rColor = 0xFFFFFFFF;
     resetAnimData();
+    resetScriptData();
 }
 
 Mesh::~Mesh()
@@ -910,6 +911,30 @@ Mesh *Mesh::getMesh(int id)
     if (next)
         return next->getMesh(id);
     return NULL;
+}
+
+Mesh *Mesh::getMesh(const QString &name)
+{
+    if (QString::compare(this->name, name, Qt::CaseInsensitive) == 0)
+        return this;
+    Mesh *mesh = NULL;
+    if (child)
+        mesh = child->getMesh(name);
+    if (!mesh && next)
+        mesh = next->getMesh(name);
+    return mesh;
+}
+
+Mesh *Mesh::getMeshByScriptID(int id)
+{
+    if (id == scriptID)
+        return this;
+    Mesh *mesh = NULL;
+    if (child)
+        mesh = child->getMeshByScriptID(id);
+    if (!mesh && next)
+        mesh = next->getMeshByScriptID(id);
+    return mesh;
 }
 
 int Mesh::getDepth(int id)
@@ -2418,6 +2443,15 @@ void Mesh::resetAnimData()
         child->resetAnimData();
     if (next)
         next->resetAnimData();
+}
+
+void Mesh::resetScriptData()
+{
+    scriptID = -1;
+    if (child)
+        child->resetScriptData();
+    if (next)
+        next->resetScriptData();
 }
 
 void Mesh::move(const float dt)

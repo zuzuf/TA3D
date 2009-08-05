@@ -7,6 +7,10 @@
 #include <QMessageBox>
 #include <QTabWidget>
 #include <QSyntaxHighlighter>
+#include "scripts/unit.script.h"
+#include "logs.h"
+
+using namespace TA3D;
 
 class LuaSyntaxHighlighter : public QSyntaxHighlighter
 {
@@ -95,7 +99,10 @@ void LuaEditor::updateGUI()
 void LuaEditor::compileCode()
 {
     // TODO : build the code
-    output->setPlainText( "" );
+    logs.clear();
+    LOG_INFO(tr("building Lua code"));
+    UnitScript::instance()->load(code->toPlainText());
+    updateGUI();
 }
 
 void LuaEditor::saveProgram()

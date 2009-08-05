@@ -33,7 +33,7 @@ namespace TA3D
     //! functions that are called from scripts (COB/BOS and Lua)
     void script_explode(int obj, int explosion_type)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->axe[0].pos = 0.0f;
@@ -56,7 +56,7 @@ namespace TA3D
 
     void script_turn_object(int obj, int axis, float angle, float speed)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         if (axis != 2)
@@ -83,7 +83,7 @@ namespace TA3D
 
     void script_move_object(int obj, int axis, float pos, float speed)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         if (axis == 0)
@@ -155,7 +155,7 @@ namespace TA3D
 
     void script_spin_object(int obj, int axis, float target_speed, float accel)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         if (axis == 1)
@@ -184,7 +184,7 @@ namespace TA3D
 
     void script_show_object(int obj)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->anim_flag &= (~FLAG_HIDE);
@@ -192,7 +192,7 @@ namespace TA3D
 
     void script_hide_object(int obj)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->anim_flag |= FLAG_HIDE;
@@ -200,7 +200,7 @@ namespace TA3D
 
     void script_dont_cache(int obj)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->anim_flag |= FLAG_ANIMATED_TEXTURE;
@@ -208,7 +208,7 @@ namespace TA3D
 
     void script_cache(int obj)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->anim_flag &= (~FLAG_ANIMATED_TEXTURE);
@@ -216,7 +216,7 @@ namespace TA3D
 
     void script_shade(int obj)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->anim_flag &= (~FLAG_DONT_SHADE);
@@ -224,7 +224,7 @@ namespace TA3D
 
     void script_dont_shade(int obj)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->anim_flag |= FLAG_DONT_SHADE;
@@ -232,13 +232,13 @@ namespace TA3D
 
     void script_emit_sfx(int smoke_type, int from_piece)
     {
-        Mesh *cur = Mesh::instance()->getMesh(from_piece);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(from_piece);
         if (!cur)   return;
     }
 
     void script_stop_spin(int obj, int axis, float speed)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         if (axis != 2)
@@ -264,7 +264,7 @@ namespace TA3D
 
     void script_move_piece_now(int obj, int axis, float pos)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->axe[axis].reset_move();
@@ -277,7 +277,7 @@ namespace TA3D
 
     void script_turn_piece_now(int obj, int axis, float angle)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return;
 
         cur->axe[axis].reset_rot();
@@ -382,7 +382,7 @@ namespace TA3D
 
     bool script_is_turning(int obj, int axis)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return false;
 
         float a = cur->axe[axis].rot_angle;
@@ -397,7 +397,7 @@ namespace TA3D
 
     bool script_is_moving(int obj, int axis)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMeshByScriptID(obj);
         if (!cur)   return false;
 
         return (cur->axe[axis].move_distance != 0.0f);

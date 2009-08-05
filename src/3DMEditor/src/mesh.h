@@ -188,6 +188,8 @@ public:
 
     int hit(const Vec &pos, const Vec &dir, Vec &p);
     Mesh *getMesh(int id);
+    Mesh *getMeshByScriptID(int id);
+    Mesh *getMesh(const QString &name);
     Vec getRelativePosition(int id);
     Vec getRelativePositionAnim(int id);
     int getDepth(int id);
@@ -211,6 +213,7 @@ public:
     QList<Mesh*> getSubList();
     void move(const float dt);
     void resetAnimData();
+    void resetScriptData();
 
 signals:
     void loaded();
@@ -252,6 +255,7 @@ public:
     float               explode_time;
     uint32              anim_flag;
     uint32              explosion_flag;
+    sint32              scriptID;
 
 public:
     static bool whiteSurface;

@@ -17,6 +17,7 @@
 
 #include "unit.script.h"
 #include "lua.thread.h"
+#include "../mesh.h"
 
 namespace TA3D
 {
@@ -392,10 +393,96 @@ namespace TA3D
 
     void UnitScript::load(const QString &code)
 	{
+        destroy();
+
         name = "test";
+        L = UnitScript::luaVM();
+
+        uint32 buffersize(0);
+        byte *buffer = loadLuaCode(code, buffersize);
+        if (!buffer)
+        {
+            LOG_ERROR(LOG_PREFIX_LUA << "could not load code into a buffer");
+            return;
+        }
+        QByteArray qBuffer;
+        qBuffer.append((char*)buffer, buffersize - 1);
+        qBuffer.append('\n');
+        delete[] buffer;
+        buffer = readFile("scripts/ta3d.lh", &buffersize);
+        if (!buffer)
+        {
+            LOG_ERROR(LOG_PREFIX_LUA << "could not load file 'scripts/ta3d.lh'");
+            return;
+        }
+        QByteArray buf2((char*)buffer, buffersize);
+        delete[] buffer;
+        buffer = loadLuaCode(QString(buf2), buffersize);
+        if (!buffer)
+        {
+            LOG_ERROR(LOG_PREFIX_LUA << "could not load code into a buffer");
+            return;
+        }
+        qBuffer.append((char*)buffer, buffersize);
+        delete[] buffer;
+
+        if (luaL_loadbuffer(L, (const char*)qBuffer.data(), qBuffer.size() - 1, name.toStdString().c_str() ))
+        {
+            if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+                LOG_ERROR(qBuffer.data());
+            }
+
+            running = false;
+            L = NULL;
+            buffer = NULL;
+        }
+        else
+        {
+            buffer = NULL;
+
+            running = true;
+            setUnitID(0);
+            last = QTime().msecsTo(QTime::currentTime());
+        }
+
+        if (lua_pcall(L, 0, 0, 0))
+        {
+            if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            }
+            running = false;
+            return;
+        }
+
+        lua_getglobal(L, "__name");
+        name = lua_isstring(L, -1) ? QString(lua_tostring(L, -1)) : QString();
+        lua_pop(L, 1);
+
+        lua_getglobal(L, name.toStdString().c_str());
+        lua_getfield(L, -1, "__piece_list");
+        Mesh::instance()->resetAnimData();
+        Mesh::instance()->resetScriptData();
+        if (lua_istable(L, -1))
+        {
+            int n = lua_objlen(L, -1);
+            for(int i = 1 ; i <= n ; ++i)
+            {
+                lua_rawgeti(L, -1, i);
+                QString piece_name = lua_tostring(L, -1);
+                Mesh *mesh = Mesh::instance()->getMesh(piece_name);
+                if (mesh)
+                    mesh->scriptID = i - 1;
+                lua_pop(L, 1);
+            }
+        }
+        lua_pop(L, 2);
 		L = NULL;
-#warning TODO : write code to load the script
-	}
+    }
 
 	int UnitScript::run(float dt, bool alone)                  // Run the script
 	{
