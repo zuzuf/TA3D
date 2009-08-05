@@ -15,45 +15,11 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
 #include "unit.script.interface.h"
-#include "cob.vm.h"
 #include "unit.script.h"
-#include "lua.data.h"
 
 namespace TA3D
 {
-    UnitScriptInterface *UnitScriptInterface::instanciate( ScriptData *data )
-    {
-        UnitScriptInterface *usi = NULL;
-
-        if ( dynamic_cast<CobScript*>(data) )          // Try CobScript (OTA COB/BOS)
-            usi = new CobVm();
-        else if ( dynamic_cast<LuaData*>(data) )       // Try LuaData (Lua)
-            usi = new UnitScript();
-
-        usi->load( data );
-        return usi;
-    }
-
-    int UnitScriptInterface::getReturnValue(const String &name)
-    {
-        MutexLocker mLocker(pMutex);
-        if (caller)
-            return (static_cast<UnitScriptInterface*>(caller))->getReturnValue( name );
-        return return_value.find(String::ToUpper(name));
-    }
-
-    void UnitScriptInterface::setReturnValue(const String &name, int value)
-    {
-        pMutex.lock();
-        if (caller)
-            (static_cast<UnitScriptInterface*>(caller))->setReturnValue( name, value );
-        else
-            return_value.insertOrUpdate(String::ToUpper(name), value);
-        pMutex.unlock();
-    }
-
     const char *UnitScriptInterface::script_name[] =
         {
             "QueryPrimary","AimPrimary","FirePrimary",
@@ -73,34 +39,33 @@ namespace TA3D
             "AimFromTertiary"
         };
 
-
-	const String UnitScriptInterface::get_script_name(int id)
+    const QString UnitScriptInterface::get_script_name(int id)
 	{
 		if (id < 0)
-			return String();
+            return QString();
 		if (id >= NB_SCRIPT)            // Special case for weapons
 		{
 			const int weaponID = (id - NB_SCRIPT) / 4 + 4;
 			switch((id - NB_SCRIPT) % 4)
 			{
 				case 0:         // QueryWeapon
-					return String::Format("QueryWeapon%d", weaponID);
+                    return QString("QueryWeapon") + weaponID;
 				case 1:         // AimWeapon
-					return String::Format("AimWeapon%d", weaponID);
+                    return QString("AimWeapon") + weaponID;
 				case 2:         // AimFromWeapon
-					return String::Format("AimFromWeapon%d", weaponID);
+                    return QString("AimFromWeapon") + weaponID;
 				case 3:         // FireWeapon
-					return String::Format("FireWeapon%d", weaponID);
+                    return QString("FireWeapon") + weaponID;
 			}
 		}
 		return script_name[id];
 	}
 
 
-    int UnitScriptInterface::get_script_id(const String &name)
+    int UnitScriptInterface::get_script_id(const QString &name)
     {
         for(int id = 0 ; id < NB_SCRIPT ; id++)
-            if ( strcasecmp(script_name[id], name.c_str()) == 0)
+            if ( strcasecmp(script_name[id], name.toStdString().c_str()) == 0)
                 return id;
         return -1;
     }

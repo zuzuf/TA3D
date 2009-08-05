@@ -13,6 +13,104 @@ class MeshTree;
 
 enum MeshType { MESH_TRIANGLES, MESH_TRIANGLE_STRIP };
 
+#define  ACTIVATION          1   // set or get
+#define  STANDINGMOVEORDERS  2   // set or get
+#define  STANDINGFIREORDERS  3   // set or get
+#define  HEALTH              4   // get (0-100%)
+#define  INBUILDSTANCE       5   // set or get
+#define  BUSY                6   // set or get (used by misc. special case missions like transport ships)
+#define  PIECE_XZ            7   // get
+#define  PIECE_Y             8   // get
+#define  UNIT_XZ             9   // get
+#define  UNIT_Y              10  // get
+#define  UNIT_HEIGHT         11  // get
+#define  XZ_ATAN             12  // get atan of packed x,z coords
+#define  XZ_HYPOT            13  // get hypot of packed x,z coords
+#define  ATAN                14  // get ordinary two-parameter atan
+#define  HYPOT               15  // get ordinary two-parameter hypot
+#define  GROUND_HEIGHT       16  // get
+#define  BUILD_PERCENT_LEFT  17  // get 0 = unit is built and ready, 1-100 = How much is left to build
+#define  YARD_OPEN           18  // set or get (change which plots we occupy when building opens and closes)
+#define  ARMORED             20  // set or get
+#define  BUGGER_OFF          19  // set or get (ask other units to clear the area)
+
+#define  MIN_ID                      69      // returns the lowest valid unit ID number
+#define  MAX_ID                      70      // returns the highest valid unit ID number
+#define  MY_ID                       71      // returns ID of current unit
+#define  UNIT_TEAM                   72      // returns team(player ID in TA) of unit given with parameter
+#define  UNIT_BUILD_PERCENT_LEFT     73      // basically BUILD_PERCENT_LEFT, but comes with a unit parameter
+#define  UNIT_ALLIED                 74      // is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
+#define  UNIT_IS_ON_THIS_COMP        75      // indicates if the 1st parameter(a unit ID) is local to this computer
+#define  VETERAN_LEVEL               32      // gets kills * 100
+
+#define FLAG_HIDE               0x01
+#define FLAG_WAIT_FOR_TURN      0x02
+#define FLAG_NEED_COMPUTE       0x04
+#define FLAG_EXPLODE            0x08
+#define FLAG_ANIMATE            0x10
+#define FLAG_ANIMATED_TEXTURE   0x20
+#define FLAG_DONT_SHADE         0x40
+
+    // a few things needed to handle explosions properly
+
+#define EXPLODE_SHATTER                 1               // The piece will shatter instead of remaining whole
+#define EXPLODE_EXPLODE_ON_HIT          2               // The piece will explode when it hits the ground
+#define EXPLODE_FALL                    4               // The piece will fall due to gravity instead of just flying off
+#define EXPLODE_SMOKE                   8               // A smoke trail will follow the piece through the air
+#define EXPLODE_FIRE                    16              // A fire trail will follow the piece through the air
+#define EXPLODE_BITMAPONLY              32              // The piece will not fly off or shatter or anything.  Only a bitmap explosion will be rendered.
+
+#define EXPLODE_BITMAP1                 256
+#define EXPLODE_BITMAP2                 512
+#define EXPLODE_BITMAP3                 1024
+#define EXPLODE_BITMAP4                 2048
+#define EXPLODE_BITMAP5                 4096
+#define EXPLODE_BITMAPNUKE              8192
+
+class AXE
+{
+public:
+    float	move_speed;
+    float	move_distance;
+    float	rot_angle;
+    float	rot_speed;
+    float	rot_accel;
+    float	angle;
+    float	pos;
+    bool	rot_limit;
+    bool	rot_speed_limit;
+    float	rot_target_speed;
+    bool	is_moving;
+
+    inline AXE()    {   reset();    }
+
+    inline void reset()
+    {
+        move_speed = 0.0f;
+        move_distance = 0.0f;
+        pos = 0.0f;
+        rot_angle = 0.0f;
+        rot_speed = 0.0f;
+        rot_accel = 0.0f;
+        angle = 0.0f;
+        rot_limit = true;
+        rot_speed_limit = false;
+        rot_target_speed = 0.0f;
+        is_moving = false;
+    }
+
+    inline void reset_move() {move_speed = 0.0f;}
+
+    inline void reset_rot()
+    {
+        rot_angle = 0.0f;
+        rot_accel = 0.0f;
+        rot_limit = true;
+        rot_speed_limit = false;
+        rot_target_speed = 0.0f;
+    }
+};
+
 #define SURFACE_ADVANCED		0x01		// Tell it is not a 3Do surface
 #define	SURFACE_REFLEC			0x02		// Reflection
 #define SURFACE_LIGHTED			0x04		// Lighting
@@ -91,6 +189,7 @@ public:
     int hit(const Vec &pos, const Vec &dir, Vec &p);
     Mesh *getMesh(int id);
     Vec getRelativePosition(int id);
+    Vec getRelativePositionAnim(int id);
     int getDepth(int id);
     int getParent(int id);
     sint32 nbSubObjects();
@@ -110,6 +209,8 @@ public:
     Mesh *toSingleMesh();               // Builds a single mesh containing all the geometry
 
     QList<Mesh*> getSubList();
+    void move(const float dt);
+    void resetAnimData();
 
 signals:
     void loaded();
@@ -145,6 +246,12 @@ protected:
     sint32              ID;
     sint32              nbSubObj;
     ANIMATION           defaultAnim;
+public:
+    AXE                 axe[3];
+    bool                explode;
+    float               explode_time;
+    uint32              anim_flag;
+    uint32              explosion_flag;
 
 public:
     static bool whiteSurface;

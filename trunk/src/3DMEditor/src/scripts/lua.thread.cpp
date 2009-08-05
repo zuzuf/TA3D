@@ -50,58 +50,20 @@ namespace TA3D
 	{
 		Vector3D vec;
 
-        lua_pushQString(L, "x");
+        lua_pushstring(L, "x");
 		lua_rawget(L, idx - 1);
 		vec.x = (float) lua_tonumber(L, -1);
 
-        lua_pushQString(L, "y");
+        lua_pushstring(L, "y");
 		lua_rawget(L, idx - 2);
 		vec.y = (float) lua_tonumber(L, -1);
 
-        lua_pushQString(L, "z");
+        lua_pushstring(L, "z");
 		lua_rawget(L, idx - 3);
 		vec.z = (float) lua_tonumber(L, -1);
 		lua_pop(L, 3);
 
 		return vec;
-	}
-
-	void lua_pushcolor( lua_State *L, const uint32 color )
-	{
-		lua_newtable(L);
-		lua_pushinteger(L, getr(color));
-		lua_setfield(L, -2, "r");
-		lua_pushinteger(L, getg(color));
-		lua_setfield(L, -2, "g");
-		lua_pushinteger(L, getb(color));
-		lua_setfield(L, -2, "b");
-		lua_pushinteger(L, geta(color));
-		lua_setfield(L, -2, "a");
-	}
-
-	uint32 lua_tocolor( lua_State *L, int idx )
-	{
-		uint32 r,g,b,a;
-		lua_getfield(L, idx, "r");
-		r = (uint32) lua_tointeger(L, -1);
-		lua_pop(L, 1);
-
-		lua_getfield(L, idx, "g");
-		g = (uint32) lua_tointeger(L, -1);
-		lua_pop(L, 1);
-
-		lua_getfield(L, idx, "b");
-		b = (uint32) lua_tointeger(L, -1);
-		lua_pop(L, 1);
-
-		lua_getfield(L, idx, "a");
-		if (lua_isnil(L, -1))
-			a = 0xFF;
-		else
-			a = (uint32) lua_tointeger(L, -1);
-		lua_pop(L, 1);
-
-		return makeacol(r,g,b,a);
 	}
 
 	void LuaThread::init()
@@ -122,13 +84,11 @@ namespace TA3D
 
         crashed = false;
 
-        last = msec_timer;
+        last = QTime().msecsTo(QTime::currentTime());
 	}
 
 	void LuaThread::destroy()
 	{
-		join();
-
         deleteThreads();
 
         if (L)
@@ -193,7 +153,7 @@ namespace TA3D
 				int i;
 				name.clear();
 				for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
-					name << f[ i + 10 ];
+                    name += f[ i + 10 ];
                 if (!QFile::exists(path + name))
 					name = "scripts/" + name;
 				else
@@ -290,7 +250,7 @@ namespace TA3D
 
 				running = true;
 				setThreadID();
-                last = msec_timer;
+                last = QTime().msecsTo(QTime::currentTime());
 			}
 		}
 		else
@@ -298,50 +258,6 @@ namespace TA3D
 			LOG_ERROR(LOG_PREFIX_LUA << "Failed opening `" << filename << "`");
 			running = false;
 		}
-	}
-
-	void LuaThread::load(ScriptData *data)
-	{
-		destroy();
-		LuaChunk *chunk = dynamic_cast<LuaChunk*>(data);
-		if (chunk)
-		{
-			L = lua_open();				// Create a lua state object
-
-			if (L == NULL)
-			{
-				running = false;
-				buffer = NULL;
-				return;
-			}
-
-			register_basic_functions();
-			register_functions();
-
-			name = chunk->getName();
-			if (chunk->load(L))
-			{
-                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-                {
-                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
-                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
-                }
-
-				running = false;
-				lua_close( L );
-				L = NULL;
-			}
-			else
-			{
-				running = true;
-				setThreadID();
-			}
-		}
-	}
-
-	LuaChunk *LuaThread::dump()
-	{
-		return new LuaChunk(L, name);
 	}
 
 	int thread_logmsg( lua_State *L )		// logmsg( str )
@@ -355,31 +271,31 @@ namespace TA3D
 
 	int thread_mouse_x( lua_State *L )		// mouse_x()
 	{
-		lua_pushinteger( L, mouse_x );
+        lua_pushinteger( L, 0 );
 		return 1;
 	}
 
 	int thread_mouse_y( lua_State *L )		// mouse_y()
 	{
-		lua_pushinteger( L, mouse_y );
+        lua_pushinteger( L, 0 );
 		return 1;
 	}
 
 	int thread_mouse_z( lua_State *L )		// mouse_z()
 	{
-		lua_pushinteger( L, mouse_z );
+        lua_pushinteger( L, 0 );
 		return 1;
 	}
 
 	int thread_mouse_b( lua_State *L )		// mouse_b()
 	{
-		lua_pushinteger( L, mouse_b );
+        lua_pushinteger( L, 0 );
 		return 1;
 	}
 
 	int thread_time( lua_State *L )		// time()
 	{
-		lua_pushnumber( L, msec_timer * 0.001 );
+        lua_pushnumber( L, QTime().msecsTo(QTime::currentTime()) * 0.001 );
 		return 1;
 	}
 
@@ -419,12 +335,12 @@ namespace TA3D
 		lua_register( L, "time", thread_time );
 		lua_register( L, "signal", thread_signal );
 		lua_register( L, "start_script", thread_start_script );
-		LuaEnv::register_global_functions( L );
+#warning TODO : register fake LuaEnv functions
+//		LuaEnv::register_global_functions( L );
 	}
 
 	int LuaThread::run(float dt, bool alone)               // Run the script
 	{
-		MutexLocker mLocker( pMutex );
         if (!L)
             return -1;
 
@@ -518,26 +434,14 @@ namespace TA3D
 
 	int LuaThread::run()                          // Run the script, using default delay
 	{
-		uint32 timer = msec_timer;
+        uint32 timer = QTime().msecsTo(QTime::currentTime());
 		float dt = timer - last;
 		last = timer;
 		return run(dt);
 	}
 
-	void LuaThread::proc(void* /*param*/)
-	{
-        while (isRunning() && is_running() && !crashed)
-		{
-			run();
-			rest(1);
-		}
-		pDead = 1;
-	}
-
 	LuaThread *LuaThread::fork()
 	{
-		pMutex.lock();
-
 		if (running == false && caller == NULL)
 		{
 			sleeping = false;
@@ -545,7 +449,6 @@ namespace TA3D
 			waiting = false;
 			signal_mask = 0;
 			lua_settop(L, 0);
-			pMutex.unlock();
 			return this;
 		}
 
@@ -560,7 +463,6 @@ namespace TA3D
             lua_settop(newThread->L, 0);
             addThread(newThread);
 
-            pMutex.unlock();
             return newThread;
         }
 
@@ -574,36 +476,29 @@ namespace TA3D
 		newThread->caller = (caller != NULL) ? caller : this;
 
 		newThread->L = lua_newthread(L);
-        QString globalName( QString::Format("__thread%d", getNextID()) );
-        lua_setglobal(L, globalName.c_str());  // We don't want to keep this thread value on top of the stack
+        QString globalName( QString("__thread") + getNextID() );
+        lua_setglobal(L, globalName.toStdString().c_str());  // We don't want to keep this thread value on top of the stack
 		addThread(newThread);
 
-		pMutex.unlock();
 		return newThread;
 	}
 
     LuaThread *LuaThread::fork(const QString &functionName, int *parameters, int nb_params)
 	{
-		pMutex.lock();
-
 		LuaThread *newThread = fork();
 		if (newThread)
 			newThread->call(functionName, parameters, nb_params);
-
-		pMutex.unlock();
 		return newThread;
 	}
 
     void LuaThread::call(const QString &functionName, int *parameters, int nb_params)
 	{
-		MutexLocker mLocker( pMutex );
-
 		if (running)    return;     // We cannot run several functions at the same time on the same stack
 
         crashed = false;
 
 		lua_settop(L, 0);
-		lua_getglobal( L, functionName.c_str() );
+        lua_getglobal( L, functionName.toStdString().c_str() );
 		if (lua_isnil( L, -1 ))     // Function not found
 		{
 			lua_pop(L, 1);
@@ -621,12 +516,10 @@ namespace TA3D
 
     int LuaThread::execute(const QString &functionName, int *parameters, int nb_params)
 	{
-		MutexLocker mLocker( pMutex );
-
         crashed = false;
 
         lua_settop(L, 0);
-		lua_getglobal( L, functionName.c_str() );
+        lua_getglobal( L, functionName.toStdString().c_str() );
 		if (lua_isnil( L, -1 ))     // Function not found
 		{
 			lua_pop(L, 1);
@@ -673,8 +566,6 @@ namespace TA3D
 
 	LuaThread *LuaThread::fork(lua_State *cL, int n)
 	{
-		pMutex.lock();
-
 		LuaThread *newThread = fork();
 
         if (lua_isfunction(cL, -n))
@@ -685,8 +576,6 @@ namespace TA3D
         }
         else
             newThread->running = false;
-
-		pMutex.unlock();
 		return newThread;
 	}
 
@@ -701,11 +590,10 @@ namespace TA3D
 
     bool LuaThread::runCommand(const QString &cmd)
     {
-        MutexLocker mLocker( pMutex );
         if (L == NULL)
             return false;
 
-        if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), "user command" ))
+        if (luaL_loadbuffer(L, (const char*)cmd.toStdString().c_str(), cmd.size(), "user command" ))
         {
             if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
             {
@@ -743,9 +631,7 @@ namespace TA3D
 
     int LuaThread::getMem()
     {
-        lock();
         int mem = L != NULL ? lua_gc(L, LUA_GCCOUNT, 0) * 1024 + lua_gc(L, LUA_GCCOUNTB, 0) : 0;
-        unlock();
         return mem;
     }
 

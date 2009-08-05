@@ -128,11 +128,11 @@ namespace TA3D
 			explode_time -= dt;
 		explode = explode_time > 0.0f;
 
-		for (uint16 e = 0; e < nb_piece; ++e)
+        for (int e = 0; e < nb_piece; ++e)
 		{
 			if (flag[e] & FLAG_EXPLODE)// && (explosion_flag[e]&EXPLODE_SDL_SurfaceONLY)!=EXPLODE_SDL_SurfaceONLY)		// This piece is exploding
 			{
-				for (byte i = 0; i < 3; ++i)
+                for (int i = 0; i < 3; ++i)
 				{
 					if (i == 1 && explosion_flag[e]&EXPLODE_FALL)
 						axe[i][e].move_speed-=g;
@@ -143,7 +143,7 @@ namespace TA3D
 			}
 			else
 			{
-				for (byte i = 0; i < 3; ++i)
+                for (int i = 0; i < 3; ++i)
 				{
 					if (!axe[i][e].is_moving)
 						continue;

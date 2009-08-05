@@ -19,8 +19,8 @@
 #define __ScriptInterface_H__
 
 # include <QtCore>
-# include <zlib.h>
 #include <deque>
+#include "../types.h"
 
 # define UNPACKX(xz) ((sint16)((xz)>>16))
 # define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
@@ -31,7 +31,7 @@ namespace TA3D
     /*!
     ** This class is an interface for all scripts types
     */
-    class ScriptInterface : public ObjectSync
+    class ScriptInterface
     {
     protected:
         //! Variables to control thread execution
@@ -50,8 +50,6 @@ namespace TA3D
         ScriptInterface();
         virtual ~ScriptInterface() {    deleteThreads();  }
 
-        virtual void load( ScriptData *data ) = 0;
-
         //! stops definitely the thread
         void kill();
         void stop();
@@ -68,18 +66,12 @@ namespace TA3D
         inline int nb_threads() { return (running ? 1 : 0) + childs.size(); }
 
         //! functions used to call/run functions
-        virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
-        virtual int execute(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
-
-        //! functions used to save/restore scripts state
-        virtual void save_thread_state(gzFile file) = 0;
-        virtual void restore_thread_state(gzFile file) = 0;
-        void save_state(gzFile file);
-        void restore_state(gzFile file);
+        virtual void call(const QString &functionName, int *parameters = NULL, int nb_params = 0) = 0;
+        virtual int execute(const QString &functionName, int *parameters = NULL, int nb_params = 0) = 0;
 
         //! functions used to create new threads sharing the same environment
         virtual ScriptInterface *fork() = 0;
-        virtual ScriptInterface *fork(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
+        virtual ScriptInterface *fork(const QString &functionName, int *parameters = NULL, int nb_params = 0) = 0;
 
         ScriptInterface *getFreeThread();
 
