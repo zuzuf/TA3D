@@ -9,11 +9,13 @@
 #include "meshtree.h"
 #include "ambientocclusionthread.h"
 #include "animation.h"
+#include <math.h>
 
 bool Mesh::whiteSurface = false;
 Mesh *Mesh::pInstance = NULL;
 bool Mesh::animated = false;
 
+#define DEG2RAD (M_PI / 180.0f)
 
 Mesh *Mesh::instance()
 {
@@ -29,6 +31,7 @@ Mesh::Mesh()
     name.clear();
     flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
     color = rColor = 0xFFFFFFFF;
+    resetAnimData();
 }
 
 Mesh::~Mesh()
@@ -2391,4 +2394,117 @@ Mesh *Mesh::toSingleMesh()
     }
 
     return mesh;
+}
+
+void Mesh::resetAnimData()
+{
+    axe[0].reset();
+    axe[1].reset();
+    axe[2].reset();
+    explode = false;
+    explode_time = 0.0f;
+    explosion_flag = 0;
+    anim_flag = 0;
+    if (child)
+        child->resetAnimData();
+    if (next)
+        next->resetAnimData();
+}
+
+void Mesh::move(const float dt)
+{
+    const float g = 9.8f;
+
+    if (explode_time > 0.0f)
+        explode_time -= dt;
+    explode = explode_time > 0.0f;
+
+    if (anim_flag & FLAG_EXPLODE)// && (explosion_flag[e]&EXPLODE_SDL_SurfaceONLY)!=EXPLODE_SDL_SurfaceONLY)		// This piece is exploding
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            if (i == 1 && (explosion_flag & EXPLODE_FALL))
+                axe[i].move_speed -= g;
+            axe[i].pos += axe[i].move_speed * dt;
+            axe[i].angle += axe[i].rot_speed * dt;
+            axe[i].is_moving = true;
+        }
+    }
+    else
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            axe[i].is_moving = false;
+
+            float a = axe[i].move_distance;
+            if (a != 0.0f)
+            {
+                float c = axe[i].move_speed * dt;
+                axe[i].move_distance -= c;
+                axe[i].pos += c;
+                axe[i].is_moving = c != 0.0f;
+                if ((a > 0.0f && axe[i].move_distance < 0.0f) || (a < 0.0f && axe[i].move_distance > 0.0f))
+                {
+                    axe[i].pos += axe[i].move_distance;
+                    axe[i].move_distance = 0.0f;
+                }
+            }
+
+            while (axe[i].angle > 180.0f)
+                axe[i].angle -= 360.0f;		// Maintient l'angle dans les limites
+            while (axe[i].angle < -180.0f)
+                axe[i].angle += 360.0f;
+
+            a = axe[i].rot_angle;
+            if ((axe[i].rot_speed != 0.0f || axe[i].rot_accel != 0.0f) && ((a != 0.0f && axe[i].rot_limit) || !axe[i].rot_limit))
+            {
+                float b = axe[i].rot_speed;
+                if (b < -7200.0f)
+                    b = axe[i].rot_speed = -7200.0f;
+                else if (b > 7200.0f)
+                    b = axe[i].rot_speed = 7200.0f;
+
+                axe[i].rot_speed += axe[i].rot_accel * dt;
+                axe[i].is_moving = axe[i].rot_accel != 0.0f;
+                if (axe[i].rot_speed_limit)
+                {
+                    if ((b <= axe[i].rot_target_speed && axe[i].rot_speed >= axe[i].rot_target_speed)
+                        || (b >= axe[i].rot_target_speed && axe[i].rot_speed <= axe[i].rot_target_speed))
+                        {
+                        axe[i].rot_accel = 0.0f;
+                        axe[i].rot_speed = axe[i].rot_target_speed;
+                        axe[i].rot_speed_limit = false;
+                    }
+                }
+                float c = axe[i].rot_speed * dt;
+                axe[i].angle += c;
+                axe[i].is_moving = c != 0.0f;
+                if (axe[i].rot_limit)
+                {
+                    axe[i].rot_angle -= c;
+                    if ((a >= 0.0f && axe[i].rot_angle <= 0.0f) || (a <= 0.0f && axe[i].rot_angle >= 0.0f))
+                    {
+                        axe[i].angle += axe[i].rot_angle;
+                        axe[i].rot_angle = 0.0f;
+                        axe[i].rot_speed = 0.0f;
+                        axe[i].rot_accel = 0.0f;
+                    }
+                }
+            }
+        }
+    }
+}
+
+Vec Mesh::getRelativePositionAnim(int id)
+{
+    Matrix M = Scale(1.0f);
+    M = RotateZYX(axe[2].angle * DEG2RAD, axe[1].angle * DEG2RAD, axe[0].angle * DEG2RAD);
+
+    if (id == ID)
+        return pos + Vec(axe[0].pos, axe[1].pos, axe[2].pos);
+    if (((next && next->getID() > id) || next == NULL) && child)
+        return child->getRelativePosition(id) * M + pos + Vec(axe[0].pos, axe[1].pos, axe[2].pos);
+    if (next)
+        return next->getRelativePosition(id);
+    return Vec();
 }

@@ -16,6 +16,17 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "../mesh.h"
+#include "../logs.h"
+#include "unit.script.interface.h"
+
+# define DEG2RAD  (M_PI / 180.0f)
+# define RAD2DEG  (180.0f / M_PI)
+
+# define DEG2TA   (65536.0f / 360.0f)
+# define TA2DEG   (360.0f / 65536.0f)
+
+# define RAD2TA   (RAD2DEG * DEG2TA)
+# define TA2RAD   (TA2DEG  * DEG2RAD)
 
 namespace TA3D
 {
@@ -31,14 +42,14 @@ namespace TA3D
         cur->axe[1].angle = 0.0f;
         cur->axe[2].pos = 0.0f;
         cur->axe[2].angle = 0.0f;
-        cur->flag |= FLAG_EXPLODE;
+        cur->anim_flag |= FLAG_EXPLODE;
         cur->explosion_flag = explosion_type;
-        cur->axe[0].move_speed = (25.0f + (Math::RandFromTable() % 2501) * 0.01f) * (Math::RandFromTable() & 1 ? 1.0f : -1.0f);
-        cur->axe[0].rot_speed = (Math::RandFromTable() % 7201) * 0.1f - 360.0f;
-        cur->axe[1].move_speed = 25.0f + (Math::RandFromTable() % 2501) * 0.01f;
-        cur->axe[1].rot_speed = (Math::RandFromTable() % 7201) * 0.1f - 360.0f;
-        cur->axe[2].move_speed = (25.0f + (Math::RandFromTable() % 2501) * 0.01f) * (Math::RandFromTable() & 1 ? 1.0f : -1.0f);
-        cur->axe[2].rot_speed = (Math::RandFromTable() % 7201) * 0.1f - 360.0f;
+        cur->axe[0].move_speed = (25.0f + (qrand() % 2501) * 0.01f) * ((qrand() & 1) ? 1.0f : -1.0f);
+        cur->axe[0].rot_speed = (qrand() % 7201) * 0.1f - 360.0f;
+        cur->axe[1].move_speed = 25.0f + (qrand() % 2501) * 0.01f;
+        cur->axe[1].rot_speed = (qrand() % 7201) * 0.1f - 360.0f;
+        cur->axe[2].move_speed = (25.0f + (qrand() % 2501) * 0.01f) * (qrand() & 1 ? 1.0f : -1.0f);
+        cur->axe[2].rot_speed = (qrand() % 7201) * 0.1f - 360.0f;
         cur->explode = true;
         cur->explode_time = 1.0f;
     }
@@ -55,13 +66,12 @@ namespace TA3D
         }
         cur->axe[axis].reset_rot();
         cur->axe[axis].is_moving = true;
-        cur->is_moving = true;
         cur->axe[axis].rot_angle = -angle;
         cur->axe[axis].rot_accel = 0.0f;
         cur->axe[axis].rot_angle -= cur->axe[axis].angle;
-        while(cur->axe[axis].rot_angle > 180.0f && !isNaN(cur->axe[axis].rot_angle))					// Fait le tour dans le sens le plus rapide
+        while(cur->axe[axis].rot_angle > 180.0f && !isnan(cur->axe[axis].rot_angle))					// Fait le tour dans le sens le plus rapide
             cur->axe[axis].rot_angle -= 360.0f;
-        while(cur->axe[axis].rot_angle < -180.0f && !isNaN(cur->axe[axis].rot_angle))					// Fait le tour dans le sens le plus rapide
+        while(cur->axe[axis].rot_angle < -180.0f && !isnan(cur->axe[axis].rot_angle))					// Fait le tour dans le sens le plus rapide
             cur->axe[axis].rot_angle += 360.0f;
         if (cur->axe[axis].rot_angle > 0.0f)
             cur->axe[axis].rot_speed = fabsf(speed);
@@ -82,7 +92,6 @@ namespace TA3D
         cur->axe[axis].reset_move();
         cur->axe[axis].move_distance = pos - cur->axe[axis].pos;
         cur->axe[axis].is_moving = true;
-        cur->is_moving = true;
         if (cur->axe[axis].move_distance < 0.0f)
             cur->axe[axis].move_speed = -fabsf(speed * 0.5f);
         else
@@ -91,9 +100,6 @@ namespace TA3D
 
     int script_get_value_from_port(int portID, int *param)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
-        if (!cur)   return;
-
         switch(portID)
         {
             case MIN_ID:		// returns the lowest valid unit ID number
@@ -159,7 +165,6 @@ namespace TA3D
         }
         cur->axe[axis].reset_rot();
         cur->axe[axis].is_moving = true;
-        cur->is_moving = true;
         cur->axe[axis].rot_limit = false;
         cur->axe[axis].rot_speed_limit = true;
         cur->axe[axis].rot_target_speed = target_speed;
@@ -182,7 +187,7 @@ namespace TA3D
         Mesh *cur = Mesh::instance()->getMesh(obj);
         if (!cur)   return;
 
-        cur->flag &= (~FLAG_HIDE);
+        cur->anim_flag &= (~FLAG_HIDE);
     }
 
     void script_hide_object(int obj)
@@ -190,7 +195,7 @@ namespace TA3D
         Mesh *cur = Mesh::instance()->getMesh(obj);
         if (!cur)   return;
 
-        cur->flag |= FLAG_HIDE;
+        cur->anim_flag |= FLAG_HIDE;
     }
 
     void script_dont_cache(int obj)
@@ -198,7 +203,7 @@ namespace TA3D
         Mesh *cur = Mesh::instance()->getMesh(obj);
         if (!cur)   return;
 
-        cur->flag |= FLAG_ANIMATED_TEXTURE;
+        cur->anim_flag |= FLAG_ANIMATED_TEXTURE;
     }
 
     void script_cache(int obj)
@@ -206,7 +211,7 @@ namespace TA3D
         Mesh *cur = Mesh::instance()->getMesh(obj);
         if (!cur)   return;
 
-        cur->flag &= (~FLAG_ANIMATED_TEXTURE);
+        cur->anim_flag &= (~FLAG_ANIMATED_TEXTURE);
     }
 
     void script_shade(int obj)
@@ -214,7 +219,7 @@ namespace TA3D
         Mesh *cur = Mesh::instance()->getMesh(obj);
         if (!cur)   return;
 
-        cur->flag &= (~FLAG_DONT_SHADE);
+        cur->anim_flag &= (~FLAG_DONT_SHADE);
     }
 
     void script_dont_shade(int obj)
@@ -222,12 +227,12 @@ namespace TA3D
         Mesh *cur = Mesh::instance()->getMesh(obj);
         if (!cur)   return;
 
-        cur->flag |= FLAG_DONT_SHADE;
+        cur->anim_flag |= FLAG_DONT_SHADE;
     }
 
     void script_emit_sfx(int smoke_type, int from_piece)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
+        Mesh *cur = Mesh::instance()->getMesh(from_piece);
         if (!cur)   return;
     }
 
@@ -240,7 +245,6 @@ namespace TA3D
             speed = -speed;
         cur->axe[axis].reset_rot();
         cur->axe[axis].is_moving = true;
-        cur->is_moving = true;
         cur->axe[axis].rot_limit = false;
         cur->axe[axis].rot_speed_limit = true;
         cur->axe[axis].rot_target_speed = 0.0f;
@@ -265,7 +269,6 @@ namespace TA3D
 
         cur->axe[axis].reset_move();
         cur->axe[axis].is_moving = true;
-        cur->is_moving = true;
         if (axis == 0)
             cur->axe[axis].pos = -pos;
         else
@@ -279,7 +282,6 @@ namespace TA3D
 
         cur->axe[axis].reset_rot();
         cur->axe[axis].is_moving = true;
-        cur->is_moving = true;
         if (axis != 2)
             angle = -angle;
         cur->axe[axis].angle = -angle;
@@ -287,9 +289,6 @@ namespace TA3D
 
     int script_get(int type, int v1, int v2)
     {
-        Mesh *cur = Mesh::instance()->getMesh(obj);
-        if (!cur)   return;
-
         switch(type)
         {
             case VETERAN_LEVEL:
@@ -321,9 +320,15 @@ namespace TA3D
             case ARMORED:
                 return 0;//(int)port[type];
             case PIECE_XZ:
-                return PACKXZ((cur->pos.x) * 2.0f, (cur->pos.z) * 2.0f);
+                {
+                    Vec P = Mesh::instance()->getRelativePosition(v1);
+                    return PACKXZ(P.x * 2.0f, P.z * 2.0f);
+                }
             case PIECE_Y:
-                return (int)((cur->pos[v1].y + Pos.y) * 2.0f) << 16;
+                {
+                    Vec P = Mesh::instance()->getRelativePosition(v1);
+                    return (int)(P.y * 2.0f) << 16;
+                }
             case UNIT_XZ:
                 return PACKXZ( 0.0f, 0.0f );
             case UNIT_Y:
@@ -331,7 +336,7 @@ namespace TA3D
             case UNIT_HEIGHT:
                 return 0;//(int)(model->top * 2.0f) << 16;
             case XZ_ATAN:
-                return (int)(atan2f( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768;
+                return (int)(atan2f( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA) + 32768;
             case XZ_HYPOT:
                 return (int)hypotf( UNPACKX(v1), UNPACKZ(v1) ) << 16;
             case ATAN:
@@ -357,13 +362,13 @@ namespace TA3D
 //                    activate();
                 break;
             case YARD_OPEN:
-                port[type] = v;
+//                port[type] = v;
                 break;
             case BUGGER_OFF:
-                port[type] = v;
+//                port[type] = v;
                 break;
-            default:
-                port[type] = v;
+//            default:
+//                port[type] = v;
         }
     }
 
@@ -377,6 +382,9 @@ namespace TA3D
 
     bool script_is_turning(int obj, int axis)
     {
+        Mesh *cur = Mesh::instance()->getMesh(obj);
+        if (!cur)   return false;
+
         float a = cur->axe[axis].rot_angle;
         if ((cur->axe[axis].rot_speed != 0.0f || cur->axe[axis].rot_accel != 0.0f) && (a != 0.0f && cur->axe[axis].rot_limit))
             return true;
@@ -389,6 +397,9 @@ namespace TA3D
 
     bool script_is_moving(int obj, int axis)
     {
+        Mesh *cur = Mesh::instance()->getMesh(obj);
+        if (!cur)   return false;
+
         return (cur->axe[axis].move_distance != 0.0f);
     }
 }

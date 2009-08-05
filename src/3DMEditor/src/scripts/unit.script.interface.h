@@ -21,6 +21,9 @@
 # include <QtCore>
 # include "script.interface.h"
 
+# define UNPACKX(xz) ((sint16)((xz)>>16))
+# define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
+# define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
 
 namespace TA3D
 {
@@ -30,23 +33,14 @@ namespace TA3D
     class UnitScriptInterface : public ScriptInterface
     {
     public:
-        static UnitScriptInterface *instanciate( ScriptData *data );
-        static const String get_script_name(int id);
-        static int get_script_id(const String &name);
+        static const QString get_script_name(int id);
+        static int get_script_id(const QString &name);
 
-    protected:
-        uint32                  unitID;
-        UTILS::cHashTable<int>  return_value;
     public:
-        inline UnitScriptInterface() : return_value(50)  {}
+        inline UnitScriptInterface() {}
         virtual ~UnitScriptInterface()  {}
 
-        virtual void setUnitID(uint32 ID) = 0;
-
         virtual int getNbPieces() = 0;
-
-        int getReturnValue(const String &name);
-        void setReturnValue(const String &name, int value);
 
     private:
         static const char *script_name[];

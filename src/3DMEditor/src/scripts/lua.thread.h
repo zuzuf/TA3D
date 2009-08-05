@@ -22,8 +22,7 @@
 # include "../misc/vector.h"
 # include "../../../ta3d/src/lua/lua.hpp"
 # include "script.interface.h"
-
-#define LOG_ERROR(x)
+# include "../logs.h"
 
 namespace TA3D
 {
@@ -34,12 +33,6 @@ namespace TA3D
     Vector3D lua_tovector( lua_State *L, int idx );
 
     /*!
-    ** \brief functions for color interface with Lua
-    */
-    void lua_pushcolor( lua_State *L, const uint32 color );
-    uint32 lua_tocolor( lua_State *L, int idx );
-
-    /*!
     ** \brief loads a Lua script, preprocessing to allow including other files and use defines
     */
     byte *loadLuaFile(const QString &filename, uint32 &filesize);
@@ -48,7 +41,7 @@ namespace TA3D
     ** This class represents a basic Lua thread without specialization
     ** To use it, create a new class that inherits LuaThread
     */
-    class LuaThread : public Thread, public ScriptInterface
+    class LuaThread : public ScriptInterface
     {
         virtual const char *className() { return "LuaThread"; }
         friend class UnitScript;
@@ -74,7 +67,6 @@ namespace TA3D
         {
             if (caller)
                 return static_cast<LuaThread*>(caller)->getNextID();
-            MutexLocker mLocker(pMutex);
             return nextID++;
         }
 
@@ -109,9 +101,6 @@ namespace TA3D
         void register_basic_functions();
         virtual void register_functions()   {}
         virtual void register_info()        {}
-
-    protected:
-        virtual void proc(void* param);
     };
 
     int thread_logmsg( lua_State *L );

@@ -4,10 +4,13 @@
 QT += opengl \
     webkit
 TARGET = 3DMEditor2
-LIBS += -lz -L../ta3d/src/lua -llua
+LIBS += -lz \
+    -L../ta3d/src/lua \
+    -llua
 win32:LIBS += -lglew32.dll
 unix:LIBS += -lGLEW
 macos:LIBS += -lGLEW
+QMAKE_CXXFLAGS_DEBUG += --no-warnings
 TEMPLATE = app
 SOURCES += src/main.cpp \
     src/mainwindow.cpp \
@@ -70,9 +73,9 @@ HEADERS += src/mainwindow.h \
     src/animation.h \
     src/luaeditor.h \
     src/scripts/lua.thread.h \
-    src/scripts/script.h \
     src/scripts/script.interface.h \
     src/scripts/unit.script.h \
-    src/scripts/unit.script.interface.h
+    src/scripts/unit.script.interface.h \
+    src/logs.h
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts
