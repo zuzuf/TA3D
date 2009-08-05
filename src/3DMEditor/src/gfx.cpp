@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QFile>
 #include <QTimer>
+#include <QTime>
 #include "gfx.h"
 #include "mesh.h"
 #include "geometrygraph.h"
@@ -58,8 +59,13 @@ void Gfx::initializeGL()
     SetDefState();
 }
 
+uint32 __gfx_timer = 0;
+
 void Gfx::paintGL()
 {
+    uint32 msec_timer = QTime().msecsTo(QTime::currentTime());
+    Mesh::instance()->move((msec_timer - __gfx_timer) * 0.001f);
+    __gfx_timer = msec_timer;
     Camera::inGame->setWidthFactor(width(), height());
     glViewport(0,0,width(),height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

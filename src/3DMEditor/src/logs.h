@@ -3,10 +3,10 @@
 
 #include "luaeditor.h"
 
-#define LOG_ERROR(x)
-#define LOG_DEBUG(x)
-#define LOG_CRITICAL(x)
-#define LOG_INFO(x)
+#define LOG_ERROR(x) { (LuaEditor::instance()->getStream() << "[error] " << x); LuaEditor::instance()->updateGUI(); }
+#define LOG_DEBUG(x) { (LuaEditor::instance()->getStream() << "[debug] " << x); LuaEditor::instance()->updateGUI(); }
+#define LOG_INFO(x) { (LuaEditor::instance()->getStream() << "[info] " << x); LuaEditor::instance()->updateGUI(); }
+#define LOG_CRITICAL(x) { (LuaEditor::instance()->getStream() << "[critical] " << x); LuaEditor::instance()->updateGUI(); }
 
 #define LOG_PREFIX_SCRIPT "[script] "
 #define LOG_PREFIX_LUA "[lua] "

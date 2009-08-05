@@ -3,17 +3,21 @@
 
 #include <QWidget>
 #include <QTextEdit>
+#include <QTextStream>
 
 class LuaEditor : public QWidget
 {
     Q_OBJECT;
 public:
     LuaEditor();
+    inline QTextStream &getStream() {   return stream;  }
 
 private:
     QTextEdit *code;
     QTextEdit *output;
     bool      updating;
+    QString   logs;
+    QTextStream stream;
 
 public slots:
     void updateWindowTitle();

@@ -1,0 +1,65 @@
+-- StateChg.lh -- Generic State Change support for units that activate and deactivate or whatever
+
+-- Due to limitiations of the scripting language, this file must be included twice.  The
+-- first time must be where the static variables are declared.  The second time must be
+-- where the functions are defined (and of course before they are called.)
+
+-- The Following macros must be defined:  ACTIVATECMD and DEACTIVATECMD.  They are the commands
+-- to run when the units is actiavted or deactivated.
+
+-- State variables
+
+-- The states that can be requested
+
+ACTIVE      = 0
+INACTIVE    = 1
+
+-- State change request functions
+
+__this.statechg_DesiredState = INACTIVE
+__this.statechg_StateChanging = false
+
+__this.InitState = function(this)
+    -- Initial state
+    this.statechg_DesiredState = INACTIVE
+    this.statechg_StateChanging = false
+end
+
+__this.RequestState = function ( this, requestedstate )
+    -- If already running, then just change the target state
+    if this.statechg_StateChanging then
+        -- Then just tell it how we want to end up.  A script is already running and will take care of it.
+        this.statechg_DesiredState = requestedstate
+        return 0
+    end
+
+    -- Keep everybody else out
+    this.statechg_StateChanging = true
+
+    -- Since nothing was running, the actual state is the current desired state
+    local actualstate = this.statechg_DesiredState
+
+    -- State our desires
+    this.statechg_DesiredState = requestedstate
+
+    -- Repeat command until proper state
+    while this.statechg_DesiredState ~= actualstate do
+        -- Change the state
+
+        if this.statechg_DesiredState == ACTIVE then
+            this:ACTIVATECMD()
+            actualstate = ACTIVE
+        end
+
+        if this.statechg_DesiredState == INACTIVE then
+            this:DEACTIVATECMD()
+            actualstate = INACTIVE
+        end
+        
+        yield()
+    end
+
+    -- Job done
+    this.statechg_StateChanging = false
+end
+

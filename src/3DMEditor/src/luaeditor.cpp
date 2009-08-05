@@ -75,6 +75,8 @@ LuaEditor::LuaEditor()
     connect(bLoad, SIGNAL(clicked()), this, SLOT(loadProgram()));
 
     updating = false;
+
+    stream.setString(&logs, QIODevice::WriteOnly);
 }
 
 void LuaEditor::updateWindowTitle()
@@ -85,7 +87,7 @@ void LuaEditor::updateWindowTitle()
 void LuaEditor::updateGUI()
 {
     updating = true;
-    output->clear();
+    output->setText(logs);
     updating = false;
     updateWindowTitle();
 }

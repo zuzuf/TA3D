@@ -20,14 +20,19 @@
 
 namespace TA3D
 {
+    UnitScript *UnitScript::pInstance = NULL;
+    UnitScript *UnitScript::instance()
+    {
+        if (!pInstance)
+            pInstance = new UnitScript;
+        return pInstance;
+    }
 
-
-	lua_State *UnitScript::pLuaVM = NULL;
+    lua_State *UnitScript::pLuaVM = NULL;
 
 	inline UnitScript *lua_scriptID( lua_State *L, int pos )
 	{
-#warning TODO: update this to return a pointer to the script object
-        UnitScript *p = NULL;//static_cast<UnitScript*>(unit->script);
+        UnitScript *p = UnitScript::instance();
 		return p;
 	}
 
