@@ -126,7 +126,8 @@ namespace TA3D
         static UnitScript *pInstance;
     public:
         static UnitScript *instance();
-    };
+        static void runCommand(const QString &cmd);
+};
 
     void script_explode(int obj, int explosion_type);
     void script_turn_object(int obj, int axis, float angle, float speed);

@@ -179,8 +179,10 @@ function cloneUnitScript(name, unitID)
 	local script = _G[name]
 	local unit = {unitID = unitID, __threads = {} }
 	
-	for k, v in pairs(script) do		-- clone the script table
-		unit[k] = v
+	if script ~= nil then
+		for k, v in pairs(script) do		-- clone the script table
+			unit[k] = v
+		end
 	end
 	
 	__units[unitID] = unit

@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QTabWidget>
 #include <QSyntaxHighlighter>
+#include <QLineEdit>
 #include "scripts/unit.script.h"
 #include "logs.h"
 
@@ -41,6 +42,10 @@ LuaEditor::LuaEditor()
     code->setWordWrapMode(QTextOption::NoWrap);
     code->setTabStopWidth(20);
     output->setWordWrapMode(QTextOption::NoWrap);
+    QPalette pal;
+    pal.setColor(QPalette::Active, QPalette::Base, Qt::black);
+    pal.setColor(QPalette::Active, QPalette::Text, Qt::gray);
+    output->setPalette(pal);
     new LuaSyntaxHighlighter(code);
 
     setLayout( new QVBoxLayout );
@@ -64,27 +69,56 @@ LuaEditor::LuaEditor()
     outputTab->setLayout( curLayout );
     curLayout->addWidget(output);
 
+    commandInput = new QLineEdit;
+    curLayout->addWidget(commandInput);
+
+    QWidget *bottom = new QWidget;
+    curLayout->addWidget(bottom);
+    QHBoxLayout *bottomLayout = new QHBoxLayout(bottom);
+
     QPushButton *bOutput = new QPushButton(tr("&Build"));
     bOutput->setMaximumWidth(100);
-    curLayout->addWidget(bOutput);
-    curLayout->setAlignment(bOutput, Qt::AlignHCenter);
-    tabs->addTab( outputTab, tr("&Output"));
+    bottomLayout->addWidget(bOutput);
+    bRun = new QPushButton(tr("&Start"));
+    bRun->setMaximumWidth(100);
+    bRun->setCheckable(true);
+    bottomLayout->addWidget(bRun);
+    QPushButton *bStep = new QPushButton(tr("&Step"));
+    bStep->setMaximumWidth(100);
+    bottomLayout->addWidget(bStep);
+    tabs->addTab( outputTab, tr("&Console"));
 
     updateWindowTitle();
     resize(600, height());
 
+    connect(commandInput, SIGNAL(returnPressed()), this, SLOT(runLuaCommand()));
     connect(bOutput, SIGNAL(clicked()), this, SLOT(compileCode()));
+    connect(bRun, SIGNAL(toggled(bool)), this, SLOT(toggleTimer(bool)));
 
     connect(bSave, SIGNAL(clicked()), this, SLOT(saveProgram()));
     connect(bLoad, SIGNAL(clicked()), this, SLOT(loadProgram()));
 
-    luaTimer.setInterval(1000 / 30);            // Run at game speed
+    luaTimer.setInterval(1000 / 30);            // Run at game speed 30 ticks/sec
     luaTimer.setSingleShot(false);
     connect(&luaTimer, SIGNAL(timeout()), this, SLOT(runLuaCode()));
 
     updating = false;
 
     stream.setString(&logs, QIODevice::WriteOnly);
+}
+
+void LuaEditor::toggleTimer(bool state)
+{
+    if (state)
+    {
+        luaTimer.start();
+        bRun->setText(tr("&Stop"));
+    }
+    else
+    {
+        luaTimer.stop();
+        bRun->setText(tr("&Start"));
+    }
 }
 
 void LuaEditor::updateWindowTitle()
@@ -102,7 +136,6 @@ void LuaEditor::updateGUI()
 
 void LuaEditor::compileCode()
 {
-    // TODO : build the code
     logs.clear();
     LOG_INFO(tr("building Lua code"));
     UnitScript::instance()->load(code->toPlainText());
@@ -260,4 +293,13 @@ void LuaEditor::runLuaCode()
     uint32 msec_timer = QTime().msecsTo(QTime::currentTime());
     UnitScript::instance()->run((msec_timer - __lua_timer) * 0.001f);
     __lua_timer = msec_timer;
+}
+
+void LuaEditor::runLuaCommand()
+{
+    QString command = commandInput->text();
+    commandInput->clear();
+    getStream() << command << "\n";
+    updateGUI();
+    UnitScript::runCommand(command);
 }
