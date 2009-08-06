@@ -40,7 +40,7 @@ LuaEditor::LuaEditor()
     output->setReadOnly(true);
 
     code->setWordWrapMode(QTextOption::NoWrap);
-    code->setTabStopWidth(20);
+    code->setTabStopWidth(23);
     output->setWordWrapMode(QTextOption::NoWrap);
     QPalette pal;
     pal.setColor(QPalette::Active, QPalette::Base, Qt::black);
@@ -96,6 +96,7 @@ LuaEditor::LuaEditor()
     connect(commandInput, SIGNAL(returnPressed()), this, SLOT(runLuaCommand()));
     connect(bOutput, SIGNAL(clicked()), this, SLOT(compileCode()));
     connect(bRun, SIGNAL(toggled(bool)), this, SLOT(toggleTimer(bool)));
+    connect(bStep, SIGNAL(clicked()), this, SLOT(runLuaCode()));
 
     connect(bSave, SIGNAL(clicked()), this, SLOT(saveProgram()));
     connect(bLoad, SIGNAL(clicked()), this, SLOT(loadProgram()));
@@ -141,7 +142,10 @@ void LuaEditor::compileCode()
 {
     logs.clear();
     LOG_INFO(tr("building Lua code"));
+    updateGUI();
     UnitScript::instance()->load(code->toPlainText());
+    UnitScript::runCommand("this = __units[0]");
+    LOG_INFO(tr("done"));
     updateGUI();
 }
 
@@ -218,9 +222,31 @@ void LuaSyntaxHighlighter::highlightBlock(const QString &text)
     // preprocessor
     {
         QTextCharFormat tokenFormat;
-        tokenFormat.setForeground(QColor::fromRgb(0,0,0x7F));
+        QPen pen;
+        pen.setWidthF(1.0);
+        pen.setColor(QColor::fromRgb(0x0,0x0,0x7F));
+        tokenFormat.setTextOutline(pen);
 
-        QRegExp token("\\b#include\\b");
+        QRegExp token("^#include\\b");
+        colorize(text, tokenFormat, token);
+    }
+    // special tokens
+    {
+        QTextCharFormat tokenFormat;
+        QPen pen;
+        pen.setWidthF(1.0);
+        pen.setColor(QColor::fromRgb(0x7F,0x0,0x0));
+        tokenFormat.setTextOutline(pen);
+
+        QRegExp token("\\bthis\\b"
+                      "|\\b__this\\b"
+                      "|\\bthis\\."
+                      "|\\bthis:"
+                      "|\\b__this\\."
+                      "|\\b__this:"
+                      "|\\bx_axis\\b"
+                      "|\\by_axis\\b"
+                      "|\\bz_axis\\b");
         colorize(text, tokenFormat, token);
     }
     // Values
@@ -238,6 +264,13 @@ void LuaSyntaxHighlighter::highlightBlock(const QString &text)
                       "|\\b0x\\d+\\b"
                       "|\\b0X\\d+\\b");
         colorize(text, tokenFormat, token);
+    }
+    // Strings
+    {
+        QTextCharFormat tokenFormat;
+        tokenFormat.setForeground(QColor::fromRgb(0,0x7F,0));
+
+        colorizeSingleLine(text, tokenFormat, QRegExp("\""), QRegExp("[^\"]\""));
     }
     // Comments
     {
