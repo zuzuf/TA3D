@@ -364,7 +364,7 @@ namespace TA3D
 			L = luaVM();
 			lua_getglobal(L, "cloneUnitScript");
             lua_pushstring(L, name.toStdString().c_str());
-            lua_pushinteger(L, 1);
+            lua_pushinteger(L, 0);
             if (lua_pcall(L, 2, 0, 0))
             {
                 LOG_ERROR(LOG_PREFIX_LUA << "error calling cloneUnitScript");
@@ -399,6 +399,11 @@ namespace TA3D
     void UnitScript::load(const QString &code)
 	{
         destroy();
+        if (pLuaVM)
+        {
+            lua_close(pLuaVM);
+            pLuaVM = NULL;
+        }
 
         name = "test";
         L = UnitScript::luaVM();
@@ -432,16 +437,15 @@ namespace TA3D
         qBuffer.append((char*)buffer, buffersize);
         delete[] buffer;
 
+        running = false;
         if (luaL_loadbuffer(L, (const char*)qBuffer.data(), qBuffer.size() - 1, name.toStdString().c_str() ))
         {
             if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
             {
-                LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
                 LOG_ERROR(qBuffer.data());
             }
 
-            running = false;
             L = NULL;
             buffer = NULL;
         }
@@ -449,7 +453,6 @@ namespace TA3D
         {
             buffer = NULL;
 
-            running = true;
             last = QTime().msecsTo(QTime::currentTime());
         }
 
@@ -457,11 +460,9 @@ namespace TA3D
         {
             if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
             {
-                LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
                 LOG_ERROR(qBuffer.data());
             }
-            running = false;
             return;
         }
 
@@ -530,10 +531,7 @@ namespace TA3D
 			if (result != LUA_YIELD && result != 0)
 			{
 				if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
-				{
-					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-				}
 				running = false;
 				return -0xFFFF;         // Crashed
 			}
@@ -575,10 +573,7 @@ namespace TA3D
 		catch(...)
 		{
 			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-			{
-				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-			}
 			running = false;
 			return -0xFFFF;         // Crashed
 		}
@@ -636,10 +631,7 @@ namespace TA3D
 			if (lua_pcall( L, nb_params, 1, 0))
 			{
 				if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
-				{
-					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-				}
 				running = false;
 				return -1;
 			}
@@ -647,10 +639,7 @@ namespace TA3D
 		catch(...)
 		{
 			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-			{
-				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-			}
 			running = false;
 			return -1;
 		}
@@ -796,20 +785,14 @@ namespace TA3D
                 if (lua_pcall(L, 0, 0, 0))
                 {
                     if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
-                    {
-                        LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                         LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-                    }
                     return;
                 }
             }
             catch(...)
             {
                 if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-                {
-                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-                }
                 return;
             }
         }
