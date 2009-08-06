@@ -5,6 +5,8 @@
 #include <QTextEdit>
 #include <QTextStream>
 #include <QTimer>
+#include <QPushButton>
+#include <QLineEdit>
 
 class LuaEditor : public QWidget
 {
@@ -20,6 +22,8 @@ private:
     QString   logs;
     QTextStream stream;
     QTimer    luaTimer;
+    QPushButton *bRun;
+    QLineEdit *commandInput;
 
 public slots:
     void updateWindowTitle();
@@ -28,6 +32,8 @@ public slots:
     void saveProgram();
     void loadProgram();
     void runLuaCode();
+    void runLuaCommand();
+    void toggleTimer(bool);
 
 public:
     static LuaEditor *instance();

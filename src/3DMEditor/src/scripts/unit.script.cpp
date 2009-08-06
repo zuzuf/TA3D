@@ -364,8 +364,13 @@ namespace TA3D
 			L = luaVM();
 			lua_getglobal(L, "cloneUnitScript");
             lua_pushstring(L, name.toStdString().c_str());
-            lua_pushinteger(L, 0);
-			lua_call(L, 2, 0);
+            lua_pushinteger(L, 1);
+            if (lua_pcall(L, 2, 0, 0))
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << "error calling cloneUnitScript");
+                if (lua_gettop(L) > 0 && lua_isstring(L, -1))
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            }
 			lua_settop(L, 0);
 		}
 
@@ -465,10 +470,17 @@ namespace TA3D
         lua_pop(L, 1);
 
         lua_getglobal(L, name.toStdString().c_str());
+        if (!lua_istable(L, -1))
+        {
+            lua_pop(L, 1);
+            LOG_ERROR(LOG_PREFIX_LUA << "could not find the unit structure!");
+            L = NULL;
+            return;
+        }
         lua_getfield(L, -1, "__piece_list");
         Mesh::instance()->resetAnimData();
         Mesh::instance()->resetScriptData();
-        if (lua_istable(L, -1))
+       if (lua_istable(L, -1))
         {
             int n = lua_objlen(L, -1);
             for(int i = 1 ; i <= n ; ++i)
@@ -758,4 +770,49 @@ namespace TA3D
 
 		init();
 	}
+
+    void UnitScript::runCommand(const QString &cmd)
+    {
+        lua_State *L = luaVM();
+        if (L == NULL)
+        {
+            LOG_ERROR(LOG_PREFIX_LUA << "could not create the Lua virtual machine OO!");
+            return;
+        }
+
+        if (luaL_loadbuffer(L, (const char*)cmd.toStdString().c_str(), cmd.size(), "user command" ))
+        {
+            if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+            {
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+                LOG_ERROR(cmd);
+            }
+            return;
+        }
+        else
+        {
+            try
+            {
+                if (lua_pcall(L, 0, 0, 0))
+                {
+                    if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                    {
+                        LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                        LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                    }
+                    return;
+                }
+            }
+            catch(...)
+            {
+                if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                {
+                    LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                }
+                return;
+            }
+        }
+        return;
+    }
 }
