@@ -101,8 +101,13 @@ namespace TA3D
 				for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
                     name += f[ i + 10 ];
                 if (!QFile::exists(path + name))
-					name = "scripts/" + name;
-				else
+                {
+                    if (QFile::exists("scripts/" + name))
+                        name = "scripts/" + name;
+                    else
+                        name = "scripts/" + name.toLower();
+                }
+                else
 					name = path + name;
 				uint32 filesize2 = 0;
                 byte *buffer2 = (byte*)readFile(name, &filesize2);
