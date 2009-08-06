@@ -59,8 +59,10 @@ LuaEditor::LuaEditor()
     QHBoxLayout *codeLayout = new QHBoxLayout;
     QPushButton *bSave = new QPushButton(QIcon("icons/save.png"), tr("&save program"));
     QPushButton *bLoad = new QPushButton(QIcon("icons/open.png"), tr("&load program"));
+    QPushButton *bNew = new QPushButton(QIcon("icons/new.png"), tr("&load template"));
     codeLayout->addWidget(bSave);
     codeLayout->addWidget(bLoad);
+    codeLayout->addWidget(bNew);
     curLayout->addLayout(codeLayout);
     tabs->addTab( codeTab, tr("&Code"));
 
@@ -97,6 +99,7 @@ LuaEditor::LuaEditor()
 
     connect(bSave, SIGNAL(clicked()), this, SLOT(saveProgram()));
     connect(bLoad, SIGNAL(clicked()), this, SLOT(loadProgram()));
+    connect(bNew, SIGNAL(clicked()), this, SLOT(loadTemplate()));
 
     luaTimer.setInterval(1000 / 30);            // Run at game speed 30 ticks/sec
     luaTimer.setSingleShot(false);
@@ -302,4 +305,20 @@ void LuaEditor::runLuaCommand()
     getStream() << command << "\n";
     updateGUI();
     UnitScript::runCommand(command);
+}
+
+void LuaEditor::loadTemplate()
+{
+    if (QMessageBox::question(this, tr("Are you sure?"), tr("Load the template? If not saved, current code will be lost."), QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        return;
+    QString filename("scripts/template.lua");
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+    if (!file.exists() || !file.isOpen())
+    {
+        QMessageBox::critical(this, tr("Error opening file"), tr("Error: could not read file %1").arg(filename));
+        return;
+    }
+    code->setPlainText(QString(file.readAll()));
+    file.close();
 }

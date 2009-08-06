@@ -34,6 +34,7 @@ public slots:
     void runLuaCode();
     void runLuaCommand();
     void toggleTimer(bool);
+    void loadTemplate();
 
 public:
     static LuaEditor *instance();
