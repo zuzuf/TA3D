@@ -4,9 +4,7 @@
 QT += opengl \
     webkit
 TARGET = 3DMEditor2
-LIBS += -lz \
-    -L../ta3d/src/lua \
-    -llua
+LIBS += -lz
 win32:LIBS += -lglew32.dll
 unix:LIBS += -lGLEW
 macos:LIBS += -lGLEW
@@ -43,7 +41,37 @@ SOURCES += src/main.cpp \
     src/scripts/script.interface.cpp \
     src/scripts/unit.script.cpp \
     src/scripts/unit.script.func.cpp \
-    src/scripts/unit.script.interface.cpp
+    src/scripts/unit.script.interface.cpp \
+    src/lua/lzio.c \
+    src/lua/lobject.c \
+    src/lua/lundump.c \
+    src/lua/print.c \
+    src/lua/lmem.c \
+    src/lua/lstate.c \
+    src/lua/lapi.c \
+    src/lua/lparser.c \
+    src/lua/ldebug.c \
+    src/lua/ltable.c \
+    src/lua/linit.c \
+    src/lua/lvm.c \
+    src/lua/lstring.c \
+    src/lua/ldump.c \
+    src/lua/lmathlib.c \
+    src/lua/ltablib.c \
+    src/lua/lbaselib.c \
+    src/lua/ldblib.c \
+    src/lua/llex.c \
+    src/lua/loslib.c \
+    src/lua/liolib.c \
+    src/lua/lfunc.c \
+    src/lua/lcode.c \
+    src/lua/lstrlib.c \
+    src/lua/loadlib.c \
+    src/lua/lauxlib.c \
+    src/lua/ldo.c \
+    src/lua/lopcodes.c \
+    src/lua/ltm.c \
+    src/lua/lgc.c
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -76,6 +104,30 @@ HEADERS += src/mainwindow.h \
     src/scripts/script.interface.h \
     src/scripts/unit.script.h \
     src/scripts/unit.script.interface.h \
-    src/logs.h
+    src/logs.h \
+    src/lua/llex.h \
+    src/lua/ldo.h \
+    src/lua/ldebug.h \
+    src/lua/ltable.h \
+    src/lua/lualib.h \
+    src/lua/luaconf.h \
+    src/lua/lobject.h \
+    src/lua/lapi.h \
+    src/lua/lopcodes.h \
+    src/lua/lgc.h \
+    src/lua/lcode.h \
+    src/lua/lauxlib.h \
+    src/lua/lfunc.h \
+    src/lua/ltm.h \
+    src/lua/lmem.h \
+    src/lua/lparser.h \
+    src/lua/lvm.h \
+    src/lua/lundump.h \
+    src/lua/lstring.h \
+    src/lua/lzio.h \
+    src/lua/lstate.h \
+    src/lua/lua.h \
+    src/lua/llimits.h \
+    src/lua/lua.hpp
 TRANSLATIONS = i18n/3dmeditor_fr.ts \
     i18n/3dmeditor_en.ts
