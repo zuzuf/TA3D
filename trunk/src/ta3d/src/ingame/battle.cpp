@@ -1324,6 +1324,8 @@ namespace TA3D
 			gfx->SetDefState();
 			updateFOG();
 
+            float render_time = ((float)units.current_tick) / TICKS_PER_SEC;
+
 			// Dessine les reflets sur l'eau / Render water reflection
 			if (g_useProgram && g_useFBO && lp_CONFIG->water_quality >= 2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
 			{
@@ -1401,7 +1403,7 @@ namespace TA3D
 						glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 					// Dessine les éléments "2D" / "sprites"
-					features.draw();
+                    features.draw(render_time);
                     refcam.setView();
                     // Dessine les unités / draw units
 					units.draw(map.get(), false, true, false, lp_CONFIG->height_line);
@@ -1462,7 +1464,7 @@ namespace TA3D
 						// Render all visible features from light's point of view
 						for(int i=0;i<features.list_size;i++)
 							features.feature[features.list[i]].draw = true;
-						features.draw(true);
+                        features.draw(render_time, true);
 
 						glEnable(GL_POLYGON_OFFSET_FILL);
 						glPolygonOffset(3.0f, 1.0f);
@@ -1572,7 +1574,7 @@ namespace TA3D
 
             cam.setView(true);
 
-            features.draw();		// Dessine les éléments "2D"
+            features.draw(render_time);		// Dessine les éléments "2D"
 
             /*----------------------------------------------------------------------------------------------*/
 
@@ -2242,7 +2244,7 @@ namespace TA3D
 							Dir.z = sinf(light_angle);
 							Dir.unit();
 							pSun.Dir = -Dir;
-							units.draw_shadow(Dir, map.get());
+                            units.draw_shadow(render_time, Dir, map.get());
 						}
 						else
 						{
@@ -2250,7 +2252,7 @@ namespace TA3D
 							pSun.Dir.y = 1.0f;
 							pSun.Dir.z = 1.0f;
 							pSun.Dir.unit();
-							units.draw_shadow(-pSun.Dir, map.get());
+                            units.draw_shadow(render_time, -pSun.Dir, map.get());
 						}
 						break;
 					case 2:                     // Shadow mapping

@@ -432,7 +432,7 @@ namespace TA3D
 	}
 
 
-	void Features::draw(bool no_flat)
+    void Features::draw(float t, bool no_flat)
 	{
 		if(nb_features <= 0)
 			return;
@@ -513,8 +513,6 @@ namespace TA3D
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
 		glVertexPointer( 3, GL_FLOAT, 0, points);
-
-		float t = (float)units.current_tick / TICKS_PER_SEC;
 
 		glPolygonOffset(-1.0f,-1.0f);
 
@@ -712,11 +710,10 @@ namespace TA3D
 
 
 
-	void Features::draw_shadow(const Vector3D& Dir)
+    void Features::draw_shadow(float t, const Vector3D& Dir)
 	{
 		if (nb_features <= 0)
 			return;
-		float t = (float)units.current_tick / TICKS_PER_SEC;
 		pMutex.lock();
 		for (int e = 0; e < list_size; ++e)
 		{

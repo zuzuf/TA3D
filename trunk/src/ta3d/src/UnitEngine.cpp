@@ -1507,7 +1507,7 @@ namespace TA3D
 
 
 
-	void INGAME_UNITS::draw_shadow(const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+    void INGAME_UNITS::draw_shadow(float t, const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
 	{
 		if (nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
 			return;
@@ -1569,7 +1569,7 @@ namespace TA3D
 		}
 
 		gfx->lock();
-		features.draw_shadow(Dir);
+        features.draw_shadow(t, Dir);
 
 		glColorMask(0xFF,0xFF,0xFF,0xFF);
 		glColor4f(0.0f,0.0f,0.0f,alpha);

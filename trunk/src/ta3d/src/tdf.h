@@ -394,13 +394,13 @@ namespace TA3D
 		** \brief
 		** \param no_flat
 		*/
-		void draw(bool no_flat = false);
+        void draw(float t, bool no_flat = false);
 
 		/*!
 		** \brief
 		** \param dir
 		*/
-		void draw_shadow(const Vector3D& Dir);
+        void draw_shadow(float t, const Vector3D& Dir);
 
 		/*!
 		** \brief
