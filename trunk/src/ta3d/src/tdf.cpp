@@ -519,6 +519,8 @@ namespace TA3D
 		DrawingTable DrawingTable;
 		QUAD_TABLE    quad_table;
 
+        float ticks2sec = 1.0f / TICKS_PER_SEC;
+
 		pMutex.lock();
 		for (int e = 0; e < list_size; ++e)
 		{
@@ -563,7 +565,7 @@ namespace TA3D
 			{
 				pFeature->convert();		// Convert texture data if needed
 
-				feature[i].frame = (units.current_tick >> 1) % pFeature->anim.nb_bmp;
+                feature[i].frame = (units.current_tick + feature[i].timeRef >> 1) % pFeature->anim.nb_bmp;
 
 				if (!texture_loaded || old != pFeature->anim.glbmp[feature[i].frame])
 				{
@@ -639,7 +641,8 @@ namespace TA3D
 						glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
 						glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
 						glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-						pFeature->model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
+                        float lt = t + feature[i].timeRef * ticks2sec;
+                        pFeature->model->draw(lt, NULL, false, false, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, !feature[i].grey);
 
 						if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
 						{
@@ -647,7 +650,7 @@ namespace TA3D
 							glBlendFunc( GL_ONE, GL_ONE );
 							glDepthFunc( GL_EQUAL );
 							glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-							pFeature->model->draw(t,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+                            pFeature->model->draw(lt, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
 							glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
 							glDepthFunc( GL_LESS );
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -663,8 +666,8 @@ namespace TA3D
 						glDisable(GL_LIGHTING);
 						glDisable(GL_CULL_FACE);
 						glEnable(GL_TEXTURE_2D);
-						texture_loaded=false;
-						set=false;
+                        texture_loaded = false;
+                        set = false;
 					}
 				}
 			}
@@ -714,7 +717,10 @@ namespace TA3D
 	{
 		if (nb_features <= 0)
 			return;
-		pMutex.lock();
+
+        float ticks2sec = 1.0f / TICKS_PER_SEC;
+
+        pMutex.lock();
 		for (int e = 0; e < list_size; ++e)
 		{
 			pMutex.unlock();
@@ -742,6 +748,7 @@ namespace TA3D
 
 					if (pFeature->model->animated || feature[i].sinking || feature[i].shadow_dlist == 0)
 					{
+                        float lt = t + feature[i].timeRef * ticks2sec;
 						bool create_display_list = false;
 						if (!pFeature->model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0)
 						{
@@ -757,9 +764,9 @@ namespace TA3D
 						glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
 						Vector3D R_Dir = (sqrtf(pFeature->model->size) * 2.0f + feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
 						if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
-							pFeature->model->draw_shadow( R_Dir,t,NULL);
+                            pFeature->model->draw_shadow( R_Dir, lt, NULL);
 						else
-							pFeature->model->draw_shadow_basic( R_Dir,t,NULL);
+                            pFeature->model->draw_shadow_basic( R_Dir, lt, NULL);
 						glPopMatrix();
 
 						if (create_display_list)
@@ -1124,6 +1131,7 @@ namespace TA3D
 			}
 		}
 		feature[idx].Pos = Pos;
+        feature[idx].timeRef = Math::RandFromTable() % 100000;
 		feature[idx].type = type;
 		feature[idx].frame = 0;
 		feature[idx].draw = false;
