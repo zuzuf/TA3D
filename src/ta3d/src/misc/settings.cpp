@@ -109,6 +109,7 @@ namespace Settings
 			<< "             Music Volume = " << TA3D::VARS::lp_CONFIG->music_volume << ";\n"
 			<< "              Grab Inputs = " << TA3D::VARS::lp_CONFIG->grab_inputs << ";\n"
             << "               7z command = " << TA3D::VARS::lp_CONFIG->system7zCommand << ";\n"
+            << "           Resource Paths = " << TA3D::VARS::lp_CONFIG->resourcePaths << ";\n"
             << "}\n";
 
 		if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -218,6 +219,7 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->grab_inputs = cfgFile.pullAsBool("TA3D.Grab Inputs", false);
 
         TA3D::VARS::lp_CONFIG->system7zCommand = cfgFile.pullAsString("TA3D.7z command", "7z");
+        TA3D::VARS::lp_CONFIG->resourcePaths = cfgFile.pullAsString("TA3D.Resource Paths");
 
 		String cfg_version = cfgFile.pullAsString("TA3D.Version");
 		String ref_version;
