@@ -306,6 +306,8 @@ namespace TA3D
 		//!
 		bool delete_shadow_dlist;
 
+        //! Time reference to add some visual complexity to animations
+        uint32 timeRef;
 	}; // class FeatureData
 
 
