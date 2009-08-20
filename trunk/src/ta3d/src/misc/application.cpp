@@ -81,6 +81,12 @@ namespace TA3D
 		// Load settings early only to get current mod name
 		TA3D::Settings::Load();
 
+        // Load additionnal resource paths
+        String::Vector cfgPaths;
+        lp_CONFIG->resourcePaths.explode(cfgPaths, ',', true, true, true);
+        for(String::Vector::iterator i = cfgPaths.begin() ; i != cfgPaths.end() ; ++i)
+            TA3D::Resources::AddSearchPath(*i);
+
 		// Display usefull infos for debugging
 		System::DisplayInformations();
 		System::DisplayInformationsAboutSDL();

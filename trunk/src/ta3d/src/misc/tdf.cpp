@@ -185,7 +185,7 @@ namespace TA3D
 				if (data[pos] == '{' || data[pos] == '}')       // Because this is the beginning and the end
 					stringStarted = true;
 				if (data[pos] == '{' || data[pos] == '}' || data[pos] == ';')   // Sometimes you can have this syntax : { variable0=value0; variable1=value1; ... }
-				++pos;
+                    ++pos;
 				if (data[pos] == '\n')
 					++stack.line;
 				if (stringStarted)

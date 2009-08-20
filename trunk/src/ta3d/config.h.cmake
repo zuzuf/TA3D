@@ -45,13 +45,6 @@
 # define TA3D_PLAYERS_HARD_LIMIT   @TA3D_MAX_PLAYERS_HARD_LIMIT@
 
 
-
-
-
-//! Paths related stuffs in order to have better OS integration
-# define TA3D_RESOURCES_PATH     "@TA3D_RESOURCES_PATH@"
-#cmakedefine TA3D_OVERRIDE_PATHS
-
 #cmakedefine __FTGL__lower__
 
 #endif // __TA3D_CONFIG_FILE_FROM_CMAKE_H__

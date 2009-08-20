@@ -60,17 +60,20 @@ namespace Resources
 			home += "/.ta3d/";
 
 			AddSearchPath(home + "resources/");
-#ifdef TA3D_OVERRIDE_PATHS
-			AddSearchPath(TA3D_RESOURCES_PATH);
-			AddSearchPath( String(TA3D_RESOURCES_PATH) + "resources/" );
-			AddSearchPath(Paths::ApplicationRoot + "resources/");
-#else
 			AddSearchPath("/usr/local/games/ta3d/");
-			AddSearchPath("/usr/local/share/ta3d/");
-			AddSearchPath("/opt/local/share/ta3d/");
-			AddSearchPath(Paths::ApplicationRoot);
+            AddSearchPath("/usr/local/games/ta3d/resources/");
+            AddSearchPath("/usr/local/share/ta3d/");
+            AddSearchPath("/usr/local/share/ta3d/resources/");
+            AddSearchPath("/opt/local/share/ta3d/");
+            AddSearchPath("/opt/local/share/ta3d/resources/");
+            AddSearchPath("/usr/games/ta3d/");
+            AddSearchPath("/usr/games/ta3d/resources/");
+            AddSearchPath("/usr/share/ta3d/");
+            AddSearchPath("/usr/share/ta3d/resources/");
+            AddSearchPath("/opt/share/ta3d/");
+            AddSearchPath("/opt/share/ta3d/resources/");
+            AddSearchPath(Paths::ApplicationRoot);
 			AddSearchPath(Paths::ApplicationRoot + "resources/");
-#endif
 		}
 
 # else // ifndef TA3D_PLATFORM_DARWIN
