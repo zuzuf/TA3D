@@ -24,7 +24,7 @@
 #include "../misc/paths.h"
 #include "../logs/logs.h"
 #include <fstream>
-#include <yuni/core/paths.h>
+#include <yuni/core/io/file.h>
 
 
 
@@ -216,7 +216,7 @@ namespace TA3D
 			tmp.clear();
 			tmp << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
 
-			if (!Yuni::Core::Paths::Exists(tmp))
+			if (!Yuni::Core::IO::File::Exists(tmp))
 			{
 				uint32 font_size = 0;
 				byte *data = VFS::Instance()->readFile(out, &font_size);
