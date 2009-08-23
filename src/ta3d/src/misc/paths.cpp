@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
-#include <yuni/core/fs/paths.h>
+#include <yuni/core/io/directory.h>
 
 
 #ifdef TA3D_PLATFORM_WINDOWS
@@ -180,34 +180,34 @@ namespace TA3D
 
 		String ExtractFilePath(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::Paths::ExtractFilePath(p, systemDependant);
+			return Yuni::Core::IO::ExtractFilePath(p, systemDependant);
 		}
 
 		String ExtractFileName(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
+			return Yuni::Core::IO::ExtractFileName(p, systemDependant);
 		}
 
 		void ExtractFileName(String::List& p, const bool systemDependant)
 		{
-			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
+			return Yuni::Core::IO::ExtractFileName(p, systemDependant);
 		}
 
 		void ExtractFileName(String::Vector& p, const bool systemDependant)
 		{
-			return Yuni::Core::Paths::ExtractFileName(p, systemDependant);
+			return Yuni::Core::IO::ExtractFileName(p, systemDependant);
 		}
 
 		String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::Paths::ExtractFileNameWithoutExtension(p, systemDependant);
+			return Yuni::Core::IO::ExtractFileNameWithoutExtension(p, systemDependant);
 		}
 
 
 
 		String ExtractFileExt(const String& s)
 		{
-			return Yuni::Core::Paths::ExtractFileExt(s);
+			return Yuni::Core::IO::ExtractExtension(s);
 		}
 
 
@@ -397,7 +397,8 @@ namespace TA3D
 
 			# else /* ifdef WINDOWS */
 
-			String filename_pattern = String::ToUpper(ExtractFileName(pattern));
+			String filename_pattern = ExtractFileName(pattern);
+			filename_pattern.toUpper();
 			DIR *dp;
 			struct dirent *dirp;
 			if ((dp  = opendir(root_path.c_str())) == NULL)
