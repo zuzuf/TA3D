@@ -78,7 +78,11 @@ namespace TA3D
                     while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
                         i->erase(0, 1);
 
-                    if (i->first() == '.' || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
+                    if (i->find("/.svn/") != String::npos
+                        || i->find("\\.svn\\") != String::npos
+                        || i->substr(0, 5) == ".svn/"
+                        || i->substr(0, 5) == ".svn\\"
+                        || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
                         continue;
 
                     RealFile *file = new RealFile;
