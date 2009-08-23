@@ -13,7 +13,10 @@ namespace TA3D
         void Hpi::finder(String::List &fileList, const String &path)
         {
             String::List files;
-            Paths::GlobFiles(files, path + Paths::Separator + "*", false, false);
+            if (path.last() == Paths::Separator)
+                Paths::GlobFiles(files, path + "*", false, false);
+            else
+                Paths::GlobFiles(files, path + Paths::Separator + "*", false, false);
             for(String::List::iterator i = files.begin() ; i != files.end() ; ++i)
             {
                 String ext = Paths::ExtractFileExt(*i).toLower();

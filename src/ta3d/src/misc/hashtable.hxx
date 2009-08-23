@@ -18,7 +18,7 @@ namespace TA3D
 			uint32 ret(0);
 			for (String::const_iterator i = key.begin(); i != key.end(); ++i)
 				ret = *i + (ret << 5 ) - ret;
-			return (ret % table.size());
+            return (ret % (uint32)table.size());
 		}
 
 		template<class T>
@@ -211,7 +211,7 @@ namespace TA3D
 			{
 				if (cur->Key() == key)
 				{
-					if (!m_bFreeDataOnErase)
+					if (m_bFreeDataOnErase)
 						delete ((*cur).m_T_data);
 					it.erase(cur);
 					return;

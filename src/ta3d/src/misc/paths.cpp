@@ -169,7 +169,11 @@ namespace TA3D
 					String r;
 					r << CurrentDirectory() << Separator << argv0;
 					if (!r.empty())
+                    {
 						ApplicationRoot = ExtractFilePath(r);
+                        if (ApplicationRoot.size() > 3 && ApplicationRoot.substr(ApplicationRoot.size() - 3) == "/./")
+                            ApplicationRoot.chop(2);
+                    }
 				}
 			}
 
