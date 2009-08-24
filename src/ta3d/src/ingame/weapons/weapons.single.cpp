@@ -245,18 +245,17 @@ namespace TA3D
 
 					bool land_test = true;
 
-					std::list< uint32 > air_list;
+					slist< sint16 > air_list;
 
 					map->lock();
-					for( IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head ; cur != NULL ; cur = cur->next )
-						air_list.push_back( cur->idx );
+					air_list = map->map_data[py+y][px+x].air_idx.getData();
 					map->unlock();
 
-					std::list< uint32 >::iterator cur = air_list.begin();
+					slist< sint16 >::iterator cur = air_list.begin();
 
 					for( ; land_test || cur != air_list.end() ; )
 					{
-						if (land_test )
+						if (land_test)
 						{
 							t_idx = map->map_data[py+y][px+x].unit_idx;
 							land_test = false;
@@ -416,23 +415,22 @@ namespace TA3D
 			int px = ((int)(OPos.x + map->map_w_d)) >> 3;
 			int s  = (weapon_def->areaofeffect + 31) >> 5;
 			int d  = (weapon_def->areaofeffect * weapon_def->areaofeffect + 15) >> 4;
-			std::list<int> oidx;
-			for (int y=-s;y<=s;y++)
-				for (int x=-s;x<=s;x++)
+			std::deque<int> oidx;
+			for (int y = -s ; y <= s ; ++y)
+				for (int x = -s ; x <= s ; ++x)
 				{
 					if (px+x<0 || px+x>=map->bloc_w_db)	continue;
 					if (py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 					bool land_test = true;
 
-					std::list< uint32 > air_list;
+					slist< sint16 > air_list;
 
 					map->lock();
-					for( IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head ; cur != NULL ; cur = cur->next )
-						air_list.push_back( cur->idx );
+					air_list = map->map_data[py+y][px+x].air_idx.getData();
 					map->unlock();
 
-					std::list< uint32 >::iterator cur = air_list.begin();
+					slist< sint16 >::iterator cur = air_list.begin();
 
 					for( ; land_test || cur != air_list.end() ; )
 					{
@@ -444,11 +442,11 @@ namespace TA3D
 						else
 						{
 							t_idx = *cur;
-							cur++;
+							++cur;
 						}
-						if (t_idx==-1)
+						if (t_idx == -1)
 							continue;
-						if (t_idx >= 0 )
+						if (t_idx >= 0)
 						{
 							units.unit[ t_idx ].lock();
 							if (!(units.unit[ t_idx ].flags & 1) )
@@ -458,14 +456,14 @@ namespace TA3D
 							}
 							units.unit[ t_idx ].unlock();
 						}
-						bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx >= units.max_unit);
+						bool already = (t_idx == shooter_idx || t_idx == hit_idx || t_idx >= units.max_unit);
 						if (!already)
 						{
-							for (std::list<int>::const_iterator i = oidx.begin(); i != oidx.end(); ++i)
+							for (std::deque<int>::const_iterator i = oidx.begin(); i != oidx.end(); ++i)
 							{
 								if (t_idx == *i )
 								{
-									already=true;
+									already = true;
 									break;
 								}
 							}

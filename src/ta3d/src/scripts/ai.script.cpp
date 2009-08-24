@@ -747,15 +747,16 @@ namespace TA3D
             for(int x = x0 ; x < x1 ; ++x)
             {
                 bool ok = false;
-                IDX_LIST_NODE *cur = the_map->map_data[y][x].air_idx.head;
-                while(cur || !ok)
+				airIdxSet &airSet = the_map->map_data[y][x].air_idx;
+				airIdxSet::iterator cur = airSet.begin();
+				while(cur != airSet.end() || !ok)
                 {
-                    int idx = cur ? cur->idx : the_map->map_data[y][x].unit_idx;
-                    if (!cur)
+					int idx = cur != airSet.end() ? *cur : the_map->map_data[y][x].unit_idx;
+					if (cur == airSet.end())
                         ok = true;
                     else
-                        cur = cur->next;
-                    int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
+						++cur;
+					int type_id = (idx >= 0) ? units.unit[idx].type_id : -1;
                     if (idx >= 0 && (units.unit[idx].owner_id == player_id || player_id == -1) && type_id >= 0 &&
                         (unit_type_id == -1 || type_id == unit_type_id ||
                          (unit_type_id == -2 && unit_manager.unit_type[type_id]->canattack) ||
