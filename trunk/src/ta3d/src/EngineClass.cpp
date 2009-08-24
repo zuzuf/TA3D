@@ -64,76 +64,6 @@ namespace TA3D
 	MAP* the_map = NULL;
 
 
-
-
-	void IDX_LIST::destroy()
-	{
-		while (head)
-		{
-			IDX_LIST_NODE* next = head->next;
-			delete head;
-			head = next;
-		}
-	}
-
-	void IDX_LIST::push(const sint16 idx)
-	{
-		if (head)
-		{
-			IDX_LIST_NODE *cur = head;
-			while (cur->next)
-			{
-				if (cur->idx == idx) // Don't add it twice
-					return;
-				cur = cur->next;
-			}
-			cur->next = new IDX_LIST_NODE(idx); // Add idx at the end
-		}
-		else
-			head = new IDX_LIST_NODE(idx);
-	}
-
-
-	void IDX_LIST::remove(const sint16 idx) // Assume there is only one occurence of idx in the list
-	{
-		IDX_LIST_NODE *cur = head;
-		IDX_LIST_NODE *prec = NULL;
-		while (cur)
-		{
-			if (cur->idx == idx)
-			{
-				if (prec == NULL)
-				{
-					prec = head;
-					head = head->next;
-					delete prec;
-					return;
-				}
-				else
-				{
-					prec->next = cur->next;
-					delete cur;
-					return;
-				}
-			}
-			prec = cur;
-			cur = cur->next;
-		}
-	}
-
-	bool IDX_LIST::isIn(const sint16 idx)
-	{
-		IDX_LIST_NODE *cur = head;
-		while (cur)
-		{
-			if (cur->idx == idx)
-				return true;
-			cur = cur->next;
-		}
-		return false;
-	}
-
-
 	void SECTOR::init()
 	{
 		dh = 0.0f;
@@ -141,7 +71,7 @@ namespace TA3D
 		stuff = -1;
 		unit_idx = -1;
 		lava = false;
-		air_idx.init();
+		air_idx.clear();
 		flat = false;
 	}
 
@@ -432,8 +362,8 @@ namespace TA3D
 			if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if (y2<=y1 || x2<=x1)	return;
 			pMutex.lock();
-			for(int y=y1;y<y2;y++)
-				for(int x=x1;x<x2;x++)
+			for(int y = y1 ; y < y2 ; ++y)
+				for(int x = x1 ; x < x2 ; ++x)
 					map_data[y][x].air_idx.remove(c);
 			pMutex.unlock();
 		}
@@ -448,9 +378,9 @@ namespace TA3D
 			if (y2<=y1 || x2<=x1)
 				return;
 			pMutex.lock();
-			for(int y=y1;y<y2;y++)
-				for(int x=x1;x<x2;x++)
-					map_data[y][x].air_idx.push(c);
+			for(int y = y1 ; y < y2 ;++y)
+				for(int x = x1 ; x < x2 ; ++x)
+					map_data[y][x].air_idx.add(c);
 			pMutex.unlock();
 		}
 	}
@@ -1248,16 +1178,17 @@ namespace TA3D
 			units.unit[idx].visibility_checked = true;
 		}
 		pMutex.lock();
-		IDX_LIST_NODE *cur = map_data[y][x].air_idx.head;
-		while(cur)
+		airIdxSet &airSet = map_data[y][x].air_idx;
+		airIdxSet::iterator cur = airSet.begin();
+		while(cur != airSet.end())
 		{
-			idx = cur->idx;
+			idx = *cur;
 			if (idx >= 0 && !units.unit[idx].visibility_checked)
 			{
 				units.visible_unit.push_back(idx);
 				units.unit[idx].visibility_checked = true;
 			}
-			cur = cur->next;
+			++cur;
 		}
 		pMutex.unlock();
 	}

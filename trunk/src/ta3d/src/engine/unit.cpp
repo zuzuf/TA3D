@@ -3146,7 +3146,6 @@ namespace TA3D
                             int feature_idx = -1;
                             int sx = Math::RandFromTable()&0xF;
                             int sy = Math::RandFromTable()&0xF;
-                            byte mask = 1 << owner_id;
                             for(int y = cur_py - dx + sy ; y <= cur_py + dx && feature_idx == -1 ; y += 0x8)
                             {
                                 if (y >= 0 && y < map->bloc_h_db - 1)
@@ -3995,8 +3994,9 @@ namespace TA3D
 								if (x>=0 && x<map->bloc_w_db-1 )
 								{
 									bool land_test = true;
-									IDX_LIST_NODE *cur = map->map_data[y][x].air_idx.head;
-									for( ; land_test || cur != NULL ; )
+									airIdxSet &airSet = map->map_data[y][x].air_idx;
+									airIdxSet::iterator cur = airSet.begin();
+									for( ; land_test || cur != airSet.end() ; )
 									{
 										int cur_idx;
 										if (land_test)
@@ -4006,8 +4006,8 @@ namespace TA3D
 										}
 										else
 										{
-											cur_idx = cur->idx;
-											cur = cur->next;
+											cur_idx = *cur;
+											++cur;
 										}
 										if (isEnemy( cur_idx ) && units.unit[cur_idx].flags
 											&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe

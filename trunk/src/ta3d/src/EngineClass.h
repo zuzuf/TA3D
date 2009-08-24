@@ -35,6 +35,8 @@
 # include <vector>
 # include "misc/math.h"
 # include "misc/string.h"
+# include "misc/slist.h"
+# include "misc/sset.h"
 
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
@@ -50,60 +52,19 @@ namespace TA3D
 	float const tnt_transform=1.0f/tan(63.44f*DEG2RAD)/H_DIV;
 	float const tnt_transform_H_DIV=1.0f/tan(63.44f*DEG2RAD);
 
-
-
-
-
-	class IDX_LIST_NODE			// Node of the list
-	{
-	public:
-		sint16			idx;
-		IDX_LIST_NODE	*next;
-
-		IDX_LIST_NODE( sint16 n_idx )	{	idx = n_idx;	next = NULL;	}
-		IDX_LIST_NODE( sint16 n_idx, IDX_LIST_NODE *n_next )	{	idx = n_idx;	next = n_next;	}
-		IDX_LIST_NODE()	{	idx = 0;	next = NULL;	}
-	};
-
-	/*!
-	** \todo This class should be removed
-	*/
-	class IDX_LIST				// Container
-	{
-	public:
-		IDX_LIST_NODE	*head;
-
-		void init()	{ head = NULL; }
-		IDX_LIST()	{ init(); }
-
-		void destroy();
-
-		~IDX_LIST()	{destroy();}
-
-		bool isEmpty() const {return (!head);}
-
-		void push(const sint16 idx);
-
-		void remove(const sint16 idx);		// Assume there is only one occurence of idx in the list
-
-		bool isIn(const sint16 idx);
-
-	}; // class IDX_LIST
-
-
-
+	typedef sset<sint16>	airIdxSet;
 
 
 	class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
 	{
 	public:
-		float		dh;					// dérivée maximale en valeur absolue de l'altitude
-		bool		underwater;			// indique si le bloc est sous l'eau
-		sint32		stuff;				// Indique l'élément graphique présent sur ce secteur
-		sint32		unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
-		bool		lava;				// Is that under lava ?? Used for pathfinding
-		IDX_LIST	air_idx;			// This is the list that stores indexes of air units
-		bool		flat;				// Used by the map renderer to simplify geometry
+		float			dh;					// dérivée maximale en valeur absolue de l'altitude
+		bool			underwater;			// indique si le bloc est sous l'eau
+		sint32			stuff;				// Indique l'élément graphique présent sur ce secteur
+		sint32			unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
+		bool			lava;				// Is that under lava ?? Used for pathfinding
+		sset<sint16>	air_idx;			// This is the list that stores indexes of air units
+		bool			flat;				// Used by the map renderer to simplify geometry
 
 		void init();
 	};
