@@ -36,10 +36,7 @@ namespace TA3D
 		IsOnGUI = (mouse_x < 128 && ( mouse_y >= SCREEN_H - 64 || mouse_y < 128)) || mouse_y < 32
 			|| mouse_y >= SCREEN_H - 32;
 
-		if (!IsOnGUI)
-			IsOnGUI = (pArea.check() != 0);
-		else        // We need to do it there because AREA::check does it and we do it nowhere else
-			poll_inputs();
+		IsOnGUI |= (pArea.check() != 0);
 
 		IsOnGUI |= mouse_x < 128; // Priority given to game interface
 
