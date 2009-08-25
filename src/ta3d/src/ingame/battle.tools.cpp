@@ -145,13 +145,25 @@ namespace TA3D
 	void Battle::keyArrowsInFreeCam()
 	{
 		if (key[KEY_UP])
+		{
 			cam.rpos += 100.0f * dt * cam_h / 151.0f * cam.dir;
+			track_mode = -1;
+		}
 		if (key[KEY_DOWN])
+		{
 			cam.rpos +=  - 100.0f * dt * cam_h / 151.0f * cam.dir;
+			track_mode = -1;
+		}
 		if (key[KEY_RIGHT])
+		{
 			cam.rpos += 100.0f * dt * cam_h / 151.0f * cam.side;
+			track_mode = -1;
+		}
 		if (key[KEY_LEFT])
+		{
 			cam.rpos += - 100.0f * dt * cam_h / 151.0f * cam.side;
+			track_mode = -1;
+		}
 	}
 
 
@@ -161,21 +173,25 @@ namespace TA3D
 		{
 			cam.rpos.z -= SCROLL_SPEED * dt * cam_h / 151.0f;
 			cam_has_target = false;
+			track_mode = -1;
 		}
 		if (key[KEY_DOWN])
 		{
 			cam.rpos.z += SCROLL_SPEED * dt * cam_h / 151.0f;
 			cam_has_target = false;
+			track_mode = -1;
 		}
 		if (key[KEY_RIGHT])
 		{
 			cam.rpos.x += SCROLL_SPEED * dt * cam_h / 151.0f;
 			cam_has_target = false;
+			track_mode = -1;
 		}
 		if (key[KEY_LEFT])
 		{
 			cam.rpos.x -= SCROLL_SPEED * dt * cam_h / 151.0f;
 			cam_has_target = false;
+			track_mode = -1;
 		}
 	}
 
