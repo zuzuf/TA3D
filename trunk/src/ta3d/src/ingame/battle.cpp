@@ -392,6 +392,7 @@ namespace TA3D
 						get_mouse_mickeys(&mx, &my);
 						if (omb == mouse_b)
 						{
+							track_mode = -1;
 							cam.rpos.x += mx * cam_h / 151.0f;
 							cam.rpos.z += my * cam_h / 151.0f;
 							cam_has_target = false;
@@ -1154,8 +1155,10 @@ namespace TA3D
 				selected = (cur_sel!=-1);
 				if (cur_sel >= 0)
 				{
-					cur_sel_index=cur_sel;
-					cur_sel=units.unit[cur_sel].type_id;
+					cur_sel_index = cur_sel;
+					cur_sel = units.unit[cur_sel].type_id;
+					if (check_cat == "CTRL_C")
+						track_mode = cur_sel_index;
 				}
 			}
 			else
