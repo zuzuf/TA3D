@@ -247,9 +247,12 @@ namespace TA3D
 
 					slist< sint16 > air_list;
 
-					map->lock();
-					air_list = map->map_data[py+y][px+x].air_idx.getData();
-					map->unlock();
+                    if (!map->map_data[py+y][px+x].air_idx.empty())
+                    {
+                        map->lock();
+                        air_list = map->map_data[py+y][px+x].air_idx.getData();
+                        map->unlock();
+                    }
 
 					slist< sint16 >::iterator cur = air_list.begin();
 
@@ -426,15 +429,18 @@ namespace TA3D
 
 					slist< sint16 > air_list;
 
-					map->lock();
-					air_list = map->map_data[py+y][px+x].air_idx.getData();
-					map->unlock();
+                    if (!map->map_data[py+y][px+x].air_idx.empty())
+                    {
+                        map->lock();
+                        air_list = map->map_data[py+y][px+x].air_idx.getData();
+                        map->unlock();
+                    }
 
 					slist< sint16 >::iterator cur = air_list.begin();
 
 					for( ; land_test || cur != air_list.end() ; )
 					{
-						if (land_test )
+                        if (land_test)
 						{
 							t_idx = map->map_data[py+y][px+x].unit_idx;
 							land_test = false;
