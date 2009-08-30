@@ -226,26 +226,34 @@ namespace TA3D
 
 	float MAP::get_h(int x,int y)
 	{
-		if (x<0) x=0;
-		if (y<0) y=0;
-		if (x>=bloc_w_db-1) x=bloc_w_db-2;
-		if (y>=bloc_h_db-1) y=bloc_h_db-2;
+        if (x < 0)
+            x = 0;
+        else if (x >= bloc_w_db - 1)
+            x = bloc_w_db - 2;
+        if (y < 0)
+            y = 0;
+        else if (y >= bloc_h_db - 1)
+            y = bloc_h_db - 2;
 		return h_map[y][x];
 	}
 
 	float MAP::get_max_h(int x,int y)
 	{
-		if (x<0) x=0;
-		if (y<0) y=0;
-		if (x>=bloc_w_db-1) x=bloc_w_db-2;
-		if (y>=bloc_h_db-1) y=bloc_h_db-2;
+        if (x < 0)
+            x = 0;
+        else if (x >= bloc_w_db - 1)
+            x = bloc_w_db - 2;
+        if (y < 0)
+            y = 0;
+        else if (y >= bloc_h_db - 1)
+            y = bloc_h_db - 2;
 		float h = h_map[y][x];
-		if (x<bloc_w_db-2)	h = Math::Max(h, h_map[y][x+1]);
-		if (y<bloc_h_db-2)
+        if (x < bloc_w_db - 2)	h = Math::Max(h, h_map[y][x + 1]);
+        if (y < bloc_h_db - 2)
 		{
-			h = Math::Max(h, h_map[y+1][x]);
-			if (x<bloc_w_db-2)
-				h = Math::Max(h, h_map[y+1][x+1]);
+            h = Math::Max(h, h_map[y + 1][x]);
+            if (x < bloc_w_db - 2)
+                h = Math::Max(h, h_map[y + 1][x + 1]);
 		}
 		return h;
 	}
@@ -1170,16 +1178,18 @@ namespace TA3D
 
 	void MAP::check_unit_visibility(int x, int y)
 	{
-		if (y<0 || y>bloc_h_db-1 || x<0 || x>bloc_w_db-1)	return;
+        if (y < 0 || y > bloc_h_db - 1 || x < 0 || x > bloc_w_db - 1)	return;
 		int idx = map_data[y][x].unit_idx;
 		if (idx >= 0 && !units.unit[idx].visibility_checked)
 		{
 			units.visible_unit.push_back(idx);
 			units.unit[idx].visibility_checked = true;
 		}
-		pMutex.lock();
 		airIdxSet &airSet = map_data[y][x].air_idx;
-		airIdxSet::iterator cur = airSet.begin();
+        if (airSet.empty())
+            return;
+        pMutex.lock();
+        airIdxSet::iterator cur = airSet.begin();
 		while(cur != airSet.end())
 		{
 			idx = *cur;
