@@ -247,6 +247,7 @@ namespace TA3D
 		GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
 
 		GLuint get_shadow_map();
+		void delete_shadow_map();
 		void readShadowMapProjectionMatrix();
 
 		SDL_Surface *load_image(const String filename);

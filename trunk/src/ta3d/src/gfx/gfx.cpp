@@ -2029,12 +2029,27 @@ namespace TA3D
 		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0,
 					  GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);       // We want smooth shadows
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		if (lp_CONFIG->shadow_quality == 2)
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);       // We want fast shadows
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);       // We want smooth shadows
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 		return shadowMapTexture;
+	}
+
+	void GFX::delete_shadow_map()
+	{
+		if (shadowMap)
+			destroy_texture(shadowMap);
+		shadowMap = 0;
 	}
 
 	GLuint GFX::get_shadow_map()
@@ -2050,6 +2065,7 @@ namespace TA3D
 			return;
 		switch(lp_CONFIG->shadow_quality)
 		{
+			case 3:
 			case 2:
 				{
 					switch(mode)

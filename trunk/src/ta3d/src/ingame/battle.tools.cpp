@@ -327,7 +327,10 @@ namespace TA3D
                else if (params[0] == "shadow" && params.size() == 3)
                {
                    if (params[1] == "quality")
+				   {
                        lp_CONFIG->shadow_quality = params[2].to<sint32>();
+					   gfx->delete_shadow_map();
+				   }
                }
                else if (params[0] == "details")	lp_CONFIG->detail_tex ^= true;
                else if (params[0] == "particle")	lp_CONFIG->particle^=true;

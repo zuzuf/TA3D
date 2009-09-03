@@ -229,7 +229,7 @@
 	{
 		name=shadow_quality;
 		type=MENU;
-		entry=,none,low,normal;
+		entry=,none,low,normal,high;
 		x1=600;
 		y1=365;
 		x2=730;
