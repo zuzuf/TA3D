@@ -32,7 +32,7 @@ namespace TA3D
 		extern bool                             prevkey_down[0x1000];
 		extern bool                             prevkey_up[0x1000];
 		extern std::list<uint32>                keybuf;
-		extern int                              remap[ 256 ];
+		extern int                              remap[0x1000];
 	}
 
 	/*!
@@ -167,5 +167,6 @@ namespace TA3D
 
 #define KEY_END         SDLK_END
 #define KEY_HOME        SDLK_HOME
+#define KEY_ENTER_PAD	SDLK_KP_ENTER
 
 #endif
