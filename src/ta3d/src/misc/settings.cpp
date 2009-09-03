@@ -66,7 +66,7 @@ namespace Settings
 			<< "                  Version = " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << ";\n"
 			<< "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // <= 0 means `unlimited`\n"
 			<< "              Time Factor = " << TA3D::VARS::lp_CONFIG->timefactor << ";\n"
-			<< "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)\n"
+			<< "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps), 3 -> high (shadow maps)\n"
 			<< "           Priority Level = " << TA3D::VARS::lp_CONFIG->priority_level << "; // 0, 1, 2\n"
 			<< "                     FSAA = " << TA3D::VARS::lp_CONFIG->fsaa << ";\n"
 			<< "               Anisotropy = " << TA3D::VARS::lp_CONFIG->anisotropy << ";\n"

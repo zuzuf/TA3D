@@ -1447,6 +1447,7 @@ namespace TA3D
 			{
 				switch (lp_CONFIG->shadow_quality)
 				{
+					case 3:
 					case 2:                     // Render the shadow map
 						gfx->setShadowMapMode(true);
 						gfx->SetDefState();
@@ -2259,6 +2260,7 @@ namespace TA3D
 						}
 						break;
 					case 2:                     // Shadow mapping
+					case 3:
 						break;
 				}
 			}

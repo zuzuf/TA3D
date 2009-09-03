@@ -95,6 +95,8 @@ namespace TA3D
 		texture_manager.destroy();
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for players...");
 		players.destroy();
+		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing shadow textures");
+		gfx->delete_shadow_map();
 
 		// Network
 		if (g_ta3d_network)

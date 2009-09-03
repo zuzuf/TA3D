@@ -1623,6 +1623,7 @@ namespace TA3D
 		{
 			switch (lp_CONFIG->shadow_quality)
 			{
+				case 3:
 				case 2:
 					shadow2_shader.on();
 					shadow2_shader.setvar1f( "coef", color_factor );

@@ -238,7 +238,7 @@ namespace TA3D
 		Gui::GUIOBJ::Ptr tmpO = config_area.get_object("*.shadow_quality");
 		if (tmpO)
 		{
-			const unsigned int indx = 1 + Math::Max(0, Math::Min((int)lp_CONFIG->shadow_quality, 2));
+			const unsigned int indx = 1 + Math::Max(0, Math::Min((int)lp_CONFIG->shadow_quality, 3));
 			if (indx < tmpO->Text.size())
 				config_area.caption("*.shadow_quality", tmpO->Text[indx]);
 		}
