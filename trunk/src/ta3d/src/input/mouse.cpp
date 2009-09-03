@@ -76,6 +76,10 @@ namespace TA3D
 						set_key_down( event.key.keysym.sym );
 						uint32 c = event.key.keysym.unicode;
 						c |= event.key.keysym.sym << 16;
+						if (event.key.keysym.sym == KEY_ENTER_PAD)
+						{
+							c = int('\n') | (KEY_ENTER << 16);
+						}
 						VARS::keybuf.push_back( c );
 					}
 					break;

@@ -30,7 +30,7 @@ namespace TA3D
 		bool                    prevkey_down[0x1000];
 		bool                    prevkey_up[0x1000];
 		std::list<uint32>       keybuf;
-		int                     remap[256];
+		int                     remap[0x1000];
 	}
 
 
@@ -61,8 +61,9 @@ namespace TA3D
 		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
 		// We need some remapping hack to support some keyboards (french keyboards don't access KEY_0..9)
-		memset(remap, 0, 256 * sizeof(int));
+		memset(remap, 0, 0x1000 * sizeof(int));
 
+		remap[KEY_ENTER_PAD] = KEY_ENTER;
 		remap[38]  = KEY_1;
 		remap[233] = KEY_2;
 		remap[34]  = KEY_3;
@@ -129,7 +130,7 @@ namespace TA3D
 
 	void set_key_down(uint16 keycode)
 	{
-		if (keycode < 256 && remap[keycode])
+		if (remap[keycode])
 			VARS::key[remap[keycode]] = true;
 		VARS::key[keycode] = true;
 	}
@@ -137,7 +138,7 @@ namespace TA3D
 
 	void set_key_up(uint16 keycode)
 	{
-		if (keycode < 256 && remap[keycode])
+		if (remap[keycode])
 			VARS::key[remap[keycode]] = false;
 		VARS::key[keycode] = false;
 	}
