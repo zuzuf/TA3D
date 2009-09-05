@@ -599,7 +599,10 @@ namespace TA3D
 					glPushMatrix();
 					glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
 					glScalef(dw,h,dw);
+					if (lp_CONFIG->shadow_quality >= 2)
+						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 					glDrawElements(GL_QUADS, 28,GL_UNSIGNED_BYTE,index);		// draw it
+					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 					glPopMatrix();
 				}
 				else
