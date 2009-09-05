@@ -235,8 +235,8 @@ namespace TA3D
 } // namespace TA3D
 
 
-#define SCREEN_W    (screen->w)
-#define SCREEN_H    (screen->h)
+#define SCREEN_W    (TA3D::VARS::gfx->width)
+#define SCREEN_H    (TA3D::VARS::gfx->height)
 
 
 #ifndef TA3D_MSEC_TIMER
