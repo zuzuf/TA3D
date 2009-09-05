@@ -66,13 +66,21 @@ namespace Resources
             AddSearchPath("/usr/local/share/ta3d/resources/");
             AddSearchPath("/opt/local/share/ta3d/");
             AddSearchPath("/opt/local/share/ta3d/resources/");
-            AddSearchPath("/usr/games/ta3d/");
+			AddSearchPath("/usr/local/share/games/ta3d/");
+			AddSearchPath("/usr/local/share/games/ta3d/resources/");
+			AddSearchPath("/opt/local/share/games/ta3d/");
+			AddSearchPath("/opt/local/share/games/ta3d/resources/");
+			AddSearchPath("/usr/games/ta3d/");
             AddSearchPath("/usr/games/ta3d/resources/");
             AddSearchPath("/usr/share/ta3d/");
             AddSearchPath("/usr/share/ta3d/resources/");
             AddSearchPath("/opt/share/ta3d/");
             AddSearchPath("/opt/share/ta3d/resources/");
-            AddSearchPath(Paths::ApplicationRoot);
+			AddSearchPath("/usr/share/games/ta3d/");
+			AddSearchPath("/usr/share/games/ta3d/resources/");
+			AddSearchPath("/opt/share/games/ta3d/");
+			AddSearchPath("/opt/share/games/ta3d/resources/");
+			AddSearchPath(Paths::ApplicationRoot);
 			AddSearchPath(Paths::ApplicationRoot + "resources/");
 		}
 
