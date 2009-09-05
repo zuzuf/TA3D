@@ -1576,9 +1576,9 @@ namespace TA3D
 			if (lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-            cam.setView(true);
+			cam.setView(lp_CONFIG->shadow_quality < 2);
 
-            features.draw(render_time);		// Dessine les éléments "2D"
+			features.draw(render_time);		// Dessine les éléments "2D"
 
             /*----------------------------------------------------------------------------------------------*/
 

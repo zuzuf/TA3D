@@ -514,8 +514,6 @@ namespace TA3D
 		glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
 		glVertexPointer( 3, GL_FLOAT, 0, points);
 
-		glPolygonOffset(-1.0f,-1.0f);
-
 		DrawingTable DrawingTable;
 		QUAD_TABLE    quad_table;
 
@@ -601,12 +599,13 @@ namespace TA3D
 					glPushMatrix();
 					glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
 					glScalef(dw,h,dw);
-					glDrawElements(GL_QUADS, 28,GL_UNSIGNED_BYTE,index);		// dessine le tout
+					glDrawElements(GL_QUADS, 28,GL_UNSIGNED_BYTE,index);		// draw it
 					glPopMatrix();
 				}
 				else
 				{
-					if (!Camera::inGame->mirror && !no_flat) 	// no need to draw things we can't see
+						// no need to draw things we can't see
+					if (!Camera::inGame->mirror && !no_flat && !gfx->getShadowMapMode())
 					{
 						dw *= 0.5f;
 						h = 0.25f * pFeature->anim.h[feature[i].frame];
@@ -678,15 +677,17 @@ namespace TA3D
 
 		gfx->ReInitAllTex( true );
 		gfx->enable_model_shading();
-		if (HWLight::inGame)
-			glNormal3fv( (GLfloat*)&(HWLight::inGame->Dir) );
 
-        if (!gfx->getShadowMapMode())
-            Camera::inGame->setView(lp_CONFIG->shadow_quality < 2);
-
-        glEnable(GL_POLYGON_OFFSET_FILL);
-		quad_table.draw_all();
-		glDisable(GL_POLYGON_OFFSET_FILL);
+		if (!gfx->getShadowMapMode())
+		{
+			glDisableClientState(GL_NORMAL_ARRAY);
+			if (HWLight::inGame)
+				glNormal3fv( (GLfloat*)&(HWLight::inGame->Dir) );
+			glPolygonOffset(-1.0f,-1.0f);
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			quad_table.draw_all();
+			glDisable(GL_POLYGON_OFFSET_FILL);
+		}
 
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
