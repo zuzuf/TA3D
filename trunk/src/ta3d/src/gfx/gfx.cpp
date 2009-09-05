@@ -138,7 +138,7 @@ namespace TA3D
 			set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			set_texture_format(GL_RGB8);
-		glViewport(0,0,SCREEN_W,SCREEN_H);
+		glViewport(0,0,width,height);
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
 	}
@@ -184,11 +184,6 @@ namespace TA3D
 		// Initialize the GFX Engine
 		initSDL();
 		ati_workaround = checkVideoCardWorkaround();
-
-		// Initialize the width/height of the screen
-		// This must be done after initSDL() because `screen` is not initialized
-		width = SCREEN_W;
-		height = SCREEN_H;
 
 		LOG_DEBUG("Allocating palette memory...");
 		TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
@@ -253,11 +248,11 @@ namespace TA3D
 		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-		ta3d_gui_font = font_manager.find("FreeSerif", 10 * SCREEN_W / 640, Font::typeTexture);
+		ta3d_gui_font = font_manager.find("FreeSerif", 10 * width / 640, Font::typeTexture);
 		Gui::gui_font = ta3d_gui_font;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
-		big_font = font_manager.find("FreeSans", 16 * SCREEN_W / 640, Font::typeTexture);
+		big_font = font_manager.find("FreeSans", 16 * width / 640, Font::typeTexture);
 	}
 
 
@@ -1666,10 +1661,10 @@ namespace TA3D
 
 	GLuint GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data from screen to a texture
 	{
-		GLuint gltex = create_texture(SCREEN_W, SCREEN_H, filter_type);
+		GLuint gltex = create_texture(width, height, filter_type);
 
 		glBindTexture(GL_TEXTURE_2D,gltex);
-		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, SCREEN_W, SCREEN_H, 0);
+		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, width, height, 0);
 
 		return gltex;
 	}
@@ -1794,21 +1789,23 @@ namespace TA3D
 
 	void GFX::preCalculations()
 	{
-		SCREEN_W_HALF = SCREEN_W>>1;
-		SCREEN_H_HALF = SCREEN_H>>1;
-		SCREEN_W_INV = 1.0f / SCREEN_W;
-		SCREEN_H_INV = 1.0f / SCREEN_H;
-		SCREEN_W_TO_640 = 640.0f / SCREEN_W;
-		SCREEN_H_TO_480 = 480.0f / SCREEN_H;
+		width = screen->w;
+		height = screen->h;
+		SCREEN_W_HALF = width >> 1;
+		SCREEN_H_HALF = height >> 1;
+		SCREEN_W_INV = 1.0f / width;
+		SCREEN_H_INV = 1.0f / height;
+		SCREEN_W_TO_640 = 640.0f / width;
+		SCREEN_H_TO_480 = 480.0f / height;
 	}
 
 
 	void GFX::load_background()
 	{
-		if (SCREEN_W > 1024)
+		if (width > 1024)
 			glfond = load_texture("gfx/menu1280.jpg", FILTER_LINEAR);
 		else
-			glfond = load_texture(((SCREEN_W <= 800) ? "gfx/menu800.jpg" : "gfx/menu1024.jpg"), FILTER_LINEAR);
+			glfond = load_texture(((width <= 800) ? "gfx/menu800.jpg" : "gfx/menu1024.jpg"), FILTER_LINEAR);
 	}
 
 
@@ -1819,7 +1816,7 @@ namespace TA3D
 			glBindTexture(GL_TEXTURE_2D,textureFBO);        // Copy back buffer to target texture
 			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, texture_width(textureFBO), texture_height(textureFBO), 0);
 			textureFBO = 0;
-			glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+			glViewport(0, 0, width, height);           // Use default viewport
 		}
 
 		if (tex == 0)       // Release the texture
@@ -1827,7 +1824,7 @@ namespace TA3D
 			if (g_useFBO)
 			{
 				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
-				glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+				glViewport(0, 0, width, height);           // Use default viewport
 			}
 		}
 		else
@@ -1869,7 +1866,7 @@ namespace TA3D
 		if (tex == 0)       // Release the texture
 		{
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
-			glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+			glViewport(0, 0, width, height);           // Use default viewport
 		}
 		else
 		{
@@ -1958,11 +1955,11 @@ namespace TA3D
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 				for (int i = 0 ; i < 11 ; i++)
 				{
-					float dx = (i >> 2) * SCREEN_W / 3.0f;
-					float dy = (i & 3) * 0.25f * SCREEN_H;
-					test_gfx->drawtexture( tex[i], dx, dy, dx + SCREEN_W / 3.0f, dy + 0.25f * SCREEN_H );
+					float dx = (i >> 2) * test_gfx->width / 3.0f;
+					float dy = (i & 3) * 0.25f * test_gfx->height;
+					test_gfx->drawtexture( tex[i], dx, dy, dx + test_gfx->width / 3.0f, dy + 0.25f * test_gfx->height );
 					glDisable( GL_TEXTURE_2D );
-					test_gfx->rect( dx, dy, dx + SCREEN_W / 3.0f, dy + 0.25 * SCREEN_H, 0xFFFFFFFF );
+					test_gfx->rect( dx, dy, dx + test_gfx->width / 3.0f, dy + 0.25 * test_gfx->height, 0xFFFFFFFF );
 					test_gfx->print( test_gfx->normal_font, dx + 10, dy + 10, 0.0f, 0xFFFFFFFF, info[i] );
 					test_gfx->print( test_gfx->normal_font, dx + 10, dy + 20, 0.0f, 0xFFFFFFFF, filterInfo[e] );
 				}
