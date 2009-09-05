@@ -1206,7 +1206,15 @@ namespace TA3D
 	std::vector<Vector3D> MAP::get_visible_volume()
 	{
 		std::vector<Vector3D>  volume;
+		bool bFarSight = lp_CONFIG->far_sight && !Camera::inGame->mirror;
+		float zfar = Camera::inGame->zfar;
+		float cam_h = Camera::inGame->rpos.y - get_unit_h(Camera::inGame->rpos.x, Camera::inGame->rpos.z);
+		float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+		if (bFarSight)
+			Camera::inGame->zfar = map_zfar;
 		Camera::inGame->getFrustum(volume);
+		if (bFarSight)
+			Camera::inGame->zfar = zfar;
 		Vector3D dir;
 		for(int i = 4 ; i < 8; ++i)
 		{
