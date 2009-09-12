@@ -134,26 +134,26 @@ namespace TA3D
 		{ glColor4f(r,g,b,a); }
 
 		void set_color(const uint32 col) const
-		{ glColor4ub( getr(col), getg(col), getb(col), geta(col)); }
+		{ glColor4ub( (GLubyte)getr(col), (GLubyte)getg(col), (GLubyte)getb(col), (GLubyte)geta(col)); }
 
 		void set_alpha(const float a) const;
 
 		/*!
 		** \brief
 		*/
-		float get_r(const uint32 col) const  {return getr(col) * BYTE_TO_FLOAT;}
+		float get_r(const uint32 col) const  {return (float)getr(col) * BYTE_TO_FLOAT;}
 		/*!
 		**
 		*/
-		float get_g(const uint32 col) const  {return getg(col) * BYTE_TO_FLOAT; }
+		float get_g(const uint32 col) const  {return (float)getg(col) * BYTE_TO_FLOAT; }
 		/*!
 		**
 		*/
-		float get_b(const uint32 col) const {return getb(col) * BYTE_TO_FLOAT;}
+		float get_b(const uint32 col) const {return (float)getb(col) * BYTE_TO_FLOAT;}
 		/*!
 		**
 		*/
-		float get_a(const uint32 col) const {return geta(col) * BYTE_TO_FLOAT;}
+		float get_a(const uint32 col) const {return (float)geta(col) * BYTE_TO_FLOAT;}
 
 
 		/*!

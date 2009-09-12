@@ -72,9 +72,14 @@ SET(SRC_MISC
 		misc/recttest.h misc/recttest.cpp
 
 		misc/math.h misc/math.cpp
-		misc/tdf.h misc/tdf.hxx misc/tdf.cpp
+		misc/tdf.h misc/tdf.hxx misc/tdf.cpp)
 		
-		misc/modinfo.h misc/modinfo.cpp)
+
+#
+# Mods
+SET(SRC_MODS
+		mods/mods.h mods/mods.cpp
+		mods/modinfo.h mods/modinfo.cpp)
 
 
 #
@@ -248,6 +253,7 @@ SET(TA3D_SOURCES
 		${SRC_GFX} ${SRC_GFX_GUI}
 		${SRC_GFX_PARTICLES}
 		${SRC_MESHES}
+		${SRC_MODS}
 		${SRC_OLDGUI}
 		${SRC_SOUND}
 		${SRC_SCRIPTS}

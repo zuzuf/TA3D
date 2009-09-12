@@ -1,7 +1,7 @@
 #include "../logs/logs.h"
-#include "paths.h"
-#include "files.h"
-#include "tdf.h"
+#include "../misc/paths.h"
+#include "../misc/files.h"
+#include "../misc/tdf.h"
 #include "modinfo.h"
 
 namespace TA3D
