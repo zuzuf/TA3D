@@ -276,7 +276,7 @@ namespace TA3D
 
         float compute_bottom( float bottom, Vector3D dec );
 
-        bool has_animation_data();
+		virtual bool has_animation_data();
     };
 
     class MODEL					// Classe pour la gestion des modèles 3D
