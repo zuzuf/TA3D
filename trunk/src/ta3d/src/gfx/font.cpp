@@ -18,7 +18,6 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "glfunc.h"
-#include "../gui.h"
 #include "../gaf.h"
 #include "gfx.h"
 #include "../misc/paths.h"

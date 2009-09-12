@@ -21,7 +21,7 @@
 #include "../../input/mouse.h"
 #include "../../input/keyboard.h"
 #include "../../misc/paths.h"
-
+#include "../../TA3D_NameSpace.h"
 
 namespace TA3D
 {

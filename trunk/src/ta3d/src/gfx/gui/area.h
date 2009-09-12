@@ -231,6 +231,13 @@ namespace Gui
 		*/
 		int	msg(String message);
 
+		/*!
+		** \brief Display a popup window, locking all other GUI elements until it's closed
+		** \param Title
+		** \param Msg
+		** \return
+		*/
+		void popup(const String &Title, const String &Msg);
 
 	public:
 		//!

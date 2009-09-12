@@ -21,7 +21,6 @@
 #include "skin.manager.h"
 #include "../../console.h"
 #include "../../TA3D_NameSpace.h"
-#include "../../gui.h"
 #include "../../misc/math.h"
 #include "../../console.h"
 #include "../../misc/tdf.h"
@@ -642,6 +641,55 @@ namespace Gui
 	}
 
 
+	/*---------------------------------------------------------------------------\
+	|               Display a popup window with a message and a title            |
+	\---------------------------------------------------------------------------*/
+
+	void AREA::popup(const String &Title, const String &Msg)
+	{
+		if (get_wnd( "popup" ) == NULL)            // The window isn't loaded => load it now !
+			load_window( "gui/popup_dialog.tdf" );
+		title("popup", Title);
+
+		msg("popup.show");
+		caption("popup.msg", Msg);
+
+		bool done = false;
+		int amx, amy, amz, amb;
+
+		do
+		{
+			bool key_is_pressed = false;
+			do
+			{
+				amx = mouse_x;
+				amy = mouse_y;
+				amz = mouse_z;
+				amb = mouse_b;
+
+				key_is_pressed = keypressed();
+				check();
+				rest( 16 );
+			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !scrolling );
+
+			if (key[KEY_ESC])   done = true;
+
+			if (key[KEY_ENTER] || get_state("popup.b_ok"))
+				done = true;
+
+			// Clear screen
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			draw();
+			draw_cursor();
+
+			gfx->flip();
+
+		}while(!done);
+		msg("popup.hide");
+
+		reset_keyboard();
+	}
 
 } // namespace Gui
 } // namespace TA3D

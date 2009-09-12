@@ -20,7 +20,6 @@
 # include "../../stdafx.h"
 # include <string>
 # include <memory>
-# include "../../gui.h"
 # include "../../gfx/gui/area.h"
 # include "../../misc/string.h"
 # include <yuni/core/smartptr.h>

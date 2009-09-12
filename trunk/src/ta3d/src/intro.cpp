@@ -32,7 +32,7 @@
 #include "languages/i18n.h"
 #include "gfx/gui/skin.h"
 #include "console.h"
-
+#include "gfx/gui/base.h"
 
 namespace TA3D
 {

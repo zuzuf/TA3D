@@ -18,7 +18,6 @@
 #ifndef __TA3D__TA3D__NETWORK__H
 #define __TA3D__TA3D__NETWORK__H
 
-# include "../gui.h"
 # include "../ta3dbase.h"
 # include "../threads/thread.h"
 # include "../ingame/gamedata.h"

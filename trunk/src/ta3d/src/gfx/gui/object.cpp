@@ -3,7 +3,6 @@
 #include "../gfx.h"
 #include "object.h"
 #include "../../TA3D_NameSpace.h"
-#include "../../gui.h"
 #include "../../misc/math.h"
 
 

@@ -24,7 +24,6 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "glfunc.h"
-#include "../gui.h"
 #include "../gaf.h"
 #include "gfx.h"
 #include "gui/skin.manager.h"
@@ -34,6 +33,7 @@
 #include "../misc/math.h"
 #include "../input/keyboard.h"
 #include "../input/mouse.h"
+#include "gui/base.h"
 
 
 
