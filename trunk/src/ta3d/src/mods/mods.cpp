@@ -56,6 +56,8 @@ namespace TA3D
 					found = true;
 					if (e->isInstalled() && e->getVersion() != i->getVersion())
 						e->setUpdateAvailable(true);
+					else if (!e->isInstalled())
+						*e = *i;
 				}
 			}
 			if (!found)
