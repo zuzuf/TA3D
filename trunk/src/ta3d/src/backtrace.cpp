@@ -27,6 +27,8 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "misc/paths.h"
+#include "gfx/gui/area.h"
+#include "backtrace.h"
 
 #ifdef TA3D_PLATFORM_LINUX
 #   define TA3D_BACKTRACE_SUPPORT
@@ -83,11 +85,7 @@ void backtrace_handler (int signum)
             + TA3D::Paths::Logs
             + "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
 
-        # ifdef TA3D_PLATFORM_WINDOWS
-		    ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
-        # else
-		    std::cerr << szErrReport << std::endl;
-        # endif // TA3D_PLATFORM_WINDOWS
+		criticalMessage(szErrReport);
 	}
 	else
     {
@@ -106,11 +104,7 @@ void backtrace_handler (int signum)
         // The backtrace support is disabled: warns the user
 	    String szErrReport = "An error has occured.\nDebugging information could not be logged because this isn't\nnot supported for your system.\nPlease report to \
 our forums (http://www.ta3d.org/) so we can fix it.";
-        # ifdef TA3D_PLATFORM_WINDOWS
-	        ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
-        # else
-		    std::cerr << szErrReport << std::endl;
-        # endif // ifdef TA3D_PLATFORM_LINUX
+		criticalMessage(szErrReport):
 
     #endif // ifdef TA3D_BACKTRACE_SUPPORT
 	exit(-1);
@@ -144,4 +138,37 @@ int init_signals (void)
     return 0; // TODO missing value ?
 }
 
+void criticalMessage(const String &msg)
+{
+	std::cerr << msg << std::endl;		// Output error message to stderr
+# ifdef TA3D_PLATFORM_WINDOWS
+	::MessageBoxA( NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
+# else
+	String escapedMsg = String(msg).replace("\"", "\\\"");
+	String cmd;
 
+	// Try kdialog
+	cmd << "kdialog --title \"TA3D - Critical Error\" --error \"" << escapedMsg << "\"";
+	if (system(cmd.c_str()))
+	{
+		// Try gtkdialog
+		cmd.clear();
+		cmd << "<window title=\"TA3D - Critical Error\" window_position=\"1\" resizable=\"false\" icon-name=\"gtk-warn\">"
+			<< "<vbox>"
+			<< "<text>"
+			<< "<label>" << msg << "</label>"
+			<< "</text>"
+			<< "<button ok></button>"
+			<< "</vbox>"
+			<< "</window>";
+		setenv("MAIN_DIALOG", cmd.c_str(), 1);
+		if (system("gtkdialog"))
+		{
+			// Try Xdialog
+			cmd.clear();
+			cmd << "Xdialog --title \"TA3D - Critical Error\" --msgbox \"" << escapedMsg << "\" 400x120";
+			system(cmd.c_str());
+		}
+	}
+# endif // ifdef TA3D_PLATFORM_WINDOWS
+}
