@@ -45,12 +45,17 @@ namespace TA3D
         */
         void read(const String &modName);
 
-        inline int getID()          {   return ID;  }
-        inline String getName()     {   return name;  }
-        inline String getVersion()  {   return version;  }
-        inline String getAuthor()   {   return author;  }
-        inline String getComment()  {   return comment;  }
-        inline String getUrl()      {   return url;  }
+		int getID() const			{	return ID;  }
+		String getName() const		{	return name;  }
+		String getVersion() const	{	return version;  }
+		String getAuthor() const	{	return author;  }
+		String getComment() const	{	return comment;  }
+		String getUrl() const		{	return url;  }
+		bool isInstalled() const	{	return installed;	}
+		bool isUpdateAvailable() const {	return availableUpdate;	}
+		void setUpdateAvailable(bool b)	{	availableUpdate = b;	}
+		void setInstalled(bool b);
+		void uninstall();
 
     private:
         int     ID;
@@ -59,6 +64,8 @@ namespace TA3D
         String  author;
         String  comment;
         String  url;
+		bool	installed;
+		bool	availableUpdate;
     };
 }   // namespace TA3D
 

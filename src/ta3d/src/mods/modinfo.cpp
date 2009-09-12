@@ -3,11 +3,12 @@
 #include "../misc/files.h"
 #include "../misc/tdf.h"
 #include "modinfo.h"
+#include "mods.h"
 
 namespace TA3D
 {
     ModInfo::ModInfo(const int ID, const String &name, const String &version, const String &author, const String &comment, const String &url)
-        : ID(ID), name(name), version(version), author(author), comment(comment), url(url)
+		: ID(ID), name(name), version(version), author(author), comment(comment), url(url), installed(false), availableUpdate(false)
     {
     }
 
@@ -52,12 +53,28 @@ namespace TA3D
         url = params[3];
         author = params[4];
         comment = params[5];
+		installed = false;
+		availableUpdate = false;
     }
 
     void ModInfo::read(const String &modName)
     {
         String filename = Paths::Resources;
         filename << "mods" << Paths::Separator << modName << Paths::Separator << "info.mod";
+
+		availableUpdate = false;
+
+		if (!Paths::Exists(filename))
+		{
+			ID = -1;
+			name = modName;
+			version = String();
+			author = String();
+			comment = String();
+			url = String();
+			installed = false;
+			return;
+		}
 
         TDFParser file(filename, false, true, false, true);
         ID = file.pullAsInt("mod.ID", -1);
@@ -66,6 +83,7 @@ namespace TA3D
         author = file.pullAsString("mod.author");
         comment = file.pullAsString("mod.comment");
         url = file.pullAsString("mod.url");
+		installed = file.pullAsBool("mod.installed", false);
     }
 
     void ModInfo::write()
@@ -87,7 +105,32 @@ namespace TA3D
         << "    author = " << author << ";\n"
         << "    comment = " << comment << ";\n"
         << "    url = " << url << ";\n"
+		<< "    installed = " << installed << ";\n"
         << "}";
+		Paths::MakeDir(Paths::ExtractFilePath(filename, false));
         Paths::Files::SaveToFile(filename, file);
     }
+
+	void ModInfo::setInstalled(bool b)
+	{
+		installed = b;
+		write();
+
+		Mods::instance()->update();
+	}
+
+	void ModInfo::uninstall()
+	{
+		if (ID < 0 || !installed)	return;
+
+		LOG_INFO(LOG_PREFIX_RESOURCES << "uninstalling mod '" << name << "'");
+
+		String modpath = Paths::Resources;
+		modpath << "mods" << Paths::Separator << name;
+		Paths::RemoveDir(modpath);
+		installed = false;
+		write();
+
+		LOG_INFO(LOG_PREFIX_RESOURCES << "mod uninstalled");
+	}
 }
