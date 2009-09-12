@@ -22,6 +22,7 @@
 #include "../../input/keyboard.h"
 #include "../../misc/paths.h"
 #include "../../TA3D_NameSpace.h"
+#include "../../mods/mods.h"
 
 namespace TA3D
 {
@@ -34,7 +35,7 @@ namespace Menus
         stop();
     }
 
-    void NetMenu::Download::start(const String &filename, const String &url)
+	void NetMenu::Download::start(const String &filename, const String &url, const int mID)
     {
         if (Gui::AREA::current())
         {
@@ -44,6 +45,7 @@ namespace Menus
             Gui::AREA::current()->set_data(wnd + ".progress", 0);
             Gui::AREA::current()->msg(wnd + ".show");
         }
+		this->modID = mID;
         this->filename = filename;
         http.get(filename, url);
     }
@@ -198,7 +200,7 @@ namespace Menus
 				Gui::GUIOBJ::Ptr modListObj = pArea->get_object("mods.l_mods");
 				if (modListObj)
 				{
-					ModInfo::List modList = NetClient::instance()->getModList();
+					ModInfo::List modList = Mods::instance()->getModList(Mods::MOD_ALL);
 					modListObj->Text.clear();
 					for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() ; ++i)
 						modListObj->Text.push_back(i->getName());
@@ -219,13 +221,11 @@ namespace Menus
 							String filename = dir;
 							filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
 
-							if (Paths::Exists(dir) && Paths::Exists(filename))
+							if (pIdx->isInstalled())
 							{
 								pArea->msg("mods.b_install.hide");
 								pArea->msg("mods.b_remove.show");
-								ModInfo modInfo;
-								modInfo.read(pIdx->getName());
-								if (modInfo.getVersion() != pIdx->getVersion())
+								if (pIdx->isUpdateAvailable())
 									pArea->msg("mods.b_update.show");
 								else
 									pArea->msg("mods.b_update.hide");
@@ -241,21 +241,19 @@ namespace Menus
 							{
 								Paths::MakeDir(dir);
 								Download *download = new Download;
-								download->start(filename, pIdx->getUrl());
+								download->start(filename, pIdx->getUrl(), pIdx->getID());
 								downloadList.push_back(download);
 								pIdx->write();
 							}
 							if (pArea->get_state("mods.b_remove"))     // Remove mod
-								Paths::RemoveDir(dir);
+								pIdx->uninstall();
 							if (pArea->get_state("mods.b_update"))     // Remove old files and start download
 							{
-								Paths::RemoveDir(dir);
-								Paths::MakeDir(dir);
+								pIdx->uninstall();
 
 								Download *download = new Download;
-								download->start(filename, pIdx->getUrl());
+								download->start(filename, pIdx->getUrl(), pIdx->getID());
 								downloadList.push_back(download);
-								pIdx->write();
 							}
 						}
 						else
@@ -291,15 +289,34 @@ namespace Menus
 				{
 					String ext = Paths::ExtractFileExt(filename).toLower();
 					LOG_INFO(LOG_PREFIX_SYSTEM << "archive extension is '" << ext << "'");
-					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar" || ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
+					bool success = true;
+					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar"
+						|| ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
 					{
 						String command = lp_CONFIG->system7zCommand + " x " + filename + " -o" + Paths::ExtractFilePath(filename);
 						LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
-						system(command.c_str());
+						if (system(command.c_str()))
+						{
+							LOG_ERROR(LOG_PREFIX_SYSTEM << "error running command!");
+							success = false;
+						}
 					}
+					if (success)
+					{
+						ModInfo *pMod = Mods::instance()->getMod((*i)->getModID());
+						if (pMod)
+						{
+							pMod->setInstalled(true);
+							LOG_INFO(LOG_PREFIX_RESOURCES << "mod installed");
+						}
+						else
+							LOG_ERROR(LOG_PREFIX_RESOURCES << "mod ID error");
+					}
+					else
+						LOG_INFO(LOG_PREFIX_RESOURCES << "mod was not installed");
 				}
 				else        // Download has failed, remove the mod folder
-					Paths::RemoveDir(Paths::ExtractFilePath(filename));
+					LOG_ERROR(LOG_PREFIX_RESOURCES << "mod could not be installed");
 				delete *i;
 				downloadList.erase(i++);
 			}

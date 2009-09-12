@@ -37,15 +37,17 @@ namespace TA3D
                 typedef std::list<Download*> List;
             public:
                 ~Download();
-                void start(const String &filename, const String &url);
+				void start(const String &filename, const String &url, const int mID);
                 void stop();
                 void update();
                 bool downloading();
-                inline String getFilename() {   return filename;    }
+				String getFilename() {   return filename;    }
+				int getModID()	{	return modID;	}
             private:
                 String filename;
                 String wnd;
                 Http http;
+				int modID;
                 static int wndNumber;
             };
 

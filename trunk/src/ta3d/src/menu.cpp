@@ -51,6 +51,7 @@
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "cache.h"
+#include "mods/mods.h"
 #include <yuni/core/math.h>
 #include <yuni/core/sleep.h>
 
@@ -267,17 +268,14 @@ namespace TA3D
 				obj->Text.resize(1);
 
 			String current_selection = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-			String::List mod_list;
-			TA3D::Resources::GlobDirs(mod_list,"mods/*");
+			String::List mod_list = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
 			mod_list.sort();
 			mod_list.unique();
 			for (String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
 			{
-				String namae( TA3D::Paths::ExtractFileName(*i) );
-				if ( namae == ".." || namae == "." )  continue;   // Have to exclude both .. & . because of windows finding . as something interesting
-				obj->Text.push_back( namae );
-				if (String::ToLower( namae ) == String::ToLower(current_selection))
-					obj->Text[0] = namae;
+				obj->Text.push_back( *i );
+				if (String::ToLower( *i ) == String::ToLower(current_selection))
+					obj->Text[0] = *i;
 			}
 		}
 
