@@ -37,7 +37,7 @@
 #include "misc/math.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
-
+#include "backtrace.h"
 
 
 
@@ -50,9 +50,7 @@ namespace TA3D
 		void showError(const String& s, const String& additional = String())
 		{
 			LOG_ERROR(I18N::Translate(s));
-			//			allegro_message((String(I18N::Translate(s)) << additional).c_str());
-#warning FIXME: ugly print to console instead of a nice window
-			std::cerr << I18N::Translate(s) << additional << std::endl;
+			criticalMessage(I18N::Translate(s) + additional);
 		}
 	}
 
