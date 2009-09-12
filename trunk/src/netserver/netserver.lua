@@ -132,6 +132,7 @@ end
 
 function escape(str)
     local escaped_str, n = string.gsub(str, "[\"\\]", "\\%1")
+    escaped_str, n = string.gsub(escaped_str, "\n", "\\n")
     return escaped_str
 end
 
