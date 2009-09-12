@@ -31,7 +31,10 @@ namespace TA3D
                 if (info[pos] == '\\' && pos + 1 < info.size())
                 {
                     ++pos;
-                    p << info[pos];
+					if (info[pos] == 'n')
+						p << '\n';
+					else
+						p << info[pos];
                 }
                 else
                     p << info[pos];
