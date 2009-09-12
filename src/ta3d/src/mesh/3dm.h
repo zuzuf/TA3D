@@ -78,7 +78,8 @@ namespace TA3D
 
         virtual ~MESH_3DM() {destroy3DM();}
 
-    public:
+		virtual bool has_animation_data();
+	public:
         static MODEL *load(const String &filename);
     };
 } // namespace TA3D

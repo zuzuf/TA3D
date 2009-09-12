@@ -118,10 +118,16 @@ namespace TA3D
 			if (chg_col)
 				glGetFloatv(GL_CURRENT_COLOR, color_factor);
 			int texID = player_color_map[side];
+			bool disableDL = ((pTex->size() > 1 && (Flag & SURFACE_TEXTURED)) || Flag & SURFACE_GLSL) && !notex;
+			bool animatedTex = false;
 			if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !pTex->empty())
+			{
 				texID = ((int)(t * 10.0f)) % pTex->size();
-			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
+				disableDL = false;
+				animatedTex = true;
+			}
+			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && !disableDL)
 			{
 				glCallList( gl_dlist[ texID ] );
 				alset = false;
@@ -132,7 +138,7 @@ namespace TA3D
 				bool creating_list = false;
 				if (gl_dlist.size() <= texID)
 					gl_dlist.resize(texID + 1);
-				if (!chg_col && !notex && gl_dlist[texID] == 0 && false)
+				if (!chg_col && !notex && gl_dlist[texID] == 0 && !disableDL)
 				{
 					gl_dlist[texID] = glGenLists(1);
 					glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
@@ -149,7 +155,7 @@ namespace TA3D
 					set = false;
 					if (!chg_col || !notex)
 					{
-						if (Flag&SURFACE_PLAYER_COLOR)
+						if (Flag & SURFACE_PLAYER_COLOR)
 							glColor4f(player_color[side * 3], player_color[side * 3 + 1], player_color[side * 3 + 2], (Color & 0xFF) / 255.0f);		// Couleur de matière
 						else
 							glColor4ubv((GLubyte*)&Color);		// Couleur de matière
@@ -175,19 +181,19 @@ namespace TA3D
 							s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
 					}
 
-					if (Flag&SURFACE_GOURAUD)			// Type d'éclairage
+					if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
 						glShadeModel (GL_SMOOTH);
 					else
 						glShadeModel (GL_FLAT);
 
-					if (Flag&SURFACE_LIGHTED)			// Eclairage
+					if (Flag & SURFACE_LIGHTED)			// Eclairage
 						glEnable(GL_LIGHTING);
 					else
 						glDisable(GL_LIGHTING);
 
 					if (chg_col || !notex)
 					{
-						if (Flag&SURFACE_BLENDED || (chg_col && color_factor[3] != 1.0f)) // La transparence
+						if ((Flag & SURFACE_BLENDED) || (chg_col && color_factor[3] != 1.0f)) // La transparence
 						{
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 							glEnable(GL_BLEND);
@@ -201,15 +207,18 @@ namespace TA3D
 						}
 					}
 
-					if ((Flag&SURFACE_TEXTURED) && !notex) // Les textures et effets de texture
+					if ((Flag & SURFACE_TEXTURED) && !notex) // Les textures et effets de texture
 					{
 						activated_tex = true;
 						for (int j = 0; j < pTex->size() ; ++j)
 						{
 							glActiveTextureARB(GL_TEXTURE0_ARB + j);
 							glEnable(GL_TEXTURE_2D);
-							glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
-							if (j == pTex->size() - 1 && Flag&SURFACE_REFLEC)
+							if (animatedTex)
+								glBindTexture(GL_TEXTURE_2D, (*pTex)[texID]);
+							else
+								glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+							if (j == pTex->size() - 1 && (Flag & SURFACE_REFLEC))
 							{
 								glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
 								glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
@@ -238,12 +247,16 @@ namespace TA3D
 								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 							}
+							if (animatedTex)
+								break;
 						}
-						glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 						for (int j = 0; j < pTex->size() ; ++j)
 						{
 							glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 							glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+							if (animatedTex)
+								break;
 						}
 					}
 					else
@@ -767,6 +780,18 @@ namespace TA3D
 	}
 
 
+	bool MESH_3DM::has_animation_data()
+	{
+		std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+
+		if (animation_data || (Flag & SURFACE_GLSL) || ((Flag & SURFACE_TEXTURED) && pTex->size() > 1))
+			return true;
+		if (next)
+			return next->has_animation_data();
+		if (child)
+			return child->has_animation_data();
+		return false;
+	}
 
 } // namespace TA3D
 
