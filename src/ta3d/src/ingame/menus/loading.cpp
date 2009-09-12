@@ -18,10 +18,9 @@
 #include "loading.h"
 #include "../../TA3D_NameSpace.h"
 #include "../../misc/paths.h"
-#include "../../gui.h"
 #include "../../languages/i18n.h"
 #include "../../gfx/gui/skin.h"
-
+#include "../../gfx/gui/base.h"
 
 
 namespace TA3D

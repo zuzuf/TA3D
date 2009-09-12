@@ -24,6 +24,7 @@
 #include "../../input/mouse.h"
 #include "../../input/keyboard.h"
 #include "../../languages/i18n.h"
+#include "../../TA3D_NameSpace.h"
 
 
 using namespace Yuni;

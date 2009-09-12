@@ -161,11 +161,6 @@ SET(SRC_CONSOLE
 		console.cpp console.h)
 
 #
-# GUI
-#
-SET(SRC_OLDGUI  gui.cpp gui.h)
-
-#
 # VFS (HPI, archives)
 #
 SET(SRC_VFS
@@ -254,7 +249,6 @@ SET(TA3D_SOURCES
 		${SRC_GFX_PARTICLES}
 		${SRC_MESHES}
 		${SRC_MODS}
-		${SRC_OLDGUI}
 		${SRC_SOUND}
 		${SRC_SCRIPTS}
 		${SRC_ENGINE}

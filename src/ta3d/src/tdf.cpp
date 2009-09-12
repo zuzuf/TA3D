@@ -35,8 +35,7 @@
 #include "misc/math.h"
 #include "misc/material.light.h"
 #include "ingame/players.h"
-# include "mesh/instancing.h"
-
+#include "mesh/instancing.h"
 
 
 namespace TA3D

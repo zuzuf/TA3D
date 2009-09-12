@@ -368,7 +368,7 @@ namespace Menus
 		pCachedSizeOfListOfMaps = pListOfMaps.size();
 		if (!pCachedSizeOfListOfMaps)
 		{
-			Popup(I18N::Translate("Error"), I18N::Translate("No map found"));
+			pArea->popup(I18N::Translate("Error"), I18N::Translate("No map found"));
 			LOG_ERROR(LOG_PREFIX_MENU_MAPSELECTOR << "No maps have been found.");
 			return false;
 		}

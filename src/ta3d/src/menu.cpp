@@ -32,7 +32,6 @@
 #include "fbi.h"                    // Pour la gestion des unités
 #include "tnt.h"                    // Inclus le chargeur de cartes
 #include "menu.h"
-#include "gui.h"
 #include "restore.h"
 #include "misc/settings.h"
 #include "misc/paths.h"
@@ -716,7 +715,7 @@ namespace TA3D
 			if (n == 0)
 			{
 				network_manager.Disconnect();
-				Popup(I18N::Translate("Error"),I18N::Translate("No maps found"));
+				TA3D::Gui::AREA::current()->popup(I18N::Translate("Error"),I18N::Translate("No maps found"));
 				LOG_ERROR("No map has been found !");
 				reset_mouse();
 				return;
@@ -737,7 +736,7 @@ namespace TA3D
 			if (n == 0)
 			{
 				network_manager.Disconnect();
-				Popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
+				TA3D::Gui::AREA::current()->popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
 				LOG_ERROR("No script has been found!!");
 				reset_mouse();
 				return;

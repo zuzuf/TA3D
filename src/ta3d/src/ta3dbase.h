@@ -19,8 +19,8 @@
 #define __TA3D__BASE__H
 
 #include "gaf.h"				// read pictures/animations from GAF files
-#include "gui.h"				// Graphical User Interface
 #include "vfs/vfs.h"			// Virtual FileSystem handler
+#include "TA3D_NameSpace.h"
 #include "ingame/gamedata.h"
 
 
