@@ -1,6 +1,7 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "netclient.h"
+#include "../mods/mods.h"
 #include <algorithm>        // We need std::sort
 
 #define BUFFER_SIZE     2048
@@ -194,6 +195,7 @@ namespace TA3D
 		{
 			buffer_pos += n;
 			int e = 0;
+			modListChanged = false;
 			for(int i = 0 ; i < buffer_pos ; i++)
 			{
 				if (buffer[i] == '\n')
@@ -204,6 +206,8 @@ namespace TA3D
 					processMessage(msg);
 				}
 			}
+			if (modListChanged)
+				Mods::instance()->update();
 			if (e > 0)
 			{
 				buffer_pos -= e;
@@ -279,8 +283,11 @@ namespace TA3D
 			disconnect();
 		}
         else if (args[0] == "CLEAR" && args.size() == 3 && args[1] == "MOD" && args[2] == "LIST")
+		{
             modList.clear();
-        else if (args[0] == "MOD")
+			modListChanged = true;
+		}
+		else if (args[0] == "MOD")
         {
             ModInfo mod(msg);
             if (mod.getID() >= 0)
@@ -294,6 +301,7 @@ namespace TA3D
                 }
                 if (!found)
                     modList.push_back(mod);
+				modListChanged = true;
             }
         }
 	}

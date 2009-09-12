@@ -36,7 +36,7 @@ namespace TA3D
 					else
 						p << info[pos];
                 }
-                else
+				else if (info[pos] != '\r')
                     p << info[pos];
                 ++pos;
             }
@@ -79,12 +79,12 @@ namespace TA3D
 			return;
 		}
 
-        TDFParser file(filename, false, true, false, true);
+		TDFParser file(filename, false, false, false, true);
         ID = file.pullAsInt("mod.ID", -1);
         name = file.pullAsString("mod.name");
         version = file.pullAsString("mod.version");
         author = file.pullAsString("mod.author");
-        comment = file.pullAsString("mod.comment");
+		comment = file.pullAsString("mod.comment").replace("\\n", "\n");
         url = file.pullAsString("mod.url");
 		installed = file.pullAsBool("mod.installed", false);
     }
@@ -106,7 +106,7 @@ namespace TA3D
         << "    name = " << name << ";\n"
         << "    version = " << version << ";\n"
         << "    author = " << author << ";\n"
-        << "    comment = " << comment << ";\n"
+		<< "    comment = " << String(comment).replace("\n", "\\n") << ";\n"
         << "    url = " << url << ";\n"
 		<< "    installed = " << installed << ";\n"
         << "}";

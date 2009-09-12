@@ -27,6 +27,7 @@ namespace TA3D
         char            *buffer;
         int             buffer_pos;
         String          currentChan;
+		bool			modListChanged;
     public:
         NetClient();
         ~NetClient();
