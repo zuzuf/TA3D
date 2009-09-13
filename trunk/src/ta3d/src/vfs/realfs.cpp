@@ -72,7 +72,9 @@ namespace TA3D
 
                 for (String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
-                    if (i->last() == '~' || Paths::ExtractFileExt(*i).toLower() == ".bak")      // Don't take useless files into account
+					if (i->size() <= root.size() + 1
+						|| i->last() == '~'
+						|| Paths::ExtractFileExt(*i).toLower() == ".bak")      // Don't take useless files into account
                         continue;
                     i->erase(0, root.size() + 1);   // Remove root path + path separator since we don't need them in VFS name and we can add them when accessing the files
                     while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
@@ -80,8 +82,8 @@ namespace TA3D
 
                     if (i->find("/.svn/") != String::npos
                         || i->find("\\.svn\\") != String::npos
-                        || i->substr(0, 5) == ".svn/"
-                        || i->substr(0, 5) == ".svn\\"
+						|| (i->size() >= 5 && i->substr(0, 5) == ".svn/")
+						|| (i->size() >= 5 && i->substr(0, 5) == ".svn\\")
                         || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
                         continue;
 
