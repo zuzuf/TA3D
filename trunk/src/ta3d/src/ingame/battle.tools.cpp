@@ -331,8 +331,13 @@ namespace TA3D
                        lp_CONFIG->shadow_quality = params[2].to<sint32>();
 					   gfx->delete_shadow_map();
 				   }
-               }
-               else if (params[0] == "details")	lp_CONFIG->detail_tex ^= true;
+			   }
+			   else if (params[0] == "shadowmapsize" && params.size() == 2)
+			   {
+				   lp_CONFIG->shadowmap_size = params[1].to<sint32>();
+				   gfx->delete_shadow_map();
+			   }
+			   else if (params[0] == "details")	lp_CONFIG->detail_tex ^= true;
                else if (params[0] == "particle")	lp_CONFIG->particle^=true;
                else if (params.size() == 2 && params[0] == "explosion" && params[1] == "particles")	lp_CONFIG->explosion_particles^=true;
                else if (params[0] == "waves") lp_CONFIG->waves^=true;

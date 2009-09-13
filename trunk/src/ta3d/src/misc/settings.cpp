@@ -67,6 +67,7 @@ namespace Settings
 			<< "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // <= 0 means `unlimited`\n"
 			<< "              Time Factor = " << TA3D::VARS::lp_CONFIG->timefactor << ";\n"
 			<< "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps), 3 -> high (shadow maps)\n"
+			<< "           ShadowMap Size = " << (int)TA3D::VARS::lp_CONFIG->shadowmap_size << "; // 0 -> lower (256²), 1 -> low (512²), 2 -> normal (1024²), 3 -> high (2048²)\n"
 			<< "           Priority Level = " << TA3D::VARS::lp_CONFIG->priority_level << "; // 0, 1, 2\n"
 			<< "                     FSAA = " << TA3D::VARS::lp_CONFIG->fsaa << ";\n"
 			<< "               Anisotropy = " << TA3D::VARS::lp_CONFIG->anisotropy << ";\n"
@@ -154,6 +155,7 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->timefactor = cfgFile.pullAsFloat("TA3D.Time Factor");
 
 		TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Shadow Quality");
+		TA3D::VARS::lp_CONFIG->shadowmap_size = cfgFile.pullAsInt("TA3D.ShadowMap Size", 2);
 		TA3D::VARS::lp_CONFIG->priority_level = cfgFile.pullAsInt("TA3D.Priority Level");
 		TA3D::VARS::lp_CONFIG->fsaa = cfgFile.pullAsInt("TA3D.FSAA");
 		TA3D::VARS::lp_CONFIG->anisotropy = cfgFile.pullAsInt("TA3D.Anisotropy", 1);
