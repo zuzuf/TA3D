@@ -115,7 +115,7 @@ namespace TA3D
             if (files.empty())
             {
                 m_cDir.clear();
-                processRoot("", header.Start);
+				processRoot(String(), header.Start);
             }
             for(std::map<String, HpiFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
                 lFiles.push_back(i->second);
