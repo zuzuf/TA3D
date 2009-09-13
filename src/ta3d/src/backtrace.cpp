@@ -16,6 +16,9 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 
+#include "stdafx.h"
+#include <iostream>
+#include "misc/string.h"
 
 
 // Signals should be disabled under OS X, since the system already produces a crash report
@@ -24,24 +27,23 @@
 #ifndef TA3D_PLATFORM_DARWIN
 
 
-#include "stdafx.h"
-#include "TA3D_NameSpace.h"
-#include "misc/paths.h"
-#include "gfx/gui/area.h"
-#include "backtrace.h"
+# include "TA3D_NameSpace.h"
+# include "misc/paths.h"
+# include "gfx/gui/area.h"
+# include "backtrace.h"
 
-#ifdef TA3D_PLATFORM_LINUX
-#   define TA3D_BACKTRACE_SUPPORT
-#endif
+# ifdef TA3D_PLATFORM_LINUX
+#	define TA3D_BACKTRACE_SUPPORT
+# endif
 
-#ifdef TA3D_BACKTRACE_SUPPORT
-#   include <execinfo.h>
-#endif
+# ifdef TA3D_BACKTRACE_SUPPORT
+#	include <execinfo.h>
+# endif
 
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
+# include <signal.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <fstream>
 
 using namespace TA3D;
 
@@ -99,13 +101,13 @@ void backtrace_handler (int signum)
 	}
 	free(strings);
 
-    #else // ifdef TA3D_BACKTRACE_SUPPORT
+    # else // ifdef TA3D_BACKTRACE_SUPPORT
 
         // The backtrace support is disabled: warns the user
 		String szErrReport = "An error has occured.\nDebugging information could not be logged.\nPlease report to our forums (http://www.ta3d.org/) so we can fix it.";
 		criticalMessage(szErrReport);
 
-    #endif // ifdef TA3D_BACKTRACE_SUPPORT
+    # endif // ifdef TA3D_BACKTRACE_SUPPORT
 	exit(-1);
 }
 
@@ -117,32 +119,36 @@ void backtrace_handler (int signum)
 
 int init_signals (void)
 {
-    // Signals should be disabled under OS X, since the system already produces a crash report
-    // More information are available here :
-    // http://developer.apple.com/technotes/tn2004/tn2123.html
-    #ifndef TA3D_PLATFORM_DARWIN
+	// Signals should be disabled under OS X, since the system already produces a crash report
+	// More information are available here :
+	// http://developer.apple.com/technotes/tn2004/tn2123.html
+	#ifndef TA3D_PLATFORM_DARWIN
 
-    # ifdef TA3D_PLATFORM_WINDOWS
-	int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGABRT };
-	int nb_signals = 4;
-    # else
-	int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGBUS, SIGABRT, SIGIOT, SIGTRAP, SIGSYS };
-	int nb_signals = 8;
-    # endif // ifdef TA3D_PLATFORM_WINDOWS
-	for( int i = 0 ; i < nb_signals ; i++ )
+	# ifdef TA3D_PLATFORM_WINDOWS
+		int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGABRT };
+		int nb_signals = 4;
+	# else
+		int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGBUS, SIGABRT, SIGIOT, SIGTRAP, SIGSYS };
+		int nb_signals = 8;
+	# endif // ifdef TA3D_PLATFORM_WINDOWS
+	for (int i = 0; i < nb_signals; ++i)
+	{
 		if (signal (signum[i], backtrace_handler) == SIG_IGN)
 			signal (signum[i], SIG_IGN);
+	}
 
-    #endif // ifdef TA3D_PLATFORM_DARWIN
-    return 0; // TODO missing value ?
+	#endif // ifdef TA3D_PLATFORM_DARWIN
+	return 0; // TODO missing value ?
 }
+
 
 void criticalMessage(const String &msg)
 {
 	std::cerr << msg << std::endl;		// Output error message to stderr
-# ifdef TA3D_PLATFORM_WINDOWS
+
+	# ifdef TA3D_PLATFORM_WINDOWS
 	::MessageBoxA( NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
-# else
+	# else
 	String escapedMsg = String(msg).replace("\"", "\\\"");
 	String cmd;
 
@@ -169,5 +175,7 @@ void criticalMessage(const String &msg)
 			system(cmd.c_str());
 		}
 	}
-# endif // ifdef TA3D_PLATFORM_WINDOWS
+	# endif // ifdef TA3D_PLATFORM_WINDOWS
 }
+
+
