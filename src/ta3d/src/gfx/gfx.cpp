@@ -2052,7 +2052,25 @@ namespace TA3D
 	GLuint GFX::get_shadow_map()
 	{
 		if (shadowMap == 0)
-			shadowMap = create_shadow_map(1024, 1024);
+		{
+			switch(lp_CONFIG->shadowmap_size)
+			{
+			case 0:
+				shadowMap = create_shadow_map(256, 256);
+				break;
+			case 1:
+				shadowMap = create_shadow_map(512, 512);
+				break;
+			case 2:
+				shadowMap = create_shadow_map(1024, 1024);
+				break;
+			case 3:
+				shadowMap = create_shadow_map(2048, 2048);
+				break;
+			default:
+				shadowMap = create_shadow_map(1024, 1024);
+			};
+		}
 		return shadowMap;
 	}
 

@@ -62,6 +62,7 @@ namespace TA3D
 		uint16  screen_width;
 		uint16  screen_height;
 		uint8   color_depth;    // Default : 32, can be 16 or 32
+		uint8	shadowmap_size;	// 0 -> lower (256x256), 1 -> low (512x512), 2 -> normal (1024x1024), 3 -> high (2048x2048)
 
 		bool    showfps;
 		bool    wireframe;
@@ -181,6 +182,7 @@ namespace TA3D
 			fps_limit = -1.0f;
 			timefactor = 1.0f;
 			shadow_quality = 2;
+			shadowmap_size = 2;
 			priority_level = 0;
 			water_quality = 1;              // For now only because we have shaders issues with ati board
 			fsaa = 0;
