@@ -322,13 +322,16 @@ ELSE(NOT APPLE)
 	MACRO(BUNDLE_ADD_LIB libname)
 		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
 			COMMAND cp ARGS -fH "/opt/local/lib/${libname}" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
+			COMMAND chmod ARGS 644 "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}"
 			DEPENDS "/opt/local/lib/${libname}")
 		SET(TA3D_SOURCES ${TA3D_SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/${libname}")
 	ENDMACRO(BUNDLE_ADD_LIB)
 
-	MACRO(BUNDLE_RELINK libname)
+	MACRO(BUNDLE_RELINK src libname)
 		ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-			COMMAND install_name_tool ARGS -change '/opt/local/lib/${libname}' @executable_path/../Frameworks/${libname} ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+			COMMAND install_name_tool ARGS -change '/opt/local/lib/${libname}'
+				'@executable_path/../Frameworks/${libname}' "${PROJECT_SOURCE_DIR}/ta3d.app/${src}"
+		)
 	ENDMACRO(BUNDLE_RELINK)
 
 	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/")
@@ -343,14 +346,17 @@ ELSE(NOT APPLE)
 	# License
 	BUNDLE_BASIC_INSTALL("./" "./" "COPYING")
 
-	# LibZ
-	BUNDLE_ADD_LIB("libz.1.dylib")
-	BUNDLE_ADD_LIB("libSDL-1.2.0.dylib")
-	BUNDLE_ADD_LIB("libSDL_mixer-1.2.0.dylib")
-	BUNDLE_ADD_LIB("libSDL_image-1.2.0.dylib")
-	BUNDLE_ADD_LIB("libSDL_net-1.2.0.dylib")
-	BUNDLE_ADD_LIB("libGLEW.1.5.1.dylib")
-	BUNDLE_ADD_LIB("libpng12.0.dylib")
+	Set(ExternalLibs libz.1.dylib libpng12.0.dylib libfreetype.6.dylib libtiff.3.dylib
+		libSDL-1.2.0.dylib libSDL_mixer-1.2.0.dylib libSDL_image-1.2.0.dylib libSDL_net-1.2.0.dylib
+		libGLEW.1.5.1.dylib
+		libjpeg.62.0.0.dylib libjpeg.62.dylib
+		)
+
+
+	# We have to copy those libs
+	FOREACH (LIB ${ExternalLibs})
+		BUNDLE_ADD_LIB(${LIB})
+	ENDFOREACH(LIB)
 
 	# --- Resources ---
 	# Sky
@@ -428,13 +434,19 @@ ELSE(NOT APPLE)
 	SET(MACOSX_BUNDLE_ICON_FILE "pictures/ta3d.icns")
 
 	# Relink
-	BUNDLE_RELINK("libz.1.dylib")
-	BUNDLE_RELINK("libSDL-1.2.0.dylib")
-	BUNDLE_RELINK("libSDL_image-1.2.0.dylib")
-	BUNDLE_RELINK("libSDL_mixer-1.2.0.dylib")
-	BUNDLE_RELINK("libSDL_net-1.2.0.dylib")
-	BUNDLE_RELINK("libGLEW.1.5.1.dylib")
-	BUNDLE_RELINK("libpng12.0.dylib")
+	FOREACH (LIB ${ExternalLibs})
+		BUNDLE_RELINK("Contents/MacOS/ta3d" "${LIB}")
+	ENDFOREACH(LIB)
+	FOREACH (LIB ${ExternalLibs})
+		FOREACH (SUBLIB ${ExternalLibs})
+			BUNDLE_RELINK("Contents/Frameworks/${LIB}" "${SUBLIB}")
+		ENDFOREACH(SUBLIB)
+	ENDFOREACH(LIB)
+	FOREACH (LIB ${ExternalLibs})
+		FOREACH (SUBLIB ${ExternalLibs})
+			BUNDLE_RELINK("Contents/Frameworks/${LIB}" "${SUBLIB}")
+		ENDFOREACH(SUBLIB)
+	ENDFOREACH(LIB)
 
 ENDIF(NOT APPLE)
 
