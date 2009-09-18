@@ -180,6 +180,7 @@ namespace TA3D
 			if (String::Format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
 				config_area.caption("*.fps_limit", *i);
 		}
+		config_area.set_value("*.shadow_map_size", lp_CONFIG->shadowmap_size);
 		config_area.set_state("*.grab_inputs", lp_CONFIG->grab_inputs);
 		config_area.set_value("*.sound_volume", lp_CONFIG->sound_volume);
 		config_area.set_value("*.music_volume", lp_CONFIG->music_volume);
@@ -448,6 +449,7 @@ namespace TA3D
 				lp_CONFIG->music_volume = config_area.get_value("*.music_volume");
 				sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 			}
+			lp_CONFIG->shadowmap_size = config_area.get_value("*.shadow_map_size");
 			lp_CONFIG->far_sight = config_area.get_state("*.far_sight");
 			lp_CONFIG->anisotropy = config_area.get_value("*.anisotropy");
 			lp_CONFIG->mouse_sensivity = config_area.get_value("*.mouse_sensitivity") * 0.01f;

@@ -1,0 +1,52 @@
+[window]
+{
+	title=Advanced;
+	uformat=UTF8;
+	x=446;
+	y=166;
+	width=738;
+	height=720;
+	draw borders=false;
+	show title=false;
+	number of objects=3;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=false;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Title "Advanced"
+	{
+		name=t_advanced;
+		type=TEXT;
+		caption=Advanced;
+		x1=369;
+		y1=0;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=3;
+	}
+	[object1]		// Option "shadow map size"
+	{
+		name=t_shadow_map_size;
+		type=TEXT;
+		caption=Shadow map size;
+		x1=0;
+		y1=50;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object2]		// Option "shadow map size"
+	{
+		name=shadow_map_size;
+		type=HSLIDER;
+		x1=400;
+		y1=52;
+		x2=730;
+		y2=77;
+		min=0;
+		max=3;
+		value=2;
+	}
+}

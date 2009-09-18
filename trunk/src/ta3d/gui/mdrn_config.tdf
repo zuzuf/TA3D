@@ -8,7 +8,7 @@
 	height=480;
 	draw borders=false;
 	show title=false;
-	number of objects=5;
+	number of objects=6;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -48,7 +48,7 @@
 		x2=302;
 		y2=191;
 		size=2;
-		on click=mdrn_config_display.show, mdrn_config_audio.hide, mdrn_config_game.hide;
+		on click=mdrn_config_display.show, mdrn_config_audio.hide, mdrn_config_game.hide, mdrn_config_advanced.hide;
 		help=click on this button\nto show display\noptions;
 	}
 	[object3]		// Audio
@@ -61,7 +61,7 @@
 		x2=302;
 		y2=263;
 		size=2;
-		on click=mdrn_config_display.hide, mdrn_config_audio.show, mdrn_config_game.hide;
+		on click=mdrn_config_display.hide, mdrn_config_audio.show, mdrn_config_game.hide, mdrn_config_advanced.hide;
 		help=click on this button\nto show audio\noptions;
 	}
 	[object4]		// Game
@@ -74,7 +74,20 @@
 		x2=302;
 		y2=333;
 		size=2;
-		on click=mdrn_config_display.hide, mdrn_config_audio.hide, mdrn_config_game.show;
+		on click=mdrn_config_display.hide, mdrn_config_audio.hide, mdrn_config_game.show, mdrn_config_advanced.hide;
 		help=click on this button\nto show game\noptions;
+	}
+	[object5]		// Advanced
+	{
+		name=b_advanced;
+		type=BUTTON;
+		caption=Advanced;
+		x1=152;
+		y1=364;
+		x2=302;
+		y2=403;
+		size=2;
+		on click=mdrn_config_display.hide, mdrn_config_audio.hide, mdrn_config_game.hide, mdrn_config_advanced.show;
+		help=click on this button\nto show advanced\noptions;
 	}
 }
