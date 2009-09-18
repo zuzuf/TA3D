@@ -8,7 +8,7 @@
 	height=480;
 	draw borders=false;
 	show title=false;
-	number of objects=5;
+	number of objects=6;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -48,7 +48,7 @@
 		x2=303;
 		y2=187;
 		size=2;
-		on click=config_display.show, config_audio.hide, config_game.hide;
+		on click=config_display.show, config_audio.hide, config_game.hide, config_advanced.hide;
 		help=click on this button\nto show display\noptions;
 	}
 	[object3]		// Audio
@@ -61,7 +61,7 @@
 		x2=303;
 		y2=258;
 		size=2;
-		on click=config_display.hide, config_audio.show, config_game.hide;
+		on click=config_display.hide, config_audio.show, config_game.hide, config_advanced.hide;
 		help=click on this button\nto show audio\noptions;
 	}
 	[object4]		// Game
@@ -74,7 +74,20 @@
 		x2=303;
 		y2=328;
 		size=2;
-		on click=config_display.hide, config_audio.hide, config_game.show;
+		on click=config_display.hide, config_audio.hide, config_game.show, config_advanced.hide;
 		help=click on this button\nto show game\noptions;
+	}
+	[object5]		// Advanced
+	{
+		name=b_advanced;
+		type=BUTTON;
+		caption=Advanced;
+		x1=151;
+		y1=369;
+		x2=303;
+		y2=399;
+		size=2;
+		on click=config_display.hide, config_audio.hide, config_game.hide, config_advanced.show;
+		help=click on this button\nto show advanced\noptions;
 	}
 }
