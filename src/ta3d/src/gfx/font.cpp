@@ -150,7 +150,7 @@ namespace TA3D
 	float Font::height()
 	{
 		MutexLocker locker(pMutex);
-		return (font) ? font->Ascender() : 0.;
+		return (font) ? font->Ascender() : 0.f;
 	}
 
 	int Font::get_size()
