@@ -64,9 +64,9 @@ namespace System
 	{
 		int w, h, d;
 		if (DesktopResolution(w, h, d))
-			LOG_INFO(LOG_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)");
+			logs.notice() << LOG_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)";
 		else
-			LOG_ERROR(LOG_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution");
+			logs.error() << LOG_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution";
 	}
 
 
@@ -93,11 +93,9 @@ namespace System
 	{
 		// Vendor
 		String vendorName;
-		LOG_INFO(LOG_PREFIX_SYSTEM << "Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
+		logs.notice() << LOG_PREFIX_SYSTEM << OSType() << ", Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
 			<< " " << CPUName()
-			<< " (" << CPUCapabilities() << ")");
-		// OS Name
-		LOG_INFO(LOG_PREFIX_SYSTEM << OSType());
+			<< " (" << CPUCapabilities() << ")";
 		displayScreenResolution();
 	}
 
@@ -107,8 +105,9 @@ namespace System
 	void DisplayInformationsAboutSDL()
 	{
 		const SDL_version * v = SDL_Linked_Version();
-		LOG_INFO(LOG_PREFIX_SYSTEM << "SDL version: " << (int)v->major << "." << (int)v->minor << "." << (int)v->patch);
+		logs.info() << LOG_PREFIX_SYSTEM << "SDL version: " << (int)v->major << "." << (int)v->minor << "." << (int)v->patch;
 	}
+
 
 
 

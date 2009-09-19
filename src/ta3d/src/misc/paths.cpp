@@ -234,11 +234,15 @@ namespace TA3D
 			#   endif
 			# endif
 
-			bool logFileOpened = Logs::logger().writeToFile(Paths::Logs + programName + ".log");
+			// Initialize the logging mecanism
+			ResetTheLoggingMecanism(Yuni::String(Paths::Logs) <<programName << ".log");
 
-			LOG_INFO("*** Welcome to TA3D ***");
-			LOG_INFO("Version: " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << "-" << TA3D_VERSION_TAG
-				<< " (r" << TA3D_CURRENT_REVISION << ")");
+			// Welcome Commander !
+			logs.checkpoint() << "Welcome to TA3D";
+			logs.checkpoint() << "Version: " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << "-" << TA3D_VERSION_TAG
+				<< " (r" << TA3D_CURRENT_REVISION << ")";
+			logs.info();
+
 			LOG_INFO(LOG_PREFIX_PATHS << "Started from: `" << ApplicationRoot << "`");
 			ConfigFile = Preferences;
 			ConfigFile += "ta3d.cfg";
@@ -247,16 +251,21 @@ namespace TA3D
 			LOG_INFO(LOG_PREFIX_PATHS << "Savegames: `" << Savegames << "`");
 			LOG_INFO(LOG_PREFIX_PATHS << "Screenshots: `" << Screenshots << "`");
 			LOG_INFO(LOG_PREFIX_PATHS << "Logs: `" << Logs << "`");
-			if (!logFileOpened)
-				LOG_ERROR("[logs] Impossible to open `" << Paths::Logs << programName << ".log`");
+
+			// Informations about the log file
+			if (!logs.logFileIsOpened())
+				logs.error() << "Logs: Impossible to open `" << logs.outputFilename() << "`";
 			else
-				LOG_INFO("Opened the log file: `" << Paths::LogFile);
+				logs.info() << "Opened the log file: `" << logs.outputFilename() << "`";
 
 			bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
 				&& MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources)
 				&& MakeDir(Savegames + "multiplayer" + Paths::Separator);
 			if (!res)
-				LOG_CRITICAL("Aborting now.");
+			{
+				logs.fatal() << "Some paths are missing. Aborting now...";
+				exit(120);
+			}
 
 			return res;
 		}
@@ -401,6 +410,7 @@ namespace TA3D
 
 			# else /* ifdef WINDOWS */
 
+			(void)fileAttribs;
 			String filename_pattern = ExtractFileName(pattern);
 			filename_pattern.toUpper();
 			DIR *dp;

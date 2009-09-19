@@ -200,10 +200,10 @@ namespace TA3D
 
 	void Engine::displayInfosAboutOpenGL() const
 	{
-		LOG_INFO(LOG_PREFIX_OPENGL << "OpenGL informations:");
-		LOG_INFO(LOG_PREFIX_OPENGL << "Vendor: " << glGetString(GL_VENDOR));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Renderer: " << glGetString(GL_RENDERER));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Version: " << glGetString(GL_VERSION));
+		logs.checkpoint() << "OpenGL Informations :";
+		logs.info() << "Vendor: "   << (const char*) glGetString(GL_VENDOR);
+		logs.info() << "Renderer: " << (const char*) glGetString(GL_RENDERER);
+		logs.info() << "Version: "  << (const char*) glGetString(GL_VERSION);
 		if (gfx->atiWorkaround())
 			LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
 		LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << (g_useTextureCompression ? "Yes" : "No"));
