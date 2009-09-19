@@ -254,7 +254,7 @@ namespace TA3D
                     LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
 					LOG_ERROR(LOG_PREFIX_LUA << filesize << " -> " << (int)buffer[filesize-1]);
-					LOG_ERROR(buffer);
+					LOG_ERROR((const char*) buffer);
 				}
 
 				running = false;
@@ -500,7 +500,7 @@ namespace TA3D
 	int LuaThread::run()                          // Run the script, using default delay
 	{
 		uint32 timer = msec_timer;
-		float dt = timer - last;
+		float dt = (float)(timer - last);
 		last = timer;
 		return run(dt);
 	}

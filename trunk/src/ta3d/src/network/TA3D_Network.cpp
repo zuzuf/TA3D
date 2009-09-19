@@ -600,10 +600,10 @@ namespace TA3D
 								unit->unlock();
 							}
 							else
-								LOG_ERROR("Cannot create unit of type `" << event_msg.str << "`");
+								LOG_ERROR("Cannot create unit of type `" << (const char*) event_msg.str << "`");
 						}
 						else
-							LOG_ERROR("Cannot create unit, `" << event_msg.str << "` not found");
+							LOG_ERROR("Cannot create unit, `" << (const char*) event_msg.str << "` not found");
 
 						units.unlock();
 					}

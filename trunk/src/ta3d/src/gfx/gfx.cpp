@@ -740,7 +740,7 @@ namespace TA3D
                         glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
 					break;
 				default:
-					LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
+					LOG_DEBUG("SDL_Surface format not supported by texture loader: " << (int) bmp->format->BitsPerPixel << " bpp" );
 			}
 
 			if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
@@ -769,7 +769,7 @@ namespace TA3D
                         glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
 						break;
 					default:
-						LOG_DEBUG("SDL_Surface format not supported by texture loader: " << tmp->format->BitsPerPixel << " bpp" );
+						LOG_DEBUG("SDL_Surface format not supported by texture loader: " << (int) tmp->format->BitsPerPixel << " bpp" );
 				}
 				SDL_FreeSurface(tmp);
 				++level;

@@ -46,10 +46,7 @@ namespace TA3D
 		}
 
 		I18N::Destroy();
-		LOG_INFO("Exit.");
-
-		// Close the log file
-		Logs::logger().closeFile();
+		logs.info() << "Exiting now.";
 	}
 
 
@@ -57,11 +54,10 @@ namespace TA3D
 
 	void Initialize(int argc, char* argv[])
 	{
-		Logs::level = LOG_LEVEL_DEBUG;
 		for (int i = 1 ; i < argc; i++)
 		{
 			if (!strcmp(argv[i], "--quiet") || !strcmp(argv[i], "/quiet"))
-				Logs::level = LOG_LEVEL_QUIET;
+				logs.verbosityLevel = Yuni::Logs::Verbosity::Quiet::level;
 		}
 
 		// Load and prepare output directories
