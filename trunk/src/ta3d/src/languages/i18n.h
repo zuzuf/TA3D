@@ -30,8 +30,7 @@ namespace TA3D
 
 
 
-	/*! \class I18N
-	**
+	/*!
 	** \brief Thread-safe singleton to handle internationalization, provides
 	** mainly Dictionary-Based Translation Support Tools
 	**
@@ -165,16 +164,6 @@ namespace TA3D
 		** \see I18N::currentLanguage(const String&)
 		*/
 		static bool CurrentLanguage(const String& l) { return I18N::Instance()->currentLanguage(l); }
-
-		/*!
-		** \brief Set the current language
-		** \param i index of the language
-		** \return True if language has been changed, false otherwise
-		**
-		** \see I18N::currentLanguage(const int)
-		** \deprecated The language should be referenced by its name, not an unknown index
-		*/
-		static bool CurrentLanguage(const int i) { return I18N::Instance()->currentLanguage(i); }
 
 		/*!
 		** \brief Try to find the language according the system settings
