@@ -42,6 +42,11 @@
 namespace TA3D
 {
 
+	const float tnt_transform       = 1.0f / tanf(63.44f * DEG2RAD) / H_DIV;
+	const float tnt_transform_H_DIV = 1.0f / tanf(63.44f * DEG2RAD);
+
+
+
 
 	byte player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 

@@ -49,10 +49,11 @@ namespace TA3D
 {
 
 
-	float const tnt_transform=1.0f/tan(63.44f*DEG2RAD)/H_DIV;
-	float const tnt_transform_H_DIV=1.0f/tan(63.44f*DEG2RAD);
+	extern const float tnt_transform;
+	extern const float tnt_transform_H_DIV;
 
 	typedef sset<sint16>	airIdxSet;
+
 
 
 	class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
