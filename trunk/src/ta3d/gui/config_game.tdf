@@ -125,7 +125,7 @@
 	{
 		name=mod;
 		type=MENU;
-		entry=,none;
+		entry=,default;
 		x1=420;
 		y1=190;
 		x2=730;
