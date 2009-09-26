@@ -666,10 +666,10 @@ namespace TA3D
         int best_metal = 0;
         int metal_stuff_id = -1;
         bool extractor = unit_manager.unit_type[unit_idx]->ExtractsMetal > 0.0f;
-        for (int r = minRadius ; r < radius && !found ; r++ ) 	// Circular check
+        for (int r = minRadius ; r < radius && !found; ++r) // Circular check
         {
             int r2 = r * r;
-            for (int y = (r>>1) ; y <= r && !found ; y++ )
+            for (int y = (r >> 1); y <= r && !found; ++y)
             {
                 int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
 
@@ -679,13 +679,13 @@ namespace TA3D
                 int rand_t2[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
                 for (int e = 0 ; e < 8 ; ++e)
                 {
-                    int t = Math::RandFromTable() % (8 - e);
+                    int t = Math::RandomTable() % (8 - e);
                     rand_t[e] = rand_t2[t];
                     for (int f = t; f < 7 - e; ++f)
                         rand_t2[f] = rand_t2[f + 1];
                 }
 
-                for (int f = 0 ; f < 8 ; f++ )
+                for (int f = 0; f < 8; ++f)
                 {
                     int e = rand_t[ f ];
                     if (can_be_there_ai( px + cx[e], py + cy[e], the_map, unit_idx, playerID ))
@@ -736,5 +736,9 @@ namespace TA3D
         }
         return false;
     }
+
+
+
+
 } // namespace TA3D
 

@@ -818,7 +818,7 @@ namespace TA3D
 					if (pFeature->m3d && pFeature->model != NULL)
 					{
                         MESH* obj = pFeature->model->mesh;
-                        for (int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
+                        for (int base_n = Math::RandomTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
 							random_vector = obj->random_pos(NULL, (base_n + n) % obj->nb_sub_obj, &t_mod);
 					}
 					else
@@ -866,7 +866,7 @@ namespace TA3D
 				feature[idx].burning = true;
 				feature[idx].burning_time = 0.0f;
 				int time_zone = abs( pFeature->burnmax - pFeature->burnmin ) + 1;
-				feature[ idx ].time_to_burn = (Math::RandFromTable() % time_zone ) + pFeature->burnmin;		// How long it burns
+				feature[ idx ].time_to_burn = (Math::RandomTable() % time_zone ) + pFeature->burnmin;		// How long it burns
 				burning_features.push_back(idx);		// It's burning 8)
 
 				// Start doing damages to things around
@@ -985,11 +985,11 @@ namespace TA3D
 					if (feature[*i].burning_time >= pFeature->sparktime && feature[*i].last_spread >= 0.1f) // Can spread
 					{
 						feature[*i].last_spread = 0.0f;
-						int spread_score = Math::RandFromTable() % 100;
+						int spread_score = Math::RandomTable() % 100;
 						if (spread_score < pFeature->spreadchance)// It tries to spread :)
 						{
-							int rnd_x = feature[*i].px + (Math::RandFromTable() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
-							int rnd_y = feature[*i].py + (Math::RandFromTable() % 12) - 6 + wind_z;
+							int rnd_x = feature[*i].px + (Math::RandomTable() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
+							int rnd_y = feature[*i].py + (Math::RandomTable() % 12) - 6 + wind_z;
 
 							if (rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) 	// Check coordinates are valid
 							{
@@ -1134,7 +1134,7 @@ namespace TA3D
 			}
 		}
 		feature[idx].Pos = Pos;
-        feature[idx].timeRef = Math::RandFromTable() % 100000;
+        feature[idx].timeRef = Math::RandomTable() % 100000;
 		feature[idx].type = type;
 		feature[idx].frame = 0;
 		feature[idx].draw = false;
@@ -1150,14 +1150,15 @@ namespace TA3D
 		feature[idx].dive_speed = 0.0f;
 		feature[idx].angle_x = 0.0f;
 		feature[idx].shadow_dlist = 0;
-		compute_on_map_pos( idx );
+		compute_on_map_pos(idx);
 		return idx;
 	}
 
 
 	void Features::drawFeatureOnMap(const int idx)
 	{
-		if (idx < 0 || idx >= max_features)    return;
+		if (idx < 0 || idx >= max_features)
+			return;
 		compute_on_map_pos(idx);
 		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 		if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
@@ -1168,9 +1169,11 @@ namespace TA3D
 		}
 	}
 
+
 	void Features::removeFeatureFromMap(const int idx)
 	{
-		if (idx < 0 || idx >= max_features)    return;
+		if (idx < 0 || idx >= max_features)
+			return;
 		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 		if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
 		{

@@ -119,7 +119,7 @@ namespace TA3D
 			else
 				new_part.dcol[3]=-0.1f;
 			new_part.angle=0.0f;
-			new_part.v_rot = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
+			new_part.v_rot = (Math::RandomTable() % 200) * 0.01f - 0.1f;
 			new_part.size=psize;
 			new_part.use_wind=false;
 			new_part.dsize=0.0f;
@@ -215,7 +215,7 @@ namespace TA3D
 			new_part.py = 0;
 			new_part.slow_factor = 0.0f;
 			new_part.Pos=pos;
-			float speed_mul = ((Math::RandFromTable() % 100) * 0.01f + 0.01f);
+			float speed_mul = ((Math::RandomTable() % 100) * 0.01f + 0.01f);
 			new_part.V=speed_mul*speed*Dir;
 			new_part.life=life;
 			new_part.mass=1.0f;
@@ -230,7 +230,7 @@ namespace TA3D
 			new_part.dcol[2]=0.0f;
 			new_part.dcol[3]=-1.0f/life;
 			new_part.angle=0.0f;
-			new_part.v_rot = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
+			new_part.v_rot = (Math::RandomTable() % 200) * 0.01f - 0.1f;
 			new_part.size=10.0f*(1.0f-speed_mul*0.9f);
 			new_part.use_wind=false;
 			new_part.dsize=0.0f;
@@ -262,12 +262,12 @@ namespace TA3D
 			new_part.px=-1;
 			new_part.Pos=pos;
 			new_part.V.y = 0.0f;
-			new_part.V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
-			new_part.V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
+			new_part.V.x = (((sint32)(Math::RandomTable() % 2001)) - 1000);
+			new_part.V.z = (((sint32)(Math::RandomTable() % 2001)) - 1000);
 			new_part.V.unit();
-			new_part.V=(powf((float)(Math::RandFromTable()%100),2.0f)*0.0050f*(((Math::RandFromTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*new_part.V;
+			new_part.V=(powf((float)(Math::RandomTable()%100),2.0f)*0.0050f*(((Math::RandomTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*new_part.V;
 			if (tex==0)
-				new_part.life=3.0f+(Math::RandFromTable()%200)*0.01f;
+				new_part.life=3.0f+(Math::RandomTable()%200)*0.01f;
 			else
 				new_part.life=3.0f;
 			new_part.mass=0.0f;
@@ -282,7 +282,7 @@ namespace TA3D
 			new_part.dcol[2]=-0.3f/new_part.life;
 			new_part.dcol[3]=-1.2f/new_part.life;
 			new_part.angle=0.0f;
-			new_part.v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
+			new_part.v_rot=(Math::RandomTable()%200)*0.01f-0.1f;
 			new_part.size=1.0f;
 			new_part.use_wind=false;
 			if (tex == 1)
@@ -323,11 +323,11 @@ namespace TA3D
 
 			new_part.px=-1;
 			new_part.Pos=pos;
-			new_part.V.y=(Math::RandFromTable()%9001)+1000;
-			new_part.V.x=(((sint32)(Math::RandFromTable()%2001))-1000);
-			new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000);
+			new_part.V.y=(Math::RandomTable()%9001)+1000;
+			new_part.V.x=(((sint32)(Math::RandomTable()%2001))-1000);
+			new_part.V.z=(((sint32)(Math::RandomTable()%2001))-1000);
 			new_part.V.unit();
-			new_part.V=(100.0f - powf((float)(Math::RandFromTable()%100),2.0f)*0.01f)*pre*new_part.V;
+			new_part.V=(100.0f - powf((float)(Math::RandomTable()%100),2.0f)*0.01f)*pre*new_part.V;
 			new_part.life=3.0f + new_part.V.sq() * 0.0001f;
 			new_part.mass=1.0f;
 			new_part.smoking=-1.0f;
@@ -341,7 +341,7 @@ namespace TA3D
 			new_part.dcol[2]=0.0f;
 			new_part.dcol[3]=-1.0f/new_part.life;
 			new_part.angle=0.0f;
-			new_part.v_rot = ((Math::RandFromTable()%200)*0.01f-0.1f) * new_part.V.norm() * 0.015f / pre;
+			new_part.v_rot = ((Math::RandomTable()%200)*0.01f-0.1f) * new_part.V.norm() * 0.015f / pre;
 			new_part.size=4.0f;
 			new_part.use_wind=true;
 			new_part.dsize=10.0f;
@@ -371,11 +371,11 @@ namespace TA3D
 
 			new_part.px=-1;
 			new_part.Pos=pos;
-			new_part.V.y  =((Math::RandFromTable()%1000)+1)*0.001f;
-			new_part.V.x  =(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
-			new_part.V.z  =(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+			new_part.V.y  =((Math::RandomTable()%1000)+1)*0.001f;
+			new_part.V.x  =(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
+			new_part.V.z  =(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
 			new_part.V.unit();
-			new_part.V=((Math::RandFromTable()%100)+1)*pre*new_part.V;
+			new_part.V=((Math::RandomTable()%100)+1)*pre*new_part.V;
 
 			new_part.life          = 3.0f;
 			new_part.mass          = mass;
@@ -390,7 +390,7 @@ namespace TA3D
 			new_part.dcol[2]       = 0.0f;
 			new_part.dcol[3]       = -0.3333f * alpha;
 			new_part.angle         = 0.0f;
-			new_part.v_rot         = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
+			new_part.v_rot         = (Math::RandomTable() % 200) * 0.01f - 0.1f;
 			new_part.size          = 1.0f;
 			new_part.use_wind      = ((!Yuni::Math::Zero(mass)) ? true : false);
 			new_part.dsize         = 10.0f;
@@ -419,11 +419,11 @@ namespace TA3D
 
 			new_part.px=-1;
 			new_part.Pos=pos;
-			new_part.V.y=((Math::RandFromTable()%1000)+1)*0.001f;
-			new_part.V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
-			new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+			new_part.V.y=((Math::RandomTable()%1000)+1)*0.001f;
+			new_part.V.x=(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
+			new_part.V.z=(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
 			new_part.V.unit();
-			new_part.V=((Math::RandFromTable()%100)+1)*pre*new_part.V;
+			new_part.V=((Math::RandomTable()%100)+1)*pre*new_part.V;
 			new_part.life=1.0f;
 			new_part.mass=mass;
 			new_part.smoking=-1.0f;
@@ -437,7 +437,7 @@ namespace TA3D
 			new_part.dcol[2]=0.0f;
 			new_part.dcol[3]=-alpha;
 			new_part.angle=0.0f;
-			new_part.v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
+			new_part.v_rot=(Math::RandomTable()%200)*0.01f-0.1f;
 			new_part.size=1.0f;
 			new_part.use_wind = (!Yuni::Math::Zero(mass) ? true : false);
 			new_part.dsize=3.0f;
@@ -465,14 +465,14 @@ namespace TA3D
 
 			new_part.px = -1;
 			new_part.Pos = pos;
-			new_part.V.y = ((Math::RandFromTable() % 1000) + 5000) * 0.001f;
-			new_part.V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
-			new_part.V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
+			new_part.V.y = ((Math::RandomTable() % 1000) + 5000) * 0.001f;
+			new_part.V.x = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+			new_part.V.z = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
 			new_part.V.unit();
-			new_part.V = ((Math::RandFromTable() % 50) + 51) * 0.01f * speed * new_part.V;
+			new_part.V = ((Math::RandomTable() % 50) + 51) * 0.01f * speed * new_part.V;
 			new_part.life = 1.5f;
 			new_part.mass = -1.0f;
-			new_part.smoking = (Math::RandFromTable()%60)*0.01f;
+			new_part.smoking = (Math::RandomTable()%60)*0.01f;
 			new_part.gltex = tex;
 			new_part.col[0] = 1.0f;
 			new_part.col[1] = 1.0f;
@@ -483,7 +483,7 @@ namespace TA3D
 			new_part.dcol[2] = -0.5f;
 			new_part.dcol[3] = -0.666667f;
 			new_part.angle = 0.0f;
-			new_part.v_rot = (Math::RandFromTable()%200)*0.01f-0.1f;
+			new_part.v_rot = (Math::RandomTable()%200)*0.01f-0.1f;
 			new_part.size = 5.0f;
 			new_part.use_wind = true;
 			new_part.dsize = 15.0f;
@@ -534,7 +534,8 @@ namespace TA3D
 
 		uint32 i = 0;
 
-		for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ; )
+		Vector3D RAND;
+		for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ;)
 		{
 			i++;
 
@@ -549,10 +550,9 @@ namespace TA3D
 					break;
 				continue;
 			}
-			Vector3D RAND;
-			RAND.x = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
-			RAND.y = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
-			RAND.z = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+			RAND.x = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+			RAND.y = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+			RAND.z = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
 			if (e->use_wind)
 				e->V = e->V - e->mass * G + RAND + wind_dir;
 			else

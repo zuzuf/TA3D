@@ -519,9 +519,9 @@ namespace TA3D
 		{
 			if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->flag[script_index] & FLAG_HIDE)) )
 			{
-				int rnd_idx = (Math::RandFromTable() % (nb_t_index / 3)) * 3;
-				float a = (Math::RandFromTable() & 0xFF) / 255.0f;
-				float b = (1.0f - a) * (Math::RandFromTable() & 0xFF) / 255.0f;
+				int rnd_idx = (Math::RandomTable() % (nb_t_index / 3)) * 3;
+				float a = (Math::RandomTable() & 0xFF) / 255.0f;
+				float b = (1.0f - a) * (Math::RandomTable() & 0xFF) / 255.0f;
 				float c = 1.0f - a - b;
 				vec->x = a * points[ t_index[rnd_idx]].x + b * points[t_index[rnd_idx + 1]].x + c * points[t_index[rnd_idx + 2]].x;
 				vec->y = a * points[ t_index[rnd_idx]].y + b * points[t_index[rnd_idx + 1]].y + c * points[t_index[rnd_idx + 2]].y;
@@ -602,33 +602,35 @@ namespace TA3D
 		if (c_part && emitter_point ) // Emit a  particle
 		{
 			Vector3D Dir;
+			Vector3D t_mod;
 			float life = 1.0f;
-			byte nb = (Math::RandFromTable() % 60) + 1;
+			byte nb = (Math::RandomTable() % 60) + 1;
 			ParticlesSystem* system = NULL;
-			for (byte i = 0;i < nb; ++i)
+			for (int i = 0; i < nb; ++i)
 			{
-				Vector3D t_mod;
 				bool random_vector = true;
 				if (src != NULL)
-					for ( int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
+				{
+					for (int base_n = Math::RandomTable(), n = 0; random_vector && n < src->nb_sub_obj; ++n)
 						random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
+				}
 				if (random_vector)
 				{
-					t_mod.x=(((int)(Math::RandFromTable()%2001))-1000)*0.001f;
-					t_mod.y=(((int)(Math::RandFromTable()%2001))-1000)*0.001f;
-					t_mod.z=(((int)(Math::RandFromTable()%2001))-1000)*0.001f;
+					t_mod.x = (((int)(Math::RandomTable()%2001))-1000)*0.001f;
+					t_mod.y = (((int)(Math::RandomTable()%2001))-1000)*0.001f;
+					t_mod.z = (((int)(Math::RandomTable()%2001))-1000)*0.001f;
 					t_mod.unit();
-					t_mod = (Math::RandFromTable() % 1001) * 0.001f * size * t_mod;
+					t_mod = (Math::RandomTable() % 1001) * 0.001f * size * t_mod;
 					if (center)
 						t_mod=t_mod+(*center);
 				}
 				float speed=1.718281828f;			// expf(1.0f) - 1.0f because of speed law: S(t) = So * expf( -t / tref ) and a lifetime of 1 sec
 				if (reverse)
 				{
-					Dir=*pos-(t_mod+*target);
-					Dir.x+=upos->x;
-					Dir.y+=upos->y;
-					Dir.z+=upos->z;
+					Dir = *pos - (t_mod + *target);
+					Dir.x += upos->x;
+					Dir.y += upos->y;
+					Dir.z += upos->z;
 					system = particle_engine.emit_part_fast( system, t_mod+*target,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
 				}
 				else

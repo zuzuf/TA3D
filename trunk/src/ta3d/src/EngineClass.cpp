@@ -1799,21 +1799,21 @@ namespace TA3D
 						const bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
 
 						if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
-							&& (Math::RandFromTable() % 1000000) <= lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
+							&& (Math::RandomTable() % 1000000) <= lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
 						{
 							Vector3D POS( (x<<4) - map_w_d + 8.0f, sealvl - 5.0f, pre_y - map_h_d + 8.0f );
-							V.x = (((int)(Math::RandFromTable() % 201)) - 100);
-							V.y = (((int)(Math::RandFromTable() % 51)) + 50);
-							V.z = (((int)(Math::RandFromTable() % 201)) - 100);
+							V.x = (((int)(Math::RandomTable() % 201)) - 100);
+							V.y = (((int)(Math::RandomTable() % 51)) + 50);
+							V.z = (((int)(Math::RandomTable() % 201)) - 100);
 							V.unit();
-							particle_engine.emit_lava(POS, V, 1, 10, (Math::RandFromTable() % 1000) * 0.01f + 30.0f);
+							particle_engine.emit_lava(POS, V, 1, 10, (Math::RandomTable() % 1000) * 0.01f + 30.0f);
 						}
 						else
 						{
 							if (!map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
 								(h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
 								(h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
-								(Math::RandFromTable() % 4000) <= lavaprob &&
+								(Math::RandomTable() % 4000) <= lavaprob &&
 								(SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves)
 							{
 								Vector3D grad;
