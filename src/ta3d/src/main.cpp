@@ -69,7 +69,7 @@ namespace TA3D
 		VARS::lp_CONFIG->last_script.replace('/', '\\');
 		VARS::lp_CONFIG->last_map = parser.pullAsString("TA3D.Map", TA3D::VARS::lp_CONFIG->last_map);
 		VARS::lp_CONFIG->last_map.replace('/', '\\');
-		VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW);
+		VARS::lp_CONFIG->last_FOW = (byte)parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW);
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
