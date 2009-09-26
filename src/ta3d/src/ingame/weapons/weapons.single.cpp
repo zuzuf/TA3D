@@ -368,7 +368,7 @@ namespace TA3D
 					// Start a fire ?
 					if (feature->flamable && !features.feature[-hit_idx - 2].burning && weapon_def->firestarter && local )
 					{
-						int starter_score = Math::RandFromTable() % 100;
+						int starter_score = Math::RandomTable() % 100;
 						if (starter_score < weapon_def->firestarter )
 						{
 							features.burn_feature( -hit_idx-2 );
@@ -529,7 +529,7 @@ namespace TA3D
 									// Start a fire ?
 									if (feature->flamable && !features.feature[-t_idx - 2].burning && weapon_def->firestarter && local )
 									{
-										int starter_score = Math::RandFromTable() % 100;
+										int starter_score = Math::RandomTable() % 100;
 										if (starter_score < weapon_def->firestarter ) {
 											features.burn_feature( -t_idx-2 );
 											if (network_manager.isConnected() )
@@ -826,23 +826,23 @@ namespace TA3D
 				break;
 			case RENDER_TYPE_LIGHTNING:
 				{
-					Vector3D P=Pos;
-					float length=weapon_def->duration;
-					if (weapon_def->duration>stime)
-						length=stime;
-					if (dying && length>killtime)
-						length=killtime;
+					Vector3D P = Pos;
+					float length = weapon_def->duration;
+					if (weapon_def->duration > stime)
+						length = stime;
+					if (dying && length > killtime)
+						length = killtime;
 					P = P - length * V;
 					glDisable(GL_LIGHTING);
 					glDisable(GL_TEXTURE_2D);
-					int color0=weapon_def->color[0];
-					int color1=weapon_def->color[1];
-					float coef=(cosf(stime)+1.0f)*0.5f;
+					int color0 = weapon_def->color[0];
+					int color1 = weapon_def->color[1];
+					float coef = (cosf(stime) + 1.0f) * 0.5f;
 
-					const int r = (int)(coef*((color0>>16)&0xFF)+coef*((color1>>16)&0xFF));
-					const int g = (int)(coef*((color0>>8)&0xFF)+coef*((color1>>8)&0xFF));
-					const int b = (int)(coef*(color0&0xFF)+coef*(color1&0xFF));
-					glColor4ub(r,g,b,0xFF);
+					const int r = (int)(coef * ((color0 >> 16) & 0xFF) + coef * ((color1 >> 16) & 0xFF));
+					const int g = (int)(coef * ((color0 >> 8)  & 0xFF) + coef * ((color1 >> 8)  & 0xFF));
+					const int b = (int)(coef * (color0 & 0xFF) + coef * (color1 & 0xFF));
+					glColor4ub(r, g, b, 0xFF);
 					glBegin(GL_LINE_STRIP);
 
 					float x = 0.f;
@@ -852,9 +852,9 @@ namespace TA3D
 					{
 						if (i > 0 && i < 9)
 						{
-							x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
-							y = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
-							z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
+							x = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.005f;
+							y = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.005f;
+							z = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.005f;
 						}
 						glVertex3f(Pos.x + (P.x - Pos.x) * i / 9 + x, Pos.y + (P.y - Pos.y) * i / 9 + y, Pos.z + (P.z - Pos.z) * i / 9 + z);
 					}
@@ -897,9 +897,9 @@ namespace TA3D
 				for (int i = 0; i < 10; ++i)
 				{
 					glVertex3f(
-						Pos.x + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
-						Pos.y + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
-						Pos.z + (Math::RandFromTable() % 201) * 0.01f - 1.0f);
+						Pos.x + (Math::RandomTable() % 201) * 0.01f - 1.0f,
+						Pos.y + (Math::RandomTable() % 201) * 0.01f - 1.0f,
+						Pos.z + (Math::RandomTable() % 201) * 0.01f - 1.0f);
 				}
 				glEnd();
 				break;

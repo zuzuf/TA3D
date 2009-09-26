@@ -102,7 +102,7 @@ namespace TA3D
         if (caller == NULL && !alone)
         {
             clean();
-            for(int i = childs.size() - 1 ; i >= 0 ; i--)
+            for (int i = childs.size() - 1 ; i >= 0 ; i--)
             {
                 int sig = childs[i]->run(dt);
                 if (sig > 0 || sig < -3)
@@ -190,7 +190,7 @@ namespace TA3D
                         DEBUG_PRINT_CODE("RANDOM_NUMBER");
                         int high = sStack.pop();
                         int low = sStack.pop();
-                        sStack.push(((sint32)(Math::RandFromTable() % (high - low + 1))) + low);
+                        sStack.push(((sint32)(Math::RandomTable() % (high - low + 1))) + low);
                         break;
                     }
                 case SCRIPT_GREATER_EQUAL:
@@ -323,7 +323,7 @@ namespace TA3D
                         cur.push( function_id );
                         local_env.push( SCRIPT_ENV() );
                         local_env.top().resize( num_param );
-                        for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
+                        for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                             local_env.top()[i] = sStack.pop();
                         pos = 0;
                         script_id = function_id;
@@ -467,7 +467,7 @@ namespace TA3D
                         {
                             p_cob->call(function_id, NULL, 0);
                             p_cob->local_env.top().resize( num_param );
-                            for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
+                            for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                                 p_cob->local_env.top()[i] = sStack.pop();
                             p_cob->setSignalMask( signal_mask );
                         }
@@ -484,7 +484,7 @@ namespace TA3D
                         cur.pop();
 
                         if (cur.empty() && pParam)              // Get back parameter values
-                            for(int i = 0 ; i < nParam ; i++)
+                            for (int i = 0 ; i < nParam ; i++)
                                 pParam[i] = local_env.top().size() > i ? local_env.top()[i] : 0;
 
                         local_env.pop();
@@ -577,7 +577,7 @@ namespace TA3D
                         cur.top() = script_id + (pos << 8);
                         local_env.push( SCRIPT_ENV() );
                         local_env.top().resize(num_param);
-                        for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
+                        for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                             local_env.top()[i] = sStack.pop();
                         done = true;
                         pos = 0;
@@ -628,7 +628,7 @@ namespace TA3D
                         cur.pop();
 
                         if (cur.empty() && !local_env.empty() && pParam)              // Get back parameter values
-                            for(int i = 0 ; i < nParam ; i++)
+                            for (int i = 0 ; i < nParam ; i++)
                                 pParam[i] = local_env.top().size() > i ? local_env.top()[i] : 0;
 
                         local_env.pop();
@@ -661,7 +661,7 @@ namespace TA3D
         if (nb_params > 0 && parameters != NULL)
         {
             local_env.top().resize(nb_params);
-            for(int i = 0 ; i < nb_params ; i++)
+            for (int i = 0 ; i < nb_params ; i++)
                 local_env.top()[i] = parameters[i];
         }
     }
@@ -775,7 +775,7 @@ namespace TA3D
         LOG_DEBUG(LOG_PREFIX_SCRIPT << childs.size() << " child threads");
         if (running)
             LOG_DEBUG(LOG_PREFIX_SCRIPT << "main thread running : " << script->names[cur.top() & 0xFF]);
-        for(int i = 0 ; i < childs.size() ; i++)
+        for (int i = 0 ; i < childs.size() ; i++)
             if (childs[i]->is_running())
             {
                 String state;
@@ -801,24 +801,25 @@ namespace TA3D
 
         int t = cur.size();
         gzwrite(file, &t, sizeof(t));
-        for(int i = 0 ; i < t ; i++)
+        for (int i = 0 ; i < t ; i++)
             gzwrite(file, &(cur[i]), sizeof(int));
 
         t = sStack.size();
         gzwrite(file, &t, sizeof(t));
-        for(int i = 0 ; i < t ; i++)
+        for (int i = 0 ; i < t ; i++)
             gzwrite(file, &(sStack[i]), sizeof(int));
 
         t = local_env.size();
         gzwrite(file, &t, sizeof(t));
-        for(int i = 0 ; i < t ; i++)
+        for (int i = 0 ; i < t ; i++)
         {
             int f = local_env[i].size();
             gzwrite(file, &f, sizeof(t));
-            for(int e = 0 ; e < f ; e++)
+            for (int e = 0 ; e < f ; e++)
                 gzwrite(file, &(local_env[i][e]), sizeof(int));
         }
     }
+
 
     void CobVm::restore_thread_state(gzFile file)
     {
@@ -835,7 +836,7 @@ namespace TA3D
         int t;
         gzread(file, &t, sizeof(t));
         cur.clear();
-        for(int i = 0 ; i < t ; i++)
+        for (int i = 0 ; i < t ; i++)
         {
             int v;
             gzread(file, &v, sizeof(int));
@@ -844,7 +845,7 @@ namespace TA3D
 
         gzread(file, &t, sizeof(t));
         sStack.clear();
-        for(int i = 0 ; i < t ; i++)
+        for (int i = 0 ; i < t ; i++)
         {
             int v;
             gzread(file, &v, sizeof(int));
@@ -853,14 +854,19 @@ namespace TA3D
 
         gzread(file, &t, sizeof(t));
         local_env.clear();
-        for(int i = 0 ; i < t ; i++)
+        for (int i = 0 ; i < t ; i++)
         {
             int f;
             gzread(file, &f, sizeof(t));
             local_env.push( SCRIPT_ENV() );
             local_env.top().resize(f);
-            for(int e = 0 ; e < f ; e++)
+            for (int e = 0 ; e < f ; e++)
                 gzread(file, &(local_env.top()[e]), sizeof(int));
         }
     }
-}
+
+
+
+} // namespace TA3D
+
+

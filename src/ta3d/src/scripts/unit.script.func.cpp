@@ -20,6 +20,8 @@
 #include "../gfx/fx.manager.h"
 #include "../UnitEngine.h"
 
+
+
 namespace TA3D
 {
     //! functions that are called from scripts (COB/BOS and Lua)
@@ -40,16 +42,17 @@ namespace TA3D
             fx_manager.addExplosion( P, V, power * 3, power * 10.0f );
         }
         data.flag[obj] |= FLAG_EXPLODE;
-        data.explosion_flag[obj] = explosion_type;
-        data.axe[0][obj].move_speed = (25.0f + (Math::RandFromTable() % 2501) * 0.01f) * (Math::RandFromTable() & 1 ? 1.0f : -1.0f);
-        data.axe[0][obj].rot_speed = (Math::RandFromTable() % 7201) * 0.1f - 360.0f;
-        data.axe[1][obj].move_speed = 25.0f + (Math::RandFromTable() % 2501) * 0.01f;
-        data.axe[1][obj].rot_speed = (Math::RandFromTable() % 7201) * 0.1f - 360.0f;
-        data.axe[2][obj].move_speed = (25.0f + (Math::RandFromTable() % 2501) * 0.01f) * (Math::RandFromTable() & 1 ? 1.0f : -1.0f);
-        data.axe[2][obj].rot_speed = (Math::RandFromTable() % 7201) * 0.1f - 360.0f;
+        data.explosion_flag[obj]    = explosion_type;
+        data.axe[0][obj].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
+        data.axe[0][obj].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
+        data.axe[1][obj].move_speed = 25.0f + (Math::RandomTable() % 2501) * 0.01f;
+        data.axe[1][obj].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
+        data.axe[2][obj].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
+        data.axe[2][obj].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
         data.explode = true;
         data.explode_time = 1.0f;
     }
+
 
     void Unit::script_turn_object(int obj, int axis, float angle, float speed)
     {

@@ -1836,7 +1836,7 @@ namespace TA3D
 				Vector3D randVec;
 				bool random_vector=false;
 				int n = 0;
-                for ( int base_n = Math::RandFromTable() ; !random_vector && n < pType->model->nb_obj ; n++ )
+                for ( int base_n = Math::RandomTable() ; !random_vector && n < pType->model->nb_obj ; n++ )
                     random_vector = pType->model->mesh->random_pos( &data, (base_n + n) % pType->model->nb_obj, &randVec );
 				if (random_vector)
 					fx_manager.addElectric( Pos + randVec );
@@ -2469,13 +2469,13 @@ namespace TA3D
 				if (was_locked ) // Random move to solve the unit lock problem
 				{
 					if (V.x > 0.0f)
-						NPos.x += (Math::RandFromTable() % 101) * 0.01f;
+						NPos.x += (Math::RandomTable() % 101) * 0.01f;
 					else
-						NPos.x -= (Math::RandFromTable() % 101) * 0.01f;
+						NPos.x -= (Math::RandomTable() % 101) * 0.01f;
 					if (V.z > 0.0f)
-						NPos.z += (Math::RandFromTable() % 101) * 0.01f;
+						NPos.z += (Math::RandomTable() % 101) * 0.01f;
 					else
-						NPos.z -= (Math::RandFromTable() % 101) * 0.01f;
+						NPos.z -= (Math::RandomTable() % 101) * 0.01f;
 
 					if (was_locked >= 5.0f)
 					{
@@ -2553,8 +2553,8 @@ namespace TA3D
 										n_px = cur_px;
 										n_py = cur_py;
 										Vector3D target = Pos;
-										target.x += ((sint32)(Math::RandFromTable()&0x1F))-16;		// Look for a place to land
-										target.z += ((sint32)(Math::RandFromTable()&0x1F))-16;
+										target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
+										target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
 										mission->flags |= MISSION_FLAG_MOVE;
                                         mission->path.clear();
 										mission->path = direct_path( target );
@@ -2720,8 +2720,8 @@ namespace TA3D
 					if (self_destruct < 0.0f ) {
                         int dx = ((pType->SightDistance+(int)(h+0.5f))>>3) + 1;
 						int enemy_idx=-1;
-						int sx=Math::RandFromTable()&1;
-						int sy=Math::RandFromTable()&1;
+						int sx=Math::RandomTable()&1;
+						int sy=Math::RandomTable()&1;
 						// byte mask=1<<owner_id;
 						for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=2) {
 							if (y>=0 && y<map->bloc_h_db-1)
@@ -3144,8 +3144,8 @@ namespace TA3D
                             int dx = pType->SightDistance >> 3;
                             int dx2 = SQUARE(dx);
                             int feature_idx = -1;
-                            int sx = Math::RandFromTable()&0xF;
-                            int sy = Math::RandFromTable()&0xF;
+                            int sx = Math::RandomTable()&0xF;
+                            int sy = Math::RandomTable()&0xF;
                             for(int y = cur_py - dx + sy ; y <= cur_py + dx && feature_idx == -1 ; y += 0x8)
                             {
                                 if (y >= 0 && y < map->bloc_h_db - 1)
@@ -3984,8 +3984,8 @@ namespace TA3D
                     if (pType->kamikaze && (pType->kamikazedistance>>3) > dx )
                         dx=pType->kamikazedistance;
 
-					int sx=Math::RandFromTable()&0xF;
-					int sy=Math::RandFromTable()&0xF;
+					int sx=Math::RandomTable()&0xF;
+					int sy=Math::RandomTable()&0xF;
 					byte mask=1<<owner_id;
 					for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=0x8)
 					{
@@ -4217,7 +4217,7 @@ namespace TA3D
 					ripple_timer = units.current_tick;
 					Vector3D ripple_pos = Pos;
 					ripple_pos.y = map->sealvl + 1.0f;
-					fx_manager.addRipple( ripple_pos, ( ((sint32)(Math::RandFromTable() % 201)) - 100 ) * 0.0001f );
+					fx_manager.addRipple( ripple_pos, ( ((sint32)(Math::RandomTable() % 201)) - 100 ) * 0.0001f );
 				}
 			}
 		}
@@ -4292,7 +4292,7 @@ script_exec:
 							|| mission->data > 5)   // Wait for MISSION_STOP to check if we have some work to do
 						{                                                                               // This prevents planes from keeping looking for a place to land
 							Vector3D next_target = Pos;                                                 // instead of going back to work :/
-							float find_angle = (Math::RandFromTable() % 360) * DEG2RAD;
+							float find_angle = (Math::RandomTable() % 360) * DEG2RAD;
                             next_target.x += cosf( find_angle ) * (32.0f + pType->FootprintX * 8.0f);
                             next_target.z += sinf( find_angle ) * (32.0f + pType->FootprintZ * 8.0f);
 							add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
@@ -4313,7 +4313,7 @@ script_exec:
 			pMutex.unlock();
 			draw_on_map();
 			pMutex.lock();
-			yardmap_timer = TICKS_PER_SEC + (Math::RandFromTable() & 15);
+			yardmap_timer = TICKS_PER_SEC + (Math::RandomTable() & 15);
 		}
 
 		built=false;

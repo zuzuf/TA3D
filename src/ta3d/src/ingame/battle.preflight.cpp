@@ -42,11 +42,11 @@ namespace TA3D
 
 		if (IsOnMinimap) // Check if we can project the cursor position on the map
 		{
-			if (fabsf((mouse_x - 64) * 252.0f / 128.0f) > map->mini_w * 0.5f)
+			if (Yuni::Math::Abs((mouse_x - 64) * 252.0f / 128.0f) > map->mini_w * 0.5f)
 				IsOnMinimap = false;
 			else
 			{
-				if (fabsf((mouse_y - 64) * 252.0f / 128.0f) > map->mini_h * 0.5f)
+				if (Yuni::Math::Abs((mouse_y - 64) * 252.0f / 128.0f) > map->mini_h * 0.5f)
 					IsOnMinimap = false;
 			}
 		}
@@ -71,7 +71,7 @@ namespace TA3D
 	void Battle::preflightChangeWindSpeedAndDirection()
 	{
 		wind_t = t;
-		map->wind += (Math::RandFromTable() % 2001) - 1000;
+		map->wind += (Math::RandomTable() % 2001) - 1000;
 
 		if (map->wind < map->ota_data.minwindspeed)
 			map->wind = map->ota_data.minwindspeed;
@@ -81,7 +81,7 @@ namespace TA3D
 				map->wind = map->ota_data.maxwindspeed;
 		}
 
-		map->wind_dir += (Math::RandFromTable() % 901) * 0.1f - 45.0f;
+		map->wind_dir += (Math::RandomTable() % 901) * 0.1f - 45.0f;
 
 		if (map->wind_dir < 0.0f)
 			map->wind_dir += 360.0f;

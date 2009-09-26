@@ -176,11 +176,18 @@ namespace TA3D
 		return -1;
 	}
 
+
 	int CobScript::identify(const String &name)
 	{
 		for (int i = 0; i < nb_piece; ++i)
+		{
 			if (strcasecmp(name.c_str(), piece_name[i].c_str()) == 0) // Pièce identifiée / Identified :)
 				return i;
+		}
 		return -1;
 	}
+
+
+
 } // namespace TA3D
+

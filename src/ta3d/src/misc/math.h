@@ -20,6 +20,8 @@
 
 # include <cmath>
 # include <math.h>
+# include <yuni/core/math/random/default.h>
+# include <yuni/core/math/random/table.h>
 
 
 namespace TA3D
@@ -51,27 +53,31 @@ namespace Math
     { return (rad * 57.29578122f); }
 
 
-    //! \name Random table
-    //@{
-
-    /*!
-    ** \brief Initialize the random table
-    **
-    ** The random table may be used to speed up some part of the code
-    */
-    void InitializeRandomTable();
-
-    /*!
-    ** \brief Get a random number from the random table
-    */
-    uint32 RandFromTable();
-
-    /*!
+	/*!
     ** \brief Get log2(n)
     */
     uint32 Log2(uint32 n);
 
+
+
+    //! \name Random table
+    //@{
+	//! A table for precached random numbers
+	typedef Yuni::Math::Random::Table<
+		Yuni::Math::Random::Default,   // The distribution to use for generating the random numbers
+		1048576,                       // Arbitrary number of precached numbers
+		true,                          // Cyclic, the numbers are always re-used
+		Yuni::Policy::SingleThreaded   // The Threading Policy - No lock should be good enough for our needs
+		>   PreCachedRandomNumbers;
+
+	/*!
+	** \brief A pre-cached table for random numbers 
+	*/
+	extern PreCachedRandomNumbers  RandomTable;
     //@}
+
+    
+
 
 } // namespace Math
 } // namespace TA3D

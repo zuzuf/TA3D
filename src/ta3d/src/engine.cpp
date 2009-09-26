@@ -183,7 +183,7 @@ namespace TA3D
 		feature_manager.init();
 		weapon_manager.init();
 		fx_manager.init();
-		Math::InitializeRandomTable();
+		Math::RandomTable.reset();
 
 		ta3dSideData.init();
 		ta3dSideData.loadData();

@@ -160,7 +160,7 @@ namespace TA3D
 				break;
 			}
 		}
-		fx[idx].load(-2 - (Math::RandFromTable() % 3), pos, size * 4.0f);
+		fx[idx].load(-2 - (Math::RandomTable() % 3), pos, size * 4.0f);
 
 		return idx;
 	}
@@ -352,19 +352,20 @@ namespace TA3D
 		float rev = 5.0f / (the_map->ota_data.gravity + 0.1f);
 		for (int i = 0 ; i < n ; ++i)
 		{
-			float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
-			float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
-			float s = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
+			float a = (Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
+			float b = (Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
+			float s = power * ((Math::RandomTable() % 9001) * 0.0001f + 0.1f);
 			float scosb = s * cosf(b);
 			Vector3D vs(cosf(a) * scosb,
 						s * sinf(b),
 						sinf(a) * scosb);
-			float l = (Math::RandFromTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
+			float l = (Math::RandomTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
 
 			pParticles.push_back(new FXParticle(p, vs, l));
 		}
 		pMutex.unlock();
 	}
+
 
 	void FXManager::addExplosion(const Vector3D& p, const Vector3D& s, const int n, const float power)
 	{
@@ -373,29 +374,43 @@ namespace TA3D
 
 		if (the_map)            // Visibility test
 		{
-			int px=((int)(p.x+0.5f) + the_map->map_w_d)>>4;
-			int py=((int)(p.z+0.5f) + the_map->map_h_d)>>4;
-			if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
+			int px = ((int)(p.x + 0.5f) + the_map->map_w_d) >> 4;
+			int py = ((int)(p.z + 0.5f) + the_map->map_h_d) >> 4;
+			if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
+				return;
 			byte player_mask = 1 << players.local_human_id;
-			if (the_map->view[py][px]!=1
-				|| !(SurfaceByte(the_map->sight_map, px, py) & player_mask))	return;
+			if (the_map->view[py][px] != 1 || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))
+				return;
 		}
 
-		pMutex.lock();
-		for (int i = 0 ; i < n ; ++i)
-		{
-			float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
-			float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
-			float speed = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
-			Vector3D vs(speed * cosf(a) * cosf(b),
-						speed * sinf(b),
-						speed * sinf(a) * cosf(b));
-			float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
+		// Temporary variables
+		float a;
+		float b;
+		float speed;
+		float l;
+		Vector3D vs;
 
+		// Locking...
+		pMutex.lock();
+
+		// Foreach particle
+		for (int i = 0; i < n; ++i)
+		{
+			a     = (Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
+			b     = (Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
+			speed = power * ((Math::RandomTable() % 9001) * 0.0001f + 0.1f);
+			vs.x  = speed * cosf(a) * cosf(b);
+			vs.y  = speed * sinf(b);
+			vs.z  = speed * sinf(a) * cosf(b);
+			l     = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
+
+			// Adding the new particle into the list
 			pParticles.push_back(new FXParticle(p, s + vs, l));
 		}
+		// Unlokcing
 		pMutex.unlock();
 	}
+
 
 	void FXManager::addElectric(const Vector3D& p)
 	{

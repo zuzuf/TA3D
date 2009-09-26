@@ -1200,7 +1200,7 @@ namespace TA3D
 		unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 
 		// Angle de 10° maximum
-		unit[unit_index].Angle.y = (((sint32)(Math::RandFromTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG;
+		unit[unit_index].Angle.y = (((sint32)(Math::RandomTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG;
 
 		idx_list[index_list_size++] = unit_index;
 
