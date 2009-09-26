@@ -14,7 +14,7 @@ namespace TA3D
 			slist_node      *next;
 			T               v;
 
-			inline slist_node(const T &v, slist_node *next = NULL)
+			slist_node(const T &v, slist_node *next = NULL)
 			{
 				this->v = v;
 				this->next = next;
@@ -24,62 +24,60 @@ namespace TA3D
 		class iterator
 		{
 		public:
-			inline iterator()  {   it = NULL;  }
-			inline iterator(const iterator &x) {   it = x.it;  }
-			inline iterator(slist_node *x) {   it = x;  }
-			inline iterator &operator=(slist_node *x)  {   it = x;  return *this;   }
-			inline iterator &operator=(const iterator &x)  {   it = x.it;  return *this;   }
-			inline iterator &operator++()  {   if (it)  it = it->next;  return *this;   }
-			inline iterator operator++(int)
+			iterator() :it(NULL)  {}
+			iterator(const iterator &x) :it(x.it) {}
+			iterator(slist_node *x) :it(x) {}
+			iterator &operator=(slist_node *x)  {   it = x;  return *this;   }
+			iterator &operator=(const iterator &x)  {   it = x.it;  return *this;   }
+			iterator &operator++()  {   if (it)  it = it->next;  return *this;   }
+			iterator operator++(int)
 			{
 				iterator i = *this;
 				if (it)
 					it = it->next;
 				return i;
 			}
-			inline iterator &operator+(int n)
+			iterator &operator+(int n)
 			{
-				for(;n > 0 && it; --n)
+				for (; n > 0 && it; --n)
 					it = it->next;
 				return *this;
 			}
-			inline T &operator->() {   return it->v;   }
-			inline T &operator*() {   return it->v;   }
-			inline const T &operator->() const {   return it->v;   }
-			inline const T &operator*() const {   return it->v;   }
-			inline bool operator==(const iterator &x)  const {   return it == x.it;  }
-			inline bool operator!=(const iterator &x)  const {   return it != x.it;  }
+			T &operator->() {   return it->v;   }
+			T &operator*() {   return it->v;   }
+			const T &operator->() const {   return it->v;   }
+			const T &operator*() const {   return it->v;   }
+			bool operator==(const iterator &x)  const {   return it == x.it;  }
+			bool operator!=(const iterator &x)  const {   return it != x.it;  }
 
-			inline operator bool() const {   return it != NULL;  }
+			operator bool() const {   return it != NULL;  }
 
-			inline slist_node *p()   {   return it;  }
+			slist_node *p() {   return it;  }
 		private:
 			slist_node*  it;
 		};
 
 		typedef const iterator const_iterator;
 
-		inline slist()
-		{
-			head = NULL;
-			last = NULL;
-			_size = 0;
-		}
+	public:
+		slist()
+			:head(NULL), last(NULL), _size(0)
+		{}
 
-		inline slist(int n, const T &value = T())
+		slist(int n, const T &value = T())
+			:head(NULL), last(NULL), _size(n)
 		{
-			_size = n;
-			last = head = NULL;
 			if (n > 0)
 			{
-				last = head = new slist_node(value, head);
+				head = new slist_node(value, head);
+				last = head;
 				--n;
 				for(; n > 0 ; --n)
 					head = new slist_node(value, head);
 			}
 		}
 
-		inline slist(const slist<T> &x)
+		slist(const slist<T> &x)
 		{
 			if (x._size > 0)
 			{
@@ -96,13 +94,13 @@ namespace TA3D
 			_size = x._size;
 		}
 
-		inline ~slist()
+		~slist()
 		{
 			clear();
 		}
 
-		inline slist<T> &operator=( const slist<T> &x )
-								  {
+		slist<T> & operator= (const slist& x)
+		{
 			clear();
 			if (x._size > 0)
 			{
@@ -120,14 +118,14 @@ namespace TA3D
 			return *this;
 		}
 
-		inline iterator begin() {   return iterator(head);    }
-		inline iterator end()   {   return iterator();    }
-		inline const_iterator begin() const {   return iterator(head);    }
-		inline const_iterator end()   const {   return iterator();    }
+		iterator begin() {   return iterator(head);    }
+		iterator end()   {   return iterator();    }
+		const_iterator begin() const {   return iterator(head);    }
+		const_iterator end()   const {   return iterator();    }
 
-		inline void clear()
+		void clear()
 		{
-			while(head)
+			while (head)
 			{
 				slist_node *next = head->next;
 				delete head;
@@ -137,10 +135,10 @@ namespace TA3D
 			_size = 0;
 		}
 
-		inline bool empty() const   {   return _size == 0;  }
-		inline int size() const     {   return _size;   }
+		bool empty() const   {   return _size == 0;  }
+		int size() const     {   return _size;   }
 
-		inline void resize(int sz, const T &value = T())
+		void resize(int sz, const T &value = T())
 		{
 			if (sz > _size)
 				while(sz > _size)
@@ -157,14 +155,14 @@ namespace TA3D
 			}
 		}
 
-		inline void erase_after(iterator i)
+		void erase_after(iterator i)
 		{
 			if (!i) return;
 			slist_node *e = i.p()->next;
 			i.p()->next = NULL;
 			last = i.p();
 
-			while(e)
+			while (e)
 			{
 				slist_node *f = e->next;
 				delete e;
@@ -173,7 +171,7 @@ namespace TA3D
 			}
 		}
 
-		inline void erase(iterator i)
+		void erase(iterator i)
 		{
 			if (!i) return;
 			if (i.p()->next)
@@ -196,29 +194,29 @@ namespace TA3D
 			}
 		}
 
-		inline T &front()
+		T &front()
 		{
 			return head->v;
 		}
 
-		inline const T &front() const
+		const T &front() const
 		{
 			if (empty())    return T();
 			else            return head->v;
 		}
 
-		inline T &back()
+		T &back()
 		{
 			return last->v;
 		}
 
-		inline const T &back() const
+		const T &back() const
 		{
 			if (empty())    return T();
 			else            return last->v;
 		}
 
-		inline void push_front(const T &value)
+		void push_front(const T &value)
 		{
 			head = new slist_node(value, head);
 			if (last == NULL)
@@ -226,7 +224,7 @@ namespace TA3D
 			++_size;
 		}
 
-		inline void push_back(const T &value)
+		void push_back(const T &value)
 		{
 			if (empty())
 				last = head = new slist_node(value,NULL);
@@ -235,27 +233,29 @@ namespace TA3D
 				last->next = new slist_node(value, NULL);
 				last = last->next;
 			}
-			_size++;
+			++_size;
 		}
 
-		inline void pop_front()
+		void pop_front()
 		{
-			if (!empty())   erase(head);
+			if (!empty())
+				erase(head);
 		}
 
-		inline void pop_back()
+		void pop_back()
 		{
-			if (!empty())   erase(last);
+			if (!empty())
+				erase(last);
 		}
 
-		inline iterator insert(iterator pos, const T &value)
+		iterator insert(iterator pos, const T &value)
 		{
 			pos.p()->next = new slist_node(*pos, pos.p()->next);
 			*pos = value;
 			return pos;
 		}
 
-		inline void swap(slist<T> &x)
+		void swap(slist<T> &x)
 		{
 			slist_node *s = head;
 			head = x.head;
@@ -269,11 +269,16 @@ namespace TA3D
 			x._size ^= _size;
 			_size ^= x._size;
 		}
+
 	private:
 		slist_node   *head;
 		slist_node   *last;
 		int          _size;
-	};
-}
+
+	}; // class slist
+
+
+
+} // namespace TA3D
 
 #endif
