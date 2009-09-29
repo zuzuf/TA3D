@@ -41,6 +41,7 @@ namespace TA3D
 		:pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
 	{
 		pInputText.clear();
+		pLastEntries.resize(pMaxItemsToDisplay, String());
 	}
 
 
@@ -142,9 +143,9 @@ namespace TA3D
 		for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != pLastEntries.end(); ++i_entry)
 		{
 			gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
-					   makeacol32(0,0,0,0xFF), ">" + *i_entry);
+					   makeacol32(0,0,0,0xFF), *i_entry);
 			gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-					   0xDFDFDFDF, ">" + *i_entry);
+					   0xDFDFDFDF, *i_entry);
 			++i;
 		}
 
@@ -167,7 +168,7 @@ namespace TA3D
 			case KEY_ENTER:
 				pLastCommands.push_back(pInputText);
 				pHistoryPos = pLastCommands.size();
-				addEntry(pInputText);
+				addEntry(">" + pInputText);
 				newline = pInputText;
 				pInputText.clear();
 				cursorPos = 0;
