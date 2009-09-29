@@ -222,6 +222,9 @@ namespace TA3D
 			if (players.local_human_id >= 0 && !console.activated() && !pArea.get_state("chat"))
 				handleGameStatusEvents();
 
+			if (key_down_event(KEY_HOME))
+				showHealthBars ^= true;
+			
 			if (TA3D_CTRL_PRESSED && key[KEY_D])
 			{
 				if (!ordered_destruct)
@@ -2227,6 +2230,8 @@ namespace TA3D
                 glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
             // Dessine les unités non encore dessinées / Draw units which have not been drawn
 			units.draw(map.get(), false, false, true, lp_CONFIG->height_line);
+			if (showHealthBars)
+				units.drawHealthBars();
             glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 
 			// Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn

@@ -313,6 +313,8 @@ namespace TA3D
 		//!
 		bool last_time_activated_track_mode;
 		//!
+		bool showHealthBars;
+		//!
 		float r1;
 		//!
 		float r2;
