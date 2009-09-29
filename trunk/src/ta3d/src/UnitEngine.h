@@ -159,6 +159,8 @@ namespace TA3D
 
 		void draw(MAP *map, bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
 
+		void drawHealthBars(); // Draw health bars / dessine les barres de vie
+
         void draw_shadow(float t, const Vector3D& Dir, MAP* map, float alpha = 0.5f); // Dessine les ombres des unités visibles
 
 		void draw_mini(float map_w, float map_h, int mini_w, int mini_h, SECTOR** map_data); // Repère les unités sur la mini-carte

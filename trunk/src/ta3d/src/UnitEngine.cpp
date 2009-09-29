@@ -1884,6 +1884,47 @@ namespace TA3D
 			thread_ask_to_stop = true;
 	}
 
+	void INGAME_UNITS::drawHealthBars()
+	{
+		if (nb_unit <= 0 || !unit)
+			return;		// Pas d'unités à dessiner
+
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
+
+		glDisable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_FOG);
+		glDepthMask(GL_FALSE);
+		glBegin(GL_QUADS);
+
+		pMutex.lock();
+		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		{
+			uint16 i = *e;
+			pMutex.unlock();
+
+			Unit *pUnit = &(unit[i]);
+
+			pUnit->lock();
+			if (pUnit->flags & 1)
+			{
+				pUnit->unlock();
+				pUnit->drawHealthBar();
+			}
+			else
+				pUnit->unlock();
+			pMutex.lock();
+		}
+		pMutex.unlock();
+		glEnd();
+
+		glDepthMask(GL_TRUE);
+		glEnable(GL_FOG);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+	}
 
 } // namespace TA3D
 

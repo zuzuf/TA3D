@@ -4965,5 +4965,44 @@ script_exec:
         return pType->sweetspot_cached;
     }
 
+	void Unit::drawHealthBar()
+	{
+		lock();
+		if (type_id < 0 || (unit_manager.unit_type[type_id]->HideDamage && owner_id != players.local_human_id))
+		{
+			unlock();
+			return;
+		}
+		int maxdmg = unit_manager.unit_type[type_id]->MaxDamage;
+		unlock();
+
+		float scale = (Pos - Camera::inGame->pos) % Camera::inGame->dir;
+		float w = 0.05f;
+		float h = 0.006f;
+		Vector3D P;
+		glColor4ub(0,0,0,0xFF);
+		P = Pos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+		P = Pos + scale * (w * Camera::inGame->side + h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+		P = Pos + scale * (w * Camera::inGame->side - h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+		P = Pos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+
+		w -= gfx->SCREEN_W_INV;
+		h -= gfx->SCREEN_H_INV;
+
+		float pw = w * (2.0f * (hp / maxdmg) - 1.0f);
+		glColor4ub(0xFF,0xFF,0,0xFF);
+		P = Pos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+		P = Pos + scale * (pw * Camera::inGame->side + h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+		P = Pos + scale * (pw * Camera::inGame->side - h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+		P = Pos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
+		glVertex3fv((GLfloat*)&P);
+	}
 
 } // namespace TA3D

@@ -99,6 +99,8 @@ namespace TA3D
 
 		void draw(float t, MAP *map, bool height_line = true);
 
+		void drawHealthBar();
+
 		void draw_shadow(const Vector3D& Dir, MAP *map);
 
 		void drawShadowBasic(const Vector3D& Dir, MAP *map);
