@@ -1,0 +1,9 @@
+[area]
+{
+	name=empty;
+	skin=gui/default.skn;
+	windows=;
+	background=;
+	width=1280;
+	height=1024;
+}

@@ -146,6 +146,9 @@ void criticalMessage(const String &msg)
 {
 	std::cerr << msg << std::endl;		// Output error message to stderr
 
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);  // Shutdown SDL video interface first
+                                            // in order to have the message visible
+
 	# ifdef TA3D_PLATFORM_WINDOWS
 	::MessageBoxA( NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
 	# else

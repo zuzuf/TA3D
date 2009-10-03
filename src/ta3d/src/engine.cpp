@@ -31,6 +31,7 @@
 #include "scripts/script.h"               // The game script manager
 #include "ai/ai.h"                  // AI Engine
 #include "gfx/fx.h"					// Special FX engine
+#include "gfx/gui/area.h"			// We need that for the AREA::popup function
 #include "misc/paths.h"
 #include "languages/i18n.h"
 #include "sounds/manager.h"
@@ -51,6 +52,15 @@ namespace TA3D
 		{
 			LOG_ERROR(I18N::Translate(s));
 			criticalMessage(I18N::Translate(s) + additional);
+		}
+
+		void showWarning(const String& s, const String& additional = String())
+		{
+			LOG_WARNING(I18N::Translate(s));
+			Gui::AREA *pArea = new Gui::AREA();
+			pArea->load_tdf("gui/empty.area");
+			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) + additional);
+			delete pArea;
 		}
 	}
 
@@ -160,7 +170,7 @@ namespace TA3D
 		init_keyboard();
 
 		if (!sound_manager->isRunning() && !lp_CONFIG->quickstart)
-			showError("FMOD WARNING");
+			showWarning("FMOD WARNING");
 	}
 
 
