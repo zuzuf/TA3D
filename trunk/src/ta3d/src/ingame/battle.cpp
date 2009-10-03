@@ -156,6 +156,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_BATTLE << "*** The game has started - Good luck Commander ! ***");
 		// Reinit the counter for FPS
 		fps.lastTime = msec_timer;
+                showHealthBars = false;
 
 		do
 		{
