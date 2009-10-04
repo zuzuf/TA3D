@@ -471,7 +471,8 @@ namespace TA3D
 
 		uint8 len = data[0];
 		++data;
-		char tmp[256];
+		char tmp[257];
+		memset(tmp, 0, 257);
 		data = read_from_mem(tmp, len, data);
 		name = String(tmp, len);
 

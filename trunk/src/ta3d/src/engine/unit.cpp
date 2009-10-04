@@ -413,13 +413,13 @@ namespace TA3D
 		memset( last_synctick, 0, 40 );
 		if (unit_type != -1)
 		{
+			type_id = unit_type;
 			if (!basic)
 			{
 				pMutex.unlock();
 				set_mission(MISSION_STANDBY);
 				pMutex.lock();
 			}
-			type_id = unit_type;
             UnitType *pType = unit_manager.unit_type[type_id];
             model = pType->model;
             weapon.resize(pType->weapon.size());
