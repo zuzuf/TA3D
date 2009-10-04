@@ -4974,20 +4974,32 @@ script_exec:
 			return;
 		}
 		int maxdmg = unit_manager.unit_type[type_id]->MaxDamage;
+		int px = cur_px >> 1;
+		int py = cur_py >> 1;
+		Vector3D vPos = Pos;
+		float size = unit_manager.unit_type[type_id]->model->size2 * 0.5f;
 		unlock();
 
-		float scale = (Pos - Camera::inGame->pos) % Camera::inGame->dir;
-		float w = 0.05f;
+		if (px < 0 || py < 0 || px >= units.map->bloc_w || py >= units.map->bloc_h)
+			return;	// Out of map
+		byte player_mask = 1 << players.local_human_id;
+
+		if (units.map->view[py][px] != 1 || (!(SurfaceByte(units.map->sight_map,px,py) & player_mask) ) )
+			return;	// Unit is not visible
+
+		float scale = 200.0f;
+		float w = 0.04f;
 		float h = 0.006f;
+		vPos -= size * Camera::inGame->up;
 		Vector3D P;
 		glColor4ub(0,0,0,0xFF);
-		P = Pos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
+		P = vPos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
-		P = Pos + scale * (w * Camera::inGame->side + h * Camera::inGame->up);
+		P = vPos + scale * (w * Camera::inGame->side + h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
-		P = Pos + scale * (w * Camera::inGame->side - h * Camera::inGame->up);
+		P = vPos + scale * (w * Camera::inGame->side - h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
-		P = Pos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
+		P = vPos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
 
 		w -= gfx->SCREEN_W_INV;
@@ -4995,13 +5007,13 @@ script_exec:
 
 		float pw = w * (2.0f * (hp / maxdmg) - 1.0f);
 		glColor4ub(0xFF,0xFF,0,0xFF);
-		P = Pos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
+		P = vPos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
-		P = Pos + scale * (pw * Camera::inGame->side + h * Camera::inGame->up);
+		P = vPos + scale * (pw * Camera::inGame->side + h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
-		P = Pos + scale * (pw * Camera::inGame->side - h * Camera::inGame->up);
+		P = vPos + scale * (pw * Camera::inGame->side - h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
-		P = Pos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
+		P = vPos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
 	}
 
