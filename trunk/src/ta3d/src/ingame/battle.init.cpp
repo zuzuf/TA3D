@@ -56,10 +56,26 @@ namespace TA3D
 
 	Battle::Battle(GameData* g)
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
-		map(NULL), water_obj(NULL)
-	{
+        map(NULL), water_obj(NULL),
+        sky(0),
+        glow(0),
+        freecam_on(0),
+        freecam_off(0),
+        arrow_texture(0),
+        circle_texture(0),
+        water(0),
+        water_sim(0),
+        water_sim2(0),
+        pause_tex(0),
+        height_tex(0),
+        transtex(0),
+        reflectex(0),
+        first_pass(0),
+        second_pass(0),
+        water_color(0)
+    {
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
-	}
+    }
 
 	Battle::~Battle()
 	{
@@ -123,7 +139,24 @@ namespace TA3D
 		if (!g)
 			return true;
 
-		// We don't want to load things we won't be able to use
+        sky = 0;
+        glow = 0;
+        freecam_on = 0;
+        freecam_off = 0;
+        arrow_texture = 0;
+        circle_texture = 0;
+        water = 0;
+        water_sim = 0;
+        water_sim2 = 0;
+        pause_tex = 0;
+        height_tex = 0;
+        transtex = 0;
+        reflectex = 0;
+        first_pass = 0;
+        second_pass = 0;
+        water_color = 0;
+
+        // We don't want to load things we won't be able to use
 		gfx->checkConfig();
 
 		// Here we go
@@ -620,7 +653,8 @@ namespace TA3D
 	bool Battle::initTheWater()
 	{
 		water_obj = new WATER();
-		water_obj->build(map->map_w, map->map_h, 1000);
+        water_obj->build(map->map_w, map->map_h, 1000.0f);
+        water_sim = water_sim2 = 0;
 
 		if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
 		{
@@ -665,8 +699,7 @@ namespace TA3D
 				second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			water_color = gfx->make_texture( tmp, FILTER_LINEAR);
-			// Water simulation data
-			if (lp_CONFIG->water_quality >= 5)
+            // Water simulation data			if (lp_CONFIG->water_quality >= 5)
 			{
 				last_water_refresh = msec_timer;
 				const int simulation_w = 256;
@@ -683,9 +716,9 @@ namespace TA3D
 				{
 					for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
 					{
-						float coef = 5.0f * sqrtf(500 - i);
+                        float coef = 5.0f * sqrtf(500.0f - float(i));
 						for( int e = 0 ; e < water_map_size ; e++ )
-							data[(e << 2) + 1] += ((rand() % 2000) * 0.000001f - 0.001f) * coef;
+                            data[(e << 2) + 1] += (float(rand() % 2000) * 0.000001f - 0.001f) * coef;
 						for( int e = 0 ; e < water_map_size ; e++ )
 						{
 							int offset = (e << 2) | 1;
@@ -745,8 +778,8 @@ namespace TA3D
 				{
 					// equation : y = ( 1 - sqrtf( 1 - (x*z)^2)) * z / 3 + (1-z) * sinf( x * PI / 2) ^ 2 where z is a parameter
 					// Stores the gradient vector clamped into 0.0 - 1.0 ( 0 - 0xFF)
-					float X = (x - 256.0f) / 256.0f;
-					float Z = z / 512.0f;
+                    float X = (float(x) - 256.0f) / 256.0f;
+                    float Z = float(z) / 512.0f;
 					float DX = -X * Z * Z / ( 3.0f * sqrtf( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sinf( X * PI / 2.0f) * cosf( X * PI / 2.0f);
 					float L = sqrtf( DX * DX + 1.0f);
 
@@ -759,8 +792,8 @@ namespace TA3D
 							DX = 255.0f;
 					}
 
-					SurfaceByte(tmp,(x<<2),z) = (int)(DX);
-					SurfaceByte(tmp,(x<<2)+1,z) = (int)((127.0f / L) + 127.0f);
+                    SurfaceByte(tmp,(x<<2),z) = uint8(Math::Clamp(int(DX), 0, 255));
+                    SurfaceByte(tmp,(x<<2)+1,z) = uint8(Math::Clamp((int)((127.0f / L) + 127.0f), 0, 255));
 					SurfaceByte(tmp,(x<<2)+2,z) = 0;
 					SurfaceByte(tmp,(x<<2)+3,z) = 0;
 				}
