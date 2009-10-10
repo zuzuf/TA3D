@@ -325,6 +325,7 @@ namespace TA3D
 			Playlist  pPlaylist;
 
 			Mix_Music   *pMusic;
+            bool bPlayMusic;
 
 			Mix_Chunk   *pBasicSound;
 

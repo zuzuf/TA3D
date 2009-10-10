@@ -270,7 +270,7 @@ namespace TA3D
 		/*!
 		** \brief Flip the backbuffer to the screen
 		*/
-		void flip() const { SDL_GL_SwapBuffers(); }
+        void flip() const { SDL_ShowCursor(SDL_DISABLE);    SDL_GL_SwapBuffers(); }
 
 		/*!
 		** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)

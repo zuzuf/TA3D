@@ -44,7 +44,7 @@ namespace Audio
 
 	Manager::Manager()
 		:m_SDLMixerRunning( false ), m_InBattle(false), pBattleTunesCount(0),
-		pMusic( NULL ), pBasicSound( NULL ),
+        pMusic( NULL ), bPlayMusic(false), pBasicSound( NULL ),
         pCurrentItemToPlay(-1), pCurrentItemPlaying(-1)
 	{
 		pMinTicks = 500;
@@ -358,6 +358,7 @@ namespace Audio
 	{
 		pMusic = NULL;
 		fCounter = 0;
+        bPlayMusic = false;
 
 		if (m_SDLMixerRunning)
 			return true;
@@ -427,7 +428,8 @@ namespace Audio
 	void Manager::stopMusic()
 	{
 		pMutex.lock();
-		doStopMusic();
+        bPlayMusic = false;
+        doStopMusic();
 		pMutex.unlock();
 	}
 
@@ -659,13 +661,14 @@ namespace Audio
 	void Manager::playMusic()
 	{
 		pMutex.lock();
-		doPlayMusic();
+        bPlayMusic = true;
+        doPlayMusic();
 		pMutex.unlock();
 	}
 
 	void Manager::doPlayMusic()
 	{
-		if (!m_SDLMixerRunning)
+        if (!m_SDLMixerRunning || !bPlayMusic)
 			return;
 
         bool playing = false;
