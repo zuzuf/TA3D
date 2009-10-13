@@ -2,7 +2,7 @@
 {
 	name=netmenu area;
 	skin=gui/modern.skn;
-	windows=gui/mdrn_netmenu.tdf, gui/mdrn_ask_dialog.tdf, gui/mdrn_popup_dialog.tdf, gui/mdrn_mods.tdf, gui/mdrn_netgames.tdf;
+	windows=gui/mdrn_netmenu.tdf, gui/mdrn_ask_dialog.tdf, gui/mdrn_popup_dialog.tdf, gui/mdrn_mods.tdf, gui/mdrn_netgames.tdf, gui/mdrn_hosting.tdf;
 	background=gfx/mdrn_netmenu.jpg;
 	width=1280;
 	height=1024;

@@ -9,7 +9,7 @@
 	height=600;
 	draw borders=true;
 	show title=true;
-	number of objects=14;
+	number of objects=15;
 	hidden=true;
 	lock=false;
 	color=0xFFFFFFFF;
@@ -37,21 +37,21 @@
 		entry=;
 		x1=10;
 		y1=40;
-		x2=250;
+		x2=300;
 		y2=-20;
 	}
-	[object2]		// game name label
+	[object2]		// server name label
 	{
-		name=l_name;
+		name=l_server_name;
 		type=TEXT;
 		caption=name :;
-		x1=280;
+		x1=320;
 		y1=50;
 		value=0xFFFFFFFF;
 	}
-	[object3]		// game name
+	[object3]		// server name
 	{
-		name=g_name;
+		name=server_name;
 		type=TEXT;
 		caption=;
 		x1=400;
@@ -63,7 +63,7 @@
 		name=l_version;
 		type=TEXT;
 		caption=version :;
-		x1=280;
+		x1=320;
 		y1=80;
 		value=0xFFFFFFFF;
 	}
@@ -76,46 +76,61 @@
 		y1=80;
 		value=0xFFFFFFFF;
 	}
-	[object6]		// game author label
+	[object6]		// game mod label
 	{
-		name=l_author;
+		name=l_mod;
 		type=TEXT;
-		caption=author :;
-		x1=280;
+		caption=mod :;
+		x1=320;
 		y1=110;
 		value=0xFFFFFFFF;
 	}
-	[object7]		// game author
+	[object7]		// game mod
 	{
-		name=g_author;
+		name=mod;
 		type=TEXT;
 		caption=;
 		x1=400;
 		y1=110;
 		value=0xFFFFFFFF;
 	}
-	[object8]		// game comment label
+	[object8]		// game open slots label
 	{
-		name=l_comment;
+		name=l_open_slots;
 		type=TEXT;
-		caption=comment :;
-		x1=280;
+		caption=open slots :;
+		x1=320;
 		y1=140;
 		value=0xFFFFFFFF;
 	}
-	[object9]		// game comment
+	[object9]		// game open slots
 	{
-		name=g_comment;
-		type=TEXTEDITOR;
+		name=open_slots;
+		type=TEXT;
 		caption=;
-		x1=280;
-		y1=170;
-		x2=780;
-		y2=-50;
-		cant get focus=true;
+		x1=400;
+		y1=140;
 		value=0xFFFFFFFF;
 	}
-	[object10]		// refresh
+	[object10]		// game map label
+	{
+		name=l_map;
+		type=TEXT;
+		caption=map :;
+		x1=320;
+		y1=170;
+		value=0xFFFFFFFF;
+	}
+	[object11]		// game map
+	{
+		name=g_map;
+		type=TEXT;
+		caption=;
+		x1=400;
+		y1=170;
+		value=0xFFFFFFFF;
+	}
+	[object12]		// refresh
 	{
 		name=b_refresh;
 		type=BUTTON;
@@ -125,32 +140,23 @@
 		x2=620;
 		y2=590;
 	}
-	[object11]		// Install
+	[object13]		// Host
 	{
-		name=b_install;
+		name=b_host;
 		type=BUTTON;
-		caption=Install;
-		x1=640;
+		caption=Host a game;
+		x1=590;
 		y1=50;
 		x2=780;
 		y2=90;
+		on click=netgames.hide, hosting.show;
 	}
-	[object12]		// Remove
+	[object14]		// Join
 	{
-		name=b_remove;
+		name=b_join;
 		type=BUTTON;
-		caption=Remove;
-		x1=640;
-		y1=50;
-		x2=780;
-		y2=90;
-	}
-	[object13]		// Update
-	{
-		name=b_update;
-		type=BUTTON;
-		caption=Update;
-		x1=640;
+		caption=Join;
+		x1=590;
 		y1=100;
 		x2=780;
 		y2=140;
