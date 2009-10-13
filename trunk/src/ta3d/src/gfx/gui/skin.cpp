@@ -343,43 +343,75 @@ namespace Gui
 		int row_size = Entry[row].sizeUTF8();
 		while (pCacheFontHeight * (y+1) <= maxheight && y + H < Entry.size())
 		{
-			float xdec = -1.0f;
 			String strtoprint;
 			String buf = Entry[y+H];
-			int len = buf.sizeUTF8();
-			for (int x = 0; !buf.empty() ; x++)
+			for(int x = 0; !buf.empty() ; )
 			{
-				String ch = buf.substrUTF8(0,1);
-				buf = buf.substrUTF8(1, --len);
-				if (gui_font->length( strtoprint + ch) > maxlength)
+				int k = 0;
+				while(k < buf.size() && buf[k] == ' ')			// Removes useless spaces (it's unlikely we find any other type of blank character here)
+					++k;
+				if (k)
 				{
-					gfx->print( gui_font,x1+text_background.x1,
-								y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
-								0.0f,White,strtoprint);
-					if (xdec >= 0.0f)
-						gfx->print( gui_font,x1+text_background.x1+xdec,
-									y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
-									0.0f,White,"_");
-					xdec = -1.0f;
+					buf = buf.substr(k);
+					x += k;
+				}
+
+				int len = buf.sizeUTF8();
+				int smax = len + 1;
+				int smin = 0;
+				int s = smax + smin >> 1;
+				do
+				{
+					s = smax + smin >> 1;
+					strtoprint = buf.substrUTF8(0, s);
+					if (s == smin)
+						break;
+
+					if (gui_font->length(strtoprint) > maxlength)
+						smax = s;
+					else
+						smin = s;
+					if (smax == smin)
+						strtoprint = buf.substrUTF8(0, smin);
+				} while(smax != smin);
+
+				if (len > s && strtoprint.substrUTF8(s-1,1) != " " && buf.substrUTF8(s,1) != " ")		// We're splitting a word :s
+				{
+					int olds = s;
+					while (s > 0 && strtoprint.substrUTF8(s-1,1) != " " && buf.substrUTF8(s,1) != " ")
+						--s;
+					if (s == 0)
+						s = olds;
+					else
+						strtoprint = buf.substrUTF8(0, s);
+				}
+
+				buf = buf.substrUTF8(s);
+
+				gfx->print( gui_font,x1+text_background.x1,
+							y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
+							0.0f,White,strtoprint);
+				if (row == y + H && x <= col && col < x + s && blink)
+				{
+					gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(strtoprint.substrUTF8(0, col - x)),
+								y1 + text_background.y1 + text_y_offset + pCacheFontHeight * y,
+								0.0f, White, "_");
+				}
+				x += s;
+				if (!buf.empty())
+				{
 					y++;
 					H--;
-					strtoprint.clear();
-					if (pCacheFontHeight * (y+1) >= maxheight)
-						break;
 				}
-				if (row == y+H && x == col && blink)
-					xdec = gui_font->length( strtoprint);
-				strtoprint << ch;
+				if (pCacheFontHeight * (y + 1) >= maxheight)
+					break;
 			}
-			gfx->print( gui_font,x1+text_background.x1,
-						y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
-						0.0f,White,strtoprint);
-			if (y+H == row && col == row_size && blink)
-				xdec = gui_font->length( strtoprint);
-			if (xdec >= 0.0f)
-				gfx->print( gui_font,x1+text_background.x1+xdec,
-							y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
-							0.0f,White,"_");
+			if (y + H == row && col == row_size && blink)
+			{
+				gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(strtoprint),
+							y1 + text_background.y1 + text_y_offset + pCacheFontHeight * y,
+							0.0f, White, "_");
+			}
 			++y;
 		}
 	}
