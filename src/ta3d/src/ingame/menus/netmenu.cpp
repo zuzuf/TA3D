@@ -246,7 +246,10 @@ namespace Menus
 								pIdx->write();
 							}
 							if (pArea->get_state("mods.b_remove"))     // Remove mod
+							{
 								pIdx->uninstall();
+								NetClient::instance()->sendMessage("GET MOD LIST");
+							}
 							if (pArea->get_state("mods.b_update"))     // Remove old files and start download
 							{
 								pIdx->uninstall();
@@ -293,7 +296,7 @@ namespace Menus
 					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar"
 						|| ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
 					{
-						String command = lp_CONFIG->system7zCommand + " x " + filename + " -o" + Paths::ExtractFilePath(filename);
+						String command = lp_CONFIG->system7zCommand + " x \"" + filename + "\" -o\"" + Paths::ExtractFilePath(filename) + "\"";
 						LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
 						if (system(command.c_str()))
 						{
