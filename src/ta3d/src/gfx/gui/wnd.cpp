@@ -176,9 +176,38 @@ namespace Gui
 			{
 				title_h = (int)(Math::Max(2 + pCacheFontHeight, (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
 				skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h);
+				float maxTitleLength = width - 10 - skin->wnd_title_bar.x1 + skin->wnd_title_bar.x2;
+				String cutTitle = Title;
+				if (gui_font->length(cutTitle) > maxTitleLength)
+				{
+					int smax = Title.sizeUTF8();
+					int smin = 0;
+					int s = smin + smax >> 1;
+					do
+					{
+						s = smin + smax >> 1;
+						cutTitle = Title.substrUTF8(0, s) + "...";
+						bool test = gui_font->length(cutTitle) > maxTitleLength;
+						if (test)
+						{
+							if (smax == smin + 1)
+							{
+								cutTitle = Title.substrUTF8(0, smin) + "...";
+								break;
+							}
+							smax = s;
+						}
+						else
+						{
+							if (s == smin)
+								break;
+							smin = s;
+						}
+					} while(s > 0 && smin != smax);
+				}
 				gfx->print(gui_font, x + 5 + skin->wnd_title_bar.x1,
 						   y + 3 + (title_h - pCacheFontHeight) * 0.5f,
-						   0, White, Title);
+						   0, White, cutTitle);
 			}
 			glDisable(GL_BLEND);
 			glBindTexture(GL_TEXTURE_2D, 0);
