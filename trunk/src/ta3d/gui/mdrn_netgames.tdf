@@ -1,0 +1,158 @@
+[window]
+{
+    name=netgames;
+	title=Games;
+	uformat=UTF8;
+	x=240;
+	y=262;
+	width=800;
+	height=600;
+	draw borders=true;
+	show title=true;
+	number of objects=14;
+	hidden=true;
+	lock=false;
+	color=0xFFFFFFFF;
+	background window=false;
+	repeat background=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Close
+	{
+		name=b_close;
+		type=BUTTON;
+		caption=close;
+		x1=330;
+		y1=560;
+		x2=470;
+		y2=590;
+		size=2;
+		on click=netgames.hide;
+	}
+	[object1]		// game list
+	{
+		name=l_games;
+		type=LIST;
+		entry=;
+		x1=10;
+		y1=40;
+		x2=250;
+		y2=-20;
+	}
+	[object2]		// game name label
+	{
+		name=l_name;
+		type=TEXT;
+		caption=name :;
+		x1=280;
+		y1=50;
+		value=0xFFFFFFFF;
+	}
+	[object3]		// game name
+	{
+		name=g_name;
+		type=TEXT;
+		caption=;
+		x1=400;
+		y1=50;
+		value=0xFFFFFFFF;
+	}
+	[object4]		// game version label
+	{
+		name=l_version;
+		type=TEXT;
+		caption=version :;
+		x1=280;
+		y1=80;
+		value=0xFFFFFFFF;
+	}
+	[object5]		// game version
+	{
+		name=g_version;
+		type=TEXT;
+		caption=;
+		x1=400;
+		y1=80;
+		value=0xFFFFFFFF;
+	}
+	[object6]		// game author label
+	{
+		name=l_author;
+		type=TEXT;
+		caption=author :;
+		x1=280;
+		y1=110;
+		value=0xFFFFFFFF;
+	}
+	[object7]		// game author
+	{
+		name=g_author;
+		type=TEXT;
+		caption=;
+		x1=400;
+		y1=110;
+		value=0xFFFFFFFF;
+	}
+	[object8]		// game comment label
+	{
+		name=l_comment;
+		type=TEXT;
+		caption=comment :;
+		x1=280;
+		y1=140;
+		value=0xFFFFFFFF;
+	}
+	[object9]		// game comment
+	{
+		name=g_comment;
+		type=TEXTEDITOR;
+		caption=;
+		x1=280;
+		y1=170;
+		x2=780;
+		y2=-50;
+		cant get focus=true;
+		value=0xFFFFFFFF;
+	}
+	[object10]		// refresh
+	{
+		name=b_refresh;
+		type=BUTTON;
+		caption=refresh;
+		x1=480;
+		y1=560;
+		x2=620;
+		y2=590;
+	}
+	[object11]		// Install
+	{
+		name=b_install;
+		type=BUTTON;
+		caption=Install;
+		x1=640;
+		y1=50;
+		x2=780;
+		y2=90;
+	}
+	[object12]		// Remove
+	{
+		name=b_remove;
+		type=BUTTON;
+		caption=Remove;
+		x1=640;
+		y1=50;
+		x2=780;
+		y2=90;
+	}
+	[object13]		// Update
+	{
+		name=b_update;
+		type=BUTTON;
+		caption=Update;
+		x1=640;
+		y1=100;
+		x2=780;
+		y2=140;
+	}
+}

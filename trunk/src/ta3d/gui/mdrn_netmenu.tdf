@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=9;
+	number of objects=10;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -119,5 +119,16 @@
 		y2=227;
 		caption=Mods;
 		on click=mods.show;
+	}
+	[object9]	// games
+	{
+		name=b_games;
+		type=BUTTON;
+		x1=30;
+		y1=240;
+		x2=181;
+		y2=277;
+		caption=Games;
+		on click=netgames.show;
 	}
 }
