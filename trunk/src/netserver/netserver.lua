@@ -504,6 +504,7 @@ function processClient(client)
                		end
                 	if game_server_table[new_server.name] ~= nil and game_server_table[new_server.name].owner ~= client.login then
                 		client:send("ERROR Can't create server : there is already a server with this name!")
+                		client.server = nil
                 	else
                 		-- send back this information to all clients in order to update their data
                 		sendServerInfo(nil, new_server)
@@ -514,6 +515,7 @@ function processClient(client)
 	                		game_server_table[new_server.name].slots = new_server.slots
 	                		game_server_table[new_server.name].map = new_server.map
 	                	end
+                		client.server = game_server_table[new_server.name]
                 	end
                 -- SEND to msg : client is sending a message to another client
                 elseif args[1] == "SEND" and #args >= 3 then
