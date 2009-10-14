@@ -45,7 +45,49 @@ function copyFile(src, dst)
     file_dst:close()
 end
 
-SERVER_VERSION = "TA3D netserver 0.0.3"
+-- parse a command sent by a client (command arg0 "arg \" 1" ==> {"command","arg0","arg \" 1"}
+function parseCommand(msg)
+	local args = {}
+	local inString = false
+	local current = ""
+	local discard = false
+	for i = 1, string.len(msg) do
+		if not inString then
+			if msg:sub(i, i) == "\"" or msg:sub(i, i) == " " then
+				if current ~= "" then
+					table.insert(args, current)
+					current = ""
+				end
+				inString = (msg:sub(i, i) == "\"")
+			else
+				current = current .. msg:sub(i, i)
+			end
+			discard = false
+		else
+			if not discard then
+				if msg:sub(i, i) == "\"" then
+					table.insert(args, current)
+					current = ""
+					inString = false
+				elseif msg:sub(i, i) == "\\" and i + 1 < string.len(msg) then
+					i = i + 1
+					current = current .. msg:sub(i, i)
+					discard = true
+				else
+					current = current .. msg:sub(i, i)
+				end
+			else
+				discard = false
+			end
+		end
+	end
+	if current ~= "" then
+		table.insert(args, current)
+	end
+	return args
+end
+
+SERVER_VERSION = "TA3D netserver 0.1.0"
 
 STATE_CONNECTING = 0
 STATE_CONNECTED = 1
@@ -124,6 +166,10 @@ end
 if chans_len == nil then
     chans_len = {}
 end
+-- the game server table
+if game_server_table == nil then
+    game_server_table = {}
+end
 
 function fixSQL(str)
     local safe_str, n = string.gsub(str, "['\"\\]", "\\%1")
@@ -146,6 +192,17 @@ function removeSocket(sock)
     end
 end
 
+-- Tell a client (or all clients if nill) everything he needs about a server
+function sendServerInfo(client, server)
+	local msg = "SERVER NAME \"" .. escape(server.name) .. "\" MOD \"" .. escape(server.mod) .. "\" HOST \"" .. escape(server.host) .. "\" MAP \"" .. escape(server.map) .. "\" VERSION \"" .. escape(server.version) .. "\" SLOTS \"" .. escape(server.slots) .. "\" OWNER \"" .. escape(server.owner) .. "\""
+	if client == nil then
+	    sendAll(msg)
+	else
+	    client:send(msg)
+	end
+end
+
+
 -- Tell everyone on client's chan that client is there
 function joinChan(client)
     if client.state ~= STATE_CONNECTED then
@@ -159,13 +216,13 @@ function joinChan(client)
     if chans[client.chan] == nil then
         chans[client.chan] = {}
         chans_len[client.chan] = 0
-        sendAll("CHAN " .. client.chan)
+        sendAll("CHAN \"" .. escape(client.chan) .. "\"")
     end
     chans_len[client.chan] = chans_len[client.chan] + 1
     chans[client.chan][client.login] = true
     for c, v in pairs(chans[client.chan]) do
         if c ~= client.login then               -- I guess the client knows he's joining the chan ... (also would crash at login time)
-            clients_login[c]:send("USER " .. client.login)
+            clients_login[c]:send("USER \"" .. escape(client.login) .. "\"")
         end
     end
 end
@@ -182,13 +239,13 @@ function leaveChan(client)
     if chans[client.chan] ~= nil and chans_len[client.chan] == 1 then
         chans[client.chan] = nil
         chans_len[client.chan] = nil
-        sendAll("DECHAN " .. client.chan)
+        sendAll("DECHAN \"" .. escape(client.chan) .. "\"")
     else
         chans_len[client.chan] = chans_len[client.chan] - 1
         chans[client.chan][client.login] = nil
         for c, v in pairs(chans[client.chan]) do
             if c ~= client.login then           -- I guess the client knows he's leaving the chan ...
-                clients_login[c]:send("LEAVE " .. client.login)
+                clients_login[c]:send("LEAVE \"" .. escape(client.login) .. "\"")
             end
         end
     end
@@ -318,10 +375,7 @@ function processClient(client)
             end
 
             -- parse words
-            args = {}
-            for w in string.gmatch(msg, "[^%s]+") do
-                table.insert(args, w)
-            end
+            args = parseCommand(msg)
 
             -- parsing error: let the main loop restart this function for us            
             if #args == 0 then
@@ -329,7 +383,7 @@ function processClient(client)
             end
             
             if client.state == STATE_CONNECTING then        -- Client is not connected
-                -- login command: CLIENT VERSION"
+                -- login command: CLIENT VERSION
                 if args[1] == "CLIENT" then
                     client.version = table.concat(args, " ", 2)
                     log_debug("client version ", client.version, " registered")
@@ -338,7 +392,7 @@ function processClient(client)
                         client:send("MESSAGE " .. getValue("UPDATE_NOTIFICATION"))
                     end
 
-                -- login command: LOGIN USER PASSWORD"
+                -- login command: LOGIN USER PASSWORD
                 elseif args[1] == "LOGIN" and #args == 3 then
                     if client.version == nil then
                         client:send("ERROR client version unknown, send version first")
@@ -358,7 +412,7 @@ function processClient(client)
                             end
                         end
                     end
-                -- login command: REGISTER USER PASSWORD"
+                -- login command: REGISTER USER PASSWORD
                 elseif args[1] == "REGISTER" and #args == 3 then
                     if client.version == nil then
                         client:send("ERROR client version unknown, send version first")
@@ -384,12 +438,12 @@ function processClient(client)
                         client.chan = "*"
                     end
                     for c, v in pairs(chans[client.chan]) do
-                        client:send("USER " .. c)
+                        client:send("USER \"" .. escape(c) .. "\"")
                     end
                 -- GET CHAN LIST : client is asking for the chan list
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "CHAN" and args[3] == "LIST" then
                     for c, v in pairs(chans) do
-                        client:send("CHAN " .. c)
+                        client:send("CHAN \"" .. escape(c) .. "\"")
                     end
                 -- GET MOD LIST : client is asking for the mod list
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "MOD" and args[3] == "LIST" then
@@ -403,13 +457,59 @@ function processClient(client)
                     for id, s in ipairs(socket_list) do
                         local c = socket_table[s]
                         if c ~= nil and c.state == STATE_CONNECTED then
-                            client:send("CLIENT " .. c.login)
+                            client:send("CLIENT \"" .. escape(c.login) .. "\"")
                         end
                     end
+                -- GET SERVER LIST : client is asking for the server list
+                elseif args[1] == "GET" and #args >= 3 and args[2] == "SERVER" and args[3] == "LIST" then
+                	client:send("CLEAR SERVER LIST")		-- this is used to force refresh of server list
+                    for i, server in pairs(game_server_table) do
+                    	sendServerInfo(client, server)
+	                end
+                -- UNSERVER : client is closing its server
+                elseif args[1] == "UNSERVER" then
+                	if client.server ~= nil and client.server.owner == client.login then
+                		sendAll("UNSERVER \"" .. escape(client.server.name) .. "\""
+                		game_server_table[client.server.name] = nil
+                		client.server = nil
+                	end
+                -- SERVER : client is creating/updating a server
+                elseif args[1] == "SERVER" then
+                	-- get the basic info about the server (
+               		local new_server = {name="", mod="", host=string.match(client.sock:getpeername(),"%d+%.%d+%.%d+%.%d+"), slots=0, map="", owner=client.login, version=client.version}
+               		local discard = false
+               		for i, v in ipairs(args) do
+               			if not discard and i + 1 < #args then
+               				if v == "NAME" then
+               					new_server.name = args[i+1]
+               				else if v == "MOD" then
+               					new_server.mod = args[i+1]
+               				else if v == "SLOTS" then
+               					new_server.slots = args[i+1]
+               				else if v == "MAP" then
+               					new_server.map = args[i+1]
+               				end
+               			else
+               				discard = false
+               			end
+               		end
+                	if game_server_table[new_server.name] ~= nil and game_server_table[new_server.name].owner ~= client.login then
+                		client:send("ERROR Can't create server : there is already a server with this name!")
+                	else
+                		-- send back this information to all clients in order to update their data
+                		sendServerInfo(nil, new_server)
+                		if game_server_table[new_server.name] == nil then
+	                		game_server_table[new_server.name] = new_server
+	                	else
+	                		game_server_table[new_server.name].mod = new_server.mod
+	                		game_server_table[new_server.name].slots = new_server.slots
+	                		game_server_table[new_server.name].map = new_server.map
+	                	end
+                	end
                 -- SEND to msg : client is sending a message to another client
                 elseif args[1] == "SEND" and #args >= 3 then
                     if args[2] ~= nil and args[2] ~= client.login and clients_login[args[2]] ~= nil and clients_login[args[2]].state == STATE_CONNECTED then
-                        clients_login[args[2]]:send("MSG " .. client.login .. " " .. table.concat(args, " ", 3))
+                        clients_login[args[2]]:send("MSG \"" .. escape(client.login) .. "\" \"" .. escape(table.concat(args, " ", 3)) .. "\"")
                     end
                 -- SENDALL msg : client is sending a message to other clients in the same chan
                 elseif args[1] == "SENDALL" and #args >= 2 then
@@ -419,7 +519,7 @@ function processClient(client)
                     if chans[client.chan] ~= nil then
                         for c, v in pairs(chans[client.chan]) do
                             if c ~= client.login then
-                                clients_login[c]:send("MSG " .. client.login .. " " .. table.concat(args, " ", 2))
+                                clients_login[c]:send("MSG \"" .. escape(client.login) .. "\" \"" .. escape(table.concat(args, " ", 2)) .. "\"")
                             end
                         end
                     end
@@ -535,7 +635,7 @@ function newClient(incoming)
                                     this.state = STATE_DISCONNECTED
                                 end}
     client.sock:settimeout(0)
-    client:send("SERVER " .. SERVER_VERSION)
+    client:send("SERVER \"" .. escape(SERVER_VERSION) .. "\"")
     socket_table[client.sock] = client
     table.insert(socket_list, client.sock)
 end
