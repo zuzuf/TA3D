@@ -469,7 +469,7 @@ function processClient(client)
                 -- UNSERVER : client is closing its server
                 elseif args[1] == "UNSERVER" then
                 	if client.server ~= nil and client.server.owner == client.login then
-                		sendAll("UNSERVER \"" .. escape(client.server.name) .. "\""
+                		sendAll("UNSERVER \"" .. escape(client.server.name) .. "\"")
                 		game_server_table[client.server.name] = nil
                 		client.server = nil
                 	end
