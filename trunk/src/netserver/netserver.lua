@@ -482,11 +482,11 @@ function processClient(client)
                			if not discard and i + 1 < #args then
                				if v == "NAME" then
                					new_server.name = args[i+1]
-               				else if v == "MOD" then
+               				elseif v == "MOD" then
                					new_server.mod = args[i+1]
-               				else if v == "SLOTS" then
+               				elseif v == "SLOTS" then
                					new_server.slots = args[i+1]
-               				else if v == "MAP" then
+               				elseif v == "MAP" then
                					new_server.map = args[i+1]
                				end
                			else
