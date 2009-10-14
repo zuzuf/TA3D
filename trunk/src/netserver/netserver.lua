@@ -203,6 +203,13 @@ function sendServerInfo(client, server)
 end
 
 
+-- Close the given server
+function closeServer(server)
+	sendAll("UNSERVER \"" .. escape(server.name) .. "\"")
+	game_server_table[server.name] = nil
+	clients_login[server.owner].server = nil
+end
+
 -- Tell everyone on client's chan that client is there
 function joinChan(client)
     if client.state ~= STATE_CONNECTED then
@@ -469,25 +476,27 @@ function processClient(client)
                 -- UNSERVER : client is closing its server
                 elseif args[1] == "UNSERVER" then
                 	if client.server ~= nil and client.server.owner == client.login then
-                		sendAll("UNSERVER \"" .. escape(client.server.name) .. "\"")
-                		game_server_table[client.server.name] = nil
-                		client.server = nil
+                		closeServer(client.server)
                 	end
                 -- SERVER : client is creating/updating a server
                 elseif args[1] == "SERVER" then
-                	-- get the basic info about the server (
+                	-- get the basic info about the server
                		local new_server = {name="", mod="", host=string.match(client.sock:getpeername(),"%d+%.%d+%.%d+%.%d+"), slots=0, map="", owner=client.login, version=client.version}
                		local discard = false
                		for i, v in ipairs(args) do
-               			if not discard and i + 1 < #args then
+               			if not discard and i < #args then
                				if v == "NAME" then
                					new_server.name = args[i+1]
+               					discard = true
                				elseif v == "MOD" then
                					new_server.mod = args[i+1]
+               					discard = true
                				elseif v == "SLOTS" then
                					new_server.slots = args[i+1]
+               					discard = true
                				elseif v == "MAP" then
                					new_server.map = args[i+1]
+               					discard = true
                				end
                			else
                				discard = false
@@ -627,6 +636,9 @@ function newClient(incoming)
                     disconnect = function(this)
                                     if this.login ~= nil then       -- allow garbage collection
                                         clients_login[this.login] = nil
+                                    end
+                                    if this.server ~= nil and this.server.owner == this.login then	-- close this server
+                                    	closeServer(this.server)
                                     end
                                     removeSocket(this.sock)
                                     leaveChan(this)                 -- don't forget to leave the chan!
