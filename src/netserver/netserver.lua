@@ -636,11 +636,11 @@ function newClient(incoming)
                                     joinChan(this)
                                 end,
                     disconnect = function(this)
-                                    if this.login ~= nil then       -- allow garbage collection
-                                        clients_login[this.login] = nil
-                                    end
                                     if this.server ~= nil and this.server.owner == this.login then	-- close this server
                                     	closeServer(this.server)
+                                    end
+                                    if this.login ~= nil then       -- allow garbage collection
+                                        clients_login[this.login] = nil
                                     end
                                     removeSocket(this.sock)
                                     leaveChan(this)                 -- don't forget to leave the chan!
