@@ -508,6 +508,9 @@ function processClient(client)
                 	else
                 		-- send back this information to all clients in order to update their data
                 		sendServerInfo(nil, new_server)
+                		if client.server ~= nil and client.server.name ~= new_server.name then	-- this is important since it prevents a client from flooding the game server list
+                			closeServer(client.server)
+                		end
                 		if game_server_table[new_server.name] == nil then
 	                		game_server_table[new_server.name] = new_server
 	                	else
