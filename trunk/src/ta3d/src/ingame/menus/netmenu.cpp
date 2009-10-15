@@ -223,18 +223,23 @@ namespace Menus
 
 							if (pIdx->isInstalled())
 							{
+								if (TA3D_CURRENT_MOD != pIdx->getName())
+									pArea->msg("mods.b_load.enable");
+								else
+									pArea->msg("mods.b_load.disable");
 								pArea->msg("mods.b_install.hide");
 								pArea->msg("mods.b_remove.show");
 								if (pIdx->isUpdateAvailable())
-									pArea->msg("mods.b_update.show");
+									pArea->msg("mods.b_update.enable");
 								else
-									pArea->msg("mods.b_update.hide");
+									pArea->msg("mods.b_update.disable");
 							}
 							else
 							{
+								pArea->msg("mods.b_load.disable");
 								pArea->msg("mods.b_install.show");
 								pArea->msg("mods.b_remove.hide");
-								pArea->msg("mods.b_update.hide");
+								pArea->msg("mods.b_update.disable");
 							}
 
 							if (pArea->get_state("mods.b_install"))     // Start download
@@ -258,6 +263,8 @@ namespace Menus
 								download->start(filename, pIdx->getUrl(), pIdx->getID());
 								downloadList.push_back(download);
 							}
+							if (pArea->get_state("mods.b_load") && pIdx->isInstalled())		// Load this mod
+								changeMod(pIdx->getName());
 						}
 						else
 							idx = -1;
@@ -310,10 +317,18 @@ namespace Menus
 						pArea->caption("netgames.server_mod", nullptr);
 						pArea->caption("netgames.server_open_slots", nullptr);
 					}
+					else if (pArea->get_state("netgames.b_join"))
+						NetClient::instance()->sendMessage("JOIN \"" + Escape(serverListObj->Text[idx]) + "\"");
 				}
 				if (pArea->get_state("netgames.b_refresh"))     // Refresh server list
 					NetClient::instance()->sendMessage("GET SERVER LIST");
 			}		// Enf of if (pArea->get_state("netgames"))
+			if (pArea->get_state("hosting.b_ok"))
+				NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"" + Escape(TA3D_CURRENT_MOD) + "\"");
+			else if (NetClient::instance()->getHostAck())		// NetServer is ready, let's go!
+				hostAGame();
+			if (!NetClient::instance()->getServerJoined().empty())		// We're free to call the server :)
+				joinAGame();
 		}
 		else
 		{

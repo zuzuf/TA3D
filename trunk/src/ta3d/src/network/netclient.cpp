@@ -28,7 +28,7 @@ namespace TA3D
 		pInstance = NULL;
 	}
 
-	NetClient::NetClient() : peerList(), login(), state( NetClient::DISCONNECTED ), messages(), sock()
+	NetClient::NetClient() : peerList(), login(), state( NetClient::DISCONNECTED ), messages(), sock(), serverJoined()
 	{
 		buffer = new char[BUFFER_SIZE];
 		buffer_pos = 0;
@@ -50,6 +50,7 @@ namespace TA3D
 		chanList.clear();
 		serverList.clear();
 		serverListChanged = true;
+		serverJoined.clear();
 		buffer_pos = 0;
 		currentChan = "*";
 
@@ -115,6 +116,7 @@ namespace TA3D
 			disconnect();
 
 		messages.clear();
+		serverJoined.clear();
 
 		sock.open(server, port);
 
@@ -344,6 +346,12 @@ namespace TA3D
 			serverList.clear();
 			serverListChanged = true;
 		}
+		else if (args[0] == "JOIN" && args.size() == 2)
+			serverJoined = args[1];
+		else if (args[0] == "UNJOIN" && args.size() == 2 && serverJoined == args[1])
+			serverJoined.clear();
+		else if (args[0] == "HOST")		// Server acknowledged, no errors we're free to go
+			hostAck = true;
 	}
 
     ModInfo::List NetClient::getModList()
@@ -385,13 +393,30 @@ namespace TA3D
 
 	String NetClient::getLogin()
 	{
-		MutexLocker mLocker(pMutex);
+		MutexLocker mLock(pMutex);
 		return login;
 	}
 
 	String NetClient::getChan()
 	{
-		MutexLocker mLocker(pMutex);
+		MutexLocker mLock(pMutex);
 		return currentChan;
+	}
+
+	String NetClient::getServerJoined()
+	{
+		MutexLocker mLock(pMutex);
+		return serverJoined;
+	}
+
+	bool NetClient::getHostAck()
+	{
+		MutexLocker mLock(pMutex);
+		if (hostAck)
+		{
+			hostAck = false;
+			return true;
+		}
+		return false;
 	}
 }
