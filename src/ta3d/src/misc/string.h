@@ -58,6 +58,13 @@ namespace TA3D
 	sint32 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase);
 
 	/*!
+	** \brief explode a command string into a vector of parameters : program param0 "parameter 1" param2 => {"program", "param0", "parameter 1", "param2"}
+	** \brief s The command string to spli
+	** \return The resulting vector of strings
+	*/
+	String::Vector SplitCommand(const String& s);
+
+	/*!
 	** \brief Convert an UTF-8 String into a WideChar String
 	** \todo This class is here only to provide compatibility with FTGL 2.1.2 API which doesn't support UTF-8 encoding :/
 	**  everyone will agree it's nasty, but it'll remain here until we get something better

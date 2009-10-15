@@ -69,6 +69,9 @@ namespace TA3D
             virtual void addChatMessage(const String &message);
             virtual void parseServerMessages();
             virtual void updateGUI();
+			virtual void hostAGame();
+			virtual void joinAGame();
+			virtual void changeMod(const String &modName);
 
         private:
             enum NetMode { NONE,

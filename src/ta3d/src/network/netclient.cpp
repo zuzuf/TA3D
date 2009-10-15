@@ -48,6 +48,8 @@ namespace TA3D
 		state = DISCONNECTED;
 		peerList.clear();
 		chanList.clear();
+		serverList.clear();
+		serverListChanged = true;
 		buffer_pos = 0;
 		currentChan = "*";
 
@@ -170,9 +172,11 @@ namespace TA3D
 				peerList.clear();
 				chanList.clear();
 				chanList.push_back("*");
+				serverList.clear();
 				sendMessage("GET USER LIST");   // We want to know who is there
 				sendMessage("GET CHAN LIST");   // and the chan list
                 sendMessage("GET MOD LIST");    // and the mod list
+				sendMessage("GET SERVER LIST");	// and the server list
             }
 		}
 
@@ -222,8 +226,8 @@ namespace TA3D
 		if (msg.empty())
 			return;
 
-		String::Vector args;
-		msg.explode(args, ' ');
+		// We need to split the server command into its parameters
+		String::Vector args = SplitCommand(msg);
 
 		if (args.empty())
 			return;
@@ -304,11 +308,61 @@ namespace TA3D
 				modListChanged = true;
             }
         }
+		else if (args[0] == "SERVER")
+		{
+			GameServer gameServer;
+			for(int i = 1 ; i < args.size() - 1 ; ++i)
+			{
+				if (args[i] == "NAME")
+					gameServer.name = args[i + 1];
+				else if (args[i] == "MOD")
+					gameServer.mod = args[i + 1];
+				else if (args[i] == "VERSION")
+					gameServer.version = args[i + 1];
+				else if (args[i] == "HOST")
+					gameServer.host = args[i + 1];
+				else if (args[i] == "MAP")
+					gameServer.map = args[i + 1];
+				else if (args[i] == "SLOTS")
+					gameServer.nb_open = args[i + 1];
+			}
+			bool found = false;
+			for(int i = 0 ; i < serverList.size() && !found ; ++i)		// Look for it in the server list
+				if (serverList[i].name == gameServer.name)				// and update it if needed
+				{
+					serverList[i] = gameServer;
+					found = true;
+				}
+			if (!found)
+				serverList.push_back(gameServer);
+			serverListChanged = true;
+		}
+		else if (args[0] == "UNSERVER" && args.size() == 1)
+		{
+			bool found = false;
+			for(int i = 0 ; i < serverList.size() && !found ; ++i)
+				if (serverList[i].name == args[1])
+				{
+					found = true;
+					if (i + 1 < serverList.size())
+						serverList[i] = serverList.back();
+					serverList.resize(serverList.size() - 1);
+				}
+			serverListChanged |= found;
+			if (!found)					// We've a problem, server list lost sync OO!
+				sendMessage("GET SERVER LIST");
+		}
+		else if (args[0] == "CLEAR" && args.size() == 3 && args[1] == "SERVER" && args[2] == "LIST")
+		{
+			serverList.clear();
+			serverListChanged = true;
+		}
 	}
 
     ModInfo::List NetClient::getModList()
     {
         MutexLocker mLock(pMutex);
+		modListChanged = false;
         return modList;
     }
 
@@ -316,6 +370,13 @@ namespace TA3D
 	{
 		MutexLocker mLock(pMutex);
 		return chanList;
+	}
+
+	NetClient::GameServer::List NetClient::getServerList()
+	{
+		MutexLocker mLock(pMutex);
+		serverListChanged = false;
+		return serverList;
 	}
 
 	void NetClient::changeChan(const String &chan)

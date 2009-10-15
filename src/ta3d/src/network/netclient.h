@@ -13,22 +13,42 @@ namespace TA3D
         enum NetState { CONNECTING,
                         CONNECTED,
                         DISCONNECTED };
-    private:
-        String          server;
-        uint16          port;
-        String          login;
-        String          password;
-        NetState        state;
-        String::List    messages;
-        String::Vector  peerList;
-        String::Vector  chanList;
-        ModInfo::List   modList;
-        SocketTCP       sock;
-        char            *buffer;
-        int             buffer_pos;
-        String          currentChan;
-		bool			modListChanged;
-    public:
+		struct GameServer
+		{
+			//! Name of the server
+			String name;
+			//! Game version being run by the server
+			String version;
+			//! Mod being run by the server
+			String mod;
+			//! Current map on the server
+			String map;
+			//! Count of opened player slots
+			String nb_open;
+			//! Host name of this server
+			String host;
+
+			typedef std::vector<GameServer> List;
+		};
+
+	private:
+		String				server;
+		uint16				port;
+		String				login;
+		String				password;
+		NetState			state;
+		String::List		messages;
+		String::Vector		peerList;
+		String::Vector		chanList;
+		GameServer::List	serverList;
+		ModInfo::List		modList;
+		SocketTCP			sock;
+		char				*buffer;
+		int					buffer_pos;
+		String				currentChan;
+		bool				modListChanged;
+		bool				serverListChanged;
+	public:
         NetClient();
         ~NetClient();
 
@@ -40,6 +60,7 @@ namespace TA3D
         String          getNextMessage();
         String::Vector  getPeerList();
         String::Vector  getChanList();
+		GameServer::List getServerList();
         ModInfo::List   getModList();
         void            clearMessageQueue();
         void            sendMessage(const String &msg);
