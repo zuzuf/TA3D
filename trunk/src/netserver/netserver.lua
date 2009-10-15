@@ -202,12 +202,51 @@ function sendServerInfo(client, server)
 	end
 end
 
-
 -- Close the given server
 function closeServer(server)
 	sendAll("UNSERVER \"" .. escape(server.name) .. "\"")
 	game_server_table[server.name] = nil
 	clients_login[server.owner].server = nil
+end
+
+-- Join a server
+function joinServer(server, client)
+	if server == nil then
+		return
+	end
+	if tonumber(server.slots) > 0 then
+		server.slots = tostring(tonumber(server.slots) - 1)
+		table.insert(server.players, client.login)
+		client:send("JOIN \"" .. escape(server.host) .. "\"")
+	else
+		client:send("ERROR Server is full")
+	end
+end
+
+-- Leave a server
+function unjoinServer(server, client)
+	if server == nil then
+		return
+	elseif server.owner == client.login then
+		return closeServer(server)
+	end
+
+	local found = false
+	for k, v in ipairs(server.players) do
+		if v == client.login then
+			found = k
+		end
+	end
+	
+	if found ~= false then
+		if found < #(server.players) then
+			server.players[found] = server.players[#(server.players)]
+		else
+			server.players[found] = nil
+		end
+		server.slots = tostring(tonumber(server.slots) + 1)
+		client:send("UNJOIN \"" .. escape(server.host) .. "\"")
+	end
 end
 
 -- Tell everyone on client's chan that client is there
@@ -481,7 +520,7 @@ function processClient(client)
                 -- SERVER : client is creating/updating a server
                 elseif args[1] == "SERVER" then
                 	-- get the basic info about the server
-               		local new_server = {name="", mod="", host=string.match(client.sock:getpeername(),"%d+%.%d+%.%d+%.%d+"), slots=0, map="", owner=client.login, version=client.version}
+               		local new_server = {name="", mod="", host=string.match(client.sock:getpeername(),"%d+%.%d+%.%d+%.%d+"), slots=0, map="", owner=client.login, version=client.version, players={client.login}}
                		local discard = false
                		for i, v in ipairs(args) do
                			if not discard and i < #args then
@@ -520,6 +559,22 @@ function processClient(client)
 	                	end
                 		client.server = game_server_table[new_server.name]
                 	end
+                -- JOIN server : client is joining a server
+                elseif args[1] == "JOIN" and #args == 2 then
+                    if client.server ~= nil then
+                    	client:send("ERROR You have already joined a server")
+                    elseif game_server_table[args[2]] == nil then
+                    	client:send("ERROR Could not join server : server doesn't exist")
+                    else
+                    	joinServer(game_server_table[args[2]], client)
+                    end
+                -- UNJOIN server : client is leaving a server
+                elseif args[1] == "UNJOIN" then
+                    if client.server == nil then
+                    	client:send("ERROR No server to leave")
+                    else
+                    	unjoinServer(client.server, client)
+                    end
                 -- SEND to msg : client is sending a message to another client
                 elseif args[1] == "SEND" and #args >= 3 then
                     if args[2] ~= nil and args[2] ~= client.login and clients_login[args[2]] ~= nil and clients_login[args[2]].state == STATE_CONNECTED then
