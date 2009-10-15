@@ -275,7 +275,45 @@ namespace Menus
 				}
 				if (pArea->get_state("mods.b_refresh"))     // Refresh mod list
 					NetClient::instance()->sendMessage("GET MOD LIST");
-			}
+			}		// End of if (pArea->get_state("mods"))
+			if (pArea->get_state("netgames"))
+			{
+				Gui::GUIOBJ::Ptr serverListObj = pArea->get_object("netgames.l_games");
+				if (serverListObj)
+				{
+					NetClient::GameServer::List serverList = NetClient::instance()->getServerList();
+					serverListObj->Text.clear();
+					for(NetClient::GameServer::List::iterator i = serverList.begin() ; i != serverList.end() ; ++i)
+						serverListObj->Text.push_back(i->name);
+					int idx = serverListObj->Pos;
+					if (idx >= 0)
+					{
+						NetClient::GameServer::List::iterator pIdx = serverList.begin();
+						for( ; pIdx != serverList.end() && idx > 0 ; ++pIdx)
+							--idx;
+						if (pIdx != serverList.end())
+						{
+							pArea->caption("netgames.server_name", pIdx->name);
+							pArea->caption("netgames.server_version", pIdx->version);
+							pArea->caption("netgames.server_map", pIdx->map);
+							pArea->caption("netgames.server_mod", pIdx->mod);
+							pArea->caption("netgames.server_open_slots", pIdx->nb_open);
+						}
+						else
+							idx = -1;
+					}
+					if (idx < 0)
+					{
+						pArea->caption("netgames.server_name", nullptr);
+						pArea->caption("netgames.server_version", nullptr);
+						pArea->caption("netgames.server_map", nullptr);
+						pArea->caption("netgames.server_mod", nullptr);
+						pArea->caption("netgames.server_open_slots", nullptr);
+					}
+				}
+				if (pArea->get_state("netgames.b_refresh"))     // Refresh server list
+					NetClient::instance()->sendMessage("GET SERVER LIST");
+			}		// Enf of if (pArea->get_state("netgames"))
 		}
 		else
 			pArea->msg("mods.hide");            // Hide mods when not in connected mode
@@ -553,6 +591,17 @@ namespace Menus
 	}
 
 
+	void NetMenu::hostAGame()
+	{
+	}
+
+	void NetMenu::joinAGame()
+	{
+	}
+
+	void NetMenu::changeMod(const String &modName)
+	{
+	}
 
 } // namespace Menus
 } // namespace TA3D

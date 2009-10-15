@@ -171,4 +171,46 @@ namespace TA3D
         }
         pBuffer[len] = 0;
     }
+
+	String::Vector SplitCommand(const String& s)
+	{
+		String::Vector args;
+
+		String current;
+		bool stringMode = false;
+		for(int i = 0 ; i < s.size() ; ++i)
+		{
+			if (!stringMode)
+			{
+				if (s[i] == ' ' || s[i] == '"')
+				{
+					if (!current.empty())
+					{
+						args.push_back(current);
+						current.clear();
+					}
+					if (s[i] == '"')
+						stringMode = true;
+					continue;
+				}
+			}
+			else
+			{
+				if (s[i] == '\\' && i + 1 < s.size() && (s[i+1] == '"' || s[i+1] == '\\'))
+					++i;
+				else if (s[i] == '"')
+				{
+					stringMode = false;
+					args.push_back(current);
+					current.clear();
+					continue;
+				}
+			}
+			current << s[i];
+		}
+		if (!current.empty())
+			args.push_back(current);
+
+		return args;
+	}
 }
