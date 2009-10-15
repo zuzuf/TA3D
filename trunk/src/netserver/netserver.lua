@@ -549,6 +549,14 @@ function processClient(client)
                				discard = false
                			end
                		end
+               		if new_server.name == "" then
+               			if client.server ~= nil then
+               				new_server.name = client.server.name
+               			else
+               				client:send("ERROR No server name specified when creating a server!")
+               				return
+               			end
+               		end
                 	if game_server_table[new_server.name] ~= nil and game_server_table[new_server.name].owner ~= client.login then
                 		client:send("ERROR Can't create server : there is already a server with this name!")
                 		client.server = nil
