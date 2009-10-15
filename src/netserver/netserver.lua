@@ -209,7 +209,7 @@ function closeServer(server)
 	if server.players ~= nil then
 		for k, v in pairs(server.players) do
 			clients_login[v]:send("UNJOIN \"" .. escape(server.host) .. "\"")
-			clients_login[v]:server = nil
+			clients_login[v].server = nil
 		end
 	end
 
