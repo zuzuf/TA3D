@@ -28,7 +28,7 @@ namespace TA3D
 			//! Host name of this server
 			String host;
 
-			typedef std::vector<GameServer> List;
+			typedef std::map<String, GameServer> List;
 		};
 
 	private:

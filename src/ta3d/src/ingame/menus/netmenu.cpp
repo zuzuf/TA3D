@@ -284,24 +284,24 @@ namespace Menus
 					NetClient::GameServer::List serverList = NetClient::instance()->getServerList();
 					serverListObj->Text.clear();
 					for(NetClient::GameServer::List::iterator i = serverList.begin() ; i != serverList.end() ; ++i)
-						serverListObj->Text.push_back(i->name);
+						serverListObj->Text.push_back(i->first);
 					int idx = serverListObj->Pos;
-					if (idx >= 0)
+					if (idx >= 0 && idx < serverListObj->Text.size())
 					{
-						NetClient::GameServer::List::iterator pIdx = serverList.begin();
-						for( ; pIdx != serverList.end() && idx > 0 ; ++pIdx)
-							--idx;
+						NetClient::GameServer::List::iterator pIdx = serverList.find(serverListObj->Text[idx]);
 						if (pIdx != serverList.end())
 						{
-							pArea->caption("netgames.server_name", pIdx->name);
-							pArea->caption("netgames.server_version", pIdx->version);
-							pArea->caption("netgames.server_map", pIdx->map);
-							pArea->caption("netgames.server_mod", pIdx->mod);
-							pArea->caption("netgames.server_open_slots", pIdx->nb_open);
+							pArea->caption("netgames.server_name", pIdx->second.name);
+							pArea->caption("netgames.server_version", pIdx->second.version);
+							pArea->caption("netgames.server_map", pIdx->second.map);
+							pArea->caption("netgames.server_mod", pIdx->second.mod);
+							pArea->caption("netgames.server_open_slots", pIdx->second.nb_open);
 						}
 						else
 							idx = -1;
 					}
+					else
+						idx = -1;
 					if (idx < 0)
 					{
 						pArea->caption("netgames.server_name", nullptr);
@@ -316,7 +316,10 @@ namespace Menus
 			}		// Enf of if (pArea->get_state("netgames"))
 		}
 		else
-			pArea->msg("mods.hide");            // Hide mods when not in connected mode
+		{
+			pArea->msg("mods.hide");			// Hide mods when not in connected mode
+			pArea->msg("netgames.hide");		// Hide game server list when not in connected mode
+		}
 		for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; )
 			if ((*i)->downloading())
 			{
