@@ -537,6 +537,17 @@ function processClient(client)
                             end
                         end
                     end
+                -- CLOSE server : admin privilege, close a server
+                elseif args[1] == "CLOSE" and #args == 2 then
+                    if client.admin == 1 then
+                    	if game_server_table[args[2]] ~= nil then
+	                    	closeServer(game_server_table[args[2]])
+	                    else
+							client:send("ERROR Server not found!")
+	                    end
+                    else
+                        client:send("ERROR you don't have the right to do that")
+                    end
                 -- KICK user : admin privilege, disconnect someone (self kick works)
                 elseif args[1] == "KICK" and #args == 2 then
                     if client.admin == 1 then
