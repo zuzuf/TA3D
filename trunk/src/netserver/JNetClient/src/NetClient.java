@@ -1,6 +1,7 @@
 import java.net.Socket;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Vector;
 
 
 
@@ -76,7 +77,7 @@ public class NetClient {
 			close();
 		}
 	}
-
+	
 	public void close()
 	{
 		userList.clear();
@@ -102,8 +103,52 @@ public class NetClient {
 	{
 		userList.clear();
 		userListChanged = true;
-		send("CHAN " + chan);
+		send("CHAN \"" + escape(chan) + "\"");
 		send("GET USER LIST");
+	}
+	
+	public String[] parseCommand(String command)
+	{
+		Vector<String> stack = new Vector<String>();
+
+		boolean inString = false;
+		String current = new String();
+		for(int i = 0 ; i < command.length() ; ++i)
+		{
+			if (!inString)
+			{
+				if (command.charAt(i) == ' ' || command.charAt(i) == '"')
+				{
+					if (current.length() > 0)
+					{
+						stack.add(current);
+						current = new String();
+					}
+					inString = command.charAt(i) == '"';
+					continue;
+				}
+			}
+			else
+			{
+				if (command.charAt(i) == '"')
+				{
+					stack.add(current);
+					current = new String();
+					inString = false;
+					continue;
+				}
+				if (command.charAt(i) == '\\' && i + 1 < command.length())
+					++i;
+			}
+			current = current + command.charAt(i);
+		}
+		if (current.length() > 0 || inString)
+			stack.add(current);
+		
+		String args[] = new String[stack.size()];
+		for(int i = 0 ; i < stack.size() ; ++i)
+			args[i] = stack.elementAt(i);
+		return args;
 	}
 	
 	public String pollMessage()
@@ -133,7 +178,7 @@ public class NetClient {
 		
 		if (msg != null)
 		{
-			String args[] = msg.split(" ", 3);
+			String args[] = parseCommand(msg);
 			if (args.length == 0)	return null;
 			if (args[0].equals("MESSAGE"))
 			{
@@ -181,7 +226,7 @@ public class NetClient {
 			}
 			else if (args[0].equals("SERVER"))
 			{
-				args = msg.split(" ");
+				args = args[args.length - 1].split(" ");
 				serverVersion = args[args.length - 1];
 				msg = "<font color=\"#7070c0\">" + msg + "</font>";
 			}
@@ -197,7 +242,7 @@ public class NetClient {
 			close();
 			connect();
 		}
-		send("LOGIN " + login + " " + password);
+		send("LOGIN \"" + escape(login) + "\" \"" + escape(password) + "\"");
 		this.login = login;
 	}
 
@@ -208,7 +253,7 @@ public class NetClient {
 			close();
 			connect();
 		}
-		send("REGISTER " + login + " " + password);
+		send("REGISTER \"" + escape(login) + "\" \"" + escape(password) + "\"");
 		this.login = login;
 	}
 	
