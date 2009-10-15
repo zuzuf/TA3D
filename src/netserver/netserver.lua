@@ -561,15 +561,19 @@ function processClient(client)
                 		client:send("ERROR Can't create server : there is already a server with this name!")
                 		client.server = nil
                 	else
-                		-- send back this information to all clients in order to update their data
-                		sendServerInfo(nil, new_server)
                 		if client.server ~= nil and client.server.name ~= new_server.name then	-- this is important since it prevents a client from flooding the game server list
                 			closeServer(client.server)
                 		end
                 		if game_server_table[new_server.name] == nil then
+		            		-- send back this information to all clients in order to update their data
+		            		sendServerInfo(nil, new_server)
 	                		game_server_table[new_server.name] = new_server
 	                		client:send("HOST");
 	                	else
+		            		-- send back this updated information to all clients in order to update their data
+		            		if game_server_table[new_server.name].mod ~= new_server.mod or game_server_table[new_server.name].slots ~= new_server.slots or game_server_table[new_server.name].map ~= new_server.map then
+			            		sendServerInfo(nil, new_server)
+			            	end
 	                		game_server_table[new_server.name].mod = new_server.mod
 	                		game_server_table[new_server.name].slots = new_server.slots
 	                		game_server_table[new_server.name].map = new_server.map
