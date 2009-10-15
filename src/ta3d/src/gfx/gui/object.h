@@ -59,7 +59,7 @@ namespace Gui
 		/*!
 		** \brief
 		*/
-		uint32  num_entries() const {return Text.size();}
+		uint32  num_entries() const {return uint32(Text.size());}
 
 		/*!
 		** \brief Reacts to a message transfered from the interface

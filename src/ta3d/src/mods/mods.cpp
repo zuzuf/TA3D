@@ -83,6 +83,9 @@ namespace TA3D
 	{
 		ModInfo::List modList;
 
+		modList.push_back(ModInfo(-1, "default", "1.0", "", "This is the default set of resources, loading it unloads all mods.", ""));
+		modList.back().setInstalled(true);
+
 		lock();
 
 		for(ModInfo::List::iterator i = mods.begin() ; i != mods.end() ; ++i)
