@@ -205,6 +205,14 @@ end
 -- Close the given server
 function closeServer(server)
 	sendAll("UNSERVER \"" .. escape(server.name) .. "\"")
+
+	if server.players ~= nil then
+		for k, v in pairs(server.players) do
+			clients_login[v]:send("UNJOIN \"" .. escape(server.host) .. "\"")
+			clients_login[v]:server = nil
+		end
+	end
+
 	game_server_table[server.name] = nil
 	clients_login[server.owner].server = nil
 end
