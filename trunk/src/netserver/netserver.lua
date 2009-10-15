@@ -560,6 +560,7 @@ function processClient(client)
                 		end
                 		if game_server_table[new_server.name] == nil then
 	                		game_server_table[new_server.name] = new_server
+	                		client:send("HOST");
 	                	else
 	                		game_server_table[new_server.name].mod = new_server.mod
 	                		game_server_table[new_server.name].slots = new_server.slots
