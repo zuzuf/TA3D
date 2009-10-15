@@ -705,8 +705,8 @@ function newClient(incoming)
                                     joinChan(this)
                                 end,
                     disconnect = function(this)
-                                    if this.server ~= nil and this.server.owner == this.login then	-- close this server
-                                    	closeServer(this.server)
+                                    if this.server ~= nil then	-- leave this server
+                                    	unjoinServer(this.server, this)
                                     end
                                     if this.login ~= nil then       -- allow garbage collection
                                         clients_login[this.login] = nil
