@@ -33,6 +33,7 @@ namespace TA3D
 		buffer = new char[BUFFER_SIZE];
 		buffer_pos = 0;
 		currentChan = "*";
+		hostAck = false;
 	}
 
 	NetClient::~NetClient()
@@ -53,6 +54,7 @@ namespace TA3D
 		serverJoined.clear();
 		buffer_pos = 0;
 		currentChan = "*";
+		hostAck = false;
 
 		pMutex.unlock();
 	}
@@ -117,6 +119,7 @@ namespace TA3D
 
 		messages.clear();
 		serverJoined.clear();
+		hostAck = false;
 
 		sock.open(server, port);
 

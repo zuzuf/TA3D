@@ -71,7 +71,7 @@ namespace TA3D
             virtual void updateGUI();
 			virtual void hostAGame();
 			virtual void joinAGame();
-			virtual void changeMod(const String &modName);
+			virtual void changeMod(const int ID);
 
         private:
             enum NetMode { NONE,

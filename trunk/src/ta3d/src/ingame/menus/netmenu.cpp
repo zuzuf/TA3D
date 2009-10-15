@@ -23,6 +23,10 @@
 #include "../../misc/paths.h"
 #include "../../TA3D_NameSpace.h"
 #include "../../mods/mods.h"
+#include "../../sounds/manager.h"
+#include "../../cache.h"
+#include "../sidedata.h"
+#include "../../menu.h"
 
 namespace TA3D
 {
@@ -223,7 +227,7 @@ namespace Menus
 
 							if (pIdx->isInstalled())
 							{
-								if (TA3D_CURRENT_MOD != pIdx->getName())
+								if (TA3D_CURRENT_MOD != "mods/" + pIdx->getName() + "/" && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.empty()))
 									pArea->msg("mods.b_load.enable");
 								else
 									pArea->msg("mods.b_load.disable");
@@ -264,7 +268,7 @@ namespace Menus
 								downloadList.push_back(download);
 							}
 							if (pArea->get_state("mods.b_load") && pIdx->isInstalled())		// Load this mod
-								changeMod(pIdx->getName());
+								changeMod(pIdx->getID());
 						}
 						else
 							idx = -1;
@@ -324,7 +328,10 @@ namespace Menus
 					NetClient::instance()->sendMessage("GET SERVER LIST");
 			}		// Enf of if (pArea->get_state("netgames"))
 			if (pArea->get_state("hosting.b_ok"))
+			{
 				NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"" + Escape(TA3D_CURRENT_MOD) + "\"");
+				pArea->set_state("hosting.b_ok", false);
+			}
 			else if (NetClient::instance()->getHostAck())		// NetServer is ready, let's go!
 				hostAGame();
 			if (!NetClient::instance()->getServerJoined().empty())		// We're free to call the server :)
@@ -611,14 +618,37 @@ namespace Menus
 
 	void NetMenu::hostAGame()
 	{
+		String host = pArea->caption( "hosting.t_hostname");
+		setup_game(false, host);
+		NetClient::instance()->sendMessage("UNSERVER");
 	}
 
 	void NetMenu::joinAGame()
 	{
+		String host = NetClient::instance()->getServerJoined();
+		setup_game(true, host);
+		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");
 	}
 
-	void NetMenu::changeMod(const String &modName)
+	void NetMenu::changeMod(const int ID)
 	{
+		ModInfo *inf = Mods::instance()->getMod(ID);
+		String newMod = (ID < 0 || inf == NULL) ? String() : (String("mods/") << inf->getName() << "/");
+		if (TA3D_CURRENT_MOD != newMod) // Refresh the file structure
+		{
+			TA3D_CURRENT_MOD = lp_CONFIG->last_MOD = newMod;
+			Cache::Clear(true); // Force cache reset
+
+			VFS::Instance()->reload();
+			ta3dSideData.loadData();                // Refresh side data so we load the correct values
+			delete sound_manager;
+			sound_manager = new TA3D::Audio::Manager();
+			sound_manager->loadTDFSounds(true);
+			sound_manager->loadTDFSounds(false);
+			pArea->title("popup", I18N::Translate("Success"));
+			pArea->caption("popup.msg", I18N::Translate("Mod loaded"));
+			pArea->msg("popup.show");
+		}
 	}
 
 } // namespace Menus
