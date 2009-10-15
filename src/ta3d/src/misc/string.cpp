@@ -213,4 +213,9 @@ namespace TA3D
 
 		return args;
 	}
+
+	String Escape(const String& s)
+	{
+		return String(s).replace("\\", "\\\\").replace("\"", "\\\"");
+	}
 }

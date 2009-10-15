@@ -9,7 +9,7 @@
 	height=600;
 	draw borders=true;
 	show title=true;
-	number of objects=14;
+	number of objects=15;
 	hidden=true;
 	lock=false;
 	color=0xFFFFFFFF;
@@ -154,5 +154,15 @@
 		y1=100;
 		x2=780;
 		y2=140;
+	}
+	[object14]		// Load
+	{
+		name=b_load;
+		type=BUTTON;
+		caption=Load;
+		x1=630;
+		y1=560;
+		x2=770;
+		y2=590;
 	}
 }

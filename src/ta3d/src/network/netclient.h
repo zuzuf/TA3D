@@ -48,6 +48,8 @@ namespace TA3D
 		String				currentChan;
 		bool				modListChanged;
 		bool				serverListChanged;
+		String				serverJoined;
+		bool				hostAck;
 	public:
         NetClient();
         ~NetClient();
@@ -69,6 +71,8 @@ namespace TA3D
         void            sendChan(const String &msg);
         String          getLogin();
         String          getChan();
+		String			getServerJoined();
+		bool			getHostAck();
 
     private:
         void            processMessage(const String &msg);
