@@ -185,7 +185,7 @@ public class Main
 			}
 			else if (netClient.getState() == NetClient.LOGGED && command != null && !command.isEmpty())
 			{
-				netClient.send("SENDALL " + command);
+				netClient.send("SENDALL \"" + netClient.escape(command) + "\"");
 				command = "<font color=\"#0000ff\">&lt;" + netClient.getLogin() + "&gt; " + command + "</font>";
 			}
 			else
