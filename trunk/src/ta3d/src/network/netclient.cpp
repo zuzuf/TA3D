@@ -326,30 +326,17 @@ namespace TA3D
 				else if (args[i] == "SLOTS")
 					gameServer.nb_open = args[i + 1];
 			}
-			bool found = false;
-			for(int i = 0 ; i < serverList.size() && !found ; ++i)		// Look for it in the server list
-				if (serverList[i].name == gameServer.name)				// and update it if needed
-				{
-					serverList[i] = gameServer;
-					found = true;
-				}
-			if (!found)
-				serverList.push_back(gameServer);
+			serverList[gameServer.name] = gameServer;
 			serverListChanged = true;
 		}
-		else if (args[0] == "UNSERVER" && args.size() == 1)
+		else if (args[0] == "UNSERVER" && args.size() == 2)
 		{
-			bool found = false;
-			for(int i = 0 ; i < serverList.size() && !found ; ++i)
-				if (serverList[i].name == args[1])
-				{
-					found = true;
-					if (i + 1 < serverList.size())
-						serverList[i] = serverList.back();
-					serverList.resize(serverList.size() - 1);
-				}
-			serverListChanged |= found;
-			if (!found)					// We've a problem, server list lost sync OO!
+			if (serverList.count(args[1]) == 1)
+			{
+				serverList.erase(args[1]);
+				serverListChanged = true;
+			}
+			else	// We've a problem, server list lost sync OO!
 				sendMessage("GET SERVER LIST");
 		}
 		else if (args[0] == "CLEAR" && args.size() == 3 && args[1] == "SERVER" && args[2] == "LIST")
