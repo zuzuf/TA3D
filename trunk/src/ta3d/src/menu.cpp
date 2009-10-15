@@ -52,6 +52,7 @@
 #include "input/keyboard.h"
 #include "cache.h"
 #include "mods/mods.h"
+#include "network/netclient.h"
 #include <yuni/core/math.h>
 #include <yuni/core/sleep.h>
 
@@ -652,7 +653,7 @@ namespace TA3D
 
 #define INTERNET_AD_COUNTDOWN       150000
 
-	void setup_game(bool client, const String& host, const char *saved_game)
+	void setup_game(bool client, const String& host, const char *saved_game, bool bNetServer)
 	{
 		int my_player_id = -1;
 		bool advertise = false;
@@ -661,7 +662,8 @@ namespace TA3D
 		{
 			if (!client)
 			{
-				network_manager.InitBroadcast(1234);      // broadcast mode
+				if (!bNetServer)
+					network_manager.InitBroadcast(1234);      // broadcast mode
 				network_manager.HostGame(host, 4242);
 			}
 			else
@@ -936,13 +938,15 @@ namespace TA3D
 			}
 		}
 
-		if (host.notEmpty() && !client)
+		if (host.notEmpty() && !client && !bNetServer)
 			setupgame_area.msg("gamesetup.advertise.show");
 
 		int progress_timer = msec_timer;
 		int ping_timer = msec_timer;                    // Used to send simple PING requests in order to detect when a connection fails
 
 		int internet_ad_timer = msec_timer - INTERNET_AD_COUNTDOWN; // Resend every 150 sec
+
+		bool statusUpdateRequired = true;
 
 		do
 		{
@@ -960,6 +964,21 @@ namespace TA3D
 							obj->Flag &= ~FLAG_HIDDEN;
 						obj->Etat = game_data.ready[i];
 					}
+				}
+			}
+
+			if (statusUpdateRequired && !client)
+			{
+				statusUpdateRequired = false;
+				if (bNetServer)
+				{
+					uint16 nb_open = 0;
+					for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
+					{
+						if (setupgame_area.caption(String::Format("gamesetup.name%d", f)) == player_str[2])
+							++nb_open;
+					}
+					NetClient::instance()->sendMessage("SERVER MAP \"" + Escape(Paths::ExtractFileNameWithoutExtension(game_data.map_filename)) + "\" SLOTS " + String(nb_open));
 				}
 			}
 
@@ -988,6 +1007,8 @@ namespace TA3D
 			bool playerDropped = false;
 			do
 			{
+				if (bNetServer)
+					NetClient::instance()->receive();
 				playerDropped = network_manager.getPlayerDropped();
 				broadcast_msg = network_manager.getNextBroadcastedMessage();
 				if (network_manager.getNextChat(&received_chat_msg ) == 0)
@@ -1034,6 +1055,7 @@ namespace TA3D
 
 			if (host.notEmpty() && !client && msec_timer - ping_timer >= 2000) // Send a ping request
 			{
+				statusUpdateRequired = true;
 				network_manager.sendPing();
 				ping_timer = msec_timer;
 

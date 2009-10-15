@@ -329,7 +329,7 @@ namespace Menus
 			}		// Enf of if (pArea->get_state("netgames"))
 			if (pArea->get_state("hosting.b_ok"))
 			{
-				NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"" + Escape(TA3D_CURRENT_MOD) + "\"");
+				NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"" + Escape(TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.size() - 6)) + "\"");
 				pArea->set_state("hosting.b_ok", false);
 			}
 			else if (NetClient::instance()->getHostAck())		// NetServer is ready, let's go!
@@ -619,14 +619,15 @@ namespace Menus
 	void NetMenu::hostAGame()
 	{
 		String host = pArea->caption( "hosting.t_hostname");
-		setup_game(false, host);
+		setup_game(false, host, NULL, true);
 		NetClient::instance()->sendMessage("UNSERVER");
+		NetClient::instance()->getHostAck();
 	}
 
 	void NetMenu::joinAGame()
 	{
 		String host = NetClient::instance()->getServerJoined();
-		setup_game(true, host);
+		setup_game(true, host, NULL, true);
 		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");
 	}
 
