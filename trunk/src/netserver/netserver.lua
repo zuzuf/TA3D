@@ -557,6 +557,9 @@ function processClient(client)
                				return
                			end
                		end
+               		if new_server.mod == "" and client.server ~= nil then
+               			new_server.mod = client.server.mod
+               		end
                 	if game_server_table[new_server.name] ~= nil and game_server_table[new_server.name].owner ~= client.login then
                 		client:send("ERROR Can't create server : there is already a server with this name!")
                 		client.server = nil
