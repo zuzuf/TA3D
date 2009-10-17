@@ -1,15 +1,15 @@
 TODO list
 ---------
-_add the possibility to lock/unlock the mouse inside the game's window
-_read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
 _implement standing move orders
-_increase loading speed and lower memory usage by not loading unused features (done in some modules)
-_add support for TTF fonts ( seems impossible due to memory restrictions )
 _improve A.I.
 _D3D support
 
+* you can now read the music from a CD
+* added the possibility to lock/unlock the mouse inside the game's window
+* increased loading speed and reduced memory usage
+* added support for TTF fonts
 * added support for team management
 * 3DMEditor now supports OBJ 3D format
 * 3DMEditor's interface has been rewritten
