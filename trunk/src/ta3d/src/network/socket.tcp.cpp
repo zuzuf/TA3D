@@ -223,7 +223,7 @@ namespace TA3D
 			{
 				zSend->next_out = sendBuf;
 				zSend->avail_out = TCP_BUFFER_SIZE;
-				int ret = deflate(zSend, Z_NO_FLUSH);
+				int ret = deflate(zSend, Z_SYNC_FLUSH);
 				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
 				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
 				{
