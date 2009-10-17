@@ -619,7 +619,12 @@ namespace Menus
 	void NetMenu::hostAGame()
 	{
 		String host = pArea->caption( "hosting.t_hostname");
+		String cfgPlayerName = lp_CONFIG->player_name;
+		lp_CONFIG->player_name = NetClient::instance()->getLogin();
+
 		setup_game(false, host, NULL, true);
+
+		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNSERVER");
 		NetClient::instance()->getHostAck();
 	}
@@ -627,7 +632,12 @@ namespace Menus
 	void NetMenu::joinAGame()
 	{
 		String host = NetClient::instance()->getServerJoined();
+		String cfgPlayerName = lp_CONFIG->player_name;
+		lp_CONFIG->player_name = NetClient::instance()->getLogin();
+
 		setup_game(true, host, NULL, true);
+
+		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");
 	}
 
