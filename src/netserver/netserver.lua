@@ -210,6 +210,7 @@ function closeServer(server)
 		for k, v in pairs(server.players) do
 			clients_login[v]:send("UNJOIN \"" .. escape(server.host) .. "\"")
 			clients_login[v].server = nil
+			joinChan(clients_login[v])
 		end
 	end
 
@@ -226,6 +227,7 @@ function joinServer(server, client)
 		server.slots = tostring(tonumber(server.slots) - 1)
 		table.insert(server.players, client.login)
 		client:send("JOIN \"" .. escape(server.host) .. "\"")
+		leaveChan(client)
 	else
 		client:send("ERROR Server is full")
 	end
@@ -254,6 +256,7 @@ function unjoinServer(server, client)
 		end
 		server.slots = tostring(tonumber(server.slots) + 1)
 		client:send("UNJOIN \"" .. escape(server.host) .. "\"")
+		joinChan(client)
 	end
 end
 
