@@ -147,18 +147,18 @@ namespace TA3D
 	void GFX::checkConfig() const
 	{
 		if (!g_useFBO)
-			lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
+			lp_CONFIG->water_quality = Math::Min(lp_CONFIG->water_quality, sint16(1));
 		if (!g_useProgram)
 		{
-			lp_CONFIG->water_quality = Math::Min((int)lp_CONFIG->water_quality, 1);
+			lp_CONFIG->water_quality = Math::Min(lp_CONFIG->water_quality, sint16(1));
 			lp_CONFIG->disable_GLSL = true;
 			lp_CONFIG->detail_tex = false;
-			lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
+			lp_CONFIG->shadow_quality = Math::Min(lp_CONFIG->shadow_quality, sint16(1));
 		}
 		if (!g_useTextureCompression)
 			lp_CONFIG->use_texture_compression = false;
 		if (!glewIsSupported("GL_ARB_shadow"))
-			lp_CONFIG->shadow_quality = Math::Min((int)lp_CONFIG->shadow_quality, 1);
+			lp_CONFIG->shadow_quality = Math::Min(lp_CONFIG->shadow_quality, sint16(1));
 	}
 
 
@@ -1370,7 +1370,7 @@ namespace TA3D
 	}
 
 
-	GLuint	GFX::load_texture_mask(const String& file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+	GLuint	GFX::load_texture_mask(const String& file, uint32 level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
 			return 0;
@@ -1564,7 +1564,7 @@ namespace TA3D
 		fwrite( &width, 4, 1, cache_file );
 		fwrite( &height, 4, 1, cache_file );
 
-		float lod_max_f = Math::Max(logf(rw), logf(rh)) / logf(2.0f);
+		float lod_max_f = Math::Max(logf(float(rw)), logf(float(rh))) / logf(2.0f);
 		int lod_max = ((int) lod_max_f);
 		if (lod_max > lod_max_f )
 			lod_max++;
@@ -1793,10 +1793,10 @@ namespace TA3D
 		height = screen->h;
 		SCREEN_W_HALF = width >> 1;
 		SCREEN_H_HALF = height >> 1;
-		SCREEN_W_INV = 1.0f / width;
-		SCREEN_H_INV = 1.0f / height;
-		SCREEN_W_TO_640 = 640.0f / width;
-		SCREEN_H_TO_480 = 480.0f / height;
+		SCREEN_W_INV = 1.0f / float(width);
+		SCREEN_H_INV = 1.0f / float(height);
+		SCREEN_W_TO_640 = 640.0f / float(width);
+		SCREEN_H_TO_480 = 480.0f / float(height);
 	}
 
 
@@ -1935,7 +1935,7 @@ namespace TA3D
 
 		test_gfx->set_2D_mode();
 
-		int         filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
+		byte        filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
 		const char  *filterInfo[]   = { "FILTER_NONE", "FILTER_LINEAR", "FILTER_BILINEAR", "FILTER_TRILINEAR" };
 
 		for (int e = 0 ; e < 4 ; e++)
@@ -1955,13 +1955,13 @@ namespace TA3D
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 				for (int i = 0 ; i < 11 ; i++)
 				{
-					float dx = (i >> 2) * test_gfx->width / 3.0f;
-					float dy = (i & 3) * 0.25f * test_gfx->height;
-					test_gfx->drawtexture( tex[i], dx, dy, dx + test_gfx->width / 3.0f, dy + 0.25f * test_gfx->height );
+					float dx = float((i >> 2) * test_gfx->width) / 3.0f;
+					float dy = float((i & 3) * test_gfx->height) * 0.25f;
+					test_gfx->drawtexture( tex[i], dx, dy, dx + float(test_gfx->width) / 3.0f, dy + 0.25f * float(test_gfx->height) );
 					glDisable( GL_TEXTURE_2D );
-					test_gfx->rect( dx, dy, dx + test_gfx->width / 3.0f, dy + 0.25 * test_gfx->height, 0xFFFFFFFF );
-					test_gfx->print( test_gfx->normal_font, dx + 10, dy + 10, 0.0f, 0xFFFFFFFF, info[i] );
-					test_gfx->print( test_gfx->normal_font, dx + 10, dy + 20, 0.0f, 0xFFFFFFFF, filterInfo[e] );
+					test_gfx->rect( dx, dy, dx + float(test_gfx->width) / 3.0f, dy + 0.25f * float(test_gfx->height), 0xFFFFFFFF );
+					test_gfx->print( test_gfx->normal_font, dx + 10.0f, dy + 10.0f, 0.0f, 0xFFFFFFFF, info[i] );
+					test_gfx->print( test_gfx->normal_font, dx + 10.0f, dy + 20.0f, 0.0f, 0xFFFFFFFF, filterInfo[e] );
 				}
 
 				test_gfx->flip();
@@ -2011,7 +2011,7 @@ namespace TA3D
 		for (int y = 0; y < bmp->h; ++y)
 		{
 			for (int x = 0; x < bmp->w; ++x)
-				SurfaceByte(bmp, (x << 2) + 3, y) = SurfaceInt(alpha,x,y);
+				SurfaceByte(bmp, (x << 2) + 3, y) = byte(SurfaceInt(alpha,x,y));
 		}
 
 		SDL_FreeSurface(alpha);

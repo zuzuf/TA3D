@@ -108,8 +108,8 @@ namespace TA3D
 		uint8 m_b = SDL_GetMouseState( &rmx, &rmy );
 		dx = rmx - old_mx;
 		dy = rmy - old_my;
-		fmouse_x += dx * lp_CONFIG->mouse_sensivity;
-		fmouse_y += dy * lp_CONFIG->mouse_sensivity;
+		fmouse_x += float(dx) * lp_CONFIG->mouse_sensivity;
+		fmouse_y += float(dy) * lp_CONFIG->mouse_sensivity;
 		if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
 		if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
 		if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
@@ -118,7 +118,7 @@ namespace TA3D
 		mouse_x = (int)fmouse_x;
 		mouse_y = (int)fmouse_y;
 		if (rmx != mouse_x || rmy != mouse_y)
-			SDL_WarpMouse(mouse_x,mouse_y);
+			SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
 		old_mx = mouse_x;
 		old_my = mouse_y;
 	}
@@ -134,11 +134,11 @@ namespace TA3D
 		mouse_y = y;
 		mouse_x = Yuni::Math::MinMax<int>(mouse_x, 0, SCREEN_W);
 		mouse_y = Yuni::Math::MinMax<int>(mouse_y, 0, SCREEN_H);
-		fmouse_x = mouse_x;
-		fmouse_y = mouse_y;
+		fmouse_x = float(mouse_x);
+		fmouse_y = float(mouse_y);
 		old_mx = mouse_x;
 		old_my = mouse_y;
-        SDL_WarpMouse(mouse_x,mouse_y);
+		SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
         poll_inputs();
 	}
 
@@ -170,17 +170,17 @@ namespace TA3D
 			curseur = 0;
 			start = msec_timer;
 		}
-		float dx = cursor[cursor_type].ofs_x[curseur];
-		float dy = cursor[cursor_type].ofs_y[curseur];
-		float sx = cursor[cursor_type].bmp[curseur]->w;
-		float sy = cursor[cursor_type].bmp[curseur]->h;
+		int dx = cursor[cursor_type].ofs_x[curseur];
+		int dy = cursor[cursor_type].ofs_y[curseur];
+		int sx = cursor[cursor_type].bmp[curseur]->w;
+		int sy = cursor[cursor_type].bmp[curseur]->h;
 		gfx->set_color(0xFFFFFFFF);
 		gfx->set_alpha_blending();
 		gfx->drawtexture(cursor[cursor_type].glbmp[curseur],
-						 mouse_x - dx,
-						 mouse_y - dy,
-						 mouse_x - dx + sx,
-						 mouse_y - dy + sy);
+						 float(mouse_x - dx),
+						 float(mouse_y - dy),
+						 float(mouse_x - dx + sx),
+						 float(mouse_y - dy + sy));
 		gfx->unset_alpha_blending();
 	}
 
@@ -197,8 +197,8 @@ namespace TA3D
 		byte *data = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
 		if (data)
 		{
-			cursor.loadGAFFromRawData(data, true);
-			cursor.convert();
+			cursor.loadGAFFromRawData(data, false);
+			cursor.convert(false, false);
 
 			CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
 			CURSOR_GREEN       = cursor.findByName("cursorgrn");

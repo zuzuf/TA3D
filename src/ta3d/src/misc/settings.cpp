@@ -153,16 +153,16 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->fps_limit = cfgFile.pullAsFloat("TA3D.FPS Limit");
 		TA3D::VARS::lp_CONFIG->timefactor = cfgFile.pullAsFloat("TA3D.Time Factor");
 
-		TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Shadow Quality");
-		TA3D::VARS::lp_CONFIG->shadowmap_size = cfgFile.pullAsInt("TA3D.ShadowMap Size", 2);
-		TA3D::VARS::lp_CONFIG->priority_level = cfgFile.pullAsInt("TA3D.Priority Level");
-		TA3D::VARS::lp_CONFIG->fsaa = cfgFile.pullAsInt("TA3D.FSAA");
-		TA3D::VARS::lp_CONFIG->anisotropy = cfgFile.pullAsInt("TA3D.Anisotropy", 1);
+		TA3D::VARS::lp_CONFIG->shadow_quality = sint16(cfgFile.pullAsInt("TA3D.Shadow Quality"));
+		TA3D::VARS::lp_CONFIG->shadowmap_size = uint8(cfgFile.pullAsInt("TA3D.ShadowMap Size", 2));
+		TA3D::VARS::lp_CONFIG->priority_level = sint16(cfgFile.pullAsInt("TA3D.Priority Level"));
+		TA3D::VARS::lp_CONFIG->fsaa = sint16(cfgFile.pullAsInt("TA3D.FSAA"));
+		TA3D::VARS::lp_CONFIG->anisotropy = sint16(cfgFile.pullAsInt("TA3D.Anisotropy", 1));
 		TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsString("TA3D.Language", "english").toLower();
-		TA3D::VARS::lp_CONFIG->water_quality = cfgFile.pullAsInt("TA3D.Water Quality");
-		TA3D::VARS::lp_CONFIG->screen_width = cfgFile.pullAsInt("TA3D.Screen Width");
-		TA3D::VARS::lp_CONFIG->screen_height = cfgFile.pullAsInt("TA3D.Screen Height");
-		TA3D::VARS::lp_CONFIG->color_depth = cfgFile.pullAsInt("TA3D.Color Depth", 32);
+		TA3D::VARS::lp_CONFIG->water_quality = sint16(cfgFile.pullAsInt("TA3D.Water Quality"));
+		TA3D::VARS::lp_CONFIG->screen_width = uint16(cfgFile.pullAsInt("TA3D.Screen Width"));
+		TA3D::VARS::lp_CONFIG->screen_height = uint16(cfgFile.pullAsInt("TA3D.Screen Height"));
+		TA3D::VARS::lp_CONFIG->color_depth = uint8(cfgFile.pullAsInt("TA3D.Color Depth", 32));
 
 		TA3D::VARS::lp_CONFIG->showfps = cfgFile.pullAsBool("TA3D.Show FPS");
 		TA3D::VARS::lp_CONFIG->wireframe = cfgFile.pullAsBool("TA3D.Show Wireframe");
@@ -178,10 +178,10 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->last_script.convertSlashesIntoBackslashes();
 		TA3D::VARS::lp_CONFIG->last_map = cfgFile.pullAsString("TA3D.Last Map", "");
 		TA3D::VARS::lp_CONFIG->last_map.convertSlashesIntoBackslashes();
-		TA3D::VARS::lp_CONFIG->last_FOW = cfgFile.pullAsInt("TA3D.Last FOW", 0);
+		TA3D::VARS::lp_CONFIG->last_FOW = byte(cfgFile.pullAsInt("TA3D.Last FOW", 0));
 		TA3D::VARS::lp_CONFIG->last_MOD = cfgFile.pullAsString("TA3D.Last MOD", "");
 
-		TA3D::VARS::lp_CONFIG->camera_zoom = cfgFile.pullAsInt("TA3D.Camera Zoom Mode", ZOOM_NORMAL);
+		TA3D::VARS::lp_CONFIG->camera_zoom = uint8(cfgFile.pullAsInt("TA3D.Camera Zoom Mode", ZOOM_NORMAL));
 		TA3D::VARS::lp_CONFIG->camera_def_angle = cfgFile.pullAsFloat("TA3D.Camera Default Angle", 63.44f);
 		TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile.pullAsFloat("TA3D.Camera Default Height", 200.0f);
 		TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile.pullAsFloat("TA3D.Camera Zoom Speed", 1.0f);
@@ -230,7 +230,7 @@ namespace Settings
 			lp_CONFIG->net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
 			if (cfg_version.empty())        // Pre-SDL versions
 			{
-				lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Show Shadows");
+				lp_CONFIG->shadow_quality = sint16(cfgFile.pullAsInt("TA3D.Show Shadows"));
 				int langID = lp_CONFIG->Lang.to<int>();     // TA3D used to store language ID instead of language
 				switch( langID )
 				{
