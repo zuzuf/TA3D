@@ -218,11 +218,12 @@ namespace TA3D
 		{
 			zSend->next_in = (Bytef*)data;
 			zSend->avail_in = size;
-			while(zSend->avail_in > 0)
+			bool loop = false;
+			while(zSend->avail_in > 0 || loop)
 			{
 				zSend->next_out = sendBuf;
 				zSend->avail_out = TCP_BUFFER_SIZE;
-				deflate(zSend, Z_NO_FLUSH);
+				int ret = deflate(zSend, Z_NO_FLUSH);
 				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
 				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
 				{
@@ -230,6 +231,7 @@ namespace TA3D
 					close();
 					return;
 				}
+				loop = (ret == Z_OK && zSend->avail_out == 0);
 			}
 		}
 		else
@@ -243,6 +245,32 @@ namespace TA3D
 			}
 		}
     }
+
+	inline void zStreamError(int ret, char *msg)
+	{
+		if (ret != Z_OK)
+		{
+			if (msg)
+				LOG_ERROR(LOG_PREFIX_NET << "error decompressing data from TCP socket : " << msg);
+			else
+				LOG_ERROR(LOG_PREFIX_NET << "error decompressing data from TCP socket");
+			switch(ret)
+			{
+			case Z_DATA_ERROR:
+				LOG_ERROR(LOG_PREFIX_NET << "zlib: input data corrupt!");
+				break;
+			case Z_STREAM_ERROR:
+				LOG_ERROR(LOG_PREFIX_NET << "zlib: stream structure inconsistent!");
+				break;
+			case Z_MEM_ERROR:
+				LOG_ERROR(LOG_PREFIX_NET << "zlib: not enough memory!");
+				break;
+			case Z_BUF_ERROR:
+				LOG_ERROR(LOG_PREFIX_NET << "zlib: no progress possible!");
+				break;
+			};
+		}
+	}
 
     int SocketTCP::recv(char *data, int size)
     {
@@ -266,13 +294,7 @@ namespace TA3D
 					else
 					{
 						int ret = inflate(zRecv, Z_SYNC_FLUSH);
-						if (ret != Z_OK)
-						{
-							if (zRecv->msg)
-								LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket : " << zRecv->msg);
-							else
-								LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket");
-						}
+						zStreamError(ret, zRecv->msg);
 						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
 						close();
 						return size - zRecv->avail_out;
@@ -282,13 +304,13 @@ namespace TA3D
 				int ret = inflate(zRecv, Z_NO_FLUSH);
 				if (ret != Z_OK)
 				{
-					if (zRecv->msg)
-						LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket : " << zRecv->msg);
-					else
-						LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket");
-					LOG_ERROR(LOG_PREFIX_NET << "closing compressed socket because of decompression error");
-					close();
-					return size - zRecv->avail_out;
+					zStreamError(ret, zRecv->msg);
+					if (ret != Z_BUF_ERROR)
+					{
+						LOG_ERROR(LOG_PREFIX_NET << "closing compressed socket because of decompression error");
+						close();
+						return size - zRecv->avail_out;
+					}
 				}
 
 				if (zRecv->avail_in > 0)
