@@ -1126,7 +1126,7 @@ namespace TA3D
 			{
 				int from = received_special_msg.from;
 				String::Vector params;
-				LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << received_special_msg.message << "'");
+				LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << (char*)(received_special_msg.message) << "'");
 				String((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
 				if (params.size() == 1)
 				{
