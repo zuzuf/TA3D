@@ -108,7 +108,10 @@ namespace TA3D
             close();
             return;
         }
-    }
+
+		zRecv->next_in = recvBuf;
+		zRecv->avail_in = 0;
+	}
 
     void SocketTCP::close()
     {
@@ -136,13 +139,15 @@ namespace TA3D
 			recvBuf = new byte[TCP_BUFFER_SIZE];
 			zSend->avail_out = TCP_BUFFER_SIZE;
 			zSend->next_out = sendBuf;
-			zSend->zalloc = NULL;
-			zSend->zfree = NULL;
+			zSend->zalloc = Z_NULL;
+			zSend->zfree = Z_NULL;
+			zSend->opaque = Z_NULL;
 
 			zRecv->avail_in = 0;
 			zRecv->next_in = recvBuf;
-			zRecv->zalloc = NULL;
-			zRecv->zfree = NULL;
+			zRecv->zalloc = Z_NULL;
+			zRecv->zfree = Z_NULL;
+			zRecv->opaque = Z_NULL;
 
 			deflateInit(zSend, 1);
 			inflateInit(zRecv);
@@ -191,7 +196,7 @@ namespace TA3D
 
     void SocketTCP::send(const String &str)
     {
-        send(str.c_str(), str.size());
+		send(str.c_str(), int(str.size()));
     }
 
     void SocketTCP::send(const char *data, int size)
@@ -206,9 +211,9 @@ namespace TA3D
 			{
 				zSend->next_out = sendBuf;
 				zSend->avail_out = TCP_BUFFER_SIZE;
-				deflate(zSend, 0);
+				deflate(zSend, Z_NO_FLUSH);
 				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
-				if (sent < TCP_BUFFER_SIZE - zSend->avail_out)
+				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
 				{
 					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
 					close();
@@ -238,24 +243,46 @@ namespace TA3D
 			zRecv->next_out = (Bytef*)data;
 
 			int size = 0;
-			check(0);
-			while((ready() || !nonBlockingMode) && zRecv->avail_out > 0)
+			do
 			{
-				zRecv->next_in = recvBuf;
-				int n = SDLNet_TCP_Recv(sock, recvBuf, 1);
-				zRecv->avail_in = n;
-				if (n == 1)
+				check(0);
+				while(ready() && zRecv->avail_in < TCP_BUFFER_SIZE)
 				{
-					inflate(zRecv, Z_SYNC_FLUSH);
+					int n = SDLNet_TCP_Recv(sock, zRecv->next_in, 1);
+					if (n == 1)
+						zRecv->avail_in++;
+					else
+					{
+						int ret = inflate(zRecv, Z_SYNC_FLUSH);
+						if (ret != Z_OK)
+						{
+							if (zRecv->msg)
+								LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket : " << zRecv->msg);
+							else
+								LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket");
+						}
+						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+						close();
+						return size - zRecv->avail_out;
+					}
+					check(0);
 				}
-				else
+				int ret = inflate(zRecv, Z_SYNC_FLUSH);
+				if (ret != Z_OK)
 				{
-					LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+					if (zRecv->msg)
+						LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket : " << zRecv->msg);
+					else
+						LOG_ERROR(LOG_PREFIX_NET << "error decompression data from TCP socket");
+					LOG_ERROR(LOG_PREFIX_NET << "closing compressed socket because of decompression error");
 					close();
 					return size - zRecv->avail_out;
 				}
-				check(0);
-			}
+
+				if (zRecv->avail_in > 0)
+					memmove(recvBuf, zRecv->next_in, zRecv->avail_in);
+				zRecv->next_in = recvBuf;
+			} while (!nonBlockingMode && zRecv->avail_out > 0);
 			return size - zRecv->avail_out;
 		}
 		else
