@@ -468,7 +468,7 @@ namespace TA3D
 				return nullptr;
 			case 2:						// Client
 				if (sendSpecial( "REQUEST STATUS" ))
-					return -1;
+					return nullptr;
 				else
 				{
 					struct chat special_msg;
