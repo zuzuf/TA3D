@@ -109,8 +109,11 @@ namespace TA3D
             return;
         }
 
-		zRecv->next_in = recvBuf;
-		zRecv->avail_in = 0;
+		if (compression)
+		{
+			zRecv->next_in = recvBuf;
+			zRecv->avail_in = 0;
+		}
 	}
 
     void SocketTCP::close()
