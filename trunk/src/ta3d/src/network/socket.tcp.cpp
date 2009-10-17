@@ -252,8 +252,6 @@ namespace TA3D
 		{
 			if (msg)
 				LOG_ERROR(LOG_PREFIX_NET << "error decompressing data from TCP socket : " << msg);
-			else
-				LOG_ERROR(LOG_PREFIX_NET << "error decompressing data from TCP socket");
 			switch(ret)
 			{
 			case Z_DATA_ERROR:
@@ -266,7 +264,7 @@ namespace TA3D
 				LOG_ERROR(LOG_PREFIX_NET << "zlib: not enough memory!");
 				break;
 			case Z_BUF_ERROR:
-				LOG_ERROR(LOG_PREFIX_NET << "zlib: no progress possible!");
+//				LOG_ERROR(LOG_PREFIX_NET << "zlib: no progress possible!");
 				break;
 			};
 		}
@@ -281,7 +279,7 @@ namespace TA3D
 			zRecv->avail_out = size;
 			zRecv->next_out = (Bytef*)data;
 
-			int size = 0;
+			int ret = Z_OK;
 			do
 			{
 				check(0);
@@ -293,7 +291,7 @@ namespace TA3D
 						zRecv->avail_in++;
 					else
 					{
-						int ret = inflate(zRecv, Z_SYNC_FLUSH);
+						ret = inflate(zRecv, Z_SYNC_FLUSH);
 						zStreamError(ret, zRecv->msg);
 						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
 						close();
@@ -301,7 +299,7 @@ namespace TA3D
 					}
 					check(0);
 				}
-				int ret = inflate(zRecv, Z_NO_FLUSH);
+				ret = inflate(zRecv, Z_NO_FLUSH);
 				if (ret != Z_OK)
 				{
 					zStreamError(ret, zRecv->msg);
@@ -316,7 +314,7 @@ namespace TA3D
 				if (zRecv->avail_in > 0)
 					memmove(recvBuf, zRecv->next_in, zRecv->avail_in);
 				zRecv->next_in = recvBuf;
-			} while (!nonBlockingMode && zRecv->avail_out > 0);
+			} while (!nonBlockingMode && zRecv->avail_out > 0 && ret != Z_BUF_ERROR);
 			return size - zRecv->avail_out;
 		}
 		else
