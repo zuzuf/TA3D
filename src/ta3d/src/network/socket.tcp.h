@@ -5,6 +5,7 @@
 #include "socket.h"
 #include "../threads/thread.h"
 #include <deque>
+#include <zlib.h>
 
 namespace TA3D
 {
@@ -16,8 +17,14 @@ namespace TA3D
         SDLNet_SocketSet    set;
         bool                checked;
         bool                nonBlockingMode;
+		// Do we have to use compression ? (disabled by default)
+		bool				compression;
+		z_streamp			zSend;
+		z_streamp			zRecv;
+		byte				*sendBuf;
+		byte				*recvBuf;
     public:
-        SocketTCP();
+		SocketTCP(bool enableCompression = false);
         virtual ~SocketTCP();
 
         void setNonBlockingMode(bool mode);

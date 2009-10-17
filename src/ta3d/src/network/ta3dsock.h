@@ -182,8 +182,8 @@ namespace TA3D
 		int max(int a, int b) {return (a>b ? a : b);}
 
 	public:
-		TA3DSock() {obp=0;tibp=0;tiremain=-1;}
-		~TA3DSock() {}
+		TA3DSock();
+		virtual ~TA3DSock() {}
 
 		int open(const String &hostname, uint16 port);
 		int open(uint16 port);

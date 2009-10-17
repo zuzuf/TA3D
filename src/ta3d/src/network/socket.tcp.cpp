@@ -2,20 +2,59 @@
 #include "../logs/logs.h"
 #include "socket.tcp.h"
 
+#define TCP_BUFFER_SIZE		2048
+
 namespace TA3D
 {
 
-    SocketTCP::SocketTCP()
+	SocketTCP::SocketTCP(bool enableCompression)
     {
         sock = NULL;
         set = NULL;
         checked = false;
         nonBlockingMode = false;
+		compression = enableCompression;
+
+		if (compression)
+		{
+			zSend = new z_stream;
+			zRecv = new z_stream;
+			recvBuf = new byte[TCP_BUFFER_SIZE];
+			sendBuf = new byte[TCP_BUFFER_SIZE];
+			zSend->avail_out = TCP_BUFFER_SIZE;
+			zSend->next_out = sendBuf;
+			zSend->zalloc = NULL;
+			zSend->zfree = NULL;
+
+			zRecv->avail_in = 0;
+			zRecv->next_in = recvBuf;
+			zRecv->zalloc = NULL;
+			zRecv->zfree = NULL;
+
+			deflateInit(zSend, 1);
+			inflateInit(zRecv);
+		}
+		else
+		{
+			zSend = NULL;
+			zRecv = NULL;
+			sendBuf = NULL;
+			recvBuf = NULL;
+		}
     }
 
     SocketTCP::~SocketTCP()
     {
         close();
+		if (compression)
+		{
+			deflateEnd(zSend);
+			inflateEnd(zRecv);
+			delete zSend;
+			delete zRecv;
+			delete[] sendBuf;
+			delete[] recvBuf;
+		}
     }
 
     void SocketTCP::reset()
@@ -81,14 +120,48 @@ namespace TA3D
         set = NULL;
         sock = NULL;
         checked = false;
-    }
+
+		if (compression)
+		{
+			deflateEnd(zSend);
+			inflateEnd(zRecv);
+			delete zSend;
+			delete zRecv;
+			delete[] sendBuf;
+			delete[] recvBuf;
+
+			zSend = new z_stream;
+			zRecv = new z_stream;
+			sendBuf = new byte[TCP_BUFFER_SIZE];
+			recvBuf = new byte[TCP_BUFFER_SIZE];
+			zSend->avail_out = TCP_BUFFER_SIZE;
+			zSend->next_out = sendBuf;
+			zSend->zalloc = NULL;
+			zSend->zfree = NULL;
+
+			zRecv->avail_in = 0;
+			zRecv->next_in = recvBuf;
+			zRecv->zalloc = NULL;
+			zRecv->zfree = NULL;
+
+			deflateInit(zSend, 1);
+			inflateInit(zRecv);
+		}
+		else
+		{
+			zSend = NULL;
+			zRecv = NULL;
+			sendBuf = NULL;
+			recvBuf = NULL;
+		}
+	}
 
     SocketTCP *SocketTCP::accept()
     {
         TCPsocket child = SDLNet_TCP_Accept(sock);
         if (child == NULL)
             return NULL;
-        SocketTCP *newSock = new SocketTCP();
+		SocketTCP *newSock = new SocketTCP(compression);
         newSock->sock = child;
         IPaddress *remote_addr = SDLNet_TCP_GetPeerAddress( child );
         if (remote_addr == NULL)
@@ -125,51 +198,101 @@ namespace TA3D
     {
         if (!sock)  return;
 
-        int sent = SDLNet_TCP_Send(sock, data, size);
+		if (compression)
+		{
+			zSend->next_in = (Bytef*)data;
+			zSend->avail_in = size;
+			while(zSend->avail_in > 0)
+			{
+				zSend->next_out = sendBuf;
+				zSend->avail_out = TCP_BUFFER_SIZE;
+				deflate(zSend, 0);
+				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
+				if (sent < TCP_BUFFER_SIZE - zSend->avail_out)
+				{
+					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
+					close();
+					return;
+				}
+			}
+		}
+		else
+		{
+			int sent = SDLNet_TCP_Send(sock, data, size);
 
-        if (sent < size)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
-            close();
-        }
+			if (sent < size)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
+				close();
+			}
+		}
     }
 
     int SocketTCP::recv(char *data, int size)
     {
         if (!sock)  return -1;
 
-        if (nonBlockingMode)
-        {
-            int pos = 0;
-            check(0);
-            while(ready() && pos < size)
-            {
-                int n = SDLNet_TCP_Recv(sock, data, 1);
-                if (n == 1)
-                {
-                    data++;
-                    pos++;
-                }
-                else
-                {
-                    LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
-                    close();
-                    return pos;
-                }
-                check(0);
-            }
-            return pos;
-        }
+		if (compression)
+		{
+			zRecv->avail_out = size;
+			zRecv->next_out = (Bytef*)data;
 
-        int n = SDLNet_TCP_Recv(sock, data, size);
-        if (n < 0)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
-            close();
-            return -1;
-        }
+			int size = 0;
+			check(0);
+			while((ready() || !nonBlockingMode) && zRecv->avail_out > 0)
+			{
+				zRecv->next_in = recvBuf;
+				int n = SDLNet_TCP_Recv(sock, recvBuf, 1);
+				zRecv->avail_in = n;
+				if (n == 1)
+				{
+					inflate(zRecv, Z_SYNC_FLUSH);
+				}
+				else
+				{
+					LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+					close();
+					return size - zRecv->avail_out;
+				}
+				check(0);
+			}
+			return size - zRecv->avail_out;
+		}
+		else
+		{
+			if (nonBlockingMode)
+			{
+				int pos = 0;
+				check(0);
+				while(ready() && pos < size)
+				{
+					int n = SDLNet_TCP_Recv(sock, data, 1);
+					if (n == 1)
+					{
+						data++;
+						pos++;
+					}
+					else
+					{
+						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+						close();
+						return pos;
+					}
+					check(0);
+				}
+				return pos;
+			}
 
-        return n;
+			int n = SDLNet_TCP_Recv(sock, data, size);
+			if (n < 0)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+				close();
+				return -1;
+			}
+
+			return n;
+		}
     }
 
     void SocketTCP::check(uint32 msec)

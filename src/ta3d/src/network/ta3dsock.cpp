@@ -45,6 +45,12 @@ namespace TA3D
 		return msg;
 	}
 
+	TA3DSock::TA3DSock() : tcpsock(true)		// Enable compression
+	{
+		obp = 0;
+		tibp = 0;
+		tiremain = -1;
+	}
 
 	int TA3DSock::open(const String &hostname, uint16 port)
 	{
