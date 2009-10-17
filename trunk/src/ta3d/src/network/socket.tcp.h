@@ -23,7 +23,9 @@ namespace TA3D
 		z_streamp			zRecv;
 		byte				*sendBuf;
 		byte				*recvBuf;
-    public:
+		uint32				bytesSent;
+		uint32				bytesProcessed;
+	public:
 		SocketTCP(bool enableCompression = false);
         virtual ~SocketTCP();
 
