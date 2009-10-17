@@ -72,6 +72,7 @@ namespace TA3D
         String          getLogin();
         String          getChan();
 		String			getServerJoined();
+		void			clearServerJoined();
 		bool			getHostAck();
 
     private:

@@ -412,6 +412,13 @@ namespace TA3D
 		return serverJoined;
 	}
 
+	void NetClient::clearServerJoined()
+	{
+		lock();
+		serverJoined.clear();
+		unlock();
+	}
+
 	bool NetClient::getHostAck()
 	{
 		MutexLocker mLock(pMutex);

@@ -161,11 +161,10 @@ namespace Menus
 			}
 			else if (msg.startsWith("MSG"))
 			{
-				String::Vector args;
-				msg.explode(args, ' ');
-				if (args.size() >= 2)
+				String::Vector args = SplitCommand(msg);
+				if (args.size() >= 3)
 				{
-					String message = args[1] + " > " + msg.substrUTF8(5 + args[1].sizeUTF8());
+					String message = args[1] + " > " + args[2];
 					addChatMessage(message);
 				}
 			}
@@ -639,6 +638,7 @@ namespace Menus
 
 		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");
+		NetClient::instance()->clearServerJoined();
 	}
 
 	void NetMenu::changeMod(const int ID)
