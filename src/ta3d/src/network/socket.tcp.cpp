@@ -13,6 +13,8 @@ namespace TA3D
         set = NULL;
         checked = false;
         nonBlockingMode = false;
+		bytesSent = 0;
+		bytesProcessed = 0;
 		compression = enableCompression;
 
 		if (compression)
@@ -60,7 +62,16 @@ namespace TA3D
 			delete[] sendBuf;
 			delete[] recvBuf;
 		}
-    }
+
+		LOG_INFO(LOG_PREFIX_NET << "stats:");
+		LOG_INFO(LOG_PREFIX_NET << "bytes sent: " << bytesSent);
+		if (compression)
+		{
+			LOG_INFO(LOG_PREFIX_NET << "bytes processed: " << bytesProcessed);
+			if (bytesProcessed > 0)
+				LOG_INFO(LOG_PREFIX_NET << "ratio : " << bytesSent * 100 / bytesProcessed << "%");
+		}
+	}
 
     void SocketTCP::reset()
     {
@@ -218,25 +229,27 @@ namespace TA3D
 		{
 			zSend->next_in = (Bytef*)data;
 			zSend->avail_in = size;
-			bool loop = false;
-			while(zSend->avail_in > 0 || loop)
+			zSend->avail_out = 0;
+			bytesProcessed += size;
+			while(zSend->avail_in > 0 || zSend->avail_out == 0)
 			{
 				zSend->next_out = sendBuf;
 				zSend->avail_out = TCP_BUFFER_SIZE;
-				int ret = deflate(zSend, Z_SYNC_FLUSH);
+				deflate(zSend, Z_SYNC_FLUSH);
 				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
+				bytesSent += sent;
 				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
 				{
 					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
 					close();
 					return;
 				}
-				loop = (ret == Z_OK && zSend->avail_out == 0);
 			}
 		}
 		else
 		{
 			int sent = SDLNet_TCP_Send(sock, data, size);
+			bytesSent += sent;
 
 			if (sent < size)
 			{
@@ -283,7 +296,7 @@ namespace TA3D
 			do
 			{
 				check(0);
-				byte *pIn = zRecv->next_in;
+				byte *pIn = zRecv->next_in + zRecv->avail_in;
 				while(ready() && zRecv->avail_in < TCP_BUFFER_SIZE)
 				{
 					int n = SDLNet_TCP_Recv(sock, pIn++, 1);
@@ -305,6 +318,8 @@ namespace TA3D
 					zStreamError(ret, zRecv->msg);
 					if (ret != Z_BUF_ERROR)
 					{
+						LOG_DEBUG("in = " << zRecv->avail_in);
+						LOG_DEBUG("out/size = " << zRecv->avail_out << "/" << size);
 						LOG_ERROR(LOG_PREFIX_NET << "closing compressed socket because of decompression error");
 						close();
 						return size - zRecv->avail_out;
