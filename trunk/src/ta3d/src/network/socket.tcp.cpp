@@ -23,16 +23,21 @@ namespace TA3D
 			sendBuf = new byte[TCP_BUFFER_SIZE];
 			zSend->avail_out = TCP_BUFFER_SIZE;
 			zSend->next_out = sendBuf;
-			zSend->zalloc = NULL;
-			zSend->zfree = NULL;
+			zSend->zalloc = Z_NULL;
+			zSend->zfree = Z_NULL;
+			zSend->opaque = Z_NULL;
 
 			zRecv->avail_in = 0;
-			zRecv->next_in = recvBuf;
-			zRecv->zalloc = NULL;
-			zRecv->zfree = NULL;
+			zRecv->next_in = Z_NULL;
+			zRecv->zalloc = Z_NULL;
+			zRecv->zfree = Z_NULL;
+			zRecv->opaque = Z_NULL;
 
 			deflateInit(zSend, 1);
 			inflateInit(zRecv);
+
+			zRecv->avail_in = 0;
+			zRecv->next_in = recvBuf;
 		}
 		else
 		{
@@ -147,13 +152,16 @@ namespace TA3D
 			zSend->opaque = Z_NULL;
 
 			zRecv->avail_in = 0;
-			zRecv->next_in = recvBuf;
+			zRecv->next_in = Z_NULL;
 			zRecv->zalloc = Z_NULL;
 			zRecv->zfree = Z_NULL;
 			zRecv->opaque = Z_NULL;
 
 			deflateInit(zSend, 1);
 			inflateInit(zRecv);
+
+			zRecv->avail_in = 0;
+			zRecv->next_in = recvBuf;
 		}
 		else
 		{
@@ -249,9 +257,10 @@ namespace TA3D
 			do
 			{
 				check(0);
+				byte *pIn = zRecv->next_in;
 				while(ready() && zRecv->avail_in < TCP_BUFFER_SIZE)
 				{
-					int n = SDLNet_TCP_Recv(sock, zRecv->next_in, 1);
+					int n = SDLNet_TCP_Recv(sock, pIn++, 1);
 					if (n == 1)
 						zRecv->avail_in++;
 					else
@@ -270,7 +279,7 @@ namespace TA3D
 					}
 					check(0);
 				}
-				int ret = inflate(zRecv, Z_SYNC_FLUSH);
+				int ret = inflate(zRecv, Z_NO_FLUSH);
 				if (ret != Z_OK)
 				{
 					if (zRecv->msg)
