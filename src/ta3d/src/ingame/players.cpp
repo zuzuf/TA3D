@@ -185,6 +185,7 @@ namespace TA3D
 			last_ticksynced = units.current_tick;
 
 			units.lock();
+			SocketTCP::disableFlush();
 			for (int e = 0; e < units.nb_unit; ++e)
 			{
 				int i = units.idx_list[e];
@@ -238,6 +239,7 @@ namespace TA3D
 				units.unit[i].unlock();
 				units.lock();
 			}
+			SocketTCP::enableFlush();
 			units.unlock();
 		}
 	}

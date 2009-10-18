@@ -2,10 +2,22 @@
 #include "../logs/logs.h"
 #include "socket.tcp.h"
 
-#define TCP_BUFFER_SIZE		2048
+#define TCP_BUFFER_SIZE			2048
+#define TCP_COMPRESSION_LEVEL	6
 
 namespace TA3D
 {
+	bool SocketTCP::forceFlush = true;
+
+	void SocketTCP::enableFlush()
+	{
+		forceFlush = true;
+	}
+
+	void SocketTCP::disableFlush()
+	{
+		forceFlush = false;
+	}
 
 	SocketTCP::SocketTCP(bool enableCompression)
     {
@@ -35,7 +47,7 @@ namespace TA3D
 			zRecv->zfree = Z_NULL;
 			zRecv->opaque = Z_NULL;
 
-			deflateInit(zSend, 1);
+			deflateInit(zSend, TCP_COMPRESSION_LEVEL);
 			inflateInit(zRecv);
 
 			zRecv->avail_in = 0;
@@ -168,7 +180,7 @@ namespace TA3D
 			zRecv->zfree = Z_NULL;
 			zRecv->opaque = Z_NULL;
 
-			deflateInit(zSend, 1);
+			deflateInit(zSend, TCP_COMPRESSION_LEVEL);
 			inflateInit(zRecv);
 
 			zRecv->avail_in = 0;
@@ -231,11 +243,12 @@ namespace TA3D
 			zSend->avail_in = size;
 			zSend->avail_out = 0;
 			bytesProcessed += size;
-			while(zSend->avail_in > 0 || zSend->avail_out == 0)
+			int flush = forceFlush ? Z_SYNC_FLUSH : Z_NO_FLUSH;
+			while (zSend->avail_in > 0 || zSend->avail_out == 0)
 			{
 				zSend->next_out = sendBuf;
 				zSend->avail_out = TCP_BUFFER_SIZE;
-				deflate(zSend, Z_SYNC_FLUSH);
+				deflate(zSend, flush);
 				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
 				bytesSent += sent;
 				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
