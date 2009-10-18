@@ -74,15 +74,6 @@ namespace TA3D
 			delete[] sendBuf;
 			delete[] recvBuf;
 		}
-
-		LOG_INFO(LOG_PREFIX_NET << "stats:");
-		LOG_INFO(LOG_PREFIX_NET << "bytes sent: " << bytesSent);
-		if (compression)
-		{
-			LOG_INFO(LOG_PREFIX_NET << "bytes processed: " << bytesProcessed);
-			if (bytesProcessed > 0)
-				LOG_INFO(LOG_PREFIX_NET << "ratio : " << bytesSent * 100 / bytesProcessed << "%");
-		}
 	}
 
     void SocketTCP::reset()
@@ -146,7 +137,20 @@ namespace TA3D
 
     void SocketTCP::close()
     {
-        MutexLocker locker(pMutex);
+		if (isOpen())
+		{
+			LOG_INFO(LOG_PREFIX_NET << "stats:");
+			LOG_INFO(LOG_PREFIX_NET << "bytes sent: " << bytesSent);
+			if (compression)
+			{
+				LOG_INFO(LOG_PREFIX_NET << "bytes processed: " << bytesProcessed);
+				if (bytesProcessed > 0)
+					LOG_INFO(LOG_PREFIX_NET << "ratio : " << bytesSent * 100 / bytesProcessed << "%");
+			}
+			bytesProcessed = bytesSent = 0;
+		}
+
+		MutexLocker locker(pMutex);
         if (set)
             SDLNet_FreeSocketSet(set);
         if (sock)
