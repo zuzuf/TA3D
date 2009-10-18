@@ -21,6 +21,12 @@
 namespace TA3D
 {
 
+SocketListNode::~SocketListNode()
+{
+	thread.join();
+	sock->close();
+	delete sock;
+}
 
 SockList::SockList()
 {
@@ -50,16 +56,17 @@ SockList::Add(TA3DSock* sock)
     SocketListNode *node,*ptr;
 
     node = new SocketListNode;
-    maxid++;
+	++maxid;
     node->id = maxid;
     node->sock = sock;
 
     if(!list)
         list = node;
-    else{
-        ptr=list;
-        while(ptr->next)
-            ptr=ptr->next;
+	else
+	{
+		ptr = list;
+		while (ptr->next)
+			ptr = ptr->next;
         ptr->next = node;
     }
 
