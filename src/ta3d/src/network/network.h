@@ -120,6 +120,7 @@ namespace TA3D
         Mutex sqmutex;
         Mutex eqmutex;
         Mutex ftmutex;
+		Mutex ft2mutex;
 
         bool playerDirty;
         bool fileDirty;

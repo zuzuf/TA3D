@@ -186,8 +186,6 @@ namespace TA3D
 		listen_thread.join();
 		listen_socket.close();
 
-		tohost_socket = NULL;
-
 		broadcast_thread.join();
 		broadcast_socket.close();
 
@@ -205,9 +203,11 @@ namespace TA3D
 		}
 		getfile_thread.clear();
 		sendfile_thread.clear();
-		transfer_progress.clear();
-
 		ftmutex.unlock();
+
+		ft2mutex.lock();
+		transfer_progress.clear();
+		ft2mutex.unlock();
 
 		slmutex.lock();
 		players.Shutdown();
@@ -216,14 +216,14 @@ namespace TA3D
 		cleanQueues();
 		myMode = 0;
 
+		tohost_socket = NULL;
 	}
 
 	void Network::stopFileTransfer( const String &port, int to_id )
 	{
-		ftmutex.lock();
-
 		if (port.empty())
 		{
+			ftmutex.lock();
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
 			{
 				(*i)->join();
@@ -236,10 +236,14 @@ namespace TA3D
 			}
 			getfile_thread.clear();
 			sendfile_thread.clear();
+			ftmutex.unlock();
+			ft2mutex.lock();
 			transfer_progress.clear();
+			ft2mutex.unlock();
 		}
 		else
 		{
+			ftmutex.lock();
 			int nb_port = atoi( port.c_str() );
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
 			{
@@ -248,10 +252,8 @@ namespace TA3D
 					GetFileThread *p = *i;
 					getfile_thread.erase( i++ );
 
-					ftmutex.unlock();
 					p->join();
 					delete p;
-					ftmutex.lock();
 
 					break;
 				}
@@ -265,25 +267,23 @@ namespace TA3D
 					SendFileThread *p = *i;
 					sendfile_thread.erase( i++ );
 
-					ftmutex.unlock();
 					p->join();
 					delete p;
-					ftmutex.lock();
 
 					break;
 				}
 				else
 					++i;
 			}
+			ftmutex.unlock();
 		}
 
 		setFileDirty();
-
-		ftmutex.unlock();
 	}
 
 	bool Network::isTransferFinished( const String &port )
 	{
+		MutexLocker mLock(ftmutex);
 		int nb_port = atoi( port.c_str() );
 		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
 			if ((*i)->port == nb_port)
@@ -378,13 +378,17 @@ namespace TA3D
 	{
 		if( !fileDirty )	return;
 		ftmutex.lock();
-		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
-			if( (*i)->isDead() ) {
+		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
+		{
+			if ((*i)->isDead())
+			{
+				ft2mutex.lock();
 				for (std::list< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
 					if( e->size == 0 )
 						transfer_progress.erase( e++ );
 					else
 						e++;
+				ft2mutex.unlock();
 
 				(*i)->join();
 				delete *i;
@@ -395,15 +399,17 @@ namespace TA3D
 		}
 		for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
 		{
-			if( (*i)->isDead() )
+			if ((*i)->isDead())
 			{
+				ft2mutex.lock();
 				for (std::list< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
 				{
-					if( e->size == 0 )
+					if (e->size == 0)
 						transfer_progress.erase( e++ );
 					else
 						e++;
 				}
+				ft2mutex.unlock();
 
 				(*i)->join();
 				delete *i;
@@ -860,10 +866,10 @@ namespace TA3D
 
 	float Network::getFileTransferProgress()
 	{
-		ftmutex.lock();
+		ft2mutex.lock();
 		if( transfer_progress.empty() )
 		{
-			ftmutex.unlock();
+			ft2mutex.unlock();
 			return 100.0f;
 		}
 
@@ -875,20 +881,20 @@ namespace TA3D
 			size += i->size;
 		}
 
-		ftmutex.unlock();
+		ft2mutex.unlock();
 		return size ? 100.0f * pos / size : 100.0f;
 	}
 
 	void Network::updateFileTransferInformation( String id, int size, int pos )
 	{
-		ftmutex.lock();
+		ft2mutex.lock();
 		for (std::list< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; ++i)
 		{
 			if( i->id == id )
 			{
 				i->size = size;
 				i->pos = pos;
-				ftmutex.unlock();
+				ft2mutex.unlock();
 				return;
 			}
 		}
@@ -898,7 +904,7 @@ namespace TA3D
 		info.pos = pos;
 		transfer_progress.push_back( info );
 
-		ftmutex.unlock();
+		ft2mutex.unlock();
 	}
 
 	int Network::listNetGames(std::list<SERVER_DATA>& list)

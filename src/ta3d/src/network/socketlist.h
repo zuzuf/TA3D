@@ -34,7 +34,8 @@ class SocketListNode
 {
 public:
 	SocketListNode() :next(NULL){}
-	~SocketListNode() {sock->close(); thread.join(); delete sock;}
+	~SocketListNode();
+
 	int id;
 	TA3DSock* sock;
 	SocketThread thread;
