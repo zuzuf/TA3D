@@ -391,10 +391,10 @@ namespace TA3D
 					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
 						DrawObject draw_obj;
 						draw_obj.type = DRAW_TYPE_BITMAP;
-						draw_obj.x[0] = event_msg.x;
-						draw_obj.y[0] = event_msg.y;
-						draw_obj.x[1] = event_msg.z;
-						draw_obj.y[1] = event_msg.opt3 / 16384.0f;
+						draw_obj.x[0] = event_msg.opt3 / 16384.0f;
+						draw_obj.y[0] = event_msg.x;
+						draw_obj.x[1] = event_msg.y;
+						draw_obj.y[1] = event_msg.z;
                         draw_obj.text = I18N::Translate( (char*)event_msg.str );		// We can't load it now because of thread safety
 						draw_obj.tex = 0;
 						LuaProgram::inGame->draw_list.add( draw_obj );
