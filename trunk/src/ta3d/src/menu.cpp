@@ -450,10 +450,10 @@ namespace TA3D
 				lp_CONFIG->music_volume = config_area.get_value("*.music_volume");
 				sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 			}
-			lp_CONFIG->shadowmap_size = config_area.get_value("*.shadow_map_size");
+			lp_CONFIG->shadowmap_size = uint8(config_area.get_value("*.shadow_map_size"));
 			lp_CONFIG->far_sight = config_area.get_state("*.far_sight");
-			lp_CONFIG->anisotropy = config_area.get_value("*.anisotropy");
-			lp_CONFIG->mouse_sensivity = config_area.get_value("*.mouse_sensitivity") * 0.01f;
+			lp_CONFIG->anisotropy = sint16(config_area.get_value("*.anisotropy"));
+			lp_CONFIG->mouse_sensivity = float(config_area.get_value("*.mouse_sensitivity")) * 0.01f;
 			lp_CONFIG->ortho_camera = config_area.get_state("*.disable_perspective");
 			lp_CONFIG->right_click_interface = config_area.get_state("*.right_click_interface");
 			lp_CONFIG->disable_GLSL = config_area.get_state("*.disable_GLSL");
@@ -475,7 +475,7 @@ namespace TA3D
 				if (obj && obj->Value >= -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
-					lp_CONFIG->camera_zoom = obj->Value;
+					lp_CONFIG->camera_zoom = uint8(obj->Value);
 				}
 			}
 			if (config_area.get_value( "*.camera_def_angle" ) >= 0)
@@ -520,9 +520,9 @@ namespace TA3D
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
-					lp_CONFIG->screen_width = res_width[ obj->Value ];
-					lp_CONFIG->screen_height = res_height[ obj->Value ];
-					lp_CONFIG->color_depth = res_bpp[ obj->Value ];
+					lp_CONFIG->screen_width = uint16(res_width[ obj->Value ]);
+					lp_CONFIG->screen_height = uint16(res_height[ obj->Value ]);
+					lp_CONFIG->color_depth = uint8(res_bpp[ obj->Value ]);
 				}
 			}
 			if (config_area.get_value("*.shadow_quality") >= 0)
@@ -531,7 +531,7 @@ namespace TA3D
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
-					lp_CONFIG->shadow_quality = obj->Value;
+					lp_CONFIG->shadow_quality = sint16(obj->Value);
 				}
 			}
 			if (config_area.get_value("*.timefactor") >= 0)
@@ -540,7 +540,7 @@ namespace TA3D
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
-					lp_CONFIG->timefactor = obj->Value + 1;
+					lp_CONFIG->timefactor = float(obj->Value + 1);
 				}
 			}
 			if (config_area.get_value( "*.fsaa" ) >= 0)
@@ -549,7 +549,7 @@ namespace TA3D
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
-					lp_CONFIG->fsaa = obj->Value << 1;
+					lp_CONFIG->fsaa = sint16(obj->Value << 1);
 				}
 			}
 			if (config_area.get_value("*.water_quality") >= 0)
@@ -558,7 +558,7 @@ namespace TA3D
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[ 1 + obj->Value ];
-					lp_CONFIG->water_quality = obj->Value;
+					lp_CONFIG->water_quality = sint16(obj->Value);
 				}
 			}
 			if (config_area.get_value("*.mod") >= 0)
@@ -694,11 +694,11 @@ namespace TA3D
 		uint16  player_str_n = 4;
 		String  player_str[4] = { lp_CONFIG->player_name, I18N::Translate("computer"), I18N::Translate("open"), I18N::Translate("closed") };
 		byte    player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
-		uint16  side_str_n = ta3dSideData.nb_side;
+		int     side_str_n = ta3dSideData.nb_side;
 		String::Vector  side_str;
 		String::Vector  AI_list = AI_PLAYER::getAvailableAIs();
 		AI_list.resize(AI_list.size() + 1);
-		for (int i = AI_list.size() - 1 ; i > 0; --i)
+		for (int i = int(AI_list.size()) - 1 ; i > 0 ; --i)
 			AI_list[i] = AI_list[i-1];
 
 		side_str.resize( ta3dSideData.nb_side);
@@ -799,8 +799,8 @@ namespace TA3D
 		GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
 		MAP_OTA map_data;
 		map_data.load(Paths::Files::ReplaceExtension(game_data.map_filename, ".ota"));
-		float ldx = dx * 70.0f / 252.0f;
-		float ldy = dy * 70.0f / 252.0f;
+		float ldx = float(dx) * 70.0f / 252.0f;
+		float ldy = float(dy) * 70.0f / 252.0f;
 
 		Gui::AREA setupgame_area("setup");
 		setupgame_area.load_tdf("gui/setupgame.area");
@@ -820,7 +820,7 @@ namespace TA3D
 			}
 			guiobj = setupgame_area.get_object( String::Format("gamesetup.team%d", i));
 			if (guiobj)
-				guiobj->current_state = i;
+				guiobj->current_state = byte(i);
 			setupgame_area.caption( String::Format("gamesetup.energy%d", i), String::Format("%d",game_data.energy[i]));
 			setupgame_area.caption( String::Format("gamesetup.metal%d", i), String::Format("%d",game_data.metal[i]));
 		}
@@ -844,8 +844,8 @@ namespace TA3D
 			mini_map_y1 = minimap_obj->y1;
 			mini_map_x2 = minimap_obj->x2;
 			mini_map_y2 = minimap_obj->y2;
-			ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-			ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+			ldx = float(dx) * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+			ldy = float(dy) * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
 
 			mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
 			mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
@@ -855,8 +855,8 @@ namespace TA3D
 			minimap_obj->y1 = mini_map_y - ldy;
 			minimap_obj->x2 = mini_map_x + ldx;
 			minimap_obj->y2 = mini_map_y + ldy;
-			minimap_obj->u2 = dx / 252.0f;
-			minimap_obj->v2 = dy / 252.0f;
+			minimap_obj->u2 = float(dx) / 252.0f;
+			minimap_obj->v2 = float(dy) / 252.0f;
 		}
 
 		Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( "scripts.script_list");
@@ -1310,8 +1310,8 @@ namespace TA3D
 									int i = params[2].to<sint32>();
 									if (!client) // From client to server only
 									{
-										sint16 e = player_color_map[i];
-										sint16 f = -1;
+										byte e = player_color_map[i];
+										int f = -1;
 										for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
 										{
 											if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
@@ -1327,7 +1327,7 @@ namespace TA3D
 										}
 										if (f != -1)
 										{
-											sint16 g = player_color_map[f];
+											byte g = player_color_map[f];
 											player_color_map[i] = g;                                // update game data
 											player_color_map[f] = e;
 
@@ -1352,7 +1352,7 @@ namespace TA3D
 									{
 										obj->Value = value;
 										obj->Text[0] = obj->Text[1 + obj->Value];
-										game_data.fog_of_war = obj->Value;
+										game_data.fog_of_war = uint8(obj->Value);
 									}
 								}
 								else if (params[1] == "MAP")
@@ -1433,8 +1433,8 @@ namespace TA3D
 										Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( String::Format( "gamesetup.team%d", i ) );
 										if (guiobj)
 										{
-											guiobj->current_state = n_team;
-											game_data.team[i] = 1 << n_team;
+											guiobj->current_state = byte(n_team);
+											game_data.team[i] = short(1 << n_team);
 										}
 									}
 								}
@@ -1506,7 +1506,7 @@ namespace TA3D
 							{
 								for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 								{
-									player_color_map[i] = params[i + 1].to<sint32>();
+									player_color_map[i] = byte(params[i + 1].to<sint32>());
 									Gui::GUIOBJ::Ptr guiobj =  setupgame_area.get_object( String::Format("gamesetup.color%d", i));
 									if (guiobj)
 										guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
@@ -1530,7 +1530,7 @@ namespace TA3D
 					chat_list->Text.push_back(chat_msg);
 					if (chat_list->Text.size() > 5)
 						chat_list->Data++;
-					chat_list->Pos = chat_list->Text.size() - 1;
+					chat_list->Pos = uint32(chat_list->Text.size() - 1);
 				}
 
 				if (network_manager.getNextChat( &received_chat_msg ) == 0 )
@@ -1602,7 +1602,7 @@ namespace TA3D
 					chat_list->Text.push_back( message);
 					if (chat_list->Text.size() > 5)
 						chat_list->Data++;
-					chat_list->Pos = chat_list->Text.size() - 1;
+					chat_list->Pos = uint32(chat_list->Text.size() - 1);
 				}
 
 				setupgame_area.caption("gamesetup.t_chat", "");
@@ -1614,7 +1614,7 @@ namespace TA3D
 				if (obj && obj->Value != -1)
 				{
 					obj->Text[0] = obj->Text[1 + obj->Value];
-					game_data.fog_of_war = obj->Value;
+					game_data.fog_of_war = uint8(obj->Value);
 					if (host.notEmpty())
 						network_manager.sendSpecial(String::Format("SET FOW %d", obj->Value));
 				}
@@ -1694,10 +1694,10 @@ namespace TA3D
 						&& game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED)
 					{
 						network_manager.sendSpecial( "NOTIFY UPDATE");
-						game_data.team[i] = 1 << guiobj->current_state;
+						game_data.team[i] = short(1 << guiobj->current_state);
 					}
 					else
-						guiobj->current_state = Math::Log2(game_data.team[i]);
+						guiobj->current_state = byte(Math::Log2(game_data.team[i]));
 				}
 				if (client && game_data.player_network_id[i] != my_player_id )
 					continue;                           // You cannot change other player's settings
@@ -1708,8 +1708,8 @@ namespace TA3D
 						network_manager.dropPlayer( game_data.player_network_id[i]);
 						network_manager.sendSpecial( "NOTIFY UPDATE");
 					}
-					uint16 e = 0;
-					for (unsigned int f = 0; f < player_str_n; ++f)
+					int e = 0;
+					for (int f = 0; f < player_str_n; ++f)
 					{
 						if (setupgame_area.caption(String::Format("gamesetup.name%d", i)) == player_str[f])
 						{
@@ -1725,7 +1725,7 @@ namespace TA3D
 						{
 							if (f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN) // If we already have a local human player pass this player type value
 							{
-								e = (e+1) % player_str_n;
+								e = (e + 1) % player_str_n;
 								break;
 							}
 						}
@@ -1755,8 +1755,8 @@ namespace TA3D
 				}
 				if (setupgame_area.get_state( String::Format("gamesetup.b_side%d", i))) // Change player side
 				{
-					uint16 e = 0;
-					for (unsigned int f = 0 ; f < side_str_n; ++f)
+					int e = 0;
+					for (int f = 0 ; f < side_str_n; ++f)
 					{
 						if (setupgame_area.caption(String::Format("gamesetup.side%d", i)) == side_str[f])
 						{
@@ -1764,7 +1764,7 @@ namespace TA3D
 							break;
 						}
 					}
-					e = (e+1) % side_str_n;
+					e = (e + 1) % side_str_n;
 					setupgame_area.caption( String::Format("gamesetup.side%d", i) , side_str[e]);           // Update gui
 
 					game_data.player_sides[i] = side_str[e];                                // update game data
@@ -1791,8 +1791,8 @@ namespace TA3D
 				{
 					if (client)
 						network_manager.sendSpecial(String::Format("NOTIFY COLORCHANGE %d", i));
-					sint16 e = player_color_map[i];
-					sint16 f = -1;
+					byte e = player_color_map[i];
+					int f = -1;
 					for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
 					{
 						if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
@@ -1811,7 +1811,7 @@ namespace TA3D
 					}
 					if (f != -1)
 					{
-						sint16 g = player_color_map[f];
+						byte g = player_color_map[f];
 						player_color_map[i] = g;                                // update game data
 						player_color_map[f] = e;
 
@@ -1904,14 +1904,14 @@ namespace TA3D
 
 					game_data.map_filename = new_map;
 					glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
-					ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-					ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+					ldx = float(dx) * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+					ldy = float(dy) * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
 					minimap_obj->x1 = mini_map_x - ldx;
 					minimap_obj->y1 = mini_map_y - ldy;
 					minimap_obj->x2 = mini_map_x + ldx;
 					minimap_obj->y2 = mini_map_y + ldy;
-					minimap_obj->u2 = dx / 252.0f;
-					minimap_obj->v2 = dy / 252.0f;
+					minimap_obj->u2 = float(dx) / 252.0f;
+					minimap_obj->v2 = float(dy) / 252.0f;
 
 					map_data.destroy();
 					map_data.load(Paths::Files::ReplaceExtension(game_data.map_filename, ".ota"));
@@ -1993,7 +1993,7 @@ namespace TA3D
 								game_data.ai_level[game_data.nb_players] = game_data.ai_level[i];
 								game_data.energy[game_data.nb_players] = game_data.energy[i];
 								game_data.metal[game_data.nb_players] = game_data.metal[i];
-								uint16 e = player_color_map[game_data.nb_players];
+								byte e = player_color_map[game_data.nb_players];
 								player_color_map[game_data.nb_players] = player_color_map[i];
 								player_color_map[i] = e;
 							}
@@ -2659,14 +2659,14 @@ namespace TA3D
 				key_is_pressed = brief_area.key_pressed;
 				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
-					 && !key[ KEY_ESC ] && !done && !key_is_pressed && !brief_area.scrolling && (int)planet_frame == (int)((msec_timer - time_ref) * 0.01f));
+					 && !key[ KEY_ESC ] && !done && !key_is_pressed && !brief_area.scrolling && (int)planet_frame == (int)(float(msec_timer - time_ref) * 0.01f));
 
 			amx = mouse_x;
 			amy = mouse_y;
 			amz = mouse_z;
 			amb = mouse_b;
 
-			planet_frame = (msec_timer - time_ref) * 0.01f;
+			planet_frame = float(msec_timer - time_ref) * 0.01f;
 
 			if (brief_area.get_value("brief.schema") >= 0)
 			{
@@ -2696,8 +2696,8 @@ namespace TA3D
 				if (guiobj)
 				{
 					guiobj->Data = planet_animation[pan_id].glbmp[ ((int)pan_frame) % planet_animation[pan_id].nb_bmp ];
-					guiobj->x2 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
-					guiobj->u1 = (pan_frame - ((int)pan_frame));
+					guiobj->u1 = Math::Modf(pan_frame);
+					guiobj->x2 = pan_x2 + (pan_x1 - pan_x2) * guiobj->u1;
 				}
 			}
 
@@ -2707,8 +2707,8 @@ namespace TA3D
 				if (guiobj)
 				{
 					guiobj->Data = planet_animation[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation[pan_id].nb_bmp ];
-					guiobj->x1 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
-					guiobj->u2 = (pan_frame - ((int)pan_frame));
+					guiobj->u2 = Math::Modf(pan_frame);
+					guiobj->x1 = pan_x2 + (pan_x1 - pan_x2) * guiobj->u2;
 				}
 			}
 
@@ -2802,7 +2802,7 @@ namespace TA3D
 				game_data.energy[ i ] = ota_parser.pullAsInt( String::Format( "GlobalHeader.Schema %d.computerenergy", schema ));
 				game_data.metal[ i ] = ota_parser.pullAsInt( String::Format( "GlobalHeader.Schema %d.computermetal", schema ));
 
-				player_color_map[ i ] = i;
+				player_color_map[ i ] = byte(i);
 			}
 
 			game_data.campaign = true;
@@ -2843,7 +2843,7 @@ namespace TA3D
 		bool dead_player[TA3D_PLAYERS_HARD_LIMIT];
 		uint32 player_timer[TA3D_PLAYERS_HARD_LIMIT];
 
-		for (short int i = game_data->nb_players; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+		for (int i = game_data->nb_players; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
 			dead_player[i] = true;
 			wait_area.msg(String::Format("wait.name%d.hide",i));
@@ -2851,7 +2851,7 @@ namespace TA3D
 			wait_area.msg(String::Format("wait.ready%d.hide",i));
 		}
 
-		for (short int i = 0; i < game_data->nb_players; ++i)
+		for (int i = 0; i < game_data->nb_players; ++i)
 		{
 			player_timer[i] = msec_timer;
 			dead_player[i] = false;

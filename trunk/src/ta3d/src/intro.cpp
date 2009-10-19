@@ -75,7 +75,7 @@ namespace TA3D
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
-		gfx->drawtexture(Glfond, 0.f, 0.f, SCREEN_W, SCREEN_H);
+		gfx->drawtexture(Glfond, 0.f, 0.f, float(SCREEN_W), float(SCREEN_H));
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -88,12 +88,12 @@ namespace TA3D
 			messages.push_front(msg);
 		}
 
-		float fw = SCREEN_W / 1280.0f;
-		float fh = SCREEN_H / 1024.0f;
+		float fw = float(SCREEN_W) / 1280.0f;
+		float fh = float(SCREEN_H) / 1024.0f;
 
 		int e = 0;
 		for (String::List::const_iterator i = messages.begin(); i != messages.end(); ++i, ++e)
-			gfx->print(Gui::gui_font, 105.0f * fw, 175.0f * fh + h * e, 0.0f, 0xFFFFFFFF, *i);
+			gfx->print(Gui::gui_font, 105.0f * fw, 175.0f * fh + h * float(e), 0.0f, 0xFFFFFFFF, *i);
 
 		glDisable(GL_BLEND);
 
