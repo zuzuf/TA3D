@@ -254,10 +254,10 @@ namespace TA3D
 			pFeature->flamable = parser.pullAsBool( key + "flamable", pFeature->flamable );
 			pFeature->geothermal = parser.pullAsBool( key + "geothermal", pFeature->geothermal );
 			pFeature->feature_dead = parser.pullAsString( key + "featuredead" );
-			pFeature->burnmin = parser.pullAsInt( key + "burnmin", pFeature->burnmin );
-			pFeature->burnmax = parser.pullAsInt( key + "burnmax", pFeature->burnmax );
-			pFeature->sparktime = parser.pullAsInt( key + "sparktime", pFeature->sparktime );
-			pFeature->spreadchance = parser.pullAsInt( key + "spreadchance", pFeature->spreadchance );
+			pFeature->burnmin = short(parser.pullAsInt( key + "burnmin", pFeature->burnmin ));
+			pFeature->burnmax = short(parser.pullAsInt( key + "burnmax", pFeature->burnmax ));
+			pFeature->sparktime = short(parser.pullAsInt( key + "sparktime", pFeature->sparktime ));
+			pFeature->spreadchance = byte(parser.pullAsInt( key + "spreadchance", pFeature->spreadchance ));
 			pFeature->burnweapon = parser.pullAsString( key + "burnweapon" );
 			pFeature->feature_burnt = parser.pullAsString( key + "featureburnt" );
 			pFeature->feature_reclamate = parser.pullAsString( key + "featurereclamate" );
@@ -306,9 +306,9 @@ namespace TA3D
 								String st(feature[i]->filename);
 								st << "-" << feature[i]->seqname;
 								model_manager.create_from_2d(feature[i]->anim.bmp[0],
-															 feature[i]->footprintx * 8,
-															 feature[i]->footprintz * 8,
-															 feature[i]->height * H_DIV,
+															 float(feature[i]->footprintx * 8),
+															 float(feature[i]->footprintz * 8),
+															 float(feature[i]->height) * H_DIV,
 															 st);
 								feature[i]->model = NULL;
 								feature[i]->m3d = true;
@@ -342,7 +342,7 @@ namespace TA3D
 		for (String::List::const_iterator curFile = files.begin(); curFile != end; ++curFile)
 		{
 			if (progress != NULL && !(n & 0xF))
-				progress((200.0f + n * 50.0f / (files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
+				progress((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
 
 			++n;
 			uint32 file_size(0);
@@ -436,7 +436,7 @@ namespace TA3D
 		if(nb_features <= 0)
 			return;
 		gfx->ReInitAllTex(true);
-		glAlphaFunc(GL_GREATER,0.1);
+		glAlphaFunc(GL_GREATER, 0.1f);
 		glEnable(GL_ALPHA_TEST);
 
 		glDepthFunc(GL_LEQUAL);
@@ -449,7 +449,7 @@ namespace TA3D
 		glEnable(GL_BLEND);
 		float sq2 = 1.0f / sqrtf(2.0f);
 		GLuint old = 0;
-		bool texture_loaded=false;
+		bool texture_loaded = false;
 
 		static const GLubyte index[] =
 		{
@@ -537,10 +537,10 @@ namespace TA3D
 				|| (pFeature->m3d && pFeature->model!=NULL)) )
 			{
 				Vector3D Pos(feature[i].Pos);
-				if( pFeature->m3d )
+				if (pFeature->m3d)
 					Pos.y += pFeature->model->size2;
 				else
-					Pos.y += pFeature->height * 0.5f;
+					Pos.y += float(pFeature->height) * 0.5f;
 
 				const float a = Camera::inGame->rpos.y - units.map->sealvl;
 				const float b = Pos.y - units.map->sealvl;
@@ -562,7 +562,7 @@ namespace TA3D
 			{
 				pFeature->convert();		// Convert texture data if needed
 
-                feature[i].frame = (units.current_tick + feature[i].timeRef >> 1) % pFeature->anim.nb_bmp;
+				feature[i].frame = short(((units.current_tick + feature[i].timeRef) >> 1) % pFeature->anim.nb_bmp);
 
 				if (!texture_loaded || old != pFeature->anim.glbmp[feature[i].frame])
 				{
@@ -572,12 +572,12 @@ namespace TA3D
 				}
 
 				Vector3D Pos(feature[i].Pos);
-				float h  = pFeature->height * 0.5f;
-				float dw = 0.5f * pFeature->anim.w[feature[i].frame];
+				float h  = float(pFeature->height) * 0.5f;
+				float dw = 0.5f * float(pFeature->anim.w[feature[i].frame]);
 
 				if (pFeature->height > 5.0f)
 				{
-					dw *= h / pFeature->anim.h[feature[i].frame];
+					dw *= h / float(pFeature->anim.h[feature[i].frame]);
 
 					if (feature[i].grey)
 						glColor4ub( 127, 127, 127, 255 );
@@ -610,9 +610,9 @@ namespace TA3D
 					if (!Camera::inGame->mirror && !no_flat && !gfx->getShadowMapMode())
 					{
 						dw *= 0.5f;
-						h = 0.25f * pFeature->anim.h[feature[i].frame];
-                        Pos.x += pFeature->anim.ofs_x[feature[i].frame] * 0.5f - dw;
-                        Pos.z += pFeature->anim.ofs_y[feature[i].frame] * 0.5f - h;
+						h = 0.25f * float(pFeature->anim.h[feature[i].frame]);
+						Pos.x += float(pFeature->anim.ofs_x[feature[i].frame]) * 0.5f - dw;
+						Pos.z += float(pFeature->anim.ofs_y[feature[i].frame]) * 0.5f - h;
 
                         quad_table.queue_quad( pFeature->anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0xFF7F7F7F : 0xFFFFFFFF ) );
 					}
@@ -642,7 +642,7 @@ namespace TA3D
 						glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
 						glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
 						glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                        float lt = t + feature[i].timeRef * ticks2sec;
+						float lt = t + float(feature[i].timeRef) * ticks2sec;
                         pFeature->model->draw(lt, NULL, false, false, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, !feature[i].grey);
 
 						if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
@@ -751,7 +751,7 @@ namespace TA3D
 
 					if (pFeature->model->animated || feature[i].sinking || feature[i].shadow_dlist == 0)
 					{
-                        float lt = t + feature[i].timeRef * ticks2sec;
+						float lt = t + float(feature[i].timeRef) * ticks2sec;
 						bool create_display_list = false;
 						if (!pFeature->model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0)
 						{
@@ -866,7 +866,7 @@ namespace TA3D
 				feature[idx].burning = true;
 				feature[idx].burning_time = 0.0f;
 				int time_zone = abs( pFeature->burnmax - pFeature->burnmin ) + 1;
-				feature[ idx ].time_to_burn = (Math::RandomTable() % time_zone ) + pFeature->burnmin;		// How long it burns
+				feature[ idx ].time_to_burn = short((Math::RandomTable() % time_zone ) + pFeature->burnmin);		// How long it burns
 				burning_features.push_back(idx);		// It's burning 8)
 
 				// Start doing damages to things around
@@ -977,7 +977,7 @@ namespace TA3D
 					}
 				}
 
-				feature[*i].weapon_counter = ( feature[*i].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC;
+				feature[*i].weapon_counter = byte(( feature[*i].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC);
 
 				if (!network_manager.isConnected() || network_manager.isServer())
 				{
@@ -1026,9 +1026,9 @@ namespace TA3D
 				float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
 				if (sea_ground < feature[*i].Pos.y )
 				{
-					if (sinf(-feature[*i].angle_x * DEG2RAD) * pFeature->footprintx * 8.0f > feature[*i].Pos.y - sea_ground)
+					if (sinf(-feature[*i].angle_x * DEG2RAD) * float(pFeature->footprintx) * 8.0f > feature[*i].Pos.y - sea_ground)
 					{
-						feature[*i].angle_x = RAD2DEG * asinf( ( sea_ground - feature[*i].Pos.y ) / (pFeature->footprintx * 8.0f) );
+						feature[*i].angle_x = RAD2DEG * asinf( ( sea_ground - feature[*i].Pos.y ) / (float(pFeature->footprintx) * 8.0f) );
 						feature[*i].dive = true;
 					}
 					feature[*i].dive_speed = (feature[*i].dive_speed + 3.0f * dt) * expf(-dt);
@@ -1138,7 +1138,7 @@ namespace TA3D
 		feature[idx].type = type;
 		feature[idx].frame = 0;
 		feature[idx].draw = false;
-		feature[idx].hp = feature_manager.getFeaturePointer(type)->damage;
+		feature[idx].hp = float(feature_manager.getFeaturePointer(type)->damage);
 		feature[idx].grey = false;
 		feature[idx].dt = 0.0f;
 		feature[idx].angle = 0.0f;
