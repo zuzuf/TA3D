@@ -78,11 +78,11 @@ namespace TA3D
 						gfx->destroy_texture(PicList[i]);
 						PicList[i] = Pic;
 					}
-					Pic_x[ i ] = px;
-					Pic_y[ i ] = py;
-					Pic_w[ i ] = pw;
-					Pic_h[ i ] = ph;
-					Pic_p[ i ] = p;
+					Pic_x[ i ] = short(px);
+					Pic_y[ i ] = short(py);
+					Pic_w[ i ] = short(pw);
+					Pic_h[ i ] = short(ph);
+					Pic_p[ i ] = short(p);
 					return;
 				}
 			}
@@ -91,13 +91,13 @@ namespace TA3D
 		++nb_unit;
 		if (BuildList.empty())
 			nb_unit = 1;
-		BuildList.push_back(index);
+		BuildList.push_back(short(index));
 		PicList.push_back(Pic);
-		Pic_x.push_back(px);
-		Pic_y.push_back(py);
-		Pic_w.push_back(pw);
-		Pic_h.push_back(ph);
-		Pic_p.push_back(p);
+		Pic_x.push_back(short(px));
+		Pic_y.push_back(short(py));
+		Pic_w.push_back(short(pw));
+		Pic_h.push_back(short(ph));
+		Pic_p.push_back(short(p));
 	}
 
 
@@ -106,7 +106,7 @@ namespace TA3D
 		TDFParser gui_parser(filename, false, false, true);
 
 		String number = filename.substr(0, filename.size() - 4);
-		int first = number.size() - 1;
+		int first = int(number.size() - 1);
 		while (first >= 0 && number[first] >= '0' && number[first] <= '9')
 			--first;
 		++first;
@@ -549,21 +549,21 @@ namespace TA3D
 		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		glEnable(GL_TEXTURE_2D);
 		glColor4f(1.0f,1.0f,1.0f,fade);
-		gfx->drawtexture(glpic,x+16,y+16,x+80,y+80);
+		gfx->drawtexture(glpic, float(x + 16), float(y + 16), float(x + 80), float(y + 80));
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print(fnt,x+96,y+16,0.0f,I18N::Translate("Name") + ": " + name);
-		gfx->print(fnt,x+96,y+28,0.0f,I18N::Translate("Internal name") + ": " + Unitname);
-		gfx->print(fnt,x+96,y+40,0.0f,Description);
-		gfx->print(fnt,x+96,y+52,0.0f,I18N::Translate("HP") + ": " + String(MaxDamage));
-		gfx->print(fnt,x+96,y+64,0.0f,I18N::Translate("Cost") + ": E " + String(BuildCostEnergy) + " M " + String(BuildCostMetal));
-		gfx->print(fnt,x+16,y+100,0.0f,I18N::Translate("Build time") + ": " + String(BuildTime));
-		gfx->print(fnt,x+16,y+124,0.0f,I18N::Translate("weapons") + ":");
-		int Y=y+136;
+		gfx->print(fnt, float(x + 96), float(y + 16), 0.0f, I18N::Translate("Name") + ": " + name);
+		gfx->print(fnt, float(x + 96), float(y + 28), 0.0f, I18N::Translate("Internal name") + ": " + Unitname);
+		gfx->print(fnt, float(x + 96), float(y + 40), 0.0f, Description);
+		gfx->print(fnt, float(x + 96), float(y + 52), 0.0f, I18N::Translate("HP") + ": " + String(MaxDamage));
+		gfx->print(fnt, float(x + 96), float(y + 64), 0.0f, I18N::Translate("Cost") + ": E " + String(BuildCostEnergy) + " M " + String(BuildCostMetal));
+		gfx->print(fnt, float(x + 16), float(y + 100), 0.0f, I18N::Translate("Build time") + ": " + String(BuildTime));
+		gfx->print(fnt, float(x + 16), float(y + 124), 0.0f, I18N::Translate("weapons") + ":");
+		int Y = y + 136;
 		for( std::vector<WEAPON_DEF*>::iterator i = weapon.begin() ; i != weapon.end() ; i++ )
 			if (*i)
 			{
-				gfx->print(fnt,x+16,Y,0.0f,(*i)->name + ": " + String( (*i)->damage));
-				Y+=12;
+				gfx->print(fnt, float(x + 16), float(Y), 0.0f, (*i)->name + ": " + String( (*i)->damage));
+				Y += 12;
 			}
 		glDisable(GL_BLEND);
 	}
@@ -591,20 +591,20 @@ namespace TA3D
 		TDFParser unitParser_ci( filename, false, true );     // Case insensitive parser
 
 		Unitname = parseString("UNITINFO.UnitName");
-		version = parseInt("UNITINFO.Version");
+		version = byte(parseInt("UNITINFO.Version"));
 		side = parseString("UNITINFO.Side");
 		ObjectName = parseString("UNITINFO.Objectname");
 		Designation_Name = parseString("UNITINFO.Designation");
 		Description = parseStringDef( lang_desc, parseStringDef( lang_desc_alt, parseString("UNITINFO.Description") ) );
 		name = parseStringDef( lang_name, parseStringDef(lang_name_alt, parseString("UNITINFO.Name") ) );
 
-		FootprintX = parseInt("UNITINFO.FootprintX");
-		FootprintZ = parseInt("UNITINFO.FootprintZ");
+		FootprintX = byte(parseInt("UNITINFO.FootprintX"));
+		FootprintZ = byte(parseInt("UNITINFO.FootprintZ"));
 		BuildCostEnergy = parseInt("UNITINFO.BuildCostEnergy");
 		BuildCostMetal = parseInt("UNITINFO.BuildCostMetal");
 		MaxDamage = parseInt("UNITINFO.MaxDamage");
-		MaxWaterDepth = parseIntDef("UNITINFO.MaxWaterDepth", 0);
-		MinWaterDepth = parseIntDef("UNITINFO.MinWaterDepth", -0xFFF);
+		MaxWaterDepth = short(parseIntDef("UNITINFO.MaxWaterDepth", 0));
+		MinWaterDepth = short(parseIntDef("UNITINFO.MinWaterDepth", -0xFFF));
 		if (MinWaterDepth != -0xFFF && MaxWaterDepth == 0) MaxWaterDepth = 255;
 		EnergyUse = parseInt("UNITINFO.EnergyUse");
 		BuildTime = parseInt("UNITINFO.BuildTime");
@@ -658,7 +658,7 @@ namespace TA3D
 		if (checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
 		if (checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
 
-		UnitNumber = parseInt("UNITINFO.UnitNumber");
+		UnitNumber = short(parseInt("UNITINFO.UnitNumber"));
 		canmove = parseBool("UNITINFO.canmove");
 		canpatrol = parseBool("UNITINFO.canpatrol");
 		canstop = parseBool("UNITINFO.canstop");
@@ -670,34 +670,34 @@ namespace TA3D
 		candgun = parseBool("UNITINFO.candgun");
 		canattack = parseBool("UNITINFO.canattack");
 		CanReclamate = parseBool("UNITINFO.CanReclamate");
-		EnergyMake = parseInt("UNITINFO.EnergyMake");
-		MetalMake = parseInt("UNITINFO.MetalMake");
+		EnergyMake = short(parseInt("UNITINFO.EnergyMake"));
+		MetalMake = parseFloat("UNITINFO.MetalMake");
 		CanCapture = parseBool("UNITINFO.CanCapture");
 		HideDamage = parseBool("UNITINFO.HideDamage");
 		HealTime = parseInt("UNITINFO.HealTime") * 30;
 		CloakCost = parseInt("UNITINFO.CloakCost");
 		CloakCostMoving = parseInt("UNITINFO.CloakCostMoving");
 		init_cloaked = parseBool("UNITINFO.init_cloaked");
-		mincloakdistance = parseIntDef("UNITINFO.mincloakdistance",20)>>1;
-		BuildDistance = parseInt("UNITINFO.Builddistance");
+		mincloakdistance = parseIntDef("UNITINFO.mincloakdistance", 20) >> 1;
+		BuildDistance = parseFloat("UNITINFO.Builddistance");
 		ActivateWhenBuilt = parseBool("UNITINFO.ActivateWhenBuilt");
 		ImmuneToParalyzer = parseBool("UNITINFO.ImmuneToParalyzer");
 		SonarDistance = parseInt("UNITINFO.SonarDistance")>>1;
 		SonarDistanceJam = parseInt("UNITINFO.SonarDistanceJam")>>1;
 		// copyright = ... not needed here :P
-		MaxSlope = parseIntDef("UNITINFO.MaxSlope", 255);
-		SteeringMode = parseInt("UNITINFO.SteeringMode");
-		BMcode = parseInt("UNITINFO.BMcode");
+		MaxSlope = short(parseIntDef("UNITINFO.MaxSlope", 255));
+		SteeringMode = byte(parseInt("UNITINFO.SteeringMode"));
+		BMcode = byte(parseInt("UNITINFO.BMcode"));
 		ShootMe = parseBool("UNITINFO.ShootMe");
 		Upright = parseBool("UNITINFO.Upright");
 		norestrict = parseBool("UNITINFO.norestrict");
 		AutoFire = !parseBoolDef("UNITINFO.NoAutoFire", true);
 		EnergyStorage = parseInt("UNITINFO.EnergyStorage");
 		MetalStorage = parseInt("UNITINFO.MetalStorage");
-		StandingMoveOrder = parseIntDef("UNITINFO.StandingMoveOrder",1);
-		MobileStandOrders = parseIntDef("UNITINFO.mobilestandorders",1);
-		StandingFireOrder = parseIntDef("UNITINFO.StandingFireOrder",1);
-		FireStandOrders = parseIntDef("UNITINFO.firestandorders",1);
+		StandingMoveOrder = byte(parseIntDef("UNITINFO.StandingMoveOrder", 1));
+		MobileStandOrders = byte(parseIntDef("UNITINFO.mobilestandorders", 1));
+		StandingFireOrder = byte(parseIntDef("UNITINFO.StandingFireOrder", 1));
+		FireStandOrders = byte(parseIntDef("UNITINFO.firestandorders", 1));
 		WaterLine = parseFloat("UNITINFO.WaterLine");
 
 		String TEDclassString = String::ToLower( parseString("UNITINFO.TEDClass") );
@@ -731,14 +731,14 @@ namespace TA3D
 			MinWaterDepth = -0xFFF;
 			MaxWaterDepth = 0;
 		}
-		BankScale = parseInt("UNITINFO.BankScale");
+		BankScale = byte(parseInt("UNITINFO.BankScale"));
 		TidalGenerator = parseBool("UNITINFO.TidalGenerator");
 		Scale = 1.0f;//parseFloat("UNITINFO.Scale",1.0f);
 		Corpse = parseString("UNITINFO.Corpse");
-		WindGenerator = parseInt("UNITINFO.WindGenerator");
+		WindGenerator = short(parseInt("UNITINFO.WindGenerator"));
 		onoffable = parseBool("UNITINFO.onoffable");
 		kamikaze = parseBool("UNITINFO.kamikaze");
-		kamikazedistance = parseInt("UNITINFO.kamikazedistance")>>1;
+		kamikazedistance = uint16(parseInt("UNITINFO.kamikazedistance") >> 1);
 
 		unsigned int i = 1;
 		while (i <= 3 || !parseString( String::Format("UNITINFO.Weapon%d",i) ).empty())
@@ -762,10 +762,10 @@ namespace TA3D
 				yardmap += yardmap.at(yardmap.size() - 1);
 		}
 
-		CruiseAlt = parseInt("UNITINFO.cruisealt");
+		CruiseAlt = short(parseInt("UNITINFO.cruisealt"));
 		ExplodeAs = parseString("UNITINFO.ExplodeAs");
 		SelfDestructAs = parseString("UNITINFO.SelfDestructAs");
-		ManeuverLeashLength = parseIntDef("UNITINFO.maneuverleashlength",640);
+		ManeuverLeashLength = short(parseIntDef("UNITINFO.maneuverleashlength", 640));
 
 		String DefaultMissionTypeString = String::ToLower( parseString("UNITINFO.DefaultMissionType") );
 		if (DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
@@ -778,24 +778,24 @@ namespace TA3D
 			++nb_inconnu;
 		}
 
-		TransMaxUnits = TransportMaxUnits = parseInt("UNITINFO.TransMaxUnits");
-		TransMaxUnits = TransportMaxUnits = parseIntDef("UNITINFO.transportmaxunits",TransMaxUnits);
-		TransportCapacity = parseInt("UNITINFO.transportcapacity");
-		TransportSize = parseInt("UNITINFO.transportsize");
-		AltFromSeaLevel = parseInt("UNITINFO.altfromsealevel");
+		TransMaxUnits = TransportMaxUnits = byte(parseInt("UNITINFO.TransMaxUnits"));
+		TransMaxUnits = TransportMaxUnits = byte(parseIntDef("UNITINFO.transportmaxunits",TransMaxUnits));
+		TransportCapacity = byte(parseInt("UNITINFO.transportcapacity"));
+		TransportSize = byte(parseInt("UNITINFO.transportsize"));
+		AltFromSeaLevel = short(parseInt("UNITINFO.altfromsealevel"));
 		MovementClass = parseString("UNITINFO.MovementClass");
 
 		IsAirBase = parseBool("UNITINFO.IsAirBase");
 		commander = parseBool("UNITINFO.Commander");
 		DamageModifier = parseFloatDef("UNITINFO.DamageModifier",1.0f);
 		MakesMetal = parseFloat("UNITINFO.MakesMetal");
-		SortBias = parseInt("UNITINFO.sortbias");
+		SortBias = byte(parseInt("UNITINFO.sortbias"));
 		ExtractsMetal = parseFloat("UNITINFO.ExtractsMetal");
 		hoverattack = parseBool("UNITINFO.HoverAttack");
 		isfeature = parseBool("UNITINFO.IsFeature");
 		Stealth = parseInt("UNITINFO.Stealth");
 		attackrunlength = parseInt("UNITINFO.attackrunlength");
-		selfdestructcountdown = parseIntDef("UNITINFO.selfdestructcountdown",5);
+		selfdestructcountdown = uint8(parseIntDef("UNITINFO.selfdestructcountdown", 5));
 		canresurrect = parseBool("UNITINFO.canresurrect") || parseBool("UNITINFO.resurrect");
 
 		aim_data.resize(WeaponID.size());
@@ -825,7 +825,7 @@ namespace TA3D
 		}
 
 		if (canresurrect && Yuni::Math::Zero(BuildDistance))
-			BuildDistance = SightDistance;
+			BuildDistance = float(SightDistance);
 		weapon.resize( WeaponID.size() );
 		w_badTargetCategory.resize( WeaponID.size() );
 		for (unsigned int i = 0; i < WeaponID.size(); ++i)
@@ -891,10 +891,10 @@ namespace TA3D
 			{
 				if (dl_parser.pullAsInt( String::Format( "gadget%d.common.attribs", i ) ) == 32 )
 				{
-					dl_data->dl_x[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.xpos", i)) + x_offset;
-					dl_data->dl_y[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.ypos", i)) + y_offset;
-					dl_data->dl_w[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.width", i));
-					dl_data->dl_h[e] = dl_parser.pullAsInt(String::Format("gadget%d.common.height", i));
+					dl_data->dl_x[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.xpos", i)) + x_offset);
+					dl_data->dl_y[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.ypos", i)) + y_offset);
+					dl_data->dl_w[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.width", i)));
+					dl_data->dl_h[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.height", i)));
 					++e;
 				}
 			}
@@ -1075,45 +1075,45 @@ namespace TA3D
 		bool nothing = index < -1 || index>=nb_unit;
 
 		gfx->ReInitTexSys();
-		glColor4f(1.0f,1.0f,1.0f,0.75f);
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 		if (GUI)
 		{
 			if (panel.tex && nothing )
-				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + panel.height );
+				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + float(panel.height) );
 
 			if (paneltop.tex )
 			{
-				gfx->drawtexture( paneltop.tex, 128.0f, 0.0f, 128.0f + paneltop.width, paneltop.height );
-				for (int k = 0 ; 128 + paneltop.width + panelbottom.width * k < SCREEN_W; ++k)
+				gfx->drawtexture( paneltop.tex, 128.0f, 0.0f, 128.0f + float(paneltop.width), float(paneltop.height) );
+				for (int k = 0 ; 128 + paneltop.width + panelbottom.width * k < uint32(SCREEN_W); ++k)
 				{
-					gfx->drawtexture(panelbottom.tex, 128.0f + paneltop.width + k * panelbottom.width, 0.0f,
-							128.0f + paneltop.width + panelbottom.width * (k+1), panelbottom.height );
+					gfx->drawtexture(panelbottom.tex, 128.0f + float(paneltop.width + k * panelbottom.width), 0.0f,
+							128.0f + float(paneltop.width + panelbottom.width * (k + 1)), float(panelbottom.height) );
 				}
 			}
 
 			if (panelbottom.tex)
 			{
-				for (int k = 0; 128 + panelbottom.width * k < SCREEN_W; ++k)
+				for (int k = 0 ; 128 + panelbottom.width * k < uint32(SCREEN_W) ; ++k)
 				{
-					gfx->drawtexture( panelbottom.tex, 128.0f + k * panelbottom.width,
-							SCREEN_H - panelbottom.height, 128.0f + panelbottom.width * (k+1), SCREEN_H );
+					gfx->drawtexture( panelbottom.tex, 128.0f + float(k * panelbottom.width),
+							float(SCREEN_H - panelbottom.height), 128.0f + float(panelbottom.width * (k + 1)), float(SCREEN_H) );
 				}
 			}
 
 			glDisable(GL_TEXTURE_2D);
-			glColor4f(0.0f,0.0f,0.0f,0.75f);
+			glColor4ub(0x0, 0x0, 0x0, 0xBF);
 			glBegin(GL_QUADS);
-			glVertex2f(0.0f,0.0f);			// Barre latérale gauche
-			glVertex2f(128.0f,0.0f);
-			glVertex2f(128.0f,128.0f);
-			glVertex2f(0.0f,128.0f);
+			glVertex2i(0, 0);			// Barre latérale gauche
+			glVertex2i(128, 0);
+			glVertex2i(128, 128);
+			glVertex2i(0, 128);
 
-			glVertex2f(0.0f,128.0f + panel.height);			// Barre latérale gauche
-			glVertex2f(128.0f,128.0f + panel.height);
-			glVertex2f(128.0f,SCREEN_H);
-			glVertex2f(0.0f,SCREEN_H);
+			glVertex2i(0, 128 + panel.height);			// Barre latérale gauche
+			glVertex2i(128, 128 + panel.height);
+			glVertex2i(128, SCREEN_H);
+			glVertex2i(0, SCREEN_H);
 			glEnd();
-			glColor4f(1.0f,1.0f,1.0f,0.75f);
+			glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 			return 0;
 		}
 
@@ -1136,24 +1136,24 @@ namespace TA3D
 			int ph = unit_type[index]->Pic_h[ i ];
 			bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
 			if (unused )
-				glColor4f(0.3f,0.3f,0.3f,1.0f);			// Make it darker
+				glColor4ub(0x4C, 0x4C, 0x4C, 0xFF);		// Make it darker
 			else
-				glColor4f(1.0f,1.0f,1.0f,1.0f);
+				glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
 			if (unit_type[index]->PicList[i])							// If a texture is given use it
-				gfx->drawtexture(unit_type[index]->PicList[i],px,py,px+pw,py+ph);
+				gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
 			else
-				gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic,px,py,px+pw,py+ph);
+				gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
 
-			if (mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph && !unused)
+			if (mouse_x >= px && mouse_x < px + pw && mouse_y >= py && mouse_y < py + ph && !unused)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-				glColor4f(1.0f,1.0f,1.0f,0.75f);
+				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 				if (unit_type[index]->PicList[i])							// If a texture is given use it
-					gfx->drawtexture(unit_type[index]->PicList[i],px,py,px+pw,py+ph);
+					gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
 				else
-					gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic,px,py,px+pw,py+ph);
+					gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
 				glDisable(GL_BLEND);
 				sel = unit_type[index]->BuildList[i];
 				if (sel == -1)
@@ -1166,22 +1166,24 @@ namespace TA3D
 			{
 				glEnable(GL_BLEND);
 				glDisable(GL_TEXTURE_2D);
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				glColor4f(1.0f,1.0f,1.0f,unit_type[index]->click_time);
-				int mx = px;
-				int my = py;
-				gfx->rectfill( mx,my,mx+pw,my+ph );
-				glColor4f(1.0f,1.0f,0.0f,0.75f);
-				gfx->line( mx, my+ph*unit_type[index]->click_time, mx+pw, my+ph*unit_type[index]->click_time );
-				gfx->line( mx, my+ph*(1.0f-unit_type[index]->click_time), mx+pw, my+ph*(1.0f-unit_type[index]->click_time) );
-				gfx->line( mx+pw*unit_type[index]->click_time, my, mx+pw*unit_type[index]->click_time, my+ph );
-				gfx->line( mx+pw*(1.0f-unit_type[index]->click_time), my, mx+pw*(1.0f-unit_type[index]->click_time), my+ph );
-				glColor4f(1.0f,1.0f,1.0f,0.75f);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glColor4ub(0xFF, 0xFF, 0xFF, byte(255.0f * unit_type[index]->click_time));
+				float mx = float(px);
+				float my = float(py);
+				float mw = float(pw);
+				float mh = float(ph);
+				gfx->rectfill( mx, my, mx + mw, my + mh );
+				glColor4ub(0xFF, 0xFF, 0x00, 0xBF);
+				gfx->line( mx, my + mh * unit_type[index]->click_time, mx + mw, my + mh * unit_type[index]->click_time );
+				gfx->line( mx, my + mh * (1.0f - unit_type[index]->click_time), mx + mw, my + mh * (1.0f - unit_type[index]->click_time) );
+				gfx->line( mx + mw * unit_type[index]->click_time, my, mx + mw * unit_type[index]->click_time, my + mh );
+				gfx->line( mx + mw * (1.0f - unit_type[index]->click_time), my, mx + mw * (1.0f - unit_type[index]->click_time), my + mh );
+				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 				glEnable(GL_TEXTURE_2D);
 				glDisable(GL_BLEND);
 			}
 		}
-		glColor4ub(0xFF,0xFF,0xFF,0xFF);
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
 		if (unit_type[index]->last_click != -1 )
 			unit_type[index]->click_time -= dt;
@@ -1198,7 +1200,7 @@ namespace TA3D
 
 		if (sel != -1 && mouse_b == 1 && omb != 1)		// Click !!
 		{
-			unit_type[index]->last_click = sel;
+			unit_type[index]->last_click = sint16(sel);
 			unit_type[index]->click_time = 0.5f;		// One sec animation;
 		}
 
@@ -1217,7 +1219,7 @@ namespace TA3D
 		for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
 		{
 			if (progress != NULL && !(n & 0xF))
-				progress((300.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
+				progress((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
 			++n;
 
 			String nom = String::ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
@@ -1264,11 +1266,11 @@ namespace TA3D
 				{
 					if (parser.pullAsString(String::Format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
 					{
-						unit_manager.unit_type[i]->FootprintX = parser.pullAsInt(String::Format( "CLASS%d.footprintx", e), unit_manager.unit_type[i]->FootprintX );
-						unit_manager.unit_type[i]->FootprintZ = parser.pullAsInt(String::Format( "CLASS%d.footprintz", e), unit_manager.unit_type[i]->FootprintZ );
-						unit_manager.unit_type[i]->MinWaterDepth = parser.pullAsInt(String::Format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i]->MinWaterDepth );
-						unit_manager.unit_type[i]->MaxWaterDepth = parser.pullAsInt(String::Format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i]->MaxWaterDepth );
-						unit_manager.unit_type[i]->MaxSlope = parser.pullAsInt(String::Format( "CLASS%d.maxslope", e), unit_manager.unit_type[i]->MaxSlope );
+						unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(String::Format( "CLASS%d.footprintx", e), unit_manager.unit_type[i]->FootprintX ));
+						unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(String::Format( "CLASS%d.footprintz", e), unit_manager.unit_type[i]->FootprintZ ));
+						unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(String::Format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i]->MinWaterDepth ));
+						unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(String::Format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i]->MaxWaterDepth ));
+						unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(String::Format( "CLASS%d.maxslope", e), unit_manager.unit_type[i]->MaxSlope ));
 						break;
 					}
 				}
