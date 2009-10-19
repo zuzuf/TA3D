@@ -296,7 +296,7 @@ namespace Menus
 					for(NetClient::GameServer::List::iterator i = serverList.begin() ; i != serverList.end() ; ++i)
 						serverListObj->Text.push_back(i->first);
 					int idx = serverListObj->Pos;
-					if (idx >= 0 && idx < serverListObj->Text.size())
+					if (idx >= 0 && idx < int(serverListObj->Text.size()))
 					{
 						NetClient::GameServer::List::iterator pIdx = serverList.find(serverListObj->Text[idx]);
 						if (pIdx != serverList.end())
@@ -460,6 +460,9 @@ namespace Menus
 							netMode = NONE;
 						}
 						break;
+					case LOGGED:
+					case REGISTER:
+						LOG_ERROR(LOG_PREFIX_MENU_NETMENU << "we should not get here!");
 				};
 				break;
 			case REGISTER:
@@ -520,6 +523,9 @@ namespace Menus
 							netMode = NONE;
 						}
 						break;
+					case LOGGED:
+					case REGISTER:
+						LOG_ERROR(LOG_PREFIX_MENU_NETMENU << "we should not get here!");
 				};
 				break;
 			case NONE:
@@ -557,8 +563,8 @@ namespace Menus
 					Gui::GUIOBJ::Ptr obj = pArea->get_object("netmenu.chan_list");
 					if (obj)
 					{
-						int chanID = obj->Pos;
-						if (chanID >= 0 && chanID < obj->Text.size())
+						uint32 chanID = obj->Pos;
+						if (chanID < obj->Text.size())
 							NetClient::instance()->changeChan(obj->Text[chanID]);
 					}
 				}
@@ -610,7 +616,7 @@ namespace Menus
 			obj->Text.push_back(message);
 			if (obj->Text.size() > 25)
 				++(obj->Data);
-			obj->Pos = obj->Text.size() - 1;
+			obj->Pos = uint32(obj->Text.size() - 1);
 		}
 	}
 

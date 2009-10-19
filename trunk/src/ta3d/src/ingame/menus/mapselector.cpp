@@ -195,14 +195,14 @@ namespace Menus
 
 		if (pMiniMapObj)
 		{
-			const float ldx = dx * (pMiniMapX2 - pMiniMapX1) / coef;
-			const float ldy = dy * (pMiniMapY2 - pMiniMapY1) / coef;
+			const float ldx = float(dx) * (pMiniMapX2 - pMiniMapX1) / coef;
+			const float ldy = float(dy) * (pMiniMapY2 - pMiniMapY1) / coef;
 			pMiniMapObj->x1 = pMiniMapMiddleX - ldx;
 			pMiniMapObj->y1 = pMiniMapMiddleY - ldy;
 			pMiniMapObj->x2 = pMiniMapMiddleX + ldx;
 			pMiniMapObj->y2 = pMiniMapMiddleY + ldy;
-			pMiniMapObj->u2 = dx / 252.0f;
-			pMiniMapObj->v2 = dy / 252.0f;
+			pMiniMapObj->u2 = float(dx) / 252.0f;
+			pMiniMapObj->v2 = float(dy) / 252.0f;
 		}
 	}
 
@@ -365,7 +365,7 @@ namespace Menus
 	bool MapSelector::preloadAllAvailableMaps()
 	{
 		GetMultiPlayerMapList(pListOfMaps);
-		pCachedSizeOfListOfMaps = pListOfMaps.size();
+		pCachedSizeOfListOfMaps = int(pListOfMaps.size());
 		if (!pCachedSizeOfListOfMaps)
 		{
 			pArea->popup(I18N::Translate("Error"), I18N::Translate("No map found"));
