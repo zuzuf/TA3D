@@ -63,7 +63,7 @@ namespace Menus
 
 		// Loading time
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Done.");
-		LOG_INFO("Time of loading :" << (msec_timer - pStartTime) * 0.001f << "s");
+		LOG_INFO("Time of loading :" << float(msec_timer - pStartTime) * 0.001f << "s");
 	}
 
 	void Loading::initializeDrawing()
@@ -73,8 +73,8 @@ namespace Menus
 		gfx->set_2D_mode();
 		pCurrentFontHeight = Gui::gui_font->height();
 
-		pCacheScreenRatioWidth  = SCREEN_W / 1280.0f;
-		pCacheScreenRatioHeight = SCREEN_H / 1024.0f;
+		pCacheScreenRatioWidth  = float(SCREEN_W) / 1280.0f;
+		pCacheScreenRatioHeight = float(SCREEN_H) / 1024.0f;
 	}
 
 	void Loading::finalizeDrawing()
@@ -215,13 +215,13 @@ namespace Menus
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Draw the texture
-		gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, SCREEN_W, SCREEN_H);
+		gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, float(SCREEN_W), float(SCREEN_H));
 
 		// Draw all previous messages
 		int indx(0);
 		const String::List::const_iterator end = pMessages.end();
 		for (String::List::const_iterator i = pMessages.begin() ; i != end ; ++i, ++indx)
-			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
+			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx), 0.0f, 0xFFFFFFFF, *i);
 
 		// Draw the progress bar
 		glDisable(GL_BLEND);

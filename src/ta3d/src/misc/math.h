@@ -79,7 +79,7 @@ namespace Math
     
 	template<typename T> inline T Modf(const T a)
 	{
-		return T(a - int(a));
+		return a - T(int(a));
 	}
 
 

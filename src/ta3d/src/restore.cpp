@@ -206,9 +206,9 @@ namespace TA3D
 		//----- Save weapon information ------------------------------------------------------------
 
 		SAVE( weapons.nb_weapon );
-		uint32 max_weapons = weapons.weapon.size();
+		uint32 max_weapons = uint32(weapons.weapon.size());
 		SAVE( max_weapons );
-		uint32 index_list_size = weapons.idx_list.size();
+		uint32 index_list_size = uint32(weapons.idx_list.size());
 		SAVE( index_list_size );
 
 		for(std::vector<uint32>::iterator e = weapons.idx_list.begin() ; e != weapons.idx_list.end() ; ++e)
@@ -248,7 +248,7 @@ namespace TA3D
 
 		for (INGAME_UNITS::RepairPodsList::iterator pad_list = units.repair_pads.begin(); units.repair_pads.end() != pad_list; ++pad_list)
 		{
-			int list_size = pad_list->size();
+			int list_size = int(pad_list->size());
 			SAVE(list_size);
 			for (std::list<uint16>::iterator i = pad_list->begin(); pad_list->end() != i; ++i)
 				SAVE(*i);
@@ -306,7 +306,7 @@ namespace TA3D
 			SAVE( units.unit[i].cur_metal_cons );
 			SAVE( units.unit[i].cur_energy_prod );
 			SAVE( units.unit[i].cur_energy_cons );
-			for (short int f = 0; f < units.unit[i].weapon.size(); ++f)
+			for (int f = 0; f < int(units.unit[i].weapon.size()) ; ++f)
 			{
 				SAVE( units.unit[i].weapon[f].state );
 				SAVE( units.unit[i].weapon[f].burst );
@@ -434,15 +434,15 @@ namespace TA3D
 			SAVE( units.unit[i].data.explode );
 			SAVE( units.unit[i].data.is_moving );
 
-			gzwrite(file, units.unit[i].data.flag, sizeof(short) * units.unit[i].data.nb_piece);
-			gzwrite(file, units.unit[i].data.explosion_flag, sizeof(short) * units.unit[i].data.nb_piece);
-			gzwrite(file, units.unit[i].data.pos, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-			gzwrite(file, units.unit[i].data.dir, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-			gzwrite(file, units.unit[i].data.matrix, sizeof(Matrix) * units.unit[i].data.nb_piece);
+			gzwrite(file, units.unit[i].data.flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
+			gzwrite(file, units.unit[i].data.explosion_flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
+			gzwrite(file, units.unit[i].data.pos, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
+			gzwrite(file, units.unit[i].data.dir, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
+			gzwrite(file, units.unit[i].data.matrix, unsigned(sizeof(Matrix) * units.unit[i].data.nb_piece));
 
-			gzwrite(file, units.unit[i].data.axe[0], sizeof(AXE) * units.unit[i].data.nb_piece);
-			gzwrite(file, units.unit[i].data.axe[1], sizeof(AXE) * units.unit[i].data.nb_piece);
-			gzwrite(file, units.unit[i].data.axe[2], sizeof(AXE) * units.unit[i].data.nb_piece);
+			gzwrite(file, units.unit[i].data.axe[0], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
+			gzwrite(file, units.unit[i].data.axe[1], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
+			gzwrite(file, units.unit[i].data.axe[2], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
 		}
 
 		SAVE( units.current_tick );     // We'll need this for multiplayer games
@@ -506,7 +506,7 @@ namespace TA3D
 		game_data->map_filename = readstring( file ) << ".tnt";
 		game_data->game_script = readstring( file );
 
-		game_data->fog_of_war = gzgetc( file );			// flags to configure FOW
+		game_data->fog_of_war = uint8(gzgetc( file ));			// flags to configure FOW
 		game_data->campaign = gzgetc( file );			// Are we in campaign mode ?
 		game_data->use_only = readstring( file );
 
@@ -521,7 +521,7 @@ namespace TA3D
 			*i = readstring( file );
 		// Player control
 		for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
-			*i = gzgetc(file);
+			*i = byte(gzgetc(file));
 		// Player network ID
 		for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
 			LOAD(*i);
@@ -594,7 +594,7 @@ namespace TA3D
 			*i = readstring( file );
 		// Player control
 		for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
-			*i = gzgetc( file );
+			*i = byte(gzgetc( file ));
 		// Player network ID
 		for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
 			LOAD(*i);
@@ -694,7 +694,7 @@ namespace TA3D
 				LOAD( features.feature[i].dive );
 				LOAD( features.feature[i].angle_x );
 
-				if (features.feature[i].px >= the_map->bloc_w_db || features.feature[i].py >= the_map->bloc_h_db) // Out of the map ?
+				if (features.feature[i].px >= uint32(the_map->bloc_w_db) || features.feature[i].py >= uint32(the_map->bloc_h_db)) // Out of the map ?
 				{
 					features.feature[i].type = -1;
 					features.nb_features--;
@@ -735,8 +735,8 @@ namespace TA3D
 			weapons.idx_list.push_back(i);
 
 			LOAD( weapons.weapon[i].weapon_id );
-			if( weapons.weapon[i].weapon_id == -1 )	continue;
-			weapons.weapon[i].weapon_id = weapon_manager.get_weapon_index( readstring( file ) );
+			if (weapons.weapon[i].weapon_id == -1)	continue;
+			weapons.weapon[i].weapon_id = short(weapon_manager.get_weapon_index( readstring( file ) ));
 
 			LOAD( weapons.weapon[i].Pos );
 			LOAD( weapons.weapon[i].V );
@@ -793,9 +793,9 @@ namespace TA3D
 			units.free_index_size[i] = 0;
 		for(int i = 0 ; i < units.max_unit; ++i)
 		{
-			units.unit[i].init(-1,-1,true);
+			units.unit[i].init(-1, -1, true);
 			units.unit[i].flags = 0;
-			units.unit[i].idx = i;
+			units.unit[i].idx = uint16(i);
 		}
 
 		units.index_list_size = 0;
@@ -809,12 +809,12 @@ namespace TA3D
 
 			if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )
 				continue;
-			units.idx_list[units.index_list_size++] = i;
+			units.idx_list[units.index_list_size++] = uint16(i);
 
 			uint32 ID;
 			LOAD( ID );
 
-			units.unit[i].type_id = unit_manager.get_unit_index( readstring( file ) );
+			units.unit[i].type_id = short(unit_manager.get_unit_index( readstring( file ) ));
 
 			units.unit[i].init( units.unit[i].type_id, player_id, false, true );
 
@@ -860,7 +860,7 @@ namespace TA3D
 			LOAD( units.unit[i].cur_metal_cons );
 			LOAD( units.unit[i].cur_energy_prod );
 			LOAD( units.unit[i].cur_energy_cons );
-			for (short int f = 0; f < units.unit[i].weapon.size(); ++f)
+			for (int f = 0; f < int(units.unit[i].weapon.size()) ; ++f)
 			{
 				LOAD( units.unit[i].weapon[f].state );
 				LOAD( units.unit[i].weapon[f].burst );
@@ -912,8 +912,8 @@ namespace TA3D
 
 			for (Mission **start = &(units.unit[i].mission) ; true ; start = &(units.unit[i].def_mission) )
 			{
-				byte c = gzgetc( file );
-				if( c == 0 )
+				int c = gzgetc( file );
+				if (c == 0)
 					*start = NULL;
 				else
 				{
@@ -1002,15 +1002,15 @@ namespace TA3D
 			LOAD( units.unit[i].data.explode );
 			LOAD( units.unit[i].data.is_moving );
 
-			gzread(file, units.unit[i].data.flag, sizeof(short) * units.unit[i].data.nb_piece);
-			gzread(file, units.unit[i].data.explosion_flag, sizeof(short) * units.unit[i].data.nb_piece);
-			gzread(file, units.unit[i].data.pos, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-			gzread(file, units.unit[i].data.dir, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-			gzread(file, units.unit[i].data.matrix, sizeof(Matrix) * units.unit[i].data.nb_piece);
+			gzread(file, units.unit[i].data.flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
+			gzread(file, units.unit[i].data.explosion_flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
+			gzread(file, units.unit[i].data.pos, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
+			gzread(file, units.unit[i].data.dir, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
+			gzread(file, units.unit[i].data.matrix, unsigned(sizeof(Matrix) * units.unit[i].data.nb_piece));
 
-			gzread(file, units.unit[i].data.axe[0], sizeof(AXE) * units.unit[i].data.nb_piece);
-			gzread(file, units.unit[i].data.axe[1], sizeof(AXE) * units.unit[i].data.nb_piece);
-			gzread(file, units.unit[i].data.axe[2], sizeof(AXE) * units.unit[i].data.nb_piece);
+			gzread(file, units.unit[i].data.axe[0], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
+			gzread(file, units.unit[i].data.axe[1], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
+			gzread(file, units.unit[i].data.axe[2], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
 
 			if( units.unit[i].drawn )
 			{
@@ -1022,8 +1022,8 @@ namespace TA3D
 		for( int i = 0 ; i < units.max_unit ; i++ )	// Build the free index list
 		{
 			int player_id = i / MAX_UNIT_PER_PLAYER;
-			if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )
-				units.free_idx[ player_id * MAX_UNIT_PER_PLAYER + (units.free_index_size[player_id]++) ] = i;
+			if (units.unit[i].type_id < 0 || !(units.unit[i].flags & 1))
+				units.free_idx[ player_id * MAX_UNIT_PER_PLAYER + (units.free_index_size[player_id]++) ] = uint16(i);
 		}
 
 		LOAD( units.current_tick );     // We'll need this for multiplayer games
