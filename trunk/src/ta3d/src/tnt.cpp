@@ -53,21 +53,21 @@ namespace TA3D
 			mini = convert_format(mini);
 
 			// Examine the image for a blank-looking bottom or right edge
-			int mini_w=TNTMINIMAP_WIDTH;
-			int mini_h=TNTMINIMAP_HEIGHT;
-			int blank_color = makecol(120,148,252); // approximately
-			int mask = makecol(0xFC, 0xFC, 0xFC); // XXX this assumes 24- or 32-bit pixels
+			int mini_w = TNTMINIMAP_WIDTH;
+			int mini_h = TNTMINIMAP_HEIGHT;
+			uint32 blank_color = makecol(120,148,252); // approximately
+			uint32 mask = makecol(0xFC, 0xFC, 0xFC); // XXX this assumes 24- or 32-bit pixels
 			do
 			{
 				--mini_w;
 			} while ( mini_w > 0 &&
-					( ( SurfaceInt(mini,mini_w,0) & mask) == blank_color ||
-						SurfaceInt(mini,mini_w,0)         == 0));
+					( ( SurfaceInt(mini, mini_w, 0) & mask) == blank_color ||
+						SurfaceInt(mini, mini_w, 0)         == 0));
 			do
 			{
 				--mini_h;
 			} while( mini_h > 0 &&
-				( ( SurfaceInt(mini,0,mini_h) & mask) == blank_color ||
+				( ( SurfaceInt(mini, 0, mini_h) & mask) == blank_color ||
 				SurfaceInt(mini,0,mini_h)         == 0));
 			mini_w++;
 			mini_h++;
@@ -163,7 +163,7 @@ namespace TA3D
 				LOG_ERROR("tdf not found: " << (char*)(data + header.PTRtileanim + 4 + (i * 132)));
 		}
 
-		map->sealvl = header.sealevel * H_DIV;
+		map->sealvl = float(header.sealevel) * H_DIV;
 		int f_pos;
 		// Lit la minimap
 		LOG_DEBUG("MAP: reading mini map");
@@ -196,7 +196,7 @@ namespace TA3D
 			gfx->set_texture_format(GL_RGB8);
 		map->glmini = gfx->make_texture(map->mini,FILTER_LINEAR,true);
 
-		LOG_INFO("minimap read in " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("minimap read in " << float(msec_timer - event_timer) * 0.001f << "s.");
 
 		// Lit les différents morceaux
 		LOG_DEBUG("MAP: reading blocs data");
@@ -227,8 +227,8 @@ namespace TA3D
 		map->map_w        = map->bloc_w << 4;
 		map->map_h_d      = map->bloc_h << 3;
 		map->map_w_d      = map->bloc_w << 3;
-		map->map2blocdb_w = ((float) map->bloc_w_db) / map->map_w;
-		map->map2blocdb_h = ((float) map->bloc_h_db) / map->map_h;
+		map->map2blocdb_w = float(map->bloc_w_db) / float(map->map_w);
+		map->map2blocdb_h = float(map->bloc_h_db) / float(map->map_h);
 
 		map->bmap = new unsigned short*[map->bloc_h];
 		map->bmap[0] = new unsigned short[map->bloc_w * map->bloc_h];
@@ -276,14 +276,14 @@ namespace TA3D
 		memset(map->view[0],0,map->bloc_w*map->bloc_h);
 		map->nbbloc = header.tiles;		// Nombre de blocs nécessaires
 		map->bloc = new BLOC[map->nbbloc];	// Alloue la mémoire pour les blocs
-		map->ntex = n_bmp;
+		map->ntex = short(n_bmp);
 		map->tex = new GLuint[n_bmp];	// Tableau d'indices de texture OpenGl
 
 		for (i = 0 ; i < map->nbbloc ; i++) // Crée les blocs
 		{
 			map->bloc[i].init();
 			int tex_num = i >> 5;	// Numéro de la texture associée
-			int tx = (i&0x1F) << 5;			// Coordonnées sur la texture
+			int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
 			int r = 0, g = 0, b = 0;
 			for (y = 0; y < 32; ++y)
 			{
@@ -298,11 +298,11 @@ namespace TA3D
 			r >>= 10;
 			g >>= 10;
 			b >>= 10;
-			map->bloc[i].lava=(r>4 && g<(r>>2) && b<(r>>2));
-			map->bloc[i].tex_x = tx>>5;
+			map->bloc[i].lava = (r > 4 && g < (r >> 2) && b < (r >> 2));
+			map->bloc[i].tex_x = byte(tx >> 5);
 		}
 
-		LOG_INFO("Blocs read in " << (msec_timer-event_timer) * 0.001f << "s.");
+		LOG_INFO("Blocs read in " << float(msec_timer-event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		LOG_DEBUG("MAP: creating textures");
@@ -316,7 +316,7 @@ namespace TA3D
 			bmp_tex[i] = convert_format_24( bmp_tex[i] );
 			map->tex[i] = gfx->make_texture(bmp_tex[i]);
 		}
-		LOG_INFO("Textures for blocks in " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("Textures for blocks in " << float(msec_timer - event_timer) * 0.001f << "s.");
 
 		event_timer = msec_timer;
 
@@ -393,15 +393,15 @@ namespace TA3D
 		{
 			for (x = 0; x < map->bloc_w; ++x)
 			{
-				map->bmap[y][x] = *((short*)(data+f_pos));
+				map->bmap[y][x] = *((short*)(data + f_pos));
 
-				if (map->bmap[y][x] >= map->nbbloc || map->bmap[y][x] < 0)		// To add some security
+				if (map->bmap[y][x] >= map->nbbloc)			// To add some security
 					map->bmap[y][x] = 0;
 
 				/*---------- code to build the low def map (mega zoom) ---------------*/
-				i=map->bmap[y][x];
-				int tex_num=i>>5;	// Numéro de la texture associée
-				int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
+				i = map->bmap[y][x];
+				int tex_num = i >> 5;	// Numéro de la texture associée
+				int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
 
 				if (bmp_tex[tex_num]->format->BitsPerPixel != 24)
 					bmp_tex[tex_num] = convert_format_24(bmp_tex[tex_num]);
@@ -415,7 +415,7 @@ namespace TA3D
 				f_pos+=2;
 			}
 		}
-		LOG_INFO("Low definition map image built in " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("Low definition map image built in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
@@ -424,7 +424,7 @@ namespace TA3D
 		map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
 		SDL_FreeSurface(low_def);
 
-		LOG_INFO("Low definition texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("Low definition texture uploaded in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		SDL_Surface *lava_map = gfx->create_surface_ex(8, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
@@ -432,14 +432,14 @@ namespace TA3D
 		for (y = 0; y < map->bloc_h; ++y)               // Build the lava map
 			for (x = 0; x < map->bloc_w; ++x)
 				if (map->bloc[map->bmap[y][x]].lava)
-					circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFF);
-		LOG_INFO("Lava image built in " << (msec_timer - event_timer) * 0.001f << "s.");
+					circlefill(lava_map, x * lava_map->w / map->bloc_w, y * lava_map->h / map->bloc_h, 3, 0xFF);
+		LOG_INFO("Lava image built in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
 		SDL_FreeSurface(lava_map);
 
-		LOG_INFO("Lava texture uploaded in " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("Lava texture uploaded in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -456,8 +456,9 @@ namespace TA3D
 			for (x = 0; x < (map->bloc_w << 1);  ++x)
 			{
 				int c = *((byte*)(data+f_pos));
-				if (c<header.sealevel) map->water = true;
-				map->h_map[y][x] = map->ph_map[y][x] = c*H_DIV;
+				if (c < header.sealevel)
+					map->water = true;
+				map->h_map[y][x] = map->ph_map[y][x] = float(c) * H_DIV;
 				f_pos += 4;
 			}
 		}
@@ -493,7 +494,7 @@ namespace TA3D
 			}
 		}
 
-		LOG_INFO("Env created in " << (msec_timer-event_timer) * 0.001f << "s.");
+		LOG_INFO("Env created in " << float(msec_timer-event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		LOG_DEBUG("MAP: computing height data (step 3)");
@@ -501,9 +502,8 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)	// Projete la carte du relief
 			{
-				int rec_y;
 				float h = map->ph_map[y][x];
-				rec_y = (int) (0.5f + y - tnt_transform * h / 16.f);
+				int rec_y = y + int(0.5f - tnt_transform * h / 16.f);
 				for (int cur_y=rec_y+1;cur_y<=y;cur_y++)
 				{
 					if (cur_y >= 0)
@@ -549,7 +549,7 @@ namespace TA3D
 						if (Yuni::Math::Equals(h2, -1.f))
 							h2 = h1;
 						for (int ry = y; ry < cy; ++ry)
-							map->ph_map[ry][x] = h1 + (h2 - h1) * (ry - y + 1) / (cy - y + 1);
+							map->ph_map[ry][x] = h1 + (h2 - h1) * float(ry - y + 1) / float(cy - y + 1);
 					}
 				}
 			}
@@ -591,7 +591,7 @@ namespace TA3D
 			}
 		}
 
-		LOG_INFO("relief : " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("relief : " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		LOG_DEBUG("MAP: reading map features data");
@@ -608,8 +608,8 @@ namespace TA3D
 				if (type <= header.tileanims)
 				{
 					Vector3D Pos;
-                    Pos.x = (x<<3) - map->map_w_d + 8.0f;
-                    Pos.z = (y<<3) - map->map_h_d + 8.0f;
+					Pos.x = float((x << 3) - map->map_w_d) + 8.0f;
+					Pos.z = float((y << 3) - map->map_h_d) + 8.0f;
                     Feature *feature = feature_manager.getFeaturePointer(TDF_index[type]);
 					if (feature && !feature->m3d)
 						Pos.y = map->get_max_rect_h( x, y, feature->footprintx, feature->footprintz);
@@ -622,14 +622,14 @@ namespace TA3D
                         if (map->map_data[y + 1][x + 1].stuff >= 0)
                         {
                             if (feature_manager.getFeaturePointer(TDF_index[type])->category == "trees")        // Randomize trees angle for more realism
-                                features.feature[ map->map_data[y + 1][x + 1].stuff ].angle = TA3D_RAND() % 360;
+								features.feature[ map->map_data[y + 1][x + 1].stuff ].angle = float(TA3D_RAND() % 360);
                         }
                     }
 				}
 				f_pos+=4;
 			}
 		}
-		LOG_INFO("Decors : " << (msec_timer - event_timer) * 0.001f << "s.");
+		LOG_INFO("Decors : " << float(msec_timer - event_timer) * 0.001f << "s.");
 
 		/*--------------- code for low definition map (mega zoom) -------------------*/
 
@@ -649,16 +649,16 @@ namespace TA3D
 		{
 			for (x = 0; x <= map->low_w; ++x)
 			{
-				map->low_vtx[i].x = (x - 0.5f * map->low_w) / map->low_w * map->map_w;
-				map->low_vtx[i].z = (y - 0.5f * map->low_h) / map->low_h * map->map_h;
+				map->low_vtx[i].x = (float(x) - 0.5f * float(map->low_w)) / float(map->low_w) * float(map->map_w);
+				map->low_vtx[i].z = (float(y) - 0.5f * float(map->low_h)) / float(map->low_h) * float(map->map_h);
 				int X = x * ((map->bloc_w << 1) - 1) / map->low_w;
 				int Y = y * ((map->bloc_h << 1) - 1) / map->low_h;
 				map->low_vtx[i].y =  map->get_nh(X,Y);
 				map->low_vtx[i].z += map->get_zdec(X,Y);
 				tmp_vtx[i] = map->low_vtx_flat[i] = map->low_vtx[i];
 				map->low_vtx_flat[i].y = 0.0f;
-				map->low_tcoord[i<<1] = ((float)x) / map->low_w;
-				map->low_tcoord[(i<<1)+1] = ((float)y) / map->low_h;
+				map->low_tcoord[i<<1] = float(x) / float(map->low_w);
+				map->low_tcoord[(i<<1)+1] = float(y) / float(map->low_h);
 				map->low_col[(i<<2)+3] = 255;
 				++i;
 			}

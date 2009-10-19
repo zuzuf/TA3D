@@ -67,7 +67,7 @@ namespace TA3D
         inline bool is_waiting() { return waiting; }
         inline bool is_sleeping() { return sleeping; }
 
-        inline int nb_threads() { return (running ? 1 : 0) + childs.size(); }
+		inline int nb_threads() { return (running ? 1 : 0) + int(childs.size()); }
 
         //! functions used to call/run functions
         virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;

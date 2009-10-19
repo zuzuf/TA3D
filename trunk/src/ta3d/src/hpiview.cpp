@@ -367,14 +367,14 @@ namespace TA3D
 
 				for (int i = 0; i < header.Entries; ++i)
 				{
-					int pos = ftell( gaf_file );
+					int pos = int(ftell( gaf_file ));
 					fseek( gaf_file, 12 + i * 4, SEEK_SET );
 					fwrite( &pos, 4, 1, gaf_file );
 					fseek( gaf_file, pos, SEEK_SET );
 
 					Gaf::Entry Entry;
 
-					Entry.Frames = parser.pullAsInt( String::Format( "gadget%d.frames", i + 1 ) );
+					Entry.Frames = sint16(parser.pullAsInt( String::Format( "gadget%d.frames", i + 1 ) ));
 					Entry.Unknown1 = 1;
 					Entry.Unknown2 = 0;
 					Entry.name = parser.pullAsString( String::Format( "gadget%d.name", i + 1 ) );
@@ -389,22 +389,22 @@ namespace TA3D
 					fwrite(tmp, 32, 1, gaf_file);
 
 					Gaf::Frame::Entry FrameEntry;
-					int FrameEntryPos = ftell(gaf_file);
+					int FrameEntryPos = int(ftell(gaf_file));
 					FrameEntry.PtrFrameTable = 0;
 					for (int e = 0; e < Entry.Frames; ++e)
 						fwrite( &(FrameEntry), 8, 1, gaf_file );
 
 					for (int e = 0; e < Entry.Frames; ++e)
 					{
-						pos = ftell( gaf_file );
+						pos = int(ftell( gaf_file ));
 						fseek( gaf_file, FrameEntryPos + e * 8, SEEK_SET );
 						FrameEntry.PtrFrameTable = pos;
 						fwrite( &(FrameEntry), 8, 1, gaf_file );
 						fseek( gaf_file, pos, SEEK_SET );
 
 						Gaf::Frame::Data FrameData;
-						FrameData.XPos = parser.pullAsInt( String::Format( "gadget%d.frame%d.XPos", i + 1, e ) );
-						FrameData.YPos = parser.pullAsInt( String::Format( "gadget%d.frame%d.YPos", i + 1, e ) );
+						FrameData.XPos = sint16(parser.pullAsInt( String::Format( "gadget%d.frame%d.XPos", i + 1, e ) ) );
+						FrameData.YPos = sint16(parser.pullAsInt( String::Format( "gadget%d.frame%d.YPos", i + 1, e ) ) );
 						FrameData.FramePointers = 0;
 						FrameData.Unknown2 = 0;
 						FrameData.Compressed = 1;
@@ -413,8 +413,8 @@ namespace TA3D
 						if (frame_img)
 						{
 							frame_img = convert_format(frame_img);
-							FrameData.Width = frame_img->w;
-							FrameData.Height = frame_img->h;
+							FrameData.Width = sint16(frame_img->w);
+							FrameData.Height = sint16(frame_img->h);
 							bool alpha = false;
 							SDL_LockSurface(frame_img);
 							for( int y = 0 ; y < frame_img->h && !alpha ; y++ )
@@ -422,7 +422,7 @@ namespace TA3D
 									alpha |= (getr(SurfaceInt(frame_img, x, y)) != 255);
 							SDL_UnlockSurface(frame_img);
 							FrameData.Transparency = alpha ? 1 : 0;
-							FrameData.PtrFrameData = ftell( gaf_file ) + 24;
+							FrameData.PtrFrameData = sint32(ftell( gaf_file )) + 24;
 
 							fwrite( &FrameData, 24, 1, gaf_file );
 
@@ -432,7 +432,7 @@ namespace TA3D
 							int img_size = buf_size;
 							uLongf __size = img_size;
 							compress2 ( buffer, &__size, (Bytef*) frame_img->pixels, frame_img->w * frame_img->h * frame_img->format->BytesPerPixel, 9);
-							img_size = __size;
+							img_size = int(__size);
 
 							fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
 							fwrite( buffer, img_size, 1, gaf_file );
