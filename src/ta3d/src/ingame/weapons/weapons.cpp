@@ -44,7 +44,7 @@ namespace TA3D
 		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 		{
 			if (progress != NULL && !(n & 0xF))
-				progress((250.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
+				progress((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
 			++n;
 
 			uint32 file_size(0);

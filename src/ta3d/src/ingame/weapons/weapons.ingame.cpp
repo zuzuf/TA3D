@@ -98,21 +98,21 @@ namespace TA3D
 			idx_list.push_back(i);
 			++nb_weapon;
 			weapon[i].init();
-			weapon[i].weapon_id=weapon_id;
-			weapon[i].shooter_idx=shooter;
-			weapon[i].idx=i;
-			weapon[i].f_time=weapon_manager.weapon[weapon_id].flighttime;
+			weapon[i].weapon_id = short(weapon_id);
+			weapon[i].shooter_idx = short(shooter);
+			weapon[i].idx = i;
+			weapon[i].f_time = weapon_manager.weapon[weapon_id].flighttime;
 			return i;
 		}
 		weapon.resize( weapon.size() + 1 );
 
 		weapon[ weapon.size()-1 ].weapon_id = -1;
-		uint32 index = weapon.size() - 1;
+		uint32 index = uint32(weapon.size() - 1);
 		idx_list.push_back( index );
 		++nb_weapon;
 		weapon[index].init();
-		weapon[index].weapon_id=weapon_id;
-		weapon[index].shooter_idx=shooter;
+		weapon[index].weapon_id = short(weapon_id);
+		weapon[index].shooter_idx = short(shooter);
 		weapon[index].idx=index;
 		weapon[index].f_time=weapon_manager.weapon[weapon_id].flighttime;
 		return index;
@@ -127,7 +127,7 @@ namespace TA3D
 			return;
 		}
 
-		for (int e = 0 ; e < idx_list.size() ; )
+		for (uint32 e = 0 ; e < idx_list.size() ; )
 		{
 			// TODO Check if it is really necessary by now
 			pMutex.unlock();// Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
@@ -180,11 +180,11 @@ namespace TA3D
 	{
 		MutexLocker locker(pMutex);
 
-		if(nb_weapon<=0 || weapon.size()<=0)
+		if(nb_weapon <= 0 || weapon.size() <= 0)
 			return;
 
-		float rw = 128.0f * mini_w / (252.0f * map_w);
-		float rh = 128.0f * mini_h / (252.0f * map_h);
+		float rw = 128.0f * float(mini_w) / (252.0f * map_w);
+		float rh = 128.0f * float(mini_h) / (252.0f * map_h);
 
 		Vector2D *points = new Vector2D[ idx_list.size() ];
 		uint32 n(0);
@@ -200,10 +200,10 @@ namespace TA3D
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 				int idx = weapon[i].owner;
-				GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x * rw + 64.0f - nuclogo.ofs_x[idx],
-										  weapon[i].Pos.z * rh + 64.0f - nuclogo.ofs_y[idx],
-										  weapon[i].Pos.x * rw + 63.0f - nuclogo.ofs_x[idx] + nuclogo.w[idx],
-										  weapon[i].Pos.z * rh + 63.0f - nuclogo.ofs_y[idx] + nuclogo.h[idx]);
+				GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x * rw + 64.0f - float(nuclogo.ofs_x[idx]),
+										  weapon[i].Pos.z * rh + 64.0f - float(nuclogo.ofs_y[idx]),
+										  weapon[i].Pos.x * rw + 63.0f - float(nuclogo.ofs_x[idx] + nuclogo.w[idx]),
+										  weapon[i].Pos.z * rh + 63.0f - float(nuclogo.ofs_y[idx] + nuclogo.h[idx]));
 				glDisable(GL_BLEND);
 			}
 			else
@@ -254,7 +254,7 @@ namespace TA3D
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;
-		LOG_INFO("Weapon engine: " << (float)(counter * 1000) / (msec_timer - weapon_timer) << " ticks/sec");
+		LOG_INFO("Weapon engine: " << (float)(counter * 1000) / float(msec_timer - weapon_timer) << " ticks/sec");
 	}
 
 
