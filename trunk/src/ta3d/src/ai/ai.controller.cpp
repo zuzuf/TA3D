@@ -254,8 +254,8 @@ namespace TA3D
 
 		order_weight[ ORDER_METAL_P ] = Math::Max(0.0f, players.metal_u[ playerID ] - players.metal_t[playerID]) * 10.0f
 			+ Math::Max(0.0f, players.metal[ playerID ] - (players.metal_s[ playerID ] >> 1) ) * 0.01f;
-		order_weight[ ORDER_ENERGY_P ] = Math::Max(0.0f, players.energy_u[ playerID ] - players.energy_t[playerID])
-			+ Math::Max(0.0f, players.energy[ playerID ] - (players.energy_s[ playerID ] >> 1) ) * 0.001f;
+		order_weight[ ORDER_ENERGY_P ] = Math::Max(0.0f, players.energy_u[ playerID ] * 3 / 2 - players.energy_t[playerID])
+			+ Math::Max(0.0f, (players.energy_s[ playerID ] >> 1) - players.energy[ playerID ] ) * 0.1f;
 		order_weight[ ORDER_METAL_S ] = Math::Max(0.0f, players.metal[ playerID ] - (players.metal_s[ playerID] * 15 >> 4) ) * 0.001f;
 		order_weight[ ORDER_ENERGY_S ] = Math::Max(0.0f, players.energy[ playerID ] - (players.energy_s[ playerID ] * 15 >> 4) ) * 0.001f;
 
@@ -264,7 +264,7 @@ namespace TA3D
 
 		for (uint16 i = 0; i < 10; ++i)
 		{
-			order_attack[i] = nb_enemy[i] > 0 ? (nb_units[AI_UNIT_TYPE_ARMY] - nb_enemy[i]) * 0.1f : 0.0f;
+			order_attack[i] = nb_enemy[i] > 0 ? (2 * nb_units[AI_UNIT_TYPE_ARMY] - nb_enemy[i]) * 0.1f : 0.0f;
 			if (order_attack[i] < 0.0f)
 				order_attack[i] = 0.0f;
 			order_attack[i] = (1.0f - expf( -order_attack[i])) * 30.0f;
