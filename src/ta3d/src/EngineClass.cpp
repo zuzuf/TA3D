@@ -590,8 +590,8 @@ namespace TA3D
 			for(uint32 y=0;y<macro_h;y++)
 			for(uint32 x=0;x<macro_w;x++)
 			macro_bloc[y][x].destroy();
-			delete[] macro_bloc[0];
-			delete[] macro_bloc;
+			DELETE_ARRAY(macro_bloc[0]);
+			DELETE_ARRAY(macro_bloc);
 			macro_w=0;
 			macro_h=0;
 			}*/
@@ -606,61 +606,73 @@ namespace TA3D
 		shadow2_shader.destroy();
 		gfx->destroy_texture( details_tex );
 
-		if (low_vtx)			delete[] low_vtx;
-		if (low_vtx_flat)	delete[] low_vtx_flat;
-		if (low_tcoord)		delete[] low_tcoord;
-		if (low_col)			delete[] low_col;
-		if (low_index)		delete[] low_index;
+		DELETE_ARRAY(low_vtx);
+		DELETE_ARRAY(low_vtx_flat);
+		DELETE_ARRAY(low_tcoord);
+		DELETE_ARRAY(low_col);
+		DELETE_ARRAY(low_index);
 		if (low_tex)			glDeleteTextures(1,&low_tex);
 
 		ota_data.destroy();
 		gfx->destroy_texture( lava_map );
-		if (path && bloc_w && bloc_h) {
-			delete[] path[0];
-			delete[] path;
+		if (path && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(path[0]);
+			DELETE_ARRAY(path);
 		}
-		if (view && bloc_w && bloc_h) {
-			delete[] view[0];
-			delete[] view;
+		if (view && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(view[0]);
+			DELETE_ARRAY(view);
 		}
-		if (map_data && bloc_w && bloc_h) {
-			delete[] map_data[0];
-			delete[] map_data;
+		if (map_data && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(map_data[0]);
+			DELETE_ARRAY(map_data);
 		}
-		if (ph_map && bloc_w && bloc_h) {
-			delete[] ph_map[0];		// la carte est allouée d'un seul bloc
-			delete[] ph_map;
+		if (ph_map && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(ph_map[0]);		// la carte est allouée d'un seul bloc
+			DELETE_ARRAY(ph_map);
 		}
-		if (ph_map_2 && bloc_w && bloc_h) {
-			delete[] ph_map_2[0];		// la carte est allouée d'un seul bloc
-			delete[] ph_map_2;
+		if (ph_map_2 && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(ph_map_2[0]);		// la carte est allouée d'un seul bloc
+			DELETE_ARRAY(ph_map_2);
 		}
-		if (h_map && bloc_w && bloc_h) {
-			delete[] h_map[0];		// la carte est allouée d'un seul bloc
-			delete[] h_map;
+		if (h_map && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(h_map[0]);		// la carte est allouée d'un seul bloc
+			DELETE_ARRAY(h_map);
 		}
-		if (bmap && bloc_w && bloc_h) {
-			delete[] bmap[0];		// la carte est allouée d'un seul bloc
-			delete[] bmap;
+		if (bmap && bloc_w && bloc_h)
+		{
+			DELETE_ARRAY(bmap[0]);		// la carte est allouée d'un seul bloc
+			DELETE_ARRAY(bmap);
 		}
-		if (ntex>0) {
-			for(int i=0;i<ntex;i++)
+		if (ntex > 0)
+		{
+			for(int i = 0 ; i < ntex ; i++)
 				gfx->destroy_texture( tex[i] );
-			delete[] tex;
+			DELETE_ARRAY(tex);
 		}
-		if (lvl) {
-			for(int i=0;i<bloc_h*bloc_w;i++)
-				delete[] lvl[i];
-			delete[] lvl;
+		if (lvl)
+		{
+			for(int i = 0 ; i < bloc_h * bloc_w ; i++)
+				DELETE_ARRAY(lvl[i]);
+			DELETE_ARRAY(lvl);
 		}
-		if (bloc && nbbloc>0) {
-			for(int i=0;i<nbbloc;i++) {
-				bloc[i].point=NULL;
+		if (bloc && nbbloc>0)
+		{
+			for(int i = 0 ; i < nbbloc ; i++)
+			{
+				bloc[i].point = NULL;
 				bloc[i].destroy();
 			}
-			delete[] bloc;
+			DELETE_ARRAY(bloc);
 		}
-		if (mini) {
+		if (mini)
+		{
 			gfx->destroy_texture( glmini );
 			SDL_FreeSurface(mini);
 		}
@@ -751,7 +763,7 @@ namespace TA3D
 		if (data)
 		{
 			load((char*)data, ota_file_size);
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 	}
 
@@ -2431,7 +2443,7 @@ namespace TA3D
 				++nb_sky;
 			}
 			else
-				delete sky_data;
+				DELETE(sky_data);
 		}
 
 		if (nb_sky == 0)    // Look for a default sky
@@ -2449,7 +2461,7 @@ namespace TA3D
 					++nb_sky;
 				}
 				else
-					delete sky_data;
+					DELETE(sky_data);
 			}
 		}
 
@@ -2472,7 +2484,7 @@ namespace TA3D
 		for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
 		{
 			if (*it != NULL )
-				delete *it;
+				DELETE(*it);
 		}
 		sky_list.clear();
 

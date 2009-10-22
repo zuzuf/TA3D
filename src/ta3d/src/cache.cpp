@@ -32,7 +32,7 @@ namespace Cache
 						rebuild_cache = false;
 					else
 						rebuild_cache = true;
-					delete[] buf;
+					DELETE_ARRAY(buf);
 				}
 				::fclose(cache_info);
 			}

@@ -132,7 +132,7 @@ namespace TA3D
 				glGetInfoLogARB(shader, 10000, &len, log);
 				LOG_ERROR(LOG_PREFIX_SHADER << log);
 			}
-			delete[] buf;
+			DELETE_ARRAY(buf);
 			return shader;
 		}
 
@@ -176,7 +176,7 @@ namespace TA3D
 				glGetInfoLogARB(shader, 10000, &len, log);
 				LOG_ERROR(LOG_PREFIX_SHADER << log);
 			}
-			delete[] buf;
+			DELETE_ARRAY(buf);
 			return shader;
 		}
 

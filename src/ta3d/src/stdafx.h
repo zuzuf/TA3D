@@ -86,5 +86,7 @@ using namespace Yuni;
 # undef PACKAGE_STRING
 # undef PACKAGE_VERSION
 
+#define DELETE_ARRAY(x) { if (x) { delete[] (x); (x) = NULL; } }
+#define DELETE(x) { if (x) { delete (x); (x) = NULL; } }
 
 #endif // __TA3D_STDAFX_H__

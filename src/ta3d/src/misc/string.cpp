@@ -130,7 +130,7 @@ namespace TA3D
 		if (ret)
 		{
 			String s(ret); // TODO Find a way to not use a temporary string
-			delete[] ret;
+			DELETE_ARRAY(ret);
 			return s;
 		}
 		return nullptr;

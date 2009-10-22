@@ -99,7 +99,7 @@ namespace TA3D
         pMutex.lock();
         IInterfaceMessage *cimsg = new IInterfaceMessage( mID, a, b, c );
         DispatchMsg( cimsg );
-        delete cimsg;
+		DELETE(cimsg);
         pMutex.unlock();
     }
 

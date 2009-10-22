@@ -132,7 +132,7 @@ namespace TA3D
 					anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, seqname), true, filename);
 				else
 					LOG_WARNING(LOG_PREFIX_TDF << "`" << name << "` has no picture to display (" << filename << ".gaf, " << seqname << ") !");
-				delete[] gaf;
+				DELETE_ARRAY(gaf);
 				need_convert = true;
 			}
 		}
@@ -190,7 +190,7 @@ namespace TA3D
 		if (nb_features > 0 && !feature.empty())			// Détruit les éléments
 		{
 			for (unsigned int i = 0; i < feature.size(); ++i)
-				delete feature[i];
+				DELETE(feature[i]);
 		}
 		feature.clear();
 
@@ -298,7 +298,7 @@ namespace TA3D
 							else
 								LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i]->name << "` has no picture to display (" << feature[i]->filename << ".gaf, " << feature[i]->seqname << ") !");
 							feature[i]->not_loaded = false;
-							delete[] gaf;
+							DELETE_ARRAY(gaf);
 
 							if (index>=0 && feature[i]->anim.nb_bmp>0
 								&& feature[i]->anim.bmp[0]->w>=16 && feature[i]->anim.bmp[0]->h>=16) // Tente une conversion en 3d
@@ -351,7 +351,7 @@ namespace TA3D
 			{
 				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << *curFile << "`...");
 				feature_manager.load_tdf((char*)data, file_size);
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 			else
 				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << *curFile << "` failed");
@@ -421,10 +421,9 @@ namespace TA3D
 					feature[i].shadow_dlist = 0;
 				}
 			}
-			delete[] feature;
+			DELETE_ARRAY(feature);
 		}
-		if (list)
-			delete[] list;
+		DELETE_ARRAY(list);
 		init();
 		burning_features.clear();
 		sinking_features.clear();
@@ -1086,8 +1085,7 @@ namespace TA3D
 
 	void Features::resetListOfItemsToDisplay()
 	{
-		if (list)
-			delete[] list;
+		DELETE_ARRAY(list);
 		list = new int[max_features];
 		list_size = 0;
 	}
@@ -1116,8 +1114,7 @@ namespace TA3D
 				n_feature[i].shadow_dlist = 0;
 				n_feature[i].delete_shadow_dlist = false;
 			}
-			if (feature)
-				delete[] feature;
+			DELETE_ARRAY(feature);
 			feature = n_feature;
 			resetListOfItemsToDisplay();
 			idx = nb_features - 1;

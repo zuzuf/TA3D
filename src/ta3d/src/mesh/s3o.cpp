@@ -426,7 +426,7 @@ namespace TA3D
 
 		MESH_S3O *mesh = new MESH_S3O;
 		mesh->load(data, filename);
-		delete[] data;
+		DELETE_ARRAY(data);
 
 		MODEL *model = new MODEL;
 		model->mesh = mesh;

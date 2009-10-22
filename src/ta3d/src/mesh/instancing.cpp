@@ -40,7 +40,7 @@ namespace TA3D
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
             for (std::vector< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
-                delete *e;
+				DELETE(*e);
         }
         hash_table.clear();
     }
@@ -126,7 +126,7 @@ namespace TA3D
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
             for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
-                delete *e;
+				DELETE(*e);
         }
         hash_table.clear();
     }
@@ -194,9 +194,9 @@ namespace TA3D
 
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        delete[] P;
-        delete[] C;
-        delete[] T;
+		DELETE_ARRAY(P);
+		DELETE_ARRAY(C);
+		DELETE_ARRAY(T);
     }
 
 

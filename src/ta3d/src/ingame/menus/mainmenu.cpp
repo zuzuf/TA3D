@@ -200,7 +200,7 @@ namespace Menus
 		cursor.clear();               // Destroy cursor data (it's OpenGL textures so they won't survive)
 		ta3dSideData.destroy();       // We're going to reset video settings, so this will become obsolete
 
-		delete gfx;                   // Delete current GFX object
+		DELETE(gfx);                  // Delete current GFX object
 		gfx = new GFX;                // Create a new one with new settings
 		gfx->loadFonts();
 		gfx->loadDefaultTextures();  // Initialize GFX object
@@ -240,7 +240,7 @@ namespace Menus
 		if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
 			CURSOR_REVIVE = cursor.findByName("cursorreclamate");
 
-		delete[] data;
+		DELETE_ARRAY(data);
 	}
 
 

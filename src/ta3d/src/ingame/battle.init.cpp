@@ -81,11 +81,7 @@ namespace TA3D
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Releasing unused resources...");
 
-		if (water_obj)
-		{
-			delete water_obj;
-			water_obj = NULL;
-		}
+		DELETE(water_obj);
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for 3d models");
 		model_manager.destroy();
@@ -118,8 +114,7 @@ namespace TA3D
 		if (g_ta3d_network)
 		{
 			LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for network object...");
-			delete g_ta3d_network;
-			g_ta3d_network = NULL;
+			DELETE(g_ta3d_network);
 		}
 		// Reset the VFS manager
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Reloading VFS manager...");
@@ -482,7 +477,7 @@ namespace TA3D
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "loading map data ...");
 		map.reset(load_tnt_map(map_file));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "map data loaded");
-		delete[] map_file;
+		DELETE_ARRAY(map_file);
 
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading details texture...");
 		map->load_details_texture( "gfx/details.jpg");			// Load the details texture
@@ -511,7 +506,7 @@ namespace TA3D
 				map->lava_map = gfx->make_texture(tmp);
 				SDL_FreeSurface(tmp);
 			}
-			delete[] map_file;
+			DELETE_ARRAY(map_file);
 		}
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, "");
 
@@ -759,7 +754,7 @@ namespace TA3D
 					}
 				}
 				water_sim = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
-				delete[] data;
+				DELETE_ARRAY(data);
 
 				//  Let's create the height map texture used to render progressive water effects using water depth
 				int h_w = Math::Min( map->bloc_w_db, gfx->max_texture_size() );
@@ -769,7 +764,7 @@ namespace TA3D
 					for(int x = 0 ; x < h_w ; x++)
 						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) / 255.0f;
 				height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true );
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 
 			for (int z = 0 ; z < 512 ; ++z) // The wave base model

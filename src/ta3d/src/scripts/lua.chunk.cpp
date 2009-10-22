@@ -34,7 +34,7 @@ namespace TA3D
         if (chunk->buffer)
         {
             memcpy(nBuf, chunk->buffer, chunk->size);
-            delete[] chunk->buffer;
+			DELETE_ARRAY(chunk->buffer);
         }
         memcpy(nBuf + chunk->size, p, size);
         chunk->size += size;
@@ -88,8 +88,8 @@ namespace TA3D
         size = chunk->size;
         name = chunk->name;
         chunk->buffer = NULL;
-        delete chunk;
-        delete thread;
+		DELETE(chunk);
+		DELETE(thread);
     }
 
     void LuaChunk::save(const String &filename)                    // Save the lua chunk
@@ -113,9 +113,7 @@ namespace TA3D
 
     void LuaChunk::destroy()
     {
-        if (buffer)
-            delete[] buffer;
-        buffer = NULL;
+		DELETE_ARRAY(buffer);
         size = 0;
     }
 
@@ -140,7 +138,7 @@ namespace TA3D
                     }
                 }
             }
-            delete thread;
+			DELETE(thread);
         }
         String query = String::ToLower(name);
         for(int i = 0 ; i < piece_name.size() ; i++)

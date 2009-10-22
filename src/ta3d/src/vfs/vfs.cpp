@@ -147,7 +147,7 @@ namespace UTILS
 		{
 			const std::list<CacheFileData>::iterator end = fileCache.end();
 			for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != end; ++i)
-				delete[] i->data;
+				DELETE_ARRAY(i->data);
 			fileCache.clear();
 		}
 
@@ -157,7 +157,7 @@ namespace UTILS
 		{
 			const std::list<Archive*>::iterator end = archives.end();
 			for (std::list<Archive*>::iterator i = archives.begin() ; i != end; ++i)
-				delete *i;
+				DELETE(*i);
 			archives.clear();
 		}
 		LOG_DEBUG(LOG_PREFIX_VFS << "VFS unloaded.");
@@ -229,7 +229,7 @@ namespace UTILS
 
 		if (fileCache.size() >= 10) // Cycle the data within the list
 		{
-			delete[] fileCache.front().data;
+			DELETE_ARRAY(fileCache.front().data);
 			fileCache.pop_front();
 		}
 
@@ -325,7 +325,7 @@ namespace UTILS
 			data[cache->length] = 0;
 			if (cache->length == 0)
 			{
-				delete[] data;
+				DELETE_ARRAY(data);
 				return NULL;
 			}
 			return data;
@@ -338,7 +338,7 @@ namespace UTILS
 				*fileLength = FileSize;
 			if (FileSize == 0)
 			{
-				delete[] data;
+				DELETE_ARRAY(data);
 				return NULL;
 			}
 			return data;
@@ -355,7 +355,7 @@ namespace UTILS
 				*fileLength = FileSize;
 			if (FileSize == 0)
 			{
-				delete[] data;
+				DELETE_ARRAY(data);
 				return NULL;
 			}
 			return data;
@@ -456,7 +456,7 @@ namespace UTILS
 		if (data)
 		{
 			file.write((char*)data, file_length);
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 		else
 			LOG_WARNING(LOG_PREFIX_VFS << "could not extract file '" << filename << "'");
@@ -519,8 +519,7 @@ namespace UTILS
 
 	void TA3D_FILE::destroy()
 	{
-		if (data)
-			delete[] data;
+		DELETE_ARRAY(data);
 		pos = 0;
 		length = 0;
 	}
@@ -537,8 +536,7 @@ namespace UTILS
 			file->topen(filename);
 			if (!file->isopen())
 			{
-				delete file;
-				file = NULL;
+				DELETE(file);
 			}
 		}
 		return file;
@@ -548,8 +546,7 @@ namespace UTILS
 
 	void fclose(TA3D_FILE *file)
 	{
-		if (file)
-			delete file;
+		DELETE(file);
 	}
 
 
@@ -609,7 +606,7 @@ namespace UTILS
 			pal[i].g = palette[(i << 2) + 1];
 			pal[i].b = palette[(i << 2) + 2];
 		}
-		delete[] palette;
+		DELETE_ARRAY(palette);
 		return true;
 	}
 
@@ -628,13 +625,13 @@ namespace UTILS
 		}
 		if (sizeLimit && file_length > sizeLimit)
 		{
-			delete[] data;
+			DELETE_ARRAY(data);
 			LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
 			return false;
 		}
 		std::stringstream file;
 		file.write((const char*)data, file_length);
-		delete[] data;
+		DELETE_ARRAY(data);
 		std::string line;
 		while (std::getline(file, line))
 			out.push_back(line);

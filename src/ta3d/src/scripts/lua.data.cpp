@@ -50,8 +50,8 @@ namespace TA3D
         LuaChunk *chunk = thread->dump();
         chunk->load(UnitScript::luaVM());
 
-        delete thread;
-        delete chunk;
+		DELETE(thread);
+		DELETE(chunk);
 
         lua_State *L = UnitScript::luaVM();
 

@@ -60,7 +60,7 @@ namespace TA3D
 			Gui::AREA *pArea = new Gui::AREA();
 			pArea->load_tdf("gui/empty.area");
 			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) + additional);
-			delete pArea;
+			DELETE(pArea);
 		}
 	}
 
@@ -136,14 +136,14 @@ namespace TA3D
 	Engine::~Engine(void)
 	{
 		stop();
-		delete ThreadSynchroniser;
+		DELETE(ThreadSynchroniser);
 		cursor.clear();
 		ta3dSideData.destroy();
 
-		delete sound_manager;
-		delete gfx;
+		DELETE(sound_manager);
+		DELETE(gfx);
 		pGFXModeActive = false;
-		delete InterfaceManager;
+		DELETE(InterfaceManager);
 
 		if (pSDLRunning)
 		{

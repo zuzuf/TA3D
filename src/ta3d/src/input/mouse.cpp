@@ -222,7 +222,7 @@ namespace TA3D
 			CURSOR_REVIVE      = cursor.findByName("cursorrevive");
 			if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
 				CURSOR_REVIVE = cursor.findByName("cursorreclamate");
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 		else
 		{

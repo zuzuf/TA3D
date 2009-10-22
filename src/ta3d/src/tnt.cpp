@@ -90,15 +90,15 @@ namespace TA3D
 			byte *minimapdata = VFS::Instance()->readFileRange(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
 			if (!minimapdata)
 			{
-				delete[] headerBytes;
+				DELETE_ARRAY(headerBytes);
 				return 0;
 			}
 
 			TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
-			SDL_Surface		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
+			SDL_Surface	*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
 
-			delete[] headerBytes;
-			delete[] minimapdata;
+			DELETE_ARRAY(headerBytes);
+			DELETE_ARRAY(minimapdata);
 
 			return bitmap;
 		}
@@ -679,7 +679,7 @@ namespace TA3D
 				}
 			}
 		}
-		delete[] tmp_vtx;
+		DELETE_ARRAY(tmp_vtx);
 		LOG_DEBUG("MAP: creating low definition geometry (step 2)");
 		i=0;
 		for (y = 0; y < map->low_h; ++y)	// Build the mesh
@@ -713,8 +713,8 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: freeing temporary allocated memory");
 
-		delete[] TDF_index;
-		delete[] bmp_tex;
+		DELETE_ARRAY(TDF_index);
+		DELETE_ARRAY(bmp_tex);
 
 		return map;
 	}

@@ -1198,7 +1198,7 @@ namespace TA3D
 						cur_sel_index = cur_sel;
 						cur_sel = units.unit[cur_sel].type_id;
 					}
-					delete[] sel_type;
+					DELETE_ARRAY(sel_type);
 				}
 				else
 				{
@@ -2995,7 +2995,7 @@ namespace TA3D
 						if (cur->mission==MISSION_BUILD)
 							--nb;
 						*old = cur->next;
-						delete cur;
+						DELETE(cur);
 						cur = *old;
 						if (nb == 0)
 							break;

@@ -69,11 +69,7 @@ namespace TA3D
 	void I18N::Destroy()
 	{
 		pMutex.lock();
-		if (pInstance != NULL)
-		{
-			delete pInstance;
-			pInstance = NULL;
-		}
+		DELETE(pInstance);
 		pMutex.unlock();
 	}
 
@@ -276,7 +272,7 @@ namespace TA3D
 	void I18N::doClearLanguages()
 	{
 		for (Languages::iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
-			delete (*i);
+			DELETE(*i);
 		pLanguages.clear();
 	}
 

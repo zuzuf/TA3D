@@ -59,20 +59,12 @@ namespace TA3D
 	void ANIMATION_DATA::destroy()
 	{
 		for (int i = 0; i < 3; ++i)
-		{
-			if (axe[i])
-				delete[] axe[i];
-		}
-		if (matrix)
-			delete[] matrix;
-		if (dir)
-			delete[] dir;
-		if (pos)
-			delete[] pos;
-		if (flag)
-			delete[] flag;
-		if (explosion_flag)
-			delete[] explosion_flag;
+			DELETE_ARRAY(axe[i]);
+		DELETE_ARRAY(matrix);
+		DELETE_ARRAY(dir);
+		DELETE_ARRAY(pos);
+		DELETE_ARRAY(flag);
+		DELETE_ARRAY(explosion_flag);
 		init();
 	}
 
@@ -96,8 +88,7 @@ namespace TA3D
 		}
 		for (int i = 0; i < 3; ++i)
 		{
-			if (axe[i])
-				delete axe[i];
+			DELETE_ARRAY(axe[i]);
 			axe[i] = new AXE[nb_piece];
 			for (int e = 0; e < nb_piece; ++e)
 			{
@@ -298,15 +289,13 @@ namespace TA3D
 
 	void MESH::destroy()
 	{
-		if (animation_data)
-			delete animation_data;
-		if (line_on)
-			delete[] line_on;
-		if (t_line)			delete[] t_line;
-		if (line_v_idx[0])	delete[] line_v_idx[0];
-		if (line_v_idx[1])	delete[] line_v_idx[1];
-		if (shadow_index)	delete[] shadow_index;
-		if (tcoord)			delete[] tcoord;
+		DELETE(animation_data);
+		DELETE_ARRAY(line_on);
+		DELETE_ARRAY(t_line);
+		DELETE_ARRAY(line_v_idx[0]);
+		DELETE_ARRAY(line_v_idx[1]);
+		DELETE_ARRAY(shadow_index);
+		DELETE_ARRAY(tcoord);
 		for(unsigned int i = 0; i < gltex.size() ; ++i)
 			if (gltex.size() > i)
 				gfx->destroy_texture(gltex[i]);
@@ -315,27 +304,17 @@ namespace TA3D
 			if (gl_dlist[i])
 				glDeleteLists(gl_dlist[i], 1);
 		gl_dlist.clear();
-		if (nb_index)
-			delete[] nb_index;
-		if (face_reverse)
-			delete[] face_reverse;
-		if (F_N)
-			delete[] F_N;
-		if (N)
-			delete[] N;
-		if (points)
-			delete[] points;
-		if (p_index)
-			delete[] p_index;
-		if (l_index)
-			delete[] l_index;
-		if (t_index)
-			delete[] t_index;
+		DELETE_ARRAY(nb_index);
+		DELETE_ARRAY(face_reverse);
+		DELETE_ARRAY(F_N);
+		DELETE_ARRAY(N);
+		DELETE_ARRAY(points);
+		DELETE_ARRAY(p_index);
+		DELETE_ARRAY(l_index);
+		DELETE_ARRAY(t_index);
 		name.clear();
-		if (next)
-			delete next;
-		if (child)
-			delete child;
+		DELETE(next);
+		DELETE(child);
 		init();
 	}
 
@@ -642,8 +621,7 @@ namespace TA3D
 					system = particle_engine.emit_part_fast( system, *upos+*pos,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
 				}
 			}
-			if (system)
-				delete system;
+			DELETE(system);
 		}
 		if (child)
 			child->compute_coord(data_s,pos,c_part,p_tex,target,upos,M,size,center,reverse,src,src_data);
@@ -1427,7 +1405,7 @@ namespace TA3D
 	MODEL_MANAGER::~MODEL_MANAGER()
 	{
 		for (unsigned int i = 0 ; i < model.size() ; ++i)
-			delete model[i];
+			DELETE(model[i]);
 		model.clear();
 		model_hashtable.emptyHashTable();
 	}
@@ -1442,7 +1420,7 @@ namespace TA3D
 	void MODEL_MANAGER::destroy()
 	{
 		for (unsigned int i = 0 ; i < model.size(); ++i)
-			delete model[i];
+			DELETE(model[i]);
 		model.clear();
 		name.clear();
 		model_hashtable.emptyHashTable();
@@ -1535,9 +1513,7 @@ namespace TA3D
 
 	void MODEL::destroy()
 	{
-		if (mesh)
-			delete mesh;
-		mesh = NULL;
+		DELETE(mesh);
 		if (dlist)
 			glDeleteLists(dlist, 1);
 		init();
