@@ -114,7 +114,7 @@ namespace TA3D
 				SDL_SaveBMP( minimap, args[1].c_str() );
 			}
 
-			delete[] TA3D::VARS::pal;
+			DELETE_ARRAY(TA3D::VARS::pal);
 
 			args.erase(args.begin());
 			args.erase(args.begin());
@@ -218,7 +218,7 @@ namespace TA3D
 				FILE *dst = TA3D_OpenFile(name, "wb");
 				fwrite(data, file_size32, 1, dst);
 				fclose(dst);
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 			args.erase(args.begin());
 			return true;
@@ -247,7 +247,7 @@ namespace TA3D
 				if (data)
 				{
 					std::cout << (const char*)data << std::endl;
-					delete[] data;
+					DELETE_ARRAY(data);
 				}
 				else
 					LOG_ERROR("could not open file '" << *cur_file << "'");
@@ -324,8 +324,8 @@ namespace TA3D
 
 				m_File.flush();
 				m_File.close();
-				delete[] data;
-				delete[] TA3D::VARS::pal;
+				DELETE_ARRAY(data);
+				DELETE_ARRAY(TA3D::VARS::pal);
 			}
 			args.erase(args.begin());
 			return true;
@@ -437,7 +437,7 @@ namespace TA3D
 							fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
 							fwrite( buffer, img_size, 1, gaf_file );
 
-							delete[] buffer;
+							DELETE_ARRAY(buffer);
 							SDL_FreeSurface( frame_img );
 						}
 						else

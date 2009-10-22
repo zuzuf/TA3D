@@ -25,7 +25,7 @@ SocketListNode::~SocketListNode()
 {
 	thread.join();
 	sock->close();
-	delete sock;
+	DELETE(sock);
 }
 
 SockList::SockList()
@@ -83,7 +83,7 @@ SockList::Remove(const int id)
     if(list->id == id)
     {
         node = list->next;
-        delete list;
+		DELETE(list);
         list = node;
         return 0;
     }
@@ -95,7 +95,7 @@ SockList::Remove(const int id)
         if(node->id == id)
         {
             prev->next = node->next;
-            delete node;
+			DELETE(node);
             return 0;
         }
         node=node->next;

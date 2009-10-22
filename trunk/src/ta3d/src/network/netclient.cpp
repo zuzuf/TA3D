@@ -23,9 +23,7 @@ namespace TA3D
 
 	void NetClient::destroyInstance()
 	{
-		if (pInstance)
-			delete pInstance;
-		pInstance = NULL;
+		DELETE(pInstance);
 	}
 
 	NetClient::NetClient() : peerList(), login(), state( NetClient::DISCONNECTED ), messages(), sock(), serverJoined()

@@ -52,7 +52,7 @@ namespace TA3D
 				nuclogo.loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, "nuclogo"));
 				nuclogo.convert();
 				nuclogo.clean();
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 		}
 		pMutex.unlock();
@@ -225,7 +225,7 @@ namespace TA3D
 
 		glEnable(GL_TEXTURE_2D);
 
-		delete[] points;
+		DELETE_ARRAY(points);
 	}
 
 

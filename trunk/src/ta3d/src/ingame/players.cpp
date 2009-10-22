@@ -438,9 +438,7 @@ namespace TA3D
 		destroy();
 		nom.clear();
 		side.clear();
-		if (ai_command)
-			delete[] ai_command;
-		ai_command = NULL;
+		DELETE_ARRAY(ai_command);
 		destroyThread();
 	}
 

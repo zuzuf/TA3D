@@ -94,17 +94,13 @@ namespace TA3D
         void Hpi::close()
         {
             Archive::name.clear();
-            if (directory)
-            {
-                delete[] directory;
-                directory = NULL;
-            }
+			DELETE_ARRAY(directory);
 
             if (HPIFile)
                 fclose(HPIFile);
 
             for(std::map<String, HpiFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
-                delete i->second;
+				DELETE(i->second);
             files.clear();
 
             HPIFile = NULL;
@@ -180,9 +176,9 @@ namespace TA3D
                     WriteSize = decompress(WriteBuff + WritePtr, DeBuff, chunk);
                     WritePtr += WriteSize;
 
-                    delete[] chunk;
+					DELETE_ARRAY(chunk);
                 }
-                delete[] DeSize;
+				DELETE_ARRAY(DeSize);
             }
             else
             {
@@ -253,10 +249,10 @@ namespace TA3D
                     else
                         WritePtr += Chunk->DecompressedSize;
 
-                    delete[] ChunkBytes;
+					DELETE_ARRAY(ChunkBytes);
                     if (WritePtr >= (sint32)(start+length) )   break;
                 }
-                delete[] DeSize;
+				DELETE_ARRAY(DeSize);
             }
             else
             {

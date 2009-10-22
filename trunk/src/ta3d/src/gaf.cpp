@@ -86,7 +86,7 @@ namespace TA3D
 			sint32 idx = RawDataGetEntryIndex(data, imgname);
 			if (idx == -1)
 			{
-				delete[] data;
+				DELETE_ARRAY(data);
 				return;
 			}
 
@@ -95,7 +95,7 @@ namespace TA3D
 			sint32 nb_img = RawDataImageCount(data, idx);
 			if (nb_img <= 0)
 			{
-				delete[] data;
+				DELETE_ARRAY(data);
 				return;
 			}
 
@@ -115,7 +115,7 @@ namespace TA3D
 
 					if (!img)
 					{
-						delete[] data;
+						DELETE_ARRAY(data);
 						return;
 					}
 
@@ -141,7 +141,7 @@ namespace TA3D
 					if (h) h[indx] = fh;
 				}
 			}
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 	}
 
@@ -190,11 +190,11 @@ namespace TA3D
 					gfx->save_texture_to_cache(cache_filename, gl_img, img->w, img->h);
 
 					SDL_FreeSurface(img);
-					delete[] data;
+					DELETE_ARRAY(data);
 					return gl_img;
 				}
 			}
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 		return 0;
 	}
@@ -224,7 +224,7 @@ namespace TA3D
 		convertGAFCharToString(buf + pointers[entry_idx] + 8, entry.name);
 		f_pos = pointers[entry_idx] + 40;
 
-		delete[] pointers;
+		DELETE_ARRAY(pointers);
 		return entry.name;
 	}
 
@@ -268,7 +268,7 @@ namespace TA3D
 		convertGAFCharToString(buf + pointers[entry_idx] + 8, entry.name);
 		f_pos = pointers[entry_idx] + 40;
 
-		delete[] pointers;
+		DELETE_ARRAY(pointers);
 		return entry.Frames;
 	}
 
@@ -551,8 +551,8 @@ namespace TA3D
 			return NULL;
 		};
 
-		delete[] pointers;
-		delete[] frame;
+		DELETE_ARRAY(pointers);
+		DELETE_ARRAY(frame);
 		return frame_img;
 	}
 
@@ -623,12 +623,12 @@ namespace TA3D
 					gfx->destroy_texture(glbmp[i]);
 			}
 		}
-		if (w) delete[] w;
-		if (h) delete[] h;
-		if (ofs_x) delete[] ofs_x;
-		if (ofs_y) delete[] ofs_y;
-		delete[] bmp;
-		delete[] glbmp;
+		DELETE_ARRAY(w);
+		DELETE_ARRAY(h);
+		DELETE_ARRAY(ofs_x);
+		DELETE_ARRAY(ofs_y);
+		DELETE_ARRAY(bmp);
+		DELETE_ARRAY(glbmp);
 		init();
 	}
 
@@ -677,19 +677,13 @@ namespace TA3D
 
 	void Gaf::AnimationList::clear()
 	{
-		if (pList)
-			delete[] pList;
-		pList = NULL;
+		DELETE_ARRAY(pList);
 		pSize = 0;
 	}
 
 	Gaf::AnimationList::~AnimationList()
 	{
-		if (pList)
-		{
-			delete[] pList;
-			pList = NULL;
-		}
+		DELETE_ARRAY(pList);
 	}
 
 
@@ -697,8 +691,7 @@ namespace TA3D
 	{
 		if (buf != NULL)
 		{
-			if (pList)
-				delete[] pList;
+			DELETE_ARRAY(pList);
 			pSize = Gaf::RawDataEntriesCount(buf);
 			pList = new Gaf::Animation[pSize];
 			for (int i = 0; i < pSize; ++i)

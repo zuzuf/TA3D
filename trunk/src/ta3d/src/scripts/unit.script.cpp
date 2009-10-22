@@ -787,7 +787,7 @@ namespace TA3D
 			{
 				lua_pop(L, 1);
 				LOG_DEBUG(LOG_PREFIX_LUA << "save_thread_state: function not found `Restore`");
-				delete[] buf;
+				DELETE_ARRAY(buf);
 				return;
 			}
 
@@ -802,7 +802,7 @@ namespace TA3D
 						LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 						LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 					}
-					delete[] buf;
+					DELETE_ARRAY(buf);
 					return;
 				}
 			}
@@ -813,11 +813,11 @@ namespace TA3D
 					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 				}
-				delete[] buf;
+				DELETE_ARRAY(buf);
 				return;
 			}
 
-			delete[] buf;
+			DELETE_ARRAY(buf);
 		}
 		else
 		{

@@ -210,8 +210,7 @@ namespace TA3D
 		destroy_texture(shadowMap);
 		destroy_texture(default_texture);
 
-		if (TA3D::VARS::pal )
-			delete[]( TA3D::VARS::pal );
+		DELETE_ARRAY(TA3D::VARS::pal);
 
 		normal_font = NULL;
 		small_font = NULL;
@@ -358,7 +357,7 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, points);
 		glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
-		delete[] points;
+		DELETE_ARRAY(points);
 	}
 	void GFX::circle(const float x, const float y, const float r, const uint32 col)
 	{
@@ -389,7 +388,7 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, points);
 		glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
-		delete[] points;
+		DELETE_ARRAY(points);
 	}
 
 	void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My)
@@ -415,7 +414,7 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, points);
 		glDrawArrays( GL_LINES, 0, i>>1 );
-		delete[] points;
+		DELETE_ARRAY(points);
 	}
 
 	void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
@@ -449,7 +448,7 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, points);
 		glDrawArrays( GL_TRIANGLE_FAN, 0, i>>1 );
-		delete[] points;
+		DELETE_ARRAY(points);
 	}
 
 	void GFX::circlefill(const float x, const float y, const float r, const uint32 col)
@@ -1249,7 +1248,7 @@ namespace TA3D
 	{
 		float *tmp = new float[w*h*3];
 		GLuint tex = this->make_texture_RGB32F(w, h, tmp, filter_type, clamp);
-		delete[] tmp;
+		DELETE_ARRAY(tmp);
 		return tex;
 	}
 
@@ -1257,7 +1256,7 @@ namespace TA3D
 	{
 		float *tmp = new float[w*h*4];
 		GLuint tex = this->make_texture_RGBA32F(w, h, tmp, filter_type, clamp);
-		delete[] tmp;
+		DELETE_ARRAY(tmp);
 		return tex;
 	}
 
@@ -1265,7 +1264,7 @@ namespace TA3D
 	{
 		float *tmp = new float[w*h*3];
 		GLuint tex = this->make_texture_RGB16F(w, h, tmp, filter_type, clamp);
-		delete[] tmp;
+		DELETE_ARRAY(tmp);
 		return tex;
 	}
 
@@ -1273,7 +1272,7 @@ namespace TA3D
 	{
 		float *tmp = new float[w*h*4];
 		GLuint tex = this->make_texture_RGBA16F(w, h, tmp, filter_type, clamp);
-		delete[] tmp;
+		DELETE_ARRAY(tmp);
 		return tex;
 	}
 
@@ -1306,7 +1305,7 @@ namespace TA3D
                 img = IMG_Load_RW(file, 0);
             SDL_RWclose(file);
 
-            delete[] data;
+			DELETE_ARRAY(data);
 
             if (img)
             {
@@ -1492,7 +1491,7 @@ namespace TA3D
 
 			glGenerateMipmapEXT(GL_TEXTURE_2D);
 
-			delete[] img;
+			DELETE_ARRAY(img);
 
 			fclose(cache_file);
 
@@ -1595,7 +1594,7 @@ namespace TA3D
 		fwrite( &h, sizeof( GLint ), 1, cache_file );
 		fwrite( img, size, 1, cache_file );
 
-		delete[] img;
+		DELETE_ARRAY(img);
 
 		fclose(cache_file);
 	}
@@ -1973,9 +1972,9 @@ namespace TA3D
 			while (keypressed())    readkey();
 		}
 
-		delete test_gfx;
+		DELETE(test_gfx);
 
-		delete InterfaceManager;
+		DELETE(InterfaceManager);
 	}
 
 	SDL_Surface *GFX::create_surface_ex(int bpp, int w, int h)

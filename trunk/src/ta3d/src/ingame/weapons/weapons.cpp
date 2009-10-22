@@ -52,7 +52,7 @@ namespace TA3D
 			if (data)
 			{
 				weapon_manager.load_tdf((char*)data,file_size);
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 		}
 

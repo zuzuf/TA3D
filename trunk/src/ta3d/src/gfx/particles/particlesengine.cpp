@@ -520,7 +520,7 @@ namespace TA3D
 				++i;
 			else
 			{
-				delete *i;
+				DELETE(*i);
 				bool quit = (i + 1 == particle_systems.end());
 				*i = particle_systems.back();
 				particle_systems.pop_back();
@@ -815,15 +815,9 @@ namespace TA3D
 		nb_part = 0;
 		part.clear();
 
-		if (point)
-			delete[] point;
-		if (texcoord)
-			delete[] texcoord;
-		if (color)
-			delete[] color;
-		point = NULL;
-		texcoord = NULL;
-		color = NULL;
+		DELETE_ARRAY(point);
+		DELETE_ARRAY(texcoord);
+		DELETE_ARRAY(color);
 
 		pMutex.unlock();
 	}

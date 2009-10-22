@@ -78,7 +78,7 @@ namespace TA3D
 				anm_idx = putInCache(fullname, anm);
 
 				if(data != fx_data)
-					delete[] data;
+					DELETE_ARRAY(data);
 			}
 		}
 		else
@@ -201,7 +201,7 @@ namespace TA3D
 		if (!pParticles.empty())
 		{
 			for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
-				delete (*i);
+				DELETE(*i);
 			pParticles.clear();
 		}
 	}
@@ -241,24 +241,19 @@ namespace TA3D
 		gfx->destroy_texture(wave_tex[1]);
 		gfx->destroy_texture(wave_tex[2]);
 
-		if(fx_data)
-			delete[] fx_data;
+		DELETE_ARRAY(fx_data);
 		fx.clear();
-		if (cache_size>0)
+		if (cache_size > 0)
 		{
 			cache_name.clear();
 			if (cache_anm)
 			{
 				for (int i = 0;i < max_cache_size; ++i)
-				{
-					if (cache_anm[i])
-						delete cache_anm[i];
-				}
-				delete[] cache_anm;
+					DELETE(cache_anm[i]);
+				DELETE_ARRAY(cache_anm);
 			}
 		}
-		if (use)
-			delete[] use;
+		DELETE_ARRAY(use);
 		init();
 	}
 
@@ -445,8 +440,8 @@ namespace TA3D
 					n_anm[i] = cache_anm[i];
 					n_use[i] = use[i];
 				}
-				delete[] cache_anm;
-				delete[] use;
+				DELETE_ARRAY(cache_anm);
+				DELETE_ARRAY(use);
 			}
 			use=n_use;
 			cache_anm=n_anm;
@@ -492,7 +487,7 @@ namespace TA3D
 		{
 			if ((*i)->move(dt))
 			{
-				delete (*i);
+				DELETE(*i);
 				pParticles.erase(i++);
 			}
 			else
@@ -502,7 +497,7 @@ namespace TA3D
 		{
 			if ((*i)->move(dt))
 			{
-				delete (*i);
+				DELETE(*i);
 				pElectrics.erase(i++);
 			}
 			else
@@ -527,7 +522,7 @@ namespace TA3D
 				if (use[fx[i].anm] <= 0) // Animation used nowhere
 				{
 					cache_name[fx[i].anm].clear();
-					delete cache_anm[fx[i].anm];
+					DELETE(cache_anm[fx[i].anm]);
 					cache_anm[fx[i].anm] = NULL;
 					--cache_size;
 				}

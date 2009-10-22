@@ -47,9 +47,9 @@ void install_TA_files( String HPI_file, String filename )
 			fflush(dst);
 			fclose(dst);
 		}
-		delete[] data;
+		DELETE_ARRAY(data);
 	}
-    delete archive;
+	DELETE(archive);
 }
 
 } // namespace TA3D

@@ -83,16 +83,15 @@ namespace TA3D
 			DeleteInterface();			// Shut down the interface
 		}
 
-		if ( mini_pos )			delete[] mini_pos;
-		if ( mini_col )			delete[] mini_col;
+		DELETE_ARRAY(mini_pos);
+		DELETE_ARRAY(mini_col);
 
-		if (idx_list)			delete[] idx_list;
-		if (free_idx)			delete[] free_idx;
+		DELETE_ARRAY(idx_list);
+		DELETE_ARRAY(free_idx);
 		if (max_unit>0 && unit)			// Destroy all units
 			for(int i = 0; i < max_unit; ++i)
 				unit[i].destroy(true);
-		if (unit)
-			delete[] unit;
+		DELETE_ARRAY(unit);
 		pMutex.unlock();
 		init();
 	}
@@ -1029,10 +1028,10 @@ namespace TA3D
 		}
 		pMutex.unlock();
 
-		exp_dt_1=expf(-dt);
-		exp_dt_2=expf(-2.0f*dt);
-		exp_dt_4=expf(-4.0f*dt);
-		g_dt=dt*map->ota_data.gravity;
+		exp_dt_1 = expf(-dt);
+		exp_dt_2 = expf(-2.0f * dt);
+		exp_dt_4 = expf(-4.0f * dt);
+		g_dt = dt * map->ota_data.gravity;
 		int *path_exec = new int[players.count()];
 		memset(path_exec, 0, sizeof(int) * players.count());
 		pMutex.lock();
@@ -1072,7 +1071,7 @@ namespace TA3D
 		}
 		pMutex.unlock();
 
-		delete[] path_exec;
+		DELETE_ARRAY(path_exec);
 
 		pMutex.lock();
 		for (unsigned int e = 0 ; e < index_list_size ; ++e)
@@ -1151,10 +1150,10 @@ namespace TA3D
 		nb_unit++;
 		if (nb_unit>max_unit && max_unit == 0)
 		{
-			if (mini_col )		delete[]	mini_col;
-			if (mini_pos )		delete[]	mini_pos;
+			DELETE_ARRAY(mini_col);
+			DELETE_ARRAY(mini_pos);
 
-			max_unit=MAX_UNIT_PER_PLAYER*NB_PLAYERS;
+			max_unit = MAX_UNIT_PER_PLAYER*NB_PLAYERS;
 
 			mini_col = new uint32[ max_unit ];
 			mini_pos = new float[ max_unit * 2 ];
@@ -1163,11 +1162,11 @@ namespace TA3D
 			uint16	*n_idx = new uint16[max_unit];
 			uint16	*n_new_idx = new uint16[max_unit];
 			if (index_list_size>0)
-				memcpy(n_idx,idx_list,index_list_size<<1);
+				memcpy(n_idx,idx_list,index_list_size << 1);
 			if (free_idx)
-				memcpy(n_new_idx,free_idx,max_unit<<1);
-			if (idx_list)	delete[]	idx_list;
-			if (free_idx)	delete[]	free_idx;
+				memcpy(n_new_idx,free_idx,max_unit << 1);
+			DELETE_ARRAY(idx_list);
+			DELETE_ARRAY(free_idx);
 			idx_list = n_idx;
 			free_idx = n_new_idx;
 			for(uint16 i = 0; i<max_unit;i++)
@@ -1183,9 +1182,9 @@ namespace TA3D
 			if (unit)
 			{
 				memcpy(n_unit,unit,sizeof(Unit)*(nb_unit-1));
-				delete[] unit;
+				DELETE_ARRAY(unit);
 			}
-			unit=n_unit;
+			unit = n_unit;
 		}
 		if (!unit)
 			LOG_CRITICAL("Memory alloc failed");
@@ -1638,7 +1637,7 @@ namespace TA3D
 							Mission *tmp = mission;
 							mission = mission->next;
 							prec->next = mission;
-                            delete tmp;         // Path is a std::list so it'll be cleared automatically
+							DELETE(tmp);         // Path is a std::list so it'll be cleared automatically
 							removed_something = true;
 						}
                         else

@@ -631,7 +631,7 @@ namespace TA3D
 
 				VFS::Instance()->reload();
 				ta3dSideData.loadData();                // Refresh side data so we load the correct values
-				delete sound_manager;
+				DELETE(sound_manager);
 				sound_manager = new TA3D::Audio::Manager();
 				sound_manager->loadTDFSounds(true);
 				sound_manager->loadTDFSounds(false);
@@ -2388,8 +2388,7 @@ namespace TA3D
 		Gaf::AnimationList side_logos;
         byte *data = VFS::Instance()->readFile( "anims\\newgame.gaf");
 		side_logos.loadGAFFromRawData(data, true);
-		if (data)
-			delete[] data;
+		DELETE_ARRAY(data);
 
 		TDFParser* campaign_parser = NULL;
 
@@ -2427,8 +2426,7 @@ namespace TA3D
 				Gui::GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.campaign_list");
 				if (guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
 				{
-					if (!campaign_parser)
-						delete campaign_parser;
+					DELETE(campaign_parser);
 					last_campaign_id = guiobj->Pos;
 					mission_id = -1;
 					campaign_name = "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf";
@@ -2507,8 +2505,7 @@ namespace TA3D
 			campaign_area.background = 0;
 		campaign_area.destroy();
 
-		if (campaign_parser)
-			delete campaign_parser;
+		DELETE(campaign_parser);
 
 		reset_mouse();
 		while (key[KEY_ESC])
@@ -2575,7 +2572,7 @@ namespace TA3D
 				String brief_info = (const char*)data;
 				brief_info.toUTF8();
 				brief_area.caption( "brief.info", brief_info);
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 		}
 
@@ -2600,7 +2597,7 @@ namespace TA3D
 		if (data)
 		{
 			planet_animation.loadGAFFromRawData(data, true);
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 
 		int schema = 0;

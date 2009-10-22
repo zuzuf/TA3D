@@ -125,9 +125,7 @@ namespace TA3D
 
     void LuaEnv::destroy()
     {
-        if (global)
-            delete global;
-        global = NULL;
+		DELETE(global);
     }
 
     void LuaEnv::register_global_functions( lua_State *L )

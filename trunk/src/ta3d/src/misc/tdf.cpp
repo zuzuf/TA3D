@@ -104,7 +104,7 @@ namespace TA3D
 			if (NULL != data && size != 0)
 			{
 				bool res = loadFromMemory("hpi://" + filename, data, size, clear, toUTF8, gadgetMode);
-				delete[] data;
+				DELETE_ARRAY(data);
 				return res;
 			}
 		}
@@ -114,7 +114,7 @@ namespace TA3D
 			if (NULL != data && size != 0)
 			{
 				bool res = loadFromMemory(filename, data, size, clear, toUTF8, gadgetMode);
-				delete[] data;
+				DELETE_ARRAY(data);
 				return res;
 			}
 		}
@@ -124,7 +124,7 @@ namespace TA3D
 		}
 		else
 		{
-			delete[] data;
+			DELETE_ARRAY(data);
 			LOG_WARNING(LOG_PREFIX_TDF << "The file `" << filename << "` is empty (file size=0).");
 		}
 		return false;
@@ -160,7 +160,7 @@ namespace TA3D
 			if (NULL != t)
 			{
 				size = s;
-				// delete[] data; The pointer will be freed by the caller
+				// DELETE_ARRAY(data); The pointer will be freed by the caller
 				data = t;
 				tmpBufferToDelete = t;
 			}
@@ -280,8 +280,7 @@ namespace TA3D
 			else
 				stringStarted = true;
 		}
-		if (tmpBufferToDelete)
-			delete[] tmpBufferToDelete;
+		DELETE_ARRAY(tmpBufferToDelete);
 		return true;
 	}
 

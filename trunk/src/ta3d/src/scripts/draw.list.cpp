@@ -37,7 +37,7 @@ namespace TA3D
         if (next)
         {
             next->destroy();
-            delete next;
+			DELETE(next);
         }
         init();
     }

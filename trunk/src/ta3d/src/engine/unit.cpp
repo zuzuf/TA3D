@@ -52,16 +52,11 @@ namespace TA3D
 
 	Unit::~Unit()
 	{
-		if (port)
-			delete[] port;
-		if (memory)
-			delete[] memory;
-		if (attached_list)
-			delete[] attached_list;
-		if (link_list)
-			delete[] link_list;
-		if (last_synctick)
-			delete[] last_synctick;
+		DELETE_ARRAY(port);
+		DELETE_ARRAY(memory);
+		DELETE_ARRAY(attached_list);
+		DELETE_ARRAY(link_list);
+		DELETE_ARRAY(last_synctick);
 	}
 
 
@@ -72,31 +67,22 @@ namespace TA3D
 			rest(0);
 		pMutex.lock();
 		ID = 0;
-		if (script)
-		{
-			delete script;
-			script = NULL;
-		}
+		DELETE(script);
 		while (mission)
 			clear_mission();
 		clear_def_mission();
         data.destroy();
 		init();
-		flags=0;
-		groupe=0;
+		flags = 0;
+		groupe = 0;
 		pMutex.unlock();
 		if (full)
 		{
-			delete[] port;			// Ports
-			port = NULL;
-			delete[] memory;	// Pour se rappeler sur quelles armes on a déjà tiré
-			memory = NULL;
-			delete[] attached_list;
-			attached_list = NULL;
-			delete[] link_list;
-			link_list = NULL;
-			delete[] last_synctick;
-			last_synctick = NULL;
+			DELETE_ARRAY(port);
+			DELETE_ARRAY(memory);
+			DELETE_ARRAY(attached_list);
+			DELETE_ARRAY(link_list);
+			DELETE_ARRAY(last_synctick);
 		}
 	}
 
@@ -172,7 +158,7 @@ namespace TA3D
 		pMutex.lock();
 		Mission* old = mission;
 		mission = mission->next;
-		delete old;
+		DELETE(old);
 		pMutex.unlock();
 	}
 
@@ -451,7 +437,7 @@ namespace TA3D
 		{
 			Mission* old = def_mission;
 			def_mission = def_mission->next;
-			delete old;
+			DELETE(old);
 		}
 		pMutex.unlock();
 	}
@@ -541,7 +527,7 @@ namespace TA3D
 					Mission *tmp = cur_mission;
 					cur_mission = cur_mission->next;
 					prec->next = cur_mission;
-					delete tmp;
+					DELETE(tmp);
 					removed = true;
 				}
 				else
@@ -650,7 +636,7 @@ namespace TA3D
 					&& new_mission->next != NULL ) 	// Prevent factories from closing when already building a unit
 				{
 					stop = new_mission->next;
-					delete new_mission;
+					DELETE(new_mission);
 					new_mission = stop;
 					new_mission->next = NULL;
 				}
@@ -728,7 +714,7 @@ namespace TA3D
 		if (pointer == this && !def_mode) // A unit cannot target itself
 			return;
 
-		int old_mission=-1;
+		int old_mission = -1;
 		if (!def_mode)
 		{
 			if (mission != NULL)
@@ -915,9 +901,9 @@ namespace TA3D
 			return;
 		}
 		bool old_step = mission->step;
-		Mission *old=mission;
+		Mission *old = mission;
         mission = mission->next;
-		delete old;
+		DELETE(old);
         if (mission == NULL)
 		{
 			command_locked = false;
@@ -930,7 +916,7 @@ namespace TA3D
 		{
 			old = mission;
 			mission = mission->next;
-			delete old;
+			DELETE(old);
 		}
 
 		if (old_step && mission && mission->next
@@ -4696,8 +4682,8 @@ script_exec:
 
 			glDrawArrays(GL_QUADS, 0, n);
 
-			delete[] P;
-			delete[] T;
+			DELETE_ARRAY(P);
+			DELETE_ARRAY(T);
 		}
 		glDisable(GL_BLEND);
 		pMutex.unlock();

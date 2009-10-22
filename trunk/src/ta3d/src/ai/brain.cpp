@@ -40,11 +40,10 @@ namespace TA3D
 		{
 			for(int i = 0 ; i < nb_neuron ; i++)
 				if(neuron[i].weight != NULL)
-					delete[] neuron[i].weight;
-			delete[] neuron;
+					DELETE_ARRAY(neuron[i].weight);
+			DELETE_ARRAY(neuron);
 		}
-		if (n_out)
-			delete[] n_out;
+		DELETE_ARRAY(n_out);
 		init();
 	}
 
@@ -61,10 +60,10 @@ namespace TA3D
 	void BRAIN::build(int nb_in,int nb_out,int rg)				// Create the neural network
 	{
 		destroy();
-		q=rg;
-		nb_neuron=q+nb_in+nb_out;		// Number of layers * number of input NEURONs + number of output NEURONs
-		n=nb_in;
-		p=nb_out;
+		q = rg;
+		nb_neuron = q+nb_in+nb_out;		// Number of layers * number of input NEURONs + number of output NEURONs
+		n = nb_in;
+		p = nb_out;
 		neuron = new NEURON[nb_neuron];
 		n_out = new float[nb_out];
 		for(int i = 0; i < nb_neuron; ++i)
@@ -171,7 +170,7 @@ namespace TA3D
 			for(int e=0;e<n;e++)
 				neuron[n+i].weight[e]+=coef*diff[i]*neuron[e].var;
 		}
-		delete[] diff;
+		DELETE_ARRAY(diff);
 	}
 
 	void BRAIN::save(FILE *file)		// Save the neural network

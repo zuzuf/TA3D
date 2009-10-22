@@ -96,7 +96,7 @@ namespace TA3D
 		n[l]=0;
         fread(n, l, file);
 		name = n;
-		delete[] n;
+		DELETE_ARRAY(n);
 
         fclose(file);
 		playerID = id;

@@ -23,6 +23,8 @@
 // rewritten to more gracefully accomodate
 // queue overflow
 
+#define DELETE_ARRAY(x) { if (x) { delete[] x; x = NULL; } }
+#define DELETE(x) { if (x) { delete x; x = NULL; } }
 
 
 SuperQueue::SuperQueue()
@@ -49,11 +51,11 @@ SuperQueue::~SuperQueue()
 	while (node1)
     {
 		node2 = node1->next;
-		delete[] node1->item;
-		delete node1;
+		DELETE_ARRAY(node1->item);
+		DELETE(node1);
 		node1 = node2;
 	}
-	delete[] queue;
+	DELETE_ARRAY(queue);
 }
 
 
@@ -158,9 +160,9 @@ int SuperQueue::dequeue(void* item)
         }
         qback=(qback+size) % qsize;
         struct SQNode* node;
-        delete[] extra->item;
+		DELETE_ARRAY(extra->item);
         node = extra->next;
-        delete[] extra;
+		DELETE_ARRAY(extra);
         extra = node;
         if (extra == NULL)
             full = 0;

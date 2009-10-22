@@ -489,7 +489,7 @@ namespace TA3D
 				l_index[1]=tmp;
 			}
 		}
-		delete[] points;
+		DELETE_ARRAY(points);
 		points = p;
 		nb_vtx = nb_total_point;
 
@@ -554,18 +554,10 @@ namespace TA3D
 			index[cur + 2] = t;
 		}
 		nb_t_index = nb_triangle * 3;
-		delete[] t_index;
+		DELETE_ARRAY(t_index);
 		t_index = index;
-		if (usetex)
-		{
-			delete[] usetex;
-			usetex = NULL;
-		}
-		if (tex)
-		{
-			delete[] tex;
-			tex = NULL;
-		}
+		DELETE_ARRAY(usetex);
+		DELETE_ARRAY(tex);
 		/*--------------------------------------------------------------------------------------*/
 
 		if (nb_t_index > 0) // Calcule les normales pour l'éclairage
@@ -590,9 +582,9 @@ namespace TA3D
 			for (i = nb_vtx; i < (nb_vtx << 1) ; ++i)
 				N[i] = N[i - nb_vtx];
 		}
-		delete[] px;
-		delete[] py;
-		delete[] index_tex;
+		DELETE_ARRAY(px);
+		DELETE_ARRAY(py);
+		DELETE_ARRAY(index_tex);
 		return 0;
 	}
 
@@ -1028,7 +1020,7 @@ namespace TA3D
 
 			MESH_3DO *mesh = new MESH_3DO;
 			mesh->load(data, 0, 0, filename);
-			delete[] data;
+			DELETE_ARRAY(data);
 
 			MODEL *model = new MODEL;
 			model->mesh = mesh;

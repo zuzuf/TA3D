@@ -149,8 +149,8 @@ namespace TA3D
 
 		void destroy()
 		{
-			if(point) delete[] point;
-			if(texcoord) delete[] texcoord;
+			DELETE_ARRAY(point);
+			DELETE_ARRAY(texcoord);
 			init();
 		}
 	};
@@ -362,9 +362,9 @@ namespace TA3D
 
 		void destroy()
 		{
-			if(point)		delete[] point;
-			if(texcoord)	delete[] texcoord;
-			if(index)		delete[] index;
+			DELETE_ARRAY(point);
+			DELETE_ARRAY(texcoord);
+			DELETE_ARRAY(index);
 			init();
 		}
 

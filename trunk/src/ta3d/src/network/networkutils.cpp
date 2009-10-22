@@ -39,7 +39,8 @@ namespace TA3D
 
 		Network* network;
 		network = ((struct net_thread_params*)param)->network;
-		delete ((struct net_thread_params*)param);
+		delete((struct net_thread_params*)param);
+		param = NULL;
 
 		struct event event;
 		event.type = 45; //arbitrary number for "new player connected" event
@@ -75,7 +76,8 @@ namespace TA3D
 
 		network = ((struct net_thread_params*)param)->network;
 		sockid = ((struct net_thread_params*)param)->sockid;
-		delete ((struct net_thread_params*)param);
+		delete((struct net_thread_params*)param);
+		param = NULL;
 		sock = network->players.getSock(sockid);
 
 		while(!pDead && sock->isOpen())
@@ -211,7 +213,8 @@ namespace TA3D
 		network = ((struct net_thread_params*)param)->network;
 		sock = &(network->broadcast_socket);
 
-		delete ((struct net_thread_params*)param);
+		delete((struct net_thread_params*)param);
+		param = NULL;
 
 		String msg;
 
@@ -261,11 +264,12 @@ namespace TA3D
 		filename = ((struct net_thread_params*)param)->filename;
 		file = ta3d_fopen( filename );
 
-		delete ((struct net_thread_params*)param);
+		delete((struct net_thread_params*)param);
+		param = NULL;
 
 		if (NULL == file)
 		{
-			delete[] buffer;
+			DELETE_ARRAY(buffer);
 			LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << "'" );
 			pDead = 1;
 			network->setFileDirty();
@@ -298,7 +302,7 @@ namespace TA3D
 					rest(0);
 				if (msec_timer - timer >= 60000)
 				{
-					delete[] buffer;
+					DELETE_ARRAY(buffer);
 					LOG_DEBUG( LOG_PREFIX_NET_FILE << "file transfert timed out");
 					pDead = 1;
 					network->updateFileTransferInformation(filename + String::Format("%d", sockid), 0, 0);
@@ -324,7 +328,7 @@ namespace TA3D
 		pDead = 1;
 		fclose( file );
 		network->setFileDirty();
-		delete[] buffer;
+		DELETE_ARRAY(buffer);
 		return;
 	}
 
@@ -354,14 +358,15 @@ namespace TA3D
 		filename = Paths::Resources + ((struct net_thread_params*)param)->filename;
 		file = TA3D_OpenFile( filename + ".part", "wb" );
 
-		delete ((struct net_thread_params*)param);
+		delete((struct net_thread_params*)param);
+		param = NULL;
 
 		if( file == NULL )
 		{
 			LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << ".part'");
 			pDead = 1;
 			network->setFileDirty();
-			delete[] buffer;
+			DELETE_ARRAY(buffer);
 			return;
 		}
 
@@ -381,13 +386,13 @@ namespace TA3D
 			fclose( file );
 			remove( (filename + ".part").c_str() );
 			network->setFileDirty();
-			delete[] buffer;
+			DELETE_ARRAY(buffer);
 			network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
 			return;
 		}
 
 		sofar = 0;
-		if( pDead ) length = 1;			// In order to delete the file
+		if (pDead) length = 1;			// In order to delete the file
 		while (!pDead)
 		{
 			ready = true;
@@ -402,7 +407,7 @@ namespace TA3D
 				fclose( file );
 				remove( (filename + ".part").c_str() );
 				network->setFileDirty();
-				delete[] buffer;
+				DELETE_ARRAY(buffer);
 				network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
 				return;
 			}
@@ -439,7 +444,7 @@ namespace TA3D
 
 		pDead = 1;
 		network->setFileDirty();
-		delete[] buffer;
+		DELETE_ARRAY(buffer);
 		return;
 	}
 
@@ -450,7 +455,8 @@ namespace TA3D
 	{
 		Network* network;
 		network = ((struct net_thread_params*)param)->network;
-		delete ((struct net_thread_params*)param);
+		delete((struct net_thread_params*)param);
+		param = NULL;
 		while(!pDead)
 		{
 			network->cleanPlayer();

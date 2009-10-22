@@ -133,18 +133,15 @@ namespace TA3D
 			script_code[i] = (int*)(Data + 4 * dec_offset[i]);
 		}
 
-		delete[] data;
+		DELETE_ARRAY(data);
 	}
 
 	void CobScript::destroy()
 	{
 		names.clear();
-		if (script_code)
-			delete[] script_code;
-		if (dec_offset)
-			delete[] dec_offset;
-		if (Data)
-			delete[] Data;
+		DELETE_ARRAY(script_code);
+		DELETE_ARRAY(dec_offset);
+		DELETE_ARRAY(Data);
 		piece_name.clear();
 		init();
 	}

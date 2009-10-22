@@ -562,16 +562,8 @@ namespace TA3D
 		anticipate.destroy();
 		playerID = 0;
 		unit_id = 0;
-		if (enemy_table)
-		{
-			delete[] enemy_table;
-			enemy_table = NULL;
-		}
-		if (weights)
-		{
-			delete[] weights;
-			weights = NULL;
-		}
+		DELETE_ARRAY(enemy_table);
+		DELETE_ARRAY(weights);
 	}
 
 	void AI_CONTROLLER::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
@@ -610,7 +602,7 @@ namespace TA3D
         n[l] = 0;
         fread(n, l, file);
 		name = n;
-		delete[] n;
+		DELETE_ARRAY(n);
 
 		decide.load(file);
 		anticipate.load(file);

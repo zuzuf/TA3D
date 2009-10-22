@@ -77,7 +77,7 @@ namespace TA3D
 
 			VFS::Instance()->reload();
 			ta3dSideData.loadData(); // Refresh side data so we load the correct values
-			delete sound_manager;
+			DELETE(sound_manager);
 			sound_manager = new TA3D::Audio::Manager();
 			sound_manager->stopMusic();
 			sound_manager->loadTDFSounds(true);
@@ -106,7 +106,7 @@ namespace TA3D
 
 			VFS::Instance()->reload();
 			ta3dSideData.loadData();				// Refresh side data so we load the correct values
-			delete sound_manager;
+			DELETE(sound_manager);
 			sound_manager = new TA3D::Audio::Manager();
 			sound_manager->loadTDFSounds(true);
 			sound_manager->loadTDFSounds(false);

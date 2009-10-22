@@ -516,8 +516,7 @@ namespace TA3D
 		data = read_from_mem(&nb_p_index, sizeof(nb_p_index), data); // Read point data
 		if (nb_p_index < 0)
 		{
-			if (points)
-				delete[] points;
+			DELETE_ARRAY(points);
 			name.clear();
 			init();
 			return NULL;
@@ -533,8 +532,8 @@ namespace TA3D
 		data=read_from_mem(&nb_l_index,sizeof(nb_l_index),data);	// Read line data
 		if (nb_l_index < 0)
 		{
-			if (points) delete[] points;
-			if (p_index) delete[] p_index;
+			DELETE_ARRAY(points);
+			DELETE_ARRAY(p_index);
 			name.clear();
 			init();
 			return NULL;
@@ -550,9 +549,9 @@ namespace TA3D
 		data = read_from_mem(&nb_t_index, sizeof(nb_t_index), data); // Read triangle data
 		if (nb_t_index < 0)
 		{
-			if (points) delete[] points;
-			if (p_index) delete[] p_index;
-			if (l_index) delete[] l_index;
+			DELETE_ARRAY(points);
+			DELETE_ARRAY(p_index);
+			DELETE_ARRAY(l_index);
 			name.clear();
 			init();
 			return NULL;
@@ -633,12 +632,12 @@ namespace TA3D
 				}
 				catch( ... )
 				{
-					delete[] buffer;
+					DELETE_ARRAY(buffer);
 					destroy();
 					return NULL;
 				}
 
-				delete[] buffer;
+				DELETE_ARRAY(buffer);
 			}
 
 			String cache_filename = !filename.empty() ? filename + String::Format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
@@ -665,14 +664,14 @@ namespace TA3D
 			buf[shader_size]=0;
 			data=read_from_mem(buf,shader_size,data);
 			vert_shader_src = buf;
-			delete[] buf;
+			DELETE_ARRAY(buf);
 
 			data = read_from_mem(&shader_size,4,data);
 			buf = new char[shader_size+1];
 			buf[shader_size]=0;
 			data = read_from_mem(buf,shader_size,data);
 			frag_shader_src = buf;
-			delete[] buf;
+			DELETE_ARRAY(buf);
 			s_shader.load_memory(frag_shader_src.c_str(),frag_shader_src.size(),vert_shader_src.c_str(),vert_shader_src.size());
 		}
 
@@ -761,7 +760,7 @@ namespace TA3D
 			String realFilename = (char*)data + 1;
 			realFilename.trim();
 			LOG_INFO(LOG_PREFIX_3DM << "file '" << filename << "' points to '" << realFilename << "'");
-			delete[] data;
+			DELETE_ARRAY(data);
 			data = VFS::Instance()->readFile(realFilename, &file_length);
 			if (!data)
 			{
@@ -772,7 +771,7 @@ namespace TA3D
 
 		MESH_3DM *mesh = new MESH_3DM;
 		mesh->load(data, filename);
-		delete[] data;
+		DELETE_ARRAY(data);
 
 		MODEL *model = new MODEL;
 		model->mesh = mesh;

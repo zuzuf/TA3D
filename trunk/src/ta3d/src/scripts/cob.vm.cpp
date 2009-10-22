@@ -62,7 +62,7 @@ namespace TA3D
     {
         destroy();
         if (caller == NULL && global_env)
-            delete[] global_env;
+			DELETE_ARRAY(global_env);
     }
 
     void CobVm::init()
@@ -827,8 +827,7 @@ namespace TA3D
         {
             int t;
             gzread(file, &t, sizeof(t));
-            if (global_env != NULL)
-                delete[] global_env;
+			DELETE_ARRAY(global_env);
             global_env = new int[t];
             gzread(file, global_env, t * sizeof(int));
         }

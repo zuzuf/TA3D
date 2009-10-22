@@ -141,8 +141,7 @@ namespace TA3D
 			lua_settop(L, 0);
 		if ( L && caller == NULL )
 			lua_close( L );
-		if ( buffer )
-			delete[] buffer;
+		DELETE_ARRAY(buffer);
 		running = false;
         crashed = false;
 
@@ -189,8 +188,8 @@ namespace TA3D
 					memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
 					memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
 					filesize += filesize2 - i - 11;
-					delete[] buffer;
-					delete[] buffer2;
+					DELETE_ARRAY(buffer);
+					DELETE_ARRAY(buffer2);
 					buffer = buffer3;
 				}
 				else
@@ -214,8 +213,7 @@ namespace TA3D
 			if (L == NULL)
 			{
 				running = false;
-                delete[] buffer;
-				buffer = NULL;
+				DELETE_ARRAY(buffer);
 				return;
 			}
 
@@ -231,9 +229,8 @@ namespace TA3D
 
 				running = false;
 				lua_close( L );
-				delete[] buffer;
+				DELETE_ARRAY(buffer);
 				L = NULL;
-				buffer = NULL;
 				return;
 			}
 			byte *tmp = buffer;
@@ -243,8 +240,8 @@ namespace TA3D
             buffer[filesize2] = '\n';
             filesize += filesize2;
             buffer[filesize] = 0;
-			delete[] header_buffer;
-            delete[] tmp;
+			DELETE_ARRAY(header_buffer);
+			DELETE_ARRAY(tmp);
 
 			name = filename;
 			if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))
@@ -259,15 +256,13 @@ namespace TA3D
 
 				running = false;
 				lua_close( L );
-				delete[] buffer;
+				DELETE_ARRAY(buffer);
 				L = NULL;
-				buffer = NULL;
 			}
 			else
 			{
 				// This may not help debugging
-                delete[] buffer;
-                buffer = NULL;
+				DELETE_ARRAY(buffer);
 
 				running = true;
 				setThreadID();

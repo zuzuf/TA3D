@@ -54,10 +54,10 @@ namespace TA3D
 
 	DlData::~DlData()
 	{
-		if (dl_x) delete[] dl_x;
-		if (dl_y) delete[] dl_y;
-		if (dl_w) delete[] dl_w;
-		if (dl_h) delete[] dl_h;
+		DELETE_ARRAY(dl_x);
+		DELETE_ARRAY(dl_y);
+		DELETE_ARRAY(dl_w);
+		DELETE_ARRAY(dl_h);
 	}
 
 
@@ -151,7 +151,7 @@ namespace TA3D
 							SDL_FreeSurface( img );
 						}
 
-						delete[] gaf_file;
+						DELETE_ARRAY(gaf_file);
 						unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
 					}
 					else
@@ -182,7 +182,7 @@ namespace TA3D
 							SDL_FreeSurface(img);
 						}
 
-						delete[] gaf_file;
+						DELETE_ARRAY(gaf_file);
 						unit_type[unit_index]->AddUnitBuild(-1, x, y, w, h, page, tex);
 					}
 					else
@@ -253,7 +253,7 @@ namespace TA3D
 			if (data)
 			{
 				analyse2((char*)data,file_size);
-				delete[] data;
+				DELETE_ARRAY(data);
 			}
 		}
 	}
@@ -345,7 +345,7 @@ namespace TA3D
 		ExplodeAs.clear();
 		SelfDestructAs.clear();
 		if (script)
-			delete script;
+			DELETE(script);
 
 		w_badTargetCategory.clear();
 		BadTargetCategory.clear();
@@ -1016,12 +1016,12 @@ namespace TA3D
 		h_dl_data.initTable( __DEFAULT_HASH_TABLE_SIZE );
 
 		for( std::list< DlData* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
-			delete	*i;
+			DELETE(*i);
 
 		l_dl_data.clear();
 
 		for (UnitList::iterator i = unit_type.begin(); i != unit_type.end(); ++i)
-			delete *i;
+			DELETE(*i);
 		unit_type.clear();
 		panel.destroy();
 		paneltop.destroy();

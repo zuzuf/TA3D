@@ -91,7 +91,7 @@ namespace Menus
 	NetMenu::~NetMenu()
 	{
         for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; ++i)
-            delete *i;
+			DELETE(*i);
         downloadList.clear();
     }
 
@@ -382,7 +382,7 @@ namespace Menus
 				}
 				else        // Download has failed, remove the mod folder
 					LOG_ERROR(LOG_PREFIX_RESOURCES << "mod could not be installed");
-				delete *i;
+				DELETE(*i);
 				downloadList.erase(i++);
 			}
 	}
@@ -658,7 +658,7 @@ namespace Menus
 
 			VFS::Instance()->reload();
 			ta3dSideData.loadData();                // Refresh side data so we load the correct values
-			delete sound_manager;
+			DELETE(sound_manager);
 			sound_manager = new TA3D::Audio::Manager();
 			sound_manager->loadTDFSounds(true);
 			sound_manager->loadTDFSounds(false);

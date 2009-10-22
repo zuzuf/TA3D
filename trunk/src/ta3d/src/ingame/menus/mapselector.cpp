@@ -277,7 +277,7 @@ namespace Menus
 		if (byte* data = VFS::Instance()->readFile(otaMap, &otaSize))
 		{
 			mapOTA.load((char*)data, otaSize);
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 
 		// Update the mini map
@@ -332,7 +332,7 @@ namespace Menus
 			ota_parser.loadFromMemory("ota", (const char*)data, ota_size, false, false, false);
 			String tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
 			tmp.toLower();
-			delete[] data;
+			DELETE_ARRAY(data);
 			return tmp.startsWith("network");
 		}
 		return false;

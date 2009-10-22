@@ -23,8 +23,7 @@ namespace TA3D
 
 	void TEXTURE_MANAGER::destroy()
 	{
-		if (tex)
-			delete[] tex;
+		DELETE_ARRAY(tex);
 		init();
 	}
 
@@ -85,7 +84,7 @@ namespace TA3D
 		{
 			byte *data = VFS::Instance()->readFile(*cur_file);
 			load_gaf(data, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");
-			delete[] data;
+			DELETE_ARRAY(data);
 		}
 		return 0;
 	}
@@ -101,8 +100,7 @@ namespace TA3D
 			n_tex[i] = tex[i];
 			tex[i].init();
 		}
-		if (tex)
-			delete[] tex;
+		DELETE_ARRAY(tex);
 		tex = n_tex;
 		for (int i = 0; i < nb_entry; ++i)
 		{

@@ -48,19 +48,14 @@ namespace TA3D
 
 	Font::~Font()
 	{
-		if (font)
-			delete font;
+		DELETE(font);
 	}
 
 
 	Font& Font::operator = (const Font& rhs)
 	{
 		MutexLocker locker(pMutex);
-		if (font)
-		{
-			delete font;
-			font = NULL;
-		}
+		DELETE(font);
 		pFontFilename = rhs.pFontFilename;
 		if (!pFontFilename.empty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
@@ -71,11 +66,7 @@ namespace TA3D
 	void Font::init()
 	{
 		MutexLocker locker(pMutex);
-		if (font)
-		{
-			delete font;
-			font = NULL;
-		}
+		DELETE(font);
 		pFontFilename.clear();
 	}
 
@@ -112,11 +103,7 @@ namespace TA3D
 	void Font::destroy()
 	{
 		MutexLocker locker(pMutex);
-		if (font)
-		{
-			delete font;
-			font = NULL;
-		}
+		DELETE(font);
 		pFontFilename.clear();
 	}
 
@@ -174,7 +161,7 @@ namespace TA3D
 		if (!pFontList.empty())
 		{
 			for (FontList::iterator i = pFontList.begin(); i != pFontList.end(); ++i)
-				delete *i;
+				DELETE(*i);
 			pFontList.clear();
 		}
 		font_table.emptyHashTable();
@@ -238,7 +225,7 @@ namespace TA3D
 					}
 					else
 						LOG_ERROR(LOG_PREFIX_FONT << "Impossible to create the temporary file `" << tmp << "`");
-					delete[] data;
+					DELETE_ARRAY(data);
 				}
 			}
 			else
@@ -266,11 +253,7 @@ namespace TA3D
 		pFontFilename = filename;
 		pType = type;
 
-		if (font)
-		{
-			delete font;
-			font = NULL;
-		}
+		DELETE(font);
 		if (!filename.empty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");

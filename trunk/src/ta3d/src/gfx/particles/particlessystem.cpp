@@ -36,12 +36,8 @@ namespace TA3D
 
     void ParticlesSystem::destroy()
     {
-        if (pos)
-            delete[] pos;
-        if(V)
-            delete[] V;
-        pos = NULL;
-        V = NULL;
+		DELETE_ARRAY(pos);
+		DELETE_ARRAY(V);
     }
 
 

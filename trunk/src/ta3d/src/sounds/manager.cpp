@@ -211,7 +211,7 @@ namespace Audio
 			}
 			else
 			{
-				delete pPlaylist[i + e];
+				DELETE(pPlaylist[i + e]);
 				++e;
 			}
 		}
@@ -466,7 +466,7 @@ namespace Audio
 		if (!pPlaylist.empty())
 		{
 			for (Playlist::iterator k_Pos = pPlaylist.begin(); k_Pos != pPlaylist.end(); ++k_Pos)
-				delete *k_Pos ;
+				DELETE(*k_Pos);
 			pPlaylist.clear();
 		}
 		pMutex.unlock();
@@ -806,7 +806,7 @@ namespace Audio
 		if (data)
 		{
 			pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem(data, sound_file_size), 1);
-			delete[] data;
+			DELETE_ARRAY(data);
 			if (pBasicSound == NULL)
 			{
 				LOG_ERROR(LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ")");
@@ -877,12 +877,11 @@ namespace Audio
 
 		// Now get SDL_mixer to load the sample
 		it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem(data, Length), 1 );
-		delete[] data; // we no longer need this.
+		DELETE_ARRAY(data); // we no longer need this.
 
 		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
 		{
-			delete it;  // delete the sound.
-			it = NULL;
+			DELETE(it);  // delete the sound.
 			// log a message and return false;
 			if (m_SDLMixerRunning)
 				LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.");

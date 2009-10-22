@@ -46,7 +46,7 @@ namespace TA3D
 			if (!files.empty())
 			{
             	for (std::map<String, RealFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
-               		delete i->second;
+					DELETE(i->second);
             	files.clear();
 			}
         }
@@ -98,7 +98,7 @@ namespace TA3D
                     std::map<String, RealFile*>::iterator it = files.find(*i);
                     if (it != files.end())          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
                     {
-                        delete it->second;
+						DELETE(it->second);
                         files.erase(it);
                     }
                     files.insert( std::pair<String, RealFile*>(*i, file) );
