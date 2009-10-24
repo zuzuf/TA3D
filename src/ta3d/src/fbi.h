@@ -261,12 +261,7 @@ namespace TA3D
         ** \param p menu ID
         ** \param Pic OpenGL texture ID
         */
-        void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic = 0 );
-
-        /*!
-        ** \brief Fix conflicts in build menus
-        */
-        void FixBuild();
+		void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic = 0);
 
         /*!
         ** \brief Can the current unit build unit 'index' ?

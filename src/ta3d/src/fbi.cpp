@@ -60,9 +60,18 @@ namespace TA3D
 		DELETE_ARRAY(dl_h);
 	}
 
+	inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )
+	{
+		int w = w1 + w2;
+		int h = h1 + h2;
+		int X1 = Math::Min(x1, x2);
+		int Y1 = Math::Min(y1, y2);
+		int X2 = Math::Max(x1 + w1, x2 + w2);
+		int Y2 = Math::Max(y1 + h1, y2 + h2);
+		return X2 - X1 < w && Y2 - Y1 < h;
+	}
 
-
-	void UnitType::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic )
+	void UnitType::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic)
 	{
 		if (index < -1)
 			return;
@@ -71,23 +80,51 @@ namespace TA3D
 		{
 			for (int i = 0; i < nb_unit; ++i)
 			{
-				if (BuildList[i] == index && Pic_p[i] < 0) // Update the data we have
+				if (BuildList[i] == index) // We already have it so leave now
 				{
-					if (Pic != 0 )
-					{
-						gfx->destroy_texture(PicList[i]);
-						PicList[i] = Pic;
-					}
-					Pic_x[ i ] = short(px);
-					Pic_y[ i ] = short(py);
-					Pic_w[ i ] = short(pw);
-					Pic_h[ i ] = short(ph);
-					Pic_p[ i ] = short(p);
+					if (Pic)
+						gfx->destroy_texture(Pic);
 					return;
 				}
 			}
 		}
 
+		if (p == -1)
+		{
+			if (dl_data == NULL)		// We can't add a menu entry if we don't know where to add it
+			{
+				LOG_ERROR(LOG_PREFIX_RESOURCES << "I can't add this menu entry without a list of available menu buttons");
+				if (Pic)
+					gfx->destroy_texture(Pic);
+				return;
+			}
+			for(int i = 0 ; i <= nb_pages && p == -1 ; ++i)
+			{
+				for(int k = 0 ; k < dl_data->dl_num && p == -1 ; ++k)
+				{
+					bool found = true;
+					for(int j = 0 ; j < nb_unit ; ++j)
+					{
+						if (Pic_p[j] == i
+							&& overlaps(Pic_x[j], Pic_y[j], Pic_w[j], Pic_h[j],
+										dl_data->dl_x[k], dl_data->dl_y[k], dl_data->dl_w[k], dl_data->dl_h[k]))
+						{
+							found = false;
+							break;
+						}
+					}
+					if (found)
+					{
+						p = i;
+						px = dl_data->dl_x[k];
+						py = dl_data->dl_y[k];
+						pw = dl_data->dl_w[k];
+						ph = dl_data->dl_h[k];
+					}
+				}
+			}
+		}
+		nb_pages = Math::Max(nb_pages, short(p + 1));
 		++nb_unit;
 		if (BuildList.empty())
 			nb_unit = 1;
@@ -105,14 +142,14 @@ namespace TA3D
 	{
 		TDFParser gui_parser(filename, false, false, true);
 
-		String number = filename.substr(0, filename.size() - 4);
+		String number = Paths::ExtractFileNameWithoutExtension(filename);
 		int first = int(number.size() - 1);
 		while (first >= 0 && number[first] >= '0' && number[first] <= '9')
 			--first;
 		++first;
 		number = number.substr(first, number.size() - first);
 
-		int page = atoi( number.c_str() ) - 1;		// Extract the page number
+		int page = number.to<int>() - 1;		// Extract the page number
 
 		int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 
@@ -124,70 +161,38 @@ namespace TA3D
 		for (int i = 1; i <= NbObj; ++i)
 		{
 			int attribs = gui_parser.pullAsInt( String::Format( "gadget%d.common.commonattribs", i ) );
-			if (attribs & 4) // Unit Build Pic
+			if (!(attribs & 4) && !(attribs & 8))	// Neither a unit nor a weapon
+				continue;
+			int x = gui_parser.pullAsInt( String::Format( "gadget%d.common.xpos", i ) ) + x_offset;
+			int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
+			int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
+			int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
+			name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
+			int idx = (attribs & 4) ? get_unit_index(name) : -1;		// attribs & 4 ==> unit, attribs & 8 ==> weapon
+			if ((attribs & 4) && idx == -1)
 			{
-				int x = gui_parser.pullAsInt( String::Format( "gadget%d.common.xpos", i ) ) + x_offset;
-				int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
-				int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
-				int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
-				name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i ) );
-				int idx = get_unit_index(name);
+				LOG_ERROR(LOG_PREFIX_RESOURCES << "Can't add unit to build menu : unit not found : '" << name << "'");
+				continue;
+			}
 
-				if (idx >= 0)
+			byte* gaf_file = VFS::Instance()->readFile( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ) );
+			if (gaf_file)
+			{
+				SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+				GLuint tex = 0;
+				if (img)
 				{
-					String name(gui_parser.pullAsString(String::Format("gadget%d.common.name", i)));
-
-					byte *gaf_file = VFS::Instance()->readFile(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
-					if (gaf_file)
-					{
-						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
-
-						GLuint tex = 0;
-						if (img)
-						{
-							w = img->w;
-							h = img->h;
-							tex = gfx->make_texture( img, FILTER_LINEAR );
-							SDL_FreeSurface( img );
-						}
-
-						DELETE_ARRAY(gaf_file);
-						unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
-					}
-					else
-						unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, unit_type[idx]->glpic);
+					w = img->w;
+					h = img->h;
+					tex = gfx->make_texture(img, FILTER_LINEAR);
+					SDL_FreeSurface(img);
 				}
-				else
-				{	LOG_DEBUG("unit not found : " << name);	}
+
+				DELETE_ARRAY(gaf_file);
+				unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
 			}
 			else
-				if (attribs & 8) // Weapon Build Pic
-				{
-					int x = gui_parser.pullAsInt( String::Format( "gadget%d.common.xpos", i ) ) + x_offset;
-					int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
-					int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
-					int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
-					name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
-
-					byte* gaf_file = VFS::Instance()->readFile( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
-					if (gaf_file)
-					{
-						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
-						GLuint tex = 0;
-						if (img)
-						{
-							w = img->w;
-							h = img->h;
-							tex = gfx->make_texture(img, FILTER_LINEAR);
-							SDL_FreeSurface(img);
-						}
-
-						DELETE_ARRAY(gaf_file);
-						unit_type[unit_index]->AddUnitBuild(-1, x, y, w, h, page, tex);
-					}
-					else
-						unit_type[unit_index]->AddUnitBuild(-1, x, y, w, h, page);
-				}
+				unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page);
 		}
 	}
 
@@ -206,14 +211,33 @@ namespace TA3D
 			if (unitmenu.empty() || unitname.empty()) continue;
 
 			int unit_index = get_unit_index(unitmenu);
-			if (unit_index==-1)
+			if (unit_index == -1)
 			{
 				LOG_DEBUG("unit '" << unitmenu << "' not found");
 				continue;		// Au cas où l'unité n'existerait pas
 			}
 			int idx = get_unit_index(unitname);
-			if (idx>=0 && idx<nb_unit && unit_type[idx]->glpic)
-				unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
+			if (idx >= 0 && idx < nb_unit)
+			{
+				byte* gaf_file = VFS::Instance()->readFile( String::Format( "anims\\%s_gadget.gaf", unitname.c_str()) );
+				if (gaf_file)
+				{
+					SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, unitname), 0);
+					GLuint tex = 0;
+					if (img)
+					{
+						tex = gfx->make_texture(img, FILTER_LINEAR);
+						SDL_FreeSurface(img);
+					}
+
+					DELETE_ARRAY(gaf_file);
+					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
+				}
+				else if (unit_type[idx]->glpic)
+					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
+				else
+					LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");
+			}
 			else
 			{	LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");	}
 		}
@@ -261,28 +285,6 @@ namespace TA3D
 
 	void UnitManager::gather_all_build_data()
 	{
-		TDFParser sidedata_parser(ta3dSideData.gamedata_dir + "sidedata.tdf", false, true);
-		for (int i = 0 ; i < nb_unit; ++i)
-		{
-			int n = 1;
-			while(!sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) ).empty())  n++;
-
-			n--;
-			String canbuild = sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
-			while (n>0)
-			{
-				int idx = get_unit_index( canbuild );
-				if (idx >= 0 && idx < nb_unit && unit_type[idx]->glpic)
-					unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
-				else
-				{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
-				--n;
-				canbuild = sidedata_parser.pullAsString( String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
-			}
-		}
-
-		gather_build_data();			// Read additionnal build data
-
 		String::List file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
@@ -307,8 +309,27 @@ namespace TA3D
 			}
 		}
 
+		TDFParser sidedata_parser(ta3dSideData.gamedata_dir + "sidedata.tdf", false, true);
 		for (int i = 0 ; i < nb_unit; ++i)
-			unit_type[i]->FixBuild();
+		{
+			int n = 1;
+			while(!sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) ).empty())  n++;
+
+			n--;
+			String canbuild = sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
+			while (n > 0)
+			{
+				int idx = get_unit_index( canbuild );
+				if (idx >= 0 && idx < nb_unit && unit_type[idx]->glpic)
+					unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
+				else
+				{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
+				--n;
+				canbuild = sidedata_parser.pullAsString( String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
+			}
+		}
+
+		gather_build_data();			// Read additionnal build data
 	}
 
 
@@ -344,8 +365,7 @@ namespace TA3D
 		soundcategory.clear();
 		ExplodeAs.clear();
 		SelfDestructAs.clear();
-		if (script)
-			DELETE(script);
+		DELETE(script);
 
 		w_badTargetCategory.clear();
 		BadTargetCategory.clear();
@@ -909,104 +929,6 @@ namespace TA3D
 		}
 	}
 
-	inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )
-	{
-		int w = w1 + w2;
-		int h = h1 + h2;
-		int X1 = Math::Min(x1, x2);
-		int Y1 = Math::Min(y1, y2);
-		int X2 = Math::Max(x1 + w1, x2 + w2);
-		int Y2 = Math::Max(y1 + h1, y2 + h2);
-		return X2 - X1 < w && Y2 - Y1 < h;
-	}
-
-	void UnitType::FixBuild()
-	{
-		if (dl_data && dl_data->dl_num > 0)
-		{
-			for (int i = 0 ; i < nb_unit - 1; ++i)		// Ok it's O(N²) but we don't need something fast
-			{
-				for (int e = i + 1; e < nb_unit; ++e)
-				{
-					if ((Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 )
-					{
-						std::swap( Pic_p[e], Pic_p[i] );
-						std::swap( Pic_x[e], Pic_x[i] );
-						std::swap( Pic_y[e], Pic_y[i] );
-						std::swap( Pic_w[e], Pic_w[i] );
-						std::swap( Pic_h[e], Pic_h[i] );
-						std::swap( PicList[e], PicList[i] );
-						std::swap( BuildList[e], BuildList[i] );
-					}
-				}
-			}
-		}
-
-		int next_id = 0;
-		bool filled = true;
-		int last = -2;
-
-		bool first_time = true;
-		nb_pages = -1;
-		for( int i = 0 ; i < nb_unit ; i++ )		// We can't trust Pic_p data, because sometimes we get >= 10000 !! so only order is important
-			if (Pic_p[ i ] != -1)
-			{
-				if (last == Pic_p[ i ] && !first_time)
-					Pic_p[ i ] = nb_pages;
-				else
-				{
-					last = Pic_p[ i ];
-					Pic_p[ i ] = ++nb_pages;
-				}
-				first_time = false;
-			}
-
-		if (nb_pages == -1 )	nb_pages = 0;
-
-		if (dl_data && dl_data->dl_num > 0 )
-			for( int i = 0 ; i < nb_unit ; i++ )
-				if (Pic_p[ i ] == -1)
-				{
-					Pic_p[ i ] = nb_pages;
-					Pic_x[ i ] = dl_data->dl_x[ next_id ];
-					Pic_y[ i ] = dl_data->dl_y[ next_id ];
-					Pic_w[ i ] = dl_data->dl_w[ next_id ];
-					Pic_h[ i ] = dl_data->dl_h[ next_id ];
-					next_id = (next_id + 1) % dl_data->dl_num;
-					filled = true;
-					if (next_id == 0)
-					{
-						nb_pages++;
-						filled = false;
-					}
-				}
-		if (!filled )	nb_pages--;
-		for( int i = nb_unit - 1 ; i > 0 ; i-- )
-		{
-			for( int e = i - 1 ; e >= 0 ; e-- )
-				if (e != i && Pic_p[ e ] == Pic_p[ i ] && overlaps( Pic_x[ e ], Pic_y[ e ], Pic_w[ e ], Pic_h[ e ], Pic_x[ i ], Pic_y[ i ], Pic_w[ i ], Pic_h[ i ] ))
-				{
-					Pic_p[ i ]++;
-					e = nb_unit;
-				}
-		}
-		for( int i = 0 ; i < nb_unit - 1 ; i++ )  		// Ok it's O(N²) but we don't need something fast
-			for( int e = i + 1 ; e < nb_unit ; e++ )
-				if (Pic_p[e] < Pic_p[i])
-				{
-					std::swap(Pic_p[e], Pic_p[i] );
-					std::swap(Pic_x[e], Pic_x[i]);
-					std::swap(Pic_y[e], Pic_y[i]);
-					std::swap(Pic_w[e], Pic_w[i]);
-					std::swap(Pic_h[e], Pic_h[i]);
-					std::swap(PicList[e], PicList[i]);
-					std::swap(BuildList[e], BuildList[i]);
-				}
-		for (int i = 0; i < nb_unit; ++i)
-			nb_pages = Math::Max(nb_pages, Pic_p[i]);
-		nb_pages++;
-	}
-
 	void UnitManager::destroy()
 	{
 		unit_hashtable.emptyHashTable();
@@ -1135,14 +1057,14 @@ namespace TA3D
 			int pw = unit_type[index]->Pic_w[ i ];
 			int ph = unit_type[index]->Pic_h[ i ];
 			bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
-			if (unused )
+			if (unused)
 				glColor4ub(0x4C, 0x4C, 0x4C, 0xFF);		// Make it darker
 			else
 				glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
 			if (unit_type[index]->PicList[i])							// If a texture is given use it
 				gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
-			else
+			else if (unit_type[index]->BuildList[i] >= 0)
 				gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
 
 			if (mouse_x >= px && mouse_x < px + pw && mouse_y >= py && mouse_y < py + ph && !unused)
@@ -1152,7 +1074,7 @@ namespace TA3D
 				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 				if (unit_type[index]->PicList[i])							// If a texture is given use it
 					gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
-				else
+				else if (unit_type[index]->BuildList[i] >= 0)
 					gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
 				glDisable(GL_BLEND);
 				sel = unit_type[index]->BuildList[i];
