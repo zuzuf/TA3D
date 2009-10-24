@@ -137,6 +137,36 @@ namespace TA3D
 		Pic_p.push_back(short(p));
 	}
 
+	GLuint loadBuildPic(const String &gafFileName, const String &name, int *w = NULL, int *h = NULL)
+	{
+		GLuint tex = 0;
+		String::Vector queue;
+		VFS::Instance()->getFilelist("anims\\*.gaf", queue);
+		queue.push_back("anims\\commongui.gaf");
+		queue.push_back(gafFileName);
+
+		while(tex == 0 && !queue.empty())
+		{
+			byte* gaf_file = VFS::Instance()->readFile( queue.back() );
+			queue.pop_back();
+			if (gaf_file)
+			{
+				SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+				if (img)
+				{
+					if (w)
+						*w = img->w;
+					if (h)
+						*h = img->h;
+					tex = gfx->make_texture(img, FILTER_LINEAR);
+					SDL_FreeSurface(img);
+				}
+
+				DELETE_ARRAY(gaf_file);
+			}
+		}
+		return tex;
+	}
 
 	void UnitManager::analyse(String filename,int unit_index)
 	{
@@ -175,24 +205,8 @@ namespace TA3D
 				continue;
 			}
 
-			byte* gaf_file = VFS::Instance()->readFile( String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ) );
-			if (gaf_file)
-			{
-				SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
-				GLuint tex = 0;
-				if (img)
-				{
-					w = img->w;
-					h = img->h;
-					tex = gfx->make_texture(img, FILTER_LINEAR);
-					SDL_FreeSurface(img);
-				}
-
-				DELETE_ARRAY(gaf_file);
-				unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
-			}
-			else
-				unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page);
+			GLuint tex = loadBuildPic(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ), name, &w, &h);
+			unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
 		}
 	}
 
@@ -219,22 +233,9 @@ namespace TA3D
 			int idx = get_unit_index(unitname);
 			if (idx >= 0 && idx < nb_unit)
 			{
-				byte* gaf_file = VFS::Instance()->readFile( String::Format( "anims\\%s_gadget.gaf", unitname.c_str()) );
-				if (gaf_file)
-				{
-					SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, unitname), 0);
-					GLuint tex = 0;
-					if (img)
-					{
-						tex = gfx->make_texture(img, FILTER_LINEAR);
-						SDL_FreeSurface(img);
-					}
-
-					DELETE_ARRAY(gaf_file);
+				GLuint tex = loadBuildPic( String::Format("anims\\%s_gadget.gaf", unitname.c_str()), unitname);
+				if (tex || unit_type[idx]->glpic)
 					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
-				}
-				else if (unit_type[idx]->glpic)
-					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
 				else
 					LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");
 			}
