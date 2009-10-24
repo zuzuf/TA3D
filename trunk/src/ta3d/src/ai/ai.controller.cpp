@@ -254,7 +254,7 @@ namespace TA3D
 
 		order_weight[ ORDER_METAL_P ] = Math::Max(0.0f, players.metal_u[ playerID ] - players.metal_t[playerID]) * 10.0f
 			+ Math::Max(0.0f, players.metal[ playerID ] - (players.metal_s[ playerID ] >> 1) ) * 0.01f;
-		order_weight[ ORDER_ENERGY_P ] = Math::Max(0.0f, players.energy_u[ playerID ] * 2 - players.energy_t[playerID]) * 5.0f
+		order_weight[ ORDER_ENERGY_P ] = Math::Max(0.0f, players.energy_u[ playerID ] * 2 - players.energy_t[playerID]) * 10.0f
 			+ Math::Max(0.0f, (players.energy_s[ playerID ] >> 1) - players.energy[ playerID ] ) * 0.1f;
 		order_weight[ ORDER_METAL_S ] = Math::Max(0.0f, players.metal[ playerID ] - (players.metal_s[ playerID] * 15 >> 4) ) * 0.001f;
 		order_weight[ ORDER_ENERGY_S ] = Math::Max(0.0f, players.energy[ playerID ] - (players.energy_s[ playerID ] * 15 >> 4) ) * 0.001f;
@@ -522,8 +522,6 @@ namespace TA3D
 		thread_ask_to_stop = false;
 
 		name = "default ai";
-		decide.init();
-		anticipate.init();
 		playerID = 0;
 		unit_id = 0;
 		AI_type = AI_TYPE_EASY;
@@ -558,8 +556,6 @@ namespace TA3D
 		army_list.clear();
 		enemy_list.clear();
 
-		decide.destroy();
-		anticipate.destroy();
 		playerID = 0;
 		unit_id = 0;
 		DELETE_ARRAY(enemy_table);
@@ -583,8 +579,6 @@ namespace TA3D
 		byte l = (byte)name.size();
 		fwrite(&l, 1, 1, file);		// Nom de l'IA
 		fwrite(name.c_str(), l, 1, file);
-		decide.save(file);			// Réseau de décision
-		anticipate.save(file);		// Réseau d'analyse
 		fclose(file);
 	}
 
@@ -604,8 +598,6 @@ namespace TA3D
 		name = n;
 		DELETE_ARRAY(n);
 
-		decide.load(file);
-		anticipate.load(file);
         fclose(file);
 		playerID = id;
 	}

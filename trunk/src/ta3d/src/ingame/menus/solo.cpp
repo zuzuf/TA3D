@@ -75,7 +75,7 @@ namespace Menus
 			// Get if a key was pressed
 			keyIsPressed = pArea->key_pressed;
 			// Wait to reduce CPU consumption
-			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+			wait();
 
 		} while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
 			&& mouse_b == 0

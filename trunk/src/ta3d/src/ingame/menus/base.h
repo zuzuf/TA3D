@@ -129,6 +129,11 @@ namespace Menus
 		*/
 		static void ResetTexture(GLuint& textVar, const GLuint newValue = 0);
 
+		/*!
+		** \brief Waits until the given number of milliseconds (-1 == default) has elapsed since previous call
+		** \param msec is the delay to wait in milliseconds (-1 == default)
+		*/
+		void wait(int msec = -1);
 
 	protected:
 		//! Our Window handle
@@ -163,6 +168,8 @@ namespace Menus
 	private:
 		//! Cached value for the current class name
 		String pTypeName;
+		//! A timer used to wait between checks
+		uint32 timer;
 
 	}; // class Abstract
 
