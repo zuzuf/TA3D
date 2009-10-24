@@ -40,7 +40,6 @@ namespace TA3D
     */
     class PARTICLE_ENGINE : public ObjectSync, public Thread
     {
-        virtual const char *className() { return "PARTICLE_ENGINE"; }
     public:
         //! \name Constructor & Destructor
         //@{

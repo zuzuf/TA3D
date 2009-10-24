@@ -17,6 +17,7 @@
 
 #include "thread.h"
 #include "../logs/logs.h"
+#include <typeinfo>
 
 
 namespace TA3D
@@ -52,4 +53,8 @@ namespace TA3D
         }
 	}
 
+	const char *Thread::className()
+	{
+		return typeid(*this).name();
+	}
 } // namespace TA3D

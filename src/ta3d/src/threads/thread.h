@@ -89,8 +89,8 @@ namespace TA3D
 		virtual void proc(void* param) = 0;
         virtual void signalExitThread() {}
 
-		//! Helpful for debugging, this function returns the name of the class (needs to be implemented for each class)
-		virtual const char *className() = 0;
+		//! Helpful for debugging, this function returns the name of the class
+		const char* className();
 
 	public:
 		// Call this to end the Thread, it will signal the thread to tell it to end

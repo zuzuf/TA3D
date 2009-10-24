@@ -177,11 +177,6 @@ namespace TA3D
 		}
 	}
 
-	const char *Http::className()
-	{
-		return "Http";
-	}
-
 	bool Http::isDownloading()
 	{
 		return isRunning();
