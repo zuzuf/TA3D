@@ -64,8 +64,6 @@ namespace TA3D
         virtual const char *className() { return "AI_CONTROLLER"; }
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
-        BRAIN			decide;			// Neural network to take decision
-        BRAIN			anticipate;		// Neural network to make it anticipate
         int			    playerID;		// Identifiant du joueur / all is in the name :)
         uint16			unit_id;		// Unit index to run throught the unit array
         uint16			total_unit;

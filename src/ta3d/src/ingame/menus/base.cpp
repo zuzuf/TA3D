@@ -27,7 +27,7 @@ namespace TA3D
 namespace Menus
 {
 
-	Abstract::Abstract()
+	Abstract::Abstract() : timer(msec_timer)
 	{
 		pTypeName = typeid(*this).name();
 	}
@@ -128,6 +128,15 @@ namespace Menus
 	}
 
 
+	void Abstract::wait(int msec)
+	{
+		if (msec == -1)
+			msec = TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING;
+		timer += msec;
+		uint32 tmp = msec_timer;
+		SleepMilliSeconds(tmp >= timer ? 0 : timer - tmp);
+		timer = msec_timer;
+	}
 
 
 } // namespace Menus

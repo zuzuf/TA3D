@@ -130,7 +130,7 @@ namespace Menus
 			// Grab user events
 			pArea->check();
 			// Wait to reduce CPU consumption
-			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+			wait();
 			// Listen to server
 			NetClient::instance()->receive();
 

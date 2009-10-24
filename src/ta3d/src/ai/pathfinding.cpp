@@ -39,8 +39,6 @@ namespace TA3D
 {
 
 
-    PATH::iterator nodes[ PATHFINDER_MAX_LENGTH + 100 ];			// This array is used to compute a direct path, we need it because it decreases the computation time
-
     inline int path_len(const PATH &path)
     {
         return path.size();
@@ -89,7 +87,10 @@ namespace TA3D
     void make_path_direct(SECTOR **map_data, float **h_map, float dh_max, float h_min, float h_max, PATH &path, int mw, int mh, int bw, int bh, int u_idx, float hover_h)			// Elimine les étapes inutiles (qui rendent un chemin indirect)
     {
         if(path.size() < 2)	return;			// Let's say it's already direct
-        int length = 0;
+
+		PATH::iterator nodes[ PATHFINDER_MAX_LENGTH + 100 ];			// This array is used to compute a direct path, we need it because it decreases the computation time
+
+		int length = 0;
         for(PATH::iterator i = path.begin() ; i != path.end() ; ++i)
             nodes[ length++ ] = i;
 
