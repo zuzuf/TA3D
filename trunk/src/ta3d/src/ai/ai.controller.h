@@ -61,7 +61,6 @@ namespace TA3D
     class AI_CONTROLLER :	public ObjectSync,			// Class to manage players controled by AI
                             public Thread
     {
-        virtual const char *className() { return "AI_CONTROLLER"; }
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)

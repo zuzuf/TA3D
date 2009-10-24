@@ -14,7 +14,6 @@ namespace TA3D
 
         virtual void proc(void* param);
         virtual void signalExitThread();
-        virtual const char *className();
 
         /*!
          * \brief starts downloading a file in a separate thread

@@ -32,7 +32,6 @@ namespace TA3D
     class UnitScript : public UnitScriptInterface
     {
         friend class LuaData;
-        virtual const char *className() { return "UnitScript"; }
     public:
 
         UnitScript();

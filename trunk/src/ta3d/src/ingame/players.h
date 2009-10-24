@@ -55,7 +55,6 @@ namespace TA3D
 
 	class PLAYERS : public Thread
 	{
-		virtual const char *className() { return "PLAYERS"; }
 	public:
 		//! \name Constructor & Destructor
 		//@{

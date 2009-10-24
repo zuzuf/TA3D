@@ -81,7 +81,6 @@ namespace TA3D
 	protected IInterface,				// It inherits from what we need to use threads
 	public Thread
 	{
-		virtual const char *className() { return "INGAME_UNITS"; }
 	public:
 		typedef std::vector< std::list< uint16 > >  RepairPodsList;
 	public:

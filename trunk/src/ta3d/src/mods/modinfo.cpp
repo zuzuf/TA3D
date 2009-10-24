@@ -91,7 +91,7 @@ namespace TA3D
 
     void ModInfo::write()
     {
-        if (name.empty())       // Don't save empty data
+		if (name.empty() || ID == -1)       // Don't save empty data
             return;
 
         String filename = Paths::Resources;
