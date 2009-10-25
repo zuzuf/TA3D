@@ -44,6 +44,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <fstream>
+# include "sdl.h"
 
 using namespace TA3D;
 
@@ -144,18 +145,20 @@ int init_signals (void)
 
 void criticalMessage(const String &msg)
 {
-	std::cerr << msg << std::endl;		// Output error message to stderr
+	std::cerr << msg << std::endl;      // Output error message to stderr
 
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);  // Shutdown SDL video interface first
-                                            // in order to have the message visible
-
-	# ifdef TA3D_PLATFORM_WINDOWS
-	::MessageBoxA( NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
+	# ifdef YUNI_OS_MAC
+	// Disable for now
 	# else
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);  // Shutdown SDL video interface first
+	                                    // in order to have the message visible
+	#	ifdef TA3D_PLATFORM_WINDOWS
+	::MessageBoxA(NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR);
+	#	else
 	String escapedMsg = String(msg).replace("\"", "\\\"");
-	String cmd;
 
 	// Try kdialog
+	String cmd;
 	cmd << "kdialog --title \"TA3D - Critical Error\" --error \"" << escapedMsg << "\"";
 	if (system(cmd.c_str()))
 	{
@@ -178,7 +181,8 @@ void criticalMessage(const String &msg)
 			system(cmd.c_str());
 		}
 	}
-	# endif // ifdef TA3D_PLATFORM_WINDOWS
+	#	endif // ifdef TA3D_PLATFORM_WINDOWS
+	# endif // OS X
 }
 
 
