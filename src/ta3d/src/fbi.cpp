@@ -201,7 +201,8 @@ namespace TA3D
 			int idx = (attribs & 4) ? get_unit_index(name) : -1;		// attribs & 4 ==> unit, attribs & 8 ==> weapon
 			if ((attribs & 4) && idx == -1)
 			{
-				LOG_ERROR(LOG_PREFIX_RESOURCES << "Can't add unit to build menu : unit not found : '" << name << "'");
+				if (name != "IGPATCH")
+					LOG_ERROR(LOG_PREFIX_RESOURCES << "Can't add unit to build menu : unit not found : '" << name << "'");
 				continue;
 			}
 
