@@ -26,7 +26,7 @@
 # ifdef __FTGL__lower__
 #	include <FTGL/ftgl.h>
 # else
-#	include <FTGL/FTPoint.h>
+#	include <FTGL/ftgl.h>
 #	include <FTGL/FTBBox.h>
 #	include <FTGL/FTGlyph.h>
 #	include <FTGL/FTBitmapGlyph.h>
