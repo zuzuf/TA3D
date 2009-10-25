@@ -78,7 +78,10 @@ namespace TA3D
         std::list<uint16>	builder_list;
         std::list<uint16>	factory_list;
         std::list<uint16>	army_list;
-        std::vector< std::list<WEIGHT_COEF> > enemy_list;
+		std::list<uint16>	wip_builder_list;
+		std::list<uint16>	wip_factory_list;
+		std::list<uint16>	wip_army_list;
+		std::vector< std::list<WEIGHT_COEF> > enemy_list;
 
     protected:
         void	proc(void*);
