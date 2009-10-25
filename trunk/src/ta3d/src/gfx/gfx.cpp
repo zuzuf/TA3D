@@ -247,11 +247,11 @@ namespace TA3D
 		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-		ta3d_gui_font = font_manager.find("FreeSerif", 10 * width / 640, Font::typeTexture);
+		ta3d_gui_font = font_manager.find("FreeSerif", 10 * height / 480, Font::typeTexture);
 		Gui::gui_font = ta3d_gui_font;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
-		big_font = font_manager.find("FreeSans", 16 * width / 640, Font::typeTexture);
+		big_font = font_manager.find("FreeSans", 16 * height / 480, Font::typeTexture);
 	}
 
 
