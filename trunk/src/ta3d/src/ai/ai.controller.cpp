@@ -93,14 +93,14 @@ namespace TA3D
 						weights[ i ].type |= AI_FLAG_METAL_P;
 						weights[ i ].metal_s = unit_manager.unit_type[i]->MetalStorage * 0.001f;
 						weights[ i ].metal_p = (unit_manager.unit_type[i]->MetalMake + unit_manager.unit_type[i]->MakesMetal) * 10.0f
-							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse;
+							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse * 0.5f;
 					}
 					if (unit_manager.unit_type[i]->MetalStorage)
 					{
 						weights[ i ].type |= AI_FLAG_METAL_S;
 						weights[ i ].metal_s = unit_manager.unit_type[i]->MetalStorage * 0.001f;
 						weights[ i ].metal_p = (unit_manager.unit_type[i]->MetalMake + unit_manager.unit_type[i]->MakesMetal) * 10.0f
-							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse;
+							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse * 0.5f;
 					}
 					if (unit_manager.unit_type[i]->EnergyMake || unit_manager.unit_type[i]->EnergyUse < 0.0f
 						|| unit_manager.unit_type[i]->TidalGenerator || unit_manager.unit_type[i]->WindGenerator)
@@ -108,44 +108,42 @@ namespace TA3D
 						weights[ i ].type |= AI_FLAG_ENERGY_P;
 						weights[ i ].energy_s = unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
 						weights[ i ].energy_p = (unit_manager.unit_type[i]->EnergyMake + unit_manager.unit_type[i]->TidalGenerator
-												 + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.01f;
+												 + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.1f;
 					}
 					if (unit_manager.unit_type[i]->EnergyStorage)
 					{
 						weights[ i ].type |= AI_FLAG_ENERGY_S;
 						weights[ i ].energy_s = unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
 						weights[ i ].energy_p = (unit_manager.unit_type[i]->EnergyMake + unit_manager.unit_type[i]->TidalGenerator
-												 + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.01f;
+												 + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.1f;
 					}
 				}
 				else
 					weights[i].type = 0;
 			}
 			enemy_list.resize(players.count());
-			for (unsigned int i = 0; i < players.count(); ++i)
+			for (unsigned int i = 0 ; i < players.count() ; ++i)
 				enemy_list[i].clear();
 		}
 
 		if (unit_id == 0)
 		{
-			builder_list.clear();
-			factory_list.clear();
-			army_list.clear();
-			unsigned int i;
-
-			for (i = 0; i < unit_manager.nb_unit; ++i) // reset things if needed
+			wip_builder_list.clear();
+			wip_factory_list.clear();
+			wip_army_list.clear();
+			for (int i = 0; i < unit_manager.nb_unit; ++i) // reset things if needed
 				weights[i].nb = 0;
 
-			for (i = 0; i < NB_AI_UNIT_TYPE; ++i)
+			for (int i = 0; i < NB_AI_UNIT_TYPE; ++i)
 				nb_units[i] = 0;
 
-			for (i = 0; i < 10; ++i)
+			for (int i = 0; i < 10; ++i)
 				nb_enemy[i] = 0;
 		}
 
 		int e;
 		units.lock();
-		for (e = unit_id ; e < units.nb_unit && e < unit_id + 100 ; e++ )
+		for (e = unit_id ; e < units.nb_unit && e < unit_id + 10 ; ++e )
 		{
 			int i = units.idx_list[e];
 			if (i < 0 || i >= units.max_unit)	continue;		// Error
@@ -157,11 +155,11 @@ namespace TA3D
 				{
 					weights[ units.unit[ i ].type_id ].nb++;
 					if (weights[ units.unit[ i ].type_id ].type & AI_FLAG_ARMY)
-						army_list.push_back( i );
+						wip_army_list.push_back( i );
 					if (weights[ units.unit[ i ].type_id ].type & AI_FLAG_BUILDER)
-						builder_list.push_back( i );
+						wip_builder_list.push_back( i );
 					if (weights[ units.unit[ i ].type_id ].type & AI_FLAG_FACTORY)
-						factory_list.push_back( i );
+						wip_factory_list.push_back( i );
 				}
 				else
 				{
@@ -179,6 +177,17 @@ namespace TA3D
 		}
 		units.unlock();
 		unit_id = (e >= units.nb_unit) ? 0 : e;
+
+		if (unit_id == 0)
+		{
+			builder_list.swap(wip_builder_list);
+			factory_list.swap(wip_factory_list);
+			army_list.swap(wip_army_list);
+
+			wip_builder_list.clear();
+			wip_factory_list.clear();
+			wip_army_list.clear();
+		}
 	}
 
 
@@ -462,6 +471,7 @@ namespace TA3D
 		thread_running = true;
 		thread_ask_to_stop = false;
 		int speed = 10000;
+		uint32 timer = msec_timer;
 		switch (AI_type)
 		{
 			case AI_TYPE_EASY    :speed = 10000; break;
@@ -477,7 +487,17 @@ namespace TA3D
 			if (unit_id == 0)	// When unit scanning is done
 			{
 				refresh_unit_weights();				// Refresh unit weights
+				timer = msec_timer;
 				think();
+			}
+			else
+			{
+				// Periodically think :) (gives orders to units)
+				if (msec_timer - timer >= speed)
+				{
+					timer = msec_timer;
+					think();
+				}
 			}
 
 			float time_factor = units.apparent_timefactor;
@@ -486,10 +506,7 @@ namespace TA3D
 				time_factor = units.apparent_timefactor;
 				rest(10);
 			}
-			int time_to_wait = Math::Min( (int)(speed / ((units.nb_unit / 100 + 1) * time_factor)), 1 );
-			for (int i = 0 ; i < time_to_wait && !thread_ask_to_stop; i += 100)		// Wait in order not to use all the CPU
-				rest(Math::Min(100, time_to_wait - i));									// divide the wait call in order not to wait too much when game ends
-
+			rest(100 + (TA3D_RAND() % 100));
 		}
 		LOG_INFO(LOG_PREFIX_AI << "Stopped for player " << (int)playerID);
 		thread_running = false;
