@@ -989,7 +989,10 @@ namespace TA3D
 			glTranslatef( Pos.x, Math::Max(Pos.y,map->sealvl+5.0f), Pos.z);
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
-			float size = (D % Camera::inGame->dir) * 12.0f / gfx->height;
+			// In orthographic mode we need another formula
+			float size = lp_CONFIG->ortho_camera
+						 ? Camera::inGame->zoomFactor * 9.0f
+						 : (D % Camera::inGame->dir) * 12.0f / gfx->height;
 
             if (pType->fastCategory & CATEGORY_KAMIKAZE)
 				unit_nature = ICON_KAMIKAZE;
