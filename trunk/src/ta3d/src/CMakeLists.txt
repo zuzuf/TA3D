@@ -469,6 +469,9 @@ IF(WIN32)
 	SET(${LIBS} "${LIBS} -llua -lgdi32 -lopengl32 -lglu32")
 ENDIF(WIN32)
 
+IF(APPLE)
+	SET(${LIBS} "${LIBS} -Wl,'-headerpad FF'")
+ENDIF(APPLE)
 
 STRING(STRIP "${LIBS}" LIBS)
 target_link_libraries(${TA3D_BIN} ${LIBS})
