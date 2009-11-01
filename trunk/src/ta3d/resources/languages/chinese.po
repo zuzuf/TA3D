@@ -719,7 +719,19 @@ CHINESE=开启;
 {
    CHINESE=默认速度;
 }
+[Advanced]
+{
+	CHINESE=高级选项;
+}
+[Click on this button\n to show advanced \noptions]
+{
+	CHINESE=单击此按钮\n以显示高级选项;
+}
 [en.ta3d.txt]
 {
    CHINESE=ch.ta3d.txt;
+}
+[Shadow map size]
+{
+	CHINESE=阴影贴图大小
 }
