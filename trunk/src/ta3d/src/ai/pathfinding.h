@@ -61,7 +61,7 @@ namespace TA3D
     float path_length(const PATH &path);
     void simplify_path(PATH_NODE *path);
     void next_node( PATH &path, SECTOR **map_data, float **map, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, int mw, int mh, int u_idx, float hover_h );
-    void compute_coord(PATH &path, int map_w, int map_h, int bloc_w, int bloc_h);
+	void compute_coord(PATH &path, int map_w, int map_h);
     PATH direct_path(Vector3D End);
     bool is_direct(SECTOR **map_data, float **h_map, float dh_max, float h_min, float h_max, PATH_NODE &A, PATH_NODE &B, int mw, int mh, int bw, int bh, int u_idx, float hover_h);
     void make_path_direct(SECTOR **map_data, float **h_map, float dh_max, float h_min, float h_max, PATH &path, int mw, int mh, int bw, int bh, int u_idx, float hover_h);
