@@ -713,7 +713,7 @@ namespace TA3D
                     real_path.push_back(*cur);
                     path.erase(cur++);
                 }
-                compute_coord(path, the_map->map_w, the_map->map_h, the_map->bloc_w, the_map->bloc_h);
+				compute_coord(path, the_map->map_w, the_map->map_h);
                 lua_pushnumber(L, path_length(real_path));
             }
             else

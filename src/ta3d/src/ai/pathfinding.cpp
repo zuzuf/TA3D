@@ -41,7 +41,7 @@ namespace TA3D
 
     inline int path_len(const PATH &path)
     {
-        return path.size();
+		return int(path.size());
     }
 
     inline int sq(int a)
@@ -201,23 +201,27 @@ namespace TA3D
                 Ax ^= Bx;	Bx ^= Ax;	Ax ^= Bx;
                 Ay ^= By;	By ^= Ay;	Ay ^= By;
             }
-            float coef = ((float)( By - Ay )) / ( Bx - Ax );
+			float coef = float(By - Ay) / float(Bx - Ax);
 
-            for( int x = Ax ; x <= Bx ; x ++ ) {
-                int y = Ay + (int)((x - Ax)*coef+0.5f);
-                if( !check_rect_full( map_data, h_map, x-dmw, y-dmh, mw, mh, u_idx, dh_max, h_min, h_max, bw, bh, hover_h ) )	// Check for obstacles
+			for (int x = Ax ; x <= Bx ; ++x)
+			{
+				int y = Ay + int(float(x - Ax) * coef + 0.5f);
+				if (!check_rect_full( map_data, h_map, x-dmw, y-dmh, mw, mh, u_idx, dh_max, h_min, h_max, bw, bh, hover_h ))	// Check for obstacles
                     return false;
             }
         }
-        else {
-            if( Ay > By ) {
+		else
+		{
+			if (Ay > By)
+			{
                 Ax ^= Bx;	Bx ^= Ax;	Ax ^= Bx;
                 Ay ^= By;	By ^= Ay;	Ay ^= By;
             }
-            float coef = ((float)( Bx - Ax )) / ( By - Ay );
-            for( int y = Ay ; y <= By ; y++ ) {
-                int x = Ax + (int)((y - Ay)*coef+0.5f);
-                if( !check_rect_full( map_data, h_map, x-dmw, y-dmh, mw, mh, u_idx, dh_max, h_min, h_max, bw, bh, hover_h ) )	// Check for obstacles
+			float coef = float(Bx - Ax) / float(By - Ay);
+			for (int y = Ay ; y <= By ; ++y)
+			{
+				int x = Ax + (int)(float(y - Ay) * coef + 0.5f);
+				if (!check_rect_full( map_data, h_map, x-dmw, y-dmh, mw, mh, u_idx, dh_max, h_min, h_max, bw, bh, hover_h ))	// Check for obstacles
                     return false;
             }
         }
@@ -235,14 +239,14 @@ namespace TA3D
         }
     }
 
-    void compute_coord(PATH &path, int map_w, int map_h, int bloc_w, int bloc_h)
+	void compute_coord(PATH &path, int map_w, int map_h)
     {
         int h_w = map_w >> 1;
         int h_h = map_h >> 1;
         for(PATH::iterator i = path.begin() ; i != path.end() ; ++i)
         {
-            i->Pos.x = (i->x << 3) + 4 - h_w;
-            i->Pos.z = (i->y << 3) + 4 - h_h;
+			i->Pos.x = float((i->x << 3) + 4 - h_w);
+			i->Pos.z = float((i->y << 3) + 4 - h_h);
             i->Pos.y = 0.0f;
         }
     }
@@ -414,7 +418,7 @@ namespace TA3D
             simplify_path( path );												// Remove useless points
             make_path_direct( map_data, map, dh_max, low_level, high_level, path, mw, mh, bloc_w, bloc_h, u_idx, hover_h );		// Make the path easier to follow and shorter
 
-            compute_coord( path, map_w, map_h, bloc_w, bloc_h );
+			compute_coord(path, map_w, map_h);
 
             path.pop_front();   // The unit is already at Start!! So remove it
         }
