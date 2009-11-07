@@ -32,6 +32,8 @@ namespace TA3D
 
 	class TA3DNetwork : public ObjectSync
 	{
+	public:
+		typedef SmartPtr<TA3DNetwork>	Ptr;
 	private:
 		class NetworkMessage
 		{
@@ -76,7 +78,7 @@ namespace TA3D
 
 
 
-	extern SmartPtr<TA3DNetwork> g_ta3d_network;
+	extern TA3DNetwork::Ptr g_ta3d_network;
 
 
 } // namespace TA3D

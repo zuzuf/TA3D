@@ -30,6 +30,8 @@ namespace TA3D
     */
     class LuaEnv : public ObjectSync
     {
+	public:
+		typedef Yuni::SmartPtr<LuaEnv>	Ptr;
     protected:
         lua_State   *L;             // The global Lua state
     public:
@@ -48,8 +50,8 @@ namespace TA3D
         bool is_global_boolean( const char *name );
 
     public:
-		static Yuni::SmartPtr<LuaEnv> global;
-		static Yuni::SmartPtr<LuaEnv> instance();
+		static LuaEnv::Ptr global;
+		static LuaEnv::Ptr instance();
         static void destroy();
 
         static void register_global_functions( lua_State *L );

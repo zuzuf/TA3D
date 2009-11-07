@@ -21,6 +21,7 @@
 
 #include <SDL_thread.h>
 #include "mutex.h"
+#include <yuni/core/smartptr/smartptr.h>
 
 namespace TA3D
 {
@@ -111,6 +112,8 @@ namespace TA3D
 
 	class ObjectSync
 	{
+	public:
+		typedef Yuni::SmartPtr<ObjectSync>	Ptr;
 	public:
 		//! \name Constructor & Destructor
 		//@{

@@ -81,7 +81,7 @@ namespace TA3D
 
 	private:
         String name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
-		SmartPtr<AI_CONTROLLER> ai_controller;
+		AI_CONTROLLER::Ptr ai_controller;
 		AiScript::Ptr  ai_script;
         int type;
         int ID;

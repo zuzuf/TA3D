@@ -79,10 +79,10 @@ namespace TA3D
     {
         destroy();
 
-		SmartPtr<LuaThread> thread = new LuaThread;
+		LuaThread::Ptr thread = new LuaThread;
         thread->load(filename);
 
-		SmartPtr<LuaChunk> chunk = thread->dump();
+		LuaChunk::Ptr chunk = thread->dump();
 
         buffer = chunk->buffer;
         size = chunk->size;
@@ -119,7 +119,7 @@ namespace TA3D
     {
         if (piece_name.empty())
         {
-			SmartPtr<LuaThread> thread = new LuaThread();
+			LuaThread::Ptr thread = new LuaThread();
             thread->load(this);
             thread->run();      // Initialize the thread (read functions, pieces, ...)
             if (thread->L)

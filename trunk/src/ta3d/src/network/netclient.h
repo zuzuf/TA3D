@@ -9,6 +9,8 @@ namespace TA3D
 {
     class NetClient : ObjectSync
     {
+	public:
+		typedef SmartPtr<NetClient>	Ptr;
     public:
         enum NetState { CONNECTING,
                         CONNECTED,
@@ -79,11 +81,11 @@ namespace TA3D
         void            processMessage(const String &msg);
 
     public:
-		static SmartPtr<NetClient> instance();
+		static NetClient::Ptr instance();
         static void destroyInstance();
 
     private:
-		static SmartPtr<NetClient> pInstance;
+		static NetClient::Ptr pInstance;
     };
 }
 

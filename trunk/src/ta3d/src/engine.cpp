@@ -57,7 +57,7 @@ namespace TA3D
 		void showWarning(const String& s, const String& additional = String())
 		{
 			LOG_WARNING(I18N::Translate(s));
-			SmartPtr<Gui::AREA> pArea = new Gui::AREA();
+			Gui::AREA::Ptr pArea = new Gui::AREA();
 			pArea->load_tdf("gui/empty.area");
 			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) + additional);
 		}
@@ -71,7 +71,6 @@ namespace TA3D
 		// How many CPU we've got ?
 		LOG_INFO("CPU: " << Yuni::Threads::AThread::CPUCount());
 
-		VARS::sound_manager = NULL;
 		VARS::gfx = NULL;
 
 		String str(TA3D_ENGINE_VERSION);

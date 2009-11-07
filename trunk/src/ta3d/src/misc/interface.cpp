@@ -25,7 +25,7 @@
 namespace TA3D
 {
 
-	SmartPtr<IInterfaceManager> TA3D::VARS::InterfaceManager;
+	IInterfaceManager::Ptr TA3D::VARS::InterfaceManager;
 
 
 

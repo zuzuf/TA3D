@@ -2389,7 +2389,7 @@ namespace TA3D
 		side_logos.loadGAFFromRawData(data, true);
 		DELETE_ARRAY(data);
 
-		SmartPtr<TDFParser> campaign_parser = NULL;
+		TDFParser::Ptr campaign_parser = NULL;
 
 		bool start_game = false;
 

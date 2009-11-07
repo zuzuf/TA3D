@@ -42,6 +42,8 @@ namespace TA3D
 		class Manager : protected TA3D::IInterface
 		{
 		public:
+			typedef SmartPtr<Manager>	Ptr;
+		public:
 			//! \name Constructor & Destructor
 			//@{
 			/*!
@@ -337,9 +339,6 @@ namespace TA3D
 			uint32  pMinTicks;
 
 			//!
-			int     nbChannels;
-
-			//!
 			TA3D::UTILS::clpHashTable<SoundItemList*> pSoundList;
 			//!
 			WorkList pWorkList;	// List to store work to do when entering main thread
@@ -357,7 +356,7 @@ namespace TA3D
 
 # ifndef TA3D_NO_SOUND // Only for the hpiview program
 		//! The sound manager
-		extern SmartPtr<TA3D::Audio::Manager> sound_manager;
+		extern TA3D::Audio::Manager::Ptr sound_manager;
 # endif
 
 	} // namespace VARS

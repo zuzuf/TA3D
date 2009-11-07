@@ -92,6 +92,8 @@ namespace TA3D
 	class I18N
 	{
 	public:
+		typedef SmartPtr<I18N>	Ptr;
+	public:
 		/*! \class Language
 		**
 		** \brief Informations about a single language
@@ -142,7 +144,7 @@ namespace TA3D
 		** \brief Get a valid instance of the class I18N
 		** \return An instance of I18N. This must not be NULL
 		*/
-		static SmartPtr<I18N> Instance();
+		static I18N::Ptr Instance();
 
 		/*!
 		** \brief Destroy the singleton
@@ -366,7 +368,7 @@ namespace TA3D
 
 	private:
 		//! Singleton instance
-		static SmartPtr<I18N> pInstance;
+		static I18N::Ptr pInstance;
 
 		//! Mutex
 		static Mutex pMutex;

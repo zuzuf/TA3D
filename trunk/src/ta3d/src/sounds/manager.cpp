@@ -30,9 +30,7 @@ using namespace TA3D::Interfaces;
 
 
 
-SmartPtr<TA3D::Audio::Manager> TA3D::VARS::sound_manager;
-
-
+TA3D::Audio::Manager::Ptr TA3D::VARS::sound_manager;
 
 
 namespace TA3D
@@ -40,7 +38,7 @@ namespace TA3D
 namespace Audio
 {
 
-
+	const int nbChannels = 16;
 
 	Manager::Manager()
 		:m_SDLMixerRunning( false ), m_InBattle(false), pBattleTunesCount(0),
@@ -398,7 +396,6 @@ namespace Audio
 
         pCurrentItemPlaying = -1;
 
-		nbChannels = 16;
 		Mix_AllocateChannels(nbChannels);
 
 		SDL_version compiled_version;
@@ -1049,7 +1046,7 @@ namespace Audio
 	{
 		if (sampleHandle)
 		{
-			for(int i = 0 ; i < sound_manager->nbChannels ; i++)
+			for(int i = 0 ; i < nbChannels ; i++)
 				if (Mix_GetChunk(i) == sampleHandle)
 					Mix_HaltChannel(i);
 			Mix_FreeChunk(sampleHandle);

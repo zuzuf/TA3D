@@ -150,6 +150,8 @@ namespace TA3D
 
     class ANIMATION				// Class used to set default animation to a model, this animation will play if no ANIMATION_DATA is provided (ie for map features)
     {
+	public:
+		typedef SmartPtr<ANIMATION> Ptr;
     public:
         byte	type;
         Vector3D	angle_0;
@@ -168,12 +170,14 @@ namespace TA3D
 
     class MESH                          // The basic mesh class
     {
+	public:
+		typedef SmartPtr<MESH> Ptr;
     protected:
         short       nb_vtx;				// Nombre de points
         short       nb_prim;			// Nombre de primitives
         String      name;				// Nom de l'objet / Object name
-		SmartPtr<MESH>	next;			// Objet suivant / Next object
-		SmartPtr<MESH>  child;			// Objet fils / Child object
+		Ptr			next;				// Objet suivant / Next object
+		Ptr			child;				// Objet fils / Child object
         Vector3D    *points;			// Points composant l'objet / Vertices
         short       nb_p_index;			// Nombre d'indices de points
         short       nb_l_index;			// Nombre d'indices de lignes
@@ -194,7 +198,7 @@ namespace TA3D
         bool        emitter_point;		// This object directly emits particles
         std::vector<GLuint> gl_dlist;   // Display lists to speed up the drawing process
 
-		SmartPtr<ANIMATION>   animation_data;
+		ANIMATION::Ptr	animation_data;
 
         sint16      selprim;			// Polygone de selection
 

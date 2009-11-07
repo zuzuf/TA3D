@@ -352,7 +352,7 @@ namespace TA3D
 		for (int i = 0; i < nb_unit; ++i)
 		{
 			if (unit_type[i]->script && unit_type[i]->model)
-				unit_type[i]->model->Identify(SmartPtr<ScriptData>::WeakPointer(unit_type[i]->script));
+				unit_type[i]->model->Identify(ScriptData::Ptr::WeakPointer(unit_type[i]->script));
 		}
 	}
 

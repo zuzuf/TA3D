@@ -10,11 +10,11 @@ namespace TA3D
 {
 
 
-	SmartPtr<NetClient> NetClient::pInstance = NULL;
+	NetClient::Ptr NetClient::pInstance = NULL;
 
 
 
-	SmartPtr<NetClient> NetClient::instance()
+	NetClient::Ptr NetClient::instance()
 	{
 		if (!pInstance)
 			pInstance = new NetClient;

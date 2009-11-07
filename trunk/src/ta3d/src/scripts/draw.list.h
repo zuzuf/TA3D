@@ -56,9 +56,11 @@ namespace TA3D
 
     class DrawList
     {
+	public:
+		typedef SmartPtr<DrawList>	Ptr;
     public:
 		DrawObject			prim;
-		SmartPtr<DrawList>	next;
+		DrawList::Ptr		next;
 
         void init();
 

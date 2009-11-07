@@ -102,7 +102,7 @@ namespace TA3D
     class UnitType         // Structure pour la description des unités du jeu
     {
     public:
-		SmartPtr<ScriptData> script;	// Scripts de l'unité
+		ScriptData::Ptr script;	// Scripts de l'unité
 		GLuint  glpic;					// Image de l'unité sous forme de texture OpenGl
 		MODEL   *model;					// Modèle associé à l'unité
 		SDL_Surface *unitpic;			// Image de l'unité / Unit picture
