@@ -24,20 +24,20 @@ namespace TA3D
 {
 
 
-    WEAPON_DEF::WEAPON_DEF()
+	WeaponDef::WeaponDef()
         : damage_hashtable(128)
     {
         init();
     }
 
 
-    WEAPON_DEF::~WEAPON_DEF()
+	WeaponDef::~WeaponDef()
     {
         destroy();
         damage_hashtable.emptyHashTable();
     }
 
-    void WEAPON_DEF::init()
+	void WeaponDef::init()
     {
         damage_hashtable.emptyHashTable();
 
@@ -120,7 +120,7 @@ namespace TA3D
     }
 
 
-    void WEAPON_DEF::destroy()
+	void WeaponDef::destroy()
     {
         soundstart.clear();
         soundhit.clear();
@@ -132,7 +132,7 @@ namespace TA3D
     }
 
 
-    uint32 WEAPON_DEF::get_damage_for_unit(const String& uname)
+	uint32 WeaponDef::get_damage_for_unit(const String& uname)
     {
         if (damage_hashtable.exists(String::ToLower(uname)))
             return damage_hashtable.find(String::ToLower(uname));

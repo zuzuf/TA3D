@@ -22,17 +22,17 @@
 namespace TA3D
 {
 
-    WEAPON_MANAGER weapon_manager;
+	WeaponManager weapon_manager;
 
 
-    WEAPON_MANAGER::WEAPON_MANAGER()
+	WeaponManager::WeaponManager()
         :nb_weapons(0), weapon()
     {
         cannonshell.init();
     }
 
 
-    void WEAPON_MANAGER::init()
+	void WeaponManager::init()
     {
         nb_weapons = 0;
         weapon.clear();
@@ -40,13 +40,13 @@ namespace TA3D
     }
 
 
-    WEAPON_MANAGER::~WEAPON_MANAGER()
+	WeaponManager::~WeaponManager()
     {
         destroy();
         weapon_hashtable.emptyHashTable();
     }
 
-    void WEAPON_MANAGER::destroy()
+	void WeaponManager::destroy()
     {
         cannonshell.destroy();
         weapon.clear();
@@ -57,7 +57,7 @@ namespace TA3D
 
 
 
-    int WEAPON_MANAGER::add_weapon(const String &name)
+	int WeaponManager::add_weapon(const String &name)
     {
         ++nb_weapons;
         weapon.resize( nb_weapons );
@@ -71,7 +71,7 @@ namespace TA3D
     }
 
 
-    void WEAPON_MANAGER::load_tdf(char *data, const int size)
+	void WeaponManager::load_tdf(char *data, const int size)
     {
         TDFParser parser;
         parser.setSpecialSection("damage");     // We want to get the list of units in damage sections

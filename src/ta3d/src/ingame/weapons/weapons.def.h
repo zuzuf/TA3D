@@ -39,15 +39,15 @@
 namespace TA3D
 {
 
-    class WEAPON_DEF				// Classe définissant un type d'arme
+	class WeaponDef				// Classe définissant un type d'arme
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        WEAPON_DEF();
+		WeaponDef();
         //! Destructor
-        ~WEAPON_DEF();
+		~WeaponDef();
         //@}
 
 
@@ -223,7 +223,7 @@ namespace TA3D
         //! hashtable used to get specific damages quickly
         cHashTable<int> damage_hashtable;
 
-    }; // class WEAPON_DEF
+	}; // class WeaponDef
 
 
 

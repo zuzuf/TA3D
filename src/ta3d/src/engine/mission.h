@@ -46,6 +46,8 @@
 
 namespace TA3D
 {
+	class Unit;
+	class Weapon;
 
 
 	/*!
@@ -53,6 +55,17 @@ namespace TA3D
 	*/
 	class Mission
 	{
+	public:
+		class Target
+		{
+		public:
+			enum Type { TargetUnit, TargetWeapon };
+		public:
+		private:
+			Type	type;
+			int		idx;
+			uint32	UID;
+		};
 	public:
 		//! \name Constructors & Destructor
 		//@{

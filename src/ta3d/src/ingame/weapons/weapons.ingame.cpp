@@ -24,15 +24,15 @@
 namespace TA3D
 {
 
-	INGAME_WEAPONS weapons;
+	InGameWeapons weapons;
 
 
-	void INGAME_WEAPONS::set_data(MAP* map)
+	void InGameWeapons::set_data(MAP* map)
 	{
 		p_map = map;
 	}
 
-	void INGAME_WEAPONS::init(bool real)
+	void InGameWeapons::init(bool real)
 	{
 		pMutex.lock();
 
@@ -59,7 +59,7 @@ namespace TA3D
 	}
 
 
-	void INGAME_WEAPONS::destroy()
+	void InGameWeapons::destroy()
 	{
 		destroyThread();
 
@@ -73,18 +73,18 @@ namespace TA3D
 	}
 
 
-	INGAME_WEAPONS::INGAME_WEAPONS()
+	InGameWeapons::InGameWeapons()
 	{
 		init(false);
 	}
 
-	INGAME_WEAPONS::~INGAME_WEAPONS()
+	InGameWeapons::~InGameWeapons()
 	{
 		destroy();
 	}
 
 
-	int INGAME_WEAPONS::add_weapon(int weapon_id,int shooter)
+	int InGameWeapons::add_weapon(int weapon_id,int shooter)
 	{
 		if (weapon_id < 0)
 			return -1;
@@ -118,7 +118,7 @@ namespace TA3D
 		return index;
 	}
 
-	void INGAME_WEAPONS::move(float dt,MAP *map)
+	void InGameWeapons::move(float dt,MAP *map)
 	{
 		pMutex.lock();
 		if (nb_weapon <= 0 || weapon.size() <= 0)
@@ -152,7 +152,7 @@ namespace TA3D
 
 
 
-	void INGAME_WEAPONS::draw(MAP* map, bool underwater)
+	void InGameWeapons::draw(MAP* map, bool underwater)
 	{
 		pMutex.lock();
 		if(nb_weapon<=0 || weapon.size()<=0)
@@ -176,7 +176,7 @@ namespace TA3D
 
 
 
-	void INGAME_WEAPONS::draw_mini(float map_w,float map_h,int mini_w,int mini_h)				// Repère les unités sur la mini-carte
+	void InGameWeapons::draw_mini(float map_w,float map_h,int mini_w,int mini_h)				// Repère les unités sur la mini-carte
 	{
 		MutexLocker locker(pMutex);
 
@@ -229,7 +229,7 @@ namespace TA3D
 	}
 
 
-	void INGAME_WEAPONS::proc(void*)
+	void InGameWeapons::proc(void*)
 	{
 		thread_running = true;
 		float dt = 1.0f / TICKS_PER_SEC;
@@ -258,7 +258,7 @@ namespace TA3D
 	}
 
 
-	void INGAME_WEAPONS::signalExitThread()
+	void InGameWeapons::signalExitThread()
 	{
 		if (thread_running)
 			thread_ask_to_stop = true;
