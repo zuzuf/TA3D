@@ -26,19 +26,19 @@ namespace TA3D
 {
 
 
-    /*! \class WEAPON_MANAGER
+	/*! \class WeaponManager
     **
     ** \brief Manager for all king of weapons
     */
-    class WEAPON_MANAGER
+	class WeaponManager
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        WEAPON_MANAGER();
+		WeaponManager();
         //! Destructor
-        ~WEAPON_MANAGER();
+		~WeaponManager();
         //@}
 
         void init();
@@ -69,17 +69,17 @@ namespace TA3D
     public:
         //! Count of registered weapons
         int	nb_weapons;
-        std::vector< WEAPON_DEF > weapon;
+		std::vector< WeaponDef > weapon;
         //! Animation for firing
         Gaf::Animation cannonshell;
-        //! hashtable used to speed up operations on WEAPON_DEF objects
+		//! hashtable used to speed up operations on WeaponDef objects
         cHashTable<int>  weapon_hashtable;
 
-    }; // class WEAPON_MANAGER
+	}; // class WeaponManager
 
 
 
-    extern WEAPON_MANAGER weapon_manager;
+	extern WeaponManager weapon_manager;
 
 }
 

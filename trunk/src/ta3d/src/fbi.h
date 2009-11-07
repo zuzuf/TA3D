@@ -210,7 +210,7 @@ namespace TA3D
         uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
         short   WindGenerator;      // Centrale de type Eolienne
         String  yardmap;           // To tell where the unit is on the map
-        std::vector<WEAPON_DEF*>  weapon;     // Weapons
+		std::vector<WeaponDef*>  weapon;     // Weapons
         int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
         bool    antiweapons;
         bool    emitting_points_computed;   // Just to test if we need to get emitting point from script

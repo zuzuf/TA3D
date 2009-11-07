@@ -580,7 +580,7 @@ namespace TA3D
 		gfx->print(fnt, float(x + 16), float(y + 100), 0.0f, I18N::Translate("Build time") + ": " + String(BuildTime));
 		gfx->print(fnt, float(x + 16), float(y + 124), 0.0f, I18N::Translate("weapons") + ":");
 		int Y = y + 136;
-		for( std::vector<WEAPON_DEF*>::iterator i = weapon.begin() ; i != weapon.end() ; i++ )
+		for( std::vector<WeaponDef*>::iterator i = weapon.begin() ; i != weapon.end() ; ++i )
 			if (*i)
 			{
 				gfx->print(fnt, float(x + 16), float(Y), 0.0f, (*i)->name + ": " + String( (*i)->damage));

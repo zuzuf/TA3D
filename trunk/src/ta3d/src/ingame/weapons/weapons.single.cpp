@@ -31,7 +31,7 @@ namespace TA3D
 {
 
 
-	void WEAPON::init()
+	void Weapon::init()
 	{
 		last_timestamp = 0;
 		just_explode = false;
@@ -59,12 +59,12 @@ namespace TA3D
 
 
 
-	void WEAPON::move(const float dt, MAP *map)				// Anime les armes
+	void Weapon::move(const float dt, MAP *map)				// Anime les armes
 	{
 		if (weapon_id < 0)
 			return;
 
-		WEAPON_DEF *weapon_def = &(weapon_manager.weapon[weapon_id]);
+		WeaponDef *weapon_def = &(weapon_manager.weapon[weapon_id]);
 
 		smoke_time += dt;
 		f_time     -= dt;
@@ -73,11 +73,11 @@ namespace TA3D
 
 		if (weapon_def->twophase && phase == 1)
 		{
-			if (!dying && a_time>=weapon_def->weapontimer) 	// Entre dans la seconde phase
+			if (!dying && a_time >= weapon_def->weapontimer) 	// Entre dans la seconde phase
 			{
-				phase=2;
-				f_time=weapon_def->flighttime;
-				stime=0.0f;
+				phase = 2;
+				f_time = weapon_def->flighttime;
+				stime = 0.0f;
 			}
 			if (weapon_def->vlaunch)
 			{
@@ -326,7 +326,7 @@ namespace TA3D
 					{
 						if (!unit_manager.unit_type[units.unit[hit_idx].type_id]->ImmuneToParalyzer)
 						{
-							units.unit[hit_idx].paralyzed = damage / 60.0f;		// Get paralyzed (900 dmg <-> 15sec according to WEAPONS.TDF)
+							units.unit[hit_idx].paralyzed = damage / 60.0f;		// Get paralyzed (900 dmg <-> 15sec according to WeaponS.TDF)
 							if (network_manager.isConnected() )			// Send damage event
 								g_ta3d_network->sendParalyzeEvent( hit_idx, damage );
 						}
@@ -687,7 +687,7 @@ namespace TA3D
 
 
 
-	void WEAPON::draw(MAP *map)				// Dessine les objets produits par les armes
+	void Weapon::draw(MAP *map)				// Dessine les objets produits par les armes
 	{
 		visible = false;
 		if (map)
@@ -701,7 +701,7 @@ namespace TA3D
 		}
 		glPushMatrix();
 
-		WEAPON_DEF *weapon_def = &(weapon_manager.weapon[weapon_id]);
+		WeaponDef *weapon_def = &(weapon_manager.weapon[weapon_id]);
 
 		visible = true;
 		switch(weapon_def->rendertype)

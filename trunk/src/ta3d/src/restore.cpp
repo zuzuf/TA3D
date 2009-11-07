@@ -314,7 +314,7 @@ namespace TA3D
 				SAVE( units.unit[i].weapon[f].delay );
 				SAVE( units.unit[i].weapon[f].time );
 				SAVE( units.unit[i].weapon[f].target_pos );
-				int g = units.unit[i].weapon[f].target ? (int)( (units.unit[i].weapon[f].state & WEAPON_FLAG_WEAPON) ? ((WEAPON*)units.unit[i].weapon[f].target)->idx : ((Unit*)units.unit[i].weapon[f].target)->idx ) : -1;
+				int g = units.unit[i].weapon[f].target ? (int)( (units.unit[i].weapon[f].state & WEAPON_FLAG_WEAPON) ? ((Weapon*)units.unit[i].weapon[f].target)->idx : ((Unit*)units.unit[i].weapon[f].target)->idx ) : -1;
 				SAVE( g );
 				SAVE( units.unit[i].weapon[f].data );
 				SAVE( units.unit[i].weapon[f].flags );
@@ -385,7 +385,7 @@ namespace TA3D
 					{
 						case MISSION_ATTACK:
 							{
-								int p = cur->p ? ( (cur->flags&MISSION_FLAG_TARGET_WEAPON) ? (int)((WEAPON*)(cur->p))->idx : ((Unit*)(cur->p))->idx) : -1;
+								int p = cur->p ? ( (cur->flags & MISSION_FLAG_TARGET_WEAPON) ? (int)((Weapon*)(cur->p))->idx : ((Unit*)(cur->p))->idx) : -1;
 								SAVE( p );
 							}
 							break;

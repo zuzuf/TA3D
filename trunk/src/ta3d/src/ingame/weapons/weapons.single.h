@@ -29,12 +29,12 @@ namespace TA3D
     /*!
     ** \brief
     */
-    class WEAPON						// Objet arme utilisé pendant le jeu
+	class Weapon						// Objet arme utilisé pendant le jeu
     {
     public:
 
         //! Default constructor
-        WEAPON() { init(); }
+		Weapon() { init(); }
 
         /*!
         ** \brief
@@ -101,7 +101,7 @@ namespace TA3D
         //!
         uint32 last_timestamp;
 
-    }; // class WEAPON
+	}; // class Weapon
 
 
 

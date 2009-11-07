@@ -1948,10 +1948,11 @@ namespace TA3D
 					break;
 				case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
                     if (jump_commands)	break;
-                    if (weapon[i].target == NULL || ((weapon[i].state&WEAPON_FLAG_WEAPON)==WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
-						|| ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags&1)))
+					if (weapon[i].target == NULL
+						|| ((weapon[i].state & WEAPON_FLAG_WEAPON) == WEAPON_FLAG_WEAPON && ((Weapon*)(weapon[i].target))->weapon_id != -1)
+						|| ((weapon[i].state & WEAPON_FLAG_WEAPON) != WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags & 1)))
 					{
-						if ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((Unit*)(weapon[i].target))->cloaked
+						if ((weapon[i].state & WEAPON_FLAG_WEAPON) != WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((Unit*)(weapon[i].target))->cloaked
 							&& ((Unit*)(weapon[i].target))->owner_id != owner_id && !((Unit*)(weapon[i].target))->is_on_radar( 1 << owner_id))
 						{
 							weapon[i].data = -1;
@@ -1971,14 +1972,14 @@ namespace TA3D
 							bool readyToFire = false;
 
 							Unit *target_unit = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? NULL : (Unit*) weapon[i].target;
-							WEAPON *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (WEAPON*) weapon[i].target : NULL;
+							Weapon *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (Weapon*) weapon[i].target : NULL;
 
 							Vector3D target = target_unit==NULL ? (target_weapon==NULL ? weapon[i].target_pos-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
 							float dist = target.sq();
 							int maxdist = 0;
 							int mindist = 0;
 
-                            if (pType->attackrunlength>0)
+							if (pType->attackrunlength > 0)
 							{
 								if (target % V < 0.0f)
 								{
@@ -2120,7 +2121,7 @@ namespace TA3D
                                             if (target_weapon == NULL )
                                                 weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.pos[start_piece]);
                                             else
-                                                weapon[i].aim_dir = ((WEAPON*)(weapon[i].target))->Pos - (Pos + data.pos[start_piece]);
+												weapon[i].aim_dir = ((Weapon*)(weapon[i].target))->Pos - (Pos + data.pos[start_piece]);
                                         }
                                         else
                                             weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.pos[start_piece]);
@@ -2153,7 +2154,8 @@ namespace TA3D
 					}
 					break;
 				case WEAPON_FLAG_SHOOT:											// Tire sur une unité / fire!
-                    if (weapon[i].target == NULL || (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
+					if (weapon[i].target == NULL
+						|| (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((Weapon*)(weapon[i].target))->weapon_id != -1)
 						|| (( weapon[i].state & WEAPON_FLAG_WEAPON ) != WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags&1)))
 					{
                         if (weapon[i].burst > 0 && weapon[i].delay < pType->weapon[ i ]->burstrate)
@@ -2211,7 +2213,7 @@ namespace TA3D
 							else
 							{
 								if (weapon[i].state & WEAPON_FLAG_WEAPON)
-									shoot(((WEAPON*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
+									shoot(((Weapon*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
 								else
 									shoot(((Unit*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
 							}
@@ -2277,7 +2279,7 @@ namespace TA3D
                     if (pType->canfly)
 						activate();
 					launchScript(SCRIPT_startmoving);
-					if (nb_attached==0)
+					if (nb_attached == 0)
 						launchScript(SCRIPT_MoveRate1);		// For the armatlas
 					else
 						launchScript(SCRIPT_MoveRate2);
@@ -3275,10 +3277,10 @@ namespace TA3D
 				case MISSION_ATTACK:										// Attaque une unité / attack a unit
 					{
 						Unit *target_unit = (mission->flags & MISSION_FLAG_TARGET_WEAPON) == MISSION_FLAG_TARGET_WEAPON ? NULL : (Unit*) mission->p;
-						WEAPON *target_weapon = (mission->flags & MISSION_FLAG_TARGET_WEAPON) == MISSION_FLAG_TARGET_WEAPON ? (WEAPON*) mission->p : NULL;
-						if ((target_unit!=NULL && (target_unit->flags&1) && target_unit->ID == mission->target_ID)
-							|| (target_weapon!=NULL && target_weapon->weapon_id!=-1)
-							|| (target_weapon==NULL && target_unit==NULL))
+						Weapon *target_weapon = (mission->flags & MISSION_FLAG_TARGET_WEAPON) == MISSION_FLAG_TARGET_WEAPON ? (Weapon*) mission->p : NULL;
+						if ((target_unit != NULL && (target_unit->flags&1) && target_unit->ID == mission->target_ID)
+							|| (target_weapon != NULL && target_weapon->weapon_id != -1)
+							|| (target_weapon == NULL && target_unit==NULL))
 						{
 							if (target_unit)				// Check if we can target the unit
 							{
@@ -4696,7 +4698,7 @@ script_exec:
 	int Unit::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D &target_pos)
 	{
         UnitType *pType = unit_manager.unit_type[type_id];
-        WEAPON_DEF *pW = pType->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
+		WeaponDef *pW = pType->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
 		int owner = owner_id;
 		Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
 		int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };

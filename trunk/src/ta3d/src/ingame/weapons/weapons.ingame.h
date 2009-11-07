@@ -14,8 +14,8 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
-#ifndef __TA3D_INGAME_WEAPONS_ING_H__
-# define __TA3D_INGAME_WEAPONS_ING_H__
+#ifndef __TA3D_InGameWeapons_ING_H__
+# define __TA3D_InGameWeapons_ING_H__
 
 # include "../../stdafx.h"
 # include "../../threads/thread.h"
@@ -28,19 +28,19 @@ namespace TA3D
 {
 
 
-    /*! \class INGAME_WEAPONS
+	/*! \class InGameWeapons
     **
     ** \brief
     */
-    class INGAME_WEAPONS : public ObjectSync, public Thread
+	class InGameWeapons : public ObjectSync, public Thread
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        INGAME_WEAPONS();
+		InGameWeapons();
         //! Destructor
-        ~INGAME_WEAPONS();
+		~InGameWeapons();
         //@}
 
 
@@ -89,7 +89,7 @@ namespace TA3D
         //! Weapons count
         uint32 nb_weapon;			// Nombre d'armes
         //!
-        std::vector< WEAPON > weapon;			// Tableau regroupant les armes
+		std::vector< Weapon > weapon;			// Tableau regroupant les armes
         //!
         Gaf::Animation nuclogo;			// Logos des armes atomiques sur la minicarte / Logo of nuclear weapons on minimap
 
@@ -110,13 +110,13 @@ namespace TA3D
         //!
         void signalExitThread();
 
-    }; // class INGAME_WEAPONS
+	}; // class InGameWeapons
 
 
 
-    extern INGAME_WEAPONS weapons;
+	extern InGameWeapons weapons;
 
 
 }
 
-#endif // __TA3D_INGAME_WEAPONS_ING_H__
+#endif // __TA3D_InGameWeapons_ING_H__
