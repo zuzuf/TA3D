@@ -114,9 +114,9 @@ namespace TA3D
         return result;
     }
 
-	SmartPtr<LuaEnv> LuaEnv::global = NULL;
+	LuaEnv::Ptr LuaEnv::global = NULL;
 
-	SmartPtr<LuaEnv> LuaEnv::instance()
+	LuaEnv::Ptr LuaEnv::instance()
     {
 		if (!global)
             global = new LuaEnv();

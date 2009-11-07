@@ -26,7 +26,7 @@
 namespace TA3D
 {
 
-	SmartPtr<I18N> I18N::pInstance = NULL;
+	I18N::Ptr I18N::pInstance = NULL;
 	Mutex I18N::pMutex;
 
 
@@ -39,7 +39,7 @@ namespace TA3D
 		:pIndx(l.pIndx), pEnglishID(l.pEnglishID), pCaption(l.pCaption)
 	{}
 
-	SmartPtr<I18N> I18N::Instance()
+	I18N::Ptr I18N::Instance()
 	{
 		// We use here a double-check lock, which would be good enough
 		// for this kind of class

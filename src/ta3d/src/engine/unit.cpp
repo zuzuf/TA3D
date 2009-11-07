@@ -1137,7 +1137,7 @@ namespace TA3D
 							{
                                 size = unit_target->model->size2;
                                 center = &(unit_target->model->center);
-								src = SmartPtr<MESH>::WeakPointer(unit_target->model->mesh);
+								src = MESH::Ptr::WeakPointer(unit_target->model->mesh);
                                 src_data = &(unit_target->data);
 								unit_target->compute_model_coord();
 							}
@@ -1159,7 +1159,7 @@ namespace TA3D
 								{
 									size = feature->model->size2;
                                     center = &(feature->model->center);
-									src = SmartPtr<MESH>::WeakPointer(feature->model->mesh);
+									src = MESH::Ptr::WeakPointer(feature->model->mesh);
 									src_data = NULL;
 								}
 								else
@@ -1195,7 +1195,7 @@ namespace TA3D
 								{
 									size = unit_target->model->size2;
                                     center = &(unit_target->model->center);
-									src = SmartPtr<MESH>::WeakPointer(unit_target->model->mesh);
+									src = MESH::Ptr::WeakPointer(unit_target->model->mesh);
                                     src_data = &(unit_target->data);
 									unit_target->compute_model_coord();
 									v_target = unit_target->Pos;
@@ -1213,11 +1213,11 @@ namespace TA3D
 								int feature_type = features.feature[ nanolathe_target ].type;
 								v_target = features.feature[ nanolathe_target ].Pos;
 								Feature *feature = feature_manager.getFeaturePointer(feature_type);
-								if (feature && feature->model )
+								if (feature && feature->model)
 								{
 									size = feature->model->size2;
                                     center = &(feature->model->center);
-									src = SmartPtr<MESH>::WeakPointer(feature->model->mesh);
+									src = MESH::Ptr::WeakPointer(feature->model->mesh);
 									src_data = NULL;
 								}
 								else

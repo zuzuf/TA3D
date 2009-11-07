@@ -29,14 +29,14 @@ namespace TA3D
 {
 
 	// global variables:
-	SmartPtr<TA3D::TA3DCONFIG>	TA3D::VARS::lp_CONFIG = NULL;
-	SmartPtr<TA3D::GFX>			TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
+	TA3D::TA3DCONFIG::Ptr		TA3D::VARS::lp_CONFIG = NULL;
+	TA3D::GFX::Ptr				TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
 	SDL_Color					*TA3D::VARS::pal = NULL;
 	uint8						TA3D::VARS::unit_engine_thread_sync;
 	uint8						TA3D::VARS::weapon_engine_thread_sync;
 	uint8						TA3D::VARS::particle_engine_thread_sync;
 	uint8						TA3D::VARS::players_thread_sync;
-	SmartPtr<ObjectSync>		TA3D::VARS::ThreadSynchroniser = NULL;
+	ObjectSync::Ptr				TA3D::VARS::ThreadSynchroniser = NULL;
 	String						TA3D::VARS::TA3D_CURRENT_MOD = "";		// This string stores the path to current mod
 	SDL_Surface					*TA3D::VARS::screen = NULL;
 

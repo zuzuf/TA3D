@@ -616,7 +616,7 @@ namespace TA3D
                        {
                            int pid = params[3].to<sint32>();
                            if (pid >= 0 && pid < players.count())
-							   debugInfo.process = SmartPtr<AiScript>::WeakPointer(players.ai_command[pid].getAiScript());
+							   debugInfo.process = AiScript::Ptr::WeakPointer(players.ai_command[pid].getAiScript());
                            else
                                debugInfo.process = NULL;
                        }

@@ -658,7 +658,6 @@ namespace Menus
 
 			VFS::Instance()->reload();
 			ta3dSideData.loadData();                // Refresh side data so we load the correct values
-			sound_manager = NULL;
 			sound_manager = new TA3D::Audio::Manager();
 			sound_manager->loadTDFSounds(true);
 			sound_manager->loadTDFSounds(false);

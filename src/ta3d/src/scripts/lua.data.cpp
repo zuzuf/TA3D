@@ -44,10 +44,10 @@ namespace TA3D
     {
         destroy();
 
-		SmartPtr<LuaThread> thread = new LuaThread;
+		LuaThread::Ptr thread = new LuaThread;
         thread->load(filename);
 
-		SmartPtr<LuaChunk> chunk = thread->dump();
+		LuaChunk::Ptr chunk = thread->dump();
         chunk->load(UnitScript::luaVM());
 
         lua_State *L = UnitScript::luaVM();

@@ -67,7 +67,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		void set_network(const SmartPtr<TA3DNetwork> &net) { ta3d_network = net;}
+		void set_network(const TA3DNetwork::Ptr &net) { ta3d_network = net;}
 
 		/*!
 		** \brief
@@ -217,7 +217,7 @@ namespace TA3D
 		//!
 		uint32 last_ticksynced;
 		//!
-		SmartPtr<TA3DNetwork> ta3d_network;
+		TA3DNetwork::Ptr ta3d_network;
 		//!
 		bool thread_is_running;
 		//!

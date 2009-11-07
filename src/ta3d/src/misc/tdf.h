@@ -37,6 +37,8 @@ namespace TA3D
 	class TDFParser
 	{
 	public:
+		typedef SmartPtr<TDFParser>	Ptr;
+	public:
 		//! \name Constructors & Destructor
 		//@{
 

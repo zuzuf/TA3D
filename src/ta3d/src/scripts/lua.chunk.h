@@ -31,6 +31,8 @@ namespace TA3D
     */
     class LuaChunk : public ScriptData
     {
+	public:
+		typedef SmartPtr<LuaChunk>	Ptr;
     protected:
         byte            *buffer;
         uint32          size;

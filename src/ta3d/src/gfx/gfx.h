@@ -55,6 +55,8 @@ namespace TA3D
 	class GFX : public ObjectSync, protected IInterface
 	{
 	public:
+		typedef SmartPtr<GFX>	Ptr;
+	public:
 		//! \name 2D/3D Mode
 		//@{
 		//! Set the 2D Mode

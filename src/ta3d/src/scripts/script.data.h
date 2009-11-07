@@ -79,6 +79,8 @@ namespace TA3D
     //! Abstract class for script storage
     class ScriptData
     {
+	public:
+		typedef SmartPtr<ScriptData> Ptr;
     private:
         bool                    scriptCache[NB_SCRIPT];
     public:

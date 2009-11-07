@@ -23,10 +23,10 @@
 
 namespace TA3D
 {
-	UnitScriptInterface *UnitScriptInterface::instanciate( SmartPtr<ScriptData> &data )
+	UnitScriptInterface *UnitScriptInterface::instanciate( ScriptData::Ptr &data )
     {
         UnitScriptInterface *usi = NULL;
-		ScriptData *pData = SmartPtr<ScriptData>::WeakPointer(data);
+		ScriptData *pData = ScriptData::Ptr::WeakPointer(data);
 
 		if ( dynamic_cast<CobScript*>(pData) )          // Try CobScript (OTA COB/BOS)
             usi = new CobVm();
