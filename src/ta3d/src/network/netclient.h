@@ -79,11 +79,11 @@ namespace TA3D
         void            processMessage(const String &msg);
 
     public:
-        static NetClient *instance();
+		static SmartPtr<NetClient> instance();
         static void destroyInstance();
 
     private:
-        static NetClient *pInstance;
+		static SmartPtr<NetClient> pInstance;
     };
 }
 

@@ -631,7 +631,6 @@ namespace TA3D
 
 				VFS::Instance()->reload();
 				ta3dSideData.loadData();                // Refresh side data so we load the correct values
-				DELETE(sound_manager);
 				sound_manager = new TA3D::Audio::Manager();
 				sound_manager->loadTDFSounds(true);
 				sound_manager->loadTDFSounds(false);
@@ -2390,7 +2389,7 @@ namespace TA3D
 		side_logos.loadGAFFromRawData(data, true);
 		DELETE_ARRAY(data);
 
-		TDFParser* campaign_parser = NULL;
+		SmartPtr<TDFParser> campaign_parser = NULL;
 
 		bool start_game = false;
 
@@ -2426,7 +2425,6 @@ namespace TA3D
 				Gui::GUIOBJ::Ptr guiobj = campaign_area.get_object("campaign.campaign_list");
 				if (guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
 				{
-					DELETE(campaign_parser);
 					last_campaign_id = guiobj->Pos;
 					mission_id = -1;
 					campaign_name = "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf";
@@ -2434,7 +2432,7 @@ namespace TA3D
 
 					guiobj = campaign_area.get_object("campaign.mission_list");
 					nb_mission = 0;
-					if (guiobj )
+					if (guiobj)
 					{
 						guiobj->Text.clear();
 						int i = 0;
@@ -2479,7 +2477,7 @@ namespace TA3D
 					poll_inputs();
 				}
 				clear_keybuf();
-				done=true;      // If user click "OK" or hit enter then leave the window
+				done = true;      // If user click "OK" or hit enter then leave the window
 				start_game = true;
 			}
 			if (campaign_area.get_state( "campaign.b_cancel")) // En cas de click sur "retour", on quitte la fenêtre
@@ -2505,7 +2503,7 @@ namespace TA3D
 			campaign_area.background = 0;
 		campaign_area.destroy();
 
-		DELETE(campaign_parser);
+		campaign_parser = NULL;
 
 		reset_mouse();
 		while (key[KEY_ESC])

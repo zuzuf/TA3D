@@ -69,8 +69,7 @@ namespace TA3D
 		{
 			deflateEnd(zSend);
 			inflateEnd(zRecv);
-			DELETE(zSend);
-			DELETE(zRecv);
+			zSend = zRecv = NULL;
 			DELETE_ARRAY(sendBuf);
 			DELETE_ARRAY(recvBuf);
 		}
@@ -163,8 +162,8 @@ namespace TA3D
 		{
 			deflateEnd(zSend);
 			inflateEnd(zRecv);
-			DELETE(zSend);
-			DELETE(zRecv);
+			delete zSend;
+			delete zRecv;
 			DELETE_ARRAY(sendBuf);
 			DELETE_ARRAY(recvBuf);
 

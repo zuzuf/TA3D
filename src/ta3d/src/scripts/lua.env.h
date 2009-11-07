@@ -20,6 +20,7 @@
 
 # include "../lua/lua.hpp"
 # include "../threads/thread.h"
+# include <yuni/core/smartptr/smartptr.h>
 
 namespace TA3D
 {
@@ -47,8 +48,8 @@ namespace TA3D
         bool is_global_boolean( const char *name );
 
     public:
-        static LuaEnv *global;
-        static LuaEnv *instance();
+		static Yuni::SmartPtr<LuaEnv> global;
+		static Yuni::SmartPtr<LuaEnv> instance();
         static void destroy();
 
         static void register_global_functions( lua_State *L );

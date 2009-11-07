@@ -133,7 +133,7 @@ namespace TA3D
 
 	private:
 		//! The FT Font
-		FTFont *font;
+		SmartPtr<FTFont> font;
 		//! The filename of the font
 		String pFontFilename;
 		//! Type of the font

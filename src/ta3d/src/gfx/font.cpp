@@ -48,14 +48,14 @@ namespace TA3D
 
 	Font::~Font()
 	{
-		DELETE(font);
+		font = NULL;
 	}
 
 
 	Font& Font::operator = (const Font& rhs)
 	{
 		MutexLocker locker(pMutex);
-		DELETE(font);
+		font = NULL;
 		pFontFilename = rhs.pFontFilename;
 		if (!pFontFilename.empty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
@@ -66,7 +66,7 @@ namespace TA3D
 	void Font::init()
 	{
 		MutexLocker locker(pMutex);
-		DELETE(font);
+		font = NULL;
 		pFontFilename.clear();
 	}
 
@@ -77,7 +77,7 @@ namespace TA3D
 		if (text.empty())
 			return;
 		MutexLocker locker(pMutex);
-		if (NULL == font)
+		if (!font)
 			return;
 
 		glScalef(1.0f, -1.0f, 1.0f);
@@ -103,7 +103,7 @@ namespace TA3D
 	void Font::destroy()
 	{
 		MutexLocker locker(pMutex);
-		DELETE(font);
+		font = NULL;
 		pFontFilename.clear();
 	}
 
@@ -116,7 +116,7 @@ namespace TA3D
 			return length(txt + "_") - length("_");
 
 		MutexLocker locker(pMutex);
-		if (font == NULL)
+		if (!font)
 			return 0.0f;
 #ifdef __FTGL__lower__
 		FTBBox box = font->BBox( txt.c_str() );
@@ -161,7 +161,7 @@ namespace TA3D
 		if (!pFontList.empty())
 		{
 			for (FontList::iterator i = pFontList.begin(); i != pFontList.end(); ++i)
-				DELETE(*i);
+				delete *i;
 			pFontList.clear();
 		}
 		font_table.emptyHashTable();
@@ -253,7 +253,7 @@ namespace TA3D
 		pFontFilename = filename;
 		pType = type;
 
-		DELETE(font);
+		font = NULL;
 		if (!filename.empty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");
@@ -286,7 +286,7 @@ namespace TA3D
 		else
 			LOG_ERROR(LOG_PREFIX_FONT << "Could not load file : " << filename);
 
-		return (NULL != font);
+		return (!font);
 	}
 
 

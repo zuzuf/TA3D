@@ -27,8 +27,8 @@ namespace TA3D
 void install_TA_files( String HPI_file, String filename )
 {
 	uint32 file_size32 = 0;
-    Archive *archive = Archive::load(HPI_file);
-    if (archive == NULL)
+	SmartPtr<Archive> archive = Archive::load(HPI_file);
+	if (!archive)
     {
         LOG_ERROR("archive not found : '" << HPI_file << "'");
         return;
@@ -49,7 +49,6 @@ void install_TA_files( String HPI_file, String filename )
 		}
 		DELETE_ARRAY(data);
 	}
-	DELETE(archive);
 }
 
 } // namespace TA3D

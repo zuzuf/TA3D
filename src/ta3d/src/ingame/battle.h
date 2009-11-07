@@ -441,7 +441,7 @@ namespace TA3D
 		//! \name Water
 		//@{
 		//!
-		WATER* water_obj;
+		SmartPtr<WATER> water_obj;
 		//!
 		Shader water_shader;
 		//!

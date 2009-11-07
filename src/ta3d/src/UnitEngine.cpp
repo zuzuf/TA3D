@@ -705,8 +705,8 @@ namespace TA3D
 
 		if (!pointed_only && !hide_bpic)
 		{
-			int stock=0;
-			for(int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->weapon.size() ; i++)
+			int stock = 0;
+			for(int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->weapon.size() ; ++i)
 				if (unit_manager.unit_type[unit[index].type_id]->weapon[i] && unit_manager.unit_type[unit[index].type_id]->weapon[i]->stockpile)
 				{
 					stock = unit[index].weapon[i].stock;
@@ -719,7 +719,7 @@ namespace TA3D
 				int page = unit_manager.unit_type[unit[index].type_id]->page;
 
 				glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-				for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->nb_unit ; i++ ) // Affiche les différentes images d'unités constructibles
+				for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->nb_unit ; ++i) // Affiche les différentes images d'unités constructibles
 				{
 					if (unit_manager.unit_type[unit[index].type_id]->Pic_p[i] != page )
 						continue;
@@ -728,15 +728,15 @@ namespace TA3D
 					int pw = unit_manager.unit_type[unit[index].type_id]->Pic_w[ i ];
 					int ph = unit_manager.unit_type[unit[index].type_id]->Pic_h[ i ];
 
-					int nb=0;
-					Mission *m=unit[index].mission;
-					while(m)
+					int nb(0);
+					Mission* m = unit[index].mission;
+					while (m)
 					{
-						if ((m->mission==MISSION_BUILD || m->mission==MISSION_BUILD_2) && m->data==unit_manager.unit_type[unit[index].type_id]->BuildList[i])
+						if ((m->mission == MISSION_BUILD || m->mission == MISSION_BUILD_2) && m->data == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
 							nb++;
-						m=m->next;
+						m = m->next;
 					}
-					if (nb>0)
+					if (nb > 0)
 					{
 						String buf;
 						buf << nb;
@@ -1613,11 +1613,11 @@ namespace TA3D
 			{
 				Mission *mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
 				Mission *prec = mission;
-				if (mission != NULL && unit_manager.unit_type[unit[i].type_id]->BMcode)
+				if (!mission && unit_manager.unit_type[unit[i].type_id]->BMcode)
 					mission = mission->next;		// Don't read the first one ( which is being executed )
 
 				Mission fake;
-				if (!unit_manager.unit_type[unit[i].type_id]->BMcode ) // It's a hack to make sure it will work with first given order
+				if (!unit_manager.unit_type[unit[i].type_id]->BMcode) // It's a hack to make sure it will work with first given order
 				{
 					fake.next = mission;
 					prec = &fake;
@@ -1625,7 +1625,7 @@ namespace TA3D
 
 				while (mission) // Reads the mission list
 				{
-					if (mission->mission == MISSION_BUILD )
+					if (mission->mission == MISSION_BUILD)
 					{
 						prec = mission;
 						mission = mission->next;
@@ -1634,10 +1634,11 @@ namespace TA3D
 					{
 						if (!mission->step && (mission->target - target).sq() < 256.0f) // Remove it
 						{
-							Mission *tmp = mission;
+							// Path is a std::list so it'll be cleared automatically
+							Mission* tmp = mission;
 							mission = mission->next;
 							prec->next = mission;
-							DELETE(tmp);         // Path is a std::list so it'll be cleared automatically
+							delete tmp;
 							removed_something = true;
 						}
                         else

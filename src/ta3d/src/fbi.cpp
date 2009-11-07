@@ -352,7 +352,7 @@ namespace TA3D
 		for (int i = 0; i < nb_unit; ++i)
 		{
 			if (unit_type[i]->script && unit_type[i]->model)
-				unit_type[i]->model->Identify(unit_type[i]->script);
+				unit_type[i]->model->Identify(SmartPtr<ScriptData>::WeakPointer(unit_type[i]->script));
 		}
 	}
 
@@ -367,7 +367,7 @@ namespace TA3D
 		soundcategory.clear();
 		ExplodeAs.clear();
 		SelfDestructAs.clear();
-		DELETE(script);
+		script = NULL;
 
 		w_badTargetCategory.clear();
 		BadTargetCategory.clear();
@@ -389,8 +389,7 @@ namespace TA3D
 		}
 
 		yardmap.clear();
-		if (model)
-			model = NULL;
+		model = NULL;
 		if (unitpic)
 			SDL_FreeSurface(unitpic);
 		gfx->destroy_texture(glpic);
@@ -940,12 +939,12 @@ namespace TA3D
 		h_dl_data.initTable( __DEFAULT_HASH_TABLE_SIZE );
 
 		for( std::list< DlData* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
-			DELETE(*i);
+			delete *i;
 
 		l_dl_data.clear();
 
 		for (UnitList::iterator i = unit_type.begin(); i != unit_type.end(); ++i)
-			DELETE(*i);
+			delete *i;
 		unit_type.clear();
 		panel.destroy();
 		paneltop.destroy();

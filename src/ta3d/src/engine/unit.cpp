@@ -67,7 +67,7 @@ namespace TA3D
 			rest(0);
 		pMutex.lock();
 		ID = 0;
-		DELETE(script);
+		script = NULL;
 		while (mission)
 			clear_mission();
 		clear_def_mission();
@@ -158,7 +158,7 @@ namespace TA3D
 		pMutex.lock();
 		Mission* old = mission;
 		mission = mission->next;
-		DELETE(old);
+		delete old;
 		pMutex.unlock();
 	}
 
@@ -437,7 +437,7 @@ namespace TA3D
 		{
 			Mission* old = def_mission;
 			def_mission = def_mission->next;
-			DELETE(old);
+			delete old;
 		}
 		pMutex.unlock();
 	}
@@ -527,7 +527,7 @@ namespace TA3D
 					Mission *tmp = cur_mission;
 					cur_mission = cur_mission->next;
 					prec->next = cur_mission;
-					DELETE(tmp);
+					delete tmp;
 					removed = true;
 				}
 				else
@@ -636,7 +636,7 @@ namespace TA3D
 					&& new_mission->next != NULL ) 	// Prevent factories from closing when already building a unit
 				{
 					stop = new_mission->next;
-					DELETE(new_mission);
+					delete new_mission;
 					new_mission = stop;
 					new_mission->next = NULL;
 				}
@@ -903,7 +903,7 @@ namespace TA3D
 		bool old_step = mission->step;
 		Mission *old = mission;
         mission = mission->next;
-		DELETE(old);
+		delete old;
         if (mission == NULL)
 		{
 			command_locked = false;
@@ -916,7 +916,7 @@ namespace TA3D
 		{
 			old = mission;
 			mission = mission->next;
-			DELETE(old);
+			delete old;
 		}
 
 		if (old_step && mission && mission->next
@@ -1097,7 +1097,7 @@ namespace TA3D
 				bool c_part=false;
 				bool reverse=false;
 				float size=0.0f;
-                MESH *src = NULL;
+				MESH *src = NULL;
 				ANIMATION_DATA *src_data = NULL;
 				Vector3D v_target;				// Needed in network mode
 				Unit *unit_target = NULL;
@@ -1137,7 +1137,7 @@ namespace TA3D
 							{
                                 size = unit_target->model->size2;
                                 center = &(unit_target->model->center);
-                                src = unit_target->model->mesh;
+								src = SmartPtr<MESH>::WeakPointer(unit_target->model->mesh);
                                 src_data = &(unit_target->data);
 								unit_target->compute_model_coord();
 							}
@@ -1159,7 +1159,7 @@ namespace TA3D
 								{
 									size = feature->model->size2;
                                     center = &(feature->model->center);
-                                    src = feature->model->mesh;
+									src = SmartPtr<MESH>::WeakPointer(feature->model->mesh);
 									src_data = NULL;
 								}
 								else
@@ -1195,7 +1195,7 @@ namespace TA3D
 								{
 									size = unit_target->model->size2;
                                     center = &(unit_target->model->center);
-                                    src = unit_target->model->mesh;
+									src = SmartPtr<MESH>::WeakPointer(unit_target->model->mesh);
                                     src_data = &(unit_target->data);
 									unit_target->compute_model_coord();
 									v_target = unit_target->Pos;
@@ -1217,7 +1217,7 @@ namespace TA3D
 								{
 									size = feature->model->size2;
                                     center = &(feature->model->center);
-                                    src = feature->model->mesh;
+									src = SmartPtr<MESH>::WeakPointer(feature->model->mesh);
 									src_data = NULL;
 								}
 								else

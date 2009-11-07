@@ -41,7 +41,7 @@ namespace TA3D
 	inline UnitScript *lua_scriptID( lua_State *L, int pos )
 	{
 		Unit *unit = lua_currentUnit(L, pos);
-		UnitScript *p = static_cast<UnitScript*>(unit->script);
+		UnitScript *p = static_cast<UnitScript*>(SmartPtr<UnitScriptInterface>::WeakPointer(unit->script));
 		return p;
 	}
 

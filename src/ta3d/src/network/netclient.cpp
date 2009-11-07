@@ -10,11 +10,11 @@ namespace TA3D
 {
 
 
-	NetClient *NetClient::pInstance = NULL;
+	SmartPtr<NetClient> NetClient::pInstance = NULL;
 
 
 
-	NetClient *NetClient::instance()
+	SmartPtr<NetClient> NetClient::instance()
 	{
 		if (!pInstance)
 			pInstance = new NetClient;
@@ -23,7 +23,7 @@ namespace TA3D
 
 	void NetClient::destroyInstance()
 	{
-		DELETE(pInstance);
+		pInstance = NULL;
 	}
 
 	NetClient::NetClient() : peerList(), login(), state( NetClient::DISCONNECTED ), messages(), sock(), serverJoined()

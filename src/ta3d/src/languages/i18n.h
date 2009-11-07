@@ -21,6 +21,7 @@
 # include "../misc/string.h"
 # include "../threads/mutex.h"
 # include "../misc/tdf.h"
+# include <yuni/core/smartptr/smartptr.h>
 # include <vector>
 
 
@@ -141,7 +142,7 @@ namespace TA3D
 		** \brief Get a valid instance of the class I18N
 		** \return An instance of I18N. This must not be NULL
 		*/
-		static I18N* Instance();
+		static SmartPtr<I18N> Instance();
 
 		/*!
 		** \brief Destroy the singleton
@@ -365,7 +366,7 @@ namespace TA3D
 
 	private:
 		//! Singleton instance
-		static I18N* pInstance;
+		static SmartPtr<I18N> pInstance;
 
 		//! Mutex
 		static Mutex pMutex;

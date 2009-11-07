@@ -30,7 +30,7 @@ using namespace TA3D::Interfaces;
 
 
 
-TA3D::Audio::Manager* TA3D::VARS::sound_manager;
+SmartPtr<TA3D::Audio::Manager> TA3D::VARS::sound_manager;
 
 
 
@@ -211,7 +211,7 @@ namespace Audio
 			}
 			else
 			{
-				DELETE(pPlaylist[i + e]);
+				delete pPlaylist[i + e];
 				++e;
 			}
 		}
@@ -466,7 +466,7 @@ namespace Audio
 		if (!pPlaylist.empty())
 		{
 			for (Playlist::iterator k_Pos = pPlaylist.begin(); k_Pos != pPlaylist.end(); ++k_Pos)
-				DELETE(*k_Pos);
+				delete *k_Pos;
 			pPlaylist.clear();
 		}
 		pMutex.unlock();
@@ -881,7 +881,7 @@ namespace Audio
 
 		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
 		{
-			DELETE(it);  // delete the sound.
+			delete it;  // delete the sound.
 			// log a message and return false;
 			if (m_SDLMixerRunning)
 				LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.");

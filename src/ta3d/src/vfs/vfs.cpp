@@ -157,7 +157,7 @@ namespace UTILS
 		{
 			const std::list<Archive*>::iterator end = archives.end();
 			for (std::list<Archive*>::iterator i = archives.begin() ; i != end; ++i)
-				DELETE(*i);
+				delete *i;
 			archives.clear();
 		}
 		LOG_DEBUG(LOG_PREFIX_VFS << "VFS unloaded.");
@@ -536,7 +536,8 @@ namespace UTILS
 			file->topen(filename);
 			if (!file->isopen())
 			{
-				DELETE(file);
+				delete file;
+				file = NULL;
 			}
 		}
 		return file;
@@ -546,7 +547,8 @@ namespace UTILS
 
 	void fclose(TA3D_FILE *file)
 	{
-		DELETE(file);
+		if (file)
+			delete file;
 	}
 
 

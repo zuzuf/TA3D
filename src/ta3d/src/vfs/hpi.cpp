@@ -100,7 +100,7 @@ namespace TA3D
                 fclose(HPIFile);
 
             for(std::map<String, HpiFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
-				DELETE(i->second);
+				delete i->second;
             files.clear();
 
             HPIFile = NULL;

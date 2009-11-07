@@ -2443,7 +2443,7 @@ namespace TA3D
 				++nb_sky;
 			}
 			else
-				DELETE(sky_data);
+				delete sky_data;
 		}
 
 		if (nb_sky == 0)    // Look for a default sky
@@ -2461,7 +2461,7 @@ namespace TA3D
 					++nb_sky;
 				}
 				else
-					DELETE(sky_data);
+					delete sky_data;
 			}
 		}
 
@@ -2484,7 +2484,7 @@ namespace TA3D
 		for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
 		{
 			if (*it != NULL )
-				DELETE(*it);
+				delete *it;
 		}
 		sky_list.clear();
 

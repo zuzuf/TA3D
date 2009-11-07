@@ -44,8 +44,8 @@ namespace TA3D
     {
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
-        AI_CONTROLLER   *ai_controller;
-        AiScript        *ai_script;
+		SmartPtr<AI_CONTROLLER> ai_controller;
+		SmartPtr<AiScript>      ai_script;
         int             type;
         int             ID;
         String          AI;
@@ -64,7 +64,7 @@ namespace TA3D
         void setType(int type);
         int getType();
 
-        AiScript* getAiScript();
+		SmartPtr<AiScript> getAiScript();
 
         void setAI(const String &AI);
 

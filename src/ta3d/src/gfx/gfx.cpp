@@ -1972,9 +1972,9 @@ namespace TA3D
 			while (keypressed())    readkey();
 		}
 
-		DELETE(test_gfx);
+		delete test_gfx;
 
-		DELETE(InterfaceManager);
+		InterfaceManager = NULL;
 	}
 
 	SDL_Surface *GFX::create_surface_ex(int bpp, int w, int h)

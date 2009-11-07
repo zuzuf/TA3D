@@ -135,9 +135,9 @@ namespace TA3D
 	{
 		if (!lp_CONFIG->particle) // If particles are OFF don't add particles
 			return NULL;
-		if (tex < 0 || tex >= (int)gltex.size() ) // We don't have that texture !!
+		if (tex < 0 || tex >= (int)gltex.size()) // We don't have that texture !!
 			return NULL;
-		if (system ) // Step by step
+		if (system) // Step by step
 		{
 			system->pos[ system->cur_idx ] = pos;
 			system->V[ system->cur_idx ] = speed * Dir;
@@ -520,7 +520,7 @@ namespace TA3D
 				++i;
 			else
 			{
-				DELETE(*i);
+				delete *i;
 				bool quit = (i + 1 == particle_systems.end());
 				*i = particle_systems.back();
 				particle_systems.pop_back();
@@ -537,7 +537,7 @@ namespace TA3D
 		Vector3D RAND;
 		for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ;)
 		{
-			i++;
+			++i;
 
 			e->life -= dt;
 			if (e->life < 0.0f)
@@ -545,7 +545,7 @@ namespace TA3D
 				bool quit =  (e + 1 == part.end());
 				*e = part.back();
 				part.pop_back();
-				nb_part--;
+				--nb_part;
 				if (quit)
 					break;
 				continue;

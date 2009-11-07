@@ -105,10 +105,10 @@ namespace TA3D
     void ScriptInterface::deleteThreads()
     {
         for(int i = 0 ; i < childs.size() ; ++i)
-			DELETE(childs[i]);
+			delete childs[i];
         childs.clear();
         for(std::deque<ScriptInterface*>::iterator i = freeThreads.begin() ; i != freeThreads.end() ; ++i)
-			DELETE(*i);
+			delete *i;
         freeThreads.clear();
     }
 

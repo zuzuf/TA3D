@@ -23,16 +23,17 @@
 
 namespace TA3D
 {
-    UnitScriptInterface *UnitScriptInterface::instanciate( ScriptData *data )
+	UnitScriptInterface *UnitScriptInterface::instanciate( SmartPtr<ScriptData> &data )
     {
         UnitScriptInterface *usi = NULL;
+		ScriptData *pData = SmartPtr<ScriptData>::WeakPointer(data);
 
-        if ( dynamic_cast<CobScript*>(data) )          // Try CobScript (OTA COB/BOS)
+		if ( dynamic_cast<CobScript*>(pData) )          // Try CobScript (OTA COB/BOS)
             usi = new CobVm();
-        else if ( dynamic_cast<LuaData*>(data) )       // Try LuaData (Lua)
+		else if ( dynamic_cast<LuaData*>(pData) )       // Try LuaData (Lua)
             usi = new UnitScript();
 
-        usi->load( data );
+		usi->load( pData );
         return usi;
     }
 

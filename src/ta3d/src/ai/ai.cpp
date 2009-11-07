@@ -52,7 +52,7 @@ namespace TA3D
 		destroy();
 	}
 
-	AiScript* AI_PLAYER::getAiScript()
+	SmartPtr<AiScript> AI_PLAYER::getAiScript()
 	{
 		return ai_script;
 	}
@@ -67,8 +67,8 @@ namespace TA3D
 
 	void AI_PLAYER::destroy()
 	{
-		DELETE(ai_controller);
-		DELETE(ai_script);
+		ai_controller = NULL;
+		ai_script = NULL;
 		ID = 0;
 	}
 
@@ -90,14 +90,14 @@ namespace TA3D
 			case AI_TYPE_MEDIUM:
 			case AI_TYPE_HARD:
 			case AI_TYPE_BLOODY:
-				DELETE(ai_script);
-				if (ai_controller == NULL)
+				ai_script = NULL;
+				if (!ai_controller)
 					ai_controller = new AI_CONTROLLER();
 				ai_controller->setPlayerID( ID );
 				break;
 			case AI_TYPE_LUA:
-				DELETE(ai_controller);
-				if (ai_script == NULL)
+				ai_controller = NULL;
+				if (!ai_script)
 					ai_script = new AiScript();
 				ai_script->setPlayerID( ID );
 				break;

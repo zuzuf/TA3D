@@ -48,7 +48,7 @@ namespace Gui
 	void SKIN_MANAGER::destroy()
 	{
 		for (std::vector<Skin*>::iterator it = skins.begin() ; it != skins.end() ; ++it)
-			DELETE(*it);
+			delete *it;
 		init();
 	}
 

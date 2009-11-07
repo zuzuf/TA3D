@@ -2995,7 +2995,7 @@ namespace TA3D
 						if (cur->mission==MISSION_BUILD)
 							--nb;
 						*old = cur->next;
-						DELETE(cur);
+						delete cur;
 						cur = *old;
 						if (nb == 0)
 							break;

@@ -76,7 +76,7 @@ namespace TA3D
 
 
 
-	extern TA3DNetwork *g_ta3d_network;
+	extern SmartPtr<TA3DNetwork> g_ta3d_network;
 
 
 } // namespace TA3D

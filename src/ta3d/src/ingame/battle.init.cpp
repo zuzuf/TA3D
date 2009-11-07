@@ -56,8 +56,8 @@ namespace TA3D
 
 	Battle::Battle(GameData* g)
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
-        map(NULL), water_obj(NULL),
-        sky(0),
+		map(NULL),
+		sky(0), water_obj(NULL),
         glow(0),
         freecam_on(0),
         freecam_off(0),
@@ -81,7 +81,7 @@ namespace TA3D
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Releasing unused resources...");
 
-		DELETE(water_obj);
+		water_obj = NULL;
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for 3d models");
 		model_manager.destroy();
@@ -114,7 +114,7 @@ namespace TA3D
 		if (g_ta3d_network)
 		{
 			LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for network object...");
-			DELETE(g_ta3d_network);
+			g_ta3d_network = NULL;
 		}
 		// Reset the VFS manager
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Reloading VFS manager...");
