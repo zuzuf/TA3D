@@ -18,40 +18,56 @@
 #ifndef __AiScript_H__
 #define __AiScript_H__
 
+# include <yuni/yuni.h>
 # include "../misc/string.h"
 # include "lua.thread.h"
+# include <yuni/core/smartptr.h>
+
+
 
 namespace TA3D
 {
-    /*!
-    ** This class represents AI scripts, it's used to script AI behavior
-    ** This is a mean to implement new AIs without rebuilding the code
-    */
-    class AiScript : public LuaThread
-    {
-    private:
-        int         playerID;
-        String      name;
-    public:
+	/*!
+	** \brief 
+	**
+	** This class represents AI scripts, it's used to script AI behavior
+	** This is a mean to implement new AIs without rebuilding the code
+	*/
+	class AiScript : public LuaThread
+	{
+	public:
+		//! The most suitable smartptr for this class
+		typedef SmartPtr<AiScript> Ptr;
 
-        AiScript();
-        virtual ~AiScript();
-        void setPlayerID(int id);
-        int getPlayerID();
-        void setType(int type);
-        int getType();
+	public:
 
-        void changeName(const String& newName);		// Change AI name
-        void save();
-        void loadAI(const String& filename, const int id);    // Load a saved AI (NB: this is not the same symbol used to load Lua scripts!! so this works :) )
+		AiScript();
+		virtual ~AiScript();
+		void setPlayerID(int id);
+		int getPlayerID();
+		void setType(int type);
+		int getType();
 
-        void monitor();
+		void changeName(const String& newName);		// Change AI name
+		void save();
+		void loadAI(const String& filename, const int id);    // Load a saved AI (NB: this is not the same symbol used to load Lua scripts!! so this works :) )
 
-    public:
-        /*virtual*/ void register_functions();
-        /*virtual*/ void register_info();
-    };
+		void monitor();
 
-}
+	public:
+		/*virtual*/ void register_functions();
+		/*virtual*/ void register_info();
+
+	private:
+		int         playerID;
+		String      name;
+
+	}; // class AiScript
+
+
+
+
+
+} // namespace TA3D
 
 #endif

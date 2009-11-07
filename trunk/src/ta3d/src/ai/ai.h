@@ -30,31 +30,32 @@
 
 # define TA3D_AI_FILE_EXTENSION  ".ai"
 
+# define AI_TYPE_EASY			0x0
+# define AI_TYPE_MEDIUM			0x1
+# define AI_TYPE_HARD			0x2
+# define AI_TYPE_BLOODY			0x3
+# define AI_TYPE_LUA			0x4
+
+
 
 namespace TA3D
 {
 
-#define	AI_TYPE_EASY		0x0
-#define AI_TYPE_MEDIUM		0x1
-#define AI_TYPE_HARD		0x2
-#define AI_TYPE_BLOODY		0x3
-#define AI_TYPE_LUA         0x4
-
     class AI_PLAYER			// Class to manage players controled by AI
     {
-    private:
-        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
-		SmartPtr<AI_CONTROLLER> ai_controller;
-		SmartPtr<AiScript>      ai_script;
-        int             type;
-        int             ID;
-        String          AI;
+	public:
+        static String::Vector getAvailableAIs();
 
     public:
-
+		//! \name Constructor & Destructor
+		//@{
+		/*!
+		** \brief Default constructor
+		*/
         AI_PLAYER();
-
+		//! Destructor
         ~AI_PLAYER();
+		//@}
 
         void monitor();
 
@@ -62,9 +63,9 @@ namespace TA3D
         void destroy();
 
         void setType(int type);
-        int getType();
+        int getType() const;
 
-		SmartPtr<AiScript> getAiScript();
+		AiScript::Ptr getAiScript() const;
 
         void setAI(const String &AI);
 
@@ -76,10 +77,24 @@ namespace TA3D
         void save();
         void load(const String& filename, const int id = 0);
 
-        static String::Vector getAvailableAIs();
-    };
+
+
+	private:
+        String name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
+		SmartPtr<AI_CONTROLLER> ai_controller;
+		AiScript::Ptr  ai_script;
+        int type;
+        int ID;
+        String AI;
+
+    }; // class AI_PLAYER
+
+
+
 
 
 } // namespace TA3D
+
+# include "ai.hxx"
 
 #endif // TA3D_XX_AI_H__

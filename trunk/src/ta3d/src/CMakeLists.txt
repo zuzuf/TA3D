@@ -213,7 +213,7 @@ SET(SRC_NETWORK
 		network/http.cpp network/http.h)
 
 SET(SRC_AI
-		ai/ai.h ai/ai.cpp
+		ai/ai.h ai/ai.hxx ai/ai.cpp
 		ai/brain.h ai/brain.cpp
 		ai/weight.h ai/weight.cpp
 		ai/ai.controller.h ai/ai.controller.cpp

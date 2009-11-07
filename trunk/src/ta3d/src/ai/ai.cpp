@@ -41,21 +41,14 @@ namespace TA3D
 	//#define AI_DEBUG
 
 	AI_PLAYER::AI_PLAYER()
+		:ID(0)
 	{
-		ai_controller = NULL;
-		ai_script = NULL;
-		ID = 0;
 	}
 
 	AI_PLAYER::~AI_PLAYER()
 	{
-		destroy();
 	}
 
-	SmartPtr<AiScript> AI_PLAYER::getAiScript()
-	{
-		return ai_script;
-	}
 
 	void AI_PLAYER::stop()
 	{
@@ -104,10 +97,6 @@ namespace TA3D
 		};
 	}
 
-	int AI_PLAYER::getType()
-	{
-		return type;
-	}
 
 	void AI_PLAYER::setPlayerID(int id)
 	{
@@ -117,6 +106,7 @@ namespace TA3D
 		if (ai_controller)
 			ai_controller->setPlayerID(id);
 	}
+
 
 	int AI_PLAYER::getPlayerID()
 	{
@@ -136,6 +126,7 @@ namespace TA3D
 			ai_controller->changeName(newName);
 	}
 
+
 	void AI_PLAYER::save()
 	{
 		if (ai_script)
@@ -152,6 +143,7 @@ namespace TA3D
 		if (ai_controller)
 			ai_controller->loadAI(filename, id);
 	}
+
 
 	String::Vector AI_PLAYER::getAvailableAIs()
 	{
@@ -171,6 +163,7 @@ namespace TA3D
 
 		return l_AI;
 	}
+
 
 	void AI_PLAYER::setAI(const String &AI)
 	{
@@ -193,5 +186,9 @@ namespace TA3D
 			ai_script->load(filename);
 		}
 	}
+
+
+
+
 } // namespace TA3D
 
