@@ -142,7 +142,7 @@ namespace TA3D
 		}
 
 	public:
-		UnitScriptInterface     *script;		// Scripts concernant l'unité
+		SmartPtr<UnitScriptInterface> script;	// Scripts concernant l'unité
 		MODEL					*model;			// Modèle représentant l'objet
 		byte					owner_id;		// Numéro du propriétaire de l'unité
 		short					type_id;		// Type d'unité

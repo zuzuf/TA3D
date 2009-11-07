@@ -57,10 +57,9 @@ namespace TA3D
 		void showWarning(const String& s, const String& additional = String())
 		{
 			LOG_WARNING(I18N::Translate(s));
-			Gui::AREA *pArea = new Gui::AREA();
+			SmartPtr<Gui::AREA> pArea = new Gui::AREA();
 			pArea->load_tdf("gui/empty.area");
 			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) + additional);
-			DELETE(pArea);
 		}
 	}
 
@@ -136,14 +135,14 @@ namespace TA3D
 	Engine::~Engine(void)
 	{
 		stop();
-		DELETE(ThreadSynchroniser);
+		ThreadSynchroniser = NULL;
 		cursor.clear();
 		ta3dSideData.destroy();
 
-		DELETE(sound_manager);
-		DELETE(gfx);
+		sound_manager = NULL;
+		gfx = NULL;
 		pGFXModeActive = false;
-		DELETE(InterfaceManager);
+		InterfaceManager = NULL;
 
 		if (pSDLRunning)
 		{

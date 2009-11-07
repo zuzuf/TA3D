@@ -37,10 +37,10 @@ namespace TA3D
 
     DrawingTable::~DrawingTable()
     {
-        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
+		for (int i = 0 ; i < hash_table.size() ; ++i)
         {
             for (std::vector< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
-				DELETE(*e);
+				delete *e;
         }
         hash_table.clear();
     }
@@ -65,7 +65,7 @@ namespace TA3D
 
     void DrawingTable::draw_all()
     {
-        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
+		for (int i = 0 ; i < hash_table.size() ; ++i)
             for (std::vector< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e )
                 (*e)->draw_queue();
     }
@@ -79,12 +79,12 @@ namespace TA3D
 
         MODEL *model = model_manager.model[ model_id ];
 
-        if (model->from_2d )
+		if (model->from_2d)
             glEnable(GL_ALPHA_TEST);
 
         glEnable(GL_LIGHTING);
         glDisable(GL_BLEND);
-        if (!model->dlist )// Build the display list if necessary
+		if (!model->dlist)	// Build the display list if necessary
         {
             model->check_textures();
             model->dlist = glGenLists (1);
@@ -123,10 +123,10 @@ namespace TA3D
 
     QUAD_TABLE::~QUAD_TABLE()
     {
-        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
+		for (int i = 0 ; i < hash_table.size() ; ++i)
         {
             for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
-				DELETE(*e);
+				delete *e;
         }
         hash_table.clear();
     }

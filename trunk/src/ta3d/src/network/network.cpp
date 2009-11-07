@@ -60,12 +60,12 @@ namespace TA3D
 		for(std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
 		{
 			(*i)->join();
-			DELETE(*i);
+			delete *i;
 		}
 		for(std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ++i)
 		{
 			(*i)->join();
-			DELETE(*i);
+			delete *i;
 		}
 		getfile_thread.clear();
 		sendfile_thread.clear();
@@ -158,7 +158,8 @@ namespace TA3D
 		{
 			//error couldnt connect to game
 			LOG_ERROR(LOG_PREFIX_NET << "Error when connecting to game at [" << target << "]:" << port);
-			DELETE(tohost_socket);
+			delete tohost_socket;
+			tohost_socket = NULL;
 			myMode = 0;
 			return -1;
 		}
@@ -193,12 +194,12 @@ namespace TA3D
 		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
 		{
 			(*i)->join();
-			DELETE(*i);
+			delete *i;
 		}
 		for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ++i)
 		{
 			(*i)->join();
-			DELETE(*i);
+			delete *i;
 		}
 		getfile_thread.clear();
 		sendfile_thread.clear();
@@ -226,12 +227,12 @@ namespace TA3D
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
 			{
 				(*i)->join();
-				DELETE(*i);
+				delete *i;
 			}
 			for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ++i)
 			{
 				(*i)->join();
-				DELETE(*i);
+				delete *i;
 			}
 			getfile_thread.clear();
 			sendfile_thread.clear();
@@ -252,7 +253,7 @@ namespace TA3D
 					getfile_thread.erase( i++ );
 
 					p->join();
-					DELETE(p);
+					delete p;
 
 					break;
 				}
@@ -267,7 +268,7 @@ namespace TA3D
 					sendfile_thread.erase( i++ );
 
 					p->join();
-					DELETE(p);
+					delete p;
 
 					break;
 				}
@@ -390,7 +391,7 @@ namespace TA3D
 				ft2mutex.unlock();
 
 				(*i)->join();
-				DELETE(*i);
+				delete *i;
 				getfile_thread.erase( i++ );
 			}
 			else
@@ -411,7 +412,7 @@ namespace TA3D
 				ft2mutex.unlock();
 
 				(*i)->join();
-				DELETE(*i);
+				delete *i;
 				sendfile_thread.erase( i++ );
 			}
 			else

@@ -79,17 +79,15 @@ namespace TA3D
     {
         destroy();
 
-        LuaThread *thread = new LuaThread;
+		SmartPtr<LuaThread> thread = new LuaThread;
         thread->load(filename);
 
-        LuaChunk *chunk = thread->dump();
+		SmartPtr<LuaChunk> chunk = thread->dump();
 
         buffer = chunk->buffer;
         size = chunk->size;
         name = chunk->name;
         chunk->buffer = NULL;
-		DELETE(chunk);
-		DELETE(thread);
     }
 
     void LuaChunk::save(const String &filename)                    // Save the lua chunk
@@ -121,7 +119,7 @@ namespace TA3D
     {
         if (piece_name.empty())
         {
-            LuaThread *thread = new LuaThread();
+			SmartPtr<LuaThread> thread = new LuaThread();
             thread->load(this);
             thread->run();      // Initialize the thread (read functions, pieces, ...)
             if (thread->L)
@@ -138,7 +136,6 @@ namespace TA3D
                     }
                 }
             }
-			DELETE(thread);
         }
         String query = String::ToLower(name);
         for(int i = 0 ; i < piece_name.size() ; i++)

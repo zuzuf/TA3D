@@ -57,14 +57,15 @@ namespace TA3D
     class DrawList
     {
     public:
-        DrawObject     prim;
-        DrawList       *next;
+		DrawObject			prim;
+		SmartPtr<DrawList>	next;
 
         void init();
 
         void destroy();
 
-        inline DrawList()  {   init(); }
+		DrawList()  {   init(); }
+		~DrawList()  {   destroy(); }
 
         void add(DrawObject &obj);
 

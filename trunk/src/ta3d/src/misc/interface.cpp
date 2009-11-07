@@ -25,7 +25,7 @@
 namespace TA3D
 {
 
-    IInterfaceManager* TA3D::VARS::InterfaceManager;
+	SmartPtr<IInterfaceManager> TA3D::VARS::InterfaceManager;
 
 
 
@@ -99,7 +99,7 @@ namespace TA3D
         pMutex.lock();
         IInterfaceMessage *cimsg = new IInterfaceMessage( mID, a, b, c );
         DispatchMsg( cimsg );
-		DELETE(cimsg);
+		delete cimsg;
         pMutex.unlock();
     }
 

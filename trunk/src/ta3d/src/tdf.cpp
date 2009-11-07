@@ -190,7 +190,7 @@ namespace TA3D
 		if (nb_features > 0 && !feature.empty())			// Détruit les éléments
 		{
 			for (unsigned int i = 0; i < feature.size(); ++i)
-				DELETE(feature[i]);
+				delete feature[i];
 		}
 		feature.clear();
 
@@ -816,7 +816,7 @@ namespace TA3D
 					bool random_vector = true;
 					if (pFeature->m3d && pFeature->model != NULL)
 					{
-                        MESH* obj = pFeature->model->mesh;
+						SmartPtr<MESH> obj = pFeature->model->mesh;
                         for (int base_n = Math::RandomTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
 							random_vector = obj->random_pos(NULL, (base_n + n) % obj->nb_sub_obj, &t_mod);
 					}

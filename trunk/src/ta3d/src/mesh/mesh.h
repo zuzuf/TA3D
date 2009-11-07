@@ -172,8 +172,8 @@ namespace TA3D
         short       nb_vtx;				// Nombre de points
         short       nb_prim;			// Nombre de primitives
         String      name;				// Nom de l'objet / Object name
-        MESH        *next;				// Objet suivant / Next object
-        MESH        *child;				// Objet fils / Child object
+		SmartPtr<MESH>	next;			// Objet suivant / Next object
+		SmartPtr<MESH>  child;			// Objet fils / Child object
         Vector3D    *points;			// Points composant l'objet / Vertices
         short       nb_p_index;			// Nombre d'indices de points
         short       nb_l_index;			// Nombre d'indices de lignes
@@ -194,7 +194,7 @@ namespace TA3D
         bool        emitter_point;		// This object directly emits particles
         std::vector<GLuint> gl_dlist;   // Display lists to speed up the drawing process
 
-        ANIMATION   *animation_data;
+		SmartPtr<ANIMATION>   animation_data;
 
         sint16      selprim;			// Polygone de selection
 
@@ -356,7 +356,7 @@ namespace TA3D
         void postLoadComputations();
 
     public:
-        MESH		*mesh;			// Objet principal du modèle 3D
+		SmartPtr<MESH>	mesh;		// Objet principal du modèle 3D
         Vector3D	center;			// Centre de l'objet pour des calculs d'élimination d'objets
         float	size;				// Square of the size of the sphere which contains the model
         float	size2;				// Same as above but it is its square root

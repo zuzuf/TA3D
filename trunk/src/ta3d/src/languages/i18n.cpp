@@ -26,7 +26,7 @@
 namespace TA3D
 {
 
-	I18N* I18N::pInstance = NULL;
+	SmartPtr<I18N> I18N::pInstance = NULL;
 	Mutex I18N::pMutex;
 
 
@@ -39,14 +39,14 @@ namespace TA3D
 		:pIndx(l.pIndx), pEnglishID(l.pEnglishID), pCaption(l.pCaption)
 	{}
 
-	I18N* I18N::Instance()
+	SmartPtr<I18N> I18N::Instance()
 	{
 		// We use here a double-check lock, which would be good enough
 		// for this kind of class
-		if (pInstance == NULL)
+		if (!pInstance)
 		{
 			MutexLocker locker(pMutex);
-			if (pInstance == NULL)
+			if (!pInstance)
 				pInstance = new I18N();
 		}
 		return pInstance;
@@ -69,7 +69,7 @@ namespace TA3D
 	void I18N::Destroy()
 	{
 		pMutex.lock();
-		DELETE(pInstance);
+		pInstance = NULL;
 		pMutex.unlock();
 	}
 
@@ -272,7 +272,7 @@ namespace TA3D
 	void I18N::doClearLanguages()
 	{
 		for (Languages::iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
-			DELETE(*i);
+			delete *i;
 		pLanguages.clear();
 	}
 

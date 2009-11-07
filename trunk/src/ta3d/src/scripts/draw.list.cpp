@@ -34,22 +34,17 @@ namespace TA3D
         if (prim.type == DRAW_TYPE_BITMAP)
             glDeleteTextures(1,&prim.tex);
         prim.text.clear();
-        if (next)
-        {
-            next->destroy();
-			DELETE(next);
-        }
+		next = NULL;
         init();
     }
 
     void DrawList::add(DrawObject &obj)
     {
         LuaProgram::inGame->lock();
-        if (next == NULL)
+		if (!next)
         {
             next = new DrawList;
             next->prim = obj;
-            next->next = NULL;
         }
         else
             next->add(obj);

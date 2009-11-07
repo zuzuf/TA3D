@@ -59,7 +59,7 @@ namespace TA3D
 		String fullname(tmp);
 		fullname << "-" << entryName;
 
-		int anm_idx = findInCache((char*)fullname.c_str());
+		int anm_idx = findInCache(fullname);
 		if (anm_idx == -1)
 		{
 			byte *data;
@@ -201,7 +201,7 @@ namespace TA3D
 		if (!pParticles.empty())
 		{
 			for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
-				DELETE(*i);
+				delete *i;
 			pParticles.clear();
 		}
 	}
@@ -220,7 +220,7 @@ namespace TA3D
 		cache_size = 0;
 		cache_name.clear();
 		cache_anm = NULL;
-		use=NULL;
+		use = NULL;
 
 		flash_tex = 0;
 		wave_tex[0] = 0;
@@ -249,7 +249,7 @@ namespace TA3D
 			if (cache_anm)
 			{
 				for (int i = 0;i < max_cache_size; ++i)
-					DELETE(cache_anm[i]);
+					delete cache_anm[i];
 				DELETE_ARRAY(cache_anm);
 			}
 		}
@@ -281,11 +281,11 @@ namespace TA3D
 		cam.setView(true);
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(0.0f,-1600.0f);
-		if(UW)
+		if (UW)
 		{
-			for(int i=0;i<max_fx;i++)
+			for(int i = 0 ; i < max_fx ; ++i)
 			{
-				if( fx[i].playing && fx[i].Pos.y<w_lvl )
+				if (fx[i].playing && fx[i].Pos.y < w_lvl)
 					fx[i].draw(cam, map, cache_anm);
 			}
 		}
@@ -293,7 +293,7 @@ namespace TA3D
 		{
 			for(int i = 0; i < max_fx; ++i)
 			{
-				if( fx[i].playing && fx[i].Pos.y >= w_lvl )
+				if (fx[i].playing && fx[i].Pos.y >= w_lvl)
 					fx[i].draw(cam, map, cache_anm);
 			}
 		}
@@ -302,7 +302,7 @@ namespace TA3D
 		gfx->unset_alpha_blending();
 		glDepthMask(GL_TRUE);
 
-		if(!UW && lp_CONFIG->explosion_particles && FXManager::currentParticleModel != NULL)
+		if (!UW && lp_CONFIG->explosion_particles && FXManager::currentParticleModel != NULL)
 		{
 			RenderQueue renderQueue(FXManager::currentParticleModel->id);
 			for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
@@ -487,7 +487,7 @@ namespace TA3D
 		{
 			if ((*i)->move(dt))
 			{
-				DELETE(*i);
+				delete *i;
 				pParticles.erase(i++);
 			}
 			else
@@ -497,7 +497,7 @@ namespace TA3D
 		{
 			if ((*i)->move(dt))
 			{
-				DELETE(*i);
+				delete *i;
 				pElectrics.erase(i++);
 			}
 			else
@@ -522,7 +522,8 @@ namespace TA3D
 				if (use[fx[i].anm] <= 0) // Animation used nowhere
 				{
 					cache_name[fx[i].anm].clear();
-					DELETE(cache_anm[fx[i].anm]);
+					if (cache_anm[fx[i].anm])
+						delete cache_anm[fx[i].anm];
 					cache_anm[fx[i].anm] = NULL;
 					--cache_size;
 				}

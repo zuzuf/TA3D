@@ -31,7 +31,7 @@ namespace TA3D
     class UnitScriptInterface : public ScriptInterface
     {
     public:
-        static UnitScriptInterface *instanciate( ScriptData *data );
+		static UnitScriptInterface *instanciate( SmartPtr<ScriptData> &data );
         static const String get_script_name(int id);
         static int get_script_id(const String &name);
 

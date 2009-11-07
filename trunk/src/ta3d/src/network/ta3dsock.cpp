@@ -87,7 +87,8 @@ namespace TA3D
 
 			if(!(*sock)->tcpsock.isOpen())
 			{
-				DELETE(*sock);
+				delete *sock;
+				*sock = NULL;
 				return -1;
 			}
 			return 0;
@@ -110,7 +111,8 @@ namespace TA3D
 
 			if(!(*sock)->tcpsock.isOpen())
 			{
-				DELETE(*sock);
+				delete *sock;
+				*sock = NULL;
 				return -1;
 			}
 			return 0;
