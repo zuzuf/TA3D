@@ -360,8 +360,8 @@ namespace TA3D
         void postLoadComputations();
 
     public:
-		SmartPtr<MESH>	mesh;		// Objet principal du modèle 3D
-        Vector3D	center;			// Centre de l'objet pour des calculs d'élimination d'objets
+		MESH::Ptr  mesh;		// Objet principal du modèle 3D
+        Vector3D  center;			// Centre de l'objet pour des calculs d'élimination d'objets
         float	size;				// Square of the size of the sphere which contains the model
         float	size2;				// Same as above but it is its square root
         float	top;				// Max y coordinate found in the model
