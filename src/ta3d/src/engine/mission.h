@@ -2,6 +2,7 @@
 # define __TA3D_ENGINE_MISSION_H__
 
 # include "../stdafx.h"
+# include "../ai/pathfinding.h"
 
 
 # define MISSION_FLAG_CAN_ATTACK		0x01
@@ -48,6 +49,7 @@ namespace TA3D
 {
 	class Unit;
 	class Weapon;
+	class Vector3D;
 
 
 	/*!
@@ -56,15 +58,47 @@ namespace TA3D
 	class Mission
 	{
 	public:
+		/*!
+		** \brief Defines a target (none, unit, weapon)
+		*/
 		class Target
 		{
 		public:
-			enum Type { TargetUnit, TargetWeapon };
+			//! Target types
+			enum Type { TargetNone, TargetUnit, TargetWeapon };
 		public:
+			//! Constructor
+			Target() : type(TargetNone), idx(-1), UID(0), Pos()	{}
+
+			//! Functions to access class members
+			Type getType() const	{	return type;	}
+			int getIdx() const	{	return idx;	}
+			uint32 getUID() const	{	return UID;	}
+
+			//! Interface to set the target
+			void set(Type type, int idx = -1, uint32 UID = 0)
+			{
+				this->type = type;
+				this->idx = idx;
+				this->UID = UID;
+			}
+
+			void setPos(const Vector3D &Pos)
+			{
+				if (type == TargetNone)
+					this->Pos = Pos;
+			}
+
+			//! Functions to get a pointer to the target (checks target type)
+			inline Unit *getUnit();
+			inline Weapon *getWeapon();
+			inline const Vector3D &getPos();
+
 		private:
-			Type	type;
-			int		idx;
-			uint32	UID;
+			Type		type;
+			int			idx;
+			uint32		UID;
+			Vector3D	Pos;
 		};
 	public:
 		//! \name Constructors & Destructor
