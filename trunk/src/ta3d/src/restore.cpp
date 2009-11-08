@@ -355,71 +355,8 @@ namespace TA3D
 
 			SAVE( units.unit[i].command_locked );
 
-			for (Mission *start = units.unit[i].mission; true; start = units.unit[i].def_mission)
-			{
-				for (Mission *cur = start; cur; cur = cur->next)
-				{
-					gzputc(file, 1);
-					SAVE( cur->mission );
-					SAVE( cur->target );
-					SAVE( cur->target_ID );
-					SAVE( cur->step );
-					SAVE( cur->time );
-					SAVE( cur->data );
-					SAVE( cur->flags );
-					SAVE( cur->last_d );
-					SAVE( cur->move_data );
-					SAVE( cur->node );
-
-                    for (PATH::iterator path = cur->path.begin() ; path != cur->path.end() ; ++path)
-					{
-						gzputc(file, 1);
-						SAVE( path->x );
-						SAVE( path->y );
-						SAVE( path->Pos );
-						SAVE( path->made_direct );
-					}
-					gzputc(file, 0);
-
-					switch( cur->mission )
-					{
-						case MISSION_ATTACK:
-							{
-								int p = cur->p ? ( (cur->flags & MISSION_FLAG_TARGET_WEAPON) ? (int)((Weapon*)(cur->p))->idx : ((Unit*)(cur->p))->idx) : -1;
-								SAVE( p );
-							}
-							break;
-						case MISSION_BUILD:
-						case MISSION_BUILD_2:
-						case MISSION_REPAIR:
-						case MISSION_GUARD:
-						case MISSION_LOAD:
-						case MISSION_CAPTURE:
-						case MISSION_RECLAIM:
-						case MISSION_REVIVE:
-						case MISSION_GET_REPAIRED:
-							{
-								int p = cur->p ? (int)((Unit*)(cur->p))->idx : -1;
-								SAVE( p );
-							}
-							break;
-						case MISSION_UNLOAD:
-						case MISSION_GUARD_NOMOVE:
-						case MISSION_PATROL:
-						case MISSION_MOVE:
-						case MISSION_STOP:
-						case MISSION_STANDBY_MINE:
-						case MISSION_STANDBY:
-						case MISSION_VTOL_STANDBY:
-						case MISSION_WAIT:
-						case MISSION_WAIT_ATTACKED:
-							break;
-					}
-
-				}
-				gzputc(file, 0);
-				if( start == units.unit[i].def_mission )	break;
-			}
+			units.unit[i].mission.save(file);
+			units.unit[i].def_mission.save(file);
 
 			if (units.unit[i].script)
 			{
@@ -910,84 +847,8 @@ namespace TA3D
 
 			LOAD( units.unit[i].command_locked );
 
-			for (Mission **start = &(units.unit[i].mission) ; true ; start = &(units.unit[i].def_mission) )
-			{
-				int c = gzgetc( file );
-				if (c == 0)
-					*start = NULL;
-				else
-				{
-					Mission **cur = start;
-					do
-					{
-						*cur = new Mission();
-						(*cur)->next = NULL;
-						LOAD( (*cur)->mission );
-						LOAD( (*cur)->target );
-						LOAD( (*cur)->target_ID );
-						LOAD( (*cur)->step );
-						LOAD( (*cur)->time );
-						LOAD( (*cur)->data );
-						LOAD( (*cur)->flags );
-						LOAD( (*cur)->last_d );
-						LOAD( (*cur)->move_data );
-						LOAD( (*cur)->node );
-
-                        (*cur)->path.clear();
-						while( gzgetc( file ) )
-						{
-                            PATH_NODE node;
-                            LOAD( node.x );
-                            LOAD( node.y );
-                            LOAD( node.Pos );
-                            LOAD( node.made_direct );
-                            (*cur)->path.push_back(node);
-						}
-
-						switch( (*cur)->mission )
-						{
-							case MISSION_ATTACK:
-								{
-									int p;
-									LOAD( p );
-									(*cur)->p = (p == -1) ? NULL : ( ((*cur)->flags&MISSION_FLAG_TARGET_WEAPON) ? (void*)&(weapons.weapon[p]) : (void*)&(units.unit[p]) );
-								}
-								break;
-							case MISSION_BUILD:
-							case MISSION_BUILD_2:
-							case MISSION_REPAIR:
-							case MISSION_GUARD:
-							case MISSION_LOAD:
-							case MISSION_CAPTURE:
-							case MISSION_RECLAIM:
-							case MISSION_REVIVE:
-							case MISSION_GET_REPAIRED:
-								{
-									int p;
-									LOAD( p );
-									(*cur)->p = (p == -1) ? NULL : (void*)&(units.unit[p]);
-								}
-								break;
-							case MISSION_UNLOAD:
-							case MISSION_GUARD_NOMOVE:
-							case MISSION_PATROL:
-							case MISSION_MOVE:
-							case MISSION_STOP:
-							case MISSION_STANDBY_MINE:
-							case MISSION_STANDBY:
-							case MISSION_VTOL_STANDBY:
-							case MISSION_WAIT:
-							case MISSION_WAIT_ATTACKED:
-								(*cur)->p = NULL;
-								break;
-						};
-
-						cur = &((*cur)->next);
-
-					}while( gzgetc( file ) );
-				}
-				if( start == &(units.unit[i].def_mission) )	break;
-			}
+			units.unit[i].mission.load(file);
+			units.unit[i].def_mission.load(file);
 
 			if (units.unit[i].script)
 			{
@@ -1012,7 +873,7 @@ namespace TA3D
 			gzread(file, units.unit[i].data.axe[1], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
 			gzread(file, units.unit[i].data.axe[2], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
 
-			if( units.unit[i].drawn )
+			if (units.unit[i].drawn)
 			{
 				units.unit[i].drawn = false;
 				units.unit[i].draw_on_map();

@@ -402,8 +402,9 @@ namespace TA3D
                                     if (the_map->map_data[y][x].unit_idx >= 0 && the_map->map_data[y][x].unit_idx != idx )
                                     {
                                         int cur_idx = the_map->map_data[y][x].unit_idx;
-                                        if (units.unit[cur_idx].owner_id == owner_id && units.unit[cur_idx].build_percent_left == 0.0f && (units.unit[cur_idx].mission == NULL
-                                            || units.unit[cur_idx].mission->mission != MISSION_MOVE))
+										if (units.unit[cur_idx].owner_id == owner_id && units.unit[cur_idx].build_percent_left == 0.0f
+											&& (!units.unit[cur_idx].mission
+												|| units.unit[cur_idx].mission->mission() != MISSION_MOVE))
                                         {
                                             units.unit[cur_idx].lock();
                                             Vector3D target = units.unit[cur_idx].Pos;

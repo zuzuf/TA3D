@@ -476,13 +476,13 @@ namespace TA3D
 				{
 					units.unit[ unit_id ].Pos.x = (PX<<3) + 8 - the_map->map_w_d;
 					units.unit[ unit_id ].Pos.z = (PY<<3) + 8 - the_map->map_h_d;
-					if (units.unit[ unit_id ].mission && (units.unit[ unit_id ].mission->flags & MISSION_FLAG_MOVE))
-						units.unit[ unit_id ].mission->flags |= MISSION_FLAG_REFRESH_PATH;
+					if (!units.unit[ unit_id ].mission.empty() && (units.unit[ unit_id ].mission->getFlags() & MISSION_FLAG_MOVE))
+						units.unit[ unit_id ].mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				}
 				else
 				{
 					int prev = 0;
-					for( int i = 0 ; i < units.nb_unit ; i++ )
+					for (int i = 0 ; i < units.nb_unit ; ++i)
 						if (units.idx_list[ i ] == unit_id)
 						{
 							prev = i;

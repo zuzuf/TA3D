@@ -16,6 +16,7 @@ Else(LibYuni_FOUND)
 EndIF(LibYuni_FOUND)
 
 
+include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 #

@@ -1,16 +1,16 @@
 #ifndef __TA3D_ENGINE_UNIT_H__
 # define __TA3D_ENGINE_UNIT_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
-# include "../threads/thread.h"
-# include "../misc/vector.h"
-# include "../ai/pathfinding.h"
-# include "../scripts/unit.script.interface.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <threads/thread.h>
+# include <misc/vector.h>
+# include <ai/pathfinding.h>
+# include <scripts/unit.script.interface.h>
 # include "mission.h"
 # include "weapondata.h"
 # include "unit.defines.h"
-# include "../fbi.h"
+# include <fbi.h>
 
 
 namespace TA3D
@@ -133,12 +133,12 @@ namespace TA3D
 
 		inline bool do_nothing()
 		{
-			return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY) && mission->next == NULL)) && !port[INBUILDSTANCE];
+			return mission.doNothing() && !port[INBUILDSTANCE];
 		}
 
 		inline bool do_nothing_ai()
 		{
-			return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY || mission->mission == MISSION_MOVE) && !mission->next)) && !port[INBUILDSTANCE];
+			return mission.doNothingAI() && !port[INBUILDSTANCE];
 		}
 
 	public:
@@ -157,8 +157,8 @@ namespace TA3D
 		ANIMATION_DATA          data;			// Données pour l'animation de l'unité par le script
 		bool					drawing;
 		sint16					*port;			// Ports
-		Mission					*mission;		// Orders given to the unit
-		Mission					*def_mission;	// Orders given to units built by this plant
+		MissionStack			mission;		// Orders given to the unit
+		MissionStack			def_mission;	// Orders given to units built by this plant
 		byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
 		int                     kills;          // How many kills did this unit
 		// 0	-> nothing
