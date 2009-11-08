@@ -36,23 +36,23 @@ namespace TA3D
 		last_timestamp = 0;
 		just_explode = false;
 		damage = -1;
-		visible=true;
-		idx=0;
-		phase=1;
-		a_time=0.0f;
-		f_time=0.0f;
-		shooter_idx=-1;
-		anim_sprite=0;
-		weapon_id=-1;		// Non défini
-		Pos.x=Pos.y=Pos.z=0.0f;
-		Ac=V=Pos;
-		target_pos=Pos;
-		target=-1;			// Pas de cible
-		stime=0.0f;
-		killtime=0.0f;
-		dying=false;
-		smoke_time=0.0f;
-		owner=0;
+		visible = true;
+		idx = 0;
+		phase = 1;
+		a_time = 0.0f;
+		f_time = 0.0f;
+		shooter_idx = -1;
+		anim_sprite = 0;
+		weapon_id = -1;		// Non défini
+		Pos.x = Pos.y = Pos.z = 0.0f;
+		Ac = V = Pos;
+		target_pos = Pos;
+		target = -1;			// Pas de cible
+		stime = 0.0f;
+		killtime = 0.0f;
+		dying = false;
+		smoke_time = 0.0f;
+		owner = 0;
 		local = true;
 	}
 
