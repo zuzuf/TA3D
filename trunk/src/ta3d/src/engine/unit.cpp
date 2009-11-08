@@ -4464,7 +4464,7 @@ script_exec:
 					case MISSION_RECLAIM:
 					case MISSION_REVIVE:
 					case MISSION_CAPTURE:
-						if (p == NULL || (cur->lastStep().getFlags() & MISSION_FLAG_TARGET_WEAPON))
+						if (cur->lastStep().getFlags() & MISSION_FLAG_TARGET_WEAPON)
 						{
 							++cur;
 							continue;	// Don't show this, it'll be removed
