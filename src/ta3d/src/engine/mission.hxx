@@ -7,15 +7,13 @@ namespace TA3D
 
 
 	inline Mission::Mission()
-        :time(0.), last_d(0.), data(0), move_data(0), next(NULL), mission(0), path(),
-		target(), step(false), flags(0), p(NULL), target_ID(0), node(0)
+		: qStep(), time(0.), last_d(0.), move_data(0), path(),
+		node(0)
 	{}
 
 	inline Mission::Mission(const Mission& rhs)
-		:time(rhs.time), last_d(rhs.last_d), data(rhs.data), move_data(rhs.move_data),
-		next(rhs.next), mission(rhs.mission), path(rhs.path),
-		target(rhs.target), step(rhs.step), flags(rhs.flags), p(rhs.p),
-		target_ID(rhs.target_ID), node(rhs.node)
+		:qStep(rhs.qStep), time(rhs.time), last_d(rhs.last_d), move_data(rhs.move_data),
+		path(rhs.path), node(rhs.node)
 	{}
 
 
@@ -25,18 +23,11 @@ namespace TA3D
 
 	inline Mission& Mission::operator = (const Mission& rhs)
 	{
+		qStep = rhs.qStep;
 		time = rhs.time;
 		last_d = rhs.last_d;
-		data = rhs.data;
 		move_data = rhs.move_data;
-		next = rhs.next;
-		mission = rhs.mission;
 		path = rhs.path;
-		target = rhs.target;
-		step = rhs.step;
-		flags = rhs.flags;
-		p = rhs.p;
-		target_ID = rhs.target_ID;
 		node = rhs.node;
 		return *this;
 	}

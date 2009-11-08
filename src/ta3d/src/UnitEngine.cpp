@@ -696,8 +696,8 @@ namespace TA3D
 			}
 		}
 
-		Unit *target = pointed_only ? NULL : (unit[index].mission!=NULL ? (Unit*) unit[index].mission->p : NULL);
-		if (target && target->flags==0)
+		Unit *target = pointed_only ? NULL : (!unit[index].mission.empty() ? unit[index].mission->getTarget().getUnit() : NULL);
+		if (target && target->flags == 0)
 			target = NULL;
 
 		glEnable(GL_TEXTURE_2D);
@@ -729,12 +729,18 @@ namespace TA3D
 					int ph = unit_manager.unit_type[unit[index].type_id]->Pic_h[ i ];
 
 					int nb(0);
-					Mission* m = unit[index].mission;
-					while (m)
+//					Mission* m = unit[index].mission;
+//					while (m)
+//					{
+//						if ((m->mission == MISSION_BUILD || m->mission == MISSION_BUILD_2) && m->data == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
+//							nb++;
+//						m = m->next;
+//					}
+//					Mission* m = unit[index].mission;
+					for(MissionStack::iterator m = unit[index].mission.begin() ; m != unit[index].mission.end() ; ++m)
 					{
-						if ((m->mission == MISSION_BUILD || m->mission == MISSION_BUILD_2) && m->data == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
-							nb++;
-						m = m->next;
+						if ((m->mission() == MISSION_BUILD || m->mission() == MISSION_BUILD_2) && m->getData() == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
+							++nb;
 					}
 					if (nb > 0)
 					{
@@ -766,9 +772,9 @@ namespace TA3D
 		{
 			index = last_on;
 			if (unit[index].owner_id == players.local_human_id ) {
-				target = unit[index].mission!=NULL ? (Unit*) unit[index].mission->p : NULL;
-				if (target && target->flags==0)
-					target=NULL;
+				target = !unit[index].mission.empty() ? unit[index].mission->getTarget().getUnit() : NULL;
+				if (target && target->flags == 0)
+					target = NULL;
 			}
 			else
 				target = NULL;
@@ -783,7 +789,8 @@ namespace TA3D
 			{
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 				gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id]->name);
-				if (target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
+				if (target && !unit[index].mission.empty()
+					&& (unit[index].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
 				{
 					unit[index].unlock();
 					target->lock();
@@ -835,11 +842,11 @@ namespace TA3D
 
 				if (unit[index].owner_id == players.local_human_id )
 				{
-					if (target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON )
+					if (target && (unit[index].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
 					{
 						unit[index].unlock();
 						target->lock();
-						if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage )	// Si l'unité a une cible
+						if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage)	// Si l'unité a une cible
 						{
 							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
 							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
@@ -869,13 +876,13 @@ namespace TA3D
 					glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
 				}
 
-				if (unit[index].owner_id == players.local_human_id )
+				if (unit[index].owner_id == players.local_human_id)
 				{
-					if (target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON )
+					if (target && (unit[index].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON )
 					{
 						unit[index].unlock();
 						target->lock();
-						if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage && target->hp>0)
+						if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage && target->hp > 0)
 						{
 							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
 							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
@@ -886,11 +893,11 @@ namespace TA3D
 						unit[index].lock();
 					}
 					else
-						if (unit[index].planned_weapons>0.0f ) 	// construit une arme / build a weapon
+						if (unit[index].planned_weapons > 0.0f) 	// construit une arme / build a weapon
 						{
-							float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
-							if (p==1.0f)
-								p=0.0f;
+							float p = 1.0f - (unit[index].planned_weapons - int(unit[index].planned_weapons));
+							if (p == 1.0f)
+								p = 0.0f;
 							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
 							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
 							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
@@ -1052,8 +1059,8 @@ namespace TA3D
 
 			if (unit[i].owner_id==players.local_human_id)
 			{
-				if (unit[i].attacked || (unit[i].mission!=NULL && unit[i].mission->mission==MISSION_ATTACK))
-					nb_attacked+=100;
+				if (unit[i].attacked || (!unit[i].mission.empty() && unit[i].mission->mission() == MISSION_ATTACK))
+					nb_attacked += 100;
 				if (unit[i].built)
 					nb_built++;
 			}
@@ -1061,7 +1068,7 @@ namespace TA3D
 			unit[i].unlock();
 			if (unit[i].move(dt,map,path_exec,key_frame) == -1) // Vérifie si l'unité a été détruite
 			{
-				if (unit[i].local ) // Don't kill remote units, since we're told when to kill them
+				if (unit[i].local) // Don't kill remote units, since we're told when to kill them
 				{
 					kill(i,map,e);
 					e--;			// Can't skip a unit
@@ -1412,15 +1419,17 @@ namespace TA3D
 
 		if (unit[index].flags & 1 )
 		{
-			if (unit[ index ].mission
+			if (!unit[ index ].mission.empty()
 				&& !unit_manager.unit_type[ unit[ index ].type_id ]->BMcode
-				&& ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
-				&& unit[ index ].mission->p != NULL )
+				&& (unit[ index ].mission->mission() == MISSION_BUILD_2
+					|| unit[ index ].mission->mission() == MISSION_BUILD)		// It was building something that we must destroy too
+				&& unit[ index ].mission->getTarget().isUnit())
 			{
-				((Unit*)(unit[ index ].mission->p))->lock();
-				((Unit*)(unit[ index ].mission->p))->hp = 0.0f;
-				((Unit*)(unit[ index ].mission->p))->built = false;
-				((Unit*)(unit[ index ].mission->p))->unlock();
+				Unit *p = unit[ index ].mission->getTarget().getUnit();
+				p->lock();
+				p->hp = 0.0f;
+				p->built = false;
+				p->unlock();
 			}
 			players.nb_unit[ unit[index].owner_id ]--;
 			players.losses[ unit[index].owner_id ]++;		// Statistics
@@ -1609,43 +1618,30 @@ namespace TA3D
 			uint16 i = idx_list[e];
 			pMutex.unlock();
 			unit[i].lock();
-			if ((unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f) // && unit_manager.unit_type[unit[i].type_id]->Builder)
+			if ((unit[i].flags & 1)
+				&& !unit[i].command_locked && unit[i].owner_id == player_id
+				&& unit[i].sel
+				&& unit[i].build_percent_left == 0.0f)
 			{
-				Mission *mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
-				Mission *prec = mission;
-				if (!mission && unit_manager.unit_type[unit[i].type_id]->BMcode)
-					mission = mission->next;		// Don't read the first one ( which is being executed )
+				MissionStack &mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
+				MissionStack::iterator cur = mission.begin();
+				if (cur != mission.end() && unit_manager.unit_type[unit[i].type_id]->BMcode)
+					++cur;		// Don't read the first one ( which is being executed )
 
-				Mission fake;
-				if (!unit_manager.unit_type[unit[i].type_id]->BMcode) // It's a hack to make sure it will work with first given order
+				while (cur != mission.end()) // Reads the mission list
 				{
-					fake.next = mission;
-					prec = &fake;
-				}
-
-				while (mission) // Reads the mission list
-				{
-					if (mission->mission == MISSION_BUILD)
-					{
-						prec = mission;
-						mission = mission->next;
-					}
+					if (cur->lastMission() == MISSION_BUILD)
+						++cur;
 					else
 					{
-						if (!mission->step && (mission->target - target).sq() < 256.0f) // Remove it
+						if ((cur->lastStep().getTarget().getPos() - target).sq() < 256.0f) // Remove it
 						{
 							// Path is a std::list so it'll be cleared automatically
-							Mission* tmp = mission;
-							mission = mission->next;
-							prec->next = mission;
-							delete tmp;
+							cur = mission.erase(cur);
 							removed_something = true;
 						}
                         else
-                        {
-							prec = mission;
-							mission = mission->next;
-						}
+							++cur;
 					}
 				}
 			}

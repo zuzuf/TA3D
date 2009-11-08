@@ -43,12 +43,32 @@ namespace TA3D
 			return container.back();
 		}
 
-		size_t size()
+		const T& top() const
+		{
+			return container.back();
+		}
+
+		T& bottom()
+		{
+			return container.front();
+		}
+
+		const T& bottom() const
+		{
+			return container.front();
+		}
+
+		size_t size() const
 		{
 			return container.size();
 		}
 
 		T& operator[](int idx)
+		{
+			return container[idx];
+		}
+
+		const T& operator[](int idx) const
 		{
 			return container[idx];
 		}
@@ -62,7 +82,7 @@ namespace TA3D
 			return t;
 		}
 
-		bool empty() {   return container.empty();   }
+		bool empty() const {   return container.empty();   }
 
 		void push(const T &t)
 		{

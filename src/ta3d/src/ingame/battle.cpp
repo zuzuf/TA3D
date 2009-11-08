@@ -2877,7 +2877,9 @@ namespace TA3D
 							{
 								for (unsigned int f = 0; f < units.unit[i].weapon.size(); ++f)
 									units.unit[i].weapon[f].state = WEAPON_FLAG_IDLE;
-								if (units.unit[i].mission && units.unit[i].mission->mission == MISSION_ATTACK && !( units.unit[i].mission->flags & MISSION_FLAG_COMMAND_FIRE))
+								if (!units.unit[i].mission.empty()
+									&& units.unit[i].mission->mission() == MISSION_ATTACK
+									&& !( units.unit[i].mission->getFlags() & MISSION_FLAG_COMMAND_FIRE))
 									units.unit[i].next_mission();
 							}
 						}
@@ -2978,39 +2980,34 @@ namespace TA3D
 			if (sel >= 0 && mouse_b == 2 && omb2 != 2)
 			{
 				units.unit[cur_sel_index].lock();
-				Mission*  cur = units.unit[cur_sel_index].mission;
-				Mission** old = &(units.unit[cur_sel_index].mission);
+				MissionStack::iterator cur = units.unit[cur_sel_index].mission.begin();
+				MissionStack::iterator end = units.unit[cur_sel_index].mission.end();
 				int nb(1);
 				if (TA3D_SHIFT_PRESSED)
 					nb = 5;
-				if (cur)
+				if (cur != end)
+					++cur;
+				while (cur != end)
 				{
-					old = &(cur->next);
-					cur = cur->next;
-				}
-				while (cur)
-				{
-					if ((cur->mission==MISSION_BUILD && cur->data == sel) || cur->mission == MISSION_STOP) // Efface un ordre
+					if ((cur->mission() == MISSION_BUILD && cur->getData() == sel)
+						|| cur->mission() == MISSION_STOP) // Efface un ordre
 					{
-						if (cur->mission==MISSION_BUILD)
+						if (cur->mission() == MISSION_BUILD)
 							--nb;
-						*old = cur->next;
-						delete cur;
-						cur = *old;
+						cur = units.unit[cur_sel_index].mission.erase(cur);
 						if (nb == 0)
 							break;
 						continue;
 					}
-					old = &(cur->next);
-					cur = cur->next;
+					++cur;
 				}
-				cur = units.unit[cur_sel_index].mission;
-				if (nb > 0 && cur != NULL && cur->mission == MISSION_BUILD_2 && cur->data==sel)
+				cur = units.unit[cur_sel_index].mission.begin();
+				if (nb > 0 && cur != end && cur->mission() == MISSION_BUILD_2 && cur->getData() == sel)
 				{
 					sint32 prev = -1;
 					for (int i = units.nb_unit - 1; i >= 0; --i)
 					{
-						if (units.idx_list[i] == ((Unit*)(units.unit[cur_sel_index].mission->p))->idx)
+						if (units.idx_list[i] == units.unit[cur_sel_index].mission->getUnit()->idx)
 						{
 							prev = i;
 							break;
@@ -3018,12 +3015,12 @@ namespace TA3D
 					}
 					if (prev >= 0)
 					{
-						int type = units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].type_id;
-						float metal_to_give_back = units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].build_percent_left * unit_manager.unit_type[type]->BuildCostMetal;
+						int type = units.unit[cur_sel_index].mission->getUnit()->type_id;
+						float metal_to_give_back = units.unit[cur_sel_index].mission->getUnit()->build_percent_left * unit_manager.unit_type[type]->BuildCostMetal;
 						int p_id = units.unit[cur_sel_index].owner_id;
-						units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].clear_from_map();
-						units.unit[((Unit*)(units.unit[cur_sel_index].mission->p))->idx].flags = 0;               // Don't count it as a loss
-						units.kill(((Unit*)(units.unit[cur_sel_index].mission->p))->idx, map.get(), prev);
+						units.unit[cur_sel_index].mission->getUnit()->clear_from_map();
+						units.unit[cur_sel_index].mission->getUnit()->flags = 0;               // Don't count it as a loss
+						units.kill(units.unit[cur_sel_index].mission->getUnit()->idx, map.get(), prev);
 						players.metal[p_id] += metal_to_give_back;          // Give metal back
 						players.c_metal[p_id] += metal_to_give_back;
 					}
@@ -3158,16 +3155,16 @@ namespace TA3D
 					units.unit[i].lock();
 					if ((units.unit[i].flags & 1) && last_on == i)
 					{
-						if (units.unit[i].mission != NULL && units.unit[i].mission->mission<=0x0E)
+						if (!units.unit[i].mission.empty() && units.unit[i].mission->mission() <= 0x0E)
 						{
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("MISSION: %s",unit_info[units.unit[i].mission->mission()]));
 							String flags;
-							if (units.unit[i].mission->flags & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
-							if (units.unit[i].mission->flags & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
-							if (units.unit[i].mission->flags & MISSION_FLAG_TARGET_WEAPON)	flags += "TARGET_WEAPON; ";
-							if (units.unit[i].mission->flags & MISSION_FLAG_COMMAND_FIRE)	flags += "COMMAND_FIRE; ";
-							if (units.unit[i].mission->flags & MISSION_FLAG_MOVE)	flags += "MOVE; ";
-							if (units.unit[i].mission->flags & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
+							if (units.unit[i].mission->getFlags() & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
+							if (units.unit[i].mission->getFlags() & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
+							if (units.unit[i].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON)	flags += "TARGET_WEAPON; ";
+							if (units.unit[i].mission->getFlags() & MISSION_FLAG_COMMAND_FIRE)	flags += "COMMAND_FIRE; ";
+							if (units.unit[i].mission->getFlags() & MISSION_FLAG_MOVE)			flags += "MOVE; ";
+							if (units.unit[i].mission->getFlags() & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
 							y += gfx->normal_font->height();
 							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("FLAGS: %s", flags.c_str()));
 						}
