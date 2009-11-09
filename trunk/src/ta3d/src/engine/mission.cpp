@@ -5,15 +5,15 @@ namespace TA3D
 {
 	Unit *Mission::Target::getUnit() const
 	{
-		if (type != TargetUnit || idx < 0 || idx >= units.nb_unit)
+		if (type != TargetUnit || idx < 0 || idx >= units.max_unit)
 			return NULL;
 		Unit *p = &(units.unit[idx]);
-		return p->ID == UID ? p : NULL;
+		return (p->ID == UID) ? p : NULL;
 	}
 
 	Weapon *Mission::Target::getWeapon() const
 	{
-		if (type != TargetWeapon || idx < 0 || idx >= weapons.nb_weapon)
+		if (type != TargetWeapon || idx < 0 || idx >= weapons.weapon.size())
 			return NULL;
 		Weapon *p = &(weapons.weapon[idx]);
 		return p;

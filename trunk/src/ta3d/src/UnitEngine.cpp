@@ -729,17 +729,11 @@ namespace TA3D
 					int ph = unit_manager.unit_type[unit[index].type_id]->Pic_h[ i ];
 
 					int nb(0);
-//					Mission* m = unit[index].mission;
-//					while (m)
-//					{
-//						if ((m->mission == MISSION_BUILD || m->mission == MISSION_BUILD_2) && m->data == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
-//							nb++;
-//						m = m->next;
-//					}
-//					Mission* m = unit[index].mission;
 					for(MissionStack::iterator m = unit[index].mission.begin() ; m != unit[index].mission.end() ; ++m)
 					{
-						if ((m->mission() == MISSION_BUILD || m->mission() == MISSION_BUILD_2) && m->getData() == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
+						if ((m->lastMission() == MISSION_BUILD
+							 || m->lastMission() == MISSION_BUILD_2)
+							&& m->getData() == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
 							++nb;
 					}
 					if (nb > 0)

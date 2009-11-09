@@ -877,7 +877,7 @@ namespace TA3D
 		if (type_id != -1
 			&& pType->canfly
 			&& mission->mission() == MISSION_STOP
-			&& mission->hasNext() && mission[0][1] != MISSION_STOP)
+			&& mission.hasNext() && mission(1) != MISSION_STOP)
 		{
 			mission.next();
 		}
@@ -2378,17 +2378,18 @@ namespace TA3D
 							if (J.sq() <= 256.0f || flying)
 							{
 								if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-									&& (!mission || mission->mission() != MISSION_PATROL ) )
+									&& (!mission.empty() || mission->mission() != MISSION_PATROL))
 									playSound( "arrived1" );
 								mission->Flags() &= ~MISSION_FLAG_MOVE;
 							}
 							else										// We are not where we are supposed to be !!
 								mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
-                            if (!( pType->canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
+							if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
+							{
 								launchScript(SCRIPT_StopMoving);
 								was_moving = false;
 							}
-							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE) )
+							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
 								V.reset();		// Stop unit's movement
 							if (mission->isStep())      // It's meaningless to try to finish this mission like an ordinary order
 								next_mission();
@@ -2417,9 +2418,9 @@ namespace TA3D
 						V = (V%K)*K + (V%J)*J;
 						if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
 						{
-							if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f )
+							if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
 							{
-                                if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt )
+								if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
                                     V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
 							}
 							else
@@ -2429,10 +2430,10 @@ namespace TA3D
                                 float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
 								if (min_dist >= dist && !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
 									&& ( !mission.hasNext()
-										 || ( mission[1].mission() != MISSION_MOVE
-											  && mission[1].mission() != MISSION_PATROL ) ) )	// Brake if needed
+										 || (mission(1) != MISSION_MOVE
+											 && mission(1) != MISSION_PATROL)))	// Brake if needed
 									V = V - pType->BrakeRate * dt * J;
-                                else if (speed < pType->MaxVelocity )
+								else if (speed < pType->MaxVelocity)
 									V = V + pType->Acceleration * dt * J;
 								else
                                     V = pType->MaxVelocity / speed * V;
@@ -2441,7 +2442,7 @@ namespace TA3D
 						else
 						{
 							float speed = V.norm();
-                            if (speed > pType->MaxVelocity )
+							if (speed > pType->MaxVelocity)
                                 V = pType->MaxVelocity / speed * V;
 						}
 					}
@@ -2587,7 +2588,8 @@ namespace TA3D
 					else if (Pos.z > map->map_h_d )
 						V.z -= dt * ( Pos.z - map->map_h_d ) * 0.1f;
 					float speed = V.norm();
-                    if (speed > pType->MaxVelocity && speed > 0.0f ) {
+					if (speed > pType->MaxVelocity && speed > 0.0f)
+					{
                         V = pType->MaxVelocity / speed * V;
                         speed = pType->MaxVelocity;
 					}
@@ -3146,7 +3148,7 @@ namespace TA3D
 					{
 						pad_timer += dt;
 
-						if (!mission->hasNext())
+						if (!mission.hasNext())
                             add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,PATH(),MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
                         if (pType->CanReclamate                                                 // Auto reclaim things on the battle field when needed
@@ -3190,7 +3192,7 @@ namespace TA3D
                         }
 
 						mission->Flags() |= MISSION_FLAG_CAN_ATTACK;
-                        if (pType->canfly ) // Don't stop moving and check if it can be repaired
+						if (pType->canfly) // Don't stop moving and check if it can be repaired
 						{
 							mission->Flags() |= MISSION_FLAG_DONT_STOP_MOVE;
 
@@ -3291,7 +3293,7 @@ namespace TA3D
 						Weapon *target_weapon = mission->getWeapon();
 						if ((target_unit != NULL && (target_unit->flags & 1))
 							|| (target_weapon != NULL && target_weapon->weapon_id != -1)
-							|| (target_weapon == NULL && target_unit == NULL))
+							|| mission->getTarget().getType() == Mission::Target::TargetNone)
 						{
 							if (target_unit)				// Check if we can target the unit
 							{
@@ -3307,7 +3309,7 @@ namespace TA3D
 							}
 
 							if (jump_commands && mission->getData() != 0
-                                && pType->attackrunlength == 0 )	break;					// Just do basic checks every tick, and advanced ones when needed
+								&& pType->attackrunlength == 0)	break;					// Just do basic checks every tick, and advanced ones when needed
 
 							if (weapon.size() == 0
                                 && !pType->kamikaze)		// Check if this units has weapons
@@ -3316,7 +3318,7 @@ namespace TA3D
 								break;
 							}
 
-							Vector3D Dir = target_unit == NULL ? (target_weapon == NULL ? mission->getTarget().getPos() - Pos : target_weapon->Pos - Pos) : target_unit->Pos - Pos;
+							Vector3D Dir = mission->getTarget().getPos() - Pos;
 							Dir.y = 0.0f;
 							float dist = Dir.sq();
 							int maxdist = 0;
@@ -3655,12 +3657,14 @@ namespace TA3D
 				case MISSION_BUILD:
 					if (mission->getUnit())
 					{
+						LOG_DEBUG("A");
 						start_building( mission->getTarget().getPos() - Pos );
 						mission->setMissionType(MISSION_BUILD_2);		// Change mission type
 						mission->getUnit()->built = true;
 					}
 					else
 					{
+						LOG_DEBUG("B");
 						Vector3D Dir = mission->getTarget().getPos() - Pos;
 						Dir.y = 0.0f;
 						float dist = Dir.sq();
@@ -3670,6 +3674,7 @@ namespace TA3D
 						{
 							mission->Flags() |= MISSION_FLAG_MOVE;
 							mission->setMoveData( maxdist * 7 / 80 );
+							LOG_DEBUG("C");
 						}
 						else
 						{
@@ -3697,20 +3702,25 @@ namespace TA3D
 													(((int)(target.z) + map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintZ>>1),
 													unit_manager.unit_type[mission->getData()]->FootprintX,
 													unit_manager.unit_type[mission->getData()]->FootprintZ,
-                                                    -1)) // Check it we have an empty place to build our unit
+													-1)) // Check if we have an empty place to build our unit
 								{
 									pMutex.unlock();
 									Unit *p = (Unit*)create_unit(mission->getData(), owner_id, mission->getTarget().getPos(), map);
 									if (p)
+									{
+										LOG_DEBUG("D");
 										mission->getTarget().set(Mission::Target::TargetUnit, p->idx, p->ID);
+										if (mission->getUnit())
+											LOG_DEBUG("E");
+									}
 									pMutex.lock();
 									if (p)
 									{
 										p->hp = 0.000001f;
 										p->built = true;
 									}
-									//                                    else
-									//                                        LOG_WARNING(idx << " can't create unit! (`" << __FILE__ << "`:" << __LINE__ << ")");
+//                                    else
+//                                        LOG_WARNING(idx << " can't create unit! (`" << __FILE__ << "`:" << __LINE__ << ")");
 								}
                                 else if (pType->BMcode)
 									next_mission();
