@@ -3657,14 +3657,12 @@ namespace TA3D
 				case MISSION_BUILD:
 					if (mission->getUnit())
 					{
-						LOG_DEBUG("A");
 						start_building( mission->getTarget().getPos() - Pos );
 						mission->setMissionType(MISSION_BUILD_2);		// Change mission type
 						mission->getUnit()->built = true;
 					}
 					else
 					{
-						LOG_DEBUG("B");
 						Vector3D Dir = mission->getTarget().getPos() - Pos;
 						Dir.y = 0.0f;
 						float dist = Dir.sq();
@@ -3674,7 +3672,6 @@ namespace TA3D
 						{
 							mission->Flags() |= MISSION_FLAG_MOVE;
 							mission->setMoveData( maxdist * 7 / 80 );
-							LOG_DEBUG("C");
 						}
 						else
 						{
@@ -3707,12 +3704,7 @@ namespace TA3D
 									pMutex.unlock();
 									Unit *p = (Unit*)create_unit(mission->getData(), owner_id, mission->getTarget().getPos(), map);
 									if (p)
-									{
-										LOG_DEBUG("D");
 										mission->getTarget().set(Mission::Target::TargetUnit, p->idx, p->ID);
-										if (mission->getUnit())
-											LOG_DEBUG("E");
-									}
 									pMutex.lock();
 									if (p)
 									{
