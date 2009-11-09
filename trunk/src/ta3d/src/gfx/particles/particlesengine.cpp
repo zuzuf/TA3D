@@ -15,13 +15,13 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../../stdafx.h"
-#include "../../misc/math.h"
-#include "../gl.extensions.h"
+#include <stdafx.h>
+#include <misc/math.h>
+#include <gfx/gl.extensions.h>
 #include "particlesengine.h"
-#include "../../misc/matrix.h"
-#include "../../TA3D_NameSpace.h"
-#include "../../ta3dbase.h"
+#include <misc/matrix.h>
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
 
 
 namespace TA3D
@@ -725,7 +725,15 @@ namespace TA3D
 		glDisableClientState(GL_COLOR_ARRAY);
 
 		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / (SCREEN_H * SCREEN_H)};
-		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+		if (lp_CONFIG->ortho_camera)
+		{
+			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
+			coeffs[1] = 0.0f;
+			coeffs[2] = 0.0f;
+			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+		}
+		else
+			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
 
 		// Point size
 		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
