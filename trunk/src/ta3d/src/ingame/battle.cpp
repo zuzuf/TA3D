@@ -2989,10 +2989,10 @@ namespace TA3D
 					++cur;
 				while (cur != end)
 				{
-					if ((cur->mission() == MISSION_BUILD && cur->getData() == sel)
-						|| cur->mission() == MISSION_STOP) // Efface un ordre
+					if ((cur->lastMission() == MISSION_BUILD && cur->lastStep().getData() == sel)
+						|| cur->lastMission() == MISSION_STOP) // Efface un ordre
 					{
-						if (cur->mission() == MISSION_BUILD)
+						if (cur->lastMission() == MISSION_BUILD)
 							--nb;
 						cur = units.unit[cur_sel_index].mission.erase(cur);
 						if (nb == 0)
@@ -3002,7 +3002,7 @@ namespace TA3D
 					++cur;
 				}
 				cur = units.unit[cur_sel_index].mission.begin();
-				if (nb > 0 && cur != end && cur->mission() == MISSION_BUILD_2 && cur->getData() == sel)
+				if (nb > 0 && cur != end && cur->lastMission() == MISSION_BUILD_2 && cur->lastStep().getData() == sel)
 				{
 					sint32 prev = -1;
 					for (int i = units.nb_unit - 1; i >= 0; --i)
@@ -3052,7 +3052,7 @@ namespace TA3D
 
 			if (mouse_x >= 32 && mouse_x <= 95 && mouse_y >= SCREEN_H - 64 && omb2 == 0)
 			{
-				if (mouse_b==1)
+				if (mouse_b == 1)
 				{
 					freecam ^= true;
 					if (!freecam)
@@ -3068,7 +3068,7 @@ namespace TA3D
 				}
 			}
 
-			omb2=mouse_b;
+			omb2 = mouse_b;
 
 			int last_on = units.last_on;
 

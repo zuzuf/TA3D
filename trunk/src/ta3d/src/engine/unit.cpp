@@ -3453,7 +3453,7 @@ namespace TA3D
 						&& mission->mission() != MISSION_VTOL_STANDBY)
 						break;
 					mission->setMissionType(MISSION_STOP);
-					if (jump_commands && mission->getData() != 0 )	break;
+					if (jump_commands && mission->getData() != 0)	break;
 					if (mission->getData() > 5)
 					{
 						if (mission.hasNext())
