@@ -17,9 +17,9 @@
 #ifndef __TA3D_GFX_PARTICLES_SYSTEM_H__
 # define __TA3D_GFX_PARTICLES_SYSTEM_H__
 
-# include "../../stdafx.h"
-# include "../../misc/vector.h"
-# include "../../sdl.h"
+# include <stdafx.h>
+# include <misc/vector.h>
+# include <sdl.h>
 
 
 namespace TA3D
