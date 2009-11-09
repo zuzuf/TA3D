@@ -22,16 +22,16 @@
   \-----------------------------------------------------------------------------*/
 
 #include "ai.h"
-#include "../misc/matrix.h"
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
-#include "../scripts/cob.h"             // To read and execute scripts
-#include "../EngineClass.h"
-#include "../UnitEngine.h"
-#include "../misc/paths.h"
-#include "../misc/math.h"
-#include "../logs/logs.h"
-#include "../ingame/players.h"
+#include <misc/matrix.h>
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
+#include <scripts/cob.h>             // To read and execute scripts
+#include <EngineClass.h>
+#include <UnitEngine.h>
+#include <misc/paths.h>
+#include <misc/math.h>
+#include <logs/logs.h>
+#include <ingame/players.h>
 
 
 

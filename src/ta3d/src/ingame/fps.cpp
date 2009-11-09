@@ -1,7 +1,7 @@
 
 #include "fps.h"
-#include "../ta3dbase.h"
-#include "../gfx/gfx.h"
+#include <ta3dbase.h>
+#include <gfx/gfx.h>
 
 
 namespace TA3D

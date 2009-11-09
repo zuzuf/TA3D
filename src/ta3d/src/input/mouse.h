@@ -17,7 +17,7 @@
 #ifndef __TA3D_MOUSE_H__
 #define __TA3D_MOUSE_H__
 
-#include "../gaf.h"
+#include <gaf.h>
 
 namespace TA3D
 {

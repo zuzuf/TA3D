@@ -17,10 +17,10 @@
 #ifndef __TA3D_INGAME_SideData_H__
 # define __TA3D_INGAME_SideData_H__
 
-# include "../stdafx.h"
-# include "../ta3dbase.h"
-# include "../misc/string.h"
-# include "../tdf.h"
+# include <stdafx.h>
+# include <ta3dbase.h>
+# include <misc/string.h>
+# include <tdf.h>
 
 
 namespace TA3D

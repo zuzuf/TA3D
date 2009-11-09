@@ -15,9 +15,9 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
+#include <stdafx.h>
 #include "unit.script.h"
-#include "../UnitEngine.h"
+#include <UnitEngine.h>
 #include "lua.data.h"
 #include "lua.env.h"
 

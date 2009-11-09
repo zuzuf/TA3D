@@ -14,13 +14,13 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
 #include "shader.h"
 #include "glfunc.h"
-#include "../logs/logs.h"
-#include "../misc/files.h"
-#include "../vfs/vfs.h"
+#include <logs/logs.h>
+#include <misc/files.h>
+#include <vfs/vfs.h>
 
 
 

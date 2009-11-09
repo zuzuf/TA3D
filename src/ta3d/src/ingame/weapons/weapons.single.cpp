@@ -15,14 +15,14 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #include "weapons.h"
-#include "../../tdf.h"
-#include "../../UnitEngine.h"
-#include "../../gfx/fx.h"
-#include "../../misc/camera.h"
+#include <tdf.h>
+#include <UnitEngine.h>
+#include <gfx/fx.h>
+#include <misc/camera.h>
 #include <list>
-#include "../../misc/math.h"
-#include "../../sounds/manager.h"
-#include "../players.h"
+#include <misc/math.h>
+#include <sounds/manager.h>
+#include <ingame/players.h>
 #include <yuni/core/math.h>
 
 

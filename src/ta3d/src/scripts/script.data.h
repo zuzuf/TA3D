@@ -19,8 +19,8 @@
 # define  __ScriptData_H__
 
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 
 # define SCRIPT_QueryPrimary		0x00
 # define SCRIPT_AimPrimary		0x01

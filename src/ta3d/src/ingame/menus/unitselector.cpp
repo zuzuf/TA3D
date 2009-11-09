@@ -16,14 +16,14 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "unitselector.h"
-#include "../../misc/paths.h"
-#include "../../misc/files.h"
+#include <misc/paths.h>
+#include <misc/files.h>
 #include <algorithm>
-#include "../../fbi.h"
-#include "../../logs/logs.h"
-#include "../../languages/i18n.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
+#include <fbi.h>
+#include <logs/logs.h>
+#include <languages/i18n.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
 
 
 

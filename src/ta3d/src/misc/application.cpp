@@ -15,15 +15,15 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
+#include <stdafx.h>
 #include "application.h"
 #include "osinfo.h"
 #include "paths.h"
-#include "../logs/logs.h"
-#include "../languages/i18n.h"
+#include <logs/logs.h>
+#include <languages/i18n.h>
 #include "resources.h"
 #include <stdlib.h>
-#include "../TA3D_NameSpace.h"
+#include <TA3D_NameSpace.h>
 #include "settings.h"
 
 

@@ -17,8 +17,8 @@
 #ifndef __TA3D_GFX_FX_ELECTRIC_H__
 # define __TA3D_GFX_FX_ELECTRIC_H__
 
-# include "../stdafx.h"
-# include "../misc/vector.h"
+# include <stdafx.h>
+# include <misc/vector.h>
 
 
 

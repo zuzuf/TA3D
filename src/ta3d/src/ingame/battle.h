@@ -17,16 +17,16 @@
 #ifndef __TA3D__INGAM__BATTLE_H__
 # define __TA3D__INGAM__BATTLE_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "gamedata.h"
 # include <memory> // auto_ptr
-# include "../gfx/gui/area.h"
-# include "../tdf.h"
-# include "../EngineClass.h"
-# include "../misc/rect.h"
-# include "../misc/material.light.h"
-# include "../scripts/script.h"
+# include <gfx/gui/area.h>
+# include <tdf.h>
+# include <EngineClass.h>
+# include <misc/rect.h>
+# include <misc/material.light.h>
+# include <scripts/script.h>
 # include "fps.h"
 
 

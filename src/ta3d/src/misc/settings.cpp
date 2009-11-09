@@ -16,12 +16,12 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "settings.h"
-#include "../logs/logs.h"
+#include <logs/logs.h>
 #include "paths.h"
 #include "files.h"
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
-#include "../languages/i18n.h"
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
+#include <languages/i18n.h>
 #include <fstream>
 #include "tdf.h"
 

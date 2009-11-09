@@ -1,7 +1,7 @@
 #include "mods.h"
-#include "../network/netclient.h"
-#include "../misc/resources.h"
-#include "../misc/paths.h"
+#include <network/netclient.h>
+#include <misc/resources.h>
+#include <misc/paths.h>
 
 namespace TA3D
 {

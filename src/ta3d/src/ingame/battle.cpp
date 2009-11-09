@@ -17,37 +17,37 @@
 
 #include "battle.h"
 
-#include "../TA3D_NameSpace.h"
-#include "../misc/matrix.h"
+#include <TA3D_NameSpace.h>
+#include <misc/matrix.h>
 
-#include "../intro.h"			// Introduction
-#include "../menu.h"			// Game menus
-#include "../restore.h"		// Save/Load mecanisms
-#include "../network/TA3D_Network.h"	// Network functionnalities such as chat
-#include "../gfx/fx.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../misc/camera.h"
-#include "../languages/i18n.h"
+#include <intro.h>			// Introduction
+#include <menu.h>			// Game menus
+#include <restore.h>		// Save/Load mecanisms
+#include <network/TA3D_Network.h>	// Network functionnalities such as chat
+#include <gfx/fx.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <misc/camera.h>
+#include <languages/i18n.h>
 #include <list>
 #include <vector>
 #include "menus/statistics.h"
-#include "../misc/math.h"
-#include "../sounds/manager.h"
-#include "../logs/logs.h"
-#include "../console.h"
+#include <misc/math.h>
+#include <sounds/manager.h>
+#include <logs/logs.h>
+#include <console.h>
 #include "weapons/weapons.h"
-#include "../fbi.h"
-#include "../UnitEngine.h"
-#include "../tnt.h"
-#include "../scripts/script.h"
-#include "../scripts/lua.env.h"
-#include "../gfx/shader.h"
+#include <fbi.h>
+#include <UnitEngine.h>
+#include <tnt.h>
+#include <scripts/script.h>
+#include <scripts/lua.env.h>
+#include <gfx/shader.h>
 #include "players.h"
-#include "../engine/mission.h"
-#include "../input/keyboard.h"
-#include "../input/mouse.h"
-#include "../mesh/textures.h"
+#include <engine/mission.h>
+#include <input/keyboard.h>
+#include <input/mouse.h>
+#include <mesh/textures.h>
 
 
 

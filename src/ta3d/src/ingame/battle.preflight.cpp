@@ -16,10 +16,10 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "battle.h"
-#include "../sounds/manager.h"
-#include "../UnitEngine.h"
-#include "../input/mouse.h"
-#include "../input/keyboard.h"
+#include <sounds/manager.h>
+#include <UnitEngine.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
 
 
 namespace TA3D

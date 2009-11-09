@@ -1,7 +1,7 @@
 #ifndef __TA3D_XX_HASH_TABLE_HXX__
 # define __TA3D_XX_HASH_TABLE_HXX__
 
-# include "../logs/logs.h"
+# include <logs/logs.h>
 # include <list>
 
 

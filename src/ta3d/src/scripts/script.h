@@ -27,11 +27,11 @@
 #ifndef CLASSE_SCRIPT
 # define CLASSE_SCRIPT
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include "lua.thread.h"
-# include "../threads/thread.h"
-# include "../misc/string.h"
-# include "../misc/tdf.h"
+# include <threads/thread.h>
+# include <misc/string.h>
+# include <misc/tdf.h>
 # include "draw.list.h"
 
 namespace TA3D

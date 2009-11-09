@@ -17,8 +17,8 @@
 
 #include "resources.h"
 #include "paths.h"
-#include "../logs/logs.h"
-#include "../threads/mutex.h"
+#include <logs/logs.h>
+#include <threads/mutex.h>
 
 
 

@@ -16,11 +16,11 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "loading.h"
-#include "../../TA3D_NameSpace.h"
-#include "../../misc/paths.h"
-#include "../../languages/i18n.h"
-#include "../../gfx/gui/skin.h"
-#include "../../gfx/gui/base.h"
+#include <TA3D_NameSpace.h>
+#include <misc/paths.h>
+#include <languages/i18n.h>
+#include <gfx/gui/skin.h>
+#include <gfx/gui/base.h>
 
 
 namespace TA3D

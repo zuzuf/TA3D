@@ -19,7 +19,7 @@
 # define __TA3D_KEYBOARD_H__
 
 # include <list>
-# include "../stdafx.h"
+# include <stdafx.h>
 
 
 

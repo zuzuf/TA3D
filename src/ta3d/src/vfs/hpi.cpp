@@ -1,7 +1,7 @@
 #include "hpi.h"
-#include "../misc/paths.h"
+#include <misc/paths.h>
 #include <zlib.h>
-#include "../logs/logs.h"
+#include <logs/logs.h>
 
 namespace TA3D
 {

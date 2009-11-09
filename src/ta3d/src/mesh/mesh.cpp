@@ -22,12 +22,12 @@
 |                                                                                    |
 \-----------------------------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../gfx/particles/particles.h"
-#include "../languages/i18n.h"
-#include "../ingame/sidedata.h"
+#include <stdafx.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <gfx/particles/particles.h>
+#include <languages/i18n.h>
+#include <ingame/sidedata.h>
 #include "mesh.h"
 #include "3do.h"
 #include "3dm.h"

@@ -23,16 +23,16 @@
   |                                                                                    |
   \-----------------------------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../misc/matrix.h"
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
+#include <stdafx.h>
+#include <misc/matrix.h>
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
 #include "3do.h"
-#include "../misc/math.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../logs/logs.h"
-#include "../gfx/gl.extensions.h"
+#include <misc/math.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <logs/logs.h>
+#include <gfx/gl.extensions.h>
 #include "textures.h"
 
 

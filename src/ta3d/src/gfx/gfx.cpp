@@ -21,18 +21,18 @@
 //	it contains basic gfx commands like font management, background management, etc...
 //
 
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
 #include "glfunc.h"
-#include "../gaf.h"
+#include <gaf.h>
 #include "gfx.h"
 #include "gui/skin.manager.h"
-#include "../misc/paths.h"
-#include "../logs/logs.h"
+#include <misc/paths.h>
+#include <logs/logs.h>
 #include <strings.h>
-#include "../misc/math.h"
-#include "../input/keyboard.h"
-#include "../input/mouse.h"
+#include <misc/math.h>
+#include <input/keyboard.h>
+#include <input/mouse.h>
 #include "gui/base.h"
 
 

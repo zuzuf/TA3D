@@ -16,17 +16,17 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "netmenu.h"
-#include "../../languages/i18n.h"
-#include "../../network/netclient.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
-#include "../../misc/paths.h"
-#include "../../TA3D_NameSpace.h"
-#include "../../mods/mods.h"
-#include "../../sounds/manager.h"
-#include "../../cache.h"
-#include "../sidedata.h"
-#include "../../menu.h"
+#include <languages/i18n.h>
+#include <network/netclient.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
+#include <misc/paths.h>
+#include <TA3D_NameSpace.h>
+#include <mods/mods.h>
+#include <sounds/manager.h>
+#include <cache.h>
+#include <ingame/sidedata.h>
+#include <menu.h>
 
 namespace TA3D
 {

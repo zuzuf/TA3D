@@ -16,21 +16,21 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "mainmenu.h"
-#include "../sidedata.h"
-#include "../../gfx/gfx.h"
-#include "../../logs/logs.h"
-#include "../../ta3dbase.h"
+#include <ingame/sidedata.h>
+#include <gfx/gfx.h>
+#include <logs/logs.h>
+#include <ta3dbase.h>
 #include "solo.h"
 #include "multimenu.h"
-#include "../../logs/logs.h"
-#include "../../misc/settings.h"
-#include "../../input/keyboard.h"
-#include "../../input/mouse.h"
+#include <logs/logs.h>
+#include <misc/settings.h>
+#include <input/keyboard.h>
+#include <input/mouse.h>
 #include <yuni/core/sleep.h>
 
 
 // TODO Must be removed
-#include "../../menu.h"
+#include <menu.h>
 
 
 

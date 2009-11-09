@@ -18,9 +18,9 @@
 #ifndef __TA3D_NET_NETWORK_UTILS_H__
 # define __TA3D_NET_NETWORK_UTILS_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
-# include "../threads/thread.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <threads/thread.h>
 
 
 namespace TA3D

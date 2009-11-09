@@ -18,8 +18,8 @@
 #ifndef __ScriptInterface_H__
 #define __ScriptInterface_H__
 
-# include "../misc/string.h"
-# include "../threads/thread.h"
+# include <misc/string.h>
+# include <threads/thread.h>
 # include "script.data.h"
 # include <zlib.h>
 #include <deque>

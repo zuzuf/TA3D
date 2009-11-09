@@ -24,10 +24,10 @@
   \-----------------------------------------------------------------------------------*/
 
 #include "weapons.h"
-#include "../../gfx/fx.h"
-#include "../sidedata.h"
+#include <gfx/fx.h>
+#include <ingame/sidedata.h>
 #include <list>
-#include "../../languages/i18n.h"
+#include <languages/i18n.h>
 
 namespace TA3D
 {

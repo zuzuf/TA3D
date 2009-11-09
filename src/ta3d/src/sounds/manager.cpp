@@ -15,15 +15,15 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
-#include "../ta3dbase.h"			// just to use the global camera object
-#include "../ingame/sidedata.h"
+#include <stdafx.h>
+#include <ta3dbase.h>			// just to use the global camera object
+#include <ingame/sidedata.h>
 #include <fstream>
-#include "../misc/math.h"
+#include <misc/math.h>
 #include "manager.h"
-#include "../logs/logs.h"
-#include "../misc/camera.h"
-#include "../misc/paths.h"
+#include <logs/logs.h>
+#include <misc/camera.h>
+#include <misc/paths.h>
 
 
 using namespace TA3D::Interfaces;

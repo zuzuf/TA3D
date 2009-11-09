@@ -1,5 +1,5 @@
-#include "../stdafx.h"
-#include "../logs/logs.h"
+#include <stdafx.h>
+#include <logs/logs.h>
 #include "socket.tcp.h"
 
 #define TCP_BUFFER_SIZE			2048

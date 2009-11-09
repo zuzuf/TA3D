@@ -20,12 +20,12 @@
 **   Zuzuf: See notes in vfs.h
 */
 
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
-#include "../misc/paths.h"
-#include "../logs/logs.h"
-#include "../misc/resources.h"
-#include "../misc/files.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
+#include <misc/paths.h>
+#include <logs/logs.h>
+#include <misc/resources.h>
+#include <misc/files.h>
 #include "vfs.h"
 #include <sstream>
 #include <fstream>

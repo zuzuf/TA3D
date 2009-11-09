@@ -19,12 +19,12 @@
 #ifndef __TA3D_NET_NETWORK_H__
 # define __TA3D_NET_NETWORK_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "ta3dsock.h"
 # include "socket.broadcast.h"
-# include "../misc/superqueue.h"
-# include "../threads/thread.h"
+# include <misc/superqueue.h>
+# include <threads/thread.h>
 # include "networkutils.h"
 # include "socketlist.h"
 # include <list>

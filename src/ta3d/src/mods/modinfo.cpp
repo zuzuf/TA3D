@@ -1,7 +1,7 @@
-#include "../logs/logs.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../misc/tdf.h"
+#include <logs/logs.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <misc/tdf.h>
 #include "modinfo.h"
 #include "mods.h"
 

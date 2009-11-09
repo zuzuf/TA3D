@@ -18,8 +18,8 @@
 #ifndef __LuaData_H__
 #define __LuaData_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "../lua/lua.hpp"
 # include "script.data.h"
 

@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "weapons.def.h"
-#include "../../fbi.h"
+#include <fbi.h>
 #include <vector>
 
 

@@ -1,9 +1,9 @@
 
-#include "../../stdafx.h"
-#include "../gfx.h"
+#include <stdafx.h>
+#include <gfx/gfx.h>
 #include "object.h"
-#include "../../TA3D_NameSpace.h"
-#include "../../misc/math.h"
+#include <TA3D_NameSpace.h>
+#include <misc/math.h>
 
 
 

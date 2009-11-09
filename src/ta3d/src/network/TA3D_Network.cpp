@@ -15,24 +15,24 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
+#include <stdafx.h>
 #include <vector>
-#include "../TA3D_NameSpace.h"
+#include <TA3D_NameSpace.h>
 #include "TA3D_Network.h"
-#include "../EngineClass.h"
-#include "../UnitEngine.h"
-#include "../scripts/script.h"
-#include "../misc/camera.h"
-#include "../ingame/sidedata.h"
-#include "../languages/i18n.h"
-#include "../misc/math.h"
-#include "../sounds/manager.h"
-#include "../console.h"
-#include "../ingame/players.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../restore.h"
-#include "../input/keyboard.h"
+#include <EngineClass.h>
+#include <UnitEngine.h>
+#include <scripts/script.h>
+#include <misc/camera.h>
+#include <ingame/sidedata.h>
+#include <languages/i18n.h>
+#include <misc/math.h>
+#include <sounds/manager.h>
+#include <console.h>
+#include <ingame/players.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <restore.h>
+#include <input/keyboard.h>
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000

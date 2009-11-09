@@ -17,11 +17,11 @@
 
 #include "fx.particle.h"
 #include "particles/particles.h"
-#include "../EngineClass.h"
+#include <EngineClass.h>
 #include "fx.manager.h"
-#include "../mesh/mesh.h"
-#include "../mesh/instancing.h"
-#include "../ingame/players.h"
+#include <mesh/mesh.h>
+#include <mesh/instancing.h>
+#include <ingame/players.h>
 
 namespace TA3D
 {

@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "sidedata.h"
-#include "../gfx/gui/skin.h"
+#include <gfx/gui/skin.h>
 
 
 #define TA3D_SIDEDATA_DEFAULTUNIT_EXT      ".fbi"

@@ -18,9 +18,9 @@
 #ifndef __UnitScriptInterface_H__
 # define __UnitScriptInterface_H__
 
-# include "../misc/string.h"
+# include <misc/string.h>
 # include "script.interface.h"
-# include "../misc/hash_table.h"
+# include <misc/hash_table.h>
 
 
 namespace TA3D

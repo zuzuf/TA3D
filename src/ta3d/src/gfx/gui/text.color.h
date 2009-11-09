@@ -17,9 +17,9 @@
 #ifndef __TA3D_TEXT_COLOR_H__
 #define __TA3D_TEXT_COLOR_H__
 
-#include "../../misc/tdf.h"
-#include "../../misc/string.h"
-#include "../font.h"
+#include <misc/tdf.h>
+#include <misc/string.h>
+#include <gfx/font.h>
 
 
 namespace TA3D

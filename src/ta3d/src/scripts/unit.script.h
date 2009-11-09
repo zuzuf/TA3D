@@ -18,8 +18,8 @@
 #ifndef __UnitScript_H__
 #define __UnitScript_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "unit.script.interface.h"
 # include "../lua/lua.hpp"
 

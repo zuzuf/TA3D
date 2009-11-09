@@ -15,11 +15,11 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
+#include <stdafx.h>
 #include "osinfo.h"
 #include "string.h"
-#include "../logs/logs.h"
-#include "../sdl.h"
+#include <logs/logs.h>
+#include <sdl.h>
 
 
 # define CPU_MODEL_ATHLON64_N 15

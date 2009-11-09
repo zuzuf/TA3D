@@ -26,14 +26,14 @@
 
 
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "gfx.toolkit.h"
 # include "font.h"
 # include "texture.h"
 # include "shader.h"
-# include "../threads/thread.h"
-# include "../misc/interface.h"
+# include <threads/thread.h>
+# include <misc/interface.h>
 
 
 # define FILTER_NONE			0x0

@@ -18,7 +18,7 @@
 #ifndef __WEIGHT_H__
 # define __WEIGHT_H__
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include <list>
 
 

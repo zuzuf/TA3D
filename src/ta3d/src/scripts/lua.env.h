@@ -19,7 +19,7 @@
 #define __LuaEnv_H__
 
 # include "../lua/lua.hpp"
-# include "../threads/thread.h"
+# include <threads/thread.h>
 # include <yuni/core/smartptr/smartptr.h>
 
 namespace TA3D

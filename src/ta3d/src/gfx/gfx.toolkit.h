@@ -17,9 +17,9 @@
 #ifndef __TA3D_GFX_TOOLKIT_H__
 # define __TA3D_GFX_TOOLKIT_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
-# include "../sdl.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <sdl.h>
 
 
 # define makeacol(r,g,b,a)   (((uint32)(a)<<24) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))

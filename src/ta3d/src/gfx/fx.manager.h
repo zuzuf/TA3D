@@ -17,17 +17,17 @@
 #ifndef __TA3D_GFX_FXMANAGER_H__
 # define __TA3D_GFX_FXMANAGER_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
-# include "../threads/thread.h"
-# include "../gaf.h"
-# include "../ta3dbase.h"
-# include "../EngineClass.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <threads/thread.h>
+# include <gaf.h>
+# include <ta3dbase.h>
+# include <EngineClass.h>
 # include "fx.base.h"
 # include "fx.particle.h"
 # include "fx.electric.h"
 # include <list>
-# include "../misc/camera.h"
+# include <misc/camera.h>
 
 
 

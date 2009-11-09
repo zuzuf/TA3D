@@ -19,11 +19,11 @@
 #define __CobVm_H__
 
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "cob.h"
 # include "unit.script.interface.h"
-# include "../misc/stack.hxx"
+# include <misc/stack.hxx>
 
 # define  SCRIPT_MOVE_OBJECT              0x10001000
 # define  SCRIPT_WAIT_FOR_TURN            0x10011000

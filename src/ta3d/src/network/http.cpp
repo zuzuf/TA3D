@@ -1,8 +1,8 @@
-#include "../TA3D_NameSpace.h"
-#include "../misc/files.h"
-#include "../misc/paths.h"
+#include <TA3D_NameSpace.h>
+#include <misc/files.h>
+#include <misc/paths.h>
 #include "http.h"
-#include "../logs/logs.h"
+#include <logs/logs.h>
 #include "socket.tcp.h"
 #include <fstream>
 

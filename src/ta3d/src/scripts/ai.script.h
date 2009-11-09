@@ -19,9 +19,9 @@
 #define __AiScript_H__
 
 # include <yuni/yuni.h>
-# include "../misc/string.h"
+# include <misc/string.h>
 # include "lua.thread.h"
-# include <yuni/core/smartptr.h>
+# include <yuni/core/smartptr/smartptr.h>
 
 
 

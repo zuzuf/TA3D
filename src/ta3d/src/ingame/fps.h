@@ -1,7 +1,7 @@
 #ifndef __TA3D_INGAME_FPS_INFOS_H__
 # define __TA3D_INGAME_FPS_INFOS_H__
 
-# include "../misc/string.h"
+# include <misc/string.h>
 
 
 

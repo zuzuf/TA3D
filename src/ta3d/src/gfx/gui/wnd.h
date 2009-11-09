@@ -17,15 +17,15 @@
 #ifndef __TA3D_GFX_GUI_WND_H__
 # define __TA3D_GFX_GUI_WND_H__
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
-# include "../../threads/thread.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <threads/thread.h>
 # include "skin.h"
 # include "object.h"
-# include "../../misc/hash_table.h"
-# include "../../misc/interface.h"
-# include "../texture.h"
-# include <yuni/core/smartptr.h>
+# include <misc/hash_table.h>
+# include <misc/interface.h>
+# include <gfx/texture.h>
+# include <yuni/core/smartptr/smartptr.h>
 
 
 
