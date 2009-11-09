@@ -24,7 +24,7 @@
 #ifndef __TA3D_AI_PATH_FINDING_H__
 # define __TA3D_AI_PATH_FINDING_H__
 
-# include "../EngineClass.h"
+# include <EngineClass.h>
 
 #define MAX_PATH_EXEC		1
 

@@ -16,11 +16,11 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "statistics.h"
-#include "../../ta3dbase.h"
-#include "../../EngineClass.h"
-#include "../players.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
+#include <ta3dbase.h>
+#include <EngineClass.h>
+#include <ingame/players.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
 
 
 

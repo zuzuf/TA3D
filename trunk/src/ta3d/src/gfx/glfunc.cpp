@@ -21,10 +21,10 @@
 |  environnement using some OpenGL extensions.                  |
 \--------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
 #include "glfunc.h"
-#include "../logs/logs.h"
+#include <logs/logs.h>
 
 
 

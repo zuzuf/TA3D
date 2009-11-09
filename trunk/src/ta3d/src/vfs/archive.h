@@ -24,7 +24,7 @@
 #ifndef __TA3D_UTILS_VFS_ARCHIVE_H__
 # define __TA3D_UTILS_VFS_ARCHIVE_H__
 
-# include "../misc/string.h"
+# include <misc/string.h>
 
 namespace TA3D
 {

@@ -1,6 +1,6 @@
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
-#include "../misc/paths.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
+#include <misc/paths.h>
 #include "textures.h"
 
 namespace TA3D

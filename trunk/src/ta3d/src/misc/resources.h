@@ -18,7 +18,7 @@
 #ifndef _TA3D_TOOLS_RESOURCES_H__
 # define _TA3D_TOOLS_RESOURCES_H__
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include "string.h"
 # include <vector>
 # include <list>

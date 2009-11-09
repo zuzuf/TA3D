@@ -2,9 +2,9 @@
 # define __TA3D_ENGIN_WEAPON_DATA_H__
 
 # include <vector>
-# include "../stdafx.h"
-# include "../misc/string.h"
-# include "../misc/vector.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <misc/vector.h>
 
 
 //! When IDLE the weapon can target a unit

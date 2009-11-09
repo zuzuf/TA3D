@@ -27,10 +27,10 @@
 #ifndef __COB_H__
 # define  __COB_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "script.data.h"
-# include "../engine/unit.defines.h"
+# include <engine/unit.defines.h>
 
 
 namespace TA3D

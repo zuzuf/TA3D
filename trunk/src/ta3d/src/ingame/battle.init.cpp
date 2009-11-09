@@ -16,28 +16,28 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #include <fstream>
 #include "battle.h"
-#include "../network/network.h"
-#include "../logs/logs.h"
-#include "../gfx/gfx.h"
-#include "../TA3D_NameSpace.h"
-#include "../languages/i18n.h"
-#include "../languages/table.h"
-#include "../intro.h"
-#include "../mesh/textures.h"
-#include "../mesh/instancing.h"
-#include "../mesh/mesh.h"
-#include "../tdf.h"
+#include <network/network.h>
+#include <logs/logs.h>
+#include <gfx/gfx.h>
+#include <TA3D_NameSpace.h>
+#include <languages/i18n.h>
+#include <languages/table.h>
+#include <intro.h>
+#include <mesh/textures.h>
+#include <mesh/instancing.h>
+#include <mesh/mesh.h>
+#include <tdf.h>
 #include "weapons/weapons.h"
-#include "../fbi.h"
+#include <fbi.h>
 #include "players.h"
-#include "../UnitEngine.h"
-#include "../sounds/manager.h"
-#include "../gfx/fx.manager.h"
-#include "../tnt.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../menu.h"
-#include "../input/mouse.h"
+#include <UnitEngine.h>
+#include <sounds/manager.h>
+#include <gfx/fx.manager.h>
+#include <tnt.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <menu.h>
+#include <input/mouse.h>
 
 
 

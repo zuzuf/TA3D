@@ -15,14 +15,14 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
-#include "../misc/paths.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
+#include <misc/paths.h>
 #include "ai.script.h"
-#include "../ai/ai.h"
-#include "../ingame/players.h"
+#include <ai/ai.h>
+#include <ingame/players.h>
 #include "script.h"
-#include "../UnitEngine.h"
+#include <UnitEngine.h>
 #include <map>
 #include <utility>
 

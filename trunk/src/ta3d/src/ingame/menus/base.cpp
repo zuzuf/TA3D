@@ -17,9 +17,9 @@
 
 #include "base.h"
 #include <typeinfo>
-#include "../../ta3dbase.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
+#include <ta3dbase.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
 
 
 namespace TA3D

@@ -15,15 +15,15 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #include "intro.h"
-#include "../../misc/paths.h"
+#include <misc/paths.h>
 #include <vector>
-#include "../../misc/resources.h"
-#include "../../misc/files.h"
-#include "../../gfx/gui/skin.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
-#include "../../languages/i18n.h"
-#include "../../TA3D_NameSpace.h"
+#include <misc/resources.h>
+#include <misc/files.h>
+#include <gfx/gui/skin.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
+#include <languages/i18n.h>
+#include <TA3D_NameSpace.h>
 
 
 //!

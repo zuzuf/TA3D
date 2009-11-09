@@ -17,9 +17,9 @@
 #ifndef __TA3D_INGAME_WEAPONS_SINGLE_H__
 # define __TA3D_INGAME_WEAPONS_SINGLE_H__
 
-# include "../../stdafx.h"
-# include "../../EngineClass.h"
-# include "../../misc/camera.h"
+# include <stdafx.h>
+# include <EngineClass.h>
+# include <misc/camera.h>
 
 
 namespace TA3D

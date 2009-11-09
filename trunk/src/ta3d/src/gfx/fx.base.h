@@ -17,12 +17,12 @@
 #ifndef __TA3D_GFX_FX_BASE_H__
 # define __TA3D_GFX_FX_BASE_H__
 
-# include "../stdafx.h"
-# include "../misc/vector.h"
-# include "../gaf.h"
-# include "../ta3dbase.h"
-# include "../EngineClass.h"
-# include "../misc/camera.h"
+# include <stdafx.h>
+# include <misc/vector.h>
+# include <gaf.h>
+# include <ta3dbase.h>
+# include <EngineClass.h>
+# include <misc/camera.h>
 
 
 

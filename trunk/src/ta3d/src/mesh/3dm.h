@@ -26,17 +26,17 @@
 #ifndef __CLASSE_3DM
 #define __CLASSE_3DM
 
-# include "../stdafx.h"
-# include "../misc/string.h"
-# include "../misc/hash_table.h"
-# include "../ta3dbase.h"
-# include "../gaf.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <misc/hash_table.h>
+# include <ta3dbase.h>
+# include <gaf.h>
 # include <vector>
 # include <list>
-# include "../misc/matrix.h"
-# include "../gfx/glfunc.h"
-# include "../gfx/shader.h"
-# include "../scripts/script.data.h"
+# include <misc/matrix.h>
+# include <gfx/glfunc.h>
+# include <gfx/shader.h>
+# include <scripts/script.data.h>
 # include "mesh.h"
 
 namespace TA3D

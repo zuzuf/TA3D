@@ -21,8 +21,8 @@
 |                                                                                    |
 \-----------------------------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
 #include "mesh.h"
 #include "instancing.h"
 

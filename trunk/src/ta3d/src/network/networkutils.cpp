@@ -17,12 +17,12 @@
 
 #include <zlib.h>
 #include "network.h"
-#include "../threads/thread.h"
+#include <threads/thread.h>
 #include "networkutils.h"
 #include "ta3dsock.h"
 #include "TA3D_Network.h"
-#include "../logs/logs.h"
-#include "../misc/paths.h"
+#include <logs/logs.h>
+#include <misc/paths.h>
 
 
 

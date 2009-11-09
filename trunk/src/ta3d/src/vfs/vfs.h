@@ -29,10 +29,10 @@
 # include <list>
 # include <vector>
 # include "archive.h"
-# include "../misc/hash_table.h"
-# include "../misc/string.h"
-# include "../sdl.h"
-# include "../threads/mutex.h"
+# include <misc/hash_table.h>
+# include <misc/string.h>
+# include <sdl.h>
+# include <threads/mutex.h>
 
 # ifndef MAX_PATH
 #   define MAX_PATH 260

@@ -17,17 +17,17 @@
 
 #include "solo.h"
 #include <list>
-#include "../../languages/i18n.h"
-#include "../gamedata.h"
-#include "../../restore.h"
-#include "../../ta3dbase.h"
-#include "../../misc/paths.h"
-#include "../battle.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
+#include <languages/i18n.h>
+#include <ingame/gamedata.h>
+#include <restore.h>
+#include <ta3dbase.h>
+#include <misc/paths.h>
+#include <ingame/battle.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
 
 // TODO Must be removed
-#include "../../menu.h"
+#include <menu.h>
 
 
 

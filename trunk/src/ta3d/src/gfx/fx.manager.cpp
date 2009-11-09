@@ -16,9 +16,9 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "fx.manager.h"
-#include "../misc/math.h"
-#include "../mesh/instancing.h"         // Because we need the RenderQueue object
-#include "../ingame/players.h"
+#include <misc/math.h>
+#include <mesh/instancing.h>         // Because we need the RenderQueue object
+#include <ingame/players.h>
 
 
 namespace TA3D

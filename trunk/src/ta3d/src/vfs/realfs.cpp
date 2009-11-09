@@ -1,8 +1,8 @@
-#include "../misc/files.h"
-#include "../misc/paths.h"
-#include "../misc/math.h"
-#include "../misc/string.h"
-#include "../logs/logs.h"
+#include <misc/files.h>
+#include <misc/paths.h>
+#include <misc/math.h>
+#include <misc/string.h>
+#include <logs/logs.h>
 #include "realfs.h"
 #include <cstdio>
 

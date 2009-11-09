@@ -24,9 +24,9 @@
 #ifndef TA3D_XX_AI_H__
 # define TA3D_XX_AI_H__
 
-# include "../misc/string.h"
+# include <misc/string.h>
 # include "ai.controller.h"
-# include "../scripts/ai.script.h"
+# include <scripts/ai.script.h>
 
 # define TA3D_AI_FILE_EXTENSION  ".ai"
 

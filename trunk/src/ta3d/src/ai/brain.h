@@ -18,7 +18,7 @@
 #ifndef __BRAIN_H__
 #define __BRAIN_H__
 
-#include "../vfs/vfs.h"
+#include <vfs/vfs.h>
 
 namespace TA3D
 {

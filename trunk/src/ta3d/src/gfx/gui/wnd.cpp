@@ -15,16 +15,16 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #include "wnd.h"
-#include "../../languages/i18n.h"
-#include "../../ta3dbase.h"
-#include "../../misc/math.h"
-#include "../../sounds/manager.h"
-#include "../../console.h"
-#include "../../gfx/glfunc.h"
-#include "../../misc/tdf.h"
-#include "../../misc/paths.h"
-#include "../../input/keyboard.h"
-#include "../../input/mouse.h"
+#include <languages/i18n.h>
+#include <ta3dbase.h>
+#include <misc/math.h>
+#include <sounds/manager.h>
+#include <console.h>
+#include <gfx/glfunc.h>
+#include <misc/tdf.h>
+#include <misc/paths.h>
+#include <input/keyboard.h>
+#include <input/mouse.h>
 
 #define FIX_COLOR(col)  col = makeacol(getb(col), getg(col), getr(col), getr(col))
 

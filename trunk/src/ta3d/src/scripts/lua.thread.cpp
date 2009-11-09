@@ -15,15 +15,15 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "../stdafx.h"
-#include "../misc/paths.h"
-#include "../gfx/gfx.toolkit.h"
-#include "../TA3D_NameSpace.h"
-#include "../logs/logs.h"
+#include <stdafx.h>
+#include <misc/paths.h>
+#include <gfx/gfx.toolkit.h>
+#include <TA3D_NameSpace.h>
+#include <logs/logs.h>
 #include "lua.thread.h"
 #include "lua.env.h"
 #include "../lua/lstate.h"      // We need this to access lua_State objects to save and load Lua VMs
-#include "../input/mouse.h"
+#include <input/mouse.h>
 
 
 

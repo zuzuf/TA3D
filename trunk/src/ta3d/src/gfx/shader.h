@@ -17,8 +17,8 @@
 #ifndef __TA3D_GFX_Shader_H__
 # define __TA3D_GFX_Shader_H__
 
-# include "../stdafx.h"
-# include "../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 
 
 namespace TA3D

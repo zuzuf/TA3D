@@ -17,15 +17,15 @@
 #ifndef __TA3D_INGAME_MENUS_MAP_SELECTOR_H__
 # define __TA3D_INGAME_MENUS_MAP_SELECTOR_H__
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "base.h"
 # include <vector>
-# include "../../EngineClass.h"
 
 
 namespace TA3D
 {
+	class MAP_OTA;
 namespace Menus
 {
 

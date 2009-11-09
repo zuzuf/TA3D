@@ -1,9 +1,9 @@
 #ifndef __TA3D_TEXTURES_H__
 #define __TA3D_TEXTURES_H__
 
-# include "../misc/string.h"
-# include "../misc/hash_table.h"
-# include "../gaf.h"
+# include <misc/string.h>
+# include <misc/hash_table.h>
+# include <gaf.h>
 
 namespace TA3D
 {

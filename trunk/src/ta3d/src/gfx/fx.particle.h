@@ -17,8 +17,8 @@
 #ifndef __TA3D_GFX_FX_PARTICLE_H__
 # define __TA3D_GFX_FX_PARTICLE_H__
 
-# include "../stdafx.h"
-# include "../misc/vector.h"
+# include <stdafx.h>
+# include <misc/vector.h>
 
 
 

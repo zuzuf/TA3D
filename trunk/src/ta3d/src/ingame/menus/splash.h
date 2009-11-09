@@ -17,10 +17,10 @@
 #ifndef __TA3D_INGAME_MENUS_SPLASH_H__
 # define __TA3D_INGAME_MENUS_SPLASH_H__
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "base.h"
-# include "../../engine.h"
+# include <engine.h>
 
 
 # define TA3D_MENUS_SPLASH_DEFAULT_SPLASH_FILENAME  "intro.txt"

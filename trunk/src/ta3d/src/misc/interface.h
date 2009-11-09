@@ -18,7 +18,7 @@
 #ifndef __TA3D_I_INTERFACES_H__
 # define __TA3D_I_INTERFACES_H__
 
-# include "../threads/thread.h"
+# include <threads/thread.h>
 
 
 # define I_Msg( x, xx,xxx,xxxx ) InterfaceManager->DispatchMsg( x,xx,xxx,xxxx )

@@ -1,8 +1,8 @@
 #ifndef __SOCKET_BROADCAST_H__
 #define __SOCKET_BROADCAST_H__
 
-# include "../misc/string.h"
-#include "socket.udp.h"
+# include <misc/string.h>
+# include "socket.udp.h"
 
 namespace TA3D
 {

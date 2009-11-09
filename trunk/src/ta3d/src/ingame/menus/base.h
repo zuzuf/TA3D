@@ -17,12 +17,12 @@
 #ifndef __TA3D_INGAME_MENUS_BASE_H__
 # define __TA3D_INGAME_MENUS_BASE_H__
 
-# include "../../stdafx.h"
+# include <stdafx.h>
 # include <string>
 # include <memory>
-# include "../../gfx/gui/area.h"
-# include "../../misc/string.h"
-# include <yuni/core/smartptr.h>
+# include <gfx/gui/area.h>
+# include <misc/string.h>
+# include <yuni/core/smartptr/smartptr.h>
 # include <yuni/core/sleep.h>
 
 

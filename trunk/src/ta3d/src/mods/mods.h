@@ -2,7 +2,7 @@
 #define __TA3D_MODS_MODS_H__
 
 #include "modinfo.h"
-#include "../threads/thread.h"
+#include <threads/thread.h>
 
 namespace TA3D
 {

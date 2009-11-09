@@ -18,7 +18,7 @@
 #ifndef __TA3D_XX_HASH_TABLE_H__
 # define __TA3D_XX_HASH_TABLE_H__
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include "string.h"
 # include <list>
 # include <vector>

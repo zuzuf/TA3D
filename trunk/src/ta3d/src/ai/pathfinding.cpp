@@ -21,16 +21,14 @@
 | en place du pathfinding de TA3D                                  |
 \-----------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../misc/matrix.h"
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
-#include "../scripts/cob.h"					// For unit scripts / Pour la lecture et l'éxecution des scripts
-#include "../tdf.h"					// For map features / Pour la gestion des éléments du jeu
-//#include "fbi.h"					// For unit types / Pour la gestion des unités
-//#include "weapons.h"				// For weapons / Pour la gestion des armes
-#include "../EngineClass.h"			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
-#include "../misc/math.h"
+#include <stdafx.h>
+#include <misc/matrix.h>
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
+#include <scripts/cob.h>					// For unit scripts / Pour la lecture et l'éxecution des scripts
+#include <tdf.h>					// For map features / Pour la gestion des éléments du jeu
+#include <EngineClass.h>			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
+#include <misc/math.h>
 
 #define PATHFINDER_MAX_LENGTH			10000
 

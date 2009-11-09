@@ -1,7 +1,7 @@
-#include "../stdafx.h"
-#include "../TA3D_NameSpace.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
 #include "netclient.h"
-#include "../mods/mods.h"
+#include <mods/mods.h>
 #include <algorithm>        // We need std::sort
 
 #define BUFFER_SIZE     2048

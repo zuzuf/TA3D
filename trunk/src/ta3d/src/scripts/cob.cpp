@@ -25,9 +25,9 @@
   \-----------------------------------------------------------------------------------*/
 
 #include "cob.h"
-#include "../misc/matrix.h"				// Some math routines
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
+#include <misc/matrix.h>				// Some math routines
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
 
 
 namespace TA3D

@@ -17,7 +17,7 @@
 #ifndef __TA3D_GFX_GUI_BASE_H__
 # define __TA3D_GFX_GUI_BASE_H__
 
-# include "../texture.h"
+# include <gfx/texture.h>
 
 
 //! \name Standard colors

@@ -17,11 +17,11 @@
 #ifndef __TA3D_InGameWeapons_ING_H__
 # define __TA3D_InGameWeapons_ING_H__
 
-# include "../../stdafx.h"
-# include "../../threads/thread.h"
+# include <stdafx.h>
+# include <threads/thread.h>
 # include "weapons.h"
 # include "weapons.single.h"
-# include "../../misc/camera.h"
+# include <misc/camera.h>
 
 
 namespace TA3D

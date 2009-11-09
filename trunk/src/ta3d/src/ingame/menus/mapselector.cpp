@@ -16,14 +16,15 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "mapselector.h"
-#include "../../misc/paths.h"
+#include <misc/paths.h>
 #include <algorithm>
-#include "../../tnt.h"
-#include "../../logs/logs.h"
-#include "../../languages/i18n.h"
-#include "../../misc/tdf.h"
-#include "../../input/mouse.h"
-#include "../../input/keyboard.h"
+#include <tnt.h>
+#include <logs/logs.h>
+#include <languages/i18n.h>
+#include <misc/tdf.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
+#include <EngineClass.h>
 
 
 

@@ -18,7 +18,7 @@
 #ifndef __TA3D_TOOLBOX_STRING_H__
 # define __TA3D_TOOLBOX_STRING_H__
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include <yuni/core/string.h>
 
 

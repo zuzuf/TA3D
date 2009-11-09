@@ -1,5 +1,5 @@
-#include "../stdafx.h"
-#include "../logs/logs.h"
+#include <stdafx.h>
+#include <logs/logs.h>
 #include "socket.udp.h"
 
 namespace TA3D

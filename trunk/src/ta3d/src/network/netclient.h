@@ -1,8 +1,8 @@
 #ifndef NETCLIENT_H
 #define NETCLIENT_H
 
-#include "../misc/string.h"
-#include "../mods/modinfo.h"
+#include <misc/string.h>
+#include <mods/modinfo.h>
 #include "socket.tcp.h"
 
 namespace TA3D

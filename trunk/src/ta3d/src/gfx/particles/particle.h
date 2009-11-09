@@ -1,8 +1,8 @@
 #ifndef __TA3D_PARTICLES_SINGLE_PARTICLE_H__
 # define __TA3D_PARTICLES_SINGLE_PARTICLE_H__
 
-# include "../../stdafx.h"
-# include "../../misc/vector.h"
+# include <stdafx.h>
+# include <misc/vector.h>
 
 
 

@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "files.h"
-#include "../logs/logs.h"
+#include <logs/logs.h>
 #include <fstream>
 #include <sys/stat.h>
 #include "paths.h"

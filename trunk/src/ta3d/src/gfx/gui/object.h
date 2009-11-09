@@ -17,12 +17,12 @@
 #ifndef __TA3D_GFX_GUI_OBJECT_H__
 # define __TA3D_GFX_GUI_OBJECT_H__
 
-# include "../../stdafx.h"
+# include <stdafx.h>
 # include <vector>
-# include <yuni/core/smartptr.h>
-# include "../../misc/string.h"
+# include <yuni/core/smartptr/smartptr.h>
+# include <misc/string.h>
 # include "base.h"
-# include "../texture.h"
+# include <gfx/texture.h>
 # include "skin.h"
 
 

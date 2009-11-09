@@ -24,23 +24,23 @@
   | et de victoire.                                                       |
   \----------------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../misc/matrix.h"
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
-#include "../EngineClass.h"
-#include "../UnitEngine.h"
+#include <stdafx.h>
+#include <misc/matrix.h>
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
+#include <EngineClass.h>
+#include <UnitEngine.h>
 #include "script.h"
-#include "../misc/camera.h"
-#include "../languages/i18n.h"
+#include <misc/camera.h>
+#include <languages/i18n.h>
 #include <vector>
 #include <fstream>
-#include "../misc/math.h"
-#include "../logs/logs.h"
-#include "../sounds/manager.h"
-#include "../ingame/players.h"
-#include "../input/mouse.h"
-#include "../input/keyboard.h"
+#include <misc/math.h>
+#include <logs/logs.h>
+#include <sounds/manager.h>
+#include <ingame/players.h>
+#include <input/mouse.h>
+#include <input/keyboard.h>
 
 
 

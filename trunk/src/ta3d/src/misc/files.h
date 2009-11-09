@@ -17,7 +17,7 @@
 #ifndef _TA3D_TOOLS_FILES_H__
 # define _TA3D_TOOLS_FILES_H__
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include "string.h"
 
 

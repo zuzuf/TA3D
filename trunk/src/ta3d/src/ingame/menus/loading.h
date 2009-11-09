@@ -17,11 +17,11 @@
 #ifndef __TA3D_INGAME_MENUS_XX_LOADING_H__
 # define __TA3D_INGAME_MENUS_XX_LOADING_H__
 
-# include "../../stdafx.h"
-# include "../../threads/mutex.h"
-# include "../../misc/string.h"
+# include <stdafx.h>
+# include <threads/mutex.h>
+# include <misc/string.h>
 # include <list>
-# include "../../sdl.h"
+# include <sdl.h>
 
 
 namespace TA3D

@@ -1,11 +1,11 @@
 
 #include "battle.h"
-#include "../UnitEngine.h"
-#include "../languages/table.h"
+#include <UnitEngine.h>
+#include <languages/table.h>
 #include "players.h"
-#include "../input/keyboard.h"
-#include "../input/mouse.h"
-#include "../sounds/manager.h"
+#include <input/keyboard.h>
+#include <input/mouse.h>
+#include <sounds/manager.h>
 
 
 

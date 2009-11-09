@@ -1,8 +1,8 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#include "../misc/string.h"
-#include "../threads/thread.h"
+#include <misc/string.h>
+#include <threads/thread.h>
 
 namespace TA3D
 {

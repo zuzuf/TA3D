@@ -17,12 +17,12 @@
 #ifndef __TA3D_GFX_GUI_AREA_H__
 # define __TA3D_GFX_GUI_AREA_H__
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "wnd.h"
 # include <vector>
-# include "../../misc/interface.h"
-# include <yuni/core/smartptr.h>
+# include <misc/interface.h>
+# include <yuni/core/smartptr/smartptr.h>
 
 
 

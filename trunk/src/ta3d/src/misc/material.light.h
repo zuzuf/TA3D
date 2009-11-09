@@ -18,10 +18,10 @@
 #ifndef __TA3D_XX_MISC_MATERIAL_LIGHT_H__
 # define __TA3D_XX_MISC_MATERIAL_LIGHT_H__
 
-# include "../stdafx.h"
+# include <stdafx.h>
 # include "vector.h"
 # include "camera.h"
-# include "../sdl.h"
+# include <sdl.h>
 
 
 

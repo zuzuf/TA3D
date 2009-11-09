@@ -17,10 +17,10 @@
 #ifndef __TA3D_GFX_GUI_SKIN_OBJECT_H__
 # define __TA3D_GFX_GUI_SKIN_OBJECT_H__
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
-# include "../../sdl.h"
-# include "../../misc/tdf.h"
+# include <stdafx.h>
+# include <misc/string.h>
+# include <sdl.h>
+# include <misc/tdf.h>
 
 
 namespace TA3D

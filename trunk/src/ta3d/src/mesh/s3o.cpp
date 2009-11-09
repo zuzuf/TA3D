@@ -21,19 +21,19 @@
   |                                                                                    |
   \-----------------------------------------------------------------------------------*/
 
-#include "../stdafx.h"
-#include "../misc/matrix.h"
-#include "../TA3D_NameSpace.h"
-#include "../ta3dbase.h"
+#include <stdafx.h>
+#include <misc/matrix.h>
+#include <TA3D_NameSpace.h>
+#include <ta3dbase.h>
 #include "s3o.h"
-#include "../gfx/particles/particles.h"
-#include "../ingame/sidedata.h"
-#include "../languages/i18n.h"
-#include "../misc/math.h"
-#include "../misc/paths.h"
-#include "../misc/files.h"
-#include "../logs/logs.h"
-#include "../gfx/gl.extensions.h"
+#include <gfx/particles/particles.h>
+#include <ingame/sidedata.h>
+#include <languages/i18n.h>
+#include <misc/math.h>
+#include <misc/paths.h>
+#include <misc/files.h>
+#include <logs/logs.h>
+#include <gfx/gl.extensions.h>
 #include <zlib.h>
 
 

@@ -17,8 +17,8 @@
 #ifndef __TA3D_INGAME_WEAPONS_MANAGER_H__
 # define __TA3D_INGAME_WEAPONS_MANAGER_H__
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "weapons.def.h"
 
 

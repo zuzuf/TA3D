@@ -1,5 +1,5 @@
-#include "../stdafx.h"
-#include "../logs/logs.h"
+#include <stdafx.h>
+#include <logs/logs.h>
 #include "socket.h"
 
 namespace TA3D

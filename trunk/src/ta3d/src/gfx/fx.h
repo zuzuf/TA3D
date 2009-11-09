@@ -26,7 +26,7 @@
 # define __TA3D_GFX_FX_H__
 
 
-# include "../stdafx.h"
+# include <stdafx.h>
 
 # include "fx.base.h"
 # include "fx.particle.h"

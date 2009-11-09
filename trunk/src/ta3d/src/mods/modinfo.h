@@ -1,7 +1,7 @@
 #ifndef __TA3D_MODS_MODINFO_H__
 # define __TA3D_MODS_MODINFO_H__
 
-#include "../misc/string.h"
+#include <misc/string.h>
 #include <list>
 
 namespace TA3D

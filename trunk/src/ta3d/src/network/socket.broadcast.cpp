@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include <stdafx.h>
 #include "socket.broadcast.h"
 
 namespace TA3D

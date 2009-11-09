@@ -18,10 +18,10 @@
 #ifndef NETMENU_H
 # define NETMENU_H
 
-# include "../../stdafx.h"
-# include "../../misc/string.h"
+# include <stdafx.h>
+# include <misc/string.h>
 # include "base.h"
-# include "../../network/http.h"
+# include <network/http.h>
 
 namespace TA3D
 {

@@ -17,10 +17,10 @@
 
 #include "multimenu.h"
 #include "netmenu.h"
-#include "../../menu.h"
-#include "../../languages/i18n.h"
-#include "../../input/keyboard.h"
-#include "../../input/mouse.h"
+#include <menu.h>
+#include <languages/i18n.h>
+#include <input/keyboard.h>
+#include <input/mouse.h>
 
 
 
