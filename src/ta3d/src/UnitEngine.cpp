@@ -733,7 +733,7 @@ namespace TA3D
 					{
 						if ((m->lastMission() == MISSION_BUILD
 							 || m->lastMission() == MISSION_BUILD_2)
-							&& m->getData() == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
+							&& m->lastStep().getData() == unit_manager.unit_type[unit[index].type_id]->BuildList[i])
 							++nb;
 					}
 					if (nb > 0)
@@ -1417,7 +1417,7 @@ namespace TA3D
 				&& !unit_manager.unit_type[ unit[ index ].type_id ]->BMcode
 				&& (unit[ index ].mission->mission() == MISSION_BUILD_2
 					|| unit[ index ].mission->mission() == MISSION_BUILD)		// It was building something that we must destroy too
-				&& unit[ index ].mission->getTarget().isUnit())
+				&& unit[ index ].mission->getTarget().getUnit())
 			{
 				Unit *p = unit[ index ].mission->getTarget().getUnit();
 				p->lock();
