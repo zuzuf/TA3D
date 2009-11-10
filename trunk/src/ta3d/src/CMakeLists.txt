@@ -226,7 +226,7 @@ SET(SRC_INGAME
 		ingame/gamedata.h ingame/gamedata.cpp
 		ingame/players.h ingame/players.hxx ingame/players.cpp
 		ingame/battle.h ingame/battle.init.cpp
-		ingame/battle.preflight.cpp ingame/battle.cpp ingame/battle.tools.cpp
+		ingame/battle.preflight.cpp ingame/battle.cpp ingame/battle.tools.cpp ingame/battle.renderer.cpp
 		ingame/fps.h ingame/fps.cpp
 		)
 
