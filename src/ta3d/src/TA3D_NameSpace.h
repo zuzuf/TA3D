@@ -30,7 +30,6 @@
 
 # include "gfx/gfx.toolkit.h"
 # include "misc/interface.h"
-# include "cError.h"
 # include "misc/vector.h"
 # include "misc/string.h"
 # include "vfs/vfs.h"
