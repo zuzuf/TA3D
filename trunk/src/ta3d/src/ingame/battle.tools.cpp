@@ -286,6 +286,17 @@ namespace TA3D
                }
                else if (params.size() == 2 && params[0] == "video" && params[1] == "shoot") video_shoot ^= true;		// Capture video
                else if (params[0] == "shoot") shoot = true;					// Prend une capture d'écran
+			   else if (params[0] == "makeposter")
+			   {
+				   int w = SCREEN_W;
+				   int h = SCREEN_H;
+				   if (params.size() >= 3)
+				   {
+					   w = params[1].to<int>();
+					   h = params[2].to<int>();
+				   }
+				   makePoster(w, h);
+			   }
                else if (params.size() == 2 && params[0] == "reload" && params[1] == "shaders" && g_useProgram)
                {
                    water_shader.destroy();

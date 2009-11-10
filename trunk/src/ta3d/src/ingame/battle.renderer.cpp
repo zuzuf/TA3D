@@ -19,8 +19,10 @@
 #include "players.h"
 #include <UnitEngine.h>
 #include <gfx/fx.h>
+#include <gfx/gfx.toolkit.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
+#include <misc/paths.h>
 
 namespace TA3D
 {
@@ -1015,5 +1017,61 @@ namespace TA3D
 		renderInfo();
 
 		renderPostEffects();
+	}
+
+	void Battle::makePoster(int w, int h)
+	{
+		bool previous_pause_state = lp_CONFIG->pause;
+		bool prevCameraType = lp_CONFIG->ortho_camera;
+		lp_CONFIG->pause = true;
+		lp_CONFIG->ortho_camera = true;
+
+		while (!lp_CONFIG->paused)
+			rest( 100 );			// Wait for the engine to enter in pause mode so we can assemble several shots
+									// of the same game tick
+
+		Camera camBak = cam;
+
+		cam.znear = -255.0f;
+		SDL_Surface *poster = gfx->create_surface_ex(24,w,h);
+		SDL_Surface *buf = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
+
+		for(int z = 0 ; z < h ; z += SCREEN_H / 2)
+		{
+			for(int x = 0 ; x < w ; x += SCREEN_W / 2)
+			{
+				reflection_drawn_last_time = false;		// We need to refresh everything
+
+				// Set camera to current part of the scene
+				cam.rpos = camBak.rpos
+						   + camBak.zoomFactor
+							* ((x - w / 2 - SCREEN_W / 4) * camBak.side
+							   + (z - h / 2 - SCREEN_H / 4) * camBak.up);
+				if (camBak.dir.y != 0.0f)
+					cam.rpos = cam.rpos + ((camBak.rpos - cam.rpos).y / camBak.dir.y) * camBak.dir;
+
+				// Render this part of the scene
+				gfx->clearAll();
+				initRenderer();
+				renderScene();
+
+				// Read the pixels
+				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, buf->pixels);
+
+				// Fill current part of the poster
+				blit(buf, poster, SCREEN_W / 4, SCREEN_H / 4, x, z, Math::Min(SCREEN_W / 2, poster->w - x), Math::Min(SCREEN_H / 2, poster->h - z));
+			}
+		}
+
+		vflip_bitmap(poster);
+		save_TGA(TA3D::Paths::Screenshots + "poster.tga", poster);
+
+		SDL_FreeSurface(buf);
+		SDL_FreeSurface(poster);
+
+		cam = camBak;
+
+		lp_CONFIG->pause = previous_pause_state;
+		lp_CONFIG->ortho_camera = prevCameraType;
 	}
 }
