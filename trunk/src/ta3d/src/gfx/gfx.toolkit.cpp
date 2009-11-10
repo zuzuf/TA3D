@@ -681,13 +681,13 @@ namespace TA3D
 		byte description;
 	};
 
-	void save_TGA(const String &filename, SDL_Surface* bmp)
+	void save_TGA(const String &filename, SDL_Surface* bmp, bool compress)
 	{
 		TGAHeader header;
 
 		header.id = 0;
 		header.colormap = 0;
-		header.type = 2; // 24/32 bits uncompressed image
+		header.type = compress ? 10 : 2; // 24/32 bits uncompressed image
 		memset( header.colormapSpec, 0, 5 );
 
 		header.x = 0;
@@ -695,45 +695,123 @@ namespace TA3D
 		header.w = bmp->w;
 		header.h = bmp->h;
 		header.bpp = bmp->format->BitsPerPixel;
-		header.description = 0;
+		header.description = (header.bpp == 32) ? 0x28 : 0x20;
 
 		std::fstream file( filename.c_str(), std::fstream::out | std::fstream::binary );
 
 		if (file.is_open())
 		{
 			file.write( (char*)&header, sizeof(header) );
-            for(int y = bmp->h - 1 ; y >= 0 ; --y)
-            {
-                for(int x = 0 ; x < bmp->w ; ++x)
-                {
-                    switch(bmp->format->BitsPerPixel)
-                    {
-                    case 8:
-                        file.put( getpixel(bmp, x, y) );
-                        break;
-                    case 16:
-                        file.write( (char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
-                        break;
-                    case 24:
-                        {
-                            uint32 c = getpixel(bmp, x, y);
-                            file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
-                            file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
-                            file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
-                        }
-                        break;
-                    case 32:
-                        {
-                            uint32 c = getpixel(bmp, x, y);
-                            file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
-                            file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
-                            file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
-                            file.put( (bmp->format->Amask & c) >> bmp->format->Ashift);
-                        }
-                        break;
-                    };
-                }
-            }
+			if (!compress)			// Uncompressed
+			{
+				for(int y = 0 ; y < bmp->h ; ++y)
+				{
+					for(int x = 0 ; x < bmp->w ; ++x)
+					{
+						switch(bmp->format->BitsPerPixel)
+						{
+						case 8:
+							file.put( getpixel(bmp, x, y) );
+							break;
+						case 16:
+							file.write( (char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+							break;
+						case 24:
+							{
+								uint32 c = getpixel(bmp, x, y);
+								file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
+								file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
+								file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
+							}
+							break;
+						case 32:
+							{
+								uint32 c = getpixel(bmp, x, y);
+								file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
+								file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
+								file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
+								file.put( (bmp->format->Amask & c) >> bmp->format->Ashift);
+							}
+							break;
+						};
+					}
+				}
+			}
+			else					// Compressed
+			{
+				int type = 0;
+				uint32 c = 0;
+				int len = 0;
+				for(int i = 0 ; i < bmp->w * bmp->h ; ++i)
+				{
+					int x = i % bmp->w;
+					int y = i / bmp->w;
+					if (len == 0)
+					{
+						c = getpixel(bmp, x, y);
+						++len;
+						continue;
+					}
+					if (len == 1)
+					{
+						++len;
+						if (c == getpixel(bmp, x, y))
+							type = 1;
+						else
+							type = 0;
+						continue;
+					}
+					if (len == 128
+						|| (type == 1 && c != getpixel(bmp, x, y))
+						|| (type == 0 && c == getpixel(bmp, x, y))
+						|| i + 1 == bmp->w * bmp->h)
+					{
+						file.put( (type << 7) | (len - 1) );
+						int s = (type == 1) ? i - 1 : i - len;
+
+						for(int j = s ; j < i ; ++j)
+						{
+							x = j % bmp->w;
+							y = j / bmp->w;
+							switch(bmp->format->BitsPerPixel)
+							{
+							case 8:
+								file.put( getpixel(bmp, x, y) );
+								break;
+							case 16:
+								file.write( (char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+								break;
+							case 24:
+								{
+									uint32 c = getpixel(bmp, x, y);
+									file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
+									file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
+									file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
+								}
+								break;
+							case 32:
+								{
+									uint32 c = getpixel(bmp, x, y);
+									file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
+									file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
+									file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
+									file.put( (bmp->format->Amask & c) >> bmp->format->Ashift);
+								}
+								break;
+							};
+						}
+
+						if (i + 1 == bmp->w * bmp->h)
+							break;
+						len = 0;
+						--i;
+						continue;
+					}
+					if (type == 0)
+						c = getpixel(bmp, x, y);
+					++len;
+				}
+			}
 			file.close();
 		}
 	}
