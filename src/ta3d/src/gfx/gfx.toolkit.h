@@ -80,7 +80,7 @@ namespace TA3D
 	SDL_Surface *LoadTex(const String &filename);
 	void SaveTex(SDL_Surface *bmp, const String &filename);
 
-	void save_TGA(const String &filename, SDL_Surface* bmp);
+	void save_TGA(const String &filename, SDL_Surface* bmp, bool compress = true);
 }
 
 
