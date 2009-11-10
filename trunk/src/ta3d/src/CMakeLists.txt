@@ -166,8 +166,7 @@ SET(SRC_SOUND
 # Debug
 #
 SET(SRC_DEBUG
-		backtrace.cpp backtrace.h
-		cError.cpp cError.h)
+		backtrace.cpp backtrace.h)
 
 
 #
