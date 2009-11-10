@@ -192,6 +192,19 @@ namespace TA3D
 		void draw2DMouseUserSelection();
 		//@}
 
+		//! \name Renderer
+		//@{
+		void initRenderer();
+		void renderScene();
+		void renderReflection();
+		void renderStencilShadow();
+		void renderShadowMap();
+		void renderWater();
+		void renderWorld();
+		void renderInfo();
+		void renderPostEffects();
+		//@}
+
 		//! \name Evens in Game
 		//@{
 		//@}
@@ -320,6 +333,8 @@ namespace TA3D
 		float r2;
 		//!
 		float r3;
+		//!
+		float render_time;
 		//@}
 
 		//! \name Unknown vars
