@@ -116,7 +116,7 @@ namespace TA3D
 
 		int s = qStep.size();
 		SAVE(s);
-		for(int i = 0 ; i < s ; ++s)
+		for(int i = 0 ; i < s ; ++i)
 			qStep[i].save(file);
 	}
 
@@ -142,7 +142,7 @@ namespace TA3D
 		int s;
 		LOAD(s);
 		qStep.clear();
-		for(int i = 0 ; i < s ; ++s)
+		for(int i = 0 ; i < s ; ++i)
 		{
 			qStep.push(MissionStep());
 			qStep.bottom().load(file);
