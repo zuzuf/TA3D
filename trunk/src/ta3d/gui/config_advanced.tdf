@@ -9,7 +9,7 @@
 	draw borders=false;
 	show title=false;
 	number of objects=3;
-	hidden=false;
+	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
 	background window=false;
