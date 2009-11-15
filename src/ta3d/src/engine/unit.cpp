@@ -2277,7 +2277,8 @@ namespace TA3D
 				K.z = 0.0f;
 				Vector3D Target(mission->getTarget().getPos());
 				if (!mission->Path().empty()
-					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH) || last_path_refresh < 5.0f ) )
+					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
+						 || (last_path_refresh < 5.0f && !pType->canfly) ) )
 					Target = mission->Path().front().Pos;
 				else
 				{// Look for a path to the target
@@ -2291,17 +2292,24 @@ namespace TA3D
 					if (( mission->getMoveData() <= 0 && dist > 100.0f )
 						|| ( ( SQUARE(mission->getMoveData()) << 6 ) < dist))
 					{
-						if (!requesting_pathfinder && last_path_refresh >= 5.0f)
+						if (!requesting_pathfinder && last_path_refresh >= 5.0f && !pType->canfly)
 						{
 							requesting_pathfinder = true;
 							units.requests[ owner_id ].push_back( idx );
 						}
-						if (path_exec[ owner_id ] < MAX_PATH_EXEC && last_path_refresh >= 5.0f && !units.requests[ owner_id ].empty() && idx == units.requests[ owner_id ].front())
+						if (path_exec[ owner_id ] < MAX_PATH_EXEC
+							&& ((last_path_refresh >= 5.0f
+								 && !units.requests[ owner_id ].empty()
+								 && idx == units.requests[ owner_id ].front())
+								|| pType->canfly))
 						{
-							units.requests[ owner_id ].pop_front();
+							if (!pType->canfly)
+							{
+								units.requests[ owner_id ].pop_front();
+								path_exec[ owner_id ]++;
+							}
 							requesting_pathfinder = false;
 
-							path_exec[ owner_id ]++;
 							move_target_computed = mission->getTarget().getPos();
 							last_path_refresh = 0.0f;
                             if (pType->canfly)

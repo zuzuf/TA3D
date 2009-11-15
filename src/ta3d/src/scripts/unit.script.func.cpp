@@ -402,16 +402,19 @@ namespace TA3D
                                     if (the_map->map_data[y][x].unit_idx >= 0 && the_map->map_data[y][x].unit_idx != idx )
                                     {
                                         int cur_idx = the_map->map_data[y][x].unit_idx;
-										if (units.unit[cur_idx].owner_id == owner_id && units.unit[cur_idx].build_percent_left == 0.0f
-											&& (!units.unit[cur_idx].mission
-												|| units.unit[cur_idx].mission->mission() != MISSION_MOVE))
-                                        {
-                                            units.unit[cur_idx].lock();
-                                            Vector3D target = units.unit[cur_idx].Pos;
-                                            target.z += 100.0f;
-                                            units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, true);
-                                            units.unit[cur_idx].unlock();
-                                        }
+										if (cur_idx >= 0 && cur_idx < units.max_unit)
+										{
+											units.unit[cur_idx].lock();
+											if (units.unit[cur_idx].owner_id == owner_id && units.unit[cur_idx].build_percent_left == 0.0f
+												&& (!units.unit[cur_idx].mission
+													|| units.unit[cur_idx].mission->mission() != MISSION_MOVE))
+											{
+												Vector3D target = units.unit[cur_idx].Pos;
+												target.z += 100.0f;
+												units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, true);
+											}
+											units.unit[cur_idx].unlock();
+										}
                                     }
                                 }
                             }
