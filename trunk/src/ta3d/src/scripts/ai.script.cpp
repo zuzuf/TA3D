@@ -163,10 +163,10 @@ namespace TA3D
 
             if (ok)
             {
-                units.lock();
-                if (units.unit[ unit_id ].flags )
+				units.unit[ unit_id ].lock();
+				if (units.unit[ unit_id ].flags)
                     units.unit[ unit_id ].add_mission(MISSION_BUILD,&target,false,unit_type_id);
-                units.unlock();
+				units.unit[ unit_id ].unlock();
             }
             lua_pushboolean(L, ok);
         }
@@ -194,10 +194,10 @@ namespace TA3D
 			target.x = target.x*8.0f-the_map->map_w_d;
 			target.z = target.z*8.0f-the_map->map_h_d;
 
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags )
 				units.unit[ unit_id ].add_mission(MISSION_BUILD,&target,false,unit_type_id);
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -217,10 +217,10 @@ namespace TA3D
 			target.y = the_map->get_unit_h( pos_x, pos_z );
 			target.z = pos_z;
 
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
 				units.unit[ unit_id ].add_mission(MISSION_MOVE,&target,false,0);
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -237,10 +237,10 @@ namespace TA3D
 		{
 			Vector3D target(units.unit[ target_id ].Pos);
 
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
                 units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),PATH(),MISSION_FLAG_COMMAND_FIRE );
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -260,10 +260,10 @@ namespace TA3D
 			target.y = the_map->get_unit_h( pos_x, pos_z );
 			target.z = pos_z;
 
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
 				units.unit[ unit_id ].add_mission(MISSION_PATROL,&target,false,0);
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -277,10 +277,10 @@ namespace TA3D
 
 		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
 				units.unit[ unit_id ].add_mission(MISSION_WAIT,NULL,false,(int)(time * 1000));
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -295,10 +295,10 @@ namespace TA3D
 		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
 			&& target_id >= 0 && target_id < units.max_unit)
 		{
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
                 units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]));
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -313,13 +313,13 @@ namespace TA3D
 
 		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
 			{
 				units.unit[ unit_id ].port[ STANDINGMOVEORDERS ] = move_order;
 				units.unit[ unit_id ].port[ STANDINGFIREORDERS ] = fire_order;
 			}
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -332,12 +332,12 @@ namespace TA3D
 
 		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
-			units.lock();
+			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
 				lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage );
 			else
 				lua_pushnumber( L, 0.0 );
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 
 		return 0;
@@ -389,9 +389,9 @@ namespace TA3D
 
 		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
 		{
-			units.lock();
+			units.unit[ unit_id ].lock();
 			lua_pushvector( L, units.unit[ unit_id ].Pos );
-			units.unlock();
+			units.unit[ unit_id ].unlock();
 		}
 		else
 			lua_pushvector( L, Vector3D() );
@@ -424,9 +424,9 @@ namespace TA3D
 		if (attacker_idx >= 0 && attacker_idx < units.max_unit && units.unit[attacker_idx].owner_id == lua_currentPlayerID(L) && units.unit[ attacker_idx ].flags)		// make sure we have an attacker and a target
 			if (target_idx >= 0 && target_idx < units.max_unit && units.unit[ target_idx ].flags)
 			{
-				units.lock();
+				units.unit[ attacker_idx ].lock();
 				units.unit[ attacker_idx ].set_mission( MISSION_ATTACK,&(units.unit[ target_idx ].Pos),false,0,true,&(units.unit[ target_idx ]) );
-				units.unlock();
+				units.unit[ attacker_idx ].unlock();
 			}
 		return 0;
 	}
