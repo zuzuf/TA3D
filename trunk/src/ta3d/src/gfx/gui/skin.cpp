@@ -642,6 +642,7 @@ namespace Gui
 		// Normalize shadow offsets
 		dx *= SCREEN_W / 800.0f;
 		dy *= SCREEN_H / 800.0f;
+		fuzzy *= SCREEN_H / 800.0f;
 
 		x1 += dx;
 		y1 += dy;
