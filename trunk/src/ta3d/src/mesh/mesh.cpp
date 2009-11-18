@@ -50,6 +50,7 @@ namespace TA3D
 		flag = NULL;
 		explosion_flag = NULL;
 		pos = NULL;
+		tpos = NULL;
 		dir = NULL;
 		matrix = NULL;
 		explode = false;
@@ -63,6 +64,7 @@ namespace TA3D
 		DELETE_ARRAY(matrix);
 		DELETE_ARRAY(dir);
 		DELETE_ARRAY(pos);
+		DELETE_ARRAY(tpos);
 		DELETE_ARRAY(flag);
 		DELETE_ARRAY(explosion_flag);
 		init();
@@ -76,14 +78,16 @@ namespace TA3D
 		flag = new short[nb_piece];
 		explosion_flag = new short[nb_piece];
 		pos = new Vector3D[nb_piece];
+		tpos = new Vector3D[nb_piece];
 		dir = new Vector3D[nb_piece];
 		matrix = new Matrix[nb_piece];
 		for (int i = 0; i < nb_piece; ++i)
 		{
 			flag[i] = 0;
 			explosion_flag[i] = 0;
-			pos[i].x = pos[i].y = pos[i].z = 0.0f;
-			dir[i] = pos[i];
+			pos[i].reset();
+			tpos[i].reset();
+			dir[i].reset();
 			matrix[i] = Scale(1.0f);
 		}
 		for (int i = 0; i < 3; ++i)
@@ -568,10 +572,11 @@ namespace TA3D
 				}
 				else
 					data_s->dir[script_index].reset();
+				data_s->pos[script_index] = *pos;
 				if (child)
-					data_s->pos[script_index] = *pos + child->pos_from_parent * (*M);
+					data_s->tpos[script_index] = *pos + child->pos_from_parent * (*M);
 				else
-					data_s->pos[script_index] = *pos;
+					data_s->tpos[script_index] = *pos;
 			}
 		}
 		else if (M)
