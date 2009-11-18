@@ -60,9 +60,9 @@ namespace TA3D
 		//! \name 2D/3D Mode
 		//@{
 		//! Set the 2D Mode
-		static void set_2D_mode();
+		void set_2D_mode();
 		//! UnSet the 2D mode
-		static void unset_2D_mode();
+		void unset_2D_mode();
 		//@}
 
 		/*!
