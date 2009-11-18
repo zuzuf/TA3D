@@ -270,7 +270,7 @@ namespace TA3D
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
+		glOrtho(0, width, height, 0, -1.0, 1.0);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
@@ -1931,8 +1931,10 @@ namespace TA3D
 			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
 		GFX *test_gfx = new GFX();
+		gfx = test_gfx;
 
 		test_gfx->set_2D_mode();
+		test_gfx->loadFonts();
 
 		byte        filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
 		const char  *filterInfo[]   = { "FILTER_NONE", "FILTER_LINEAR", "FILTER_BILINEAR", "FILTER_TRILINEAR" };
@@ -1945,7 +1947,7 @@ namespace TA3D
 			const char  *info[] =   { "COMPRESSED_RGBA", "COMPRESSED_RGB", "RGB8", "RGBA8", "RGB5", "RGB5_A1", "RGB4", "RGBA4", "COMPRESSED_RGBA_S3TC_DXT1", "COMPRESSED_RGBA_S3TC_DXT3", "COMPRESSED_RGBA_S3TC_DXT5" };
 
 			for (int i = 0 ; i < 11 ; i++)
-				tex[i] = test_gfx->load_texture("gfx/mdrn_background.jpg", filter[e], NULL, NULL, true, texFormat[i]);
+				tex[i] = gfx->load_texture("gfx/mdrn_background.jpg", filter[e], NULL, NULL, true, texFormat[i]);
 
 			while (!keypressed())
 			{
@@ -1972,7 +1974,7 @@ namespace TA3D
 			while (keypressed())    readkey();
 		}
 
-		delete test_gfx;
+		gfx = NULL;
 
 		InterfaceManager = NULL;
 	}
