@@ -223,7 +223,6 @@ namespace TA3D
 
 			SAVE( weapons.weapon[i].Pos );
 			SAVE( weapons.weapon[i].V );
-			SAVE( weapons.weapon[i].Ac );
 			SAVE( weapons.weapon[i].target_pos );
 			SAVE( weapons.weapon[i].target );
 			SAVE( weapons.weapon[i].stime );
@@ -677,7 +676,6 @@ namespace TA3D
 
 			LOAD( weapons.weapon[i].Pos );
 			LOAD( weapons.weapon[i].V );
-			LOAD( weapons.weapon[i].Ac );
 			LOAD( weapons.weapon[i].target_pos );
 			LOAD( weapons.weapon[i].target );
 			LOAD( weapons.weapon[i].stime );

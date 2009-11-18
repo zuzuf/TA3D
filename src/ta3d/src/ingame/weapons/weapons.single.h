@@ -61,8 +61,6 @@ namespace TA3D
         Vector3D Pos;
         //! Speed
         Vector3D V;
-        //! Acceleration
-        Vector3D Ac;
 
         //!
         Vector3D target_pos;			// Position ciblée

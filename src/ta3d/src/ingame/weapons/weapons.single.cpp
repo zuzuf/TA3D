@@ -44,8 +44,8 @@ namespace TA3D
 		shooter_idx = -1;
 		anim_sprite = 0;
 		weapon_id = -1;		// Non défini
-		Pos.x = Pos.y = Pos.z = 0.0f;
-		Ac = V = Pos;
+		Pos.reset();;
+		V.reset();;
 		target_pos = Pos;
 		target = -1;			// Pas de cible
 		stime = 0.0f;
@@ -100,9 +100,9 @@ namespace TA3D
 		Vector3D hit_vec;
 		Vector3D OPos(Pos);
 
-		float h=map->get_unit_h(Pos.x,Pos.z);
+		float h = map->get_unit_h(Pos.x,Pos.z);
 		if (dying)
-			killtime-=dt;
+			killtime -= dt;
 		else
 		{
 			if ((!weapon_def->lineofsight && (weapon_def->ballistic || weapon_def->dropped))
@@ -137,15 +137,14 @@ namespace TA3D
 						target_pos = target_pos + sqrtf( time_to_hit / target_speed ) * target_V;
 					}
 				}
-				if (target_pos.y<map->sealvl && !weapon_def->waterweapon)
+				if (target_pos.y < map->sealvl && !weapon_def->waterweapon)
 					target_pos.y = map->sealvl;
 				Vector3D Dir = target_pos - Pos;
 				Dir.unit();
-				Vector3D I,J,K;			// Crée un trièdre
-				I=V;
+				Vector3D I(V),J,K;			// Crée un trièdre
 				I.unit();
-				J=I*Dir;
-				K=J*I;
+				J = I * Dir;
+				K = J * I;
 				if (speed < weapon_def->weaponvelocity)
 				{
 					if (speed > 0.0f )
@@ -167,9 +166,8 @@ namespace TA3D
 				const float rotate = dt * float(weapon_def->turnrate) * TA2RAD;
 				V = speed * (cosf(rotate) * I + sinf(rotate) * K);
 			}
-			Pos = Pos + dt * (V + dt * (0.33333333f * A + 0.16666666667f * Ac));
-			V = V + dt * 0.5f * (A + Ac);
-			Ac = A;
+			V = V + dt * A;
+			Pos = Pos + dt * V;
 			stime += dt;
 		}
 

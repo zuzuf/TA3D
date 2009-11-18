@@ -454,7 +454,7 @@ namespace TA3D
 	{
 		MutexLocker locker(pMutex);
 
-		if (command_locked && !(mission_type & MISSION_FLAG_AUTO) )
+		if (command_locked && !(mission_type & MISSION_FLAG_AUTO))
 			return;
 
         UnitType *pType = unit_manager.unit_type[type_id];
@@ -494,6 +494,8 @@ namespace TA3D
 					break;
 			}
 		}
+		else if (target)
+			targetType = Mission::Target::TargetStatic;
 
 		bool def_mode = false;
         if (type_id != -1 && !pType->BMcode)
@@ -598,7 +600,7 @@ namespace TA3D
 				case MISSION_STANDBY:
 				case MISSION_VTOL_STANDBY:
 				case MISSION_STOP:		// Don't stop if it's not necessary
-					stop = !(mission_type == MISSION_MOVE || mission_type == MISSION_PATROL );
+					stop = !(mission_type == MISSION_MOVE || mission_type == MISSION_PATROL);
 					break;
 				case MISSION_BUILD:
 				case MISSION_BUILD_2:
@@ -670,6 +672,8 @@ namespace TA3D
 					break;
 			}
 		}
+		else if (target)
+			targetType = Mission::Target::TargetStatic;
 
 		if (nanolathe_target >= 0 && network_manager.isConnected())
 		{
@@ -826,7 +830,7 @@ namespace TA3D
 
 	void Unit::next_mission()
 	{
-        UnitType *pType = unit_manager.unit_type[type_id];
+		UnitType *pType = type_id != -1 ? unit_manager.unit_type[type_id] : NULL;
         last_path_refresh = 10.0f;		// By default allow to compute a new path
 		if (nanolathe_target >= 0 && network_manager.isConnected())
 		{
@@ -874,7 +878,7 @@ namespace TA3D
 		}
 
 		// Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
-		if (type_id != -1
+		if (pType != NULL
 			&& pType->canfly
 			&& mission->mission() == MISSION_STOP
 			&& mission.hasNext() && mission(1) != MISSION_STOP)
@@ -1639,7 +1643,7 @@ namespace TA3D
 			}
 		}
 
-		if (hp<=0.0f && (local || exploding)) // L'unité est détruite
+		if (hp <= 0.0f && (local || exploding)) // L'unité est détruite
 		{
 			if (!mission.empty()
                 && !pType->BMcode
@@ -1661,7 +1665,7 @@ namespace TA3D
 				pMutex.unlock();
 				return -1;
 			}
-			switch(flags&0x17)
+			switch(flags & 0x17)
 			{
 				case 1:				// Début de la mort de l'unité	(Lance le script)
 					flags = 4;		// Don't remove the data on the position map because they will be replaced
@@ -1765,7 +1769,7 @@ namespace TA3D
 			}
 		}
 
-		if (data.nb_piece>0)
+		if (data.nb_piece > 0)
 			data.move(dt,units.g_dt);
 
 		if (cloaking && paralyzed <= 0.0f)
@@ -1923,7 +1927,7 @@ namespace TA3D
 					Fire_script = SCRIPT_FireWeapon + (i - 3) * 4;
 			}
 
-			switch ((weapon[i].state & 3))
+			switch (weapon[i].state & 3)
 			{
 				case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
 					script->setReturnValue( UnitScriptInterface::get_script_name(Aim_script), 0);
@@ -2016,13 +2020,18 @@ namespace TA3D
 								compute_model_coord();
 
 								Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
-								target_pos_on_unit.x = target_pos_on_unit.y = target_pos_on_unit.z = 0.0f;
+								target_pos_on_unit.reset();
 								if (target_unit != NULL)
 								{
                                     if (weapon[i].data == -1)
-                                        weapon[i].data = target_unit->get_sweet_spot();
+										weapon[i].data = target_unit->get_sweet_spot();
                                     if (weapon[i].data >= 0)
-										target_pos_on_unit = target_unit->data.pos[ weapon[i].data ];
+									{
+										if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
+											target_pos_on_unit = target_unit->data.pos[ weapon[i].data ];
+									}
+									else if (target_unit->model)
+										target_pos_on_unit = target_unit->model->center;
 								}
 
 								target = target + target_translation - data.pos[start_piece];
@@ -3301,7 +3310,7 @@ namespace TA3D
 						Weapon *target_weapon = mission->getWeapon();
 						if ((target_unit != NULL && (target_unit->flags & 1))
 							|| (target_weapon != NULL && target_weapon->weapon_id != -1)
-							|| mission->getTarget().getType() == Mission::Target::TargetNone)
+							|| mission->getTarget().isStatic())
 						{
 							if (target_unit)				// Check if we can target the unit
 							{
@@ -3926,14 +3935,14 @@ namespace TA3D
 					I.x = 4.0f;
 					J.z = 4.0f;
 					K.y = 1.0f;
-                    A = Pos - pType->FootprintZ*I*M;
+					A = Pos - pType->FootprintZ * I * M;
                     B = Pos + (pType->FootprintX*I-pType->FootprintZ*J)*M;
                     C = Pos + (pType->FootprintX*I+pType->FootprintZ*J)*M;
 					A.y = map->get_unit_h(A.x,A.z);	// Projete le triangle
 					B.y = map->get_unit_h(B.x,B.z);
 					C.y = map->get_unit_h(C.x,C.z);
-					Vector3D D=(B-A)*(B-C);
-					if (D.y>=0.0f) // On ne met pas une unité à l'envers!!
+					Vector3D D = (B - A) * (B - C);
+					if (D.y >= 0.0f) // On ne met pas une unité à l'envers!!
 					{
 						D.unit();
 						float dist_sq = sqrtf( D.y*D.y+D.z*D.z );
