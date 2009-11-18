@@ -125,12 +125,12 @@ namespace TA3D
 
         for (int e = 0; e < nb_piece; ++e)
 		{
-			if (flag[e] & FLAG_EXPLODE)// && (explosion_flag[e]&EXPLODE_SDL_SurfaceONLY)!=EXPLODE_SDL_SurfaceONLY)		// This piece is exploding
+			if ((flag[e] & FLAG_EXPLODE) && !(explosion_flag[e] & EXPLODE_BITMAPONLY))		// This piece is exploding
 			{
                 for (int i = 0; i < 3; ++i)
 				{
-					if (i == 1 && explosion_flag[e]&EXPLODE_FALL)
-						axe[i][e].move_speed-=g;
+					if (i == 1 && (explosion_flag[e] & EXPLODE_FALL))
+						axe[i][e].move_speed -= g;
 					axe[i][e].pos += axe[i][e].move_speed * dt;
 					axe[i][e].angle += axe[i][e].rot_speed * dt;
 					is_moving = true;
