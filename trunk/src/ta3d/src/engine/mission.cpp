@@ -19,6 +19,16 @@ namespace TA3D
 		return p;
 	}
 
+	bool Mission::Target::isUnit() const
+	{
+		return type == TargetUnit && idx >= 0 && idx < units.max_unit && units.unit[idx].ID == UID;
+	}
+
+	bool Mission::Target::isWeapon() const
+	{
+		return type == TargetWeapon && idx >= 0 && idx < weapons.weapon.size();
+	}
+
 	const Vector3D &Mission::Target::getPos() const
 	{
 		switch(type)
@@ -38,6 +48,7 @@ namespace TA3D
 			}
 			break;
 		case TargetNone:
+		case TargetStatic:
 			return Pos;
 		};
 

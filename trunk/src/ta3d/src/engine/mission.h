@@ -66,7 +66,7 @@ namespace TA3D
 		{
 		public:
 			//! Target types
-			enum Type { TargetNone, TargetUnit, TargetWeapon };
+			enum Type { TargetNone, TargetUnit, TargetWeapon, TargetStatic };
 		public:
 			//! Constructors
 			Target() : type(TargetNone), idx(-1), UID(0), Pos()	{}
@@ -79,9 +79,10 @@ namespace TA3D
 			Type getType() const	{	return type;	}
 			int getIdx() const	{	return idx;	}
 			uint32 getUID() const	{	return UID;	}
-			bool isUnit() const	{	return type == TargetUnit;	}
-			bool isWeapon() const	{	return type == TargetWeapon;	}
-			bool isNone() const	{	return type == TargetNone;	}
+			bool isUnit() const;
+			bool isWeapon() const;
+			bool isStatic() const	{	return type == TargetStatic;	}
+			bool isNone() const	{	return !isUnit() && !isWeapon() && !isStatic();	}
 
 			//! Interface to set the target
 			void set(Type type, int idx = -1, uint32 UID = 0)
@@ -93,7 +94,7 @@ namespace TA3D
 
 			void setPos(const Vector3D &Pos)
 			{
-				if (type == TargetNone)
+				if (type == TargetStatic)
 					this->Pos = Pos;
 			}
 
