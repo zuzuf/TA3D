@@ -133,7 +133,7 @@ __this.SweetSpot = function(this, piecenum)
 	return this.base
 end
 
-__this.Killed = function(this, severity, corpsetype)
+__this.Killed = function(this, severity)
 	if severity <= 25 then
 		this:explode( this.base, BITMAPONLY + BITMAP1 )
 		this:explode( this.building1, BITMAPONLY + BITMAP2 )
