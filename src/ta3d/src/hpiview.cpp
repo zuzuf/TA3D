@@ -32,7 +32,7 @@
 #include <zlib.h>
 #include "EngineClass.h"
 #include "misc/string.h"
-
+#include "mods/mods.h"
 
 using namespace TA3D;
 
@@ -177,19 +177,16 @@ namespace TA3D
 		if (args.size() >= 1)
 		{
 			std::ofstream m_File;
-			m_File.open( args[0].c_str(), std::ios::out | std::ios::trunc );
+			m_File.open( args[0].c_str(), std::ios::out | std::ios::trunc);
 
-			if (m_File.is_open() )
+			if (m_File.is_open())
 			{
-				String::List modlist;
-				if (Resources::GlobDirs(modlist, "mods/*"))
+				String::List modlist = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
+				modlist.sort();
+				for (String::List::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 				{
-					modlist.sort();
-					for (String::List::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
-					{
-						if (!(i->empty()) && ((*i)[0] != '.'))
-							m_File << *i << "\n";
-					}
+					if (!(i->empty()) && ((*i)[0] != '.'))
+						m_File << *i << "\n";
 				}
 				m_File.close();
 			}
@@ -469,6 +466,7 @@ namespace TA3D
 
 		if (argc >= 2)
 		{
+			VFS::Instance()->reload();
 			appName = argv[0];
 
 			// TODO Use a better implementation to parse arguments

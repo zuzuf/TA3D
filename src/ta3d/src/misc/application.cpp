@@ -53,7 +53,7 @@ namespace TA3D
 		for (int i = 1 ; i < argc; i++)
 		{
 			if (!strcmp(argv[i], "--quiet") || !strcmp(argv[i], "/quiet"))
-				logs.verbosityLevel = Yuni::Logs::Verbosity::Quiet::level;
+				logs.verbosityLevel = -1;
 		}
 
 		// Load and prepare output directories
