@@ -117,7 +117,8 @@ namespace TA3D
         short       *explosion_flag;
         float       explode_time;
         bool        explode;
-        Vector3D    *pos;
+		Vector3D    *tpos;
+		Vector3D    *pos;
         Vector3D    *dir;			// Orientation des objets (quand il n'y a qu'une ligne)
         Matrix      *matrix;		// Store local matrixes
         bool        is_moving;

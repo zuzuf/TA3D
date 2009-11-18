@@ -1988,7 +1988,7 @@ namespace TA3D
 										weapon[i].data = -1;
 										break;	// We're not shooting at the target
 									}
-									float t = 2.0f/map->ota_data.gravity*fabsf(target.y);
+									float t = 2.0f / map->ota_data.gravity * fabsf(target.y);
 									mindist = (int)sqrtf(t*V.sq());
                                     maxdist = mindist + (pType->weapon[ i ]->range>>1);
 								}
@@ -2027,13 +2027,13 @@ namespace TA3D
                                     if (weapon[i].data >= 0)
 									{
 										if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
-											target_pos_on_unit = target_unit->data.pos[ weapon[i].data ];
+											target_pos_on_unit = target_unit->data.tpos[ weapon[i].data ];
 									}
 									else if (target_unit->model)
 										target_pos_on_unit = target_unit->model->center;
 								}
 
-								target = target + target_translation - data.pos[start_piece];
+								target = target + target_translation - data.tpos[start_piece];
                                 if (target_unit != NULL)
 									target = target + target_pos_on_unit;
 
@@ -2068,7 +2068,11 @@ namespace TA3D
 								int aiming[] = { (int)(angle*DEG2TA), -4096 };
                                 if (pType->weapon[ i ]->ballistic) // Calculs de ballistique / ballistic calculations
 								{
-									Vector3D D = target_unit == NULL ? ( target_weapon == NULL ? Pos + data.pos[start_piece] - weapon[i].target_pos : (Pos+data.pos[start_piece]-target_weapon->Pos) ) : (Pos+data.pos[start_piece]-target_unit->Pos-target_pos_on_unit);
+									Vector3D D = target_unit == NULL
+												 ? ( target_weapon == NULL
+													 ? Pos + data.tpos[start_piece] - weapon[i].target_pos
+													 : (Pos + data.tpos[start_piece] - target_weapon->Pos) )
+												 : (Pos + data.tpos[start_piece] - target_unit->Pos - target_pos_on_unit);
 									D.y = 0.0f;
 									float v;
                                     if (pType->weapon[ i ]->startvelocity == 0.0f)
@@ -2078,12 +2082,12 @@ namespace TA3D
 									if (target_unit == NULL)
 									{
 										if (target_weapon == NULL)
-											aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
+											aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
 										else
-											aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
+											aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
 									}
 									else
-										aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
+										aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
 								}
 								else
 								{
@@ -2111,12 +2115,12 @@ namespace TA3D
                                         if (!target_unit)
                                         {
                                             if (target_weapon == NULL )
-                                                weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.pos[start_piece]);
+												weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.tpos[start_piece]);
                                             else
-												weapon[i].aim_dir = ((Weapon*)(weapon[i].target))->Pos - (Pos + data.pos[start_piece]);
+												weapon[i].aim_dir = ((Weapon*)(weapon[i].target))->Pos - (Pos + data.tpos[start_piece]);
                                         }
                                         else
-                                            weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.pos[start_piece]);
+											weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.tpos[start_piece]);
                                         weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
                                         weapon[i].aim_dir.unit();
                                     }
@@ -2187,7 +2191,7 @@ namespace TA3D
 						if (start_piece >= 0 && start_piece < data.nb_piece)
 						{
 							compute_model_coord();
-                            if (!pType->weapon[ i ]->waterweapon && Pos.y + data.pos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
+							if (!pType->weapon[ i ]->waterweapon && Pos.y + data.tpos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
 								break;
 							Vector3D Dir = data.dir[start_piece];
                             if (pType->weapon[ i ]->vlaunch)
@@ -2200,7 +2204,7 @@ namespace TA3D
 								Dir = weapon[i].aim_dir;
 							if (i == 3)
 							{
-								LOG_DEBUG("firing from " << (Pos+data.pos[start_piece]).y << " (" << units.map->get_unit_h((Pos+data.pos[start_piece]).x, (Pos+data.pos[start_piece]).z) << ")");
+								LOG_DEBUG("firing from " << (Pos + data.tpos[start_piece]).y << " (" << units.map->get_unit_h((Pos + data.tpos[start_piece]).x, (Pos + data.tpos[start_piece]).z) << ")");
 								LOG_DEBUG("from piece " << start_piece << " (" << Query_script << "," << Aim_script << "," << Fire_script << ")" );
 							}
 
@@ -2216,13 +2220,13 @@ namespace TA3D
                             if (!pType->weapon[ i ]->soundstart.empty())	sound_manager->playSound(pType->weapon[i]->soundstart, &Pos);
 
 							if (weapon[i].target == NULL)
-								shoot(-1,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos );
+								shoot(-1,Pos + data.tpos[start_piece],Dir,i, weapon[i].target_pos );
 							else
 							{
 								if (weapon[i].state & WEAPON_FLAG_WEAPON)
-									shoot(((Weapon*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
+									shoot(((Weapon*)(weapon[i].target))->idx,Pos + data.tpos[start_piece],Dir,i, weapon[i].target_pos);
 								else
-									shoot(((Unit*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
+									shoot(((Unit*)(weapon[i].target))->idx,Pos + data.tpos[start_piece],Dir,i, weapon[i].target_pos);
 							}
 							weapon[i].burst++;
                             if (weapon[i].burst >= pType->weapon[i]->burst)
