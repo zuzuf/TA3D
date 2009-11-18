@@ -1931,7 +1931,6 @@ namespace TA3D
 			{
 				case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
 					script->setReturnValue( UnitScriptInterface::get_script_name(Aim_script), 0);
-					if (jump_commands)	break;
 					weapon[i].data = -1;
 					break;
 				case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
@@ -2126,11 +2125,26 @@ namespace TA3D
                                                                                         + sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
                                             + sinf(aiming[1] * TA2RAD) * IJ;
                                 }
-                                if (!readyToFire)
+								else
                                     launchScript(Aim_script, 2, aiming);
                             }
 							else
-								readyToFire = true;
+							{
+								readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
+								if (!readyToFire)
+								{
+									if (weapon[i].data == -1)
+									{
+										readyToFire = launchScript(Aim_script, 0, NULL) < 0;
+										weapon[i].data = 0;
+									}
+								}
+								else
+								{
+									weapon[i].data = -1;
+									script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
+								}
+							}
 							if (readyToFire)
 							{
 								weapon[i].time = 0.0f;
