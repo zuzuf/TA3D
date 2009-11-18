@@ -156,7 +156,7 @@ namespace TA3D
 		for(int i = 0 ; i < s ; ++i)
 		{
 			qStep.push(MissionStep());
-			qStep.bottom().load(file);
+			qStep.top().load(file);
 		}
 	}
 
@@ -175,9 +175,8 @@ namespace TA3D
 		sMission.clear();
 		while (gzgetc(file))
 		{
-			Mission m;
-			m.load(file);
-			add(m);
+			add(Mission());
+			sMission.back().load(file);
 		}
 	}
 }
