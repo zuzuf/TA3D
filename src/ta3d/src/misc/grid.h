@@ -15,11 +15,16 @@ namespace TA3D
 		const T& operator()(int x, int y) const;
 		T& operator()(int x, int y);
 
+		int getWidth() {	return w;	}
+		int getHeight() {	return h;	}
+
 	private:
 		int w;
 		int h;
 		T *data;
 	};
+
+	void gaussianFilter(Grid<float> &grid, float sigma);
 }
 
 #include "grid.hxx"
