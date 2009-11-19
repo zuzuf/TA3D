@@ -492,7 +492,6 @@ namespace TA3D
 			gfx = new GFX();
 
 			init_keyboard();
-			init_mouse();
 
 			// Now we can load the model and its textures, set up a basic camera and render the model
 			if (Paths::ExtractFileExt(modelname).toLower() == ".3do")		// Load textures
@@ -567,12 +566,6 @@ namespace TA3D
 				SDL_FreeSurface(result);
 
 				gfx->flip();
-
-				while(!keypressed())
-				{
-					rest(100);
-					poll_inputs();
-				}
 
 				SDL_FreeSurface(background);
 			}
