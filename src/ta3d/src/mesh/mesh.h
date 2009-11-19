@@ -282,6 +282,9 @@ namespace TA3D
         float compute_bottom( float bottom, Vector3D dec );
 
 		virtual bool has_animation_data();
+
+		// Used by the buildpic renderer
+		void hideFlares();
     };
 
     class MODEL					// Classe pour la gestion des modèles 3D
@@ -356,6 +359,14 @@ namespace TA3D
         */
         void check_textures()
         { mesh->check_textures(); }
+
+		/*!
+		** \brief
+		*/
+		void hideFlares()
+		{
+			mesh->hideFlares();
+		}
 
     public:
         void postLoadComputations();

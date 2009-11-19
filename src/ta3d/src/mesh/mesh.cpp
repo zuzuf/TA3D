@@ -1368,6 +1368,17 @@ namespace TA3D
 	}
 
 
+	void MESH::hideFlares()
+	{
+		if ((String::ToLower(name).find("flare") != String::npos
+			|| String::ToLower(name).find("flash") != String::npos
+			|| String::ToLower(name).find("fire") != String::npos) && !child)
+			nb_t_index = 0;
+		if (child)
+			child->hideFlares();
+		if (next)
+			next->hideFlares();
+	}
 
 
 	MODEL* MODEL_MANAGER::get_model(const String& name)
