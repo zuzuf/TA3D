@@ -52,11 +52,6 @@ namespace TA3D
         return a < 0 ? -1 : a > 0 ? 1 : 0;
     }
 
-    void destroy_path(PATH &path)		// Destroy a path / Détruit un chemin
-    {
-        path.clear();
-    }
-
     void simplify_path(PATH &path)
     {
         for( PATH::iterator i = path.begin() ; i != path.end() ; )
