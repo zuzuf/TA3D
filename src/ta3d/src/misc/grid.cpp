@@ -17,7 +17,8 @@ namespace TA3D
 		// X pass
 		for(int y = 0 ; y < grid.getHeight() ; ++y)
 		{
-			memcpy(backup, &(grid(y, 0)), grid.getWidth() * sizeof(float));
+			for(int x = 0 ; x < grid.getWidth() ; ++x)
+				backup[x] = grid(x, y);
 			for(int x = 0 ; x < grid.getWidth() ; ++x)
 			{
 				float acc((2 * s - (Math::Min(s, grid.getWidth() - 1 - x) - Math::Max(-s, -x))) * 255.0f);

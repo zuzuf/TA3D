@@ -334,7 +334,7 @@ namespace TA3D
 
 		drawn_open = drawn_flying = false;
 		drawn_x = drawn_y = 0;
-		drawn = true;
+		drawn = false;
 
 		old_px = old_py = -10000;
 
@@ -4823,12 +4823,12 @@ script_exec:
 		if (type_id == -1 || !(flags & 1) )
 			return;
 
-		if (drawn )	clear_from_map();
-		if (attached )	return;
+		if (drawn)	clear_from_map();
+		if (attached)	return;
 
 		drawn_flying = flying;
         UnitType *pType = unit_manager.unit_type[type_id];
-        if (flying )
+		if (flying)
             units.map->air_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx );
 		else
 		{
@@ -4915,7 +4915,7 @@ script_exec:
 
 		UnitType *pType = unit_manager.unit_type[type_id];
 		drawn = false;
-		if (drawn_flying )
+		if (drawn_flying)
 			units.map->air_rect( drawn_x - (pType->FootprintX >> 1),
 								 drawn_y - (pType->FootprintZ >> 1),
 								 pType->FootprintX, pType->FootprintZ,
@@ -4927,8 +4927,8 @@ script_exec:
 							 pType->FootprintX, pType->FootprintZ,
 							 -1, pType->yardmap, drawn_open );
 			units.map->energy.sub(pType->gRepulsion,
-								  cur_px - (pType->gRepulsion.getWidth() >> 1),
-								  cur_py - (pType->gRepulsion.getHeight() >> 1));
+								  drawn_x - (pType->gRepulsion.getWidth() >> 1),
+								  drawn_y - (pType->gRepulsion.getHeight() >> 1));
 		}
 	}
 

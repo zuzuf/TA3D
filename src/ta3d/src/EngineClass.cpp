@@ -1666,6 +1666,17 @@ namespace TA3D
 		glClientActiveTextureARB(GL_TEXTURE0_ARB );
 		glTexCoordPointer(2, GL_FLOAT, 0, buf_t);
 
+//#define DEBUG_UNIT_POS
+//#define DEBUG_ENERGY
+
+#ifdef DEBUG_ENERGY
+		float Emax = energy(10, 10);
+		for(int y = 10 ; y < energy.getHeight() - 10 ; ++y)
+			for(int x = 10 ; x < energy.getWidth() - 10 ; ++x)
+				Emax = Math::Max(Emax, energy(x,y));
+		float IEmax = 255.0f / Emax;
+#endif
+
 		int	ox = x1;
 
 		Vector3D T;
@@ -2000,9 +2011,7 @@ namespace TA3D
 					}
 				}
 
-				//#define DEBUG_UNIT_POS
-
-#ifndef DEBUG_UNIT_POS
+#if !defined DEBUG_UNIT_POS && !defined DEBUG_ENERGY
 				if (FLAT || map_data[Y][X].flat || lp_CONFIG->low_definition_map )
 				{
 					if (was_flat && bloc[i].tex_x == bloc[ bmap[y][x-1] ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data[Y][X].flat) )
@@ -2037,7 +2046,7 @@ namespace TA3D
 					buf_i[ index_size++ ] = 5+buf_pos;
 					buf_i[ index_size++ ] = 1+buf_pos;
 					buf_i[ index_size++ ] = 2+buf_pos;
-#ifndef DEBUG_UNIT_POS
+#if !defined DEBUG_UNIT_POS && !defined DEBUG_ENERGY
 				}
 #endif
 				was_clean = is_clean;
@@ -2123,6 +2132,14 @@ namespace TA3D
 						}
 					}
 				}
+#elif defined DEBUG_ENERGY
+				int Z;
+				Z=Y+get_zdec_notest(X,Y);					if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+				Z&=0xFFFFFE;
+				X&=0xFFFFFE;
+				for(i = 0 ; i < 9 ; ++i)
+					color[i<<2] = color[(i<<2)+1] = color[(i<<2)+2] = color[(i<<2)+3] = Math::Max(Math::Max(energy(X,Z), energy(X+1,Z)),
+																								  Math::Max(energy(X,Z+1), energy(X+1,Z+1))) * IEmax;
 #endif
 				++buf_size;
 			}

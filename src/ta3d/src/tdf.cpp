@@ -268,7 +268,6 @@ namespace TA3D
 			float sigz = pFeature->footprintz * 0.5f;
 			float sigx2 = -0.5f / (sigx * sigx);
 			float sigz2 = -0.5f / (sigz * sigz);
-			float norm = 1.0f / (sqrtf(2.0f * M_PI) * sigx * sigz);
 			for(int z = 0 ; z < pFeature->gRepulsion.getHeight() ; ++z)
 			{
 				float dz = z - pFeature->gRepulsion.getHeight() * 0.5f;
@@ -277,7 +276,7 @@ namespace TA3D
 				{
 					float dx = x - pFeature->gRepulsion.getWidth() * 0.5f;
 					dx *= dx;
-					pFeature->gRepulsion(x,z) = expf(sigx2 * dx + sigz2 * dz) * norm;
+					pFeature->gRepulsion(x,z) = 2550.0f * expf(sigx2 * dx + sigz2 * dz);
 				}
 			}
 		}
