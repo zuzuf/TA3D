@@ -33,6 +33,11 @@
 #include "EngineClass.h"
 #include "misc/string.h"
 #include "mods/mods.h"
+#include "mesh/mesh.h"
+#include "mesh/textures.h"
+#include "misc/material.light.h"
+#include "input/keyboard.h"
+#include "input/mouse.h"
 
 using namespace TA3D;
 
@@ -58,6 +63,7 @@ namespace TA3D
 	{
 		std::cout << "Available commands :" << std::endl
 			<< PREFIX << "create_gaf     : create a 24/32bits gaf from sprites" << std::endl
+			<< PREFIX << "create_buildpic: create a build picture from a model and a background image" << std::endl
 			<< PREFIX << "extract        : extract a file" << std::endl
 			<< PREFIX << "extract_gaf    : extract a gaf into sprites" << std::endl
 			<< PREFIX << "help           : this screen" << std::endl
@@ -458,6 +464,146 @@ namespace TA3D
 	}
 
 	/*!
+	 * \brief Create a truecolor build picture for the given unit with the given background
+	 */
+	static bool hpiviewCmdCreateBuildPic(String::Vector &args)
+	{
+		if (args.size() >= 2)
+		{
+			String modelname = args[0];
+			String filename = args[1];
+			String outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) + ".tga";
+
+			// Starts a minimal TA3D environnement
+			InterfaceManager = new IInterfaceManager();
+
+			// Initalizing SDL video
+			if (SDL_Init(SDL_INIT_VIDEO) < 0 )
+				throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
+
+			// Installing SDL timer
+			if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
+				throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
+
+			// Installing SDL timer
+			if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
+				throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
+
+			gfx = new GFX();
+
+			init_keyboard();
+			init_mouse();
+
+			// Now we can load the model and its textures, set up a basic camera and render the model
+			if (Paths::ExtractFileExt(modelname).toLower() == ".3do")		// Load textures
+				texture_manager.all_texture();
+
+			MODEL *model = MODEL::load(modelname);
+			SDL_Surface *background = gfx->load_image(filename);
+			if (model && background)
+			{
+				glViewport(0, 0, background->w, background->h);           // Use picture viewport
+				gfx->width = background->w;
+				gfx->height = background->h;
+
+				Camera cam;
+				HWLight sun;
+
+				sun.Att = 0.0f;
+				// Direction
+				sun.Dir.x = -1.0f;
+				sun.Dir.y = 2.0f;
+				sun.Dir.z = 1.0f;
+				sun.Dir.unit();
+				// Lights
+				sun.LightAmbient[0]  = 0.25f;
+				sun.LightAmbient[1]  = 0.25f;
+				sun.LightAmbient[2]  = 0.25f;
+				sun.LightAmbient[3]  = 0.25f;
+				sun.LightDiffuse[0]  = 1.0f;
+				sun.LightDiffuse[1]  = 1.0f;
+				sun.LightDiffuse[2]  = 1.0f;
+				sun.LightDiffuse[3]  = 1.0f;
+				sun.LightSpecular[0] = 0.0f;
+				sun.LightSpecular[1] = 0.0f;
+				sun.LightSpecular[2] = 0.0f;
+				sun.LightSpecular[3] = 0.0f;
+				// Direction
+				sun.Directionnal = true;
+
+				glEnable(GL_COLOR_MATERIAL);
+				lp_CONFIG->shadow_quality = 0;
+				lp_CONFIG->disable_GLSL = true;
+
+				gfx->SetDefState();
+				gfx->clearAll();
+
+				gfx->set_2D_mode();
+				GLuint tex = gfx->make_texture(background);
+				gfx->drawtexture(tex, 0.0f, 0.0f, background->w, background->h, 0xFFFFFFFF);
+				gfx->destroy_texture(tex);
+				gfx->unset_2D_mode();
+
+				cam.setWidthFactor(background->w, background->h);
+				float h = model->top - model->bottom;
+				cam.rpos = Vector3D(0.0f, model->bottom + h * 0.5f, 1.5f * model->size2);
+				cam.znear = 0.001f;
+				cam.zfar = 1000.0f;
+				cam.dir = Vector3D(0.0f, 0.0f, -1.0f);
+				sun.Enable();
+				sun.Set(cam);
+				cam.setView();
+
+				glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
+				glRotatef(-25.0f, 0.0f, 1.0f, 0.0f);
+
+				model->hideFlares();
+				model->draw(0.0f);
+
+				SDL_Surface *result = gfx->create_surface_ex(24, background->w, background->h);
+				glReadPixels(0, 0, result->w, result->h, GL_BGR, GL_UNSIGNED_BYTE, result->pixels);
+				vflip_bitmap(result);
+				save_bitmap(outputfilename, result);
+				SDL_FreeSurface(result);
+
+				gfx->flip();
+
+				while(!keypressed())
+				{
+					rest(100);
+					poll_inputs();
+				}
+
+				SDL_FreeSurface(background);
+			}
+			else
+			{
+				if (!model)
+					std::cerr << "error : could not load model file : '" << modelname << "'" << std::endl;
+				else
+					delete model;
+				if (!background)
+					std::cerr << "error : could not load background image file : '" << filename << "'" << std::endl;
+				else
+					SDL_FreeSurface(background);
+			}
+
+			// Clean everything
+			texture_manager.destroy();
+
+			gfx = NULL;
+
+			InterfaceManager = NULL;
+
+			args.erase(args.begin());
+			args.erase(args.begin());
+		}
+		else
+			std::cerr << "SYNTAX: " << appName << " create_buildpic model.3do/3dm/3so background_image_file" << std::endl;
+		return true;
+	}
+
+	/*!
 	 * \brief
 	 */
 	int hpiview(int argc, char *argv[])
@@ -498,6 +644,8 @@ namespace TA3D
 					ok |= hpiviewCmdExtractGAF(args);
 				else if (act == "create_gaf" || act == "--create_gaf" || act == "/create_gaf")
 					ok |= hpiviewCmdCreateGAF(args);
+				else if (act == "create_buildpic" || act == "--create_buildpic" || act == "/create_buildpic")
+					ok |= hpiviewCmdCreateBuildPic(args);
 			}
 			if (ok)
 				return true;
