@@ -56,10 +56,8 @@ namespace TA3D
 
     typedef std::list<PATH_NODE>    PATH;
 
-    void destroy_path(PATH &path);		// Détruit un chemin
     PATH find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist = 0, float hover_h=-100.0f );
     float path_length(const PATH &path);
-    void simplify_path(PATH_NODE *path);
     void next_node( PATH &path, SECTOR **map_data, float **map, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, int mw, int mh, int u_idx, float hover_h );
 	void compute_coord(PATH &path, int map_w, int map_h);
     PATH direct_path(Vector3D End);
