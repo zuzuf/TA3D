@@ -60,7 +60,6 @@ namespace TA3D
 	class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
 	{
 	public:
-		float			dh;					// dérivée maximale en valeur absolue de l'altitude
 		bool			underwater;			// indique si le bloc est sous l'eau
 		sint32			stuff;				// Indique l'élément graphique présent sur ce secteur
 		sint32			unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
@@ -171,6 +170,7 @@ namespace TA3D
 		SECTOR		**map_data;		// Tableau d'informations sur le terrain
 		byte		**view;			// Indique quels sont les parcelles de terrain visibles à l'écran
 		byte		**path;			// Tableau pour le pathfinding
+		Grid<float> slope;			// Maximum derivative of the height map
 		Grid<float>	energy;			// Energy of the map used by the pathfinder and units when following a path
 
 		SDL_Surface *view_map;		// Map of what has been discovered
