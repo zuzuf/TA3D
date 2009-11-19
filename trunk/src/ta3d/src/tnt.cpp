@@ -241,6 +241,7 @@ namespace TA3D
 		map->map_data = new SECTOR*[map->bloc_h<<1];
 		map->map_data[0] = new SECTOR[map->bloc_w*map->bloc_h<<2];
 		map->energy.resize(map->bloc_w << 1, map->bloc_h << 1);
+		map->slope.resize(map->bloc_w << 1, map->bloc_h << 1);
 
 		LOG_DEBUG("MAP: creating FOW maps");
 		map->sight_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);		// FOW maps
@@ -588,7 +589,7 @@ namespace TA3D
 				if (x + 1 < (map->bloc_w << 1))
 					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map[y][x]-map->h_map[y][x+1]));
 
-				map->map_data[y][x].dh = dh;
+				map->slope(x,y) = dh;
 				map->energy(x,y) = dh;
 			}
 		}

@@ -25,12 +25,76 @@
 # define __TA3D_AI_PATH_FINDING_H__
 
 # include <EngineClass.h>
+# include <yuni/core/smartptr/smartptr.h>
+# include <threads/thread.h>
+# include <threads/mutex.h>
 
 #define MAX_PATH_EXEC		1
 
 namespace TA3D
 {
 
+	class Path : public ObjectSync
+	{
+		friend class Pathfinder;
+
+	public:
+		typedef SmartPtr<Path>	Ptr;
+
+		class Node
+		{
+		public:
+			Node(int x, int z) : _x(x), _z(z)	{}
+			int &x() {	return _x;	}
+			int &z() {	return _z;	}
+		private:
+			int _x, _z;
+		};
+
+	public:
+		Path();
+		void next();
+		bool empty();
+		void clear();
+		bool ready() const	{	return _ready;	}
+
+	private:
+		void computeCoord();
+
+	private:
+		Vector3D pos;
+		std::deque<Node> nodes;
+		bool _ready;
+	};
+
+	class Pathfinder : public Thread, public ObjectSync
+	{
+	public:
+		struct Task
+		{
+			int dist;
+			int idx;
+			int UID;
+			Vector3D start;
+			Vector3D end;
+		};
+
+	public:
+		Pathfinder();
+		void clear();
+		void addTask(int idx, int dist, const Vector3D &start, const Vector3D &end);
+
+	private:
+		virtual ~Pathfinder();
+		virtual void proc(void* param);
+
+	private:
+		typedef std::deque<Task> TaskList;
+		TaskList tasks;
+
+	public:
+		static Pathfinder *instance();
+	};
 
     class PATH_NODE			// Noeud d'un chemin
     {

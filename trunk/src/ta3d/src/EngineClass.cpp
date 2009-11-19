@@ -71,7 +71,6 @@ namespace TA3D
 
 	void SECTOR::init()
 	{
-		dh = 0.0f;
 		underwater = false;
 		stuff = -1;
 		unit_idx = -1;
@@ -448,12 +447,11 @@ namespace TA3D
 		for (int y = y1; y < y2; ++y)
 			for (int x = x1; x < x2; ++x)
 			{
-				if (map_data[y][x].dh>max_dh)
-					max_dh=map_data[y][x].dh;
-				on_water|=map_data[y][x].underwater;
+				max_dh = Math::Max(max_dh, slope(x,y));
+				on_water |= map_data[y][x].underwater;
 			}
 		if (on_water)
-			max_dh=-max_dh;
+			max_dh = -max_dh;
 		return max_dh;
 	}
 
@@ -471,8 +469,8 @@ namespace TA3D
 			for(int x = x1; x < x2; ++x)
 			{
 				float d = -h_map[y][x];
-				if (d>depth)
-					depth=d;
+				if (d > depth)
+					depth = d;
 			}
 		return depth + sealvl;
 	}

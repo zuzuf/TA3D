@@ -29,13 +29,122 @@
 #include <tdf.h>					// For map features / Pour la gestion des éléments du jeu
 #include <EngineClass.h>			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
 #include <misc/math.h>
+#include <UnitEngine.h>
 
 #define PATHFINDER_MAX_LENGTH			10000
 
 
 namespace TA3D
 {
+	Pathfinder *Pathfinder::instance()
+	{
+		static Pathfinder sInstance;
+		return &sInstance;
+	}
 
+	Path::Path() : pos(), nodes(), _ready(false)
+	{
+	}
+
+	void Path::next()
+	{
+		MutexLocker mLock(pMutex);
+		if (nodes.empty())
+			return;
+
+		nodes.pop_front();
+		computeCoord();
+	}
+
+	bool Path::empty()
+	{
+		lock();
+		bool b = nodes.empty();
+		unlock();
+		return b;
+	}
+
+	void Path::clear()
+	{
+		lock();
+
+		nodes.clear();
+		pos.reset();
+
+		unlock();
+	}
+
+	void Path::computeCoord()
+	{
+		lock();
+		if (nodes.empty())
+		{
+			unlock();
+			return;
+		}
+
+		pos.x = float((nodes.front().x() << 3) + 4 - the_map->map_w_d);
+		pos.z = float((nodes.front().z() << 3) + 4 - the_map->map_h_d);
+		pos.y = 0.0f;
+
+		unlock();
+	}
+
+	Pathfinder::Pathfinder() : tasks()
+	{
+	}
+
+	void Pathfinder::clear()
+	{
+		MutexLocker mLock(pMutex);
+		tasks.clear();
+	}
+
+	void Pathfinder::addTask(int idx, int dist, const Vector3D &start, const Vector3D &end)
+	{
+		Task t = { dist, idx, units.unit[idx].ID, start, end };
+
+		lock();
+		bool found = false;
+		// If we have already made a request update it
+		for(TaskList::iterator i = tasks.begin() ; i != tasks.end() ; ++i)
+		{
+			if (i->UID == t.UID)
+			{
+				found = true;
+				*i = t;
+			}
+		}
+
+		// Otherwise add a new request to the task list
+		if (!found)
+			tasks.push_back(t);
+		if (!isRunning())
+			this->start();
+		unlock();
+	}
+
+	Pathfinder::~Pathfinder()
+	{
+		destroyThread();
+	}
+
+	void Pathfinder::proc(void*)
+	{
+		lock();
+		while(!tasks.empty() && !pDead)
+		{
+			Task cur = tasks.front();
+			tasks.pop_front();
+			unlock();
+
+			// Here we are free to compute this path
+
+			rest(0);		// We don't want to use all the CPU here
+			lock();
+		}
+		unlock();
+	}
 
     inline int path_len(const PATH &path)
     {
@@ -149,7 +258,7 @@ namespace TA3D
             for(x=x1;x<fx;x++)
                 if(x>=0 && x<bloc_w)
                     if( (map_data[y][x].unit_idx!=c && map_data[y][x].unit_idx!=-1)
-                        || ( map_data[y][x].dh>dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
+						|| ( the_map->slope(x,y) > dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
                         || h_map[y][x]<h_min || h_map[y][x]>h_max )
                         return false;
         y=fy-1;
@@ -157,7 +266,7 @@ namespace TA3D
             for(x=x1;x<fx;x++)
                 if(x>=0 && x<bloc_w)
                     if( (map_data[y][x].unit_idx!=c && map_data[y][x].unit_idx!=-1)
-                        || ( map_data[y][x].dh>dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
+						|| ( the_map->slope(x,y) > dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
                         || h_map[y][x]<h_min || h_map[y][x]>h_max )
                         return false;
         for(int y=y1+1;y<fy-1;y++)
@@ -165,13 +274,13 @@ namespace TA3D
                 x=x1;
                 if(x>=0 && x<bloc_w)
                     if( (map_data[y][x].unit_idx!=c && map_data[y][x].unit_idx!=-1)
-                        || ( map_data[y][x].dh>dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
+						|| ( the_map->slope(x,y) > dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
                         || h_map[y][x]<h_min || h_map[y][x]>h_max )
                         return false;
                 x=fx-1;
                 if(x>=0 && x<bloc_w)
                     if( (map_data[y][x].unit_idx!=c && map_data[y][x].unit_idx!=-1)
-                        || ( map_data[y][x].dh>dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
+						|| ( the_map->slope(x,y) > dh_max && h_map[y][x] > hover_h ) || map_data[y][x].lava
                         || h_map[y][x]<h_min || h_map[y][x]>h_max )
                         return false;
             }
