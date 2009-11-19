@@ -45,6 +45,26 @@ namespace TA3D
 	{
 		return data[x + y * w];
 	}
+
+	template<class T>
+		void Grid<T>::add(const Grid<T> &grid, int x, int y)
+	{
+		for(int j = 0 ; j < grid.getHeight() && j + y < h ; ++j)
+			if (j + y >= 0)
+				for(int i = 0 ; i < grid.getWidth() && i + x < w ; ++i)
+					if (i + x >= 0)
+						(*this)(i + x, j + y) += grid(i, j);
+	}
+
+	template<class T>
+		void Grid<T>::sub(const Grid<T> &grid, int x, int y)
+	{
+		for(int j = 0 ; j < grid.getHeight() && j + y < h ; ++j)
+			if (j + y >= 0)
+				for(int i = 0 ; i < grid.getWidth() && i + x < w ; ++i)
+					if (i + x >= 0)
+						(*this)(i + x, j + y) -= grid(i, j);
+	}
 }
 
 #endif
