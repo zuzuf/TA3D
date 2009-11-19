@@ -240,6 +240,7 @@ namespace TA3D
 		map->path[0] = new byte[map->bloc_w*map->bloc_h<<4];
 		map->map_data = new SECTOR*[map->bloc_h<<1];
 		map->map_data[0] = new SECTOR[map->bloc_w*map->bloc_h<<2];
+		map->energy.resize(map->bloc_w << 1, map->bloc_h << 1);
 
 		LOG_DEBUG("MAP: creating FOW maps");
 		map->sight_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);		// FOW maps
@@ -588,8 +589,11 @@ namespace TA3D
 					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map[y][x]-map->h_map[y][x+1]));
 
 				map->map_data[y][x].dh = dh;
+				map->energy(x,y) = dh;
 			}
 		}
+		LOG_DEBUG("MAP: computing height data (step 7)");
+		gaussianFilter(map->energy, 3.0f);
 
 		LOG_INFO("relief : " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;

@@ -4889,7 +4889,13 @@ script_exec:
 			}
 			pMutex.unlock();
 
-            units.map->rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx, pType->yardmap, port[YARD_OPEN]!=0.0f );
+			units.map->rect( cur_px - (pType->FootprintX >> 1),
+							 cur_py - (pType->FootprintZ >> 1),
+							 pType->FootprintX, pType->FootprintZ,
+							 idx, pType->yardmap, port[YARD_OPEN] != 0.0f );
+			units.map->energy.add(pType->gRepulsion,
+								  cur_px - (pType->gRepulsion.getWidth() >> 1),
+								  cur_py - (pType->gRepulsion.getHeight() >> 1));
 			drawn_open = port[YARD_OPEN]!=0.0f;
 		}
 		drawn_x = cur_px;
@@ -4907,11 +4913,23 @@ script_exec:
 		if (type == -1 || !(flags & 1) )
 			return;
 
+		UnitType *pType = unit_manager.unit_type[type_id];
 		drawn = false;
 		if (drawn_flying )
-			units.map->air_rect( drawn_x-(unit_manager.unit_type[type]->FootprintX>>1), drawn_y-(unit_manager.unit_type[type]->FootprintZ>>1), unit_manager.unit_type[type]->FootprintX, unit_manager.unit_type[type]->FootprintZ, idx, true );
+			units.map->air_rect( drawn_x - (pType->FootprintX >> 1),
+								 drawn_y - (pType->FootprintZ >> 1),
+								 pType->FootprintX, pType->FootprintZ,
+								 idx, true );
 		else
-			units.map->rect( drawn_x-(unit_manager.unit_type[type]->FootprintX>>1), drawn_y-(unit_manager.unit_type[type]->FootprintZ>>1), unit_manager.unit_type[type]->FootprintX, unit_manager.unit_type[type]->FootprintZ, -1, unit_manager.unit_type[type]->yardmap, drawn_open );
+		{
+			units.map->rect( drawn_x - (pType->FootprintX >> 1),
+							 drawn_y - (pType->FootprintZ >> 1),
+							 pType->FootprintX, pType->FootprintZ,
+							 -1, pType->yardmap, drawn_open );
+			units.map->energy.sub(pType->gRepulsion,
+								  cur_px - (pType->gRepulsion.getWidth() >> 1),
+								  cur_py - (pType->gRepulsion.getHeight() >> 1));
+		}
 	}
 
 	void Unit::draw_on_FOW( bool jamming )

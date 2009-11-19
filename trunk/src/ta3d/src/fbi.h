@@ -34,6 +34,7 @@
 # include "ingame/sidedata.h"
 # include "gfx/texture.h"
 # include "misc/string.h"
+# include "misc/grid.h"
 
 
 
@@ -114,6 +115,7 @@ namespace TA3D
         String  Unitname;
         byte    FootprintX;
         byte    FootprintZ;
+		Grid<float> gRepulsion;
         cHashTable<int> Category;
         String::Vector categories;
         uint32  fastCategory;

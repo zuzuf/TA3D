@@ -15,8 +15,8 @@ namespace TA3D
 		const T& operator()(int x, int y) const;
 		T& operator()(int x, int y);
 
-		int getWidth() {	return w;	}
-		int getHeight() {	return h;	}
+		int getWidth() const {	return w;	}
+		int getHeight() const {	return h;	}
 		void add(const Grid<T> &grid, int x, int y);
 		void sub(const Grid<T> &grid, int x, int y);
 

@@ -12,7 +12,7 @@ namespace TA3D
 		float *backup = new float[Math::Max(grid.getWidth(), grid.getHeight())];
 		float *kernel = new float[2 * s + 1];
 		for(int i = -s ; i <= s ; ++i)
-			kernel[i] = float(exp(-i * i / (2.0 * sigma)) / (sqrt(2.0 * M_PI) * sigma));
+			kernel[s + i] = float(exp(-i * i / (2.0 * sigma * sigma)) / (sqrt(2.0 * M_PI) * sigma * sigma));
 
 		// X pass
 		for(int y = 0 ; y < grid.getHeight() ; ++y)
