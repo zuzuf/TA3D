@@ -87,6 +87,7 @@ SET(SRC_MISC
 		misc/camera.h misc/camera.cpp
 		misc/recttest.h misc/recttest.cpp
 
+		misc/grid.h misc/grid.hxx
 		misc/math.h misc/math.cpp
 		misc/tdf.h misc/tdf.hxx misc/tdf.cpp)
 		
