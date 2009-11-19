@@ -37,6 +37,7 @@
 # include "misc/string.h"
 # include "misc/slist.h"
 # include "misc/sset.h"
+# include "misc/grid.h"
 
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
@@ -170,6 +171,7 @@ namespace TA3D
 		SECTOR		**map_data;		// Tableau d'informations sur le terrain
 		byte		**view;			// Indique quels sont les parcelles de terrain visibles à l'écran
 		byte		**path;			// Tableau pour le pathfinding
+		Grid<float>	energy;			// Energy of the map used by the pathfinder and units when following a path
 
 		SDL_Surface *view_map;		// Map of what has been discovered
 		SDL_Surface *sight_map;		// Map of who is viewing
