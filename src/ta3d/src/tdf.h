@@ -35,6 +35,7 @@
 # include "misc/camera.h"
 # include <list>
 # include "EngineClass.h"
+# include "misc/grid.h"
 
 
 namespace TA3D
@@ -94,6 +95,8 @@ namespace TA3D
 		int		footprintx;
 		//!
 		int		footprintz;
+		//!
+		Grid<float> gRepulsion;
 		//!
 		int		height;
 		//!

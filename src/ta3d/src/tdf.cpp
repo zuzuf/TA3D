@@ -261,6 +261,25 @@ namespace TA3D
 			pFeature->burnweapon = parser.pullAsString( key + "burnweapon" );
 			pFeature->feature_burnt = parser.pullAsString( key + "featureburnt" );
 			pFeature->feature_reclamate = parser.pullAsString( key + "featurereclamate" );
+
+			// Build the repulsion grid
+			pFeature->gRepulsion.resize(pFeature->footprintx * 3, pFeature->footprintz * 3);
+			float sigx = pFeature->footprintx * 0.5f;
+			float sigz = pFeature->footprintz * 0.5f;
+			float sigx2 = -0.5f / (sigx * sigx);
+			float sigz2 = -0.5f / (sigz * sigz);
+			float norm = 1.0f / (sqrtf(2.0f * M_PI) * sigx * sigz);
+			for(int z = 0 ; z < pFeature->gRepulsion.getHeight() ; ++z)
+			{
+				float dz = z - pFeature->gRepulsion.getHeight() * 0.5f;
+				dz *= dz;
+				for(int x = 0 ; x < pFeature->gRepulsion.getWidth() ; ++x)
+				{
+					float dx = x - pFeature->gRepulsion.getWidth() * 0.5f;
+					dx *= dx;
+					pFeature->gRepulsion(x,z) = expf(sigx2 * dx + sigz2 * dz) * norm;
+				}
+			}
 		}
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -1162,7 +1181,12 @@ namespace TA3D
 		{
 			int X = pFeature->footprintx;
 			int Z = pFeature->footprintz;
-			the_map->rect( feature[idx].px - (X>>1), feature[idx].py - (Z>>1), X, Z, -2 - idx);
+			the_map->rect( feature[idx].px - (X >> 1),
+						   feature[idx].py - (Z >> 1),
+						   X, Z, -2 - idx);
+			the_map->energy.add(pFeature->gRepulsion,
+								feature[idx].px - (pFeature->gRepulsion.getWidth() >> 1),
+								feature[idx].py - (pFeature->gRepulsion.getHeight() >> 1));
 		}
 	}
 
@@ -1177,6 +1201,9 @@ namespace TA3D
 			int X = pFeature->footprintx;
 			int Z = pFeature->footprintz;
 			the_map->rect(feature[idx].px - (X >> 1), feature[idx].py - (Z >> 1), X, Z, -1);
+			the_map->energy.sub(pFeature->gRepulsion,
+								feature[idx].px - (pFeature->gRepulsion.getWidth() >> 1),
+								feature[idx].py - (pFeature->gRepulsion.getHeight() >> 1));
 			the_map->map_data[feature[idx].py] [feature[idx].px].stuff = -1;
 		}
 	}
