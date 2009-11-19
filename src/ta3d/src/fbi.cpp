@@ -868,6 +868,24 @@ namespace TA3D
 			LOG_WARNING("The unit does not have a name");
 		if (canfly == 1)
 			TurnRate = TurnRate * 3; // A hack thanks to Doors
+		// Build the repulsion grid
+		gRepulsion.resize(FootprintX * 3, FootprintZ * 3);
+		float sigx = FootprintX * 0.5f;
+		float sigz = FootprintZ * 0.5f;
+		float sigx2 = -0.5f / (sigx * sigx);
+		float sigz2 = -0.5f / (sigz * sigz);
+		float norm = 1.0f / (sqrtf(2.0f * M_PI) * sigx * sigz);
+		for(int z = 0 ; z < gRepulsion.getHeight() ; ++z)
+		{
+			float dz = z - gRepulsion.getHeight() * 0.5f;
+			dz *= dz;
+			for(int x = 0 ; x < gRepulsion.getWidth() ; ++x)
+			{
+				float dx = x - gRepulsion.getWidth() * 0.5f;
+				dx *= dx;
+				gRepulsion(x,z) = expf(sigx2 * dx + sigz2 * dz) * norm;
+			}
+		}
 		load_dl();
 		return nb_inconnu;
 	}
