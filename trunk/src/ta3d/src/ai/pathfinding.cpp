@@ -286,7 +286,7 @@ namespace TA3D
 			return;			// So we can't find a path
 		}
 
-		Grid<byte> &zone = the_map->path;
+		Grid<int> &zone = the_map->path;
 		Grid<float> &energy = the_map->energy;
 
 		while (n < PATH_MAX_LENGTH && ((m_dist == 0 && (nodes.back().x() != END_X || nodes.back().z() != END_Z)) || (m_dist > 0 && sq( nodes.back().x() - END_X ) + sq( nodes.back().z() - END_Z) > m_dist)))
@@ -405,43 +405,43 @@ namespace TA3D
 			}
 
 			nodes.clear();
-			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Mark the path
-				++zone(cur->x(), cur->z());
-			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Remove loops
-			{
-				while (zone(cur->x(), cur->z()) > 1)			// Remove loops
-				{
-					std::deque<AI::Path::Node>::iterator next = cur;
-					++next;
-					--zone(cur->x(), cur->z());
-					while(next != tmp.end() && next->x() != cur->x() && next->z() != cur->z())
-					{
-						--zone(next->x(), next->z());				// Do some cleaning
-						++next;
-					}
-					if (next != tmp.end())		// Should always happend
-						cur = next;
-				}
-				zone(cur->x(), cur->z()) = 0;				// Do some cleaning
-				nodes.push_back(*cur);
-			}
+			int d = 1;
+			for (std::deque<AI::Path::Node>::reverse_iterator cur = tmp.rbegin() ; cur != tmp.rend() ; ++cur)		// Mark the path with the distance from the destination
+				zone(cur->x(), cur->z()) = d++;
 
-			tmp.clear();
-			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
+			nodes.push_back(tmp.front());
+			while (nodes.back().x() != tmp.back().x() || nodes.back().z() != tmp.back().z())		// Reconstruct the path
 			{
-				if (tmp.empty())
+				zone(nodes.back().x(), nodes.back().z()) = 0;
+				AI::Path::Node next = nodes.back();
+
+				int b = -1;
+				int m = int(tmp.size() + 10);
+				for(int i = 0 ; i < 8 ; ++i)
 				{
-					tmp.push_back(*cur);
-					continue;
+					if (next.x() + order_dx[i] < 0 || next.x() + order_dx[i] >= the_map->bloc_w_db
+						|| next.z() + order_dz[i] < 0 || next.z() + order_dz[i] >= the_map->bloc_h_db)
+						continue;
+					int t = zone(next.x() + order_dx[i], next.z() + order_dz[i]);
+					if (t > 0 && t < m)
+					{
+						b = i;
+						m = t;
+					}
 				}
-				std::deque<AI::Path::Node>::iterator next = cur;
-				++next;
-				if (next == nodes.end() || abs(next->x() - tmp.back().x()) != 1 || abs(next->z() - tmp.back().z()) != 1)	// Remove useless points from diagonal paths
-					tmp.push_back(*cur);
+
+				if (b == -1)		// This should not be possible
+					break;
+				next.x() += order_dx[b];
+				next.z() += order_dz[b];
+
+				nodes.push_back(next);
 			}
+			for (std::deque<AI::Path::Node>::reverse_iterator cur = tmp.rbegin() ; cur != tmp.rend() ; ++cur)		// Do some cleaning
+				zone(cur->x(), cur->z()) = 0;
 
 			path.clear();
-			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)
+			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
 			{
 				if (path.empty())
 				{
@@ -450,7 +450,7 @@ namespace TA3D
 				}
 				std::deque<AI::Path::Node>::iterator next = cur;
 				++next;
-				if (next == tmp.end() ||
+				if (next == nodes.end() ||
 					(next->x() - path.back().x()) * (cur->z() - path.back().z()) != (cur->x() - path.back().x()) * (next->z() - path.back().z()))	// Remove useless points
 					path.push_back(*cur);
 			}

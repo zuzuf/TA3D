@@ -169,7 +169,7 @@ namespace TA3D
 		byte		**ph_map_2;		// Tableau du relief projeté (multiplié par un facteur flottant) pour le calcul inverse(projection) lors de l'affichage
 		SECTOR		**map_data;		// Tableau d'informations sur le terrain
 		byte		**view;			// Indique quels sont les parcelles de terrain visibles à l'écran
-		Grid<byte>	path;			// Tableau pour le pathfinding
+		Grid<int>	path;			// Tableau pour le pathfinding
 		Grid<float> slope;			// Maximum derivative of the height map
 		Grid<float>	energy;			// Energy of the map used by the pathfinder and units when following a path
 
