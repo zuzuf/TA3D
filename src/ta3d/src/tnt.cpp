@@ -261,9 +261,7 @@ namespace TA3D
 		map->ph_map_2[0] = new byte[map->bloc_w*map->bloc_h<<2];
 
 		LOG_DEBUG("MAP: initialising map data");
-		for(int y = 0 ; y < map->path.getHeight() ; ++y)
-			for(int x = 0 ; x < map->path.getWidth() ; ++x)
-				map->path(x,y) = 0;
+		map->path.clear();
 		for (i = 1; i < (map->bloc_h << 1); ++i)
 		{
 			map->h_map[i] = &(map->h_map[0][i*map->bloc_w<<1]);
