@@ -66,6 +66,7 @@ namespace TA3D
 			Node &back()	{	return nodes.back();	}
 			void push_back(const Node &n) {	nodes.push_back(n);	}
 			void push_front(const Node &n) {	nodes.push_front(n);	}
+			int length() const	{	return int(nodes.size());	}
 
 			void setPos(const Vector3D &pos)	{	this->pos = pos;	}
 			const Vector3D &Pos()	const	{	return pos;	}
@@ -119,40 +120,6 @@ namespace TA3D
 		static void findPath( AI::Path &path, const Task &task );
 		static AI::Path directPath(const Vector3D &end);
 	};
-
-    class PATH_NODE			// Noeud d'un chemin
-    {
-    public:
-        int			x, y;				// Position du noeud(sur la carte)
-        Vector3D	Pos;				// Position du noeud sur le terrain
-        bool		made_direct;		// Flag : have we made this path direct or is it still the old one ?
-
-        PATH_NODE()
-            :x(0), y(0), Pos(), made_direct(false)
-        {}
-
-        PATH_NODE(const int X, const int Y, Vector3D &P)
-            :x(X), y(Y), made_direct(false)
-        {
-            Pos = P;
-        }
-
-        PATH_NODE(const int X, const int Y)
-            :x(X), y(Y), made_direct(false)
-        {}
-    };
-
-    typedef std::list<PATH_NODE>    PATH;
-
-	PATH find_path( SECTOR **map_data, float **map, Grid<byte> &zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist = 0, float hover_h=-100.0f );
-    float path_length(const PATH &path);
-    void next_node( PATH &path, SECTOR **map_data, float **map, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, int mw, int mh, int u_idx, float hover_h );
-	void compute_coord(PATH &path, int map_w, int map_h);
-    PATH direct_path(Vector3D End);
-    bool is_direct(SECTOR **map_data, float **h_map, float dh_max, float h_min, float h_max, PATH_NODE &A, PATH_NODE &B, int mw, int mh, int bw, int bh, int u_idx, float hover_h);
-    void make_path_direct(SECTOR **map_data, float **h_map, float dh_max, float h_min, float h_max, PATH &path, int mw, int mh, int bw, int bh, int u_idx, float hover_h);
-
-
 } // namespace TA3D
 
 #endif // __TA3D_AI_PATH_FINDING_H__
