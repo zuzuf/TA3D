@@ -652,7 +652,7 @@ namespace TA3D
 
 			units.lock();
 			if (units.unit[ unit_id ].flags )
-				units.unit[ unit_id ].add_mission(MISSION_ATTACK, &(target), false, 0, &(units.unit[target_id]), AI::Path(), MISSION_FLAG_COMMAND_FIRE );
+				units.unit[ unit_id ].add_mission(MISSION_ATTACK, &(target), false, 0, &(units.unit[target_id]), MISSION_FLAG_COMMAND_FIRE );
 			units.unlock();
 		}
 

@@ -107,9 +107,9 @@ namespace TA3D
 			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canmove)
 			{
 				if (set)
-					unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, AI::Path(), flags);
+					unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, flags);
 				else
-					unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, AI::Path(), flags);
+					unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, flags);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
 					unit[i].playSound("ok1");
 			}

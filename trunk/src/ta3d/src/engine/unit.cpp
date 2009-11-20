@@ -450,7 +450,7 @@ namespace TA3D
 	}
 
 	void Unit::add_mission(int mission_type, const Vector3D* target, bool step, int dat, void* pointer,
-						   const AI::Path &path, byte m_flags, int move_data, int patrol_node)
+						   byte m_flags, int move_data, int patrol_node)
 	{
 		MutexLocker locker(pMutex);
 
@@ -552,7 +552,7 @@ namespace TA3D
 			new_mission.getTarget().setPos(*target);
 		new_mission.setTime(0.0f);
 		new_mission.setData(dat);
-		new_mission.Path() = path;
+		new_mission.Path().clear();
 		new_mission.setLastD(9999999.0f);
 		new_mission.setFlags(m_flags);
 		new_mission.setMoveData(move_data);
@@ -629,7 +629,7 @@ namespace TA3D
 
 
 	void Unit::set_mission(int mission_type, const Vector3D* target, bool step, int dat, bool stopit,
-						   void* pointer, const AI::Path &path, byte m_flags, int move_data)
+						   void* pointer, byte m_flags, int move_data)
 	{
 		MutexLocker locker(pMutex);
 
@@ -775,7 +775,7 @@ namespace TA3D
 			def_mission->setMissionType(mission_type);
 			def_mission->getTarget().set(targetType, targetIdx, target_ID);
 			def_mission->setData(dat);
-			def_mission->Path() = path;
+			def_mission->Path().clear();
 			def_mission->setLastD(9999999.0f);
 			def_mission->setFlags(m_flags);
 			def_mission->setMoveData(move_data);
@@ -800,7 +800,7 @@ namespace TA3D
 			mission->setMissionType(mission_type);
 			mission->getTarget().set(targetType, targetIdx, target_ID);
 			mission->setData(dat);
-			mission->Path() = path;
+			mission->Path().clear();
 			mission->setLastD(9999999.0f);
 			mission->setFlags(m_flags);
 			mission->setMoveData(move_data);
@@ -1740,7 +1740,7 @@ namespace TA3D
 					target.z = -map->map_h_d+256;
 				else if (target.z > map->map_h_d-256)
 					target.z = map->map_h_d-256;
-				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,AI::Path(),0,1);		// Stay on map
+				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
 			}
 
 		flags &= 0xEF;		// To fix a bug
@@ -2565,7 +2565,7 @@ namespace TA3D
 									else if (target.z > map->map_h_d-256)
 										target.z = map->map_h_d-256;
 									next_mission();
-									add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,AI::Path(),0,1);		// Stay on map
+									add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
 								}
 								else
 									if (!can_be_there( cur_px, cur_py, map, type_id, owner_id, idx ))
@@ -3184,7 +3184,7 @@ namespace TA3D
 						pad_timer += dt;
 
 						if (!mission.hasNext())
-							add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,AI::Path(),MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
+							add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
                         if (pType->CanReclamate                                                 // Auto reclaim things on the battle field when needed
                             && (players.r_energy[owner_id] >= players.energy_t[owner_id]
@@ -3620,7 +3620,7 @@ namespace TA3D
 									Vector3D target = Pos;
 									target.z += 128.0f;
 									if (!def_mission)
-										target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, false, 5, true, NULL, AI::Path(),0,5);		// Fait sortir l'unité du bâtiment
+										target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, false, 5, true, NULL, 0, 5);		// Fait sortir l'unité du bâtiment
 									else
 										target_unit->mission = def_mission;
 								}
@@ -4148,8 +4148,7 @@ namespace TA3D
 					if (enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
 						add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,
 									&(weapons.weapon[enemy_idx].Pos),
-									false, 0, &(weapons.weapon[enemy_idx]),
-									AI::Path(),12);	// 12 = 4 | 8, targets a weapon and automatic fire
+									false, 0, &(weapons.weapon[enemy_idx]), 12);	// 12 = 4 | 8, targets a weapon and automatic fire
 				}
 			}
 		}
