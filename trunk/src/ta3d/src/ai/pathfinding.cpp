@@ -260,7 +260,7 @@ namespace TA3D
 		int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
 		int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 
-		int PATH_MAX_LENGTH = Math::Max(256, Math::Min((int)(sqrtf(sq(end_x - start_x) + sq(end_z - start_z)) * 5.0f), PATHFINDER_MAX_LENGTH));
+		int PATH_MAX_LENGTH = Math::Max(256, Math::Min(int(sqrtf(float(sq(end_x - start_x) + sq(end_z - start_z))) * 5.0f), PATHFINDER_MAX_LENGTH));
 
 		int m_dist = task.dist;
 		m_dist *= m_dist;
@@ -322,15 +322,15 @@ namespace TA3D
 					if (((nodes.back().x() >> 1) != NX || (nodes.back().z() >> 1) != NZ) && !zone(nx, nz))				// No need to do it twice
 						if (!checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
 							continue;
-					rdist[ e ] = dist[ e ] = pType->MaxSlope * sqrtf(float(sq( END_X - nx ) + sq( END_Z - nz ))) + energy(nx, nz);
+					rdist[ e ] = dist[ e ] = float(pType->MaxSlope) * sqrtf(float(sq( END_X - nx ) + sq( END_Z - nz ))) + energy(nx, nz);
 
 					if (zoned[ e ])
 						dist[ e ] = -1.0f;
 				}
 				for (int e = 0 ; e < 8 ; ++e)		// Look for a way to go
 				{
-					if (( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ])
-						  || (dist[ order_m2[ e ] ] == -1 && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] == -1 && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0)
+					if (( (dist[ order_m1[ e ] ] < 0.0f && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] < 0.0f && !zoned[ order_p1[ e ] ])
+						  || (dist[ order_m2[ e ] ] < 0.0f && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] < 0.0f && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0.0f)
 					{
 						if (m == -1)	m = e;
 						else if (dist[ e ] < dist[ m ])
@@ -352,10 +352,10 @@ namespace TA3D
 					{
 						for (int e = 0 ; e < 8 ; ++e)
 						{
-							if (rdist[ e ] == -1)	continue;
+							if (rdist[ e ] < 0.0f)	continue;
 							nx = nodes.back().x() + order_dx[ e ];
 							nz = nodes.back().z() + order_dz[ e ];
-							dist[ e ] = rdist[ e ] + 1000 * zone(nx, nz);
+							dist[ e ] = rdist[ e ] + float(1000 * zone(nx, nz));
 						}
 						for (int e = 0 ; e < 8 ; ++e)		// Ultimate test
 							if (dist[ e ] >= 0)
@@ -415,11 +415,11 @@ namespace TA3D
 		}
 	}
 
-	bool Pathfinder::checkRectFull(int x1, int y1, short c, UnitType *pType)
+	bool Pathfinder::checkRectFull(int x1, int y1, int c, UnitType *pType)
 	{
-		float dh_max = pType->MaxSlope * H_DIV;
-		float h_min = pType->canhover ? -100.0f : the_map->sealvl - pType->MaxWaterDepth * H_DIV;
-		float h_max = the_map->sealvl - pType->MinWaterDepth * H_DIV;
+		float dh_max = float(pType->MaxSlope) * H_DIV;
+		float h_min = pType->canhover ? -100.0f : the_map->sealvl - float(pType->MaxWaterDepth) * H_DIV;
+		float h_max = the_map->sealvl - float(pType->MinWaterDepth) * H_DIV;
 		float hover_h = pType->canhover ? the_map->sealvl : -100.0f;
 		int fy = y1 + pType->FootprintZ;
 		int fx = x1 + pType->FootprintX;

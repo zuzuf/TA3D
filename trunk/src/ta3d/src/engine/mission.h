@@ -155,7 +155,7 @@ namespace TA3D
 		Mission& operator = (const Mission& rhs);
 
 		bool empty()	{	return qStep.empty();	}
-		int size()		{	return qStep.size();	}
+		int size()		{	return int(qStep.size());	}
 		void addStep()	{	qStep.push(MissionStep());	}
 
 		void next()
@@ -237,7 +237,7 @@ namespace TA3D
 		void insert(const iterator &it, const Mission &mission)
 		{	sMission.insert(it, mission);	}
 
-		uint8 mission() const	{	return empty() ? 0 : sMission.front().getMissionType();	}
+		uint8 mission() const	{	return empty() ? uint8(0) : sMission.front().getMissionType();	}
 
 		Mission& front()
 		{

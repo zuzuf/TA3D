@@ -94,7 +94,7 @@ namespace TA3D
 		{
 			int dist;
 			int idx;
-			int UID;
+			uint32 UID;
 			Vector3D start;
 			Vector3D end;
 		};
@@ -113,7 +113,7 @@ namespace TA3D
 		TaskList tasks;
 
 	private:
-		static bool checkRectFull(int x1, int y1, short c, UnitType *pType);
+		static bool checkRectFull(int x1, int y1, int c, UnitType *pType);
 		static Mutex sMutex;
 	public:
 		static Pathfinder *instance();
