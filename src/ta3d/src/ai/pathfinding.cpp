@@ -295,12 +295,8 @@ namespace TA3D
 
 			int m = -1;
 
-			int nx = nodes.back().x();
-			int nz = nodes.back().z();
-			if (abs( END_X - nodes.back().x() ) > abs( END_Z - nodes.back().z() ))
-				nx += sgn( END_X - nodes.back().x() );
-			else
-				nz += sgn( END_Z - nodes.back().z() );
+			int nx = nodes.back().x() + sgn( END_X - nodes.back().x() );
+			int nz = nodes.back().z() + sgn( END_Z - nodes.back().z() );
 
 			if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)
 				break;		// If we have to go out there is a problem ...
@@ -334,8 +330,11 @@ namespace TA3D
 				}
 				for (int e = 0 ; e < 8 ; ++e)		// Look for a way to go
 				{
-					if (( (dist[ order_m1[ e ] ] < 0.0f && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] < 0.0f && !zoned[ order_p1[ e ] ])
-						  || (dist[ order_m2[ e ] ] < 0.0f && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] < 0.0f && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0.0f)
+					if (((dist[ order_m1[ e ] ] < 0.0f && !zoned[ order_m1[ e ] ])
+						  || (dist[ order_p1[ e ] ] < 0.0f && !zoned[ order_p1[ e ] ])
+						  || (dist[ order_m2[ e ] ] < 0.0f && !zoned[ order_m2[ e ] ])
+						  || (dist[ order_p2[ e ] ] < 0.0f && !zoned[ order_p2[ e ] ]))
+						&& dist[ e ] >= 0.0f)
 					{
 						if (m == -1)	m = e;
 						else if (dist[ e ] < dist[ m ])
@@ -405,8 +404,22 @@ namespace TA3D
 					tmp.push_back(*cur);
 			}
 
-			path.clear();
+			nodes.clear();
 			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)
+			{
+				if (nodes.empty())
+				{
+					nodes.push_back(*cur);
+					continue;
+				}
+				std::deque<AI::Path::Node>::iterator next = cur;
+				++next;
+				if (next == tmp.end() || abs(next->x() - nodes.back().x()) != 1 || abs(next->z() - nodes.back().z()) != 1)	// Remove useless points from diagonal paths
+					nodes.push_back(*cur);
+			}
+
+			path.clear();
+			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
 			{
 				if (path.empty())
 				{
@@ -415,7 +428,7 @@ namespace TA3D
 				}
 				std::deque<AI::Path::Node>::iterator next = cur;
 				++next;
-				if (next == tmp.end() ||
+				if (next == nodes.end() ||
 					(next->x() - path.back().x()) * (cur->z() - path.back().z()) != (cur->x() - path.back().x()) * (next->z() - path.back().z()))	// Remove useless points
 					path.push_back(*cur);
 			}
