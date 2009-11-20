@@ -180,8 +180,8 @@ namespace TA3D
 		float getLastD() const	{	return last_d;	}
 		int getData() const		{	return qStep.top().getData();	}
 		int getMoveData() const	{	return move_data;	}
-		const PATH &getPath()	const	{	return path;	}
-		PATH &Path()			{	return path;	}
+		const AI::Path &getPath()	const	{	return path;	}
+		AI::Path &Path()		{	return path;	}
 		Target &getTarget()		{	return qStep.top().getTarget();	}
 		bool isStep() const		{	return qStep.size() != 1;	}
 		byte getFlags() const	{	return qStep.top().getFlags();	}
@@ -198,7 +198,7 @@ namespace TA3D
 		void setFlags(byte flags)		{	qStep.top().setFlags(flags);	}
 		void setNode(uint16 node)	{	this->node = node;	}
 
-		void save(gzFile file) const;
+		void save(gzFile file);
 		void load(gzFile file);
 
 	private:
@@ -209,7 +209,7 @@ namespace TA3D
 		int			move_data;	// Required data for the moving part of the order
 //		Mission 	*next;		// Mission suivante
 //		uint8		mission;
-        PATH        path;		// Chemin emprunté par l'unité si besoin pour la mission
+		AI::Path    path;		// Chemin emprunté par l'unité si besoin pour la mission
 //		byte		flags;		// Données supplémentaires
 //		void		*p;			// Pointer to whatever we need
 //		uint32		target_ID;	// Identify a target unit
@@ -291,7 +291,7 @@ namespace TA3D
 		bool doNothing();
 		bool doNothingAI();
 
-		void save(gzFile file) const;
+		void save(gzFile file);
 		void load(gzFile file);
 	private:
 		Container	sMission;

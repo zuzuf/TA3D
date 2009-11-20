@@ -334,7 +334,7 @@ namespace TA3D
 							}
 						}
 						if (target_id >= 0 )
-                            units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), PATH(), MISSION_FLAG_COMMAND_FIRE );
+							units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), AI::Path(), MISSION_FLAG_COMMAND_FIRE );
 					}
 					units.unit[ *i ].unlock();
 				}

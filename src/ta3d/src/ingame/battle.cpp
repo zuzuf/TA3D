@@ -647,9 +647,9 @@ namespace TA3D
 											break;
 										}
 									if (TA3D_SHIFT_PRESSED)
-                                        units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),PATH(),commandfire);
+										units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),AI::Path(),commandfire);
 									else
-                                        units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),PATH(),commandfire);
+										units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),AI::Path(),commandfire);
 								}
 								units.unit[i].unlock();
 							}
@@ -778,9 +778,9 @@ namespace TA3D
 												break;
 											}
 										if (TA3D_SHIFT_PRESSED)
-                                            units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL,PATH(),commandfire);
+											units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL, AI::Path(),commandfire);
 										else
-                                            units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,PATH(),commandfire);
+											units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,AI::Path(),commandfire);
 									}
 									units.unit[i].unlock();
 								}

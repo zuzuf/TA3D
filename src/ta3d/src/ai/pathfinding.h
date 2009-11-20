@@ -28,51 +28,63 @@
 # include <yuni/core/smartptr/smartptr.h>
 # include <threads/thread.h>
 # include <threads/mutex.h>
+# include <zlib.h>
 
 #define MAX_PATH_EXEC		1
 
 namespace TA3D
 {
+	class UnitType;
 
-	class Path : public ObjectSync
+	class Pathfinder;
+	namespace AI
 	{
-		friend class Pathfinder;
-
-	public:
-		typedef SmartPtr<Path>	Ptr;
-
-		class Node
+		class Path : public ObjectSync
 		{
+			friend class TA3D::Pathfinder;
+
 		public:
-			Node(int x, int z) : _x(x), _z(z)	{}
-			int &x() {	return _x;	}
-			int &z() {	return _z;	}
+			typedef SmartPtr<Path>	Ptr;
+
+			class Node
+			{
+			public:
+				Node(int x, int z) : _x(x), _z(z)	{}
+				int &x() {	return _x;	}
+				int &z() {	return _z;	}
+			private:
+				int _x, _z;
+			};
+
+		public:
+			Path();
+			void next();
+			bool empty();
+			void clear();
+			bool ready() const	{	return _ready;	}
+			Node &front()	{	return nodes.front();	}
+			Node &back()	{	return nodes.back();	}
+			void push_back(const Node &n) {	nodes.push_back(n);	}
+			void push_front(const Node &n) {	nodes.push_front(n);	}
+
+			void setPos(const Vector3D &pos)	{	this->pos = pos;	}
+			const Vector3D &Pos()	const	{	return pos;	}
+
+			void save(gzFile file);
+			void load(gzFile file);
+
+			typedef std::deque<Node>::iterator iterator;
+			iterator begin()	{	return nodes.begin();	}
+			iterator end()	{	return nodes.end();	}
 		private:
-			int _x, _z;
+			void computeCoord();
+
+		private:
+			Vector3D pos;
+			std::deque<Node> nodes;
+			bool _ready;
 		};
-
-	public:
-		Path();
-		void next();
-		bool empty();
-		void clear();
-		bool ready() const	{	return _ready;	}
-		Node &front()	{	return nodes.front();	}
-		Node &back()	{	return nodes.back();	}
-		void push_back(const Node &n) {	nodes.push_back(n);	}
-		void push_front(const Node &n) {	nodes.push_front(n);	}
-
-		typedef std::deque<Node>::iterator iterator;
-		iterator begin()	{	return nodes.begin();	}
-		iterator end()	{	return nodes.end();	}
-	private:
-		void computeCoord();
-
-	private:
-		Vector3D pos;
-		std::deque<Node> nodes;
-		bool _ready;
-	};
+	}
 
 	class Pathfinder : public Thread, public ObjectSync
 	{
@@ -99,8 +111,13 @@ namespace TA3D
 		typedef std::deque<Task> TaskList;
 		TaskList tasks;
 
+	private:
+		static bool checkRectFull(int x1, int y1, short c, UnitType *pType);
+		static Mutex sMutex;
 	public:
 		static Pathfinder *instance();
+		static void findPath( AI::Path &path, const Task &task );
+		static AI::Path directPath(const Vector3D &end);
 	};
 
     class PATH_NODE			// Noeud d'un chemin
