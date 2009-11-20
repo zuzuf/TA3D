@@ -236,10 +236,9 @@ namespace TA3D
 			map->bmap[i] = &(map->bmap[0][i*map->bloc_w]);
 		map->view = new byte*[map->bloc_h];
 		map->view[0] = new byte[map->bloc_w*map->bloc_h];
-		map->path = new byte*[map->bloc_h<<2];
-		map->path[0] = new byte[map->bloc_w*map->bloc_h<<4];
 		map->map_data = new SECTOR*[map->bloc_h<<1];
 		map->map_data[0] = new SECTOR[map->bloc_w*map->bloc_h<<2];
+		map->path.resize(map->bloc_w_db << 1, map->bloc_h_db << 1);
 		map->energy.resize(map->bloc_w << 1, map->bloc_h << 1);
 		map->slope.resize(map->bloc_w << 1, map->bloc_h << 1);
 
@@ -262,9 +261,9 @@ namespace TA3D
 		map->ph_map_2[0] = new byte[map->bloc_w*map->bloc_h<<2];
 
 		LOG_DEBUG("MAP: initialising map data");
-		for (i = 1; i < (map->bloc_h << 2); ++i)
-			map->path[i] = &(map->path[0][i*map->bloc_w<<2]);
-		memset(map->path[0],0,map->bloc_w*map->bloc_h<<4);
+		for(int y = 0 ; y < map->path.getHeight() ; ++y)
+			for(int x = 0 ; x < map->path.getWidth() ; ++x)
+				map->path(x,y) = 0;
 		for (i = 1; i < (map->bloc_h << 1); ++i)
 		{
 			map->h_map[i] = &(map->h_map[0][i*map->bloc_w<<1]);
