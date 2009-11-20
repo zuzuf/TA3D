@@ -84,6 +84,7 @@ namespace TA3D
 
 			nodes.clear();
 			pos.reset();
+			_ready = false;
 
 			unlock();
 		}
