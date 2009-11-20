@@ -57,7 +57,14 @@ namespace TA3D
 		bool empty();
 		void clear();
 		bool ready() const	{	return _ready;	}
+		Node &front()	{	return nodes.front();	}
+		Node &back()	{	return nodes.back();	}
+		void push_back(const Node &n) {	nodes.push_back(n);	}
+		void push_front(const Node &n) {	nodes.push_front(n);	}
 
+		typedef std::deque<Node>::iterator iterator;
+		iterator begin()	{	return nodes.begin();	}
+		iterator end()	{	return nodes.end();	}
 	private:
 		void computeCoord();
 
@@ -120,7 +127,7 @@ namespace TA3D
 
     typedef std::list<PATH_NODE>    PATH;
 
-    PATH find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist = 0, float hover_h=-100.0f );
+	PATH find_path( SECTOR **map_data, float **map, Grid<byte> &zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist = 0, float hover_h=-100.0f );
     float path_length(const PATH &path);
     void next_node( PATH &path, SECTOR **map_data, float **map, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, int mw, int mh, int u_idx, float hover_h );
 	void compute_coord(PATH &path, int map_w, int map_h);

@@ -36,6 +36,16 @@
 
 namespace TA3D
 {
+	inline int sq(int a)
+	{
+		return a*a;
+	}
+
+	inline int sgn( int a )
+	{
+		return a < 0 ? -1 : a > 0 ? 1 : 0;
+	}
+
 	Pathfinder *Pathfinder::instance()
 	{
 		static Pathfinder sInstance;
@@ -146,19 +156,194 @@ namespace TA3D
 		unlock();
 	}
 
+	void find_path( Path &path, const Pathfinder::Task &task )
+	{
+//		units.unit[task.idx].lock();
+//		if (units.unit[task.idx].ID != task.UID && units.unit[task.idx].type_id >= 0)
+//		{
+//			units.unit[task.idx].unlock();
+//			return;
+//		}
+//		UnitType *pType = unit_manager.unit_type[units.unit[task.idx].type_id];
+//		units.unit[task.idx].unlock();
+//
+//		int start_x = ((int)task.start.x + the_map->map_w_d + 4) >> 3;
+//		int start_z = ((int)task.start.z + the_map->map_h_d + 4) >> 3;
+//		int end_x = ((int)task.end.x + the_map->map_w_d + 4) >> 3;
+//		int end_z = ((int)task.end.z + the_map->map_h_d + 4) >> 3;
+//
+//		int START_X = start_x << 1;
+//		int START_Z = start_z << 1;
+//		int END_X = end_x << 1;
+//		int END_Z = end_z << 1;
+//
+//		Path::Node start(START_X, START_Z);
+//		path.push_back(start);
+//		int n = 0;
+//
+//		int order_p1[] = { 1, 2, 3, 4, 5, 6, 7, 0 };
+//		int order_p2[] = { 2, 3, 4, 5, 6, 7, 0, 1 };
+//		int order_m1[] = { 7, 0, 1, 2, 3, 4, 5, 6 };
+//		int order_m2[] = { 6, 7, 0, 1, 2, 3, 4, 5 };
+//		int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+//		int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+//
+//		int PATH_MAX_LENGTH = Math::Max(256, Math::Min((int)(sqrtf(sq(end_x - start_x) + sq(end_z - start_z)) * 5.0f), PATHFINDER_MAX_LENGTH));
+//
+//		int m_dist = task.dist;
+//		m_dist *= m_dist;
+//		m_dist <<= 2;
+//
+//		int smh = pType->FootprintZ;
+//		int smw = pType->FootprintX;
+//
+//		int mw_h = smw >> 1;
+//		int mh_h = smh >> 1;
+//
+//		int bloc_w_db = the_map->bloc_w_db;
+//		int bloc_h_db = the_map->bloc_h_db;
+//
+//		if (path.back().x() < 0 || path.back().z() < 0 || path.back().x() >= bloc_w_db || path.back().z() >= bloc_h_db)		// Hum we are out !!
+//		{
+//			path.clear();
+//			return;			// So we can't find a path
+//		}
+//
+//		Grid<byte> &zone = the_map->path;
+//
+//		while (n < PATH_MAX_LENGTH && ((m_dist == 0 && (path.back().x() != END_X || path.back().z() != END_Z)) || (m_dist > 0 && sq( path.back().x() - END_X ) + sq( path.back().z() - END_Z) > m_dist)))
+//		{
+//			++zone( path.back().z(), path.back().x() );
+//
+//			int m = -1;
+//
+//			int nx = path.back().x();
+//			int nz = path.back().z();
+//			if (abs( END_X - path.back().x() ) > abs( END_Z - path.back().z() ))
+//				nx += sgn( END_X - path.back().x() );
+//			else
+//				nz += sgn( END_Z - path.back().z() );
+//
+//			if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)
+//				break;		// If we have to go out there is a problem ...
+//
+//			if (zone(nx, nz) >= 3 )	break;		// Looping ...
+//
+//			int NX = nx >> 1, NZ = nz >> 1;
+//
+//			if (zone( nx, nz ) || !check_rect_full( the_map->map_data, the_map, NX - mw_h, NZ - mh_h, smw, smh, task.idx, dh_max, low_level, high_level, the_map->bloc_w, the_map->bloc_h, hover_h ))
+//			{
+//				int dist[ 8 ];
+//				int rdist[ 8 ];
+//				bool zoned[ 8 ];
+//				for( int e = 0 ; e < 8 ; ++e )			// Gather required data
+//				{
+//					rdist[ e ] = dist[ e ] = -1;
+//					nx = path.back().x() + order_dx[ e ];
+//					nz = path.back().z() + order_dz[ e ];
+//					NX = nx >> 1;
+//					NZ = nz >> 1;
+//					zoned[ e ] = false;
+//					if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)	continue;
+//					zoned[ e ] = zone(nx, nz);
+//					if (((path.back().x() >> 1) != NX || (path.back().z() >> 1) != NZ) && !zone(nx, nz))				// No need to do it twice
+//						if (!check_rect_full( the_map->map_data, the_map, NX - mw_h, NZ - mh_h, smw, smh, task.idx, dh_max, low_level, high_level, the_map->bloc_w, the_map->bloc_h, hover_h ))
+//							continue;
+//					rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Z - nz );
+//
+//					if (zoned[ e ])
+//						dist[ e ] = -1;
+//				}
+//				for ( int e = 1 ; e < 8 ; e += 2 )		// Look for a way to go
+//				{
+//					if (( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ])
+//						  || (dist[ order_m2[ e ] ] == -1 && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] == -1 && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0)
+//					{
+//						if (m == -1)	m = e;
+//						else if (dist[ e ] < dist[ m ])
+//							m = e;
+//					}
+//				}
+//				if (m == -1)							// Second try
+//				{
+//					for( int e = 1 ; e < 8 ; e += 2 )
+//					{
+//						if (dist[ e ] >= 0)
+//						{
+//							if (m == -1)	m = e;
+//							else if (dist[ e ] < dist[ m ])
+//								m = e;
+//						}
+//					}
+//					if (m == -1)						// Ok we already went everywhere, then compute data differently
+//					{
+//						for( int e = 1 ; e < 8 ; e+= 2 )
+//						{
+//							if (rdist[ e ] == -1)	continue;
+//							nx = path.back().x() + order_dx[ e ];
+//							nz = path.back().z() + order_dz[ e ];
+//							dist[ e ] = rdist[ e ] + 1000 * zone(nx, nz);
+//						}
+//						for( int e = 1 ; e < 8 ; e += 2 )		// Ultimate test
+//							if (dist[ e ] >= 0)
+//							{
+//								if (m == -1)	m = e;
+//								else if (dist[ e ] < dist[ m ])
+//									m = e;
+//							}
+//					}
+//				}
+//				if (m >= 0)			// We found something
+//				{
+//					nx = path.back().x() + order_dx[ m ];
+//					nz = path.back().z() + order_dz[ m ];
+//				}
+//			}
+//			else
+//				m = -2;
+//
+//			if (m == -1)
+//				break;
+//
+//			path.push_back( Path::Node(nx, nz) );
+//
+//			++n;
+//		}
+//
+//		if (!path.empty())
+//		{
+//			for( Path::iterator cur = path.begin() ; cur != path.end() ; ++cur)		// Do some cleaning
+//			{
+//				zone(cur->x(), cur->z()) = 0;
+//				cur->x() >>= 1;
+//				cur->z() >>= 1;
+//			}
+//
+////			for( Path::iterator cur = path.begin() ; cur != path.end() ; )				// Remove duplicated points
+////			{
+////				Path::iterator next = cur;
+////				++next;
+////				if (next == path.end())
+////					break;
+////				if (cur->x() == next->x() && cur->z() == next->z())
+////					path.erase(cur++);
+////				else
+////					++cur;
+////			}
+////			simplify_path( path );												// Remove useless points
+////			make_path_direct( map_data, map, dh_max, low_level, high_level, path, mw, mh, bloc_w, bloc_h, u_idx, hover_h );		// Make the path easier to follow and shorter
+////
+////			compute_coord(path, map_w, map_h);
+//
+//			path.next();   // The unit is already at Start!! So remove it
+//		}
+	}
+
+	//---------- Old code ----------
+
     inline int path_len(const PATH &path)
     {
 		return int(path.size());
-    }
-
-    inline int sq(int a)
-    {
-        return a*a;
-    }
-
-    inline int sgn( int a )
-    {
-        return a < 0 ? -1 : a > 0 ? 1 : 0;
     }
 
     void simplify_path(PATH &path)
@@ -353,7 +538,7 @@ namespace TA3D
         }
     }
 
-    PATH find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist, float hover_h )
+	PATH find_path( SECTOR **map_data, float **map, Grid<byte> &zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist, float hover_h )
     {
         int start_x = ((int)Start.x + (map_w >> 1) + 4) >> 3;
         int start_y = ((int)Start.z + (map_h >> 1) + 4) >> 3;
@@ -400,7 +585,7 @@ namespace TA3D
         the_map->lock();
         while (n < PATH_MAX_LENGTH && ((m_dist == 0 && (path.back().x != END_X || path.back().y != END_Y)) || (m_dist > 0 && sq( path.back().x - END_X ) + sq( path.back().y - END_Y) > m_dist)))
         {
-            zone[ path.back().y ][ path.back().x ]++;
+			zone( path.back().x, path.back().y )++;
 
             int m = -1;
 
@@ -414,11 +599,11 @@ namespace TA3D
             if (nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db)
                 break;		// If we have to go out there is a problem ...
 
-            if( zone[ ny ][ nx ] >= 3 )	break;		// Looping ...
+			if( zone(nx, ny) >= 3 )	break;		// Looping ...
 
             int NX = nx >> 1, NY = ny >> 1;
 
-            if (zone[ ny ][ nx ] || !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ))
+			if (zone(nx, ny) || !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ))
             {
                 int dist[ 8 ];
                 int rdist[ 8 ];
@@ -432,8 +617,8 @@ namespace TA3D
                     NY = ny >> 1;
                     zoned[ e ] = false;
                     if (nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db)	continue;
-                    zoned[ e ] = zone[ ny ][ nx ];
-                    if (((path.back().x >> 1) != NX || (path.back().y >> 1) != NY) && !zone[ NY ][ NX ])				// No need to do it twice
+					zoned[ e ] = zone(nx, ny);
+					if (((path.back().x >> 1) != NX || (path.back().y >> 1) != NY) && !zone(nx,ny))				// No need to do it twice
                         if (!check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ))
                             continue;
                     rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Y - ny );
@@ -469,7 +654,7 @@ namespace TA3D
                             if (rdist[ e ] == -1)	continue;
                             nx = path.back().x + order_dx[ e ];
                             ny = path.back().y + order_dy[ e ];
-                            dist[ e ] = rdist[ e ] + 1000 * zone[ ny ][ nx ];
+							dist[ e ] = rdist[ e ] + 1000 * zone(nx, ny);
                         }
                         for( int e = 1 ; e < 8 ; e += 2 )		// Ultimate test
                             if (dist[ e ] >= 0)
@@ -501,7 +686,7 @@ namespace TA3D
         {
             for( PATH::iterator cur = path.begin() ; cur != path.end() ; ++cur)		// Do some cleaning
             {
-                zone[cur->y][cur->x] = 0;
+				zone(cur->x, cur->y) = 0;
                 cur->x >>= 1;
                 cur->y >>= 1;
             }
