@@ -28,6 +28,12 @@ namespace TA3D
 	}
 
 	template<class T>
+		void Grid<T>::clear()
+	{
+		memset(data, 0, w * h * sizeof(T));
+	}
+
+	template<class T>
 		Grid<T>::~Grid()
 	{
 		if (data)

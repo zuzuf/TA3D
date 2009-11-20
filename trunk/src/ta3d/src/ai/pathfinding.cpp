@@ -272,8 +272,8 @@ namespace TA3D
 		int mw_h = smw >> 1;
 		int mh_h = smh >> 1;
 
-		int bloc_w_db = the_map->bloc_w_db;
-		int bloc_h_db = the_map->bloc_h_db;
+		int bloc_w_db = the_map->bloc_w_db << 1;
+		int bloc_h_db = the_map->bloc_h_db << 1;
 
 		if (nodes.back().x() < 0 || nodes.back().z() < 0 || nodes.back().x() >= bloc_w_db || nodes.back().z() >= bloc_h_db)		// Hum we are out !!
 		{
@@ -282,10 +282,11 @@ namespace TA3D
 		}
 
 		Grid<byte> &zone = the_map->path;
+		Grid<float> &energy = the_map->energy;
 
 		while (n < PATH_MAX_LENGTH && ((m_dist == 0 && (nodes.back().x() != END_X || nodes.back().z() != END_Z)) || (m_dist > 0 && sq( nodes.back().x() - END_X ) + sq( nodes.back().z() - END_Z) > m_dist)))
 		{
-			++zone( nodes.back().z(), nodes.back().x() );
+			++zone( nodes.back().x(), nodes.back().z() );
 
 			int m = -1;
 
@@ -305,12 +306,12 @@ namespace TA3D
 
 			if (zone( nx, nz ) || !checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
 			{
-				int dist[ 8 ];
-				int rdist[ 8 ];
+				float dist[ 8 ];
+				float rdist[ 8 ];
 				bool zoned[ 8 ];
 				for( int e = 0 ; e < 8 ; ++e )			// Gather required data
 				{
-					rdist[ e ] = dist[ e ] = -1;
+					rdist[ e ] = dist[ e ] = -1.0f;
 					nx = nodes.back().x() + order_dx[ e ];
 					nz = nodes.back().z() + order_dz[ e ];
 					NX = nx >> 1;
@@ -321,12 +322,12 @@ namespace TA3D
 					if (((nodes.back().x() >> 1) != NX || (nodes.back().z() >> 1) != NZ) && !zone(nx, nz))				// No need to do it twice
 						if (!checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
 							continue;
-					rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Z - nz );
+					rdist[ e ] = dist[ e ] = pType->MaxSlope * sqrtf(float(sq( END_X - nx ) + sq( END_Z - nz ))) + energy(nx, nz);
 
 					if (zoned[ e ])
-						dist[ e ] = -1;
+						dist[ e ] = -1.0f;
 				}
-				for ( int e = 1 ; e < 8 ; e += 2 )		// Look for a way to go
+				for (int e = 0 ; e < 8 ; ++e)		// Look for a way to go
 				{
 					if (( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ])
 						  || (dist[ order_m2[ e ] ] == -1 && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] == -1 && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0)
@@ -338,9 +339,9 @@ namespace TA3D
 				}
 				if (m == -1)							// Second try
 				{
-					for( int e = 1 ; e < 8 ; e += 2 )
+					for (int e = 0 ; e < 8 ; ++e)
 					{
-						if (dist[ e ] >= 0)
+						if (dist[ e ] >= 0.0f)
 						{
 							if (m == -1)	m = e;
 							else if (dist[ e ] < dist[ m ])
@@ -349,14 +350,14 @@ namespace TA3D
 					}
 					if (m == -1)						// Ok we already went everywhere, then compute data differently
 					{
-						for( int e = 1 ; e < 8 ; e+= 2 )
+						for (int e = 0 ; e < 8 ; ++e)
 						{
 							if (rdist[ e ] == -1)	continue;
 							nx = nodes.back().x() + order_dx[ e ];
 							nz = nodes.back().z() + order_dz[ e ];
 							dist[ e ] = rdist[ e ] + 1000 * zone(nx, nz);
 						}
-						for( int e = 1 ; e < 8 ; e += 2 )		// Ultimate test
+						for (int e = 0 ; e < 8 ; ++e)		// Ultimate test
 							if (dist[ e ] >= 0)
 							{
 								if (m == -1)	m = e;
@@ -424,9 +425,9 @@ namespace TA3D
 		int fx = x1 + pType->FootprintX;
 		int x, y;
 		y = y1;
-		if (y >= 0 && y < the_map->bloc_h)
+		if (y >= 0 && y < the_map->bloc_h_db)
 			for(x = x1 ; x < fx ; ++x)
-				if (x >= 0 && x < the_map->bloc_w)
+				if (x >= 0 && x < the_map->bloc_w_db)
 					if ((the_map->map_data[y][x].unit_idx != c
 						 && the_map->map_data[y][x].unit_idx != -1)
 						|| (the_map->slope(x,y) > dh_max
@@ -436,9 +437,9 @@ namespace TA3D
 						|| the_map->h_map[y][x] > h_max)
 						return false;
 		y = fy - 1;
-		if (y >= 0 && y < the_map->bloc_h)
+		if (y >= 0 && y < the_map->bloc_h_db)
 			for(x = x1 ; x < fx ; ++x)
-				if (x >= 0 && x < the_map->bloc_w)
+				if (x >= 0 && x < the_map->bloc_w_db)
 					if ((the_map->map_data[y][x].unit_idx != c
 						 && the_map->map_data[y][x].unit_idx != -1)
 						|| (the_map->slope(x,y) > dh_max
@@ -448,10 +449,10 @@ namespace TA3D
 						|| the_map->h_map[y][x] > h_max)
 						return false;
 		for(int y = y1 + 1 ; y < fy - 1 ; ++y)
-			if (y >= 0 && y < the_map->bloc_h)
+			if (y >= 0 && y < the_map->bloc_h_db)
 			{
 				x = x1;
-				if (x >= 0 && x < the_map->bloc_w)
+				if (x >= 0 && x < the_map->bloc_w_db)
 					if ((the_map->map_data[y][x].unit_idx != c
 						 && the_map->map_data[y][x].unit_idx != -1)
 						|| (the_map->slope(x,y) > dh_max
@@ -461,7 +462,7 @@ namespace TA3D
 						|| the_map->h_map[y][x] > h_max)
 						return false;
 				x = fx - 1;
-				if (x >= 0 && x < the_map->bloc_w)
+				if (x >= 0 && x < the_map->bloc_w_db)
 					if ((the_map->map_data[y][x].unit_idx != c
 						 && the_map->map_data[y][x].unit_idx != -1)
 						|| (the_map->slope(x,y) > dh_max
