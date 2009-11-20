@@ -4521,6 +4521,21 @@ script_exec:
 							}
 							else
 							{
+								// Temporary code for debugging purposes
+								if (!cur->Path().empty())
+								{
+									for(AI::Path::iterator i = cur->Path().begin() ; i != cur->Path().end() ; ++i)
+									{
+										x = float((i->x() << 3) + 4 - the_map->map_w_d);
+										z = float((i->z() << 3) + 4 - the_map->map_h_d);
+										y = Math::Max(the_map->get_unit_h( x, z ), the_map->sealvl);
+										y += 0.75f;
+										x -= dx;
+										z -= dz;
+										points.push_back(Vector3D(x, y, z));
+									}
+								}
+								else
 								for (int i = 0; i < rec; ++i)
 								{
 									x = p_target.x + (n_target.x - p_target.x) * (i + rab) / rec;
