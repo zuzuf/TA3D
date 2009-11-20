@@ -107,21 +107,13 @@ namespace TA3D
 		LOAD(data);
 	}
 
-	void Mission::save(gzFile file) const
+	void Mission::save(gzFile file)
 	{
 		SAVE(time);
 		SAVE(last_d);
 		SAVE(move_data);
 
-		for (PATH::const_iterator p = path.begin() ; p != path.end() ; ++p)
-		{
-			gzputc(file, 1);
-			SAVE( p->x );
-			SAVE( p->y );
-			SAVE( p->Pos );
-			SAVE( p->made_direct );
-		}
-		gzputc(file, 0);
+		path.save(file);
 
 		SAVE(node);
 
@@ -137,16 +129,7 @@ namespace TA3D
 		LOAD(last_d);
 		LOAD(move_data);
 
-		path.clear();
-		while (gzgetc( file ))
-		{
-			PATH_NODE node;
-			LOAD( node.x );
-			LOAD( node.y );
-			LOAD( node.Pos );
-			LOAD( node.made_direct );
-			path.push_back(node);
-		}
+		path.load(file);
 
 		LOAD(node);
 
@@ -160,9 +143,9 @@ namespace TA3D
 		}
 	}
 
-	void MissionStack::save(gzFile file) const
+	void MissionStack::save(gzFile file)
 	{
-		for(Container::const_iterator i = sMission.begin() ; i != sMission.end() ; ++i)
+		for(Container::iterator i = sMission.begin() ; i != sMission.end() ; ++i)
 		{
 			gzputc(file, 1);
 			i->save(file);

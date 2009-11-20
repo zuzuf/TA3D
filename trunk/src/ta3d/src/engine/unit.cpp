@@ -450,7 +450,7 @@ namespace TA3D
 	}
 
 	void Unit::add_mission(int mission_type, const Vector3D* target, bool step, int dat, void* pointer,
-                           PATH path, byte m_flags, int move_data, int patrol_node)
+						   const AI::Path &path, byte m_flags, int move_data, int patrol_node)
 	{
 		MutexLocker locker(pMutex);
 
@@ -629,7 +629,7 @@ namespace TA3D
 
 
 	void Unit::set_mission(int mission_type, const Vector3D* target, bool step, int dat, bool stopit,
-                           void* pointer, PATH path, byte m_flags, int move_data)
+						   void* pointer, const AI::Path &path, byte m_flags, int move_data)
 	{
 		MutexLocker locker(pMutex);
 
@@ -1740,7 +1740,7 @@ namespace TA3D
 					target.z = -map->map_h_d+256;
 				else if (target.z > map->map_h_d-256)
 					target.z = map->map_h_d-256;
-                add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,PATH(),0,1);		// Stay on map
+				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,AI::Path(),0,1);		// Stay on map
 			}
 
 		flags &= 0xEF;		// To fix a bug
@@ -2306,7 +2306,7 @@ namespace TA3D
 				if (!mission->Path().empty()
 					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
 						 || (last_path_refresh < 5.0f && !pType->canfly) ) )
-					Target = mission->Path().front().Pos;
+					Target = mission->Path().Pos();
 				else
 				{// Look for a path to the target
 					if (!mission->Path().empty())// If we want to refresh the path
@@ -2342,12 +2342,12 @@ namespace TA3D
                             if (pType->canfly)
 							{
 								if (mission->getMoveData() <= 0)
-									mission->Path() = direct_path(mission->getTarget().getPos());
+									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
 								else
 								{
 									Vector3D Dir = mission->getTarget().getPos() - Pos;
 									Dir.unit();
-									mission->Path() = direct_path(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
+									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
 								}
 							}
 							else
@@ -2356,12 +2356,19 @@ namespace TA3D
                                 float h_min = pType->canhover ? -100.0f : map->sealvl - pType->MaxWaterDepth * H_DIV;
                                 float h_max = map->sealvl - pType->MinWaterDepth * H_DIV;
                                 float hover_h = pType->canhover ? map->sealvl : -100.0f;
-								if (mission->getMoveData() <= 0)
-									mission->Path() = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
-															  dh_max, h_min, h_max, Pos, mission->getTarget().getPos(), pType->FootprintX, pType->FootprintZ, idx, 0, hover_h );
-								else
-									mission->Path() = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
-															  dh_max, h_min, h_max, Pos, mission->getTarget().getPos(), pType->FootprintX, pType->FootprintZ, idx, mission->getMoveData(), hover_h );
+								Pathfinder::Task task;
+								task.dist = mission->getMoveData();
+								task.idx = idx;
+								task.UID = ID;
+								task.start = Pos;
+								task.end = mission->getTarget().getPos();
+								Pathfinder::findPath(mission->Path(), task);
+//								if (mission->getMoveData() <= 0)
+//									mission->Path() = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
+//															  dh_max, h_min, h_max, Pos, mission->getTarget().getPos(), pType->FootprintX, pType->FootprintZ, idx, 0, hover_h );
+//								else
+//									mission->Path() = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
+//															  dh_max, h_min, h_max, Pos, mission->getTarget().getPos(), pType->FootprintX, pType->FootprintZ, idx, mission->getMoveData(), hover_h );
 
 								if (mission->Path().empty())
 								{
@@ -2381,7 +2388,7 @@ namespace TA3D
 									playSound("cant1");
 							}
 							if (!mission->Path().empty())// Update required data
-								Target = mission->Path().front().Pos;
+								Target = mission->Path().Pos();
 						}
 					}
 					else
@@ -2397,14 +2404,7 @@ namespace TA3D
 					float dist = J.norm();
 					if ((dist > mission->getLastD() && dist < 15.0f) || mission->Path().empty())
 					{
-						if (!mission->Path().empty())
-						{
-                            float dh_max = pType->MaxSlope * H_DIV;
-                            float h_min = pType->canhover ? -100.0f : map->sealvl - pType->MaxWaterDepth * H_DIV;
-                            float h_max = map->sealvl - pType->MinWaterDepth * H_DIV;
-                            float hover_h = pType->canhover ? map->sealvl : -100.0f;
-							next_node(mission->Path(), map->map_data, map->h_map, map->bloc_w_db, map->bloc_h_db, dh_max, h_min, h_max, pType->FootprintX, pType->FootprintZ, idx, hover_h );
-						}
+						mission->Path().next();
 						mission->setLastD(9999999.0f);
 						if (mission->Path().empty()) // End of path reached
 						{
@@ -2565,7 +2565,7 @@ namespace TA3D
 									else if (target.z > map->map_h_d-256)
 										target.z = map->map_h_d-256;
 									next_mission();
-                                    add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,PATH(),0,1);		// Stay on map
+									add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,AI::Path(),0,1);		// Stay on map
 								}
 								else
 									if (!can_be_there( cur_px, cur_py, map, type_id, owner_id, idx ))
@@ -2577,7 +2577,7 @@ namespace TA3D
 										target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
 										target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
 										mission->Flags() |= MISSION_FLAG_MOVE;
-										mission->Path() = direct_path( target );
+										mission->Path() = Pathfinder::directPath( target );
 									}
 							}
 						}
@@ -2684,7 +2684,7 @@ namespace TA3D
 							mission->Flags() |= MISSION_FLAG_MOVE;
 							mission->setMoveData( maxdist * 8 / 80 );
 							if (!mission->Path().empty())
-								mission->Path().front().Pos = target;			// Update path in real time!
+								mission->Path().setPos( target );			// Update path in real time!
 						}
 						else if (!(mission->getFlags() & MISSION_FLAG_MOVE))
 						{
@@ -3184,7 +3184,7 @@ namespace TA3D
 						pad_timer += dt;
 
 						if (!mission.hasNext())
-                            add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,PATH(),MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
+							add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,AI::Path(),MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
                         if (pType->CanReclamate                                                 // Auto reclaim things on the battle field when needed
                             && (players.r_energy[owner_id] >= players.energy_t[owner_id]
@@ -3620,7 +3620,7 @@ namespace TA3D
 									Vector3D target = Pos;
 									target.z += 128.0f;
 									if (!def_mission)
-                                        target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,PATH(),0,5);		// Fait sortir l'unité du bâtiment
+										target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, false, 5, true, NULL, AI::Path(),0,5);		// Fait sortir l'unité du bâtiment
 									else
 										target_unit->mission = def_mission;
 								}
@@ -4146,7 +4146,10 @@ namespace TA3D
 					weapons.unlock();
 					lock();
 					if (enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
-                        add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),PATH(),12);	// 12 = 4 | 8, targets a weapon and automatic fire
+						add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,
+									&(weapons.weapon[enemy_idx].Pos),
+									false, 0, &(weapons.weapon[enemy_idx]),
+									AI::Path(),12);	// 12 = 4 | 8, targets a weapon and automatic fire
 				}
 			}
 		}

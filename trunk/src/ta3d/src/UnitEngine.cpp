@@ -107,9 +107,9 @@ namespace TA3D
 			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canmove)
 			{
 				if (set)
-                    unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, PATH(), flags);
+					unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, AI::Path(), flags);
 				else
-                    unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, PATH(), flags);
+					unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, AI::Path(), flags);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
 					unit[i].playSound("ok1");
 			}
@@ -127,9 +127,9 @@ namespace TA3D
 			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canpatrol)
 			{
 				if (set)
-                    unit[i].set_mission(MISSION_PATROL, &target, false, 0, true, NULL, PATH());
+					unit[i].set_mission(MISSION_PATROL, &target, false, 0, true, NULL);
 				else
-                    unit[i].add_mission(MISSION_PATROL, &target, false, 0, NULL, PATH());
+					unit[i].add_mission(MISSION_PATROL, &target, false, 0, NULL);
 				if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
 					unit[i].playSound("ok1");
 			}
