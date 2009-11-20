@@ -443,9 +443,9 @@ namespace TA3D
         UnitType *pType = unit_manager.unit_type[type_id];
         int px = cur_px>>1;
 		int py = cur_py>>1;
-		if (px >= 0 && py >= 0 && px < units.map->radar_map->w && py < units.map->radar_map->h && type_id != -1)
-            return ( (SurfaceByte(units.map->radar_map,px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
-                || ( (SurfaceByte(units.map->sonar_map,px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
+		if (px >= 0 && py >= 0 && px < the_map->radar_map->w && py < the_map->radar_map->h && type_id != -1)
+			return ( (SurfaceByte(the_map->radar_map,px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
+				|| ( (SurfaceByte(the_map->sonar_map,px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
 		return false;
 	}
 
@@ -921,17 +921,17 @@ namespace TA3D
 
 		int px = cur_px >> 1;
 		int py = cur_py >> 1;
-		if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
+		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			return;	// Unité hors de la carte
 		byte player_mask = 1 << players.local_human_id;
 
 		on_radar = on_mini_radar = is_on_radar( player_mask );
-		if (map->view[py][px] == 0 || ( map->view[py][px] > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(map->sight_map,px,py) & player_mask) ) )
+		if (the_map->view[py][px] == 0 || ( the_map->view[py][px] > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(the_map->sight_map,px,py) & player_mask) ) )
 			return;	// Unit is not visible
 
 		bool radar_detected = on_radar;
 
-		on_radar &= map->view[py][px] > 1;
+		on_radar &= the_map->view[py][px] > 1;
 
 		Vector3D D (Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
@@ -957,7 +957,7 @@ namespace TA3D
 		if (on_radar) // for mega zoom, draw only an icon
 		{
 			glDisable(GL_DEPTH_TEST);
-			glTranslatef( Pos.x, Math::Max(Pos.y,map->sealvl+5.0f), Pos.z);
+			glTranslatef( Pos.x, Math::Max(Pos.y,the_map->sealvl+5.0f), Pos.z);
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
 			// In orthographic mode we need another formula
@@ -1048,9 +1048,9 @@ namespace TA3D
 			{
 				glTranslatef( Pos.x, Pos.y, Pos.z );
 
-				if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
+				if (lp_CONFIG->underwater_bright && the_map->water && Pos.y < the_map->sealvl)
 				{
-					double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - Pos.y };
+					double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - Pos.y };
 					glClipPlane(GL_CLIP_PLANE2, eqn);
 				}
 
@@ -1290,7 +1290,7 @@ namespace TA3D
 					}
 				}
 
-				if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
+				if (lp_CONFIG->underwater_bright && the_map->water && Pos.y < the_map->sealvl)
 				{
 					gfx->setShadowMapMode(true);
 					glEnable(GL_CLIP_PLANE2);
@@ -1346,15 +1346,15 @@ namespace TA3D
 
 		if (!visible)
 		{
-			Vector3D S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
-			int px=((int)(S_Pos.x)+map->map_w_d)>>4;
-			int py=((int)(S_Pos.z)+map->map_h_d)>>4;
-			if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
+			Vector3D S_Pos = drawn_Pos-(h/Dir.y)*Dir;//the_map->hit(Pos,Dir);
+			int px=((int)(S_Pos.x)+the_map->map_w_d)>>4;
+			int py=((int)(S_Pos.z)+the_map->map_h_d)>>4;
+			if (px<0 || py<0 || px>=the_map->bloc_w || py>=the_map->bloc_h)
 			{
 				pMutex.unlock();
 				return;	// Shadow out of the map
 			}
-			if (map->view[py][px]!=1)
+			if (the_map->view[py][px]!=1)
 			{
 				pMutex.unlock();
 				return;	// Unvisible shadow
@@ -1378,7 +1378,7 @@ namespace TA3D
 		{
 			Vector3D H = drawn_Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
-			Vector3D D = map->hit( H, Dir, true, 2000.0f);
+			Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
 		//    model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
@@ -1412,15 +1412,15 @@ namespace TA3D
 
 		if (!visible)
 		{
-			Vector3D S_Pos (drawn_Pos - (h / Dir.y) * Dir);//map->hit(Pos,Dir);
-			int px = ((int)(S_Pos.x + map->map_w_d)) >> 4;
-			int py = ((int)(S_Pos.z + map->map_h_d)) >> 4;
-			if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
+			Vector3D S_Pos (drawn_Pos - (h / Dir.y) * Dir);//the_map->hit(Pos,Dir);
+			int px = ((int)(S_Pos.x + the_map->map_w_d)) >> 4;
+			int py = ((int)(S_Pos.z + the_map->map_h_d)) >> 4;
+			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			{
 				pMutex.unlock();
 				return;	// Shadow out of the map
 			}
-			if (map->view[py][px]!=1)
+			if (the_map->view[py][px]!=1)
 			{
 				pMutex.unlock();
 				return;	// Unvisible shadow
@@ -1442,7 +1442,7 @@ namespace TA3D
 		{
 			Vector3D H = drawn_Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
-			Vector3D D = map->hit( H, Dir, true, 2000.0f);
+			Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
 		//    model->drawShadowBasic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
@@ -1554,6 +1554,7 @@ namespace TA3D
 		}
 	}
 
+	//! Ballistic calculations take place here
 	float ballistic_angle(float v, float g, float d, float y_s, float y_e) // Calculs de ballistique pour l'angle de tir
 	{
 		float v2 = v*v;
@@ -1565,7 +1566,343 @@ namespace TA3D
 		return RAD2DEG*atanf(v2gd-0.5f*sqrtf(a));
 	}
 
-	int Unit::move(const float dt, MAP* map, int* path_exec, const int key_frame)
+	//! Send a request to the pathfinder when we need a complex path, then follow computed paths
+	void Unit::followPath(const float dt, bool &b_TargetAngle, float &f_TargetAngle, Vector3D &NPos, int &n_px, int &n_py, bool &precomputed_position)
+	{
+		UnitType *pType = unit_manager.unit_type[type_id];
+		//----------------------------------- Beginning of moving code ------------------------------------
+
+		if ((mission->getFlags() & MISSION_FLAG_MOVE) && pType->canmove && pType->BMcode)
+		{
+			if (!was_moving)
+			{
+				if (pType->canfly)
+					activate();
+				launchScript(SCRIPT_startmoving);
+				if (nb_attached == 0)
+					launchScript(SCRIPT_MoveRate1);		// For the armatlas
+				else
+					launchScript(SCRIPT_MoveRate2);
+				was_moving = true;
+			}
+			Vector3D J,I,K(0.0f, 1.0f, 0.0f);
+			Vector3D Target(mission->getTarget().getPos());
+			if (!mission->Path().empty()
+				&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
+					 || (last_path_refresh < 5.0f && !pType->canfly) ) )
+				Target = mission->Path().Pos();
+			else
+			{// Look for a path to the target
+				if (!mission->Path().empty())	// If we want to refresh the path
+				{
+					Target = mission->getTarget().getPos();
+					mission->Path().clear();
+				}
+				mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
+				float dist = (Target - Pos).sq();
+				if ( (mission->getMoveData() <= 0 && dist > 100.0f)
+					|| ((SQUARE(mission->getMoveData()) << 6) < dist))
+					{
+					if (last_path_refresh >= 5.0f && !requesting_pathfinder
+						|| pType->canfly)
+					{
+						requesting_pathfinder = !pType->canfly;
+
+						move_target_computed = mission->getTarget().getPos();
+						last_path_refresh = 0.0f;
+						if (pType->canfly)
+						{
+							if (mission->getMoveData() <= 0)
+								mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
+							else
+							{
+								Vector3D Dir = mission->getTarget().getPos() - Pos;
+								Dir.unit();
+								mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
+							}
+						}
+						else
+						{
+							Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
+//							Pathfinder::Task task;
+//							task.dist = mission->getMoveData();
+//							task.idx = idx;
+//							task.UID = ID;
+//							task.start = Pos;
+//							task.end = mission->getTarget().getPos();
+//							Pathfinder::findPath(mission->Path(), task);
+
+//							if (mission->Path().empty())
+//							{
+//								bool place_is_empty = the_map->check_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx);
+//								if (!place_is_empty)
+//								{
+//									LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
+//									mission->Flags() &= ~MISSION_FLAG_MOVE;
+//								}
+//								else
+//									mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Retry later
+//								launchScript(SCRIPT_StopMoving);
+//								was_moving = false;
+//							}
+//
+//							if (mission->Path().empty())					// Can't find a path to get where it has been ordered to go
+//								playSound("cant1");
+						}
+						if (!mission->Path().empty())// Update required data
+							Target = mission->Path().Pos();
+					}
+				}
+				else
+					stopMoving();
+			}
+
+			if (!mission->Path().empty()) // If we have a path, follow it
+			{
+				if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
+					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
+				J = Target - Pos;
+				J.y = 0.0f;
+				float dist = J.norm();
+				if ((dist > mission->getLastD() && dist < 15.0f) || mission->Path().empty())
+				{
+					mission->Path().next();
+					mission->setLastD(9999999.0f);
+					if (mission->Path().empty()) // End of path reached
+					{
+						J = move_target_computed - Pos;
+						J.y = 0.0f;
+						if (J.sq() <= 256.0f || flying)
+						{
+							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+								&& (!mission.empty() || mission->mission() != MISSION_PATROL))
+								playSound( "arrived1" );
+							mission->Flags() &= ~MISSION_FLAG_MOVE;
+						}
+						else										// We are not where we are supposed to be !!
+							mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
+						if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
+						{
+							launchScript(SCRIPT_StopMoving);
+							was_moving = false;
+						}
+						if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
+							V.reset();		// Stop unit's movement
+						if (mission->isStep())      // It's meaningless to try to finish this mission like an ordinary order
+							next_mission();
+					}
+				}
+				else
+					mission->setLastD(dist);
+				if (mission->getFlags() & MISSION_FLAG_MOVE)	// Are we still moving ??
+				{
+					if (dist > 0.0f)
+						J = 1.0f / dist * J;
+
+					b_TargetAngle = true;
+					f_TargetAngle = acosf( J.z ) * RAD2DEG;
+					if (J.x < 0.0f ) f_TargetAngle = -f_TargetAngle;
+
+					if (Angle.y - f_TargetAngle >= 360.0f )	f_TargetAngle += 360.0f;
+					else if (Angle.y - f_TargetAngle <= -360.0f )	f_TargetAngle -= 360.0f;
+
+					J.z = cosf(Angle.y*DEG2RAD);
+					J.x = sinf(Angle.y*DEG2RAD);
+					J.y = 0.0f;
+					I.z = -J.x;
+					I.x = J.z;
+					I.y = 0.0f;
+					V = (V%K)*K + (V%J)*J;
+					if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
+					{
+						if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
+						{
+							if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
+								V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
+						}
+						else
+						{
+							float speed = V.norm();
+							float time_to_stop = speed / pType->BrakeRate;
+							float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
+							if (min_dist >= dist && !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+								&& ( !mission.hasNext()
+									 || (mission(1) != MISSION_MOVE
+										 && mission(1) != MISSION_PATROL)))	// Brake if needed
+								V = V - pType->BrakeRate * dt * J;
+							else if (speed < pType->MaxVelocity)
+								V = V + pType->Acceleration * dt * J;
+							else
+								V = pType->MaxVelocity / speed * V;
+						}
+					}
+					else
+					{
+						float speed = V.norm();
+						if (speed > pType->MaxVelocity)
+							V = pType->MaxVelocity / speed * V;
+					}
+				}
+			}
+
+			NPos = Pos + dt * V;			// Check if the unit can go where V brings it
+			if (was_locked) // Random move to solve the unit lock problem
+			{
+				if (V.x > 0.0f)
+					NPos.x += (Math::RandomTable() % 101) * 0.01f;
+				else
+					NPos.x -= (Math::RandomTable() % 101) * 0.01f;
+				if (V.z > 0.0f)
+					NPos.z += (Math::RandomTable() % 101) * 0.01f;
+				else
+					NPos.z -= (Math::RandomTable() % 101) * 0.01f;
+
+				if (was_locked >= 5.0f)
+				{
+					was_locked = 5.0f;
+					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
+					// obstacles have moved
+				}
+			}
+			n_px = ((int)(NPos.x) + the_map->map_w_d + 4) >> 3;
+			n_py = ((int)(NPos.z) + the_map->map_h_d + 4) >> 3;
+			precomputed_position = true;
+			bool locked = false;
+			if (!flying )
+			{
+				if (n_px != cur_px || n_py != cur_py) // has something changed ??
+				{
+					bool place_is_empty = can_be_there( n_px, n_py, the_map, type_id, owner_id, idx );
+					if (!(flags & 64) && !place_is_empty)
+					{
+						if (!pType->canfly)
+						{
+							locked = true;
+							// Check some basic solutions first
+							if (cur_px != n_px
+								&& can_be_there( cur_px, n_py, the_map, type_id, owner_id, idx ))
+							{
+								V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrtf( SQUARE(V.z) + SQUARE(V.x) ) : sqrtf( SQUARE(V.z) + SQUARE(V.x) ) ) : 0.0f;
+								V.x = 0.0f;
+								NPos.x = Pos.x;
+								n_px = cur_px;
+							}
+							else if (cur_py != n_py && can_be_there( n_px, cur_py, the_map, type_id, owner_id, idx ))
+							{
+								V.x = (V.x != 0.0)
+									  ? ((V.x < 0.0f)
+										 ? -sqrtf(SQUARE(V.z) + SQUARE(V.x))
+										 : sqrtf(SQUARE(V.z) + SQUARE(V.x)))
+									  : 0.0f;
+								V.z = 0.0f;
+								NPos.z = Pos.z;
+								n_py = cur_py;
+							}
+							else if (can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx )) {
+								V.x = V.y = V.z = 0.0f;		// Don't move since we can't
+								NPos = Pos;
+								n_px = cur_px;
+								n_py = cur_py;
+								mission->Flags() |= MISSION_FLAG_MOVE;
+								if (fabsf( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle) // Don't prevent unit from rotating!!
+									mission->Path().clear();
+							}
+							else
+								LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
+						}
+						else if (!flying && local )
+						{
+							if (Pos.x<-the_map->map_w_d
+								|| Pos.x>the_map->map_w_d
+								|| Pos.z<-the_map->map_h_d
+								|| Pos.z>the_map->map_h_d)
+							{
+								Vector3D target = Pos;
+								if (target.x < -the_map->map_w_d+256)
+									target.x = -the_map->map_w_d+256;
+								else if (target.x > the_map->map_w_d-256)
+									target.x = the_map->map_w_d-256;
+								if (target.z < -the_map->map_h_d+256)
+									target.z = -the_map->map_h_d+256;
+								else if (target.z > the_map->map_h_d-256)
+									target.z = the_map->map_h_d-256;
+								next_mission();
+								add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
+							}
+							else
+								if (!can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx ))
+								{
+								NPos = Pos;
+								n_px = cur_px;
+								n_py = cur_py;
+								Vector3D target = Pos;
+								target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
+								target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
+								mission->Flags() |= MISSION_FLAG_MOVE;
+								mission->Path() = Pathfinder::directPath( target );
+							}
+						}
+					}
+					else if (!(flags & 64)
+						&& pType->canfly
+								&& (!mission
+									|| (mission->mission() != MISSION_MOVE
+										&& mission->mission() != MISSION_ATTACK)))
+						flags |= 64;
+				}
+				else
+				{
+					bool place_is_empty = the_map->check_rect(n_px-(pType->FootprintX>>1),n_py-(pType->FootprintZ>>1),pType->FootprintX,pType->FootprintZ,idx);
+					if (!place_is_empty)
+					{
+						pMutex.unlock();
+						clear_from_map();
+						pMutex.lock();
+						LOG_WARNING("A Unit is blocked ! (probably spawned on something)" << __FILE__ << ":" << __LINE__);
+					}
+				}
+			}
+			if (locked)
+				was_locked += dt;
+			else
+				was_locked = 0.0f;
+		}
+		else
+		{
+			was_moving = false;
+			requesting_pathfinder = false;
+		}
+
+		if (flying && local) // Force planes to stay on map
+		{
+			if (Pos.x<-the_map->map_w_d || Pos.x>the_map->map_w_d || Pos.z<-the_map->map_h_d || Pos.z>the_map->map_h_d) {
+				if (Pos.x < -the_map->map_w_d )
+					V.x += dt * ( -the_map->map_w_d - Pos.x ) * 0.1f;
+				else if (Pos.x > the_map->map_w_d )
+					V.x -= dt * ( Pos.x - the_map->map_w_d ) * 0.1f;
+				if (Pos.z < -the_map->map_h_d )
+					V.z += dt * ( -the_map->map_h_d - Pos.z ) * 0.1f;
+				else if (Pos.z > the_map->map_h_d )
+					V.z -= dt * ( Pos.z - the_map->map_h_d ) * 0.1f;
+				float speed = V.norm();
+				if (speed > pType->MaxVelocity && speed > 0.0f)
+				{
+					V = pType->MaxVelocity / speed * V;
+					speed = pType->MaxVelocity;
+				}
+				if (speed > 0.0f)
+				{
+					Angle.y = acosf( V.z / speed ) * RAD2DEG;
+					if (V.x < 0.0f)
+						Angle.y = -Angle.y;
+				}
+			}
+		}
+
+		//----------------------------------- End of moving code ------------------------------------
+	}
+
+	int Unit::move(const float dt, const int key_frame)
 	{
 		pMutex.lock();
 
@@ -1596,23 +1933,23 @@ namespace TA3D
 
         if (build_percent_left == 0.0f && pType->isfeature) // Turn this unit into a feature
 		{
-			if (cur_px > 0 && cur_py > 0 && cur_px < (map->bloc_w<<1) && cur_py < (map->bloc_h<<1) )
+			if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1) )
 			{
-				if (map->map_data[ cur_py ][ cur_px ].stuff == -1)
+				if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
 				{
                     int type = feature_manager.get_feature_index(pType->Corpse);
 					if (type >= 0)
 					{
 						features.lock();
-						map->map_data[ cur_py ][ cur_px ].stuff=features.add_feature(Pos,type);
-						if (map->map_data[ cur_py ][ cur_px ].stuff == -1)
+						the_map->map_data[ cur_py ][ cur_px ].stuff=features.add_feature(Pos,type);
+						if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
                             LOG_ERROR("Could not turn `" << pType->Unitname << "` into a feature ! Cannot create the feature");
 						else
-							features.feature[map->map_data[ cur_py ][ cur_px ].stuff].angle = Angle.y;
+							features.feature[the_map->map_data[ cur_py ][ cur_px ].stuff].angle = Angle.y;
 						pMutex.unlock();
 						clear_from_map();
 						pMutex.lock();
-						features.drawFeatureOnMap( map->map_data[ cur_py ][ cur_px ].stuff );
+						features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
 						features.unlock();
 						flags = 4;
 					}
@@ -1624,8 +1961,8 @@ namespace TA3D
 			return -1;
 		}
 
-		if (map->ota_data.waterdoesdamage && Pos.y < map->sealvl)		// The unit is damaged by the "acid" water
-			hp -= dt*map->ota_data.waterdamage;
+		if (the_map->ota_data.waterdoesdamage && Pos.y < the_map->sealvl)		// The unit is damaged by the "acid" water
+			hp -= dt*the_map->ota_data.waterdamage;
 
 		bool jump_commands = (((idx+key_frame)&0xF) == 0);		// Saute certaines commandes / Jump some commands so it runs faster with lots of units
 
@@ -1705,7 +2042,7 @@ namespace TA3D
 			}
 			if (data.nb_piece > 0 && build_percent_left == 0.0f)
 			{
-				data.move(dt,map->ota_data.gravity);
+				data.move(dt,the_map->ota_data.gravity);
 				if (c_time >= 0.1f)
 				{
 					c_time = 0.0f;
@@ -1729,17 +2066,17 @@ namespace TA3D
 			goto script_exec;
 		}
 		else if (!jump_commands && do_nothing() && local)
-			if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d)
+			if (Pos.x<-the_map->map_w_d || Pos.x>the_map->map_w_d || Pos.z<-the_map->map_h_d || Pos.z>the_map->map_h_d)
 			{
 				Vector3D target = Pos;
-				if (target.x < -map->map_w_d+256)
-					target.x = -map->map_w_d+256;
-				else if (target.x > map->map_w_d-256)
-					target.x = map->map_w_d-256;
-				if (target.z < -map->map_h_d+256)
-					target.z = -map->map_h_d+256;
-				else if (target.z > map->map_h_d-256)
-					target.z = map->map_h_d-256;
+				if (target.x < -the_map->map_w_d+256)
+					target.x = -the_map->map_w_d+256;
+				else if (target.x > the_map->map_w_d-256)
+					target.x = the_map->map_w_d-256;
+				if (target.z < -the_map->map_h_d+256)
+					target.z = -the_map->map_h_d+256;
+				else if (target.z > the_map->map_h_d-256)
+					target.z = the_map->map_h_d-256;
 				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
 			}
 
@@ -1784,11 +2121,11 @@ namespace TA3D
 				// byte mask = 1 << owner_id;
 				bool found = false;
 				for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++)
-					if (y >= 0 && y < map->bloc_h_db - 1)
+					if (y >= 0 && y < the_map->bloc_h_db - 1)
 						for(int x = cur_px - dx ; x <= cur_px + dx ; x++)
-							if (x >= 0 && x < map->bloc_w_db - 1)
+							if (x >= 0 && x < the_map->bloc_w_db - 1)
 							{
-								int cur_idx = map->map_data[y][x].unit_idx;
+								int cur_idx = the_map->map_data[y][x].unit_idx;
 
 								if (cur_idx>=0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
 									&& distance >= (Pos - units.unit[ cur_idx ].Pos).sq())
@@ -1834,8 +2171,8 @@ namespace TA3D
 				if (units.unit[attached_list[i]].flags)
 				{
 					units.unit[attached_list[i]].Pos = Pos+data.pos[link_list[i]];
-					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x)+map->map_w_d)>>3;
-					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z)+map->map_h_d)>>3;
+					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x)+the_map->map_w_d)>>3;
+					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z)+the_map->map_h_d)>>3;
 					units.unit[attached_list[i]].Angle = Angle;
 				}
 				else
@@ -1974,13 +2311,13 @@ namespace TA3D
 									weapon[i].data = -1;
 									break;	// We're not shooting at the target
 								}
-								float t = 2.0f / map->ota_data.gravity * fabsf(target.y);
+								float t = 2.0f / the_map->ota_data.gravity * fabsf(target.y);
                                 mindist = (int)sqrtf(t*V.sq())-((pType->attackrunlength+1)>>1);
                                 maxdist = mindist+(pType->attackrunlength);
 							}
 							else
 							{
-                                if (pType->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
+								if (pType->weapon[ i ]->waterweapon && Pos.y > the_map->sealvl)
 								{
 									if (target % V < 0.0f)
 									{
@@ -1988,7 +2325,7 @@ namespace TA3D
 										weapon[i].data = -1;
 										break;	// We're not shooting at the target
 									}
-									float t = 2.0f / map->ota_data.gravity * fabsf(target.y);
+									float t = 2.0f / the_map->ota_data.gravity * fabsf(target.y);
 									mindist = (int)sqrtf(t*V.sq());
                                     maxdist = mindist + (pType->weapon[ i ]->range>>1);
 								}
@@ -2082,12 +2419,12 @@ namespace TA3D
 									if (target_unit == NULL)
 									{
 										if (target_weapon == NULL)
-											aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
+											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
 										else
-											aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
+											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
 									}
 									else
-										aiming[1] = (int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
+										aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
 								}
 								else
 								{
@@ -2191,7 +2528,7 @@ namespace TA3D
 						if (start_piece >= 0 && start_piece < data.nb_piece)
 						{
 							compute_model_coord();
-							if (!pType->weapon[ i ]->waterweapon && Pos.y + data.tpos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
+							if (!pType->weapon[ i ]->waterweapon && Pos.y + data.tpos[start_piece].y <= the_map->sealvl)     // Can't shoot from water !!
 								break;
 							Vector3D Dir = data.dir[start_piece];
                             if (pType->weapon[ i ]->vlaunch)
@@ -2204,7 +2541,7 @@ namespace TA3D
 								Dir = weapon[i].aim_dir;
 							if (i == 3)
 							{
-								LOG_DEBUG("firing from " << (Pos + data.tpos[start_piece]).y << " (" << units.map->get_unit_h((Pos + data.tpos[start_piece]).x, (Pos + data.tpos[start_piece]).z) << ")");
+								LOG_DEBUG("firing from " << (Pos + data.tpos[start_piece]).y << " (" << the_map->get_unit_h((Pos + data.tpos[start_piece]).x, (Pos + data.tpos[start_piece]).z) << ")");
 								LOG_DEBUG("from piece " << start_piece << " (" << Query_script << "," << Aim_script << "," << Fire_script << ")" );
 							}
 
@@ -2283,361 +2620,7 @@ namespace TA3D
 			mission->setTime( mission->getTime() + dt );
 			last_path_refresh += dt;
 
-			//----------------------------------- Beginning of moving code ------------------------------------
-
-			if ((mission->getFlags() & MISSION_FLAG_MOVE) && pType->canmove && pType->BMcode)
-			{
-				if (!was_moving)
-				{
-                    if (pType->canfly)
-						activate();
-					launchScript(SCRIPT_startmoving);
-					if (nb_attached == 0)
-						launchScript(SCRIPT_MoveRate1);		// For the armatlas
-					else
-						launchScript(SCRIPT_MoveRate2);
-					was_moving = true;
-				}
-				Vector3D J,I,K;
-				K.x = 0.0f;
-				K.y = 1.0f;
-				K.z = 0.0f;
-				Vector3D Target(mission->getTarget().getPos());
-				if (!mission->Path().empty()
-					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
-						 || (last_path_refresh < 5.0f && !pType->canfly) ) )
-					Target = mission->Path().Pos();
-				else
-				{// Look for a path to the target
-					if (!mission->Path().empty())// If we want to refresh the path
-					{
-						Target = mission->getTarget().getPos();//mission->path->Pos;
-						mission->Path().clear();
-					}
-					mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
-					float dist = (Target - Pos).sq();
-					if (( mission->getMoveData() <= 0 && dist > 100.0f )
-						|| ( ( SQUARE(mission->getMoveData()) << 6 ) < dist))
-					{
-						if (!requesting_pathfinder && last_path_refresh >= 5.0f && !pType->canfly)
-						{
-							requesting_pathfinder = true;
-							units.requests[ owner_id ].push_back( idx );
-						}
-						if (path_exec[ owner_id ] < MAX_PATH_EXEC
-							&& ((last_path_refresh >= 5.0f
-								 && !units.requests[ owner_id ].empty()
-								 && idx == units.requests[ owner_id ].front())
-								|| pType->canfly))
-						{
-							if (!pType->canfly)
-							{
-								units.requests[ owner_id ].pop_front();
-								path_exec[ owner_id ]++;
-							}
-							requesting_pathfinder = false;
-
-							move_target_computed = mission->getTarget().getPos();
-							last_path_refresh = 0.0f;
-                            if (pType->canfly)
-							{
-								if (mission->getMoveData() <= 0)
-									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
-								else
-								{
-									Vector3D Dir = mission->getTarget().getPos() - Pos;
-									Dir.unit();
-									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
-								}
-							}
-							else
-							{
-                                float dh_max = pType->MaxSlope * H_DIV;
-                                float h_min = pType->canhover ? -100.0f : map->sealvl - pType->MaxWaterDepth * H_DIV;
-                                float h_max = map->sealvl - pType->MinWaterDepth * H_DIV;
-                                float hover_h = pType->canhover ? map->sealvl : -100.0f;
-								Pathfinder::Task task;
-								task.dist = mission->getMoveData();
-								task.idx = idx;
-								task.UID = ID;
-								task.start = Pos;
-								task.end = mission->getTarget().getPos();
-								Pathfinder::findPath(mission->Path(), task);
-//								if (mission->getMoveData() <= 0)
-//									mission->Path() = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
-//															  dh_max, h_min, h_max, Pos, mission->getTarget().getPos(), pType->FootprintX, pType->FootprintZ, idx, 0, hover_h );
-//								else
-//									mission->Path() = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
-//															  dh_max, h_min, h_max, Pos, mission->getTarget().getPos(), pType->FootprintX, pType->FootprintZ, idx, mission->getMoveData(), hover_h );
-
-								if (mission->Path().empty())
-								{
-                                    bool place_is_empty = map->check_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx);
-									if (!place_is_empty)
-									{
-										LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
-										mission->Flags() &= ~MISSION_FLAG_MOVE;
-									}
-									else
-										mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Retry later
-									launchScript(SCRIPT_StopMoving);
-									was_moving = false;
-								}
-
-								if (mission->Path().empty())					// Can't find a path to get where it has been ordered to go
-									playSound("cant1");
-							}
-							if (!mission->Path().empty())// Update required data
-								Target = mission->Path().Pos();
-						}
-					}
-					else
-						stopMoving();
-				}
-
-				if (!mission->Path().empty()) // If we have a path, follow it
-				{
-					if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
-						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
-					J = Target - Pos;
-					J.y = 0.0f;
-					float dist = J.norm();
-					if ((dist > mission->getLastD() && dist < 15.0f) || mission->Path().empty())
-					{
-						mission->Path().next();
-						mission->setLastD(9999999.0f);
-						if (mission->Path().empty()) // End of path reached
-						{
-							J = move_target_computed - Pos;
-							J.y = 0.0f;
-							if (J.sq() <= 256.0f || flying)
-							{
-								if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-									&& (!mission.empty() || mission->mission() != MISSION_PATROL))
-									playSound( "arrived1" );
-								mission->Flags() &= ~MISSION_FLAG_MOVE;
-							}
-							else										// We are not where we are supposed to be !!
-								mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
-							if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
-							{
-								launchScript(SCRIPT_StopMoving);
-								was_moving = false;
-							}
-							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
-								V.reset();		// Stop unit's movement
-							if (mission->isStep())      // It's meaningless to try to finish this mission like an ordinary order
-								next_mission();
-						}
-					}
-					else
-						mission->setLastD(dist);
-					if (mission->getFlags() & MISSION_FLAG_MOVE)	// Are we still moving ??
-					{
-						if (dist > 0.0f)
-							J = 1.0f / dist * J;
-
-						b_TargetAngle = true;
-						f_TargetAngle = acosf( J.z ) * RAD2DEG;
-						if (J.x < 0.0f ) f_TargetAngle = -f_TargetAngle;
-
-						if (Angle.y - f_TargetAngle >= 360.0f )	f_TargetAngle += 360.0f;
-						else if (Angle.y - f_TargetAngle <= -360.0f )	f_TargetAngle -= 360.0f;
-
-						J.z = cosf(Angle.y*DEG2RAD);
-						J.x = sinf(Angle.y*DEG2RAD);
-						J.y = 0.0f;
-						I.z = -J.x;
-						I.x = J.z;
-						I.y = 0.0f;
-						V = (V%K)*K + (V%J)*J;
-						if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
-						{
-							if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
-							{
-								if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
-                                    V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
-							}
-							else
-							{
-								float speed = V.norm();
-                                float time_to_stop = speed / pType->BrakeRate;
-                                float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
-								if (min_dist >= dist && !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-									&& ( !mission.hasNext()
-										 || (mission(1) != MISSION_MOVE
-											 && mission(1) != MISSION_PATROL)))	// Brake if needed
-									V = V - pType->BrakeRate * dt * J;
-								else if (speed < pType->MaxVelocity)
-									V = V + pType->Acceleration * dt * J;
-								else
-                                    V = pType->MaxVelocity / speed * V;
-							}
-						}
-						else
-						{
-							float speed = V.norm();
-							if (speed > pType->MaxVelocity)
-                                V = pType->MaxVelocity / speed * V;
-						}
-					}
-				}
-
-				NPos = Pos + dt * V;			// Check if the unit can go where V brings it
-				if (was_locked) // Random move to solve the unit lock problem
-				{
-					if (V.x > 0.0f)
-						NPos.x += (Math::RandomTable() % 101) * 0.01f;
-					else
-						NPos.x -= (Math::RandomTable() % 101) * 0.01f;
-					if (V.z > 0.0f)
-						NPos.z += (Math::RandomTable() % 101) * 0.01f;
-					else
-						NPos.z -= (Math::RandomTable() % 101) * 0.01f;
-
-					if (was_locked >= 5.0f)
-					{
-						was_locked = 5.0f;
-						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
-						// obstacles have moved
-					}
-				}
-				n_px = ((int)(NPos.x) + map->map_w_d + 4) >> 3;
-				n_py = ((int)(NPos.z) + map->map_h_d + 4) >> 3;
-				precomputed_position = true;
-				bool locked = false;
-				if (!flying )
-				{
-					if (n_px != cur_px || n_py != cur_py) // has something changed ??
-					{
-						bool place_is_empty = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
-						if (!(flags & 64) && !place_is_empty)
-						{
-                            if (!pType->canfly)
-							{
-								locked = true;
-								// Check some basic solutions first
-								if (cur_px != n_px
-									&& can_be_there( cur_px, n_py, map, type_id, owner_id, idx ))
-								{
-									V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrtf( SQUARE(V.z) + SQUARE(V.x) ) : sqrtf( SQUARE(V.z) + SQUARE(V.x) ) ) : 0.0f;
-									V.x = 0.0f;
-									NPos.x = Pos.x;
-									n_px = cur_px;
-								}
-								else if (cur_py != n_py && can_be_there( n_px, cur_py, map, type_id, owner_id, idx ))
-								{
-									V.x = (V.x != 0.0)
-										? ((V.x < 0.0f)
-										   ? -sqrtf(SQUARE(V.z) + SQUARE(V.x))
-										   : sqrtf(SQUARE(V.z) + SQUARE(V.x)))
-										: 0.0f;
-									V.z = 0.0f;
-									NPos.z = Pos.z;
-									n_py = cur_py;
-								}
-								else if (can_be_there( cur_px, cur_py, map, type_id, owner_id, idx )) {
-									V.x = V.y = V.z = 0.0f;		// Don't move since we can't
-									NPos = Pos;
-									n_px = cur_px;
-									n_py = cur_py;
-									mission->Flags() |= MISSION_FLAG_MOVE;
-									if (fabsf( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle) // Don't prevent unit from rotating!!
-										mission->Path().clear();
-								}
-								else
-									LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
-							}
-							else if (!flying && local )
-							{
-								if (Pos.x<-map->map_w_d
-									|| Pos.x>map->map_w_d
-									|| Pos.z<-map->map_h_d
-									|| Pos.z>map->map_h_d)
-								{
-									Vector3D target = Pos;
-									if (target.x < -map->map_w_d+256)
-										target.x = -map->map_w_d+256;
-									else if (target.x > map->map_w_d-256)
-										target.x = map->map_w_d-256;
-									if (target.z < -map->map_h_d+256)
-										target.z = -map->map_h_d+256;
-									else if (target.z > map->map_h_d-256)
-										target.z = map->map_h_d-256;
-									next_mission();
-									add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
-								}
-								else
-									if (!can_be_there( cur_px, cur_py, map, type_id, owner_id, idx ))
-									{
-										NPos = Pos;
-										n_px = cur_px;
-										n_py = cur_py;
-										Vector3D target = Pos;
-										target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
-										target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
-										mission->Flags() |= MISSION_FLAG_MOVE;
-										mission->Path() = Pathfinder::directPath( target );
-									}
-							}
-						}
-						else if (!(flags & 64)
-								&& pType->canfly
-								&& (!mission
-									|| (mission->mission() != MISSION_MOVE
-										&& mission->mission() != MISSION_ATTACK)))
-							flags |= 64;
-					}
-					else
-					{
-                        bool place_is_empty = map->check_rect(n_px-(pType->FootprintX>>1),n_py-(pType->FootprintZ>>1),pType->FootprintX,pType->FootprintZ,idx);
-						if (!place_is_empty)
-						{
-							pMutex.unlock();
-							clear_from_map();
-							pMutex.lock();
-							LOG_WARNING("A Unit is blocked ! (probably spawned on something)" << __FILE__ << ":" << __LINE__);
-						}
-					}
-				}
-				if (locked)
-					was_locked += dt;
-				else
-					was_locked = 0.0f;
-			}
-			else
-			{
-				was_moving = false;
-				requesting_pathfinder = false;
-			}
-
-			if (flying && local) // Force planes to stay on map
-			{
-				if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
-					if (Pos.x < -map->map_w_d )
-						V.x += dt * ( -map->map_w_d - Pos.x ) * 0.1f;
-					else if (Pos.x > map->map_w_d )
-						V.x -= dt * ( Pos.x - map->map_w_d ) * 0.1f;
-					if (Pos.z < -map->map_h_d )
-						V.z += dt * ( -map->map_h_d - Pos.z ) * 0.1f;
-					else if (Pos.z > map->map_h_d )
-						V.z -= dt * ( Pos.z - map->map_h_d ) * 0.1f;
-					float speed = V.norm();
-					if (speed > pType->MaxVelocity && speed > 0.0f)
-					{
-                        V = pType->MaxVelocity / speed * V;
-                        speed = pType->MaxVelocity;
-					}
-					if (speed > 0.0f)
-					{
-						Angle.y = acosf( V.z / speed ) * RAD2DEG;
-						if (V.x < 0.0f)
-							Angle.y = -Angle.y;
-					}
-				}
-			}
-
-			//----------------------------------- End of moving code ------------------------------------
+			followPath(dt, b_TargetAngle, f_TargetAngle, NPos, n_px, n_py, precomputed_position);
 
 			switch(mission->mission())						// Commandes générales / General orders
 			{
@@ -2759,13 +2742,16 @@ namespace TA3D
 						int sx=Math::RandomTable()&1;
 						int sy=Math::RandomTable()&1;
 						// byte mask=1<<owner_id;
-						for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=2) {
-							if (y>=0 && y<map->bloc_h_db-1)
-								for(int x=cur_px-dx+sx;x<=cur_px+dx;x+=2)
-									if (x>=0 && x<map->bloc_w_db-1 ) {
-										int cur_idx = map->map_data[y][x].unit_idx;
-										if (cur_idx>=0 && cur_idx<units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
-											&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe ) {		// This unit is on the sight_map since dx = sightdistance !!
+						for(int y = cur_py - dx + sy ; y <= cur_py + dx ; y += 2)
+						{
+							if (y >= 0 && y < the_map->bloc_h_db - 1)
+								for(int x = cur_px - dx + sx ; x <= cur_px + dx ; x += 2)
+									if (x >= 0 && x < the_map->bloc_w_db - 1)
+									{
+										int cur_idx = the_map->map_data[y][x].unit_idx;
+										if (cur_idx >= 0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
+											&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe )		// This unit is on the sight_map since dx = sightdistance !!
+										{
 											enemy_idx = cur_idx;
 											break;
 										}
@@ -2801,7 +2787,7 @@ namespace TA3D
 								if (pType->TransMaxUnits == 1)// Code for units like the arm atlas
 								{
 									if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
-										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
+										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, the_map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
 										launchScript(SCRIPT_EndTransport);
 
 										Unit *target_unit = &(units.unit[ attached_list[0] ]);
@@ -2821,9 +2807,9 @@ namespace TA3D
 								else
 								{
 									if (attached_list[ nb_attached - 1 ] >= 0 && attached_list[ nb_attached - 1 ] < units.max_unit				// Check we can do that
-										&& units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->getTarget().getPos(), map, units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
+										&& units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->getTarget().getPos(), the_map, units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
 										int idx = attached_list[ nb_attached - 1 ];
-										int param[]= { idx, PACKXZ( mission->getTarget().getPos().x * 2.0f + map->map_w, mission->getTarget().getPos().z * 2.0f + map->map_h ) };
+										int param[]= { idx, PACKXZ( mission->getTarget().getPos().x * 2.0f + the_map->map_w, mission->getTarget().getPos().z * 2.0f + the_map->map_h ) };
 										launchScript(SCRIPT_TransportDrop, 2, param);
 									}
 									else if (attached_list[ nb_attached - 1 ] < 0 || attached_list[ nb_attached - 1 ] >= units.max_unit
@@ -2969,7 +2955,7 @@ namespace TA3D
 											target_unit->clear_from_map();
 											target_unit->lock();
 
-											Unit *new_unit = (Unit*) create_unit( target_unit->type_id, owner_id, target_unit->Pos, map);
+											Unit *new_unit = (Unit*) create_unit( target_unit->type_id, owner_id, target_unit->Pos, the_map);
 											if (new_unit)
 											{
 												new_unit->lock();
@@ -3086,7 +3072,7 @@ namespace TA3D
 										if (wreckage_type_id >= 0)
 										{
 											pMutex.unlock();
-											Unit *unit_p = (Unit*) create_unit( wreckage_type_id, owner_id, obj_pos, map );
+											Unit *unit_p = (Unit*) create_unit( wreckage_type_id, owner_id, obj_pos, the_map );
 
 											if (unit_p)
 											{
@@ -3199,14 +3185,14 @@ namespace TA3D
                             int sy = Math::RandomTable()&0xF;
                             for(int y = cur_py - dx + sy ; y <= cur_py + dx && feature_idx == -1 ; y += 0x8)
                             {
-                                if (y >= 0 && y < map->bloc_h_db - 1)
+								if (y >= 0 && y < the_map->bloc_h_db - 1)
                                 {
                                     for(int x = cur_px - dx + sx ; x <= cur_px + dx && feature_idx == -1 ; x += 0x8)
                                     {
                                         if (SQUARE(cur_px - x) + SQUARE(cur_py - y) > dx2)  continue;
-                                        if (x >= 0 && x < map->bloc_w_db - 1)
+										if (x >= 0 && x < the_map->bloc_w_db - 1)
                                         {
-                                            int cur_idx = map->map_data[y][x].stuff;
+											int cur_idx = the_map->map_data[y][x].stuff;
                                             if (cur_idx >= 0)      // There is a feature
                                             {
                                                 Feature *pFeature = feature_manager.getFeaturePointer(features.feature[cur_idx].type);
@@ -3377,15 +3363,15 @@ namespace TA3D
 								{
 									if (Dir % V < 0.0f)
 										allowed_to_fire = false;
-									float t = 2.0f / map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
+									float t = 2.0f / the_map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
 									cur_mindist = (int)sqrtf(t * V.sq()) - ((pType->attackrunlength + 1)>>1);
 									cur_maxdist = cur_mindist + pType->attackrunlength;
 								}
-                                else if (pType->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
+								else if (pType->weapon[ i ]->waterweapon && Pos.y > the_map->sealvl)
 								{
 									if (Dir % V < 0.0f)
 										allowed_to_fire = false;
-									float t = 2.0f / map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
+									float t = 2.0f / the_map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
 									cur_maxdist = (int)sqrtf(t*V.sq()) + (pType->weapon[ i ]->range >> 1);
 									cur_mindist = 0;
 								}
@@ -3657,7 +3643,7 @@ namespace TA3D
 										compute_model_coord();
 										Vector3D old_pos = target_unit->Pos;
 										target_unit->Pos = Pos + data.pos[buildinfo];
-										if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= map->sealvl ) )
+										if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= the_map->sealvl ) )
 											target_unit->Pos.y = old_pos.y;
 										if (((Vector3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) // It must be continuous
 										{
@@ -3666,8 +3652,8 @@ namespace TA3D
 										}
 										else
 										{
-											target_unit->cur_px = ((int)(target_unit->Pos.x)+map->map_w_d+4)>>3;
-											target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d+4)>>3;
+											target_unit->cur_px = ((int)(target_unit->Pos.x)+the_map->map_w_d+4)>>3;
+											target_unit->cur_py = ((int)(target_unit->Pos.z)+the_map->map_h_d+4)>>3;
 										}
 										target_unit->Angle = Angle;
 										target_unit->Angle.y += data.axe[1][buildinfo].angle;
@@ -3730,14 +3716,14 @@ namespace TA3D
 									}
 								}
 								Vector3D target = mission->getTarget().getPos();
-								if (map->check_rect((((int)(target.x) + map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintX>>1),
-													(((int)(target.z) + map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintZ>>1),
+								if (the_map->check_rect((((int)(target.x) + the_map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintX>>1),
+													(((int)(target.z) + the_map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintZ>>1),
 													unit_manager.unit_type[mission->getData()]->FootprintX,
 													unit_manager.unit_type[mission->getData()]->FootprintZ,
 													-1)) // Check if we have an empty place to build our unit
 								{
 									pMutex.unlock();
-									Unit *p = (Unit*)create_unit(mission->getData(), owner_id, mission->getTarget().getPos(), map);
+									Unit *p = (Unit*)create_unit(mission->getData(), owner_id, mission->getTarget().getPos(), the_map);
 									if (p)
 										mission->getTarget().set(Mission::Target::TargetUnit, p->idx, p->ID);
 									pMutex.lock();
@@ -3946,7 +3932,7 @@ namespace TA3D
 			{
                 if (!pType->canfly && !pType->Upright
                     && !pType->floatting()
-                    && !( pType->canhover && Pos.y <= map->sealvl ))
+					&& !( pType->canhover && Pos.y <= the_map->sealvl ))
 				{
 					Vector3D I,J,K,A,B,C;
 					Matrix M = RotateY((Angle.y+90.0f)*DEG2RAD);
@@ -3956,9 +3942,9 @@ namespace TA3D
 					A = Pos - pType->FootprintZ * I * M;
                     B = Pos + (pType->FootprintX*I-pType->FootprintZ*J)*M;
                     C = Pos + (pType->FootprintX*I+pType->FootprintZ*J)*M;
-					A.y = map->get_unit_h(A.x,A.z);	// Projete le triangle
-					B.y = map->get_unit_h(B.x,B.z);
-					C.y = map->get_unit_h(C.x,C.z);
+					A.y = the_map->get_unit_h(A.x,A.z);	// Projete le triangle
+					B.y = the_map->get_unit_h(B.x,B.z);
+					C.y = the_map->get_unit_h(C.x,C.z);
 					Vector3D D = (B - A) * (B - C);
 					if (D.y >= 0.0f) // On ne met pas une unité à l'envers!!
 					{
@@ -4018,19 +4004,19 @@ namespace TA3D
 					byte mask=1<<owner_id;
 					for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=0x8)
 					{
-						if (y>=0 && y<map->bloc_h_db-1)
+						if (y>=0 && y<the_map->bloc_h_db-1)
 							for(int x=cur_px-dx+sx;x<=cur_px+dx;x+=0x8)
-								if (x>=0 && x<map->bloc_w_db-1 )
+								if (x>=0 && x<the_map->bloc_w_db-1 )
 								{
 									bool land_test = true;
-									airIdxSet &airSet = map->map_data[y][x].air_idx;
+									airIdxSet &airSet = the_map->map_data[y][x].air_idx;
 									airIdxSet::iterator cur = airSet.begin();
 									for( ; land_test || cur != airSet.end() ; )
 									{
 										int cur_idx;
 										if (land_test)
 										{
-											cur_idx = map->map_data[y][x].unit_idx;
+											cur_idx = the_map->map_data[y][x].unit_idx;
 											land_test = false;
 										}
 										else
@@ -4041,7 +4027,7 @@ namespace TA3D
 										if (isEnemy( cur_idx ) && units.unit[cur_idx].flags
 											&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
 											&& ( units.unit[cur_idx].is_on_radar( mask ) ||
-												 ( (SurfaceByte(units.map->sight_map,x>>1,y>>1) & mask)
+												 ( (SurfaceByte(the_map->sight_map,x>>1,y>>1) & mask)
 												   && !units.unit[cur_idx].cloaked ) )
                                             && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( pType->NoChaseCategory ) )
                                             //                                             && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( pType->BadTargetCategory ) )
@@ -4235,11 +4221,11 @@ namespace TA3D
                 if (pType->canmove && pType->BMcode )
 					V.y-=units.g_dt;			// L'unité subit la force de gravitation
 				Pos = Pos+dt*V;			// Déplace l'unité
-				cur_px = ((int)(Pos.x)+map->map_w_d+4)>>3;
-				cur_py = ((int)(Pos.z)+map->map_h_d+4)>>3;
+				cur_px = ((int)(Pos.x)+the_map->map_w_d+4)>>3;
+				cur_py = ((int)(Pos.z)+the_map->map_h_d+4)>>3;
 			}
-            if (units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (pType->fastCategory & CATEGORY_NOTSUB)
-				&& cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water )
+			if (units.current_tick - ripple_timer >= 7 && Pos.y <= the_map->sealvl && Pos.y + model->top >= the_map->sealvl && (pType->fastCategory & CATEGORY_NOTSUB)
+				&& cur_px >= 0 && cur_py >= 0 && cur_px < the_map->bloc_w_db && cur_py < the_map->bloc_h_db && !the_map->map_data[ cur_py ][ cur_px ].lava && the_map->water )
 			{
 				Vector3D Diff = OPos - Pos;
 				Diff.y = 0.0f;
@@ -4247,54 +4233,54 @@ namespace TA3D
 				{
 					ripple_timer = units.current_tick;
 					Vector3D ripple_pos = Pos;
-					ripple_pos.y = map->sealvl + 1.0f;
+					ripple_pos.y = the_map->sealvl + 1.0f;
 					fx_manager.addRipple( ripple_pos, ( ((sint32)(Math::RandomTable() % 201)) - 100 ) * 0.0001f );
 				}
 			}
 		}
 script_exec:
-        if (map && !attached && ( (!jump_commands && pType->canmove) || first_move ))
+		if (!attached && ( (!jump_commands && pType->canmove) || first_move ))
 		{
 			bool hover_on_water = false;
-			float min_h = map->get_unit_h(Pos.x,Pos.z);
+			float min_h = the_map->get_unit_h(Pos.x,Pos.z);
 			h = Pos.y - min_h;
             if (!pType->Floater && !pType->canfly && !pType->canhover && h > 0.0f && pType->WaterLine == 0.0f )
 				Pos.y = min_h;
-            else if (pType->canhover && Pos.y <= map->sealvl)
+			else if (pType->canhover && Pos.y <= the_map->sealvl)
 			{
 				hover_on_water = true;
-				Pos.y = map->sealvl;
-				if (V.y<0.0f)
-					V.y=0.0f;
+				Pos.y = the_map->sealvl;
+				if (V.y < 0.0f)
+					V.y = 0.0f;
 			}
             else if (pType->Floater)
 			{
-                Pos.y = map->sealvl+pType->AltFromSeaLevel*H_DIV;
-				V.y=0.0f;
+				Pos.y = the_map->sealvl + pType->AltFromSeaLevel * H_DIV;
+				V.y = 0.0f;
 			}
             else if (pType->WaterLine)
 			{
-                Pos.y=map->sealvl-pType->WaterLine*H_DIV;
+				Pos.y = the_map->sealvl - pType->WaterLine * H_DIV;
 				V.y=0.0f;
 			}
-            else if (!pType->canfly && Pos.y > Math::Max( min_h, map->sealvl ) && pType->BMcode)	// Prevent non flying units from "jumping"
+			else if (!pType->canfly && Pos.y > Math::Max( min_h, the_map->sealvl ) && pType->BMcode)	// Prevent non flying units from "jumping"
 			{
-				Pos.y = Math::Max(min_h, map->sealvl);
-				if (V.y<0.0f)
-					V.y=0.0f;
+				Pos.y = Math::Max(min_h, the_map->sealvl);
+				if (V.y < 0.0f)
+					V.y = 0.0f;
 			}
             if (pType->canhover)
 			{
-				int param[1] = { hover_on_water ? ( map->sealvl - min_h >= 8.0f ? 2 : 1) : 4 };
+				int param[1] = { hover_on_water ? ( the_map->sealvl - min_h >= 8.0f ? 2 : 1) : 4 };
 				runScriptFunction(SCRIPT_setSFXoccupy, 1, param);
 			}
-			if (min_h>Pos.y)
+			if (min_h > Pos.y)
 			{
-				Pos.y=min_h;
-				if (V.y<0.0f)
-					V.y=0.0f;
+				Pos.y = min_h;
+				if (V.y < 0.0f)
+					V.y = 0.0f;
 			}
-            if (pType->canfly && build_percent_left==0.0f && local)
+			if (pType->canfly && build_percent_left == 0.0f && local)
 			{
 				if (!mission.empty()
 					&& ( (mission->getFlags() & MISSION_FLAG_MOVE)
@@ -4307,22 +4293,22 @@ script_exec:
 						 || mission->mission() == MISSION_PATROL
 						 || mission->mission() == MISSION_RECLAIM
 						 || nb_attached > 0
-						 || Pos.x < -map->map_w_d
-						 || Pos.x > map->map_w_d
-						 || Pos.z < -map->map_h_d
-						 || Pos.z > map->map_h_d ))
+						 || Pos.x < -the_map->map_w_d
+						 || Pos.x > the_map->map_w_d
+						 || Pos.z < -the_map->map_h_d
+						 || Pos.z > the_map->map_h_d ))
 				{
 					if (!(mission->mission() == MISSION_GET_REPAIRED
 						  && (mission->getFlags() & MISSION_FLAG_BEING_REPAIRED) ) )
 					{
-						float ideal_h = Math::Max(min_h, map->sealvl) + pType->CruiseAlt * H_DIV;
+						float ideal_h = Math::Max(min_h, the_map->sealvl) + pType->CruiseAlt * H_DIV;
 						V.y = (ideal_h - Pos.y) * 2.0f;
 					}
 					flying = true;
 				}
 				else
 				{
-					if (can_be_there( cur_px, cur_py, units.map, type_id, owner_id, idx ))		// Check it can be there
+					if (can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx ))		// Check it can be there
 					{
 						float ideal_h = min_h;
 						V.y = (ideal_h - Pos.y) * 1.5f;
@@ -4509,7 +4495,7 @@ script_exec:
 							continue;	// Don't show this, it'll be removed
 						}
 						n_target = cur->lastStep().getTarget().getPos();
-						n_target.y = Math::Max(units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl);
+						n_target.y = Math::Max(the_map->get_unit_h( n_target.x, n_target.z ), the_map->sealvl);
 						if (rec > 0)
 						{
 							if (low_def)
@@ -4539,7 +4525,7 @@ script_exec:
 								{
 									x = p_target.x + (n_target.x - p_target.x) * (i + rab) / rec;
 									z = p_target.z + (n_target.z - p_target.z) * (i + rab) / rec;
-									y = Math::Max(units.map->get_unit_h( x, z ), units.map->sealvl);
+									y = Math::Max(the_map->get_unit_h( x, z ), the_map->sealvl);
 									y += 0.75f;
 									x -= dx;
 									z -= dz;
@@ -4571,7 +4557,7 @@ script_exec:
 							green = 0.0f;
 						}
 						glPushMatrix();
-						glTranslatef(target.x,Math::Max( target.y, units.map->sealvl ), target.z);
+						glTranslatef(target.x,Math::Max( target.y, the_map->sealvl ), target.z);
 						glDisable(GL_CULL_FACE);
 						glDisable(GL_TEXTURE_2D);
 						glEnable(GL_BLEND);
@@ -4624,7 +4610,7 @@ script_exec:
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 						}
 						glPushMatrix();
-						glTranslatef(target.x,Math::Max( target.y, units.map->sealvl ), target.z);
+						glTranslatef(target.x,Math::Max( target.y, the_map->sealvl ), target.z);
 						glDisable(GL_CULL_FACE);
 						glDisable(GL_TEXTURE_2D);
 						glEnable(GL_BLEND);
@@ -4831,7 +4817,7 @@ script_exec:
 		drawn_flying = flying;
         UnitType *pType = unit_manager.unit_type[type_id];
 		if (flying)
-            units.map->air_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx );
+			the_map->air_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx );
 		else
 		{
 			// First check we're on a "legal" place if it can move
@@ -4880,8 +4866,8 @@ script_exec:
 				}
 				if (found)
 				{
-					Pos.x = (cur_px<<3) + 4 - units.map->map_w_d;
-					Pos.z = (cur_py<<3) + 4 - units.map->map_h_d;
+					Pos.x = (cur_px<<3) + 4 - the_map->map_w_d;
+					Pos.z = (cur_py<<3) + 4 - the_map->map_h_d;
 					if (!mission.empty() && (mission->getFlags() & MISSION_FLAG_MOVE))
 						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				}
@@ -4891,11 +4877,11 @@ script_exec:
 			}
 			pMutex.unlock();
 
-			units.map->rect( cur_px - (pType->FootprintX >> 1),
+			the_map->rect( cur_px - (pType->FootprintX >> 1),
 							 cur_py - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
 							 idx, pType->yardmap, port[YARD_OPEN] != 0.0f );
-			units.map->energy.add(pType->gRepulsion,
+			the_map->energy.add(pType->gRepulsion,
 								  cur_px - (pType->gRepulsion.getWidth() >> 1),
 								  cur_py - (pType->gRepulsion.getHeight() >> 1));
 			drawn_open = port[YARD_OPEN]!=0.0f;
@@ -4918,17 +4904,17 @@ script_exec:
 		UnitType *pType = unit_manager.unit_type[type_id];
 		drawn = false;
 		if (drawn_flying)
-			units.map->air_rect( drawn_x - (pType->FootprintX >> 1),
+			the_map->air_rect( drawn_x - (pType->FootprintX >> 1),
 								 drawn_y - (pType->FootprintZ >> 1),
 								 pType->FootprintX, pType->FootprintZ,
 								 idx, true );
 		else
 		{
-			units.map->rect( drawn_x - (pType->FootprintX >> 1),
+			the_map->rect( drawn_x - (pType->FootprintX >> 1),
 							 drawn_y - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
 							 -1, pType->yardmap, drawn_open );
-			units.map->energy.sub(pType->gRepulsion,
+			the_map->energy.sub(pType->gRepulsion,
 								  drawn_x - (pType->gRepulsion.getWidth() >> 1),
 								  drawn_y - (pType->gRepulsion.getHeight() >> 1));
 		}
@@ -4950,7 +4936,7 @@ script_exec:
 			radar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistanceJam >> 4) : 0;
 			sonar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistanceJam >> 4) : 0;
 
-			units.map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
+			the_map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
 		}
 		else
 		{
@@ -4958,7 +4944,7 @@ script_exec:
 			radar_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistance >> 4) : 0;
 			sonar_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistance >> 4) : 0;
 
-			units.map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
+			the_map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
 
 			sight = cur_sight;
 			old_px = cur_px;
@@ -5044,11 +5030,11 @@ script_exec:
 		float size = unit_manager.unit_type[type_id]->model->size2 * 0.5f;
 		unlock();
 
-		if (px < 0 || py < 0 || px >= units.map->bloc_w || py >= units.map->bloc_h)
+		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			return;	// Out of map
 		byte player_mask = 1 << players.local_human_id;
 
-		if (units.map->view[py][px] != 1 || (!(SurfaceByte(units.map->sight_map,px,py) & player_mask) ) )
+		if (the_map->view[py][px] != 1 || (!(SurfaceByte(the_map->sight_map,px,py) & player_mask) ) )
 			return;	// Unit is not visible
 
 		float scale = 200.0f;

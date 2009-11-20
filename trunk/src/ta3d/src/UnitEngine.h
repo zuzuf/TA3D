@@ -128,7 +128,6 @@ namespace TA3D
 		sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
 		std::vector< uint16 >               visible_unit;   // A list to store visible units
-		std::vector< std::list< uint16 > >	requests;		// Store all the request for pathfinder calls
 
 	public:
 
@@ -164,7 +163,7 @@ namespace TA3D
 
 		void draw_mini(float map_w, float map_h, int mini_w, int mini_h, SECTOR** map_data); // Repère les unités sur la mini-carte
 
-		void move(float dt, MAP* map = NULL, int key_frame = 0, bool wind_change = false);
+		void move(float dt, int key_frame = 0, bool wind_change = false);
 
 		int create(int type_id,int owner);
 

@@ -65,7 +65,7 @@ namespace TA3D
 
 
 	INGAME_UNITS::INGAME_UNITS()
-		:repair_pads(), requests()
+		:repair_pads()
 	{
 		init();
 	}
@@ -259,7 +259,6 @@ namespace TA3D
 		next_unit_ID = 1;
 		mini_pos = NULL;
 		mini_col = NULL;
-		requests.clear();
 		repair_pads.clear();
 		repair_pads.resize(TA3D_PLAYERS_HARD_LIMIT);
 
@@ -915,23 +914,15 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
+	void INGAME_UNITS::move(float dt,int key_frame,bool wind_change)
 	{
-		if (nb_unit<=0 || unit==NULL)
+		if (nb_unit <= 0 || unit == NULL)
 		{
 			rest(1);
 			return;// No units to move
 		}
 
 		players.clear();		// Réinitialise le compteur de ressources
-
-		if (requests.empty())
-			requests.resize(TA3D_PLAYERS_HARD_LIMIT);
-
-		int pathfinder_calls[TA3D_PLAYERS_HARD_LIMIT];
-
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-			pathfinder_calls[i] = requests[i].empty() ? -1 : requests[i].front();
 
 		uint32 i;
 		pMutex.lock();
@@ -949,7 +940,7 @@ namespace TA3D
 				continue;
 			}
 
-			if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id]->ExtractsMetal ) // Compute amount of metal extracted by sec
+			if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id]->ExtractsMetal) // Compute amount of metal extracted by sec
 			{
 				int metal_base = 0;
 				int px=unit[i].cur_px;
@@ -1033,8 +1024,6 @@ namespace TA3D
 		exp_dt_2 = expf(-2.0f * dt);
 		exp_dt_4 = expf(-4.0f * dt);
 		g_dt = dt * map->ota_data.gravity;
-		int *path_exec = new int[players.count()];
-		memset(path_exec, 0, sizeof(int) * players.count());
 		pMutex.lock();
 		for (unsigned int e = 0; e < index_list_size; ++e)
 		{
@@ -1060,7 +1049,7 @@ namespace TA3D
 			}
 			players.c_nb_unit[unit[i].owner_id]++;			// Compte les unités de chaque joueur
 			unit[i].unlock();
-			if (unit[i].move(dt,map,path_exec,key_frame) == -1) // Vérifie si l'unité a été détruite
+			if (unit[i].move(dt,key_frame) == -1) // Vérifie si l'unité a été détruite
 			{
 				if (unit[i].local) // Don't kill remote units, since we're told when to kill them
 				{
@@ -1071,8 +1060,6 @@ namespace TA3D
 			pMutex.lock();
 		}
 		pMutex.unlock();
-
-		DELETE_ARRAY(path_exec);
 
 		pMutex.lock();
 		for (unsigned int e = 0 ; e < index_list_size ; ++e)
@@ -1127,12 +1114,6 @@ namespace TA3D
 			else
 				if (players.c_energy[i]>players.c_energy_s[i])
 					players.c_energy[i]=players.c_energy_s[i];
-		}
-
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-		{
-			if (!requests[i].empty() && pathfinder_calls[i] == requests[i].front())
-				requests[i].pop_front();
 		}
 
 		players.refresh();
@@ -1710,7 +1691,7 @@ namespace TA3D
 		{
 			counter += step;
 
-			move( dt, map, current_tick, wind_change );					// Animate units
+			move( dt, current_tick, wind_change );					// Animate units
 
 			pMutex.lock();
 

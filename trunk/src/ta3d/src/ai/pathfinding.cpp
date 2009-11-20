@@ -199,20 +199,25 @@ namespace TA3D
 			unlock();
 
 			// Here we are free to compute this path
-			AI::Path path;
-			findPath(path, cur);
-			path._ready = true;
-
-			Unit *pUnit = &(units.unit[cur.idx]);
-			pUnit->lock();
-			if (pUnit->ID == cur.UID
-				&& (pUnit->flags & 1)
-				&& !pUnit->mission.empty()
-				&& (pUnit->mission->getFlags() & MISSION_FLAG_MOVE))
+			if (cur.idx >= 0)
 			{
-				pUnit->mission->Path() = path;
+				AI::Path path;
+				findPath(path, cur);
+				path._ready = true;
+
+				Unit *pUnit = &(units.unit[cur.idx]);
+				pUnit->lock();
+				if (pUnit->ID == cur.UID
+					&& (pUnit->flags & 1)
+					&& !pUnit->mission.empty()
+					&& pUnit->requesting_pathfinder
+					&& (pUnit->mission->getFlags() & MISSION_FLAG_MOVE))
+				{
+					pUnit->mission->Path() = path;
+					pUnit->requesting_pathfinder = false;
+				}
+				pUnit->unlock();
 			}
-			pUnit->unlock();
 
 			rest(0);		// We don't want to use all the CPU here
 			lock();
@@ -385,31 +390,35 @@ namespace TA3D
 
 		if (!nodes.empty())
 		{
-			for( std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Do some cleaning
+			std::deque<AI::Path::Node> tmp;
+			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
 			{
-				zone(cur->x(), cur->z()) = 0;
+				zone(cur->x(), cur->z()) = 0;				// Do some cleaning
 				cur->x() >>= 1;
 				cur->z() >>= 1;
+				if (tmp.empty())
+				{
+					tmp.push_back(*cur);
+					continue;
+				}
+				if (cur->x() != tmp.back().x() || cur->z() != tmp.back().z())						// Remove duplicates
+					tmp.push_back(*cur);
 			}
 
 			path.clear();
-			for( std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
+			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)
 			{
 				if (path.empty())
 				{
 					path.push_back(*cur);
 					continue;
 				}
-				if (cur->x() != path.back().x() || cur->z() != path.back().z())						// Remove duplicates
-				{
-					std::deque<AI::Path::Node>::iterator next = cur;
-					++next;
-					if (next == nodes.end() ||
-						(next->x() - path.back().x()) * (cur->z() - path.back().z()) != (cur->x() - path.back().x()) * (next->z() - path.back().z()))	// Remove useless points
-						path.push_back(*cur);
-				}
+				std::deque<AI::Path::Node>::iterator next = cur;
+				++next;
+				if (next == tmp.end() ||
+					(next->x() - path.back().x()) * (cur->z() - path.back().z()) != (cur->x() - path.back().x()) * (next->z() - path.back().z()))	// Remove useless points
+					path.push_back(*cur);
 			}
-//			make_path_direct( map_data, map, dh_max, low_level, high_level, path, mw, mh, bloc_w, bloc_h, u_idx, hover_h );		// Make the path easier to follow and shorter
 
 			path.next();   // The unit is already at Start!! So remove it
 		}
