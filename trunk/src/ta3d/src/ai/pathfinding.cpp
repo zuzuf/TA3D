@@ -478,8 +478,11 @@ namespace TA3D
 					}
 				}
 
-				if (b == -1)		// This should not be possible
+				if (b == -1)		// This should not be possible unless there is no path from start to end
+				{
+					nodes.clear();
 					break;
+				}
 				next.x() += order_dx[b];
 				next.z() += order_dz[b];
 
