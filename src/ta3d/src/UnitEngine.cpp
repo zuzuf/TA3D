@@ -680,17 +680,18 @@ namespace TA3D
 
 	void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 	{
-		pMutex.lock();
-
 		bool pointed_only = false;
 		if (last_on >= 0 && ( last_on >= max_unit || unit[ last_on ].flags == 0 )) 	last_on = -1;
+		if (index >= 0 && index < max_unit)
+			unit[index].lock();
 		if (index<0 || index>=max_unit || unit[index].flags==0 || unit[index].type_id < 0)
 		{
 			if (last_on >= 0 )
 				pointed_only = true;
 			else
 			{
-				pMutex.unlock();
+				if (index >= 0 && index < max_unit)
+					unit[index].unlock();
 				return;		// On n'affiche que des données sur les unités EXISTANTES
 			}
 		}
@@ -761,21 +762,26 @@ namespace TA3D
 			}
 		}
 
+		if (index >= 0 && index < max_unit)
+			unit[index].unlock();
+
 		if (last_on >= 0 )
 		{
 			index = last_on;
-			if (unit[index].owner_id == players.local_human_id ) {
+			unit[index].lock();
+			if (unit[index].owner_id == players.local_human_id)
+			{
 				target = !unit[index].mission.empty() ? unit[index].mission->getTarget().getUnit() : NULL;
 				if (target && target->flags == 0)
 					target = NULL;
 			}
 			else
 				target = NULL;
+			unit[index].unlock();
 		}
 
 		if (!hide_info)
 		{
-			pMutex.unlock();
 			unit[index].lock();
 
 			if (unit[index].type_id >= 0 && (unit[index].flags & 1) )
@@ -902,7 +908,6 @@ namespace TA3D
 			}
 
 			unit[index].unlock();
-			pMutex.lock();
 		}
 		else
 		{
@@ -910,8 +915,6 @@ namespace TA3D
 			glDisable( GL_TEXTURE_2D );
 		}
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-
-		pMutex.unlock();
 	}
 
 	void INGAME_UNITS::move(float dt,int key_frame,bool wind_change)
