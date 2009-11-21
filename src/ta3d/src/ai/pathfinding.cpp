@@ -30,6 +30,7 @@
 #include <EngineClass.h>			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
 #include <misc/math.h>
 #include <UnitEngine.h>
+#include <yuni/threads/thread.h>
 
 #define PATHFINDER_MAX_LENGTH			10000
 
@@ -140,6 +141,7 @@ namespace TA3D
 
 	Pathfinder::Pathfinder() : tasks()
 	{
+		nbCores = Yuni::Threads::AThread::CPUCount();
 	}
 
 	void Pathfinder::clear()
@@ -199,6 +201,7 @@ namespace TA3D
 			unlock();
 
 			// Here we are free to compute this path
+			uint32 start_timer = msec_timer;
 			if (cur.idx >= 0)
 			{
 				AI::Path path;
@@ -219,7 +222,10 @@ namespace TA3D
 				pUnit->unlock();
 			}
 
-			rest(0);		// We don't want to use all the CPU here
+			if (nbCores == 1)
+				rest((msec_timer - msec_timer) << 2);	// We don't want to use more than 25% of the CPU here
+			else
+				rest(0);							// We don't want to use all the CPU here either
 			lock();
 		}
 		unlock();
