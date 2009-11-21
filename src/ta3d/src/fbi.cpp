@@ -869,9 +869,9 @@ namespace TA3D
 		if (canfly == 1)
 			TurnRate = TurnRate * 3; // A hack thanks to Doors
 		// Build the repulsion grid
-		gRepulsion.resize(FootprintX * 3, FootprintZ * 3);
-		float sigx = FootprintX * 0.5f;
-		float sigz = FootprintZ * 0.5f;
+		gRepulsion.resize(FootprintX * 5, FootprintZ * 5);
+		float sigx = FootprintX;
+		float sigz = FootprintZ;
 		float sigx2 = -0.5f / (sigx * sigx);
 		float sigz2 = -0.5f / (sigz * sigz);
 		for(int z = 0 ; z < gRepulsion.getHeight() ; ++z)

@@ -1652,7 +1652,7 @@ namespace TA3D
 
 			if (!mission->Path().empty()) // If we have a path, follow it
 			{
-				if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
+				if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f)			// Follow the target above all...
 					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				J = Target - Pos;
 				J.y = 0.0f;
@@ -1695,7 +1695,7 @@ namespace TA3D
 
 					b_TargetAngle = true;
 					f_TargetAngle = acosf( J.z ) * RAD2DEG;
-					if (J.x < 0.0f ) f_TargetAngle = -f_TargetAngle;
+					if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
 
 					if (Angle.y - f_TargetAngle >= 360.0f )	f_TargetAngle += 360.0f;
 					else if (Angle.y - f_TargetAngle <= -360.0f )	f_TargetAngle -= 360.0f;
@@ -1757,7 +1757,7 @@ namespace TA3D
 				{
 					was_locked = 5.0f;
 					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
-					// obstacles have moved
+																			// obstacles have moved
 				}
 			}
 			n_px = ((int)(NPos.x) + the_map->map_w_d + 4) >> 3;
@@ -1830,16 +1830,18 @@ namespace TA3D
 								add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
 							}
 							else
+							{
 								if (!can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx ))
 								{
-								NPos = Pos;
-								n_px = cur_px;
-								n_py = cur_py;
-								Vector3D target = Pos;
-								target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
-								target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
-								mission->Flags() |= MISSION_FLAG_MOVE;
-								mission->Path() = Pathfinder::directPath( target );
+									NPos = Pos;
+									n_px = cur_px;
+									n_py = cur_py;
+									Vector3D target = Pos;
+									target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
+									target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
+									mission->Flags() |= MISSION_FLAG_MOVE;
+									mission->Path() = Pathfinder::directPath( target );
+								}
 							}
 						}
 					}
@@ -1869,6 +1871,8 @@ namespace TA3D
 		}
 		else
 		{
+			if (was_moving)
+				stopMoving();
 			was_moving = false;
 			requesting_pathfinder = false;
 		}
@@ -3161,6 +3165,8 @@ namespace TA3D
 							c_time = 0.0f;
 							break;
 						}
+						else if (mission->getFlags() & MISSION_FLAG_MOVE)
+							stopMoving();
 					}
 					else
 						next_mission();
@@ -3533,8 +3539,10 @@ namespace TA3D
 									mission->setData(0);
 									c_time = 0.0f;
 								}
-								else if (!(mission->getFlags() & MISSION_FLAG_MOVE))
+								else
 								{
+									if (mission->getFlags() & MISSION_FLAG_MOVE) // Stop moving if needed
+										stopMoving();
 									if (mission->getData() == 0)
 									{
 										mission->setData(1);
@@ -3574,9 +3582,11 @@ namespace TA3D
 								mission->Flags() |= MISSION_FLAG_MOVE;
 								mission->setMoveData( maxdist * 7 / 80 );
 							}
-							else if (!(mission->getFlags() & MISSION_FLAG_MOVE))
+							else
 							{
-                                if (pType->BMcode)
+								if (mission->getFlags() & MISSION_FLAG_MOVE) // Stop moving if needed
+									stopMoving();
+								if (pType->BMcode)
 								{
 									start_building(target_unit->Pos - Pos);
 									mission->setMissionType(MISSION_BUILD_2);		// Change de type de mission

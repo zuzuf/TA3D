@@ -263,9 +263,9 @@ namespace TA3D
 			pFeature->feature_reclamate = parser.pullAsString( key + "featurereclamate" );
 
 			// Build the repulsion grid
-			pFeature->gRepulsion.resize(pFeature->footprintx * 3, pFeature->footprintz * 3);
-			float sigx = pFeature->footprintx * 0.5f;
-			float sigz = pFeature->footprintz * 0.5f;
+			pFeature->gRepulsion.resize(pFeature->footprintx * 5, pFeature->footprintz * 5);
+			float sigx = pFeature->footprintx;
+			float sigz = pFeature->footprintz;
 			float sigx2 = -0.5f / (sigx * sigx);
 			float sigz2 = -0.5f / (sigz * sigz);
 			for(int z = 0 ; z < pFeature->gRepulsion.getHeight() ; ++z)
