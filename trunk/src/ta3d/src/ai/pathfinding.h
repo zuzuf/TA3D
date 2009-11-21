@@ -111,6 +111,7 @@ namespace TA3D
 	private:
 		typedef std::deque<Task> TaskList;
 		TaskList tasks;
+		int nbCores;
 
 	private:
 		static bool checkRectFull(int x1, int y1, int c, UnitType *pType);
