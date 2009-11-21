@@ -277,6 +277,8 @@ namespace TA3D
 			SAVE( units.unit[i].death_delay );
 			SAVE( units.unit[i].paralyzed );
 			SAVE( units.unit[i].kills );
+			SAVE( units.unit[i].selfmove );
+			SAVE( units.unit[i].lastEnergy );
 
 			gzwrite(file, units.unit[i].port, sizeof( sint16 ) * 21);
 
@@ -767,6 +769,8 @@ namespace TA3D
 			LOAD( units.unit[i].death_delay );
 			LOAD( units.unit[i].paralyzed );
 			LOAD( units.unit[i].kills );
+			LOAD( units.unit[i].selfmove );
+			LOAD( units.unit[i].lastEnergy );
 
 			gzread(file, units.unit[i].port, sizeof(sint16) * 21);
 
