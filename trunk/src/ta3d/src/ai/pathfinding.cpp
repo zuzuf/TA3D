@@ -525,49 +525,69 @@ namespace TA3D
 		if (y >= 0 && y < the_map->bloc_h_db)
 			for(x = x1 ; x < fx ; ++x)
 				if (x >= 0 && x < the_map->bloc_w_db)
-					if ((the_map->map_data[y][x].unit_idx != c
-						 && the_map->map_data[y][x].unit_idx != -1)
+				{
+					int idx = the_map->map_data[y][x].unit_idx;
+					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
+					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+					if ((idx != c && idx != -1
+						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
 						|| (the_map->slope(x,y) > dh_max
 							&& the_map->h_map[y][x] > hover_h)
 						|| the_map->map_data[y][x].lava
 						|| the_map->h_map[y][x] < h_min
 						|| the_map->h_map[y][x] > h_max)
 						return false;
+				}
 		y = fy - 1;
 		if (y >= 0 && y < the_map->bloc_h_db)
 			for(x = x1 ; x < fx ; ++x)
 				if (x >= 0 && x < the_map->bloc_w_db)
-					if ((the_map->map_data[y][x].unit_idx != c
-						 && the_map->map_data[y][x].unit_idx != -1)
+				{
+					int idx = the_map->map_data[y][x].unit_idx;
+					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
+					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+					if ((idx != c && idx != -1
+						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
 						|| (the_map->slope(x,y) > dh_max
 							&& the_map->h_map[y][x] > hover_h)
 						|| the_map->map_data[y][x].lava
 						|| the_map->h_map[y][x] < h_min
 						|| the_map->h_map[y][x] > h_max)
 						return false;
+				}
 		for(int y = y1 + 1 ; y < fy - 1 ; ++y)
 			if (y >= 0 && y < the_map->bloc_h_db)
 			{
 				x = x1;
 				if (x >= 0 && x < the_map->bloc_w_db)
-					if ((the_map->map_data[y][x].unit_idx != c
-						 && the_map->map_data[y][x].unit_idx != -1)
+				{
+					int idx = the_map->map_data[y][x].unit_idx;
+					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
+					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+					if ((idx != c && idx != -1
+						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
 						|| (the_map->slope(x,y) > dh_max
 							&& the_map->h_map[y][x] > hover_h)
 						|| the_map->map_data[y][x].lava
 						|| the_map->h_map[y][x] < h_min
 						|| the_map->h_map[y][x] > h_max)
 						return false;
+				}
 				x = fx - 1;
 				if (x >= 0 && x < the_map->bloc_w_db)
-					if ((the_map->map_data[y][x].unit_idx != c
-						 && the_map->map_data[y][x].unit_idx != -1)
+				{
+					int idx = the_map->map_data[y][x].unit_idx;
+					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
+					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+					if ((idx != c && idx != -1
+						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
 						|| (the_map->slope(x,y) > dh_max
 							&& the_map->h_map[y][x] > hover_h)
 						|| the_map->map_data[y][x].lava
 						|| the_map->h_map[y][x] < h_min
 						|| the_map->h_map[y][x] > h_max)
 						return false;
+				}
 			}
 		return true;
 	}
