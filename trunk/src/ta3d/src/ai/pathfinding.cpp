@@ -223,7 +223,7 @@ namespace TA3D
 			}
 
 			if (nbCores == 1)
-				rest((msec_timer - msec_timer) << 2);	// We don't want to use more than 25% of the CPU here
+				rest((msec_timer - start_timer) << 2);	// We don't want to use more than 25% of the CPU here
 			else
 				rest(0);							// We don't want to use all the CPU here either
 			lock();
@@ -450,7 +450,6 @@ namespace TA3D
 			}
 
 			std::deque<AI::Path::Node> tmp = nodes;
-			int limit = int(nodes.size() + 10);
 			nodes.clear();
 			nodes.push_back(AI::Path::Node(start_x, start_z));
 			while ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))	// Reconstruct the path
@@ -459,14 +458,14 @@ namespace TA3D
 				AI::Path::Node next = nodes.back();
 
 				int b = -1;
-				int m = limit;
+				int m = -1;
 				for(int i = 0 ; i < 8 ; ++i)
 				{
 					if (next.x() + order_dx[i] < 0 || next.x() + order_dx[i] >= the_map->bloc_w_db
 						|| next.z() + order_dz[i] < 0 || next.z() + order_dz[i] >= the_map->bloc_h_db)
 						continue;
 					int t = zone(next.x() + order_dx[i], next.z() + order_dz[i]);
-					if (t > 0 && t < m)
+					if (t > 0 && (t < m || m == -1))
 					{
 						b = i;
 						m = t;
