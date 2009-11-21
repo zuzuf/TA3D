@@ -259,12 +259,12 @@ namespace TA3D
 		nodes.push_back(AI::Path::Node(start_x, start_z));
 		int n = 0;
 
-		int order_p1[] = { 1, 2, 3, 4, 5, 6, 7, 0 };
-		int order_p2[] = { 2, 3, 4, 5, 6, 7, 0, 1 };
-		int order_m1[] = { 7, 0, 1, 2, 3, 4, 5, 6 };
-		int order_m2[] = { 6, 7, 0, 1, 2, 3, 4, 5 };
-		int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
-		int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+		static int order_p1[] = { 1, 2, 3, 4, 5, 6, 7, 0 };
+		static int order_p2[] = { 2, 3, 4, 5, 6, 7, 0, 1 };
+		static int order_m1[] = { 7, 0, 1, 2, 3, 4, 5, 6 };
+		static int order_m2[] = { 6, 7, 0, 1, 2, 3, 4, 5 };
+		static int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+		static int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 
 		int m_dist = task.dist;
 		m_dist *= m_dist;

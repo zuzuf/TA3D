@@ -22,7 +22,7 @@ namespace TA3D
 		:script(NULL), model(NULL), owner_id(0), type_id(0), hp(0.), Pos(),
 		drawn_Pos(), V(), Angle(), drawn_Angle(), V_Angle(), sel(false),
 		data(), drawing(false), port(NULL), mission(), def_mission(),
-		flags(0), kills(0), c_time(0), compute_coord(false), idx(0), ID(0),
+		flags(0), kills(0), selfmove(false), lastEnergy(0.0f), c_time(0), compute_coord(false), idx(0), ID(0),
 		h(0.), visible(false), on_radar(false), on_mini_radar(false), groupe(0),
 		built(0), attacked(false), planned_weapons(0.), memory(NULL), mem_size(0),
 		attached(false), attached_list(NULL), link_list(NULL), nb_attached(0), just_created(false),
@@ -297,6 +297,8 @@ namespace TA3D
 		pMutex.lock();
 
 		kills = 0;
+		selfmove = false;
+		lastEnergy = 99999999.9f;
 
 		visibility_checked = false;
 
@@ -1566,64 +1568,111 @@ namespace TA3D
 		return RAD2DEG*atanf(v2gd-0.5f*sqrtf(a));
 	}
 
+	//! Compute the local map energy WITHOUT current unit contribution (it assumes (x,y) is on pType->gRepulsion)
+	float Unit::getLocalMapEnergy(int x, int y)
+	{
+		if (x < 0 || y < 0 || x >= the_map->bloc_w_db || y >= the_map->bloc_h_db)
+			return 999999999.0f;
+		float e = the_map->energy(x, y);
+		UnitType *pType = unit_manager.unit_type[type_id];
+		e -= pType->gRepulsion( x - cur_px + (pType->gRepulsion.getWidth() >> 1),
+								y - cur_py + (pType->gRepulsion.getHeight() >> 1) );
+		return e;
+	}
+
+	//! Compute the dir vector based on MAP::energy and targeting
+	void Unit::computeHeadingBasedOnEnergy(Vector3D &dir, bool moving)
+	{
+		static int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+		static int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+		int b = -1;
+		int x = ((int)dir.x + the_map->map_w_d + 4) >> 3;
+		int z = ((int)dir.z + the_map->map_h_d + 4) >> 3;
+		float E = getLocalMapEnergy(cur_px, cur_py);
+		UnitType *pType = unit_manager.unit_type[type_id];
+		if (moving)
+			E += 10.0f * float(pType->MaxSlope) * sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
+		for(int i = 0 ; i < 8 ; ++i)
+		{
+			float e = getLocalMapEnergy(cur_px + order_dx[i], cur_py + order_dz[i]);
+			if (moving)
+				e += 10.0f * float(pType->MaxSlope) * sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
+			if (e < E)
+			{
+				E = e;
+				b = i;
+			}
+		}
+		if (b == -1)
+			dir.reset();
+		else
+		{
+			dir = Vector3D(order_dx[b], 0.0f, order_dz[b]);
+			dir.unit();
+		}
+	}
+
 	//! Send a request to the pathfinder when we need a complex path, then follow computed paths
 	void Unit::followPath(const float dt, bool &b_TargetAngle, float &f_TargetAngle, Vector3D &NPos, int &n_px, int &n_py, bool &precomputed_position)
 	{
 		UnitType *pType = unit_manager.unit_type[type_id];
 		//----------------------------------- Beginning of moving code ------------------------------------
 
-		if ((mission->getFlags() & MISSION_FLAG_MOVE) && pType->canmove && pType->BMcode)
+		if (pType->canmove && pType->BMcode)
 		{
-			if (!was_moving)
-			{
-				if (pType->canfly)
-					activate();
-				launchScript(SCRIPT_startmoving);
-				if (nb_attached == 0)
-					launchScript(SCRIPT_MoveRate1);		// For the armatlas
-				else
-					launchScript(SCRIPT_MoveRate2);
-				was_moving = true;
-			}
 			Vector3D J,I,K(0.0f, 1.0f, 0.0f);
 			Vector3D Target(mission->getTarget().getPos());
-			if (!mission->Path().empty()
-				&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
-					 || (last_path_refresh < 5.0f && !pType->canfly) ) )
-				Target = mission->Path().Pos();
-			else
-			{// Look for a path to the target
-				if (!mission->Path().empty())	// If we want to refresh the path
+			if (mission->getFlags() & MISSION_FLAG_MOVE)
+			{
+				if (selfmove)
 				{
-					Target = mission->getTarget().getPos();
-					mission->Path().clear();
+					selfmove = false;
+					if (was_moving)
+					{
+						V.reset();
+						if (!(pType->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
+							launchScript(SCRIPT_StopMoving);
+					}
+					was_moving = false;
+					requesting_pathfinder = false;
 				}
-				float dist = (Target - Pos).sq();
-				if ( (mission->getMoveData() <= 0 && dist > 100.0f)
-					|| ((SQUARE(mission->getMoveData()) << 6) < dist))
+				if (!mission->Path().empty()
+					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
+						 || (last_path_refresh < 5.0f && !pType->canfly) ) )
+					Target = mission->Path().Pos();
+				else
+				{// Look for a path to the target
+					if (!mission->Path().empty())	// If we want to refresh the path
 					{
-					if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
-						|| pType->canfly)
+						Target = mission->getTarget().getPos();
+						mission->Path().clear();
+					}
+					float dist = (Target - Pos).sq();
+					if ( (mission->getMoveData() <= 0 && dist > 100.0f)
+						|| ((SQUARE(mission->getMoveData()) << 6) < dist))
 					{
-						mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
-						requesting_pathfinder = !pType->canfly;
-
-						move_target_computed = mission->getTarget().getPos();
-						last_path_refresh = 0.0f;
-						if (pType->canfly)
+						if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
+							|| pType->canfly)
 						{
-							if (mission->getMoveData() <= 0)
-								mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
+							mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
+							requesting_pathfinder = !pType->canfly;
+
+							move_target_computed = mission->getTarget().getPos();
+							last_path_refresh = 0.0f;
+							if (pType->canfly)
+							{
+								if (mission->getMoveData() <= 0)
+									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
+								else
+								{
+									Vector3D Dir = mission->getTarget().getPos() - Pos;
+									Dir.unit();
+									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
+								}
+							}
 							else
 							{
-								Vector3D Dir = mission->getTarget().getPos() - Pos;
-								Dir.unit();
-								mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
-							}
-						}
-						else
-						{
-							Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
+								Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
 
 //							if (mission->Path().empty())
 //							{
@@ -1641,104 +1690,167 @@ namespace TA3D
 //
 //							if (mission->Path().empty())					// Can't find a path to get where it has been ordered to go
 //								playSound("cant1");
-						}
-						if (!mission->Path().empty())// Update required data
-							Target = mission->Path().Pos();
-					}
-				}
-				else
-					stopMoving();
-			}
-
-			if (!mission->Path().empty()) // If we have a path, follow it
-			{
-				if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f)			// Follow the target above all...
-					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
-				J = Target - Pos;
-				J.y = 0.0f;
-				float dist = J.sq();
-				if ((dist > mission->getLastD() && dist < 225.0f) || mission->Path().empty())
-				{
-					mission->Path().next();
-					mission->setLastD(99999999.0f);
-					if (mission->Path().empty()) // End of path reached
-					{
-						J = move_target_computed - Pos;
-						J.y = 0.0f;
-						if (J.sq() <= 256.0f || flying)
-						{
-							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-								&& (!mission.empty() || mission->mission() != MISSION_PATROL))
-								playSound( "arrived1" );
-							mission->Flags() &= ~MISSION_FLAG_MOVE;
-						}
-						else										// We are not where we are supposed to be !!
-							mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
-						if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
-						{
-							launchScript(SCRIPT_StopMoving);
-							was_moving = false;
-						}
-						if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
-							V.reset();		// Stop unit's movement
-						if (mission->isStep())      // It's meaningless to try to finish this mission like an ordinary order
-							next_mission();
-					}
-				}
-				else
-					mission->setLastD(dist);
-				if (mission->getFlags() & MISSION_FLAG_MOVE)	// Are we still moving ??
-				{
-					dist = sqrtf(dist);
-					if (dist > 0.0f)
-						J = 1.0f / dist * J;
-
-					b_TargetAngle = true;
-					f_TargetAngle = acosf( J.z ) * RAD2DEG;
-					if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
-
-					if (Angle.y - f_TargetAngle >= 360.0f )	f_TargetAngle += 360.0f;
-					else if (Angle.y - f_TargetAngle <= -360.0f )	f_TargetAngle -= 360.0f;
-
-					J.z = cosf(Angle.y*DEG2RAD);
-					J.x = sinf(Angle.y*DEG2RAD);
-					J.y = 0.0f;
-					I.z = -J.x;
-					I.x = J.z;
-					I.y = 0.0f;
-					V = (V%K)*K + (V%J)*J;
-					if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
-					{
-						if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
-						{
-							if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
-								V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
-						}
-						else
-						{
-							float speed = V.norm();
-							float time_to_stop = speed / pType->BrakeRate;
-							float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
-							if (min_dist >= dist
-								&& mission->Path().length() == 1
-								&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-								&& ( !mission.hasNext()
-									 || (mission(1) != MISSION_MOVE
-										 && mission(1) != MISSION_PATROL)))	// Brake if needed
-								V = V - pType->BrakeRate * dt * J;
-							else if (speed < pType->MaxVelocity)
-								V = V + pType->Acceleration * dt * J;
-							else
-								V = pType->MaxVelocity / speed * V;
+							}
+							if (!mission->Path().empty())// Update required data
+								Target = mission->Path().Pos();
 						}
 					}
 					else
 					{
+						stopMoving();
+						return;
+					}
+				}
+
+				if (!mission->Path().empty()) // If we have a path, follow it
+				{
+					if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f)			// Follow the target above all...
+						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
+					J = Target - Pos;
+					J.y = 0.0f;
+					float dist = J.sq();
+					if ((dist > mission->getLastD() && dist < 225.0f) || mission->Path().empty())
+					{
+						mission->Path().next();
+						mission->setLastD(99999999.0f);
+						if (mission->Path().empty()) // End of path reached
+						{
+							requesting_pathfinder = false;
+							J = move_target_computed - Pos;
+							J.y = 0.0f;
+							if (J.sq() <= 256.0f || flying)
+							{
+								if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+									&& (!mission.empty() || mission->mission() != MISSION_PATROL))
+									playSound( "arrived1" );
+								mission->Flags() &= ~MISSION_FLAG_MOVE;
+							}
+							else										// We are not where we are supposed to be !!
+								mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
+							if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
+							{
+								launchScript(SCRIPT_StopMoving);
+								was_moving = false;
+							}
+							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
+								V.reset();		// Stop unit's movement
+							if (mission->isStep())      // It's meaningless to try to finish this mission like an ordinary order
+							{
+								next_mission();
+								return;
+							}
+							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
+								return;
+						}
+					}
+					else
+						mission->setLastD(dist);
+				}
+			}
+
+			float energy = getLocalMapEnergy(cur_px, cur_py);
+			if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty()))
+			{
+				J = Target;
+				computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
+			}
+			else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy)
+			{
+				switch(mission->mission())
+				{
+					case MISSION_ATTACK:
+					case MISSION_GUARD:
+					case MISSION_STANDBY:
+					case MISSION_VTOL_STANDBY:
+					case MISSION_STOP:
+						J = Target;
+						computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
+						if (J.sq() > 0.1f)
+							selfmove = true;
+						break;
+					default:
+					J.reset();
+				};
+			}
+			else
+				J.reset();
+			lastEnergy = energy;
+
+			if (((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty())
+				|| (!(mission->getFlags() & MISSION_FLAG_MOVE) && J.sq() > 0.1f))	// Are we still moving ??
+			{
+				if (!was_moving)
+				{
+					if (pType->canfly)
+						activate();
+					launchScript(SCRIPT_startmoving);
+					if (nb_attached == 0)
+						launchScript(SCRIPT_MoveRate1);		// For the armatlas
+					else
+						launchScript(SCRIPT_MoveRate2);
+					was_moving = true;
+				}
+				float dist = (mission->getFlags() & MISSION_FLAG_MOVE) ? (Target - Pos).norm() : 999999.9f;
+//				if (dist > 0.0f)
+//					J = 1.0f / dist * J;
+
+				b_TargetAngle = true;
+				f_TargetAngle = acosf( J.z ) * RAD2DEG;
+				if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
+
+				if (Angle.y - f_TargetAngle >= 360.0f )	f_TargetAngle += 360.0f;
+				else if (Angle.y - f_TargetAngle <= -360.0f )	f_TargetAngle -= 360.0f;
+
+				J.z = cosf(Angle.y*DEG2RAD);
+				J.x = sinf(Angle.y*DEG2RAD);
+				J.y = 0.0f;
+				I.z = -J.x;
+				I.x = J.z;
+				I.y = 0.0f;
+				V = (V%K)*K + (V%J)*J;
+				if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
+				{
+					if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
+					{
+						if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
+							V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
+					}
+					else
+					{
 						float speed = V.norm();
-						if (speed > pType->MaxVelocity)
+						float time_to_stop = speed / pType->BrakeRate;
+						float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
+						if (min_dist >= dist
+							&& mission->Path().length() == 1
+							&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+							&& ( !mission.hasNext()
+								 || (mission(1) != MISSION_MOVE
+									 && mission(1) != MISSION_PATROL)))	// Brake if needed
+							V = V - pType->BrakeRate * dt * J;
+						else if (speed < pType->MaxVelocity)
+							V = V + pType->Acceleration * dt * J;
+						else
 							V = pType->MaxVelocity / speed * V;
 					}
 				}
+				else
+				{
+					float speed = V.norm();
+					if (speed > pType->MaxVelocity)
+						V = pType->MaxVelocity / speed * V;
+				}
+			}
+			else if (selfmove)
+			{
+				selfmove = false;
+				if (was_moving)
+				{
+					V.reset();
+					if (!(pType->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
+						launchScript(SCRIPT_StopMoving);
+				}
+				was_moving = false;
+				requesting_pathfinder = false;
 			}
 
 			NPos = Pos + dt * V;			// Check if the unit can go where V brings it
@@ -3273,7 +3385,7 @@ namespace TA3D
 							if (!pType->canfly
 								|| (!mission.hasNext() || mission->mission() != MISSION_PATROL ))
 							{
-								V.reset();;			// Stop the unit
+								V.reset();			// Stop the unit
 								if (precomputed_position)
 								{
 									NPos = Pos;
@@ -3779,9 +3891,10 @@ namespace TA3D
 					{
 						if (!(mission->getFlags() & MISSION_FLAG_MOVE)
 							&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-							&& ((mission->mission() != MISSION_ATTACK && pType->canfly) || !pType->canfly))
+							&& ((mission->mission() != MISSION_ATTACK && pType->canfly) || !pType->canfly)
+							&& !selfmove)
 						{
-							if (!flying )
+							if (!flying)
 								V.x = V.z = 0.0f;
 							if (precomputed_position)
 							{
@@ -3804,7 +3917,8 @@ namespace TA3D
 							case MISSION_STANDBY:
 								if (mission.hasNext())
 									next_mission();
-								V.reset();;			// Frottements
+								if (!selfmove)
+									V.reset();			// Frottements
 								break;
 							case MISSION_MOVE:
 								mission->Flags() |= MISSION_FLAG_CAN_ATTACK;

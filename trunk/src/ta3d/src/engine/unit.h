@@ -115,6 +115,10 @@ namespace TA3D
 
 		int move( const float dt, const int key_frame = 0 );
 
+		void computeHeadingBasedOnEnergy(Vector3D &dir, bool moving);
+
+		inline float getLocalMapEnergy(int x, int y);
+
 		void followPath(const float dt, bool &b_TargetAngle, float &f_TargetAngle, Vector3D &NPos, int &n_px, int &n_py, bool &precomputed_position);
 
 		void show_orders( bool only_build_commands=false, bool def_orders=false );				// Dessine les ordres reçus
@@ -163,6 +167,8 @@ namespace TA3D
 		MissionStack			def_mission;	// Orders given to units built by this plant
 		byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
 		int                     kills;          // How many kills did this unit
+		bool					selfmove;		// The unit has decided to move to a place with lower MAP::energy
+		float					lastEnergy;		// Previous energy level at the unit position (if it changes then someone is getting closer, we can decide to move)
 		// 0	-> nothing
 		// 1	-> the unit exists
 		// 4	-> being killed
