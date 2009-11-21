@@ -265,8 +265,6 @@ namespace TA3D
 		int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
 		int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 
-		int PATH_MAX_LENGTH = Math::Max(256, Math::Min(int(sqrtf(float(sq(end_x - start_x) + sq(end_z - start_z))) * 5.0f), PATHFINDER_MAX_LENGTH));
-
 		int m_dist = task.dist;
 		m_dist *= m_dist;
 		m_dist <<= 2;
@@ -288,103 +286,123 @@ namespace TA3D
 
 		Grid<int> &zone = the_map->path;
 		Grid<float> &energy = the_map->energy;
+		std::deque<AI::Path::Node> qNode;
 
-		while (n < PATH_MAX_LENGTH && ((m_dist == 0 && (nodes.back().x() != END_X || nodes.back().z() != END_Z)) || (m_dist > 0 && sq( nodes.back().x() - END_X ) + sq( nodes.back().z() - END_Z) > m_dist)))
+		if ((m_dist == 0 && (nodes.back().x() != END_X || nodes.back().z() != END_Z)) || (m_dist > 0 && sq( nodes.back().x() - END_X ) + sq( nodes.back().z() - END_Z) > m_dist))
 		{
-			++zone( nodes.back().x(), nodes.back().z() );
-
-			int m = -1;
-
-			int nx = nodes.back().x() + sgn( END_X - nodes.back().x() );
-			int nz = nodes.back().z() + sgn( END_Z - nodes.back().z() );
-
-			if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)
-				break;		// If we have to go out there is a problem ...
-
-			if (zone(nx, nz) >= 3 )	break;		// Looping ...
-
-			int NX = nx >> 1, NZ = nz >> 1;
-
-			if (zone( nx, nz ) || !checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
+			while (n < PATHFINDER_MAX_LENGTH)
 			{
-				float dist[ 8 ];
-				float rdist[ 8 ];
-				bool zoned[ 8 ];
-				for( int e = 0 ; e < 8 ; ++e )			// Gather required data
-				{
-					rdist[ e ] = dist[ e ] = -1.0f;
-					nx = nodes.back().x() + order_dx[ e ];
-					nz = nodes.back().z() + order_dz[ e ];
-					NX = nx >> 1;
-					NZ = nz >> 1;
-					zoned[ e ] = false;
-					if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)	continue;
-					zoned[ e ] = zone(nx, nz);
-					if (((nodes.back().x() >> 1) != NX || (nodes.back().z() >> 1) != NZ) && !zone(nx, nz))				// No need to do it twice
-						if (!checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
-							continue;
-					rdist[ e ] = dist[ e ] = float(pType->MaxSlope) * sqrtf(float(sq( END_X - nx ) + sq( END_Z - nz ))) + energy(nx, nz);
+				++zone( nodes.back().x(), nodes.back().z() );
 
-					if (zoned[ e ])
-						dist[ e ] = -1.0f;
-				}
-				for (int e = 0 ; e < 8 ; ++e)		// Look for a way to go
+				int m = -1;
+
+				int nx = nodes.back().x() + sgn( END_X - nodes.back().x() );
+				int nz = nodes.back().z() + sgn( END_Z - nodes.back().z() );
+
+				if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)
+					break;		// If we have to go out there is a problem ...
+
+				if (zone(nx, nz) >= 2)
 				{
-					if (((dist[ order_m1[ e ] ] < 0.0f && !zoned[ order_m1[ e ] ])
-						  || (dist[ order_p1[ e ] ] < 0.0f && !zoned[ order_p1[ e ] ])
-						  || (dist[ order_m2[ e ] ] < 0.0f && !zoned[ order_m2[ e ] ])
-						  || (dist[ order_p2[ e ] ] < 0.0f && !zoned[ order_p2[ e ] ]))
-						&& dist[ e ] >= 0.0f)
+					if (qNode.empty())		// We're done
+						break;
+					nodes.push_back(qNode.back());
+					qNode.pop_back();
+					++n;
+					continue;		// Instead of looping we restart from a Node in the qNode
+				}
+
+				int NX = nx >> 1, NZ = nz >> 1;
+
+				if (zone( nx, nz ) || !checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
+				{
+					float dist[ 8 ];
+					float rdist[ 8 ];
+					bool zoned[ 8 ];
+					for( int e = 0 ; e < 8 ; ++e )			// Gather required data
 					{
-						if (m == -1)	m = e;
-						else if (dist[ e ] < dist[ m ])
-							m = e;
+						rdist[ e ] = dist[ e ] = -1.0f;
+						nx = nodes.back().x() + order_dx[ e ];
+						nz = nodes.back().z() + order_dz[ e ];
+						NX = nx >> 1;
+						NZ = nz >> 1;
+						zoned[ e ] = false;
+						if (nx < 0 || nz < 0 || nx >= bloc_w_db || nz >= bloc_h_db)
+							continue;
+						zoned[ e ] = zone(nx, nz);
+						if (((nodes.back().x() >> 1) != NX || (nodes.back().z() >> 1) != NZ) && !zone(nx, nz))				// No need to do it twice
+							if (!checkRectFull( NX - mw_h, NZ - mh_h, task.idx, pType ))
+								continue;
+						rdist[ e ] = dist[ e ] = float(pType->MaxSlope) * sqrtf(float(sq( END_X - nx ) + sq( END_Z - nz ))) + energy(nx, nz);
+
+						if (zoned[ e ])
+							dist[ e ] = -1.0f;
 					}
-				}
-				if (m == -1)							// Second try
-				{
-					for (int e = 0 ; e < 8 ; ++e)
+					for (int e = 0 ; e < 8 ; ++e)		// Look for a way to go
 					{
-						if (dist[ e ] >= 0.0f)
+						if (((dist[ order_m1[ e ] ] < 0.0f && !zoned[ order_m1[ e ] ])
+							  || (dist[ order_p1[ e ] ] < 0.0f && !zoned[ order_p1[ e ] ])
+							  || (dist[ order_m2[ e ] ] < 0.0f && !zoned[ order_m2[ e ] ])
+							  || (dist[ order_p2[ e ] ] < 0.0f && !zoned[ order_p2[ e ] ]))
+							&& dist[ e ] >= 0.0f)
 						{
 							if (m == -1)	m = e;
 							else if (dist[ e ] < dist[ m ])
 								m = e;
 						}
 					}
-					if (m == -1)						// Ok we already went everywhere, then compute data differently
+					if (m == -1)							// Second try
 					{
 						for (int e = 0 ; e < 8 ; ++e)
 						{
-							if (rdist[ e ] < 0.0f)	continue;
-							nx = nodes.back().x() + order_dx[ e ];
-							nz = nodes.back().z() + order_dz[ e ];
-							dist[ e ] = rdist[ e ] + float(1000 * zone(nx, nz));
-						}
-						for (int e = 0 ; e < 8 ; ++e)		// Ultimate test
-							if (dist[ e ] >= 0)
+							if (dist[ e ] >= 0.0f)
 							{
 								if (m == -1)	m = e;
 								else if (dist[ e ] < dist[ m ])
 									m = e;
 							}
+						}
+					}
+					if (m >= 0)			// We found something
+					{
+						nx = nodes.back().x() + order_dx[ m ];
+						nz = nodes.back().z() + order_dz[ m ];
+						// add unexplored nodes to the queue
+						for(int i = 0 ; i < 8 ; ++i)
+						{
+							if (i != m && dist[i] >= 0.0f)
+							{
+								qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));
+							}
+						}
 					}
 				}
-				if (m >= 0)			// We found something
+				else
+					m = -2;
+
+				if (m == -1)
 				{
-					nx = nodes.back().x() + order_dx[ m ];
-					nz = nodes.back().z() + order_dz[ m ];
+					if (qNode.empty())		// We're done
+						break;
+					nodes.push_back(qNode.back());
+					qNode.pop_back();
+					++n;
+					continue;		// Instead of looping we restart from a Node in the qNode
+				}
+
+				nodes.push_back( AI::Path::Node(nx, nz) );
+
+				++n;
+				if ((m_dist == 0 && nodes.back().x() == END_X && nodes.back().z() == END_Z) || (m_dist > 0 && sq( nodes.back().x() - END_X ) + sq( nodes.back().z() - END_Z) <= m_dist))
+				{
+					if (qNode.empty())		// We're done
+						break;
+					nodes.push_back(qNode.back());
+					qNode.pop_back();
+					++n;
+					break;
 				}
 			}
-			else
-				m = -2;
-
-			if (m == -1)
-				break;
-
-			nodes.push_back( AI::Path::Node(nx, nz) );
-
-			++n;
 		}
 
 		if (!nodes.empty())
@@ -404,19 +422,63 @@ namespace TA3D
 					tmp.push_back(*cur);
 			}
 
-			nodes.clear();
-			int d = 1;
-			for (std::deque<AI::Path::Node>::reverse_iterator cur = tmp.rbegin() ; cur != tmp.rend() ; ++cur)		// Mark the path with the distance from the destination
-				zone(cur->x(), cur->z()) = d++;
+			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Mark the path with the distance from the destination
+				zone(cur->x(), cur->z()) = 1;
 
+			qNode.clear();
+			if (m_dist == 0)
+			{
+				if (zone(end_x, end_z) == 1)
+				{
+					qNode.push_back(AI::Path::Node(end_x, end_z));
+					zone(end_x, end_z) = 2;
+				}
+			}
+			else
+			{
+				m_dist >>= 2;
+				for(int z = -task.dist ; z <= task.dist ; ++z)
+				{
+					if (end_z + z < 0 || end_z + z >= the_map->bloc_h_db)
+						continue;
+					int dx = int(sqrtf(float(m_dist - z * z)) + 0.5f);
+					for(int x = -dx ; x <= dx && end_x + x < the_map->bloc_w_db ; ++x)
+						if (end_x + x >= 0 && zone(end_x + x, end_z + z) == 1)
+						{
+							qNode.push_back(AI::Path::Node(end_x + x, end_z + z));
+							zone(end_x + x, end_z + z) = 2;
+						}
+				}
+			}
+			while(!qNode.empty())
+			{
+				AI::Path::Node cur = qNode.front();
+				qNode.pop_front();
+
+				int ref = zone(cur.x(), cur.z()) + 1;
+				for(int i = 0 ; i < 8 ; ++i)
+				{
+					if (cur.x() + order_dx[i] < 0 || cur.x() + order_dx[i] >= the_map->bloc_w_db
+						|| cur.z() + order_dz[i] < 0 || cur.z() + order_dz[i] >= the_map->bloc_h_db)
+						continue;
+					int t = zone(cur.x() + order_dx[i], cur.z() + order_dz[i]);
+					if (t == 1 || t > ref)
+					{
+						zone(cur.x() + order_dx[i], cur.z() + order_dz[i]) = ref;
+						qNode.push_back(AI::Path::Node(cur.x() + order_dx[i], cur.z() + order_dz[i]));
+					}
+				}
+			}
+
+			nodes.clear();
 			nodes.push_back(tmp.front());
-			while (nodes.back().x() != tmp.back().x() || nodes.back().z() != tmp.back().z())		// Reconstruct the path
+			while ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))	// Reconstruct the path
 			{
 				zone(nodes.back().x(), nodes.back().z()) = 0;
 				AI::Path::Node next = nodes.back();
 
 				int b = -1;
-				int m = int(tmp.size() + 10);
+				int m = tmp.size() + 10;
 				for(int i = 0 ; i < 8 ; ++i)
 				{
 					if (next.x() + order_dx[i] < 0 || next.x() + order_dx[i] >= the_map->bloc_w_db
@@ -437,7 +499,7 @@ namespace TA3D
 
 				nodes.push_back(next);
 			}
-			for (std::deque<AI::Path::Node>::reverse_iterator cur = tmp.rbegin() ; cur != tmp.rend() ; ++cur)		// Do some cleaning
+			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Do some cleaning
 				zone(cur->x(), cur->z()) = 0;
 
 			path.clear();
@@ -457,6 +519,8 @@ namespace TA3D
 
 			path.next();   // The unit is already at Start!! So remove it
 		}
+		else
+			path.clear();
 	}
 
 	bool Pathfinder::checkRectFull(int x1, int y1, int c, UnitType *pType)

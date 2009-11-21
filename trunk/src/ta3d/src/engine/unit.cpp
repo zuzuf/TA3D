@@ -1598,14 +1598,14 @@ namespace TA3D
 					Target = mission->getTarget().getPos();
 					mission->Path().clear();
 				}
-				mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
 				float dist = (Target - Pos).sq();
 				if ( (mission->getMoveData() <= 0 && dist > 100.0f)
 					|| ((SQUARE(mission->getMoveData()) << 6) < dist))
 					{
-					if (last_path_refresh >= 5.0f && !requesting_pathfinder
+					if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
 						|| pType->canfly)
 					{
+						mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
 						requesting_pathfinder = !pType->canfly;
 
 						move_target_computed = mission->getTarget().getPos();
@@ -1624,13 +1624,6 @@ namespace TA3D
 						else
 						{
 							Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
-//							Pathfinder::Task task;
-//							task.dist = mission->getMoveData();
-//							task.idx = idx;
-//							task.UID = ID;
-//							task.start = Pos;
-//							task.end = mission->getTarget().getPos();
-//							Pathfinder::findPath(mission->Path(), task);
 
 //							if (mission->Path().empty())
 //							{
@@ -1663,11 +1656,11 @@ namespace TA3D
 					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				J = Target - Pos;
 				J.y = 0.0f;
-				float dist = J.norm();
-				if ((dist > mission->getLastD() && dist < 15.0f) || mission->Path().empty())
+				float dist = J.sq();
+				if ((dist > mission->getLastD() && dist < 225.0f) || mission->Path().empty())
 				{
 					mission->Path().next();
-					mission->setLastD(9999999.0f);
+					mission->setLastD(99999999.0f);
 					if (mission->Path().empty()) // End of path reached
 					{
 						J = move_target_computed - Pos;
@@ -1696,6 +1689,7 @@ namespace TA3D
 					mission->setLastD(dist);
 				if (mission->getFlags() & MISSION_FLAG_MOVE)	// Are we still moving ??
 				{
+					dist = sqrtf(dist);
 					if (dist > 0.0f)
 						J = 1.0f / dist * J;
 
@@ -1725,7 +1719,9 @@ namespace TA3D
 							float speed = V.norm();
 							float time_to_stop = speed / pType->BrakeRate;
 							float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
-							if (min_dist >= dist && !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+							if (min_dist >= dist
+								&& mission->Path().length() == 1
+								&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
 								&& ( !mission.hasNext()
 									 || (mission(1) != MISSION_MOVE
 										 && mission(1) != MISSION_PATROL)))	// Brake if needed
@@ -1768,7 +1764,7 @@ namespace TA3D
 			n_py = ((int)(NPos.z) + the_map->map_h_d + 4) >> 3;
 			precomputed_position = true;
 			bool locked = false;
-			if (!flying )
+			if (!flying)
 			{
 				if (n_px != cur_px || n_py != cur_py) // has something changed ??
 				{
@@ -1782,7 +1778,11 @@ namespace TA3D
 							if (cur_px != n_px
 								&& can_be_there( cur_px, n_py, the_map, type_id, owner_id, idx ))
 							{
-								V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrtf( SQUARE(V.z) + SQUARE(V.x) ) : sqrtf( SQUARE(V.z) + SQUARE(V.x) ) ) : 0.0f;
+								V.z = (V.z != 0.0f)
+									  ? (V.z < 0.0f
+										 ? -sqrtf( SQUARE(V.z) + SQUARE(V.x) )
+										 : sqrtf( SQUARE(V.z) + SQUARE(V.x) ) )
+									  : 0.0f;
 								V.x = 0.0f;
 								NPos.x = Pos.x;
 								n_px = cur_px;

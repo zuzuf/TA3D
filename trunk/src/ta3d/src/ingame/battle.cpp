@@ -2342,6 +2342,9 @@ namespace TA3D
 
 		LuaProgram::inGame->destroyThread();
 
+		Pathfinder::instance()->destroyThread();	// Shut down Pathfinder engine
+		Pathfinder::instance()->clear();		// Clear paths waiting in the task queue
+
 		LuaEnv::destroy();
 
 		Camera::inGame = NULL;
