@@ -235,12 +235,12 @@ namespace TA3D
 		for (i = 1; i < map->bloc_h; ++i)
 			map->bmap[i] = &(map->bmap[0][i*map->bloc_w]);
 		map->view = new byte*[map->bloc_h];
-		map->view[0] = new byte[map->bloc_w*map->bloc_h];
-		map->map_data = new SECTOR*[map->bloc_h<<1];
-		map->map_data[0] = new SECTOR[map->bloc_w*map->bloc_h<<2];
-		map->path.resize(map->bloc_w_db << 1, map->bloc_h_db << 1);
-		map->energy.resize(map->bloc_w << 1, map->bloc_h << 1);
-		map->slope.resize(map->bloc_w << 1, map->bloc_h << 1);
+		map->view[0] = new byte[map->bloc_w * map->bloc_h];
+		map->map_data = new SECTOR*[map->bloc_h_db];
+		map->map_data[0] = new SECTOR[map->bloc_w_db * map->bloc_h_db];
+		map->path.resize(map->bloc_w_db, map->bloc_h_db);
+		map->energy.resize(map->bloc_w_db, map->bloc_h_db);
+		map->slope.resize(map->bloc_w_db, map->bloc_h_db);
 
 		LOG_DEBUG("MAP: creating FOW maps");
 		map->sight_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);		// FOW maps
