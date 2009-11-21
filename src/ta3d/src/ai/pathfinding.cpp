@@ -367,7 +367,13 @@ namespace TA3D
 						{
 							if (i != m && dist[i] >= 0.0f)
 							{
-								qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));
+								if ((dist[ order_m1[ i ] ] < 0.0f && !zoned[ order_m1[ i ] ])
+									 || (dist[ order_p1[ i ] ] < 0.0f && !zoned[ order_p1[ i ] ])
+									 || (dist[ order_m2[ i ] ] < 0.0f && !zoned[ order_m2[ i ] ])
+									 || (dist[ order_p2[ i ] ] < 0.0f && !zoned[ order_p2[ i ] ]))
+									qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));		// Priority given to possibility to avoid obstacles
+								else
+									qNode.push_front(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));
 							}
 						}
 					}
