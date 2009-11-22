@@ -1618,7 +1618,7 @@ namespace TA3D
 		UnitType *pType = unit_manager.unit_type[type_id];
 		//----------------------------------- Beginning of moving code ------------------------------------
 
-		if (pType->canmove && pType->BMcode)
+		if (pType->canmove && pType->BMcode && (!pType->canfly || (mission->getFlags() & MISSION_FLAG_MOVE)))
 		{
 			Vector3D J,I,K(0.0f, 1.0f, 0.0f);
 			Vector3D Target(mission->getTarget().getPos());
@@ -1748,33 +1748,45 @@ namespace TA3D
 				}
 			}
 
-			float energy = getLocalMapEnergy(cur_px, cur_py);
-			if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty()))
+			if (pType->canfly)
 			{
-				J = Target;
-				computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
-			}
-			else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy)
-			{
-				switch(mission->mission())
+				if (mission->getFlags() & MISSION_FLAG_MOVE)
 				{
-					case MISSION_ATTACK:
-					case MISSION_GUARD:
-					case MISSION_STANDBY:
-					case MISSION_VTOL_STANDBY:
-					case MISSION_STOP:
-						J = Target;
-						computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
-						if (J.sq() > 0.1f)
-							selfmove = true;
-						break;
-					default:
+					J = Target - Pos;
+				}
+				else
 					J.reset();
-				};
 			}
 			else
-				J.reset();
-			lastEnergy = energy;
+			{
+				float energy = getLocalMapEnergy(cur_px, cur_py);
+				if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty()))
+				{
+					J = Target;
+					computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
+				}
+				else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy)
+				{
+					switch(mission->mission())
+					{
+						case MISSION_ATTACK:
+						case MISSION_GUARD:
+						case MISSION_STANDBY:
+						case MISSION_VTOL_STANDBY:
+						case MISSION_STOP:
+							J = Target;
+							computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
+							if (J.sq() > 0.1f)
+								selfmove = true;
+							break;
+						default:
+						J.reset();
+					};
+				}
+				else
+					J.reset();
+				lastEnergy = energy;
+			}
 
 			if (((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty())
 				|| (!(mission->getFlags() & MISSION_FLAG_MOVE) && J.sq() > 0.1f))	// Are we still moving ??
@@ -1791,8 +1803,8 @@ namespace TA3D
 					was_moving = true;
 				}
 				float dist = (mission->getFlags() & MISSION_FLAG_MOVE) ? (Target - Pos).norm() : 999999.9f;
-//				if (dist > 0.0f)
-//					J = 1.0f / dist * J;
+				if (dist > 0.0f && pType->canfly)
+					J = 1.0f / dist * J;
 
 				b_TargetAngle = true;
 				f_TargetAngle = acosf( J.z ) * RAD2DEG;
