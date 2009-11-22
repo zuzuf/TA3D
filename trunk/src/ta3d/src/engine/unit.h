@@ -97,13 +97,13 @@ namespace TA3D
 
 		void destroy(bool full = false);
 
-		void draw(float t, MAP *map, bool height_line = true);
+		void draw(float t, bool height_line = true);
 
 		void drawHealthBar();
 
-		void draw_shadow(const Vector3D& Dir, MAP *map);
+		void draw_shadow(const Vector3D& Dir);
 
-		void drawShadowBasic(const Vector3D& Dir, MAP *map);
+		void drawShadowBasic(const Vector3D& Dir);
 
 		int launchScript(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
 

@@ -106,7 +106,7 @@ namespace TA3D
 					LOG_DEBUG(LOG_PREFIX_NET << "File successfully downloaded : " << realFilename);
 				}
 				else
-					LOG_DEBUG(LOG_PREFIX_NET << "Download failed : " << realFilename);
+				{	LOG_DEBUG(LOG_PREFIX_NET << "Download failed : " << realFilename);	}
 				remove(tmpFile.c_str());
 				return;
 			}

@@ -153,7 +153,7 @@ namespace TA3D
 
 		~INGAME_UNITS() {destroy(false);}
 
-		void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
+		void kill(int index,int prev,bool sync = true);			// Détruit une unité
 
 		void draw(MAP *map, bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
 
@@ -161,7 +161,7 @@ namespace TA3D
 
         void draw_shadow(float t, const Vector3D& Dir, MAP* map, float alpha = 0.5f); // Dessine les ombres des unités visibles
 
-		void draw_mini(float map_w, float map_h, int mini_w, int mini_h, SECTOR** map_data); // Repère les unités sur la mini-carte
+		void draw_mini(float map_w, float map_h, int mini_w, int mini_h); // Repère les unités sur la mini-carte
 
 		void move(float dt, int key_frame = 0, bool wind_change = false);
 

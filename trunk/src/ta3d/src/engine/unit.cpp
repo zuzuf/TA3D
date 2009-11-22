@@ -732,7 +732,7 @@ namespace TA3D
 											  }
 										  }
 										  if (prev >= 0)
-											  units.kill(mission->getUnit()->idx, units.map, prev);
+											  units.kill(mission->getUnit()->idx, prev);
 									  }
 									  else
 										  launchScript(SCRIPT_stop);
@@ -901,7 +901,7 @@ namespace TA3D
 	}
 
 
-	void Unit::draw(float t, MAP* map, bool height_line)
+	void Unit::draw(float t, bool height_line)
 	{
 		visibility_checked = false;
 
@@ -1322,7 +1322,7 @@ namespace TA3D
 
 
 
-	void Unit::draw_shadow(const Vector3D& Dir, MAP* map)
+	void Unit::draw_shadow(const Vector3D& Dir)
 	{
 		pMutex.lock();
 		if (!(flags & 1))
@@ -1392,7 +1392,7 @@ namespace TA3D
 	}
 
 
-	void Unit::drawShadowBasic(const Vector3D& Dir,MAP *map)
+	void Unit::drawShadowBasic(const Vector3D& Dir)
 	{
 		pMutex.lock();
 		if (!(flags & 1))
