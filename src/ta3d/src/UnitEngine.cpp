@@ -1037,7 +1037,7 @@ namespace TA3D
 			if (unit[ i ].flags == 0) // ho ho what is it doing there ??
 			{
 				unit[ i ].unlock();
-				kill(i,map,e);
+				kill(i,e);
 				--e;			// Can't skip a unit
 				pMutex.lock();
 				continue;
@@ -1056,7 +1056,7 @@ namespace TA3D
 			{
 				if (unit[i].local) // Don't kill remote units, since we're told when to kill them
 				{
-					kill(i,map,e);
+					kill(i,e);
 					e--;			// Can't skip a unit
 				}
 			}
@@ -1197,7 +1197,7 @@ namespace TA3D
 		return unit_index;
 	}
 
-	void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTOR **map_data)				// Repère les unités sur la mini-carte
+	void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h)				// Repère les unités sur la mini-carte
 	{
 		if (nb_unit<=0 || unit==NULL)
 		{
@@ -1364,7 +1364,7 @@ namespace TA3D
 		last_on = -1;
 	}
 
-	void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une unité
+	void INGAME_UNITS::kill(int index,int prev,bool sync)			// Détruit une unité
 	{
 		if (index<0 || index>=max_unit || prev<0 || prev>=index_list_size)	// On ne peut pas détruire une unité qui n'existe pas
 			return;
@@ -1474,7 +1474,7 @@ namespace TA3D
                     || (pUnit->Pos.y + pUnit->model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
 			{
                 pUnit->unlock();
-                pUnit->draw(virtual_t, map, height_line);
+				pUnit->draw(virtual_t, height_line);
 			}
 			else
                 pUnit->unlock();
@@ -1523,7 +1523,7 @@ namespace TA3D
 
 				unit[i].lock();
 				if (unit[i].flags & 1)				// Si il y a une unité
-					unit[i].draw_shadow(Dir, map);
+					unit[i].draw_shadow(Dir);
 				unit[i].unlock();
 
 				gfx->unlock();
@@ -1548,7 +1548,7 @@ namespace TA3D
 				gfx->lock();
 				unit[i].lock();
 				if (unit[i].flags & 1) // Si il y a une unité
-					unit[i].drawShadowBasic(Dir, map);
+					unit[i].drawShadowBasic(Dir);
 				unit[i].unlock();
 				gfx->unlock();
 			}

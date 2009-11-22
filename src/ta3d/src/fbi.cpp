@@ -238,7 +238,7 @@ namespace TA3D
 				if (tex || unit_type[idx]->glpic)
 					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
 				else
-					LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");
+				{	LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");	}
 			}
 			else
 			{	LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");	}

@@ -410,7 +410,7 @@ namespace TA3D
                        if (!can_be_built(units.unit[id].Pos, map.get(), units.unit[id].type_id, player_id))
                        {
                            units.unit[id].flags = 4;
-                           units.kill(id, map.get(), units.index_list_size - 1);
+						   units.kill(id, units.index_list_size - 1);
                        }
                        else
                        {								// Compute unit's Y coordinate
@@ -547,7 +547,7 @@ namespace TA3D
                            units.unlock();
                            if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                            {
-                               units.kill(i, map.get(), e);
+							   units.kill(i, e);
                                --e;
                            }
                            units.lock();
@@ -566,7 +566,7 @@ namespace TA3D
                        units.unlock();
                        if ((units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id)
                        {
-                           units.kill(i, map.get(), e);
+						   units.kill(i, e);
                            --e;
                        }
                        units.lock();

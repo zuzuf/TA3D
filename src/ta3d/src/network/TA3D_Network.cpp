@@ -566,7 +566,7 @@ namespace TA3D
 
 						units.unlock();
 
-						units.kill( event_msg.opt1, the_map, e, false );
+						units.kill( event_msg.opt1, e, false );
 					}
 					break;
 				case EVENT_UNIT_CREATION:

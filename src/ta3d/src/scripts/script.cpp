@@ -488,7 +488,7 @@ namespace TA3D
 							prev = i;
 							break;
 						}
-					units.kill( unit_id, the_map, prev);
+					units.kill(unit_id, prev);
 					unit_id = -1;
 				}
 			}

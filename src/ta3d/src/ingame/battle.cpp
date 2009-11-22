@@ -2075,7 +2075,7 @@ namespace TA3D
 						int p_id = units.unit[cur_sel_index].owner_id;
 						units.unit[cur_sel_index].mission->getUnit()->clear_from_map();
 						units.unit[cur_sel_index].mission->getUnit()->flags = 0;               // Don't count it as a loss
-						units.kill(units.unit[cur_sel_index].mission->getUnit()->idx, map.get(), prev);
+						units.kill(units.unit[cur_sel_index].mission->getUnit()->idx, prev);
 						players.metal[p_id] += metal_to_give_back;          // Give metal back
 						players.c_metal[p_id] += metal_to_give_back;
 					}
@@ -2128,7 +2128,7 @@ namespace TA3D
 			int last_on = units.last_on;
 
 			map->draw_mini(0,0,128,128,&cam,1<<players.local_human_id);	// Mini-carte
-			units.draw_mini(map->map_w,map->map_h,map->mini_w,map->mini_h,map->map_data);
+			units.draw_mini(map->map_w,map->map_h,map->mini_w,map->mini_h);
 			weapons.draw_mini(map->map_w,map->map_h,map->mini_w,map->mini_h);
 
 			if (!freecam && mouse_b == 4) // Moving the cam around
