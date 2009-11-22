@@ -322,7 +322,7 @@ namespace TA3D
         /*!
         ** \brief Everything is in the name ...
         */
-        void show_info(float fade,Font *fnt);
+		void show_info();
 
         /*!
         ** \brief Returns true if the units float on water
@@ -337,6 +337,7 @@ namespace TA3D
     public:
         int         nb_unit;        // Nombre d'unités
         UnitList  unit_type;     // Données sur l'unité
+		String::Vector		animsList;		// the list of GAF files in anims/
 
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel
