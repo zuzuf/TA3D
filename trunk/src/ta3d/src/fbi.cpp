@@ -42,6 +42,7 @@
 #include "misc/paths.h"
 #include "engine/mission.h"
 #include "input/mouse.h"
+#include "gfx/gui/area.h"
 
 
 
@@ -559,38 +560,29 @@ namespace TA3D
 
 	void UnitType::show_info(float fade, Font *fnt)
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glDisable(GL_TEXTURE_2D);
-		glColor4f(0.5f,0.5f,0.5f,fade);
-		int x = gfx->SCREEN_W_HALF - 160;
-		int y = gfx->SCREEN_H_HALF - 120;
-		glBegin(GL_QUADS);
-		glVertex2i(x,y);
-		glVertex2i(x+320,y);
-		glVertex2i(x+320,y+240);
-		glVertex2i(x,y+240);
-		glEnd();
-		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-		glEnable(GL_TEXTURE_2D);
-		glColor4f(1.0f,1.0f,1.0f,fade);
-		gfx->drawtexture(glpic, float(x + 16), float(y + 16), float(x + 80), float(y + 80));
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print(fnt, float(x + 96), float(y + 16), 0.0f, I18N::Translate("Name") + ": " + name);
-		gfx->print(fnt, float(x + 96), float(y + 28), 0.0f, I18N::Translate("Internal name") + ": " + Unitname);
-		gfx->print(fnt, float(x + 96), float(y + 40), 0.0f, Description);
-		gfx->print(fnt, float(x + 96), float(y + 52), 0.0f, I18N::Translate("HP") + ": " + String(MaxDamage));
-		gfx->print(fnt, float(x + 96), float(y + 64), 0.0f, I18N::Translate("Cost") + ": E " + String(BuildCostEnergy) + " M " + String(BuildCostMetal));
-		gfx->print(fnt, float(x + 16), float(y + 100), 0.0f, I18N::Translate("Build time") + ": " + String(BuildTime));
-		gfx->print(fnt, float(x + 16), float(y + 124), 0.0f, I18N::Translate("weapons") + ":");
-		int Y = y + 136;
+		Gui::AREA::current()->caption("unit_info.tName", I18N::Translate("Name") + ": " + name);
+		Gui::AREA::current()->caption("unit_info.tInternalName", I18N::Translate("Internal name") + ": " + Unitname);
+		Gui::AREA::current()->caption("unit_info.tDescription", Description);
+		Gui::AREA::current()->caption("unit_info.tHP", I18N::Translate("HP") + ": " + String(MaxDamage));
+		Gui::AREA::current()->caption("unit_info.tCost", I18N::Translate("Cost") + ": E " + String(BuildCostEnergy) + " M " + String(BuildCostMetal));
+		Gui::AREA::current()->caption("unit_info.tBuildTime", I18N::Translate("Build time") + ": " + String(BuildTime));
+
+		String tWeapons;
 		for( std::vector<WeaponDef*>::iterator i = weapon.begin() ; i != weapon.end() ; ++i )
 			if (*i)
-			{
-				gfx->print(fnt, float(x + 16), float(Y), 0.0f, (*i)->name + ": " + String( (*i)->damage));
-				Y += 12;
-			}
-		glDisable(GL_BLEND);
+				tWeapons << (*i)->name + ": " + String( (*i)->damage) << "\n";
+		Gui::AREA::current()->caption("unit_info.tWeaponList", tWeapons);
+		Gui::GUIOBJ::Ptr image = Gui::AREA::current()->get_object("unit_info.unitpic");
+		if (image)
+		{
+			image->x1 = 10;
+			image->y1 = 40;
+			image->x2 = 106;
+			image->y2 = 136;
+			image->Data = (uint32)glpic;
+		}
+
+		Gui::AREA::current()->msg("unit_info.show");
 	}
 
 #define parseStringDef(x,y)  (unitParser.pullAsString(x, unitParser_ci.pullAsString(x, y)))

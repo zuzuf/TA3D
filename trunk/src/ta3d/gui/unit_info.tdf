@@ -1,0 +1,123 @@
+[window]
+{
+    name=unit_info;
+    title=Unit information;
+    uformat=UTF8;
+    centered=true;
+    width=480;
+    height=300;
+    fullscreen=true;
+    screen width=1280;
+    screen height=1024;
+    draw borders=true;
+    show title=true;
+    lock=false;
+    number of objects=10;
+    hidden=true;
+    color=0xFFFFFFFF;
+    repeat background=true;
+    get focus=true;
+    [object0]
+    {
+        name=unitpic;
+        type=IMG;
+        x1=10;
+        y1=40;
+        x2=106;
+        y2=136;
+    }
+    [object1]
+    {
+        name=b_ok;
+        type=BUTTON;
+        caption=OK;
+        x1=280;
+        y1=-35;
+        x2=360;
+        y2=-5;
+        size=1.6;
+        on click=unit_info.hide;
+    }
+    [object2]
+    {
+        name=tName;
+        type=TEXT;
+        caption=Name: ;
+        x1=120;
+        y1=40;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object3]
+    {
+        name=tInternalName;
+        type=TEXT;
+        caption=Internal name: ;
+        x1=120;
+        y1=60;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object4]
+    {
+        name=tHP;
+        type=TEXT;
+        caption=HP: ;
+        x1=120;
+        y1=80;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object5]
+    {
+        name=tCost;
+        type=TEXT;
+        caption=Cost: ;
+        x1=120;
+        y1=100;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object6]
+    {
+        name=tBuildTime;
+        type=TEXT;
+        caption=Build time: ;
+        x1=120;
+        y1=120;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object7]
+    {
+        name=tDescription;
+        type=TEXT;
+        caption=;
+        x1=120;
+        y1=140;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object8]
+    {
+        name=tWeapons;
+        type=TEXT;
+        caption=Weapons:;
+        x1=10;
+        y1=160;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+    [object9]
+    {
+        name=tWeaponList;
+        type=TEXT;
+        caption=;
+        x1=10;
+        y1=180;
+        x2=-10;
+        y2=-40;
+        size=1.6;
+        value=0xFFFFFFFF;
+    }
+}
