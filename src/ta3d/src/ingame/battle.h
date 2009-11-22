@@ -367,8 +367,6 @@ namespace TA3D
 		//!
 		float show_gamestatus;
 		//!
-		float unit_info;
-		//!
 		int	unit_info_id;
 		//!
 		float speed_limit;

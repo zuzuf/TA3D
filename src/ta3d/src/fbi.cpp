@@ -141,10 +141,10 @@ namespace TA3D
 	GLuint loadBuildPic(const String &gafFileName, const String &name, int *w = NULL, int *h = NULL)
 	{
 		GLuint tex = 0;
-		String::Vector queue;
-		VFS::Instance()->getFilelist("anims\\*.gaf", queue);
+		String::Vector queue = unit_manager.animsList;
 		queue.push_back("anims\\commongui.gaf");
 		queue.push_back(gafFileName);
+		gfx->set_texture_format(GL_RGB8);
 
 		while(tex == 0 && !queue.empty())
 		{
@@ -288,6 +288,9 @@ namespace TA3D
 
 	void UnitManager::gather_all_build_data()
 	{
+		animsList.clear();
+		VFS::Instance()->getFilelist("anims\\*.gaf", animsList);
+
 		String::List file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
@@ -323,20 +326,23 @@ namespace TA3D
 			while (n > 0)
 			{
 				int idx = get_unit_index( canbuild );
-				GLuint tex = loadBuildPic( String::Format("anims\\%s_gadget.gaf", canbuild.c_str()), canbuild);
-				if (idx >= 0 && idx < nb_unit && (unit_type[idx]->glpic || tex))
-					unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
-				else
+				if (idx >= 0 && idx < nb_unit)
 				{
-					LOG_DEBUG("unit '" << canbuild << "' not found");
-					gfx->destroy_texture(tex);
+					GLuint tex = loadBuildPic( String::Format("anims\\%s_gadget.gaf", canbuild.c_str()), canbuild);
+					if (unit_type[idx]->glpic || tex)
+						unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
+					else
+					{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
 				}
+				else
+				{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
 				--n;
 				canbuild = sidedata_parser.pullAsString( String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
 			}
 		}
 
 		gather_build_data();			// Read additionnal build data
+		animsList.clear();
 	}
 
 
@@ -558,7 +564,7 @@ namespace TA3D
 	}
 
 
-	void UnitType::show_info(float fade, Font *fnt)
+	void UnitType::show_info()
 	{
 		Gui::AREA::current()->caption("unit_info.tName", I18N::Translate("Name") + ": " + name);
 		Gui::AREA::current()->caption("unit_info.tInternalName", I18N::Translate("Internal name") + ": " + Unitname);

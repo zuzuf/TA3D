@@ -210,7 +210,6 @@ namespace TA3D
 			if (pSkyIsSpherical)
 				sky_angle += pSkyData->rotation_speed * dt * units.apparent_timefactor;
 
-			unit_info -= dt;
 			if (!lp_CONFIG->pause)
 			{
 				light_angle+=dt*units.apparent_timefactor;
@@ -307,14 +306,12 @@ namespace TA3D
 			if (key[KEY_F1] && units.last_on >= 0 && units.unit[ units.last_on ].type_id >= 0)
 			{
 				unit_info_id = units.unit[ units.last_on ].type_id;
-				unit_info = 1.0f;
 			}
 			else
 			{
 				if (key[KEY_F1] && cur_sel >= 0)
 				{
 					unit_info_id = cur_sel;
-					unit_info = 1.0f;
 				}
 			}
 
@@ -2191,8 +2188,11 @@ namespace TA3D
 					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String::Format("idx = %d", cur_sel_index));
 			}
 
-			if (unit_info>0.0f && unit_info_id>=0)
-				unit_manager.unit_type[unit_info_id]->show_info(unit_info,gfx->TA_font);
+			if (unit_info_id >= 0)
+			{
+				unit_manager.unit_type[unit_info_id]->show_info();
+				unit_info_id = -1;
+			}
 
 			if (last_on != -1 && show_mission_info) // Sur les unités sélectionnées
 			{

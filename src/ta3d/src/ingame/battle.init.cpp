@@ -856,7 +856,6 @@ namespace TA3D
 		speed_changed = false;
 		show_timefactor = 0.0f;
 		show_gamestatus = 0.0f;
-		unit_info = 0.0f;
 		unit_info_id = -1;
 
 		lp_CONFIG->pause = false;
