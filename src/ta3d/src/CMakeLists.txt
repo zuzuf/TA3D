@@ -3,17 +3,10 @@ STRING(STRIP "${LIBS}" LIBS)
 LINK_LIBRARIES("${LIBS}")
 
 
-#
-# Yuni Settings
-#
-Find_Package(LibYuni COMPONENTS core)
-IF(LibYuni_FOUND)
-	Message(STATUS "[libyuni] Yes")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LibYuni_CXXFLAGS}")
-	link_libraries("${LibYuni_LIBS}")
-Else(LibYuni_FOUND)
-	Message(SEND_ERROR "The Yuni Framework could not be found.")
-EndIF(LibYuni_FOUND)
+# Yuni Settins
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LibYuni_CXXFLAGS}")
+link_libraries("${LibYuni_LIBS}")
+
 
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
