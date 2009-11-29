@@ -21,6 +21,8 @@
 | en place du pathfinding de TA3D                                  |
 \-----------------------------------------------------------------*/
 
+#include <yuni/yuni.h>
+#include <yuni/core/system/cpu.h>
 #include <stdafx.h>
 #include <misc/matrix.h>
 #include <TA3D_NameSpace.h>
@@ -141,7 +143,7 @@ namespace TA3D
 
 	Pathfinder::Pathfinder() : tasks()
 	{
-		nbCores = Yuni::Threads::AThread::CPUCount();
+		nbCores = Yuni::System::CPU::Count();
 	}
 
 	void Pathfinder::clear()

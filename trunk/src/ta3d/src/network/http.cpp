@@ -12,7 +12,7 @@ namespace TA3D
 
 
 	Http::Http()
-		:bStop(false), filename(), _request(), servername(), pos(0), size(0)
+		:bStop(false), pos(0), size(0)
 	{
 	}
 
@@ -21,19 +21,17 @@ namespace TA3D
 		Thread::destroyThread();
 	}
 
-	int Http::getTransferedBytes()
+	int Http::getTransferedBytes() const
 	{
 		return pos;
 	}
 
-	float Http::getProgress()
+	float Http::getProgress() const
 	{
-		if (size == 0)
-			return 0;
-		return (float)(pos * 100.0 / size);
+		return (!size) ? 0.f : (float)(pos * 100.0 / size);
 	}
 
-	void Http::proc(void* param)
+	void Http::proc(void* /*param*/)
 	{
 		bStop = false;
 
@@ -177,7 +175,7 @@ namespace TA3D
 		}
 	}
 
-	bool Http::isDownloading()
+	bool Http::isDownloading() const
 	{
 		return isRunning();
 	}
