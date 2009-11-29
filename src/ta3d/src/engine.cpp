@@ -15,23 +15,25 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#include <yuni/yuni.h>
+#include <yuni/core/system/cpu.h>
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "threads/thread.h"
 #include "engine.h"
 #include "ta3dbase.h"
 
-#include "scripts/cob.h"               // For unit scripts management
-#include "tdf.h"               // For 2D features
-#include "EngineClass.h"         // The Core Engine
+#include "scripts/cob.h"           // For unit scripts management
+#include "tdf.h"                   // For 2D features
+#include "EngineClass.h"           // The Core Engine
 
 #include "UnitEngine.h"            // The Unit Engine
 
-#include "tnt.h"               // The TNT loader
-#include "scripts/script.h"               // The game script manager
-#include "ai/ai.h"                  // AI Engine
-#include "gfx/fx.h"					// Special FX engine
-#include "gfx/gui/area.h"			// We need that for the AREA::popup function
+#include "tnt.h"                   // The TNT loader
+#include "scripts/script.h"        // The game script manager
+#include "ai/ai.h"                 // AI Engine
+#include "gfx/fx.h"	               // Special FX engine
+#include "gfx/gui/area.h"          // We need that for the AREA::popup function
 #include "misc/paths.h"
 #include "languages/i18n.h"
 #include "sounds/manager.h"
@@ -69,7 +71,7 @@ namespace TA3D
 		:pSDLRunning(false), pGFXModeActive(false)
 	{
 		// How many CPU we've got ?
-		LOG_INFO("CPU: " << Yuni::Threads::AThread::CPUCount());
+		LOG_INFO("CPU: " << Yuni::System::CPU::Count());
 
 		VARS::gfx = NULL;
 
