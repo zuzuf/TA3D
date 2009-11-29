@@ -1,6 +1,7 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+#include <yuni/yuni.h>
 #include <misc/string.h>
 #include <threads/thread.h>
 
@@ -20,10 +21,10 @@ namespace TA3D
          */
         void get(const String &filename, const String &url);
         void stop();
-        bool isDownloading();
+        bool isDownloading() const;
 
-        int getTransferedBytes();
-        float getProgress();
+        int getTransferedBytes() const;
+        float getProgress() const;
 
     public:
         /*!
@@ -40,6 +41,10 @@ namespace TA3D
         String _request;
         String servername;
     };
-}
+
+
+
+
+} // namespace TA3D
 
 #endif
