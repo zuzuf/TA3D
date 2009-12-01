@@ -1591,12 +1591,12 @@ namespace TA3D
 		float E = getLocalMapEnergy(cur_px, cur_py);
 		UnitType *pType = unit_manager.unit_type[type_id];
 		if (moving)
-			E += 10.0f * float(pType->MaxSlope) * sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
+			E += 40.0f * float(pType->MaxSlope) * sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
 		for(int i = 0 ; i < 8 ; ++i)
 		{
 			float e = getLocalMapEnergy(cur_px + order_dx[i], cur_py + order_dz[i]);
 			if (moving)
-				e += 10.0f * float(pType->MaxSlope) * sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
+				e += 40.0f * float(pType->MaxSlope) * sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
 			if (e < E)
 			{
 				E = e;

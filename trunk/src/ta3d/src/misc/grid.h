@@ -1,6 +1,8 @@
 #ifndef __TA3D_GRID_H__
 #define __TA3D_GRID_H__
 
+#include <logs/logs.h>
+
 namespace TA3D
 {
 	template<class T>
