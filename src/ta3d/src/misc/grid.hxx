@@ -30,7 +30,8 @@ namespace TA3D
 	template<class T>
 		void Grid<T>::clear()
 	{
-		memset(data, 0, w * h * sizeof(T));
+		if (data)
+			memset(data, 0, w * h * sizeof(T));
 	}
 
 	template<class T>
@@ -43,12 +44,14 @@ namespace TA3D
 	template<class T>
 		const T& Grid<T>::operator()(int x, int y) const
 	{
+		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
 		return data[x + y * w];
 	}
 
 	template<class T>
 		T& Grid<T>::operator()(int x, int y)
 	{
+		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
 		return data[x + y * w];
 	}
 
