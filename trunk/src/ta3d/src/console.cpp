@@ -87,7 +87,7 @@ namespace TA3D
 			if (pShow)
 			{
 				// slide in
-				if (pVisible != 1.0f)
+				if (Yuni::Math::Equals(pVisible, 1.0f))
 				{
 					pVisible += dt;
 					if (pVisible > 1.0f)
@@ -97,14 +97,14 @@ namespace TA3D
 			else
 			{
 				// slide out
-				if (pVisible != 0.0f)
+				if (!Yuni::Math::Zero(pVisible))
 				{
 					pVisible -= dt;
 					if (pVisible < 0.0f)
 						pVisible = 0.0f;
 				}
-				if (pVisible == 0.0f)
-					return "";
+				if (Yuni::Math::Zero(pVisible))
+					return String();
 			}
 		}
 
@@ -140,13 +140,13 @@ namespace TA3D
 
 		// Print all lines
 		int i = 0;
-		for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != pLastEntries.end(); ++i_entry)
+		const String::List::const_iterator end = pLastEntries.end();
+		for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
 		{
 			gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
 					   makeacol32(0,0,0,0xFF), *i_entry);
 			gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
 					   0xDFDFDFDF, *i_entry);
-			++i;
 		}
 
 		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
@@ -163,7 +163,7 @@ namespace TA3D
 				pHistoryPos = pLastCommands.size();
 		}
 
-		switch(keycode)
+		switch (keycode)
 		{
 			case KEY_ENTER:
 				pLastCommands.push_back(pInputText);
@@ -228,7 +228,7 @@ namespace TA3D
 					pInputText = pInputText.substrUTF8(0, cursorPos) + InttoUTF8(keyb) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
 					cursorPos++;
 				}
-		};
+		}
 
 		glDisable(GL_BLEND);
 
