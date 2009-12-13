@@ -97,7 +97,7 @@ namespace TA3D
 		return ConvertToUTF8(s, len, nws);
 	}
 
-	char* ConvertToUTF8(const char* s, uint32 len, uint32& newSize)
+	char* ConvertToUTF8(const char* s, uint32, uint32& newSize)
 	{
 		if (NULL == s || '\0' == *s)
 		{
@@ -178,7 +178,7 @@ namespace TA3D
 
 		String current;
 		bool stringMode = false;
-		for(int i = 0 ; i < s.size() ; ++i)
+		for (unsigned int i = 0 ; i < s.size(); ++i)
 		{
 			if (!stringMode)
 			{

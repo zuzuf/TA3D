@@ -24,6 +24,9 @@
 #include <input/mouse.h>
 #include <misc/paths.h>
 
+
+
+
 namespace TA3D
 {
 
@@ -38,6 +41,7 @@ namespace TA3D
 
 		render_time = ((float)units.current_tick) / TICKS_PER_SEC;
 	}
+
 
 	void Battle::renderReflection()
 	{
@@ -1036,9 +1040,9 @@ namespace TA3D
 		SDL_Surface *poster = gfx->create_surface_ex(24,w,h);
 		SDL_Surface *buf = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
 
-		for(int z = 0 ; z < h ; z += SCREEN_H / 2)
+		for (int z = 0; z < h; z += SCREEN_H / 2)
 		{
-			for(int x = 0 ; x < w ; x += SCREEN_W / 2)
+			for (int x = 0; x < w; x += SCREEN_W / 2)
 			{
 				reflection_drawn_last_time = false;		// We need to refresh everything
 
@@ -1047,7 +1051,7 @@ namespace TA3D
 						   + camBak.zoomFactor
 							* ((x - w / 2 - SCREEN_W / 4) * camBak.side
 							   + (z - h / 2 - SCREEN_H / 4) * camBak.up);
-				if (camBak.dir.y != 0.0f)
+				if (!Yuni::Math::Zero(camBak.dir.y))
 					cam.rpos = cam.rpos + ((camBak.rpos - cam.rpos).y / camBak.dir.y) * camBak.dir;
 
 				// Render this part of the scene
@@ -1074,4 +1078,10 @@ namespace TA3D
 		lp_CONFIG->pause = previous_pause_state;
 		lp_CONFIG->ortho_camera = prevCameraType;
 	}
-}
+
+
+
+} // namespace TA3D
+
+
+
