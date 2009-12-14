@@ -52,6 +52,8 @@ namespace Math
     template<typename T> inline T Rad2Deg(const T rad)
     { return (rad * 57.29578122f); }
 
+	template<typename T> inline int Sgn(const T a)
+	{ return a < 0 ? -1 : a == 0 ? 0 : 1; }
 
 	/*!
     ** \brief Get log2(n)

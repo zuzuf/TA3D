@@ -875,10 +875,14 @@ namespace TA3D
 		for(int z = 0 ; z < gRepulsion.getHeight() ; ++z)
 		{
 			float dz = z - gRepulsion.getHeight() * 0.5f;
+			// Distance to the unit, not its center of gravity
+			dz = Math::Sgn(dz) * Math::Max(fabsf(dz) - FootprintZ * 0.5f, 0.0f);
 			dz *= dz;
 			for(int x = 0 ; x < gRepulsion.getWidth() ; ++x)
 			{
 				float dx = x - gRepulsion.getWidth() * 0.5f;
+				// Distance to the unit, not its center of gravity
+				dx = Math::Sgn(dx) * Math::Max(fabsf(dx) - FootprintX * 0.5f, 0.0f);
 				dx *= dx;
 				gRepulsion(x,z) = 2550.0f * expf(sigx2 * dx + sigz2 * dz);
 			}
