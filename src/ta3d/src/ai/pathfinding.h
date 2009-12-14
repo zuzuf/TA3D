@@ -103,6 +103,7 @@ namespace TA3D
 		Pathfinder();
 		void clear();
 		void addTask(int idx, int dist, const Vector3D &start, const Vector3D &end);
+		int taskCount();
 
 	private:
 		virtual ~Pathfinder();

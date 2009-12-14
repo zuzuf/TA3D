@@ -34,7 +34,7 @@
 #include <UnitEngine.h>
 #include <yuni/threads/thread.h>
 
-#define PATHFINDER_MAX_LENGTH			10000
+#define PATHFINDER_MAX_LENGTH			500000
 
 
 namespace TA3D
@@ -42,11 +42,6 @@ namespace TA3D
 	inline int sq(int a)
 	{
 		return a*a;
-	}
-
-	inline int sgn( int a )
-	{
-		return a < 0 ? -1 : a > 0 ? 1 : 0;
 	}
 
 	Mutex Pathfinder::sMutex;
@@ -146,6 +141,12 @@ namespace TA3D
 		nbCores = Yuni::System::CPU::Count();
 	}
 
+	int Pathfinder::taskCount()
+	{
+		MutexLocker mLock(pMutex);
+		return tasks.size();
+	}
+
 	void Pathfinder::clear()
 	{
 		MutexLocker mLock(pMutex);
@@ -204,7 +205,9 @@ namespace TA3D
 
 			// Here we are free to compute this path
 			uint32 start_timer = msec_timer;
-			if (cur.idx >= 0)
+			if (cur.idx >= 0
+				&& units.unit[cur.idx].ID == cur.UID
+				&& (units.unit[cur.idx].flags & 1))
 			{
 				AI::Path path;
 				findPath(path, cur);
@@ -267,6 +270,7 @@ namespace TA3D
 		static int order_m2[] = { 6, 7, 0, 1, 2, 3, 4, 5 };
 		static int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
 		static int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+		static int order_d[] = { 10, 7, 10, 7, 10, 7, 10, 7 };
 
 		int m_dist = task.dist;
 		m_dist *= m_dist;
@@ -289,27 +293,38 @@ namespace TA3D
 		Grid<int> &zone = the_map->path;
 		Grid<float> &energy = the_map->energy;
 		std::deque<AI::Path::Node> qNode;
+		std::deque<int> qDistFromStart;
 
+		bool pathFound = true;
 		if ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))
 		{
-			while (n < PATHFINDER_MAX_LENGTH)
+			pathFound = false;
+			uint32 curDistFromStart = 0;
+			uint32 minPathLength = uint32(-1);
+			int nbChoices = 0;
+			uint32 depthLimit = PATHFINDER_MAX_LENGTH;
+			while (n < depthLimit)
 			{
 				++zone( nodes.back().x(), nodes.back().z() );
 
 				int m = -1;
 
-				int nx = nodes.back().x() + sgn( end_x - nodes.back().x() );
-				int nz = nodes.back().z() + sgn( end_z - nodes.back().z() );
+				int nx = nodes.back().x() + Math::Sgn( end_x - nodes.back().x() );
+				int nz = nodes.back().z() + Math::Sgn( end_z - nodes.back().z() );
 
 				if (nx < 0 || nz < 0 || nx >= the_map->bloc_w_db || nz >= the_map->bloc_h_db)
 					break;		// If we have to go out there is a problem ...
 
-				if (zone(nx, nz) >= 2)
+				if (zone(nx, nz) >= 2 || curDistFromStart > minPathLength)
 				{
-					if (qNode.empty())		// We're done
+					if (qNode.empty() || (!pathFound && nbChoices == 0))		// We're done
 						break;
+					if (nbChoices > 0)
+						--nbChoices;
 					nodes.push_back(qNode.back());
 					qNode.pop_back();
+					curDistFromStart = qDistFromStart.back();
+					qDistFromStart.pop_back();
 					++n;
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
@@ -373,11 +388,19 @@ namespace TA3D
 									 || (dist[ order_p1[ i ] ] < 0.0f && !zoned[ order_p1[ i ] ])
 									 || (dist[ order_m2[ i ] ] < 0.0f && !zoned[ order_m2[ i ] ])
 									 || (dist[ order_p2[ i ] ] < 0.0f && !zoned[ order_p2[ i ] ]))
+								{
 									qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));		// Priority given to possibility to avoid obstacles
+									qDistFromStart.push_back(curDistFromStart + order_d[ i ]);
+									++nbChoices;
+								}
 								else
+								{
 									qNode.push_front(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));
+									qDistFromStart.push_front(curDistFromStart + order_d[ i ]);
+								}
 							}
 						}
+						curDistFromStart += order_d[ m ];
 					}
 				}
 				else
@@ -385,10 +408,14 @@ namespace TA3D
 
 				if (m == -1)
 				{
-					if (qNode.empty())		// We're done
+					if (qNode.empty() || (!pathFound && nbChoices == 0))		// We're done
 						break;
+					if (nbChoices > 0)
+						--nbChoices;
 					nodes.push_back(qNode.back());
 					qNode.pop_back();
+					curDistFromStart = qDistFromStart.back();
+					qDistFromStart.pop_back();
 					++n;
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
@@ -398,17 +425,23 @@ namespace TA3D
 				++n;
 				if ((m_dist == 0 && nodes.back().x() == end_x && nodes.back().z() == end_z) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) <= m_dist))
 				{
+					minPathLength = Math::Min(minPathLength, curDistFromStart);
+					if (!pathFound)
+						depthLimit = n << 1;			// Limit search complexity
+					pathFound = true;
 					if (qNode.empty())		// We're done
 						break;
 					nodes.push_back(qNode.back());
 					qNode.pop_back();
+					curDistFromStart = qDistFromStart.back();
+					qDistFromStart.pop_back();
 					++n;
 					break;
 				}
 			}
 		}
 
-		if (!nodes.empty())
+		if (!nodes.empty() && pathFound)
 		{
 			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
 				zone(cur->x(), cur->z()) = 1;
