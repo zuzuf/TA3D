@@ -271,10 +271,12 @@ namespace TA3D
 			for(int z = 0 ; z < pFeature->gRepulsion.getHeight() ; ++z)
 			{
 				float dz = z - pFeature->gRepulsion.getHeight() * 0.5f;
+				dz = Math::Sgn(dz) * Math::Max(fabsf(dz) - pFeature->footprintz * 0.5f, 0.0f);
 				dz *= dz;
 				for(int x = 0 ; x < pFeature->gRepulsion.getWidth() ; ++x)
 				{
 					float dx = x - pFeature->gRepulsion.getWidth() * 0.5f;
+					dx = Math::Sgn(dx) * Math::Max(fabsf(dx) - pFeature->footprintx * 0.5f, 0.0f);
 					dx *= dx;
 					pFeature->gRepulsion(x,z) = 2550.0f * expf(sigx2 * dx + sigz2 * dz);
 				}
@@ -1203,8 +1205,8 @@ namespace TA3D
 			the_map->energy.sub(pFeature->gRepulsion,
 								feature[idx].px - (pFeature->gRepulsion.getWidth() >> 1),
 								feature[idx].py - (pFeature->gRepulsion.getHeight() >> 1));
-			the_map->map_data[feature[idx].py] [feature[idx].px].stuff = -1;
 		}
+		the_map->map_data[feature[idx].py] [feature[idx].px].stuff = -1;
 	}
 
 
