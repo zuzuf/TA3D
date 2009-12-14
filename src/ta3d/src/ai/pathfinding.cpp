@@ -544,7 +544,11 @@ namespace TA3D
 			path.next();   // The unit is already at Start!! So remove it
 		}
 		else
+		{
+			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Clean the map data
+				zone(cur->x(), cur->z()) = 0;
 			path.clear();
+		}
 	}
 
 	bool Pathfinder::checkRectFull(int x1, int y1, int c, UnitType *pType)
