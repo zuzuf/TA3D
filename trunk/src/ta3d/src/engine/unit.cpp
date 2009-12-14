@@ -1760,7 +1760,7 @@ namespace TA3D
 			else
 			{
 				float energy = getLocalMapEnergy(cur_px, cur_py);
-				if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty()))
+				if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && (!mission->Path().empty() || requesting_pathfinder)))
 				{
 					J = Target;
 					computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
@@ -1776,11 +1776,10 @@ namespace TA3D
 						case MISSION_STOP:
 							J = Target;
 							computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
-							if (J.sq() > 0.1f)
-								selfmove = true;
+							selfmove = J.sq() > 0.1f;
 							break;
 						default:
-						J.reset();
+							J.reset();
 					};
 				}
 				else
@@ -1862,7 +1861,8 @@ namespace TA3D
 						launchScript(SCRIPT_StopMoving);
 				}
 				was_moving = false;
-				requesting_pathfinder = false;
+				if (!(mission->getFlags() & MISSION_FLAG_MOVE))
+					requesting_pathfinder = false;
 			}
 
 			NPos = Pos + dt * V;			// Check if the unit can go where V brings it
@@ -2003,14 +2003,15 @@ namespace TA3D
 
 		if (flying && local) // Force planes to stay on map
 		{
-			if (Pos.x<-the_map->map_w_d || Pos.x>the_map->map_w_d || Pos.z<-the_map->map_h_d || Pos.z>the_map->map_h_d) {
-				if (Pos.x < -the_map->map_w_d )
+			if (Pos.x<-the_map->map_w_d || Pos.x>the_map->map_w_d || Pos.z<-the_map->map_h_d || Pos.z>the_map->map_h_d)
+			{
+				if (Pos.x < -the_map->map_w_d)
 					V.x += dt * ( -the_map->map_w_d - Pos.x ) * 0.1f;
-				else if (Pos.x > the_map->map_w_d )
+				else if (Pos.x > the_map->map_w_d)
 					V.x -= dt * ( Pos.x - the_map->map_w_d ) * 0.1f;
-				if (Pos.z < -the_map->map_h_d )
+				if (Pos.z < -the_map->map_h_d)
 					V.z += dt * ( -the_map->map_h_d - Pos.z ) * 0.1f;
-				else if (Pos.z > the_map->map_h_d )
+				else if (Pos.z > the_map->map_h_d)
 					V.z -= dt * ( Pos.z - the_map->map_h_d ) * 0.1f;
 				float speed = V.norm();
 				if (speed > pType->MaxVelocity && speed > 0.0f)
