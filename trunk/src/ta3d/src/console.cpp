@@ -87,7 +87,7 @@ namespace TA3D
 			if (pShow)
 			{
 				// slide in
-				if (Yuni::Math::Equals(pVisible, 1.0f))
+				if (!Yuni::Math::Equals(pVisible, 1.0f))
 				{
 					pVisible += dt;
 					if (pVisible > 1.0f)
