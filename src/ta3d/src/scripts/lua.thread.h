@@ -28,7 +28,12 @@
 
 namespace TA3D
 {
-    /*!
+	/*!
+	** \brief a small panic function to throw an exception instead of exiting and cleaning stuffs while running which explicitly crashes the game :/
+	*/
+	int lua_panic( lua_State *L  );
+
+	/*!
     ** \brief functions for vector interface with Lua
     */
     void lua_pushvector( lua_State *L, const Vector3D &vec );

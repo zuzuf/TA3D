@@ -84,6 +84,7 @@ namespace TA3D
 		if (!pLuaVM)
 		{
 			pLuaVM = lua_open();				// Create a lua state object
+			lua_atpanic(pLuaVM, lua_panic);		// Just to avoid having Lua exiting TA3D
 			if (pLuaVM)
 			{
 				lua_register( pLuaVM, "logmsg", thread_logmsg );
@@ -612,13 +613,21 @@ namespace TA3D
 		UnitScript *newThread = static_cast<UnitScript*>(getFreeThread());
 		if (newThread)
 		{
-			if (lua_status(newThread->L) == LUA_YIELD)     // Some work ir required
+			if (lua_status(newThread->L) == LUA_YIELD)     // Some work is required
 			{
-				lua_getUnitTable();
-				lua_getfield(L, -1, "__threads");
-				newThread->L = lua_newthread(L);
-				lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
-				lua_pop(L, 2);
+				try
+				{
+					lua_getUnitTable();
+					lua_getfield(L, -1, "__threads");
+					newThread->L = lua_newthread(L);
+					lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
+					lua_pop(L, 2);
+				}
+				catch(...)
+				{
+					delete newThread;
+					return NULL;
+				};
 			}
 			newThread->running = false;
 			newThread->waiting = false;
@@ -641,12 +650,20 @@ namespace TA3D
 		newThread->unitID = unitID;
 		newThread->name = name;
 
-		lua_getUnitTable();
-		lua_getfield(L, -1, "__threads");
-		newThread->L = lua_newthread(L);
-		newThread->nextID = getNextID();
-		lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
-		lua_pop(L, 2);
+		try
+		{
+			lua_getUnitTable();
+			lua_getfield(L, -1, "__threads");
+			newThread->L = lua_newthread(L);
+			newThread->nextID = getNextID();
+			lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
+			lua_pop(L, 2);
+		}
+		catch(...)
+		{
+			delete newThread;
+			return NULL;
+		};
 
 		addThread(newThread);
 
@@ -666,14 +683,21 @@ namespace TA3D
 	{
 		UnitScript *newThread = fork();
 
-		if (lua_isfunction(cL, -n))
+		try
 		{
-			lua_xmove(cL, newThread->L, n);
-			newThread->n_args = n - 1;
-			newThread->running = true;
+			if (newThread && lua_isfunction(cL, -n))
+			{
+				lua_xmove(cL, newThread->L, n);
+				newThread->n_args = n - 1;
+				newThread->running = true;
+			}
+			else
+				newThread->running = false;
 		}
-		else
+		catch(...)
+		{
 			newThread->running = false;
+		}
 
 		return newThread;
 	}
