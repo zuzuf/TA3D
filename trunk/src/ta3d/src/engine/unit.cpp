@@ -767,6 +767,7 @@ namespace TA3D
 			while (!mission.empty())
 				clear_mission();			// Efface les ordres précédents
 			last_path_refresh = 10.0f;
+			requesting_pathfinder = false;
 		}
 
 		if (def_mode)
@@ -834,6 +835,7 @@ namespace TA3D
 	{
 		UnitType *pType = type_id != -1 ? unit_manager.unit_type[type_id] : NULL;
         last_path_refresh = 10.0f;		// By default allow to compute a new path
+		requesting_pathfinder = false;
 		if (nanolathe_target >= 0 && network_manager.isConnected())
 		{
 			nanolathe_target = -1;
@@ -1760,12 +1762,12 @@ namespace TA3D
 			else
 			{
 				float energy = getLocalMapEnergy(cur_px, cur_py);
-				if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && (!mission->Path().empty() || requesting_pathfinder)))
+				if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty()))
 				{
 					J = Target;
 					computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
 				}
-				else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy)
+				else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy && !requesting_pathfinder)
 				{
 					switch(mission->mission())
 					{
@@ -1775,7 +1777,7 @@ namespace TA3D
 						case MISSION_VTOL_STANDBY:
 						case MISSION_STOP:
 							J = Target;
-							computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
+							computeHeadingBasedOnEnergy(J, false);
 							selfmove = J.sq() > 0.1f;
 							break;
 						default:
