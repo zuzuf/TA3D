@@ -89,7 +89,7 @@ __this.Killed = function(this, severity)
 
 	if severity <= 50 then
 		this:explode( this.base, BITMAPONLY + BITMAP1 )
-		this:explode( this.flare1, FALL + BITMAP )
+		this:explode( this.flare1, FALL + BITMAP2 )
 		this:explode( this.flare2, FALL + BITMAP3 )
 		this:explode( this.launcher, SHATTER + BITMAP4 )
 		this:explode( this.turret, FALL + BITMAP5 )
