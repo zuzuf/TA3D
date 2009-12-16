@@ -33,11 +33,11 @@ namespace TA3D
 	{
 		if (lua_gettop(L) > 0 && lua_isstring(L, -1))
 		{
-			LOG_ERROR(LOG_PREFIX_LUA << "lua_panic /o\ : " << lua_tostring(L, -1));
+			LOG_ERROR(LOG_PREFIX_LUA << "lua_panic /o\\ : " << lua_tostring(L, -1));
 			lua_pop(L, 1);
 		}
 		else
-			LOG_ERROR(LOG_PREFIX_LUA << "lua_panic /o\ with no error message");
+			LOG_ERROR(LOG_PREFIX_LUA << "lua_panic /o\\ with no error message");
 		throw 0;	// Wow we don't want Lua to kill TA3D huh
 		return 0;
 	}
