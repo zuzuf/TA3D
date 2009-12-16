@@ -73,6 +73,7 @@ namespace TA3D
 			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+			SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 		}
 		else
 		{
@@ -80,14 +81,15 @@ namespace TA3D
 			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
 			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+			SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
 		}
-		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 5);
+		SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 0);
+		SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 0);
+		SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
 		SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
+
+		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
 		uint32 flags = SDL_OPENGL | SDL_HWSURFACE;
 		if (TA3D::VARS::lp_CONFIG->fullscreen )
