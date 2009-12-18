@@ -243,8 +243,7 @@ namespace TA3D
             UnitType *pType = unit_manager.unit_type[type_id];
             if (!(pType->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
 				launchScript(SCRIPT_StopMoving);
-			else
-				was_moving = false;
+			was_moving = false;
 			if (!(mission->Flags() & MISSION_FLAG_DONT_STOP_MOVE))
 				V.reset();		// Stop unit's movement
 		}
