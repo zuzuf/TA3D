@@ -140,16 +140,33 @@ namespace TA3D
 
 	GLuint loadBuildPic(const String &gafFileName, const String &name, int *w = NULL, int *h = NULL)
 	{
+		if (unit_manager.name2gaf.empty())
+		{
+			String::Vector queue = unit_manager.animsList;
+			queue.push_back("anims\\commongui.gaf");
+			queue.push_back(gafFileName);
+
+			while(!queue.empty())
+			{
+				String gafName = queue.back();
+				queue.pop_back();
+				byte* gaf_file = VFS::Instance()->readFile( gafName );
+				if (gaf_file)
+				{
+					int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
+					for(int i = 0 ; i < nbEntries ; ++i)
+						unit_manager.name2gaf[Gaf::RawDataGetEntryName(gaf_file, i).toUpper()] = gafName;
+					DELETE_ARRAY(gaf_file);
+				}
+			}
+		}
+
 		GLuint tex = 0;
-		String::Vector queue = unit_manager.animsList;
-		queue.push_back("anims\\commongui.gaf");
-		queue.push_back(gafFileName);
 		gfx->set_texture_format(GL_RGB8);
 
-		while(tex == 0 && !queue.empty())
+		if (unit_manager.name2gaf.find(String(name).toUpper()) != unit_manager.name2gaf.end())
 		{
-			byte* gaf_file = VFS::Instance()->readFile( queue.back() );
-			queue.pop_back();
+			byte* gaf_file = VFS::Instance()->readFile( unit_manager.name2gaf[name] );
 			if (gaf_file)
 			{
 				SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -290,6 +307,7 @@ namespace TA3D
 	{
 		animsList.clear();
 		VFS::Instance()->getFilelist("anims\\*.gaf", animsList);
+		name2gaf.clear();
 
 		String::List file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
