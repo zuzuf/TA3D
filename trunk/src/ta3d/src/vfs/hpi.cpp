@@ -178,6 +178,8 @@ namespace TA3D
 
 					DELETE_ARRAY(chunk);
                 }
+				if (WritePtr > Length)
+					LOG_ERROR(LOG_PREFIX_VFS << "HPI : more bytes(" << WritePtr << ") than expected(" << Length << ")");
 				DELETE_ARRAY(DeSize);
             }
             else
