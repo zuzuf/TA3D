@@ -298,7 +298,10 @@ namespace TA3D
 		f_pos = pointers[entry_idx]+40;
 
 		if (entry.Frames < 0)
+		{
+			DELETE_ARRAY(pointers);
 			return NULL;
+		}
 
 		Gaf::Frame::Entry* frame = new Gaf::Frame::Entry[entry.Frames];
 
@@ -316,7 +319,11 @@ namespace TA3D
 		{
 			f_pos = frame[img_idx].PtrFrameTable;
 			if (f_pos < 0)
+			{
+				DELETE_ARRAY(pointers);
+				DELETE_ARRAY(frame);
 				return NULL;
+			}
 			Gaf::Frame::Data framedata(buf, f_pos);
 			uint32 *frames = (uint32*) (buf + framedata.PtrFrameData);
 
@@ -548,6 +555,8 @@ namespace TA3D
 		catch(...)
 		{
 			LOG_ERROR("GAF data corrupt!");
+			DELETE_ARRAY(pointers);
+			DELETE_ARRAY(frame);
 			return NULL;
 		};
 
