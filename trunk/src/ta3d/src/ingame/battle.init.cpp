@@ -359,9 +359,9 @@ namespace TA3D
 	{
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Adding players...");
 		players.init(); // Object containing data about players
-		for (uint8 i = 0; i < pGameData->nb_players; i++)
+		for (int i = 0; i < pGameData->nb_players; ++i)
 		{
-			players.add((char*)pGameData->player_names[i].c_str(), (char*)pGameData->player_sides[i].c_str(),
+			players.add(pGameData->player_names[i], pGameData->player_sides[i],
 						pGameData->player_control[i],
 						pGameData->energy[i], pGameData->metal[i],
 						pGameData->ai_level[i], pGameData->team[i]); // add a player
@@ -458,6 +458,7 @@ namespace TA3D
 			{
 				obj->current_state = TA3D::Math::Log2(players.team[i]);
 				obj->Flag &= ~FLAG_HIDDEN;
+				obj->Flag &= ~FLAG_CAN_BE_CLICKED;
 			}
 		}
 		return true;

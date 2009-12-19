@@ -92,7 +92,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		int add(const String& name, char *SIDE, byte _control, unsigned int E = 10000, unsigned int M = 10000,
+		int add(const String& name, const String &SIDE, byte _control, unsigned int E = 10000, unsigned int M = 10000,
 			const String &AI_level = "[C] EASY", uint16 teamMask = 0);
 
 		/*!

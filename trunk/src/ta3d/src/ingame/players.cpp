@@ -43,7 +43,7 @@ namespace TA3D
 
 
 
-	int PLAYERS::add(const String& name, char* SIDE, byte _control, unsigned int E, unsigned int M, const String &AI_level, uint16 teamMask)
+	int PLAYERS::add(const String& name, const String &SIDE, byte _control, unsigned int E, unsigned int M, const String &AI_level, uint16 teamMask)
 	{
 		if (pPlayerCount >= TA3D_PLAYERS_HARD_LIMIT)
 		{
