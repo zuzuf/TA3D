@@ -6,9 +6,7 @@
     centered=true;
     width=480;
     height=300;
-    fullscreen=true;
-    screen width=1280;
-    screen height=1024;
+    fullscreen=false;
     draw borders=true;
     show title=true;
     lock=false;
