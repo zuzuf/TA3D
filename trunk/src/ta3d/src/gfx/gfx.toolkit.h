@@ -20,6 +20,7 @@
 # include <stdafx.h>
 # include <misc/string.h>
 # include <sdl.h>
+# include <logs/logs.h>
 
 
 # define makeacol(r,g,b,a)   (((uint32)(a)<<24) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))
@@ -27,10 +28,33 @@
 # define makecol(r,g,b)   makecol24(r,g,b)
 # define makeacol32(r,g,b,a)   makeacol(r,g,b,a)
 
-# define SurfaceType(img, x, y, T)   (((T*)((img)->pixels))[(y) * (img)->pitch / sizeof(T) + (x)])
-# define SurfaceByte(img, x, y)      (((byte*)((img)->pixels))[(y) * (img)->pitch + (x)])
-# define SurfaceInt(img, x, y)       (((uint32*)((img)->pixels))[((y) * (img)->pitch >> 2) + (x)])
-# define SurfaceShort(img, x, y)     (((uint16*)((img)->pixels))[((y) * (img)->pitch >> 1) + (x)])
+namespace TA3D
+{
+	inline byte &SurfaceByte(SDL_Surface *img, int x, int y)
+	{
+		LOG_ASSERT(x >= 0 && y >= 0 && x < img->pitch && y < img->h);
+		return ((byte*)(img->pixels))[y * img->pitch + x];
+	}
+
+	inline uint32 &SurfaceInt(SDL_Surface *img, int x, int y)
+	{
+		LOG_ASSERT(x >= 0 && y >= 0 && (x << 2) < img->pitch && y < img->h);
+		return ((uint32*)(img->pixels))[(y * img->pitch >> 2) + x];
+	}
+
+	inline uint16 &SurfaceShort(SDL_Surface *img, int x, int y)
+	{
+		LOG_ASSERT(x >= 0 && y >= 0 && (x << 1) < img->pitch && y < img->h);
+		return ((uint16*)(img->pixels))[(y * img->pitch >> 1) + x];
+	}
+
+	template<typename T>
+			inline T &SurfaceType(SDL_Surface *img, int x, int y)
+	{
+		LOG_ASSERT(x >= 0 && y >= 0 && x * sizeof(T) < img->pitch && y < img->h);
+		return ((T*)(img->pixels))[y * img->pitch / sizeof(T) + x];
+	}
+}
 
 # define geta32(x) (((x)>>24) & 0xFF)
 # define getb32(x) (((x)>>16) & 0xFF)
