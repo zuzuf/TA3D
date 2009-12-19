@@ -96,8 +96,11 @@ namespace TA3D
         if (pArea.get_state("gamestatus"))                         // Don't update things if we don't display them
         {
             // Time
-            tmp << TranslationTable::gameTime << " : " << (game_time / 3600) << ':'
-                << ((game_time / 60) % 60) << ':' << (game_time % 60);
+			tmp << TranslationTable::gameTime << " : " << (game_time / 3600) << ':';
+			int minutes = ((game_time / 60) % 60);
+			tmp << (minutes < 10 ? String('0') : String()) << minutes << ':';
+			int seconds = (game_time % 60);
+			tmp << (seconds < 10 ? String('0') : String()) << seconds;
             pArea.caption("gamestatus.time_label", tmp);
 
             // Units
