@@ -210,7 +210,7 @@ link_directories("${CMAKE_CURRENT_SOURCE_DIR}/src/lua/")
 IF(WIN32 OR CMAKE_CROSSCOMPILING)
 
 	IF( CMAKE_CROSSCOMPILING )
-		SET( target i586-mingw32msvc- )
+		SET( target i486-mingw32- )
 		SET( MAKE_WIN "make")
 		SET( RANLIB_WIN "${target}ranlib")
 	ELSE( CMAKE_CROSSCOMPILING )
