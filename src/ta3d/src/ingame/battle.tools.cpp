@@ -120,7 +120,7 @@ namespace TA3D
             for (unsigned int i = 0; i < players.count(); ++i)
             {
                 tmp.clear();
-                tmp << "playerstats.p" << i << "d_box";
+				tmp << "playerstats.p" << i << "_box";
                 Gui::GUIOBJ::Ptr obj = pArea.get_object(tmp);
                 if (obj)
                 {
