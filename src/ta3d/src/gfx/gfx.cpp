@@ -157,8 +157,16 @@ namespace TA3D
 			lp_CONFIG->detail_tex = false;
 			lp_CONFIG->shadow_quality = Math::Min(lp_CONFIG->shadow_quality, sint16(1));
 		}
+		# ifdef YUNI_OS_MAC
+		// For some reasons, the texture compression makes ta3d completely unstable on OS X,
+		// at least with an ATI video card.
+		// Currently, we don't know if it also affects NVidia cards
+		lp_CONFIG->use_texture_compression = false;
+		# else
 		if (!g_useTextureCompression)
 			lp_CONFIG->use_texture_compression = false;
+		# endif
+
 		if (!glewIsSupported("GL_ARB_shadow"))
 			lp_CONFIG->shadow_quality = Math::Min(lp_CONFIG->shadow_quality, sint16(1));
 	}
