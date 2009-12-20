@@ -19,7 +19,7 @@
 # define __WEIGHT_H__
 
 # include <stdafx.h>
-# include <list>
+# include <vector>
 
 
 namespace TA3D
@@ -51,7 +51,7 @@ namespace TA3D
         float			w;						// Weight given to this unit
         float			o_w;					// Remember w for possible changes
         byte			type;					// Builder, factory, army, defense, ...
-        std::list<uint16> built_by;				// Who can build it
+		std::vector<uint16> built_by;			// Who can build it
         float			army;
         float			defense;
         float			metal_p;

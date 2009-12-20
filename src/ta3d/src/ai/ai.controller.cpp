@@ -304,7 +304,7 @@ namespace TA3D
 
 			if (player_target >= 0 ) // If we've someone to attack
 			{
-				for (std::list<uint16>::iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
+				for (std::vector<uint16>::iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
 				{
 					rest(1);
 					units.unit[ *i ].lock();
@@ -341,7 +341,7 @@ namespace TA3D
 			}
 		}
 
-		for (std::list<uint16>::iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
+		for (std::vector<uint16>::iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
 		{
 			rest(1);
 			units.unit[ *i ].lock();
@@ -376,7 +376,7 @@ namespace TA3D
 		}
 
 		// Give instructions to idle builders
-		for (std::list<uint16>::iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
+		for (std::vector<uint16>::iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
 		{
 			rest(1);
 
@@ -435,7 +435,7 @@ namespace TA3D
 							weights[i].built_by.push_back(e);
 					}
 				}
-				for (std::list<uint16>::iterator e = weights[ i ].built_by.begin() ; e != weights[ i ].built_by.end() ; e++ )
+				for (std::vector<uint16>::iterator e = weights[ i ].built_by.begin() ; e != weights[ i ].built_by.end() ; ++e )
 				{
 					if (weights[ *e ].type & AI_UNIT_TYPE_FACTORY)
 						factory_needed += weights[ i ].w;
