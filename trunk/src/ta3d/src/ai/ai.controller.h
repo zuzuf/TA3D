@@ -77,12 +77,12 @@ namespace TA3D
         uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
         float			order_weight[NB_ORDERS];	// weights of orders
         float			order_attack[ 10 ];			// weights of attack order per enemy player
-        std::list<uint16>	builder_list;
-        std::list<uint16>	factory_list;
-        std::list<uint16>	army_list;
-		std::list<uint16>	wip_builder_list;
-		std::list<uint16>	wip_factory_list;
-		std::list<uint16>	wip_army_list;
+		std::vector<uint16>	builder_list;
+		std::vector<uint16>	factory_list;
+		std::vector<uint16>	army_list;
+		std::vector<uint16>	wip_builder_list;
+		std::vector<uint16>	wip_factory_list;
+		std::vector<uint16>	wip_army_list;
 		std::vector< std::list<WEIGHT_COEF> > enemy_list;
 
     protected:
