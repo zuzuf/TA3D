@@ -54,7 +54,10 @@ namespace TA3D
 	void GFX::initSDL()
 	{
 		// First we need to load the OpenGL library
-		SDL_GL_LoadLibrary(NULL);
+		if (SDL_GL_LoadLibrary(NULL))
+		{
+			LOG_CRITICAL(LOG_PREFIX_OPENGL << "could not load OpenGL library!");
+		}
 
 		SDL_Surface *icon = load_image("gfx\\icon.png");
 		if (icon)
@@ -175,9 +178,9 @@ namespace TA3D
 	bool GFX::checkVideoCardWorkaround() const
 	{
 		// Check for ATI workarounds (if an ATI card is present)
-		bool workaround = strncasecmp(String::ToUpper((const char*)glGetString(GL_VENDOR)).c_str(), "ATI", 3) == 0;
+		bool workaround = String::ToUpper((const char*)glGetString(GL_VENDOR)).substr(0,3) == "ATI";
 		// Check for SIS workarounds (if an SIS card is present) (the same than ATI)
-		workaround |= strstr(String::ToUpper((const char*)glGetString(GL_VENDOR)).c_str(), "SIS") != NULL;
+		workaround |= String::ToUpper((const char*)glGetString(GL_VENDOR)).find("SIS") != String::npos;
 		return workaround;
 	}
 
