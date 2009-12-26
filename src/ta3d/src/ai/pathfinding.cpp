@@ -32,7 +32,7 @@
 #include <EngineClass.h>			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
 #include <misc/math.h>
 #include <UnitEngine.h>
-#include <yuni/threads/thread.h>
+#include <yuni/thread/thread.h>
 
 #define PATHFINDER_MAX_LENGTH			500000
 

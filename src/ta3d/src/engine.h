@@ -19,7 +19,7 @@
 # define __TA3D_ENGINE_H__
 
 #include "threads/thread.h"
-#include <yuni/threads.h>
+#include <yuni/thread/thread.h>
 
 
 
@@ -27,7 +27,7 @@ namespace TA3D
 {
 
 
-	class Engine : public Yuni::Threads::AThread
+	class Engine : public Yuni::Thread::AThread
 	{
 	public:
 		//! \name Constructor & Destructor
