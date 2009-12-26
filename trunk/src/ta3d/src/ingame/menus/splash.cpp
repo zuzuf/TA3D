@@ -81,7 +81,7 @@ namespace Menus
 	bool Splash::maySwitchToAnotherMenu()
 	{
 		// Waiting for the engine...
-		return (false == pEngine.isRunning());
+		return (false == pEngine.started());
 	}
 
 
