@@ -62,7 +62,8 @@ namespace TA3D
 	}; // class Engine
 
 
-} // namespace TA3D
 
+
+} // namespace TA3D
 
 #endif // __TA3D_ENGINE_H__
