@@ -10,8 +10,14 @@ targetDirectory="${root}/../.."
 trunk="${root}/../../"
 tmp="/tmp/__ta3d__osx__"
 
+os_version=`sw_vers | grep ProductVersion | cut -d':' -f2 | sed 's/[^0-9\.]//g'`
+os_version_hi=`echo "${os_version}" | cut -d'.' -f1`
+os_version_lo=`echo "${os_version}" | cut -d'.' -f2`
+
+
+
 # The target DMG File
-dmgFile="${targetDirectory}/${name}-${version}.dmg"
+dmgFile="${targetDirectory}/${name}-osx${os_version_hi}.${os_version_lo}-v${version}.dmg"
 
 
 
@@ -19,6 +25,7 @@ dmgFile="${targetDirectory}/${name}-${version}.dmg"
 # ---------------------------------
 
 echo "TA3D - A remake of Total Annihilation - DMG Maker"
+echo "Mac OS X Version: ${os_version_hi}.${os_version_lo}"
 echo "Version: ${version}"
 
 echo "Cleaning..."
@@ -48,6 +55,7 @@ if [ -f "${dmgFile}" ]; then
 	echo " !! Please remove the target file before"
 	exit 1
 fi
+
 hdiutil create -nospotlight -anyowners -imagekey zlib-level=9 -volname "${captionOfTheDMG}" -uid 99 -gid 99 -srcfolder "${tmp}/"  "${dmgFile}"
 
 # Last clean up
