@@ -23,6 +23,7 @@
 #include "mutex.h"
 #include <yuni/core/smartptr/smartptr.h>
 
+
 namespace TA3D
 {
 
@@ -37,7 +38,6 @@ namespace TA3D
 	**  type you are using (like net_thread_params)
 	**
 	*/
-
 	class BaseThread
 	{
 	public:
@@ -78,8 +78,8 @@ namespace TA3D
 		static int run(void* param)
 		{
 			((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
-            ((struct thread_params*)param)->thisthread->pDead = 1;
-            return 0;
+			((struct thread_params*)param)->thisthread->pDead = 1;
+			return 0;
 		}
 
 	protected:
@@ -88,10 +88,7 @@ namespace TA3D
 
 		virtual ~Thread() {}
 		virtual void proc(void* param) = 0;
-        virtual void signalExitThread() {}
-
-		//! Helpful for debugging, this function returns the name of the class
-		const char* className();
+		virtual void signalExitThread() {}
 
 	public:
 		// Call this to end the Thread, it will signal the thread to tell it to end
