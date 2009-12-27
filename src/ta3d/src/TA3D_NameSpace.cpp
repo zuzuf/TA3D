@@ -44,7 +44,6 @@ namespace TA3D
 
 	FILE *TA3D_OpenFile(const String &FileName, const String Mode)
 	{
-
 		// TODO This should be removed
 		TA3D::Paths::MakeDir(TA3D::Paths::ExtractFilePath(FileName));		// Create tree structure if it doesn't exist
 
