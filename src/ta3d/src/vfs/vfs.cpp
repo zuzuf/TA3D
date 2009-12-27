@@ -42,37 +42,12 @@ namespace TA3D
 namespace UTILS
 {
 
-	class Piko
-	{
-	public:
-		Piko()
-		{
-			std::cout << "------------------------" << std::endl;
-		}
-		~Piko()
-		{
-			std::cout << "------------------------" << std::endl;
-		}
 
-		bool operator () (const String& key, const TA3D::UTILS::Archive::File* value)
-		{
-			std::cout << " >> " << key << " = " << (void*)value << "\n";
-			return true;
-		}
-	};
-
-
-
-	VFS *VFS::Instance()
-	{
-		static VFS instance;
-		return &instance;
-	}
-
-
+	
 	void VFS::addArchive(const String& filename, const int priority)
 	{
-		MutexLocker mLock(mCache);
+		ThreadingPolicy::MutexLocker locker(*this);
+
 		LOG_DEBUG(LOG_PREFIX_VFS << "loading archive '" << filename << "'");
 		Archive *archive = Archive::load(filename);
 
@@ -102,7 +77,7 @@ namespace UTILS
 
 	void VFS::locateAndReadArchives(const String& path, const int priority)
 	{
-		MutexLocker mLock(mCache);
+		ThreadingPolicy::MutexLocker locker(*this);
 		String::List fileList;
 		LOG_DEBUG(LOG_PREFIX_VFS << "Getting archive list");
 		Archive::getArchiveList(fileList, path);
@@ -128,7 +103,7 @@ namespace UTILS
 
 	void VFS::unload()
 	{
-		MutexLocker mLock(mCache);
+		ThreadingPolicy::MutexLocker locker(*this);
 		unloadWL();
 	}
 
@@ -166,7 +141,7 @@ namespace UTILS
 
 	void VFS::load()
 	{
-		MutexLocker mLock(mCache);
+		ThreadingPolicy::MutexLocker locker(*this);
 		loadWL();
 	}
 
@@ -198,7 +173,7 @@ namespace UTILS
 
 	void VFS::reload()
 	{
-		MutexLocker mLock(mCache);
+		ThreadingPolicy::MutexLocker locker(*this);
 		loadWL();
 	}
 
@@ -225,29 +200,29 @@ namespace UTILS
 		if (filesize >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
 			return;
 
-		mCache.lock();
-
-		if (fileCache.size() >= 10) // Cycle the data within the list
 		{
-			DELETE_ARRAY(fileCache.front().data);
-			fileCache.pop_front();
+			ThreadingPolicy::MutexLocker locker(*this);
+
+			if (fileCache.size() >= 10) // Cycle the data within the list
+			{
+				DELETE_ARRAY(fileCache.front().data);
+				fileCache.pop_front();
+			}
+
+			CacheFileData newentry;
+
+			newentry.name = String::ToLower(filename);			// Store a copy of the data
+			newentry.length = filesize;
+			newentry.data = new byte[filesize];
+			memcpy(newentry.data, data, filesize);
+
+			fileCache.push_back(newentry);
 		}
-
-		CacheFileData newentry;
-
-		newentry.name = String::ToLower(filename);			// Store a copy of the data
-		newentry.length = filesize;
-		newentry.data = new byte[filesize];
-		memcpy(newentry.data, data, filesize);
-
-		fileCache.push_back(newentry);
-
-		mCache.unlock();
 	}
 
 
 
-	byte* VFS::isInDiskCache(const String& filename, uint32 *filesize)
+	byte* VFS::isInDiskCacheWL(const String& filename, uint32 *filesize)
 	{
 		// May be in cache but doesn't use cache (ie: campaign script)
 		if (SearchString(filename, ".lua", true) >= 0)
@@ -287,12 +262,20 @@ namespace UTILS
 
 	VFS::CacheFileData* VFS::isInCache(const String& filename)
 	{
-		MutexLocker mLock(mCache);
+		if (!filename)
+			return NULL;
+		ThreadingPolicy::MutexLocker locker(*this);
+		return isInCacheWL(filename);
+	}
 
+
+	VFS::CacheFileData* VFS::isInCacheWL(const String& filename)
+	{
 		if (fileCache.empty())
 			return NULL;
 
-		String key = String::ToLower(filename);
+		String key(filename);
+		key.toLower();
 		std::list<CacheFileData>::iterator i;
 		for (i = fileCache.begin() ; i != fileCache.end() ; ++i) // Check RAM Cache
 		{
@@ -310,12 +293,14 @@ namespace UTILS
 
 	byte *VFS::readFile(const String& filename, uint32* fileLength)
 	{
-		MutexLocker mLock(mCache);
-		String key = String::ToLower(filename);
+		String key(filename);
+		key.toLower();
 		key.convertSlashesIntoBackslashes();
+
+		ThreadingPolicy::MutexLocker locker(*this);
 		uint32 FileSize;
 
-		CacheFileData *cache = isInCache(key);
+		CacheFileData *cache = isInCacheWL(key);
 		if (cache)
 		{
 			if (fileLength)
@@ -331,7 +316,7 @@ namespace UTILS
 			return data;
 		}
 
-		byte* data = isInDiskCache( key, &FileSize );
+		byte* data = isInDiskCacheWL(key, &FileSize);
 		if (data)
 		{
 			if (fileLength)
@@ -368,12 +353,14 @@ namespace UTILS
 
 	byte* VFS::readFileRange(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
 	{
-		MutexLocker mLock(mCache);
-		String key = String::ToLower(filename);
+		String key(filename);
+		key.toLower();
 		key.convertSlashesIntoBackslashes();
+
+		ThreadingPolicy::MutexLocker locker(*this);
 		uint32 FileSize;
 
-		CacheFileData *cache = isInCache(key);
+		CacheFileData *cache = (key.notEmpty()) ? isInCacheWL(key) : NULL;
 		if (cache)
 		{
 			if (fileLength)
@@ -385,7 +372,7 @@ namespace UTILS
 		}
 		else
 		{
-			byte* data = isInDiskCache( key, &FileSize );
+			byte* data = isInDiskCacheWL( key, &FileSize );
 			if (data)
 			{
 				if (fileLength)
@@ -402,48 +389,50 @@ namespace UTILS
 
 	bool VFS::fileExists(String filename)
 	{
-		MutexLocker mLock(mCache);
 		filename.toLower();
 		filename.convertSlashesIntoBackslashes();
+
+		ThreadingPolicy::MutexLocker locker(*this);
 		return NULL != pFiles.find(filename);
 	}
 
 
 	int VFS::filePriority(const String& filename)
 	{
-		MutexLocker mLock(mCache);
-		String key = String::ToLower(filename);
+		String key(filename);
+		key.toLower();
 		key.convertSlashesIntoBackslashes();
 
-		Archive::File *file = pFiles.find(key);
-		return file ? file->getPriority() : -0xFFFFFF;     // If it doesn't exist it has a lower priority than anything else
+		ThreadingPolicy::MutexLocker locker(*this);
+		const Archive::File *file = pFiles.find(key);
+		// If it doesn't exist it has a lower priority than anything else
+		return file ? file->getPriority() : -0xFFFFFF;
 	}
 
 
-	uint32 VFS::getFilelist(const String& s, String::Vector& li)
+	uint32 VFS::getFilelist(const String& pattern, String::Vector& li)
 	{
-		MutexLocker mLock(mCache);
 		String::List l;
-		uint32 r = getFilelist(s, l);
+		uint32 r = getFilelist(pattern, l);
 		for (String::List::const_iterator i = l.begin(); i != l.end(); ++i)
 			li.push_back(*i);
 		return r;
 	}
 
 
-	uint32 VFS::getFilelist(const String& s, String::List& li)
+	uint32 VFS::getFilelist(String pattern, String::List& li)
 	{
-		MutexLocker mLock(mCache);
-		String pattern(s);
 		pattern.toLower();
 		pattern.convertSlashesIntoBackslashes();
+
+		ThreadingPolicy::MutexLocker locker(*this);
 		return pFiles.wildCardSearch(pattern, li);
 	}
 
 
 	String VFS::extractFile(const String& filename)
 	{
-		MutexLocker mLock(mCache);
+		ThreadingPolicy::MutexLocker locker(*this);
 		String targetName = Paths::Caches + Paths::ExtractFileName(filename);
 		std::fstream file(targetName.c_str(), std::fstream::out | std::fstream::binary);
 		if (!file.is_open())

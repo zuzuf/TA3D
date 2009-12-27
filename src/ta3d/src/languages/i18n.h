@@ -17,11 +17,12 @@
 #ifndef __TA3D_XX_I18N_H__
 # define __TA3D_XX_I18N_H__
 
+# include <yuni/yuni.h>
+# include <yuni/core/smartptr/smartptr.h>
 # include <stdafx.h>
 # include <misc/string.h>
 # include <threads/mutex.h>
 # include <misc/tdf.h>
-# include <yuni/core/smartptr/smartptr.h>
 # include <vector>
 
 
@@ -92,16 +93,20 @@ namespace TA3D
 	class I18N
 	{
 	public:
+		//! Threading policy
+		typedef Yuni::Policy::ClassLevelLockable<I18N>  ThreadingPolicy;
+		//! The most suitable smart pointer for the class
 		typedef SmartPtr<I18N>	Ptr;
+
 	public:
-		/*! \class Language
-		**
+		/*!
 		** \brief Informations about a single language
 		*/
 		class Language
 		{
 		public:
 			typedef String::Vector Locales;
+
 		public:
 			//! \name Constructor & Destructor
 			//@{
@@ -157,7 +162,7 @@ namespace TA3D
 		**
 		** \see I18N::currentLanguage()
 		*/
-		static const Language* CurrentLanguage() { return I18N::Instance()->currentLanguage(); }
+		static const Language* CurrentLanguage();
 
 		/*!
 		** \brief Set the current language
@@ -166,14 +171,14 @@ namespace TA3D
 		**
 		** \see I18N::currentLanguage(const String&)
 		*/
-		static bool CurrentLanguage(const String& l) { return I18N::Instance()->currentLanguage(l); }
+		static bool CurrentLanguage(const String& l);
 
 		/*!
 		** \brief Try to find the language according the system settings
 		**
 		** \see I18N::tryToDetermineTheLanguage()
 		*/
-		static bool AutoLanguage() { return I18N::Instance()->tryToDetermineTheLanguage(); }
+		static bool AutoLanguage();
 
 		/*!
 		** \brief Load translations from a file
@@ -183,7 +188,7 @@ namespace TA3D
 		**
 		** \see I18N::loadFromFile()
 		*/
-		static bool LoadFromFile(const String& filename) { return I18N::Instance()->loadFromFile(filename); }
+		static bool LoadFromFile(const String& filename);
 
 		/*!
 		** \brief Load translations from files within the resources folders (*.po)
@@ -193,7 +198,7 @@ namespace TA3D
 		**
 		** \see I18N::loadFromResources()
 		*/
-		static bool LoadFromResources() { return I18N::Instance()->loadFromResources(); }
+		static bool LoadFromResources();
 
 		/*!
 		** \brief Translate a keyword according the current language
@@ -205,21 +210,19 @@ namespace TA3D
 		**
 		** \see I18N::translate()
 		*/
-		static String Translate(const String& key, const String& defaultValue = "")
-		{ return I18N::Instance()->translate(key, defaultValue); }
+		static String Translate(const String& key, const String& defaultValue = nullptr);
 
 		/*!
 		** \brief Translate a list of keywords
 		** \param[in,out] The list of keywords that will be translated
 		*/
-		static void Translate(String::Vector& out) { I18N::Instance()->translate(out);}
+		static void Translate(String::Vector& out);
 
 		/*!
 		** \brief Translate a list of keywords
 		** \param[in,out] The list of keywords that will be translated
 		*/
-		static void Translate(String::List& out) { I18N::Instance()->translate(out);}
-
+		static void Translate(String::List& out);
 
 
 	public:
@@ -265,7 +268,7 @@ namespace TA3D
 		** \param name Name of the language (can be the english version or the translated one)
 		** \return True if language has been changed, false otherwise
 		*/
-		bool currentLanguage(const String& n) { return currentLanguage(language(n)); }
+		bool currentLanguage(const String& n);
 
 		/*!
 		** \brief Try to find out the language according the system settings
@@ -298,10 +301,7 @@ namespace TA3D
 		** \return The translation if the key exists, otherwise the default value is used.
 		** If the default value is empty, the content of the key is copied
 		*/
-		String translate(const String& key, const String& defaultValue = "");
-
-		//! \see translate()
-		String operator [] (const String& key) { return translate(key); }
+		String translate(const String& key, const String& defaultValue = nullptr);
 
 		/*!
 		** \brief Translate a list of keywords
@@ -335,16 +335,15 @@ namespace TA3D
 		*/
 		bool loadFromResources();
 
+
+		//! \see translate()
+		String operator [] (const String& key);
+
 	private:
 		/*!
 		** \brief Private constructor
 		*/
 		I18N();
-
-		/*!
-		** \brief Initialize the list of available languages
-		*/
-		void initializeAllLanguages();
 
 		/*!
 		** \brief Reset the prefix according the current language
@@ -354,13 +353,8 @@ namespace TA3D
 		/*!
 		** \brief Insert a new language in the list
 		*/
-		Language* doAddNewLanguage(const String& englishID, const String& translatedName);
+		Language* addNewLanguageWL(const String& englishID, const String& translatedName);
 
-		/*!
-		** \brief Clear the list of languages
-		** \todo std::vector< boost::shared_ptr<> > would be more efficient...
-		*/
-		void doClearLanguages();
 
 	private:
 		//! All availables languages
@@ -370,8 +364,6 @@ namespace TA3D
 		//! Singleton instance
 		static I18N::Ptr pInstance;
 
-		//! Mutex
-		static Mutex pMutex;
 		//! The next language id
 		int pNextLangID;
 
@@ -393,5 +385,7 @@ namespace TA3D
 
 
 } // namespace TA3D
+
+# include "i18n.hxx"
 
 #endif // __TA3D_XX_I18N_H__
