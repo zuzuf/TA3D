@@ -26,6 +26,8 @@
 #ifndef __TA3D_UTILS_VFS_H__
 # define __TA3D_UTILS_VFS_H__
 
+# include <yuni/yuni.h>
+# include <yuni/thread/policy.h>
 # include <list>
 # include <vector>
 # include "archive.h"
@@ -48,9 +50,12 @@ namespace UTILS
 	/*!
 	** \brief
 	*/
-	class VFS
+	class VFS : public Yuni::Policy::ObjectLevelLockable<VFS>
 	{
 	private:
+		//! The threading policy
+		typedef Yuni::Policy::ObjectLevelLockable<VFS>  ThreadingPolicy;
+
 		/*! \class CacheFileData
 		**
 		** \brief
@@ -62,19 +67,13 @@ namespace UTILS
 			String		name;
 		}; // class CacheFileData
 
-		Mutex mCache;
-
-	private:
-		//! \name Constructor & Destructor
-		//@{
-		// constructor:
-		VFS();
-
-		//! Destructor
-		~VFS();
-		//@}
 	public:
+		/*!
+		** \brief Get the unique instance of the Virtual File system
+		*/
+		static VFS* Instance();
 
+	public:
 		/*!
 		** \brief reload all archives
 		*/
@@ -91,8 +90,8 @@ namespace UTILS
 		** \param s
 		** \param[out] li
 		*/
-		uint32 getFilelist(const String& s, String::List& li);
-		uint32 getFilelist(const String& s, String::Vector& li);
+		uint32 getFilelist(String pattern, String::List& li);
+		uint32 getFilelist(const String& pattern, String::Vector& li);
 
 		/*!
 		** \brief
@@ -129,7 +128,17 @@ namespace UTILS
 		*/
 		String extractFile(const String& filename);
 
+
 	private:
+		//! \name Constructor & Destructor
+		//@{
+		// constructor:
+		VFS();
+
+		//! Destructor
+		~VFS();
+		//@}
+
 		/*!
 		** \brief load all archives
 		*/
@@ -140,9 +149,7 @@ namespace UTILS
 		*/
 		void unload();
 
-		void loadWL();
-		void unloadWL();
-
+		
 		/*!
 		** \brief
 		**
@@ -173,27 +180,33 @@ namespace UTILS
 		*/
 		CacheFileData* isInCache(const String& filename);
 
+
+	protected:
+		void loadWL();
+		void unloadWL();
+
+		CacheFileData* isInCacheWL(const String& filename);
+
 		/*!
 		** \brief
 		** \param filename
 		** \param filesize
 		*/
-		byte *isInDiskCache(const String& filename, uint32* filesize = NULL);
+		byte *isInDiskCacheWL(const String& filename, uint32* filesize = NULL);
+
 
 	private:
 		//! used when looking for files in the real file system
 		String::Vector pPaths;
 		//!
-		TA3D::UTILS::clpHashTable< Archive::File* > pFiles;
+		TA3D::UTILS::clpHashTable<Archive::File*> pFiles;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
-		std::list< CacheFileData >	fileCache;
+		std::list<CacheFileData>  fileCache;
 		//! A list of Archive*, needed only for cleanup.
-		std::list< Archive* > archives;
+		std::list<Archive*> archives;
 
-	public:
-		static VFS *Instance();
-
+	
 	}; // class VFS;
 
 
@@ -298,8 +311,12 @@ namespace UTILS
 
 	bool        load_palette(SDL_Color *pal, const String& filename = "palettes\\palette.pal");
 
+
+
+
 } // namespace utils
 } // namespace TA3D
 
+# include "vfs.hxx"
 
 #endif // __TA3D_UTILS_VFS_H__

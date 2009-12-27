@@ -44,7 +44,7 @@ SET(SRC_LOGS
 # Languages
 SET(SRC_I18N
 		languages/table.h languages/table.cpp
-		languages/i18n.h languages/i18n.cpp)
+		languages/i18n.h languages/i18n.hxx languages/i18n.cpp)
 
 
 #
@@ -173,7 +173,7 @@ SET(SRC_CONSOLE
 # VFS (HPI, archives)
 #
 SET(SRC_VFS
-		vfs/vfs.cpp vfs/vfs.h
+		vfs/vfs.cpp vfs/vfs.h vfs/vfs.hxx
 		vfs/archive.cpp vfs/archive.h
 		vfs/hpi.cpp vfs/hpi.h
 		vfs/realfs.cpp vfs/realfs.h)

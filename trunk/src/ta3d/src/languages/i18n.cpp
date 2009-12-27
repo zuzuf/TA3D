@@ -15,6 +15,8 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#include <yuni/yuni.h>
+#include <yuni/core/io/file.h>
 #include "i18n.h"
 #include <misc/resources.h>
 #include <misc/paths.h>
@@ -27,7 +29,6 @@ namespace TA3D
 {
 
 	I18N::Ptr I18N::pInstance = NULL;
-	Mutex I18N::pMutex;
 
 
 
@@ -35,9 +36,11 @@ namespace TA3D
 		:pIndx(indx), pEnglishID(englishID), pCaption(caption)
 	{}
 
+
 	I18N::Language::Language(const Language& l)
 		:pIndx(l.pIndx), pEnglishID(l.pEnglishID), pCaption(l.pCaption)
 	{}
+
 
 	I18N::Ptr I18N::Instance()
 	{
@@ -45,32 +48,40 @@ namespace TA3D
 		// for this kind of class
 		if (!pInstance)
 		{
-			MutexLocker locker(pMutex);
+			ThreadingPolicy::MutexLocker locker;
 			if (!pInstance)
 				pInstance = new I18N();
 		}
 		return pInstance;
 	}
 
+
 	I18N::I18N()
 		:pNextLangID(0), pDefaultLanguage(NULL), pCurrentLanguage(NULL),
 		pTranslations()
 	{
-		initializeAllLanguages();
+		// English
+		pDefaultLanguage = addNewLanguageWL("english", "English");
+		pCurrentLanguage = pDefaultLanguage;
+		resetPrefix();
 	}
 
 	I18N::~I18N()
 	{
 		LOG_DEBUG(LOG_PREFIX_I18N << "Release.");
-		doClearLanguages();
+		if (!pLanguages.empty())
+		{
+			for (Languages::iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
+				delete *i;
+			pLanguages.clear();
+		}
 	}
 
 
 	void I18N::Destroy()
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker;
 		pInstance = NULL;
-		pMutex.unlock();
 	}
 
 	void I18N::resetPrefix()
@@ -79,10 +90,9 @@ namespace TA3D
 		pLanguageSuffix += String::ToLower(pCurrentLanguage->englishCaption());
 	}
 
-	I18N::Language* I18N::doAddNewLanguage(const String& englishID, const String& translatedName)
+	I18N::Language* I18N::addNewLanguageWL(const String& englishID, const String& translatedName)
 	{
 		I18N::Language* lng = new Language(pNextLangID, englishID, translatedName);
-		LOG_ASSERT(NULL != lng);
 		++pNextLangID;
 		pLanguages.push_back(lng);
 		return lng;
@@ -92,7 +102,7 @@ namespace TA3D
 	{
 		if (name.empty())
 			return NULL;
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 		for (Languages::const_iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
 		{
 			if (name == (*i)->caption() || name == (*i)->englishCaption())
@@ -109,56 +119,49 @@ namespace TA3D
 		String s(locale);
 		s.trim();
 		s.toLower();
-		const String::size_type n = String::npos;
 
 		// French
-		if (n != s.find("fr_fr") || n != s.find("fr_ca") || n != s.find("fr_ch") || n != s.find("fr_be")
-			|| n != s.find("fr_eu") || n != s.find("fr_lu"))
+		if (s.contains("fr_fr") || s.contains("fr_ca") || s.contains("fr_ch") || s.contains("fr_be")
+			|| s.contains("fr_eu") || s.contains("fr_lu"))
 			return language("french");
 
 		// German
-		if (n != s.find("de_de") || n != s.find("de_ch") || n != s.find("de_be") || n != s.find("de_eu")
-			|| n != s.find("de_at"))
+		if (s.contains("de_de") || s.contains("de_ch") || s.contains("de_be") || s.contains("de_eu")
+			|| s.contains("de_at"))
 			return language("german");
 
 		// Spanish
-		if (n != s.find("es_ar") || n != s.find("es_bo") || n != s.find("es_cl") || n != s.find("es_co")
-			|| n != s.find("es_do") || n != s.find("es_ec") || n != s.find("es_eu") || n != s.find("es_gt")
-			|| n != s.find("es_hn") || n != s.find("es_mx") || n != s.find("es_pa") || n != s.find("es_pe")
-			|| n != s.find("es_py") || n != s.find("es_sv") || n != s.find("es_us") || n != s.find("es_uy")
-			|| n != s.find("es_ve") || n != s.find("es_mx"))
+		if (s.contains("es_ar") || s.contains("es_bo") || s.contains("es_cl") || s.contains("es_co")
+			|| s.contains("es_do") || s.contains("es_ec") || s.contains("es_eu") || s.contains("es_gt")
+			|| s.contains("es_hn") || s.contains("es_mx") || s.contains("es_pa") || s.contains("es_pe")
+			|| s.contains("es_py") || s.contains("es_sv") || s.contains("es_us") || s.contains("es_uy")
+			|| s.contains("es_ve") || s.contains("es_mx"))
 			return language("spanish");
 
 		// Italian
-		if (n != s.find("it_it") || n != s.find("it_eu"))
+		if (s.contains("it_it") || s.contains("it_eu"))
 			return language("italian");
 
 		// japanese
-		if (n != s.find("jp_jp"))
+		if (s.contains("jp_jp"))
 			return language("japanese");
 
 		// Default
-		return pDefaultLanguage; /* should be english */
+		return pDefaultLanguage; // should be english
 	}
 
 	const I18N::Language* I18N::defaultLanguage()
 	{
-		MutexLocker locker(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 		return pDefaultLanguage;
 	}
 
-
-	const I18N::Language* I18N::currentLanguage()
-	{
-		MutexLocker locker(pMutex);
-		return pCurrentLanguage;
-	}
 
 	bool I18N::currentLanguage(const I18N::Language* lng)
 	{
 		if (lng)
 		{
-			MutexLocker locker(pMutex);
+			ThreadingPolicy::MutexLocker locker(*this);
 			if (lng->englishCaption() != pCurrentLanguage->englishCaption())
 			{
 				pCurrentLanguage = language(lng->caption());
@@ -189,19 +192,19 @@ namespace TA3D
 	void I18N::retrieveAllLanguages(std::vector<I18N::Language>& out)
 	{
 		out.clear();
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		for (Languages::const_iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
 			out.push_back(*(*i));
-		pMutex.unlock();
 	}
 
 	String I18N::translate(const String& key, const String& defaultValue)
 	{
 		if (key.empty())
 			return defaultValue;
-		MutexLocker locker(pMutex);
+
 		String k(key);
 		k.toLower();
+		ThreadingPolicy::MutexLocker locker(*this);
 		k += pLanguageSuffix;
 		return (defaultValue.empty())
 			? pTranslations.pullAsString(k, key)
@@ -210,24 +213,21 @@ namespace TA3D
 
 	void I18N::translate(String::Vector& out)
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		for (String::Vector::iterator i = out.begin(); i != out.end(); ++i)
 			*i = translate(*i);
-		pMutex.unlock();
 	}
 
 	void I18N::translate(String::List& out)
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		for (String::List::iterator i = out.begin(); i != out.end(); ++i)
 			*i = translate(*i);
-		pMutex.unlock();
 	}
 
 
 	bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
 	{
-		String res;
 		if (!VFS::Instance()->fileExists(filename))
 		{
 			LOG_WARNING(LOG_PREFIX_I18N << "Impossible to load translations from `"
@@ -235,7 +235,7 @@ namespace TA3D
 			return false;
 		}
 
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		// Load the file
 		bool r = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
 		const String &languageEnglishID = pTranslations.pullAsString( "info.name" );
@@ -243,9 +243,8 @@ namespace TA3D
 		// This file register a new language
 		if (!languageEnglishID.empty() && !languageCaption.empty() && language(languageEnglishID) == NULL)
 		{
-			(void) doAddNewLanguage(languageEnglishID, languageCaption);
+			(void) addNewLanguageWL(languageEnglishID, languageCaption);
 		}
-		pMutex.unlock();
 
 		// Success
 		if (r)
@@ -257,36 +256,33 @@ namespace TA3D
 
 	bool I18N::loadFromResources()
 	{
-		bool res(false);
+		// Retrieve the list of all .po files
+		String path;
+		path << "languages" << Core::IO::Separator << "*.po";
 		String::Vector list;
-		VFS::Instance()->getFilelist("languages" + Paths::SeparatorAsString + "*.po", list);
-		const String::Vector::const_iterator end = list.end();
-		for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
+		VFS::Instance()->getFilelist(path, list);
+
+		if (!list.empty())
 		{
-			if (loadFromFile("languages" + Paths::SeparatorAsString + Paths::ExtractFileName(*i), false))
-				res = true;
+			bool res = false;
+			const String::Vector::const_iterator end = list.end();
+			for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
+			{
+				path.clear() << "languages" << Core::IO::Separator << Paths::ExtractFileName(*i);
+				if (loadFromFile(path, false))
+				{
+					// The operation will succeed if at least one .po has been loaded
+					res = true;
+				}
+			}
+			return res;
 		}
-		return res;
+		return false;
 	}
 
-	void I18N::doClearLanguages()
-	{
-		for (Languages::iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
-			delete *i;
-		pLanguages.clear();
-	}
 
-	void I18N::initializeAllLanguages()
-	{
-		MutexLocker locker(pMutex);
-		doClearLanguages();
-		pNextLangID = 0;
 
-		// English
-		pDefaultLanguage = doAddNewLanguage("english", "English");
-		pCurrentLanguage = pDefaultLanguage;
-		resetPrefix();
-	}
+
 
 
 } // namespace TA3D

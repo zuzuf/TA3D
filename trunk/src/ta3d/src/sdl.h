@@ -1,6 +1,7 @@
 #ifndef __TA3D_STD_SDL_H__
 # define __TA3D_STD_SDL_H__
 
+# include <yuni/yuni.h>
 # include "stdafx.h"
 
 
