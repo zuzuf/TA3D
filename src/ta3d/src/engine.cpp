@@ -75,12 +75,11 @@ namespace TA3D
 
 		VARS::gfx = NULL;
 
-		String str(TA3D_ENGINE_VERSION);
-		str << " initializing started:\n\n";
+		String str;
+		str << TA3D_ENGINE_VERSION << " initializing started:\n\n";
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL);
 
-		str.clear();
-		str << "Build info : " << __DATE__ << " , " << __TIME__ << "%s\n\n";
+		str.clear() << "Build info : " << __DATE__ << " , " << __TIME__ << "%s\n\n";
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL);
 
 		// Initalizing SDL video
@@ -122,7 +121,6 @@ namespace TA3D
 		pGFXModeActive = true;
 
 
-
 		// Title of the Window / Application
 		SDL_WM_SetCaption("Total Annihilation 3D", "TA3D");
 
@@ -159,8 +157,8 @@ namespace TA3D
 		// Load the default textures
 		gfx->loadDefaultTextures();
 
-        // Load fonts (it crashes on some systems if not run from the main thread)
-        gfx->loadFonts();
+		// Load fonts (it crashes on some systems if not run from the main thread)
+		gfx->loadFonts();
 
 		// Initialize the mouse handler
 		LOG_INFO("Initializing the mouse device handler");
@@ -180,8 +178,8 @@ namespace TA3D
 		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
 		I18N::Instance()->loadFromResources();
 
-        // Apply settings for the current language (required since it failed when loading settings because languages were not loaded)
-        I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+		// Apply settings for the current language (required since it failed when loading settings because languages were not loaded)
+		I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 
 		// Creating Sound & Music Interface
 		sound_manager = new TA3D::Audio::Manager();

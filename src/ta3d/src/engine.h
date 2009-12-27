@@ -18,8 +18,9 @@
 #ifndef __TA3D_ENGINE_H__
 # define __TA3D_ENGINE_H__
 
-#include "threads/thread.h"
-#include <yuni/thread/thread.h>
+# include <yuni/yuni.h>
+# include "threads/thread.h"
+# include <yuni/thread/thread.h>
 
 
 
