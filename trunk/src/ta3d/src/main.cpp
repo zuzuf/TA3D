@@ -20,6 +20,8 @@
  ** Notes: The applications main entry point.
  */
 
+#include <yuni/yuni.h>
+#include <yuni/core/system/main.h>
 #include "stdafx.h"					// standard pch inheritance.
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "intro.h"					// intro prototypes,   TODO: phase out.
@@ -195,7 +197,7 @@ static void InitializeTheEngine(TA3D::Engine& engine)
 
 
 
-int main(int argc, char *argv[])
+YUNI_MAIN()
 {
 	// Initialize signals
 	init_signals();
