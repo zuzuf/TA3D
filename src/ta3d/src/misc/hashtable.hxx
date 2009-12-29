@@ -15,10 +15,55 @@ namespace TA3D
 		uint32
 		cHashTable<T>::generateHash(const String& key) const
 		{
-			uint32 ret(0);
-			for (String::const_iterator i = key.begin(); i != key.end(); ++i)
-				ret = *i + (ret << 5 ) - ret;
-            return (ret % (uint32)table.size());
+			// implementation of MurmurHash2 by Austin Appleby
+
+			// 'm' and 'r' are mixing constants generated offline.
+			// They're not really 'magic', they just happen to work well.
+
+			const uint32 m = 0x5bd1e995;
+			const int r = 24;
+
+			// Initialize the hash to a 'random' value
+			int len = key.size();
+			uint32 h = 216 ^ len;
+
+			// Mix 4 bytes at a time into the hash
+
+			const uint8 * data = (const uint8 *)key.data();
+
+			while(len >= 4)
+			{
+				uint32 k = *(uint32 *)data;
+
+				k *= m;
+				k ^= k >> r;
+				k *= m;
+
+				h *= m;
+				h ^= k;
+
+				data += 4;
+				len -= 4;
+			}
+
+			// Handle the last few bytes of the input array
+
+			switch(len)
+			{
+			case 3: h ^= data[2] << 16;
+			case 2: h ^= data[1] << 8;
+			case 1: h ^= data[0];
+				h *= m;
+			};
+
+			// Do a few final mixes of the hash to ensure the last few
+			// bytes are well-incorporated.
+
+			h ^= h >> 13;
+			h *= m;
+			h ^= h >> 15;
+
+			return (h % (uint32)table.size());
 		}
 
 		template<class T>
