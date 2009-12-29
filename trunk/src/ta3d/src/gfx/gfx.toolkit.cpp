@@ -256,7 +256,7 @@ namespace TA3D
 				{
 					int sy = (y0 + (y * dh >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + x1 + dy;
-					int sx = sy + x0 << 16;
+					int sx = (sy + x0) << 16;
 					for(int x = 0 ; x < w1 ; x++)
 					{
 						*d = ((byte*)in->pixels)[sx >> 16];
@@ -273,7 +273,7 @@ namespace TA3D
 				{
 					int sy = (y0 + (y * dh >> 16)) * in->pitch >> 1;
 					uint16 *d = ((uint16*)out->pixels) + dy + x1;
-					int sx = sy + x0 << 16;
+					int sx = (sy + x0) << 16;
 					for(int x = 0 ; x < w1 ; x++)
 					{
 						*d = ((uint16*)in->pixels)[sx >> 16];
@@ -334,7 +334,7 @@ namespace TA3D
 					int gy = y * dh;
 					int sy = (y0 + (gy >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + x1 + dy;
-					int sx = sy + x0 << 16;
+					int sx = (sy + x0) << 16;
 					for(int x = 0 ; x < w1 ; x++)
 					{
 						byte *ref = ((byte*)in->pixels) + (sx >> 16);
@@ -346,7 +346,7 @@ namespace TA3D
 
 						c0 += (c1 - c0) * (sx & 0xFFFF) >> 16;
 						c2 += (c3 - c2) * (sx & 0xFFFF) >> 16;
-						*d++ = c0 + ((c2 - c0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(c0 + ((c2 - c0) * (gy & 0xFFFF) >> 16));
 						sx += dw;
 					}
 					dy += out->pitch;
@@ -382,15 +382,15 @@ namespace TA3D
 
 						r0 += (r1 - r0) * (sx & 0xFFFF) >> 16;
 						r2 += (r3 - r2) * (sx & 0xFFFF) >> 16;
-						*d++ = r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16));
 
 						g0 += (g1 - g0) * (sx & 0xFFFF) >> 16;
 						g2 += (g3 - g2) * (sx & 0xFFFF) >> 16;
-						*d++ = g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16));
 
 						b0 += (b1 - b0) * (sx & 0xFFFF) >> 16;
 						b2 += (b3 - b2) * (sx & 0xFFFF) >> 16;
-						*d++ = b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16));
 						sx += dw;
 					}
 					dy += out->pitch;
@@ -428,19 +428,19 @@ namespace TA3D
 
 						r0 += (r1 - r0) * (sx & 0xFFFF) >> 16;
 						r2 += (r3 - r2) * (sx & 0xFFFF) >> 16;
-						*d++ = r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16));
 
 						g0 += (g1 - g0) * (sx & 0xFFFF) >> 16;
 						g2 += (g3 - g2) * (sx & 0xFFFF) >> 16;
-						*d++ = g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(byte(g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16)));
 
 						b0 += (b1 - b0) * (sx & 0xFFFF) >> 16;
 						b2 += (b3 - b2) * (sx & 0xFFFF) >> 16;
-						*d++ = b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16));
 
 						a0 += (a1 - a0) * (sx & 0xFFFF) >> 16;
 						a2 += (a3 - a2) * (sx & 0xFFFF) >> 16;
-						*d++ = a0 + ((a2 - a0) * (gy & 0xFFFF) >> 16);
+						*d++ = byte(a0 + ((a2 - a0) * (gy & 0xFFFF) >> 16));
 
 						sx += dw;
 					}
@@ -456,10 +456,10 @@ namespace TA3D
 		switch(bmp->format->BitsPerPixel)
 		{
 			case 8:
-				SurfaceByte(bmp, x, y) = col;
+				SurfaceByte(bmp, x, y) = byte(col);
 				break;
 			case 16:
-				(((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]) = col;
+				(((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]) = uint16(col);
 				break;
 			case 24:
 				SurfaceByte(bmp, x * 3, y) = getb32(col);
@@ -565,14 +565,63 @@ namespace TA3D
 	void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col)
 	{
 		r *= r;
-		for (int sy = -y ; sy <= y ; sy++)
+		switch(bmp->format->BitsPerPixel)
 		{
-			int dx = (int)trunc(sqrtf(r - sy * sy));
-			int ax = x - dx;
-			int bx = x + dx;
-			for (int sx = ax ; sx <= bx ; sx++)
-				putpixel(bmp, sx, y + sy, col);
-		}
+			case 8:
+				for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+				{
+					int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+					int ax = Math::Max(x - dx, 0);
+					int bx = Math::Min(x + dx, bmp->w - 1);
+					memset((byte*)bmp->pixels + ax + (y + sy) * bmp->pitch, col, bx - ax + 1);
+				}
+				break;
+			case 16:
+				{
+					uint16 col16 = uint16(col);
+					for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+					{
+						int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+						int ax = Math::Max(x - dx, 0);
+						int bx = Math::Min(x + dx, bmp->w - 1);
+						uint16 *p = (uint16*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 1);
+						for (uint16 *end = p + bx - ax + 1; p != end ; ++p)
+							*p = col16;
+					}
+				}
+				break;
+			case 24:
+				{
+					byte colb = getb32(col);
+					byte colg = getg32(col);
+					byte colr = getr32(col);
+					for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+					{
+						int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+						int ax = Math::Max(x - dx, 0);
+						int bx = Math::Min(x + dx, bmp->w - 1);
+						byte *p = (byte*)bmp->pixels + ax * 3 + (y + sy) * bmp->pitch;
+						for (byte *end = p + (bx - ax + 1) * 3 ; p != end ; ++p)
+						{
+							*p++ = colb;
+							*p++ = colg;
+							*p = colr;
+						}
+					}
+				}
+				break;
+			case 32:
+				for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+				{
+					int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+					int ax = Math::Max(x - dx, 0);
+					int bx = Math::Min(x + dx, bmp->w - 1);
+					uint32 *p = (uint32*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 2);
+					for (uint32 *end = p + bx - ax + 1; p != end ; ++p)
+						*p = col;
+				}
+				break;
+		};
 	}
 
 	void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col)
