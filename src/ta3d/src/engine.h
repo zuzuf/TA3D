@@ -28,7 +28,7 @@ namespace TA3D
 {
 
 
-	class Engine : public Yuni::Thread::AThread
+	class Engine : public Yuni::Thread::IThread
 	{
 	public:
 		//! \name Constructor & Destructor
@@ -48,7 +48,7 @@ namespace TA3D
 		void initializationFromTheMainThread();
 
 	protected:
-		virtual void onExecute();
+		virtual bool onExecute();
 
 	private:
 		/*!

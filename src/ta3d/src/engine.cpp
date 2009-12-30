@@ -172,7 +172,7 @@ namespace TA3D
 	}
 
 
-	void Engine::onExecute()
+	bool Engine::onExecute()
 	{
 		// Creating translation manager
 		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
@@ -197,6 +197,8 @@ namespace TA3D
 		ta3dSideData.loadData();
 
 		sound_manager->loadTDFSounds(false);
+
+		return false;
 	}
 
 
