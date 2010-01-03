@@ -179,8 +179,8 @@ namespace TA3D
 
 	AI::Path Pathfinder::directPath(const Vector3D &end)
 	{
-		int x = ((int)end.x + the_map->map_w_d + 4) >> 3;
-		int z = ((int)end.z + the_map->map_h_d + 4) >> 3;
+		int x = ((int)end.x + the_map->map_w_d) >> 3;
+		int z = ((int)end.z + the_map->map_h_d) >> 3;
 		AI::Path path;
 		path.push_back(AI::Path::Node(x, z));
 		path.setPos(end);
@@ -255,10 +255,10 @@ namespace TA3D
 
 		MutexLocker mLock(sMutex);
 
-		int start_x = ((int)task.start.x + the_map->map_w_d + 4) >> 3;
-		int start_z = ((int)task.start.z + the_map->map_h_d + 4) >> 3;
-		int end_x = ((int)task.end.x + the_map->map_w_d + 4) >> 3;
-		int end_z = ((int)task.end.z + the_map->map_h_d + 4) >> 3;
+		int start_x = ((int)task.start.x + the_map->map_w_d) >> 3;
+		int start_z = ((int)task.start.z + the_map->map_h_d) >> 3;
+		int end_x = ((int)task.end.x + the_map->map_w_d) >> 3;
+		int end_z = ((int)task.end.z + the_map->map_h_d) >> 3;
 
 		std::deque<AI::Path::Node> nodes;
 		nodes.push_back(AI::Path::Node(start_x, start_z));
