@@ -4971,14 +4971,15 @@ script_exec:
 
 	void Unit::draw_on_map()
 	{
-		if (type_id == -1 || !(flags & 1) )
+		int type = type_id;
+		if (type == -1 || !(flags & 1) )
 			return;
 
 		if (drawn)	clear_from_map();
 		if (attached)	return;
 
 		drawn_flying = flying;
-        UnitType *pType = unit_manager.unit_type[type_id];
+		UnitType *pType = unit_manager.unit_type[type];
 		if (flying)
 			the_map->air_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx );
 		else
@@ -5064,7 +5065,7 @@ script_exec:
 		if (type == -1 || !(flags & 1) )
 			return;
 
-		UnitType *pType = unit_manager.unit_type[type_id];
+		UnitType *pType = unit_manager.unit_type[type];
 		drawn = false;
 		if (drawn_flying)
 			the_map->air_rect( drawn_x - (pType->FootprintX >> 1),
