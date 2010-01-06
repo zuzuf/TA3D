@@ -1,10 +1,10 @@
 #ifndef PROGRESSDIALOG_H
 #define PROGRESSDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QProgressBar>
 
-class ProgressDialog : public QWidget
+class ProgressDialog : public QDialog
 {
     Q_OBJECT;
 public:

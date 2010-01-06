@@ -512,10 +512,10 @@ void SurfaceProperties::computeAmbientOcclusion()
         return;
     int w = QInputDialog::getInt(this,tr("Texture width"), tr("Enter texture width:"), 128, 1, 1024);
     int h = QInputDialog::getInt(this,tr("Texture height"), tr("Enter texture height:"), w, 1, 1024);
-    int precision = QInputDialog::getInt(this,tr("Precision"), tr("Enter required precision (1-1024)"), 10, 1, 1024);
+	int precision = QInputDialog::getInt(this,tr("Precision"), tr("Enter required precision (1-1024)"), 128, 1, 1024);
 
     Gfx::instance()->makeCurrent();
-    mesh->computeAmbientOcclusion(w, h, Mesh::instance(), precision);
+	mesh->computeAmbientOcclusion(w, h, precision);
     refreshGUI();
     emit surfaceChanged();
 }

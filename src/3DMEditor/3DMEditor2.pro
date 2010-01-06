@@ -17,6 +17,7 @@ SOURCES += src/main.cpp \
     src/misc/matrix.cpp \
     src/misc/camera.cpp \
     src/misc/math.cpp \
+    src/misc/grid.cpp \
     src/aboutwindow.cpp \
     src/misc/material.light.cpp \
     src/mesh.cpp \
@@ -31,7 +32,6 @@ SOURCES += src/main.cpp \
     src/imagelistview.cpp \
     src/progressdialog.cpp \
     src/meshtree.cpp \
-    src/ambientocclusionthread.cpp \
     src/springmodelloader.cpp \
     src/toolbox.cpp \
     src/flowlayout.cpp \
@@ -71,7 +71,8 @@ SOURCES += src/main.cpp \
     src/lua/ldo.c \
     src/lua/lopcodes.c \
     src/lua/ltm.c \
-    src/lua/lgc.c
+    src/lua/lgc.c \
+    src/ambientocclusion.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \
@@ -79,6 +80,8 @@ HEADERS += src/mainwindow.h \
     src/misc/matrix.h \
     src/misc/camera.h \
     src/misc/math.h \
+    src/misc/grid.h \
+    src/misc/grid.hxx \
     src/types.h \
     src/aboutwindow.h \
     src/misc/material.light.h \
@@ -94,7 +97,6 @@ HEADERS += src/mainwindow.h \
     src/imagelistview.h \
     src/progressdialog.h \
     src/meshtree.h \
-    src/ambientocclusionthread.h \
     src/springmodelloader.h \
     src/toolbox.h \
     src/flowlayout.h \
