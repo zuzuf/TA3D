@@ -31,13 +31,24 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 	Gfx::instance()->makeCurrent();
 	QGLFramebufferObject fbo(renderSize, renderSize, QGLFramebufferObject::Depth, GL_TEXTURE_2D, GL_RGB32F);
 
-	float size = Mesh::instance()->getSize() * 1.2f;
+	Mesh::instance()->computeSize();
+
+	float msize = 0.0f;
+	for( Mesh *cur = Mesh::instance() ; cur != NULL ; cur = cur->next )
+		msize = qMax(msize, cur->size + cur->pos.norm());
+	msize *= 2.0f;
 	glEnable(GL_CULL_FACE);
 
-	Vec relPos = Mesh::instance()->getRelativePosition(ID) + pos;
+	Vec relPos = Mesh::instance()->getRelativePosition(ID);
 
 	fbo.bind();
 	glViewport(0, 0, renderSize, renderSize);
+
+	GLuint dlist = glGenLists(1);
+	glNewList(dlist, GL_COMPILE);
+	Mesh::instance()->drawOcclusion(getID());
+	glEndList();
+
 	int i = 0;
 	foreach(Vec dir, dirs)
 	{
@@ -46,7 +57,7 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		Vector3D FP((size + 10.0f) * dir);
+		Vector3D FP((msize + 10.0f) * dir);
 		Vector3D side = dir ^ Vec(0.0f, 1.0f, 0.0f);
 		side.unit();
 		Vector3D up = dir ^ side;
@@ -73,9 +84,10 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 
 		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();
-		glOrtho(maxx, minx, maxy, miny, -1000.0f, 2.0f * size + 1000.0f);
+		glOrtho(maxx, minx, maxy, miny, -1000.0f, 2.0f * msize + 1000.0f);
+		glMatrixMode(GL_MODELVIEW);
 
-		Mesh::instance()->drawOcclusion(getID());
+		glCallList(dlist);
 
 		glBindTexture(GL_TEXTURE_2D, fbo.texture());
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, texData.pointerToData());
@@ -103,6 +115,7 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 		ProgressDialog::setProgress(i * 100 / dirs.size());
 	}
 	fbo.release();
+	glDeleteLists(dlist, 1);
 
 	QImage mask(w, h, QImage::Format_RGB888);
 	float coef = 255.0f / (dirs.size() / 2);
