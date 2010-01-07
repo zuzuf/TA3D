@@ -31,6 +31,9 @@ TextureViewer::TextureViewer()
     timer->setSingleShot(false);
     timer->setInterval(50);     // 20 times a sec.
     timer->start();
+
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setMinimumHeight(128);
 }
 
 void TextureViewer::resize(int w, int h)

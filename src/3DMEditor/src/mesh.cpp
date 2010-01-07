@@ -2011,19 +2011,28 @@ void Mesh::toTriangleSoup()     // This will result in a flat shaded mesh (verti
         {
             nIndex.push_back(i);
             nVertex.push_back( vertex[ index[i] ] );
-            nTcoord.push_back( tcoord[ index[i] * 2 ] );
-            nTcoord.push_back( tcoord[ index[i] * 2 + 1 ] );
+			if (!tcoord.isEmpty())
+			{
+				nTcoord.push_back( tcoord[ index[i] * 2 ] );
+				nTcoord.push_back( tcoord[ index[i] * 2 + 1 ] );
+			}
 
             nIndex.push_back(i + 1);
             nVertex.push_back( vertex[ index[i + 1] ] );
-            nTcoord.push_back( tcoord[ index[i + 1] * 2 ] );
-            nTcoord.push_back( tcoord[ index[i + 1] * 2 + 1 ] );
+			if (!tcoord.isEmpty())
+			{
+				nTcoord.push_back( tcoord[ index[i + 1] * 2 ] );
+				nTcoord.push_back( tcoord[ index[i + 1] * 2 + 1 ] );
+			}
 
             nIndex.push_back(i + 2);
             nVertex.push_back( vertex[ index[i + 2] ] );
-            nTcoord.push_back( tcoord[ index[i + 2] * 2 ] );
-            nTcoord.push_back( tcoord[ index[i + 2] * 2 + 1 ] );
-        }
+			if (!tcoord.isEmpty())
+			{
+				nTcoord.push_back( tcoord[ index[i + 2] * 2 ] );
+				nTcoord.push_back( tcoord[ index[i + 2] * 2 + 1 ] );
+			}
+		}
         break;
     case MESH_TRIANGLES:
     default:
@@ -2031,8 +2040,11 @@ void Mesh::toTriangleSoup()     // This will result in a flat shaded mesh (verti
         {
             nIndex.push_back(i);
             nVertex.push_back( vertex[ index[i] ] );
-            nTcoord.push_back( tcoord[ index[i] * 2 ] );
-            nTcoord.push_back( tcoord[ index[i] * 2 + 1 ] );
+			if (!tcoord.isEmpty())
+			{
+				nTcoord.push_back( tcoord[ index[i] * 2 ] );
+				nTcoord.push_back( tcoord[ index[i] * 2 + 1 ] );
+			}
         }
     };
     index = nIndex;
@@ -2236,11 +2248,11 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
         return NULL;
 
     QList<Mesh*> lMesh = list;
-    qSort(lMesh);
 
     Mesh *base = lMesh.front();
     lMesh.pop_front();
     base->toTriangleSoup();
+	Vec refpos = base->pos;
     while(!lMesh.isEmpty())
     {
         Mesh *mesh = lMesh.back();      // Reverse order to make sure we won't change one of the pointer in the list
@@ -2248,9 +2260,11 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
         mesh->toTriangleSoup();
 
         int bVtx = base->vertex.size();         // Copy mesh data
-        base->tcoord.resize(bVtx * 2 + mesh->tcoord.size());
-        base->vertex.resize(bVtx + mesh->vertex.size());
-        memcpy(base->vertex.data() + bVtx, mesh->vertex.data(), mesh->vertex.size() * sizeof(Vec));
+		base->tcoord.resize(bVtx * 2 + 2 * mesh->vertex.size());
+		Vec shift = mesh->pos - refpos;
+		foreach(Vec P, mesh->vertex)
+			base->vertex.push_back(P + shift);
+
         memcpy(base->tcoord.data() + 2 * bVtx, mesh->tcoord.data(), mesh->tcoord.size() * sizeof(GLfloat));
         foreach(GLuint i, mesh->index)
             base->index.push_back(i + bVtx);
