@@ -23,13 +23,13 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 
 	const int renderSize = 1024;
 
-	Grid<float> img(w, h);
-	Grid<float> tmp(w, h);
-	Grid<float> texData(3 * renderSize, renderSize);
+	Grid<int> img(w, h);
+	Grid<int> tmp(w, h);
+	Grid<unsigned short> texData(3 * renderSize, renderSize);
 	img.clear();
 
 	Gfx::instance()->makeCurrent();
-	QGLFramebufferObject fbo(renderSize, renderSize, QGLFramebufferObject::Depth, GL_TEXTURE_2D, GL_RGB32F);
+	QGLFramebufferObject fbo(renderSize, renderSize, QGLFramebufferObject::Depth, GL_TEXTURE_2D, GL_RGB16);
 
 	Mesh::instance()->computeSize();
 
@@ -50,6 +50,7 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 	glEndList();
 
 	int i = 0;
+	float conv = 1.0f / 65535.0f;
 	foreach(Vec dir, dirs)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -90,26 +91,29 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 		glCallList(dlist);
 
 		glBindTexture(GL_TEXTURE_2D, fbo.texture());
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, texData.pointerToData());
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_SHORT, texData.pointerToData());
 
 		tmp.clear();
 		for(int y = 0 ; y < renderSize ; ++y)
 		{
 			for(int x = 0 ; x < renderSize ; ++x)
 			{
-				if (texData(x * 3 + 2, y) == 0.0f)
+				if (texData(x * 3 + 2, y) == 0)
 					continue;
-				float fx = texData(x * 3, y);
-				float fy = texData(x * 3 + 1, y);
+				float fx = texData(x * 3, y) * conv;
+				float fy = texData(x * 3 + 1, y) * conv;
 				int ix = fx * tmp.getWidth();
 				int iy = fy * tmp.getHeight();
 				if (ix < 0 || ix >= tmp.getWidth() || iy < 0 || iy >= tmp.getHeight())
 					continue;
-				tmp(ix, iy) = 1.0f;
+				tmp(ix, iy) = 1;
 			}
 		}
 
-		img.add(tmp, 0, 0);
+		int *in = tmp.pointerToData();
+		int *out = img.pointerToData();
+		for(int *end = in + img.getWidth() * img.getHeight() ; in != end ; ++in, ++out)
+			*out += *in;
 
 		++i;
 		ProgressDialog::setProgress(i * 100 / dirs.size());
