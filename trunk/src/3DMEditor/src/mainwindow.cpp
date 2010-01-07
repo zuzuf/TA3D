@@ -232,6 +232,7 @@ void MainWindow::newMesh()
     Mesh::instance()->destroy();
     Gfx::instance()->updateSelection(-1);
     Gfx::instance()->updateGL();
+	GeometryGraph::instance()->refreshTree();
 }
 
 void MainWindow::loadMesh()
@@ -247,6 +248,7 @@ void MainWindow::loadMesh()
 
     filename = fileToLoad;
     updateTitle();
+	GeometryGraph::instance()->refreshTree();
 }
 
 void MainWindow::saveMesh()
