@@ -72,7 +72,8 @@ SOURCES += src/main.cpp \
     src/lua/lopcodes.c \
     src/lua/ltm.c \
     src/lua/lgc.c \
-    src/ambientocclusion.cpp
+    src/ambientocclusion.cpp \
+    src/3do.cpp
 HEADERS += src/mainwindow.h \
     src/config.h \
     src/gfx.h \

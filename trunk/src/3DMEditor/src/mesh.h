@@ -223,7 +223,8 @@ private:
     sint32 computeID(sint32 id = 0);
     void computeInfo();
     void load3DMrec(QFile &file);
-    void save3DMrec(QFile &file);
+	void load3DOrec(QFile &file);
+	void save3DMrec(QFile &file);
     void obj_finalize(QVector<int> &face, QVector<Vec> &vertex, QVector<Vector2D> &tcoord, Material* mtl = NULL);
     void copy(const Mesh *src);
     void clear();           // Like destroy but doesn't free memory and it's not recursive

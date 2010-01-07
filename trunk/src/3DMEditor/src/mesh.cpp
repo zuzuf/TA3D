@@ -140,8 +140,20 @@ void Mesh::load3DM(const QString &filename)
 
 void Mesh::load3DO(const QString &filename)
 {
-    computeInfo();
-    emit loaded();
+	destroy();
+	QFile file(filename);
+	if (file.exists())
+	{
+		file.open(QIODevice::ReadOnly);
+		if (file.isOpen())
+		{
+			load3DOrec(file);
+			file.close();
+
+			computeInfo();
+			emit loaded();
+		}
+	}
 }
 
 void Mesh::loadASC(const QString &filename, float size)
