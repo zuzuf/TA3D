@@ -552,15 +552,28 @@ namespace TA3D
 
 	int UnitScript::execute(const String &functionName, int *parameters, int nb_params)
 	{
-		lua_settop(L, 0);
-		lua_getUnitTable();
-		lua_getfield( L, -1, functionName.c_str() );
-		lua_remove(L, -2);
-		if (lua_isnil( L, -1 ))     // Function not found
+		try
 		{
-			lua_pop(L, 1);
-			LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
-			return -2;
+			lua_settop(L, 0);
+			lua_getUnitTable();
+			lua_getfield( L, -1, functionName.c_str() );
+			lua_remove(L, -2);
+			if (lua_isnil( L, -1 ))     // Function not found
+			{
+				lua_pop(L, 1);
+				LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
+				return -2;
+			}
+		}
+		catch(...)
+		{
+			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+			{
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+			}
+			running = false;
+			return -1;
 		}
 
 		if (parameters == NULL)

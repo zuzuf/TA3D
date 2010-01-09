@@ -179,6 +179,7 @@ namespace TA3D
 
 		std::vector< uint16 >			visible_unit;   // A list to store visible units
 		KDTree< UnitTKit::T, UnitTKit >	*kdTree[10];	// A KDTree filled with units to speed up target detection (one per player)
+		bool	shootallMode;
 
 	public:
 
