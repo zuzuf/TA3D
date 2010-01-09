@@ -927,14 +927,20 @@ namespace TA3D
 
 		// Build a KDTree to allow fast look ups when looking for targets
 		pMutex.lock();
-		std::vector<UnitTKit::T> detectableUnits;
+		std::vector<UnitTKit::T> detectableUnits[10];
 		for (unsigned int e = 0; e < index_list_size; ++e) // Compte les stocks de ressources et les productions
 		{
 			uint32 i = idx_list[e];
-			detectableUnits.push_back(&(unit[i]));
+			if (!(unit[i].flags & 1))
+				continue;
+			int type = unit[i].type_id;
+			if (type < 0 || !unit_manager.unit_type[type]->ShootMe)
+				continue;
+			detectableUnits[unit[i].owner_id].push_back(&(unit[i]));
 		}
 		pMutex.unlock();
-		kdTree = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits);
+		for(int i = 0 ; i < NB_PLAYERS ; ++i)
+			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i]);
 
 		players.clear();		// Réinitialise le compteur de ressources
 
@@ -1134,8 +1140,11 @@ namespace TA3D
 		pMutex.unlock();
 
 		// Now that it is obsolete let's delete this kdTree
-		delete kdTree;
-		kdTree = NULL;
+		for(int i = 0 ; i < NB_PLAYERS ; ++i)
+		{
+			delete kdTree[i];
+			kdTree[i] = NULL;
+		}
 	}
 
 	int INGAME_UNITS::create(int type_id,int owner)
