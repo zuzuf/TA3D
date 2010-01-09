@@ -82,6 +82,9 @@ namespace Menus
 		ReadFileParameter();
 		// Misc
 		pDontWaitForEvent = true;
+
+		if (!lp_CONFIG->fullscreen)
+			grab_mouse(false);
 		return true;
 	}
 
@@ -191,6 +194,12 @@ namespace Menus
 
 		loadAreaFromTDF("main", "gui/main.area");
 		resetScreen();
+
+		if (!lp_CONFIG->fullscreen)
+			grab_mouse(false);
+		else
+			grab_mouse(lp_CONFIG->grab_inputs);
+
 		return false;
 	}
 
