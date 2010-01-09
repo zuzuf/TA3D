@@ -216,7 +216,6 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 		glActiveTexture(GL_TEXTURE0);
 		glDisable(GL_TEXTURE_2D);
 
-		fbo.toImage().save("test.png");
 		glBindTexture(GL_TEXTURE_2D, fbo.texture());
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, texData.pointerToData());
 
