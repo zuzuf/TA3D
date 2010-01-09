@@ -73,6 +73,7 @@ SET(SRC_MISC
 		misc/osinfo.h misc/osinfo.cpp
 		misc/application.h misc/application.cpp
 		misc/point.h misc/rect.h
+		misc/kdtree.h misc/kdtree.hxx
 
 		misc/vector.cpp misc/vector.h
 		misc/matrix.h misc/matrix.cpp
