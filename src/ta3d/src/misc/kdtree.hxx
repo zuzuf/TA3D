@@ -50,7 +50,7 @@ namespace TA3D
 		{
 			float dist2 = maxDist * maxDist;
 			for(typename std::vector<T>::iterator i = elements.begin() ; i != elements.end() ; ++i)
-				if ((TKit::pos(*i) - center).Sq() <= dist2)
+				if ((TKit::pos(*i) - center).sq() <= dist2)
 					result.push_back(*i);
 			return;
 		}
@@ -58,8 +58,8 @@ namespace TA3D
 		float proj = (P - center) % N;
 
 		if (proj >= 0.0f || -proj < maxDist)
-			lChild->maxDistanceQuery(result, center, maxDist);
-		if (proj <= 0.0f || proj < maxDist)
 			rChild->maxDistanceQuery(result, center, maxDist);
+		if (proj <= 0.0f || proj < maxDist)
+			lChild->maxDistanceQuery(result, center, maxDist);
 	}
 }
