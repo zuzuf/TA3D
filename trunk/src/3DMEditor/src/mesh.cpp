@@ -2284,6 +2284,8 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
         if (base->child == NULL)                // Move childs
         {
             base->child = mesh->child;
+			if (base->child)
+				base->child->pos += shift;
             mesh->child = NULL;
         }
         else
@@ -2294,6 +2296,7 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
                 Mesh *tmp = cur->next;
                 cur->next = mesh->child;
                 cur = cur->next;
+				cur->pos += shift;
                 cur->next = tmp;
                 mesh->child = mesh->child->next;
             }
