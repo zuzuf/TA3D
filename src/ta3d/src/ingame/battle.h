@@ -319,6 +319,8 @@ namespace TA3D
 		//!
 		bool cam_has_target;
 		//!
+		bool escMenuWasVisible;
+		//!
 		bool freecam;
 		//! Just to see if the cam has been long enough at the default angle
 		int cam_def_timer;

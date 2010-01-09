@@ -75,6 +75,7 @@ namespace TA3D
         water_color(0)
     {
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
+		grab_mouse(lp_CONFIG->grab_inputs);
     }
 
 	Battle::~Battle()
@@ -124,6 +125,9 @@ namespace TA3D
 		gfx->set_2D_mode();
 		gfx->ReInitTexSys();
 		LOG_INFO(LOG_PREFIX_BATTLE << "Done.");
+
+		if (!lp_CONFIG->fullscreen)
+			grab_mouse(false);
 	}
 
 

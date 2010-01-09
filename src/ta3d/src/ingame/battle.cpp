@@ -1329,7 +1329,8 @@ namespace TA3D
 
 			/*----------------------------------------------------------------------------*/
 
-			if (key[KEY_ESC] && !pArea.get_state("esc_menu")) // Enter pause mode if we have to show the menu
+			bool escMenuIsVisible = pArea.get_state("esc_menu");
+			if (key[KEY_ESC] && !escMenuIsVisible) // Enter pause mode if we have to show the menu
 			{
 				if (!network_manager.isConnected())             // In single player mode we want to pause the game when opening the menu
 				{
@@ -1338,6 +1339,15 @@ namespace TA3D
 					pArea.msg( "esc_menu.b_resume.show" );
 				}
 				pArea.msg( "esc_menu.show" );
+				if (!lp_CONFIG->fullscreen)
+					grab_mouse(false);
+				escMenuWasVisible = true;
+			}
+			else
+			{
+				if (escMenuWasVisible && !escMenuIsVisible)
+					grab_mouse(lp_CONFIG->grab_inputs);
+				escMenuWasVisible = escMenuIsVisible;
 			}
 
 			if (key_down_event(KEY_PAUSE))      // Toggle pause mode when pressing pause
