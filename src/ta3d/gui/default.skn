@@ -4,7 +4,11 @@
 
     [button]
     {
-        font_color=254,254,214;
+        font_color=171,171,131;
+        shadow_color=0,0,0,255;
+        shadow=true;
+        shadow_dx=1.0;
+        shadow_dy=1.0;
 
         [up]
         {
@@ -74,6 +78,10 @@
     [text]
     {
         font_color=194,194,154;
+        shadow_color=0,0,0,255;
+        shadow=true;
+        shadow_dx=1.0;
+        shadow_dy=1.0;
     }
 
     [text bar]
