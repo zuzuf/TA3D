@@ -73,6 +73,7 @@ namespace TA3D
 
 	void INGAME_UNITS::destroy(bool delete_interface)
 	{
+		shootallMode = false;
 		pMutex.lock();
 
 		if (delete_interface)
@@ -254,6 +255,8 @@ namespace TA3D
 
 	void INGAME_UNITS::init(bool register_interface)
 	{
+		shootallMode = false;
+
 		pMutex.lock();
 
 		next_unit_ID = 1;
@@ -934,7 +937,7 @@ namespace TA3D
 			if (!(unit[i].flags & 1))
 				continue;
 			int type = unit[i].type_id;
-			if (type < 0 || !unit_manager.unit_type[type]->ShootMe)
+			if (type < 0 || (!shootallMode && !unit_manager.unit_type[type]->ShootMe))
 				continue;
 			detectableUnits[unit[i].owner_id].push_back(&(unit[i]));
 		}

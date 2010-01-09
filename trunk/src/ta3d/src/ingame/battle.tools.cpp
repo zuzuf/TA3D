@@ -560,21 +560,9 @@ namespace TA3D
                        cur_sel=-1;
                    }
                }
-               else if (params[0] == "shootall")							// Destroy enemy units
+			   else if (params[0] == "shootall")							// Toggle shootall mode
                {
-                   units.lock();
-                   for (int e = 0; e < units.max_unit; ++e)
-                   {
-                       int i = units.idx_list[e];
-                       units.unlock();
-                       if ((units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id)
-                       {
-						   units.kill(i, e);
-                           --e;
-                       }
-                       units.lock();
-                   }
-                   units.unlock();
+				   units.shootallMode ^= true;
                }
                else if (params.size() == 3 && params[0] == "start" && params[1] == "script")							// Force l'éxecution d'un script
                {
