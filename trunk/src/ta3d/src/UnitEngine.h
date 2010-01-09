@@ -36,6 +36,7 @@
 # include "engine/weapondata.h"
 # include "engine/mission.h"
 # include "engine/unit.h"
+# include "misc/kdtree.h"
 
 
 
@@ -57,6 +58,55 @@
 
 namespace TA3D
 {
+	// Define the TKit structure required by the KDTree structure
+	class UnitTKit
+	{
+	public:
+		typedef Vector3D	Vec;
+		typedef Unit*		T;
+
+		struct Comparator
+		{
+			Vec	N;
+			bool operator() (const T &i, const T &j)
+			{
+				return (i->Pos % N) < (j->Pos % N);
+			}
+		};
+
+	public:
+		static const Vec &pos(const T &elt)	{	return elt->Pos;	}
+		static inline void getTopBottom(const std::vector<T> &elts, Vec &top, Vec &bottom);
+		static Vec getPrincipalDirection(const Vec &v)
+		{
+			if (fabs(v.x) > fabs(v.y))
+			{
+				if (fabs(v.x) > fabs(v.z))
+					return Vec(1.0f, 0.0f, 0.0f);
+				if (fabs(v.y) > fabs(v.z))
+					return Vec(0.0f, 1.0f, 0.0f);
+				return Vec(0.0f, 0.0f, 1.0f);
+			}
+			if (fabs(v.y) > fabs(v.z))
+				return Vec(0.0f, 1.0f, 0.0f);
+			return Vec(0.0f, 0.0f, 1.0f);
+		}
+	};
+
+	void UnitTKit::getTopBottom(const std::vector<UnitTKit::T> &elts, UnitTKit::Vec &top, UnitTKit::Vec &bottom)
+	{
+		top = bottom = elts.front()->Pos;
+		for(std::vector<UnitTKit::T>::const_iterator i = elts.begin() ; i != elts.end() ; ++i)
+		{
+			top.x = Math::Max(top.x, (*i)->Pos.x);
+			top.y = Math::Max(top.y, (*i)->Pos.y);
+			top.z = Math::Max(top.z, (*i)->Pos.z);
+			bottom.x = Math::Min(bottom.x, (*i)->Pos.x);
+			bottom.y = Math::Min(bottom.y, (*i)->Pos.y);
+			bottom.z = Math::Min(bottom.z, (*i)->Pos.z);
+		}
+	}
+
 	extern int MAX_UNIT_PER_PLAYER;
 
 	void *create_unit(int type_id, int owner, Vector3D pos, MAP *map, bool sync = true, bool script = false);
@@ -127,7 +177,8 @@ namespace TA3D
 		uint32	last_tick[5];
 		sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
-		std::vector< uint16 >               visible_unit;   // A list to store visible units
+		std::vector< uint16 >			visible_unit;   // A list to store visible units
+		KDTree< UnitTKit::T, UnitTKit >	*kdTree;		// A KDTree filled with units to speed up target detection
 
 	public:
 
