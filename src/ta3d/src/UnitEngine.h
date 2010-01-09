@@ -178,7 +178,7 @@ namespace TA3D
 		sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
 		std::vector< uint16 >			visible_unit;   // A list to store visible units
-		KDTree< UnitTKit::T, UnitTKit >	*kdTree;		// A KDTree filled with units to speed up target detection
+		KDTree< UnitTKit::T, UnitTKit >	*kdTree[10];	// A KDTree filled with units to speed up target detection (one per player)
 
 	public:
 

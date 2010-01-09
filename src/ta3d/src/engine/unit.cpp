@@ -4151,7 +4151,9 @@ namespace TA3D
 					byte mask = 1 << owner_id;
 
 					std::deque<UnitTKit::T> possibleTargets;
-					units.kdTree->maxDistanceQuery(possibleTargets, Pos, dx * 8.0f);
+					for(int i = 0 ; i < NB_PLAYERS ; ++i)
+						if (i != owner_id && !(players.team[owner_id] & players.team[i]))
+							units.kdTree[i]->maxDistanceQuery(possibleTargets, Pos, dx * 8.0f);
 
 					for(std::deque<UnitTKit::T>::iterator i = possibleTargets.begin() ; enemy_idx == -1 && i != possibleTargets.end() ; ++i)
 					{
@@ -4164,8 +4166,6 @@ namespace TA3D
 							|| cur_py >= the_map->bloc_h_db - 1)
 							continue;
 						if (units.unit[cur_idx].flags
-							&& isEnemy( cur_idx )
-							&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
 							&& ( units.unit[cur_idx].is_on_radar( mask ) ||
 								 ( (SurfaceByte(the_map->sight_map, x >> 1, y >> 1) & mask)
 								   && !units.unit[cur_idx].cloaked ) )
@@ -4194,68 +4194,6 @@ namespace TA3D
 							}
 						}
 					}
-
-//					int sx = Math::RandomTable() & 0xF;
-//					int sy = Math::RandomTable() & 0xF;
-//					int stx = Math::Max(0, cur_px - dx + sx);
-//					int edx = Math::Min(the_map->bloc_w_db - 1, cur_px + dx);
-//					for(int y = Math::Max(0, cur_py - dx + sy) ; y <= Math::Min(the_map->bloc_h_db - 1, cur_py + dx) ; y += 0x8)
-//					{
-//						for(int x = stx ; x <= edx ; x += 0x8)
-//						{
-//							bool land_test = true;
-//							airIdxSet &airSet = the_map->map_data[y][x].air_idx;
-//							airIdxSet::iterator cur = airSet.begin();
-//							for( ; land_test || cur != airSet.end() ; )
-//							{
-//								int cur_idx;
-//								if (land_test)
-//								{
-//									cur_idx = the_map->map_data[y][x].unit_idx;
-//									land_test = false;
-//								}
-//								else
-//								{
-//									cur_idx = *cur;
-//									++cur;
-//								}
-//								if (isEnemy( cur_idx ) && units.unit[cur_idx].flags
-//									&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
-//									&& ( units.unit[cur_idx].is_on_radar( mask ) ||
-//										 ( (SurfaceByte(the_map->sight_map,x>>1,y>>1) & mask)
-//										   && !units.unit[cur_idx].cloaked ) )
-//									&& !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( pType->NoChaseCategory ) )
-//									//                                             && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( pType->BadTargetCategory ) )
-//								{
-//									if (returning_fire)
-//									{
-//										bool breakBool = false;
-//										for(int i = 0 ; i < units.unit[cur_idx].weapon.size() ; i++)
-//										{
-//											if (units.unit[cur_idx].weapon[i].state != WEAPON_FLAG_IDLE
-//												&& units.unit[cur_idx].weapon[i].target == this)
-//											{
-//												enemy_idx = cur_idx;
-//												x = cur_px + dx;
-//												y = cur_py + dx;
-//												breakBool = true;
-//												break;
-//											}
-//										}
-//										if (breakBool)  break;
-//									}
-//									else
-//									{
-//										enemy_idx = cur_idx;
-//										x = cur_px + dx;
-//										y = cur_py + dx;
-//										break;
-//									}
-//								}
-//							}
-//						}
-//						if (enemy_idx >= 0)	break;
-//					}
 					if (enemy_idx >= 0)			// Si on a trouvé une unité, on l'attaque
 					{
 						if (do_nothing())
