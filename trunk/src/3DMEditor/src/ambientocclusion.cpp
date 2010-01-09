@@ -23,13 +23,11 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 
 	const int renderSize = 1024;
 
-	Grid<int> img(w, h);
-	Grid<int> tmp(w, h);
-	Grid<unsigned short> texData(3 * renderSize, renderSize);
-	img.clear();
-
 	Gfx::instance()->makeCurrent();
-	QGLFramebufferObject fbo(renderSize, renderSize, QGLFramebufferObject::Depth, GL_TEXTURE_2D, GL_RGB16);
+	QString extensions = (char*) glGetString(GL_EXTENSIONS);
+	bool supportShadowMaps = extensions.contains("GL_ARB_depth_texture") && extensions.contains("GL_ARB_shader_objects");
+
+	QGLFramebufferObject fbo(renderSize, renderSize, supportShadowMaps ? QGLFramebufferObject::NoAttachment : QGLFramebufferObject::Depth, GL_TEXTURE_2D, supportShadowMaps ? GL_RGB32F : GL_RGB16);
 
 	Mesh::instance()->computeSize();
 
@@ -49,90 +47,288 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 	Mesh::instance()->drawOcclusion(getID());
 	glEndList();
 
-	int i = 0;
-	float conv = 1.0f / 65535.0f;
-	foreach(Vec dir, dirs)
+	if (supportShadowMaps)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Grid<float> texData(renderSize, renderSize);
+		glDisable(GL_CULL_FACE);
+		GLuint dlistmap = glGenLists(1);
+		glNewList(dlistmap, GL_COMPILE);
+		Mesh::instance()->drawOcclusionMap(getID());
+		glEndList();
 
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		GLuint shadowmap[8];
+		GLfloat pMatrix[8][16];
+		for(int i = 0 ; i < 8 ; ++i)
+			shadowmap[i] = Gfx::instance()->create_shadow_map(renderSize, renderSize);
 
-		Vector3D FP((msize + 10.0f) * dir);
-		Vector3D side = dir ^ Vec(0.0f, 1.0f, 0.0f);
-		side.unit();
-		Vector3D up = dir ^ side;
-		up.unit();
-		gluLookAt(FP.x, FP.y, FP.z,
-				  0.0f, 0.0f, 0.0f,
-				  up.x, up.y, up.z);
+		Program mapshader;
+		mapshader.load("shaders/ambientocclusionmap");
 
-		float minx = 0.0f, maxx = 0.0f;
-		float miny = 0.0f, maxy = 0.0f;
-		for(int e = 0 ; e < vertex.size() ; ++e)
+		Program occludershader;
+		occludershader.load("shaders/ambientoccluder");
+
+#define LOAD_SHADOWMAP(x) \
+		glActiveTexture(GL_TEXTURE##x);\
+		glEnable(GL_TEXTURE_2D);\
+		glBindTexture(GL_TEXTURE_2D, shadowmap[x]);\
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);\
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);\
+		glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);\
+
+
+		glActiveTexture(GL_TEXTURE0);
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		int acc = 0;
+		int dmax = dirs.size();
+		for(int i = 0 ; i < dmax ; ++i)
 		{
-			float x = (vertex[e] + relPos) * side;
-			float y = (vertex[e] + relPos) * up;
-			if (e == 0 || minx > x)
-				minx = x;
-			if (e == 0 || maxx < x)
-				maxx = x;
-			if (e == 0 || miny > y)
-				miny = y;
-			if (e == 0 || maxy < y)
-				maxy = y;
+			Vec &dir = dirs[i];
+
+			Vector3D FP((msize + 10.0f) * dir);
+			Vector3D side = dir ^ Vec(0.0f, 1.0f, 0.0f);
+			side.unit();
+			Vector3D up = dir ^ side;
+			up.unit();
+
+			float minx = 0.0f, maxx = 0.0f;
+			float miny = 0.0f, maxy = 0.0f;
+			for(int e = 0 ; e < vertex.size() ; ++e)
+			{
+				float x = (vertex[e] + relPos) * side;
+				float y = (vertex[e] + relPos) * up;
+				if (e == 0 || minx > x)
+					minx = x;
+				if (e == 0 || maxx < x)
+					maxx = x;
+				if (e == 0 || miny > y)
+					miny = y;
+				if (e == 0 || maxy < y)
+					maxy = y;
+			}
+
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, shadowmap[acc++], 0); // Attach the texture
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			glMatrixMode (GL_PROJECTION);
+			glLoadIdentity ();
+			glOrtho(maxx, minx, maxy, miny, -10.0f, 2.0f * msize + 10.0f);
+
+			gluLookAt(FP.x, FP.y, FP.z,
+					  0.0f, 0.0f, 0.0f,
+					  up.x, up.y, up.z);
+
+			GLfloat backup[16];
+			glGetFloatv(GL_PROJECTION_MATRIX, backup);
+
+			glLoadIdentity();
+			glScalef(0.5f, 0.5f, 0.5f);
+			glTranslatef(1.0f, 1.0f, 1.0f);
+			glMultMatrixf(backup);
+			glGetFloatv(GL_PROJECTION_MATRIX, pMatrix[acc - 1]);
+
+			glLoadIdentity();
+			glMultMatrixf(backup);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity ();
+
+			occludershader.on();
+			glCallList(dlist);
+			occludershader.off();
+
+			if (acc == 8 || i == dmax - 1)
+			{
+				glViewport(0, 0, w, h);
+
+				glMatrixMode (GL_PROJECTION);
+				glLoadIdentity ();
+
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, 0, 0);
+
+				LOAD_SHADOWMAP(0);
+				LOAD_SHADOWMAP(1);
+				LOAD_SHADOWMAP(2);
+				LOAD_SHADOWMAP(3);
+				LOAD_SHADOWMAP(4);
+				LOAD_SHADOWMAP(5);
+				LOAD_SHADOWMAP(6);
+				LOAD_SHADOWMAP(7);
+
+				mapshader.on();
+				mapshader.setvar1i("nb", acc);
+				mapshader.setvar1i("shadowmap0", 0);
+				mapshader.setvar1i("shadowmap1", 1);
+				mapshader.setvar1i("shadowmap2", 2);
+				mapshader.setvar1i("shadowmap3", 3);
+				mapshader.setvar1i("shadowmap4", 4);
+				mapshader.setvar1i("shadowmap5", 5);
+				mapshader.setvar1i("shadowmap6", 6);
+				mapshader.setvar1i("shadowmap7", 7);
+				mapshader.setmat4f("cam0", pMatrix[0]);
+				mapshader.setmat4f("cam1", pMatrix[1]);
+				mapshader.setmat4f("cam2", pMatrix[2]);
+				mapshader.setmat4f("cam3", pMatrix[3]);
+				mapshader.setmat4f("cam4", pMatrix[4]);
+				mapshader.setmat4f("cam5", pMatrix[5]);
+				mapshader.setmat4f("cam6", pMatrix[6]);
+				mapshader.setmat4f("cam7", pMatrix[7]);
+
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_ONE, GL_ONE);
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+
+				glCallList(dlistmap);
+
+				mapshader.off();
+
+				glDisable(GL_BLEND);
+
+				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+				acc = 0;
+
+				glViewport(0, 0, renderSize, renderSize);
+			}
+			ProgressDialog::setProgress(i * 100 / dmax);
 		}
 
-		glMatrixMode (GL_PROJECTION);
-		glLoadIdentity ();
-		glOrtho(maxx, minx, maxy, miny, -1000.0f, 2.0f * msize + 1000.0f);
-		glMatrixMode(GL_MODELVIEW);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-		glCallList(dlist);
+		glActiveTexture(GL_TEXTURE7);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE6);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE5);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE4);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE3);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE2);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE1);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+		glDisable(GL_TEXTURE_2D);
 
+		fbo.toImage().save("test.png");
 		glBindTexture(GL_TEXTURE_2D, fbo.texture());
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_SHORT, texData.pointerToData());
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, texData.pointerToData());
 
-		tmp.clear();
-		for(int y = 0 ; y < renderSize ; ++y)
+		QImage mask(w, h, QImage::Format_RGB888);
+		float coef = 255.0f / (dmax / 2);
+		for(int y = 0 ; y < h ; ++y)
 		{
-			for(int x = 0 ; x < renderSize ; ++x)
+			for(int x = 0 ; x < w ; ++x)
 			{
-				if (texData(x * 3 + 2, y) == 0)
-					continue;
-				float fx = texData(x * 3, y) * conv;
-				float fy = texData(x * 3 + 1, y) * conv;
-				int ix = fx * tmp.getWidth();
-				int iy = fy * tmp.getHeight();
-				if (ix < 0 || ix >= tmp.getWidth() || iy < 0 || iy >= tmp.getHeight())
-					continue;
-				tmp(ix, iy) = 1;
+				int c = qMin(255, int(coef * texData(x, h - 1 - y)));
+				mask.setPixel(x, y, qRgb(c, c, c));
 			}
 		}
 
-		int *in = tmp.pointerToData();
-		int *out = img.pointerToData();
-		for(int *end = in + img.getWidth() * img.getHeight() ; in != end ; ++in, ++out)
-			*out += *in;
+		tex.push_back(Gfx::instance()->bindTexture(mask));
 
-		++i;
-		ProgressDialog::setProgress(i * 100 / dirs.size());
+		glDeleteTextures(8, shadowmap);
+		glDeleteLists(dlistmap, 1);
 	}
+	else
+	{
+		Grid<unsigned short> texData(3 * renderSize, renderSize);
+		Grid<int> img(w, h);
+		Grid<int> tmp(w, h);
+		img.clear();
+
+		int i = 0;
+		float conv = 1.0f / 65535.0f;
+		foreach(Vec dir, dirs)
+		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
+			Vector3D FP((msize + 10.0f) * dir);
+			Vector3D side = dir ^ Vec(0.0f, 1.0f, 0.0f);
+			side.unit();
+			Vector3D up = dir ^ side;
+			up.unit();
+			gluLookAt(FP.x, FP.y, FP.z,
+					  0.0f, 0.0f, 0.0f,
+					  up.x, up.y, up.z);
+
+			float minx = 0.0f, maxx = 0.0f;
+			float miny = 0.0f, maxy = 0.0f;
+			for(int e = 0 ; e < vertex.size() ; ++e)
+			{
+				float x = (vertex[e] + relPos) * side;
+				float y = (vertex[e] + relPos) * up;
+				if (e == 0 || minx > x)
+					minx = x;
+				if (e == 0 || maxx < x)
+					maxx = x;
+				if (e == 0 || miny > y)
+					miny = y;
+				if (e == 0 || maxy < y)
+					maxy = y;
+			}
+
+			glMatrixMode (GL_PROJECTION);
+			glLoadIdentity ();
+			glOrtho(maxx, minx, maxy, miny, -1000.0f, 2.0f * msize + 1000.0f);
+			glMatrixMode(GL_MODELVIEW);
+
+			glCallList(dlist);
+
+			glBindTexture(GL_TEXTURE_2D, fbo.texture());
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_SHORT, texData.pointerToData());
+
+			tmp.clear();
+			for(int y = 0 ; y < renderSize ; ++y)
+			{
+				for(int x = 0 ; x < renderSize ; ++x)
+				{
+					if (texData(x * 3 + 2, y) == 0)
+						continue;
+					float fx = texData(x * 3, y) * conv;
+					float fy = texData(x * 3 + 1, y) * conv;
+					int ix = fx * tmp.getWidth();
+					int iy = fy * tmp.getHeight();
+					if (ix < 0 || ix >= tmp.getWidth() || iy < 0 || iy >= tmp.getHeight())
+						continue;
+					tmp(ix, iy) = 1;
+				}
+			}
+
+			int *in = tmp.pointerToData();
+			int *out = img.pointerToData();
+			for(int *end = in + img.getWidth() * img.getHeight() ; in != end ; ++in, ++out)
+				*out += *in;
+
+			++i;
+			ProgressDialog::setProgress(i * 100 / dirs.size());
+		}
+
+		QImage mask(w, h, QImage::Format_RGB888);
+		float coef = 255.0f / (dirs.size() / 2);
+		for(int y = 0 ; y < h ; ++y)
+		{
+			for(int x = 0 ; x < w ; ++x)
+			{
+				int c = qMin(255, int(coef * img(x, h - 1 - y)));
+				mask.setPixel(x, y, qRgb(c, c, c));
+			}
+		}
+
+		tex.push_back(Gfx::instance()->bindTexture(mask));
+	}
+
 	fbo.release();
 	glDeleteLists(dlist, 1);
-
-	QImage mask(w, h, QImage::Format_RGB888);
-	float coef = 255.0f / (dirs.size() / 2);
-	for(int y = 0 ; y < h ; ++y)
-	{
-		for(int x = 0 ; x < w ; ++x)
-		{
-			int c = qMin(255, int(coef * img(x, h - 1 - y)));
-			mask.setPixel(x, y, qRgb(c, c, c));
-		}
-	}
-
-	tex.push_back(Gfx::instance()->bindTexture(mask));
 
 	ProgressDialog::setProgress(100);
 }
@@ -193,4 +389,43 @@ void Mesh::drawOcclusion(int id)
 	glPopMatrix();
 	if (next)
 		next->drawOcclusion(id);
+}
+
+void Mesh::drawOcclusionMap(int id)
+{
+	glPushMatrix();
+
+	glTranslatef(pos.x, pos.y, pos.z);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
+	if (!tcoord.isEmpty() && (id == ID || id == -1))
+	{
+		glVertexPointer(3, GL_FLOAT, 0, vertex.data());
+		glTexCoordPointer(2, GL_FLOAT, 0, tcoord.data());
+
+		glDisable(GL_LIGHTING);
+		glShadeModel(GL_SMOOTH);
+
+		switch(type)
+		{
+		case MESH_TRIANGLE_STRIP:
+			glDrawElements(GL_TRIANGLE_STRIP, index.size(), GL_UNSIGNED_INT, index.data());
+			break;
+		case MESH_TRIANGLES:
+		default:
+			glDrawElements(GL_TRIANGLES, index.size(), GL_UNSIGNED_INT, index.data());
+			break;
+		};
+	}
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if (child)
+		child->drawOcclusionMap(id);
+	glPopMatrix();
+	if (next)
+		next->drawOcclusionMap(id);
 }

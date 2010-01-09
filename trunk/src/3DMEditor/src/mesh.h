@@ -166,6 +166,7 @@ public:
 
     void draw(int id = -1, Mesh *root = NULL);
 	void drawOcclusion(int id = -1);
+	void drawOcclusionMap(int id = -1);
 
     void load(const QString &filename);
     void save(const QString &filename);
