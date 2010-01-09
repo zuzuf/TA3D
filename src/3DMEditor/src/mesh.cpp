@@ -1488,331 +1488,154 @@ void Mesh::invertOrientation()
 
 void Mesh::autoComputeUVcoordinates()
 {
+	// Convert current mesh structure to a simple triangle soup
     toTriangleSoup();
     mergeSimilarVertices();
 
-    int nb_component = 0;
-    QVector< QVector< int > > neighbors;
-    neighbors.resize(vertex.size());
-    for(int i = 0 ; i < index.size() ; i += 3)      // Build neighborhood tables
-    {
-        for(int e = 0 ; e < 3 ; e++)
-        {
-            if (!neighbors[index[i + e]].contains(index[i + ((1 + e) % 3)]))
-                neighbors[index[i + e]].push_back(index[i + ((1 + e) % 3)]);
-            if (!neighbors[index[i + e]].contains(index[i + ((2 + e) % 3)]))
-                neighbors[index[i + e]].push_back(index[i + ((2 + e) % 3)]);
-        }
-    }
-    for(int i = 0 ; i < neighbors.size() ; i++)
-        qSort( neighbors[i] );
+	// Compute the face set and neighborhood relations between faces
+	QHash< GLuint, QHash< GLuint, QList<int> > >	edges;
+	QSet< int >	faces;
 
-    QVector< QVector< int > > componentVertex;
-    QVector< int > component;
-    QVector< int > dist;
-    for(int i = 0 ; i < vertex.size() ; i++)
-    {
-        component.push_back(-1);
-        dist.push_back(vertex.size());
-    }
+	for(int i = 0 ; i < index.size() ; i += 3)
+	{
+		GLuint a = index[i];
+		GLuint b = index[i + 1];
+		GLuint c = index[i + 2];
+		edges[a][b].push_back(i);
+		edges[b][c].push_back(i);
+		edges[c][a].push_back(i);
+		edges[b][a].push_back(i);
+		edges[c][b].push_back(i);
+		edges[a][c].push_back(i);
+		faces << i;
+	}
 
-    QQueue< int > qWork;
-    for(int i = 0 ; i < vertex.size() ; i++)
-        qWork.enqueue(i);
-    for(int i = 0 ; i < vertex.size() ; i++)
-        qSwap( qWork[i], qWork[ qrand() % qWork.size() ] );
+	// Greedy algorithm to compute triangle strippes
+	QList< QList< GLuint > > stripes;
+	while(!faces.isEmpty())
+	{
+		int cur = *faces.begin();
+		GLuint a = index[cur];
+		GLuint b = index[cur + 1];
+		GLuint c = index[cur + 2];
 
-    while(!qWork.isEmpty())         // Compute connex components
-    {
-        int A = qWork.dequeue();
-        int B = -1, C = -1;
-        for(int i = 0 ; i < neighbors[A].size() && C == -1 ; i++)
-        {
-            int n = neighbors[A][i];
-            if (component[n] == -1)
-            {
-                B = n;
-                for(int e = i + 1 ; e < neighbors[A].size() && C == -1 ; e++)
-                {
-                    n = neighbors[A][e];
-                    if (component[n] == -1 && neighbors[B].contains(n))
-                        C = n;
-                }
-            }
-        }
-        if (C == -1)                // No unattributed triangle OO! This is not possible, but for robustness ...
-        {
-            qDebug() << "error : no triangle found! ( " << __FILE__ << " l." << __LINE__ << ")";
-            continue;
-        }
-        int cmp = nb_component++;
-        component[A] = component[B] = component[C] = cmp;
-        // B and C have been chosen so we must not use them again
-        qWork.removeOne(B);
-        qWork.removeOne(C);
-        dist[A] = 0;                // Compute distance from component initializer
-        dist[B] = dist[C] = 1;
-        componentVertex.push_back(QVector<int>());
-        componentVertex.last() << A << B << C;
+		QList< GLuint > strip;
+		strip << a;
+		strip << b;
+		bool found = false;
+		do
+		{
+			faces.remove(cur);
+			strip << c;
 
-        QQueue<int> qComponent;
-        qComponent << neighbors[A].toList() << neighbors[B].toList() << neighbors[C].toList();
-        while(!qComponent.isEmpty())
-        {
-            int i = qComponent.dequeue();
-            if (component[i] == cmp)        // Already in
-                continue;
+			found = false;
+			QList<int> &nlist = edges[b][c];
+			for(QList<int>::iterator i = nlist.begin() ; i != nlist.end() && !found ; ++i)
+			{
+				if (faces.contains(*i))
+				{
+					found = true;
+					cur = *i;
+					a = b;
+					b = c;
+					if ((index[cur] == a && index[cur + 1] == b)
+						|| (index[cur] == b && index[cur + 1] == a))
+						c = index[cur + 2];
+					else if ((index[cur] == a && index[cur + 2] == b)
+						|| (index[cur] == b && index[cur + 2] == a))
+						c = index[cur + 1];
+					else
+						c = index[cur];
+				}
+			}
 
-            A = i;
-            B = -1;
-            C = -1;
-            for(int j = 0 ; j < neighbors[A].size() && C == -1 ; j++)
-            {
-                int n = neighbors[A][j];
-                if (component[n] == cmp)
-                {
-                    B = n;
-                    for(int e = j + 1 ; e < neighbors[A].size() && C == -1 ; e++)
-                    {
-                        n = neighbors[A][e];
-                        if (component[n] == cmp && neighbors[B].contains(n))
-                            C = n;
-                    }
-                }
-            }
-            if (C == -1)            // It's not in
-                continue;
-            componentVertex.last() << A;
+		} while(found);
+		stripes << strip;
+	}
 
-            if (component[i] != -1)         // Special case, the vertex must be duplicated
-            {                               // (2 components joined by a vertex :/)
-                int orig = component[i];
-                for(int e = 0 ; e < index.size() ; e += 3)
-                {
-                    if (index[e] == (uint32)A || index[e+1] == (uint32)A || index[e+2] == (uint32)A)
-                    {
-                        if (component[index[e]] == orig && component[index[e+1]] == orig && component[index[e+2]] == orig)
-                        {
-                            if (index[e] == (uint32)A)
-                                index[e] = vertex.size();
-                            if (index[e+1] == (uint32)A)
-                                index[e+1] = vertex.size();
-                            if (index[e+2] == (uint32)A)
-                                index[e+2] = vertex.size();
-                        }
-                    }
-                }
-                dist.push_back(dist[A]);
-                dist[A] = vertex.size();
-                component.push_back(orig);
-                vertex.push_back(vertex[i]);
-                neighbors.push_back(QVector<int>());
-                for(int e = 0 ; e < neighbors[i].size() ; e++)
-                    if (component[neighbors[i][e]] == orig)
-                    {
-                        neighbors.last().push_back(neighbors[i][e]);
-                        neighbors[i].remove(e--);
-                    }
-            }
-            for(int j = 0 ; j < neighbors[A].size() ; j++)
-                dist[A] = qMin(dist[A], dist[ neighbors[A][j] ] + 1);
-            component[i] = cmp;
-            qComponent << neighbors[i].toList();
-        }
-    }
+	QVector<Vec> nvertex;
+	index.clear();
+	float n = 0.0f;
+	float mx = 0.0f;
+	tcoord.clear();
 
-    tcoord.resize(2 * vertex.size());
+	// Compute maximum strip length
+	for(QList< QList< GLuint > >::iterator strip = stripes.begin() ; strip != stripes.end() ; ++strip)
+		mx = qMax(mx, float((strip->size() - 1) / 2));
 
-    // Compute texture coordinates per component (physics like stuffs)
-    for(int c = 0 ; c < nb_component ; c++)
-    {
-        // Open the mesh at its extremities (distance extremas - but not 0 - which have more than 2 neighbors)
-        // in order to have a mesh with a topology that can be mapped :)
-        for(int i = 0 ; i < componentVertex[c].size() ; i++)
-        {
-            uint32 n = componentVertex[c][i];
-            int d = dist[n];
-            if (neighbors[n].size() > 2)
-            {
-                bool extremum = true;
-                for(int e = 0 ; e < neighbors[n].size() && extremum ; e++)
-                    extremum = dist[neighbors[n][e]] <= d;
-                if (extremum && false)       // Duplicate this vertex
-                {
-                    QVector<int> vParent;
-                    for(int j = 0 ; j < index.size() ; j += 3)
-                        if (index[j] == n || index[j+1] == n || index[j+2] == n)
-                            vParent.push_back(j);
-                    for(int j = 1 ; j < vParent.size() ; j++)
-                    {
-                        int k = vParent[j];
-                        if (index[k] == n)  index[k] = vertex.size();
-                        if (index[k+1] == n)  index[k+1] = vertex.size();
-                        if (index[k+2] == n)  index[k+2] = vertex.size();
-                        neighbors.push_back(QVector<int>());
-                        for(int e = 0 ; e < neighbors[n].size() ; e++)
-                        {
-                            neighbors.last().push_back(neighbors[n][e]);
-                            neighbors[n].remove(e--);
-                        }
-                        dist.push_back(dist[n]);
-                        component.push_back(c);
-                        componentVertex[c].push_back(vertex.size());
-                        vertex.push_back(vertex[n]);
-                        tcoord.push_back(0.0f);
-                        tcoord.push_back(0.0f);
-                    }
-                }
-            }
-        }
+	QList< QPair< int, int > > freePlaces;
 
-        QVector<int> nbDist;
-        QVector<int> nbLeft;
-        nbDist.resize( componentVertex[c].size() );
-        for(int i = 0 ; i < componentVertex[c].size() ; i++)
-            nbDist[ dist[ componentVertex[c][i] ] ]++;
-        nbLeft = nbDist;
-        for(int i = 0 ; i < componentVertex[c].size() ; i++)       // Initialize texture coordinates
-        {
-            int n = componentVertex[c][i];
-            int d = dist[n];
-            if (d == 0)
-            {
-                tcoord[n * 2] = 0.0f;
-                tcoord[n * 2 + 1] = 0.0f;
-            }
-            else
-            {
-                tcoord[n * 2] = cosf(nbLeft[d] * M_PI * 2.0f / nbDist[d]) * d;
-                tcoord[n * 2 + 1] = sinf(nbLeft[d] * M_PI * 2.0f / nbDist[d]) * d;
-                nbLeft[d]--;
-            }
-        }
+	for(QList< QList< GLuint > >::iterator strip = stripes.begin() ; strip != stripes.end() ; ++strip)
+	{
+		int len = (strip->size() - 1) / 2;
+		int start = 0;
+		int curn = n;
 
-        // First simulation steps (tries to make the mesh occupies the texture space)
-        for(int k = 0 ; k < 200 ; k++)
-        {
-            float f = 10.0f / (k + 10);
-            for(int i = 0 ; i < componentVertex[c].size() ; i++)
-            {
-                Vec2 move;
-                int n = componentVertex[c][i];
-                Vec2 N(tcoord[n * 2], tcoord[n * 2 + 1]);
-                for(int e = 0 ; e < componentVertex[c].size() ; e++)
-                {
-                    if (e != i)
-                    {
-                        int m = componentVertex[c][e];
-                        Vec2 M(tcoord[m * 2], tcoord[m * 2 + 1]);
-                        if (neighbors[n].contains(m))
-                        {
-                            Vec2 D(N - M);
-                            float l = D.norm();
-                            if (!isnan(l))
-                            {
-                                D = 1.0f / l * D;
-                                move += (1.0f - l) * D;
-                            }
-                        }
-                        else
-                        {
-                            float value = 1.0f / (N - M).sq();
-                            if (!isnan(value))
-                                move += value * (N - M);
-                        }
-                    }
-                }
-                if (move.sq() > 1.0f)
-                    move.unit();
-                tcoord[n * 2] += f * move.x;
-                tcoord[n * 2 + 1] += f * move.y;
-            }
-        }
-        // First simulation steps (tries to make the texture spaces reflect 3D triangle spaces)
-        for(int k = 0 ; k < 100 ; k++)
-        {
-            float f = 0.1f / (k + 1);
-            for(int i = 0 ; i < componentVertex[c].size() ; i++)
-            {
-                Vec2 move;
-                float constraint = 0.0f;
-                uint32 n = componentVertex[c][i];
-                Vec2 N(tcoord[n * 2], tcoord[n * 2 + 1]);
-                for(int e = 0 ; e < neighbors[n].size() ; e++)
-                {
-                    int m = neighbors[n][e];
-                    Vec2 M(tcoord[m * 2], tcoord[m * 2 + 1]);
-                    Vec2 D(N - M);
-                    float l = D.norm();
-                    D = 1.0f / l * D;
-                    float value = ((vertex[n] - vertex[m]).norm() - l);
-                    if (!isnan(value))
-                    {
-                        move += value * D;
-                        constraint += fabsf(value);
-                    }
-                }
-                // FIXME: links that supports too much distortion should be broken, currently it doesn't work
-                if (!isnan(constraint) && constraint > 300.0f)        // This needs to be duplicated
-                {
-                    QVector<int> vParent;
-                    for(int j = 0 ; j < index.size() ; j += 3)
-                        if (index[j] == n || index[j+1] == n || index[j+2] == n)
-                            vParent.push_back(j);
-                    for(int j = 1 ; j < vParent.size() ; j++)
-                    {
-                        int t = vParent[j];
-                        if (index[t] == n)  index[t] = vertex.size();
-                        if (index[t+1] == n)  index[t+1] = vertex.size();
-                        if (index[t+2] == n)  index[t+2] = vertex.size();
-                        neighbors.push_back(QVector<int>());
-                        for(int e = 0 ; e < neighbors[n].size() ; e++)
-                        {
-                            neighbors.last().push_back(neighbors[n][e]);
-                            neighbors[n].remove(e--);
-                        }
-                        component.push_back(c);
-                        componentVertex[c].push_back(vertex.size());
-                        vertex.push_back(vertex[n]);
-                        tcoord.push_back(tcoord[n*2]);
-                        tcoord.push_back(tcoord[n*2+1]);
-                    }
-                }
-                qDebug() << constraint;
-                if (move.sq() > 1.0f)
-                    move.unit();
-                tcoord[n * 2] += f * move.x;
-                tcoord[n * 2 + 1] += f * move.y;
-            }
-        }
-    }
-    float umin, umax, vmin, vmax;
-    for(int i = 0 ; i < tcoord.size() ; i+=2)
-    {
-        if (i == 0)
-        {
-            umin = umax = tcoord[i];
-            vmin = vmax = tcoord[i+2];
-        }
-        else
-        {
-            umin = qMin(umin, tcoord[i]);
-            vmin = qMin(vmin, tcoord[i+1]);
-            umax = qMax(umax, tcoord[i]);
-            vmax = qMax(vmax, tcoord[i+1]);
-        }
-    }
-    qDebug() << "umin = " << umin;
-    qDebug() << "umax = " << umax;
-    qDebug() << "vmin = " << vmin;
-    qDebug() << "vmax = " << vmax;
-    umax -= umin;
-    vmax -= vmin;
-    for(int i = 0 ; i < tcoord.size() ; i+=2)
-    {
-        tcoord[i] = (tcoord[i] - umin) / umax;
-        tcoord[i+1] = (tcoord[i+1] - vmin) / vmax;
-    }
+		if (freePlaces.isEmpty())
+		{
+			start = 0;
+			curn = n;
+			++n;
+		}
+		else
+		{
+			bool found = false;
+			for(int i = 0 ; i < freePlaces.size() && !found ; ++i)
+			{
+				QPair<int, int> &item = freePlaces[i];
+				if (item.second + len <= mx)
+				{
+					start = item.second;
+					curn = item.first;
+					freePlaces.removeAt(i);
+					found = true;
+				}
+			}
+
+			if (!found)
+				++n;
+		}
+
+		if (start + len < mx)
+			freePlaces << QPair<int, int>(curn, start + len);
+
+		nvertex << vertex[(*strip)[0]];
+		nvertex << vertex[(*strip)[1]];
+		tcoord << start;
+		tcoord << curn + 0.9f;
+		tcoord << start;
+		tcoord << curn;
+		for(int i = 2 ; i < strip->size() ; ++i)
+		{
+			bool reverse = (i % 2) == 1;
+			if (reverse)
+			{
+				index << nvertex.size() - 1;
+				index << nvertex.size() - 2;
+			}
+			else
+			{
+				index << nvertex.size() - 2;
+				index << nvertex.size() - 1;
+			}
+			index << nvertex.size();
+			tcoord << start + (i / 2);
+			tcoord << (reverse ? curn : curn + 0.9f);
+			nvertex << vertex[(*strip)[i]];
+		}
+	}
+
+	n = 1.0f / n;
+	mx = 1.0f / mx;
+	for(int i = 0 ; i < tcoord.size() ; i += 2)
+	{
+		tcoord[i] *= mx;
+		tcoord[i + 1] *= n;
+	}
+
+	normal.clear();
+	vertex = nvertex;
+
     computeNormals();
 }
 
@@ -2297,8 +2120,8 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
                 cur->next = mesh->child;
                 cur = cur->next;
 				cur->pos += shift;
-                cur->next = tmp;
-                mesh->child = mesh->child->next;
+				mesh->child = mesh->child->next;
+				cur->next = tmp;
             }
         }
         if (mesh->next)                 // Destroy the Mesh object
