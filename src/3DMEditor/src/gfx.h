@@ -36,6 +36,8 @@ public:
     int getTextureHeight(GLuint tex);
     QImage textureToImage(GLuint tex);
 
+	GLuint create_shadow_map(int w, int h);
+
     EditMode getEditMode();
 
 protected:
