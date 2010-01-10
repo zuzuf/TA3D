@@ -124,9 +124,12 @@ namespace TA3D
 		bool    paused;                        // The engine writes its current state here, used by save/load code
 		String  file_param;                    // File parameter (command line parameter), used to give complex instructions
 		bool    enable_shortcuts;           // Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
+		bool	no_sound;
 
         inline TA3DCONFIG()
 		{
+			no_sound = false;
+
             resourcePaths.clear();
 
             system7zCommand = "7z";
