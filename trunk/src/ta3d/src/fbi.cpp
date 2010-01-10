@@ -843,7 +843,7 @@ namespace TA3D
 		for (unsigned int i = 0 ; i < WeaponID.size(); i++)
 		{
 			aim_data[i].check = false;
-			if (WeaponID[i]>-1)
+			if (WeaponID[i] > -1)
 			{
 				String aimdir = parseString( String::Format("UNITINFO.WeaponMainDir%d",i) );
 				if (!aimdir.empty())
@@ -893,14 +893,16 @@ namespace TA3D
 		for(int z = 0 ; z < gRepulsion.getHeight() ; ++z)
 		{
 			float dz = z - gRepulsion.getHeight() * 0.5f;
-			// Distance to the unit, not its center of gravity
-			dz = Math::Sgn(dz) * Math::Max(fabsf(dz) - FootprintZ * 0.5f, 0.0f);
+			// Distance to the unit, not its center of gravity if it's a building
+			if (!BMcode)
+				dz = Math::Sgn(dz) * Math::Max(fabsf(dz) - FootprintZ * 0.5f, 0.0f);
 			dz *= dz;
 			for(int x = 0 ; x < gRepulsion.getWidth() ; ++x)
 			{
 				float dx = x - gRepulsion.getWidth() * 0.5f;
-				// Distance to the unit, not its center of gravity
-				dx = Math::Sgn(dx) * Math::Max(fabsf(dx) - FootprintX * 0.5f, 0.0f);
+				// Distance to the unit, not its center of gravity if it's a building
+				if (!BMcode)
+					dx = Math::Sgn(dx) * Math::Max(fabsf(dx) - FootprintX * 0.5f, 0.0f);
 				dx *= dx;
 				gRepulsion(x,z) = 2550.0f * expf(sigx2 * dx + sigz2 * dz);
 			}
