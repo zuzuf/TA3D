@@ -295,7 +295,7 @@ namespace TA3D
 			if (n > 0)
 			{
 				pos += n;
-				network->updateFileTransferInformation( filename + String::Format("%d", sockid), real_length, pos );
+				network->updateFileTransferInformation( String(filename) << sockid, real_length, pos );
 
 				int timer = msec_timer;
 				while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000 )
@@ -305,7 +305,7 @@ namespace TA3D
 					DELETE_ARRAY(buffer);
 					LOG_DEBUG( LOG_PREFIX_NET_FILE << "file transfert timed out");
 					pDead = 1;
-					network->updateFileTransferInformation(filename + String::Format("%d", sockid), 0, 0);
+					network->updateFileTransferInformation(String(filename) << sockid, 0, 0);
 					network->setFileDirty();
 					fclose(file);
 					return;
@@ -324,7 +324,7 @@ namespace TA3D
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
-		network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
+		network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
 		pDead = 1;
 		fclose( file );
 		network->setFileDirty();
@@ -387,7 +387,7 @@ namespace TA3D
 			remove( (filename + ".part").c_str() );
 			network->setFileDirty();
 			DELETE_ARRAY(buffer);
-			network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
+			network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
 			return;
 		}
 
@@ -408,7 +408,7 @@ namespace TA3D
 				remove( (filename + ".part").c_str() );
 				network->setFileDirty();
 				DELETE_ARRAY(buffer);
-				network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
+				network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
 				return;
 			}
 
@@ -417,7 +417,7 @@ namespace TA3D
 				// First we must decompress the data
 
 				sofar += buffer_size;
-				network->updateFileTransferInformation( filename + String::Format("%d", sockid), length, sofar );
+				network->updateFileTransferInformation( String(filename) << sockid, length, sofar );
 
 				fwrite(buffer, 1, buffer_size, file);       // Write data
 
@@ -431,7 +431,7 @@ namespace TA3D
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
-		network->updateFileTransferInformation( filename + String::Format("%d", sockid), 0, 0 );
+		network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
 
 		fclose(file);
 		if( pDead && sofar < length )				// Delete the file if transfer has been aborted

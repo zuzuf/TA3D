@@ -208,14 +208,14 @@ namespace TA3D
 		String name;
 		for (int i = 1; i <= NbObj; ++i)
 		{
-			int attribs = gui_parser.pullAsInt( String::Format( "gadget%d.common.commonattribs", i ) );
+			int attribs = gui_parser.pullAsInt( String("gadget") << i << ".common.commonattribs" );
 			if (!(attribs & 4) && !(attribs & 8))	// Neither a unit nor a weapon
 				continue;
-			int x = gui_parser.pullAsInt( String::Format( "gadget%d.common.xpos", i ) ) + x_offset;
-			int y = gui_parser.pullAsInt( String::Format( "gadget%d.common.ypos", i ) ) + y_offset;
-			int w = gui_parser.pullAsInt( String::Format( "gadget%d.common.width", i ) );
-			int h = gui_parser.pullAsInt( String::Format( "gadget%d.common.height", i ) );
-			name = gui_parser.pullAsString( String::Format( "gadget%d.common.name", i));
+			int x = gui_parser.pullAsInt( String("gadget") << i << ".common.xpos" ) + x_offset;
+			int y = gui_parser.pullAsInt( String("gadget") << i << ".common.ypos" ) + y_offset;
+			int w = gui_parser.pullAsInt( String("gadget") << i << ".common.width" );
+			int h = gui_parser.pullAsInt( String("gadget") << i << ".common.height" );
+			name = gui_parser.pullAsString( String("gadget") << i << ".common.name" );
 			int idx = (attribs & 4) ? get_unit_index(name) : -1;		// attribs & 4 ==> unit, attribs & 8 ==> weapon
 			if ((attribs & 4) && idx == -1)
 			{
@@ -224,7 +224,7 @@ namespace TA3D
 				continue;
 			}
 
-			GLuint tex = loadBuildPic(String::Format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ), name, &w, &h);
+			GLuint tex = loadBuildPic( String("anims\\") << unit_type[unit_index]->Unitname << page + 1 << ".gaf", name, &w, &h);
 			unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
 		}
 	}
@@ -236,10 +236,10 @@ namespace TA3D
 		TDFParser parser;
 		parser.loadFromMemory("analyse2", data, size, false, false, true);
 
-		for(int g = 0 ; parser.exists(String::Format("gadget%d", g)) ; g++)
+		for(int g = 0 ; parser.exists(String("gadget") << g) ; g++)
 		{
-			String unitmenu = parser.pullAsString(String::Format("gadget%d.unitmenu", g));
-			String unitname = parser.pullAsString(String::Format("gadget%d.unitname", g));
+			String unitmenu = parser.pullAsString(String("gadget") << g << ".unitmenu");
+			String unitname = parser.pullAsString(String("gadget") << g << ".unitname");
 
 			if (unitmenu.empty() || unitname.empty()) continue;
 
@@ -252,7 +252,7 @@ namespace TA3D
 			int idx = get_unit_index(unitname);
 			if (idx >= 0 && idx < nb_unit)
 			{
-				GLuint tex = loadBuildPic( String::Format("anims\\%s_gadget.gaf", unitname.c_str()), unitname);
+				GLuint tex = loadBuildPic( String("anims\\") << unitname << "_gadget.gaf", unitname);
 				if (tex || unit_type[idx]->glpic)
 					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
 				else
@@ -318,18 +318,14 @@ namespace TA3D
 		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		for (String::List::const_iterator file = file_list.begin(); file != end; ++file) 
 		{
-			const char *f = NULL;
 			for (int i = 0; i < nb_unit; ++i)
 			{
 				fileUp = *file;
 				fileUp.toUpper();
 				unitnameUp = unit_type[i]->Unitname;
 				unitnameUp.toUpper();
-				if ((f = strstr(fileUp.c_str(), unitnameUp.c_str())))
-				{
-					if (f[unit_type[i]->Unitname.size()]=='.' || (f[unit_type[i]->Unitname.size()]>='0' && f[unit_type[i]->Unitname.size()]<='9'))
-						analyse(*file,i);
-				}
+				if (fileUp.find(unitnameUp) != String::npos && fileUp.find(unitnameUp + '.') == String::npos)
+					analyse(*file,i);
 			}
 		}
 
@@ -337,16 +333,16 @@ namespace TA3D
 		for (int i = 0 ; i < nb_unit; ++i)
 		{
 			int n = 1;
-			while(!sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) ).empty())  n++;
+			while(!sidedata_parser.pullAsString(String::ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) ).empty())  n++;
 
 			n--;
-			String canbuild = sidedata_parser.pullAsString(String::ToLower(String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
+			String canbuild = sidedata_parser.pullAsString(String::ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) );
 			while (n > 0)
 			{
 				int idx = get_unit_index( canbuild );
 				if (idx >= 0 && idx < nb_unit)
 				{
-					GLuint tex = loadBuildPic( String::Format("anims\\%s_gadget.gaf", canbuild.c_str()), canbuild);
+					GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget.gaf", canbuild);
 					if (unit_type[idx]->glpic || tex)
 						unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
 					else
@@ -355,7 +351,7 @@ namespace TA3D
 				else
 				{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
 				--n;
-				canbuild = sidedata_parser.pullAsString( String::Format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
+				canbuild = sidedata_parser.pullAsString( String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n );
 			}
 		}
 
@@ -674,11 +670,11 @@ namespace TA3D
 				w_badTargetCategory.resize(1);
 			w_badTargetCategory[0] = parseString("UNITINFO.wpri_badTargetCategory");
 		}
-		for (unsigned int i = 4 ; !parseString( String::Format("UNITINFO.w%d_badTargetCategory",i) ).empty() ; ++i)
+		for (unsigned int i = 4 ; !parseString( String("UNITINFO.w") << i << "_badTargetCategory" ).empty() ; ++i)
 		{
 			if (w_badTargetCategory.size() < i)
 				w_badTargetCategory.resize(i);
-			w_badTargetCategory[i-1] = parseString(String::Format("UNITINFO.w%d_badTargetCategory",i));
+			w_badTargetCategory[i-1] = parseString(String("UNITINFO.w") << i << "_badTargetCategory");
 		}
 		NoChaseCategory = parseString("UNITINFO.NoChaseCategory");
 		BadTargetCategory = parseString("UNITINFO.BadTargetCategory");
@@ -782,11 +778,11 @@ namespace TA3D
 		kamikazedistance = uint16(parseInt("UNITINFO.kamikazedistance") >> 1);
 
 		unsigned int i = 1;
-		while (i <= 3 || !parseString( String::Format("UNITINFO.Weapon%d",i) ).empty())
+		while (i <= 3 || !parseString( String("UNITINFO.Weapon") << i ).empty())
 		{
 			if (WeaponID.size() < i)
 				WeaponID.resize(i,-1);
-			WeaponID[i-1] = weapon_manager.get_weapon_index( parseString( String::Format("UNITINFO.Weapon%d",i) ) );
+			WeaponID[i-1] = weapon_manager.get_weapon_index( parseString( String("UNITINFO.Weapon") << i ) );
 			++i;
 		}
 		yardmap = parseString("UNITINFO.YardMap");
@@ -845,7 +841,7 @@ namespace TA3D
 			aim_data[i].check = false;
 			if (WeaponID[i] > -1)
 			{
-				String aimdir = parseString( String::Format("UNITINFO.WeaponMainDir%d",i) );
+				String aimdir = parseString( String("UNITINFO.WeaponMainDir") << i );
 				if (!aimdir.empty())
 				{
 					String::Vector vec;
@@ -857,7 +853,7 @@ namespace TA3D
 						aim_data[i].dir.y = vec[1].to<float>();
 						aim_data[i].dir.z = vec[2].to<float>();
 						// Should read almost every possible case
-						aim_data[i].Maxangledif = parseFloat( String::Format("UNITINFO.Maxangledif%d", i) );
+						aim_data[i].Maxangledif = parseFloat( String("UNITINFO.Maxangledif") << i );
 					}
 					else
 					{	LOG_DEBUG("FBI parser error: '" << aimdir << "' could not be parsed correctly");	}
@@ -941,7 +937,7 @@ namespace TA3D
 
 			for (int i = 1; i <= NbObj; ++i)
 			{
-				if (dl_parser.pullAsInt(String::Format("gadget%d.common.attribs", i)) == 32)
+				if (dl_parser.pullAsInt(String("gadget") << i << ".common.attribs") == 32)
 					dl_data->dl_num++;
 			}
 
@@ -953,12 +949,12 @@ namespace TA3D
 			int e = 0;
 			for (int i = 1; i <= NbObj; ++i)
 			{
-				if (dl_parser.pullAsInt( String::Format( "gadget%d.common.attribs", i ) ) == 32 )
+				if (dl_parser.pullAsInt( String("gadget") << i << ".common.attribs" ) == 32 )
 				{
-					dl_data->dl_x[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.xpos", i)) + x_offset);
-					dl_data->dl_y[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.ypos", i)) + y_offset);
-					dl_data->dl_w[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.width", i)));
-					dl_data->dl_h[e] = short(dl_parser.pullAsInt(String::Format("gadget%d.common.height", i)));
+					dl_data->dl_x[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.xpos") + x_offset);
+					dl_data->dl_y[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.ypos") + y_offset);
+					dl_data->dl_w[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.width"));
+					dl_data->dl_h[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.height"));
 					++e;
 				}
 			}
@@ -1221,7 +1217,7 @@ namespace TA3D
 		// Correct some data given in the FBI file using data from the moveinfo.tdf file
 		TDFParser parser(ta3dSideData.gamedata_dir + "moveinfo.tdf");
 		n = 0;
-		while (!parser.pullAsString(String::Format("CLASS%d.name", n)).empty())
+		while (!parser.pullAsString(String("CLASS") << n << ".name").empty())
 			++n;
 
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
@@ -1230,13 +1226,13 @@ namespace TA3D
 			{
 				for (int e = 0; e < n; ++e)
 				{
-					if (parser.pullAsString(String::Format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
+					if (parser.pullAsString(String("CLASS") << e << ".name") == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
 					{
-						unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(String::Format( "CLASS%d.footprintx", e), unit_manager.unit_type[i]->FootprintX ));
-						unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(String::Format( "CLASS%d.footprintz", e), unit_manager.unit_type[i]->FootprintZ ));
-						unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(String::Format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i]->MinWaterDepth ));
-						unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(String::Format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i]->MaxWaterDepth ));
-						unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(String::Format( "CLASS%d.maxslope", e), unit_manager.unit_type[i]->MaxSlope ));
+						unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(String("CLASS") << e << ".footprintx", unit_manager.unit_type[i]->FootprintX ));
+						unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(String("CLASS") << e << ".footprintz", unit_manager.unit_type[i]->FootprintZ ));
+						unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".minwaterdepth", unit_manager.unit_type[i]->MinWaterDepth ));
+						unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".maxwaterdepth", unit_manager.unit_type[i]->MaxWaterDepth ));
+						unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(String("CLASS") << e << ".maxslope", unit_manager.unit_type[i]->MaxSlope ));
 						break;
 					}
 				}

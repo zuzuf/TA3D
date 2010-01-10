@@ -403,9 +403,9 @@ namespace TA3D
 				unit_manager.unit_type[i]->not_used = true;
 			String unit_name;
 			int i = 0;
-			while (!(unit_name = useonly_parser.pullAsString(String::Format("gadget%d", i))).empty())
+			while (!(unit_name = useonly_parser.pullAsString(String("gadget") << i)).empty())
 			{
-				int idx = unit_manager.get_unit_index( unit_name.c_str());
+				int idx = unit_manager.get_unit_index( unit_name );
 				if (idx >= 0)
 					unit_manager.unit_type[idx]->not_used = false;
 				++i;
@@ -447,10 +447,10 @@ namespace TA3D
 			if (String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
 			{
 				int e(1);
-                while (VFS::Instance()->fileExists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e)))
+				while (VFS::Instance()->fileExists(String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui"))
 				{
-					pArea.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + String::Format("%d.gui", e));			// Load the build interface
-					pArea.msg( unit_manager.unit_type[i]->Unitname + String::Format("%d.hide", e));	// Hide it
+					pArea.load_window( String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui");			// Load the build interface
+					pArea.msg( String(unit_manager.unit_type[i]->Unitname) << e << ".hide");	// Hide it
 					++e;
 				}
 			}

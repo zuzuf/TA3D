@@ -126,7 +126,7 @@ namespace TA3D
 	{
 		if (s.empty())
 			return nullptr;
-		char* ret = ConvertToUTF8(s.c_str(), s.size());
+		char* ret = ConvertToUTF8(s.data(), s.size());
 		if (ret)
 		{
 			String s(ret); // TODO Find a way to not use a temporary string
@@ -146,7 +146,7 @@ namespace TA3D
 
     WString::WString(const String& s)
     {
-        fromUtf8(s.c_str(), s.size());
+		fromUtf8(s.data(), s.size());
     }
 
     void WString::fromUtf8(const char* str, size_t length)

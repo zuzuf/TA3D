@@ -187,7 +187,7 @@ namespace TA3D
 
         float getFileTransferProgress();
 
-        int broadcastMessage( const char *msg );
+		int broadcastMessage( const String &msg );
         String getNextBroadcastedMessage();
         String getLastMessageAddress();
         bool BroadcastedMessages();

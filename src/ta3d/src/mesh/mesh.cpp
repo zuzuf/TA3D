@@ -1353,12 +1353,12 @@ namespace TA3D
 
 	float MESH::print_struct(float Y, float X, TA3D::Font *fnt)
 	{
-		gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, String::Format("%s [%d]", name.c_str(),script_index));
-		gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, String::Format("(v:%d",   nb_vtx));
-		gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",p:%d",   nb_prim));
-		gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",t:%d",   nb_t_index));
-		gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",l:%d",   nb_l_index));
-		gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, String::Format(",p:%d)",  nb_p_index));
+		gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, String(name) << " [" << script_index << ']');
+		gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, String("(v:") << nb_vtx);
+		gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, String(",p:") << nb_prim);
+		gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, String(",t:") << nb_t_index);
+		gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, String(",l:") << nb_l_index);
+		gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, String(",p:") << nb_p_index);
 		float nwY = Y + 8.0f;
 		if (child)
 			nwY = child->print_struct(nwY, X + 8.0f, fnt);

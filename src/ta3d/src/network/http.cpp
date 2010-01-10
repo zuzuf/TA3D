@@ -39,7 +39,7 @@ namespace TA3D
 			Paths::MakeDir(Paths::ExtractFilePath(filename));
 
 		SocketTCP   sock;
-		char        buffer[4096];
+		char		buffer[4096];
 		String      realFilename = filename;
 		String      tmpFile = filename + ".part";
 		std::fstream f(tmpFile.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
@@ -65,11 +65,11 @@ namespace TA3D
 
 		sock.setNonBlockingMode(true);      // We want it to be able to detect end of file ;)
 
-		sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n"
-				, _request.c_str(), servername.c_str() );
+		String tmpBuf;
+		tmpBuf << "GET " << _request << " HTTP/1.0\r\nHost:" << servername << "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
 
 		uint32 timer(msec_timer);
-		sock.send(buffer, strlen(buffer));
+		sock.send(tmpBuf.data(), tmpBuf.size());
 		if (!sock.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not send request to server !");
@@ -222,11 +222,11 @@ namespace TA3D
 
 		f.clear();
 
-		sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
-				, _request.c_str(), servername.c_str() );
+		String tmpBuf;
+		tmpBuf << "GET " << _request << " HTTP/1.0\r\nHost:" << servername << "\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n";
 
 		uint32 timer(msec_timer);
-		sock.send( buffer, strlen(buffer));
+		sock.send( tmpBuf.data(), tmpBuf.size());
 		if (!sock.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not send request to server !");
@@ -315,11 +315,11 @@ namespace TA3D
 
 		sock.setNonBlockingMode(true);      // We want it to be able to detect end of file ;)
 
-		sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n"
-				, _request.c_str(), servername.c_str() );
+		String tmpBuf;
+		tmpBuf << "GET " << _request << " HTTP/1.0\r\nHost:" << servername << "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
 
 		uint32 timer(msec_timer);
-		sock.send(buffer, strlen(buffer));
+		sock.send(tmpBuf.data(), tmpBuf.size());
 		if (!sock.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not send request to server !");

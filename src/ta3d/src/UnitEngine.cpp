@@ -753,9 +753,9 @@ namespace TA3D
 						{
 							String buf;
 							if ((int)unit[index].planned_weapons==unit[index].planned_weapons)
-								buf = String::Format("%d(%d)",(int)unit[index].planned_weapons,stock);
+								buf << (int)unit[index].planned_weapons << '(' << stock << ')';
 							else
-								buf = String::Format("%d(%d)",(int)unit[index].planned_weapons+1,stock);
+								buf << (int)unit[index].planned_weapons+1 << '(' << stock << ')';
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 							gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
 							gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);

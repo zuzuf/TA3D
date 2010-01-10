@@ -299,7 +299,7 @@ namespace TA3D
 				Gaf::AnimationList anims;
 				anims.loadGAFFromRawData(data);
 				std::ofstream   m_File;
-				m_File.open( String::Format("%s.txt", Paths::ExtractFileName( args[0] ).c_str()).c_str(), std::ios::out | std::ios::trunc );
+				m_File.open( (Paths::ExtractFileName(args[0]) << ".txt").c_str(), std::ios::out | std::ios::trunc );
 
 				m_File << "[gadget0]\n{\n";
 				m_File << "    filename=" << args[0] << ";\n";
@@ -313,7 +313,8 @@ namespace TA3D
 					m_File << "    name=" << anims[i].name << ";\n";
 					for (int e = 0; e < anims[i].nb_bmp; ++e)
 					{
-						String filename = String::Format("%s%d.tga", anims[i].name.c_str(), e);
+						String filename;
+						filename << anims[i].name << e << ".tga";
 						m_File << "    [frame" << e << "]\n    {\n";
 						m_File << "        XPos=" << anims[i].ofs_x[ e ] << ";\n";
 						m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
@@ -377,10 +378,10 @@ namespace TA3D
 
 					Gaf::Entry Entry;
 
-					Entry.Frames = sint16(parser.pullAsInt( String::Format( "gadget%d.frames", i + 1 ) ));
+					Entry.Frames = sint16(parser.pullAsInt( String("gadget") << (i + 1) << ".frames" ));
 					Entry.Unknown1 = 1;
 					Entry.Unknown2 = 0;
-					Entry.name = parser.pullAsString( String::Format( "gadget%d.name", i + 1 ) );
+					Entry.name = parser.pullAsString( String("gadget") << (i + 1) << ".name" );
 
 					fwrite( &Entry.Frames, 2, 1, gaf_file );
 					fwrite( &Entry.Unknown1, 2, 1, gaf_file );
@@ -406,13 +407,13 @@ namespace TA3D
 						fseek( gaf_file, pos, SEEK_SET );
 
 						Gaf::Frame::Data FrameData;
-						FrameData.XPos = sint16(parser.pullAsInt( String::Format( "gadget%d.frame%d.XPos", i + 1, e ) ) );
-						FrameData.YPos = sint16(parser.pullAsInt( String::Format( "gadget%d.frame%d.YPos", i + 1, e ) ) );
+						FrameData.XPos = sint16(parser.pullAsInt( String("gadget") << (i+1) << ".frame" << e << ".XPos" ) );
+						FrameData.YPos = sint16(parser.pullAsInt( String("gadget") << (i+1) << ".frame" << e << ".YPos" ) );
 						FrameData.FramePointers = 0;
 						FrameData.Unknown2 = 0;
 						FrameData.Compressed = 1;
 
-						SDL_Surface *frame_img = IMG_Load( parser.pullAsString( String::Format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
+						SDL_Surface *frame_img = IMG_Load( parser.pullAsString( String("gadget") << (i + 1) << ".frame" << e << ".filename" ).c_str() );
 						if (frame_img)
 						{
 							frame_img = convert_format(frame_img);
@@ -446,7 +447,7 @@ namespace TA3D
 						else
 						{
 							std::cerr << "Error: In frame " << e << ", could not load "
-								<< parser.pullAsString(String::Format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() << std::endl;
+								<< parser.pullAsString(String("gadget") << (i + 1) << ".frame" << e << ".filename" ) << std::endl;
 							i = header.Entries;
 							break;
 						}

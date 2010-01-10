@@ -65,7 +65,7 @@ namespace TA3D
 			tex[i].ofs_y = new short[1];
 			tex[i].w = new short[1];
 			tex[i].h = new short[1];
-			tex[i].name = String::Format("_%d", i);
+			tex[i].name = String('_') << i;
 
 			tex[i].ofs_x[0] = 0;
 			tex[i].ofs_y[0] = 0;

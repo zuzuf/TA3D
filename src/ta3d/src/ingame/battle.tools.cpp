@@ -135,11 +135,11 @@ namespace TA3D
                 // Kills
                 tmp.clear();
                 tmp += players.kills[i];
-                pArea.caption(String::Format("playerstats.p%d_kills", i), tmp);
+				pArea.caption(String("playerstats.p") << i << "_kills", tmp);
                 // Losses
                 tmp.clear();
                 tmp += players.losses[i];
-                pArea.caption(String::Format("playerstats.p%d_losses", i), tmp);
+				pArea.caption(String("playerstats.p") << i << "_losses", tmp);
             }
 	}
 

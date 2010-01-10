@@ -425,7 +425,7 @@ namespace TA3D
 			gltex.resize(nb_sprites);
 			for (short e = 0; e < nb_sprites; ++e)
 			{
-				String cache_filename = !filename.empty() ? filename + String::Format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", e ) : String( "" );
+				String cache_filename = !filename.empty() ? String(filename) << '-' << (!name.empty() ? name : "none") << '-' << e << ".bin" : String();
 				cache_filename.replace('/', 'S');
 				cache_filename.replace('\\', 'S');
 

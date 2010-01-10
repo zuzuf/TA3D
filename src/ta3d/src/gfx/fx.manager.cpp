@@ -63,7 +63,7 @@ namespace TA3D
 		if (anm_idx == -1)
 		{
 			byte *data;
-			if (strcasecmp(filename.c_str(),"fx"))
+			if (String::ToLower(filename) != "fx")
 				data = VFS::Instance()->readFile(tmp);
 			else
 				data = fx_data;

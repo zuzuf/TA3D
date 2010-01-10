@@ -244,7 +244,7 @@ namespace TA3D
 		else
 		{
 			ftmutex.lock();
-			int nb_port = atoi( port.c_str() );
+			int nb_port = port.to<int>();
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
 			{
 				if ((*i)->port == nb_port)
@@ -284,7 +284,7 @@ namespace TA3D
 	bool Network::isTransferFinished( const String &port )
 	{
 		MutexLocker mLock(ftmutex);
-		int nb_port = atoi( port.c_str() );
+		int nb_port = port.to<int>();
 		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
 			if ((*i)->port == nb_port)
 				return false;
@@ -452,7 +452,7 @@ namespace TA3D
                             String((char*)(special_msg.message)).explode(params, ' ');
 							if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
 							{
-								myID = atoi( params[2].c_str() );
+								myID = params[2].to<int>();
 								break;
 							}
 						}
@@ -695,7 +695,7 @@ namespace TA3D
 		ftmutex.lock();
 		SendFileThread *thread = new SendFileThread();
 		sendfile_thread.push_back( thread );
-		thread->port = atoi( port.c_str() );
+		thread->port = port.to<int>();
 		thread->player_id = player;
 
 		net_thread_params *params = new net_thread_params;
@@ -771,12 +771,12 @@ namespace TA3D
 	}
 
 
-	int Network::broadcastMessage( const char *msg )
+	int Network::broadcastMessage( const String &msg )
 	{
 		if( !broadcast_socket.isOpen() )
 			return -1;
 
-		broadcast_socket.send( msg, strlen(msg) + 1 );
+		broadcast_socket.send( msg.c_str(), msg.size() + 1 );
 		return broadcast_socket.isOpen() ? 0 : -1;
 	}
 
@@ -940,10 +940,10 @@ namespace TA3D
 				continue;
 			if (params.size() == 2 && params[1] == "servers")
 			{
-				nb_servers = atoi( params[0].c_str() );
+				nb_servers = params[0].to<int>();
 				continue;
 			}
-			int cur = atoi( params[0].c_str() );
+			int cur = params[0].to<int>();
 			if( cur != old ) 						// We've all we need for this one
 			{
 				if( server_version != TA3D_ENGINE_VERSION || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
@@ -958,8 +958,8 @@ namespace TA3D
 				for(unsigned int i = 2 ; i < params.size() ; ++i)
 					cur_server.name += i > 2 ? " " + params[i] : params[i];
 			}
-			else if( params[1] == "IP:" )		cur_server.host = params.size() >= 3 ? params[2] : "";
-			else if( params[1] == "slots:" )	cur_server.nb_open = params.size() >= 3 ? atoi( params[2].c_str() ) : 0;
+			else if( params[1] == "IP:" )		cur_server.host = params.size() >= 3 ? params[2] : String();
+			else if( params[1] == "slots:" )	cur_server.nb_open = params.size() >= 3 ? params[2].to<int>() : 0;
 			else if( params[1] == "mod:" ) {
 				server_mod = "";
 				for(unsigned int i = 2 ; i < params.size() ; ++i)
@@ -993,8 +993,8 @@ namespace TA3D
 		rMode.replace(" ", "%20");
 		rEngine.replace(" ", "%20");
 
-		String request = String::Format("/register.php?name=%s&mod=%s&version=%s&slots=%d",
-			rName.c_str(), rMode.c_str(), rEngine.c_str(), Slots);
+		String request;
+		request << "/register.php?name=" << rName << "&mod=" << rMode << "&version=" << rEngine << "&slots=" << Slots;
         String result = Http::request(lp_CONFIG->net_server, request);
 		return 0; // TODO Fixe me with the good value !
 	}

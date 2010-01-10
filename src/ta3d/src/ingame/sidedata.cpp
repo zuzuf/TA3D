@@ -106,42 +106,42 @@ namespace TA3D
 			LOG_DEBUG("[sidedata] " << sideName);
 
 			side_name[ nb_side ] = sideName;
-			side_pref[ nb_side ] = sidedata_parser.pullAsString( String::Format( "side%d.nameprefix", nb_side ));
-			side_com[ nb_side ] = sidedata_parser.pullAsString( String::Format( "side%d.commander", nb_side ));
-			side_int[ nb_side ] = sidedata_parser.pullAsString( String::Format( "side%d.intgaf", nb_side ));
+			side_pref[ nb_side ] = sidedata_parser.pullAsString( String("side") << nb_side << ".nameprefix" );
+			side_com[ nb_side ] = sidedata_parser.pullAsString( String("side") << nb_side << ".commander" );
+			side_int[ nb_side ] = sidedata_parser.pullAsString( String("side") << nb_side << ".intgaf" );
 
-			int pal_id = sidedata_parser.pullAsInt( String::Format( "side%d.metalcolor", nb_side ));
+			int pal_id = sidedata_parser.pullAsInt( String("side") << nb_side << ".metalcolor" );
 			side_int_data[ nb_side ].metal_color = makeacol( pal[ pal_id ].r, pal[ pal_id ].g, pal[ pal_id ].b, 0xFF);
-			pal_id = sidedata_parser.pullAsInt( String::Format( "side%d.energycolor", nb_side ));
+			pal_id = sidedata_parser.pullAsInt( String("side") << nb_side << ".energycolor" );
 			side_int_data[ nb_side ].energy_color = makeacol( pal[ pal_id ].r, pal[ pal_id ].g, pal[ pal_id ].b, 0xFF);
 
-			side_int_data[ nb_side ].EnergyBar = read_gui_element( &sidedata_parser, String::Format( "side%d.energybar", nb_side ));
-			side_int_data[ nb_side ].EnergyNum = read_gui_element( &sidedata_parser, String::Format( "side%d.energynum", nb_side ));
-			side_int_data[ nb_side ].EnergyMax = read_gui_element( &sidedata_parser, String::Format( "side%d.energymax", nb_side ));
-			side_int_data[ nb_side ].Energy0 = read_gui_element( &sidedata_parser, String::Format( "side%d.energy0", nb_side ));
-			side_int_data[ nb_side ].EnergyProduced = read_gui_element( &sidedata_parser, String::Format( "side%d.energyproduced", nb_side ));
-			side_int_data[ nb_side ].EnergyConsumed = read_gui_element( &sidedata_parser, String::Format( "side%d.energyconsumed", nb_side ));
+			side_int_data[ nb_side ].EnergyBar = read_gui_element( &sidedata_parser, String("side") << nb_side << ".energybar" );
+			side_int_data[ nb_side ].EnergyNum = read_gui_element( &sidedata_parser, String("side") << nb_side << ".energynum" );
+			side_int_data[ nb_side ].EnergyMax = read_gui_element( &sidedata_parser, String("side") << nb_side << ".energymax" );
+			side_int_data[ nb_side ].Energy0 = read_gui_element( &sidedata_parser, String("side") << nb_side << ".energy0" );
+			side_int_data[ nb_side ].EnergyProduced = read_gui_element( &sidedata_parser, String("side") << nb_side << ".energyproduced" );
+			side_int_data[ nb_side ].EnergyConsumed = read_gui_element( &sidedata_parser, String("side") << nb_side << ".energyconsumed" );
 
-			side_int_data[ nb_side ].MetalBar = read_gui_element( &sidedata_parser, String::Format( "side%d.metalbar", nb_side ));
-			side_int_data[ nb_side ].MetalNum = read_gui_element( &sidedata_parser, String::Format( "side%d.metalnum", nb_side ));
-			side_int_data[ nb_side ].MetalMax = read_gui_element( &sidedata_parser, String::Format( "side%d.metalmax", nb_side ));
-			side_int_data[ nb_side ].Metal0 = read_gui_element( &sidedata_parser, String::Format( "side%d.metal0", nb_side ));
-			side_int_data[ nb_side ].MetalProduced = read_gui_element( &sidedata_parser, String::Format( "side%d.metalproduced", nb_side ));
-			side_int_data[ nb_side ].MetalConsumed = read_gui_element( &sidedata_parser, String::Format( "side%d.metalconsumed", nb_side ));
+			side_int_data[ nb_side ].MetalBar = read_gui_element( &sidedata_parser, String("side") << nb_side << ".metalbar" );
+			side_int_data[ nb_side ].MetalNum = read_gui_element( &sidedata_parser, String("side") << nb_side << ".metalnum" );
+			side_int_data[ nb_side ].MetalMax = read_gui_element( &sidedata_parser, String("side") << nb_side << ".metalmax" );
+			side_int_data[ nb_side ].Metal0 = read_gui_element( &sidedata_parser, String("side") << nb_side << ".metal0" );
+			side_int_data[ nb_side ].MetalProduced = read_gui_element( &sidedata_parser, String("side") << nb_side << ".metalproduced" );
+			side_int_data[ nb_side ].MetalConsumed = read_gui_element( &sidedata_parser, String("side") << nb_side << ".metalconsumed" );
 
-			side_int_data[ nb_side ].UnitName = read_gui_element( &sidedata_parser, String::Format( "side%d.unitname", nb_side ), true);
-			side_int_data[ nb_side ].DamageBar = read_gui_element( &sidedata_parser, String::Format( "side%d.damagebar", nb_side ), true);
+			side_int_data[ nb_side ].UnitName = read_gui_element( &sidedata_parser, String("side") << nb_side << ".unitname", true);
+			side_int_data[ nb_side ].DamageBar = read_gui_element( &sidedata_parser, String("side") << nb_side << ".damagebar", true);
 
-			side_int_data[ nb_side ].UnitName2 = read_gui_element( &sidedata_parser, String::Format( "side%d.unitname2", nb_side ), true);
-			side_int_data[ nb_side ].DamageBar2 = read_gui_element( &sidedata_parser, String::Format( "side%d.damagebar2", nb_side ), true);
+			side_int_data[ nb_side ].UnitName2 = read_gui_element( &sidedata_parser, String("side") << nb_side << ".unitname2", true);
+			side_int_data[ nb_side ].DamageBar2 = read_gui_element( &sidedata_parser, String("side") << nb_side << ".damagebar2", true);
 
-			side_int_data[ nb_side ].UnitMetalMake = read_gui_element( &sidedata_parser, String::Format( "side%d.unitmetalmake", nb_side ), true);
-			side_int_data[ nb_side ].UnitMetalUse = read_gui_element( &sidedata_parser, String::Format( "side%d.unitmetaluse", nb_side ), true);
-			side_int_data[ nb_side ].UnitEnergyMake = read_gui_element( &sidedata_parser, String::Format( "side%d.unitenergymake", nb_side ), true);
-			side_int_data[ nb_side ].UnitEnergyUse = read_gui_element( &sidedata_parser, String::Format( "side%d.unitenergyuse", nb_side ), true);
+			side_int_data[ nb_side ].UnitMetalMake = read_gui_element( &sidedata_parser, String("side") << nb_side << ".unitmetalmake", true);
+			side_int_data[ nb_side ].UnitMetalUse = read_gui_element( &sidedata_parser, String("side") << nb_side << ".unitmetaluse", true);
+			side_int_data[ nb_side ].UnitEnergyMake = read_gui_element( &sidedata_parser, String("side") << nb_side << ".unitenergymake", true);
+			side_int_data[ nb_side ].UnitEnergyUse = read_gui_element( &sidedata_parser, String("side") << nb_side << ".unitenergyuse", true);
 
-			side_int_data[ nb_side ].Name = read_gui_element( &sidedata_parser, String::Format( "side%d.name", nb_side ), true);
-			side_int_data[ nb_side ].Description = read_gui_element( &sidedata_parser, String::Format( "side%d.description", nb_side ), true);
+			side_int_data[ nb_side ].Name = read_gui_element( &sidedata_parser, String("side") << nb_side << ".name", true);
+			side_int_data[ nb_side ].Description = read_gui_element( &sidedata_parser, String("side") << nb_side << ".description", true);
 
 			++nb_side;
 		}

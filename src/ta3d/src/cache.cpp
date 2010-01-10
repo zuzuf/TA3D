@@ -15,8 +15,8 @@ namespace Cache
 		bool rebuild_cache = false;
 		// Check cache date
 		const String cache_date = lp_CONFIG
-			? String::Format("build info : %s , %s\ncurrent mod : %s\n", __DATE__, __TIME__, lp_CONFIG->last_MOD.c_str())
-			: String::Format("build info : %s , %s\ncurrent mod : \n", __DATE__, __TIME__ );
+			? String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : " << lp_CONFIG->last_MOD << '\n'
+			: String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : \n";
 
 		if (Paths::Exists(Paths::Caches + "cache_info.txt") && !force)
 		{

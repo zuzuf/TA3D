@@ -564,7 +564,7 @@ namespace TA3D
 		newThread->caller = (caller != NULL) ? caller : this;
 
 		newThread->L = lua_newthread(L);
-        String globalName( String::Format("__thread%d", getNextID()) );
+		String globalName( String("__thread") << getNextID() );
         lua_setglobal(L, globalName.c_str());  // We don't want to keep this thread value on top of the stack
 		addThread(newThread);
 

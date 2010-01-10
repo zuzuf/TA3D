@@ -1260,11 +1260,21 @@ namespace Gui
 					}
 					// Send a signal to the interface (the OnClick signal defined at initialization time)
 					for (unsigned int cur = 0; cur < object->OnClick.size(); ++cur)
-						I_Msg(TA3D::TA3D_IM_GUI_MSG, (void *)object->OnClick[cur].c_str(), NULL, NULL);
+					{
+						char *buf = strdup(object->OnClick[cur].c_str());
+						I_Msg(TA3D::TA3D_IM_GUI_MSG, (void *)buf, NULL, NULL);
+						if (buf)
+							free(buf);
+					}
 				}
 				else if (object->MouseOn)			// Send a signal to the interface (the OnHover signal defined at initialization time)
 					for (unsigned int cur = 0 ; cur < object->OnHover.size(); cur++)
-						I_Msg(TA3D::TA3D_IM_GUI_MSG, (void *)object->OnHover[cur].c_str(), NULL, NULL);
+					{
+						char *buf = strdup(object->OnHover[cur].c_str());
+						I_Msg(TA3D::TA3D_IM_GUI_MSG, (void *)buf, NULL, NULL);
+						if (buf)
+							free(buf);
+					}
 			}
 
 			for (unsigned int cur = 0; cur < object->SendDataTo.size(); ++cur) // Send Data to an Object

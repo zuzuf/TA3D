@@ -85,13 +85,13 @@ namespace TA3D
 			switch((id - NB_SCRIPT) % 4)
 			{
 				case 0:         // QueryWeapon
-					return String::Format("QueryWeapon%d", weaponID);
+					return String("QueryWeapon") << weaponID;
 				case 1:         // AimWeapon
-					return String::Format("AimWeapon%d", weaponID);
+					return String("AimWeapon") << weaponID;
 				case 2:         // AimFromWeapon
-					return String::Format("AimFromWeapon%d", weaponID);
+					return String("AimFromWeapon") << weaponID;
 				case 3:         // FireWeapon
-					return String::Format("FireWeapon%d", weaponID);
+					return String("FireWeapon") << weaponID;
 			}
 		}
 		return script_name[id];
@@ -101,7 +101,7 @@ namespace TA3D
     int UnitScriptInterface::get_script_id(const String &name)
     {
         for(int id = 0 ; id < NB_SCRIPT ; id++)
-            if ( strcasecmp(script_name[id], name.c_str()) == 0)
+			if (strcasecmp(script_name[id], name.c_str()) == 0)
                 return id;
         return -1;
     }

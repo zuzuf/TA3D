@@ -55,7 +55,7 @@ namespace Gui
 	Skin *SKIN_MANAGER::load(const String& filename, const float scale)
 	{
 		String key(filename);
-		key += String::Format("-%.2f", scale);
+		key << String::Format("-%.2f", scale);
 		Skin *pSkin = hash_skin.find(key);
 		if (!pSkin)
 		{

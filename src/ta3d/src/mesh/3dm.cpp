@@ -178,7 +178,7 @@ namespace TA3D
 					{
 						s_shader.on();
 						for (int j = 0; j < pTex->size() ; ++j)
-							s_shader.setvar1i( String::Format("tex%d",j).c_str(), j );
+							s_shader.setvar1i( String("tex") << j, j );
 					}
 
 					if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -344,7 +344,7 @@ namespace TA3D
 			{
 				s_shader.on();
 				for (int j = 0; j < pTex->size() ; ++j)
-					s_shader.setvar1i( String::Format("tex%d",j).c_str(), j + 1 );
+					s_shader.setvar1i( String("tex") << j, j + 1 );
 			}
 
 			if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -640,7 +640,7 @@ namespace TA3D
 				DELETE_ARRAY(buffer);
 			}
 
-			String cache_filename = !filename.empty() ? filename + String::Format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
+			String cache_filename = !filename.empty() ? String(filename) << '-' << (!name.empty() ? name : "none") << '-' << int(i) << ".bin" : String();
 			cache_filename.replace('/', 'S');
 			cache_filename.replace('\\', 'S');
 
@@ -672,7 +672,7 @@ namespace TA3D
 			data = read_from_mem(buf,shader_size,data);
 			frag_shader_src = buf;
 			DELETE_ARRAY(buf);
-			s_shader.load_memory(frag_shader_src.c_str(),frag_shader_src.size(),vert_shader_src.c_str(),vert_shader_src.size());
+			s_shader.load_memory(frag_shader_src.data(),frag_shader_src.size(),vert_shader_src.data(),vert_shader_src.size());
 		}
 
 		N = new Vector3D[nb_vtx << 1]; // Calculate normals
