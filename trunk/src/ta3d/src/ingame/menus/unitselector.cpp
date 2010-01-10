@@ -83,9 +83,9 @@ namespace Menus
 				unit_manager.unit_type[i]->not_used = true;
 			String unit_name;
 			int i = 0;
-			while (!(unit_name = useonly_parser.pullAsString(String::Format("gadget%d", i))).empty())
+			while (!(unit_name = useonly_parser.pullAsString(String("gadget") << i)).empty())
 			{
-				int idx = unit_manager.get_unit_index( unit_name.c_str());
+				int idx = unit_manager.get_unit_index( unit_name );
 				if (idx >= 0)
 					unit_manager.unit_type[idx]->not_used = false;
 				++i;

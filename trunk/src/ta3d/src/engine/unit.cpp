@@ -1520,11 +1520,12 @@ namespace TA3D
 					if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
 						if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
 						{
-                            int type=feature_manager.get_feature_index( (String( pType->name) + "_heap").c_str() );
+							int type = feature_manager.get_feature_index( String(pType->name) << "_heap" );
 							if (type >= 0)
 							{
 								the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
-								if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0 ) {			// Keep unit orientation
+								if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0)			// Keep unit orientation
+								{
 									features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
 									if (sinking )
 										features.sink_feature( the_map->map_data[ cur_py ][ cur_px ].stuff );
@@ -2111,7 +2112,7 @@ namespace TA3D
 			int old = (int)self_destruct;
 			self_destruct -= dt;
 			if (old != (int)self_destruct) // Play a sound :-)
-				playSound( String::Format( "count%d", old));
+				playSound( String("count") << old );
 			if (self_destruct <= 0.0f)
 			{
 				self_destruct = 0.0f;
@@ -3200,7 +3201,7 @@ namespace TA3D
 										String wreckage_name = feature->name;
 										wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
 
-										int wreckage_type_id = unit_manager.get_unit_index( wreckage_name.c_str() );
+										int wreckage_type_id = unit_manager.get_unit_index( wreckage_name );
 										Vector3D obj_pos = features.feature[mission->getData()].Pos;
 										float obj_angle = features.feature[mission->getData()].angle;
 										features.unlock();

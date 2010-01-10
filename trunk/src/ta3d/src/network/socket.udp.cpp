@@ -127,7 +127,7 @@ namespace TA3D
 
     String SocketUDP::getRemoteIPstr() const
     {
-        return String::Format("%d.%d.%d.%d", (remoteIP.host & 0xFF), (remoteIP.host >> 8) & 0xFF, (remoteIP.host >> 16) & 0xFF, (remoteIP.host >> 24));
+		return String() << (remoteIP.host & 0xFF) << '.' << ((remoteIP.host >> 8) & 0xFF) << '.' << ((remoteIP.host >> 16) & 0xFF) << '.' << (remoteIP.host >> 24);
     }
 
     uint32 SocketUDP::getRemoteIP() const

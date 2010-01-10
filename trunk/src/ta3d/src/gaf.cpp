@@ -106,7 +106,7 @@ namespace TA3D
 			{
 				uint32 fw, fh;
 				String cache_filename;
-				cache_filename << filename << "-" << imgname << String::Format("-%d.bin", indx);
+				cache_filename << filename << "-" << imgname << '-' << indx << ".bin";
 				*i = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
 
 				if (!(*i))
@@ -663,7 +663,7 @@ namespace TA3D
 		for (int i = 0; i < nb_bmp; ++i)
 		{
 			String cache_filename;
-			cache_filename << filename << String::Format("-%s-%d.bin", (name.empty() ? "none" : name.c_str()), i);
+			cache_filename << filename << '-' << (name.empty() ? "none" : name) << '-' << i << ".bin";
 
 			if (!filename.empty())
 				glbmp[i] = gfx->load_texture_from_cache(cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );

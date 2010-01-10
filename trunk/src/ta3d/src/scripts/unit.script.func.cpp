@@ -150,7 +150,7 @@ namespace TA3D
 		//	"BUGGER_OFF","ARMORED"};
 		if (portID > 20)
 			portID = 0;
-        LOG_DEBUG("GET_VALUE_FROM_PORT: opération non gérée : " << op[portID]);
+		//LOG_DEBUG("GET_VALUE_FROM_PORT: opération non gérée : " << op[portID]);
         return 0;
     }
 

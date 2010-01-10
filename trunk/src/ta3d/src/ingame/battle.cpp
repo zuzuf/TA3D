@@ -1135,7 +1135,7 @@ namespace TA3D
 					int i = units.idx_list[e];
 					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && Yuni::Math::Zero(units.unit[i].build_percent_left))
 					{
-						if (unit_manager.unit_type[units.unit[i].type_id]->checkCategory( check_cat.c_str()))
+						if (unit_manager.unit_type[units.unit[i].type_id]->checkCategory( check_cat ))
 							units.unit[i].sel = true;
 						else
 						{
@@ -2191,11 +2191,11 @@ namespace TA3D
 			}
 
 			if (internal_idx && last_on >= 0)
-				gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String::Format("idx = %d", last_on));
+				gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String("idx = ") << last_on);
 			else
 			{
 				if (internal_idx && cur_sel_index >= 0)
-					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String::Format("idx = %d", cur_sel_index));
+					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String("idx = ") << cur_sel_index);
 			}
 
 			if (unit_info_id >= 0)
@@ -2222,7 +2222,7 @@ namespace TA3D
 					{
 						if (!units.unit[i].mission.empty() && units.unit[i].mission->mission() <= 0x0E)
 						{
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("MISSION: %s",unit_info[units.unit[i].mission->mission()]));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String("MISSION: ") << unit_info[units.unit[i].mission->mission()]);
 							String flags;
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
@@ -2231,10 +2231,10 @@ namespace TA3D
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_MOVE)			flags += "MOVE; ";
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
 							y += gfx->normal_font->height();
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("FLAGS: %s", flags.c_str()));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String("FLAGS: ") << flags);
 						}
 						else
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String::Format("MISSION: NONE"));
+							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String("MISSION: NONE"));
 						y += gfx->normal_font->height();
 					}
 					units.unit[i].unlock();
@@ -2245,7 +2245,7 @@ namespace TA3D
 
 			if (show_timefactor > 0.0f)
 			{
-				String value = String::Format("x %f", lp_CONFIG->timefactor);
+				String value = String("x ") << lp_CONFIG->timefactor;
 				if (value.find('.') != String::npos)
 					value.truncate(value.find('.') + 2);
 				if (show_timefactor > 0.5f)

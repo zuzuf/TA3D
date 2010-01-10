@@ -123,7 +123,7 @@ namespace Menus
 	{
 		// Broadcast informations
 		if (pBroadcastInformations && network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, pPercent))
-			network_manager.sendAll(String::Format("LOADING %d", pPercent));
+			network_manager.sendAll(String("LOADING ") << pPercent);
 	}
 
 

@@ -67,7 +67,7 @@ namespace TA3D
 
 			for (unsigned int i = 0 ; i < unit_manager.nb_unit ; ++i)
 			{
-				if (strcasecmp( unit_manager.unit_type[i]->side.c_str(), players.side[ playerID ].c_str() ) == 0)
+				if ( String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(players.side[ playerID ]))
 				{
 					weights[ i ].type = 0;
 

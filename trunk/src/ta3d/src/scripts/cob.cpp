@@ -178,7 +178,7 @@ namespace TA3D
 	{
 		for (int i = 0; i < nb_piece; ++i)
 		{
-			if (strcasecmp(name.c_str(), piece_name[i].c_str()) == 0) // Pièce identifiée / Identified :)
+			if (String::ToLower(name) == String::ToLower(piece_name[i])) // Pièce identifiée / Identified :)
 				return i;
 		}
 		return -1;

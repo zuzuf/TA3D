@@ -627,7 +627,7 @@ namespace Menus
 		String cfgPlayerName = lp_CONFIG->player_name;
 		lp_CONFIG->player_name = NetClient::instance()->getLogin();
 
-		setup_game(false, host, NULL, true);
+		setup_game(false, host, String(), true);
 
 		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNSERVER");
@@ -640,7 +640,7 @@ namespace Menus
 		String cfgPlayerName = lp_CONFIG->player_name;
 		lp_CONFIG->player_name = NetClient::instance()->getLogin();
 
-		setup_game(true, host, NULL, true);
+		setup_game(true, host, String(), true);
 
 		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");

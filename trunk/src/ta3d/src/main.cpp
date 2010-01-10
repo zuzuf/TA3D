@@ -90,12 +90,12 @@ namespace TA3D
 			if (parser.pullAsBool("TA3D.Server")) // Server code
 			{
 				const String& host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
-				setup_game(false, host_name.c_str());		// Start the game in networking mode as server
+				setup_game(false, host_name);		// Start the game in networking mode as server
 			}
 			else // Client code
 			{
 				const String& host_name = parser.pullAsString("TA3D.Server name");
-				setup_game(true, host_name.c_str());		// Start the game in networking mode as server
+				setup_game(true, host_name);		// Start the game in networking mode as server
 			}
 		}
 

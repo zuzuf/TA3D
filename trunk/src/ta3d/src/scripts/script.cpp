@@ -1329,18 +1329,18 @@ namespace TA3D
 		int i = 0;
 		String unit_name;
 
-		while( !(unit_name = ota_parser.pullAsString( String::Format( "GlobalHeader.Schema %d.units.unit%d.Unitname", schema, i))).empty())
+		while( !(unit_name = ota_parser.pullAsString( String("GlobalHeader.Schema ") << schema << ".units.unit" << i << ".Unitname")).empty())
 		{
-			String unit_key = String::Format( "GlobalHeader.Schema %d.units.unit%d", schema, i );
+			String unit_key = String("GlobalHeader.Schema ") << schema << ".units.unit" << i;
 			int player_id = ota_parser.pullAsInt( unit_key + ".player" ) - 1;
 			float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 0.5f;
 			float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 0.5f;
 
-			m_File << String::Format( "\nunit_id = create_unit( %d, \"", player_id ) << unit_name << String::Format( "\", %f - 0.5 * map_w(), %f - 0.5 * map_h() )\n", x, z );
+			m_File << String("\nunit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 
 			float health = ota_parser.pullAsFloat( unit_key + ".HealthPercentage", -1.0f );
 			if (health != -1.0f )
-				m_File << String::Format( "set_unit_health( unit_id, %f )\n", health );
+				m_File << String("set_unit_health( unit_id, ") << health << " )\n";
 
 			String Ident = ota_parser.pullAsString( unit_key + ".Ident" );
 			if (!Ident.empty() )
@@ -1380,16 +1380,16 @@ namespace TA3D
 				{
 					if (params.size() >= 3)
 					{
-						float pos_x = atof( params[ 1 ].c_str() ) * 0.5f;
-						float pos_z = atof( params[ 2 ].c_str() ) * 0.5f;
-						m_File << String::Format( "add_move_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h() )\n", pos_x, pos_z );
+						float pos_x = params[ 1 ].to<float>() * 0.5f;
+						float pos_z = params[ 2 ].to<float>() * 0.5f;
+						m_File << String("add_move_mission( unit_id, ") << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h() )\n";
 					}
 					orders_given = true;
 				}
 				else if (params[ 0 ] == "a")		// Attack
 				{
 					if (params.size() >= 2)
-						m_File << "add_attack_mission( unit_id, " + params[ 1 ] + " )\n";
+						m_File << "add_attack_mission( unit_id, " << params[ 1 ] << " )\n";
 					orders_given = true;
 				}
 				else if (params[ 0 ] == "b")		// Build
@@ -1402,9 +1402,9 @@ namespace TA3D
 					}
 					else if (params.size() == 4)		// Mobile builders
 					{
-						float pos_x = atof( params[ 2 ].c_str() ) * 0.5f;
-						float pos_z = atof( params[ 3 ].c_str() ) * 0.5f;
-						m_File << String::Format( "add_build_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h(), ", pos_x, pos_z ) + params[ 1 ] + " )\n";
+						float pos_x = params[ 2 ].to<float>() * 0.5f;
+						float pos_z = params[ 3 ].to<float>() * 0.5f;
+						m_File << "add_build_mission( unit_id, " << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h(), " << params[ 1 ] << " )\n";
 					}
 					orders_given = true;
 				}
@@ -1415,9 +1415,9 @@ namespace TA3D
 					unsigned int e = 0;
 					while (params.size() >= 3 + e * 2)
 					{
-						float pos_x = atof( params[ 2 * e + 1 ].c_str() ) * 0.5f;
-						float pos_z = atof( params[ 2 * e + 2 ].c_str() ) * 0.5f;
-						m_File << String::Format( "add_patrol_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h() )\n", pos_x, pos_z );
+						float pos_x = params[ 2 * e + 1 ].to<float>() * 0.5f;
+						float pos_z = params[ 2 * e + 2 ].to<float>() * 0.5f;
+						m_File << "add_patrol_mission( unit_id, " << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h() )\n";
 						++e;
 					}
 					orders_given = true;
@@ -1426,15 +1426,15 @@ namespace TA3D
 				{
 					if (params.size() >= 2)
 					{
-						float time = atof( params[ 1 ].c_str() );
-						m_File << String::Format( "add_wait_mission( unit_id, %f )\n", time );
+						float time = params[ 1 ].to<float>();
+						m_File << "add_wait_mission( unit_id, " << time << " )\n";
 					}
 					orders_given = true;
 				}
 				else if (params[ 0 ] == "wa")		// Wait attacked
 				{
 					if (params.size() >= 2)
-						m_File << "add_wait_mission( unit_id, " + params[ 1 ] + " )\n";
+						m_File << "add_wait_mission( unit_id, " << params[ 1 ] << " )\n";
 					else
 						m_File << "add_wait_mission( unit_id, unit_id )\n";
 					orders_given = true;
@@ -1442,7 +1442,7 @@ namespace TA3D
 				else if (params[ 0 ] == "g")		// Guard
 				{
 					if (params.size() >= 2)
-						m_File << "add_guard_mission( unit_id, " + params[ 1 ] + " )\n";
+						m_File << "add_guard_mission( unit_id, " << params[ 1 ] << " )\n";
 					orders_given = true;
 				}
 				else if (params[ 0 ] == "o")		// Set standing orders
@@ -1463,9 +1463,9 @@ namespace TA3D
 		i = 0;
 		String feature_name;
 
-		while( !(feature_name = ota_parser.pullAsString( String::Format( "GlobalHeader.Schema %d.features.feature%d.Featurename", schema, i))).empty())
+		while( !(feature_name = ota_parser.pullAsString( String("GlobalHeader.Schema ") << schema << ".features.feature" << i << ".Featurename")).empty())
 		{
-			String unit_key = String::Format( "GlobalHeader.Schema %d.features.feature%d", schema, i );
+			String unit_key = String("GlobalHeader.Schema ") << schema << ".features.feature" << i;
 			float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 16.0f;
 			float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 16.0f;
 
@@ -1755,7 +1755,7 @@ namespace TA3D
 			m_File << "			dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
 			m_File << "			dist = dx * dx + dz * dz\n";
 			float dist = params[ 3 ].to<sint32>() * 0.5f;
-			m_File << "			if dist <= " << String::Format("%f", dist * dist ) << " then\n";
+			m_File << "			if dist <= " << (dist * dist) << " then\n";
 			m_File << "				if not first_launch and not check[ i ] and not MoveUnitToRadius then\n";
 			m_File << "					victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 			m_File << "					MoveUnitToRadius = true\n";

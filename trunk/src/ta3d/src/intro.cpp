@@ -46,7 +46,7 @@ namespace TA3D
 		if (network_manager.isConnected() && last_percent != (int)percent )
 		{
 			last_percent = (int)percent;
-			network_manager.sendAll(String::Format("LOADING %d", last_percent));
+			network_manager.sendAll(String("LOADING ") << last_percent);
 		}
 
 		bool init = (!Glfond);

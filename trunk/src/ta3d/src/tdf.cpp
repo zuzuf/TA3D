@@ -220,11 +220,11 @@ namespace TA3D
 		parser.loadFromMemory("TDF",data,size,false,true,true);
 		int	first = nb_features;
 
-		for (int g = 0 ; parser.exists(String::Format("gadget%d",g)) ; g++)
+		for (int g = 0 ; parser.exists(String("gadget") << g) ; g++)
 		{
-			const String& key = String::Format("gadget%d.",g);
+			const String& key = String("gadget") << g << '.';
 
-			int index = add_feature( parser.pullAsString(String::Format("gadget%d", g)) );
+			int index = add_feature( parser.pullAsString(String("gadget") << g) );
 			Feature *pFeature = feature[index];
 			pFeature->m3d = false;
 			pFeature->world = parser.pullAsString( key + "world", pFeature->world );
@@ -291,7 +291,7 @@ namespace TA3D
 		for (int i = first; i < nb_features; ++i)// Charge les fichiers d'animation
 		{
 			if (!feature[i]->category.empty())
-				feature[i]->vent = (strstr(feature[i]->category.c_str(), "vents") != NULL);
+				feature[i]->vent = feature[i]->category.find("vents") != String::npos;
 			if (!feature[i]->filename.empty() && !feature[i]->seqname.empty() && !feature[i]->m3d)
 			{
 				if (model_manager.get_model(feature[i]->filename + "-" + feature[i]->seqname) != NULL) // Check if there is a 3do version of it
@@ -305,7 +305,7 @@ namespace TA3D
 				{
 					feature[i]->not_loaded=true;
 					if (feature[i]->height<=10.0f && feature[i]->height>1.0f && feature[i]->blocking
-						&& strcasecmp(feature[i]->description.c_str(),"Metal")!=0) // Tente une conversion en 3d
+						&& String::ToLower(feature[i]->description) != "metal") // Tente une conversion en 3d
 					{
 						String tmp("anims\\");
 						tmp << feature[i]->filename << ".gaf";
@@ -1078,7 +1078,7 @@ namespace TA3D
 		if (!pFeature->description.empty())
 		{
 			if (pFeature->reclaimable)
-				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, String::Format("%s M:%d E:%d",I18N::Translate( pFeature->description ).c_str(), pFeature->metal, pFeature->energy) );
+				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) << " M:" << pFeature->metal << " E:" << pFeature->energy );
 			else
 				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) );
 		}
