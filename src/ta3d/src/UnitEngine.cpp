@@ -1520,7 +1520,7 @@ namespace TA3D
 
 
 
-    void INGAME_UNITS::draw_shadow(float t, const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+    void INGAME_UNITS::draw_shadow(float t, const Vector3D& Dir, MAP*, float alpha)	// Dessine les ombres des unités visibles
 	{
 		if (nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
 			return;

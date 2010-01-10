@@ -106,7 +106,8 @@ namespace TA3D
 		return pLuaVM;
 	}
 
-	UnitScript::UnitScript() : nextID(0), n_args(0), L(NULL), name()
+	UnitScript::UnitScript()
+		:L(NULL), nextID(0), n_args(0)
 	{
 	}
 

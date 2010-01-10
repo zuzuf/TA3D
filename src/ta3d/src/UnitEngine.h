@@ -203,7 +203,7 @@ namespace TA3D
 
 		void destroy(bool delete_interface = true);
 
-		~INGAME_UNITS() {destroy(false);}
+		virtual ~INGAME_UNITS() {destroy(false);}
 
 		void kill(int index,int prev,bool sync = true);			// Détruit une unité
 

@@ -41,6 +41,7 @@
 
 
 
+using namespace Yuni;
 
 
 
@@ -57,7 +58,7 @@ namespace TA3D
 	Battle::Battle(GameData* g)
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
 		map(NULL),
-		sky(0), water_obj(NULL),
+		sky(0),
         glow(0),
         freecam_on(0),
         freecam_off(0),
@@ -82,7 +83,7 @@ namespace TA3D
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Releasing unused resources...");
 
-		water_obj = NULL;
+		water_obj = nullptr;
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for 3d models");
 		model_manager.destroy();

@@ -1,16 +1,25 @@
-#ifndef NETCLIENT_H
-#define NETCLIENT_H
+#ifndef __TA3D_NETWORK_NETCLIENT_H__
+# define __TA3D_NETWORK_NETCLIENT_H__
 
-#include <misc/string.h>
-#include <mods/modinfo.h>
-#include "socket.tcp.h"
+# include <yuni/yuni.h>
+# include <misc/string.h>
+# include <mods/modinfo.h>
+# include "socket.tcp.h"
+
+
 
 namespace TA3D
 {
-    class NetClient : ObjectSync
+
+
+    class NetClient : public Yuni::Policy::SingleThreaded<NetClient>
     {
 	public:
+		//! The most suitable smartptr for the class
 		typedef SmartPtr<NetClient>	Ptr;
+		//! The threading policy
+		typedef Yuni::Policy::SingleThreaded<NetClient>  ThreadingPolicy;
+
     public:
         enum NetState { CONNECTING,
                         CONNECTED,
@@ -59,11 +68,11 @@ namespace TA3D
         void            disconnect();
         void            connect(const String &server, const uint16 port, const String &login, const String &password, bool bRegister = false);
         void            reconnect();
-        NetState        getState();
-        bool            messageWaiting();
+        NetState        getState() const;
+        bool            messageWaiting() const;
         String          getNextMessage();
-        String::Vector  getPeerList();
-        String::Vector  getChanList();
+        String::Vector  getPeerList() const;
+        String::Vector  getChanList() const;
 		GameServer::List getServerList();
         ModInfo::List   getModList();
         void            clearMessageQueue();
@@ -71,9 +80,9 @@ namespace TA3D
         void            changeChan(const String &chan);
         void            receive();
         void            sendChan(const String &msg);
-        String          getLogin();
-        String          getChan();
-		String			getServerJoined();
+        String          getLogin() const;
+        String          getChan() const;
+		String			getServerJoined() const;
 		void			clearServerJoined();
 		bool			getHostAck();
 
@@ -87,6 +96,12 @@ namespace TA3D
     private:
 		static NetClient::Ptr pInstance;
     };
-}
 
-#endif // NETCLIENT_H
+
+
+
+} // namespace TA3D
+
+# include "netclient.hxx"
+
+#endif // __TA3D_NETWORK_NETCLIENT_H__

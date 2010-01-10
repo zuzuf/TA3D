@@ -109,6 +109,9 @@ namespace TA3D
     */
     struct SERVER_DATA
     {
+		SERVER_DATA()
+			:timer(0), nb_open(0), internet(false)
+		{}
         //! Name of the server
         String name;
         //! Timeout for this server

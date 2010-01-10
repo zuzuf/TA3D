@@ -149,7 +149,7 @@ namespace Audio
 				m_Tune->disabled = default_deactivation;
 				m_Tune->checked = true;
 				m_Tune->filename = filename;
-				LOG_DEBUG(LOG_PREFIX_SOUND << "Added to the playlist: `" << filename << "`");
+				logs.debug() << LOG_PREFIX_SOUND << "Added to the playlist: `" << filename << '`';
 				pPlaylist.push_back(m_Tune);
 			}
 		}
@@ -312,7 +312,7 @@ namespace Audio
 			m_Tune->disabled = !isActivated;
 			m_Tune->filename = line;
 
-			LOG_DEBUG(LOG_PREFIX_SOUND << "Added to the playlist: `" << line << "`");
+			logs.debug() << LOG_PREFIX_SOUND << "Added to the playlist: `" << line << '`';
 			pPlaylist.push_back(m_Tune);
 		}
 
@@ -368,7 +368,7 @@ namespace Audio
 		{
 			if (SDL_InitSubSystem( SDL_INIT_AUDIO ))
 			{
-				LOG_ERROR(LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_AUDIO ) failed: " << SDL_GetError());
+				logs.error() << LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_AUDIO ) failed: " << SDL_GetError();
 				return false;
 			}
 		}
@@ -376,7 +376,7 @@ namespace Audio
         {
             if (SDL_InitSubSystem( SDL_INIT_CDROM ))
             {
-                LOG_ERROR(LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_CDROM ) failed: " << SDL_GetError());
+                logs.error() << LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_CDROM ) failed: " << SDL_GetError();
                 return false;
             }
         }
@@ -384,7 +384,7 @@ namespace Audio
         {
             if (SDL_InitSubSystem( SDL_INIT_TIMER ))
             {
-                LOG_ERROR(LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_TIMER ) failed: " << SDL_GetError());
+                logs.error() << LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_TIMER ) failed: " << SDL_GetError();
                 return false;
             }
         }
@@ -393,7 +393,7 @@ namespace Audio
 		// stereo, 4096 bytes for chunks
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
         {
-			LOG_ERROR(LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError());
+			logs.error() << LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError();
 			return false;
 		}
 
@@ -404,9 +404,9 @@ namespace Audio
 		SDL_version compiled_version;
 		const SDL_version *linked_version;
 		MIX_VERSION(&compiled_version);
-		LOG_DEBUG(LOG_PREFIX_SOUND << "compiled with SDL_mixer version: " << (int)compiled_version.major << "." << (int)compiled_version.minor << "." << (int)compiled_version.patch);
+		logs.debug() << LOG_PREFIX_SOUND << "compiled with SDL_mixer version: " << (int)compiled_version.major << '.' << (int)compiled_version.minor << '.' << (int)compiled_version.patch;
 		linked_version = Mix_Linked_Version();
-		LOG_DEBUG(LOG_PREFIX_SOUND << "running with SDL_mixer version: " << (int)linked_version->major << "." << (int)linked_version->minor << "." << (int)linked_version->patch);
+		logs.debug() << LOG_PREFIX_SOUND << "running with SDL_mixer version: " << (int)linked_version->major << '.' << (int)linked_version->minor << '.' << (int)linked_version->patch;
 
 		m_SDLMixerRunning = true;
 		doLoadPlaylist();
@@ -601,40 +601,42 @@ namespace Audio
 	{
 		doStopMusic();
 
-		if (!m_SDLMixerRunning)
+		if (!m_SDLMixerRunning || !filename)
 			return;
 
-        pCurrentItemPlaying = -1;
-        for(int i = 0 ; i < pPlaylist.size() ; ++i)
-            if (pPlaylist[i]->filename == filename)
-            {
-                pCurrentItemPlaying = i;
-                break;
-            }
+		pCurrentItemPlaying = -1;
+		for (int i = 0; i < pPlaylist.size(); ++i)
+		{
+			if (pPlaylist[i]->filename == filename)
+			{
+				pCurrentItemPlaying = i;
+				break;
+			}
+		}
 
-        if (pCurrentItemPlaying >= 0 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0)
-        {
-            SDL_CDClose(NULL);
-            SDL_ClearError();
-            pPlaylist[pCurrentItemPlaying]->cd = SDL_CDOpen(pPlaylist[pCurrentItemPlaying]->cdromID);
-            if (pPlaylist[pCurrentItemPlaying]->cd == NULL)
-                LOG_ERROR(LOG_PREFIX_SOUND << "could not open cdrom " << pPlaylist[pCurrentItemPlaying]->cdromID <<  " : " << SDL_GetError());
-            else
-            {
-                SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd);
-                if (SDL_CDPlayTracks(pPlaylist[pCurrentItemPlaying]->cd, pPlaylist[pCurrentItemPlaying]->trackID, 0, 1, 0))
-                    LOG_ERROR(LOG_PREFIX_SOUND << "Error playing track "  << pPlaylist[pCurrentItemPlaying]->trackID << " from CD " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) << " : " << SDL_GetError());
-                else
-                    LOG_DEBUG(LOG_PREFIX_SOUND << "Playing audio cd " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) <<  " track " << pPlaylist[pCurrentItemPlaying]->trackID);
-                setMusicVolume( lp_CONFIG->music_volume );
-            }
-            return;
-        }
+		if (pCurrentItemPlaying >= 0 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0)
+		{
+			SDL_CDClose(NULL);
+			SDL_ClearError();
+			pPlaylist[pCurrentItemPlaying]->cd = SDL_CDOpen(pPlaylist[pCurrentItemPlaying]->cdromID);
+			if (pPlaylist[pCurrentItemPlaying]->cd == NULL)
+				logs.error() << LOG_PREFIX_SOUND << "could not open cdrom " << pPlaylist[pCurrentItemPlaying]->cdromID <<  " : " << SDL_GetError();
+			else
+			{
+				SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd);
+				if (SDL_CDPlayTracks(pPlaylist[pCurrentItemPlaying]->cd, pPlaylist[pCurrentItemPlaying]->trackID, 0, 1, 0))
+					logs.debug() << LOG_PREFIX_SOUND << "Error playing track "  << pPlaylist[pCurrentItemPlaying]->trackID << " from CD " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) << " : " << SDL_GetError();
+				else
+					logs.debug() << LOG_PREFIX_SOUND << "Playing audio cd " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) <<  " track " << pPlaylist[pCurrentItemPlaying]->trackID;
+				setMusicVolume( lp_CONFIG->music_volume );
+			}
+			return;
+		}
 
 		if (!Paths::Exists(filename))
 		{
 			if (!filename.empty())
-				LOG_ERROR(LOG_PREFIX_SOUND << "Failed to find file: `" << filename << "`");
+				logs.error() << LOG_PREFIX_SOUND << "Failed to find file: `" << filename << '`';
 			return;
 		}
 
@@ -642,17 +644,17 @@ namespace Audio
 
 		if (pMusic == NULL)
 		{
-			LOG_ERROR(LOG_PREFIX_SOUND << "Failed to open music file : `" << filename << "` (" << Mix_GetError() << ")");
+			logs.error() << LOG_PREFIX_SOUND << "Failed to open music file : `" << filename << "` (" << Mix_GetError() << ')';
 			return;
 		}
 
 		if (Mix_PlayMusic(pMusic, 0) == -1)
 		{
-			LOG_ERROR(LOG_PREFIX_SOUND << "Failed to play music file : `" << filename << "` (" << Mix_GetError() << ")");
+			logs.error() << LOG_PREFIX_SOUND << "Failed to play music file : `" << filename << "` (" << Mix_GetError() << ')';
 			return;
 		}
 
-		LOG_DEBUG(LOG_PREFIX_SOUND << "Playing music file " << filename);
+		logs.debug() << LOG_PREFIX_SOUND << "Playing music file " << filename;
 		setMusicVolume( lp_CONFIG->music_volume );
 	}
 
@@ -682,17 +684,20 @@ namespace Audio
 			}
             playing = Mix_PlayingMusic();
 		}
-        else if (pCurrentItemPlaying >= 0
-                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0 && pPlaylist[pCurrentItemPlaying]->cd)
-        {
-            if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
-            {
-                SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
-                return;
-            }
-            playing = SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING;
-        }
-        if (!playing)
+		else
+		{
+			if (pCurrentItemPlaying >= 0
+				&& pPlaylist[pCurrentItemPlaying]->cdromID >= 0 && pPlaylist[pCurrentItemPlaying]->cd)
+			{
+				if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
+				{
+					SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
+					return;
+				}
+				playing = SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING;
+			}
+		}
+		if (!playing)
 			doPlayMusic(doSelectNextMusic());
 	}
 
@@ -701,8 +706,8 @@ namespace Audio
 	// Begin sound managing routines.
 	void Manager::setListenerPos(const Vector3D&)
 	{
-		pMutex.lock();
-		if (m_SDLMixerRunning)
+		// disabled because not used pMutex.unlock();
+		// if (m_SDLMixerRunning)
 		{
 #warning TODO: implement 3D stereo
 			//            FMOD_VECTOR pos     = { vec.x, vec.y, vec.z };
@@ -712,14 +717,12 @@ namespace Audio
 			//
 			//            pFMODSystem->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
 		}
-		pMutex.unlock();
 	}
 
 	void Manager::update3DSound()
 	{
-		pMutex.lock();
+		MutexLocker locker(pMutex);
 		doUpdate3DSound();
-		pMutex.unlock();
 	}
 
 	void Manager::doUpdate3DSound()
@@ -734,7 +737,7 @@ namespace Audio
 
 		//        pFMODSystem->update();
 
-		for (std::list< WorkListItem >::iterator i = pWorkList.begin() ; i != pWorkList.end() ; ++i)
+		for (std::list< WorkListItem >::iterator i = pWorkList.begin(); i != pWorkList.end(); ++i)
 		{
 			if (Mix_PlayChannel(-1, i->sound->sampleHandle, 0) == -1)
 				continue;
@@ -763,6 +766,7 @@ namespace Audio
 			return;
 		}
 	}
+
 
 	uint32 Manager::InterfaceMsg(const lpcImsg msg)
 	{
@@ -809,7 +813,7 @@ namespace Audio
 			DELETE_ARRAY(data);
 			if (pBasicSound == NULL)
 			{
-				LOG_ERROR(LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ")");
+				logs.error() << LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ')';
 				return;
 			}
 			Mix_PlayChannel(-1, pBasicSound, 0);
@@ -819,19 +823,17 @@ namespace Audio
 
 	void Manager::stopSoundFileNow()
 	{
-		pMutex.lock();
+		MutexLocker locker(pMutex);
 		if (pBasicSound)
 		{
-			for (int i = 0 ; i < nbChannels ; i++)
+			for (int i = 0; i < nbChannels; ++i)
 			{
 				if (Mix_GetChunk(i) == pBasicSound)
 					Mix_HaltChannel(i);
 			}
 			Mix_FreeChunk(pBasicSound);
 		}
-
 		pBasicSound = NULL;
-		pMutex.unlock();
 	}
 
 
@@ -846,8 +848,6 @@ namespace Audio
 		if (filename.empty())       // We can't load a file with an empty name
 			return false;
 		filename.toLower();
-
-		//        LOG_DEBUG(LOG_PREFIX_SOUND << "loading sound file " << filename);
 
 		// if it has a .wav extension then remove it.
 		String::size_type i = filename.find("wav");
@@ -868,7 +868,7 @@ namespace Audio
 		byte* data = VFS::Instance()->readFile(theSound, &Length);
 		if (!data) // if no data, log a message and return false.
 		{
-			//		LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
+			// logs.debug() <<  LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
 			return false;
 		}
 
@@ -884,7 +884,7 @@ namespace Audio
 			delete it;  // delete the sound.
 			// log a message and return false;
 			if (m_SDLMixerRunning)
-				LOG_DEBUG( LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.");
+				logs.debug() << LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.";
 			return false;
 		}
 
@@ -904,23 +904,22 @@ namespace Audio
 		if (lp_CONFIG->no_sound)
 			return;
 
-		pMutex.lock();
+		MutexLocker locker(pMutex);
 		// Which file to load ?
 		String filename(ta3dSideData.gamedata_dir);
 		filename += (allSounds) ? "allsound.tdf" : "sound.tdf";
 
-		LOG_DEBUG(LOG_PREFIX_SOUND << "Reading `" << filename << "`...");
+		logs.debug() << LOG_PREFIX_SOUND << "Reading `" << filename << "`...";
 		// Load the TDF file
 		if (pTable.loadFromFile(filename))
 		{
 			LOG_INFO(LOG_PREFIX_SOUND << "Loading sounds from " << filename);
 			// Load each sound file
 			pTable.forEach(LoadAllTDFSound(*this));
-			LOG_DEBUG(LOG_PREFIX_SOUND << "Reading: Done.");
+			logs.debug() << LOG_PREFIX_SOUND << "Reading: Done.";
 		}
 		else
-			LOG_DEBUG(LOG_PREFIX_SOUND << "Reading: Aborted.");
-		pMutex.unlock();
+			logs.debug() << LOG_PREFIX_SOUND << "Reading: Aborted.";
 	}
 
 
@@ -959,7 +958,7 @@ namespace Audio
 		SoundItemList* sound = pSoundList.find(szWav);
 		if (!sound)
 		{
-			LOG_ERROR(LOG_PREFIX_SOUND << "`" << filename << "` not found, aborting");
+			logs.error() << LOG_PREFIX_SOUND << "`" << filename << "` not found, aborting";
 			return;
 		}
 
@@ -971,9 +970,9 @@ namespace Audio
 		if (!sound->sampleHandle || (sound->is3DSound && !vec))
 		{
 			if (!sound->sampleHandle)
-				LOG_ERROR(LOG_PREFIX_SOUND << "`" << filename << "` not played the good way");
+				logs.error() << LOG_PREFIX_SOUND << "`" << filename << "` not played the good way";
 			else
-				LOG_ERROR(LOG_PREFIX_SOUND << "`" << filename << "` sound->sampleHandle is false");
+				logs.error() << LOG_PREFIX_SOUND << "`" << filename << "` sound->sampleHandle is false";
 			return;
 		}
 
@@ -1016,11 +1015,11 @@ namespace Audio
 			if (!pTable.exists(key.toLower()))
 			{
 				// output a report to the console but only once
-				LOG_WARNING(LOG_PREFIX_SOUND << "Can't find key `" << key << "`");
+				logs.warning() << LOG_PREFIX_SOUND << "Can't find key `" << key << '`';
 				pTable.insertOrUpdate(key, "");
 				return;
 			}
-			String wav = pTable.pullAsString(key);
+			const String& wav = pTable.pullAsString(key);
 			if (!wav.empty())
 				playSound(wav, vec);
 		}
@@ -1032,7 +1031,7 @@ namespace Audio
 		if (!keyA.empty() && !keyB.empty())
 		{
 			String key;
-			key << keyA << "." << keyB;
+			key << keyA << '.' << keyB;
 			doPlayTDFSound(key, vec);
 		}
 	}
@@ -1042,7 +1041,7 @@ namespace Audio
 		if (!keyA.empty() && !keyB.empty())
 		{
 			String key;
-			key << keyA << "." << keyB;
+			key << keyA << '.' << keyB;
 			playTDFSound(key, vec);
 		}
 	}
@@ -1060,15 +1059,20 @@ namespace Audio
 		sampleHandle = NULL;
 	}
 
+
 	void Manager::setVolume(int volume)
 	{
 		Mix_Volume(-1, volume);
 	}
 
+
 	void Manager::setMusicVolume(int volume)
 	{
 		Mix_VolumeMusic( volume );
 	}
+
+
+
 
 } // namespace Interfaces
 } // namespace TA3D

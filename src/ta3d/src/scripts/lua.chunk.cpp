@@ -25,10 +25,13 @@ using namespace std;
 
 namespace TA3D
 {
-    int LuaChunk::WriterFunc(lua_State* L, const void* p, size_t size, void* u)
+
+
+    int LuaChunk::WriterFunc(lua_State*, const void* p, size_t size, void* u)
     {
         LuaChunk *chunk = (LuaChunk*) u;
-        if (u == NULL)  return 1;
+        if (u == NULL)
+			return 1;
 
         byte *nBuf = new byte[chunk->size + size];
         if (chunk->buffer)
@@ -42,21 +45,6 @@ namespace TA3D
         return 0;
     }
 
-    LuaChunk::LuaChunk(lua_State *L, const String &name)
-    {
-        init();
-        dump(L, name);
-    }
-
-    LuaChunk::LuaChunk()
-    {
-        init();
-    }
-
-    LuaChunk::~LuaChunk()
-    {
-        destroy();
-    }
 
     int LuaChunk::load(lua_State *L)
     {
@@ -70,10 +58,6 @@ namespace TA3D
         this->name = name;
     }
 
-    String LuaChunk::getName()
-    {
-        return name;
-    }
 
     void LuaChunk::load(const String &filename)                    // Load a lua chunk
     {
@@ -102,6 +86,7 @@ namespace TA3D
         }
     }
 
+
     void LuaChunk::init()
     {
         buffer = NULL;
@@ -109,11 +94,13 @@ namespace TA3D
         piece_name.clear();
     }
 
+
     void LuaChunk::destroy()
     {
 		DELETE_ARRAY(buffer);
         size = 0;
     }
+
 
     int LuaChunk::identify(const String &name)
     {
@@ -137,10 +124,17 @@ namespace TA3D
                 }
             }
         }
-        String query = String::ToLower(name);
-        for(int i = 0 ; i < piece_name.size() ; i++)
+
+		String query(name);
+		query.toLower();
+        for (int i = 0; i < piece_name.size(); ++i)
+		{
             if (piece_name[i] == query)
                 return i;
+		}
         return -1;
     }
-}
+
+
+
+} // namespace TA3D

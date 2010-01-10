@@ -774,7 +774,7 @@ namespace TA3D
         LOG_DEBUG(LOG_PREFIX_SCRIPT << "CobVm::dumpDebufInfo :");
         LOG_DEBUG(LOG_PREFIX_SCRIPT << childs.size() << " child threads");
         if (running)
-            LOG_DEBUG(LOG_PREFIX_SCRIPT << "main thread running : " << script->names[cur.top() & 0xFF]);
+            logs.debug() << LOG_PREFIX_SCRIPT << "main thread running : " << (script->names[cur.top() & 0xFF]);
         for (int i = 0 ; i < childs.size() ; i++)
             if (childs[i]->is_running())
             {
@@ -786,6 +786,7 @@ namespace TA3D
                 LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF] << state);
             }
     }
+
 
     void CobVm::save_thread_state(gzFile file)
     {
