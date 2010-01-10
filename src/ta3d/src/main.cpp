@@ -176,6 +176,8 @@ static int ParseCommandLine(int argc, char *argv[])
 						GFX::runOpenGLTests();
 						return 1;
 					}
+					if ("--no-sound" == arg) // Disable sound
+						lp_CONFIG->no_sound = true;
 				}
 			}
 		}

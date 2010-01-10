@@ -354,6 +354,9 @@ namespace Audio
 
 	bool Manager::doStartUpAudio()
 	{
+		if (lp_CONFIG->no_sound)
+			return false;
+
 		pMusic = NULL;
 		fCounter = 0;
         bPlayMusic = false;
@@ -898,6 +901,9 @@ namespace Audio
 
 	void Manager::loadTDFSounds(const bool allSounds)
 	{
+		if (lp_CONFIG->no_sound)
+			return;
+
 		pMutex.lock();
 		// Which file to load ?
 		String filename(ta3dSideData.gamedata_dir);
