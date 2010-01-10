@@ -222,7 +222,7 @@ namespace TA3D
 
 		for (int g = 0 ; parser.exists(String("gadget") << g) ; g++)
 		{
-			const String& key = String("gadget") << g << '.';
+			const String key = String("gadget") << g << '.';
 
 			int index = add_feature( parser.pullAsString(String("gadget") << g) );
 			Feature *pFeature = feature[index];
