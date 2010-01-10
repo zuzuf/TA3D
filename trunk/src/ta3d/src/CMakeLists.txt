@@ -101,7 +101,7 @@ SET(SRC_SCRIPTS
 		scripts/cob.vm.h scripts/cob.vm.cpp
 		scripts/lua.thread.h scripts/lua.thread.cpp
 		scripts/lua.env.h scripts/lua.env.cpp
-		scripts/lua.chunk.h scripts/lua.chunk.cpp
+		scripts/lua.chunk.h scripts/lua.chunk.hxx scripts/lua.chunk.cpp
 		scripts/lua.data.h scripts/lua.data.cpp
 		scripts/lua.persist.h scripts/lua.persist.cpp
 		scripts/draw.list.h scripts/draw.list.cpp
@@ -204,7 +204,7 @@ SET(SRC_NETWORK
 		network/networkutils.h network/networkutils.cpp
 		network/socketlist.h network/socketlist.cpp
 		network/TA3D_Network.cpp network/TA3D_Network.h
-		network/netclient.cpp network/netclient.h
+		network/netclient.cpp network/netclient.h network/netclient.hxx
 		network/http.cpp network/http.h)
 
 SET(SRC_AI

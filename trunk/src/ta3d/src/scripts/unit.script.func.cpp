@@ -144,12 +144,12 @@ namespace TA3D
             case STANDINGMOVEORDERS:			// A faire : ajouter le support des ordres de mouvement/feu
             case STANDINGFIREORDERS:
                 return port[ portID ];
-        };
-        const char *op[]={"INCONNU","ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y",
-            "UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN","HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN",
-            "BUGGER_OFF","ARMORED"};
-        if (portID > 20)
-            portID = 0;
+		};
+		// const char *op[]={"INCONNU","ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y",
+		//	"UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN","HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN",
+		//	"BUGGER_OFF","ARMORED"};
+		if (portID > 20)
+			portID = 0;
         LOG_DEBUG("GET_VALUE_FROM_PORT: opération non gérée : " << op[portID]);
         return 0;
     }

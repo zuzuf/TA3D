@@ -1,3 +1,5 @@
+
+#include <yuni/yuni.h>
 #include <stdafx.h>
 #include <TA3D_NameSpace.h>
 #include "netclient.h"
@@ -6,32 +8,30 @@
 
 #define BUFFER_SIZE     2048
 
+
+using namespace Yuni;
+
+
 namespace TA3D
 {
 
 
-	NetClient::Ptr NetClient::pInstance = NULL;
+	NetClient::Ptr NetClient::pInstance;
 
 
-
-	NetClient::Ptr NetClient::instance()
-	{
-		if (!pInstance)
-			pInstance = new NetClient;
-		return pInstance;
-	}
 
 	void NetClient::destroyInstance()
 	{
-		pInstance = NULL;
+		pInstance = nullptr;
 	}
 
-	NetClient::NetClient() : peerList(), login(), state( NetClient::DISCONNECTED ), messages(), sock(), serverJoined()
+
+	NetClient::NetClient()
+		:port(0), state(NetClient::DISCONNECTED), buffer_pos(0), currentChan("*"),
+		modListChanged(false), serverListChanged(false),
+		hostAck(false)
 	{
 		buffer = new char[BUFFER_SIZE];
-		buffer_pos = 0;
-		currentChan = "*";
-		hostAck = false;
 	}
 
 	NetClient::~NetClient()
@@ -41,7 +41,7 @@ namespace TA3D
 
 	void NetClient::disconnect()
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		sendMessage("DISCONNECT");
 		sock.close();
 		state = DISCONNECTED;
@@ -53,39 +53,21 @@ namespace TA3D
 		buffer_pos = 0;
 		currentChan = "*";
 		hostAck = false;
-
-		pMutex.unlock();
 	}
 
-	NetClient::NetState NetClient::getState()
-	{
-		MutexLocker mLock(pMutex);
-		return state;
-	}
-
-	String::Vector NetClient::getPeerList()
-	{
-		MutexLocker mLock(pMutex);
-		return peerList;
-	}
-
-	bool NetClient::messageWaiting()
-	{
-		MutexLocker mLock(pMutex);
-		return !messages.empty();
-	}
 
 	String NetClient::getNextMessage()
 	{
-		MutexLocker mLock(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 		String msg = messages.front();
 		messages.pop_front();
 		return msg;
 	}
 
+
 	void NetClient::sendMessage(const String &msg)
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		if (sock.isOpen())
 			sock.send((msg + "\n").c_str(), msg.size() + 1);
 		else
@@ -94,24 +76,25 @@ namespace TA3D
 			peerList.clear();
 			chanList.clear();
 		}
-		pMutex.unlock();
 	}
+
 
 	void NetClient::clearMessageQueue()
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		messages.clear();
-		pMutex.unlock();
 	}
+
 
 	void NetClient::reconnect()
 	{
 		connect(server, port, login, password);
 	}
 
+
 	void NetClient::connect(const String &server, const uint16 port, const String &login, const String &password, bool bRegister)
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		if (sock.isOpen())
 			disconnect();
 
@@ -139,12 +122,12 @@ namespace TA3D
 				sendMessage("LOGIN " + login + " " + password);
 			uint32 timer = msec_timer;
 			bool done = false;
-			while(msec_timer - timer < 10000 && !done)   // 10s timeout
+			while (msec_timer - timer < 10000 && !done)   // 10s timeout
 			{
 				rest(1);
 				receive();
 				int i = 0;
-				while(messageWaiting() && i < messages.size())
+				while (messageWaiting() && i < messages.size())
 				{
 					i++;
 					String::Vector args;
@@ -182,13 +165,12 @@ namespace TA3D
 				sendMessage("GET SERVER LIST");	// and the server list
             }
 		}
-
-		pMutex.unlock();
 	}
+
 
 	void NetClient::receive()
 	{
-		MutexLocker mLock(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 		if (!sock.isOpen())     // Socket is closed, we can't get anything
 		{
 			state = DISCONNECTED;
@@ -224,7 +206,8 @@ namespace TA3D
 		}
 	}
 
-	void NetClient::processMessage(const String &msg)
+
+	void NetClient::processMessage(const String& msg)
 	{
 		if (msg.empty())
 			return;
@@ -355,71 +338,50 @@ namespace TA3D
 			hostAck = true;
 	}
 
+
     ModInfo::List NetClient::getModList()
     {
-        MutexLocker mLock(pMutex);
+        ThreadingPolicy::MutexLocker locker(*this);
 		modListChanged = false;
         return modList;
     }
 
-	String::Vector NetClient::getChanList()
-	{
-		MutexLocker mLock(pMutex);
-		return chanList;
-	}
 
 	NetClient::GameServer::List NetClient::getServerList()
 	{
-		MutexLocker mLock(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 		serverListChanged = false;
 		return serverList;
 	}
 
+
 	void NetClient::changeChan(const String &chan)
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		currentChan = chan.empty() ? "*" : chan;
 		sendMessage("CHAN " + chan);
 		sendMessage("GET USER LIST");
 		peerList.clear();
-		pMutex.unlock();
 	}
+
 
 	void NetClient::sendChan(const String &msg)
 	{
-		pMutex.lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		sendMessage("SENDALL " + msg);
-		pMutex.unlock();
 	}
 
-	String NetClient::getLogin()
-	{
-		MutexLocker mLock(pMutex);
-		return login;
-	}
-
-	String NetClient::getChan()
-	{
-		MutexLocker mLock(pMutex);
-		return currentChan;
-	}
-
-	String NetClient::getServerJoined()
-	{
-		MutexLocker mLock(pMutex);
-		return serverJoined;
-	}
 
 	void NetClient::clearServerJoined()
 	{
-		lock();
+		ThreadingPolicy::MutexLocker locker(*this);
 		serverJoined.clear();
-		unlock();
 	}
+
 
 	bool NetClient::getHostAck()
 	{
-		MutexLocker mLock(pMutex);
+		ThreadingPolicy::MutexLocker locker(*this);
 		if (hostAck)
 		{
 			hostAck = false;
@@ -427,4 +389,7 @@ namespace TA3D
 		}
 		return false;
 	}
-}
+
+
+
+} // namespace TA3D
