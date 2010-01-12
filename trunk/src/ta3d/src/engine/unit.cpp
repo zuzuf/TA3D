@@ -4139,32 +4139,32 @@ namespace TA3D
 
 				if (can_fire)
 				{
-					int dx = (pType->SightDistance+(int)(h+0.5f))>>3;
+					int dx = pType->SightDistance + (int)(h+0.5f);
 					int enemy_idx = -1;
 					for( int i = 0 ; i < weapon.size() ; i++ )
 						if (pType->weapon[i] != NULL
-							&& (pType->weapon[i]->range >> 4) > dx
+							&& (pType->weapon[i]->range >> 1) > dx
 							&& !pType->weapon[i]->interceptor
 							&& !pType->weapon[i]->commandfire)
-							dx = pType->weapon[i]->range >> 4;
-					if (pType->kamikaze && (pType->kamikazedistance >> 3) > dx )
-						dx = pType->kamikazedistance >> 3;
+							dx = pType->weapon[i]->range >> 1;
+					if (pType->kamikaze && pType->kamikazedistance > dx)
+						dx = pType->kamikazedistance;
 					byte mask = 1 << owner_id;
 
 					std::deque<UnitTKit::T> possibleTargets;
 					for(int i = 0 ; i < NB_PLAYERS ; ++i)
 						if (i != owner_id && !(players.team[owner_id] & players.team[i]))
-							units.kdTree[i]->maxDistanceQuery(possibleTargets, Pos, dx * 8.0f);
+							units.kdTree[i]->maxDistanceQuery(possibleTargets, Pos, dx);
 
 					for(std::deque<UnitTKit::T>::iterator i = possibleTargets.begin() ; enemy_idx == -1 && i != possibleTargets.end() ; ++i)
 					{
 						int cur_idx = (*i)->idx;
 						int x = (*i)->cur_px;
 						int y = (*i)->cur_py;
-						if (cur_px < 0
-							|| cur_px >= the_map->bloc_w_db - 1
-							|| cur_py < 0
-							|| cur_py >= the_map->bloc_h_db - 1)
+						if (x < 0
+							|| x >= the_map->bloc_w_db - 1
+							|| y < 0
+							|| y >= the_map->bloc_h_db - 1)
 							continue;
 						if (units.unit[cur_idx].flags
 							&& ( units.unit[cur_idx].is_on_radar( mask ) ||
@@ -4181,18 +4181,12 @@ namespace TA3D
 										&& units.unit[cur_idx].weapon[i].target == this)
 									{
 										enemy_idx = cur_idx;
-										x = cur_px + dx;
-										y = cur_py + dx;
 										break;
 									}
 								}
 							}
 							else
-							{
 								enemy_idx = cur_idx;
-								x = cur_px + dx;
-								y = cur_py + dx;
-							}
 						}
 					}
 					if (enemy_idx >= 0)			// Si on a trouvé une unité, on l'attaque

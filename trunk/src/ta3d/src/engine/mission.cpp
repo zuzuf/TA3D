@@ -60,7 +60,7 @@ namespace TA3D
 		return empty() || ((this->mission() == MISSION_STOP
 							 || this->mission() == MISSION_STANDBY
 							 || this->mission() == MISSION_VTOL_STANDBY)
-							&& size() == 1 && this->size() == 1);
+							&& size() == 1 && front().size() == 1);
 	}
 
 	bool MissionStack::doNothingAI()
@@ -69,7 +69,7 @@ namespace TA3D
 							|| this->mission() == MISSION_STANDBY
 							|| this->mission() == MISSION_VTOL_STANDBY
 							|| this->mission() == MISSION_MOVE)
-							&& size() == 1 && this->size() == 1);
+							&& size() == 1 && front().size() == 1);
 	}
 
 #define SAVE( i )	gzwrite( file, (void*)&(i), sizeof( i ) )
