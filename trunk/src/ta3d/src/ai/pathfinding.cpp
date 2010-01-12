@@ -60,7 +60,6 @@ namespace TA3D
 
 		void Path::next()
 		{
-			MutexLocker mLock(pMutex);
 			if (nodes.empty())
 				return;
 
@@ -70,37 +69,24 @@ namespace TA3D
 
 		bool Path::empty()
 		{
-			lock();
-			bool b = nodes.empty();
-			unlock();
-			return b;
+			return nodes.empty();
 		}
 
 		void Path::clear()
 		{
-			lock();
-
 			nodes.clear();
 			pos.reset();
 			_ready = false;
-
-			unlock();
 		}
 
 		void Path::computeCoord()
 		{
-			lock();
 			if (nodes.empty())
-			{
-				unlock();
 				return;
-			}
 
 			pos.x = float((nodes.front().x() << 3) + 4 - the_map->map_w_d);
 			pos.z = float((nodes.front().z() << 3) + 4 - the_map->map_h_d);
 			pos.y = 0.0f;
-
-			unlock();
 		}
 
 #define SAVE( i )	gzwrite( file, (void*)&(i), sizeof( i ) )
@@ -108,8 +94,6 @@ namespace TA3D
 
 		void Path::save(gzFile file)
 		{
-			MutexLocker mLock(pMutex);
-
 			int n = int(nodes.size());
 			SAVE( n );
 			for(iterator i = begin() ; i != end() ; ++i)
@@ -121,8 +105,6 @@ namespace TA3D
 
 		void Path::load(gzFile file)
 		{
-			MutexLocker mLock(pMutex);
-
 			clear();
 			int n(0);
 			LOAD( n );
