@@ -39,13 +39,11 @@ namespace TA3D
 	class Pathfinder;
 	namespace AI
 	{
-		class Path : public ObjectSync
+		class Path
 		{
 			friend class TA3D::Pathfinder;
 
 		public:
-			typedef SmartPtr<Path>	Ptr;
-
 			class Node
 			{
 			public:
@@ -58,6 +56,7 @@ namespace TA3D
 
 		public:
 			Path();
+			~Path()	{}
 			void next();
 			bool empty();
 			void clear();
