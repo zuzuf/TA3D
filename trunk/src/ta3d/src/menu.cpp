@@ -1736,8 +1736,7 @@ namespace TA3D
 						game_data.player_network_id[i] = -1;
 
 					setupgame_area.caption( String("gamesetup.name") << i, player_str[e]);         // Update gui
-					AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
-					LOG_DEBUG(LOG_PREFIX_GFX << "nb AIs : " << AI_list.size());
+					AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
 					setupgame_area.set_entry( String("gamesetup.ai") << i, AI_list);
 					guiobj = setupgame_area.get_object( String("gamesetup.color") << i);
 					if (guiobj)

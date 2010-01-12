@@ -118,7 +118,7 @@ namespace TA3D
 		}
 	}
 
-	Pathfinder::Pathfinder() : tasks()
+	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0)
 	{
 		nbCores = Yuni::System::CPU::Count();
 	}
@@ -133,6 +133,8 @@ namespace TA3D
 	{
 		MutexLocker mLock(pMutex);
 		tasks.clear();
+		stasks.clear();
+		taskOffset = 0;
 	}
 
 	void Pathfinder::addTask(int idx, int dist, const Vector3D &start, const Vector3D &end)
@@ -140,20 +142,19 @@ namespace TA3D
 		Task t = { dist, idx, units.unit[idx].ID, start, end };
 
 		lock();
-		bool found = false;
-		// If we have already made a request update it
-		for(TaskList::iterator i = tasks.begin() ; i != tasks.end() ; ++i)
+
+		TaskSet::iterator pos = stasks.find(t.UID);
+		bool found = (pos != stasks.end());
+
+		if (found)		// If it's in the queue, then change the request
+			tasks[pos->second - taskOffset] = t;
+		// Otherwise add a new request to the task list
+		else
 		{
-			if (i->UID == t.UID)
-			{
-				found = true;
-				*i = t;
-			}
+			stasks[t.UID] = tasks.size() + taskOffset;
+			tasks.push_back(t);
 		}
 
-		// Otherwise add a new request to the task list
-		if (!found)
-			tasks.push_back(t);
 		if (!isRunning())
 			this->start();
 		unlock();
@@ -182,7 +183,9 @@ namespace TA3D
 		while(!tasks.empty() && !pDead)
 		{
 			Task cur = tasks.front();
+			stasks.erase(cur.UID);
 			tasks.pop_front();
+			++taskOffset;
 			unlock();
 
 			// Here we are free to compute this path

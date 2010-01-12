@@ -110,7 +110,10 @@ namespace TA3D
 
 	private:
 		typedef std::deque<Task> TaskList;
+		typedef std::map< int, int > TaskSet;
 		TaskList tasks;
+		TaskSet stasks;
+		int taskOffset;
 		int nbCores;
 
 	private:
