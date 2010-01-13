@@ -29,11 +29,6 @@ namespace TA3D
 	InGameWeapons weapons;
 
 
-	void InGameWeapons::set_data(MAP* map)
-	{
-		p_map = map;
-	}
-
 	void InGameWeapons::init(bool real)
 	{
 		pMutex.lock();
@@ -120,7 +115,7 @@ namespace TA3D
 		return index;
 	}
 
-	void InGameWeapons::move(float dt,MAP *map)
+	void InGameWeapons::move(float dt)
 	{
 		pMutex.lock();
 		if (nb_weapon <= 0 || weapon.size() <= 0)
@@ -138,7 +133,7 @@ namespace TA3D
 				break;
 
 			uint32 i = idx_list[e];
-			weapon[i].move(dt,map);
+			weapon[i].move(dt);
 			if (weapon[i].weapon_id < 0) // Remove it from the "alive" list
 			{
 				--nb_weapon;
@@ -154,7 +149,7 @@ namespace TA3D
 
 
 
-	void InGameWeapons::draw(MAP* map, bool underwater)
+	void InGameWeapons::draw(bool underwater)
 	{
 		pMutex.lock();
 		if(nb_weapon<=0 || weapon.size()<=0)
@@ -168,8 +163,8 @@ namespace TA3D
 		for(std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
 		{
 			uint32 i = *e;
-			if((weapon[i].Pos.y < map->sealvl && underwater) || (weapon[i].Pos.y >= map->sealvl && !underwater))
-				weapon[i].draw(map);
+			if((weapon[i].Pos.y < the_map->sealvl && underwater) || (weapon[i].Pos.y >= the_map->sealvl && !underwater))
+				weapon[i].draw();
 		}
 
 		gfx->unlock();
@@ -243,7 +238,7 @@ namespace TA3D
 		while (!thread_ask_to_stop)
 		{
 			++counter;
-			move(dt, p_map);					// Animate weapons
+			move(dt);					// Animate weapons
 			features.move_forest(dt);			// Animate the forest
 
 			ThreadSynchroniser->lock();

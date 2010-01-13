@@ -132,7 +132,6 @@ namespace TA3D
 		particle_engine.start();
 
 		// Start the weapon engine
-		weapons.set_data(map.get());
 		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
 		features.set_data(map->wind_vec);
 		weapons.start();
@@ -911,7 +910,7 @@ namespace TA3D
 					target.x = target.x * 8.0f - map->map_w_d;
 					target.z = target.z * 8.0f - map->map_h_d;
 
-					can_be_there = can_be_built(target, map.get(), build, players.local_human_id);
+					can_be_there = can_be_built(target, build, players.local_human_id);
 
 					if (can_be_there)
 					{

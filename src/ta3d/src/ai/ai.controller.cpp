@@ -689,7 +689,7 @@ namespace TA3D
                 for (int f = 0; f < 8; ++f)
                 {
                     int e = rand_t[ f ];
-                    if (can_be_there_ai( px + cx[e], py + cy[e], the_map, unit_idx, playerID ))
+					if (can_be_there_ai( px + cx[e], py + cy[e], unit_idx, playerID ))
                     {
                         int stuff_id = -1;
                         int metal_found = extractor ? the_map->check_metal( px + cx[e], py + cy[e], unit_idx, &stuff_id ) : 0;
@@ -697,7 +697,7 @@ namespace TA3D
                         {
                             // Prevent AI from filling a whole area with metal extractors
                             if (extractor && stuff_id == -1
-                                && !can_be_there_ai( px + cx[e], py + cy[e], the_map, unit_idx, playerID, -1, true ))
+								&& !can_be_there_ai( px + cx[e], py + cy[e], unit_idx, playerID, -1, true ))
                                 continue;
                             spx = px + cx[e];
                             spy = py + cy[e];

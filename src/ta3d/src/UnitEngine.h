@@ -109,7 +109,7 @@ namespace TA3D
 
 	extern int MAX_UNIT_PER_PLAYER;
 
-	void *create_unit(int type_id, int owner, Vector3D pos, MAP *map, bool sync = true, bool script = false);
+	void *create_unit(int type_id, int owner, Vector3D pos, bool sync = true, bool script = false);
 
 
 #define	ICON_UNKNOWN		0x0
@@ -207,11 +207,11 @@ namespace TA3D
 
 		void kill(int index,int prev,bool sync = true);			// Détruit une unité
 
-		void draw(MAP *map, bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
+		void draw(bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
 
 		void drawHealthBars(); // Draw health bars / dessine les barres de vie
 
-        void draw_shadow(float t, const Vector3D& Dir, MAP* map, float alpha = 0.5f); // Dessine les ombres des unités visibles
+		void draw_shadow(float t, const Vector3D& Dir, float alpha = 0.5f); // Dessine les ombres des unités visibles
 
 		void draw_mini(float map_w, float map_h, int mini_w, int mini_h); // Repère les unités sur la mini-carte
 
@@ -256,11 +256,11 @@ namespace TA3D
 
 	extern INGAME_UNITS units;
 
-	bool can_be_built(const Vector3D& Pos, MAP *map, const int unit_type_id, const int player_id );
+	bool can_be_built(const Vector3D& Pos, const int unit_type_id, const int player_id );
 
-	bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
+	bool can_be_there( const int px, const int py, const int unit_type_id, const int player_id, const int unit_id = -1 );
 
-	bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1, const bool leave_space = false );
+	bool can_be_there_ai( const int px, const int py, const int unit_type_id, const int player_id, const int unit_id = -1, const bool leave_space = false );
 
 
 } // namespace TA3D

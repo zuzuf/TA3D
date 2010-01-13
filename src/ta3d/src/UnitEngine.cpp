@@ -530,14 +530,14 @@ namespace TA3D
 		return index;
 	}
 
-	void *create_unit( int type_id, int owner, Vector3D pos, MAP *map, bool sync, bool script )
+	void *create_unit( int type_id, int owner, Vector3D pos, bool sync, bool script )
 	{
 		int id = units.create(type_id,owner);
-		if (id>=0)
+		if (id >= 0)
 		{
 			units.unit[id].lock();
 
-			if (network_manager.isConnected() )
+			if (network_manager.isConnected())
 			{
 				units.unit[id].local = g_ta3d_network->isLocal( owner );
 				if (sync) // Send event packet if needed
@@ -553,10 +553,10 @@ namespace TA3D
 				}
 			}
 
-			units.unit[id].Pos=pos;
-			units.unit[id].build_percent_left=100.0f;
-			units.unit[id].cur_px = ((int)(units.unit[id].Pos.x)+map->map_w_d+4)>>3;
-			units.unit[id].cur_py = ((int)(units.unit[id].Pos.z)+map->map_h_d+4)>>3;
+			units.unit[id].Pos = pos;
+			units.unit[id].build_percent_left = 100.0f;
+			units.unit[id].cur_px = ((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3;
+			units.unit[id].cur_py = ((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3;
 			units.unit[id].unlock();
 
 			units.unit[id].draw_on_map();
@@ -567,114 +567,117 @@ namespace TA3D
 	}
 
 
-	bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_id,
+	bool can_be_there_ai(const int px, const int py, const int unit_type_id,
 						 const int player_id, const int unit_id, const bool leave_space )
 	{
-		if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
+		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
 
 		int w = unit_manager.unit_type[unit_type_id]->FootprintX;
 		int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
-		int x = px-(w>>1);
-		int y = py-(h>>1);
+		int x = px - (w>>1);
+		int y = py - (h>>1);
 		int side = unit_manager.unit_type[unit_type_id]->ExtractsMetal == 0.0f ? 12 : leave_space ? 12 : 0;
-		if (x < 0 || y < (((int)map->get_zdec(x,0)+7)>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
+		if (x < 0 || y < (((int)the_map->get_zdec(x, 0) + 7) >> 3)
+			|| x + w >= (the_map->bloc_w << 1) || y + h >= (the_map->bloc_h << 1))
+			return false;	// check if it is inside the map
 
-		if (!map->check_rect( px - ((w + side)>>1), py - ((h + side)>>1), w + side, h + side, unit_id))
+		if (!the_map->check_rect( px - ((w + side) >> 1), py - ((h + side) >> 1), w + side, h + side, unit_id))
 			return false;		// There is already something
-		float dh = fabsf(map->check_rect_dh(x,y,w,h));
-		float max_depth = map->check_max_depth(x,y,w,h);
-		float min_depth = map->check_min_depth(x,y,w,h);
+		float dh = fabsf(the_map->check_rect_dh(x,y,w,h));
+		float max_depth = the_map->check_max_depth(x,y,w,h);
+		float min_depth = the_map->check_min_depth(x,y,w,h);
 
-		if (dh>unit_manager.unit_type[unit_type_id]->MaxSlope*H_DIV
-			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= map->sealvl ) )
+		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
+			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= the_map->sealvl ) )
 			return false;	// Check the slope, check if hovering too
 
 		// Check if unit can be there
-		if (min_depth<unit_manager.unit_type[unit_type_id]->MinWaterDepth*H_DIV
-			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth*H_DIV))
+		if (min_depth < unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
+			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth > unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV))
 			return false;
 
-		if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
+		if (!the_map->check_vents(x, y, w, h, unit_manager.unit_type[unit_type_id]->yardmap))
 			return false;
 
-		if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
+		if (the_map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
 			return false;
 
 		return true;
 	}
 
-	bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
+	bool can_be_there( const int px, const int py, const int unit_type_id,
 					   const int player_id, const int unit_id )
 	{
-		if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
+		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
 
 		int w = unit_manager.unit_type[unit_type_id]->FootprintX;
 		int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
-		int x = px-(w>>1);
-		int y = py-(h>>1);
-		if (x < 0 || y < (((int)map->get_zdec(x,0)+7)>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
+		int x = px - (w>>1);
+		int y = py - (h>>1);
+		if (x < 0 || y < (((int)the_map->get_zdec(x,0) + 7) >> 3) || x + w >= (the_map->bloc_w << 1) || y + h >= (the_map->bloc_h << 1))
 			return false;	// check if it is inside the map
 
-		if (!map->check_rect(x,y,w,h,unit_id))
+		if (!the_map->check_rect(x,y,w,h,unit_id))
 			return false;		// There is already something
 
-		float dh = fabsf(map->check_rect_dh(x,y,w,h));
-		float max_depth = map->check_max_depth(x,y,w,h);
-		float min_depth = map->check_min_depth(x,y,w,h);
+		float dh = fabsf(the_map->check_rect_dh(x,y,w,h));
+		float max_depth = the_map->check_max_depth(x,y,w,h);
+		float min_depth = the_map->check_min_depth(x,y,w,h);
 
-		if (dh>unit_manager.unit_type[unit_type_id]->MaxSlope*H_DIV
-			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= map->sealvl ) )
+		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
+			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= the_map->sealvl ) )
 			return false;	// Check the slope, check if hovering too
 
 		// Check if unit can be there
-		if (min_depth<unit_manager.unit_type[unit_type_id]->MinWaterDepth*H_DIV
-			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth*H_DIV))
+		if (min_depth < unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
+			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth > unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV))
 			return false;
 
-		if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
+		if (!the_map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
 			return false;
 
-		if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
+		if (the_map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
 			return false;
 
 		return true;
 	}
 
-	bool can_be_built(const Vector3D& Pos, MAP *map,const int unit_type_id, const int player_id )
+	bool can_be_built(const Vector3D& Pos,const int unit_type_id, const int player_id )
 	{
-		if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
+		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
 
 		int w = unit_manager.unit_type[unit_type_id]->FootprintX;
 		int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
-		int x = (((int)(Pos.x)+map->map_w_d+4)>>3)-(w>>1);
-		int y = (((int)(Pos.z)+map->map_h_d+4)>>3)-(h>>1);
-		if (x < 0 || y < (((int)map->get_zdec(x,0)+7)>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
+		int x = (((int)(Pos.x) + the_map->map_w_d+4)>>3)-(w>>1);
+		int y = (((int)(Pos.z) + the_map->map_h_d+4)>>3)-(h>>1);
+		if (x < 0 || y < (((int)the_map->get_zdec(x,0)+7)>>3) || x+w>=(the_map->bloc_w<<1) || y+h>=(the_map->bloc_h<<1))
 			return false;	// check if it is inside the map
 
-		if (!map->check_rect(x,y,w,h,-1))
+		if (!the_map->check_rect(x,y,w,h,-1))
 			return false;		// There already something
-		float dh = fabsf(map->check_rect_dh(x,y,w,h));
-		float max_depth = map->check_max_depth(x,y,w,h);
-		float min_depth = map->check_min_depth(x,y,w,h);
+		float dh = fabsf(the_map->check_rect_dh(x,y,w,h));
+		float max_depth = the_map->check_max_depth(x,y,w,h);
+		float min_depth = the_map->check_min_depth(x,y,w,h);
 
-		if (!map->check_rect_discovered( x, y, w, h, 1<<player_id ) )
+		if (!the_map->check_rect_discovered( x, y, w, h, 1 << player_id ) )
 			return false;
 
-		if (dh>unit_manager.unit_type[unit_type_id]->MaxSlope*H_DIV)
+		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV)
 			return false;	// Check the slope
 
 		// Check if unit can be there
-		if (min_depth<unit_manager.unit_type[unit_type_id]->MinWaterDepth*H_DIV || max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth*H_DIV)
+		if (min_depth < unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
+			|| max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV)
 			return false;
 		//	if (depth>0 && (unit_manager.unit_type[unit_type_id]->Category&NOTSUB))	return false;
 
-		if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
+		if (!the_map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
 			return false;
 
-		if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
+		if (the_map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
 			return false;
 
 		return true;
@@ -1468,7 +1471,7 @@ namespace TA3D
 
 
 
-	void INGAME_UNITS::draw(MAP* map, bool underwater, bool limit, bool cullface, bool height_line)					// Dessine les unités visibles
+	void INGAME_UNITS::draw(bool underwater, bool limit, bool cullface, bool height_line)					// Dessine les unités visibles
 	{
 		if (nb_unit <= 0 || !unit)
 			return;		// Pas d'unités à dessiner
@@ -1481,7 +1484,7 @@ namespace TA3D
 
 		glDisable(GL_BLEND);
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-		float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
+		float sea_lvl = limit ? the_map->sealvl - 5.0f : the_map->sealvl;
 		float virtual_t = ((float)current_tick) / TICKS_PER_SEC;
 		pMutex.lock();
 		bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
@@ -1497,7 +1500,7 @@ namespace TA3D
 
             pUnit->lock();
             if ((pUnit->flags & 1)
-                && (low_def || (pUnit->Pos.y + pUnit->model->bottom <= map->sealvl && underwater)
+				&& (low_def || (pUnit->Pos.y + pUnit->model->bottom <= the_map->sealvl && underwater)
                     || (pUnit->Pos.y + pUnit->model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
 			{
                 pUnit->unlock();
@@ -1520,9 +1523,9 @@ namespace TA3D
 
 
 
-    void INGAME_UNITS::draw_shadow(float t, const Vector3D& Dir, MAP*, float alpha)	// Dessine les ombres des unités visibles
+	void INGAME_UNITS::draw_shadow(float t, const Vector3D& Dir, float alpha)	// Dessine les ombres des unités visibles
 	{
-		if (nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
+		if (nb_unit <= 0 || unit == NULL) // Pas d'unités à dessiner
 			return;
 
 		if (g_useStencilTwoSide) // Si l'extension GL_EXT_stencil_two_side est disponible
