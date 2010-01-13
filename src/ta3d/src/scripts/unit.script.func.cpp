@@ -414,7 +414,7 @@ namespace TA3D
 											&& tType->BMcode == 1
 											&& units.unit[cur_idx].build_percent_left == 0.0f
 											&& (!units.unit[cur_idx].mission
-												|| units.unit[cur_idx].mission->mission() != MISSION_MOVE))
+												|| (units.unit[cur_idx].mission->mission() & 0xFF) != MISSION_MOVE))
 										{
 											Vector3D target = units.unit[cur_idx].Pos;
 											target.z += 100.0f;
