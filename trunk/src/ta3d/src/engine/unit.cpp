@@ -4990,21 +4990,21 @@ script_exec:
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
+						if (can_be_there( cur_px-x, cur_py+y, type_id, owner_id ) )
 						{
 							cur_px -= x;
 							cur_py += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
+						if (can_be_there( cur_px+x, cur_py-y, type_id, owner_id ) )
 						{
 							cur_px += x;
 							cur_py -= y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
+						if (can_be_there( cur_px-x, cur_py-y, type_id, owner_id ) )
 						{
 							cur_px -= x;
 							cur_py -= y;
