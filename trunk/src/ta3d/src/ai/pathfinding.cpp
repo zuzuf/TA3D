@@ -153,6 +153,7 @@ namespace TA3D
 		{
 			stasks[t.UID] = tasks.size() + taskOffset;
 			tasks.push_back(t);
+			LOG_DEBUG(LOG_PREFIX_PATHS << int(tasks.size()) << " path requests queued");
 		}
 
 		if (!isRunning())

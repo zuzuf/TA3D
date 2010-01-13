@@ -1650,7 +1650,9 @@ namespace TA3D
 				}
 				if (!mission->Path().empty()
 					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
-						 || (last_path_refresh < 5.0f && !pType->canfly) ) )
+						 || (last_path_refresh < 5.0f
+							 && !pType->canfly
+							 && (mission->getFlags() & MISSION_FLAG_REFRESH_PATH)) ) )
 					Target = mission->Path().Pos();
 				else
 				{// Look for a path to the target
