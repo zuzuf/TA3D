@@ -125,7 +125,7 @@ namespace TA3D
 				features.draw(render_time);
 				refcam.setView();
 				// Dessine les unités / draw units
-				units.draw(map.get(), false, true, false, lp_CONFIG->height_line);
+				units.draw(false, true, false, lp_CONFIG->height_line);
 
 				glDisable(GL_CULL_FACE);
 				// Dessine les objets produits par les armes / draw weapons
@@ -192,12 +192,12 @@ namespace TA3D
 						glEnable(GL_POLYGON_OFFSET_FILL);
 						glPolygonOffset(3.0f, 1.0f);
 						// Render all visible units from light's point of view
-						units.draw(map.get(), true, false, true, false);
-						units.draw(map.get(), false, false, true, false);
+						units.draw(true, false, true, false);
+						units.draw(false, false, true, false);
 
 						// Render all visible weapons from light's point of view
-						weapons.draw(map.get(), true);
-						weapons.draw(map.get(), false);
+						weapons.draw(true);
+						weapons.draw(false);
 
 						glDisable(GL_POLYGON_OFFSET_FILL);
 						glPolygonOffset(0.0f, 0.0f);
@@ -237,7 +237,7 @@ namespace TA3D
 							Dir.z = sinf(light_angle);
 							Dir.unit();
 							pSun.Dir = -Dir;
-							units.draw_shadow(render_time, Dir, map.get());
+							units.draw_shadow(render_time, Dir);
 						}
 						else
 						{
@@ -245,7 +245,7 @@ namespace TA3D
 							pSun.Dir.y = 1.0f;
 							pSun.Dir.z = 1.0f;
 							pSun.Dir.unit();
-							units.draw_shadow(render_time, -pSun.Dir, map.get());
+							units.draw_shadow(render_time, -pSun.Dir);
 						}
 						break;
 					case 2:                     // Shadow mapping
@@ -817,12 +817,12 @@ namespace TA3D
 		{
 			if (lp_CONFIG->shadow_quality >= 2)
 				glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-			units.draw(map.get(), true, false, true, lp_CONFIG->height_line);
+			units.draw(true, false, true, lp_CONFIG->height_line);
 			glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 		}
 
 		// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
-		weapons.draw(map.get(), true);
+		weapons.draw(true);
 
 		renderWater();
 
@@ -830,11 +830,11 @@ namespace TA3D
 		if (lp_CONFIG->shadow_quality >= 2)
 			glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 		// Dessine les unités non encore dessinées / Draw units which have not been drawn
-		units.draw(map.get(), false, false, true, lp_CONFIG->height_line);
+		units.draw(false, false, true, lp_CONFIG->height_line);
 		glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 
 		// Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
-		weapons.draw(map.get(), false);
+		weapons.draw(false);
 	}
 
 	void Battle::renderInfo()
@@ -874,7 +874,7 @@ namespace TA3D
 				target.x = target.x * 8.0f - map->map_w_d;
 				target.z = target.z * 8.0f - map->map_h_d;
 
-				can_be_there = can_be_built(target, map.get(), build, players.local_human_id);
+				can_be_there = can_be_built(target, build, players.local_human_id);
 
 				cam.setView();
 

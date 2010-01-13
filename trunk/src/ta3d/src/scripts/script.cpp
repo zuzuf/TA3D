@@ -433,7 +433,7 @@ namespace TA3D
 
 			int PX = ((int)(units.unit[ unit_id ].Pos.x + the_map->map_w_d)>>3);
 			int PY = ((int)(units.unit[ unit_id ].Pos.z + the_map->map_h_d)>>3);
-			if (!can_be_there( PX, PY, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+			if (!can_be_there( PX, PY, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 			{
 				bool found = false;
 				for (int r = 1 ; r < 120 && !found ; r++)		// Circular check
@@ -442,28 +442,28 @@ namespace TA3D
 					for (int y = 0 ; y <= r ; y++)
 					{
 						int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
-						if (can_be_there( PX+x, PY+y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+						if (can_be_there( PX+x, PY+y, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 						{
 							PX += x;
 							PY += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( PX-x, PY+y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+						if (can_be_there( PX-x, PY+y, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 						{
 							PX -= x;
 							PY += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( PX+x, PY-y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+						if (can_be_there( PX+x, PY-y, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 						{
 							PX += x;
 							PY -= y;
 							found = true;
 							break;
 						}
-						if (can_be_there( PX-x, PY-y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+						if (can_be_there( PX-x, PY-y, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 						{
 							PX -= x;
 							PY -= y;
@@ -531,7 +531,7 @@ namespace TA3D
 			pos.x = x;
 			pos.z = z;
 			pos.y = Math::Max( the_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ ), the_map->sealvl);
-			Unit *unit = (Unit*)create_unit( unit_type_id, player_id, pos, the_map, true, true);		// Force synchronization
+			Unit *unit = (Unit*)create_unit( unit_type_id, player_id, pos, true, true);		// Force synchronization
 			int idx = unit ? unit->idx : -1;
 			if (unit)
 			{

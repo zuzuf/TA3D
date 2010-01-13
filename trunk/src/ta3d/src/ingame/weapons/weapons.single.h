@@ -18,7 +18,6 @@
 # define __TA3D_INGAME_WEAPONS_SINGLE_H__
 
 # include <stdafx.h>
-# include <EngineClass.h>
 # include <misc/camera.h>
 
 
@@ -46,12 +45,12 @@ namespace TA3D
         ** \param dt
         ** \param map
         */
-        void move(const float dt, MAP* map);
+		void move(const float dt);
 
         /*!
         ** \brief
         */
-        void draw(MAP *map = NULL);
+		void draw();
 
 
     public:

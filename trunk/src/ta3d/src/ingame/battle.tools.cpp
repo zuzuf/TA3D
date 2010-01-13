@@ -408,9 +408,9 @@ namespace TA3D
                            units.unit[id].Pos.x = (TA3D_RAND() % map->map_w) - map->map_w_d;
                            units.unit[id].Pos.z = (TA3D_RAND() % map->map_h) - map->map_h_d;
                            ++e;
-                       } while (e < 100 && !can_be_built(units.unit[id].Pos, map.get(), units.unit[id].type_id, player_id));
+					   } while (e < 100 && !can_be_built(units.unit[id].Pos, units.unit[id].type_id, player_id));
 
-                       if (!can_be_built(units.unit[id].Pos, map.get(), units.unit[id].type_id, player_id))
+					   if (!can_be_built(units.unit[id].Pos, units.unit[id].type_id, player_id))
                        {
                            units.unit[id].flags = 4;
 						   units.kill(id, units.index_list_size - 1);

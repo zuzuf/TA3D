@@ -46,12 +46,6 @@ namespace TA3D
 
         /*!
         ** \brief
-        ** \param map
-        */
-        void set_data(MAP* map);
-
-        /*!
-        ** \brief
         ** \param real
         */
         void init(bool real = true);
@@ -72,12 +66,12 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void move(const float dt,MAP *map);
+		void move(const float dt);
 
         /*!
         ** \brief
         */
-        void draw(MAP *map = NULL, bool underwater = false);
+		void draw(bool underwater = false);
 
         /*!
         ** \brief
@@ -103,8 +97,6 @@ namespace TA3D
         bool thread_running;
         //!
         bool thread_ask_to_stop;
-        //!
-        MAP* p_map;
         //!
         void proc(void*);
         //!

@@ -1904,7 +1904,7 @@ namespace TA3D
 			{
 				if (n_px != cur_px || n_py != cur_py) // has something changed ??
 				{
-					bool place_is_empty = can_be_there( n_px, n_py, the_map, type_id, owner_id, idx );
+					bool place_is_empty = can_be_there( n_px, n_py, type_id, owner_id, idx );
 					if (!(flags & 64) && !place_is_empty)
 					{
 						if (!pType->canfly)
@@ -1912,7 +1912,7 @@ namespace TA3D
 							locked = true;
 							// Check some basic solutions first
 							if (cur_px != n_px
-								&& can_be_there( cur_px, n_py, the_map, type_id, owner_id, idx ))
+								&& can_be_there( cur_px, n_py, type_id, owner_id, idx ))
 							{
 								V.z = (V.z != 0.0f)
 									  ? (V.z < 0.0f
@@ -1923,7 +1923,7 @@ namespace TA3D
 								NPos.x = Pos.x;
 								n_px = cur_px;
 							}
-							else if (cur_py != n_py && can_be_there( n_px, cur_py, the_map, type_id, owner_id, idx ))
+							else if (cur_py != n_py && can_be_there( n_px, cur_py, type_id, owner_id, idx ))
 							{
 								V.x = (V.x != 0.0)
 									  ? ((V.x < 0.0f)
@@ -1934,7 +1934,7 @@ namespace TA3D
 								NPos.z = Pos.z;
 								n_py = cur_py;
 							}
-							else if (can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx )) {
+							else if (can_be_there( cur_px, cur_py, type_id, owner_id, idx )) {
 								V.x = V.y = V.z = 0.0f;		// Don't move since we can't
 								NPos = Pos;
 								n_px = cur_px;
@@ -1967,7 +1967,7 @@ namespace TA3D
 							}
 							else
 							{
-								if (!can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx ))
+								if (!can_be_there( cur_px, cur_py, type_id, owner_id, idx ))
 								{
 									NPos = Pos;
 									n_px = cur_px;
@@ -2928,7 +2928,7 @@ namespace TA3D
 								if (pType->TransMaxUnits == 1)// Code for units like the arm atlas
 								{
 									if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
-										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, the_map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
+										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
 										launchScript(SCRIPT_EndTransport);
 
 										Unit *target_unit = &(units.unit[ attached_list[0] ]);
@@ -2948,7 +2948,7 @@ namespace TA3D
 								else
 								{
 									if (attached_list[ nb_attached - 1 ] >= 0 && attached_list[ nb_attached - 1 ] < units.max_unit				// Check we can do that
-										&& units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->getTarget().getPos(), the_map, units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
+										&& units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->getTarget().getPos(), units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
 										int idx = attached_list[ nb_attached - 1 ];
 										int param[]= { idx, PACKXZ( mission->getTarget().getPos().x * 2.0f + the_map->map_w, mission->getTarget().getPos().z * 2.0f + the_map->map_h ) };
 										launchScript(SCRIPT_TransportDrop, 2, param);
@@ -4439,7 +4439,7 @@ script_exec:
 				}
 				else
 				{
-					if (can_be_there( cur_px, cur_py, the_map, type_id, owner_id, idx ))		// Check it can be there
+					if (can_be_there( cur_px, cur_py, type_id, owner_id, idx ))		// Check it can be there
 					{
 						float ideal_h = min_h;
 						V.y = (ideal_h - Pos.y) * 1.5f;
@@ -4970,7 +4970,7 @@ script_exec:
 			// First check we're on a "legal" place if it can move
 			pMutex.lock();
             if (pType->canmove && pType->BMcode
-				&& !can_be_there( cur_px, cur_py, units.map, type_id, owner_id ) )
+				&& !can_be_there( cur_px, cur_py, type_id, owner_id ) )
 			{
 				// Try to find a suitable place
 
@@ -4981,28 +4981,28 @@ script_exec:
 					for( int y = 0 ; y <= r ; y++ )
 					{
 						int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
-						if (can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
 						{
 							cur_px += x;
 							cur_py += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
 						{
 							cur_px -= x;
 							cur_py += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
 						{
 							cur_px += x;
 							cur_py -= y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
 						{
 							cur_px -= x;
 							cur_py -= y;
