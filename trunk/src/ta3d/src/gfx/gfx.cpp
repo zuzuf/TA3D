@@ -94,10 +94,29 @@ namespace TA3D
 			SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
 		}
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+		// It seems windows systems expect the accumulation buffer to be set
+		// otherwise menus are jerky and consume lots of CPU
+#ifdef TA3D_PLATFORM_WINDOWS
+		if (TA3D::VARS::lp_CONFIG->color_depth == 32)
+		{
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 8);
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 8);
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 8);
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 8);
+		}
+		else
+		{
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 5);
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 6);
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 5);
+			SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
+		}
+#else
 		SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 0);
 		SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 0);
 		SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
 		SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
+#endif
 
 		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
