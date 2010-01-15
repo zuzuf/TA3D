@@ -161,10 +161,10 @@ namespace TA3D
 
 	private:
 		//! Font list
-		typedef std::list<Font*>  FontList;
+		typedef std::deque<Font*>  FontList;
 
 		FontList  pFontList;
-		UTILS::cHashTable<Font*>    font_table;
+		UTILS::HashMap<Font*>::Dense    font_table;
 	}; // class FontManager
 
 

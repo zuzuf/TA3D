@@ -117,7 +117,7 @@ namespace TA3D
         byte    FootprintX;
         byte    FootprintZ;
 		Grid<float> gRepulsion;
-        cHashTable<int> Category;
+		HashMap<int>::Dense Category;
         String::Vector categories;
         uint32  fastCategory;
         short   MaxSlope;
@@ -276,8 +276,8 @@ namespace TA3D
         ** \brief Check if the unit belongs to the cat category
         ** \param cat The category to check
         */
-        bool checkCategory(String cat)
-        { return !cat.empty() && Category.exists(cat.toLower()); }
+		bool checkCategory(const String &cat)
+		{ return !cat.empty() && Category.count(String::ToLower(cat)) != 0; }
 
         /*!
         ** \brief Inits all the variables
@@ -288,10 +288,7 @@ namespace TA3D
         /*!
         ** \brief Constructor
         */
-        UnitType() : Category( 128 )
-        {
-            init();
-        }
+		UnitType();
 
         /*!
         ** \brief Free memory and destroy the data contained in the object
@@ -344,33 +341,23 @@ namespace TA3D
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel
         Interfaces::GfxTexture  paneltop,panelbottom;
-        cHashTable< int >   unit_hashtable;     // hashtable used to speed up operations on UnitType objects
+		HashMap< int >::Dense   unit_hashtable;     // hashtable used to speed up operations on UnitType objects
 
     public:
 
-        std::list< DlData* >       l_dl_data;      // To clean things at the end
-        cHashTable< DlData* >      h_dl_data;      // To speed things up
+		HashMap< DlData* >::Dense      h_dl_data;      // To speed things up
 
-        inline void init()
-        {
-            nb_unit=0;
-            panel.init();
-            paneltop.init();
-            panelbottom.init();
-        }
+		void init();
 
-        UnitManager() : unit_hashtable(), l_dl_data(), h_dl_data()
-        {
-            init();
-        }
+		UnitManager();
 
         void destroy();
 
         ~UnitManager()
         {
             destroy();
-            unit_hashtable.emptyHashTable();
-            h_dl_data.emptyHashTable();
+			unit_hashtable.clear();
+			h_dl_data.clear();
         }
 
         void load_panel_texture( const String &player_side, const String &intgaf );
@@ -379,7 +366,7 @@ namespace TA3D
 
         inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {
-            return unit_hashtable.find(String::ToLower(unit_name)) - 1;
+			return unit_hashtable[String::ToLower(unit_name)] - 1;
         }
 
     private:

@@ -275,7 +275,7 @@ namespace Gui
 
 	private:
 		//! This list stores the stack of all AREA objects so you can grab the current one at any time
-		static std::list<AREA*> area_stack;
+		static std::deque<AREA*> area_stack;
 		//! Window list
 		typedef std::vector<WND::Ptr> WindowList;
 
@@ -300,9 +300,9 @@ namespace Gui
 		Skin* skin;
 
 		//! hashtable used to speed up loading of *.gui files and save memory
-		TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;
+		TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense gui_hashtable;
 		//! hashtable used to speed up operations on WND objects
-		TA3D::UTILS::cHashTable<int>  wnd_hashtable;
+		TA3D::UTILS::HashMap<int>::Dense  wnd_hashtable;
 
 		//!
 		String  cached_key;

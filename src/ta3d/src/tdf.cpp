@@ -148,8 +148,8 @@ namespace TA3D
 
 
 	FeatureManager::FeatureManager()
-		:feature_hashtable()
 	{
+		feature_hashtable.set_empty_key(String());
 		init();
 	}
 
@@ -157,7 +157,7 @@ namespace TA3D
 	FeatureManager::~FeatureManager()
 	{
 		destroy();
-		feature_hashtable.emptyHashTable();
+		feature_hashtable.clear();
 	}
 
 
@@ -172,7 +172,7 @@ namespace TA3D
 	{
 		if (name.empty())
 			return -1;
-		return feature_hashtable.find(String::ToLower(name)) - 1;
+		return feature_hashtable[String::ToLower(name)] - 1;
 	}
 
 
@@ -181,7 +181,7 @@ namespace TA3D
 		++nb_features;
 		feature.push_back(new Feature);
 		feature.back()->name = name;
-		feature_hashtable.insert(String::ToLower(name), nb_features);
+		feature_hashtable[String::ToLower(name)] = nb_features;
 		return nb_features - 1;
 	}
 
@@ -194,8 +194,7 @@ namespace TA3D
 		}
 		feature.clear();
 
-		feature_hashtable.emptyHashTable();
-		feature_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		feature_hashtable.clear();
 		init();
 	}
 

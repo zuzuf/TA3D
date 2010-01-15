@@ -1387,31 +1387,31 @@ namespace TA3D
 			return NULL;
 
 		const String l = String::ToLower(name);
-		int e = model_hashtable.find("objects3d\\" + l + ".3do") - 1;
+		int e = model_hashtable[String("objects3d\\") << l << ".3do"] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable.find("objects3d\\" + l + ".3dm") - 1;
+		e = model_hashtable[String("objects3d\\") << l << ".3dm"] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable.find("objects3d\\" + l + ".s3o") - 1;
+		e = model_hashtable[String("objects3d\\") << l << ".s3o"] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable.find(l) - 1;
+		e = model_hashtable[l] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable.find(l + ".3do") - 1;
+		e = model_hashtable[l + ".3do"] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable.find(l + ".3dm") - 1;
+		e = model_hashtable[l + ".3dm"] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable.find(l + ".s3o") - 1;
+		e = model_hashtable[l + ".s3o"] - 1;
 		if (e >= 0)
 			return model[e];
 		return NULL;
@@ -1423,7 +1423,7 @@ namespace TA3D
 		for (unsigned int i = 0 ; i < model.size() ; ++i)
 			delete model[i];
 		model.clear();
-		model_hashtable.emptyHashTable();
+		model_hashtable.clear();
 	}
 
 	void MODEL_MANAGER::init()
@@ -1439,8 +1439,7 @@ namespace TA3D
 			delete model[i];
 		model.clear();
 		name.clear();
-		model_hashtable.emptyHashTable();
-		model_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		model_hashtable.clear();
 		init();
 	}
 
@@ -1455,7 +1454,7 @@ namespace TA3D
 	void MODEL_MANAGER::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const String& filename)
 	{
 		name.push_back(filename);
-		model_hashtable.insert(String::ToLower(filename), nb_models);
+		model_hashtable[String::ToLower(filename)] = nb_models;
 
 		MODEL *pModel = new MODEL;
 		pModel->create_from_2d(bmp,w,h,max_h);
@@ -1496,7 +1495,7 @@ namespace TA3D
 					if (pModel)
 					{
 						model.push_back(pModel);
-						model_hashtable.insert(String::ToLower(*e), model.size());
+						model_hashtable[String::ToLower(*e)] = model.size();
 					}
 					else
 					{
@@ -1661,5 +1660,10 @@ namespace TA3D
 			return MESH_S3O::load(filename);
 		LOG_WARNING(LOG_PREFIX_MODEL << "model could not be loaded : file extension unknown");
 		return NULL;
+	}
+
+	MODEL_MANAGER::MODEL_MANAGER() : nb_models(0), model()
+	{
+		model_hashtable.set_empty_key(String());
 	}
 }

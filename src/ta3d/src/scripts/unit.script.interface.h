@@ -39,9 +39,9 @@ namespace TA3D
 
     protected:
         uint32                  unitID;
-        UTILS::cHashTable<int>  return_value;
+		UTILS::HashMap<int>::Dense  return_value;
     public:
-        inline UnitScriptInterface() : return_value(50)  {}
+		inline UnitScriptInterface() { return_value.set_empty_key(String()); }
         virtual ~UnitScriptInterface()  {}
 
         virtual void setUnitID(uint32 ID) = 0;

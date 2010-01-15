@@ -61,7 +61,7 @@ namespace Gui
 
 	private:
 		std::vector<Skin*>  skins;
-		UTILS::cHashTable<Skin*>  hash_skin;
+		UTILS::HashMap<Skin*>::Dense  hash_skin;
 	}; // class SKIN_MANAGER
 
 

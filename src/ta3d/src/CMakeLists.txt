@@ -68,7 +68,7 @@ SET(SRC_MISC
 		misc/resources.h misc/resources.cpp
 		misc/settings.h misc/settings.cpp
 		misc/interface.h misc/interface.cpp
-		misc/hash_table.h misc/hashtable.hxx
+		misc/hash_table.h
 		misc/superqueue.h misc/superqueue.cpp
 		misc/osinfo.h misc/osinfo.cpp
 		misc/application.h misc/application.cpp

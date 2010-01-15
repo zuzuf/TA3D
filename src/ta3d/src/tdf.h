@@ -241,7 +241,7 @@ namespace TA3D
 
 	private:
 		//! hashtable used to speed up operations on Feature objects
-		cHashTable<int>  feature_hashtable;
+		HashMap<int>::Dense  feature_hashtable;
 
 	}; // class FeatureManager
 

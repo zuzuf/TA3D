@@ -339,7 +339,7 @@ namespace TA3D
 			uint32  pMinTicks;
 
 			//!
-			TA3D::UTILS::clpHashTable<SoundItemList*> pSoundList;
+			TA3D::UTILS::HashMap<SoundItemList*>::Dense pSoundList;
 			//!
 			WorkList pWorkList;	// List to store work to do when entering main thread
 			//!

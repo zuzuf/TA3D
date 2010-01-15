@@ -398,7 +398,7 @@ namespace TA3D
         //! \name Constructor & Destructor
         //@{
         //! Default Constructor
-        inline MODEL_MANAGER() :nb_models(0), model() {}
+		MODEL_MANAGER();
         //! Destructor
         ~MODEL_MANAGER();
         //@}
@@ -430,7 +430,7 @@ namespace TA3D
 
     private:
         //! hashtable used to speed up operations on MODEL objects
-        cHashTable<int> model_hashtable;
+		HashMap<int>::Dense model_hashtable;
     }; // class MODEL_MANAGER
 
 

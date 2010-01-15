@@ -270,15 +270,15 @@ namespace TA3D
 		unit_type.push_back(new UnitType());
 		int result =  unit_type[nb_unit]->load(filename);
 		if (!unit_type[nb_unit]->Unitname.empty())
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Unitname ), nb_unit + 1);
+			unit_hashtable[String::ToLower(unit_type[nb_unit]->Unitname)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->name.empty())
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->name ), nb_unit + 1);
+			unit_hashtable[String::ToLower(unit_type[nb_unit]->name)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->ObjectName.empty())
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->ObjectName ), nb_unit + 1);
+			unit_hashtable[String::ToLower(unit_type[nb_unit]->ObjectName)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->Description.empty())
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Description ), nb_unit + 1);
+			unit_hashtable[String::ToLower(unit_type[nb_unit]->Description)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->Designation_Name.empty())
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Designation_Name ), nb_unit + 1);
+			unit_hashtable[String::ToLower(unit_type[nb_unit]->Designation_Name)] = nb_unit + 1;
 		nb_unit++;
 		return result;
 	}
@@ -425,7 +425,7 @@ namespace TA3D
 		ObjectName.clear();
 		Designation_Name.clear();
 		Description.clear();
-		Category.emptyHashTable();
+		Category.clear();
 		categories.clear();
 
 		init();
@@ -499,7 +499,7 @@ namespace TA3D
 		ObjectName.clear();
 		FootprintX=0;
 		FootprintZ=0;
-		Category.emptyHashTable();
+		Category.clear();
 		categories.clear();
 		fastCategory=0;
 		MaxSlope=255;
@@ -680,12 +680,12 @@ namespace TA3D
 		BadTargetCategory = parseString("UNITINFO.BadTargetCategory");
 
 		String category = String::ToLower( parseString("UNITINFO.Category") );
-		Category.initTable(16);
+		Category.clear();
 		categories.clear();
 		category.explode(categories, ' ');
 		for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
 			if (!i->empty())
-				Category.insertOrUpdate(*i, 1);
+				Category[*i] = 1;
 		fastCategory = 0;
 		if (checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
 		if (checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
@@ -911,7 +911,9 @@ namespace TA3D
 	{
 		if (side.empty())
 			return;
-		dl_data = unit_manager.h_dl_data.find(String::ToLower(side));
+		dl_data = NULL;
+		if (unit_manager.h_dl_data.count(String::ToLower(side)) != 0)
+			dl_data = unit_manager.h_dl_data[String::ToLower(side)];
 
 		if (dl_data)
 			return;			// Ok it's already loaded
@@ -959,8 +961,7 @@ namespace TA3D
 				}
 			}
 
-			unit_manager.l_dl_data.push_back(dl_data); // Put it there so it'll be deleted when finished
-			unit_manager.h_dl_data.insert(String::ToLower(side), dl_data);
+			unit_manager.h_dl_data[String::ToLower(side)] = dl_data;
 		}
 		else
 		{
@@ -971,16 +972,11 @@ namespace TA3D
 
 	void UnitManager::destroy()
 	{
-		unit_hashtable.emptyHashTable();
-		unit_hashtable.initTable( __DEFAULT_HASH_TABLE_SIZE );
+		unit_hashtable.clear();
 
-		h_dl_data.emptyHashTable();
-		h_dl_data.initTable( __DEFAULT_HASH_TABLE_SIZE );
-
-		for( std::list< DlData* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
-			delete *i;
-
-		l_dl_data.clear();
+		for (HashMap< DlData* >::Dense::iterator i = h_dl_data.begin() ; i != h_dl_data.end() ; ++i)
+			delete i->second;
+		h_dl_data.clear();
 
 		for (UnitList::iterator i = unit_type.begin(); i != unit_type.end(); ++i)
 			delete *i;
@@ -1252,5 +1248,25 @@ namespace TA3D
 	}
 
 
+	UnitManager::UnitManager()
+	{
+		unit_hashtable.set_empty_key(String());
+		h_dl_data.set_empty_key(String());
+		init();
+	}
+
+	void UnitManager::init()
+	{
+		nb_unit = 0;
+		panel.init();
+		paneltop.init();
+		panelbottom.init();
+	}
+
+	UnitType::UnitType()
+	{
+		Category.set_empty_key(String());
+		init();
+	}
 } // namespace TA3D
 

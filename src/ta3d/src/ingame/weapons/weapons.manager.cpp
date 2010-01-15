@@ -28,6 +28,7 @@ namespace TA3D
 	WeaponManager::WeaponManager()
         :nb_weapons(0), weapon()
     {
+		weapon_hashtable.set_empty_key(String());
         cannonshell.init();
     }
 
@@ -43,15 +44,14 @@ namespace TA3D
 	WeaponManager::~WeaponManager()
     {
         destroy();
-        weapon_hashtable.emptyHashTable();
+		weapon_hashtable.clear();
     }
 
 	void WeaponManager::destroy()
     {
         cannonshell.destroy();
         weapon.clear();
-        weapon_hashtable.emptyHashTable();
-        weapon_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		weapon_hashtable.clear();
         init();
     }
 
@@ -65,7 +65,7 @@ namespace TA3D
         weapon[nb_weapons-1].internal_name = name;
 		weapon[nb_weapons-1].nb_id = short(nb_weapons - 1);
 
-        weapon_hashtable.insert(String::ToLower(name), nb_weapons);
+		weapon_hashtable[String::ToLower(name)] = nb_weapons;
 
         return nb_weapons-1;
     }
@@ -90,13 +90,11 @@ namespace TA3D
                 String damage = parser.pullAsString( key + "damage" );
                 String::Vector damage_vector;
                 damage.explode(damage_vector, ",");
-                weapon[index].damage_hashtable.emptyHashTable();
-                if (damage_vector.size() > 1)
-					weapon[index].damage_hashtable.initTable( int(damage_vector.size()) );
+				weapon[index].damage_hashtable.clear();
 				for (uint32 i = 1; i < damage_vector.size() ; ++i)        // Since it also contains its name as first element start searching at 1
 				{
 					if (damage_vector[i] != "default")
-						weapon[index].damage_hashtable.insert( damage_vector[i], parser.pullAsInt(key + "damage." + damage_vector[i]) );
+						weapon[index].damage_hashtable[ damage_vector[i] ] = parser.pullAsInt(key + "damage." + damage_vector[i]);
 				}
                 weapon[index].damage = parser.pullAsInt( key + "damage.default", weapon[index].damage );
                 weapon[index].name = parser.pullAsString( key + "name", weapon[index].name );
