@@ -199,7 +199,7 @@ namespace UTILS
 		//! used when looking for files in the real file system
 		String::Vector pPaths;
 		//!
-		TA3D::UTILS::clpHashTable<Archive::File*> pFiles;
+		TA3D::UTILS::HashMap<Archive::File*>::Dense pFiles;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
 		std::list<CacheFileData>  fileCache;

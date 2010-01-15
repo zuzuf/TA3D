@@ -163,15 +163,15 @@ namespace TA3D
 		** \param key The key
 		** \param value The new value of the key
 		*/
-		void insertOrUpdate(const String& key, const String& value) {pTable.insertOrUpdate(key, value);}
+		void insertOrUpdate(const String& key, const String& value) {pTable[key] = value;}
 
 		/*!
 		** \brief Remove a key if exists
 		** \param key The key to remove
 		*/
-		void remove(const String& key) {pTable.remove(key);}
+		void remove(const String& key) {pTable.erase(key);}
 
-		bool exists(const String& key) {return pTable.exists(key);}
+		bool exists(const String& key) {return pTable.count(key) != 0;}
 
 		/*!
 		** \brief Set the special section
@@ -203,18 +203,18 @@ namespace TA3D
 		** }
 		** \endcode
 		*/
-		template<typename C> void forEach(C callback) {pTable.forEach(callback);}
+		template<typename C> void forEach(C callback)
+		{
+			for(TA3D::UTILS::HashMap<String>::Dense::iterator it = pTable.begin() ; it != pTable.end() ; ++it)
+				callback(it->first, it->second);
+		}
 
 		//@}
 
 
 	private:
 		//! The hash table
-		TA3D::UTILS::cHashTable<String> pTable;
-		//! The size of the table
-		uint16 pTableSize;
-		//! Get if the table is empty
-		bool pTableIsEmpty;
+		TA3D::UTILS::HashMap<String>::Dense pTable;
 
 		//! CharCase
 		bool pIgnoreCase;

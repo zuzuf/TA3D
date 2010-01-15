@@ -25,8 +25,8 @@ namespace TA3D
 
 
 	WeaponDef::WeaponDef()
-        : damage_hashtable(128)
     {
+		damage_hashtable.set_empty_key(String());
         init();
     }
 
@@ -34,12 +34,12 @@ namespace TA3D
 	WeaponDef::~WeaponDef()
     {
         destroy();
-        damage_hashtable.emptyHashTable();
+		damage_hashtable.clear();
     }
 
 	void WeaponDef::init()
     {
-        damage_hashtable.emptyHashTable();
+		damage_hashtable.clear();
 
         soundstart.clear();
         soundhit.clear();
@@ -134,15 +134,15 @@ namespace TA3D
 
 	uint32 WeaponDef::get_damage_for_unit(const String& uname)
     {
-        if (damage_hashtable.exists(String::ToLower(uname)))
-            return damage_hashtable.find(String::ToLower(uname));
+		if (damage_hashtable.count(String::ToLower(uname)) != 0)
+			return damage_hashtable[String::ToLower(uname)];
         int unit_type = unit_manager.get_unit_index(uname);
         if (unit_type >= 0 && !unit_manager.unit_type[unit_type]->categories.empty())
         {
             String::Vector::const_iterator i = (unit_manager.unit_type[unit_type]->categories).begin();
             for (; (unit_manager.unit_type[unit_type]->categories).end() != i; ++i)
-                if (damage_hashtable.exists(*i))
-                    return damage_hashtable.find(*i);
+				if (damage_hashtable.count(*i) != 0)
+					return damage_hashtable[*i];
         }
         return damage;
     }

@@ -113,7 +113,7 @@ namespace Gui
 		** \param filename
 		** \param gui_hashtable
 		*/
-		void load_gui(const String& filename, TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > & gui_hashtable);
+		void load_gui(const String& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense & gui_hashtable);
 
 
 
@@ -152,7 +152,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		GUIOBJ::Ptr get_object(String message);
+		GUIOBJ::Ptr get_object(const String &message);
 
 
 		unsigned int count();
@@ -184,7 +184,7 @@ namespace Gui
 		String  Name;
 
 		//! hashtable used to speed up operations on GUIOBJ objects
-		TA3D::UTILS::cHashTable<int>  obj_hashtable;
+		TA3D::UTILS::HashMap<int>::Dense  obj_hashtable;
 
 		//! The texture background
 		GLuint  background;
@@ -252,7 +252,7 @@ namespace Gui
 		** \brief Same as get_object
 		** \see get_object()
 		*/
-		GUIOBJ::Ptr doGetObject(String message);
+		GUIOBJ::Ptr doGetObject(const String &message);
 
 		void print(std::ostream& out);
 

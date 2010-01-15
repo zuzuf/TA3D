@@ -65,9 +65,9 @@ namespace UTILS
 			{
 				(*i)->setPriority((*i)->getPriority() + priority); // Update file priority
 
-				Archive::File* file = pFiles.find((*i)->getName());
+				Archive::File* file = pFiles[(*i)->getName()];
 				if (!file || (file->getPriority() < (*i)->getPriority()))
-					pFiles.insertOrUpdate((*i)->getName(), *i);
+					pFiles[(*i)->getName()] = *i;
 			}
 		}
 		else
@@ -91,8 +91,8 @@ namespace UTILS
 
 	// constructor:
 	VFS::VFS()
-		:pFiles(16384, false)
 	{
+		pFiles.set_empty_key(String());
 	}
 
 	VFS::~VFS()
@@ -114,7 +114,7 @@ namespace UTILS
 		// Cleanup:
 		//   First delete the hash, we don't need to delete the File objects since they are completely
 		//   handled by the associated Archive classes
-		pFiles.initTable(16384, false);
+		pFiles.clear();
 
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS cache");
@@ -329,7 +329,7 @@ namespace UTILS
 			return data;
 		}
 
-		Archive::File *file = pFiles.find(key);
+		Archive::File *file = pFiles[key];
 
 		if (file)
 		{
@@ -381,7 +381,7 @@ namespace UTILS
 			}
 		}
 
-		Archive::File *file = pFiles.find(key);
+		Archive::File *file = pFiles[key];
 		return file ? file->readRange(start, length, fileLength) : NULL;
 	}
 
@@ -389,11 +389,13 @@ namespace UTILS
 
 	bool VFS::fileExists(String filename)
 	{
+		if (filename.empty())
+			return false;
 		filename.toLower();
 		filename.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		return NULL != pFiles.find(filename);
+		return NULL != pFiles[filename];
 	}
 
 
@@ -404,7 +406,7 @@ namespace UTILS
 		key.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		const Archive::File *file = pFiles.find(key);
+		const Archive::File *file = pFiles[key];
 		// If it doesn't exist it has a lower priority than anything else
 		return file ? file->getPriority() : -0xFFFFFF;
 	}
@@ -426,7 +428,7 @@ namespace UTILS
 		pattern.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		return pFiles.wildCardSearch(pattern, li);
+		return wildCardSearch(pFiles, pattern, li);
 	}
 
 

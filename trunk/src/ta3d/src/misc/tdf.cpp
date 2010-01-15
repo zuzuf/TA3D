@@ -65,16 +65,16 @@ namespace TA3D
 
 
 	TDFParser::TDFParser()
-		:pTableSize(TDFPARSER_HASHTABLE_SIZE), pTableIsEmpty(true), pIgnoreCase(true), special_section()
+		: pIgnoreCase(true), special_section()
 	{
-		pTable.initTable(TDFPARSER_HASHTABLE_SIZE);
+		pTable.set_empty_key(String());
 	}
 
 
 	TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS)
-		:pTableSize(TDFPARSER_HASHTABLE_SIZE), pTableIsEmpty(true), pIgnoreCase(!caSensitive), special_section()
+		: pIgnoreCase(!caSensitive), special_section()
 	{
-		pTable.initTable(TDFPARSER_HASHTABLE_SIZE);
+		pTable.set_empty_key(String());
 		loadFromFile(filename, true, toUTF8, gadgetMode, realFS);
 	}
 
@@ -85,9 +85,7 @@ namespace TA3D
 
 	void TDFParser::clear()
 	{
-		pTable.emptyHashTable();
-		pTable.initTable(pTableSize);
-		pTableIsEmpty = true;
+		pTable.clear();
 		special_section.clear();
 	}
 
@@ -167,7 +165,7 @@ namespace TA3D
 			else
 				LOG_WARNING(LOG_PREFIX_TDF << "The convertion using the UTF8 charset has failed.");
 		}
-		if (clearTable && !pTableIsEmpty)
+		if (clearTable)
 			clear();
 
 		StackInfos stack;
@@ -220,7 +218,7 @@ namespace TA3D
 								{
 									String gadgetKey("gadget");
 									gadgetKey += stack.gadgetMode;
-									pTable.insertOrUpdate(gadgetKey, stack.value);
+									pTable[gadgetKey] = stack.value;
 									++stack.gadgetMode;
 									stack.value = gadgetKey;
 								}
@@ -229,7 +227,7 @@ namespace TA3D
 								stack.currentSection += '.';
 							stack.currentSection += stack.value;
 							if (stack.gadgetMode < 0 && !exists(stack.currentSection) )
-								pTable.insertOrUpdate(stack.currentSection, stack.value);
+								pTable[stack.currentSection] = stack.value;
 							++stack.level;
 							continue;
 						}
@@ -266,11 +264,11 @@ namespace TA3D
 							stack.value.replace("\\r", "\r");
 
 							if (!special_section.empty() && (stack.currentSection.glob("*." + special_section) || stack.currentSection == special_section))
-								pTable.insertOrUpdate(stack.currentSection, pullAsString(stack.currentSection) << "," << stack.key);
+								pTable[stack.currentSection] = (pullAsString(stack.currentSection) << "," << stack.key);
 
 							String realKey(stack.currentSection);
 							realKey << "." << stack.key;
-							pTable.insertOrUpdate(realKey, stack.value);
+							pTable[realKey] = stack.value;
 						}
 					}
 					continue;
@@ -296,13 +294,15 @@ namespace TA3D
 		{
 			String keyToFind(key);
 			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
+			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
+			if (entry == pTable.end() || entry->second.empty())
 				return def;
-			return pTable.find(keyToFind).to<float>(f) ? f : def;
+			return entry->second.to<float>(f) ? f : def;
 		}
-		if (!pTable.exists(key))
+		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
+		if (entry == pTable.end() || entry->second.empty())
 			return def;
-		return pTable.find(key).to<float>(f) ? f : def;
+		return entry->second.to<float>(f) ? f : def;
 
 	}
 
@@ -313,13 +313,15 @@ namespace TA3D
 		{
 			String keyToFind(key);
 			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
+			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
+			if (entry == pTable.end() || entry->second.empty())
 				return def;
-			return pTable.find(keyToFind).to<bool>();
+			return entry->second.to<bool>();
 		}
-		if (!pTable.exists(key))
+		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
+		if (entry == pTable.end() || entry->second.empty())
 			return def;
-		return pTable.find(key).to<bool>();
+		return entry->second.to<bool>();
 
 	}
 

@@ -13,9 +13,9 @@ namespace TA3D
     public:
         int	 nbtex;			// Nombre de textures
         Gaf::Animation* tex;			// Textures
-        cHashTable<int> tex_hashtable;  // To speed up texture search
+		HashMap<int>::Dense tex_hashtable;  // To speed up texture search
 
-        TEXTURE_MANAGER() :nbtex(0), tex(NULL), tex_hashtable(__DEFAULT_HASH_TABLE_SIZE) {}
+		TEXTURE_MANAGER();
         ~TEXTURE_MANAGER() {destroy();}
 
         void init();

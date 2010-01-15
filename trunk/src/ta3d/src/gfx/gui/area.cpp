@@ -35,7 +35,7 @@ namespace Gui
 
 
 
-	std::list<AREA*> AREA::area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
+	std::deque<AREA*> AREA::area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
 
 
 
@@ -46,7 +46,10 @@ namespace Gui
 		if (lmsg == cached_key && cached_wnd)
 			return cached_wnd;
 
-		int e = wnd_hashtable.find(lmsg) - 1;
+		if (wnd_hashtable.count(lmsg) == 0)
+			return WND::Ptr();
+
+		int e = wnd_hashtable[lmsg] - 1;
 		if (e >= 0)
 		{
 			cached_key = lmsg;
@@ -243,7 +246,9 @@ namespace Gui
 			newWindow->Name = name;
 
 		vec_z_order[0] = wnd_idx;
-		wnd_hashtable.insert(String::ToLower(newWindow->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
+		String key = String::ToLower(newWindow->Name);
+		if (!key.empty())
+			wnd_hashtable[key] = wnd_idx + 1;	// + 1 because it returns 0 on Find failure
 		return wnd_idx;
 	}
 
@@ -358,6 +363,9 @@ namespace Gui
 	AREA::AREA(const String& nm)
 		:scrolling(false), background(0), name(nm), skin(NULL), gui_hashtable(), wnd_hashtable()
 	{
+		wnd_hashtable.set_empty_key(String());
+		gui_hashtable.set_empty_key(String());
+
 		amx = mouse_x;
 		amy = mouse_y;
 		amz = mouse_z;
@@ -375,11 +383,9 @@ namespace Gui
 		cached_key.clear();
 		cached_wnd = NULL;
 
-		gui_hashtable.emptyHashTable();
-		gui_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		gui_hashtable.clear();
 
-		wnd_hashtable.emptyHashTable();
-		wnd_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		wnd_hashtable.clear();
 
 		name.clear();
 
@@ -406,8 +412,8 @@ namespace Gui
 
 		cached_key.clear();
 		cached_wnd = NULL;
-		gui_hashtable.emptyHashTable();
-		wnd_hashtable.emptyHashTable();
+		gui_hashtable.clear();
+		wnd_hashtable.clear();
 		name.clear();
 
 		pWindowList.clear();			// Empty the window vector
@@ -461,8 +467,7 @@ namespace Gui
 			{
 				pWindowList.clear();
 				vec_z_order.clear();
-				wnd_hashtable.emptyHashTable();
-				wnd_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
+				wnd_hashtable.clear();
 			}
 			else
 				if (message == "end_the_game")

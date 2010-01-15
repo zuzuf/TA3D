@@ -43,6 +43,7 @@ namespace Gui
 		background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
 		ingame_window(false)
 	{
+		obj_hashtable.set_empty_key(String());
 		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
 		pCacheFontHeight = gui_font ->height();
 	}
@@ -57,6 +58,7 @@ namespace Gui
 		ingame_window(false)
 
 	{
+		obj_hashtable.set_empty_key(String());
 		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
 		pCacheFontHeight = gui_font ->height();
 		load_tdf(filename);
@@ -66,7 +68,7 @@ namespace Gui
 
 	WND::~WND()
 	{
-		obj_hashtable.emptyHashTable();
+		obj_hashtable.clear();
 		destroy();
 	}
 
@@ -1393,22 +1395,31 @@ namespace Gui
 	}
 
 
-	GUIOBJ::Ptr WND::doGetObject(String message)
+	GUIOBJ::Ptr WND::doGetObject(const String &message)
 	{
-		const sint16 e = obj_hashtable.find(message.toLower()) - 1;
+		if (message.empty())
+			return GUIOBJ::Ptr();
+
+		const sint16 e = obj_hashtable[String::ToLower(message)] - 1;
 		return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
 	}
 
-	GUIOBJ::Ptr WND::get_object(String message)
+	GUIOBJ::Ptr WND::get_object(const String &message)
 	{
+		if (message.empty())
+			return GUIOBJ::Ptr();
+		String lowered = String::ToLower(message);
+		if (obj_hashtable.count(lowered) == 0)
+			return GUIOBJ::Ptr();
+
 		MutexLocker locker(pMutex);
-		const sint16 e = obj_hashtable.find(message.toLower()) - 1;
+		const sint16 e = obj_hashtable[lowered] - 1;
 		return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
 	}
 
 
 
-	void WND::load_gui(const String& filename, TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable)
+	void WND::load_gui(const String& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense &gui_hashtable)
 	{
 		ingame_window = true;
 
@@ -1490,7 +1501,7 @@ namespace Gui
 			int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 
 			object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
-			obj_hashtable.insert(String::ToLower(object->Name), i + 1);
+			obj_hashtable[String::ToLower(object->Name)] = i + 1;
 
 			int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
 			int Y1 = (int)(wndFile.pullAsInt(obj_key + "common.ypos")   * y_factor);
@@ -1518,7 +1529,7 @@ namespace Gui
 				int t_h[100];
 				String key(object->Name);
 				key.toLower();
-				std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable.find(key);
+				std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable[key];
 
 				std::vector<GLuint> gaf_imgs;
 				bool found_elsewhere = false;
@@ -1558,7 +1569,7 @@ namespace Gui
 				int nb_stages = wndFile.pullAsInt(obj_key + "stages");
 				object->create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
 				if (result == NULL && found_elsewhere)
-					gui_hashtable.insert(key, &object->gltex_states);
+					gui_hashtable[key] = &object->gltex_states;
 				for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
 				{
 					object->gltex_states[e].width = t_w[e];
@@ -1721,7 +1732,7 @@ namespace Gui
 				pObjects.push_back(object);
 
 				object->Name = wndFile.pullAsString(obj_key + "name", String("object") << i);
-				obj_hashtable.insert(String::ToLower(object->Name), i + 1);
+				obj_hashtable[String::ToLower(object->Name)] = i + 1;
 				object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 
 				float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF

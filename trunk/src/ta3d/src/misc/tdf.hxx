@@ -13,15 +13,11 @@ namespace TA3D
 		{
 			String keyToFind(key);
 			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
-				return def;
-			String iterFind = pTable.find(keyToFind);
-			return (iterFind.empty() ? def : iterFind.to<sint32>());
+			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
+			return (entry == pTable.end() || entry->second.empty() ? def : entry->second.to<sint32>());
 		}
-		if (!pTable.exists(key))
-			return def;
-		String iterFind = pTable.find(key);
-		return (iterFind.empty() ? def : iterFind.to<sint32>());
+		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
+		return (entry == pTable.end() || entry->second.empty() ? def : entry->second.to<sint32>());
 	}
 
 
@@ -32,15 +28,11 @@ namespace TA3D
 		{
 			String keyToFind(key);
 			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
-				return 0;
-			String iterFind = pTable.find(keyToFind);
-			return (iterFind.empty() ? 0 : iterFind.to<sint32>());
+			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
+			return (entry == pTable.end() || entry->second.empty() ? 0 : entry->second.to<sint32>());
 		}
-		if (!pTable.exists(key))
-			return 0;
-		String iterFind = pTable.find(key);
-		return (iterFind.empty() ? 0 : iterFind.to<sint32>());
+		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
+		return (entry == pTable.end() || entry->second.empty() ? 0 : entry->second.to<sint32>());
 	}
 
 
@@ -51,11 +43,11 @@ namespace TA3D
 		{
 			String keyToFind(key);
 			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
-				return def;
-			return pTable.find(keyToFind);
+			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
+			return entry == pTable.end() ? def : entry->second;
 		}
-		return (pTable.exists(key)) ? pTable.find(key) : def;
+		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
+		return (entry != pTable.end()) ? entry->second : def;
 	}
 
 
@@ -66,11 +58,11 @@ namespace TA3D
 		{
 			String keyToFind(key);
 			keyToFind.toLower();
-			if (!pTable.exists(keyToFind))
-				return nullptr;
-			return pTable.find(keyToFind);
+			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
+			return entry == pTable.end() ? nullptr : entry->second;
 		}
-		return (pTable.exists(key)) ? pTable.find(key) : nullptr;
+		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
+		return (entry != pTable.end()) ? entry->second : nullptr;
 	}
 
 

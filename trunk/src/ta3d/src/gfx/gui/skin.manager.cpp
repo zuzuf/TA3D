@@ -30,6 +30,7 @@ namespace Gui
 
 	SKIN_MANAGER::SKIN_MANAGER()
 	{
+		hash_skin.set_empty_key(String());
 		init();
 	}
 
@@ -41,8 +42,7 @@ namespace Gui
 	void SKIN_MANAGER::init()
 	{
 		skins.clear();
-		hash_skin.emptyHashTable();
-		hash_skin.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		hash_skin.clear();
 	}
 
 	void SKIN_MANAGER::destroy()
@@ -56,12 +56,12 @@ namespace Gui
 	{
 		String key(filename);
 		key << String::Format("-%.2f", scale);
-		Skin *pSkin = hash_skin.find(key);
+		Skin *pSkin = hash_skin[key];
 		if (!pSkin)
 		{
 			pSkin = new Skin();
 			pSkin->loadTDFFromFile(filename, scale);
-			hash_skin.insert(key, pSkin);
+			hash_skin[key] = pSkin;
 			skins.push_back(pSkin);
 		}
 		return pSkin;

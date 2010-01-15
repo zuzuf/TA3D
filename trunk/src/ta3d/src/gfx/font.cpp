@@ -149,6 +149,7 @@ namespace TA3D
 
 	FontManager::FontManager()
 	{
+		font_table.set_empty_key(String());
 	}
 
 	FontManager::~FontManager()
@@ -164,8 +165,7 @@ namespace TA3D
 				delete *i;
 			pFontList.clear();
 		}
-		font_table.emptyHashTable();
-		font_table.initTable(__DEFAULT_HASH_TABLE_SIZE);
+		font_table.clear();
 	}
 
 
@@ -297,8 +297,8 @@ namespace TA3D
 		key << "_" << int(type) << "_" << size;
 		key.toLower();
 
-		return (font_table.exists(key))
-			? font_table.find(key)
+		return (font_table.count(key) != 0)
+			? font_table[key]
 			: internalRegisterFont(key, filename, size, type);
 	}
 
@@ -320,7 +320,7 @@ namespace TA3D
 		font->load(foundFilename, size, type);
 
 		pFontList.push_back(font);
-		font_table.insertOrUpdate(key, font);
+		font_table[key] = font;
 
 		return font;
 	}

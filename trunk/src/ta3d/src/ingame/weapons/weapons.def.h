@@ -221,7 +221,7 @@ namespace TA3D
         //! Can only attack flying units
         bool toairweapon;
         //! hashtable used to get specific damages quickly
-        cHashTable<int> damage_hashtable;
+		HashMap<int>::Dense damage_hashtable;
 
 	}; // class WeaponDef
 

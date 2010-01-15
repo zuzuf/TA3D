@@ -45,6 +45,8 @@ namespace Audio
         pMusic( NULL ), bPlayMusic(false), pBasicSound( NULL ),
         pCurrentItemToPlay(-1), pCurrentItemPlaying(-1)
 	{
+		pSoundList.set_empty_key(String());
+
 		pMinTicks = 500;
 
 		doStartUpAudio();
@@ -855,7 +857,7 @@ namespace Audio
 			filename.truncate(filename.length() - 4);
 
 		// if its already loaded return true.
-		if (pSoundList.exists(filename))
+		if (pSoundList.count(filename) != 0)
 		{
 			//I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("sound file %s is already loaded\n",(char *)filename.c_str()).c_str(), NULL, NULL );
 			return true;
@@ -894,7 +896,7 @@ namespace Audio
 		//            it->sampleHandle->set3DMinMaxDistance(MinDistance, MaxDistance);
 
 		// add the sound to our soundlist hash table, and return true.
-		pSoundList.insertOrUpdate(filename, it);
+		pSoundList[filename] = it;
 		return true;
 	}
 
@@ -929,7 +931,9 @@ namespace Audio
 
 		Mix_HaltChannel(-1);
 
-		pSoundList.emptyHashTable();
+		for(TA3D::UTILS::HashMap<SoundItemList*>::Dense::iterator it = pSoundList.begin() ; it != pSoundList.end() ; ++it)
+			delete it->second;
+		pSoundList.clear();
 		pTable.clear();
 		pWorkList.clear();
 		pMutex.unlock();
@@ -955,7 +959,7 @@ namespace Audio
 		if (i != String::npos)
 			szWav.truncate(szWav.length() - 4);
 
-		SoundItemList* sound = pSoundList.find(szWav);
+		SoundItemList* sound = pSoundList[szWav];
 		if (!sound)
 		{
 			logs.error() << LOG_PREFIX_SOUND << "`" << filename << "` not found, aborting";
@@ -989,7 +993,7 @@ namespace Audio
 		if (i != String::npos)
 			szWav.truncate(szWav.length() - 4);
 
-		SoundItemList* it = pSoundList.find(szWav);
+		SoundItemList* it = pSoundList[szWav];
 		if (it)
 		{
 			it->lastTimePlayed = msec_timer - 1000 - pMinTicks; // Make sure it'll be played

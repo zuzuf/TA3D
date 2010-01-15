@@ -20,215 +20,135 @@
 
 # include <stdafx.h>
 # include "string.h"
-# include <list>
-# include <vector>
-# include <string>
-#include <algorithm>
-
-# define __DEFAULT_HASH_TABLE_SIZE   0x1000      // 4096
-
-
+# include <google/dense_hash_map>
+# include <google/sparse_hash_map>
 
 namespace TA3D
 {
-namespace UTILS
-{
-
-
-
+	namespace UTILS
+	{
 		template <class T>
-		class cBucket
+				class hash
 		{
 		public:
-			String		m_szKey;
-			T			m_T_data;
-
-		public:
-			cBucket( const String &k, const T &myData) :
-				m_szKey(k), m_T_data( myData ) {}
-
-			const String &Key() const { return m_szKey; }
-		};
-
-
-		template <class T>
-		struct ModHashFind : public std::binary_function< cBucket<T>, const String, bool >
-		{
-			bool operator()( const cBucket< T > &d, const String &ref ) const
+			inline size_t operator()(const T& key) const
 			{
-				return d.Key() == ref;
+				return size_t(key);
 			}
 		};
 
-
-
-		template <class T>
-		class cHashTable
+		template < >
+				class hash<String>
 		{
 		public:
-			//! \brief List of buckets
-			typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
-			//! \brief Vector of list of buckets
-			typedef typename std::vector< BucketsList >  VectorOfBucketsList;
+			inline size_t operator()(const String& key) const
+			{
+				// implementation of MurmurHash2 by Austin Appleby
 
-		public:
-			virtual void initTable(const uint32 TableSize,  const bool freeDataOnErase = false);
+				// 'm' and 'r' are mixing constants generated offline.
+				// They're not really 'magic', they just happen to work well.
 
-			//! \name Constructors & Destructor
-			//@{
-			//! Default Constructor
-			cHashTable();
-			/*!
-			** \brief Constructor
-			** \param TableSize Initial Size of the table
-			*/
-			cHashTable(const uint32 TableSize);
-			//! Destructor
-			virtual ~cHashTable();
-			//@}
+				const uint32 m = 0x5bd1e995;
+				const int r = 24;
 
-			virtual void emptyHashTable();
+				// Initialize the hash to a 'random' value
+				int len = int(key.size());
+				size_t h = 216 ^ len;
 
-			void clear() {emptyHashTable();}
+				// Mix 4 bytes at a time into the hash
 
+				const uint8 * data = (const uint8 *)key.data();
 
-			/*!
-			** \brief Test the existence of a key
-			** \param key The key to find
-			** \return True if the key exists, False otherwise
-			*/
-			bool exists(const String& key) const;
+				while(len >= 4)
+				{
+					uint32 k = *(uint32 *)data;
 
-			/*!
-			** \brief Find the value of a key
-			** \param key The key to find
-			** \return The value of the key if found, T(0) otherwise
-			*/
-			T find(const String& key);
+					k *= m;
+					k ^= k >> r;
+					k *= m;
 
-			/*!
-			** \brief Insert a new key/value if the key not already exists
-			** \param key The key to insert
-			** \param v Its value
-			*/
-			bool insert(const String& key, T v);
+					h *= m;
+					h ^= k;
 
-			/*!
-			** \brief Insert or update the value of a given key
-			** \param key The key to insert or update
-			** \param v The new value of the key
-			*/
-			virtual void insertOrUpdate(const String &key, T v);
+					data += 4;
+					len -= 4;
+				}
 
-			/*!
-			** \brief Search for all keys matching a pattern
-			**
-			** \param pattern The pattern to search
-			** \param[out] li The results
-			*/
-			uint32 wildCardSearch(const String& pattern, String::List& li);
+				// Handle the last few bytes of the input array
 
-			/*!
-			** \brief Remove an existing entry
-			** \param key the key to remove
-			*/
-			virtual void remove(const String &key);
+				switch(len)
+				{
+				case 3: h ^= data[2] << 16;
+				case 2: h ^= data[1] << 8;
+				case 1: h ^= data[0];
+					h *= m;
+				};
 
-			/*!
-			** \brief Call a callback for each key
-			** \param callback The callback
-			**
-			** \code
-			** class Predicate
-			** {
-			** public:
-			**     bool operator () (const String& key, const String& value)
-			**     {
-			**         std::cout << "Key: " << key << ", value: " << value << std::endl;
-			**         return true; // False to stop the process
-			**     }
-			** };
-			**
-			** int main(void)
-			** {
-			**     TA3D::TDFParser p;
-			**     p.loadFromFile("gui/mdrn_save_menu.tdf");
-			**     p.forEach(Predicate());
-			**     return 0;
-			** }
-			** \endcode
-			*/
-			template<typename C> void forEach(C callback);
+				// Do a few final mixes of the hash to ensure the last few
+				// bytes are well-incorporated.
 
+				h ^= h >> 13;
+				h *= m;
+				h ^= h >> 15;
 
-		protected:
-			//! This is the actual container that contains the data
-			VectorOfBucketsList table;
+				return h;
+			}
+		};
 
-			/*!
-			** \brief Hash of a string
-			** \param key 
-			** \return The hash value of the string
-			*/
-			uint32 generateHash(const String& key) const;
-
-		}; // class cHashTable
-
-
-
-
-		template <class T>
-			class clpHashTable : public cHashTable<T>
+		template<typename T>
+				class HashMap
 		{
 		public:
-			//! \brief List of buckets
-			typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
-			//! \brief Vector of list of buckets
-			typedef typename std::vector< BucketsList >  VectorOfBucketsList;
+			typedef google::dense_hash_map<String, T, TA3D::UTILS::hash<String> >	Dense;
+			typedef google::sparse_hash_map<String, T, TA3D::UTILS::hash<String> >	Sparse;
+		};
 
-		public:
+		template<class T>
+				uint32
+				wildCardSearch( const T& container, const String& pattern, String::List& li)
+		{
+			if (container.empty())
+				return 0;
+			String first;
+			String last;
+			String::size_type iFind = pattern.find('*');
+			if (iFind != String::npos)
+			{
+				first = pattern.substr(0, iFind);
+				first.toLower();
+				++iFind;
+				last = pattern.substr(iFind);
+				last.toLower();
+			}
+			else
+			{
+				first = pattern;
+				first.toLower();
+				last.clear();
+			}
 
-			// Constructors.
-			clpHashTable();
+			uint32 nb(0);
+			String::size_type firstLen = first.length();
+			String::size_type lastLen = last.length();
+			for (typename T::const_iterator cur = container.begin() ; cur != container.end() ; ++cur)
+			{
+				String f = cur->first;
+				String::size_type fLen = f.length();
+				if (fLen < firstLen || fLen < lastLen)
+					continue;
 
-			clpHashTable(const uint32 TableSize, const bool FreeDataOnErase);
-
-
-			// Destructor
-			virtual ~clpHashTable();
-
-			void initTable(const uint32 tableSize, const bool freeDataOnErase);
-
-			/*!
-			** \brief
-			*/
-			void emptyHashTable();
-
-			/*!
-			** \brief
-			*/
-			void insertOrUpdate(const String& key, T v);
-
-			/*!
-			** \brief
-			*/
-			void remove(const String& key);
-
-
-		private:
-			//!
-			bool m_bFreeDataOnErase;
-
-
-		}; // class cHashTable
-
-
-} // namespace UTILS
-} // namespace TA3D 
-
-
-
-# include "hashtable.hxx"
-
+				if (f.substr(0, firstLen) == first)
+				{
+					if (f.substr(fLen - lastLen, lastLen) == last)
+					{
+						li.push_back(f);
+						++nb;
+					}
+				}
+			}
+			return nb;
+		}
+	}
+}
 
 #endif // __TA3D_XX_HASH_TABLE_H__

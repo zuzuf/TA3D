@@ -62,7 +62,7 @@ namespace TA3D
         */
         int get_weapon_index(const String &name)
         {
-            return (name.empty() || nb_weapons <= 0) ? -1 : (weapon_hashtable.find(String::ToLower(name)) - 1);
+			return (name.empty() || nb_weapons <= 0) ? -1 : (weapon_hashtable[String::ToLower(name)] - 1);
         }
 
 
@@ -73,7 +73,7 @@ namespace TA3D
         //! Animation for firing
         Gaf::Animation cannonshell;
 		//! hashtable used to speed up operations on WeaponDef objects
-        cHashTable<int>  weapon_hashtable;
+		HashMap<int>::Dense  weapon_hashtable;
 
 	}; // class WeaponManager
 
