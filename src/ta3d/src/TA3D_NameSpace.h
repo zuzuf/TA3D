@@ -223,12 +223,6 @@ namespace TA3D
 		extern SDL_Color							*pal;
 		extern TA3D::TA3DCONFIG::Ptr				lp_CONFIG;
 
-		extern uint8								unit_engine_thread_sync;
-		extern uint8								weapon_engine_thread_sync;
-		extern uint8								particle_engine_thread_sync;
-		extern uint8								players_thread_sync;
-
-		extern ObjectSync::Ptr						ThreadSynchroniser;
 		extern String								TA3D_CURRENT_MOD;
 
 		// Some constant data needed by the engine ( like number of ticks/sec. to simulate )

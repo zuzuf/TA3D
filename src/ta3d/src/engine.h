@@ -30,6 +30,12 @@ namespace TA3D
 
 	class Engine : public Yuni::Thread::IThread
 	{
+		// These classes need access to the Synchronizer object
+		friend class INGAME_UNITS;
+		friend class InGameWeapons;
+		friend class PARTICLE_ENGINE;
+		friend class PLAYERS;
+		friend class Battle;
 	public:
 		//! \name Constructor & Destructor
 		//@{
@@ -60,6 +66,13 @@ namespace TA3D
 		bool pSDLRunning;
 		bool pGFXModeActive;
 
+	private:
+		static void sync()
+		{
+			synchronizer.sync();
+		}
+	private:
+		static Synchronizer synchronizer;
 	}; // class Engine
 
 

@@ -47,6 +47,7 @@
 
 namespace TA3D
 {
+	Synchronizer Engine::synchronizer(4);
 
 	namespace
 	{
@@ -68,7 +69,7 @@ namespace TA3D
 
 
 	Engine::Engine()
-		:pSDLRunning(false), pGFXModeActive(false)
+		: pSDLRunning(false), pGFXModeActive(false)
 	{
 		// How many CPU we've got ?
 		LOG_INFO("CPU: " << Yuni::System::CPU::Count());
@@ -130,8 +131,6 @@ namespace TA3D
 		// Title of the Window / Application
 		SDL_WM_SetCaption("Total Annihilation 3D", "TA3D");
 
-		ThreadSynchroniser = new ObjectSync;
-
 		// Display informations about OpenGL
 		displayInfosAboutOpenGL();
 	}
@@ -140,7 +139,6 @@ namespace TA3D
 	Engine::~Engine(void)
 	{
 		stop();
-		ThreadSynchroniser = NULL;
 		cursor.clear();
 		ta3dSideData.destroy();
 
@@ -228,8 +226,4 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_OPENGL << "Shaders: " << (g_useProgram ? "Yes" : "No"));
 		LOG_INFO(LOG_PREFIX_OPENGL << "Multi texturing: " << (MultiTexturing ? "Yes" : "No"));
 	}
-
-
-
-
 } // namespace TA3D

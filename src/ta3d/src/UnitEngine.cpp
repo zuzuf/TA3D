@@ -43,6 +43,7 @@
 #include "engine/unit.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
+#include "engine.h"
 
 
 
@@ -65,7 +66,7 @@ namespace TA3D
 
 
 	INGAME_UNITS::INGAME_UNITS()
-		:repair_pads()
+		: repair_pads()
 	{
 		init();
 	}
@@ -1717,10 +1718,6 @@ namespace TA3D
 			client_tick[i] = client_speed[i] = 0;
 		apparent_timefactor = lp_CONFIG->timefactor;
 
-		unit_engine_thread_sync = 0;
-
-		ThreadSynchroniser->lock();
-
 		while( !thread_ask_to_stop )
 		{
 			counter += step;
@@ -1786,8 +1783,6 @@ namespace TA3D
 			if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
 			else	step = 1.0f;
 
-			ThreadSynchroniser->unlock();
-
 			while( lp_CONFIG->pause && !thread_ask_to_stop )
 			{
 				lp_CONFIG->paused = true;
@@ -1818,7 +1813,7 @@ namespace TA3D
 						}
 						lp_CONFIG->paused = false;
 
-						players_thread_sync = 0;
+						players.ta3d_network->check();
 						network_manager.sendTick(current_tick + 1, (uint16)(1000.0f * apparent_timefactor));		// + 1 to prevent it from running too slow
 						rest(1);
 
@@ -1849,23 +1844,8 @@ namespace TA3D
 				}
 			}
 
-			unit_engine_thread_sync = 1;
-			while (unit_engine_thread_sync && !thread_ask_to_stop)
-			{
-				if (unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync) // Sync engine threads
-				{
-					unit_engine_thread_sync = 0;
-					weapon_engine_thread_sync = 0;
-					particle_engine_thread_sync = 0;
-					players_thread_sync = 0;
-
-					current_tick++;		// To have a common time value
-					break;
-				}
-				rest( 1 );			// Wait until other thread sync with this one
-			}
-
-			ThreadSynchroniser->lock();
+			Engine::sync();
+			current_tick++;		// To have a common time value
 
 			last_tick[ 0 ] = last_tick[ 1 ];
 			last_tick[ 1 ] = last_tick[ 2 ];
@@ -1877,7 +1857,6 @@ namespace TA3D
 				apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
 		}
 
-		ThreadSynchroniser->unlock();
 		thread_running = false;
 		thread_ask_to_stop = false;
 		LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / (msec_timer - unit_timer) << " ticks/sec");

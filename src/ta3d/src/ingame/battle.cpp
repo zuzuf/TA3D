@@ -48,7 +48,7 @@
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <mesh/textures.h>
-
+#include <engine.h>
 
 
 
@@ -120,9 +120,6 @@ namespace TA3D
 		}
 
 		// Code Related to Threads
-		unit_engine_thread_sync = 0;
-		weapon_engine_thread_sync = 0;
-		particle_engine_thread_sync = 0;
 
 		// Start the Unit engine
 		units.start();
@@ -2341,11 +2338,16 @@ namespace TA3D
 
 		reset_mouse();
 
+		Engine::synchronizer.setNbThreadsToSync(0);
+		Engine::synchronizer.release();
+
 		players.destroyThread();				// Shut down the Players thread
 		players.stop_threads();
 		weapons.destroyThread();				// Shut down the Weapon Engine
 		units.destroyThread();					// Shut down the Unit Engine
 		particle_engine.destroyThread();		// Shut down the Particle Engine
+
+		Engine::synchronizer.setNbThreadsToSync(4);
 
 		sky_obj.destroy();
 

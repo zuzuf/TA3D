@@ -389,7 +389,6 @@ namespace TA3D
                        if (params.size() >= 4)
                            nb_to_spawn = params[3].to<sint32>();
                    }
-                   ThreadSynchroniser->lock();		// Make sure we won't destroy something we mustn't
                    units.lock();
                    for (int i = 0; i < nb_to_spawn; ++i)
                    {
@@ -441,7 +440,6 @@ namespace TA3D
                        units.unit[ id ].unlock();
                    }
                    units.unlock();
-                   ThreadSynchroniser->unlock();
                }
                else if (params[0] == "timefactor" && params.size() == 2)
                    lp_CONFIG->timefactor = params[1].to<float>();

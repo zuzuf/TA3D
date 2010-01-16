@@ -19,6 +19,7 @@
 # define __TA3D_THREADS_MUTEX_H__
 
 # include <yuni/thread/mutex.h>
+# include <yuni/thread/condition.h>
 
 
 namespace TA3D
@@ -62,6 +63,24 @@ namespace TA3D
 		Mutex& pMutex;
 
 	}; // MutexLocker
+
+
+	class Synchronizer : public Yuni::Thread::Condition
+	{
+	public:
+		Synchronizer(int nbThreadsToSync);
+		~Synchronizer();
+
+		void sync();
+		void release();
+
+		int getNbWaitingThreads()	{	return nbThreadsWaiting;	}
+		void setNbThreadsToSync(int n)	{	nbThreadsToSync = n;	}
+
+	private:
+		int nbThreadsToSync;
+		int nbThreadsWaiting;
+	};
 
 } // namespace TA3D
 
