@@ -928,7 +928,7 @@ namespace TA3D
 	{
 		if (nb_unit <= 0 || unit == NULL)
 		{
-			rest(1);
+			suspend(1);
 			return;// No units to move
 		}
 
@@ -1771,7 +1771,7 @@ namespace TA3D
 			}
 
 			while (msec_timer - tick_timer + 1 < tick)
-				rest(1);
+				suspend(1);
 
 			while( msec_timer - tick_timer >= tick + 200 ) // Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
 			{
@@ -1786,7 +1786,7 @@ namespace TA3D
 			while( lp_CONFIG->pause && !thread_ask_to_stop )
 			{
 				lp_CONFIG->paused = true;
-				rest(10); // in pause mode wait for pause to be false again
+				suspend(10); // in pause mode wait for pause to be false again
 			}
 			lp_CONFIG->paused = false;
 
@@ -1809,13 +1809,13 @@ namespace TA3D
 						while (lp_CONFIG->pause && !thread_ask_to_stop)            // We need this to prevent client dead lock when saving game
 						{
 							lp_CONFIG->paused = true;
-							rest(10); // in pause mode wait for pause to be false again
+							suspend(10); // in pause mode wait for pause to be false again
 						}
 						lp_CONFIG->paused = false;
 
 						players.ta3d_network->check();
 						network_manager.sendTick(current_tick + 1, (uint16)(1000.0f * apparent_timefactor));		// + 1 to prevent it from running too slow
-						rest(1);
+						suspend(1);
 
 						min_tick = current_tick * 1000;
 						if (network_manager.isServer())

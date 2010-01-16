@@ -1286,7 +1286,7 @@ namespace TA3D
 			if (ret != 0)
 				signal = ret;
 			do
-				rest(1);
+				suspend(1);
 			while (signal && isRunning() && is_running());
 		}
 	}
