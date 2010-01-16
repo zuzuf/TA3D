@@ -181,7 +181,7 @@ namespace TA3D
 	void Pathfinder::proc(void*)
 	{
 		lock();
-		while(!tasks.empty() && !pDead)
+		while (!tasks.empty() && !pDead)
 		{
 			Task cur = tasks.front();
 			stasks.erase(cur.UID);
@@ -212,11 +212,12 @@ namespace TA3D
 				}
 				pUnit->unlock();
 			}
+	
+			// We don't want to use more than 25% of the CPU here
+			if (suspend((nbCores == 1) ? ((msec_timer - start_timer) << 2) : 0))
+				// The thread should stop as soon as possible
+				return;
 
-			if (nbCores == 1)
-				suspend((msec_timer - start_timer) << 2);	// We don't want to use more than 25% of the CPU here
-			else
-				suspend(0);							// We don't want to use all the CPU here either
 			lock();
 		}
 		unlock();
