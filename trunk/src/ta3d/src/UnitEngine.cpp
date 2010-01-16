@@ -942,7 +942,8 @@ namespace TA3D
 			int type = unit[i].type_id;
 			if (type < 0 || (!shootallMode && !unit_manager.unit_type[type]->ShootMe))
 				continue;
-			detectableUnits[unit[i].owner_id].push_back(&(unit[i]));
+			if (unit[i].owner_id < 10)
+				detectableUnits[unit[i].owner_id].push_back(&(unit[i]));
 		}
 		pMutex.unlock();
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)

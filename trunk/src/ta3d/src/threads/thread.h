@@ -19,74 +19,32 @@
 #ifndef __TA3D_THREAD_H__
 #define __TA3D_THREAD_H__
 
-#include <SDL_thread.h>
 #include "mutex.h"
 #include <yuni/core/smartptr/smartptr.h>
+#include <yuni/thread/thread.h>
 
 
 namespace TA3D
 {
 
-
-	/*
-	**  Guide to thread classes
-	**
-	**  To make new thread classes you need to
-	**  make a subclass of Thread and define the
-	**  proc method. In this method you need to
-	**  dereference the params struct as whatever
-	**  type you are using (like net_thread_params)
-	**
-	*/
-	class BaseThread
+	class Thread
 	{
-	public:
-		//! \name Constructor & Destructor
-		//@{
-		BaseThread();
-		virtual ~BaseThread();
-		//@}
-		virtual void spawn(void* param) = 0;
-		virtual void join() = 0;
-		virtual bool isDead() const { return (pDead != 0); }
-
+	private:
+		class ThreadObject : public Yuni::Thread::IThread
+		{
+		protected:
+			virtual bool onExecute();
+		public:
+			void *more;
+			Thread *thisthread;
+		};
 	protected:
 		int pDead;
-
-	private:
-		virtual void proc(void* param) = 0;
-
-	}; // class BaseThread
-
-
-
-
-	class Thread : public BaseThread
-	{
-	private:
-		struct thread_params
-		{
-			void* more;
-			Thread* thisthread;
-		};
-		struct thread_params secondary;
+		ThreadObject threadObj;
 
 	protected:
-		SDL_Thread  *thread;
-
-	private:
-		static int run(void* param)
-		{
-			((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
-			((struct thread_params*)param)->thisthread->pDead = 1;
-			return 0;
-		}
-
-	protected:
-		// Returns true if current calling thread == our thread
-		bool inWorkerThread();
-
-		virtual ~Thread() {}
+		Thread();
+		virtual ~Thread();
 		virtual void proc(void* param) = 0;
 		virtual void signalExitThread() {}
 
@@ -94,12 +52,13 @@ namespace TA3D
 		// Call this to end the Thread, it will signal the thread to tell it to end
 		//   and will block until the thread ends.
 		void destroyThread() { join(); }
-		void start() { spawn(NULL); }
 		bool isRunning() const    { return pDead == 0;    }
+		bool isDead() const { return !isRunning(); }
+
+		void start()	{	spawn(NULL);	}
 
 		virtual void spawn(void* param);
 		virtual void join();
-		virtual bool isDead() const { return !isRunning(); }
 
 	}; // class Thread
 
