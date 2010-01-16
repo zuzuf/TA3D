@@ -261,7 +261,7 @@ namespace TA3D
 
 		while (!thread_ask_to_stop)
 		{
-			players.player_control();
+			player_control();
 
 			/*---------------------- handle Network events ------------------------------*/
 
@@ -280,7 +280,7 @@ namespace TA3D
 	{
 		thread_ask_to_stop = true;
 		while (thread_is_running)
-			rest(1);
+			suspend(1);
 		thread_ask_to_stop = false;
 	}
 

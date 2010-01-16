@@ -163,7 +163,7 @@ namespace TA3D
 							if ((*i)->port == port)
 							{
 								port = -1;
-								while( !(*i)->ready && !(*i)->isDead() )	rest(1);
+								while( !(*i)->ready && !(*i)->isDead() )	suspend(1);
 								if (!(*i)->isDead())
 								{
 									(*i)->buffer_size = sock->getFileData( (*i)->buffer );
@@ -299,7 +299,7 @@ namespace TA3D
 
 				int timer = msec_timer;
 				while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000 )
-					rest(0);
+					suspend(0);
 				if (msec_timer - timer >= 60000)
 				{
 					DELETE_ARRAY(buffer);
@@ -315,12 +315,12 @@ namespace TA3D
 			if (feof(file))
 				break;
 
-			rest(1);
+			suspend(1);
 		}
 
 		timer = msec_timer;
 		while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000)
-			rest(1);		// Wait for client to say ok
+			suspend(1);		// Wait for client to say ok
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
@@ -376,7 +376,7 @@ namespace TA3D
 
 		ready = true;
 		while (!pDead && ready && msec_timer - timer < 60000 )
-			rest(0);
+			suspend(0);
 		memcpy(&length,buffer,4);
 
 		if( ready ) // Time out
@@ -397,7 +397,7 @@ namespace TA3D
 		{
 			ready = true;
 			timer = msec_timer;
-			while( !pDead && ready && msec_timer - timer < 60000 ) rest( 0 );			// Get paquet data
+			while( !pDead && ready && msec_timer - timer < 60000 ) suspend( 0 );			// Get paquet data
 			n = buffer_size;
 
 			if (ready) // Time out
@@ -426,7 +426,7 @@ namespace TA3D
 			}
 			if(sofar >= length)
 				break;
-			rest(0);
+			suspend(0);
 		}
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
@@ -476,7 +476,7 @@ namespace TA3D
 					//and other things
 				}
 			}
-			rest(1);//testing
+			suspend(1);//testing
 		}
 		return;
 	}

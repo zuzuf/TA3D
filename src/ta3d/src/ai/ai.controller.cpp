@@ -306,7 +306,7 @@ namespace TA3D
 			{
 				for (std::vector<uint16>::iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
 				{
-					rest(1);
+					suspend(1);
 					units.unit[ *i ].lock();
 					if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
 					{
@@ -343,7 +343,7 @@ namespace TA3D
 
 		for (std::vector<uint16>::iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
 		{
-			rest(1);
+			suspend(1);
 			units.unit[ *i ].lock();
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
 			{
@@ -378,7 +378,7 @@ namespace TA3D
 		// Give instructions to idle builders
 		for (std::vector<uint16>::iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
 		{
-			rest(1);
+			suspend(1);
 
 			units.unit[ *i ].lock();
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
@@ -504,9 +504,9 @@ namespace TA3D
 			while ((time_factor == 0.0f || lp_CONFIG->pause) && !thread_ask_to_stop)
 			{
 				time_factor = units.apparent_timefactor;
-				rest(10);
+				suspend(10);
 			}
-			rest(100 + (TA3D_RAND() % 100));
+			suspend(100 + (TA3D_RAND() % 100));
 		}
 		LOG_INFO(LOG_PREFIX_AI << "Stopped for player " << (int)playerID);
 		thread_running = false;
@@ -519,7 +519,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_AI << "Stopping for player " << (int)playerID << "...");
 		thread_ask_to_stop = true;
 		while (thread_running)
-			rest(1);
+			suspend(1);
 		thread_ask_to_stop = false;
 	}
 

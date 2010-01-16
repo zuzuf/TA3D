@@ -214,9 +214,9 @@ namespace TA3D
 			}
 
 			if (nbCores == 1)
-				rest((msec_timer - start_timer) << 2);	// We don't want to use more than 25% of the CPU here
+				suspend((msec_timer - start_timer) << 2);	// We don't want to use more than 25% of the CPU here
 			else
-				rest(0);							// We don't want to use all the CPU here either
+				suspend(0);							// We don't want to use all the CPU here either
 			lock();
 		}
 		unlock();

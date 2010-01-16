@@ -32,6 +32,8 @@ namespace TA3D
 	private:
 		class ThreadObject : public Yuni::Thread::IThread
 		{
+		public:
+			void suspend(int ms)	{	Yuni::Thread::IThread::suspend(ms);	}
 		protected:
 			virtual bool onExecute();
 		public:
@@ -54,6 +56,8 @@ namespace TA3D
 		void destroyThread() { join(); }
 		bool isRunning() const    { return pDead == 0;    }
 		bool isDead() const { return !isRunning(); }
+
+		void suspend(int ms)	{ threadObj.suspend(ms); }
 
 		void start()	{	spawn(NULL);	}
 

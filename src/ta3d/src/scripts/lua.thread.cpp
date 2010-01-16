@@ -519,7 +519,7 @@ namespace TA3D
         while (isRunning() && is_running() && !crashed)
 		{
 			run();
-			rest(1);
+			suspend(1);
 		}
 		pDead = 1;
 	}
