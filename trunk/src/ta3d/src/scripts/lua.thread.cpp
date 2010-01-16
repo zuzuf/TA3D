@@ -145,8 +145,6 @@ namespace TA3D
 
 	void LuaThread::destroy()
 	{
-		join();
-
         deleteThreads();
 
         if (L)
@@ -512,16 +510,6 @@ namespace TA3D
 		float dt = (float)(timer - last);
 		last = timer;
 		return run(dt);
-	}
-
-	void LuaThread::proc(void* /*param*/)
-	{
-        while (isRunning() && is_running() && !crashed)
-		{
-			run();
-			suspend(1);
-		}
-		pDead = 1;
 	}
 
 	LuaThread *LuaThread::fork()

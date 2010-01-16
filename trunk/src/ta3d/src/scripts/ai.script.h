@@ -33,7 +33,7 @@ namespace TA3D
 	** This class represents AI scripts, it's used to script AI behavior
 	** This is a mean to implement new AIs without rebuilding the code
 	*/
-	class AiScript : public LuaThread
+	class AiScript : public LuaThread, public Thread
 	{
 	public:
 		//! The most suitable smartptr for this class
@@ -53,6 +53,9 @@ namespace TA3D
 		void loadAI(const String& filename, const int id);    // Load a saved AI (NB: this is not the same symbol used to load Lua scripts!! so this works :) )
 
 		void monitor();
+
+	protected:
+		virtual void proc(void *);
 
 	public:
 		/*virtual*/ void register_functions();
