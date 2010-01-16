@@ -37,7 +37,7 @@
 namespace TA3D
 {
 
-	class LuaProgram : public LuaThread
+	class LuaProgram : public LuaThread, public Thread
 	{
 	private:
 		//  Variables to control execution flow

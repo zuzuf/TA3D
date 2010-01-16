@@ -852,5 +852,15 @@ namespace TA3D
 		}
 	}
 
+	void AiScript::proc(void* /*param*/)
+	{
+		while (isRunning() && is_running() && !crashed)
+		{
+			run();
+			suspend(1);
+		}
+		pDead = 1;
+	}
+
 
 } // namespace TA3D
