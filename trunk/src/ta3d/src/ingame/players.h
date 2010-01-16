@@ -55,6 +55,7 @@ namespace TA3D
 
 	class PLAYERS : public Thread
 	{
+		friend class INGAME_UNITS;
 	public:
 		//! \name Constructor & Destructor
 		//@{

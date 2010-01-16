@@ -20,7 +20,7 @@
 #include <EngineClass.h>
 #include <misc/camera.h>
 #include <gfx/gfx.h>
-
+#include <engine.h>
 
 
 namespace TA3D
@@ -233,21 +233,13 @@ namespace TA3D
 		int weapon_timer = msec_timer;
 		int counter = 0;
 
-		weapon_engine_thread_sync = 0;
-
 		while (!thread_ask_to_stop)
 		{
 			++counter;
 			move(dt);					// Animate weapons
 			features.move_forest(dt);			// Animate the forest
 
-			ThreadSynchroniser->lock();
-			ThreadSynchroniser->unlock();
-
-			weapon_engine_thread_sync = 1;
-
-			while (weapon_engine_thread_sync && !thread_ask_to_stop)
-				rest(1);			// Wait until other thread sync with this one
+			Engine::sync();
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;

@@ -22,6 +22,7 @@
 #include <misc/matrix.h>
 #include <TA3D_NameSpace.h>
 #include <ta3dbase.h>
+#include <engine.h>
 
 
 namespace TA3D
@@ -839,20 +840,12 @@ namespace TA3D
 		int particle_timer = msec_timer;
 		int counter = 0;
 
-		particle_engine_thread_sync = 0;
-
-		while( !thread_ask_to_stop )
+		while (!thread_ask_to_stop)
 		{
 			++counter;
 			move(dt,*p_wind_dir, *p_g);	// Animate particles
 
-			ThreadSynchroniser->lock();
-			ThreadSynchroniser->unlock();
-
-			particle_engine_thread_sync = 1;
-
-			while (particle_engine_thread_sync && !thread_ask_to_stop )
-				rest(1); // Wait until other thread sync with this one
+			Engine::sync();
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;
@@ -863,7 +856,7 @@ namespace TA3D
 
 	void PARTICLE_ENGINE::signalExitThread()
 	{
-		if (thread_running )
+		if (thread_running)
 			thread_ask_to_stop = true;
 	}
 

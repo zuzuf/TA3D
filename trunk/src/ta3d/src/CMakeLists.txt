@@ -51,7 +51,7 @@ SET(SRC_I18N
 # Threads
 #
 SET(SRC_THREADS
-		threads/mutex.h
+		threads/mutex.h threads/mutex.cpp
 		threads/thread.h threads/thread.cpp)
 
 #

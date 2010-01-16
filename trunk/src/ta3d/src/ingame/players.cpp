@@ -18,7 +18,7 @@
 #include <misc/paths.h>
 #include "sidedata.h"
 #include <UnitEngine.h>
-
+#include <engine.h>
 
 
 
@@ -257,7 +257,6 @@ namespace TA3D
 
 		thread_is_running = true;
 
-		players_thread_sync = 0;
 		last_ticksynced = 9999;
 
 		while (!thread_ask_to_stop)
@@ -271,21 +270,7 @@ namespace TA3D
 
 			/*---------------------- end of Network events ------------------------------*/
 
-			ThreadSynchroniser->lock();
-			ThreadSynchroniser->unlock();
-
-			players_thread_sync = 1;
-			uint32 check_timer = msec_timer;
-
-			while (players_thread_sync && !thread_ask_to_stop)
-			{
-				rest(1); // Wait until other thread sync with this one
-				if (msec_timer - check_timer > 100 && ta3d_network)
-				{
-					ta3d_network->check();
-					check_timer = msec_timer;
-				}
-			}
+			Engine::sync();
 		}
 
 		thread_is_running = false;
