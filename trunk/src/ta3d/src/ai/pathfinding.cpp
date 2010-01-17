@@ -240,7 +240,8 @@ namespace TA3D
 		int end_x = ((int)task.end.x + the_map->map_w_d) >> 3;
 		int end_z = ((int)task.end.z + the_map->map_h_d) >> 3;
 
-		std::vector<AI::Path::Node> nodes;
+		static std::vector<AI::Path::Node> nodes;
+		nodes.clear();
 		nodes.push_back(AI::Path::Node(start_x, start_z));
 		int n = 0;
 
