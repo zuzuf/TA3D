@@ -54,10 +54,6 @@ namespace TA3D
 
 	namespace AI
 	{
-		Path::Path() : pos(), nodes(), _ready(false)
-		{
-		}
-
 		void Path::next()
 		{
 			if (nodes.empty())
@@ -65,11 +61,6 @@ namespace TA3D
 
 			nodes.pop_front();
 			computeCoord();
-		}
-
-		bool Path::empty()
-		{
-			return nodes.empty();
 		}
 
 		void Path::clear()
@@ -209,7 +200,7 @@ namespace TA3D
 					&& pUnit->requesting_pathfinder
 					&& (pUnit->mission->getFlags() & MISSION_FLAG_MOVE))
 				{
-					pUnit->mission->Path() = path;
+					pUnit->mission->Path().replaceWith(path);
 					pUnit->requesting_pathfinder = false;
 				}
 				pUnit->unlock();
