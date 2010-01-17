@@ -55,17 +55,17 @@ namespace UTILS
 		{
 			LOG_DEBUG(LOG_PREFIX_VFS << "adding archive to the archive list");
 			archives.push_back(archive);
-			std::list<Archive::File*> archiveFiles;
+			std::deque<Archive::File*> archiveFiles;
 			LOG_DEBUG(LOG_PREFIX_VFS << "getting file list from archive");
 			archive->getFileList(archiveFiles);
 			LOG_DEBUG(LOG_PREFIX_VFS << "inserting archive files into file hash table");
 
-			const std::list<Archive::File*>::iterator end = archiveFiles.end();
-			for (std::list<Archive::File*>::iterator i = archiveFiles.begin() ; i != end; ++i)
+			const std::deque<Archive::File*>::iterator end = archiveFiles.end();
+			for (std::deque<Archive::File*>::iterator i = archiveFiles.begin() ; i != end; ++i)
 			{
 				(*i)->setPriority((*i)->getPriority() + priority); // Update file priority
 
-				Archive::File* file = pFiles[(*i)->getName()];
+				Archive::File* file = (pFiles.find((*i)->getName()) == pFiles.end()) ? NULL : pFiles[(*i)->getName()];
 				if (!file || (file->getPriority() < (*i)->getPriority()))
 					pFiles[(*i)->getName()] = *i;
 			}
@@ -353,6 +353,9 @@ namespace UTILS
 
 	byte* VFS::readFileRange(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
 	{
+		if (filename.empty())
+			return NULL;
+
 		String key(filename);
 		key.toLower();
 		key.convertSlashesIntoBackslashes();
@@ -381,8 +384,10 @@ namespace UTILS
 			}
 		}
 
-		Archive::File *file = pFiles[key];
-		return file ? file->readRange(start, length, fileLength) : NULL;
+		TA3D::UTILS::HashMap<Archive::File*>::Dense::iterator file = pFiles.find(key);
+		if (file == pFiles.end())
+			return NULL;
+		return file->second ? file->second->readRange(start, length, fileLength) : NULL;
 	}
 
 
@@ -395,20 +400,22 @@ namespace UTILS
 		filename.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		return NULL != pFiles[filename];
+		return pFiles.find(filename) != pFiles.end();
 	}
 
 
 	int VFS::filePriority(const String& filename)
 	{
+		if (filename.empty())
+			return -0xFFFFFF;
 		String key(filename);
 		key.toLower();
 		key.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		const Archive::File *file = pFiles[key];
+		HashMap<Archive::File*>::Dense::iterator file = pFiles.find(key);
 		// If it doesn't exist it has a lower priority than anything else
-		return file ? file->getPriority() : -0xFFFFFF;
+		return (file != pFiles.end() && file->second != NULL) ? file->second->getPriority() : -0xFFFFFF;
 	}
 
 

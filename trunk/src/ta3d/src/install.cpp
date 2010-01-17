@@ -33,9 +33,9 @@ void install_TA_files( String HPI_file, String filename )
         LOG_ERROR("archive not found : '" << HPI_file << "'");
         return;
     }
-    std::list<Archive::File*> lFiles;
+	std::deque<Archive::File*> lFiles;
     archive->getFileList(lFiles);
-    byte *data = archive->readFile( filename, &file_size32);			// Extract the file
+	byte *data = archive->readFile(filename, &file_size32);			// Extract the file
 	if (data)
 	{
 		FILE *dst = TA3D_OpenFile(Paths::Resources + Paths::ExtractFileName(filename), "wb");

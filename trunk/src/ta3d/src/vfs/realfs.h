@@ -25,7 +25,7 @@
 # define __TA3D_UTILS_VFS_REALFS_H__
 
 # include "archive.h"
-# include <map>
+# include <misc/hash_table.h>
 
 namespace TA3D
 {
@@ -66,7 +66,7 @@ namespace TA3D
             /*!
             ** \brief Return the list of all files in the archive
             */
-            virtual void getFileList(std::list<File*> &lFiles);
+			virtual void getFileList(std::deque<File*> &lFiles);
 
             /*!
             ** \brief
@@ -91,7 +91,7 @@ namespace TA3D
             virtual bool needsCaching();
 
         private:
-            std::map<String, RealFile*> files;
+			HashMap<RealFile*>::Sparse files;
 
         public:
             static void finder(String::List &fileList, const String &path);

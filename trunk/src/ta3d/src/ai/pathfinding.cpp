@@ -120,6 +120,8 @@ namespace TA3D
 
 	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0)
 	{
+		stasks.set_empty_key(-1);
+		stasks.set_deleted_key(-2);
 		nbCores = Yuni::System::CPU::Count();
 	}
 

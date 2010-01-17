@@ -22,6 +22,8 @@
 # include "string.h"
 # include <google/dense_hash_map>
 # include <google/sparse_hash_map>
+# include <google/dense_hash_set>
+# include <google/sparse_hash_set>
 
 namespace TA3D
 {
@@ -95,12 +97,20 @@ namespace TA3D
 			}
 		};
 
-		template<typename T>
+		template<typename T, typename K = String>
 				class HashMap
 		{
 		public:
-			typedef google::dense_hash_map<String, T, TA3D::UTILS::hash<String> >	Dense;
-			typedef google::sparse_hash_map<String, T, TA3D::UTILS::hash<String> >	Sparse;
+			typedef google::dense_hash_map<K, T, TA3D::UTILS::hash<K> >	Dense;
+			typedef google::sparse_hash_map<K, T, TA3D::UTILS::hash<K> >	Sparse;
+		};
+
+		template<typename K = String>
+				class HashSet
+		{
+		public:
+			typedef google::dense_hash_set<K, TA3D::UTILS::hash<K> >	Dense;
+			typedef google::sparse_hash_set<K, TA3D::UTILS::hash<K> >	Sparse;
 		};
 
 		template<class T>

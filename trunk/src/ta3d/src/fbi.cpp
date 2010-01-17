@@ -142,20 +142,22 @@ namespace TA3D
 	{
 		if (unit_manager.name2gaf.empty())
 		{
-			String::Vector queue = unit_manager.animsList;
-			queue.push_back("anims\\commongui.gaf");
-			queue.push_back(gafFileName);
+			const String::Vector &animsList = unit_manager.animsList;
 
-			while(!queue.empty())
+			for(String::Vector::const_iterator it = animsList.begin() ; it != animsList.end() ; ++it)
 			{
-				String gafName = queue.back();
-				queue.pop_back();
+				const String &gafName = *it;
 				byte* gaf_file = VFS::Instance()->readFile( gafName );
 				if (gaf_file)
 				{
 					int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
 					for(int i = 0 ; i < nbEntries ; ++i)
-						unit_manager.name2gaf[Gaf::RawDataGetEntryName(gaf_file, i).toUpper()] = gafName;
+					{
+						String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
+						if (key.empty())
+							continue;
+						unit_manager.name2gaf[key] = gafName;
+					}
 					DELETE_ARRAY(gaf_file);
 				}
 			}
@@ -164,9 +166,10 @@ namespace TA3D
 		GLuint tex = 0;
 		gfx->set_texture_format(GL_RGB8);
 
-		if (unit_manager.name2gaf.find(String(name).toUpper()) != unit_manager.name2gaf.end())
+		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(String(name).toUpper());
+		if (item != unit_manager.name2gaf.end())
 		{
-			byte* gaf_file = VFS::Instance()->readFile( unit_manager.name2gaf[name] );
+			byte* gaf_file = VFS::Instance()->readFile( item->second );
 			if (gaf_file)
 			{
 				SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -357,6 +360,7 @@ namespace TA3D
 
 		gather_build_data();			// Read additionnal build data
 		animsList.clear();
+		name2gaf.clear();
 	}
 
 
@@ -1252,6 +1256,7 @@ namespace TA3D
 	{
 		unit_hashtable.set_empty_key(String());
 		h_dl_data.set_empty_key(String());
+		name2gaf.set_empty_key(String());
 		init();
 	}
 

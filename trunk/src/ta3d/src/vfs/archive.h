@@ -25,6 +25,7 @@
 # define __TA3D_UTILS_VFS_ARCHIVE_H__
 
 # include <misc/string.h>
+# include <deque>
 
 namespace TA3D
 {
@@ -74,7 +75,7 @@ namespace TA3D
             /*!
             ** \brief Return the list of all files in the archive
             */
-            virtual void getFileList(std::list<File*> &lFiles) = 0;
+			virtual void getFileList(std::deque<File*> &lFiles) = 0;
 
             /*!
             ** \brief
