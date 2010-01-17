@@ -65,7 +65,7 @@ namespace TA3D
 	}; // MutexLocker
 
 
-	class Synchronizer : public Yuni::Thread::Condition
+	class Synchronizer
 	{
 	public:
 		Synchronizer(int nbThreadsToSync);
@@ -80,6 +80,13 @@ namespace TA3D
 	private:
 		int nbThreadsToSync;
 		int nbThreadsWaiting;
+		Mutex pMutex;
+
+		//! The PThread Condition
+		pthread_cond_t  pCondition;
+
+		//! Have the condition been really signalled ?
+		volatile unsigned int pSignalled;
 	};
 
 } // namespace TA3D
