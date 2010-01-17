@@ -55,10 +55,11 @@ namespace TA3D
 			};
 
 		public:
-			Path();
+			Path() : pos(), nodes(), _ready(false)	{}
 			~Path()	{}
+
 			void next();
-			bool empty();
+			bool empty()	{	return nodes.empty();	}
 			void clear();
 			bool ready() const	{	return _ready;	}
 			Node &front()	{	return nodes.front();	}
@@ -69,6 +70,13 @@ namespace TA3D
 
 			void setPos(const Vector3D &pos)	{	this->pos = pos;	}
 			const Vector3D &Pos()	const	{	return pos;	}
+
+			void replaceWith(Path &p)
+			{
+				pos = p.pos;
+				_ready = p._ready;
+				nodes.swap(p.nodes);
+			}
 
 			void save(gzFile file);
 			void load(gzFile file);
