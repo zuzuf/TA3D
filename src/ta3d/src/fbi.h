@@ -336,7 +336,7 @@ namespace TA3D
         int         nb_unit;        // Nombre d'unités
         UnitList  unit_type;     // Données sur l'unité
 		String::Vector		animsList;		// the list of GAF files in anims/
-		std::map< String, String > name2gaf;	// a cache to speed up GAF search
+		HashMap< String >::Dense name2gaf;	// a cache to speed up GAF search
 
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel

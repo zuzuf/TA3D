@@ -99,21 +99,21 @@ namespace TA3D
             if (HPIFile)
                 fclose(HPIFile);
 
-            for(std::map<String, HpiFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
+			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
 				delete i->second;
             files.clear();
 
             HPIFile = NULL;
         }
 
-        void Hpi::getFileList(std::list<File*> &lFiles)
+		void Hpi::getFileList(std::deque<File*> &lFiles)
         {
             if (files.empty())
             {
                 m_cDir.clear();
 				processRoot(String(), header.Start);
             }
-            for(std::map<String, HpiFile*>::iterator i = files.begin() ; i != files.end() ; ++i)
+			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
                 lFiles.push_back(i->second);
         }
 
@@ -121,7 +121,10 @@ namespace TA3D
         {
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
-            return readFile(files[key], file_length);
+			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
+			if (item == files.end())
+				return NULL;
+			return readFile(item->second, file_length);
         }
 
         byte* Hpi::readFile(const File *file, uint32* file_length)
@@ -195,7 +198,10 @@ namespace TA3D
         {
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
-            return readFileRange(files[key], start, length, file_length);
+			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
+			if (item == files.end())
+				return NULL;
+			return readFileRange(item->second, start, length, file_length);
         }
 
         byte* Hpi::readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length)

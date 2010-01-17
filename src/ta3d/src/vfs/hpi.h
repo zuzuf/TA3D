@@ -25,7 +25,7 @@
 # define __TA3D_UTILS_VFS_HPI_H__
 
 # include "archive.h"
-# include <map>
+# include <misc/hash_table.h>
 
 # define HEX_HAPI 0x49504148
 # define HPI_V1 0x00010000
@@ -159,7 +159,7 @@ namespace TA3D
             /*!
             ** \brief Return the list of all files in the archive
             */
-            virtual void getFileList(std::list<File*> &lFiles);
+			virtual void getFileList(std::deque<File*> &lFiles);
 
             /*!
             ** \brief
@@ -199,7 +199,7 @@ namespace TA3D
             //!
             FILE* HPIFile;
             //!
-            std::map<String, HpiFile*> files;
+			HashMap<HpiFile*>::Sparse files;
             //!
             int priority;
         private:

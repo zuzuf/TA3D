@@ -729,7 +729,8 @@ namespace TA3D
 
         lua_newtable(L);
 
-        std::map<int, bool> seen;
+		HashSet<int>::Dense seen;
+		seen.set_empty_key(-1);
         int n = 1;
         the_map->lock();
         for(int y = y0 ; y < y1 ; ++y)
@@ -750,9 +751,9 @@ namespace TA3D
                         (unit_type_id == -1 || type_id == unit_type_id ||
                          (unit_type_id == -2 && unit_manager.unit_type[type_id]->canattack) ||
                          (unit_type_id == -3 && unit_manager.unit_type[type_id]->Builder)) &&
-                        !seen[idx])
+						seen.find(idx) == seen.end())
                     {
-                        seen[idx] = true;
+						seen.insert(idx);
                         lua_pushinteger(L, idx);
                         ai_get_unit_data(L);
                         lua_rawseti(L, -2, n++);
