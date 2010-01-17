@@ -27,11 +27,13 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
 
+#ifndef TA3D_PLATFORM_WINDOWS
 /* Define to 1 if the system has the type `uint16_t'. */
 #define HAVE_UINT16_T 1
 
 /* Define to 1 if the system has the type `u_int16_t'. */
 #define HAVE_U_INT16_T 1
+#endif
 
 /* Define to 1 if the system has the type `__uint16'. */
 /* #undef HAVE___UINT16 */
