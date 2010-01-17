@@ -240,7 +240,7 @@ namespace TA3D
 		int end_x = ((int)task.end.x + the_map->map_w_d) >> 3;
 		int end_z = ((int)task.end.z + the_map->map_h_d) >> 3;
 
-		std::deque<AI::Path::Node> nodes;
+		std::vector<AI::Path::Node> nodes;
 		nodes.push_back(AI::Path::Node(start_x, start_z));
 		int n = 0;
 
@@ -278,6 +278,7 @@ namespace TA3D
 		bool pathFound = true;
 		if ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))
 		{
+			nodes.reserve(PATHFINDER_MAX_LENGTH);
 			pathFound = false;
 			uint32 curDistFromStart = 0;
 			uint32 minPathLength = uint32(-1);
@@ -423,7 +424,7 @@ namespace TA3D
 
 		if (!nodes.empty() && pathFound)
 		{
-			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
+			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
 				zone(cur->x(), cur->z()) = 1;
 
 			qNode.clear();
@@ -470,8 +471,9 @@ namespace TA3D
 				}
 			}
 
-			std::deque<AI::Path::Node> tmp = nodes;
-			nodes.clear();
+			std::vector<AI::Path::Node> tmp;
+			tmp.swap(nodes);
+			nodes.reserve(tmp.size());
 			nodes.push_back(AI::Path::Node(start_x, start_z));
 			while ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))	// Reconstruct the path
 			{
@@ -503,18 +505,18 @@ namespace TA3D
 
 				nodes.push_back(next);
 			}
-			for (std::deque<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Do some cleaning
+			for (std::vector<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Do some cleaning
 				zone(cur->x(), cur->z()) = 0;
 
 			path.clear();
-			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
+			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
 			{
 				if (path.empty())
 				{
 					path.push_back(*cur);
 					continue;
 				}
-				std::deque<AI::Path::Node>::iterator next = cur;
+				std::vector<AI::Path::Node>::iterator next = cur;
 				++next;
 				if (next == nodes.end() ||
 					(next->x() - path.back().x()) * (cur->z() - path.back().z()) != (cur->x() - path.back().x()) * (next->z() - path.back().z()))	// Remove useless points
@@ -525,7 +527,7 @@ namespace TA3D
 		}
 		else
 		{
-			for (std::deque<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Clean the map data
+			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Clean the map data
 				zone(cur->x(), cur->z()) = 0;
 			path.clear();
 		}
