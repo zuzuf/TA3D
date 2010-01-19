@@ -293,6 +293,9 @@ namespace UTILS
 
 	byte *VFS::readFile(const String& filename, uint32* fileLength)
 	{
+		if (filename.empty())
+			return NULL;
+
 		String key(filename);
 		key.toLower();
 		key.convertSlashesIntoBackslashes();
@@ -329,12 +332,12 @@ namespace UTILS
 			return data;
 		}
 
-		Archive::File *file = pFiles[key];
+		TA3D::UTILS::HashMap<Archive::File*>::Dense::iterator file = pFiles.find(key);
 
-		if (file)
+		if (file != pFiles.end())
 		{
-			byte *data = file->read(&FileSize);
-			if (file->needsCaching())
+			byte *data = file->second->read(&FileSize);
+			if (file->second->needsCaching())
 				putInCache( key, FileSize, data );
 			if (fileLength)
 				*fileLength = FileSize;
