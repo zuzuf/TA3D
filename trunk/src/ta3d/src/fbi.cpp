@@ -140,6 +140,9 @@ namespace TA3D
 
 	GLuint loadBuildPic(const String &gafFileName, const String &name, int *w = NULL, int *h = NULL)
 	{
+		if (name.empty())
+			return 0;
+		
 		if (unit_manager.name2gaf.empty())
 		{
 			const String::Vector &animsList = unit_manager.animsList;
@@ -166,7 +169,7 @@ namespace TA3D
 		GLuint tex = 0;
 		gfx->set_texture_format(GL_RGB8);
 
-		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(String(name).toUpper());
+		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(String::ToUpper(name));
 		if (item != unit_manager.name2gaf.end())
 		{
 			byte* gaf_file = VFS::Instance()->readFile( item->second );
