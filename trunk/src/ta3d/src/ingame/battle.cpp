@@ -1497,10 +1497,12 @@ namespace TA3D
 
 			/*------------------- Draw GUI components -------------------------------------------------------*/
 
+			Gui::WND::Ptr pWnd = pArea.get_wnd(pCurrentGUI);
+			int scrolling = pWnd != NULL ? pWnd->scrolling : 0;
 			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) + "gen")
-				unit_manager.unit_build_menu(n, omb2, dt, true);	// Draw GUI background
+				unit_manager.unit_build_menu(n, omb2, dt, scrolling, true);	// Draw GUI background
 			else
-				unit_manager.unit_build_menu(-1, omb2, dt, true);	// Draw GUI background
+				unit_manager.unit_build_menu(-1, omb2, dt, scrolling, true);	// Draw GUI background
 
 			pArea.draw();
 
@@ -1508,9 +1510,9 @@ namespace TA3D
 
 			/*WND *current_wnd =*/ //pArea.get_wnd(pCurrentGUI);
 			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) << "gen")
-				sel = unit_manager.unit_build_menu(n,omb2,dt);	// Menu correspondant à l'unité / Unit's menu
+				sel = unit_manager.unit_build_menu(n,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
 			else
-				sel = unit_manager.unit_build_menu(-1,omb2,dt);	// Menu correspondant à l'unité / Unit's menu
+				sel = unit_manager.unit_build_menu(-1,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
 			if (sel == -2) // Crée des armes / build weapons
 			{
 				if (mouse_b == 1 && omb2 != 1)

@@ -391,7 +391,7 @@ namespace TA3D
 
         void load_script_file(const String &unit_name);
 
-        int unit_build_menu(int index,int omb,float &dt,bool GUI=false);                // Affiche et gère le menu des unités
+		int unit_build_menu(int index,int omb,float &dt,int scrolling,bool GUI);                // Affiche et gère le menu des unités
 
         void Identify();            // Identifie les pièces aux quelles les scripts font référence
     };
