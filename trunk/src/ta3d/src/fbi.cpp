@@ -174,21 +174,28 @@ namespace TA3D
 		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(key);
 		if (item != unit_manager.name2gaf.end())
 		{
-			byte* gaf_file = VFS::Instance()->readFile( item->second );
-			if (gaf_file)
+			std::vector<String> test;
+			if (String::ToUpper(item->second) != String::ToUpper(gafFileName))
+				test.push_back(gafFileName);
+			test.push_back(item->second);
+			for(std::vector<String>::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
 			{
-				SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
-				if (img)
+				byte* gaf_file = VFS::Instance()->readFile( *it );
+				if (gaf_file)
 				{
-					if (w)
-						*w = img->w;
-					if (h)
-						*h = img->h;
-					tex = gfx->make_texture(img, FILTER_LINEAR);
-					SDL_FreeSurface(img);
-				}
+					SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+					if (img)
+					{
+						if (w)
+							*w = img->w;
+						if (h)
+							*h = img->h;
+						tex = gfx->make_texture(img, FILTER_LINEAR);
+						SDL_FreeSurface(img);
+					}
 
-				DELETE_ARRAY(gaf_file);
+					DELETE_ARRAY(gaf_file);
+				}
 			}
 		}
 		return tex;
