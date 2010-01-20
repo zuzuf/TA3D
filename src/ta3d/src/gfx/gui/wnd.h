@@ -177,6 +177,10 @@ namespace Gui
 		int height;
 		//! Title height as it is displayed
 		int	title_h;
+		//! Scrolling offset
+		int scrolling;
+		//! Scrollable
+		bool scrollable;
 
 		//! Title
 		String  Title;

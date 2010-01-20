@@ -46,6 +46,8 @@ namespace Gui
 		obj_hashtable.set_empty_key(String());
 		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
 		pCacheFontHeight = gui_font ->height();
+		scrolling = 0;
+		scrollable = false;
 	}
 
 
@@ -58,6 +60,8 @@ namespace Gui
 		ingame_window(false)
 
 	{
+		scrolling = 0;
+		scrollable = false;
 		obj_hashtable.set_empty_key(String());
 		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
 		pCacheFontHeight = gui_font ->height();
@@ -85,17 +89,22 @@ namespace Gui
 		{
 			// Shadow
 			doDrawWindowShadow(skin);
-			// Background
-			doDrawWindowBackground(skin);
 			// Skin
 			doDrawWindowSkin(skin, focus, deg);
+
+			// Take scrolling into account
+			gfx->set_2D_clip_rectangle(x, y, width, height);
+			glPushMatrix();
+			glTranslatef(0.0f, float(-scrolling), 0.0f);
+
+			// Background
+			doDrawWindowBackground(skin);
 
 			// Gui Font
 			gui_font = (ingame_window) ? gfx->TA_font : gfx->ta3d_gui_font;
 
 			if (!pObjects.empty())
 			{
-				gfx->set_2D_clip_rectangle(x, y, width, height);
 				// Background objects
 				for (unsigned int i = 0; i != pObjects.size(); ++i)
 				{
@@ -111,6 +120,9 @@ namespace Gui
 						doDrawWindowForegroundObject(skin, i);
 				}
 			}
+			else
+				gfx->set_2D_clip_rectangle();
+			glPopMatrix();
 			gui_font = gfx->ta3d_gui_font;
 		}
 	}
@@ -578,6 +590,14 @@ namespace Gui
 		if (pObjects.empty())
 			return IsOnGUI;
 
+		// Handle scrolling
+		if (scrollable && IsOnGUI)
+		{
+			scrolling += 10 * (AMz - mouse_z);
+			scrolling = Math::Min(scrolling, y + height - SCREEN_H);
+			scrolling = Math::Max(0, scrolling);
+		}
+
 		// Interactions utilisateur/objets
 		unsigned int index,e;
 		uint16 Key;
@@ -588,6 +608,8 @@ namespace Gui
 		int hasFocus = -1;
 
 		GUIOBJ::Ptr object;
+
+		y -= scrolling;
 
 		for (unsigned int i = 0; i < pObjects.size(); ++i)
 		{
@@ -1321,6 +1343,7 @@ namespace Gui
 					(*i)->Etat = false;
 			}
 		}
+		y += scrolling;
 		return IsOnGUI;
 	}
 
@@ -1348,6 +1371,16 @@ namespace Gui
 			if (String::ToLower(message) == "hide")
 			{
 				hidden = true;
+				return INTERFACE_RESULT_HANDLED;
+			}
+			if (String::ToLower(message) == "enablescrolling")
+			{
+				scrollable = true;
+				return INTERFACE_RESULT_HANDLED;
+			}
+			if (String::ToLower(message) == "disablescrolling")
+			{
+				scrollable = false;
 				return INTERFACE_RESULT_HANDLED;
 			}
 		}
@@ -1440,18 +1473,9 @@ namespace Gui
 		Title.clear();
 		x = wndFile.pullAsInt("gadget0.common.xpos");
 		y = wndFile.pullAsInt("gadget0.common.ypos");
-		if (x < 0)
-			x += SCREEN_W;
-		if (y < 0)
-			y += SCREEN_H;
 
 		width  = wndFile.pullAsInt("gadget0.common.width");
 		height = wndFile.pullAsInt("gadget0.common.height");
-
-		if (x + width >= SCREEN_W)
-			x = SCREEN_W - width;
-		if (y + height >= SCREEN_H)
-			y = SCREEN_H - height;
 
 		float x_factor = 1.0f;
 		float y_factor = 1.0f;

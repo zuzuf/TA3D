@@ -424,6 +424,7 @@ namespace TA3D
 		{
 			pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "gen.gui"); // Load the order interface
 			pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.hide" );	// Hide it
+			pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.enableScrolling" );	// Enable scrolling
 		}
 		catch(...)
 		{
@@ -434,6 +435,7 @@ namespace TA3D
 		{
 			pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "dl.gui");			// Load the default build interface
 			pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.hide" );	// Hide it
+			pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.enableScrolling" );	// Enable scrolling
 		}
 		catch(...)
 		{
@@ -451,6 +453,7 @@ namespace TA3D
 				{
 					pArea.load_window( String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui");			// Load the build interface
 					pArea.msg( String(unit_manager.unit_type[i]->Unitname) << e << ".hide");	// Hide it
+					pArea.msg( String(unit_manager.unit_type[i]->Unitname) << e << ".enableScrolling");	// Enable scrolling
 					++e;
 				}
 			}

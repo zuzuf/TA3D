@@ -1041,7 +1041,7 @@ namespace TA3D
 
 
 
-	int UnitManager::unit_build_menu(int index,int omb,float &dt, bool GUI)				// Affiche et gère le menu des unités
+	int UnitManager::unit_build_menu(int index,int omb,float &dt, int scrolling, bool GUI)				// Affiche et gère le menu des unités
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -1052,7 +1052,7 @@ namespace TA3D
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 		if (GUI)
 		{
-			if (panel.tex && nothing )
+			if (panel.tex && nothing)
 				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + float(panel.height) );
 
 			if (paneltop.tex )
@@ -1099,13 +1099,15 @@ namespace TA3D
 
 		int sel=-1;
 
+		gfx->set_2D_clip_rectangle(0, 128, 128, SCREEN_H - 128);
+
 		glDisable(GL_BLEND);
 		for( int i = 0 ; i < unit_type[index]->nb_unit ; ++i) // Affiche les différentes images d'unités constructibles
 		{
 			if (unit_type[index]->Pic_p[i] != page)
 				continue;
 			int px = unit_type[index]->Pic_x[ i ];
-			int py = unit_type[index]->Pic_y[ i ];
+			int py = unit_type[index]->Pic_y[ i ] - scrolling;
 			int pw = unit_type[index]->Pic_w[ i ];
 			int ph = unit_type[index]->Pic_h[ i ];
 			bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
@@ -1177,6 +1179,8 @@ namespace TA3D
 			unit_type[index]->last_click = sint16(sel);
 			unit_type[index]->click_time = 0.5f;		// One sec animation;
 		}
+
+		gfx->set_2D_clip_rectangle();
 
 		return sel;
 	}
