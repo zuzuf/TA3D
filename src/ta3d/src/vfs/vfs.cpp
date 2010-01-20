@@ -60,6 +60,7 @@ namespace UTILS
 			archive->getFileList(archiveFiles);
 			LOG_DEBUG(LOG_PREFIX_VFS << "inserting archive files into file hash table");
 
+                        pFiles.resize(pFiles.size() + archiveFiles.size());
 			const std::deque<Archive::File*>::iterator end = archiveFiles.end();
 			for (std::deque<Archive::File*>::iterator i = archiveFiles.begin() ; i != end; ++i)
 			{

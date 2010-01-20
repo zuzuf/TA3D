@@ -4106,7 +4106,7 @@ namespace TA3D
 						D=D*RotateX(-angle_1*DEG2RAD);
 						float angle_2=VAngle(D,K)*RAD2DEG;
 						if (D.x>0.0f)	angle_2=-angle_2;
-						if (fabsf(angle_1-Angle.x)<=10.0f && fabsf(angle_2-Angle.z)<=10.0f)
+						if (fabsf(angle_1 - Angle.x) <= 180.0f && fabsf(angle_2 - Angle.z) <= 180.0f)
 						{
 							Angle.x=angle_1;
 							Angle.z=angle_2;
@@ -4971,7 +4971,7 @@ script_exec:
 		{
 			// First check we're on a "legal" place if it can move
 			pMutex.lock();
-            if (pType->canmove && pType->BMcode
+			if (pType->canmove && pType->BMcode
 				&& !can_be_there( cur_px, cur_py, type_id, owner_id ) )
 			{
 				// Try to find a suitable place
