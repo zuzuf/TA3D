@@ -576,6 +576,17 @@ namespace TA3D
 		data = read_from_mem(&Flag, sizeof(Flag), data);
 		Flag |= SURFACE_ADVANCED;           // This is default flag ... not very useful now that 3DM and 3DO codes have been separated
 
+		if (Flag >= 0x200)
+		{
+			DELETE_ARRAY(points);
+			DELETE_ARRAY(p_index);
+			DELETE_ARRAY(l_index);
+			DELETE_ARRAY(tcoord);
+			name.clear();
+			init();
+			return NULL;
+		}
+
 		glColorTexture = gfx->create_color_texture(Color);
 
 		sint8 NbTex = 0;
