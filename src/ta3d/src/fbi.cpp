@@ -159,7 +159,8 @@ namespace TA3D
 						String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
 						if (key.empty())
 							continue;
-						unit_manager.name2gaf[key] = gafName;
+						if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
+							unit_manager.name2gaf[key] = gafName;
 					}
 					DELETE_ARRAY(gaf_file);
 				}
@@ -169,7 +170,8 @@ namespace TA3D
 		GLuint tex = 0;
 		gfx->set_texture_format(GL_RGB8);
 
-		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(String::ToUpper(name));
+		String key = String::ToUpper(name);
+		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(key);
 		if (item != unit_manager.name2gaf.end())
 		{
 			byte* gaf_file = VFS::Instance()->readFile( item->second );
