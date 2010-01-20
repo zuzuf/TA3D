@@ -4,8 +4,8 @@
 	uformat=UTF8;
 	x=0;
 	y=0;
-	width=640;
-	height=480;
+	width=1280;
+	height=1024;
 	draw borders=false;
 	show title=false;
 	number of objects=6;

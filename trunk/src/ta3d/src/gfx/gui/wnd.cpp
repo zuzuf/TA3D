@@ -95,6 +95,7 @@ namespace Gui
 
 			if (!pObjects.empty())
 			{
+				gfx->set_2D_clip_rectangle(x, y, width, height);
 				// Background objects
 				for (unsigned int i = 0; i != pObjects.size(); ++i)
 				{
@@ -102,6 +103,7 @@ namespace Gui
 					if (!(pObjects[i]->Flag & FLAG_HIDDEN))
 						doDrawWindowBackgroundObject(helpMsg, i, focus, skin);
 				}
+				gfx->set_2D_clip_rectangle();
 				for (unsigned int i = 0; i < pObjects.size(); ++i)
 				{
 					// Affiche les objets de premier plan

@@ -303,6 +303,19 @@ namespace TA3D
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
 	}
 
+	void GFX::set_2D_clip_rectangle(int x, int y, int w, int h)
+	{
+		if (w == -1 || h == -1)
+		{
+			glDisable(GL_SCISSOR_TEST);
+		}
+		else
+		{
+			glScissor(x, height - (y + h), w, h);
+			glEnable(GL_SCISSOR_TEST);
+		}
+	}
+
 	void GFX::unset_2D_mode()
 	{
 		glPopAttrib();
