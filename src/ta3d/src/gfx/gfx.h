@@ -63,6 +63,8 @@ namespace TA3D
 		void set_2D_mode();
 		//! UnSet the 2D mode
 		void unset_2D_mode();
+		//! Set the 2D clip rectangle
+		void set_2D_clip_rectangle(int x = 0, int y = 0, int w = -1, int h = -1);
 		//@}
 
 		/*!
