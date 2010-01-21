@@ -96,6 +96,9 @@ namespace TA3D
 		virtual ~GFX();
 		//@}
 
+		//! Default configurator based on platform detection
+		void detectDefaultSettings();
+
 
 		//! Set current texture format
 		void set_texture_format(GLuint gl_format);
