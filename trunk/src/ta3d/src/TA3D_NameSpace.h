@@ -125,89 +125,9 @@ namespace TA3D
 		String  file_param;                    // File parameter (command line parameter), used to give complex instructions
 		bool    enable_shortcuts;           // Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
 		bool	no_sound;
+		bool	first_start;
 
-        inline TA3DCONFIG()
-		{
-			no_sound = false;
-
-            resourcePaths.clear();
-
-            system7zCommand = "7z";
-
-            grab_inputs = false;
-
-			sound_volume = music_volume = 128;
-
-			far_sight = true;
-
-			anisotropy = 1;
-
-			mouse_sensivity = 1.0f;
-
-			ortho_camera = false;
-
-			right_click_interface = false;
-
-			disable_GLSL = false;           // By default we want shaders
-
-			underwater_bright = false;
-
-			use_texture_compression = true;
-
-			low_definition_map = false;
-
-			render_sky = true;
-
-			enable_shortcuts = true;
-
-			net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
-
-			file_param.clear();
-
-			use_texture_cache = false;
-
-			pause = false;
-
-			skin_name = "";
-
-			camera_zoom = ZOOM_NORMAL;
-			camera_def_angle = 63.44f;        // TA angle
-			camera_def_h = 200.0f;
-			camera_zoom_speed = 1.0f;
-
-			player_name = "player";
-			last_script = "scripts\\default.lua";
-			last_map = "";
-			last_FOW = 0;
-
-			draw_console_loading = false;    // default set to false since it's a developer feature
-			detail_tex = false;                // default set to false because of fragment program dependency ( and it's only an eye candy feature )
-
-			fps_limit = -1.0f;
-			timefactor = 1.0f;
-			shadow_quality = 2;
-			shadowmap_size = 2;
-			priority_level = 0;
-			water_quality = 1;              // For now only because we have shaders issues with ati board
-			fsaa = 0;
-			Lang = "english";               // English
-			screen_width = 800;
-			screen_height = 600;
-			color_depth = 32;
-			showfps = false;
-			wireframe = false;
-			particle = true;
-			explosion_particles = true;
-			waves = true;
-			height_line = false;
-			fullscreen = false;            // For now, later will be true when we will reach a beta release
-
-			last_MOD = "";
-
-			quickrestart = false;
-			quickstart = false;
-			restorestart = false;
-		}
+		TA3DCONFIG();
 
 	} sTA3DCONFIG, *LPTA3DCONFIG;
 

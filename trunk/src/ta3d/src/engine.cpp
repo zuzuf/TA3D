@@ -76,18 +76,8 @@ namespace TA3D
 
 		VARS::gfx = NULL;
 
-		String str;
-		str << TA3D_ENGINE_VERSION << " initializing started:\n\n";
-		char *buf = strdup(str.c_str());
-		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)buf, NULL, NULL);
-		if (buf)
-			free(buf);
-
-		str.clear() << "Build info : " << __DATE__ << " , " << __TIME__ << "%s\n\n";
-		buf = strdup(str.c_str());
-		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)buf, NULL, NULL);
-		if (buf)
-			free(buf);
+		LOG_INFO(TA3D_ENGINE_VERSION << " initializing started:");
+		LOG_INFO("Build info : " << __DATE__ << " , " << __TIME__);
 
 		// Initalizing SDL video
 		if (::SDL_Init(SDL_INIT_VIDEO))

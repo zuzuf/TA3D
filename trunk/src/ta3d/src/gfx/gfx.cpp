@@ -51,6 +51,338 @@ namespace TA3D
 		build_mipmaps = use;
 	}
 
+	void GFX::detectDefaultSettings()
+	{
+		const GLubyte *glStr = glGetString(GL_VENDOR);
+		String glVendor = glStr ? String::ToUpper((const char*)glStr) : String();
+
+		enum VENDOR { Unknown, Ati, Nvidia, Sis, Intel };
+
+		VENDOR glVendorID = Unknown;
+		if (glVendor.find("ATI") != String::npos)
+			glVendorID = Ati;
+		else if (glVendor.find("NVIDIA") != String::npos)
+			glVendorID = Nvidia;
+		else if (glVendor.find("SIS") != String::npos)
+			glVendorID = Sis;
+		else if (glVendor.find("INTEL") != String::npos)
+			glVendorID = Intel;
+
+#ifdef YUNI_OS_LINUX
+		switch(glVendorID)
+		{
+		case Ati:
+			lp_CONFIG->shadow_quality = 3;
+			lp_CONFIG->water_quality = 4;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 2;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = true;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = true;
+
+			lp_CONFIG->detail_tex = true;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = false;
+
+			lp_CONFIG->render_sky = true;
+			lp_CONFIG->low_definition_map = false;
+
+			lp_CONFIG->disable_GLSL = false;
+			break;
+
+		case Nvidia:
+			lp_CONFIG->shadow_quality = 3;
+			lp_CONFIG->water_quality = 4;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 2;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = true;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = true;
+
+			lp_CONFIG->detail_tex = true;
+
+			lp_CONFIG->use_texture_cache = true;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = true;
+			lp_CONFIG->low_definition_map = false;
+
+			lp_CONFIG->disable_GLSL = false;
+			break;
+
+		case Sis:
+		case Intel:
+			lp_CONFIG->shadow_quality = 0;
+			lp_CONFIG->water_quality = 0;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 16;
+			lp_CONFIG->shadowmap_size = 0;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = false;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = false;
+
+			lp_CONFIG->detail_tex = false;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = false;
+			lp_CONFIG->low_definition_map = true;
+
+			lp_CONFIG->disable_GLSL = true;
+			break;
+
+		case Unknown:
+			lp_CONFIG->shadow_quality = 0;
+			lp_CONFIG->water_quality = 0;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 0;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = false;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = false;
+
+			lp_CONFIG->detail_tex = false;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = false;
+			lp_CONFIG->low_definition_map = true;
+
+			lp_CONFIG->disable_GLSL = true;
+			break;
+		};
+#elif defined YUNI_OS_WINDOWS
+		switch(glVendorID)
+		{
+		case Ati:
+			lp_CONFIG->shadow_quality = 3;
+			lp_CONFIG->water_quality = 4;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 2;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = true;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = true;
+
+			lp_CONFIG->detail_tex = true;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = false;
+
+			lp_CONFIG->render_sky = true;
+			lp_CONFIG->low_definition_map = false;
+
+			lp_CONFIG->disable_GLSL = false;
+			break;
+
+		case Nvidia:
+			lp_CONFIG->shadow_quality = 3;
+			lp_CONFIG->water_quality = 4;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 2;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = true;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = true;
+
+			lp_CONFIG->detail_tex = true;
+
+			lp_CONFIG->use_texture_cache = true;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = true;
+			lp_CONFIG->low_definition_map = false;
+
+			lp_CONFIG->disable_GLSL = false;
+			break;
+
+		case Sis:
+		case Intel:
+			lp_CONFIG->shadow_quality = 0;
+			lp_CONFIG->water_quality = 0;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 16;
+			lp_CONFIG->shadowmap_size = 0;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = false;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = false;
+
+			lp_CONFIG->detail_tex = false;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = false;
+			lp_CONFIG->low_definition_map = true;
+
+			lp_CONFIG->disable_GLSL = true;
+			break;
+
+		case Unknown:
+			lp_CONFIG->shadow_quality = 0;
+			lp_CONFIG->water_quality = 0;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 0;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = false;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = false;
+
+			lp_CONFIG->detail_tex = false;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = false;
+			lp_CONFIG->low_definition_map = true;
+
+			lp_CONFIG->disable_GLSL = true;
+			break;
+		};
+#elif defined YUNI_OS_MAC
+		switch(glVendorID)
+		{
+		case Ati:
+			lp_CONFIG->shadow_quality = 3;
+			lp_CONFIG->water_quality = 4;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 2;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = true;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = true;
+
+			lp_CONFIG->detail_tex = true;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = false;
+
+			lp_CONFIG->render_sky = true;
+			lp_CONFIG->low_definition_map = false;
+
+			lp_CONFIG->disable_GLSL = false;
+			break;
+
+		case Nvidia:
+			lp_CONFIG->shadow_quality = 3;
+			lp_CONFIG->water_quality = 4;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 2;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = true;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = true;
+
+			lp_CONFIG->detail_tex = true;
+
+			lp_CONFIG->use_texture_cache = true;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = true;
+			lp_CONFIG->low_definition_map = false;
+
+			lp_CONFIG->disable_GLSL = false;
+			break;
+
+		case Sis:
+		case Intel:
+			lp_CONFIG->shadow_quality = 0;
+			lp_CONFIG->water_quality = 0;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 16;
+			lp_CONFIG->shadowmap_size = 0;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = false;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = false;
+
+			lp_CONFIG->detail_tex = false;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = false;
+			lp_CONFIG->low_definition_map = true;
+
+			lp_CONFIG->disable_GLSL = true;
+			break;
+
+		case Unknown:
+			lp_CONFIG->shadow_quality = 0;
+			lp_CONFIG->water_quality = 0;
+			lp_CONFIG->fsaa = 0;
+			lp_CONFIG->anisotropy = 1;
+
+			lp_CONFIG->color_depth = 32;
+			lp_CONFIG->shadowmap_size = 0;
+
+			lp_CONFIG->particle = true;
+			lp_CONFIG->explosion_particles = false;
+			lp_CONFIG->waves = false;
+			lp_CONFIG->far_sight = false;
+
+			lp_CONFIG->detail_tex = false;
+
+			lp_CONFIG->use_texture_cache = false;
+			lp_CONFIG->use_texture_compression = true;
+
+			lp_CONFIG->render_sky = false;
+			lp_CONFIG->low_definition_map = true;
+
+			lp_CONFIG->disable_GLSL = true;
+			break;
+		};
+#endif
+	}
+
 	void GFX::initSDL()
 	{
 		static bool GLloaded = false;
@@ -156,6 +488,9 @@ namespace TA3D
 			defaultRGBATextureFormat = GL_RGBA8;
 		}
 
+		// Check everything is supported
+		checkConfig();
+
 		if(g_useTextureCompression && lp_CONFIG->use_texture_compression) // Try to enabled the Texture compression
 			set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
@@ -212,6 +547,13 @@ namespace TA3D
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false)
 	{
 		// Initialize the GFX Engine
+		if (lp_CONFIG->first_start)
+		{
+			initSDL();
+			// Guess best settings
+			detectDefaultSettings();
+			lp_CONFIG->first_start = false;
+		}
 		initSDL();
 		ati_workaround = checkVideoCardWorkaround();
 

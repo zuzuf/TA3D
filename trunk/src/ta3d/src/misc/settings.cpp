@@ -144,6 +144,7 @@ namespace Settings
 			LOG_ERROR(LOG_PREFIX_SETTINGS << "Impossible to load the settings from `" << TA3D::Paths::ConfigFile << "`");
 
 			lp_CONFIG->Lang = "english";     // Set default language to English
+			lp_CONFIG->first_start = true;	// No config file -> guess best settings
 			// Apply settings for the current language
 			I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 
@@ -174,7 +175,7 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->detail_tex = cfgFile.pullAsBool("TA3D.Detail Texture");
 		TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile.pullAsBool("TA3D.Draw Console Loading");
 
-		TA3D::VARS::lp_CONFIG->last_script = cfgFile.pullAsString("TA3D.Last Script", "scripts\\default.c");
+		TA3D::VARS::lp_CONFIG->last_script = cfgFile.pullAsString("TA3D.Last Script", "scripts\\game\\default.lua");
 		TA3D::VARS::lp_CONFIG->last_script.convertSlashesIntoBackslashes();
 		TA3D::VARS::lp_CONFIG->last_map = cfgFile.pullAsString("TA3D.Last Map", "");
 		TA3D::VARS::lp_CONFIG->last_map.convertSlashesIntoBackslashes();
@@ -230,6 +231,7 @@ namespace Settings
 			lp_CONFIG->net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
 			if (cfg_version.empty())        // Pre-SDL versions
 			{
+				lp_CONFIG->first_start = true;		// First start of a >= 0.6 release
 				lp_CONFIG->shadow_quality = sint16(cfgFile.pullAsInt("TA3D.Show Shadows"));
 				int langID = lp_CONFIG->Lang.to<int>();     // TA3D used to store language ID instead of language
 				switch( langID )
