@@ -1159,6 +1159,8 @@ namespace TA3D
 				glDisable(GL_BLEND);
 			}
 		}
+		gfx->set_2D_clip_rectangle();
+
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
 		if (unit_type[index]->last_click != -1 )
@@ -1179,8 +1181,6 @@ namespace TA3D
 			unit_type[index]->last_click = sint16(sel);
 			unit_type[index]->click_time = 0.5f;		// One sec animation;
 		}
-
-		gfx->set_2D_clip_rectangle();
 
 		return sel;
 	}
