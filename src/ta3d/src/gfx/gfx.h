@@ -291,6 +291,11 @@ namespace TA3D
 		SDL_Surface *create_surface_ex(int bpp, int w, int h);
 		SDL_Surface *create_surface(int w, int h);
 
+		/*!
+		** \brief returns default texture formats for RGB and RGBA textures
+		*/
+		GLuint defaultTextureFormat_RGB() const	{	return defaultRGBTextureFormat;	}
+		GLuint defaultTextureFormat_RGBA() const	{	return defaultRGBATextureFormat;	}
 
 	public:
 		int			width;				// Size of this window on the screen
@@ -348,7 +353,8 @@ namespace TA3D
 		GLuint      texture_format;
 		bool        build_mipmaps;
 		bool        shadowMapMode;
-
+		GLuint		defaultRGBTextureFormat;
+		GLuint		defaultRGBATextureFormat;
 	}; // class GFX
 
 

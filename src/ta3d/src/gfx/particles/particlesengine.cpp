@@ -71,7 +71,7 @@ namespace TA3D
 		SDL_FreeSurface(bmp);
 		if (ntex > 1)
 			glDeleteTextures(1, &parttex);
-		gfx->set_texture_format(GL_RGBA8);
+		gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 		parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
 
 		return (ntex-1);
@@ -787,7 +787,7 @@ namespace TA3D
 			stretch_blit(bmp, partbmp, 0, 0, bmp->w, bmp->h, 0, 0, 64, 64);
 			ntex = 1;
 			SDL_FreeSurface(bmp);
-			gfx->set_texture_format(GL_RGBA8);
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 			parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
 		}
 		size=0;

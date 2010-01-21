@@ -683,7 +683,7 @@ namespace TA3D
 				water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
 			}
 
-			gfx->set_texture_format(GL_RGBA8);
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
 			SDL_Surface* tmp = gfx->create_surface_ex(32,512,512);
 
@@ -803,7 +803,7 @@ namespace TA3D
 				}
 			}
 
-			gfx->set_texture_format(GL_RGB8);
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 			water = gfx->make_texture( tmp, FILTER_LINEAR, false);
 			SDL_FreeSurface(tmp);
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
@@ -812,7 +812,7 @@ namespace TA3D
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 				gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 			else
-				gfx->set_texture_format(GL_RGB8);
+				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		}
 
 		// A few things required by (pseudo-)instancing code to render highlighted objects

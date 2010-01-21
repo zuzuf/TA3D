@@ -1461,7 +1461,7 @@ namespace Gui
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
-			gfx->set_texture_format(GL_RGB8);
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 
 		TDFParser wndFile(filename, false, false, true);
 
