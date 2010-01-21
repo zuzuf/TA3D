@@ -89,8 +89,6 @@ namespace Gui
 		{
 			// Shadow
 			doDrawWindowShadow(skin);
-			// Skin
-			doDrawWindowSkin(skin, focus, deg);
 
 			// Take scrolling into account
 			gfx->set_2D_clip_rectangle(x, y, width, height);
@@ -99,6 +97,19 @@ namespace Gui
 
 			// Background
 			doDrawWindowBackground(skin);
+
+			// We have to disable clipping now because of windows borders
+			// and we must render things in this specific order, otherwise title
+			// bars are hidden by background
+			gfx->set_2D_clip_rectangle();
+			glPopMatrix();
+
+			// Skin
+			doDrawWindowSkin(skin, focus, deg);
+
+			gfx->set_2D_clip_rectangle(x, y, width, height);
+			glPushMatrix();
+			glTranslatef(0.0f, float(-scrolling), 0.0f);
 
 			// Gui Font
 			gui_font = (ingame_window) ? gfx->TA_font : gfx->ta3d_gui_font;
