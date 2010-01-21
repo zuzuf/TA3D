@@ -1593,7 +1593,7 @@ namespace TA3D
 				bool canguard = false;
 				bool canattack = false;
 				bool canreclam = false;
-				bool builders = false; // For repair purposes only
+				bool builders = false;
 				bool canload = false;
 				bool cancapture = false;
 				bool cancloak  =false;
@@ -1636,6 +1636,8 @@ namespace TA3D
 				if (onoff_state == 0)
 					onoff_state = 3;
 
+				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BUILD", builders);
+				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ORDERS", builders);
 				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "STOP", canstop);
 				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVE", canmove);
 				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "PATROL", canpatrol);
@@ -1652,6 +1654,8 @@ namespace TA3D
 				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK", cancloak);
 				pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BLAST", candgun);
 
+				pArea.set_enable_flag(pCurrentGUI + ".ARMBUILD", builders);
+				pArea.set_enable_flag(pCurrentGUI + ".ARMORDERS", builders);
 				pArea.set_enable_flag(pCurrentGUI + ".ARMSTOP", canstop);			// Alternate version to support mods
 				pArea.set_enable_flag(pCurrentGUI + ".ARMMOVE", canmove);
 				pArea.set_enable_flag(pCurrentGUI + ".ARMPATROL", canpatrol);
@@ -1711,6 +1715,8 @@ namespace TA3D
 					String genGUIwDot(genGUI);
 					genGUIwDot += ".";
 
+					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BUILD", builders);
+					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ORDERS", builders);
 					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "STOP", canstop);
 					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVE", canmove);
 					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "PATROL", canpatrol);
@@ -1727,6 +1733,8 @@ namespace TA3D
 					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "CLOAK", cancloak);
 					pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST", candgun);
 
+					pArea.set_enable_flag( genGUI + ".ARMBUILD", builders);
+					pArea.set_enable_flag( genGUI + ".ARMORDERS", builders);
 					pArea.set_enable_flag( genGUI + ".ARMSTOP", canstop);
 					pArea.set_enable_flag( genGUI + ".ARMMOVE", canmove);
 					pArea.set_enable_flag( genGUI + ".ARMPATROL", canpatrol);
