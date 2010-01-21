@@ -117,7 +117,7 @@ namespace TA3D
         byte    FootprintX;
         byte    FootprintZ;
 		Grid<float> gRepulsion;
-		HashMap<int>::Dense Category;
+		HashSet<>::Dense Category;
         String::Vector categories;
         uint32  fastCategory;
         short   MaxSlope;
