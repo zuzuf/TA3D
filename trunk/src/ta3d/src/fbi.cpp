@@ -168,7 +168,7 @@ namespace TA3D
 		}
 
 		GLuint tex = 0;
-		gfx->set_texture_format(GL_RGB8);
+		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 
 		String key = String::ToUpper(name);
 		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(key);
@@ -219,7 +219,7 @@ namespace TA3D
 		int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
 		int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
-		gfx->set_texture_format(GL_RGB8);
+		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		String name;
 		for (int i = 1; i <= NbObj; ++i)
 		{
@@ -1017,7 +1017,7 @@ namespace TA3D
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
-			gfx->set_texture_format(GL_RGB8);
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		int w,h;
 		GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true);
 		if (panel_tex == 0)
@@ -1214,7 +1214,7 @@ namespace TA3D
 
 					if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
 					{
-						gfx->set_texture_format(GL_RGB8);
+						gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 						unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic = gfx->make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic, FILTER_LINEAR);
 						SDL_FreeSurface(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
 						unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = NULL;

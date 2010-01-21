@@ -412,7 +412,7 @@ namespace TA3D
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 				gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 			else
-				gfx->set_texture_format(GL_RGB8);
+				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 			SDL_FillRect(bmp, NULL, 0);
 			tex_cache_name.clear();
 			gltex.clear();

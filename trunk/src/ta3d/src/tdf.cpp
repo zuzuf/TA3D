@@ -285,7 +285,7 @@ namespace TA3D
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
 		else
-			gfx->set_texture_format(GL_RGBA8);
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
 		for (int i = first; i < nb_features; ++i)// Charge les fichiers d'animation
 		{

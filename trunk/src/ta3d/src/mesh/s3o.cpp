@@ -397,14 +397,14 @@ namespace TA3D
 		if (header.texture1 > 0)
 		{
 			String textureName = String("textures/") << (char*) &data[header.texture1];
-			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_RGBA8);
+			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
 			if (tex)
 				model->gltex.push_back(tex);
 		}
 		if (header.texture2 > 0)
 		{
 			String textureName = String("textures/") << (char*) &data[header.texture2];
-			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_RGBA8);
+			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
 			if (tex)
 				model->gltex.push_back(tex);
 		}

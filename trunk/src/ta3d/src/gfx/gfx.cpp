@@ -43,7 +43,7 @@ namespace TA3D
 
 	void GFX::set_texture_format(GLuint gl_format)
 	{
-		texture_format = gl_format == 0 ? GL_RGB8 : gl_format;
+		texture_format = gl_format == 0 ? defaultRGBTextureFormat : gl_format;
 	}
 
 	void GFX::use_mipmapping(bool use)
@@ -145,10 +145,21 @@ namespace TA3D
 		// Install OpenGL extensions
 		installOpenGLExtensions();
 
+		if (screen->format->BitsPerPixel == 16)
+		{
+			defaultRGBTextureFormat = GL_RGB5;
+			defaultRGBATextureFormat = GL_RGB5_A1;
+		}
+		else
+		{
+			defaultRGBTextureFormat = GL_RGB8;
+			defaultRGBATextureFormat = GL_RGBA8;
+		}
+
 		if(g_useTextureCompression && lp_CONFIG->use_texture_compression) // Try to enabled the Texture compression
 			set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
-			set_texture_format(GL_RGB8);
+			set_texture_format(defaultRGBTextureFormat);
 		glViewport(0,0,width,height);
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
@@ -872,7 +883,7 @@ namespace TA3D
 					  GL_FLOAT,
 					  data );
 
-		set_texture_format(GL_RGB8);
+		set_texture_format(defaultRGBTextureFormat);
 
 		return gl_tex;
 	}
@@ -937,7 +948,7 @@ namespace TA3D
 					  GL_FLOAT,
 					  data );
 
-		set_texture_format(GL_RGB8);
+		set_texture_format(defaultRGBTextureFormat);
 
 		return gl_tex;
 	}
@@ -999,7 +1010,7 @@ namespace TA3D
 					  GL_FLOAT,
 					  data );
 
-		set_texture_format(GL_RGB8);
+		set_texture_format(defaultRGBTextureFormat);
 
 		return gl_tex;
 	}
@@ -1062,7 +1073,7 @@ namespace TA3D
 					  GL_FLOAT,
 					  data );
 
-		set_texture_format(GL_RGB8);
+		set_texture_format(defaultRGBTextureFormat);
 
 		return gl_tex;
 	}
@@ -1125,7 +1136,7 @@ namespace TA3D
 					  GL_FLOAT,
 					  data );
 
-		set_texture_format(GL_RGB8);
+		set_texture_format(defaultRGBTextureFormat);
 
 		return gl_tex;
 	}
@@ -1188,7 +1199,7 @@ namespace TA3D
 					  GL_FLOAT,
 					  data );
 
-		set_texture_format(GL_RGB8);
+		set_texture_format(defaultRGBTextureFormat);
 
 		return gl_tex;
 	}
@@ -1214,7 +1225,7 @@ namespace TA3D
         SDL_Surface *tmp = create_surface_ex(32, 1, 1);
         SurfaceInt(tmp, 0, 0) = color;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, defaultRGBATextureFormat, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
         SDL_FreeSurface(tmp);
 
         return gl_tex;
@@ -1391,7 +1402,7 @@ namespace TA3D
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 				set_texture_format(with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB);
 			else
-				set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
+				set_texture_format(with_alpha ? defaultRGBATextureFormat : defaultRGBTextureFormat);
 		}
 		else
 			set_texture_format(texFormat);
@@ -1442,7 +1453,7 @@ namespace TA3D
 		if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
 		else
-			set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+			set_texture_format( with_alpha ? defaultRGBATextureFormat : defaultRGBTextureFormat );
 		GLuint gl_tex = make_texture( bmp, filter_type, clamp );
 		SDL_FreeSurface(bmp);
 		return gl_tex;
@@ -1658,7 +1669,7 @@ namespace TA3D
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			set_texture_format(GL_COMPRESSED_RGBA_ARB);
 		else
-			set_texture_format(GL_RGBA8);
+			set_texture_format(defaultTextureFormat_RGBA());
 		GLuint gl_tex = make_texture( bmp, filter_type );
 		SDL_FreeSurface(bmp);
 		SDL_FreeSurface(alpha);
