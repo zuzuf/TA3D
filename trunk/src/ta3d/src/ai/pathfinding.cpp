@@ -316,6 +316,7 @@ namespace TA3D
 					float dist[ 8 ];
 					float rdist[ 8 ];
 					bool zoned[ 8 ];
+					float distanceCoef = 2.0f * float(pType->MaxSlope);
 					for( int e = 0 ; e < 8 ; ++e )			// Gather required data
 					{
 						rdist[ e ] = dist[ e ] = -1.0f;
@@ -327,7 +328,7 @@ namespace TA3D
 						zoned[ e ] = zone(nx, nz);
 						if (!zone(nx, nz) && !checkRectFull( nx - mw_h, nz - mh_h, task.idx, pType ))
 								continue;
-						rdist[ e ] = dist[ e ] = float(pType->MaxSlope) * sqrtf(float(sq( end_x - nx ) + sq( end_z - nz ))) + energy(nx, nz);
+						rdist[ e ] = dist[ e ] = distanceCoef * sqrtf(float(sq( end_x - nx ) + sq( end_z - nz ))) + energy(nx, nz);
 
 						if (zoned[ e ])
 							dist[ e ] = -1.0f;
@@ -349,7 +350,10 @@ namespace TA3D
 					{
 						for (int e = 0 ; e < 8 ; ++e)
 						{
-							if (dist[ e ] >= 0.0f)
+							if (dist[ e ] >= 0.0f
+								&& ((!zoned[ order_m1[e] ]
+									 && !zoned[ order_p1[e] ])
+									|| pathFound))
 							{
 								if (m == -1)	m = e;
 								else if (dist[ e ] < dist[ m ])
@@ -422,6 +426,17 @@ namespace TA3D
 				}
 			}
 		}
+
+#ifdef DEBUG_AI_PATHFINDER
+		SDL_Surface *bmp = gfx->create_surface_ex(8, zone.getWidth(), zone.getHeight());
+		memset(bmp->pixels, 0, bmp->w * bmp->h);
+		for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
+			SurfaceByte(bmp, cur->x(), cur->z()) = 255;
+
+		SDL_SaveBMP(bmp, "pathmap.bmp");
+
+		SDL_FreeSurface(bmp);
+#endif
 
 		if (!nodes.empty() && pathFound)
 		{
