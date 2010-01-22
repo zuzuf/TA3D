@@ -1756,6 +1756,8 @@ namespace TA3D
 							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
 								return;
 						}
+						else				// If we managed to get there you can forget path refresh order
+							mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
 					}
 					else
 						mission->setLastD(dist);
@@ -3040,6 +3042,7 @@ namespace TA3D
 				case MISSION_CAPTURE:
 				case MISSION_REVIVE:
 				case MISSION_RECLAIM:
+					selfmove = false;
 					if (mission->getUnit())		// Récupère une unité / It's a unit
 					{
 						Unit *target_unit = mission->getUnit();
@@ -3062,12 +3065,16 @@ namespace TA3D
 							Vector3D Dir = target_unit->Pos-Pos;
 							Dir.y = 0.0f;
 							float dist = Dir.sq();
-							int maxdist = mission->mission() == MISSION_CAPTURE ? (int)(pType->SightDistance) : (int)(pType->BuildDistance);
+							UnitType *tType = target_unit->type_id == - 1 ? NULL : unit_manager.unit_type[target_unit->type_id];
+							int tsize = (tType == NULL) ? 0 : (tType->FootprintX + tType->FootprintZ << 2);
+							int maxdist = (mission->mission() == MISSION_CAPTURE ? (int)(pType->SightDistance) : (int)(pType->BuildDistance))
+										  + tsize;
                             if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 							{
 								c_time = 0.0f;
-								mission->Flags() |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
-								mission->setMoveData(maxdist * 7 / 80);
+								if (!(mission->Flags() & MISSION_FLAG_MOVE))
+									mission->Flags() |= MISSION_FLAG_REFRESH_PATH | MISSION_FLAG_MOVE;
+								mission->setMoveData(Math::Max(maxdist * 7 / 80, (tsize + 7) >> 3));
 								mission->setLastD(0.0f);
 							}
 							else if (!(mission->getFlags() & MISSION_FLAG_MOVE))
@@ -3157,12 +3164,16 @@ namespace TA3D
 						Dir.y = 0.0f;
 						mission->getTarget().setPos(features.feature[mission->getData()].Pos);
 						float dist = Dir.sq();
-						int maxdist = mission->mission() == MISSION_REVIVE ? (int)(pType->SightDistance) : (int)(pType->BuildDistance);
+						Feature *pFeature = feature_manager.getFeaturePointer(features.feature[mission->getData()].type);
+						int tsize = pFeature == NULL ? 0 : (pFeature->footprintx + pFeature->footprintz << 2);
+						int maxdist = (mission->mission() == MISSION_REVIVE ? (int)(pType->SightDistance) : (int)(pType->BuildDistance))
+										  + tsize;
 						if (dist > maxdist * maxdist && pType->BMcode)	// If the unit is too far from its target
 						{
 							c_time = 0.0f;
-							mission->Flags() |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
-							mission->setMoveData( maxdist * 7 / 80 );
+							if (!(mission->Flags() & MISSION_FLAG_MOVE))
+								mission->Flags() |= MISSION_FLAG_REFRESH_PATH | MISSION_FLAG_MOVE;
+							mission->setMoveData( Math::Max(maxdist * 7 / 80, (tsize + 7) >> 3) );
 							mission->setLastD(0.0f);
 						}
 						else if (!(mission->getFlags() & MISSION_FLAG_MOVE))
