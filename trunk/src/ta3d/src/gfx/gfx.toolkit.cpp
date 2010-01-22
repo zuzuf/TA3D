@@ -564,13 +564,15 @@ namespace TA3D
 
 	void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col)
 	{
-		r *= r;
+		int r2 = r * r;
+		int my = Math::Max(-r, -y);
+		int My = Math::Min(r, bmp->h - 1 - y);
 		switch(bmp->format->BitsPerPixel)
 		{
 			case 8:
-				for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+				for (int sy = my ; sy <= My ; ++sy)
 				{
-					int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+					int dx = int(sqrtf(float(r2 - sy * sy)));
 					int ax = Math::Max(x - dx, 0);
 					int bx = Math::Min(x + dx, bmp->w - 1);
 					memset((byte*)bmp->pixels + ax + (y + sy) * bmp->pitch, col, bx - ax + 1);
@@ -579,9 +581,9 @@ namespace TA3D
 			case 16:
 				{
 					uint16 col16 = uint16(col);
-					for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+					for (int sy = my ; sy <= My ; ++sy)
 					{
-						int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+						int dx = int(sqrtf(float(r - sy * sy)));
 						int ax = Math::Max(x - dx, 0);
 						int bx = Math::Min(x + dx, bmp->w - 1);
 						uint16 *p = (uint16*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 1);
@@ -595,9 +597,9 @@ namespace TA3D
 					byte colb = getb32(col);
 					byte colg = getg32(col);
 					byte colr = getr32(col);
-					for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+					for (int sy = my ; sy <= My ; ++sy)
 					{
-						int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+						int dx = int(sqrtf(float(r - sy * sy)));
 						int ax = Math::Max(x - dx, 0);
 						int bx = Math::Min(x + dx, bmp->w - 1);
 						byte *p = (byte*)bmp->pixels + ax * 3 + (y + sy) * bmp->pitch;
@@ -611,9 +613,9 @@ namespace TA3D
 				}
 				break;
 			case 32:
-				for (int sy = Math::Max(-y, 0) ; sy <= Math::Min(y, bmp->h - 1) ; ++sy)
+				for (int sy = my ; sy <= My ; ++sy)
 				{
-					int dx = (int)trunc(sqrtf(float(r - sy * sy)));
+					int dx = int(sqrtf(float(r - sy * sy)));
 					int ax = Math::Max(x - dx, 0);
 					int bx = Math::Min(x + dx, bmp->w - 1);
 					uint32 *p = (uint32*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 2);
