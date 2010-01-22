@@ -34,6 +34,7 @@
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include "gui/base.h"
+#include <backtrace.h>
 
 
 
@@ -470,6 +471,8 @@ namespace TA3D
 		{
 			LOG_ERROR(LOG_PREFIX_GFX << "Impossible to set OpenGL video mode!");
 			LOG_ERROR(LOG_PREFIX_GFX << "SDL_GetError() = " << SDL_GetError());
+			criticalMessage(String("Impossible to set OpenGL video mode! SDL_GetError() = '") << SDL_GetError() << "'");
+			exit(1);
 			return;
 		}
 
