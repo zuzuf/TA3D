@@ -88,9 +88,9 @@ __this.Killed = function(this, severity)
 
 	if severity <= 99 then
 		this:explode( barrel, BITMAPONLY + BITMAP1 )
-		this:explode( base, BITMAPONLY + BITMAP )
+		this:explode( base, BITMAPONLY + BITMAP2 )
 		this:explode( flare, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP3 )
-		this:explode( sleeve, SHATTER + BITMAP )
+		this:explode( sleeve, SHATTER + BITMAP4 )
 		this:explode( turret, FALL + SMOKE + FIRE + EXPLODE_ON_HIT + BITMAP5 )
 		return 3
 	end
