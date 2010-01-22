@@ -509,15 +509,17 @@ namespace TA3D
 				bool canattack = false;
 				bool canreclamate = false;
 				bool canresurrect = false;
+				bool canguard = false;
 				for (unsigned int e = 0; e < units.index_list_size; ++e)
 				{
 					int i = units.idx_list[e];
 					if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 					{
-						builders|=unit_manager.unit_type[units.unit[i].type_id]->Builder;
-						canattack|=unit_manager.unit_type[units.unit[i].type_id]->canattack;
-						canreclamate|=unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
-						canresurrect|=unit_manager.unit_type[units.unit[i].type_id]->canresurrect;
+						builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
+						canattack |= unit_manager.unit_type[units.unit[i].type_id]->canattack;
+						canreclamate |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
+						canresurrect |= unit_manager.unit_type[units.unit[i].type_id]->canresurrect;
+						canguard |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
 					}
 				}
 				int pointing = 0;
@@ -619,6 +621,14 @@ namespace TA3D
 						target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
 						order_removed = units.remove_order(players.local_human_id, target);
 					}
+
+					if (cursor_type == CURSOR_MOVE
+						&& canguard
+						&& pointing != cur_sel_index
+						&& units.unit[pointing].owner_id == players.local_human_id)
+						cursor_type = CURSOR_GUARD;
+					else if (pointing == cur_sel_index)
+						cursor_type = CURSOR_CROSS;
 
 					if (click_activation && !order_removed)
 					{
