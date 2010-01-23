@@ -181,6 +181,7 @@ namespace TA3D
 			if ( (String() << (int)lp_CONFIG->fps_limit) == *i )
 				config_area.caption("*.fps_limit", *i);
 		}
+		config_area.set_value("*.interface_transparency", int(lp_CONFIG->menuTransparency * 255.0f));
 		config_area.set_value("*.shadow_map_size", lp_CONFIG->shadowmap_size);
 		config_area.set_state("*.grab_inputs", lp_CONFIG->grab_inputs);
 		config_area.set_value("*.sound_volume", lp_CONFIG->sound_volume);
@@ -450,6 +451,7 @@ namespace TA3D
 				lp_CONFIG->music_volume = config_area.get_value("*.music_volume");
 				sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 			}
+			lp_CONFIG->menuTransparency = float(config_area.get_value("*.interface_transparency") / 255.0f);
 			lp_CONFIG->shadowmap_size = uint8(config_area.get_value("*.shadow_map_size"));
 			lp_CONFIG->far_sight = config_area.get_state("*.far_sight");
 			lp_CONFIG->anisotropy = sint16(config_area.get_value("*.anisotropy"));

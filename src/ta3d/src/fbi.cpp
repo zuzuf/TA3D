@@ -1049,7 +1049,7 @@ namespace TA3D
 		bool nothing = index < -1 || index>=nb_unit;
 
 		gfx->ReInitTexSys();
-		glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
 		if (GUI)
 		{
 			if (panel.tex && nothing)
@@ -1075,7 +1075,7 @@ namespace TA3D
 			}
 
 			glDisable(GL_TEXTURE_2D);
-			glColor4ub(0x0, 0x0, 0x0, 0xBF);
+			glColor4ub(0x0, 0x0, 0x0, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
 			glBegin(GL_QUADS);
 			glVertex2i(0, 0);			// Barre latérale gauche
 			glVertex2i(128, 0);
@@ -1087,7 +1087,7 @@ namespace TA3D
 			glVertex2i(128, SCREEN_H);
 			glVertex2i(0, SCREEN_H);
 			glEnd();
-			glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
+			glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
 			return 0;
 		}
 

@@ -55,6 +55,8 @@ namespace TA3D
 
 	TA3DCONFIG::TA3DCONFIG()
 	{
+		menuTransparency = 0.0f;
+
 		first_start = false;
 
 		no_sound = false;
