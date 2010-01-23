@@ -6,7 +6,7 @@
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <sounds/manager.h>
-
+#include <console.h>
 
 
 namespace TA3D
@@ -605,6 +605,19 @@ namespace TA3D
                }
                else if (params[0] == "metal") cheat_metal ^= true;	 // cheat codes
                else if (params[0] == "energy") cheat_energy ^= true; // cheat codes
+			   else if (params[0] == "interface")
+			   {
+				   if (params.size() >= 2)
+				   {
+					   if (params[1] == "transparency")
+					   {
+						   if (params.size() == 3)
+							   lp_CONFIG->menuTransparency = Math::Clamp(params[2].to<float>(), 0.0f, 1.0f);
+						   else
+							   console.addEntry(String("interface transparency = ") << lp_CONFIG->menuTransparency);
+					   }
+				   }
+			   }
                // ---------------    Debug commands    ---------------
                else if (params[0] == "lua" && params.size() > 1)
                {

@@ -93,6 +93,7 @@ namespace Settings
 			<< "     Camera Default Angle = " << TA3D::VARS::lp_CONFIG->camera_def_angle << ";\n"
 			<< "    Camera Default Height = " << TA3D::VARS::lp_CONFIG->camera_def_h << ";\n"
 			<< "        Camera Zoom Speed = " << TA3D::VARS::lp_CONFIG->camera_zoom_speed << ";\n"
+			<< "   Interface Transparency = " << TA3D::VARS::lp_CONFIG->menuTransparency << "; // 0 -> fully opaque, 1 -> fully transparent, default : 0\n"
 			<< "                     Skin = " << TA3D::VARS::lp_CONFIG->skin_name << ";\n"
 			<< "        Use Texture Cache = " << TA3D::VARS::lp_CONFIG->use_texture_cache << ";\n"
 			<< "               Net Server = " << TA3D::VARS::lp_CONFIG->net_server << "; // default: " << TA3D_DEFAULT_SERVER_HOSTNAME << "\n"
@@ -186,6 +187,8 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->camera_def_angle = cfgFile.pullAsFloat("TA3D.Camera Default Angle", 63.44f);
 		TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile.pullAsFloat("TA3D.Camera Default Height", 200.0f);
 		TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile.pullAsFloat("TA3D.Camera Zoom Speed", 1.0f);
+
+		TA3D::VARS::lp_CONFIG->menuTransparency = cfgFile.pullAsFloat("TA3D.Interface Transparency", 0.0f);
 
 		TA3D::VARS::lp_CONFIG->use_texture_cache = cfgFile.pullAsBool("TA3D.Use Texture Cache", false);
 
