@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=159;
+	number of objects=158;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1517,19 +1517,7 @@
 		y2=595;
 		value=0;
 	}
-	[object153]		// advertise ?
-	{
-		name=advertise;
-		type=OPTIONB;
-		x1=465;
-		y1=111;
-		caption=Advertise on Internet;
-		help=enable if you want to be\nvisible from Internet;
-		size=2;
-		hidden=true;
-		value=0;
-	}
-	[object154]		// team line
+	[object153]		// team line
 	{
 		name=l_team;
 		type=LINE;
@@ -1539,7 +1527,7 @@
 		y2=606;
 		value=0xFF7F7F7F;
 	}
-	[object155]		// team0
+	[object154]		// team0
 	{
 		name=team0;
 		type=MULTISTATE;
@@ -1549,7 +1537,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object156]		// team1
+	[object155]		// team1
 	{
 		name=team1;
 		type=MULTISTATE;
@@ -1559,7 +1547,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object157]		// team2
+	[object156]		// team2
 	{
 		name=team2;
 		type=MULTISTATE;
@@ -1569,7 +1557,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object158]		// team3
+	[object157]		// team3
 	{
 		name=team3;
 		type=MULTISTATE;
