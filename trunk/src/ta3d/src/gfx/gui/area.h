@@ -254,7 +254,7 @@ namespace Gui
 		** \param msg
 		** \return
 		*/
-		virtual uint32 InterfaceMsg(const lpcImsg msg);
+		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg);
 
 		/*!
 		** \brief Same as get_object, but not thread-safe

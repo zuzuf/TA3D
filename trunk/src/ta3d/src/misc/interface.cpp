@@ -79,29 +79,19 @@ namespace TA3D
     }
 
 
-    void IInterfaceManager::DispatchMsg(const lpcImsg msg)
+	void IInterfaceManager::DispatchMsg(const uint32 mID, const String &msg)
     {
-        pMutex.lock();
-        for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)
-        {
-            if( (*cur)->InterfaceMsg( msg ) == INTERFACE_RESULT_HANDLED )
-            {
-                pMutex.unlock();
-                return;
-            }
-        }
-        pMutex.unlock();
-    }
-
-
-    void IInterfaceManager::DispatchMsg(const uint32 mID, void* a, void* b, void* c)
-    {
-        pMutex.lock();
-        IInterfaceMessage *cimsg = new IInterfaceMessage( mID, a, b, c );
-        DispatchMsg( cimsg );
-		delete cimsg;
-        pMutex.unlock();
-    }
+		pMutex.lock();
+		for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)
+		{
+			if ((*cur)->InterfaceMsg( mID, msg ) == INTERFACE_RESULT_HANDLED)
+			{
+				pMutex.unlock();
+				return;
+			}
+		}
+		pMutex.unlock();
+	}
 
 
 

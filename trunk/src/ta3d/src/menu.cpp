@@ -312,7 +312,7 @@ namespace TA3D
 		}
 
 		if (lp_CONFIG->quickstart)
-			I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.show"), NULL, NULL);
+			I_Msg( TA3D::TA3D_IM_GUI_MSG, "config_confirm.show");
 
 		bool done = false;
 		bool save = false;
@@ -360,7 +360,7 @@ namespace TA3D
 			{
 				if (time_out || config_area.get_state("config_confirm.b_cancel_changes" ) || key[KEY_ESC])
 				{
-					I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL);
+					I_Msg( TA3D::TA3D_IM_GUI_MSG, "config_confirm.hide");
 					TA3D::Settings::Restore(TA3D::Paths::ConfigFile);
 					TA3D::Settings::Load();
 					done = true;
@@ -373,7 +373,7 @@ namespace TA3D
 				else
 					if (config_area.get_state("config_confirm.b_confirm"))
 					{
-						I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL);
+						I_Msg( TA3D::TA3D_IM_GUI_MSG, "config_confirm.hide");
 						lp_CONFIG->quickstart = false;
 						saved_config.quickstart = false;
 						TA3D::Settings::Save();             // Keep settings :)

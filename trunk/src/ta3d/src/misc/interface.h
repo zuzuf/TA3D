@@ -19,10 +19,10 @@
 # define __TA3D_I_INTERFACES_H__
 
 # include <threads/thread.h>
+# include <stdafx.h>
 
 
-# define I_Msg( x, xx,xxx,xxxx ) InterfaceManager->DispatchMsg( x,xx,xxx,xxxx )
-# define I_sMsg( x ) InterfaceManager->DispatchMsg( x )
+# define I_Msg( x, xx ) InterfaceManager->DispatchMsg( x, xx )
 
 
 namespace TA3D
@@ -35,9 +35,10 @@ namespace TA3D
 
 	enum TA3D_INTERFACE_MESSAGES
 	{
-		TA3D_IM_DEBUG_MSG,
-		TA3D_IM_GFX_MSG,
-		TA3D_IM_GUI_MSG
+		TA3D_IM_DEBUG_MSG	= 0x01,
+		TA3D_IM_GFX_MSG		= 0x02,
+		TA3D_IM_GUI_MSG		= 0x04,
+		TA3D_IM_ANY_MSG		= 0xFFFFFFFF
 	};
 
 	enum INTERFACE_RESULT
@@ -46,20 +47,6 @@ namespace TA3D
 		INTERFACE_RESULT_CONTINUE = 1
 	//	INTERFACE_RESULT_IGNORE_THIS_MSG =2
 	};
-
-	typedef struct IInterfaceMessage
-	{
-		IInterfaceMessage(const uint32 mid, void *a, void *b, void *c )
-            :MsgID(mid), lpParm1(a), lpParm2(b), lpParm3(c)
-		{}
-
-		const uint32 MsgID;
-
-		void* lpParm1;
-		void* lpParm2;
-		void* lpParm3;
-	} cIMsg, *lpcImsg;
-
 
 
 	class IInterface
@@ -81,7 +68,7 @@ namespace TA3D
         ** \param msg The received message
         ** \return The return status
         */
-		virtual uint32 InterfaceMsg(const lpcImsg msg) = 0;
+		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg) = 0;
 
 	}; // class IInterface
 
@@ -105,17 +92,15 @@ namespace TA3D
         /*!
         ** \brief Dispatch a message (from its ID) to all registered interfaces
         **
-        ** The broadcast of the message when an interface returns
+		** The broadcast of the message ends when an interface returns
         ** `INTERFACE_RESULT_HANDLED`.
         **
         ** \param mID ID of the message
-        ** \param a Parameter 1
-        ** \param b Parameter 2
-        ** \param c Parameter 3
+		** \param msg Parameter
         **
         ** \see IInterface::InterfaceMsg()
         */
-		void DispatchMsg(const uint32 mID, void* a, void* b, void* c);
+		void DispatchMsg(const uint32 mID, const String &msg);
 
 	private:
         /*!
@@ -131,18 +116,6 @@ namespace TA3D
         ** \warning The parameter `i` must not be null
         */
 		void RemoveInterface(IInterface* i);
-
-        /*!
-        ** \brief Dispatch message to all registered interfaces
-        **
-        ** The broadcast of the message when an interface returns
-        ** `INTERFACE_RESULT_HANDLED`.
-        **
-        ** \param msg Message to broadcast
-        **
-        ** \see IInterface::InterfaceMsg()
-        */
-		void DispatchMsg(const lpcImsg msg);
 
     private:
 		friend class IInterface;

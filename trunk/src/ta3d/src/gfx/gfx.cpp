@@ -2136,9 +2136,9 @@ namespace TA3D
 	}
 
 
-	uint32 GFX::InterfaceMsg(const lpcImsg msg)
+	uint32 GFX::InterfaceMsg(const uint32 MsgID, const String &msg)
 	{
-		if (msg->MsgID != TA3D_IM_GFX_MSG )
+		if (MsgID != TA3D_IM_GFX_MSG)
 			return INTERFACE_RESULT_CONTINUE;
 		return INTERFACE_RESULT_CONTINUE;
 	}

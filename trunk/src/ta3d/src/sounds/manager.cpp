@@ -777,16 +777,15 @@ namespace Audio
 	}
 
 
-	uint32 Manager::InterfaceMsg(const lpcImsg msg)
+	uint32 Manager::InterfaceMsg(const uint32 MsgID, const String &msg)
 	{
-		if (msg->MsgID == TA3D_IM_GUI_MSG)	// for GUI messages, test if it's a message for us
+		if (MsgID == TA3D_IM_GUI_MSG)	// for GUI messages, test if it's a message for us
 		{
-			if (msg->lpParm1 == NULL)
+			if (msg.empty())
 				return INTERFACE_RESULT_HANDLED; // Oups badly written things
 
 			// Get the string associated with the signal
-			String message((char*)msg->lpParm1);
-			message.toLower();
+			String message(String::ToLower(msg));
 
 			if (message == "music play")
 			{
@@ -866,7 +865,6 @@ namespace Audio
 		// if its already loaded return true.
 		if (pSoundList.count(filename) != 0)
 		{
-			//I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("sound file %s is already loaded\n",(char *)filename.c_str()).c_str(), NULL, NULL );
 			return true;
 		}
 

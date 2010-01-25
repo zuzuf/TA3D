@@ -426,12 +426,12 @@ namespace Gui
 	}
 
 
-	uint32 AREA::InterfaceMsg(const lpcImsg msg)
+	uint32 AREA::InterfaceMsg(const uint32 MsgID, const String &msg)
 	{
-		if (msg->MsgID != TA3D_IM_GUI_MSG) // Only GUI messages
+		if (MsgID != TA3D_IM_GUI_MSG) // Only GUI messages
 			return INTERFACE_RESULT_CONTINUE;
 
-		if (msg->lpParm1 == NULL)
+		if (msg.empty())
 		{
 			LOG_ERROR("AREA : bad format for interface message!");
 			return INTERFACE_RESULT_HANDLED;		// Oups badly written things
@@ -440,7 +440,7 @@ namespace Gui
 		if (this != current())              // It's not for us
 			return INTERFACE_RESULT_CONTINUE;
 
-		return this->msg((char*) msg->lpParm1);
+		return this->msg(msg);
 	}
 
 

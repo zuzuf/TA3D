@@ -337,7 +337,7 @@ namespace TA3D
 
 
 	private:
-		uint32 InterfaceMsg(const lpcImsg msg);
+		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg);
 
 		void preCalculations();
 		void initSDL();
