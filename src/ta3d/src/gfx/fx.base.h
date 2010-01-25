@@ -21,7 +21,6 @@
 # include <misc/vector.h>
 # include <gaf.h>
 # include <ta3dbase.h>
-# include <EngineClass.h>
 # include <misc/camera.h>
 
 
@@ -65,7 +64,7 @@ namespace TA3D
         ** \param map
         ** \param anims
         */
-        void draw(Camera& cam, MAP *map, Gaf::Animation** anims);
+		void draw(Camera& cam, Gaf::Animation** anims);
 
 
     public:
@@ -82,7 +81,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        bool doCanDrawAnim(MAP* map) const;
+		bool doCanDrawAnim() const;
 
         /*!
         ** \brief

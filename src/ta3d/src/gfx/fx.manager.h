@@ -22,13 +22,12 @@
 # include <threads/thread.h>
 # include <gaf.h>
 # include <ta3dbase.h>
-# include <EngineClass.h>
 # include "fx.base.h"
 # include "fx.particle.h"
 # include "fx.electric.h"
 # include <list>
 # include <misc/camera.h>
-
+# include <mesh/mesh.h>
 
 
 namespace TA3D
@@ -83,7 +82,7 @@ namespace TA3D
         ** \param w_lvl
         ** \param UW
         */
-        void draw(Camera& cam, MAP *map, float w_lvl = 0.0f, bool UW = false);
+		void draw(Camera& cam, float w_lvl = 0.0f, bool UW = false);
 
         /*!
         ** \brief

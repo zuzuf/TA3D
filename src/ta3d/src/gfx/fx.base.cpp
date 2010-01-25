@@ -19,6 +19,7 @@
 #include "fx.manager.h"
 #include <logs/logs.h>
 #include <ingame/players.h>
+#include <EngineClass.h>
 
 
 
@@ -222,21 +223,21 @@ namespace TA3D
     }
 
 
-    bool FX::doCanDrawAnim(MAP* map) const
+	bool FX::doCanDrawAnim() const
     {
-        int px = (int)(Pos.x + map->map_w * 0.5f) >> 4;
-        int py = (int)(Pos.z + map->map_h * 0.5f) >> 4;
-        if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
+		int px = (int)(Pos.x + the_map->map_w * 0.5f) >> 4;
+		int py = (int)(Pos.z + the_map->map_h * 0.5f) >> 4;
+		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
             return false;
         byte player_mask = 1 << players.local_human_id;
-        return ! (((map->view[py][px] != 1 || !(SurfaceByte(map->sight_map, px, py) & player_mask))
+		return ! (((the_map->view[py][px] != 1 || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))
            && (anm > -2 || anm < -4)));
     }
 
 
-    void FX::draw(Camera& cam, MAP *map, Gaf::Animation** anims)
+	void FX::draw(Camera& cam, Gaf::Animation** anims)
     {
-        if(!playing || (map && !doCanDrawAnim(map)))
+		if(!playing || !doCanDrawAnim())
             return;
         switch (anm)
         {

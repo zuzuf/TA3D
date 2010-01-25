@@ -139,7 +139,7 @@ namespace TA3D
 				refcam.setView();
 				glClipPlane(GL_CLIP_PLANE1, eqn);
 				// Effets spéciaux en surface / fx above water
-				fx_manager.draw(refcam, map.get(), map->sealvl);
+				fx_manager.draw(refcam, map->sealvl);
 			}
 
 			glDisable(GL_CLIP_PLANE1);
@@ -260,7 +260,7 @@ namespace TA3D
 		if (map->water)
 		{
 			// Effets spéciaux sous-marins / Draw fx which are under water
-			fx_manager.draw(cam, map.get(), map->sealvl, true);
+			fx_manager.draw(cam, map->sealvl, true);
 
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			gfx->ReInitAllTex(true);
@@ -1004,8 +1004,8 @@ namespace TA3D
 		particle_engine.draw(&cam,map->map_w,map->map_h,map->bloc_w,map->bloc_h,map->view);	// Dessine les particules
 
 		if (!map->water)
-			fx_manager.draw(cam, map.get(), map->sealvl, true);		// Effets spéciaux en surface
-		fx_manager.draw(cam, map.get(), map->sealvl);		// Effets spéciaux en surface
+			fx_manager.draw(cam, map->sealvl, true);		// Effets spéciaux en surface
+		fx_manager.draw(cam, map->sealvl);		// Effets spéciaux en surface
 	}
 
 	void Battle::renderScene()

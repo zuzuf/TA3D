@@ -19,6 +19,7 @@
 #include <misc/math.h>
 #include <mesh/instancing.h>         // Because we need the RenderQueue object
 #include <ingame/players.h>
+#include <EngineClass.h>
 
 
 namespace TA3D
@@ -257,7 +258,7 @@ namespace TA3D
 		init();
 	}
 
-	void FXManager::draw(Camera& cam, MAP *map, float w_lvl, bool UW)
+	void FXManager::draw(Camera& cam, float w_lvl, bool UW)
 	{
 		pMutex.lock();
 
@@ -286,7 +287,7 @@ namespace TA3D
 			for(int i = 0 ; i < max_fx ; ++i)
 			{
 				if (fx[i].playing && fx[i].Pos.y < w_lvl)
-					fx[i].draw(cam, map, cache_anm);
+					fx[i].draw(cam, cache_anm);
 			}
 		}
 		else
@@ -294,7 +295,7 @@ namespace TA3D
 			for(int i = 0; i < max_fx; ++i)
 			{
 				if (fx[i].playing && fx[i].Pos.y >= w_lvl)
-					fx[i].draw(cam, map, cache_anm);
+					fx[i].draw(cam, cache_anm);
 			}
 		}
 		glDisable(GL_POLYGON_OFFSET_FILL);
