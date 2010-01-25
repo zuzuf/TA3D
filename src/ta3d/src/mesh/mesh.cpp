@@ -1251,7 +1251,7 @@ namespace TA3D
 					min_x = max_x = points[0].x;
 					min_y = max_y = points[0].y;
 					min_z = max_z = points[0].z;
-					for (short i = 1; i < nb_vtx ; ++i)
+					for (int i = 1; i < nb_vtx ; ++i)
 					{
 						min_x = Math::Min(min_x, points[i].x);
 						max_x = Math::Max(max_x, points[i].x);
@@ -1260,12 +1260,12 @@ namespace TA3D
 						min_z = Math::Min(min_z, points[i].z);
 						max_z = Math::Max(max_z, points[i].z);
 					}
-					min_x -= 0.1f;
-					max_x += 0.1f;
-					min_y -= 0.1f;
-					max_y += 0.1f;
-					min_z -= 0.1f;
-					max_z += 0.1f;
+					min_x -= 1.0f;
+					max_x += 1.0f;
+					min_y -= 1.0f;
+					max_y += 1.0f;
+					min_z -= 1.0f;
+					max_z += 1.0f;
 				}
 
 				// Collision detector using boxes
@@ -1278,45 +1278,69 @@ namespace TA3D
 				}
 				else
 				{
-					if (!Yuni::Math::Zero(Dir.x)) // 2 x planes
+					if ((min_x - Pos.x) * Dir.x > 0.0f) // 2 x planes
 					{
-						MP = Pos + ( (min_x - Pos.x) / Dir.x) * Dir;
-						if (MP.y >= min_y && MP.y <= max_y && MP.z >= min_z && MP.z <= max_z )
-							is_hit = true;
-						else
+						Vector3D IP = Pos + ((min_x - Pos.x) / Dir.x) * Dir;
+						if (IP.y >= min_y && IP.y <= max_y && IP.z >= min_z && IP.z <= max_z)
 						{
-							MP = Pos + ( (max_x - Pos.x) / Dir.x) * Dir;
-							if (MP.y >= min_y && MP.y <= max_y && MP.z >= min_z && MP.z <= max_z )
-								is_hit = true;
+							if (!is_hit || (IP - MP) % Dir < 0.0f)
+								MP = IP;
+							is_hit = true;
 						}
 					}
-					if (!is_hit && !Yuni::Math::Zero(Dir.y))// 2 y planes
+					if ((max_x - Pos.x) * Dir.x > 0.0f) // 2 x planes
 					{
-						MP = Pos + ( (min_y - Pos.y) / Dir.y) * Dir;
-						if (MP.x >= min_x && MP.x <= max_x && MP.z >= min_z && MP.z <= max_z )
-							is_hit = true;
-						else
+						Vector3D IP = Pos + ((max_x - Pos.x) / Dir.x) * Dir;
+						if (IP.y >= min_y && IP.y <= max_y && IP.z >= min_z && IP.z <= max_z)
 						{
-							MP = Pos + ( (max_y - Pos.y) / Dir.y) * Dir;
-							if (MP.x >= min_x && MP.x <= max_x && MP.z >= min_z && MP.z <= max_z )
-								is_hit = true;
+							if (!is_hit || (IP - MP) % Dir < 0.0f)
+								MP = IP;
+							is_hit = true;
 						}
 					}
-					if (!is_hit && !Yuni::Math::Zero(Dir.z))// 2 z planes
+					if ((min_y - Pos.y) * Dir.y > 0.0f)// 2 y planes
 					{
-						MP = Pos + ( (min_z - Pos.z) / Dir.z) * Dir;
-						if (MP.y >= min_y && MP.y <= max_y && MP.x >= min_x && MP.x <= max_x )
-							is_hit = true;
-						else
+						Vector3D IP = Pos + ((min_y - Pos.y) / Dir.y) * Dir;
+						if (IP.x >= min_x && IP.x <= max_x && IP.z >= min_z && IP.z <= max_z)
 						{
-							MP = Pos + ( (max_z - Pos.z) / Dir.z) * Dir;
-							if (MP.y >= min_y && MP.y <= max_y && MP.x >= min_x && MP.x <= max_x )
-								is_hit = true;
+							if (!is_hit || (IP - MP) % Dir < 0.0f)
+								MP = IP;
+							is_hit = true;
+						}
+					}
+					if ((max_y - Pos.y) * Dir.y > 0.0f)// 2 y planes
+					{
+						Vector3D IP = Pos + ((max_y - Pos.y) / Dir.y) * Dir;
+						if (IP.x >= min_x && IP.x <= max_x && IP.z >= min_z && IP.z <= max_z)
+						{
+							if (!is_hit || (IP - MP) % Dir < 0.0f)
+								MP = IP;
+							is_hit = true;
+						}
+					}
+					if ((min_z - Pos.z) * Dir.z > 0.0f)// 2 z planes
+					{
+						Vector3D IP = Pos + ((min_z - Pos.z) / Dir.z) * Dir;
+						if (IP.y >= min_y && IP.y <= max_y && IP.x >= min_x && IP.x <= max_x)
+						{
+							if (!is_hit || (IP - MP) % Dir < 0.0f)
+								MP = IP;
+							is_hit = true;
+						}
+					}
+					if ((max_z - Pos.z) * Dir.z > 0.0f)// 2 z planes
+					{
+						Vector3D IP = Pos + ((max_z - Pos.z) / Dir.z) * Dir;
+						if (IP.y >= min_y && IP.y <= max_y && IP.x >= min_x && IP.x <= max_x)
+						{
+							if (!is_hit || (IP - MP) % Dir < 0.0f)
+								MP = IP;
+							is_hit = true;
 						}
 					}
 				}
 			}
-			if (child && !is_hit)
+			if (child)
 			{
 				Vector3D MP2;
 				bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
@@ -1330,7 +1354,7 @@ namespace TA3D
 			if (is_hit)
 				MP = (MP * AM) + T;
 		}
-		if (next && !is_hit)
+		if (next)
 		{
 			Vector3D MP2;
 			bool nhit = next->hit_fast( OPos, ODir, data_s, &MP2);
