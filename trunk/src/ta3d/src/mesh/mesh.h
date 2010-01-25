@@ -333,13 +333,13 @@ namespace TA3D
         /*!
         ** \brief
         */
-        int hit(Vector3D &Pos, Vector3D &Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
+		int hit(const Vector3D &Pos, const Vector3D &Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
         { return mesh->hit(Pos,Dir,data_s,I,M); }
 
         /*!
         ** \brief
         */
-        bool hit_fast(Vector3D& Pos, Vector3D& Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
+		bool hit_fast(const Vector3D& Pos, const Vector3D& Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
         { return mesh->hit_fast(Pos,Dir*M,data_s,I); }
 
         /*!

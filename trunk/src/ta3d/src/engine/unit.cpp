@@ -4497,7 +4497,7 @@ script_exec:
 
 
 
-	bool Unit::hit(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
+	bool Unit::hit(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, float length)
 	{
 		pMutex.lock();
 		if (!(flags&1))
@@ -4507,8 +4507,8 @@ script_exec:
 		}
 		if (model)
 		{
-			Vector3D c_dir=model->center+Pos-P;
-			if (c_dir.norm()-length <=model->size2 )
+			Vector3D c_dir = model->center + Pos - P;
+			if (c_dir.norm() - length <= model->size2)
 			{
                 UnitType *pType = unit_manager.unit_type[type_id];
                 float scale=pType->Scale;
@@ -4531,24 +4531,27 @@ script_exec:
 		return false;
 	}
 
-	bool Unit::hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
+	bool Unit::hit_fast(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, float length)
 	{
 		pMutex.lock();
-		if (!(flags&1))	{
+		if (!(flags&1))
+		{
 			pMutex.unlock();
 			return false;
 		}
 		if (model)
 		{
-			Vector3D c_dir = model->center+Pos-P;
-			if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
+			Vector3D c_dir = model->center + Pos - P;
+			if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ))
+			{
                 UnitType *pType = unit_manager.unit_type[type_id];
                 float scale = pType->Scale;
 				//            Matrix M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
 				Matrix M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
 				Vector3D RP = (P - Pos) * M;
 				bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
-				if (is_hit) {
+				if (is_hit)
+				{
 					//                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
 					*hit_vec = ((*hit_vec)*RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD))*Scale(scale)+Pos;
 					*hit_vec=((*hit_vec-P)%Dir)*Dir+P;
