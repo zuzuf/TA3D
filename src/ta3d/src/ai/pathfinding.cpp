@@ -202,6 +202,8 @@ namespace TA3D
 				{
 					pUnit->mission->Path().replaceWith(path);
 					pUnit->requesting_pathfinder = false;
+					if (pUnit->mission->Path().empty())					// Can't find a path to get where it has been ordered to go
+						pUnit->playSound("cant1");
 				}
 				pUnit->unlock();
 			}
