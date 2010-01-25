@@ -1701,9 +1701,6 @@ namespace TA3D
 //								launchScript(SCRIPT_StopMoving);
 //								was_moving = false;
 //							}
-//
-//							if (mission->Path().empty())					// Can't find a path to get where it has been ordered to go
-//								playSound("cant1");
 							}
 							if (!mission->Path().empty())// Update required data
 								Target = mission->Path().Pos();
@@ -1781,7 +1778,7 @@ namespace TA3D
 					J = Target;
 					computeHeadingBasedOnEnergy(J, mission->getFlags() & MISSION_FLAG_MOVE);
 				}
-				else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy && !requesting_pathfinder)
+				else if (!(mission->getFlags() & MISSION_FLAG_MOVE) && lastEnergy < energy && !requesting_pathfinder && local)
 				{
 					switch(mission->mission())
 					{
