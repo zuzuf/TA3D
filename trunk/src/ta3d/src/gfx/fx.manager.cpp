@@ -280,8 +280,6 @@ namespace TA3D
 		glDepthMask(GL_FALSE);
 		gfx->set_alpha_blending();
 		cam.setView(true);
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(0.0f,-1600.0f);
 		if (UW)
 		{
 			for(int i = 0 ; i < max_fx ; ++i)
@@ -298,8 +296,6 @@ namespace TA3D
 					fx[i].draw(cam, cache_anm);
 			}
 		}
-		glDisable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(0.0f,0.0f);
 		gfx->unset_alpha_blending();
 		glDepthMask(GL_TRUE);
 

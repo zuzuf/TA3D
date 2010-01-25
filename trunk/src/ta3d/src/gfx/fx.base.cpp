@@ -122,7 +122,6 @@ namespace TA3D
 
     void FX::doDrawAnimWave(const int animIndx)
     {
-        glPolygonOffset(0.0f, 0.0f);
         glBindTexture(GL_TEXTURE_2D, fx_manager.wave_tex[animIndx + 4]);
 
         glPushMatrix();
@@ -145,12 +144,10 @@ namespace TA3D
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glPopMatrix();
-        glPolygonOffset(0.0f, -1600.0f);
     }
 
     void FX::doDrawAnimRipple()
     {
-        glPolygonOffset(0.0f,0.0f);
         glBindTexture(GL_TEXTURE_2D, fx_manager.ripple_tex);
 
         glPushMatrix();
@@ -171,7 +168,6 @@ namespace TA3D
 
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glPopMatrix();
-        glPolygonOffset(0.0f, -1600.0f);
     }
 
     void FX::doDrawAnimDefault(Camera& cam, Gaf::Animation** anims)
@@ -212,6 +208,10 @@ namespace TA3D
         }
         else
         {
+			Vector3D vDir(-0.5f * (hsize + wsize) * cam.dir);
+			glTranslatef(vDir.x, vDir.y, vDir.z);
+			float s = 1.0f - 0.5f * (hsize + wsize) / (cam.pos - Pos).norm();
+			glScalef(s, s, s);
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f,0.0f); glVertex3f(  hux-wsx,  huy-wsy,  huz-wsz);
             glTexCoord2f(1.0f,0.0f); glVertex3f(  hux+wsx,  huy+wsy,  huz+wsz);
