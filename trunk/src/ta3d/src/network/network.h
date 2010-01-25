@@ -23,7 +23,7 @@
 # include <misc/string.h>
 # include "ta3dsock.h"
 # include "socket.broadcast.h"
-# include <misc/superqueue.h>
+# include <deque>
 # include <threads/thread.h>
 # include "networkutils.h"
 # include "socketlist.h"
@@ -105,13 +105,13 @@ namespace TA3D
 
         //these 5 things need to be syncronized with a mutex
         SockList players;
-        SuperQueue specialq;
-        SuperQueue chatq;
-        SuperQueue syncq;
-        SuperQueue eventq;
+		std::deque<chat> specialq;
+		std::deque<chat> chatq;
+		std::deque<sync> syncq;
+		std::deque<event> eventq;
 
-        std::list< String > broadcastq;
-        std::list< String > broadcastaddressq;
+		std::deque< String > broadcastq;
+		std::deque< String > broadcastaddressq;
 
         Mutex slmutex;
         Mutex mqmutex;

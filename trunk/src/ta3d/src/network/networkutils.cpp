@@ -112,7 +112,7 @@ namespace TA3D
 					}
 					if (packtype != 'A' && network->isServer())
 						chat.from = sockid;
-					network->specialq.enqueue(&chat);
+					network->specialq.push_back(chat);
 					network->xqmutex.unlock();
 					if (packtype == 'A' && network->isServer())
 						network->sendSpecial( &chat, sockid, -1, true );
@@ -124,7 +124,7 @@ namespace TA3D
 						network->cqmutex.unlock();
 						break;
 					}
-					network->chatq.enqueue(&chat);
+					network->chatq.push_back(chat);
 					network->cqmutex.unlock();
 					if( network->isServer() )
 						network->sendChat(&chat, sockid);
@@ -136,7 +136,7 @@ namespace TA3D
 						network->sqmutex.unlock();
 						break;
 					}
-					network->syncq.enqueue(&sync);
+					network->syncq.push_back(sync);
 					network->sqmutex.unlock();
 					if( network->isServer() )
 						network->sendSync(&sync, sockid);
@@ -148,7 +148,7 @@ namespace TA3D
 						network->eqmutex.unlock();
 						break;
 					}
-					network->eventq.enqueue(&event);
+					network->eventq.push_back(event);
 					network->eqmutex.unlock();
 					if( network->isServer() )
 						network->sendEvent(&event, sockid);
