@@ -5032,8 +5032,9 @@ script_exec:
 						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				}
 				else
-					printf("error: units overlaps on yardmap !!\n");
-
+				{
+					LOG_ERROR(LOG_PREFIX_BATTLE << "units overlaps on yardmap !!");
+				}
 			}
 			pMutex.unlock();
 

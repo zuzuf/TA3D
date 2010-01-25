@@ -518,7 +518,9 @@ namespace TA3D
 	int program_create_unit( lua_State *L )		// create_unit( player_id, unit_type_id, x, z )
 	{
 		int player_id = lua_tointeger( L, 1 );
-		int unit_type_id = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : lua_tointeger( L, 2 ) ;
+		int unit_type_id = !lua_isnumber( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : lua_tointeger( L, 2 ) ;
+		if (lua_isnumber(L, 2) && unit_type_id == -1)
+			unit_type_id = Math::RandomTable() % unit_manager.nb_unit;
 		float x = (float) lua_tonumber( L, 3 );
 		float z = (float) lua_tonumber( L, 4 );
 
