@@ -153,9 +153,6 @@ namespace TA3D
 
         void InitBroadcast(uint16 port);
 
-        int listNetGames(std::list<SERVER_DATA> &list);
-        int registerToNetServer( const String &name, const int Slots );
-
         int sendPing( int src_id = -1, int dst_id = -1 );
         int sendAll(const String& msg);
         int sendSpecial( String msg, int src_id = -1, int dst_id = -1);

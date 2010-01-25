@@ -653,8 +653,6 @@ namespace TA3D
 		TA3D::Settings::Save();             // Keep settings :)
 	}
 
-#define INTERNET_AD_COUNTDOWN       150000
-
 	void setup_game(bool client, const String& host, String saved_game, bool bNetServer)
 	{
 		int my_player_id = -1;
@@ -940,13 +938,8 @@ namespace TA3D
 			}
 		}
 
-		if (host.notEmpty() && !client && !bNetServer)
-			setupgame_area.msg("gamesetup.advertise.show");
-
 		int progress_timer = msec_timer;
 		int ping_timer = msec_timer;                    // Used to send simple PING requests in order to detect when a connection fails
-
-		int internet_ad_timer = msec_timer - INTERNET_AD_COUNTDOWN; // Resend every 150 sec
 
 		bool statusUpdateRequired = true;
 
@@ -1030,30 +1023,9 @@ namespace TA3D
 					break;
 			} while (amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 				&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped
-				&& ( (msec_timer - ping_timer < 2000 && (msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN || !advertise) ) || host.empty() || client ));
+				&& ( msec_timer - ping_timer < 2000 || host.empty() || client ));
 
 			//-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
-
-			if (setupgame_area.get_state( "gamesetup.advertise" ) != advertise)
-			{
-				advertise ^= true;
-				if (advertise)
-					internet_ad_timer = msec_timer - INTERNET_AD_COUNTDOWN;
-				else
-					network_manager.registerToNetServer(host, 0);
-			}
-
-			if (host.notEmpty() && !client && msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN && advertise) // Advertise the game on the Internet
-			{
-				internet_ad_timer = msec_timer; // Resend every 150 sec
-				uint16 nb_open = 0;
-				for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
-				{
-					if (setupgame_area.caption(String("gamesetup.name") << f) == player_str[2])
-						++nb_open;
-				}
-				network_manager.registerToNetServer(host, nb_open);
-			}
 
 			if (host.notEmpty() && !client && msec_timer - ping_timer >= 2000) // Send a ping request
 			{
@@ -1964,9 +1936,6 @@ namespace TA3D
 			poll_inputs();
 		}
 
-		if (network_manager.isServer() && advertise )
-			network_manager.registerToNetServer(host, 0);              // Tell the world we're gone
-
 		if (start_game)
 		{
 			if (!game_data.map_filename.empty() && !game_data.game_script.empty())
@@ -2032,7 +2001,6 @@ namespace TA3D
 		network_manager.InitBroadcast(1234);      // broadcast mode
 
 		int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
-		int internet_server_list_timer = msec_timer - INTERNET_AD_COUNTDOWN;
 
 		std::list< SERVER_DATA >    servers;                    // the server list
 
@@ -2058,7 +2026,7 @@ namespace TA3D
 			bool key_is_pressed = false;
 			do
 			{
-				key_is_pressed = msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN;
+				key_is_pressed = msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY;
 				networkgame_area.check();
 				key_is_pressed |= networkgame_area.key_pressed;
 				SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
@@ -2147,27 +2115,6 @@ namespace TA3D
 			{
 				refresh_all = true;
 				servers.clear();
-			}
-
-			if (msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN || refresh_all ) // Refresh server list
-			{
-				internet_server_list_timer = msec_timer;
-				network_manager.listNetGames( servers);
-
-				Gui::GUIOBJ::Ptr obj = networkgame_area.get_object("networkgame.server_list");
-				if (obj)
-				{
-					obj->Text.resize( servers.size());
-					String::List server_names;
-					for (std::list<SERVER_DATA>::iterator server_i = servers.begin(); server_i != servers.end(); ++server_i)        // Remove those who timeout
-						server_names.push_back( server_i->name);
-					server_names.sort();
-					int i = 0;
-					for (String::List::iterator server_i = server_names.begin(); server_i != server_names.end() ; ++server_i, ++i) // Remove those who timeout
-						obj->Text[i] = *server_i;
-					if (obj->Text.size() == 0)
-						obj->Text.push_back(I18N::Translate("No server found"));
-				}
 			}
 
 			if (msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || refresh_all) // Refresh server list
