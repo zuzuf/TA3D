@@ -3105,7 +3105,7 @@ namespace TA3D
 											target_unit->clear_from_map();
 											target_unit->lock();
 
-											Unit *new_unit = (Unit*) create_unit( target_unit->type_id, owner_id, target_unit->Pos, the_map);
+											Unit *new_unit = (Unit*) create_unit( target_unit->type_id, owner_id, target_unit->Pos);
 											if (new_unit)
 											{
 												new_unit->lock();
@@ -3226,7 +3226,7 @@ namespace TA3D
 										if (wreckage_type_id >= 0)
 										{
 											pMutex.unlock();
-											Unit *unit_p = (Unit*) create_unit( wreckage_type_id, owner_id, obj_pos, the_map );
+											Unit *unit_p = (Unit*) create_unit( wreckage_type_id, owner_id, obj_pos );
 
 											if (unit_p)
 											{
@@ -3883,7 +3883,7 @@ namespace TA3D
 													-1)) // Check if we have an empty place to build our unit
 								{
 									pMutex.unlock();
-									Unit *p = (Unit*)create_unit(mission->getData(), owner_id, mission->getTarget().getPos(), the_map);
+									Unit *p = (Unit*)create_unit(mission->getData(), owner_id, mission->getTarget().getPos());
 									if (p)
 										mission->getTarget().set(Mission::Target::TargetUnit, p->idx, p->ID);
 									pMutex.lock();
