@@ -187,7 +187,7 @@ namespace TA3D
 		uint32		*mini_col;			// Colors of units
 
 	private:
-		uint32		InterfaceMsg(const lpcImsg msg);	// Manage signals sent through the interface to unit manager
+		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg);	// Manage signals sent through the interface to unit manager
 
 	protected:
 		void	proc(void*);

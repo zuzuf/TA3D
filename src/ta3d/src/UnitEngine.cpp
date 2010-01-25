@@ -1665,14 +1665,14 @@ namespace TA3D
 
 
 
-	uint32 INGAME_UNITS::InterfaceMsg(const lpcImsg msg)
+	uint32 INGAME_UNITS::InterfaceMsg(const uint32 MsgID, const String &msg)
 	{
-		if (msg->MsgID == TA3D_IM_GUI_MSG )	// for GUI messages, test if it's a message for us
+		if (MsgID == TA3D_IM_GUI_MSG )	// for GUI messages, test if it's a message for us
 		{
-			if (msg->lpParm1 == NULL)
+			if (msg.empty())
 				return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-			String message((const char*) msg->lpParm1);				// Get the string associated with the signal
-			if (!message.toLower().empty())
+			String message(String::ToLower(msg));				// Get the string associated with the signal
+			if (!message.empty())
 			{
 				if (message == "pause game")
 				{
