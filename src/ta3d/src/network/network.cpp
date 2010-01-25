@@ -38,10 +38,10 @@ namespace TA3D
 
 	Network::Network() :
 		getfile_thread(), sendfile_thread(), transfer_progress(),
-		specialq(64,sizeof(struct chat)),
-		chatq(64,sizeof(struct chat)),
-		syncq(128,sizeof(struct sync)),
-		eventq(32,sizeof(struct event)),
+		specialq(),
+		chatq(),
+		syncq(),
+		eventq(),
 		broadcastq(), broadcastaddressq()
 	{
 		myMode = 0;
@@ -712,38 +712,42 @@ namespace TA3D
 
 	int Network::getNextSpecial(struct chat* chat)
 	{
-		int v;
-		xqmutex.lock();
-		v = specialq.dequeue(chat);
-		xqmutex.unlock();
-		return v;
+		MutexLocker mLock(xqmutex);
+		if (specialq.empty())
+			return -1;
+		*chat = specialq.front();
+		specialq.pop_front();
+		return 0;
 	}
 
 	int Network::getNextChat(struct chat* chat)
 	{
-		int v;
-		cqmutex.lock();
-		v = chatq.dequeue(chat);
-		cqmutex.unlock();
-		return v;
+		MutexLocker mLock(cqmutex);
+		if (chatq.empty())
+			return -1;
+		*chat = chatq.front();
+		chatq.pop_front();
+		return 0;
 	}
 
 	int Network::getNextSync(struct sync* sync)
 	{
-		int v;
-		sqmutex.lock();
-		v = syncq.dequeue(sync);
-		sqmutex.unlock();
-		return v;
+		MutexLocker mLock(sqmutex);
+		if (syncq.empty())
+			return -1;
+		*sync = syncq.front();
+		syncq.pop_front();
+		return 0;
 	}
 
 	int Network::getNextEvent(struct event* event)
 	{
-		int v;
-		eqmutex.lock();
-		v = eventq.dequeue(event);
-		eqmutex.unlock();
-		return v;
+		MutexLocker mLock(eqmutex);
+		if (eventq.empty())
+			return -1;
+		*event = eventq.front();
+		eventq.pop_front();
+		return 0;
 	}
 
 	String Network::getFile(int player, const String &filename)
@@ -807,14 +811,21 @@ namespace TA3D
 
 	void Network::cleanQueues()
 	{
-		struct chat		chat;
-		struct sync		sync;
-		struct event	event;
+		xqmutex.lock();
+		specialq.clear();
+		xqmutex.unlock();
 
-		while( getNextSpecial(&chat) == 0 )	{}
-		while( getNextChat(&chat) == 0 )	{}
-		while( getNextSync(&sync) == 0 )	{}
-		while( getNextEvent(&event) == 0 )	{}
+		cqmutex.lock();
+		chatq.clear();
+		cqmutex.unlock();
+
+		sqmutex.lock();
+		syncq.clear();
+		sqmutex.unlock();
+
+		eqmutex.lock();
+		eventq.clear();
+		eqmutex.unlock();
 
 		mqmutex.lock();
 		broadcastq.clear();
