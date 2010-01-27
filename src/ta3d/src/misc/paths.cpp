@@ -292,29 +292,7 @@ namespace TA3D
 
 		void RemoveDir(const String& p)
 		{
-			String::Vector list;
-			String s(p);
-			s << Paths::SeparatorAsString << '*';
-
-			// Remove files first
-			GlobFiles(list, s, false, false);
-			String::Vector::const_iterator end = list.end();
-			for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
-			{
-				LOG_WARNING("removing '" << *i << "'");
-				::remove(i->c_str());
-			}
-
-			// Remove subfolders
-			GlobDirs(list, s, false, false);
-			end = list.end();
-			for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
-				RemoveDir(*i);
-
-			s = p;
-			s.removeTrailingSlash();
-			LOG_WARNING("removing '" << p << "'");
-			::remove(s.c_str());
+			Yuni::Core::IO::Directory::Remove(p);
 		}
 
 

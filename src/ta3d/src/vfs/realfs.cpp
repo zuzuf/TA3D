@@ -4,7 +4,9 @@
 #include <misc/string.h>
 #include <logs/logs.h>
 #include "realfs.h"
-#include <cstdio>
+#include <yuni/core/io/file/stream.h>
+
+using namespace Yuni::Core::IO::File;
 
 namespace TA3D
 {
@@ -126,21 +128,21 @@ namespace TA3D
 
             unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
-            FILE *pFile = fopen(unixFilename.c_str(), "rb");
-            if (pFile == NULL)
+			Stream sFile(unixFilename, OpenMode::read);
+			if (!sFile.opened())
                 return NULL;
-            uint64 filesize(0);
+			uint64 filesize(0);
             if (!Paths::Files::Size(unixFilename, filesize))
             {
-                fclose(pFile);
+				sFile.close();
                 return NULL;
             }
             if (file_length)
                 *file_length = (uint32)filesize;
             byte *data = new byte[filesize + 1];
-            fread(data, filesize, 1, pFile);
+			sFile.read((char*)data, filesize);
             data[filesize] = 0;
-            fclose(pFile);
+			sFile.close();
             return data;
         }
 
@@ -163,22 +165,22 @@ namespace TA3D
 
             unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
-            FILE *pFile = fopen(unixFilename.c_str(), "rb");
-            if (pFile == NULL)
+			Stream sFile(unixFilename, OpenMode::read);
+			if (!sFile.opened())
                 return NULL;
             uint64 filesize(0);
             if (!Paths::Files::Size(unixFilename, filesize))
             {
-                fclose(pFile);
+				sFile.close();
                 return NULL;
             }
             if (file_length)
                 *file_length = (uint32)filesize;
             byte *data = new byte[filesize + 1];
-            fseek(pFile, start, SEEK_SET);
-            fread(data + start, Math::Min((uint32)(filesize - start), length), 1, pFile);
+			sFile.seekFromBeginning(start);
+			sFile.read((char*)data + start, Math::Min((uint32)(filesize - start), length));
             data[filesize] = 0;
-            fclose(pFile);
+			sFile.close();
             return data;
         }
 

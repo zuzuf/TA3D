@@ -4,7 +4,9 @@
 #include "http.h"
 #include <logs/logs.h>
 #include "socket.tcp.h"
-#include <fstream>
+#include <yuni/core/io/file/stream.h>
+
+using namespace Yuni::Core::IO::File;
 
 namespace TA3D
 {
@@ -42,12 +44,12 @@ namespace TA3D
 		char		buffer[4096];
 		String      realFilename = filename;
 		String      tmpFile = filename + ".part";
-		std::fstream f(tmpFile.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+		Stream		f(tmpFile, OpenMode::write);
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;
 
-		if (!f.is_open())
+		if (!f.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open file " << tmpFile << " for writing !");
 			return;        // Error can't open file
@@ -154,7 +156,7 @@ namespace TA3D
 				}
 				else
 				{
-					f.write( (char*)buffer, count );
+					f.write( (const char*)buffer, count );
 					pos += count;
 					size = Math::Max(size, pos);
 				}
@@ -293,12 +295,12 @@ namespace TA3D
 	{
 		SocketTCP   sock;
 		char        buffer[4096];
-		std::fstream f(filename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+		Stream		f(filename, OpenMode::write);
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;
 
-		if (!f.is_open())
+		if (!f.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open file " << filename << " for writing !");
 			return true;        // Error can't open file
@@ -367,13 +369,13 @@ namespace TA3D
 						{
 							/* i points to the second LF */
 							/* output the buffer to the file */
-							f.write( (char*)(buffer+i+1), count-i-1 );
+							f.write( (const char*)(buffer+i+1), count-i-1 );
 							break;
 						}
 					}
 				}
 				else
-					f.write( (char*)buffer, count );
+					f.write( (const char*)buffer, count );
 			}
 		}
 		sock.close();

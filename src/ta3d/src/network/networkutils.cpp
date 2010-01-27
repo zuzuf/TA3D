@@ -23,7 +23,9 @@
 #include "TA3D_Network.h"
 #include <logs/logs.h>
 #include <misc/paths.h>
+#include <yuni/core/io/file/stream.h>
 
+using namespace Yuni::Core::IO::File;
 
 
 
@@ -344,7 +346,6 @@ namespace TA3D
 	{
 		Network* network;
 		int sockid;
-		FILE* file;
 		String filename;
 		int length,n,sofar;
 
@@ -356,12 +357,12 @@ namespace TA3D
 
 		//blank file open for writing
 		filename = Paths::Resources + ((struct net_thread_params*)param)->filename;
-		file = TA3D_OpenFile( filename + ".part", "wb" );
+		Stream file( filename + ".part", OpenMode::write );
 
 		delete((struct net_thread_params*)param);
 		param = NULL;
 
-		if( file == NULL )
+		if (!file.opened())
 		{
 			LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << ".part'");
 			pDead = 1;
@@ -379,11 +380,11 @@ namespace TA3D
 			suspend(0);
 		memcpy(&length,buffer,4);
 
-		if( ready ) // Time out
+		if (ready) // Time out
 		{
 			LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (0)");
 			pDead = 1;
-			fclose( file );
+			file.close();
 			remove( (filename + ".part").c_str() );
 			network->setFileDirty();
 			DELETE_ARRAY(buffer);
@@ -404,7 +405,7 @@ namespace TA3D
 			{
 				LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (1)");
 				pDead = 1;
-				fclose( file );
+				file.close();
 				remove( (filename + ".part").c_str() );
 				network->setFileDirty();
 				DELETE_ARRAY(buffer);
@@ -419,7 +420,7 @@ namespace TA3D
 				sofar += buffer_size;
 				network->updateFileTransferInformation( String(filename) << sockid, length, sofar );
 
-				fwrite(buffer, 1, buffer_size, file);       // Write data
+				file.write((const char*)buffer, buffer_size);       // Write data
 
 				int pos = sofar;
 				network->sendFileResponse(sockid, port, (byte*)&pos, 4);
@@ -433,7 +434,7 @@ namespace TA3D
 
 		network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
 
-		fclose(file);
+		file.close();
 		if( pDead && sofar < length )				// Delete the file if transfer has been aborted
 			remove( (filename + ".part").c_str() );
 		else

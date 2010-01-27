@@ -30,6 +30,10 @@
 #include <sstream>
 #include <fstream>
 
+#include <yuni/core/io/file/stream.h>
+
+using namespace Yuni::Core::IO::File;
+
 #include <zlib.h>
 #if defined TA3D_PLATFORM_WINDOWS
 # pragma comment(lib, "tools/win32/mingw32/libs/zlib.lib")
@@ -191,11 +195,11 @@ namespace UTILS
 
 		String cache_filename;
 		cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat"; // Save file in disk cache
-		FILE* cache_file = TA3D_OpenFile(cache_filename, "wb");
-		if (cache_file)
+		Stream cache_file(cache_filename, OpenMode::write);
+		if (cache_file.opened())
 		{
-			fwrite(data, filesize, 1, cache_file);
-			fclose(cache_file);
+			cache_file.write((const char*)data, filesize);
+			cache_file.close();
 		}
 
 		if (filesize >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
@@ -242,8 +246,8 @@ namespace UTILS
 
 		if (TA3D::Paths::Exists(cache_filename)) // Check disk cache
 		{
-			FILE *cache_file = TA3D_OpenFile( cache_filename, "rb" );
-			if (cache_file) // Load file from disk cache (faster than decompressing it)
+			Stream cache_file( cache_filename, OpenMode::read );
+			if (cache_file.opened()) // Load file from disk cache (faster than decompressing it)
 			{
 				uint64 FileSize;
 				Paths::Files::Size(cache_filename, FileSize);
@@ -251,9 +255,9 @@ namespace UTILS
 					*filesize = (uint32)FileSize;
 
 				byte *data = new byte[FileSize + 1];
-				fread(data, FileSize, 1, cache_file);
+				cache_file.read((char*)data, FileSize);
 				data[FileSize] = 0;
-				fclose(cache_file);
+				cache_file.close();
 				return data;
 			}
 		}

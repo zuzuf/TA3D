@@ -28,7 +28,6 @@
 #include "logs/logs.h"
 #include "misc/paths.h"
 #include "misc/resources.h"
-#include <fstream>
 #include <zlib.h>
 #include "EngineClass.h"
 #include "misc/string.h"
@@ -38,8 +37,11 @@
 #include "misc/material.light.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
+#include <yuni/core/io/file/stream.h>
 
 using namespace TA3D;
+
+using namespace Yuni::Core::IO::File;
 
 # ifdef TA3D_PLATFORM_WINDOWS
 #   define PREFIX "  /"
@@ -141,10 +143,9 @@ namespace TA3D
 		{
 			MAP_OTA map_data;
 			map_data.load( args[0] );
-			std::ofstream   m_File;
-			m_File.open(args[1].c_str(), std::ios::out | std::ios::trunc);
+			Stream m_File(args[1], OpenMode::write);
 
-			if (m_File.is_open())
+			if (m_File.opened())
 			{
 				m_File << "[MAP]\n{\n";
 				m_File << " missionname=" << map_data.missionname << ";\n";
@@ -182,10 +183,9 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			std::ofstream m_File;
-			m_File.open( args[0].c_str(), std::ios::out | std::ios::trunc);
+			Stream m_File( args[0], OpenMode::write );
 
-			if (m_File.is_open())
+			if (m_File.opened())
 			{
 				String::List modlist = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
 				modlist.sort();
@@ -218,9 +218,9 @@ namespace TA3D
 			if (data)
 			{
 				String name = Paths::ExtractFileName(args[0]);
-				FILE *dst = TA3D_OpenFile(name, "wb");
-				fwrite(data, file_size32, 1, dst);
-				fclose(dst);
+				Stream dst(name, OpenMode::write);
+				dst.write((const char*)data, file_size32);
+				dst.close();
 				DELETE_ARRAY(data);
 			}
 			args.erase(args.begin());
@@ -298,8 +298,7 @@ namespace TA3D
 
 				Gaf::AnimationList anims;
 				anims.loadGAFFromRawData(data);
-				std::ofstream   m_File;
-				m_File.open( (Paths::ExtractFileName(args[0]) << ".txt").c_str(), std::ios::out | std::ios::trunc );
+				Stream m_File( (Paths::ExtractFileName(args[0]) << ".txt"), OpenMode::write );
 
 				m_File << "[gadget0]\n{\n";
 				m_File << "    filename=" << args[0] << ";\n";
@@ -350,13 +349,13 @@ namespace TA3D
 		{
 			TDFParser parser( args[0], false, false, true, true );
 			String filename = parser.pullAsString( "gadget0.filename" );
-			FILE *gaf_file = TA3D_OpenFile( Paths::ExtractFileName( filename ), "wb" );
+			Stream gaf_file( Paths::ExtractFileName( filename ), OpenMode::write );
 
 			LOG_DEBUG("opening '" << filename << "'");
 
 			disable_TA_palette();
 
-			if (gaf_file)
+			if (gaf_file.opened())
 			{
 				SDL_SetVideoMode(320, 200, 32, 0);
 				Gaf::Header header;
@@ -364,17 +363,17 @@ namespace TA3D
 				header.Entries   = parser.pullAsInt("gadget0.entries");
 				header.Unknown1  = 0;
 
-				fwrite(&header, 12, 1, gaf_file);
+				gaf_file.write((const char*)&header, 12);
 
 				for (int i = 0; i < header.Entries * 4; ++i)
-					putc( 0, gaf_file );
+					gaf_file.put( 0 );
 
 				for (int i = 0; i < header.Entries; ++i)
 				{
-					int pos = int(ftell( gaf_file ));
-					fseek( gaf_file, 12 + i * 4, SEEK_SET );
-					fwrite( &pos, 4, 1, gaf_file );
-					fseek( gaf_file, pos, SEEK_SET );
+					int pos = int(gaf_file.tell());
+					gaf_file.seekFromBeginning( 12 + i * 4 );
+					gaf_file.write( (const char*)&pos, 4 );
+					gaf_file.seekFromBeginning( pos );
 
 					Gaf::Entry Entry;
 
@@ -383,28 +382,28 @@ namespace TA3D
 					Entry.Unknown2 = 0;
 					Entry.name = parser.pullAsString( String("gadget") << (i + 1) << ".name" );
 
-					fwrite( &Entry.Frames, 2, 1, gaf_file );
-					fwrite( &Entry.Unknown1, 2, 1, gaf_file );
-					fwrite( &Entry.Unknown2, 4, 1, gaf_file );
+					gaf_file.write( (const char*)&Entry.Frames, 2 );
+					gaf_file.write( (const char*)&Entry.Unknown1, 2 );
+					gaf_file.write( (const char*)&Entry.Unknown2, 4 );
 					char tmp[32];
 					memset(tmp, 0, 32);
 					memcpy(tmp, Entry.name.c_str(), Math::Min((int)Entry.name.size(), 32));
 					tmp[31] = 0;
-					fwrite(tmp, 32, 1, gaf_file);
+					gaf_file.write((const char*)tmp, 32);
 
 					Gaf::Frame::Entry FrameEntry;
-					int FrameEntryPos = int(ftell(gaf_file));
+					int FrameEntryPos = int(gaf_file.tell());
 					FrameEntry.PtrFrameTable = 0;
 					for (int e = 0; e < Entry.Frames; ++e)
-						fwrite( &(FrameEntry), 8, 1, gaf_file );
+						gaf_file.write( (const char*)&(FrameEntry), 8 );
 
 					for (int e = 0; e < Entry.Frames; ++e)
 					{
-						pos = int(ftell( gaf_file ));
-						fseek( gaf_file, FrameEntryPos + e * 8, SEEK_SET );
+						pos = int(gaf_file.tell());
+						gaf_file.seekFromBeginning( FrameEntryPos + e * 8 );
 						FrameEntry.PtrFrameTable = pos;
-						fwrite( &(FrameEntry), 8, 1, gaf_file );
-						fseek( gaf_file, pos, SEEK_SET );
+						gaf_file.write( (const char*)&(FrameEntry), 8 );
+						gaf_file.seekFromBeginning( pos );
 
 						Gaf::Frame::Data FrameData;
 						FrameData.XPos = sint16(parser.pullAsInt( String("gadget") << (i+1) << ".frame" << e << ".XPos" ) );
@@ -426,9 +425,9 @@ namespace TA3D
 									alpha |= (getr(SurfaceInt(frame_img, x, y)) != 255);
 							SDL_UnlockSurface(frame_img);
 							FrameData.Transparency = alpha ? 1 : 0;
-							FrameData.PtrFrameData = sint32(ftell( gaf_file )) + 24;
+							FrameData.PtrFrameData = sint32(gaf_file.tell()) + 24;
 
-							fwrite( &FrameData, 24, 1, gaf_file );
+							gaf_file.write( (const char*)&FrameData, 24 );
 
 							int buf_size = frame_img->w * frame_img->h * 5 + 10240;
 							byte *buffer = new byte[ buf_size ];
@@ -438,8 +437,8 @@ namespace TA3D
 							compress2 ( buffer, &__size, (Bytef*) frame_img->pixels, frame_img->w * frame_img->h * frame_img->format->BytesPerPixel, 9);
 							img_size = int(__size);
 
-							fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
-							fwrite( buffer, img_size, 1, gaf_file );
+							gaf_file.write( (const char*)&img_size, sizeof( img_size ) );		// Save the result
+							gaf_file.write( (const char*)buffer, img_size );
 
 							DELETE_ARRAY(buffer);
 							SDL_FreeSurface( frame_img );

@@ -151,9 +151,6 @@ namespace TA3D
 		#define TICKS_PER_SEC                30
 	}
 
-	FILE *TA3D_OpenFile( const String &FileName, const String Mode );
-
-
 } // namespace TA3D
 
 

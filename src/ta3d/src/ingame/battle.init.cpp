@@ -14,7 +14,6 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
-#include <fstream>
 #include "battle.h"
 #include <network/network.h>
 #include <logs/logs.h>
@@ -38,11 +37,11 @@
 #include <misc/files.h>
 #include <menu.h>
 #include <input/mouse.h>
-
+#include <yuni/core/io/file/stream.h>
 
 
 using namespace Yuni;
-
+using namespace Yuni::Core::IO::File;
 
 
 namespace TA3D
@@ -746,17 +745,17 @@ namespace TA3D
 					for (int y = 0 ; y < simulation_h ; ++y)
 						for (int x = 0 ; x < simulation_w ; ++x)
 							data[(y * simulation_w + x) * 4 + 3] = data[(y * simulation_w + x) * 4 + 1];
-					std::fstream file(water_cache.c_str(), std::fstream::out | std::fstream::binary);
-					if (file.is_open())
+					Stream file(water_cache, OpenMode::write);
+					if (file.opened())
 					{
-						file.write((char*)data, sizeof(float) * water_map_size4);
+						file.write((const char*)data, sizeof(float) * water_map_size4);
 						file.close();
 					}
 				}
 				else
 				{
-					std::fstream file(water_cache.c_str(), std::fstream::in | std::fstream::binary);
-					if (file.is_open())
+					Stream file(water_cache, OpenMode::write);
+					if (file.opened())
 					{
 						file.read((char*)data, sizeof(float) * water_map_size4);
 						file.close();

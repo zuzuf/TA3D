@@ -24,7 +24,9 @@
 #include <logs/logs.h>
 #include <fstream>
 #include <yuni/core/io/file.h>
+#include <yuni/core/io/file/stream.h>
 
+using namespace Yuni::Core::IO::File;
 
 
 namespace TA3D
@@ -208,13 +210,13 @@ namespace TA3D
 				byte *data = VFS::Instance()->readFile(out, &font_size);
 				if (data)
 				{
-					std::fstream tmp_file;
+					Stream tmp_file;
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
 
-					tmp_file.open(tmp.c_str(), std::fstream::out | std::fstream::binary);
-					if (tmp_file.is_open())
+					tmp_file.open(tmp, OpenMode::write);
+					if (tmp_file.opened())
 					{
-						tmp_file.write((char*)data, font_size);
+						tmp_file.write((const char*)data, font_size);
 						tmp_file.flush();
 						tmp_file.close();
 						out.clear();
