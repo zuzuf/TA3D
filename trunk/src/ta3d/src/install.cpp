@@ -19,6 +19,9 @@
 #include "ta3dbase.h"
 #include "misc/math.h"
 #include "misc/paths.h"
+#include <yuni/core/io/file/stream.h>
+
+using namespace Yuni::Core::IO::File;
 
 
 namespace TA3D
@@ -38,14 +41,14 @@ void install_TA_files( String HPI_file, String filename )
 	byte *data = archive->readFile(filename, &file_size32);			// Extract the file
 	if (data)
 	{
-		FILE *dst = TA3D_OpenFile(Paths::Resources + Paths::ExtractFileName(filename), "wb");
+		Stream dst(Paths::Resources + Paths::ExtractFileName(filename), OpenMode::write);
 
-		if (dst)
+		if (dst.opened())
 		{
-			fwrite(data, file_size32, 1, dst);
+			dst.write((const char*)data, file_size32);
 
-			fflush(dst);
-			fclose(dst);
+			dst.flush();
+			dst.close();
 		}
 		DELETE_ARRAY(data);
 	}

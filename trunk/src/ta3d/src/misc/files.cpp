@@ -17,10 +17,12 @@
 
 #include "files.h"
 #include <logs/logs.h>
-#include <fstream>
-#include <sys/stat.h>
+#include <yuni/core/io/file/stream.h>
+#include <yuni/core/io/file/file.hxx>
 #include "paths.h"
 
+
+using namespace Yuni::Core::IO::File;
 
 namespace TA3D
 {
@@ -29,32 +31,48 @@ namespace Paths
 namespace Files
 {
 
+	template<class T>
+			bool getline(T &file, String &s)
+	{
+		s.clear();
+
+		if (file.eof())
+			return false;
+		while(!file.eof())
+		{
+			char c = file.get();
+			if (c == '\n')
+				break;
+			s << c;
+		}
+		return true;
+	}
 
 	template<class T>
 	bool TmplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
 		if (emptyListBefore)
 			out.clear();
-		std::ifstream file(filename.c_str());
-		if (!file)
+		Stream file(filename, OpenMode::read);
+		if (!file.opened())
 		{
 			LOG_WARNING("Impossible to open the file `" << filename << "`");
 			return false;
 		}
 		if (sizeLimit)
 		{
-			file.seekg(0, std::ios_base::beg);
-			std::ifstream::pos_type begin_pos = file.tellg();
-			file.seekg(0, std::ios_base::end);
-			if ((file.tellg() - begin_pos) > sizeLimit)
+			file.seekFromBeginning(0);
+			ssize_t begin_pos = file.tell();
+			file.seekFromEndOfFile(0);
+			if ((file.tell() - begin_pos) > sizeLimit)
 			{
 				LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
 				return false;
 			}
-			file.seekg(0, std::ios_base::beg);
+			file.seekFromBeginning(0);
 		}
-		std::string line;
-		while (std::getline(file, line))
+		String line;
+		while (getline(file, line))
 			out.push_back(line);
 		return true;
 	}
@@ -73,14 +91,7 @@ namespace Files
 
 	bool Size(const String& filename, uint64& size)
 	{
-		struct stat results;
-		if (!filename.empty() && stat(filename.c_str(), &results) == 0)
-		{
-			size = results.st_size;
-			return true;
-		}
-		size = 0;
-		return false;
+		return Yuni::Core::IO::File::Size(filename, size);
 	}
 
 
@@ -108,9 +119,8 @@ namespace Files
 						  << hardlimit / 1204 << "Ko");
 				return NULL;
 			}
-			std::ifstream f;
-			f.open(filename.c_str(), std::ios::in | std::ios::binary);
-			if (f.is_open())
+			Stream f(filename, OpenMode::read);
+			if (f.opened())
 			{
 				char* ret = new char[size + 1];
 				LOG_ASSERT(ret != NULL);
@@ -126,13 +136,7 @@ namespace Files
 
 	bool SaveToFile(const String& filename, const String& content)
 	{
-		std::ofstream dst(filename.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-		if (dst.is_open())
-		{
-			dst << content;
-			return true;
-		}
-		return false;
+		return Yuni::Core::IO::File::SaveToFile(filename, content);
 	}
 
 
@@ -153,27 +157,7 @@ namespace Files
 
 	bool Copy(const String& from, const String& to, const bool overwrite)
 	{
-		if (!Paths::Exists(from))
-		{
-			LOG_ERROR("[copy] Impossible to find the source file `" << from << "`");
-			return false;
-		}
-		if (!overwrite && Paths::Exists(to))
-			return true;
-		std::ifstream src(from.c_str(), std::ios::in | std::ios::binary);
-		if (src.is_open())
-		{
-			std::ofstream dst(to.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-			if (dst.is_open())
-			{
-				dst << src.rdbuf();
-				return true;
-			}
-			LOG_ERROR("[copy] Impossible to create the target file `" << to << "`");
-			return false;
-		}
-		LOG_ERROR("[copy] Impossible to open the source file `" << from << "`");
-		return false;
+		return Yuni::Core::IO::File::Copy(from, to, overwrite);
 	}
 
 

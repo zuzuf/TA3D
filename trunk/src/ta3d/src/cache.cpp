@@ -3,7 +3,9 @@
 #include "misc/string.h"
 #include "misc/paths.h"
 #include "TA3D_NameSpace.h"
+#include <yuni/core/io/file/stream.h>
 
+using namespace Yuni::Core::IO::File;
 
 namespace TA3D
 {
@@ -20,21 +22,21 @@ namespace Cache
 
 		if (Paths::Exists(Paths::Caches + "cache_info.txt") && !force)
 		{
-			FILE *cache_info = TA3D_OpenFile(Paths::Caches + "cache_info.txt", "rb");
-			if (cache_info)
+			Stream cache_info(Paths::Caches + "cache_info.txt", OpenMode::read);
+			if (cache_info.opened())
 			{
 				char *buf = new char[cache_date.size() + 1];
 				if (buf)
 				{
 					::memset(buf, 0, cache_date.size() + 1);
-					::fread(buf, cache_date.size(), 1, cache_info);
+					cache_info.read(buf, cache_date.size());
 					if (buf == cache_date)
 						rebuild_cache = false;
 					else
 						rebuild_cache = true;
 					DELETE_ARRAY(buf);
 				}
-				::fclose(cache_info);
+				cache_info.close();
 			}
 		}
 		else
@@ -47,12 +49,12 @@ namespace Cache
 			for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
 				remove(i->c_str());
 			// Update cache date
-			FILE *cache_info = TA3D_OpenFile(Paths::Caches + "cache_info.txt", "wb");
-			if (cache_info)
+			Stream cache_info(Paths::Caches + "cache_info.txt", OpenMode::write);
+			if (cache_info.opened())
 			{
-				::fwrite(cache_date.c_str(), cache_date.size(), 1, cache_info);
-				::putc(0, cache_info);
-				::fclose(cache_info);
+				cache_info.write(cache_date.c_str(), cache_date.size());
+				cache_info.put(0);
+				cache_info.close();
 			}
 		}
 	}

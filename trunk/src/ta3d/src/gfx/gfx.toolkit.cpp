@@ -19,11 +19,10 @@
 #include <misc/paths.h>
 #include <TA3D_NameSpace.h>
 #include "gfx.h"
-#include <fstream>
 #include <zlib.h>
+#include <yuni/core/io/file/stream.h>
 
-
-
+using namespace Yuni::Core::IO::File;
 
 namespace TA3D
 {
@@ -748,11 +747,11 @@ namespace TA3D
 		header.bpp = bmp->format->BitsPerPixel;
 		header.description = (header.bpp == 32) ? 0x28 : 0x20;
 
-		std::fstream file( filename.c_str(), std::fstream::out | std::fstream::binary );
+		Stream file( filename, OpenMode::write );
 
-		if (file.is_open())
+		if (file.opened())
 		{
-			file.write( (char*)&header, sizeof(header) );
+			file.write( (const char*)&header, sizeof(header) );
 			if (!compress)			// Uncompressed
 			{
 				for(int y = 0 ; y < bmp->h ; ++y)
@@ -765,7 +764,7 @@ namespace TA3D
 							file.put( getpixel(bmp, x, y) );
 							break;
 						case 16:
-							file.write( (char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+							file.write( (const char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
 							break;
 						case 24:
 							{
@@ -830,7 +829,7 @@ namespace TA3D
 								file.put( getpixel(bmp, x, y) );
 								break;
 							case 16:
-								file.write( (char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+								file.write( (const char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
 								break;
 							case 24:
 								{

@@ -35,6 +35,9 @@
 #include <input/mouse.h>
 #include "gui/base.h"
 #include <backtrace.h>
+#include <yuni/core/io/file/stream.h>
+
+using namespace Yuni::Core::IO::File;
 
 
 
@@ -1813,10 +1816,10 @@ namespace TA3D
 		realFile += file;
 		if (TA3D::Paths::Exists(realFile))
 		{
-			FILE *cache_file = TA3D_OpenFile(realFile, "rb");
+			Stream cache_file(realFile, OpenMode::read);
 			uint32 mod_hash;
-			fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
-			fclose(cache_file);
+			cache_file.read((char*)&mod_hash, sizeof( mod_hash ));
+			cache_file.close();
 
 			return mod_hash == TA3D_CURRENT_MOD.hashValue(); // Check if it corresponds to current mod
 		}
@@ -1833,27 +1836,27 @@ namespace TA3D
 		realFile += file;
 		if(TA3D::Paths::Exists(realFile))
 		{
-			FILE *cache_file = TA3D_OpenFile(realFile, "rb");
+			Stream cache_file(realFile, OpenMode::read);
 			uint32 mod_hash;
-			fread(&mod_hash, sizeof(mod_hash), 1, cache_file);
+			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
 
 			if (mod_hash != TA3D_CURRENT_MOD.hashValue()) // Doesn't correspond to current mod
 			{
-				fclose(cache_file);
+				cache_file.close();
 				return 0;
 			}
 
 			uint32 rw, rh;
-			fread(&rw, 4, 1, cache_file);
-			fread(&rh, 4, 1, cache_file);
+			cache_file.read((char*)&rw, 4);
+			cache_file.read((char*)&rh, 4);
 			if(width)  *width = rw;
 			if(height) *height = rh;
 
 			int lod_max = 0;
 			GLint size, internal_format;
 
-			fread( &lod_max, sizeof( lod_max ), 1, cache_file );
-			fread( &internal_format, sizeof( GLint ), 1, cache_file );
+			cache_file.read( (char*)&lod_max, sizeof( lod_max ));
+			cache_file.read( (char*)&internal_format, sizeof( GLint ));
 
 			GLuint	tex;
 			glEnable(GL_TEXTURE_2D);
@@ -1866,22 +1869,22 @@ namespace TA3D
 				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
 			GLint w,h,border;
-			fread( &size, sizeof( GLint ), 1, cache_file );
+			cache_file.read( (char*)&size, sizeof( GLint ) );
 
 			byte *img = new byte[size];
 
-			fread( &internal_format, sizeof( GLint ), 1, cache_file );
-			fread( &border, sizeof( GLint ), 1, cache_file );
-			fread( &w, sizeof( GLint ), 1, cache_file );
-			fread( &h, sizeof( GLint ), 1, cache_file );
-			fread( img, size, 1, cache_file );
+			cache_file.read( (char*)&internal_format, sizeof( GLint ) );
+			cache_file.read( (char*)&border, sizeof( GLint ) );
+			cache_file.read( (char*)&w, sizeof( GLint ) );
+			cache_file.read( (char*)&h, sizeof( GLint ) );
+			cache_file.read( (char*)img, size );
 			glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
 
 			glGenerateMipmapEXT(GL_TEXTURE_2D);
 
 			DELETE_ARRAY(img);
 
-			fclose(cache_file);
+			cache_file.close();
 
 			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
@@ -1939,28 +1942,28 @@ namespace TA3D
 		if(!compressed)
 			return;
 
-		FILE* cache_file = TA3D_OpenFile( file, "wb" );
+		Stream cache_file( file, OpenMode::write );
 
-		if (cache_file == NULL)
+		if (!cache_file.opened())
 			return;
 
 		uint32 mod_hash = TA3D_CURRENT_MOD.hashValue(); // Save a hash of current mod
 
-		fwrite( &mod_hash, sizeof( mod_hash ), 1, cache_file );
+		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 
-		fwrite( &width, 4, 1, cache_file );
-		fwrite( &height, 4, 1, cache_file );
+		cache_file.write( (const char*)&width, 4 );
+		cache_file.write( (const char*)&height, 4 );
 
 		float lod_max_f = Math::Max(logf(float(rw)), logf(float(rh))) / logf(2.0f);
 		int lod_max = ((int) lod_max_f);
 		if (lod_max > lod_max_f )
 			lod_max++;
 
-		fwrite( &lod_max, sizeof( lod_max ), 1, cache_file );
+		cache_file.write( (const char*)&lod_max, sizeof( lod_max ) );
 
 		GLint size, internal_format;
 		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
-		fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+		cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
 
 		int lod = 0;
 
@@ -1975,16 +1978,16 @@ namespace TA3D
 		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
 		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h );
 
-		fwrite( &size, sizeof( GLint ), 1, cache_file );
-		fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
-		fwrite( &border, sizeof( GLint ), 1, cache_file );
-		fwrite( &w, sizeof( GLint ), 1, cache_file );
-		fwrite( &h, sizeof( GLint ), 1, cache_file );
-		fwrite( img, size, 1, cache_file );
+		cache_file.write( (const char*)&size, sizeof( GLint ) );
+		cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
+		cache_file.write( (const char*)&border, sizeof( GLint ) );
+		cache_file.write( (const char*)&w, sizeof( GLint ) );
+		cache_file.write( (const char*)&h, sizeof( GLint ) );
+		cache_file.write( (const char*)img, size );
 
 		DELETE_ARRAY(img);
 
-		fclose(cache_file);
+		cache_file.close();
 	}
 
 

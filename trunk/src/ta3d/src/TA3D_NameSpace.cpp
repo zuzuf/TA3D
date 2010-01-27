@@ -35,24 +35,6 @@ namespace TA3D
 	String						TA3D::VARS::TA3D_CURRENT_MOD = "";		// This string stores the path to current mod
 	SDL_Surface					*TA3D::VARS::screen = NULL;
 
-
-
-	FILE *TA3D_OpenFile(const String &FileName, const String Mode)
-	{
-		// TODO This should be removed
-		TA3D::Paths::MakeDir(TA3D::Paths::ExtractFilePath(FileName));		// Create tree structure if it doesn't exist
-
-# if defined TA3D_PLATFORM_MSVC
-		FILE *file;
-		errno_t err;
-		if ((err = fopen_s( &file, FileName.c_str(), Mode.c_str())) == 0)
-			return file;
-		return NULL;
-# else
-		return fopen(FileName.c_str(), Mode.c_str());
-# endif
-	}
-
 	TA3DCONFIG::TA3DCONFIG()
 	{
 		menuTransparency = 0.0f;

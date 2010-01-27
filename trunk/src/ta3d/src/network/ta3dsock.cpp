@@ -20,12 +20,15 @@
 #include <misc/math.h>
 #include <misc/paths.h>
 #include <logs/logs.h>
+#include <yuni/core/io/file/stream.h>
+
+using namespace Yuni::Core::IO::File;
 
 
 namespace TA3D
 {
 
-	FILE *dump_file = NULL;
+	Stream dump_file;
 
 	chat* strtochat(struct chat *chat_msg, String msg)
 	{
@@ -54,8 +57,8 @@ namespace TA3D
 
 	int TA3DSock::open(const String &hostname, uint16 port)
 	{
-		if (dump_file == NULL)
-			dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
+		if (!dump_file.opened())
+			dump_file.open(TA3D::Paths::Logs + "net.dump", OpenMode::write);
 		tcpsock.open(hostname, port);
 		if(!tcpsock.isOpen())
 			return -1;
@@ -65,8 +68,8 @@ namespace TA3D
 
 	int TA3DSock::open(uint16 port)
 	{
-		if (dump_file == NULL)
-			dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
+		if (!dump_file.opened())
+			dump_file.open(TA3D::Paths::Logs + "net.dump", OpenMode::write);
 		tcpsock.open(port);
 		if(!tcpsock.isOpen())
 			return -1;
@@ -130,11 +133,8 @@ namespace TA3D
 	{
 		if (tcpsock.isOpen())
 			tcpsock.close();
-		if (dump_file)
-		{
-			fclose(dump_file);
-			dump_file = NULL;
-		}
+		if (dump_file.opened())
+			dump_file.close();
 	}
 
 
@@ -264,10 +264,10 @@ namespace TA3D
 		uint16 length = size;
 		tcpsock.send( (char*)&length, 2 );
 		tcpsock.send( (char*)data, size );
-		if (dump_file)
+		if (dump_file.opened())
 		{
-			fwrite(data, 1, size, dump_file);
-			fflush(dump_file);
+			dump_file.write((char*)data, size);
+			dump_file.flush();
 		}
 
 		tcpmutex.unlock();
@@ -280,10 +280,10 @@ namespace TA3D
 		uint16 length = obp;
 		tcpsock.send((char*)&length, 2);
 		tcpsock.send(outbuf, obp);
-		if (dump_file)
+		if (dump_file.opened())
 		{
-			fwrite(outbuf, 1, obp, dump_file);
-			fflush(dump_file);
+			dump_file.write(outbuf, obp);
+			dump_file.flush();
 		}
 		obp = 0;
 
