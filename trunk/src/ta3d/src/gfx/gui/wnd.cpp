@@ -19,7 +19,7 @@
 #include <ta3dbase.h>
 #include <misc/math.h>
 #include <sounds/manager.h>
-#include <console.h>
+#include <console/console.h>
 #include <gfx/glfunc.h>
 #include <misc/tdf.h>
 #include <misc/paths.h>

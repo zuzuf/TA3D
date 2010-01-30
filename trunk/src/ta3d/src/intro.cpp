@@ -26,12 +26,12 @@
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "intro.h"
-#include "console.h"
+#include "console/console.h"
 #include "misc/paths.h"
 #include <list>
 #include "languages/i18n.h"
 #include "gfx/gui/skin.h"
-#include "console.h"
+#include "console/console.h"
 #include "gfx/gui/base.h"
 
 namespace TA3D

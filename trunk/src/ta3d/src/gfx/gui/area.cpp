@@ -19,7 +19,7 @@
 #include <misc/paths.h>
 #include "skin.h"
 #include "skin.manager.h"
-#include <console.h>
+#include <console/console.h>
 #include <TA3D_NameSpace.h>
 #include <misc/math.h>
 #include <misc/tdf.h>

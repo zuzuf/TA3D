@@ -21,13 +21,13 @@
   | for developpers and testers.                                          |
   \----------------------------------------------------------------------*/
 
-#include "stdafx.h"
-#include "TA3D_NameSpace.h"
+#include <stdafx.h>
+#include <TA3D_NameSpace.h>
 #include "console.h"
-#include "logs/logs.h"
+#include <logs/logs.h>
 #include <list>
-#include "misc/osinfo.h"
-#include "input/keyboard.h"
+#include <misc/osinfo.h>
+#include <input/keyboard.h>
 
 
 

@@ -167,7 +167,7 @@ SET(SRC_DEBUG
 # Console
 #
 SET(SRC_CONSOLE
-		console.cpp console.h)
+		console/console.cpp console/console.h)
 
 #
 # VFS (HPI, archives)
