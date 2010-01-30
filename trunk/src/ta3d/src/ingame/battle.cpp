@@ -64,6 +64,12 @@ namespace TA3D
 	int start=0;
 
 
+	Battle *Battle::pInstance = NULL;
+
+	Battle *Battle::Instance()
+	{
+		return pInstance;
+	}
 
 	static inline int CursorFromSignalOrder(const int order, int defaultValue)
 	{
@@ -2280,10 +2286,9 @@ namespace TA3D
 
 			g_ta3d_network->draw(); // Draw network related stuffs (ie: chat messages, ...)
 
-			String cmd;
 			// Draw the console
 			if (!shoot || video_shoot)
-				cmd = console.draw(Gui::gui_font, dt);
+				console.draw(Gui::gui_font, dt);
 
 			// Informations about FPS
 			if (lp_CONFIG->showfps)
@@ -2312,8 +2317,6 @@ namespace TA3D
 
 			gfx->unset_2D_mode();
 			gfx->flip();
-
-			parseCommands(cmd);
 
 			if (cheat_metal)
 				players.metal[players.local_human_id] = players.c_metal[players.local_human_id]=players.metal_s[players.local_human_id];					// cheat codes

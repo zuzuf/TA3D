@@ -167,6 +167,7 @@ SET(SRC_DEBUG
 # Console
 #
 SET(SRC_CONSOLE
+		console/console.api.cpp console/console.api.h
 		console/console.cpp console/console.h)
 
 #

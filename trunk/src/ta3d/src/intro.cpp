@@ -123,7 +123,7 @@ namespace TA3D
 		glPopMatrix();
 
 		if (lp_CONFIG->draw_console_loading ) // If set in config
-			String cmd = console.draw(Gui::gui_font, 0.0f, true);			// Display something to show what's happening
+			console.draw(Gui::gui_font, 0.0f, true);			// Display something to show what's happening
 
 		gfx->flip();
 
