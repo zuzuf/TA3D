@@ -155,12 +155,42 @@ namespace TA3D
 		// Print all lines
 		int i = 0;
 		const EntryList::const_iterator end = pLastEntries.end();
+		float tableWidth = 80.0f;
+		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry)
+		{
+			if (i_entry->empty())
+				continue;
+			if (i_entry->first() == '|')
+			{
+				String::Vector cols;
+				i_entry->explode(cols, '|', true, false, true);
+				for(int k = 0 ; k < cols.size() ; ++k)
+					tableWidth = Math::Max(tableWidth, fnt->length(cols[k]) + 10.0f);
+			}
+		}
 		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
 		{
-			gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
-					   makeacol32(0,0,0,0xFF), *i_entry);
-			gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-					   0xDFDFDFDF, *i_entry);
+			if (i_entry->empty())
+				continue;
+			if (i_entry->first() == '|')
+			{
+				String::Vector cols;
+				i_entry->explode(cols, '|', true, false, true);
+				for(int k = 0 ; k < cols.size() ; ++k)
+				{
+					gfx->print(fnt, tableWidth * k + 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+							   makeacol32(0,0,0,0xFF), cols[k]);
+					gfx->print(fnt, tableWidth * k + 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+							   makeacol32(0xFF, 0xFF, 0, 0xFF), cols[k]);
+				}
+			}
+			else
+			{
+				gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+						   makeacol32(0,0,0,0xFF), *i_entry);
+				gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+						   0xDFDFDFDF, *i_entry);
+			}
 		}
 
 		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
@@ -179,6 +209,76 @@ namespace TA3D
 
 		switch (keycode)
 		{
+		case KEY_TAB:				// TAB-completion code
+			if (!pInputText.empty() && pInputText.last() != ' ')
+			{
+				String tmp = pInputText;
+				for(int i = pInputText.size() - 1 ; i >= 0 ; --i)
+					if (pInputText[i] == ' ')
+					{
+						tmp = pInputText.substr(i + 1);
+						break;
+					}
+				if (!tmp.empty())
+				{
+					String obj("_G.");
+					String param(tmp);
+					for(int i = tmp.size() - 1 ; i >= 0 ; --i)
+						if (tmp[i] == '.')
+						{
+							obj = tmp.substr(0, i + 1);
+							param = tmp.substr(i + 1);
+							break;
+						}
+
+					String request;
+					request << "return " << obj << "__tab_complete(\"" << param << "\")";
+
+					String candidates = execute(request);
+					if (!candidates.empty())
+					{
+						String::List candidateList;
+						candidates.explode(candidateList,',',true,false,true);
+
+						if (!candidateList.empty())
+						{
+							String longest = candidateList.front();
+							for(String::List::iterator it = candidateList.begin() ; it != candidateList.end() ; ++it)
+							{
+								while(!longest.empty() && it->substr(0, longest.size()) != longest)
+									longest.removeLast();
+							}
+							if (longest.size() > param.size())
+							{
+								pInputText << longest.substr(param.size());
+								cursorPos = pInputText.sizeUTF8();
+							}
+							if (candidateList.size() > 1)
+							{
+								addEntry(String());
+								String buf;
+								int n = 0;
+								for(String::List::iterator it = candidateList.begin() ; it != candidateList.end() ; ++it)
+								{
+									if (!buf.empty())
+										buf << '|';
+									buf << *it;
+									++n;
+									if (n == 5)
+									{
+										addEntry('|' + buf);
+										n = 0;
+										buf.clear();
+									}
+								}
+								if (!buf.empty())
+									addEntry('|' + buf);
+							}
+						}
+					}
+				}
+			}
+			break;
 		case KEY_ENTER:
 			pLastCommands.push_back(pInputText);
 			pHistoryPos = pLastCommands.size();
@@ -261,37 +361,48 @@ namespace TA3D
 		return (pShow || pVisible > 0.0f);
 	}
 
-	void Console::execute(const String &cmd)
+	String Console::execute(const String &cmd)
 	{
 		MutexLocker mLocker(pMutex);
 		if (L == NULL)
-			return;
+			return String();
 
+		lua_settop(L, 0);
 		if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), NULL ))
 		{
 			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				addEntry(lua_tostring(L, -1));
-			return;
+			else
+				addEntry("# error running command!");
+			return String();
 		}
 		else
 		{
 			try
 			{
-				if (lua_pcall(L, 0, 0, 0))
+				if (lua_pcall(L, 0, LUA_MULTRET, 0))
 				{
 					if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
 						addEntry(lua_tostring(L, -1));
-					return;
+					else
+						addEntry("# error running command!");
+					return String();
 				}
 			}
 			catch(...)
 			{
 				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 					addEntry(lua_tostring(L, -1));
-				return;
+				else
+					addEntry("# error running command!");
+				return String();
 			}
 		}
-		return;
+		String result;
+		if (lua_gettop(L) > 0)
+			result << lua_tostring(L, -1);
+		lua_settop(L, 0);
+		return result;
 	}
 
 	void Console::runInitScript()
