@@ -33,12 +33,20 @@
 namespace TA3D
 {
 
-	Console console;
+	Console *Console::pInstance = NULL;
 
+	Console *Console::Instance()
+	{
+		if (!pInstance)
+			return new Console;
+		return pInstance;
+	}
 
 	Console::Console()
 			:pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
 	{
+		pInstance = this;
+
 		pInputText.clear();
 		pLastEntries.resize(pMaxItemsToDisplay, String());
 
@@ -46,12 +54,14 @@ namespace TA3D
 		lua_atpanic(L, lua_panic);	// Just to avoid having Lua exiting TA3D
 
 		registerConsoleAPI();
+		runInitScript();
 	}
 
 
 	Console::~Console()
 	{
 		lua_close(L);
+		pInstance = NULL;
 	}
 
 
@@ -284,4 +294,60 @@ namespace TA3D
 		return;
 	}
 
+	void Console::runInitScript()
+	{
+		if (L == NULL)
+			return;
+
+		uint32 filesize = 0;
+		String initScript = "scripts/console/init.lua";
+		byte *buffer = loadLuaFile(initScript , filesize);
+		if (buffer)
+		{
+
+			if (luaL_loadbuffer(L, (const char*)buffer, filesize, "init" ))
+			{
+				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+				{
+					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+					LOG_ERROR(LOG_PREFIX_LUA << filesize << " -> " << (int)buffer[filesize-1]);
+					LOG_ERROR((const char*) buffer);
+				}
+
+				DELETE_ARRAY(buffer);
+			}
+			else
+			{
+				// This may not help debugging
+				DELETE_ARRAY(buffer);
+
+				try
+				{
+					if (lua_pcall(L, 0, 0, 0))
+					{
+						if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+						{
+							LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+							LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+						}
+						return;
+					}
+				}
+				catch(...)
+				{
+					if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+					{
+						LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+						LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+					}
+					return;
+				}
+			}
+		}
+		else
+		{
+			LOG_ERROR(LOG_PREFIX_LUA << "Failed opening `" << initScript << "`");
+		}
+	}
 } // namespace TA3D

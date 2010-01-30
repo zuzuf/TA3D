@@ -41,7 +41,7 @@ namespace TA3D
 		static int reloadShaders(lua_State *L);
 		static int setShowMissionInfo(lua_State *L);
 		static int setViewDebug(lua_State *L);
-		static int setIADebug(lua_State *L);
+		static int setAIDebug(lua_State *L);
 		static int setInternalName(lua_State *L);
 		static int setInternalIdx(lua_State *L);
 		static int exit(lua_State *L);

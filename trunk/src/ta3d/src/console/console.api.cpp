@@ -48,7 +48,7 @@ namespace TA3D
 				tmp << "<unknown>";
 			};
 		}
-		console.addEntry(tmp);
+		Console::Instance()->addEntry(tmp);
 		return 0;
 	}
 
@@ -167,7 +167,7 @@ namespace TA3D
 		return 1;
 	}
 
-	int CAPI::setIADebug(lua_State *L)
+	int CAPI::setAIDebug(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
 			Battle::Instance()->ia_debug = lua_toboolean(L, -1);
@@ -500,9 +500,9 @@ namespace TA3D
 				int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
-					console.addEntry(String("flags=") << int(units.unit[i].flags));
+					Console::Instance()->addEntry(String("flags=") << int(units.unit[i].flags));
 					for (int f = 1; f < 21; ++f)
-						console.addEntry(String(unit_info[f-1]) << "=" << units.unit[i].port[f]);
+						Console::Instance()->addEntry(String(unit_info[f-1]) << "=" << units.unit[i].port[f]);
 				}
 			}
 			units.unlock();
@@ -590,7 +590,7 @@ namespace TA3D
 			}
 		}
 		if (!success)
-			console.addEntry("Command error: The correct syntax is: give metal/energy/both player_id amount");
+			Console::Instance()->addEntry("Command error: The correct syntax is: give metal/energy/both player_id amount");
 		return 0;
 	}
 
@@ -762,6 +762,8 @@ namespace TA3D
 		lua_register( L, "send_signal", program_send_signal );
 		lua_register( L, "allied", program_allied );
 
+		lua_register( L, "logmsg", thread_logmsg );
+
 		// Register CAPI functions
 #define CAPI_REGISTER(x) lua_register( L, #x, CAPI::x)
 		CAPI_REGISTER(print);
@@ -779,7 +781,7 @@ namespace TA3D
 		CAPI_REGISTER(reloadShaders);
 		CAPI_REGISTER(setShowMissionInfo);
 		CAPI_REGISTER(setViewDebug);
-		CAPI_REGISTER(setIADebug);
+		CAPI_REGISTER(setAIDebug);
 		CAPI_REGISTER(setInternalName);
 		CAPI_REGISTER(setInternalIdx);
 		CAPI_REGISTER(exit);

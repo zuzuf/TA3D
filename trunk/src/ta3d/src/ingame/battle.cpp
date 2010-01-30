@@ -221,7 +221,7 @@ namespace TA3D
 
 			/*------------bloc regroupant ce qui est relatif aux commandes----------------*/
 
-			if (players.local_human_id >= 0 && !console.activated() && !pArea.get_state("chat"))
+			if (players.local_human_id >= 0 && !Console::Instance()->activated() && !pArea.get_state("chat"))
 				handleGameStatusEvents();
 
 			if (key_down_event(KEY_HOME))
@@ -243,7 +243,7 @@ namespace TA3D
 			else
 				ordered_destruct = false;
 
-			if (key[KEY_PLUS_PAD] && !console.activated())
+			if (key[KEY_PLUS_PAD] && !Console::Instance()->activated())
 			{
 				if (!speed_changed && lp_CONFIG->timefactor < 10.0f)
 				{
@@ -254,7 +254,7 @@ namespace TA3D
 			}
 			else
 			{
-				if ((key[KEY_MINUS] || key[KEY_MINUS_PAD]) && !console.activated())
+				if ((key[KEY_MINUS] || key[KEY_MINUS_PAD]) && !Console::Instance()->activated())
 				{
 					if (!speed_changed && lp_CONFIG->timefactor > 1.0f)
 					{
@@ -288,7 +288,7 @@ namespace TA3D
 			if (track_mode >= 0 && ( cur_sel_index < 0 || cur_sel_index >= units.max_unit || track_mode != cur_sel_index))
 				track_mode = -1;
 
-			if (key[KEY_T] && !console.activated() && cur_sel_index>=0 && cur_sel_index<units.max_unit)
+			if (key[KEY_T] && !Console::Instance()->activated() && cur_sel_index>=0 && cur_sel_index<units.max_unit)
 			{
 				if (!last_time_activated_track_mode)
 					track_mode = track_mode == cur_sel_index ? -1 : cur_sel_index;
@@ -296,7 +296,7 @@ namespace TA3D
 			}
 			else
 			{
-				if (key[KEY_T] && !console.activated())
+				if (key[KEY_T] && !Console::Instance()->activated())
 				{
 					track_mode = -1;
 					cam_has_target = false;
@@ -416,7 +416,7 @@ namespace TA3D
 
 			if (!freecam)
 			{
-				if (!console.activated())
+				if (!Console::Instance()->activated())
 					keyArrowsNotInFreeCam();
 
 				float h = map->get_unit_h(cam.rpos.x, cam.rpos.z);
@@ -430,7 +430,7 @@ namespace TA3D
 			}
 			else
 			{
-				if (!console.activated())
+				if (!Console::Instance()->activated())
 					keyArrowsInFreeCam();
 			}
 
@@ -1433,7 +1433,7 @@ namespace TA3D
 			if (key[KEY_TILDE] && !pArea.get_state("chat"))
 			{
 				if (!tilde)
-					console.toggleShow();
+					Console::Instance()->toggleShow();
 				tilde = true;
 			}
 			else
@@ -2288,7 +2288,7 @@ namespace TA3D
 
 			// Draw the console
 			if (!shoot || video_shoot)
-				console.draw(Gui::gui_font, dt);
+				Console::Instance()->draw(Gui::gui_font, dt);
 
 			// Informations about FPS
 			if (lp_CONFIG->showfps)

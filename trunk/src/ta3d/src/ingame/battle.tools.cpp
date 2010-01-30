@@ -589,7 +589,7 @@ namespace TA3D
 						   if (params.size() == 3)
 							   lp_CONFIG->menuTransparency = Math::Clamp(params[2].to<float>(), 0.0f, 1.0f);
 						   else
-							   console.addEntry(String("interface transparency = ") << lp_CONFIG->menuTransparency);
+							   Console::Instance()->addEntry(String("interface transparency = ") << lp_CONFIG->menuTransparency);
 					   }
 				   }
 			   }

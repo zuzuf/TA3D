@@ -204,7 +204,7 @@ namespace Gui
 			amz = mouse_z;
 			amb = mouse_b;
 		}
-		if (!console.activated())
+		if (!Console::Instance()->activated())
 			clear_keybuf();
 
 		return is_on_gui;

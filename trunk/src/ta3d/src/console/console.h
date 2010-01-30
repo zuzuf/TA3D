@@ -78,6 +78,7 @@ namespace TA3D
 		void execute(const String &cmd);
 	private:
 		void registerConsoleAPI();
+		void runInitScript();
 
     private:
 		typedef std::deque<String> EntryList;
@@ -104,10 +105,12 @@ namespace TA3D
 
 		//! The Lua state used to execute commands
 		lua_State *L;
+
+	private:
+		static Console *pInstance;
+	public:
+		static Console *Instance();
     }; //class Console
-
-
-    extern Console console;
 
 } // namespace TA3D
 
