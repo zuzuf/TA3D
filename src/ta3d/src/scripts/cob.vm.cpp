@@ -18,6 +18,7 @@
 #include <stdafx.h>
 #include <UnitEngine.h>
 #include "cob.vm.h"
+#include <console/console.h>
 
 /*!
  * \brief Display the executed code if enabled
@@ -773,9 +774,14 @@ namespace TA3D
         }
         LOG_DEBUG(LOG_PREFIX_SCRIPT << "CobVm::dumpDebufInfo :");
         LOG_DEBUG(LOG_PREFIX_SCRIPT << childs.size() << " child threads");
-        if (running)
+		Console::Instance()->addEntry("CobVm::dumpDebugInfo :");
+		Console::Instance()->addEntry(String() << int(childs.size()) << " child threads");
+		if (running)
+		{
             logs.debug() << LOG_PREFIX_SCRIPT << "main thread running : " << (script->names[cur.top() & 0xFF]);
-        for (int i = 0 ; i < childs.size() ; i++)
+			Console::Instance()->addEntry(String("main thread running : ") << (script->names[cur.top() & 0xFF]));
+		}
+		for (int i = 0 ; i < childs.size() ; i++)
             if (childs[i]->is_running())
             {
                 String state;
@@ -784,7 +790,8 @@ namespace TA3D
                 if (childs[i]->is_sleeping())
                     state << " (sleeping = " << (dynamic_cast<CobVm*>(childs[i]))->sleep_time << ")";
                 LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF] << state);
-            }
+				Console::Instance()->addEntry(String("child thread ") << i << " running : " << script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF] << state);
+			}
     }
 
 

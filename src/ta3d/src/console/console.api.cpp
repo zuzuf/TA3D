@@ -489,8 +489,8 @@ namespace TA3D
 			static const char *unit_info[] =
 			{
 				"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS",
-				"HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","Unit_XZ","Unit_Y",
-				"Unit_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
+				"HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y",
+				"UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
 				"HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN",
 				"BUGGER_OFF","ARMORED"
 			};
@@ -501,8 +501,11 @@ namespace TA3D
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
 					Console::Instance()->addEntry(String("flags=") << int(units.unit[i].flags));
+					String tmp;
 					for (int f = 1; f < 21; ++f)
-						Console::Instance()->addEntry(String(unit_info[f-1]) << "=" << units.unit[i].port[f]);
+						tmp << unit_info[f-1] << '=' << units.unit[i].port[f] << ", ";
+					if (!tmp.empty())
+						Console::Instance()->addEntry(tmp);
 				}
 			}
 			units.unlock();

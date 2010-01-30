@@ -75,7 +75,7 @@ namespace TA3D
         */
 		void draw(TA3D::Font *fnt, const float dt, const bool forceShow = false);
 
-		void execute(const String &cmd);
+		String execute(const String &cmd);
 	private:
 		void registerConsoleAPI();
 		void runInitScript();

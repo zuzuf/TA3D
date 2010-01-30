@@ -33,20 +33,69 @@ __fn_state["metalCheat"] = setMetalCheat;
 __fn_state["energyCheat"] = setEnergyCheat;
 __fn_state["fullscreen"] = setFullscreen;
 
-toggle = {}
+local __tab_complete_fn = function(param)
+  local result = nil
+  for k,v in pairs(__fn_state) do
+	k = k .. "()"
+	if k:sub(1,param:len()) == param then
+	  if result ~= nil then
+		result = result .. ", "
+	  else
+		result = ""
+	  end
+	  result = result .. k
+	end
+  end
+  if result == nil then
+	return ""
+  end
+  return result
+end
+
+toggle = {__tab_complete = __tab_complete_fn}
 setmetatable( toggle, { __index =
 function(table, key)
   return function() __fn_state[key](not __fn_state[key]()) end
 end} )
 
-enable = {}
+enable = {__tab_complete = __tab_complete_fn}
 setmetatable( enable, { __index =
 function(table, key)
   return function() __fn_state[key](true) end
 end} )
 
-disable = {}
+disable = {__tab_complete = __tab_complete_fn}
 setmetatable( disable, { __index =
 function(table, key)
   return function() __fn_state[key](false) end
 end} )
+
+__cmd_list = {}
+__cmd_list["toggle."] = true;
+__cmd_list["enable."] = true;
+__cmd_list["disable."] = true;
+__cmd_list["exit()"] = true;
+
+for k, v in pairs(_G) do
+  if type(v) == "function" then
+	__cmd_list[k .. "()"] = true;
+  end
+end
+
+__tab_complete = function(param)
+  local result = nil
+  for k,v in pairs(__cmd_list) do
+	if k:sub(1,param:len()) == param then
+	  if result ~= nil then
+		result = result .. ", "
+	  else
+		result = ""
+	  end
+	  result = result .. k
+	end
+  end
+  if result == nil then
+	return ""
+  end
+  return result
+end
