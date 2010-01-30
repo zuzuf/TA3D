@@ -1,15 +1,15 @@
 /*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
+	Copyright (C) 2005  Roland BROCHARD
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
@@ -25,10 +25,9 @@
 #include <TA3D_NameSpace.h>
 #include "console.h"
 #include <logs/logs.h>
-#include <list>
-#include <misc/osinfo.h>
 #include <input/keyboard.h>
-
+#include <scripts/lua.env.h>
+#include <scripts/lua.thread.h>
 
 
 namespace TA3D
@@ -38,15 +37,22 @@ namespace TA3D
 
 
 	Console::Console()
-		:pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
+			:pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
 	{
 		pInputText.clear();
 		pLastEntries.resize(pMaxItemsToDisplay, String());
+
+		L = lua_open();
+		lua_atpanic(L, lua_panic);	// Just to avoid having Lua exiting TA3D
+
+		registerConsoleAPI();
 	}
 
 
 	Console::~Console()
-	{}
+	{
+		lua_close(L);
+	}
 
 
 
@@ -63,14 +69,14 @@ namespace TA3D
 	void Console::toggleShow()
 	{
 		pMutex.lock();
-        if (!pShow || pInputText.empty())       // Need to clear the input text before closing console
-            pShow ^= true;
+		if (!pShow || pInputText.empty())       // Need to clear the input text before closing console
+			pShow ^= true;
 		pMutex.unlock();
 	}
 
 
 
-	String Console::draw(TA3D::Font *fnt, const float dt, const bool forceShow)
+	void Console::draw(TA3D::Font *fnt, const float dt, const bool forceShow)
 	{
 		MutexLocker locker(pMutex);
 
@@ -104,7 +110,7 @@ namespace TA3D
 						pVisible = 0.0f;
 				}
 				if (Yuni::Math::Zero(pVisible))
-					return String();
+					return;
 			}
 		}
 
@@ -120,8 +126,6 @@ namespace TA3D
 
 		float fsize = fnt->height();
 		float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
-
-		String newline;
 
 		glEnable(GL_BLEND);		// Dessine le cadre de la console
 		glDisable(GL_TEXTURE_2D);
@@ -140,8 +144,8 @@ namespace TA3D
 
 		// Print all lines
 		int i = 0;
-		const String::List::const_iterator end = pLastEntries.end();
-		for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
+		const EntryList::const_iterator end = pLastEntries.end();
+		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
 		{
 			gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
 					   makeacol32(0,0,0,0xFF), *i_entry);
@@ -165,69 +169,69 @@ namespace TA3D
 
 		switch (keycode)
 		{
-			case KEY_ENTER:
-				pLastCommands.push_back(pInputText);
-				pHistoryPos = pLastCommands.size();
-				addEntry(">" + pInputText);
-				newline = pInputText;
-				pInputText.clear();
-				cursorPos = 0;
-				break;
-			case KEY_BACKSPACE:
-				if (pInputText.size() > 0 && cursorPos > 0)
-				{
-					pInputText = pInputText.substrUTF8(0, cursorPos - 1) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
-					cursorPos--;
-				}
-				break;
-			case KEY_DEL:
-				if (cursorPos < pInputText.sizeUTF8())
-					pInputText = pInputText.substrUTF8(0, cursorPos) + pInputText.substrUTF8(cursorPos + 1, pInputText.sizeUTF8() - cursorPos);
-				break;
-			case KEY_END:
-				cursorPos = pInputText.sizeUTF8();
-				break;
-			case KEY_HOME:
-				cursorPos = 0;
-				break;
-			case KEY_LEFT:
-				if (cursorPos > 0)
-					cursorPos--;
-				break;
-			case KEY_RIGHT:
-				if (cursorPos < pInputText.sizeUTF8())
-					cursorPos++;
-				break;
-			case KEY_UP:
-				if (pHistoryPos > 0)
-				{
-					--pHistoryPos;
-					pInputText = pLastCommands[pHistoryPos];
-					cursorPos = pInputText.sizeUTF8();
-				}
-				break;
-			case KEY_DOWN:
+		case KEY_ENTER:
+			pLastCommands.push_back(pInputText);
+			pHistoryPos = pLastCommands.size();
+			addEntry(">" + pInputText);
+			execute(pInputText);
+			pInputText.clear();
+			cursorPos = 0;
+			break;
+		case KEY_BACKSPACE:
+			if (pInputText.size() > 0 && cursorPos > 0)
+			{
+				pInputText = pInputText.substrUTF8(0, cursorPos - 1) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
+				cursorPos--;
+			}
+			break;
+		case KEY_DEL:
+			if (cursorPos < pInputText.sizeUTF8())
+				pInputText = pInputText.substrUTF8(0, cursorPos) + pInputText.substrUTF8(cursorPos + 1, pInputText.sizeUTF8() - cursorPos);
+			break;
+		case KEY_END:
+			cursorPos = uint32(pInputText.sizeUTF8());
+			break;
+		case KEY_HOME:
+			cursorPos = 0;
+			break;
+		case KEY_LEFT:
+			if (cursorPos > 0)
+				cursorPos--;
+			break;
+		case KEY_RIGHT:
+			if (cursorPos < pInputText.sizeUTF8())
+				cursorPos++;
+			break;
+		case KEY_UP:
+			if (pHistoryPos > 0)
+			{
+				--pHistoryPos;
+				pInputText = pLastCommands[pHistoryPos];
+				cursorPos = uint32(pInputText.sizeUTF8());
+			}
+			break;
+		case KEY_DOWN:
+			if (pHistoryPos < (int)pLastCommands.size())
+			{
+				++pHistoryPos;
 				if (pHistoryPos < (int)pLastCommands.size())
-				{
-					++pHistoryPos;
-					if (pHistoryPos < (int)pLastCommands.size())
-						pInputText = pLastCommands[pHistoryPos];
-					else
-						pInputText.clear();
-					cursorPos = pInputText.sizeUTF8();
-				}
+					pInputText = pLastCommands[pHistoryPos];
+				else
+					pInputText.clear();
+				cursorPos = uint32(pInputText.sizeUTF8());
+			}
+			break;
+		case KEY_ESC:
+			break;
+		case KEY_TILDE:
+			if (pInputText.empty())     // If text input is empty, then we're just closing the console
 				break;
-			case KEY_ESC:
-				break;
-            case KEY_TILDE:
-                if (pInputText.empty())     // If text input is empty, then we're just closing the console
-                    break;
-			default:
-				if (keyb != 0 && pInputText.sizeUTF8() < 199)
-				{
-					pInputText = pInputText.substrUTF8(0, cursorPos) + InttoUTF8(keyb) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
-					cursorPos++;
-				}
+		default:
+			if (keyb != 0 && pInputText.sizeUTF8() < 199)
+			{
+				pInputText = pInputText.substrUTF8(0, cursorPos) + InttoUTF8(keyb) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
+				cursorPos++;
+			}
 		}
 
 		glDisable(GL_BLEND);
@@ -237,8 +241,6 @@ namespace TA3D
 			pShow = m_sho;
 			pVisible = m_vis;
 		}
-
-		return newline;
 	}
 
 
@@ -249,5 +251,37 @@ namespace TA3D
 		return (pShow || pVisible > 0.0f);
 	}
 
+	void Console::execute(const String &cmd)
+	{
+		MutexLocker mLocker(pMutex);
+		if (L == NULL)
+			return;
+
+		if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), NULL ))
+		{
+			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+				addEntry(lua_tostring(L, -1));
+			return;
+		}
+		else
+		{
+			try
+			{
+				if (lua_pcall(L, 0, 0, 0))
+				{
+					if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+						addEntry(lua_tostring(L, -1));
+					return;
+				}
+			}
+			catch(...)
+			{
+				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+					addEntry(lua_tostring(L, -1));
+				return;
+			}
+		}
+		return;
+	}
 
 } // namespace TA3D

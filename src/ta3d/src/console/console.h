@@ -27,6 +27,7 @@
 # include <misc/string.h>
 # include <threads/mutex.h>
 # include <gfx/gfx.h>
+# include "../lua/lua.hpp"
 
 
 namespace TA3D
@@ -72,20 +73,24 @@ namespace TA3D
         ** \param fsize Size of the font
         ** \param forceShow Display the console even it should be displayed
         */
-        String draw(TA3D::Font *fnt, const float dt, const bool forceShow = false);
+		void draw(TA3D::Font *fnt, const float dt, const bool forceShow = false);
 
+		void execute(const String &cmd);
+	private:
+		void registerConsoleAPI();
 
     private:
+		typedef std::deque<String> EntryList;
         //! Mutex
         Mutex pMutex;
         //!
-        String::List pLastEntries;
+		EntryList pLastEntries;
         //!
         String::Vector pLastCommands;
         //!
         int pHistoryPos;
         //!
-        uint16 pMaxItemsToDisplay;
+		uint32 pMaxItemsToDisplay;
         //!
         float pVisible;
         //!
@@ -93,10 +98,12 @@ namespace TA3D
         //!
         String pInputText;
         //!
-        uint16 cursorPos;
+		uint32 cursorPos;
         //!
         uint32 pCurrentTimer;
 
+		//! The Lua state used to execute commands
+		lua_State *L;
     }; //class Console
 
 

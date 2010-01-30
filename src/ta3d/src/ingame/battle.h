@@ -43,6 +43,7 @@ namespace TA3D
 
 	class Battle
 	{
+		friend class CAPI;
 	public:
 		//! Results about the battle
 		enum Result {brUnknown, brVictory, brDefeat, brPat};
@@ -209,6 +210,8 @@ namespace TA3D
 		//! \name Evens in Game
 		//@{
 		//@}
+
+		void reloadShaders();
 
 		Vector3D cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map = false);
 
@@ -513,6 +516,12 @@ namespace TA3D
 
         //! \name Debug information
         DebugInfo debugInfo;
+
+	private:
+		static Battle *pInstance;
+
+	public:
+		static Battle *Instance();
 
 	}; // class Battle
 

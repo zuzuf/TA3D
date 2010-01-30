@@ -47,6 +47,38 @@ using namespace Yuni::Core::IO::File;
 namespace TA3D
 {
 
+	void Battle::reloadShaders()
+	{
+		if (!g_useProgram)
+			return;
+		water_shader.destroy();
+		water_shader.load("shaders/water.frag","shaders/water.vert");
+		water_shader_reflec.destroy();
+		water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
+		water_pass1.destroy();
+		water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
+		water_pass1_low.destroy();
+		water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+		water_pass2.destroy();
+		water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
+		map->detail_shader.destroy();
+		map->detail_shader.load( "shaders/details.frag", "shaders/details.vert");
+		map->shadow2_shader.destroy();
+		map->shadow2_shader.load("shaders/map_shadow.frag", "shaders/map_shadow.vert");
+		water_simulator_shader.destroy();
+		water_simulator_shader.load("shaders/water_simulator.frag","shaders/water_simulator.vert");
+		water_simulator_shader2.destroy();
+		water_simulator_shader2.load("shaders/water_simulator2.frag","shaders/water_simulator.vert");
+		water_simulator_shader3.destroy();
+		water_simulator_shader3.load("shaders/water_simulator3.frag","shaders/water_simulator.vert");
+		water_simulator_shader4.destroy();
+		water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");
+		water_simulator_reflec.destroy();
+		water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
+		gfx->model_shader.destroy();
+		gfx->model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
+	}
+
 	Battle::Result Battle::Execute(GameData* g)
 	{
 		Battle battle(g);
@@ -76,10 +108,13 @@ namespace TA3D
     {
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
 		grab_mouse(lp_CONFIG->grab_inputs);
+		pInstance = this;
     }
 
 	Battle::~Battle()
 	{
+		pInstance = NULL;
+
 		LOG_INFO(LOG_PREFIX_BATTLE << "Releasing unused resources...");
 
 		water_obj = nullptr;
