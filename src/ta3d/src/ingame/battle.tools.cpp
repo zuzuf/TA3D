@@ -6,7 +6,7 @@
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <sounds/manager.h>
-#include <console.h>
+#include <console/console.h>
 
 
 namespace TA3D

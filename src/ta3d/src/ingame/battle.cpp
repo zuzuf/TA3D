@@ -35,7 +35,7 @@
 #include <misc/math.h>
 #include <sounds/manager.h>
 #include <logs/logs.h>
-#include <console.h>
+#include <console/console.h>
 #include "weapons/weapons.h"
 #include <fbi.h>
 #include <UnitEngine.h>

@@ -24,9 +24,9 @@
 #ifndef _TA3D_XX_CLASSE_CONSOLE_H__
 # define _TA3D_XX_CLASSE_CONSOLE_H__
 
-# include "misc/string.h"
-# include "threads/mutex.h"
-# include "gfx/gfx.h"
+# include <misc/string.h>
+# include <threads/mutex.h>
+# include <gfx/gfx.h>
 
 
 namespace TA3D

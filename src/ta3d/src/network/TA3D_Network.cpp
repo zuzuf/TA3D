@@ -27,7 +27,7 @@
 #include <languages/i18n.h>
 #include <misc/math.h>
 #include <sounds/manager.h>
-#include <console.h>
+#include <console/console.h>
 #include <ingame/players.h>
 #include <misc/paths.h>
 #include <misc/files.h>
