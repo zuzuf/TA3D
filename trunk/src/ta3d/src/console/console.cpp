@@ -213,8 +213,9 @@ namespace TA3D
 			if (!pInputText.empty() && pInputText.last() != ' ')
 			{
 				String tmp = pInputText;
+				String delimiters(" ()'\"");
 				for(int i = pInputText.size() - 1 ; i >= 0 ; --i)
-					if (pInputText[i] == ' ')
+					if (delimiters.contains(pInputText[i]))
 					{
 						tmp = pInputText.substr(i + 1);
 						break;

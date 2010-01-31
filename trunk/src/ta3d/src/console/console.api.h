@@ -75,6 +75,17 @@ namespace TA3D
 		static int setMetalCheat(lua_State *L);
 		static int setEnergyCheat(lua_State *L);
 		static int setGUIalpha(lua_State *L);
+		// ---------------    Debug commands    ---------------
+		static int _debugSetContext(lua_State *L);
+		static int _debugState(lua_State *L);
+		static int _debugLoad(lua_State *L);
+		static int _debugStop(lua_State* L);
+		static int _debugResume(lua_State *L);
+		static int _debugKill(lua_State* L);
+		static int _debugCrash(lua_State* L);
+		static int _debugContinue(lua_State *L);
+		static int _debugRun(lua_State *L);
+		static int _debugMemory(lua_State *L);
 		// ---------------    OS specific commands    ---------------
 		static int setFullscreen(lua_State* L);
 	};
