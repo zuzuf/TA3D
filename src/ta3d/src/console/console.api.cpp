@@ -621,80 +621,124 @@ namespace TA3D
 		return 1;
 	}
 
-//	// ---------------    Debug commands    ---------------
-//	else if (params[0] == "lua" && params.size() > 1)
-//	{
-//		if (params[1] == "debug" && params.size() > 2)              // Switch debug context
-//		{
-//			if (params[2] == "mission")
-//				debugInfo.process = &game_script;
-//			else if (params[2] == "AI" && params.size() > 3)
-//			{
-//				int pid = params[3].to<sint32>();
-//				if (pid >= 0 && pid < players.count())
-//					debugInfo.process = AiScript::Ptr::WeakPointer(players.ai_command[pid].getAiScript());
-//				else
-//					debugInfo.process = NULL;
-//			}
-//			else
-//			{
-//				LOG_INFO(LOG_PREFIX_LUA << "could not find specified LuaThread");
-//				debugInfo.process = NULL;
-//			}
-//		}
-//		else if (params[1] == "state" && debugInfo.process)                               // Print LuaThread state
-//		{
-//			if (debugInfo.process->is_waiting())
-//				LOG_INFO(LOG_PREFIX_LUA << "LuaThread is paused");
-//			if (debugInfo.process->is_sleeping())
-//				LOG_INFO(LOG_PREFIX_LUA << "LuaThread is sleeping");
-//			if (debugInfo.process->is_running())
-//				LOG_INFO(LOG_PREFIX_LUA << "LuaThread is running");
-//			if (debugInfo.process->is_crashed())
-//				LOG_INFO(LOG_PREFIX_LUA << "LuaThread is crashed");
-//		}
-//		else if (params[1] == "load" && params.size() > 2 && debugInfo.process)          // Load a Lua script into the Lua thread
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "Lua script is being loaded");
-//			debugInfo.process->load(params[2]);
-//		}
-//		else if (params[1] == "stop" && debugInfo.process)                               // Stop the LuaThread (it doesn't kill it)
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being stopped");
-//			debugInfo.process->stop();
-//		}
-//		else if (params[1] == "resume" && debugInfo.process)                             // Resume the LuaThread (it doesn't uncrash it)
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being resumed");
-//			debugInfo.process->resume();
-//		}
-//		else if (params[1] == "kill" && debugInfo.process)                               // Kill the LuaThread
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being killed");
-//			debugInfo.process->kill();
-//		}
-//		else if (params[1] == "crash" && debugInfo.process)                              // Crash the LuaThread
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being crashed");
-//			debugInfo.process->crash();
-//		}
-//		else if (params[1] == "continue" && debugInfo.process)                           // Uncrash the LuaThread
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "LuaThread is being uncrashed");
-//			debugInfo.process->uncrash();
-//		}
-//		else if (params[1] == "run" && debugInfo.process)
-//		{
-//			String code = cmd.substr(cmd.find("run") + 3, String::npos);
-//			LOG_INFO(LOG_PREFIX_LUA << "running : '" << code << "'");
-//			if (!debugInfo.process->runCommand(code))
-//				LOG_INFO(LOG_PREFIX_LUA << "running given code failed");
-//		}
-//		else if (params[1] == "memory" && debugInfo.process)                             // Show the memory used by the select Lua VM
-//		{
-//			LOG_INFO(LOG_PREFIX_LUA << "Lua GC reports " << debugInfo.process->getMem() << " bytes used");
-//		}
-//	}
+	// ---------------    Debug commands    ---------------
+	int CAPI::_debugSetContext(lua_State *L)			// Switch debug context
+	{
+		String context = lua_gettop(L) > 0 ? lua_tostring(L, 1) : String();
+		if (context == "mission")
+			Battle::Instance()->debugInfo.process = &(Battle::Instance()->game_script);
+		else if (context == "AI")
+		{
+			int pid = lua_gettop(L) > 1 ? lua_tointeger(L, 2) : -1;
+			if (pid >= 0 && pid < players.count())
+				Battle::Instance()->debugInfo.process = AiScript::Ptr::WeakPointer(players.ai_command[pid].getAiScript());
+			else
+				Battle::Instance()->debugInfo.process = NULL;
+		}
+		else
+		{
+			Console::Instance()->addEntry("error : available options are : \"mission\", \"AI\"");
+			Battle::Instance()->debugInfo.process = NULL;
+		}
+		return 0;
+	}
+
+	int CAPI::_debugState(lua_State *L)												// Print LuaThread state
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+
+		if (Battle::Instance()->debugInfo.process->is_waiting())
+			Console::Instance()->addEntry("LuaThread is paused");
+		if (Battle::Instance()->debugInfo.process->is_sleeping())
+			Console::Instance()->addEntry("LuaThread is sleeping");
+		if (Battle::Instance()->debugInfo.process->is_running())
+			Console::Instance()->addEntry("LuaThread is running");
+		if (Battle::Instance()->debugInfo.process->is_crashed())
+			Console::Instance()->addEntry("LuaThread is crashed");
+		return 0;
+	}
+
+	int CAPI::_debugLoad(lua_State *L)				// Load a Lua script into the Lua thread
+	{
+		if (Battle::Instance()->debugInfo.process == NULL || lua_gettop(L) == 0)
+			return 0;
+		Battle::Instance()->debugInfo.process->load(lua_tostring(L, 1));
+		Console::Instance()->addEntry("Lua script loaded");
+		return 0;
+	}
+
+	int CAPI::_debugStop(lua_State* L)				// Stop the LuaThread (it doesn't kill it)
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+		Battle::Instance()->debugInfo.process->stop();
+		Console::Instance()->addEntry("LuaThread is stopped");
+		return 0;
+	}
+
+	int CAPI::_debugResume(lua_State *L)				// Resume the LuaThread (it doesn't uncrash it)
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+		Battle::Instance()->debugInfo.process->resume();
+		Console::Instance()->addEntry("LuaThread resumed");
+		return 0;
+	}
+
+	int CAPI::_debugKill(lua_State* L)	// Kill the LuaThread
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+		Battle::Instance()->debugInfo.process->kill();
+		Console::Instance()->addEntry("LuaThread killed");
+		return 0;
+	}
+
+	int CAPI::_debugCrash(lua_State* L)				// Crash the LuaThread
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+		Battle::Instance()->debugInfo.process->crash();
+		Console::Instance()->addEntry("LuaThread crashed");
+		return 0;
+	}
+
+	int CAPI::_debugContinue(lua_State *L)			// Uncrash the LuaThread
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+		Battle::Instance()->debugInfo.process->uncrash();
+		Console::Instance()->addEntry("LuaThread uncrashed");
+		return 0;
+	}
+
+	int CAPI::_debugRun(lua_State *L)
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+		if (lua_gettop(L) == 0)
+			return 0;
+
+		String code = lua_tostring(L, 1);
+		LOG_INFO(LOG_PREFIX_LUA << "running : '" << code << "'");
+		if (!Battle::Instance()->debugInfo.process->runCommand(code))
+		{
+			LOG_INFO(LOG_PREFIX_LUA << "running given code failed");
+			Console::Instance()->addEntry("running given code failed");
+		}
+		return 0;
+	}
+
+	int CAPI::_debugMemory(lua_State *L)						// Show the memory used by the select Lua VM
+	{
+		if (Battle::Instance()->debugInfo.process == NULL)
+			return 0;
+
+		Console::Instance()->addEntry(String("Lua GC reports ") << Battle::Instance()->debugInfo.process->getMem() << " bytes used");
+		return 0;
+	}
+
 	// ---------------    OS specific commands    ---------------
 	int CAPI::setFullscreen(lua_State* L)      // This works only on Linux/X11
 	{
@@ -818,6 +862,19 @@ namespace TA3D
 		CAPI_REGISTER(setMetalCheat);
 		CAPI_REGISTER(setEnergyCheat);
 		CAPI_REGISTER(setGUIalpha);
+
+		// ---------------    Debug commands    ---------------
+		CAPI_REGISTER(_debugSetContext);
+		CAPI_REGISTER(_debugState);
+		CAPI_REGISTER(_debugLoad);
+		CAPI_REGISTER(_debugStop);
+		CAPI_REGISTER(_debugResume);
+		CAPI_REGISTER(_debugKill);
+		CAPI_REGISTER(_debugCrash);
+		CAPI_REGISTER(_debugContinue);
+		CAPI_REGISTER(_debugRun);
+		CAPI_REGISTER(_debugMemory);
+
 		// ---------------    OS specific commands    ---------------
 		CAPI_REGISTER(setFullscreen);
 	}

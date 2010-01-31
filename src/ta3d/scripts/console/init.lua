@@ -1,4 +1,4 @@
-print("initializing console")
+print("Initializing console")
 
 function setCameraPerspective(v)
   if v ~= nil then
@@ -33,11 +33,43 @@ __fn_state["metalCheat"] = setMetalCheat;
 __fn_state["energyCheat"] = setEnergyCheat;
 __fn_state["fullscreen"] = setFullscreen;
 
+debug = {}
+debug["setContext"] = _debugSetContext
+debug["state"] = _debugState
+debug["load"] = _debugLoad
+debug["stop"] = _debugStop
+debug["resume"] = _debugResume
+debug["kill"] = _debugKill
+debug["crash"] = _debugCrash
+debug["continue"] = _debugContinue
+debug["run"] = _debugRun
+debug["memory"] = _debugMemory
+
+
 local __tab_complete_fn = function(param)
   local result = nil
   for k,v in pairs(__fn_state) do
 	k = k .. "()"
 	if k:sub(1,param:len()) == param then
+	  if result ~= nil then
+		result = result .. ", "
+	  else
+		result = ""
+	  end
+	  result = result .. k
+	end
+  end
+  if result == nil then
+	return ""
+  end
+  return result
+end
+
+local __tab_complete_debug = function(param)
+  local result = nil
+  for k,v in pairs(debug) do
+	k = k .. "()"
+	if k:sub(1,param:len()) == param and k:sub(1,2) ~= "__" then
 	  if result ~= nil then
 		result = result .. ", "
 	  else
@@ -70,10 +102,17 @@ function(table, key)
   return function() __fn_state[key](false) end
 end} )
 
+debug.__tab_complete = __tab_complete_debug
+
+energy = function() toggle.energyCheat() end
+metal = function() toggle.metalCheat() end
+pause = function() toggle.pause() end
+
 __cmd_list = {}
 __cmd_list["toggle."] = true;
 __cmd_list["enable."] = true;
 __cmd_list["disable."] = true;
+__cmd_list["debug."] = true;
 __cmd_list["exit()"] = true;
 
 for k, v in pairs(_G) do
@@ -99,3 +138,5 @@ __tab_complete = function(param)
   end
   return result
 end
+
+print("Console initialized")
