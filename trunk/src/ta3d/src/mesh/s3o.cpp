@@ -282,18 +282,19 @@ namespace TA3D
 		return alset;
 	}
 
-	MESH_S3O* MESH_S3O::LoadPiece(byte* buf, int offset, MESH_S3O* model, MESH_S3O *root)
+	MESH_S3O* MESH_S3O::LoadPiece(File* file, MESH_S3O* model, MESH_S3O *root)
 	{
 		MESH_S3O* piece = model ? model : new MESH_S3O;
 		piece->type = MESH_TYPE_TRIANGLES;
 		piece->root = root;
 
-		Piece* fp = (Piece*)&buf[offset];
+		Piece fp;
+		*file >> fp;
 
-		piece->pos_from_parent.x = fp->xoffset;
-		piece->pos_from_parent.y = fp->yoffset;
-		piece->pos_from_parent.z = fp->zoffset;
-		switch(fp->primitiveType)
+		piece->pos_from_parent.x = fp.xoffset;
+		piece->pos_from_parent.y = fp.yoffset;
+		piece->pos_from_parent.z = fp.zoffset;
+		switch(fp.primitiveType)
 		{
 			case S3O_PRIMTYPE_QUADS:
 			case S3O_PRIMTYPE_TRIANGLES:
@@ -303,52 +304,54 @@ namespace TA3D
 				piece->type = MESH_TYPE_TRIANGLE_STRIP;
 				break;
 		};
-		piece->name = (char*) &buf[fp->name];
+		file->seek(fp.name);
+		piece->name = file->getString();
 
 		// retrieve each vertex
-		int vertexOffset = fp->vertices;
 
-		piece->nb_vtx = fp->numVertices;
+		piece->nb_vtx = fp.numVertices;
 		piece->points = new Vector3D[piece->nb_vtx];
 		piece->N = new Vector3D[piece->nb_vtx];
 		piece->tcoord = new float[2 * piece->nb_vtx];
 
-		for (int a = 0; a < fp->numVertices; ++a)
+		file->seek(fp.vertices);
+		for (int a = 0; a < fp.numVertices; ++a)
 		{
-			SS3OVertex* v = (SS3OVertex*) &buf[vertexOffset];
-			piece->points[a] = v->pos;
-			piece->N[a] = v->normal;
-			piece->tcoord[a * 2] = v->textureX;
-			piece->tcoord[a * 2 + 1] = v->textureY;
-
-			vertexOffset += sizeof(SS3OVertex);
+			SS3OVertex v;
+			*file >> v;
+			piece->points[a] = v.pos;
+			piece->N[a] = v.normal;
+			piece->tcoord[a * 2] = v.textureX;
+			piece->tcoord[a * 2 + 1] = v.textureY;
 		}
 
 
 		// retrieve the draw order for the vertices
-		int vertexTableOffset = fp->vertexTable;
 
 		std::vector<int> index;
 
-		for (int a = 0; a < fp->vertexTableSize ; ++a)
+		file->seek(fp.vertexTable);
+		for (int a = 0; a < fp.vertexTableSize ; ++a)
 		{
-			int vertexDrawIdx = *(int*) &buf[vertexTableOffset];
+			int vertexDrawIdx;
+			*file >> vertexDrawIdx;
 
 			index.push_back(vertexDrawIdx);
-			if (fp->primitiveType == S3O_PRIMTYPE_QUADS && (a % 4) == 2)        // QUADS need to be split into triangles (this would be done internally by OpenGL anyway since quads are rendered as 2 triangles)
+			if (fp.primitiveType == S3O_PRIMTYPE_QUADS && (a % 4) == 2)        // QUADS need to be split into triangles (this would be done internally by OpenGL anyway since quads are rendered as 2 triangles)
 			{
 				index.push_back(index[index.size() - 3]);
 				index.push_back(vertexDrawIdx);
 			}
-			vertexTableOffset += sizeof(int);
 
 			// -1 == 0xFFFFFFFF (U)
-			if (vertexDrawIdx == -1 && a != fp->vertexTableSize - 1)
+			if (vertexDrawIdx == -1 && a != fp.vertexTableSize - 1)
 			{
 				// for triangle strips
 				index.push_back(vertexDrawIdx);
 
-				vertexDrawIdx = *(int*) &buf[vertexTableOffset];
+				int pos = file->tell();
+				*file >> vertexDrawIdx;
+				file->seek(pos);
 				index.push_back(vertexDrawIdx);
 			}
 		}
@@ -358,13 +361,14 @@ namespace TA3D
 		for(int i = 0 ; i < index.size() ; ++i)
 			piece->t_index[i] = index[i];
 
-		int childTableOffset = fp->childs;
-
-		for (int a = 0; a < fp->numChilds; ++a)
+		for (int a = 0; a < fp.numChilds; ++a)
 		{
-			int childOffset = *(int*) &buf[childTableOffset];
+			file->seek(fp.childs + a * sizeof(int));
+			int childOffset;
+			*file >> childOffset;
 
-			MESH_S3O* childPiece = LoadPiece(buf, childOffset, NULL, root);
+			file->seek(childOffset);
+			MESH_S3O* childPiece = LoadPiece(file, NULL, root);
 			if (piece->child)
 			{
 				childPiece->next = piece->child;
@@ -372,23 +376,21 @@ namespace TA3D
 			}
 			else
 				piece->child = childPiece;
-
-			childTableOffset += sizeof(int);
 		}
 
 		return piece;
 	}
 
-	byte *MESH_S3O::load(byte *data, const String &filename)
+	void MESH_S3O::load(File *file, const String &filename)
 	{
 		destroyS3O();
 
 		S3OHeader header;
-		memcpy(&header, data, sizeof(header));
+		*file >> header;
 		if (memcmp(header.magic, "Spring unit\0", 12))      // File corrupt or wrong format
 		{
 			LOG_ERROR(LOG_PREFIX_S3O << "Spring Model Loader error : File is corrupt or in wrong format");
-			return NULL;
+			return;
 		}
 
 		MESH_S3O* model = this;
@@ -396,37 +398,37 @@ namespace TA3D
 		model->name = filename;
 		if (header.texture1 > 0)
 		{
-			String textureName = String("textures/") << (char*) &data[header.texture1];
+			file->seek(header.texture1);
+			String textureName = String("textures/") << file->getString();
 			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
 			if (tex)
 				model->gltex.push_back(tex);
 		}
 		if (header.texture2 > 0)
 		{
-			String textureName = String("textures/") << (char*) &data[header.texture2];
+			file->seek(header.texture2);
+			String textureName = String("textures/") << file->getString();
 			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
 			if (tex)
 				model->gltex.push_back(tex);
 		}
 
-		LoadPiece(data, header.rootPiece, model, this);
-
-		return data;
+		file->seek(header.rootPiece);
+		LoadPiece(file, model, this);
 	}
 
 	MODEL *MESH_S3O::load(const String &filename)
 	{
-		uint32 file_length(0);
-		byte *data = VFS::Instance()->readFile(filename, &file_length);
-		if (!data)
+		File *file = VFS::Instance()->readFile(filename);
+		if (!file)
 		{
 			LOG_ERROR(LOG_PREFIX_S3O << "could not read file '" << filename << "'");
 			return NULL;
 		}
 
 		MESH_S3O *mesh = new MESH_S3O;
-		mesh->load(data, filename);
-		DELETE_ARRAY(data);
+		mesh->load(file, filename);
+		delete file;
 
 		MODEL *model = new MODEL;
 		model->mesh = mesh;

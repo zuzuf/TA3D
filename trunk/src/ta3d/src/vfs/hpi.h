@@ -128,7 +128,7 @@ namespace TA3D
 
 # pragma pack()
         public:
-            class HpiFile : public Archive::File
+			class HpiFile : public Archive::FileInfo
             {
             public:
                 //!
@@ -137,8 +137,8 @@ namespace TA3D
                 uint64  size;
             public:
                 virtual ~HpiFile() {}
-                inline void setName(const String &name)   {  Archive::File::name = name; }
-                inline void setParent(Archive *parent)   {  Archive::File::parent = parent; }
+				inline void setName(const String &name)   {  Archive::FileInfo::name = name; }
+				inline void setParent(Archive *parent)   {  Archive::FileInfo::parent = parent; }
             };
         public:
             //! Constructor
@@ -159,13 +159,13 @@ namespace TA3D
             /*!
             ** \brief Return the list of all files in the archive
             */
-			virtual void getFileList(std::deque<File*> &lFiles);
+			virtual void getFileList(std::deque<FileInfo*> &lFiles);
 
             /*!
             ** \brief
             */
-            virtual byte* readFile(const String& filename, uint32* file_length = NULL);
-            virtual byte* readFile(const File *file, uint32* file_length = NULL);
+			virtual File* readFile(const String& filename);
+			virtual File* readFile(const FileInfo *file);
 
             /*!
             ** \brief
@@ -174,8 +174,8 @@ namespace TA3D
             ** \param length
             ** \return
             */
-            virtual byte* readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length = NULL);
-            virtual byte* readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length = NULL);
+			virtual File* readFileRange(const String& filename, const uint32 start, const uint32 length);
+			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length);
 
             /*!
             ** \brief returns true if using the cache is a good idea (real FS will return false)

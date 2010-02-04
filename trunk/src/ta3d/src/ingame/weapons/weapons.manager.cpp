@@ -17,7 +17,7 @@
 #include "weapons.manager.h"
 #include <sounds/manager.h>
 #include <logs/logs.h>
-
+#include <vfs/file.h>
 
 namespace TA3D
 {
@@ -71,11 +71,12 @@ namespace TA3D
     }
 
 
-	void WeaponManager::load_tdf(char *data, const int size)
+	void WeaponManager::load_tdf(File *file)
     {
         TDFParser parser;
         parser.setSpecialSection("damage");     // We want to get the list of units in damage sections
-        parser.loadFromMemory("weapon",data,size,false,false,true);
+		parser.loadFromMemory("weapon",file->data(),file->size(),false,false,true);
+		file->close();
 
         for (int i = 0; parser.exists(String("gadget") <<  i); ++i)
         {

@@ -63,23 +63,23 @@ namespace TA3D
 		int anm_idx = findInCache(fullname);
 		if (anm_idx == -1)
 		{
-			byte *data;
+			File *file;
 			if (String::ToLower(filename) != "fx")
-				data = VFS::Instance()->readFile(tmp);
+				file = VFS::Instance()->readFile(tmp);
 			else
-				data = fx_data;
-			if (data)
+				file = fx_data;
+			if (file)
 			{
 				Gaf::Animation* anm = new Gaf::Animation();
-				anm->loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, entryName));
+				anm->loadGAFFromRawData(file, Gaf::RawDataGetEntryIndex(file, entryName));
 				// Next line has been removed in order to remain thread safe, conversion is done in main thread
 				//			anm->convert(false,true);
 				pCacheIsDirty = true;				// Set cache as dirty so we will do conversion at draw time
 
 				anm_idx = putInCache(fullname, anm);
 
-				if(data != fx_data)
-					DELETE_ARRAY(data);
+				if(file != fx_data)
+					delete file;
 			}
 		}
 		else

@@ -43,13 +43,13 @@ namespace TA3D
 		nuclogo.init();
 		if (real)
 		{
-			byte *data = VFS::Instance()->readFile("anims\\fx.gaf");
-			if (data)
+			File *file = VFS::Instance()->readFile("anims\\fx.gaf");
+			if (file)
 			{
-				nuclogo.loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, "nuclogo"));
+				nuclogo.loadGAFFromRawData(file, Gaf::RawDataGetEntryIndex(file, "nuclogo"));
 				nuclogo.convert();
 				nuclogo.clean();
-				DELETE_ARRAY(data);
+				delete file;
 			}
 		}
 		pMutex.unlock();

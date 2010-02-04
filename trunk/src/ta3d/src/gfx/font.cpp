@@ -206,9 +206,8 @@ namespace TA3D
 
 			if (!Yuni::Core::IO::File::Exists(tmp))
 			{
-				uint32 font_size = 0;
-				byte *data = VFS::Instance()->readFile(out, &font_size);
-				if (data)
+				File *file = VFS::Instance()->readFile(out);
+				if (file)
 				{
 					Stream tmp_file;
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
@@ -216,7 +215,14 @@ namespace TA3D
 					tmp_file.open(tmp, OpenMode::write);
 					if (tmp_file.opened())
 					{
-						tmp_file.write((const char*)data, font_size);
+						char *buf = new char[10240];
+						for(int i = 0 ; i < file->size() ; i += 10240)
+						{
+							int l = Math::Min(10240, file->size() - i);
+							file->read(buf, l);
+							tmp_file.write(buf, l);
+						}
+						delete[] buf;
 						tmp_file.flush();
 						tmp_file.close();
 						out.clear();
@@ -227,7 +233,7 @@ namespace TA3D
 					}
 					else
 						LOG_ERROR(LOG_PREFIX_FONT << "Impossible to create the temporary file `" << tmp << "`");
-					DELETE_ARRAY(data);
+					delete file;
 				}
 			}
 			else

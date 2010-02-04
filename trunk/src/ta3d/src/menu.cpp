@@ -2331,9 +2331,9 @@ namespace TA3D
 		}
 
 		Gaf::AnimationList side_logos;
-        byte *data = VFS::Instance()->readFile( "anims\\newgame.gaf");
-		side_logos.loadGAFFromRawData(data, true);
-		DELETE_ARRAY(data);
+		File *file = VFS::Instance()->readFile( "anims\\newgame.gaf");
+		side_logos.loadGAFFromRawData(file, true);
+		delete file;
 
 		TDFParser::Ptr campaign_parser = NULL;
 
@@ -2510,13 +2510,13 @@ namespace TA3D
 				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
 				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief");
-			byte *data = VFS::Instance()->readFile(brief_file);
-			if (data)
+			File *file = VFS::Instance()->readFile(brief_file);
+			if (file)
 			{
-				String brief_info = (const char*)data;
+				String brief_info = (const char*)file->data();
 				brief_info.toUTF8();
 				brief_area.caption( "brief.info", brief_info);
-				DELETE_ARRAY(data);
+				delete file;
 			}
 		}
 
@@ -2537,11 +2537,11 @@ namespace TA3D
 		else if (planet_file == "slate" )               planet_file = "anims\\slatebrief.gaf";
 		else if (planet_file == "water world" )         planet_file = "anims\\waterbrief.gaf";
 
-		byte *data = VFS::Instance()->readFile(planet_file);
-		if (data)
+		File *file = VFS::Instance()->readFile(planet_file);
+		if (file)
 		{
-			planet_animation.loadGAFFromRawData(data, true);
-			DELETE_ARRAY(data);
+			planet_animation.loadGAFFromRawData(file, true);
+			delete file;
 		}
 
 		int schema = 0;

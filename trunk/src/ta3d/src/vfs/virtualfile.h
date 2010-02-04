@@ -34,11 +34,12 @@ namespace TA3D
 		{
 		public:
 			VirtualFile();
+			VirtualFile(byte *buf, int s, int start = 0, int end = -1);
 			//! This is an abstract class, its destructor must be virtual
 			virtual ~VirtualFile();
 
 			//! Read s bytes and write them in memory pointed by p
-			virtual void read(void *p, int s);
+			virtual int read(void *p, int s);
 			//! Returns the size of the file
 			virtual int size();
 			//! Returns true if end of file has been reached
@@ -51,14 +52,27 @@ namespace TA3D
 			virtual bool readLine(String &line);
 			//! Returns true if the file is opened
 			virtual bool isOpen();
+			//! Returns a pointer to a memory buffer containing the file
+			virtual const char *data();
+			//! Close the file
+			virtual void close();
 
 			//! Replace current buffer with the one given as parameter (it takes ownership of the new buffer which will be automatically deleted)
-			void setBuffer(byte *buf, int s);
+			void setBuffer(byte *buf, int s, int start = 0, int end = -1);
+
+			//! Replace current buffer with the one given as parameter (it takes ownership of the new buffer which will be automatically deleted)
+			void copyBuffer(byte *buf, int s, int start = 0, int end = -1);
+
+		private:
+			// Copying this kind of objects if forbidden!
+			virtual File &operator=(const File&)	{	return *this;	}
 
 		private:
 			byte *buffer;
 			int bufferSize;
 			int pos;
+			int offset;
+			int streamSize;
 		};
 	}
 }

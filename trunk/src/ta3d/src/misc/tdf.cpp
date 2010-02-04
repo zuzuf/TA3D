@@ -21,7 +21,7 @@
 #include "files.h"
 #include <ta3dbase.h>
 #include "resources.h"
-
+#include <vfs/file.h>
 
 
 namespace TA3D
@@ -92,51 +92,39 @@ namespace TA3D
 
 	bool TDFParser::loadFromFile(const String& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS)
 	{
-		uint64 size;
-		char* data;
+		File* file;
 		if (!realFS)
 		{
-			uint32 ms;
-			data = (char*)VFS::Instance()->readFile(filename, &ms);
-			size = ms;
-			if (NULL != data && size != 0)
+			file = VFS::Instance()->readFile(filename);
+			if (file && file->size())
 			{
-				bool res = loadFromMemory("hpi://" + filename, data, size, clear, toUTF8, gadgetMode);
-				DELETE_ARRAY(data);
+				bool res = loadFromMemory("hpi://" + filename, file->data(), file->size(), clear, toUTF8, gadgetMode);
+				delete file;
 				return res;
 			}
 		}
 		else
 		{
-			data = Paths::Files::LoadContentInMemory(filename, size, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
-			if (NULL != data && size != 0)
+			file = Paths::Files::LoadContentInMemory(filename, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
+			if (file && file->size())
 			{
-				bool res = loadFromMemory(filename, data, size, clear, toUTF8, gadgetMode);
-				DELETE_ARRAY(data);
+				bool res = loadFromMemory(filename, file->data(), file->size(), clear, toUTF8, gadgetMode);
+				delete file;
 				return res;
 			}
 		}
-		if (data == NULL)
+		if (file == NULL)
 		{
 			LOG_ERROR(LOG_PREFIX_TDF << "Unable to open `" << filename << "`");
 		}
 		else
 		{
-			DELETE_ARRAY(data);
+			delete file;
 			LOG_WARNING(LOG_PREFIX_TDF << "The file `" << filename << "` is empty (file size=0).");
 		}
 		return false;
 	}
 
-
-
-	bool TDFParser::loadFromMemory(const String& caption, const char* data, const bool clear, const bool toUTF8,
-								   const bool gadgetMode)
-	{
-		return (NULL != data)
-			? loadFromMemory(caption, data, strlen(data), clear, toUTF8, gadgetMode)
-			: false;
-	}
 
 	bool TDFParser::loadFromMemory(const String& caption, const char* data, uint64 size, const bool clearTable,
 								   const bool toUTF8, const bool gadgetMode)
@@ -226,7 +214,7 @@ namespace TA3D
 							else
 								stack.currentSection += '.';
 							stack.currentSection += stack.value;
-							if (stack.gadgetMode < 0 && !exists(stack.currentSection) )
+							if (stack.gadgetMode < 0 && !stack.currentSection.empty() && !exists(stack.currentSection))
 								pTable[stack.currentSection] = stack.value;
 							++stack.level;
 							continue;

@@ -48,17 +48,17 @@ namespace TA3D
             return NULL;
         }
 
-        byte* Archive::File::read(uint32* file_length)
+		File* Archive::FileInfo::read()
         {
-            return parent->readFile(this, file_length);
+			return parent->readFile(this);
         }
 
-        byte* Archive::File::readRange(const uint32 start, const uint32 length, uint32* file_length)
+		File* Archive::FileInfo::readRange(const uint32 start, const uint32 length)
         {
-            return parent->readFileRange(this, start, length, file_length);
+			return parent->readFileRange(this, start, length);
         }
 
-        bool Archive::File::needsCaching() const
+		bool Archive::FileInfo::needsCaching() const
         {
             return parent->needsCaching();
         }

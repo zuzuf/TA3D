@@ -750,22 +750,22 @@ namespace TA3D
 
 	void MAP_OTA::load(const String& filename)
 	{
-		uint32 ota_file_size = 0;
-        byte *data = VFS::Instance()->readFile(filename, &ota_file_size);
-		if (data)
+		File *file = VFS::Instance()->readFile(filename);
+		if (file)
 		{
-			load((char*)data, ota_file_size);
-			DELETE_ARRAY(data);
+			load(file);
+			delete file;
 		}
 	}
 
 
-	void MAP_OTA::load(char *data,int ota_size)
+	void MAP_OTA::load(File *file)
 	{
 		destroy();
 
 		TDFParser parser;
-		parser.loadFromMemory("OTA",data,ota_size,false,true,false);
+		parser.loadFromMemory("OTA",file->data(),file->size(),false,true,false);
+		file->close();
 
 		missionname = parser.pullAsString("GlobalHeader.missionname");
 		planet = parser.pullAsString("GlobalHeader.planet");
@@ -800,7 +800,7 @@ namespace TA3D
 		tmp.toLower();
 		network = tmp.startsWith("network");
 
-		if (waterdamage==0)
+		if (waterdamage == 0)
 			waterdoesdamage=false;
 	}
 

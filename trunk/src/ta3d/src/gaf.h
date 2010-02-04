@@ -32,7 +32,6 @@
 # include "logs/logs.h"
 # include "sdl.h"
 
-
 # define TA3D_GAF_STANDARD      0x00010100
 # define TA3D_GAF_TRUECOLOR     0x00010101
 
@@ -45,6 +44,10 @@
 
 namespace TA3D
 {
+	namespace UTILS
+	{
+		class File;
+	}
 
 	/*!
 	** \brief Toolkit for the GAF file format
@@ -70,9 +73,7 @@ namespace TA3D
 			/*!
 			** \brief Constructor with RAW data (assuming data is the begining of the file)
 			*/
-			Header(const byte* data)
-				:IDVersion(((sint32*)data)[0]), Entries(((sint32*)data)[1]), Unknown1(((sint32*)data)[2])
-			{}
+			Header(UTILS::File* file);
 			/*!
 			** \brief Constructor
 			*/
@@ -133,8 +134,8 @@ namespace TA3D
 				//@{
 				//! Default constructor
 				Data();
-				//! Constructor from RAW data
-				Data(const byte* data, int pos);
+				//! Constructor from RAW file data
+				Data(UTILS::File* file);
 				//@}
 
 				//! Width of the frame
@@ -187,19 +188,19 @@ namespace TA3D
 		/*!
 		** \brief Load a GAF image into a SDL_Surface
 		*/
-		static SDL_Surface* RawDataToBitmap(const byte* buf, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
+		static SDL_Surface* RawDataToBitmap(UTILS::File* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
 
 		/*!
 		** \brief Get the number of entries from raw data
 		** \see Gaf::Header
 		*/
-		static sint32 RawDataEntriesCount(const byte* buf) {return ((sint32*)buf)[1];}
+		static sint32 RawDataEntriesCount(UTILS::File* file);
 
-		static String RawDataGetEntryName(const byte* buf,int entry_idx);
+		static String RawDataGetEntryName(UTILS::File* file, int entry_idx);
 
-		static sint32 RawDataGetEntryIndex(const byte *buf, const String& name);
+		static sint32 RawDataGetEntryIndex(UTILS::File *file, const String& name);
 
-		static sint32 RawDataImageCount(const byte *buf, const int entry_idx);
+		static sint32 RawDataImageCount(UTILS::File *file, const int entry_idx);
 
 
 
@@ -221,7 +222,7 @@ namespace TA3D
 			void init();
 			void destroy();
 
-			void loadGAFFromRawData(const byte *buf, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
+			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
 
 			void convert(bool NO_FILTER = false, bool COMPRESSED = false);
 
@@ -285,7 +286,7 @@ namespace TA3D
 			** \param fname
 			** \return The number of animation found
 			*/
-			sint32 loadGAFFromRawData(const byte* buf, const bool doConvert = false, const String& fname = "");
+			sint32 loadGAFFromRawData(UTILS::File* file, const bool doConvert = false, const String& fname = "");
 
 			/*!
 			** \brief

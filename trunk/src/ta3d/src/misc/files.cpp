@@ -20,9 +20,11 @@
 #include <yuni/core/io/file/stream.h>
 #include <yuni/core/io/file/file.hxx>
 #include "paths.h"
-
+#include <vfs/realfile.h>
 
 using namespace Yuni::Core::IO::File;
+
+using namespace TA3D::UTILS;
 
 namespace TA3D
 {
@@ -95,40 +97,20 @@ namespace Files
 	}
 
 
-	char* LoadContentInMemory(const String& filename, const uint64 hardlimit)
+	File* LoadContentInMemory(const String& filename, const uint64 hardlimit)
 	{
-		uint64 s;
-		return LoadContentInMemory(filename, s, hardlimit);
-	}
-
-
-	char* LoadContentInMemory(const String& filename, uint64& size, const uint64 hardlimit)
-	{
+		uint64 size;
 		if (Size(filename, size))
 		{
 			if (0 == size)
-			{
-				char* ret = new char[1];
-				LOG_ASSERT(ret != NULL);
-				*ret = '\0';
-				return ret;
-			}
+				return NULL;
 			if (size > hardlimit)
 			{
 				LOG_ERROR("Impossible to load the file `" << filename << "` in memory. Its size exceeds << "
 						  << hardlimit / 1204 << "Ko");
 				return NULL;
 			}
-			Stream f(filename, OpenMode::read);
-			if (f.opened())
-			{
-				char* ret = new char[size + 1];
-				LOG_ASSERT(ret != NULL);
-				f.read((char*)ret, size);
-				f.close();
-				ret[size] = '\0';
-				return ret;
-			}
+			return new UTILS::RealFile(filename);
 		}
 		return NULL;
 	}

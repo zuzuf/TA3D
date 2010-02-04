@@ -5,7 +5,7 @@ namespace TA3D
 {
 	namespace UTILS
 	{
-		void VirtualFile::setBuffer(byte *buf, int s)
+		void VirtualFile::setBuffer(byte *buf, int s, int start, int end)
 		{
 			pos = 0;
 			bufferSize = s;
@@ -14,10 +14,43 @@ namespace TA3D
 			buffer = buf;
 			if (buffer == NULL)
 				bufferSize = 0;
+			offset = Math::Max(start, 0);
+			if (end == -1)
+				streamSize = bufferSize + offset;
+			else
+				streamSize = Math::Max(end, offset + bufferSize);
 		}
 
-		VirtualFile::VirtualFile() : buffer(NULL), bufferSize(0), pos(0)
+		void VirtualFile::copyBuffer(byte *buf, int s, int start, int end)
+		{
+			pos = 0;
+			bufferSize = s;
+			if (buffer)
+				delete[] buffer;
+			if (s)
+			{
+				buffer = new byte[s + 1];
+				memcpy(buffer, buf, s);
+				buffer[s] = 0;
+			}
+			else
+				buffer = NULL;
+			if (buffer == NULL)
+				bufferSize = 0;
+			offset = Math::Max(start, 0);
+			if (end == -1)
+				streamSize = bufferSize + offset;
+			else
+				streamSize = Math::Max(end, offset + bufferSize);
+		}
+
+		VirtualFile::VirtualFile() : buffer(NULL), bufferSize(0), pos(0), offset(0), streamSize(0)
 		{}
+
+		VirtualFile::VirtualFile(byte *buf, int s, int start, int end) : buffer(NULL), bufferSize(0), pos(0), offset(0), streamSize(0)
+		{
+			setBuffer(buf, s, start, end);
+		}
 
 		VirtualFile::~VirtualFile()
 		{
@@ -26,7 +59,7 @@ namespace TA3D
 
 		bool VirtualFile::eof()
 		{
-			return pos == bufferSize;
+			return pos == streamSize;
 		}
 
 		bool VirtualFile::isOpen()
@@ -36,7 +69,7 @@ namespace TA3D
 
 		int VirtualFile::size()
 		{
-			return bufferSize;
+			return streamSize;
 		}
 
 		int VirtualFile::tell()
@@ -46,29 +79,56 @@ namespace TA3D
 
 		void VirtualFile::seek(int pos)
 		{
-			this->pos = Math::Clamp(pos, 0, bufferSize);
+			this->pos = Math::Clamp(pos, 0, streamSize);
 		}
 
-		void VirtualFile::read(void *p, int s)
+		int VirtualFile::read(void *q, int s)
 		{
-			if (pos == bufferSize || s <= 0)
-				return;
-			int n = Math::Min(s, bufferSize - pos);
+			char *p = (char*)q;
+			int k = 0;
+			for ( ; s && pos < offset && pos < streamSize ; ++pos, --s, ++p, ++k)
+				*p = 0;
+			if (pos == streamSize || s <= 0)
+				return k;
+			int n = Math::Min(s, offset + bufferSize - pos);
 			memcpy(p, buffer + pos, n);
 			pos += n;
+			return k + n;
 		}
 
 		bool VirtualFile::readLine(String &line)
 		{
-			if (pos == bufferSize)
+			if (pos == streamSize)
 				return false;
 
 			line.clear();
-			char *end = (char*)buffer + bufferSize;
+			if (pos < offset || pos >= offset + bufferSize)
+			{
+				++pos;
+				return true;
+			}
+
+			char *end = (char*)buffer + offset + bufferSize;
 			for(char *p = (char*)buffer + pos ; p != end && *p != 0 && *p != 13 && *p != 10 ; ++pos, ++p)
 				line << *p;
 
 			return true;
+		}
+
+		const char *VirtualFile::data()
+		{
+			return (const char*)buffer;
+		}
+
+		void VirtualFile::close()
+		{
+			if (buffer)
+				delete[] buffer;
+			buffer = NULL;
+			bufferSize = 0;
+			pos = 0;
+			offset = 0;
+			streamSize = 0;
 		}
 	}
 }

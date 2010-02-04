@@ -4,6 +4,7 @@
 #include <misc/string.h>
 #include <logs/logs.h>
 #include "realfs.h"
+#include "realfile.h"
 #include <yuni/core/io/file/stream.h>
 
 using namespace Yuni::Core::IO::File;
@@ -53,7 +54,7 @@ namespace TA3D
 			}
         }
 
-		void RealFS::getFileList(std::deque<File*> &lFiles)
+		void RealFS::getFileList(std::deque<FileInfo*> &lFiles)
         {
             if (files.empty())
             {
@@ -107,18 +108,18 @@ namespace TA3D
                 lFiles.push_back(i->second);
         }
 
-		byte* RealFS::readFile(const String& filename, uint32* file_length)
+		File* RealFS::readFile(const String& filename)
 		{
 			if (!files.empty())
 			{
 				HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
 				if (file != files.end())
-					return readFile(file->second, file_length);
+					return readFile(file->second);
 			}
 			return NULL;
 		}
 
-		byte* RealFS::readFile(const File *file, uint32* file_length)
+		File* RealFS::readFile(const FileInfo *file)
         {
             String unixFilename = ((const RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
@@ -128,34 +129,19 @@ namespace TA3D
 
             unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
-			Stream sFile(unixFilename, OpenMode::read);
-			if (!sFile.opened())
-                return NULL;
-			uint64 filesize(0);
-            if (!Paths::Files::Size(unixFilename, filesize))
-            {
-				sFile.close();
-                return NULL;
-            }
-            if (file_length)
-                *file_length = (uint32)filesize;
-            byte *data = new byte[filesize + 1];
-			sFile.read((char*)data, filesize);
-            data[filesize] = 0;
-			sFile.close();
-            return data;
+			return new UTILS::RealFile(unixFilename);
         }
 
-        byte* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length)
+		File* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length)
         {
 			HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
             if (file != files.end())
-                return readFileRange(file->second, start, length, file_length);
+				return readFileRange(file->second, start, length);
             else
                 return NULL;
         }
 
-        byte* RealFS::readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length)
+		File* RealFS::readFileRange(const FileInfo *file, const uint32 start, const uint32 length)
         {
             String unixFilename = ((const RealFile*)file)->pathToFile;
             unixFilename.convertBackslashesIntoSlashes();
@@ -165,23 +151,7 @@ namespace TA3D
 
             unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
-			Stream sFile(unixFilename, OpenMode::read);
-			if (!sFile.opened())
-                return NULL;
-            uint64 filesize(0);
-            if (!Paths::Files::Size(unixFilename, filesize))
-            {
-				sFile.close();
-                return NULL;
-            }
-            if (file_length)
-                *file_length = (uint32)filesize;
-            byte *data = new byte[filesize + 1];
-			sFile.seekFromBeginning(start);
-			sFile.read((char*)data + start, Math::Min((uint32)(filesize - start), length));
-            data[filesize] = 0;
-			sFile.close();
-            return data;
+			return new UTILS::RealFile(unixFilename);
         }
 
         bool RealFS::needsCaching()

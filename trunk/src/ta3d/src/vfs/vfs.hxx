@@ -32,9 +32,6 @@ namespace UTILS
 		return &instance;
 	}
 
-
-
-
 } // namespace utils
 } // namespace TA3D
 

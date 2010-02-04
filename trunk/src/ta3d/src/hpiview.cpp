@@ -212,16 +212,15 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			uint32 file_size32 = 0;
-			byte *data = VFS::Instance()->readFile(args[0], &file_size32);
+			File *file = VFS::Instance()->readFile(args[0]);
 
-			if (data)
+			if (file)
 			{
 				String name = Paths::ExtractFileName(args[0]);
 				Stream dst(name, OpenMode::write);
-				dst.write((const char*)data, file_size32);
+				dst.write((const char*)file->data(), file->size());
 				dst.close();
-				DELETE_ARRAY(data);
+				delete file;
 			}
 			args.erase(args.begin());
 			return true;
@@ -245,12 +244,11 @@ namespace TA3D
 
 			for (String::List::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
 			{
-				uint32 file_size32 = 0;
-				byte* data = VFS::Instance()->readFile(*cur_file, &file_size32);
-				if (data)
+				File* file = VFS::Instance()->readFile(*cur_file);
+				if (file)
 				{
-					std::cout << (const char*)data << std::endl;
-					DELETE_ARRAY(data);
+					std::cout << (const char*)file->data() << std::endl;
+					delete file;
 				}
 				else
 					LOG_ERROR("could not open file '" << *cur_file << "'");
@@ -287,17 +285,16 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			uint32 file_size32 = 0;
-			byte *data = VFS::Instance()->readFile(args[0],&file_size32);
+			File *file = VFS::Instance()->readFile(args[0]);
 
-			if (data)
+			if (file)
 			{
 				SDL_SetVideoMode(320, 200, 32, 0);
 				TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
 				TA3D::UTILS::load_palette(pal);
 
 				Gaf::AnimationList anims;
-				anims.loadGAFFromRawData(data);
+				anims.loadGAFFromRawData(file);
 				Stream m_File( (Paths::ExtractFileName(args[0]) << ".txt"), OpenMode::write );
 
 				m_File << "[gadget0]\n{\n";
@@ -327,7 +324,7 @@ namespace TA3D
 
 				m_File.flush();
 				m_File.close();
-				DELETE_ARRAY(data);
+				delete file;
 				DELETE_ARRAY(TA3D::VARS::pal);
 			}
 			args.erase(args.begin());

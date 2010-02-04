@@ -35,6 +35,7 @@
 # include <misc/string.h>
 # include <sdl.h>
 # include <threads/mutex.h>
+# include "file.h"
 
 # ifndef MAX_PATH
 #   define MAX_PATH 260
@@ -96,7 +97,7 @@ namespace UTILS
 		/*!
 		** \brief
 		*/
-		byte* readFile(const String& filename, uint32* file_length = NULL);
+		File* readFile(const String& filename);
 
 		/*!
 		** \brief
@@ -105,7 +106,7 @@ namespace UTILS
 		** \param length
 		** \return
 		*/
-		byte* readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length = NULL);
+		File* readFileRange(const String& filename, const uint32 start, const uint32 length);
 
 		/*!
 		** \brief
@@ -172,7 +173,7 @@ namespace UTILS
 		** \param filesize
 		** /param data
 		*/
-		void putInCache(const String& filename, const uint32 filesize, const byte* data);
+		void putInCache(const String& filename, File* file);
 
 		/*!
 		** \brief
@@ -192,14 +193,14 @@ namespace UTILS
 		** \param filename
 		** \param filesize
 		*/
-		byte *isInDiskCacheWL(const String& filename, uint32* filesize = NULL);
+		File *isInDiskCacheWL(const String& filename);
 
 
 	private:
 		//! used when looking for files in the real file system
 		String::Vector pPaths;
 		//!
-		TA3D::UTILS::HashMap<Archive::File*>::Dense pFiles;
+		TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense pFiles;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
 		std::list<CacheFileData>  fileCache;
@@ -210,109 +211,10 @@ namespace UTILS
 	}; // class VFS;
 
 
+	bool load_palette(SDL_Color *pal, const String& filename = "palettes\\palette.pal");
 
-
-
-	/*! \class TA3D_FILE
-	**
-	** \brief Manage files in VFS as easily as if they were normal files
-	** (read-only)
-	*/
-	class TA3D_FILE
-	{
-	public:
-		//! \name Constructor & Destructor
-		//@{
-		//! Constructor
-		TA3D_FILE() :data(NULL), pos(0), length(0) {}
-		//! Destructor
-		~TA3D_FILE() { destroy(); }
-		//@}
-
-		/*!
-		** \brief
-		*/
-		bool isopen() const { return data != NULL; }
-
-		/*!
-		** \brief
-		*/
-		void destroy();
-
-		/*!
-		** \brief
-		**
-		** \param filename
-		*/
-		void topen(const String& filename);
-
-		/*!
-		** \brief
-		*/
-		char tgetc();
-
-		/*!
-		** \brief
-		**
-		** \param buf
-		** \param size
-		*/
-		int tread(void *buf, int size);
-
-		/*!
-		** \brief
-		**
-		** \param buf
-		** \param size
-		*/
-		char* tgets(void *buf, int size);
-
-		/*!
-		** \brief
-		** \param offset
-		*/
-		void tseek(const int offset) { pos += offset; }
-
-		/*!
-		** \brief
-		** \return
-		*/
-		bool teof() const { return (pos >= length); }
-
-		/*!
-		** \brief
-		** \return
-		*/
-		int tsize()	const { return (int)length; }
-
-	private:
-		//!
-		byte* data;
-		//!
-		uint32 pos;
-		//!
-		uint32 length;
-
-	public:
-		static bool Load(String::List& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
-		static bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
-	}; // class TA3D_FILE
-
-
-	TA3D_FILE	*ta3d_fopen(const String& filename);
-	void		fclose( TA3D_FILE *file );
-	char		fgetc( TA3D_FILE *file );
-	int			fread( void *buf, int size, TA3D_FILE *file );
-	int			fread( void *buf, int size, int repeat, TA3D_FILE *file );
-	char		*fgets( void *buf, int size, TA3D_FILE *file );
-	void		fseek( int offset, TA3D_FILE *file );
-	bool		feof( TA3D_FILE *file );
-	int			fsize( TA3D_FILE *file );
-
-	bool        load_palette(SDL_Color *pal, const String& filename = "palettes\\palette.pal");
-
-
-
+	bool loadFromFile(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore);
+	bool loadFromFile(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore);
 
 } // namespace utils
 } // namespace TA3D

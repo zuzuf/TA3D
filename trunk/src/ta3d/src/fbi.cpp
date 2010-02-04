@@ -150,7 +150,7 @@ namespace TA3D
 			for(String::Vector::const_iterator it = animsList.begin() ; it != animsList.end() ; ++it)
 			{
 				const String &gafName = *it;
-				byte* gaf_file = VFS::Instance()->readFile( gafName );
+				File* gaf_file = VFS::Instance()->readFile( gafName );
 				if (gaf_file)
 				{
 					int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
@@ -162,7 +162,7 @@ namespace TA3D
 						if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
 							unit_manager.name2gaf[key] = gafName;
 					}
-					DELETE_ARRAY(gaf_file);
+					delete gaf_file;
 				}
 			}
 		}
@@ -180,7 +180,7 @@ namespace TA3D
 			test.push_back(item->second);
 			for(std::vector<String>::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
 			{
-				byte* gaf_file = VFS::Instance()->readFile( *it );
+				File* gaf_file = VFS::Instance()->readFile( *it );
 				if (gaf_file)
 				{
 					SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -194,7 +194,7 @@ namespace TA3D
 						SDL_FreeSurface(img);
 					}
 
-					DELETE_ARRAY(gaf_file);
+					delete gaf_file;
 				}
 			}
 		}
@@ -246,10 +246,11 @@ namespace TA3D
 
 
 
-	void UnitManager::analyse2(char *data,int size)
+	void UnitManager::analyse2(File *file)
 	{
 		TDFParser parser;
-		parser.loadFromMemory("analyse2", data, size, false, false, true);
+		parser.loadFromMemory("analyse2", file->data(), file->size(), false, false, true);
+		file->close();
 
 		for(int g = 0 ; parser.exists(String("gadget") << g) ; g++)
 		{
@@ -306,13 +307,13 @@ namespace TA3D
 		String::List file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
-		for (String::List::const_iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+		for (String::List::const_iterator f = file_list.begin(); f != file_list.end(); ++f) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
-			byte* data = VFS::Instance()->readFile(*file, &file_size);		// Lit le fichier
-			if (data)
+			File* file = VFS::Instance()->readFile(*f);		// Lit le fichier
+			if (file)
 			{
-				analyse2((char*)data,file_size);
-				DELETE_ARRAY(data);
+				analyse2(file);
+				delete file;
 			}
 		}
 	}

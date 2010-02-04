@@ -194,10 +194,10 @@ namespace TA3D
 		SDL_ShowCursor(SDL_DISABLE);
 
 		// Loading and creating cursors
-		byte *data = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
-		if (data)
+		File *file = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
+		if (file)
 		{
-			cursor.loadGAFFromRawData(data, false);
+			cursor.loadGAFFromRawData(file, false);
 			cursor.convert(false, false);
 
 			CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
@@ -222,7 +222,7 @@ namespace TA3D
 			CURSOR_REVIVE      = cursor.findByName("cursorrevive");
 			if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
 				CURSOR_REVIVE = cursor.findByName("cursorreclamate");
-			DELETE_ARRAY(data);
+			delete file;
 		}
 		else
 		{

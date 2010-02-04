@@ -513,14 +513,14 @@ namespace TA3D
 		loading(600.0f / 7.0f, I18N::Translate("Loading the map"));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 
-		byte* map_file = VFS::Instance()->readFile(pGameData->map_filename);
+		File* map_file = VFS::Instance()->readFile(pGameData->map_filename);
 		if (!map_file)
 			return false;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "`" << pGameData->map_filename << "` extracted");
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "loading map data ...");
 		map.reset(load_tnt_map(map_file));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "map data loaded");
-		DELETE_ARRAY(map_file);
+		delete map_file;
 
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading details texture...");
 		map->load_details_texture( "gfx/details.jpg");			// Load the details texture
@@ -533,12 +533,11 @@ namespace TA3D
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, ".ota");
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
-		uint32 ota_size(0);
-		map_file = VFS::Instance()->readFile(pGameData->map_filename, &ota_size);
+		map_file = VFS::Instance()->readFile(pGameData->map_filename);
 		if (map_file)
 		{
 			LOG_INFO(LOG_PREFIX_BATTLE << "Loading map informations...");
-			map->ota_data.load((char*)map_file,ota_size);
+			map->ota_data.load(map_file);
 
 			if (map->ota_data.lavaworld) // make sure we'll draw lava and not water
 			{
@@ -549,7 +548,7 @@ namespace TA3D
 				map->lava_map = gfx->make_texture(tmp);
 				SDL_FreeSurface(tmp);
 			}
-			DELETE_ARRAY(map_file);
+			delete map_file;
 		}
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, "");
 

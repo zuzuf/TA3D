@@ -85,20 +85,19 @@ namespace TA3D
 
 	void AiScript::loadAI(const String& filename, const int id)
 	{
-		TA3D_FILE* file = ta3d_fopen(filename);
+		File* file = VFS::Instance()->readFile(filename);
 
 		// Length of the name
-		byte l;
-        fread(&l, 1, file);
+		byte l = file->getc();
 
 		// Reading the name
 		char* n = new char[l+1];
-		n[l]=0;
-        fread(n, l, file);
+		n[l] = 0;
+		file->read(n, l);
 		name = n;
 		DELETE_ARRAY(n);
 
-        fclose(file);
+		delete file;
 		playerID = id;
 
 		register_info();

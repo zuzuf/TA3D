@@ -453,100 +453,99 @@ namespace TA3D
 		return alset;
 	}
 
-	inline byte* read_from_mem(void* buf, const int len, byte* data)
-	{
-		memcpy(buf, data, len);
-		return data + len;
-	}
-
-	byte *MESH_3DM::load(byte *data, const String &filename, MESH_3DM *root)
+	void MESH_3DM::load(File *file, const String &filename, MESH_3DM *root)
 	{
 		destroy3DM();
 		if (root == NULL)
 			root = this;
 		this->root = root;
 
-		if (data == NULL)
-			return NULL;
+		if (file == NULL)
+			return;
 
-		uint8 len = data[0];
-		++data;
+		uint8 len = file->getc();
 		char tmp[257];
 		memset(tmp, 0, 257);
-		data = read_from_mem(tmp, len, data);
+		file->read(tmp, len);
 		name = String(tmp, len);
 
-		data = read_from_mem(&pos_from_parent.x, sizeof(pos_from_parent.x), data);
+		file->read(pos_from_parent.x);
 		if (isNaN(pos_from_parent.x))           // Some error checks
 		{
 			name.clear();
-			return NULL;
+			file->close();
+			return;
 		}
 
-		data = read_from_mem(&pos_from_parent.y, sizeof(pos_from_parent.y), data);
+		file->read(pos_from_parent.y);
 		if (isNaN(pos_from_parent.y))           // Some error checks
 		{
 			name.clear();
-			return NULL;
+			file->close();
+			return;
 		}
 
-		data=read_from_mem(&pos_from_parent.z,sizeof(pos_from_parent.z),data);
+		file->read(pos_from_parent.z);
 		if (isNaN(pos_from_parent.z))
 		{
 			name.clear();
-			return NULL;
+			file->close();
+			return;
 		}
 
-		data = read_from_mem(&nb_vtx, sizeof(nb_vtx), data);
+		file->read(nb_vtx);
 		if (nb_vtx < 0)
 		{
 			name.clear();
-			return NULL;
+			file->close();
+			return;
 		}
 		if (nb_vtx > 0)
 		{
 			points = new Vector3D[nb_vtx<<1];
-			data = read_from_mem(points,sizeof(Vector3D)*nb_vtx,data);
+			file->read(points,sizeof(Vector3D)*nb_vtx);
 		}
 		else
 			points = NULL;
 
-		data = read_from_mem(sel, sizeof(GLushort) * 4, data);
+		file->read(sel, sizeof(GLushort) * 4);
 
-		data = read_from_mem(&nb_p_index, sizeof(nb_p_index), data); // Read point data
+		file->read(nb_p_index); // Read point data
 		if (nb_p_index < 0)
 		{
 			DELETE_ARRAY(points);
 			name.clear();
 			init();
-			return NULL;
+			file->close();
+			return;
 		}
 		if (nb_p_index > 0)
 		{
 			p_index = new GLushort[nb_p_index];
-			data=read_from_mem(p_index,sizeof(GLushort)*nb_p_index,data);
+			file->read(p_index, sizeof(GLushort) * nb_p_index);
 		}
 		else
-			p_index=NULL;
+			p_index = NULL;
 
-		data=read_from_mem(&nb_l_index,sizeof(nb_l_index),data);	// Read line data
+		file->read(nb_l_index);	// Read line data
 		if (nb_l_index < 0)
 		{
 			DELETE_ARRAY(points);
 			DELETE_ARRAY(p_index);
 			name.clear();
 			init();
-			return NULL;
+			file->close();
+			return;
 		}
 		if (nb_l_index > 0)
 		{
 			l_index = new GLushort[nb_l_index];
-			data=read_from_mem(l_index,sizeof(GLushort)*nb_l_index,data);
+			file->read(l_index, sizeof(GLushort) * nb_l_index);
 		}
 		else
-			l_index=NULL;
+			l_index = NULL;
 
-		data = read_from_mem(&nb_t_index, sizeof(nb_t_index), data); // Read triangle data
+		file->read(nb_t_index); // Read triangle data
 		if (nb_t_index < 0)
 		{
 			DELETE_ARRAY(points);
@@ -554,26 +553,27 @@ namespace TA3D
 			DELETE_ARRAY(l_index);
 			name.clear();
 			init();
-			return NULL;
+			file->close();
+			return;
 		}
 		if (nb_t_index > 0)
 		{
 			t_index = new GLushort[nb_t_index];
-			data=read_from_mem(t_index,sizeof(GLushort)*nb_t_index,data);
+			file->read(t_index, sizeof(GLushort) * nb_t_index);
 		}
 		else
-			t_index=NULL;
+			t_index = NULL;
 
-		tcoord = new float[nb_vtx<<1];
-		data = read_from_mem(tcoord,sizeof(float)*nb_vtx<<1,data);
+		tcoord = new float[nb_vtx << 1];
+		file->read(tcoord, sizeof(float) * nb_vtx << 1);
 
 		float Colorf[4];
 		float RColorf[4];
-		data = read_from_mem(Colorf, sizeof(float) * 4, data);	// Read surface data
-		data = read_from_mem(RColorf, sizeof(float) * 4, data);
+		file->read(Colorf, sizeof(float) * 4);	// Read surface data
+		file->read(RColorf, sizeof(float) * 4);
 		Color = makeacol32((int)(Colorf[0] * 255), (int)(Colorf[1] * 255), (int)(Colorf[2] * 255), (int)(Colorf[3] * 255));
 		RColor = makeacol32((int)(RColorf[0] * 255), (int)(RColorf[1] * 255), (int)(RColorf[2] * 255), (int)(RColorf[3] * 255));
-		data = read_from_mem(&Flag, sizeof(Flag), data);
+		file->read(Flag);
 		Flag |= SURFACE_ADVANCED;           // This is default flag ... not very useful now that 3DM and 3DO codes have been separated
 
 		if (Flag >= 0x200)
@@ -584,13 +584,14 @@ namespace TA3D
 			DELETE_ARRAY(tcoord);
 			name.clear();
 			init();
-			return NULL;
+			file->close();
+			return;
 		}
 
 		glColorTexture = gfx->create_color_texture(Color);
 
 		sint8 NbTex = 0;
-		data = read_from_mem(&NbTex,sizeof(NbTex),data);
+		file->read(NbTex);
 		bool compressed = NbTex < 0;
 		NbTex = abs( NbTex );
 		gltex.resize(NbTex);
@@ -601,25 +602,27 @@ namespace TA3D
 			{
 				int tex_w;
 				int tex_h;
-				data = read_from_mem(&tex_w, sizeof(tex_w), data);
-				data = read_from_mem(&tex_h, sizeof(tex_h), data);
+				file->read(tex_w);
+				file->read(tex_h);
 
 				tex = gfx->create_surface_ex(32, tex_w, tex_h);
 				if (tex == NULL)
 				{
 					destroy();
-					return NULL;
+					file->close();
+					return;
 				}
 				try
 				{
 					for (int y = 0; y < tex->h; ++y)
 						for (int x = 0; x < tex->w; ++x)
-							data = read_from_mem(&SurfaceInt(tex, x, y), 4, data);
+							file->read(SurfaceInt(tex, x, y));
 				}
 				catch(...)
 				{
 					destroy();
-					return NULL;
+					file->close();
+					return;
 				}
 			}
 			else
@@ -627,15 +630,15 @@ namespace TA3D
 				int img_size = 0;
 				uint8 bpp;
 				int w, h;
-				data = read_from_mem(&w,sizeof(w),data);
-				data = read_from_mem(&h,sizeof(h),data);
-				data = read_from_mem(&bpp,sizeof(bpp),data);
-				data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGBA data
+				file->read(w);
+				file->read(h);
+				file->read(bpp);
+				file->read(img_size);	// Read RGBA data
 				byte *buffer = new byte[ img_size ];
 
 				try
 				{
-					data = read_from_mem( buffer, img_size, data );
+					file->read(buffer, img_size);
 
 					tex = gfx->create_surface_ex( bpp, w, h );
 					uLongf len = tex->w * tex->h * tex->format->BytesPerPixel;
@@ -645,7 +648,8 @@ namespace TA3D
 				{
 					DELETE_ARRAY(buffer);
 					destroy();
-					return NULL;
+					file->close();
+					return;
 				}
 
 				DELETE_ARRAY(buffer);
@@ -670,17 +674,17 @@ namespace TA3D
 		if (Flag & SURFACE_GLSL) // Fragment & Vertex shaders
 		{
 			uint32 shader_size;
-			data = read_from_mem(&shader_size,4,data);
-			char *buf = new char[shader_size+1];
-			buf[shader_size]=0;
-			data=read_from_mem(buf,shader_size,data);
+			file->read(shader_size);
+			char *buf = new char[shader_size + 1];
+			buf[shader_size] = 0;
+			file->read(buf, shader_size);
 			vert_shader_src = buf;
 			DELETE_ARRAY(buf);
 
-			data = read_from_mem(&shader_size,4,data);
-			buf = new char[shader_size+1];
-			buf[shader_size]=0;
-			data = read_from_mem(buf,shader_size,data);
+			file->read(shader_size);
+			buf = new char[shader_size + 1];
+			buf[shader_size] = 0;
+			file->read(buf,shader_size);
 			frag_shader_src = buf;
 			DELETE_ARRAY(buf);
 			s_shader.load_memory(frag_shader_src.data(),frag_shader_src.size(),vert_shader_src.data(),vert_shader_src.size());
@@ -691,9 +695,9 @@ namespace TA3D
 		{
 			F_N = new Vector3D[nb_t_index / 3];
 			for (int i = 0; i < nb_vtx; ++i)
-				N[i].x=N[i].z=N[i].y=0.0f;
+				N[i].reset();
 			int e = 0;
-			for (int i=0;i<nb_t_index;i+=3)
+			for (int i = 0 ; i < nb_t_index ; i += 3)
 			{
 				Vector3D AB,AC,Normal;
 				AB = points[t_index[i+1]] - points[t_index[i]];
@@ -708,72 +712,69 @@ namespace TA3D
 				N[i].unit();
 		}
 
-		byte link;
-		data=read_from_mem(&link,1,data);
+		byte link = file->getc();
 
 		if (link == 2) // Load animation data if present
 		{
 			animation_data = new ANIMATION;
-			data = read_from_mem( &(animation_data->type), 1, data );
-			data = read_from_mem( &(animation_data->angle_0), sizeof(Vector3D), data);
-			data = read_from_mem( &(animation_data->angle_1), sizeof(Vector3D), data);
-			data = read_from_mem( &(animation_data->angle_w), sizeof(float), data );
-			data = read_from_mem( &(animation_data->translate_0), sizeof(Vector3D), data);
-			data = read_from_mem( &(animation_data->translate_1), sizeof(Vector3D), data);
-			data = read_from_mem( &(animation_data->translate_w), sizeof(float), data);
+			file->read( animation_data->type );
+			file->read( animation_data->angle_0 );
+			file->read( animation_data->angle_1 );
+			file->read( animation_data->angle_w );
+			file->read( animation_data->translate_0 );
+			file->read( animation_data->translate_1 );
+			file->read( animation_data->translate_w );
 
-			data = read_from_mem(&link,1,data);
+			link = file->getc();
 		}
 
 		if (link)
 		{
 			MESH_3DM *pChild = new MESH_3DM;
 			child = pChild;
-			data = pChild->load(data,filename,root);
-			if (data == NULL)
+			pChild->load(file, filename, root);
+			if (!file->isOpen())
 			{
 				destroy();
-				return NULL;
+				return;
 			}
 		}
 		else
 			child = NULL;
 
-		data = read_from_mem(&link,1,data);
+		link = file->getc();
 		if (link)
 		{
 			MESH_3DM *pNext = new MESH_3DM;
 			next = pNext;
-			data = pNext->load(data, filename, root);
-			if (data == NULL)
+			pNext->load(file, filename, root);
+			if (!file->isOpen())
 			{
 				destroy();
-				return NULL;
+				return;
 			}
 		}
 		else
 			next = NULL;
-		return data;
 	}
 
 	MODEL *MESH_3DM::load(const String &filename)
 	{
-		uint32 file_length(0);
-		byte *data = VFS::Instance()->readFile(filename, &file_length);
-		if (!data)
+		File *file = VFS::Instance()->readFile(filename);
+		if (!file)
 		{
 			LOG_ERROR(LOG_PREFIX_3DM << "could not read file '" << filename << "'");
 			return NULL;
 		}
 
-		if (data[0] == 0)       // This is a pointer file
+		if (file->getc() == 0)       // This is a pointer file
 		{
-			String realFilename = (char*)data + 1;
+			String realFilename = file->data() + 1;
+			delete file;
 			realFilename.trim();
 			LOG_INFO(LOG_PREFIX_3DM << "file '" << filename << "' points to '" << realFilename << "'");
-			DELETE_ARRAY(data);
-			data = VFS::Instance()->readFile(realFilename, &file_length);
-			if (!data)
+			file = VFS::Instance()->readFile(realFilename);
+			if (!file)
 			{
 				LOG_ERROR(LOG_PREFIX_3DM << "could not read file '" << realFilename << "'");
 				return NULL;
@@ -781,8 +782,8 @@ namespace TA3D
 		}
 
 		MESH_3DM *mesh = new MESH_3DM;
-		mesh->load(data, filename);
-		DELETE_ARRAY(data);
+		mesh->load(file, filename);
+		delete file;
 
 		MODEL *model = new MODEL;
 		model->mesh = mesh;

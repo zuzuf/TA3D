@@ -19,6 +19,7 @@
 
 # include <stdafx.h>
 # include "string.h"
+# include <vfs/file.h>
 
 
 /*!
@@ -89,18 +90,7 @@ namespace Files
 	** \return The content of the file, null terminated , NULL if size > hardlimit or if any errors has occured.
 	** If not NULL, this value must be deleted with the keyword `delete[]`
 	*/
-	char* LoadContentInMemory(const String& filename, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
-
-	/*!
-	** \brief Load the entierly content of a file into memory
-	**
-	** \param filename The filename to open
-	** \param[out] size The size of the file
-	** \param hardlimit If the size of the file exceeds this limit, it will not be loaded
-	** \return The content of the file, null terminated , NULL if size > hardlimit or if any errors has occured.
-	** If not NULL, this value must be deleted with the keyword `delete[]`
-	*/
-	char* LoadContentInMemory(const String& filename, uint64& size, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
+	UTILS::File* LoadContentInMemory(const String& filename, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
 
 	/*!
 	** \brief Save the content of a string iinto a file

@@ -256,7 +256,7 @@ namespace TA3D
 		Network* network;
 		int sockid;
 
-		TA3D_FILE* file;
+		File* file;
 		int length,n;
 		byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
 		String filename;
@@ -264,7 +264,7 @@ namespace TA3D
 		network = ((struct net_thread_params*)param)->network;
 		sockid = ((struct net_thread_params*)param)->sockid;
 		filename = ((struct net_thread_params*)param)->filename;
-		file = ta3d_fopen( filename );
+		file = VFS::Instance()->readFile( filename );
 
 		delete((struct net_thread_params*)param);
 		param = NULL;
@@ -278,7 +278,7 @@ namespace TA3D
 			return;
 		}
 
-		length = fsize(file);
+		length = file->size();
 
 		int timer = msec_timer;
 
@@ -292,7 +292,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
 		while (!pDead)
 		{
-			n = fread(buffer, 1, FILE_TRANSFER_BUFFER_SIZE, file);            // Read data into the buffer
+			n = file->read(buffer, FILE_TRANSFER_BUFFER_SIZE);            // Read data into the buffer
 			network->sendFileData(sockid, port, buffer, n);
 			if (n > 0)
 			{
@@ -309,12 +309,12 @@ namespace TA3D
 					pDead = 1;
 					network->updateFileTransferInformation(String(filename) << sockid, 0, 0);
 					network->setFileDirty();
-					fclose(file);
+					delete file;
 					return;
 				}
 			}
 
-			if (feof(file))
+			if (file->eof())
 				break;
 
 			suspend(1);
@@ -328,7 +328,7 @@ namespace TA3D
 
 		network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
 		pDead = 1;
-		fclose( file );
+		delete file;
 		network->setFileDirty();
 		DELETE_ARRAY(buffer);
 		return;

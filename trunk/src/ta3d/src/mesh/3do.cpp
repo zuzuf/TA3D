@@ -65,28 +65,18 @@ namespace TA3D
 		init3DO();
 	}
 
-	int MESH_3DO::load(byte *data, int offset, int dec, const String &filename)
+	int MESH_3DO::load(File *file, int dec, const String &filename)
 	{
 		if (nb_vtx > 0)
 			destroy3DO();					// Au cas où l'objet ne serait pas vierge
 
-		if (data == NULL)
+		if (file == NULL)
 			return -1;
 
+		int offset = file->tell();
+
 		tagObject header;				// Lit l'en-tête
-		header.VersionSignature=*((int*)(data+offset));
-		header.NumberOfVertexes=*((int*)(data+offset+4));
-		header.NumberOfPrimitives=*((int*)(data+offset+8));
-		header.OffsetToselectionPrimitive=*((int*)(data+offset+12));
-		header.XFromParent=*((int*)(data+offset+16));
-		header.YFromParent=*((int*)(data+offset+20));
-		header.ZFromParent=*((int*)(data+offset+24));
-		header.OffsetToObjectName=*((int*)(data+offset+28));
-		header.Always_0=*((int*)(data+offset+32));
-		header.OffsetToVertexArray=*((int*)(data+offset+36));
-		header.OffsetToPrimitiveArray=*((int*)(data+offset+40));
-		header.OffsetToSiblingObject=*((int*)(data+offset+44));
-		header.OffsetToChildObject=*((int*)(data+offset+48));
+		*file >> header;
 
 		if (header.NumberOfVertexes + offset < 0)
 			return -1;
@@ -104,26 +94,10 @@ namespace TA3D
 			return -1;
 		int i;
 
-		try
-		{
-			char *pName = (char*)(data+header.OffsetToObjectName);
-			i = 0;
-			while( pName[i] && i < 128 ) i++;
-			if (pName[i] != 0 && i >= 128)
-			{
-				pName = NULL;
-				return -1;
-			}
-		}
-		catch( ... )
-		{
-			name.clear();
-			return -1;
-		};
-
 		nb_vtx = header.NumberOfVertexes;
 		nb_prim = header.NumberOfPrimitives;
-		name = (char*)(data+header.OffsetToObjectName);
+		file->seek(header.OffsetToObjectName);
+		name = file->getString();
 #ifdef DEBUG_MODE
 		/*		for (i=0;i<dec;i++)
 				printf("  ");
@@ -136,7 +110,8 @@ namespace TA3D
 		{
 			MESH_3DO *pChild = new MESH_3DO;
 			child = pChild;
-			if (pChild->load(data,header.OffsetToChildObject,dec+1,filename))
+			file->seek(header.OffsetToChildObject);
+			if (pChild->load(file,dec+1,filename))
 			{
 				destroy();
 				return -1;
@@ -146,46 +121,37 @@ namespace TA3D
 		{
 			MESH_3DO *pNext = new MESH_3DO;
 			next = pNext;
-			if (pNext->load(data,header.OffsetToSiblingObject,dec,filename))
+			file->seek(header.OffsetToSiblingObject);
+			if (pNext->load(file,dec,filename))
 			{
 				destroy();
 				return -1;
 			}
 		}
 		points = new Vector3D[nb_vtx];		// Alloue la mémoire nécessaire pour stocker les points
-		int f_pos;
-		float div=0.5f/65536.0f;
-		pos_from_parent.x=header.XFromParent*div;
-		pos_from_parent.y=header.YFromParent*div;
-		pos_from_parent.z=-header.ZFromParent*div;
-		f_pos=header.OffsetToVertexArray;
+		float div = 0.5f / 65536.0f;
+		pos_from_parent.x = header.XFromParent * div;
+		pos_from_parent.y = header.YFromParent * div;
+		pos_from_parent.z = -header.ZFromParent * div;
+		file->seek(header.OffsetToVertexArray);
 
 		for (i = 0; i < nb_vtx; ++i) // Lit le tableau de points stocké dans le fichier
 		{
 			tagVertex vertex;
-			vertex.x = *((int*)(data + f_pos));   f_pos += 4;
-			vertex.y = *((int*)(data + f_pos));   f_pos += 4;
-			vertex.z = *((int*)(data + f_pos));   f_pos += 4;
+			*file >> vertex;
 			points[i].x = vertex.x  * div;
 			points[i].y = vertex.y  * div;
 			points[i].z = -vertex.z * div;
 		}
 
-		f_pos = header.OffsetToPrimitiveArray;
 		int n_index = 0;
 		selprim = -1;//header.OffsetToselectionPrimitive;
 		sel[0] = sel[1] = sel[2] = sel[3] = 0;
 		for (i = 0; i < nb_prim; ++i)// Compte le nombre de primitive de chaque sorte
 		{
 			tagPrimitive primitive;
-			primitive.ColorIndex = *((int*)(data + f_pos));						f_pos += 4;
-			primitive.NumberOfVertexIndexes = *((int*)(data + f_pos));			f_pos += 4;
-			primitive.Always_0 = *((int*)(data + f_pos));						f_pos += 4;
-			primitive.OffsetToVertexIndexArray = *((int*)(data + f_pos));		f_pos += 4;
-			primitive.OffsetToTextureName = *((int*)(data + f_pos));			f_pos += 4;
-			primitive.Unknown_1 = *((int*)(data + f_pos));						f_pos += 4;
-			primitive.Unknown_2 = *((int*)(data + f_pos));						f_pos += 4;
-			primitive.IsColored = *((int*)(data + f_pos));						f_pos += 4;
+			file->seek(header.OffsetToPrimitiveArray + i * sizeof(tagPrimitive));
+			*file >> primitive;
 
 			switch(primitive.NumberOfVertexIndexes)
 			{
@@ -202,7 +168,8 @@ namespace TA3D
 							{
 								if (primitive.IsColored && primitive.ColorIndex == 1)
 									break;
-								if (!primitive.IsColored && (!primitive.OffsetToTextureName || !data[primitive.OffsetToTextureName]))
+								file->seek(primitive.OffsetToTextureName);
+								if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
 									break;
 							}
 							n_index += primitive.NumberOfVertexIndexes;
@@ -227,7 +194,6 @@ namespace TA3D
 			t_index = new GLushort[n_index];
 		}
 
-		f_pos = header.OffsetToPrimitiveArray;
 		int pos_p = 0;
 		int pos_l = 0;
 		int pos_t = 0;
@@ -238,42 +204,54 @@ namespace TA3D
 		for (i = 0; i < nb_prim; ++i) // Compte le nombre de primitive de chaque sorte
 		{
 			tagPrimitive primitive;
-			primitive.ColorIndex = *((int*)(data + f_pos));                 f_pos += 4;
-			primitive.NumberOfVertexIndexes = *((int*)(data + f_pos));      f_pos += 4;
-			primitive.Always_0 = *((int*)(data + f_pos));                   f_pos += 4;
-			primitive.OffsetToVertexIndexArray = *((int*)(data + f_pos));   f_pos += 4;
-			primitive.OffsetToTextureName = *((int*)(data + f_pos));        f_pos += 4;
-			primitive.Unknown_1 = *((int*)(data + f_pos));                  f_pos += 4;
-			primitive.Unknown_2 = *((int*)(data + f_pos));                  f_pos += 4;
-			primitive.IsColored = *((int*)(data + f_pos));                  f_pos += 4;
+			file->seek(header.OffsetToPrimitiveArray + i * sizeof(tagPrimitive));
+			*file >> primitive;
 
 			switch (primitive.NumberOfVertexIndexes)
 			{
 				case 0:
 					break;
 				case 1:
-					p_index[pos_p++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
+					file->seek(primitive.OffsetToVertexIndexArray);
+					{
+						short s;
+						*file >> s;
+						p_index[pos_p++] = s;
+					}
 					break;
 				case 2:
-					l_index[pos_l++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
-					l_index[pos_l++] = *((short*)(data+primitive.OffsetToVertexIndexArray + 2));
+					file->seek(primitive.OffsetToVertexIndexArray);
+					{
+						short s;
+						*file >> s;
+						l_index[pos_l++] = s;
+						*file >> s;
+						l_index[pos_l++] = s;
+					}
 					break;
 				default:
 					if (i != header.OffsetToselectionPrimitive)
 					{
 						if (primitive.IsColored && primitive.ColorIndex == 1)
 							break;
-						if (!primitive.IsColored && (!primitive.OffsetToTextureName || !data[primitive.OffsetToTextureName]))
+						file->seek(primitive.OffsetToTextureName);
+						if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
 							break;
 					}
 					else
 					{
+						file->seek(primitive.OffsetToVertexIndexArray);
 						for (int e = 0; e < primitive.NumberOfVertexIndexes && e < 4; ++e)
-							sel[e] = *((short*)(data + primitive.OffsetToVertexIndexArray + (e << 1)));
+						{
+							short s;
+							*file >> s;
+							sel[e] = s;
+						}
 						break;
 					}
 					nb_index[cur] = primitive.NumberOfVertexIndexes;
-					tex[cur] = t_m = texture_manager.get_texture_index((char*)(data+primitive.OffsetToTextureName));
+					file->seek(primitive.OffsetToTextureName);
+					tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
 					usetex[cur] = 1;
 					if (t_m == -1)
 					{
@@ -298,8 +276,13 @@ namespace TA3D
 						if (!al_in)
 							index_tex[nb_diff_tex++]=indx;
 					}
+					file->seek(primitive.OffsetToVertexIndexArray);
 					for (int e = 0; e < nb_index[cur]; ++e)
-						t_index[pos_t++] = *((short*)(data + primitive.OffsetToVertexIndexArray + (e << 1)));
+					{
+						short s;
+						*file >> s;
+						t_index[pos_t++] = s;
+					}
 					++cur;
 			}
 		}
@@ -1010,17 +993,16 @@ namespace TA3D
 
 		MODEL *MESH_3DO::load(const String &filename)
 		{
-			uint32 file_length(0);
-			byte *data = VFS::Instance()->readFile(filename, &file_length);
-			if (!data)
+			File *file = VFS::Instance()->readFile(filename);
+			if (!file)
 			{
 				LOG_ERROR(LOG_PREFIX_3DO << "could not read file '" << filename << "'");
 				return NULL;
 			}
 
 			MESH_3DO *mesh = new MESH_3DO;
-			mesh->load(data, 0, 0, filename);
-			DELETE_ARRAY(data);
+			mesh->load(file, 0, filename);
+			delete file;
 
 			MODEL *model = new MODEL;
 			model->mesh = mesh;

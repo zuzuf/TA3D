@@ -29,6 +29,9 @@
 #include "vfs.h"
 #include <sstream>
 #include <fstream>
+#include "file.h"
+#include "virtualfile.h"
+#include "realfile.h"
 
 #include <yuni/core/io/file/stream.h>
 
@@ -59,18 +62,18 @@ namespace UTILS
 		{
 			LOG_DEBUG(LOG_PREFIX_VFS << "adding archive to the archive list");
 			archives.push_back(archive);
-			std::deque<Archive::File*> archiveFiles;
+			std::deque<Archive::FileInfo*> archiveFiles;
 			LOG_DEBUG(LOG_PREFIX_VFS << "getting file list from archive");
 			archive->getFileList(archiveFiles);
 			LOG_DEBUG(LOG_PREFIX_VFS << "inserting archive files into file hash table");
 
-                        pFiles.resize(pFiles.size() + archiveFiles.size());
-			const std::deque<Archive::File*>::iterator end = archiveFiles.end();
-			for (std::deque<Archive::File*>::iterator i = archiveFiles.begin() ; i != end; ++i)
+			pFiles.resize(pFiles.size() + archiveFiles.size());
+			const std::deque<Archive::FileInfo*>::iterator end = archiveFiles.end();
+			for (std::deque<Archive::FileInfo*>::iterator i = archiveFiles.begin() ; i != end; ++i)
 			{
 				(*i)->setPriority((*i)->getPriority() + priority); // Update file priority
 
-				Archive::File* file = (pFiles.find((*i)->getName()) == pFiles.end()) ? NULL : pFiles[(*i)->getName()];
+				Archive::FileInfo* file = (pFiles.find((*i)->getName()) == pFiles.end()) ? NULL : pFiles[(*i)->getName()];
 				if (!file || (file->getPriority() < (*i)->getPriority()))
 					pFiles[(*i)->getName()] = *i;
 			}
@@ -183,7 +186,7 @@ namespace UTILS
 	}
 
 
-	void VFS::putInCache(const String& filename, const uint32 filesize, const byte* data)
+	void VFS::putInCache(const String& filename, File* file)
 	{
 		String cacheable_filename(filename);
 		cacheable_filename.toLower();
@@ -198,11 +201,18 @@ namespace UTILS
 		Stream cache_file(cache_filename, OpenMode::write);
 		if (cache_file.opened())
 		{
-			cache_file.write((const char*)data, filesize);
+			char *buf = new char[10240];
+			for(int i = 0 ; i < file->size() ; i += 10240)
+			{
+				int l = Math::Min(10240, file->size() - i);
+				file->read(buf, l);
+				cache_file.write(buf, l);
+			}
+			delete[] buf;
 			cache_file.close();
 		}
 
-		if (filesize >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
+		if (file->size() >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
 			return;
 
 		{
@@ -217,9 +227,9 @@ namespace UTILS
 			CacheFileData newentry;
 
 			newentry.name = String::ToLower(filename);			// Store a copy of the data
-			newentry.length = filesize;
-			newentry.data = new byte[filesize];
-			memcpy(newentry.data, data, filesize);
+			newentry.length = file->size();
+			newentry.data = new byte[file->size()];
+			file->read(newentry.data, file->size());
 
 			fileCache.push_back(newentry);
 		}
@@ -227,7 +237,7 @@ namespace UTILS
 
 
 
-	byte* VFS::isInDiskCacheWL(const String& filename, uint32 *filesize)
+	File* VFS::isInDiskCacheWL(const String& filename)
 	{
 		// May be in cache but doesn't use cache (ie: campaign script)
 		if (SearchString(filename, ".lua", true) >= 0)
@@ -246,20 +256,7 @@ namespace UTILS
 
 		if (TA3D::Paths::Exists(cache_filename)) // Check disk cache
 		{
-			Stream cache_file( cache_filename, OpenMode::read );
-			if (cache_file.opened()) // Load file from disk cache (faster than decompressing it)
-			{
-				uint64 FileSize;
-				Paths::Files::Size(cache_filename, FileSize);
-				if (filesize)
-					*filesize = (uint32)FileSize;
-
-				byte *data = new byte[FileSize + 1];
-				cache_file.read((char*)data, FileSize);
-				data[FileSize] = 0;
-				cache_file.close();
-				return data;
-			}
+			return new RealFile( cache_filename );
 		}
 		return NULL;
 	}
@@ -296,7 +293,7 @@ namespace UTILS
 	}
 
 
-	byte *VFS::readFile(const String& filename, uint32* fileLength)
+	File *VFS::readFile(const String& filename)
 	{
 		if (filename.empty())
 			return NULL;
@@ -306,52 +303,29 @@ namespace UTILS
 		key.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		uint32 FileSize;
 
 		CacheFileData *cache = isInCacheWL(key);
 		if (cache)
 		{
-			if (fileLength)
-				*fileLength = cache->length;
-			byte *data = new byte[cache->length + 1];
-			memcpy(data, cache->data, cache->length);
-			data[cache->length] = 0;
 			if (cache->length == 0)
-			{
-				DELETE_ARRAY(data);
 				return NULL;
-			}
-			return data;
+			VirtualFile *f = new VirtualFile;
+			f->copyBuffer(cache->data, cache->length);
+			return f;
 		}
 
-		byte* data = isInDiskCacheWL(key, &FileSize);
-		if (data)
-		{
-			if (fileLength)
-				*fileLength = FileSize;
-			if (FileSize == 0)
-			{
-				DELETE_ARRAY(data);
-				return NULL;
-			}
-			return data;
-		}
+		File* cacheFile = isInDiskCacheWL(key);
+		if (cacheFile)
+			return cacheFile;
 
-		TA3D::UTILS::HashMap<Archive::File*>::Dense::iterator file = pFiles.find(key);
+		TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense::iterator itFile = pFiles.find(key);
 
-		if (file != pFiles.end())
+		if (itFile != pFiles.end())
 		{
-			byte *data = file->second->read(&FileSize);
-			if (file->second->needsCaching())
-				putInCache( key, FileSize, data );
-			if (fileLength)
-				*fileLength = FileSize;
-			if (FileSize == 0)
-			{
-				DELETE_ARRAY(data);
-				return NULL;
-			}
-			return data;
+			File *file = itFile->second->read();
+			if (itFile->second->needsCaching())
+				putInCache( key, file );
+			return file;
 		}
 
 		return NULL;
@@ -359,7 +333,7 @@ namespace UTILS
 
 
 
-	byte* VFS::readFileRange(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
+	File* VFS::readFileRange(const String &filename, const uint32 start, const uint32 length)
 	{
 		if (filename.empty())
 			return NULL;
@@ -369,33 +343,27 @@ namespace UTILS
 		key.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		uint32 FileSize;
 
 		CacheFileData *cache = (key.notEmpty()) ? isInCacheWL(key) : NULL;
 		if (cache)
 		{
-			if (fileLength)
-				*fileLength = cache->length;
-			byte *data = new byte[cache->length + 1];
-			memcpy(data, cache->data, cache->length);
-			data[cache->length] = 0;
-			return data;
+			if (cache->length == 0)
+				return NULL;
+			VirtualFile *f = new VirtualFile;
+			f->copyBuffer(cache->data, cache->length);
+			return f;
 		}
 		else
 		{
-			byte* data = isInDiskCacheWL( key, &FileSize );
-			if (data)
-			{
-				if (fileLength)
-					*fileLength = FileSize;
-				return data;
-			}
+			File* cacheFile = isInDiskCacheWL( key );
+			if (cacheFile)
+				return cacheFile;
 		}
 
-		TA3D::UTILS::HashMap<Archive::File*>::Dense::iterator file = pFiles.find(key);
-		if (file == pFiles.end())
+		TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense::iterator itFile = pFiles.find(key);
+		if (itFile == pFiles.end())
 			return NULL;
-		return file->second ? file->second->readRange(start, length, fileLength) : NULL;
+		return itFile->second ? itFile->second->readRange(start, length) : NULL;
 	}
 
 
@@ -421,7 +389,7 @@ namespace UTILS
 		key.convertSlashesIntoBackslashes();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		HashMap<Archive::File*>::Dense::iterator file = pFiles.find(key);
+		HashMap<Archive::FileInfo*>::Dense::iterator file = pFiles.find(key);
 		// If it doesn't exist it has a lower priority than anything else
 		return (file != pFiles.end() && file->second != NULL) ? file->second->getPriority() : -0xFFFFFF;
 	}
@@ -451,215 +419,87 @@ namespace UTILS
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 		String targetName = Paths::Caches + Paths::ExtractFileName(filename);
-		std::fstream file(targetName.c_str(), std::fstream::out | std::fstream::binary);
-		if (!file.is_open())
+		Stream file(targetName, OpenMode::write);
+		if (!file.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_VFS << "impossible to create file '" << targetName << "'");
 			return targetName;
 		}
-		uint32 file_length(0);
-		byte *data = readFile(filename, &file_length);
-		if (data)
+		File *vfile = readFile(filename);
+		if (vfile && vfile->isOpen())
 		{
-			file.write((char*)data, file_length);
-			DELETE_ARRAY(data);
+			char *buf = new char[10240];
+			for(int i = 0 ; i < vfile->size() ; i += 10240)
+			{
+				int l = Math::Min(10240, vfile->size() - i);
+				vfile->read(buf, l);
+				file.write(buf, l);
+			}
+			delete[] buf;
 		}
 		else
+		{
 			LOG_WARNING(LOG_PREFIX_VFS << "could not extract file '" << filename << "'");
+		}
+		if (vfile)
+			delete vfile;
 		file.flush();
 		file.close();
 		return targetName;
 	}
 
 
-
-	void TA3D_FILE::topen(const String& filename)
-	{
-		destroy();
-
-		String win_filename(filename);
-		win_filename.convertSlashesIntoBackslashes();
-
-		data = VFS::Instance()->readFile(win_filename, &length);
-		pos = 0;
-	}
-
-	char TA3D_FILE::tgetc()
-	{
-		if (data == NULL || pos >= length )
-			return 0;
-		return ((char*)data)[pos++];
-	}
-
-
-	char* TA3D_FILE::tgets(void *buf, int size)
-	{
-		if (data == NULL || pos >= length)
-			return NULL;
-		for (char* out_buf = (char*)buf; size > 1; --size)
-		{
-			*out_buf = tgetc();
-			if (!*out_buf || *out_buf == '\n' || *out_buf == '\r')
-			{
-				out_buf++;
-				*out_buf = 0;
-				return (char*)buf;
-			}
-			++out_buf;
-		}
-		return NULL;
-	}
-
-
-	int TA3D_FILE::tread(void *buf, int size)
-	{
-		if (data == NULL || pos >= length)
-			return 0;
-		if (pos + size > length)
-			size = length - pos;
-		memcpy(buf, data + pos, size);
-		pos += size;
-		return size;
-	}
-
-
-	void TA3D_FILE::destroy()
-	{
-		DELETE_ARRAY(data);
-		pos = 0;
-		length = 0;
-	}
-
-
-
-
-	TA3D_FILE* ta3d_fopen(const String& filename)
-	{
-		TA3D_FILE *file = new TA3D_FILE;
-
-		if (file)
-		{
-			file->topen(filename);
-			if (!file->isopen())
-			{
-				delete file;
-				file = NULL;
-			}
-		}
-		return file;
-	}
-
-
-
-	void fclose(TA3D_FILE *file)
-	{
-		if (file)
-			delete file;
-	}
-
-
-	char fgetc(TA3D_FILE *file)
-	{
-		return (file) ? file->tgetc() : (char)0;
-	}
-
-
-	int fread(void *buf, int size, TA3D_FILE *file)
-	{
-		if( file )
-			return file->tread( buf, size );
-		return 0;
-	}
-
-	int fread(void *buf, int size, int repeat, TA3D_FILE *file)
-	{
-		if( file )
-			return file->tread( buf, size * repeat );
-		return 0;
-	}
-
-	char* fgets( void *buf, int size, TA3D_FILE *file )
-	{
-		if( file )
-			return file->tgets( buf, size );
-		return NULL;
-	}
-
-	void fseek( int offset, TA3D_FILE *file )
-	{
-		if (file)
-			file->tseek(offset);
-	}
-
-	bool feof(TA3D_FILE *file)
-	{
-		return file ? file->teof() : true;
-	}
-
-	int fsize(TA3D_FILE *file)
-	{
-		return file ? file->tsize() : 0;
-	}
-
-
 	bool load_palette(SDL_Color *pal, const String& filename)
 	{
-		byte* palette = VFS::Instance()->readFile(filename);
+		File* palette = VFS::Instance()->readFile(filename);
 		if (palette == NULL)
 			return false;
 
 		for (int i = 0; i < 256; ++i)
 		{
-			pal[i].r = palette[i << 2];
-			pal[i].g = palette[(i << 2) + 1];
-			pal[i].b = palette[(i << 2) + 2];
+			*palette >> pal[i].r;
+			*palette >> pal[i].g;
+			*palette >> pal[i].b;
+			chat c;
+			*palette >> c;
 		}
-		DELETE_ARRAY(palette);
+		delete palette;
 		return true;
 	}
 
 	template<class T>
-	bool TmplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+			bool tplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
 		if (emptyListBefore)
 			out.clear();
 
-		uint32 file_length(0);
-		byte *data = VFS::Instance()->readFile(filename, &file_length);
-		if (data == NULL)
+		File *file = VFS::Instance()->readFile(filename);
+		if (file == NULL)
 		{
 			LOG_WARNING("Impossible to open the file `" << filename << "`");
 			return false;
 		}
-		if (sizeLimit && file_length > sizeLimit)
+		if (sizeLimit && file->size() > sizeLimit)
 		{
-			DELETE_ARRAY(data);
+			delete file;
 			LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
 			return false;
 		}
-		std::stringstream file;
-		file.write((const char*)data, file_length);
-		DELETE_ARRAY(data);
-		std::string line;
-		while (std::getline(file, line))
+		String line;
+		while (file->readLine(line))
 			out.push_back(line);
+		delete file;
 		return true;
 	}
 
-
-	bool TA3D_FILE::Load(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+	bool loadFromFile(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
-		return TmplLoadFromFile< String::List >(out, filename, sizeLimit, emptyListBefore);
+		return tplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
 	}
 
-	bool TA3D_FILE::Load(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+	bool loadFromFile(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
-		return TmplLoadFromFile< String::Vector >(out, filename, sizeLimit, emptyListBefore);
+		return tplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
 	}
-
-
-
-
-
 } // namespace UTILS
 } // namespace TA3D

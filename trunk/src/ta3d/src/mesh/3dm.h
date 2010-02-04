@@ -65,7 +65,7 @@ namespace TA3D
         MESH_3DM *root;
     public:
 
-        byte *load(byte *data, const String &filename, MESH_3DM *root = NULL);
+		void load(File *file, const String &filename, MESH_3DM *root = NULL);
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);

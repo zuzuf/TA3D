@@ -92,7 +92,7 @@ namespace TA3D
 
 		void destroy();
 
-		void load(char *data,int ota_size);
+		void load(File *data);
 		void load(const String& filename);
 
 	public:

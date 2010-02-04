@@ -31,6 +31,7 @@ namespace TA3D
 {
     namespace UTILS
     {
+		class File;
         /*! \class Archive
         **
         ** \brief abstract class defining the interface required to manipulate archives
@@ -38,20 +39,20 @@ namespace TA3D
         class Archive
         {
         public:
-            class File
+			class FileInfo
             {
             protected:
                 String name;
                 int priority;
                 Archive *parent;
             public:
-                virtual ~File() {}
+				virtual ~FileInfo() {}
                 inline String getName()  const  {   return name;    }
                 inline int getPriority() const  {   return priority;    }
                 inline void setPriority(int p)  {  priority = p;   }
                 inline Archive *getParent() const {   return parent;  }
-                byte* read(uint32* file_length = NULL);
-                byte* readRange(const uint32 start, const uint32 length, uint32* file_length = NULL);
+				File* read();
+				File* readRange(const uint32 start, const uint32 length);
                 bool needsCaching() const;
             };
         protected:
@@ -75,13 +76,13 @@ namespace TA3D
             /*!
             ** \brief Return the list of all files in the archive
             */
-			virtual void getFileList(std::deque<File*> &lFiles) = 0;
+			virtual void getFileList(std::deque<FileInfo*> &lFiles) = 0;
 
             /*!
             ** \brief
             */
-            virtual byte* readFile(const String& filename, uint32* file_length = NULL) = 0;
-            virtual byte* readFile(const File *file, uint32* file_length = NULL) = 0;
+			virtual File* readFile(const String& filename) = 0;
+			virtual File* readFile(const FileInfo *file) = 0;
 
             /*!
             ** \brief
@@ -90,8 +91,8 @@ namespace TA3D
             ** \param length
             ** \return
             */
-            virtual byte* readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length = NULL) = 0;
-            virtual byte* readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length = NULL) = 0;
+			virtual File* readFileRange(const String& filename, const uint32 start, const uint32 length) = 0;
+			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length) = 0;
 
             /*!
             ** \brief returns true if using the cache is a good idea (real FS will return false)

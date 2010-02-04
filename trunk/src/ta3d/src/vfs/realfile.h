@@ -34,11 +34,14 @@ namespace TA3D
 		class RealFile : public File
 		{
 		public:
+			RealFile();
+			RealFile(const String &filename);
+
 			//! This is an abstract class, its destructor must be virtual
 			virtual ~RealFile();
 
 			//! Read s bytes and write them in memory pointed by p
-			virtual void read(void *p, int s);
+			virtual int read(void *p, int s);
 			//! Returns the size of the file
 			virtual int size();
 			//! Returns true if end of file has been reached
@@ -51,10 +54,19 @@ namespace TA3D
 			virtual bool readLine(String &line);
 			//! Returns true if the file is opened
 			virtual bool isOpen();
+			//! Returns a pointer to a memory buffer containing the file
+			virtual const char *data();
+			//! Close the file
+			virtual void close();
 
 			void open(const String &filename);
+
+		private:
+			virtual File &operator=(const File &) {return *this;}
+
 		private:
 			Yuni::Core::IO::File::Stream	sFile;
+			char *buffer;
 		};
 	}
 }

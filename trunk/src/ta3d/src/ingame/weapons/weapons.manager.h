@@ -54,7 +54,7 @@ namespace TA3D
         /*!
         ** \brief Load a TDF file
         */
-        void load_tdf(char *data, const int size = 99999999);
+		void load_tdf(File *file);
 
         /*!
         ** \brief

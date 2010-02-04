@@ -151,7 +151,7 @@ namespace TA3D
 
     public:
         //!
-        byte* fx_data;
+		File* fx_data;
         //!
         GLuint flash_tex;
         //!

@@ -85,17 +85,17 @@ namespace TA3D
 		const String::List::const_iterator end = file_list.end();
 		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 		{
-			byte *data = VFS::Instance()->readFile(*cur_file);
-			load_gaf(data, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");
-			DELETE_ARRAY(data);
+			File *file = VFS::Instance()->readFile(*cur_file);
+			load_gaf(file, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");
+			delete file;
 		}
 		return 0;
 	}
 
 
-	int TEXTURE_MANAGER::load_gaf(byte* data, bool logo)
+	int TEXTURE_MANAGER::load_gaf(File* file, bool logo)
 	{
-		sint32 nb_entry = Gaf::RawDataEntriesCount(data);
+		sint32 nb_entry = Gaf::RawDataEntriesCount(file);
 		int n_nbtex = nbtex + nb_entry;
 		Gaf::Animation* n_tex = new Gaf::Animation[n_nbtex];
 		for (int i = 0; i < nbtex; ++i)
@@ -107,7 +107,7 @@ namespace TA3D
 		tex = n_tex;
 		for (int i = 0; i < nb_entry; ++i)
 		{
-			tex[nbtex + i].loadGAFFromRawData(data, i, false);
+			tex[nbtex + i].loadGAFFromRawData(file, i, false);
 			tex[nbtex + i].logo = logo;
 			tex_hashtable[tex[nbtex + i].name] = nbtex + i + 1;
 		}
