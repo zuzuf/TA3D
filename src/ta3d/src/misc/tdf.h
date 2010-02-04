@@ -95,22 +95,6 @@ namespace TA3D
 		*/
 		bool loadFromMemory(const String& caption, const char* data, uint64 size, const bool clear = false,
 							const bool toUTF8 = false, const bool gadgetMode = false);
-
-		/*!
-		** \brief Load data from a buffer
-		**
-		** This method will find the end of the buffer with the first '\0' in the buffer
-		**
-		** \param caption The caption of this buffer to display when a parse error is encountered
-		** \param data The buffer
-		** \param clear Clear the all previoulsy stored keys
-		** \param toUTF8 Convert this buffer from ASCII to the UTF8 charset
-		** \param gadgetMode Mystic mode
-		** \return True if the operation succeeded, False otherwise
-		*/
-
-		bool loadFromMemory(const String& caption, const char* data, const bool clearTable = false,
-							const bool toUTF8 = false, const bool gadgetMode = false);
 		//@}
 
 

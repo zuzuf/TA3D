@@ -74,10 +74,10 @@ namespace TA3D
 
 
                                         // Load a map in TNT format extracted from a HPI archive
-    MAP	*load_tnt_map(byte *data );		// Charge une map au format TA, extraite d'une archive HPI/UFO
+	MAP	*load_tnt_map(File *file);		// Charge une map au format TA, extraite d'une archive HPI/UFO
 
                                                                 // Load a minimap from a map file extracted from a HPI archive
-    GLuint load_tnt_minimap(byte *data,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+	GLuint load_tnt_minimap(File *file,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 
                                                                                 // Load a minimap from a map file extracted from a HPI archive
     GLuint load_tnt_minimap_fast(const String& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO

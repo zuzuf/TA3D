@@ -98,7 +98,7 @@ namespace TA3D
     {
     public:
 
-        int load(byte *data,int offset, int dec = 0, const String &filename = String());
+		int load(File *file, int dec = 0, const String &filename = String());
         void create_from_2d(SDL_Surface *bmp,float w,float h,float max_h);
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);

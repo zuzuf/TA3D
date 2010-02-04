@@ -222,8 +222,8 @@ namespace Menus
 		ta3dSideData.loadData();
 
 		// Reloading and creating cursors
-		byte *data = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
-		cursor.loadGAFFromRawData(data, true);
+		File *file = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
+		cursor.loadGAFFromRawData(file, true);
 		cursor.convert();
 
 		CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
@@ -249,7 +249,7 @@ namespace Menus
 		if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
 			CURSOR_REVIVE = cursor.findByName("cursorreclamate");
 
-		DELETE_ARRAY(data);
+		delete file;
 	}
 
 

@@ -1684,11 +1684,10 @@ namespace TA3D
 	// FIXME: ugly thing, we shouldn't need an extra temporary file, image should be loaded directly from memory
 	SDL_Surface *GFX::load_image(const String filename)
 	{
-        uint32 image_file_size;
-        byte *data = VFS::Instance()->readFile(filename, &image_file_size);
-        if (data)
+		File *vfile = VFS::Instance()->readFile(filename);
+		if (vfile)
         {
-            SDL_RWops *file = SDL_RWFromMem(data, image_file_size);
+			SDL_RWops *file = SDL_RWFromMem((void*)vfile->data(), vfile->size());
             SDL_Surface *img = NULL;
             if (Paths::ExtractFileExt(filename).toLower() == ".tga")
                 img = IMG_LoadTGA_RW(file);
@@ -1696,7 +1695,7 @@ namespace TA3D
                 img = IMG_Load_RW(file, 0);
             SDL_RWclose(file);
 
-			DELETE_ARRAY(data);
+			delete vfile;
 
             if (img)
             {

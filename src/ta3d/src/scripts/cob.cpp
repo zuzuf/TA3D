@@ -81,24 +81,13 @@ namespace TA3D
 	{
 		destroy();				// Au cas où
 
-		uint32 cob_size(0);
-		byte *data = VFS::Instance()->readFile(filename, &cob_size);
+		File *file = VFS::Instance()->readFile(filename);
 
-		if (data == NULL)
+		if (file == NULL)
 			return;
 
 		COBHeader header;
-		header.VersionSignature = *((int*)data);
-		header.NumberOfScripts = *((int*)(data + 4));
-		header.NumberOfPieces = *((int*)(data + 8));
-		header.CodeLength = *((int*)(data + 12));
-		header.StaticVariableCount = *((int*)(data + 16));
-		header.Unknown_0 = *((int*)(data + 20));
-		header.OffsetToScriptCodeIndexArray  = *((int*)(data + 24));
-		header.OffsetToScriptNameOffsetArray = *((int*)(data + 28));
-		header.OffsetToPieceNameOffsetArray = *((int*)(data + 32));
-		header.OffsetToScriptCode = *((int*)(data + 36));
-		header.Unknown_1 = *((int*)(data + 40));
+		*file >> header;
 
 #ifdef DEBUG_MODE
 		/*		printf("header.NumberOfScripts=%d\n",header.NumberOfScripts);
@@ -115,25 +104,38 @@ namespace TA3D
 		names.resize(nb_script);
 		piece_name.resize( nb_piece );
 
-		int f_pos = header.OffsetToScriptNameOffsetArray;
 		int i;
 		for (i = 0; i < nb_script; ++i)
-			names[i] = String( (char*)(data + (*((int*)(data + f_pos + 4 * i)))) ).toUpper();
-		f_pos = header.OffsetToPieceNameOffsetArray;
+		{
+			file->seek(header.OffsetToScriptNameOffsetArray + 4 * i);
+			int ofs;
+			*file >> ofs;
+			file->seek(ofs);
+			names[i] = file->getString().toUpper();
+		}
 		for(i = 0; i < nb_piece; ++i)
-			piece_name[i] = (char*)(data+(*((int*)(data+f_pos+4*i))));
+		{
+			file->seek(header.OffsetToPieceNameOffsetArray + 4 * i);
+			int ofs;
+			*file >> ofs;
+			file->seek(ofs);
+			piece_name[i] = file->getString();
+		}
 		codeSize = header.CodeLength * 4;
 		Data = new byte[codeSize];
-		memcpy(Data, data + header.OffsetToScriptCode, codeSize);
+		file->seek(header.OffsetToScriptCode);
+		file->read(Data, codeSize);
 		script_code = new int*[nb_script];
 		dec_offset = new int[nb_script];
+		file->seek(header.OffsetToScriptCodeIndexArray);
+		file->read(dec_offset, sizeof(int) * nb_script);
 		for (i = 0; i < nb_script; ++i)
 		{
-			dec_offset[i]  = (*((int*)(data + header.OffsetToScriptCodeIndexArray + 4 * i)));
+			file->seek(4 * dec_offset[i]);
 			script_code[i] = (int*)(Data + 4 * dec_offset[i]);
 		}
 
-		DELETE_ARRAY(data);
+		delete file;
 	}
 
 	void CobScript::destroy()

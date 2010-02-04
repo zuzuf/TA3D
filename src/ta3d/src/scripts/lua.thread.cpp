@@ -171,9 +171,15 @@ namespace TA3D
 	byte *loadLuaFile(const String &filename, uint32 &filesize)
 	{
 		filesize = 0;
-		byte *buffer = (byte*)VFS::Instance()->readFile(filename , &filesize);
-		if (buffer)
+		File *file = VFS::Instance()->readFile(filename);
+		byte *buffer = NULL;
+		if (file)
 		{
+			filesize = file->size();
+			byte *buffer = new byte[file->size()];
+			file->read(buffer, file->size());
+			delete file;
+
 			String path = Paths::ExtractFilePath(filename);
 			String name;
 			int n = 0;
@@ -188,19 +194,25 @@ namespace TA3D
 					name = "scripts/" + name;
 				else
 					name = path + name;
-				uint32 filesize2 = 0;
-				byte *buffer2 = (byte*)VFS::Instance()->readFile(name, &filesize2);
-				if (buffer2)
+				file = VFS::Instance()->readFile(name);
+				if (file)
 				{
-					byte *buffer3 = new byte[ filesize + filesize2 + 1 ];
-					memset( buffer3, 0, filesize + filesize2 + 1 );
-					memcpy( buffer3, buffer, f - (char*)buffer );
-					memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
-					memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
-					filesize += filesize2 - i - 11;
-					DELETE_ARRAY(buffer);
-					DELETE_ARRAY(buffer2);
-					buffer = buffer3;
+					uint32 filesize2 = file->size();
+					byte *buffer2 = new byte[filesize2];
+					file->read(buffer2, file->size());
+					delete file;
+					if (buffer2)
+					{
+						byte *buffer3 = new byte[ filesize + filesize2 + 1 ];
+						memset( buffer3, 0, filesize + filesize2 + 1 );
+						memcpy( buffer3, buffer, f - (char*)buffer );
+						memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
+						memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
+						filesize += filesize2 - i - 11;
+						DELETE_ARRAY(buffer);
+						DELETE_ARRAY(buffer2);
+						buffer = buffer3;
+					}
 				}
 				else
 					break;

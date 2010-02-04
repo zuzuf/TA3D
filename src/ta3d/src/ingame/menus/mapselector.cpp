@@ -273,12 +273,11 @@ namespace Menus
 		// OTA
 		String otaMap;
 		otaMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".ota";
-		uint32 otaSize(0);
 		MAP_OTA mapOTA;
-		if (byte* data = VFS::Instance()->readFile(otaMap, &otaSize))
+		if (File* file = VFS::Instance()->readFile(otaMap))
 		{
-			mapOTA.load((char*)data, otaSize);
-			DELETE_ARRAY(data);
+			mapOTA.load(file);
+			delete file;;
 		}
 
 		// Update the mini map
@@ -324,16 +323,14 @@ namespace Menus
 
 	bool MapSelector::MapIsForNetworkGame(const String& mapShortName)
 	{
-		unsigned int ota_size = 10240;
-		byte* data = VFS::Instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
-		ota_size = Yuni::Math::Min<unsigned int>(ota_size, (unsigned int)10240);
-		if (data)
+		File* file = VFS::Instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, 10240);
+		if (file)
 		{
 			TDFParser ota_parser;
-			ota_parser.loadFromMemory("ota", (const char*)data, ota_size, false, false, false);
+			ota_parser.loadFromMemory("ota", (const char*)file->data(), Math::Min(file->size(), 10240), false, false, false);
 			String tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
 			tmp.toLower();
-			DELETE_ARRAY(data);
+			delete file;
 			return tmp.startsWith("network");
 		}
 		return false;

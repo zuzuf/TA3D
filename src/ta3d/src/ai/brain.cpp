@@ -18,6 +18,7 @@
 #include <stdafx.h>
 #include "brain.h"
 #include <misc/math.h>
+#include <vfs/file.h>
 
 using namespace TA3D::UTILS;
 
@@ -189,20 +190,20 @@ namespace TA3D
 		}
 	}
 
-	int BRAIN::load(TA3D_FILE *file)		// Load the neural network
+	int BRAIN::load(File *file)		// Load the neural network
 	{
 		char tmp[6];
 
-        fread(tmp, 5, file); // File format ID
+		file->read(tmp, 5); // File format ID
         tmp[5] = 0;
 		if (strcmp(tmp,"BRAIN") != 0)	// Check if it is what is expected
 			return 1;
 
 		destroy();		// clean the object
 
-        fread(&n, sizeof(int), file);		// Inputs
-        fread(&p, sizeof(int), file);		// Outputs
-        fread(&q, sizeof(int), file);		// Size of middle layer
+		file->read(n);		// Inputs
+		file->read(p);		// Outputs
+		file->read(q);		// Size of middle layer
         nb_neuron = p + q + n;
 
 		neuron = new NEURON[nb_neuron];
@@ -219,12 +220,12 @@ namespace TA3D
 			if (i<n+q)
 			{
 				neuron[i].weight = new float[n];
-                fread(neuron[i].weight,sizeof(float)*n,file);
+				file->read(neuron[i].weight, sizeof(float) * n);
 			}
 			else
 			{
 				neuron[i].weight = new float[q];
-                fread(neuron[i].weight,sizeof(float)*q,file);
+				file->read(neuron[i].weight, sizeof(float) * q);
 			}
 		}
 		return 0;

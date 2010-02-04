@@ -383,7 +383,7 @@ namespace TA3D
 
         void analyse(String filename,int unit_index);
 
-        void analyse2(char *data,int size=9999999);
+		void analyse2(File *file);
 
         void gather_build_data();
 

@@ -813,12 +813,11 @@ namespace Audio
 	{
 		stopSoundFileNow();
 
-		uint32 sound_file_size = 0;
-		byte *data = VFS::Instance()->readFile(filename, &sound_file_size);
-		if (data)
+		File *file = VFS::Instance()->readFile(filename);
+		if (file)
 		{
-			pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem(data, sound_file_size), 1);
-			DELETE_ARRAY(data);
+			pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem((void*)file->data(), file->size()), 1);
+			delete file;
 			if (pBasicSound == NULL)
 			{
 				logs.error() << LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ')';
@@ -870,10 +869,9 @@ namespace Audio
 
 		// pull the data from hpi.
 		String theSound;
-		uint32 Length;
 		theSound << "sounds\\" << filename << ".wav";
-		byte* data = VFS::Instance()->readFile(theSound, &Length);
-		if (!data) // if no data, log a message and return false.
+		File* file = VFS::Instance()->readFile(theSound);
+		if (!file) // if no data, log a message and return false.
 		{
 			// logs.debug() <<  LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
 			return false;
@@ -883,8 +881,8 @@ namespace Audio
 		LOG_ASSERT(NULL != it);
 
 		// Now get SDL_mixer to load the sample
-		it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem(data, Length), 1 );
-		DELETE_ARRAY(data); // we no longer need this.
+		it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem((void*)file->data(), file->size()), 1 );
+		delete file; // we no longer need this.
 
 		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
 		{

@@ -81,24 +81,26 @@ namespace TA3D
 
 		SDL_Surface *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
 		{
-			byte *headerBytes = VFS::Instance()->readFileRange(filename, 0, sizeof(TNTHEADER), NULL);
+			File *headerBytes = VFS::Instance()->readFileRange(filename, 0, sizeof(TNTHEADER));
 			if (headerBytes == NULL)
 				return 0;
 
-			TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
+			TNTHEADER *header = &((TNTHEADER_U*)headerBytes->data())->header;
 
-			byte *minimapdata = VFS::Instance()->readFileRange(filename, header->PTRminimap, sizeof(TNTMINIMAP), NULL);
+			File *minimapdata = VFS::Instance()->readFileRange(filename, header->PTRminimap, sizeof(TNTMINIMAP));
 			if (!minimapdata)
 			{
-				DELETE_ARRAY(headerBytes);
+				delete headerBytes;
 				return 0;
 			}
 
-			TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
-			SDL_Surface	*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
+			minimapdata->seek(header->PTRminimap);
+			TNTMINIMAP minimap;
+			*minimapdata >> minimap;
+			SDL_Surface	*bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
 
-			DELETE_ARRAY(headerBytes);
-			DELETE_ARRAY(minimapdata);
+			delete headerBytes;
+			delete minimapdata;
 
 			return bitmap;
 		}
@@ -111,7 +113,7 @@ namespace TA3D
 
 
 
-	MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une archive HPI/UFO
+	MAP	*load_tnt_map(File *file)		// Charge une map au format TA, extraite d'une archive HPI/UFO
 	{
 		LOG_DEBUG("MAP: creating MAP object ...");
 		MAP	*map = new MAP;		// Crée une nouvelle carte
@@ -126,22 +128,7 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: reading header");
 
-		header.IDversion   = ((int*)data)[0];
-		header.Width       = ((int*)data)[1];
-		header.Height      = ((int*)data)[2];
-		header.PTRmapdata  = ((int*)data)[3];
-		header.PTRmapattr  = ((int*)data)[4];
-		header.PTRtilegfx  = ((int*)data)[5];
-		header.tiles       = ((int*)data)[6];
-		header.tileanims   = ((int*)data)[7];
-		header.PTRtileanim = ((int*)data)[8];
-		header.sealevel    = ((int*)data)[9];
-		header.PTRminimap  = ((int*)data)[10];
-		header.unknown1    = ((int*)data)[11];
-		header.pad1        = ((int*)data)[12];
-		header.pad2        = ((int*)data)[13];
-		header.pad3        = ((int*)data)[14];
-		header.pad4        = ((int*)data)[15];
+		*file >> header;
 
 		# ifdef TNT_DEBUG_MODE
 		LOG_DEBUG("[tnt - load map] IDversion = " << header.IDversion);
@@ -158,9 +145,11 @@ namespace TA3D
 		int i, x, y;
 		for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
 		{
-			TDF_index[i]=feature_manager.get_feature_index((char*)(data+header.PTRtileanim+4+(i*132)));
+			file->seek(header.PTRtileanim + 4 + (i * 132));
+			String fname = file->getString();
+			TDF_index[i] = feature_manager.get_feature_index(fname);
 			if (TDF_index[i] == -1)
-				LOG_ERROR("tdf not found: " << (char*)(data + header.PTRtileanim + 4 + (i * 132)));
+				LOG_ERROR("tdf not found: " << fname);
 		}
 
 		map->sealvl = float(header.sealevel) * H_DIV;
@@ -169,17 +158,14 @@ namespace TA3D
 		LOG_DEBUG("MAP: reading mini map");
 		int event_timer = msec_timer;
 		int w,h;
-		f_pos=header.PTRminimap;
-		w = *((int*)(data + f_pos)); f_pos += 4;
-		h = *((int*)(data + f_pos)); f_pos += 4;
+		file->seek(header.PTRminimap);
+		*file >> w;
+		*file >> h;
 		map->mini_w = w;
 		map->mini_h = h;
 		map->mini = gfx->create_surface_ex(8, 252, 252);
 		for(y = 0; y < 252; ++y)
-		{
-			memcpy((char*)map->mini->pixels + y * map->mini->pitch, data + f_pos, 252);
-			f_pos += 252;
-		}
+			file->read((char*)map->mini->pixels + y * map->mini->pitch, 252);
 		map->mini = convert_format(map->mini);
 		map->mini_w = 251;
 		map->mini_h = 251;
@@ -206,16 +192,13 @@ namespace TA3D
 		for (i = 0; i < n_bmp; ++i)
 			bmp_tex[i] = gfx->create_surface_ex(8, 1024, 32);
 
-		f_pos=header.PTRtilegfx;
+		file->seek(header.PTRtilegfx);
 		for (i = 0; i < header.tiles; ++i) // Lit tout les morceaux
 		{
 			int tex_num = i>>5;	// Numéro de la texture associée
 			int tx = (i&0x1F)<<5;			// Coordonnées sur la texture
 			for(y = 0; y < 32; ++y)	// Lit le morceau
-			{
-				memcpy((char*)bmp_tex[tex_num]->pixels + y * bmp_tex[tex_num]->pitch + tx,data+f_pos,32);
-				f_pos += 32;
-			}
+				file->read((char*)bmp_tex[tex_num]->pixels + y * bmp_tex[tex_num]->pitch + tx, 32);
 		}
 
 		LOG_DEBUG("MAP: allocating map memory");
@@ -272,7 +255,7 @@ namespace TA3D
 				map->view[i] = &(map->view[0][i*map->bloc_w]);
 		}
 
-		memset(map->view[0],0,map->bloc_w*map->bloc_h);
+		memset(map->view[0], 0, map->bloc_w * map->bloc_h);
 		map->nbbloc = header.tiles;		// Nombre de blocs nécessaires
 		map->bloc = new BLOC[map->nbbloc];	// Alloue la mémoire pour les blocs
 		map->ntex = short(n_bmp);
@@ -387,12 +370,12 @@ namespace TA3D
 
 		SDL_Surface *low_def = gfx->create_surface_ex(24, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
 		SDL_FillRect(low_def, NULL, 0x0);
-		f_pos = header.PTRmapdata;
+		file->seek(header.PTRmapdata);
 		for (y = 0; y < map->bloc_h; ++y)
 		{
 			for (x = 0; x < map->bloc_w; ++x)
 			{
-				map->bmap[y][x] = *((short*)(data + f_pos));
+				*file >> map->bmap[y][x];
 
 				if (map->bmap[y][x] >= map->nbbloc)			// To add some security
 					map->bmap[y][x] = 0;
@@ -410,8 +393,6 @@ namespace TA3D
 					(x + 1) * (low_def->w - 1) / map->bloc_w - x * (low_def->w - 1) / map->bloc_w,
 					(y + 1) * (low_def->h - 1) / map->bloc_h - y * (low_def->h - 1) / map->bloc_h);
 				/*--------------------------------------------------------------------*/
-
-				f_pos+=2;
 			}
 		}
 		LOG_INFO("Low definition map image built in " << float(msec_timer - event_timer) * 0.001f << "s.");
@@ -449,21 +430,23 @@ namespace TA3D
 		LOG_DEBUG("MAP: computing height data (step 1)");
 		// Charge d'autres données sur les blocs
 		map->water = false;
-		f_pos = header.PTRmapattr;
+		file->seek(header.PTRmapattr);
 		for (y = 0; y< (map->bloc_h << 1); ++y)
 		{
 			for (x = 0; x < (map->bloc_w << 1);  ++x)
 			{
-				int c = *((byte*)(data+f_pos));
+				int c = byte(file->getc());
 				if (c < header.sealevel)
 					map->water = true;
 				map->h_map[y][x] = map->ph_map[y][x] = float(c) * H_DIV;
-				f_pos += 4;
+				file->getc();
+				file->getc();
+				file->getc();
 			}
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 2)");
-		for (y=0;y<(map->bloc_h<<1);y++) // Calcule les informations complémentaires sur la carte
+		for (y = 0 ; y < (map->bloc_h<<1) ; ++y) // Calcule les informations complémentaires sur la carte
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
 			{
@@ -514,7 +497,7 @@ namespace TA3D
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 4)");
-		map->sea_dec=map->sealvl*tnt_transform*H_DIV; // Calcule le décalage nécessaire pour restituer les océans
+		map->sea_dec = map->sealvl * tnt_transform * H_DIV; // Calcule le décalage nécessaire pour restituer les océans
 		for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
@@ -598,7 +581,7 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: reading map features data");
 		// Ajoute divers éléments(végétation,...)
-		f_pos=header.PTRmapattr+1;
+		file->seek(header.PTRmapattr + 1);
         for (y = 0; y < (map->bloc_h << 1); ++y)
             for (x = 0; x < (map->bloc_w << 1); ++x)
                 map->map_data[y][x].stuff = -1;
@@ -606,7 +589,8 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
 			{
-				unsigned short type = *((unsigned short*)(data + f_pos));
+				unsigned short type;
+				*file >> type;
 				if (type <= header.tileanims)
 				{
 					Vector3D Pos;
@@ -628,7 +612,7 @@ namespace TA3D
                         }
                     }
 				}
-				f_pos+=4;
+				file->seek(file->tell() + 4);
 			}
 		}
 		LOG_INFO("Decors : " << float(msec_timer - event_timer) * 0.001f << "s.");
@@ -723,11 +707,14 @@ namespace TA3D
 
 
 
-	GLuint load_tnt_minimap(byte *data,int& sw,int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+	GLuint load_tnt_minimap(File *file,int& sw,int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 	{
-		TNTHEADER	*header = (TNTHEADER*)data;
-		TNTMINIMAP *minimap = (TNTMINIMAP*) &data[header->PTRminimap];
-		SDL_Surface		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
+		TNTHEADER header;
+		*file >> header;
+		file->seek(header.PTRminimap);
+		TNTMINIMAP minimap;
+		*file >> minimap;
+		SDL_Surface	*bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);

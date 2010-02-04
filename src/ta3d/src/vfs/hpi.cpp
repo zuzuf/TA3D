@@ -2,6 +2,7 @@
 #include <misc/paths.h>
 #include <zlib.h>
 #include <logs/logs.h>
+#include "virtualfile.h"
 
 namespace TA3D
 {
@@ -106,7 +107,7 @@ namespace TA3D
             HPIFile = NULL;
         }
 
-		void Hpi::getFileList(std::deque<File*> &lFiles)
+		void Hpi::getFileList(std::deque<FileInfo*> &lFiles)
         {
             if (files.empty())
             {
@@ -117,17 +118,17 @@ namespace TA3D
                 lFiles.push_back(i->second);
         }
 
-        byte* Hpi::readFile(const String& filename, uint32* file_length)
+		File* Hpi::readFile(const String& filename)
         {
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
 			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
-			return readFile(item->second, file_length);
+			return readFile(item->second);
         }
 
-        byte* Hpi::readFile(const File *file, uint32* file_length)
+		File* Hpi::readFile(const FileInfo *file)
         {
             const HpiFile *hi = (const HpiFile*)file;
 
@@ -144,9 +145,6 @@ namespace TA3D
             Offset = *((sint32 *) (directory + entry->CountOffset));
             Length = *((sint32 *) (directory + entry->CountOffset + 4));
             FileFlag = *(directory + entry->CountOffset + 8);
-
-            if(file_length)
-                *file_length = Length;
 
             WriteBuff = new byte[Length + 1];
 
@@ -191,20 +189,20 @@ namespace TA3D
                 readAndDecrypt(Offset, WriteBuff, Length);
             }
 
-            return WriteBuff;
+			return new VirtualFile(WriteBuff, Length);
         }
 
-        byte* Hpi::readFileRange(const String& filename, const uint32 start, const uint32 length, uint32 *file_length)
+		File* Hpi::readFileRange(const String& filename, const uint32 start, const uint32 length)
         {
             String key = String::ToLower(filename);
             key.convertSlashesIntoBackslashes();
 			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
-			return readFileRange(item->second, start, length, file_length);
+			return readFileRange(item->second, start, length);
         }
 
-        byte* Hpi::readFileRange(const File *file, const uint32 start, const uint32 length, uint32 *file_length)
+		File* Hpi::readFileRange(const FileInfo *file, const uint32 start, const uint32 length)
         {
             const HpiFile *hi = (const HpiFile*)file;
             if (!hi)
@@ -218,9 +216,6 @@ namespace TA3D
             Offset = *((sint32 *) (directory + entry->CountOffset));
             Length = *((sint32 *) (directory + entry->CountOffset + 4));
             FileFlag = *(directory + entry->CountOffset + 8);
-
-            if(file_length)
-                *file_length = Length;
 
             WriteBuff = new byte[Length+1];
 
@@ -268,7 +263,7 @@ namespace TA3D
                 readAndDecrypt(Offset+start, WriteBuff+start, length);
             }
 
-            return WriteBuff;
+			return new VirtualFile(WriteBuff, length, start, Length);
         }
 
         sint32  Hpi::readAndDecrypt(sint32 fpos, byte *buff, const sint32 buffsize)

@@ -124,7 +124,7 @@ namespace TA3D
 			not_loaded = false;
 			String tmp("anims\\");
 			tmp << filename << ".gaf";
-            byte* gaf = VFS::Instance()->readFile(tmp);
+			File* gaf = VFS::Instance()->readFile(tmp);
 			if (gaf)
 			{
 				sint32 index = Gaf::RawDataGetEntryIndex(gaf, seqname);
@@ -132,7 +132,7 @@ namespace TA3D
 					anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, seqname), true, filename);
 				else
 					LOG_WARNING(LOG_PREFIX_TDF << "`" << name << "` has no picture to display (" << filename << ".gaf, " << seqname << ") !");
-				DELETE_ARRAY(gaf);
+				delete gaf;
 				need_convert = true;
 			}
 		}
@@ -213,10 +213,11 @@ namespace TA3D
 
 
 
-	void FeatureManager::load_tdf(char *data,int size)					// Charge un fichier tdf
+	void FeatureManager::load_tdf(File *file)					// Charge un fichier tdf
 	{
 		TDFParser parser;
-		parser.loadFromMemory("TDF",data,size,false,true,true);
+		parser.loadFromMemory("TDF",file->data(),file->size(),false,true,true);
+		file->close();
 		int	first = nb_features;
 
 		for (int g = 0 ; parser.exists(String("gadget") << g) ; g++)
@@ -308,7 +309,7 @@ namespace TA3D
 					{
 						String tmp("anims\\");
 						tmp << feature[i]->filename << ".gaf";
-                        byte* gaf = VFS::Instance()->readFile(tmp);
+						File* gaf = VFS::Instance()->readFile(tmp);
 						if (gaf)
 						{
 							sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i]->seqname);
@@ -317,7 +318,7 @@ namespace TA3D
 							else
 								LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i]->name << "` has no picture to display (" << feature[i]->filename << ".gaf, " << feature[i]->seqname << ") !");
 							feature[i]->not_loaded = false;
-							DELETE_ARRAY(gaf);
+							delete gaf;
 
 							if (index>=0 && feature[i]->anim.nb_bmp>0
 								&& feature[i]->anim.bmp[0]->w>=16 && feature[i]->anim.bmp[0]->h>=16) // Tente une conversion en 3d
@@ -364,13 +365,12 @@ namespace TA3D
 				progress((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
 
 			++n;
-			uint32 file_size(0);
-			byte* data = VFS::Instance()->readFile(curFile->c_str(), &file_size);
-			if (data)
+			File* file = VFS::Instance()->readFile(*curFile);
+			if (file)
 			{
 				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << *curFile << "`...");
-				feature_manager.load_tdf((char*)data, file_size);
-				DELETE_ARRAY(data);
+				feature_manager.load_tdf(file);
+				delete file;
 			}
 			else
 				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << *curFile << "` failed");

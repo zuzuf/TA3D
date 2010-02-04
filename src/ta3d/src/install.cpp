@@ -29,28 +29,27 @@ namespace TA3D
 
 void install_TA_files( String HPI_file, String filename )
 {
-	uint32 file_size32 = 0;
 	SmartPtr<Archive> archive = Archive::load(HPI_file);
 	if (!archive)
     {
         LOG_ERROR("archive not found : '" << HPI_file << "'");
         return;
     }
-	std::deque<Archive::File*> lFiles;
+	std::deque<Archive::FileInfo*> lFiles;
     archive->getFileList(lFiles);
-	byte *data = archive->readFile(filename, &file_size32);			// Extract the file
-	if (data)
+	File *file = archive->readFile(filename);			// Extract the file
+	if (file)
 	{
 		Stream dst(Paths::Resources + Paths::ExtractFileName(filename), OpenMode::write);
 
 		if (dst.opened())
 		{
-			dst.write((const char*)data, file_size32);
+			dst.write(file->data(), file->size());
 
 			dst.flush();
 			dst.close();
 		}
-		DELETE_ARRAY(data);
+		delete file;
 	}
 }
 

@@ -47,12 +47,11 @@ namespace TA3D
 				progress((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
 			++n;
 
-			uint32 file_size(0);
-			byte *data = VFS::Instance()->readFile(cur_file->c_str(),&file_size);
-			if (data)
+			File *file = VFS::Instance()->readFile(*cur_file);
+			if (file)
 			{
-				weapon_manager.load_tdf((char*)data,file_size);
-				DELETE_ARRAY(data);
+				weapon_manager.load_tdf(file);
+				delete file;
 			}
 		}
 

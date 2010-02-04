@@ -89,8 +89,8 @@ namespace TA3D
         MESH_S3O *root;
     public:
 
-        byte *load(byte *data, const String &filename);
-        MESH_S3O* LoadPiece(byte* buf, int offset, MESH_S3O* model, MESH_S3O *root);
+		void load(File *file, const String &filename);
+		MESH_S3O* LoadPiece(File* file, MESH_S3O* model, MESH_S3O *root);
 
         virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);

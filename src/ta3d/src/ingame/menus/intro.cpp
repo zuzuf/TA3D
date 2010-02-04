@@ -117,7 +117,10 @@ namespace Menus
 			pContent.push_back(nullptr);
 
 		// Load all text files
-		TA3D_FILE::Load(pContent, "intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"), 5 * 1024 /* Max 5Ko */, false);
+		File *file = VFS::Instance()->readFile("intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"));
+		if (file->size() <= 5 * 1024)
+			file->load(pContent);
+		delete file;
 		pContentSize = unsigned(pContent.size());
 		if (pContentSize == TA3D_INTRO_MAX_LINES)
 		{

@@ -4,14 +4,28 @@ namespace TA3D
 {
 	namespace UTILS
 	{
+		RealFile::RealFile() : buffer(NULL)
+		{
+		}
+
+		RealFile::RealFile(const String &filename) : buffer(NULL)
+		{
+			open(filename);
+		}
+
 		RealFile::~RealFile()
 		{
 			sFile.close();
+			if (buffer)
+				delete[] buffer;
 		}
 
 		void RealFile::open(const String &filename)
 		{
 			sFile.close();
+			if (buffer)
+				delete[] buffer;
+			buffer = NULL;
 			sFile.open(filename, Yuni::Core::IO::File::OpenMode::read);
 		}
 
@@ -46,9 +60,9 @@ namespace TA3D
 			sFile.seekFromBeginning(pos);
 		}
 
-		void RealFile::read(void *p, int s)
+		int RealFile::read(void *p, int s)
 		{
-			sFile.read((char*)p, s);
+			return int(sFile.read((char*)p, s));
 		}
 
 		bool RealFile::readLine(String &line)
@@ -61,6 +75,28 @@ namespace TA3D
 				line << char(c);
 
 			return true;
+		}
+
+		const char *RealFile::data()
+		{
+			if (buffer)
+				return buffer;
+
+			buffer = new char[size()];
+			int pos = tell();
+			seek(0);
+			read(buffer, size());
+			seek(pos);
+
+			return buffer;
+		}
+
+		void RealFile::close()
+		{
+			sFile.close();
+			if (buffer)
+				delete[] buffer;
+			buffer = NULL;
 		}
 	}
 }
