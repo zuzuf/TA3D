@@ -33,7 +33,8 @@ namespace TA3D
 		else if ( dynamic_cast<LuaData*>(pData) )       // Try LuaData (Lua)
             usi = new UnitScript();
 
-		usi->load( pData );
+		if (usi)
+			usi->load( pData );
         return usi;
     }
 
