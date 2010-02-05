@@ -71,7 +71,7 @@ namespace TA3D
 			//! Default constructor
 			Header() :IDVersion(0), Entries(0), Unknown1(0) {}
 			/*!
-			** \brief Constructor with RAW data (assuming data is the begining of the file)
+			** \brief Constructor with RAW data from file
 			*/
 			Header(UTILS::File* file);
 			/*!

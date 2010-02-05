@@ -211,28 +211,29 @@ namespace UTILS
 			delete[] buf;
 			cache_file.close();
 		}
+		file->seek(0);
 
 		if (file->size() >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
 			return;
 
+		ThreadingPolicy::MutexLocker locker(*this);
+
+		if (fileCache.size() >= 10) // Cycle the data within the list
 		{
-			ThreadingPolicy::MutexLocker locker(*this);
-
-			if (fileCache.size() >= 10) // Cycle the data within the list
-			{
-				DELETE_ARRAY(fileCache.front().data);
-				fileCache.pop_front();
-			}
-
-			CacheFileData newentry;
-
-			newentry.name = String::ToLower(filename);			// Store a copy of the data
-			newentry.length = file->size();
-			newentry.data = new byte[file->size()];
-			file->read(newentry.data, file->size());
-
-			fileCache.push_back(newentry);
+			DELETE_ARRAY(fileCache.front().data);
+			fileCache.pop_front();
 		}
+
+		CacheFileData newentry;
+
+		newentry.name = String::ToLower(filename);			// Store a copy of the data
+		newentry.length = file->size();
+		newentry.data = new byte[file->size()];
+		file->read(newentry.data, file->size());
+
+		fileCache.push_back(newentry);
+
+		file->seek(0);
 	}
 
 
@@ -460,7 +461,7 @@ namespace UTILS
 			*palette >> pal[i].r;
 			*palette >> pal[i].g;
 			*palette >> pal[i].b;
-			chat c;
+			char c;
 			*palette >> c;
 		}
 		delete palette;

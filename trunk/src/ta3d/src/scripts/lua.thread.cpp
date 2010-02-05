@@ -176,7 +176,7 @@ namespace TA3D
 		if (file)
 		{
 			filesize = file->size();
-			byte *buffer = new byte[file->size()];
+			buffer = new byte[file->size()];
 			file->read(buffer, file->size());
 			delete file;
 

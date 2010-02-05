@@ -242,7 +242,7 @@ namespace TA3D
 		gfx->destroy_texture(wave_tex[1]);
 		gfx->destroy_texture(wave_tex[2]);
 
-		DELETE_ARRAY(fx_data);
+		delete fx_data;
 		fx.clear();
 		if (cache_size > 0)
 		{
