@@ -849,8 +849,7 @@ namespace TA3D
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;
-		LOG_INFO("Particle engine: " << (float)(counter * 1000) / (msec_timer - particle_timer)
-				 << " ticks/sec.");
+		LOG_INFO("Particle engine: " << (float)(counter * 1000) / (msec_timer - particle_timer) << " ticks/sec.");
 	}
 
 

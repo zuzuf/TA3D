@@ -115,6 +115,7 @@ namespace TA3D
 	private:
 		virtual ~Pathfinder();
 		virtual void proc(void* param);
+		virtual void signalExitThread();
 
 	private:
 		typedef std::deque<Task> TaskList;
@@ -123,6 +124,7 @@ namespace TA3D
 		TaskSet stasks;
 		int taskOffset;
 		int nbCores;
+		Synchronizer pSync;
 
 	private:
 		static bool checkRectFull(int x1, int y1, int c, UnitType *pType);

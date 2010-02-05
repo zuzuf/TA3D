@@ -69,17 +69,19 @@ namespace TA3D
 	{
 	public:
 		Synchronizer(int nbThreadsToSync);
-		~Synchronizer();
+		virtual ~Synchronizer();
 
 		void sync();
 		void release();
+		void lock()	{	pMutex.lock();	}
+		void unlock()	{	pMutex.lock();	}
 
 		int getNbWaitingThreads()	{	return nbThreadsWaiting;	}
 		void setNbThreadsToSync(int n)	{	nbThreadsToSync = n;	}
 
-	private:
+	protected:
 		int nbThreadsToSync;
-		int nbThreadsWaiting;
+		volatile int nbThreadsWaiting;
 		Mutex pMutex;
 
 		//! The PThread Condition

@@ -109,7 +109,7 @@ namespace TA3D
 		}
 	}
 
-	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0)
+	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0), nbCores(), pSync(2)
 	{
 		stasks.set_empty_key(-1);
 		stasks.set_deleted_key(-2);
@@ -152,6 +152,8 @@ namespace TA3D
 		if (!isRunning())
 			this->start();
 		unlock();
+
+		pSync.release();
 	}
 
 	AI::Path Pathfinder::directPath(const Vector3D &end)
@@ -173,9 +175,15 @@ namespace TA3D
 
 	void Pathfinder::proc(void*)
 	{
-		lock();
-		while (!tasks.empty() && !pDead)
+		while (!pDead)
 		{
+			lock();
+			if (tasks.empty())
+			{
+				unlock();
+				pSync.sync();
+				continue;
+			}
 			Task cur = tasks.front();
 			stasks.erase(cur.UID);
 			tasks.pop_front();
@@ -212,10 +220,7 @@ namespace TA3D
 			if (suspend((nbCores == 1) ? ((msec_timer - start_timer) << 2) : 0))
 				// The thread should stop as soon as possible
 				return;
-
-			lock();
 		}
-		unlock();
 	}
 
 	void Pathfinder::findPath( AI::Path &path, const Task &task )
@@ -629,6 +634,12 @@ namespace TA3D
 				}
 			}
 		return true;
+	}
+
+	void Pathfinder::signalExitThread()
+	{
+		pDead = 1;
+		pSync.release();
 	}
 } // namespace TA3D
 
