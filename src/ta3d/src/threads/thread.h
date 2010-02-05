@@ -41,7 +41,7 @@ namespace TA3D
 			Thread *thisthread;
 		};
 	protected:
-		int pDead;
+		volatile int pDead;
 		ThreadObject threadObj;
 
 	protected:

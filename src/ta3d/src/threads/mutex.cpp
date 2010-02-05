@@ -28,15 +28,15 @@ namespace TA3D
 		{
 			nbThreadsWaiting = 0;
 			++pSignalled;
-			::pthread_cond_broadcast(&pCondition);
 			pMutex.unlock();
+			::pthread_cond_broadcast(&pCondition);
 		}
 		else
 		{
 			// The pthread_cond_wait will unlock the mutex and wait for
 			// signalling.
 
-			int curSignal = pSignalled;
+			unsigned int curSignal = pSignalled;
 			int pthread_cond_wait_error;
 			do
 			{
