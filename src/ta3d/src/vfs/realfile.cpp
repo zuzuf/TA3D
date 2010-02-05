@@ -82,10 +82,11 @@ namespace TA3D
 			if (buffer)
 				return buffer;
 
-			buffer = new char[size()];
+			buffer = new char[size() + 1];
 			int pos = tell();
 			seek(0);
 			read(buffer, size());
+			buffer[size()] = 0;
 			seek(pos);
 
 			return buffer;

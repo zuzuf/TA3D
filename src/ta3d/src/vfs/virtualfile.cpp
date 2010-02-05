@@ -93,6 +93,13 @@ namespace TA3D
 			int n = Math::Min(s, offset + bufferSize - pos);
 			memcpy(p, buffer + pos, n);
 			pos += n;
+			s -= n;
+			if (s)
+			{
+				p += n;
+				for ( ; s && pos < streamSize ; ++pos, --s, ++p, ++k)
+					*p = 0;
+			}
 			return k + n;
 		}
 

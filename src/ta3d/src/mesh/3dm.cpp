@@ -782,6 +782,7 @@ namespace TA3D
 		}
 
 		MESH_3DM *mesh = new MESH_3DM;
+		file->seek(0);
 		mesh->load(file, filename);
 		delete file;
 

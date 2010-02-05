@@ -124,11 +124,12 @@ namespace TA3D
 
 		map->init();
 		map->tnt = true;
-		TNTHEADER	header;		// Structure pour l'en-tête du fichier
+		TNTHEADER_U	header_u;		// Structure pour l'en-tête du fichier
 
 		LOG_DEBUG("MAP: reading header");
 
-		*file >> header;
+		*file >> header_u;
+		TNTHEADER	&header = header_u.header;		// Structure pour l'en-tête du fichier
 
 		# ifdef TNT_DEBUG_MODE
 		LOG_DEBUG("[tnt - load map] IDversion = " << header.IDversion);
@@ -612,7 +613,8 @@ namespace TA3D
                         }
                     }
 				}
-				file->seek(file->tell() + 4);
+				// Read 2 more bytes
+				*file >> type;
 			}
 		}
 		LOG_INFO("Decors : " << float(msec_timer - event_timer) * 0.001f << "s.");
@@ -620,10 +622,10 @@ namespace TA3D
 		/*--------------- code for low definition map (mega zoom) -------------------*/
 
 		LOG_DEBUG("MAP: creating low definition geometry (step 1)");
-		map->low_w=(map->map_w+32)>>6;
-		map->low_h=(map->map_h+32)>>6;
-		map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
-		int low_nb_vtx = (map->low_w+1)*(map->low_h+1);
+		map->low_w = (map->map_w + 32) >> 6;
+		map->low_h = (map->map_h + 32) >> 6;
+		map->low_nb_idx = (2 + map->low_w * 2) * map->low_h;			// Draw this as GL_TRIANGLE_STRIP
+		int low_nb_vtx = (map->low_w + 1) * (map->low_h + 1);
 		map->low_vtx = new Vector3D[low_nb_vtx];
 		Vector3D *tmp_vtx = new Vector3D[low_nb_vtx];
 		map->low_vtx_flat = new Vector3D[low_nb_vtx];
