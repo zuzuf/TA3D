@@ -788,7 +788,7 @@ namespace TA3D
 				}
 				else
 				{
-					Stream file(water_cache, OpenMode::write);
+					Stream file(water_cache, OpenMode::read);
 					if (file.opened())
 					{
 						file.read((char*)data, sizeof(float) * water_map_size4);
