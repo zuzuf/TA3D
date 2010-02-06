@@ -22,7 +22,6 @@
 #include <TA3D_NameSpace.h>
 #include <ta3dbase.h>
 #include <languages/i18n.h>
-#include <fstream>
 #include "tdf.h"
 
 

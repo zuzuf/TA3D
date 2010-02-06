@@ -34,7 +34,6 @@
 #include <misc/camera.h>
 #include <languages/i18n.h>
 #include <vector>
-#include <fstream>
 #include <misc/math.h>
 #include <logs/logs.h>
 #include <sounds/manager.h>
@@ -1315,10 +1314,9 @@ namespace TA3D
 	// Create the script that will do what the mission description .ota file tells us to do
 	void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema)
 	{
-		std::ofstream m_File;
-		m_File.open(Filename.c_str(), std::ios::out | std::ios::trunc);
+		Yuni::Core::IO::File::Stream m_File(Filename, Yuni::Core::IO::File::OpenMode::write);
 
-		if (!m_File.is_open())
+		if (!m_File.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_SCRIPT << "Could not open file `" << Filename << "` (" << __FILE__ << ", " <<  __LINE__);
 			return;

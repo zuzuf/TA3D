@@ -27,7 +27,6 @@
 #include <TA3D_NameSpace.h>
 #include <logs/logs.h>
 #include <unistd.h>
-#include <fstream>
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
