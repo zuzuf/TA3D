@@ -54,13 +54,12 @@ namespace TA3D
     }
 
 
-    void ParticlesSystem::move(const float dt, Vector3D *p_wind_dir, const float g, const float factor, const float factor2)
+	void ParticlesSystem::move(const float dt, const Vector3D &p_wind_dir, const float g, const float factor, const float factor2)
     {
         if (pos == NULL || V == NULL)    return;     // Huh oO ? this is not expected to happen
-        LOG_ASSERT(p_wind_dir);
         life -= dt;
         size += dt * dsize;
-        common_V = (*p_wind_dir);				// To simplify calculations
+		common_V = p_wind_dir;				// To simplify calculations
         common_V.y -= mass * g;
 
         common_pos = dt * common_V + common_pos;

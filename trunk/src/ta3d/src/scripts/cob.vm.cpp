@@ -159,7 +159,7 @@ namespace TA3D
         {
             //			uint32 code = script->script_code[script_id][pos];			// Lit un code
             //			pos++;
-            nb_code++;
+			++nb_code;
             if (nb_code >= MAX_CODE_PER_TICK) done = true;			// Pour éviter que le programme ne fige à cause d'un script
             //			switch(code)			// Code de l'interpréteur
             switch(script->script_code[script_id][pos++])

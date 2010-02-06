@@ -85,39 +85,39 @@ namespace TA3D
         /*!
         ** \brief
         */
-        ParticlesSystem *emit_part_fast( ParticlesSystem *system, Vector3D pos, Vector3D Dir,
+		ParticlesSystem *emit_part_fast( ParticlesSystem *system, const Vector3D &pos, const Vector3D &Dir,
                                          int tex, int nb, float speed, float life=10.0f,
                                          float psize=10.0f, bool white=false, float trans_factor=1.0f );
 
         /*!
         ** \brief
         */
-        void emit_lava(Vector3D pos,Vector3D Dir,int tex,int nb,float speed,float life=10.0f);
+		void emit_lava(const Vector3D &pos, const Vector3D &Dir,int tex,int nb,float speed,float life=10.0f);
 
         /*!
         ** \brief
         */
-        void make_smoke(Vector3D pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
+		void make_smoke(const Vector3D &pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
 
         /*!
         ** \brief
         */
-        void make_dark_smoke(Vector3D pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
+		void make_dark_smoke(const Vector3D &pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
 
         /*!
         ** \brief
         */
-        void make_fire(Vector3D pos,int tex,int nb,float speed);
+		void make_fire(const Vector3D &pos,int tex,int nb,float speed);
 
         /*!
         ** \brief
         */
-        void make_shockwave(Vector3D pos,int tex,int nb,float speed);
+		void make_shockwave(const Vector3D &pos,int tex,int nb,float speed);
 
         /*!
         ** \brief
         */
-        void make_nuke(Vector3D pos,int tex,int nb,float speed);
+		void make_nuke(const Vector3D &pos,int tex,int nb,float speed);
 
         /*!
         ** \brief
@@ -126,7 +126,7 @@ namespace TA3D
         ** \param wind_dir
         ** \param g Constant of Gravity
         */
-        void move(float dt,Vector3D wind_dir,float g = 9.81f);
+		void move(float dt, const Vector3D &wind_dir, float g = 9.81f);
 
 
         /*!

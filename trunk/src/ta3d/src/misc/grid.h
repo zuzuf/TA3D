@@ -14,14 +14,14 @@ namespace TA3D
 		~Grid();
 		void resize(int w, int h);
 
-		const T& operator()(int x, int y) const;
-		T& operator()(int x, int y);
+		inline const T& operator()(int x, int y) const;
+		inline T& operator()(int x, int y);
 
-		int getWidth() const {	return w;	}
-		int getHeight() const {	return h;	}
-		void add(const Grid<T> &grid, int x, int y);
-		void sub(const Grid<T> &grid, int x, int y);
-		void clear();
+		inline int getWidth() const {	return w;	}
+		inline int getHeight() const {	return h;	}
+		inline void add(const Grid<T> &grid, int x, int y);
+		inline void sub(const Grid<T> &grid, int x, int y);
+		inline void clear();
 
 	private:
 		int w;

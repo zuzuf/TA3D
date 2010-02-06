@@ -132,7 +132,7 @@ namespace TA3D
 		}
 	}
 
-	ParticlesSystem *PARTICLE_ENGINE::emit_part_fast( ParticlesSystem *system, Vector3D pos, Vector3D Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
+	ParticlesSystem *PARTICLE_ENGINE::emit_part_fast( ParticlesSystem *system, const Vector3D &pos, const Vector3D &Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
 	{
 		if (!lp_CONFIG->particle) // If particles are OFF don't add particles
 			return NULL;
@@ -200,7 +200,7 @@ namespace TA3D
 		return system;
 	}
 
-	void PARTICLE_ENGINE::emit_lava(Vector3D pos,Vector3D Dir,int tex,int nb,float speed,float life)
+	void PARTICLE_ENGINE::emit_lava(const Vector3D &pos, const Vector3D &Dir,int tex,int nb,float speed,float life)
 	{
 		if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
 			return;
@@ -244,7 +244,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void PARTICLE_ENGINE::make_shockwave(Vector3D pos,int tex,int nb,float speed)
+	void PARTICLE_ENGINE::make_shockwave(const Vector3D &pos,int tex,int nb,float speed)
 	{
 		if (!lp_CONFIG->particle) // If particles are OFF don't add particles
 			return;
@@ -305,7 +305,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void PARTICLE_ENGINE::make_nuke(Vector3D pos,int tex,int nb,float speed)
+	void PARTICLE_ENGINE::make_nuke(const Vector3D &pos,int tex,int nb,float speed)
 	{
 		if (!lp_CONFIG->particle) // If particles are OFF don't add particles
 			return;
@@ -356,7 +356,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void PARTICLE_ENGINE::make_smoke(Vector3D pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
+	void PARTICLE_ENGINE::make_smoke(const Vector3D &pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
 	{
 		if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
 			return;
@@ -404,16 +404,16 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void PARTICLE_ENGINE::make_dark_smoke(Vector3D pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
+	void PARTICLE_ENGINE::make_dark_smoke(const Vector3D &pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
 	{
-		if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
+		if (!lp_CONFIG->particle) // If particles are OFF don't add particles
 			return;
 		if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
 			return;
 
 		pMutex.lock();
 
-		float pre=speed*0.01f;
+		float pre = speed * 0.01f;
 		for(int i=0;i<nb;i++)
 		{
 			PARTICLE new_part;
@@ -451,7 +451,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void PARTICLE_ENGINE::make_fire(Vector3D pos,int tex,int nb,float speed)
+	void PARTICLE_ENGINE::make_fire(const Vector3D &pos,int tex,int nb,float speed)
 	{
 		if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
 			return;
@@ -497,7 +497,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	void PARTICLE_ENGINE::move(float dt,Vector3D wind_dir,float g)
+	void PARTICLE_ENGINE::move(float dt, const Vector3D &wind_dir, float g)
 	{
 		pMutex.lock();
 		if (((part.empty() || nb_part == 0) && particle_systems.empty()) || Yuni::Math::Zero(dt))
@@ -509,14 +509,13 @@ namespace TA3D
 		Vector3D G;
 		G.x = G.z = 0.0f;
 		G.y = dt * g;
-		wind_dir = dt * wind_dir;
 		float factor = expf(-0.1f * dt);
 		float factor2 = expf(-dt);
 		float dt_reduced = dt * 0.0025f;
 
 		for (std::vector< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
 		{
-			(*i)->move( dt, &wind_dir, G.y, factor, factor2 );
+			(*i)->move( dt, wind_dir, g, factor, factor2 );
 			if ((*i)->life >= 0.0f )
 				++i;
 			else
@@ -533,13 +532,11 @@ namespace TA3D
 		pMutex.unlock();
 		pMutex.lock();
 
-		uint32 i = 0;
+		Vector3D w_dir = dt * wind_dir;
 
 		Vector3D RAND;
 		for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ;)
 		{
-			++i;
-
 			e->life -= dt;
 			if (e->life < 0.0f)
 			{
@@ -555,7 +552,7 @@ namespace TA3D
 			RAND.y = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
 			RAND.z = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
 			if (e->use_wind)
-				e->V = e->V - e->mass * G + RAND + wind_dir;
+				e->V = e->V - e->mass * G + RAND + w_dir;
 			else
 				e->V = e->V - e->mass * G + RAND;
 			if (e->slow_down)
