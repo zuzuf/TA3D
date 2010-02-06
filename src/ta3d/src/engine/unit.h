@@ -160,7 +160,7 @@ namespace TA3D
 		Vector3D				drawn_Angle;	// Idem drawn_Pos
 		Vector3D				V_Angle;		// Variation de l'orientation dans l'espace
 		bool					sel;			// Unité sélectionnée?
-		ANIMATION_DATA          data;			// Données pour l'animation de l'unité par le script
+		AnimationData           data;			// Données pour l'animation de l'unité par le script
 		bool					drawing;
 		sint16					*port;			// Ports
 		MissionStack			mission;		// Orders given to the unit

@@ -78,7 +78,7 @@ namespace TA3D
 	}
 
 
-	void PARTICLE_ENGINE::emit_part(Vector3D pos,Vector3D Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
+	void PARTICLE_ENGINE::emit_part(const Vector3D &pos, const Vector3D &Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
 	{
 		MutexLocker locker(pMutex);
 		if (!lp_CONFIG->particle)	// If particles are OFF don't add particles
