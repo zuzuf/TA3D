@@ -65,7 +65,7 @@ namespace TA3D
 #define EXPLODE_BITMAP5                 4096
 #define EXPLODE_BITMAPNUKE              8192
 
-    class AXE
+	class Axe
     {
     public:
         float	move_speed;
@@ -108,29 +108,35 @@ namespace TA3D
         }
     };
 
-    class ANIMATION_DATA
+	class AnimationData
     {
+	public:
+		struct Data
+		{
+			Axe axe[3];				// 3 axis (in following order : x,y,z)
+			short flag;
+			short explosion_flag;
+			Vector3D tpos;
+			Vector3D pos;
+			Vector3D dir;			// Object orientation (when there is a single line in the model part)
+			Matrix matrix;			// Local matrix
+		};
     public:
-        int         nb_piece;
-        AXE	        *axe[3];			// 3 axes (dans l'ordre x,y,z)
-        short       *flag;
-        short       *explosion_flag;
-        float       explode_time;
-        bool        explode;
-		Vector3D    *tpos;
-		Vector3D    *pos;
-        Vector3D    *dir;			// Orientation des objets (quand il n'y a qu'une ligne)
-        Matrix      *matrix;		// Store local matrixes
-        bool        is_moving;
+		int nb_piece;
+		typedef std::vector<Data> DataVector;
+		DataVector data;
+		float explode_time;
+		bool explode;
+		bool is_moving;
 
 
-        inline ANIMATION_DATA() {init();}
+		inline AnimationData() {init();}
 
         void init();
 
         void destroy();
 
-        inline ~ANIMATION_DATA() {destroy();}
+		inline ~AnimationData() {destroy();}
 
         void load(const int nb);
 
@@ -149,7 +155,7 @@ namespace TA3D
 #define MESH_TYPE_TRIANGLES         GL_TRIANGLES
 #define MESH_TYPE_TRIANGLE_STRIP    GL_TRIANGLE_STRIP
 
-    class ANIMATION				// Class used to set default animation to a model, this animation will play if no ANIMATION_DATA is provided (ie for map features)
+	class ANIMATION				// Class used to set default animation to a model, this animation will play if no AnimationData is provided (ie for map features)
     {
 	public:
 		typedef SmartPtr<ANIMATION> Ptr;
@@ -233,7 +239,7 @@ namespace TA3D
 
         uint16 set_obj_id( uint16 id );
 
-        void compute_coord(ANIMATION_DATA *data_s = NULL,
+		void compute_coord(AnimationData *data_s = NULL,
                            Vector3D *pos = NULL,
                            bool c_part = false,
                            int p_tex = 0,
@@ -244,20 +250,20 @@ namespace TA3D
                            Vector3D *center = NULL,
                            bool reverse = false,
                            MESH *src = NULL,
-                           ANIMATION_DATA *src_data = NULL);
+						   AnimationData *src_data = NULL);
 
-        virtual bool draw(float t, ANIMATION_DATA *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false) = 0;
+		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false) = 0;
         virtual bool draw_nodl(bool alset = false) = 0;
 
-        bool draw_shadow(Vector3D Dir, float t, ANIMATION_DATA *data_s = NULL, bool alset = false, bool exploding_parts = false);
+		bool draw_shadow(Vector3D Dir, float t, AnimationData *data_s = NULL, bool alset = false, bool exploding_parts = false);
 
-        bool draw_shadow_basic(Vector3D Dir, float t, ANIMATION_DATA *data_s = NULL, bool alset = false, bool exploding_parts = false);
+		bool draw_shadow_basic(Vector3D Dir, float t, AnimationData *data_s = NULL, bool alset = false, bool exploding_parts = false);
 
-        int hit(Vector3D Pos, Vector3D Dir, ANIMATION_DATA *data_s, Vector3D *I, Matrix M);
+		int hit(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I, Matrix M);
 
-        bool hit_fast(Vector3D Pos, Vector3D Dir, ANIMATION_DATA *data_s, Vector3D *I);
+		bool hit_fast(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I);
 
-        int random_pos( ANIMATION_DATA *data_s, int id, Vector3D *vec );
+		int random_pos( AnimationData *data_s, int id, Vector3D *vec );
 
         bool compute_emitter();
 
@@ -310,36 +316,36 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void draw(float t, ANIMATION_DATA* data_s = NULL, bool sel = false, bool notex = false,
+		void draw(float t, AnimationData* data_s = NULL, bool sel = false, bool notex = false,
                   bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
                   Matrix* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
-                  int side = 0, bool chg_col = true, MESH* src = NULL, ANIMATION_DATA* src_data = NULL);
+				  int side = 0, bool chg_col = true, MESH* src = NULL, AnimationData* src_data = NULL);
 
         /*!
         ** \brief
         */
-        void compute_coord(ANIMATION_DATA* data_s = NULL, Matrix* M = NULL);
+		void compute_coord(AnimationData* data_s = NULL, Matrix* M = NULL);
 
         /*!
         ** \brief
         */
-        void draw_shadow(const Vector3D& Dir, float t,ANIMATION_DATA* data_s = NULL);
+		void draw_shadow(const Vector3D& Dir, float t,AnimationData* data_s = NULL);
 
         /*!
         ** \brief
         */
-        void draw_shadow_basic(const Vector3D& Dir, float t, ANIMATION_DATA *data_s = NULL);
+		void draw_shadow_basic(const Vector3D& Dir, float t, AnimationData *data_s = NULL);
 
         /*!
         ** \brief
         */
-		int hit(const Vector3D &Pos, const Vector3D &Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
+		int hit(const Vector3D &Pos, const Vector3D &Dir, AnimationData* data_s, Vector3D* I, Matrix& M)
         { return mesh->hit(Pos,Dir,data_s,I,M); }
 
         /*!
         ** \brief
         */
-		bool hit_fast(const Vector3D& Pos, const Vector3D& Dir, ANIMATION_DATA* data_s, Vector3D* I, Matrix& M)
+		bool hit_fast(const Vector3D& Pos, const Vector3D& Dir, AnimationData* data_s, Vector3D* I, Matrix& M)
         { return mesh->hit_fast(Pos,Dir*M,data_s,I); }
 
         /*!

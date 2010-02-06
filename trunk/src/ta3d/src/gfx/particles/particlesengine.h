@@ -80,7 +80,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void emit_part(Vector3D pos,Vector3D Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
+		void emit_part(const Vector3D &pos, const Vector3D &Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
 
         /*!
         ** \brief

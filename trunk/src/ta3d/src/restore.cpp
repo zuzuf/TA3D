@@ -372,15 +372,17 @@ namespace TA3D
 			SAVE( units.unit[i].data.explode );
 			SAVE( units.unit[i].data.is_moving );
 
-			gzwrite(file, units.unit[i].data.flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
-			gzwrite(file, units.unit[i].data.explosion_flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
-			gzwrite(file, units.unit[i].data.pos, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
-			gzwrite(file, units.unit[i].data.dir, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
-			gzwrite(file, units.unit[i].data.matrix, unsigned(sizeof(Matrix) * units.unit[i].data.nb_piece));
-
-			gzwrite(file, units.unit[i].data.axe[0], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
-			gzwrite(file, units.unit[i].data.axe[1], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
-			gzwrite(file, units.unit[i].data.axe[2], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
+			for(AnimationData::DataVector::iterator it = units.unit[i].data.data.begin() ; it != units.unit[i].data.data.end() ; ++it)
+			{
+				SAVE( it->flag );
+				SAVE( it->explosion_flag );
+				SAVE( it->pos );
+				SAVE( it->dir );
+				SAVE( it->matrix );
+				SAVE( it->axe[0] );
+				SAVE( it->axe[1] );
+				SAVE( it->axe[2] );
+			}
 		}
 
 		SAVE( units.current_tick );     // We'll need this for multiplayer games
@@ -865,15 +867,18 @@ namespace TA3D
 			LOAD( units.unit[i].data.explode );
 			LOAD( units.unit[i].data.is_moving );
 
-			gzread(file, units.unit[i].data.flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
-			gzread(file, units.unit[i].data.explosion_flag, unsigned(sizeof(short) * units.unit[i].data.nb_piece));
-			gzread(file, units.unit[i].data.pos, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
-			gzread(file, units.unit[i].data.dir, unsigned(sizeof(Vector3D) * units.unit[i].data.nb_piece));
-			gzread(file, units.unit[i].data.matrix, unsigned(sizeof(Matrix) * units.unit[i].data.nb_piece));
+			for(AnimationData::DataVector::iterator it = units.unit[i].data.data.begin() ; it != units.unit[i].data.data.end() ; ++it)
+			{
+				LOAD( it->flag );
+				LOAD( it->explosion_flag );
+				LOAD( it->pos );
+				LOAD( it->dir );
+				LOAD( it->matrix );
 
-			gzread(file, units.unit[i].data.axe[0], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
-			gzread(file, units.unit[i].data.axe[1], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
-			gzread(file, units.unit[i].data.axe[2], unsigned(sizeof(AXE) * units.unit[i].data.nb_piece));
+				LOAD( it->axe[0] );
+				LOAD( it->axe[1] );
+				LOAD( it->axe[2] );
+			}
 
 			if (units.unit[i].drawn)
 			{

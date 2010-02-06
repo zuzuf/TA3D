@@ -42,78 +42,55 @@ namespace TA3D
 
 
 
-	void ANIMATION_DATA::init()
+	void AnimationData::init()
 	{
 		is_moving = false;
 		nb_piece = 0;
-		axe[0] = axe[1] = axe[2] = NULL;
-		flag = NULL;
-		explosion_flag = NULL;
-		pos = NULL;
-		tpos = NULL;
-		dir = NULL;
-		matrix = NULL;
+		data.clear();
 		explode = false;
 		explode_time = 0.0f;
 	}
 
-	void ANIMATION_DATA::destroy()
+	void AnimationData::destroy()
 	{
-		for (int i = 0; i < 3; ++i)
-			DELETE_ARRAY(axe[i]);
-		DELETE_ARRAY(matrix);
-		DELETE_ARRAY(dir);
-		DELETE_ARRAY(pos);
-		DELETE_ARRAY(tpos);
-		DELETE_ARRAY(flag);
-		DELETE_ARRAY(explosion_flag);
+		data.clear();
 		init();
 	}
 
 
-	void ANIMATION_DATA::load(const int nb)
+	void AnimationData::load(const int nb)
 	{
 		destroy();		// Au cas où
 		nb_piece = nb;
-		flag = new short[nb_piece];
-		explosion_flag = new short[nb_piece];
-		pos = new Vector3D[nb_piece];
-		tpos = new Vector3D[nb_piece];
-		dir = new Vector3D[nb_piece];
-		matrix = new Matrix[nb_piece];
-		for (int i = 0; i < nb_piece; ++i)
+		data.resize(nb);
+		for (DataVector::iterator i = data.begin() ; i != data.end() ; ++i)
 		{
-			flag[i] = 0;
-			explosion_flag[i] = 0;
-			pos[i].reset();
-			tpos[i].reset();
-			dir[i].reset();
-			matrix[i] = Scale(1.0f);
-		}
-		for (int i = 0; i < 3; ++i)
-		{
-			DELETE_ARRAY(axe[i]);
-			axe[i] = new AXE[nb_piece];
-			for (int e = 0; e < nb_piece; ++e)
+			i->flag = 0;
+			i->explosion_flag = 0;
+			i->pos.reset();
+			i->tpos.reset();
+			i->dir.reset();
+			i->matrix = Scale(1.0f);
+			for (int e = 0; e < 3; ++e)
 			{
-				axe[i][e].move_speed = 0.0f;
-				axe[i][e].move_distance = 0.0f;
-				axe[i][e].pos = 0.0f;
-				axe[i][e].rot_angle = 0.0f;
-				axe[i][e].rot_speed = 0.0f;
-				axe[i][e].rot_accel = 0.0f;
-				axe[i][e].angle = 0.0f;
-				axe[i][e].rot_limit = true;
-				axe[i][e].rot_speed_limit = false;
-				axe[i][e].rot_target_speed = 0.0f;
-				axe[i][e].is_moving = false;
+				i->axe[e].move_speed = 0.0f;
+				i->axe[e].move_distance = 0.0f;
+				i->axe[e].pos = 0.0f;
+				i->axe[e].rot_angle = 0.0f;
+				i->axe[e].rot_speed = 0.0f;
+				i->axe[e].rot_accel = 0.0f;
+				i->axe[e].angle = 0.0f;
+				i->axe[e].rot_limit = true;
+				i->axe[e].rot_speed_limit = false;
+				i->axe[e].rot_target_speed = 0.0f;
+				i->axe[e].is_moving = false;
 			}
 		}
 	}
 
 
 
-	void ANIMATION_DATA::move(const float dt, const float g)
+	void AnimationData::move(const float dt, const float g)
 	{
 		if (!is_moving)
 			return;
@@ -123,16 +100,16 @@ namespace TA3D
 			explode_time -= dt;
 		explode = explode_time > 0.0f;
 
-        for (int e = 0; e < nb_piece; ++e)
+		for (DataVector::iterator e = data.begin() ; e != data.end() ; ++e)
 		{
-			if ((flag[e] & FLAG_EXPLODE) && !(explosion_flag[e] & EXPLODE_BITMAPONLY))		// This piece is exploding
+			if ((e->flag & FLAG_EXPLODE) && !(e->explosion_flag & EXPLODE_BITMAPONLY))		// This piece is exploding
 			{
                 for (int i = 0; i < 3; ++i)
 				{
-					if (i == 1 && (explosion_flag[e] & EXPLODE_FALL))
-						axe[i][e].move_speed -= g;
-					axe[i][e].pos += axe[i][e].move_speed * dt;
-					axe[i][e].angle += axe[i][e].rot_speed * dt;
+					if (i == 1 && (e->explosion_flag & EXPLODE_FALL))
+						e->axe[i].move_speed -= g;
+					e->axe[i].pos += e->axe[i].move_speed * dt;
+					e->axe[i].angle += e->axe[i].rot_speed * dt;
 					is_moving = true;
 				}
 			}
@@ -140,63 +117,64 @@ namespace TA3D
 			{
                 for (int i = 0; i < 3; ++i)
 				{
-					if (!axe[i][e].is_moving)
+					if (!e->axe[i].is_moving)
 						continue;
-					axe[i][e].is_moving = false;
-					float a = axe[i][e].move_distance;
+					e->axe[i].is_moving = false;
+					float a = e->axe[i].move_distance;
 					if (!Yuni::Math::Zero(a))
 					{
-						axe[i][e].is_moving = true;
+						e->axe[i].is_moving = true;
 						is_moving = true;
-						float c = axe[i][e].move_speed*dt;
-						axe[i][e].move_distance -= c;
-						axe[i][e].pos += c;
-						if ((a>0.0f && axe[i][e].move_distance<0.0f) || (a<0.0f && axe[i][e].move_distance>0.0f))
+						float c = e->axe[i].move_speed * dt;
+						e->axe[i].move_distance -= c;
+						e->axe[i].pos += c;
+						if ((a > 0.0f && e->axe[i].move_distance < 0.0f)
+							|| (a < 0.0f && e->axe[i].move_distance > 0.0f))
 						{
-							axe[i][e].pos+=axe[i][e].move_distance;
-							axe[i][e].move_distance=0.0f;
+							e->axe[i].pos += e->axe[i].move_distance;
+							e->axe[i].move_distance = 0.0f;
 						}
 					}
 
-					while (axe[i][e].angle>180.0f)
-						axe[i][e].angle-=360.0f;		// Maintient l'angle dans les limites
-					while (axe[i][e].angle<-180.0f)
-						axe[i][e].angle+=360.0f;
+					while (e->axe[i].angle > 180.0f)
+						e->axe[i].angle -= 360.0f;		// Maintient l'angle dans les limites
+					while (e->axe[i].angle < -180.0f)
+						e->axe[i].angle += 360.0f;
 
-					a = axe[i][e].rot_angle;
-					if ((!Yuni::Math::Zero(axe[i][e].rot_speed) || !Yuni::Math::Zero(axe[i][e].rot_accel)) && ((!Yuni::Math::Zero(a) && axe[i][e].rot_limit) || !axe[i][e].rot_limit))
+					a = e->axe[i].rot_angle;
+					if ((!Yuni::Math::Zero(e->axe[i].rot_speed) || !Yuni::Math::Zero(e->axe[i].rot_accel)) && ((!Yuni::Math::Zero(a) && e->axe[i].rot_limit) || !e->axe[i].rot_limit))
 					{
-						axe[i][e].is_moving = true;
+						e->axe[i].is_moving = true;
 						is_moving = true;
 
-						float b=axe[i][e].rot_speed;
-						if (b<-7200.0f)
-							b=axe[i][e].rot_speed=-7200.0f;
-						else if (b>7200.0f)
-							b=axe[i][e].rot_speed=7200.0f;
+						float b = e->axe[i].rot_speed;
+						if (b < -7200.0f)
+							b = e->axe[i].rot_speed = -7200.0f;
+						else if (b > 7200.0f)
+							b = e->axe[i].rot_speed = 7200.0f;
 
-						axe[i][e].rot_speed += axe[i][e].rot_accel * dt;
-						if (axe[i][e].rot_speed_limit)
+						e->axe[i].rot_speed += e->axe[i].rot_accel * dt;
+						if (e->axe[i].rot_speed_limit)
 						{
-							if ((b <= axe[i][e].rot_target_speed && axe[i][e].rot_speed >= axe[i][e].rot_target_speed)
-								|| (b >= axe[i][e].rot_target_speed && axe[i][e].rot_speed <= axe[i][e].rot_target_speed))
+							if ((b <= e->axe[i].rot_target_speed && e->axe[i].rot_speed >= e->axe[i].rot_target_speed)
+								|| (b >= e->axe[i].rot_target_speed && e->axe[i].rot_speed <= e->axe[i].rot_target_speed))
 							{
-								axe[i][e].rot_accel = 0.0f;
-								axe[i][e].rot_speed = axe[i][e].rot_target_speed;
-								axe[i][e].rot_speed_limit = false;
+								e->axe[i].rot_accel = 0.0f;
+								e->axe[i].rot_speed = e->axe[i].rot_target_speed;
+								e->axe[i].rot_speed_limit = false;
 							}
 						}
-						float c = axe[i][e].rot_speed * dt;
-						axe[i][e].angle += c;
-						if (axe[i][e].rot_limit)
+						float c = e->axe[i].rot_speed * dt;
+						e->axe[i].angle += c;
+						if (e->axe[i].rot_limit)
 						{
-							axe[i][e].rot_angle-=c;
-							if ((a>=0.0f && axe[i][e].rot_angle<=0.0f) || (a<=0.0f && axe[i][e].rot_angle>=0.0f))
+							e->axe[i].rot_angle -= c;
+							if ((a >= 0.0f && e->axe[i].rot_angle <= 0.0f) || (a <= 0.0f && e->axe[i].rot_angle >= 0.0f))
 							{
-								axe[i][e].angle+=axe[i][e].rot_angle;
-								axe[i][e].rot_angle=0.0f;
-								axe[i][e].rot_speed=0.0f;
-								axe[i][e].rot_accel=0.0f;
+								e->axe[i].angle += e->axe[i].rot_angle;
+								e->axe[i].rot_angle = 0.0f;
+								e->axe[i].rot_speed = 0.0f;
+								e->axe[i].rot_accel = 0.0f;
 							}
 						}
 					}
@@ -212,9 +190,10 @@ namespace TA3D
 			if (type & ROTATION_PERIODIC)
 			{
 				float coef;
-				if( type & ROTATION_COSINE )
-					coef = 0.5f + 0.5f * cosf( t * angle_w );
-				else {
+				if (type & ROTATION_COSINE)
+					coef = 0.5f + 0.5f * cosf(t * angle_w);
+				else
+				{
 					coef = t * angle_w;
 					int i = (int) coef;
 					coef = coef - i;
@@ -496,11 +475,11 @@ namespace TA3D
 
 
 
-	int MESH::random_pos(ANIMATION_DATA *data_s, int id, Vector3D* vec)
+	int MESH::random_pos(AnimationData *data_s, int id, Vector3D* vec)
 	{
 		if (id == obj_id)
 		{
-			if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->flag[script_index] & FLAG_HIDE)) )
+			if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->data[script_index].flag & FLAG_HIDE)) )
 			{
 				int rnd_idx = (Math::RandomTable() % (nb_t_index / 3)) * 3;
 				float a = (Math::RandomTable() & 0xFF) / 255.0f;
@@ -510,7 +489,7 @@ namespace TA3D
 				vec->y = a * points[ t_index[rnd_idx]].y + b * points[t_index[rnd_idx + 1]].y + c * points[t_index[rnd_idx + 2]].y;
 				vec->z = a * points[ t_index[rnd_idx]].z + b * points[t_index[rnd_idx + 1]].z + c * points[t_index[rnd_idx + 2]].z;
 				if (data_s && script_index >= 0)
-					*vec = data_s->pos[script_index] + *vec * data_s->matrix[script_index];
+					*vec = data_s->data[script_index].pos + *vec * data_s->data[script_index].matrix;
 			}
 			else
 				return 0;
@@ -539,9 +518,9 @@ namespace TA3D
 
 
 
-	void MESH::compute_coord(ANIMATION_DATA* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
+	void MESH::compute_coord(AnimationData* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
 							 Vector3D* upos, Matrix* M, float size, Vector3D* center, bool reverse,
-							 MESH* src, ANIMATION_DATA* src_data)
+							 MESH* src, AnimationData* src_data)
 	{
 		Vector3D opos = *pos;
 		Matrix OM;
@@ -552,31 +531,31 @@ namespace TA3D
 			if (M)
 			{
 				Vector3D ipos;
-				ipos.x = data_s->axe[0][script_index].pos;
-				ipos.y = data_s->axe[1][script_index].pos;
-				ipos.z = data_s->axe[2][script_index].pos;
+				ipos.x = data_s->data[script_index].axe[0].pos;
+				ipos.y = data_s->data[script_index].axe[1].pos;
+				ipos.z = data_s->data[script_index].axe[2].pos;
 				*pos = *pos + (pos_from_parent + ipos) * (*M);
-				//                *M = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
-				//                    * RotateY(data_s->axe[1][script_index].angle * DEG2RAD)
-				//                    * RotateX(data_s->axe[0][script_index].angle * DEG2RAD)
+				//                *M = RotateZ(data_s->data[script_index].axe[2].angle * DEG2RAD)
+				//                    * RotateY(data_s->data[script_index].axe[1].angle * DEG2RAD)
+				//                    * RotateX(data_s->data[script_index].axe[0].angle * DEG2RAD)
 				//                    * (*M);
-				*M = RotateZYX( data_s->axe[2][script_index].angle * DEG2RAD,
-								data_s->axe[1][script_index].angle * DEG2RAD,
-								data_s->axe[0][script_index].angle * DEG2RAD)
+				*M = RotateZYX( data_s->data[script_index].axe[2].angle * DEG2RAD,
+								data_s->data[script_index].axe[1].angle * DEG2RAD,
+								data_s->data[script_index].axe[0].angle * DEG2RAD)
 					* (*M);
-				data_s->matrix[script_index] = *M;
+				data_s->data[script_index].matrix = *M;
 				if (nb_l_index == 2)
 				{
-					data_s->dir[script_index] = (points[l_index[1]] - points[l_index[0]]) * (*M);
-					data_s->dir[script_index].unit();
+					data_s->data[script_index].dir = (points[l_index[1]] - points[l_index[0]]) * (*M);
+					data_s->data[script_index].dir.unit();
 				}
 				else
-					data_s->dir[script_index].reset();
-				data_s->pos[script_index] = *pos;
+					data_s->data[script_index].dir.reset();
+				data_s->data[script_index].pos = *pos;
 				if (child)
-					data_s->tpos[script_index] = *pos + child->pos_from_parent * (*M);
+					data_s->data[script_index].tpos = *pos + child->pos_from_parent * (*M);
 				else
-					data_s->tpos[script_index] = *pos;
+					data_s->data[script_index].tpos = *pos;
 			}
 		}
 		else if (M)
@@ -640,9 +619,9 @@ namespace TA3D
 
 
 
-	bool MESH::draw_shadow(Vector3D Dir, float t, ANIMATION_DATA *data_s, bool alset, bool exploding_parts)
+	bool MESH::draw_shadow(Vector3D Dir, float t, AnimationData *data_s, bool alset, bool exploding_parts)
 	{
-		bool explodes = script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
+		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
 		Vector3D ODir = Dir;
 		glPushMatrix();
@@ -654,15 +633,15 @@ namespace TA3D
 			{
 				if (!explodes ^ exploding_parts)
 				{
-					glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-					glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-					glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-					glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-					Dir = Dir * RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD,
-										  -data_s->axe[1][script_index].angle * DEG2RAD,
-										  -data_s->axe[2][script_index].angle * DEG2RAD);
+					glTranslatef(data_s->data[script_index].axe[0].pos, data_s->data[script_index].axe[1].pos, data_s->data[script_index].axe[2].pos);
+					glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
+					glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
+					glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
+					Dir = Dir * RotateXYZ(-data_s->data[script_index].axe[0].angle * DEG2RAD,
+										  -data_s->data[script_index].axe[1].angle * DEG2RAD,
+										  -data_s->data[script_index].axe[2].angle * DEG2RAD);
 				}
-				hide = data_s->flag[script_index] & FLAG_HIDE;
+				hide = data_s->data[script_index].flag & FLAG_HIDE;
 			}
 			else
 			{
@@ -800,9 +779,9 @@ namespace TA3D
 
 
 
-	bool MESH::draw_shadow_basic(Vector3D Dir,float t,ANIMATION_DATA *data_s,bool alset,bool exploding_parts)
+	bool MESH::draw_shadow_basic(Vector3D Dir,float t,AnimationData *data_s,bool alset,bool exploding_parts)
 	{
-		bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
+		bool explodes = script_index>=0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide=false;
 		Vector3D ODir=Dir;
 		glPushMatrix();
@@ -814,14 +793,14 @@ namespace TA3D
 			{
 				if (!explodes ^ exploding_parts)
 				{
-					glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-					glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-					glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-					glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+					glTranslatef(data_s->data[script_index].axe[0].pos, data_s->data[script_index].axe[1].pos, data_s->data[script_index].axe[2].pos);
+					glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
+					glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
+					glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
 				}
-				//            Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-				Dir = Dir*RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
-				hide=data_s->flag[script_index]&FLAG_HIDE;
+				//            Dir=((Dir*RotateX(-data_s->data[script_index].axe[0].angle*DEG2RAD))*RotateY(-data_s->data[script_index].axe[1].angle*DEG2RAD))*RotateZ(-data_s->data[script_index].axe[2].angle*DEG2RAD);
+				Dir = Dir*RotateXYZ(-data_s->data[script_index].axe[0].angle*DEG2RAD, -data_s->data[script_index].axe[1].angle*DEG2RAD, -data_s->data[script_index].axe[2].angle*DEG2RAD);
+				hide=data_s->data[script_index].flag&FLAG_HIDE;
 			}
 			else
 				if (animation_data )
@@ -958,7 +937,7 @@ namespace TA3D
 		return alset;
 	}
 
-	int MESH::hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,Matrix M)
+	int MESH::hit(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I,Matrix M)
 	{
 		Matrix OM = M;
 		Matrix AM = Scale(1.0f);
@@ -971,19 +950,19 @@ namespace TA3D
 
 		Vector3D T = pos_from_parent;
 		Vector3D MP;
-		if (!(script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE)))	 // We can't select that
+		if (!(script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE)))	 // We can't select that
 		{
 			if (script_index>=0 && data_s)
 			{
-				T.x += data_s->axe[0][script_index].pos;
-				T.y += data_s->axe[1][script_index].pos;
-				T.z += data_s->axe[2][script_index].pos;
-				Matrix l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
+				T.x += data_s->data[script_index].axe[0].pos;
+				T.y += data_s->data[script_index].axe[1].pos;
+				T.z += data_s->data[script_index].axe[2].pos;
+				Matrix l_M = RotateXYZ(-data_s->data[script_index].axe[0].angle*DEG2RAD, -data_s->data[script_index].axe[1].angle*DEG2RAD, -data_s->data[script_index].axe[2].angle*DEG2RAD);
 				M_Dir = M * l_M;
 				M = l_M;
 
-				AM = RotateZYX(data_s->axe[2][script_index].angle*DEG2RAD, data_s->axe[1][script_index].angle*DEG2RAD, data_s->axe[0][script_index].angle*DEG2RAD);
-				hide=data_s->flag[script_index]&FLAG_HIDE;
+				AM = RotateZYX(data_s->data[script_index].axe[2].angle*DEG2RAD, data_s->data[script_index].axe[1].angle*DEG2RAD, data_s->data[script_index].axe[0].angle*DEG2RAD);
+				hide=data_s->data[script_index].flag&FLAG_HIDE;
 			}
 			else
 				M = Scale(1.0f);
@@ -1217,7 +1196,7 @@ namespace TA3D
 
 
 	// hit_fast is a faster version of hit but less precise, designed for use in weapon code
-	bool MESH::hit_fast(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I)
+	bool MESH::hit_fast(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I)
 	{
 		bool hide = false;
 		Vector3D ODir = Dir;
@@ -1228,18 +1207,18 @@ namespace TA3D
 
 		Vector3D T = pos_from_parent;
 		Vector3D MP;
-		if (!(script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE)))
+		if (!(script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE)))
 		{
 			if (script_index >= 0 && data_s)
 			{
-				T.x += data_s->axe[0][script_index].pos;
-				T.y += data_s->axe[1][script_index].pos;
-				T.z += data_s->axe[2][script_index].pos;
-				Matrix l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
+				T.x += data_s->data[script_index].axe[0].pos;
+				T.y += data_s->data[script_index].axe[1].pos;
+				T.z += data_s->data[script_index].axe[2].pos;
+				Matrix l_M = RotateXYZ(-data_s->data[script_index].axe[0].angle * DEG2RAD, -data_s->data[script_index].axe[1].angle * DEG2RAD, -data_s->data[script_index].axe[2].angle * DEG2RAD);
 				Dir = Dir * l_M;
 				Pos = (Pos - T) * l_M;
-				AM = RotateZYX(data_s->axe[2][script_index].angle * DEG2RAD, data_s->axe[1][script_index].angle * DEG2RAD, data_s->axe[0][script_index].angle * DEG2RAD);
-				hide = data_s->flag[script_index]&FLAG_HIDE;
+				AM = RotateZYX(data_s->data[script_index].axe[2].angle * DEG2RAD, data_s->data[script_index].axe[1].angle * DEG2RAD, data_s->data[script_index].axe[0].angle * DEG2RAD);
+				hide = data_s->data[script_index].flag&FLAG_HIDE;
 			}
 			else
 				AM = Scale(1.0f);
@@ -1586,7 +1565,7 @@ namespace TA3D
 		from_2d = true;
 	}
 
-	void MODEL::draw(float t,ANIMATION_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,Matrix *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,MESH *src,ANIMATION_DATA *src_data)
+	void MODEL::draw(float t,AnimationData *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,Matrix *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,MESH *src,AnimationData *src_data)
 	{
 		if (!mesh)  return;
 		gfx->enable_model_shading();
@@ -1620,7 +1599,7 @@ namespace TA3D
 				else
 				{
 					mesh->draw(t, data_s, sel, false, notex, side, chg_col);
-					if( data_s && data_s->explode )
+					if (data_s && data_s->explode)
 						mesh->draw(t, data_s, sel, false, notex, side, chg_col, true);
 				}
 			}
@@ -1638,16 +1617,16 @@ namespace TA3D
 	}
 
 
-	void MODEL::draw_shadow(const Vector3D& Dir, float t, ANIMATION_DATA* data_s)
+	void MODEL::draw_shadow(const Vector3D& Dir, float t, AnimationData* data_s)
 	{
 		if (!mesh)  return;
 		glDisable(GL_TEXTURE_2D);
 		mesh->draw_shadow(Dir,t,data_s,false);
-		if( data_s && data_s->explode )
+		if (data_s && data_s->explode)
 			mesh->draw_shadow(Dir,t,data_s,false,true);
 	}
 
-	void MODEL::draw_shadow_basic(const Vector3D& Dir, float t, ANIMATION_DATA *data_s)
+	void MODEL::draw_shadow_basic(const Vector3D& Dir, float t, AnimationData *data_s)
 	{
 		if (!mesh) return;
 		glDisable(GL_TEXTURE_2D);
@@ -1657,7 +1636,7 @@ namespace TA3D
 	}
 
 
-	void MODEL::compute_coord(ANIMATION_DATA* data_s, Matrix* M)
+	void MODEL::compute_coord(AnimationData* data_s, Matrix* M)
 	{
 		if (!mesh)  return;
 		Vector3D pos;

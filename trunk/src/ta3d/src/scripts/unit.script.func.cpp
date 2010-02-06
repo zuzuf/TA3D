@@ -27,30 +27,30 @@ namespace TA3D
     //! functions that are called from scripts (COB/BOS and Lua)
     void Unit::script_explode(int obj, int explosion_type)
     {
-        data.axe[0][obj].pos = 0.0f;
-        data.axe[0][obj].angle = 0.0f;
-        data.axe[1][obj].pos = 0.0f;
-        data.axe[1][obj].angle = 0.0f;
-        data.axe[2][obj].pos = 0.0f;
-        data.axe[2][obj].angle = 0.0f;
+		data.data[obj].axe[0].pos = 0.0f;
+		data.data[obj].axe[0].angle = 0.0f;
+		data.data[obj].axe[1].pos = 0.0f;
+		data.data[obj].axe[1].angle = 0.0f;
+		data.data[obj].axe[2].pos = 0.0f;
+		data.data[obj].axe[2].angle = 0.0f;
         if (visible) // Don't draw things which could tell the player there is something there
         {
             compute_model_coord();
-            particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
+			particle_engine.make_fire( Pos + data.data[obj].pos,1,10,45.0f);
             int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
-            Vector3D P = Pos + data.pos[obj];
+			Vector3D P = Pos + data.data[obj].pos;
             fx_manager.addExplosion( P, V, power * 3, power * 10.0f );
         }
 		if (!(explosion_type & EXPLODE_BITMAPONLY))
 		{
-			data.flag[obj] |= FLAG_EXPLODE;
-			data.explosion_flag[obj]    = explosion_type;
-			data.axe[0][obj].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
-			data.axe[0][obj].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
-			data.axe[1][obj].move_speed = 25.0f + (Math::RandomTable() % 2501) * 0.01f;
-			data.axe[1][obj].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
-			data.axe[2][obj].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
-			data.axe[2][obj].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
+			data.data[obj].flag |= FLAG_EXPLODE;
+			data.data[obj].explosion_flag    = explosion_type;
+			data.data[obj].axe[0].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
+			data.data[obj].axe[0].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
+			data.data[obj].axe[1].move_speed = 25.0f + (Math::RandomTable() % 2501) * 0.01f;
+			data.data[obj].axe[1].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
+			data.data[obj].axe[2].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
+			data.data[obj].axe[2].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
 			data.explode = true;
 			data.explode_time = 1.0f;
 		}
@@ -64,22 +64,22 @@ namespace TA3D
             angle = -angle;
             speed = -speed;
         }
-        data.axe[axis][obj].reset_rot();
-        data.axe[axis][obj].is_moving = true;
-        data.is_moving = true;
-        data.axe[axis][obj].rot_angle = -angle;
-        data.axe[axis][obj].rot_accel = 0.0f;
-        data.axe[axis][obj].rot_angle -= data.axe[axis][obj].angle;
-        while(data.axe[axis][obj].rot_angle > 180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
-            data.axe[axis][obj].rot_angle -= 360.0f;
-        while(data.axe[axis][obj].rot_angle < -180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
-            data.axe[axis][obj].rot_angle += 360.0f;
-        if (data.axe[axis][obj].rot_angle > 0.0f)
-            data.axe[axis][obj].rot_speed = fabsf(speed);
+		data.data[obj].axe[axis].reset_rot();
+		data.data[obj].axe[axis].is_moving = true;
+		data.is_moving = true;
+		data.data[obj].axe[axis].rot_angle = -angle;
+		data.data[obj].axe[axis].rot_accel = 0.0f;
+		data.data[obj].axe[axis].rot_angle -= data.data[obj].axe[axis].angle;
+		while(data.data[obj].axe[axis].rot_angle > 180.0f && !isNaN(data.data[obj].axe[axis].rot_angle))					// Fait le tour dans le sens le plus rapide
+			data.data[obj].axe[axis].rot_angle -= 360.0f;
+		while(data.data[obj].axe[axis].rot_angle < -180.0f && !isNaN(data.data[obj].axe[axis].rot_angle))					// Fait le tour dans le sens le plus rapide
+			data.data[obj].axe[axis].rot_angle += 360.0f;
+		if (data.data[obj].axe[axis].rot_angle > 0.0f)
+			data.data[obj].axe[axis].rot_speed = fabsf(speed);
         else
-            data.axe[axis][obj].rot_speed = -fabsf(speed);
-        data.axe[axis][obj].rot_limit = true;
-        data.axe[axis][obj].rot_speed_limit = false;
+			data.data[obj].axe[axis].rot_speed = -fabsf(speed);
+		data.data[obj].axe[axis].rot_limit = true;
+		data.data[obj].axe[axis].rot_speed_limit = false;
     }
 
     void Unit::script_move_object(int obj, int axis, float pos, float speed)
@@ -87,14 +87,14 @@ namespace TA3D
         if (axis == 0)
             pos = -pos;
 
-        data.axe[axis][obj].reset_move();
-        data.axe[axis][obj].move_distance = pos - data.axe[axis][obj].pos;
-        data.axe[axis][obj].is_moving = true;
-        data.is_moving = true;
-        if (data.axe[axis][obj].move_distance < 0.0f)
-            data.axe[axis][obj].move_speed = -fabsf(speed * 0.5f);
+		data.data[obj].axe[axis].reset_move();
+		data.data[obj].axe[axis].move_distance = pos - data.data[obj].axe[axis].pos;
+		data.data[obj].axe[axis].is_moving = true;
+		data.is_moving = true;
+		if (data.data[obj].axe[axis].move_distance < 0.0f)
+			data.data[obj].axe[axis].move_speed = -fabsf(speed * 0.5f);
         else
-            data.axe[axis][obj].move_speed = fabsf(speed * 0.5f);
+			data.data[obj].axe[axis].move_speed = fabsf(speed * 0.5f);
     }
 
     int Unit::script_get_value_from_port(int portID, int *param)
@@ -161,54 +161,54 @@ namespace TA3D
             target_speed = -target_speed;
             accel = -accel;
         }
-        data.axe[axis][obj].reset_rot();
-        data.axe[axis][obj].is_moving = true;
-        data.is_moving = true;
-        data.axe[axis][obj].rot_limit = false;
-        data.axe[axis][obj].rot_speed_limit = true;
-        data.axe[axis][obj].rot_target_speed = target_speed;
+		data.data[obj].axe[axis].reset_rot();
+		data.data[obj].axe[axis].is_moving = true;
+		data.is_moving = true;
+		data.data[obj].axe[axis].rot_limit = false;
+		data.data[obj].axe[axis].rot_speed_limit = true;
+		data.data[obj].axe[axis].rot_target_speed = target_speed;
         if (accel != 0.0f)
         {
-            if (data.axe[axis][obj].rot_target_speed > data.axe[axis][obj].rot_speed)
-                data.axe[axis][obj].rot_accel = fabsf(accel);
+			if (data.data[obj].axe[axis].rot_target_speed > data.data[obj].axe[axis].rot_speed)
+				data.data[obj].axe[axis].rot_accel = fabsf(accel);
             else
-                data.axe[axis][obj].rot_accel = -fabsf(accel);
+				data.data[obj].axe[axis].rot_accel = -fabsf(accel);
         }
         else
         {
-            data.axe[axis][obj].rot_accel = 0;
-            data.axe[axis][obj].rot_speed = data.axe[axis][obj].rot_target_speed;
+			data.data[obj].axe[axis].rot_accel = 0;
+			data.data[obj].axe[axis].rot_speed = data.data[obj].axe[axis].rot_target_speed;
         }
     }
 
     void Unit::script_show_object(int obj)
     {
-        data.flag[obj] &= (~FLAG_HIDE);
+		data.data[obj].flag &= (~FLAG_HIDE);
     }
 
     void Unit::script_hide_object(int obj)
     {
-        data.flag[obj] |= FLAG_HIDE;
+		data.data[obj].flag |= FLAG_HIDE;
     }
 
     void Unit::script_dont_cache(int obj)
     {
-        data.flag[obj] |= FLAG_ANIMATED_TEXTURE;
+		data.data[obj].flag |= FLAG_ANIMATED_TEXTURE;
     }
 
     void Unit::script_cache(int obj)
     {
-        data.flag[obj] &= (~FLAG_ANIMATED_TEXTURE);
+		data.data[obj].flag &= (~FLAG_ANIMATED_TEXTURE);
     }
 
     void Unit::script_shade(int obj)
     {
-        data.flag[obj] &= (~FLAG_DONT_SHADE);
+		data.data[obj].flag &= (~FLAG_DONT_SHADE);
     }
 
     void Unit::script_dont_shade(int obj)
     {
-        data.flag[obj] |= FLAG_DONT_SHADE;
+		data.data[obj].flag |= FLAG_DONT_SHADE;
     }
 
     void Unit::script_emit_sfx(int smoke_type, int from_piece)
@@ -216,21 +216,21 @@ namespace TA3D
         if (visible)
         {
             compute_model_coord();
-            if (data.dir[from_piece].x != 0.0f || data.dir[from_piece].y != 0.0f || data.dir[from_piece].z != 0.0f)
+			if (data.data[from_piece].dir.x != 0.0f || data.data[from_piece].dir.y != 0.0f || data.data[from_piece].dir.z != 0.0f)
             {
-                Vector3D dir = data.dir[from_piece];
+				Vector3D &dir = data.data[from_piece].dir;
                 switch(smoke_type)
                 {
                     case 0:
-                        particle_engine.emit_part(Pos + data.pos[from_piece], dir, fire, 1, 10.0f, 2.5f, 5.0f, true);
+						particle_engine.emit_part(Pos + data.data[from_piece].pos, dir, fire, 1, 10.0f, 2.5f, 5.0f, true);
                         break;
                     case 2:
                     case 3:
-                        particle_engine.emit_part(Pos + data.pos[from_piece], dir, 0, 1, 10.0f, 10.0f, 10.0f, false, 0.3f);
+						particle_engine.emit_part(Pos + data.data[from_piece].pos, dir, 0, 1, 10.0f, 10.0f, 10.0f, false, 0.3f);
                         break;
                     case 257:			// Fumée
                     case 258:
-                        particle_engine.emit_part(Pos + data.pos[from_piece], dir, 0, 1, 10.0f, 10.0f, 10.0f, true, 0.3f);
+						particle_engine.emit_part(Pos + data.data[from_piece].pos, dir, 0, 1, 10.0f, 10.0f, 10.0f, true, 0.3f);
                         break;
                 }
             }
@@ -238,11 +238,11 @@ namespace TA3D
                 switch(smoke_type)
                 {
                     case 0:
-                        particle_engine.make_smoke(Pos + data.pos[from_piece], fire, 1, 0.0f, 0.0f, 0.0f, 0.5f);
+						particle_engine.make_smoke(Pos + data.data[from_piece].pos, fire, 1, 0.0f, 0.0f, 0.0f, 0.5f);
                         break;
                     case 257:
                     case 258:
-                        particle_engine.make_smoke(Pos + data.pos[from_piece], 0, 1, 10.0f, -1.0f, 0.0f, 0.5f);
+						particle_engine.make_smoke(Pos + data.data[from_piece].pos, 0, 1, 10.0f, -1.0f, 0.0f, 0.5f);
                         break;
                 }
         }
@@ -252,45 +252,45 @@ namespace TA3D
     {
         if (axis != 2)
             speed = -speed;
-        data.axe[axis][obj].reset_rot();
-        data.axe[axis][obj].is_moving = true;
-        data.is_moving = true;
-        data.axe[axis][obj].rot_limit = false;
-        data.axe[axis][obj].rot_speed_limit = true;
-        data.axe[axis][obj].rot_target_speed = 0.0f;
+		data.data[obj].axe[axis].reset_rot();
+		data.data[obj].axe[axis].is_moving = true;
+		data.is_moving = true;
+		data.data[obj].axe[axis].rot_limit = false;
+		data.data[obj].axe[axis].rot_speed_limit = true;
+		data.data[obj].axe[axis].rot_target_speed = 0.0f;
         if (speed == 0.0f)
         {
-            data.axe[axis][obj].rot_speed = 0.0f;
-            data.axe[axis][obj].rot_accel = 0.0f;
+			data.data[obj].axe[axis].rot_speed = 0.0f;
+			data.data[obj].axe[axis].rot_accel = 0.0f;
         }
         else
         {
-            if (data.axe[axis][obj].rot_speed > 0.0f)
-                data.axe[axis][obj].rot_accel = -fabsf(speed);
+			if (data.data[obj].axe[axis].rot_speed > 0.0f)
+				data.data[obj].axe[axis].rot_accel = -fabsf(speed);
             else
-                data.axe[axis][obj].rot_accel = fabsf(speed);
+				data.data[obj].axe[axis].rot_accel = fabsf(speed);
         }
     }
 
     void Unit::script_move_piece_now(int obj, int axis, float pos)
     {
-        data.axe[axis][obj].reset_move();
-        data.axe[axis][obj].is_moving = true;
-        data.is_moving = true;
+		data.data[obj].axe[axis].reset_move();
+		data.data[obj].axe[axis].is_moving = true;
+		data.is_moving = true;
         if (axis == 0)
-            data.axe[axis][obj].pos = -pos;
+			data.data[obj].axe[axis].pos = -pos;
         else
-            data.axe[axis][obj].pos = pos;
+			data.data[obj].axe[axis].pos = pos;
     }
 
     void Unit::script_turn_piece_now(int obj, int axis, float angle)
     {
-        data.axe[axis][obj].reset_rot();
-        data.axe[axis][obj].is_moving = true;
-        data.is_moving = true;
+		data.data[obj].axe[axis].reset_rot();
+		data.data[obj].axe[axis].is_moving = true;
+		data.is_moving = true;
         if (axis != 2)
             angle = -angle;
-        data.axe[axis][obj].angle = -angle;
+		data.data[obj].axe[axis].angle = -angle;
     }
 
     int Unit::script_get(int type, int v1, int v2)
@@ -336,10 +336,10 @@ namespace TA3D
                 return (int)port[type];
             case PIECE_XZ:
                 compute_model_coord();
-                return PACKXZ((data.pos[v1].x + Pos.x) * 2.0f + the_map->map_w, (data.pos[v1].z + Pos.z) * 2.0f + the_map->map_h);
+				return PACKXZ((data.data[v1].pos.x + Pos.x) * 2.0f + the_map->map_w, (data.data[v1].pos.z + Pos.z) * 2.0f + the_map->map_h);
             case PIECE_Y:
                 compute_model_coord();
-                return (int)((data.pos[v1].y + Pos.y) * 2.0f) << 16;
+				return (int)((data.data[v1].pos.y + Pos.y) * 2.0f) << 16;
             case UNIT_XZ:
                 if (v1 >= 0 && v1 < units.max_unit && (units.unit[v1].flags & 1) )
                     return PACKXZ( units.unit[v1].Pos.x * 2.0f + the_map->map_w, units.unit[v1].Pos.z * 2.0f + the_map->map_h );
@@ -486,18 +486,18 @@ namespace TA3D
 
     bool Unit::script_is_turning(int obj, int axis)
     {
-        float a = data.axe[axis][obj].rot_angle;
-        if ((data.axe[axis][obj].rot_speed != 0.0f || data.axe[axis][obj].rot_accel != 0.0f) && (a != 0.0f && data.axe[axis][obj].rot_limit))
+		float a = data.data[obj].axe[axis].rot_angle;
+		if ((data.data[obj].axe[axis].rot_speed != 0.0f || data.data[obj].axe[axis].rot_accel != 0.0f) && (a != 0.0f && data.data[obj].axe[axis].rot_limit))
             return true;
-        else if (data.axe[axis][obj].rot_speed != data.axe[axis][obj].rot_target_speed && data.axe[axis][obj].rot_speed_limit)
+		else if (data.data[obj].axe[axis].rot_speed != data.data[obj].axe[axis].rot_target_speed && data.data[obj].axe[axis].rot_speed_limit)
             return true;
-        data.axe[axis][obj].rot_speed = 0.0f;
-        data.axe[axis][obj].rot_accel = 0.0f;
+		data.data[obj].axe[axis].rot_speed = 0.0f;
+		data.data[obj].axe[axis].rot_accel = 0.0f;
         return false;
     }
 
     bool Unit::script_is_moving(int obj, int axis)
     {
-        return (data.axe[axis][obj].move_distance != 0.0f);
+		return (data.data[obj].axe[axis].move_distance != 0.0f);
     }
 }

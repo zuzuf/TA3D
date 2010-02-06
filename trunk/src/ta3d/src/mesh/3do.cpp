@@ -771,9 +771,9 @@ namespace TA3D
 
 
 
-	bool MESH_3DO::draw(float t, ANIMATION_DATA *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
+	bool MESH_3DO::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
-		bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
+		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide=false;
 		bool set=false;
 		float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -793,19 +793,19 @@ namespace TA3D
 			{
 				if (!explodes ^ exploding_parts)
 				{
-					glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-					glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-					glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-					glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+					glTranslatef(data_s->data[script_index].axe[0].pos, data_s->data[script_index].axe[1].pos, data_s->data[script_index].axe[2].pos);
+					glRotatef(data_s->data[script_index].axe[0].angle, 1.0f, 0.0f, 0.0f);
+					glRotatef(data_s->data[script_index].axe[1].angle, 0.0f, 1.0f, 0.0f);
+					glRotatef(data_s->data[script_index].axe[2].angle, 0.0f, 0.0f, 1.0f);
 				}
-				hide = data_s->flag[script_index] & FLAG_HIDE;
+				hide = data_s->data[script_index].flag & FLAG_HIDE;
 			}
 
 			hide |= explodes ^ exploding_parts;
 			if (chg_col)
 				glGetFloatv(GL_CURRENT_COLOR, color_factor);
 			int texID = player_color_map[side];
-			if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_ANIMATED_TEXTURE)
+			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !gltex.empty())
 				texID = ((int)(t * 10.0f)) % gltex.size();
 			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)

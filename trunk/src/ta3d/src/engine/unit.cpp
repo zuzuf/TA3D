@@ -1072,7 +1072,7 @@ namespace TA3D
 				bool reverse=false;
 				float size=0.0f;
 				MESH *src = NULL;
-				ANIMATION_DATA *src_data = NULL;
+				AnimationData *src_data = NULL;
 				Vector3D v_target;				// Needed in network mode
 				Unit *unit_target = NULL;
 				MODEL *the_model = model;
@@ -1553,8 +1553,8 @@ namespace TA3D
 		}
 		for (int i = 0; i < data.nb_piece; ++i)
 		{
-			if (!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
-				data.flag[i]|=FLAG_HIDE;
+			if (!(data.data[i].flag & FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
+				data.data[i].flag |= FLAG_HIDE;
 		}
 	}
 
@@ -2168,9 +2168,9 @@ namespace TA3D
 						return -1;
 					}
 					death_delay -= dt;
-					for(int i = 0 ; i < data.nb_piece ; ++i)
-						if (!(data.flag[i] & FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
-							data.flag[i] |= FLAG_HIDE;
+					for(AnimationData::DataVector::iterator i = data.data.begin() ; i != data.data.end() ; ++i)
+						if (!(i->flag & FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
+							i->flag |= FLAG_HIDE;
 					break;
 				case 0x14:				// Unit has been captured, this is a FAKE unit, just here to be removed
 					flags = 4;
@@ -2188,19 +2188,19 @@ namespace TA3D
 				if (c_time >= 0.1f)
 				{
 					c_time = 0.0f;
-					for(int i = 0 ; i < data.nb_piece ; ++i)
-						if ((data.flag[i] & FLAG_EXPLODE)
-							&& (data.explosion_flag[i] & EXPLODE_BITMAPONLY) != EXPLODE_BITMAPONLY)
+					for(AnimationData::DataVector::iterator i = data.data.begin() ; i != data.data.end() ; ++i)
+						if ((i->flag & FLAG_EXPLODE)
+							&& (i->explosion_flag & EXPLODE_BITMAPONLY) != EXPLODE_BITMAPONLY)
 						{
-							if (data.explosion_flag[i] & EXPLODE_FIRE)
+							if (i->explosion_flag & EXPLODE_FIRE)
 							{
 								compute_model_coord();
-								particle_engine.make_smoke(Pos+data.pos[i],fire,1,0.0f,0.0f);
+								particle_engine.make_smoke(Pos + i->pos, fire, 1, 0.0f, 0.0f);
 							}
-							if (data.explosion_flag[i]&EXPLODE_SMOKE)
+							if (i->explosion_flag & EXPLODE_SMOKE)
 							{
 								compute_model_coord();
-								particle_engine.make_smoke(Pos+data.pos[i],0,1,0.0f,0.0f);
+								particle_engine.make_smoke(Pos + i->pos, 0, 1, 0.0f, 0.0f);
 							}
 						}
 				}
@@ -2312,9 +2312,9 @@ namespace TA3D
 			{
 				if (units.unit[attached_list[i]].flags)
 				{
-					units.unit[attached_list[i]].Pos = Pos+data.pos[link_list[i]];
-					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x)+the_map->map_w_d)>>3;
-					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z)+the_map->map_h_d)>>3;
+					units.unit[attached_list[i]].Pos = Pos + data.data[link_list[i]].pos;
+					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x) + the_map->map_w_d)>>3;
+					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z) + the_map->map_h_d)>>3;
 					units.unit[attached_list[i]].Angle = Angle;
 				}
 				else
@@ -2323,9 +2323,9 @@ namespace TA3D
 					--i;
 					continue;
 				}
-				attached_list[i]=attached_list[i+e];
+				attached_list[i] = attached_list[i + e];
 			}
-			nb_attached-=e;
+			nb_attached -= e;
 		}
 
 		if (planned_weapons > 0.0f)	// Construit des armes / build weapons
@@ -2506,13 +2506,13 @@ namespace TA3D
                                     if (weapon[i].data >= 0)
 									{
 										if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
-											target_pos_on_unit = target_unit->data.tpos[ weapon[i].data ];
+											target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
 									}
 									else if (target_unit->model)
 										target_pos_on_unit = target_unit->model->center;
 								}
 
-								target = target + target_translation - data.tpos[start_piece];
+								target = target + target_translation - data.data[start_piece].tpos;
                                 if (target_unit != NULL)
 									target = target + target_pos_on_unit;
 
@@ -2549,9 +2549,9 @@ namespace TA3D
 								{
 									Vector3D D = target_unit == NULL
 												 ? ( target_weapon == NULL
-													 ? Pos + data.tpos[start_piece] - weapon[i].target_pos
-													 : (Pos + data.tpos[start_piece] - target_weapon->Pos) )
-												 : (Pos + data.tpos[start_piece] - target_unit->Pos - target_pos_on_unit);
+													 ? Pos + data.data[start_piece].tpos - weapon[i].target_pos
+													 : (Pos + data.data[start_piece].tpos - target_weapon->Pos) )
+												 : (Pos + data.data[start_piece].tpos - target_unit->Pos - target_pos_on_unit);
 									D.y = 0.0f;
 									float v;
                                     if (pType->weapon[ i ]->startvelocity == 0.0f)
@@ -2561,12 +2561,14 @@ namespace TA3D
 									if (target_unit == NULL)
 									{
 										if (target_weapon == NULL)
-											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
+											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.data[start_piece].tpos).y,weapon[i].target_pos.y)*DEG2TA);
 										else
-											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
+											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.data[start_piece].tpos).y,target_weapon->Pos.y)*DEG2TA);
 									}
 									else
-										aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.tpos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
+										aiming[1] = (int)(ballistic_angle(v, the_map->ota_data.gravity, D.norm(),
+																		  (Pos + data.data[start_piece].tpos).y,
+																		  target_unit->Pos.y + target_unit->model->center.y * 0.5f) * DEG2TA);
 								}
 								else
 								{
@@ -2594,12 +2596,12 @@ namespace TA3D
                                         if (!target_unit)
                                         {
                                             if (target_weapon == NULL )
-												weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.tpos[start_piece]);
+												weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.data[start_piece].tpos);
                                             else
-												weapon[i].aim_dir = ((Weapon*)(weapon[i].target))->Pos - (Pos + data.tpos[start_piece]);
+												weapon[i].aim_dir = ((Weapon*)(weapon[i].target))->Pos - (Pos + data.data[start_piece].tpos);
                                         }
                                         else
-											weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.tpos[start_piece]);
+											weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.data[start_piece].tpos);
                                         weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
                                         weapon[i].aim_dir.unit();
                                     }
@@ -2670,9 +2672,9 @@ namespace TA3D
 						if (start_piece >= 0 && start_piece < data.nb_piece)
 						{
 							compute_model_coord();
-							if (!pType->weapon[ i ]->waterweapon && Pos.y + data.tpos[start_piece].y <= the_map->sealvl)     // Can't shoot from water !!
+							if (!pType->weapon[ i ]->waterweapon && Pos.y + data.data[start_piece].tpos.y <= the_map->sealvl)     // Can't shoot from water !!
 								break;
-							Vector3D Dir = data.dir[start_piece];
+							Vector3D Dir = data.data[start_piece].dir;
                             if (pType->weapon[ i ]->vlaunch)
 							{
 								Dir.x = 0.0f;
@@ -2683,7 +2685,7 @@ namespace TA3D
 								Dir = weapon[i].aim_dir;
 							if (i == 3)
 							{
-								LOG_DEBUG("firing from " << (Pos + data.tpos[start_piece]).y << " (" << the_map->get_unit_h((Pos + data.tpos[start_piece]).x, (Pos + data.tpos[start_piece]).z) << ")");
+								LOG_DEBUG("firing from " << (Pos + data.data[start_piece].tpos).y << " (" << the_map->get_unit_h((Pos + data.data[start_piece].tpos).x, (Pos + data.data[start_piece].tpos).z) << ")");
 								LOG_DEBUG("from piece " << start_piece << " (" << Query_script << "," << Aim_script << "," << Fire_script << ")" );
 							}
 
@@ -2699,13 +2701,13 @@ namespace TA3D
                             if (!pType->weapon[ i ]->soundstart.empty())	sound_manager->playSound(pType->weapon[i]->soundstart, &Pos);
 
 							if (weapon[i].target == NULL)
-								shoot(-1,Pos + data.tpos[start_piece],Dir,i, weapon[i].target_pos );
+								shoot(-1,Pos + data.data[start_piece].tpos,Dir,i, weapon[i].target_pos );
 							else
 							{
 								if (weapon[i].state & WEAPON_FLAG_WEAPON)
-									shoot(((Weapon*)(weapon[i].target))->idx,Pos + data.tpos[start_piece],Dir,i, weapon[i].target_pos);
+									shoot(((Weapon*)(weapon[i].target))->idx,Pos + data.data[start_piece].tpos,Dir,i, weapon[i].target_pos);
 								else
-									shoot(((Unit*)(weapon[i].target))->idx,Pos + data.tpos[start_piece],Dir,i, weapon[i].target_pos);
+									shoot(((Unit*)(weapon[i].target))->idx,Pos + data.data[start_piece].tpos,Dir,i, weapon[i].target_pos);
 							}
 							weapon[i].burst++;
                             if (weapon[i].burst >= pType->weapon[i]->burst)
@@ -2796,7 +2798,7 @@ namespace TA3D
 
 						target_unit->compute_model_coord();
 						int piece_id = mission->getData() >= 0 ? mission->getData() : (-mission->getData() - 1);
-						Vector3D target = target_unit->Pos + target_unit->data.pos[ piece_id ];
+						Vector3D target = target_unit->Pos + target_unit->data.data[piece_id].pos;
 
 						Vector3D Dir = target - Pos;
 						Dir.y = 0.0f;
@@ -3799,7 +3801,7 @@ namespace TA3D
 									{
 										compute_model_coord();
 										Vector3D old_pos = target_unit->Pos;
-										target_unit->Pos = Pos + data.pos[buildinfo];
+										target_unit->Pos = Pos + data.data[buildinfo].pos;
 										if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= the_map->sealvl ) )
 											target_unit->Pos.y = old_pos.y;
 										if (((Vector3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) // It must be continuous
@@ -3813,7 +3815,7 @@ namespace TA3D
 											target_unit->cur_py = ((int)(target_unit->Pos.z)+the_map->map_h_d+4)>>3;
 										}
 										target_unit->Angle = Angle;
-										target_unit->Angle.y += data.axe[1][buildinfo].angle;
+										target_unit->Angle.y += data.data[buildinfo].axe[1].angle;
 										pMutex.unlock();
 										target_unit->draw_on_map();
 										pMutex.lock();
@@ -3869,7 +3871,7 @@ namespace TA3D
 									if (buildinfo >= 0)
 									{
 										compute_model_coord();
-										mission->getTarget().setPos(Pos + data.pos[ buildinfo ]);
+										mission->getTarget().setPos(Pos + data.data[buildinfo].pos);
 									}
 								}
 								Vector3D target = mission->getTarget().getPos();
