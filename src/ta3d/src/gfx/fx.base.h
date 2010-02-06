@@ -55,7 +55,7 @@ namespace TA3D
         ** \param anims
         ** \return
         */
-        bool move(const float dt, Gaf::Animation** anims);
+		bool move(const float dt, const std::vector<Gaf::Animation*> &anims);
 
         /*!
         ** \brief
@@ -64,7 +64,7 @@ namespace TA3D
         ** \param map
         ** \param anims
         */
-		void draw(Camera& cam, Gaf::Animation** anims);
+		void draw(Camera& cam, const std::vector<Gaf::Animation*> &anims);
 
 
     public:
@@ -101,7 +101,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void doDrawAnimDefault(Camera& cam, Gaf::Animation** anims);
+		void doDrawAnimDefault(Camera& cam, const std::vector<Gaf::Animation*> &anims);
 
     }; // class FX
 

@@ -184,7 +184,7 @@ namespace TA3D
 		{
 			if(!fx[i].playing)
 			{
-				idx=i;
+				idx = i;
 				break;
 			}
 		}
@@ -217,11 +217,11 @@ namespace TA3D
 		nb_fx = 0;
 		fx.clear();
 
-		max_cache_size = 0;
-		cache_size = 0;
-		cache_name.clear();
-		cache_anm = NULL;
-		use = NULL;
+		hashName.clear();
+		cacheName.clear();
+		cacheAnm.clear();
+		use.clear();
+		hashName.set_deleted_key(String());
 
 		flash_tex = 0;
 		wave_tex[0] = 0;
@@ -244,17 +244,13 @@ namespace TA3D
 
 		delete fx_data;
 		fx.clear();
-		if (cache_size > 0)
-		{
-			cache_name.clear();
-			if (cache_anm)
-			{
-				for (int i = 0;i < max_cache_size; ++i)
-					delete cache_anm[i];
-				DELETE_ARRAY(cache_anm);
-			}
-		}
-		DELETE_ARRAY(use);
+		hashName.clear();
+		cacheName.clear();
+		for (int i = 0 ;i < cacheAnm.size() ; ++i)
+			if (cacheAnm[i])
+				delete cacheAnm[i];
+		cacheAnm.clear();
+		use.clear();
 		init();
 	}
 
@@ -262,12 +258,12 @@ namespace TA3D
 	{
 		pMutex.lock();
 
-		if (pCacheIsDirty)// We have work to do
+		if (pCacheIsDirty)	// We have work to do
 		{
-			for (int i = 0 ; i < max_cache_size ; ++i)
+			for (int i = 0 ; i < cacheAnm.size() ; ++i)
 			{
-				if (cache_anm[i])
-					cache_anm[i]->convert(false,true);
+				if (cacheAnm[i])
+					cacheAnm[i]->convert(false,true);
 			}
 			pCacheIsDirty = false;
 		}
@@ -285,7 +281,7 @@ namespace TA3D
 			for(int i = 0 ; i < max_fx ; ++i)
 			{
 				if (fx[i].playing && fx[i].Pos.y < w_lvl)
-					fx[i].draw(cam, cache_anm);
+					fx[i].draw(cam, cacheAnm);
 			}
 		}
 		else
@@ -293,7 +289,7 @@ namespace TA3D
 			for(int i = 0; i < max_fx; ++i)
 			{
 				if (fx[i].playing && fx[i].Pos.y >= w_lvl)
-					fx[i].draw(cam, cache_anm);
+					fx[i].draw(cam, cacheAnm);
 			}
 		}
 		gfx->unset_alpha_blending();
@@ -419,44 +415,22 @@ namespace TA3D
 			return is_in;
 
 		int idx = -1;
-		if (cache_size + 1 > max_cache_size)
+		if (freeSlot.empty())
 		{
-			max_cache_size += 100;
-			cache_name.resize(max_cache_size);
-			Gaf::Animation** n_anm = new Gaf::Animation*[max_cache_size];
-			int *n_use = new int[max_cache_size];
-			for (int i = max_cache_size - 100; i < max_cache_size; ++i)
-			{
-				n_use[i] = 0;
-				n_anm[i] = NULL;
-			}
-			if (cache_size > 0)
-			{
-				for(int i = 0; i < max_cache_size - 100; ++i)
-				{
-					n_anm[i] = cache_anm[i];
-					n_use[i] = use[i];
-				}
-				DELETE_ARRAY(cache_anm);
-				DELETE_ARRAY(use);
-			}
-			use=n_use;
-			cache_anm=n_anm;
-			idx=cache_size;
+			idx = cacheAnm.size();
+			cacheName.push_back(String());
+			cacheAnm.push_back(NULL);
+			use.push_back(0);
 		}
 		else
 		{
-			idx = 0;
-			for(int i = 0; i < max_cache_size; ++i)
-			{
-				if(cache_anm[i]==NULL)
-					idx=i;
-			}
+			idx = freeSlot.front();
+			freeSlot.pop_front();
 		}
 		use[idx] = 1;
-		cache_anm[idx] = anm;
-		cache_name[idx] = filename;
-		++cache_size;
+		cacheAnm[idx] = anm;
+		cacheName[idx] = filename;
+		hashName[filename] = idx;
 
 		return idx;
 	}
@@ -464,17 +438,10 @@ namespace TA3D
 
 	int FXManager::findInCache(const String& filename) const
 	{
-		if (cache_size <= 0)
+		HashMap<int>::Sparse::const_iterator it = hashName.find(filename);
+		if (it == hashName.end())
 			return -1;
-		for(int i = 0; i < max_cache_size; ++i)
-		{
-			if (cache_anm[i] != NULL && !cache_name[i].empty())
-			{
-				if (filename == cache_name[i])
-					return i;
-			}
-		}
-		return -1;
+		return it->second;
 	}
 
 
@@ -507,22 +474,25 @@ namespace TA3D
 	{
 		for (int i = 0; i < max_fx; ++i)
 		{
-			if(fx[i].move(dt, cache_anm))
+			if(fx[i].move(dt, cacheAnm))
 			{
 				if (fx[i].anm == -1 || fx[i].anm == -2 || fx[i].anm == -3 || fx[i].anm == -4 || fx[i].anm == -5)
 				{
 					--nb_fx;
 					continue;		// Flash, ripple or Wave
 				}
-				use[fx[i].anm]--;
+				--use[fx[i].anm];
 				--nb_fx;
 				if (use[fx[i].anm] <= 0) // Animation used nowhere
 				{
-					cache_name[fx[i].anm].clear();
-					if (cache_anm[fx[i].anm])
-						delete cache_anm[fx[i].anm];
-					cache_anm[fx[i].anm] = NULL;
-					--cache_size;
+					hashName.erase(cacheName[fx[i].anm]);
+					cacheName[fx[i].anm].clear();
+					if (cacheAnm[fx[i].anm])
+					{
+						delete cacheAnm[fx[i].anm];
+						freeSlot.push_back(fx[i].anm);
+					}
+					cacheAnm[fx[i].anm] = NULL;
 				}
 			}
 		}

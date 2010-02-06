@@ -52,7 +52,7 @@ namespace TA3D
     }
 
 
-    bool FX::move(const float dt, Gaf::Animation** anims)
+	bool FX::move(const float dt, const std::vector<Gaf::Animation*> &anims)
     {
         if (!playing)
             return false;
@@ -170,9 +170,9 @@ namespace TA3D
         glPopMatrix();
     }
 
-    void FX::doDrawAnimDefault(Camera& cam, Gaf::Animation** anims)
+	void FX::doDrawAnimDefault(Camera& cam, const std::vector<Gaf::Animation*> &anims)
     {
-        if (!anims)
+		if (anims.empty())
         {
             playing = false;
             return;
@@ -235,7 +235,7 @@ namespace TA3D
     }
 
 
-	void FX::draw(Camera& cam, Gaf::Animation** anims)
+	void FX::draw(Camera& cam, const std::vector<Gaf::Animation*> &anims)
     {
 		if(!playing || !doCanDrawAnim())
             return;
