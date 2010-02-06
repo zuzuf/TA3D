@@ -205,16 +205,16 @@ namespace TA3D
         typedef std::list<FXElectric*>  ListOfElectrics;
 
     private:
-        // TODO Remove all those C style lists...
         int max_fx;
         int nb_fx;
         std::vector<FX> fx;
 
-        int cache_size;			// Cache
-        int max_cache_size;
-        String::Vector cache_name;
-        Gaf::Animation** cache_anm;
-        int* use;
+		// Cache
+		String::Vector cacheName;
+		HashMap<int>::Sparse hashName;
+		std::vector<Gaf::Animation*> cacheAnm;
+		std::vector<int> use;
+		std::deque<int> freeSlot;
         bool pCacheIsDirty;
 
         //! List of particles bouncing around
