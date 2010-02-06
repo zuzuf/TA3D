@@ -19,8 +19,8 @@ namespace TA3D
 
 
 	Unit::Unit()
-		:script(NULL), model(NULL), owner_id(0), type_id(0), hp(0.), Pos(),
-		drawn_Pos(), V(), Angle(), drawn_Angle(), V_Angle(), sel(false),
+		:script(NULL), render(), model(NULL), owner_id(0), type_id(0),
+		hp(0.), Pos(), V(), Angle(), V_Angle(), sel(false),
 		data(), drawing(false), port(NULL), mission(), def_mission(),
 		flags(0), kills(0), selfmove(false), lastEnergy(0.0f), c_time(0), compute_coord(false), idx(0), ID(0),
 		h(0.), visible(false), on_radar(false), on_mini_radar(false), groupe(0),
@@ -908,7 +908,7 @@ namespace TA3D
 
 		MutexLocker locker(pMutex);
 
-		if (!(flags & 1) || type_id == -1)
+		if (!(flags & 1) || type_id == -1 || ID != render.UID)
 			return;
 
         UnitType *pType = unit_manager.unit_type[type_id];
@@ -916,14 +916,11 @@ namespace TA3D
 		on_radar = false;
 		on_mini_radar = false;
 
-		drawn_Pos = Pos;
-		drawn_Angle = Angle;
-
 		if (!model || hidden)
 			return;		// S'il n'y a pas de modèle associé, on quitte la fonction
 
-		int px = cur_px >> 1;
-		int py = cur_py >> 1;
+		int px = render.px >> 1;
+		int py = render.py >> 1;
 		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			return;	// Unité hors de la carte
 		byte player_mask = 1 << players.local_human_id;
@@ -936,9 +933,9 @@ namespace TA3D
 
 		on_radar &= the_map->view[py][px] > 1;
 
-		Vector3D D (Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
+		Vector3D D (render.Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
-		float dist=D.sq();
+		float dist = D.sq();
 		if (dist >= 16384.0f && (D % Camera::inGame->dir) <= 0.0f)
 			return;
 		if ((D % Camera::inGame->dir) > Camera::inGame->zfar2)
@@ -960,7 +957,7 @@ namespace TA3D
 		if (on_radar) // for mega zoom, draw only an icon
 		{
 			glDisable(GL_DEPTH_TEST);
-			glTranslatef( Pos.x, Math::Max(Pos.y,the_map->sealvl+5.0f), Pos.z);
+			glTranslatef( render.Pos.x, Math::Max(render.Pos.y, the_map->sealvl + 5.0f), render.Pos.z);
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
 			// In orthographic mode we need another formula
@@ -1049,28 +1046,30 @@ namespace TA3D
 		else
 			if (visible)
 			{
-				glTranslatef( Pos.x, Pos.y, Pos.z );
+				glTranslatef( render.Pos.x, render.Pos.y, render.Pos.z );
 
-				if (lp_CONFIG->underwater_bright && the_map->water && Pos.y < the_map->sealvl)
+				if (lp_CONFIG->underwater_bright && the_map->water && render.Pos.y < the_map->sealvl)
 				{
-					double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - Pos.y };
+					double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - render.Pos.y };
 					glClipPlane(GL_CLIP_PLANE2, eqn);
 				}
 
-				glRotatef(Angle.x,1.0f,0.0f,0.0f);
-				glRotatef(Angle.z,0.0f,0.0f,1.0f);
-				glRotatef(Angle.y,0.0f,1.0f,0.0f);
+				glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
+				glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
+				glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
                 float scale = pType->Scale;
 				glScalef(scale,scale,scale);
 
 				//            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
-				M = RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
+				M = RotateYZX(render.Angle.y * DEG2RAD,
+							  render.Angle.z * DEG2RAD,
+							  render.Angle.x * DEG2RAD) * Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 
-				Vector3D *target = NULL,*center = NULL;
+				Vector3D *target = NULL, *center = NULL;
 				Vector3D upos;
-				bool c_part=false;
-				bool reverse=false;
-				float size=0.0f;
+				bool c_part = false;
+				bool reverse = false;
+				float size = 0.0f;
 				MESH *src = NULL;
 				AnimationData *src_data = NULL;
 				Vector3D v_target;				// Needed in network mode
@@ -1100,7 +1099,7 @@ namespace TA3D
 						c_time = 0.0f;
 						c_part = true;
 						upos.x = upos.y = upos.z = 0.0f;
-						upos = upos + Pos;
+						upos = upos + render.Pos;
 						if (mission->getTarget().isUnit()
 							&& (mission->mission() == MISSION_REPAIR
 								|| mission->mission() == MISSION_BUILD
@@ -1168,10 +1167,10 @@ namespace TA3D
 						if (c_time >= 0.125f)
 						{
 							reverse = nanolathe_reverse;
-							c_time=0.0f;
-							c_part=true;
+							c_time = 0.0f;
+							c_part = true;
 							upos.reset();
-							upos = upos + Pos;
+							upos = upos + render.Pos;
 							if (!nanolathe_feature)
 							{
 								unit_target = &(units.unit[ nanolathe_target ]);
@@ -1223,10 +1222,10 @@ namespace TA3D
 
 				if (build_percent_left == 0.0f)
 				{
-					if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
+					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
-                    the_model->draw(t, &data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,cloaked,src,src_data);
-                    if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
+					the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, cloaked, src, src_data);
+					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						gfx->set_color( 0xFFFFFFFF );
                     if (height_line && h>1.0f && pType->canfly) // For flying units, draw a line that shows how high is the unit
 					{
@@ -1236,10 +1235,10 @@ namespace TA3D
 						glDisable(GL_LIGHTING);
 						glColor3ub(0xFF,0xFF,0);
 						glBegin(GL_LINES);
-						for (float y=Pos.y;y>Pos.y-h;y-=10.0f)
+						for (float y = render.Pos.y ; y > render.Pos.y - h ; y -= 10.0f)
 						{
-							glVertex3f(Pos.x,y,Pos.z);
-							glVertex3f(Pos.x,y-5.0f,Pos.z);
+							glVertex3f(render.Pos.x, y, render.Pos.z);
+							glVertex3f(render.Pos.x, y - 5.0f, render.Pos.z);
 						}
 						glEnd();
 					}
@@ -1247,53 +1246,53 @@ namespace TA3D
 				else
 				{
 					gfx->setShadowMapMode(true);
-					if (build_percent_left<=33.0f)
+					if (build_percent_left <= 33.0f)
 					{
 						float h = model->top - model->bottom;
-						double eqn[4]= { 0.0f, 1.0f, 0.0f, -model->bottom - h*(33.0f-build_percent_left)*0.033333f};
+						double eqn[4]= { 0.0f, 1.0f, 0.0f, -model->bottom - h * (33.0f - build_percent_left) * 0.033333f};
 
 						glClipPlane(GL_CLIP_PLANE0, eqn);
 						glEnable(GL_CLIP_PLANE0);
-                        the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+						the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, true, src, src_data);
 
-						eqn[1]=-eqn[1];	eqn[3]=-eqn[3];
+						eqn[1] = -eqn[1];	eqn[3] = -eqn[3];
 						glClipPlane(GL_CLIP_PLANE0, eqn);
-                        the_model->draw(t, &data,owner_id==players.local_human_id && sel,false,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+						the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
 						glDisable(GL_CLIP_PLANE0);
 
 						glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-                        the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+						the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
 						glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 					}
 					else
 					{
-						if (build_percent_left<=66.0f)
+						if (build_percent_left <= 66.0f)
 						{
 							float h = model->top - model->bottom;
-							double eqn[4]= { 0.0f, 1.0f, 0.0f, -model->bottom - h*(66.0f-build_percent_left)*0.033333f};
+							double eqn[4]= { 0.0f, 1.0f, 0.0f, -model->bottom - h * (66.0f - build_percent_left) * 0.033333f};
 
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 							glClipPlane(GL_CLIP_PLANE0, eqn);
 							glEnable(GL_CLIP_PLANE0);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-                            the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+							the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, true, src, src_data);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-							eqn[1]=-eqn[1];	eqn[3]=-eqn[3];
+							eqn[1] = -eqn[1];	eqn[3] = -eqn[3];
 							glClipPlane(GL_CLIP_PLANE0, eqn);
-                            the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+							the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
 							glDisable(GL_CLIP_PLANE0);
 						}
 						else
 						{
 							glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-                            the_model->draw(t, &data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+							the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, true, false, build_part, target, &upos, &M, size, center, reverse, owner_id);
 							glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 						}
 					}
 				}
 
-				if (lp_CONFIG->underwater_bright && the_map->water && Pos.y < the_map->sealvl)
+				if (lp_CONFIG->underwater_bright && the_map->water && render.Pos.y < the_map->sealvl)
 				{
 					gfx->setShadowMapMode(true);
 					glEnable(GL_CLIP_PLANE2);
@@ -1302,7 +1301,7 @@ namespace TA3D
 					glBlendFunc( GL_ONE, GL_ONE );
 					glDepthFunc( GL_EQUAL );
 					glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-					the_model->draw(t,&data,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,owner_id,false);
+					the_model->draw(t, &render.Anim, false, true, false, 0, NULL, NULL, NULL, 0.0f,NULL, false, owner_id, false);
 					glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
 					glDepthFunc( GL_LESS );
 					glDisable( GL_BLEND );
@@ -1326,7 +1325,7 @@ namespace TA3D
 	void Unit::draw_shadow(const Vector3D& Dir)
 	{
 		pMutex.lock();
-		if (!(flags & 1))
+		if (!(flags & 1) || ID != render.UID)
 		{
 			pMutex.unlock();
 			return;
@@ -1349,10 +1348,10 @@ namespace TA3D
 
 		if (!visible)
 		{
-			Vector3D S_Pos = drawn_Pos-(h/Dir.y)*Dir;//the_map->hit(Pos,Dir);
-			int px=((int)(S_Pos.x)+the_map->map_w_d)>>4;
-			int py=((int)(S_Pos.z)+the_map->map_h_d)>>4;
-			if (px<0 || py<0 || px>=the_map->bloc_w || py>=the_map->bloc_h)
+			Vector3D S_Pos = render.Pos - (h / Dir.y) * Dir;//the_map->hit(Pos,Dir);
+			int px = ((int)(S_Pos.x) + the_map->map_w_d) >> 4;
+			int py = ((int)(S_Pos.z) + the_map->map_h_d) >> 4;
+			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			{
 				pMutex.unlock();
 				return;	// Shadow out of the map
@@ -1369,23 +1368,22 @@ namespace TA3D
 		pMutex.unlock();
 
 		glPushMatrix();
-		glTranslatef(drawn_Pos.x,drawn_Pos.y,drawn_Pos.z);
-		glRotatef(drawn_Angle.x,1.0f,0.0f,0.0f);
-		glRotatef(drawn_Angle.z,0.0f,0.0f,1.0f);
-		glRotatef(drawn_Angle.y,0.0f,1.0f,0.0f);
+		glTranslatef(render.Pos.x, render.Pos.y, render.Pos.z);
+		glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
+		glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
+		glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
         float scale = pType->Scale;
 		glScalef(scale,scale,scale);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
         if ((type_id != -1 && pType->canmove) || shadow_scale_dir < 0.0f)
 		{
-			Vector3D H = drawn_Pos;
+			Vector3D H = render.Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
 			Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
-		//    model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
-		model->draw_shadow(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f, &data);
+		model->draw_shadow(shadow_scale_dir * Dir * RotateXZY(-render.Angle.x * DEG2RAD, -render.Angle.z * DEG2RAD, -render.Angle.y * DEG2RAD), 0.0f, &render.Anim);
 
 		glPopMatrix();
 
@@ -1396,7 +1394,7 @@ namespace TA3D
 	void Unit::drawShadowBasic(const Vector3D& Dir)
 	{
 		pMutex.lock();
-		if (!(flags & 1))
+		if (!(flags & 1) || ID != render.UID)
 		{
 			pMutex.unlock();
 			return;
@@ -1407,7 +1405,7 @@ namespace TA3D
 			return;
 		}
 
-		if (cloaked && owner_id != players.local_human_id ) // Unit is cloaked
+		if (cloaked && owner_id != players.local_human_id) // Unit is cloaked
 		{
 			pMutex.unlock();
 			return;
@@ -1415,7 +1413,7 @@ namespace TA3D
 
 		if (!visible)
 		{
-			Vector3D S_Pos (drawn_Pos - (h / Dir.y) * Dir);//the_map->hit(Pos,Dir);
+			Vector3D S_Pos (render.Pos - (h / Dir.y) * Dir);//the_map->hit(Pos,Dir);
 			int px = ((int)(S_Pos.x + the_map->map_w_d)) >> 4;
 			int py = ((int)(S_Pos.z + the_map->map_h_d)) >> 4;
 			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
@@ -1434,22 +1432,21 @@ namespace TA3D
 		pMutex.unlock();
 
 		glPushMatrix();
-		glTranslatef(drawn_Pos.x,drawn_Pos.y,drawn_Pos.z);
-		glRotatef(drawn_Angle.x,1.0f,0.0f,0.0f);
-		glRotatef(drawn_Angle.z,0.0f,0.0f,1.0f);
-		glRotatef(drawn_Angle.y,0.0f,1.0f,0.0f);
+		glTranslatef(render.Pos.x, render.Pos.y, render.Pos.z);
+		glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
+		glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
+		glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
         float scale = pType->Scale;
 		glScalef(scale,scale,scale);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
         if (pType->canmove || shadow_scale_dir < 0.0f )
 		{
-			Vector3D H = drawn_Pos;
+			Vector3D H = render.Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
 			Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
-		//    model->drawShadowBasic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
-		model->draw_shadow_basic(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
+		model->draw_shadow_basic(shadow_scale_dir * Dir * RotateXZY(-render.Angle.x * DEG2RAD, -render.Angle.z * DEG2RAD, -render.Angle.y * DEG2RAD), 0.0f, &render.Anim);
 
 		glPopMatrix();
 
@@ -5228,6 +5225,18 @@ script_exec:
 		glVertex3fv((GLfloat*)&P);
 		P = vPos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
 		glVertex3fv((GLfloat*)&P);
+	}
+
+	void Unit::renderTick()
+	{
+		lock();
+		render.Pos = Pos;
+		render.Angle = Angle;
+		render.Anim = data;
+		render.px = cur_px;
+		render.py = cur_py;
+		render.UID = ID;
+		unlock();
 	}
 
 } // namespace TA3D
