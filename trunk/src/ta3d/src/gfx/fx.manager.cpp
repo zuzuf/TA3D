@@ -199,12 +199,7 @@ namespace TA3D
 	void FXManager::doClearAllParticles()
 	{
 		pElectrics.clear();
-		if (!pParticles.empty())
-		{
-			for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
-				delete *i;
-			pParticles.clear();
-		}
+		pParticles.clear();
 	}
 
 	void FXManager::init()
@@ -299,14 +294,14 @@ namespace TA3D
 		{
 			RenderQueue renderQueue(FXManager::currentParticleModel->id);
 			for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
-				(*i)->draw( renderQueue );
+				(*i).draw( renderQueue );
 			renderQueue.draw_queue();
 		}
 
 		glDisable(GL_TEXTURE_2D);
 		if (!UW)
 			for (ListOfElectrics::iterator i = pElectrics.begin(); i != pElectrics.end(); ++i)
-				(*i)->draw();
+				(*i).draw();
 
 		pMutex.unlock();
 	}
@@ -316,7 +311,7 @@ namespace TA3D
 		if (lp_CONFIG->explosion_particles)
 		{
 			pMutex.lock();
-			pParticles.push_back(new FXParticle(p, s, l));
+			pParticles.push_back(FXParticle(p, s, l));
 			pMutex.unlock();
 		}
 	}
@@ -349,7 +344,7 @@ namespace TA3D
 						sinf(a) * scosb);
 			float l = (Math::RandomTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
 
-			pParticles.push_back(new FXParticle(p, vs, l));
+			pParticles.push_back(FXParticle(p, vs, l));
 		}
 		pMutex.unlock();
 	}
@@ -393,7 +388,7 @@ namespace TA3D
 			l     = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
 			// Adding the new particle into the list
-			pParticles.push_back(new FXParticle(p, s + vs, l));
+			pParticles.push_back(FXParticle(p, s + vs, l));
 		}
 		// Unlokcing
 		pMutex.unlock();
@@ -403,7 +398,7 @@ namespace TA3D
 	void FXManager::addElectric(const Vector3D& p)
 	{
 		pMutex.lock();
-		pElectrics.push_back(new FXElectric(p));
+		pElectrics.push_back(FXElectric(p));
 		pMutex.unlock();
 	}
 
@@ -449,20 +444,30 @@ namespace TA3D
 	{
 		for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); )
 		{
-			if ((*i)->move(dt))
+			if ((*i).move(dt))
 			{
-				delete *i;
-				pParticles.erase(i++);
+				if (i + 1 == pParticles.end())
+				{
+					pParticles.pop_back();
+					break;
+				}
+				*i = pParticles.back();
+				pParticles.pop_back();
 			}
 			else
 				++i;
 		}
 		for (ListOfElectrics::iterator i = pElectrics.begin(); i != pElectrics.end(); )
 		{
-			if ((*i)->move(dt))
+			if ((*i).move(dt))
 			{
-				delete *i;
-				pElectrics.erase(i++);
+				if (i + 1 == pElectrics.end())
+				{
+					pElectrics.pop_back();
+					break;
+				}
+				*i = pElectrics.back();
+				pElectrics.pop_back();
 			}
 			else
 				++i;

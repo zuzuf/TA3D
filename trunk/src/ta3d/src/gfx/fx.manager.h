@@ -201,8 +201,8 @@ namespace TA3D
         void doMoveAllFX(const float& dt);
 
     private:
-        typedef std::list<FXParticle*>  ListOfParticles;
-        typedef std::list<FXElectric*>  ListOfElectrics;
+		typedef std::vector<FXParticle>  ListOfParticles;
+		typedef std::vector<FXElectric>  ListOfElectrics;
 
     private:
         int max_fx;
