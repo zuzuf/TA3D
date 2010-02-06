@@ -54,7 +54,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		void move(const float dt, Vector3D *p_wind_dir, const float g, const float factor, const float factor2);
+		void move(const float dt, const Vector3D &p_wind_dir, const float g, const float factor, const float factor2);
 
 		/*!
 		** \brief Draw

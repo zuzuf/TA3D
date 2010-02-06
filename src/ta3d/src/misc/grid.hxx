@@ -28,7 +28,7 @@ namespace TA3D
 	}
 
 	template<class T>
-		void Grid<T>::clear()
+		inline void Grid<T>::clear()
 	{
 		if (data)
 			memset(data, 0, w * h * sizeof(T));
@@ -42,21 +42,21 @@ namespace TA3D
 	}
 
 	template<class T>
-		const T& Grid<T>::operator()(int x, int y) const
+		inline const T& Grid<T>::operator()(int x, int y) const
 	{
 		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
 		return data[x + y * w];
 	}
 
 	template<class T>
-		T& Grid<T>::operator()(int x, int y)
+		inline T& Grid<T>::operator()(int x, int y)
 	{
 		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
 		return data[x + y * w];
 	}
 
 	template<class T>
-		void Grid<T>::add(const Grid<T> &grid, int x, int y)
+		inline void Grid<T>::add(const Grid<T> &grid, int x, int y)
 	{
 		for(int j = 0 ; j < grid.getHeight() && j + y < h ; ++j)
 			if (j + y >= 0)
@@ -66,7 +66,7 @@ namespace TA3D
 	}
 
 	template<class T>
-		void Grid<T>::sub(const Grid<T> &grid, int x, int y)
+		inline void Grid<T>::sub(const Grid<T> &grid, int x, int y)
 	{
 		for(int j = 0 ; j < grid.getHeight() && j + y < h ; ++j)
 			if (j + y >= 0)

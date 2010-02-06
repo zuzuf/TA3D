@@ -1734,7 +1734,7 @@ namespace TA3D
 
 			pMutex.lock();
 
-			if (!(current_tick & 0xF))
+			if (!(current_tick & 0xF) && map->fog_of_war != FOW_DISABLED)
 			{
 				gfx->lock();
 
