@@ -161,6 +161,9 @@ namespace TA3D
 
 		void renderTick();
 
+		void stopMovingAnimation();
+		void startMovingAnimation();
+
 	public:
 		UnitScriptInterface::Ptr script;		// Scripts concernant l'unité
 		RenderData				render;			// Store render data in a sub object
@@ -175,6 +178,8 @@ namespace TA3D
 		bool					sel;			// Unité sélectionnée?
 		AnimationData           data;			// Données pour l'animation de l'unité par le script
 		bool					drawing;
+		bool					movingAnimation;
+		bool					requestedMovingAnimationState;
 		sint16					*port;			// Ports
 		MissionStack			mission;		// Orders given to the unit
 		MissionStack			def_mission;	// Orders given to units built by this plant
