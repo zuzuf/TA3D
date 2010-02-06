@@ -20,6 +20,18 @@ namespace TA3D
 
 	class Unit	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
 	{
+	private:
+		//! A structure to store all required information for rendering
+		//! (copied from simulation data only once for all rendering steps)
+		struct RenderData
+		{
+			Vector3D Pos;
+			Vector3D Angle;
+			AnimationData Anim;
+			int px;
+			int py;
+			uint32 UID;
+		};
 	public:
 		//! \name Constructor & Destructor
 		//@{
@@ -147,17 +159,18 @@ namespace TA3D
 			return mission.doNothingAI() && !port[INBUILDSTANCE];
 		}
 
+		void renderTick();
+
 	public:
-		UnitScriptInterface::Ptr script;	// Scripts concernant l'unité
+		UnitScriptInterface::Ptr script;		// Scripts concernant l'unité
+		RenderData				render;			// Store render data in a sub object
 		MODEL					*model;			// Modèle représentant l'objet
 		byte					owner_id;		// Numéro du propriétaire de l'unité
 		short					type_id;		// Type d'unité
 		float					hp;				// Points de vide restant à l'unité
 		Vector3D				Pos;			// Vecteur position
-		Vector3D				drawn_Pos;		// To prevent the shadow to be drawn where the unit will be on next frame
 		Vector3D				V;				// Vitesse de l'unité
 		Vector3D				Angle;			// Orientation dans l'espace
-		Vector3D				drawn_Angle;	// Idem drawn_Pos
 		Vector3D				V_Angle;		// Variation de l'orientation dans l'espace
 		bool					sel;			// Unité sélectionnée?
 		AnimationData           data;			// Données pour l'animation de l'unité par le script

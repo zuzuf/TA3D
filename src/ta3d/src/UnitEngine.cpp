@@ -1471,6 +1471,23 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
+	void INGAME_UNITS::renderTick()
+	{
+		if (nb_unit <= 0 || !unit)
+			return;		// Pas d'unités à dessiner
+
+		pMutex.lock();
+		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		{
+			uint16 i = *e;
+			pMutex.unlock();
+
+			unit[i].renderTick();
+
+			pMutex.lock();
+		}
+		pMutex.unlock();
+	}
 
 
 	void INGAME_UNITS::draw(bool underwater, bool limit, bool cullface, bool height_line)					// Dessine les unités visibles

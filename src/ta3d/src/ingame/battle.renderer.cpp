@@ -40,6 +40,9 @@ namespace TA3D
 		updateFOG();
 
 		render_time = ((float)units.current_tick) / TICKS_PER_SEC;
+
+		// Copy unit data from simulation
+		units.renderTick();
 	}
 
 
