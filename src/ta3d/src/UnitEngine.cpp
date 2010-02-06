@@ -1476,17 +1476,8 @@ namespace TA3D
 		if (nb_unit <= 0 || !unit)
 			return;		// Pas d'unités à dessiner
 
-		pMutex.lock();
 		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
-		{
-			uint16 i = *e;
-			pMutex.unlock();
-
-			unit[i].renderTick();
-
-			pMutex.lock();
-		}
-		pMutex.unlock();
+			unit[*e].renderTick();
 	}
 
 

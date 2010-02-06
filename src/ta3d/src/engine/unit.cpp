@@ -5260,14 +5260,12 @@ script_exec:
 
 	void Unit::renderTick()
 	{
-		lock();
+		render.UID = ID;
 		render.Pos = Pos;
 		render.Angle = Angle;
 		render.Anim = data;
 		render.px = cur_px;
 		render.py = cur_py;
-		render.UID = ID;
-		unlock();
 	}
 
 } // namespace TA3D
