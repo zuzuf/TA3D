@@ -804,7 +804,7 @@ namespace TA3D
 				data = new float[ h_w * h_h ];
 				for(int y = 0 ; y < h_h ; y++)
 					for(int x = 0 ; x < h_w ; x++)
-						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) / 255.0f;
+						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) * 0.00392156862745098f;	// / 255
 				height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true );
 				DELETE_ARRAY(data);
 			}
@@ -815,9 +815,9 @@ namespace TA3D
 				{
 					// equation : y = ( 1 - sqrtf( 1 - (x*z)^2)) * z / 3 + (1-z) * sinf( x * PI / 2) ^ 2 where z is a parameter
 					// Stores the gradient vector clamped into 0.0 - 1.0 ( 0 - 0xFF)
-                    float X = (float(x) - 256.0f) / 256.0f;
-                    float Z = float(z) / 512.0f;
-					float DX = -X * Z * Z / ( 3.0f * sqrtf( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sinf( X * PI / 2.0f) * cosf( X * PI / 2.0f);
+					float X = (float(x) - 256.0f) * 0.00390625f;		// / 256
+					float Z = float(z) * 0.001953125f;					// / 512
+					float DX = -X * Z * Z / ( 3.0f * sqrtf( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sinf( X * PI * 0.5f) * cosf( X * PI * 0.5f);
 					float L = sqrtf( DX * DX + 1.0f);
 
 					DX = DX / L * 127.0f + 127.0f;
