@@ -174,19 +174,19 @@ namespace TA3D
 		DELETE_ARRAY(diff);
 	}
 
-	void BRAIN::save(FILE *file)		// Save the neural network
+	void BRAIN::save(Yuni::Core::IO::File::Stream *file)		// Save the neural network
 	{
-		fwrite("BRAIN",5,1,file);			// File format ID
-		fwrite(&n,sizeof(int),1,file);		// Inputs
-		fwrite(&p,sizeof(int),1,file);		// Outputs
-		fwrite(&q,sizeof(int),1,file);		// Size of middle layer
+		file->write("BRAIN",5);			// File format ID
+		file->write((char*)&n,sizeof(int));		// Inputs
+		file->write((char*)&p,sizeof(int));		// Outputs
+		file->write((char*)&q,sizeof(int));		// Size of middle layer
 
-		for(int i=n;i<nb_neuron;++i)		// Save weights
+		for(int i = n ; i < nb_neuron ; ++i)		// Save weights
 		{
-			if (i<n+q)
-				fwrite(neuron[i].weight,sizeof(float)*n,1,file);
+			if (i < n + q)
+				file->write((char*)neuron[i].weight, sizeof(float) * n);
 			else
-				fwrite(neuron[i].weight,sizeof(float)*q,1,file);
+				file->write((char*)neuron[i].weight, sizeof(float) * q);
 		}
 	}
 

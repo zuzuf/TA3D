@@ -36,7 +36,6 @@ namespace TA3D
 
         Hpi::Hpi(const String &filename)
         {
-            HPIFile = NULL;
             directory = NULL;
             open(filename);
         }
@@ -60,8 +59,8 @@ namespace TA3D
             if (Paths::ExtractFileName(filename).toLower() == "ta3d.hpi")
                 priority = 3;
 
-            HPIFile = fopen(filename.c_str(), "rb");
-            if (!HPIFile)
+			HPIFile.open(filename, Yuni::Core::IO::File::OpenMode::read);
+			if (!HPIFile.opened())
             {
                 close();
                 LOG_DEBUG(LOG_PREFIX_VFS << "failed to open hpi file for reading : '" << filename << "'");
@@ -69,7 +68,7 @@ namespace TA3D
             }
 
             HPIVERSION hv;
-            fread(&hv, sizeof(HPIVERSION), 1, HPIFile);
+			HPIFile.read((char*)&hv, sizeof(HPIVERSION));
 
             if (hv.Version != HPI_V1 || hv.HPIMarker != HEX_HAPI)
             {
@@ -78,7 +77,7 @@ namespace TA3D
                 return;
             }
 
-            fread(&header, sizeof(HPIHEADER), 1, HPIFile);
+			HPIFile.read((char*)&header, sizeof(HPIHEADER));
             if (header.Key)
                 key = (header.Key * 4) | (header.Key >> 6);
             else
@@ -97,14 +96,12 @@ namespace TA3D
             Archive::name.clear();
 			DELETE_ARRAY(directory);
 
-            if (HPIFile)
-                fclose(HPIFile);
+			if (HPIFile.opened())
+				HPIFile.close();
 
 			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
 				delete i->second;
             files.clear();
-
-            HPIFile = NULL;
         }
 
 		void Hpi::getFileList(std::deque<FileInfo*> &lFiles)
@@ -269,8 +266,8 @@ namespace TA3D
         sint32  Hpi::readAndDecrypt(sint32 fpos, byte *buff, const sint32 buffsize)
         {
             sint32 result;
-            fseek(HPIFile, fpos, SEEK_SET);
-            result = (sint32)fread(buff, buffsize, 1, HPIFile);
+			HPIFile.seekFromBeginning(fpos);
+			result = (sint32)HPIFile.read((char*)buff, buffsize);
             if (key)
             {
                 for (byte *end = buff + buffsize ; buff != end ; ++buff, ++fpos)

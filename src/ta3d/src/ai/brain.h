@@ -19,6 +19,7 @@
 #define __BRAIN_H__
 
 #include <vfs/vfs.h>
+#include <yuni/core/io/file/stream.h>
 
 namespace TA3D
 {
@@ -53,7 +54,7 @@ namespace TA3D
 
         void learn(float *result,float coef = 1.0f);		// Make it learn
 
-        void save(FILE *file);		// Save the network
+		void save(Yuni::Core::IO::File::Stream *file);		// Save the network
 
 		int load(TA3D::UTILS::File *file);		// Load the network
     };

@@ -18,12 +18,12 @@
 #include <stdafx.h>
 #include <ta3dbase.h>			// just to use the global camera object
 #include <ingame/sidedata.h>
-#include <fstream>
 #include <misc/math.h>
 #include "manager.h"
 #include <logs/logs.h>
 #include <misc/camera.h>
 #include <misc/paths.h>
+#include <yuni/core/io/file/stream.h>
 
 
 using namespace TA3D::Interfaces;
@@ -234,8 +234,8 @@ namespace Audio
 		targetPlaylist << TA3D::Paths::Resources << "music/playlist.txt";
 		// Make sure the folder exists
 		Paths::MakeDir(Paths::ExtractFilePath(targetPlaylist, true));
-		std::ofstream play_list_file(targetPlaylist.c_str(), std::ios::out | std::ios::trunc);
-		if (!play_list_file.is_open())
+		Yuni::Core::IO::File::Stream play_list_file(targetPlaylist, Yuni::Core::IO::File::OpenMode::write);
+		if (!play_list_file.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_SOUND << "could not open playlist file : '" << targetPlaylist << "'");
 			return;
@@ -266,13 +266,13 @@ namespace Audio
 	{
 		String filename;
 		filename << TA3D::Paths::Resources << "music/playlist.txt";
-		std::ifstream file( filename.c_str(), std::ios::in);
+		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::File::OpenMode::read);
 
-		if (!file.is_open()) // try to create the list if it doesn't exist
+		if (!file.opened()) // try to create the list if it doesn't exist
 		{
 			doUpdatePlayListFiles();
-			file.open(filename.c_str(), std::ios::in);
-			if (!file.is_open())
+			file.open(filename, Yuni::Core::IO::File::OpenMode::read);
+			if (!file.opened())
 			{
 				LOG_WARNING(LOG_PREFIX_SOUND << "Impossible to load the playlist : '" << filename << "'");
 				return;
@@ -289,10 +289,14 @@ namespace Audio
 
 		while (!file.eof())
 		{
-			std::string getlineLine;
-			std::getline(file, getlineLine, '\n');
+			line.clear();
+			for(char c = file.get() ; c != '\n' ; c = file.get())
+			{
+				line << c;
+				if (file.eof())
+					break;
+			}
 
-			line = getlineLine;
 			line.trim(); // strip off spaces, linefeeds, tabs, newlines
 
 			if (line.empty())

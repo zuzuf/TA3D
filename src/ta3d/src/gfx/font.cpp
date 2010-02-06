@@ -22,7 +22,6 @@
 #include "gfx.h"
 #include <misc/paths.h>
 #include <logs/logs.h>
-#include <fstream>
 #include <yuni/core/io/file.h>
 #include <yuni/core/io/file/stream.h>
 

@@ -27,8 +27,6 @@
 #include <misc/resources.h>
 #include <misc/files.h>
 #include "vfs.h"
-#include <sstream>
-#include <fstream>
 #include "file.h"
 #include "virtualfile.h"
 #include "realfile.h"

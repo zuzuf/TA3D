@@ -17,7 +17,7 @@
 
 #include <stdafx.h>
 #include <TA3D_NameSpace.h>
-#include <fstream>
+#include <yuni/core/io/file/stream.h>
 #include "lua.chunk.h"
 #include "lua.thread.h"
 
@@ -78,8 +78,8 @@ namespace TA3D
     {
         if (buffer == NULL || size == 0)    return;
 
-        fstream file(filename.c_str(), fstream::out | fstream::binary);
-        if (file.is_open())
+		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::File::OpenMode::write);
+		if (file.opened())
         {
             file.write((char*)buffer, size);
             file.close();

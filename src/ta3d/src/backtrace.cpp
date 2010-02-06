@@ -43,7 +43,7 @@
 # include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
-# include <fstream>
+# include <yuni/core/io/file/stream.h>
 # include "sdl.h"
 
 using namespace TA3D;
@@ -68,9 +68,8 @@ void backtrace_handler (int signum)
 	char** strings = backtrace_symbols(array, size);
 
     // Try to log it
-	std::ofstream m_File;
-	m_File.open((TA3D::Paths::Logs + "backtrace.txt").c_str(), std::ios::out | std::ios::trunc);
-	if(m_File.is_open())
+	Yuni::Core::IO::File::Stream m_File(TA3D::Paths::Logs + "backtrace.txt", Yuni::Core::IO::File::OpenMode::write);
+	if(m_File.opened())
     {
 		m_File << "received signal " << strsignal( signum ) << "\n";
 		m_File << "Obtained " << size << " stack frames.\n";
