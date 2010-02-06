@@ -33,7 +33,7 @@ namespace TA3D
     /*!
     ** This class is an interface for all scripts types
     */
-    class ScriptInterface : public ObjectSync
+	class ScriptInterface
     {
     protected:
         //! Variables to control thread execution

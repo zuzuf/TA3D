@@ -54,7 +54,7 @@ namespace TA3D
     ** This class represents a basic Lua thread without specialization
     ** To use it, create a new class that inherits LuaThread
     */
-	class LuaThread : public ScriptInterface
+	class LuaThread : public ScriptInterface, public ObjectSync
     {
         friend class LuaChunk;
         friend class UnitScript;

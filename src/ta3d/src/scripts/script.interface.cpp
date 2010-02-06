@@ -49,7 +49,6 @@ namespace TA3D
     void ScriptInterface::addThread(ScriptInterface *pChild)
     {
         if (caller == pChild) return;
-        MutexLocker mLock(pMutex);
         if (caller)
             caller->addThread(pChild);
         else
@@ -63,7 +62,6 @@ namespace TA3D
     void ScriptInterface::removeThread(ScriptInterface *pChild)
     {
         if (caller == pChild) return;
-        MutexLocker mLock(pMutex);
         if (caller)
             caller->removeThread(pChild);
         else
@@ -77,7 +75,6 @@ namespace TA3D
 
     void ScriptInterface::processSignal(uint32 signal)
     {
-        MutexLocker mLock(pMutex);
         if (caller)
             caller->processSignal(signal);
         else
@@ -92,9 +89,7 @@ namespace TA3D
 
     void ScriptInterface::setSignalMask(uint32 signal)
     {
-        lock();
         signal_mask = signal;
-        unlock();
     }
 
     uint32 ScriptInterface::getSignalMask()
@@ -117,8 +112,6 @@ namespace TA3D
         if (caller)
             return caller->getFreeThread();
 
-        MutexLocker mLock(pMutex);
-
         if (freeThreads.empty())
             return NULL;
         ScriptInterface *newThread = freeThreads.front();
@@ -128,7 +121,6 @@ namespace TA3D
 
     void ScriptInterface::clean()
     {
-        MutexLocker mLock(pMutex);
         if (caller)         // Don't go up to caller this would make complexity O(N²)!!
             return;         // and it would not be safe at all!
         else
@@ -159,8 +151,6 @@ namespace TA3D
 
     void ScriptInterface::save_state(gzFile file)
     {
-        pMutex.lock();
-
         gzwrite(file, &last, sizeof(last));
         gzwrite(file, &running, sizeof(running));
         gzwrite(file, &sleep_time, sizeof(sleep_time));
@@ -173,14 +163,10 @@ namespace TA3D
         gzwrite(file, &nb_childs, sizeof(nb_childs));
         for(int i = 0 ; i < nb_childs ; i++)
             childs[i]->save_state(file);
-
-        pMutex.unlock();
     }
 
     void ScriptInterface::restore_state(gzFile file)
     {
-        pMutex.lock();
-
         gzread(file, &last, sizeof(last));
         gzread(file, &running, sizeof(running));
         gzread(file, &sleep_time, sizeof(sleep_time));
@@ -196,7 +182,5 @@ namespace TA3D
             ScriptInterface *newThread = fork();
             newThread->restore_state(file);
         }
-
-        pMutex.unlock();
     }
 }
