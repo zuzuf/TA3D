@@ -429,6 +429,8 @@ namespace TA3D
 			units.unit[ unit_id ].Pos.z = (float) lua_tonumber( L, 3 );
 
 			units.unit[ unit_id ].clear_from_map();
+			units.unit[ unit_id ].lastEnergy = 999999999.99f;
+			units.unit[ unit_id ].selfmove = false;
 
 			int PX = ((int)(units.unit[ unit_id ].Pos.x + the_map->map_w_d)>>3);
 			int PY = ((int)(units.unit[ unit_id ].Pos.z + the_map->map_h_d)>>3);

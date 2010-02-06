@@ -120,6 +120,7 @@ namespace TA3D
 			switch (mission_type)
 			{
 				case MISSION_ATTACK:
+					stopMoving();
 					break;
 				case MISSION_PATROL:
 				case MISSION_MOVE:
@@ -240,15 +241,26 @@ namespace TA3D
 				mission->Path().clear();
 				V.reset();
 			}
-            UnitType *pType = unit_manager.unit_type[type_id];
-            if (!(pType->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
-				launchScript(SCRIPT_StopMoving);
+			if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
+				stopMovingAnimation();
 			was_moving = false;
 			if (!(mission->Flags() & MISSION_FLAG_DONT_STOP_MOVE))
 				V.reset();		// Stop unit's movement
 		}
+		else if (selfmove && !(unit_manager.unit_type[type_id]->canfly && nb_attached > 0))
+			stopMovingAnimation();
+		selfmove = false;
 	}
 
+	void Unit::stopMovingAnimation()
+	{
+		requestedMovingAnimationState = false;
+	}
+
+	void Unit::startMovingAnimation()
+	{
+		requestedMovingAnimationState = true;
+	}
 
 	void Unit::lock_command()
 	{
@@ -294,6 +306,8 @@ namespace TA3D
 	void Unit::init(int unit_type, int owner, bool full, bool basic)
 	{
 		pMutex.lock();
+
+		movingAnimation = false;
 
 		kills = 0;
 		selfmove = false;
@@ -1640,7 +1654,7 @@ namespace TA3D
 					{
 						V.reset();
 						if (!(pType->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
-							launchScript(SCRIPT_StopMoving);
+							stopMovingAnimation();
 					}
 					was_moving = false;
 					requesting_pathfinder = false;
@@ -1737,7 +1751,7 @@ namespace TA3D
 								mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 							if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
 							{
-								launchScript(SCRIPT_StopMoving);
+								stopMovingAnimation();
 								was_moving = false;
 							}
 							if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE))
@@ -1802,13 +1816,7 @@ namespace TA3D
 			{
 				if (!was_moving)
 				{
-					if (pType->canfly)
-						activate();
-					launchScript(SCRIPT_startmoving);
-					if (nb_attached == 0)
-						launchScript(SCRIPT_MoveRate1);		// For the armatlas
-					else
-						launchScript(SCRIPT_MoveRate2);
+					startMovingAnimation();
 					was_moving = true;
 				}
 				float dist = (mission->getFlags() & MISSION_FLAG_MOVE) ? (Target - Pos).norm() : 999999.9f;
@@ -1868,7 +1876,7 @@ namespace TA3D
 				{
 					V.reset();
 					if (!(pType->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
-						launchScript(SCRIPT_StopMoving);
+						stopMovingAnimation();
 				}
 				was_moving = false;
 				if (!(mission->getFlags() & MISSION_FLAG_MOVE))
@@ -2044,6 +2052,8 @@ namespace TA3D
 	int Unit::move(const float dt, const int key_frame)
 	{
 		pMutex.lock();
+
+		requestedMovingAnimationState = movingAnimation;
 
 		bool was_open = port[YARD_OPEN] != 0;
 		bool was_flying = flying;
@@ -3640,7 +3650,9 @@ namespace TA3D
 					{
 						if (mission->getData() == 0)
 						{
-							launchScript(SCRIPT_StopMoving);		// Arrête tout / stop everything
+							stopMovingAnimation();
+							was_moving = false;
+							selfmove = false;
 							launchScript(SCRIPT_stopbuilding);
 							for (int i = 0 ; i < weapon.size() ; ++i)
 								if (weapon[i].state)
@@ -4475,6 +4487,25 @@ script_exec:
 			port[GROUND_HEIGHT] = (int)(Pos.y - min_h + 0.5f);
 		}
         port[HEALTH] = (int)hp*100 / pType->MaxDamage;
+
+		// Update moving animation state
+		if (requestedMovingAnimationState ^ movingAnimation)
+		{
+			if (!requestedMovingAnimationState)
+				launchScript(SCRIPT_StopMoving);
+			else
+			{
+				if (pType->canfly)
+					activate();
+				launchScript(SCRIPT_startmoving);
+				if (nb_attached == 0)
+					launchScript(SCRIPT_MoveRate1);		// For the armatlas
+				else
+					launchScript(SCRIPT_MoveRate2);
+			}
+			movingAnimation = requestedMovingAnimationState;
+		}
+
 		if (script)
 			script->run(dt);
 		yardmap_timer--;
