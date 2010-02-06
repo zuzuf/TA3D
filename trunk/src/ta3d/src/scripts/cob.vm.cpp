@@ -98,8 +98,6 @@ namespace TA3D
             return -1;	// No associated script !!
         }
 
-        MutexLocker mLocker( pMutex );
-
         if (caller == NULL && !alone)
         {
             clean();
@@ -669,8 +667,6 @@ namespace TA3D
 
     CobVm *CobVm::fork()
     {
-        pMutex.lock();
-
         if (!running && caller == NULL)
         {
             cur.clear();
@@ -679,7 +675,6 @@ namespace TA3D
             sleeping = false;
             sleep_time = 0.0f;
             signal_mask = 0;
-            pMutex.unlock();
             return this;
         }
 
@@ -696,7 +691,6 @@ namespace TA3D
             newThread->sleep_time = 0.0f;
             addThread(newThread);
 
-            pMutex.unlock();
             return newThread;
         }
 
@@ -712,19 +706,14 @@ namespace TA3D
         newThread->setUnitID( unitID );
         addThread(newThread);
 
-        pMutex.unlock();
         return newThread;
     }
 
     CobVm *CobVm::fork(const String &functionName, int *parameters, int nb_params)
     {
-        pMutex.lock();
-
         CobVm *newThread = fork();
         if (newThread)
             newThread->call(functionName, parameters, nb_params);
-
-        pMutex.unlock();
         return newThread;
     }
 
