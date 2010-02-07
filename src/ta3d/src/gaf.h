@@ -232,17 +232,17 @@ namespace TA3D
 			//!
 			sint32 nb_bmp;
 			//!
-			SDL_Surface** bmp;
+			std::vector<SDL_Surface*> bmp;
 			//!
-			short* ofs_x;
+			std::vector<short> ofs_x;
 			//!
-			short* ofs_y;
+			std::vector<short> ofs_y;
 			//!
-			short* w;
+			std::vector<short> w;
 			//!
-			short* h;
+			std::vector<short> h;
 			//!
-			GLuint* glbmp;
+			std::vector<GLuint> glbmp;
 			//!
 			String name;
 			//!
@@ -267,7 +267,7 @@ namespace TA3D
 			//! \name Constructor & Destructor
 			//@{
 			//! Default constructor
-			AnimationList() :pList(NULL), pSize(0) {}
+			AnimationList() :pList() {}
 			//! Destructor
 			~AnimationList();
 			//@}
@@ -309,21 +309,24 @@ namespace TA3D
 			/*!
 			** \brief The number of Animation in the list
 			*/
-			sint32 size() const {return pSize;}
+			sint32 size() const {return pList.size();}
 
 			/*!
 			** \brief Get an animation given its index
 			*/
-			Gaf::Animation& operator[] (const sint32 indx) const
-			{ LOG_ASSERT(indx >=0 && indx < pSize); return pList[indx]; }
+			const Gaf::Animation& operator[] (const sint32 indx) const
+			{ LOG_ASSERT(indx >=0 && indx < pList.size()); return pList[indx]; }
 
+			/*!
+			** \brief Get an animation given its index
+			*/
+			Gaf::Animation& operator[] (const sint32 indx)
+			{ LOG_ASSERT(indx >=0 && indx < pList.size()); return pList[indx]; }
 
 		private:
+			typedef std::vector<Gaf::Animation> AnimationVector;
 			//! All animation
-			Gaf::Animation* pList;
-			//! The number of animation
-			sint32 pSize;
-
+			AnimationVector pList;
 		}; // class AnimationList
 
 

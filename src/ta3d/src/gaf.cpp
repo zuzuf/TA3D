@@ -569,12 +569,12 @@ namespace TA3D
 
 		nb_bmp = Gaf::RawDataImageCount(file,entry_idx);
 
-		bmp   = new SDL_Surface*[nb_bmp];
-		glbmp = new GLuint[nb_bmp];
-		ofs_x = new short[nb_bmp];
-		ofs_y = new short[nb_bmp];
-		w     = new short[nb_bmp];
-		h     = new short[nb_bmp];
+		bmp.resize(nb_bmp, NULL);
+		glbmp.resize(nb_bmp, 0);
+		ofs_x.resize(nb_bmp, 0);
+		ofs_y.resize(nb_bmp, 0);
+		w.resize(nb_bmp, 0);
+		h.resize(nb_bmp, 0);
 		name  = Gaf::RawDataGetEntryName(file, entry_idx);
 		pAnimationConverted = false;
 
@@ -593,6 +593,12 @@ namespace TA3D
 				++f;
 		}
 		nb_bmp -= f;
+		bmp.resize(nb_bmp);
+		glbmp.resize(nb_bmp);
+		ofs_x.resize(nb_bmp);
+		ofs_y.resize(nb_bmp);
+		w.resize(nb_bmp);
+		h.resize(nb_bmp);
 	}
 
 
@@ -601,10 +607,12 @@ namespace TA3D
 	{
 		logo = false;
 		nb_bmp = 0;
-		bmp = NULL;
-		ofs_x = ofs_y = NULL;
-		glbmp = NULL;
-		w = h = NULL;
+		bmp.clear();
+		ofs_x.clear();
+		ofs_y.clear();
+		glbmp.clear();
+		w.clear();
+		h.clear();
 		pAnimationConverted = false;
 		filename.clear();
 		name.clear();
@@ -615,35 +623,28 @@ namespace TA3D
 	{
 		filename.clear();
 		name.clear();
-		if (nb_bmp > 0)
-		{
-			for (int i = 0; i < nb_bmp; ++i)
-			{
-				if (bmp[i])
-					SDL_FreeSurface(bmp[i]);
-				if (pAnimationConverted)
-					gfx->destroy_texture(glbmp[i]);
-			}
-		}
-		DELETE_ARRAY(w);
-		DELETE_ARRAY(h);
-		DELETE_ARRAY(ofs_x);
-		DELETE_ARRAY(ofs_y);
-		DELETE_ARRAY(bmp);
-		DELETE_ARRAY(glbmp);
+		for (std::vector<SDL_Surface*>::iterator i = bmp.begin() ; i != bmp.end() ; ++i)
+			if (*i)
+				SDL_FreeSurface(*i);
+		for (std::vector<GLuint>::iterator i = glbmp.begin() ; i != glbmp.end() ; ++i)
+			gfx->destroy_texture(*i);
+		w.clear();
+		h.clear();
+		ofs_x.clear();
+		ofs_y.clear();
+		bmp.clear();
+		glbmp.clear();
 		init();
 	}
 
 	void Gaf::Animation::clean()
 	{
-		for (int i = 0; i < nb_bmp; ++i) // Fait un peu le ménage
-		{
-			if (bmp[i])
+		for (std::vector<SDL_Surface*>::iterator i = bmp.begin() ; i != bmp.end() ; ++i)
+			if (*i)
 			{
-				SDL_FreeSurface(bmp[i]);
-				bmp[i] = NULL;
+				SDL_FreeSurface(*i);
+				*i = NULL;
 			}
-		}
 		name.clear();
 	}
 
@@ -679,13 +680,12 @@ namespace TA3D
 
 	void Gaf::AnimationList::clear()
 	{
-		DELETE_ARRAY(pList);
-		pSize = 0;
+		pList.clear();
 	}
 
 	Gaf::AnimationList::~AnimationList()
 	{
-		DELETE_ARRAY(pList);
+		pList.clear();
 	}
 
 
@@ -693,21 +693,20 @@ namespace TA3D
 	{
 		if (file)
 		{
-			DELETE_ARRAY(pList);
-			pSize = Gaf::RawDataEntriesCount(file);
-			pList = new Gaf::Animation[pSize];
-			for (int i = 0; i < pSize; ++i)
+			pList.clear();
+			pList.resize(Gaf::RawDataEntriesCount(file));
+			for (int i = 0 ; i < pList.size() ; ++i)
 				pList[i].loadGAFFromRawData(file, i, true, fname);
 			if (doConvert)
 				convert();
-			return pSize;
+			return pList.size();
 		}
 		return 0;
 	}
 
 	sint32 Gaf::AnimationList::findByName(const String& name) const
 	{
-		for (int i = 0; i < pSize; ++i)
+		for (int i = 0 ; i < pList.size() ; ++i)
 		{
 			if (name == pList[i].name)
 				return i;
@@ -718,15 +717,15 @@ namespace TA3D
 
 	void Gaf::AnimationList::clean()
 	{
-		for (int i = 0; i < pSize; ++i)
-			pList[i].clean();
+		for (AnimationVector::iterator i = pList.begin() ; i != pList.end() ; ++i)
+			i->clean();
 	}
 
 
 	void Gaf::AnimationList::convert(const bool no_filter, const bool compressed)
 	{
-		for (int i = 0; i < pSize; ++i)
-			pList[i].convert(no_filter, compressed);
+		for (AnimationVector::iterator i = pList.begin() ; i != pList.end() ; ++i)
+			i->convert(no_filter, compressed);
 	}
 
 

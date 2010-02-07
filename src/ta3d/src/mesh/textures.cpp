@@ -62,12 +62,12 @@ namespace TA3D
 		for (int i = 0; i < 256; ++i)
 		{
 			tex[i].nb_bmp = 1;
-			tex[i].bmp = new SDL_Surface*[1];
-			tex[i].glbmp = new GLuint[1];
-			tex[i].ofs_x = new short[1];
-			tex[i].ofs_y = new short[1];
-			tex[i].w = new short[1];
-			tex[i].h = new short[1];
+			tex[i].bmp.resize(1, NULL);
+			tex[i].glbmp.resize(1, 0);
+			tex[i].ofs_x.resize(1, 0);
+			tex[i].ofs_y.resize(1, 0);
+			tex[i].w.resize(1, 0);
+			tex[i].h.resize(1, 0);
 			tex[i].name = String('_') << i;
 
 			tex[i].ofs_x[0] = 0;
