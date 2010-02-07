@@ -85,7 +85,7 @@ namespace TA3D
 			case AI_TYPE_BLOODY:
 				ai_script = NULL;
 				if (!ai_controller)
-					ai_controller = new AI_CONTROLLER();
+					ai_controller = new AiController();
 				ai_controller->setPlayerID( ID );
 				break;
 			case AI_TYPE_LUA:

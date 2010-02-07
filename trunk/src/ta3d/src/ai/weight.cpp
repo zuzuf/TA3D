@@ -20,7 +20,7 @@
 
 namespace TA3D
 {
-    AI_WEIGHT::AI_WEIGHT() : built_by()
+	AiWeight::AiWeight() : built_by()
     {
         nb = 0;
         w = 0.0f;
@@ -34,11 +34,11 @@ namespace TA3D
         energy_s = 0.0f;
     }
 
-    AI_WEIGHT::~AI_WEIGHT()
+	AiWeight::~AiWeight()
     {
         built_by.clear();
     }
 
-    WEIGHT_COEF::WEIGHT_COEF()	{	idx = 0;	c = 0;	}
-    WEIGHT_COEF::WEIGHT_COEF( uint16 a, uint32 b )	{	idx = a;	c = b;	}
+	WeightCoef::WeightCoef()	{	idx = 0;	c = 0;	}
+	WeightCoef::WeightCoef( uint16 a, uint32 b )	{	idx = a;	c = b;	}
 }

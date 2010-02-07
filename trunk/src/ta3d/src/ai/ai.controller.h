@@ -58,11 +58,11 @@ namespace TA3D
 #define AI_TYPE_BLOODY		0x3
 #define AI_TYPE_LUA         0x4
 
-    class AI_CONTROLLER :	public ObjectSync,			// Class to manage players controled by AI
+	class AiController :	public ObjectSync,			// Class to manage players controled by AI
                             public Thread
     {
 	public:
-		typedef SmartPtr<AI_CONTROLLER>	Ptr;
+		typedef SmartPtr<AiController>	Ptr;
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)
@@ -71,8 +71,8 @@ namespace TA3D
 
         byte			AI_type;		// Which AI do we have to use?
 
-        AI_WEIGHT		*weights;		// Vector of weights used to decide what to build
-        byte            *enemy_table;   // A table used to speed up some look up
+		std::vector<AiWeight> weights;		// Vector of weights used to decide what to build
+		std::vector<byte> enemy_table;   // A table used to speed up some look up
         uint16			nb_units[ NB_AI_UNIT_TYPE ];
         uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
         float			order_weight[NB_ORDERS];	// weights of orders
@@ -83,7 +83,7 @@ namespace TA3D
 		std::vector<uint16>	wip_builder_list;
 		std::vector<uint16>	wip_factory_list;
 		std::vector<uint16>	wip_army_list;
-		std::vector< std::list<WEIGHT_COEF> > enemy_list;
+		std::vector< std::deque<WeightCoef> > enemy_list;
 
     protected:
         void	proc(void*);
@@ -94,8 +94,8 @@ namespace TA3D
 
     public:
 
-        AI_CONTROLLER();
-        virtual ~AI_CONTROLLER();
+		AiController();
+		virtual ~AiController();
 
     private:
         void init();

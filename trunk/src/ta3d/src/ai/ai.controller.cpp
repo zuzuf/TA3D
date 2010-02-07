@@ -56,17 +56,16 @@ namespace TA3D
 	}
 
 
-	void AI_CONTROLLER::scan_unit()							// Scan the units the AI player currently has
+	void AiController::scan_unit()							// Scan the units the AI player currently has
 	{
-		if (enemy_table == NULL)
+		if (enemy_table.empty())
 		{
-			enemy_table = new byte[units.max_unit];
-			memset(enemy_table, 0, units.max_unit);
+			enemy_table.resize(units.max_unit, 0);
 		}
 
-		if (weights == NULL)
+		if (weights.empty())
 		{
-			weights = new AI_WEIGHT[ unit_manager.nb_unit ];
+			weights.resize(unit_manager.nb_unit);
 
 			for (unsigned int i = 0 ; i < unit_manager.nb_unit ; ++i)
 			{
@@ -170,7 +169,7 @@ namespace TA3D
 					nb_enemy[ units.unit[ i ].owner_id ]++;
 					if (!enemy_table[i])
 					{
-						enemy_list[ units.unit[ i ].owner_id ].push_back( WEIGHT_COEF( i, 0 ) );
+						enemy_list[ units.unit[ i ].owner_id ].push_back( WeightCoef( i, 0 ) );
 						enemy_table[ i ] = true;
 					}
 				}
@@ -195,10 +194,10 @@ namespace TA3D
 
 
 
-	void AI_CONTROLLER::refresh_unit_weights()				// Refresh unit weights according to the unit scan and the orders weights
+	void AiController::refresh_unit_weights()				// Refresh unit weights according to the unit scan and the orders weights
 	{
 		for (unsigned int i = 0; i < players.count(); ++i)
-			enemy_list[i].sort();
+			std::sort(enemy_list[i].begin(), enemy_list[i].end());
 
 		total_unit = 0;
 
@@ -260,7 +259,7 @@ namespace TA3D
 		}
 	}
 
-	void AI_CONTROLLER::think()				// La vrai fonction qui simule l'Intelligence Artificielle / The function that makes Artificial Intelligence work
+	void AiController::think()				// La vrai fonction qui simule l'Intelligence Artificielle / The function that makes Artificial Intelligence work
 	{
 		srand( msec_timer );
 
@@ -469,7 +468,7 @@ namespace TA3D
 		return;							// Shortcut to prevent execution of this function because AI will be finished later
 	}
 
-	void	AI_CONTROLLER::proc(void*)
+	void	AiController::proc(void*)
 	{
 		thread_running = true;
 		thread_ask_to_stop = false;
@@ -517,7 +516,7 @@ namespace TA3D
 	}
 
 
-	void AI_CONTROLLER::signalExitThread()
+	void AiController::signalExitThread()
 	{
 		LOG_INFO(LOG_PREFIX_AI << "Stopping for player " << (int)playerID << "...");
 		thread_ask_to_stop = true;
@@ -527,7 +526,7 @@ namespace TA3D
 	}
 
 
-	void AI_CONTROLLER::monitor()
+	void AiController::monitor()
 	{
 		if (!thread_running)
 		{
@@ -536,7 +535,7 @@ namespace TA3D
 		}
 	}
 
-	void AI_CONTROLLER::init()
+	void AiController::init()
 	{
 		thread_running = false;
 		thread_ask_to_stop = false;
@@ -547,8 +546,8 @@ namespace TA3D
 		AI_type = AI_TYPE_EASY;
 		total_unit = 0;
 
-		weights = NULL;
-		enemy_table = NULL;
+		weights.clear();
+		enemy_table.clear();
 
 		builder_list.clear();
 		factory_list.clear();
@@ -567,7 +566,7 @@ namespace TA3D
 		order_weight[ORDER_BUILDER] = 5.0f;
 	}
 
-	void AI_CONTROLLER::destroy()
+	void AiController::destroy()
 	{
 		destroyThread();
 
@@ -578,18 +577,18 @@ namespace TA3D
 
 		playerID = 0;
 		unit_id = 0;
-		DELETE_ARRAY(enemy_table);
-		DELETE_ARRAY(weights);
+		enemy_table.clear();
+		weights.clear();
 	}
 
-	void AI_CONTROLLER::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
+	void AiController::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
 	{
 		pMutex.lock();
 		name = newName;
 		pMutex.unlock();
 	}
 
-	void AI_CONTROLLER::save()
+	void AiController::save()
 	{
 		String filename;
 		Paths::MakeDir( Paths::Resources + "ai" );
@@ -603,7 +602,7 @@ namespace TA3D
 	}
 
 
-	void AI_CONTROLLER::loadAI(const String& filename, const int id)
+	void AiController::loadAI(const String& filename, const int id)
 	{
 		File* file = VFS::Instance()->readFile(filename);
 
@@ -621,41 +620,41 @@ namespace TA3D
 		playerID = id;
 	}
 
-	AI_CONTROLLER::AI_CONTROLLER() : builder_list(), factory_list(), army_list(), enemy_list()
+	AiController::AiController() : builder_list(), factory_list(), army_list(), enemy_list()
 	{
 		init();
 	}
 
-	AI_CONTROLLER::~AI_CONTROLLER()
+	AiController::~AiController()
 	{
 		destroy();
 	}
 
-	void AI_CONTROLLER::setPlayerID(int id)
+	void AiController::setPlayerID(int id)
 	{
 		lock();
 		playerID = id;
 		unlock();
 	}
 
-	int AI_CONTROLLER::getPlayerID()
+	int AiController::getPlayerID()
 	{
 		return playerID;
 	}
 
-	void AI_CONTROLLER::setType(int type)
+	void AiController::setType(int type)
 	{
 		lock();
 		AI_type = type;
 		unlock();
 	}
 
-	int AI_CONTROLLER::getType()
+	int AiController::getType()
 	{
 		return AI_type;
 	}
 
-    bool AI_CONTROLLER::findBuildPlace(Vector3D &target, int unit_idx, int playerID, int minRadius, int radius)
+	bool AiController::findBuildPlace(Vector3D &target, int unit_idx, int playerID, int minRadius, int radius)
     {
         if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
             return false;
