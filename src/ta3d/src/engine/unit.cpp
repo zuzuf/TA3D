@@ -918,8 +918,6 @@ namespace TA3D
 
 	void Unit::draw(float t, bool height_line)
 	{
-		visibility_checked = false;
-
 		MutexLocker locker(pMutex);
 
 		if (!(flags & 1) || type_id == -1 || ID != render.UID)
@@ -5260,6 +5258,8 @@ script_exec:
 
 	void Unit::renderTick()
 	{
+		visibility_checked = false;
+
 		render.UID = ID;
 		render.Pos = Pos;
 		render.Angle = Angle;
