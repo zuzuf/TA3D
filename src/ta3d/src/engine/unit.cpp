@@ -4232,19 +4232,19 @@ namespace TA3D
 				}
                 if (weapon.size() > 0 && pType->antiweapons && pType->weapon[0])
 				{
-                    float coverage=pType->weapon[0]->coverage*pType->weapon[0]->coverage;
-                    float range=pType->weapon[0]->range*pType->weapon[0]->range>>2;
-					int enemy_idx=-1;
-					byte e=0;
-					for(byte i=0;i+e<mem_size;i++)
+					float coverage = pType->weapon[0]->coverage*pType->weapon[0]->coverage;
+					float range = pType->weapon[0]->range*pType->weapon[0]->range >> 2;
+					int enemy_idx = -1;
+					int e = 0;
+					for(int i = 0 ; i + e < mem_size ; ++i)
 					{
-						if (memory[i+e]<0 || memory[i+e]>=weapons.nb_weapon || weapons.weapon[memory[i+e]].weapon_id==-1)
+						if (memory[i + e] < 0 || memory[i + e] >= weapons.nb_weapon || weapons.weapon[memory[i + e]].weapon_id == -1)
 						{
-							e++;
-							i--;
+							++e;
+							--i;
 							continue;
 						}
-						memory[i] = memory[i+e];
+						memory[i] = memory[i + e];
 					}
 					mem_size -= e;
 					unlock();
@@ -5209,15 +5209,15 @@ script_exec:
 	void Unit::drawHealthBar()
 	{
 		lock();
-		if (type_id < 0 || (unit_manager.unit_type[type_id]->HideDamage && owner_id != players.local_human_id))
+		if (type_id < 0 || (unit_manager.unit_type[type_id]->HideDamage && owner_id != players.local_human_id) || render.UID != ID)
 		{
 			unlock();
 			return;
 		}
 		int maxdmg = unit_manager.unit_type[type_id]->MaxDamage;
-		int px = cur_px >> 1;
-		int py = cur_py >> 1;
-		Vector3D vPos = Pos;
+		int px = render.px >> 1;
+		int py = render.py >> 1;
+		Vector3D vPos = render.Pos;
 		float size = unit_manager.unit_type[type_id]->model->size2 * 0.5f;
 		unlock();
 

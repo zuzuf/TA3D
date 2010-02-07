@@ -1851,25 +1851,12 @@ namespace TA3D
 		glDepthMask(GL_FALSE);
 		glBegin(GL_QUADS);
 
-		pMutex.lock();
 		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
-			uint16 i = *e;
-			pMutex.unlock();
+			Unit *pUnit = &(unit[*e]);
 
-			Unit *pUnit = &(unit[i]);
-
-			pUnit->lock();
-			if (pUnit->flags & 1)
-			{
-				pUnit->unlock();
-				pUnit->drawHealthBar();
-			}
-			else
-				pUnit->unlock();
-			pMutex.lock();
+			pUnit->drawHealthBar();
 		}
-		pMutex.unlock();
 		glEnd();
 
 		glDepthMask(GL_TRUE);
