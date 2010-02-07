@@ -230,7 +230,7 @@ namespace TA3D
 		*/
 		bool selectUnits(const RectTest &reigon);
 
-		int pick(Camera& cam,int sensibility=1);
+		int pick(Camera& cam);
 
 		int pick_minimap();
 

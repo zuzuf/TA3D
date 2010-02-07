@@ -318,49 +318,43 @@ namespace TA3D
 
 	bool INGAME_UNITS::selectUnits(const RectTest &reigon)
 	{
-		pMutex.lock();
-
 		bool selected = false;
 
-		for (uint16 e = 0; e < index_list_size; ++e)
+		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
-			uint16 i = idx_list[e];
-			pMutex.unlock();
-			unit[i].lock();
+			unit[*e].lock();
 
 			// Select only units completely built and visible
-			if (unit[i].owner_id == players.local_human_id && (unit[i].flags & 1) && unit[i].build_percent_left == 0.0f
-				&& unit[i].visible)
+			if (unit[*e].owner_id == players.local_human_id && (unit[*e].flags & 1) && unit[*e].build_percent_left == 0.0f
+				&& unit[*e].visible)
 			{
-				if (TA3D_SHIFT_PRESSED && unit[i].sel)
+				if (TA3D_SHIFT_PRESSED && unit[*e].sel)
 				{
 					selected = true;
 				}
 				else
 				{
 					if (!TA3D_SHIFT_PRESSED)
-						unit[i].sel = false;
+						unit[*e].sel = false;
 
-					if (reigon.contains(unit[i].Pos))
+					if (reigon.contains(unit[*e].Pos))
 					{
-						unit[i].sel = true;
+						unit[*e].sel = true;
 						selected = true;
 					}
 				}
 			}
-			unit[i].unlock();
-			pMutex.lock();
+			unit[*e].unlock();
 		}
-		pMutex.unlock();
 		return selected;
 	}
 
 
-	int INGAME_UNITS::pick(Camera& cam, int sensibility)
+	int INGAME_UNITS::pick(Camera& cam)
 	{
 		int index = -1;
 
-		if (nb_unit<=0)
+		if (nb_unit <= 0)
 			return -1;
 
 		// Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
@@ -383,36 +377,28 @@ namespace TA3D
 			Dir.unit();		// Direction pointée par le curseur
 		}
 
-		bool detectable=false;
-		int i;
+		bool detectable = false;
 
-		pMutex.lock();
-		for(uint16 e = 0; e < index_list_size; ++e)
+		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
-			i = idx_list[e];
-			pMutex.unlock();
-
-			unit[ i ].lock();
-			if (!(unit[i].flags & 1) || !unit[i].visible )
+			unit[ *e ].lock();
+			if (!(unit[*e].flags & 1) || !unit[*e].visible )
 			{
-				unit[i].unlock();
-				pMutex.lock();
+				unit[*e].unlock();
 				continue;		// Si l'unité n'existe pas on la zappe
 			}
-			unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
-			Vector3D center (unit[i].model->center + unit[i].Pos - CamPos);
-			float size = unit[i].model->size * unit_manager.unit_type[unit[i].type_id]->Scale * unit_manager.unit_type[unit[i].type_id]->Scale;
+			unit[*e].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
+			Vector3D center (unit[*e].model->center + unit[*e].Pos - CamPos);
+			float size = unit[*e].model->size * unit_manager.unit_type[unit[*e].type_id]->Scale * unit_manager.unit_type[unit[*e].type_id]->Scale;
 			center = Dir * center;
-			float dist=center.sq();
-			if (dist<size)
+			float dist = center.sq();
+			if (dist < size)
 			{
-				detectable=true;
-				unit[i].flags|=0x2;		// Unité détectable
+				detectable = true;
+				unit[*e].flags |= 0x2;		// Unité détectable
 			}
-			unit[i].unlock();
-			pMutex.lock();
+			unit[*e].unlock();
 		}
-		pMutex.unlock();
 
 		if (!detectable) // If no unit is near the cursor, then skip the precise method
 		{
@@ -422,37 +408,30 @@ namespace TA3D
 
 		float best_dist = 1000000.0f;
 
-		pMutex.lock();
-		for(uint16 e=0;e<index_list_size;e++)
+		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
-			i = idx_list[e];
-			pMutex.unlock();
-
-			unit[i].lock();
-			if (!(unit[i].flags & 1) || !unit[i].visible )
+			unit[*e].lock();
+			if (!(unit[*e].flags & 1) || !unit[*e].visible )
 			{
-				unit[i].unlock();
-				pMutex.lock();
+				unit[*e].unlock();
 				continue;		// Si l'unité n'existe pas on la zappe
 			}
-			if ((unit[i].flags&0x2)==0x2) // Si l'unité existe et est sélectionnable
+			if ((unit[*e].flags & 0x2) == 0x2) // Si l'unité existe et est sélectionnable
 			{
-				unit[i].flags&=0xFD;
+				unit[*e].flags &= 0xFD;
 				Vector3D D;
-				if (unit[i].hit(CamPos, Dir, &D, 1000000.0f)) // Vecteur "viseur unité" partant de la caméra vers l'unité
+				if (unit[*e].hit(CamPos, Dir, &D, 1000000.0f)) // Vecteur "viseur unité" partant de la caméra vers l'unité
 				{
 					float dist = (D - CamPos).sq();
 					if (dist < best_dist || index == -1 )
 					{
 						best_dist = dist;
-						index = i;
+						index = *e;
 					}
 				}
 			}
-			unit[i].unlock();
-			pMutex.lock();
+			unit[*e].unlock();
 		}
-		pMutex.unlock();
 
 		last_on = index;
 		return index;
@@ -460,9 +439,9 @@ namespace TA3D
 
 	int INGAME_UNITS::pick_minimap()
 	{
-		int index=-1;
+		int index = -1;
 
-		if (nb_unit<=0)
+		if (nb_unit <= 0)
 			return index;
 
 		// Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
@@ -477,7 +456,7 @@ namespace TA3D
 		byte player_mask = 1 << players.local_human_id;
 
 		pMutex.lock();
-		for(uint16 e=0;e<index_list_size;e++)
+		for(uint16 e = 0 ; e < index_list_size ; ++e)
 		{
 			i = idx_list[e];
 			pMutex.unlock();
@@ -490,11 +469,11 @@ namespace TA3D
 				continue;		// Si l'unité n'existe pas on la zappe
 			}
 
-			if (!unit[i].visible ) // Additional checks that have to be done
+			if (!unit[i].visible) // Additional checks that have to be done
 			{
 				int px = unit[i].cur_px >> 1;
 				int py = unit[i].cur_py >> 1;
-				if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h )
+				if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
 				{
 					unit[ i ].unlock();
 					pMutex.lock();
@@ -1496,7 +1475,6 @@ namespace TA3D
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
 		float sea_lvl = limit ? the_map->sealvl - 5.0f : the_map->sealvl;
 		float virtual_t = ((float)current_tick) / TICKS_PER_SEC;
-		pMutex.lock();
 		bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
 		if (low_def)
 			glDisable(GL_DEPTH_TEST);
@@ -1504,23 +1482,15 @@ namespace TA3D
         for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
 			uint16 i = *e;
-			pMutex.unlock();
 
             Unit *pUnit = &(unit[i]);
+			MODEL *model = pUnit->model;
 
-            pUnit->lock();
-            if ((pUnit->flags & 1)
-				&& (low_def || (pUnit->Pos.y + pUnit->model->bottom <= the_map->sealvl && underwater)
-                    || (pUnit->Pos.y + pUnit->model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
-			{
-                pUnit->unlock();
+			if (model
+				&& (low_def || (pUnit->render.Pos.y + model->bottom <= the_map->sealvl && underwater)
+					|| (pUnit->render.Pos.y + model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
 				pUnit->draw(virtual_t, height_line);
-			}
-			else
-                pUnit->unlock();
-			pMutex.lock();
 		}
-        pMutex.unlock();
 
 		glDisable(GL_ALPHA_TEST);
 
@@ -1555,16 +1525,11 @@ namespace TA3D
 
 			for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 			{
-				pMutex.lock();
 				uint16 i = *e;
-				pMutex.unlock();
 
 				gfx->lock();
 
-				unit[i].lock();
-				if (unit[i].flags & 1)				// Si il y a une unité
-					unit[i].draw_shadow(Dir);
-				unit[i].unlock();
+				unit[i].draw_shadow(Dir);
 
 				gfx->unlock();
 			}
@@ -1581,15 +1546,10 @@ namespace TA3D
 
 			for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 			{
-				pMutex.lock();
 				uint16 i = *e;
-				pMutex.unlock();
 
 				gfx->lock();
-				unit[i].lock();
-				if (unit[i].flags & 1) // Si il y a une unité
-					unit[i].drawShadowBasic(Dir);
-				unit[i].unlock();
+				unit[i].drawShadowBasic(Dir);
 				gfx->unlock();
 			}
 		}
@@ -1781,7 +1741,7 @@ namespace TA3D
 			while (msec_timer - tick_timer + 1 < tick)
 				suspend(1);
 
-			while( msec_timer - tick_timer >= tick + 200 ) // Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
+			while (msec_timer - tick_timer >= tick + 200) // Prevent the game from running too fast for too long, we don't have to speed up to compute what we hadn't time to
 			{
 				counter += 1.0f;
 				tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
@@ -1791,7 +1751,7 @@ namespace TA3D
 			if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
 			else	step = 1.0f;
 
-			while( lp_CONFIG->pause && !thread_ask_to_stop )
+			while (lp_CONFIG->pause && !thread_ask_to_stop)
 			{
 				lp_CONFIG->paused = true;
 				suspend(10); // in pause mode wait for pause to be false again
