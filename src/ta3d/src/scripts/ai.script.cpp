@@ -158,7 +158,7 @@ namespace TA3D
             && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder)
         {
             Vector3D target(pos_x, 0.0f, pos_z);
-            bool ok = AI_CONTROLLER::findBuildPlace(target, unit_type_id, lua_currentPlayerID(L), 5, radius);
+			bool ok = AiController::findBuildPlace(target, unit_type_id, lua_currentPlayerID(L), 5, radius);
 
             if (ok)
             {

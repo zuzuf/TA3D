@@ -44,7 +44,7 @@ namespace TA3D
 #define AI_FLAG_METAL_S		0x40			// Storage
 #define AI_FLAG_ENERGY_S	0x80
 
-    class AI_WEIGHT
+	class AiWeight
     {
     public:
         uint16			nb;						// Number of units of this type the AI has
@@ -59,21 +59,21 @@ namespace TA3D
         float			metal_s;
         float			energy_s;
 
-        AI_WEIGHT();
-        ~AI_WEIGHT();
+		AiWeight();
+		~AiWeight();
     };
 
-    class WEIGHT_COEF
+	class WeightCoef
     {
     public:
         uint16	idx;
         uint32	c;
 
-        WEIGHT_COEF();
-        WEIGHT_COEF( uint16 a, uint32 b );
+		WeightCoef();
+		WeightCoef( uint16 a, uint32 b );
     };
 
-    inline bool operator<( WEIGHT_COEF &a, WEIGHT_COEF &b )		{	return a.c > b.c;	}
+	inline bool operator<( const WeightCoef &a, const WeightCoef &b )		{	return a.c > b.c;	}
 
 } // namespace TA3D
 

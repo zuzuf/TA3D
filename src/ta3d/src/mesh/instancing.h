@@ -48,7 +48,7 @@ namespace TA3D
         DrawingTable() : hash_table() {hash_table.resize(DrawingTable_SIZE);}
         ~DrawingTable();
 
-        void queue_Instance(uint32 &model_id, Instance instance);
+		void queue_Instance(uint32 model_id, const Instance &instance);
         void draw_all();
 
     };

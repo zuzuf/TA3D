@@ -37,16 +37,14 @@ namespace TA3D
 
     DrawingTable::~DrawingTable()
     {
-		for (int i = 0 ; i < hash_table.size() ; ++i)
-        {
-            for (std::vector< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+		for (std::vector< std::vector< RenderQueue* > >::iterator i = hash_table.begin() ; i != hash_table.end() ; ++i)
+			for (std::vector< RenderQueue* >::iterator e = i->begin(); e != i->end(); ++e)
 				delete *e;
-        }
         hash_table.clear();
     }
 
 
-    void DrawingTable::queue_Instance( uint32 &model_id, Instance instance )
+	void DrawingTable::queue_Instance( uint32 model_id, const Instance &instance )
     {
         uint32	hash = model_id & DrawingTable_MASK;
         for (std::vector< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
@@ -65,8 +63,8 @@ namespace TA3D
 
     void DrawingTable::draw_all()
     {
-		for (int i = 0 ; i < hash_table.size() ; ++i)
-            for (std::vector< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e )
+		for (std::vector< std::vector< RenderQueue* > >::iterator i = hash_table.begin() ; i != hash_table.end() ; ++i)
+			for (std::vector< RenderQueue* >::iterator e = i->begin() ; e != i->end() ; ++e )
                 (*e)->draw_queue();
     }
 
