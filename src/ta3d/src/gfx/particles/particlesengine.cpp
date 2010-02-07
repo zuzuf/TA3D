@@ -180,8 +180,7 @@ namespace TA3D
 			system->dsize = 0.0f;
 			system->light_emitter = false;
 
-			system->common_pos = Vector3D();
-			system->common_V = Vector3D();
+			system->common_pos.reset();
 
 			for( int i = 0 ; i < ( nb < 0 ? 1 : nb ) ; ++i)
 			{
@@ -515,7 +514,7 @@ namespace TA3D
 
 		for (std::vector< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
 		{
-			(*i)->move( dt, wind_dir, g, factor, factor2 );
+			(*i)->move( dt, factor, factor2 );
 			if ((*i)->life >= 0.0f )
 				++i;
 			else
