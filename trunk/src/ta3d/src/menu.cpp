@@ -809,10 +809,17 @@ namespace TA3D
 		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
 			setupgame_area.caption( String("gamesetup.name") << i, game_data.player_names[i]);
-			setupgame_area.caption( String("gamesetup.side") << i, game_data.player_sides[i]);
+
+			Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object(String("gamesetup.side") << i);
+			if (guiobj)
+			{
+				guiobj->Text.clear();
+				guiobj->Text.push_back( game_data.player_sides[i] );
+				guiobj->Text.insert(guiobj->Text.end(), side_str.begin(), side_str.end());
+			}
 			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
 			setupgame_area.set_entry( String("gamesetup.ai") << i, AI_list);
-			Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( String("gamesetup.color") << i);
+                        guiobj = setupgame_area.get_object( String("gamesetup.color") << i);
 			if (guiobj)
 			{
 				guiobj->Flag |= (game_data.player_control[i] == PLAYER_CONTROL_NONE ? FLAG_HIDDEN : 0);
@@ -1723,21 +1730,13 @@ namespace TA3D
 					if (host.notEmpty())
 						network_manager.sendSpecial( "NOTIFY UPDATE");
 				}
-				if (setupgame_area.get_state( String("gamesetup.b_side") << i)) // Change player side
+				if (setupgame_area.get_value( String("gamesetup.side") << i) >= 0) // Change player side
 				{
-					int e = 0;
-					for (int f = 0 ; f < side_str_n; ++f)
-					{
-						if (setupgame_area.caption(String("gamesetup.side") << i) == side_str[f])
-						{
-							e = f;
-							break;
-						}
-					}
-					e = (e + 1) % side_str_n;
-					setupgame_area.caption( String("gamesetup.side") << i, side_str[e]);           // Update gui
+					int pos = setupgame_area.get_value( String("gamesetup.side") << i) + 1;
+					Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object(String("gamesetup.side") << i);
+					guiobj->Text[0] = guiobj->Text[pos];
 
-					game_data.player_sides[i] = side_str[e];                                // update game data
+					game_data.player_sides[i] = side_str[pos - 1];                                // update game data
 					if (host.notEmpty())
 						network_manager.sendSpecial( "NOTIFY UPDATE");
 				}

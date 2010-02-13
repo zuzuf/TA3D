@@ -55,6 +55,9 @@ namespace TA3D
 		//! The gadget mode
 		int gadgetMode;
 
+		//! The widget mode
+		std::stack<int> widgetMode;
+
 		//! File name (may not be the real filename)
 		String caption;
 
@@ -71,11 +74,11 @@ namespace TA3D
 	}
 
 
-	TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS)
+	TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
 		: pIgnoreCase(!caSensitive), special_section()
 	{
 		pTable.set_empty_key(String());
-		loadFromFile(filename, true, toUTF8, gadgetMode, realFS);
+		loadFromFile(filename, true, toUTF8, gadgetMode, realFS, widgetMode);
 	}
 
 
@@ -90,7 +93,7 @@ namespace TA3D
 	}
 
 
-	bool TDFParser::loadFromFile(const String& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS)
+	bool TDFParser::loadFromFile(const String& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
 	{
 		File* file;
 		if (!realFS)
@@ -98,7 +101,7 @@ namespace TA3D
 			file = VFS::Instance()->readFile(filename);
 			if (file && file->size())
 			{
-				bool res = loadFromMemory("hpi://" + filename, file->data(), file->size(), clear, toUTF8, gadgetMode);
+				bool res = loadFromMemory("hpi://" + filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
 				delete file;
 				return res;
 			}
@@ -108,7 +111,7 @@ namespace TA3D
 			file = Paths::Files::LoadContentInMemory(filename, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
 			if (file && file->size())
 			{
-				bool res = loadFromMemory(filename, file->data(), file->size(), clear, toUTF8, gadgetMode);
+				bool res = loadFromMemory(filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
 				delete file;
 				return res;
 			}
@@ -127,7 +130,7 @@ namespace TA3D
 
 
 	bool TDFParser::loadFromMemory(const String& caption, const char* data, uint64 size, const bool clearTable,
-								   const bool toUTF8, const bool gadgetMode)
+								   const bool toUTF8, const bool gadgetMode, const bool widgetMode)
 	{
 		if (NULL == data || 0 == size)
 			return true;
@@ -212,11 +215,22 @@ namespace TA3D
 								}
 							}
 							else
+							{
 								stack.currentSection += '.';
+								if (widgetMode)
+								{
+									String widgetKey("widget");
+									widgetKey += stack.widgetMode.top();
+									pTable[widgetKey] = stack.value;
+									++stack.widgetMode.top();
+									stack.value = widgetKey;
+								}
+							}
 							stack.currentSection += stack.value;
 							if (stack.gadgetMode < 0 && !stack.currentSection.empty() && !exists(stack.currentSection))
 								pTable[stack.currentSection] = stack.value;
 							++stack.level;
+							stack.widgetMode.push(0);
 							continue;
 						}
 						// Start a new block
@@ -233,6 +247,7 @@ namespace TA3D
 									stack.currentSection = stack.sections.top();
 								stack.sections.pop();
 								--stack.level;
+								stack.widgetMode.pop();
 							}
 							else
 								LOG_ERROR(LOG_PREFIX_TDF << stack.caption << ":" << stack.line << " : `}` found outside a section");
