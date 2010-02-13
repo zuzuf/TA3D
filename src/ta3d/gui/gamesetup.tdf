@@ -8,7 +8,6 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=158;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -376,215 +375,115 @@
 		highlight=true;
 	}
 //----------- sides ---------------
-	[object33]		// box0
+	[object34]		// side0
 	{
-		name=b_side0;
-		type=BOX;
+		name=side0;
+		type=MENU;
 		x1=260;
 		y1=200;
 		x2=323;
 		y2=240;
-		value=0x0;
-		highlight=true;
-	}
-	[object34]		// side0
-	{
-		name=side0;
-		type=TEXT;
-		x1=260;
-		y1=200;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object35]		// box1
-	{
-		name=b_side1;
-		type=BOX;
-		x1=260;
-		y1=240;
-		x2=323;
-		y2=280;
-		value=0x0;
-		highlight=true;
 	}
 	[object36]		// side1
 	{
 		name=side1;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=240;
+		x2=323;
+		y2=280;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object37]		// box2
-	{
-		name=b_side2;
-		type=BOX;
-		x1=260;
-		y1=280;
-		x2=323;
-		y2=320;
-		value=0x0;
-		highlight=true;
 	}
 	[object38]		// side2
 	{
 		name=side2;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=280;
+		x2=323;
+		y2=320;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object39]		// box3
-	{
-		name=b_side3;
-		type=BOX;
-		x1=260;
-		y1=320;
-		x2=323;
-		y2=360;
-		value=0x0;
-		highlight=true;
 	}
 	[object40]		// side3
 	{
 		name=side3;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=320;
+		x2=323;
+		y2=360;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object41]		// box4
-	{
-		name=b_side4;
-		type=BOX;
-		x1=260;
-		y1=360;
-		x2=323;
-		y2=400;
-		value=0x0;
-		highlight=true;
 	}
 	[object42]		// side4
 	{
 		name=side4;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=360;
+		x2=323;
+		y2=400;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object43]		// box5
-	{
-		name=b_side5;
-		type=BOX;
-		x1=260;
-		y1=400;
-		x2=323;
-		y2=440;
-		value=0x0;
-		highlight=true;
 	}
 	[object44]		// side5
 	{
 		name=side5;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=400;
+		x2=323;
+		y2=440;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object45]		// box6
-	{
-		name=b_side6;
-		type=BOX;
-		x1=260;
-		y1=440;
-		x2=323;
-		y2=480;
-		value=0x0;
-		highlight=true;
 	}
 	[object46]		// side6
 	{
 		name=side6;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=440;
+		x2=323;
+		y2=480;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object47]		// box7
-	{
-		name=b_side7;
-		type=BOX;
-		x1=260;
-		y1=480;
-		x2=323;
-		y2=520;
-		value=0x0;
-		highlight=true;
 	}
 	[object48]		// side7
 	{
 		name=side7;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=480;
+		x2=323;
+		y2=520;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object49]		// box8
-	{
-		name=b_side8;
-		type=BOX;
-		x1=260;
-		y1=520;
-		x2=323;
-		y2=560;
-		value=0x0;
-		highlight=true;
 	}
 	[object50]		// side8
 	{
 		name=side8;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=520;
+		x2=323;
+		y2=560;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
-	}
-	[object51]		// box9
-	{
-		name=b_side9;
-		type=BOX;
-		x1=260;
-		y1=560;
-		x2=323;
-		y2=600;
-		value=0x0;
-		highlight=true;
 	}
 	[object52]		// side9
 	{
 		name=side9;
-		type=TEXT;
+		type=MENU;
 		x1=260;
 		y1=560;
+		x2=323;
+		y2=600;
 		size=2;
 		value=0xFFFFFFFF;
-		highlight=true;
 	}
 //------------ AI --------------
 	[object53]		// ai0

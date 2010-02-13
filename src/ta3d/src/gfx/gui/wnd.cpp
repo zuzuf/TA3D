@@ -1663,7 +1663,7 @@ namespace Gui
 
 		void WND::load_tdf(const String& filename, Skin* skin)
 		{
-			TDFParser wndFile(filename);
+			TDFParser wndFile(filename, false, false, false, false, true);
 
 			Name = Paths::ExtractFileNameWithoutExtension(filename); // Grab the window's name, so we can send signals to it (to hide/show for example)
 
@@ -1733,7 +1733,6 @@ namespace Gui
 			}
 			color = wndFile.pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
 			FIX_COLOR(color);
-			unsigned int NbObj = wndFile.pullAsInt("window.number of objects");
 
 			pObjects.clear();
 
@@ -1743,10 +1742,10 @@ namespace Gui
 			String::Vector Entry;
 			String entryList;
 
-			for (unsigned int i = 0 ; i < NbObj; ++i) // Loads each object
+			for (unsigned int i = 0 ; wndFile.exists(String("widget") << i) ; ++i) // Loads each object
 			{
 				obj_key.clear();
-				obj_key << "window.object" << i << ".";
+				obj_key << "window.widget" << i << ".";
 
 				// Type of the new object
 				obj_type = wndFile.pullAsString(obj_key + "type");
@@ -1758,7 +1757,7 @@ namespace Gui
 				GUIOBJ::Ptr object = new GUIOBJ();
 				pObjects.push_back(object);
 
-				object->Name = wndFile.pullAsString(obj_key + "name", String("object") << i);
+				object->Name = wndFile.pullAsString(obj_key + "name", String("widget") << i);
 				obj_hashtable[String::ToLower(object->Name)] = i + 1;
 				object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 
