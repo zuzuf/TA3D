@@ -74,7 +74,7 @@ namespace TA3D
 			{
 				if (eof())
 					return -1;
-				char c;
+				char c(0);
 				read(&c, 1);
 				return c;
 			}

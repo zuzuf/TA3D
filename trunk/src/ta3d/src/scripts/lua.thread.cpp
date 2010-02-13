@@ -176,8 +176,9 @@ namespace TA3D
 		if (file)
 		{
 			filesize = file->size();
-			buffer = new byte[file->size()];
+			buffer = new byte[file->size() + 1];
 			file->read(buffer, file->size());
+			buffer[file->size()] = 0;
 			delete file;
 
 			String path = Paths::ExtractFilePath(filename);
@@ -188,7 +189,7 @@ namespace TA3D
 			{
 				int i;
 				name.clear();
-				for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
+				for (i = 0 ; i < 100 && f[ i + 10 ] != '"' ; ++i)
 					name << f[ i + 10 ];
 				if (!VFS::Instance()->fileExists(path + name))
 					name = "scripts/" + name;

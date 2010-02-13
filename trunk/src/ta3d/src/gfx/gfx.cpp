@@ -550,7 +550,8 @@ namespace TA3D
 		low_def_limit(600.), glfond(0), textureFBO(0), textureDepth(0), textureColor(0), shadowMap(0),
 		model_shader(),
 		ati_workaround(false), max_tex_size(0), default_texture(0),
-		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false)
+		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
+		defaultRGBTextureFormat(GL_RGB8), defaultRGBATextureFormat(GL_RGBA8)
 	{
 		// Initialize the GFX Engine
 		if (lp_CONFIG->first_start)
@@ -1637,33 +1638,25 @@ namespace TA3D
 
 	GLuint GFX::create_texture_RGB32F(int w, int h, byte filter_type, bool clamp )
 	{
-		float *tmp = new float[w*h*3];
-		GLuint tex = this->make_texture_RGB32F(w, h, tmp, filter_type, clamp);
-		DELETE_ARRAY(tmp);
+		GLuint tex = this->make_texture_RGB32F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 
 	GLuint GFX::create_texture_RGBA32F(int w, int h, byte filter_type, bool clamp )
 	{
-		float *tmp = new float[w*h*4];
-		GLuint tex = this->make_texture_RGBA32F(w, h, tmp, filter_type, clamp);
-		DELETE_ARRAY(tmp);
+		GLuint tex = this->make_texture_RGBA32F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 
 	GLuint GFX::create_texture_RGB16F(int w, int h, byte filter_type, bool clamp )
 	{
-		float *tmp = new float[w*h*3];
-		GLuint tex = this->make_texture_RGB16F(w, h, tmp, filter_type, clamp);
-		DELETE_ARRAY(tmp);
+		GLuint tex = this->make_texture_RGB16F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 
 	GLuint GFX::create_texture_RGBA16F(int w, int h, byte filter_type, bool clamp )
 	{
-		float *tmp = new float[w*h*4];
-		GLuint tex = this->make_texture_RGBA16F(w, h, tmp, filter_type, clamp);
-		DELETE_ARRAY(tmp);
+		GLuint tex = this->make_texture_RGBA16F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 

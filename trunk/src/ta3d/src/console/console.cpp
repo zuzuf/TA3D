@@ -43,7 +43,7 @@ namespace TA3D
 	}
 
 	Console::Console()
-			:pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
+			:pHistoryPos(0), pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
 	{
 		pInstance = this;
 

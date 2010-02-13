@@ -46,6 +46,7 @@ namespace TA3D
 		void convertGAFCharToString(File* file, String& out)
 		{
 			char dt[33];
+			memset(dt, 0, 33);
 			file->read(dt, 32);
 			dt[32] = '\0';
 			out.assign(dt, strlen(dt));

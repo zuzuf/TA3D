@@ -100,8 +100,6 @@ namespace TA3D
         String pInputText;
         //!
 		uint32 cursorPos;
-        //!
-        uint32 pCurrentTimer;
 
 		//! The Lua state used to execute commands
 		lua_State *L;
