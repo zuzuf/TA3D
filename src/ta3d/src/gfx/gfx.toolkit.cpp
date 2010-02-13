@@ -655,7 +655,7 @@ namespace TA3D
 
 	void SaveTex(SDL_Surface *bmp, const String &filename)
 	{
-        gzFile file = gzopen(filename.c_str(), "wb6");
+		gzFile file = gzopen(filename.c_str(), "wb1");
 		if (file)
 		{
 			SDL_LockSurface(bmp);
