@@ -20,36 +20,33 @@ namespace TA3D
 	template<class T>
 		void Grid<T>::resize(int w, int h)
 	{
-		if (data)
-			delete[] data;
 		this->w = w;
 		this->h = h;
-		data = new T[w * h];
+		data.resize(w * h);
 	}
 
 	template<class T>
 		inline void Grid<T>::clear()
 	{
-		if (data)
-			memset(data, 0, w * h * sizeof(T));
+		for(typename Container::iterator i = data.begin() ; i != data.end() ; ++i)
+			*i = 0;
 	}
 
 	template<class T>
 		Grid<T>::~Grid()
 	{
-		if (data)
-			delete[] data;
+		data.clear();
 	}
 
 	template<class T>
-		inline const T& Grid<T>::operator()(int x, int y) const
+		inline typename Grid<T>::const_reference Grid<T>::operator()(int x, int y) const
 	{
 		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
 		return data[x + y * w];
 	}
 
 	template<class T>
-		inline T& Grid<T>::operator()(int x, int y)
+		inline typename Grid<T>::reference Grid<T>::operator()(int x, int y)
 	{
 		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
 		return data[x + y * w];
