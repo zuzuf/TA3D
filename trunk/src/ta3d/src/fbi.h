@@ -76,20 +76,15 @@ namespace TA3D
 {
 
 
-    class DlData
+	struct DlDataPic
     {
-    public:
-        DlData() :dl_num(0), dl_x(NULL), dl_y(NULL), dl_w(NULL), dl_h(NULL) {}
-        ~DlData();
+		short x;
+		short y;
+		short w;
+		short h;
+	};
 
-    public:
-        short   dl_num;             // How many build pics
-        short   *dl_x;
-        short   *dl_y;
-        short   *dl_w;
-        short   *dl_h;
-
-    }; // class DlData
+	typedef std::vector<DlDataPic>	DlData;
 
     class AimData
     {
