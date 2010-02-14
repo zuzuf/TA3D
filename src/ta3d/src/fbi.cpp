@@ -53,14 +53,6 @@ namespace TA3D
 
 	UnitManager unit_manager;
 
-	DlData::~DlData()
-	{
-		DELETE_ARRAY(dl_x);
-		DELETE_ARRAY(dl_y);
-		DELETE_ARRAY(dl_w);
-		DELETE_ARRAY(dl_h);
-	}
-
 	inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )
 	{
 		int w = w1 + w2;
@@ -101,14 +93,14 @@ namespace TA3D
 			}
 			for(int i = 0 ; i <= nb_pages && p == -1 ; ++i)
 			{
-				for(int k = 0 ; k < dl_data->dl_num && p == -1 ; ++k)
+				for(int k = 0 ; k < dl_data->size() && p == -1 ; ++k)
 				{
 					bool found = true;
 					for(int j = 0 ; j < nb_unit ; ++j)
 					{
 						if (Pic_p[j] == i
 							&& overlaps(Pic_x[j], Pic_y[j], Pic_w[j], Pic_h[j],
-										dl_data->dl_x[k], dl_data->dl_y[k], dl_data->dl_w[k], dl_data->dl_h[k]))
+										(*dl_data)[k].x, (*dl_data)[k].y, (*dl_data)[k].w, (*dl_data)[k].h))
 						{
 							found = false;
 							break;
@@ -117,10 +109,10 @@ namespace TA3D
 					if (found)
 					{
 						p = i;
-						px = dl_data->dl_x[k];
-						py = dl_data->dl_y[k];
-						pw = dl_data->dl_w[k];
-						ph = dl_data->dl_h[k];
+						px = (*dl_data)[k].x;
+						py = (*dl_data)[k].y;
+						pw = (*dl_data)[k].w;
+						ph = (*dl_data)[k].h;
 					}
 				}
 			}
@@ -952,29 +944,18 @@ namespace TA3D
 			int x_offset = dl_parser.pullAsInt( "gadget0.common.xpos" );
 			int y_offset = dl_parser.pullAsInt( "gadget0.common.ypos" );
 
-			dl_data->dl_num = 0;
+			dl_data->clear();
 
-			for (int i = 1; i <= NbObj; ++i)
-			{
-				if (dl_parser.pullAsInt(String("gadget") << i << ".common.attribs") == 32)
-					dl_data->dl_num++;
-			}
-
-			dl_data->dl_x = new short[dl_data->dl_num];
-			dl_data->dl_y = new short[dl_data->dl_num];
-			dl_data->dl_w = new short[dl_data->dl_num];
-			dl_data->dl_h = new short[dl_data->dl_num];
-
-			int e = 0;
 			for (int i = 1; i <= NbObj; ++i)
 			{
 				if (dl_parser.pullAsInt( String("gadget") << i << ".common.attribs" ) == 32 )
 				{
-					dl_data->dl_x[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.xpos") + x_offset);
-					dl_data->dl_y[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.ypos") + y_offset);
-					dl_data->dl_w[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.width"));
-					dl_data->dl_h[e] = short(dl_parser.pullAsInt(String("gadget") << i << ".common.height"));
-					++e;
+					DlDataPic p;
+					p.x = short(dl_parser.pullAsInt(String("gadget") << i << ".common.xpos") + x_offset);
+					p.y = short(dl_parser.pullAsInt(String("gadget") << i << ".common.ypos") + y_offset);
+					p.w = short(dl_parser.pullAsInt(String("gadget") << i << ".common.width"));
+					p.h = short(dl_parser.pullAsInt(String("gadget") << i << ".common.height"));
+					dl_data->push_back(p);
 				}
 			}
 
