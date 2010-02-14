@@ -250,6 +250,14 @@ namespace TA3D
 		if (task.idx >= 0)
 			units.unit[task.idx].unlock();
 
+		// Get the precomputed walkable area quadmap
+		QuadMap *qmap = Pathfinder::instance()->hQuadMap[pType->getMoveStringID()];
+		if (!qmap)
+		{
+			LOG_ERROR(LOG_PREFIX_PATHS << "path request for a unit without precomputed walkable area quadmap");
+			return;
+		}
+
 		MutexLocker mLock(sMutex);
 
 		int start_x = ((int)task.start.x + the_map->map_w_d) >> 3;
@@ -302,6 +310,7 @@ namespace TA3D
 			uint32 minPathLength = uint32(-1);
 			int nbChoices = 0;
 			uint32 depthLimit = PATHFINDER_MAX_LENGTH;
+			float distanceCoef = 2.0f * float(pType->MaxSlope);
 			while (n < depthLimit)
 			{
 				++zone( nodes.back().x(), nodes.back().z() );
@@ -328,12 +337,11 @@ namespace TA3D
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
 
-				if (zone( nx, nz ) || !checkRectFull( nx - mw_h, nz - mh_h, task.idx, pType ))
+				if (zone( nx, nz ) || !(*qmap)(nx, nz) || !checkRectFast( nx - mw_h, nz - mh_h, task.idx, pType ))
 				{
 					float dist[ 8 ];
 					float rdist[ 8 ];
 					bool zoned[ 8 ];
-					float distanceCoef = 2.0f * float(pType->MaxSlope);
 					for( int e = 0 ; e < 8 ; ++e )			// Gather required data
 					{
 						rdist[ e ] = dist[ e ] = -1.0f;
@@ -343,8 +351,11 @@ namespace TA3D
 						if (nx < 0 || nz < 0 || nx >= the_map->bloc_w_db || nz >= the_map->bloc_h_db)
 							continue;
 						zoned[ e ] = zone(nx, nz);
-						if (!zone(nx, nz) && !checkRectFull( nx - mw_h, nz - mh_h, task.idx, pType ))
+						if (!zoned[e] && !(*qmap)(nx, nz))
 								continue;
+						int t = checkRectFast(nx - mw_h, nz - mh_h, task.idx, pType);
+						if (!zoned[e] && t == 2)
+							continue;
 						rdist[ e ] = dist[ e ] = distanceCoef * sqrtf(float(sq( end_x - nx ) + sq( end_z - nz ))) + energy(nx, nz);
 
 						if (zoned[ e ])
@@ -484,6 +495,7 @@ namespace TA3D
 						}
 				}
 			}
+
 			while(!qNode.empty())			// Fill the discovered region with the distance to end
 			{
 				AI::Path::Node cur = qNode.front();
@@ -564,6 +576,84 @@ namespace TA3D
 				zone(cur->x(), cur->z()) = 0;
 			path.clear();
 		}
+	}
+
+	int Pathfinder::checkRectFast(int x1, int y1, int c, UnitType *pType)
+	{
+		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
+		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
+		int x, y;
+		y = y1;
+		int r = 0;
+		if (y >= 0 && y < the_map->bloc_h_db)
+		{
+			for(x = Math::Max(x1, 0) ; x < fx ; ++x)
+			{
+				int idx = the_map->map_data[y][x].unit_idx;
+				if (idx == -1 || idx == c)
+					continue;
+				if (idx < -1)
+					return 2;
+
+				int type_id = units.unit[idx].type_id;
+				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+				if (!tType || !(tType->canmove && tType->BMcode))
+					return 2;
+				r = 1;
+			}
+		}
+		y = fy - 1;
+		if (y >= 0)
+		{
+			for(x = Math::Max(x1, 0) ; x < fx ; ++x)
+			{
+				int idx = the_map->map_data[y][x].unit_idx;
+				if (idx == -1 || idx == c)
+					continue;
+				if (idx < -1)
+					return 2;
+
+				int type_id = units.unit[idx].type_id;
+				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+				if (!tType || !(tType->canmove && tType->BMcode))
+					return 2;
+				r = 1;
+			}
+		}
+		for(int y = Math::Max(y1 + 1, 0) ; y < fy - 1 ; ++y)
+		{
+			x = x1;
+			if (x >= 0 && x < the_map->bloc_w_db)
+			{
+				int idx = the_map->map_data[y][x].unit_idx;
+				if (idx == -1 || idx == c)
+					continue;
+				if (idx < -1)
+					return 2;
+
+				int type_id = units.unit[idx].type_id;
+				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+				if (!tType || !(tType->canmove && tType->BMcode))
+					return 2;
+				r = 1;
+			}
+			x = fx - 1;
+			if (x >= 0)
+			{
+				int idx = the_map->map_data[y][x].unit_idx;
+				if (idx == -1 || idx == c)
+					continue;
+				if (idx < -1)
+					return 2;
+
+				int type_id = units.unit[idx].type_id;
+				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
+				if (!tType || !(tType->canmove && tType->BMcode))
+					return 2;
+				r = 1;
+			}
+		}
+		return r;
 	}
 
 	bool Pathfinder::checkRectFull(int x1, int y1, int c, UnitType *pType)
