@@ -699,3 +699,63 @@
 {
     FRENCH=fr.ta3d.txt;
 }
+[Interface transparency]
+{
+    FRENCH=Transparence de l'interface;
+}
+[Shadow map size]
+{
+    FRENCH=Résolution des ombres;
+}
+[Advanced]
+{
+    FRENCH=Avancé;
+}
+[click on this button\nto show advanced\noptions]
+{
+    FRENCH=Cliquer sur ce bouton\npour afficher les\noptions avancées;
+}
+[close]
+{
+    FRENCH=fermer;
+}
+[name :]
+{
+    FRENCH=nom :;
+}
+[version :]
+{
+    FRENCH=version :;
+}
+[mod :]
+{
+    FRENCH=mod :;
+}
+[open slots :]
+{
+    FRENCH=places libres :;
+}
+[map :]
+{
+    FRENCH=carte :;
+}
+[Games]
+{
+    FRENCH=Parties;
+}
+[author :]
+{
+    FRENCH=auteur :;
+}
+[comment :]
+{
+    FRENCH=commentaire :;
+}
+[Remove]
+{
+    FRENCH=Supprimer;
+}
+[Computing walkable areas]
+{
+    FRENCH=Calcul des zones de déplacement;
+}
