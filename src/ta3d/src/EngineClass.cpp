@@ -305,6 +305,16 @@ namespace TA3D
 		return ph_map[y][x];
 	}
 
+	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b)
+	{
+		int x2 = Math::Min(x1 + w, bloc_w_db);
+		int y2 = Math::Min(y1 + h, bloc_h_db);
+		y1 = Math::Min(y1, 0);
+		x1 = Math::Min(x1, 0);
+		for(int y = y1 ; y < y2 ; ++y)
+			for(int x = x1 ; x < x2 ; ++x)
+				obstacles(x,y) = b;
+	}
 
 	void MAP::rect(int x1,int y1,int w,int h,int c,const String &yardmap,bool open)
 	{
@@ -312,31 +322,31 @@ namespace TA3D
 		{
 			int y2 = y1 + h;
 			int x2 = x1 + w;
-			if (y1<0)	y1=0;
-			if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-			if (x1<0)	x1=0;
-			if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
-			if (y2<=y1 || x2<=x1)
+			if (y1 < 0)	y1 = 0;
+			if (y2 > bloc_h_db - 1)	y2 = bloc_h_db - 1;
+			if (x1 < 0)	x1 = 0;
+			if (x2 > bloc_w_db - 1)	x2 = bloc_w_db - 1;
+			if (y2 <= y1 || x2 <= x1)
 				return;
 			pMutex.lock();
-			for(int y=y1;y<y2;y++)
-				for(int x=x1;x<x2;x++)
-					map_data[y][x].unit_idx=c;
+			for(int y = y1 ; y < y2 ; ++y)
+				for(int x = x1 ; x < x2 ; ++x)
+					map_data[y][x].unit_idx = c;
 			pMutex.unlock();
 		}
 		else
 		{
-			int i=0;
-			int y2=y1+h;
-			int x2=x1+w;
+			int i = 0;
+			int y2 = y1 + h;
+			int x2 = x1 + w;
 			if (y1<0)
 			{
 				i -= y1 * w;
 				y1 = 0;
 			}
-			if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-			if (x1<0)	x1=0;
-			if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
+			if (y2 > bloc_h_db - 1)	y2 = bloc_h_db - 1;
+			if (x1 < 0)	x1 = 0;
+			if (x2 > bloc_w_db - 1)	x2 = bloc_w_db - 1;
 			int dw = w - (x2 - x1);
 			if (y2 <= y1 || x2 <= x1)
 				return;
@@ -350,8 +360,8 @@ namespace TA3D
 						pMutex.unlock();
 						return;
 					}
-					if (yardmap[i]=='G' || yardmap[i]=='o' || yardmap[i]=='w' || yardmap[i]=='f' || (yardmap[i]=='c' && !open) || (yardmap[i]=='C' && !open) || (yardmap[i]=='O' && open))
-						map_data[y][x].unit_idx=c;
+					if (yardmap[i] == 'G' || yardmap[i] == 'o' || yardmap[i] == 'w' || yardmap[i] == 'f' || (yardmap[i] == 'c' && !open) || (yardmap[i] == 'C' && !open) || (yardmap[i] == 'O' && open))
+						map_data[y][x].unit_idx = c;
 					++i;
 				}
 				i += dw;

@@ -225,6 +225,8 @@ namespace TA3D
 		map->path.resize(map->bloc_w_db, map->bloc_h_db);
 		map->energy.resize(map->bloc_w_db, map->bloc_h_db);
 		map->slope.resize(map->bloc_w_db, map->bloc_h_db);
+		map->obstacles.resize(map->bloc_w_db, map->bloc_h_db);
+		map->obstacles.clear();
 
 		LOG_DEBUG("MAP: creating FOW maps");
 		map->sight_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);		// FOW maps
