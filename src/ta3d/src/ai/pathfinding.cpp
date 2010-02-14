@@ -201,7 +201,7 @@ namespace TA3D
 				uint64 utimer = usectimer();
 				findPath(path, cur);
 				utimer = usectimer() - utimer;
-				LOG_DEBUG(LOG_PREFIX_PATHS << "findPath : " << utimer << " µs");
+				LOG_INFO(LOG_PREFIX_PATHS << "findPath : " << utimer << " µs");
 				path._ready = true;
 
 				Unit *pUnit = &(units.unit[cur.idx]);
