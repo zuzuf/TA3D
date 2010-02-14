@@ -1181,6 +1181,9 @@ namespace TA3D
 		{
 			int X = pFeature->footprintx;
 			int Z = pFeature->footprintz;
+			the_map->obstaclesRect( feature[idx].px - (X >> 1),
+									feature[idx].py - (Z >> 1),
+									X, Z, true);
 			the_map->rect( feature[idx].px - (X >> 1),
 						   feature[idx].py - (Z >> 1),
 						   X, Z, -2 - idx);
@@ -1200,6 +1203,7 @@ namespace TA3D
 		{
 			int X = pFeature->footprintx;
 			int Z = pFeature->footprintz;
+			the_map->obstaclesRect(feature[idx].px - (X >> 1), feature[idx].py - (Z >> 1), X, Z, false);
 			the_map->rect(feature[idx].px - (X >> 1), feature[idx].py - (Z >> 1), X, Z, -1);
 			the_map->energy.sub(pFeature->gRepulsion,
 								feature[idx].px - (pFeature->gRepulsion.getWidth() >> 1),

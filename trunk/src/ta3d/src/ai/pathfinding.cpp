@@ -337,7 +337,7 @@ namespace TA3D
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
 
-				if (zone( nx, nz ) || !(*qmap)(nx, nz) || checkRectFast( nx - mw_h, nz - mh_h, task.idx, pType ) == 2)
+				if (zone( nx, nz ) || !(*qmap)(nx, nz) || checkRectFast( nx - mw_h, nz - mh_h, pType ) == 2)
 				{
 					float dist[ 8 ];
 					float rdist[ 8 ];
@@ -353,7 +353,7 @@ namespace TA3D
 						zoned[ e ] = zone(nx, nz);
 						if (!zoned[e] && !(*qmap)(nx, nz))
 								continue;
-						int t = checkRectFast(nx - mw_h, nz - mh_h, task.idx, pType);
+						int t = checkRectFast(nx - mw_h, nz - mh_h, pType);
 						if (!zoned[e] && t == 2)
 							continue;
 						rdist[ e ] = dist[ e ] = distanceCoef * sqrtf(float(sq( end_x - nx ) + sq( end_z - nz ))) + energy(nx, nz);
@@ -582,161 +582,41 @@ namespace TA3D
 		}
 	}
 
-	int Pathfinder::checkRectFast(int x1, int y1, int c, UnitType *pType)
+	bool Pathfinder::checkRectFast(int x1, int y1, UnitType *pType)
 	{
 		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
 		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
-		int x, y;
-		y = y1;
-		int r = 0;
-		if (y >= 0 && y < the_map->bloc_h_db)
-		{
-			for(x = Math::Max(x1, 0) ; x < fx ; ++x)
-			{
-				int idx = the_map->map_data[y][x].unit_idx;
-				if (idx == -1 || idx == c)
-					continue;
-				if (idx < -1)
-					return 2;
-
-				int type_id = units.unit[idx].type_id;
-				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-				if (!tType || !(tType->canmove && tType->BMcode))
-					return 2;
-				r = 1;
-			}
-		}
-		y = fy - 1;
-		if (y >= 0)
-		{
-			for(x = Math::Max(x1, 0) ; x < fx ; ++x)
-			{
-				int idx = the_map->map_data[y][x].unit_idx;
-				if (idx == -1 || idx == c)
-					continue;
-				if (idx < -1)
-					return 2;
-
-				int type_id = units.unit[idx].type_id;
-				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-				if (!tType || !(tType->canmove && tType->BMcode))
-					return 2;
-				r = 1;
-			}
-		}
-		for(int y = Math::Max(y1 + 1, 0) ; y < fy - 1 ; ++y)
-		{
-			x = x1;
-			if (x >= 0 && x < the_map->bloc_w_db)
-			{
-				int idx = the_map->map_data[y][x].unit_idx;
-				if (idx == -1 || idx == c)
-					continue;
-				if (idx < -1)
-					return 2;
-
-				int type_id = units.unit[idx].type_id;
-				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-				if (!tType || !(tType->canmove && tType->BMcode))
-					return 2;
-				r = 1;
-			}
-			x = fx - 1;
-			if (x >= 0)
-			{
-				int idx = the_map->map_data[y][x].unit_idx;
-				if (idx == -1 || idx == c)
-					continue;
-				if (idx < -1)
-					return 2;
-
-				int type_id = units.unit[idx].type_id;
-				UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-				if (!tType || !(tType->canmove && tType->BMcode))
-					return 2;
-				r = 1;
-			}
-		}
-		return r;
+		Grid<bool> &obstacles = the_map->obstacles;
+		for(int y = Math::Max(y1, 0) ; y < fy ; ++y)
+			for(int x = Math::Max(x1, 0) ; x < fx ; ++x)
+				if (obstacles(x,y))
+					return false;
+		return true;
 	}
 
-	bool Pathfinder::checkRectFull(int x1, int y1, int c, UnitType *pType)
+	bool Pathfinder::checkRectFull(int x1, int y1, UnitType *pType)
 	{
 		float dh_max = float(pType->MaxSlope) * H_DIV;
 		float h_min = pType->canhover ? -100.0f : the_map->sealvl - float(pType->MaxWaterDepth) * H_DIV;
 		float h_max = the_map->sealvl - float(pType->MinWaterDepth) * H_DIV;
 		float hover_h = pType->canhover ? the_map->sealvl : -100.0f;
-		int fy = y1 + pType->FootprintZ;
-		int fx = x1 + pType->FootprintX;
+		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
+		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
 		int x, y;
-		y = y1;
-		if (y >= 0 && y < the_map->bloc_h_db)
-			for(x = x1 ; x < fx ; ++x)
-				if (x >= 0 && x < the_map->bloc_w_db)
-				{
-					int idx = the_map->map_data[y][x].unit_idx;
-					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
-					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-					if ((idx != c && idx != -1
-						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
-						|| (the_map->slope(x,y) > dh_max
-							&& the_map->h_map[y][x] > hover_h)
-						|| the_map->map_data[y][x].lava
-						|| the_map->h_map[y][x] < h_min
-						|| the_map->h_map[y][x] > h_max)
-						return false;
-				}
-		y = fy - 1;
-		if (y >= 0 && y < the_map->bloc_h_db)
-			for(x = x1 ; x < fx ; ++x)
-				if (x >= 0 && x < the_map->bloc_w_db)
-				{
-					int idx = the_map->map_data[y][x].unit_idx;
-					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
-					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-					if ((idx != c && idx != -1
-						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
-						|| (the_map->slope(x,y) > dh_max
-							&& the_map->h_map[y][x] > hover_h)
-						|| the_map->map_data[y][x].lava
-						|| the_map->h_map[y][x] < h_min
-						|| the_map->h_map[y][x] > h_max)
-						return false;
-				}
-		for(int y = y1 + 1 ; y < fy - 1 ; ++y)
-			if (y >= 0 && y < the_map->bloc_h_db)
+		y1 = Math::Max(y1, 0);
+		x1 = Math::Max(x1, 0);
+		for(int y = y1 ; y < fy ; ++y)
+		{
+			for(int x = x1 ; x < fx ; ++x)
 			{
-				x = x1;
-				if (x >= 0 && x < the_map->bloc_w_db)
-				{
-					int idx = the_map->map_data[y][x].unit_idx;
-					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
-					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-					if ((idx != c && idx != -1
-						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
-						|| (the_map->slope(x,y) > dh_max
-							&& the_map->h_map[y][x] > hover_h)
-						|| the_map->map_data[y][x].lava
-						|| the_map->h_map[y][x] < h_min
-						|| the_map->h_map[y][x] > h_max)
-						return false;
-				}
-				x = fx - 1;
-				if (x >= 0 && x < the_map->bloc_w_db)
-				{
-					int idx = the_map->map_data[y][x].unit_idx;
-					int type_id = idx >= 0 ? units.unit[idx].type_id : -1;
-					UnitType *tType = type_id >= 0 ? unit_manager.unit_type[type_id] : NULL;
-					if ((idx != c && idx != -1
-						 && (type_id == -1 || !(tType->canmove && tType->BMcode)))
-						|| (the_map->slope(x,y) > dh_max
-							&& the_map->h_map[y][x] > hover_h)
-						|| the_map->map_data[y][x].lava
-						|| the_map->h_map[y][x] < h_min
-						|| the_map->h_map[y][x] > h_max)
-						return false;
-				}
+				if ((the_map->slope(x,y) > dh_max
+					 && the_map->h_map[y][x] > hover_h)
+					|| the_map->map_data[y][x].lava
+							|| the_map->h_map[y][x] < h_min
+							|| the_map->h_map[y][x] > h_max)
+					return false;
 			}
+		}
 		return true;
 	}
 
@@ -770,7 +650,7 @@ namespace TA3D
 			{
 				for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
 				{
-					qmap->set(x, y, checkRectFull(x - mwh, y - mhh, -1, pType));
+					qmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
 				}
 			}
 

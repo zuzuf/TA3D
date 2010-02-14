@@ -172,6 +172,7 @@ namespace TA3D
 		Grid<int>	path;			// Tableau pour le pathfinding
 		Grid<float> slope;			// Maximum derivative of the height map
 		Grid<float>	energy;			// Energy of the map used by the pathfinder and units when following a path
+		Grid<bool>	obstacles;		// A map used by the pathfinder to detect blocking objets
 
 		SDL_Surface *view_map;		// Map of what has been discovered
 		SDL_Surface *sight_map;		// Map of who is viewing
@@ -268,6 +269,7 @@ namespace TA3D
 		float get_nh(int x,int y);
 
 		void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open=false);
+		void obstaclesRect(int x1,int y1,int w,int h, bool b);
 
 		void air_rect( int x1, int y1, int w, int h, short c, bool remove = false);
 

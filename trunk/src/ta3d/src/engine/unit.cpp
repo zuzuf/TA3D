@@ -5066,6 +5066,10 @@ script_exec:
 			}
 			pMutex.unlock();
 
+			if (!(pType->canmove && pType->BMcode))
+				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
+										cur_py - (pType->FootprintZ >> 1),
+										pType->FootprintX, pType->FootprintZ, true);
 			the_map->rect( cur_px - (pType->FootprintX >> 1),
 							 cur_py - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
@@ -5099,6 +5103,10 @@ script_exec:
 								 idx, true );
 		else
 		{
+			if (!(pType->canmove && pType->BMcode))
+				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
+										cur_py - (pType->FootprintZ >> 1),
+										pType->FootprintX, pType->FootprintZ, false);
 			the_map->rect( drawn_x - (pType->FootprintX >> 1),
 							 drawn_y - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
