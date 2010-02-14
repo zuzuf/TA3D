@@ -97,7 +97,7 @@ namespace TA3D
 		return ConvertToUTF8(s, len, nws);
 	}
 
-	char* ConvertToUTF8(const char* s, uint32, uint32& newSize)
+	char* ConvertToUTF8(const char* s, uint32 size, uint32& newSize)
 	{
 		if (NULL == s || '\0' == *s)
 		{
@@ -108,14 +108,16 @@ namespace TA3D
 		}
 		byte tmp[4];
 		newSize = 1;
-		for(byte *p = (byte*)s ; *p ; p++)
+		uint32 n = size;
+		for(byte *p = (byte*)s ; *p && n ; ++p, --n)
 			newSize += ASCIItoUTF8(*p, tmp);
 
 		char* ret = new char[newSize];
 		LOG_ASSERT(NULL != ret);
 
 		byte *q = (byte*)ret;
-		for(byte *p = (byte*)s ; *p ; p++)
+		n = size;
+		for(byte *p = (byte*)s ; *p && n ; ++p, --n)
 			q += ASCIItoUTF8(*p, q);
 		*q = '\0'; // A bit paranoid
 		return ret;

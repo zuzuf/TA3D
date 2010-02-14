@@ -51,7 +51,7 @@ namespace TA3D
 		data[x | (y << 4)] = b;
 	}
 
-	QuadMap::InternalNode::InternalNode(int s, bool b) : s(s), hs(1 << (Math::Log2((s << 1) - 1) - 1))
+	QuadMap::InternalNode::InternalNode(int s, bool b) : hs(1 << (Math::Log2((s << 1) - 1) - 1))
 	{
 		childs[0] = NULL;
 		childs[1] = NULL;

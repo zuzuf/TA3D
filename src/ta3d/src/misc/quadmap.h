@@ -48,7 +48,7 @@ namespace TA3D
 			virtual bool value() const;
 			virtual int getMemoryUse() const;
 		private:
-			const int s, hs;
+			const int hs;
 			std::bitset<4> data;
 			Node *childs[4];
 		};

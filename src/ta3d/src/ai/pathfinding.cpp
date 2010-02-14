@@ -337,7 +337,7 @@ namespace TA3D
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
 
-				if (zone( nx, nz ) || !(*qmap)(nx, nz) || !checkRectFast( nx - mw_h, nz - mh_h, task.idx, pType ))
+				if (zone( nx, nz ) || !(*qmap)(nx, nz) || checkRectFast( nx - mw_h, nz - mh_h, task.idx, pType ) == 2)
 				{
 					float dist[ 8 ];
 					float rdist[ 8 ];
@@ -403,13 +403,13 @@ namespace TA3D
 									 || (dist[ order_m2[ i ] ] < 0.0f && !zoned[ order_m2[ i ] ])
 									 || (dist[ order_p2[ i ] ] < 0.0f && !zoned[ order_p2[ i ] ]))
 								{
-									qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));		// Priority given to possibility to avoid obstacles
+									qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[i], nodes.back().z() + order_dz[i]));		// Priority given to possibility to avoid obstacles
 									qDistFromStart.push_back(curDistFromStart + order_d[ i ]);
 									++nbChoices;
 								}
 								else
 								{
-									qNode.push_front(AI::Path::Node(nodes.back().x() + order_dx[m], nodes.back().z() + order_dz[m]));
+									qNode.push_front(AI::Path::Node(nodes.back().x() + order_dx[i], nodes.back().z() + order_dz[i]));
 									qDistFromStart.push_front(curDistFromStart + order_d[ i ]);
 								}
 							}
@@ -454,12 +454,16 @@ namespace TA3D
 				}
 			}
 		}
-
 #ifdef DEBUG_AI_PATHFINDER
-		SDL_Surface *bmp = gfx->create_surface_ex(8, zone.getWidth(), zone.getHeight());
-		memset(bmp->pixels, 0, bmp->w * bmp->h);
+		SDL_Surface *bmp = gfx->create_surface_ex(32, zone.getWidth(), zone.getHeight());
+		memset(bmp->pixels, 0, bmp->w * bmp->h * sizeof(int));
+		for (int z = 0 ; z < the_map->bloc_h_db ; ++z)
+			for (int x = 0 ; x < the_map->bloc_w_db ; ++x)
+				if (!(*qmap)(x,z))
+					SurfaceInt(bmp, x, z) = 0xFFFFFFFF;
+
 		for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
-			SurfaceByte(bmp, cur->x(), cur->z()) = 255;
+			SurfaceInt(bmp, cur->x(), cur->z()) = 0xFF0000FF;
 
 		SDL_SaveBMP(bmp, "pathmap.bmp");
 
