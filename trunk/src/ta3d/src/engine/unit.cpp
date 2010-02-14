@@ -1604,8 +1604,8 @@ namespace TA3D
 		if (moving)
 		{
 			float dist = sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
-			if (dist < 32.0f)
-				E *= dist * 0.03125f;
+			if (dist < 64.0f)
+				E *= dist * 0.015625f;
 			E += 80.0f * float(pType->MaxSlope) * dist;
 		}
 		for(int i = 0 ; i < 8 ; ++i)
@@ -1614,8 +1614,8 @@ namespace TA3D
 			if (moving)
 			{
 				float dist = sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
-				if (dist < 32.0f)
-					e *= dist * 0.03125f;
+				if (dist < 64.0f)
+					e *= dist * 0.015625f;
 				e += 80.0f * float(pType->MaxSlope) * dist;
 			}
 			if (e < E)
@@ -1697,19 +1697,10 @@ namespace TA3D
 							{
 								Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
 
-//							if (mission->Path().empty())
-//							{
-//								bool place_is_empty = the_map->check_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx);
-//								if (!place_is_empty)
-//								{
-//									LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
-//									mission->Flags() &= ~MISSION_FLAG_MOVE;
-//								}
-//								else
-//									mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Retry later
-//								launchScript(SCRIPT_StopMoving);
-//								was_moving = false;
-//							}
+								if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
+									stopMovingAnimation();
+								was_moving = false;
+								V.reset();
 							}
 							if (!mission->Path().empty())// Update required data
 								Target = mission->Path().Pos();
@@ -1729,7 +1720,7 @@ namespace TA3D
 					J = Target - Pos;
 					J.y = 0.0f;
 					float dist = J.sq();
-					if ((dist > mission->getLastD() && dist < 225.0f) || mission->Path().empty())
+					if ((dist > mission->getLastD() && (dist < 1024.0f || (dist < 225.0f && mission->Path().length() <= 1))) || mission->Path().empty())
 					{
 						mission->Path().next();
 						mission->setLastD(99999999.0f);
@@ -1835,37 +1826,64 @@ namespace TA3D
 				I.x = J.z;
 				I.y = 0.0f;
 				V = (V%K)*K + (V%J)*J;
-				if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
+
+				Vector3D D(Target.z - Pos.z, 0.0f, Pos.x - Target.x);
+				D.unit();
+				float speed = V.norm();
+				float deltaX = 8.0f * fabs(D % V) / (pType->TurnRate * DEG2RAD);
+				float time_to_stop = speed / pType->BrakeRate;
+				float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
+				if (deltaX > dist
+					|| (min_dist >= dist
+					&& mission->Path().length() == 1
+					&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+					&& ( !mission.hasNext()
+						 || (mission(1) != MISSION_MOVE
+							 && mission(1) != MISSION_PATROL))))	// Brake if needed
 				{
-					if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
-					{
-						if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
-							V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
-					}
-					else
-					{
-						float speed = V.norm();
-						float time_to_stop = speed / pType->BrakeRate;
-						float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
-						if (min_dist >= dist
-							&& mission->Path().length() == 1
-							&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
-							&& ( !mission.hasNext()
-								 || (mission(1) != MISSION_MOVE
-									 && mission(1) != MISSION_PATROL)))	// Brake if needed
-							V = V - pType->BrakeRate * dt * J;
-						else if (speed < pType->MaxVelocity)
-							V = V + pType->Acceleration * dt * J;
-						else
-							V = pType->MaxVelocity / speed * V;
-					}
+					V = V - pType->BrakeRate * dt * J;
+					// Don't go backward
+					if (J % V <= 0.0f)
+						V.reset();
 				}
-				else
+				else if (speed < pType->MaxVelocity)
 				{
-					float speed = V.norm();
+					V = V + pType->Acceleration * dt * J;
+					speed = V.norm();
 					if (speed > pType->MaxVelocity)
 						V = pType->MaxVelocity / speed * V;
 				}
+//				if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
+//				{
+//					if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f)
+//					{
+//						if (J % V > 0.0f && V.norm() > pType->BrakeRate * dt)
+//							V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * pType->BrakeRate * dt) * J;
+//					}
+//					else
+//					{
+//						float speed = V.norm();
+//						float time_to_stop = speed / pType->BrakeRate;
+//						float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
+//						if (min_dist >= dist
+//							&& mission->Path().length() == 1
+//							&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
+//							&& ( !mission.hasNext()
+//								 || (mission(1) != MISSION_MOVE
+//									 && mission(1) != MISSION_PATROL)))	// Brake if needed
+//							V = V - pType->BrakeRate * dt * J;
+//						else if (speed < pType->MaxVelocity)
+//							V = V + pType->Acceleration * dt * J;
+//						else
+//							V = pType->MaxVelocity / speed * V;
+//					}
+//				}
+//				else
+//				{
+//					float speed = V.norm();
+//					if (speed > pType->MaxVelocity)
+//						V = pType->MaxVelocity / speed * V;
+//				}
 			}
 			else if (selfmove)
 			{
