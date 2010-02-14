@@ -86,9 +86,8 @@ namespace TA3D
 
 	typedef std::vector<DlDataPic>	DlData;
 
-    class AimData
+	struct AimData
     {
-        public:
         Vector3D    dir;
         float       Maxangledif;
         bool        check;
