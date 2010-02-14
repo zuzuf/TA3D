@@ -321,6 +321,11 @@ namespace TA3D
         ** \brief Returns true if the units float on water
         */
         bool floatting();
+
+		/*!
+		** \brief Returns a String identifying the units movement properties
+		*/
+		String getMoveStringID();
     };
 
     class UnitManager          // Classe pour charger toutes les données relatives aux unités

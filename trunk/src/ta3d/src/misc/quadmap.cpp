@@ -5,8 +5,12 @@
 namespace TA3D
 {
 	QuadMap::QuadMap(int w, int h)
-	 : root(Math::Max(1 << (Math::Log2(w << 1) - 1),		// We want the smallest power of two square map bigger than w*h
-			1 << (Math::Log2(h << 1) - 1)))
+	 : root(Math::Max(1 << Math::Log2((w << 1) - 1),		// We want the smallest power of two square map bigger than w*h
+			1 << Math::Log2((h << 1) - 1)))
+	{
+	}
+
+	QuadMap::Node::~Node()
 	{
 	}
 
@@ -16,6 +20,10 @@ namespace TA3D
 			data.set();
 		else
 			data.reset();
+	}
+
+	QuadMap::LeafNode::~LeafNode()
+	{
 	}
 
 	bool QuadMap::LeafNode::compressible() const
@@ -28,17 +36,22 @@ namespace TA3D
 		return data.all();
 	}
 
+	int QuadMap::LeafNode::getMemoryUse() const
+	{
+		return sizeof(*this);
+	}
+
 	bool QuadMap::LeafNode::get(int x, int y) const
 	{
-		return data[x | (y << 2)];
+		return data[x | (y << 4)];
 	}
 
 	void QuadMap::LeafNode::set(int x, int y, bool b)
 	{
-		data[x | (y << 2)] = b;
+		data[x | (y << 4)] = b;
 	}
 
-	QuadMap::InternalNode::InternalNode(int s, bool b) : s(s), hs(1 << Math::Log2(s))
+	QuadMap::InternalNode::InternalNode(int s, bool b) : s(s), hs(1 << (Math::Log2((s << 1) - 1) - 1))
 	{
 		childs[0] = NULL;
 		childs[1] = NULL;
@@ -114,5 +127,14 @@ namespace TA3D
 			delete childs[n];
 			childs[n] = NULL;
 		}
+	}
+
+	int QuadMap::InternalNode::getMemoryUse() const
+	{
+		int s = sizeof(*this);
+		for(int i = 0 ; i < 4 ; ++i)
+			if (childs[i])
+				s += childs[i]->getMemoryUse();
+		return s;
 	}
 }

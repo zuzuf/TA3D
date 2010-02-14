@@ -34,6 +34,8 @@
 
 namespace TA3D
 {
+	class QuadMap;
+
 	class UnitType;
 
 	class Pathfinder;
@@ -111,6 +113,7 @@ namespace TA3D
 		void clear();
 		void addTask(int idx, int dist, const Vector3D &start, const Vector3D &end);
 		int taskCount();
+		void computeWalkableAreas();
 
 	private:
 		virtual ~Pathfinder();
@@ -125,6 +128,7 @@ namespace TA3D
 		int taskOffset;
 		int nbCores;
 		Synchronizer pSync;
+		HashMap<QuadMap*>::Dense hQuadMap;
 
 	private:
 		static bool checkRectFull(int x1, int y1, int c, UnitType *pType);

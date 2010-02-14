@@ -553,6 +553,10 @@ namespace TA3D
 		}
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, "");
 
+		LOG_INFO(LOG_PREFIX_BATTLE << "Computing walkable areas...");
+		loading(650.0f / 7.0f, I18N::Translate("Computing walkable areas"));
+		Pathfinder::instance()->computeWalkableAreas();
+
 		return true;
 	}
 
