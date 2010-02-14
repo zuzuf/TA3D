@@ -968,6 +968,18 @@ namespace TA3D
 		}
 	}
 
+	String UnitType::getMoveStringID()
+	{
+		String buf;
+		buf << int(FootprintX);
+		buf << ',' << int(FootprintZ);
+		buf << ',' << MaxSlope;
+		buf << ',' << canhover;
+		buf << ',' << MaxWaterDepth;
+		buf << ',' << MinWaterDepth;
+		return buf;
+	}
+
 	void UnitManager::destroy()
 	{
 		unit_hashtable.clear();

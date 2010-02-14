@@ -29,11 +29,12 @@ namespace TA3D
 		class Node
 		{
 		public:
-			virtual ~Node() {};
+			virtual ~Node();
 			virtual void set(int x, int y, bool b) = 0;
 			virtual bool get(int x, int y) const = 0;
 			virtual bool compressible() const = 0;
 			virtual bool value() const = 0;
+			virtual int getMemoryUse() const = 0;
 		};
 
 		class InternalNode : public Node
@@ -45,6 +46,7 @@ namespace TA3D
 			virtual bool get(int x, int y) const;
 			virtual bool compressible() const;
 			virtual bool value() const;
+			virtual int getMemoryUse() const;
 		private:
 			const int s, hs;
 			std::bitset<4> data;
@@ -55,13 +57,14 @@ namespace TA3D
 		{
 		public:
 			LeafNode(bool b = false);
-			virtual ~LeafNode() {};
+			virtual ~LeafNode();
 			virtual void set(int x, int y, bool b);
 			virtual bool get(int x, int y) const;
 			virtual bool compressible() const;
 			virtual bool value() const;
+			virtual int getMemoryUse() const;
 		private:
-			std::bitset<16> data;
+			std::bitset<256> data;
 		};
 
 	public:
@@ -75,6 +78,11 @@ namespace TA3D
 		void set(int x, int y, bool b)
 		{
 			root.set(x, y, b);
+		}
+
+		int getMemoryUse()
+		{
+			return root.getMemoryUse();
 		}
 
 	private:

@@ -34,6 +34,7 @@
 #include <UnitEngine.h>
 #include <yuni/thread/thread.h>
 #include <misc/usectimer.h>
+#include <misc/quadmap.h>
 
 #define PATHFINDER_MAX_LENGTH			500000
 
@@ -112,6 +113,7 @@ namespace TA3D
 
 	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0), nbCores(), pSync(2)
 	{
+		hQuadMap.set_empty_key(String());
 		stasks.set_empty_key(-1);
 		stasks.set_deleted_key(-2);
 		nbCores = Yuni::System::CPU::Count();
@@ -172,6 +174,10 @@ namespace TA3D
 	Pathfinder::~Pathfinder()
 	{
 		destroyThread();
+
+		for(HashMap<QuadMap*>::Dense::iterator it = hQuadMap.begin() ; it != hQuadMap.end() ; ++it)
+			if (it->second)
+				delete it->second;
 	}
 
 	void Pathfinder::proc(void*)
@@ -644,6 +650,45 @@ namespace TA3D
 	{
 		pDead = 1;
 		pSync.release();
+	}
+
+	void Pathfinder::computeWalkableAreas()
+	{
+		for(HashMap<QuadMap*>::Dense::iterator it = hQuadMap.begin() ; it != hQuadMap.end() ; ++it)
+			if (it->second)
+				delete it->second;
+		hQuadMap.clear();
+		int memoryUsed = 0;
+		for(int i = 0 ; i < unit_manager.unit_type.size() ; ++i)
+		{
+			UnitType *pType = unit_manager.unit_type[i];
+			if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
+				continue;
+			String key = pType->getMoveStringID();
+			if (hQuadMap.count(key))		// Already done ?
+				continue;
+			QuadMap *qmap = new QuadMap(the_map->bloc_w_db, the_map->bloc_h_db);
+
+			int mwh = pType->FootprintX >> 1;
+			int mhh = pType->FootprintZ >> 1;
+
+			for(int y = 0 ; y < the_map->bloc_h_db ; ++y)
+			{
+				for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
+				{
+					qmap->set(x, y, checkRectFull(x - mwh, y - mhh, -1, pType));
+				}
+			}
+
+			hQuadMap[key] = qmap;
+
+			memoryUsed += qmap->getMemoryUse();
+
+			if ((i + 1) * 10 / unit_manager.unit_type.size() != i * 10 / unit_manager.unit_type.size())
+				LOG_INFO(LOG_PREFIX_PATHS << (i + 1) * 100 / unit_manager.unit_type.size() << '%');
+		}
+
+		LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024 << "kb");
 	}
 } // namespace TA3D
 
