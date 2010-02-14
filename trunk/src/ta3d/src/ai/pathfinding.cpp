@@ -33,6 +33,7 @@
 #include <misc/math.h>
 #include <UnitEngine.h>
 #include <yuni/thread/thread.h>
+#include <misc/usectimer.h>
 
 #define PATHFINDER_MAX_LENGTH			500000
 
@@ -197,7 +198,10 @@ namespace TA3D
 				&& (units.unit[cur.idx].flags & 1))
 			{
 				AI::Path path;
+				uint64 utimer = usectimer();
 				findPath(path, cur);
+				utimer = usectimer() - utimer;
+				LOG_DEBUG(LOG_PREFIX_PATHS << "findPath : " << utimer << " µs");
 				path._ready = true;
 
 				Unit *pUnit = &(units.unit[cur.idx]);
