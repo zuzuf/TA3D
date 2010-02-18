@@ -948,9 +948,10 @@ namespace TA3D
 		Vector3D D (render.Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
 		float dist = D.sq();
-		if (dist >= 16384.0f && (D % Camera::inGame->dir) <= 0.0f)
+		float p = D % Camera::inGame->dir;
+		if (dist >= 16384.0f && p <= 0.0f)
 			return;
-		if ((D % Camera::inGame->dir) > Camera::inGame->zfar2)
+		if (p > Camera::inGame->zfar2)
 			return;		// Si l'objet est hors champ on ne le dessine pas
 
 		if (!cloaked || owner_id == players.local_human_id) // Don't show cloaked units
