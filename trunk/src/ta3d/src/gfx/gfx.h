@@ -300,6 +300,11 @@ namespace TA3D
 		GLuint defaultTextureFormat_RGB() const	{	return defaultRGBTextureFormat;	}
 		GLuint defaultTextureFormat_RGBA() const	{	return defaultRGBATextureFormat;	}
 
+		void enableShadowMapping() const;
+		void disableShadowMapping() const;
+		void storeShadowMappingState();
+		void restoreShadowMappingState() const;
+
 	public:
 		int			width;				// Size of this window on the screen
 		int			height;
@@ -335,6 +340,8 @@ namespace TA3D
 		//! A default texture, loaded at initialization, used for rendering non textured objects with some shaders
 		GLuint      default_texture;
 
+		//! A bool to store shadowMap texture ID state
+		bool		shadowMapWasActive;
 
 	private:
 		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg);

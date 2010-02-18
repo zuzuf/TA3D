@@ -2606,8 +2606,34 @@ namespace TA3D
 		glMatrixMode(GL_MODELVIEW);
 	}
 
+	void GFX::enableShadowMapping() const
+	{
+		glActiveTexture(GL_TEXTURE7);
+		glEnable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+	}
 
+	void GFX::disableShadowMapping() const
+	{
+		glActiveTexture(GL_TEXTURE7);
+		glDisable(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+	}
 
+	void GFX::storeShadowMappingState()
+	{
+		glActiveTexture(GL_TEXTURE7);
+		shadowMapWasActive = glIsEnabled(GL_TEXTURE_2D);
+		glActiveTexture(GL_TEXTURE0);
+	}
+
+	void GFX::restoreShadowMappingState() const
+	{
+		if (shadowMapWasActive)
+			enableShadowMapping();
+		else
+			disableShadowMapping();
+	}
 
 
 } // namespace TA3D
