@@ -91,7 +91,15 @@ namespace TA3D
 			{
 				count = sock.recv(buffer, sizeof(buffer) - 1);
 				if (count == 0)
-					rest(1);
+				{
+					if (suspend(1))
+					{
+						sock.close();
+						f.close();
+						remove(tmpFile.c_str());
+						return;
+					}
+				}
 			}
 			while(count == 0 && msec_timer - timer < 60000 && !bStop);
 			if (msec_timer - timer >= 60000 || bStop)
