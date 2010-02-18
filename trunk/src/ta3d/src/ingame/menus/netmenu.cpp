@@ -227,8 +227,7 @@ namespace Menus
 							pArea->caption("mods.m_version", pIdx->getVersion());
 							pArea->caption("mods.m_author", pIdx->getAuthor());
 							pArea->caption("mods.m_comment", pIdx->getComment());
-							String dir = Paths::Resources;
-							dir << "mods" << Paths::SeparatorAsString << pIdx->getName();
+							String dir = pIdx->getPathToMod();
 							String filename = dir;
 							filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
 
@@ -661,7 +660,7 @@ namespace Menus
 	void NetMenu::changeMod(const int ID)
 	{
 		ModInfo *inf = Mods::instance()->getMod(ID);
-		String newMod = (ID < 0 || inf == NULL) ? String() : (String("mods/") << inf->getName() << "/");
+		String newMod = (ID < 0 || inf == NULL) ? String() : (String("mods/") << ModInfo::cleanStringForPortablePathName(inf->getName()) << "/");
 		if (TA3D_CURRENT_MOD != newMod) // Refresh the file structure
 		{
 			TA3D_CURRENT_MOD = lp_CONFIG->last_MOD = newMod;

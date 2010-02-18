@@ -51,11 +51,14 @@ namespace TA3D
 		String getAuthor() const	{	return author;  }
 		String getComment() const	{	return comment;  }
 		String getUrl() const		{	return url;  }
+		String getPathToMod() const;
 		bool isInstalled() const	{	return installed;	}
 		bool isUpdateAvailable() const {	return availableUpdate;	}
 		void setUpdateAvailable(bool b)	{	availableUpdate = b;	}
 		void setInstalled(bool b);
 		void uninstall();
+
+		static String cleanStringForPortablePathName(const String &s);
 
     private:
         int     ID;

@@ -62,8 +62,8 @@ namespace TA3D
 
     void ModInfo::read(const String &modName)
     {
-        String filename = Paths::Resources;
-        filename << "mods" << Paths::Separator << modName << Paths::Separator << "info.mod";
+		name = modName;
+		String filename = getPathToMod() << Paths::Separator << "info.mod";
 
 		availableUpdate = false;
 
@@ -89,13 +89,19 @@ namespace TA3D
 		installed = file.pullAsBool("mod.installed", false);
     }
 
+	String ModInfo::getPathToMod() const
+	{
+		String path = Paths::Resources;
+		path << "mods" << Paths::Separator << cleanStringForPortablePathName(name);
+		return path;
+	}
+
     void ModInfo::write()
     {
 		if (name.empty() || ID == -1)       // Don't save empty data
             return;
 
-        String filename = Paths::Resources;
-        filename << "mods" << Paths::Separator << name << Paths::Separator << "info.mod";
+		String filename = getPathToMod() << Paths::Separator << "info.mod";
 
         String file;
         file << "// TA3D Mod info file\n"
@@ -128,12 +134,36 @@ namespace TA3D
 
 		LOG_INFO(LOG_PREFIX_RESOURCES << "uninstalling mod '" << name << "'");
 
-		String modpath = Paths::Resources;
-		modpath << "mods" << Paths::Separator << name;
+		String modpath = getPathToMod();
 		Paths::RemoveDir(modpath);
 		installed = false;
 		write();
 
 		LOG_INFO(LOG_PREFIX_RESOURCES << "mod uninstalled");
+	}
+
+	String ModInfo::cleanStringForPortablePathName(const String &s)
+	{
+		String result;
+		result.reserve(s.size());
+		for(int i = 0 ; i < s.size() ; ++i)
+		{
+			switch(s[i])
+			{
+			case ':':
+			case '/':
+			case '\\':
+			case '?':
+			case '*':
+			case '<':
+			case '>':
+			case '|':
+				break;
+			default:
+				result << s[i];
+			};
+		}
+
+		return result;
 	}
 }
