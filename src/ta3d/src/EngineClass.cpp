@@ -309,8 +309,8 @@ namespace TA3D
 	{
 		int x2 = Math::Min(x1 + w, bloc_w_db);
 		int y2 = Math::Min(y1 + h, bloc_h_db);
-		y1 = Math::Min(y1, 0);
-		x1 = Math::Min(x1, 0);
+		y1 = Math::Max(y1, 0);
+		x1 = Math::Max(x1, 0);
 		for(int y = y1 ; y < y2 ; ++y)
 			for(int x = x1 ; x < x2 ; ++x)
 				obstacles(x,y) = b;
