@@ -48,7 +48,8 @@ namespace Menus
             Gui::AREA::current()->title(wnd, url);
             Gui::AREA::current()->set_data(wnd + ".progress", 0);
             Gui::AREA::current()->msg(wnd + ".show");
-        }
+			this->lastProgress = 0;
+		}
 		this->modID = mID;
         this->filename = filename;
         http.get(filename, url);
@@ -71,7 +72,14 @@ namespace Menus
         if (Gui::AREA::current())
         {
             if (http.isDownloading())
-                Gui::AREA::current()->set_data(wnd + ".progress", (int)http.getProgress());
+			{
+				int p = (int)http.getProgress();
+				if (p != lastProgress)		// Don't update too often, it forces refreshing GUI
+				{
+					Gui::AREA::current()->set_data(wnd + ".progress", p);
+					this->lastProgress = p;
+				}
+			}
             else
                 Gui::AREA::current()->msg(wnd + ".hide");
         }
@@ -247,6 +255,7 @@ namespace Menus
 
 							if (pArea->get_state("mods.b_install"))     // Start download
 							{
+								pArea->set_state("mods.b_install", false);
 								Paths::MakeDir(dir);
 								Download *download = new Download;
 								download->start(filename, pIdx->getUrl(), pIdx->getID());
@@ -255,11 +264,13 @@ namespace Menus
 							}
 							if (pArea->get_state("mods.b_remove"))     // Remove mod
 							{
+								pArea->set_state("mods.b_remove", false);
 								pIdx->uninstall();
 								NetClient::instance()->sendMessage("GET MOD LIST");
 							}
 							if (pArea->get_state("mods.b_update"))     // Remove old files and start download
 							{
+								pArea->set_state("mods.b_update", false);
 								pIdx->uninstall();
 
 								Download *download = new Download;

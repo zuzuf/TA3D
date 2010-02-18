@@ -49,6 +49,7 @@ namespace TA3D
                 Http http;
 				int modID;
                 static int wndNumber;
+				int lastProgress;
             };
 
         public:
