@@ -707,6 +707,8 @@ namespace TA3D
 		{
 			case RENDER_TYPE_LASER:						// Dessine le laser
 				{
+					if (lp_CONFIG->shadow_quality >= 2)
+						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 					Vector3D P(Pos);
 					float length = weapon_def->duration;
 					if (weapon_def->duration > stime)
@@ -743,38 +745,39 @@ namespace TA3D
 					glEnd();
 					glDisable(GL_BLEND);
 					glEnable(GL_CULL_FACE);
+					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 				}
 				break;
 			case RENDER_TYPE_MISSILE:					// Dessine le missile
-				glTranslatef(Pos.x,Pos.y,Pos.z);
+				if (weapon_def->model)
 				{
-					Vector3D I, J, Dir;
-					I.y = I.x = 0.0f;
-					I.z = 1.0f;
-					Dir = V;
+					glTranslatef(Pos.x,Pos.y,Pos.z);
+
+					Vector3D I(0.0f, 0.0f, 1.0f), Dir(V);
 					Dir.unit();
-					J = V * I;
+					Vector3D J(V * I);
 					J.unit();
 					float theta = -acosf( Dir.z ) * RAD2DEG;
 					glRotatef( theta, J.x, J.y, J.z );
-				}
-				glEnable(GL_LIGHTING);
-				glEnable(GL_TEXTURE_2D);
-				if (weapon_def->model)
-				{
+
+					glEnable(GL_LIGHTING);
+					glEnable(GL_TEXTURE_2D);
 					glDisable(GL_CULL_FACE);
 					weapon_def->model->draw(0.0f);
 					glEnable(GL_CULL_FACE);
 				}
 				break;
 			case RENDER_TYPE_BITMAP:
+				if (lp_CONFIG->shadow_quality >= 2)
+					glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
-				if (weapon_manager.cannonshell.nb_bmp>0)
+				if (weapon_manager.cannonshell.nb_bmp > 0)
 				{
 					anim_sprite = short(((int)(stime * 15.0f)) % weapon_manager.cannonshell.nb_bmp);
 					gfx->set_alpha_blending();
+					gfx->enable_model_shading();
 					glEnable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D,weapon_manager.cannonshell.glbmp[anim_sprite]);
 					Vector3D A,B,C,D;
@@ -793,6 +796,7 @@ namespace TA3D
 					glTexCoord2f(0.0f,1.0f);		glVertex3f(C.x,C.y,C.z);
 					glEnd();
 					gfx->unset_alpha_blending();
+					gfx->disable_model_shading();
 				}
 				else
 				{
@@ -804,24 +808,22 @@ namespace TA3D
 					glEnd();
 				}
 				glEnable(GL_LIGHTING);
+				glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 				break;
 			case RENDER_TYPE_BOMB:
-				glTranslatef(Pos.x,Pos.y,Pos.z);
+				if (weapon_def->model)
 				{
-					Vector3D I, J, Dir;
-					I.y = I.x = 0.0f;
-					I.z = 1.0f;
-					Dir = V;
+					glTranslatef(Pos.x,Pos.y,Pos.z);
+
+					Vector3D I(0.0f, 0.0f, 1.0f), Dir(V);
 					Dir.unit();
-					J = V * I;
+					Vector3D J(V * I);
 					J.unit();
 					float theta = -acosf( Dir.z ) * RAD2DEG;
 					glRotatef( theta, J.x, J.y, J.z );
-				}
-				glEnable(GL_LIGHTING);
-				glEnable(GL_TEXTURE_2D);
-				if (weapon_def->model)
-				{
+
+					glEnable(GL_LIGHTING);
+					glEnable(GL_TEXTURE_2D);
 					glDisable(GL_CULL_FACE);
 					weapon_def->model->draw(0.0f);
 					glEnable(GL_CULL_FACE);
@@ -829,6 +831,9 @@ namespace TA3D
 				break;
 			case RENDER_TYPE_LIGHTNING:
 				{
+					if (lp_CONFIG->shadow_quality >= 2)
+						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+
 					Vector3D P = Pos;
 					float length = weapon_def->duration;
 					if (weapon_def->duration > stime)
@@ -862,37 +867,41 @@ namespace TA3D
 						glVertex3f(Pos.x + (P.x - Pos.x) * float(i) / 9.0f + x, Pos.y + (P.y - Pos.y) * float(i) / 9.0f + y, Pos.z + (P.z - Pos.z) * float(i) / 9.0f + z);
 					}
 					glEnd();
+					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 				}
 				break;
 			case RENDER_TYPE_DGUN:			// Dessine le dgun
-				glTranslatef(Pos.x,Pos.y,Pos.z);
-				{
-					Vector3D I, J, Dir;
-					I.z = 1.0f;
-					Dir = V;
-					Dir.unit();
-					J = V * I;
-					J.unit();
-					glRotatef((float)(-acosf(Dir.z) * RAD2DEG), J.x, J.y, J.z);
-				}
-				glEnable(GL_LIGHTING);
-				glEnable(GL_TEXTURE_2D);
 				if (weapon_def->model)
 				{
+					glTranslatef(Pos.x,Pos.y,Pos.z);
+
+					Vector3D I(0.0f, 0.0f, 1.0f), Dir(V);
+					Dir.unit();
+					Vector3D J(V * I);
+					J.unit();
+					glRotatef((float)(-acosf(Dir.z) * RAD2DEG), J.x, J.y, J.z);
+
+					glEnable(GL_LIGHTING);
+					glEnable(GL_TEXTURE_2D);
 					glDisable(GL_CULL_FACE);
 					weapon_def->model->draw(0.0f);
 					glEnable(GL_CULL_FACE);
 				}
 				break;
 			case RENDER_TYPE_GUN:			// Dessine une "balle"
+				if (lp_CONFIG->shadow_quality >= 2)
+					glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_POINTS);
 				glColor3ub(0xBF, 0xBF, 0xBF);
 				glVertex3f(Pos.x,Pos.y,Pos.z);
 				glEnd();
+				glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 				break;
 			case RENDER_TYPE_PARTICLES:		// Dessine des particules
+				if (lp_CONFIG->shadow_quality >= 2)
+					glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glBegin(GL_POINTS);
@@ -905,6 +914,7 @@ namespace TA3D
 						Pos.z + float(Math::RandomTable() % 201) * 0.01f - 1.0f);
 				}
 				glEnd();
+				glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 				break;
 		}
 		glPopMatrix();

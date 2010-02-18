@@ -162,7 +162,7 @@ namespace TA3D
 
 		for(std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
 		{
-			if((weapon[*e].Pos.y < the_map->sealvl && underwater) || (weapon[*e].Pos.y >= the_map->sealvl && !underwater))
+			if(!underwater ^ (weapon[*e].Pos.y < the_map->sealvl))
 				weapon[*e].draw();
 		}
 
