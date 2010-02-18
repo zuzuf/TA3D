@@ -93,8 +93,8 @@ namespace TA3D
 				if (count == 0)
 					rest(1);
 			}
-			while(count == 0 && msec_timer - timer < 60000);
-			if (msec_timer - timer >= 60000)
+			while(count == 0 && msec_timer - timer < 60000 && !bStop);
+			if (msec_timer - timer >= 60000 || bStop)
 				sock.close();
 			if(count < 0)
 			{
