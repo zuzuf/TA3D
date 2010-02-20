@@ -114,7 +114,8 @@ namespace TA3D
 
     public:
         static MODEL *load(const String &filename);
-    };
+		static const char *getExt();
+	};
 } // namespace TA3D
 
 #endif

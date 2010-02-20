@@ -390,10 +390,6 @@ namespace TA3D
         bool	animated;
         bool	from_2d;
         uint16	nb_obj;
-
-    public:
-        static MODEL *load(const String &filename);
-
     }; // class MODEL
 
 
@@ -441,6 +437,34 @@ namespace TA3D
 
 
     extern MODEL_MANAGER	model_manager;
+
+	class MeshTypeManager
+	{
+	public:
+		typedef MODEL* (*MeshLoader)(const String &filename);
+	private:
+		static std::vector<MeshLoader> *lMeshLoader;
+		static String::Vector *lMeshExtension;
+	public:
+		static void registerMeshLoader(MeshLoader loader);
+		static void registerMeshExtension(const String &ext);
+		static MODEL *load(const String &filename);
+		static void getMeshList(String::Vector &filelist);
+	}; // class Archive
+
+	//! A simple macro to auto register Mesh classes functionnalities :) (you don't even need to include the headers \o/)
+#define REGISTER_MESH_TYPE(x) \
+	class __class_register_mesh__##x \
+	{\
+	public:\
+		inline __class_register_mesh__##x() \
+		{\
+			TA3D::MeshTypeManager::registerMeshLoader( x::load );\
+			TA3D::MeshTypeManager::registerMeshExtension( x::getExt() );\
+		}\
+	};\
+	__class_register_mesh__##x __my__##x##__registerer;      // Instantiate an object to have it fully functionnal :)
+
 } // namespace TA3D
 
 #endif

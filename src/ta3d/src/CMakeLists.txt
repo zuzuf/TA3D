@@ -32,7 +32,9 @@ SET(SRC_MESHES
 		mesh/textures.cpp mesh/textures.h
 		mesh/instancing.cpp mesh/instancing.h
 		mesh/3dm.cpp mesh/3dm.h
-		mesh/s3o.cpp mesh/s3o.h)
+		mesh/s3o.cpp mesh/s3o.h
+		mesh/obj.cpp mesh/obj.h
+		mesh/3ds.cpp mesh/3ds.h)
 
 #
 # Logs

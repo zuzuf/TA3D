@@ -38,6 +38,7 @@
 
 namespace TA3D
 {
+	REGISTER_MESH_TYPE(MESH_3DO);
 
 
 	static bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
@@ -155,25 +156,25 @@ namespace TA3D
 
 			switch(primitive.NumberOfVertexIndexes)
 			{
-				case 0:                      break;
-				case 1:		++nb_p_index;    break;
-				case 2:		nb_l_index += 2; break;
-				default:
-							if (i == header.OffsetToselectionPrimitive)
-							{
-								selprim = 1;//nb_t_index;
-								break;
-							}
-							else
-							{
-								if (primitive.IsColored && primitive.ColorIndex == 1)
-									break;
-								file->seek(primitive.OffsetToTextureName);
-								if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
-									break;
-							}
-							n_index += primitive.NumberOfVertexIndexes;
-							++nb_t_index;
+			case 0:                      break;
+			case 1:		++nb_p_index;    break;
+			case 2:		nb_l_index += 2; break;
+			default:
+				if (i == header.OffsetToselectionPrimitive)
+				{
+					selprim = 1;//nb_t_index;
+					break;
+				}
+				else
+				{
+					if (primitive.IsColored && primitive.ColorIndex == 1)
+						break;
+					file->seek(primitive.OffsetToTextureName);
+					if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
+						break;
+				}
+				n_index += primitive.NumberOfVertexIndexes;
+				++nb_t_index;
 			}
 		}
 #ifdef DEBUG_MODE
@@ -209,81 +210,81 @@ namespace TA3D
 
 			switch (primitive.NumberOfVertexIndexes)
 			{
-				case 0:
-					break;
-				case 1:
+			case 0:
+				break;
+			case 1:
+				file->seek(primitive.OffsetToVertexIndexArray);
+				{
+					short s;
+					*file >> s;
+					p_index[pos_p++] = s;
+				}
+				break;
+			case 2:
+				file->seek(primitive.OffsetToVertexIndexArray);
+				{
+					short s;
+					*file >> s;
+					l_index[pos_l++] = s;
+					*file >> s;
+					l_index[pos_l++] = s;
+				}
+				break;
+			default:
+				if (i != header.OffsetToselectionPrimitive)
+				{
+					if (primitive.IsColored && primitive.ColorIndex == 1)
+						break;
+					file->seek(primitive.OffsetToTextureName);
+					if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
+						break;
+				}
+				else
+				{
 					file->seek(primitive.OffsetToVertexIndexArray);
+					for (int e = 0; e < primitive.NumberOfVertexIndexes && e < 4; ++e)
 					{
 						short s;
 						*file >> s;
-						p_index[pos_p++] = s;
+						sel[e] = s;
 					}
 					break;
-				case 2:
-					file->seek(primitive.OffsetToVertexIndexArray);
+				}
+				nb_index[cur] = primitive.NumberOfVertexIndexes;
+				file->seek(primitive.OffsetToTextureName);
+				tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
+				usetex[cur] = 1;
+				if (t_m == -1)
+				{
+					if (primitive.ColorIndex >= 0 && primitive.ColorIndex < 256)
 					{
-						short s;
-						*file >> s;
-						l_index[pos_l++] = s;
-						*file >> s;
-						l_index[pos_l++] = s;
-					}
-					break;
-				default:
-					if (i != header.OffsetToselectionPrimitive)
-					{
-						if (primitive.IsColored && primitive.ColorIndex == 1)
-							break;
-						file->seek(primitive.OffsetToTextureName);
-						if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
-							break;
+						usetex[cur] = 1;
+						tex[cur] = t_m = primitive.ColorIndex;
 					}
 					else
-					{
-						file->seek(primitive.OffsetToVertexIndexArray);
-						for (int e = 0; e < primitive.NumberOfVertexIndexes && e < 4; ++e)
+						usetex[cur] = 0;
+				}
+				if (t_m >= 0)
+				{														// Code pour la création d'une texture propre à chaque modèle
+					bool al_in = false;
+					int indx = t_m;
+					for (int e = 0; e < nb_diff_tex; ++e)
+						if (index_tex[e] == indx)
 						{
-							short s;
-							*file >> s;
-							sel[e] = s;
-						}
+						al_in=true;
 						break;
 					}
-					nb_index[cur] = primitive.NumberOfVertexIndexes;
-					file->seek(primitive.OffsetToTextureName);
-					tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
-					usetex[cur] = 1;
-					if (t_m == -1)
-					{
-						if (primitive.ColorIndex >= 0 && primitive.ColorIndex < 256)
-						{
-							usetex[cur] = 1;
-							tex[cur] = t_m = primitive.ColorIndex;
-						}
-						else
-							usetex[cur] = 0;
-					}
-					if (t_m >= 0)
-					{														// Code pour la création d'une texture propre à chaque modèle
-						bool al_in = false;
-						int indx = t_m;
-						for (int e = 0; e < nb_diff_tex; ++e)
-							if (index_tex[e] == indx)
-							{
-								al_in=true;
-								break;
-							}
-						if (!al_in)
-							index_tex[nb_diff_tex++]=indx;
-					}
-					file->seek(primitive.OffsetToVertexIndexArray);
-					for (int e = 0; e < nb_index[cur]; ++e)
-					{
-						short s;
-						*file >> s;
-						t_index[pos_t++] = s;
-					}
-					++cur;
+					if (!al_in)
+						index_tex[nb_diff_tex++]=indx;
+				}
+				file->seek(primitive.OffsetToVertexIndexArray);
+				for (int e = 0; e < nb_index[cur]; ++e)
+				{
+					short s;
+					*file >> s;
+					t_index[pos_t++] = s;
+				}
+				++cur;
 			}
 		}
 
@@ -301,90 +302,90 @@ namespace TA3D
 			if (i!=0)
 				for (int e = 0; e < i; ++e)
 				{
-					int fx = texture_manager.tex[index_tex[e]].bmp[0]->w, fy=texture_manager.tex[index_tex[e]].bmp[0]->h;
-					bool found[3];
-					found[0] = found[1] = found[2] = true;
-					int j;
+				int fx = texture_manager.tex[index_tex[e]].bmp[0]->w, fy=texture_manager.tex[index_tex[e]].bmp[0]->h;
+				bool found[3];
+				found[0] = found[1] = found[2] = true;
+				int j;
 
-					px[i] = px[e] + fx;
-					py[i] = py[e];
-					for (j = 0; j < i; ++j)
+				px[i] = px[e] + fx;
+				py[i] = py[e];
+				for (j = 0; j < i; ++j)
+				{
+					int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy=texture_manager.tex[index_tex[j]].bmp[0]->h;
+					if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
 					{
-						int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy=texture_manager.tex[index_tex[j]].bmp[0]->h;
-						if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-						{
-							found[0] = false;
-							break;
-						}
+						found[0] = false;
+						break;
 					}
+				}
 
-					px[i] = px[e];
-					py[i] = py[e] + fy;
-					for (j = 0; j < i; ++j)
+				px[i] = px[e];
+				py[i] = py[e] + fy;
+				for (j = 0; j < i; ++j)
+				{
+					int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
+					if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
 					{
-						int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-						if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-						{
-							found[2] = false;
-							break;
-						}
+						found[2] = false;
+						break;
 					}
+				}
+				px[i] = px[e] + fx;
+				py[i] = 0;
+
+				for (j = 0; j < i; ++j)
+				{
+					int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
+					if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+					{
+						found[1] = false;
+						break;
+					}
+				}
+				bool deborde = false;
+				bool found_one = false;
+				int deb = 0;
+
+				if (found[1])
+				{
 					px[i] = px[e] + fx;
 					py[i] = 0;
-
-					for (j = 0; j < i; ++j)
-					{
-						int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-						if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-						{
-							found[1] = false;
-							break;
-						}
-					}
-					bool deborde = false;
-					bool found_one = false;
-					int deb = 0;
-
-					if (found[1])
-					{
-						px[i] = px[e] + fx;
-						py[i] = 0;
-						deborde = false;
-						if (px[i] + dx > mx || py[i] + dy > my)
-							deborde = true;
-						deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-						found_one = true;
-					}
-					if (found[0] && (!found_one || deborde))
-					{
-						px[i] = px[e]+fx;
-						py[i] = py[e];
-						deborde = false;
-						if (px[i] + dx > mx || py[i] + dy > my)
-							deborde = true;
-						deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-						found_one = true;
-					}
-					if (found[2] && deborde)
-					{
-						int ax = px[i],ay = py[i];
-						px[i] = px[e];
-						py[i] = py[e] + fy;
-						deborde = false;
-						if (px[i]+dx>mx || py[i] + dy > my)
-							deborde = true;
-						int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-						if (found_one && deb<deb2)
-						{
-							px[i] = ax;
-							py[i] = ay;
-						}
-						else
-							found_one=true;
-					}
-					if (found_one)			// On a trouvé une position qui convient
-						break;
+					deborde = false;
+					if (px[i] + dx > mx || py[i] + dy > my)
+						deborde = true;
+					deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+					found_one = true;
 				}
+				if (found[0] && (!found_one || deborde))
+				{
+					px[i] = px[e]+fx;
+					py[i] = py[e];
+					deborde = false;
+					if (px[i] + dx > mx || py[i] + dy > my)
+						deborde = true;
+					deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+					found_one = true;
+				}
+				if (found[2] && deborde)
+				{
+					int ax = px[i],ay = py[i];
+					px[i] = px[e];
+					py[i] = py[e] + fy;
+					deborde = false;
+					if (px[i]+dx>mx || py[i] + dy > my)
+						deborde = true;
+					int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+					if (found_one && deb<deb2)
+					{
+						px[i] = ax;
+						py[i] = ay;
+					}
+					else
+						found_one=true;
+				}
+				if (found_one)			// On a trouvé une position qui convient
+					break;
+			}
 			if (px[i] + dx > mx)   mx = px[i] + dx;
 			if (py[i] + dy > my)   my = py[i] + dy;
 		}
@@ -512,16 +513,16 @@ namespace TA3D
 				{
 					switch (e & 3)
 					{
-						case 1:
-							tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
-							break;
-						case 2:
-							tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
-							tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
-							break;
-						case 3:
-							tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
-							break;
+					case 1:
+						tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
+						break;
+					case 2:
+						tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
+						tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
+						break;
+					case 3:
+						tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
+						break;
 					};
 					tcoord[curt]     += ((float)px[indx] + 0.5f) / (mx - 1);
 					tcoord[curt + 1] += ((float)py[indx] + 0.5f) / (my - 1);
@@ -873,14 +874,14 @@ namespace TA3D
 					glNormalPointer(GL_FLOAT, 0, N);
 					switch(type)
 					{
-						case MESH_TYPE_TRIANGLES:
-							glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-							break;
-						case MESH_TYPE_TRIANGLE_STRIP:
-							glDisable( GL_CULL_FACE );
-							glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-							glEnable( GL_CULL_FACE );
-							break;
+					case MESH_TYPE_TRIANGLES:
+						glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+						break;
+					case MESH_TYPE_TRIANGLE_STRIP:
+						glDisable( GL_CULL_FACE );
+						glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+						glEnable( GL_CULL_FACE );
+						break;
 					};
 				}
 				if (creating_list)
@@ -936,79 +937,93 @@ namespace TA3D
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
 
 		return alset;
-		}
+	}
 
-		bool MESH_3DO::draw_nodl(bool alset)
+	bool MESH_3DO::draw_nodl(bool alset)
+	{
+		glPushMatrix();
+
+		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+
+		if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 		{
-			glPushMatrix();
-
-			glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
-
-			if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
+			if (!alset)
 			{
-				if (!alset)
-				{
-					glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-					glEnableClientState(GL_NORMAL_ARRAY);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glEnable(GL_LIGHTING);
-					glEnable(GL_TEXTURE_2D);
-					alset = true;
-					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					glEnable(GL_BLEND);
-				}
-				if (gltex.empty())
-				{
-					alset = false;
-					glDisable(GL_TEXTURE_2D);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				}
-				if (!gltex.empty())
-				{
-					glBindTexture(GL_TEXTURE_2D,gltex[0]);
-					glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-				}
-				glVertexPointer(3, GL_FLOAT, 0, points);
-				glNormalPointer(GL_FLOAT, 0, N);
-				switch(type)
-				{
-					case MESH_TYPE_TRIANGLES:
-						glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
-						break;
-					case MESH_TYPE_TRIANGLE_STRIP:
-						glDisable( GL_CULL_FACE );
-						glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
-						glEnable( GL_CULL_FACE );
-						break;
-				};
+				glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+				glEnableClientState(GL_NORMAL_ARRAY);
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnable(GL_LIGHTING);
+				glEnable(GL_TEXTURE_2D);
+				alset = true;
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				glEnable(GL_BLEND);
 			}
-			if (child)
-				alset = child->draw_nodl(alset);
-			glPopMatrix();
-			if (next)
-				alset = next->draw_nodl(alset);
-
-			return alset;
+			if (gltex.empty())
+			{
+				alset = false;
+				glDisable(GL_TEXTURE_2D);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
+			if (!gltex.empty())
+			{
+				glBindTexture(GL_TEXTURE_2D,gltex[0]);
+				glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+			}
+			glVertexPointer(3, GL_FLOAT, 0, points);
+			glNormalPointer(GL_FLOAT, 0, N);
+			switch(type)
+			{
+			case MESH_TYPE_TRIANGLES:
+				glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+				break;
+			case MESH_TYPE_TRIANGLE_STRIP:
+				glDisable( GL_CULL_FACE );
+				glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+				glEnable( GL_CULL_FACE );
+				break;
+			};
 		}
+		if (child)
+			alset = child->draw_nodl(alset);
+		glPopMatrix();
+		if (next)
+			alset = next->draw_nodl(alset);
 
-		MODEL *MESH_3DO::load(const String &filename)
+		return alset;
+	}
+
+	MODEL *MESH_3DO::load(const String &filename)
+	{
+		File *file = VFS::Instance()->readFile(filename);
+		if (!file)
 		{
-			File *file = VFS::Instance()->readFile(filename);
-			if (!file)
-			{
-				LOG_ERROR(LOG_PREFIX_3DO << "could not read file '" << filename << "'");
-				return NULL;
-			}
-
-			MESH_3DO *mesh = new MESH_3DO;
-			mesh->load(file, 0, filename);
-			delete file;
-
-			MODEL *model = new MODEL;
-			model->mesh = mesh;
-			model->postLoadComputations();
-			return model;
+			LOG_ERROR(LOG_PREFIX_3DO << "could not read file '" << filename << "'");
+			return NULL;
 		}
 
+		MESH_3DO *mesh = new MESH_3DO;
+		mesh->load(file, 0, filename);
+		delete file;
+
+		MODEL *model = new MODEL;
+		model->mesh = mesh;
+		model->postLoadComputations();
+		return model;
+	}
+
+	const char *MESH_3DO::getExt()
+	{
+		return ".3do";
+	}
+
+	void MODEL::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
+	{
+		MESH_3DO *pMesh = new MESH_3DO;
+		pMesh->create_from_2d(bmp,w,h,max_h);
+		mesh = pMesh;
+
+		postLoadComputations();
+		from_2d = true;
+	}
 } // namespace TA3D
 
