@@ -77,7 +77,7 @@ namespace TA3D
             int py=((int)(Pos.z+0.5f) + the_map->map_h_d)>>4;
             if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
             byte player_mask = 1 << players.local_human_id;
-            if (the_map->view[py][px]!=1
+			if (the_map->view(px, py) != 1
                || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))	return;
         }
         renderQueue.queue.push_back( Instance( Pos, 0xFFFFFFFF, 0.0f ) );

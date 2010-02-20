@@ -309,7 +309,7 @@ namespace TA3D
 							if (event_msg.opt2 & 1 ) {		// It's a feature
 								int sx = event_msg.opt3;
 								int sy = event_msg.opt4;
-								units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data[sy][sx].stuff;
+								units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data(sx, sy).stuff;
 							}
 							else							// It's a unit
 								units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt3;
@@ -328,9 +328,9 @@ namespace TA3D
 							{
 								Feature *feature = feature_manager.getFeaturePointer(type);
 								Vector3D feature_pos( event_msg.x, event_msg.y, event_msg.z );
-								the_map->map_data[sy][sx].stuff = features.add_feature( feature_pos, type );
+								the_map->map_data(sx, sy).stuff = features.add_feature( feature_pos, type );
 								if(feature->blocking)
-									the_map->rect(sx - (feature->footprintx >> 1), sy - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -2 - the_map->map_data[sy][sx].stuff);
+									the_map->rect(sx - (feature->footprintx >> 1), sy - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -2 - the_map->map_data(sx, sy).stuff);
 							}
 						}
 					}
@@ -340,7 +340,7 @@ namespace TA3D
 						int sx = event_msg.opt3;		// Burn the object
 						int sy = event_msg.opt4;
 						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
-							int idx = the_map->map_data[sy][sx].stuff;
+							int idx = the_map->map_data(sx, sy).stuff;
 							if (!features.feature[idx].burning )
 								features.burn_feature( idx );
 						}
@@ -352,7 +352,7 @@ namespace TA3D
 						int sy = event_msg.opt4;
 						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db)
 						{
-							int idx = the_map->map_data[sy][sx].stuff;
+							int idx = the_map->map_data(sx, sy).stuff;
 							if (idx >= 0)
 							{
 								Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);

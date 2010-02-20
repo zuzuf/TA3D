@@ -959,17 +959,17 @@ namespace TA3D
 					if (burnt_type >= 0)
 					{
 						Feature *featBurn = feature_manager.getFeaturePointer(burnt_type);
-						the_map->map_data[sy][sx].stuff = features.add_feature(feature[*i].Pos, burnt_type);
+						the_map->map_data(sx, sy).stuff = features.add_feature(feature[*i].Pos, burnt_type);
 						if( featBurn && featBurn->blocking)
 						{
 							the_map->rect(sx - (featBurn->footprintx >> 1),
 										  sy - (featBurn->footprintz >> 1),
 										  featBurn->footprintx,
 										  featBurn->footprintz,
-										  -2 - the_map->map_data[sy][sx].stuff);
+										  -2 - the_map->map_data(sx, sy).stuff);
 						}
 						if (network_manager.isServer())
-							g_ta3d_network->sendFeatureDeathEvent(the_map->map_data[sy][sx].stuff);
+							g_ta3d_network->sendFeatureDeathEvent(the_map->map_data(sx, sy).stuff);
 					}
 				}
 
@@ -1011,9 +1011,9 @@ namespace TA3D
 
 							if (rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) 	// Check coordinates are valid
 							{
-								burn_feature(units.map->map_data[rnd_y][rnd_x].stuff); // Burn it if there is something to burn 8)
+								burn_feature(units.map->map_data(rnd_x, rnd_y).stuff); // Burn it if there is something to burn 8)
 								if (network_manager.isServer())
-									g_ta3d_network->sendFeatureFireEvent(units.map->map_data[rnd_y][rnd_x].stuff);
+									g_ta3d_network->sendFeatureFireEvent(units.map->map_data(rnd_x, rnd_y).stuff);
 							}
 						}
 					}
@@ -1209,7 +1209,7 @@ namespace TA3D
 								feature[idx].px - (pFeature->gRepulsion.getWidth() >> 1),
 								feature[idx].py - (pFeature->gRepulsion.getHeight() >> 1));
 		}
-		the_map->map_data[feature[idx].py] [feature[idx].px].stuff = -1;
+		the_map->map_data(feature[idx].px, feature[idx].py).stuff = -1;
 	}
 
 

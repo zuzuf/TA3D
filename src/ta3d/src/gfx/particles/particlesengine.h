@@ -139,7 +139,7 @@ namespace TA3D
         ** \param bloc_h
         ** \param bmap
         */
-        void draw(Camera *cam,int map_w,int map_h,int bloc_w,int bloc_h, byte **bmap);
+		void draw(Camera *cam);
 
 
     public:

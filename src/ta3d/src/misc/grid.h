@@ -27,7 +27,7 @@ namespace TA3D
 		inline int getHeight() const {	return h;	}
 		inline void add(const Grid<T> &grid, int x, int y);
 		inline void sub(const Grid<T> &grid, int x, int y);
-		inline void clear();
+		inline void clear(const T &v = T(0));
 
 	private:
 		int w;

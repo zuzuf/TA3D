@@ -644,7 +644,7 @@ namespace TA3D
 				if (features.feature[i].burning)    features.burning_features.push_back( i );
 				if (features.feature[i].sinking)    features.sinking_features.push_back( i );
 
-				the_map->map_data[features.feature[i].py][features.feature[i].px].stuff = i;
+				the_map->map_data( features.feature[i].px, features.feature[i].py).stuff = i;
 				features.drawFeatureOnMap( i );
 			}
 		}

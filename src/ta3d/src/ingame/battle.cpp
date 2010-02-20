@@ -541,7 +541,7 @@ namespace TA3D
 						if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db
 							&& (SurfaceByte(map->view_map, px>>1, py>>1) & (1<<players.local_human_id)) )
 						{
-							int idx = -map->map_data[py][px].unit_idx - 2;				// Basic check
+							int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
 							if (idx<0 || features.feature[idx].type<0)
 							{
 								units.last_on = -1;
@@ -553,7 +553,7 @@ namespace TA3D
 										{
 											if (px + dx >= 0 && px + dx < map->bloc_w_db)
 											{
-                                                int feature_idx = map->map_data[py+dy][px+dx].stuff;    // This is thread-safe
+												int feature_idx = map->map_data(px + dx, py + dy).stuff;    // This is thread-safe
                                                 if (feature_idx >= 0)
 												{
                                                     idx = feature_idx;
@@ -1085,7 +1085,7 @@ namespace TA3D
 					int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
 					if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (SurfaceByte(map->view_map, px >> 1, py >> 1) & (1 << players.local_human_id)))
 					{
-						int idx = -map->map_data[py][px].unit_idx - 2;				// Basic check
+						int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
 						if (idx < 0 || features.feature[idx].type < 0)
 						{
 							units.last_on = -1;
@@ -1097,9 +1097,9 @@ namespace TA3D
 									{
 										if (px + dx >= 0 && px + dx < map->bloc_w_db)
 										{
-											if (map->map_data[py+dy][px+dx].stuff >= 0)
+											if (map->map_data(px + dx, py + dy).stuff >= 0)
 											{
-												idx = map->map_data[py+dy][px+dx].stuff;
+												idx = map->map_data(px + dx, py + dy).stuff;
 												Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
 												if (feature
 													&& feature->footprintx + 1 >= (abs(dx) << 1)
@@ -2185,7 +2185,7 @@ namespace TA3D
 				{
 					for (int x = 0; x < map->bloc_w; ++x)
 					{
-						if (map->view[y][x])
+						if (map->view(x, y))
 							glVertex2f(x*rw+dw,y*rh+dh);
 					}
 				}

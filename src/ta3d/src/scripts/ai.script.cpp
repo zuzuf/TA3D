@@ -736,11 +736,11 @@ namespace TA3D
             for(int x = x0 ; x < x1 ; ++x)
             {
                 bool ok = false;
-				airIdxSet &airSet = the_map->map_data[y][x].air_idx;
+				airIdxSet &airSet = the_map->map_data(x,y).air_idx;
 				airIdxSet::iterator cur = airSet.begin();
 				while(cur != airSet.end() || !ok)
                 {
-					int idx = cur != airSet.end() ? *cur : the_map->map_data[y][x].unit_idx;
+					int idx = cur != airSet.end() ? *cur : the_map->map_data(x,y).unit_idx;
 					if (cur == airSet.end())
                         ok = true;
                     else

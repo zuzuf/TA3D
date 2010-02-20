@@ -673,10 +673,10 @@ namespace TA3D
 			for(int x = x1 ; x < fx ; ++x)
 			{
 				if ((the_map->slope(x,y) > dh_max
-					 && the_map->h_map[y][x] > hover_h)
-					|| the_map->map_data[y][x].lava
-							|| the_map->h_map[y][x] < h_min
-							|| the_map->h_map[y][x] > h_max)
+					 && the_map->h_map(x, y) > hover_h)
+					|| the_map->map_data(x, y).lava
+							|| the_map->h_map(x, y) < h_min
+							|| the_map->h_map(x, y) > h_max)
 					return false;
 			}
 		}
