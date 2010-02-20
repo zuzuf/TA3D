@@ -271,9 +271,9 @@ namespace TA3D
 		}
 
 	private:
-		slist_node   *head;
-		slist_node   *last;
-		int          _size;
+		slist_node	*head;
+		slist_node	*last;
+		short		_size;
 
 	}; // class slist
 
