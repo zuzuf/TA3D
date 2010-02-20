@@ -18,6 +18,14 @@
 #include "3ds.h"
 #include <vfs/file.h>
 
+#define DEBUG_3DS
+
+#ifdef DEBUG_3DS
+#define PRINT_DEBUG(x)	LOG_DEBUG(LOG_PREFIX_3DS << x)
+#else
+#define PRINT_DEBUG(x)
+#endif
+
 namespace TA3D
 {
 	REGISTER_MESH_TYPE(Mesh3DS);
@@ -43,6 +51,18 @@ namespace TA3D
 			bool	twoSide;
 			float	texmap;
 			String	mapname;
+
+			Material() :
+					name(), shininess(0.0f),
+					shin2pct(0.0f), shin3pct(0.0f),
+					transparency(0.0f), twoSide(false),
+					texmap(1.0f), mapname()
+			{
+				ambient[0] = 1.0f;
+				ambient[1] = 1.0f;
+				ambient[2] = 1.0f;
+				ambient[3] = 1.0f;
+			}
 		};
 	}
 
@@ -52,6 +72,7 @@ namespace TA3D
 	{
 		ChunkData chunk;
 		*src >> chunk.ID;
+		*src >> chunk.length;
 		switch (chunk.ID)
 		{
 		case COL_RGB:
@@ -75,7 +96,8 @@ namespace TA3D
 	float read_percent_chunk(File *src)
 	{
 		ChunkData chunk;
-		*src >> chunk;
+		*src >> chunk.ID;
+		*src >> chunk.length;
 		switch (chunk.ID)
 		{
 		case PER_INT:
@@ -99,7 +121,8 @@ namespace TA3D
 	String read_MatMapname_chunk(File *src)
 	{
 		ChunkData chunk;
-		*src >> chunk;
+		*src >> chunk.ID;
+		*src >> chunk.length;
 		switch (chunk.ID)
 		{
 		case MAT_MAPNAME:
@@ -110,6 +133,11 @@ namespace TA3D
 		return String();
 	}
 
+	Mesh3DS::Mesh3DS()
+	{
+		Color = 0xFFFFFFFF;
+	}
+
 	Model *Mesh3DS::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
@@ -117,6 +145,7 @@ namespace TA3D
 		if (!file || !file->isOpen())
 			return NULL;
 
+		Mesh3DS *firstObj = new Mesh3DS;
 		Mesh3DS *cur_obj = NULL;
 		Mesh3DS *read_obj = NULL;
 		HashMap<Material*>::Dense material;
@@ -126,34 +155,37 @@ namespace TA3D
 		while (!file->eof())
 		{
 			ChunkData chunk;
-			*file >> chunk;
+			*file >> chunk.ID;
+			*file >> chunk.length;
 			if (file->eof())
 				break;
 			switch (chunk.ID)
 			{
 			case MAIN3DS:
-				//				printf("MAIN3DS (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("MAIN3DS (" << chunk.ID << ',' << chunk.length << ')');
 				break;
 			case EDIT3DS:
-				//					printf("-EDIT3DS (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT3DS (" << chunk.ID << ',' << chunk.length << ')');
 				break;
 			case EDIT_MATERIAL:
-				//						printf("--EDIT_Material (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_MATERIAL (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat && currentMat->name.empty())
 					delete currentMat;
 				currentMat = new Material;
 				break;
 			case MAT_NAME:
-				//							printf("---MAT_name (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_NAME (" << chunk.ID << ',' << chunk.length << ')');
 				{
 					String name = file->getString();
-					//								printf( "name = %s\n", name );
+					PRINT_DEBUG("name = " << name);
 					if (currentMat)
 					{
 						currentMat->name = name;
 						if (!name.empty())
 						{
-							if (material[name])
+							if (material.count(name)
+								&& material[name] != currentMat
+								&& material[name] != NULL)
 								delete material[name];
 							material[name] = currentMat;
 						}
@@ -161,62 +193,62 @@ namespace TA3D
 				}
 				break;
 			case MAT_AMBIENT:
-				//							printf("---MAT_ambient (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_AMBIENT (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					read_color_chunk( currentMat->ambient, file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_DIFFUSE:
-				//							printf("---MAT_diffuse (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_DIFFUSE (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					read_color_chunk( currentMat->diffuse, file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_SPECULAR:
-				//							printf("---MAT_specular (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_SPECULAR (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					read_color_chunk( currentMat->specular, file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_SHININESS:
-				//							printf("---MAT_shininess (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_SHININESS (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					currentMat->shininess = read_percent_chunk( file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_SHIN2PCT:
-				//							printf("---MAT_shin2pct (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_SHIN2PCT (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					currentMat->shin2pct = read_percent_chunk( file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_SHIN3PCT:
-				//							printf("---MAT_shin3pct (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_SHIN3PCT (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					currentMat->shin3pct = read_percent_chunk( file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_TRANSPARENCY:
-				//							printf("---MAT_transparency (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_TRANSPARENCY (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					currentMat->transparency = read_percent_chunk( file );
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_TWO_SIDE:
-				//							printf("---MAT_twoSide (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_TWO_SIDE (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 					currentMat->twoSide = true;
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case MAT_TEXMAP:
-				//							printf("---MAT_texmap (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-MAT_TEXMAP (" << chunk.ID << ',' << chunk.length << ')');
 				if (currentMat)
 				{
 					uint16 n_id;
@@ -233,44 +265,45 @@ namespace TA3D
 						currentMat->mapname = read_MatMapname_chunk( file );
 					}
 					currentMat->mapname = String("textures/") + currentMat->mapname;
+					PRINT_DEBUG("texmap : " << currentMat->mapname);
 				}
 				else
 					file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_CONFIG1:
-				//						printf("--EDIT_CONFIG1 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_CONFIG1 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_CONFIG2:
-				//						printf("--EDIT_CONFIG2 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_CONFIG2 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_VIEW_P1:
-				//						printf("--EDIT_VIEW_P1 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_VIEW_P1 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_VIEW_P2:
-				//						printf("--EDIT_VIEW_P2 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_VIEW_P2 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_VIEW_P3:
-				//						printf("--EDIT_VIEW_P2 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_VIEW_P3 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_VIEW1:
-				//						printf("--EDIT_VIEW1 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_VIEW1 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_BACKGR:
-				//						printf("--EDIT_BACKGR (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_BACKGR (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case EDIT_AMBIENT:
-				//						printf("--EDIT_ambient (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_AMBIENT (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case EDIT_OBJECT:
-				//						printf("--EDIT_OBJECT (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-EDIT_OBJECT (" << chunk.ID << ',' << chunk.length << ')');
 				if (cur_obj)
 				{
 					Mesh3DS *n_obj = new Mesh3DS;
@@ -278,35 +311,37 @@ namespace TA3D
 					cur_obj = n_obj;
 				}
 				else
-					cur_obj = new Mesh3DS;
+					cur_obj = firstObj;
 				cur_obj->type = MESH_TYPE_TRIANGLES;
 				cur_obj->name = file->getString();		// Read the object's name
+				cur_obj->Flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
 				read_obj = cur_obj;
 				break;
             case OBJ_LIGHT:
-				//							printf("---OBJ_LIGHT (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-OBJ_LIGHT (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case OBJ_CAMERA:
-				//							printf("---OBJ_CAMERA (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-OBJ_CAMERA (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case OBJ_UNKNWN01:
-				//							printf("---OBJ_UNKNWN01 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-OBJ_UNKNWN01 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case OBJ_UNKNWN02:
-				//							printf("---OBJ_UNKNWN02 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-OBJ_UNKNWN02 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case OBJ_TRIMESH:
-				//							printf("---OBJ_TRIMESH (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-OBJ_TRIMESH (" << chunk.ID << ',' << chunk.length << ')');
 				if (read_obj->nb_vtx > 0)		// Add a sub object
 				{
 					read_obj->child = new Mesh3DS;
 					read_obj = static_cast<Mesh3DS*>(Mesh::Ptr::WeakPointer(read_obj->child));
 					read_obj->type = MESH_TYPE_TRIANGLES;
 					read_obj->name = cur_obj->name;
+					read_obj->Flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
 				}
 				local[0].x = 1.0f;		local[0].y = 0.0f;		local[0].z = 0.0f;
 				local[1].x = 0.0f;		local[1].y = 1.0f;		local[1].z = 0.0f;
@@ -315,12 +350,12 @@ namespace TA3D
 				break;
             case TRI_VERTEXL:
 				{
-					//								printf("----TRI_VERTEXL (%d,%d)\n", chunk.ID, chunk.length);
+					PRINT_DEBUG("-TRI_VERTEXL (" << chunk.ID << ',' << chunk.length << ')');
 					uint16 nb_vtx;
 					*file >> nb_vtx;
 					read_obj->nb_vtx = nb_vtx;
-					read_obj->points = new Vector3D[nb_vtx];
-					read_obj->N = new Vector3D[nb_vtx];
+					read_obj->points = new Vector3D[nb_vtx << 1];
+					read_obj->N = new Vector3D[nb_vtx << 1];
 					if (read_obj->tcoord == NULL)
 					{
 						read_obj->tcoord = new float[nb_vtx * 2];
@@ -339,28 +374,27 @@ namespace TA3D
 				}
 				break;
             case TRI_FACEL2:
-				//								printf("----TRI_FACEL2 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_FACEL2 (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
 			case TRI_MATERIAL:
-				//								printf("----TRI_Material (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_MATERIAL (" << chunk.ID << ',' << chunk.length << ')');
 				{
 					String material_name = file->getString();
-					//									printf("material name = %s\n", material_name );
+					PRINT_DEBUG("material name = " << material_name);
 
 					Material *cur_mat = material[material_name];
 
 					if (cur_mat)
 					{
-						//										printf("material found\n");
+						PRINT_DEBUG("material found");
 						if (!cur_mat->mapname.empty())
 						{
-							//											printf("loading texture %s\n", cur_mat->mapname );
-							read_obj->Flag |= SURFACE_TEXTURED;
-							read_obj->gltex.resize(1);
+							PRINT_DEBUG("loading texture " << cur_mat->mapname);
+							read_obj->Flag |= SURFACE_TEXTURED | SURFACE_BLENDED;
 							String name = cur_mat->mapname;
 							name.trim();
-							read_obj->gltex[0] = gfx->load_texture(name);
+							read_obj->gltex.push_back(gfx->load_texture(name, FILTER_TRILINEAR, false));
 						}
 						if (cur_mat->transparency > 0.0f)
 						{
@@ -381,22 +415,23 @@ namespace TA3D
 				}
 				break;
             case TRI_MAPPING:
-				//								printf("----TRI_MAPPING (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_MAPPING (" << chunk.ID << ',' << chunk.length << ')');
 				{
 					uint16	nb_vtx;
 					*file >> nb_vtx;
-					read_obj->tcoord = new float[2 * nb_vtx];
+					if (read_obj->tcoord == NULL)
+						read_obj->tcoord = new float[2 * nb_vtx];
 					file->read( (char*)read_obj->tcoord, 2 * sizeof( float ) * nb_vtx );
 					for( int i = 0 ; i < nb_vtx ; i++ )
 						read_obj->tcoord[ i * 2 + 1 ] = 1.0f - read_obj->tcoord[ i * 2 + 1 ];
 				}
 				break;
             case TRI_FACEL1:
-				//								printf("----TRI_FACEL1 (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_FACEL1 (" << chunk.ID << ',' << chunk.length << ')');
 				uint16 nb_index;
 				*file >> nb_index;
-				read_obj->nb_t_index = nb_index;
-				read_obj->t_index = new GLushort(nb_index * 3);
+				read_obj->nb_t_index = nb_index * 3;
+				read_obj->t_index = new GLushort[nb_index * 3];
 				for( int i = 0 ; i < nb_index * 3 ; i += 3 )
 				{
 					uint16 idx[3];
@@ -406,7 +441,7 @@ namespace TA3D
 					read_obj->t_index[i] = idx[0];
 					read_obj->t_index[i+1] = idx[1];
 					read_obj->t_index[i+2] = idx[2];
-					if (!read_obj->points)
+					if (read_obj->points)
 					{
 						Vector3D AB,AC;
 						AB = read_obj->points[ read_obj->t_index[ i + 1 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
@@ -420,27 +455,27 @@ namespace TA3D
 					uint16 face_info;
 					*file >> face_info;
 				}
-				if (!read_obj->points)
+				if (read_obj->points)
 					for (int i = 0 ; i < read_obj->nb_vtx ; ++i)
 						read_obj->N[ i ].unit();
 				break;
             case TRI_SMOOTH:
-				//								printf("----TRI_SMOOTH (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_SMOOTH (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             case TRI_LOCAL:
-				//								printf("----TRI_LOCAL (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_LOCAL (" << chunk.ID << ',' << chunk.length << ')');
 				*file >> local[0];		// X
 				*file >> local[1];		// Y
 				*file >> local[2];		// Z
 				*file >> local[3];		// local origin
 				break;
             case TRI_VISIBLE:
-				//								printf("----TRI_VISIBLE (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("-TRI_VISIBLE (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 				break;
             default:
-				//				printf("unknown (%d,%d)\n", chunk.ID, chunk.length);
+				PRINT_DEBUG("unknown chunk (" << chunk.ID << ',' << chunk.length << ')');
 				file->seek( file->tell() + chunk.length - 6 );
 			}
 		}
@@ -453,7 +488,7 @@ namespace TA3D
 		delete file;
 
 		Model *model = new Model;
-		model->mesh = read_obj;
+		model->mesh = firstObj;
 		model->postLoadComputations();
 		return model;
 	}
