@@ -136,6 +136,7 @@ namespace TA3D
 	class Mesh3DS : public Mesh3DM		// Classe pour la gestion des (sous-)objets des modèles 3do
 	{
 	public:
+		Mesh3DS();
 		virtual ~Mesh3DS() {}
 	public:
 		static Model *load(const String &filename);
