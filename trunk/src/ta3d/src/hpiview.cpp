@@ -494,7 +494,7 @@ namespace TA3D
 			if (Paths::ExtractFileExt(modelname).toLower() == ".3do")		// Load textures
 				texture_manager.all_texture();
 
-			MODEL *model = MeshTypeManager::load(modelname);
+			Model *model = MeshTypeManager::load(modelname);
 			SDL_Surface *background = gfx->load_image(filename);
 			if (model && background)
 			{

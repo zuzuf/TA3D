@@ -94,7 +94,7 @@ namespace TA3D
 		int	z;
 	};
 
-    class MESH_3DO : public MESH        // Classe pour la gestion des (sous-)objets des modèles 3do
+	class Mesh3DO : public Mesh        // Classe pour la gestion des (sous-)objets des modèles 3do
     {
     public:
 
@@ -106,14 +106,14 @@ namespace TA3D
 
         void init3DO();
 
-        inline MESH_3DO() {init3DO();}
+		inline Mesh3DO() {init3DO();}
 
         void destroy3DO();
 
-        virtual ~MESH_3DO() {destroy3DO();}
+		virtual ~Mesh3DO() {destroy3DO();}
 
     public:
-        static MODEL *load(const String &filename);
+		static Model *load(const String &filename);
 		static const char *getExt();
 	};
 } // namespace TA3D

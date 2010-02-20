@@ -146,7 +146,7 @@ namespace TA3D
         //! Rotation speed (for missiles)
         int turnrate;
         //! The 3D Model that is associated to this weapon
-        MODEL* model;
+		Model* model;
         //!
         float smokedelay;
         //!

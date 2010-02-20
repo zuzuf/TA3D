@@ -49,7 +49,7 @@ namespace TA3D
 		MeshTypeManager::lMeshExtension->push_back(ext);
 	}
 
-	MODEL_MANAGER	model_manager;
+	ModelManager	model_manager;
 
 
 
@@ -194,7 +194,7 @@ namespace TA3D
 		}
 	}
 
-	void ANIMATION::animate( float &t, Vector3D &R, Vector3D& T)
+	void Animation::animate( float &t, Vector3D &R, Vector3D& T)
 	{
 		if (type & ROTATION)
 		{
@@ -236,7 +236,7 @@ namespace TA3D
 		}
 	}
 
-	void MESH::init()
+	void Mesh::init()
 	{
 		selprim = -1;
 
@@ -281,7 +281,7 @@ namespace TA3D
 		gl_dlist.clear();
 	}
 
-	void MESH::destroy()
+	void Mesh::destroy()
 	{
 		animation_data = NULL;
 		DELETE_ARRAY(line_on);
@@ -312,7 +312,7 @@ namespace TA3D
 		init();
 	}
 
-	void MESH::load_texture_id(int id)
+	void Mesh::load_texture_id(int id)
 	{
 		if (id < 0 || id >= 10)
 			return;
@@ -347,7 +347,7 @@ namespace TA3D
 		}
 	}
 
-	void MESH::check_textures()
+	void Mesh::check_textures()
 	{
 		if (!tex_cache_name.empty())
 		{
@@ -361,7 +361,7 @@ namespace TA3D
 			next->check_textures();
 	}
 
-	bool MESH::compute_emitter()
+	bool Mesh::compute_emitter()
 	{
 		emitter = ((nb_t_index == 0 || nb_vtx == 0) && child == NULL && next == NULL);
 		if (child)
@@ -372,7 +372,7 @@ namespace TA3D
 	}
 
 
-	bool MESH::compute_emitter_point(int &obj_idx)
+	bool Mesh::compute_emitter_point(int &obj_idx)
 	{
 		emitter_point |= ( script_index == obj_idx);
 		emitter |= emitter_point;
@@ -384,7 +384,7 @@ namespace TA3D
 	}
 
 
-	void MESH::Identify(ScriptData *script)			// Identifie les pièces utilisées par le script
+	void Mesh::Identify(ScriptData *script)			// Identifie les pièces utilisées par le script
 	{
 		script_index = -1;				// Pièce non utilisée / Unused piece
 		if (!name.empty())
@@ -396,7 +396,7 @@ namespace TA3D
 	}
 
 
-	void MESH::compute_center(Vector3D *center,Vector3D dec, int *coef)		// Calcule les coordonnées du centre de l'objet, objets liés compris
+	void Mesh::compute_center(Vector3D *center,Vector3D dec, int *coef)		// Calcule les coordonnées du centre de l'objet, objets liés compris
 	{
 		for (int i = 0; i < nb_vtx; ++i)
 		{
@@ -412,7 +412,7 @@ namespace TA3D
 	}
 
 
-	float MESH::compute_size_sq(Vector3D center)		// Carré de la taille(on fera une racine après)
+	float Mesh::compute_size_sq(Vector3D center)		// Carré de la taille(on fera une racine après)
 	{
 		float size = 0.0f;
 		for (int i = 0; i < nb_vtx; ++i)
@@ -437,7 +437,7 @@ namespace TA3D
 	}
 
 
-	float MESH::compute_top(float top, Vector3D dec)
+	float Mesh::compute_top(float top, Vector3D dec)
 	{
 		for(int i = 0;i < nb_vtx; ++i)
 			top = Math::Max(top, points[i].y + dec.y + pos_from_parent.y);
@@ -449,7 +449,7 @@ namespace TA3D
 	}
 
 
-	float MESH::compute_bottom(float bottom, Vector3D dec)
+	float Mesh::compute_bottom(float bottom, Vector3D dec)
 	{
 		for (int i = 0; i < nb_vtx; ++i)
 			bottom = Math::Min(bottom, points[i].y + dec.y + pos_from_parent.y);
@@ -460,7 +460,7 @@ namespace TA3D
 		return bottom;
 	}
 
-	bool MESH::has_animation_data()
+	bool Mesh::has_animation_data()
 	{
 		if (animation_data)
 			return true;
@@ -471,7 +471,7 @@ namespace TA3D
 		return false;
 	}
 
-	uint16 MESH::set_obj_id(uint16 id)
+	uint16 Mesh::set_obj_id(uint16 id)
 	{
 		nb_sub_obj = id;
 		if (next)
@@ -486,7 +486,7 @@ namespace TA3D
 
 
 
-	int MESH::random_pos(AnimationData *data_s, int id, Vector3D* vec)
+	int Mesh::random_pos(AnimationData *data_s, int id, Vector3D* vec)
 	{
 		if (id == obj_id)
 		{
@@ -529,9 +529,9 @@ namespace TA3D
 
 
 
-	void MESH::compute_coord(AnimationData* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
+	void Mesh::compute_coord(AnimationData* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
 							 Vector3D* upos, Matrix* M, float size, Vector3D* center, bool reverse,
-							 MESH* src, AnimationData* src_data)
+							 Mesh* src, AnimationData* src_data)
 	{
 		Vector3D opos = *pos;
 		Matrix OM;
@@ -630,7 +630,7 @@ namespace TA3D
 
 
 
-	bool MESH::draw_shadow(Vector3D Dir, float t, AnimationData *data_s, bool alset, bool exploding_parts)
+	bool Mesh::draw_shadow(Vector3D Dir, float t, AnimationData *data_s, bool alset, bool exploding_parts)
 	{
 		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
@@ -790,7 +790,7 @@ namespace TA3D
 
 
 
-	bool MESH::draw_shadow_basic(Vector3D Dir,float t,AnimationData *data_s,bool alset,bool exploding_parts)
+	bool Mesh::draw_shadow_basic(Vector3D Dir,float t,AnimationData *data_s,bool alset,bool exploding_parts)
 	{
 		bool explodes = script_index>=0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide=false;
@@ -948,7 +948,7 @@ namespace TA3D
 		return alset;
 	}
 
-	int MESH::hit(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I,Matrix M)
+	int Mesh::hit(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I,Matrix M)
 	{
 		Matrix OM = M;
 		Matrix AM = Scale(1.0f);
@@ -1207,7 +1207,7 @@ namespace TA3D
 
 
 	// hit_fast is a faster version of hit but less precise, designed for use in weapon code
-	bool MESH::hit_fast(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I)
+	bool Mesh::hit_fast(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I)
 	{
 		bool hide = false;
 		Vector3D ODir = Dir;
@@ -1365,7 +1365,7 @@ namespace TA3D
 
 
 
-	float MESH::print_struct(float Y, float X, TA3D::Font *fnt)
+	float Mesh::print_struct(float Y, float X, TA3D::Font *fnt)
 	{
 		gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, String(name) << " [" << script_index << ']');
 		gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, String("(v:") << nb_vtx);
@@ -1382,7 +1382,7 @@ namespace TA3D
 	}
 
 
-	void MESH::hideFlares()
+	void Mesh::hideFlares()
 	{
 		if ((String::ToLower(name).find("flare") != String::npos
 			|| String::ToLower(name).find("flash") != String::npos
@@ -1395,60 +1395,34 @@ namespace TA3D
 	}
 
 
-	MODEL* MODEL_MANAGER::get_model(const String& name)
+	Model* ModelManager::get_model(const String& name)
 	{
 		if (name.empty())
 			return NULL;
 
 		const String l = String::ToLower(name);
-		int e = model_hashtable[String("objects3d\\") << l << ".3do"] - 1;
+
+		int e = model_hashtable[l] - 1;
 		if (e >= 0)
 			return model[e];
 
-		e = model_hashtable[String("objects3d\\") << l << ".3dm"] - 1;
-		if (e >= 0)
-			return model[e];
+		if (MeshTypeManager::lMeshExtension)
+			for(String::Vector::iterator ext = MeshTypeManager::lMeshExtension->begin() ; ext != MeshTypeManager::lMeshExtension->end() ; ++ext)
+			{
+				e = model_hashtable[String("objects3d\\") << l << *ext] - 1;
+				if (e >= 0)
+					return model[e];
 
-		e = model_hashtable[String("objects3d\\") << l << ".s3o"] - 1;
-		if (e >= 0)
-			return model[e];
+				e = model_hashtable[l + *ext] - 1;
+				if (e >= 0)
+					return model[e];
+			}
 
-		e = model_hashtable[String("objects3d\\") << l << ".3ds"] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[String("objects3d\\") << l << ".obj"] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[l] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[l + ".3do"] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[l + ".3dm"] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[l + ".s3o"] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[l + ".3ds"] - 1;
-		if (e >= 0)
-			return model[e];
-
-		e = model_hashtable[l + ".obj"] - 1;
-		if (e >= 0)
-			return model[e];
 		return NULL;
 	}
 
 
-	MODEL_MANAGER::~MODEL_MANAGER()
+	ModelManager::~ModelManager()
 	{
 		for (unsigned int i = 0 ; i < model.size() ; ++i)
 			delete model[i];
@@ -1456,14 +1430,14 @@ namespace TA3D
 		model_hashtable.clear();
 	}
 
-	void MODEL_MANAGER::init()
+	void ModelManager::init()
 	{
 		model.clear();
 		name.clear();
 	}
 
 
-	void MODEL_MANAGER::destroy()
+	void ModelManager::destroy()
 	{
 		for (unsigned int i = 0 ; i < model.size(); ++i)
 			delete model[i];
@@ -1474,19 +1448,19 @@ namespace TA3D
 	}
 
 
-	void MODEL_MANAGER::compute_ids()
+	void ModelManager::compute_ids()
 	{
 		for (unsigned int i = 0; i < model.size(); ++i)
 			model[i]->id = i;
 	}
 
 
-	void MODEL_MANAGER::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const String& filename)
+	void ModelManager::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const String& filename)
 	{
 		name.push_back(filename);
 		model_hashtable[String::ToLower(filename)] = nb_models;
 
-		MODEL *pModel = new MODEL;
+		Model *pModel = new Model;
 		pModel->create_from_2d(bmp,w,h,max_h);
 		model.push_back(pModel);
 	}
@@ -1499,7 +1473,7 @@ namespace TA3D
 			VFS::Instance()->getFilelist(ta3dSideData.model_dir + '*' + *ext, filelist);
 	}
 
-	int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
+	int ModelManager::load_all(void (*progress)(float percent,const String &msg))
 	{
 		const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
@@ -1526,7 +1500,7 @@ namespace TA3D
 
 				if (get_model(e->substr(0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
 				{
-					MODEL *pModel = MeshTypeManager::load(*e);
+					Model *pModel = MeshTypeManager::load(*e);
 					if (pModel)
 					{
 						model.push_back(pModel);
@@ -1546,7 +1520,7 @@ namespace TA3D
 	}
 
 
-	void MODEL::init()
+	void Model::init()
 	{
 		nb_obj = 0;
 		mesh = NULL;
@@ -1561,7 +1535,7 @@ namespace TA3D
 
 
 
-	void MODEL::destroy()
+	void Model::destroy()
 	{
 		if (dlist)
 			glDeleteLists(dlist, 1);
@@ -1569,7 +1543,7 @@ namespace TA3D
 	}
 
 
-	void MODEL::postLoadComputations()
+	void Model::postLoadComputations()
 	{
 		if (!mesh)   return;
 		nb_obj = mesh->set_obj_id( 0 );
@@ -1587,7 +1561,10 @@ namespace TA3D
 		compute_topbottom();
 	}
 
-	void MODEL::draw(float t,AnimationData *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,Matrix *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,MESH *src,AnimationData *src_data)
+	void Model::draw(float t,AnimationData *data_s,bool sel,bool notex,
+					 bool c_part,int p_tex,Vector3D *target,Vector3D *upos,
+					 Matrix *M,float Size,Vector3D* Center,bool reverse,int side,
+					 bool chg_col,Mesh *src,AnimationData *src_data)
 	{
 		if (!mesh)  return;
 		gfx->enable_model_shading();
@@ -1639,7 +1616,7 @@ namespace TA3D
 	}
 
 
-	void MODEL::draw_shadow(const Vector3D& Dir, float t, AnimationData* data_s)
+	void Model::draw_shadow(const Vector3D& Dir, float t, AnimationData* data_s)
 	{
 		if (!mesh)  return;
 		glDisable(GL_TEXTURE_2D);
@@ -1648,7 +1625,7 @@ namespace TA3D
 			mesh->draw_shadow(Dir,t,data_s,false,true);
 	}
 
-	void MODEL::draw_shadow_basic(const Vector3D& Dir, float t, AnimationData *data_s)
+	void Model::draw_shadow_basic(const Vector3D& Dir, float t, AnimationData *data_s)
 	{
 		if (!mesh) return;
 		glDisable(GL_TEXTURE_2D);
@@ -1658,7 +1635,7 @@ namespace TA3D
 	}
 
 
-	void MODEL::compute_coord(AnimationData* data_s, Matrix* M)
+	void Model::compute_coord(AnimationData* data_s, Matrix* M)
 	{
 		if (!mesh)  return;
 		Vector3D pos;
@@ -1666,7 +1643,7 @@ namespace TA3D
 	}
 
 
-	void MODEL::compute_topbottom()
+	void Model::compute_topbottom()
 	{
 		Vector3D O;
 		O.x = O.y = O.z = 0.0f;
@@ -1674,7 +1651,7 @@ namespace TA3D
 		bottom = mesh->compute_bottom(99999.0f, O);
 	}
 
-	MODEL *MeshTypeManager::load(const String &filename)
+	Model *MeshTypeManager::load(const String &filename)
 	{
 		if (lMeshExtension == NULL)
 			return NULL;
@@ -1689,7 +1666,7 @@ namespace TA3D
 		return NULL;
 	}
 
-	MODEL_MANAGER::MODEL_MANAGER() : nb_models(0), model()
+	ModelManager::ModelManager() : nb_models(0), model()
 	{
 		model_hashtable.set_empty_key(String());
 	}

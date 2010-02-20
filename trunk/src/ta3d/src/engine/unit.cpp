@@ -1083,11 +1083,11 @@ namespace TA3D
 				bool c_part = false;
 				bool reverse = false;
 				float size = 0.0f;
-				MESH *src = NULL;
+				Mesh *src = NULL;
 				AnimationData *src_data = NULL;
 				Vector3D v_target;				// Needed in network mode
 				Unit *unit_target = NULL;
-				MODEL *the_model = model;
+				Model *the_model = model;
 				drawing = true;
 
                 if (!pType->emitting_points_computed ) // Compute model emitting points if not already done, do it here in Unit::Locked code ...
@@ -1128,7 +1128,7 @@ namespace TA3D
 								{
 									size = unit_target->model->size2;
 									center = &(unit_target->model->center);
-									src = MESH::Ptr::WeakPointer(unit_target->model->mesh);
+									src = Mesh::Ptr::WeakPointer(unit_target->model->mesh);
 									src_data = &(unit_target->data);
 									unit_target->compute_model_coord();
 								}
@@ -1157,7 +1157,7 @@ namespace TA3D
 								{
 									size = feature->model->size2;
                                     center = &(feature->model->center);
-									src = MESH::Ptr::WeakPointer(feature->model->mesh);
+									src = Mesh::Ptr::WeakPointer(feature->model->mesh);
 									src_data = NULL;
 								}
 								else
@@ -1193,7 +1193,7 @@ namespace TA3D
 								{
 									size = unit_target->model->size2;
                                     center = &(unit_target->model->center);
-									src = MESH::Ptr::WeakPointer(unit_target->model->mesh);
+									src = Mesh::Ptr::WeakPointer(unit_target->model->mesh);
                                     src_data = &(unit_target->data);
 									unit_target->compute_model_coord();
 									v_target = unit_target->Pos;
@@ -1215,7 +1215,7 @@ namespace TA3D
 								{
 									size = feature->model->size2;
                                     center = &(feature->model->center);
-									src = MESH::Ptr::WeakPointer(feature->model->mesh);
+									src = Mesh::Ptr::WeakPointer(feature->model->mesh);
 									src_data = NULL;
 								}
 								else

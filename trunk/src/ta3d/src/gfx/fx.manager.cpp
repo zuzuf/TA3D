@@ -26,7 +26,7 @@ namespace TA3D
 {
 
 	FXManager fx_manager;
-	MODEL* FXManager::currentParticleModel = NULL;
+	Model* FXManager::currentParticleModel = NULL;
 
 
 

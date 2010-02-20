@@ -129,7 +129,7 @@ namespace TA3D
 		//!
 		bool	m3d;
 		//!
-		MODEL	*model;
+		Model	*model;
 		//!
 		bool	converted;		// Indique si l'objet a été converti en 3d depuis un sprite
 		//!
