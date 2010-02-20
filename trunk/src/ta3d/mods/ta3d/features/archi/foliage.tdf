@@ -1,0 +1,223 @@
+[ArchiFoliage01]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond01scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond01scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage02]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond02scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond02scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage03]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond03scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond03scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage04]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond04scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond04scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage05]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond05scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond05scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage06]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond06scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond06scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage04x]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond04scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond04scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
+
+[ArchiFoliage05x]
+	{
+	world=archipelago;
+	description=Foliage;
+	category=foliage;
+	object=planta;
+	footprintx=1;
+	footprintz=1;
+	height=0;
+	energy=75;
+
+	burnmin=5;
+	burnmax=15;
+	sparktime=5;
+	spreadchance=90;
+	burnweapon=ShrubBurn;
+
+	featuredead=frond05scar;
+
+	flamable=1;
+	reclaimable=1;
+	featurereclamate=frond05scar;
+	reproduce=0;
+	reproducearea=6;
+	blocking=0;
+	hitdensity=10;
+	}
