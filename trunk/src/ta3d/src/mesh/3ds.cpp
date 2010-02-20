@@ -18,7 +18,7 @@
 #include "3ds.h"
 #include <vfs/file.h>
 
-#define DEBUG_3DS
+//#define DEBUG_3DS
 
 #ifdef DEBUG_3DS
 #define PRINT_DEBUG(x)	LOG_DEBUG(LOG_PREFIX_3DS << x)
