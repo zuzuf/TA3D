@@ -343,7 +343,7 @@ namespace TA3D
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
 
-				if (zone( nx, nz ) || !(*qmap)(nx, nz) || checkRectFast( nx - mw_h, nz - mh_h, pType ) == 2)
+				if (zone( nx, nz ) || !(*qmap)(nx, nz) || !checkRectFast( nx - mw_h, nz - mh_h, pType ))
 				{
 					float dist[ 8 ];
 					float rdist[ 8 ];
@@ -359,8 +359,7 @@ namespace TA3D
 						zoned[ e ] = zone(nx, nz);
 						if (!zoned[e] && !(*qmap)(nx, nz))
 								continue;
-						int t = checkRectFast(nx - mw_h, nz - mh_h, pType);
-						if (!zoned[e] && t == 2)
+						if (!zoned[e] && !checkRectFast(nx - mw_h, nz - mh_h, pType))
 							continue;
 						rdist[ e ] = dist[ e ] = distanceCoef * sqrtf(float(sq( end_x - nx ) + sq( end_z - nz ))) + energy(nx, nz);
 
@@ -478,8 +477,28 @@ namespace TA3D
 
 		if (!nodes.empty() && pathFound)
 		{
+			std::vector<AI::Path::Node> cleanList;
+#define BLOC_SIZE	16
+			cleanList.reserve(nodes.size() * (2 * BLOC_SIZE + 1) * (2 * BLOC_SIZE + 1));
 			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
+			{
 				zone(cur->x(), cur->z()) = 1;
+				// Add a square zone around this position (we can possibly find a shorter path)
+				int x0 = Math::Max(0, cur->x() - BLOC_SIZE);
+				int x1 = Math::Min(zone.getWidth() - 1, cur->x() + BLOC_SIZE);
+				int z1 = Math::Min(zone.getHeight() - 1, cur->z() + BLOC_SIZE);
+				for(int z = Math::Max(0, cur->z() - BLOC_SIZE) ; z != z1 ; ++z)
+				{
+					for(int x = x0 ; x != x1 ; ++x)
+					{
+						if (zone(x, z))	continue;
+						if (!(*qmap)(x, z) || !checkRectFast(x - mw_h, z - mh_h, pType))	continue;
+						zone(x, z) = 1;
+						cleanList.push_back(AI::Path::Node(x, z));
+					}
+				}
+#undef BLOC_SIZE
+			}
 
 			qNode.clear();
 			if (m_dist == 0)
@@ -511,20 +530,29 @@ namespace TA3D
 				AI::Path::Node cur = qNode.front();
 				qNode.pop_front();
 
-				int ref = zone(cur.x(), cur.z()) + 1;
+				int ref = zone(cur.x(), cur.z());
 				for(int i = 0 ; i < 8 ; ++i)
 				{
 					if (cur.x() + order_dx[i] < 0 || cur.x() + order_dx[i] >= the_map->bloc_w_db
 						|| cur.z() + order_dz[i] < 0 || cur.z() + order_dz[i] >= the_map->bloc_h_db)
 						continue;
 					int t = zone(cur.x() + order_dx[i], cur.z() + order_dz[i]);
-					if (t == 1 || t > ref)
+					int r = ref + order_d[i];
+					if (t == 1 || t > r)
 					{
-						zone(cur.x() + order_dx[i], cur.z() + order_dz[i]) = ref;
+						zone(cur.x() + order_dx[i], cur.z() + order_dz[i]) = r;
 						qNode.push_back(AI::Path::Node(cur.x() + order_dx[i], cur.z() + order_dz[i]));
 					}
 				}
 			}
+//#define DEBUG_AI_PATHFINDER
+#ifdef DEBUG_AI_PATHFINDER
+			SDL_Surface *bmp = gfx->create_surface_ex(32, zone.getWidth(), zone.getHeight());
+			memset(bmp->pixels, 0, bmp->w * bmp->h * sizeof(int));
+			for (int z = 0 ; z < the_map->bloc_h_db ; ++z)
+				for (int x = 0 ; x < the_map->bloc_w_db ; ++x)
+					SurfaceInt(bmp, x, z) = zone(x,z) | makeacol32(0, 0, 0, 0xFF);
+#endif
 
 			std::vector<AI::Path::Node> tmp;
 			tmp.swap(nodes);
@@ -560,7 +588,16 @@ namespace TA3D
 
 				nodes.push_back(next);
 			}
+#ifdef DEBUG_AI_PATHFINDER
+			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Do some cleaning
+				SurfaceInt(bmp, cur->x(), cur->z()) = 0xFFFFFFFF;
+			SDL_SaveBMP(bmp, "pathmap.bmp");
+
+			SDL_FreeSurface(bmp);
+#endif
 			for (std::vector<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Do some cleaning
+				zone(cur->x(), cur->z()) = 0;
+			for (std::vector<AI::Path::Node>::iterator cur = cleanList.begin() ; cur != cleanList.end() ; ++cur)		// Do some cleaning
 				zone(cur->x(), cur->z()) = 0;
 
 			path.clear();
@@ -593,8 +630,9 @@ namespace TA3D
 		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
 		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
 		Grid<bool> &obstacles = the_map->obstacles;
+		int x0 = Math::Max(x1, 0);
 		for(int y = Math::Max(y1, 0) ; y < fy ; ++y)
-			for(int x = Math::Max(x1, 0) ; x < fx ; ++x)
+			for(int x = x0 ; x < fx ; ++x)
 				if (obstacles(x,y))
 					return false;
 		return true;
