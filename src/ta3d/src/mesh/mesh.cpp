@@ -1524,7 +1524,7 @@ namespace TA3D
 	{
 		nb_obj = 0;
 		mesh = NULL;
-		center = Vector3D(0.0f, 0.0f, 0.0f);
+		center.reset();
 		size = 0.0f;
 		size2 = 0.0f;
 		dlist = 0;
@@ -1552,7 +1552,7 @@ namespace TA3D
 
 		Vector3D O;
 		int coef(0);
-		center = Vector3D(0.0f, 0.0f, 0.0f);
+		center.reset();
 		mesh->compute_center(&center,O,&coef);
 		center = (1.0f / coef) * center;
 		size = 2.0f * mesh->compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
@@ -1646,7 +1646,6 @@ namespace TA3D
 	void Model::compute_topbottom()
 	{
 		Vector3D O;
-		O.x = O.y = O.z = 0.0f;
 		top = mesh->compute_top(-99999.0f, O);
 		bottom = mesh->compute_bottom(99999.0f, O);
 	}
