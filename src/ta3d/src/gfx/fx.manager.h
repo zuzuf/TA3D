@@ -223,7 +223,7 @@ namespace TA3D
 
     public:
         //!
-        static MODEL* currentParticleModel;
+		static Model* currentParticleModel;
 
     }; // class FXManager
 

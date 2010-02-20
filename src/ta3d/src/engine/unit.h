@@ -167,7 +167,7 @@ namespace TA3D
 	public:
 		UnitScriptInterface::Ptr script;		// Scripts concernant l'unité
 		RenderData				render;			// Store render data in a sub object
-		MODEL					*model;			// Modèle représentant l'objet
+		Model					*model;			// Modèle représentant l'objet
 		byte					owner_id;		// Numéro du propriétaire de l'unité
 		short					type_id;		// Type d'unité
 		float					hp;				// Points de vie restant à l'unité

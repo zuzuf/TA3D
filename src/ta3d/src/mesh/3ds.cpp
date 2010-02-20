@@ -110,7 +110,7 @@ namespace TA3D
 		return String();
 	}
 
-	MODEL *Mesh3DS::load(const String &filename)
+	Model *Mesh3DS::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 
@@ -304,7 +304,7 @@ namespace TA3D
 				if (read_obj->nb_vtx > 0)		// Add a sub object
 				{
 					read_obj->child = new Mesh3DS;
-					read_obj = static_cast<Mesh3DS*>(MESH::Ptr::WeakPointer(read_obj->child));
+					read_obj = static_cast<Mesh3DS*>(Mesh::Ptr::WeakPointer(read_obj->child));
 					read_obj->type = MESH_TYPE_TRIANGLES;
 					read_obj->name = cur_obj->name;
 				}
@@ -452,7 +452,7 @@ namespace TA3D
 
 		delete file;
 
-		MODEL *model = new MODEL;
+		Model *model = new Model;
 		model->mesh = read_obj;
 		model->postLoadComputations();
 		return model;

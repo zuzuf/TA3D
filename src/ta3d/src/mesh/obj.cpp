@@ -100,7 +100,7 @@ namespace TA3D
 						cur->obj_finalize( face, lVertex, lTcoord, &currentMtl );
 						face.clear();
 						cur->child = new MeshOBJ();
-						cur = static_cast<MeshOBJ*>(MESH::Ptr::WeakPointer(cur->child));
+						cur = static_cast<MeshOBJ*>(Mesh::Ptr::WeakPointer(cur->child));
 					}
 					firstObject = false;
 					cur->name = args[1];
@@ -209,7 +209,7 @@ namespace TA3D
 			cur->obj_finalize(face, lVertex, lTcoord);
 	}
 
-	MODEL *MeshOBJ::load(const String &filename)
+	Model *MeshOBJ::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
@@ -222,7 +222,7 @@ namespace TA3D
 		mesh->load(file);
 		delete file;
 
-		MODEL *model = new MODEL;
+		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
 		return model;

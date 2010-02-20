@@ -42,10 +42,10 @@
 namespace TA3D
 {
 
-	REGISTER_MESH_TYPE(MESH_3DM);
+	REGISTER_MESH_TYPE(Mesh3DM);
 
 
-	void MESH_3DM::init3DM()
+	void Mesh3DM::init3DM()
 	{
 		init();
 		Color = 0;
@@ -60,7 +60,7 @@ namespace TA3D
 
 
 
-	void MESH_3DM::destroy3DM()
+	void Mesh3DM::destroy3DM()
 	{
 		destroy();
 		gfx->destroy_texture(glColorTexture);
@@ -73,7 +73,7 @@ namespace TA3D
 		root = NULL;
 	}
 
-	bool MESH_3DM::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
+	bool Mesh3DM::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
 		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
@@ -327,7 +327,7 @@ namespace TA3D
 		return alset;
 	}
 
-	bool MESH_3DM::draw_nodl(bool alset)
+	bool Mesh3DM::draw_nodl(bool alset)
 	{
 		glPushMatrix();
 
@@ -454,7 +454,7 @@ namespace TA3D
 		return alset;
 	}
 
-	void MESH_3DM::load(File *file, const String &filename, MESH_3DM *root)
+	void Mesh3DM::load(File *file, const String &filename, Mesh3DM *root)
 	{
 		destroy3DM();
 		if (root == NULL)
@@ -717,7 +717,7 @@ namespace TA3D
 
 		if (link == 2) // Load animation data if present
 		{
-			animation_data = new ANIMATION;
+			animation_data = new Animation;
 			file->read( animation_data->type );
 			file->read( animation_data->angle_0 );
 			file->read( animation_data->angle_1 );
@@ -731,7 +731,7 @@ namespace TA3D
 
 		if (link)
 		{
-			MESH_3DM *pChild = new MESH_3DM;
+			Mesh3DM *pChild = new Mesh3DM;
 			child = pChild;
 			pChild->load(file, filename, root);
 			if (!file->isOpen())
@@ -746,7 +746,7 @@ namespace TA3D
 		link = file->getc();
 		if (link)
 		{
-			MESH_3DM *pNext = new MESH_3DM;
+			Mesh3DM *pNext = new Mesh3DM;
 			next = pNext;
 			pNext->load(file, filename, root);
 			if (!file->isOpen())
@@ -759,7 +759,7 @@ namespace TA3D
 			next = NULL;
 	}
 
-	MODEL *MESH_3DM::load(const String &filename)
+	Model *Mesh3DM::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
@@ -782,19 +782,19 @@ namespace TA3D
 			}
 		}
 
-		MESH_3DM *mesh = new MESH_3DM;
+		Mesh3DM *mesh = new Mesh3DM;
 		file->seek(0);
 		mesh->load(file, filename);
 		delete file;
 
-		MODEL *model = new MODEL;
+		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
 		return model;
 	}
 
 
-	bool MESH_3DM::has_animation_data()
+	bool Mesh3DM::has_animation_data()
 	{
 		std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
 
@@ -807,7 +807,7 @@ namespace TA3D
 		return false;
 	}
 
-	const char *MESH_3DM::getExt()
+	const char *Mesh3DM::getExt()
 	{
 		return ".3dm";
 	}

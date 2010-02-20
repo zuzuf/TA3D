@@ -1484,7 +1484,7 @@ namespace TA3D
 			uint16 i = *e;
 
             Unit *pUnit = &(unit[i]);
-			MODEL *model = pUnit->model;
+			Model *model = pUnit->model;
 
 			if (model
 				&& (low_def || (pUnit->render.Pos.y + model->bottom <= the_map->sealvl && underwater)

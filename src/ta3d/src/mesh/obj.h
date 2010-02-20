@@ -34,7 +34,7 @@ namespace TA3D
 		};
 	}
 
-	class MeshOBJ : public MESH_3DM        // Classe pour la gestion des (sous-)objets des modèles 3do
+	class MeshOBJ : public Mesh3DM		// Classe pour la gestion des (sous-)objets des modèles 3do
 	{
 	public:
 		virtual ~MeshOBJ() {}
@@ -43,7 +43,7 @@ namespace TA3D
 	private:
 		void obj_finalize(const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
 	public:
-		static MODEL *load(const String &filename);
+		static Model *load(const String &filename);
 		static const char *getExt();
 	};
 }

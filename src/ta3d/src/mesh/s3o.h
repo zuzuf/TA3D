@@ -83,28 +83,28 @@ namespace TA3D
 
     enum {S3O_PRIMTYPE_TRIANGLES, S3O_PRIMTYPE_TRIANGLE_STRIP, S3O_PRIMTYPE_QUADS};
 
-    class MESH_S3O : public MESH        // Classe pour la gestion des (sous-)objets des modèles 3do
+	class MeshS3O : public Mesh        // Classe pour la gestion des (sous-)objets des modèles 3do
     {
     public:
-        MESH_S3O *root;
+		MeshS3O *root;
     public:
 
 		void load(File *file, const String &filename);
-		MESH_S3O* LoadPiece(File* file, MESH_S3O* model, MESH_S3O *root);
+		MeshS3O* LoadPiece(File* file, MeshS3O* model, MeshS3O *root);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);
 
         void initS3O();
 
-        inline MESH_S3O() {initS3O();}
+		inline MeshS3O() {initS3O();}
 
         void destroyS3O();
 
-        virtual ~MESH_S3O() {destroyS3O();}
+		virtual ~MeshS3O() {destroyS3O();}
 
     public:
-        static MODEL *load(const String &filename);
+		static Model *load(const String &filename);
 		static const char *getExt();
 	};
 } // namespace TA3D

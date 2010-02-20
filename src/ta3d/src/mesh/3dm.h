@@ -52,7 +52,7 @@ namespace TA3D
 #define SURFACE_GLSL                    0x80            // Use a shader to create a surface effect
 #define SURFACE_ROOT_TEXTURE            0X100           // Use only the textures of the root object (all objects share the same texture set)
 
-    class MESH_3DM : public MESH        // Classe pour la gestion des (sous-)objets des modèles 3do
+	class Mesh3DM : public Mesh		// Classe pour la gestion des (sous-)objets des modèles 3do
     {
     public:
         uint32  Color;
@@ -62,25 +62,25 @@ namespace TA3D
         String  vert_shader_src;
         Shader  s_shader;
         GLuint  glColorTexture;     // This is a small texture filled with color Color (just to prevent rendering color from being changed)
-        MESH_3DM *root;
+		Mesh3DM *root;
     public:
 
-		void load(File *file, const String &filename, MESH_3DM *root = NULL);
+		void load(File *file, const String &filename, Mesh3DM *root = NULL);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);
 
         void init3DM();
 
-        inline MESH_3DM() {init3DM();}
+		inline Mesh3DM() {init3DM();}
 
         void destroy3DM();
 
-        virtual ~MESH_3DM() {destroy3DM();}
+		virtual ~Mesh3DM() {destroy3DM();}
 
 		virtual bool has_animation_data();
 	public:
-        static MODEL *load(const String &filename);
+		static Model *load(const String &filename);
 		static const char *getExt();
     };
 } // namespace TA3D

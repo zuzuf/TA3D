@@ -38,7 +38,7 @@
 
 namespace TA3D
 {
-	REGISTER_MESH_TYPE(MESH_3DO);
+	REGISTER_MESH_TYPE(Mesh3DO);
 
 
 	static bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
@@ -52,7 +52,7 @@ namespace TA3D
 	}
 
 
-	void MESH_3DO::init3DO()
+	void Mesh3DO::init3DO()
 	{
 		init();
 		selprim = -1;
@@ -60,13 +60,13 @@ namespace TA3D
 
 
 
-	void MESH_3DO::destroy3DO()
+	void Mesh3DO::destroy3DO()
 	{
 		destroy();
 		init3DO();
 	}
 
-	int MESH_3DO::load(File *file, int dec, const String &filename)
+	int Mesh3DO::load(File *file, int dec, const String &filename)
 	{
 		if (nb_vtx > 0)
 			destroy3DO();					// Au cas où l'objet ne serait pas vierge
@@ -109,7 +109,7 @@ namespace TA3D
 #endif
 		if (header.OffsetToChildObject) // Charge récursivement les différents objets du modèle
 		{
-			MESH_3DO *pChild = new MESH_3DO;
+			Mesh3DO *pChild = new Mesh3DO;
 			child = pChild;
 			file->seek(header.OffsetToChildObject);
 			if (pChild->load(file,dec+1,filename))
@@ -120,7 +120,7 @@ namespace TA3D
 		}
 		if (header.OffsetToSiblingObject) // Charge récursivement les différents objets du modèle
 		{
-			MESH_3DO *pNext = new MESH_3DO;
+			Mesh3DO *pNext = new Mesh3DO;
 			next = pNext;
 			file->seek(header.OffsetToSiblingObject);
 			if (pNext->load(file,dec,filename))
@@ -572,7 +572,7 @@ namespace TA3D
 		return 0;
 	}
 
-	void MESH_3DO::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
+	void Mesh3DO::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
 	{
 		destroy(); // Au cas où l'objet ne serait pas vierge
 
@@ -772,7 +772,7 @@ namespace TA3D
 
 
 
-	bool MESH_3DO::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
+	bool Mesh3DO::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
 		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide=false;
@@ -939,7 +939,7 @@ namespace TA3D
 		return alset;
 	}
 
-	bool MESH_3DO::draw_nodl(bool alset)
+	bool Mesh3DO::draw_nodl(bool alset)
 	{
 		glPushMatrix();
 
@@ -992,7 +992,7 @@ namespace TA3D
 		return alset;
 	}
 
-	MODEL *MESH_3DO::load(const String &filename)
+	Model *Mesh3DO::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
@@ -1001,24 +1001,24 @@ namespace TA3D
 			return NULL;
 		}
 
-		MESH_3DO *mesh = new MESH_3DO;
+		Mesh3DO *mesh = new Mesh3DO;
 		mesh->load(file, 0, filename);
 		delete file;
 
-		MODEL *model = new MODEL;
+		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
 		return model;
 	}
 
-	const char *MESH_3DO::getExt()
+	const char *Mesh3DO::getExt()
 	{
 		return ".3do";
 	}
 
-	void MODEL::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
+	void Model::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
 	{
-		MESH_3DO *pMesh = new MESH_3DO;
+		Mesh3DO *pMesh = new Mesh3DO;
 		pMesh->create_from_2d(bmp,w,h,max_h);
 		mesh = pMesh;
 

@@ -75,7 +75,7 @@ namespace TA3D
             return;
         glPushMatrix();
 
-        MODEL *model = model_manager.model[ model_id ];
+		Model *model = model_manager.model[ model_id ];
 
 		if (model->from_2d)
             glEnable(GL_ALPHA_TEST);

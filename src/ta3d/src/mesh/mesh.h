@@ -155,10 +155,10 @@ namespace TA3D
 #define MESH_TYPE_TRIANGLES         GL_TRIANGLES
 #define MESH_TYPE_TRIANGLE_STRIP    GL_TRIANGLE_STRIP
 
-	class ANIMATION				// Class used to set default animation to a model, this animation will play if no AnimationData is provided (ie for map features)
+	class Animation				// Class used to set default animation to a model, this animation will play if no AnimationData is provided (ie for map features)
     {
 	public:
-		typedef SmartPtr<ANIMATION> Ptr;
+		typedef SmartPtr<Animation> Ptr;
     public:
         byte	type;
         Vector3D	angle_0;
@@ -168,17 +168,17 @@ namespace TA3D
         Vector3D	translate_1;
         float	translate_w;
 
-        ANIMATION()
+		Animation()
             :type(0), angle_w(0.), translate_w(0.)
         {}
 
         void animate( float &t, Vector3D &R, Vector3D& T);
     };
 
-    class MESH                          // The basic mesh class
+	class Mesh                          // The basic mesh class
     {
 	public:
-		typedef SmartPtr<MESH> Ptr;
+		typedef SmartPtr<Mesh> Ptr;
     protected:
         short       nb_vtx;				// Nombre de points
         short       nb_prim;			// Nombre de primitives
@@ -205,7 +205,7 @@ namespace TA3D
         bool        emitter_point;		// This object directly emits particles
         std::vector<GLuint> gl_dlist;   // Display lists to speed up the drawing process
 
-		ANIMATION::Ptr	animation_data;
+		Animation::Ptr	animation_data;
 
         sint16      selprim;			// Polygone de selection
 
@@ -249,7 +249,7 @@ namespace TA3D
                            float size = 0.0f,
                            Vector3D *center = NULL,
                            bool reverse = false,
-                           MESH *src = NULL,
+						   Mesh *src = NULL,
 						   AnimationData *src_data = NULL);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false) = 0;
@@ -269,7 +269,7 @@ namespace TA3D
 
         bool compute_emitter_point(int &obj_idx);
 
-        virtual ~MESH() { }
+		virtual ~Mesh() { }
 
         void destroy();
 
@@ -293,11 +293,11 @@ namespace TA3D
 		void hideFlares();
     };
 
-    class MODEL					// Classe pour la gestion des modèles 3D
+	class Model					// Classe pour la gestion des modèles 3D
     {
     public:
-        MODEL() {init();}
-        ~MODEL() {destroy();}
+		Model() {init();}
+		~Model() {destroy();}
 
         void init();
         void destroy();
@@ -319,7 +319,7 @@ namespace TA3D
 		void draw(float t, AnimationData* data_s = NULL, bool sel = false, bool notex = false,
                   bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
                   Matrix* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
-				  int side = 0, bool chg_col = true, MESH* src = NULL, AnimationData* src_data = NULL);
+				  int side = 0, bool chg_col = true, Mesh* src = NULL, AnimationData* src_data = NULL);
 
         /*!
         ** \brief
@@ -378,7 +378,7 @@ namespace TA3D
         void postLoadComputations();
 
     public:
-		MESH::Ptr  mesh;		// Objet principal du modèle 3D
+		Mesh::Ptr  mesh;		// Objet principal du modèle 3D
         Vector3D  center;			// Centre de l'objet pour des calculs d'élimination d'objets
         float	size;				// Square of the size of the sphere which contains the model
         float	size2;				// Same as above but it is its square root
@@ -394,21 +394,21 @@ namespace TA3D
 
 
 
-    class MODEL_MANAGER	// Classe pour la gestion des modèles 3D du jeu
+	class ModelManager	// Classe pour la gestion des modèles 3D du jeu
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default Constructor
-		MODEL_MANAGER();
+		ModelManager();
         //! Destructor
-        ~MODEL_MANAGER();
+		~ModelManager();
         //@}
 
         void init();
         void destroy();
 
-        MODEL *get_model(const String& name);
+		Model *get_model(const String& name);
 
         /*!
         ** \brief
@@ -427,7 +427,7 @@ namespace TA3D
 
     public:
         int	 nb_models;     // Nombre de modèles
-        std::vector<MODEL*> model;       // Tableau de modèles
+		std::vector<Model*> model;       // Tableau de modèles
         String::Vector	name; // Tableau contenant les noms des modèles
 
     private:
@@ -436,19 +436,20 @@ namespace TA3D
     }; // class MODEL_MANAGER
 
 
-    extern MODEL_MANAGER	model_manager;
+	extern ModelManager	model_manager;
 
 	class MeshTypeManager
 	{
+		friend class ModelManager;
 	public:
-		typedef MODEL* (*MeshLoader)(const String &filename);
+		typedef Model* (*MeshLoader)(const String &filename);
 	private:
 		static std::vector<MeshLoader> *lMeshLoader;
 		static String::Vector *lMeshExtension;
 	public:
 		static void registerMeshLoader(MeshLoader loader);
 		static void registerMeshExtension(const String &ext);
-		static MODEL *load(const String &filename);
+		static Model *load(const String &filename);
 		static void getMeshList(String::Vector &filelist);
 	}; // class Archive
 

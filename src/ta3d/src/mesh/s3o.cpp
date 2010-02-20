@@ -39,13 +39,13 @@
 
 namespace TA3D
 {
-	REGISTER_MESH_TYPE(MESH_S3O);
-	const char *MESH_S3O::getExt()
+	REGISTER_MESH_TYPE(MeshS3O);
+	const char *MeshS3O::getExt()
 	{
 		return ".s3o";
 	}
 
-	void MESH_S3O::initS3O()
+	void MeshS3O::initS3O()
 	{
 		init();
 		root = NULL;
@@ -53,13 +53,13 @@ namespace TA3D
 
 
 
-	void MESH_S3O::destroyS3O()
+	void MeshS3O::destroyS3O()
 	{
 		destroy();
 		root = NULL;
 	}
 
-	bool MESH_S3O::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
+	bool MeshS3O::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
 		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
@@ -218,7 +218,7 @@ namespace TA3D
 		return alset;
 	}
 
-	bool MESH_S3O::draw_nodl(bool alset)
+	bool MeshS3O::draw_nodl(bool alset)
 	{
 		glPushMatrix();
 
@@ -288,9 +288,9 @@ namespace TA3D
 		return alset;
 	}
 
-	MESH_S3O* MESH_S3O::LoadPiece(File* file, MESH_S3O* model, MESH_S3O *root)
+	MeshS3O* MeshS3O::LoadPiece(File* file, MeshS3O* model, MeshS3O *root)
 	{
-		MESH_S3O* piece = model ? model : new MESH_S3O;
+		MeshS3O* piece = model ? model : new MeshS3O;
 		piece->type = MESH_TYPE_TRIANGLES;
 		piece->root = root;
 
@@ -374,7 +374,7 @@ namespace TA3D
 			*file >> childOffset;
 
 			file->seek(childOffset);
-			MESH_S3O* childPiece = LoadPiece(file, NULL, root);
+			MeshS3O* childPiece = LoadPiece(file, NULL, root);
 			if (piece->child)
 			{
 				childPiece->next = piece->child;
@@ -387,7 +387,7 @@ namespace TA3D
 		return piece;
 	}
 
-	void MESH_S3O::load(File *file, const String &filename)
+	void MeshS3O::load(File *file, const String &filename)
 	{
 		destroyS3O();
 
@@ -399,7 +399,7 @@ namespace TA3D
 			return;
 		}
 
-		MESH_S3O* model = this;
+		MeshS3O* model = this;
 		model->type = MESH_TYPE_TRIANGLES;
 		model->name = filename;
 		if (header.texture1 > 0)
@@ -423,7 +423,7 @@ namespace TA3D
 		LoadPiece(file, model, this);
 	}
 
-	MODEL *MESH_S3O::load(const String &filename)
+	Model *MeshS3O::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
@@ -432,11 +432,11 @@ namespace TA3D
 			return NULL;
 		}
 
-		MESH_S3O *mesh = new MESH_S3O;
+		MeshS3O *mesh = new MeshS3O;
 		mesh->load(file, filename);
 		delete file;
 
-		MODEL *model = new MODEL;
+		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
 		return model;
