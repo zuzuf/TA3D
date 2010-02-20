@@ -274,7 +274,6 @@ namespace TA3D
 		static std::vector<AI::Path::Node> nodes;
 		nodes.clear();
 		nodes.push_back(AI::Path::Node(start_x, start_z));
-		int n = 0;
 
 		static int order_p1[] = { 1, 2, 3, 4, 5, 6, 7, 0 };
 		static int order_p2[] = { 2, 3, 4, 5, 6, 7, 0, 1 };
@@ -314,9 +313,9 @@ namespace TA3D
 			pathFound = false;
 			uint32 curDistFromStart = 0;
 			uint32 minPathLength = uint32(-1);
-			int nbChoices = 0;
 			uint32 depthLimit = PATHFINDER_MAX_LENGTH;
 			float distanceCoef = 2.0f * float(pType->MaxSlope);
+			uint32 n = 0;
 			while (n < depthLimit)
 			{
 				++zone( nodes.back().x(), nodes.back().z() );
@@ -331,10 +330,8 @@ namespace TA3D
 
 				if (zone(nx, nz) >= 2 || curDistFromStart > minPathLength)
 				{
-					if (qNode.empty() || (!pathFound && nbChoices == 0))		// We're done
+					if (qNode.empty())		// We're done
 						break;
-					if (nbChoices > 0)
-						--nbChoices;
 					nodes.push_back(qNode.back());
 					qNode.pop_back();
 					curDistFromStart = qDistFromStart.back();
@@ -408,14 +405,8 @@ namespace TA3D
 									 || (dist[ order_m2[ i ] ] < 0.0f && !zoned[ order_m2[ i ] ])
 									 || (dist[ order_p2[ i ] ] < 0.0f && !zoned[ order_p2[ i ] ]))
 								{
-									qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[i], nodes.back().z() + order_dz[i]));		// Priority given to possibility to avoid obstacles
+									qNode.push_back(AI::Path::Node(nodes.back().x() + order_dx[i], nodes.back().z() + order_dz[i]));
 									qDistFromStart.push_back(curDistFromStart + order_d[ i ]);
-									++nbChoices;
-								}
-								else
-								{
-									qNode.push_front(AI::Path::Node(nodes.back().x() + order_dx[i], nodes.back().z() + order_dz[i]));
-									qDistFromStart.push_front(curDistFromStart + order_d[ i ]);
 								}
 							}
 						}
@@ -427,10 +418,8 @@ namespace TA3D
 
 				if (m == -1)
 				{
-					if (qNode.empty() || (!pathFound && nbChoices == 0))		// We're done
+					if (qNode.empty())		// We're done
 						break;
-					if (nbChoices > 0)
-						--nbChoices;
 					nodes.push_back(qNode.back());
 					qNode.pop_back();
 					curDistFromStart = qDistFromStart.back();
@@ -478,27 +467,54 @@ namespace TA3D
 		if (!nodes.empty() && pathFound)
 		{
 			std::vector<AI::Path::Node> cleanList;
-#define BLOC_SIZE	16
-			cleanList.reserve(nodes.size() * (2 * BLOC_SIZE + 1) * (2 * BLOC_SIZE + 1));
+			std::vector<AI::Path::Node> nextPass;
+#define SEARCH_AREA_WIDTH	16
+			cleanList.reserve(nodes.size() * (2 * SEARCH_AREA_WIDTH + 1));
+			nextPass.reserve(nodes.size() * 4);
 			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
 			{
-				zone(cur->x(), cur->z()) = 1;
-				// Add a square zone around this position (we can possibly find a shorter path)
-				int x0 = Math::Max(0, cur->x() - BLOC_SIZE);
-				int x1 = Math::Min(zone.getWidth() - 1, cur->x() + BLOC_SIZE);
-				int z1 = Math::Min(zone.getHeight() - 1, cur->z() + BLOC_SIZE);
-				for(int z = Math::Max(0, cur->z() - BLOC_SIZE) ; z != z1 ; ++z)
-				{
-					for(int x = x0 ; x != x1 ; ++x)
-					{
-						if (zone(x, z))	continue;
-						if (!(*qmap)(x, z) || !checkRectFast(x - mw_h, z - mh_h, pType))	continue;
-						zone(x, z) = 1;
-						cleanList.push_back(AI::Path::Node(x, z));
-					}
-				}
-#undef BLOC_SIZE
+				int x = cur->x();
+				int z = cur->z();
+				zone(x, z) = 1;
+				if (x > 0)
+					nextPass.push_back(AI::Path::Node(x - 1, z));
+				if (z > 0)
+					nextPass.push_back(AI::Path::Node(x, z - 1));
+				if (x + 1 < zone.getWidth())
+					nextPass.push_back(AI::Path::Node(x + 1, z));
+				if (z + 1 < zone.getHeight())
+					nextPass.push_back(AI::Path::Node(x, z + 1));
 			}
+			std::vector<AI::Path::Node> curPass;
+			for(int i = 0 ; i < SEARCH_AREA_WIDTH ; ++i)
+			{
+				bool last = (i + 1) == SEARCH_AREA_WIDTH;
+				curPass.swap(nextPass);
+				nextPass.reserve(curPass.size() * 4);
+				nextPass.clear();
+				for(std::vector<AI::Path::Node>::iterator it = curPass.begin() ; it != curPass.end() ; ++it)
+				{
+					int x = it->x();
+					int z = it->z();
+					if (zone(x, z))	continue;
+					if (!(*qmap)(x, z) || !checkRectFast(x - mw_h, z - mh_h, pType))	continue;
+					zone(x, z) = 1;
+					cleanList.push_back(*it);
+
+					if (last)
+						continue;
+
+					if (x > 0)
+						nextPass.push_back(AI::Path::Node(x - 1, z));
+					if (z > 0)
+						nextPass.push_back(AI::Path::Node(x, z - 1));
+					if (x + 1 < zone.getWidth())
+						nextPass.push_back(AI::Path::Node(x + 1, z));
+					if (z + 1 < zone.getHeight())
+						nextPass.push_back(AI::Path::Node(x, z + 1));
+				}
+			}
+#undef SEARCH_AREA_WIDTH
 
 			qNode.clear();
 			if (m_dist == 0)
@@ -558,23 +574,27 @@ namespace TA3D
 			tmp.swap(nodes);
 			nodes.reserve(tmp.size());
 			nodes.push_back(AI::Path::Node(start_x, start_z));
+			float coef = 0.05f / pType->MaxSlope;
 			while ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))	// Reconstruct the path
 			{
 				zone(nodes.back().x(), nodes.back().z()) = 0;
 				AI::Path::Node next = nodes.back();
 
 				int b = -1;
-				int m = -1;
+				float m(0.0f);
 				for(int i = 0 ; i < 8 ; ++i)
 				{
-					if (next.x() + order_dx[i] < 0 || next.x() + order_dx[i] >= the_map->bloc_w_db
-						|| next.z() + order_dz[i] < 0 || next.z() + order_dz[i] >= the_map->bloc_h_db)
+					int nx = next.x() + order_dx[i];
+					int nz = next.z() + order_dz[i];
+					if (nx < 0 || nx >= the_map->bloc_w_db
+						|| nz < 0 || nz >= the_map->bloc_h_db)
 						continue;
-					int t = zone(next.x() + order_dx[i], next.z() + order_dz[i]);
-					if (t > 0 && (t < m || m == -1))
+					int t = zone(nx, nz);
+					float f = t + coef * energy(nx, nz);
+					if (t > 0 && (f < m || b == -1))
 					{
 						b = i;
-						m = t;
+						m = f;
 					}
 				}
 
@@ -646,7 +666,6 @@ namespace TA3D
 		float hover_h = pType->canhover ? the_map->sealvl : -100.0f;
 		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
 		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
-		int x, y;
 		y1 = Math::Max(y1, 0);
 		x1 = Math::Max(x1, 0);
 		for(int y = y1 ; y < fy ; ++y)
@@ -677,7 +696,7 @@ namespace TA3D
 				delete it->second;
 		hQuadMap.clear();
 		int memoryUsed = 0;
-		for(int i = 0 ; i < unit_manager.unit_type.size() ; ++i)
+		for(uint32 i = 0 ; i < unit_manager.unit_type.size() ; ++i)
 		{
 			UnitType *pType = unit_manager.unit_type[i];
 			if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)

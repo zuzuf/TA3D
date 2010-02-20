@@ -327,9 +327,9 @@ namespace TA3D
 			x1 = Math::Max(x1, 0);
 			uint32 i = (y1 - oy1) * w + x1 - ox1;
 			uint32 s = w - (x2 - x1);
-			for(int y = y1 ; y < y2 & yardmap.size() < i ; ++y)
+			for(int y = y1 ; y < y2 & yardmap.size() > i ; ++y)
 			{
-				for(int x = x1 ; x < x2 && yardmap.size() < i ; ++x, ++i)
+				for(int x = x1 ; x < x2 && yardmap.size() > i ; ++x, ++i)
 				{
 					switch(yardmap[i])
 					{
@@ -384,7 +384,11 @@ namespace TA3D
 				y1 = 0;
 			}
 			if (y2 > bloc_h_db - 1)	y2 = bloc_h_db - 1;
-			if (x1 < 0)	x1 = 0;
+			if (x1 < 0)
+			{
+				i -= x1;
+				x1 = 0;
+			}
 			if (x2 > bloc_w_db - 1)	x2 = bloc_w_db - 1;
 			int dw = w - (x2 - x1);
 			if (y2 <= y1 || x2 <= x1)
@@ -407,12 +411,12 @@ namespace TA3D
 					case 'f':
 						map_data[y][x].unit_idx = c;
 						break;
-						case 'c':
-						case 'C':
+					case 'c':
+					case 'C':
 						if (!open)
 							map_data[y][x].unit_idx = c;
 						break;
-						case 'O':
+					case 'O':
 						if (open)
 							map_data[y][x].unit_idx = c;
 						break;
