@@ -268,8 +268,8 @@ namespace TA3D
 
 		float get_nh(int x,int y);
 
-		void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open=false);
-		void obstaclesRect(int x1,int y1,int w,int h, bool b);
+		void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open = false);
+		void obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap = String(),bool open = false);
 
 		void air_rect( int x1, int y1, int w, int h, short c, bool remove = false);
 

@@ -305,15 +305,54 @@ namespace TA3D
 		return ph_map[y][x];
 	}
 
-	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b)
+	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap,bool open)
 	{
-		int x2 = Math::Min(x1 + w, bloc_w_db);
-		int y2 = Math::Min(y1 + h, bloc_h_db);
-		y1 = Math::Max(y1, 0);
-		x1 = Math::Max(x1, 0);
-		for(int y = y1 ; y < y2 ; ++y)
-			for(int x = x1 ; x < x2 ; ++x)
-				obstacles(x,y) = b;
+		if (yardmap.empty())
+		{
+			int x2 = Math::Min(x1 + w, bloc_w_db);
+			int y2 = Math::Min(y1 + h, bloc_h_db);
+			y1 = Math::Max(y1, 0);
+			x1 = Math::Max(x1, 0);
+			for(int y = y1 ; y < y2 ; ++y)
+				for(int x = x1 ; x < x2 ; ++x)
+					obstacles(x,y) = b;
+		}
+		else
+		{
+			int x2 = Math::Min(x1 + w, bloc_w_db);
+			int y2 = Math::Min(y1 + h, bloc_h_db);
+			int oy1 = y1;
+			int ox1 = x1;
+			y1 = Math::Max(y1, 0);
+			x1 = Math::Max(x1, 0);
+			uint32 i = (y1 - oy1) * w + x1 - ox1;
+			uint32 s = w - (x2 - x1);
+			for(int y = y1 ; y < y2 & yardmap.size() < i ; ++y)
+			{
+				for(int x = x1 ; x < x2 && yardmap.size() < i ; ++x, ++i)
+				{
+					switch(yardmap[i])
+					{
+					case 'G':
+					case 'o':
+					case 'w':
+					case 'f':
+						obstacles(x,y) = b;
+						break;
+					case 'c':
+					case 'C':
+						if (!open)
+							obstacles(x,y) = b;
+						break;
+					case 'O':
+						if (open)
+							obstacles(x,y) = b;
+						break;
+					};
+				}
+				i += s;
+			}
+		}
 	}
 
 	void MAP::rect(int x1,int y1,int w,int h,int c,const String &yardmap,bool open)
@@ -336,7 +375,7 @@ namespace TA3D
 		}
 		else
 		{
-			int i = 0;
+			uint32 i = 0;
 			int y2 = y1 + h;
 			int x2 = x1 + w;
 			if (y1<0)
@@ -355,13 +394,29 @@ namespace TA3D
 			{
 				for (int x = x1; x < x2; ++x)
 				{
-					if (yardmap.size() <= (unsigned int)i)
+					if (yardmap.size() <= i)
 					{
 						pMutex.unlock();
 						return;
 					}
-					if (yardmap[i] == 'G' || yardmap[i] == 'o' || yardmap[i] == 'w' || yardmap[i] == 'f' || (yardmap[i] == 'c' && !open) || (yardmap[i] == 'C' && !open) || (yardmap[i] == 'O' && open))
+					switch(yardmap[i])
+					{
+					case 'G':
+					case 'o':
+					case 'w':
+					case 'f':
 						map_data[y][x].unit_idx = c;
+						break;
+						case 'c':
+						case 'C':
+						if (!open)
+							map_data[y][x].unit_idx = c;
+						break;
+						case 'O':
+						if (open)
+							map_data[y][x].unit_idx = c;
+						break;
+					};
 					++i;
 				}
 				i += dw;

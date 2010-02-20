@@ -5090,7 +5090,8 @@ script_exec:
 			if (!(pType->canmove && pType->BMcode))
 				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
 										cur_py - (pType->FootprintZ >> 1),
-										pType->FootprintX, pType->FootprintZ, true);
+										pType->FootprintX, pType->FootprintZ, true,
+										pType->yardmap, port[YARD_OPEN] != 0.0f);
 			the_map->rect( cur_px - (pType->FootprintX >> 1),
 							 cur_py - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
@@ -5127,7 +5128,8 @@ script_exec:
 			if (!(pType->canmove && pType->BMcode))
 				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
 										cur_py - (pType->FootprintZ >> 1),
-										pType->FootprintX, pType->FootprintZ, false);
+										pType->FootprintX, pType->FootprintZ, false,
+										pType->yardmap, drawn_open);
 			the_map->rect( drawn_x - (pType->FootprintX >> 1),
 							 drawn_y - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
