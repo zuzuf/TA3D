@@ -81,6 +81,7 @@ namespace TA3D
 		virtual bool has_animation_data();
 	public:
         static MODEL *load(const String &filename);
+		static const char *getExt();
     };
 } // namespace TA3D
 

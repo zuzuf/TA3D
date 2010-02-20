@@ -29,14 +29,25 @@
 #include <languages/i18n.h>
 #include <ingame/sidedata.h>
 #include "mesh.h"
-#include "3do.h"
-#include "3dm.h"
-#include "s3o.h"
 
 namespace TA3D
 {
+	std::vector<MeshTypeManager::MeshLoader> *MeshTypeManager::lMeshLoader = NULL;
+	String::Vector *MeshTypeManager::lMeshExtension = NULL;
 
+	void MeshTypeManager::registerMeshLoader(MeshLoader loader)
+	{
+		if (!lMeshLoader)
+			lMeshLoader = new std::vector<MeshTypeManager::MeshLoader>;
+		MeshTypeManager::lMeshLoader->push_back(loader);
+	}
 
+	void MeshTypeManager::registerMeshExtension(const String &ext)
+	{
+		if (!lMeshExtension)
+			lMeshExtension = new String::Vector;
+		MeshTypeManager::lMeshExtension->push_back(ext);
+	}
 
 	MODEL_MANAGER	model_manager;
 
@@ -1402,6 +1413,14 @@ namespace TA3D
 		if (e >= 0)
 			return model[e];
 
+		e = model_hashtable[String("objects3d\\") << l << ".3ds"] - 1;
+		if (e >= 0)
+			return model[e];
+
+		e = model_hashtable[String("objects3d\\") << l << ".obj"] - 1;
+		if (e >= 0)
+			return model[e];
+
 		e = model_hashtable[l] - 1;
 		if (e >= 0)
 			return model[e];
@@ -1415,6 +1434,14 @@ namespace TA3D
 			return model[e];
 
 		e = model_hashtable[l + ".s3o"] - 1;
+		if (e >= 0)
+			return model[e];
+
+		e = model_hashtable[l + ".3ds"] - 1;
+		if (e >= 0)
+			return model[e];
+
+		e = model_hashtable[l + ".obj"] - 1;
 		if (e >= 0)
 			return model[e];
 		return NULL;
@@ -1464,22 +1491,27 @@ namespace TA3D
 		model.push_back(pModel);
 	}
 
+	void MeshTypeManager::getMeshList(String::Vector &filelist)
+	{
+		if (lMeshExtension == NULL)
+			return;
+		for(String::Vector::iterator ext = lMeshExtension->begin() ; ext != lMeshExtension->end() ; ++ext)
+			VFS::Instance()->getFilelist(ta3dSideData.model_dir + '*' + *ext, filelist);
+	}
 
 	int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 	{
 		const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
-		String::List file_list;
-		VFS::Instance()->getFilelist(ta3dSideData.model_dir + "*.3dm", file_list);
-		VFS::Instance()->getFilelist(ta3dSideData.model_dir + "*.s3o", file_list);
-		VFS::Instance()->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
+		String::Vector file_list;
+		MeshTypeManager::getMeshList(file_list);
 
 		if (!file_list.empty())
 		{
 			int n = 0;
 			int progressIncrement = 0;
-			const String::List::const_iterator end = file_list.end();
-			for (String::List::const_iterator e = file_list.begin(); e != end; ++e)
+			const String::Vector::const_iterator end = file_list.end();
+			for (String::Vector::const_iterator e = file_list.begin(); e != end; ++e)
 			{
 				LOG_DEBUG("[Mesh] Loading `" << *e << "`");
 				if (++progressIncrement == 25 && progress != NULL)
@@ -1494,7 +1526,7 @@ namespace TA3D
 
 				if (get_model(e->substr(0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
 				{
-					MODEL *pModel = MODEL::load(*e);
+					MODEL *pModel = MeshTypeManager::load(*e);
 					if (pModel)
 					{
 						model.push_back(pModel);
@@ -1553,16 +1585,6 @@ namespace TA3D
 		size2 = sqrtf(0.5f * size);
 		mesh->compute_emitter();
 		compute_topbottom();
-	}
-
-	void MODEL::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
-	{
-		MESH_3DO *pMesh = new MESH_3DO;
-		pMesh->create_from_2d(bmp,w,h,max_h);
-		mesh = pMesh;
-
-		postLoadComputations();
-		from_2d = true;
 	}
 
 	void MODEL::draw(float t,AnimationData *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,Matrix *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,MESH *src,AnimationData *src_data)
@@ -1652,15 +1674,17 @@ namespace TA3D
 		bottom = mesh->compute_bottom(99999.0f, O);
 	}
 
-	MODEL *MODEL::load(const String &filename)
+	MODEL *MeshTypeManager::load(const String &filename)
 	{
+		if (lMeshExtension == NULL)
+			return NULL;
+
 		String ext = Paths::ExtractFileExt(filename).toLower();
-		if (ext == ".3do")
-			return MESH_3DO::load(filename);
-		if (ext == ".3dm")
-			return MESH_3DM::load(filename);
-		if (ext == ".s3o")
-			return MESH_S3O::load(filename);
+		for(int i = 0 ; i < lMeshExtension->size() ; ++i)
+		{
+			if (ext == lMeshExtension->at(i))
+				return lMeshLoader->at(i)(filename);
+		}
 		LOG_WARNING(LOG_PREFIX_MODEL << "model could not be loaded : file extension unknown");
 		return NULL;
 	}

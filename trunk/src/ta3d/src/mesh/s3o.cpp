@@ -39,6 +39,12 @@
 
 namespace TA3D
 {
+	REGISTER_MESH_TYPE(MESH_S3O);
+	const char *MESH_S3O::getExt()
+	{
+		return ".s3o";
+	}
+
 	void MESH_S3O::initS3O()
 	{
 		init();

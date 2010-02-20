@@ -42,6 +42,7 @@
 namespace TA3D
 {
 
+	REGISTER_MESH_TYPE(MESH_3DM);
 
 
 	void MESH_3DM::init3DM()
@@ -806,5 +807,9 @@ namespace TA3D
 		return false;
 	}
 
+	const char *MESH_3DM::getExt()
+	{
+		return ".3dm";
+	}
 } // namespace TA3D
 
