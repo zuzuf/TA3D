@@ -159,6 +159,12 @@ namespace TA3D
 		pSync.release();
 	}
 
+	bool Pathfinder::hasTaskQueueForUnit(uint32 UID)
+	{
+		MutexLocker mLock(pMutex);
+		return stasks.count(UID) != 0;
+	}
+
 	AI::Path Pathfinder::directPath(const Vector3D &end)
 	{
 		int x = ((int)end.x + the_map->map_w_d) >> 3;

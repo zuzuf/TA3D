@@ -1679,12 +1679,12 @@ namespace TA3D
 							|| pType->canfly)
 						{
 							mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
-							requesting_pathfinder = !pType->canfly;
 
 							move_target_computed = mission->getTarget().getPos();
 							last_path_refresh = 0.0f;
 							if (pType->canfly)
 							{
+								requesting_pathfinder = false;
 								if (mission->getMoveData() <= 0)
 									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
 								else
@@ -1696,12 +1696,14 @@ namespace TA3D
 							}
 							else
 							{
+								requesting_pathfinder = true;
 								Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
 
-								if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
+								if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once loaded with units the Atlas cannot land
 									stopMovingAnimation();
 								was_moving = false;
 								V.reset();
+								V_Angle.reset();
 							}
 							if (!mission->Path().empty())// Update required data
 								Target = mission->Path().Pos();
@@ -1721,7 +1723,7 @@ namespace TA3D
 					J = Target - Pos;
 					J.y = 0.0f;
 					float dist = J.sq();
-					if ((dist > mission->getLastD() && (dist < 1024.0f || (dist < 225.0f && mission->Path().length() <= 1))) || mission->Path().empty())
+					if (dist > mission->getLastD() && (dist < 256.0f || (dist < 225.0f && mission->Path().length() <= 1)))
 					{
 						mission->Path().next();
 						mission->setLastD(99999999.0f);

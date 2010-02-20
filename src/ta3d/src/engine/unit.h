@@ -170,7 +170,7 @@ namespace TA3D
 		MODEL					*model;			// Modèle représentant l'objet
 		byte					owner_id;		// Numéro du propriétaire de l'unité
 		short					type_id;		// Type d'unité
-		float					hp;				// Points de vide restant à l'unité
+		float					hp;				// Points de vie restant à l'unité
 		Vector3D				Pos;			// Vecteur position
 		Vector3D				V;				// Vitesse de l'unité
 		Vector3D				Angle;			// Orientation dans l'espace
