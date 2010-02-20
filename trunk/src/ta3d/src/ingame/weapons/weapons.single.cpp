@@ -245,10 +245,10 @@ namespace TA3D
 
 					slist< sint16 > air_list;
 
-					if (!the_map->map_data[py+y][px+x].air_idx.empty())
+					if (!the_map->map_data(px + x, py + y).air_idx.empty())
                     {
 						the_map->lock();
-						air_list = the_map->map_data[py+y][px+x].air_idx.getData();
+						air_list = the_map->map_data(px + x, py + y).air_idx.getData();
 						the_map->unlock();
                     }
 
@@ -258,7 +258,7 @@ namespace TA3D
 					{
 						if (land_test)
 						{
-							t_idx = the_map->map_data[py+y][px+x].unit_idx;
+							t_idx = the_map->map_data(px + x, py + y).unit_idx;
 							land_test = false;
 						}
 						else
@@ -272,8 +272,7 @@ namespace TA3D
 						if (t_idx >= 0 && t_idx < units.max_unit && ( units.unit[t_idx].owner_id != owner || target == t_idx ) && (units.unit[ t_idx ].flags & 1) ) // No Friendly Fire
 						{
 							Vector3D t_vec;
-							t_vec.x = t_vec.y=t_vec.z=0.0f;
-							u_hit = units.unit[t_idx].hit_fast(OPos,Dir,&t_vec, length);
+							u_hit = units.unit[t_idx].hit_fast(OPos, Dir, &t_vec, length);
 							if (u_hit)
 							{
 								if ((t_vec-Pos)%V<=0.0f) // Touché
@@ -395,10 +394,10 @@ namespace TA3D
 							int type = feature_manager.get_feature_index( feat2->feature_dead );
 							if (type >= 0)
 							{
-								the_map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
-								features.drawFeatureOnMap( the_map->map_data[sy][sx].stuff );
+								the_map->map_data(sx, sy).stuff = features.add_feature(feature_pos,type);
+								features.drawFeatureOnMap( the_map->map_data(sx, sy).stuff );
 								if (network_manager.isConnected())
-									g_ta3d_network->sendFeatureCreationEvent( the_map->map_data[sy][sx].stuff );
+									g_ta3d_network->sendFeatureCreationEvent( the_map->map_data(sx, sy).stuff );
 							}
 						}
 					}
@@ -427,10 +426,10 @@ namespace TA3D
 
 					slist< sint16 > air_list;
 
-					if (!the_map->map_data[py+y][px+x].air_idx.empty())
+					if (!the_map->map_data(px + x, py + y).air_idx.empty())
                     {
 						the_map->lock();
-						air_list = the_map->map_data[py+y][px+x].air_idx.getData();
+						air_list = the_map->map_data(px + x, py + y).air_idx.getData();
 						the_map->unlock();
                     }
 
@@ -440,7 +439,7 @@ namespace TA3D
 					{
                         if (land_test)
 						{
-							t_idx = the_map->map_data[py+y][px+x].unit_idx;
+							t_idx = the_map->map_data(px + x, py + y).unit_idx;
 							land_test = false;
 						}
 						else
@@ -559,10 +558,10 @@ namespace TA3D
 												int type = feature_manager.get_feature_index( feat2->feature_dead );
 												if (type >= 0 )
 												{
-													the_map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
-													features.drawFeatureOnMap( the_map->map_data[sy][sx].stuff );
+													the_map->map_data(sx, sy).stuff = features.add_feature(feature_pos,type);
+													features.drawFeatureOnMap( the_map->map_data(sx, sy).stuff );
 													if (network_manager.isConnected() )
-														g_ta3d_network->sendFeatureCreationEvent( the_map->map_data[sy][sx].stuff );
+														g_ta3d_network->sendFeatureCreationEvent( the_map->map_data(sx, sy).stuff );
 												}
 											}
 										}
@@ -639,13 +638,13 @@ namespace TA3D
 					P.y += 3.0f;
 					if (px >= 0 && px < the_map->bloc_w && py >= 0 && py < the_map->bloc_h)
 					{
-						if (the_map->bloc[the_map->bmap[py][px]].lava && !weapon_def->lavaexplosiongaf.empty() && !weapon_def->lavaexplosionart.empty())
+						if (the_map->bloc[the_map->bmap(px, py)].lava && !weapon_def->lavaexplosiongaf.empty() && !weapon_def->lavaexplosionart.empty())
 						{
 							if (visible)
 								fx_manager.add(weapon_def->lavaexplosiongaf,weapon_def->lavaexplosionart,Pos,1.0f);
 						}
 						else
-							if (!the_map->bloc[the_map->bmap[py][px]].lava && !weapon_def->waterexplosiongaf.empty() && !weapon_def->waterexplosionart.empty())
+							if (!the_map->bloc[the_map->bmap(px, py)].lava && !weapon_def->waterexplosiongaf.empty() && !weapon_def->waterexplosionart.empty())
 								if (visible)
 									fx_manager.add(weapon_def->waterexplosiongaf,weapon_def->waterexplosionart,Pos,1.0f);
 					}
@@ -694,7 +693,7 @@ namespace TA3D
 		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			return;
 		byte player_mask = byte(1 << players.local_human_id);
-		if (the_map->view[py][px]!=1
+		if (the_map->view(px, py) != 1
 			|| !(SurfaceByte(the_map->sight_map, px, py) & player_mask))
 			return;
 

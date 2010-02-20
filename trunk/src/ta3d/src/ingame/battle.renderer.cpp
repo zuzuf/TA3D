@@ -137,7 +137,7 @@ namespace TA3D
 				refcam.setView(true);
 				glClipPlane(GL_CLIP_PLANE1, eqn);
 
-				particle_engine.draw(&refcam, map->map_w, map->map_h, map->bloc_w, map->bloc_h, map->view);
+				particle_engine.draw(&refcam);
 
 				refcam.setView();
 				glClipPlane(GL_CLIP_PLANE1, eqn);
@@ -1004,7 +1004,7 @@ namespace TA3D
 
 	void Battle::renderPostEffects()
 	{
-		particle_engine.draw(&cam,map->map_w,map->map_h,map->bloc_w,map->bloc_h,map->view);	// Dessine les particules
+		particle_engine.draw(&cam);	// Dessine les particules
 
 		if (!map->water)
 			fx_manager.draw(cam, map->sealvl, true);		// Effets spéciaux en surface

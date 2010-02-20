@@ -135,39 +135,39 @@ namespace TA3D
 		details_tex = 0;
 		color_factor = 1.0f;
 
-		low_nb_idx=0;
-		low_vtx=NULL;
-		low_vtx_flat=NULL;
-		low_tcoord=NULL;
-		low_col=NULL;
-		low_index=NULL;
-		low_tex=0;
+		low_nb_idx = 0;
+		low_vtx = NULL;
+		low_vtx_flat = NULL;
+		low_tcoord = NULL;
+		low_col = NULL;
+		low_index = NULL;
+		low_tex = 0;
 
-		wind=0.0f;
-		wind_dir=0.0f;
-		wind_vec.x=wind_vec.y=wind_vec.z=0.0f;
+		wind = 0.0f;
+		wind_dir = 0.0f;
+		wind_vec.reset();
 		ota_data.init();
-		lava_map=0;
-		mini_w=mini_h=252;
-		ntex=0;
-		tex=NULL;
-		nbbloc=0;
-		bloc=NULL;
-		mini=NULL;
-		bmap=NULL;
-		h_map=NULL;
-		ph_map=NULL;
-		ph_map_2=NULL;
-		map_data=NULL;
-		sealvl=0.0f;
-		glmini=0;
-		lvl=NULL;
-		water=true;
-		tnt=false;			// Laisse la possibilité de créer un autre format de cartes
-		sea_dec=0.0f;
-		view=NULL;
-		ox1=ox2=oy1=oy2=0;
-		short buf_size=0;
+		lava_map = 0;
+		mini_w = mini_h = 252;
+		ntex = 0;
+		tex = NULL;
+		nbbloc = 0;
+		bloc = NULL;
+		mini = NULL;
+		bmap.resize(0,0);
+		h_map.resize(0,0);
+		ph_map.resize(0,0);
+		ph_map_2.resize(0,0);
+		map_data.resize(0,0);
+		sealvl = 0.0f;
+		glmini = 0;
+		lvl = NULL;
+		water = true;
+		tnt = false;			// Laisse la possibilité de créer un autre format de cartes
+		sea_dec = 0.0f;
+		view.resize(0,0);
+		ox1 = ox2 = oy1 = oy2 = 0;
+		short buf_size = 0;
 		for (short int i = 0; i < 6500; ++i)
 		{
 			buf_i[i++] = 0 + buf_size;
@@ -191,39 +191,39 @@ namespace TA3D
 
 	float MAP::get_unit_h(float x,float y)
 	{
-		x=(x+map_w_d)*0.125f;		// Convertit les coordonnées
-		y=(y+map_h_d)*0.125f;
-		int lx = bloc_w_db-1;
-		int ly = bloc_h_db-1;
-		if (x<0.0f) x=0.0f;
-		else if (x>=lx) x=bloc_w_db-2;
-		if (y<0.0f) y=0.0f;
-		else if (y>=ly) y=bloc_h_db-2;
+		x = (x + map_w_d) * 0.125f;		// Convertit les coordonnées
+		y = (y + map_h_d) * 0.125f;
+		int lx = bloc_w_db - 1;
+		int ly = bloc_h_db - 1;
+		if (x < 0.0f) x = 0.0f;
+		else if (x >= lx) x = bloc_w_db - 2;
+		if (y < 0.0f) y = 0.0f;
+		else if (y >= ly) y = bloc_h_db - 2;
 		float h[4];
-		int X=(int)x,Y=(int)y;
-		float dx=x-X;
-		float dy=y-Y;
-		h[0]=h_map[Y][X];
-		if (X+1<lx)
-			h[1]=h_map[Y][X+1]-h[0];
+		int X = (int)x, Y = (int)y;
+		float dx = x - X;
+		float dy = y - Y;
+		h[0] = h_map(X, Y);
+		if (X + 1 < lx)
+			h[1] = h_map(X + 1, Y) - h[0];
 		else
-			h[1]=0.0f;
+			h[1] = 0.0f;
 
-		if (Y+1<ly)
+		if (Y + 1 < ly)
 		{
-			h[2]=h_map[Y+1][X];
-			if (X+1<lx)
-				h[3]=h_map[Y+1][X+1]-h[2];
+			h[2] = h_map(X, Y+1);
+			if (X + 1 < lx)
+				h[3] = h_map(X + 1, Y + 1) - h[2];
 			else
-				h[3]=0.0f;
+				h[3] = 0.0f;
 		}
 		else
 		{
-			h[2]=h[0];
-			h[3]=h[1];
+			h[2] = h[0];
+			h[3] = h[1];
 		}
-		h[0]=h[0]+h[1]*dx;
-		return h[0]+(h[2]+h[3]*dx-h[0])*dy;
+		h[0] = h[0] + h[1] * dx;
+		return h[0] + (h[2] + h[3] * dx - h[0]) * dy;
 	}
 
 
@@ -237,7 +237,7 @@ namespace TA3D
             y = 0;
         else if (y >= bloc_h_db - 1)
             y = bloc_h_db - 2;
-		return h_map[y][x];
+		return h_map(x, y);
 	}
 
 	float MAP::get_max_h(int x,int y)
@@ -250,13 +250,13 @@ namespace TA3D
             y = 0;
         else if (y >= bloc_h_db - 1)
             y = bloc_h_db - 2;
-		float h = h_map[y][x];
-        if (x < bloc_w_db - 2)	h = Math::Max(h, h_map[y][x + 1]);
+		float h = h_map(x, y);
+		if (x < bloc_w_db - 2)	h = Math::Max(h, h_map(x + 1, y));
         if (y < bloc_h_db - 2)
 		{
-            h = Math::Max(h, h_map[y + 1][x]);
+			h = Math::Max(h, h_map(x, y + 1));
             if (x < bloc_w_db - 2)
-                h = Math::Max(h, h_map[y + 1][x + 1]);
+				h = Math::Max(h, h_map(x + 1, y + 1));
 		}
 		return h;
 	}
@@ -268,41 +268,41 @@ namespace TA3D
 		int x2 = x1 + w;
 		int y1 = y - (h>>1);
 		int y2 = y1 + h;
-		if (x1<0) x1=0;
-		if (y1<0) y1=0;
-		if (x1>=bloc_w_db-1) x1=bloc_w_db-2;
-		if (y1>=bloc_h_db-1) y1=bloc_h_db-2;
-		if (x2<0) x2=0;
-		if (y2<0) y2=0;
-		if (x2>=bloc_w_db-1) x2=bloc_w_db-2;
-		if (y2>=bloc_h_db-1) y2=bloc_h_db-2;
-		float max_h = h_map[y1][x1];
+		if (x1 < 0) x1 = 0;
+		if (y1 < 0) y1 = 0;
+		if (x1 >= bloc_w_db - 1) x1 = bloc_w_db - 2;
+		if (y1 >= bloc_h_db - 1) y1 = bloc_h_db - 2;
+		if (x2 < 0) x2 = 0;
+		if (y2 < 0) y2 = 0;
+		if (x2 >= bloc_w_db - 1) x2 = bloc_w_db - 2;
+		if (y2 >= bloc_h_db - 1) y2 = bloc_h_db - 2;
+		float max_h = h_map(x1, y1);
 		for (int Y = y1; Y <= y2 ; ++Y)
 			for (int X = x1; X <= x2 ; ++X)
 			{
-				float h = h_map[Y][X];
-				if (h > max_h )	max_h = h;
+				float h = h_map(X, Y);
+				if (h > max_h)	max_h = h;
 			}
 		return max_h;
 	}
 
 	float MAP::get_zdec(int x,int y)
 	{
-		if (x<0) x=0;
-		if (y<0) y=0;
-		if (x>=bloc_w_db-1) x=bloc_w_db-2;
-		if (y>=bloc_h_db-1) y=bloc_h_db-2;
-		return ph_map[y][x]*tnt_transform_H_DIV;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		if (x >= bloc_w_db - 1) x = bloc_w_db - 2;
+		if (y >= bloc_h_db - 1) y = bloc_h_db - 2;
+		return ph_map(x, y) * tnt_transform_H_DIV;
 	}
 
 
 	float MAP::get_nh(int x,int y)
 	{
-		if (x<0) x=0;
-		if (y<0) y=0;
-		if (x>=bloc_w_db-1) x=bloc_w_db-2;
-		if (y>=bloc_h_db-1) y=bloc_h_db-2;
-		return ph_map[y][x];
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		if (x >= bloc_w_db - 1) x = bloc_w_db - 2;
+		if (y >= bloc_h_db - 1) y = bloc_h_db - 2;
+		return ph_map(x, y);
 	}
 
 	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap,bool open)
@@ -370,7 +370,7 @@ namespace TA3D
 			pMutex.lock();
 			for(int y = y1 ; y < y2 ; ++y)
 				for(int x = x1 ; x < x2 ; ++x)
-					map_data[y][x].unit_idx = c;
+					map_data(x, y).unit_idx = c;
 			pMutex.unlock();
 		}
 		else
@@ -409,16 +409,16 @@ namespace TA3D
 					case 'o':
 					case 'w':
 					case 'f':
-						map_data[y][x].unit_idx = c;
+						map_data(x, y).unit_idx = c;
 						break;
 					case 'c':
 					case 'C':
 						if (!open)
-							map_data[y][x].unit_idx = c;
+							map_data(x, y).unit_idx = c;
 						break;
 					case 'O':
 						if (open)
-							map_data[y][x].unit_idx = c;
+							map_data(x, y).unit_idx = c;
 						break;
 					};
 					++i;
@@ -444,7 +444,7 @@ namespace TA3D
 			pMutex.lock();
 			for(int y = y1 ; y < y2 ; ++y)
 				for(int x = x1 ; x < x2 ; ++x)
-					map_data[y][x].air_idx.remove(c);
+					map_data(x, y).air_idx.remove(c);
 			pMutex.unlock();
 		}
 		else
@@ -460,7 +460,7 @@ namespace TA3D
 			pMutex.lock();
 			for(int y = y1 ; y < y2 ;++y)
 				for(int x = x1 ; x < x2 ; ++x)
-					map_data[y][x].air_idx.add(c);
+					map_data(x, y).air_idx.add(c);
 			pMutex.unlock();
 		}
 	}
@@ -476,7 +476,7 @@ namespace TA3D
 		if (y2<=y1 || x2<=x1)	return false;
 		for(int y=y1;y<y2;y++)
 			for(int x=x1;x<x2;x++)
-				if (map_data[y][x].unit_idx!=c && map_data[y][x].unit_idx!=-1)
+				if (map_data(x, y).unit_idx!=c && map_data(x, y).unit_idx!=-1)
 					return false;
 		return true;
 	}
@@ -516,7 +516,7 @@ namespace TA3D
 			for (int x = x1; x < x2; ++x)
 			{
 				max_dh = Math::Max(max_dh, slope(x,y));
-				on_water |= map_data[y][x].underwater;
+				on_water |= map_data(x, y).underwater;
 			}
 		if (on_water)
 			max_dh = -max_dh;
@@ -536,7 +536,7 @@ namespace TA3D
 		for(int y=y1;y<y2;y++)
 			for(int x = x1; x < x2; ++x)
 			{
-				float d = -h_map[y][x];
+				float d = -h_map(x, y);
 				if (d > depth)
 					depth = d;
 			}
@@ -557,7 +557,7 @@ namespace TA3D
 		for(int y=y1;y<y2;y++)
 			for(int x=x1;x<x2;x++)
 			{
-				float d = -h_map[y][x];
+				float d = -h_map(x, y);
 				if (d<depth)
 					depth=d;
 			}
@@ -594,9 +594,9 @@ namespace TA3D
 				if (yard_map[i]=='G')
 				{
 					ok = false;
-					if (map_data[y][x].stuff >= 0)
+					if (map_data(x, y).stuff >= 0)
 					{
-						int feature_id = map_data[y][x].stuff;
+						int feature_id = map_data(x, y).stuff;
                         Feature *pFeature = feature_manager.getFeaturePointer(features.feature[feature_id].type);
                         if (pFeature && pFeature->geothermal)
 							return true;
@@ -628,7 +628,7 @@ namespace TA3D
 		{
 			for (int x = x1; x < x2; ++x)
 			{
-				if (bloc[bmap[y][x]].lava)
+				if (bloc[bmap(x, y)].lava)
 					return true;
 			}
 		}
@@ -643,8 +643,8 @@ namespace TA3D
 		{
 			for (int x = 0 ; x < bloc_w_db ; ++x)
 			{
-				map_data[y][x].stuff = -1;
-				map_data[y][x].unit_idx = -1;
+				map_data(x, y).stuff = -1;
+				map_data(x, y).unit_idx = -1;
 			}
 		}
 	}
@@ -681,36 +681,12 @@ namespace TA3D
 
 		ota_data.destroy();
 		gfx->destroy_texture( lava_map );
-		if (view && bloc_w && bloc_h)
-		{
-			DELETE_ARRAY(view[0]);
-			DELETE_ARRAY(view);
-		}
-		if (map_data && bloc_w && bloc_h)
-		{
-			DELETE_ARRAY(map_data[0]);
-			DELETE_ARRAY(map_data);
-		}
-		if (ph_map && bloc_w && bloc_h)
-		{
-			DELETE_ARRAY(ph_map[0]);		// la carte est allouée d'un seul bloc
-			DELETE_ARRAY(ph_map);
-		}
-		if (ph_map_2 && bloc_w && bloc_h)
-		{
-			DELETE_ARRAY(ph_map_2[0]);		// la carte est allouée d'un seul bloc
-			DELETE_ARRAY(ph_map_2);
-		}
-		if (h_map && bloc_w && bloc_h)
-		{
-			DELETE_ARRAY(h_map[0]);		// la carte est allouée d'un seul bloc
-			DELETE_ARRAY(h_map);
-		}
-		if (bmap && bloc_w && bloc_h)
-		{
-			DELETE_ARRAY(bmap[0]);		// la carte est allouée d'un seul bloc
-			DELETE_ARRAY(bmap);
-		}
+		view.resize(0, 0);
+		map_data.resize(0, 0);
+		ph_map.resize(0, 0);
+		ph_map_2.resize(0, 0);
+		h_map.resize(0, 0);
+		bmap.resize(0, 0);
 		if (ntex > 0)
 		{
 			for(int i = 0 ; i < ntex ; i++)
@@ -1257,13 +1233,13 @@ namespace TA3D
 	void MAP::check_unit_visibility(int x, int y)
 	{
         if (y < 0 || y > bloc_h_db - 1 || x < 0 || x > bloc_w_db - 1)	return;
-		int idx = map_data[y][x].unit_idx;
+		int idx = map_data(x, y).unit_idx;
 		if (idx >= 0 && !units.unit[idx].visibility_checked)
 		{
 			units.visible_unit.push_back(idx);
 			units.unit[idx].visibility_checked = true;
 		}
-		airIdxSet &airSet = map_data[y][x].air_idx;
+		airIdxSet &airSet = map_data(x, y).air_idx;
         if (airSet.empty())
             return;
         pMutex.lock();
@@ -1337,7 +1313,7 @@ namespace TA3D
             cam->setView(true);
 			draw_LD(player_mask, FLAT, niv, t);
 
-			memset(view[0], 1, bloc_w * bloc_h);
+			view.clear(1);
 			ox1 = 0;
 			ox2 = bloc_w - 1;
 			oy1 = 0;
@@ -1675,12 +1651,12 @@ namespace TA3D
 		if (!FLAT && check_visibility)
 		{
 			for (int y = oy1; y <= oy2; ++y)
-				memset(view[y] + ox1, 0, ox2 - ox1 + 1);
+				memset(&(view(ox1, y)), 0, ox2 - ox1 + 1);
 			features.min_idx = features.nb_features - 1;
 			features.max_idx = 0;
 			features.list_size = 0;
-			ox1=x1;	ox2=x2;
-			oy1=y1;	oy2=y2;
+			ox1 = x1;	ox2 = x2;
+			oy1 = y1;	oy2 = y2;
 		}
 		else
 		{
@@ -1772,10 +1748,10 @@ namespace TA3D
 					{
 						if (water)
 						{
-							if (map_data[Y][X].underwater && map_data[Y|1][X].underwater && map_data[Y][X|1].underwater && map_data[Y|1][X|1].underwater)
-								view[y][x] = 2;
+							if (map_data(X, Y).underwater && map_data(X, Y | 1).underwater && map_data(X | 1, Y).underwater && map_data(X | 1, Y | 1).underwater)
+								view(x, y) = 2;
 							else
-								view[y][x] = 3;
+								view(x, y) = 3;
 						}
                         if ((SurfaceByte(radar_map,x,y) & player_mask) || (SurfaceByte(sonar_map,x,y) & player_mask))       // We need to check that in case there is a radar or a sonar around
                         {
@@ -1789,80 +1765,80 @@ namespace TA3D
 					{
 						if (!(SurfaceByte(sight_map,x,y) & player_mask))
 						{
-							if (map_data[Y][X].underwater || map_data[Y|1][X].underwater || map_data[Y][X|1].underwater || map_data[Y|1][X|1].underwater)
-								view[y][x] = 2;
+							if (map_data(X, Y).underwater || map_data(X, Y | 1).underwater || map_data(X | 1, Y).underwater || map_data(X | 1, Y | 1).underwater)
+								view(x, y) = 2;
 							else
-								view[y][x] = 3;
+								view(x, y) = 3;
 						}
 						else
-							view[y][x] = 1;
+							view(x, y) = 1;
 						check_unit_visibility(X, Y);
 						check_unit_visibility(X, Y|1);
 						check_unit_visibility(X|1, Y);
 						check_unit_visibility(X|1, Y|1);
 
-						if (map_data[Y][X].stuff >= 0 && map_data[Y][X].stuff < features.max_features) // Flag are visible objects in that bloc
+						if (map_data(X, Y).stuff >= 0 && map_data(X, Y).stuff < features.max_features) // Flag are visible objects in that bloc
 						{
-							if (features.feature[map_data[Y][X].stuff].type < 0)
-								map_data[Y][X].stuff = -1;
+							if (features.feature[map_data(X, Y).stuff].type < 0)
+								map_data(X, Y).stuff = -1;
 							else
 							{
-								features.feature[map_data[Y][X].stuff].draw = true;
-								features.feature[map_data[Y][X].stuff].grey = (view[y][x]&2) == 2;
-								features.list[features.list_size++] = map_data[Y][X].stuff;
+								features.feature[map_data(X, Y).stuff].draw = true;
+								features.feature[map_data(X, Y).stuff].grey = (view(x, y)&2) == 2;
+								features.list[features.list_size++] = map_data(X, Y).stuff;
 							}
 						}
-						if (map_data[Y][X|1].stuff >= 0 && map_data[Y][X|1].stuff < features.max_features)
+						if (map_data(X | 1, Y).stuff >= 0 && map_data(X | 1, Y).stuff < features.max_features)
 						{
-							if (features.feature[map_data[Y][X|1].stuff].type < 0)
-								map_data[Y][X|1].stuff = -1;
+							if (features.feature[map_data(X | 1, Y).stuff].type < 0)
+								map_data(X | 1, Y).stuff = -1;
 							else
 							{
-								features.feature[map_data[Y][X|1].stuff].draw = true;
-								features.feature[map_data[Y][X|1].stuff].grey = (view[y][x]&2) == 2;
-								features.list[features.list_size++] = map_data[Y][X|1].stuff;
+								features.feature[map_data(X | 1, Y).stuff].draw = true;
+								features.feature[map_data(X | 1, Y).stuff].grey = (view(x, y)&2) == 2;
+								features.list[features.list_size++] = map_data(X | 1, Y).stuff;
 							}
 						}
-						if (map_data[Y|1][X].stuff >= 0 && map_data[Y|1][X].stuff < features.max_features)
+						if (map_data(X, Y | 1).stuff >= 0 && map_data(X, Y | 1).stuff < features.max_features)
 						{
-							if (features.feature[map_data[Y|1][X].stuff].type < 0)
-								map_data[Y|1][X].stuff = -1;
+							if (features.feature[map_data(X, Y | 1).stuff].type < 0)
+								map_data(X, Y | 1).stuff = -1;
 							else
 							{
-								features.feature[map_data[Y|1][X].stuff].draw = true;
-								features.feature[map_data[Y|1][X].stuff].grey = (view[y][x]&2) == 2;
-								features.list[features.list_size++] = map_data[Y|1][X].stuff;
+								features.feature[map_data(X, Y | 1).stuff].draw = true;
+								features.feature[map_data(X, Y | 1).stuff].grey = (view(x, y)&2) == 2;
+								features.list[features.list_size++] = map_data(X, Y | 1).stuff;
 							}
 						}
-						if (map_data[Y|1][X|1].stuff >= 0 && map_data[Y|1][X|1].stuff < features.max_features)
+						if (map_data(X | 1, Y | 1).stuff >= 0 && map_data(X | 1, Y | 1).stuff < features.max_features)
 						{
-							if (features.feature[map_data[Y|1][X|1].stuff].type < 0)
-								map_data[Y|1][X|1].stuff = -1;
+							if (features.feature[map_data(X | 1, Y | 1).stuff].type < 0)
+								map_data(X | 1, Y | 1).stuff = -1;
 							else
 							{
-								features.feature[map_data[Y|1][X|1].stuff].draw = true;
-								features.feature[map_data[Y|1][X|1].stuff].grey = (view[y][x]&2) == 2;
-								features.list[features.list_size++] = map_data[Y|1][X|1].stuff;
+								features.feature[map_data(X | 1, Y | 1).stuff].draw = true;
+								features.feature[map_data(X | 1, Y | 1).stuff].grey = (view(x, y)&2) == 2;
+								features.list[features.list_size++] = map_data(X | 1, Y | 1).stuff;
 							}
 						}
 					}
 				}
 				else
 				{
-					if (view[y][x] == 0)
+					if (view(x, y) == 0)
 						continue;
-					if (view[y][x] == 2 && !draw_uw)
+					if (view(x, y) == 2 && !draw_uw)
 						continue;		// Jump this if it is under water and don't have to be drawn
-					if (view[y][x] == 3)
-						view[y][x] = 2;
-					if (view[y][x]==2 && FLAT)
-						view[y][x]=0;
-					if (cam->mirror && map_data[Y][X].flat)
+					if (view(x, y) == 3)
+						view(x, y) = 2;
+					if (view(x, y)==2 && FLAT)
+						view(x, y)=0;
+					if (cam->mirror && map_data(X, Y).flat)
 						continue;
 				}
 				// Si le joueur ne peut pas voir ce morceau, on ne le dessine pas en clair
 				T.x += x << 4;
-				int i = bmap[y][x];
+				int i = bmap(x, y);
 				if (FLAT)
 				{
 					bloc[i].point = lvl[pre_y2 + x];
@@ -1880,7 +1856,7 @@ namespace TA3D
 				{
 					if (check_visibility)
 					{
-						const bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
+						const bool under_water = (h_map(X | 1, Y | 1) < sealvl && h_map(X | 1, Y) < sealvl && h_map(X, Y | 1) < sealvl && h_map(X, Y) < sealvl);
 
 						if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
 							&& (Math::RandomTable() % 1000000) <= lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
@@ -1894,32 +1870,32 @@ namespace TA3D
 						}
 						else
 						{
-							if (!map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
-								(h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
-								(h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
+							if (!map_data( X, Y).lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
+								(h_map(X | 1, Y | 1) < sealvl || h_map(X | 1, Y) < sealvl || h_map(X, Y | 1) < sealvl || h_map(X, Y) < sealvl) &&
+								(h_map(X | 1, Y | 1) >= sealvl || h_map(X, Y | 1) >= sealvl || h_map(X | 1, Y) >= sealvl || h_map(X, Y) >= sealvl) &&
 								(Math::RandomTable() % 4000) <= lavaprob &&
 								(SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves)
 							{
 								Vector3D grad;
-								if (h_map[Y][X] >= sealvl)
+								if (h_map(X, Y) >= sealvl)
 								{
-									grad.x -= h_map[Y][X] - sealvl;
-									grad.z += h_map[Y][X] - sealvl;
+									grad.x -= h_map(X, Y) - sealvl;
+									grad.z += h_map(X, Y) - sealvl;
 								}
-								if (h_map[Y|1][X] >= sealvl)
+								if (h_map(X, Y | 1) >= sealvl)
 								{
-									grad.x -= h_map[Y|1][X] - sealvl;
-									grad.z -= h_map[Y|1][X] - sealvl;
+									grad.x -= h_map(X, Y | 1) - sealvl;
+									grad.z -= h_map(X, Y | 1) - sealvl;
 								}
-								if (h_map[Y][X|1] >= sealvl)
+								if (h_map(X | 1, Y) >= sealvl)
 								{
-									grad.x += h_map[Y][X|1] - sealvl;
-									grad.z += h_map[Y][X|1] - sealvl;
+									grad.x += h_map(X | 1, Y) - sealvl;
+									grad.z += h_map(X | 1, Y) - sealvl;
 								}
-								if (h_map[Y|1][X|1] >= sealvl)
+								if (h_map(X | 1, Y | 1) >= sealvl)
 								{
-									grad.x += h_map[Y|1][X|1] - sealvl;
-									grad.z -= h_map[Y|1][X|1] - sealvl;
+									grad.x += h_map(X | 1, Y | 1) - sealvl;
+									grad.z -= h_map(X | 1, Y | 1) - sealvl;
 								}
 								const float grad_len = grad.sq();
 								if (grad_len > 0.0f)
@@ -1980,12 +1956,12 @@ namespace TA3D
 							bloc[i].point[7].y=get_h(X|1,Y+2);
 							bloc[i].point[8].y=get_h(X+2,Y+2);
 						}
-						map_data[Y][X].flat = true;
+						map_data(X, Y).flat = true;
 						for (int f = 1; f < 9; ++f)			// Check if it's flat
 						{
 							if (!Yuni::Math::Equals(bloc[i].point[0].y, bloc[i].point[f].y))
 							{
-								map_data[Y][X].flat = false;
+								map_data(X, Y).flat = false;
 								break;
 							}
 						}
@@ -2062,7 +2038,7 @@ namespace TA3D
 						}
 					}
 					is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );
-					if (!FLAT && !map_data[Y][X].flat && !lp_CONFIG->low_definition_map )
+					if (!FLAT && !map_data(X, Y).flat && !lp_CONFIG->low_definition_map )
 					{
 						color[4]=color[5]=color[6]= (color[0] + color[8]) >> 1;
 						color[12]=color[13]=color[14]= (color[0] + color[24]) >> 1;
@@ -2073,9 +2049,9 @@ namespace TA3D
 				}
 
 #if !defined DEBUG_UNIT_POS && !defined DEBUG_ENERGY
-				if (FLAT || map_data[Y][X].flat || lp_CONFIG->low_definition_map )
+				if (FLAT || map_data(X, Y).flat || lp_CONFIG->low_definition_map )
 				{
-					if (was_flat && bloc[i].tex_x == bloc[ bmap[y][x-1] ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data[Y][X].flat) )
+					if (was_flat && bloc[i].tex_x == bloc[ bmap(x - 1, y) ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data(X, Y).flat) )
 					{
 						buf_i[ index_size-4 ] = 2+buf_pos;
 						buf_i[ index_size-2 ] = 8+buf_pos;
@@ -2088,7 +2064,7 @@ namespace TA3D
 						buf_i[ index_size++ ] = 6+buf_pos;
 						buf_i[ index_size++ ] = 8+buf_pos;
 						buf_i[ index_size++ ] = 2+buf_pos;
-						was_flat = FLAT || map_data[Y][X].flat;     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
+						was_flat = FLAT || map_data(X, Y).flat;     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
 					}
 				}
 				else
@@ -2319,18 +2295,18 @@ namespace TA3D
 				{
 					if (rx >= 0 && rx < bloc_w_db )
 					{
-						if (map_data[ry][rx].stuff >=0 )
+						if (map_data(rx, ry).stuff >=0 )
 						{
                             features.lock();
-                            if (map_data[ry][rx].stuff >=0 )            // We have to recheck this in case it has changed before locking
+							if (map_data(rx, ry).stuff >=0 )            // We have to recheck this in case it has changed before locking
                             {
-                                int type = features.feature[ map_data[ry][rx].stuff ].type;
+								int type = features.feature[ map_data(rx, ry).stuff ].type;
                                 Feature *feature = feature_manager.getFeaturePointer(type);
                                 if (feature && !feature->reclaimable && !feature->blocking)
                                 {
                                     metal_base += feature->metal;
                                     if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
-                                        *stuff_id = map_data[ry][rx].stuff;
+										*stuff_id = map_data(rx, ry).stuff;
                                 }
                             }
                             features.unlock();

@@ -402,7 +402,7 @@ namespace TA3D
                             {
                                 if (x >= 0 && x < (the_map->bloc_w << 1) - 1)
                                 {
-									int cur_idx = the_map->map_data[y][x].unit_idx;
+									int cur_idx = the_map->map_data(x,y).unit_idx;
 									if (cur_idx >= 0 && cur_idx < units.max_unit && cur_idx != idx)
 									{
 										units.unit[cur_idx].lock();

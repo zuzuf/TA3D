@@ -26,10 +26,10 @@ namespace TA3D
 	}
 
 	template<class T>
-		inline void Grid<T>::clear()
+		inline void Grid<T>::clear(const T &v)
 	{
 		for(typename Container::iterator i = data.begin() ; i != data.end() ; ++i)
-			*i = 0;
+			*i = v;
 	}
 
 	template<class T>

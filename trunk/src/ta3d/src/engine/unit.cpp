@@ -938,12 +938,12 @@ namespace TA3D
 		byte player_mask = 1 << players.local_human_id;
 
 		on_radar = on_mini_radar = is_on_radar( player_mask );
-		if (the_map->view[py][px] == 0 || ( the_map->view[py][px] > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(the_map->sight_map,px,py) & player_mask) ) )
+		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(the_map->sight_map, px, py) & player_mask) ) )
 			return;	// Unit is not visible
 
 		bool radar_detected = on_radar;
 
-		on_radar &= the_map->view[py][px] > 1;
+		on_radar &= the_map->view(px, py) > 1;
 
 		Vector3D D (render.Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
@@ -1369,7 +1369,7 @@ namespace TA3D
 				pMutex.unlock();
 				return;	// Shadow out of the map
 			}
-			if (the_map->view[py][px]!=1)
+			if (the_map->view(px, py) != 1)
 			{
 				pMutex.unlock();
 				return;	// Unvisible shadow
@@ -1434,7 +1434,7 @@ namespace TA3D
 				pMutex.unlock();
 				return;	// Shadow out of the map
 			}
-			if (the_map->view[py][px]!=1)
+			if (the_map->view(px, py) != 1)
 			{
 				pMutex.unlock();
 				return;	// Unvisible shadow
@@ -1503,18 +1503,18 @@ namespace TA3D
 					flags = 4;
 					pMutex.lock();
 					if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
-						if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
+						if (the_map->map_data(cur_px, cur_py).stuff == -1)
 						{
-                            int type=feature_manager.get_feature_index(pType->Corpse);
+							int type = feature_manager.get_feature_index(pType->Corpse);
 							if (type >= 0)
 							{
-								the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
-								if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0) 	// Keep unit orientation
+								the_map->map_data(cur_px, cur_py).stuff = features.add_feature(Pos,type);
+								if (the_map->map_data(cur_px, cur_py).stuff >= 0) 	// Keep unit orientation
 								{
-									features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
+									features.feature[ the_map->map_data(cur_px, cur_py).stuff ].angle = Angle.y;
 									if (sinking)
-										features.sink_feature( the_map->map_data[ cur_py ][ cur_px ].stuff );
-									features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
+										features.sink_feature( the_map->map_data(cur_px, cur_py).stuff );
+									features.drawFeatureOnMap( the_map->map_data(cur_px, cur_py).stuff );
 								}
 							}
 						}
@@ -1528,18 +1528,18 @@ namespace TA3D
 					flags = 4;
 					pMutex.lock();
 					if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
-						if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
+						if (the_map->map_data(cur_px, cur_py).stuff == -1)
 						{
 							int type = feature_manager.get_feature_index( String(pType->name) << "_heap" );
 							if (type >= 0)
 							{
-								the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
-								if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0)			// Keep unit orientation
+								the_map->map_data(cur_px, cur_py).stuff = features.add_feature(Pos,type);
+								if (the_map->map_data(cur_px, cur_py).stuff >= 0)			// Keep unit orientation
 								{
-									features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
+									features.feature[ the_map->map_data(cur_px, cur_py).stuff ].angle = Angle.y;
 									if (sinking )
-										features.sink_feature( the_map->map_data[ cur_py ][ cur_px ].stuff );
-									features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
+										features.sink_feature( the_map->map_data(cur_px, cur_py).stuff );
+									features.drawFeatureOnMap( the_map->map_data(cur_px, cur_py).stuff );
 								}
 							}
 						}
@@ -2103,21 +2103,21 @@ namespace TA3D
 		{
 			if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1) )
 			{
-				if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
+				if (the_map->map_data(cur_px, cur_py).stuff == -1)
 				{
                     int type = feature_manager.get_feature_index(pType->Corpse);
 					if (type >= 0)
 					{
 						features.lock();
-						the_map->map_data[ cur_py ][ cur_px ].stuff=features.add_feature(Pos,type);
-						if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
+						the_map->map_data(cur_px, cur_py).stuff=features.add_feature(Pos,type);
+						if (the_map->map_data(cur_px, cur_py).stuff == -1)
                             LOG_ERROR("Could not turn `" << pType->Unitname << "` into a feature ! Cannot create the feature");
 						else
-							features.feature[the_map->map_data[ cur_py ][ cur_px ].stuff].angle = Angle.y;
+							features.feature[the_map->map_data(cur_px, cur_py).stuff].angle = Angle.y;
 						pMutex.unlock();
 						clear_from_map();
 						pMutex.lock();
-						features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
+						features.drawFeatureOnMap( the_map->map_data(cur_px, cur_py).stuff );
 						features.unlock();
 						flags = 4;
 					}
@@ -2293,9 +2293,9 @@ namespace TA3D
 						for(int x = cur_px - dx ; x <= cur_px + dx ; x++)
 							if (x >= 0 && x < the_map->bloc_w_db - 1)
 							{
-								int cur_idx = the_map->map_data[y][x].unit_idx;
+								int cur_idx = the_map->map_data(x, y).unit_idx;
 
-								if (cur_idx>=0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
+								if (cur_idx >= 0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
 									&& distance >= (Pos - units.unit[ cur_idx ].Pos).sq())
 								{
 									found = true;
@@ -2918,7 +2918,7 @@ namespace TA3D
 								for(int x = cur_px - dx + sx ; x <= cur_px + dx ; x += 2)
 									if (x >= 0 && x < the_map->bloc_w_db - 1)
 									{
-										int cur_idx = the_map->map_data[y][x].unit_idx;
+										int cur_idx = the_map->map_data(x, y).unit_idx;
 										if (cur_idx >= 0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
 											&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe )		// This unit is on the sight_map since dx = sightdistance !!
 										{
@@ -3373,7 +3373,7 @@ namespace TA3D
                                         if (SQUARE(cur_px - x) + SQUARE(cur_py - y) > dx2)  continue;
 										if (x >= 0 && x < the_map->bloc_w_db - 1)
                                         {
-											int cur_idx = the_map->map_data[y][x].stuff;
+											int cur_idx = the_map->map_data(x, y).stuff;
                                             if (cur_idx >= 0)      // There is a feature
                                             {
                                                 Feature *pFeature = feature_manager.getFeaturePointer(features.feature[cur_idx].type);
@@ -4396,7 +4396,7 @@ namespace TA3D
 				cur_py = ((int)(Pos.z)+the_map->map_h_d+4)>>3;
 			}
 			if (units.current_tick - ripple_timer >= 7 && Pos.y <= the_map->sealvl && Pos.y + model->top >= the_map->sealvl && (pType->fastCategory & CATEGORY_NOTSUB)
-				&& cur_px >= 0 && cur_py >= 0 && cur_px < the_map->bloc_w_db && cur_py < the_map->bloc_h_db && !the_map->map_data[ cur_py ][ cur_px ].lava && the_map->water )
+				&& cur_px >= 0 && cur_py >= 0 && cur_px < the_map->bloc_w_db && cur_py < the_map->bloc_h_db && !the_map->map_data(cur_px, cur_py).lava && the_map->water )
 			{
 				Vector3D Diff = OPos - Pos;
 				Diff.y = 0.0f;
@@ -5254,7 +5254,7 @@ script_exec:
 			return;	// Out of map
 		byte player_mask = 1 << players.local_human_id;
 
-		if (the_map->view[py][px] != 1 || (!(SurfaceByte(the_map->sight_map,px,py) & player_mask) ) )
+		if (the_map->view(px, py) != 1 || (!(SurfaceByte(the_map->sight_map,px,py) & player_mask) ) )
 			return;	// Unit is not visible
 
 		float scale = 200.0f;

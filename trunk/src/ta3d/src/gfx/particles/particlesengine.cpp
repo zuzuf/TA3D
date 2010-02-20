@@ -23,6 +23,7 @@
 #include <TA3D_NameSpace.h>
 #include <ta3dbase.h>
 #include <engine.h>
+#include <EngineClass.h>
 
 
 namespace TA3D
@@ -589,7 +590,7 @@ namespace TA3D
 	}
 
 
-	void PARTICLE_ENGINE::draw(Camera *cam,int map_w,int map_h,int bloc_w,int bloc_h,byte **bmap)
+	void PARTICLE_ENGINE::draw(Camera *cam)
 	{
 		if ((part.empty() || nb_part == 0) && particle_systems.empty())	// no need to run the code if there is nothing to draw
 			return;
@@ -631,8 +632,8 @@ namespace TA3D
 			Vector3D A;
 			Vector3D B;
 			float oangle = 0.0f;
-			int h_map_w = map_w >> 1;
-			int h_map_h = map_h >> 1;
+			int h_map_w = the_map->map_w >> 1;
+			int h_map_h = the_map->map_h >> 1;
 			for (std::vector<PARTICLE>::iterator e = part.begin(); e != part.end(); ++e) // Calcule la position des points
 			{
 				if (e->light_emitter != light_emitters) // Two passes, one for normal particles, the second for particles that emits light
@@ -643,9 +644,9 @@ namespace TA3D
 					e->px = ((int)(e->Pos.x) + h_map_w) >> 4;
 					e->py = ((int)(e->Pos.z) + h_map_h) >> 4;
 				}
-				if (e->px >= 0 && e->px < bloc_w && e->py >= 0 && e->py < bloc_h)
+				if (e->px >= 0 && e->px < the_map->bloc_w && e->py >= 0 && e->py < the_map->bloc_h)
 				{
-					if (!bmap[e->py][e->px])
+					if (!the_map->view(e->px, e->py))
 						continue;
 				}
 				else

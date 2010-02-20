@@ -163,12 +163,12 @@ namespace TA3D
 		GLuint		*tex;			// Texture de surface
 		int			nbbloc;			// Nombre de blocs
 		BLOC		*bloc;			// Blocs composant le terrain
-		unsigned short	**bmap;		// Tableau d'indice des blocs
-		float		**h_map;		// Tableau de l'élévation du terrain
-		float		**ph_map;		// Tableau du relief projeté pour le calcul inverse(projection) lors de l'affichage
-		byte		**ph_map_2;		// Tableau du relief projeté (multiplié par un facteur flottant) pour le calcul inverse(projection) lors de l'affichage
-		SECTOR		**map_data;		// Tableau d'informations sur le terrain
-		byte		**view;			// Indique quels sont les parcelles de terrain visibles à l'écran
+		Grid<uint16>	bmap;		// Tableau d'indice des blocs
+		Grid<float>	h_map;		// Tableau de l'élévation du terrain
+		Grid<float>	ph_map;		// Tableau du relief projeté pour le calcul inverse(projection) lors de l'affichage
+		Grid<byte>	ph_map_2;		// Tableau du relief projeté (multiplié par un facteur flottant) pour le calcul inverse(projection) lors de l'affichage
+		Grid<SECTOR>	map_data;		// Tableau d'informations sur le terrain
+		Grid<byte>	view;			// Indique quels sont les parcelles de terrain visibles à l'écran
 		Grid<int>	path;			// Tableau pour le pathfinding
 		Grid<float> slope;			// Maximum derivative of the height map
 		Grid<float>	energy;			// Energy of the map used by the pathfinder and units when following a path
@@ -264,7 +264,7 @@ namespace TA3D
 
 		float get_zdec(int x,int y);
 
-#define get_zdec_notest(x, y)	ph_map_2[y][x]
+#define get_zdec_notest(x, y)	ph_map_2(x, y)
 
 		float get_nh(int x,int y);
 

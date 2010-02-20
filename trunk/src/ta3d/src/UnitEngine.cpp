@@ -964,9 +964,9 @@ namespace TA3D
 						{
 							if (rx >= 0 && rx < map->bloc_w_db)
 							{
-								if (map->map_data[ry][rx].stuff>=0)
+								if (map->map_data(rx, ry).stuff >= 0)
 								{
-									Feature *feature = feature_manager.getFeaturePointer(features.feature[map->map_data[ry][rx].stuff].type);
+									Feature *feature = feature_manager.getFeaturePointer(features.feature[map->map_data(rx, ry).stuff].type);
 									metal_base = feature->metal * unit_manager.unit_type[unit[i].type_id]->FootprintZ * unit_manager.unit_type[unit[i].type_id]->FootprintX;
 									ry = end_y;
 									break;

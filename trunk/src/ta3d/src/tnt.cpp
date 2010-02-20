@@ -214,14 +214,9 @@ namespace TA3D
 		map->map2blocdb_w = float(map->bloc_w_db) / float(map->map_w);
 		map->map2blocdb_h = float(map->bloc_h_db) / float(map->map_h);
 
-		map->bmap = new unsigned short*[map->bloc_h];
-		map->bmap[0] = new unsigned short[map->bloc_w * map->bloc_h];
-		for (i = 1; i < map->bloc_h; ++i)
-			map->bmap[i] = &(map->bmap[0][i*map->bloc_w]);
-		map->view = new byte*[map->bloc_h];
-		map->view[0] = new byte[map->bloc_w * map->bloc_h];
-		map->map_data = new SECTOR*[map->bloc_h_db];
-		map->map_data[0] = new SECTOR[map->bloc_w_db * map->bloc_h_db];
+		map->bmap.resize(map->bloc_w, map->bloc_h);
+		map->view.resize(map->bloc_w, map->bloc_h);
+		map->map_data.resize(map->bloc_w_db, map->bloc_h_db);
 		map->path.resize(map->bloc_w_db, map->bloc_h_db);
 		map->energy.resize(map->bloc_w_db, map->bloc_h_db);
 		map->slope.resize(map->bloc_w_db, map->bloc_h_db);
@@ -239,26 +234,14 @@ namespace TA3D
 		SDL_FillRect( map->sonar_map, NULL, 0);
 
 		LOG_DEBUG("MAP: allocating height maps");
-		map->h_map       = new float*[map->bloc_h<<1];
-		map->h_map[0]    = new float[map->bloc_w*map->bloc_h<<2];
-		map->ph_map      = new float*[map->bloc_h<<1];
-		map->ph_map[0]   = new float[map->bloc_w*map->bloc_h<<2];
-		map->ph_map_2    = new byte*[map->bloc_h<<1];
-		map->ph_map_2[0] = new byte[map->bloc_w*map->bloc_h<<2];
+		map->h_map.resize(map->bloc_w_db, map->bloc_h_db);
+		map->ph_map.resize(map->bloc_w_db, map->bloc_h_db);
+		map->ph_map_2.resize(map->bloc_w_db, map->bloc_h_db);
 
 		LOG_DEBUG("MAP: initialising map data");
 		map->path.clear();
-		for (i = 1; i < (map->bloc_h << 1); ++i)
-		{
-			map->h_map[i] = &(map->h_map[0][i*map->bloc_w<<1]);
-			map->ph_map[i] = &(map->ph_map[0][i*map->bloc_w<<1]);
-			map->ph_map_2[i] = &(map->ph_map_2[0][i*map->bloc_w<<1]);
-			map->map_data[i] = &(map->map_data[0][i*map->bloc_w<<1]);
-			if (i<map->bloc_h)
-				map->view[i] = &(map->view[0][i*map->bloc_w]);
-		}
 
-		memset(map->view[0], 0, map->bloc_w * map->bloc_h);
+		map->view.clear(0);
 		map->nbbloc = header.tiles;		// Nombre de blocs nécessaires
 		map->bloc = new BLOC[map->nbbloc];	// Alloue la mémoire pour les blocs
 		map->ntex = short(n_bmp);
@@ -378,13 +361,13 @@ namespace TA3D
 		{
 			for (x = 0; x < map->bloc_w; ++x)
 			{
-				*file >> map->bmap[y][x];
+				*file >> map->bmap(x, y);
 
-				if (map->bmap[y][x] >= map->nbbloc)			// To add some security
-					map->bmap[y][x] = 0;
+				if (map->bmap(x, y) >= map->nbbloc)			// To add some security
+					map->bmap(x, y) = 0;
 
 				/*---------- code to build the low def map (mega zoom) ---------------*/
-				i = map->bmap[y][x];
+				i = map->bmap(x, y);
 				int tex_num = i >> 5;	// Numéro de la texture associée
 				int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
 
@@ -414,7 +397,7 @@ namespace TA3D
 		SDL_FillRect(lava_map, NULL, 0x0);
 		for (y = 0; y < map->bloc_h; ++y)               // Build the lava map
 			for (x = 0; x < map->bloc_w; ++x)
-				if (map->bloc[map->bmap[y][x]].lava)
+				if (map->bloc[map->bmap(x, y)].lava)
 					circlefill(lava_map, x * lava_map->w / map->bloc_w, y * lava_map->h / map->bloc_h, 3, 0xFF);
 		LOG_INFO("Lava image built in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
@@ -441,7 +424,7 @@ namespace TA3D
 				int c = byte(file->getc());
 				if (c < header.sealevel)
 					map->water = true;
-				map->h_map[y][x] = map->ph_map[y][x] = float(c) * H_DIV;
+				map->h_map(x, y) = map->ph_map(x, y) = float(c) * H_DIV;
 				file->getc();
 				file->getc();
 				file->getc();
@@ -453,29 +436,29 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
 			{
-				map->map_data[y][x].init();
-				map->map_data[y][x].underwater = (map->h_map[y][x] < map->sealvl);
-				map->map_data[y][x].lava = map->bmap[ y >> 1 ][ x >> 1 ] < map->nbbloc ? map->bloc[ map->bmap[ y >> 1 ][ x >> 1 ] ].lava : false;
-				if (!map->map_data[y][x].lava && (x>>1) + 1 < map->bloc_w && map->bmap[ y >> 1 ][ (x >> 1) + 1 ] < map->nbbloc)
+				map->map_data(x, y).init();
+				map->map_data(x, y).underwater = (map->h_map(x, y) < map->sealvl);
+				map->map_data(x, y).lava = map->bmap(x >> 1, y >> 1) < map->nbbloc ? map->bloc[ map->bmap(x >> 1, y >> 1) ].lava : false;
+				if (!map->map_data(x, y).lava && (x>>1) + 1 < map->bloc_w && map->bmap((x >> 1) + 1, y >> 1) < map->nbbloc)
 				{
-					map->map_data[y][x].lava = map->bloc[ map->bmap[ y >> 1 ][ (x >> 1) + 1 ] ].lava;
-					if (!map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ (x >> 1) + 1 ] < map->nbbloc)
-						map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) + 1 ][ (x >> 1) + 1 ] ].lava;
-					if (!map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ (x >> 1) + 1 ] < map->nbbloc)
-						map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ (x >> 1) + 1 ] ].lava;
+					map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) + 1, y >> 1) ].lava;
+					if (!map->map_data(x, y).lava && (y>>1) + 1 < map->bloc_h && map->bmap( (x >> 1) + 1, (y >> 1) + 1) < map->nbbloc)
+						map->map_data(x, y).lava = map->bloc[ map->bmap( (x >> 1) + 1, (y >> 1) + 1) ].lava;
+					if (!map->map_data(x, y).lava && (y>>1) - 1 >= 0 && map->bmap((x >> 1) + 1, (y >> 1) - 1) < map->nbbloc)
+						map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) + 1, (y >> 1) - 1) ].lava;
 				}
-				if (!map->map_data[y][x].lava && (x>>1) - 1 >= 0 && map->bmap[ y >> 1 ][ (x >> 1) - 1 ] < map->nbbloc)
+				if (!map->map_data(x, y).lava && (x>>1) - 1 >= 0 && map->bmap((x >> 1) - 1, y >> 1) < map->nbbloc)
 				{
-					map->map_data[y][x].lava = map->bloc[ map->bmap[ y >> 1 ][ (x >> 1) - 1 ] ].lava;
-					if (!map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ (x >> 1) - 1 ] < map->nbbloc)
-						map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) + 1 ][ (x >> 1) - 1 ] ].lava;
-					if (!map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ (x >> 1) - 1 ] < map->nbbloc)
-						map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ (x >> 1) - 1 ] ].lava;
+					map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) - 1, y >> 1) ].lava;
+					if (!map->map_data(x, y).lava && (y>>1) + 1 < map->bloc_h && map->bmap( (x >> 1) - 1, (y >> 1) + 1) < map->nbbloc)
+						map->map_data(x, y).lava = map->bloc[ map->bmap( (x >> 1) - 1, (y >> 1) + 1) ].lava;
+					if (!map->map_data(x, y).lava && (y>>1) - 1 >= 0 && map->bmap((x >> 1) - 1, (y >> 1) - 1) < map->nbbloc)
+						map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) - 1, (y >> 1) - 1) ].lava;
 				}
-				if (!map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ x >> 1 ] < map->nbbloc)
-					map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) + 1 ][ x >> 1 ] ].lava;
-				if (!map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ x >> 1 ] < map->nbbloc)
-					map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ x >> 1 ] ].lava;
+				if (!map->map_data(x, y).lava && (y>>1) + 1 < map->bloc_h && map->bmap(x >> 1, (y >> 1) + 1) < map->nbbloc)
+					map->map_data(x, y).lava = map->bloc[ map->bmap(x >> 1, (y >> 1) + 1) ].lava;
+				if (!map->map_data(x, y).lava && (y>>1) - 1 >= 0 && map->bmap(x >> 1, (y >> 1) - 1) < map->nbbloc)
+					map->map_data(x, y).lava = map->bloc[ map->bmap(x >> 1, (y >> 1) - 1) ].lava;
 			}
 		}
 
@@ -487,15 +470,15 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)	// Projete la carte du relief
 			{
-				float h = map->ph_map[y][x];
+				float h = map->ph_map(x, y);
 				int rec_y = y + int(0.5f - tnt_transform * h / 16.f);
 				for (int cur_y=rec_y+1;cur_y<=y;cur_y++)
 				{
 					if (cur_y >= 0)
-						map->ph_map[cur_y][x] = -1.f; // Valeur non spécifiée (un trou que l'on comblera plus tard)
+						map->ph_map(x, cur_y) = -1.f; // Valeur non spécifiée (un trou que l'on comblera plus tard)
 				}
 				if (rec_y >= 0)
-					map->ph_map[rec_y][x] = h;
+					map->ph_map(x, rec_y) = h;
 			}
 		}
 
@@ -505,36 +488,36 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
 			{
-				if (!y && Yuni::Math::Equals<float>(map->ph_map[y][x], -1.f))
+				if (!y && Yuni::Math::Equals<float>(map->ph_map(x, y), -1.f))
 				{
 					int cy = 0;
-					while (Yuni::Math::Equals(map->ph_map[cy][x], -1.f))
+					while (Yuni::Math::Equals(map->ph_map(x, cy), -1.f))
 						++cy;
-					const float h = map->ph_map[cy][x];
+					const float h = map->ph_map(x, cy);
 					cy = 0;
-					while (Yuni::Math::Equals(map->ph_map[cy][x], -1.f))
+					while (Yuni::Math::Equals(map->ph_map(x, cy), -1.f))
 					{
-						map->ph_map[cy][x] = h;
+						map->ph_map(x, cy) = h;
 						++cy;
 					}
 				}
 				else
 				{
-					if (Yuni::Math::Equals(map->ph_map[y][x], -1.f))
+					if (Yuni::Math::Equals(map->ph_map(x, y), -1.f))
 					{
-						float h1=map->ph_map[y-1][x];
-						int cy=y;
-						while (cy < (map->bloc_h << 1) && Yuni::Math::Equals(map->ph_map[cy][x], -1.f))
+						float h1 = map->ph_map(x, y - 1);
+						int cy = y;
+						while (cy < (map->bloc_h << 1) && Yuni::Math::Equals(map->ph_map(x, cy), -1.f))
 							++cy;
 
 						if (cy >= (map->bloc_h << 1))
 							cy = (map->bloc_h << 1) - 1;
 
-						float h2 = map->ph_map[cy][x];
+						float h2 = map->ph_map(x, cy);
 						if (Yuni::Math::Equals(h2, -1.f))
 							h2 = h1;
 						for (int ry = y; ry < cy; ++ry)
-							map->ph_map[ry][x] = h1 + (h2 - h1) * float(ry - y + 1) / float(cy - y + 1);
+							map->ph_map(x, ry) = h1 + (h2 - h1) * float(ry - y + 1) / float(cy - y + 1);
 					}
 				}
 			}
@@ -544,7 +527,7 @@ namespace TA3D
 		{
 			// Compute the second map
 			for (x = 0; x < (map->bloc_w << 1); ++x)
-				map->ph_map_2[y][x] = (byte) (map->ph_map[y][x] * 0.125f * tnt_transform_H_DIV + 0.5f);
+				map->ph_map_2(x, y) = (byte) (map->ph_map(x, y) * 0.125f * tnt_transform_H_DIV + 0.5f);
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 6)");
@@ -557,20 +540,20 @@ namespace TA3D
 				{
 					float dz = fabsf( map->get_zdec( x, y) - map->get_zdec( x, y - 1) + 8.0f);
 					dz = (Yuni::Math::Zero(dz)) ? 100000000.f : (8.0f / dz);
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map[y][x] - map->h_map[y-1][x]) * dz);
+					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y) - map->h_map(x, y - 1)) * dz);
 				}
 
 				if (y + 1 < (map->bloc_h << 1))
 				{
 					float dz = fabsf( map->get_zdec( x, y + 1) - map->get_zdec( x, y) + 8.0f);
 					dz = (Yuni::Math::Zero(dz)) ? 100000000.f : (8.0f / dz);
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map[y][x]-map->h_map[y+1][x]) * dz);
+					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y)-map->h_map(x, y + 1)) * dz);
 				}
 
 				if (x > 0)
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map[y][x]-map->h_map[y][x-1]));
+					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y)-map->h_map(x - 1, y)));
 				if (x + 1 < (map->bloc_w << 1))
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map[y][x]-map->h_map[y][x+1]));
+					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y)-map->h_map(x + 1, y)));
 
 				map->slope(x,y) = dh;
 				map->energy(x,y) = dh;
@@ -587,7 +570,7 @@ namespace TA3D
 		file->seek(header.PTRmapattr + 1);
         for (y = 0; y < (map->bloc_h << 1); ++y)
             for (x = 0; x < (map->bloc_w << 1); ++x)
-                map->map_data[y][x].stuff = -1;
+				map->map_data(x, y).stuff = -1;
         for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
@@ -606,12 +589,12 @@ namespace TA3D
 						Pos.y = map->get_unit_h( Pos.x, Pos.z);
                     if (x + 1 < map->bloc_w_db && y + 1 < map->bloc_h_db)
                     {
-                        map->map_data[y + 1][x + 1].stuff = features.add_feature(Pos,TDF_index[type]);
-                        features.drawFeatureOnMap( map->map_data[y + 1][x + 1].stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
-                        if (map->map_data[y + 1][x + 1].stuff >= 0)
+						map->map_data(x + 1, y + 1).stuff = features.add_feature(Pos,TDF_index[type]);
+						features.drawFeatureOnMap( map->map_data(x + 1, y + 1).stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
+						if (map->map_data(x + 1, y + 1).stuff >= 0)
                         {
                             if (feature_manager.getFeaturePointer(TDF_index[type])->category == "trees")        // Randomize trees angle for more realism
-								features.feature[ map->map_data[y + 1][x + 1].stuff ].angle = float(TA3D_RAND() % 360);
+								features.feature[ map->map_data(x + 1, y + 1).stuff ].angle = float(TA3D_RAND() % 360);
                         }
                     }
 				}
