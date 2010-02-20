@@ -112,6 +112,7 @@ namespace TA3D
 		Pathfinder();
 		void clear();
 		void addTask(int idx, int dist, const Vector3D &start, const Vector3D &end);
+		bool hasTaskQueueForUnit(uint32 UID);
 		int taskCount();
 		void computeWalkableAreas();
 

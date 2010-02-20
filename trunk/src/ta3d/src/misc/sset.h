@@ -85,6 +85,11 @@ namespace TA3D
 			return data;
 		}
 
+		const Container &getData() const
+		{
+			return data;
+		}
+
 	private:
 		Container data;
 
