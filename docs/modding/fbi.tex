@@ -33,6 +33,16 @@ Tags can be of several types:
 \end{itemize}
 When an integer is expect and you provide a decimal number, only the integer part is read.
 
+Angles are expressed in OTA units:\\
+\begin{tabular}{|c|c|}
+ \hline
+ radians $\rightarrow$ OTA angle & $\times \frac{65536}{2 \pi}$ \\
+ \hline
+ degrees $\rightarrow$ OTA angle & $\times \frac{65536}{360}$ \\
+ \hline
+\end{tabular}
+
+
 \subsubsection{Acceleration}
 The unit acceleration, can be a decimal number. Expressed in $pixel/s^2$.
 
@@ -60,9 +70,12 @@ It's a boolean. false for buildings, true for mobile units.
 A list of 
 The type of target that is not good for that low accuracy at this type of unit. In general.  The value specified identifies all units that have that value specified in their own "Category" settings. 	BadTargetCategory=VTOL;
 
-BankScale 	The Scale (see Scale) of the unit when banking (ie. turning if its an aircraft) 	BankScale=1;
-BrakeRate 	The rate at which the unit can slow down 	BrakeRate=9;
-BuildAngle 	No idea. Here's a possibility:  Random angle to build unit on, example is the solar panel some times facing 180 degrees from the solar panel next to it.  	BuildAngle=32768;
+\subsubsection{BrakeRate}
+Like acceleration but when the unit wants to slow down.
+
+\subsubsection{BuildAngle}
+It's an integer. It is the maximum angle between the unit's heading and its build target when building. Setting this to 0 means when your unit is building something it'll be facing it (but don't do it, you should at least let a small error tolerance).
+
 BuildCostEnergy 	The cost in energy of building this unit.  The amount of energy that will be consumed during the building of this unit. I think value < 0 generate errors, but I've never tried.   	BuildCostEnergy=985;
 BuildCostMetal 	The cost in metal of building this unit.  The amount of metal that will be consumed during the building of this unit. Again, I think values < 0 produce errors.   	BuildCostMetal=0;
 BuildTime 	The time is takes to build this unit. On average, 10000 is medium time, things like fusion plants are more like 100000, and krogoth like 300000 	BuildTime=9894;
