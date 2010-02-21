@@ -391,10 +391,13 @@ namespace TA3D
 						if (!cur_mat->mapname.empty())
 						{
 							PRINT_DEBUG("loading texture " << cur_mat->mapname);
-							read_obj->Flag |= SURFACE_TEXTURED | SURFACE_BLENDED;
+							read_obj->Flag |= SURFACE_TEXTURED;
 							String name = cur_mat->mapname;
 							name.trim();
-							read_obj->gltex.push_back(gfx->load_texture(name, FILTER_TRILINEAR, false));
+							bool useAlpha(false);
+							read_obj->gltex.push_back(gfx->load_texture(name, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha));
+							if (useAlpha)
+								read_obj->Flag |= SURFACE_BLENDED;
 						}
 						if (cur_mat->transparency > 0.0f)
 						{

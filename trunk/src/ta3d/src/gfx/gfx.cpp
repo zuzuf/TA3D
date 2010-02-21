@@ -1707,7 +1707,7 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
+	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha)
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
@@ -1737,6 +1737,8 @@ namespace TA3D
 					with_alpha |= geta(SurfaceInt(bmp, x, y)) != 255;
 			}
 		}
+		if (useAlpha)
+			*useAlpha = with_alpha;
 		if (texFormat == 0)
 		{
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
