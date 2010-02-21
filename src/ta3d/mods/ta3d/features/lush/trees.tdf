@@ -1,0 +1,690 @@
+[LushTree01]
+{
+	world = lush;
+	description = Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = arbol;
+	energy = 250;
+
+	featureburnt = Lush01crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 40;
+	burnweapon = TreeBurn;
+
+	featuredead = tallsmudge;
+	
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = tallsmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush01crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = arbol_seco;
+
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 70;
+
+	featuredead = tallsmudge;
+	
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = tallsmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush02]
+{
+	world = lush;
+	description = Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = arbol;
+    energy = 250;
+
+	featureburnt = Lush02crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 40;
+	burnweapon = TreeBurn;
+
+	featuredead = tallsmudge2;
+	
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = tallsmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush02crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = arbol_seco;
+
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 70;
+
+	featuredead = tallsmudge2;
+	
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = tallsmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush03]
+{
+	world = lush;
+	description = Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = arbol;
+   	energy = 250;
+
+	featureburnt = Lush03crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 40;
+	burnweapon = TreeBurn;
+
+	featuredead = tallsmudge;	
+
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = tallsmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+[Lush03crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = arbol_seco;
+
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 70;
+
+	featuredead = tallsmudge;	
+
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = tallsmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush04]
+{
+	world = lush;
+	description = Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = oaktree;
+   	energy = 250;
+
+	featureburnt = Lush04crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 50;
+	burnweapon = TreeBurn;
+
+	featuredead = shortsmudge;
+	
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = shortsmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+[Lush04crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = oaktree_burnt;
+
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 90;
+
+	featuredead = shortsmudge;
+	
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = shortsmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush05]
+{
+	world = lush;
+	description = Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = oaktree;
+  	energy = 250;
+
+	featureburnt = Lush05crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 50;
+	burnweapon = TreeBurn;
+
+	featuredead = shortsmudge2;
+	
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = shortsmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush05crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = oaktree_burnt;
+
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 90;
+
+	featuredead = shortsmudge2;
+	
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = shortsmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush06]
+{
+	world = lush;
+	description = Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = oaktree;
+   	energy = 250;
+
+	featureburnt = Lush06crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 50;
+	burnweapon = TreeBurn;
+
+	featuredead = shortsmudge3;	
+
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = shortsmudge3;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush06crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	object = oaktree_burnt;
+
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 90;
+
+	featuredead = shortsmudge3;	
+
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = shortsmudge3;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush07]
+{
+	world = lush;
+	description = Oolok Tree;
+	category = trees;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	filename = tuber-tree;
+	seqname = tree07;
+   	energy = 150;
+	metal = 50;
+
+	featureburnt = Lush07crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 70;
+	burnweapon = TreeBurn;
+
+	featuredead = tubertreesmudge2;
+
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = tubertreesmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush07crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	filename = tuber-tree;
+
+	seqname = tree07crisp;
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 90;
+
+	featuredead = tubertreesmudge;
+
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = tubertreesmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush08]
+{
+	world = lush;
+	description = Oolok Tree;
+	category = trees;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	filename = tuber-tree;
+	seqname = tree08;
+   	energy = 150;
+	metal = 50;
+
+	featureburnt = Lush08crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 70;
+	burnweapon = TreeBurn;
+
+	featuredead = tubertreesmudge2;
+
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = tubertreesmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush08crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	filename = tuber-tree;
+
+	seqname = tree08crisp;
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 90;
+
+	featuredead = tubertreesmudge;
+
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = tubertreesmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush09]
+{
+	world = lush;
+	description = Oolok Tree;
+	category = trees;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	filename = tuber-tree;
+	seqname = tree09;
+   	energy = 150;
+	metal = 50;
+
+	featureburnt = Lush09crisp;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 70;
+	burnweapon = TreeBurn;
+
+	featuredead = tubertreesmudge;
+
+	flamable = true;
+	reclaimable = true;
+	featurereclamate = tubertreesmudge2;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[Lush09crisp]
+{
+	world = lush;
+	description = Burnt Tree;
+	category = trees;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 66;
+	filename = tuber-tree;
+
+	seqname = tree09crisp;
+   	energy = 50;
+
+	burnmin = 5;
+	burnmax = 15;
+	sparktime = 5;
+	spreadchance = 90;
+
+	featuredead = tubertreesmudge2;
+
+	flamable = false;
+	reclaimable = true;
+	featurereclamate = tubertreesmudge;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = true;
+	hitdensity = 10;
+}
+
+[tallsmudge]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = tall-tree;
+	seqname = tallsmudge;
+
+	featuredead = tallsmudge;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+[tallsmudge2]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = tall-tree;
+	seqname = tallsmudge2;
+
+	featuredead = tallsmudge2;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+[shortsmudge]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = short-tree;
+	seqname = shortsmudge;
+
+	featuredead = shortsmudge;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+[shortsmudge2]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = short-tree;
+	seqname = shortsmudge2;
+
+	featuredead = shortsmudge2;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+[shortsmudge3]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = short-tree;
+	seqname = shortsmudge3;
+
+	featuredead = shortsmudge3;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+[tubertreesmudge]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = tuber-tree;
+	seqname = tubertreesmudge;
+
+	featuredead = tubertreesmudge;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+[tubertreesmudge2]
+{
+	world = lush;
+	description = Damaged Terrain;
+	category = smudges;
+	animating = false;
+	footprintx = 1;
+	footprintz = 1;
+	height = 0;
+	filename = tuber-tree;
+	seqname = tubertreesmudge2;
+
+	featuredead = tubertreesmudge2;
+
+	flamable = false;
+	reclaimable = false;
+	reproduce = false;
+	reproducearea = 6;
+	blocking = false;
+	hitdensity = 0;
+}
+
+
