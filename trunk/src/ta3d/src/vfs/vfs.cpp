@@ -99,6 +99,7 @@ namespace UTILS
 	VFS::VFS()
 	{
 		pFiles.set_empty_key(String());
+		pDirs.set_empty_key(String());
 	}
 
 	VFS::~VFS()
@@ -121,6 +122,7 @@ namespace UTILS
 		//   First delete the hash, we don't need to delete the File objects since they are completely
 		//   handled by the associated Archive classes
 		pFiles.clear();
+		pDirs.clear();
 
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS cache");
@@ -172,6 +174,7 @@ namespace UTILS
 			for (String::Vector::iterator i = pPaths.begin(); i != pPaths.end(); ++i)
 				locateAndReadArchives(*i + TA3D_CURRENT_MOD, 0x10000);
 		}
+		buildDirMap();
 		LOG_DEBUG(LOG_PREFIX_VFS << "VFS loaded");
 	}
 
@@ -413,6 +416,55 @@ namespace UTILS
 		return wildCardSearch(pFiles, pattern, li);
 	}
 
+	uint32 VFS::getDirlist(String pattern, String::Vector& li)
+	{
+		pattern.toLower();
+		pattern.convertSlashesIntoBackslashes();
+
+		String parent = '\\' + Paths::ExtractFilePath(pattern);
+		pattern = Paths::ExtractFileName(pattern);
+
+		ThreadingPolicy::MutexLocker locker(*this);
+		if (pDirs.count(parent) == 0)
+			return 0;
+		return wildCardSearch(pDirs[parent], pattern, li);
+	}
+
+
+	uint32 VFS::getDirlist(String pattern, String::List& li)
+	{
+		pattern.toLower();
+		pattern.convertSlashesIntoBackslashes();
+
+		String parent = '\\' + Paths::ExtractFilePath(pattern);
+		pattern = Paths::ExtractFileName(pattern);
+
+		ThreadingPolicy::MutexLocker locker(*this);
+		if (pDirs.count(parent) == 0)
+			return 0;
+		return wildCardSearch(pDirs[parent], pattern, li);
+	}
+
+	void VFS::buildDirMap()
+	{
+		pDirs.clear();
+		for(FileInfoMap::iterator i = pFiles.begin() ; i != pFiles.end() ; ++i)
+		{
+			String cur = Paths::ExtractFilePath('\\' + i->first);
+			for ( ; !cur.empty() && cur != "\\" ; )
+			{
+				cur.removeLast();
+				String parent = Paths::ExtractFilePath(cur);
+				if (parent.empty())
+					parent = '\\';
+
+				cur = cur.substr(1);
+				pDirs[parent][cur] = true;
+
+				cur = parent;
+			}
+		}
+	}
 
 	String VFS::extractFile(const String& filename)
 	{
