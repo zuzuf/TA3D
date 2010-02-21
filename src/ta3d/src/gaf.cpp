@@ -88,7 +88,7 @@ namespace TA3D
 	{
 		out.clear();
 
-		File* file = VFS::Instance()->readFile(filename);
+		File* file = VFS::Instance()->readFile(filename);		// Try to open it as a file
 		if (file)
 		{
 			sint32 idx = RawDataGetEntryIndex(file, imgname);
@@ -97,8 +97,6 @@ namespace TA3D
 				delete file;
 				return;
 			}
-
-			//            set_palette(pal);      // Activate the palette
 
 			sint32 nb_img = RawDataImageCount(file, idx);
 			if (nb_img <= 0)
@@ -150,6 +148,24 @@ namespace TA3D
 				}
 			}
 			delete file;
+			return;
+		}
+		// Now try to open it as a GAF-like directory
+		String::Vector folderList;
+		VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
+		{
+			sort(folderList.begin(), folderList.end());
+			int k = 0;
+			for(String::Vector::iterator i = folderList.begin() ; i != folderList.end() ; ++i, ++k)
+			{
+				uint32 width, height;
+				out.push_back(gfx->load_texture(*i, filter, &width, &height));
+				if (w)
+					w[k] = width;
+				if (h)
+					h[k] = height;
+			}
 		}
 	}
 
@@ -170,7 +186,7 @@ namespace TA3D
 			return first_try;
 		}
 
-		File *file = VFS::Instance()->readFile(filename);
+		File *file = VFS::Instance()->readFile(filename);			// Try to open it as file
 		if (file)
 		{
 			sint32 idx = file->size() > 0 ? RawDataGetEntryIndex(file, imgname) : -1;
@@ -202,6 +218,15 @@ namespace TA3D
 				}
 			}
 			delete file;
+			return 0;
+		}
+		// Now try to open it as a GAF-like directory
+		String::Vector folderList;
+		VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
+		{
+			sort(folderList.begin(), folderList.end());
+			return gfx->load_texture(folderList.front(), filter, (uint32*)w, (uint32*)h);
 		}
 		return 0;
 	}

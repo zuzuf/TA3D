@@ -96,6 +96,14 @@ namespace UTILS
 
 		/*!
 		** \brief
+		** \param s
+		** \param[out] li
+		*/
+		uint32 getDirlist(String pattern, String::List& li);
+		uint32 getDirlist(String pattern, String::Vector& li);
+
+		/*!
+		** \brief
 		*/
 		File* readFile(const String& filename);
 
@@ -181,6 +189,10 @@ namespace UTILS
 		*/
 		CacheFileData* isInCache(const String& filename);
 
+		/*!
+		** \brief build the table of all dirs from the list of all files
+		*/
+		void buildDirMap();
 
 	protected:
 		void loadWL();
@@ -200,7 +212,11 @@ namespace UTILS
 		//! used when looking for files in the real file system
 		String::Vector pPaths;
 		//!
-		TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense pFiles;
+		typedef TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense FileInfoMap;
+		FileInfoMap pFiles;
+		//!
+		typedef TA3D::UTILS::HashMap< std::map<String, bool> >::Dense DirMap;
+		DirMap pDirs;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
 		std::list<CacheFileData>  fileCache;
