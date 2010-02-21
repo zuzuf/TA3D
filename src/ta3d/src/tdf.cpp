@@ -339,6 +339,11 @@ namespace TA3D
 							if (index < 0)
 								feature[i]->need_convert = false;
 						}
+						else		// Try a GAF-like directory
+						{
+							feature[i]->anim.loadGAFFromDirectory("anims\\" + feature[i]->filename, feature[i]->seqname);
+							feature[i]->not_loaded = feature[i]->anim.nb_bmp == 0;
+						}
 					}
 				}
 			}
