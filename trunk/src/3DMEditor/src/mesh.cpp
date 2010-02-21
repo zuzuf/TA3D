@@ -1459,7 +1459,7 @@ void Mesh::save3DMrec(QFile &file)
     link = (next != NULL) ? 1 : 0;
     file.write((char*)&link, 1);
     if (link)
-        next->load3DMrec(file);
+		next->save3DMrec(file);
 }
 
 void Mesh::invertOrientation()
