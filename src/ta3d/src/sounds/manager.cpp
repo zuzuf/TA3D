@@ -112,21 +112,21 @@ namespace Audio
 	{
 		MutexLocker locker(pMutex);
 
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist("music/*.ogg", file_list);
 		VFS::Instance()->getFilelist("music/*.mp3", file_list);
 		VFS::Instance()->getFilelist("music/*.mid", file_list);
 		VFS::Instance()->getFilelist("music/*.wav", file_list);
 		VFS::Instance()->getFilelist("music/*.mod", file_list);
 
-		file_list.sort();
+		sort(file_list.begin(), file_list.end());
 
 		for (Playlist::iterator i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
 			(*i)->checked = false;
 		bool default_deactivation = !pPlaylist.empty();
 
 		String filename;
-		for (String::List::iterator i = file_list.begin() ; i != file_list.end() ; ++i) // Add missing files
+		for (String::Vector::iterator i = file_list.begin() ; i != file_list.end() ; ++i) // Add missing files
 		{
 			*i = Paths::ExtractFileName(*i);
 			if (String::ToLower(*i) == "playlist.txt" || (*i)[0] == '.')

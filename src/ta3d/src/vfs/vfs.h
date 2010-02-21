@@ -92,7 +92,7 @@ namespace UTILS
 		** \param[out] li
 		*/
 		uint32 getFilelist(String pattern, String::List& li);
-		uint32 getFilelist(const String& pattern, String::Vector& li);
+		uint32 getFilelist(String pattern, String::Vector& li);
 
 		/*!
 		** \brief

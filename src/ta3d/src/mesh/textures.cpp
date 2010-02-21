@@ -80,10 +80,10 @@ namespace TA3D
 			tex_hashtable[tex[i].name] = i + 1;
 		}
 
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist("textures\\*.gaf", file_list);
-		const String::List::const_iterator end = file_list.end();
-		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+		const String::Vector::const_iterator end = file_list.end();
+		for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 		{
 			File *file = VFS::Instance()->readFile(*cur_file);
 			load_gaf(file, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");

@@ -291,12 +291,12 @@ namespace TA3D
 			obj->Text.resize(1);
 			obj->Text[0] = I18N::Translate( "default.skn");
 
-			String::List skin_list;
+			String::Vector skin_list;
 			VFS::Instance()->getFilelist("gui\\*.skn", skin_list);
 
 			String skin_name;
-			const String::List::iterator end = skin_list.end();
-			for (String::List::iterator i = skin_list.begin(); i != end; ++i)
+			const String::Vector::iterator end = skin_list.end();
+			for (String::Vector::iterator i = skin_list.begin(); i != end; ++i)
 			{
 				skin_name = Paths::ExtractFileName(*i, false);
 				obj->Text.push_back(skin_name);
@@ -711,7 +711,7 @@ namespace TA3D
 			game_data.map_filename = lp_CONFIG->last_map;
 		else
 		{
-			String::List map_list;
+			String::Vector map_list;
 			const uint32 n = VFS::Instance()->getFilelist("maps\\*.tnt", map_list);
 
 			if (n == 0)
@@ -732,7 +732,7 @@ namespace TA3D
 			game_data.game_script = "scripts\\game\\default.lua";
 		else
 		{
-			String::List script_list;
+			String::Vector script_list;
 			uint32 n = VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 
 			if (n == 0)
@@ -743,7 +743,7 @@ namespace TA3D
 				reset_mouse();
 				return;
 			}
-			for (String::List::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
+			for (String::Vector::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
 			{
 				game_data.game_script = *i;
 				if (i->size() > 1 && (*i)[0] != '_')            // Avoid selecting a special file as default script if possible
@@ -869,10 +869,10 @@ namespace TA3D
 		Gui::GUIOBJ::Ptr guiobj = setupgame_area.get_object( "scripts.script_list");
 		if (guiobj)
 		{
-			String::List script_list;
+			String::Vector script_list;
 			VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 			guiobj->Text.clear();
-			for (String::List::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
+			for (String::Vector::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
 				guiobj->Text.push_back(*i_script);
 		}
 		setupgame_area.caption( "gamesetup.script_name", game_data.game_script);
@@ -2311,6 +2311,7 @@ namespace TA3D
 
 		String::List campaign_list;
 		VFS::Instance()->getFilelist("camps\\*.tdf", campaign_list);
+		campaign_list.sort();
 		for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
 		{
 			if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)

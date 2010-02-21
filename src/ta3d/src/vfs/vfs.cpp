@@ -394,13 +394,13 @@ namespace UTILS
 	}
 
 
-	uint32 VFS::getFilelist(const String& pattern, String::Vector& li)
+	uint32 VFS::getFilelist(String pattern, String::Vector& li)
 	{
-		String::List l;
-		uint32 r = getFilelist(pattern, l);
-		for (String::List::const_iterator i = l.begin(); i != l.end(); ++i)
-			li.push_back(*i);
-		return r;
+		pattern.toLower();
+		pattern.convertSlashesIntoBackslashes();
+
+		ThreadingPolicy::MutexLocker locker(*this);
+		return wildCardSearch(pFiles, pattern, li);
 	}
 
 

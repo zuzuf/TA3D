@@ -35,13 +35,13 @@ namespace TA3D
 
 	void load_weapons(void (*progress)(float percent,const String &msg))				// Charge toutes les armes
 	{
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
 
 		int n = 0;
 
-		const String::List::const_iterator end = file_list.end();
-		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+		const String::Vector::const_iterator end = file_list.end();
+		for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 		{
 			if (progress != NULL && !(n & 0xF))
 				progress((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));

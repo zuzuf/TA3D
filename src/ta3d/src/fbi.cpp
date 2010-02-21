@@ -296,10 +296,10 @@ namespace TA3D
 	void UnitManager::gather_build_data()
 	{
 		uint32 file_size=0;
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
-		for (String::List::const_iterator f = file_list.begin(); f != file_list.end(); ++f) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+		for (String::Vector::const_iterator f = file_list.begin(); f != file_list.end(); ++f) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
 			File* file = VFS::Instance()->readFile(*f);		// Lit le fichier
 			if (file)
@@ -317,14 +317,14 @@ namespace TA3D
 		VFS::Instance()->getFilelist("anims\\*.gaf", animsList);
 		name2gaf.clear();
 
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
 		String fileUp;
 		String unitnameUp;
-		const String::List::const_iterator end = file_list.end();
+		const String::Vector::const_iterator end = file_list.end();
 		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-		for (String::List::const_iterator file = file_list.begin(); file != end; ++file) 
+		for (String::Vector::const_iterator file = file_list.begin(); file != end; ++file)
 		{
 			for (int i = 0; i < nb_unit; ++i)
 			{
@@ -1016,9 +1016,9 @@ namespace TA3D
 		GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true);
 		if (panel_tex == 0)
 		{
-			String::List file_list;
+			String::Vector file_list;
             VFS::Instance()->getFilelist( "anims\\*.gaf", file_list);
-			for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
+			for (String::Vector::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
 				panel_tex = Gaf::ToTexture(*i, gaf_img, &w, &h, true);
 		}
 		panel.set(panel_tex);
@@ -1183,12 +1183,12 @@ namespace TA3D
 	{
 		unit_manager.init();
 		int nb_inconnu=0;
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
 
 		int n = 0;
 
-		for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
+		for (String::Vector::iterator i = file_list.begin(); i != file_list.end(); ++i)
 		{
 			if (progress != NULL && !(n & 0xF))
 				progress((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
