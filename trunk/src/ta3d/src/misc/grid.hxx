@@ -6,13 +6,13 @@
 namespace TA3D
 {
 	template<class T>
-		Grid<T>::Grid() : w(0), h(0), data(NULL)
+		Grid<T>::Grid() : w(0), h(0), data()
 	{
 		resize(1, 1);
 	}
 
 	template<class T>
-		Grid<T>::Grid(int w, int h) : w(0), h(0), data(NULL)
+		Grid<T>::Grid(int w, int h) : w(0), h(0), data()
 	{
 		resize(w, h);
 	}

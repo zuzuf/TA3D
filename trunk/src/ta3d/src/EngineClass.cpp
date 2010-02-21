@@ -2454,14 +2454,14 @@ namespace TA3D
 
 	SKY_DATA* choose_a_sky(const String& mapname, const String& planet)
 	{
-		std::list<SKY_DATA*> sky_list;
+		std::vector<SKY_DATA*> sky_list;
 		sky_list.clear();
 
-		String::List file_list;
+		String::Vector file_list;
 		VFS::Instance()->getFilelist("sky\\*.tdf", file_list);
 		uint32	nb_sky = 0;
 
-		for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+		for (String::Vector::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
 		{
 			LOG_DEBUG("loading sky : " << *it);
 			SKY_DATA *sky_data = new SKY_DATA;
@@ -2503,7 +2503,7 @@ namespace TA3D
 		if (nb_sky == 0)    // Look for a default sky
 		{
 			LOG_DEBUG(LOG_PREFIX_GFX << "no sky associated with this map('" << mapname << "') or this planet('" << planet << "') found, looking for default skies");
-			for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+			for (String::Vector::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
 			{
 				SKY_DATA *sky_data = new SKY_DATA;
 				sky_data->load_tdf(*it);
@@ -2524,7 +2524,7 @@ namespace TA3D
 		if (nb_sky > 0)
 		{
 			int select = TA3D_RAND() % nb_sky;
-			for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
+			for (std::vector<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
 			{
 				if (select == 0)
 				{
@@ -2535,7 +2535,7 @@ namespace TA3D
 			}
 		}
 
-		for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
+		for (std::vector<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
 		{
 			if (*it != NULL )
 				delete *it;

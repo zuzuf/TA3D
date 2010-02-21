@@ -90,11 +90,11 @@ namespace TA3D
 	{
 		if (args.size() >= 1 )
 		{
-			String::List file_list;
+			String::Vector file_list;
 			String ext = args[0];
 			VFS::Instance()->getFilelist(ext, file_list);
-			file_list.sort();
-			for (String::List::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
+			sort(file_list.begin(), file_list.end());
+			for (String::Vector::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
 				std::cout << *cur_file << std::endl;
 
 			args.erase(args.begin());
@@ -237,12 +237,12 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			String::List file_list;
+			String::Vector file_list;
 			String ext = args[0];
 			VFS::Instance()->getFilelist(ext, file_list);
-			file_list.sort();
+			sort(file_list.begin(), file_list.end());
 
-			for (String::List::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
+			for (String::Vector::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
 			{
 				File* file = VFS::Instance()->readFile(*cur_file);
 				if (file)

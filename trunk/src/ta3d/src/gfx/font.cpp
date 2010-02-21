@@ -175,7 +175,7 @@ namespace TA3D
 	{
 		LOG_DEBUG(LOG_PREFIX_FONT << "looking for " << name);
 		out.clear();
-		String::List file_list;
+		String::Vector file_list;
 		String tmp;
 
 		String comp_name;
@@ -184,8 +184,8 @@ namespace TA3D
 		VFS::Instance()->getFilelist(path + "/*", file_list);
 		// Looking for the file
 		{
-			const String::List::iterator end = file_list.end();
-			for (String::List::iterator i = file_list.begin() ; i != end; ++i)
+			const String::Vector::iterator end = file_list.end();
+			for (String::Vector::iterator i = file_list.begin() ; i != end; ++i)
 			{
 				tmp = Paths::ExtractFileName(*i);
 				tmp.toLower();

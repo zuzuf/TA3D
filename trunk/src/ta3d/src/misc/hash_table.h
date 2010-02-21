@@ -113,9 +113,9 @@ namespace TA3D
 			typedef google::sparse_hash_set<K, TA3D::UTILS::hash<K> >	Sparse;
 		};
 
-		template<class T>
+		template<class T, class U>
 				uint32
-				wildCardSearch( const T& container, const String& pattern, String::List& li)
+				wildCardSearch( const T& container, const String& pattern, U& li)
 		{
 			if (container.empty())
 				return 0;
