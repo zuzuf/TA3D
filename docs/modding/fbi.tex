@@ -20,18 +20,46 @@
 \begin{document}
 \maketitle
 
+\abstract{This document has been adapted from OTA's FBI document from the Total Annihilation Design Guide}
+
+\pagebreak
+
+Tags can be of several types:
+\begin{itemize}
+ \item integers
+ \item decimal numbers
+ \item booleans (1/0 or true/false)
+ \item strings
+\end{itemize}
+When an integer is expect and you provide a decimal number, only the integer part is read.
+
 \subsubsection{Acceleration}
 The unit acceleration, can be a decimal number. Expressed in $pixel/s^2$.
 
-ActivateWhenBuilt 	Is the default state of this unit ACTIVATED (or ON) when built. 	ActivateWhenBuilt=1;
-ai\_limit 	Limit of number the AI will build of this unit. 	ai\_limit=limit CORVOYR 2;
-ai\_weight 	The weighting (ie. what \% of these to to build. I don't know what the units are) 	ai\_weight=weight CORFLAK 6;
-altfromsealevel 	Altitude from sea. For flying units. Don't quite understand this one myself. 	altfromsealevel=1;
-amphibious 	Is the unit amphibious (can go under water, \& on land. 	amphibious=1;
-antiweapons 	Does this unit shoot at the weapons of other units eg. Missile defence systems 	antiweapons=1;
-attackrunlength 	For planes. The distance they must travel before being able to drop their bombs/shoot their missiles. HoverAttack is like attackrunlength=0, I think 	attackrunlength=290;
-BMcode 	A BMcode. Every unit has a value of 1, except for contstruction plants (eg. Air Craft Plant, Vehical Plants). So do likewise. 	BMcode=1;
-BadTargetCategory 	The type of target that is not good for that low accuracy at this type of unit. In general.  The value specified identifies all units that have that value specified in their own "Category" settings. 	BadTargetCategory=VTOL;
+\subsubsection{ActivateWhenBuilt}
+I's a boolean. When set to true, the unit is ACTIVATED (or ON) when built.
+
+\subsubsection{altfromsealevel}
+It's an integer. Altitude from sea. For flying units.
+
+\subsubsection{amphibious}
+It's a boolean.
+Is the unit amphibious (can go under water, \& on land).
+
+\subsubsection{antiweapons}
+It's a boolean. Set to true if your unit can shoot at weapons of other units (eg. Missile defence systems).
+
+\subsubsection{attackrunlength}
+It's an integer.
+For planes. The distance they must travel before being able to drop their bombs/shoot their missiles.
+
+\subsubsection{BMcode}
+It's a boolean. false for buildings, true for mobile units.
+
+\subsubsection{BadTargetCategory}
+A list of 
+The type of target that is not good for that low accuracy at this type of unit. In general.  The value specified identifies all units that have that value specified in their own "Category" settings. 	BadTargetCategory=VTOL;
+
 BankScale 	The Scale (see Scale) of the unit when banking (ie. turning if its an aircraft) 	BankScale=1;
 BrakeRate 	The rate at which the unit can slow down 	BrakeRate=9;
 BuildAngle 	No idea. Here's a possibility:  Random angle to build unit on, example is the solar panel some times facing 180 degrees from the solar panel next to it.  	BuildAngle=32768;
