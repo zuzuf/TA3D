@@ -861,9 +861,23 @@ namespace Audio
 		filename.toLower();
 
 		// if it has a .wav extension then remove it.
-		String::size_type i = filename.find("wav");
+		String::size_type i = filename.find(".wav");
 		if (i != String::npos)
 			filename.truncate(filename.length() - 4);
+		else
+		{
+			// if it has a .ogg extension then remove it.
+			i = filename.find(".ogg");
+			if (i != String::npos)
+				filename.truncate(filename.length() - 4);
+			else
+			{
+				// if it has a .mp3 extension then remove it.
+				i = filename.find(".mp3");
+				if (i != String::npos)
+					filename.truncate(filename.length() - 4);
+			}
+		}
 
 		// if its already loaded return true.
 		if (pSoundList.count(filename) != 0)
@@ -873,7 +887,19 @@ namespace Audio
 
 		// pull the data from hpi.
 		String theSound;
-		theSound << "sounds\\" << filename << ".wav";
+		theSound << "sounds\\" << filename;
+		if (VFS::Instance()->fileExists(theSound + ".wav"))
+			theSound << ".wav";
+		else
+		{
+			if (VFS::Instance()->fileExists(theSound + ".ogg"))
+				theSound << ".ogg";
+			else
+			{
+				if (VFS::Instance()->fileExists(theSound + ".mp3"))
+					theSound << ".mp3";
+			}
+		}
 		File* file = VFS::Instance()->readFile(theSound);
 		if (!file) // if no data, log a message and return false.
 		{
@@ -965,6 +991,20 @@ namespace Audio
 		String::size_type i = szWav.toLower().find(".wav");
 		if (i != String::npos)
 			szWav.truncate(szWav.length() - 4);
+		else
+		{
+			// if it has a .ogg extension then remove it.
+			i = szWav.toLower().find(".ogg");
+			if (i != String::npos)
+				szWav.truncate(szWav.length() - 4);
+			else
+			{
+				// if it has a .mp3 extension then remove it.
+				i = szWav.toLower().find(".mp3");
+				if (i != String::npos)
+					szWav.truncate(szWav.length() - 4);
+			}
+		}
 
 		SoundItemList* sound = pSoundList[szWav];
 		if (!sound)
@@ -999,6 +1039,18 @@ namespace Audio
 		String::size_type i = szWav.toLower().find(".wav");
 		if (i != String::npos)
 			szWav.truncate(szWav.length() - 4);
+		else
+		{
+			i = szWav.toLower().find(".ogg");
+			if (i != String::npos)
+				szWav.truncate(szWav.length() - 4);
+			else
+			{
+				i = szWav.toLower().find(".mp3");
+				if (i != String::npos)
+					szWav.truncate(szWav.length() - 4);
+			}
+		}
 
 		SoundItemList* it = pSoundList[szWav];
 		if (it)
