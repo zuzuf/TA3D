@@ -32,6 +32,7 @@
 #include "gfx/glfunc.h"
 #include <zlib.h>
 #include <vfs/file.h>
+#include <misc/paths.h>
 
 
 namespace TA3D
@@ -627,6 +628,47 @@ namespace TA3D
 		h.resize(nb_bmp);
 	}
 
+	void Gaf::Animation::loadGAFFromDirectory(const String &folderName, const String &entryName)
+	{
+		filename = folderName;
+
+		String::Vector files;
+		VFS::Instance()->getFilelist(folderName + '\\' + entryName + "\\*", files);
+		sort(files.begin(), files.end());
+
+		nb_bmp = files.size();
+
+		bmp.resize(nb_bmp, NULL);
+		glbmp.resize(nb_bmp, 0);
+		ofs_x.resize(nb_bmp, 0);
+		ofs_y.resize(nb_bmp, 0);
+		w.resize(nb_bmp, 0);
+		h.resize(nb_bmp, 0);
+		name = entryName;
+		pAnimationConverted = false;
+
+		int i(0);
+		int f(0);
+		for (; i < nb_bmp; ++i)
+		{
+			if ((bmp[i-f] = gfx->load_image(files[i])) != NULL)
+			{
+				w[i-f] = bmp[i-f]->w;
+				h[i-f] = bmp[i-f]->h;
+				ofs_x[i-f] = 0;
+				ofs_y[i-f] = 0;
+			}
+			else
+				++f;
+		}
+		nb_bmp -= f;
+		bmp.resize(nb_bmp);
+		glbmp.resize(nb_bmp);
+		ofs_x.resize(nb_bmp);
+		ofs_y.resize(nb_bmp);
+		w.resize(nb_bmp);
+		h.resize(nb_bmp);
+	}
 
 
 	void Gaf::Animation::init()
@@ -728,6 +770,19 @@ namespace TA3D
 			return pList.size();
 		}
 		return 0;
+	}
+
+	sint32 Gaf::AnimationList::loadGAFFromDirectory(const String &folderName, const bool doConvert)
+	{
+		String::Vector entries;
+		VFS::Instance()->getDirlist(folderName + "\\*", entries);
+		pList.clear();
+		pList.resize(entries.size());
+		for (int i = 0 ; i < pList.size() ; ++i)
+			pList[i].loadGAFFromDirectory(folderName, Paths::ExtractFileName(entries[i]));
+		if (doConvert)
+			convert();
+		return pList.size();
 	}
 
 	sint32 Gaf::AnimationList::findByName(const String& name) const

@@ -224,6 +224,8 @@ namespace TA3D
 
 			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
 
+			void loadGAFFromDirectory(const String &folderName, const String &entryName);
+
 			void convert(bool NO_FILTER = false, bool COMPRESSED = false);
 
 			void clean();
@@ -287,6 +289,16 @@ namespace TA3D
 			** \return The number of animation found
 			*/
 			sint32 loadGAFFromRawData(UTILS::File* file, const bool doConvert = false, const String& fname = "");
+
+			/*!
+			** \brief Load all animation from a GAF-like directory
+			**
+			** \param data The Raw data
+			** \param doConvert
+			** \param fname
+			** \return The number of animation found
+			*/
+			sint32 loadGAFFromDirectory(const String &folderName, const bool doConvert = false);
 
 			/*!
 			** \brief

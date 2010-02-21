@@ -31,274 +31,274 @@
 
 namespace TA3D
 {
-namespace Gui
-{
-
-
-	WND::WND()
-		:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
-		title_h(0), Title(), Name(), obj_hashtable(),
-		background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
-		draw_borders(true), hidden(false), was_hidden(false), tab_was_pressed(false),
-		background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
-		ingame_window(false)
+	namespace Gui
 	{
-		obj_hashtable.set_empty_key(String());
-		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
-		pCacheFontHeight = gui_font ->height();
-		scrolling = 0;
-		scrollable = false;
-	}
 
 
-	WND::WND(const String& filename)
-		:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
-		title_h(0), Title(), Name(), obj_hashtable(),
-		background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
-		draw_borders(true), hidden(false), was_hidden(false), tab_was_pressed(false),
-		background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
-		ingame_window(false)
-
-	{
-		scrolling = 0;
-		scrollable = false;
-		obj_hashtable.set_empty_key(String());
-		color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
-		pCacheFontHeight = gui_font ->height();
-		load_tdf(filename);
-	}
-
-
-
-	WND::~WND()
-	{
-		obj_hashtable.clear();
-		destroy();
-	}
-
-
-
-	void WND::draw(String& helpMsg, const bool focus, const bool deg, Skin* skin)
-	{
-		/* Asserts */
-		assert(NULL != this);
-		assert(NULL != skin);
-
-		MutexLocker locker(pMutex);
-		if (!hidden) // If it's hidden don't draw it
+		WND::WND()
+			:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
+			title_h(0), Title(), Name(), obj_hashtable(),
+			background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
+			draw_borders(true), hidden(false), was_hidden(false), tab_was_pressed(false),
+			background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
+			ingame_window(false)
 		{
-			// Shadow
-			doDrawWindowShadow(skin);
+			obj_hashtable.set_empty_key(String());
+			color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
+			pCacheFontHeight = gui_font ->height();
+			scrolling = 0;
+			scrollable = false;
+		}
 
-			// Take scrolling into account
-			gfx->set_2D_clip_rectangle(x, y, width, height);
-			glPushMatrix();
-			glTranslatef(0.0f, float(-scrolling), 0.0f);
 
-			// Background
-			doDrawWindowBackground(skin);
+		WND::WND(const String& filename)
+			:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
+			title_h(0), Title(), Name(), obj_hashtable(),
+			background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
+			draw_borders(true), hidden(false), was_hidden(false), tab_was_pressed(false),
+			background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
+			ingame_window(false)
 
-			// We have to disable clipping now because of windows borders
-			// and we must render things in this specific order, otherwise title
-			// bars are hidden by background
-			gfx->set_2D_clip_rectangle();
-			glPopMatrix();
+		{
+			scrolling = 0;
+			scrollable = false;
+			obj_hashtable.set_empty_key(String());
+			color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
+			pCacheFontHeight = gui_font ->height();
+			load_tdf(filename);
+		}
 
-			// Skin
-			doDrawWindowSkin(skin, focus, deg);
 
-			gfx->set_2D_clip_rectangle(x, y, width, height);
-			glPushMatrix();
-			glTranslatef(0.0f, float(-scrolling), 0.0f);
 
-			// Gui Font
-			gui_font = (ingame_window) ? gfx->TA_font : gfx->ta3d_gui_font;
+		WND::~WND()
+		{
+			obj_hashtable.clear();
+			destroy();
+		}
 
-			if (!pObjects.empty())
+
+
+		void WND::draw(String& helpMsg, const bool focus, const bool deg, Skin* skin)
+		{
+			/* Asserts */
+			assert(NULL != this);
+			assert(NULL != skin);
+
+			MutexLocker locker(pMutex);
+			if (!hidden) // If it's hidden don't draw it
 			{
-				// Background objects
-				for (unsigned int i = 0; i != pObjects.size(); ++i)
-				{
-					// Affiche les objets d'arrière plan
-					if (!(pObjects[i]->Flag & FLAG_HIDDEN))
-						doDrawWindowBackgroundObject(helpMsg, i, focus, skin);
-				}
+				// Shadow
+				doDrawWindowShadow(skin);
+
+				// Take scrolling into account
+				gfx->set_2D_clip_rectangle(x, y, width, height);
+				glPushMatrix();
+				glTranslatef(0.0f, float(-scrolling), 0.0f);
+
+				// Background
+				doDrawWindowBackground(skin);
+
+				// We have to disable clipping now because of windows borders
+				// and we must render things in this specific order, otherwise title
+				// bars are hidden by background
 				gfx->set_2D_clip_rectangle();
-				for (unsigned int i = 0; i < pObjects.size(); ++i)
+				glPopMatrix();
+
+				// Skin
+				doDrawWindowSkin(skin, focus, deg);
+
+				gfx->set_2D_clip_rectangle(x, y, width, height);
+				glPushMatrix();
+				glTranslatef(0.0f, float(-scrolling), 0.0f);
+
+				// Gui Font
+				gui_font = (ingame_window) ? gfx->TA_font : gfx->ta3d_gui_font;
+
+				if (!pObjects.empty())
 				{
-					// Affiche les objets de premier plan
-					if (!(pObjects[i]->Flag & FLAG_HIDDEN))
-						doDrawWindowForegroundObject(skin, i);
-				}
-			}
-			else
-				gfx->set_2D_clip_rectangle();
-			glPopMatrix();
-			gui_font = gfx->ta3d_gui_font;
-		}
-	}
-
-
-
-	void WND::doDrawWindowShadow(Skin* skin)
-	{
-		if (!skin || !draw_borders || Lock)
-			return;
-
-		skin->ObjectShadow( x - skin->wnd_border.x1, y - skin->wnd_border.y1,
-							x + width - skin->wnd_border.x2, y + height - skin->wnd_border.y2,
-							3, 3,
-							0.5f, 10.0f);
-	}
-
-
-	void WND::doDrawWindowBackground(Skin* skin)
-	{
-		if (!geta(color))       // We don't need to render things in full transparency
-			return;             // we can just not render them
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		if (!background)
-		{
-			if (skin && skin->wnd_background)
-			{
-				gfx->set_color(color);
-				gfx->drawtexture(skin->wnd_background, x, y, x + width, y + height);
-				glBindTexture(GL_TEXTURE_2D, 0);
-			}
-			else
-			{
-				glBindTexture(GL_TEXTURE_2D, 0);
-				gfx->rectfill(x, y, x + width, y + height, color);
-			}
-		}
-		else
-		{
-			gfx->set_color(color);
-			if (repeat_bkg)
-				gfx->drawtexture(background, x, y, x + width, y + height, 0.0f, 0.0f, ((float)width) / bkg_w, ((float)height) / bkg_h);
-			else
-				gfx->drawtexture(background, x, y, x + width, y + height);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-		glDisable(GL_BLEND);
-	}
-
-
-	void WND::doDrawWindowSkin(Skin* skin, const bool focus, const bool deg)
-	{
-		if (skin)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		// Alpha blending activated
-			gfx->set_color(color);
-			if (draw_borders && skin->wnd_border.tex)
-			{
-				skin->wnd_border.draw(x - skin->wnd_border.x1,
-									  y - skin->wnd_border.y1,
-									  x + width - skin->wnd_border.x2,
-									  y + height - skin->wnd_border.y2,  false);
-			}
-			if (show_title && skin->wnd_title_bar.tex)
-			{
-				title_h = (int)(Math::Max(2 + pCacheFontHeight, (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
-				skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h);
-				float maxTitleLength = width - 10 - skin->wnd_title_bar.x1 + skin->wnd_title_bar.x2;
-				String cutTitle = Title;
-				if (gui_font->length(cutTitle) > maxTitleLength)
-				{
-					int smax = Title.sizeUTF8();
-					int smin = 0;
-					int s = smin + smax >> 1;
-					do
+					// Background objects
+					for (unsigned int i = 0; i != pObjects.size(); ++i)
 					{
-						s = smin + smax >> 1;
-						cutTitle = Title.substrUTF8(0, s) + "...";
-						bool test = gui_font->length(cutTitle) > maxTitleLength;
-						if (test)
-						{
-							if (smax == smin + 1)
-							{
-								cutTitle = Title.substrUTF8(0, smin) + "...";
-								break;
-							}
-							smax = s;
-						}
-						else
-						{
-							if (s == smin)
-								break;
-							smin = s;
-						}
-					} while(s > 0 && smin != smax);
-				}
-				gfx->print(gui_font, x + 5 + skin->wnd_title_bar.x1,
-						   y + 3 + (title_h - pCacheFontHeight) * 0.5f,
-						   0, White, cutTitle);
-			}
-			glDisable(GL_BLEND);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-		else
-		{
-			if (draw_borders)
-			{
-				gfx->rect(x - 2, y - 2, x + width + 1, y + height + 1, Black);
-				gfx->rect(x - 1, y - 1, x + width,     y + height,     DGray);
-				gfx->line(x - 2, y - 2, x + width + 1, y - 2,          White);
-				gfx->line(x - 2, y - 2, x - 2,         y + height + 1, White);
-				gfx->line(x - 1, y - 1, x + width,     y - 1,          LGray);
-				gfx->line(x - 1, y - 1, x - 1,         y + height,     LGray);
-			}
-			if (show_title)
-			{
-				title_h = (int)(2 + pCacheFontHeight);
-				if (deg)
-				{
-					if (focus)
-					{
-						glBegin(GL_QUADS);
-						glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 3);
-						glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 3);
-						glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 5 + pCacheFontHeight);
-						glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 5 + pCacheFontHeight);
-						glEnd();
+						// Affiche les objets d'arrière plan
+						if (!(pObjects[i]->Flag & FLAG_HIDDEN))
+							doDrawWindowBackgroundObject(helpMsg, i, focus, skin);
 					}
-					else
+					gfx->set_2D_clip_rectangle();
+					for (unsigned int i = 0; i < pObjects.size(); ++i)
 					{
-						glBegin(GL_QUADS);
-						glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 3);
-						glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 3);
-						glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 5 + pCacheFontHeight);
-						glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 5 + pCacheFontHeight);
-						glEnd();
+						// Affiche les objets de premier plan
+						if (!(pObjects[i]->Flag & FLAG_HIDDEN))
+							doDrawWindowForegroundObject(skin, i);
 					}
 				}
 				else
-				{
-					if (focus)
-						gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + pCacheFontHeight, Blue);
-					else
-						gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + pCacheFontHeight, DGray);
-				}
-				gfx->print(gui_font, x + 4 , y + 4 , 0 , White, Title);
+					gfx->set_2D_clip_rectangle();
+				glPopMatrix();
+				gui_font = gfx->ta3d_gui_font;
 			}
 		}
-	}
 
 
-	void WND::doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin)
-	{
-		// Keeping a reference to the object
-		GUIOBJ::Ptr objectPtr = pObjects[i];
-		// For performance reason, we will directly working on the pointer
-		// It is safe due to the reference is guaranted to be valid until the end of the scope
-		GUIOBJ* object = GUIOBJ::Ptr::WeakPointer(objectPtr);
 
-		if (object->MouseOn && !object->help_msg.empty())
-			helpMsg = object->help_msg;
-		switch (object->Type)
+		void WND::doDrawWindowShadow(Skin* skin)
 		{
+			if (!skin || !draw_borders || Lock)
+				return;
+
+			skin->ObjectShadow( x - skin->wnd_border.x1, y - skin->wnd_border.y1,
+								x + width - skin->wnd_border.x2, y + height - skin->wnd_border.y2,
+								3, 3,
+								0.5f, 10.0f);
+		}
+
+
+		void WND::doDrawWindowBackground(Skin* skin)
+		{
+			if (!geta(color))       // We don't need to render things in full transparency
+				return;             // we can just not render them
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			if (!background)
+			{
+				if (skin && skin->wnd_background)
+				{
+					gfx->set_color(color);
+					gfx->drawtexture(skin->wnd_background, x, y, x + width, y + height);
+					glBindTexture(GL_TEXTURE_2D, 0);
+				}
+				else
+				{
+					glBindTexture(GL_TEXTURE_2D, 0);
+					gfx->rectfill(x, y, x + width, y + height, color);
+				}
+			}
+			else
+			{
+				gfx->set_color(color);
+				if (repeat_bkg)
+					gfx->drawtexture(background, x, y, x + width, y + height, 0.0f, 0.0f, ((float)width) / bkg_w, ((float)height) / bkg_h);
+				else
+					gfx->drawtexture(background, x, y, x + width, y + height);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			glDisable(GL_BLEND);
+		}
+
+
+		void WND::doDrawWindowSkin(Skin* skin, const bool focus, const bool deg)
+		{
+			if (skin)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);		// Alpha blending activated
+				gfx->set_color(color);
+				if (draw_borders && skin->wnd_border.tex)
+				{
+					skin->wnd_border.draw(x - skin->wnd_border.x1,
+										  y - skin->wnd_border.y1,
+										  x + width - skin->wnd_border.x2,
+										  y + height - skin->wnd_border.y2,  false);
+				}
+				if (show_title && skin->wnd_title_bar.tex)
+				{
+					title_h = (int)(Math::Max(2 + pCacheFontHeight, (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
+					skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h);
+					float maxTitleLength = width - 10 - skin->wnd_title_bar.x1 + skin->wnd_title_bar.x2;
+					String cutTitle = Title;
+					if (gui_font->length(cutTitle) > maxTitleLength)
+					{
+						int smax = Title.sizeUTF8();
+						int smin = 0;
+						int s = smin + smax >> 1;
+						do
+						{
+							s = smin + smax >> 1;
+							cutTitle = Title.substrUTF8(0, s) + "...";
+							bool test = gui_font->length(cutTitle) > maxTitleLength;
+							if (test)
+							{
+								if (smax == smin + 1)
+								{
+									cutTitle = Title.substrUTF8(0, smin) + "...";
+									break;
+								}
+								smax = s;
+							}
+							else
+							{
+								if (s == smin)
+									break;
+								smin = s;
+							}
+						} while(s > 0 && smin != smax);
+					}
+					gfx->print(gui_font, x + 5 + skin->wnd_title_bar.x1,
+							   y + 3 + (title_h - pCacheFontHeight) * 0.5f,
+							   0, White, cutTitle);
+				}
+				glDisable(GL_BLEND);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			else
+			{
+				if (draw_borders)
+				{
+					gfx->rect(x - 2, y - 2, x + width + 1, y + height + 1, Black);
+					gfx->rect(x - 1, y - 1, x + width,     y + height,     DGray);
+					gfx->line(x - 2, y - 2, x + width + 1, y - 2,          White);
+					gfx->line(x - 2, y - 2, x - 2,         y + height + 1, White);
+					gfx->line(x - 1, y - 1, x + width,     y - 1,          LGray);
+					gfx->line(x - 1, y - 1, x - 1,         y + height,     LGray);
+				}
+				if (show_title)
+				{
+					title_h = (int)(2 + pCacheFontHeight);
+					if (deg)
+					{
+						if (focus)
+						{
+							glBegin(GL_QUADS);
+							glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 3);
+							glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 3);
+							glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 5 + pCacheFontHeight);
+							glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 5 + pCacheFontHeight);
+							glEnd();
+						}
+						else
+						{
+							glBegin(GL_QUADS);
+							glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 3);
+							glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 3);
+							glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 5 + pCacheFontHeight);
+							glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 5 + pCacheFontHeight);
+							glEnd();
+						}
+					}
+					else
+					{
+						if (focus)
+							gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + pCacheFontHeight, Blue);
+						else
+							gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + pCacheFontHeight, DGray);
+					}
+					gfx->print(gui_font, x + 4 , y + 4 , 0 , White, Title);
+				}
+			}
+		}
+
+
+		void WND::doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin)
+		{
+			// Keeping a reference to the object
+			GUIOBJ::Ptr objectPtr = pObjects[i];
+			// For performance reason, we will directly working on the pointer
+			// It is safe due to the reference is guaranted to be valid until the end of the scope
+			GUIOBJ* object = GUIOBJ::Ptr::WeakPointer(objectPtr);
+
+			if (object->MouseOn && !object->help_msg.empty())
+				helpMsg = object->help_msg;
+			switch (object->Type)
+			{
 
 			case OBJ_IMG:
 				{
@@ -336,21 +336,21 @@ namespace Gui
 					else
 					{
 						object->Data = skin->draw_text_adjust(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
-							object->Text[0], object->Pos, object->Flag & FLAG_MISSION_MODE);
+															  object->Text[0], object->Pos, object->Flag & FLAG_MISSION_MODE);
 						if (object->Data > 0)
 							object->Pos %= object->Data;
 					}
 					break;
 				}
 
-			// Button
+				// Button
 			case OBJ_TA_BUTTON:
 				{
 					int cur_img = (object->Flag & FLAG_DISABLED)
-						? object->gltex_states.size() - 1
-						: ((object->activated && object->nb_stages == 1)
-						   ? object->gltex_states.size() - 2
-						   : object->current_state);
+								  ? object->gltex_states.size() - 1
+									  : ((object->activated && object->nb_stages == 1)
+										 ? object->gltex_states.size() - 2
+											 : object->current_state);
 					if (cur_img < object->gltex_states.size() && cur_img >= 0)
 					{
 						gfx->set_color(0xFFFFFFFF);
@@ -375,9 +375,9 @@ namespace Gui
 								((float)(object->Value - object->Data)) / (object->Pos - object->Data),
 								object->Type == OBJ_VSLIDER);
 				break;
-						case OBJ_LIST:
+			case OBJ_LIST:
 				skin->ListBox(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
-					object->Text, object->Pos, object->Data, object->Flag);
+							  object->Text, object->Pos, object->Data, object->Flag);
 				break;
 			case OBJ_LINE:
 				gfx->disable_texturing();
@@ -434,43 +434,43 @@ namespace Gui
 				if (!object->Etat)
 				{
 					skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
-						object->Text[0], object->activated || object->Etat);
+								 object->Text[0], object->activated || object->Etat);
 				}
 				break;
+			}
+
+			// Make it darker when disabled
+			if (object->Type != OBJ_TA_BUTTON && (object->Flag & FLAG_DISABLED))
+			{
+				glEnable(GL_BLEND);
+				glDisable(GL_TEXTURE_2D);
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+				gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2);
+				glEnable(GL_TEXTURE_2D);
+				glDisable(GL_BLEND);
+			}
+
+			// Highlight the object
+			if ((object->Flag & FLAG_HIGHLIGHT) && object->MouseOn)
+			{
+				glEnable(GL_BLEND);
+				glDisable(GL_TEXTURE_2D);
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+				gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2);
+				glEnable(GL_TEXTURE_2D);
+				glDisable(GL_BLEND);
+			}
 		}
 
-		// Make it darker when disabled
-		if (object->Type != OBJ_TA_BUTTON && (object->Flag & FLAG_DISABLED))
+
+
+		void WND::doDrawWindowForegroundObject(Skin* skin, const int i)
 		{
-			glEnable(GL_BLEND);
-			glDisable(GL_TEXTURE_2D);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-			gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2);
-			glEnable(GL_TEXTURE_2D);
-			glDisable(GL_BLEND);
-		}
-
-		// Highlight the object
-		if ((object->Flag & FLAG_HIGHLIGHT) && object->MouseOn)
-		{
-			glEnable(GL_BLEND);
-			glDisable(GL_TEXTURE_2D);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-			gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2);
-			glEnable(GL_TEXTURE_2D);
-			glDisable(GL_BLEND);
-		}
-	}
-
-
-
-	void WND::doDrawWindowForegroundObject(Skin* skin, const int i)
-	{
-		GUIOBJ::Ptr object = pObjects[i];
-		switch (object->Type)
-		{
+			GUIOBJ::Ptr object = pObjects[i];
+			switch (object->Type)
+			{
 			case OBJ_FMENU:			// Menu flottant
 				skin->FloatMenu(x + object->x1, y + object->y1, object->Text,
 								object->Data, 0);
@@ -487,249 +487,249 @@ namespace Gui
 									1 + object->Pos);
 				}
 				break;
-		}
-	}
-
-
-	byte WND::WinMov(const int AMx, const int AMy, const int AMb, const int Mx, const int My, const int Mb, Skin* skin)
-	{
-		MutexLocker locker(pMutex);
-		if (AMb == 1 && Mb == 1 && !Lock)
-		{
-			if (AMx >= x + 3 && AMx <= x + width - 4)
-			{
-				if (AMy >= y + 3 && AMy <= y + 3 + title_h)
-				{
-					x += Mx - AMx;
-					y += My - AMy;
-				}
 			}
 		}
-		if (skin)
+
+
+		byte WND::WinMov(const int AMx, const int AMy, const int AMb, const int Mx, const int My, const int Mb, Skin* skin)
 		{
-			if (Mx >= x - skin->wnd_border.x1 && Mx <= x + width - skin->wnd_border.x2
-				&& My >= y - skin->wnd_border.y1 && My <= y + height - skin->wnd_border.y2)
-				return 1;
-		}
-		else
-		{
-			if (Mx >= x && Mx <= x + width && My >= y && My <= y + height)
-				return 1;
-		}
-		return 0;
-	}
-
-
-
-	void WND::destroy()
-	{
-		pMutex.lock();
-		Title.clear();
-		Name.clear();
-		if (delete_gltex)
-		{
-			gfx->destroy_texture(background);
-			delete_gltex = false;
-		}
-		background = 0;
-		pObjects.clear();
-		pMutex.unlock();
-	}
-
-
-	void WND::doCheckWasOnFLoattingMenu(const int i, bool& wasOnFloattingMenu, int& indxMenu, Skin* skin)
-	{
-		GUIOBJ::Ptr object = pObjects[i];
-
-		if (object->Type == OBJ_TA_BUTTON && object->current_state < object->gltex_states.size())
-		{
-			object->x2 = object->x1 + object->gltex_states[ object->current_state ].width  - 1;
-			object->y2 = object->y1 + object->gltex_states[ object->current_state ].height - 1;
-		}
-
-		// Vérifie si la souris est sur l'objet
-		if (mouse_x >= x + object->x1 && mouse_x <= x + object->x2
-			&& mouse_y >= y + object->y1 && mouse_y <= y + object->y2)
-			return;
-
-		if (object->Type == OBJ_MENU && object->Etat && object->MouseOn && !wasOnFloattingMenu)
-		{
-			float m_width = 168.0f;
+			MutexLocker locker(pMutex);
+			if (AMb == 1 && Mb == 1 && !Lock)
+			{
+				if (AMx >= x + 3 && AMx <= x + width - 4)
+				{
+					if (AMy >= y + 3 && AMy <= y + 3 + title_h)
+					{
+						x += Mx - AMx;
+						y += My - AMy;
+					}
+				}
+			}
 			if (skin)
 			{
-				for (unsigned int e = 0 ; e < object->Text.size() - (1 + object->Pos) ; ++e)
-					m_width = Math::Max(m_width, gui_font->length(object->Text[ e ]));
-
-				m_width += skin->menu_background.x1 - skin->menu_background.x2;
+				if (Mx >= x - skin->wnd_border.x1 && Mx <= x + width - skin->wnd_border.x2
+					&& My >= y - skin->wnd_border.y1 && My <= y + height - skin->wnd_border.y2)
+					return 1;
 			}
 			else
-				m_width = 168.0f;
-
-			if (mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
-				&& mouse_y > y + object->y2
-				&& mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size())
 			{
-				wasOnFloattingMenu = true;
-				indxMenu = i;
+				if (Mx >= x && Mx <= x + width && My >= y && My <= y + height)
+					return 1;
 			}
+			return 0;
 		}
-	}
 
 
-	int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, Skin* skin)
-	{
-		MutexLocker locker(pMutex);
-		if (hidden)
+
+		void WND::destroy()
 		{
-			was_hidden = true;
-			return 0;		// if it's hidden you cannot interact with it
-		}
-		if (was_hidden)
-		{
-			const ObjectList::iterator end = pObjects.end();
-			for (ObjectList::iterator i = pObjects.begin(); i != end; ++i)
+			pMutex.lock();
+			Title.clear();
+			Name.clear();
+			if (delete_gltex)
 			{
-				if ((*i)->Type == OBJ_MENU || (*i)->Type == OBJ_FMENU)
-					(*i)->Etat = false;
+				gfx->destroy_texture(background);
+				delete_gltex = false;
 			}
-		}
-		was_hidden = false;
-		int IsOnGUI;
-		// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
-		IsOnGUI = WinMov(AMx, AMy, AMb, mouse_x, mouse_y, mouse_b, skin);
-		// S'il n'y a pas d'objets, on arrête
-		if (pObjects.empty())
-			return IsOnGUI;
-
-		// Handle scrolling
-		if (scrollable && IsOnGUI)
-		{
-			scrolling += 10 * (AMz - mouse_z);
-			scrolling = Math::Min(scrolling, y + height - SCREEN_H);
-			scrolling = Math::Max(0, scrolling);
+			background = 0;
+			pObjects.clear();
+			pMutex.unlock();
 		}
 
-		// Interactions utilisateur/objets
-		unsigned int index,e;
-		uint16 Key;
-		bool was_on_floating_menu = false;
-		int  on_menu = -1;
-		bool close_all = false;
-		bool already_clicked = false;
-		int hasFocus = -1;
 
-		GUIOBJ::Ptr object;
-
-		y -= scrolling;
-
-		for (unsigned int i = 0; i < pObjects.size(); ++i)
+		void WND::doCheckWasOnFLoattingMenu(const int i, bool& wasOnFloattingMenu, int& indxMenu, Skin* skin)
 		{
-			object = pObjects[i];
-			if (object->Type != OBJ_NONE)
-				doCheckWasOnFLoattingMenu(i, was_on_floating_menu, on_menu, skin);
-			if (object->Focus && object->Type != OBJ_TEXTEDITOR)
-				hasFocus = i;
-		}
-		if (hasFocus >= 0 && key[KEY_TAB] && !tab_was_pressed)      // Select another widget with TAB key
-		{
-			for (unsigned int e = 1; e < pObjects.size(); ++e)
+			GUIOBJ::Ptr object = pObjects[i];
+
+			if (object->Type == OBJ_TA_BUTTON && object->current_state < object->gltex_states.size())
 			{
-				int i = (e + hasFocus) % pObjects.size();
-				object = pObjects[i];
-				if (object->Flag & FLAG_CAN_GET_FOCUS)
-				{
-					pObjects[hasFocus]->Focus = false;
-					object->Focus = true;
-					break;
-				}
+				object->x2 = object->x1 + object->gltex_states[ object->current_state ].width  - 1;
+				object->y2 = object->y1 + object->gltex_states[ object->current_state ].height - 1;
 			}
-		}
-		tab_was_pressed = key[KEY_TAB];
-
-		for (unsigned int i = 0; i < pObjects.size(); ++i)
-		{
-			object = pObjects[i];
-			if (object->Type == OBJ_NONE)
-				continue;
-
-			bool MouseWasOn = object->MouseOn;
-			object->MouseOn = false;
-			if (object->wait_a_turn)
-			{
-				object->wait_a_turn = false;
-				continue;
-			}
-			// Object is hidden so don't handle its events
-			if ((object->Flag & FLAG_HIDDEN) == FLAG_HIDDEN)
-				continue;
-
-			if (on_menu == i)
-				was_on_floating_menu = false;
 
 			// Vérifie si la souris est sur l'objet
 			if (mouse_x >= x + object->x1 && mouse_x <= x + object->x2
-				&& mouse_y >= y + object->y1 && mouse_y <= y + object->y2 && !was_on_floating_menu)
-			{
-				object->MouseOn = true;
-			}
+				&& mouse_y >= y + object->y1 && mouse_y <= y + object->y2)
+				return;
 
-			if (object->Type == OBJ_MENU && object->Etat && !object->MouseOn && !was_on_floating_menu)
+			if (object->Type == OBJ_MENU && object->Etat && object->MouseOn && !wasOnFloattingMenu)
 			{
-				//int e;
 				float m_width = 168.0f;
 				if (skin)
 				{
-					for (unsigned int e = 0; e < object->Text.size() - (1 + object->Pos); ++e)
-						m_width = Math::Max(m_width, gui_font->length(object->Text[e]));
+					for (unsigned int e = 0 ; e < object->Text.size() - (1 + object->Pos) ; ++e)
+						m_width = Math::Max(m_width, gui_font->length(object->Text[ e ]));
 
 					m_width += skin->menu_background.x1 - skin->menu_background.x2;
 				}
+				else
+					m_width = 168.0f;
 
 				if (mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
-					&& mouse_y > y + object->y2 && mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size())
-					object->MouseOn = true;
-			}
-
-			if (object->MouseOn)
-				IsOnGUI |= 2;
-
-			if (mouse_b!=0 && object->MouseOn && !was_on_floating_menu) // Obtient le focus
-			{
-				for (e = 0; e < pObjects.size(); ++e)
-					pObjects[e]->Focus = false;
-				object->Focus = true;
-			}
-
-			if (mouse_b != 0 && !object->MouseOn) // Hav lost the focus
-			{
-				object->Focus = false;
-				switch (object->Type)
+					&& mouse_y > y + object->y2
+					&& mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size())
 				{
+					wasOnFloattingMenu = true;
+					indxMenu = i;
+				}
+			}
+		}
+
+
+		int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, Skin* skin)
+		{
+			MutexLocker locker(pMutex);
+			if (hidden)
+			{
+				was_hidden = true;
+				return 0;		// if it's hidden you cannot interact with it
+			}
+			if (was_hidden)
+			{
+				const ObjectList::iterator end = pObjects.end();
+				for (ObjectList::iterator i = pObjects.begin(); i != end; ++i)
+				{
+					if ((*i)->Type == OBJ_MENU || (*i)->Type == OBJ_FMENU)
+						(*i)->Etat = false;
+				}
+			}
+			was_hidden = false;
+			int IsOnGUI;
+			// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
+			IsOnGUI = WinMov(AMx, AMy, AMb, mouse_x, mouse_y, mouse_b, skin);
+			// S'il n'y a pas d'objets, on arrête
+			if (pObjects.empty())
+				return IsOnGUI;
+
+			// Handle scrolling
+			if (scrollable && IsOnGUI)
+			{
+				scrolling += 10 * (AMz - mouse_z);
+				scrolling = Math::Min(scrolling, y + height - SCREEN_H);
+				scrolling = Math::Max(0, scrolling);
+			}
+
+			// Interactions utilisateur/objets
+			unsigned int index,e;
+			uint16 Key;
+			bool was_on_floating_menu = false;
+			int  on_menu = -1;
+			bool close_all = false;
+			bool already_clicked = false;
+			int hasFocus = -1;
+
+			GUIOBJ::Ptr object;
+
+			y -= scrolling;
+
+			for (unsigned int i = 0; i < pObjects.size(); ++i)
+			{
+				object = pObjects[i];
+				if (object->Type != OBJ_NONE)
+					doCheckWasOnFLoattingMenu(i, was_on_floating_menu, on_menu, skin);
+				if (object->Focus && object->Type != OBJ_TEXTEDITOR)
+					hasFocus = i;
+			}
+			if (hasFocus >= 0 && key[KEY_TAB] && !tab_was_pressed)      // Select another widget with TAB key
+			{
+				for (unsigned int e = 1; e < pObjects.size(); ++e)
+				{
+					int i = (e + hasFocus) % pObjects.size();
+					object = pObjects[i];
+					if (object->Flag & FLAG_CAN_GET_FOCUS)
+					{
+						pObjects[hasFocus]->Focus = false;
+						object->Focus = true;
+						break;
+					}
+				}
+			}
+			tab_was_pressed = key[KEY_TAB];
+
+			for (unsigned int i = 0; i < pObjects.size(); ++i)
+			{
+				object = pObjects[i];
+				if (object->Type == OBJ_NONE)
+					continue;
+
+				bool MouseWasOn = object->MouseOn;
+				object->MouseOn = false;
+				if (object->wait_a_turn)
+				{
+					object->wait_a_turn = false;
+					continue;
+				}
+				// Object is hidden so don't handle its events
+				if ((object->Flag & FLAG_HIDDEN) == FLAG_HIDDEN)
+					continue;
+
+				if (on_menu == i)
+					was_on_floating_menu = false;
+
+				// Vérifie si la souris est sur l'objet
+				if (mouse_x >= x + object->x1 && mouse_x <= x + object->x2
+					&& mouse_y >= y + object->y1 && mouse_y <= y + object->y2 && !was_on_floating_menu)
+				{
+					object->MouseOn = true;
+				}
+
+				if (object->Type == OBJ_MENU && object->Etat && !object->MouseOn && !was_on_floating_menu)
+				{
+					//int e;
+					float m_width = 168.0f;
+					if (skin)
+					{
+						for (unsigned int e = 0; e < object->Text.size() - (1 + object->Pos); ++e)
+							m_width = Math::Max(m_width, gui_font->length(object->Text[e]));
+
+						m_width += skin->menu_background.x1 - skin->menu_background.x2;
+					}
+
+					if (mouse_x >= x + object->x1 && mouse_x <= x + object->x1 + m_width
+						&& mouse_y > y + object->y2 && mouse_y <= y + object->y2 + 1 + pCacheFontHeight * object->Text.size())
+						object->MouseOn = true;
+				}
+
+				if (object->MouseOn)
+					IsOnGUI |= 2;
+
+				if (mouse_b!=0 && object->MouseOn && !was_on_floating_menu) // Obtient le focus
+				{
+					for (e = 0; e < pObjects.size(); ++e)
+						pObjects[e]->Focus = false;
+					object->Focus = true;
+				}
+
+				if (mouse_b != 0 && !object->MouseOn) // Hav lost the focus
+				{
+					object->Focus = false;
+					switch (object->Type)
+					{
 					case OBJ_MENU:
 						object->Etat = false;
 						break;
+					}
 				}
-			}
 
-			if (object->MouseOn && (object->Type==OBJ_FMENU || object->Type == OBJ_MENU))
-			{
-				for (e = 0; e < pObjects.size(); ++e)
+				if (object->MouseOn && (object->Type==OBJ_FMENU || object->Type == OBJ_MENU))
 				{
-					pObjects[e]->Focus = false;
-					if (pObjects[e]->Type == OBJ_BUTTON)
-						pObjects[e]->Etat = false;
+					for (e = 0; e < pObjects.size(); ++e)
+					{
+						pObjects[e]->Focus = false;
+						if (pObjects[e]->Type == OBJ_BUTTON)
+							pObjects[e]->Etat = false;
+					}
+					was_on_floating_menu = object->Etat;
+					object->Focus = true;
 				}
-				was_on_floating_menu = object->Etat;
-				object->Focus = true;
-			}
 
-			if (!(object->Flag & FLAG_CAN_GET_FOCUS))
-				object->Focus = false;
+				if (!(object->Flag & FLAG_CAN_GET_FOCUS))
+					object->Focus = false;
 
-			const bool previous_state = object->Etat;
+				const bool previous_state = object->Etat;
 
-			switch (object->Type)
-			{
+				switch (object->Type)
+				{
 				case OBJ_MENU:			// Choses à faire quoi qu'il arrive
 					{
 						object->Data = (unsigned int)(-1);		// Pas de séléction
@@ -787,29 +787,29 @@ namespace Gui
 
 							switch(scancode)
 							{
-								case KEY_ENTER:
-									object->Etat=true;
-									if (object->Func!=NULL)
-										(*object->Func)(object->Text[0].sizeUTF8());
-									break;
+							case KEY_ENTER:
+								object->Etat=true;
+								if (object->Func!=NULL)
+									(*object->Func)(object->Text[0].sizeUTF8());
+								break;
 								case KEY_BACKSPACE:
-									if (object->Text[0].sizeUTF8()>0)
-										object->Text[0] = object->Text[0].substrUTF8(0, object->Text[0].sizeUTF8() - 1);
-									break;
+								if (object->Text[0].sizeUTF8()>0)
+									object->Text[0] = object->Text[0].substrUTF8(0, object->Text[0].sizeUTF8() - 1);
+								break;
 								case KEY_TAB:
 								case KEY_ESC:
+								break;
+								default:
+								switch (Key)
+								{
+								case 9:
+								case 27:
+								case 0:
 									break;
 								default:
-									switch (Key)
-									{
-										case 9:
-										case 27:
-										case 0:
-											break;
-										default:
-											if (object->Text[0].sizeUTF8() + 1 < object->Data)
-												object->Text[0] << InttoUTF8( Key);
-									}
+									if (object->Text[0].sizeUTF8() + 1 < object->Data)
+										object->Text[0] << InttoUTF8( Key);
+								}
 							}
 						}
 						break;
@@ -832,48 +832,48 @@ namespace Gui
 							uint16 scancode = (keyCode >> 16);
 							switch (scancode)
 							{
-								case KEY_ESC:
-									break;
-								case KEY_TAB:
-									object->Text[object->Data] << "    ";
-									object->Pos += 4;
-									break;
-								case KEY_ENTER:
-									object->Text.push_back(nullptr);
-									if (object->Data + 1 < object->Text.size())
-									{
-										for(int e = object->Text.size() - 1 ; e > object->Data + 1 ; e--)
-											object->Text[e] = object->Text[e-1];
-									}
+							case KEY_ESC:
+								break;
+							case KEY_TAB:
+								object->Text[object->Data] << "    ";
+								object->Pos += 4;
+								break;
+							case KEY_ENTER:
+								object->Text.push_back(nullptr);
+								if (object->Data + 1 < object->Text.size())
+								{
+									for(int e = object->Text.size() - 1 ; e > object->Data + 1 ; e--)
+										object->Text[e] = object->Text[e-1];
+								}
 
-									if (object->Text[ object->Data ].sizeUTF8() - object->Pos > 0)
-										object->Text[ object->Data + 1 ] = object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
-									else
-										object->Text[ object->Data + 1 ].clear();
-									object->Text[ object->Data ] = object->Text[ object->Data ].substrUTF8( 0, object->Pos);
-									object->Pos = 0;
-									object->Data++;
-									break;
+								if (object->Text[ object->Data ].sizeUTF8() - object->Pos > 0)
+									object->Text[ object->Data + 1 ] = object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+								else
+									object->Text[ object->Data + 1 ].clear();
+								object->Text[ object->Data ] = object->Text[ object->Data ].substrUTF8( 0, object->Pos);
+								object->Pos = 0;
+								object->Data++;
+								break;
 								case KEY_DEL:
-									// Remove next character
-									if (object->Pos < object->Text[object->Data].sizeUTF8())
-									{
-										object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos)
-											+ object->Text[object->Data].substrUTF8(object->Pos+1, object->Text[object->Data].sizeUTF8() - object->Pos-1);
-									}
-									else if (object->Data + 1 < object->Text.size())
-									{
-										object->Text[object->Data] << object->Text[object->Data+1];
-										for( int e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
-											object->Text[e] = object->Text[e+1];
-										object->Text.resize(object->Text.size()-1);
-									}
-									break;
+								// Remove next character
+								if (object->Pos < object->Text[object->Data].sizeUTF8())
+								{
+									object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos)
+																 + object->Text[object->Data].substrUTF8(object->Pos+1, object->Text[object->Data].sizeUTF8() - object->Pos-1);
+								}
+								else if (object->Data + 1 < object->Text.size())
+								{
+									object->Text[object->Data] << object->Text[object->Data+1];
+									for( int e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
+										object->Text[e] = object->Text[e+1];
+									object->Text.resize(object->Text.size()-1);
+								}
+								break;
 								case KEY_BACKSPACE:                                 // Remove previous character
 									if (object->Pos > 0)
 									{
 										object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos-1)
-											+ object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
+																	 + object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
 										object->Pos--;
 									}
 									else if (object->Data > 0)
@@ -921,16 +921,16 @@ namespace Gui
 								default:
 									switch (Key)
 									{
-										case 0:
-										case 27:
-											break;
-										default:
-											object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
-												+ InttoUTF8( Key )
-												+ object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
-											object->Pos++;
+									case 0:
+									case 27:
+										break;
+									default:
+										object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
+																	 + InttoUTF8( Key )
+																	 + object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+										object->Pos++;
 									}
-							}
+								}
 						}
 						break;
 					}
@@ -940,9 +940,9 @@ namespace Gui
 						if ((object->MouseOn || object->Focus) && skin)
 						{
 							bool onDeco = (mouse_x - x <= object->x1 + skin->text_background.x1
-										|| mouse_x - x >= object->x2 + skin->text_background.x2
-										|| mouse_y - y <= object->y1 + skin->text_background.y1
-										|| mouse_y - y >= object->y2 + skin->text_background.y2);			// We're on ListBox decoration!
+										   || mouse_x - x >= object->x2 + skin->text_background.x2
+										   || mouse_y - y <= object->y1 + skin->text_background.y1
+										   || mouse_y - y >= object->y2 + skin->text_background.y2);			// We're on ListBox decoration!
 							int widgetSize = (int)((object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2) / pCacheFontHeight);
 							int TotalScroll = object->Text.size() - widgetSize;
 							if (TotalScroll < 0)
@@ -1017,9 +1017,9 @@ namespace Gui
 							{
 								const int s = skin->scroll[2].sh;
 								const int nValue = (mouse_y - y - object->y1 - skin->scroll[0].y1 - s / 2)
-									* (object->Pos - object->Data + 1)
-									/ (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
-									+ object->Data;
+												   * (object->Pos - object->Data + 1)
+												   / (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
+												   + object->Data;
 								if (nValue >= object->Data && nValue <= object->Pos)
 									object->Value = nValue;
 							}
@@ -1048,9 +1048,9 @@ namespace Gui
 							{
 								int s = skin->scroll[2].sw;
 								int nValue = (mouse_x - x - object->x1 - skin->scroll[1].x1 - s / 2)
-									* (object->Pos - object->Data + 1)
-									/ (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
-									+ object->Data;
+											 * (object->Pos - object->Data + 1)
+											 / (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
+											 + object->Data;
 								if (nValue >= object->Data && nValue <= object->Pos)
 									object->Value = nValue;
 							}
@@ -1065,26 +1065,26 @@ namespace Gui
 						}
 						break;
 					}
-			}
-			if (object->Flag & FLAG_DISABLED)
-			{
-				object->activated = false;
-				object->Etat = false;
-			}
-			else
-			{
-				if ((mouse_b != 1 || !object->MouseOn || mouse_b == AMb) && (object->Flag & FLAG_CAN_BE_CLICKED)
-					&& !(object->Flag & FLAG_SWITCH) && !(object->Etat ^ previous_state)
-					&& object->Etat && !was_on_floating_menu)
-				{
-					if (object->Func!=NULL)
-						(*object->Func)(0);		// Lance la fonction associée
-					object->Etat=false;
 				}
-				if (!object->activated && mouse_b==1 && object->MouseOn && ((object->Flag & FLAG_CAN_BE_CLICKED) || (object->Flag & FLAG_SWITCH)))
+				if (object->Flag & FLAG_DISABLED)
 				{
-					switch(object->Type)
+					object->activated = false;
+					object->Etat = false;
+				}
+				else
+				{
+					if ((mouse_b != 1 || !object->MouseOn || mouse_b == AMb) && (object->Flag & FLAG_CAN_BE_CLICKED)
+						&& !(object->Flag & FLAG_SWITCH) && !(object->Etat ^ previous_state)
+						&& object->Etat && !was_on_floating_menu)
+						{
+						if (object->Func!=NULL)
+							(*object->Func)(0);		// Lance la fonction associée
+						object->Etat=false;
+					}
+					if (!object->activated && mouse_b==1 && object->MouseOn && ((object->Flag & FLAG_CAN_BE_CLICKED) || (object->Flag & FLAG_SWITCH)))
 					{
+						switch(object->Type)
+						{
 						case OBJ_BOX:
 						case OBJ_BUTTON:
 						case OBJ_MENU:
@@ -1093,27 +1093,27 @@ namespace Gui
 						case OBJ_OPTIONC:
 							if (sound_manager)
 								sound_manager->playTDFSoundNow("SPECIALORDERS.sound");
+						}
 					}
-				}
-				object->activated = mouse_b==1 && object->MouseOn;
+					object->activated = mouse_b==1 && object->MouseOn;
 
-				bool clicked = false;
-				if (object->shortcut_key >= 0 && object->shortcut_key <= 255 && lp_CONFIG->enable_shortcuts && !TA3D_CTRL_PRESSED && !TA3D_SHIFT_PRESSED && !Console::Instance()->activated()
-					&& (key[ ascii_to_scancode[ object->shortcut_key ] ]
-						|| (object->shortcut_key >= 65 && object->shortcut_key <= 90 && key[ ascii_to_scancode[ object->shortcut_key + 32 ] ])
-						|| (object->shortcut_key >= 97 && object->shortcut_key <= 122 && key[ ascii_to_scancode[ object->shortcut_key - 32 ] ])))
-				{
-					if (!object->Etat)
-						clicked = true;
-					object->activated = object->Etat = true;
-				}
+					bool clicked = false;
+					if (object->shortcut_key >= 0 && object->shortcut_key <= 255 && lp_CONFIG->enable_shortcuts && !TA3D_CTRL_PRESSED && !TA3D_SHIFT_PRESSED && !Console::Instance()->activated()
+						&& (key[ ascii_to_scancode[ object->shortcut_key ] ]
+							|| (object->shortcut_key >= 65 && object->shortcut_key <= 90 && key[ ascii_to_scancode[ object->shortcut_key + 32 ] ])
+							|| (object->shortcut_key >= 97 && object->shortcut_key <= 122 && key[ ascii_to_scancode[ object->shortcut_key - 32 ] ])))
+						{
+						if (!object->Etat)
+							clicked = true;
+						object->activated = object->Etat = true;
+					}
 
-				if (((mouse_b!=1 && AMb==1) || clicked) && object->MouseOn && MouseWasOn
-					&& ((object->Flag & FLAG_CAN_BE_CLICKED) || (object->Flag & FLAG_SWITCH)) && !already_clicked) // Click sur l'objet
-				{
-					already_clicked = true;
-					switch (object->Type)
+					if (((mouse_b!=1 && AMb==1) || clicked) && object->MouseOn && MouseWasOn
+						&& ((object->Flag & FLAG_CAN_BE_CLICKED) || (object->Flag & FLAG_SWITCH)) && !already_clicked) // Click sur l'objet
 					{
+						already_clicked = true;
+						switch (object->Type)
+						{
 						case OBJ_VSLIDER:
 							{
 								if (mouse_y - y <= object->y1 + skin->scroll[0].y1)     // Decrease
@@ -1132,9 +1132,9 @@ namespace Gui
 								{
 									int s = skin->scroll[2].sh;
 									int nValue = (mouse_y - y - object->y1 - skin->scroll[0].y1 - s / 2)
-										* (object->Pos - object->Data + 1)
-										/ (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
-										+ object->Data;
+												 * (object->Pos - object->Data + 1)
+												 / (object->y2 - object->y1 - skin->scroll[0].y1 + skin->scroll[0].y2 - s)
+												 + object->Data;
 									if (nValue >= object->Data && nValue <= object->Pos)
 										object->Value = nValue;
 								}
@@ -1158,9 +1158,9 @@ namespace Gui
 								{
 									int s = skin->scroll[2].sw;
 									int nValue = (mouse_x - x - object->x1 - skin->scroll[1].x1 - s / 2)
-										* (object->Pos - object->Data + 1)
-										/ (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
-										+ object->Data;
+												 * (object->Pos - object->Data + 1)
+												 / (object->x2 - object->x1 - skin->scroll[1].x1 + skin->scroll[1].x2 - s)
+												 + object->Data;
 									if (nValue >= object->Data && nValue <= object->Pos)
 										object->Value = nValue;
 								}
@@ -1196,9 +1196,9 @@ namespace Gui
 									else
 									{							// Set scrolling position
 										object->Data = (int)(0.5f + TotalScroll * (mouse_y - y - object->y1 - skin->text_background.y1 - skin->scroll[0].y1
-																					 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f)
-															   / (object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2
-																  - skin->scroll[0].y1 + skin->scroll[0].y2 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
+																				   - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f)
+															 / (object->y2 - object->y1 - skin->text_background.y1 + skin->text_background.y2
+																- skin->scroll[0].y1 + skin->scroll[0].y2 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
 									}
 								}
 								if (object->Data > (unsigned int)TotalScroll)
@@ -1207,10 +1207,10 @@ namespace Gui
 							else
 							{
 								if (skin && (
-											 mouse_x - x <= object->x1 + skin->text_background.x1
-											 || mouse_x - x >= object->x2 + skin->text_background.x2
-											 || mouse_y - y <= object->y1 + skin->text_background.y1
-											 || mouse_y - y >= object->y2 + skin->text_background.y2))			// We're on ListBox decoration!
+										mouse_x - x <= object->x1 + skin->text_background.x1
+										|| mouse_x - x >= object->x2 + skin->text_background.x2
+										|| mouse_y - y <= object->y1 + skin->text_background.y1
+										|| mouse_y - y >= object->y2 + skin->text_background.y2))			// We're on ListBox decoration!
 									break;
 								object->Pos = (uint32) ((mouse_y - y - object->y1 - (skin ? skin->text_background.y1:4)) / pCacheFontHeight + object->Data);
 								object->Etat = true;
@@ -1278,7 +1278,7 @@ namespace Gui
 								if (mouse_x >= x + object->x1 + (skin ? skin->menu_background.x1 : 0) && mouse_x <= x + object->x1 + m_width + (skin ? skin->menu_background.x2 : 0)
 									&& mouse_y > y + object->y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + object->y2 + (skin ? skin->menu_background.y2 : 0) + 1 + pCacheFontHeight * object->Text.size()
 									&& object->Etat)
-								{
+									{
 									index = (int)((mouse_y - y - object->y2 - 5 - (skin ? skin->menu_background.y1 : 0)) / pCacheFontHeight + object->Pos);
 									if (index >= (int)(object->Text.size() - 1))
 										index = object->Text.size()-2;
@@ -1294,326 +1294,333 @@ namespace Gui
 							break;
 						default:
 							object->Etat = true;
-					}
-					// Send a signal to the interface (the OnClick signal defined at initialization time)
-					for (unsigned int cur = 0; cur < object->OnClick.size(); ++cur)
-						I_Msg(TA3D::TA3D_IM_GUI_MSG, object->OnClick[cur]);
-				}
-				else if (object->MouseOn)			// Send a signal to the interface (the OnHover signal defined at initialization time)
-					for (unsigned int cur = 0 ; cur < object->OnHover.size(); cur++)
-						I_Msg(TA3D::TA3D_IM_GUI_MSG, object->OnHover[cur]);
-			}
-
-			for (unsigned int cur = 0; cur < object->SendDataTo.size(); ++cur) // Send Data to an Object
-			{
-				String::size_type e = object->SendDataTo[cur].find('.');
-				if (e != String::npos)
-				{
-					unsigned int target = object->SendDataTo[cur].substr(0, e).to<unsigned int>();
-					if (target < pObjects.size())
-					{
-						if (object->SendDataTo[cur].substr(e+1, object->SendDataTo[cur].length()-e) == "data")
-							pObjects[target]->Data = object->Data;
-						else
-							pObjects[target]->Pos = object->Data;
-					}
-				}
-			}
-			for (unsigned int cur = 0; cur < object->SendPosTo.size(); ++cur) // Send Pos to an Object
-			{
-				String::size_type e = object->SendPosTo[cur].find('.');
-				if (e != String::npos)
-				{
-					unsigned int target = object->SendPosTo[cur].substr(0, e).to<unsigned int>();
-					if (target < pObjects.size())
-					{
-						if (object->SendPosTo[cur].substr(e+1, object->SendPosTo[cur].length()-e) == "data")
-							pObjects[target]->Data = object->Pos;
-						else
-							pObjects[target]->Pos = object->Pos;
-					}
-				}
-			}
-		}
-		if (close_all)
-		{
-			ObjectList::iterator end = pObjects.end();
-			for (ObjectList::iterator i = pObjects.begin(); i != end; ++i)
-			{
-				if ((*i)->Type == OBJ_MENU)
-					(*i)->Etat = false;
-			}
-		}
-		y += scrolling;
-		return IsOnGUI;
-	}
-
-
-
-
-	uint32 WND::msg(const String& message)
-	{
-		MutexLocker locker(pMutex);
-		String::size_type i = message.find('.');
-
-		if (i != String::npos) // When it targets a subobject
-		{
-			GUIOBJ::Ptr obj = doGetObject(message.substr(0, i));
-			if (obj)
-				return obj->msg(message.substr(i + 1, message.size() - i - 1), this);
-		}
-		else // When it targets the window itself
-		{
-			if (String::ToLower(message) == "show")
-			{
-				hidden = false;
-				return INTERFACE_RESULT_HANDLED;
-			}
-			if (String::ToLower(message) == "hide")
-			{
-				hidden = true;
-				return INTERFACE_RESULT_HANDLED;
-			}
-			if (String::ToLower(message) == "enablescrolling")
-			{
-				scrollable = true;
-				return INTERFACE_RESULT_HANDLED;
-			}
-			if (String::ToLower(message) == "disablescrolling")
-			{
-				scrollable = false;
-				return INTERFACE_RESULT_HANDLED;
-			}
-		}
-		return INTERFACE_RESULT_CONTINUE;
-	}
-
-
-
-	bool WND::get_state(const String& message)
-	{
-		MutexLocker locker(pMutex);
-		GUIOBJ::Ptr obj = doGetObject(message);
-		if (obj)
-			return obj->Etat;
-		if (message.empty())
-			return !hidden;
-		return false;
-	}
-
-	sint32 WND::get_value(const String& message)
-	{
-		MutexLocker locker(pMutex);
-		GUIOBJ::Ptr obj = doGetObject(message);
-		return (!obj) ? -1 : obj->Value;
-	}
-
-	String WND::caption(const String& message)
-	{
-		MutexLocker locker(pMutex);
-		GUIOBJ::Ptr obj = doGetObject(message);
-		if (obj)
-		{
-			if (!obj->Text.empty())
-			{
-				if (obj->Type == OBJ_TEXTEDITOR)
-				{
-					String result = obj->Text[0];
-					for (int i = 1; i < obj->Text.size(); ++i)
-						result << '\n' << obj->Text[i];
-					return result;
-				}
-				return  obj->Text[0];
-			}
-			return nullptr;
-		}
-		return (message.empty()) ? Title : nullptr;
-	}
-
-
-	GUIOBJ::Ptr WND::doGetObject(const String &message)
-	{
-		if (message.empty())
-			return GUIOBJ::Ptr();
-
-		const sint16 e = obj_hashtable[String::ToLower(message)] - 1;
-		return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
-	}
-
-	GUIOBJ::Ptr WND::get_object(const String &message)
-	{
-		if (message.empty())
-			return GUIOBJ::Ptr();
-		String lowered = String::ToLower(message);
-		if (obj_hashtable.count(lowered) == 0)
-			return GUIOBJ::Ptr();
-
-		MutexLocker locker(pMutex);
-		const sint16 e = obj_hashtable[lowered] - 1;
-		return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
-	}
-
-
-
-	void WND::load_gui(const String& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense &gui_hashtable)
-	{
-		ingame_window = true;
-
-		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
-		else
-			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-
-		TDFParser wndFile(filename, false, false, true);
-
-		// Grab the window's name, so we can send signals to it (to hide/show for example)
-        Name = Paths::ExtractFileNameWithoutExtension(filename);
-
-        hidden = !wndFile.pullAsBool("gadget0.common.active");
-
-		Title.clear();
-		x = wndFile.pullAsInt("gadget0.common.xpos");
-		y = wndFile.pullAsInt("gadget0.common.ypos");
-
-		width  = wndFile.pullAsInt("gadget0.common.width");
-		height = wndFile.pullAsInt("gadget0.common.height");
-
-		float x_factor = 1.0f;
-		float y_factor = 1.0f;
-
-		Lock = true;
-		draw_borders = false;
-		show_title = false;
-		delete_gltex = false;
-
-		String panel = wndFile.pullAsString("gadget0.panel"); // Look for the panel texture
-		int w;
-		int h;
-		background = gfx->load_texture_from_cache(panel, FILTER_LINEAR, (uint32*)&w, (uint32*)&h);
-		if (!background)
-		{
-			background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
-			if (background == 0)
-				background = Gaf::ToTexture("anims\\commongui.gaf", panel, &w, &h, true);
-			if (background == 0)
-			{
-				String::Vector file_list;
-                VFS::Instance()->getFilelist("anims\\*.gaf", file_list);
-				for (String::Vector::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
-				{
-					LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
-					background = Gaf::ToTexture(*i, panel, &w, &h, true, FILTER_LINEAR);
-				}
-			}
-			if (background)
-				gfx->save_texture_to_cache(panel, background, w, h);
-		}
-
-		delete_gltex = background;
-		background_wnd = background;
-		color = background ? makeacol(0xFF, 0xFF, 0xFF, 0xFF) : 0x0;
-		unsigned int NbObj = wndFile.pullAsInt("gadget0.totalgadgets");
-
-		pObjects.clear();
-		pObjects.reserve(NbObj);
-
-		String obj_key;
-		for (unsigned int i = 0; i < NbObj ; ++i)
-		{
-			GUIOBJ::Ptr object = new GUIOBJ();
-			pObjects.push_back(object);
-
-			obj_key.clear();
-			obj_key << "gadget" << i + 1 << ".";
-			int obj_type = wndFile.pullAsInt(obj_key + "common.id");
-
-			object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
-			obj_hashtable[String::ToLower(object->Name)] = i + 1;
-
-			int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
-			int Y1 = (int)(wndFile.pullAsInt(obj_key + "common.ypos")   * y_factor);
-			int W  = (int)(wndFile.pullAsInt(obj_key + "common.width")  * x_factor - 1);
-			int H  = (int)(wndFile.pullAsInt(obj_key + "common.height") * y_factor - 1);
-
-			//float size = Math::Min(x_factor, y_factor);
-			uint32 obj_flags = 0;
-
-			if (X1 < 0)
-				X1 += SCREEN_W;
-			if (Y1 < 0)
-				Y1 += SCREEN_H;
-
-			if (!wndFile.pullAsBool(obj_key + "common.active"))
-				obj_flags |= FLAG_HIDDEN;
-
-			String::Vector Caption;
-			wndFile.pullAsString(obj_key + "text").explode(Caption, ',', true, true, true);
-			I18N::Translate(Caption);
-
-			if (TA_ID_BUTTON == obj_type)
-			{
-				int t_w[100];
-				int t_h[100];
-				String key(object->Name);
-				key.toLower();
-				std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable[key];
-
-				std::vector<GLuint> gaf_imgs;
-				bool found_elsewhere = false;
-
-				if (!result)
-				{
-					Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name + ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
-					if (!gaf_imgs.size())
-					{
-						Gaf::ToTexturesList(gaf_imgs, "anims\\commongui.gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
-						found_elsewhere = true;
-					}
-					if (!gaf_imgs.size())
-					{
-						String::Vector file_list;
-                        VFS::Instance()->getFilelist("anims\\*.gaf", file_list);
-						for (String::Vector::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
-						{
-							LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
-							Gaf::ToTexturesList(gaf_imgs, *e, object->Name, t_w, t_h, true, FILTER_LINEAR);
 						}
-						if (gaf_imgs.size() > 0)
-							found_elsewhere = true;
+						// Send a signal to the interface (the OnClick signal defined at initialization time)
+						for (unsigned int cur = 0; cur < object->OnClick.size(); ++cur)
+							I_Msg(TA3D::TA3D_IM_GUI_MSG, object->OnClick[cur]);
 					}
-				}
-				else
-				{
-					gaf_imgs.resize(result->size());
-					for (unsigned int e = 0 ; e < result->size() ; ++e)
-					{
-						gaf_imgs[e] = (*result)[e].tex;
-						t_w[e] = (*result)[e].width;
-						t_h[e] = (*result)[e].height;
-					}
+					else if (object->MouseOn)			// Send a signal to the interface (the OnHover signal defined at initialization time)
+						for (unsigned int cur = 0 ; cur < object->OnHover.size(); cur++)
+							I_Msg(TA3D::TA3D_IM_GUI_MSG, object->OnHover[cur]);
 				}
 
-				int nb_stages = wndFile.pullAsInt(obj_key + "stages");
-				object->create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
-				if (result == NULL && found_elsewhere)
-					gui_hashtable[key] = &object->gltex_states;
-				for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
+				for (unsigned int cur = 0; cur < object->SendDataTo.size(); ++cur) // Send Data to an Object
 				{
-					object->gltex_states[e].width = t_w[e];
-					object->gltex_states[e].height = t_h[e];
-					if (result)
-						object->gltex_states[e].destroy_tex = false;
-					else
-						object->gltex_states[e].destroy_tex = true;
+					String::size_type e = object->SendDataTo[cur].find('.');
+					if (e != String::npos)
+					{
+						unsigned int target = object->SendDataTo[cur].substr(0, e).to<unsigned int>();
+						if (target < pObjects.size())
+						{
+							if (object->SendDataTo[cur].substr(e+1, object->SendDataTo[cur].length()-e) == "data")
+								pObjects[target]->Data = object->Data;
+							else
+								pObjects[target]->Pos = object->Data;
+						}
+					}
 				}
-				object->current_state = wndFile.pullAsInt(obj_key + "status");
-				object->shortcut_key = wndFile.pullAsInt(obj_key + "quickkey", -1);
-				if (wndFile.pullAsBool(obj_key + "common.grayedout"))
-					object->Flag |= FLAG_DISABLED;
-				//			if (wndFile.pullAsInt(obj_key + "common.commonattribs") == 4) {
-				if (wndFile.pullAsInt(obj_key + "common.attribs") == 32)
-					object->Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
+				for (unsigned int cur = 0; cur < object->SendPosTo.size(); ++cur) // Send Pos to an Object
+				{
+					String::size_type e = object->SendPosTo[cur].find('.');
+					if (e != String::npos)
+					{
+						unsigned int target = object->SendPosTo[cur].substr(0, e).to<unsigned int>();
+						if (target < pObjects.size())
+						{
+							if (object->SendPosTo[cur].substr(e+1, object->SendPosTo[cur].length()-e) == "data")
+								pObjects[target]->Data = object->Pos;
+							else
+								pObjects[target]->Pos = object->Pos;
+						}
+					}
+				}
 			}
+			if (close_all)
+			{
+				ObjectList::iterator end = pObjects.end();
+				for (ObjectList::iterator i = pObjects.begin(); i != end; ++i)
+				{
+					if ((*i)->Type == OBJ_MENU)
+						(*i)->Etat = false;
+				}
+			}
+			y += scrolling;
+			return IsOnGUI;
+		}
+
+
+
+
+		uint32 WND::msg(const String& message)
+		{
+			MutexLocker locker(pMutex);
+			String::size_type i = message.find('.');
+
+			if (i != String::npos) // When it targets a subobject
+			{
+				GUIOBJ::Ptr obj = doGetObject(message.substr(0, i));
+				if (obj)
+					return obj->msg(message.substr(i + 1, message.size() - i - 1), this);
+			}
+			else // When it targets the window itself
+			{
+				if (String::ToLower(message) == "show")
+				{
+					hidden = false;
+					return INTERFACE_RESULT_HANDLED;
+				}
+				if (String::ToLower(message) == "hide")
+				{
+					hidden = true;
+					return INTERFACE_RESULT_HANDLED;
+				}
+				if (String::ToLower(message) == "enablescrolling")
+				{
+					scrollable = true;
+					return INTERFACE_RESULT_HANDLED;
+				}
+				if (String::ToLower(message) == "disablescrolling")
+				{
+					scrollable = false;
+					return INTERFACE_RESULT_HANDLED;
+				}
+			}
+			return INTERFACE_RESULT_CONTINUE;
+		}
+
+
+
+		bool WND::get_state(const String& message)
+		{
+			MutexLocker locker(pMutex);
+			GUIOBJ::Ptr obj = doGetObject(message);
+			if (obj)
+				return obj->Etat;
+			if (message.empty())
+				return !hidden;
+			return false;
+		}
+
+		sint32 WND::get_value(const String& message)
+		{
+			MutexLocker locker(pMutex);
+			GUIOBJ::Ptr obj = doGetObject(message);
+			return (!obj) ? -1 : obj->Value;
+		}
+
+		String WND::caption(const String& message)
+		{
+			MutexLocker locker(pMutex);
+			GUIOBJ::Ptr obj = doGetObject(message);
+			if (obj)
+			{
+				if (!obj->Text.empty())
+				{
+					if (obj->Type == OBJ_TEXTEDITOR)
+					{
+						String result = obj->Text[0];
+						for (int i = 1; i < obj->Text.size(); ++i)
+							result << '\n' << obj->Text[i];
+						return result;
+					}
+					return  obj->Text[0];
+				}
+				return nullptr;
+			}
+			return (message.empty()) ? Title : nullptr;
+		}
+
+
+		GUIOBJ::Ptr WND::doGetObject(const String &message)
+		{
+			if (message.empty())
+				return GUIOBJ::Ptr();
+
+			const sint16 e = obj_hashtable[String::ToLower(message)] - 1;
+			return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
+		}
+
+		GUIOBJ::Ptr WND::get_object(const String &message)
+		{
+			if (message.empty())
+				return GUIOBJ::Ptr();
+			String lowered = String::ToLower(message);
+			if (obj_hashtable.count(lowered) == 0)
+				return GUIOBJ::Ptr();
+
+			MutexLocker locker(pMutex);
+			const sint16 e = obj_hashtable[lowered] - 1;
+			return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
+		}
+
+
+
+		void WND::load_gui(const String& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense &gui_hashtable)
+		{
+			ingame_window = true;
+
+			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+				gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
+			else
+				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+
+			TDFParser wndFile(filename, false, false, true);
+
+			// Grab the window's name, so we can send signals to it (to hide/show for example)
+			Name = Paths::ExtractFileNameWithoutExtension(filename);
+
+			hidden = !wndFile.pullAsBool("gadget0.common.active");
+
+			Title.clear();
+			x = wndFile.pullAsInt("gadget0.common.xpos");
+			y = wndFile.pullAsInt("gadget0.common.ypos");
+
+			width  = wndFile.pullAsInt("gadget0.common.width");
+			height = wndFile.pullAsInt("gadget0.common.height");
+
+			float x_factor = 1.0f;
+			float y_factor = 1.0f;
+
+			Lock = true;
+			draw_borders = false;
+			show_title = false;
+			delete_gltex = false;
+
+			String panel = wndFile.pullAsString("gadget0.panel"); // Look for the panel texture
+			int w;
+			int h;
+			background = gfx->load_texture_from_cache(panel, FILTER_LINEAR, (uint32*)&w, (uint32*)&h);
+			if (!background)
+			{
+				background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
+				if (background == 0)		// Try GAF-like directory structure
+					background = Gaf::ToTexture("anims\\" + Name, panel, &w, &h, true);
+				if (background == 0)
+					background = Gaf::ToTexture("anims\\commongui.gaf", panel, &w, &h, true);
+				if (background == 0)		// Try GAF-like directory structure
+					background = Gaf::ToTexture("anims\\commongui", panel, &w, &h, true);
+				if (background == 0)
+				{
+					String::Vector file_list;
+					VFS::Instance()->getFilelist("anims\\*.gaf", file_list);		// Normal GAF files
+					VFS::Instance()->getDirlist("anims\\*", file_list);				// GAF-like directories
+					for (String::Vector::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
+					{
+						LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
+						background = Gaf::ToTexture(*i, panel, &w, &h, true, FILTER_LINEAR);
+					}
+				}
+				if (background)
+					gfx->save_texture_to_cache(panel, background, w, h);
+			}
+
+			delete_gltex = background;
+			background_wnd = background;
+			color = background ? makeacol(0xFF, 0xFF, 0xFF, 0xFF) : 0x0;
+			unsigned int NbObj = wndFile.pullAsInt("gadget0.totalgadgets");
+
+			pObjects.clear();
+			pObjects.reserve(NbObj);
+
+			String obj_key;
+			for (unsigned int i = 0; i < NbObj ; ++i)
+			{
+				GUIOBJ::Ptr object = new GUIOBJ();
+				pObjects.push_back(object);
+
+				obj_key.clear();
+				obj_key << "gadget" << i + 1 << ".";
+				int obj_type = wndFile.pullAsInt(obj_key + "common.id");
+
+				object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
+				obj_hashtable[String::ToLower(object->Name)] = i + 1;
+
+				int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
+				int Y1 = (int)(wndFile.pullAsInt(obj_key + "common.ypos")   * y_factor);
+				int W  = (int)(wndFile.pullAsInt(obj_key + "common.width")  * x_factor - 1);
+				int H  = (int)(wndFile.pullAsInt(obj_key + "common.height") * y_factor - 1);
+
+				//float size = Math::Min(x_factor, y_factor);
+				uint32 obj_flags = 0;
+
+				if (X1 < 0)
+					X1 += SCREEN_W;
+				if (Y1 < 0)
+					Y1 += SCREEN_H;
+
+				if (!wndFile.pullAsBool(obj_key + "common.active"))
+					obj_flags |= FLAG_HIDDEN;
+
+				String::Vector Caption;
+				wndFile.pullAsString(obj_key + "text").explode(Caption, ',', true, true, true);
+				I18N::Translate(Caption);
+
+				if (TA_ID_BUTTON == obj_type)
+				{
+					int t_w[100];
+					int t_h[100];
+					String key(object->Name);
+					key.toLower();
+					std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable[key];
+
+					std::vector<GLuint> gaf_imgs;
+					bool found_elsewhere = false;
+
+					if (!result)
+					{
+						Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name + ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
+						if (!gaf_imgs.size())		// Try GAF-like directory
+							Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
+						if (!gaf_imgs.size())
+						{
+							Gaf::ToTexturesList(gaf_imgs, "anims\\commongui.gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
+							found_elsewhere = true;
+						}
+						if (!gaf_imgs.size())
+						{
+							String::Vector file_list;
+							VFS::Instance()->getFilelist("anims\\*.gaf", file_list);		// Normal GAF files
+							VFS::Instance()->getDirlist("anims\\*", file_list);				// GAF-like directories
+							for (String::Vector::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
+							{
+								LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
+								Gaf::ToTexturesList(gaf_imgs, *e, object->Name, t_w, t_h, true, FILTER_LINEAR);
+							}
+							if (gaf_imgs.size() > 0)
+								found_elsewhere = true;
+						}
+					}
+					else
+					{
+						gaf_imgs.resize(result->size());
+						for (unsigned int e = 0 ; e < result->size() ; ++e)
+						{
+							gaf_imgs[e] = (*result)[e].tex;
+							t_w[e] = (*result)[e].width;
+							t_h[e] = (*result)[e].height;
+						}
+					}
+
+					int nb_stages = wndFile.pullAsInt(obj_key + "stages");
+					object->create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
+					if (result == NULL && found_elsewhere)
+						gui_hashtable[key] = &object->gltex_states;
+					for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
+					{
+						object->gltex_states[e].width = t_w[e];
+						object->gltex_states[e].height = t_h[e];
+						if (result)
+							object->gltex_states[e].destroy_tex = false;
+						else
+							object->gltex_states[e].destroy_tex = true;
+					}
+					object->current_state = wndFile.pullAsInt(obj_key + "status");
+					object->shortcut_key = wndFile.pullAsInt(obj_key + "quickkey", -1);
+					if (wndFile.pullAsBool(obj_key + "common.grayedout"))
+						object->Flag |= FLAG_DISABLED;
+					if (wndFile.pullAsInt(obj_key + "common.attribs") == 32)
+						object->Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
+				}
 				else
 				{
 					if (obj_type == TA_ID_TEXT_FIELD)
@@ -1807,163 +1814,163 @@ namespace Gui
 
 				switch (obj_type.first())
 				{
-					case 'B' :
+				case 'B' :
+					{
+						if (obj_type == "BUTTON")
 						{
-							if (obj_type == "BUTTON")
-							{
-								object->create_button(X1, Y1, X2, Y2, caption, NULL, size);
-								break;
-							}
-							if (obj_type == "BOX")
-							{
-								FIX_COLOR(val);
-								object->create_box(X1, Y1, X2, Y2, val);
-							}
+							object->create_button(X1, Y1, X2, Y2, caption, NULL, size);
 							break;
 						}
-					case 'F' :
+						if (obj_type == "BOX")
 						{
-							if (obj_type == "FMENU")
-								object->create_menu(X1, Y1, Entry, NULL, size);
+							FIX_COLOR(val);
+							object->create_box(X1, Y1, X2, Y2, val);
+						}
+						break;
+					}
+				case 'F' :
+					{
+						if (obj_type == "FMENU")
+							object->create_menu(X1, Y1, Entry, NULL, size);
+						break;
+					}
+				case 'H' :
+					{
+						if (obj_type == "HSLIDER")
+						{
+							object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
 							break;
 						}
-					case 'H' :
+						break;
+					}
+				case 'I' :
+					{
+						if (obj_type == "IMG")
 						{
-							if (obj_type == "HSLIDER")
-							{
-								object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
-								break;
-							}
+							object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
+							object->destroy_img = object->Data != 0 ? true : false;
+						}
+						break;
+					}
+				case 'M' :
+					{
+						if (obj_type == "MENU")
+						{
+							object->create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
 							break;
 						}
-					case 'I' :
+						if (obj_type == "MULTISTATE")
 						{
-							if (obj_type == "IMG")
-							{
-								object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
-								object->destroy_img = object->Data != 0 ? true : false;
-							}
-							break;
-						}
-					case 'M' :
-						{
-							if (obj_type == "MENU")
-							{
-								object->create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
-								break;
-							}
-							if (obj_type == "MULTISTATE")
-							{
-								String::Vector imageNames;
-								caption.explode(imageNames, ',', false, true, true);
-								std::vector<GLuint> gl_imgs;
-								std::vector<uint32> t_w;
-								std::vector<uint32> t_h;
+							String::Vector imageNames;
+							caption.explode(imageNames, ',', false, true, true);
+							std::vector<GLuint> gl_imgs;
+							std::vector<uint32> t_w;
+							std::vector<uint32> t_h;
 
-								for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
+							for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
+							{
+								uint32 tw, th;
+								GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
+								if (texHandle)
 								{
-									uint32 tw, th;
-									GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
-									if (texHandle)
-									{
-										gl_imgs.push_back(texHandle);
-										t_w.push_back(tw);
-										t_h.push_back(th);
-									}
+									gl_imgs.push_back(texHandle);
+									t_w.push_back(tw);
+									t_h.push_back(th);
 								}
-
-								object->create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
-								for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
-								{
-									object->x2 = X1 + t_w[e] * size_factor * x_factor;
-									object->y2 = Y1 + t_h[e] * size_factor * y_factor;
-									object->gltex_states[e].width = t_w[e] * size_factor * x_factor;
-									object->gltex_states[e].height = t_h[e] * size_factor * x_factor;
-									object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
-								}
-								break;
-							}
-							if (obj_type == "MISSION")
-							{
-								object->create_text(X1, Y1, caption, val, size);
-								if (X2 > 0 && Y2 > Y1)
-								{
-									object->x2 = X2;
-									object->y2 = Y2;
-									object->Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
-								}
-								break;
-							}
-							break;
-						}
-					case 'L' :
-						{
-							if (obj_type == "LINE")
-							{
-								FIX_COLOR(val);
-								object->create_line(X1, Y1, X2, Y2, val);
-								break;
-							}
-							if (obj_type == "LIST")
-								object->create_list(X1, Y1, X2, Y2, Entry, size);
-							break;
-						}
-					case 'O' :
-						{
-							if (obj_type == "OPTIONB")
-							{
-								object->create_optionb(X1, Y1, caption, val, NULL, skin, size);
-								break;
-							}
-							if (obj_type == "OPTIONC")
-							{
-								object->create_optionc(X1, Y1, caption, val, NULL, skin, size);
-								break;
-							}
-							break;
-						}
-					case 'P' :
-						{
-							if (obj_type == "PBAR")
-								object->create_pbar(X1, Y1, X2, Y2, val, size);
-							break;
-						}
-					case 'T' :
-						{
-							if (obj_type == "TEXTEDITOR")
-							{
-								object->create_texteditor(X1, Y1, X2, Y2, caption, size);
-								break;
-							}
-							if (obj_type == "TEXTBAR")
-							{
-								object->create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
-								break;
-							}
-							if (obj_type == "TEXT")
-							{
-								FIX_COLOR(val);
-								object->create_text(X1, Y1, caption, val, size);
-								if (X2 > 0 && Y2 > Y1)
-								{
-									object->x2 = X2;
-									object->y2 = Y2;
-									object->Flag |= FLAG_TEXT_ADJUST;
-								}
-								break;
-							}
-							break;
-						}
-					case 'V' :
-						{
-							if (obj_type == "VSLIDER")
-							{
-								object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
-								break;
 							}
 
+							object->create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
+							for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
+							{
+								object->x2 = X1 + t_w[e] * size_factor * x_factor;
+								object->y2 = Y1 + t_h[e] * size_factor * y_factor;
+								object->gltex_states[e].width = t_w[e] * size_factor * x_factor;
+								object->gltex_states[e].height = t_h[e] * size_factor * x_factor;
+								object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
+							}
 							break;
 						}
+						if (obj_type == "MISSION")
+						{
+							object->create_text(X1, Y1, caption, val, size);
+							if (X2 > 0 && Y2 > Y1)
+							{
+								object->x2 = X2;
+								object->y2 = Y2;
+								object->Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
+							}
+							break;
+						}
+						break;
+					}
+				case 'L' :
+					{
+						if (obj_type == "LINE")
+						{
+							FIX_COLOR(val);
+							object->create_line(X1, Y1, X2, Y2, val);
+							break;
+						}
+						if (obj_type == "LIST")
+							object->create_list(X1, Y1, X2, Y2, Entry, size);
+						break;
+					}
+				case 'O' :
+					{
+						if (obj_type == "OPTIONB")
+						{
+							object->create_optionb(X1, Y1, caption, val, NULL, skin, size);
+							break;
+						}
+						if (obj_type == "OPTIONC")
+						{
+							object->create_optionc(X1, Y1, caption, val, NULL, skin, size);
+							break;
+						}
+						break;
+					}
+				case 'P' :
+					{
+						if (obj_type == "PBAR")
+							object->create_pbar(X1, Y1, X2, Y2, val, size);
+						break;
+					}
+				case 'T' :
+					{
+						if (obj_type == "TEXTEDITOR")
+						{
+							object->create_texteditor(X1, Y1, X2, Y2, caption, size);
+							break;
+						}
+						if (obj_type == "TEXTBAR")
+						{
+							object->create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
+							break;
+						}
+						if (obj_type == "TEXT")
+						{
+							FIX_COLOR(val);
+							object->create_text(X1, Y1, caption, val, size);
+							if (X2 > 0 && Y2 > Y1)
+							{
+								object->x2 = X2;
+								object->y2 = Y2;
+								object->Flag |= FLAG_TEXT_ADJUST;
+							}
+							break;
+						}
+						break;
+					}
+				case 'V' :
+					{
+						if (obj_type == "VSLIDER")
+						{
+							object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+							break;
+						}
+
+						break;
+					}
 				}
 
 				wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',', true, true, true);
@@ -2009,5 +2016,5 @@ namespace Gui
 
 
 
-} // namespace Gui
+	} // namespace Gui
 } // namespace TA3D
