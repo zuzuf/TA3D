@@ -142,19 +142,34 @@ namespace TA3D
 			for(String::Vector::const_iterator it = animsList.begin() ; it != animsList.end() ; ++it)
 			{
 				const String &gafName = *it;
-				File* gaf_file = VFS::Instance()->readFile( gafName );
-				if (gaf_file)
+				String::Vector entries;
+				if (VFS::Instance()->getDirlist(gafName + "\\*", entries))				// GAF-like directory
 				{
-					int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
-					for(int i = 0 ; i < nbEntries ; ++i)
+					for(int i = 0 ; i < entries.size() ; ++i)
 					{
-						String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
+						String key = Paths::ExtractFileName(entries[i]).toUpper();
 						if (key.empty())
 							continue;
 						if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
 							unit_manager.name2gaf[key] = gafName;
 					}
-					delete gaf_file;
+				}
+				else																	// normal GAF
+				{
+					File* gaf_file = VFS::Instance()->readFile( gafName );
+					if (gaf_file)
+					{
+						int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
+						for(int i = 0 ; i < nbEntries ; ++i)
+						{
+							String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
+							if (key.empty())
+								continue;
+							if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
+								unit_manager.name2gaf[key] = gafName;
+						}
+						delete gaf_file;
+					}
 				}
 			}
 		}
@@ -166,27 +181,34 @@ namespace TA3D
 		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(key);
 		if (item != unit_manager.name2gaf.end())
 		{
-			std::vector<String> test;
+			String::Vector test;
 			if (String::ToUpper(item->second) != String::ToUpper(gafFileName))
 				test.push_back(gafFileName);
 			test.push_back(item->second);
-			for(std::vector<String>::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
+			for(String::Vector::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
 			{
-				File* gaf_file = VFS::Instance()->readFile( *it );
-				if (gaf_file)
+				if (it->find(".gaf") != String::npos)						// Is it a normal GAF ?
 				{
-					SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
-					if (img)
+					File* gaf_file = VFS::Instance()->readFile( *it );
+					if (gaf_file)
 					{
-						if (w)
-							*w = img->w;
-						if (h)
-							*h = img->h;
-						tex = gfx->make_texture(img, FILTER_LINEAR);
-						SDL_FreeSurface(img);
-					}
+						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+						if (img)
+						{
+							if (w)
+								*w = img->w;
+							if (h)
+								*h = img->h;
+							tex = gfx->make_texture(img, FILTER_LINEAR);
+							SDL_FreeSurface(img);
+						}
 
-					delete gaf_file;
+						delete gaf_file;
+					}
+				}
+				else								// GAF-like directory
+				{
+					tex = Gaf::ToTexture(*it, name, w, h, true, FILTER_LINEAR);
 				}
 			}
 		}
@@ -314,7 +336,8 @@ namespace TA3D
 	void UnitManager::gather_all_build_data()
 	{
 		animsList.clear();
-		VFS::Instance()->getFilelist("anims\\*.gaf", animsList);
+		VFS::Instance()->getDirlist("anims\\*", animsList);				// GAF-like directories
+		VFS::Instance()->getFilelist("anims\\*.gaf", animsList);		// normal GAF files
 		name2gaf.clear();
 
 		String::Vector file_list;
