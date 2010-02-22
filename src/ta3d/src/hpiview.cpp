@@ -310,13 +310,19 @@ namespace TA3D
 					for (int e = 0; e < anims[i].nb_bmp; ++e)
 					{
 						String filename;
-						filename << anims[i].name << e << ".tga";
+						filename << anims[i].name;
+						if (e < 10)
+							filename << "000";
+						else if (e < 100)
+							filename << "00";
+						else if (e < 1000)
+							filename << '0';
+						filename << e << ".tga";
 						m_File << "    [frame" << e << "]\n    {\n";
 						m_File << "        XPos=" << anims[i].ofs_x[ e ] << ";\n";
 						m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
 						m_File << "        filename=" << filename << ";\n";
 						m_File << "    }\n";
-						//					SDL_SetPalette(anims[i].bmp[e], SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
 						save_bitmap( filename, anims[i].bmp[e] );
 					}
 					m_File << "}\n";
