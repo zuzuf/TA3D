@@ -2331,9 +2331,13 @@ namespace TA3D
 		}
 
 		Gaf::AnimationList side_logos;
-		File *file = VFS::Instance()->readFile( "anims\\newgame.gaf");
-		side_logos.loadGAFFromRawData(file, true);
-		delete file;
+		side_logos.loadGAFFromDirectory("anims\\newgame", true);
+		if (side_logos.size() == 0)
+		{
+			File *file = VFS::Instance()->readFile( "anims\\newgame.gaf");
+			side_logos.loadGAFFromRawData(file, true);
+			delete file;
+		}
 
 		TDFParser::Ptr campaign_parser = NULL;
 
@@ -2537,11 +2541,16 @@ namespace TA3D
 		else if (planet_file == "slate" )               planet_file = "anims\\slatebrief.gaf";
 		else if (planet_file == "water world" )         planet_file = "anims\\waterbrief.gaf";
 
-		File *file = VFS::Instance()->readFile(planet_file);
-		if (file)
+		if (planet_file.size() > 4)
+			planet_animation.loadGAFFromDirectory(planet_file.substr(0, planet_file.size() - 4), true);
+		if (planet_animation.size() == 0)
 		{
-			planet_animation.loadGAFFromRawData(file, true);
-			delete file;
+			File *file = VFS::Instance()->readFile(planet_file);
+			if (file)
+			{
+				planet_animation.loadGAFFromRawData(file, true);
+				delete file;
+			}
 		}
 
 		int schema = 0;
@@ -2573,10 +2582,10 @@ namespace TA3D
 		int rotate_id = 0;
 		for (int i = 0; i < planet_animation.size(); ++i)
 		{
-			if (String::ToLower(String(planet_animation[i].name).substr(String(planet_animation[i].name).size() - 3, 3)) == "pan")
+			if (String::ToLower(planet_animation[i].name.substr(planet_animation[i].name.size() - 3, 3)) == "pan")
 				pan_id = i;
 			else
-				if (String::ToLower(String(planet_animation[i].name).substr(String(planet_animation[i].name).size() - 6, 6)) == "rotate")
+				if (String::ToLower(planet_animation[i].name.substr(planet_animation[i].name.size() - 6, 6)) == "rotate")
 					rotate_id = i;
 		}
 
