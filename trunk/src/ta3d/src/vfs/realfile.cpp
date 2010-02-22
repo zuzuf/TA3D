@@ -36,6 +36,8 @@ namespace TA3D
 
 		bool RealFile::eof()
 		{
+			if (!sFile.opened())
+				return true;
 			return sFile.eof();
 		}
 
@@ -52,6 +54,8 @@ namespace TA3D
 
 		int RealFile::tell()
 		{
+			if (!sFile.opened())
+				return 0;
 			return int(sFile.tell());
 		}
 
@@ -62,6 +66,8 @@ namespace TA3D
 
 		int RealFile::read(void *p, int s)
 		{
+			if (!sFile.opened())
+				return 0;
 			return int(sFile.read((char*)p, s));
 		}
 
