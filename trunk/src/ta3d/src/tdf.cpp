@@ -122,19 +122,26 @@ namespace TA3D
 		if (not_loaded)
 		{
 			not_loaded = false;
-			String tmp("anims\\");
-			tmp << filename << ".gaf";
-			File* gaf = VFS::Instance()->readFile(tmp);
-			if (gaf)
+						// Try a GAF-like directory
+			anim.loadGAFFromDirectory("anims\\" + filename, seqname);
+			if (anim.nb_bmp == 0)
 			{
-				sint32 index = Gaf::RawDataGetEntryIndex(gaf, seqname);
-				if (index >= 0)
-					anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, seqname), true, filename);
-				else
-					LOG_WARNING(LOG_PREFIX_TDF << "`" << name << "` has no picture to display (" << filename << ".gaf, " << seqname << ") !");
-				delete gaf;
-				need_convert = true;
+				String tmp("anims\\");
+				tmp << filename << ".gaf";
+				File* gaf = VFS::Instance()->readFile(tmp);
+				if (gaf)
+				{
+					sint32 index = Gaf::RawDataGetEntryIndex(gaf, seqname);
+					if (index >= 0)
+						anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, seqname), true, filename);
+					else
+						LOG_WARNING(LOG_PREFIX_TDF << "`" << name << "` has no picture to display (" << filename << ".gaf, " << seqname << ") !");
+					delete gaf;
+					need_convert = true;
+				}
 			}
+			else
+				need_convert = true;
 		}
 		if (need_convert)
 		{
@@ -338,11 +345,6 @@ namespace TA3D
 							}
 							if (index < 0)
 								feature[i]->need_convert = false;
-						}
-						else		// Try a GAF-like directory
-						{
-							feature[i]->anim.loadGAFFromDirectory("anims\\" + feature[i]->filename, feature[i]->seqname);
-							feature[i]->not_loaded = feature[i]->anim.nb_bmp == 0;
 						}
 					}
 				}
