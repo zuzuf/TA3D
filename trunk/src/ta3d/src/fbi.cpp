@@ -862,7 +862,7 @@ namespace TA3D
 		ExtractsMetal = parseFloat("UNITINFO.ExtractsMetal");
 		hoverattack = parseBool("UNITINFO.HoverAttack");
 		isfeature = parseBool("UNITINFO.IsFeature");
-		Stealth = parseInt("UNITINFO.Stealth");
+		Stealth = parseBool("UNITINFO.Stealth");
 		attackrunlength = parseInt("UNITINFO.attackrunlength");
 		selfdestructcountdown = uint8(parseIntDef("UNITINFO.selfdestructcountdown", 5));
 		canresurrect = parseBool("UNITINFO.canresurrect") || parseBool("UNITINFO.resurrect");
