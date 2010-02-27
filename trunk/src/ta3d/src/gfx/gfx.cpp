@@ -36,6 +36,7 @@
 #include "gui/base.h"
 #include <backtrace.h>
 #include <yuni/core/io/file/stream.h>
+#include <SDL_getenv.h>
 
 using namespace Yuni::Core::IO::File;
 
@@ -401,6 +402,9 @@ namespace TA3D
 			else
 				GLloaded = true;
 		}
+
+        // We want a centered window
+        putenv("SDL_VIDEO_CENTERED=1");
 
 		SDL_Surface *icon = load_image("gfx\\icon.png");
 		if (icon)
