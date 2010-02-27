@@ -168,7 +168,7 @@ namespace Gui
 
 	void Skin::ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, uint32 flags )
 	{
-		gfx->set_color( 0xFFFFFFFF);
+        gfx->set_color(0xFFFFFFFF);
 
 		if( !(flags & FLAG_NO_BORDER) )
 		{
@@ -182,8 +182,12 @@ namespace Gui
 			int e = i + Scroll;
 			if (e >= Entry.size() || pCacheFontHeight * (i+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
 			if (e == Index)
-				selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, x2 + text_background.x2, y1 + text_background.y1 + pCacheFontHeight * (i+1));
-			pCacheDrawTextStr = Entry[e];
+            {
+                gfx->set_alpha_blending();
+                selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, x2 + text_background.x2, y1 + text_background.y1 + pCacheFontHeight * (i+1));
+                gfx->unset_alpha_blending();
+            }
+            pCacheDrawTextStr = Entry[e];
 			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
 				pCacheDrawTextStr = pCacheDrawTextStr.substr(3, pCacheDrawTextStr.size() - 3);
