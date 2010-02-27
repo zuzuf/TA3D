@@ -55,7 +55,7 @@ namespace Resources
     ** \param folder The folder to add
     ** \return True if the folder has been added, false otherwise
     */
-    bool AddSearchPath(const String& folder);
+    bool AddSearchPath(String folder);
 
 
     /*!

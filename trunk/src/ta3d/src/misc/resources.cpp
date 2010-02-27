@@ -135,26 +135,24 @@ namespace Resources
 		return false;
 	}
 
-	bool AddSearchPath(const String& folder)
+    bool AddSearchPath(String folder)
 	{
-		MutexLocker locker(gResourcesMutex);
-		if (!folder.empty() && Paths::Exists(folder))
+        if (folder.empty())
+            return false;
+
+        if (folder.last() == '/' || folder.last() == '\\')
+            folder.removeLast();
+
+        if (Paths::Exists(folder))
 		{
-			for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+            MutexLocker locker(gResourcesMutex);
+            for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
 			{
 				if (folder == *i)
 					return false;
 			}
-			if (folder.last() != '/' && folder.last() != '\\')
-			{
-				pResourcesFolders.push_back(folder + TA3D::Paths::Separator);
-				LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << TA3D::Paths::Separator << "`");
-			}
-			else
-			{
-				pResourcesFolders.push_back(folder);
-				LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << "`");
-			}
+            pResourcesFolders.push_back(folder + TA3D::Paths::Separator);
+            LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << TA3D::Paths::Separator << "`");
 			return true;
 		}
 		return false;
