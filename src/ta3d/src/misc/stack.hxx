@@ -18,17 +18,17 @@
 #ifndef __STACK_H__
 #define __STACK_H__
 
-#include <deque>
+#include <vector>
 
 namespace TA3D
 {
 
 
-	template< typename T >
+    template< typename T, typename Container = std::vector<T> >
 	class Stack
 	{
 	private:
-		std::deque<T> container;
+        Container container;
 
 	public:
 
