@@ -1,0 +1,83 @@
+[UNITINFO]
+{
+    UnitName = ARMCOM;
+    Side = ARM;
+    Objectname = ARMCOM;
+    Name = Commander;
+    FrenchName = Commandeur;
+    Description = Commander;
+    FrenchDescription = Commandant;
+    
+    // Basics
+    TEDClass = COMMANDER;
+    Category = ARM commander LEVEL10 WEAPON NOTAIR NOTSUB CTRL_C;
+    FootprintX = 2;
+    FootprintZ = 2;
+    MaxDamage = 3000;
+    BuildTime = 96000;
+    WorkerTime = 300;
+    HealTime = 27;
+    
+    // FLags
+    BMcode = 1;		// This is a mobile unit
+    Builder = true;
+    canattack = true;
+    candgun = true;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+    cancapture = true;
+    hidedamage = true;
+    ShootMe = true;
+    canreclamate = true;
+    UpRight = true;
+    ActivateWhenBuilt = true;
+    ImmuneToParalyzer = true;
+    norestrict = true;
+
+    // Physics and limitations
+    MaxVelocity = 1.2;
+    Acceleration = 0.15;
+    BrakeRate = 0.3;
+    TurnRate = 1044;
+    BuildDistance = 60;
+    ManeuverLeashLength = 640;
+    MovementClass = TANKDS2;
+    MaxSlope = 20;
+    MaxWaterDepth=35;
+    
+    // Detectors
+    SightDistance = 290;
+    RadarDistance = 400;
+    SonarDistance = 400;
+    MinCloakDistance = 40;
+   
+    // Resources
+    EnergyMake = 25;
+    MetalMake = 1;
+    EnergyUse = 0;
+    CloakCost = 200;
+    CloakCostMoving = 1000;
+    BuildCostEnergy = 34125;
+    BuildCostMetal = 29854;
+    
+    // Orders
+    DefaultMissionType = StandBy;
+    
+    // Weapons
+    Weapon1 = ARMCOMLASER;
+    w1_badTargetCategory = VTOL;
+
+    Weapon3 = ARM_DISINTEGRATOR;
+
+    BadTargetCategory = VTOL;
+    NoChaseCategory = VTOL;
+
+    // For later
+    ExplodeAs = COMMANDER_BLAST;
+    SelfDestructAs = COMMANDER_BLAST;
+    SoundCategory = ARM_COM;
+
+    ShowPlayerName = true;
+}
