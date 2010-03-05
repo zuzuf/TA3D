@@ -170,7 +170,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		static GLuint ToTexture(const String& filename, const String& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
+		static GLuint ToTexture(String filename, const String& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
 		/*!
 		** \brief Convert all Gaf images into OpenGL textures

@@ -172,8 +172,12 @@ namespace TA3D
 
 
 
-	GLuint Gaf::ToTexture(const String& filename, const String& imgname, int* w, int* h, const bool truecolor, const int filter)
+	GLuint Gaf::ToTexture(String filename, const String& imgname, int* w, int* h, const bool truecolor, const int filter)
 	{
+		// Remove GAF extension
+		if (filename.size() >= 4 || filename.substr(filename.size() - 4, 4).toLower() == ".gaf")
+			filename.erase(filename.size(), 4);
+
 		String cache_filename;
 		cache_filename << filename << "-" << imgname << ".bin";
 		uint32 fw;
@@ -186,6 +190,18 @@ namespace TA3D
 			if (h)  *h = fh;
 			return first_try;
 		}
+
+		// Now try to open it as a GAF-like directory
+		String::Vector folderList;
+		VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
+		{
+			sort(folderList.begin(), folderList.end());
+			return gfx->load_texture(folderList.front(), filter, (uint32*)w, (uint32*)h);
+		}
+
+		// Add GAF extension
+		filename << ".gaf";
 
 		File *file = VFS::Instance()->readFile(filename);			// Try to open it as file
 		if (file)
@@ -220,14 +236,6 @@ namespace TA3D
 			}
 			delete file;
 			return 0;
-		}
-		// Now try to open it as a GAF-like directory
-		String::Vector folderList;
-		VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
-		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
-		{
-			sort(folderList.begin(), folderList.end());
-			return gfx->load_texture(folderList.front(), filter, (uint32*)w, (uint32*)h);
 		}
 		return 0;
 	}

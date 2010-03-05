@@ -373,7 +373,7 @@ namespace TA3D
 				int idx = get_unit_index( canbuild );
 				if (idx >= 0 && idx < nb_unit)
 				{
-					GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget.gaf", canbuild);
+					GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget", canbuild);
 					if (unit_type[idx]->glpic || tex)
 						unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
 					else
@@ -1036,11 +1036,12 @@ namespace TA3D
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		int w,h;
-		GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true);
+		GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main", gaf_img, &w, &h, true);
 		if (panel_tex == 0)
 		{
 			String::Vector file_list;
-            VFS::Instance()->getFilelist( "anims\\*.gaf", file_list);
+			VFS::Instance()->getDirlist("anims\\*", file_list);
+			VFS::Instance()->getFilelist( "anims\\*.gaf", file_list);
 			for (String::Vector::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
 				panel_tex = Gaf::ToTexture(*i, gaf_img, &w, &h, true);
 		}
@@ -1048,10 +1049,10 @@ namespace TA3D
 		panel.width = w;
 		panel.height = h;
 
-		paneltop.set(Gaf::ToTexture("anims\\" + intgaf + ".gaf", "PANELTOP", &w, &h));
+		paneltop.set(Gaf::ToTexture("anims\\" + intgaf, "PANELTOP", &w, &h));
 		paneltop.width = w;
 		paneltop.height = h;
-		panelbottom.set(Gaf::ToTexture("anims\\" + intgaf + ".gaf", "PANELBOT", &w, &h));
+		panelbottom.set(Gaf::ToTexture("anims\\" + intgaf, "PANELBOT", &w, &h));
 		panelbottom.width = w;
 		panelbottom.height = h;
 	}
