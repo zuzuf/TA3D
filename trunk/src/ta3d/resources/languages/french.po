@@ -759,3 +759,23 @@
 {
     FRENCH=Calcul des zones de déplacement;
 }
+[no limit]
+{
+    FRENCH=Illimité;
+}
+[Battle]
+{
+    FRENCH=Bataille;
+}
+[Skirmish]
+{
+    FRENCH=Bataille;
+}
+[no campaigns]
+{
+    FRENCH=Pas de campagne;
+}
+[Exit]
+{
+    FRENCH=Quitter;
+}

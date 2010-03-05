@@ -1575,11 +1575,7 @@ namespace TA3D
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 
-        SDL_Surface *tmp = create_surface_ex(32, 1, 1);
-        SurfaceInt(tmp, 0, 0) = color;
-
-		glTexImage2D(GL_TEXTURE_2D, 0, defaultRGBATextureFormat, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
-        SDL_FreeSurface(tmp);
+		glTexImage2D(GL_TEXTURE_2D, 0, defaultRGBATextureFormat, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 
         return gl_tex;
     }
