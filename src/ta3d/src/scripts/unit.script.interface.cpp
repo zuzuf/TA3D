@@ -61,7 +61,7 @@ namespace TA3D
             "TargetCleared","StopBuilding","Stop",
             "StartBuilding","Go","Killed",
             "StopMoving","Deactivate","Activate",
-            "Create","MotionControl","startmoving",
+			"Create","MotionControl","StartMoving",
             "MoveRate1","MoveRate2","MoveRate3",
             "RequestState","TransportPickup","TransportDrop",
             "QueryTransport","BeginTransport","EndTransport",

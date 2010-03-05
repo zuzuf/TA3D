@@ -783,3 +783,7 @@
 {
     FRENCH=Jeu;
 }
+[Weapons:]
+{
+	FRENCH=Armes:;
+}
