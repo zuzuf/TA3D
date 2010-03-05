@@ -253,7 +253,7 @@ namespace TA3D
 			case 4: config_area.caption("*.fsaa", "x4");    break;
 			case 6: config_area.caption("*.fsaa", "x6");    break;
 			case 8: config_area.caption("*.fsaa", "x8");    break;
-			default: config_area.caption("*.fsaa", "no fsaa");
+			default: config_area.caption("*.fsaa", I18N::Translate("no fsaa"));
 		}
 		if (config_area.get_object("*.water_quality"))
 		{
