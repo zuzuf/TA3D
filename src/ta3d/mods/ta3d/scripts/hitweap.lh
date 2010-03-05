@@ -1,0 +1,23 @@
+-- hitweap.lh -- Rock the unit when it takes a hit
+
+-- HitByWeapon()
+-- Called when the unit is hit.  Makes it rock a bit
+--to look like it is shaking from the impact.
+
+__this.HitByWeapon = function(this, anglex, anglez)
+	local ROCK_SPEED = 105
+	local RESTORE_SPEED = 30
+	
+	anglex = anglex * TA2DEG
+	anglez = anglez * TA2DEG
+
+	this:turn( this.base, z_axis, anglez, ROCK_SPEED )
+	this:turn( this.base, x_axis, anglex, ROCK_SPEED )
+
+	this:wait_for_turn( this.base, z_axis )
+	this:wait_for_turn( this.base, x_axis )
+
+	this:turn( this.base, z_axis, 0, RESTORE_SPEED )
+	this:turn( this.base, x_axis, 0, RESTORE_SPEED )
+end
+
