@@ -14,10 +14,8 @@ __this.aimtype = 0
 -- define signals
 __this.SIG_AIM = 2
 
---#define	ANIM_VARIABLE   bMoving
---#include "..\anim3d\armcom\walk.bos"
---#include "..\anim3d\armcom\walklegs.bos"
---#undef	ANIM_VARIABLE
+#include "walk.lh"
+#include "walklegs.lh"
 
 -- Aiming definitions
 

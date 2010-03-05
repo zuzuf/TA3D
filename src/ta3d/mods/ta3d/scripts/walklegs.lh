@@ -1,0 +1,31 @@
+-- This file contains the generic walklegs function which makes kbots legs animation (it doesn't affect arms)
+
+__this.walklegs = function(this)
+	this:wait_for_turn(this.lthigh, x_axis)
+	this:wait_for_turn(this.lleg, x_axis)
+	this:wait_for_turn(this.rthigh, x_axis)
+	this:wait_for_turn(this.rleg, x_axis)
+
+	if not this.bMoving then
+		return
+	end
+
+	this:turn(this.lthigh, x_axis, 30, 90)
+	this:turn(this.lleg, x_axis, -30, 90)
+	this:turn(this.rthigh, x_axis, -30, 90)
+	this:turn(this.rleg, x_axis, 0, 90)
+
+	this:wait_for_turn(this.lthigh, x_axis)
+	this:wait_for_turn(this.lleg, x_axis)
+	this:wait_for_turn(this.rthigh, x_axis)
+	this:wait_for_turn(this.rleg, x_axis)
+
+	if not this.bMoving then
+		return
+	end
+
+	this:turn(this.rthigh, x_axis, 30, 90)
+	this:turn(this.rleg, x_axis, -30, 90)
+	this:turn(this.lthigh, x_axis, -30, 90)
+	this:turn(this.lleg, x_axis, 0, 90)
+end
