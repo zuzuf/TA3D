@@ -1,0 +1,214 @@
+[GADGET0]
+{
+	[COMMON]
+	{
+		xpos = 0;
+		ypos = 128;
+	}
+	totalgadgets = 17;
+	panel = CORPAN;
+}
+[GADGET1]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORPREV;
+		xpos = 8;
+		ypos = 222;
+		width = 44;
+		height = 16;
+	}
+}
+[GADGET2]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORNEXT;
+		xpos = 72;
+		ypos = 222;
+		width = 44;
+		height = 16;
+	}
+}
+[GADGET3]
+{
+	[COMMON]
+	{
+		xpos = 0;
+		ypos = 27;
+		width = 64;
+		height = 64;
+		attribs = 32;
+	}
+}
+[GADGET4]
+{
+	[COMMON]
+	{
+		xpos = 64;
+		ypos = 27;
+		width = 64;
+		height = 64;
+		attribs = 32;
+	}
+}
+[GADGET5]
+{
+	[COMMON]
+	{
+		xpos = 0;
+		ypos = 91;
+		width = 64;
+		height = 64;
+		attribs = 32;
+	}
+}
+[GADGET6]
+{
+	[COMMON]
+	{
+		xpos = 64;
+		ypos = 91;
+		width = 64;
+		height = 64;
+		attribs = 32;
+	}
+}
+[GADGET7]
+{
+	[COMMON]
+	{
+		xpos = 0;
+		ypos = 155;
+		width = 64;
+		height = 64;
+		attribs = 32;
+		}
+}
+[GADGET8]
+{
+	[COMMON]
+	{
+		xpos = 64;
+		ypos = 155;
+		width = 64;
+		height = 64;
+		attribs = 32;
+	}
+}
+[GADGET9]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORORDERS;
+		xpos = 3;
+		ypos = 4;
+		width = 59;
+		height = 19;
+	}
+	quickkey = 111;
+}
+[GADGET10]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORBUILD;
+		xpos = 65;
+		ypos = 4;
+		width = 59;
+		height = 19;
+	}
+	quickkey = 98;
+}
+[GADGET11]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORMOVE;
+		xpos = 5;
+		ypos = 247;
+		width = 55;
+		height = 31;
+	}
+	quickkey = 109;
+}
+[GADGET12]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORSTOP;
+		xpos = 64;
+		ypos = 247;
+		width = 55;
+		height = 31;
+	}
+	quickkey = 115;
+}
+[GADGET13]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORPATROL;
+		xpos = 64;
+		ypos = 282;
+		width = 55;
+		height = 31;
+	}
+	quickkey = 112;
+}
+[GADGET14]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORATTACK;
+		xpos = 5;
+		ypos = 317;
+		width = 55;
+		height = 31;
+	}
+	quickkey = 97;
+}
+[GADGET15]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORDEFEND;
+		xpos = 5;
+		ypos = 282;
+		width = 55;
+		height = 31;
+	}
+	quickkey = 103;
+}
+[GADGET16]
+{
+	[COMMON]
+	{
+		id = 1;
+		active = 1;
+		name = CORBLAST;
+		xpos = 64;
+		ypos = 317;
+		width = 55;
+		height = 31;
+	}
+	quickkey = 100;
+}
