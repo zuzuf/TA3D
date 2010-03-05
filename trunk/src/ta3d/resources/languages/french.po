@@ -779,3 +779,7 @@
 {
     FRENCH=Quitter;
 }
+[Game]
+{
+    FRENCH=Jeu;
+}
