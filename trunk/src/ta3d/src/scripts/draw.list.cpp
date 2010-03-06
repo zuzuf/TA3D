@@ -32,7 +32,7 @@ namespace TA3D
     void DrawList::destroy()
     {
         if (prim.type == DRAW_TYPE_BITMAP)
-            glDeleteTextures(1,&prim.tex);
+			gfx->destroy_texture(prim.tex);
         prim.text.clear();
 		next = NULL;
         init();

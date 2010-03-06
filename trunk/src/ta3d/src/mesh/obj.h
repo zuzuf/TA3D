@@ -37,6 +37,7 @@ namespace TA3D
 	class MeshOBJ : public Mesh3DM		// Classe pour la gestion des (sous-)objets des modèles 3do
 	{
 	public:
+		MeshOBJ();
 		virtual ~MeshOBJ() {}
 
 		void load(File *file);
