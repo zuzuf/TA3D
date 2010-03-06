@@ -177,8 +177,9 @@ namespace TA3D
 
 	class Mesh                          // The basic mesh class
     {
+		friend class Joins;
 	public:
-		typedef SmartPtr<Mesh> Ptr;
+		typedef Mesh* Ptr;
     protected:
         short       nb_vtx;				// Nombre de points
         short       nb_prim;			// Nombre de primitives

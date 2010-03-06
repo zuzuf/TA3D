@@ -1,4 +1,5 @@
 #include "obj.h"
+#include "joins.h"
 
 namespace TA3D
 {
@@ -105,7 +106,7 @@ namespace TA3D
 						cur->obj_finalize( face, lVertex, lTcoord, &currentMtl );
 						face.clear();
 						cur->child = new MeshOBJ();
-						cur = static_cast<MeshOBJ*>(Mesh::Ptr::WeakPointer(cur->child));
+						cur = static_cast<MeshOBJ*>(cur->child);
 					}
 					firstObject = false;
 					cur->name = args[1];
@@ -228,8 +229,9 @@ namespace TA3D
 		delete file;
 
 		Model *model = new Model;
-		model->mesh = mesh;
+		model->mesh = Joins::computeStructure(mesh);
 		model->postLoadComputations();
+		Joins::computeSelection(model);
 		return model;
 	}
 

@@ -34,7 +34,8 @@ SET(SRC_MESHES
 		mesh/3dm.cpp mesh/3dm.h
 		mesh/s3o.cpp mesh/s3o.h
 		mesh/obj.cpp mesh/obj.h
-		mesh/3ds.cpp mesh/3ds.h)
+		mesh/3ds.cpp mesh/3ds.h
+		mesh/joins.cpp mesh/joins.h)
 
 #
 # Logs
