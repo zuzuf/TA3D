@@ -428,7 +428,6 @@ features/wetdesert/metal.tdf
 features/wetdesert/rocks.tdf
 features/wetdesert/vents.tdf
 features/wetdesert/watermetal.tdf
-gamedata/sound.tdf
 gamedata/translate.tdf
 guis/armaap1.gui
 guis/armaca1.gui
@@ -468,12 +467,9 @@ guis/armcsa5.gui
 guis/armcv1.gui
 guis/armcv2.gui
 guis/armcv3.gui
-guis/armdl.gui
 guis/armemp1.gui
-guis/armgen.gui
 guis/armhp1.gui
 guis/armlab1.gui
-guis/armmain.gui
 guis/armmlv1.gui
 guis/armplat1.gui
 guis/armsilo1.gui
@@ -517,7 +513,6 @@ guis/corcsa5.gui
 guis/corcv1.gui
 guis/corcv2.gui
 guis/corcv3.gui
-guis/cordl.gui
 guis/corfmd1.gui
 guis/corgant1.gui
 guis/corhp1.gui
@@ -1445,7 +1440,6 @@ units/armcarry.fbi
 units/armch.fbi
 units/armck.fbi
 units/armckfus.fbi
-units/armcom.fbi
 units/armcroc.fbi
 units/armcrus.fbi
 units/armcsa.fbi
@@ -1520,7 +1514,6 @@ units/armsh.fbi
 units/armsilo.fbi
 units/armsjam.fbi
 units/armsnipe.fbi
-units/armsolar.fbi
 units/armsonar.fbi
 units/armspid.fbi
 units/armspy.fbi
