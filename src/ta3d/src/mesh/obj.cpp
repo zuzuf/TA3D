@@ -8,6 +8,11 @@ namespace TA3D
 	using namespace MOBJ;
 	using namespace std;
 
+	MeshOBJ::MeshOBJ()
+	{
+		Color = 0xFFFFFFFF;
+	}
+
 	/*!
 * \brief fill the Mesh with gathered data
 */
@@ -16,7 +21,7 @@ namespace TA3D
 		nb_vtx = face.size() >> 1;
 		nb_t_index = face.size() >> 1;
 		this->t_index = new GLushort[nb_t_index];
-		this->points = new Vector3D[nb_vtx];
+		this->points = new Vector3D[nb_vtx * 2];
 		this->tcoord = new float[2 * nb_vtx];
 		type = MESH_TYPE_TRIANGLES;
 
@@ -59,9 +64,11 @@ namespace TA3D
 		}
 
 		Flag = SURFACE_ADVANCED | SURFACE_LIGHTED | SURFACE_GOURAUD;
+		Color = 0xFFFFFFFF;
 		if (mtl)
 		{
 			bool useAlpha(false);
+			LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << mtl->textureName << "'");
 			gltex.push_back( gfx->load_texture( mtl->textureName, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha ) );
 			if (gltex[0])
 			{
@@ -69,6 +76,8 @@ namespace TA3D
 				if (useAlpha)
 					Flag |= SURFACE_BLENDED;
 			}
+			else
+				LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture !");
 			if (mtl->name == "team")				// The magic team material
 				Flag |= SURFACE_PLAYER_COLOR;
 		}
@@ -80,6 +89,7 @@ namespace TA3D
 		destroy3DM();
 
 		MeshOBJ *cur = this;
+		name = "default";
 		bool firstObject = true;
 		vector<Vector3D>	lVertex;
 		vector<Vector2D>	lTcoord;
@@ -181,17 +191,10 @@ namespace TA3D
 								vertex_idx.push_back( data[0].to<int>() - 1);
 								if (vertex_idx.back() < 0)
 									LOG_DEBUG(LOG_PREFIX_OBJ << "parser : " << line << " -> " << *s << " -> " << vertex_idx.back());
-								if (data.size() == 3)
-								{
-									if (data[1].empty())
-										tcoord_idx.push_back(-1);
-									else
-										tcoord_idx.push_back(data[1].to<int>() - 1);
-								}
+								if (data.size() >= 2)
+									tcoord_idx.push_back(data[1].to<int>() - 1);
 								else
-								{
 									tcoord_idx.push_back(-1);
-								}
 							}
 						}
 
@@ -211,8 +214,7 @@ namespace TA3D
 			}
 		}
 
-		if (!firstObject)
-			cur->obj_finalize(face, lVertex, lTcoord);
+		cur->obj_finalize(face, lVertex, lTcoord, &currentMtl);
 	}
 
 	Model *MeshOBJ::load(const String &filename)
