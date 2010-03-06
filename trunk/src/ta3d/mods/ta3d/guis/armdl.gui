@@ -4,6 +4,8 @@
 	{
 		xpos = 0;
 		ypos = 128;
+		width = 128;
+		height = 352;
 	}
 	totalgadgets = 17;
 	panel = ARMPAN;
