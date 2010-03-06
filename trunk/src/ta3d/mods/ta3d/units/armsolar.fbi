@@ -1,0 +1,57 @@
+[UNITINFO]
+{
+	UnitName = ARMSOLAR;
+    Side = ARM;
+    Objectname = ARMSOLAR;
+	Corpse = armsolar_dead;
+    Name = Solar Collector;
+    FrenchName = Capteur solaire;
+    Description = Produces Energy;
+    FrenchDescription = Produit de l'énergie;
+
+    // Basics
+    TEDClass = ENERGY;
+    Category = ARM ENERGY LEVEL1 NOWEAPON NOTAIR NOTSUB;
+    FootprintX = 5;
+    FootprintZ = 5;
+    MaxDamage = 326;
+    BuildTime = 2495;
+	BuildAngle = 4096;
+    
+    // FLags
+    BMcode = 0;		// This is not a mobile unit
+    ActivateWhenBuilt = true;
+    OnOffable = true;
+
+    // Physics and limitations
+    MaxVelocity = 1.2;
+    Acceleration = 0.15;
+    BrakeRate = 0.3;
+    TurnRate = 1044;
+    BuildDistance = 60;
+    ManeuverLeashLength = 640;
+    MovementClass = TANKDS2;
+    MaxSlope = 10;
+    MaxWaterDepth = 0;
+	DamageModifier = 0.333333;
+	YardMap=ooooo ooooo ooooo ooooo ooooo;
+    
+    // Detectors
+    SightDistance = 210;
+    RadarDistance = 0;
+   
+    // Resources
+    EnergyUse = -250;
+    BuildCostEnergy = 760;
+    BuildCostMetal = 145;
+    
+    // Orders
+    DefaultMissionType = StandBy;
+    
+    // Weapons
+
+    // For later
+    ExplodeAs = SMALL_BUILDINGEX;
+    SelfDestructAs = SMALL_BUILDING;
+    SoundCategory = ARM_SOLAR;
+}
