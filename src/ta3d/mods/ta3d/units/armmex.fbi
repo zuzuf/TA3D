@@ -1,0 +1,51 @@
+[UNITINFO]
+{
+	UnitName = ARMMEX;
+    Side = ARM;
+    Objectname = ARMMEX;
+	Corpse = armmex_dead;
+    Name = Metal Extractor;
+    FrenchName = Extracteur de métal;
+    Description = Extracts metal;
+    FrenchDescription = Extrait du métal;
+
+    // Basics
+    TEDClass = METAL;
+    Category = ARM METAL EXTRACTOR LEVEL1 NOWEAPON NOTAIR NOTSUB;
+    FootprintX = 3;
+    FootprintZ = 3;
+    MaxDamage = 170;
+    BuildTime = 1800;
+	BuildAngle = 8192;
+    
+    // FLags
+    BMcode = 0;		// This is not a mobile unit
+    ActivateWhenBuilt = true;
+	NoAutoFire = true;
+	OnOffable = true;
+
+    // Physics and limitations
+    MaxSlope = 10;
+    MaxWaterDepth = 0;
+	YardMap=o;
+    
+    // Detectors
+    SightDistance = 210;
+    RadarDistance = 0;
+   
+    // Resources
+    BuildCostEnergy = 521;
+    BuildCostMetal = 50;
+	EnergyUse = 3;
+	ExtractsMetal = 0.001;
+    
+    // Orders
+    DefaultMissionType = StandBy;
+    
+    // Weapons
+
+    // For later
+    ExplodeAs = SMALL_BUILDINGEX;
+    SelfDestructAs = SMALL_BUILDING;
+    SoundCategory = ARM_SOLAR;
+}
