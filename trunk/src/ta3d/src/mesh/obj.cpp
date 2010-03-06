@@ -60,11 +60,16 @@ namespace TA3D
 		Flag = SURFACE_ADVANCED | SURFACE_LIGHTED | SURFACE_GOURAUD;
 		if (mtl)
 		{
-			gltex.push_back( gfx->load_texture( mtl->textureName ) );
+			bool useAlpha(false);
+			gltex.push_back( gfx->load_texture( mtl->textureName, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha ) );
 			if (gltex[0])
 			{
 				Flag |= SURFACE_TEXTURED;
+				if (useAlpha)
+					Flag |= SURFACE_BLENDED;
 			}
+			if (mtl->name == "team")				// The magic team material
+				Flag |= SURFACE_PLAYER_COLOR;
 		}
 	}
 

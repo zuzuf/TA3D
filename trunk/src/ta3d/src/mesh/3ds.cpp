@@ -404,6 +404,10 @@ namespace TA3D
 							read_obj->Flag |= SURFACE_BLENDED;
 							read_obj->Color = (read_obj->Color & 0xFFFFFF00) | (uint32)(cur_mat->transparency * 255);
 						}
+						if (cur_mat->name == "team")			// The magic team material
+						{
+							read_obj->Flag |= SURFACE_PLAYER_COLOR;
+						}
 					}
 					else
 						LOG_WARNING(LOG_PREFIX_3DS << "WARNING: material not found!!");
