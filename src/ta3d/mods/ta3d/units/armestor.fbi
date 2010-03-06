@@ -1,27 +1,27 @@
 [UNITINFO]
 {
-	UnitName = ARMSOLAR;
+	UnitName = ARMESTOR;
     Side = ARM;
-    Objectname = ARMSOLAR;
-	Corpse = armsolar_dead;
-    Name = Solar Collector;
-    FrenchName = Capteur solaire;
-    Description = Produces Energy;
-    FrenchDescription = Produit de l'énergie;
+    Objectname = ARMESTOR;
+	Corpse = armestor_dead;
+    Name = Energy Storage;
+    FrenchName = Dépôt d'énergie;
+    Description = Increases Energy Storage;
+    FrenchDescription = Augmente le stockage d'énergie;
 
     // Basics
     TEDClass = ENERGY;
-    Category = ARM ENERGY LEVEL1 NOWEAPON NOTAIR NOTSUB;
-    FootprintX = 5;
-    FootprintZ = 5;
-    MaxDamage = 326;
-    BuildTime = 2495;
+    Category = ARM ENERGY LEVEL1 NOWEAPON NOTAIR NOTSUB STORAGE;
+    FootprintX = 4;
+    FootprintZ = 4;
+    MaxDamage = 1000;
+    BuildTime = 12710;
 	BuildAngle = 4096;
     
     // FLags
     BMcode = 0;		// This is not a mobile unit
     ActivateWhenBuilt = true;
-    OnOffable = true;
+	NoAutoFire = true;
 
     // Physics and limitations
     MaxVelocity = 1.2;
@@ -34,16 +34,16 @@
     MaxSlope = 10;
     MaxWaterDepth = 0;
 	DamageModifier = 0.333333;
-	YardMap=ooooo ooooo ooooo ooooo ooooo;
+	YardMap=o;
     
     // Detectors
     SightDistance = 210;
     RadarDistance = 0;
    
     // Resources
-    EnergyUse = -25;
-    BuildCostEnergy = 760;
-    BuildCostMetal = 145;
+    BuildCostEnergy = 2430;
+    BuildCostMetal = 240;
+	EnergyStorage = 3000;
     
     // Orders
     DefaultMissionType = StandBy;
@@ -51,7 +51,7 @@
     // Weapons
 
     // For later
-    ExplodeAs = SMALL_BUILDINGEX;
-    SelfDestructAs = SMALL_BUILDING;
+    ExplodeAs = ESTOR_BUILDINGEX;
+    SelfDestructAs = CRAWL_BLASTSML;
     SoundCategory = ARM_SOLAR;
 }
