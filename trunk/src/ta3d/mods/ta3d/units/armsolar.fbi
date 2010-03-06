@@ -24,13 +24,6 @@
     OnOffable = true;
 
     // Physics and limitations
-    MaxVelocity = 1.2;
-    Acceleration = 0.15;
-    BrakeRate = 0.3;
-    TurnRate = 1044;
-    BuildDistance = 60;
-    ManeuverLeashLength = 640;
-    MovementClass = TANKDS2;
     MaxSlope = 10;
     MaxWaterDepth = 0;
 	DamageModifier = 0.333333;
