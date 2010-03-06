@@ -787,3 +787,19 @@
 {
 	FRENCH=Armes:;
 }
+[Help]
+{
+	FRENCH=Aide;
+}
+[Save game]
+{
+	FRENCH=Sauvegarder;
+}
+[Previous]
+{
+	FRENCH=Précédent;
+}
+[Next]
+{
+	FRENCH=Suivant;
+}
