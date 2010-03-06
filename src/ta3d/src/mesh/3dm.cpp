@@ -28,6 +28,7 @@
 #include <TA3D_NameSpace.h>
 #include <ta3dbase.h>
 #include "3dm.h"
+#include "joins.h"
 #include <gfx/particles/particles.h>
 #include <ingame/sidedata.h>
 #include <languages/i18n.h>
@@ -314,6 +315,31 @@ namespace TA3D
 				}
 				if (creating_list)
 					glEndList();
+			}
+			if (sel_primitive && selprim >= 0 && nb_vtx > 0)
+			{
+				gfx->disable_model_shading();
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_NORMAL_ARRAY);
+				glDisable(GL_LIGHTING);
+				glDisable(GL_TEXTURE_2D);
+				glDisable(GL_FOG);
+				if (!set)
+					glVertexPointer( 3, GL_FLOAT, 0, points);
+				glColor3ub(0,0xFF,0);
+				glTranslatef( 0.0f, 2.0f, 0.0f );
+				glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+				glTranslatef( 0.0f, -2.0f, 0.0f );
+				if (notex)
+				{
+					int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
+					glColor3ub(0,var,0);
+				}
+				else
+					glColor3ub(0xFF,0xFF,0xFF);
+				alset = false;
+				gfx->enable_model_shading();
+				glEnable(GL_FOG);
 			}
 			if (chg_col)
 				glColor4fv(color_factor);
@@ -790,6 +816,7 @@ namespace TA3D
 		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
+		Joins::computeSelection(model);
 		return model;
 	}
 

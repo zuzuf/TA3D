@@ -307,7 +307,11 @@ namespace TA3D
 		DELETE_ARRAY(l_index);
 		DELETE_ARRAY(t_index);
 		name.clear();
+		if (next)
+			delete next;
 		next = NULL;
+		if (child)
+			delete child;
 		child = NULL;
 		init();
 	}
@@ -1539,6 +1543,8 @@ namespace TA3D
 	{
 		if (dlist)
 			glDeleteLists(dlist, 1);
+		if (mesh)
+			delete mesh;
 		init();
 	}
 

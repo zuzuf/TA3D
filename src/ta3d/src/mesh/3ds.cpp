@@ -16,6 +16,7 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "3ds.h"
+#include "joins.h"
 #include <vfs/file.h>
 
 //#define DEBUG_3DS
@@ -338,7 +339,7 @@ namespace TA3D
 				if (read_obj->nb_vtx > 0)		// Add a sub object
 				{
 					read_obj->child = new Mesh3DS;
-					read_obj = static_cast<Mesh3DS*>(Mesh::Ptr::WeakPointer(read_obj->child));
+					read_obj = static_cast<Mesh3DS*>(read_obj->child);
 					read_obj->type = MESH_TYPE_TRIANGLES;
 					read_obj->name = cur_obj->name;
 					read_obj->Flag = SURFACE_ADVANCED | SURFACE_GOURAUD | SURFACE_LIGHTED;
@@ -495,8 +496,9 @@ namespace TA3D
 		delete file;
 
 		Model *model = new Model;
-		model->mesh = firstObj;
+		model->mesh = Joins::computeStructure(firstObj);
 		model->postLoadComputations();
+		Joins::computeSelection(model);
 		return model;
 	}
 
