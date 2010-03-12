@@ -35,7 +35,7 @@ namespace TA3D
         destroy();
     }
 
-    String LuaData::getName()
+	const String &LuaData::getName() const
     {
         return name;
     }
@@ -44,12 +44,7 @@ namespace TA3D
     {
         destroy();
 
-		LuaThread::Ptr thread = new LuaThread;
-        thread->load(filename);
-
-		LuaChunk::Ptr chunk = thread->dump();
-        chunk->load(UnitScript::luaVM());
-
+		UnitScript::load(filename);
         lua_State *L = UnitScript::luaVM();
 
         lua_call(L, 0, 0);

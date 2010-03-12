@@ -65,7 +65,8 @@ namespace TA3D
         String name;
 
     private:
-        static void register_functions(lua_State *L);
+		static void load(const String &filename);
+		static void register_functions(lua_State *L);
         void register_info();
 
         /*virtual*/ void setUnitID(uint32 ID);
