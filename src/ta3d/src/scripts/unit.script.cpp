@@ -81,27 +81,27 @@ namespace TA3D
 
 	lua_State *UnitScript::luaVM()
 	{
-		if (!pLuaVM)
-		{
-			pLuaVM = lua_open();				// Create a lua state object
-			lua_atpanic(pLuaVM, lua_panic);		// Just to avoid having Lua exiting TA3D
-			if (pLuaVM)
-			{
-				lua_register( pLuaVM, "logmsg", thread_logmsg );
-				lua_register( pLuaVM, "mouse_x", thread_mouse_x );
-				lua_register( pLuaVM, "mouse_y", thread_mouse_y );
-				lua_register( pLuaVM, "mouse_z", thread_mouse_z );
-				lua_register( pLuaVM, "mouse_b", thread_mouse_b );
-				lua_register( pLuaVM, "time", thread_time );
-				lua_register( pLuaVM, "_signal", unit_thread_signal );               // Those functions will be used through a wrapper using the object like call convention
-				lua_register( pLuaVM, "_start_script", unit_thread_start_script );
+		if (pLuaVM)
+			return pLuaVM;
 
-				LuaEnv::register_global_functions( pLuaVM );
-				register_functions( pLuaVM );
-			}
-			else
-				LOG_CRITICAL(LOG_PREFIX_LUA << "creating Lua VM for unit scripts failed");
+		pLuaVM = lua_open();				// Create a lua state object
+		lua_atpanic(pLuaVM, lua_panic);		// Just to avoid having Lua exiting TA3D
+		if (pLuaVM)
+		{
+			lua_register( pLuaVM, "logmsg", thread_logmsg );
+			lua_register( pLuaVM, "mouse_x", thread_mouse_x );
+			lua_register( pLuaVM, "mouse_y", thread_mouse_y );
+			lua_register( pLuaVM, "mouse_z", thread_mouse_z );
+			lua_register( pLuaVM, "mouse_b", thread_mouse_b );
+			lua_register( pLuaVM, "time", thread_time );
+			lua_register( pLuaVM, "_signal", unit_thread_signal );               // Those functions will be used through a wrapper using the object like call convention
+			lua_register( pLuaVM, "_start_script", unit_thread_start_script );
+
+			LuaEnv::register_global_functions( pLuaVM );
+			register_functions( pLuaVM );
 		}
+		else
+			LOG_CRITICAL(LOG_PREFIX_LUA << "creating Lua VM for unit scripts failed");
 
 		return pLuaVM;
 	}
@@ -436,6 +436,64 @@ namespace TA3D
 		else
 			LOG_ERROR(LOG_PREFIX_LUA << "UnitScript : wrong ScriptData type!!");
 		L = NULL;
+	}
+
+	void UnitScript::load(const String &filename)					// Load a lua script
+	{
+		uint32 filesize = 0;
+		byte *buffer = loadLuaFile(filename , filesize);
+		if (buffer)
+		{
+			lua_State *L = luaVM();				// Get the lua state object
+
+			if (L == NULL)
+			{
+				DELETE_ARRAY(buffer);
+				return;
+			}
+
+			uint32 filesize2 = 0;
+			byte *header_buffer = loadLuaFile("scripts/ta3d.lh" , filesize2);
+			if (header_buffer == NULL)
+			{
+				if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+
+				DELETE_ARRAY(buffer);
+				return;
+			}
+			byte *tmp = buffer;
+			buffer = new byte[filesize + filesize2 + 2];
+			memcpy(buffer, header_buffer, filesize2);
+			memcpy(buffer + filesize2 + 1, tmp, filesize);
+			buffer[filesize2] = '\n';
+			filesize += filesize2;
+			buffer[filesize] = 0;
+			DELETE_ARRAY(header_buffer);
+			DELETE_ARRAY(tmp);
+
+			if (luaL_loadbuffer(L, (const char*)buffer, filesize, filename.c_str() ))
+			{
+				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+				{
+					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+					LOG_ERROR(LOG_PREFIX_LUA << filesize << " -> " << (int)buffer[filesize-1]);
+					LOG_ERROR((const char*) buffer);
+				}
+
+				DELETE_ARRAY(buffer);
+			}
+			else
+			{
+				// This may not help debugging
+				DELETE_ARRAY(buffer);
+			}
+		}
+		else
+		{
+			LOG_ERROR(LOG_PREFIX_LUA << "Failed opening `" << filename << "`");
+		}
 	}
 
 	int UnitScript::run(float dt, bool alone)                  // Run the script

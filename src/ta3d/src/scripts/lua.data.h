@@ -20,7 +20,6 @@
 
 # include <stdafx.h>
 # include <misc/string.h>
-# include "../lua/lua.hpp"
 # include "script.data.h"
 
 namespace TA3D
@@ -37,7 +36,7 @@ namespace TA3D
 
         /*virtual*/ void load(const String &filename);                    // Load a lua chunk
 
-        String getName();
+		const String &getName() const;
 
         virtual int identify(const String &name);
     private:
