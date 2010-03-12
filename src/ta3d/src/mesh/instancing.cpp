@@ -130,7 +130,7 @@ namespace TA3D
     }
 
 
-    void QUAD_TABLE::queue_quad(GLuint& texture_id, QUAD quad)
+	void QUAD_TABLE::queue_quad(GLuint& texture_id, const QUAD &quad)
     {
         uint32	hash = texture_id & DrawingTable_MASK;
         for (std::vector< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)

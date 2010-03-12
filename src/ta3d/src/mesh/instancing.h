@@ -90,7 +90,7 @@ namespace TA3D
         QUAD_TABLE() : hash_table() {hash_table.resize(DrawingTable_SIZE);}
         ~QUAD_TABLE();
 
-        void queue_quad( GLuint &texture_id, QUAD quad );
+		void queue_quad( GLuint &texture_id, const QUAD &quad );
         void draw_all();
     };
 
