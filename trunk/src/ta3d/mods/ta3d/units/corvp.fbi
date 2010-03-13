@@ -1,0 +1,48 @@
+[UNITINFO]
+{
+    UnitName = CORVP;
+    Side = CORE;
+    Objectname = CORVP;
+    Corpse = corvp_dead;
+    Name = Vehicle Plant;
+    FrenchName = Usine de véhicules;
+    Description = Produces Vehicles;
+    Frenchdescription = Niveau Tech 1;
+
+    TEDClass = PLANT;
+    Category = CORE PLANT CTRL_F LEVEL1 NOWEAPON NOTAIR NOTSUB;
+    FootprintX = 7;
+    FootprintZ = 7;
+    SightDistance = 215;
+    RadarDistance = 0;
+    MaxDamage = 2550;
+    MaxWaterDepth = 0;
+    MaxSlope = 10;
+    buildangle = 2048;
+    YardMap = yyoooyy yyoooyy ooooooo oocccoo oocccoo oocccoo oocccoo;
+
+    BuildCostEnergy = 1100;
+    BuildCostMetal = 600;
+    EnergyStorage = 100;
+    MetalStorage = 100;
+    EnergyUse = 0;
+    BuildTime = 6700;
+    WorkerTime = 100;
+    BMcode = 0;
+
+    // Flags
+    Builder = true;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+
+    SoundCategory = TANKPLANT;
+    ExplodeAs = LARGE_BUILDINGEX;
+    SelfDestructAs = LARGE_BUILDING;
+}
