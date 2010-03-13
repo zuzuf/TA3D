@@ -1,8 +1,8 @@
 [UNITINFO]
 {
-    UnitName = ARMCOM;
-    Side = ARM;
-    Objectname = ARMCOM;
+    UnitName = CORCOM;
+    Side = CORE;
+    Objectname = CORCOM;
     Name = Commander;
     FrenchName = Commandeur;
     Description = Commander;
@@ -38,10 +38,10 @@
     commander = true;
 
     // Physics and limitations
-    MaxVelocity = 1.2;
-    Acceleration = 0.15;
-    BrakeRate = 0.3;
-    TurnRate = 1044;
+    MaxVelocity = 1.07;
+    Acceleration = 0.16;
+    BrakeRate = 0.32;
+    TurnRate = 1030;
     BuildDistance = 60;
     ManeuverLeashLength = 640;
     MovementClass = TANKDS2;
@@ -57,20 +57,20 @@
     // Resources
     EnergyMake = 25;
     MetalMake = 1;
-    EnergyUse = 0;
+    EnergyUse = 1;
     CloakCost = 200;
     CloakCostMoving = 1000;
-    BuildCostEnergy = 34125;
-    BuildCostMetal = 29854;
+    BuildCostEnergy = 35838;
+    BuildCostMetal = 23515;
     
     // Orders
     DefaultMissionType = StandBy;
     
     // Weapons
-    Weapon1 = ARMCOMLASER;
+    Weapon1 = CORCOMLASER;
     w1_badTargetCategory = VTOL;
 
-    Weapon3 = ARM_DISINTEGRATOR;
+    Weapon3 = CORE_DISINTEGRATOR;
 
     BadTargetCategory = VTOL;
     NoChaseCategory = VTOL;
@@ -78,7 +78,7 @@
     // For later
     ExplodeAs = COMMANDER_BLAST;
     SelfDestructAs = COMMANDER_BLAST;
-    SoundCategory = ARM_COM;
+    SoundCategory = CORE_COM;
 
     ShowPlayerName = true;
 }
