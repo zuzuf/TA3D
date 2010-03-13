@@ -161,7 +161,7 @@ void Mesh::loadOBJ(const QString& filename)
                             vertex_idx.push_back( data[0].toInt() - 1);
                             if (vertex_idx.back() < 0)
                                 qDebug() << line << " -> " << s << " -> " << vertex_idx.back();
-                            if (data.size() == 3)
+							if (data.size() >= 2)
                             {
                                 if (data[1].isEmpty())
                                     tcoord_idx.push_back(-1);
@@ -191,8 +191,7 @@ void Mesh::loadOBJ(const QString& filename)
         }
     }
 
-    if (!firstObject)
-        cur->obj_finalize(face, lVertex, lTcoord);
+	cur->obj_finalize(face, lVertex, lTcoord, &currentMtl);
 
     src_obj.close();
 
