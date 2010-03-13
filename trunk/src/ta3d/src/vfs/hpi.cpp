@@ -257,10 +257,10 @@ namespace TA3D
             else
             {
                 // file not compressed
-                readAndDecrypt(Offset+start, WriteBuff+start, length);
+				readAndDecrypt(Offset+start, WriteBuff+start, Math::Min(Length - start, length));
             }
 
-			return new VirtualFile(WriteBuff, length, start, Length);
+			return new VirtualFile(WriteBuff, Math::Min(length, Length - start), start, Length);
         }
 
         sint32  Hpi::readAndDecrypt(sint32 fpos, byte *buff, const sint32 buffsize)
