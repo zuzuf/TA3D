@@ -36,7 +36,7 @@ namespace TA3D
 	{
 		if (nbtex == 0)
 			return -1;
-		return tex_hashtable[ texture_name ] - 1;
+		return tex_hashtable[ String::ToUpper(texture_name) ] - 1;
 	}
 
 
@@ -80,20 +80,34 @@ namespace TA3D
 			tex_hashtable[tex[i].name] = i + 1;
 		}
 
-		String::Vector file_list;
-		VFS::Instance()->getFilelist("textures\\*.gaf", file_list);
-		const String::Vector::const_iterator end = file_list.end();
-		for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 		{
-			File *file = VFS::Instance()->readFile(*cur_file);
-			load_gaf(file, String::ToUpper(Paths::ExtractFileName(*cur_file)) == "LOGOS.GAF");
-			delete file;
+			String::Vector file_list;
+			VFS::Instance()->getFilelist("textures\\*.gaf", file_list);
+			const String::Vector::const_iterator end = file_list.end();
+			for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+			{
+				File *file = VFS::Instance()->readFile(*cur_file);
+				String filename = String::ToUpper(Paths::ExtractFileName(*cur_file));
+				load_gaf(file, filename == "LOGOS.GAF" || filename == "LOGOS");
+				delete file;
+			}
 		}
+		{
+			String::Vector file_list;
+			VFS::Instance()->getDirlist("textures\\*", file_list);
+			const String::Vector::const_iterator end = file_list.end();
+			for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+			{
+				String filename = String::ToUpper(Paths::ExtractFileName(*cur_file));
+				load_gaf(*cur_file, filename == "LOGOS.GAF" || filename == "LOGOS");
+			}
+		}
+
 		return 0;
 	}
 
 
-	int TEXTURE_MANAGER::load_gaf(File* file, bool logo)
+	void TEXTURE_MANAGER::load_gaf(File* file, bool logo)
 	{
 		sint32 nb_entry = Gaf::RawDataEntriesCount(file);
 		int n_nbtex = nbtex + nb_entry;
@@ -109,12 +123,32 @@ namespace TA3D
 		{
 			tex[nbtex + i].loadGAFFromRawData(file, i, false);
 			tex[nbtex + i].logo = logo;
-			tex_hashtable[tex[nbtex + i].name] = nbtex + i + 1;
+			tex_hashtable[String::ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
 		}
 		nbtex += nb_entry;
-		return 0;
 	}
 
 
+	void TEXTURE_MANAGER::load_gaf(const String &filename, bool logo)
+	{
+		String::Vector elts;
+		sint32 nb_entry = VFS::Instance()->getDirlist(filename + "\\*", elts);
+		int n_nbtex = nbtex + nb_entry;
+		Gaf::Animation* n_tex = new Gaf::Animation[n_nbtex];
+		for (int i = 0; i < nbtex; ++i)
+		{
+			n_tex[i] = tex[i];
+			tex[i].init();
+		}
+		DELETE_ARRAY(tex);
+		tex = n_tex;
+		for (int i = 0; i < nb_entry; ++i)
+		{
+			tex[nbtex + i].loadGAFFromDirectory(filename, Paths::ExtractFileName(elts[i]));
+			tex[nbtex + i].logo = logo;
+			tex_hashtable[String::ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
+		}
+		nbtex += nb_entry;
+	}
 
 } // namespace TA3D
