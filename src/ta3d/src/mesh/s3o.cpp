@@ -35,11 +35,15 @@
 #include <logs/logs.h>
 #include <gfx/gl.extensions.h>
 #include <zlib.h>
+#include "joins.h"
 
 
 namespace TA3D
 {
+	Shader MeshS3O::s3oShader;
+
 	REGISTER_MESH_TYPE(MeshS3O);
+
 	const char *MeshS3O::getExt()
 	{
 		return ".s3o";
@@ -101,46 +105,29 @@ namespace TA3D
 			std::vector<GLuint> *pTex = &(root->gltex);
 
 			hide |= explodes ^ exploding_parts;
-			int texID = player_color_map[side];
-			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
-				&& !fixed_textures && !pTex->empty())
-				texID = ((int)(t * 10.0f)) % pTex->size();
-			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
+			if (!hide)
 			{
-				glCallList( gl_dlist[ texID ] );
-				alset = false;
-				set = false;
-			}
-			else if (!hide)
-			{
-				bool creating_list = false;
-				if (gl_dlist.size() <= texID)
-					gl_dlist.resize(texID + 1);
-				if (!chg_col && !notex && gl_dlist[texID] == 0 && false)
-				{
-					gl_dlist[texID] = glGenLists(1);
-					glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
-					alset = false;
-					set = false;
-					creating_list = true;
-				}
 				if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 				{
 					bool activated_tex = false;
-					glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-					glEnableClientState(GL_NORMAL_ARRAY);
-					alset = false;
-					set = false;
-
-					glEnable(GL_LIGHTING);
-
-					if (chg_col || !notex)
+					if (!alset)
 					{
-						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-						glEnable(GL_BLEND);
-						glAlphaFunc( GL_GREATER, 0.1 );
-						glEnable( GL_ALPHA_TEST );
+						glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+						glEnableClientState(GL_NORMAL_ARRAY);
+						glDisable(GL_BLEND);
+						glDisable( GL_ALPHA_TEST );
+						glEnable(GL_LIGHTING);
+						alset = true;
+						set = true;
 					}
+
+					s3oShader.on();
+					s3oShader.setvar1i( "tex0", 0 );
+					s3oShader.setvar1i( "tex1", 1 );
+					s3oShader.setvar1i( "shadowMap", 7 );
+					s3oShader.setvar1f( "t", t );
+					s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+					s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
 
 					if (!notex) // Les textures et effets de texture
 					{
@@ -205,12 +192,36 @@ namespace TA3D
 						glEnable(GL_TEXTURE_2D);
 					}
 				}
-				if (creating_list)
-					glEndList();
+			}
+			if (sel_primitive && selprim >= 0 && nb_vtx > 0)
+			{
+				gfx->disable_model_shading();
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glDisableClientState(GL_NORMAL_ARRAY);
+				glDisable(GL_LIGHTING);
+				glDisable(GL_TEXTURE_2D);
+				glDisable(GL_FOG);
+				if (!set)
+					glVertexPointer( 3, GL_FLOAT, 0, points);
+				glColor3ub(0,0xFF,0);
+				glTranslatef( 0.0f, 2.0f, 0.0f );
+				glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+				glTranslatef( 0.0f, -2.0f, 0.0f );
+				if (notex)
+				{
+					int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
+					glColor3ub(0,var,0);
+				}
+				else
+					glColor3ub(0xFF,0xFF,0xFF);
+				alset = false;
+				gfx->enable_model_shading();
+				glEnable(GL_FOG);
 			}
 			if (child && !(explodes && !exploding_parts))
 				alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
 			glPopMatrix();
+			s3oShader.off();
 		}
 		if (next)
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
@@ -226,18 +237,17 @@ namespace TA3D
 
 		if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 		{
-			glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-			glEnableClientState(GL_NORMAL_ARRAY);
-			alset = false;
+			if (!alset)
+			{
+				glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+				glEnableClientState(GL_NORMAL_ARRAY);
+				glDisable(GL_BLEND);
+				glDisable( GL_ALPHA_TEST );
+				glEnable(GL_LIGHTING);
+				alset = true;
+			}
 
 			std::vector<GLuint> *pTex = &(root->gltex);
-
-			glEnable(GL_LIGHTING);
-
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			glEnable(GL_BLEND);
-			glAlphaFunc( GL_GREATER, 0.1 );
-			glEnable( GL_ALPHA_TEST );
 
 			for (int j = 0; j < pTex->size() ; ++j)
 			{
@@ -297,9 +307,9 @@ namespace TA3D
 		Piece fp;
 		*file >> fp;
 
-		piece->pos_from_parent.x = fp.xoffset;
-		piece->pos_from_parent.y = fp.yoffset;
-		piece->pos_from_parent.z = fp.zoffset;
+		piece->pos_from_parent.x = 0.5f * fp.xoffset;
+		piece->pos_from_parent.y = 0.5f * fp.yoffset;
+		piece->pos_from_parent.z = 0.5f * fp.zoffset;
 		switch(fp.primitiveType)
 		{
 			case S3O_PRIMTYPE_QUADS:
@@ -325,10 +335,10 @@ namespace TA3D
 		{
 			SS3OVertex v;
 			*file >> v;
-			piece->points[a] = v.pos;
+			piece->points[a] = 0.5f * v.pos;
 			piece->N[a] = v.normal;
 			piece->tcoord[a * 2] = v.textureX;
-			piece->tcoord[a * 2 + 1] = v.textureY;
+			piece->tcoord[a * 2 + 1] = 1.0f - v.textureY;
 		}
 
 
@@ -425,6 +435,9 @@ namespace TA3D
 
 	Model *MeshS3O::load(const String &filename)
 	{
+		if (!s3oShader.isLoaded())
+			s3oShader.load("shaders/s3o.frag", "shaders/s3o.vert");
+
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
 		{
@@ -439,6 +452,8 @@ namespace TA3D
 		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
+		model->useDL = false;
+		Joins::computeSelection(model);
 		return model;
 	}
 

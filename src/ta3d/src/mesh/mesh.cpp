@@ -1526,6 +1526,8 @@ namespace TA3D
 
 	void Model::init()
 	{
+		useDL = true;
+
 		nb_obj = 0;
 		mesh = NULL;
 		center.reset();
@@ -1589,7 +1591,7 @@ namespace TA3D
 			mesh->draw(t, NULL, sel, false, notex, side, chg_col);
 		else
 		{
-			if (data_s == NULL && dlist == 0 && !sel && !notex && !chg_col)
+			if (data_s == NULL && dlist == 0 && !sel && !notex && !chg_col && useDL)
 			{
 				check_textures();
 				dlist = glGenLists (1);
@@ -1599,7 +1601,7 @@ namespace TA3D
 			}
 			else
 			{
-				if (data_s == NULL && !sel && !notex && !chg_col)
+				if (data_s == NULL && !sel && !notex && !chg_col && useDL)
 					glCallList( dlist );
 				else
 				{

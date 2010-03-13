@@ -85,6 +85,8 @@ namespace TA3D
 
 	class MeshS3O : public Mesh        // Classe pour la gestion des (sous-)objets des modèles 3do
     {
+	private:
+		static Shader s3oShader;
     public:
 		MeshS3O *root;
     public:
