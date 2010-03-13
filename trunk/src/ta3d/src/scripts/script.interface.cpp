@@ -21,7 +21,7 @@
 
 namespace TA3D
 {
-    ScriptInterface::ScriptInterface() : caller(NULL), running(false), waiting(false), sleeping(false), sleep_time(0.0f), signal_mask(0)
+	ScriptInterface::ScriptInterface() : running(false), sleep_time(0.0f), sleeping(false), waiting(false), signal_mask(0), caller(NULL)
     {
     }
 
@@ -99,10 +99,10 @@ namespace TA3D
 
     void ScriptInterface::deleteThreads()
     {
-        for(int i = 0 ; i < childs.size() ; ++i)
-			delete childs[i];
+		for(std::vector<ScriptInterface*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
+			delete *i;
         childs.clear();
-        for(std::deque<ScriptInterface*>::iterator i = freeThreads.begin() ; i != freeThreads.end() ; ++i)
+		for(std::vector<ScriptInterface*>::iterator i = freeThreads.begin() ; i != freeThreads.end() ; ++i)
 			delete *i;
         freeThreads.clear();
     }
@@ -114,8 +114,8 @@ namespace TA3D
 
         if (freeThreads.empty())
             return NULL;
-        ScriptInterface *newThread = freeThreads.front();
-        freeThreads.pop_front();
+		ScriptInterface *newThread = freeThreads.back();
+		freeThreads.pop_back();
         return newThread;
     }
 
@@ -125,8 +125,8 @@ namespace TA3D
             return;         // and it would not be safe at all!
         else
         {
-            int e = 0;
-            for(int i = 0 ; i + e < childs.size() ; )
+			uint32 e = 0;
+			for(uint32 i = 0 ; i + e < childs.size() ; )
             {
                 if (!childs[i + e]->is_self_running())
                 {
@@ -135,7 +135,8 @@ namespace TA3D
                 }
                 else
                 {
-                    childs[i] = childs[i + e];
+					if (e)
+						childs[i] = childs[i + e];
                     ++i;
                 }
             }
@@ -159,7 +160,7 @@ namespace TA3D
         gzwrite(file, &signal_mask, sizeof(signal_mask));
         save_thread_state(file);
 
-        int nb_childs = childs.size();
+		int nb_childs = int(childs.size());
         gzwrite(file, &nb_childs, sizeof(nb_childs));
         for(int i = 0 ; i < nb_childs ; i++)
             childs[i]->save_state(file);
@@ -175,7 +176,7 @@ namespace TA3D
         gzread(file, &signal_mask, sizeof(signal_mask));
         restore_thread_state(file);
 
-        int nb_childs = childs.size();
+		int nb_childs = int(childs.size());
         gzread(file, &nb_childs, sizeof(nb_childs));
         for(int i = 0 ; i < nb_childs ; i++)
         {

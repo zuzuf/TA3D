@@ -47,7 +47,7 @@ namespace TA3D
         uint32                          signal_mask;    // This thread will be killed as soon as it catchs this signal
         ScriptInterface                 *caller;        // NULL if main thread
         std::vector<ScriptInterface*>   childs;         // Child processes, empty for childs this is to keep track of running threads
-        std::deque<ScriptInterface*>    freeThreads;    // Old childs processes that are not used, we keep them to prevent allocating/freeing things uselessly
+		std::vector<ScriptInterface*>    freeThreads;    // Old childs processes that are not used, we keep them to prevent allocating/freeing things uselessly
     public:
         ScriptInterface();
         virtual ~ScriptInterface() {    deleteThreads();  }
