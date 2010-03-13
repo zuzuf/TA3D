@@ -391,6 +391,7 @@ namespace TA3D
         bool	animated;
         bool	from_2d;
         uint16	nb_obj;
+		bool	useDL;				// Are display lists safe ?
     }; // class MODEL
 
 
