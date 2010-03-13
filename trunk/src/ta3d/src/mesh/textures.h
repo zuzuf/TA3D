@@ -29,7 +29,8 @@ namespace TA3D
 
         SDL_Surface *get_bmp_texture(const String& texture_name, const int frame = 0);
 
-		int load_gaf(File *data, bool logo);
+		void load_gaf(File *data, bool logo);
+		void load_gaf(const String &filename, bool logo);
 
         int all_texture();
 
