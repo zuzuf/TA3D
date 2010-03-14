@@ -1,0 +1,55 @@
+[UNITINFO]
+{
+    UnitName = CORFAV;
+    Side = CORE;
+    Objectname = CORFAV;
+    Corpse = corfav_dead;
+    Name = Weasel;
+    FrenchName = Fouine;
+    Description = Scout;
+    FrenchDescription = Reconnaissance;
+
+    TEDClass = TANK;
+    Category = CORE TANK LEVEL1 WEAPON NOTAIR NOTSUB CTRL_W;
+    FootprintX = 2;
+    FootprintZ = 2;
+    MaxVelocity = 2.8;
+    BrakeRate = 0.051;
+    Acceleration = 0.036;
+    TurnRate = 500;
+    MaxDamage = 84;
+    MaxWaterDepth = 12;
+    MaxSlope = 18;
+    SightDistance = 310;
+    RadarDistance = 0;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+    DefaultMissionType = Standby;
+    maneuverleashlength = 640;
+    MovementClass = TANKSH2;
+
+    BuildCostEnergy = 575;
+    BuildCostMetal = 38;
+    EnergyUse = 0.3;
+    EnergyMake = 0.3;
+    BuildTime = 1515;
+    WorkerTime = 0;
+
+    BMcode = 1;
+    Builder = false;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+    ShootMe = true;
+    canattack = true;
+
+    Weapon1 = CORE_LASER;
+
+    SoundCategory = CORE_VEHICLE;
+    ExplodeAs = SMALL_UNITEX;
+    SelfDestructAs = SMALL_UNIT;
+}
