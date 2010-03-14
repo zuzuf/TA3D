@@ -1,0 +1,56 @@
+[UNITINFO]
+{
+    UnitName = CORCV;
+    Side = CORE;
+    Objectname = CORCV;
+    Corpse = corcv_dead;
+    Name = Construction Vehicle;
+    FrenchName = Véhicule de construction;
+    Description = Tech Level 1;
+    FrenchDescription = Niveau Tech 1;
+
+    TEDClass = TANK;
+    Category = CORE TANK LEVEL1 CONSTR NOWEAPON NOTAIR NOTSUB CTRL_B;
+    FootprintX = 3;
+    FootprintZ = 3;
+    MaxVelocity = 1.3;
+    BrakeRate = 0.085;
+    Acceleration = 0.011;
+    TurnRate = 207;
+    Builddistance = 40;
+    MaxDamage = 825;
+    MaxWaterDepth = 19;
+    MaxSlope = 16;
+    EnergyUse = 0.2;
+    BuildTime = 5146;
+    WorkerTime = 100;
+    SightDistance = 200;
+    RadarDistance = 0;
+
+    BMcode = 1;
+    Builder = true;
+    NoAutoFire = false;
+    ShootMe = true;
+    CanReclamate = true;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+
+    BuildCostEnergy = 2145;
+    BuildCostMetal = 175;
+    EnergyStorage = 50;
+    MetalStorage = 50;
+    EnergyMake = 9.2;
+    MetalMake = 0.25;
+
+    DefaultMissionType = Standby;
+    maneuverleashlength = 640;
+    MovementClass = TANKSH3;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+
+    SoundCategory = CORE_CVEHICLE;
+    ExplodeAs = BIG_UNITEX;
+    SelfDestructAs = BIG_UNIT;
+}
