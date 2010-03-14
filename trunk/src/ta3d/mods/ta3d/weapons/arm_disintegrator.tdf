@@ -1,0 +1,39 @@
+[ARM_DISINTEGRATOR]
+{
+    name = Disintegrator;
+    rendertype = 3;
+    lineofsight = true;
+    turret = true;
+
+    model = dgun;
+
+    range = 240;
+    reloadtime = 1.2;
+    weapontimer = 4;
+    energypershot = 400;
+    weaponvelocity = 200;
+    areaofeffect = 48;
+    soundtrigger = true;
+    firestarter = 70;
+    beamweapon = true;
+    noexplode = true;
+    commandfire = true;
+    startsmoke = true;
+
+    [DAMAGE]
+    {
+        default = 30000;
+    }
+
+    soundstart = disigun1;
+    soundhit = xplomas2;
+
+    explosiongaf = fx;
+    explosionart = explode5;
+
+    waterexplosiongaf = fx;
+    waterexplosionart = h2o;
+
+    lavaexplosiongaf = fx;
+    lavaexplosionart = lavasplash;
+}

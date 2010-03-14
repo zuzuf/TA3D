@@ -1,0 +1,39 @@
+[ARMCOMLASER]
+{
+    name = J7 Laser;
+    rendertype = 0;
+    lineofsight = true;
+    turret = true;
+
+    range = 200;
+    reloadtime = .85;
+    weaponvelocity = 400;
+    areaofeffect = 16;
+    duration = .03;
+    soundtrigger = true;
+    beamweapon = true;
+    firestarter = 70;
+
+    // Colors from the palette.pal file
+    color = 232;
+    color2 = 234;
+
+    [DAMAGE]
+    {
+        default = 60;
+    }
+
+    // For later when we have replacements for sounds
+    soundstart = lasrfir1;
+    soundhit = lasrhit2;
+
+    // For later when we have GAF replacements for explosions
+    explosiongaf = fx;
+    explosionart = explode5;
+
+    waterexplosiongaf = fx;
+    waterexplosionart = h2oboom1;
+
+    lavaexplosiongaf = fx;
+    lavaexplosionart = lavasplashsm;
+}
