@@ -1117,7 +1117,8 @@ namespace TA3D
 							&& (mission->mission() == MISSION_REPAIR
 								|| mission->mission() == MISSION_BUILD
 								|| mission->mission() == MISSION_BUILD_2
-								|| mission->mission() == MISSION_CAPTURE))
+								|| mission->mission() == MISSION_CAPTURE
+								|| mission->mission() == MISSION_RECLAIM))
 						{
 							unit_target = mission->getUnit();
 							if (unit_target)

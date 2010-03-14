@@ -12,7 +12,7 @@ void main()
         shaded = 1.0;
 
     float diffuse_coef = clamp( dot( normalize(normal), normalize(vec3(gl_LightSource[0].position)) ), 0.0, 1.0 );
-    vec4 light_eq = (diffuse_coef * shaded + gl_LightModel.ambient) * gl_Color;
+    vec4 light_eq = diffuse_coef * shaded + gl_LightModel.ambient;
     vec4 texture_color = texture2D( tex0, gl_TexCoord[0].xy );
 
     gl_FragColor = vec4(light_eq.rgb, 1.0) * gl_Color * texture_color;
