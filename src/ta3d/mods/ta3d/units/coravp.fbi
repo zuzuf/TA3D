@@ -1,0 +1,46 @@
+[UNITINFO]
+{
+    UnitName = CORAVP;
+    Side = CORE;
+    Objectname = CORAVP;
+    Corpse = coravp_dead;
+    Name = Adv. Vehicle Plant;
+    FrenchName = Usine de véhicules évoluée;
+    Description = Produces Vehicles;
+    FrenchDescription = Niveau Tech 2;
+
+    TEDClass = PLANT;
+    Category = CORE PLANT CTRL_F LEVEL2 NOWEAPON NOTAIR NOTSUB;
+    FootprintX = 8;
+    FootprintZ = 6;
+    YardMap = oooooooo oooooooo ooccccoo ooccccoo ooccccoo ooccccoo;
+    MaxDamage = 2580;
+    MaxWaterDepth = 0;
+    MaxSlope = 10;
+    SightDistance = 220;
+    RadarDistance = 0;
+    buildangle = 1024;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+
+    BuildCostEnergy = 3520;
+    BuildCostMetal = 1947;
+    EnergyUse = 0;
+    EnergyStorage = 200;
+    MetalStorage = 200;
+    BuildTime = 15410;
+    WorkerTime = 200;
+
+    BMcode = 0;
+    Builder = true;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+
+    SoundCategory = TANKPLANT;
+    ExplodeAs = LARGE_BUILDINGEX;
+    SelfDestructAs = LARGE_BUILDING;
+}
