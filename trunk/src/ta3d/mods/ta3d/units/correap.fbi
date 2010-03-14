@@ -1,0 +1,58 @@
+[UNITINFO]
+{
+    UnitName = CORREAP;
+    Side = CORE;
+    Objectname = CORREAP;
+    Corpse = correap_dead;
+    Name = Reaper;
+    FrenchName = Moissonneur;
+    Description = Heavy Assault Tank;
+    FrenchDescription = Char d'assaut lourd;
+
+    TEDClass = TANK;
+    Category = CORE TANK LEVEL1 WEAPON NOTAIR NOTSUB CTRL_W;
+    FootprintX = 3;
+    FootprintZ = 3;
+    MaxDamage = 2014;
+    MaxWaterDepth = 100;
+    MaxSlope = 12;
+    SightDistance = 240;
+    RadarDistance = 0;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+    MaxVelocity = 1.2;
+    BrakeRate = 0.007629395;
+    Acceleration = 0.011;
+    DefaultMissionType = Standby;
+    maneuverleashlength = 640;
+    MovementClass = TANKSH3;
+    TurnRate = 299;
+
+    BuildCostEnergy = 3048;
+    BuildCostMetal = 473;
+    EnergyUse = 0.8;
+    EnergyMake = 0.8;
+    BuildTime = 8730;
+    WorkerTime = 0;
+
+    BMcode = 1;
+    Builder = false;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+    ShootMe = true;
+    canattack = true;
+
+    Weapon1 = CORE_REAP;
+    w1_badTargetCategory = VTOL;
+    BadTargetCategory = VTOL;
+    NoChaseCategory = VTOL;
+
+    SoundCategory = CORE_TANK;
+    ExplodeAs = BIG_UNITEX;
+    SelfDestructAs = BIG_UNIT;
+}
