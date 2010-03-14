@@ -1,0 +1,47 @@
+[UNITINFO]
+{
+    UnitName = CORAP;
+    Side = CORE;
+    Objectname = CORAP;
+    Corpse = corap_dead;
+    Name = Aircraft Plant;
+    FrenchName = Usine aéronautique;
+    Description = Produces Aircraft;
+    Frenchdescription = Niveau Tech 1;
+    Scale = 0.5;
+
+    TEDClass = PLANT;
+    Category = CORE PLANT CTRL_F LEVEL1 NOWEAPON NOTAIR NOTSUB ;
+    FootprintX = 7;
+    FootprintZ = 6;
+    YardMap = ooooooo ooooooo occccco occccco occccco occccco;
+    MaxDamage = 1925;
+    MaxWaterDepth = 0;
+    MaxSlope = 10;
+    SightDistance = 210;
+    RadarDistance = 510;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+
+    BuildCostEnergy = 1340;
+    BuildCostMetal = 830;
+    EnergyUse = 0;
+    EnergyStorage = 100;
+    MetalStorage = 100;
+    BuildTime = 7180;
+    WorkerTime = 100;
+
+    BMcode = 0;
+    Builder = true;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    ActivateWhenBuilt = false;
+
+    SoundCategory = AIRPLANT;
+    ExplodeAs = LARGE_BUILDINGEX;
+    SelfDestructAs = LARGE_BUILDING;
+}
