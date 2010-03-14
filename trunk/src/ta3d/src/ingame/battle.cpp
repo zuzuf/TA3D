@@ -2306,6 +2306,7 @@ namespace TA3D
 			if (shoot)
 			{
 				SDL_Surface *shoot_bmp = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
+				glReadBuffer(GL_BACK);
 				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp->pixels);
 				vflip_bitmap(shoot_bmp);
 				String nom = String::Format("ta3d-shoot%.6d.tga", nb_shoot);
