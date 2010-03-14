@@ -47,7 +47,20 @@ namespace TA3D
 		UnitScript::load(filename);
         lua_State *L = UnitScript::luaVM();
 
-        lua_call(L, 0, 0);
+		try
+		{
+			lua_call(L, 0, 0);
+		}
+		catch(...)
+		{
+			LOG_ERROR(LOG_PREFIX_LUA << "error loading '" << filename << "'");
+			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+			{
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+			}
+			return;
+		};
 
         lua_getglobal(L, "__name");
         name = lua_isstring(L, -1) ? String(lua_tostring(L, -1)) : String();

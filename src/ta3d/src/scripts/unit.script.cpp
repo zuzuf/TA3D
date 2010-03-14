@@ -394,20 +394,32 @@ namespace TA3D
 
 	void UnitScript::register_info()
 	{
-		if (L == NULL)
+		try
 		{
-			L = luaVM();
-			lua_getglobal(L, "cloneUnitScript");
-			lua_pushstring(L, name.c_str());
-			lua_pushinteger(L, unitID);
-			lua_call(L, 2, 0);
-			lua_settop(L, 0);
-		}
+			if (L == NULL)
+			{
+				L = luaVM();
+				lua_getglobal(L, "cloneUnitScript");
+				lua_pushstring(L, name.c_str());
+				lua_pushinteger(L, unitID);
+				lua_call(L, 2, 0);
+				lua_settop(L, 0);
+			}
 
-		lua_getUnitTable();
-		lua_pushinteger(L, unitID);
-		lua_setfield(L, -2, "unitID");
-		lua_pop(L, 1);
+			lua_getUnitTable();
+			lua_pushinteger(L, unitID);
+			lua_setfield(L, -2, "unitID");
+			lua_pop(L, 1);
+		}
+		catch(...)
+		{
+			LOG_ERROR(LOG_PREFIX_LUA << "error in UnitScript::register_info()");
+			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+			{
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+			}
+		};
 	}
 
 	void UnitScript::setUnitID(uint32 ID)
@@ -418,13 +430,26 @@ namespace TA3D
 
 	int UnitScript::getNbPieces()
 	{
-		int nb_piece = 0;
-		lua_getUnitTable();
-		lua_getfield(L, -1, "__piece_list");
-		if (!lua_isnil(L, -1))
-			nb_piece = lua_objlen(L, -1);
-		lua_pop(L, 2);
-		return nb_piece;
+		try
+		{
+			int nb_piece = 0;
+			lua_getUnitTable();
+			lua_getfield(L, -1, "__piece_list");
+			if (!lua_isnil(L, -1))
+				nb_piece = lua_objlen(L, -1);
+			lua_pop(L, 2);
+			return nb_piece;
+		}
+		catch(...)
+		{
+			LOG_ERROR(LOG_PREFIX_LUA << "error in UnitScript::getNbPieces()");
+			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+			{
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+			}
+			return 0;
+		};
 	}
 
 	void UnitScript::load(ScriptData *data)
