@@ -1,0 +1,58 @@
+[UNITINFO]
+{
+    UnitName = CORVROC;
+    Side = CORE;
+    Objectname = CORVROC;
+    Corpse = corvroc_dead;
+    Name = Diplomat;
+    FrenchName = Diplomax;
+    Description = Mobile Rocket Launcher;
+    FrenchDescription = Lance-roquettes mobile;
+
+    TEDClass = TANK;
+    Category = CORE TANK LEVEL2 WEAPON NOTAIR NOTSUB CTRL_W;
+    FootprintX = 3;
+    FootprintZ = 3;
+    MaxDamage = 602;
+    MaxWaterDepth = 12;
+    MaxSlope = 16;
+    SightDistance = 230;
+    RadarDistance = 0;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+    MaxVelocity = 1.1;
+    BrakeRate = 0.03;
+    Acceleration = 0.016;
+    TurnRate = 430;
+    DefaultMissionType = Standby;
+    maneuverleashlength = 640;
+    MovementClass = TANKSH3;
+
+    BuildCostEnergy = 2470;
+    BuildCostMetal = 427;
+    EnergyUse = 0.5;
+    EnergyMake = 0.5;
+    BuildTime = 9002;
+    WorkerTime = 0;
+
+    BMcode = 1;
+    Builder = false;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+    ShootMe = true;
+    canattack = true;
+
+    Weapon1 = CORTRUCK_ROCKET;
+    w1_badTargetCategory = VTOL;
+    BadTargetCategory = VTOL;
+    NoChaseCategory = VTOL;
+
+    SoundCategory = CORE_VEHICLE;
+    ExplodeAs = BIG_UNITEX;
+    SelfDestructAs = BIG_UNIT;
+}
