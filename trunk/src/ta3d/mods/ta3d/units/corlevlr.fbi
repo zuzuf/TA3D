@@ -1,0 +1,57 @@
+[UNITINFO]
+{
+    UnitName = CORLEVLR;
+    Side = CORE;
+    Objectname = CORLEVLR;
+    Corpse = CORLEVLR_dead;
+    Name = Leveler;
+    FrenchName = Levier;
+    Description = Riot Tank;
+    FrenchDescription = Tank émeute;
+
+    TEDClass = TANK;
+    Category = CORE TANK LEVEL1 WEAPON NOTAIR NOTSUB CTRL_W;
+    FootprintX = 2;
+    FootprintZ = 2;
+    MaxDamage = 375;
+    MaxWaterDepth = 12;
+    MaxSlope = 17;
+    SightDistance = 220;
+    RadarDistance = 0;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+    MaxVelocity = 0.8;
+    BrakeRate = 0.19;
+    Acceleration = 0.02;
+    TurnRate = 220;
+    DefaultMissionType = Standby;
+    maneuverleashlength = 640;
+    MovementClass = TANKSH2;
+
+    BuildCostEnergy = 1887;
+    BuildCostMetal = 292;
+    EnergyUse = 0.3;
+    EnergyMake = 0.3;
+    BuildTime = 4209;
+    WorkerTime = 0;
+
+    BMcode = 1;
+    Builder = false;
+    NoAutoFire = false;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+    ShootMe = true;
+    canattack = true;
+
+    Weapon1 = CORLEVLR_WEAPON;
+    w1_badTargetCategory = VTOL;
+    NoChaseCategory = VTOL;
+
+    SoundCategory = CORE_TANK;
+    ExplodeAs = MEDIUM_UNITEX;
+    SelfDestructAs = MEDIUM_UNIT;
+}
