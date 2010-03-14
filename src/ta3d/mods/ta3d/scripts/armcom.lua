@@ -10,10 +10,6 @@ __this.bCanAim = false
 __this.aimtype = 0
 
 #include "exptype.lh"
-
--- define signals
-__this.SIG_AIM = 2
-
 #include "walk.lh"
 #include "walklegs.lh"
 
@@ -21,12 +17,13 @@ __this.SIG_AIM = 2
 
 __this.AIM_NONE = 0
 __this.AIM_DGUN = 1
+__this.AIM_LASER = 2
+__this.AIM_NANO = 3
+__this.AIM_RESTORE = 4
 
 __this.MotionControl = function(this)
-	local just_moved
-
 	-- So the stand will get reset
-	just_moved = true
+	local just_moved = true
 
 	while true do
 		local moving = this.bMoving
@@ -45,7 +42,7 @@ __this.MotionControl = function(this)
 			just_moved = true
 
 		else
-			bCanAim = true
+			this.bCanAim = true
 
 			if just_moved then
 				this:move( this.pelvis, y_axis, 0, 1)
@@ -100,17 +97,23 @@ __this.QueryNanoPiece = function(this)
 end
 
 __this.RestorePosition = function(this)
-	this.aimtype = this.AIM_NONE;
+    if this.aimtype == this.AIM_RESTORE then
+        return
+    end
+	this.aimtype = this.AIM_RESTORE;
 
 	this:turn( this.torso, y_axis, 0, 90 )
 	this:turn( this.ruparm, x_axis, 0, 45 )
 	this:turn( this.luparm, x_axis, 0, 45 )
 
-	this:wait_for_turn( this.torso, y_axis )
-	this:wait_for_turn( this.ruparm, x_axis )
-	this:wait_for_turn( this.luparm, x_axis )
+	while (this:is_turning( this.torso, y_axis ) or this:is_turning( this.ruparm, x_axis ) or this:is_turning( this.luparm, x_axis )) and this.aimtype == this.AIM_RESTORE do
+        this:yield()
+    end
 
-	this.bAiming = false
+    if this.aimtype == this.AIM_RESTORE then
+        this.aimtype = this.AIM_NONE;
+        this.bAiming = false
+    end
 end
 
 __this.AimFromPrimary = function(this)
@@ -129,11 +132,12 @@ __this.AimPrimary = function(this, heading, pitch)
 	  return
 	end
 
+    if this.bAiming and not this.bCanAim then
+        return
+    end
+
 	heading = heading * TA2DEG
 	pitch = pitch * TA2DEG
-
-	this:signal( this.SIG_AIM )				-- kill off other aim scripts
-	this:set_signal_mask( this.SIG_AIM )	-- so other scripts can kill us
 
 	-- Announce that we would like to aim, and wait until we can
 	this.bAiming = true
@@ -144,10 +148,20 @@ __this.AimPrimary = function(this, heading, pitch)
 	-- Aim
 	this:turn( this.torso, y_axis, heading, 300 )
 	this:turn( this.luparm, x_axis, -pitch - 30, 45 )
-	this:wait_for_turn( this.torso, y_axis )
-	this:wait_for_turn( this.luparm, x_axis )
 
-	this:set_script_value("AimPrimary", true)
+    if this.aimtype == this.AIM_LASER then
+        return
+    end
+
+    this.aimtype = this.AIM_LASER
+
+	while (this:is_turning( this.torso, y_axis ) or this:is_turning( this.luparm, x_axis )) and this.aimtype == this.AIM_LASER do
+        this:yield()
+    end
+
+    if this.aimtype == this.AIM_LASER then
+        this:set_script_value("AimPrimary", true)
+    end
 end
 
 __this.FirePrimary = function(this)
@@ -166,13 +180,13 @@ __this.QueryTertiary = function(this)
 end
 
 __this.AimTertiary = function(this, heading, pitch)
-	this:signal( this.SIG_AIM )				-- kill off other aim scripts
-	this:set_signal_mask( this.SIG_AIM )	-- so other scripts can kill us
-
 	this:set_script_value("AimTertiary", false)
 
+    if this.bAiming and not this.bCanAim then
+        return
+    end
+
 	-- Announce that we would like to aim, and wait until we can
-	this.aimtype = this.AIM_DGUN
 	this.bAiming = true
 	while not this.bCanAim do
 		this:sleep( 0.1 )
@@ -184,10 +198,20 @@ __this.AimTertiary = function(this, heading, pitch)
 	-- Aim
 	this:turn( this.torso, y_axis, heading, 300 )
 	this:turn( this.ruparm, x_axis, - pitch - 24, 45 )
-	this:wait_for_turn( this.torso, y_axis )
-	this:wait_for_turn( this.ruparm, x_axis )
 
-	this:set_script_value("AimTertiary", true)
+    if this.aimtype == this.AIM_DGUN then
+        return
+    end
+
+    this.aimtype = this.AIM_DGUN
+
+	while (this:is_turning( this.torso, y_axis ) or this:is_turning( this.ruparm, x_axis )) and this.aimtype == this.AIM_DGUN do
+        this:yield()
+    end
+
+    if this.aimtype == this.AIM_DGUN then
+        this:set_script_value("AimTertiary", true)
+    end
 end
 
 __this.FireTertiary = function(this)
@@ -198,6 +222,10 @@ __this.FireTertiary = function(this)
 end
 
 __this.StartBuilding = function(this, heading, pitch)
+    if this.bAiming and not this.bCanAim then
+        return
+    end
+
 	-- Announce that we would like to aim, and wait until we can
 	this.bAiming = true
 	while not this.bCanAim do
@@ -210,16 +238,23 @@ __this.StartBuilding = function(this, heading, pitch)
 	-- Aim
 	this:turn( this.torso, y_axis, heading, 300 )
 	this:turn( this.luparm, x_axis, -pitch - 30, 45 )
-	this:wait_for_turn( this.torso, y_axis )
-	this:wait_for_turn( this.luparm, x_axis )
+    if this.aimtype == this.AIM_NANO then
+        return
+    end
+
+    this.aimtype = this.AIM_NANO
+	while (this:is_turning( this.torso, y_axis ) or this:is_turning( this.luparm, x_axis )) and this.aimtype == this.AIM_NANO do
+        this:yield()
+    end
 
 	-- Announce that we are ready
- 	this:set( INBUILDSTANCE, true )
+    if this.aimtype == this.AIM_NANO then
+        this.aimtype = this.AIM_NONE
+        this:set( INBUILDSTANCE, true )
+    end
 end
 
 __this.TargetCleared = function(this, which)
-	this:signal( this.SIG_AIM )
-	this:set_signal_mask( this.SIG_AIM )
 	this:RestorePosition()
 end
 
@@ -227,7 +262,5 @@ __this.StopBuilding = function(this)
 	-- We are no longer in a position to build
 	this:set( INBUILDSTANCE, false )
 
-	this:signal( this.SIG_AIM )
-	this:set_signal_mask( this.SIG_AIM )
 	this:RestorePosition()
 end
