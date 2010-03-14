@@ -2,6 +2,7 @@
 -- exptype.lh -- Explosion Type values for Lua scripts
 --
 
+EXPLODE         = 0
 SHATTER         = 1     -- The piece will shatter instead of remaining whole
 EXPLODE_ON_HIT  = 2     -- The piece will explode when it hits the ground
 FALL            = 4     -- The piece will fall due to gravity instead of just flying off
