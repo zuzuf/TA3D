@@ -53,7 +53,6 @@ anims/armdl.gaf
 anims/armemp1.gaf
 anims/armgen.gaf
 anims/armhp1.gaf
-anims/armint.gaf
 anims/armlab1.gaf
 anims/armmain.gaf
 anims/armmlv1.gaf
@@ -620,7 +619,6 @@ objects3d/armdev1_dead.3do
 objects3d/armdrag.3do
 objects3d/armemp.3do
 objects3d/armemp_dead.3do
-objects3d/armestor.3do
 objects3d/armestor_dead.3do
 objects3d/armfdrag.3do
 objects3d/armfhlt.3do
@@ -632,7 +630,6 @@ objects3d/armfmkr_dead.3do
 objects3d/armfort.3do
 objects3d/armfrt.3do
 objects3d/armfrt_dead.3do
-objects3d/armfus.3do
 objects3d/armfus_dead.3do
 objects3d/armgate.3do
 objects3d/armgate_dead.3do
@@ -698,7 +695,6 @@ objects3d/armsilo.3do
 objects3d/armsilo_dead.3do
 objects3d/armsjam.3do
 objects3d/armsjam_dead.3do
-objects3d/armsolar.3do
 objects3d/armsolar_dead.3do
 objects3d/armsonar.3do
 objects3d/armsonar_dead.3do
@@ -735,7 +731,6 @@ objects3d/armvader.3do
 objects3d/armvader_dead.3do
 objects3d/armvp.3do
 objects3d/armvp_dead.3do
-objects3d/armwin.3do
 objects3d/armwin_dead.3do
 objects3d/armyork.3do
 objects3d/armyork_dead.3do
@@ -765,7 +760,6 @@ objects3d/coracv_dead.3do
 objects3d/coralab.3do
 objects3d/coralab_dead.3do
 objects3d/coranac_dead.3do
-objects3d/corap.3do
 objects3d/corap_dead.3do
 objects3d/corarad.3do
 objects3d/corarad_dead.3do
@@ -780,7 +774,6 @@ objects3d/corasy.3do
 objects3d/corasy_dead.3do
 objects3d/coratl.3do
 objects3d/coratl_dead.3do
-objects3d/coravp.3do
 objects3d/coravp_dead.3do
 objects3d/corawac.3do
 objects3d/corbeac.3do
@@ -800,7 +793,6 @@ objects3d/corckfus_dead.3do
 objects3d/corcs.3do
 objects3d/corcsa.3do
 objects3d/corcs_dead.3do
-objects3d/corcv.3do
 objects3d/corcv_dead.3do
 objects3d/cordev1.3do
 objects3d/cordev1_dead.3do
@@ -847,7 +839,6 @@ objects3d/corkbmissl1.3do
 objects3d/corkrog_dead.3do
 objects3d/corlab.3do
 objects3d/corlab_dead.3do
-objects3d/corlevlr.3do
 objects3d/corlevlr_dead.3do
 objects3d/corllt.3do
 objects3d/corllt_dead.3do
@@ -866,7 +857,6 @@ objects3d/cormine3.3do
 objects3d/cormine4.3do
 objects3d/cormine5.3do
 objects3d/cormine6.3do
-objects3d/cormist.3do
 objects3d/cormist_dead.3do
 objects3d/cormls_dead.3do
 objects3d/cormlv.3do
@@ -891,9 +881,7 @@ objects3d/corpyro.3do
 objects3d/corpyro_dead.3do
 objects3d/corrad.3do
 objects3d/corrad_dead.3do
-objects3d/corraid.3do
 objects3d/corraid_dead.3do
-objects3d/correap.3do
 objects3d/correap_dead.3do
 objects3d/corrl.3do
 objects3d/corrl_dead.3do
@@ -982,7 +970,6 @@ objects3d/corvipe.3do
 objects3d/corvipe_dead.3do
 objects3d/corvoyr.3do
 objects3d/corvoyr_dead.3do
-objects3d/corvp.3do
 objects3d/corvp_dead.3do
 objects3d/corvrad.3do
 objects3d/corvrad_dead.3do
@@ -1011,7 +998,6 @@ objects3d/rocket.3do
 objects3d/torpedo.3do
 objects3d/tronmisl.3do
 scripts/annihilation.lua
-scripts/armaap.cob
 scripts/armaas.cob
 scripts/armaca.cob
 scripts/armack.cob
@@ -1023,9 +1009,7 @@ scripts/armamb.cob
 scripts/armamd.cob
 scripts/armamph.cob
 scripts/armanac.cob
-scripts/armanni.cob
 scripts/armap.cob
-scripts/armarad.cob
 scripts/armaser.cob
 scripts/armason.cob
 scripts/armasp.cob
@@ -1037,24 +1021,19 @@ scripts/armawac.cob
 scripts/armbats.cob
 scripts/armbeac.cob
 scripts/armbrawl.cob
-scripts/armbrtha.cob
 scripts/armbull.cob
 scripts/armca.cob
 scripts/armcarry.cob
 scripts/armch.cob
 scripts/armck.cob
 scripts/armckfus.cob
-scripts/armcom.cob
 scripts/armcroc.cob
 scripts/armcrus.cob
 scripts/armcsa.cob
 scripts/armcs.cob
-scripts/armcv.cob
 scripts/armdecom.cob
 scripts/armdev1.cob
-scripts/armdrag.cob
 scripts/armemp.cob
-scripts/armestor.cob
 scripts/armfast.cob
 scripts/armfav.cob
 scripts/armfdrag.cob
@@ -1066,10 +1045,6 @@ scripts/armflash.cob
 scripts/armfmkr.cob
 scripts/armfort.cob
 scripts/armfrt.cob
-scripts/armfus.cob
-scripts/armgate.cob
-scripts/armgeo.cob
-scripts/armguard.cob
 scripts/armham.cob
 scripts/armhawk.cob
 scripts/armhlt.cob
@@ -1079,14 +1054,12 @@ scripts/armjeth.cob
 scripts/armlab.cob
 scripts/armlance.cob
 scripts/armlatnk.cob
-scripts/armllt.cob
 scripts/armmakr.cob
 scripts/armmanni.cob
 scripts/armmark.cob
 scripts/armmart.cob
 scripts/armmav.cob
 scripts/armmerl.cob
-scripts/armmex.cob
 scripts/armmh.cob
 scripts/armmine1.cob
 scripts/armmine2.cob
@@ -1098,17 +1071,13 @@ scripts/armmlv.cob
 scripts/armmmkr.cob
 scripts/armmoho.cob
 scripts/armmship.cob
-scripts/armmstor.cob
 scripts/armpeep.cob
 scripts/armplat.cob
 scripts/armpnix.cob
 scripts/armpt.cob
 scripts/armpw.cob
-scripts/armrad.cob
-scripts/armrl.cob
 scripts/armrock.cob
 scripts/armroy.cob
-scripts/armsam.cob
 scripts/armscorp.cob
 scripts/armscram.cob
 scripts/armseap.cob
@@ -1119,7 +1088,6 @@ scripts/armsh.cob
 scripts/armsilo.cob
 scripts/armsjam.cob
 scripts/armsnipe.cob
-scripts/armsolar.cob
 scripts/armsonar.cob
 scripts/armspid.cob
 scripts/armspy.cob
@@ -1139,10 +1107,8 @@ scripts/armuwfus.cob
 scripts/armuwmex.cob
 scripts/armuwms.cob
 scripts/armvader.cob
-scripts/armvp.cob
 scripts/armvulc.cob
 scripts/armwar.cob
-scripts/armwin.cob
 scripts/armyork.cob
 scripts/armzeus.cob
 scripts/coraap.cob
@@ -1154,7 +1120,6 @@ scripts/corah.cob
 scripts/corak.cob
 scripts/coralab.cob
 scripts/coramph.cob
-scripts/corap.cob
 scripts/corape.cob
 scripts/corarad.cob
 scripts/corarch.cob
@@ -1174,12 +1139,10 @@ scripts/corcarry.cob
 scripts/corch.cob
 scripts/corck.cob
 scripts/corckfus.cob
-scripts/corcom.cob
 scripts/corcrash.cob
 scripts/corcrus.cob
 scripts/corcsa.cob
 scripts/corcs.cob
-scripts/corcv.cob
 scripts/cordecom.cob
 scripts/cordev1.cob
 scripts/cordoom.cob
@@ -1187,7 +1150,6 @@ scripts/cordrag.cob
 scripts/corestor.cob
 scripts/coreter.cob
 scripts/corfast.cob
-scripts/corfav.cob
 scripts/corfdrag.cob
 scripts/corfhlt.cob
 scripts/corfink.cob
@@ -1199,9 +1161,7 @@ scripts/corfrt.cob
 scripts/corfus.cob
 scripts/corgant.cob
 scripts/corgate.cob
-scripts/corgator.cob
 scripts/corgeo.cob
-scripts/corgol.cob
 scripts/corhlt.cob
 scripts/corhp.cob
 scripts/corhrk.cob
@@ -1210,7 +1170,6 @@ scripts/corhurc.cob
 scripts/corint.cob
 scripts/corkrog.cob
 scripts/corlab.cob
-scripts/corlevlr.cob
 scripts/corllt.cob
 scripts/cormakr.cob
 scripts/cormart.cob
@@ -1222,7 +1181,6 @@ scripts/cormine3.cob
 scripts/cormine4.cob
 scripts/cormine5.cob
 scripts/cormine6.cob
-scripts/cormist.cob
 scripts/cormlv.cob
 scripts/cormmkr.cob
 scripts/cormoho.cob
@@ -1234,8 +1192,6 @@ scripts/corpt.cob
 scripts/corpun.cob
 scripts/corpyro.cob
 scripts/corrad.cob
-scripts/corraid.cob
-scripts/correap.cob
 scripts/corrl.cob
 scripts/corroach.cob
 scripts/corroy.cob
@@ -1279,7 +1235,6 @@ scripts/corvamp.cob
 scripts/corveng.cob
 scripts/corvipe.cob
 scripts/corvoyr.cob
-scripts/corvp.cob
 scripts/corvrad.cob
 scripts/corvroc.cob
 scripts/corwin.cob
@@ -1396,10 +1351,8 @@ sounds/xplonuk3.wav
 sounds/xplonuk4.wav
 sounds/xplosml2.wav
 sounds/xplosml3.wav
-textures/armbldg.gaf
 textures/armcamo.gaf
 textures/armships.gaf
-textures/armvehic.gaf
 textures/corbldg.gaf
 textures/corcamo.gaf
 textures/corships.gaf
@@ -1419,7 +1372,6 @@ units/armamb.fbi
 units/armamd.fbi
 units/armamph.fbi
 units/armanac.fbi
-units/armanni.fbi
 units/armap.fbi
 units/armarad.fbi
 units/armaser.fbi
@@ -1449,7 +1401,6 @@ units/armdecom.fbi
 units/armdev1.fbi
 units/armdrag.fbi
 units/armemp.fbi
-units/armestor.fbi
 units/armfast.fbi
 units/armfav.fbi
 units/armfdrag.fbi
@@ -1461,7 +1412,6 @@ units/armflash.fbi
 units/armfmkr.fbi
 units/armfort.fbi
 units/armfrt.fbi
-units/armfus.fbi
 units/armgate.fbi
 units/armgeo.fbi
 units/armguard.fbi
@@ -1481,7 +1431,6 @@ units/armmark.fbi
 units/armmart.fbi
 units/armmav.fbi
 units/armmerl.fbi
-units/armmex.fbi
 units/armmh.fbi
 units/armmine1.fbi
 units/armmine2.fbi
@@ -1536,7 +1485,6 @@ units/armvader.fbi
 units/armvp.fbi
 units/armvulc.fbi
 units/armwar.fbi
-units/armwin.fbi
 units/armyork.fbi
 units/armzeus.fbi
 units/coraap.fbi
@@ -1549,14 +1497,12 @@ units/corak.fbi
 units/coralab.fbi
 units/coramph.fbi
 units/corape.fbi
-units/corap.fbi
 units/corarad.fbi
 units/corarch.fbi
 units/corason.fbi
 units/corasp.fbi
 units/corasy.fbi
 units/coratl.fbi
-units/coravp.fbi
 units/corawac.fbi
 units/corbats.fbi
 units/corbeac.fbi
@@ -1568,12 +1514,10 @@ units/corcarry.fbi
 units/corch.fbi
 units/corck.fbi
 units/corckfus.fbi
-units/corcom.fbi
 units/corcrash.fbi
 units/corcrus.fbi
 units/corcsa.fbi
 units/corcs.fbi
-units/corcv.fbi
 units/cordecom.fbi
 units/cordev1.fbi
 units/cordoom.fbi
@@ -1581,7 +1525,6 @@ units/cordrag.fbi
 units/corestor.fbi
 units/coreter.fbi
 units/corfast.fbi
-units/corfav.fbi
 units/corfdrag.fbi
 units/corfhlt.fbi
 units/corfink.fbi
@@ -1593,9 +1536,7 @@ units/corfrt.fbi
 units/corfus.fbi
 units/corgant.fbi
 units/corgate.fbi
-units/corgator.fbi
 units/corgeo.fbi
-units/corgol.fbi
 units/corhlt.fbi
 units/corhp.fbi
 units/corhrk.fbi
@@ -1604,7 +1545,6 @@ units/corhurc.fbi
 units/corint.fbi
 units/corkrog.fbi
 units/corlab.fbi
-units/corlevlr.fbi
 units/corllt.fbi
 units/cormakr.fbi
 units/cormart.fbi
@@ -1616,7 +1556,6 @@ units/cormine3.fbi
 units/cormine4.fbi
 units/cormine5.fbi
 units/cormine6.fbi
-units/cormist.fbi
 units/cormlv.fbi
 units/cormmkr.fbi
 units/cormoho.fbi
@@ -1628,8 +1567,6 @@ units/corpt.fbi
 units/corpun.fbi
 units/corpyro.fbi
 units/corrad.fbi
-units/corraid.fbi
-units/correap.fbi
 units/corrl.fbi
 units/corroach.fbi
 units/corroy.fbi
@@ -1673,7 +1610,6 @@ units/corvamp.fbi
 units/corveng.fbi
 units/corvipe.fbi
 units/corvoyr.fbi
-units/corvp.fbi
 units/corvrad.fbi
 units/corvroc.fbi
 units/corwin.fbi
