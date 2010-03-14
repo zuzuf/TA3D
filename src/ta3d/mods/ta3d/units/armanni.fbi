@@ -1,0 +1,47 @@
+[UNITINFO]
+{
+    UnitName = ARMANNI;
+    Side = ARM;
+    Objectname = ARMANNI;
+    Corpse = armanni_dead;
+    Name = Annihilator;
+    FrenchName = Exterminator;
+    Description = Energy weapon;
+    FrenchDescription = Canon à énergie;
+
+    TEDClass = FORT;
+    Category = ARM SPECIAL WEAPON LEVEL3 NOTAIR NOTSUB ;
+    FootprintX = 4;
+    FootprintZ = 4;
+    MaxDamage = 1410;
+    MaxWaterDepth = 0;
+    MaxSlope = 10;
+    SightDistance = 380;
+    RadarDistance = 1200;
+    DamageModifier = 0.5;
+    YardMap = o;
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    DefaultMissionType = GUARD_NOMOVE;
+    buildangle = 4096;
+
+    BuildCostEnergy = 25025;
+    BuildCostMetal = 3985;
+    EnergyUse = 0;
+    BuildTime = 75071;
+    WorkerTime = 0;
+
+    BMcode = 0;
+    Builder = false;
+    NoAutoFire = true;
+    ActivateWhenBuilt = false;
+    canstop = true;
+    ShootMe = true;
+    canattack = true;
+
+    Weapon1 = ARM_TOTAL_ANNIHILATOR;
+
+    SoundCategory = ARM_ANNI;
+    ExplodeAs = ATOMIC_BLAST;
+    SelfDestructAs = CRAWL_BLASTSML;
+}
