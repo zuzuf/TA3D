@@ -123,16 +123,16 @@ namespace TA3D
 						set = true;
 					}
 
-					s3oShader.on();
-					s3oShader.setvar1i( "tex0", 0 );
-					s3oShader.setvar1i( "tex1", 1 );
-					s3oShader.setvar1i( "shadowMap", 7 );
-					s3oShader.setvar1f( "t", 0.5f * 0.5f * cosf(t * PI) );
-					s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
-					s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
-
 					if (!notex) // Les textures et effets de texture
 					{
+						s3oShader.on();
+						s3oShader.setvar1i( "tex0", 0 );
+						s3oShader.setvar1i( "tex1", 1 );
+						s3oShader.setvar1i( "shadowMap", 7 );
+						s3oShader.setvar1f( "t", 0.5f * 0.5f * cosf(t * PI) );
+						s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+						s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
+
 						activated_tex = true;
 						for (int j = 0; j < pTex->size() ; ++j)
 						{
@@ -224,7 +224,8 @@ namespace TA3D
 			if (child && !(explodes && !exploding_parts))
 				alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
 			glPopMatrix();
-			s3oShader.off();
+			if (!notex)
+				s3oShader.off();
 		}
 		if (next)
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
