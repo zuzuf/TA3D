@@ -44,6 +44,7 @@ namespace TA3D
 	class Battle
 	{
 		friend class CAPI;
+		friend class Console;
 	public:
 		//! Results about the battle
 		enum Result {brUnknown, brVictory, brDefeat, brPat};

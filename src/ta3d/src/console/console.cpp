@@ -28,6 +28,7 @@
 #include <input/keyboard.h>
 #include <scripts/lua.env.h>
 #include <scripts/lua.thread.h>
+#include <ingame/battle.h>
 
 
 namespace TA3D
@@ -134,79 +135,6 @@ namespace TA3D
 			keycode >>= 16;
 		}
 
-		float fsize = fnt->height();
-		float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
-
-		glEnable(GL_BLEND);		// Dessine le cadre de la console
-		glDisable(GL_TEXTURE_2D);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(0.75f, 0.75f, 0.608f, 0.5f);
-
-		gfx->rectfill(0,0,SCREEN_W,maxh);
-
-		glColor4f(0.75f, 0.75f, 0.608f, 0.75f);
-		gfx->line(SCREEN_W, maxh, 0, maxh);
-
-		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-
-		// Print all lines
-		int i = 0;
-		const EntryList::const_iterator end = pLastEntries.end();
-		float tableWidth = 80.0f;
-		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry)
-		{
-			if (i_entry->empty())
-				continue;
-			if (i_entry->first() == '|')
-			{
-				String::Vector cols;
-				i_entry->explode(cols, '|', true, false, true);
-				for(int k = 0 ; k < cols.size() ; ++k)
-					tableWidth = Math::Max(tableWidth, fnt->length(cols[k]) + 10.0f);
-			}
-		}
-		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
-		{
-			if (i_entry->empty())
-				continue;
-			if (i_entry->first() == '|')
-			{
-				String::Vector cols;
-				i_entry->explode(cols, '|', true, false, true);
-				for(int k = 0 ; k < cols.size() ; ++k)
-				{
-					gfx->print(fnt, tableWidth * k + 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
-							   makeacol32(0,0,0,0xFF), cols[k]);
-					gfx->print(fnt, tableWidth * k + 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-							   makeacol32(0xFF, 0xFF, 0, 0xFF), cols[k]);
-				}
-			}
-			else
-			{
-				gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
-						   makeacol32(0,0,0,0xFF), *i_entry);
-				gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-						   0xDFDFDFDF, *i_entry);
-			}
-		}
-
-		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
-		gfx->print(fnt, 1.0f + fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
-
-		gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText );
-		gfx->print(fnt, fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
-
-		if (pHistoryPos < 0)
-			pHistoryPos = 0;
-		else
-		{
-			if (pHistoryPos > (int)pLastCommands.size())
-				pHistoryPos = pLastCommands.size();
-		}
-
 		switch (keycode)
 		{
 		case KEY_TAB:				// TAB-completion code
@@ -287,6 +215,8 @@ namespace TA3D
 			execute(pInputText);
 			pInputText.clear();
 			cursorPos = 0;
+			if (Battle::Instance() && Battle::Instance()->shoot && !Battle::Instance()->video_shoot)
+				return;
 			break;
 		case KEY_BACKSPACE:
 			if (pInputText.size() > 0 && cursorPos > 0)
@@ -343,6 +273,79 @@ namespace TA3D
 				pInputText = pInputText.substrUTF8(0, cursorPos) + InttoUTF8(keyb) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
 				cursorPos++;
 			}
+		};
+
+		float fsize = fnt->height();
+		float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
+
+		glEnable(GL_BLEND);		// Dessine le cadre de la console
+		glDisable(GL_TEXTURE_2D);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glColor4f(0.75f, 0.75f, 0.608f, 0.5f);
+
+		gfx->rectfill(0,0,SCREEN_W,maxh);
+
+		glColor4f(0.75f, 0.75f, 0.608f, 0.75f);
+		gfx->line(SCREEN_W, maxh, 0, maxh);
+
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
+		// Print all lines
+		int i = 0;
+		const EntryList::const_iterator end = pLastEntries.end();
+		float tableWidth = 80.0f;
+		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry)
+		{
+			if (i_entry->empty())
+				continue;
+			if (i_entry->first() == '|')
+			{
+				String::Vector cols;
+				i_entry->explode(cols, '|', true, false, true);
+				for(int k = 0 ; k < cols.size() ; ++k)
+					tableWidth = Math::Max(tableWidth, fnt->length(cols[k]) + 10.0f);
+			}
+		}
+		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
+		{
+			if (i_entry->empty())
+				continue;
+			if (i_entry->first() == '|')
+			{
+				String::Vector cols;
+				i_entry->explode(cols, '|', true, false, true);
+				for(int k = 0 ; k < cols.size() ; ++k)
+				{
+					gfx->print(fnt, tableWidth * k + 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+							   makeacol32(0,0,0,0xFF), cols[k]);
+					gfx->print(fnt, tableWidth * k + 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+							   makeacol32(0xFF, 0xFF, 0, 0xFF), cols[k]);
+				}
+			}
+			else
+			{
+				gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+						   makeacol32(0,0,0,0xFF), *i_entry);
+				gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+						   0xDFDFDFDF, *i_entry);
+			}
+		}
+
+		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
+		gfx->print(fnt, 1.0f + fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
+
+		gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText );
+		gfx->print(fnt, fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
+
+		if (pHistoryPos < 0)
+			pHistoryPos = 0;
+		else
+		{
+			if (pHistoryPos > (int)pLastCommands.size())
+				pHistoryPos = pLastCommands.size();
 		}
 
 		glDisable(GL_BLEND);
