@@ -2163,7 +2163,7 @@ namespace TA3D
 			if (!freecam && mouse_b == 4) // Moving the cam around
 			{
 				gfx->set_alpha_blending();
-				gfx->set_color( 0xFFFFFFFF);
+				gfx->set_color(0xFFFFFFFF);
 				gfx->drawtexture( circle_texture, gfx->width * 0.45f, gfx->height * 0.45f, gfx->width * 0.55f, gfx->height * 0.55f);
 				gfx->drawtexture( arrow_texture, gfx->width * 0.4f, 0.0f, gfx->width * 0.6f, gfx->height * 0.05f);
 				gfx->drawtexture( arrow_texture, gfx->width * 0.4f, gfx->height, gfx->width * 0.6f, gfx->height * 0.95f);

@@ -114,8 +114,10 @@ namespace TA3D
 					{
 						glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
 						glEnableClientState(GL_NORMAL_ARRAY);
-						glDisable(GL_BLEND);
-						glDisable( GL_ALPHA_TEST );
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						glAlphaFunc( GL_GREATER, 0.1 );
+						glEnable( GL_ALPHA_TEST );
 						glEnable(GL_LIGHTING);
 						alset = true;
 						set = true;
@@ -125,7 +127,7 @@ namespace TA3D
 					s3oShader.setvar1i( "tex0", 0 );
 					s3oShader.setvar1i( "tex1", 1 );
 					s3oShader.setvar1i( "shadowMap", 7 );
-					s3oShader.setvar1f( "t", t );
+					s3oShader.setvar1f( "t", 0.5f * 0.5f * cosf(t * PI) );
 					s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
 					s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
 
@@ -201,6 +203,7 @@ namespace TA3D
 				glDisable(GL_LIGHTING);
 				glDisable(GL_TEXTURE_2D);
 				glDisable(GL_FOG);
+				glDisable(GL_BLEND);
 				if (!set)
 					glVertexPointer( 3, GL_FLOAT, 0, points);
 				glColor3ub(0,0xFF,0);
@@ -241,8 +244,10 @@ namespace TA3D
 			{
 				glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
 				glEnableClientState(GL_NORMAL_ARRAY);
-				glDisable(GL_BLEND);
-				glDisable( GL_ALPHA_TEST );
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glAlphaFunc( GL_GREATER, 0.1 );
+				glEnable( GL_ALPHA_TEST );
 				glEnable(GL_LIGHTING);
 				alset = true;
 			}
@@ -338,7 +343,7 @@ namespace TA3D
 			piece->points[a] = 0.5f * v.pos;
 			piece->N[a] = v.normal;
 			piece->tcoord[a * 2] = v.textureX;
-			piece->tcoord[a * 2 + 1] = 1.0f - v.textureY;
+			piece->tcoord[a * 2 + 1] = v.textureY;
 		}
 
 
