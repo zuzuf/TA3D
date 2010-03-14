@@ -1,0 +1,60 @@
+[UNITINFO]
+{
+    UnitName = CORRAID;
+    Side = CORE;
+    Objectname = CORRAID;
+    Corpse = corraid_dead;
+    Name = Raider;
+    FrenchName = Raider;
+    Description = Medium Assault Tank;
+    Frenchdescription = Char d'assaut moyen;
+
+    TEDClass = TANK;
+    Category = CORE TANK LEVEL1 WEAPON NOTAIR NOTSUB CTRL_W;
+    FootprintX = 2;
+    FootprintZ = 2;
+    MaxDamage = 1058;
+    MaxWaterDepth = 12;
+    MaxSlope = 10;
+    BuildTime = 2376;
+    WorkerTime = 0;
+    maneuverleashlength = 640;
+    MovementClass = TANKSH2;
+
+    SightDistance = 250;
+    RadarDistance = 0;
+    SoundCategory = CORE_TANK;
+    MaxVelocity = 1.6;
+    BrakeRate = 0.009765625;
+    Acceleration = 0.013;
+    TurnRate = 430;
+    DefaultMissionType = Standby;
+
+    BMcode = 1;
+    Builder = false;
+    NoAutoFire = false;
+    ShootMe = true;
+    canattack = true;
+    canmove = true;
+    canpatrol = true;
+    canstop = true;
+    canguard = true;
+
+    BuildCostEnergy = 1241;
+    BuildCostMetal = 169;
+    EnergyUse = 0.6;
+    EnergyMake = 0.6;
+
+    Weapon1 = CORE_LIGHTCANNON;
+    w1_badTargetCategory = VTOL;
+    BadTargetCategory = VTOL;
+    NoChaseCategory = VTOL;
+
+    firestandorders = 1;
+    StandingFireOrder = 2;
+    mobilestandorders = 1;
+    StandingMoveOrder = 1;
+
+    ExplodeAs = BIG_UNITEX;
+    SelfDestructAs = BIG_UNIT;
+}

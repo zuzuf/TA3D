@@ -1,0 +1,40 @@
+[UNITINFO]
+{
+    UnitName = ARMFUS;
+    Side = ARM;
+    Objectname = ARMFUS;
+    Corpse = armfus_dead;
+    Name = Fusion Reactor;
+    FrenchName = Réacteur nucléaire;
+    Description = Produces Energy;
+    Frenchdescription = Produit de l'énergie;
+
+    TEDClass = ENERGY;
+    Category = ARM ENERGY LEVEL3 NOWEAPON NOTAIR NOTSUB ;
+    FootprintX = 5;
+    FootprintZ = 4;
+    YardMap = o;
+    MaxDamage = 3100;
+    MaxWaterDepth = 0;
+    MaxSlope = 10;
+    WorkerTime = 0;
+
+    BMcode = 0;
+    Builder = false;
+    NoAutoFire = false;
+    ActivateWhenBuilt = true;
+
+    SightDistance = 210;
+    RadarDistance = 0;
+
+    EnergyMake = 1000;
+    BuildCostEnergy = 36058;
+    BuildCostMetal = 5130;
+    EnergyUse = 0;
+    BuildTime = 93768;
+    buildangle = 4096;
+
+    SoundCategory = ARM_FUS;
+    ExplodeAs = ATOMIC_BLAST;
+    SelfDestructAs = NUCLEAR_MISSILE;
+}

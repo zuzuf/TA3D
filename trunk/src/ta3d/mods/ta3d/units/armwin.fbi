@@ -1,0 +1,40 @@
+[UNITINFO]
+{
+    UnitName = ARMWIN;
+    Side = ARM;
+    Objectname = ARMWIN;
+    Corpse = armwin_dead;
+    Name = Wind Generator;
+    FrenchName = Eolienne;
+    Description = Produces Energy;
+    FrenchDescription = Produit de l'énergie;
+
+    TEDClass = ENERGY;
+    Category = ARM ENERGY LEVEL1 NOWEAPON NOTAIR NOTSUB;
+    FootprintX = 4;
+    FootprintZ = 4;
+    YardMap = o;
+    MaxDamage = 176;
+    MaxWaterDepth = 0;
+    MaxSlope = 10;
+    BuildTime = 1603;
+    WorkerTime = 0;
+    buildangle = 8192;
+
+    BuildCostEnergy = 509;
+    BuildCostMetal = 52;
+    WindGenerator = 30;
+    EnergyUse = 0;
+
+    BMcode = 0;
+    Builder = false;
+    NoAutoFire = false;
+    ActivateWhenBuilt = true;
+
+    SightDistance = 210;
+    RadarDistance = 0;
+
+    SoundCategory = ARM_WIND;
+    ExplodeAs = SMALL_BUILDINGEX;
+    SelfDestructAs = SMALL_BUILDING;
+}
