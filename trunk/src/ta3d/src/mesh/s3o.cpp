@@ -109,61 +109,63 @@ namespace TA3D
 			{
 				if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 				{
-					bool activated_tex = false;
-					if (!alset)
+					if ((!lp_CONFIG->disable_GLSL && g_useProgram) || notex)					// GLSL-enabled code/texture-less option (because it's single pass)
 					{
-						glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-						glEnableClientState(GL_NORMAL_ARRAY);
-						glEnable(GL_BLEND);
-						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-						glAlphaFunc( GL_GREATER, 0.1 );
-						glEnable( GL_ALPHA_TEST );
-						glEnable(GL_LIGHTING);
-						alset = true;
-						set = true;
-					}
-
-					if (!notex) // Les textures et effets de texture
-					{
-						s3oShader.on();
-						s3oShader.setvar1i( "tex0", 0 );
-						s3oShader.setvar1i( "tex1", 1 );
-						s3oShader.setvar1i( "shadowMap", 7 );
-						s3oShader.setvar1f( "t", 0.5f * 0.5f * cosf(t * PI) );
-						s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
-						s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
-
-						activated_tex = true;
-						for (int j = 0; j < pTex->size() ; ++j)
+						bool activated_tex = false;
+						if (!alset)
 						{
-							glActiveTextureARB(GL_TEXTURE0_ARB + j);
-							glEnable(GL_TEXTURE_2D);
-							glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+							glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+							glEnableClientState(GL_NORMAL_ARRAY);
+							glEnable(GL_BLEND);
+							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+							glAlphaFunc( GL_GREATER, 0.1 );
+							glEnable( GL_ALPHA_TEST );
+							glEnable(GL_LIGHTING);
+							alset = true;
+							set = true;
 						}
-						glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-						for (int j = 0; j < pTex->size() ; ++j)
+
+						if (!notex) // Les textures et effets de texture
 						{
-							glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-							glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+							s3oShader.on();
+							s3oShader.setvar1i( "tex0", 0 );
+							s3oShader.setvar1i( "tex1", 1 );
+							s3oShader.setvar1i( "shadowMap", 7 );
+							s3oShader.setvar1f( "t", 0.5f + 0.5f * cosf(t * PI) );
+							s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+							s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
+
+							activated_tex = true;
+							for (int j = 0; j < pTex->size() ; ++j)
+							{
+								glActiveTextureARB(GL_TEXTURE0_ARB + j);
+								glEnable(GL_TEXTURE_2D);
+								glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+							}
+							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+							for (int j = 0; j < pTex->size() ; ++j)
+							{
+								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+								glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+							}
 						}
-					}
-					else
-					{
-						for (int j = 6; j >= 0; --j)
+						else
 						{
-							glActiveTextureARB(GL_TEXTURE0_ARB + j);
-							glDisable(GL_TEXTURE_2D);
-							glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+							for (int j = 6; j >= 0; --j)
+							{
+								glActiveTextureARB(GL_TEXTURE0_ARB + j);
+								glDisable(GL_TEXTURE_2D);
+								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+								glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+							}
 							glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+							glEnable(GL_TEXTURE_2D);
+							glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
 						}
-						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
-					}
-					glVertexPointer(3, GL_FLOAT, 0, points);
-					glNormalPointer(GL_FLOAT, 0, N);
-					switch(type)
-					{
+						glVertexPointer(3, GL_FLOAT, 0, points);
+						glNormalPointer(GL_FLOAT, 0, N);
+						switch(type)
+						{
 						case MESH_TYPE_TRIANGLES:
 							glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
 							break;
@@ -172,26 +174,130 @@ namespace TA3D
 							glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
 							glEnable( GL_CULL_FACE );
 							break;
-					};
+						};
 
-					if (activated_tex)
-					{
-						for (int j = 0; j < pTex->size() ; ++j)
+						if (activated_tex)
 						{
-							glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-							glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+							for (int j = 0; j < pTex->size() ; ++j)
+							{
+								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+								glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-							glActiveTextureARB(GL_TEXTURE0_ARB + j);
-							glDisable(GL_TEXTURE_2D);
-							glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-							glDisable(GL_TEXTURE_GEN_S);
-							glDisable(GL_TEXTURE_GEN_T);
-							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+								glActiveTextureARB(GL_TEXTURE0_ARB + j);
+								glDisable(GL_TEXTURE_2D);
+								glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+								glDisable(GL_TEXTURE_GEN_S);
+								glDisable(GL_TEXTURE_GEN_T);
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+								glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+							}
+							glClientActiveTextureARB(GL_TEXTURE0_ARB);
+							glActiveTextureARB(GL_TEXTURE0_ARB);
+							glEnable(GL_TEXTURE_2D);
 						}
+						if (!notex && !lp_CONFIG->disable_GLSL)
+							s3oShader.off();
+					}
+					else															// GLSL-disabled code
+					{
+						if (!alset)
+						{
+							glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+							glEnableClientState(GL_NORMAL_ARRAY);
+							glEnable(GL_LIGHTING);
+							alset = true;
+							set = true;
+						}
+
+						glVertexPointer(3, GL_FLOAT, 0, points);
+						glNormalPointer(GL_FLOAT, 0, N);
+
+						// First pass : RGB color only
+						glDisable(GL_BLEND);
+						glDisable(GL_ALPHA_TEST);
+						if (pTex->size() > 0)
+						{
+							// Enable texturing
+							glActiveTextureARB(GL_TEXTURE0_ARB);
+							glEnable(GL_TEXTURE_2D);
+							glBindTexture(GL_TEXTURE_2D, (*pTex)[0]);
+							// Set UV array
+							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+							glClientActiveTextureARB(GL_TEXTURE0_ARB);
+							glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+						}
+						switch(type)
+						{
+						case MESH_TYPE_TRIANGLES:
+							glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+							break;
+						case MESH_TYPE_TRIANGLE_STRIP:
+							glDisable( GL_CULL_FACE );
+							glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+							glEnable( GL_CULL_FACE );
+							break;
+						};
+
+						if (pTex->size() > 1)		// Second and third passes needed only with textures
+						{
+							// Second pass : team color
+							glBindTexture(GL_TEXTURE_2D, (*pTex)[1]);		// Alpha texture
+							glEnable(GL_BLEND);
+							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+							glAlphaFunc( GL_GREATER, 0.0 );
+							glEnable( GL_ALPHA_TEST );
+							glDepthFunc(GL_LEQUAL);
+
+							GLfloat col[4];
+							glGetFloatv(GL_CURRENT_COLOR, col);
+
+							glColor4f(player_color[player_color_map[side] * 3],
+									  player_color[player_color_map[side] * 3 + 1],
+									  player_color[player_color_map[side] * 3 + 2],
+									  1.0f);
+
+							switch(type)
+							{
+							case MESH_TYPE_TRIANGLES:
+								glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+								break;
+							case MESH_TYPE_TRIANGLE_STRIP:
+								glDisable( GL_CULL_FACE );
+								glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+								glEnable( GL_CULL_FACE );
+								break;
+							};
+
+							if (pTex->size() > 2)		// Third pass : light emission
+							{
+								glBindTexture(GL_TEXTURE_2D, (*pTex)[2]);		// Alpha texture
+								float c = 0.5f + 0.5f * cosf(t * PI);
+								glColor4f(c, c, c, 1.0f);
+								glBlendFunc(GL_SRC_COLOR, GL_ONE);
+								glDisable(GL_LIGHTING);
+
+								switch(type)
+								{
+								case MESH_TYPE_TRIANGLES:
+									glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);				// draw everything
+									break;
+								case MESH_TYPE_TRIANGLE_STRIP:
+									glDisable( GL_CULL_FACE );
+									glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx - 1, nb_t_index, GL_UNSIGNED_SHORT, t_index);		// draw everything
+									glEnable( GL_CULL_FACE );
+									break;
+								};
+
+								glEnable(GL_LIGHTING);
+							}
+
+							glDisable(GL_BLEND);
+							glColor4fv(col);
+							glDepthFunc(GL_LESS);
+						}
+
 						glClientActiveTextureARB(GL_TEXTURE0_ARB);
-						glActiveTextureARB(GL_TEXTURE0_ARB);
-						glEnable(GL_TEXTURE_2D);
+						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 					}
 				}
 			}
@@ -224,8 +330,6 @@ namespace TA3D
 			if (child && !(explodes && !exploding_parts))
 				alset = child->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts && !explodes );
 			glPopMatrix();
-			if (!notex)
-				s3oShader.off();
 		}
 		if (next)
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
@@ -422,17 +526,56 @@ namespace TA3D
 		{
 			file->seek(header.texture1);
 			String textureName = String("textures/") << file->getString();
-			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
-			if (tex)
-				model->gltex.push_back(tex);
+			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
+			{
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
+				if (tex)
+					model->gltex.push_back(tex);
+			}
+			else		// Fixed pipeline
+			{
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB());
+				if (tex)
+				{
+					model->gltex.push_back(tex);
+					tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_ALPHA8);
+					if (tex)
+						model->gltex.push_back(tex);
+				}
+			}
 		}
 		if (header.texture2 > 0)
 		{
 			file->seek(header.texture2);
 			String textureName = String("textures/") << file->getString();
-			GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
-			if (tex)
-				model->gltex.push_back(tex);
+			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
+			{
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
+				if (tex)
+					model->gltex.push_back(tex);
+			}
+			else		// Fixed pipeline
+			{
+				// Get the RED channel
+				SDL_Surface *bmp = gfx->load_image(textureName);
+				if (bmp)
+				{
+					SDL_Surface *red = gfx->create_surface_ex(8, bmp->w, bmp->h);
+
+					for(int y = 0 ; y < bmp->h ; ++y)
+						for(int x = 0 ; x < bmp->w ; ++x)
+							SurfaceByte(red, x, y) = getr32(getpixel(bmp, x, y));
+
+					gfx->set_texture_format(GL_LUMINANCE8);
+					GLuint tex = gfx->make_texture(red, FILTER_TRILINEAR, true);
+					if (tex)
+						model->gltex.push_back(tex);
+					gfx->set_texture_format(0);
+
+					SDL_FreeSurface(red);
+					SDL_FreeSurface(bmp);
+				}
+			}
 		}
 
 		file->seek(header.rootPiece);
