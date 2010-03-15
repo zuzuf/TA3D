@@ -8,9 +8,9 @@ __this.SIG_ACTIVATE = 2
 __this.SMOKEPIECE1 = __this.base
 __this.ANIM_VARIABLE = true
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 #include "yard.lh"
 
 __this.activatescr = function (this)

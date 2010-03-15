@@ -12,9 +12,9 @@ __this.SMOKEPIECE1 = __this.bay
 __this.SMOKEPIECE2 = __this.pad1
 __this.SMOKEPIECE3 = __this.radar
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 #include "yard.lh"
 
 --opening animation
