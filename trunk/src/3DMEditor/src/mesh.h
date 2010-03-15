@@ -178,6 +178,8 @@ public:
     void load3DS(const QString &filename, float scale = 10.0f);
     void loadOBJ(const QString &filename);
 
+	void saveOBJ(const QString &filename);
+
     void computeNormals();
     void computeSize();
 
