@@ -66,9 +66,9 @@ Mesh* SpringModelLoader::LoadPiece(byte* buf, int offset, Mesh* model)
 
     piece->flag = SURFACE_ADVANCED | SURFACE_ROOT_TEXTURE | SURFACE_TEXTURED;
 
-    piece->pos.x = fp->xoffset;
-    piece->pos.y = fp->yoffset;
-    piece->pos.z = fp->zoffset;
+	piece->pos.x = 0.5f * fp->xoffset;
+	piece->pos.y = 0.5f * fp->yoffset;
+	piece->pos.z = 0.5f * fp->zoffset;
     switch(fp->primitiveType)
     {
     case S3O_PRIMTYPE_QUADS:
@@ -95,7 +95,7 @@ Mesh* SpringModelLoader::LoadPiece(byte* buf, int offset, Mesh* model)
     for (int a = 0; a < fp->numVertices; ++a)
     {
         SS3OVertex* v = (SS3OVertex*) &buf[vertexOffset];
-        piece->vertex.push_back(v->pos);
+		piece->vertex.push_back(0.5f * v->pos);
         piece->normal.push_back(v->normal);
         piece->tcoord.push_back(v->textureX);
         piece->tcoord.push_back(v->textureY);
