@@ -23,14 +23,17 @@ protected:
 public slots:
     void setEnglish();
     void setFrench();
-    void setStatusBarMessage(const QString msg);
+	void setStatusBarMessage(const QString &msg);
     void about();
     void aboutQt();
     void newMesh();
     void loadMesh();
     void saveMesh();
     void saveMeshAs();
-    void showGeometryGraph();
+	void exportMeshOBJ();
+	void exportMesh3DS();
+	void exportMeshS3O();
+	void showGeometryGraph();
     void showTextureViewer();
     void showSurfaceProperties();
     void showAnimation();

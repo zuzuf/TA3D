@@ -26,12 +26,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
     pInstance = this;
 
-    // Menus
+	// Menus
+	QMenu *mnuExport = new QMenu( tr("E&xport") );
+	mnuExport->addAction(tr("OBJ"), this, SLOT(exportMeshOBJ()));
+	mnuExport->addAction(tr("3DS"), this, SLOT(exportMesh3DS()));
+	mnuExport->addAction(tr("S3O"), this, SLOT(exportMeshS3O()));
+
     QMenu *mnuFile = new QMenu( tr("&File"));
     mnuFile->addAction( QIcon("icons/new.png"), tr("&New"), this, SLOT(newMesh()));
     mnuFile->addAction( QIcon("icons/open.png"), tr("&Open"), this, SLOT(loadMesh()));
     mnuFile->addAction( QIcon("icons/save.png"), tr("&Save"), this, SLOT(saveMesh()));
     mnuFile->addAction( QIcon("icons/save-as.png"), tr("Save as"), this, SLOT(saveMeshAs()));
+	mnuFile->addMenu( mnuExport );
     mnuFile->addAction( QIcon("icons/exit.png"), tr("&Exit"), this, SLOT(close()));
     menuBar()->addMenu(mnuFile);
 
@@ -215,7 +221,7 @@ void MainWindow::setFrench()
     qApp->quit();
 }
 
-void MainWindow::setStatusBarMessage(QString msg)
+void MainWindow::setStatusBarMessage(const QString &msg)
 {
     statusBar->showMessage(msg);
 }
@@ -627,4 +633,29 @@ void MainWindow::mergeAll()
     GeometryGraph::instance()->refreshTree();
     Gfx::instance()->updateGL();
     delete mesh;
+}
+
+void MainWindow::exportMeshOBJ()
+{
+	QString exportname = QFileDialog::getSaveFileName(this, tr("Export to OBJ"), QString(), tr("OBJ model(*.obj)"));
+	if (exportname.isEmpty())
+		return;
+
+	if (!exportname.endsWith(".obj", Qt::CaseInsensitive))
+		exportname += ".obj";
+
+	Mesh::instance()->saveOBJ(exportname);
+
+	setStatusBarMessage(tr("mesh export succesful"));
+	updateTitle();
+}
+
+void MainWindow::exportMesh3DS()
+{
+	setStatusBarMessage(tr("3DS export not implemented yet"));
+}
+
+void MainWindow::exportMeshS3O()
+{
+	setStatusBarMessage(tr("S3O export not implemented yet"));
 }
