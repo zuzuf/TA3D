@@ -218,6 +218,7 @@ void Mesh::saveOBJ(const QString &filename)
 	out << fixed;
 
 	GLuint offset = 1;
+	GLuint offsetUV = 1;
 
 	while(!queue.empty())
 	{
@@ -242,32 +243,35 @@ void Mesh::saveOBJ(const QString &filename)
 			out << "v " << v.x << " " << v.y << " " << v.z << endl;
 		}
 
-		for(int i = 0 ; i < cur->tcoord.size() ; i += 2)
-			out << "vt " << cur->tcoord[i] << " " << cur->tcoord[i + 1] << endl;
+		if (!cur->tcoord.empty())
+			for(int i = 0 ; i < cur->tcoord.size() ; i += 2)
+				out << "vt " << cur->tcoord[i] << " " << cur->tcoord[i + 1] << endl;
 
 		if (cur->type == MESH_TRIANGLES)
 		{
 			for(int i = 0 ; i < cur->index.size() ; i += 3)
 			{
-				out << "f " << (cur->index[i] + offset) << "/" << (cur->index[i] + offset) << " "
-							<< (cur->index[i + 1] + offset) << "/" << (cur->index[i + 1] + offset) << " "
-							<< (cur->index[i + 2] + offset) << "/" << (cur->index[i + 2] + offset) << endl;
+				out << "f " << (cur->index[i] + offset) << "/" << (cur->index[i] + offsetUV) << " "
+							<< (cur->index[i + 1] + offset) << "/" << (cur->index[i + 1] + offsetUV) << " "
+							<< (cur->index[i + 2] + offset) << "/" << (cur->index[i + 2] + offsetUV) << endl;
 			}
 		}
 		else if (cur->type == MESH_TRIANGLE_STRIP)
 		{
 			GLuint a = cur->index[0] + offset;
 			GLuint b = cur->index[1] + offset;
+			int shift = offsetUV - offset;
 			for(int i = 2 ; i < cur->index.size() ; ++i)
 			{
-				out << "f " << a << "/" << a << " "
-							<< b << "/" << b << " "
-							<< (cur->index[i] + offset) << "/" << (cur->index[i] + offset) << endl;
+				out << "f " << a << "/" << (a + shift) << " "
+							<< b << "/" << (b + shift) << " "
+							<< (cur->index[i] + offset) << "/" << (cur->index[i] + offsetUV) << endl;
 				a = b;
 				b = cur->index[i] + offset;
 			}
 		}
 		offset += cur->vertex.size();
+		offsetUV += cur->tcoord.size();
 	}
 
 	file.close();
