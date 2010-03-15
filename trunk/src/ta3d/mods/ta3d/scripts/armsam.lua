@@ -4,8 +4,9 @@ createUnitScript("armsam")
 __this:piece( "flare1", "flare2", "base", "launcher", "turret" )
 
 __this.SMOKEPIECE1 = __this.base
-#include "smokeunit.lh"
+
 #include "exptype.lh"
+#include "smokeunit.lh"
 #include "hitweap.lh"
 
 __this.Create = function(this)

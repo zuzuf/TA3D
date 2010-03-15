@@ -4,8 +4,9 @@ createUnitScript("armfus")
 __this:piece( "base" )
 
 __this.SMOKEPIECE1 = __this.base
+
+#include "exptype.lh"
 #include "smokeunit.lh"
-#include "EXPtype.lh"
 
 __this.Create = function(this)
 	this:start_script( this.SmokeUnit, this )

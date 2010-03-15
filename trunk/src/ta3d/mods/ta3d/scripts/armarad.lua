@@ -6,9 +6,9 @@ __this:piece( "base", "turret", "dish1", "dish2", "arm1", "arm2", "post" )
 __this.SIG_HIT = 4
 __this.SMOKEPIECE1 = __this.base
 
+#include "exptype.lh"
 #include "statechg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 
 __this.Go = function(this)
 	this:move( this.post, y_axis, 9.1, 16.134753 )

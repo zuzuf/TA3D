@@ -9,9 +9,9 @@ __this.buildheading = 0
 __this.SMOKEPIECE1     = __this.base
 __this.ANIM_VARIABLE   = true
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 
 __this.activatescr = function(this)
     this:turn( this.door1, z_axis, -90, 90 )

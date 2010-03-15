@@ -8,8 +8,8 @@ __this.fire = 0
 
 __this.SMOKEPIECE1 = __this.base
 
+#include "exptype.lh"
 #include "smokeunit.lh"
-#include "EXPtype.lh"
 
 __this.Create = function(this)
 	this:hide( this.flare1 )
