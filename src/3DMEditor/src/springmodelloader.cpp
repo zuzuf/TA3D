@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QDebug>
+#include <QQueue>
 
 void Mesh::load3SO(const QString &filename)
 {
@@ -151,4 +152,149 @@ Mesh* SpringModelLoader::LoadPiece(byte* buf, int offset, Mesh* model)
     }
 
     return piece;
+}
+
+void Mesh::saveS3O(const QString &filename)
+{
+	QFile file(filename);
+	file.open(QIODevice::WriteOnly);
+
+	QString tex1 = filename.left(filename.size() - 4) + "0.png";
+	QString tex2 = filename.left(filename.size() - 4) + "1.png";
+
+	S3OHeader header;
+	memcpy(header.magic, "Spring unit\0", 12);
+	header.version = 0;
+	header.radius = size;
+	header.height = 0.0f;
+	header.midx = 0.0f;
+	header.midy = 0.0f;
+	header.midz = 0.0f;
+	header.rootPiece = 0;
+	header.collisionData = 0;
+	header.texture1 = tex.size() > 0 ? sizeof(Piece) : 0;
+	header.texture2 = tex.size() > 1 ? header.texture1 + tex1.size() : 0;
+
+	QQueue<Mesh*> queue;
+	QQueue<Vec> qpos;
+	queue.enqueue(this);
+	qpos.enqueue(pos);
+	while(!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		Vec pos = qpos.dequeue();
+
+		if (cur->next)
+		{
+			queue.push_back(cur->next);
+			qpos.push_back(pos);
+		}
+		if (cur->child)
+		{
+			queue.push_back(cur->child);
+			qpos.push_back(pos + cur->pos);
+		}
+
+		foreach(Vec v, cur->vertex)
+			header.height = qMax(header.height, pos.y + cur->pos.y + v.y);
+	}
+
+	file.write((char*)&header, sizeof(header));
+	if (header.texture1)
+	{
+		QImage img = Gfx::instance()->textureToImage( tex[0] );
+		img.save(tex1);
+
+		file.write(tex1.toAscii());
+		file.write("\0", 1);
+	}
+	if (header.texture2)
+	{
+		QImage img = Gfx::instance()->textureToImage( tex[1] );
+		img.save(tex2);
+
+		file.write(tex2.toAscii());
+		file.write("\0", 1);
+	}
+
+	Mesh *root = this;
+	if (root->next)		// Do we need a fake root object ?
+	{
+		root = new Mesh;
+		root->name = "root";
+		root->child = this;
+	}
+
+	queue.enqueue(root);
+	QQueue<int> ppos;
+	ppos.enqueue(36);
+	while(!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		int offpos = ppos.dequeue();
+		int p = file.pos();
+		file.seek(offpos);
+		file.write((char*)&p, sizeof(int));
+		file.seek(p);
+
+		Piece piece;
+		piece.name = p + sizeof(Piece);
+		piece.numChilds = 0;
+		piece.childs = piece.name + cur->name.size() + 1;
+		for (Mesh *m = cur->child ; m ; m = m->next)
+		{
+			queue.push_back(m);
+			ppos.push_back(piece.childs + sizeof(int) * piece.numChilds);
+			++piece.numChilds;
+		}
+		piece.numVertices = cur->vertex.size();
+		piece.vertices = piece.childs + sizeof(int) * piece.numChilds;
+		piece.vertexType = 0;
+		piece.primitiveType = type == MESH_TRIANGLES ? 0 : 1;
+		piece.vertexTableSize = cur->index.size();
+		piece.vertexTable = piece.vertices + sizeof(SS3OVertex) * piece.numVertices;
+		piece.collisionData = 0;
+		piece.xoffset = 2.0f * cur->pos.x;
+		piece.yoffset = 2.0f * cur->pos.y;
+		piece.zoffset = 2.0f * cur->pos.z;
+
+		file.write((char*)&piece, sizeof(Piece));
+		file.write(cur->name.toAscii());
+		file.write("\0", 1);
+
+		for(int i = 0 ; i < piece.numChilds ; ++i)
+			file.write((char*)&i, sizeof(int));
+
+		for(int i = 0 ; i < cur->vertex.size() ; ++i)
+		{
+			SS3OVertex v;
+			v.pos = 2.0f * cur->vertex[i];
+			v.normal = cur->normal[i];
+			if (cur->tcoord.empty())
+			{
+				v.textureX = 0.0f;
+				v.textureY = 0.0f;
+			}
+			else
+			{
+				v.textureX = cur->tcoord[i << 1];
+				v.textureY = cur->tcoord[(i << 1) | 1];
+			}
+			file.write((char*)&v, sizeof(SS3OVertex));
+		}
+
+		for(int i = 0 ; i < cur->index.size() ; ++i)
+		{
+			int idx = cur->index[i];
+			file.write((char*)&idx, sizeof(int));
+		}
+	}
+
+	if (root != this)
+	{
+		root->child = NULL;
+		delete root;
+	}
+
+	file.close();
 }

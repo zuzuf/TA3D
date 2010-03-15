@@ -657,5 +657,15 @@ void MainWindow::exportMesh3DS()
 
 void MainWindow::exportMeshS3O()
 {
-	setStatusBarMessage(tr("S3O export not implemented yet"));
+	QString exportname = QFileDialog::getSaveFileName(this, tr("Export to S3O"), QString(), tr("Spring model(*.s3o)"));
+	if (exportname.isEmpty())
+		return;
+
+	if (!exportname.endsWith(".s3o", Qt::CaseInsensitive))
+		exportname += ".s3o";
+
+	Mesh::instance()->saveS3O(exportname);
+
+	setStatusBarMessage(tr("mesh export succesful"));
+	updateTitle();
 }
