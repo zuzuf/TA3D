@@ -179,6 +179,7 @@ public:
     void loadOBJ(const QString &filename);
 
 	void saveOBJ(const QString &filename);
+	void saveS3O(const QString &filename);
 
     void computeNormals();
     void computeSize();
