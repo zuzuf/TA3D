@@ -1,24 +1,22 @@
-function sleep(delay)
-    coroutine.yield(delay, 1)
+local yield = coroutine.yield
+
+local function sleep(delay)
+    yield(delay, 1)
 end
 
-function wait()
-    coroutine.yield(0, 2)
+local function wait()
+    yield(0, 2)
 end
 
-function end_thread()
-    coroutine.yield(0, 4)
+local function end_thread()
+    yield(0, 4)
 end
 
-function yield()
-    coroutine.yield()
+local function set_signal_mask(sig)
+    yield(sig, 3)
 end
 
-function set_signal_mask(sig)
-    coroutine.yield(sig, 3)
-end
-
-function vector()
+local function vector()
     local vec = {x=0, y=0, z=0}
     return setmetatable(vec, __vector_metatable)
 end
@@ -75,7 +73,7 @@ __vector_metatable = {__add=__vec_add, __sub=__vec_sub, __mul=__vec_mul, __mod=_
 __fast_vector_metatable = {__add=__fast_vec_add, __sub=__fast_vec_sub, __mul=__fast_vec_mul, __mod=__vec_dot, __pow=__vec_cross}
 
 -- normalize v, modifies the content of v
-function normalize(v)
+local function normalize(v)
     local l = 1.0 / math.sqrt( v * v )
     v.x = l * v.x
     v.y = l * v.y
@@ -84,7 +82,7 @@ function normalize(v)
 end
 
 -- returns the normalized version of v, doesn't change v
-function normalized(v)
+local function normalized(v)
     local l = 1.0 / math.sqrt( v * v )
     local tmp = vector()
     tmp.x = l * v.x
@@ -93,9 +91,7 @@ function normalized(v)
     return tmp
 end
 
-function game_signal( sig )
-    coroutine.yield(sig)
-end
+local game_signal = coroutine.yield
 
 local function set_cam_mode( mode )
     if mode == CAM_NORMAL_MODE then
@@ -107,7 +103,7 @@ local function set_cam_mode( mode )
     end
 end
 
-function piece(this, ...)
+local function piece(this, ...)
     __piece_list = {...}
     for i = 1, #__piece_list do
         this[__piece_list[i]] = i - 1
@@ -261,14 +257,14 @@ end
 
 __type_metatable = {__index=__type_virtual_index, __newindex=__type_virtual_newindex}
 
-DEG2RAD = 0.017453292519943295
-RAD2DEG = 57.29577951308232
+local DEG2RAD = 0.017453292519943295
+local RAD2DEG = 57.29577951308232
 
-DEG2TA = 182.04444444444445
-TA2DEG = 0.0054931640625
+local DEG2TA = 182.04444444444445
+local TA2DEG = 0.0054931640625
 
-RAD2TA = 20860.756700940907
-TA2RAD = 0.000047936899621426287
+local RAD2TA = 20860.756700940907
+local TA2RAD = 0.000047936899621426287
 
-Builder = -3
-CanAttack = -2
+local Builder = -3
+local CanAttack = -2

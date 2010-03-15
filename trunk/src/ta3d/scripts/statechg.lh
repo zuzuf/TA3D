@@ -11,8 +11,8 @@
 
 -- The states that can be requested
 
-ACTIVE      = 0
-INACTIVE    = 1
+local ACTIVE      = 0
+local INACTIVE    = 1
 
 -- State change request functions
 
