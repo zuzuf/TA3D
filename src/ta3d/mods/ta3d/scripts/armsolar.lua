@@ -2,14 +2,14 @@
 
 createUnitScript("armsolar")
 
-armsolar:piece("base","dish1","dish2","dish3","dish4")
+__this:piece("base","dish1","dish2","dish3","dish4")
 
-armsolar.SIG_HIT     = 2
-armsolar.SMOKEPIECE1 = armsolar.base
+__this.SIG_HIT     = 2
+__this.SMOKEPIECE1 = __this.base
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 
 __this.Go = function (this)
     this:turn( this.dish1, x_axis, -90, 60 )

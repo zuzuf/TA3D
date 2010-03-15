@@ -6,8 +6,8 @@ __this:piece( "base", "flare", "turret", "barrel", "sleeve" )
 
 __this.SMOKEPIECE1 = __this.base
 
-#include "smokeunit.lh"
 #include "exptype.lh"
+#include "smokeunit.lh"
 
 __this.Create = function(this)
 	this:hide( this.flare )

@@ -5,9 +5,9 @@ __this:piece( "base", "arms" )
 
 __this.SMOKEPIECE1 = __this.base
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 
 __this.spinspeed = 0
 __this.spinacc = 0.5

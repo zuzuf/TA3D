@@ -4,8 +4,9 @@ createUnitScript("armgate")
 __this:piece( "base", "arm", "dish", "door", "flap1", "flap2", "flap3", "gun", "plate", "turret" )
 
 __this.SMOKEPIECE1 = __this.base
-#include "smokeunit.lh"
+
 #include "exptype.lh"
+#include "smokeunit.lh"
 
 __this.Create = function(this)
 	this:dont_shade( this.flap1 )

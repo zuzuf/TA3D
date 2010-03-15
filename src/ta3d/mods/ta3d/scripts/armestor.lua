@@ -5,8 +5,9 @@ createUnitScript("armestor")
 __this:piece( "base", "texture" )
 
 __this.SMOKEPIECE1 = __this.base
+
+#include "exptype.lh"
 #include "smokeunit.lh"
-#include "EXPtype.lh"
 
 __this.Create = function(this)
 	this:dont_cache( this.texture )

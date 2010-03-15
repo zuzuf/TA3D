@@ -5,9 +5,9 @@ __this:piece("base","dish","ear1","ear2")
 
 __this.SMOKEPIECE1 = __this.base
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 
 __this.Go = function (this)
 	this:spin( this.dish, y_axis, 60 )

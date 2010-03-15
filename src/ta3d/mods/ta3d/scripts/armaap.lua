@@ -10,9 +10,9 @@ __this.SMOKEPIECE2 = __this.building2
 __this.SMOKEPIECE3 = __this.pad
 __this.ANIM_VARIABLE = true
 
+#include "exptype.lh"
 #include "StateChg.lh"
 #include "smokeunit.lh"
-#include "exptype.lh"
 #include "yard.lh"
 
 __this.activatescr = function(this)
