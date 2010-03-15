@@ -116,14 +116,14 @@ namespace TA3D
 						{
 							glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
 							glEnableClientState(GL_NORMAL_ARRAY);
-							glEnable(GL_BLEND);
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 							glAlphaFunc( GL_GREATER, 0.1 );
-							glEnable( GL_ALPHA_TEST );
 							glEnable(GL_LIGHTING);
 							alset = true;
 							set = true;
 						}
+						glEnable(GL_BLEND);
+						glEnable( GL_ALPHA_TEST );
 
 						if (!notex) // Les textures et effets de texture
 						{
@@ -197,6 +197,8 @@ namespace TA3D
 						}
 						if (!notex && !lp_CONFIG->disable_GLSL)
 							s3oShader.off();
+						glDisable(GL_BLEND);
+						glDisable(GL_ALPHA_TEST);
 					}
 					else															// GLSL-disabled code
 					{
@@ -292,6 +294,7 @@ namespace TA3D
 							}
 
 							glDisable(GL_BLEND);
+							glDisable(GL_ALPHA_TEST);
 							glColor4fv(col);
 							glDepthFunc(GL_LESS);
 						}
