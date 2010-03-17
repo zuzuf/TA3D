@@ -1833,13 +1833,14 @@ namespace TA3D
 
 				Vector3D D(Target.z - Pos.z, 0.0f, Pos.x - Target.x);
 				D.unit();
-				float speed = V.norm();
-				float deltaX = 8.0f * fabs(D % V) / (pType->TurnRate * DEG2RAD);
+				float speed = sqrtf(V.x * V.x + V.z * V.z);
+				float vsin = fabs(D % V);
+				float deltaX = 8.0f * vsin / (pType->TurnRate * DEG2RAD);
 				float time_to_stop = speed / pType->BrakeRate;
-				float min_dist = time_to_stop * (speed-pType->BrakeRate*0.5f*time_to_stop);
-				if (deltaX > dist
+				float min_dist = time_to_stop * (speed - pType->BrakeRate * 0.5f * time_to_stop);
+				if ((deltaX > dist && vsin * dist > speed * 16.0f)
 					|| (min_dist >= dist
-					&& mission->Path().length() == 1
+//					&& mission->Path().length() == 1
 					&& !(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
 					&& ( !mission.hasNext()
 						 || (mission(1) != MISSION_MOVE
@@ -4033,9 +4034,7 @@ namespace TA3D
                 {
                     activate();
 					mission->Flags() &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
-                    Vector3D J,I,K;
-					K.x = K.z = 0.0f;
-					K.y = 1.0f;
+					Vector3D J,I,K(0.0f, 1.0f, 0.0f);
 					Vector3D Target = mission->getTarget().getPos();
 					J = Target - Pos;
                     J.y = 0.0f;
@@ -4313,9 +4312,7 @@ namespace TA3D
 
         if (pType->canfly) // Set plane orientation
 		{
-			Vector3D J,K;
-			K.x=K.z=0.0f;
-			K.y=1.0f;
+			Vector3D J,K(0.0f, 1.0f, 0.0f);
 			J = V * K;
 
 			Vector3D virtual_G;						// Compute the apparent gravity force ( seen from the plane )
