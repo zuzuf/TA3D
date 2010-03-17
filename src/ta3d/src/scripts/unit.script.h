@@ -21,7 +21,11 @@
 # include <stdafx.h>
 # include <misc/string.h>
 # include "unit.script.interface.h"
+#ifdef LUA_NOJIT
 # include "../lua/lua.hpp"
+#else
+# include "../luajit/src/lua.hpp"
+#endif
 
 namespace TA3D
 {

@@ -22,7 +22,6 @@
 #include <logs/logs.h>
 #include "lua.thread.h"
 #include "lua.env.h"
-#include "../lua/lstate.h"      // We need this to access lua_State objects to save and load Lua VMs
 #include <input/mouse.h>
 
 
@@ -690,22 +689,8 @@ namespace TA3D
 			LOG_ERROR(LOG_PREFIX_LUA << "impossible to write LuaThread pointer into Lua_State stack !!");
 	}
 
-#warning TODO: implement save/restore mechanism for Lua script
-#define WRITE(x) (gzwrite(file, &x, sizeof(x)))
 	void LuaThread::save_thread_state(gzFile file)
 	{
-		if (caller == NULL)     // Save the global state
-		{
-			global_State *G = L->l_G;
-			WRITE(G->currentwhite);
-			WRITE(G->gcstate);
-			WRITE(G->sweepstrgc);
-			WRITE(G->GCthreshold);
-			WRITE(G->totalbytes);
-			WRITE(G->estimate);
-			WRITE(G->gcdept);
-			WRITE(G->gcpause);
-		}
 	}
 
 	void LuaThread::restore_thread_state(gzFile)

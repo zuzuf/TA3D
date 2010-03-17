@@ -21,7 +21,11 @@
 # include <stdafx.h>
 # include <misc/string.h>
 # include <misc/vector.h>
+#ifdef LUA_NOJIT
 # include "../lua/lua.hpp"
+#else
+# include "../luajit/src/lua.hpp"
+#endif
 # include <threads/thread.h>
 # include "lua.chunk.h"
 # include "script.interface.h"

@@ -20,7 +20,11 @@
 
 # include <stdafx.h>
 # include <misc/string.h>
+#ifdef LUA_NOJIT
 # include "../lua/lua.hpp"
+#else
+# include "../luajit/src/lua.hpp"
+#endif
 # include "script.data.h"
 
 
