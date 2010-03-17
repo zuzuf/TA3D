@@ -18,7 +18,11 @@
 #ifndef __LuaEnv_H__
 #define __LuaEnv_H__
 
+#ifdef LUA_NOJIT
 # include "../lua/lua.hpp"
+#else
+# include "../luajit/src/lua.hpp"
+#endif
 # include <threads/thread.h>
 # include <yuni/core/smartptr/smartptr.h>
 
