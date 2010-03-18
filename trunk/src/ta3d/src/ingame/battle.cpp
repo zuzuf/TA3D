@@ -2120,7 +2120,7 @@ namespace TA3D
 				if (!unit_manager.unit_type[cur_sel]->BMcode) // S'il s'agit d'un bâtiment
 				{
 					if (TA3D_SHIFT_PRESSED)
-						for (short int i = 0; i < 5; ++i)
+						for (int i = 0; i < 5; ++i)
 							units.give_order_build(players.local_human_id, build, units.unit[cur_sel_index].Pos, false);
 					else
 						units.give_order_build(players.local_human_id, build, units.unit[cur_sel_index].Pos, false);
