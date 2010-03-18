@@ -409,19 +409,17 @@ namespace TA3D
 
 		if (players.local_human_id >= 0)
 		{
-			String prefix;
 			String intgaf;
 			for (int i = 0; i < ta3dSideData.nb_side; ++i)
 			{
 				if (ta3dSideData.side_name[i] == pGameData->player_sides[players.local_human_id])
 				{
-					prefix = ta3dSideData.side_pref[i];
 					intgaf = ta3dSideData.side_int[i];
 					break;
 				}
 			}
-			if (!prefix.empty() && !intgaf.empty())
-				unit_manager.load_panel_texture(prefix, intgaf);
+			if (!intgaf.empty())
+				unit_manager.load_panel_texture(intgaf);
 		}
 		TA3D::MAX_UNIT_PER_PLAYER = pGameData->max_unit_per_player;
 		units.init(true);

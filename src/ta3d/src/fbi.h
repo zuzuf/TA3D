@@ -359,7 +359,7 @@ namespace TA3D
 			h_dl_data.clear();
         }
 
-        void load_panel_texture( const String &player_side, const String &intgaf );
+		void load_panel_texture( const String &intgaf );
 
         int load_unit(const String &filename);         // Ajoute une nouvelle unité
 

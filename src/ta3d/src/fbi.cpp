@@ -1020,32 +1020,16 @@ namespace TA3D
 		init();
 	}
 
-	void UnitManager::load_panel_texture( const String &player_side, const String &intgaf )
+	void UnitManager::load_panel_texture( const String &intgaf )
 	{
 		panel.destroy();
-		String gaf_img;
-
-		TDFParser parser;
-		if (parser.loadFromFile(ta3dSideData.guis_dir + player_side + "MAIN.GUI"))
-			gaf_img = parser.pullAsString( "gadget0.panel" );
-		else
-			LOG_ERROR("Unable to load `"<< (ta3dSideData.guis_dir + player_side + "MAIN.GUI") << "`");
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		int w,h;
-		GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main", gaf_img, &w, &h, true);
-		if (panel_tex == 0)
-		{
-			String::Vector file_list;
-			VFS::Instance()->getDirlist("anims\\*", file_list);
-			VFS::Instance()->getFilelist( "anims\\*.gaf", file_list);
-			for (String::Vector::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
-				panel_tex = Gaf::ToTexture(*i, gaf_img, &w, &h, true);
-		}
-		panel.set(panel_tex);
+		panel.set(Gaf::ToTexture("anims\\" + intgaf, "PANELSIDE2", &w, &h, true));
 		panel.width = w;
 		panel.height = h;
 
@@ -1064,7 +1048,7 @@ namespace TA3D
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-		bool nothing = index < -1 || index>=nb_unit;
+		bool nothing = index < -1 || index >= nb_unit;
 
 		gfx->ReInitTexSys();
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
@@ -1073,7 +1057,7 @@ namespace TA3D
 			if (panel.tex && nothing)
 				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + float(panel.height) );
 
-			if (paneltop.tex )
+			if (paneltop.tex)
 			{
 				gfx->drawtexture( paneltop.tex, 128.0f, 0.0f, 128.0f + float(paneltop.width), float(paneltop.height) );
 				for (int k = 0 ; 128 + paneltop.width + panelbottom.width * k < uint32(SCREEN_W); ++k)
@@ -1100,8 +1084,16 @@ namespace TA3D
 			glVertex2i(128, 128);
 			glVertex2i(0, 128);
 
-			glVertex2i(0, 128 + panel.height);			// Barre latérale gauche
-			glVertex2i(128, 128 + panel.height);
+			if (nothing)
+			{
+				glVertex2i(0, 128 + panel.height);			// Barre latérale gauche
+				glVertex2i(128, 128 + panel.height);
+			}
+			else
+			{
+				glVertex2i(0, 128);			// Barre latérale gauche
+				glVertex2i(128, 128);
+			}
 			glVertex2i(128, SCREEN_H);
 			glVertex2i(0, SCREEN_H);
 			glEnd();
