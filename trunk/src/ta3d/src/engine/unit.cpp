@@ -2437,7 +2437,8 @@ namespace TA3D
 			switch (weapon[i].state & 3)
 			{
 				case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
-					script->setReturnValue( UnitScriptInterface::get_script_name(Aim_script), 0);
+					if (pType->weapon[ i ]->turret)
+						script->setReturnValue( UnitScriptInterface::get_script_name(Aim_script), 0);
 					weapon[i].data = -1;
 					break;
 				case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
@@ -2643,20 +2644,42 @@ namespace TA3D
                             }
 							else
 							{
-								readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
-								if (!readyToFire)
+								readyToFire = true;
+								if (pType->weapon[i]->lineofsight)
 								{
-									if (weapon[i].data == -1)
+									int start_piece = weapon[i].aim_piece;
+									if (weapon[i].aim_piece < 0)
+										weapon[i].aim_piece = start_piece = runScriptFunction(AimFrom_script);
+									if (start_piece < 0 || start_piece >= data.nb_piece)
+										start_piece = 0;
+									compute_model_coord();
+
+									if (!target_unit)
 									{
-										readyToFire = launchScript(Aim_script, 0, NULL) < 0;
-										weapon[i].data = 0;
+										if (target_weapon == NULL)
+											weapon[i].aim_dir = weapon[i].target_pos - (Pos + data.data[start_piece].tpos);
+										else
+											weapon[i].aim_dir = ((Weapon*)(weapon[i].target))->Pos - (Pos + data.data[start_piece].tpos);
 									}
+									else
+									{
+										Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
+										target_pos_on_unit.reset();
+										if (weapon[i].data == -1)
+											weapon[i].data = target_unit->get_sweet_spot();
+										if (weapon[i].data >= 0)
+										{
+											if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
+												target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
+										}
+										else if (target_unit->model)
+											target_pos_on_unit = target_unit->model->center;
+										weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.data[start_piece].tpos);
+									}
+									weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
+									weapon[i].aim_dir.unit();
 								}
-								else
-								{
-									weapon[i].data = -1;
-									script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
-								}
+								weapon[i].data = -1;
 							}
 							if (readyToFire)
 							{
@@ -2689,7 +2712,7 @@ namespace TA3D
 							script->setReturnValue(UnitScriptInterface::get_script_name(Aim_script), 0);
 							break;
 						}
-                        if (pType->weapon[ i ]->stockpile && weapon[i].stock<=0)
+						if (pType->weapon[ i ]->stockpile && weapon[i].stock <= 0)
 						{
 							weapon[i].state = WEAPON_FLAG_AIM;		// Plus rien pour tirer / nothing to fire
 							weapon[i].data = -1;
@@ -2709,7 +2732,7 @@ namespace TA3D
 								Dir.y = 1.0f;
 								Dir.z = 0.0f;
 							}
-							else if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
+							else if (!pType->weapon[ i ]->turret || Dir.isNull())
 								Dir = weapon[i].aim_dir;
 							if (i == 3)
 							{
