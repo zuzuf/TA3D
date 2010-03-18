@@ -292,6 +292,7 @@ namespace TA3D
 						glShadeModel (GL_SMOOTH);
 					if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
 						s_shader.off();
+					glDisable(GL_ALPHA_TEST);
 
 					if (activated_tex)
 					{
