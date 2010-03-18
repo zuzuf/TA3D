@@ -89,6 +89,7 @@ namespace TA3D
 
 	void Unit::start_building(const Vector3D &dir)
 	{
+		activate();
 		// Work in model coordinates
 		Vector3D Dir(dir * RotateXZY(-Angle.x * DEG2RAD, -Angle.z * DEG2RAD, -Angle.y * DEG2RAD));
 		Vector3D P(Dir);
@@ -119,6 +120,14 @@ namespace TA3D
 		{
 			switch (mission_type)
 			{
+				case MISSION_STOP:
+				case MISSION_STANDBY:
+					if (port[INBUILDSTANCE])
+					{
+						launchScript(SCRIPT_stopbuilding);
+						deactivate();
+					}
+					break;
 				case MISSION_ATTACK:
 					stopMoving();
 					break;
@@ -528,7 +537,7 @@ namespace TA3D
 		if (pointer == this && !def_mode) // A unit cannot target itself
 			return;
 
-		if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL )
+		if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL)
 			m_flags |= MISSION_FLAG_MOVE;
 
         if (type_id != -1 && mission_type == MISSION_BUILD && pType->BMcode && pType->Builder && target != NULL)
@@ -623,6 +632,8 @@ namespace TA3D
 					stop = mission_type == MISSION_BUILD && type_id != -1 && !pType->BMcode;
 				};
 			}
+			else
+				stop = pType->BMcode;
 			if (stop)
 			{
 				new_mission.addStep();
@@ -728,52 +739,49 @@ namespace TA3D
 
 		switch(old_mission)		// Commandes de fin de mission
 		{
-			case MISSION_REPAIR:
-			case MISSION_RECLAIM:
-			case MISSION_BUILD_2: {
-									  launchScript(SCRIPT_stopbuilding);
-									  deactivate();
-                                      if (type_id != -1 && !pType->BMcode) // Delete the unit we were building
-									  {
-										  sint32 prev = -1;
-										  for(int i = units.nb_unit-1; i >= 0 ; --i)
-										  {
-											  if (units.idx_list[i] == mission->getUnit()->idx)
-											  {
-												  prev = i;
-												  break;
-											  }
-										  }
-										  if (prev >= 0)
-											  units.kill(mission->getUnit()->idx, prev);
-									  }
-									  else
-										  launchScript(SCRIPT_stop);
-									  break;
-								  }
-			case MISSION_ATTACK: {
-									 if (mission_type != MISSION_ATTACK && type_id != -1 &&
-                                         (!pType->canfly
-										  || (pType->canfly && mission_type != MISSION_MOVE && mission_type != MISSION_PATROL)))
-										 deactivate();
-									 else
-									 {
-										 stopit = false;
-										 already_running = true;
-									 }
-									 break;
-								 }
-			case MISSION_MOVE:
-			case MISSION_PATROL: {
-									 if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL
-                                         || (type_id != -1 && pType->canfly && mission_type == MISSION_ATTACK ) )
-									 {
-										 stopit = false;
-										 already_running = true;
-									 }
-									 break;
-								 }
-		}
+		case MISSION_REPAIR:
+		case MISSION_REVIVE:
+		case MISSION_RECLAIM:
+		case MISSION_CAPTURE:
+		case MISSION_BUILD_2:
+			deactivate();
+			launchScript(SCRIPT_stopbuilding);
+			if (type_id != -1 && !pType->BMcode) // Delete the unit we were building
+			{
+				sint32 prev = -1;
+				for(int i = units.nb_unit-1; i >= 0 ; --i)
+				{
+					if (units.idx_list[i] == mission->getUnit()->idx)
+					{
+						prev = i;
+						break;
+					}
+				}
+				if (prev >= 0)
+					units.kill(mission->getUnit()->idx, prev);
+			}
+			break;
+		case MISSION_ATTACK:
+			if (mission_type != MISSION_ATTACK && type_id != -1 &&
+				(!pType->canfly
+				 || (pType->canfly && mission_type != MISSION_MOVE && mission_type != MISSION_PATROL)))
+				deactivate();
+			else
+			{
+				stopit = false;
+				already_running = true;
+			}
+			break;
+		case MISSION_MOVE:
+		case MISSION_PATROL:
+			if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL
+				|| (type_id != -1 && pType->canfly && mission_type == MISSION_ATTACK ) )
+			{
+				stopit = false;
+				already_running = true;
+			}
+			break;
+		};
 
 		if (!def_mode)
 		{
@@ -867,8 +875,10 @@ namespace TA3D
 			case MISSION_REPAIR:
 			case MISSION_RECLAIM:
 			case MISSION_BUILD_2:
+			case MISSION_REVIVE:
+			case MISSION_CAPTURE:
 				if (!mission.hasNext()
-					|| (type_id != -1 && pType->BMcode)
+					|| (pType && pType->BMcode)
 					|| mission[1].lastMission() != MISSION_BUILD)
 				{
 					launchScript(SCRIPT_stopbuilding);
@@ -3174,8 +3184,6 @@ namespace TA3D
 											target_unit->unlock();
 
 											pMutex.lock();
-											launchScript(SCRIPT_stopbuilding);
-											launchScript(SCRIPT_stop);
 											next_mission();
 										}
 									}
@@ -3187,8 +3195,6 @@ namespace TA3D
 											metal_prod += recup * unit_manager.unit_type[target_unit->type_id]->BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id]->MaxDamage);
 										if (target_unit->hp <= 0.0f)		// Work done
 										{
-											launchScript(SCRIPT_stopbuilding);
-											launchScript(SCRIPT_stop);
 											target_unit->flags |= 0x10;			// This unit is being reclaimed it doesn't explode!
 											next_mission();
 										}
@@ -3301,8 +3307,6 @@ namespace TA3D
 										if (!success)
 										{
 											playSound("cant1");
-											launchScript(SCRIPT_stopbuilding);
-											launchScript(SCRIPT_stop);
 											next_mission();
 										}
 									}
@@ -3313,8 +3317,6 @@ namespace TA3D
 										if (network_manager.isConnected())
 											g_ta3d_network->sendFeatureDeathEvent( mission->getData() );
 										features.delete_feature(mission->getData());			// Delete the object
-										launchScript(SCRIPT_stopbuilding);
-										launchScript(SCRIPT_stop);
 										next_mission();
 									}
 								}
@@ -3697,7 +3699,11 @@ namespace TA3D
 							stopMovingAnimation();
 							was_moving = false;
 							selfmove = false;
-							launchScript(SCRIPT_stopbuilding);
+							if (port[INBUILDSTANCE])
+							{
+								launchScript(SCRIPT_stopbuilding);
+								deactivate();
+							}
 							for (int i = 0 ; i < weapon.size() ; ++i)
 								if (weapon[i].state)
 								{
@@ -3890,7 +3896,6 @@ namespace TA3D
 				case MISSION_BUILD:
 					if (mission->getUnit())
 					{
-						start_building( mission->getTarget().getPos() - Pos );
 						mission->setMissionType(MISSION_BUILD_2);		// Change mission type
 						mission->getUnit()->built = true;
 					}
@@ -3910,7 +3915,16 @@ namespace TA3D
 						{
 							if (mission->getFlags() & MISSION_FLAG_MOVE) // Stop moving if needed
 								stopMoving();
-                            if (pType->BMcode || (!pType->BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF]))
+							if (!pType->BMcode)
+							{
+								int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
+								if (buildinfo >= 0)
+								{
+									compute_model_coord();
+									mission->getTarget().setPos(Pos + data.data[buildinfo].pos);
+								}
+							}
+							if (port[ INBUILDSTANCE ] && (pType->BMcode || (!pType->BMcode && port[YARD_OPEN] && !port[BUGGER_OFF])))
 							{
 								/*								pMutex.unlock();
 																draw_on_map();
@@ -3918,15 +3932,6 @@ namespace TA3D
 								V.x = 0.0f;
 								V.y = 0.0f;
 								V.z = 0.0f;
-                                if (!pType->BMcode)
-								{
-									int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
-									if (buildinfo >= 0)
-									{
-										compute_model_coord();
-										mission->getTarget().setPos(Pos + data.data[buildinfo].pos);
-									}
-								}
 								Vector3D target = mission->getTarget().getPos();
 								if (the_map->check_rect((((int)(target.x) + the_map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintX>>1),
 													(((int)(target.z) + the_map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintZ>>1),
@@ -3951,7 +3956,7 @@ namespace TA3D
 									next_mission();
 							}
 							else
-								activate();
+								start_building( mission->getTarget().getPos() - Pos );
 						}
 					}
 					break;
