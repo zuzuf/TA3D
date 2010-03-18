@@ -336,7 +336,7 @@ namespace TA3D
 							}
 						}
 						if (target_id >= 0 )
-							units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), MISSION_FLAG_COMMAND_FIRE );
+							units.unit[ *i ].set_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, true, (&units.unit[ target_id ]), MISSION_FLAG_COMMAND_FIRE );
 					}
 					units.unit[ *i ].unlock();
 				}
@@ -386,17 +386,17 @@ namespace TA3D
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
 			{
 				short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
-				std::vector<short> *BuildList = &(unit_manager.unit_type[units.unit[*i].type_id]->BuildList);
+				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
 				for (int e = 0; e < list_size; ++e)
-					sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + weights[ (*BuildList)[ e ] ].w;
+					sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
 				float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
 				if (sw[ list_size - 1 ] > 0.1f)
-					for (int e = 0 ; e < list_size ; e++ )
+					for (int e = 0 ; e < list_size ; ++e)
 					{
 						if (selection <= sw[ e ])
 						{
-							selected_idx = (*BuildList)[ e ];
+							selected_idx = BuildList[ e ];
 							break;
 						}
 					}
@@ -405,7 +405,10 @@ namespace TA3D
 
 				if (found && selected_idx >= 0)
 				{
-					units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
+					if (unit_manager.unit_type[units.unit[*i].type_id]->BMcode)
+						units.unit[ *i ].set_mission( MISSION_BUILD, &target, false, selected_idx );
+					else
+						units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
 # ifdef AI_DEBUG
 					LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msec_timer
 							  << ") -> builder " << *i << " building " << selected_idx);
@@ -423,7 +426,7 @@ namespace TA3D
 
 		float factory_needed = 0.0f;
 		float builder_needed = 0.0f;
-		for (uint16 i = 0 ; i < unit_manager.nb_unit; ++i)	// Build required units
+		for (int i = 0 ; i < unit_manager.nb_unit ; ++i)	// Build required units
 			if (weights[i].w >= weights[i].o_w)
 			{
 				if (weights[i].built_by.empty())
