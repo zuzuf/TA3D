@@ -1054,7 +1054,7 @@ namespace TA3D
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
 		if (GUI)
 		{
-			if (panel.tex && nothing)
+			if (panel.tex)
 				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + float(panel.height) );
 
 			if (paneltop.tex)
@@ -1084,16 +1084,8 @@ namespace TA3D
 			glVertex2i(128, 128);
 			glVertex2i(0, 128);
 
-			if (nothing)
-			{
-				glVertex2i(0, 128 + panel.height);			// Barre latérale gauche
-				glVertex2i(128, 128 + panel.height);
-			}
-			else
-			{
-				glVertex2i(0, 128);			// Barre latérale gauche
-				glVertex2i(128, 128);
-			}
+			glVertex2i(0, 128 + panel.height);			// Barre latérale gauche
+			glVertex2i(128, 128 + panel.height);
 			glVertex2i(128, SCREEN_H);
 			glVertex2i(0, SCREEN_H);
 			glEnd();
