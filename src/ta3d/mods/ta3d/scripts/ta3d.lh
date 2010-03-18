@@ -105,6 +105,9 @@ end
 
 local function piece(this, ...)
     __piece_list = {...}
+    if #__piece_list == 0 then
+        return
+    end
     for i = 1, #__piece_list do
         this[__piece_list[i]] = i - 1
     end
