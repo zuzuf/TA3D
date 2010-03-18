@@ -273,7 +273,8 @@ public:
     static Mesh *createCylinder(float r, float h, int d, bool capped);
     static Mesh *createCone(float r, float h, int d, bool capped);
     static Mesh *createTorus(float R, float r, int D, int d);
-    static Mesh *merge(const QList<Mesh*> &list);
+	static Mesh *createEmpty();
+	static Mesh *merge(const QList<Mesh*> &list);
 
 private:
     static Mesh *pInstance;

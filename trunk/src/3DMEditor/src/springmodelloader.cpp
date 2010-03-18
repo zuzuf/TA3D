@@ -37,15 +37,20 @@ void Mesh::load3SO(const QString &filename)
     Mesh* model = this;
     model->type = MESH_TRIANGLES;
     model->name = filename;
-    if (header.texture1 > 0)
+	QString path;
+	if (filename.contains('/'))
+		path = filename.left(filename.lastIndexOf('/') + 1);
+	else if (filename.contains('\\'))
+		path = filename.left(filename.lastIndexOf('\\') + 1);
+	if (header.texture1 > 0)
     {
-        GLuint tex = Gfx::instance()->loadTexture((char*) &fileBuf[header.texture1]);
+		GLuint tex = Gfx::instance()->loadTexture(path + (char*) &fileBuf[header.texture1]);
         if (tex)
             model->tex.push_back(tex);
     }
     if (header.texture2 > 0)
     {
-        GLuint tex = Gfx::instance()->loadTexture((char*) &fileBuf[header.texture2]);
+		GLuint tex = Gfx::instance()->loadTexture(path + (char*) &fileBuf[header.texture2]);
         if (tex)
             model->tex.push_back(tex);
     }
@@ -161,6 +166,11 @@ void Mesh::saveS3O(const QString &filename)
 
 	QString tex1 = filename.left(filename.size() - 4) + "0.png";
 	QString tex2 = filename.left(filename.size() - 4) + "1.png";
+	QString tname1 = tex1;
+	if (tname1.contains('/'))
+		tname1 = tname1.right(tname1.size() - tname1.lastIndexOf('/') - 1);
+	if (tname1.contains('\\'))
+		tname1 = tname1.right(tname1.size() - tname1.lastIndexOf('\\') - 1);
 
 	S3OHeader header;
 	memcpy(header.magic, "Spring unit\0", 12);
@@ -173,7 +183,7 @@ void Mesh::saveS3O(const QString &filename)
 	header.rootPiece = 0;
 	header.collisionData = 0;
 	header.texture1 = tex.size() > 0 ? sizeof(Piece) : 0;
-	header.texture2 = tex.size() > 1 ? header.texture1 + tex1.size() : 0;
+	header.texture2 = tex.size() > 1 ? header.texture1 + tname1.size() + 1 : 0;
 
 	QQueue<Mesh*> queue;
 	QQueue<Vec> qpos;
@@ -205,15 +215,20 @@ void Mesh::saveS3O(const QString &filename)
 		QImage img = Gfx::instance()->textureToImage( tex[0] );
 		img.save(tex1);
 
-		file.write(tex1.toAscii());
+		file.write(tname1.toAscii());
 		file.write("\0", 1);
 	}
 	if (header.texture2)
 	{
 		QImage img = Gfx::instance()->textureToImage( tex[1] );
 		img.save(tex2);
+		QString tname = tex2;
+		if (tname.contains('/'))
+			tname = tname.right(tname.size() - tname.lastIndexOf('/') - 1);
+		if (tname.contains('\\'))
+			tname = tname.right(tname.size() - tname.lastIndexOf('\\') - 1);
 
-		file.write(tex2.toAscii());
+		file.write(tname.toAscii());
 		file.write("\0", 1);
 	}
 

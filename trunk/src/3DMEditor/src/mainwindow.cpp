@@ -74,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
     mnuCreate->addAction( QIcon("icons/cylinder.png"), tr("&Cylinder"), this, SLOT(createCylinder()));
     mnuCreate->addAction( QIcon("icons/sphere.png"), tr("&Sphere"), this, SLOT(createSphere()));
     mnuCreate->addAction( QIcon("icons/torus.png"), tr("&Torus"), this, SLOT(createTorus()));
+	mnuCreate->addAction( QIcon("icons/empty.png"), tr("&Empty"), this, SLOT(createEmpty()));
 
     QMenu *mnuTransform = new QMenu( tr("&Transform") );
     mnuTransform->addAction( tr("&Mirror X"), this, SLOT(mirrorX()));
@@ -425,6 +426,17 @@ void MainWindow::createTorus()
     Mesh::instance()->computeInfo();
     GeometryGraph::instance()->refreshTree();
     Gfx::instance()->updateGL();
+}
+
+void MainWindow::createEmpty()
+{
+
+	Mesh **mesh = MeshManip::getNewMeshPointer();
+	*mesh = Mesh::createEmpty();
+
+	Mesh::instance()->computeInfo();
+	GeometryGraph::instance()->refreshTree();
+	Gfx::instance()->updateGL();
 }
 
 void MainWindow::updateTitle()

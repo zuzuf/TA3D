@@ -1265,6 +1265,16 @@ Mesh *Mesh::createTorus(float R, float r, int D, int d)
     return mesh;
 }
 
+Mesh *Mesh::createEmpty()
+{
+	Mesh *mesh = new Mesh;
+	mesh->color = 0xFFFFFFFF;
+	mesh->type = MESH_TRIANGLES;
+	mesh->name = QString("empty");
+
+	return mesh;
+}
+
 void Mesh::deleteMesh(int id)
 {
     if (id == ID)       // delete the root mesh

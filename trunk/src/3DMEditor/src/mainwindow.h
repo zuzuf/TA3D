@@ -45,7 +45,8 @@ public slots:
     void createCylinder();
     void createCone();
     void createTorus();
-    void updateTitle();
+	void createEmpty();
+	void updateTitle();
     void mirrorX();
     void mirrorY();
     void mirrorZ();
