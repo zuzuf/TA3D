@@ -64,7 +64,9 @@ __this.AnimationControl = function(this)
                 this:show( this.tracks4 )
                 this:hide( this.tracks3 )
                 current_tracks = 0
-                this.once = 0
+                if this.once > 0 then
+                    this.once = this.once - 1
+                end
             end
             this.animCount = this.animCount + 1
         end

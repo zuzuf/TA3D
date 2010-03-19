@@ -7,7 +7,7 @@ __this:piece( "base", "body", "turret", "sleeve", "barrel", "firepoint",
 			"wheels1", "wheels2", "wheels3", "wheels4", "wheels5" )
 
 __this.moving = false
-__this.once = false
+__this.once = 0
 __this.animCount = 0
 
 -- Signal definitions
@@ -46,7 +46,7 @@ __this.AnimationControl = function(this)
     local current_tracks = 0
     
     while true do
-        if this.moving or this.once then
+        if this.moving or this.once > 0 then
             if current_tracks == 0 then
                 this:show( this.tracks1 )
                 this:hide( this.tracks4 )
@@ -63,7 +63,9 @@ __this.AnimationControl = function(this)
                 this:show( this.tracks4 )
                 this:hide( this.tracks3 )
                 current_tracks = 0
-                this.once = false
+                if this.once > 0 then
+                    this.once = this.once - 1
+                end
             end
             this.animCount = this.animCount + 1
         end
@@ -88,8 +90,8 @@ __this.StopMoving = function(this)
 	-- I don't like insta braking. It's not perfect but works for most cases.
 	-- Probably looks goofy when the unit is turtling around, i.e. does not get faster as time increases..
 	this.once = this.animCount * ANIM_SPEED / 1000
-	if once > 3 then
-        once = 3
+	if this.once > 3 then
+        this.once = 3
     end
 
 	this:stop_spin( this.wheels1, x_axis, WHEEL_TURN_SPEED1_DECELERATION )
