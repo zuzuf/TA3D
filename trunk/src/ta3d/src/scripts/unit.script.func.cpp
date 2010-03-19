@@ -297,7 +297,11 @@ namespace TA3D
     {
         switch(type)
         {
-            case VETERAN_LEVEL:
+			case CURRENT_SPEED:
+				return int(V.norm());
+			case HEADING:
+				return int(Angle.y * DEG2TA);
+			case VETERAN_LEVEL:
                 return 100 * kills;
             case MIN_ID:
                 return 0;

@@ -32,5 +32,8 @@
 # define  UNIT_IS_ON_THIS_COMP        75      // indicates if the 1st parameter(a unit ID) is local to this computer
 # define  VETERAN_LEVEL               32      // gets kills * 100
 
+# define  CURRENT_SPEED               29
+# define  HEADING                     82
+
 
 #endif // __TA3D_ENGINE_UNIT_DEFINES_H__
