@@ -600,7 +600,7 @@ namespace TA3D
 					{
 						can_be_captured = true;
 						if (canattack)
-							cursor_type=CURSOR_ATTACK;
+							cursor_type = CURSOR_ATTACK;
 						else
 						{
 							if (canreclamate)
@@ -611,13 +611,13 @@ namespace TA3D
 					}
 					else
 					{
-						if (units.unit[pointing].port[BUILD_PERCENT_LEFT]>0.0f && builders)
+						if (units.unit[pointing].build_percent_left > 0.0f && builders)
 							cursor_type = CURSOR_REPAIR;
 					}
 
 					cursor_type = CursorFromSignalOrder(current_order, cursor_type);
 
-					if (cursor_type!=CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
+					if (cursor_type != CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
 					{
 						Vector3D target(cursorOnMap(cam, *map));
 						target.x = ((int)(target.x) + map->map_w_d) >> 3;
@@ -639,7 +639,7 @@ namespace TA3D
 					if (click_activation && !order_removed)
 					{
 						order_removed = true;
-						if (cursor_type==CURSOR_ATTACK)
+						if (cursor_type == CURSOR_ATTACK)
 						{
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
@@ -689,7 +689,7 @@ namespace TA3D
 							}
 							else
 							{
-								if (cursor_type==CURSOR_REPAIR)
+								if (cursor_type == CURSOR_REPAIR)
 								{
 									for (unsigned int e = 0; e < units.index_list_size; ++e)
 									{
@@ -1013,7 +1013,7 @@ namespace TA3D
 										units.unit[i].sel = false;
 								}
 							}
-							if (pointing >= 0 && Yuni::Math::Zero(units.unit[pointing].port[BUILD_PERCENT_LEFT]))	// On ne sélectionne pas les unités en construction
+							if (pointing >= 0 && Yuni::Math::Zero(units.unit[pointing].build_percent_left))	// On ne sélectionne pas les unités en construction
 								units.unit[pointing].sel ^= true; // Sélectionne/Désélectionne si l'unité est déjà sélectionnée en appuyant sur SHIFT
 							selected = false;
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
@@ -1216,7 +1216,7 @@ namespace TA3D
 						for (unsigned int e = 0 ; e < units.index_list_size; ++e)
 						{
 							int i = units.idx_list[e];
-							if ((units.unit[i].flags & 1) && Yuni::Math::Zero(units.unit[i].port[BUILD_PERCENT_LEFT]) && units.unit[i].owner_id == players.local_human_id)
+							if ((units.unit[i].flags & 1) && Yuni::Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id)
 								units.unit[i].sel = true;
 						}
 						cur_sel = -1;
@@ -1499,7 +1499,7 @@ namespace TA3D
 			int n = cur_sel;
 			if (n == -1)
 				n = -2;
-			if (n >= 0 && units.unit[cur_sel_index].port[BUILD_PERCENT_LEFT] > 0.0f) // Unité non terminée
+			if (n >= 0 && units.unit[cur_sel_index].build_percent_left > 0.0f) // Unité non terminée
 				n = -1;
 			int sel = -1;
 
