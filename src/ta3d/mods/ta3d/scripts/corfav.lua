@@ -86,7 +86,7 @@ __this.AimPrimary = function(this, heading, pitch)
 end
 
 __this.FirePrimary = function(this)
-	this:emit_sfx( UNIT_SFX1, this.firepoint1 )
+	this:emit_sfx( SFXTYPE_WHITESMOKE, this.firepoint1 )
 end
 
 __this.AimFromSecondary = function(this)
