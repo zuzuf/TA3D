@@ -7,7 +7,7 @@ __this:piece( "base", "body", "lift", "turret", "cradle", "rear", "nano", "panel
 			"wheels3", "wheels4", "wheels5", "wheels6", "wheels7" )
 
 __this.moving = false
-__this.once = false
+__this.once = 0
 __this.animCount = 0
 
 local ANIM_SPEED = 0.05
@@ -43,7 +43,7 @@ __this.AnimationControl = function(this)
     local current_tracks = 0
     
     while true do
-        if this.moving or this.once then
+        if this.moving or this.once > 0 then
             if current_tracks == 0 then
                 this:show( this.tracks1 )
                 this:hide( this.tracks4 )
@@ -60,7 +60,9 @@ __this.AnimationControl = function(this)
                 this:show( this.tracks4 )
                 this:hide( this.tracks3 )
                 current_tracks = 0
-                this.once = false
+                if this.once > 0 then
+                    this.once = this.once - 1
+                end
             end
             this.animCount = this.animCount + 1
         end
