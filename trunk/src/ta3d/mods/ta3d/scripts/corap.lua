@@ -6,7 +6,7 @@ createUnitScript("corap")
 __this:piece( "base", "bay", "narm1", "nano1", "emit1", "arm1b", "arm1", "arm1top", "arm1bot", "pow1", "pow2", "plate", "nano2", "emit2", "door1", "door2", "radar", "padbase", "pad1", "pad2", "pad3", "build")
 
 --local vars
-__this.nanoPieces = {emit1,emit2}
+__this.nanoPieces = {__this.emit1, __this.emit2}
 __this.nanoIdx = 1
 __this.SMOKEPIECE1 = __this.bay
 __this.SMOKEPIECE2 = __this.pad1
@@ -22,14 +22,14 @@ __this.Open = function (this)
 	this:signal(2)              --kill the closing animation if it is in process
 	this:set_signal_mask(1)     --set the signal to kill the opening animation
 
-	this:move(this.bay, x_axis, -18 * RAD2DEG, 11 * RAD2DEG)
+	this:move(this.bay, x_axis, 9, 5.5)
 	this:wait_for_move(this.bay, x_axis)
 
 	this:turn(this.narm1, x_axis, 1.85 * RAD2DEG, 0.75 * RAD2DEG)
 	this:turn(this.nano1, x_axis,  -1.309 * RAD2DEG, 0.35 * RAD2DEG)
 	this:turn(this.door1, y_axis, -0.611 * RAD2DEG, 0.35 * RAD2DEG)
 	this:sleep(0.6)
-	this:move(this.arm1b, x_axis, -11 * RAD2DEG, 5 * RAD2DEG)
+	this:move(this.arm1b, x_axis, 5.5, 2.5)
 	this:turn(this.pow1, z_axis, -1.571 * RAD2DEG, 0.8 * RAD2DEG)
 	
 	this:wait_for_turn(this.door1, y_axis)
@@ -44,7 +44,7 @@ __this.Open = function (this)
 	this:wait_for_turn(this.door2, y_axis)
 
 	this:turn(this.narm1, x_axis, 1.466 * RAD2DEG, 0.15 * RAD2DEG)
-	this:move(this.plate, z_axis, 8.47 * RAD2DEG, 3.2 * RAD2DEG)
+	this:move(this.plate, z_axis, 4.235, 1.6)
 	this:turn(this.door1, y_axis, 0, 0.15 * RAD2DEG)
 	this:turn(this.nano2, y_axis, 0.698 * RAD2DEG, 0.35 * RAD2DEG)
 	this:sleep(0.5)
@@ -54,6 +54,9 @@ __this.Open = function (this)
 	this:wait_for_move(this.plate, z_axis)
 
 	this:sleep( 0.15 )
+
+    this:spin( this.build, y_axis, 30, 10 )
+    this:spin( this.padbase, y_axis, 30, 10 )
 
     this:OpenYard();
     this:set( INBUILDSTANCE, true )
@@ -67,10 +70,13 @@ __this.Close = function (this)
     this:CloseYard();
     this:set( INBUILDSTANCE, false )
 
+    this:stop_spin( this.build, y_axis, 10 )
+    this:stop_spin( this.padbase, y_axis, 10 )
+
 	this:turn(this.narm1, x_axis, 1.85 * RAD2DEG, 0.25 * RAD2DEG)
 	this:sleep(0.8)
 	this:turn(this.arm1, x_axis, 1 * RAD2DEG, 0.45 * RAD2DEG)
-	this:move(this.plate, z_axis, 0, 3.2 * RAD2DEG)
+	this:move(this.plate, z_axis, 0, 1.6)
 	this:turn(this.door1, y_axis, -0.611 * RAD2DEG, 0.15 * RAD2DEG)
 	this:turn(this.nano2, y_axis, 0, 0.35 * RAD2DEG)
 
@@ -85,7 +91,7 @@ __this.Close = function (this)
 
 	this:wait_for_turn(this.door2, y_axis)
 
-	this:move(this.arm1b, x_axis, 0, 5 * RAD2DEG)
+	this:move(this.arm1b, x_axis, 0, 2.5)
 	this:turn(this.pow1, z_axis, 0, 1 * RAD2DEG)
 	this:sleep(0.6)
 	this:turn(this.narm1, x_axis, 0, 0.75 * RAD2DEG)
@@ -94,7 +100,7 @@ __this.Close = function (this)
 	
 	this:wait_for_turn(this.door1, y_axis)
 
-	this:move(this.bay, x_axis, 0, 11 * RAD2DEG)
+	this:move(this.bay, x_axis, 0, 5.5)
 	this:wait_for_move(this.bay, x_axis)
 end
 
