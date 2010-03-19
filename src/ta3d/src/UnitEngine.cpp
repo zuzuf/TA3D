@@ -377,10 +377,12 @@ namespace TA3D
 			Dir.unit();		// Direction pointée par le curseur
 		}
 
-		bool detectable = false;
+		std::vector<uint16> detectable;
 
 		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
+			if (!(unit[*e].flags & 1) || !unit[*e].visible )
+				continue;
 			unit[ *e ].lock();
 			if (!(unit[*e].flags & 1) || !unit[*e].visible )
 			{
@@ -394,13 +396,13 @@ namespace TA3D
 			float dist = center.sq();
 			if (dist < size)
 			{
-				detectable = true;
+				detectable.push_back(*e);
 				unit[*e].flags |= 0x2;		// Unité détectable
 			}
 			unit[*e].unlock();
 		}
 
-		if (!detectable) // If no unit is near the cursor, then skip the precise method
+		if (detectable.empty()) // If no unit is near the cursor, then skip the precise method
 		{
 			last_on = index;
 			return index;
@@ -408,10 +410,12 @@ namespace TA3D
 
 		float best_dist = 1000000.0f;
 
-		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		for (std::vector<uint16>::iterator e = detectable.begin(); e != detectable.end(); ++e)
 		{
+			if (!(unit[*e].flags & 1) || !unit[*e].visible)
+				continue;
 			unit[*e].lock();
-			if (!(unit[*e].flags & 1) || !unit[*e].visible )
+			if (!(unit[*e].flags & 1) || !unit[*e].visible)
 			{
 				unit[*e].unlock();
 				continue;		// Si l'unité n'existe pas on la zappe

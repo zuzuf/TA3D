@@ -416,7 +416,6 @@ namespace TA3D
 		port[ACTIVATION] = 0;
 		mission.clear();
 		def_mission.clear();
-		port[BUILD_PERCENT_LEFT] = 0;
 		build_percent_left = 0.0f;
 		memset( last_synctick, 0, 40 );
 		if (unit_type != -1)

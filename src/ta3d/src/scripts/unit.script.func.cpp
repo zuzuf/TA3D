@@ -134,7 +134,7 @@ namespace TA3D
                                             (((int)(Pos.z + the_map->map_h_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintZ >> 1),
                                             unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx) ? 0 : 1;
             case BUILD_PERCENT_LEFT:
-                return (port[ BUILD_PERCENT_LEFT ] = (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0 ));
+				return (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0 );
             case YARD_OPEN:
             case ACTIVATION:
             case HEALTH:
@@ -327,7 +327,7 @@ namespace TA3D
                 else
                     return 0;
             case BUILD_PERCENT_LEFT:
-                return (port[ BUILD_PERCENT_LEFT ] = (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0));
+				return (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0);
             case ACTIVATION:
             case STANDINGMOVEORDERS:
             case STANDINGFIREORDERS:
