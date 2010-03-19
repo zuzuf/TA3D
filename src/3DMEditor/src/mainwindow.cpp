@@ -525,12 +525,24 @@ void MainWindow::showHelpViewer()
 void MainWindow::mirrorX()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
+	QQueue<Mesh*> queue;
+	if (mesh)
+		queue.enqueue(mesh);
+	while (!queue.empty())
     {
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-            mesh->vertex[i].x = -mesh->vertex[i].x;
-        mesh->invertOrientation();
-        mesh->computeNormals();
+		Mesh *cur = queue.dequeue();
+		mesh = cur->child;
+		while(mesh)
+		{
+			queue.enqueue(mesh);
+			mesh = mesh->next;
+		}
+
+		cur->pos.x = -cur->pos.x;
+		for(int i = 0 ; i < cur->vertex.size() ; i++)
+			cur->vertex[i].x = -cur->vertex[i].x;
+		cur->invertOrientation();
+		cur->computeNormals();
     }
     Gfx::instance()->updateGL();
 }
@@ -538,75 +550,135 @@ void MainWindow::mirrorX()
 void MainWindow::mirrorY()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
-    {
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-            mesh->vertex[i].y = -mesh->vertex[i].y;
-        mesh->invertOrientation();
-        mesh->computeNormals();
-    }
-    Gfx::instance()->updateGL();
+	QQueue<Mesh*> queue;
+	if (mesh)
+		queue.enqueue(mesh);
+	while (!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		mesh = cur->child;
+		while(mesh)
+		{
+			queue.enqueue(mesh);
+			mesh = mesh->next;
+		}
+
+		cur->pos.y = -cur->pos.y;
+		for(int i = 0 ; i < cur->vertex.size() ; i++)
+			cur->vertex[i].y = -cur->vertex[i].y;
+		cur->invertOrientation();
+		cur->computeNormals();
+	}
+	Gfx::instance()->updateGL();
 }
 
 void MainWindow::mirrorZ()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
-    {
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-            mesh->vertex[i].z = -mesh->vertex[i].z;
-        mesh->invertOrientation();
-        mesh->computeNormals();
-    }
-    Gfx::instance()->updateGL();
+	QQueue<Mesh*> queue;
+	if (mesh)
+		queue.enqueue(mesh);
+	while (!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		mesh = cur->child;
+		while(mesh)
+		{
+			queue.enqueue(mesh);
+			mesh = mesh->next;
+		}
+
+		cur->pos.z = -cur->pos.z;
+		for(int i = 0 ; i < cur->vertex.size() ; i++)
+			cur->vertex[i].z = -cur->vertex[i].z;
+		cur->invertOrientation();
+		cur->computeNormals();
+	}
+	Gfx::instance()->updateGL();
 }
 
 void MainWindow::flipXY()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
-    {
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-        {
-            Vec p = mesh->vertex[i];
-            mesh->vertex[i] = Vec( p.y, p.x, p.z );
-        }
-        mesh->invertOrientation();
-        mesh->computeNormals();
-    }
+	QQueue<Mesh*> queue;
+	if (mesh)
+		queue.enqueue(mesh);
+	while (!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		mesh = cur->child;
+		while(mesh)
+		{
+			queue.enqueue(mesh);
+			mesh = mesh->next;
+		}
+
+		cur->pos = Vec(cur->pos.y, cur->pos.x, cur->pos.z);
+		for(int i = 0 ; i < cur->vertex.size() ; i++)
+		{
+			const Vec &p = mesh->vertex[i];
+			cur->vertex[i] = Vec(p.y, p.x, p.z);
+		}
+		cur->invertOrientation();
+		cur->computeNormals();
+	}
     Gfx::instance()->updateGL();
 }
 
 void MainWindow::flipXZ()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
-    {
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-        {
-            Vec p = mesh->vertex[i];
-            mesh->vertex[i] = Vec( p.z, p.y, p.x );
-        }
-        mesh->invertOrientation();
-        mesh->computeNormals();
-    }
-    Gfx::instance()->updateGL();
+	QQueue<Mesh*> queue;
+	if (mesh)
+		queue.enqueue(mesh);
+	while (!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		mesh = cur->child;
+		while(mesh)
+		{
+			queue.enqueue(mesh);
+			mesh = mesh->next;
+		}
+
+		cur->pos = Vec(cur->pos.z, cur->pos.y, cur->pos.x);
+		for(int i = 0 ; i < cur->vertex.size() ; i++)
+		{
+			const Vec &p = mesh->vertex[i];
+			cur->vertex[i] = Vec(p.z, p.y, p.x);
+		}
+		cur->invertOrientation();
+		cur->computeNormals();
+	}
+	Gfx::instance()->updateGL();
 }
 
 void MainWindow::flipYZ()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
-    {
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-        {
-            Vec p = mesh->vertex[i];
-            mesh->vertex[i] = Vec( p.x, p.z, p.y );
-        }
-        mesh->invertOrientation();
-        mesh->computeNormals();
-    }
-    Gfx::instance()->updateGL();
+	QQueue<Mesh*> queue;
+	if (mesh)
+		queue.enqueue(mesh);
+	while (!queue.empty())
+	{
+		Mesh *cur = queue.dequeue();
+		mesh = cur->child;
+		while(mesh)
+		{
+			queue.enqueue(mesh);
+			mesh = mesh->next;
+		}
+
+		cur->pos = Vec(cur->pos.x, cur->pos.z, cur->pos.y);
+		for(int i = 0 ; i < cur->vertex.size() ; i++)
+		{
+			const Vec &p = mesh->vertex[i];
+			cur->vertex[i] = Vec(p.x, p.z, p.y);
+		}
+		cur->invertOrientation();
+		cur->computeNormals();
+	}
+	Gfx::instance()->updateGL();
 }
 
 void MainWindow::scale()
