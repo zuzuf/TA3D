@@ -684,15 +684,29 @@ void MainWindow::flipYZ()
 void MainWindow::scale()
 {
     Mesh *mesh = Mesh::instance()->getMesh(Gfx::instance()->getSelectionID());
-    if (mesh)
-    {
-        float s = (float)QInputDialog::getDouble(this, tr("Scale"), tr("Enter scale factor:"), 1.0);
-        for(int i = 0 ; i < mesh->vertex.size() ; i++)
-            mesh->vertex[i] = s * mesh->vertex[i];
-        if (s < 0.0f)
-            mesh->invertOrientation();
-        mesh->computeNormals();
-    }
+	QQueue<Mesh*> queue;
+	if (mesh)
+	{
+		float s = (float)QInputDialog::getDouble(this, tr("Scale"), tr("Enter scale factor:"), 1.0);
+		queue.enqueue(mesh);
+		while (!queue.empty())
+		{
+			Mesh *cur = queue.dequeue();
+			mesh = cur->child;
+			while(mesh)
+			{
+				queue.enqueue(mesh);
+				mesh = mesh->next;
+			}
+
+			cur->pos = s * cur->pos;
+			for(int i = 0 ; i < cur->vertex.size() ; i++)
+				cur->vertex[i] = s * cur->vertex[i];
+			if (s < 0.0f)
+			cur->invertOrientation();
+			cur->computeNormals();
+		}
+	}
     Gfx::instance()->updateGL();
 }
 

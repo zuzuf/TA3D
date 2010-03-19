@@ -70,7 +70,7 @@ Mesh* SpringModelLoader::LoadPiece(byte* buf, int offset, Mesh* model)
 
     Piece* fp = (Piece*)&buf[offset];
 
-    piece->flag = SURFACE_ADVANCED | SURFACE_ROOT_TEXTURE | SURFACE_TEXTURED;
+	piece->flag = SURFACE_ADVANCED | SURFACE_ROOT_TEXTURE | SURFACE_TEXTURED | SURFACE_GOURAUD | SURFACE_LIGHTED;
 
 	piece->pos.x = 0.5f * fp->xoffset;
 	piece->pos.y = 0.5f * fp->yoffset;
