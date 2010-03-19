@@ -2654,7 +2654,9 @@ namespace TA3D
                             }
 							else
 							{
-								readyToFire = true;
+								readyToFire = launchScript(Aim_script, 0, NULL) != 0;
+								if (!readyToFire)
+									readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
 								if (pType->weapon[i]->lineofsight)
 								{
 									int start_piece = weapon[i].aim_piece;
