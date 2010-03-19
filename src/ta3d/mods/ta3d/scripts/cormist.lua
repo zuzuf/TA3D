@@ -205,7 +205,7 @@ __this.Create = function(this)
 	this.curGun = 0
 	this.deployed = false
 	
-	while this:get(BUILD_PERCENT_LEFT) do
+	while this:get(BUILD_PERCENT_LEFT) > 0 do
 		this:sleep( 0.25 )
 	end
 	this:start_script( this.AnimationControl, this )
