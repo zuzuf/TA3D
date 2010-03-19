@@ -250,7 +250,7 @@ namespace TA3D
 		int obj = lua_tointeger(L, 2);
 		int axis = lua_tointeger(L, 3);
 		float speed = (float) lua_tonumber(L, 4);
-		float accel = lua_isnoneornil(L, 5) ? 0.0f : (float) lua_tonumber(L, 5);
+		float accel = (lua_gettop(L) < 5 || lua_isnoneornil(L, 5)) ? 0.0f : (float) lua_tonumber(L, 5);
 		lua_settop(L, 0);
 		pUnit->script_spin_object(obj, axis, speed, accel);
 		return 0;
