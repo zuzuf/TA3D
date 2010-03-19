@@ -1816,7 +1816,10 @@ void Mesh::mergeSimilarVertices()
         int e = -1;
         for(int j = 0 ; j < nVertex.size() ; j++)
         {
-            if (nVertex[j] == p)
+			if (nVertex[j] == p
+				&& (tcoord.empty()
+					|| (tcoord[index[i] * 2] == nTcoord[j * 2]
+						&& tcoord[index[i] * 2 + 1] == nTcoord[j * 2 + 1])))
             {
                 e = j;
                 break;
