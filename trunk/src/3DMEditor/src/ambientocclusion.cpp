@@ -50,6 +50,7 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 	if (supportShadowMaps)
 	{
 		Grid<float> texData(renderSize, renderSize);
+		Grid<float> texMData(renderSize, renderSize);
 		glDisable(GL_CULL_FACE);
 		GLuint dlistmap = glGenLists(1);
 		glNewList(dlistmap, GL_COMPILE);
@@ -218,14 +219,14 @@ void Mesh::computeAmbientOcclusion(int w, int h, int precision)     // For the M
 
 		glBindTexture(GL_TEXTURE_2D, fbo.texture());
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, texData.pointerToData());
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_BLUE, GL_FLOAT, texMData.pointerToData());
 
 		QImage mask(w, h, QImage::Format_RGB888);
-		float coef = 255.0f / (dmax / 2);
 		for(int y = 0 ; y < h ; ++y)
 		{
 			for(int x = 0 ; x < w ; ++x)
 			{
-				int c = qMin(255, int(coef * texData(x, h - 1 - y)));
+				int c = qMin(255, int(255.0f * texData(x, h - 1 - y) / texMData(x, h - 1 - y)));
 				mask.setPixel(x, y, qRgb(c, c, c));
 			}
 		}

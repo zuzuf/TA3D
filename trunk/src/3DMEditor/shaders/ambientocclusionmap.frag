@@ -34,5 +34,5 @@ void main()
     shaded += shadow2D( shadowmap6, gl_TexCoord[6].xyz ).x > 0.0 ? 1.0 : 0.0;
   if (nb >= 8)
     shaded += shadow2D( shadowmap7, gl_TexCoord[7].xyz ).x > 0.0 ? 1.0 : 0.0;
-  gl_FragColor = vec4(shaded, shaded, shaded, 0.0);
+  gl_FragColor = vec4(shaded, shaded, nb, 0.0);
 }
