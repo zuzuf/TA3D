@@ -2522,7 +2522,8 @@ namespace TA3D
 
 							Vector3D target_translation;
 							if (target_unit != NULL)
-                                target_translation = ( target.norm() / pType->weapon[ i ]->weaponvelocity) * (target_unit->V - V);
+								for(int k = 0 ; k < 3 ; ++k)		// Iterate to get a better approximation
+									target_translation = ((target + target_translation).norm() / pType->weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
                             if (pType->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
 							{
@@ -2550,9 +2551,9 @@ namespace TA3D
 										target_pos_on_unit = target_unit->model->center;
 								}
 
-								target = target + target_translation - data.data[start_piece].tpos;
+								target += target_translation - data.data[start_piece].tpos;
                                 if (target_unit != NULL)
-									target = target + target_pos_on_unit;
+									target += target_pos_on_unit;
 
                                 if (pType->aim_data[i].check)     // Check angle limitations (not in OTA)
 								{
@@ -2640,7 +2641,7 @@ namespace TA3D
                                         }
                                         else
 											weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.data[start_piece].tpos);
-                                        weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
+										weapon[i].aim_dir += target_translation;
                                         weapon[i].aim_dir.unit();
                                     }
                                     else
@@ -2675,7 +2676,6 @@ namespace TA3D
 									else
 									{
 										Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
-										target_pos_on_unit.reset();
 										if (weapon[i].data == -1)
 											weapon[i].data = target_unit->get_sweet_spot();
 										if (weapon[i].data >= 0)
@@ -2687,7 +2687,7 @@ namespace TA3D
 											target_pos_on_unit = target_unit->model->center;
 										weapon[i].aim_dir = ((Unit*)(weapon[i].target))->Pos + target_pos_on_unit - (Pos + data.data[start_piece].tpos);
 									}
-									weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
+									weapon[i].aim_dir += target_translation;
 									weapon[i].aim_dir.unit();
 								}
 								weapon[i].data = -1;
