@@ -1925,18 +1925,12 @@ void Mesh::splitGeometry()
 
     QVector< QVector< int > > componentVertex;
     QVector< int > component;
-    QVector< int > dist;
     for(int i = 0 ; i < vertex.size() ; i++)
-    {
         component.push_back(-1);
-        dist.push_back(vertex.size());
-    }
 
     QQueue< int > qWork;
     for(int i = 0 ; i < vertex.size() ; i++)
         qWork.enqueue(i);
-    for(int i = 0 ; i < vertex.size() ; i++)
-        qSwap( qWork[i], qWork[ qrand() % qWork.size() ] );
 
     while(!qWork.isEmpty())         // Compute connex components
     {
@@ -1966,8 +1960,6 @@ void Mesh::splitGeometry()
         // B and C have been chosen so we must not use them again
         qWork.removeOne(B);
         qWork.removeOne(C);
-        dist[A] = 0;                // Compute distance from component initializer
-        dist[B] = dist[C] = 1;
         componentVertex.push_back(QVector<int>());
         componentVertex.last() << A << B << C;
 
@@ -1979,59 +1971,8 @@ void Mesh::splitGeometry()
             if (component[i] == cmp)        // Already in
                 continue;
 
-            A = i;
-            B = -1;
-            C = -1;
-            for(int j = 0 ; j < neighbors[A].size() && C == -1 ; j++)
-            {
-                int n = neighbors[A][j];
-                if (component[n] == cmp)
-                {
-                    B = n;
-                    for(int e = j + 1 ; e < neighbors[A].size() && C == -1 ; e++)
-                    {
-                        n = neighbors[A][e];
-                        if (component[n] == cmp && neighbors[B].contains(n))
-                            C = n;
-                    }
-                }
-            }
-            if (C == -1)            // It's not in
-                continue;
-            componentVertex.last() << A;
+			componentVertex.last() << i;
 
-            if (component[i] != -1)         // Special case, the vertex must be duplicated
-            {                               // (2 components joined by a vertex :/)
-                int orig = component[i];
-                for(int e = 0 ; e < index.size() ; e += 3)
-                {
-                    if (index[e] == (uint32)A || index[e+1] == (uint32)A || index[e+2] == (uint32)A)
-                    {
-                        if (component[index[e]] == orig && component[index[e+1]] == orig && component[index[e+2]] == orig)
-                        {
-                            if (index[e] == (uint32)A)
-                                index[e] = vertex.size();
-                            if (index[e+1] == (uint32)A)
-                                index[e+1] = vertex.size();
-                            if (index[e+2] == (uint32)A)
-                                index[e+2] = vertex.size();
-                        }
-                    }
-                }
-                dist.push_back(dist[A]);
-                dist[A] = vertex.size();
-                component.push_back(orig);
-                vertex.push_back(vertex[i]);
-                neighbors.push_back(QVector<int>());
-                for(int e = 0 ; e < neighbors[i].size() ; e++)
-                    if (component[neighbors[i][e]] == orig)
-                    {
-                        neighbors.last().push_back(neighbors[i][e]);
-                        neighbors[i].remove(e--);
-                    }
-            }
-            for(int j = 0 ; j < neighbors[A].size() ; j++)
-                dist[A] = qMin(dist[A], dist[ neighbors[A][j] ] + 1);
             component[i] = cmp;
             qComponent << neighbors[i].toList();
         }
@@ -2143,6 +2084,8 @@ Mesh *Mesh::merge(const QList<Mesh*> &list)
             mesh->copy( tmp );
             tmp->child = NULL;
             tmp->next = NULL;
+			if (base == tmp)
+				base = mesh;
             delete tmp;
         }
         else
