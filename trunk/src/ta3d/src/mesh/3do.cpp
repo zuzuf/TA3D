@@ -774,9 +774,11 @@ namespace TA3D
 
 	bool Mesh3DO::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
+		bool culling = glIsEnabled(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
-		bool hide=false;
-		bool set=false;
+		bool hide = false;
+		bool set = false;
 		float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		if ( !tex_cache_name.empty() )
 		{
@@ -936,11 +938,14 @@ namespace TA3D
 		if (next)
 			alset = next->draw(t, data_s, sel_primitive, alset, notex, side, chg_col, exploding_parts);
 
+		if (!culling)
+			glDisable(GL_CULL_FACE);
 		return alset;
 	}
 
 	bool Mesh3DO::draw_nodl(bool alset)
 	{
+		bool culling = glIsEnabled(GL_CULL_FACE);
 		glPushMatrix();
 
 		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
@@ -988,6 +993,8 @@ namespace TA3D
 		glPopMatrix();
 		if (next)
 			alset = next->draw_nodl(alset);
+		if (!culling)
+			glDisable(GL_CULL_FACE);
 
 		return alset;
 	}
