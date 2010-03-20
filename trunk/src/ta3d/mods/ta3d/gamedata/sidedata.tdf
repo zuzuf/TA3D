@@ -8,11 +8,11 @@
   energycolor = 208;
   metalcolor = 224;
 
-  [ENERGYBAR] { x1=471; y1=12; x2=598; y2=14; }
+  [ENERGYBAR] { x1=471; y1=14; x2=598; y2=16; }
   [ENERGYNUM] { x1=529; y1=18; x2=529; y2=18; }
   [ENERGYMAX] { x1=595; y1=1; x2=595; y2=1; }
   [ENERGY0] { x1=468; y1=1; x2=468; y2=1; }
-  [METALBAR] { x1=218; y1=12; x2=345; y2=14; }
+  [METALBAR] { x1=212; y1=14; x2=341; y2=16; }
   [METALNUM] { x1=278; y1=18; x2=278; y2=18; }
   [METALMAX] { x1=341; y1=1; x2=341; y2=1; }
   [METAL0] { x1=215; y1=1; x2=215; y2=1; }
@@ -43,11 +43,11 @@
   energycolor = 208;
   metalcolor = 224;
 
-  [ENERGYBAR] { x1=471; y1=12; x2=598; y2=14; }
+  [ENERGYBAR] { x1=471; y1=14; x2=598; y2=16; }
   [ENERGYNUM] { x1=529; y1=18; x2=529; y2=18; }
   [ENERGYMAX] { x1=595; y1=1; x2=595; y2=1; }
   [ENERGY0] { x1=468; y1=1; x2=468; y2=1; }
-  [METALBAR] { x1=218; y1=12; x2=345; y2=14; }
+  [METALBAR] { x1=212; y1=14; x2=341; y2=16; }
   [METALNUM] { x1=278; y1=18; x2=278; y2=18; }
   [METALMAX] { x1=341; y1=1; x2=341; y2=1; }
   [METAL0] { x1=215; y1=1; x2=215; y2=1; }
