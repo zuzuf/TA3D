@@ -316,6 +316,8 @@ namespace TA3D
 	{
 		pMutex.lock();
 
+		birthTime = 0.0f;
+
 		movingAnimation = false;
 
 		kills = 0;
@@ -1068,6 +1070,8 @@ namespace TA3D
 		else
 			if (visible)
 			{
+				// Set time origin to our birth date
+				t -= birthTime;
 				glTranslatef( render.Pos.x, render.Pos.y, render.Pos.z );
 
 				if (lp_CONFIG->underwater_bright && the_map->water && render.Pos.y < the_map->sealvl)

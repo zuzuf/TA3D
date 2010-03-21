@@ -283,6 +283,7 @@ namespace TA3D
 			gzwrite(file, units.unit[i].port, sizeof( sint16 ) * 21);
 
 			SAVE( units.unit[i].c_time );
+			SAVE( units.unit[i].birthTime );
 			SAVE( units.unit[i].h );
 			SAVE( units.unit[i].groupe );
 			SAVE( units.unit[i].built );
@@ -777,6 +778,7 @@ namespace TA3D
 			gzread(file, units.unit[i].port, sizeof(sint16) * 21);
 
 			LOAD( units.unit[i].c_time );
+			LOAD( units.unit[i].birthTime );
 			LOAD( units.unit[i].h );
 			LOAD( units.unit[i].groupe );
 			LOAD( units.unit[i].built );
