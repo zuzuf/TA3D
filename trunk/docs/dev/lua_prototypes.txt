@@ -49,6 +49,7 @@ point( x,y,r,g,b )
 send_signal( player_id, signal )
 set_cam_mode( mode )	-> uses the signal system
 set_cam_pos( player_id,x,z )
+set_cam( player_id, { pos = {x, y, z}, dir = {x, y, z}, mode } )      // mode = false (normal cam), true (freecam), dir = { x = heading, y = pitch, z = roll }
 set_standing_orders( unit_id, move_order, fire_order )
 set_unit_health( unit_id, health_percentage )
 start_x( player_id )
@@ -56,6 +57,11 @@ start_z( player_id )
 text_print_for( x, y, str, player_id )
 text_print( x, y, str )
 triangle( x1,y1,x2,y2,x3,y3,r,g,b )
+unit_pos( unit_id )     // Returns a vector
+unit_angle( unit_id )   // Returns a vector
+unit_height( unit_id )
+unit_piece_pos( unit_id, piece )    // Returns a vector
+unit_piece_dir( unit_id, piece )    // Returns a normalized vector
 unit_x( unit_id )
 unit_y( unit_id )
 unit_z( unit_id )

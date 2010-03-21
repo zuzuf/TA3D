@@ -1,7 +1,7 @@
 -- Arm Commander KBOT Script
 
 createUnitScript("armcom")
-__this:piece("torso","ruparm","luparm","rbigflash","nanospray","pelvis","lfirept","rthigh","rleg","lthigh","lleg")
+__this:piece("torso","ruparm","luparm","rbigflash","nanospray","pelvis","lfirept","rthigh","rleg","lthigh","lleg","head")
 
 -- State variables
 __this.bMoving = false

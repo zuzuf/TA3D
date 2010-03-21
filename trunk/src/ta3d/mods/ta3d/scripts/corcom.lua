@@ -1,7 +1,7 @@
 -- Core Commander KBOT Script
 
 createUnitScript("corcom")
-__this:piece("torso","ruparm","luparm","bigflsh", "mlasflsh", "nanogun", "nanospray","pelvis","rthigh","rleg","lthigh","lleg")
+__this:piece("torso","ruparm","luparm","bigflsh", "mlasflsh", "nanogun", "nanospray","pelvis","rthigh","rleg","lthigh","lleg","head")
 
 -- State variables
 __this.bMoving = false
