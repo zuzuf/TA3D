@@ -40,6 +40,7 @@
 #include <ingame/players.h>
 #include <input/mouse.h>
 #include <input/keyboard.h>
+#include <ingame/battle.h>
 
 
 
@@ -842,6 +843,99 @@ namespace TA3D
 		return 1;
 	}
 
+	int program_unit_height( lua_State *L )		// unit_height( unit_id )
+	{
+		int unit_id = lua_tointeger( L, 1 );
+		lua_pop( L, 1 );
+
+		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		{
+			units.lock();
+			UnitType *pType = units.unit[ unit_id ].type_id >= 0 ? unit_manager.unit_type[units.unit[ unit_id ].type_id] : NULL;
+			if (pType && pType->model)
+				lua_pushnumber( L, pType->model->top );
+			else
+				lua_pushnumber( L, 0 );
+			units.unlock();
+		}
+		else
+			lua_pushnumber( L, 0 );
+
+		return 1;
+	}
+
+	int program_unit_piece_pos( lua_State *L )		// unit_piece_pos( unit_id, piece )
+	{
+		int unit_id = lua_tointeger( L, 1 );
+
+		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		{
+			units.lock();
+			UnitType *pType = units.unit[ unit_id ].type_id >= 0 ? unit_manager.unit_type[units.unit[ unit_id ].type_id] : NULL;
+			if (pType && pType->model && pType->script)
+			{
+				int piece_id = pType->script->identify(lua_tostring(L, -1));
+				lua_pop( L, 2 );
+				if (piece_id >= 0)
+				{
+					units.unit[ unit_id ].compute_model_coord();
+					lua_pushvector( L, units.unit[ unit_id ].data.data[piece_id].pos );
+				}
+				else
+					lua_pushvector( L, Vector3D() );
+			}
+			else
+			{
+				lua_pop( L, 2 );
+				lua_pushvector( L, Vector3D() );
+			}
+			units.unlock();
+		}
+		else
+		{
+			lua_pop( L, 2 );
+			lua_pushvector( L, Vector3D() );
+		}
+
+		return 1;
+	}
+
+	int program_unit_piece_dir( lua_State *L )		// unit_piece_dir( unit_id, piece )
+	{
+		int unit_id = lua_tointeger( L, 1 );
+
+		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		{
+			units.lock();
+			UnitType *pType = units.unit[ unit_id ].type_id >= 0 ? unit_manager.unit_type[units.unit[ unit_id ].type_id] : NULL;
+			if (pType && pType->model && pType->script)
+			{
+				int piece_id = pType->script->identify(lua_tostring(L, -1));
+				lua_pop( L, 2 );
+				if (piece_id >= 0)
+				{
+					units.unit[ unit_id ].compute_model_coord();
+					lua_pushvector( L, Vector3D(0.0f, 0.0f, 1.0f) * units.unit[ unit_id ].data.data[piece_id].matrix );
+				}
+				else
+					lua_pushvector( L, Vector3D() );
+			}
+			else
+			{
+				lua_pop( L, 2 );
+				lua_pushvector( L, Vector3D() );
+			}
+			units.unlock();
+		}
+		else
+		{
+			lua_pop( L, 2 );
+			lua_pushvector( L, Vector3D() );
+		}
+
+		return 1;
+	}
+
 	int program_unit_x( lua_State *L )		// unit_x( unit_id )
 	{
 		int unit_id = lua_tointeger( L, 1 );
@@ -889,6 +983,40 @@ namespace TA3D
 		}
 		else
 			lua_pushnumber( L, 0 );
+
+		return 1;
+	}
+
+	int program_unit_pos( lua_State *L )		// unit_pos( unit_id )
+	{
+		int unit_id = lua_tointeger( L, 1 );
+		lua_pop( L, 1 );
+
+		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		{
+			units.lock();
+			lua_pushvector( L, units.unit[ unit_id ].Pos );
+			units.unlock();
+		}
+		else
+			lua_pushvector( L, Vector3D() );
+
+		return 1;
+	}
+
+	int program_unit_angle( lua_State *L )		// unit_angle( unit_id )
+	{
+		int unit_id = lua_tointeger( L, 1 );
+		lua_pop( L, 1 );
+
+		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		{
+			units.lock();
+			lua_pushvector( L, units.unit[ unit_id ].Angle );
+			units.unlock();
+		}
+		else
+			lua_pushvector( L, Vector3D() );
 
 		return 1;
 	}
@@ -982,6 +1110,44 @@ namespace TA3D
 			}
 		}
 		lua_pop( L, 3 );
+		return 0;
+	}
+
+	int program_set_cam( lua_State *L )		// set_cam( player_id, { pos = { x, y, z }, dir = { x, y, z }, mode } )
+	{
+		if (lua_tointeger( L, 1 ) == players.local_human_id )
+		{
+			lua_pushstring(L, "pos");
+			lua_rawget(L, -2);
+			Camera::inGame->rpos = lua_tovector(L, -1);
+
+			lua_pop(L, 1);
+			lua_pushstring(L, "dir");
+			lua_rawget(L, -2);
+			Battle::Instance()->setCameraDirection( lua_tovector(L, -1) );
+
+			lua_pop(L, 1);
+			lua_pushstring(L, "mode");
+			lua_rawget(L, -2);
+			Battle::Instance()->setFreeCamera( lua_toboolean(L, -1) );
+
+			lua_pop(L, 1);
+		}
+		else
+		{
+#warning TODO: implement program_set_cam in network protocol
+//			if (network_manager.isServer() && !LuaProgram::passive)
+//			{
+//				struct event cam_event;
+//				cam_event.type = EVENT_CAMERA_POS;
+//				cam_event.opt1 = lua_tointeger( L, 1 );
+//				cam_event.x = (float) lua_tonumber( L, 2 );
+//				cam_event.z = (float) lua_tonumber( L, 3 );
+//
+//				network_manager.sendEvent( &cam_event );
+//			}
+		}
+		lua_pop( L, 2 );
 		return 0;
 	}
 
@@ -1204,12 +1370,18 @@ namespace TA3D
 		lua_register( L, "unit_x", program_unit_x );
 		lua_register( L, "unit_y", program_unit_y );
 		lua_register( L, "unit_z", program_unit_z );
+		lua_register( L, "unit_pos", program_unit_pos );
+		lua_register( L, "unit_angle", program_unit_angle );
+		lua_register( L, "unit_piece_pos", program_unit_piece_pos );
+		lua_register( L, "unit_piece_dir", program_unit_piece_dir );
+		lua_register( L, "unit_height", program_unit_height );
 		lua_register( L, "move_unit", program_move_unit );
 		lua_register( L, "kill_unit", program_kill_unit );
 		lua_register( L, "kick_unit", program_kick_unit );
 		lua_register( L, "play", program_play );
 		lua_register( L, "play_for", program_play_for );
 		lua_register( L, "set_cam_pos", program_set_cam_pos );
+		lua_register( L, "set_cam", program_set_cam );
 		lua_register( L, "clf", program_clf );
 		lua_register( L, "start_x", program_start_x );
 		lua_register( L, "start_z", program_start_z );

@@ -75,6 +75,9 @@ namespace TA3D
 		*/
 		Result result() const {return pResult;}
 
+		void setCameraDirection(const Vector3D &dir);
+		void setFreeCamera(bool fc);
+
 	private:
 		/*!
 		** \brief Reset the cache for the GUI name

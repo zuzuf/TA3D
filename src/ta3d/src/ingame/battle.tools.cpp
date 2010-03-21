@@ -12,6 +12,17 @@
 namespace TA3D
 {
 
+	void Battle::setCameraDirection(const Vector3D &dir)
+	{
+		r1 = dir.x;
+		r2 = dir.y;
+		r3 = dir.z;
+	}
+
+	void Battle::setFreeCamera(bool fc)
+	{
+		freecam = fc;
+	}
 
 	Vector3D Battle::cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map)
 	{
