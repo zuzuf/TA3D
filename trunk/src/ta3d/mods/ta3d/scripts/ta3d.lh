@@ -1,19 +1,31 @@
-local function sleep(delay)
-    coroutine.yield(delay, 1)
-end
+local DEG2RAD = 0.017453292519943295
+local RAD2DEG = 57.29577951308232
 
-local function wait()
-    coroutine.yield(0, 2)
-end
+local DEG2TA = 182.04444444444445
+local TA2DEG = 0.0054931640625
 
-local function end_thread()
-    coroutine.yield(0, 4)
-end
+local RAD2TA = 20860.756700940907
+local TA2RAD = 0.000047936899621426287
+
+local Builder = -3
+local CanAttack = -2
 
 local yield = coroutine.yield
 
+local function sleep(delay)
+    yield(delay, 1)
+end
+
+local function wait()
+    yield(0, 2)
+end
+
+local function end_thread()
+    yield(0, 4)
+end
+
 local function set_signal_mask(sig)
-    coroutine.yield(sig, 3)
+    yield(sig, 3)
 end
 
 local function vector()
@@ -74,7 +86,7 @@ __fast_vector_metatable = {__add=__fast_vec_add, __sub=__fast_vec_sub, __mul=__f
 
 -- normalize v, modifies the content of v
 local function normalize(v)
-    local l = 1.0 / math.sqrt( v * v )
+    local l = 1.0 / math.sqrt( v % v )
     v.x = l * v.x
     v.y = l * v.y
     v.z = l * v.z
@@ -83,12 +95,17 @@ end
 
 -- returns the normalized version of v, doesn't change v
 local function normalized(v)
-    local l = 1.0 / math.sqrt( v * v )
+    local l = 1.0 / math.sqrt( v % v )
     local tmp = vector()
     tmp.x = l * v.x
     tmp.y = l * v.y
     tmp.z = l * v.z
     return tmp
+end
+
+-- returns the angle between 2 vectors
+local function vangle(v1, v2)
+    return math.acos((v1 % v2) / math.sqrt( (v1 % v1) * (v2 % v2) )) * RAD2DEG
 end
 
 local game_signal = coroutine.yield
@@ -259,15 +276,3 @@ function wrap(this, func)
 end
 
 __type_metatable = {__index=__type_virtual_index, __newindex=__type_virtual_newindex}
-
-local DEG2RAD = 0.017453292519943295
-local RAD2DEG = 57.29577951308232
-
-local DEG2TA = 182.04444444444445
-local TA2DEG = 0.0054931640625
-
-local RAD2TA = 20860.756700940907
-local TA2RAD = 0.000047936899621426287
-
-local Builder = -3
-local CanAttack = -2
