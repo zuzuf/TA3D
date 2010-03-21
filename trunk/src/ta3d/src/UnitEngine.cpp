@@ -541,6 +541,7 @@ namespace TA3D
 			units.unit[id].build_percent_left = 100.0f;
 			units.unit[id].cur_px = ((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3;
 			units.unit[id].cur_py = ((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3;
+			units.unit[id].birthTime = float(units.current_tick) / TICKS_PER_SEC;
 			units.unit[id].unlock();
 
 			units.unit[id].draw_on_map();
