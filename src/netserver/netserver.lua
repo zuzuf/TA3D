@@ -47,44 +47,44 @@ end
 
 -- parse a command sent by a client (command arg0 "arg \" 1" ==> {"command","arg0","arg \" 1"}
 function parseCommand(msg)
-	local args = {}
-	local inString = false
-	local current = ""
-	local discard = false
-	for i = 1, string.len(msg) do
-		if not inString then
-			if msg:sub(i, i) == "\"" or msg:sub(i, i) == " " then
-				if current ~= "" then
-					table.insert(args, current)
-					current = ""
-				end
-				inString = (msg:sub(i, i) == "\"")
-			else
-				current = current .. msg:sub(i, i)
-			end
-			discard = false
-		else
-			if not discard then
-				if msg:sub(i, i) == "\"" then
-					table.insert(args, current)
-					current = ""
-					inString = false
-				elseif msg:sub(i, i) == "\\" and i + 1 < string.len(msg) then
-					i = i + 1
-					current = current .. msg:sub(i, i)
-					discard = true
-				else
-					current = current .. msg:sub(i, i)
-				end
-			else
-				discard = false
-			end
-		end
-	end
-	if current ~= "" then
-		table.insert(args, current)
-	end
-	return args
+    local args = {}
+    local inString = false
+    local current = ""
+    local discard = false
+    for i = 1, string.len(msg) do
+        if not inString then
+            if msg:sub(i, i) == "\"" or msg:sub(i, i) == " " then
+                if current ~= "" then
+                    table.insert(args, current)
+                    current = ""
+                end
+                inString = (msg:sub(i, i) == "\"")
+            else
+                current = current .. msg:sub(i, i)
+            end
+            discard = false
+        else
+            if not discard then
+                if msg:sub(i, i) == "\"" then
+                    table.insert(args, current)
+                    current = ""
+                    inString = false
+                elseif msg:sub(i, i) == "\\" and i + 1 < string.len(msg) then
+                    i = i + 1
+                    current = current .. msg:sub(i, i)
+                    discard = true
+                else
+                    current = current .. msg:sub(i, i)
+                end
+            else
+                discard = false
+            end
+        end
+    end
+    if current ~= "" then
+        table.insert(args, current)
+    end
+    return args
 end
 
 SERVER_VERSION = "TA3D netserver 0.1.0"
@@ -124,27 +124,27 @@ if netserver_db == nil then
     os.exit()
 end
 
-function mysql_reconnect()		-- when connection to MySQL database is closed, let's reopen it :D
-	log_debug("reconnecting to MySQL server")
-	netserver_db:close()
-	log_debug("connection to MySQL server closed")
-	netserver_db = mysql:connect("netserver", db_user, db_pass, db_host)
-	if netserver_db then
-		log_debug("connected to MySQL server")
-	else
-		log_error("impossible to connect to MySQL server!")
-	end
+function mysql_reconnect()        -- when connection to MySQL database is closed, let's reopen it :D
+    log_debug("reconnecting to MySQL server")
+    netserver_db:close()
+    log_debug("connection to MySQL server closed")
+    netserver_db = mysql:connect("netserver", db_user, db_pass, db_host)
+    if netserver_db then
+        log_debug("connected to MySQL server")
+    else
+        log_error("impossible to connect to MySQL server!")
+    end
 end
 
 function mysql_safe_request(req)
-	local cur, err = netserver_db:execute(req)
-	if err ~= nil then
-		log_error( err )
-		log_debug( "I am going to reconnect to MySQL server and retry request : '" .. req .. "'")
-		mysql_reconnect()
-		cur, err = netserver_db:execute(req)
-	end
-	return cur, err
+    local cur, err = netserver_db:execute(req)
+    if err ~= nil then
+        log_error( err )
+        log_debug( "I am going to reconnect to MySQL server and retry request : '" .. req .. "'")
+        mysql_reconnect()
+        cur, err = netserver_db:execute(req)
+    end
+    return cur, err
 end
 
 -- do not erase clients data if set (to allow live reloading of server code)
@@ -194,72 +194,72 @@ end
 
 -- Tell a client (or all clients if nill) everything he needs about a server
 function sendServerInfo(client, server)
-	local msg = "SERVER NAME \"" .. escape(server.name) .. "\" MOD \"" .. escape(server.mod) .. "\" HOST \"" .. escape(server.host) .. "\" MAP \"" .. escape(server.map) .. "\" VERSION \"" .. escape(server.version) .. "\" SLOTS \"" .. escape(server.slots) .. "\" OWNER \"" .. escape(server.owner) .. "\""
-	if client == nil then
-	    sendAll(msg)
-	else
-	    client:send(msg)
-	end
+    local msg = "SERVER NAME \"" .. escape(server.name) .. "\" MOD \"" .. escape(server.mod) .. "\" HOST \"" .. escape(server.host) .. "\" MAP \"" .. escape(server.map) .. "\" VERSION \"" .. escape(server.version) .. "\" SLOTS \"" .. escape(server.slots) .. "\" OWNER \"" .. escape(server.owner) .. "\""
+    if client == nil then
+        sendAll(msg)
+    else
+        client:send(msg)
+    end
 end
 
 -- Close the given server
 function closeServer(server)
-	sendAll("UNSERVER \"" .. escape(server.name) .. "\"")
+    sendAll("UNSERVER \"" .. escape(server.name) .. "\"")
 
-	if server.players ~= nil then
-		for k, v in pairs(server.players) do
-			if clients_login[v] ~= nil then
-				clients_login[v]:send("UNJOIN \"" .. escape(server.host) .. "\"")
-				clients_login[v].server = nil
-				joinChan(clients_login[v])
-			end
-		end
-	end
+    if server.players ~= nil then
+        for k, v in pairs(server.players) do
+            if clients_login[v] ~= nil then
+                clients_login[v]:send("UNJOIN \"" .. escape(server.host) .. "\"")
+                clients_login[v].server = nil
+                joinChan(clients_login[v])
+            end
+        end
+    end
 
-	game_server_table[server.name] = nil
-	clients_login[server.owner].server = nil
+    game_server_table[server.name] = nil
+    clients_login[server.owner].server = nil
 end
 
 -- Join a server
 function joinServer(server, client)
-	if server == nil then
-		return
-	end
-	if tonumber(server.slots) > 0 then
-		server.slots = tostring(tonumber(server.slots) - 1)
-		table.insert(server.players, client.login)
-		client:send("JOIN \"" .. escape(server.host) .. "\"")
-		leaveChan(client)
-	else
-		client:send("ERROR Server is full")
-	end
+    if server == nil then
+        return
+    end
+    if tonumber(server.slots) > 0 then
+        server.slots = tostring(tonumber(server.slots) - 1)
+        table.insert(server.players, client.login)
+        client:send("JOIN \"" .. escape(server.host) .. "\"")
+        leaveChan(client)
+    else
+        client:send("ERROR Server is full")
+    end
 end
 
 -- Leave a server
 function unjoinServer(server, client)
-	if server == nil then
-		return
-	elseif server.owner == client.login then
-		return closeServer(server)
-	end
+    if server == nil then
+        return
+    elseif server.owner == client.login then
+        return closeServer(server)
+    end
 
-	local found = false
-	for k, v in ipairs(server.players) do
-		if v == client.login then
-			found = k
-		end
-	end
-	
-	if found ~= false then
-		if found < #(server.players) then
-			server.players[found] = server.players[#(server.players)]
-		else
-			server.players[found] = nil
-		end
-		server.slots = tostring(tonumber(server.slots) + 1)
-		client:send("UNJOIN \"" .. escape(server.host) .. "\"")
-		joinChan(client)
-	end
+    local found = false
+    for k, v in ipairs(server.players) do
+        if v == client.login then
+            found = k
+        end
+    end
+    
+    if found ~= false then
+        if found < #(server.players) then
+            server.players[found] = server.players[#(server.players)]
+        else
+            server.players[found] = nil
+        end
+        server.slots = tostring(tonumber(server.slots) + 1)
+        client:send("UNJOIN \"" .. escape(server.host) .. "\"")
+        joinChan(client)
+    end
 end
 
 -- Tell everyone on client's chan that client is there
@@ -314,14 +314,14 @@ end
 function getFromDB(req)
     local cur, err = mysql_safe_request(req)
     if cur == nil or cur == 0 or cur:numrows() == 0 then
-    	log_error( err )
+        log_error( err )
         return {}
     end
     local table = {}
     local nbResults = cur:numrows()
 
-	for i = 1, nbResults do
-    	table[i] = cur:fetch({}, "a")
+    for i = 1, nbResults do
+        table[i] = cur:fetch({}, "a")
     end
     return table
 end
@@ -343,13 +343,13 @@ end
 function registerClient(client, password)
     local cur, err = mysql_safe_request("SELECT * FROM `clients` WHERE `login`='" .. fixSQL(client.login) .. "'")
     if cur == nil or cur == 0 or cur:numrows() ~= 0 then
-    	log_error( err )
+        log_error( err )
         return false
     end
     
     cur, err = mysql_safe_request("INSERT INTO clients(`login`, `password`,`ID`,`admin`,`banned`) VALUES('" .. fixSQL(client.login) .. "', PASSWORD('" .. fixSQL(password) .. "'),NULL,'0','0')")
     if cur == nil or cur == 0 then
-    	log_error( err )
+        log_error( err )
         return false
     end
     
@@ -383,7 +383,7 @@ end
 function getValue(name)
     local cur, err = mysql_safe_request("SELECT value FROM `info` WHERE name='" .. fixSQL(name) .. "'")
     if cur == nil or cur == 0 or cur:numrows() ~= 1 then
-    	log_error( err )
+        log_error( err )
         return ""
     end
     local row = cur:fetch({}, "a")
@@ -486,6 +486,13 @@ function processClient(client)
                             client:send("ERROR login already used")
                         end
                     end
+                -- GET MOD LIST : client is asking for the mod list
+                elseif args[1] == "GET" and #args >= 3 and args[2] == "MOD" and args[3] == "LIST" then
+                    local mod_list = getFromDB("SELECT * FROM mods")
+                    client:send("CLEAR MOD LIST")        -- this is used to force refresh of mod list
+                    for i, mod in ipairs(mod_list) do
+                           client:send("MOD \"" .. escape(mod.ID) .. "\" \"" .. escape(mod.version) .. "\" \"" .. escape(mod.name) .. "\" \"" .. escape(mod.file) .. "\" \"" .. escape(mod.author) .. "\" \"" .. escape(mod.comment) .. "\"")
+                    end
                 else
                     client:send("ERROR could not parse request")
                 end
@@ -504,13 +511,6 @@ function processClient(client)
                     for c, v in pairs(chans) do
                         client:send("CHAN \"" .. escape(c) .. "\"")
                     end
-                -- GET MOD LIST : client is asking for the mod list
-                elseif args[1] == "GET" and #args >= 3 and args[2] == "MOD" and args[3] == "LIST" then
-                	local mod_list = getFromDB("SELECT * FROM mods")
-                	client:send("CLEAR MOD LIST")		-- this is used to force refresh of mod list
-                    for i, mod in ipairs(mod_list) do
-	                   	client:send("MOD \"" .. escape(mod.ID) .. "\" \"" .. escape(mod.version) .. "\" \"" .. escape(mod.name) .. "\" \"" .. escape(mod.file) .. "\" \"" .. escape(mod.author) .. "\" \"" .. escape(mod.comment) .. "\"")
-	                end
                 -- GET CLIENT LIST : list ALL clients
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "CLIENT" and args[3] == "LIST" then
                     for id, s in ipairs(socket_list) do
@@ -521,88 +521,88 @@ function processClient(client)
                     end
                 -- GET SERVER LIST : client is asking for the server list
                 elseif args[1] == "GET" and #args >= 3 and args[2] == "SERVER" and args[3] == "LIST" then
-                	client:send("CLEAR SERVER LIST")		-- this is used to force refresh of server list
+                    client:send("CLEAR SERVER LIST")        -- this is used to force refresh of server list
                     for i, server in pairs(game_server_table) do
-                    	sendServerInfo(client, server)
-	                end
+                        sendServerInfo(client, server)
+                    end
                 -- UNSERVER : client is closing its server
                 elseif args[1] == "UNSERVER" then
-                	if client.server ~= nil and client.server.owner == client.login then
-                		closeServer(client.server)
-                	end
+                    if client.server ~= nil and client.server.owner == client.login then
+                        closeServer(client.server)
+                    end
                 -- SERVER : client is creating/updating a server
                 elseif args[1] == "SERVER" then
-                	-- get the basic info about the server
-               		local new_server = {name="", mod="", host=string.match(client.sock:getpeername(),"%d+%.%d+%.%d+%.%d+"), slots=0, map="", owner=client.login, version=client.version, players={client.login}}
-               		local discard = false
-               		for i, v in ipairs(args) do
-               			if not discard and i < #args then
-               				if v == "NAME" then
-               					new_server.name = args[i+1]
-               					discard = true
-               				elseif v == "MOD" then
-               					new_server.mod = args[i+1]
-               					discard = true
-               				elseif v == "SLOTS" then
-               					new_server.slots = args[i+1]
-               					discard = true
-               				elseif v == "MAP" then
-               					new_server.map = args[i+1]
-               					discard = true
-               				end
-               			else
-               				discard = false
-               			end
-               		end
-               		if new_server.name == "" then
-               			if client.server ~= nil then
-               				new_server.name = client.server.name
-               			else
-               				client:send("ERROR No server name specified when creating a server!")
-               				return
-               			end
-               		end
-               		if new_server.mod == "" and client.server ~= nil then
-               			new_server.mod = client.server.mod
-               		end
-                	if game_server_table[new_server.name] ~= nil and game_server_table[new_server.name].owner ~= client.login then
-                		client:send("ERROR Can't create server : there is already a server with this name!")
-                		client.server = nil
-                	else
-                		if client.server ~= nil and client.server.name ~= new_server.name then	-- this is important since it prevents a client from flooding the game server list
-                			closeServer(client.server)
-                		end
-                		if game_server_table[new_server.name] == nil then
-		            		-- send back this information to all clients in order to update their data
-		            		sendServerInfo(nil, new_server)
-	                		game_server_table[new_server.name] = new_server
-	                		client:send("HOST");
-	                	else
-		            		-- send back this updated information to all clients in order to update their data
-		            		if game_server_table[new_server.name].mod ~= new_server.mod or game_server_table[new_server.name].slots ~= new_server.slots or game_server_table[new_server.name].map ~= new_server.map then
-			            		sendServerInfo(nil, new_server)
-			            	end
-	                		game_server_table[new_server.name].mod = new_server.mod
-	                		game_server_table[new_server.name].slots = new_server.slots
-	                		game_server_table[new_server.name].map = new_server.map
-	                	end
-                		client.server = game_server_table[new_server.name]
-                	end
+                    -- get the basic info about the server
+                       local new_server = {name="", mod="", host=string.match(client.sock:getpeername(),"%d+%.%d+%.%d+%.%d+"), slots=0, map="", owner=client.login, version=client.version, players={client.login}}
+                       local discard = false
+                       for i, v in ipairs(args) do
+                           if not discard and i < #args then
+                               if v == "NAME" then
+                                   new_server.name = args[i+1]
+                                   discard = true
+                               elseif v == "MOD" then
+                                   new_server.mod = args[i+1]
+                                   discard = true
+                               elseif v == "SLOTS" then
+                                   new_server.slots = args[i+1]
+                                   discard = true
+                               elseif v == "MAP" then
+                                   new_server.map = args[i+1]
+                                   discard = true
+                               end
+                           else
+                               discard = false
+                           end
+                       end
+                       if new_server.name == "" then
+                           if client.server ~= nil then
+                               new_server.name = client.server.name
+                           else
+                               client:send("ERROR No server name specified when creating a server!")
+                               return
+                           end
+                       end
+                       if new_server.mod == "" and client.server ~= nil then
+                           new_server.mod = client.server.mod
+                       end
+                    if game_server_table[new_server.name] ~= nil and game_server_table[new_server.name].owner ~= client.login then
+                        client:send("ERROR Can't create server : there is already a server with this name!")
+                        client.server = nil
+                    else
+                        if client.server ~= nil and client.server.name ~= new_server.name then    -- this is important since it prevents a client from flooding the game server list
+                            closeServer(client.server)
+                        end
+                        if game_server_table[new_server.name] == nil then
+                            -- send back this information to all clients in order to update their data
+                            sendServerInfo(nil, new_server)
+                            game_server_table[new_server.name] = new_server
+                            client:send("HOST");
+                        else
+                            -- send back this updated information to all clients in order to update their data
+                            if game_server_table[new_server.name].mod ~= new_server.mod or game_server_table[new_server.name].slots ~= new_server.slots or game_server_table[new_server.name].map ~= new_server.map then
+                                sendServerInfo(nil, new_server)
+                            end
+                            game_server_table[new_server.name].mod = new_server.mod
+                            game_server_table[new_server.name].slots = new_server.slots
+                            game_server_table[new_server.name].map = new_server.map
+                        end
+                        client.server = game_server_table[new_server.name]
+                    end
                 -- JOIN server : client is joining a server
                 elseif args[1] == "JOIN" and #args == 2 then
                     if client.server ~= nil then
-                    	client:send("ERROR You have already joined a server")
+                        client:send("ERROR You have already joined a server")
                     elseif game_server_table[args[2]] == nil then
-                    	client:send("ERROR Could not join server : server doesn't exist")
+                        client:send("ERROR Could not join server : server doesn't exist")
                     else
-                    	joinServer(game_server_table[args[2]], client)
+                        joinServer(game_server_table[args[2]], client)
                     end
                 -- UNJOIN server : client is leaving a server
                 elseif args[1] == "UNJOIN" then
                     if client.server == nil then
-                    	client:send("ERROR No server to leave")
+                        client:send("ERROR No server to leave")
                     else
-                    	unjoinServer(client.server, client)
+                        unjoinServer(client.server, client)
                     end
                 -- SEND to msg : client is sending a message to another client
                 elseif args[1] == "SEND" and #args >= 3 then
@@ -624,11 +624,11 @@ function processClient(client)
                 -- CLOSE server : admin privilege, close a server
                 elseif args[1] == "CLOSE" and #args == 2 then
                     if client.admin == 1 then
-                    	if game_server_table[args[2]] ~= nil then
-	                    	closeServer(game_server_table[args[2]])
-	                    else
-							client:send("ERROR Server not found!")
-	                    end
+                        if game_server_table[args[2]] ~= nil then
+                            closeServer(game_server_table[args[2]])
+                        else
+                            client:send("ERROR Server not found!")
+                        end
                     else
                         client:send("ERROR you don't have the right to do that")
                     end
@@ -734,8 +734,8 @@ function newClient(incoming)
                                     joinChan(this)
                                 end,
                     disconnect = function(this)
-                                    if this.server ~= nil then	-- leave this server
-                                    	unjoinServer(this.server, this)
+                                    if this.server ~= nil then    -- leave this server
+                                        unjoinServer(this.server, this)
                                     end
                                     if this.login ~= nil then       -- allow garbage collection
                                         clients_login[this.login] = nil
