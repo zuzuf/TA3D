@@ -126,6 +126,7 @@ namespace Menus
 		addChatMessage("----");
 		addChatMessage("");
 
+		NetClient::instance()->connect(lp_CONFIG->net_server, 4240, String(), String());
 		Mods::instance()->update();
 
 		return true;

@@ -114,8 +114,10 @@ namespace TA3D
 			sock.setNonBlockingMode(true);
 			buffer_pos = 0;
 
-			state = CONNECTING;
 			sendMessage(String("CLIENT ") << TA3D_ENGINE_VERSION);
+			if (password.empty())
+				return;
+			state = CONNECTING;
 			if (bRegister)
 				sendMessage("REGISTER " + login + " " + password);
 			else
