@@ -126,6 +126,8 @@ namespace Menus
 		addChatMessage("----");
 		addChatMessage("");
 
+		Mods::instance()->update();
+
 		return true;
 	}
 
@@ -204,98 +206,98 @@ namespace Menus
 			pArea->msg("netmenu.b_logout.hide");
 		}
 
-		if (NetClient::instance()->getState() == NetClient::CONNECTED)
+		if (pArea->get_state("mods"))
 		{
-			if (pArea->get_state("mods"))
+			Gui::GUIOBJ::Ptr modListObj = pArea->get_object("mods.l_mods");
+			if (modListObj)
 			{
-				Gui::GUIOBJ::Ptr modListObj = pArea->get_object("mods.l_mods");
-				if (modListObj)
+				ModInfo::List modList = Mods::instance()->getModList(Mods::MOD_ALL);
+				modListObj->Text.clear();
+				for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() ; ++i)
+					modListObj->Text.push_back(i->getName());
+				int idx = modListObj->Pos;
+				if (idx >= 0)
 				{
-					ModInfo::List modList = Mods::instance()->getModList(Mods::MOD_ALL);
-					modListObj->Text.clear();
-					for(ModInfo::List::iterator i = modList.begin() ; i != modList.end() ; ++i)
-						modListObj->Text.push_back(i->getName());
-					int idx = modListObj->Pos;
-					if (idx >= 0)
+					ModInfo::List::iterator pIdx = modList.begin();
+					for( ; pIdx != modList.end() && idx > 0 ; ++pIdx)
+						--idx;
+					if (pIdx != modList.end())
 					{
-						ModInfo::List::iterator pIdx = modList.begin();
-						for( ; pIdx != modList.end() && idx > 0 ; ++pIdx)
-							--idx;
-						if (pIdx != modList.end())
+						pArea->caption("mods.m_name", pIdx->getName());
+						pArea->caption("mods.m_version", pIdx->getVersion());
+						pArea->caption("mods.m_author", pIdx->getAuthor());
+						pArea->caption("mods.m_comment", pIdx->getComment());
+						String dir = pIdx->getPathToMod();
+						String filename = dir;
+						filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
+
+						if (pIdx->isInstalled())
 						{
-							pArea->caption("mods.m_name", pIdx->getName());
-							pArea->caption("mods.m_version", pIdx->getVersion());
-							pArea->caption("mods.m_author", pIdx->getAuthor());
-							pArea->caption("mods.m_comment", pIdx->getComment());
-							String dir = pIdx->getPathToMod();
-							String filename = dir;
-							filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
-
-							if (pIdx->isInstalled())
-							{
-								if (TA3D_CURRENT_MOD != "mods/" + pIdx->getName() + "/" && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.empty()))
-									pArea->msg("mods.b_load.enable");
-								else
-									pArea->msg("mods.b_load.disable");
-								pArea->msg("mods.b_install.hide");
-								pArea->msg("mods.b_remove.show");
-								if (pIdx->isUpdateAvailable())
-									pArea->msg("mods.b_update.enable");
-								else
-									pArea->msg("mods.b_update.disable");
-							}
+							if (TA3D_CURRENT_MOD != "mods/" + pIdx->getName() + "/" && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.empty()))
+								pArea->msg("mods.b_load.enable");
 							else
-							{
 								pArea->msg("mods.b_load.disable");
-								pArea->msg("mods.b_install.show");
-								pArea->msg("mods.b_remove.hide");
+							pArea->msg("mods.b_install.hide");
+							pArea->msg("mods.b_remove.show");
+							if (pIdx->isUpdateAvailable())
+								pArea->msg("mods.b_update.enable");
+							else
 								pArea->msg("mods.b_update.disable");
-							}
-
-							if (pArea->get_state("mods.b_install"))     // Start download
-							{
-								pArea->set_state("mods.b_install", false);
-								Paths::MakeDir(dir);
-								Download *download = new Download;
-								download->start(filename, pIdx->getUrl(), pIdx->getID());
-								downloadList.push_back(download);
-								pIdx->write();
-							}
-							if (pArea->get_state("mods.b_remove"))     // Remove mod
-							{
-								pArea->set_state("mods.b_remove", false);
-								pIdx->uninstall();
-								NetClient::instance()->sendMessage("GET MOD LIST");
-							}
-							if (pArea->get_state("mods.b_update"))     // Remove old files and start download
-							{
-								pArea->set_state("mods.b_update", false);
-								pIdx->uninstall();
-
-								Download *download = new Download;
-								download->start(filename, pIdx->getUrl(), pIdx->getID());
-								downloadList.push_back(download);
-							}
-							if (pArea->get_state("mods.b_load") && pIdx->isInstalled())		// Load this mod
-								changeMod(pIdx->getID());
 						}
 						else
-							idx = -1;
+						{
+							pArea->msg("mods.b_load.disable");
+							pArea->msg("mods.b_install.show");
+							pArea->msg("mods.b_remove.hide");
+							pArea->msg("mods.b_update.disable");
+						}
+
+						if (pArea->get_state("mods.b_install"))     // Start download
+						{
+							pArea->set_state("mods.b_install", false);
+							Paths::MakeDir(dir);
+							Download *download = new Download;
+							download->start(filename, pIdx->getUrl(), pIdx->getID());
+							downloadList.push_back(download);
+							pIdx->write();
+						}
+						if (pArea->get_state("mods.b_remove"))     // Remove mod
+						{
+							pArea->set_state("mods.b_remove", false);
+							pIdx->uninstall();
+							NetClient::instance()->sendMessage("GET MOD LIST");
+						}
+						if (pArea->get_state("mods.b_update"))     // Remove old files and start download
+						{
+							pArea->set_state("mods.b_update", false);
+							pIdx->uninstall();
+
+							Download *download = new Download;
+							download->start(filename, pIdx->getUrl(), pIdx->getID());
+							downloadList.push_back(download);
+						}
+						if (pArea->get_state("mods.b_load") && pIdx->isInstalled())		// Load this mod
+							changeMod(pIdx->getID());
 					}
-					if (idx < 0)
-					{
-						pArea->caption("mods.m_name", nullptr);
-						pArea->caption("mods.m_version", nullptr);
-						pArea->caption("mods.m_author", nullptr);
-						pArea->caption("mods.m_comment", nullptr);
-						pArea->msg("mods.b_install.hide");
-						pArea->msg("mods.b_remove.hide");
-						pArea->msg("mods.b_update.hide");
-					}
+					else
+						idx = -1;
 				}
-				if (pArea->get_state("mods.b_refresh"))     // Refresh mod list
-					NetClient::instance()->sendMessage("GET MOD LIST");
-			}		// End of if (pArea->get_state("mods"))
+				if (idx < 0)
+				{
+					pArea->caption("mods.m_name", nullptr);
+					pArea->caption("mods.m_version", nullptr);
+					pArea->caption("mods.m_author", nullptr);
+					pArea->caption("mods.m_comment", nullptr);
+					pArea->msg("mods.b_install.hide");
+					pArea->msg("mods.b_remove.hide");
+					pArea->msg("mods.b_update.hide");
+				}
+			}
+			if (pArea->get_state("mods.b_refresh"))     // Refresh mod list
+				NetClient::instance()->sendMessage("GET MOD LIST");
+		}		// End of if (pArea->get_state("mods"))
+		if (NetClient::instance()->getState() == NetClient::CONNECTED)
+		{
 			if (pArea->get_state("netgames"))
 			{
 				Gui::GUIOBJ::Ptr serverListObj = pArea->get_object("netgames.l_games");
@@ -347,10 +349,7 @@ namespace Menus
 				joinAGame();
 		}
 		else
-		{
-			pArea->msg("mods.hide");			// Hide mods when not in connected mode
 			pArea->msg("netgames.hide");		// Hide game server list when not in connected mode
-		}
 		for(Download::List::iterator i = downloadList.begin() ; i != downloadList.end() ; )
 			if ((*i)->downloading())
 			{
