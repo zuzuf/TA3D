@@ -34,7 +34,7 @@ void main()
 		
 		vec2 scr_pos = clamp( t_coord * coef - (depth * 100.0 * cam_h_factor) * dec, 0.0, 1.0 );
 
-        vec3 light = vec3( 0.57735026918962576451, -0.57735026918962576451, -0.57735026918962576451 );
+        const vec3 light = vec3( 0.57735026918962576451, -0.57735026918962576451, -0.57735026918962576451 );
 		vec4 scr_col = texture2D( rtex, scr_pos );
 		vec4 lava_col = vec4(1.0,0.2,0.2,1.0) * scr_col;
 		vec3 water_col = 2.0 * texture2DLod( water_color, t_coord, 0.0 ).rgb;

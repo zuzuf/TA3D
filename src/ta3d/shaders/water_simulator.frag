@@ -3,8 +3,8 @@ uniform float fluid;
 uniform float t;
 uniform sampler2D sim;
 
-const vec2 du = vec2(1.0/256.0, 0.0);
-const vec2 dv = vec2(0.0, 1.0/256.0);
+const vec2 du = vec2(0.00390625, 0.0);
+const vec2 dv = vec2(0.0, 0.00390625);
 
 void main()
 {

@@ -9,7 +9,8 @@ void main()
 	float fog_coef = clamp( (gl_FogFragCoord - gl_Fog.start) * gl_Fog.scale, 0.0, 1.0 );
 
     float shaded = shadow2D( shadowMap, light_coord.xyz ).x;
-    if (light_coord.x < 0.0 || light_coord.x > 1.0 || light_coord.y < 0.0 || light_coord.y > 1.0)
+    vec2 test = abs(light_coord - vec2(0.5, 0.5));
+    if (test.x > 0.5 || test.y > 0.5)
         shaded = 1.0;
 
     vec4 light_eq = mix(0.2, 1.0, shaded) * coef * gl_Color;
