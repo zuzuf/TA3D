@@ -445,7 +445,7 @@
     <message>
         <location filename="../src/mainwindow.cpp" line="247"/>
         <source>3DMEditor meshs(*.3dm);;ASCII file(*.asc);;Spring Model(*.s3o);;TA 3D object(*.3do);;3D Studio model(*.3ds);;OBJ model(*.obj);;all files(*.*)</source>
-        <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Modèle Spring(*.3so);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*.obj);;tous les fichiers(*.*)</translation>
+        <translation>Objets 3DMEditor(*.3dm);;Fichier ASCII(*.asc);;Modèle Spring(*.s3o);;Objet 3D TA(*.3do);;modèle 3D Studio(*.3ds);;modèles OBJ(*.obj);;tous les fichiers(*.*)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="367"/>
