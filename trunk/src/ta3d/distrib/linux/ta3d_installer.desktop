@@ -1,11 +1,11 @@
 [Desktop Entry]
 Type=Application
-Name=TA3D
+Name=OTA resources installer for TA3D
 Version=0.6.0 WIP
-Comment=A remake of Total Annihilation in full 3D, nice graphics :)
+Comment=a simple script to install Total Annihilation's resource files for TA3D
 Encoding=UTF-8
 Exec=/usr/games/ota_resources_installer.sh
 Icon=/usr/share/games/ta3d/ta3d.png
-Categories=Game;StrategyGame;TA3D;
-Terminal=false
+Categories=Game;StrategyGame;
+Terminal=true
 StartupNotify=false
