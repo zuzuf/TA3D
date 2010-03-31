@@ -60,12 +60,12 @@ namespace TA3D
 				skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
 				if (!skin.prefix().empty())
-					Glfond = gfx->load_texture_mask(String("gfx/") << skin.prefix() << "load.jpg", 7);
+					Glfond = gfx->load_texture_mask(String("gfx/") << skin.prefix() << "load.png", 7);
 				else
-					Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
+					Glfond = gfx->load_texture_mask("gfx/load.png", 7);
 			}
 			else
-				Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
+				Glfond = gfx->load_texture_mask("gfx/load.png", 7);
 		}
 
 		gfx->set_2D_mode();
