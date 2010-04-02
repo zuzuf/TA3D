@@ -155,7 +155,6 @@ namespace TA3D
 		}
 	};
 
-	/*------------------- Here is the two classes of a list lighter than a List< sint16 > ----------*/
 	class MAP : public ObjectSync // Données concernant la carte
 	{
 	public:
