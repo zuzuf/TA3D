@@ -350,9 +350,9 @@ namespace TA3D
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
 			{
 				short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
-				std::vector<short> *BuildList = &(unit_manager.unit_type[units.unit[*i].type_id]->BuildList);
-				for (int e = 0 ; e < list_size ; e++ )
-					sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + weights[ (*BuildList)[ e ] ].w;
+				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
+				for (int e = 0 ; e < list_size ; ++e)
+					sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
 				float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
 				if (sw[ list_size - 1 ] > 0.1f)
@@ -360,7 +360,7 @@ namespace TA3D
 					{
 						if (selection <= sw[ e ])
 						{
-							selected_idx = (*BuildList)[e];
+							selected_idx = BuildList[e];
 							break;
 						}
 					}
@@ -400,26 +400,27 @@ namespace TA3D
 							break;
 						}
 					}
-				Vector3D target = units.unit[ *i ].Pos;
-                bool found = findBuildPlace(target, selected_idx, playerID, 5, 50);
-
-				if (found && selected_idx >= 0)
+				if (selected_idx >= 0)
 				{
-					if (unit_manager.unit_type[units.unit[*i].type_id]->BMcode)
-						units.unit[ *i ].set_mission( MISSION_BUILD, &target, false, selected_idx );
+					Vector3D target = units.unit[ *i ].Pos;
+					if (findBuildPlace(target, selected_idx, playerID, 5, 50))
+					{
+						if (unit_manager.unit_type[units.unit[*i].type_id]->BMcode)
+							units.unit[ *i ].set_mission( MISSION_BUILD, &target, false, selected_idx );
+						else
+							units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
+# ifdef AI_DEBUG
+						LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msec_timer
+								  << ") -> builder " << *i << " building " << selected_idx);
+# endif
+						weights[ selected_idx ].w *= 0.8f;
+					}
+# ifdef AI_DEBUG
 					else
-						units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
-# ifdef AI_DEBUG
-					LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msec_timer
-							  << ") -> builder " << *i << " building " << selected_idx);
+						LOG_WARNING(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msec_timer
+									<< ") -> builder " << *i << " building " << selected_idx << ": No build place found");
 # endif
-					weights[ selected_idx ].w *= 0.8f;
 				}
-# ifdef AI_DEBUG
-				else if (selected_idx >= 0)
-					LOG_WARNING(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msec_timer
-								<< ") -> builder " << *i << " building " << selected_idx << ": No build place found");
-# endif
 			}
 			units.unit[ *i ].unlock();
 		}
@@ -662,8 +663,8 @@ namespace TA3D
         if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
             return false;
 
-        int px = (int)(target.x + the_map->map_w_d) >> 3;
-        int py = (int)(target.z + the_map->map_h_d) >> 3;
+		int px = (int)(target.x + the_map->map_w_d + 4) >> 3;
+		int py = (int)(target.z + the_map->map_h_d + 4) >> 3;
 
         int spx = px;
         int spy = py;
@@ -734,8 +735,8 @@ namespace TA3D
                 px = features.feature[ metal_stuff_id ].px;
                 py = features.feature[ metal_stuff_id ].py;
             }
-            target.x = (px << 3) - the_map->map_w_d;
-            target.z = (py << 3) - the_map->map_h_d;
+			target.x = (px << 3) - the_map->map_w_d - 4;
+			target.z = (py << 3) - the_map->map_h_d - 4;
             target.y = Math::Max( the_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[unit_idx]->FootprintX, unit_manager.unit_type[unit_idx]->FootprintZ ), the_map->sealvl);
             return true;
         }
