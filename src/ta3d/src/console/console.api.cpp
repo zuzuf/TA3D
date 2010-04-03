@@ -4,6 +4,7 @@
 #include <ingame/players.h>
 #include <UnitEngine.h>
 #include "console.api.h"
+#include <sounds/manager.h>
 
 namespace TA3D
 {
@@ -81,7 +82,10 @@ namespace TA3D
 	int CAPI::setSoundVolume(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
+		{
 			lp_CONFIG->sound_volume = lua_tointeger(L, -1);
+			sound_manager->setVolume( lp_CONFIG->sound_volume );
+		}
 		lua_pushinteger(L, lp_CONFIG->sound_volume);
 		return 1;
 	}
@@ -89,7 +93,10 @@ namespace TA3D
 	int CAPI::setMusicVolume(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
+		{
 			lp_CONFIG->music_volume = lua_tointeger(L, -1);
+			sound_manager->setMusicVolume( lp_CONFIG->music_volume );
+		}
 		lua_pushinteger(L, lp_CONFIG->music_volume);
 		return 1;
 	}
