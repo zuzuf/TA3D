@@ -163,124 +163,150 @@ namespace TA3D
 		stack.gadgetMode = gadgetMode ? 0 /* The first index */ : -1 /* means disabled */;
 		stack.caption = caption;
 
-		uint32 pos(0);
-		uint32 lastPos(0);
-		bool stringStarted(false);
-		for (; pos < size; ++pos)
+		for (const char *p = data, *end = data + size ; p < end ; ++p)
 		{
-			if (data[pos] == '\n' || data[pos] == '\r' || data[pos] == '\0' || data[pos] == '{' || data[pos] == '}' || data[pos] == ';' || pos + 1 == size)
+			switch(*p)
 			{
-				if (data[pos] == '{' || data[pos] == '}')       // Because this is the beginning and the end
-					stringStarted = true;
-				if (data[pos] == '{' || data[pos] == '}' || data[pos] == ';')   // Sometimes you can have this syntax : { variable0=value0; variable1=value1; ... }
-                    ++pos;
-				if (data[pos] == '\n')
-					++stack.line;
-				if (stringStarted)
+			case ' ':				// White spaces
+			case '\t':
+			case '\r':
+				continue;
+			case '\n':				// New line
+				++stack.line;
+				continue;
+			case '/':				// Skip comments
+				++p;
+				if (p == end)
+					continue;
+				if (*p == '/')
 				{
-					stringStarted = false;
-
-					if (pos + 1 == size)
+					while(p < end && *p != '\n')
+						++p;
+					++stack.line;
+				}
+				else if (*p == '*')
+				{
+					++p;
+					while(p < end && *p != '/')
 					{
-						String::ExtractKeyValue(String(data + lastPos, pos - lastPos + 1), stack.key, stack.value,
-												pIgnoreCase ? String::soIgnoreCase : String::soCaseSensitive);
-						++stack.line;
+						while(p < end && *p != '*')
+						{
+							if (*p == '\n')
+								++stack.line;
+							++p;
+						}
+						++p;
+						if (*p == '\n')
+							++stack.line;
 					}
-					else
-						String::ExtractKeyValue(String(data + lastPos, pos - lastPos), stack.key, stack.value,
-												pIgnoreCase ? String::soIgnoreCase : String::soCaseSensitive);
+				}
+				continue;
+			case '[':		// Start a new section
+				stack.value.clear();
+				++p;
+				for (;p < end && *p != ']' ; ++p)
+					stack.value << *p;
 
-					lastPos = pos + 1;
+				if (pIgnoreCase)
+					stack.value.toLower();
+				stack.sections.push(stack.currentSection);
+
+				stack.value.replace("\\n", "\n");
+				stack.value.replace("\\r", "\r");
+
+				if (!stack.level)
+				{
+					if (stack.gadgetMode >= 0)
+					{
+						String gadgetKey("gadget");
+						gadgetKey += stack.gadgetMode;
+						pTable[gadgetKey] = stack.value;
+						++stack.gadgetMode;
+						stack.value = gadgetKey;
+					}
+				}
+				else
+				{
+					stack.currentSection += '.';
+					if (widgetMode)
+					{
+						String widgetKey("widget");
+						widgetKey += stack.widgetMode.top();
+						pTable[widgetKey] = stack.value;
+						++stack.widgetMode.top();
+						stack.value = widgetKey;
+					}
+				}
+				stack.currentSection += stack.value;
+				if (stack.gadgetMode < 0 && !stack.currentSection.empty() && !exists(stack.currentSection))
+					pTable[stack.currentSection] = stack.value;
+				++stack.level;
+				stack.widgetMode.push(0);
+				continue;
+			case '{':		// Section bloc
+				continue;
+			case '}':		// End of section bloc
+				if (stack.level > 0)
+				{
+					if (stack.level == 1)
+						stack.currentSection.clear();
+					else
+						stack.currentSection = stack.sections.top();
+					stack.sections.pop();
+					--stack.level;
+					stack.widgetMode.pop();
+				}
+				else
+					LOG_ERROR(LOG_PREFIX_TDF << stack.caption << ":" << stack.line << " : `}` found outside a section");
+				continue;
+			default:
+				if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')		// Variable name
+				{
+					stack.key.clear();
+					for(; p < end && *p != '=' ; ++p)
+						stack.key << *p;
+					if (p >= end)
+						continue;
+					++p;
+					// Skip white spaces
+					while (p < end && (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n'))
+					{
+						if (*p == '\n')
+							++stack.line;
+						++p;
+					}
+					stack.value.clear();
+					for(; p < end && *p != ';' ; ++p)
+						stack.value << *p;
+
+					// Raise an error if there is text outside a block
+					if (stack.currentSection.empty())
+					{
+						LOG_WARNING(LOG_PREFIX_TDF << stack.caption << ":" << stack.line
+									<< " : The text is outside a section (ignored): " << stack.key);
+						continue;
+					}
+					// Do not store empty keys in the table
+					stack.key.trim();
 					if (!stack.key.empty())
 					{
-						// A new section
-						if ("[" == stack.key)
-						{
-							if (pIgnoreCase)
-								stack.value.toLower();
-							stack.sections.push(stack.currentSection);
+						if (pIgnoreCase)
+							stack.key.toLower();
+						stack.value.trim();
+						stack.value.replace("\\n", "\n");
+						stack.value.replace("\\r", "\r");
 
-							stack.value.replace("\\n", "\n");
-							stack.value.replace("\\r", "\r");
+						if (!special_section.empty() && (stack.currentSection.glob("*." + special_section) || stack.currentSection == special_section))
+							pTable[stack.currentSection] = (pullAsString(stack.currentSection) << "," << stack.key);
 
-							if (!stack.level)
-							{
-								if (stack.gadgetMode >= 0)
-								{
-									String gadgetKey("gadget");
-									gadgetKey += stack.gadgetMode;
-									pTable[gadgetKey] = stack.value;
-									++stack.gadgetMode;
-									stack.value = gadgetKey;
-								}
-							}
-							else
-							{
-								stack.currentSection += '.';
-								if (widgetMode)
-								{
-									String widgetKey("widget");
-									widgetKey += stack.widgetMode.top();
-									pTable[widgetKey] = stack.value;
-									++stack.widgetMode.top();
-									stack.value = widgetKey;
-								}
-							}
-							stack.currentSection += stack.value;
-							if (stack.gadgetMode < 0 && !stack.currentSection.empty() && !exists(stack.currentSection))
-								pTable[stack.currentSection] = stack.value;
-							++stack.level;
-							stack.widgetMode.push(0);
-							continue;
-						}
-						// Start a new block
-						if ("{" == stack.key)
-							continue; // Can be safely ignored
-						// Close the current block
-						if ("}" == stack.key)
-						{
-							if (stack.level > 0)
-							{
-								if (stack.level == 1)
-									stack.currentSection.clear();
-								else
-									stack.currentSection = stack.sections.top();
-								stack.sections.pop();
-								--stack.level;
-								stack.widgetMode.pop();
-							}
-							else
-								LOG_ERROR(LOG_PREFIX_TDF << stack.caption << ":" << stack.line << " : `}` found outside a section");
-							continue;
-						}
-						// Raise an error if there some text outside a block
-						if (stack.currentSection.empty())
-						{
-							LOG_WARNING(LOG_PREFIX_TDF << stack.caption << ":" << stack.line
-										<< " : The text is outside a section (ignored): " << stack.key);
-							continue;
-						}
-						// Do not store empty keys in the table
-						if (!stack.key.empty())
-						{
-							stack.value.replace("\\n", "\n");
-							stack.value.replace("\\r", "\r");
-
-							if (!special_section.empty() && (stack.currentSection.glob("*." + special_section) || stack.currentSection == special_section))
-								pTable[stack.currentSection] = (pullAsString(stack.currentSection) << "," << stack.key);
-
-							String realKey(stack.currentSection);
-							realKey << "." << stack.key;
-							pTable[realKey] = stack.value;
-						}
+						String realKey(stack.currentSection);
+						realKey << "." << stack.key;
+						pTable[realKey] = stack.value;
 					}
-					continue;
 				}
-				lastPos = pos + 1;
-			}
-			else
-				stringStarted = true;
+			};
 		}
+
 		DELETE_ARRAY(tmpBufferToDelete);
 		return true;
 	}
