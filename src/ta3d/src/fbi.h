@@ -128,8 +128,8 @@ namespace TA3D
         short   CruiseAlt;
         short   ManeuverLeashLength;
         byte    DefaultMissionType;
-        byte    TransportSize;
-        byte    TransportCapacity;
+		int     TransportSize;
+		int     TransportCapacity;
         bool    IsAirBase;
         bool    hoverattack;
         bool    canresurrect;       // Can this unit resurrect wreckages
@@ -183,7 +183,6 @@ namespace TA3D
         short   MaxWaterDepth;      // Profondeur maximale où l'unité peut aller
         short   MinWaterDepth;      // Profondeur minimale où l'unité peut aller
         bool    NoShadow;           // Si l'unité n'a pas d'ombre
-        byte    TransMaxUnits;      // Maximum d'unités portables
         bool    canload;            // Si elle peut charger d'autres unités
         String::Vector  w_badTargetCategory;    // Unités non ciblable par les armes
         bool    Floater;            // Si l'unité flotte
@@ -202,7 +201,7 @@ namespace TA3D
         float   MakesMetal;         // Si l'unité produit du métal
         float   ExtractsMetal;      // métal extrait par l'unité
         bool    TidalGenerator;     // Si l'unité est une centrale marée-motrice
-        byte    TransportMaxUnits;  // Maximum d'unités transportables
+		int     TransportMaxUnits;  // Maximum d'unités transportables
         bool    kamikaze;           // Unité kamikaze
         uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
         short   WindGenerator;      // Centrale de type Eolienne

@@ -61,7 +61,7 @@ namespace TA3D
 		void unit();
 
         inline bool isNull() const
-        { return (fabs(x) < 0.000001f && fabs(y) < 0.000001f); }
+		{ return (fabsf(x) < 0.000001f && fabsf(y) < 0.000001f); }
 
 		//! \name Operators
 		//@{
@@ -138,7 +138,7 @@ namespace TA3D
 		** \return True if the vector is a null vector, false otherwise
 		*/
         inline bool isNull() const
-        { return (fabs(x) < 0.000001f && fabs(y) < 0.000001f && fabs(z) < 0.000001f); }
+		{ return (fabsf(x) < 0.000001f && fabsf(y) < 0.000001f && fabsf(z) < 0.000001f); }
 
 		//! \name Operators
 		//@{

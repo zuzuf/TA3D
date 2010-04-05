@@ -1547,7 +1547,7 @@ namespace TA3D
 				{
 					Vector3D A = frustum[ fLink[i][0] ];
 					Vector3D B = frustum[ fLink[i][1] ];
-					if (fabs(A.y - B.y) < 0.1f)
+					if (fabsf(A.y - B.y) < 0.1f)
 						continue;
 					Vector3D I = A + (yref - A.y) / (B.y - A.y) * (B - A);
 					I.z -= zOffset;
@@ -1564,7 +1564,7 @@ namespace TA3D
 						{
 							Vector3D C = frustum[ fLink[e][0] ];
 							Vector3D D = frustum[ fLink[e][1] ];
-							if (fabs(C.y - D.y) < 0.1f)
+							if (fabsf(C.y - D.y) < 0.1f)
 								continue;
 							Vector3D J = C + (yref - C.y) / (D.y - C.y) * (D - C);
 							J.z -= zOffset;
