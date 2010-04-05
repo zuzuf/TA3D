@@ -1847,7 +1847,7 @@ namespace TA3D
 				Vector3D D(Target.z - Pos.z, 0.0f, Pos.x - Target.x);
 				D.unit();
 				float speed = sqrtf(V.x * V.x + V.z * V.z);
-				float vsin = fabs(D % V);
+				float vsin = fabsf(D % V);
 				float deltaX = 8.0f * vsin / (pType->TurnRate * DEG2RAD);
 				float time_to_stop = speed / pType->BrakeRate;
 				float min_dist = time_to_stop * (speed - pType->BrakeRate * 0.5f * time_to_stop);
@@ -2980,7 +2980,7 @@ namespace TA3D
 						Dir.y = 0.0f;
 						float dist = Dir.sq();
 						int maxdist = 0;
-						if (pType->TransMaxUnits == 1)		// Code for units like the arm atlas
+						if (pType->TransportMaxUnits == 1)		// Code for units like the arm atlas
 							maxdist = 3;
 						else
 							maxdist = pType->SightDistance;
@@ -2994,7 +2994,7 @@ namespace TA3D
 						{
 							if (mission->getLastD() >= 0.0f)
 							{
-								if (pType->TransMaxUnits == 1)// Code for units like the arm atlas
+								if (pType->TransportMaxUnits == 1)// Code for units like the arm atlas
 								{
 									if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
 										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
@@ -3052,7 +3052,7 @@ namespace TA3D
 						Dir.y = 0.0f;
 						float dist = Dir.sq();
 						int maxdist = 0;
-						if (pType->TransMaxUnits == 1)		// Code for units like the arm atlas
+						if (pType->TransportMaxUnits == 1)		// Code for units like the arm atlas
 							maxdist = 3;
 						else
 							maxdist = pType->SightDistance;
@@ -3066,7 +3066,7 @@ namespace TA3D
 						{
 							if (mission->getLastD() >= 0.0f)
 							{
-								if (pType->TransMaxUnits == 1)  		// Code for units like the arm atlas
+								if (pType->TransportMaxUnits == 1)  		// Code for units like the arm atlas
 								{
 									if (nb_attached == 0)
 									{
@@ -3084,7 +3084,7 @@ namespace TA3D
 								}
 								else
 								{
-                                    if (nb_attached>=pType->TransportCapacity)
+									if (nb_attached >= pType->TransportMaxUnits)
 									{
 										next_mission();
 										break;
@@ -3150,7 +3150,7 @@ namespace TA3D
 									mission->setLastD(-1.0f);
 								}
 
-                                if (pType->BMcode && port[ INBUILDSTANCE ] != 0.0f)
+								if (pType->BMcode && port[ INBUILDSTANCE ] != 0)
 								{
 									if (local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
 										nanolathe_target = target_unit->idx;

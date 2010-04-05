@@ -79,15 +79,15 @@ namespace TA3D
 		static inline void getTopBottom(const std::vector<T> &elts, Vec &top, Vec &bottom);
 		static Vec getPrincipalDirection(const Vec &v)
 		{
-			if (fabs(v.x) > fabs(v.y))
+			if (fabsf(v.x) > fabsf(v.y))
 			{
-				if (fabs(v.x) > fabs(v.z))
+				if (fabsf(v.x) > fabsf(v.z))
 					return Vec(1.0f, 0.0f, 0.0f);
-				if (fabs(v.y) > fabs(v.z))
+				if (fabsf(v.y) > fabsf(v.z))
 					return Vec(0.0f, 1.0f, 0.0f);
 				return Vec(0.0f, 0.0f, 1.0f);
 			}
-			if (fabs(v.y) > fabs(v.z))
+			if (fabsf(v.y) > fabsf(v.z))
 				return Vec(0.0f, 1.0f, 0.0f);
 			return Vec(0.0f, 0.0f, 1.0f);
 		}

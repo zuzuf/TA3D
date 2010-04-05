@@ -584,7 +584,6 @@ namespace TA3D
 		MaxWaterDepth=0;		// Profondeur maximale où l'unité peut aller
 		MinWaterDepth=-0xFFF;	// Profondeur minimale où l'unité peut aller
 		NoShadow=false;			// Si l'unité n'a pas d'ombre
-		TransMaxUnits=0;		// Maximum d'unités portables
 		canload=false;			// Si elle peut charger d'autres unités
 		WeaponID.clear();		// Arme 2
 		Floater=false;			// Si l'unité flotte
@@ -847,10 +846,12 @@ namespace TA3D
 			++nb_inconnu;
 		}
 
-		TransMaxUnits = TransportMaxUnits = byte(parseInt("UNITINFO.TransMaxUnits"));
-		TransMaxUnits = TransportMaxUnits = byte(parseIntDef("UNITINFO.transportmaxunits",TransMaxUnits));
-		TransportCapacity = byte(parseInt("UNITINFO.transportcapacity"));
-		TransportSize = byte(parseInt("UNITINFO.transportsize"));
+		TransportMaxUnits = parseInt("UNITINFO.TransMaxUnits");
+		TransportMaxUnits = parseIntDef("UNITINFO.transportmaxunits", TransportMaxUnits);
+		if (canload)
+			TransportMaxUnits = Math::Max(1, TransportMaxUnits);
+		TransportCapacity = parseInt("UNITINFO.transportcapacity");
+		TransportSize = parseInt("UNITINFO.transportsize");
 		AltFromSeaLevel = short(parseInt("UNITINFO.altfromsealevel"));
 		MovementClass = parseString("UNITINFO.MovementClass");
 
