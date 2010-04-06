@@ -11,7 +11,7 @@
 <style type="text/css">
 table.compat {
   line-height: 1.2;
-  width: 35em;
+  width: 40em;
 }
 tr.compathead td {
   font-weight: bold;
@@ -50,6 +50,8 @@ td.compatcc {
 </li><li>
 <a href="faq.html">FAQ</a>
 </li><li>
+<a href="http://luajit.org/performance.html">Performance <span class="ext">&raquo;</span></a>
+</li><li>
 <a href="http://luajit.org/download.html">Download <span class="ext">&raquo;</span></a>
 </li></ul>
 </div>
@@ -84,7 +86,7 @@ operating system, CPU and compilers:
 <tr class="even">
 <td class="compatos">Windows 98/XP/Vista/7</td>
 <td class="compatcc">MSVC (EE)<br>Windows SDK<br>MinGW (GCC)<br>Cygwin (GCC)</td>
-<td class="compatcc">MSVC<br>Windows SDK</td>
+<td class="compatcc">MSVC + SDK v7.0<br>Windows SDK v7.0</td>
 </tr>
 <tr class="odd">
 <td class="compatos">OSX 10.3-10.6</td>
@@ -133,8 +135,8 @@ terminal window and change to this directory. Now unpack the archive
 and change to the newly created directory:
 </p>
 <pre class="code">
-tar zxf LuaJIT-2.0.0-beta3.tar.gz
-cd LuaJIT-2.0.0-beta3</pre>
+tar zxf LuaJIT-2.0.0-beta4.tar.gz
+cd LuaJIT-2.0.0-beta4</pre>
 <h3>Building LuaJIT</h3>
 <p>
 The supplied Makefiles try to auto-detect the settings needed for your
@@ -182,11 +184,11 @@ Obviously the prefixes given during build and installation need to be the same.
 <p style="color: #c00000;">
 Note: to avoid overwriting a previous version, the beta test releases
 only install the LuaJIT executable under the versioned name (i.e.
-<tt>luajit-2.0.0-beta3</tt>). You probably want to create a symlink
+<tt>luajit-2.0.0-beta4</tt>). You probably want to create a symlink
 for convenience, with a command like this:
 </p>
 <pre class="code" style="color: #c00000;">
-sudo ln -sf luajit-2.0.0-beta3&nbsp;/usr/local/bin/luajit
+sudo ln -sf luajit-2.0.0-beta4&nbsp;/usr/local/bin/luajit
 </pre>
 
 <h2 id="windows">Windows Systems</h2>

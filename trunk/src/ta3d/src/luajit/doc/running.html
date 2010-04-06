@@ -56,6 +56,8 @@ td.param_default {
 </li><li>
 <a href="faq.html">FAQ</a>
 </li><li>
+<a href="http://luajit.org/performance.html">Performance <span class="ext">&raquo;</span></a>
+</li><li>
 <a href="http://luajit.org/download.html">Download <span class="ext">&raquo;</span></a>
 </li></ul>
 </div>
@@ -69,11 +71,11 @@ interactive mode, too.
 <p class="indent" style="color: #c00000;">
 Note: the beta test releases only install under the versioned name on
 POSIX systems (to avoid overwriting a previous version). You either need
-to type <tt>luajit-2.0.0-beta3</tt> to start it or create a symlink
+to type <tt>luajit-2.0.0-beta4</tt> to start it or create a symlink
 with a command like this:
 </p>
 <pre class="code" style="color: #c00000;">
-sudo ln -sf luajit-2.0.0-beta3&nbsp;/usr/local/bin/luajit
+sudo ln -sf luajit-2.0.0-beta4&nbsp;/usr/local/bin/luajit
 </pre>
 <p>
 Unlike previous versions <b>optimization is turned on by default</b> in
@@ -119,7 +121,7 @@ itself. For a description of their options and output format, please
 read the comment block at the start of their source.
 They can be found in the <tt>lib</tt> directory of the source
 distribution or installed under the <tt>jit</tt> directory. By default
-this is <tt>/usr/local/share/luajit-2.0.0-beta3/jit</tt> on POSIX
+this is <tt>/usr/local/share/luajit-2.0.0-beta4/jit</tt> on POSIX
 systems.
 </p>
 
@@ -181,6 +183,8 @@ are enabled:
 <tr class="odd">
 <td class="flag_name">dse</td><td class="flag_level">&nbsp;</td><td class="flag_level">&nbsp;</td><td class="flag_level">&bull;</td><td class="flag_desc">Dead-Store Elimination</td></tr>
 <tr class="even">
+<td class="flag_name">abc</td><td class="flag_level">&nbsp;</td><td class="flag_level">&nbsp;</td><td class="flag_level">&bull;</td><td class="flag_desc">Array Bounds Check Elimination</td></tr>
+<tr class="odd">
 <td class="flag_name">fuse</td><td class="flag_level">&nbsp;</td><td class="flag_level">&nbsp;</td><td class="flag_level">&bull;</td><td class="flag_desc">Fusion of operands into instructions</td></tr>
 </table>
 <p>
