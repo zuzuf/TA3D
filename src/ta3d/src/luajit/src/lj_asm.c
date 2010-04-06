@@ -60,15 +60,15 @@ typedef struct ASMState {
   SnapNo snapno;	/* Current snapshot number. */
   SnapNo loopsnapno;	/* Loop snapshot number. */
 
-  Trace *T;		/* Trace to assemble. */
-  Trace *parent;	/* Parent trace (or NULL). */
-
   IRRef fuseref;	/* Fusion limit (loopref, 0 or FUSE_DISABLED). */
   IRRef sectref;	/* Section base reference (loopref or 0). */
   IRRef loopref;	/* Reference of LOOP instruction (or 0). */
 
   BCReg topslot;	/* Number of slots for stack check (unless 0). */
   MSize gcsteps;	/* Accumulated number of GC steps (per section). */
+
+  Trace *T;		/* Trace to assemble. */
+  Trace *parent;	/* Parent trace (or NULL). */
 
   MCode *mcbot;		/* Bottom of reserved MCode. */
   MCode *mctop;		/* Top of generated MCode. */
@@ -1095,7 +1095,7 @@ IRFLDEF(FLOFS)
 };
 
 /* Limit linear search to this distance. Avoids O(n^2) behavior. */
-#define CONFLICT_SEARCH_LIM	15
+#define CONFLICT_SEARCH_LIM	31
 
 /* Check if there's no conflicting instruction between curins and ref. */
 static int noconflict(ASMState *as, IRRef ref, IROp conflict)
@@ -1122,7 +1122,7 @@ static void asm_fusearef(ASMState *as, IRIns *ir, RegSet allow)
       noconflict(as, irb->op1, IR_NEWREF)) {
     /* We can avoid the FLOAD of t->array for colocated arrays. */
     as->mrm.base = (uint8_t)ra_alloc1(as, irb->op1, allow);  /* Table obj. */
-    as->mrm.ofs = -(int32_t)(ira->op1*sizeof(TValue));  /* Ofs to colo array. */
+    as->mrm.ofs = (int32_t)sizeof(GCtab);  /* Ofs to colocated array. */
   } else {
     as->mrm.base = (uint8_t)ra_alloc1(as, ir->op1, allow);  /* Array base. */
     as->mrm.ofs = 0;
@@ -1277,7 +1277,8 @@ static Reg asm_fuseload(ASMState *as, IRRef ref, RegSet allow)
   } else if (mayfuse(as, ref)) {
     RegSet xallow = (allow & RSET_GPR) ? allow : RSET_GPR;
     if (ir->o == IR_SLOAD) {
-      if (!irt_isint(ir->t) && !(ir->op2 & IRSLOAD_PARENT)) {
+      if (!irt_isint(ir->t) && !(ir->op2 & IRSLOAD_PARENT) &&
+	  noconflict(as, ref, IR_RETF)) {
 	as->mrm.base = (uint8_t)ra_alloc1(as, REF_BASE, xallow);
 	as->mrm.ofs = 8*((int32_t)ir->op1-1);
 	as->mrm.idx = RID_NONE;
@@ -1306,7 +1307,7 @@ static Reg asm_fuseload(ASMState *as, IRRef ref, RegSet allow)
     }
   }
   if (!(as->freeset & allow) &&
-      (allow == RSET_EMPTY || ra_hasspill(ir->s) || ref < as->loopref))
+      (allow == RSET_EMPTY || ra_hasspill(ir->s) || iscrossref(as, ref)))
     goto fusespill;
   return ra_allocref(as, ref, allow);
 }
@@ -1598,7 +1599,8 @@ static uint32_t ir_khash(IRIns *ir)
 static MCode *merge_href_niltv(ASMState *as, IRIns *ir)
 {
   /* Assumes nothing else generates NE of HREF. */
-  if (ir[1].o == IR_NE && ir[1].op1 == as->curins) {
+  if ((ir[1].o == IR_NE || ir[1].o == IR_EQ) && ir[1].op1 == as->curins &&
+      ra_hasreg(ir->r)) {
     if (LJ_64 && *as->mcp != XI_ARITHi)
       as->mcp += 7+6;
     else
@@ -1638,10 +1640,12 @@ static void asm_href(ASMState *as, IRIns *ir)
 
   /* Key not found in chain: jump to exit (if merged with NE) or load niltv. */
   l_end = emit_label(as);
-  if (nilexit)
+  if (nilexit && ir[1].o == IR_NE) {
     emit_jcc(as, CC_E, nilexit);  /* XI_JMP is not found by lj_asm_patchexit. */
-  else
+    nilexit = NULL;
+  } else {
     emit_loada(as, dest, niltvg(J2G(as->J)));
+  }
 
   /* Follow hash chain until the end. */
   l_loop = emit_sjcc_label(as, CC_NZ);
@@ -1650,7 +1654,10 @@ static void asm_href(ASMState *as, IRIns *ir)
   l_next = emit_label(as);
 
   /* Type and value comparison. */
-  emit_sjcc(as, CC_E, l_end);
+  if (nilexit)
+    emit_jcc(as, CC_E, nilexit);
+  else
+    emit_sjcc(as, CC_E, l_end);
   if (irt_isnum(kt)) {
     if (isk) {
       /* Assumes -0.0 is already canonicalized to +0.0. */
@@ -2570,7 +2577,7 @@ static void asm_comp_(ASMState *as, IRIns *ir, int cc)
   } else {
     IRRef lref = ir->op1, rref = ir->op2;
     IROp leftop = (IROp)(IR(lref)->o);
-    lua_assert(irt_isint(ir->t) || (irt_isaddr(ir->t) && (cc & 0xe) == CC_E));
+    lua_assert(irt_isint(ir->t) || irt_isaddr(ir->t));
     /* Swap constants (only for ABC) and fusable loads to the right. */
     if (irref_isk(lref) || (!irref_isk(rref) && opisfusableload(leftop))) {
       if ((cc & 0xc) == 0xc) cc ^= 3;  /* L <-> G, LE <-> GE */
@@ -3265,6 +3272,7 @@ static void asm_tail_link(ASMState *as)
   if (as->T->link == TRACE_INTERP) {
     /* Setup fixed registers for exit to interpreter. */
     const BCIns *pc = snap_pc(as->T->snapmap[snap->mapofs + snap->nent]);
+    int32_t mres;
     if (bc_op(*pc) == BC_JLOOP) {  /* NYI: find a better way to do this. */
       BCIns *retpc = &as->J->trace[bc_d(*pc)]->startins;
       if (bc_isret(bc_op(*retpc)))
@@ -3272,6 +3280,14 @@ static void asm_tail_link(ASMState *as)
     }
     emit_loada(as, RID_DISPATCH, J2GG(as->J)->dispatch);
     emit_loada(as, RID_PC, pc);
+    mres = (int32_t)(snap->nslots - baseslot - bc_a(*pc));
+    switch (bc_op(*pc)) {
+    case BC_CALLM: case BC_CALLMT: mres -= (int32_t)(1 + bc_c(*pc)); break;
+    case BC_RETM: mres -= (int32_t)bc_d(*pc); break;
+    case BC_TSETM: break;
+    default: mres = 0; break;
+    }
+    emit_loadi(as, RID_RET, mres);  /* Return MULTRES or 0. */
   } else if (baseslot) {
     /* Save modified BASE for linking to trace with higher start frame. */
     emit_setgl(as, RID_BASE, jit_base);
