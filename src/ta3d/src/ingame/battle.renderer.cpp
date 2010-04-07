@@ -82,27 +82,15 @@ namespace TA3D
 			if (lp_CONFIG->render_sky)
 			{
 				glDisable(GL_FOG);
-				glBindTexture(GL_TEXTURE_2D,sky);
 				glDisable(GL_LIGHTING);
 				glDepthMask(GL_FALSE);
-				if (pSkyIsSpherical)
-				{
-					glCullFace(GL_FRONT);
-					glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
-					glRotatef( sky_angle, 0.0f, 1.0f, 0.0f);
-					float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky_obj.w) / sky_obj.w;
-					glScalef( scale_factor, scale_factor, scale_factor);
-					sky_obj.draw();
-				}
-				else
-				{
-					glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
-					glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
-					glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-					glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-					glEnd();
-				}
+
+				glCullFace(GL_FRONT);
+				glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
+				glRotatef( sky_angle, 0.0f, 1.0f, 0.0f);
+				float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky.getW()) / sky.getW();
+				glScalef( scale_factor, scale_factor, scale_factor);
+				sky.draw();
 			}
 			refcam.zfar = (500.0f + (cam_h - 150.0f) * 2.0f) * 2.0f;
 			glDepthMask(GL_TRUE);
@@ -422,9 +410,9 @@ namespace TA3D
 
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				if (map->ota_data.lavaworld)
-					glBindTexture(GL_TEXTURE_2D,sky);
+					glBindTexture(GL_TEXTURE_2D, sky.skyTex());
 				else
-					glBindTexture(GL_TEXTURE_2D,reflectex);
+					glBindTexture(GL_TEXTURE_2D, reflectex);
 				glEnable(GL_TEXTURE_2D);
 
 				glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -659,7 +647,7 @@ namespace TA3D
 
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				if (map->ota_data.lavaworld)
-					glBindTexture(GL_TEXTURE_2D,sky);
+					glBindTexture(GL_TEXTURE_2D, sky.skyTex());
 				else
 					glBindTexture(GL_TEXTURE_2D,reflectex);
 				glEnable(GL_TEXTURE_2D);
@@ -733,10 +721,7 @@ namespace TA3D
 	{
 		gfx->SetDefState();
 		glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
-		if (pSkyIsSpherical)
-			gfx->clearDepth();		// Clear screen
-		else
-			gfx->clearAll();
+		gfx->clearDepth();		// Clear screen
 
 		cam.setView();
 
@@ -747,63 +732,23 @@ namespace TA3D
 
 		cam.zfar *= 100.0f;
 		cam.setView();
-		glPushMatrix();
 		glDisable(GL_FOG);
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 		glEnable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 		if (lp_CONFIG->render_sky)
 		{
-			glBindTexture(GL_TEXTURE_2D,sky);
 			glDisable(GL_LIGHTING);
 			glDepthMask(GL_FALSE);
-			if (pSkyIsSpherical)
+			glTranslatef(cam.rpos.x, cam.rpos.y + cam.shakeVector.y, cam.rpos.z);
+			glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
+			if (lp_CONFIG->ortho_camera)
 			{
-				glTranslatef(cam.rpos.x, cam.rpos.y+cam.shakeVector.y, cam.rpos.z);
-				glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
-				if (lp_CONFIG->ortho_camera)
-				{
-					float scale = cam.zoomFactor / 800.0f * sqrtf(SCREEN_H * SCREEN_H + SCREEN_W * SCREEN_W);
-					glScalef( scale, scale, scale );
-				}
-				sky_obj.draw();
+				float scale = cam.zoomFactor / 800.0f * sqrtf(SCREEN_H * SCREEN_H + SCREEN_W * SCREEN_W);
+				glScalef( scale, scale, scale );
 			}
-			else
-			{
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-				glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-				glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
-				glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
-				glEnd();
-			}
+			sky.draw();
 		}
-
-		glPopMatrix();
-		glColor4ub(0, 0, 0, 0xFF);				// Black background
-		glDisable( GL_TEXTURE_2D);
-		glDepthMask(GL_FALSE);
-		glBegin(GL_QUADS);
-		glVertex4f(-map->map_w, 0.0f, map->map_h, 0.0f);
-		glVertex4f(0.0f, 0.0f, map->map_h, 0.0f);
-		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
-		glVertex4f(-map->map_w, 0.0f, 0.0f, 0.0f);
-
-		glVertex4f(map->map_w, 0.0f, map->map_h, 0.0f);
-		glVertex4f(map->map_w, 0.0f, 0.0f, 0.0f);
-		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
-		glVertex4f(0.0f, 0.0f, map->map_h, 0.0f);
-
-		glVertex4f(map->map_w, 0.0f, -map->map_h, 0.0f);
-		glVertex4f(0.0f, 0.0f, -map->map_h, 0.0f);
-		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
-		glVertex4f(map->map_w, 0.0f, 0.0f, 0.0f);
-
-		glVertex4f(-map->map_w, 0.0f, -map->map_h, 0.0f);
-		glVertex4f(-map->map_w, 0.0f, 0.0f, 0.0f);
-		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
-		glVertex4f(0.0f, 0.0f, -map->map_h, 0.0f);
-		glEnd();
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_CULL_FACE);
