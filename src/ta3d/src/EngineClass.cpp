@@ -2375,7 +2375,7 @@ namespace TA3D
 
 		full = full_sphere;
 
-		s = full_sphere ? (d << 1) : d;
+		s = d;
 		w = size;
 
 		nb_vtx = (s + 1) * ((s << 1) + 1);
@@ -2390,20 +2390,14 @@ namespace TA3D
 		{
 			for (int x = 0; x <= s * 2; ++x)
 			{
-				if (full_sphere)
-				{
-					point[i].x = size * cosf(x / (2.0f * s) * PI * 2.0f) * cosf((float)y / s * PI - PI * 0.5f);
-					point[i].y = size * sinf((float)y / s * PI - PI * 0.5f);
-					point[i].z = -size * sinf(x / (2.0f * s) * PI * 2.0f) * cosf((float)y / s * PI - PI * 0.5f);
-				}
-				else
-				{
-					point[i].x = size * cosf(x / (2.0f * s) * PI * 2.0f) * cosf(0.5f * y / s * PI);
-					point[i].y = size * sinf(0.5f * y / s * PI);
-					point[i].z = -size * sinf(x / (2.0f * s) * PI * 2.0f) * cosf(0.5f * y / s * PI);
-				}
+				point[i].x = size * cosf(x / (2.0f * s) * PI * 2.0f) * cosf(0.5f * y / s * PI);
+				point[i].y = size * sinf(0.5f * y / s * PI);
+				point[i].z = -size * sinf(x / (2.0f * s) * PI * 2.0f) * cosf(0.5f * y / s * PI);
 				texcoord[i << 1] = (float)x / (s * 2);
-				texcoord[(i << 1) + 1] = 1.0f - (float)y / s;
+				if (full_sphere)
+					texcoord[(i << 1) + 1] = 0.5f * (1.0f - (float)y / s);
+				else
+					texcoord[(i << 1) + 1] = 1.0f - (float)y / s;
 				++i;
 			}
 		}
