@@ -22,6 +22,7 @@
 # include "gamedata.h"
 # include <memory> // auto_ptr
 # include <gfx/gui/area.h>
+# include <gfx/sky.h>
 # include <tdf.h>
 # include <EngineClass.h>
 # include <misc/rect.h>
@@ -265,14 +266,10 @@ namespace TA3D
 
 		//! \name Sky
 		//@{
-		//! The sky - TODO The auto_ptr is deprecated
-		std::auto_ptr<SKY_DATA> pSkyData;
-		//!
-		bool pSkyIsSpherical;
 		//!
 		float sky_angle;
 		//!
-		SKY sky_obj;
+		Sky sky;
 		//@}
 
 		bool pMouseSelecting;
@@ -284,8 +281,6 @@ namespace TA3D
 
 		//! \name Textures
 		//@{
-		//!
-		GLuint	sky;
 		//!
 		GLuint	glow;
 		//!

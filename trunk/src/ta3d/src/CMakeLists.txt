@@ -130,6 +130,7 @@ SET(SRC_GFX
 		gfx/fx.manager.h gfx/fx.manager.cpp
 		gfx/fx.h
 		gfx/shader.h gfx/shader.cpp
+		gfx/sky.h gfx/sky.cpp
 		gfx/gl.extensions.h
 		gfx/texture.cpp gfx/texture.h)
 

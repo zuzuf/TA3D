@@ -209,12 +209,11 @@ namespace TA3D
 			}
 			count = msec_timer;
 
-			if (pSkyIsSpherical)
-				sky_angle += pSkyData->rotation_speed * dt * units.apparent_timefactor;
+			sky_angle += sky.rotationSpeed() * dt * units.apparent_timefactor;
 
 			if (!lp_CONFIG->pause)
 			{
-				light_angle+=dt*units.apparent_timefactor;
+				light_angle += dt * units.apparent_timefactor;
 				t += dt * units.apparent_timefactor;
 			}
 
@@ -2373,7 +2372,7 @@ namespace TA3D
 
 		Engine::synchronizer.setNbThreadsToSync(4);
 
-		sky_obj.destroy();
+		sky.destroy();
 
 		LuaProgram::inGame->destroyThread();
 
@@ -2401,7 +2400,6 @@ namespace TA3D
 
 		gfx->destroy_texture(freecam_on);
 		gfx->destroy_texture(freecam_off);
-		gfx->destroy_texture(sky);
 		gfx->destroy_texture(water);
 		gfx->destroy_texture(glow);
 		gfx->destroy_texture(arrow_texture);

@@ -89,7 +89,7 @@ namespace TA3D
 	Battle::Battle(GameData* g)
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
 		map(NULL),
-		sky(0),
+		sky(),
         glow(0),
         freecam_on(0),
         freecam_off(0),
@@ -174,7 +174,6 @@ namespace TA3D
 		if (!g)
 			return true;
 
-        sky = 0;
         glow = 0;
         freecam_on = 0;
         freecam_off = 0;
@@ -562,16 +561,9 @@ namespace TA3D
 	bool Battle::initTheSky()
 	{
 		// The sky
-		pSkyData.reset(choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), String::ToLower(map->ota_data.planet)));
-		if (pSkyData.get() == NULL)
-		{
-			pSkyData.reset(new SKY_DATA());
-			pSkyData->texture_name = "gfx/sky/sky.jpg";
-		}
-		pSkyIsSpherical = pSkyData->spherical;
+		sky.choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), String::ToLower(map->ota_data.planet));
 
-		sky_obj.build(10, 400, pSkyData->full_sphere);
-		sky_angle = pSkyData->rotation_offset;
+		sky_angle = sky.rotationOffset();
 		return true;
 	}
 
@@ -605,7 +597,6 @@ namespace TA3D
 
 	bool Battle::initAllTextures()
 	{
-		sky = gfx->load_texture(pSkyData->texture_name, FILTER_TRILINEAR, NULL, NULL, false);
 		glow = gfx->load_texture("gfx/glow.tga");
 		freecam_on = gfx->load_texture("gfx/freecam_on.tga");
 		freecam_off = gfx->load_texture("gfx/freecam_off.tga");
@@ -665,7 +656,7 @@ namespace TA3D
 		FogColor[2] = 0.8f;
 		FogColor[3] = 1.0f;
 
-		memcpy(FogColor, pSkyData->FogColor, sizeof(float) * 4);
+		memcpy(FogColor, sky.fogColor(), sizeof(float) * 4);
 
 		FogMode = GL_LINEAR;
 		glFogi(GL_FOG_MODE, FogMode);

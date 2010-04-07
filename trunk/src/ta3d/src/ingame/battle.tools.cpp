@@ -68,7 +68,7 @@ namespace TA3D
 			FogNear = FogFar * 0.5f;
 			FogMode = GL_LINEAR;
 
-			memcpy(FogColor, pSkyData->FogColor, sizeof(float) * 4);
+			memcpy(FogColor, sky.fogColor(), sizeof(float) * 4);
 		}
 
 		glClearColor(FogColor[0], FogColor[1], FogColor[2], FogColor[3]);
