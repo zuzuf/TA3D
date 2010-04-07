@@ -11,7 +11,7 @@ void main()
 	float fog_coef = clamp( (gl_FogFragCoord - gl_Fog.start) * gl_Fog.scale, 0.0, 1.0 );
 
     float shaded = shadow2D( shadowMap, light_coord.xyz ).x;
-    vec2 test = abs(light_coord - vec2(0.5, 0.5));
+    vec2 test = abs(light_coord.xy - vec2(0.5, 0.5));
     if (test.x > 0.5 || test.y > 0.5)
         shaded = 1.0;
 
