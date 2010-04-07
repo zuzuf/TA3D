@@ -745,22 +745,13 @@ namespace TA3D
 
 		cam.setView();
 
-		glDisable(GL_FOG);
-		glColor3ub( 0, 0, 0);				// Black background
-		glDisable( GL_TEXTURE_2D);
-		glDepthMask(GL_FALSE);
-		glBegin( GL_QUADS);
-		glVertex3i( -map->map_w, 0, map->map_h);
-		glVertex3i( map->map_w, 0, map->map_h);
-		glVertex3i( map->map_w, 0, -map->map_h);
-		glVertex3i( -map->map_w, 0, -map->map_h);
-		glEnd();
-		glDepthMask(GL_TRUE);
-
 		cam.zfar *= 100.0f;
 		cam.setView();
+		glPushMatrix();
+		glDisable(GL_FOG);
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_BLEND);
 		if (lp_CONFIG->render_sky)
 		{
 			glBindTexture(GL_TEXTURE_2D,sky);
@@ -776,13 +767,6 @@ namespace TA3D
 					glScalef( scale, scale, scale );
 				}
 				sky_obj.draw();
-				if (!sky_obj.full)
-				{
-					glScalef( 1.0f, -1.0f, 1.0f);
-					glCullFace( GL_FRONT);
-					sky_obj.draw();
-					glCullFace( GL_BACK);
-				}
 			}
 			else
 			{
@@ -794,6 +778,33 @@ namespace TA3D
 				glEnd();
 			}
 		}
+
+		glPopMatrix();
+		glColor4ub(0, 0, 0, 0xFF);				// Black background
+		glDisable( GL_TEXTURE_2D);
+		glDepthMask(GL_FALSE);
+		glBegin(GL_QUADS);
+		glVertex4f(-map->map_w, 0.0f, map->map_h, 0.0f);
+		glVertex4f(0.0f, 0.0f, map->map_h, 0.0f);
+		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glVertex4f(-map->map_w, 0.0f, 0.0f, 0.0f);
+
+		glVertex4f(map->map_w, 0.0f, map->map_h, 0.0f);
+		glVertex4f(map->map_w, 0.0f, 0.0f, 0.0f);
+		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glVertex4f(0.0f, 0.0f, map->map_h, 0.0f);
+
+		glVertex4f(map->map_w, 0.0f, -map->map_h, 0.0f);
+		glVertex4f(0.0f, 0.0f, -map->map_h, 0.0f);
+		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glVertex4f(map->map_w, 0.0f, 0.0f, 0.0f);
+
+		glVertex4f(-map->map_w, 0.0f, -map->map_h, 0.0f);
+		glVertex4f(-map->map_w, 0.0f, 0.0f, 0.0f);
+		glVertex4f(0.0f, 0.0f, 0.0f, 1.0f);
+		glVertex4f(0.0f, 0.0f, -map->map_h, 0.0f);
+		glEnd();
+
 		glDepthMask(GL_TRUE);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_LIGHTING);
