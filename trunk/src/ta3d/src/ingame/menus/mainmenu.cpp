@@ -27,7 +27,7 @@
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <yuni/core/sleep.h>
-
+#include <gfx/video.h>
 
 // TODO Must be removed
 #include <menu.h>
@@ -63,6 +63,9 @@ namespace Menus
 
 	bool MainMenu::doInitialize()
 	{
+		// Play intro movie if one
+		Video::play("video/intro.mpg");
+
 		LOG_DEBUG(LOG_PREFIX_MENU_MAIN << "Entering...");
 
 		gfx->SetDefState();
