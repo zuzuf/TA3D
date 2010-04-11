@@ -9,6 +9,8 @@ namespace TA3D
 	{
 	private:
 		static GLuint gltex;
+		static SDL_Surface *buf;
+		static bool bUpdate;
 	public:
 		static void play(const String &filename);
 	private:
