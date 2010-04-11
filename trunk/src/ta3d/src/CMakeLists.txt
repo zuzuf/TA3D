@@ -131,6 +131,7 @@ SET(SRC_GFX
 		gfx/fx.h
 		gfx/shader.h gfx/shader.cpp
 		gfx/sky.h gfx/sky.cpp
+		gfx/video.h gfx/video.cpp
 		gfx/gl.extensions.h
 		gfx/texture.cpp gfx/texture.h)
 
