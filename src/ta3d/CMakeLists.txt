@@ -145,7 +145,6 @@ Include(FindSDL)
 Include(FindSDL_image)
 Include(FindSDL_mixer)
 Include(FindSDL_net)
-find_library(SMPEG_LIBRARY smpeg)
 
 # Manual setup for mingw32 (all required files are included in source tree)
 IF (WIN32 OR CMAKE_CROSSCOMPILING)
@@ -154,6 +153,7 @@ IF (WIN32 OR CMAKE_CROSSCOMPILING)
 	SET( SDLIMAGE_FOUND included )
 	SET( SDLMIXER_FOUND included )
 	SET( SDLNET_FOUND included )
+	SET( SMPEG_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libsmpeg.a )
 
 	INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include" )
 
@@ -169,6 +169,7 @@ IF (WIN32 OR CMAKE_CROSSCOMPILING)
 
 ENDIF (WIN32 OR CMAKE_CROSSCOMPILING)
 
+	find_library(SMPEG_LIBRARY smpeg)
 	MESSAGE(STATUS "${SDL_PREFIX} SDL: ${SDL_FOUND}")
 	MESSAGE(STATUS "${SDL_PREFIX} SDL_image: ${SDLIMAGE_FOUND}")
 	MESSAGE(STATUS "${SDL_PREFIX} SDL_mixer: ${SDLMIXER_FOUND}")
