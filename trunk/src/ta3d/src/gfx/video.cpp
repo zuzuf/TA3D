@@ -8,7 +8,8 @@
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <yuni/core/io/file/stream.h>
-#include <SDL/SDL_mixer.h>
+#include <sounds/manager.h>
+#include <threads/mutex.h>
 
 #define LOG_PREFIX_VIDEO "[video] "
 
@@ -20,27 +21,30 @@ namespace TA3D
 
 	GLuint Video::gltex = 0;
 	SDL_Surface *Video::buf = NULL;
-	bool Video::bUpdate = false;
+
+	Synchronizer mpegSynchronizer(2);
 
 	void Video::update(SDL_Surface *img, sint32, sint32, uint32, uint32)
 	{
-		memcpy(buf->pixels, img->pixels, img->w * img->h * img->format->BytesPerPixel);
-		bUpdate = true;
+		// Swap the buffers
+		void *tmp = buf->pixels;
+		buf->pixels = img->pixels;
+		img->pixels = tmp;
+		mpegSynchronizer.sync();
 	}
 
 	void Video::play(const String &filename)
 	{
 		SMPEG_Info info;
 		SMPEG *mpeg;
-		SMPEG *mpegAudio;
 
 		String tmp;
 		tmp << TA3D::Paths::Caches << Paths::ExtractFileName(filename) << ".mpg";
 
-		if (!Yuni::Core::IO::File::Exists(tmp))
+		File *file = VFS::Instance()->readFile(filename);
+		if (file)
 		{
-			File *file = VFS::Instance()->readFile(filename);
-			if (file)
+			if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != file->size())
 			{
 				Stream tmp_file;
 				LOG_DEBUG(LOG_PREFIX_VIDEO << "Creating temporary file for " << filename << " (" << tmp << ")");
@@ -58,44 +62,48 @@ namespace TA3D
 					delete[] buf;
 					tmp_file.flush();
 					tmp_file.close();
-					# ifdef TA3D_PLATFORM_WINDOWS
+# ifdef TA3D_PLATFORM_WINDOWS
 					tmp.convertSlashesIntoBackslashes();
-					# endif
+# endif
 				}
 				else
 				{
 					LOG_ERROR(LOG_PREFIX_VIDEO << "Impossible to create the temporary file `" << tmp << "`");
 					return;
 				}
-				delete file;
 			}
+			delete file;
 		}
 
+		const bool audioRunning = sound_manager;
+		if (audioRunning)
+			sound_manager = NULL;
+
 		// Create the MPEG stream
-		mpeg = SMPEG_new(tmp.c_str(), &info, 0);
+		mpeg = SMPEG_new(tmp.c_str(), &info, 1);
 
 		if (SMPEG_error(mpeg))
 		{
 			SMPEG_delete(mpeg);
+			Mix_CloseAudio();
+			SDL_QuitSubSystem( SDL_INIT_CDROM );
+			SDL_QuitSubSystem( SDL_INIT_AUDIO );
+			SDL_AudioQuit();
 			LOG_ERROR(LOG_PREFIX_VIDEO << "could not read file '" << filename << "'");
-			return;
-		}
-		mpegAudio = SMPEG_new(tmp.c_str(), &info, 0);
-		if (SMPEG_error(mpegAudio))
-		{
-			SMPEG_delete(mpeg);
-			SMPEG_delete(mpegAudio);
-			LOG_ERROR(LOG_PREFIX_VIDEO << "could not read file '" << filename << "'");
+			if (audioRunning)
+			{
+				sound_manager = new Audio::Manager;
+				sound_manager->loadTDFSounds(true);
+				sound_manager->loadTDFSounds(false);
+			}
 			return;
 		}
 
 		// Play video and audio separately (otherwise they are not synced if you don't use
 		// SMPEG's built-in playback which requires letting it control SDL audio system)
-		SMPEG_enableaudio(mpeg, 0);
+		SMPEG_enableaudio(mpeg, 1);
 		SMPEG_enablevideo(mpeg, 1);
-		SMPEG_enableaudio(mpegAudio, 1);
-		SMPEG_enablevideo(mpegAudio, 0);
-		SMPEG_setvolume(mpegAudio, 100);
+		SMPEG_setvolume(mpeg, 100);
 
 		int w = info.width;
 		int h = info.height;
@@ -109,6 +117,7 @@ namespace TA3D
 				h <<= 1;
 		}
 
+		gfx->set_texture_format( gfx->defaultTextureFormat_RGB() );
 		SDL_Surface *img = gfx->create_surface(w, h);
 		buf = gfx->create_surface(w, h);
 		gltex = gfx->create_texture(w, h, FILTER_LINEAR, true);
@@ -127,41 +136,54 @@ namespace TA3D
 		gfx->flip();
 		gfx->clearAll();
 		// Play it, and wait for playback to complete
-		Mix_HookMusic(SMPEG_playAudioSDL, mpegAudio);
+		mpegSynchronizer.setNbThreadsToSync(2);
 		SMPEG_play(mpeg);
-		SMPEG_play(mpegAudio);
-		while (SMPEG_status(mpeg) == SMPEG_PLAYING || SMPEG_status(mpegAudio) == SMPEG_PLAYING)
+		uint32 timer = msec_timer;
+		while (SMPEG_status(mpeg) == SMPEG_PLAYING)
 		{
-			if (bUpdate)
-			{
-				bUpdate = false;
-				glBindTexture(GL_TEXTURE_2D, gltex);
-				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buf->w, buf->h, GL_RGBA, GL_UNSIGNED_BYTE, buf->pixels);
+			mpegSynchronizer.sync();
 
-				if (aspectRatio >= movieRatio)
-				{
-					float vw = movieRatio * screenRatio / aspectRatio * SCREEN_H;
-					gfx->drawtexture(gltex, 0.5f * (SCREEN_W - vw), 0.0f, 0.5f * (SCREEN_W + vw), SCREEN_H);
-				}
-				else
-				{
-					float vh = aspectRatio/ (movieRatio * screenRatio) * SCREEN_W;
-					gfx->drawtexture(gltex, 0.0f, 0.5f * (SCREEN_H - vh), SCREEN_W, 0.5f * (SCREEN_H + vh));
-				}
-				gfx->flip();
+			glBindTexture(GL_TEXTURE_2D, gltex);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buf->w, buf->h, GL_RGBA, GL_UNSIGNED_BYTE, buf->pixels);
+
+			if (aspectRatio >= movieRatio)
+			{
+				float vw = movieRatio * screenRatio / aspectRatio * SCREEN_H;
+				gfx->drawtexture(gltex, 0.5f * (SCREEN_W - vw), 0.0f, 0.5f * (SCREEN_W + vw), SCREEN_H);
 			}
-			poll_inputs();
-			if (keypressed())
-				break;
-			SDL_Delay(1);
+			else
+			{
+				float vh = aspectRatio/ (movieRatio * screenRatio) * SCREEN_W;
+				gfx->drawtexture(gltex, 0.0f, 0.5f * (SCREEN_H - vh), SCREEN_W, 0.5f * (SCREEN_H + vh));
+			}
+			gfx->flip();
+
+			if (msec_timer - timer > 100)
+			{
+				poll_inputs();
+				if (keypressed())
+					break;
+				timer = msec_timer;
+			}
 		}
-		Mix_HookMusic(NULL, 0);
+		mpegSynchronizer.setNbThreadsToSync(0);
+		mpegSynchronizer.release();
 		SMPEG_delete(mpeg);
-		SMPEG_delete(mpegAudio);
 		gfx->unset_2D_mode();
 		clear_keybuf();
 		gfx->destroy_texture(gltex);
 		SDL_FreeSurface(img);
 		SDL_FreeSurface(buf);
+
+		Mix_CloseAudio();
+		SDL_QuitSubSystem( SDL_INIT_CDROM );
+		SDL_QuitSubSystem( SDL_INIT_AUDIO );
+		SDL_AudioQuit();
+		if (audioRunning)
+		{
+			sound_manager = new Audio::Manager;
+			sound_manager->loadTDFSounds(true);
+			sound_manager->loadTDFSounds(false);
+		}
 	}
 }
