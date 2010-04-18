@@ -116,8 +116,16 @@ namespace TA3D
 		SMPEG_setdisplay(mpeg, img, NULL, update);
 		SMPEG_scaleXY(mpeg, img->w, img->h);
 
+		// Those special 5/4 modes are native 4/3 monitor modes with rectangular pixels
+		const float aspectRatio = (SCREEN_W * 4 == SCREEN_H * 5) ? 4.0f / 3.0f : float(SCREEN_W) / SCREEN_H;
+		const float screenRatio = float(SCREEN_W) / SCREEN_H;
+		const float movieRatio = float(info.width) / info.height;
+
 		gfx->SetDefState();
 		gfx->set_2D_mode();
+		gfx->clearAll();
+		gfx->flip();
+		gfx->clearAll();
 		// Play it, and wait for playback to complete
 		Mix_HookMusic(SMPEG_playAudioSDL, mpegAudio);
 		SMPEG_play(mpeg);
@@ -129,7 +137,17 @@ namespace TA3D
 				bUpdate = false;
 				glBindTexture(GL_TEXTURE_2D, gltex);
 				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buf->w, buf->h, GL_RGBA, GL_UNSIGNED_BYTE, buf->pixels);
-				gfx->drawtexture(gltex, 0.0f, 0.0f, SCREEN_W, SCREEN_H);
+
+				if (aspectRatio >= movieRatio)
+				{
+					float vw = movieRatio * screenRatio / aspectRatio * SCREEN_H;
+					gfx->drawtexture(gltex, 0.5f * (SCREEN_W - vw), 0.0f, 0.5f * (SCREEN_W + vw), SCREEN_H);
+				}
+				else
+				{
+					float vh = aspectRatio/ (movieRatio * screenRatio) * SCREEN_W;
+					gfx->drawtexture(gltex, 0.0f, 0.5f * (SCREEN_H - vh), SCREEN_W, 0.5f * (SCREEN_H + vh));
+				}
 				gfx->flip();
 			}
 			poll_inputs();
