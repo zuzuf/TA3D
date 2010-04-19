@@ -56,6 +56,10 @@ namespace TA3D
 			virtual const char *data();
 			//! Close the file
 			virtual void close();
+			//! Tell if this is a real file (useful for use with external libraries)
+			virtual bool isReal() const;
+			//! Returns the real filename (if it's a real file)
+			virtual const String &getRealFilename() const;
 
 			//! Replace current buffer with the one given as parameter (it takes ownership of the new buffer which will be automatically deleted)
 			void setBuffer(byte *buf, int s, int start = 0, int end = -1);

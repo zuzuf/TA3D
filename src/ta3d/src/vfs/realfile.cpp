@@ -27,6 +27,7 @@ namespace TA3D
 				delete[] buffer;
 			buffer = NULL;
 			sFile.open(filename, Yuni::Core::IO::File::OpenMode::read);
+			realFilename = filename;
 		}
 
 		bool RealFile::isOpen()
@@ -104,6 +105,16 @@ namespace TA3D
 			if (buffer)
 				delete[] buffer;
 			buffer = NULL;
+		}
+
+		bool RealFile::isReal() const
+		{
+			return true;
+		}
+
+		const String &RealFile::getRealFilename() const
+		{
+			return realFilename;
 		}
 	}
 }

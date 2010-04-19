@@ -44,7 +44,9 @@ namespace TA3D
 		File *file = VFS::Instance()->readFile(filename);
 		if (file)
 		{
-			if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != file->size())
+			if (file->isReal())					// Check if the file is real
+				tmp = file->getRealFilename();	// if it is we don't need to copy it
+			else if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != file->size())
 			{
 				Stream tmp_file;
 				LOG_DEBUG(LOG_PREFIX_VIDEO << "Creating temporary file for " << filename << " (" << tmp << ")");

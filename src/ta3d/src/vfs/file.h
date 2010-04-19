@@ -55,6 +55,10 @@ namespace TA3D
 			virtual const char *data() = 0;
 			//! Close the file
 			virtual void close() = 0;
+			//! Tell if this is a real file (useful for use with external libraries)
+			virtual bool isReal() const = 0;
+			//! Returns the real filename (if it's a real file)
+			virtual const String &getRealFilename() const = 0;
 
 			virtual File &operator=(const File &f) = 0;
 
