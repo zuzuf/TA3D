@@ -198,15 +198,17 @@ namespace TA3D
 		}
 
 		if (!out.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
-		{                             // in order to load it with FTGL
+		{                       // in order to load it with FTGL
 			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << out);
 			tmp.clear();
 			tmp << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
 
-			if (!Yuni::Core::IO::File::Exists(tmp))
+			File *file = VFS::Instance()->readFile(out);
+			if (file)
 			{
-				File *file = VFS::Instance()->readFile(out);
-				if (file)
+				if (file->isReal())
+					tmp = file->getRealFilename();
+				else if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != file->size())
 				{
 					Stream tmp_file;
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
@@ -224,25 +226,20 @@ namespace TA3D
 						delete[] buf;
 						tmp_file.flush();
 						tmp_file.close();
-						out.clear();
-						out << tmp;
-						# ifdef TA3D_PLATFORM_WINDOWS
-						out.convertSlashesIntoBackslashes();
-						# endif
 					}
 					else
 						LOG_ERROR(LOG_PREFIX_FONT << "Impossible to create the temporary file `" << tmp << "`");
-					delete file;
 				}
-			}
-			else
-			{
+				else
+				{
+					LOG_INFO(LOG_PREFIX_FONT << "`" << name << "`: From cache (`" << tmp << "`)");
+				}
 				out.clear();
 				out << tmp;
-				# ifdef TA3D_PLATFORM_WINDOWS
+# ifdef TA3D_PLATFORM_WINDOWS
 				out.convertSlashesIntoBackslashes();
-				# endif
-				LOG_INFO(LOG_PREFIX_FONT << "`" << name << "`: From cache (`" << out << "`)");
+# endif
+				delete file;
 			}
 		}
 	}

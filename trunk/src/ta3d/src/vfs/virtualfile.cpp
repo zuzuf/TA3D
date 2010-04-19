@@ -137,5 +137,16 @@ namespace TA3D
 			offset = 0;
 			streamSize = 0;
 		}
+
+		bool VirtualFile::isReal() const
+		{
+			return false;
+		}
+
+		const String &VirtualFile::getRealFilename() const
+		{
+			static String empty;
+			return empty;
+		}
 	}
 }
