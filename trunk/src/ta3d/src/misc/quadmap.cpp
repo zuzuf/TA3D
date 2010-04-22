@@ -4,6 +4,25 @@
 
 namespace TA3D
 {
+
+	namespace // anonymous
+	{
+
+		/*!
+		** \brief Replacement for std::bitset::all()
+		**
+		** The method std::bitset::all() is not standard and not present on all platforms
+		** (especially on OS X)
+		*/
+		template<class BitSetT>
+		inline bool BitSetAll(const BitSetT& set)
+		{
+			return (~set).none();
+		}
+
+	} // anonymous namespace
+
+
 	QuadMap::QuadMap(int w, int h)
 	 : root(Math::Max(1 << Math::Log2((w << 1) - 1),		// We want the smallest power of two square map bigger than w*h
 			1 << Math::Log2((h << 1) - 1)))
@@ -28,12 +47,12 @@ namespace TA3D
 
 	bool QuadMap::LeafNode::compressible() const
 	{
-		return data.none() || data.all();
+		return data.none() || BitSetAll(data);
 	}
 
 	bool QuadMap::LeafNode::value() const
 	{
-		return data.all();
+		return BitSetAll(data);
 	}
 
 	int QuadMap::LeafNode::getMemoryUse() const
@@ -72,12 +91,12 @@ namespace TA3D
 
 	bool QuadMap::InternalNode::compressible() const
 	{
-		return childs[0] == NULL && childs[1] == NULL && childs[2] == NULL && childs[3] == NULL && (data.all() || data.none());
+		return childs[0] == NULL && childs[1] == NULL && childs[2] == NULL && childs[3] == NULL && (BitSetAll(data) || data.none());
 	}
 
 	bool QuadMap::InternalNode::value() const
 	{
-		return data.all();
+		return BitSetAll(data);
 	}
 
 	bool QuadMap::InternalNode::get(int x, int y) const
