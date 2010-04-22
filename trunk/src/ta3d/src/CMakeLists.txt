@@ -368,7 +368,7 @@ ELSE(NOT APPLE)
 	Set(ExternalLibs libz.1.dylib libpng12.0.dylib libfreetype.6.dylib libtiff.3.dylib
 		libSDL-1.2.0.dylib libSDL_mixer-1.2.0.dylib libSDL_image-1.2.0.dylib libSDL_net-1.2.0.dylib
 		libGLEW.1.5.1.dylib
-		libjpeg.7.dylib
+		libjpeg.8.dylib
 		)
 
 
