@@ -531,13 +531,13 @@ namespace TA3D
 			String textureName = String("textures/") << file->getString();
 			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed());
 				if (tex)
 					model->gltex.push_back(tex);
 			}
 			else		// Fixed pipeline
 			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB());
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed());
 				if (tex)
 				{
 					model->gltex.push_back(tex);
@@ -553,7 +553,7 @@ namespace TA3D
 			String textureName = String("textures/") << file->getString();
 			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA());
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed());
 				if (tex)
 					model->gltex.push_back(tex);
 			}
