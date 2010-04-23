@@ -39,6 +39,9 @@ namespace TA3D
 
 	void WeaponDef::init()
     {
+		laserTex1 = 0;
+		laserTex2 = 0;
+
 		damage_hashtable.clear();
 
         soundstart.clear();
@@ -122,7 +125,9 @@ namespace TA3D
 
 	void WeaponDef::destroy()
     {
-        soundstart.clear();
+		gfx->destroy_texture(laserTex1);
+		gfx->destroy_texture(laserTex2);
+		soundstart.clear();
         soundhit.clear();
         soundwater.clear();
         soundtrigger.clear();
