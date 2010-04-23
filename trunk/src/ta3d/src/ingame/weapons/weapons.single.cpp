@@ -704,7 +704,9 @@ namespace TA3D
 		visible = true;
 		switch(weapon_def->rendertype)
 		{
-			case RENDER_TYPE_LASER:						// Dessine le laser
+			case RENDER_TYPE_LASER:						// Draw the laser
+				if (gfx->getShadowMapMode())			// No laser shadow :P
+					break;
 				{
 					if (lp_CONFIG->shadow_quality >= 2)
 						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
