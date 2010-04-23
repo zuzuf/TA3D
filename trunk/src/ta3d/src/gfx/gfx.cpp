@@ -2637,5 +2637,18 @@ namespace TA3D
 			disableShadowMapping();
 	}
 
+	GLuint GFX::defaultTextureFormat_RGB_compressed() const
+	{
+		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+			return GL_COMPRESSED_RGB_ARB;
+		return defaultRGBTextureFormat;
+	}
+
+	GLuint GFX::defaultTextureFormat_RGBA_compressed() const
+	{
+		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+			return GL_COMPRESSED_RGBA_ARB;
+		return defaultRGBATextureFormat;
+	}
 
 } // namespace TA3D

@@ -299,6 +299,8 @@ namespace TA3D
 		*/
 		GLuint defaultTextureFormat_RGB() const	{	return defaultRGBTextureFormat;	}
 		GLuint defaultTextureFormat_RGBA() const	{	return defaultRGBATextureFormat;	}
+		GLuint defaultTextureFormat_RGB_compressed() const;
+		GLuint defaultTextureFormat_RGBA_compressed() const;
 
 		void enableShadowMapping() const;
 		void disableShadowMapping() const;
