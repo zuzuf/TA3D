@@ -76,6 +76,11 @@ namespace TA3D
 			}
 			delete file;
 		}
+		else
+		{
+			LOG_ERROR(LOG_PREFIX_VIDEO << "Impossible to read the file `" << filename << "`");
+			return;
+		}
 
 		const bool audioRunning = sound_manager;
 		if (audioRunning)
