@@ -716,7 +716,6 @@ namespace TA3D
 						length = killtime;
 					P = P - length * V;
 					glDisable(GL_LIGHTING);
-					glDisable(GL_TEXTURE_2D);
 					int color0 = weapon_def->color[0];
 					int color1 = weapon_def->color[1];
 					float coef = (cosf(stime * 5.0f) + 1.0f) * 0.5f;
@@ -732,16 +731,49 @@ namespace TA3D
 					glDisable(GL_CULL_FACE);
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					glBegin(GL_QUADS);
-					glColor4ub(r,g,b,0);
-					glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);			glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
-					glColor4ub(r,g,b,0xFF);
-					glVertex3f(P.x,P.y,P.z);								glVertex3f(Pos.x,Pos.y,Pos.z);
 
-					glVertex3f(Pos.x,Pos.y,Pos.z);							glVertex3f(P.x,P.y,P.z);
-					glColor4ub(r,g,b,0);
-					glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);					glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
-					glEnd();
+					if (weapon_def->laserTex1 == 0)
+					{
+						glDisable(GL_TEXTURE_2D);
+						glBegin(GL_QUADS);
+						glColor4ub(r,g,b,0);
+						glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);			glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
+						glColor4ub(r,g,b,0xFF);
+						glVertex3f(P.x,P.y,P.z);								glVertex3f(Pos.x,Pos.y,Pos.z);
+
+						glVertex3f(Pos.x,Pos.y,Pos.z);							glVertex3f(P.x,P.y,P.z);
+						glColor4ub(r,g,b,0);
+						glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);					glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
+						glEnd();
+					}
+					else
+					{
+						byte a = weapon_def->laserTex2 ? int(0xFF * coef) : 0xFF;
+						glEnable(GL_TEXTURE_2D);
+						glBindTexture(GL_TEXTURE_2D, weapon_def->laserTex1);
+						glColor4ub(r,g,b,a);
+						glBegin(GL_QUADS);
+							glTexCoord2f(0.0f, 0.0f);	glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);
+							glTexCoord2f(1.0f, 0.0f);	glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
+							glTexCoord2f(1.0f, 1.0f);	glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);
+							glTexCoord2f(0.0f, 1.0f);	glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
+						glEnd();
+
+						if (a != 0xFF)
+						{
+							glDepthFunc(GL_LEQUAL);
+							a = 0xFF - a;
+							glBindTexture(GL_TEXTURE_2D, weapon_def->laserTex2);
+							glColor4ub(r,g,b,a);
+							glBegin(GL_QUADS);
+								glTexCoord2f(0.0f, 0.0f);	glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);
+								glTexCoord2f(1.0f, 0.0f);	glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
+								glTexCoord2f(1.0f, 1.0f);	glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);
+								glTexCoord2f(0.0f, 1.0f);	glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
+							glEnd();
+							glDepthFunc(GL_LESS);
+						}
+					}
 					glDisable(GL_BLEND);
 					glEnable(GL_CULL_FACE);
 					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);

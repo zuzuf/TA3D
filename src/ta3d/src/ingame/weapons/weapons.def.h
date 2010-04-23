@@ -223,6 +223,9 @@ namespace TA3D
         //! hashtable used to get specific damages quickly
 		HashMap<int>::Dense damage_hashtable;
 
+		//! Textures for lasers
+		GLuint laserTex1;
+		GLuint laserTex2;
 	}; // class WeaponDef
 
 
