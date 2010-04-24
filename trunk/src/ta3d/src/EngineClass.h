@@ -116,6 +116,7 @@ namespace TA3D
 		bool    waterdoesdamage;
 		int	    waterdamage;
 		bool    network;
+		bool	whitefog;
 
 	}; // class MAP_OTA
 
