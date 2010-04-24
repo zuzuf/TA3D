@@ -598,6 +598,9 @@ namespace TA3D
 									unit->built = true;
 									unit->build_percent_left = 100.0f;
 								}
+
+								if (unit->script)			// We have to do that in order to get the creation script done before calling other scripts functions
+									unit->script->run(1.0f / TICKS_PER_SEC);
 								unit->unlock();
 							}
 							else

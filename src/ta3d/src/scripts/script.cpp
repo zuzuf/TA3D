@@ -544,6 +544,8 @@ namespace TA3D
 				unit->build_percent_left = 0.0f;
 				if (unit_manager.unit_type[ unit_type_id ]->ActivateWhenBuilt) // Start activated
 				{
+					if (unit->script)			// We have to do that in order to get the creation script done before activating the unit
+						unit->script->run(1.0f / TICKS_PER_SEC);
 					unit->port[ACTIVATION] = 0;
 					unit->activate();
 				}
