@@ -1860,7 +1860,7 @@ namespace TA3D
 					{
 						const bool under_water = (h_map(X | 1, Y | 1) < sealvl && h_map(X | 1, Y) < sealvl && h_map(X, Y | 1) < sealvl && h_map(X, Y) < sealvl);
 
-						if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
+						if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !ota_data.whitefog && !lp_CONFIG->pause
 							&& (Math::RandomTable() % 1000000) <= lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
 						{
 							Vector3D POS( (x<<4) - map_w_d + 8.0f, sealvl - 5.0f, pre_y - map_h_d + 8.0f );
@@ -1872,7 +1872,7 @@ namespace TA3D
 						}
 						else
 						{
-							if (!map_data( X, Y).lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
+							if (!map_data( X, Y).lava && water && !ota_data.lavaworld && !ota_data.whitefog && !under_water && !lp_CONFIG->pause &&										// A wave
 								(h_map(X | 1, Y | 1) < sealvl || h_map(X | 1, Y) < sealvl || h_map(X, Y | 1) < sealvl || h_map(X, Y) < sealvl) &&
 								(h_map(X | 1, Y | 1) >= sealvl || h_map(X, Y | 1) >= sealvl || h_map(X | 1, Y) >= sealvl || h_map(X, Y) >= sealvl) &&
 								(Math::RandomTable() % 4000) <= lavaprob &&
