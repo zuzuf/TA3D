@@ -497,12 +497,10 @@ namespace TA3D
 			if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->data[script_index].flag & FLAG_HIDE)) )
 			{
 				int rnd_idx = (Math::RandomTable() % (nb_t_index / 3)) * 3;
-				float a = (Math::RandomTable() & 0xFF) / 255.0f;
-				float b = (1.0f - a) * (Math::RandomTable() & 0xFF) / 255.0f;
-				float c = 1.0f - a - b;
-				vec->x = a * points[ t_index[rnd_idx]].x + b * points[t_index[rnd_idx + 1]].x + c * points[t_index[rnd_idx + 2]].x;
-				vec->y = a * points[ t_index[rnd_idx]].y + b * points[t_index[rnd_idx + 1]].y + c * points[t_index[rnd_idx + 2]].y;
-				vec->z = a * points[ t_index[rnd_idx]].z + b * points[t_index[rnd_idx + 1]].z + c * points[t_index[rnd_idx + 2]].z;
+				const float a = (Math::RandomTable() & 0xFF) / 255.0f;
+				const float b = (1.0f - a) * (Math::RandomTable() & 0xFF) / 255.0f;
+				const float c = 1.0f - a - b;
+				*vec = a * points[ t_index[rnd_idx]] + b * points[t_index[rnd_idx + 1]] + c * points[t_index[rnd_idx + 2]];
 				if (data_s && script_index >= 0)
 					*vec = data_s->data[script_index].pos + *vec * data_s->data[script_index].matrix;
 			}
