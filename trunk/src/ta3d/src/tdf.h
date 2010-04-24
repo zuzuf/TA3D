@@ -310,6 +310,9 @@ namespace TA3D
 
         //! Time reference to add some visual complexity to animations
         uint32 timeRef;
+
+		//! Is this object referenced on map ?
+		bool drawnOnMap;
 	}; // class FeatureData
 
 
