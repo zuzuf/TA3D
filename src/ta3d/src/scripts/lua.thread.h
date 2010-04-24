@@ -118,6 +118,7 @@ namespace TA3D
 		inline void crash()         {   crashed = true;  }
 		inline void uncrash()       {   crashed = false; }
 		bool runCommand(const String &cmd);
+
 	private:
 		//! functions to manipulate the Lua processes
 		void setThreadID();

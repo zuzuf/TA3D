@@ -245,6 +245,7 @@ namespace TA3D
 			if (cacheAnm[i])
 				delete cacheAnm[i];
 		cacheAnm.clear();
+		freeSlot.clear();
 		use.clear();
 		init();
 	}
