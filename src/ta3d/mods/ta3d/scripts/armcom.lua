@@ -117,7 +117,7 @@ __this.RestorePosition = function(this)
 end
 
 __this.AimFromPrimary = function(this)
-	return this.torso
+	return this.lfirept
 end
 
 __this.QueryPrimary = function(this)
@@ -142,7 +142,8 @@ __this.AimPrimary = function(this, heading, pitch)
 	-- Announce that we would like to aim, and wait until we can
 	this.bAiming = true
 	while not this.bCanAim do
-		this:sleep( 0.1 )
+        this.bAiming = true
+		this:yield()
 	end
 
 	-- Aim
@@ -161,6 +162,8 @@ __this.AimPrimary = function(this, heading, pitch)
 
     if this.aimtype == this.AIM_LASER then
         this:set_script_value("AimPrimary", true)
+        this.aimtype = this.AIM_NONE
+        this.bAiming = false
     end
 end
 
@@ -189,7 +192,8 @@ __this.AimTertiary = function(this, heading, pitch)
 	-- Announce that we would like to aim, and wait until we can
 	this.bAiming = true
 	while not this.bCanAim do
-		this:sleep( 0.1 )
+        this.bAiming = true
+		this:yield()
 	end
 
 	heading = heading * TA2DEG
@@ -211,6 +215,8 @@ __this.AimTertiary = function(this, heading, pitch)
 
     if this.aimtype == this.AIM_DGUN then
         this:set_script_value("AimTertiary", true)
+        this.aimtype = this.AIM_NONE
+        this.bAiming = false
     end
 end
 
@@ -229,7 +235,8 @@ __this.StartBuilding = function(this, heading, pitch)
 	-- Announce that we would like to aim, and wait until we can
 	this.bAiming = true
 	while not this.bCanAim do
-		this:sleep( 0.1 )
+        this.bAiming = true
+		this:yield()
 	end
 
 	heading = heading * TA2DEG
@@ -251,6 +258,7 @@ __this.StartBuilding = function(this, heading, pitch)
     if this.aimtype == this.AIM_NANO then
         this.aimtype = this.AIM_NONE
         this:set( INBUILDSTANCE, true )
+        this.bAiming = false
     end
 end
 
