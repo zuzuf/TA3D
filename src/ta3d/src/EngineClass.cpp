@@ -844,6 +844,8 @@ namespace TA3D
 		String tmp = parser.pullAsString("GlobalHeader.Schema 0.type");
 		tmp.toLower();
 		network = tmp.startsWith("network");
+		// Special flag for slate world which has a white fog background
+		whitefog = String(planet).toUpper() == "SLATE";
 
 		if (waterdamage == 0)
 			waterdoesdamage=false;
