@@ -1423,8 +1423,6 @@ namespace TA3D
 		if (!is_running())
 			return -1;
 
-		LuaProgram::inGame = this;
-
 		if (waiting && (amx!=mouse_x || amy!=mouse_y || amz!=mouse_z || amb!=mouse_b || keypressed()))
 			waiting = false;
 
@@ -1463,7 +1461,8 @@ namespace TA3D
 			if (ret != 0)
 				signal = ret;
 			do
-				suspend(1);
+				if (suspend(1))
+					return;
 			while (signal && isRunning() && is_running());
 		}
 	}
@@ -1476,6 +1475,8 @@ namespace TA3D
 
 		amx = amy = amz = 0;
 		amb = 0;
+
+		signal = 0;
 	}
 
 	void LuaProgram::destroy()
@@ -1512,7 +1513,7 @@ namespace TA3D
 			float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 0.5f;
 			float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 0.5f;
 
-			m_File << String("\nunit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
+			m_File << String("\nlocal unit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 
 			float health = ota_parser.pullAsFloat( unit_key + ".HealthPercentage", -1.0f );
 			if (health != -1.0f )
@@ -1520,9 +1521,9 @@ namespace TA3D
 
 			String Ident = ota_parser.pullAsString( unit_key + ".Ident" );
 			if (!Ident.empty() )
-				m_File << Ident << " = unit_id\n";		// Links the unit_id to the given name
+				m_File << "local " << Ident << " = unit_id\n";		// Links the unit_id to the given name
 
-			m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
+			m_File << "local " << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
 
 			String::Vector orders;
 			ota_parser.pullAsString(unit_key + ".InitialMission").explode(orders, ',');
@@ -1649,16 +1650,16 @@ namespace TA3D
 			i++;
 		}
 
-		m_File << "\ntimer = time()\nend_signal = 0\n";
+		m_File << "\nlocal timer = time()\nlocal end_signal = 0\n";
 
-		m_File << "check = {}\nfirst_launch = true\n";
+		m_File << "local check = {}\nlocal first_launch = true\n";
 		m_File << "for i = 0, get_max_unit_number() do\n";
 		m_File << "	check[ i ] = false\n";
 		m_File << "end\n\n";
 
-		m_File << "pos_x = {}\n";
-		m_File << "pos_z = {}\n";
-		m_File << "exist = {}\n";
+		m_File << "local pos_x = {}\n";
+		m_File << "local pos_z = {}\n";
+		m_File << "local exist = {}\n";
 		m_File << "for i = 0, get_max_unit_number() do\n";
 		m_File << "	if get_unit_owner( i ) == -1 then\n";
 		m_File << "		exist[ i ] = false\n";
@@ -1676,7 +1677,7 @@ namespace TA3D
 			if (params.size() >= 2)
 			{
 				m_File << "\nKillUnitType_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
-				m_File << "KilledUnitType = 0\n";
+				m_File << "local KilledUnitType = 0\n";
 			}
 		}
 
@@ -1687,24 +1688,24 @@ namespace TA3D
 			if (params.size() >= 2)
 			{
 				m_File << "\nUnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
-				m_File << "UnitTypeKilled_count = 0\n";
+				m_File << "local UnitTypeKilled_count = 0\n";
 			}
 		}
 
-		m_File << "AnyUnitPassesZ = false\n";
-		m_File << "UnitTypePassesZ = false\n";
-		m_File << "AnyUnitPassesX = false\n";
-		m_File << "UnitTypePassesX = false\n";
-		m_File << "BuildUnitType = false\n";
-		m_File << "CaptureUnitType = false\n";
-		m_File << "KillUnitType = false\n";
-		m_File << "KillAllOfType = false\n";
-		m_File << "KilledEnemyCommander = false\n";
-		m_File << "DestroyAllUnits = false\n";
-		m_File << "MoveUnitToRadius = false\n";
-		m_File << "KillAllMobileUnits = false\n";
+		m_File << "local AnyUnitPassesZ = false\n";
+		m_File << "local UnitTypePassesZ = false\n";
+		m_File << "local AnyUnitPassesX = false\n";
+		m_File << "local UnitTypePassesX = false\n";
+		m_File << "local BuildUnitType = false\n";
+		m_File << "local CaptureUnitType = false\n";
+		m_File << "local KillUnitType = false\n";
+		m_File << "local KillAllOfType = false\n";
+		m_File << "local KilledEnemyCommander = false\n";
+		m_File << "local DestroyAllUnits = false\n";
+		m_File << "local MoveUnitToRadius = false\n";
+		m_File << "local KillAllMobileUnits = false\n";
 
-		m_File << "\nfunction main()\n";
+		m_File << "\nlocal function main()\n";
 
 		m_File << "	if end_signal ~= 0 and time() - timer >= 5 then\n";
 		m_File << "		return end_signal\n";
@@ -1726,7 +1727,7 @@ namespace TA3D
 			ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").explode(params, ',');
 			if (params.size() >= 2)
 			{
-				m_File << "	new_UnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
+				m_File << "	local new_UnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
 				m_File << "	if UnitTypeKilled_nb > new_UnitTypeKilled_nb then\n";
 				m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
 				m_File << "	end\n";
@@ -1759,7 +1760,7 @@ namespace TA3D
 
 		// VICTORY conditions
 
-		m_File << "	victory_conditions = 0\n";
+		m_File << "	local victory_conditions = 0\n";
 		int nb_victory_conditions = 0;
 
 		m_File << "	if UnitTypePassesX then\n		victory_conditions = victory_conditions + 1\n	end\n";
@@ -1809,12 +1810,12 @@ namespace TA3D
 			}
 
 			m_File << "	for i = 0, get_max_unit_number() do\n";
-			m_File << "		unit_z = unit_z( i )\n";
-			m_File << "		unit_x = unit_x( i )\n";
-			m_File << "		unit_exist = ( get_unit_owner( i ) ~= -1 )\n";
+			m_File << "		local z = unit_z( i )\n";
+			m_File << "		local x = unit_x( i )\n";
+			m_File << "		local unit_exist = ( get_unit_owner( i ) ~= -1 )\n";
 			if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
 			{
-				m_File << "		if exist[ i ] and unit_exist and (pos_z[ i ] - ZPass0) * (unit_z - ZPass0) <= 0 and not AnyUnitPassesZ then\n";
+				m_File << "		if exist[ i ] and unit_exist and (pos_z[ i ] - ZPass0) * (z - ZPass0) <= 0 and not AnyUnitPassesZ then\n";
 				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 				m_File << "			AnyUnitPassesZ = true\n";
 				m_File << "		end\n";
@@ -1825,7 +1826,7 @@ namespace TA3D
 				ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").explode(params, ',');
 				if (params.size() == 2)
 				{
-					m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (unit_z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
+					m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
 					m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 					m_File << "			UnitTypePassesZ = true\n";
 					m_File << "		end\n";
@@ -1833,7 +1834,7 @@ namespace TA3D
 			}
 			if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() )
 			{
-				m_File << "		if exist[ i ] and unit_exist and (pos_x[ i ] - XPass0) * (unit_x - XPass0) <= 0 and not AnyUnitPassesX then\n";
+				m_File << "		if exist[ i ] and unit_exist and (pos_x[ i ] - XPass0) * (x - XPass0) <= 0 and not AnyUnitPassesX then\n";
 				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 				m_File << "			AnyUnitPassesX = true\n";
 				m_File << "		end\n";
@@ -1844,7 +1845,7 @@ namespace TA3D
 				ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").explode(params, ',');
 				if (params.size() == 2)
 				{
-					m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (unit_x - XPass1) <= 0 and not UnitTypePassesX then\n";
+					m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (x - XPass1) <= 0 and not UnitTypePassesX then\n";
 					m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 					m_File << "			UnitTypePassesX = true\n";
 					m_File << "		end\n";
@@ -1852,8 +1853,8 @@ namespace TA3D
 			}
 			m_File << "		if unit_exist then\n";
 			m_File << "			exist[ i ] = true\n";
-			m_File << "			pos_x[ i ] = unit_x\n";
-			m_File << "			pos_z[ i ] = unit_z\n";
+			m_File << "			pos_x[ i ] = x\n";
+			m_File << "			pos_z[ i ] = z\n";
 			m_File << "		else\n";
 			m_File << "			exist[ i ] = false\n";
 			m_File << "		end\n";
@@ -1927,9 +1928,9 @@ namespace TA3D
 				m_File << "		if get_unit_owner( i ) == 0 then\n";
 			else
 				m_File << "		if get_unit_owner( i ) == 0 and is_unit_of_type( i, \"" << params[0] << "\" ) then\n";
-			m_File << "			dx = unit_x( i ) + 0.5 * (map_w() - " << params[ 1 ] << " )\n";
-			m_File << "			dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
-			m_File << "			dist = dx * dx + dz * dz\n";
+			m_File << "			local dx = unit_x( i ) + 0.5 * (map_w() - " << params[ 1 ] << " )\n";
+			m_File << "			local dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
+			m_File << "			local dist = dx * dx + dz * dz\n";
 			float dist = params[ 3 ].to<sint32>() * 0.5f;
 			m_File << "			if dist <= " << (dist * dist) << " then\n";
 			m_File << "				if not first_launch and not check[ i ] and not MoveUnitToRadius then\n";
@@ -1968,6 +1969,11 @@ namespace TA3D
 	}
 
 
+	void LuaProgram::signalExitThread()
+	{
+		while(!pDead)
+			kill();
+	}
 
 
 } // namespace TA3D

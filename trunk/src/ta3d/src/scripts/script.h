@@ -65,6 +65,7 @@ namespace TA3D
 
 	protected:
 		virtual void proc(void* param);
+		virtual void signalExitThread();
 
 	public:
 		static LuaProgram	*inGame;

@@ -519,6 +519,8 @@ namespace TA3D
 		int id = units.create(type_id,owner);
 		if (id >= 0)
 		{
+			// In order to avoid race conditions we have to update it now !
+			players.annihilated[owner] = false;
 			units.unit[id].lock();
 
 			if (network_manager.isConnected())
