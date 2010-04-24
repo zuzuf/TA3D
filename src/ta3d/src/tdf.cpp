@@ -951,13 +951,11 @@ namespace TA3D
 				feature[*i].burning = false;
 				feature[*i].hp = 0.0f;
 
-				int sx = ((int)(feature[*i].Pos.x) + the_map->map_w_d - 4) >> 3; // Delete the feature
-				int sy = ((int)(feature[*i].Pos.z) + the_map->map_h_d - 4) >> 3;
+				int sx = feature[*i].px; // Delete the feature
+				int sy = feature[*i].py;
 				// Remove it from map
-				the_map->rect(sx - (pFeature->footprintx >> 1),
-							  sy - (pFeature->footprintz >> 1),
-							  pFeature->footprintx,
-							  pFeature->footprintz, -1);
+				const Vector3D Pos = feature[*i].Pos;
+				delete_feature(*i);
 
 				// Replace the feature if needed (with the burnt feature)
 				if (!pFeature->feature_burnt.empty())
@@ -965,22 +963,16 @@ namespace TA3D
 					int burnt_type = feature_manager.get_feature_index( pFeature->feature_burnt);
 					if (burnt_type >= 0)
 					{
-						Feature *featBurn = feature_manager.getFeaturePointer(burnt_type);
-						the_map->map_data(sx, sy).stuff = features.add_feature(feature[*i].Pos, burnt_type);
-						if( featBurn && featBurn->blocking)
+						the_map->map_data(sx, sy).stuff = features.add_feature(Pos, burnt_type);
+						if (the_map->map_data(sx, sy).stuff >= 0)
 						{
-							the_map->rect(sx - (featBurn->footprintx >> 1),
-										  sy - (featBurn->footprintz >> 1),
-										  featBurn->footprintx,
-										  featBurn->footprintz,
-										  -2 - the_map->map_data(sx, sy).stuff);
+							drawFeatureOnMap(the_map->map_data(sx, sy).stuff);
+							if (network_manager.isServer())
+								g_ta3d_network->sendFeatureCreationEvent(the_map->map_data(sx, sy).stuff);
 						}
-						if (network_manager.isServer())
-							g_ta3d_network->sendFeatureDeathEvent(the_map->map_data(sx, sy).stuff);
 					}
 				}
 
-				delete_feature(*i);
 				i = burning_features.erase(i);
 				erased = true;
 			}
@@ -1097,6 +1089,8 @@ namespace TA3D
 		if (nb_features <= 0 || feature[index].type <= 0)
 			return;
 
+		removeFeatureFromMap(index);
+
 		if (feature[index].shadow_dlist != 0)
 			feature[index].delete_shadow_dlist = true;
 
@@ -1167,6 +1161,7 @@ namespace TA3D
 		feature[idx].angle = 0.0f;
 		feature[idx].burning = false;
 		feature[idx].last_spread = 0.0f;
+		feature[idx].drawnOnMap = false;
 
 		feature[idx].sinking = false;
 		feature[idx].dive = false;
@@ -1180,7 +1175,8 @@ namespace TA3D
 
 	void Features::drawFeatureOnMap(const int idx)
 	{
-		if (idx < 0 || idx >= max_features)
+		MutexLocker mLock(pMutex);
+		if (idx < 0 || idx >= max_features || feature[idx].drawnOnMap)
 			return;
 		compute_on_map_pos(idx);
 		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
@@ -1198,12 +1194,14 @@ namespace TA3D
 								feature[idx].px - (pFeature->gRepulsion.getWidth() >> 1),
 								feature[idx].py - (pFeature->gRepulsion.getHeight() >> 1));
 		}
+		feature[idx].drawnOnMap = true;
 	}
 
 
 	void Features::removeFeatureFromMap(const int idx)
 	{
-		if (idx < 0 || idx >= max_features)
+		MutexLocker mLock(pMutex);
+		if (idx < 0 || idx >= max_features || !feature[idx].drawnOnMap)
 			return;
 		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 		if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
@@ -1217,6 +1215,7 @@ namespace TA3D
 								feature[idx].py - (pFeature->gRepulsion.getHeight() >> 1));
 		}
 		the_map->map_data(feature[idx].px, feature[idx].py).stuff = -1;
+		feature[idx].drawnOnMap = false;
 	}
 
 

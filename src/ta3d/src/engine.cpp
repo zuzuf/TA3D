@@ -23,21 +23,11 @@
 #include "engine.h"
 #include "ta3dbase.h"
 
-#include "scripts/cob.h"           // For unit scripts management
-#include "tdf.h"                   // For 2D features
-#include "EngineClass.h"           // The Core Engine
-
 #include "UnitEngine.h"            // The Unit Engine
 
-#include "tnt.h"                   // The TNT loader
-#include "scripts/script.h"        // The game script manager
-#include "ai/ai.h"                 // AI Engine
 #include "gfx/fx.h"	               // Special FX engine
-#include "gfx/gui/area.h"          // We need that for the AREA::popup function
-#include "misc/paths.h"
 #include "languages/i18n.h"
 #include "sounds/manager.h"
-#include "misc/math.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "backtrace.h"
