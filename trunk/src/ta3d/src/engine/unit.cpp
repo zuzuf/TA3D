@@ -2544,10 +2544,11 @@ namespace TA3D
 								target_pos_on_unit.reset();
 								if (target_unit != NULL)
 								{
-                                    if (weapon[i].data == -1)
-										weapon[i].data = target_unit->get_sweet_spot();
-                                    if (weapon[i].data >= 0)
+									if (weapon[i].data == -1 && target_unit->model && target_unit->model->nb_obj > 0)
+										weapon[i].data = Math::RandomTable() % target_unit->model->nb_obj;
+									if (weapon[i].data >= 0)
 									{
+										target_unit->compute_model_coord();
 										if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
 											target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
 									}
