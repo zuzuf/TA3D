@@ -82,9 +82,8 @@ namespace TA3D
 		float   camera_def_h;
 		float   camera_zoom_speed;
 
-		String  last_script;                // Remember last script used
-		String  last_map;                    // Remember last map played
-		byte    last_FOW;                    // Remember last FOW state
+		String	serializedGameData;			// Informations about last game
+
 		String  last_MOD;
 		String  player_name;                // Name of local player
 

@@ -89,9 +89,7 @@ namespace TA3D
 		camera_zoom_speed = 1.0f;
 
 		player_name = "player";
-		last_script = "scripts\\default.lua";
-		last_map = "";
-		last_FOW = 0;
+		serializedGameData.clear();
 
 		draw_console_loading = false;    // default set to false since it's a developer feature
 		detail_tex = false;                // default set to false because of fragment program dependency ( and it's only an eye candy feature )

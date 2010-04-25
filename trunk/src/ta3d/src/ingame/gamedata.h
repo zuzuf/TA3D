@@ -54,6 +54,13 @@ namespace TA3D
         */
         int net2id(const int id) const;
 
+		/*!
+		** \brief Save and restore game data as a String
+		** \param serialized data
+		** \return serialized data
+		*/
+		String serialize() const;
+		void unserialize(const String &data);
 
     public:
         //! Which map to play

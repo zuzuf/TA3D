@@ -67,11 +67,7 @@ namespace TA3D
 		String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
 		VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
-		VARS::lp_CONFIG->last_script = parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script);
-		VARS::lp_CONFIG->last_script.replace('/', '\\');
-		VARS::lp_CONFIG->last_map = parser.pullAsString("TA3D.Map", TA3D::VARS::lp_CONFIG->last_map);
-		VARS::lp_CONFIG->last_map.replace('/', '\\');
-		VARS::lp_CONFIG->last_FOW = (byte)parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW);
+		VARS::lp_CONFIG->serializedGameData = parser.pullAsString( "TA3D.Game Data", TA3D::VARS::lp_CONFIG->serializedGameData );
 
 		if (current_mod != TA3D::VARS::TA3D_CURRENT_MOD) // Refresh file structure
 		{
@@ -98,6 +94,8 @@ namespace TA3D
 				setup_game(true, host_name);		// Start the game in networking mode as server
 			}
 		}
+		else if (parser.pullAsBool("TA3D.Local game"))
+			setup_game(false, String(), String(), false, parser.pullAsBool("TA3D.Instant start"));		// Start the game in local mode
 
 		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
 

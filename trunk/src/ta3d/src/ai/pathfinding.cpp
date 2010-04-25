@@ -210,10 +210,14 @@ namespace TA3D
 				&& (units.unit[cur.idx].flags & 1))
 			{
 				AI::Path path;
+#ifdef DEBUG_MODE
 				uint64 utimer = usectimer();
+#endif
 				findPath(path, cur);
+#ifdef DEBUG_MODE
 				utimer = usectimer() - utimer;
-				LOG_INFO(LOG_PREFIX_PATHS << "findPath : " << utimer << " µs");
+				LOG_DEBUG(LOG_PREFIX_PATHS << "findPath : " << utimer << " µs");
+#endif
 				path._ready = true;
 
 				Unit *pUnit = &(units.unit[cur.idx]);
@@ -302,7 +306,7 @@ namespace TA3D
 		}
 
 		Grid<int> &zone = the_map->path;
-		Grid<float> &energy = the_map->energy;
+		const Grid<float> &energy = the_map->energy;
 		std::deque<AI::Path::Node> qNode;
 		std::deque<int> qDistFromStart;
 

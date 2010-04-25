@@ -64,7 +64,8 @@ namespace Menus
 	bool MainMenu::doInitialize()
 	{
 		// Play intro movie if one
-		Video::play("video/intro.mpg");
+		if (!lp_CONFIG->quickstart)
+			Video::play("video/intro.mpg");
 
 		LOG_DEBUG(LOG_PREFIX_MENU_MAIN << "Entering...");
 

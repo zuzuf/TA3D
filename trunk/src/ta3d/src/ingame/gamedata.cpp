@@ -16,8 +16,11 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "gamedata.h"
+#include "players.h"
+#include <logs/logs.h>
+#include <languages/i18n.h>
 
-
+#define LOG_PREFIX_GAMEDATA "[GameData] "
 
 namespace TA3D
 {
@@ -25,14 +28,14 @@ namespace TA3D
 
 
     GameData::GameData()
-        :map_filename(), nb_players(0), max_unit_per_player(2000)
+		:map_filename(), nb_players(2), max_unit_per_player(2000)
     {
         saved_file.clear();
 
         use_only.clear();
         campaign = false;
         fog_of_war = FOW_DISABLED;
-        game_script.clear();
+		game_script = "scripts\\game\\default.lua";
 
         team.resize(TA3D_PLAYERS_HARD_LIMIT);
         player_names.resize(TA3D_PLAYERS_HARD_LIMIT);
@@ -49,6 +52,8 @@ namespace TA3D
             player_network_id[i] = -1;
             ready[i] = false;
             team[i] = 1 << i;
+			player_control[i] = PLAYER_CONTROL_NONE;
+			player_names[i] = I18N::Translate("open");
         }
     }
 
@@ -84,6 +89,63 @@ namespace TA3D
         return -1;
     }
 
+	String GameData::serialize() const
+	{
+		String data;
+		data << max_unit_per_player << ','
+			 << map_filename << ','
+			 << game_script << ','
+			 << use_only << ','
+			 << int(fog_of_war) << ','
+			 << nb_players << ',';
+		for(int i = 0 ; i < nb_players ; ++i)
+		{
+			data << player_names[i] << ','
+				 << player_sides[i] << ','
+				 << int(player_control[i]) << ','
+				 << ai_level[i] << ','
+				 << energy[i] << ','
+				 << metal[i] << ','
+				 << team[i] << ',';
+		}
+		return data;
+	}
 
+	void GameData::unserialize(const String &data)
+	{
+		String::Vector args;
+		data.explode(args, ',', false, true, true);
 
+		if (args.size() < 6)		// Not enough fields
+		{
+			LOG_ERROR(LOG_PREFIX_GAMEDATA << "not enought fields");
+			return;
+		}
+		max_unit_per_player = args[0].to<int>();
+		map_filename = args[1];
+		game_script = args[2];
+		use_only = args[3];
+		fog_of_war = args[4].to<int>();
+		nb_players = args[5].to<int>();
+		if (args.size() < 6 + nb_players * 7)
+		{
+			LOG_ERROR(LOG_PREFIX_GAMEDATA << "player data missing");
+			return;
+		}
+		for(int i = 0 ; i < args.size() ; ++i)
+			LOG_DEBUG(LOG_PREFIX_GAMEDATA << "args[" << i << "] = '" << args[i] << "'");
+		LOG_DEBUG(LOG_PREFIX_GAMEDATA << nb_players << " players");
+		for(int i = 0 ; i < nb_players ; ++i)
+		{
+			player_names[i] = args[6 + i * 7];
+			player_sides[i] = args[7 + i * 7];
+			player_control[i] = args[8 + i * 7].to<int>();
+			ai_level[i] = args[9 + i * 7];
+			energy[i] = args[10 + i * 7].to<int>();
+			metal[i] = args[11 + i * 7].to<int>();
+			team[i] = args[12 + i * 7].to<int>();
+			LOG_DEBUG(LOG_PREFIX_GAMEDATA << "player_names[" << i << "] = " << player_names[i]);
+			LOG_DEBUG(LOG_PREFIX_GAMEDATA << "player_sides[" << i << "] = " << player_sides[i]);
+		}
+	}
 } // namespace TA3D
