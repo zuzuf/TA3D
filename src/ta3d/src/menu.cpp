@@ -653,10 +653,9 @@ namespace TA3D
 		TA3D::Settings::Save();             // Keep settings :)
 	}
 
-	void setup_game(bool client, const String& host, String saved_game, bool bNetServer)
+	void setup_game(bool client, const String& host, String saved_game, bool bNetServer, bool instantStart)
 	{
 		int my_player_id = -1;
-		bool advertise = false;
 		String status;
 		if (!host.empty())
 		{
@@ -694,7 +693,6 @@ namespace TA3D
 		uint16  player_str_n = 4;
 		String  player_str[4] = { lp_CONFIG->player_name, I18N::Translate("computer"), I18N::Translate("open"), I18N::Translate("closed") };
 		byte    player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
-		int     side_str_n = ta3dSideData.nb_side;
 		String::Vector  side_str;
 		String::Vector  AI_list = AI_PLAYER::getAvailableAIs();
 		AI_list.resize(AI_list.size() + 1);
@@ -706,10 +704,9 @@ namespace TA3D
 			side_str[i] = ta3dSideData.side_name[i];
 
 		GameData game_data;
+		game_data.unserialize(lp_CONFIG->serializedGameData);
 
-		if (VFS::Instance()->fileExists(lp_CONFIG->last_map))
-			game_data.map_filename = lp_CONFIG->last_map;
-		else
+		if (!VFS::Instance()->fileExists(game_data.map_filename))
 		{
 			String::Vector map_list;
 			const uint32 n = VFS::Instance()->getFilelist("maps\\*.tnt", map_list);
@@ -725,56 +722,61 @@ namespace TA3D
 			game_data.map_filename = *(map_list.begin());
 			map_list.clear();
 		}
-		game_data.nb_players = 2;
-		if (VFS::Instance()->fileExists(lp_CONFIG->last_script) && String::ToLower(Paths::ExtractFileExt(lp_CONFIG->last_script)) == ".lua")
-			game_data.game_script = lp_CONFIG->last_script;
-		else if (VFS::Instance()->fileExists("scripts\\game\\default.lua"))
-			game_data.game_script = "scripts\\game\\default.lua";
-		else
+		if (!VFS::Instance()->fileExists(game_data.game_script) || String::ToLower(Paths::ExtractFileExt(game_data.game_script)) != ".lua")
 		{
-			String::Vector script_list;
-			uint32 n = VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
-
-			if (n == 0)
+			if (VFS::Instance()->fileExists("scripts\\game\\default.lua"))
+				game_data.game_script = "scripts\\game\\default.lua";
+			else
 			{
-				network_manager.Disconnect();
-				TA3D::Gui::AREA::current()->popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
-				LOG_ERROR("No script has been found!!");
-				reset_mouse();
-				return;
-			}
-			for (String::Vector::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
-			{
-				game_data.game_script = *i;
-				if (i->size() > 1 && (*i)[0] != '_')            // Avoid selecting a special file as default script if possible
-					break;
-			}
-			script_list.clear();
-		}
-		game_data.fog_of_war = lp_CONFIG->last_FOW;
+				String::Vector script_list;
+				uint32 n = VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-		{
-			game_data.player_names[i] = player_str[2];
-			game_data.player_sides[i] = side_str[0];
-			game_data.player_control[i] = player_control[2];
-			game_data.ai_level[i] = AI_list.empty() ? String("none") : AI_list[0];
+				if (n == 0)
+				{
+					network_manager.Disconnect();
+					TA3D::Gui::AREA::current()->popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
+					LOG_ERROR("No script has been found!!");
+					reset_mouse();
+					return;
+				}
+				for (String::Vector::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
+				{
+					game_data.game_script = *i;
+					if (i->size() > 1 && (*i)[0] != '_')            // Avoid selecting a special file as default script if possible
+						break;
+				}
+				script_list.clear();
+			}
 		}
 
-		if (!client)
+		if (lp_CONFIG->serializedGameData.empty() || client || !host.empty())
 		{
-			game_data.player_names[0] = player_str[0];
-			game_data.player_sides[0] = side_str[0];
-			game_data.player_control[0] = player_control[0];
-			game_data.player_network_id[0] = my_player_id;
-			game_data.ai_level[0] = AI_list.empty() ? String("none") : AI_list[0];
-
-			if (!host)
+			for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			{
-				game_data.player_names[1] = player_str[1];
-				game_data.player_sides[1] = side_str[1];
-				game_data.player_control[1] = player_control[1];
-				game_data.ai_level[1] = AI_list.empty() ? String("none") : AI_list[0];
+				game_data.player_names[i] = player_str[2];
+				game_data.player_sides[i] = side_str[0];
+				game_data.player_control[i] = player_control[2];
+				game_data.ai_level[i] = AI_list.empty() ? String("none") : AI_list[0];
+			}
+
+			if (lp_CONFIG->serializedGameData.empty())
+			{
+				if (!client)
+				{
+					game_data.player_names[0] = player_str[0];
+					game_data.player_sides[0] = side_str[0];
+					game_data.player_control[0] = player_control[0];
+					game_data.player_network_id[0] = my_player_id;
+					game_data.ai_level[0] = AI_list.empty() ? String("none") : AI_list[0];
+
+					if (!host)
+					{
+						game_data.player_names[1] = player_str[1];
+						game_data.player_sides[1] = side_str[1];
+						game_data.player_control[1] = player_control[1];
+						game_data.ai_level[1] = AI_list.empty() ? String("none") : AI_list[0];
+					}
+				}
 			}
 		}
 
@@ -817,9 +819,9 @@ namespace TA3D
 				guiobj->Text.push_back( game_data.player_sides[i] );
 				guiobj->Text.insert(guiobj->Text.end(), side_str.begin(), side_str.end());
 			}
-			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String("");
+			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
 			setupgame_area.set_entry( String("gamesetup.ai") << i, AI_list);
-                        guiobj = setupgame_area.get_object( String("gamesetup.color") << i);
+			guiobj = setupgame_area.get_object( String("gamesetup.color") << i);
 			if (guiobj)
 			{
 				guiobj->Flag |= (game_data.player_control[i] == PLAYER_CONTROL_NONE ? FLAG_HIDDEN : 0);
@@ -827,7 +829,7 @@ namespace TA3D
 			}
 			guiobj = setupgame_area.get_object( String("gamesetup.team") << i );
 			if (guiobj)
-				guiobj->current_state = byte(i);
+				guiobj->current_state = Math::Log2(game_data.team[i]);
 			setupgame_area.caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);
 			setupgame_area.caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);
 		}
@@ -900,7 +902,7 @@ namespace TA3D
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			player_timer[i] = msec_timer;
 
-		bool done = false;
+		bool done = instantStart;
 
 		if (host.notEmpty() && my_player_id == -1) // Leave now, we aren't connected but we're in network mode
 		{
@@ -914,7 +916,7 @@ namespace TA3D
 			done = true;
 		}
 
-		bool start_game = false;
+		bool start_game = instantStart;
 
 		int amx = -1;
 		int amy = -1;
@@ -1939,10 +1941,6 @@ namespace TA3D
 		{
 			if (!game_data.map_filename.empty() && !game_data.game_script.empty())
 			{
-				lp_CONFIG->last_script = game_data.game_script;     // Remember the last script we played
-				lp_CONFIG->last_map = game_data.map_filename;       // Remember the last map we played
-				lp_CONFIG->last_FOW = game_data.fog_of_war;
-
 				if (!saved_game)            // For a saved game, we already have everything set
 				{
 					game_data.nb_players = 0;
@@ -1966,6 +1964,9 @@ namespace TA3D
 							game_data.nb_players++;
 						}
 					}
+
+					lp_CONFIG->serializedGameData = game_data.serialize();		// Remember the last game parameters
+					Settings::Save();											// Save it to disk to avoid surprises in case of crash
 				}
 
 				Battle::Execute(&game_data);

@@ -83,9 +83,7 @@ namespace Settings
 			<< "          Show FullScreen = " << TA3D::VARS::lp_CONFIG->fullscreen << ";\n"
 			<< "           Detail Texture = " << TA3D::VARS::lp_CONFIG->detail_tex << ";\n"
 			<< "     Draw Console Loading = " << TA3D::VARS::lp_CONFIG->draw_console_loading << ";\n"
-			<< "              Last Script = " << String(TA3D::VARS::lp_CONFIG->last_script).replace('\\', '/') << ";\n"
-			<< "                 Last Map = " << String(TA3D::VARS::lp_CONFIG->last_map).replace('\\', '/') << ";\n"
-			<< "                 Last FOW = " << (int)TA3D::VARS::lp_CONFIG->last_FOW << ";\n"
+			<< "                Game Data = " << TA3D::VARS::lp_CONFIG->serializedGameData << ";\n"
 			<< "                 Last MOD = " << TA3D::VARS::lp_CONFIG->last_MOD << ";\n"
 			<< "              Player name = " << TA3D::VARS::lp_CONFIG->player_name << ";\n"
 			<< "         Camera Zoom Mode = " << (int)TA3D::VARS::lp_CONFIG->camera_zoom << ";\n"
@@ -175,11 +173,7 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->detail_tex = cfgFile.pullAsBool("TA3D.Detail Texture");
 		TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile.pullAsBool("TA3D.Draw Console Loading");
 
-		TA3D::VARS::lp_CONFIG->last_script = cfgFile.pullAsString("TA3D.Last Script", "scripts\\game\\default.lua");
-		TA3D::VARS::lp_CONFIG->last_script.convertSlashesIntoBackslashes();
-		TA3D::VARS::lp_CONFIG->last_map = cfgFile.pullAsString("TA3D.Last Map", "");
-		TA3D::VARS::lp_CONFIG->last_map.convertSlashesIntoBackslashes();
-		TA3D::VARS::lp_CONFIG->last_FOW = byte(cfgFile.pullAsInt("TA3D.Last FOW", 0));
+		TA3D::VARS::lp_CONFIG->serializedGameData = cfgFile.pullAsString("TA3D.Game Data", String());
 		TA3D::VARS::lp_CONFIG->last_MOD = cfgFile.pullAsString("TA3D.Last MOD", "");
 
 		TA3D::VARS::lp_CONFIG->camera_zoom = uint8(cfgFile.pullAsInt("TA3D.Camera Zoom Mode", ZOOM_NORMAL));
