@@ -18,6 +18,7 @@ local BITMAP3         = 1024
 local BITMAP4         = 2048
 local BITMAP5         = 4096
 local BITMAPNUKE      = 8192
+local BITMAP          = 256
 
 local BITMAPMASK      = 16128    -- Mask of the possible bitmap bits
 
@@ -51,6 +52,9 @@ local UNIT_BUILD_PERCENT_LEFT = 73      -- basically BUILD_PERCENT_LEFT, but com
 local UNIT_ALLIED             = 74      -- is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
 local UNIT_IS_ON_THIS_COMP    = 75      -- indicates if the 1st parameter(a unit ID) is to this computer
 local VETERAN_LEVEL           = 32      -- gets kills * 100
+
+local CURRENT_SPEED           = 29
+local HEADING                 = 82
 
 local x_axis = 0
 local y_axis = 1
