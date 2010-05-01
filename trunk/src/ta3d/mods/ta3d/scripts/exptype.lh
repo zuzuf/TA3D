@@ -18,6 +18,7 @@ local BITMAP3         = 1024
 local BITMAP4         = 2048
 local BITMAP5         = 4096
 local BITMAPNUKE      = 8192
+local BITMAP          = 256
 
 local BITMAPMASK      = 16128    -- Mask of the possible bitmap bits
 
