@@ -898,10 +898,14 @@ namespace TA3D
 			BuildDistance = float(SightDistance);
 		weapon.resize( WeaponID.size() );
 		w_badTargetCategory.resize( WeaponID.size() );
+		bomber = false;
 		for (unsigned int i = 0; i < WeaponID.size(); ++i)
 		{
 			if (WeaponID[i] > -1)
+			{
 				weapon[i] = &(weapon_manager.weapon[WeaponID[i]]);
+				bomber |= weapon[i]->dropped;
+			}
 		}
 		if (!Unitname.empty())
 		{
