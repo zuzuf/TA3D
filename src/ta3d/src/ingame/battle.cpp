@@ -226,6 +226,7 @@ namespace TA3D
 			if (key_down_event(KEY_HOME))
 				showHealthBars ^= true;
 			
+			// Ctrl+D : Toggle Self-destruct
 			if (TA3D_CTRL_PRESSED && key[KEY_D])
 			{
 				if (!ordered_destruct)
@@ -242,6 +243,7 @@ namespace TA3D
 			else
 				ordered_destruct = false;
 
+			// + : increase game speed
 			if (key[KEY_PLUS_PAD] && !Console::Instance()->activated())
 			{
 				if (!speed_changed && lp_CONFIG->timefactor < 10.0f)
@@ -253,6 +255,7 @@ namespace TA3D
 			}
 			else
 			{
+				// - : reduce game speed
 				if ((key[KEY_MINUS] || key[KEY_MINUS_PAD]) && !Console::Instance()->activated())
 				{
 					if (!speed_changed && lp_CONFIG->timefactor > 1.0f)
@@ -508,6 +511,7 @@ namespace TA3D
 			bool click_activation = right_click_activation || left_click_activation;
 			bool click_activated = false;
 
+			// Something is selected and cursor is not on GUI or is on the Minimap
 			if (selected && (!IsOnGUI || IsOnMinimap))
 			{
 				bool builders = false;
@@ -515,6 +519,7 @@ namespace TA3D
 				bool canreclamate = false;
 				bool canresurrect = false;
 				bool canguard = false;
+				bool cancapture = false;
 				for (unsigned int e = 0; e < units.index_list_size; ++e)
 				{
 					int i = units.idx_list[e];
@@ -525,6 +530,7 @@ namespace TA3D
 						canreclamate |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
 						canresurrect |= unit_manager.unit_type[units.unit[i].type_id]->canresurrect;
 						canguard |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
+						cancapture |= unit_manager.unit_type[units.unit[i].type_id]->CanCapture;
 					}
 				}
 				int pointing = 0;
@@ -615,6 +621,22 @@ namespace TA3D
 					}
 
 					cursor_type = CursorFromSignalOrder(current_order, cursor_type);
+
+					if (cursor_type == CURSOR_MOVE)
+					{
+						if (!can_be_captured)
+						{
+							if (canguard)
+								cursor_type = CURSOR_GUARD;
+						}
+						else
+						{
+							if (cancapture)
+								cursor_type = CURSOR_CAPTURE;
+							else if (canreclamate)
+								cursor_type = CURSOR_RECLAIM;
+						}
+					}
 
 					if (cursor_type != CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
 					{
