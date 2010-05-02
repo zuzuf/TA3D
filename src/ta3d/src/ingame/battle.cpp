@@ -520,17 +520,20 @@ namespace TA3D
 				bool canresurrect = false;
 				bool canguard = false;
 				bool cancapture = false;
+				bool bombers = false;
 				for (unsigned int e = 0; e < units.index_list_size; ++e)
 				{
 					int i = units.idx_list[e];
 					if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 					{
-						builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
-						canattack |= unit_manager.unit_type[units.unit[i].type_id]->canattack;
-						canreclamate |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
-						canresurrect |= unit_manager.unit_type[units.unit[i].type_id]->canresurrect;
-						canguard |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
-						cancapture |= unit_manager.unit_type[units.unit[i].type_id]->CanCapture;
+						UnitType *pType = unit_manager.unit_type[units.unit[i].type_id];
+						builders |= pType->Builder;
+						canattack |= pType->canattack;
+						canreclamate |= pType->CanReclamate;
+						canresurrect |= pType->canresurrect;
+						canguard |= pType->canguard;
+						cancapture |= pType->CanCapture;
+						bombers |= pType->bomber;
 					}
 				}
 				int pointing = 0;
@@ -637,6 +640,10 @@ namespace TA3D
 								cursor_type = CURSOR_RECLAIM;
 						}
 					}
+					else if (cursor_type == CURSOR_ATTACK && bombers)
+					{
+						cursor_type = CURSOR_BOMB_ATTACK;
+					}
 
 					if (cursor_type != CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
 					{
@@ -660,7 +667,7 @@ namespace TA3D
 					if (click_activation && !order_removed)
 					{
 						order_removed = true;
-						if (cursor_type == CURSOR_ATTACK)
+						if (cursor_type == CURSOR_ATTACK || cursor_type == CURSOR_BOMB_ATTACK)
 						{
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
@@ -787,10 +794,12 @@ namespace TA3D
 					if (!rope_selection)
 					{
 						cursor_type = CursorFromSignalOrder(current_order, cursor_type);
+						if (cursor_type == CURSOR_ATTACK && bombers)
+							cursor_type = CURSOR_BOMB_ATTACK;
 
 						if (left_click_activation)
 						{
-							if (cursor_type == CURSOR_ATTACK)
+							if (cursor_type == CURSOR_ATTACK || cursor_type == CURSOR_BOMB_ATTACK)
 							{
 								Vector3D cursor_pos(cursorOnMap(cam, *map, IsOnMinimap));
 								for (unsigned int e = 0; e < units.index_list_size; ++e)

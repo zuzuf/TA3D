@@ -213,6 +213,7 @@ namespace TA3D
         uint8   selfdestructcountdown;
         bool    init_cloaked;
         int     mincloakdistance;
+		bool	bomber;				// Is this a bomber ?
         std::vector<AimData> aim_data;
 
         /*-----------------------------------------------------------------------*/
