@@ -327,13 +327,13 @@ namespace TA3D
 			** \brief Get an animation given its index
 			*/
 			const Gaf::Animation& operator[] (const sint32 indx) const
-			{ LOG_ASSERT(indx >=0 && indx < pList.size()); return pList[indx]; }
+			{ LOG_ASSERT((unsigned int)indx < pList.size()); return pList[indx]; }
 
 			/*!
 			** \brief Get an animation given its index
 			*/
 			Gaf::Animation& operator[] (const sint32 indx)
-			{ LOG_ASSERT(indx >=0 && indx < pList.size()); return pList[indx]; }
+			{ LOG_ASSERT((unsigned int)indx < pList.size()); return pList[indx]; }
 
 		private:
 			typedef std::vector<Gaf::Animation> AnimationVector;
