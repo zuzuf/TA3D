@@ -1513,7 +1513,7 @@ namespace TA3D
 			float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 0.5f;
 			float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 0.5f;
 
-			m_File << String("\nlocal unit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
+			m_File << String("\nunit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 
 			float health = ota_parser.pullAsFloat( unit_key + ".HealthPercentage", -1.0f );
 			if (health != -1.0f )
@@ -1521,9 +1521,9 @@ namespace TA3D
 
 			String Ident = ota_parser.pullAsString( unit_key + ".Ident" );
 			if (!Ident.empty() )
-				m_File << "local " << Ident << " = unit_id\n";		// Links the unit_id to the given name
+				m_File << Ident << " = unit_id\n";		// Links the unit_id to the given name
 
-			m_File << "local " << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
+			m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
 
 			String::Vector orders;
 			ota_parser.pullAsString(unit_key + ".InitialMission").explode(orders, ',');
