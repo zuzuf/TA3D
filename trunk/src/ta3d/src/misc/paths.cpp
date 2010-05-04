@@ -210,7 +210,11 @@ namespace TA3D
 
 		String ExtractFileExt(const String& s)
 		{
-			return Yuni::Core::IO::ExtractExtension(s);
+			// FIXME This method should be completely removed
+			// The prototype in Yuni::Core::IO has been changed to improve performances
+			String t;
+			Yuni::Core::IO::ExtractExtension(t, s);
+			return t;
 		}
 
 
