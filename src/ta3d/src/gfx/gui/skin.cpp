@@ -181,18 +181,19 @@ namespace Gui
 		{
 			int e = i + Scroll;
 			if (e >= Entry.size() || pCacheFontHeight * (i+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
-			if (e == Index)
-            {
-                gfx->set_alpha_blending();
-                selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, x2 + text_background.x2, y1 + text_background.y1 + pCacheFontHeight * (i+1));
-                gfx->unset_alpha_blending();
-            }
             pCacheDrawTextStr = Entry[e];
 			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
 				pCacheDrawTextStr = pCacheDrawTextStr.substr(3, pCacheDrawTextStr.size() - 3);
+				glDisable(GL_TEXTURE_2D);
 				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i,
-					x2 + text_background.x2, y1 + text_background.y1 + pCacheFontHeight * (i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
+					x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
+			}
+			if (e == Index)
+			{
+				gfx->set_alpha_blending();
+				selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (i+1));
+				gfx->unset_alpha_blending();
 			}
 			while (!pCacheDrawTextStr.empty() && gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
 				pCacheDrawTextStr.removeLast();
