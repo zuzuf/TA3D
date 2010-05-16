@@ -2462,6 +2462,13 @@ namespace TA3D
 					break;
 				case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
                     if (jump_commands)	break;
+					if (!(mission->getFlags() & MISSION_FLAG_CAN_ATTACK))
+					{
+						weapon[i].data = -1;
+						weapon[i].state = WEAPON_FLAG_IDLE;
+						break;
+					}
+
 					if (weapon[i].target == NULL
 						|| ((weapon[i].state & WEAPON_FLAG_WEAPON) == WEAPON_FLAG_WEAPON && ((Weapon*)(weapon[i].target))->weapon_id != -1)
 						|| ((weapon[i].state & WEAPON_FLAG_WEAPON) != WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags & 1)))
@@ -3850,6 +3857,8 @@ namespace TA3D
 									nanolathe_target = target_unit->idx;
 									g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
 								}
+
+								mission->Flags() &= ~MISSION_FLAG_CAN_ATTACK;			// Don't attack when building
 
                                 float conso_metal=((float)(pType->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostMetal))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                 float conso_energy=((float)(pType->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
