@@ -790,6 +790,11 @@ namespace TA3D
 				clear_mission();			// Efface les ordres précédents
 			last_path_refresh = 10.0f;
 			requesting_pathfinder = false;
+			if (nanolathe_target >= 0 && network_manager.isConnected())		// Stop nanolathing
+			{
+				nanolathe_target = -1;
+				g_ta3d_network->sendUnitNanolatheEvent( idx, -1, false, false );
+			}
 		}
 
 		if (def_mode)
@@ -837,9 +842,10 @@ namespace TA3D
 			{
 				mission->addStep();
 				mission->setMissionType(MISSION_STOP);
+				mission->setData(0);
 				mission->Path().clear();
 				mission->setLastD(9999999.0f);
-				mission->setFlags(m_flags & ~MISSION_FLAG_MOVE);
+				mission->setFlags(m_flags | MISSION_FLAG_MOVE);
 				mission->setMoveData(move_data);
 			}
 			else
