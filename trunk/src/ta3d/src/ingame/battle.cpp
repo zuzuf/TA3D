@@ -1379,6 +1379,7 @@ namespace TA3D
 					lp_CONFIG->pause = true;
 					pArea.msg( "esc_menu.b_pause.hide" );
 					pArea.msg( "esc_menu.b_resume.show" );
+					sound_manager->pauseMusic();
 				}
 				pArea.msg( "esc_menu.show" );
 				if (!lp_CONFIG->fullscreen)
@@ -1388,7 +1389,10 @@ namespace TA3D
 			else
 			{
 				if (escMenuWasVisible && !escMenuIsVisible)
+				{
 					grab_mouse(lp_CONFIG->grab_inputs);
+					sound_manager->playMusic();
+				}
 				escMenuWasVisible = escMenuIsVisible;
 			}
 
