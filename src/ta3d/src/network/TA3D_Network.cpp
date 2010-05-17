@@ -271,8 +271,7 @@ namespace TA3D
 				units.unit[sync_msg.unit].V.z = sync_msg.vz;
 				units.unit[sync_msg.unit].V.y = 0.0f;
 
-				// Guess where the unit should be now
-				units.unit[sync_msg.unit].Pos = units.unit[sync_msg.unit].Pos + ((((int)units.current_tick) - (int)sync_msg.timestamp) * tick_conv) * units.unit[sync_msg.unit].V;
+				units.unit[sync_msg.unit].Pos = units.unit[sync_msg.unit].Pos;
 
 				units.unit[sync_msg.unit].cur_px = ((int)(units.unit[sync_msg.unit].Pos.x)+the_map->map_w_d+4)>>3;
 				units.unit[sync_msg.unit].cur_py = ((int)(units.unit[sync_msg.unit].Pos.z)+the_map->map_h_d+4)>>3;
