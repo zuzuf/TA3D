@@ -357,6 +357,9 @@ namespace TA3D
 
 		//blank file open for writing
 		filename = Paths::Resources + ((struct net_thread_params*)param)->filename;
+		const String path = Paths::ExtractFilePath(filename);
+		if (!path.empty())
+			Paths::MakeDir(path);
 		Stream file( filename + ".part", OpenMode::write );
 
 		delete((struct net_thread_params*)param);
