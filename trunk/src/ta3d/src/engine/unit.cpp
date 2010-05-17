@@ -1657,6 +1657,10 @@ namespace TA3D
 	//! Send a request to the pathfinder when we need a complex path, then follow computed paths
 	void Unit::followPath(const float dt, bool &b_TargetAngle, float &f_TargetAngle, Vector3D &NPos, int &n_px, int &n_py, bool &precomputed_position)
 	{
+		// Don't control remote units
+		if (!local)
+			return;
+
 		UnitType *pType = unit_manager.unit_type[type_id];
 		//----------------------------------- Beginning of moving code ------------------------------------
 
