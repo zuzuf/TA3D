@@ -45,6 +45,7 @@
 //   remove_cv
 //   remove_reference
 //   remove_pointer
+//   is_same
 //   is_convertible
 // We can add more type traits as required.
 
@@ -213,6 +214,10 @@ template<typename T> struct remove_pointer<T* const> { typedef T type; };
 template<typename T> struct remove_pointer<T* volatile> { typedef T type; };
 template<typename T> struct remove_pointer<T* const volatile> {
   typedef T type; };
+
+// Specified by TR1 [4.6] Relationships between types
+template<typename T, typename U> struct is_same : public false_type { };
+template<typename T> struct is_same<T, T> : public true_type { };
 
 // Specified by TR1 [4.6] Relationships between types
 #ifndef _MSC_VER

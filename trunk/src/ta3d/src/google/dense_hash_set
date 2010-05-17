@@ -46,7 +46,10 @@
 //
 //   YOU MUST CALL SET_EMPTY_KEY() IMMEDIATELY AFTER CONSTRUCTION.
 //
-// Otherwise your program will die in mysterious ways.
+// Otherwise your program will die in mysterious ways.  (Note if you
+// use the constructor that takes an InputIterator range, you pass in
+// the empty key in the constructor, rather than after.  As a result,
+// this constructor differs from the standard STL version.)
 //
 // In other respects, we adhere mostly to the STL semantics for
 // hash-map.  One important exception is that insert() may invalidate
@@ -105,6 +108,7 @@
 #include <memory>                    // for alloc<>
 #include <utility>                   // for pair<>
 #include HASH_FUN_H                  // defined in config.h
+#include <google/sparsehash/libc_allocator_with_realloc.h>
 #include <google/sparsehash/densehashtable.h>
 
 
@@ -115,7 +119,7 @@ using STL_NAMESPACE::pair;
 template <class Value,
           class HashFcn = SPARSEHASH_HASH<Value>,  // defined in sparseconfig.h
           class EqualKey = STL_NAMESPACE::equal_to<Value>, 
-          class Alloc = STL_NAMESPACE::allocator<Value> >
+          class Alloc = libc_allocator_with_realloc<Value> >
 class dense_hash_set {
  private:
   // Apparently identity is not stl-standard, so we define our own
@@ -130,8 +134,8 @@ class dense_hash_set {
   };
 
   // The actual data
-  typedef dense_hashtable<Value, Value, HashFcn,
-                          Identity, SetKey, EqualKey, Alloc> ht;
+  typedef dense_hashtable<Value, Value, HashFcn, Identity, SetKey,
+                          EqualKey, Alloc> ht;
   ht rep;
 
  public:
@@ -176,10 +180,12 @@ class dense_hash_set {
 
   template <class InputIterator>
   dense_hash_set(InputIterator f, InputIterator l,
+                 const key_type& empty_key_val,
                  size_type expected_max_items_in_table = 0,
                  const hasher& hf = hasher(),
                  const key_equal& eql = key_equal())
       : rep(expected_max_items_in_table, hf, eql) {
+    set_empty_key(empty_key_val);
     rep.insert(f, l);
   }
   // We use the default copy constructor
@@ -229,7 +235,7 @@ class dense_hash_set {
   }
   // Deprecated; use min_load_factor() or max_load_factor() instead.
   void set_resizing_parameters(float shrink, float grow) {
-    return rep.set_resizing_parameters(shrink, grow);
+    rep.set_resizing_parameters(shrink, grow);
   }
 
   void resize(size_type hint)         { rep.resize(hint); }
