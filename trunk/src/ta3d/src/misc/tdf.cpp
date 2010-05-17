@@ -149,7 +149,6 @@ namespace TA3D
 			if (NULL != t)
 			{
 				size = s;
-				// DELETE_ARRAY(data); The pointer will be freed by the caller
 				data = t;
 				tmpBufferToDelete = t;
 			}

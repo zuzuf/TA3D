@@ -327,7 +327,7 @@ namespace Menus
 		if (file)
 		{
 			TDFParser ota_parser;
-			ota_parser.loadFromMemory("ota", (const char*)file->data(), Math::Min(file->size(), 10240), false, false, false);
+			ota_parser.loadFromMemory(mapShortName, (const char*)file->data(), Math::Min(file->size(), 10240), false, false, false);
 			String tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
 			tmp.toLower();
 			delete file;
