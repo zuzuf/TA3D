@@ -178,6 +178,11 @@ namespace TA3D
 			return;
 		pMutex.lock();
 		compute_coord = false;
+		if (type_id < 0 || !(flags & 1))		// The unit is dead
+		{
+			pMutex.unlock();
+			return;
+		}
         UnitType *pType = unit_manager.unit_type[type_id];
         const float scale = pType->Scale;
 
@@ -2561,16 +2566,22 @@ namespace TA3D
 								target_pos_on_unit.reset();
 								if (target_unit != NULL)
 								{
-									if (weapon[i].data == -1 && target_unit->model && target_unit->model->nb_obj > 0)
-										weapon[i].data = Math::RandomTable() % target_unit->model->nb_obj;
+									target_unit->lock();
+									Model *pModel = target_unit->model;
+									if (weapon[i].data == -1 && pModel && pModel->nb_obj > 0)
+										weapon[i].data = Math::RandomTable() % pModel->nb_obj;
 									if (weapon[i].data >= 0)
 									{
 										target_unit->compute_model_coord();
-										if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
-											target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
+										if (target_unit->flags & 1)
+										{
+											if (pModel && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
+												target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
+										}
 									}
-									else if (target_unit->model)
-										target_pos_on_unit = target_unit->model->center;
+									else if (pModel)
+										target_pos_on_unit = pModel->center;
+									target_unit->unlock();
 								}
 
 								target += target_translation - data.data[start_piece].tpos;

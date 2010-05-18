@@ -71,9 +71,11 @@ namespace TA3D
 
 			inline Comparator(const Vec &N) : N(N)	{}
 
-			inline bool operator() (const T &i, const T &j)
+			inline bool operator() (const T &i, const T &j) const
 			{
-				return i != j && ((i->Pos - j->Pos) % N) < 0.0f;
+				if (i == j)
+					return false;
+				return ((i->Pos - j->Pos) % N) < 0.0f;
 			}
 		};
 
