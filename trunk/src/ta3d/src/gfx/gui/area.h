@@ -216,6 +216,14 @@ namespace Gui
 		void set_entry(const String& message, const std::vector<String>& entry);
 
 		/*!
+		** \brief Append line to the entry of specified object in the specified window
+		**
+		** \param message
+		** \return
+		*/
+		void append(const String& message, const String& line);
+
+		/*!
 		** \brief Set the function pointer of an object, it will be called when the widget is clicked
 		**
 		** \param message
