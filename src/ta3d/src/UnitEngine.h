@@ -67,10 +67,13 @@ namespace TA3D
 
 		struct Comparator
 		{
-			Vec	N;
-			bool operator() (const T &i, const T &j)
+			const Vec N;
+
+			inline Comparator(const Vec &N) : N(N)	{}
+
+			inline bool operator() (const T &i, const T &j)
 			{
-				return (i->Pos % N) < (j->Pos % N);
+				return i != j && ((i->Pos - j->Pos) % N) < 0.0f;
 			}
 		};
 
