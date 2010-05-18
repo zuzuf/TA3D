@@ -68,6 +68,7 @@ namespace Gui
 		void button(float x, float y, float x2, float y2, const String &Title, bool State);
 		void FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry=0);
 		void ListBox (float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , uint32 flags = 0 );
+		void AppendLineToListBox (String::Vector &Entry, float x1, float x2, String line );
 		void OptionButton(float x, float y, const String &Title, bool Etat);
 		void OptionCase(float x, float y, const String &Title, bool Etat);
 		void TextBar(float x1, float y1, float x2, float y2, const String &Caption, bool State);

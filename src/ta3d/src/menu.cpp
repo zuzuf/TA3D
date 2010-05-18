@@ -1510,9 +1510,10 @@ namespace TA3D
 				Gui::GUIOBJ::Ptr chat_list = setupgame_area.get_object("gamesetup.chat_list");
 				if (chat_list)
 				{
-					chat_list->Text.push_back(chat_msg);
+					const int lastSize = chat_list->Text.size();
+					setupgame_area.append("gamesetup.chat_list", chat_msg);
 					if (chat_list->Text.size() > 5)
-						chat_list->Data++;
+						chat_list->Data += chat_list->Text.size() - lastSize;
 					chat_list->Pos = uint32(chat_list->Text.size() - 1);
 				}
 
@@ -1579,9 +1580,10 @@ namespace TA3D
 
 				if (chat_list)
 				{
-					chat_list->Text.push_back( message);
+					const int lastSize = chat_list->Text.size();
+					setupgame_area.append("gamesetup.chat_list", message);
 					if (chat_list->Text.size() > 5)
-						chat_list->Data++;
+						chat_list->Data += chat_list->Text.size() - lastSize;
 					chat_list->Pos = uint32(chat_list->Text.size() - 1);
 				}
 

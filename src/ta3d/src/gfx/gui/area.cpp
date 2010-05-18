@@ -156,6 +156,13 @@ namespace Gui
 			guiobj->Text = entry;
 	}
 
+	void AREA::append(const String& message, const String& line)
+	{
+		ThreadingPolicy::MutexLocker locker(*this);
+		GUIOBJ::Ptr guiobj = getObjectWL(message);
+		if (guiobj)
+			skin->AppendLineToListBox(guiobj->Text, guiobj->x1, guiobj->x2, line);
+	}
 
 	void AREA::title(const String& message, const String& title)
 	{

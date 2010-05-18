@@ -177,28 +177,64 @@ namespace Gui
 			gfx->unset_alpha_blending();
 		}
 
-		for (unsigned int i = 0; i < Entry.size(); ++i)
+		uint32 line = 0;
+		String rest;
+		for (unsigned int i = 0; i < Entry.size(); ++i, ++line)
 		{
 			int e = i + Scroll;
-			if (e >= Entry.size() || pCacheFontHeight * (i+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
+			if (e >= Entry.size() || pCacheFontHeight * (line+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
             pCacheDrawTextStr = Entry[e];
 			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
 				pCacheDrawTextStr = pCacheDrawTextStr.substr(3, pCacheDrawTextStr.size() - 3);
 				glDisable(GL_TEXTURE_2D);
-				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i,
-					x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
+				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line,
+					x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (line+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
 			}
-			if (e == Index)
+			rest.clear();
+			do
 			{
-				gfx->set_alpha_blending();
-				selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i, x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (i+1));
-				gfx->unset_alpha_blending();
-			}
-			while (!pCacheDrawTextStr.empty() && gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
-				pCacheDrawTextStr.removeLast();
-			gfx->print(gui_font, 10 + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * i,
-				0.0f, White, pCacheDrawTextStr);
+				if (!rest.empty())
+				{
+					++line;
+					pCacheDrawTextStr = rest;
+					rest.clear();
+				}
+				if (pCacheFontHeight * (line+1) > y2 - y1 - text_background.y1 + text_background.y2)
+					break;		// If we are out break the loop
+				if (e == Index)
+				{
+					gfx->set_alpha_blending();
+					selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line, x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (line+1));
+					gfx->unset_alpha_blending();
+				}
+				if (gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+				{
+					// Dychotomic search of the longest string that fits
+					rest = pCacheDrawTextStr;
+					int top = rest.size();
+					int bottom = 0;
+					while (top != bottom)
+					{
+						int mid = top + bottom >> 1;
+						pCacheDrawTextStr = rest.substr(0, mid);
+						if (gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+							top = mid;
+						else
+						{
+							if (bottom == mid)
+								break;
+							bottom = mid;
+						}
+					}
+					pCacheDrawTextStr = rest.substr(0, bottom);
+					rest = rest.substr(bottom);
+				}
+				else
+					rest.clear();
+				gfx->print(gui_font, 10 + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line,
+					0.0f, White, pCacheDrawTextStr);
+			} while(!rest.empty());
 		}
 
 		int TotalScroll = Entry.size() - (int)((y2 - y1 - text_background.y1 + text_background.y2) / pCacheFontHeight);
@@ -208,6 +244,44 @@ namespace Gui
 		ScrollBar(	x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1,
 					x2 + text_background.x2, y2 + text_background.y2,
 					TotalScroll ? ((float)Scroll) / TotalScroll : 0.0f, true);
+	}
+
+	void Skin::AppendLineToListBox(String::Vector &Entry, float x1, float x2, String line )
+	{
+		String rest;
+		do
+		{
+			if (!rest.empty())
+			{
+				line = rest;
+				rest.clear();
+			}
+			if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+			{
+				// Dychotomic search of the longest string that fits
+				rest = line;
+				int top = rest.size();
+				int bottom = 0;
+				while (top != bottom)
+				{
+					int mid = top + bottom >> 1;
+					line = rest.substr(0, mid);
+					if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+						top = mid;
+					else
+					{
+						if (bottom == mid)
+							break;
+						bottom = mid;
+					}
+				}
+				line = rest.substr(0, bottom);
+				rest = rest.substr(bottom);
+			}
+			else
+				rest.clear();
+			Entry.push_back(line);
+		} while(!rest.empty());
 	}
 
 	/*---------------------------------------------------------------------------\

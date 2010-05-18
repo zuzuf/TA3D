@@ -629,7 +629,7 @@ namespace Menus
 		Gui::GUIOBJ::Ptr obj = pArea->get_object("netmenu.chat_history");
 		if (obj)
 		{
-			obj->Text.push_back(message);
+			pArea->append("netmenu.chat_history", message);
 			if (obj->Text.size() > 25)
 				++(obj->Data);
 			obj->Pos = uint32(obj->Text.size() - 1);
