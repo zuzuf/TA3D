@@ -1336,7 +1336,9 @@ namespace TA3D
 				continue;
 			}
 
-			if ((unit[i].flags&1) && ( (unit[i].owner_id==players.local_human_id && unit[i].sel) || i == last_on ))
+			if ((unit[i].flags & 1)
+				&& ( (unit[i].owner_id == players.local_human_id && unit[i].sel)
+					 || (i == last_on && (players.team[unit[i].owner_id] & players.team[players.local_human_id]) )))
 			{
 				cur_id = unit[i].owner_id;
 				float pos_x=unit[i].Pos.x*rw+64.0f;
