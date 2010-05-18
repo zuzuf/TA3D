@@ -21,10 +21,8 @@ namespace TA3D
 		Vec top, bottom;
 		TKit::getTopBottom(elts, top, bottom);
 		N = TKit::getPrincipalDirection(top - bottom);
-		typename TKit::Comparator cmp;
-		cmp.N = N;
 
-		std::sort(elts.begin(), elts.end(), cmp);
+		std::sort(elts.begin(), elts.end(), typename TKit::Comparator(N));
 		int mid = (elts.size() - 1) / 2;
 		P = TKit::pos(elts[mid]);
 		std::vector<T> lower(elts.begin(), elts.begin() + mid - 1);

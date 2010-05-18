@@ -242,7 +242,7 @@ namespace TA3D
 			}
 		}
 
-		n = 100;
+		n = 10000;
 		while (--n) // Sync message receiver
 		{
 			struct sync sync_msg;
@@ -282,8 +282,8 @@ namespace TA3D
 				units.unit[sync_msg.unit].hp = sync_msg.hp;
 				units.unit[sync_msg.unit].build_percent_left = sync_msg.build_percent_left / 2.55f;
 
-				units.unit[sync_msg.unit].unlock();
 				units.unit[sync_msg.unit].draw_on_map();
+				units.unit[sync_msg.unit].unlock();
 			}
 		}
 
