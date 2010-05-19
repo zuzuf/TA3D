@@ -183,7 +183,7 @@ namespace TA3D
 			pMutex.unlock();
 			return;
 		}
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
         const float scale = pType->Scale;
 
 		// Matrice pour le calcul des positions des éléments du modèle de l'unité
@@ -206,7 +206,7 @@ namespace TA3D
 
 	void Unit::toggle_self_destruct()
 	{
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
         if (self_destruct < 0.0f)
             self_destruct = pType->selfdestructcountdown;
 		else
@@ -220,14 +220,14 @@ namespace TA3D
 
 	int Unit::runScriptFunction(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
 	{
-        int type = type_id;
+		const int type = type_id;
         if (!script || type == -1 || !unit_manager.unit_type[type]->script || !unit_manager.unit_type[type]->script->isCached(id))
             return -1;
-		String f_name( UnitScriptInterface::get_script_name(id) );
+		const String f_name( UnitScriptInterface::get_script_name(id) );
 		MutexLocker mLocker( pMutex );
 		if (script)
         {
-            int result = script->execute(f_name, param, nb_param);
+			const int result = script->execute(f_name, param, nb_param);
             if (result == -2)
             {
                 unit_manager.unit_type[type]->script->Uncache(id);
@@ -2104,12 +2104,12 @@ namespace TA3D
 
 		requestedMovingAnimationState = movingAnimation;
 
-		bool was_open = port[YARD_OPEN] != 0;
-		bool was_flying = flying;
-		sint32	o_px = cur_px;
-		sint32	o_py = cur_py;
+		const bool was_open = port[YARD_OPEN] != 0;
+		const bool was_flying = flying;
+		const sint32	o_px = cur_px;
+		const sint32	o_py = cur_py;
 		compute_coord = true;
-		Vector3D	old_V = V;			// Store the speed, so we can do some calculations
+		const Vector3D	old_V = V;			// Store the speed, so we can do some calculations
 		bool	b_TargetAngle = false;		// Do we aim, move, ... ?? Need to change unit angle
 		float	f_TargetAngle = 0.0f;
 
@@ -2125,7 +2125,7 @@ namespace TA3D
 			return	-1;		// Should NEVER happen
 		}
 
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
 
         float resource_min_factor = TA3D::Math::Min(TA3D::players.energy_factor[owner_id], TA3D::players.metal_factor[owner_id]);
 
@@ -2162,11 +2162,11 @@ namespace TA3D
 		if (the_map->ota_data.waterdoesdamage && Pos.y < the_map->sealvl)		// The unit is damaged by the "acid" water
 			hp -= dt*the_map->ota_data.waterdamage;
 
-		bool jump_commands = (((idx+key_frame)&0xF) == 0);		// Saute certaines commandes / Jump some commands so it runs faster with lots of units
+		const bool jump_commands = (((idx+key_frame)&0xF) == 0);		// Saute certaines commandes / Jump some commands so it runs faster with lots of units
 
 		if (build_percent_left == 0.0f && self_destruct >= 0.0f) // Self-destruction code
 		{
-			int old = (int)self_destruct;
+			const int old = (int)self_destruct;
 			self_destruct -= dt;
 			if (old != (int)self_destruct) // Play a sound :-)
 				playSound( String("count") << old );
@@ -4567,7 +4567,7 @@ script_exec:
 			}
 			port[GROUND_HEIGHT] = (int)(Pos.y - min_h + 0.5f);
 		}
-        port[HEALTH] = (int)hp*100 / pType->MaxDamage;
+		port[HEALTH] = (int)hp * 100 / pType->MaxDamage;
 
 		// Update moving animation state
 		if (requestedMovingAnimationState ^ movingAnimation)
@@ -4608,7 +4608,7 @@ script_exec:
 
 
 
-	bool Unit::hit(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, float length)
+	bool Unit::hit(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, const float length)
 	{
 		pMutex.lock();
 		if (!(flags&1))
@@ -4618,20 +4618,18 @@ script_exec:
 		}
 		if (model)
 		{
-			Vector3D c_dir = model->center + Pos - P;
+			const Vector3D c_dir = model->center + Pos - P;
 			if (c_dir.norm() - length <= model->size2)
 			{
-                UnitType *pType = unit_manager.unit_type[type_id];
-                float scale=pType->Scale;
-				//            Matrix M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-				Matrix M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
-				Vector3D RP=(P-Pos) * M;
-				bool is_hit = model->hit(RP,Dir,&data,hit_vec,M) >= -1;
+				const UnitType *pType = unit_manager.unit_type[type_id];
+				const float scale = pType->Scale;
+				const Matrix M = RotateXZY(-Angle.x * DEG2RAD, -Angle.z * DEG2RAD, -Angle.y * DEG2RAD) * Scale(1.0f / scale);
+				const Vector3D RP = (P-Pos) * M;
+				const bool is_hit = model->hit(RP,Dir,&data,hit_vec,M) >= -1;
 				if (is_hit)
 				{
-					//                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
-					*hit_vec = ((*hit_vec) * RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD))*Scale(scale)+Pos;
-					*hit_vec=((*hit_vec-P)%Dir)*Dir+P;
+					*hit_vec = ((*hit_vec) * RotateYZX(Angle.y * DEG2RAD, Angle.z * DEG2RAD, Angle.x * DEG2RAD)) * Scale(scale) + Pos;
+					*hit_vec = ((*hit_vec - P) % Dir) * Dir + P;
 				}
 
 				pMutex.unlock();
@@ -4642,7 +4640,7 @@ script_exec:
 		return false;
 	}
 
-	bool Unit::hit_fast(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, float length)
+	bool Unit::hit_fast(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, const float length)
 	{
 		pMutex.lock();
 		if (!(flags&1))
@@ -4652,20 +4650,18 @@ script_exec:
 		}
 		if (model)
 		{
-			Vector3D c_dir = model->center + Pos - P;
+			const Vector3D c_dir = model->center + Pos - P;
 			if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ))
 			{
-                UnitType *pType = unit_manager.unit_type[type_id];
-                float scale = pType->Scale;
-				//            Matrix M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-				Matrix M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
-				Vector3D RP = (P - Pos) * M;
-				bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
+				const UnitType *pType = unit_manager.unit_type[type_id];
+				const float scale = pType->Scale;
+				const Matrix M = RotateXZY(-Angle.x * DEG2RAD, -Angle.z * DEG2RAD, -Angle.y * DEG2RAD) * Scale(1.0f / scale);
+				const Vector3D RP = (P - Pos) * M;
+				const bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
 				if (is_hit)
 				{
-					//                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
-					*hit_vec = ((*hit_vec)*RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD))*Scale(scale)+Pos;
-					*hit_vec=((*hit_vec-P)%Dir)*Dir+P;
+					*hit_vec = ((*hit_vec) * RotateYZX(Angle.y * DEG2RAD, Angle.z * DEG2RAD, Angle.x * DEG2RAD)) * Scale(scale) + Pos;
+					*hit_vec = ((*hit_vec - P) % Dir) * Dir + P;
 				}
 
 				pMutex.unlock();
@@ -5006,12 +5002,12 @@ script_exec:
 	}
 
 
-	int Unit::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D &target_pos)
+	int Unit::shoot(const int target, const Vector3D &startpos, const Vector3D &Dir, const int w_id, const Vector3D &target_pos)
 	{
-        UnitType *pType = unit_manager.unit_type[type_id];
-		WeaponDef *pW = pType->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
-		int owner = owner_id;
-		Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
+		const UnitType *pType = unit_manager.unit_type[type_id];
+		const WeaponDef *pW = pType->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
+		const int owner = owner_id;
+		const Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
 		int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };
         launchScript( SCRIPT_RockUnit, 2, param );
 
@@ -5022,7 +5018,7 @@ script_exec:
 
 		weapons.lock();
 
-        int w_idx = weapons.add_weapon(pW->nb_id,idx);
+		const int w_idx = weapons.add_weapon(pW->nb_id,idx);
 
 		if (network_manager.isConnected() && local) // Send synchronization packet
 		{

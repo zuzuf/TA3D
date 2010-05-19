@@ -251,7 +251,7 @@ namespace TA3D
                            Vector3D *center = NULL,
                            bool reverse = false,
 						   Mesh *src = NULL,
-						   AnimationData *src_data = NULL);
+						   AnimationData *src_data = NULL) const;
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false) = 0;
         virtual bool draw_nodl(bool alset = false) = 0;
@@ -260,15 +260,15 @@ namespace TA3D
 
 		bool draw_shadow_basic(Vector3D Dir, float t, AnimationData *data_s = NULL, bool alset = false, bool exploding_parts = false);
 
-		int hit(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I, Matrix M);
+		int hit(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I, Matrix M) const;
 
 		bool hit_fast(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I);
 
-		int random_pos( AnimationData *data_s, int id, Vector3D *vec );
+		int random_pos( AnimationData *data_s, const int id, Vector3D *vec ) const;
 
         bool compute_emitter();
 
-        bool compute_emitter_point(int &obj_idx);
+		bool compute_emitter_point(const int obj_idx);
 
 		virtual ~Mesh() { }
 
@@ -276,19 +276,19 @@ namespace TA3D
 
         void init();
 
-        void Identify(ScriptData *script);			// Identifie les pièces utilisées par le script
+		void Identify(ScriptData *script);			// Identifie les pièces utilisées par le script
 
-        void compute_center(Vector3D *center,Vector3D dec, int *coef);		// Calcule les coordonnées du centre de l'objet, objets liés compris
+		void compute_center(Vector3D *center, const Vector3D &dec, int *coef) const;		// Calcule les coordonnées du centre de l'objet, objets liés compris
 
-        float compute_size_sq(Vector3D center);		// Carré de la taille(on fera une racine après)
+		float compute_size_sq(const Vector3D &center) const;		// Carré de la taille(on fera une racine après)
 
         float print_struct(const float Y, const float X, TA3D::Font *fnt);
 
-        float compute_top( float top, Vector3D dec );
+		float compute_top( float top, const Vector3D &dec ) const;
 
-        float compute_bottom( float bottom, Vector3D dec );
+		float compute_bottom( float bottom, const Vector3D &dec ) const;
 
-		virtual bool has_animation_data();
+		virtual bool has_animation_data() const;
 
 		// Used by the buildpic renderer
 		void hideFlares();
@@ -325,7 +325,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-		void compute_coord(AnimationData* data_s = NULL, Matrix* M = NULL);
+		void compute_coord(AnimationData* data_s = NULL, Matrix* M = NULL) const;
 
         /*!
         ** \brief
@@ -340,13 +340,13 @@ namespace TA3D
         /*!
         ** \brief
         */
-		int hit(const Vector3D &Pos, const Vector3D &Dir, AnimationData* data_s, Vector3D* I, Matrix& M)
+		int hit(const Vector3D &Pos, const Vector3D &Dir, AnimationData* data_s, Vector3D* I, const Matrix& M) const
         { return mesh->hit(Pos,Dir,data_s,I,M); }
 
         /*!
         ** \brief
         */
-		bool hit_fast(const Vector3D& Pos, const Vector3D& Dir, AnimationData* data_s, Vector3D* I, Matrix& M)
+		bool hit_fast(const Vector3D& Pos, const Vector3D& Dir, AnimationData* data_s, Vector3D* I, const Matrix& M) const
         { return mesh->hit_fast(Pos,Dir*M,data_s,I); }
 
         /*!

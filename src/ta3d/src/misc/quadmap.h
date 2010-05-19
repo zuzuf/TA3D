@@ -80,7 +80,7 @@ namespace TA3D
 			root.set(x, y, b);
 		}
 
-		int getMemoryUse()
+		int getMemoryUse() const
 		{
 			return root.getMemoryUse();
 		}
