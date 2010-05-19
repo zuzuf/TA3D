@@ -822,9 +822,9 @@ namespace TA3D
 	}
 
 
-	bool Mesh3DM::has_animation_data()
+	bool Mesh3DM::has_animation_data() const
 	{
-		std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+		const std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
 
 		if (animation_data || (Flag & SURFACE_GLSL) || ((Flag & SURFACE_TEXTURED) && pTex->size() > 1))
 			return true;

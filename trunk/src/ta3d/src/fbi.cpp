@@ -413,7 +413,7 @@ namespace TA3D
 		}
 	}
 
-	bool UnitType::floatting()
+	bool UnitType::floatting() const
 	{
 		return Floater || canhover || !Yuni::Math::Zero(WaterLine);
 	}

@@ -319,7 +319,7 @@ namespace TA3D
         /*!
         ** \brief Returns true if the units float on water
         */
-        bool floatting();
+		bool floatting() const;
 
 		/*!
 		** \brief Returns a String identifying the units movement properties

@@ -376,7 +376,7 @@ namespace TA3D
 	}
 
 
-	bool Mesh::compute_emitter_point(int &obj_idx)
+	bool Mesh::compute_emitter_point(const int obj_idx)
 	{
 		emitter_point |= ( script_index == obj_idx);
 		emitter |= emitter_point;
@@ -400,7 +400,7 @@ namespace TA3D
 	}
 
 
-	void Mesh::compute_center(Vector3D *center,Vector3D dec, int *coef)		// Calcule les coordonnées du centre de l'objet, objets liés compris
+	void Mesh::compute_center(Vector3D *center, const Vector3D &dec, int *coef) const		// Calcule les coordonnées du centre de l'objet, objets liés compris
 	{
 		for (int i = 0; i < nb_vtx; ++i)
 		{
@@ -416,24 +416,24 @@ namespace TA3D
 	}
 
 
-	float Mesh::compute_size_sq(Vector3D center)		// Carré de la taille(on fera une racine après)
+	float Mesh::compute_size_sq(const Vector3D &center) const		// Carré de la taille(on fera une racine après)
 	{
 		float size = 0.0f;
 		for (int i = 0; i < nb_vtx; ++i)
 		{
-			float dist = (points[i] - center).sq();
+			const float dist = (points[i] - center).sq();
 			if(size < dist)
 				size = dist;
 		}
 		if (next)
 		{
-			float size_next=next->compute_size_sq(center);
-			if(size<size_next)
-				size=size_next;
+			const float size_next = next->compute_size_sq(center);
+			if(size < size_next)
+				size = size_next;
 		}
 		if (child)
 		{
-			float size_child = child->compute_size_sq(center);
+			const float size_child = child->compute_size_sq(center);
 			if(size < size_child)
 				size = size_child;
 		}
@@ -441,7 +441,7 @@ namespace TA3D
 	}
 
 
-	float Mesh::compute_top(float top, Vector3D dec)
+	float Mesh::compute_top(float top, const Vector3D &dec) const
 	{
 		for(int i = 0;i < nb_vtx; ++i)
 			top = Math::Max(top, points[i].y + dec.y + pos_from_parent.y);
@@ -453,7 +453,7 @@ namespace TA3D
 	}
 
 
-	float Mesh::compute_bottom(float bottom, Vector3D dec)
+	float Mesh::compute_bottom(float bottom, const Vector3D &dec) const
 	{
 		for (int i = 0; i < nb_vtx; ++i)
 			bottom = Math::Min(bottom, points[i].y + dec.y + pos_from_parent.y);
@@ -464,7 +464,7 @@ namespace TA3D
 		return bottom;
 	}
 
-	bool Mesh::has_animation_data()
+	bool Mesh::has_animation_data() const
 	{
 		if (animation_data)
 			return true;
@@ -490,13 +490,13 @@ namespace TA3D
 
 
 
-	int Mesh::random_pos(AnimationData *data_s, int id, Vector3D* vec)
+	int Mesh::random_pos(AnimationData *data_s, const int id, Vector3D* vec) const
 	{
 		if (id == obj_id)
 		{
 			if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->data[script_index].flag & FLAG_HIDE)) )
 			{
-				int rnd_idx = (Math::RandomTable() % (nb_t_index / 3)) * 3;
+				const int rnd_idx = (Math::RandomTable() % (nb_t_index / 3)) * 3;
 				const float a = (Math::RandomTable() & 0xFF) / 255.0f;
 				const float b = (1.0f - a) * (Math::RandomTable() & 0xFF) / 255.0f;
 				const float c = 1.0f - a - b;
@@ -512,7 +512,7 @@ namespace TA3D
 		{
 			if (child != NULL)
 			{
-				int r = child->random_pos( data_s, id, vec );
+				const int r = child->random_pos( data_s, id, vec );
 				if (r)
 				{
 					if (r == 1)
@@ -533,12 +533,10 @@ namespace TA3D
 
 	void Mesh::compute_coord(AnimationData* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
 							 Vector3D* upos, Matrix* M, float size, Vector3D* center, bool reverse,
-							 Mesh* src, AnimationData* src_data)
+							 Mesh* src, AnimationData* src_data) const
 	{
-		Vector3D opos = *pos;
-		Matrix OM;
-		if (M)
-			OM = *M;
+		const Vector3D opos = *pos;
+		const Matrix OM = M ? *M : Matrix();
 		if (script_index >= 0 && data_s)
 		{
 			if (M)
@@ -548,10 +546,6 @@ namespace TA3D
 				ipos.y = data_s->data[script_index].axe[1].pos;
 				ipos.z = data_s->data[script_index].axe[2].pos;
 				*pos = *pos + (pos_from_parent + ipos) * (*M);
-				//                *M = RotateZ(data_s->data[script_index].axe[2].angle * DEG2RAD)
-				//                    * RotateY(data_s->data[script_index].axe[1].angle * DEG2RAD)
-				//                    * RotateX(data_s->data[script_index].axe[0].angle * DEG2RAD)
-				//                    * (*M);
 				*M = RotateZYX( data_s->data[script_index].axe[2].angle * DEG2RAD,
 								data_s->data[script_index].axe[1].angle * DEG2RAD,
 								data_s->data[script_index].axe[0].angle * DEG2RAD)
@@ -580,8 +574,8 @@ namespace TA3D
 		{
 			Vector3D Dir;
 			Vector3D t_mod;
-			float life = 1.0f;
-			byte nb = (Math::RandomTable() % 60) + 1;
+			const float life = 1.0f;
+			const int nb = (Math::RandomTable() % 60) + 1;
 			ParticlesSystem* system = NULL;
 			for (int i = 0; i < nb; ++i)
 			{
@@ -593,15 +587,15 @@ namespace TA3D
 				}
 				if (random_vector)
 				{
-					t_mod.x = (((int)(Math::RandomTable()%2001))-1000)*0.001f;
-					t_mod.y = (((int)(Math::RandomTable()%2001))-1000)*0.001f;
-					t_mod.z = (((int)(Math::RandomTable()%2001))-1000)*0.001f;
+					t_mod.x = (((int)(Math::RandomTable()%2001)) - 1000) * 0.001f;
+					t_mod.y = (((int)(Math::RandomTable()%2001)) - 1000) * 0.001f;
+					t_mod.z = (((int)(Math::RandomTable()%2001)) - 1000) * 0.001f;
 					t_mod.unit();
 					t_mod = (Math::RandomTable() % 1001) * 0.001f * size * t_mod;
 					if (center)
-						t_mod=t_mod+(*center);
+						t_mod = t_mod + (*center);
 				}
-				float speed=1.718281828f;			// expf(1.0f) - 1.0f because of speed law: S(t) = So * expf( -t / tref ) and a lifetime of 1 sec
+				const float speed = 1.718281828f;			// expf(1.0f) - 1.0f because of speed law: S(t) = So * expf( -t / tref ) and a lifetime of 1 sec
 				if (reverse)
 				{
 					Dir = *pos - (t_mod + *target);
@@ -634,9 +628,9 @@ namespace TA3D
 
 	bool Mesh::draw_shadow(Vector3D Dir, float t, AnimationData *data_s, bool alset, bool exploding_parts)
 	{
-		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
+		const bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
-		Vector3D ODir = Dir;
+		const Vector3D ODir = Dir;
 		glPushMatrix();
 		if (!(explodes && !exploding_parts))
 		{
@@ -795,8 +789,8 @@ namespace TA3D
 	bool Mesh::draw_shadow_basic(Vector3D Dir,float t,AnimationData *data_s,bool alset,bool exploding_parts)
 	{
 		bool explodes = script_index>=0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
-		bool hide=false;
-		Vector3D ODir=Dir;
+		bool hide = false;
+		const Vector3D ODir = Dir;
 		glPushMatrix();
 		if (!(explodes && !exploding_parts))
 		{
@@ -950,14 +944,14 @@ namespace TA3D
 		return alset;
 	}
 
-	int Mesh::hit(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I,Matrix M)
+	int Mesh::hit(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I,Matrix M) const
 	{
-		Matrix OM = M;
+		const Matrix OM = M;
 		Matrix AM = Scale(1.0f);
 		Matrix M_Dir = M;
 		bool hide = false;
-		Vector3D ODir = Dir;
-		Vector3D OPos = Pos;
+		const Vector3D ODir = Dir;
+		const Vector3D OPos = Pos;
 		bool is_hit = false;
 		int hit_idx = -2;
 
@@ -983,35 +977,31 @@ namespace TA3D
 
 			if ((nb_t_index>0 || selprim >= 0 ) && !hide)
 			{
-				Vector3D A;
-				Vector3D B;
-				Vector3D C;
 				Dir = Dir * M_Dir;
 				Dir.unit();
 				//-----------------Code de calcul d'intersection--------------------------
 				for (int i = 0; i < nb_t_index; i += 3)
 				{
-					A = points[t_index[i]];
-					B = points[t_index[i + 1]];
-					C = points[t_index[i + 2]];
-					Vector3D AB = B - A;
-					Vector3D AC = C - A;
-					Vector3D N  = AB * AC;
+					const Vector3D &A = points[t_index[i]];
+					const Vector3D &B = points[t_index[i + 1]];
+					const Vector3D &C = points[t_index[i + 2]];
+					const Vector3D AB = B - A;
+					const Vector3D AC = C - A;
+					const Vector3D N  = AB * AC;
 					if (Yuni::Math::Zero(N % Dir))
 						continue;
-					float dist = -((Pos - A) % N) / (N % Dir);
+					const float dist = -((Pos - A) % N) / (N % Dir);
 					if (dist < 0.0f)
 						continue;
-					Vector3D P_p = Pos + dist * Dir;
+					const Vector3D P_p = Pos + dist * Dir;
 
-					//					if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
 					if (is_hit && (MP - P_p) % Dir < 0.0f)
 						continue;
 
 					float a;
 					float b;
 					float c;		// Coefficients pour que P soit le barycentre de A,B,C
-					Vector3D AP = P_p - A;
+					const Vector3D AP = P_p - A;
 					float pre_cal = AB.x * AC.y - AB.y * AC.x;
 					if (!Yuni::Math::Zero(AC.y) && !Yuni::Math::Zero(pre_cal))
 					{
@@ -1075,25 +1065,24 @@ namespace TA3D
 				{
 					for (int i = 0 ; i < 2 ; ++i) // Selection primitive ( used to allow selecting naval factories easily )
 					{
-						A = points[sel[i]];
-						B = points[sel[i+1]];
-						C = points[sel[3]];
-						Vector3D AB = B - A;
-						Vector3D AC = C - A;
-						Vector3D N  = AB * AC;
+						const Vector3D &A = points[sel[i]];
+						const Vector3D &B = points[sel[i+1]];
+						const Vector3D &C = points[sel[3]];
+						const Vector3D AB = B - A;
+						const Vector3D AC = C - A;
+						const Vector3D N  = AB * AC;
 						if (Yuni::Math::Zero(N % Dir))
 							continue;
-						float dist = -((Pos - A) % N) / (N % Dir);
+						const float dist = -((Pos - A) % N) / (N % Dir);
 						if (dist < 0.0f)
 							continue;
-						Vector3D P_p=Pos+dist*Dir;
+						const Vector3D P_p = Pos + dist * Dir;
 
-						//						if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
 						if (is_hit && (MP - P_p) % Dir < 0.0f)
 							continue;
 
 						float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-						Vector3D AP = P_p - A;
+						const Vector3D AP = P_p - A;
 						float pre_cal = AB.x * AC.y - AB.y * AC.x;
 						if (!Yuni::Math::Zero(AC.y) && !Yuni::Math::Zero(pre_cal))
 						{
@@ -1158,7 +1147,7 @@ namespace TA3D
 			if (child)
 			{
 				Vector3D MP2;
-				int nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
+				const int nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
 				if (nhit >= -1 && !is_hit)
 				{
 					MP = MP2;
@@ -1183,7 +1172,7 @@ namespace TA3D
 		if (next)
 		{
 			Vector3D MP2;
-			int nhit = next->hit(OPos, ODir, data_s, &MP2, OM);
+			const int nhit = next->hit(OPos, ODir, data_s, &MP2, OM);
 			Dir = ODir * OM;
 			if (nhit >= -1 && !is_hit)
 			{
@@ -1209,11 +1198,11 @@ namespace TA3D
 
 
 	// hit_fast is a faster version of hit but less precise, designed for use in weapon code
-	bool Mesh::hit_fast(Vector3D Pos,Vector3D Dir,AnimationData *data_s,Vector3D *I)
+	bool Mesh::hit_fast(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I)
 	{
 		bool hide = false;
-		Vector3D ODir = Dir;
-		Vector3D OPos = Pos;
+		const Vector3D ODir = Dir;
+		const Vector3D OPos = Pos;
 		Matrix AM;
 		bool is_hit = false;
 
@@ -1272,7 +1261,7 @@ namespace TA3D
 				{
 					if ((min_x - Pos.x) * Dir.x > 0.0f) // 2 x planes
 					{
-						Vector3D IP = Pos + ((min_x - Pos.x) / Dir.x) * Dir;
+						const Vector3D IP = Pos + ((min_x - Pos.x) / Dir.x) * Dir;
 						if (IP.y >= min_y && IP.y <= max_y && IP.z >= min_z && IP.z <= max_z)
 						{
 							if (!is_hit || (IP - MP) % Dir < 0.0f)
@@ -1282,7 +1271,7 @@ namespace TA3D
 					}
 					if ((max_x - Pos.x) * Dir.x > 0.0f) // 2 x planes
 					{
-						Vector3D IP = Pos + ((max_x - Pos.x) / Dir.x) * Dir;
+						const Vector3D IP = Pos + ((max_x - Pos.x) / Dir.x) * Dir;
 						if (IP.y >= min_y && IP.y <= max_y && IP.z >= min_z && IP.z <= max_z)
 						{
 							if (!is_hit || (IP - MP) % Dir < 0.0f)
@@ -1292,7 +1281,7 @@ namespace TA3D
 					}
 					if ((min_y - Pos.y) * Dir.y > 0.0f)// 2 y planes
 					{
-						Vector3D IP = Pos + ((min_y - Pos.y) / Dir.y) * Dir;
+						const Vector3D IP = Pos + ((min_y - Pos.y) / Dir.y) * Dir;
 						if (IP.x >= min_x && IP.x <= max_x && IP.z >= min_z && IP.z <= max_z)
 						{
 							if (!is_hit || (IP - MP) % Dir < 0.0f)
@@ -1302,7 +1291,7 @@ namespace TA3D
 					}
 					if ((max_y - Pos.y) * Dir.y > 0.0f)// 2 y planes
 					{
-						Vector3D IP = Pos + ((max_y - Pos.y) / Dir.y) * Dir;
+						const Vector3D IP = Pos + ((max_y - Pos.y) / Dir.y) * Dir;
 						if (IP.x >= min_x && IP.x <= max_x && IP.z >= min_z && IP.z <= max_z)
 						{
 							if (!is_hit || (IP - MP) % Dir < 0.0f)
@@ -1312,7 +1301,7 @@ namespace TA3D
 					}
 					if ((min_z - Pos.z) * Dir.z > 0.0f)// 2 z planes
 					{
-						Vector3D IP = Pos + ((min_z - Pos.z) / Dir.z) * Dir;
+						const Vector3D IP = Pos + ((min_z - Pos.z) / Dir.z) * Dir;
 						if (IP.y >= min_y && IP.y <= max_y && IP.x >= min_x && IP.x <= max_x)
 						{
 							if (!is_hit || (IP - MP) % Dir < 0.0f)
@@ -1322,7 +1311,7 @@ namespace TA3D
 					}
 					if ((max_z - Pos.z) * Dir.z > 0.0f)// 2 z planes
 					{
-						Vector3D IP = Pos + ((max_z - Pos.z) / Dir.z) * Dir;
+						const Vector3D IP = Pos + ((max_z - Pos.z) / Dir.z) * Dir;
 						if (IP.y >= min_y && IP.y <= max_y && IP.x >= min_x && IP.x <= max_x)
 						{
 							if (!is_hit || (IP - MP) % Dir < 0.0f)
@@ -1335,7 +1324,7 @@ namespace TA3D
 			if (child)
 			{
 				Vector3D MP2;
-				bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
+				const bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
 				if (nhit)
 				{
 					if (!is_hit || (MP2 - MP) % Dir < 0.0f)
@@ -1349,7 +1338,7 @@ namespace TA3D
 		if (next)
 		{
 			Vector3D MP2;
-			bool nhit = next->hit_fast( OPos, ODir, data_s, &MP2);
+			const bool nhit = next->hit_fast( OPos, ODir, data_s, &MP2);
 			if (nhit)
 			{
 				if (!is_hit || (MP2 - MP) % ODir < 0.0f)
@@ -1641,7 +1630,7 @@ namespace TA3D
 	}
 
 
-	void Model::compute_coord(AnimationData* data_s, Matrix* M)
+	void Model::compute_coord(AnimationData* data_s, Matrix* M) const
 	{
 		if (!mesh)  return;
 		Vector3D pos;

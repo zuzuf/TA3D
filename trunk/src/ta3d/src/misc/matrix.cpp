@@ -83,19 +83,19 @@ namespace TA3D
 	}
 
 
-	TA3D::Matrix RotateZYX(const float &Rz, const float &Ry, const float &Rx)
+	TA3D::Matrix RotateZYX(const float Rz, const float Ry, const float Rx)
 	{
-		float cx = cosf(Rx);
-		float sx = sinf(Rx);
-		float cy = cosf(Ry);
-		float sy = sinf(Ry);
-		float cz = cosf(Rz);
-		float sz = sinf(Rz);
+		const float cx = cosf(Rx);
+		const float sx = sinf(Rx);
+		const float cy = cosf(Ry);
+		const float sy = sinf(Ry);
+		const float cz = cosf(Rz);
+		const float sz = sinf(Rz);
 
-		float sxcz = sx * cz;
-		float sxsz = sx * sz;
-		float czcx = cz * cx;
-		float szcx = sz * cx;
+		const float sxcz = sx * cz;
+		const float sxsz = sx * sz;
+		const float czcx = cz * cx;
+		const float szcx = sz * cx;
 
 		TA3D::Matrix M;
 		M.E[0][0] = cz * cy;
@@ -112,19 +112,19 @@ namespace TA3D
 	}
 
 
-	TA3D::Matrix RotateXYZ(const float &Rx, const float &Ry, const float &Rz)
+	TA3D::Matrix RotateXYZ(const float Rx, const float Ry, const float Rz)
 	{
-		float cx = cosf(Rx);
-		float sx = sinf(Rx);
-		float cy = cosf(Ry);
-		float sy = sinf(Ry);
-		float cz = cosf(Rz);
-		float sz = sinf(Rz);
+		const float cx = cosf(Rx);
+		const float sx = sinf(Rx);
+		const float cy = cosf(Ry);
+		const float sy = sinf(Ry);
+		const float cz = cosf(Rz);
+		const float sz = sinf(Rz);
 
-		float szcx = sz * cx;
-		float sxcz = sx * cz;
-		float czcx = cz * cx;
-		float sxsz = sx * sz;
+		const float szcx = sz * cx;
+		const float sxcz = sx * cz;
+		const float czcx = cz * cx;
+		const float sxsz = sx * sz;
 
 		TA3D::Matrix M;
 		M.E[0][0] = cz * cy;
@@ -142,19 +142,19 @@ namespace TA3D
 
 
 
-	TA3D::Matrix RotateXZY(const float &Rx, const float &Rz, const float &Ry)
+	TA3D::Matrix RotateXZY(const float Rx, const float Rz, const float Ry)
 	{
-		float cx = cosf(Rx);
-		float sx = sinf(Rx);
-		float cy = cosf(Ry);
-		float sy = sinf(Ry);
-		float cz = cosf(Rz);
-		float sz = sinf(Rz);
+		const float cx = cosf(Rx);
+		const float sx = sinf(Rx);
+		const float cy = cosf(Ry);
+		const float sy = sinf(Ry);
+		const float cz = cosf(Rz);
+		const float sz = sinf(Rz);
 
-		float sxcy = sx * cy;
-		float sxsy = sx * sy;
-		float sycx = sy * cx;
-		float cxcy = cx * cy;
+		const float sxcy = sx * cy;
+		const float sxsy = sx * sy;
+		const float sycx = sy * cx;
+		const float cxcy = cx * cy;
 
 		TA3D::Matrix M;
 		M.E[0][0] = cz * cy;
@@ -174,19 +174,19 @@ namespace TA3D
 	}
 
 
-	TA3D::Matrix RotateYZX(const float &Ry, const float &Rz, const float &Rx)
+	TA3D::Matrix RotateYZX(const float Ry, const float Rz, const float Rx)
 	{
-		float cx = cosf(Rx);
-		float sx = sinf(Rx);
-		float cy = cosf(Ry);
-		float sy = sinf(Ry);
-		float cz = cosf(Rz);
-		float sz = sinf(Rz);
+		const float cx = cosf(Rx);
+		const float sx = sinf(Rx);
+		const float cy = cosf(Ry);
+		const float sy = sinf(Ry);
+		const float cz = cosf(Rz);
+		const float sz = sinf(Rz);
 
-		float sysx = sy * sx;
-		float sycx = sy * cx;
-		float cysx = cy * sx;
-		float cycx = cy * cx;
+		const float sysx = sy * sx;
+		const float sycx = sy * cx;
+		const float cysx = cy * sx;
+		const float cycx = cy * cx;
 
 		TA3D::Matrix M;
 		M.E[0][0] = cy * cz;
@@ -209,14 +209,13 @@ namespace TA3D
 	TA3D::Vector3D glNMult(const TA3D::Vector3D &A,const TA3D::Matrix &B)
 	{
 		TA3D::Vector3D C;
-		float w;
-		C.x=A.x*B.E[0][0]+A.y*B.E[0][1]+A.z*B.E[0][2]+B.E[0][3];
-		C.y=A.x*B.E[1][0]+A.y*B.E[1][1]+A.z*B.E[1][2]+B.E[1][3];
-		C.z=A.x*B.E[2][0]+A.y*B.E[2][1]+A.z*B.E[2][2]+B.E[2][3];
-		w=1.0f/(A.x*B.E[3][0]+A.y*B.E[3][1]+A.z*B.E[3][2]+B.E[3][3]);
-		C.x*=w;
-		C.y*=w;
-		C.z*=w;
+		C.x = A.x *B.E[0][0] + A.y * B.E[0][1] + A.z * B.E[0][2] + B.E[0][3];
+		C.y = A.x *B.E[1][0] + A.y * B.E[1][1] + A.z * B.E[1][2] + B.E[1][3];
+		C.z = A.x *B.E[2][0] + A.y * B.E[2][1] + A.z * B.E[2][2] + B.E[2][3];
+		const float w = 1.0f / (A.x * B.E[3][0] + A.y * B.E[3][1] + A.z * B.E[3][2] + B.E[3][3]);
+		C.x *= w;
+		C.y *= w;
+		C.z *= w;
 		return C;
 	}
 
@@ -224,77 +223,77 @@ namespace TA3D
 	TA3D::Matrix Translate(const TA3D::Vector3D &A)
 	{
 		TA3D::Matrix B;
-		B.E[0][0]=1.0f;
-		B.E[1][1]=1.0f;
-		B.E[2][2]=1.0f;
-		B.E[0][3]=A.x;
-		B.E[1][3]=A.y;
-		B.E[2][3]=A.z;
-		B.E[3][3]=1.0f;
+		B.E[0][0] = 1.0f;
+		B.E[1][1] = 1.0f;
+		B.E[2][2] = 1.0f;
+		B.E[0][3] = A.x;
+		B.E[1][3] = A.y;
+		B.E[2][3] = A.z;
+		B.E[3][3] = 1.0f;
 		return B;
 	}
 
 
-	TA3D::Matrix Scale(const float &Size)
+	TA3D::Matrix Scale(const float Size)
 	{
 		TA3D::Matrix M;
-		M.E[0][0]=Size;
-		M.E[1][1]=Size;
-		M.E[2][2]=Size;
-		M.E[3][3]=1.0f;
+		M.E[0][0] = Size;
+		M.E[1][1] = Size;
+		M.E[2][2] = Size;
+		M.E[3][3] = 1.0f;
 		return M;
 	}
 	
 	
-	TA3D::Matrix Perspective(const float &w,const float &h,const float &zn,const float &zf)
+	TA3D::Matrix Perspective(const float w, const float h, const float zn, const float zf)
 	{
 		TA3D::Matrix M;
-		M.E[0][0]=2*zn/w;
-		M.E[1][1]=2*zn/h;
-		M.E[2][2]=zf/(zf-zn);
-		M.E[3][2]=1;
-		M.E[2][3]=zn*zf/(zn-zf);
+		M.E[0][0] = 2.0f * zn / w;
+		M.E[1][1] = 2.0f * zn / h;
+		M.E[2][2] = zf / (zf - zn);
+		M.E[3][2] = 1.0f;
+		M.E[2][3] = zn * zf / (zn - zf);
 
 		return M;
 	}
 
 
 
-	TA3D::Matrix RotateX(const float &Theta)
+	TA3D::Matrix RotateX(const float Theta)
 	{
 		TA3D::Matrix M;
-		M.E[0][0]=1.0f;
-		M.E[1][1]=cosf(Theta);
-		M.E[2][1]=sinf(Theta);
-		M.E[1][2]=-M.E[2][1];
-		M.E[2][2]=M.E[1][1];
-		M.E[3][3]=1.0f;
+		M.E[0][0] = 1.0f;
+		M.E[1][1] = cosf(Theta);
+		M.E[2][1] = sinf(Theta);
+		M.E[1][2] = -M.E[2][1];
+		M.E[2][2] = M.E[1][1];
+		M.E[3][3] = 1.0f;
 		return M;
 	}
 
 
-	TA3D::Matrix RotateY(const float &Theta)
+	TA3D::Matrix RotateY(const float Theta)
 	{
 		TA3D::Matrix M;
-		M.E[0][0]=cosf(Theta);
-		M.E[2][0]=-sinf(Theta);
-		M.E[1][1]=1.0f;
-		M.E[0][2]=-M.E[2][0];
-		M.E[2][2]=M.E[0][0];
-		M.E[3][3]=1.0f;
+		M.E[0][0] = cosf(Theta);
+		M.E[2][0] = -sinf(Theta);
+		M.E[1][1] = 1.0f;
+		M.E[0][2] = -M.E[2][0];
+		M.E[2][2] = M.E[0][0];
+		M.E[3][3] = 1.0f;
 		return M;
 	}
 
 
-	TA3D::Matrix RotateZ(const float &Theta)
+	TA3D::Matrix RotateZ(const float Theta)
 	{
 		TA3D::Matrix M;
-		M.E[0][0]=cosf(Theta);
-		M.E[1][0]=sinf(Theta);
-		M.E[0][1]=-M.E[1][0];
-		M.E[1][1]=M.E[0][0];
-		M.E[2][2]=1.0f;
-		M.E[3][3]=1.0f;
+		M.E[0][0] = cosf(Theta);
+		M.E[1][0] = sinf(Theta);
+		M.E[0][1] = -M.E[1][0];
+		M.E[1][1] = M.E[0][0];
+		M.E[2][2] = 1.0f;
+		M.E[3][3] = 1.0f;
 		return M;
 	}
 

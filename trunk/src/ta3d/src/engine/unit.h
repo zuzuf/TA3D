@@ -139,11 +139,11 @@ namespace TA3D
 
 		void deactivate();
 
-		int shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D& target_pos);
+		int shoot(const int target, const Vector3D &startpos, const Vector3D &Dir, const int w_id, const Vector3D& target_pos);
 
-		bool hit(const Vector3D &P, const Vector3D &Dir, Vector3D *hit_vec, float length = 100.0f);
+		bool hit(const Vector3D &P, const Vector3D &Dir, Vector3D *hit_vec, const float length = 100.0f);
 
-		bool hit_fast(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, float length = 100.0f);
+		bool hit_fast(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, const float length = 100.0f);
 
 		void stopMoving();
 

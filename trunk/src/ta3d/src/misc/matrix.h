@@ -54,31 +54,31 @@ namespace TA3D
 	TA3D::Matrix Translate(const TA3D::Vector3D &A);
 
 	// Crée une matrice de mise à l'échelle
-	TA3D::Matrix Scale(const float &Size);
+	TA3D::Matrix Scale(const float Size);
 
 	// Crée une matrice de projection
-	TA3D::Matrix Perspective(const float &w,const float &h,const float &zn,const float &zf);
+	TA3D::Matrix Perspective(const float w,const float h,const float zn,const float zf);
 
 	// Crée une matrice de rotation autour de l'axe X
-	TA3D::Matrix RotateX(const float &Theta);
+	TA3D::Matrix RotateX(const float Theta);
 
 	// Crée une matrice de rotation autour de l'axe Y
-	TA3D::Matrix RotateY(const float &Theta);
+	TA3D::Matrix RotateY(const float Theta);
 
 	// Crée une matrice de rotation autour de l'axe Z
-	TA3D::Matrix RotateZ(const float &Theta);
+	TA3D::Matrix RotateZ(const float Theta);
 
 	// Returns RotateZ(Rz) * RotateY(Ry) * RotateX(Rx) but faster ;)
-	TA3D::Matrix RotateZYX(const float &Rz, const float &Ry, const float &Rx);
+	TA3D::Matrix RotateZYX(const float Rz, const float Ry, const float Rx);
 
 	// Returns RotateX(Rx) * RotateY(Ry) * RotateZ(Rz) but faster ;)
-	TA3D::Matrix RotateXYZ(const float &Rx, const float &Ry, const float &Rz);
+	TA3D::Matrix RotateXYZ(const float Rx, const float Ry, const float Rz);
 
 	// Returns RotateX(Rx) * RotateZ(Rz) * RotateY(Ry) but faster ;)
-	TA3D::Matrix RotateXZY(const float &Rx, const float &Rz, const float &Ry);
+	TA3D::Matrix RotateXZY(const float Rx, const float Rz, const float Ry);
 
 	// Returns RotateY(Ry) * RotateZ(Rz) * RotateX(Rx) but faster ;)
-	TA3D::Matrix RotateYZX(const float &Ry, const float &Rz, const float &Rx);
+	TA3D::Matrix RotateYZX(const float Ry, const float Rz, const float Rx);
 
 	// Transpose une matrice
 	TA3D::Matrix Transpose(const TA3D::Matrix &A);
