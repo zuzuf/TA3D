@@ -51,6 +51,7 @@ namespace System
     bool DesktopResolution(int& width, int& height, int& colorDepth);
 
 
+
 } // namespace OS
 } // namespace TA3D
 
