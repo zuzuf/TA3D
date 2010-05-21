@@ -32,42 +32,30 @@ namespace System
 {
 
 
+    namespace // anonymous
+    {
 
-	static String OSType()
-	{
-		# ifdef TA3D_PLATFORM_WINDOWS
-		return "Microsoft Windows";
-		# elif defined TA3D_PLATFORM_LINUX
-		return "GNU/Linux";
-		# elif defined TA3D_PLATFORM_DARWIN
-		return "MacOSX";
-		# else
-		return "Unknown";
-		# endif
-	}
+        const char* CPUName()
+        {
+            return "Unknown";
+        }
 
 
+        const char* CPUCapabilities()
+        {
+            return "None";
+        }
 
-	static String CPUName()
-	{
-		return "Unknown";
-	}
+        void displayScreenResolution()
+        {
+            int w, h, d;
+            if (DesktopResolution(w, h, d))
+                logs.notice() << LOG_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)";
+            else
+                logs.error()  << LOG_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution";
+        }
 
-
-	static String CPUCapabilities()
-	{
-		String r;
-		return (r.empty() ? "None" : r);
-	}
-
-	static void displayScreenResolution()
-	{
-		int w, h, d;
-		if (DesktopResolution(w, h, d))
-			logs.notice() << LOG_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)";
-		else
-			logs.error() << LOG_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution";
-	}
+    } // anonymous namespace
 
 
 
@@ -93,7 +81,7 @@ namespace System
 	{
 		// Vendor
 		String vendorName;
-		logs.notice() << LOG_PREFIX_SYSTEM << OSType() << ", Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
+		logs.notice() << LOG_PREFIX_SYSTEM << YUNI_OS_NAME << ", Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
 			<< " " << CPUName()
 			<< " (" << CPUCapabilities() << ")";
 		displayScreenResolution();
