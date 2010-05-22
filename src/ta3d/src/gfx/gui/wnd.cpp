@@ -297,6 +297,9 @@ namespace TA3D
 
 			if (object->MouseOn && !object->help_msg.empty())
 				helpMsg = object->help_msg;
+
+			bool disabled = object->Flag & FLAG_DISABLED;
+
 			switch (object->Type)
 			{
 
@@ -358,15 +361,17 @@ namespace TA3D
 						object->gltex_states[cur_img].draw(x + object->x1, y + object->y1);
 						gfx->unset_alpha_blending();
 					}
+					disabled = false;
 					break;
 				}
 			case OBJ_BUTTON:		// Button
 				{
 					if (object->Text.empty())
 						object->Text.push_back(nullptr);
-					skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2, object->Text.front(), object->activated);
+					skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2, object->Text.front(), object->activated, !disabled);
 					if (object->Focus && focus)
 						gfx->rectdot(object->x1+x-2,object->y1+y-2,object->x2+x+2,object->y2+y+2,DGray);
+					disabled = false;
 				}
 				break;
 			case OBJ_HSLIDER:
@@ -434,13 +439,14 @@ namespace TA3D
 				if (!object->Etat)
 				{
 					skin->button(x + object->x1, y + object->y1, x + object->x2, y + object->y2,
-								 object->Text[0], object->activated || object->Etat);
+								 object->Text[0], object->activated || object->Etat, !disabled);
+					disabled = false;
 				}
 				break;
 			}
 
 			// Make it darker when disabled
-			if (object->Type != OBJ_TA_BUTTON && (object->Flag & FLAG_DISABLED))
+			if (disabled)
 			{
 				glEnable(GL_BLEND);
 				glDisable(GL_TEXTURE_2D);
@@ -481,7 +487,7 @@ namespace TA3D
 					skin->button(x + object->x1, y + object->y1,
 								 x + object->x2, y + object->y2,
 								 object->Text[0],
-								 object->activated || object->Etat);
+								 object->activated || object->Etat, true);
 					skin->FloatMenu(x + object->x1, y + object->y2 + 1,
 									object->Text, object->Data + 1,
 									1 + object->Pos);

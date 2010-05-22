@@ -117,6 +117,8 @@ namespace Gui
 		button_img[0].load(skinFile, "skin.button.up.", scale);
 		button_img[1].load(skinFile, "skin.button.down.", scale);
 		button_color.load(skinFile, "skin.button.", scale);
+		button_color_disabled = button_color;
+		button_color_disabled.font_color = ((button_color.font_color & 0x00FEFEFE) >> 1) | (button_color.font_color & 0xFF000000);
 
 		text_background.load(skinFile, "skin.text bar.", scale);
 		text_color.load(skinFile, "skin.text.", scale);
@@ -144,20 +146,24 @@ namespace Gui
 	}
 
 
-	void Skin::button (float x,float y,float x2,float y2,const String &Title,bool State)
+	void Skin::button(const float x, const float y, const float x2, const float y2, const String &Title, const bool State, const bool enabled) const
 	{
 		gfx->set_alpha_blending();
-		gfx->set_color( 0xFFFFFFFF);
+		if (enabled)
+			gfx->set_color(0xFFFFFFFF);
+		else
+			gfx->set_color(0xFF7F7F7F);
 
 		button_img[(State ? 1 : 0)].draw( x, y, x2, y2);
 		gfx->unset_alpha_blending();
 
 		if (!Title.empty())
 		{
+			const TEXT_COLOR &color = enabled ? button_color : button_color_disabled;
 			if (State)
-				button_color.print(gui_font, (int)((x + x2) * 0.5f - (gui_font->length(Title) * 0.5f) + 1), (int)((y + y2 - (int)(pCacheFontHeight)) * 0.5f + 1), Title);
+				color.print(gui_font, (int)((x + x2) * 0.5f - (gui_font->length(Title) * 0.5f) + 1), (int)((y + y2 - (int)(pCacheFontHeight)) * 0.5f + 1), Title);
 			else
-				button_color.print(gui_font, (int)((x + x2) * 0.5f - (gui_font->length(Title) * 0.5f)), (int)(y + y2 - (int)(pCacheFontHeight)) * 0.5f, Title);
+				color.print(gui_font, (int)((x + x2) * 0.5f - (gui_font->length(Title) * 0.5f)), (int)(y + y2 - (int)(pCacheFontHeight)) * 0.5f, Title);
 		}
 	}
 
@@ -166,7 +172,7 @@ namespace Gui
 	|        Draw a list box displaying the content of Entry                     |
 	\---------------------------------------------------------------------------*/
 
-	void Skin::ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, uint32 flags )
+	void Skin::ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, uint32 flags) const
 	{
         gfx->set_color(0xFFFFFFFF);
 
@@ -179,6 +185,7 @@ namespace Gui
 
 		uint32 line = 0;
 		String rest;
+		String pCacheDrawTextStr;
 		for (unsigned int i = 0; i < Entry.size(); ++i, ++line)
 		{
 			int e = i + Scroll;
@@ -246,7 +253,7 @@ namespace Gui
 					TotalScroll ? ((float)Scroll) / TotalScroll : 0.0f, true);
 	}
 
-	void Skin::AppendLineToListBox(String::Vector &Entry, float x1, float x2, String line )
+	void Skin::AppendLineToListBox(String::Vector &Entry, float x1, float x2, String line) const
 	{
 		String rest;
 		do
@@ -288,7 +295,7 @@ namespace Gui
 	  |        Draw a popup menu displaying the text msg using the skin object     |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::PopupMenu( float x1, float y1, const String &msg)
+	void Skin::PopupMenu( float x1, float y1, const String &msg) const
 	{
 		float x2 = x1;
 		std::vector< String > Entry;
@@ -341,7 +348,7 @@ namespace Gui
 	  |        Draw a floatting menu with the parameters from Entry[]              |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry)
+	void Skin::FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry) const
 	{
 		if (StartEntry < Entry.size())
 		{
@@ -375,7 +382,7 @@ namespace Gui
 	  |        Draw an option button with text Title                               |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::OptionButton(float x,float y,const String &Title,bool State)
+	void Skin::OptionButton(float x,float y,const String &Title,bool State) const
 	{
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -390,7 +397,7 @@ namespace Gui
 	  |        Draw an option case with text Title                                 |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::OptionCase(float x,float y,const String &Title,bool State)
+	void Skin::OptionCase(float x,float y,const String &Title,bool State) const
 	{
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -405,7 +412,7 @@ namespace Gui
 	  |        Draw a TEXTEDITOR widget (a large text input widget)                |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State)
+	void Skin::TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State) const
 	{
 		bool blink = State && (msec_timer % 1000) >= 500;
 
@@ -501,7 +508,7 @@ namespace Gui
 	  |        Draw a text input bar, a way for user to enter text                 |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool State)
+	void Skin::TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool State) const
 	{
 		bool blink = State && (msec_timer % 1000) >= 500;
 
@@ -530,7 +537,7 @@ namespace Gui
 	/*---------------------------------------------------------------------------\
 	  |                              Draw a scroll bar                             |
 	  \---------------------------------------------------------------------------*/
-	void Skin::ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical)
+	void Skin::ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical) const
 	{
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -560,7 +567,7 @@ namespace Gui
 	  |                     Draw a progress bar                                    |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::ProgressBar(float x1,float y1,float x2,float y2,int Value)
+	void Skin::ProgressBar(float x1,float y1,float x2,float y2,int Value) const
 	{
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -578,13 +585,13 @@ namespace Gui
 	  |        Draw a the given text within the given space                        |
 	  \---------------------------------------------------------------------------*/
 
-	int Skin::draw_text_adjust(float x1, float y1, float x2, float y2, const String& msg, int pos, bool missionMode)
+	int Skin::draw_text_adjust(float x1, float y1, float x2, float y2, const String& msg, int pos, bool missionMode) const
 	{
 		int last = 0;
-		pCacheDrawTextStr.clear();
-		pCacheDrawTextCurrent.clear();
-		pCacheDrawTextWord.clear();
-		pCacheDrawTextVector.clear();
+		String pCacheDrawTextStr;
+		String pCacheDrawTextCurrent;
+		String pCacheDrawTextWord;
+		String::Vector pCacheDrawTextVector;
 
 		for (unsigned int i = 0 ; i < msg.length(); ++i)
 		{
@@ -716,7 +723,7 @@ namespace Gui
 
 
 
-	void Skin::ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy)
+	void Skin::ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy) const
 	{
 		// Normalize shadow offsets
 		dx *= SCREEN_W / 800.0f;

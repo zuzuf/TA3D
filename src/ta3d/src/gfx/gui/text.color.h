@@ -35,9 +35,9 @@ namespace Gui
 
 		void load(TA3D::TDFParser& parser, const String &prefix, float scale);
 
-		void print(Font *font, float x, float y, const String &text);
+		void print(Font *font, const float x, const float y, const String &text) const;
 
-		void print(Font *font, float x, float y, uint32 col, const String &text);
+		void print(Font *font, const float x, const float y, const uint32 col, const String &text) const;
 
 	public:
 		uint32      font_color;

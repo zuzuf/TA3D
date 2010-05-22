@@ -46,7 +46,7 @@ namespace Gui
 	}
 
 
-	void TEXT_COLOR::print(Font *font, float x, float y, const String &text)
+	void TEXT_COLOR::print(Font *font, const float x, const float y, const String &text) const
 	{
 		if (!text.empty())
 		{
@@ -63,7 +63,7 @@ namespace Gui
 	}
 
 
-	void TEXT_COLOR::print(Font *font, float x, float y, uint32 col, const String &text)
+	void TEXT_COLOR::print(Font *font, const float x, const float y, const uint32 col, const String &text) const
 	{
 		if (!text.empty())
 		{
