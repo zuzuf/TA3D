@@ -65,19 +65,19 @@ namespace Gui
 
 		//! \name Widgets rendering
 		//@{
-		void button(float x, float y, float x2, float y2, const String &Title, bool State);
-		void FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry=0);
-		void ListBox (float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , uint32 flags = 0 );
-		void AppendLineToListBox (String::Vector &Entry, float x1, float x2, String line );
-		void OptionButton(float x, float y, const String &Title, bool Etat);
-		void OptionCase(float x, float y, const String &Title, bool Etat);
-		void TextBar(float x1, float y1, float x2, float y2, const String &Caption, bool State);
-		void TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State);
-		void ProgressBar(float x1, float y1, float x2, float y2, int Value);
-		void PopupMenu(float x1, float y1, const String &msg);
-		void ScrollBar(float x1, float y1, float x2, float y2, float Value, bool vertical=true);
-		int draw_text_adjust(float x1, float y1, float x2, float y2, const String& msg, int pos = 0, bool missionMode = false);
-		void ObjectShadow( float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy);
+		void button(const float x, const float y, const float x2, const float y2, const String &Title, const bool State, const bool enabled) const;
+		void FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry = 0) const;
+		void ListBox (float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , uint32 flags = 0) const;
+		void AppendLineToListBox (String::Vector &Entry, float x1, float x2, String line) const;
+		void OptionButton(float x, float y, const String &Title, bool Etat) const;
+		void OptionCase(float x, float y, const String &Title, bool Etat) const;
+		void TextBar(float x1, float y1, float x2, float y2, const String &Caption, bool State) const;
+		void TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State) const;
+		void ProgressBar(float x1, float y1, float x2, float y2, int Value) const;
+		void PopupMenu(float x1, float y1, const String &msg) const;
+		void ScrollBar(float x1, float y1, float x2, float y2, float Value, bool vertical = true) const;
+		int draw_text_adjust(float x1, float y1, float x2, float y2, const String& msg, int pos = 0, bool missionMode = false) const;
+		void ObjectShadow( float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy) const;
 		//@}
 
 		//! Get the prefix
@@ -97,6 +97,7 @@ namespace Gui
 		SKIN_OBJECT button_img[2];
 		//! Color parameters for buttons
 		TEXT_COLOR  button_color;
+		TEXT_COLOR  button_color_disabled;
 
 		//! Default color parameters
 		TEXT_COLOR  text_color;
@@ -131,12 +132,6 @@ namespace Gui
 
 		//! Cache: The Font height
 		float pCacheFontHeight;
-		//! Cache: 
-		//! Cache: A string always used to draw a text within a box
-		String pCacheDrawTextStr;
-		String pCacheDrawTextWord;
-		String pCacheDrawTextCurrent;
-		String::Vector pCacheDrawTextVector;
 
 	}; // class Skin
 
