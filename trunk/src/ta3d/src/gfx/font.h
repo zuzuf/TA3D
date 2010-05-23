@@ -22,6 +22,7 @@
 # include <misc/hash_table.h>
 # include <threads/thread.h>
 # include <misc/string.h>
+# include <deque>
 
 # ifdef __FTGL__lower__
 #	include <FTGL/ftgl.h>

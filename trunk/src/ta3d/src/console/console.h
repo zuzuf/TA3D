@@ -28,6 +28,7 @@
 # include <threads/mutex.h>
 # include <gfx/gfx.h>
 # include "../lua/lua.hpp"
+# include <deque>
 
 
 namespace TA3D
