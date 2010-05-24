@@ -55,7 +55,7 @@ namespace Files
 	{
 		if (emptyListBefore)
 			out.clear();
-		Stream file(filename, OpenMode::read);
+		Stream file(filename, Core::IO::OpenMode::read);
 		if (!file.opened())
 		{
 			LOG_WARNING("Impossible to open the file `" << filename << "`");
