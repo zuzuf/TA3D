@@ -597,7 +597,7 @@ namespace TA3D
 		String filename;
 		Paths::MakeDir( Paths::Resources + "ai" );
 		filename << Paths::Resources << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
-		Stream file(filename, OpenMode::write);
+		Stream file(filename, Yuni::Core::IO::OpenMode::write);
 
 		byte l = (byte)name.size();
 		file.write((const char*)&l, 1);		// Nom de l'IA

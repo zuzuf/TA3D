@@ -40,7 +40,7 @@ void install_TA_files( String HPI_file, String filename )
 	File *file = archive->readFile(filename);			// Extract the file
 	if (file)
 	{
-		Stream dst(Paths::Resources + Paths::ExtractFileName(filename), OpenMode::write);
+		Stream dst(Paths::Resources + Paths::ExtractFileName(filename), Yuni::Core::IO::OpenMode::write);
 
 		if (dst.opened())
 		{

@@ -143,7 +143,7 @@ namespace TA3D
 		{
 			MAP_OTA map_data;
 			map_data.load( args[0] );
-			Stream m_File(args[1], OpenMode::write);
+			Stream m_File(args[1], Yuni::Core::IO::OpenMode::write);
 
 			if (m_File.opened())
 			{
@@ -183,7 +183,7 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			Stream m_File( args[0], OpenMode::write );
+			Stream m_File( args[0], Yuni::Core::IO::OpenMode::write );
 
 			if (m_File.opened())
 			{
@@ -217,7 +217,7 @@ namespace TA3D
 			if (file)
 			{
 				String name = Paths::ExtractFileName(args[0]);
-				Stream dst(name, OpenMode::write);
+				Stream dst(name, Yuni::Core::IO::OpenMode::write);
 				dst.write((const char*)file->data(), file->size());
 				dst.close();
 				delete file;
@@ -295,7 +295,7 @@ namespace TA3D
 
 				Gaf::AnimationList anims;
 				anims.loadGAFFromRawData(file);
-				Stream m_File( (Paths::ExtractFileName(args[0]) << ".txt"), OpenMode::write );
+				Stream m_File( (Paths::ExtractFileName(args[0]) << ".txt"), Yuni::Core::IO::OpenMode::write );
 
 				m_File << "[gadget0]\n{\n";
 				m_File << "    filename=" << args[0] << ";\n";
@@ -352,7 +352,7 @@ namespace TA3D
 		{
 			TDFParser parser( args[0], false, false, true, true );
 			String filename = parser.pullAsString( "gadget0.filename" );
-			Stream gaf_file( Paths::ExtractFileName( filename ), OpenMode::write );
+			Stream gaf_file( Paths::ExtractFileName( filename ), Yuni::Core::IO::OpenMode::write );
 
 			LOG_DEBUG("opening '" << filename << "'");
 

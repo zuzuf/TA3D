@@ -58,7 +58,7 @@ namespace TA3D
 	int TA3DSock::open(const String &hostname, uint16 port)
 	{
 		if (!dump_file.opened())
-			dump_file.open(TA3D::Paths::Logs + "net.dump", OpenMode::write);
+			dump_file.open(TA3D::Paths::Logs + "net.dump", Yuni::Core::IO::OpenMode::write);
 		tcpsock.open(hostname, port);
 		if(!tcpsock.isOpen())
 			return -1;
@@ -69,7 +69,7 @@ namespace TA3D
 	int TA3DSock::open(uint16 port)
 	{
 		if (!dump_file.opened())
-			dump_file.open(TA3D::Paths::Logs + "net.dump", OpenMode::write);
+			dump_file.open(TA3D::Paths::Logs + "net.dump", Yuni::Core::IO::OpenMode::write);
 		tcpsock.open(port);
 		if(!tcpsock.isOpen())
 			return -1;

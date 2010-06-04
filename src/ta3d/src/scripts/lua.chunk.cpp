@@ -78,7 +78,7 @@ namespace TA3D
     {
         if (buffer == NULL || size == 0)    return;
 
-		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::File::OpenMode::write);
+		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::OpenMode::write);
 		if (file.opened())
         {
             file.write((char*)buffer, size);

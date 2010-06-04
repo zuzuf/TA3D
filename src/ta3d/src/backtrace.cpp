@@ -68,7 +68,7 @@ void backtrace_handler (int signum)
 	char** strings = backtrace_symbols(array, size);
 
     // Try to log it
-	Yuni::Core::IO::File::Stream m_File(TA3D::Paths::Logs + "backtrace.txt", Yuni::Core::IO::File::OpenMode::write);
+	Yuni::Core::IO::File::Stream m_File(TA3D::Paths::Logs + "backtrace.txt", Yuni::Core::IO::OpenMode::write);
 	if(m_File.opened())
     {
 		m_File << "received signal " << strsignal( signum ) << "\n";

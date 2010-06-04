@@ -26,7 +26,7 @@ namespace TA3D
 			if (buffer)
 				delete[] buffer;
 			buffer = NULL;
-			sFile.open(filename, Yuni::Core::IO::File::OpenMode::read);
+			sFile.open(filename, Yuni::Core::IO::OpenMode::read);
 			realFilename = filename;
 		}
 

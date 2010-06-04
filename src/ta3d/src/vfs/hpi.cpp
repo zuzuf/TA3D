@@ -59,7 +59,7 @@ namespace TA3D
             if (Paths::ExtractFileName(filename).toLower() == "ta3d.hpi")
                 priority = 3;
 
-			HPIFile.open(filename, Yuni::Core::IO::File::OpenMode::read);
+			HPIFile.open(filename, Yuni::Core::IO::OpenMode::read);
 			if (!HPIFile.opened())
             {
                 close();

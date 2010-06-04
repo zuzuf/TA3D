@@ -234,7 +234,7 @@ namespace Audio
 		targetPlaylist << TA3D::Paths::Resources << "music/playlist.txt";
 		// Make sure the folder exists
 		Paths::MakeDir(Paths::ExtractFilePath(targetPlaylist, true));
-		Yuni::Core::IO::File::Stream play_list_file(targetPlaylist, Yuni::Core::IO::File::OpenMode::write);
+		Yuni::Core::IO::File::Stream play_list_file(targetPlaylist, Yuni::Core::IO::OpenMode::write);
 		if (!play_list_file.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_SOUND << "could not open playlist file : '" << targetPlaylist << "'");
@@ -266,12 +266,12 @@ namespace Audio
 	{
 		String filename;
 		filename << TA3D::Paths::Resources << "music/playlist.txt";
-		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::File::OpenMode::read);
+		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::OpenMode::read);
 
 		if (!file.opened()) // try to create the list if it doesn't exist
 		{
 			doUpdatePlayListFiles();
-			file.open(filename, Yuni::Core::IO::File::OpenMode::read);
+			file.open(filename, Yuni::Core::IO::OpenMode::read);
 			if (!file.opened())
 			{
 				LOG_WARNING(LOG_PREFIX_SOUND << "Impossible to load the playlist : '" << filename << "'");

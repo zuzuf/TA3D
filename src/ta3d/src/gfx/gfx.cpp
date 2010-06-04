@@ -1810,7 +1810,7 @@ namespace TA3D
 		realFile += file;
 		if (TA3D::Paths::Exists(realFile))
 		{
-			Stream cache_file(realFile, OpenMode::read);
+			Stream cache_file(realFile, Yuni::Core::IO::OpenMode::read);
 			uint32 mod_hash;
 			cache_file.read((char*)&mod_hash, sizeof( mod_hash ));
 			cache_file.close();
@@ -1830,7 +1830,7 @@ namespace TA3D
 		realFile += file;
 		if(TA3D::Paths::Exists(realFile))
 		{
-			Stream cache_file(realFile, OpenMode::read);
+			Stream cache_file(realFile, Yuni::Core::IO::OpenMode::read);
 			uint32 mod_hash;
 			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
 
@@ -1936,7 +1936,7 @@ namespace TA3D
 		if(!compressed)
 			return;
 
-		Stream cache_file( file, OpenMode::write );
+		Stream cache_file( file, Yuni::Core::IO::OpenMode::write );
 
 		if (!cache_file.opened())
 			return;
