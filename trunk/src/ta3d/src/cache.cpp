@@ -22,7 +22,7 @@ namespace Cache
 
 		if (Paths::Exists(Paths::Caches + "cache_info.txt") && !force)
 		{
-			Stream cache_info(Paths::Caches + "cache_info.txt", OpenMode::read);
+			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::read);
 			if (cache_info.opened())
 			{
 				char *buf = new char[cache_date.size() + 1];
@@ -49,7 +49,7 @@ namespace Cache
 			for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
 				remove(i->c_str());
 			// Update cache date
-			Stream cache_info(Paths::Caches + "cache_info.txt", OpenMode::write);
+			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::write);
 			if (cache_info.opened())
 			{
 				cache_info.write(cache_date.c_str(), cache_date.size());

@@ -23,6 +23,7 @@
 #include <yuni/core/io/file/stream.h>
 
 using namespace Yuni::Core::IO::File;
+using namespace Yuni::Core::IO;
 
 namespace TA3D
 {

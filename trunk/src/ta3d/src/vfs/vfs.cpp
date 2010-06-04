@@ -199,7 +199,7 @@ namespace UTILS
 
 		String cache_filename;
 		cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat"; // Save file in disk cache
-		Stream cache_file(cache_filename, OpenMode::write);
+		Stream cache_file(cache_filename, Yuni::Core::IO::OpenMode::write);
 		if (cache_file.opened())
 		{
 			char *buf = new char[10240];
@@ -470,7 +470,7 @@ namespace UTILS
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 		String targetName = Paths::Caches + Paths::ExtractFileName(filename);
-		Stream file(targetName, OpenMode::write);
+		Stream file(targetName, Yuni::Core::IO::OpenMode::write);
 		if (!file.opened())
 		{
 			LOG_ERROR(LOG_PREFIX_VFS << "impossible to create file '" << targetName << "'");

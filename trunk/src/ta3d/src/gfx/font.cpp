@@ -213,7 +213,7 @@ namespace TA3D
 					Stream tmp_file;
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
 
-					tmp_file.open(tmp, OpenMode::write);
+					tmp_file.open(tmp, Yuni::Core::IO::OpenMode::write);
 					if (tmp_file.opened())
 					{
 						char *buf = new char[10240];

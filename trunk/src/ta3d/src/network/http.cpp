@@ -44,7 +44,7 @@ namespace TA3D
 		char		buffer[4096];
 		String      realFilename = filename;
 		String      tmpFile = filename + ".part";
-		Stream		f(tmpFile, OpenMode::write);
+		Stream		f(tmpFile, Yuni::Core::IO::OpenMode::write);
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;
@@ -303,7 +303,7 @@ namespace TA3D
 	{
 		SocketTCP   sock;
 		char        buffer[4096];
-		Stream		f(filename, OpenMode::write);
+		Stream		f(filename, Yuni::Core::IO::OpenMode::write);
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;

@@ -1491,7 +1491,7 @@ namespace TA3D
 	// Create the script that will do what the mission description .ota file tells us to do
 	void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema)
 	{
-		Yuni::Core::IO::File::Stream m_File(Filename, Yuni::Core::IO::File::OpenMode::write);
+		Yuni::Core::IO::File::Stream m_File(Filename, Yuni::Core::IO::OpenMode::write);
 
 		if (!m_File.opened())
 		{

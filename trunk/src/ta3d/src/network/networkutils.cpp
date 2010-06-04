@@ -360,7 +360,7 @@ namespace TA3D
 		const String path = Paths::ExtractFilePath(filename);
 		if (!path.empty())
 			Paths::MakeDir(path);
-		Stream file( filename + ".part", OpenMode::write );
+		Stream file( filename + ".part", Yuni::Core::IO::OpenMode::write );
 
 		delete((struct net_thread_params*)param);
 		param = NULL;
