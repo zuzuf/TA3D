@@ -22,16 +22,13 @@
 #include <ta3dbase.h>
 #include "solo.h"
 #include "multimenu.h"
+#include "config.h"
 #include <logs/logs.h>
 #include <misc/settings.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <yuni/core/sleep.h>
 #include <gfx/video.h>
-
-// TODO Must be removed
-#include <menu.h>
-
 
 
 
@@ -184,7 +181,7 @@ namespace Menus
 		{
 			lp_CONFIG->quickrestart = false;
 			glPushMatrix();
-			config_menu();
+			Config::Execute();
 			lp_CONFIG->quickstart = false;
 			glPopMatrix();
 

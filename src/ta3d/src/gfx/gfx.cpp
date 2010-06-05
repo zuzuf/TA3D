@@ -2173,8 +2173,9 @@ namespace TA3D
 
 	void GFX::preCalculations()
 	{
-		width = screen->w;
-		height = screen->h;
+		const SDL_VideoInfo *info = SDL_GetVideoInfo();
+		width = info->current_w;
+		height = info->current_h;
 		SCREEN_W_HALF = width >> 1;
 		SCREEN_H_HALF = height >> 1;
 		SCREEN_W_INV = 1.0f / float(width);

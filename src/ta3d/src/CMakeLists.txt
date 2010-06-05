@@ -255,7 +255,8 @@ SET(SRC_INGAME_MENUS
 		ingame/menus/campaignmainmenu.h ingame/menus/campaignmainmenu.cpp
 		ingame/menus/briefscreen.h ingame/menus/briefscreen.cpp
 		ingame/menus/waitroom.h ingame/menus/waitroom.cpp
-		ingame/menus/networkroom.h ingame/menus/networkroom.cpp)
+		ingame/menus/networkroom.h ingame/menus/networkroom.cpp
+		ingame/menus/config.h ingame/menus/config.cpp)
 
 
 
