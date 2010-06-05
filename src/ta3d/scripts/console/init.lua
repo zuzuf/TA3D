@@ -10,6 +10,7 @@ end
 __fn_state = {}
 __fn_state["fps"] = setFps;
 __fn_state["farsight"] = setFarsight;
+__fn_state["tooltips"] = setTooltips;
 __fn_state["rightClickInterface"] = setRightClickInterface;
 __fn_state["perspective"] = setCameraPerspective;
 __fn_state["grabInputs"] = setGrabInputs;

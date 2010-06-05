@@ -1053,8 +1053,6 @@ namespace TA3D
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-		bool nothing = index < -1 || index >= nb_unit;
-
 		gfx->ReInitTexSys();
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
 		if (GUI)
@@ -1173,13 +1171,27 @@ namespace TA3D
 		if (unit_type[index]->last_click != -1 )
 			unit_type[index]->click_time -= dt;
 
-		if (sel>-1)
+		if (sel > -1)
 		{
-			gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF,
-					   unit_type[sel]->name + " M:" + String(unit_type[sel]->BuildCostMetal)+" E:"+String(unit_type[sel]->BuildCostEnergy)+" HP:"+String(unit_type[sel]->MaxDamage) );
+			if (lp_CONFIG->tooltips)
+			{	// Tooltip code
+				String message;
+				message << unit_type[sel]->name
+						<< " M:" << unit_type[sel]->BuildCostMetal
+						<< " E:" << unit_type[sel]->BuildCostEnergy
+						<< " HP:" << unit_type[sel]->MaxDamage;
+				if (!unit_type[sel]->Description.empty())
+					message << '\n' << unit_type[sel]->Description;
+				Gui::AREA::current()->getSkin()->PopupMenu(mouse_x + 20, mouse_y + 20, message);
+			}
+			else
+			{	// Print info at the bottom of the screen
+				gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF,
+						   unit_type[sel]->name + " M:" + String(unit_type[sel]->BuildCostMetal)+" E:"+String(unit_type[sel]->BuildCostEnergy)+" HP:"+String(unit_type[sel]->MaxDamage) );
 
-			if (!unit_type[sel]->Description.empty())
-				gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,unit_type[sel]->Description );
+				if (!unit_type[sel]->Description.empty())
+					gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,unit_type[sel]->Description );
+			}
 			glDisable(GL_BLEND);
 		}
 

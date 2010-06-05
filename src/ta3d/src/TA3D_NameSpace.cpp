@@ -37,6 +37,8 @@ namespace TA3D
 
 	TA3DCONFIG::TA3DCONFIG()
 	{
+		tooltips = false;
+
 		menuTransparency = 0.0f;
 
 		first_start = false;
