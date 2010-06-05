@@ -253,7 +253,8 @@ SET(SRC_INGAME_MENUS
 		ingame/menus/netmenu.h ingame/menus/netmenu.cpp
 		ingame/menus/multimenu.h ingame/menus/multimenu.cpp
 		ingame/menus/campaignmainmenu.h ingame/menus/campaignmainmenu.cpp
-		ingame/menus/briefscreen.h ingame/menus/briefscreen.cpp)
+		ingame/menus/briefscreen.h ingame/menus/briefscreen.cpp
+		ingame/menus/waitroom.h ingame/menus/waitroom.cpp)
 
 
 

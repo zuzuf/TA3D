@@ -38,8 +38,6 @@ void setup_game(bool client = false, const String& host = String(), String saved
 
 void network_room(void);		// Everything you need to host/join a network game
 
-void wait_room(void *p_game_data);			// Wait until everyone has loaded the game
-
 } // namespace Ta3D
 
 #endif

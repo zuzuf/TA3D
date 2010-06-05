@@ -90,8 +90,6 @@ namespace Menus
 		// Loading the area
 		loadAreaFromTDF("campaign", "gui/campaign.area");
 
-		cursor_type = CURSOR_DEFAULT;
-
 		VFS::Instance()->getFilelist("camps\\*.tdf", campaign_list);
 		campaign_list.sort();
 		for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
