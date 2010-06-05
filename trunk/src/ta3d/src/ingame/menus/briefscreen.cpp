@@ -141,7 +141,6 @@ namespace Menus
 
 		// Loading the area
 		loadAreaFromTDF("brief", "gui/brief.area");
-		cursor_type = CURSOR_DEFAULT;
 
 		brief_parser.loadFromFile(campaign_name);           // Loads the campaign file
 

@@ -15,6 +15,7 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #include "battle.h"
+#include "menus/waitroom.h"
 #include <network/network.h>
 #include <logs/logs.h>
 #include <gfx/gfx.h>
@@ -35,7 +36,6 @@
 #include <tnt.h>
 #include <misc/paths.h>
 #include <misc/files.h>
-#include <menu.h>
 #include <input/mouse.h>
 #include <yuni/core/io/file/stream.h>
 
@@ -932,7 +932,7 @@ namespace TA3D
 		shoot = false;
 		do
 		{
-			nb_shoot = (nb_shoot+1)%1000000;
+			nb_shoot = (nb_shoot + 1) % 1000000;
 		}while (TA3D::Paths::Exists(TA3D::Paths::Screenshots + String::Format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
 
 		return true;
@@ -961,7 +961,7 @@ namespace TA3D
 				pArea.msg("esc_menu.b_save.disable");
 		}
 		sound_manager->playMusic();
-		wait_room(pGameData);
+		Menus::WaitRoom::Execute(pGameData);
 	}
 
 } // namespace TA3D
