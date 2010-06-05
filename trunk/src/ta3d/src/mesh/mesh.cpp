@@ -1464,7 +1464,7 @@ namespace TA3D
 			VFS::Instance()->getFilelist(ta3dSideData.model_dir + '*' + *ext, filelist);
 	}
 
-	int ModelManager::load_all(void (*progress)(float percent,const String &msg))
+	int ModelManager::load_all(ProgressNotifier *progress)
 	{
 		const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
@@ -1482,7 +1482,7 @@ namespace TA3D
 				if (++progressIncrement == 25 && progress != NULL)
 				{
 					// Update the progress bar
-					progress((100.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, loading3DModelsText);
+					(*progress)((100.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, loading3DModelsText);
 					// Reset the increment
 					progressIncrement = 0;
 				}

@@ -48,7 +48,7 @@ namespace TA3D
 {
 	typedef struct TA3DCONFIG
 	{
-		typedef SmartPtr<TA3DCONFIG>	Ptr;
+		typedef TA3DCONFIG*	Ptr;
 
 		float  fps_limit;
 		float  timefactor;      // 1.0 -> 10.0
@@ -132,7 +132,7 @@ namespace TA3D
 
 		TA3DCONFIG();
 
-	} sTA3DCONFIG, *LPTA3DCONFIG;
+	};
 
 	// TODO Must be removed
 #define   DEBUG_MODE

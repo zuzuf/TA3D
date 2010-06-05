@@ -395,7 +395,7 @@ namespace TA3D
         void Identify();            // Identifie les pièces aux quelles les scripts font référence
     };
 
-    int load_all_units(void (*progress)(float percent,const String &msg)=NULL);
+	int load_all_units(ProgressNotifier *progress = NULL);
 
     extern UnitManager unit_manager;
 

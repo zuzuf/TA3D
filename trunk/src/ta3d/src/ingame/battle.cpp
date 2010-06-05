@@ -20,7 +20,6 @@
 #include <TA3D_NameSpace.h>
 #include <misc/matrix.h>
 
-#include <intro.h>			// Introduction
 #include <menu.h>			// Game menus
 #include <restore.h>		// Save/Load mecanisms
 #include <network/TA3D_Network.h>	// Network functionnalities such as chat

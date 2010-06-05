@@ -35,6 +35,7 @@
 #include <gfx/glfunc.h>
 #include <gfx/shader.h>
 #include <scripts/script.data.h>
+#include <misc/progressnotifier.h>
 
 namespace TA3D
 {
@@ -415,7 +416,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        int load_all(void (*progress)(float percent,const String &msg)=NULL);
+		int load_all(ProgressNotifier *progress);
 
         /*!
         ** \brief

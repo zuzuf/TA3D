@@ -36,6 +36,7 @@
 # include <list>
 # include "EngineClass.h"
 # include "misc/grid.h"
+# include "misc/progressnotifier.h"
 
 
 namespace TA3D
@@ -253,7 +254,7 @@ namespace TA3D
 	/*!
 	** \brief
 	*/
-	void load_features(void (*progress)(float percent,const String& msg)=NULL);	// Charge tout les éléments
+	void load_features(ProgressNotifier *progress = NULL);	// Charge tout les éléments
 
 
 	/*! \class FeatureData
