@@ -17,10 +17,12 @@
 
 #include "multimenu.h"
 #include "netmenu.h"
-#include <menu.h>
+#include "networkroom.h"
 #include <languages/i18n.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
+
+using namespace TA3D::VARS;
 
 
 
@@ -96,7 +98,7 @@ namespace Menus
 
 		if (pArea->get_state("multimenu.b_lan"))
 		{
-			network_room();
+			Menus::NetworkRoom::Execute();
 			return true;
 		}
 
