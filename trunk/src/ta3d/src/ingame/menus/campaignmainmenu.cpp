@@ -21,10 +21,7 @@
 #include <vfs/vfs.h>
 #include <ingame/battle.h>
 #include <ingame/sidedata.h>
-
-//! \todo remove all includes to menu.h
-#include <menu.h>
-
+#include "briefscreen.h"
 
 namespace TA3D
 {
@@ -69,7 +66,7 @@ namespace Menus
 			// The result of the last battle
 			Battle::Result exitStatus = Battle::brUnknown;
 
-			while (mission_id < nb_mission && (exitStatus = brief_screen(campaign_name, mission_id)))
+			while (mission_id < nb_mission && (exitStatus = BriefScreen::Execute(campaign_name, mission_id)))
 			{
 				if (Battle::brVictory == exitStatus)
 					++mission_id;
