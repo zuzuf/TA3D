@@ -36,8 +36,6 @@ void config_menu(void);
 
 void setup_game(bool client = false, const String& host = String(), String saved_game = String(), bool bNetServer = false, bool instantStart = false);		// Setup a game and launch it
 
-void network_room(void);		// Everything you need to host/join a network game
-
 } // namespace Ta3D
 
 #endif
