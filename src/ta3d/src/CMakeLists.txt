@@ -66,6 +66,7 @@ SET(SRC_MISC
 		misc/stack.hxx
 		misc/slist.h
 		misc/sset.h
+		misc/progressnotifier.h
 		misc/paths.h misc/paths.cpp
 		misc/files.h misc/files.cpp
 		misc/resources.h misc/resources.cpp
@@ -286,7 +287,6 @@ SET(TA3D_SOURCES
 		install.cpp
 		restore.cpp restore.h
 		fbi.cpp fbi.h
-		intro.cpp intro.h
 		tdf.cpp tdf.h tnt.cpp tnt.h
 		TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h
 		hpiview.cpp

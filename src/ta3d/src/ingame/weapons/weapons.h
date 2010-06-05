@@ -32,6 +32,7 @@
 # include "weapons.manager.h"
 # include "weapons.single.h"
 # include "weapons.ingame.h"
+# include <misc/progressnotifier.h>
 
 
 namespace TA3D
@@ -44,7 +45,7 @@ namespace TA3D
     **
     ** \param progress Callback to display the progression of the loading
     */
-    void load_weapons(void (*progress)(float percent,const String &msg) = NULL);
+	void load_weapons(ProgressNotifier *progress = NULL);
 
 
 

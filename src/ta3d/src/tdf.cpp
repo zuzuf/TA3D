@@ -359,7 +359,7 @@ namespace TA3D
 
 
 
-	void load_features(void (*progress)(float percent, const String& msg)) // Charge tout les éléments
+	void load_features(ProgressNotifier *progress) // Charge tout les éléments
 	{
 		String::Vector files;
 		VFS::Instance()->getFilelist("features\\*.tdf", files);
@@ -369,7 +369,7 @@ namespace TA3D
 		for (String::Vector::const_iterator curFile = files.begin(); curFile != end; ++curFile)
 		{
 			if (progress != NULL && !(n & 0xF))
-				progress((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
+				(*progress)((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
 
 			++n;
 			File* file = VFS::Instance()->readFile(*curFile);

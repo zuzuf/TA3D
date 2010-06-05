@@ -31,16 +31,16 @@
 # include "fps.h"
 
 
-
 # ifndef SCROLL_SPEED
 #	define SCROLL_SPEED 	400.0f
 # endif
 
-
-
 namespace TA3D
 {
-
+	namespace Menus
+	{
+		class Loading;
+	}
 
 	class Battle
 	{
@@ -510,6 +510,9 @@ namespace TA3D
 
         //! \name Debug information
         DebugInfo debugInfo;
+
+		//! pointer to loading screen
+		Menus::Loading *loading;
 
 	private:
 		static Battle *pInstance;

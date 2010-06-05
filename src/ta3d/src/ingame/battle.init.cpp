@@ -22,7 +22,6 @@
 #include <TA3D_NameSpace.h>
 #include <languages/i18n.h>
 #include <languages/table.h>
-#include <intro.h>
 #include <mesh/textures.h>
 #include <mesh/instancing.h>
 #include <mesh/mesh.h>
@@ -38,6 +37,7 @@
 #include <misc/files.h>
 #include <input/mouse.h>
 #include <yuni/core/io/file/stream.h>
+#include "menus/loading.h"
 
 
 using namespace Yuni;
@@ -184,6 +184,9 @@ namespace TA3D
 		if (!g)
 			return true;
 
+		loading = new Menus::Loading;
+		SmartPtr<Menus::Loading> spLoading = loading;
+
         glow = 0;
         freecam_on = 0;
         freecam_off = 0;
@@ -273,7 +276,7 @@ namespace TA3D
 		timer[21] = msec_timer;
 
 		// The loading has finished
-		loading(100.0f, I18N::Translate("Load finished"));
+		(*loading)(100.0f, I18N::Translate("Load finished"));
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading time: " << ((float)(msec_timer - startTime) * 0.001f) << " sec.");
 #define TA3D_LOADING_STATS
 #ifdef TA3D_LOADING_STATS
@@ -346,7 +349,7 @@ namespace TA3D
 	bool Battle::initTextures()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading textures...");
-		loading(0.0f, I18N::Translate("Loading textures"));
+		(*loading)(0.0f, I18N::Translate("Loading textures"));
 		texture_manager.all_texture();
 		return true;
 	}
@@ -354,7 +357,7 @@ namespace TA3D
 	bool Battle::init3DModels()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading 3D Models...");
-		loading(100.0f / 7.0f, I18N::Translate("Loading 3D Models"));
+		(*loading)(100.0f / 7.0f, I18N::Translate("Loading 3D Models"));
 		model_manager.init();
 		model_manager.load_all(loading);
 		return true;
@@ -363,7 +366,7 @@ namespace TA3D
 	bool Battle::initGraphicalFeatures()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading graphical features...");
-		loading(200.0f / 7.0f, I18N::Translate("Loading graphical features"));
+		(*loading)(200.0f / 7.0f, I18N::Translate("Loading graphical features"));
 		load_features(loading);
 		feature_manager.clean();
 		model_manager.compute_ids();
@@ -373,7 +376,7 @@ namespace TA3D
 	bool Battle::initWeapons()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading weapons...");
-		loading(250.0f / 7.0f, I18N::Translate("Loading weapons"));
+		(*loading)(250.0f / 7.0f, I18N::Translate("Loading weapons"));
 		load_weapons(loading);
 		weapons.init();
 		return true;
@@ -382,7 +385,7 @@ namespace TA3D
 	bool Battle::initUnits()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading units...");
-		loading(300.0f / 7.0f, I18N::Translate("Loading units"));
+		(*loading)(300.0f / 7.0f, I18N::Translate("Loading units"));
 		load_all_units(loading);
 		return true;
 	}
@@ -390,7 +393,7 @@ namespace TA3D
 	bool Battle::initIntermediateCleanup()
 	{
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing unused memory");
-		loading(400.0f / 7.0f, I18N::Translate("Free unused memory"));
+		(*loading)(400.0f / 7.0f, I18N::Translate("Free unused memory"));
 		texture_manager.destroy();
 		return true;
 	}
@@ -398,7 +401,7 @@ namespace TA3D
 	bool Battle::initEngine()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Initializing the engine...");
-		loading(500.0f / 7.0f, I18N::Translate("Initialising engine"));
+		(*loading)(500.0f / 7.0f, I18N::Translate("Initialising engine"));
 		gfx->SetDefState();
 		particle_engine.init();
 		return true;
@@ -459,7 +462,7 @@ namespace TA3D
 	bool Battle::initGUI()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading the GUI...");
-		loading(550.0f / 7.0f, I18N::Translate("Loading GUI"));
+		(*loading)(550.0f / 7.0f, I18N::Translate("Loading GUI"));
 		pArea.load_tdf("gui/game.area");
 
 		try
@@ -487,7 +490,7 @@ namespace TA3D
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
 		{
 			if (!(i & 0xF))
-				loading((550.0f + 50.0f * i / (unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
+				(*loading)((550.0f + 50.0f * i / (unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
 			if (String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
 			{
 				int e(1);
@@ -518,7 +521,7 @@ namespace TA3D
 	bool Battle::initTheMap()
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading the map...");
-		loading(600.0f / 7.0f, I18N::Translate("Loading the map"));
+		(*loading)(600.0f / 7.0f, I18N::Translate("Loading the map"));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 
 		File* map_file = VFS::Instance()->readFile(pGameData->map_filename);
@@ -561,7 +564,7 @@ namespace TA3D
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, "");
 
 		LOG_INFO(LOG_PREFIX_BATTLE << "Computing walkable areas...");
-		loading(650.0f / 7.0f, I18N::Translate("Computing walkable areas"));
+		(*loading)(650.0f / 7.0f, I18N::Translate("Computing walkable areas"));
 		Pathfinder::instance()->computeWalkableAreas();
 
 		return true;

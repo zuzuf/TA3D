@@ -29,29 +29,13 @@ namespace Menus
 {
 
 	Loading::Loading()
-		:pNbTasksCompleted(0.0f), pMaxTasksCompleted(100.0f),
-		pPercent(0.0f), pLastPercent(-1.0f), pBroadcastInformations(true),
-		pCaption("Loading..."),
+		:pLastPercent(-1.0f),
+		pLastCaption(),
 		pBackgroundTexture(0), pCurrentFontHeight(0.0f),
-		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f), pCacheCaptionLength(0.f)
+		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f)
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
 		pStartTime = msec_timer;
-		doNoticeOtherPlayers();
-		loadTheBackgroundTexture();
-		initializeDrawing();
-	}
-
-	Loading::Loading(const float maxTasks)
-		:pNbTasksCompleted(0.0f), pMaxTasksCompleted(maxTasks),
-		pPercent(0.0f), pLastPercent(-1.0f), pBroadcastInformations(true),
-		pCaption("Loading..."),
-		pBackgroundTexture(0), pCurrentFontHeight(0.0f),
-		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f), pCacheCaptionLength(0.f)
-	{
-		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
-		pStartTime = msec_timer;
-		doNoticeOtherPlayers();
 		loadTheBackgroundTexture();
 		initializeDrawing();
 	}
@@ -84,131 +68,53 @@ namespace Menus
 	}
 
 
-	String Loading::caption()
-	{
-		MutexLocker locker(pMutex);
-		return pCaption;
-	}
-
-	void Loading::caption(const String& s)
-	{
-		if (!s.empty())
-		{
-			pMutex.lock();
-			pCaption = s;
-			pCacheCaptionLength = gfx->TA_font->length(pCaption);
-			pMutex.unlock();
-		}
-	}
-
 	void Loading::loadTheBackgroundTexture()
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (!lp_CONFIG->skin_name.empty() && TA3D::Paths::Exists(lp_CONFIG->skin_name))
+		if (!lp_CONFIG->skin_name.empty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
 		{
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 			if (!skin.prefix().empty())
-				pBackgroundTexture = gfx->load_texture_mask("gfx" + Paths::SeparatorAsString + "load.jpg", 7);
+				pBackgroundTexture = gfx->load_texture_mask(String("gfx/") << skin.prefix() << "load.png", 7);
 			else
-				pBackgroundTexture = gfx->load_texture_mask("gfx" + Paths::SeparatorAsString + "load.jpg", 7);
+				pBackgroundTexture = gfx->load_texture_mask("gfx/load.png", 7);
 		}
 		else
-			pBackgroundTexture = gfx->load_texture_mask("gfx" + Paths::SeparatorAsString + "load.jpg", 7);
+			pBackgroundTexture = gfx->load_texture_mask("gfx/load.png", 7);
 	}
 
 
-	void Loading::doNoticeOtherPlayers()
+	void Loading::doNoticeOtherPlayers(const float percent)
 	{
 		// Broadcast informations
-		if (pBroadcastInformations && network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, pPercent))
-			network_manager.sendAll(String("LOADING ") << pPercent);
+		if (network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, percent))
+			network_manager.sendAll(String("LOADING ") << percent);
 	}
 
 
-	void Loading::doProgress(const float progression, const bool relative)
-	{
-		if (relative)
-			pNbTasksCompleted += progression;
-		else
-			pNbTasksCompleted = progression;
-		if (pNbTasksCompleted < 0)
-			pNbTasksCompleted = 0;
-		else
-		{
-			if (pNbTasksCompleted > pMaxTasksCompleted)
-				pNbTasksCompleted = pMaxTasksCompleted;
-		}
-		pPercent = pNbTasksCompleted / pMaxTasksCompleted * 100.0f;
-	}
-
-
-
-	void Loading::progress(const float progression, const bool relative)
-	{
-		pMutex.lock();
-		doProgress(progression, relative);
-		pMutex.unlock();
-	}
-
-	void Loading::progress(const String& info, const float progression, const bool relative)
-	{
-		pMutex.lock();
-		doProgress(progression, relative);
-		if (pCaption != info)
-		{
-			pCaption = info;
-			pMessages.push_front(info + " - " + I18N::Translate("done"));
-		}
-		pMutex.unlock();
-	}
-
-
-	bool Loading::broadcastInfosAboutLoading()
-	{
-		MutexLocker locker(pMutex);
-		return pBroadcastInformations;
-	}
-
-
-	void Loading::broadcastInfosAboutLoading(const bool v)
-	{
-		pMutex.lock();
-		pBroadcastInformations = v;
-		pMutex.unlock();
-	}
-
-	int Loading::maxTasks()
-	{
-		MutexLocker locker(pMutex);
-		return (int)pMaxTasksCompleted;
-	}
-
-	void Loading::maxTasks(const float v)
-	{
-		pMutex.lock();
-		pMaxTasksCompleted = v;
-		pMutex.unlock();
-	}
-
-	float Loading::percent()
-	{
-		MutexLocker locker(pMutex);
-		return pPercent;
-	}
-
-
-	void Loading::draw()
+	void Loading::operator()(const float percent, const String &caption)
 	{
 		LOG_ASSERT(NULL != gfx);
-		MutexLocker locker(pMutex);
 
-		if (Yuni::Math::Equals(pLastPercent, pPercent))
+		if (Yuni::Math::Equals(pLastPercent, percent) && caption == pLastCaption)
 			return;
-		pLastPercent = pPercent;
+
 		// Notice other players about the progression
-		doNoticeOtherPlayers();
+		doNoticeOtherPlayers(percent);
+
+		// Update the message list
+		if (caption != pLastCaption)
+		{
+			if (!pLastCaption.empty())
+				pMessages.front() << " - " << I18N::Translate("done");
+			pMessages.push_front(caption);
+		}
+
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
 		glPushMatrix();
 
@@ -229,8 +135,8 @@ namespace Menus
 		glColor3f(0.5f, 0.8f, 0.3f);
 		glBegin(GL_QUADS);
 		glVertex2f(100.0f * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
-		glVertex2f((100.0f + 10.72f * pPercent) * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
-		glVertex2f((100.0f + 10.72f * pPercent) * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
+		glVertex2f((100.0f + 10.72f * percent) * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
+		glVertex2f((100.0f + 10.72f * percent) * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
 		glVertex2f(100.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
 		glEnd();
 
@@ -239,21 +145,24 @@ namespace Menus
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
 		gfx->drawtexture(pBackgroundTexture, 100.0f * pCacheScreenRatioWidth, 856.0f * pCacheScreenRatioHeight,
 			1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
-			100.0f / 1280.0f, 862.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
+			100.0f / 1280.0f, 856.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
 		glDisable(GL_BLEND);
 
 		// Draw the caption (horizontally centered)
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
-		gfx->print(gfx->TA_font, 640.0f * pCacheScreenRatioWidth - 0.5f * pCacheCaptionLength,
-			830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f, 0.0f, 0xFFFFFFFF,
-			pCaption);
+		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(caption),
+				   830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f,0.0f,0xFFFFFFFF,
+				   caption);
 		glDisable(GL_BLEND);
 
 		glPopMatrix();
 
 		// Flip the screen
 		gfx->flip();
+
+		pLastPercent = percent;
+		pLastCaption = caption;
 	}
 
 

@@ -26,14 +26,13 @@
 #include "weapons.h"
 #include <gfx/fx.h>
 #include <ingame/sidedata.h>
-#include <list>
 #include <languages/i18n.h>
 
 namespace TA3D
 {
 
 
-	void load_weapons(void (*progress)(float percent,const String &msg))				// Charge toutes les armes
+	void load_weapons(ProgressNotifier *progress)				// Charge toutes les armes
 	{
 		String::Vector file_list;
 		VFS::Instance()->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
@@ -44,7 +43,7 @@ namespace TA3D
 		for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 		{
 			if (progress != NULL && !(n & 0xF))
-				progress((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
+				(*progress)((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
 			++n;
 
 			File *file = VFS::Instance()->readFile(*cur_file);

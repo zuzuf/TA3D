@@ -24,7 +24,6 @@
 #include <yuni/core/system/main.h>
 #include "stdafx.h"					// standard pch inheritance.
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
-#include "intro.h"					// intro prototypes,   TODO: phase out.
 #include "engine.h"		       		// The engine class.
 //#include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"

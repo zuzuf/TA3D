@@ -1204,7 +1204,7 @@ namespace TA3D
 		return sel;
 	}
 
-	int load_all_units(void (*progress)(float percent,const String &msg))
+	int load_all_units(ProgressNotifier *progress)
 	{
 		unit_manager.init();
 		int nb_inconnu=0;
@@ -1216,7 +1216,7 @@ namespace TA3D
 		for (String::Vector::iterator i = file_list.begin(); i != file_list.end(); ++i)
 		{
 			if (progress != NULL && !(n & 0xF))
-				progress((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
+				(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
 			++n;
 
 			String nom = String::ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
