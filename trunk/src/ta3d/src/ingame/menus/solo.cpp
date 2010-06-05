@@ -25,6 +25,7 @@
 #include <ingame/battle.h>
 #include <input/mouse.h>
 #include <input/keyboard.h>
+#include "campaignmainmenu.h"
 
 // TODO Must be removed
 #include <menu.h>
@@ -125,7 +126,7 @@ namespace Menus
 	bool Solo::doGoMenuCompaign()
 	{
 		glPushMatrix();
-		campaign_main_menu();
+		CampaignMainMenu::Execute();
 		glPopMatrix();
 		return false;
 	}
