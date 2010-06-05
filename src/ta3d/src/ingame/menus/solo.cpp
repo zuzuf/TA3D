@@ -26,10 +26,7 @@
 #include <input/mouse.h>
 #include <input/keyboard.h>
 #include "campaignmainmenu.h"
-
-// TODO Must be removed
-#include <menu.h>
-
+#include "setupgame.h"
 
 
 
@@ -118,7 +115,7 @@ namespace Menus
 	bool Solo::doGoMenuSkirmish()
 	{
 		glPushMatrix();
-		setup_game();
+		SetupGame::Execute();
 		glPopMatrix();
 		return false;
 	}
