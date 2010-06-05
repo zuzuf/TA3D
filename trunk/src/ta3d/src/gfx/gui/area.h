@@ -247,6 +247,11 @@ namespace Gui
 		*/
 		void popup(const String &Title, const String &Msg);
 
+		/*!
+		** \brief Returns a pointer to current skin
+		*/
+		inline const Skin *getSkin() const	{	return skin;	}
+
 	public:
 		//!
 		bool scrolling;

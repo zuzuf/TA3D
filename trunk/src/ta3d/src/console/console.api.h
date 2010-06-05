@@ -30,6 +30,7 @@ namespace TA3D
 		static int setFps(lua_State *L);
 		static int zshoot(lua_State *L);
 		static int setFarsight(lua_State *L);
+		static int setTooltips(lua_State *L);
 		static int setSoundVolume(lua_State *L);
 		static int setMusicVolume(lua_State *L);
 		static int setRightClickInterface(lua_State *L);

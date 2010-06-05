@@ -117,6 +117,8 @@ namespace TA3D
 
 		float	menuTransparency;			// OTA interface transparency in game
 
+		bool	tooltips;					// Enable build menus tool tips ?
+
 		// Variables used to communicate with all the code
 		bool    quickrestart;                // Should be false, set to true when need to restart to enable options/parameters
 		bool    quickstart;                    // Tell to speed up the starting process
