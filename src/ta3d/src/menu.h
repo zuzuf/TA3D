@@ -40,8 +40,6 @@ void network_room(void);		// Everything you need to host/join a network game
 
 void wait_room(void *p_game_data);			// Wait until everyone has loaded the game
 
-void campaign_main_menu(void);		// The campaign main menu, select the campaign you want to play
-
 Battle::Result brief_screen(String campaign_name, int mission_id);			// The brief screen where you are told about your mission objectives
 
 } // namespace Ta3D
