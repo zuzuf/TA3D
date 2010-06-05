@@ -26,7 +26,7 @@
 #include <sounds/manager.h>
 #include <cache.h>
 #include <ingame/sidedata.h>
-#include <menu.h>
+#include "setupgame.h"
 
 namespace TA3D
 {
@@ -643,7 +643,7 @@ namespace Menus
 		String cfgPlayerName = lp_CONFIG->player_name;
 		lp_CONFIG->player_name = NetClient::instance()->getLogin();
 
-		setup_game(false, host, String(), true);
+		SetupGame::Execute(false, host, String(), true);
 
 		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNSERVER");
@@ -656,7 +656,7 @@ namespace Menus
 		String cfgPlayerName = lp_CONFIG->player_name;
 		lp_CONFIG->player_name = NetClient::instance()->getLogin();
 
-		setup_game(true, host, String(), true);
+		SetupGame::Execute(true, host, String(), true);
 
 		lp_CONFIG->player_name = cfgPlayerName;
 		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");

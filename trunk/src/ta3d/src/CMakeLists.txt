@@ -256,7 +256,8 @@ SET(SRC_INGAME_MENUS
 		ingame/menus/briefscreen.h ingame/menus/briefscreen.cpp
 		ingame/menus/waitroom.h ingame/menus/waitroom.cpp
 		ingame/menus/networkroom.h ingame/menus/networkroom.cpp
-		ingame/menus/config.h ingame/menus/config.cpp)
+		ingame/menus/config.h ingame/menus/config.cpp
+		ingame/menus/setupgame.h ingame/menus/setupgame.cpp)
 
 
 
@@ -284,7 +285,6 @@ SET(TA3D_SOURCES
 		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
 		install.cpp
 		restore.cpp restore.h
-		menu.cpp menu.h
 		fbi.cpp fbi.h
 		intro.cpp intro.h
 		tdf.cpp tdf.h tnt.cpp tnt.h

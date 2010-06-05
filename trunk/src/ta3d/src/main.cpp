@@ -25,7 +25,6 @@
 #include "stdafx.h"					// standard pch inheritance.
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "intro.h"					// intro prototypes,   TODO: phase out.
-#include "menu.h"					// menu prototypes      TODO: phase out.
 #include "engine.h"		       		// The engine class.
 //#include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"
@@ -43,6 +42,7 @@
 #include "misc/application.h"
 #include "sounds/manager.h"
 #include "cache.h"
+#include "ingame/menus/setupgame.h"
 
 
 
@@ -86,16 +86,16 @@ namespace TA3D
 			if (parser.pullAsBool("TA3D.Server")) // Server code
 			{
 				const String& host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
-				setup_game(false, host_name);		// Start the game in networking mode as server
+				Menus::SetupGame::Execute(false, host_name);		// Start the game in networking mode as server
 			}
 			else // Client code
 			{
 				const String& host_name = parser.pullAsString("TA3D.Server name");
-				setup_game(true, host_name);		// Start the game in networking mode as server
+				Menus::SetupGame::Execute(true, host_name);		// Start the game in networking mode as server
 			}
 		}
 		else if (parser.pullAsBool("TA3D.Local game"))
-			setup_game(false, String(), String(), false, parser.pullAsBool("TA3D.Instant start"));		// Start the game in local mode
+			Menus::SetupGame::Execute(false, String(), String(), false, parser.pullAsBool("TA3D.Instant start"));		// Start the game in local mode
 
 		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
 

@@ -22,9 +22,10 @@
 #include <languages/i18n.h>
 #include <misc/paths.h>
 #include <restore.h>
+#include "setupgame.h"
+#include <TA3D_NameSpace.h>
 
-//! \todo remove all menu.h include
-#include <menu.h>
+using namespace TA3D::VARS;
 
 #define SERVER_LIST_REFRESH_DELAY   5000
 
@@ -76,7 +77,7 @@ namespace Menus
 
 		if (!join_host.empty()) // Join a game
 		{
-			setup_game( true, join_host);
+			SetupGame::Execute(true, join_host);
 			gfx->set_2D_mode();
 			gfx->ReInitTexSys();
 		}
@@ -270,7 +271,7 @@ namespace Menus
 					clear_keybuf();
 					network_manager.Disconnect();
 
-					setup_game(false, host, game_data.saved_file);   // Host a game
+					SetupGame::Execute(false, host, game_data.saved_file);   // Host a game
 					return true;
 				}
 			}
@@ -287,7 +288,7 @@ namespace Menus
 			network_manager.Disconnect();
 			String host = pArea->caption( "hosting.t_hostname");
 
-			setup_game(false, host);   // Host a game
+			SetupGame::Execute(false, host);   // Host a game
 			return true;
 		}
 
