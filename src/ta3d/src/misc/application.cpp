@@ -39,7 +39,9 @@ namespace TA3D
 
 		// SDL_Quit(); // Should not be needed since SDL_Quit is installed as an atexit() routine
 
-		delete TA3D::VARS::lp_CONFIG;
+		if (TA3D::VARS::lp_CONFIG)
+			delete TA3D::VARS::lp_CONFIG;
+		TA3D::VARS::lp_CONFIG = NULL;
 
 		I18N::Destroy();
 		logs.info() << "Exiting now.";
