@@ -46,7 +46,7 @@
 
 namespace TA3D
 {
-	typedef struct TA3DCONFIG
+	struct TA3DCONFIG
 	{
 		typedef TA3DCONFIG*	Ptr;
 
