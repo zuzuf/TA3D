@@ -20,7 +20,6 @@
 #include <TA3D_NameSpace.h>
 #include <misc/matrix.h>
 
-#include <menu.h>			// Game menus
 #include <restore.h>		// Save/Load mecanisms
 #include <network/TA3D_Network.h>	// Network functionnalities such as chat
 #include <gfx/fx.h>
@@ -1043,7 +1042,7 @@ namespace TA3D
 								}
 							}
 							if (pointing >= 0 && Yuni::Math::Zero(units.unit[pointing].build_percent_left))	// On ne sélectionne pas les unités en construction
-								units.unit[pointing].sel ^= true; // Sélectionne/Désélectionne si l'unité est déjà sélectionnée en appuyant sur SHIFT
+								units.unit[pointing].sel ^= true; // Sélectionne/Désélectionne si l'unité est déj�  sélectionnée en appuyant sur SHIFT
 							selected = false;
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
@@ -1204,7 +1203,7 @@ namespace TA3D
 				}
 			}
 			else
-				if (TA3D_CTRL_PRESSED && key[KEY_Z]) // Séletionne toutes les unités dont le type est déjà sélectionné / Select units of the same type
+				if (TA3D_CTRL_PRESSED && key[KEY_Z]) // Séletionne toutes les unités dont le type est déj�  sélectionné / Select units of the same type
 				{
 					bool *sel_type = new bool[unit_manager.nb_unit];
 					for (int i = 0; i < unit_manager.nb_unit; ++i)
@@ -1559,9 +1558,9 @@ namespace TA3D
 
 			/*WND *current_wnd =*/ //pArea.get_wnd(pCurrentGUI);
 			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) << "gen")
-				sel = unit_manager.unit_build_menu(n,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
+				sel = unit_manager.unit_build_menu(n,omb2,dt,scrolling,false);	// Menu correspondant �  l'unité / Unit's menu
 			else
-				sel = unit_manager.unit_build_menu(-1,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
+				sel = unit_manager.unit_build_menu(-1,omb2,dt,scrolling,false);	// Menu correspondant �  l'unité / Unit's menu
 			if (sel == -2) // Crée des armes / build weapons
 			{
 				if (mouse_b == 1 && omb2 != 1)
