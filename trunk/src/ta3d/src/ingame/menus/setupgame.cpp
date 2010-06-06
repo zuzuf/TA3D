@@ -522,7 +522,10 @@ namespace Menus
 	bool SetupGame::maySwitchToAnotherMenu()
 	{
 		if (instantStart)
+		{
+			LOG_DEBUG("[menu::setupgame] " << "instand start");
 			return true;
+		}
 
 		if (host.notEmpty() && !network_manager.isConnected()) // We're disconnected !!
 		{
@@ -793,7 +796,6 @@ namespace Menus
 			( ( ( pArea->get_state( "gamesetup.minimap" ) || pArea->get_state("gamesetup.change_map")) && !client)
 			  || ( client && !set_map.empty() ) ) && !saved_game) // Clic on the mini-map or received map set command
 		{
-			String map_filename;
 			String new_map;
 			if (!client)
 			{
@@ -823,7 +825,7 @@ namespace Menus
 
 			gfx->SCREEN_W_TO_640 = 1.0f;                // To have mouse sensibility undependent from the resolution
 			gfx->SCREEN_H_TO_480 = 1.0f;
-			cursor_type=CURSOR_DEFAULT;
+			cursor_type = CURSOR_DEFAULT;
 			gfx->set_2D_mode();
 
 			if (!new_map.empty() && (set_map.empty() || (client && VFS::Instance()->fileExists( Paths::Files::ReplaceExtension(new_map, ".tnt"))
@@ -1404,6 +1406,7 @@ namespace Menus
 		}
 
 		//-------------------------------------------------------------- End of Network Code --------------------------------------------------------------
+		return false;
 	}
 }
 }

@@ -132,9 +132,6 @@ namespace TA3D
 			LOG_ERROR(LOG_PREFIX_GAMEDATA << "player data missing");
 			return;
 		}
-		for(int i = 0 ; i < args.size() ; ++i)
-			LOG_DEBUG(LOG_PREFIX_GAMEDATA << "args[" << i << "] = '" << args[i] << "'");
-		LOG_DEBUG(LOG_PREFIX_GAMEDATA << nb_players << " players");
 		for(int i = 0 ; i < nb_players ; ++i)
 		{
 			player_names[i] = args[6 + i * 7];
@@ -144,8 +141,6 @@ namespace TA3D
 			energy[i] = args[10 + i * 7].to<int>();
 			metal[i] = args[11 + i * 7].to<int>();
 			team[i] = args[12 + i * 7].to<int>();
-			LOG_DEBUG(LOG_PREFIX_GAMEDATA << "player_names[" << i << "] = " << player_names[i]);
-			LOG_DEBUG(LOG_PREFIX_GAMEDATA << "player_sides[" << i << "] = " << player_sides[i]);
 		}
 	}
 } // namespace TA3D
