@@ -1,0 +1,9 @@
+[area]
+{
+	name=network game area;
+	skin=gui/matty.skn;
+	windows=gui/matt_networkgame.tdf, gui/matt_hosting.tdf, gui/matt_joinip.tdf, gui/matt_load_menu.tdf;
+	background=gfx/matt_networkgame.jpg;
+	width=1280;
+	height=1024;
+}

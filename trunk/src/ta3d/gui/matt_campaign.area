@@ -1,0 +1,9 @@
+[area]
+{
+	name=campaign;
+	skin=gui/matty.skn;
+	windows=gui/matt_campaign.tdf;
+	background=gfx/matt_campaign.jpg;
+	width=1280;
+	height=1024;
+}

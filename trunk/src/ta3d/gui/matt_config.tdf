@@ -1,0 +1,93 @@
+[window]
+{
+	title=Options;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=6;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=1038;
+		y1=960;
+		x2=1190;
+		y2=998;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=839;
+		y1=960;
+		x2=990;
+		y2=998;
+		size=2;
+	}
+	[object2]		// Display
+	{
+		name=b_display;
+		type=BUTTON;
+		caption=Display;
+		x1=152;
+		y1=152;
+		x2=302;
+		y2=191;
+		size=2;
+		on click=matt_config_display.show, matt_config_audio.hide, matt_config_game.hide, matt_config_advanced.hide;
+		help=click on this button\nto show display\noptions;
+	}
+	[object3]		// Audio
+	{
+		name=b_audio;
+		type=BUTTON;
+		caption=Audio;
+		x1=152;
+		y1=224;
+		x2=302;
+		y2=263;
+		size=2;
+		on click=matt_config_display.hide, matt_config_audio.show, matt_config_game.hide, matt_config_advanced.hide;
+		help=click on this button\nto show audio\noptions;
+	}
+	[object4]		// Game
+	{
+		name=b_game;
+		type=BUTTON;
+		caption=Game;
+		x1=152;
+		y1=294;
+		x2=302;
+		y2=333;
+		size=2;
+		on click=matt_config_display.hide, matt_config_audio.hide, matt_config_game.show, matt_config_advanced.hide;
+		help=click on this button\nto show game\noptions;
+	}
+	[object5]		// Advanced
+	{
+		name=b_advanced;
+		type=BUTTON;
+		caption=Advanced;
+		x1=152;
+		y1=364;
+		x2=302;
+		y2=403;
+		size=2;
+		on click=matt_config_display.hide, matt_config_audio.hide, matt_config_game.hide, matt_config_advanced.show;
+		help=click on this button\nto show advanced\noptions;
+	}
+}

@@ -1,0 +1,9 @@
+[area]
+{
+	name=brief;
+	skin=gui/matty.skn;
+	windows=gui/matt_brief.tdf;
+	background=gfx/matt_brief.jpg;
+	width=1280;
+	height=1024;
+}

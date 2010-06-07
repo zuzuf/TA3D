@@ -1,0 +1,8 @@
+[area]
+{
+    name=game area;
+    skin=gui/matty.skn;
+    windows=gui/matt_esc_menu.tdf, gui/matt_gamestatus.tdf, gui/matt_playerstats.tdf, gui/matt_save_menu.tdf, gui/chat.tdf, gui/help.tdf, gui/unit_info.tdf;
+    width=1280;
+    height=1024;
+}

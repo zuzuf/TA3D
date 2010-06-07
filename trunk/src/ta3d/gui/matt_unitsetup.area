@@ -1,0 +1,9 @@
+[area]
+{
+	name=unit setup area;
+	skin=gui/matty.skn;
+	windows=gui/matt_unitsetup.tdf;
+	background=gfx/matt_unitsetup.jpg;
+	width=1280;
+	height=1024;
+}
