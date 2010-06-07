@@ -1,0 +1,9 @@
+[area]
+{
+	name=config area;
+	skin=gui/matty.skn;
+	windows=gui/matt_config.tdf,gui/matt_config_display.tdf,gui/matt_config_audio.tdf,gui/matt_config_game.tdf,gui/matt_config_advanced.tdf,gui/matt_config_confirm.tdf;
+	background=gfx/matt_options.jpg;
+	width=1280;
+	height=1024;
+}

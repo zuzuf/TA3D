@@ -1,0 +1,9 @@
+[area]
+{
+	name=netmenu area;
+	skin=gui/matty.skn;
+	windows=gui/matt_netmenu.tdf, gui/matt_ask_dialog.tdf, gui/matt_popup_dialog.tdf, gui/matt_mods.tdf, gui/matt_netgames.tdf, gui/matt_hosting.tdf;
+	background=gfx/matt_netmenu.jpg;
+	width=1280;
+	height=1024;
+}

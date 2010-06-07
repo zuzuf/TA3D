@@ -1,0 +1,9 @@
+[area]
+{
+	name=main area;
+	skin=gui/matty.skn;
+	windows=gui/matt_main.tdf;
+	background=gfx/matt_main.jpg;
+	width=1280;
+	height=1024;
+}
