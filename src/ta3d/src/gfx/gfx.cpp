@@ -1677,8 +1677,7 @@ namespace TA3D
 		glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, src->w, src->h, GL_RGBA, GL_UNSIGNED_BYTE, src->pixels );
 	}
 
-	// FIXME: ugly thing, we shouldn't need an extra temporary file, image should be loaded directly from memory
-	SDL_Surface *GFX::load_image(const String filename)
+	SDL_Surface *GFX::load_image(const String &filename)
 	{
 		File *vfile = VFS::Instance()->readFile(filename);
 		if (vfile)
@@ -1695,7 +1694,7 @@ namespace TA3D
 
             if (img)
             {
-                if (img->format->BitsPerPixel == 32)
+				if (img->format->Amask)
                     img = convert_format(img);
                 else
                     img = convert_format_24(img);
@@ -1745,7 +1744,7 @@ namespace TA3D
 
 		String ext = Paths::ExtractFileExt(file);
 		ext.toLower();
-		bool with_alpha = (ext == ".tga" || ext == ".png");
+		bool with_alpha = (ext == ".tga" || ext == ".png" || ext == ".tif");
 		if (with_alpha)
 		{
 			with_alpha = false;

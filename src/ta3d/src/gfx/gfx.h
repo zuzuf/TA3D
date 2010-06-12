@@ -258,7 +258,7 @@ namespace TA3D
 		void delete_shadow_map();
 		void readShadowMapProjectionMatrix();
 
-		SDL_Surface *load_image(const String filename);
+		SDL_Surface *load_image(const String &filename);
 
 		void set_alpha_blending();
 		void unset_alpha_blending();
