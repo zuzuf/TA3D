@@ -70,7 +70,7 @@ namespace Gui
 
 	void SKIN_OBJECT::load(TDFParser& parser, const String& prefix, float borderSize)
 	{
-		String filename = parser.pullAsString(prefix + "image");
+		const String filename = parser.pullAsString(prefix + "image");
 		if (VFS::Instance()->fileExists(filename))
 		{
 			tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);

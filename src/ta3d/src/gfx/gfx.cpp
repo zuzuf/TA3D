@@ -557,6 +557,9 @@ namespace TA3D
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
 		defaultRGBTextureFormat(GL_RGB8), defaultRGBATextureFormat(GL_RGBA8)
 	{
+		textureIDs.set_deleted_key(String());
+		textureLoad.set_deleted_key(0);
+		textureFile.set_deleted_key(0);
 		// Initialize the GFX Engine
 		if (lp_CONFIG->first_start)
 		{
@@ -1712,6 +1715,21 @@ namespace TA3D
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
 
+		const String upfile = String::ToUpper(file) << " (" << texFormat;
+		HashMap<Interfaces::GfxTexture>::Sparse::iterator it = textureIDs.find(upfile);
+		if (it != textureIDs.end() && it->second.tex > 0)		// File already loaded
+		{
+			if (textureLoad[it->second.tex] > 0)
+			{
+				++textureLoad[it->second.tex];
+				if (width)
+					*width = it->second.width;
+				if (height)
+					*height = it->second.height;
+				return it->second.tex;
+			}
+		}
+
 		SDL_Surface* bmp = load_image(file);
 		if (bmp == NULL)
 		{
@@ -1749,6 +1767,12 @@ namespace TA3D
 		else
 			set_texture_format(texFormat);
 		GLuint gl_tex = make_texture(bmp, filter_type, clamp);
+		if (gl_tex)
+		{
+			textureIDs[upfile] = Interfaces::GfxTexture(gl_tex, bmp->w, bmp->h);
+			textureFile[gl_tex] = upfile;
+			textureLoad[gl_tex] = 1;
+		}
 		SDL_FreeSurface(bmp);
 		return gl_tex;
 	}
@@ -2039,7 +2063,29 @@ namespace TA3D
 	void GFX::destroy_texture(GLuint& gltex)
 	{
 		if (gltex)						// Test if the texture exists
-			glDeleteTextures(1,&gltex);
+		{
+			// Look for it in the texture table
+			HashMap<int, GLuint>::Sparse::iterator it = textureLoad.find(gltex);
+			if (it != textureLoad.end())
+			{
+				--(it->second);			// Update load info
+				if (it->second > 0)		// Still used elsewhere, so don't delete it
+				{
+					gltex = 0;
+					return;
+				}
+				textureLoad.erase(it);
+
+				HashMap<String, GLuint>::Sparse::iterator file_it = textureFile.find(gltex);
+				if (file_it != textureFile.end())
+				{
+					if (!file_it->second.empty())
+						textureIDs.erase(file_it->second);
+					textureFile.erase(file_it);
+				}
+			}
+			glDeleteTextures(1, &gltex);		// Delete the OpenGL object
+		}
 		gltex = 0;						// The texture is destroyed
 	}
 
@@ -2133,7 +2179,7 @@ namespace TA3D
 	}
 
 
-	uint32 GFX::InterfaceMsg(const uint32 MsgID, const String &msg)
+	uint32 GFX::InterfaceMsg(const uint32 MsgID, const String &)
 	{
 		if (MsgID != TA3D_IM_GFX_MSG)
 			return INTERFACE_RESULT_CONTINUE;
@@ -2316,11 +2362,10 @@ namespace TA3D
 		if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
 			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
-		GFX *test_gfx = new GFX();
-		gfx = test_gfx;
+		gfx = new GFX();
 
-		test_gfx->set_2D_mode();
-		test_gfx->loadFonts();
+		gfx->set_2D_mode();
+		gfx->loadFonts();
 
 		byte        filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
 		const char  *filterInfo[]   = { "FILTER_NONE", "FILTER_LINEAR", "FILTER_BILINEAR", "FILTER_TRILINEAR" };
@@ -2342,25 +2387,25 @@ namespace TA3D
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 				for (int i = 0 ; i < 11 ; i++)
 				{
-					float dx = float((i >> 2) * test_gfx->width) / 3.0f;
-					float dy = float((i & 3) * test_gfx->height) * 0.25f;
-					test_gfx->drawtexture( tex[i], dx, dy, dx + float(test_gfx->width) / 3.0f, dy + 0.25f * float(test_gfx->height) );
+					float dx = float((i >> 2) * gfx->width) / 3.0f;
+					float dy = float((i & 3) * gfx->height) * 0.25f;
+					gfx->drawtexture( tex[i], dx, dy, dx + float(gfx->width) / 3.0f, dy + 0.25f * float(gfx->height) );
 					glDisable( GL_TEXTURE_2D );
-					test_gfx->rect( dx, dy, dx + float(test_gfx->width) / 3.0f, dy + 0.25f * float(test_gfx->height), 0xFFFFFFFF );
-					test_gfx->print( test_gfx->normal_font, dx + 10.0f, dy + 10.0f, 0.0f, 0xFFFFFFFF, info[i] );
-					test_gfx->print( test_gfx->normal_font, dx + 10.0f, dy + 20.0f, 0.0f, 0xFFFFFFFF, filterInfo[e] );
+					gfx->rect( dx, dy, dx + float(gfx->width) / 3.0f, dy + 0.25f * float(gfx->height), 0xFFFFFFFF );
+					gfx->print( gfx->normal_font, dx + 10.0f, dy + 10.0f, 0.0f, 0xFFFFFFFF, info[i] );
+					gfx->print( gfx->normal_font, dx + 10.0f, dy + 20.0f, 0.0f, 0xFFFFFFFF, filterInfo[e] );
 				}
 
-				test_gfx->flip();
+				gfx->flip();
 			}
 
 			for (int i = 0 ; i < 11 ; i++)
-				test_gfx->destroy_texture( tex[i] );
+				gfx->destroy_texture( tex[i] );
 
 			while (keypressed())    readkey();
 		}
 
-		gfx = NULL;
+		delete gfx;
 
 		InterfaceManager = NULL;
 	}

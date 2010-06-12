@@ -17,7 +17,7 @@
 #ifndef __TA3D_GfxTexture_H__
 # define __TA3D_GfxTexture_H__
 
-# include "gfx.h"
+# include <sdl.h>
 
 
 
@@ -32,6 +32,7 @@ namespace Interfaces
 	public:
 		GfxTexture();
 		GfxTexture(const GLuint gltex);
+		GfxTexture(const GLuint gltex, const uint32 w, const uint32 h);
 
 	public:
 		uint32		width;

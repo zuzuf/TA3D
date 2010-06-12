@@ -677,7 +677,7 @@ namespace TA3D
 		DELETE_ARRAY(low_tcoord);
 		DELETE_ARRAY(low_col);
 		DELETE_ARRAY(low_index);
-		if (low_tex)			glDeleteTextures(1,&low_tex);
+		gfx->destroy_texture(low_tex);
 
 		ota_data.destroy();
 		gfx->destroy_texture( lava_map );

@@ -62,6 +62,14 @@ namespace Interfaces
 		set( gltex );
 	}
 
+	GfxTexture::GfxTexture(GLuint gltex, uint32 w, uint32 h)
+	{
+		destroy_tex = false;
+		set( gltex );
+		width = w;
+		height = h;
+	}
+
 	void GfxTexture::set(const GLuint gltex)
 	{
 		tex = gltex;

@@ -18,6 +18,7 @@
 # define __TA3D_GFX_GUI_BASE_H__
 
 # include <gfx/texture.h>
+# include <gfx/font.h>
 
 
 //! \name Standard colors
