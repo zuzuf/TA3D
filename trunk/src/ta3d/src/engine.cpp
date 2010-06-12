@@ -64,7 +64,9 @@ namespace TA3D
 		// How many CPU we've got ?
 		LOG_INFO("CPU: " << Yuni::System::CPU::Count());
 
-		VARS::gfx = NULL;
+		if (gfx)
+			delete gfx;
+		gfx = NULL;
 
 		LOG_INFO(TA3D_ENGINE_VERSION << " initializing started:");
 		LOG_INFO("Build info : " << __DATE__ << " , " << __TIME__);
@@ -104,7 +106,7 @@ namespace TA3D
 
 		// Creating GFX Interface
 		// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
-		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and message may not be shown ...
+		gfx = new GFX();		// TA3D's main window might lose focus and message may not be shown ...
 		pGFXModeActive = true;
 
 
@@ -123,6 +125,8 @@ namespace TA3D
 		ta3dSideData.destroy();
 
 		sound_manager = NULL;
+		if (gfx)
+			delete gfx;
 		gfx = NULL;
 		pGFXModeActive = false;
 		InterfaceManager = NULL;

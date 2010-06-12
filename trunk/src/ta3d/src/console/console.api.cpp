@@ -425,11 +425,11 @@ namespace TA3D
 			return 0;
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			int value = lua_tointeger(L, 1);
+			const int value = lua_tointeger(L, 1);
 			units.lock();
 			for (unsigned int e = 0; e < units.index_list_size; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
 					units.unit[i].hp += value;
@@ -454,7 +454,7 @@ namespace TA3D
 			units.lock();
 			for (unsigned int e = 0; e < units.index_list_size; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 					units.unit[i].deactivate();
 			}
@@ -470,7 +470,7 @@ namespace TA3D
 			units.lock();
 			for (unsigned int e = 0; e < units.index_list_size; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 					units.unit[i].activate();
 			}
@@ -497,7 +497,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::dumpUnitInfo(lua_State *L)
+	int CAPI::dumpUnitInfo(lua_State *)
 	{
 		if (Battle::Instance()->selected && Battle::Instance()->cur_sel != -1)	// Sur les unités sélectionnées
 		{
@@ -512,7 +512,7 @@ namespace TA3D
 			units.lock();
 			for (unsigned int e = 0; e < units.index_list_size; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
 					Console::Instance()->addEntry(String("flags=") << int(units.unit[i].flags));
@@ -528,14 +528,14 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::kill(lua_State *L)
+	int CAPI::kill(lua_State *)
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
 			units.lock();
 			for (unsigned int e = 0; e < units.index_list_size; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				units.unlock();
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
@@ -639,7 +639,7 @@ namespace TA3D
 	// ---------------    Debug commands    ---------------
 	int CAPI::_debugSetContext(lua_State *L)			// Switch debug context
 	{
-		String context = lua_gettop(L) > 0 ? lua_tostring(L, 1) : String();
+		const String context = lua_gettop(L) > 0 ? lua_tostring(L, 1) : String();
 		if (context == "mission")
 			Battle::Instance()->debugInfo.process = &(Battle::Instance()->game_script);
 		else if (context == "AI")
@@ -735,7 +735,7 @@ namespace TA3D
 		if (lua_gettop(L) == 0)
 			return 0;
 
-		String code = lua_tostring(L, 1);
+		const String code = lua_tostring(L, 1);
 		LOG_INFO(LOG_PREFIX_LUA << "running : '" << code << "'");
 		if (!Battle::Instance()->debugInfo.process->runCommand(code))
 		{

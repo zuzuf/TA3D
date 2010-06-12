@@ -34,6 +34,7 @@
 # include "shader.h"
 # include <threads/thread.h>
 # include <misc/interface.h>
+# include <misc/hash_table.h>
 
 
 # define FILTER_NONE			0x0
@@ -55,7 +56,7 @@ namespace TA3D
 	class GFX : public ObjectSync, protected IInterface
 	{
 	public:
-		typedef SmartPtr<GFX>	Ptr;
+		typedef GFX*	Ptr;
 	public:
 		//! \name 2D/3D Mode
 		//@{
@@ -367,6 +368,12 @@ namespace TA3D
 		bool        shadowMapMode;
 		GLuint		defaultRGBTextureFormat;
 		GLuint		defaultRGBATextureFormat;
+		//! Store all texture IDs
+		UTILS::HashMap<Interfaces::GfxTexture>::Sparse	textureIDs;
+		//! And for each texture ID, how many times it is used
+		UTILS::HashMap<int, GLuint>::Sparse				textureLoad;
+		//! And for each texture ID the file which contains the original texture
+		UTILS::HashMap<String, GLuint>::Sparse			textureFile;
 	}; // class GFX
 
 
