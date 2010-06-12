@@ -190,6 +190,7 @@ end
 __this.Create = function(this)
 	this.gun_1 = 0
     this.bAiming = false
+    this.restoreCount = 0
 	this:start_script(this.StopMoving, this)
 	this:start_script(this.SmokeUnit, this)
 end
@@ -212,8 +213,10 @@ __this.QueryPrimary = function(this)
 end
 
 __this.RestoreAfterDelay = function(this)
-	this:sleep(5.0)
-    if this.bAiming then
+    this.restoreCount = this.restoreCount + 1
+    local ncall = this.restoreCount
+    this:sleep(5.0)
+    if ncall ~= this.restoreCount or this.bAiming then
         return
     end
 	this:turn(torso, y_axis, 0.0, 90.021978)
