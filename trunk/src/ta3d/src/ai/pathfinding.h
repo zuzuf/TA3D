@@ -52,6 +52,8 @@ namespace TA3D
 				Node(int x, int z) : _x(x), _z(z)	{}
 				int &x() {	return _x;	}
 				int &z() {	return _z;	}
+				const int &x() const {	return _x;	}
+				const int &z() const {	return _z;	}
 			private:
 				int _x, _z;
 			};
@@ -61,11 +63,13 @@ namespace TA3D
 			~Path()	{}
 
 			void next();
-			bool empty()	{	return nodes.empty();	}
+			bool empty() const	{	return nodes.empty();	}
 			void clear();
 			bool ready() const	{	return _ready;	}
 			Node &front()	{	return nodes.front();	}
 			Node &back()	{	return nodes.back();	}
+			const Node &front() const	{	return nodes.front();	}
+			const Node &back() const	{	return nodes.back();	}
 			void push_back(const Node &n) {	nodes.push_back(n);	}
 			void push_front(const Node &n) {	nodes.push_front(n);	}
 			int length() const	{	return int(nodes.size());	}

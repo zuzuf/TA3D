@@ -667,7 +667,7 @@ namespace TA3D
 
 		if (command_locked && !( mission_type & MISSION_FLAG_AUTO))
 			return;
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
         mission_type &= ~MISSION_FLAG_AUTO;
 
 		uint32 target_ID = 0;
@@ -1666,7 +1666,7 @@ namespace TA3D
 		if (!local)
 			return;
 
-		UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
 		//----------------------------------- Beginning of moving code ------------------------------------
 
 		if (pType->canmove && pType->BMcode && (!pType->canfly || (mission->getFlags() & MISSION_FLAG_MOVE)))
@@ -1687,71 +1687,78 @@ namespace TA3D
 					was_moving = false;
 					requesting_pathfinder = false;
 				}
-				if (!mission->Path().empty()
-					&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
-						 || (last_path_refresh < 5.0f
-							 && !pType->canfly
-							 && (mission->getFlags() & MISSION_FLAG_REFRESH_PATH)) ) )
-					Target = mission->Path().Pos();
+				if (mission.mission() == MISSION_STOP)		// Special mission type : MISSION_STOP
+				{
+					stopMoving();
+					return;
+				}
 				else
-				{// Look for a path to the target
-					if (!mission->Path().empty())	// If we want to refresh the path
-					{
-						Target = mission->getTarget().getPos();
-						mission->Path().clear();
-					}
-					float dist = (Target - Pos).sq();
-					if ( (mission->getMoveData() <= 0 && dist > 100.0f)
-						|| ((SQUARE(mission->getMoveData()) << 6) < dist))
-					{
-						if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
-							|| pType->canfly)
+				{
+					if (!mission->Path().empty()
+						&& ( !(mission->getFlags() & MISSION_FLAG_REFRESH_PATH)
+							 || (last_path_refresh < 5.0f
+								 && !pType->canfly
+								 && (mission->getFlags() & MISSION_FLAG_REFRESH_PATH)) ) )
+						Target = mission->Path().Pos();
+					else
+					{// Look for a path to the target
+						if (!mission->Path().empty())	// If we want to refresh the path
 						{
-							mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
-
-							move_target_computed = mission->getTarget().getPos();
-							last_path_refresh = 0.0f;
-							if (pType->canfly)
+							Target = mission->getTarget().getPos();
+							mission->Path().clear();
+						}
+						const float dist = (Target - Pos).sq();
+						if ( (mission->getMoveData() <= 0 && dist > 100.0f)
+							|| ((SQUARE(mission->getMoveData()) << 6) < dist))
+						{
+							if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
+								|| pType->canfly)
 							{
-								requesting_pathfinder = false;
-								if (mission->getMoveData() <= 0)
-									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
+								mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
+
+								move_target_computed = mission->getTarget().getPos();
+								last_path_refresh = 0.0f;
+								if (pType->canfly)
+								{
+									requesting_pathfinder = false;
+									if (mission->getMoveData() <= 0)
+										mission->Path() = Pathfinder::directPath(mission->getTarget().getPos());
+									else
+									{
+										Vector3D Dir = mission->getTarget().getPos() - Pos;
+										Dir.unit();
+										mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
+									}
+								}
 								else
 								{
-									Vector3D Dir = mission->getTarget().getPos() - Pos;
-									Dir.unit();
-									mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
-								}
-							}
-							else
-							{
-								requesting_pathfinder = true;
-								Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
+									requesting_pathfinder = true;
+									Pathfinder::instance()->addTask(idx, mission->getMoveData(), Pos, mission->getTarget().getPos());
 
-								if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once loaded with units the Atlas cannot land
-									stopMovingAnimation();
-								was_moving = false;
-								V.reset();
-								V_Angle.reset();
+									if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once loaded with units the Atlas cannot land
+										stopMovingAnimation();
+									was_moving = false;
+									V.reset();
+									V_Angle.reset();
+								}
+								if (!mission->Path().empty())// Update required data
+									Target = mission->Path().Pos();
 							}
-							if (!mission->Path().empty())// Update required data
-								Target = mission->Path().Pos();
+						}
+						else
+						{
+							stopMoving();
+							return;
 						}
 					}
-					else
-					{
-						stopMoving();
-						return;
-					}
 				}
-
 				if (!mission->Path().empty()) // If we have a path, follow it
 				{
 					if ((mission->getTarget().getPos() - move_target_computed).sq() >= 10000.0f)			// Follow the target above all...
 						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 					J = Target - Pos;
 					J.y = 0.0f;
-					float dist = J.sq();
+					const float dist = J.sq();
 					if (dist > mission->getLastD() && (dist < 256.0f || (dist < 225.0f && mission->Path().length() <= 1)))
 					{
 						mission->Path().next();
@@ -1804,7 +1811,7 @@ namespace TA3D
 			}
 			else
 			{
-				float energy = getLocalMapEnergy(cur_px, cur_py);
+				const float energy = getLocalMapEnergy(cur_px, cur_py);
 				if (selfmove || ((mission->getFlags() & MISSION_FLAG_MOVE) && !mission->Path().empty()))
 				{
 					J = Target;
@@ -1840,7 +1847,7 @@ namespace TA3D
 					startMovingAnimation();
 					was_moving = true;
 				}
-				float dist = (mission->getFlags() & MISSION_FLAG_MOVE) ? (Target - Pos).norm() : 999999.9f;
+				const float dist = (mission->getFlags() & MISSION_FLAG_MOVE) ? (Target - Pos).norm() : 999999.9f;
 				if (dist > 0.0f && pType->canfly)
 					J = 1.0f / dist * J;
 
@@ -1862,10 +1869,10 @@ namespace TA3D
 				Vector3D D(Target.z - Pos.z, 0.0f, Pos.x - Target.x);
 				D.unit();
 				float speed = sqrtf(V.x * V.x + V.z * V.z);
-				float vsin = fabsf(D % V);
-				float deltaX = 8.0f * vsin / (pType->TurnRate * DEG2RAD);
-				float time_to_stop = speed / pType->BrakeRate;
-				float min_dist = time_to_stop * (speed - pType->BrakeRate * 0.5f * time_to_stop);
+				const float vsin = fabsf(D % V);
+				const float deltaX = 8.0f * vsin / (pType->TurnRate * DEG2RAD);
+				const float time_to_stop = speed / pType->BrakeRate;
+				const float min_dist = time_to_stop * (speed - pType->BrakeRate * 0.5f * time_to_stop);
 				if ((deltaX > dist && vsin * dist > speed * 16.0f)
 					|| (min_dist >= dist
 //					&& mission->Path().length() == 1
