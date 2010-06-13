@@ -27,7 +27,14 @@
 # include <misc/string.h>
 # include <threads/mutex.h>
 # include <gfx/gfx.h>
+#ifndef __LUA_INCLUDES__
+#define __LUA_INCLUDES__
+#ifdef LUA_NOJIT
 # include "../lua/lua.hpp"
+#else
+# include "../luajit/src/lua.hpp"
+#endif
+#endif
 # include <deque>
 
 

@@ -127,7 +127,7 @@ namespace TA3D
 
 		int move( const float dt, const int key_frame = 0 );
 
-		void computeHeadingBasedOnEnergy(Vector3D &dir, bool moving);
+		void computeHeadingBasedOnEnergy(Vector3D &dir, const bool moving);
 
 		inline float getLocalMapEnergy(int x, int y);
 

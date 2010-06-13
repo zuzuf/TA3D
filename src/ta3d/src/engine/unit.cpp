@@ -1618,18 +1618,18 @@ namespace TA3D
 	}
 
 	//! Compute the dir vector based on MAP::energy and targeting
-	void Unit::computeHeadingBasedOnEnergy(Vector3D &dir, bool moving)
+	void Unit::computeHeadingBasedOnEnergy(Vector3D &dir, const bool moving)
 	{
-		static int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
-		static int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+		static const int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+		static const int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 		int b = -1;
-		int x = ((int)dir.x + the_map->map_w_d + 4) >> 3;
-		int z = ((int)dir.z + the_map->map_h_d + 4) >> 3;
+		const int x = ((int)dir.x + the_map->map_w_d + 4) >> 3;
+		const int z = ((int)dir.z + the_map->map_h_d + 4) >> 3;
 		float E = getLocalMapEnergy(cur_px, cur_py);
-		UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
 		if (moving)
 		{
-			float dist = sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
+			const float dist = sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
 			if (dist < 64.0f)
 				E *= dist * 0.015625f;
 			E += 80.0f * float(pType->MaxSlope) * dist;
@@ -1639,7 +1639,7 @@ namespace TA3D
 			float e = getLocalMapEnergy(cur_px + order_dx[i], cur_py + order_dz[i]);
 			if (moving)
 			{
-				float dist = sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
+				const float dist = sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
 				if (dist < 64.0f)
 					e *= dist * 0.015625f;
 				e += 80.0f * float(pType->MaxSlope) * dist;
