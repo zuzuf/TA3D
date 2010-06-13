@@ -996,7 +996,7 @@ namespace TA3D
 		}
 	}
 
-	String UnitType::getMoveStringID()
+	String UnitType::getMoveStringID() const
 	{
 		String buf;
 		buf << int(FootprintX);

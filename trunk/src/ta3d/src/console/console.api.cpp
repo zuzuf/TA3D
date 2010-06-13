@@ -1,4 +1,3 @@
-#include "../lua/lua.hpp"
 #include "console.h"
 #include <ingame/battle.h>
 #include <ingame/players.h>

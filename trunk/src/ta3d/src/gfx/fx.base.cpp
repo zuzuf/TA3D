@@ -177,22 +177,22 @@ namespace TA3D
             playing = false;
             return;
         }
-        int img = (int)round((time * 15.0f));
+		const int img = (int)round((time * 15.0f));
         if (img >= anims[anm]->nb_bmp )
         {
             playing = false;
             return;
         }
-        float wsize = size * anims[anm]->w[img];
-        float hsize = size * anims[anm]->h[img];
+		const float wsize = size * float(anims[anm]->w[img]);
+		const float hsize = size * float(anims[anm]->h[img]);
         glBindTexture(GL_TEXTURE_2D,anims[anm]->glbmp[img]);
 
-        float hux = hsize * cam.up.x;
-        float wsx = wsize * cam.side.x;
-        float huy = hsize * cam.up.y;
-        float wsy = wsize * cam.side.y;
-        float huz = hsize * cam.up.z;
-        float wsz = wsize * cam.side.z;
+		const float hux = hsize * cam.up.x;
+		const float wsx = wsize * cam.side.x;
+		const float huy = hsize * cam.up.y;
+		const float wsy = wsize * cam.side.y;
+		const float huz = hsize * cam.up.z;
+		const float wsz = wsize * cam.side.z;
 
         glPushMatrix();
         glTranslatef(Pos.x, Pos.y, Pos.z);
@@ -208,9 +208,9 @@ namespace TA3D
         }
         else
         {
-			Vector3D vDir(-0.5f * (hsize + wsize) * cam.dir);
+			const Vector3D vDir(-0.5f * (hsize + wsize) * cam.dir);
 			glTranslatef(vDir.x, vDir.y, vDir.z);
-			float s = 1.0f - 0.5f * (hsize + wsize) / (cam.pos - Pos).norm();
+			const float s = 1.0f - 0.5f * (hsize + wsize) / (cam.pos - Pos).norm();
 			glScalef(s, s, s);
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f,0.0f); glVertex3f(  hux-wsx,  huy-wsy,  huz-wsz);
@@ -225,11 +225,11 @@ namespace TA3D
 
 	bool FX::doCanDrawAnim() const
     {
-		int px = (int)(Pos.x + the_map->map_w * 0.5f) >> 4;
-		int py = (int)(Pos.z + the_map->map_h * 0.5f) >> 4;
+		const int px = (int)(Pos.x + float(the_map->map_w_d)) >> 4;
+		const int py = (int)(Pos.z + float(the_map->map_h_d)) >> 4;
 		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
             return false;
-        byte player_mask = 1 << players.local_human_id;
+		const byte player_mask = byte(1 << players.local_human_id);
 		return ! (((the_map->view(px, py) != 1 || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))
            && (anm > -2 || anm < -4)));
     }

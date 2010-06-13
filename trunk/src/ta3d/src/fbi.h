@@ -324,7 +324,7 @@ namespace TA3D
 		/*!
 		** \brief Returns a String identifying the units movement properties
 		*/
-		String getMoveStringID();
+		String getMoveStringID() const;
     };
 
     class UnitManager          // Classe pour charger toutes les données relatives aux unités

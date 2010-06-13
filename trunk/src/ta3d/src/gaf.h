@@ -321,7 +321,7 @@ namespace TA3D
 			/*!
 			** \brief The number of Animation in the list
 			*/
-			sint32 size() const {return pList.size();}
+			sint32 size() const {return sint32(pList.size());}
 
 			/*!
 			** \brief Get an animation given its index

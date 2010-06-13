@@ -136,8 +136,8 @@ namespace TA3D
 		HashMap<QuadMap*>::Dense hQuadMap;
 
 	private:
-		static inline bool checkRectFast(int x1, int y1, UnitType *pType);
-		static bool checkRectFull(int x1, int y1, UnitType *pType);
+		static inline bool checkRectFast(const int x1, const int y1, const UnitType *pType);
+		static bool checkRectFull(int x1, int y1, const UnitType *pType);
 		static Mutex sMutex;
 	public:
 		static Pathfinder *instance();

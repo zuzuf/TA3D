@@ -122,7 +122,7 @@ namespace TA3D
 	int Pathfinder::taskCount()
 	{
 		MutexLocker mLock(pMutex);
-		return tasks.size();
+		return int(tasks.size());
 	}
 
 	void Pathfinder::clear()
@@ -140,14 +140,14 @@ namespace TA3D
 		lock();
 
 		TaskSet::iterator pos = stasks.find(t.UID);
-		bool found = (pos != stasks.end());
+		const bool found = (pos != stasks.end());
 
 		if (found)		// If it's in the queue, then change the request
 			tasks[pos->second - taskOffset] = t;
 		// Otherwise add a new request to the task list
 		else
 		{
-			stasks[t.UID] = tasks.size() + taskOffset;
+			stasks[t.UID] = int(tasks.size()) + taskOffset;
 			tasks.push_back(t);
 			LOG_DEBUG(LOG_PREFIX_PATHS << int(tasks.size()) << " path requests queued");
 		}
@@ -167,8 +167,8 @@ namespace TA3D
 
 	AI::Path Pathfinder::directPath(const Vector3D &end)
 	{
-		int x = ((int)end.x + the_map->map_w_d) >> 3;
-		int z = ((int)end.z + the_map->map_h_d) >> 3;
+		const int x = ((int)end.x + the_map->map_w_d) >> 3;
+		const int z = ((int)end.z + the_map->map_h_d) >> 3;
 		AI::Path path;
 		path.push_back(AI::Path::Node(x, z));
 		path.setPos(end);
@@ -204,7 +204,7 @@ namespace TA3D
 			unlock();
 
 			// Here we are free to compute this path
-			uint32 start_timer = msec_timer;
+			const uint32 start_timer = msec_timer;
 			if (cur.idx >= 0
 				&& units.unit[cur.idx].ID == cur.UID
 				&& (units.unit[cur.idx].flags & 1))
@@ -254,7 +254,7 @@ namespace TA3D
 				return;
 			}
 		}
-		UnitType *pType = task.idx >= 0
+		const UnitType *pType = task.idx >= 0
 						  ? unit_manager.unit_type[units.unit[task.idx].type_id]
 						  : unit_manager.unit_type[-task.idx];
 		if (task.idx >= 0)
@@ -578,7 +578,7 @@ namespace TA3D
 			tmp.swap(nodes);
 			nodes.reserve(tmp.size());
 			nodes.push_back(AI::Path::Node(start_x, start_z));
-			float coef = 0.05f / pType->MaxSlope;
+			const float coef = 0.05f / float(pType->MaxSlope);
 			while ((m_dist == 0 && (nodes.back().x() != end_x || nodes.back().z() != end_z)) || (m_dist > 0 && sq( nodes.back().x() - end_x ) + sq( nodes.back().z() - end_z) > m_dist))	// Reconstruct the path
 			{
 				zone(nodes.back().x(), nodes.back().z()) = 0;
@@ -588,13 +588,13 @@ namespace TA3D
 				float m(0.0f);
 				for(int i = 0 ; i < 8 ; ++i)
 				{
-					int nx = next.x() + order_dx[i];
-					int nz = next.z() + order_dz[i];
+					const int nx = next.x() + order_dx[i];
+					const int nz = next.z() + order_dz[i];
 					if (nx < 0 || nx >= the_map->bloc_w_db
 						|| nz < 0 || nz >= the_map->bloc_h_db)
 						continue;
-					int t = zone(nx, nz);
-					float f = t + coef * energy(nx, nz);
+					const int t = zone(nx, nz);
+					const float f = t + coef * energy(nx, nz);
 					if (t > 0 && (f < m || b == -1))
 					{
 						b = i;
@@ -649,12 +649,12 @@ namespace TA3D
 		}
 	}
 
-	bool Pathfinder::checkRectFast(int x1, int y1, UnitType *pType)
+	bool Pathfinder::checkRectFast(const int x1, const int y1, const UnitType *pType)
 	{
-		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
-		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
-		Grid<bool> &obstacles = the_map->obstacles;
-		int x0 = Math::Max(x1, 0);
+		const int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
+		const int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
+		const Grid<bool> &obstacles = the_map->obstacles;
+		const int x0 = Math::Max(x1, 0);
 		for(int y = Math::Max(y1, 0) ; y < fy ; ++y)
 			for(int x = x0 ; x < fx ; ++x)
 				if (obstacles(x,y))
@@ -662,14 +662,14 @@ namespace TA3D
 		return true;
 	}
 
-	bool Pathfinder::checkRectFull(int x1, int y1, UnitType *pType)
+	bool Pathfinder::checkRectFull(int x1, int y1, const UnitType *pType)
 	{
-		float dh_max = float(pType->MaxSlope) * H_DIV;
-		float h_min = pType->canhover ? -100.0f : the_map->sealvl - float(pType->MaxWaterDepth) * H_DIV;
-		float h_max = the_map->sealvl - float(pType->MinWaterDepth) * H_DIV;
-		float hover_h = pType->canhover ? the_map->sealvl : -100.0f;
-		int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
-		int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
+		const float dh_max = float(pType->MaxSlope) * H_DIV;
+		const float h_min = pType->canhover ? -100.0f : the_map->sealvl - float(pType->MaxWaterDepth) * H_DIV;
+		const float h_max = the_map->sealvl - float(pType->MinWaterDepth) * H_DIV;
+		const float hover_h = pType->canhover ? the_map->sealvl : -100.0f;
+		const int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
+		const int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
 		y1 = Math::Max(y1, 0);
 		x1 = Math::Max(x1, 0);
 		for(int y = y1 ; y < fy ; ++y)
@@ -705,13 +705,13 @@ namespace TA3D
 			UnitType *pType = unit_manager.unit_type[i];
 			if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
 				continue;
-			String key = pType->getMoveStringID();
+			const String key = pType->getMoveStringID();
 			if (hQuadMap.count(key))		// Already done ?
 				continue;
 			QuadMap *qmap = new QuadMap(the_map->bloc_w_db, the_map->bloc_h_db);
 
-			int mwh = pType->FootprintX >> 1;
-			int mhh = pType->FootprintZ >> 1;
+			const int mwh = pType->FootprintX >> 1;
+			const int mhh = pType->FootprintZ >> 1;
 
 			for(int y = 0 ; y < the_map->bloc_h_db ; ++y)
 			{
