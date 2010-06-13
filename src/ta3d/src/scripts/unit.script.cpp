@@ -614,24 +614,32 @@ namespace TA3D
 
 		name = functionName;
 
-		lua_settop(L, 0);
-		lua_getUnitTable();
-		lua_getfield( L, -1, functionName.c_str() );
-		lua_remove(L, -2);
-		if (lua_isnil( L, -1 ))     // Function not found
+		try
 		{
-			lua_pop(L, 1);
-			LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`");
-			return;
-		}
+			lua_settop(L, 0);
+			lua_getUnitTable();
+			lua_getfield( L, -1, functionName.c_str() );
+			lua_remove(L, -2);
+			if (lua_isnil( L, -1 ))     // Function not found
+			{
+				lua_pop(L, 1);
+				LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`");
+				return;
+			}
 
-		if (parameters == NULL)
-			nb_params = 0;
-		lua_getUnitTable();         // Take the unit table as parameter
-		for(int i = 0 ; i < nb_params ; i++)
-			lua_pushinteger(L, parameters[i]);
-		n_args = nb_params + 1;
-		running = true;
+			if (parameters == NULL)
+				nb_params = 0;
+			lua_getUnitTable();         // Take the unit table as parameter
+			for(int i = 0 ; i < nb_params ; i++)
+				lua_pushinteger(L, parameters[i]);
+			n_args = nb_params + 1;
+			running = true;
+		}
+		catch(...)
+		{
+			LOG_ERROR(LOG_PREFIX_LUA << "call: error calling function `" << functionName << "`");
+			lua_settop(L, 0);
+		}
 	}
 
 	int UnitScript::execute(const String &functionName, int *parameters, int nb_params)
