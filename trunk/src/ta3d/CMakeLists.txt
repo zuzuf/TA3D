@@ -211,6 +211,11 @@ link_directories("${CMAKE_CURRENT_SOURCE_DIR}/src/lua/")
 #
 # --- LUA / LUAJIT ---
 #
+IF(APPLE)
+	# On OS X, it seems that LuaJIT is not really gently with OSAtomicDecrement32
+	# (the given pointer is invalid)
+	SET(LUA_NOJIT 1)
+ENDIF(APPLE)
 IF(LUA_NOJIT)
 	IF(WIN32 OR CMAKE_CROSSCOMPILING)
 
