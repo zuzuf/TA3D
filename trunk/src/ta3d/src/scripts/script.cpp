@@ -1068,7 +1068,7 @@ namespace TA3D
 	int program_play_for(lua_State *L)		// play_for( filename, player_id )
 	{
 		if (lua_tointeger(L, 2) == players.local_human_id || lua_tointeger( L, 2 ) == -1)
-			sound_manager->playSound( (char*) lua_tostring( L, 1 ), false);
+			sound_manager->playSound((char*)lua_tostring( L, 1 ));
 
 		if (network_manager.isServer() && !LuaProgram::passive)
 		{
