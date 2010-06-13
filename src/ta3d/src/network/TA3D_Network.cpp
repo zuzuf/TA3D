@@ -415,7 +415,7 @@ namespace TA3D
 					break;
 				case EVENT_PLAY:
 					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF) // Do it only if the packet is for us
-						sound_manager->playSound((char*)event_msg.str, false);
+						sound_manager->playSound((char*)event_msg.str);
 					break;
 				case EVENT_CLF:
 					the_map->clear_FOW();
