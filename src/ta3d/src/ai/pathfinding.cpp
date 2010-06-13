@@ -270,10 +270,10 @@ namespace TA3D
 
 		MutexLocker mLock(sMutex);
 
-		int start_x = ((int)task.start.x + the_map->map_w_d) >> 3;
-		int start_z = ((int)task.start.z + the_map->map_h_d) >> 3;
-		int end_x = ((int)task.end.x + the_map->map_w_d) >> 3;
-		int end_z = ((int)task.end.z + the_map->map_h_d) >> 3;
+		const int start_x = ((int)task.start.x + the_map->map_w_d) >> 3;
+		const int start_z = ((int)task.start.z + the_map->map_h_d) >> 3;
+		const int end_x = ((int)task.end.x + the_map->map_w_d) >> 3;
+		const int end_z = ((int)task.end.z + the_map->map_h_d) >> 3;
 
 		static std::vector<AI::Path::Node> nodes;
 		nodes.clear();
@@ -290,11 +290,11 @@ namespace TA3D
 		int m_dist = task.dist;
 		m_dist *= m_dist;
 
-		int smh = pType->FootprintZ;
-		int smw = pType->FootprintX;
+		const int smh = pType->FootprintZ;
+		const int smw = pType->FootprintX;
 
-		int mw_h = smw >> 1;
-		int mh_h = smh >> 1;
+		const int mw_h = smw >> 1;
+		const int mh_h = smh >> 1;
 
 		if (nodes.back().x() < 0
 			|| nodes.back().z() < 0
@@ -318,7 +318,7 @@ namespace TA3D
 			uint32 curDistFromStart = 0;
 			uint32 minPathLength = uint32(-1);
 			uint32 depthLimit = PATHFINDER_MAX_LENGTH;
-			float distanceCoef = 2.0f * float(pType->MaxSlope);
+			const float distanceCoef = 2.0f * float(pType->MaxSlope);
 			uint32 n = 0;
 			while (n < depthLimit)
 			{
