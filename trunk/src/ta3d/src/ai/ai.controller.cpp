@@ -67,7 +67,7 @@ namespace TA3D
 		{
 			weights.resize(unit_manager.nb_unit);
 
-			for (unsigned int i = 0 ; i < unit_manager.nb_unit ; ++i)
+			for (int i = 0 ; i < unit_manager.nb_unit ; ++i)
 			{
 				if ( String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(players.side[ playerID ]))
 				{

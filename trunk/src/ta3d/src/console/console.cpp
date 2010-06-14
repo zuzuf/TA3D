@@ -91,8 +91,8 @@ namespace TA3D
 	{
 		MutexLocker locker(pMutex);
 
-		float m_vis = pVisible;
-		bool  m_sho = pShow;
+		const float m_vis = pVisible;
+		const bool  m_sho = pShow;
 		if (forceShow)
 		{
 			// The display of the console has been forced
@@ -141,7 +141,7 @@ namespace TA3D
 			if (!pInputText.empty() && pInputText.last() != ' ')
 			{
 				String tmp = pInputText;
-				String delimiters(" ()'\"");
+				const String delimiters(" ()'\"");
 				for(int i = pInputText.size() - 1 ; i >= 0 ; --i)
 					if (delimiters.contains(pInputText[i]))
 					{
@@ -160,10 +160,9 @@ namespace TA3D
 							break;
 						}
 
-					String request;
-					request << "return " << obj << "__tab_complete(\"" << param << "\")";
+					String request = String("return ") << obj << "__tab_complete(\"" << param << "\")";
 
-					String candidates = execute(request);
+					const String candidates = execute(request);
 					if (!candidates.empty())
 					{
 						String::List candidateList;
@@ -275,8 +274,8 @@ namespace TA3D
 			}
 		};
 
-		float fsize = fnt->height();
-		float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
+		const float fsize = fnt->height();
+		const float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
 
 		glEnable(GL_BLEND);		// Dessine le cadre de la console
 		glDisable(GL_TEXTURE_2D);
@@ -305,7 +304,7 @@ namespace TA3D
 			{
 				String::Vector cols;
 				i_entry->explode(cols, '|', true, false, true);
-				for(int k = 0 ; k < cols.size() ; ++k)
+				for(uint32 k = 0 ; k < cols.size() ; ++k)
 					tableWidth = Math::Max(tableWidth, fnt->length(cols[k]) + 10.0f);
 			}
 		}
@@ -317,7 +316,7 @@ namespace TA3D
 			{
 				String::Vector cols;
 				i_entry->explode(cols, '|', true, false, true);
-				for(int k = 0 ; k < cols.size() ; ++k)
+				for(uint32 k = 0 ; k < cols.size() ; ++k)
 				{
 					gfx->print(fnt, tableWidth * k + 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
 							   makeacol32(0,0,0,0xFF), cols[k]);

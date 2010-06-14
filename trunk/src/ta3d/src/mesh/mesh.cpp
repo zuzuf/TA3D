@@ -1650,8 +1650,8 @@ namespace TA3D
 		if (lMeshExtension == NULL)
 			return NULL;
 
-		String ext = Paths::ExtractFileExt(filename).toLower();
-		for(int i = 0 ; i < lMeshExtension->size() ; ++i)
+		const String ext = Paths::ExtractFileExt(filename).toLower();
+		for(uint32 i = 0 ; i < lMeshExtension->size() ; ++i)
 		{
 			if (ext == lMeshExtension->at(i))
 				return lMeshLoader->at(i)(filename);

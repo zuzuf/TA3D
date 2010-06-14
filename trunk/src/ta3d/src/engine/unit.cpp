@@ -3167,7 +3167,7 @@ namespace TA3D
 							Dir.y = 0.0f;
 							float dist = Dir.sq();
 							UnitType *tType = target_unit->type_id == - 1 ? NULL : unit_manager.unit_type[target_unit->type_id];
-							int tsize = (tType == NULL) ? 0 : (tType->FootprintX + tType->FootprintZ << 2);
+							int tsize = (tType == NULL) ? 0 : ((tType->FootprintX + tType->FootprintZ) << 2);
 							int maxdist = (mission->mission() == MISSION_CAPTURE ? (int)(pType->SightDistance) : (int)(pType->BuildDistance))
 										  + tsize;
                             if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
@@ -3262,7 +3262,7 @@ namespace TA3D
 						mission->getTarget().setPos(features.feature[mission->getData()].Pos);
 						float dist = Dir.sq();
 						Feature *pFeature = feature_manager.getFeaturePointer(features.feature[mission->getData()].type);
-						int tsize = pFeature == NULL ? 0 : (pFeature->footprintx + pFeature->footprintz << 2);
+						int tsize = pFeature == NULL ? 0 : ((pFeature->footprintx + pFeature->footprintz) << 2);
 						int maxdist = (mission->mission() == MISSION_REVIVE ? (int)(pType->SightDistance) : (int)(pType->BuildDistance))
 										  + tsize;
 						if (dist > maxdist * maxdist && pType->BMcode)	// If the unit is too far from its target
@@ -3570,7 +3570,7 @@ namespace TA3D
 								byte mask = 1 << owner_id;
 								if (target_unit->cloaked && !target_unit->is_on_radar( mask ))
 								{
-									for (int i = 0 ; i < weapon.size() ; ++i)
+									for (uint32 i = 0 ; i < weapon.size() ; ++i)
 										if (weapon[ i ].target == target_unit)		// Stop shooting
 											weapon[ i ].state = WEAPON_FLAG_IDLE;
 									next_mission();
@@ -3601,7 +3601,7 @@ namespace TA3D
 								break;
 							}
 
-							for (int i = 0 ; i < weapon.size() ; ++i)
+							for (uint32 i = 0 ; i < weapon.size() ; ++i)
 							{
 								if (pType->weapon[ i ] == NULL || pType->weapon[ i ]->interceptor)
 									continue;
@@ -3690,7 +3690,7 @@ namespace TA3D
 							{
 								mission->setData(2);
 								int param[] = { 0 };
-								for (int i = 0 ; i < weapon.size() ; ++i)
+								for (uint32 i = 0 ; i < weapon.size() ; ++i)
                                     if (pType->weapon[ i ])
                                         param[ 0 ] = Math::Max(param[0], (int)( pType->weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)pType->weapon[i]->burst));
 								launchScript(SCRIPT_SetMaxReloadTime, 1, param);
@@ -3745,13 +3745,13 @@ namespace TA3D
 								launchScript(SCRIPT_stopbuilding);
 								deactivate();
 							}
-							for (int i = 0 ; i < weapon.size() ; ++i)
+							for (uint32 i = 0 ; i < weapon.size() ; ++i)
 								if (weapon[i].state)
 								{
 									launchScript(SCRIPT_TargetCleared);
 									break;
 								}
-							for (int i = 0 ; i < weapon.size() ; ++i)			// Stop weapons
+							for (uint32 i = 0 ; i < weapon.size() ; ++i)			// Stop weapons
 							{
 								weapon[i].state = WEAPON_FLAG_IDLE;
 								weapon[i].data = -1;
@@ -4237,14 +4237,14 @@ namespace TA3D
 
 				if (!can_fire)
 				{
-					for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
+					for (uint32 i = 0 ; i < weapon.size() && !can_fire ; ++i)
                         can_fire =  pType->weapon[i] != NULL && !pType->weapon[i]->commandfire
                             && !pType->weapon[i]->interceptor && weapon[i].state == WEAPON_FLAG_IDLE;
 				}
 				else
 				{
 					can_fire = false;
-					for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
+					for (uint32 i = 0 ; i < weapon.size() && !can_fire ; ++i)
                         can_fire =  pType->weapon[i] != NULL && weapon[i].state == WEAPON_FLAG_IDLE;
 				}
 
@@ -4252,7 +4252,7 @@ namespace TA3D
 				{
 					int dx = pType->SightDistance + (int)(h+0.5f);
 					int enemy_idx = -1;
-					for( int i = 0 ; i < weapon.size() ; i++ )
+					for (uint32 i = 0 ; i < weapon.size() ; ++i)
 						if (pType->weapon[i] != NULL
 							&& (pType->weapon[i]->range >> 1) > dx
 							&& !pType->weapon[i]->interceptor
@@ -4260,7 +4260,7 @@ namespace TA3D
 							dx = pType->weapon[i]->range >> 1;
 					if (pType->kamikaze && pType->kamikazedistance > dx)
 						dx = pType->kamikazedistance;
-					byte mask = 1 << owner_id;
+					const byte mask = 1 << owner_id;
 
 					std::deque<UnitTKit::T> possibleTargets;
 					for(int i = 0 ; i < NB_PLAYERS ; ++i)
@@ -4286,7 +4286,7 @@ namespace TA3D
 						{
 							if (returning_fire)
 							{
-								for(int i = 0 ; i < units.unit[cur_idx].weapon.size() ; i++)
+								for(uint32 i = 0 ; i < units.unit[cur_idx].weapon.size() ; ++i)
 								{
 									if (units.unit[cur_idx].weapon[i].state != WEAPON_FLAG_IDLE
 										&& units.unit[cur_idx].weapon[i].target == this)
@@ -4305,7 +4305,7 @@ namespace TA3D
 						if (do_nothing())
                             set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]));
 						else
-							for (int i = 0 ; i < weapon.size() ; i++)
+							for (uint32 i = 0 ; i < weapon.size() ; ++i)
                                 if (weapon[i].state == WEAPON_FLAG_IDLE && pType->weapon[ i ] != NULL
                                     && !pType->weapon[ i ]->commandfire
                                     && !pType->weapon[ i ]->interceptor

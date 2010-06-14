@@ -782,7 +782,7 @@ namespace TA3D
 		float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		if ( !tex_cache_name.empty() )
 		{
-			for(int i = 0 ; i < tex_cache_name.size() ; ++i)
+			for(uint32 i = 0 ; i < tex_cache_name.size() ; ++i)
 				load_texture_id(i);
 			tex_cache_name.clear();
 		}

@@ -99,7 +99,7 @@ namespace TA3D
         /*virtual*/ void load( ScriptData *data );
 
         /*virtual*/ int run(float dt, bool alone = false);  // Run the script
-        int run(float dt, bool alone, int *pParam, int nParam);  // Run the script
+		int run(float dt, bool alone, int *pParam, const uint32 nParam);  // Run the script
 
         //! functions used to call/run functions
         void call(const int functionID, int *parameters = NULL, int nb_params = 0);

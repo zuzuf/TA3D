@@ -121,7 +121,7 @@ namespace TA3D
 
     QUAD_TABLE::~QUAD_TABLE()
     {
-		for (int i = 0 ; i < hash_table.size() ; ++i)
+		for (uint32 i = 0 ; i < hash_table.size() ; ++i)
         {
             for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
 				delete *e;

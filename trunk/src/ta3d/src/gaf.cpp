@@ -771,7 +771,7 @@ namespace TA3D
 		{
 			pList.clear();
 			pList.resize(Gaf::RawDataEntriesCount(file));
-			for (int i = 0 ; i < pList.size() ; ++i)
+			for (uint32 i = 0 ; i < pList.size() ; ++i)
 				pList[i].loadGAFFromRawData(file, i, true, fname);
 			if (doConvert)
 				convert();
@@ -786,7 +786,7 @@ namespace TA3D
 		VFS::Instance()->getDirlist(folderName + "\\*", entries);
 		pList.clear();
 		pList.resize(entries.size());
-		for (int i = 0 ; i < pList.size() ; ++i)
+		for (uint32 i = 0 ; i < pList.size() ; ++i)
 			pList[i].loadGAFFromDirectory(folderName, Paths::ExtractFileName(entries[i]));
 		if (doConvert)
 			convert();
@@ -795,7 +795,7 @@ namespace TA3D
 
 	sint32 Gaf::AnimationList::findByName(const String& name) const
 	{
-		for (int i = 0 ; i < pList.size() ; ++i)
+		for (uint32 i = 0 ; i < pList.size() ; ++i)
 		{
 			if (name == pList[i].name)
 				return i;

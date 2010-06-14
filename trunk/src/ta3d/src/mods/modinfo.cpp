@@ -146,7 +146,7 @@ namespace TA3D
 	{
 		String result;
 		result.reserve(s.size());
-		for(int i = 0 ; i < s.size() ; ++i)
+		for(uint32 i = 0 ; i < s.size() ; ++i)
 		{
 			switch(s[i])
 			{

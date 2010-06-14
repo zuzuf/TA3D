@@ -73,14 +73,14 @@ void backtrace_handler (int signum)
     {
 		m_File << "received signal " << strsignal( signum ) << "\n";
 		m_File << "Obtained " << size << " stack frames.\n";
-		for (int i = 0; i < size; ++i)
+		for (TA3D::uint32 i = 0; i < size; ++i)
 			m_File << strings[i] << "\n";
 		m_File.flush();
 		m_File.close();
 
 		printf("received signal %s\n", strsignal( signum ));
 		printf ("Obtained %zd stack frames.\n", size);
-		for (int i = 0; i < size; ++i)
+		for (TA3D::uint32 i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 
         String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
@@ -96,7 +96,7 @@ void backtrace_handler (int signum)
 		printf("received signal %s\n", strsignal(signum));
 		printf("couldn't open file for writing!!\n");
 		printf ("Obtained %zd stack frames.\n", size);
-		for (int i = 0; i < size; ++i)
+		for (TA3D::uint32 i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 	}
 	free(strings);

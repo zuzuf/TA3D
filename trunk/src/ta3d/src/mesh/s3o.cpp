@@ -70,7 +70,7 @@ namespace TA3D
 		bool set = false;
 		if ( !tex_cache_name.empty() )
 		{
-			for(int i = 0 ; i < tex_cache_name.size() ; ++i)
+			for(uint32 i = 0 ; i < tex_cache_name.size() ; ++i)
 				load_texture_id(i);
 			tex_cache_name.clear();
 		}
@@ -136,14 +136,14 @@ namespace TA3D
 							s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
 
 							activated_tex = true;
-							for (int j = 0; j < pTex->size() ; ++j)
+							for (uint32 j = 0; j < pTex->size() ; ++j)
 							{
 								glActiveTextureARB(GL_TEXTURE0_ARB + j);
 								glEnable(GL_TEXTURE_2D);
 								glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
 							}
 							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-							for (int j = 0; j < pTex->size() ; ++j)
+							for (uint32 j = 0; j < pTex->size() ; ++j)
 							{
 								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 								glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
@@ -178,7 +178,7 @@ namespace TA3D
 
 						if (activated_tex)
 						{
-							for (int j = 0; j < pTex->size() ; ++j)
+							for (uint32 j = 0; j < pTex->size() ; ++j)
 							{
 								glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 								glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -362,7 +362,7 @@ namespace TA3D
 
 			std::vector<GLuint> *pTex = &(root->gltex);
 
-			for (int j = 0; j < pTex->size() ; ++j)
+			for (uint32 j = 0; j < pTex->size() ; ++j)
 			{
 				glClientActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -385,7 +385,7 @@ namespace TA3D
 					break;
 			};
 
-			for (int j = 0; j < pTex->size() ; ++j)
+			for (uint32 j = 0; j < pTex->size() ; ++j)
 			{
 				glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -487,7 +487,7 @@ namespace TA3D
 
 		piece->nb_t_index = index.size();
 		piece->t_index = new GLushort[piece->nb_t_index];
-		for(int i = 0 ; i < index.size() ; ++i)
+		for(uint32 i = 0 ; i < index.size() ; ++i)
 			piece->t_index[i] = index[i];
 
 		for (int a = 0; a < fp.numChilds; ++a)

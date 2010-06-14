@@ -189,7 +189,7 @@ namespace Gui
 		for (unsigned int i = 0; i < Entry.size(); ++i, ++line)
 		{
 			int e = i + Scroll;
-			if (e >= Entry.size() || pCacheFontHeight * (line+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
+			if (e >= (int)Entry.size() || pCacheFontHeight * (line+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
             pCacheDrawTextStr = Entry[e];
 			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
@@ -223,7 +223,7 @@ namespace Gui
 					int bottom = 0;
 					while (top != bottom)
 					{
-						int mid = top + bottom >> 1;
+						const int mid = (top + bottom) >> 1;
 						pCacheDrawTextStr = rest.substr(0, mid);
 						if (gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
 							top = mid;
@@ -271,7 +271,7 @@ namespace Gui
 				int bottom = 0;
 				while (top != bottom)
 				{
-					int mid = top + bottom >> 1;
+					int mid = (top + bottom) >> 1;
 					line = rest.substr(0, mid);
 					if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
 						top = mid;
@@ -350,7 +350,7 @@ namespace Gui
 
 	void Skin::FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry) const
 	{
-		if (StartEntry < Entry.size())
+		if (StartEntry < (int)Entry.size())
 		{
 			float width = 168.0f;
 			for (unsigned int i = 0; i < Entry.size() - StartEntry; ++i)
@@ -370,7 +370,7 @@ namespace Gui
 			for (unsigned int i = 0; i < Entry.size() - StartEntry; ++i)
 			{
 				unsigned int e = i + StartEntry;
-				if (e == Index)
+				if (e == (uint32)Index)
 					selection_gfx.draw( x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * i, x + width + menu_background.x2, y + menu_background.y1 + pCacheFontHeight * (i + 1));
 				gfx->print(gui_font, x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * i, 0.0f, White, Entry[e]);
 			}
@@ -427,13 +427,13 @@ namespace Gui
 		int H = Math::Max( row - (int)(0.5f * maxheight / pCacheFontHeight), 0);
 		int y = 0;
 		int row_size = Entry[row].sizeUTF8();
-		while (pCacheFontHeight * (y+1) <= maxheight && y + H < Entry.size())
+		while (pCacheFontHeight * (y+1) <= maxheight && y + H < (int)Entry.size())
 		{
 			String strtoprint;
 			String buf = Entry[y+H];
 			for(int x = 0; !buf.empty() ; )
 			{
-				int k = 0;
+				uint32 k = 0;
 				while(k < buf.size() && buf[k] == ' ')			// Removes useless spaces (it's unlikely we find any other type of blank character here)
 					++k;
 				if (k)
@@ -445,10 +445,10 @@ namespace Gui
 				int len = buf.sizeUTF8();
 				int smax = len + 1;
 				int smin = 0;
-				int s = smax + smin >> 1;
+				int s = (smax + smin) >> 1;
 				do
 				{
-					s = smax + smin >> 1;
+					s = (smax + smin) >> 1;
 					strtoprint = buf.substrUTF8(0, s);
 					if (s == smin)
 						break;
@@ -521,7 +521,7 @@ namespace Gui
 		const float maxlength = x2 - x1 + text_background.x2 - text_background.x1 - gui_font->length( "_");
 		int dec = 0;
 		String strtoprint = Caption.substr( dec, Caption.length() - dec);
-		while (gui_font->length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length())
+		while (gui_font->length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < (int)Caption.length())
 		{
 			++dec;
 			strtoprint = Caption.substr(dec, Caption.length() - dec);
@@ -653,7 +653,7 @@ namespace Gui
 		else
 			pCacheDrawTextCurrent << pCacheDrawTextWord;
 
-		if (last + 1 < msg.length() && !pCacheDrawTextCurrent.empty())
+		if (last + 1 < (int)msg.length() && !pCacheDrawTextCurrent.empty())
 			pCacheDrawTextVector.push_back(pCacheDrawTextCurrent);
 
 		gfx->set_color( 0xFFFFFFFF);

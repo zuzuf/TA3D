@@ -98,9 +98,9 @@ namespace TA3D
 		}
 
 		Vector3D hit_vec;
-		Vector3D OPos(Pos);
+		const Vector3D OPos(Pos);
 
-		float h = the_map->get_unit_h(Pos.x,Pos.z);
+		const float h = the_map->get_unit_h(Pos.x,Pos.z);
 		if (dying)
 			killtime -= dt;
 		else
@@ -129,11 +129,11 @@ namespace TA3D
 						}
 						else
 							target = -1;
-					float speed = V.sq();
-					float target_speed = target_V.sq();
+					const float speed = V.sq();
+					const float target_speed = target_V.sq();
 					if (speed > 0.0f && target_speed > 0.0f) // Make it aim better
 					{
-						float time_to_hit = (target_pos - Pos).sq() / speed;
+						const float time_to_hit = (target_pos - Pos).sq() / speed;
 						target_pos = target_pos + sqrtf( time_to_hit / target_speed ) * target_V;
 					}
 				}
@@ -174,7 +174,7 @@ namespace TA3D
 		if (weapon_def->waterweapon && Pos.y <= the_map->sealvl && OPos.y > the_map->sealvl) // A weapon that gets into water slows down
 			V = 0.5f * V;
 
-		float length = ((Vector3D)(OPos - Pos)).norm();
+		const float length = ((Vector3D)(OPos - Pos)).norm();
 		if (!dying)
 		{
 			if (weapon_def->waterweapon && Pos.y > the_map->sealvl && OPos.y <= the_map->sealvl) // Une arme aquatique ne sort pas de l'eau

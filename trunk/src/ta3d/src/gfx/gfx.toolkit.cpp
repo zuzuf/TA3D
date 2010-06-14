@@ -634,10 +634,10 @@ namespace TA3D
 
     void vflip_bitmap(SDL_Surface* bmp)
     {
-        for(int y = 0 ; y < (bmp->h + 1 >> 1) ; ++y)
+		for(int y = 0 ; y < ((bmp->h + 1) >> 1) ; ++y)
             for(int x = 0 ; x < bmp->w ; ++x)
             {
-                uint32 c = getpixel(bmp, x, y);
+				const uint32 c = getpixel(bmp, x, y);
                 putpixel(bmp, x, y, getpixel(bmp, x, bmp->h - 1 - y));
                 putpixel(bmp, x, bmp->h - 1 - y, c);
             }
@@ -646,9 +646,9 @@ namespace TA3D
     void hflip_bitmap(SDL_Surface* bmp)
     {
         for(int y = 0 ; y < bmp->h ; ++y)
-            for(int x = 0 ; x < (bmp->w + 1 >> 1) ; ++x)
+			for(int x = 0 ; x < ((bmp->w + 1) >> 1) ; ++x)
             {
-                uint32 c = getpixel(bmp, x, y);
+				const uint32 c = getpixel(bmp, x, y);
                 putpixel(bmp, x, y, getpixel(bmp, bmp->w - 1 - x, y));
                 putpixel(bmp, bmp->w - 1 - x, y, c);
             }
@@ -765,11 +765,11 @@ namespace TA3D
 							file.put( getpixel(bmp, x, y) );
 							break;
 						case 16:
-							file.write( (const char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+							file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
 							break;
 						case 24:
 							{
-								uint32 c = getpixel(bmp, x, y);
+								const uint32 c = getpixel(bmp, x, y);
 								file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
 								file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
 								file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
@@ -777,7 +777,7 @@ namespace TA3D
 							break;
 						case 32:
 							{
-								uint32 c = getpixel(bmp, x, y);
+								const uint32 c = getpixel(bmp, x, y);
 								file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
 								file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
 								file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
@@ -817,7 +817,7 @@ namespace TA3D
 						|| (type == 0 && c == getpixel(bmp, x, y)))
 					{
 						file.put( (type << 7) | (len - 1) );
-						int s = (type == 1) ? i - 1 : i - len;
+						const int s = (type == 1) ? i - 1 : i - len;
 
 						for(int j = s ; j < i ; ++j)
 						{
@@ -829,11 +829,11 @@ namespace TA3D
 								file.put( getpixel(bmp, x, y) );
 								break;
 							case 16:
-								file.write( (const char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+								file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
 								break;
 							case 24:
 								{
-									uint32 c = getpixel(bmp, x, y);
+									const uint32 c = getpixel(bmp, x, y);
 									file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
 									file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
 									file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
@@ -841,7 +841,7 @@ namespace TA3D
 								break;
 							case 32:
 								{
-									uint32 c = getpixel(bmp, x, y);
+									const uint32 c = getpixel(bmp, x, y);
 									file.put( (bmp->format->Bmask & c) >> bmp->format->Bshift);
 									file.put( (bmp->format->Gmask & c) >> bmp->format->Gshift);
 									file.put( (bmp->format->Rmask & c) >> bmp->format->Rshift);
@@ -862,7 +862,7 @@ namespace TA3D
 				if (len > 0)
 				{
 					file.put( (type << 7) | (len - 1) );
-					int i = bmp->w * bmp->h;
+					const int i = bmp->w * bmp->h;
 					int s = (type == 1) ? i - 1 : i - len;
 
 					for(int j = s ; j < i ; ++j)
@@ -875,7 +875,7 @@ namespace TA3D
 							file.put( getpixel(bmp, x, y) );
 							break;
 						case 16:
-							file.write( (const char*)bmp->pixels + (bmp->w * y + x << 1), 2 );
+							file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
 							break;
 						case 24:
 							{

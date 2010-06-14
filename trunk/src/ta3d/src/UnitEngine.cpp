@@ -699,7 +699,7 @@ namespace TA3D
 		if (!pointed_only && !hide_bpic)
 		{
 			int stock = 0;
-			for(int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->weapon.size() ; ++i)
+			for(uint32 i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->weapon.size() ; ++i)
 				if (unit_manager.unit_type[unit[index].type_id]->weapon[i] && unit_manager.unit_type[unit[index].type_id]->weapon[i]->stockpile)
 				{
 					stock = unit[index].weapon[i].stock;
@@ -1236,7 +1236,7 @@ namespace TA3D
 
 		uint32 player_col_32[TA3D_PLAYERS_HARD_LIMIT];
 		uint32 player_col_32_h[TA3D_PLAYERS_HARD_LIMIT];
-		for (int i = 0; i < players.count(); ++i)
+		for (uint32 i = 0; i < players.count(); ++i)
 		{
 			player_col_32[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
 										  (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),

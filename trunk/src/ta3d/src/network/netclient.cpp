@@ -128,10 +128,10 @@ namespace TA3D
 			{
 				rest(1);
 				receive();
-				int i = 0;
+				uint32 i = 0;
 				while (messageWaiting() && i < messages.size())
 				{
-					i++;
+					++i;
 					String::Vector args;
 					String msg = getNextMessage();
 					msg.explode(args, ' ');
@@ -223,7 +223,7 @@ namespace TA3D
 		if (args[0] == "USER" && args.size() == 2)
 		{
 			bool found = false;
-			for(int i = 0 ; i < peerList.size() && !found ; i++)
+			for(uint32 i = 0 ; i < peerList.size() && !found ; ++i)
 				if (peerList[i] == args[1])
 					found = true;
 			if (!found)
@@ -236,7 +236,7 @@ namespace TA3D
 		else if (args[0] == "LEAVE" && args.size() == 2)
 		{
 			bool found = false;
-			for(int i = 0 ; i < peerList.size() && !found ; i++)
+			for(uint32 i = 0 ; i < peerList.size() && !found ; ++i)
 				if (peerList[i] == args[1])
 				{
 					found = true;
@@ -248,7 +248,7 @@ namespace TA3D
 		else if (args[0] == "CHAN" && args.size() == 2)
 		{
 			bool found = false;
-			for(int i = 0 ; i < chanList.size() && !found ; i++)
+			for(uint32 i = 0 ; i < chanList.size() && !found ; ++i)
 				if (chanList[i] == args[1])
 					found = true;
 			if (!found)
@@ -261,7 +261,7 @@ namespace TA3D
 		else if (args[0] == "DECHAN" && args.size() == 2)
 		{
 			bool found = false;
-			for(int i = 0 ; i < chanList.size() && !found ; i++)
+			for(uint32 i = 0 ; i < chanList.size() && !found ; ++i)
 				if (chanList[i] == args[1])
 				{
 					found = true;
@@ -299,7 +299,7 @@ namespace TA3D
 		else if (args[0] == "SERVER")
 		{
 			GameServer gameServer;
-			for(int i = 1 ; i < args.size() - 1 ; ++i)
+			for(uint32 i = 1 ; i < args.size() - 1 ; ++i)
 			{
 				if (args[i] == "NAME")
 					gameServer.name = args[i + 1];
