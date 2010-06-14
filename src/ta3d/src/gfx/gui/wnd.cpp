@@ -209,10 +209,10 @@ namespace TA3D
 					{
 						int smax = Title.sizeUTF8();
 						int smin = 0;
-						int s = smin + smax >> 1;
+						int s = (smin + smax) >> 1;
 						do
 						{
-							s = smin + smax >> 1;
+							s = (smin + smax) >> 1;
 							cutTitle = Title.substrUTF8(0, s) + "...";
 							bool test = gui_font->length(cutTitle) > maxTitleLength;
 							if (test)
@@ -354,7 +354,7 @@ namespace TA3D
 									  : ((object->activated && object->nb_stages == 1)
 										 ? object->gltex_states.size() - 2
 											 : object->current_state);
-					if (cur_img < object->gltex_states.size() && cur_img >= 0)
+					if (cur_img < (int)object->gltex_states.size() && cur_img >= 0)
 					{
 						gfx->set_color(0xFFFFFFFF);
 						gfx->set_alpha_blending();
@@ -833,9 +833,9 @@ namespace TA3D
 						object->Etat = false;
 						if (object->Focus && keypressed())
 						{
-							uint32 keyCode = readkey();
+							const uint32 keyCode = readkey();
 							Key = keyCode & 0xFFFF;
-							uint16 scancode = (keyCode >> 16);
+							const uint16 scancode = (keyCode >> 16);
 							switch (scancode)
 							{
 							case KEY_ESC:
@@ -848,7 +848,7 @@ namespace TA3D
 								object->Text.push_back(nullptr);
 								if (object->Data + 1 < object->Text.size())
 								{
-									for(int e = object->Text.size() - 1 ; e > object->Data + 1 ; e--)
+									for(uint32 e = object->Text.size() - 1 ; e > object->Data + 1 ; e--)
 										object->Text[e] = object->Text[e-1];
 								}
 
@@ -860,7 +860,7 @@ namespace TA3D
 								object->Pos = 0;
 								object->Data++;
 								break;
-								case KEY_DEL:
+							case KEY_DEL:
 								// Remove next character
 								if (object->Pos < object->Text[object->Data].sizeUTF8())
 								{
@@ -870,73 +870,73 @@ namespace TA3D
 								else if (object->Data + 1 < object->Text.size())
 								{
 									object->Text[object->Data] << object->Text[object->Data+1];
-									for( int e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
+									for(uint32 e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
 										object->Text[e] = object->Text[e+1];
 									object->Text.resize(object->Text.size()-1);
 								}
 								break;
-								case KEY_BACKSPACE:                                 // Remove previous character
-									if (object->Pos > 0)
-									{
-										object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos-1)
-																	 + object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
-										object->Pos--;
-									}
-									else if (object->Data > 0)
-									{
-										object->Data--;
-										object->Pos = object->Text[object->Data].sizeUTF8();
-										object->Text[object->Data] << object->Text[object->Data + 1];
-										for (unsigned int e = object->Data + 1 ; e < object->Text.size() - 1; ++e)
-											object->Text[e] = object->Text[e + 1];
-										object->Text.resize(object->Text.size() - 1);
-									}
-									break;
-								case KEY_LEFT:            // Left
-									if (object->Pos > 0)
-										object->Pos--;
-									else if (object->Data > 0)
-									{
-										object->Data--;
-										object->Pos = object->Text[object->Data].sizeUTF8();
-									}
-									break;
-								case KEY_RIGHT:            // Right
-									if (object->Pos < object->Text[object->Data].sizeUTF8())
-										object->Pos++;
-									else if (object->Data + 1 < object->Text.size())
-									{
-										object->Data++;
-										object->Pos = 0;
-									}
-									break;
-								case KEY_UP:            // Up
-									if (object->Data > 0)
-									{
-										object->Data--;
-										object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
-									}
-									break;
-								case KEY_DOWN:            // Down
-									if (object->Data + 1 < object->Text.size())
-									{
-										object->Data++;
-										object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
-									}
+							case KEY_BACKSPACE:                                 // Remove previous character
+								if (object->Pos > 0)
+								{
+									object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos-1)
+																 + object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
+									object->Pos--;
+								}
+								else if (object->Data > 0)
+								{
+									object->Data--;
+									object->Pos = object->Text[object->Data].sizeUTF8();
+									object->Text[object->Data] << object->Text[object->Data + 1];
+									for (unsigned int e = object->Data + 1 ; e < object->Text.size() - 1; ++e)
+										object->Text[e] = object->Text[e + 1];
+									object->Text.resize(object->Text.size() - 1);
+								}
+								break;
+							case KEY_LEFT:            // Left
+								if (object->Pos > 0)
+									object->Pos--;
+								else if (object->Data > 0)
+								{
+									object->Data--;
+									object->Pos = object->Text[object->Data].sizeUTF8();
+								}
+								break;
+							case KEY_RIGHT:            // Right
+								if (object->Pos < object->Text[object->Data].sizeUTF8())
+									object->Pos++;
+								else if (object->Data + 1 < object->Text.size())
+								{
+									object->Data++;
+									object->Pos = 0;
+								}
+								break;
+							case KEY_UP:            // Up
+								if (object->Data > 0)
+								{
+									object->Data--;
+									object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
+								}
+								break;
+							case KEY_DOWN:            // Down
+								if (object->Data + 1 < object->Text.size())
+								{
+									object->Data++;
+									object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
+								}
+								break;
+							default:
+								switch (Key)
+								{
+								case 0:
+								case 27:
 									break;
 								default:
-									switch (Key)
-									{
-									case 0:
-									case 27:
-										break;
-									default:
-										object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
-																	 + InttoUTF8( Key )
-																	 + object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
-										object->Pos++;
-									}
+									object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
+																 + InttoUTF8( Key )
+																 + object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+									object->Pos++;
 								}
+							}
 						}
 						break;
 					}
@@ -1723,8 +1723,8 @@ namespace TA3D
 
 			if (wndFile.pullAsBool("window.centered"))
 			{
-				x = SCREEN_W - width >> 1;
-				y = SCREEN_H - height >> 1;
+				x = (SCREEN_W - width) >> 1;
+				y = (SCREEN_H - height) >> 1;
 			}
 
 			size_factor = gfx->height / 600.0f;			// For title bar

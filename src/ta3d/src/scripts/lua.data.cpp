@@ -71,7 +71,7 @@ namespace TA3D
         if (lua_istable(L, -1))
         {
             piece_name.resize(lua_objlen(L, -1));
-            for(int i = 1 ; i <= piece_name.size() ; i++)
+			for(uint32 i = 1 ; i <= piece_name.size() ; ++i)
             {
                 lua_rawgeti(L, -1, i);
                 piece_name[i - 1] = String::ToLower( lua_tostring(L, -1) );
@@ -94,8 +94,8 @@ namespace TA3D
 
     int LuaData::identify(const String &name)
     {
-        String query = String::ToLower(name);
-        for(int i = 0 ; i < piece_name.size() ; i++)
+		const String query = String::ToLower(name);
+		for(uint32 i = 0 ; i < piece_name.size() ; ++i)
             if (piece_name[i] == query)
                 return i;
         return -1;

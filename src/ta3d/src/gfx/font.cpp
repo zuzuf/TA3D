@@ -208,7 +208,7 @@ namespace TA3D
 			{
 				if (file->isReal())
 					tmp = file->getRealFilename();
-				else if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != file->size())
+				else if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != (uint32)file->size())
 				{
 					Stream tmp_file;
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
@@ -219,7 +219,7 @@ namespace TA3D
 						char *buf = new char[10240];
 						for(int i = 0 ; i < file->size() ; i += 10240)
 						{
-							int l = Math::Min(10240, file->size() - i);
+							const int l = Math::Min(10240, file->size() - i);
 							file->read(buf, l);
 							tmp_file.write(buf, l);
 						}

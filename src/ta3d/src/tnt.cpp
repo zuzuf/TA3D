@@ -154,7 +154,6 @@ namespace TA3D
 		}
 
 		map->sealvl = float(header.sealevel) * H_DIV;
-		int f_pos;
 		// Lit la minimap
 		LOG_DEBUG("MAP: reading mini map");
 		int event_timer = msec_timer;

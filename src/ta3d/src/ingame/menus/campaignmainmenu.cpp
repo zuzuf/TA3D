@@ -123,7 +123,7 @@ namespace Menus
 		start_game = false;
 
 		last_campaign_id = uint32(-1);
-		campaign_name;
+		campaign_name.clear();
 		mission_id = -1;
 		nb_mission = 0;
 

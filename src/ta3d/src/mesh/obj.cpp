@@ -190,7 +190,7 @@ namespace TA3D
 							{
 								vertex_idx.push_back( data[0].to<int>() - 1);
 								if (vertex_idx.back() < 0)
-									LOG_DEBUG(LOG_PREFIX_OBJ << "parser : " << line << " -> " << *s << " -> " << vertex_idx.back());
+								{	LOG_DEBUG(LOG_PREFIX_OBJ << "parser : " << line << " -> " << *s << " -> " << vertex_idx.back());	}
 								if (data.size() >= 2)
 									tcoord_idx.push_back(data[1].to<int>() - 1);
 								else
@@ -198,7 +198,7 @@ namespace TA3D
 							}
 						}
 
-						for (int i = 2; i < vertex_idx.size(); ++i) // Make triangles (FAN method)
+						for (uint32 i = 2; i < vertex_idx.size(); ++i) // Make triangles (FAN method)
 						{
 							face.push_back(vertex_idx[0]);
 							face.push_back(tcoord_idx[0]);

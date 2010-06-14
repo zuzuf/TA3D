@@ -60,7 +60,7 @@ namespace TA3D
 		return 1;
 	}
 
-	int CAPI::zshoot(lua_State *L)
+	int CAPI::zshoot(lua_State *)
 	{
 		SDL_Surface *bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
 		SDL_FillRect(bmp, NULL, 0);
@@ -140,7 +140,7 @@ namespace TA3D
 		return 1;
 	}
 
-	int CAPI::screenshot(lua_State *L)
+	int CAPI::screenshot(lua_State *)
 	{
 		Battle::Instance()->shoot = true;
 		return 0;
@@ -159,7 +159,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::reloadShaders(lua_State *L)
+	int CAPI::reloadShaders(lua_State *)
 	{
 		Battle::Instance()->reloadShaders();
 		return 0;
@@ -205,7 +205,7 @@ namespace TA3D
 		return 1;
 	}
 
-	int CAPI::exit(lua_State *L)
+	int CAPI::exit(lua_State *)
 	{
 		Battle::Instance()->done = true;
 		return 0;
@@ -289,7 +289,7 @@ namespace TA3D
 		return 1;
 	}
 
-	int CAPI::scriptDumpDebugInfo(lua_State *L)
+	int CAPI::scriptDumpDebugInfo(lua_State *)
 	{
 		if (Battle::Instance()->cur_sel_index >= 0 && units.unit[Battle::Instance()->cur_sel_index].script)
 			units.unit[Battle::Instance()->cur_sel_index].script->dumpDebugInfo();
@@ -312,7 +312,7 @@ namespace TA3D
 		return 1;
 	}
 
-	int CAPI::shake(lua_State *L)
+	int CAPI::shake(lua_State *)
 	{
 		Battle::Instance()->cam.setShake(1.0f, 32.0f);
 		return 0;
@@ -446,7 +446,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::deactivate(lua_State *L)
+	int CAPI::deactivate(lua_State *)
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
@@ -462,7 +462,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::activate(lua_State *L)
+	int CAPI::activate(lua_State *)
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
@@ -478,7 +478,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::resetScript(lua_State *L)
+	int CAPI::resetScript(lua_State *)
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
@@ -644,7 +644,7 @@ namespace TA3D
 		else if (context == "AI")
 		{
 			int pid = lua_gettop(L) > 1 ? lua_tointeger(L, 2) : -1;
-			if (pid >= 0 && pid < players.count())
+			if (pid >= 0 && pid < (int)players.count())
 				Battle::Instance()->debugInfo.process = AiScript::Ptr::WeakPointer(players.ai_command[pid].getAiScript());
 			else
 				Battle::Instance()->debugInfo.process = NULL;
@@ -657,7 +657,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugState(lua_State *L)												// Print LuaThread state
+	int CAPI::_debugState(lua_State *)												// Print LuaThread state
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
@@ -682,7 +682,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugStop(lua_State* L)				// Stop the LuaThread (it doesn't kill it)
+	int CAPI::_debugStop(lua_State *)				// Stop the LuaThread (it doesn't kill it)
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
@@ -691,7 +691,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugResume(lua_State *L)				// Resume the LuaThread (it doesn't uncrash it)
+	int CAPI::_debugResume(lua_State *)				// Resume the LuaThread (it doesn't uncrash it)
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
@@ -700,7 +700,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugKill(lua_State* L)	// Kill the LuaThread
+	int CAPI::_debugKill(lua_State *)	// Kill the LuaThread
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
@@ -709,7 +709,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugCrash(lua_State* L)				// Crash the LuaThread
+	int CAPI::_debugCrash(lua_State *)				// Crash the LuaThread
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
@@ -718,7 +718,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugContinue(lua_State *L)			// Uncrash the LuaThread
+	int CAPI::_debugContinue(lua_State *)			// Uncrash the LuaThread
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
@@ -744,7 +744,7 @@ namespace TA3D
 		return 0;
 	}
 
-	int CAPI::_debugMemory(lua_State *L)						// Show the memory used by the select Lua VM
+	int CAPI::_debugMemory(lua_State *)						// Show the memory used by the select Lua VM
 	{
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;

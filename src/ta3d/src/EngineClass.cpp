@@ -327,7 +327,7 @@ namespace TA3D
 			x1 = Math::Max(x1, 0);
 			uint32 i = (y1 - oy1) * w + x1 - ox1;
 			uint32 s = w - (x2 - x1);
-			for(int y = y1 ; y < y2 & yardmap.size() > i ; ++y)
+			for(int y = y1 ; y < y2 && yardmap.size() > i ; ++y)
 			{
 				for(int x = x1 ; x < x2 && yardmap.size() > i ; ++x, ++i)
 				{

@@ -618,7 +618,7 @@ namespace Audio
 			return;
 
 		pCurrentItemPlaying = -1;
-		for (int i = 0; i < pPlaylist.size(); ++i)
+		for (uint32 i = 0; i < pPlaylist.size(); ++i)
 		{
 			if (pPlaylist[i]->filename == filename)
 			{

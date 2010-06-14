@@ -241,7 +241,7 @@ namespace TA3D
 		fx.clear();
 		hashName.clear();
 		cacheName.clear();
-		for (int i = 0 ;i < cacheAnm.size() ; ++i)
+		for (uint32 i = 0 ;i < cacheAnm.size() ; ++i)
 			if (cacheAnm[i])
 				delete cacheAnm[i];
 		cacheAnm.clear();
@@ -256,7 +256,7 @@ namespace TA3D
 
 		if (pCacheIsDirty)	// We have work to do
 		{
-			for (int i = 0 ; i < cacheAnm.size() ; ++i)
+			for (uint32 i = 0 ; i < cacheAnm.size() ; ++i)
 			{
 				if (cacheAnm[i])
 					cacheAnm[i]->convert(false,true);

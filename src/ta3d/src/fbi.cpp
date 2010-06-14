@@ -93,7 +93,7 @@ namespace TA3D
 			}
 			for(int i = 0 ; i <= nb_pages && p == -1 ; ++i)
 			{
-				for(int k = 0 ; k < dl_data->size() && p == -1 ; ++k)
+				for(uint32 k = 0 ; k < dl_data->size() && p == -1 ; ++k)
 				{
 					bool found = true;
 					for(int j = 0 ; j < nb_unit ; ++j)
@@ -145,9 +145,9 @@ namespace TA3D
 				String::Vector entries;
 				if (VFS::Instance()->getDirlist(gafName + "\\*", entries))				// GAF-like directory
 				{
-					for(int i = 0 ; i < entries.size() ; ++i)
+					for(uint32 i = 0 ; i < entries.size() ; ++i)
 					{
-						String key = Paths::ExtractFileName(entries[i]).toUpper();
+						const String key = Paths::ExtractFileName(entries[i]).toUpper();
 						if (key.empty())
 							continue;
 						if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
@@ -317,7 +317,6 @@ namespace TA3D
 
 	void UnitManager::gather_build_data()
 	{
-		uint32 file_size=0;
 		String::Vector file_list;
 		VFS::Instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 

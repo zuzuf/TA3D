@@ -82,7 +82,7 @@ namespace TA3D
 		float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		if (!tex_cache_name.empty())
 		{
-			for(int i = 0 ; i < tex_cache_name.size() ; ++i)
+			for(uint32 i = 0 ; i < tex_cache_name.size() ; ++i)
 				load_texture_id(i);
 			tex_cache_name.clear();
 		}
@@ -179,7 +179,7 @@ namespace TA3D
 					if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
 					{
 						s_shader.on();
-						for (int j = 0; j < pTex->size() ; ++j)
+						for (uint32 j = 0; j < pTex->size() ; ++j)
 							s_shader.setvar1i( String("tex") << j, j );
 					}
 
@@ -212,7 +212,7 @@ namespace TA3D
 					if ((Flag & SURFACE_TEXTURED) && !notex) // Les textures et effets de texture
 					{
 						activated_tex = true;
-						for (int j = 0; j < pTex->size() ; ++j)
+						for (uint32 j = 0; j < pTex->size() ; ++j)
 						{
 							glActiveTextureARB(GL_TEXTURE0_ARB + j);
 							glEnable(GL_TEXTURE_2D);
@@ -252,7 +252,7 @@ namespace TA3D
 							if (animatedTex)
 								break;
 						}
-						for (int j = 0; j < pTex->size() ; ++j)
+						for (uint32 j = 0; j < pTex->size() ; ++j)
 						{
 							glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -296,7 +296,7 @@ namespace TA3D
 
 					if (activated_tex)
 					{
-						for (int j = 0; j < pTex->size() ; ++j)
+						for (uint32 j = 0; j < pTex->size() ; ++j)
 						{
 							glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 							glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -371,7 +371,7 @@ namespace TA3D
 			if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
 			{
 				s_shader.on();
-				for (int j = 0; j < pTex->size() ; ++j)
+				for (uint32 j = 0; j < pTex->size() ; ++j)
 					s_shader.setvar1i( String("tex") << j, j + 1 );
 			}
 
@@ -405,7 +405,7 @@ namespace TA3D
 			glBindTexture(GL_TEXTURE_2D, glColorTexture);
 			glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 
-			for (int j = 0; j < pTex->size() ; ++j)
+			for (uint32 j = 0; j < pTex->size() ; ++j)
 			{
 				glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -455,7 +455,7 @@ namespace TA3D
 			if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
 				s_shader.off();
 
-			for (int j = 0; j < pTex->size() + 1 ; ++j)
+			for (uint32 j = 0; j < pTex->size() + 1 ; ++j)
 			{
 				glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
