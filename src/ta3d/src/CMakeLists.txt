@@ -374,6 +374,8 @@ ELSE(NOT APPLE)
 		libSDL-1.2.0.dylib libSDL_mixer-1.2.0.dylib libSDL_image-1.2.0.dylib libSDL_net-1.2.0.dylib
 		libGLEW.1.5.1.dylib
 		libjpeg.8.dylib
+		libftgl.2.dylib
+		libsmpeg-0.4.0.dylib
 		)
 
 
