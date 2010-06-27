@@ -53,12 +53,12 @@ CONFIGURE_FILE(
 	"${CMAKE_CURRENT_SOURCE_DIR}/libs/yuni/src/ProfileBuild.cmake" COPYONLY)
 # The sources
 ADD_SUBDIRECTORY(libs/yuni/src)
-# At this point, the program 'libyuni-config' should be available, as requested
+# At this point, the program 'yuni-config' should be available, as requested
 # by the profile.
 # We have to provide the path where the file 'FindLibYuni.cmake' is located
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libs/yuni/packages/cmake")
 # Trying to find the Yuni framework
-Find_Package(LibYuni COMPONENTS core)
+Find_Package(Yuni COMPONENTS core)
 IF(LibYuni_FOUND)
 	# Infos
 	MESSAGE(STATUS "The Yuni Framework : ${LibYuni_INFOS}")
