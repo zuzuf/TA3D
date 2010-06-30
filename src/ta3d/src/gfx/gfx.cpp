@@ -2025,9 +2025,9 @@ namespace TA3D
 		}
 		for (int y = 0; y < bmp->h; ++y)
 		{
-			for (int x=0;x<bmp->w;x++)
+			for (int x = 0; x < bmp->w ; ++x)
 			{
-				uint32 c = SurfaceInt(bmp, x, y);
+				const uint32 c = SurfaceInt(bmp, x, y);
 				SurfaceInt(bmp, x, y) = makeacol( getr(c), getg(c), getb(c), geta(SurfaceInt(alpha,x,y)) );
 			}
 		}
