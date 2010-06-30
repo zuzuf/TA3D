@@ -438,7 +438,7 @@ namespace TA3D
 									else
 									{
 										int l = mask >> 1;
-										while (l > 0)
+										while (l > 0 && x < img->w)
 										{
 											SurfaceInt(img, x++, i) = 0x00000000;
 											--l;
@@ -451,7 +451,7 @@ namespace TA3D
 									{
 										int l = (mask >> 2) + 1;
 										byte c = file->getc();
-										while (l > 0)
+										while (l > 0 && x < img->w)
 										{
 											if (!truecolor)
 											{
@@ -467,7 +467,7 @@ namespace TA3D
 									else
 									{
 										int l = (mask >> 2) + 1;
-										while (l > 0)
+										while (l > 0 && x < img->w)
 										{
 											if (truecolor)
 											{
