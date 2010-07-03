@@ -1729,6 +1729,17 @@ namespace TA3D
 			}
 		}
 
+		const bool compressible = texFormat == GL_COMPRESSED_RGB || texFormat == GL_COMPRESSED_RGBA || texFormat == 0;
+		String cache_filename = !file.empty() ? String(file) << ".bin" : String();
+		cache_filename.replace('/', 'S');
+		cache_filename.replace('\\', 'S');
+		if (compressible)
+		{
+			GLuint gltex = load_texture_from_cache(cache_filename, filter_type, width, height, clamp);
+			if (gltex)
+				return gltex;
+		}
+
 		SDL_Surface* bmp = load_image(file);
 		if (bmp == NULL)
 		{
@@ -1771,6 +1782,9 @@ namespace TA3D
 			textureIDs[upfile] = Interfaces::GfxTexture(gl_tex, bmp->w, bmp->h);
 			textureFile[gl_tex] = upfile;
 			textureLoad[gl_tex] = 1;
+
+			if (compressible)
+				save_texture_to_cache(cache_filename, gl_tex, bmp->w, bmp->h);
 		}
 		SDL_FreeSurface(bmp);
 		return gl_tex;
@@ -1873,7 +1887,6 @@ namespace TA3D
 			GLint size, internal_format;
 
 			cache_file.read( (char*)&lod_max, sizeof( lod_max ));
-			cache_file.read( (char*)&internal_format, sizeof( GLint ));
 
 			GLuint	tex;
 			glEnable(GL_TEXTURE_2D);
@@ -1885,21 +1898,26 @@ namespace TA3D
 			else
 				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
-			GLint w,h,border;
-			cache_file.read( (char*)&size, sizeof( GLint ) );
+			for(int lod = 0 ; lod < lod_max ; ++lod)
+			{
+				GLint w,h,border;
+				cache_file.read( (char*)&size, sizeof( GLint ) );
 
-			byte *img = new byte[size];
+				byte *img = new byte[size];
 
-			cache_file.read( (char*)&internal_format, sizeof( GLint ) );
-			cache_file.read( (char*)&border, sizeof( GLint ) );
-			cache_file.read( (char*)&w, sizeof( GLint ) );
-			cache_file.read( (char*)&h, sizeof( GLint ) );
-			cache_file.read( (char*)img, size );
-			glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
+				cache_file.read( (char*)&internal_format, sizeof( GLint ) );
+				cache_file.read( (char*)&border, sizeof( GLint ) );
+				cache_file.read( (char*)&w, sizeof( GLint ) );
+				cache_file.read( (char*)&h, sizeof( GLint ) );
+				cache_file.read( (char*)img, size );
+				if (lod == 0)
+					glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
+				else
+					glCompressedTexSubImage2D( GL_TEXTURE_2D, lod, 0, 0, w, h, internal_format, size, img);
 
+				DELETE_ARRAY(img);
+			}
 			glGenerateMipmapEXT(GL_TEXTURE_2D);
-
-			DELETE_ARRAY(img);
 
 			cache_file.close();
 
@@ -1971,38 +1989,36 @@ namespace TA3D
 		cache_file.write( (const char*)&width, 4 );
 		cache_file.write( (const char*)&height, 4 );
 
-		float lod_max_f = Math::Max(logf(float(rw)), logf(float(rh))) / logf(2.0f);
-		int lod_max = ((int) lod_max_f);
-		if (lod_max > lod_max_f )
+		int lod_max = Math::Max(Math::Log2(rw), Math::Log2(rh));
+		if ((1 << lod_max) < rw && (1 << lod_max) < rh )
 			lod_max++;
 
 		cache_file.write( (const char*)&lod_max, sizeof( lod_max ) );
 
-		GLint size, internal_format;
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
-		cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
+		for(int lod = 0 ; lod < lod_max ; ++lod)
+		{
+			GLint size, internal_format;
 
-		int lod = 0;
+			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
+			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
 
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+			byte *img = new byte[size];
 
-		byte *img = new byte[size];
+			glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
+			GLint w,h,border;
+			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_BORDER, &border );
+			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
+			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h );
 
-		glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
-		GLint w,h,border;
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_BORDER, &border );
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h );
+			cache_file.write( (const char*)&size, sizeof( GLint ) );
+			cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
+			cache_file.write( (const char*)&border, sizeof( GLint ) );
+			cache_file.write( (const char*)&w, sizeof( GLint ) );
+			cache_file.write( (const char*)&h, sizeof( GLint ) );
+			cache_file.write( (const char*)img, size );
 
-		cache_file.write( (const char*)&size, sizeof( GLint ) );
-		cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
-		cache_file.write( (const char*)&border, sizeof( GLint ) );
-		cache_file.write( (const char*)&w, sizeof( GLint ) );
-		cache_file.write( (const char*)&h, sizeof( GLint ) );
-		cache_file.write( (const char*)img, size );
-
-		DELETE_ARRAY(img);
+			DELETE_ARRAY(img);
+		}
 
 		cache_file.close();
 	}
@@ -2161,6 +2177,7 @@ namespace TA3D
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
         glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
