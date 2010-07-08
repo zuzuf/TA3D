@@ -55,16 +55,16 @@ CONFIGURE_FILE(
 ADD_SUBDIRECTORY(libs/yuni/src)
 # At this point, the program 'yuni-config' should be available, as requested
 # by the profile.
-# We have to provide the path where the file 'FindLibYuni.cmake' is located
+# We have to provide the path where the file 'FindYuni.cmake' is located
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libs/yuni/packages/cmake")
 # Trying to find the Yuni framework
 Find_Package(Yuni COMPONENTS core)
-IF(LibYuni_FOUND)
+IF(Yuni_FOUND)
 	# Infos
-	MESSAGE(STATUS "The Yuni Framework : ${LibYuni_INFOS}")
-ELSE(LibYuni_FOUND)
+	MESSAGE(STATUS "The Yuni Framework : ${Yuni_INFOS}")
+ELSE(Yuni_FOUND)
 	Message(SEND_ERROR "The Yuni Framework could not be found.")
-ENDIF(LibYuni_FOUND)
+ENDIF(Yuni_FOUND)
 
 
 

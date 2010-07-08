@@ -4,8 +4,8 @@ LINK_LIBRARIES("${LIBS}")
 
 
 # Yuni Settins
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LibYuni_CXXFLAGS}")
-link_libraries("${LibYuni_LIBS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Yuni_CXXFLAGS}")
+link_libraries("${Yuni_LIBS}")
 
 
 
