@@ -208,7 +208,7 @@ namespace TA3D
 
 		// Here we go
 		uint64 startTime = msec_timer;
-		uint64 timer[22];
+		uint64 timer[23];
 
 		timer[0] = msec_timer;
 		if (!initPreflight(g))
@@ -275,6 +275,9 @@ namespace TA3D
 			return false;
 		timer[21] = msec_timer;
 
+		unit_manager.waitUntilReady();
+		timer[22] = msec_timer;
+
 		// The loading has finished
 		(*loading)(100.0f, I18N::Translate("Load finished"));
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading time: " << ((float)(msec_timer - startTime) * 0.001f) << " sec.");
@@ -301,8 +304,9 @@ namespace TA3D
 			"initTheFog()",
 			"initParticules()",
 			"initTheWater()",
-			"initPostFlight()" };
-		for (int i = 0 ; i < 20; i++)
+			"initPostFlight()",
+			"waitUntilReady()"};
+		for (int i = 0 ; i < 22 ; ++i)
 			LOG_INFO(LOG_PREFIX_BATTLE << functionName[i] << " done in " << timer[i+1] - timer[i] << " msec.");
 #endif
 
@@ -487,11 +491,12 @@ namespace TA3D
 			LOG_WARNING(LOG_PREFIX_BATTLE << "`dl.gui` is missing or can not be loaded");
 		}
 
+		const String sideName = String::ToLower(ta3dSideData.side_name[players.side_view]);
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
 		{
 			if (!(i & 0xF))
 				(*loading)((550.0f + 50.0f * i / (unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
-			if (String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
+			if (String::ToLower(unit_manager.unit_type[i]->side) == sideName)
 			{
 				int e(1);
 				while (VFS::Instance()->fileExists(String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui"))
