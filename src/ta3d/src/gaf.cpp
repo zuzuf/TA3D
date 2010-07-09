@@ -327,7 +327,7 @@ namespace TA3D
 		*file >> entry.Unknown2;
 		convertGAFCharToString(file, entry.name);
 
-		if (entry.Frames < 0)
+		if (entry.Frames <= 0 || img_idx >= entry.Frames)
 		{
 			DELETE_ARRAY(pointers);
 			return NULL;
