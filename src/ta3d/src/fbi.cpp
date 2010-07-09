@@ -389,9 +389,9 @@ namespace TA3D
 						GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget", canbuild);
 						if (unit_type[idx]->glpic || tex)
 						{
-							const int px = (n & 1) * 64;
-							const int py = 155 + (n >> 1) * 64;
-							const int p = n  / 6;
+							const int px = ((n - 1) & 1) * 64;
+							const int py = 155 + ((n - 1) >> 1) * 64;
+							const int p = (n - 1)  / 6;
 							unit_type[i]->AddUnitBuild(idx, px, py, 64, 64, p, tex);
 						}
 						else
