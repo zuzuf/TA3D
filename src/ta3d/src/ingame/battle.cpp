@@ -477,7 +477,7 @@ namespace TA3D
 					cur_dir = cam.dir + cam.widthFactor * 2.0f * (cam_target_mx - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side - 1.5f * (cam_target_my - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
 					m_pos = cam.rpos;
 				}
-				cur_dir.unit();		// Direction pointée par le curseur
+				cur_dir.unit();		// Direction pointÃ©e par le curseur
 				Vector3D moving_target(cam_target - m_pos);
 				moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
 				if (lp_CONFIG->ortho_camera)
@@ -537,7 +537,7 @@ namespace TA3D
 				int pointing = 0;
 				if (!IsOnGUI)
 				{
-					pointing = units.pick(cam);		// Sur quoi le curseur est-il pointé??
+					pointing = units.pick(cam);		// Sur quoi le curseur est-il pointÃ©??
 					if (pointing == -1) 				// Is the cursor on a rock, tree, ...?
 					{
 						Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
@@ -989,7 +989,7 @@ namespace TA3D
 			if (mouse_b != 1 && omb3 == 1 && !TA3D_SHIFT_PRESSED && (!IsOnGUI || IsOnMinimap))
 				current_order = SIGNAL_ORDER_NONE;
 
-			//---------------------------------	Code de sélection d'unités
+			//---------------------------------	Code de sÃ©lection d'unitÃ©s
 
 			if (!IsOnGUI)
 			{
@@ -1014,7 +1014,7 @@ namespace TA3D
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
 								int i = units.idx_list[e];
-								if (units.unit[i].owner_id == players.local_human_id) // On peut désélectionner les morts, ça ne change rien :-)
+								if (units.unit[i].owner_id == players.local_human_id) // On peut dÃ©sÃ©lectionner les morts, Ã§a ne change rien :-)
 									units.unit[i].sel = false;
 							}
 						}
@@ -1024,7 +1024,7 @@ namespace TA3D
 
 			if (build == -1 && (!IsOnGUI || (pMouseSelecting && (mouse_y<32 || mouse_y>SCREEN_H-32)) || IsOnMinimap)) // Si le curseur est dans la zone de jeu
 			{
-				if ((mouse_b!=1 && pMouseSelecting) || ( IsOnMinimap && mouse_b == 1 && omb3 != 1))// Récupère les unités présentes dans la sélection
+				if ((mouse_b!=1 && pMouseSelecting) || ( IsOnMinimap && mouse_b == 1 && omb3 != 1))// RÃ©cupÃ¨re les unitÃ©s prÃ©sentes dans la sÃ©lection
 				{
 					bool skip = false;
 					if ((abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) < PICK_TOLERANCE && abs(pMouseRectSelection.y1 - pMouseRectSelection.y2) < PICK_TOLERANCE) || IsOnMinimap)
@@ -1041,8 +1041,8 @@ namespace TA3D
 										units.unit[i].sel = false;
 								}
 							}
-							if (pointing >= 0 && Yuni::Math::Zero(units.unit[pointing].build_percent_left))	// On ne sélectionne pas les unités en construction
-								units.unit[pointing].sel ^= true; // Sélectionne/Désélectionne si l'unité est déj�  sélectionnée en appuyant sur SHIFT
+							if (pointing >= 0 && Yuni::Math::Zero(units.unit[pointing].build_percent_left))	// On ne sÃ©lectionne pas les unitÃ©s en construction
+								units.unit[pointing].sel ^= true; // SÃ©lectionne/DÃ©sÃ©lectionne si l'unitÃ© est dÃ©jÃ  sÃ©lectionnÃ©e en appuyant sur SHIFT
 							selected = false;
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
 							{
@@ -1055,7 +1055,7 @@ namespace TA3D
 							skip = true;
 					}
 					else
-						selected = units.selectUnits(RectTest(cam, pMouseRectSelection));		// Séléction au lasso
+						selected = units.selectUnits(RectTest(cam, pMouseRectSelection));		// SÃ©lÃ©ction au lasso
 
 					if (!skip)
 					{
@@ -1203,7 +1203,7 @@ namespace TA3D
 				}
 			}
 			else
-				if (TA3D_CTRL_PRESSED && key[KEY_Z]) // Séletionne toutes les unités dont le type est déj�  sélectionné / Select units of the same type
+				if (TA3D_CTRL_PRESSED && key[KEY_Z]) // SÃ©letionne toutes les unitÃ©s dont le type est dÃ©jÃ  sÃ©lectionnÃ© / Select units of the same type
 				{
 					bool *sel_type = new bool[unit_manager.nb_unit];
 					for (int i = 0; i < unit_manager.nb_unit; ++i)
@@ -1265,7 +1265,7 @@ namespace TA3D
 					}
 					else
 					{
-						if (TA3D_CTRL_PRESSED) // Formation de groupes d'unités
+						if (TA3D_CTRL_PRESSED) // Formation de groupes d'unitÃ©s
 						{
 							int grpe = -1;
 							if (key[KEY_0])	grpe = 0;
@@ -1297,7 +1297,7 @@ namespace TA3D
 						}
 						else
 						{
-							if (key[KEY_ALT]) // Restauration de groupes d'unités
+							if (key[KEY_ALT]) // Restauration de groupes d'unitÃ©s
 							{
 								int grpe = -1;
 								if (key[KEY_0])	grpe = 0;
@@ -1486,7 +1486,7 @@ namespace TA3D
 
 			switch(signal)
 			{
-				case 0:				// Rien de spécial
+				case 0:				// Rien de spÃ©cial
 					break;
 				case -1:			// Fin du script
 					if (!pNetworkEnabled || pNetworkIsServer)
@@ -1494,7 +1494,7 @@ namespace TA3D
 					break;
 				case -2:			// Pause
 					break;
-				case -3:			// Attente d'un évènement
+				case -3:			// Attente d'un Ã©vÃ¨nement
 					break;
 				case 1:				// Fin de partie (match nul)
 					done = true;
@@ -1504,18 +1504,18 @@ namespace TA3D
 					done = true;
 					pResult = brVictory;
 					break;
-				case 3:				// Fin de partie (défaite)
+				case 3:				// Fin de partie (dÃ©faite)
 					done = !pNetworkIsServer;			// Server can't leave, otherwise game stops
 					pResult = brDefeat;
 					break;
-				case 4:				// Caméra en mode normal
+				case 4:				// CamÃ©ra en mode normal
 					if (freecam)
 					{
 						freecam = false;
 						r2 = 0.0f;
 					}
 					break;
-				case 5:				// Caméra libre
+				case 5:				// CamÃ©ra libre
 					if (!freecam)
 						freecam = true;
 					break;
@@ -1531,7 +1531,7 @@ namespace TA3D
 			int n = cur_sel;
 			if (n == -1)
 				n = -2;
-			if (n >= 0 && units.unit[cur_sel_index].build_percent_left > 0.0f) // Unité non terminée
+			if (n >= 0 && units.unit[cur_sel_index].build_percent_left > 0.0f) // Unfinished unit
 				n = -1;
 			int sel = -1;
 
@@ -1547,7 +1547,7 @@ namespace TA3D
 
 			Gui::WND::Ptr pWnd = pArea.get_wnd(pCurrentGUI);
 			int scrolling = pWnd != NULL ? pWnd->scrolling : 0;
-			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) + "gen")
+			if (pCurrentGUI != String(ta3dSideData.side_pref[players.side_view]) << "gen")
 				unit_manager.unit_build_menu(n, omb2, dt, scrolling, true);	// Draw GUI background
 			else
 				unit_manager.unit_build_menu(-1, omb2, dt, scrolling, true);	// Draw GUI background
@@ -1556,11 +1556,10 @@ namespace TA3D
 
 			/*------------------- End of GUI drawings -------------------------------------------------------*/
 
-			/*WND *current_wnd =*/ //pArea.get_wnd(pCurrentGUI);
 			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) << "gen")
-				sel = unit_manager.unit_build_menu(n,omb2,dt,scrolling,false);	// Menu correspondant �  l'unité / Unit's menu
+				sel = unit_manager.unit_build_menu(n,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
 			else
-				sel = unit_manager.unit_build_menu(-1,omb2,dt,scrolling,false);	// Menu correspondant �  l'unité / Unit's menu
+				sel = unit_manager.unit_build_menu(-1,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
 			if (sel == -2) // Crée des armes / build weapons
 			{
 				if (mouse_b == 1 && omb2 != 1)
@@ -1608,11 +1607,20 @@ namespace TA3D
 				pCurrentGUI << unit_manager.unit_type[n]->Unitname << "1";
 				if (pArea.get_wnd(pCurrentGUI) == NULL)
 				{
-					pCurrentGUI.clear();
-					if (unit_manager.unit_type[ n ]->nb_unit > 0)				// The default build page
-						pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "dl";
+					const String filename = String::ToLower(String(ta3dSideData.guis_dir) << pCurrentGUI << ".gui");
+					if (toBeLoadedMenuSet.count(filename))
+					{
+						pArea.load_window(filename);			// Load the build interface
+						toBeLoadedMenuSet.erase(filename);
+					}
 					else
-						pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+					{
+						pCurrentGUI.clear();
+						if (unit_manager.unit_type[ n ]->nb_unit > 0)				// The default build page
+							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "dl";
+						else
+							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+					}
 				}
 				updateCurrentGUICacheNames();
 				pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
@@ -1874,11 +1882,20 @@ namespace TA3D
 				pCurrentGUI << unit_manager.unit_type[old_gui_sel]->Unitname << "1";
 				if (pArea.get_wnd(pCurrentGUI) == NULL)
 				{
-					pCurrentGUI.clear();
-					if (unit_manager.unit_type[old_gui_sel]->nb_unit > 0) // The default build page
-						pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "dl";
+					const String filename = String::ToLower(String(ta3dSideData.guis_dir) << pCurrentGUI << ".gui");
+					if (toBeLoadedMenuSet.count(filename))
+					{
+						pArea.load_window(filename);			// Load the build interface
+						toBeLoadedMenuSet.erase(filename);
+					}
 					else
-						pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+					{
+						pCurrentGUI.clear();
+						if (unit_manager.unit_type[old_gui_sel]->nb_unit > 0) // The default build page
+							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "dl";
+						else
+							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+					}
 				}
 				updateCurrentGUICacheNames();
 				pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
@@ -2149,7 +2166,7 @@ namespace TA3D
 			{
 				build = sel;
 				sound_manager->playTDFSound( "ADDBUILD", "sound" , NULL);
-				if (!unit_manager.unit_type[cur_sel]->BMcode) // S'il s'agit d'un bâtiment
+				if (!unit_manager.unit_type[cur_sel]->BMcode) // S'il s'agit d'un bÃ¢timent
 				{
 					if (TA3D_SHIFT_PRESSED)
 						for (int i = 0; i < 5; ++i)
@@ -2258,7 +2275,7 @@ namespace TA3D
 				unit_info_id = -1;
 			}
 
-			if (last_on != -1 && show_mission_info) // Sur les unités sélectionnées
+			if (last_on != -1 && show_mission_info) // Sur les unitÃ©s sÃ©lectionnÃ©es
 			{
 				static const char *unit_info[] =
 				{
@@ -2358,9 +2375,9 @@ namespace TA3D
 			if (key[KEY_F12])
 				shoot = true;
 
-			/*------------ Code de gestion du déroulement de la partie -----------------------------------*/
+			/*------------ Code de gestion du dÃ©roulement de la partie -----------------------------------*/
 
-			if ((!pNetworkEnabled || pNetworkIsServer) && signal == -1)	// Si le script est terminé, on reprend les règles standard
+			if ((!pNetworkEnabled || pNetworkIsServer) && signal == -1)	// Si le script est terminÃ©, on reprend les rÃ¨gles standard
 			{
 				bool win = true;
 				for (unsigned int i = 0; i != players.count(); ++i)
