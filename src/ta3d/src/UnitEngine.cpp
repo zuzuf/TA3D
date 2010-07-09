@@ -90,7 +90,7 @@ namespace TA3D
 
 		DELETE_ARRAY(idx_list);
 		DELETE_ARRAY(free_idx);
-		if (max_unit>0 && unit)			// Destroy all units
+		if (max_unit > 0 && unit)			// Destroy all units
 			for(int i = 0; i < max_unit; ++i)
 				unit[i].destroy(true);
 		DELETE_ARRAY(unit);
@@ -300,17 +300,17 @@ namespace TA3D
 		index_list_size=0;
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			free_index_size[i] = 0;
-		idx_list=free_idx=NULL;
-		page=0;
-		nb_unit=0;
-		unit=NULL;
-		max_unit=0;
-		nb_attacked=0.0f;
-		nb_built=0.0f;
-		exp_dt_1=0.0f;
-		exp_dt_2=0.0f;
-		exp_dt_4=0.0f;
-		g_dt=0.0f;
+		idx_list = free_idx = NULL;
+		page = 0;
+		nb_unit = 0;
+		unit = NULL;
+		max_unit = 0;
+		nb_attacked = 0.0f;
+		nb_built = 0.0f;
+		exp_dt_1 = 0.0f;
+		exp_dt_2 = 0.0f;
+		exp_dt_4 = 0.0f;
+		g_dt = 0.0f;
 
 		pMutex.unlock();
 	}
