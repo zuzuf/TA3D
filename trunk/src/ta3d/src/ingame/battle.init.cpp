@@ -120,6 +120,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
 		grab_mouse(lp_CONFIG->grab_inputs);
 		pInstance = this;
+		toBeLoadedMenuSet.set_deleted_key(String());
     }
 
 	Battle::~Battle()
@@ -501,9 +502,7 @@ namespace TA3D
 				int e(1);
 				while (VFS::Instance()->fileExists(String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui"))
 				{
-					pArea.load_window( String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui");			// Load the build interface
-					pArea.msg( String(unit_manager.unit_type[i]->Unitname) << e << ".hide");	// Hide it
-					pArea.msg( String(unit_manager.unit_type[i]->Unitname) << e << ".enableScrolling");	// Enable scrolling
+					toBeLoadedMenuSet.insert(String::ToLower(String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui"));
 					++e;
 				}
 			}

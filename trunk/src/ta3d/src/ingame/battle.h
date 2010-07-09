@@ -245,6 +245,8 @@ namespace TA3D
 		String pCurrentGUI;
 		//!
 		String pCurrentGUICache[cgcEnd];
+		//!
+		HashSet<>::Sparse toBeLoadedMenuSet;
 
 	private:
 		//!
