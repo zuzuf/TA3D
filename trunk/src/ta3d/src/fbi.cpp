@@ -159,10 +159,10 @@ namespace TA3D
 					File* gaf_file = VFS::Instance()->readFile( gafName );
 					if (gaf_file)
 					{
-						int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
+						const int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
 						for(int i = 0 ; i < nbEntries ; ++i)
 						{
-							String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
+							const String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
 							if (key.empty())
 								continue;
 							if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
@@ -215,7 +215,7 @@ namespace TA3D
 		return tex;
 	}
 
-	void UnitManager::analyse(String filename,int unit_index)
+	void UnitManager::analyse(const String &filename,int unit_index)
 	{
 		TDFParser gui_parser(filename, false, false, true);
 
@@ -228,24 +228,20 @@ namespace TA3D
 
 		int page = number.to<int>() - 1;		// Extract the page number
 
-		int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
+		const int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 
-		int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
-		int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
+		const int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
+		const int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
 		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		String name;
 		for (int i = 1; i <= NbObj; ++i)
 		{
-			int attribs = gui_parser.pullAsInt( String("gadget") << i << ".common.commonattribs" );
+			const int attribs = gui_parser.pullAsInt( String("gadget") << i << ".common.commonattribs" );
 			if (!(attribs & 4) && !(attribs & 8))	// Neither a unit nor a weapon
 				continue;
-			int x = gui_parser.pullAsInt( String("gadget") << i << ".common.xpos" ) + x_offset;
-			int y = gui_parser.pullAsInt( String("gadget") << i << ".common.ypos" ) + y_offset;
-			int w = gui_parser.pullAsInt( String("gadget") << i << ".common.width" );
-			int h = gui_parser.pullAsInt( String("gadget") << i << ".common.height" );
 			name = gui_parser.pullAsString( String("gadget") << i << ".common.name" );
-			int idx = (attribs & 4) ? get_unit_index(name) : -1;		// attribs & 4 ==> unit, attribs & 8 ==> weapon
+			const int idx = (attribs & 4) ? get_unit_index(name) : -1;		// attribs & 4 ==> unit, attribs & 8 ==> weapon
 			if ((attribs & 4) && idx == -1)
 			{
 				if (name != "IGPATCH")
@@ -253,7 +249,13 @@ namespace TA3D
 				continue;
 			}
 
+			if (unit_type[unit_index]->canBuild(idx))
+				continue;
+			int w = gui_parser.pullAsInt( String("gadget") << i << ".common.width" );
+			int h = gui_parser.pullAsInt( String("gadget") << i << ".common.height" );
 			GLuint tex = loadBuildPic( String("anims\\") << unit_type[unit_index]->Unitname << page + 1 << ".gaf", name, &w, &h);
+			const int x = gui_parser.pullAsInt( String("gadget") << i << ".common.xpos" ) + x_offset;
+			const int y = gui_parser.pullAsInt( String("gadget") << i << ".common.ypos" ) + y_offset;
 			unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
 		}
 	}
@@ -282,11 +284,14 @@ namespace TA3D
 			int idx = get_unit_index(unitname);
 			if (idx >= 0 && idx < nb_unit)
 			{
-				GLuint tex = loadBuildPic( String("anims\\") << unitname << "_gadget.gaf", unitname);
-				if (tex || unit_type[idx]->glpic)
-					unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
-				else
-				{	LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");	}
+				if (!unit_type[unit_index]->canBuild(idx))
+				{
+					GLuint tex = loadBuildPic( String("anims\\") << unitname << "_gadget.gaf", unitname);
+					if (tex || unit_type[idx]->glpic)
+						unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
+					else
+					{	LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");	}
+				}
 			}
 			else
 			{	LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");	}
@@ -331,6 +336,12 @@ namespace TA3D
 		}
 	}
 
+	void UnitManager::start_threaded_stuffs()
+	{
+		ready = false;
+		new UnitDataLoader;
+	}
+
 
 	void UnitManager::gather_all_build_data()
 	{
@@ -373,16 +384,19 @@ namespace TA3D
 				int idx = get_unit_index( canbuild );
 				if (idx >= 0 && idx < nb_unit)
 				{
-					GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget", canbuild);
-					if (unit_type[idx]->glpic || tex)
+					if (!unit_type[i]->canBuild(idx))		// Check if it's already in the list
 					{
-						const int px = (n & 1) * 64;
-						const int py = 155 + (n >> 1) * 64;
-						const int p = n  / 6;
-						unit_type[i]->AddUnitBuild(idx, px, py, 64, 64, p, tex);
+						GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget", canbuild);
+						if (unit_type[idx]->glpic || tex)
+						{
+							const int px = (n & 1) * 64;
+							const int py = 155 + (n >> 1) * 64;
+							const int p = n  / 6;
+							unit_type[i]->AddUnitBuild(idx, px, py, 64, 64, p, tex);
+						}
+						else
+						{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
 					}
-					else
-					{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
 				}
 				else
 				{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
@@ -1224,7 +1238,7 @@ namespace TA3D
 				(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
 			++n;
 
-			String nom = String::ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
+			const String nom = String::ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
 
 			if (unit_manager.get_unit_index(nom) == -1)
 			{
@@ -1247,37 +1261,10 @@ namespace TA3D
 			}
 		}
 
-		for (int i = 0;i < unit_manager.nb_unit; ++i)
-			unit_manager.load_script_file(unit_manager.unit_type[i]->Unitname);
-
-		unit_manager.Identify();
+		unit_manager.start_threaded_stuffs();
 
 		unit_manager.gather_all_build_data();
 
-		// Correct some data given in the FBI file using data from the moveinfo.tdf file
-		TDFParser parser(ta3dSideData.gamedata_dir + "moveinfo.tdf");
-		n = 0;
-		while (!parser.pullAsString(String("CLASS") << n << ".name").empty())
-			++n;
-
-		for (int i = 0; i < unit_manager.nb_unit; ++i)
-		{
-			if (!unit_manager.unit_type[i]->MovementClass.empty())
-			{
-				for (int e = 0; e < n; ++e)
-				{
-					if (parser.pullAsString(String("CLASS") << e << ".name") == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
-					{
-						unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(String("CLASS") << e << ".footprintx", unit_manager.unit_type[i]->FootprintX ));
-						unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(String("CLASS") << e << ".footprintz", unit_manager.unit_type[i]->FootprintZ ));
-						unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".minwaterdepth", unit_manager.unit_type[i]->MinWaterDepth ));
-						unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".maxwaterdepth", unit_manager.unit_type[i]->MaxWaterDepth ));
-						unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(String("CLASS") << e << ".maxslope", unit_manager.unit_type[i]->MaxSlope ));
-						break;
-					}
-				}
-			}
-		}
 		return nb_inconnu;
 	}
 
@@ -1312,6 +1299,52 @@ namespace TA3D
 	{
 		Category.set_empty_key(String());
 		init();
+	}
+
+	void UnitManager::waitUntilReady() const
+	{
+		while(!ready)
+			rest(10);
+	}
+
+	UnitDataLoader::UnitDataLoader()
+	{
+		start();
+	}
+
+	void UnitDataLoader::proc(void *)
+	{
+		for (int i = 0;i < unit_manager.nb_unit; ++i)
+			unit_manager.load_script_file(unit_manager.unit_type[i]->Unitname);
+
+		unit_manager.Identify();
+
+		// Correct some data given in the FBI file using data from the moveinfo.tdf file
+		TDFParser parser(ta3dSideData.gamedata_dir + "moveinfo.tdf");
+		int n = 0;
+		while (!parser.pullAsString(String("CLASS") << n << ".name").empty())
+			++n;
+
+		for (int i = 0; i < unit_manager.nb_unit; ++i)
+		{
+			if (!unit_manager.unit_type[i]->MovementClass.empty())
+			{
+				const String movementclass = String::ToUpper(unit_manager.unit_type[i]->MovementClass);
+				for (int e = 0; e < n; ++e)
+				{
+					if (parser.pullAsString(String("CLASS") << e << ".name") == movementclass)
+					{
+						unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(String("CLASS") << e << ".footprintx", unit_manager.unit_type[i]->FootprintX ));
+						unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(String("CLASS") << e << ".footprintz", unit_manager.unit_type[i]->FootprintZ ));
+						unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".minwaterdepth", unit_manager.unit_type[i]->MinWaterDepth ));
+						unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".maxwaterdepth", unit_manager.unit_type[i]->MaxWaterDepth ));
+						unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(String("CLASS") << e << ".maxslope", unit_manager.unit_type[i]->MaxSlope ));
+						break;
+					}
+				}
+			}
+		}
+		unit_manager.ready = true;
 	}
 } // namespace TA3D
 

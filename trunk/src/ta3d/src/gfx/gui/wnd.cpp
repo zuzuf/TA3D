@@ -1465,11 +1465,6 @@ namespace TA3D
 		{
 			ingame_window = true;
 
-			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-				gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
-			else
-				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-
 			TDFParser wndFile(filename, false, false, true);
 
 			// Grab the window's name, so we can send signals to it (to hide/show for example)

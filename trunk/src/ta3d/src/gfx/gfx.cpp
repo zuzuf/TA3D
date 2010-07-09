@@ -1714,7 +1714,7 @@ namespace TA3D
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
 
-		const String upfile = String::ToUpper(file) << " (" << texFormat;
+		const String upfile = String::ToUpper(file) << " (" << texFormat << "-" << (int)filter_type << ')';
 		HashMap<Interfaces::GfxTexture>::Sparse::iterator it = textureIDs.find(upfile);
 		if (it != textureIDs.end() && it->second.tex > 0)		// File already loaded
 		{
@@ -1892,8 +1892,13 @@ namespace TA3D
 			glEnable(GL_TEXTURE_2D);
 			glGenTextures(1,&tex);
 
+			if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR)
+				use_mipmapping(false);
+			else
+				use_mipmapping(true);
+
 			glBindTexture( GL_TEXTURE_2D, tex );
-			if (glGenerateMipmapEXT)
+			if (glGenerateMipmapEXT || !build_mipmaps)
 				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
 			else
 				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
@@ -1916,16 +1921,22 @@ namespace TA3D
 					glCompressedTexSubImage2D( GL_TEXTURE_2D, lod, 0, 0, w, h, internal_format, size, img);
 
 				DELETE_ARRAY(img);
+				if (!build_mipmaps)
+					break;
 			}
-			glGenerateMipmapEXT(GL_TEXTURE_2D);
+			if (build_mipmaps)
+				glGenerateMipmapEXT(GL_TEXTURE_2D);
 
 			cache_file.close();
+
+			if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR)
+				use_mipmapping(true);
 
 			glMatrixMode(GL_TEXTURE);
 			glLoadIdentity();
 			glMatrixMode(GL_MODELVIEW);
 
-			if (clamp )
+			if (clamp)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -1939,22 +1950,22 @@ namespace TA3D
 
 			switch (filter_type)
 			{
-				case FILTER_NONE:
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-					break;
-				case FILTER_LINEAR:
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-					break;
-				case FILTER_BILINEAR:
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-					break;
-				case FILTER_TRILINEAR:
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-					break;
+			case FILTER_NONE:
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+				break;
+			case FILTER_LINEAR:
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+				break;
+			case FILTER_BILINEAR:
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+				break;
+			case FILTER_TRILINEAR:
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+				break;
 			}
 			return tex;
 		}

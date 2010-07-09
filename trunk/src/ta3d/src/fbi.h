@@ -36,6 +36,7 @@
 # include "gfx/texture.h"
 # include "misc/string.h"
 # include "misc/grid.h"
+# include "threads/thread.h"
 
 
 
@@ -329,6 +330,7 @@ namespace TA3D
 
     class UnitManager          // Classe pour charger toutes les données relatives aux unités
     {
+		friend class UnitDataLoader;
     public:
         typedef std::vector<UnitType*>  UnitList;
     public:
@@ -341,6 +343,7 @@ namespace TA3D
         Interfaces::GfxTexture  panel;          // The texture used by the panel
         Interfaces::GfxTexture  paneltop,panelbottom;
 		HashMap< int >::Dense   unit_hashtable;     // hashtable used to speed up operations on UnitType objects
+		bool ready;
 
     public:
 
@@ -380,20 +383,33 @@ namespace TA3D
         }
     public:
 
-        void analyse(String filename,int unit_index);
+		void analyse(const String &filename, const int unit_index);
 
 		void analyse2(File *file);
 
         void gather_build_data();
 
-        void gather_all_build_data();
+		void start_threaded_stuffs();
+
+		void gather_all_build_data();
 
         void load_script_file(const String &unit_name);
+
+		void waitUntilReady() const;
 
 		int unit_build_menu(int index,int omb,float &dt,int scrolling,bool GUI);                // Affiche et gère le menu des unités
 
         void Identify();            // Identifie les pièces aux quelles les scripts font référence
     };
+
+	class UnitDataLoader : public Thread
+	{
+		friend class UnitManager;
+	protected:
+		UnitDataLoader();
+
+		virtual void proc(void*);
+	};
 
 	int load_all_units(ProgressNotifier *progress = NULL);
 
