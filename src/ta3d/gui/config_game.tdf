@@ -8,7 +8,6 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=33;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -366,5 +365,25 @@
 		max=255;
 		value=0;
 		size=1.6;
+	}
+	[object33]		// Option "tool_tips"
+	{
+		name=t_tool_tips;
+		type=TEXT;
+		caption=Build menus tool tips;
+		help=Enables tool tips on build menus;
+		x1=0;
+		y1=640;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object34]		// Option "tool_tips"
+	{
+		name=tool_tips;
+		type=OPTIONC;
+		x1=690;
+		y1=640;
+		value=0;
+		size=1.5;
 	}
 }

@@ -42,6 +42,9 @@ namespace Cache
 		else
 			rebuild_cache = true;
 
+		if (lp_CONFIG->developerMode)		// Developer mode forces cache refresh
+			rebuild_cache = true;
+
 		if (rebuild_cache)
 		{
 			String::List file_list;

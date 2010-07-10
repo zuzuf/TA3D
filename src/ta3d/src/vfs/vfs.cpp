@@ -197,20 +197,24 @@ namespace UTILS
 				*i = 'S';
 		}
 
-		String cache_filename;
-		cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat"; // Save file in disk cache
-		Stream cache_file(cache_filename, Yuni::Core::IO::OpenMode::write);
-		if (cache_file.opened())
+		if (!lp_CONFIG->developerMode)		// Don't fill the cache with files in developer mode, they would not be used anyway
 		{
-			char *buf = new char[10240];
-			for(int i = 0 ; i < file->size() ; i += 10240)
+			String cache_filename;
+			cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat"; // Save file in disk cache
+			Stream cache_file(cache_filename, Yuni::Core::IO::OpenMode::write);
+			if (cache_file.opened())
 			{
-				int l = Math::Min(10240, file->size() - i);
-				file->read(buf, l);
-				cache_file.write(buf, l);
+				file->seek(0);
+				char *buf = new char[10240];
+				for(int i = 0 ; i < file->size() ; i += 10240)
+				{
+					int l = Math::Min(10240, file->size() - i);
+					file->read(buf, l);
+					cache_file.write(buf, l);
+				}
+				delete[] buf;
+				cache_file.close();
 			}
-			delete[] buf;
-			cache_file.close();
 		}
 		file->seek(0);
 
@@ -241,6 +245,10 @@ namespace UTILS
 
 	File* VFS::isInDiskCacheWL(const String& filename)
 	{
+		// In developer mode, the cache is always "empty", we just don't use it
+		if (lp_CONFIG->developerMode)
+			return NULL;
+
 		// May be in cache but doesn't use cache (ie: campaign script)
 		if (SearchString(filename, ".lua", true) >= 0)
 			return NULL;
