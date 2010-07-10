@@ -390,7 +390,7 @@ namespace TA3D
 						if (unit_type[idx]->glpic || tex)
 						{
 							const int px = ((n - 1) & 1) * 64;
-							const int py = 155 + ((n - 1) >> 1) * 64;
+							const int py = 155 + (((n - 1) >> 1) % 3) * 64;
 							const int p = (n - 1)  / 6;
 							unit_type[i]->AddUnitBuild(idx, px, py, 64, 64, p, tex);
 						}
