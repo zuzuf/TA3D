@@ -40,9 +40,9 @@ namespace TA3D
 		MeshOBJ();
 		virtual ~MeshOBJ() {}
 
-		void load(File *file);
+		void load(File *file, const String &filename);
 	private:
-		void obj_finalize(const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
+		void obj_finalize(const String &filename, const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
 	public:
 		static Model *load(const String &filename);
 		static const char *getExt();

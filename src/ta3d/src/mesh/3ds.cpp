@@ -496,7 +496,7 @@ namespace TA3D
 		delete file;
 
 		Model *model = new Model;
-		model->mesh = Joins::computeStructure(firstObj);
+		model->mesh = Joins::computeStructure(firstObj, filename);
 		model->postLoadComputations();
 		Joins::computeSelection(model);
 		return model;
