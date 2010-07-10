@@ -38,6 +38,7 @@
 #include <input/mouse.h>
 #include <yuni/core/io/file/stream.h>
 #include "menus/loading.h"
+#include <cache.h>
 
 
 using namespace Yuni;
@@ -167,6 +168,10 @@ namespace TA3D
 		// Reset the VFS manager
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Reloading VFS manager...");
 		VFS::Instance()->reload();
+
+		// If we're in developer mode, clear the cache
+		if (lp_CONFIG->developerMode)
+			Cache::Clear(true);
 
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Reinitializing 2D menus environment...");
 		gfx->set_2D_mode();

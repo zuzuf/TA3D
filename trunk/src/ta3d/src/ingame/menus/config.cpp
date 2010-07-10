@@ -95,6 +95,9 @@ namespace Menus
 				sound_manager->loadTDFSounds(true);
 				sound_manager->loadTDFSounds(false);
 			}
+
+			if (lp_CONFIG->developerMode ^ saved_config->developerMode)
+				Cache::Clear(true); // Force cache reset
 		}
 
 		grab_mouse(lp_CONFIG->grab_inputs);
@@ -231,6 +234,8 @@ namespace Menus
 		pArea->set_state("*.use_texture_cache", lp_CONFIG->use_texture_cache);
 		pArea->set_state("*.draw_console_loading", lp_CONFIG->draw_console_loading);
 		pArea->set_state("*.fullscreen", lp_CONFIG->fullscreen);
+		pArea->set_state("*.developer_mode", lp_CONFIG->developerMode);
+		pArea->set_state("*.tool_tips", lp_CONFIG->tooltips);
 		I18N::Instance()->retrieveAllLanguages(languageList);
 		if (pArea->get_object("*.LANG"))
 		{
@@ -499,6 +504,8 @@ namespace Menus
 		lp_CONFIG->draw_console_loading = pArea->get_state( "*.draw_console_loading");
 		lp_CONFIG->fullscreen = pArea->get_state( "*.fullscreen");
 		lp_CONFIG->use_texture_cache = pArea->get_state( "*.use_texture_cache");
+		lp_CONFIG->developerMode = pArea->get_state("*.developer_mode");
+		lp_CONFIG->tooltips = pArea->get_state("*.tool_tips");
 		if (pArea->get_value( "*.camera_zoom" ) >= 0)
 		{
 			Gui::GUIOBJ::Ptr obj = pArea->get_object( "*.camera_zoom");

@@ -8,7 +8,6 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=3;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -48,5 +47,25 @@
 		min=0;
 		max=3;
 		value=2;
+	}
+	[object3]		// Option "developer mode"
+	{
+		name=t_developer_mode;
+		type=TEXT;
+		caption=Developer mode;
+		help=Developer mode disables caching;
+		x1=0;
+		y1=85;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object4]		// Option "shadow map size"
+	{
+		name=developer_mode;
+		type=OPTIONC;
+		x1=690;
+		y1=85;
+		value=0;
+		size=1.5;
 	}
 }

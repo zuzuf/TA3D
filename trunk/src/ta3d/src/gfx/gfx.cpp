@@ -1841,7 +1841,10 @@ namespace TA3D
 
 	bool GFX::is_texture_in_cache(const String& file)
 	{
-		if (ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
+		if (ati_workaround
+			|| !lp_CONFIG->use_texture_cache
+			|| !lp_CONFIG->use_texture_compression
+			|| lp_CONFIG->developerMode)
 			return false;
 		String realFile(TA3D::Paths::Caches);
 		realFile += file;
@@ -1860,7 +1863,12 @@ namespace TA3D
 
 	GLuint GFX::load_texture_from_cache(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
-		if (ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps || !g_useNonPowerOfTwoTextures)
+		if (ati_workaround
+			|| !lp_CONFIG->use_texture_cache
+			|| !lp_CONFIG->use_texture_compression
+			|| !g_useGenMipMaps
+			|| !g_useNonPowerOfTwoTextures
+			|| lp_CONFIG->developerMode)		// No caching in developer mode
 			return 0;
 
 		String realFile(TA3D::Paths::Caches);
@@ -1975,7 +1983,12 @@ namespace TA3D
 
 	void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
 	{
-		if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps || !g_useNonPowerOfTwoTextures)
+		if(ati_workaround
+		   || !lp_CONFIG->use_texture_cache
+		   || !lp_CONFIG->use_texture_compression
+		   || !g_useGenMipMaps
+		   || !g_useNonPowerOfTwoTextures
+		   || lp_CONFIG->developerMode)
 			return;
 
 		file = TA3D::Paths::Caches + file;
