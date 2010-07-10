@@ -7,7 +7,7 @@ using namespace std;
 
 namespace TA3D
 {
-	Mesh *Joins::computeStructure(Mesh *mesh)
+	Mesh *Joins::computeStructure(Mesh *mesh, const String &filename)
 	{
 		if (mesh == NULL)
 			return NULL;
@@ -59,7 +59,7 @@ namespace TA3D
 			i->first.explode(elts, '_', false, false, true);
 			if (elts.size() != 2) // WOW, that's not supposed to happen!
 			{
-				LOG_ERROR("[mesh] [joins] model structure is broken ! ('" << i->first << "'");
+				LOG_ERROR("[mesh] [joins] model structure is broken ! ('" << i->first << "') (" << filename << ')');
 				if (rootObjects.count(i->second) > 0)
 					rootObjects.erase(i->second);
 
@@ -77,12 +77,12 @@ namespace TA3D
 
 			if (parent == NULL)		// Object missing ?
 			{
-				LOG_WARNING("[mesh] [joins] object not found : '" << elts[0] << "'");
+				LOG_WARNING("[mesh] [joins] object not found : '" << elts[0] << "' (" << filename << ')');
 				continue;
 			}
 			if (child == NULL)		// Object missing ?
 			{
-				LOG_WARNING("[mesh] [joins] object not found : '" << elts[1] << "'");
+				LOG_WARNING("[mesh] [joins] object not found : '" << elts[1] << "' (" << filename << ')');
 				continue;
 			}
 
@@ -121,7 +121,7 @@ namespace TA3D
 
 		for(ObjectSet::iterator i = rootObjects.begin() ; i != rootObjects.end() ; ++i)
 		{
-			LOG_DEBUG("[mesh] [joins] root object : '" << (*i)->name << "'");
+			LOG_DEBUG("[mesh] [joins] root object : '" << (*i)->name << "' (" << filename << ')');
 			if (root == NULL)
 			{
 				root = *i;

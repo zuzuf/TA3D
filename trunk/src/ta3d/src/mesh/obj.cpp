@@ -16,7 +16,7 @@ namespace TA3D
 	/*!
 * \brief fill the Mesh with gathered data
 */
-	void MeshOBJ::obj_finalize(const vector<int> &face, const vector<Vector3D> &vertex, const vector<Vector2D> &tcoord, Material* mtl)
+	void MeshOBJ::obj_finalize(const String &filename, const vector<int> &face, const vector<Vector3D> &vertex, const vector<Vector2D> &tcoord, Material* mtl)
 	{
 		nb_vtx = face.size() >> 1;
 		nb_t_index = face.size() >> 1;
@@ -68,7 +68,7 @@ namespace TA3D
 		if (mtl)
 		{
 			bool useAlpha(false);
-			LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << mtl->textureName << "'");
+			LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << mtl->textureName << "' (" << filename << ')');
 			gltex.push_back( gfx->load_texture( mtl->textureName, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha ) );
 			if (gltex[0])
 			{
@@ -77,14 +77,14 @@ namespace TA3D
 					Flag |= SURFACE_BLENDED;
 			}
 			else
-				LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture !");
+				LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture ! (" << filename << ')');
 			if (mtl->name == "team")				// The magic team material
 				Flag |= SURFACE_PLAYER_COLOR;
 		}
 	}
 
 
-	void MeshOBJ::load(File *file)
+	void MeshOBJ::load(File *file, const String &filename)
 	{
 		destroy3DM();
 
@@ -113,7 +113,7 @@ namespace TA3D
 					{
 						if (firstObject && cur->name.empty())
 							cur->name = "default";
-						cur->obj_finalize( face, lVertex, lTcoord, &currentMtl );
+						cur->obj_finalize( filename, face, lVertex, lTcoord, &currentMtl );
 						face.clear();
 						cur->child = new MeshOBJ();
 						cur = static_cast<MeshOBJ*>(cur->child);
@@ -214,7 +214,7 @@ namespace TA3D
 			}
 		}
 
-		cur->obj_finalize(face, lVertex, lTcoord, &currentMtl);
+		cur->obj_finalize(filename, face, lVertex, lTcoord, &currentMtl);
 	}
 
 	Model *MeshOBJ::load(const String &filename)
@@ -227,11 +227,11 @@ namespace TA3D
 		}
 
 		MeshOBJ *mesh = new MeshOBJ;
-		mesh->load(file);
+		mesh->load(file, filename);
 		delete file;
 
 		Model *model = new Model;
-		model->mesh = Joins::computeStructure(mesh);
+		model->mesh = Joins::computeStructure(mesh, filename);
 		model->postLoadComputations();
 		Joins::computeSelection(model);
 		return model;
