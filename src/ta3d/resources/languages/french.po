@@ -803,3 +803,19 @@
 {
 	FRENCH=Suivant;
 }
+[Build menus tool tips]
+{
+	FRENCH=Bulles d'aide (menus de construction);
+}
+[Enables tool tips on build menus]
+{
+	FRENCH=Active les bulles d'aide\nsur les menus de construction;
+}
+[Developer mode]
+{
+	FRENCH=Mode développeur;
+}
+[Developer mode disables caching]
+{
+	FRENCH=Le mode développeur désactive\nles caches disque;
+}
