@@ -404,7 +404,7 @@ namespace TA3D
 		}
 
         // We want a centered window
-        setenv("SDL_VIDEO_CENTERED", "1", 1);
+		SDL_putenv("SDL_VIDEO_CENTERED=1");
 
 		SDL_Surface *icon = load_image("gfx\\icon.png");
 		if (icon)
