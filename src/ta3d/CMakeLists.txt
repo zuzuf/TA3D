@@ -328,6 +328,17 @@ ENDIF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 Message(STATUS "GLEW Library : ${GLEW_LIB}")
 SET(LIBS "${LIBS} ${GLEW_LIB}")
 
+#
+# --- GLU ---
+#
+IF(UNIX)
+	find_library(GLU_LIB GLU)
+	IF(NOT GLU_LIB)
+		find_library(GLEW_LIB glu)
+	ENDIF(NOT GLU_LIB)
+	Message(STATUS "GLU Library : ${GLU_LIB}")
+	SET(LIBS "${LIBS} ${GLU_LIB}")
+ENDIF(UNIX)
 
 
 #
@@ -343,20 +354,6 @@ IF(NOT APPLE)
     ENDIF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
     include_directories( ${FREETYPE_INCLUDE_DIRS} )
-
-#	find_library(FTGL_LIB ftgl)
-#	find_path(FTGL_INCLUDE_lower NAMES FTGL/ftgl.h)
-#
-#	IF(NOT FTGL_INCLUDE_lower AND NOT CMAKE_CROSSCOMPILING)
-#		SET(__FTGL__lower__ false)
-#	ELSE(NOT FTGL_INCLUDE_lower AND NOT CMAKE_CROSSCOMPILING)
-#		SET(__FTGL__lower__ true)
-#	ENDIF(NOT FTGL_INCLUDE_lower AND NOT CMAKE_CROSSCOMPILING)
-#
-#	IF (WIN32 OR CMAKE_CROSSCOMPILING)
-#		SET(__FTGL__lower__ true)
-#		SET(FTGL_LIB "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libftgl.a")
-#	ENDIF (WIN32 OR CMAKE_CROSSCOMPILING)
 
     SET(FTGL_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/lib/libftgl.a)
     include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/include )
