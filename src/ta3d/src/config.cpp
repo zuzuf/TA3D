@@ -19,11 +19,17 @@ void configWindow()
 
 	// The video tab
 	TABWIDGET(tabs)->addTab("video",
-							  (Label_("L1", "width      ") | Spacer_(false) | SpinBox_("width"))
-							/ (Label_("L2", "height     ") | Spacer_(false) | SpinBox_("height"))
-							/ (Label_("L3", "color depth") | Spacer_(false) | SpinBox_("bpp"))
-							/ (Label_("L3", "FSAA       ") | Spacer_(false) | SpinBox_("fsaa"))
-							/ (Label_("L3", "Fullscreen ") | Spacer_(false) | CheckBox_("fullscreen", ""))
+							  (Label_("", "width              ") | Spacer_(false) | SpinBox_("width"))
+							/ (Label_("", "height             ") | Spacer_(false) | SpinBox_("height"))
+							/ (Label_("", "color depth        ") | Spacer_(false) | SpinBox_("bpp"))
+							/ (Label_("", "FSAA               ") | Spacer_(false) | SpinBox_("fsaa"))
+							/ (Label_("", "Fullscreen         ") | Spacer_(false) | CheckBox_("fullscreen", ""))
+							/ (Label_("", "Anisotropy         ") | Spacer_(false) | SpinBox_("anisotropy"))
+							/ (Label_("", "Shadows quality    ") | Spacer_(false) | SpinBox_("shadows"))
+							/ (Label_("", "Water quality      ") | Spacer_(false) | SpinBox_("water"))
+							/ (Label_("", "Shadowmap size     ") | Spacer_(false) | SpinBox_("shadowmap"))
+							/ (Label_("", "texture cache      ") | Spacer_(false) | CheckBox_("texturecache", ""))
+							/ (Label_("", "texture compression") | Spacer_(false) | CheckBox_("texturecompression", ""))
 							/ Spacer_(true));
 
 	SPINBOX(width)->setMinimum(640);
@@ -42,6 +48,24 @@ void configWindow()
 	SPINBOX(fsaa)->setMaximum(4);
 	SPINBOX(fsaa)->setValue(lp_CONFIG->fsaa);
 
+	SPINBOX(anisotropy)->setMinimum(1);
+	SPINBOX(anisotropy)->setMaximum(16);
+	SPINBOX(anisotropy)->setValue(lp_CONFIG->anisotropy);
+
+	SPINBOX(shadows)->setMinimum(0);
+	SPINBOX(shadows)->setMaximum(3);
+	SPINBOX(shadows)->setValue(lp_CONFIG->shadow_quality);
+
+	SPINBOX(shadowmap)->setMinimum(0);
+	SPINBOX(shadowmap)->setMaximum(3);
+	SPINBOX(shadowmap)->setValue(lp_CONFIG->shadowmap_size);
+
+	SPINBOX(water)->setMinimum(0);
+	SPINBOX(water)->setMaximum(5);
+	SPINBOX(water)->setValue(lp_CONFIG->water_quality);
+
+	CHECKBOX(texturecache)->setState(lp_CONFIG->use_texture_cache);
+	CHECKBOX(texturecompression)->setState(lp_CONFIG->use_texture_compression);
 	CHECKBOX(fullscreen)->setState(lp_CONFIG->fullscreen);
 
 	// The audio tab
@@ -70,6 +94,12 @@ void configWindow()
 		lp_CONFIG->color_depth = SPINBOX(bpp)->getValue();
 		lp_CONFIG->fsaa = SPINBOX(fsaa)->getValue();
 		lp_CONFIG->fullscreen = CHECKBOX(fullscreen)->getState();
+		lp_CONFIG->anisotropy = SPINBOX(anisotropy)->getValue();
+		lp_CONFIG->shadow_quality = SPINBOX(shadows)->getValue();
+		lp_CONFIG->water_quality = SPINBOX(water)->getValue();
+		lp_CONFIG->shadowmap_size = SPINBOX(shadowmap)->getValue();
+		lp_CONFIG->use_texture_cache = CHECKBOX(texturecache)->getState();
+		lp_CONFIG->use_texture_compression = CHECKBOX(texturecompression)->getState();
 
 		// Save modified settings
 		TA3D::Settings::Save();
