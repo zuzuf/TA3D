@@ -45,8 +45,7 @@
 # include <stdlib.h>
 # include <yuni/core/io/file/stream.h>
 # include "sdl.h"
-
-using namespace TA3D;
+# include <SDL/SDL_sgui.h>
 
 /*!
  * \brief Obtain a backtrace and print it to stdout.
@@ -146,42 +145,44 @@ void criticalMessage(const String &msg)
 {
 	std::cerr << msg << std::endl;      // Output error message to stderr
 
-	# ifdef YUNI_OS_MAC
-	// Disable for now
-	# else
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);  // Shutdown SDL video interface first
-	                                    // in order to have the message visible
-	#	ifdef TA3D_PLATFORM_WINDOWS
-	::MessageBoxA(NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR);
-	#	else
-	String escapedMsg = String(msg).replace("\"", "\\\"");
+	Gui::Utils::message("TA3D - Critical Error", msg.c_str());
 
-	// Try kdialog
-	String cmd;
-	cmd << "kdialog --title \"TA3D - Critical Error\" --error \"" << escapedMsg << "\"";
-	if (system(cmd.c_str()))
-	{
-		// Try gtkdialog
-		cmd.clear();
-		cmd << "<window title=\"TA3D - Critical Error\" window_position=\"1\" resizable=\"false\" icon-name=\"gtk-warn\">"
-			<< "<vbox>"
-			<< "<text>"
-			<< "<label>" << msg << "</label>"
-			<< "</text>"
-			<< "<button ok></button>"
-			<< "</vbox>"
-			<< "</window>";
-		setenv("MAIN_DIALOG", cmd.c_str(), 1);
-		if (system("gtkdialog"))
-		{
-			// Try Xdialog
-			cmd.clear();
-			cmd << "Xdialog --title \"TA3D - Critical Error\" --msgbox \"" << escapedMsg << "\" 400x120";
-			system(cmd.c_str());
-		}
-	}
-	#	endif // ifdef TA3D_PLATFORM_WINDOWS
-	# endif // OS X
+//	# ifdef YUNI_OS_MAC
+//	// Disable for now
+//	# else
+//	SDL_QuitSubSystem(SDL_INIT_VIDEO);  // Shutdown SDL video interface first
+//	                                    // in order to have the message visible
+//	#	ifdef TA3D_PLATFORM_WINDOWS
+//	::MessageBoxA(NULL, msg.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR);
+//	#	else
+//	String escapedMsg = String(msg).replace("\"", "\\\"");
+
+//	// Try kdialog
+//	String cmd;
+//	cmd << "kdialog --title \"TA3D - Critical Error\" --error \"" << escapedMsg << "\"";
+//	if (system(cmd.c_str()))
+//	{
+//		// Try gtkdialog
+//		cmd.clear();
+//		cmd << "<window title=\"TA3D - Critical Error\" window_position=\"1\" resizable=\"false\" icon-name=\"gtk-warn\">"
+//			<< "<vbox>"
+//			<< "<text>"
+//			<< "<label>" << msg << "</label>"
+//			<< "</text>"
+//			<< "<button ok></button>"
+//			<< "</vbox>"
+//			<< "</window>";
+//		setenv("MAIN_DIALOG", cmd.c_str(), 1);
+//		if (system("gtkdialog"))
+//		{
+//			// Try Xdialog
+//			cmd.clear();
+//			cmd << "Xdialog --title \"TA3D - Critical Error\" --msgbox \"" << escapedMsg << "\" 400x120";
+//			system(cmd.c_str());
+//		}
+//	}
+//	#	endif // ifdef TA3D_PLATFORM_WINDOWS
+//	# endif // OS X
 }
 
 
