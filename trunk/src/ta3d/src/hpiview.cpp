@@ -49,10 +49,9 @@ using namespace Yuni::Core::IO::File;
 #   define PREFIX "  --"
 # endif
 
-//using namespace TA3D::UTILS::HPI;
-
 static String appName;
 
+void configWindow();
 
 namespace TA3D
 {
@@ -643,6 +642,8 @@ namespace TA3D
 					ok |= hpiviewCmdCreateGAF(args);
 				else if (act == "create_buildpic" || act == "--create_buildpic" || act == "/create_buildpic")
 					ok |= hpiviewCmdCreateBuildPic(args);
+				else if (act == "config" || act == "--config" || act == "/config")
+					configWindow();
 			}
 			if (ok)
 				return true;
