@@ -375,6 +375,14 @@ ELSE(NOT APPLE)
 ENDIF(NOT APPLE)
 
 
+#
+# --- SDL_sgui ---
+#
+SET(SDL_SGUI_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/libSDL_sgui.a)
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/include )
+
+Message(STATUS "SDL_sgui Library : ${SDL_SGUI_LIB}")
+SET(LIBS "${LIBS} ${SDL_SGUI_LIB}")
 
 
 #

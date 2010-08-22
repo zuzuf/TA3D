@@ -120,17 +120,17 @@ namespace TA3D
 		}
 
 		File* RealFS::readFile(const FileInfo *file)
-        {
-            String unixFilename = ((const RealFile*)file)->pathToFile;
-            unixFilename.convertBackslashesIntoSlashes();
+		{
+			String unixFilename = ((const RealFile*)file)->pathToFile;
+			unixFilename.convertBackslashesIntoSlashes();
 
-            String root = name;
-            root.removeTrailingSlash();
+			String root = name;
+			root.removeTrailingSlash();
 
-            unixFilename = root + Paths::SeparatorAsString + unixFilename;
+			unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
-        }
+		}
 
 		File* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length)
         {
