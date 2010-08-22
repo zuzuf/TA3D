@@ -63,6 +63,7 @@ namespace TA3D
 	static bool hpiviewCmdHelp(String::Vector& /*args*/)
 	{
 		std::cout << "Available commands :" << std::endl
+			<< PREFIX << "config         : failsafe config GUI" << std::endl
 			<< PREFIX << "create_gaf     : create a 24/32bits gaf from sprites" << std::endl
 			<< PREFIX << "create_buildpic: create a build picture from a model and a background image" << std::endl
 			<< PREFIX << "extract        : extract a file" << std::endl
