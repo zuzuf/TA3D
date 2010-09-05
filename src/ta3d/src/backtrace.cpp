@@ -33,10 +33,10 @@
 # include "backtrace.h"
 
 # ifdef TA3D_PLATFORM_LINUX
-#	define TA3D_BACKTRACE_SUPPORT
+#	define TA3D_BUILTIN_BACKTRACE_SUPPORT
 # endif
 
-# ifdef TA3D_BACKTRACE_SUPPORT
+# ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
 #	include <execinfo.h>
 # endif
 
@@ -50,8 +50,9 @@
 /*!
  * \brief Obtain a backtrace and print it to stdout.
  *
- * Only if TA3D_BACKTRACE_SUPPORT is defined, a backtrace is obtained
- * then writen into a log file. It will be displayed in stdout in any case.
+ * If GDB can be used to get a backtrace then we use it, otherwise and only
+ * if TA3D_BUILTIN_BACKTRACE_SUPPORT is defined, a backtrace is obtained
+ * then writen into a log file. It will be displayed in stdout when gdb is missing.
  * After this call, the program will exit with a exit status code equals
  * to `-1`.
  *
@@ -59,9 +60,29 @@
  */
 void backtrace_handler (int signum)
 {
-    # ifdef TA3D_BACKTRACE_SUPPORT
+	// Some functions called at exit may crash, so we must disable signals in order
+	// to prevent overwriting a useful log
+	clear_signals();
 
-    // Retrieving a backtrace
+	// Get TA3D's PID
+	pid_t mypid = getpid();
+	// Try to get a stack trace from GDB
+	String cmd;
+	cmd << "gdb --pid=" << mypid << " -ex \"info threads\" -ex bt > \"" << TA3D::Paths::Logs << "backtrace.txt\" --batch";
+	if (system(cmd.c_str()) == 0)
+	{
+		String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
+			+ TA3D::Paths::Logs
+			+ "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
+
+		criticalMessage(szErrReport);
+		exit(-1);
+	}
+
+	// If GDB is not availabled or returned an error we must find another way ... this is now platform dependent
+
+# ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
+	// Retrieving a backtrace
 	void *array[400];
 	size_t size = backtrace (array, 400);
 	char** strings = backtrace_symbols(array, size);
@@ -100,13 +121,13 @@ void backtrace_handler (int signum)
 	}
 	free(strings);
 
-    # else // ifdef TA3D_BACKTRACE_SUPPORT
+	# else // ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
 
         // The backtrace support is disabled: warns the user
 		String szErrReport = "An error has occured.\nDebugging information could not be logged.\nPlease report to our forums (http://www.ta3d.org/) so we can fix it.";
 		criticalMessage(szErrReport);
 
-    # endif // ifdef TA3D_BACKTRACE_SUPPORT
+	# endif // ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
 	exit(-1);
 }
 
@@ -138,6 +159,26 @@ int init_signals (void)
 
 	#endif // ifdef TA3D_PLATFORM_DARWIN
 	return 0; // TODO missing value ?
+}
+
+void clear_signals (void)
+{
+	// Signals should be disabled under OS X, since the system already produces a crash report
+	// More information are available here :
+	// http://developer.apple.com/technotes/tn2004/tn2123.html
+	#ifndef TA3D_PLATFORM_DARWIN
+
+	# ifdef TA3D_PLATFORM_WINDOWS
+		int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGABRT };
+		int nb_signals = 4;
+	# else
+		int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGBUS, SIGABRT, SIGIOT, SIGTRAP, SIGSYS };
+		int nb_signals = 8;
+	# endif // ifdef TA3D_PLATFORM_WINDOWS
+	for (int i = 0; i < nb_signals; ++i)
+		signal (signum[i], SIG_IGN);
+
+	#endif // ifdef TA3D_PLATFORM_DARWIN
 }
 
 
