@@ -30,6 +30,7 @@ void configWindow()
 							/ (Label_("", "Shadowmap size     ") | Spacer_(false) | SpinBox_("shadowmap"))
 							/ (Label_("", "texture cache      ") | Spacer_(false) | CheckBox_("texturecache", ""))
 							/ (Label_("", "texture compression") | Spacer_(false) | CheckBox_("texturecompression", ""))
+							/ (Label_("", "far sight          ") | Spacer_(false) | CheckBox_("farsight", ""))
 							/ Spacer_(true));
 
 	SPINBOX(width)->setMinimum(640);
@@ -67,15 +68,34 @@ void configWindow()
 	CHECKBOX(texturecache)->setState(lp_CONFIG->use_texture_cache);
 	CHECKBOX(texturecompression)->setState(lp_CONFIG->use_texture_compression);
 	CHECKBOX(fullscreen)->setState(lp_CONFIG->fullscreen);
+	CHECKBOX(farsight)->setState(lp_CONFIG->far_sight);
 
 	// The audio tab
-	TABWIDGET(tabs)->addTab("audio", Label_("", "not implemented yet"));
+	TABWIDGET(tabs)->addTab("audio", (Label_("", "sound volume       ") | Spacer_(false) | SpinBox_("soundvolume"))
+								   / (Label_("", "music volume       ") | Spacer_(false) | SpinBox_("musicvolume"))
+								   / Spacer_(true));
+	SPINBOX(soundvolume)->setMinimum(0);
+	SPINBOX(soundvolume)->setMaximum(128);
+	SPINBOX(soundvolume)->setValue(lp_CONFIG->sound_volume);
+
+	SPINBOX(musicvolume)->setMinimum(0);
+	SPINBOX(musicvolume)->setMaximum(128);
+	SPINBOX(musicvolume)->setValue(lp_CONFIG->music_volume);
 
 	// The game tab
-	TABWIDGET(tabs)->addTab("game", Label_("", "not implemented yet"));
+	TABWIDGET(tabs)->addTab("game", (Label_("", "player name        ") | Spacer_(false) | LineInput_("playername"))
+								  / (Label_("", "language           ") | Spacer_(false) | LineInput_("language"))
+								  / (Label_("", "mod                ") | Spacer_(false) | LineInput_("mod"))
+								  / Spacer_(true));
+
+	LINEINPUT(playername)->setText(lp_CONFIG->player_name.c_str());
+	LINEINPUT(language)->setText(lp_CONFIG->Lang.c_str());
+	LINEINPUT(mod)->setText(lp_CONFIG->last_MOD.c_str());
 
 	// The advanced tab
-	TABWIDGET(tabs)->addTab("advanced", Label_("", "not implemented yet"));
+	TABWIDGET(tabs)->addTab("advanced", (Label_("", "developer mode        ") | Spacer_(false) | CheckBox_("devmode", ""))
+									  / Spacer_(true));
+	CHECKBOX(devmode)->setState(lp_CONFIG->developerMode);
 
 	// Ok and cancel buttons
 	bool bOk = false;
@@ -100,6 +120,17 @@ void configWindow()
 		lp_CONFIG->shadowmap_size = SPINBOX(shadowmap)->getValue();
 		lp_CONFIG->use_texture_cache = CHECKBOX(texturecache)->getState();
 		lp_CONFIG->use_texture_compression = CHECKBOX(texturecompression)->getState();
+		lp_CONFIG->far_sight = CHECKBOX(farsight)->getState();
+
+		lp_CONFIG->sound_volume = SPINBOX(soundvolume)->getValue();
+		lp_CONFIG->music_volume = SPINBOX(musicvolume)->getValue();
+
+		lp_CONFIG->player_name = std::string(LINEINPUT(playername)->getText());
+		lp_CONFIG->Lang = std::string(LINEINPUT(language)->getText());
+		lp_CONFIG->last_MOD = std::string(LINEINPUT(mod)->getText());
+		TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
+
+		lp_CONFIG->developerMode = CHECKBOX(devmode)->getState();
 
 		// Save modified settings
 		TA3D::Settings::Save();
