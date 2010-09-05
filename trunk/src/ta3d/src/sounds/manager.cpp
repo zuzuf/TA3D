@@ -290,7 +290,7 @@ namespace Audio
 		while (!file.eof())
 		{
 			line.clear();
-			for(char c = file.get() ; c != '\n' ; c = file.get())
+			for(char c = file.get() ; c != '\n' && !file.eof() ; c = file.get())
 			{
 				line << c;
 				if (file.eof())
@@ -315,7 +315,10 @@ namespace Audio
 			else
 			{
 				if (line[0] == '!')
+				{
 					isActivated = false;
+					line.erase(0, 1);
+				}
 				else
 					isBattle = false;
 			}

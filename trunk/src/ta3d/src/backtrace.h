@@ -22,6 +22,7 @@
 
 
 int init_signals (void);
+void clear_signals (void);
 void criticalMessage(const String &msg);
 
 #endif // __TA3D_BACKTRACE_H__
