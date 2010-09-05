@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=TA3D Config
+Version=0.6.0 WIP
+Comment=Failsafe settings editor for TA3D
+Encoding=UTF-8
+Exec=/usr/games/ta3d --quiet --config
+Icon=/usr/share/games/ta3d/ta3d_cfg.png
+Categories=Game;StrategyGame;
+Terminal=false
+StartupNotify=false
