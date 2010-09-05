@@ -167,7 +167,18 @@ namespace TA3D
 		I18N::Instance()->loadFromResources();
 
 		// Apply settings for the current language (required since it failed when loading settings because languages were not loaded)
-		I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+		if (!lp_CONFIG->Lang.empty())
+			I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+		else
+		{
+			LOG_INFO(LOG_PREFIX_I18N << "language not set, guessing from system config");
+			if (!I18N::Instance()->tryToDetermineTheLanguage())
+			{
+				LOG_INFO(LOG_PREFIX_I18N << "language detection failed, language set to 'english'");
+				lp_CONFIG->Lang = "english";
+				I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+			}
+		}
 
 		// Creating Sound & Music Interface
 		sound_manager = new TA3D::Audio::Manager();

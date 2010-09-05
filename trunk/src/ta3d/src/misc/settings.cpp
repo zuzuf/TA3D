@@ -159,7 +159,7 @@ namespace Settings
 		TA3D::VARS::lp_CONFIG->priority_level = sint16(cfgFile.pullAsInt("TA3D.Priority Level"));
 		TA3D::VARS::lp_CONFIG->fsaa = sint16(cfgFile.pullAsInt("TA3D.FSAA"));
 		TA3D::VARS::lp_CONFIG->anisotropy = sint16(cfgFile.pullAsInt("TA3D.Anisotropy", 1));
-		TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsString("TA3D.Language", "english").toLower();
+		TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsString("TA3D.Language").toLower();
 		TA3D::VARS::lp_CONFIG->water_quality = sint16(cfgFile.pullAsInt("TA3D.Water Quality"));
 		TA3D::VARS::lp_CONFIG->screen_width = uint16(cfgFile.pullAsInt("TA3D.Screen Width"));
 		TA3D::VARS::lp_CONFIG->screen_height = uint16(cfgFile.pullAsInt("TA3D.Screen Height"));
@@ -250,7 +250,8 @@ namespace Settings
 		}
 
 		// Apply settings for the current language
-		I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+		if (!lp_CONFIG->Lang.empty())
+			I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 
 		LOG_INFO(LOG_PREFIX_SETTINGS << "Loaded from `" << TA3D::Paths::ConfigFile << "`");
 		return true;

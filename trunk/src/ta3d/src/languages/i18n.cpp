@@ -116,7 +116,7 @@ namespace TA3D
 		LOG_ASSERT(NULL != pDefaultLanguage /* initializeAllLanguages() must be called before */ );
 		if (locale.empty())
 			return pDefaultLanguage;
-		String s(locale);
+		String s(locale.substr(0, 5));
 		s.trim();
 		s.toLower();
 
@@ -182,6 +182,8 @@ namespace TA3D
 	{
 # ifndef TA3D_PLATFORM_WINDOWS
 		String locale = getenv("LC_ALL");
+		if (locale.empty())		locale = getenv("LANG");
+		LOG_INFO(LOG_PREFIX_I18N << "locale = " << locale);
 		return currentLanguage(languageFromLocal(locale));
 # else
 		return currentLanguage(pDefaultLanguage);
