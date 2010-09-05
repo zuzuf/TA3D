@@ -139,7 +139,7 @@ namespace Files
 
 	bool Copy(const String& from, const String& to, const bool overwrite)
 	{
-		return Yuni::Core::IO::File::Copy(from, to, overwrite);
+		return Yuni::Core::IO::File::Copy(from, to, overwrite) == Yuni::Core::IO::ioErrNone;
 	}
 
 
