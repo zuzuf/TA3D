@@ -178,6 +178,8 @@ namespace TA3D
 				lp_CONFIG->Lang = "english";
 				I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 			}
+			else
+				lp_CONFIG->Lang = I18N::Instance()->currentLanguage()->englishCaption();
 		}
 
 		// Creating Sound & Music Interface
