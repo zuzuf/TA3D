@@ -96,7 +96,7 @@ namespace TA3D
 		//! Threading policy
 		typedef Yuni::Policy::ClassLevelLockable<I18N>  ThreadingPolicy;
 		//! The most suitable smart pointer for the class
-		typedef SmartPtr<I18N>	Ptr;
+		typedef I18N*	Ptr;
 
 	public:
 		/*!
