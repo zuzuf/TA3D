@@ -94,8 +94,12 @@ void configWindow()
 
 	// The advanced tab
 	TABWIDGET(tabs)->addTab("advanced", (Label_("", "developer mode        ") | Spacer_(false) | CheckBox_("devmode", ""))
+									  / (Label_("", "7z command            ") | Spacer_(false) | LineInput_("system7zCommand"))
+									  / (Label_("", "NetServer             ") | Spacer_(false) | LineInput_("netserver"))
 									  / Spacer_(true));
 	CHECKBOX(devmode)->setState(lp_CONFIG->developerMode);
+	LINEINPUT(system7zCommand)->setText(lp_CONFIG->system7zCommand.c_str());
+	LINEINPUT(netserver)->setText(lp_CONFIG->net_server.c_str());
 
 	// Ok and cancel buttons
 	bool bOk = false;
@@ -131,6 +135,9 @@ void configWindow()
 		TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
 
 		lp_CONFIG->developerMode = CHECKBOX(devmode)->getState();
+
+		lp_CONFIG->system7zCommand = std::string(LINEINPUT(system7zCommand)->getText());
+		lp_CONFIG->net_server = std::string(LINEINPUT(netserver)->getText());
 
 		// Save modified settings
 		TA3D::Settings::Save();

@@ -259,7 +259,10 @@ namespace TA3D
 					LOG_ERROR(LOG_PREFIX_TDF << stack.caption << ":" << stack.line << " : `}` found outside a section");
 				continue;
 			default:
-				if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')		// Variable name
+				if ((*p >= 'a' && *p <= 'z')
+					|| (*p >= 'A' && *p <= 'Z')
+					|| (*p >= '0' && *p <= '9')
+					|| *p == '_')		// Variable name
 				{
 					stack.key.clear();
 					for(; p < end && *p != '=' ; ++p)
