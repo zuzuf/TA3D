@@ -28,14 +28,13 @@ void lj_meta_init(lua_State *L)
 #undef MMNAME
   global_State *g = G(L);
   const char *p, *q;
-  uint32_t i;
-  for (i = 0, p = metanames; *p; i++, p = q) {
+  uint32_t mm;
+  for (mm = 0, p = metanames; *p; mm++, p = q) {
     GCstr *s;
     for (q = p+2; *q && *q != '_'; q++) ;
     s = lj_str_new(L, p, (size_t)(q-p));
-    fixstring(s);  /* Never collect these names. */
-    /* NOBARRIER: g->mmname[] is a GC root. */
-    setgcref(g->mmname[i], obj2gco(s));
+    /* NOBARRIER: g->gcroot[] is a GC root. */
+    setgcref(g->gcroot[GCROOT_MMNAME+mm], obj2gco(s));
   }
 }
 
@@ -62,7 +61,7 @@ cTValue *lj_meta_lookup(lua_State *L, cTValue *o, MMS mm)
   else
     mt = tabref(basemt_obj(G(L), o));
   if (mt) {
-    cTValue *mo = lj_tab_getstr(mt, strref(G(L)->mmname[mm]));
+    cTValue *mo = lj_tab_getstr(mt, mmname_str(G(L), mm));
     if (mo)
       return mo;
   }
@@ -134,7 +133,7 @@ TValue *lj_meta_tset(lua_State *L, cTValue *o, cTValue *k)
       TValue *tv = lj_tab_set(L, t, k);
       if (!tvisnil(tv) ||
 	  !(mo = lj_meta_fast(L, tabref(t->metatable), MM_newindex))) {
-	if (isblack(obj2gco(t))) lj_gc_barrierback(G(L), t);
+	lj_gc_anybarriert(L, t);
 	return tv;
       }
     } else if (tvisnil(mo = lj_meta_lookup(L, o, MM_newindex))) {
@@ -227,9 +226,9 @@ TValue *lj_meta_cat(lua_State *L, TValue *top, int left)
       ** after mm:  [...][CAT stack ...] <--push-- [result]
       ** next step: [...][CAT stack .............]
       */
-      copyTV(L, top+2, top)  /* Careful with the order of stack copies! */
-      copyTV(L, top+1, top-1)
-      copyTV(L, top, mo)
+      copyTV(L, top+2, top);  /* Careful with the order of stack copies! */
+      copyTV(L, top+1, top-1);
+      copyTV(L, top, mo);
       setcont(top-1, lj_cont_cat);
       return top+1;  /* Trigger metamethod call. */
     } else if (strV(top)->len == 0) {  /* Shortcut. */
@@ -286,7 +285,7 @@ TValue *lj_meta_equal(lua_State *L, GCobj *o1, GCobj *o2, int ne)
   cTValue *mo = lj_meta_fast(L, tabref(o1->gch.metatable), MM_eq);
   if (mo) {
     TValue *top;
-    int it;
+    uint32_t it;
     if (tabref(o1->gch.metatable) != tabref(o2->gch.metatable)) {
       cTValue *mo2 = lj_meta_fast(L, tabref(o2->gch.metatable), MM_eq);
       if (mo2 == NULL || !lj_obj_equal(mo, mo2))
@@ -295,9 +294,9 @@ TValue *lj_meta_equal(lua_State *L, GCobj *o1, GCobj *o2, int ne)
     top = curr_top(L);
     setcont(top, ne ? lj_cont_condf : lj_cont_condt);
     copyTV(L, top+1, mo);
-    it = ~(int32_t)o1->gch.gct;
-    setgcV(L, top+2, &o1->gch, it);
-    setgcV(L, top+3, &o2->gch, it);
+    it = ~(uint32_t)o1->gch.gct;
+    setgcV(L, top+2, o1, it);
+    setgcV(L, top+3, o2, it);
     return top+2;  /* Trigger metamethod call. */
   }
   return cast(TValue *, (intptr_t)ne);

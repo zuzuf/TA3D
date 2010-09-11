@@ -75,9 +75,37 @@ typedef struct GCRef {
 ** a barrier has been omitted are annotated with a NOBARRIER comment.
 **
 ** The same logic applies for stores to table slots (array part or hash
-** part). ALL uses of lj_tab_set* require a barrier for the stored *value*
-** (if it's a GC object). The barrier for the *key* is already handled
-** internally by lj_tab_newkey.
+** part). ALL uses of lj_tab_set* require a barrier for the stored value
+** *and* the stored key, based on the above rules. In practice this means
+** a barrier is needed if *either* of the key or value are a GC object.
+**
+** It's ok to LEAVE OUT the write barrier in the following special cases:
+** - The stored value is nil. The key doesn't matter because it's either
+**   not resurrected or lj_tab_newkey() will take care of the key barrier.
+** - The key doesn't matter if the *previously* stored value is guaranteed
+**   to be non-nil (because the key is kept alive in the table).
+** - The key doesn't matter if it's guaranteed not to be part of the table,
+**   since lj_tab_newkey() takes care of the key barrier. This applies
+**   trivially to new tables, but watch out for resurrected keys. Storing
+**   a nil value leaves the key in the table!
+**
+** In case of doubt use lj_gc_anybarriert() as it's rather cheap. It's used
+** by the interpreter for all table stores.
+**
+** Note: In contrast to Lua's GC, LuaJIT's GC does *not* specially mark
+** dead keys in tables. The reference is left in, but it's guaranteed to
+** be never dereferenced as long as the value is nil. It's ok if the key is
+** freed or if any object subsequently gets the same address.
+**
+** Not destroying dead keys helps to keep key hash slots stable. This avoids
+** specialization back-off for HREFK when a value flips between nil and
+** non-nil and the GC gets in the way. It also allows safely hoisting
+** HREF/HREFK across GC steps. Dead keys are only removed if a table is
+** resized (i.e. by NEWREF) and xREF must not be CSEd across a resize.
+**
+** The trade-off is that a write barrier for tables must take the key into
+** account, too. Implicitly resurrecting the key by storing a non-nil value
+** may invalidate the incremental GC invariant.
 */
 
 /* -- Common type definitions --------------------------------------------- */
@@ -113,7 +141,7 @@ typedef LJ_ALIGN(8) union TValue {
   struct {
     LJ_ENDIAN_LOHI(
       GCRef gcr;	/* GCobj reference (if any). */
-    , int32_t it;	/* Internal object tag. Must overlap MSW of number. */
+    , uint32_t it;	/* Internal object tag. Must overlap MSW of number. */
     )
   };
   struct {
@@ -136,10 +164,7 @@ typedef const TValue cTValue;
 
 /* More external and GCobj tags for internal objects. */
 #define LAST_TT		LUA_TTHREAD
-
 #define LUA_TPROTO	(LAST_TT+1)
-#define LUA_TUPVAL	(LAST_TT+2)
-#define LUA_TDEADKEY	(LAST_TT+3)
 
 /* Internal object tags.
 **
@@ -161,137 +186,30 @@ typedef const TValue cTValue;
 ** GC objects are at the end, table/userdata must be lowest.
 ** Also check lj_ir.h for similar ordering constraints.
 */
-#define LJ_TNIL			(-1)
-#define LJ_TFALSE		(-2)
-#define LJ_TTRUE		(-3)
-#define LJ_TLIGHTUD		(-4)
-#define LJ_TSTR			(-5)
-#define LJ_TUPVAL		(-6)
-#define LJ_TTHREAD		(-7)
-#define LJ_TPROTO		(-8)
-#define LJ_TFUNC		(-9)
-#define LJ_TDEADKEY		(-10)
-#define LJ_TTAB			(-11)
-#define LJ_TUDATA		(-12)
+#define LJ_TNIL			(~0u)
+#define LJ_TFALSE		(~1u)
+#define LJ_TTRUE		(~2u)
+#define LJ_TLIGHTUD		(~3u)
+#define LJ_TSTR			(~4u)
+#define LJ_TUPVAL		(~5u)
+#define LJ_TTHREAD		(~6u)
+#define LJ_TPROTO		(~7u)
+#define LJ_TFUNC		(~8u)
+#define LJ_TTRACE		(~9u)
+#define LJ_TTAB			(~10u)
+#define LJ_TUDATA		(~11u)
 /* This is just the canonical number type used in some places. */
-#define LJ_TNUMX		(-13)
+#define LJ_TNUMX		(~12u)
 
 #if LJ_64
-#define LJ_TISNUM		((uint32_t)0xfffeffff)
+#define LJ_TISNUM		0xfffeffffu
 #else
-#define LJ_TISNUM		((uint32_t)LJ_TNUMX)
+#define LJ_TISNUM		LJ_TNUMX
 #endif
-#define LJ_TISTRUECOND		((uint32_t)LJ_TFALSE)
-#define LJ_TISPRI		((uint32_t)LJ_TTRUE)
-#define LJ_TISGCV		((uint32_t)(LJ_TSTR+1))
-#define LJ_TISTABUD		((uint32_t)LJ_TTAB)
-
-/* -- TValue getters/setters ---------------------------------------------- */
-
-/* Macros to test types. */
-#define itype(o)	((o)->it)
-#define uitype(o)	((uint32_t)itype(o))
-#define tvisnil(o)	(itype(o) == LJ_TNIL)
-#define tvisfalse(o)	(itype(o) == LJ_TFALSE)
-#define tvistrue(o)	(itype(o) == LJ_TTRUE)
-#define tvisbool(o)	(tvisfalse(o) || tvistrue(o))
-#if LJ_64
-#define tvislightud(o)	((itype(o) >> 15) == -2)
-#else
-#define tvislightud(o)	(itype(o) == LJ_TLIGHTUD)
-#endif
-#define tvisstr(o)	(itype(o) == LJ_TSTR)
-#define tvisfunc(o)	(itype(o) == LJ_TFUNC)
-#define tvisthread(o)	(itype(o) == LJ_TTHREAD)
-#define tvisproto(o)	(itype(o) == LJ_TPROTO)
-#define tvistab(o)	(itype(o) == LJ_TTAB)
-#define tvisudata(o)	(itype(o) == LJ_TUDATA)
-#define tvisnum(o)	(uitype(o) <= LJ_TISNUM)
-
-#define tvistruecond(o)	(uitype(o) < LJ_TISTRUECOND)
-#define tvispri(o)	(uitype(o) >= LJ_TISPRI)
-#define tvistabud(o)	(uitype(o) <= LJ_TISTABUD)  /* && !tvisnum() */
-#define tvisgcv(o) \
-  ((uitype(o) - LJ_TISGCV) > ((uint32_t)LJ_TNUMX - LJ_TISGCV))
-
-/* Special macros to test numbers for NaN, +0, -0, +1 and raw equality. */
-#define tvisnan(o)	((o)->n != (o)->n)
-#define tvispzero(o)	((o)->u64 == 0)
-#define tvismzero(o)	((o)->u64 == U64x(80000000,00000000))
-#define tvispone(o)	((o)->u64 == U64x(3ff00000,00000000))
-#define rawnumequal(o1, o2)	((o1)->u64 == (o2)->u64)
-
-/* Macros to convert type ids. */
-#if LJ_64
-#define itypemap(o) \
-  (tvisnum(o) ? ~LJ_TNUMX : tvislightud(o) ? ~LJ_TLIGHTUD : ~itype(o))
-#else
-#define itypemap(o)	(tvisnum(o) ? ~LJ_TNUMX : ~itype(o))
-#endif
-
-/* Macros to get tagged values. */
-#define gcval(o)	(gcref((o)->gcr))
-#define boolV(o)	check_exp(tvisbool(o), (LJ_TFALSE - (o)->it))
-#if LJ_64
-#define lightudV(o)	check_exp(tvislightud(o), \
-			  (void *)((o)->u64 & U64x(00007fff,ffffffff)))
-#else
-#define lightudV(o)	check_exp(tvislightud(o), gcrefp((o)->gcr, void))
-#endif
-#define gcV(o)		check_exp(tvisgcv(o), gcval(o))
-#define strV(o)		check_exp(tvisstr(o), &gcval(o)->str)
-#define funcV(o)	check_exp(tvisfunc(o), &gcval(o)->fn)
-#define threadV(o)	check_exp(tvisthread(o), &gcval(o)->th)
-#define protoV(o)	check_exp(tvisproto(o), &gcval(o)->pt)
-#define tabV(o)		check_exp(tvistab(o), &gcval(o)->tab)
-#define udataV(o)	check_exp(tvisudata(o), &gcval(o)->ud)
-#define numV(o)		check_exp(tvisnum(o), (o)->n)
-
-/* Macros to set tagged values. */
-#define setitype(o, i)		((o)->it = (i))
-#define setnilV(o)		((o)->it = LJ_TNIL)
-#define setboolV(o, x)		((o)->it = LJ_TFALSE-(x))
-
-#if LJ_64
-#define checklightudptr(L, p) \
-  (((uint64_t)(p) >> 47) ? (lj_err_msg(L, LJ_ERR_BADLU), NULL) : (p))
-#define setlightudV(o, x) \
-  ((o)->u64 = (uint64_t)(x) | (((uint64_t)0xffff) << 48))
-#define setcont(o, x) \
-  ((o)->u64 = (uint64_t)(x) - (uint64_t)lj_vm_asm_begin)
-#else
-#define checklightudptr(L, p)	(p)
-#define setlightudV(o, x) \
-  { TValue *i_o = (o); \
-    setgcrefp(i_o->gcr, (x)); i_o->it = LJ_TLIGHTUD; }
-#define setcont(o, x) \
-  { TValue *i_o = (o); \
-    setgcrefp(i_o->gcr, (x)); i_o->it = LJ_TLIGHTUD; }
-#endif
-
-#define tvchecklive(g, o) \
-  lua_assert(!tvisgcv(o) || \
-  ((~itype(o) == gcval(o)->gch.gct) && !isdead(g, gcval(o))))
-
-#define setgcV(L, o, x, itype) \
-  { TValue *i_o = (o); \
-    setgcrefp(i_o->gcr, &(x)->nextgc); i_o->it = itype; \
-    tvchecklive(G(L), i_o); }
-#define setstrV(L, o, x)	setgcV(L, o, x, LJ_TSTR)
-#define setthreadV(L, o, x)	setgcV(L, o, x, LJ_TTHREAD)
-#define setprotoV(L, o, x)	setgcV(L, o, x, LJ_TPROTO)
-#define setfuncV(L, o, x)	setgcV(L, o, &(x)->l, LJ_TFUNC)
-#define settabV(L, o, x)	setgcV(L, o, x, LJ_TTAB)
-#define setudataV(L, o, x)	setgcV(L, o, x, LJ_TUDATA)
-
-#define setnumV(o, x)		((o)->n = (x))
-#define setnanV(o)		((o)->u64 = U64x(fff80000,00000000))
-#define setintV(o, i)		((o)->n = cast_num((int32_t)(i)))
-
-/* Copy tagged values. */
-#define copyTV(L, o1, o2) \
-  { cTValue *i_o2 = (o2); TValue *i_o1 = (o1); \
-    *i_o1 = *i_o2; tvchecklive(G(L), i_o1); }
+#define LJ_TISTRUECOND		LJ_TFALSE
+#define LJ_TISPRI		LJ_TTRUE
+#define LJ_TISGCV		(LJ_TSTR+1)
+#define LJ_TISTABUD		LJ_TTAB
 
 /* -- String object ------------------------------------------------------- */
 
@@ -512,15 +430,18 @@ MMDEF(MMENUM)
 
 /* GC root IDs. */
 typedef enum {
+  GCROOT_MMNAME,	/* Metamethod names. */
+  GCROOT_MMNAME_LAST = GCROOT_MMNAME + MM_MAX-1,
   GCROOT_BASEMT,	/* Metatables for base types. */
-  GCROOT_BASEMT_NUM = ~LJ_TNUMX,  /* Last base metatable. */
+  GCROOT_BASEMT_NUM = GCROOT_BASEMT + ~LJ_TNUMX,
   GCROOT_IO_INPUT,	/* Userdata for default I/O input file. */
   GCROOT_IO_OUTPUT,	/* Userdata for default I/O output file. */
-  GCROOT__MAX
+  GCROOT_MAX
 } GCRootID;
 
 #define basemt_it(g, it)	((g)->gcroot[GCROOT_BASEMT+~(it)])
 #define basemt_obj(g, o)	((g)->gcroot[GCROOT_BASEMT+itypemap(o)])
+#define mmname_str(g, mm)	(strref((g)->gcroot[GCROOT_MMNAME+(mm)]))
 
 typedef struct GCState {
   MSize total;		/* Memory currently allocated. */
@@ -552,10 +473,11 @@ typedef struct global_State {
   GCState gc;		/* Garbage collector. */
   SBuf tmpbuf;		/* Temporary buffer for string concatenation. */
   Node nilnode;		/* Fallback 1-element hash part (nil key and value). */
+  GCstr strempty;	/* Empty string. */
+  uint8_t stremptyz;	/* Zero terminator of empty string. */
   uint8_t hookmask;	/* Hook mask. */
   uint8_t dispatchmode;	/* Dispatch mode. */
   uint8_t vmevmask;	/* VM event mask. */
-  uint8_t unused1;
   GCRef mainthref;	/* Link to main thread. */
   TValue registrytv;	/* Anchor for registry. */
   TValue tmptv;		/* Temporary TValue. */
@@ -570,8 +492,7 @@ typedef struct global_State {
   BCIns bc_cfunc_ext;	/* Bytecode for external C function calls. */
   GCRef jit_L;		/* Current JIT code lua_State or NULL. */
   MRef jit_base;	/* Current JIT code L->base. */
-  GCRef gcroot[GCROOT__MAX];  /* GC roots. */
-  GCRef mmname[MM_MAX];	/* Array holding metamethod names. */
+  GCRef gcroot[GCROOT_MAX];  /* GC roots. */
 } global_State;
 
 #define mainthread(g)	(&gcref(g->mainthref)->th)
@@ -669,7 +590,125 @@ typedef union GCobj {
 #define gco2ud(o)	check_exp((o)->gch.gct == ~LJ_TUDATA, &(o)->ud)
 
 /* Macro to convert any collectable object into a GCobj pointer. */
-#define obj2gco(v)	(cast(GCobj *, (v)))
+#define obj2gco(v)	((GCobj *)(v))
+
+/* -- TValue getters/setters ---------------------------------------------- */
+
+#ifdef LUA_USE_ASSERT
+#include "lj_gc.h"
+#endif
+
+/* Macros to test types. */
+#define itype(o)	((o)->it)
+#define tvisnil(o)	(itype(o) == LJ_TNIL)
+#define tvisfalse(o)	(itype(o) == LJ_TFALSE)
+#define tvistrue(o)	(itype(o) == LJ_TTRUE)
+#define tvisbool(o)	(tvisfalse(o) || tvistrue(o))
+#if LJ_64
+#define tvislightud(o)	(((int32_t)itype(o) >> 15) == -2)
+#else
+#define tvislightud(o)	(itype(o) == LJ_TLIGHTUD)
+#endif
+#define tvisstr(o)	(itype(o) == LJ_TSTR)
+#define tvisfunc(o)	(itype(o) == LJ_TFUNC)
+#define tvisthread(o)	(itype(o) == LJ_TTHREAD)
+#define tvisproto(o)	(itype(o) == LJ_TPROTO)
+#define tvistab(o)	(itype(o) == LJ_TTAB)
+#define tvisudata(o)	(itype(o) == LJ_TUDATA)
+#define tvisnum(o)	(itype(o) <= LJ_TISNUM)
+
+#define tvistruecond(o)	(itype(o) < LJ_TISTRUECOND)
+#define tvispri(o)	(itype(o) >= LJ_TISPRI)
+#define tvistabud(o)	(itype(o) <= LJ_TISTABUD)  /* && !tvisnum() */
+#define tvisgcv(o)	((itype(o) - LJ_TISGCV) > (LJ_TNUMX - LJ_TISGCV))
+
+/* Special macros to test numbers for NaN, +0, -0, +1 and raw equality. */
+#define tvisnan(o)	((o)->n != (o)->n)
+#define tvispzero(o)	((o)->u64 == 0)
+#define tvismzero(o)	((o)->u64 == U64x(80000000,00000000))
+#define tvispone(o)	((o)->u64 == U64x(3ff00000,00000000))
+#define rawnumequal(o1, o2)	((o1)->u64 == (o2)->u64)
+
+/* Macros to convert type ids. */
+#if LJ_64
+#define itypemap(o) \
+  (tvisnum(o) ? ~LJ_TNUMX : tvislightud(o) ? ~LJ_TLIGHTUD : ~itype(o))
+#else
+#define itypemap(o)	(tvisnum(o) ? ~LJ_TNUMX : ~itype(o))
+#endif
+
+/* Macros to get tagged values. */
+#define gcval(o)	(gcref((o)->gcr))
+#define boolV(o)	check_exp(tvisbool(o), (LJ_TFALSE - (o)->it))
+#if LJ_64
+#define lightudV(o) \
+  check_exp(tvislightud(o), (void *)((o)->u64 & U64x(00007fff,ffffffff)))
+#else
+#define lightudV(o)	check_exp(tvislightud(o), gcrefp((o)->gcr, void))
+#endif
+#define gcV(o)		check_exp(tvisgcv(o), gcval(o))
+#define strV(o)		check_exp(tvisstr(o), &gcval(o)->str)
+#define funcV(o)	check_exp(tvisfunc(o), &gcval(o)->fn)
+#define threadV(o)	check_exp(tvisthread(o), &gcval(o)->th)
+#define protoV(o)	check_exp(tvisproto(o), &gcval(o)->pt)
+#define tabV(o)		check_exp(tvistab(o), &gcval(o)->tab)
+#define udataV(o)	check_exp(tvisudata(o), &gcval(o)->ud)
+#define numV(o)		check_exp(tvisnum(o), (o)->n)
+
+/* Macros to set tagged values. */
+#define setitype(o, i)		((o)->it = (i))
+#define setnilV(o)		((o)->it = LJ_TNIL)
+#define setboolV(o, x)		((o)->it = LJ_TFALSE-(uint32_t)(x))
+
+static LJ_AINLINE void setlightudV(TValue *o, void *p)
+{
+#if LJ_64
+  o->u64 = (uint64_t)p | (((uint64_t)0xffff) << 48);
+#else
+  setgcrefp(o->gcr, p); setitype(o, LJ_TLIGHTUD);
+#endif
+}
+
+#if LJ_64
+#define checklightudptr(L, p) \
+  (((uint64_t)(p) >> 47) ? (lj_err_msg(L, LJ_ERR_BADLU), NULL) : (p))
+#define setcont(o, f) \
+  ((o)->u64 = (uint64_t)(void *)(f) - (uint64_t)lj_vm_asm_begin)
+#else
+#define checklightudptr(L, p)	(p)
+#define setcont(o, f)		setlightudV((o), (void *)(f))
+#endif
+
+#define tvchecklive(L, o) \
+  UNUSED(L), lua_assert(!tvisgcv(o) || \
+  ((~itype(o) == gcval(o)->gch.gct) && !isdead(G(L), gcval(o))))
+
+static LJ_AINLINE void setgcV(lua_State *L, TValue *o, GCobj *v, uint32_t itype)
+{
+  setgcref(o->gcr, v); setitype(o, itype); tvchecklive(L, o);
+}
+
+#define define_setV(name, type, tag) \
+static LJ_AINLINE void name(lua_State *L, TValue *o, type *v) \
+{ \
+  setgcV(L, o, obj2gco(v), tag); \
+}
+define_setV(setstrV, GCstr, LJ_TSTR)
+define_setV(setthreadV, lua_State, LJ_TTHREAD)
+define_setV(setprotoV, GCproto, LJ_TPROTO)
+define_setV(setfuncV, GCfunc, LJ_TFUNC)
+define_setV(settabV, GCtab, LJ_TTAB)
+define_setV(setudataV, GCudata, LJ_TUDATA)
+
+#define setnumV(o, x)		((o)->n = (x))
+#define setnanV(o)		((o)->u64 = U64x(fff80000,00000000))
+#define setintV(o, i)		((o)->n = cast_num((int32_t)(i)))
+
+/* Copy tagged values. */
+static LJ_AINLINE void copyTV(lua_State *L, TValue *o1, const TValue *o2)
+{
+  *o1 = *o2; tvchecklive(L, o1);
+}
 
 /* -- Number to integer conversion ---------------------------------------- */
 
@@ -689,16 +728,12 @@ static LJ_AINLINE int32_t lj_num2bit(lua_Number n)
 /* -- Miscellaneous object handling --------------------------------------- */
 
 /* Names and maps for internal and external object tags. */
-LJ_DATA const char *const lj_obj_typename[1+LUA_TUPVAL+1];
+LJ_DATA const char *const lj_obj_typename[1+LUA_TPROTO+1];
 LJ_DATA const char *const lj_obj_itypename[~LJ_TNUMX+1];
 
 #define typename(o)	(lj_obj_itypename[itypemap(o)])
 
 /* Compare two objects without calling metamethods. */
 LJ_FUNC int lj_obj_equal(cTValue *o1, cTValue *o2);
-
-#ifdef LUA_USE_ASSERT
-#include "lj_gc.h"
-#endif
 
 #endif

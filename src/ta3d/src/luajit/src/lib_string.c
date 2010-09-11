@@ -734,9 +734,26 @@ LJLIB_CF(string_format)
 	addintlen(form);
 	sprintf(buff, form, (unsigned LUA_INTFRM_T)lj_lib_checknum(L, arg));
 	break;
-      case 'e':  case 'E': case 'f': case 'g': case 'G':
-	sprintf(buff, form, (double)lj_lib_checknum(L, arg));
+      case 'e':  case 'E': case 'f': case 'g': case 'G': {
+	TValue tv;
+	tv.n = lj_lib_checknum(L, arg);
+	if (LJ_UNLIKELY((tv.u32.hi << 1) >= 0xffe00000)) {
+	  /* Canonicalize output of non-finite values. */
+	  char *p, nbuf[LUAI_MAXNUMBER2STR];
+	  size_t len = lj_str_bufnum(nbuf, &tv);
+	  if (strfrmt[-1] == 'E' || strfrmt[-1] == 'G') {
+	    nbuf[len-3] = nbuf[len-3] - 0x20;
+	    nbuf[len-2] = nbuf[len-2] - 0x20;
+	    nbuf[len-1] = nbuf[len-1] - 0x20;
+	  }
+	  for (p = form; *p < 'e' && *p != '.'; p++) ;
+	  *p++ = 's'; *p = '\0';
+	  sprintf(buff, form, nbuf);
+	  break;
+	}
+	sprintf(buff, form, (double)tv.n);
 	break;
+	}
       case 'q':
 	addquoted(L, &b, arg);
 	continue;
@@ -774,7 +791,6 @@ LJLIB_CF(string_format)
 LUALIB_API int luaopen_string(lua_State *L)
 {
   GCtab *mt;
-  GCstr *mmstr;
   global_State *g;
   LJ_LIB_REG(L, string);
 #if defined(LUA_COMPAT_GFIND)
@@ -785,9 +801,7 @@ LUALIB_API int luaopen_string(lua_State *L)
   /* NOBARRIER: basemt is a GC root. */
   g = G(L);
   setgcref(basemt_it(g, LJ_TSTR), obj2gco(mt));
-  mmstr = strref(g->mmname[MM_index]);
-  if (isdead(g, obj2gco(mmstr))) flipwhite(obj2gco(mmstr));
-  settabV(L, lj_tab_setstr(L, mt, mmstr), tabV(L->top-1));
+  settabV(L, lj_tab_setstr(L, mt, mmname_str(g, MM_index)), tabV(L->top-1));
   mt->nomm = cast_byte(~(1u<<MM_index));
   return 1;
 }

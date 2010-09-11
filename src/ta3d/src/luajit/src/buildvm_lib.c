@@ -23,7 +23,7 @@ enum {
   REGFUNC_NOREGUV
 };
 
-static void libdef_name(char *p, int kind)
+static void libdef_name(const char *p, int kind)
 {
   size_t n = strlen(p);
   if (kind != LIBINIT_STRING) {
@@ -198,7 +198,7 @@ static void memcpy_endian(void *dst, void *src, size_t n)
   } else {
     size_t i;
     for (i = 0; i < n; i++)
-      ((uint8_t *)dst)[i] = ((uint8_t *)src)[n-i];
+      ((uint8_t *)dst)[i] = ((uint8_t *)src)[n-i-1];
   }
 }
 

@@ -107,8 +107,7 @@
 |.type UPVAL,		GCupval
 |.type NODE,		Node
 |.type NARGS,		int
-|.type TRACE,		Trace
-|.type EXITINFO,	ExitInfo
+|.type TRACE,		GCtrace
 |
 |// Stack layout while in interpreter. Must match with lj_frame.h.
 |//-----------------------------------------------------------------------
@@ -438,8 +437,9 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |
   |->vm_return:
   |  // BASE = base, RA = resultofs, RD = nresults+1 (= MULTRES), PC = return
-  |  test PC, FRAME_C
-  |  jz ->vm_returnp
+  |  xor PC, FRAME_C
+  |  test PC, FRAME_TYPE
+  |  jnz ->vm_returnp
   |
   |  // Return to C.
   |  set_vmstate C
@@ -651,7 +651,6 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  mov RA, INARG_BASE			// Caveat: overlaps SAVE_CFRAME!
   |.endif
   |
-  |2:  // Entry point for vm_cpcall below (RA = base, RB = L, PC = ftype).
   |  mov KBASEa, L:RB->cframe		// Add our C frame to cframe chain.
   |  mov SAVE_CFRAME, KBASEa
   |  mov SAVE_PC, L:RB			// Any value outside of bytecode is ok.
@@ -661,6 +660,7 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  mov L:RB->cframe, esp
   |.endif
   |
+  |2:  // Entry point for vm_cpcall below (RA = base, RB = L, PC = ftype).
   |  mov DISPATCH, L:RB->glref		// Setup pointer to dispatch table.
   |  add DISPATCH, GG_G2DISP
   |
@@ -1211,7 +1211,7 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |.endmacro
   |
   |.macro .ffunc_nnsse, name
-  |  .ffunc_1 name
+  |  .ffunc_2 name
   |  cmp dword [BASE+4], LJ_TISNUM;  ja ->fff_fallback
   |  cmp dword [BASE+12], LJ_TISNUM;  ja ->fff_fallback
   |  movsd xmm0, qword [BASE]
@@ -1302,7 +1302,7 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  test TAB:RB, TAB:RB
   |  mov dword [BASE-4], LJ_TNIL
   |  jz ->fff_res1
-  |  mov STR:RC, [DISPATCH+DISPATCH_GL(mmname)+4*MM_metatable]
+  |  mov STR:RC, [DISPATCH+DISPATCH_GL(gcroot)+4*(GCROOT_MMNAME+MM_metatable)]
   |  mov dword [BASE-4], LJ_TTAB	// Store metatable as default result.
   |  mov [BASE-8], TAB:RB
   |  mov RA, TAB:RB->hmask
@@ -1432,6 +1432,7 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  cmp dword [BASE+4], LJ_TTAB;  jne ->fff_fallback
   |  mov L:RB, SAVE_L
   |  mov L:RB->base, BASE		// Add frame since C call can throw.
+  |  mov L:RB->top, BASE		// Dummy frame length is ok.
   |  mov PC, [BASE-4]
   |.if X64WIN
   |  lea CARG3d, [BASE+8]
@@ -2027,9 +2028,9 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  cmp NARGS:RD, 1+1;  jne ->fff_fallback	// *Exactly* 1 arg.
   |  cmp dword [BASE+4], LJ_TISNUM;  ja ->fff_fallback
   if (sse) {
-    |  cvtsd2si RC, qword [BASE]
-    |  cmp RC, 255;  ja ->fff_fallback
-    |  mov TMP2, RC
+    |  cvtsd2si RB, qword [BASE]
+    |  cmp RB, 255;  ja ->fff_fallback
+    |  mov TMP2, RB
   } else {
     |  fld qword [BASE]
     |  fistp TMP2
@@ -2613,6 +2614,7 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  mov L:RB, [DISPATCH+DISPATCH_GL(jit_L)]
   |  mov BASE, [DISPATCH+DISPATCH_GL(jit_base)]
   |  mov aword [DISPATCH+DISPATCH_J(L)], L:RBa
+  |  mov dword [DISPATCH+DISPATCH_GL(jit_L)], 0
   |  mov L:RB->base, BASE
   |.if X64WIN
   |  lea CARG2, [rsp+4*8]
@@ -2668,16 +2670,30 @@ static void build_subroutines(BuildCtx *ctx, int cmov, int sse)
   |  mov r13, TMPa
   |  mov r12, TMPQ
   |.endif
-  |  test RD, RD; js >2			// Check for error from exit.
+  |  test RD, RD; js >3			// Check for error from exit.
   |  mov MULTRES, RD
   |  mov LFUNC:KBASE, [BASE-8]
   |  mov KBASE, LFUNC:KBASE->pc
   |  mov KBASE, [KBASE+PC2PROTO(k)]
   |  mov dword [DISPATCH+DISPATCH_GL(jit_L)], 0
   |  set_vmstate INTERP
-  |  ins_next
+  |  // Modified copy of ins_next which handles function header dispatch, too.
+  |  mov RC, [PC]
+  |  movzx RA, RCH
+  |  movzx OP, RCL
+  |  add PC, 4
+  |  shr RC, 16
+  |  cmp OP, BC_FUNCF			// Function header?
+  |  jb >2
+  |  mov RC, MULTRES			// RC/RD holds nres+1.
+  |2:
+  |.if X64
+  |  jmp aword [DISPATCH+OP*8]
+  |.else
+  |  jmp aword [DISPATCH+OP*4]
+  |.endif
   |
-  |2:  // Rethrow error from the right C frame.
+  |3:  // Rethrow error from the right C frame.
   |  neg RD
   |  mov FCARG1, L:RB
   |  mov FCARG2, RD
@@ -3886,39 +3902,32 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop, int cmov, int sse)
 
   case BC_TNEW:
     |  ins_AD	// RA = dst, RD = hbits|asize
-    |.if X64
-    |  mov L:CARG1d, SAVE_L
-    |  mov L:CARG1d->base, BASE		// Caveat: CARG2d/CARG3d may be BASE.
+    |  mov L:RB, SAVE_L
+    |  mov L:RB->base, BASE
+    |  mov RA, [DISPATCH+DISPATCH_GL(gc.total)]
+    |  cmp RA, [DISPATCH+DISPATCH_GL(gc.threshold)]
+    |  mov SAVE_PC, PC
+    |  jae >5
     |1:
+    |.if X64
     |  mov CARG3d, RD
     |  and RD, 0x7ff
     |  shr CARG3d, 11
-    |  cmp RD, 0x7ff
-    |  je >3
-    |2:
-    |  mov CARG2d, RD
-    |  mov RD, [DISPATCH+DISPATCH_GL(gc.total)]
-    |  mov L:RB, L:CARG1d
-    |  cmp RD, [DISPATCH+DISPATCH_GL(gc.threshold)]
-    |  mov SAVE_PC, PC
-    |  jae >5
     |.else
-    |  mov RB, RD
+    |  mov RA, RD
     |  and RD, 0x7ff
-    |  shr RB, 11
+    |  shr RA, 11
+    |  mov ARG3, RA
+    |.endif
     |  cmp RD, 0x7ff
     |  je >3
     |2:
-    |  mov ARG3, RB
-    |  mov L:RB, SAVE_L
-    |  mov ARG2, RD
-    |  mov SAVE_PC, PC
-    |  mov RD, [DISPATCH+DISPATCH_GL(gc.total)]
+    |.if X64
+    |  mov L:CARG1d, L:RB
+    |  mov CARG2d, RD
+    |.else
     |  mov ARG1, L:RB
-    |  cmp RD, [DISPATCH+DISPATCH_GL(gc.threshold)]
-    |  mov L:RB->base, BASE
-    |  jae >5
-    |1:
+    |  mov ARG2, RD
     |.endif
     |  call extern lj_tab_new  // (lua_State *L, int32_t asize, uint32_t hbits)
     |  // Table * returned in eax (RC).
@@ -3931,16 +3940,10 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop, int cmov, int sse)
     |  mov RD, 0x801
     |  jmp <2
     |5:
-    |.if X64
-    |  call extern lj_gc_step_fixtop@4	// (lua_State *L)
-    |  movzx RD, PC_RD
-    |  mov L:CARG1d, L:RB
-    |  jmp <1
-    |.else
     |  mov L:FCARG1, L:RB
     |  call extern lj_gc_step_fixtop@4	// (lua_State *L)
+    |  movzx RD, PC_RD
     |  jmp <1
-    |.endif
     break;
   case BC_TDUP:
     |  ins_AND	// RA = dst, RD = table const (~) (holding template table)
@@ -4410,11 +4413,15 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop, int cmov, int sse)
     |  jmp <4
     |
     |7:  // Tailcall from a vararg function.
-    |  jnp <1				// Vararg frame below?
-    |  and PC, -8
+    |  sub PC, FRAME_VARG
+    |  test PC, FRAME_TYPEP
+    |  jnz >8				// Vararg frame below?
     |  sub BASE, PC			// Need to relocate BASE/KBASE down.
     |  mov KBASE, BASE
     |  mov PC, [BASE-4]
+    |  jmp <1
+    |8:
+    |  add PC, FRAME_VARG
     |  jmp <1
     break;
 
@@ -4585,12 +4592,13 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop, int cmov, int sse)
     |  jmp <5
     |
     |7:  // Non-standard return case.
-    |  jnp ->vm_return
+    |  lea RB, [PC-FRAME_VARG]
+    |  test RB, FRAME_TYPEP
+    |  jnz ->vm_return
     |  // Return from vararg function: relocate BASE down and RA up.
-    |  and PC, -8
-    |  sub BASE, PC
+    |  sub BASE, RB
     if (op != BC_RET0) {
-      |  add RA, PC
+      |  add RA, RB
     }
     |  jmp <1
     break;
@@ -4731,11 +4739,7 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop, int cmov, int sse)
 #if LJ_HASJIT
     |  ins_AD	// RA = base (ignored), RD = traceno
     |  mov RA, [DISPATCH+DISPATCH_J(trace)]
-    |.if X64
-    |  mov TRACE:RD, [RA+RD*8]
-    |.else
     |  mov TRACE:RD, [RA+RD*4]
-    |.endif
     |  mov RDa, TRACE:RD->mcode
     |  mov L:RB, SAVE_L
     |  mov [DISPATCH+DISPATCH_GL(jit_base)], BASE
@@ -5119,50 +5123,33 @@ static void emit_asm_debug(BuildCtx *ctx)
 	"\t.align " BSZPTR "\n"
 	"LECIEX:\n\n");
     for (i = 0; i < ctx->nsym; i++) {
-      int pi = ctx->perm[i];
-      int ni = ctx->perm[i+1];
-      int size = ctx->sym_ofs[ni] - ctx->sym_ofs[pi];
-      if (ctx->sym_ofs[pi] >= 0 && size > 0) {
-	char name[80];
-	if (pi >= ctx->npc) {
-	  char *p;
-	  sprintf(name, "_" LABEL_PREFIX "%s", ctx->globnames[pi - ctx->npc]);
-	  p = strchr(name, '@'); if (p) *p = '\0';
-#if LJ_HASJIT
-	} else {
-#else
-	} else if (!(pi == BC_JFORI || pi == BC_JFORL || pi == BC_JITERL ||
-		     pi == BC_JLOOP || pi == BC_IFORL || pi == BC_IITERL ||
-		     pi == BC_ILOOP)) {
-#endif
-	  sprintf(name, "_" LABEL_PREFIX_BC "%s", bc_names[pi]);
-	}
-	fprintf(ctx->fp,
-	    "%s.eh:\n"
-	    "LSFDE%d:\n"
-	    "\t.set L$set$%d,LEFDE%d-LASFDE%d\n"
-	    "\t.long L$set$%d\n"
-	    "LASFDE%d:\n"
-	    "\t.long LASFDE%d-EH_frame1\n"
-	    "\t.long %s-.\n"
-	    "\t.long %d\n"
-	    "\t.byte 0\n"			/* augmentation length */
-	    "\t.byte 0xe\n\t.byte %d\n"		/* def_cfa_offset */
+      const char *name = ctx->sym[i].name;
+      int32_t size = ctx->sym[i+1].ofs - ctx->sym[i].ofs;
+      fprintf(ctx->fp,
+	  "%s.eh:\n"
+	  "LSFDE%d:\n"
+	  "\t.set L$set$%d,LEFDE%d-LASFDE%d\n"
+	  "\t.long L$set$%d\n"
+	  "LASFDE%d:\n"
+	  "\t.long LASFDE%d-EH_frame1\n"
+	  "\t.long %s-.\n"
+	  "\t.long %d\n"
+	  "\t.byte 0\n"			/* augmentation length */
+	  "\t.byte 0xe\n\t.byte %d\n"		/* def_cfa_offset */
 #if LJ_64
-	    "\t.byte 0x86\n\t.byte 0x2\n"	/* offset rbp */
-	    "\t.byte 0x83\n\t.byte 0x3\n"	/* offset rbx */
-	    "\t.byte 0x8f\n\t.byte 0x4\n"	/* offset r15 */
-	    "\t.byte 0x8e\n\t.byte 0x5\n"	/* offset r14 */
+	  "\t.byte 0x86\n\t.byte 0x2\n"	/* offset rbp */
+	  "\t.byte 0x83\n\t.byte 0x3\n"	/* offset rbx */
+	  "\t.byte 0x8f\n\t.byte 0x4\n"	/* offset r15 */
+	  "\t.byte 0x8e\n\t.byte 0x5\n"	/* offset r14 */
 #else
-	    "\t.byte 0x84\n\t.byte 0x2\n"	/* offset ebp (4 for MACH-O)*/
-	    "\t.byte 0x87\n\t.byte 0x3\n"	/* offset edi */
-	    "\t.byte 0x86\n\t.byte 0x4\n"	/* offset esi */
-	    "\t.byte 0x83\n\t.byte 0x5\n"	/* offset ebx */
+	  "\t.byte 0x84\n\t.byte 0x2\n"	/* offset ebp (4 for MACH-O)*/
+	  "\t.byte 0x87\n\t.byte 0x3\n"	/* offset edi */
+	  "\t.byte 0x86\n\t.byte 0x4\n"	/* offset esi */
+	  "\t.byte 0x83\n\t.byte 0x5\n"	/* offset ebx */
 #endif
-	    "\t.align " BSZPTR "\n"
-	    "LEFDE%d:\n\n",
-	    name, i, i, i, i, i, i, i, name, size, CFRAME_SIZE, i);
-      }
+	  "\t.align " BSZPTR "\n"
+	  "LEFDE%d:\n\n",
+	  name, i, i, i, i, i, i, i, name, size, CFRAME_SIZE, i);
     }
 #if LJ_64
     fprintf(ctx->fp, "\t.subsections_via_symbols\n");

@@ -54,7 +54,7 @@ LJLIB_PUSH("upval")
 LJLIB_PUSH("thread")
 LJLIB_PUSH("proto")
 LJLIB_PUSH("function")
-LJLIB_PUSH("deadkey")
+LJLIB_PUSH("trace")
 LJLIB_PUSH("table")
 LJLIB_PUSH(top-8)  /* userdata */
 LJLIB_PUSH("number")
@@ -224,7 +224,7 @@ LJLIB_ASM(tostring)		LJLIB_REC(.)
     if (tvisnum(o)) {
       s = lj_str_fromnum(L, &o->n);
     } else if (tvispri(o)) {
-      s = strV(lj_lib_upvalue(L, -itype(o)));
+      s = strV(lj_lib_upvalue(L, -(int32_t)itype(o)));
     } else {
       if (tvisfunc(o) && isffunc(funcV(o)))
 	lua_pushfstring(L, "function: fast#%d", funcV(o)->c.ffid);
@@ -402,8 +402,15 @@ LJLIB_CF(print)
 {
   ptrdiff_t i, nargs = L->top - L->base;
   cTValue *tv = lj_tab_getstr(tabref(L->env), strV(lj_lib_upvalue(L, 1)));
-  int shortcut = (tv && tvisfunc(tv) && funcV(tv)->c.ffid == FF_tostring);
-  copyTV(L, L->top++, tv ? tv : niltv(L));
+  int shortcut;
+  if (tv && !tvisnil(tv)) {
+    copyTV(L, L->top++, tv);
+  } else {
+    setstrV(L, L->top++, strV(lj_lib_upvalue(L, 1)));
+    lua_gettable(L, LUA_GLOBALSINDEX);
+    tv = L->top-1;
+  }
+  shortcut = (tvisfunc(tv) && funcV(tv)->c.ffid == FF_tostring);
   for (i = 0; i < nargs; i++) {
     const char *str;
     size_t size;
@@ -413,8 +420,7 @@ LJLIB_CF(print)
       size = strV(o)->len;
     } else if (shortcut && tvisnum(o)) {
       char buf[LUAI_MAXNUMBER2STR];
-      lua_Number n = numV(o);
-      size = (size_t)lua_number2str(buf, n);
+      size = lj_str_bufnum(buf, o);
       str = buf;
     } else {
       copyTV(L, L->top+1, o);

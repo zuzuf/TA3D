@@ -195,8 +195,10 @@ LUA_API int lua_type(lua_State *L, int idx)
   } else if (o == niltv(L)) {
     return LUA_TNONE;
   } else {  /* Magic internal/external tag conversion. ORDER LJ_T */
-    int t = ~itype(o);
-    return (int)(((t < 8 ? 0x98a42110 : 0x75b6) >> 4*(t&7)) & 15u);
+    uint32_t t = ~itype(o);
+    int tt = (int)(((t < 8 ? 0x98042110 : 0x7506) >> 4*(t&7)) & 15u);
+    lua_assert(tt != LUA_TNIL || tvisnil(o));
+    return tt;
   }
 }
 
@@ -631,7 +633,7 @@ LUALIB_API int luaL_newmetatable(lua_State *L, const char *tname)
     GCtab *mt = lj_tab_new(L, 0, 1);
     settabV(L, tv, mt);
     settabV(L, L->top++, mt);
-    lj_gc_objbarriert(L, regt, mt);
+    lj_gc_anybarriert(L, regt);
     return 1;
   } else {
     copyTV(L, L->top++, tv);
@@ -899,7 +901,7 @@ LUA_API void lua_rawset(lua_State *L, int idx)
   key = L->top-2;
   dst = lj_tab_set(L, t, key);
   copyTV(L, dst, key+1);
-  lj_gc_barriert(L, t, dst);
+  lj_gc_anybarriert(L, t);
   L->top = key;
 }
 
@@ -996,6 +998,7 @@ LUA_API const char *lua_setupvalue(lua_State *L, int idx, int n)
 
 LUA_API void lua_call(lua_State *L, int nargs, int nresults)
 {
+  api_check(L, L->status == 0 || L->status == LUA_ERRERR);
   api_checknelems(L, nargs+1);
   lj_vm_call(L, L->top - nargs, nresults+1);
 }
@@ -1006,6 +1009,7 @@ LUA_API int lua_pcall(lua_State *L, int nargs, int nresults, int errfunc)
   uint8_t oldh = hook_save(g);
   ptrdiff_t ef;
   int status;
+  api_check(L, L->status == 0 || L->status == LUA_ERRERR);
   api_checknelems(L, nargs+1);
   if (errfunc == 0) {
     ef = 0;
@@ -1021,8 +1025,7 @@ LUA_API int lua_pcall(lua_State *L, int nargs, int nresults, int errfunc)
 
 static TValue *cpcall(lua_State *L, lua_CFunction func, void *ud)
 {
-  GCfunc *fn;
-  fn = lj_func_newC(L, 0, getcurrenv(L));
+  GCfunc *fn = lj_func_newC(L, 0, getcurrenv(L));
   fn->c.f = func;
   setfuncV(L, L->top, fn);
   setlightudV(L->top+1, checklightudptr(L, ud));
@@ -1035,7 +1038,9 @@ LUA_API int lua_cpcall(lua_State *L, lua_CFunction func, void *ud)
 {
   global_State *g = G(L);
   uint8_t oldh = hook_save(g);
-  int status = lj_vm_cpcall(L, func, ud, cpcall);
+  int status;
+  api_check(L, L->status == 0 || L->status == LUA_ERRERR);
+  status = lj_vm_cpcall(L, func, ud, cpcall);
   if (status) hook_restore(g, oldh);
   return status;
 }
@@ -1143,7 +1148,7 @@ LUA_API int lua_gc(lua_State *L, int what, int data)
     g->gc.threshold = LJ_MAX_MEM;
     break;
   case LUA_GCRESTART:
-    g->gc.threshold = g->gc.total;
+    g->gc.threshold = data == -1 ? (g->gc.total/100)*g->gc.pause : g->gc.total;
     break;
   case LUA_GCCOLLECT:
     lj_gc_fullgc(L);
