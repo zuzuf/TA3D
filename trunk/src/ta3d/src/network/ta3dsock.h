@@ -85,6 +85,15 @@ namespace TA3D
 #define SYNC_FLAG_FLYING	0x01
 #define SYNC_FLAG_CLOAKING	0x02
 
+#define SYNC_MASK_X		0x01
+#define SYNC_MASK_Y		0x02
+#define SYNC_MASK_Z		0x04
+#define SYNC_MASK_VX	0x08
+#define SYNC_MASK_VZ	0x10
+#define SYNC_MASK_O		0x20
+#define SYNC_MASK_HP	0x40
+#define SYNC_MASK_BPL	0x80
+
 	struct sync
 	{
 		uint32	timestamp;	//uint32 what tick is this snapshot
@@ -95,6 +104,7 @@ namespace TA3D
 		uint16	hp;
 		uint8	build_percent_left;
 		uint8	flags;		// Some flags (flying, etc..)
+		uint8	mask;		// Fields which need to be synced
 	};//max size = 28
 
 #define	EVENT_UNIT_CREATION			0x00
