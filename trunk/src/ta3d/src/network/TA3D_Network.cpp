@@ -649,14 +649,16 @@ namespace TA3D
 		{
 			const float Y_ref = 32 + gfx->TA_font->height();
 			float Y = Y_ref;
+			const uint32 shadowmask = makeacol(0, 0, 0, 0xFF);
 			for (std::list<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
 			{
-				int color = 0xFFFFFFFF;
+				uint32 color = 0xFFFFFFFF;
 				if ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0)
 				{
 					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
 					Y -= Math::Min(1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
 				}
+				gfx->print(Gui::gui_font, 137, Y + 1, 0.0f, color & shadowmask, i->text);
 				gfx->print(Gui::gui_font, 136, Y, 0.0f, color, i->text);
 				Y += Gui::gui_font->height();
 			}
