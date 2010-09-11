@@ -17,22 +17,19 @@
 /* -- Object hashing ------------------------------------------------------ */
 
 /* Hash values are masked with the table hash mask and used as an index. */
-#define hashmask(t, x)		(&noderef(t->node)[(x) & t->hmask])
+static LJ_AINLINE Node *hashmask(const GCtab *t, uint32_t hash)
+{
+  Node *n = noderef(t->node);
+  return &n[hash & t->hmask];
+}
 
 /* String hashes are precomputed when they are interned. */
 #define hashstr(t, s)		hashmask(t, (s)->hash)
 
-#define hashnum(t, o)		hashrot(t, (o)->u32.lo, ((o)->u32.hi << 1))
-#define hashgcref(t, r)		hashrot(t, gcrefu(r), gcrefu(r)-0x04c11db7)
-
-/* Scramble the bits of numbers and pointers. */
-static LJ_AINLINE Node *hashrot(const GCtab *t, uint32_t lo, uint32_t hi)
-{
-  lo ^= hi; hi = lj_rol(hi, 14);
-  lo -= hi; hi = lj_rol(hi, 5);
-  hi ^= lo; hi -= lj_rol(lo, 27);
-  return hashmask(t, hi);
-}
+#define hashlohi(t, lo, hi)	hashmask((t), hashrot((lo), (hi)))
+#define hashnum(t, o)		hashlohi((t), (o)->u32.lo, ((o)->u32.hi << 1))
+#define hashptr(t, p)		hashlohi((t), u32ptr(p), u32ptr(p) + HASH_BIAS)
+#define hashgcref(t, r)		hashlohi((t), gcrefu(r), gcrefu(r) + HASH_BIAS)
 
 /* Hash an arbitrary key and return its anchor position in the hash table. */
 static Node *hashkey(const GCtab *t, cTValue *key)
@@ -192,7 +189,7 @@ GCtab * LJ_FASTCALL lj_tab_dup(lua_State *L, const GCtab *kt)
       Node *kn = &knode[i];
       Node *n = &node[i];
       Node *next = nextnode(kn);
-      /* Don't use copyTV here, since it asserts on a copy of a DEADKEY. */
+      /* Don't use copyTV here, since it asserts on a copy of a dead key. */
       n->val = kn->val; n->key = kn->key;
       setmref(n->next, next == NULL? next : (Node *)((char *)next + d));
     }
@@ -439,6 +436,18 @@ TValue *lj_tab_newkey(lua_State *L, GCtab *t, cTValue *key)
       freenode->next = n->next;
       setmref(n->next, NULL);
       setnilV(&n->val);
+      /* Rechain pseudo-resurrected string keys with colliding hashes. */
+      while (nextnode(freenode)) {
+	Node *nn = nextnode(freenode);
+	if (tvisstr(&nn->key) && !tvisnil(&nn->val) &&
+	    hashstr(t, strV(&nn->key)) == n) {
+	  freenode->next = nn->next;
+	  nn->next = n->next;
+	  setmref(n->next, nn);
+	} else {
+	  freenode = nn;
+	}
+      }
     } else {  /* Otherwise use free node. */
       setmrefr(freenode->next, n->next);  /* Insert into chain. */
       setmref(n->next, freenode);
@@ -448,7 +457,7 @@ TValue *lj_tab_newkey(lua_State *L, GCtab *t, cTValue *key)
   n->key.u64 = key->u64;
   if (LJ_UNLIKELY(tvismzero(&n->key)))
     n->key.u64 = 0;
-  lj_gc_barriert(L, t, key);
+  lj_gc_anybarriert(L, t);
   lua_assert(tvisnil(&n->val));
   return &n->val;
 }
@@ -517,9 +526,7 @@ static uint32_t keyindex(lua_State *L, GCtab *t, cTValue *key)
   if (!tvisnil(key)) {
     Node *n = hashkey(t, key);
     do {
-      if (lj_obj_equal(&n->key, key) ||
-	  (itype(&n->key) == LJ_TDEADKEY && tvisgcv(key) &&
-	   gcV(&n->key) == gcV(key)))
+      if (lj_obj_equal(&n->key, key))
 	return t->asize + (uint32_t)(n - noderef(t->node));
 	/* Hash key indexes: [t->asize..t->asize+t->nmask] */
     } while ((n = nextnode(n)));

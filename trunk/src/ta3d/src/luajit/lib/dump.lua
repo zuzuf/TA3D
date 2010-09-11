@@ -391,8 +391,8 @@ local function dump_ir(tr, dumpsnap, dumpreg)
 	out:write(format("%04d ", ins))
       end
       out:write(format("%s%s %s %s ",
-		       band(ot, 64) == 0 and " " or ">",
-		       band(ot, 128) == 0 and " " or "+",
+		       band(ot, 128) == 0 and " " or ">",
+		       band(ot, 64) == 0 and " " or "+",
 		       irtype[t], op))
       local m1 = band(m, 3)
       if sub(op, 1, 4) == "CALL" then
@@ -463,7 +463,6 @@ local function dump_trace(what, tr, func, pc, otr, oex)
     if otr then out:write(" ", otr, "/", oex) end
     out:write(" ", fmtfunc(func, pc), "\n")
     recprefix = ""
-    reclevel = 0
   elseif what == "stop" or what == "abort" then
     out:write("---- TRACE ", tr, " ", what)
     recprefix = nil

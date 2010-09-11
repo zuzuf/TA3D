@@ -184,11 +184,12 @@ static BCReg const_num(FuncState *fs, ExpDesc *e)
 }
 
 /* Add a GC object constant. */
-static BCReg const_gc(FuncState *fs, GCobj *gc, int itype)
+static BCReg const_gc(FuncState *fs, GCobj *gc, uint32_t itype)
 {
   lua_State *L = fs->L;
   TValue o, *val;
-  setgcV(L, &o, &gc->gch, itype);
+  setgcV(L, &o, gc, itype);
+  /* NOBARRIER: the key is new or kept alive. */
   val = lj_tab_set(L, fs->kt, &o);
   if (tvisnum(val))
     return val->u32.lo;
@@ -206,6 +207,7 @@ static BCReg const_str(FuncState *fs, ExpDesc *e)
 /* Anchor string constant to avoid GC. */
 GCstr *lj_parse_keepstr(LexState *ls, const char *str, size_t len)
 {
+  /* NOBARRIER: the key is new or kept alive. */
   lua_State *L = ls->L;
   GCstr *s = lj_str_new(L, str, len);
   TValue *tv = lj_tab_setstr(L, ls->fs->kt, s);
@@ -618,10 +620,11 @@ static BCPos bcemit_jmp(FuncState *fs)
 {
   BCPos jpc = fs->jpc;
   BCPos j = fs->pc - 1;
+  BCIns *ip = &fs->bcbase[j].ins;
   fs->jpc = NO_JMP;
   if ((int32_t)j >= (int32_t)fs->lasttarget &&
-      bc_op(fs->bcbase[j].ins) == BC_UCLO)
-    setbc_j(&fs->bcbase[j].ins, NO_JMP);
+      bc_op(*ip) == BC_UCLO)
+    setbc_j(ip, NO_JMP);
   else
     j = bcemit_AJ(fs, BC_JMP, fs->freereg, NO_JMP);
   jmp_append(fs, &j, jpc);
@@ -1202,6 +1205,7 @@ static GCproto *fs_finish(LexState *ls, BCLine line)
   lua_assert(ls->fs != NULL || ls->token == TK_eof);
   /* Re-anchor last string token to avoid GC. */
   if (ls->token == TK_name || ls->token == TK_string) {
+    /* NOBARRIER: the key is new or kept alive. */
     TValue *tv = lj_tab_setstr(ls->L, ls->fs->kt, strV(&ls->tokenval));
     if (tvisnil(tv)) setboolV(tv, 1);
   }
@@ -1228,7 +1232,7 @@ static void fs_init(LexState *ls, FuncState *fs)
   fs->flags = 0;
   fs->framesize = 2;  /* Minimum frame size. */
   fs->kt = lj_tab_new(L, 0, 0);
-  /* Anchor table of constants and prototype (to avoid being collected). */
+  /* Anchor table of constants in stack to avoid being collected. */
   settabV(L, L->top, fs->kt);
   incr_top(L);
 }
@@ -1291,10 +1295,10 @@ static void expr_bracket(LexState *ls, ExpDesc *v)
 static void expr_kvalue(TValue *v, ExpDesc *e)
 {
   if (e->k <= VKTRUE) {
-    v->it = ~(int32_t)e->k;
+    setitype(v, ~(uint32_t)e->k);
   } else if (e->k == VKSTR) {
     setgcref(v->gcr, obj2gco(e->u.sval));
-    v->it = LJ_TSTR;
+    setitype(v, LJ_TSTR);
   } else {
     lua_assert(e->k == VKNUM);
     setnumV(v, expr_numV(e));
@@ -1346,8 +1350,7 @@ static void expr_table(LexState *ls, ExpDesc *e)
       vcall = 0;
       expr_kvalue(&k, &key);
       expr_kvalue(lj_tab_set(fs->L, t, &k), &val);
-      if (val.k == VKSTR)
-	lj_gc_objbarriert(fs->L, t, val.u.sval);
+      lj_gc_anybarriert(fs->L, t);
     } else {
       if (val.k != VCALL) { expr_toanyreg(fs, &val); vcall = 0; }
       if (expr_isk(&key)) expr_index(fs, e, &key);
@@ -1376,10 +1379,11 @@ static void expr_table(LexState *ls, ExpDesc *e)
     e->k = VNONRELOC;  /* May have been changed by expr_index. */
   }
   if (!t) {  /* Construct TNEW RD: hhhhhaaaaaaaaaaa. */
+    BCIns *ip = &fs->bcbase[pc].ins;
     if (!needarr) narr = 0;
     else if (narr < 3) narr = 3;
     else if (narr > 0x7ff) narr = 0x7ff;
-    setbc_d(&fs->bcbase[pc].ins, (uint32_t)narr|(hsize2hbits(nhash)<<11));
+    setbc_d(ip, (uint32_t)narr|(hsize2hbits(nhash)<<11));
   }
 }
 
@@ -2217,7 +2221,7 @@ static void parse_chunk(LexState *ls)
 /* Entry point of bytecode parser. */
 GCproto *lj_parse(LexState *ls)
 {
-  struct FuncState fs;
+  FuncState fs;
   GCproto *pt;
   lua_State *L = ls->L;
   ls->chunkname = lj_str_newz(L, ls->chunkarg);

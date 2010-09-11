@@ -232,7 +232,7 @@ static void rec_stop(jit_State *J, TraceNo lnk)
   lj_trace_end(J);
   J->cur.link = (uint16_t)lnk;
   /* Looping back at the same stack level? */
-  if (lnk == J->curtrace && J->framedepth + J->retdepth == 0) {
+  if (lnk == J->cur.traceno && J->framedepth + J->retdepth == 0) {
     if ((J->flags & JIT_F_OPT_LOOP))  /* Shall we try to create a loop? */
       goto nocanon;  /* Do not canonicalize or we lose the narrowing. */
     if (J->cur.root)  /* Otherwise ensure we always link to the root trace. */
@@ -265,7 +265,7 @@ static TRef find_kinit(jit_State *J, const BCIns *endpc, BCReg slot, IRType t)
       if (op == BC_KSHORT || op == BC_KNUM) {  /* Found const. initializer. */
 	/* Now try to verify there's no forward jump across it. */
 	const BCIns *kpc = pc;
-	for ( ; pc > startpc; pc--)
+	for (; pc > startpc; pc--)
 	  if (bc_op(*pc) == BC_JMP) {
 	    const BCIns *target = pc+bc_j(*pc)+1;
 	    if (target > kpc && target <= endpc)
@@ -442,7 +442,7 @@ static void rec_loop_interp(jit_State *J, const BCIns *pc, LoopEvent ev)
       /* Same loop? */
       if (ev == LOOPEV_LEAVE)  /* Must loop back to form a root trace. */
 	lj_trace_err(J, LJ_TRERR_LLEAVE);
-      rec_stop(J, J->curtrace);  /* Root trace forms a loop. */
+      rec_stop(J, J->cur.traceno);  /* Root trace forms a loop. */
     } else if (ev != LOOPEV_LEAVE) {  /* Entering inner loop? */
       /* It's usually better to abort here and wait until the inner loop
       ** is traced. But if the inner loop repeatedly didn't loop back,
@@ -472,7 +472,7 @@ static void rec_loop_jit(jit_State *J, TraceNo lnk, LoopEvent ev)
   } else if (ev != LOOPEV_LEAVE) {  /* Side trace enters a compiled loop. */
     J->instunroll = 0;  /* Cannot continue across a compiled loop op. */
     if (J->pc == J->startpc && J->framedepth + J->retdepth == 0)
-      lnk = J->curtrace;  /* Can form an extra loop. */
+      lnk = J->cur.traceno;  /* Can form an extra loop. */
     rec_stop(J, lnk);  /* Link to the loop. */
   }  /* Side trace continues across a loop that's left or not entered. */
 }
@@ -578,7 +578,7 @@ static void rec_ret(jit_State *J, BCReg rbase, ptrdiff_t gotresults)
     if (J->framedepth == 0 && J->pt && frame == J->L->base - 1) {
       if (check_downrec_unroll(J, pt)) {
 	J->maxslot = (BCReg)(rbase + nresults);
-	rec_stop(J, J->curtrace);  /* Down-recursion. */
+	rec_stop(J, J->cur.traceno);  /* Down-recursion. */
 	return;
       }
       lj_snap_add(J);
@@ -677,14 +677,12 @@ static int rec_mm_lookup(jit_State *J, RecordIndex *ix, MMS mm)
   emitir(IRTG(mt ? IR_NE : IR_EQ, IRT_TAB), mix.tab, lj_ir_knull(J, IRT_TAB));
 nocheck:
   if (mt) {
-    GCstr *mmstr = strref(J2G(J)->mmname[mm]);
+    GCstr *mmstr = mmname_str(J2G(J), mm);
     cTValue *mo = lj_tab_getstr(mt, mmstr);
     if (mo && !tvisnil(mo))
       copyTV(J->L, &ix->mobjv, mo);
     ix->mtv = mt;
     settabV(J->L, &mix.tabv, mt);
-    if (isdead(J2G(J), obj2gco(mmstr)))
-      flipwhite(obj2gco(mmstr));  /* Need same logic as lj_str_new(). */
     setstrV(J->L, &mix.keyv, mmstr);
     mix.key = lj_ir_kstr(J, mmstr);
     mix.val = 0;
@@ -914,9 +912,9 @@ static int nommstr(jit_State *J, TRef key)
   if (tref_isstr(key)) {
     if (tref_isk(key)) {
       GCstr *str = ir_kstr(IR(tref_ref(key)));
-      uint32_t i;
-      for (i = 0; i <= MM_FAST; i++)
-	if (strref(J2G(J)->mmname[i]) == str)
+      uint32_t mm;
+      for (mm = 0; mm <= MM_FAST; mm++)
+	if (mmname_str(J2G(J), mm) == str)
 	  return 0;  /* MUST be one the fast metamethod names. */
     } else {
       return 0;  /* Variable string key MAY be a metamethod name. */
@@ -994,17 +992,19 @@ static TRef rec_idx(jit_State *J, RecordIndex *ix)
     return res;
   } else {  /* Indexed store. */
     GCtab *mt = tabref(tabV(&ix->tabv)->metatable);
+    int keybarrier = tref_isgcv(ix->key) && !tref_isnil(ix->val);
     if (tvisnil(oldv)) {  /* Previous value was nil? */
       /* Need to duplicate the hasmm check for the early guards. */
       int hasmm = 0;
       if (ix->idxchain && mt) {
-	cTValue *mo = lj_tab_getstr(mt, strref(J2G(J)->mmname[MM_newindex]));
+	cTValue *mo = lj_tab_getstr(mt, mmname_str(J2G(J), MM_newindex));
 	hasmm = mo && !tvisnil(mo);
       }
       if (hasmm)
 	emitir(IRTG(loadop, IRT_NIL), xref, 0);  /* Guard for nil value. */
       else if (xrefop == IR_HREF)
-	emitir(IRTG(oldv == niltvg(J2G(J)) ? IR_EQ : IR_NE, IRT_PTR), xref, lj_ir_kptr(J, niltvg(J2G(J))));
+	emitir(IRTG(oldv == niltvg(J2G(J)) ? IR_EQ : IR_NE, IRT_PTR),
+	       xref, lj_ir_kptr(J, niltvg(J2G(J))));
       if (ix->idxchain && rec_mm_lookup(J, ix, MM_newindex)) { /* Metamethod? */
 	lua_assert(hasmm);
 	goto handlemm;
@@ -1015,6 +1015,7 @@ static TRef rec_idx(jit_State *J, RecordIndex *ix)
 	if (tref_isinteger(key))  /* NEWREF needs a TValue as a key. */
 	  key = emitir(IRTN(IR_TONUM), key, 0);
 	xref = emitir(IRT(IR_NEWREF, IRT_PTR), ix->tab, key);
+	keybarrier = 0;  /* NEWREF already takes care of the key barrier. */
       }
     } else if (!lj_opt_fwd_wasnonnil(J, loadop, tref_ref(xref))) {
       /* Cannot derive that the previous value was non-nil, must do checks. */
@@ -1030,11 +1031,13 @@ static TRef rec_idx(jit_State *J, RecordIndex *ix)
 	  emitir(IRTG(loadop, t), xref, 0);  /* Guard for non-nil value. */
 	}
       }
+    } else {
+      keybarrier = 0;  /* Previous non-nil value kept the key alive. */
     }
     if (tref_isinteger(ix->val))  /* Convert int to number before storing. */
       ix->val = emitir(IRTN(IR_TONUM), ix->val, 0);
     emitir(IRT(loadop+IRDELTA_L2S, tref_type(ix->val)), xref, ix->val);
-    if (tref_isgcv(ix->val))
+    if (keybarrier || tref_isgcv(ix->val))
       emitir(IRT(IR_TBAR, IRT_NIL), ix->tab, 0);
     /* Invalidate neg. metamethod cache for stores with certain string keys. */
     if (!nommstr(J, ix->key)) {
@@ -1048,15 +1051,6 @@ static TRef rec_idx(jit_State *J, RecordIndex *ix)
 
 /* -- Upvalue access ------------------------------------------------------ */
 
-/* Shrink disambiguation hash into an 8 bit value. */
-static uint32_t shrink_dhash(uint32_t lo, uint32_t hi)
-{
-  lo ^= hi; hi = lj_rol(hi, 14);
-  lo -= hi; hi = lj_rol(hi, 5);
-  hi ^= lo; hi -= lj_rol(lo, 27);
-  return (hi & 0xff);
-}
-
 /* Record upvalue load/store. */
 static TRef rec_upvalue(jit_State *J, uint32_t uv, TRef val)
 {
@@ -1065,7 +1059,7 @@ static TRef rec_upvalue(jit_State *J, uint32_t uv, TRef val)
   IRRef uref;
   int needbarrier = 0;
   /* Note: this effectively limits LJ_MAX_UPVAL to 127. */
-  uv = (uv << 8) | shrink_dhash(uvp->dhash, uvp->dhash-0x04c11db7);
+  uv = (uv << 8) | (hashrot(uvp->dhash, uvp->dhash + HASH_BIAS) & 0xff);
   if (!uvp->closed) {
     /* In current stack? */
     if (uvval(uvp) >= J->L->stack && uvval(uvp) < J->L->maxstack) {
@@ -1831,7 +1825,7 @@ static void check_call_unroll(jit_State *J)
   if (J->pc == J->startpc) {
     if (count + J->tailcalled > J->param[JIT_P_recunroll]) {
       J->pc++;
-      rec_stop(J, J->curtrace);  /* Up-recursion or tail-recursion. */
+      rec_stop(J, J->cur.traceno);  /* Up-recursion or tail-recursion. */
     }
   } else {
     if (count > J->param[JIT_P_callunroll])
@@ -1869,7 +1863,7 @@ static void rec_func_jit(jit_State *J, TraceNo lnk)
   rec_func_setup(J);
   J->instunroll = 0;  /* Cannot continue across a compiled function. */
   if (J->pc == J->startpc && J->framedepth + J->retdepth == 0)
-    lnk = J->curtrace;  /* Can form an extra tail-recursive loop. */
+    lnk = J->cur.traceno;  /* Can form an extra tail-recursive loop. */
   rec_stop(J, lnk);  /* Link to the function. */
 }
 
@@ -1880,18 +1874,27 @@ static TRef rec_tnew(jit_State *J, uint32_t ah)
   uint32_t asize = ah & 0x7ff;
   uint32_t hbits = ah >> 11;
   if (asize == 0x7ff) asize = 0x801;
-  return emitir(IRT(IR_TNEW, IRT_TAB), asize, hbits);
+  return emitir(IRTG(IR_TNEW, IRT_TAB), asize, hbits);
 }
 
 /* -- Record bytecode ops ------------------------------------------------- */
 
-/* Optimize state after comparison. */
-static void optstate_comp(jit_State *J, int cond)
+/* Prepare for comparison. */
+static void rec_comp_prep(jit_State *J)
+{
+  /* Prevent merging with snapshot #0 (GC exit) since we fixup the PC. */
+  if (J->cur.nsnap == 1 && J->cur.snap[0].ref == J->cur.nins)
+    emitir_raw(IRT(IR_NOP, IRT_NIL), 0, 0);
+  lj_snap_add(J);
+}
+
+/* Fixup comparison. */
+static void rec_comp_fixup(jit_State *J, int cond)
 {
   BCIns jmpins = J->pc[1];
   const BCIns *npc = J->pc + 2 + (cond ? bc_j(jmpins) : 0);
   SnapShot *snap = &J->cur.snap[J->cur.nsnap-1];
-  /* Avoid re-recording the comparison in side traces. */
+  /* Set PC to opposite target to avoid re-recording the comp. in side trace. */
   J->cur.snapmap[snap->mapofs + snap->nent] = SNAP_MKPC(npc);
   J->needsnap = 1;
   /* Shrink last snapshot if possible. */
@@ -1957,7 +1960,7 @@ void lj_record_ins(jit_State *J)
   switch (bcmode_c(op)) {
   case BCMvar:
     copyTV(J->L, rcv, &lbase[rc]); ix.key = rc = getslot(J, rc); break;
-  case BCMpri: setitype(rcv, (int32_t)~rc); rc = TREF_PRI(IRT_NIL+rc); break;
+  case BCMpri: setitype(rcv, ~rc); rc = TREF_PRI(IRT_NIL+rc); break;
   case BCMnum: { lua_Number n = proto_knum(J->pt, rc);
     setnumV(rcv, n); ix.key = rc = lj_ir_knumint(J, n); } break;
   case BCMstr: { GCstr *s = gco2str(proto_kgc(J->pt, ~(ptrdiff_t)rc));
@@ -1987,7 +1990,7 @@ void lj_record_ins(jit_State *J)
 	  break;  /* Interpreter will throw for two different types. */
 	}
       }
-      lj_snap_add(J);
+      rec_comp_prep(J);
       irop = (int)op - (int)BC_ISLT + (int)IR_LT;
       if (ta == IRT_NUM) {
 	if ((irop & 1)) irop ^= 4;  /* ISGE/ISGT are unordered. */
@@ -2004,7 +2007,7 @@ void lj_record_ins(jit_State *J)
 	break;
       }
       emitir(IRTG(irop, ta), ra, rc);
-      optstate_comp(J, ((int)op ^ irop) & 1);
+      rec_comp_fixup(J, ((int)op ^ irop) & 1);
     }
     break;
 
@@ -2015,14 +2018,14 @@ void lj_record_ins(jit_State *J)
     /* Emit nothing for two non-table, non-udata consts. */
     if (!(tref_isk2(ra, rc) && !(tref_istab(ra) || tref_isudata(ra)))) {
       int diff;
-      lj_snap_add(J);
+      rec_comp_prep(J);
       diff = rec_objcmp(J, ra, rc, rav, rcv);
       if (diff == 1 && (tref_istab(ra) || tref_isudata(ra))) {
 	/* Only check __eq if different, but the same type (table or udata). */
 	rec_mm_equal(J, &ix, (int)op);
 	break;
       }
-      optstate_comp(J, ((int)op & 1) == !diff);
+      rec_comp_fixup(J, ((int)op & 1) == !diff);
     }
     break;
 
@@ -2155,7 +2158,7 @@ void lj_record_ins(jit_State *J)
     rc = rec_tnew(J, rc);
     break;
   case BC_TDUP:
-    rc = emitir(IRT(IR_TDUP, IRT_TAB),
+    rc = emitir(IRTG(IR_TDUP, IRT_TAB),
 		lj_ir_ktab(J, gco2tab(proto_kgc(J->pt, ~(ptrdiff_t)rc))), 0);
     break;
 
@@ -2223,10 +2226,10 @@ void lj_record_ins(jit_State *J)
     break;
 
   case BC_JFORL:
-    rec_loop_jit(J, rc, rec_for(J, pc+bc_j(J->trace[rc]->startins), 1));
+    rec_loop_jit(J, rc, rec_for(J, pc+bc_j(traceref(J, rc)->startins), 1));
     break;
   case BC_JITERL:
-    rec_loop_jit(J, rc, rec_iterl(J, J->trace[rc]->startins));
+    rec_loop_jit(J, rc, rec_iterl(J, traceref(J, rc)->startins));
     break;
   case BC_JLOOP:
     rec_loop_jit(J, rc, rec_loop(J, ra));
@@ -2398,7 +2401,7 @@ static const BCIns *rec_setup_root(jit_State *J)
 }
 
 /* Setup recording for a side trace. */
-static void rec_setup_side(jit_State *J, Trace *T)
+static void rec_setup_side(jit_State *J, GCtrace *T)
 {
   SnapShot *snap = &T->snap[J->exitno];
   SnapEntry *map = &T->snapmap[snap->mapofs];
@@ -2486,10 +2489,9 @@ void lj_record_setup(jit_State *J)
   }
   J->cur.nk = REF_TRUE;
 
-  setgcref(J->cur.startpt, obj2gco(J->pt));
   J->startpc = J->pc;
   if (J->parent) {  /* Side trace. */
-    Trace *T = J->trace[J->parent];
+    GCtrace *T = traceref(J, J->parent);
     TraceNo root = T->root ? T->root : J->parent;
     J->cur.root = (uint16_t)root;
     J->cur.startins = BCINS_AD(BC_JMP, 0, 0);
@@ -2507,7 +2509,7 @@ void lj_record_setup(jit_State *J)
     }
     rec_setup_side(J, T);
   sidecheck:
-    if (J->trace[J->cur.root]->nchild >= J->param[JIT_P_maxside] ||
+    if (traceref(J, J->cur.root)->nchild >= J->param[JIT_P_maxside] ||
 	T->snap[J->exitno].count >= J->param[JIT_P_hotexit] +
 				    J->param[JIT_P_tryside])
       rec_stop(J, TRACE_INTERP);
