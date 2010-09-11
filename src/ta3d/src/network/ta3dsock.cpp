@@ -381,15 +381,24 @@ namespace TA3D
 		putByte('S');
 		putLong(sync->timestamp);
 		putShort(sync->unit);
-		putFloat(sync->x);
-		putFloat(sync->y);
-		putFloat(sync->z);
+		putByte(sync->mask);
+		if (sync->mask & SYNC_MASK_X)
+			putFloat(sync->x);
+		if (sync->mask & SYNC_MASK_Y)
+			putFloat(sync->y);
+		if (sync->mask & SYNC_MASK_Z)
+			putFloat(sync->z);
 
-		putShort(sync->hp);
-		putFloat(sync->vx);
-		putFloat(sync->vz);
-		putShort(sync->orientation);
-		putByte(sync->build_percent_left);
+		if (sync->mask & SYNC_MASK_HP)
+			putShort(sync->hp);
+		if (sync->mask & SYNC_MASK_VX)
+			putFloat(sync->vx);
+		if (sync->mask & SYNC_MASK_VZ)
+			putFloat(sync->vz);
+		if (sync->mask & SYNC_MASK_O)
+			putShort(sync->orientation);
+		if (sync->mask & SYNC_MASK_BPL)
+			putByte(sync->build_percent_left);
 		putByte(sync->flags);
 
 		send();
@@ -587,15 +596,24 @@ namespace TA3D
 
 		sync->timestamp = getLong();
 		sync->unit = getShort();
-		sync->x = getFloat();
-		sync->y = getFloat();
-		sync->z = getFloat();
+		sync->mask = getByte();
+		if (sync->mask & SYNC_MASK_X)
+			sync->x = getFloat();
+		if (sync->mask & SYNC_MASK_Y)
+			sync->y = getFloat();
+		if (sync->mask & SYNC_MASK_Z)
+			sync->z = getFloat();
 
-		sync->hp = getShort();
-		sync->vx = getFloat();
-		sync->vz = getFloat();
-		sync->orientation = getShort();
-		sync->build_percent_left = getByte();
+		if (sync->mask & SYNC_MASK_HP)
+			sync->hp = getShort();
+		if (sync->mask & SYNC_MASK_VX)
+			sync->vx = getFloat();
+		if (sync->mask & SYNC_MASK_VZ)
+			sync->vz = getFloat();
+		if (sync->mask & SYNC_MASK_O)
+			sync->orientation = getShort();
+		if (sync->mask & SYNC_MASK_BPL)
+			sync->build_percent_left = getByte();
 		sync->flags = getByte();
 
 		tibp = 0;

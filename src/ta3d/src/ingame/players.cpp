@@ -29,16 +29,25 @@ namespace TA3D
 	int NB_PLAYERS;
 
 
-	static inline bool NeedSynchronization(const struct sync &a, const struct sync &b)
+	static inline bool NeedSynchronization(struct sync &a, const struct sync &b)
 	{
-		return fabsf(a.x - b.x) > 0.001
-			||	fabsf(a.y - b.y) > 1.0
-			||	fabsf(a.z - b.z) > 0.001
-			||	fabsf(a.vx - b.vx) > 0.001
-			||	fabsf(a.vz - b.vz) > 0.001
-			||	a.hp != b.hp
-			||	a.orientation != b.orientation
-			||	a.build_percent_left != b.build_percent_left;
+		uint8 mask = 0;
+		mask |= (fabsf(a.x - b.x) > 0.001f) ? SYNC_MASK_X : 0;
+		mask |= (fabsf(a.y - b.y) > 1.0f) ? SYNC_MASK_Y : 0;
+		mask |= (fabsf(a.z - b.z) > 0.001f) ? SYNC_MASK_Z : 0;
+		mask |= (fabsf(a.vx - b.vx) > 0.001f) ? SYNC_MASK_VX : 0;
+		mask |= (fabsf(a.vz - b.vz) > 0.001f) ? SYNC_MASK_VZ : 0;
+		mask |= (a.hp != b.hp) ? SYNC_MASK_HP : 0;
+		mask |= (a.orientation != b.orientation) ? SYNC_MASK_O : 0;
+		mask |= (a.build_percent_left != b.build_percent_left) ? SYNC_MASK_BPL : 0;
+		a.mask = mask;
+		// Make sure we don't add errors
+		if (!(mask & SYNC_MASK_X))	a.x = b.x;
+		if (!(mask & SYNC_MASK_Y))	a.y = b.y;
+		if (!(mask & SYNC_MASK_Z))	a.z = b.z;
+		if (!(mask & SYNC_MASK_VX))	a.vx = b.vx;
+		if (!(mask & SYNC_MASK_VZ))	a.vz = b.vz;
+		return mask != 0;
 	}
 
 
