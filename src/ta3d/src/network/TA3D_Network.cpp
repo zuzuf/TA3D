@@ -164,7 +164,7 @@ namespace TA3D
 		pMutex.lock();
 		for (std::list<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); )
 		{
-			if (msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
+			if (msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT)
 				messages.erase(i++);
 			else
 				++i;
@@ -243,18 +243,22 @@ namespace TA3D
 		}
 
 		n = 10000;
+		// We'll put all the units we've updated here in order to do a grouped update
+		// WARNING: this should work only because remote units should not lock other units!!
+		units.lock();
+		std::deque<Unit*> updateList;
 		while (--n) // Sync message receiver
 		{
 			struct sync sync_msg;
 
-			if (network_manager.getNextSync( &sync_msg ) )
+			if (network_manager.getNextSync( &sync_msg ))
 				break;
 
-			if (sync_msg.unit < units.max_unit )
+			if (sync_msg.unit < units.max_unit)
 			{
 				Unit *pUnit = &(units.unit[sync_msg.unit]);
 				pUnit->lock();
-				if (!(pUnit->flags & 1) || pUnit->exploding || pUnit->last_synctick[0] >= sync_msg.timestamp )
+				if (!(pUnit->flags & 1) || pUnit->exploding || pUnit->last_synctick[0] >= sync_msg.timestamp)
 				{
 					pUnit->unlock();
 					continue;
@@ -289,17 +293,23 @@ namespace TA3D
 				if (sync_msg.mask & SYNC_MASK_BPL)
 					pUnit->build_percent_left = sync_msg.build_percent_left / 2.55f;
 
-				pUnit->draw_on_map();
-				pUnit->unlock();
+				pUnit->clear_from_map();
+				updateList.push_back(pUnit);
 			}
 		}
+		for(std::deque<Unit*>::iterator i = updateList.begin() ; i != updateList.end() ; ++i)
+		{
+			(*i)->draw_on_map();
+			(*i)->unlock();
+		}
+		units.unlock();
 
 		n = 100;
 		while(--n) // Event message receiver
 		{
 			struct event event_msg;
 
-			if (network_manager.getNextEvent( &event_msg ) )
+			if (network_manager.getNextEvent( &event_msg ))
 				break;
 
 			switch( event_msg.type )
