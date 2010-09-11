@@ -404,4 +404,22 @@ namespace TA3D
             return SDLNet_SocketReady(sock);
         return false;
     }
+
+	String SocketTCP::getLine()
+	{
+		if (!ready())
+			return String();
+		String line;
+		char c;
+		while(this->isOpen())
+		{
+			recv(&c, 1);
+			if (c == '\n')
+				break;
+			if (c != '\r')
+				line << c;
+		}
+
+		return line;
+	}
 }
