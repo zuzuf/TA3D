@@ -50,7 +50,8 @@ namespace Audio
 		pMinTicks = 500;
 
 		doStartUpAudio();
-		InitInterface();
+		if (isRunning())
+			InitInterface();
 	}
 
 
