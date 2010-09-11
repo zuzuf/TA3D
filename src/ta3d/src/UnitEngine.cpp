@@ -260,6 +260,8 @@ namespace TA3D
 
 		pMutex.lock();
 
+		visible_unit.clear();
+
 		next_unit_ID = 1;
 		mini_pos = NULL;
 		mini_col = NULL;
@@ -297,7 +299,7 @@ namespace TA3D
 		}
 
 		sound_min_ticks = 500;
-		index_list_size=0;
+		index_list_size = 0;
 		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			free_index_size[i] = 0;
 		idx_list = free_idx = NULL;

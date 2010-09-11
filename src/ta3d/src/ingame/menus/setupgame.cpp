@@ -199,6 +199,8 @@ namespace Menus
 
 		game_data.unserialize(lp_CONFIG->serializedGameData);
 
+		game_data.use_only.clear();		// Don't remember disabled units (new/mod units would be disabled by default)
+
 		if (!VFS::Instance()->fileExists(game_data.map_filename))
 		{
 			String::Vector map_list;
