@@ -934,9 +934,9 @@ namespace TA3D
 			if (unit[i].owner_id < 10)
 				detectableUnits[unit[i].owner_id].push_back(&(unit[i]));
 		}
-		pMutex.unlock();
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i]);
+		pMutex.unlock();
 
 		players.clear();		// Réinitialise le compteur de ressources
 
