@@ -131,7 +131,7 @@ namespace TA3D
 
 		const int _id = (local_human_id != -1) ? local_human_id : 0;
 
-			gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalNum.x1,ta3dSideData.side_int_data[ players.side_view ].MetalNum.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String() << (int)metal[_id]);
+		gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalNum.x1,ta3dSideData.side_int_data[ players.side_view ].MetalNum.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String() << (int)metal[_id]);
 		gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalProduced.x1,ta3dSideData.side_int_data[ players.side_view ].MetalProduced.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String::Format("%.2f", metal_t[_id]));
 
 		gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalConsumed.x1,ta3dSideData.side_int_data[ players.side_view ].MetalConsumed.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, String::Format("%.2f", metal_u[_id]));
