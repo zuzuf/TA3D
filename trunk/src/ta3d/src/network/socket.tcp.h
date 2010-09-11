@@ -46,6 +46,8 @@ namespace TA3D
         /*virtual*/ void send(const String &str);
         /*virtual*/ void send(const char *data, int size);
         /*virtual*/ int recv(char *data, int size);
+
+		String getLine();
 	private:
 		static bool forceFlush;
 	public:
