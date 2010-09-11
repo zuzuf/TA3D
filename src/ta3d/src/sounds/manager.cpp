@@ -1128,12 +1128,16 @@ namespace Audio
 
 	void Manager::setVolume(int volume)
 	{
+		if (!isRunning())
+			return;
 		Mix_Volume(-1, volume);
 	}
 
 
 	void Manager::setMusicVolume(int volume)
 	{
+		if (!isRunning())
+			return;
 		Mix_VolumeMusic( volume );
 	}
 
