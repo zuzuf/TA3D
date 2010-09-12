@@ -31,6 +31,7 @@
 # include "misc/paths.h"
 # include "gfx/gui/area.h"
 # include "backtrace.h"
+# include "network/socket.tcp.h"
 
 # ifdef TA3D_PLATFORM_LINUX
 #	define TA3D_BUILTIN_BACKTRACE_SUPPORT
@@ -46,6 +47,12 @@
 # include <yuni/core/io/file/stream.h>
 # include "sdl.h"
 # include <SDL/SDL_sgui.h>
+
+/*! \brief a small function implementing an automatic bug reporter
+ * Declaration of the bug reporter. It's here because it should be visible only
+ * from this module.
+ */
+void bug_reporter();
 
 /*!
  * \brief Obtain a backtrace and print it to stdout.
@@ -71,15 +78,11 @@ void backtrace_handler (int signum)
 	cmd << "gdb --pid=" << mypid << " -ex \"info threads\" -ex bt > \"" << TA3D::Paths::Logs << "backtrace.txt\" --batch";
 	if (system(cmd.c_str()) == 0)
 	{
-		String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
-			+ TA3D::Paths::Logs
-			+ "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
-
-		criticalMessage(szErrReport);
+		bug_reporter();
 		exit(-1);
 	}
 
-	// If GDB is not availabled or returned an error we must find another way ... this is now platform dependent
+	// If GDB is not available or returned an error we must find another way ... this is now platform dependent
 
 # ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
 	// Retrieving a backtrace
@@ -189,4 +192,105 @@ void criticalMessage(const String &msg)
 	Gui::Utils::message("TA3D - Critical Error", msg.c_str());
 }
 
+/*!
+ * \brief Display a window presenting the crash report to the user
+ * The crash report window tells the user something went wrong. It shows the content of the
+ * crash report that would be sent to the bug report server. The user can accept to send the
+ * report or not.
+ */
+void bug_reporter()
+{
+	bool bSendReport = false;
+	std::string report;
 
+	// Engine version
+	report += TA3D_ENGINE_VERSION;
+#ifdef TA3D_CURRENT_REVISION
+	report += " r";
+	report += TA3D_CURRENT_REVISION;
+#endif
+	report += '\n';
+
+	// Current mod
+	if (!TA3D_CURRENT_MOD.empty())
+	{
+		report += "MOD: ";
+		report += TA3D_CURRENT_MOD.c_str();
+		report += '\n';
+	}
+
+	// System info
+	report += "\nSystem info:\n";
+#ifdef TA3D_PLATFORM_DARWIN
+	report += "OS: darwin\n";
+#elif defined TA3D_PLATFORM_LINUX
+	report += "OS: linux\n";
+#elif defined TA3D_PLATFORM_WINDOWS
+	report += "OS: windows\n";
+#else
+	report += "OS: unknown\n";
+#endif
+
+	// OpenGL info
+	report += "OpenGL Informations :\n";
+	(report += "Vendor: ") += (const char*) glGetString(GL_VENDOR);
+	(report += "\nRenderer: ") += (const char*) glGetString(GL_RENDERER);
+	(report += "\nVersion: ") += (const char*) glGetString(GL_VERSION);
+	report += "\nExtensions:\n";
+	const char *ext = (const char*) glGetString(GL_EXTENSIONS);
+	for(; *ext ; ++ext)
+		report += *ext == ' ' ? '\n' : *ext;
+	report += '\n';
+	report += '\n';
+
+	const String fBacktrace = TA3D::Paths::Logs + "backtrace.txt";
+	report += "\nstacktrace:\n";
+	std::string bt;
+	Yuni::Core::IO::File::LoadFromFile(bt, fBacktrace);
+
+	report += bt;
+
+	Gui::Window wnd("Bug report", 640, 240, Gui::Window::MOVEABLE);
+	wnd.addChild(Gui::TabWidget_("tabs")
+				/ (Gui::Spacer_(false) | Gui::Button_("ok", " send report ") | Gui::Spacer_(false) | Gui::Button_("cancel", " don't send ") | Gui::Spacer_(false)));
+
+	TABWIDGET(tabs)->addTab("info", Gui::Label_("info")
+									/ Gui::Spacer_(true)
+									/ Gui::Label_("size"));
+	TABWIDGET(tabs)->addTab("report", Gui::ScrollArea_("scroll"));
+
+	SCROLLAREA(scroll)->setCentralWidget(Gui::Label_("text", report));
+
+	BUTTON(ok)->addListener(Gui::Utils::actionSetBool(bSendReport));
+	BUTTON(ok)->addListener(Gui::Utils::actionCloseWindow());
+	BUTTON(cancel)->addListener(Gui::Utils::actionCloseWindow());
+
+	LABEL(info)->setCaption("An error has occured.\n"
+							"A bug report has been prepared. You can review it in the 'report' tab.\n"
+							"It contains information about your version of TA3D, OS, OpenGL renderer\n"
+							"and a stack trace to help us find what's wrong.\n"
+							"\n"
+							"Do you want to send the bug report ?");
+	String buf;
+	buf << "(report size = " << report.size() << " bytes)";
+	LABEL(size)->setCaption(buf.c_str());
+
+	wnd();
+
+	if (!bSendReport)
+		return;
+
+	// Send the bug report to the bug server
+	TA3D::SocketTCP sock;
+	sock.open("bugs.ta3d.org", 1905);
+	if (!sock.isOpen())
+	{
+		Gui::Utils::message("Socket error", "Error: could not connect to server.");
+		return;
+	}
+	sock.send("BUG REPORT\n");
+	sock.send(report);
+	sock.send("DISCONNECT");
+	sock.close();
+	Gui::Utils::message("Success", "Bug report has been sent to server.");
+}
