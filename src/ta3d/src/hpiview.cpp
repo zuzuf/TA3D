@@ -70,6 +70,7 @@ namespace TA3D
 			<< PREFIX << "extract_gaf    : extract a gaf into sprites" << std::endl
 			<< PREFIX << "help           : this screen" << std::endl
 			<< PREFIX << "install        : install TA files" << std::endl
+			<< PREFIX << "listfiles      : list all archives used by the VFS" << std::endl
 			<< PREFIX << "listmods       : list all available mods" << std::endl
 			<< PREFIX << "mapdescription : extract a map description" << std::endl
 			<< PREFIX << "minimap        : extract a minimap" << std::endl
@@ -104,6 +105,20 @@ namespace TA3D
 		return true;
 	}
 
+	/*!
+	 * \brief
+	 */
+	static bool hpiviewCmdListFiles(String::Vector &args)
+	{
+		String::Vector lArchives;
+
+		VFS::Instance()->getArchivelist(lArchives);
+		sort(lArchives.begin(), lArchives.end());
+		for (String::Vector::const_iterator it = lArchives.begin() ; it != lArchives.end() ; ++it)
+			std::cout << *it << std::endl;
+
+		return true;
+	}
 
 	/*!
 	 * \brief Extract a mini map from a .tnt file
@@ -645,6 +660,8 @@ namespace TA3D
 					ok |= hpiviewCmdCreateBuildPic(args);
 				else if (act == "config" || act == "--config" || act == "/config")
 					configWindow();
+				else if (act == "listfiles" || act == "--listfiles" || act == "/listfiles")
+					ok |= hpiviewCmdListFiles(args);
 			}
 			if (ok)
 				return true;
