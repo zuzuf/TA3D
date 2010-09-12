@@ -507,6 +507,12 @@ namespace UTILS
 		return targetName;
 	}
 
+	uint32 VFS::getArchivelist(String::Vector& li) const
+	{
+		for(std::list<Archive*>::const_iterator it = archives.begin() ; it != archives.end() ; ++it)
+			li.push_back((*it)->getName());
+		return archives.size();
+	}
 
 	bool load_palette(SDL_Color *pal, const String& filename)
 	{

@@ -103,6 +103,12 @@ namespace UTILS
 		uint32 getDirlist(String pattern, String::Vector& li);
 
 		/*!
+		** \brief Get the list of all loaded archives
+		** \param[out] li
+		*/
+		uint32 getArchivelist(String::Vector& li) const;
+
+		/*!
 		** \brief
 		*/
 		File* readFile(const String& filename);
