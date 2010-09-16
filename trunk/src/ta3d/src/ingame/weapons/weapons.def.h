@@ -67,7 +67,7 @@ namespace TA3D
         ** \param uname Name of the unit
         ** \return
         */
-        uint32	get_damage_for_unit(const String &uname);
+		uint32	get_damage_for_unit(const String &uname) const;
 
     public:
         //!
