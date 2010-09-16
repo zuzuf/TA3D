@@ -137,17 +137,21 @@ namespace TA3D
     }
 
 
-	uint32 WeaponDef::get_damage_for_unit(const String& uname)
+	uint32 WeaponDef::get_damage_for_unit(const String& uname) const
     {
-		if (damage_hashtable.count(String::ToLower(uname)) != 0)
-			return damage_hashtable[String::ToLower(uname)];
+		HashMap<int>::Dense::const_iterator it = damage_hashtable.find(String::ToLower(uname));
+		if (it != damage_hashtable.end())
+			return it->second;
         int unit_type = unit_manager.get_unit_index(uname);
         if (unit_type >= 0 && !unit_manager.unit_type[unit_type]->categories.empty())
         {
             String::Vector::const_iterator i = (unit_manager.unit_type[unit_type]->categories).begin();
             for (; (unit_manager.unit_type[unit_type]->categories).end() != i; ++i)
-				if (damage_hashtable.count(*i) != 0)
-					return damage_hashtable[*i];
+			{
+				it = damage_hashtable.find(*i);
+				if (it != damage_hashtable.end())
+					return it->second;
+			}
         }
         return damage;
     }

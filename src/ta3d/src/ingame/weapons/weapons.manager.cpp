@@ -198,7 +198,7 @@ namespace TA3D
 				if (weapon[index].rendertype == RENDER_TYPE_LASER)
 				{
 					weapon[index].laserTex1 = gfx->load_texture(parser.pullAsString( key + "lasertexture1", "gfx/weapons/laser1normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
-					weapon[index].laserTex2 = gfx->load_texture(parser.pullAsString( key + "lasertexture1", "gfx/weapons/laser2normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
+					weapon[index].laserTex2 = gfx->load_texture(parser.pullAsString( key + "lasertexture2", "gfx/weapons/laser2normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
 				}
             }
         }
