@@ -4,7 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{listings}
-\usepackage{color}
+\usepackage{xcolor}
 \include{lua}
 
 \title{TA3D Scripting guide}
@@ -21,7 +21,7 @@
 
 \lstset{language=Lua}
 \lstset{morecomment=[l][\color{blue}]{--}}
-\lstset{frame=single}
+\lstset{frame=shadowbox, rulesepcolor=\color{gray}}
 
 \begin{document}
 \maketitle
@@ -70,8 +70,99 @@ local variable = function (parameter1, parameter2)
 end
 \end{lstlisting}
 
+Calling a function can be done in 2 ways. The C-like function call is done that way:
+\begin{lstlisting}
+-- C-like function call
+my_function(parameter1, parameter2)
+\end{lstlisting}
+
+This example calls the function \emph{my\_function} with 2 arguments. You can also use the object oriented way:
+\begin{lstlisting}
+-- here obj is an 'object' with a method
+-- called my_method
+obj:my_method(parameter1, parameter2)
+\end{lstlisting}
+
+In this example the \emph{my\_method} function is a normal function but it is called with 3 parameters the first one being the obj object. So you would have to define the function that way:
+\begin{lstlisting}
+-- defining the my_method function of object obj
+obj.my_method = function (this, param1, param2)
+  -- do whatever you want with param1 and param2
+  -- here this = obj if you call my_method with
+  -- obj:my_method(...)
+end
+\end{lstlisting}
+
+Well now you only need expressions to do some maths:
+\begin{lstlisting}
+-- doing math is as simple as:
+local result = (var0 + var1) / 2
+\end{lstlisting}
+
+You can use the standard operators +, -, *, /, \% and through the \emph{math} table you can access some more advanced math operations (see the Lua reference manual for this).
 
 \section{Unit scripts}
+
+Unit scripts are Lua scripts which follow a few conventions. Basically the script creates a model of object for a unit type which contains all the functions and information required to animate the unit.
+
+So the first thing you need to do when creating a unit script is tell TA3D which unit will use this script and then get required information from the unit 3D model. You do this with 2 lines of code:
+\begin{lstlisting}
+-- here we tell TA3D we want to animate a unit
+-- whose internal name is armbrtha
+createUnitScript("armbrtha")
+
+-- just call __this:piece with the list of
+-- piece names of the unit 3D model in order
+-- to get those pieces IDs
+__this:piece( "base", "flare", "turret", "barrel",
+	      "sleeve" )
+\end{lstlisting}
+
+Note the \emph{\_\_this} object which is the unit model object we're building when the script code is loaded by the engine. It is the Lua table we must fill with the unit functions and variables. Each unit of the game that will run our script will get a copy of this table to have its own data at runtime.
+
+
+So what's next ? In its current state our script can be loaded by TA3D but it won't do anything visible that's the reason why we must add functions. All those functions are called with at least one parameter which is the unit object because it identifies the unit and this is required when you want to animate a piece of the model of this unit. Here is the list of functions the engine will call and when:
+
+\begin{itemize}
+ \item \textbf{Create(this)}\\
+  this function is called when the unit is created as soon as it appears in the game. When this function starts it's very unlikely (unless it's built instantly) the unit is built so don't animate it too early.
+
+ \item \textbf{Killed(this, severity)}\\
+  this function is called when the unit dies. The second parameter ranges from 0 to 100 and tells how badly it has been damaged before dying.
+
+ \item \textbf{Activate(this)}\\
+  this function is called when the unit 'activates' (it is turned on like solar panels for example)
+
+ \item \textbf{Deactivate(this)}\\
+  this function is called when the unit 'deactivates' (it is turned off like solar panels for example)
+
+ \item \textbf{SweetSpot(this)}\\
+  this function should only return the piece of the model enemies will target when shooting.
+
+ \item \textbf{HitByWeapon(this, anglex, anglez)}\\
+  guess what ? this function is called when the unit is hit by a weapon ! The \emph{anglex} and \emph{anglez} parameters are the direction of that weapon expressed as two rotation angles around the x and y axis.
+
+ \item \textbf{TargetCleared(this)}\\
+  this function is called when the target has been destroyed.
+
+ \item \textbf{SetSpeed(this, wind\_speed)}\\
+  this function used to tell the script that wind speed has changed. This is used only by wind generators.
+
+ \item \textbf{QueryNanoPiece(this)}
+  for builders, this function should return the pieces that will emit nanolathe particles. Since all pieces should not be returned at the same time you must cycle through them, like this:
+  \begin{lstlisting}
+__this.QueryNanoPiece = function(this)
+  this.spray = (this.spray + 1) % 2
+  if this.spray == 0 then
+    return this.beam1
+  else
+    return this.beam2
+  end
+end
+  \end{lstlisting}
+
+\end{itemize}
+
 
 \section{Game scripts}
 
