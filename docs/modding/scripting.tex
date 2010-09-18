@@ -44,7 +44,7 @@ The purpose of this guide is not to present Lua in details but only how to use i
 
 Basically all you need to know in order to write (basic) Lua scripts for TA3D is the basics of Lua : variables, expressions and function calls.
 
-There are 2 kinds of variables : global and local ones. Global variables don't have to be defined, the first time Lua encounters a variable it looks for it in the global environnement and if it doesn't exist it creates it. Local variables have to be explicitly declared local.
+There are 2 kinds of variables : global and local ones. Global variables don't have to be defined, the first time Lua encounters a variable it looks for it in the global environment and if it doesn't exist it creates it. Local variables have to be explicitly declared local.
 
 \begin{lstlisting}
 i = 0           -- global variable
@@ -160,6 +160,71 @@ __this.QueryNanoPiece = function(this)
   end
 end
   \end{lstlisting}
+
+ \item \textbf{StartBuilding(this)}\\
+  this function is called when a builder (a factory or a mobile builder) starts building something.
+
+ \item \textbf{StopBuilding(this)}\\
+  this function is called when a builder (a factory or a mobile builder) stops building something (because it has finished or been interrupted).
+
+ \item \textbf{QueryBuildInfo(this)}\\
+  Like the \emph{SweepSpot} function this function should return a piece of the model. This model piece will be used as the ground plate where the unit which is being built will be attached. This is used by factories only.
+
+ \item \textbf{FirePrimary(this)}\\
+       \textbf{FireSecondary(this)}\\
+       \textbf{FireTertiary(this)}\\
+       \textbf{FireWeaponN(this)}\\
+  These functions are called when the first, second, third or $N^{th}$ weapon is fired.
+
+ \item \textbf{AimPrimary(this, heading, pitch)}\\
+       \textbf{AimSecondary(this, heading, pitch)}\\
+       \textbf{AimTertiary(this, heading, pitch)}\\
+       \textbf{AimWeaponN(this, heading, pitch)}\\
+  These functions are called when the first, second, third or $N^{th}$ weapon aims in some direction specified by the \emph{heading} and \emph{pitch} parameters which are in TA angle units (if you use them you'll have to convert them to degrees or radians by multiplying by the TA2DEG or TA2RAD constants). When aiming is finished the script should tell the engine the weapon is ready to fire using the \emph{this:set\_script\_value(\#scriptname, true)} command like this:
+\begin{lstlisting}
+__this.AimPrimary = function(this, heading, pitch)
+  -- tell the engine we're not ready yet
+  this:set_script_value("AimPrimary", false)
+
+  -- convert angles from TA units to degrees
+  heading = heading * TA2DEG
+  pitch = pitch * TA2DEG
+
+  -- update animation data
+  this:turn( this.turret, y_axis, heading, 5 )
+  this:turn( this.sleeve, x_axis, -pitch, 2 )
+  -- check if another instance of the script
+  -- is monitoring the process
+  if this.aiming then
+    return
+  end
+
+  -- tell the world we're doing the job
+  this.aiming = true
+  while this:is_turning( this.turret, y_axis )
+	or this:is_turning( this.sleeve, x_axis )
+  do
+    this.yield()
+  end
+
+  -- tell the engine we're ready
+  this:set_script_value("AimPrimary", true)
+  this.aiming = false
+end
+\end{lstlisting}
+  Note the \emph{this.aiming} variable which is used to prevent multiple instances of the script to be running at the same time. You can use the signal stuffs used in OTA's BOS scripts, it'll work but since it requires creating/destroying lots of Lua threads it's very slow compared to this simple test (scripts don't run in parallel, this behavior is simulated so it's safe to use variables to synchronize several instances of a function).
+
+ \item \textbf{AimFromPrimary(this)}\\
+       \textbf{AimFromSecondary(this)}\\
+       \textbf{AimFromTertiary(this)}\\
+       \textbf{AimFromWeaponN(this)}\\
+  These functions are called before the first, second, third or $N^{th}$ weapon start aiming, they should return the model piece from which aiming should be done.
+
+ \item \textbf{QueryPrimary(this)}\\
+       \textbf{QuerySecondary(this)}\\
+       \textbf{QueryTertiary(this)}\\
+       \textbf{QueryWeaponN(this)}\\
+  These functions are called before the first, second, third or $N^{th}$ weapon is fired, they should return the model piece from which the weapon object (bullet, missile, laser beam, ...) is created.
 
 \end{itemize}
 
