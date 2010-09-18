@@ -1,0 +1,83 @@
+\documentclass[a4paper,10pt]{article}
+%\documentclass[a4paper,10pt]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{color}
+\include{lua}
+
+\title{TA3D Scripting guide}
+\author{Roland Brochard}
+
+\pdfinfo{%
+  /Title    {TA3D Scripting guide}
+  /Author   {Roland Brochard}
+  /Creator  {}
+  /Producer {}
+  /Subject  {Scripting}
+  /Keywords {Scripting TA3D Lua COB BOS}
+}
+
+\lstset{language=Lua}
+\lstset{morecomment=[l][\color{blue}]{--}}
+\lstset{frame=single}
+
+\begin{document}
+\maketitle
+
+\abstract{This document is a small scripting guide. Its purpose it to introduce you to the Lua interface of TA3D which can be used to script game rules, AI, units, the developer shell, ...}
+
+\pagebreak
+
+There are several kinds of Lua scripts:
+\begin{itemize}
+ \item unit scripts (in the \textit{scripts} folder)
+ \item game scripts (in the \textit{scripts/game} folder)
+ \item AI scripts (in the \textit{scripts/ai} folder)
+ \item developer shell scripts (in the \textit{scripts/console} folder)
+\end{itemize}
+
+\section{Introduction to Lua}
+
+The purpose of this guide is not to present Lua in details but only how to use it in TA3D. For general information about Lua please refer to the reference manual (http://www.lua.org/manual/5.1/).
+
+Basically all you need to know in order to write (basic) Lua scripts for TA3D is the basics of Lua : variables, expressions and function calls.
+
+There are 2 kinds of variables : global and local ones. Global variables don't have to be defined, the first time Lua encounters a variable it looks for it in the global environnement and if it doesn't exist it creates it. Local variables have to be explicitly declared local.
+
+\begin{lstlisting}
+i = 0           -- global variable
+local e = 1     -- local variable
+\end{lstlisting}
+
+The scope of local variables is limited to the chunk of code where it is defined (inside a function, a loop, ...) whereas global variables can be accessed from everywhere (even other scripts as long as they share the same virtual machine like unit scripts). Accessing local variables is also faster so consider using them when you write performance critical code.
+
+
+Functions are objects like numbers or strings and can be stored into variables which can then be used to call the function. You can define a function with the \emph{function} keyword:
+
+\begin{lstlisting}
+-- global declaration
+function my_function(parameter1, parameter2)
+  -- do something with parameter1 and parameter2
+  return the_value_I_want_to_return
+end
+
+-- anonymous declaration
+local variable = function (parameter1, parameter2)
+  -- do something with parameter1 and parameter2
+  return the_value_I_want_to_return
+end
+\end{lstlisting}
+
+
+\section{Unit scripts}
+
+\section{Game scripts}
+
+\section{AI scripts}
+
+\section{Developer shell scripts}
+
+
+\end{document}
