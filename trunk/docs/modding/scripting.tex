@@ -231,6 +231,54 @@ end
 
 \section{Game scripts}
 
+Game scripts are much simpler. You probably need to include the \emph{signals.lh} file first since it defines some useful constants. The game script initializes the game state: it can spawns units, set player resources, display messages, set player cameras position and orientation. It also monitors the game state and implements victory and defeat conditions.
+
+For example you can spawn a commander for each player and set cameras to look at them:
+\begin{lstlisting}
+#include "signals.lh"
+
+for i = 0, nb_players() - 1 do
+  player_com = create_unit(i, commander(i),
+			   start_x(i), start_z(i))
+
+  set_cam_pos(i,
+	      unit_x(player_com),
+	      unit_z(player_com) + 64)
+end
+\end{lstlisting}
+
+Something you'll probably want too is resetting the fog of war and initializing player resources:
+\begin{lstlisting}
+clf()		-- clear fow data
+init_res()	-- init player resources
+\end{lstlisting}
+
+Once you got the game state set you should enter a loop to monitor the game. If you leave the loop or end the script before the game actually ends the engine will fallback to a default hardcoded behavior and you'll lost all control over it (the script won't be restarted). The game script runs in its own thread unlike unit scripts so you can use some CPU power to do complex stuffs but you \textbf{must} call regularly the \emph{yield} function in order not to use too much CPU resources. The monitoring loop should look like:
+\begin{lstlisting}
+while true do
+  yield()
+  -- do whatever you want here
+end
+\end{lstlisting}
+
+A basic victory code could look like:
+\begin{lstlisting}
+-- play the sound of victory
+play_for("VICTORY2", current_player)
+-- display the victory sprite
+draw_image_for("gfx/victory.png",
+	       145, 190, 495, 290,
+	       current_player)
+-- wait a bit to give some time
+-- to see the sprite and hear the sound
+sleep(3)
+-- really end the game as victorious
+-- for player current_player
+send_signal(current_player, SIGNAL_VICTORY)
+\end{lstlisting}
+
+Keep in mind that in multiplayer mode the game script runs only on the server so you cannot afford calling \emph{sleep(3)} in such a context, you to do some scheduling using the \emph{time} function.
+
 \section{AI scripts}
 
 \section{Developer shell scripts}
