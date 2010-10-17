@@ -257,7 +257,7 @@ IF(LUA_NOJIT)
 			ENDIF( NOT BUILT_LUA )
 		ENDIF(NOT APPLE)
 
-		SET(LIBS "-llua -lz")
+                SET(LIBS "-llua -lz -ldl")
 		IF(NOT APPLE)
 			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
 		ENDIF(NOT APPLE)
@@ -302,7 +302,7 @@ ELSE(LUA_NOJIT)			# LuaJIT 2
 			SET( BUILT_LUAJIT 1 CACHE BOOL "LuaJIT has been built" )
 		ENDIF( NOT BUILT_LUAJIT )
 
-		SET(LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -lz")
+                SET(LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -lz -ldl")
 		IF(NOT APPLE)
 			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
 		ENDIF(NOT APPLE)
