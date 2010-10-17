@@ -66,7 +66,7 @@ Set(YUNI_DvP_LUA_MODE         macport system devpack)
 #
 # Enable this option to automatically compile yuni-config from CMake
 #
-Set(YUNI_AUTO_COMPILE_LIBYUNI_CONFIG  true)
+Set(YUNI_AUTO_COMPILE_YUNI_CONFIG  true)
 
 
 
