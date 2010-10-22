@@ -969,6 +969,10 @@ namespace TA3D
 
 	void Battle::renderScene()
 	{
+		if (lp_CONFIG->ortho_camera)
+			cam.znear = -255.0f;
+		else
+			cam.znear = 1.0f;
 		renderReflection();
 
 		renderShadowMap();
