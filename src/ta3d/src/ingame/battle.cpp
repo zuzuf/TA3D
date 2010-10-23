@@ -1352,7 +1352,7 @@ namespace TA3D
 			// That code was rewritten multithreaded
 			if (!lp_CONFIG->pause)
 			{
-				const float timetosimulate = dt * units.apparent_timefactor;// Physics calculations take place here
+				const float timetosimulate = dt * units.apparent_timefactor;	// Visual animation takes place here
 				wind_change = false; // Don't try to run following code in separate thread
 				features.move(timetosimulate); // Animate objects
 				fx_manager.move(timetosimulate);
@@ -1485,36 +1485,36 @@ namespace TA3D
 
 			switch(signal)
 			{
-				case 0:				// Rien de spÃ©cial
+				case 0:				// Nothing special
 					break;
-				case -1:			// Fin du script
+				case -1:			// End of script
 					if (!pNetworkEnabled || pNetworkIsServer)
 						game_script.kill();
 					break;
 				case -2:			// Pause
 					break;
-				case -3:			// Attente d'un Ã©vÃ¨nement
+				case -3:			// Wait for an event
 					break;
-				case 1:				// Fin de partie (match nul)
+				case 1:				// End of game
 					done = true;
 					pResult = brPat;
 					break;
-				case 2:				// Fin de partie (victoire)
+				case 2:				// End of game (victory)
 					done = true;
 					pResult = brVictory;
 					break;
-				case 3:				// Fin de partie (dÃ©faite)
+				case 3:				// End of game (defeat)
 					done = !pNetworkIsServer;			// Server can't leave, otherwise game stops
 					pResult = brDefeat;
 					break;
-				case 4:				// CamÃ©ra en mode normal
+				case 4:				// Set camera to normal mode
 					if (freecam)
 					{
 						freecam = false;
 						r2 = 0.0f;
 					}
 					break;
-				case 5:				// CamÃ©ra libre
+				case 5:				// Switch to free camera mode
 					if (!freecam)
 						freecam = true;
 					break;
