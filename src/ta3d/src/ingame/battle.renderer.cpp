@@ -955,7 +955,10 @@ namespace TA3D
 			glEnable(GL_FOG);
 		}
 		if (showHealthBars)
+		{
+			cam.setView();
 			units.drawHealthBars();
+		}
 	}
 
 	void Battle::renderPostEffects()

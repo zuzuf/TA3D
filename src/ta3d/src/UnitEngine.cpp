@@ -1860,15 +1860,21 @@ namespace TA3D
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_FOG);
 		glDepthMask(GL_FALSE);
-		glBegin(GL_QUADS);
+
+		hbars.clear();
+		hbars_bkg.clear();
 
 		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
-		{
-			Unit *pUnit = &(unit[*e]);
+			unit[*e].drawHealthBar();
 
-			pUnit->drawHealthBar();
-		}
-		glEnd();
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, &(hbars_bkg.front()));
+		glColor4ub(0,0,0,0xFF);
+		glDrawArrays(GL_QUADS, 0, hbars_bkg.size());
+
+		glVertexPointer(3, GL_FLOAT, 0, &(hbars.front()));
+		glColor4ub(0xFF,0xFF,0,0xFF);
+		glDrawArrays(GL_QUADS, 0, hbars.size());
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_FOG);

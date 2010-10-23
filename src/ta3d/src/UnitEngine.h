@@ -142,8 +142,8 @@ namespace TA3D
 
 
 	class INGAME_UNITS :	public ObjectSync,			// Class to manage huge number of units during the game
-	protected IInterface,				// It inherits from what we need to use threads
-	public Thread
+		protected IInterface,				// It inherits from what we need to use threads
+		public Thread
 	{
 	public:
 		typedef std::vector< std::list< uint16 > >  RepairPodsList;
@@ -194,6 +194,9 @@ namespace TA3D
 		std::vector< uint16 >			visible_unit;   // A list to store visible units
 		KDTree< UnitTKit::T, UnitTKit >	*kdTree[10];	// A KDTree filled with units to speed up target detection (one per player)
 		bool	shootallMode;
+
+		std::vector<Vector3D>	hbars_bkg;
+		std::vector<Vector3D>	hbars;
 
 	public:
 

@@ -31,6 +31,7 @@ namespace TA3D
 			int px;
 			int py;
 			uint32 UID;
+			int type_id;
 		};
 	public:
 		//! \name Constructor & Destructor
