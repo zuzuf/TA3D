@@ -110,6 +110,7 @@ namespace Settings
             << "           Resource Paths = " << TA3D::VARS::lp_CONFIG->resourcePaths << ";\n"
 			<< "                 Tooltips = " << TA3D::VARS::lp_CONFIG->tooltips << ";\n"
 			<< "           Developer Mode = " << TA3D::VARS::lp_CONFIG->developerMode << ";\n"
+			<< "          Texture Quality = " << TA3D::VARS::lp_CONFIG->unitTextureQuality << ";\n"
 			<< "}\n";
 
 		if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -223,6 +224,8 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->resourcePaths = cfgFile.pullAsString("TA3D.Resource Paths");
 
 		TA3D::VARS::lp_CONFIG->developerMode = cfgFile.pullAsBool("TA3D.Developer Mode");
+
+		TA3D::VARS::lp_CONFIG->unitTextureQuality = cfgFile.pullAsInt("TA3D.Texture Quality", 3);
 
 		String cfg_version = cfgFile.pullAsString("TA3D.Version");
 		String ref_version;

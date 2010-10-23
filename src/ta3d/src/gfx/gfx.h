@@ -226,7 +226,7 @@ namespace TA3D
 		GLuint	create_color_texture(uint32 color);
 		GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
 		void	blit_texture( SDL_Surface *src, GLuint dst);
-		GLuint	load_texture(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL);
+		GLuint	load_texture(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
 		GLuint	load_texture_mask(const String& file, uint32 level, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
 		GLuint	load_texture_from_cache(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
 		GLuint	load_masked_texture( String file, String mask, byte filter_type = FILTER_TRILINEAR);
