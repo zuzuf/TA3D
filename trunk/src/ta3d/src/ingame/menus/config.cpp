@@ -96,7 +96,8 @@ namespace Menus
 				sound_manager->loadTDFSounds(false);
 			}
 
-			if (lp_CONFIG->developerMode ^ saved_config->developerMode)
+			if ((lp_CONFIG->developerMode ^ saved_config->developerMode)
+				|| lp_CONFIG->unitTextureQuality != saved_config->unitTextureQuality)
 				Cache::Clear(true); // Force cache reset
 		}
 
@@ -211,6 +212,7 @@ namespace Menus
 			if ( (String() << (int)lp_CONFIG->fps_limit) == *i )
 				pArea->caption("*.fps_limit", *i);
 		}
+		pArea->set_value("*.texture_quality", lp_CONFIG->unitTextureQuality);
 		pArea->set_value("*.interface_transparency", int(lp_CONFIG->menuTransparency * 255.0f));
 		pArea->set_value("*.shadow_map_size", lp_CONFIG->shadowmap_size);
 		pArea->set_state("*.grab_inputs", lp_CONFIG->grab_inputs);
@@ -484,6 +486,7 @@ namespace Menus
 			lp_CONFIG->music_volume = pArea->get_value("*.music_volume");
 			sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 		}
+		lp_CONFIG->unitTextureQuality = pArea->get_value("*.texture_quality");
 		lp_CONFIG->menuTransparency = float(pArea->get_value("*.interface_transparency") / 255.0f);
 		lp_CONFIG->shadowmap_size = uint8(pArea->get_value("*.shadow_map_size"));
 		lp_CONFIG->far_sight = pArea->get_state("*.far_sight");

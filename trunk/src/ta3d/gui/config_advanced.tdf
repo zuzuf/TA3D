@@ -59,7 +59,7 @@
 		value=0xFFFFFFFF;
 		size=2;
 	}
-	[object4]		// Option "shadow map size"
+	[object4]		// Option "developer mode"
 	{
 		name=developer_mode;
 		type=OPTIONC;
@@ -68,4 +68,28 @@
 		value=0;
 		size=1.5;
 	}
+    [object5]       // Option "texture quality"
+    {
+        name=t_texture_quality;
+        type=TEXT;
+        caption=Texture quality;
+        help=More detailed textures require more video memory;
+        x1=0;
+        y1=120;
+        value=0xFFFFFFFF;
+        size=2;
+    }
+    [object6]       // Option "texture quality"
+    {
+        name=texture_quality;
+        type=HSLIDER;
+        x1=400;
+        y1=122;
+        x2=730;
+        y2=147;
+        min=0;
+        max=5;
+        value=3;
+        size=1.5;
+    }
 }
