@@ -16,21 +16,21 @@ namespace Cache
 	{
 		bool rebuild_cache = false;
 		// Check cache date
-		const String cache_date = lp_CONFIG
+		const String cache_info_data = (lp_CONFIG
 			? String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : " << lp_CONFIG->last_MOD << '\n'
-			: String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : \n";
+			: String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : \n") << "Texture Quality : " << lp_CONFIG->unitTextureQuality;
 
 		if (Paths::Exists(Paths::Caches + "cache_info.txt") && !force)
 		{
 			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::read);
 			if (cache_info.opened())
 			{
-				char *buf = new char[cache_date.size() + 1];
+				char *buf = new char[cache_info_data.size() + 1];
 				if (buf)
 				{
-					::memset(buf, 0, cache_date.size() + 1);
-					cache_info.read(buf, cache_date.size());
-					if (buf == cache_date)
+					::memset(buf, 0, cache_info_data.size() + 1);
+					cache_info.read(buf, cache_info_data.size());
+					if (buf == cache_info_data)
 						rebuild_cache = false;
 					else
 						rebuild_cache = true;
@@ -55,7 +55,7 @@ namespace Cache
 			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::write);
 			if (cache_info.opened())
 			{
-				cache_info.write(cache_date.c_str(), cache_date.size());
+				cache_info.write(cache_info_data.c_str(), cache_info_data.size());
 				cache_info.put(0);
 				cache_info.close();
 			}

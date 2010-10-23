@@ -69,7 +69,7 @@ namespace TA3D
 		{
 			bool useAlpha(false);
 			LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << mtl->textureName << "' (" << filename << ')');
-			gltex.push_back( gfx->load_texture( mtl->textureName, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha ) );
+			gltex.push_back( gfx->load_texture( mtl->textureName, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha, true ) );
 			if (gltex[0])
 			{
 				Flag |= SURFACE_TEXTURED;

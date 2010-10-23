@@ -1709,7 +1709,7 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha)
+	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
@@ -1752,6 +1752,17 @@ namespace TA3D
 		if (height)
 			*height = bmp->h;
 		bmp = convert_format(bmp);
+
+		if (checkSize)
+		{
+			const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
+			if (std::max(bmp->w, bmp->h) > maxTextureSizeAllowed)
+			{
+				SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h,maxTextureSizeAllowed));
+				SDL_FreeSurface(bmp);
+				bmp = tmp;
+			}
+		}
 
 		String ext = Paths::ExtractFileExt(file);
 		ext.toLower();

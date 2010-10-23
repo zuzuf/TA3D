@@ -531,17 +531,17 @@ namespace TA3D
 			String textureName = String("textures/") << file->getString();
 			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed());
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
 				if (tex)
 					model->gltex.push_back(tex);
 			}
 			else		// Fixed pipeline
 			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed());
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed(), NULL, true);
 				if (tex)
 				{
 					model->gltex.push_back(tex);
-					tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_ALPHA8);
+					tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_ALPHA8, NULL, true);
 					if (tex)
 						model->gltex.push_back(tex);
 				}
@@ -553,7 +553,7 @@ namespace TA3D
 			String textureName = String("textures/") << file->getString();
 			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed());
+				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
 				if (tex)
 					model->gltex.push_back(tex);
 			}
@@ -563,6 +563,14 @@ namespace TA3D
 				SDL_Surface *bmp = gfx->load_image(textureName);
 				if (bmp)
 				{
+					if (std::max(bmp->w, bmp->h) > lp_CONFIG->getMaxTextureSizeAllowed())
+					{
+						const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
+						SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h, maxTextureSizeAllowed));
+						SDL_FreeSurface(bmp);
+						bmp = tmp;
+					}
+
 					SDL_Surface *red = gfx->create_surface_ex(8, bmp->w, bmp->h);
 
 					for(int y = 0 ; y < bmp->h ; ++y)

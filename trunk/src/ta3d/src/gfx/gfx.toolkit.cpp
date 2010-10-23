@@ -450,6 +450,149 @@ namespace TA3D
 		};
 	}
 
+	SDL_Surface *shrink(SDL_Surface *in, int w, int h)
+	{
+		SDL_Surface *tmp = gfx->create_surface_ex(in->format->BitsPerPixel, in->w, in->h);
+		SDL_Surface *out = gfx->create_surface_ex(in->format->BitsPerPixel, w, h);
+		// Gaussian blur pass to remove HF components
+		const float sigx = float(in->w) / w - 1.0f;
+		const float sigy = float(in->h) / h - 1.0f;
+		const int sx = (sigx + 1.0f) * 3.0f;
+		const int sy = (sigy + 1.0f) * 3.0f;
+		float *kerX = new float[sx];
+		float *kerY = new float[sy];
+		if (sigx > 0.0f)
+			for(int i = 0 ; i < sx ; ++i)
+				kerX[i] = std::exp(-i * i / (2.0f * sigx * sigx));
+		else
+			for(int i = 0 ; i < sx ; ++i)
+				kerX[i] = i == 0 ? 1.0f : 0.0f;
+		if (sigy > 0.0f)
+			for(int i = 0 ; i < sy ; ++i)
+				kerY[i] = std::exp(-i * i / (2.0f * sigy * sigy));
+		else
+			for(int i = 0 ; i < sy ; ++i)
+				kerY[i] = i == 0 ? 1.0f : 0.0f;
+
+		switch(in->format->BitsPerPixel)
+		{
+		case 24:
+			for(int	y = 0 ; y < in->h ; ++y)
+			{
+				for(int	x = 0 ; x < out->w ; ++x)
+				{
+					const int X = x * (tmp->w - 1) / (out->w - 1);
+					byte *p = (byte*)tmp->pixels + y * tmp->pitch + X * 3;
+					float col[3] = { 0, 0, 0 };
+					float sum = 0.0f;
+					int start = std::max(-sx + 1, -X);
+					int end = std::min(sx, in->w - X);
+					byte *c = (byte*)in->pixels + y * in->pitch + (X + start) * 3;
+					for(int i = start ; i < end ; ++i, c += 3)
+					{
+						const float f = kerX[abs(i)];
+						col[0] += f * c[0];
+						col[1] += f * c[1];
+						col[2] += f * c[2];
+						sum += f;
+					}
+					sum = 1.0f / sum;
+					p[0] = byte(col[0] * sum);
+					p[1] = byte(col[1] * sum);
+					p[2] = byte(col[2] * sum);
+				}
+			}
+			for(int	x = 0 ; x < out->w ; ++x)
+			{
+				const int X = x * (tmp->w - 1) / (out->w - 1);
+				byte *p = (byte*)out->pixels + x * 3;
+				for(int	y = 0 ; y < out->h ; ++y, p += out->pitch)
+				{
+					const int Y = y * (tmp->h - 1) / (out->h - 1);
+					float col[3] = { 0, 0, 0 };
+					float sum = 0.0f;
+					int start = std::max(-sy + 1, -Y);
+					int end = std::min(sy, in->h - Y);
+					byte *c = (byte*)tmp->pixels + (Y + start) * tmp->pitch + X * 3;
+					for(int i = start ; i < end ; ++i, c += tmp->pitch)
+					{
+						const float f = kerY[abs(i)];
+						col[0] += f * c[0];
+						col[1] += f * c[1];
+						col[2] += f * c[2];
+						sum += f;
+					}
+					sum = 1.0f / sum;
+					p[0] = byte(col[0] * sum);
+					p[1] = byte(col[1] * sum);
+					p[2] = byte(col[2] * sum);
+				}
+			}
+			break;
+		case 32:
+			for(int	y = 0 ; y < in->h ; ++y)
+			{
+				for(int	x = 0 ; x < out->w ; ++x)
+				{
+					const int X = x * (tmp->w - 1) / (out->w - 1);
+					byte *p = (byte*)tmp->pixels + y * tmp->pitch + (X << 2);
+					float col[4] = { 0, 0, 0, 0 };
+					float sum = 0.0f;
+					int start = std::max(-sx + 1, -X);
+					int end = std::min(sx, in->w - X);
+					byte *c = (byte*)in->pixels + y * in->pitch + (X + start << 2);
+					for(int i = start ; i < end ; ++i, c += 4)
+					{
+						const float f = kerX[abs(i)];
+						col[0] += f * c[0];
+						col[1] += f * c[1];
+						col[2] += f * c[2];
+						col[3] += f * c[3];
+						sum += f;
+					}
+					sum = 1.0f / sum;
+					p[0] = byte(col[0] * sum);
+					p[1] = byte(col[1] * sum);
+					p[2] = byte(col[2] * sum);
+					p[3] = byte(col[3] * sum);
+				}
+			}
+			for(int	x = 0 ; x < out->w ; ++x)
+			{
+				const int X = x * (tmp->w - 1) / (out->w - 1);
+				byte *p = (byte*)out->pixels + (x << 2);
+				for(int	y = 0 ; y < out->h ; ++y, p += out->pitch)
+				{
+					const int Y = y * (tmp->h - 1) / (out->h - 1);
+					float col[4] = { 0, 0, 0, 0 };
+					float sum = 0.0f;
+					int start = std::max(-sy + 1, -Y);
+					int end = std::min(sy, in->h - Y);
+					byte *c = (byte*)tmp->pixels + (Y + start) * tmp->pitch + (X << 2);
+					for(int i = start ; i < end ; ++i, c += tmp->pitch)
+					{
+						const float f = kerY[abs(i)];
+						col[0] += f * c[0];
+						col[1] += f * c[1];
+						col[2] += f * c[2];
+						col[3] += f * c[3];
+						sum += f;
+					}
+					sum = 1.0f / sum;
+					p[0] = byte(col[0] * sum);
+					p[1] = byte(col[1] * sum);
+					p[2] = byte(col[2] * sum);
+					p[3] = byte(col[3] * sum);
+				}
+			}
+			break;
+		}
+		SDL_FreeSurface(tmp);
+		delete[] kerX;
+		delete[] kerY;
+		return out;
+	}
+
 	void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
 	{
 		if (x < 0 || y < 0 || x >= bmp->w || y >= bmp->h)   return;
@@ -656,6 +799,14 @@ namespace TA3D
 
 	void SaveTex(SDL_Surface *bmp, const String &filename)
 	{
+		const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
+		if (std::max(bmp->w, bmp->h) > maxTextureSizeAllowed)
+		{
+			SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h, maxTextureSizeAllowed));
+			SaveTex(tmp, filename);
+			SDL_FreeSurface(tmp);
+			return;
+		}
 		gzFile file = gzopen(filename.c_str(), "wb1");
 		if (file)
 		{

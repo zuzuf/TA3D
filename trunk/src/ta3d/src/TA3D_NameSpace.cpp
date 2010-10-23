@@ -37,6 +37,8 @@ namespace TA3D
 
 	TA3DCONFIG::TA3DCONFIG()
 	{
+		unitTextureQuality = 3;
+
 		developerMode = false;
 
 		tooltips = false;
@@ -122,6 +124,13 @@ namespace TA3D
 		quickrestart = false;
 		quickstart = false;
 		restorestart = false;
+	}
+
+	int TA3DCONFIG::getMaxTextureSizeAllowed() const
+	{
+		if (unitTextureQuality < 0 || unitTextureQuality >= 5)
+			return 16384;
+		return 64 << unitTextureQuality;
 	}
 
 } // namespace TA3D
