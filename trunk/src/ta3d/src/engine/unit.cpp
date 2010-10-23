@@ -5302,54 +5302,35 @@ script_exec:
 
 	void Unit::drawHealthBar()
 	{
-		lock();
-		if (type_id < 0 || (unit_manager.unit_type[type_id]->HideDamage && owner_id != players.local_human_id) || render.UID != ID)
-		{
-			unlock();
+		if (render.type_id < 0 || (unit_manager.unit_type[render.type_id]->HideDamage && owner_id != players.local_human_id) || render.UID != ID)
 			return;
-		}
-		int maxdmg = unit_manager.unit_type[type_id]->MaxDamage;
-		int px = render.px >> 1;
-		int py = render.py >> 1;
+
+		const int maxdmg = unit_manager.unit_type[render.type_id]->MaxDamage;
+		const int px = render.px >> 1;
+		const int py = render.py >> 1;
 		Vector3D vPos = render.Pos;
-		float size = unit_manager.unit_type[type_id]->model->size2 * 0.5f;
-		unlock();
+		const float size = unit_manager.unit_type[render.type_id]->model->size2 * 0.5f;
 
-		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
-			return;	// Out of map
-		byte player_mask = 1 << players.local_human_id;
-
-		if (the_map->view(px, py) != 1 || (!(SurfaceByte(the_map->sight_map,px,py) & player_mask) ) )
-			return;	// Unit is not visible
-
-		float scale = 200.0f;
-		float w = 0.04f;
-		float h = 0.006f;
+		const float scale = 200.0f;
+		float w = 0.04f * scale;
+		float h = 0.006f * scale;
 		vPos -= size * Camera::inGame->up;
-		Vector3D P;
-		glColor4ub(0,0,0,0xFF);
-		P = vPos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
-		P = vPos + scale * (w * Camera::inGame->side + h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
-		P = vPos + scale * (w * Camera::inGame->side - h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
-		P = vPos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
+		units.hbars_bkg.push_back(vPos - w * Camera::inGame->side + h * Camera::inGame->up);
+		units.hbars_bkg.push_back(vPos + w * Camera::inGame->side + h * Camera::inGame->up);
+		units.hbars_bkg.push_back(vPos + w * Camera::inGame->side - h * Camera::inGame->up);
+		units.hbars_bkg.push_back(vPos - w * Camera::inGame->side - h * Camera::inGame->up);
 
-		w -= gfx->SCREEN_W_INV;
-		h -= gfx->SCREEN_H_INV;
+		w -= scale * gfx->SCREEN_W_INV;
+		h -= scale * gfx->SCREEN_H_INV;
+
+		if (hp <= 0.0f)
+			return;
 
 		float pw = w * (2.0f * (hp / maxdmg) - 1.0f);
-		glColor4ub(0xFF,0xFF,0,0xFF);
-		P = vPos + scale * (-w * Camera::inGame->side + h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
-		P = vPos + scale * (pw * Camera::inGame->side + h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
-		P = vPos + scale * (pw * Camera::inGame->side - h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
-		P = vPos + scale * (-w * Camera::inGame->side - h * Camera::inGame->up);
-		glVertex3fv((GLfloat*)&P);
+		units.hbars.push_back(vPos - w * Camera::inGame->side + h * Camera::inGame->up);
+		units.hbars.push_back(vPos + pw * Camera::inGame->side + h * Camera::inGame->up);
+		units.hbars.push_back(vPos + pw * Camera::inGame->side - h * Camera::inGame->up);
+		units.hbars.push_back(vPos - w * Camera::inGame->side - h * Camera::inGame->up);
 	}
 
 	void Unit::renderTick()
@@ -5362,6 +5343,7 @@ script_exec:
 		render.Anim = data;
 		render.px = cur_px;
 		render.py = cur_py;
+		render.type_id = type_id;
 	}
 
 } // namespace TA3D
