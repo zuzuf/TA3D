@@ -13,8 +13,7 @@ namespace TA3D
 		class SkyData
 		{
 		public:
-			bool			spherical;			// Flat or spherical sky
-			float			rotation_speed;		// For spherical sky
+			float			rotation_speed;
 			float			rotation_offset;	// If you want the sun to match light dir ...
 			String			texture_name;		// Name of the texture used as sky
 			String::Vector	planet;				// Vector of planets that can use this sky
