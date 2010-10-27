@@ -291,6 +291,8 @@ void bug_reporter()
 	sock.send("BUG REPORT\n");
 	sock.send(report);
 	sock.send("DISCONNECT");
+	// Wait a bit to make sure all data has been received
+	SDL_Delay(2000);
 	sock.close();
 	Gui::Utils::message("Success", "Bug report has been sent to server.");
 }

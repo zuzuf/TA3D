@@ -42,12 +42,12 @@ namespace TA3D
 
 	inline uint32 getpixelBL(SDL_Surface *bmp, float u, float v)
 	{
-		const float tu = u * bmp->w;
-		const float tv = v * bmp->h;
+		const float tu = u * float(bmp->w);
+		const float tv = v * float(bmp->h);
 		const int x = int(tu);
 		const int y = int(tv);
-		const int dx = int((tu - x) * 65536.0f);
-		const int dy = int((tv - y) * 65536.0f);
+		const int dx = int((tu - float(x)) * 65536.0f);
+		const int dy = int((tv - float(y)) * 65536.0f);
 
 		uint32 c[4];
 		c[0] = getpixel(bmp, x % bmp->w, y % bmp->h);
@@ -97,19 +97,19 @@ namespace TA3D
 			float invsqrtfx[skyRes];
 			for(int x = 0 ; x < skyRes ; ++x)
 			{
-				const float fx = 2.0f * (x * coef - 0.5f);
-				atanfx[x] = atan(fx) / (2.0f * M_PI);
+				const float fx = 2.0f * (float(x) * coef - 0.5f);
+				atanfx[x] = std::atan(fx) / (2.0f * float(M_PI));
 				invsqrtfx[x] = 1.0f / sqrtf(1.0f + fx * fx);
 			}
 			for(int y = 0 ; y < skyRes ; ++y)
 			{
-				const float fy = 2.0f * (y * coef - 0.5f);
+				const float fy = 2.0f * (float(y) * coef - 0.5f);
 				for(int x = 0 ; x < skyRes ; ++x)
 				{
-					const float fx = 2.0f * (x * coef - 0.5f);
+					const float fx = 2.0f * (float(x) * coef - 0.5f);
 					float alpha = atanfx[x];
-					float beta = atan(fy * invsqrtfx[x]);
-					beta = beta / M_PI + 0.5f;
+					float beta = std::atan(fy * invsqrtfx[x]);
+					beta = beta / float(M_PI) + 0.5f;
 					if (beta <= 0.5f || skyInfo->full_sphere)
 					{
 						if (!skyInfo->full_sphere)
@@ -128,8 +128,8 @@ namespace TA3D
 						putpixel(img[3], x, y, fcol);
 					}
 
-					alpha = atan2(fy, fx) / (2.0f * M_PI);
-					beta = atan(sqrtf(fy * fy + fx * fx)) / M_PI;
+					alpha = std::atan2(fy, fx) / (2.0f * float(M_PI));
+					beta = std::atan(sqrtf(fy * fy + fx * fx)) / float(M_PI);
 					if (!skyInfo->full_sphere)
 						beta *= 2.0f;
 
@@ -219,7 +219,6 @@ namespace TA3D
 		if (!parser.loadFromFile(filename))
 			LOG_ERROR("Impossible to load the sky data from `" << filename << "`");
 		def = parser.pullAsBool("sky.default", false);
-		spherical = parser.pullAsBool("sky.spherical");
 		full_sphere = parser.pullAsBool("sky.full sphere");
 		rotation_speed = parser.pullAsFloat("sky.rotation speed");
 		rotation_offset = parser.pullAsFloat("sky.rotation offset");
@@ -338,7 +337,6 @@ namespace TA3D
 	{
 		rotation_offset = 0.0f;
 		full_sphere = false;
-		spherical = false;
 		rotation_speed = 0.0f;
 		texture_name.clear();
 		planet.clear();
