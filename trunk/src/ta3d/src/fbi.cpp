@@ -96,15 +96,12 @@ namespace TA3D
 				for(uint32 k = 0 ; k < dl_data->size() && p == -1 ; ++k)
 				{
 					bool found = true;
-					for(int j = 0 ; j < nb_unit ; ++j)
+					for(int j = 0 ; j < nb_unit && found ; ++j)
 					{
 						if (Pic_p[j] == i
 							&& overlaps(Pic_x[j], Pic_y[j], Pic_w[j], Pic_h[j],
 										(*dl_data)[k].x, (*dl_data)[k].y, (*dl_data)[k].w, (*dl_data)[k].h))
-						{
 							found = false;
-							break;
-						}
 					}
 					if (found)
 					{

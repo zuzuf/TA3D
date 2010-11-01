@@ -115,7 +115,8 @@ SET(SRC_SCRIPTS
 		scripts/unit.script.interface.h scripts/unit.script.interface.cpp
 		scripts/ai.script.h scripts/ai.script.cpp
 		scripts/script.data.h scripts/script.data.cpp
-		scripts/script.h scripts/script.cpp)
+		scripts/script.h scripts/script.cpp
+		scripts/noscript.h scripts/noscript.cpp)
 
 #
 # GFX
