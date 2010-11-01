@@ -20,6 +20,7 @@
 #include "cob.vm.h"
 #include "unit.script.h"
 #include "lua.data.h"
+#include "noscript.h"
 
 namespace TA3D
 {
@@ -35,7 +36,9 @@ namespace TA3D
 
 		if (usi)
 			usi->load( pData );
-        return usi;
+		else
+			usi = new NoScript();
+		return usi;
     }
 
     int UnitScriptInterface::getReturnValue(const String &name)
