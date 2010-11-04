@@ -1079,7 +1079,7 @@ namespace TA3D
 			glEnable(GL_DEPTH_TEST);
 		}
 		else
-			if (visible)
+			if (visible && model)
 			{
 				// Set time origin to our birth date
 				t -= birthTime;
@@ -1123,7 +1123,8 @@ namespace TA3D
 					do
 					{
 						current = runScriptFunction( SCRIPT_QueryNanoPiece );
-                        model->mesh->compute_emitter_point( current );
+						if (model)
+							model->mesh->compute_emitter_point( current );
 						++i;
 					} while( first != current && i < 1000 );
 				}
@@ -1376,7 +1377,11 @@ namespace TA3D
 		}
 
 		if (!model)
+		{
 			LOG_WARNING("Model is NULL ! (" << __FILE__ << ":" << __LINE__ << ")");
+			pMutex.unlock();
+			return;
+		}
 
 		if (cloaked && owner_id != players.local_human_id ) // Unit is cloaked
 		{
@@ -1439,6 +1444,13 @@ namespace TA3D
 		}
 		if (on_radar || hidden)
 		{
+			pMutex.unlock();
+			return;
+		}
+
+		if (!model)
+		{
+			LOG_WARNING("Model is NULL ! (" << __FILE__ << ":" << __LINE__ << ")");
 			pMutex.unlock();
 			return;
 		}
