@@ -616,7 +616,7 @@ void MainWindow::flipXY()
 		cur->pos = Vec(cur->pos.y, cur->pos.x, cur->pos.z);
 		for(int i = 0 ; i < cur->vertex.size() ; i++)
 		{
-			const Vec &p = mesh->vertex[i];
+			const Vec &p = cur->vertex[i];
 			cur->vertex[i] = Vec(p.y, p.x, p.z);
 		}
 		cur->invertOrientation();
@@ -644,7 +644,7 @@ void MainWindow::flipXZ()
 		cur->pos = Vec(cur->pos.z, cur->pos.y, cur->pos.x);
 		for(int i = 0 ; i < cur->vertex.size() ; i++)
 		{
-			const Vec &p = mesh->vertex[i];
+			const Vec &p = cur->vertex[i];
 			cur->vertex[i] = Vec(p.z, p.y, p.x);
 		}
 		cur->invertOrientation();
@@ -672,7 +672,7 @@ void MainWindow::flipYZ()
 		cur->pos = Vec(cur->pos.x, cur->pos.z, cur->pos.y);
 		for(int i = 0 ; i < cur->vertex.size() ; i++)
 		{
-			const Vec &p = mesh->vertex[i];
+			const Vec &p = cur->vertex[i];
 			cur->vertex[i] = Vec(p.x, p.z, p.y);
 		}
 		cur->invertOrientation();
