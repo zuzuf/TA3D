@@ -448,6 +448,8 @@ IF(NOT APPLE)
     #
 	# --- CPACK configuration ---
 	#
+	STRING(TOLOWER ${CMAKE_BUILD_TYPE} BTYPE)
+
 	SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TA3D (Total Annihilation 3D), RTS Engine")
 	SET(CPACK_PACKAGE_VENDOR "the TA3D team")
 	SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../README")
@@ -457,10 +459,13 @@ IF(NOT APPLE)
 	SET(CPACK_PACKAGE_CONTACT "${TA3D_MAIL_BUGREPORT}")
 	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Roland Brochard")
 	SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
-	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar")
+	IF(NOT ${BTYPE} STREQUAL "debug")
+		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar")
+	ELSE(NOT ${BTYPE} STREQUAL "debug")
+		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar, gdb")
+	ENDIF(NOT ${BTYPE} STREQUAL "debug")
 
 	IF(NOT WIN32 AND UNIX)
-		STRING(TOLOWER ${CMAKE_BUILD_TYPE} BTYPE)
 		IF(NOT ${BTYPE} STREQUAL "debug")
 			SET(CPACK_STRIP_FILES "ta3d")
 		ENDIF(NOT ${BTYPE} STREQUAL "debug")
