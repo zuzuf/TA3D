@@ -54,7 +54,8 @@ namespace TA3D
 
 	static inline void writestring( gzFile file, const String &str )
 	{
-		gzputs( file, str.c_str() );
+		if (!str.empty())
+			gzputs( file, str.c_str() );
 		gzputc( file, 0 );
 	}
 
