@@ -36,6 +36,16 @@ namespace Interfaces
 		:width(0), height(0), tex(0), destroy_tex(false)
 	{}
 
+	GfxTexture::~GfxTexture()
+	{
+		destroy();
+	}
+
+	void GfxTexture::load(const String &filename)
+	{
+		destroy();
+		set(gfx->load_texture(filename, FILTER_TRILINEAR, &width, &height));
+	}
 
 	void GfxTexture::init()
 	{
@@ -45,15 +55,38 @@ namespace Interfaces
 		destroy_tex = false;
 	}
 
-
-	void GfxTexture::draw( const float x1, const float y1 )
+	void GfxTexture::draw(const float x1, const float y1, const uint32 col, const float scale)
 	{
-		gfx->drawtexture( tex, x1, y1, x1 + width, y1 + height );
+		glDisable(GL_LIGHTING);
+		gfx->drawtexture(tex, x1, y1, x1 + scale * width, y1 + scale * height, col);
 	}
 
-	void GfxTexture::draw( const float x1, const float y1, const uint32 col )
+	void GfxTexture::drawCentered(const float x1, const float y1, const uint32 col, const float scale)
 	{
-		gfx->drawtexture(tex, x1, y1, x1 + width, y1 + height, col);
+		glDisable(GL_LIGHTING);
+		gfx->drawtexture(tex, x1 - 0.5f * scale * width, y1 - 0.5f * scale * height, x1 + 0.5f * scale * width, y1 + 0.5f * scale * height, col);
+	}
+
+	void GfxTexture::drawRotated(const float x1, const float y1, const float angle, const uint32 col, const float scale)
+	{
+		glDisable(GL_LIGHTING);
+		glPushMatrix();
+		glTranslatef(x1, y1, 0.0f);
+		glRotatef(angle, 0.0f, 0.0f, 1.0f);
+		gfx->drawtexture(tex, -0.5f * scale * width, -0.5f * scale * height, 0.5f * scale * width, 0.5f * scale * height, col);
+		glPopMatrix();
+	}
+
+	void GfxTexture::drawFlipped(const float x1, const float y1, const uint32 col, const float scale)
+	{
+		glDisable(GL_LIGHTING);
+		gfx->drawtexture_flip(tex, x1, y1, x1 + scale * width, y1 + scale * height, col);
+	}
+
+	void GfxTexture::drawFlippedCentered(const float x1, const float y1, const uint32 col, const float scale)
+	{
+		glDisable(GL_LIGHTING);
+		gfx->drawtexture_flip(tex, x1 - 0.5f * scale * width, y1 - 0.5f * scale * height, x1 + 0.5f * scale * width, y1 + 0.5f * scale * height, col);
 	}
 
 	GfxTexture::GfxTexture(const GLuint gltex)
@@ -88,7 +121,10 @@ namespace Interfaces
 			tex = 0;
 	}
 
-
+	void GfxTexture::bind()
+	{
+		glBindTexture(GL_TEXTURE_2D, tex);
+	}
 
 
 } // namespace Interfaces

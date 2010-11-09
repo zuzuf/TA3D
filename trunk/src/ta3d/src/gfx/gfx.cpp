@@ -947,6 +947,11 @@ namespace TA3D
 		drawtexture( tex, x1, y1, x2, y2 );
 	}
 
+	void GFX::drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
+	{
+		set_color(col);
+		drawtexture_flip(tex, x1, y1, x2, y2);
+	}
 
 	void GFX::print(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
 	{

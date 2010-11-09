@@ -18,7 +18,7 @@
 # define __TA3D_GfxTexture_H__
 
 # include <sdl.h>
-
+# include <misc/string.h>
 
 
 namespace TA3D
@@ -33,20 +33,29 @@ namespace Interfaces
 		GfxTexture();
 		GfxTexture(const GLuint gltex);
 		GfxTexture(const GLuint gltex, const uint32 w, const uint32 h);
+		~GfxTexture();
+
+		void init();
+		void destroy();
+
+		void load(const String &filename);
+		void set(const GLuint gltex);
+		void draw(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
+		void drawRotated(const float x1, const float y1, const float angle, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
+		void drawCentered(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
+		void drawFlipped(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
+		void drawFlippedCentered(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
+
+		void bind();
+		GLuint get() const	{	return tex;	}
+		uint getWidth() const	{	return width;	}
+		uint getHeight() const	{	return height;	}
 
 	public:
 		uint32		width;
 		uint32		height;
 		GLuint		tex;
 		bool		destroy_tex;
-
-		void init();
-		void set(const GLuint gltex);
-		void draw(const float x1, const float y1);
-		void draw(const float x1, const float y1, const uint32 col);
-
-		void destroy();
-
 	}; // class GfxTexture
 
 

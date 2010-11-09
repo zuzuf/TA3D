@@ -101,15 +101,9 @@ namespace TA3D
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
 		map(NULL),
 		sky(),
-        glow(0),
-        freecam_on(0),
-        freecam_off(0),
-        arrow_texture(0),
-        circle_texture(0),
         water(0),
         water_sim(0),
         water_sim2(0),
-        pause_tex(0),
         height_tex(0),
         transtex(0),
         reflectex(0),
@@ -193,15 +187,14 @@ namespace TA3D
 		loading = new Menus::Loading;
 		SmartPtr<Menus::Loading> spLoading = loading;
 
-        glow = 0;
-        freecam_on = 0;
-        freecam_off = 0;
-        arrow_texture = 0;
-        circle_texture = 0;
-        water = 0;
+		freecam_on.destroy();
+		freecam_off.destroy();
+		arrow_texture.destroy();
+		circle_texture.destroy();
+		pause_tex.destroy();
+		water = 0;
         water_sim = 0;
         water_sim2 = 0;
-        pause_tex = 0;
         height_tex = 0;
         transtex = 0;
         reflectex = 0;
@@ -619,12 +612,11 @@ namespace TA3D
 
 	bool Battle::initAllTextures()
 	{
-		glow = gfx->load_texture("gfx/glow.tga");
-		freecam_on = gfx->load_texture("gfx/freecam_on.tga");
-		freecam_off = gfx->load_texture("gfx/freecam_off.tga");
-		arrow_texture = gfx->load_texture("gfx/arrow.tga");
-		circle_texture = gfx->load_texture("gfx/circle.tga");
-		pause_tex = gfx->load_texture("gfx/pause.png");
+		freecam_on.load("gfx/freecam_on.tga");
+		freecam_off.load("gfx/freecam_off.tga");
+		arrow_texture.load("gfx/arrow.tga");
+		circle_texture.load("gfx/circle.tga");
+		pause_tex.load("gfx/pause.png");
 		water = 0;
 		return true;
 	}

@@ -1538,7 +1538,7 @@ namespace TA3D
 			if (lp_CONFIG->paused)
 			{
 				gfx->set_alpha_blending();
-				gfx->drawtexture(pause_tex, 145.0f * SCREEN_W / 640.0f, 190 * SCREEN_H / 480.0f, 495 * SCREEN_W / 640.0f, 290 * SCREEN_H / 480.0f, 0xFFFFFFFF);
+				pause_tex.drawCentered(0.5f * SCREEN_W, 0.5f * SCREEN_H, 0xFFFFFFFFU, SCREEN_H / 640.0f);
 				gfx->unset_alpha_blending();
 			}
 
@@ -2179,7 +2179,10 @@ namespace TA3D
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
 			glEnable(GL_TEXTURE_2D);
-			gfx->drawtexture(freecam ? freecam_on : freecam_off,32,SCREEN_H-64,95,SCREEN_H);
+			if (freecam)
+				freecam_on.drawCentered(64.0f, SCREEN_H - 32.0f);
+			else
+				freecam_off.drawCentered(64.0f, SCREEN_H - 32.0f);
 			glDisable(GL_BLEND);
 
 			if (mouse_x >= 32 && mouse_x <= 95 && mouse_y >= SCREEN_H - 64 && omb2 == 0)
@@ -2212,11 +2215,11 @@ namespace TA3D
 			{
 				gfx->set_alpha_blending();
 				gfx->set_color(0xFFFFFFFF);
-				gfx->drawtexture( circle_texture, gfx->width * 0.45f, gfx->height * 0.45f, gfx->width * 0.55f, gfx->height * 0.55f);
-				gfx->drawtexture( arrow_texture, gfx->width * 0.4f, 0.0f, gfx->width * 0.6f, gfx->height * 0.05f);
-				gfx->drawtexture( arrow_texture, gfx->width * 0.4f, gfx->height, gfx->width * 0.6f, gfx->height * 0.95f);
-				gfx->drawtexture_flip( arrow_texture, 0.0f, gfx->height * 0.4f, gfx->width * 0.05f, gfx->height * 0.6f);
-				gfx->drawtexture_flip( arrow_texture, gfx->width, gfx->height * 0.4f, gfx->width * 0.95f, gfx->height * 0.6f);
+				circle_texture.drawCentered(0.5f * gfx->width, 0.5f * gfx->height);
+				arrow_texture.drawRotated(0.5f * gfx->width, 0.5f * arrow_texture.getHeight(), 0.0f);
+				arrow_texture.drawRotated(0.5f * gfx->width, gfx->height - 0.5f * arrow_texture.getHeight(), 180.0f);
+				arrow_texture.drawRotated(0.5f * arrow_texture.getHeight(), 0.5f * gfx->height, -90.0f);
+				arrow_texture.drawRotated(gfx->width - 0.5f * arrow_texture.getHeight(), 0.5f * gfx->height, 90.0f);
 				gfx->unset_alpha_blending();
 			}
 
@@ -2447,12 +2450,12 @@ namespace TA3D
 			water_simulator_reflec.destroy();
 		}
 
-		gfx->destroy_texture(freecam_on);
-		gfx->destroy_texture(freecam_off);
+		freecam_on.destroy();
+		freecam_off.destroy();
+		arrow_texture.destroy();
+		circle_texture.destroy();
+		pause_tex.destroy();
 		gfx->destroy_texture(water);
-		gfx->destroy_texture(glow);
-		gfx->destroy_texture(arrow_texture);
-		gfx->destroy_texture(circle_texture);
 		gfx->destroy_texture(water_sim);
 		gfx->destroy_texture(water_sim2);
 		gfx->destroy_texture(water_color);
@@ -2461,7 +2464,6 @@ namespace TA3D
 		gfx->destroy_texture(reflectex);
 		gfx->destroy_texture(transtex);
 		gfx->destroy_texture(height_tex);
-		gfx->destroy_texture(pause_tex);
 
 		LOG_INFO("Total Models: " << model_manager.nb_models);
 		LOG_INFO("Total Units: " << unit_manager.nb_unit);
