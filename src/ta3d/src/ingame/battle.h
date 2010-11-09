@@ -23,6 +23,7 @@
 # include <memory> // auto_ptr
 # include <gfx/gui/area.h>
 # include <gfx/sky.h>
+# include <gfx/texture.h>
 # include <tdf.h>
 # include <EngineClass.h>
 # include <misc/rect.h>
@@ -284,15 +285,13 @@ namespace TA3D
 		//! \name Textures
 		//@{
 		//!
-		GLuint	glow;
+		Interfaces::GfxTexture	freecam_on;
 		//!
-		GLuint	freecam_on;
+		Interfaces::GfxTexture	freecam_off;
 		//!
-		GLuint	freecam_off;
+		Interfaces::GfxTexture	arrow_texture;
 		//!
-		GLuint	arrow_texture;
-		//!
-		GLuint	circle_texture;
+		Interfaces::GfxTexture	circle_texture;
 		//!
 		GLuint	water;
 		//!
@@ -300,7 +299,7 @@ namespace TA3D
 		//!
 		GLuint	water_sim2;
 		//!
-		GLuint	pause_tex;
+		Interfaces::GfxTexture	pause_tex;
 		//@}
 
 		//! \name Camera

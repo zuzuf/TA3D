@@ -62,7 +62,7 @@ namespace TA3D
 	void Camera::setWidthFactor(const int w, const int h)
 	{
 		// 1280x1024 is a 4/3 mode
-		widthFactor = (w * 4 == h * 5)   ? (1.0f) : (w * 0.75f / h);
+		widthFactor = (w * 4 == h * 5)   ? (1.0f) : (float(w) * 0.75f / float(h));
 	}
 
 	void Camera::setMatrix(const Matrix& v)
@@ -99,9 +99,9 @@ namespace TA3D
 			for (float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step)
 			{
 				float rdt = Math::Min(dt_step, dt - c_dt);
-				Vector3D rand_vec( ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
-								   ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
-								   ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude );
+				Vector3D rand_vec( float((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
+								   float((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
+								   float((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude );
 				shakeVector += -rdt * 10.0f * shakeVector;
 				shakeVector += rand_vec;
 				if (shakeVector.x < -20.0f)		shakeVector.x = -20.0f;
@@ -142,7 +142,7 @@ namespace TA3D
 		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();
 		if (lp_CONFIG && lp_CONFIG->ortho_camera)
-			glOrtho(-0.5f * zoomFactor * SCREEN_W, 0.5f * zoomFactor * SCREEN_W, -0.5f * zoomFactor * SCREEN_H, 0.5f * zoomFactor * SCREEN_H, znear, zfar);
+			glOrtho(-0.5f * zoomFactor * float(SCREEN_W), 0.5f * zoomFactor * float(SCREEN_W), -0.5f * zoomFactor * float(SCREEN_H), 0.5f * zoomFactor * float(SCREEN_H), znear, zfar);
 		else
 			glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
 
