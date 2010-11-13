@@ -1,6 +1,6 @@
 [sky]
 {
-	planet=green planet,archipelago,ice;
+	planet=green planet,archipelago,ice,urban,wet desert,lush,archipelago,crystal,slate;
 	map=;
 	default=true;
 	fog R=0.3843;
@@ -9,7 +9,7 @@
 	fog A=1;
 	texture name=gfx/sky/earth0.jpg;
 	spherical=true;
-	full sphere=false;
+	full sphere=true;
 	rotation speed=0.0;
-	rotation offset=140.0;
+	rotation offset=50.0;
 }
