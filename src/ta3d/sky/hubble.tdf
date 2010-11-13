@@ -8,6 +8,6 @@
 	fog A=1;
 	texture name=gfx/sky/hubble.jpg;
 	spherical=true;
-	full sphere=false;
+	full sphere=true;
 	rotation speed=0.8;
 }
