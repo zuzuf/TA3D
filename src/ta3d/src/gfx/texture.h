@@ -48,8 +48,8 @@ namespace Interfaces
 
 		void bind();
 		GLuint get() const	{	return tex;	}
-		uint getWidth() const	{	return width;	}
-		uint getHeight() const	{	return height;	}
+		uint32 getWidth() const	{	return width;	}
+		uint32 getHeight() const	{	return height;	}
 
 	public:
 		uint32		width;

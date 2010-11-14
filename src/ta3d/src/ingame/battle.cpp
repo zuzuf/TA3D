@@ -324,7 +324,7 @@ namespace TA3D
 				cam.rpos.z = (mouse_y - 64) * map->map_h / 128.0f * 252.0f / map->mini_h;
 				cam_has_target = false;
 			}
-			if (mouse_x < 1)
+			if (mouse_x < 2)
 			{
 				Vector3D move_dir(cam.side);
 				move_dir.y = 0.0f;
@@ -334,7 +334,7 @@ namespace TA3D
 			}
 			else
 			{
-				if (mouse_x >= SCREEN_W - 1)
+				if (mouse_x >= SCREEN_W - 2)
 				{
 					Vector3D move_dir(cam.side);
 					move_dir.y = 0.0f;
@@ -343,7 +343,7 @@ namespace TA3D
 					cam_has_target = false;
 				}
 			}
-			if (mouse_y < 1)
+			if (mouse_y < 2)
 			{
 				Vector3D move_dir(cam.up);
 				if (Yuni::Math::Zero(move_dir.x) && Yuni::Math::Zero(move_dir.z))
@@ -355,7 +355,7 @@ namespace TA3D
 			}
 			else
 			{
-				if (mouse_y >= SCREEN_H - 1)
+				if (mouse_y >= SCREEN_H - 2)
 				{
 					Vector3D move_dir(cam.up);
 					if (Yuni::Math::Zero(move_dir.x) && Yuni::Math::Zero(move_dir.z))

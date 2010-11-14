@@ -115,8 +115,8 @@ namespace TA3D
 		if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
 		fmouse_x = Yuni::Math::MinMax(fmouse_x, 0.f, (float)(SCREEN_W));
 		fmouse_y = Yuni::Math::MinMax(fmouse_y, 0.f, (float)SCREEN_H);
-		mouse_x = (int)fmouse_x;
-		mouse_y = (int)fmouse_y;
+		mouse_x = (int)(fmouse_x + 0.5f);
+		mouse_y = (int)(fmouse_y + 0.5f);
 		if (rmx != mouse_x || rmy != mouse_y)
 			SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
 		old_mx = mouse_x;
