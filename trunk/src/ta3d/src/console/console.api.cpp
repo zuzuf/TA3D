@@ -4,6 +4,7 @@
 #include <UnitEngine.h>
 #include "console.api.h"
 #include <sounds/manager.h>
+#include <input/mouse.h>
 
 namespace TA3D
 {
@@ -127,7 +128,10 @@ namespace TA3D
 	int CAPI::setGrabInputs(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
+		{
 			lp_CONFIG->grab_inputs = lua_toboolean(L, -1);
+			grab_mouse(lp_CONFIG->grab_inputs);
+		}
 		lua_pushboolean(L, lp_CONFIG->grab_inputs);
 		return 1;
 	}
