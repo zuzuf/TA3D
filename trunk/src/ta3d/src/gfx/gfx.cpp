@@ -628,6 +628,7 @@ namespace TA3D
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
 		small_font = font_manager.find("FreeMono", 8, Font::typeTexture);
+		small_font->setBold(true);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
 		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
