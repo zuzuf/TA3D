@@ -1879,25 +1879,17 @@ namespace TA3D
 								(SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves)
 							{
 								Vector3D grad;
-								if (h_map(X, Y) >= sealvl)
+								for(int dz = -2 ; dz <= 2 ; ++dz)
 								{
-									grad.x -= h_map(X, Y) - sealvl;
-									grad.z += h_map(X, Y) - sealvl;
-								}
-								if (h_map(X, Y | 1) >= sealvl)
-								{
-									grad.x -= h_map(X, Y | 1) - sealvl;
-									grad.z -= h_map(X, Y | 1) - sealvl;
-								}
-								if (h_map(X | 1, Y) >= sealvl)
-								{
-									grad.x += h_map(X | 1, Y) - sealvl;
-									grad.z += h_map(X | 1, Y) - sealvl;
-								}
-								if (h_map(X | 1, Y | 1) >= sealvl)
-								{
-									grad.x += h_map(X | 1, Y | 1) - sealvl;
-									grad.z -= h_map(X | 1, Y | 1) - sealvl;
+									if (Y + dz >= 0 && Y + dz < h_map.getHeight())
+										for(int dx = -2 ; dx <= 2 ; ++dx)
+										{
+											if (X + dx < 0 || X + dx >= h_map.getWidth())
+												continue;
+											const float v = h_map(X + dx, Y + dz) - sealvl;
+											grad.x += dx * std::exp(0.125f * (dx * dx + dz * dz)) * v;
+											grad.z += dz * std::exp(0.125f * (dx * dx + dz * dz)) * v;
+										}
 								}
 								const float grad_len = grad.sq();
 								if (grad_len > 0.0f)
@@ -1907,7 +1899,7 @@ namespace TA3D
                                             sealvl + 0.1f,
                                             pre_y - map_h_d + 8.0f);
                                     grad = (1.0f / sqrtf( grad_len )) * grad;
-									fx_manager.addWave(pos, RAD2DEG * ((grad.x >= 0.0f) ? -acosf(grad.z) : acosf(grad.z)));
+									fx_manager.addWave(pos - 16.0f * grad, RAD2DEG * std::atan2(-grad.x, -grad.z));
 								}
 							}
 						}
