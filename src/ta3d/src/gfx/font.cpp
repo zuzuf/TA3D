@@ -36,12 +36,12 @@ namespace TA3D
 
 
 	Font::Font()
-		:ObjectSync(), font(NULL), pFontFilename(), pType(typeTexture)
+		:ObjectSync(), font(NULL), pFontFilename(), pType(typeTexture), bBold(false)
 	{}
 
 
 	Font::Font(const Font& rhs)
-		:ObjectSync(), font(NULL), pFontFilename(rhs.pFontFilename), pType(rhs.pType)
+		:ObjectSync(), font(NULL), pFontFilename(rhs.pFontFilename), pType(rhs.pType), bBold(false)
 	{
 		if (!pFontFilename.empty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
@@ -82,21 +82,24 @@ namespace TA3D
 			return;
 
 		glScalef(1.0f, -1.0f, 1.0f);
+		for(int k = 0 ; k < (bBold ? 3 : 1) ; ++k)
+		{
 #ifdef __FTGL__lower__
-		font->Render( text.c_str(), -1,
-			FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z),
-			FTPoint(), FTGL::RENDER_ALL);
+			font->Render( text.c_str(), -1,
+				FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z),
+				FTPoint(), FTGL::RENDER_ALL);
 #else
-		glPushMatrix();
-		glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
+			glPushMatrix();
+			glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
 # ifndef TA3D_PLATFORM_DARWIN
-        WString wstr(text);
-        font->Render(wstr.cw_str());
+			WString wstr(text);
+			font->Render(wstr.cw_str());
 # else
-		font->Render(text.c_str());
+			font->Render(text.c_str());
 # endif
-		glPopMatrix();
+			glPopMatrix();
 #endif
+		}
 		glScalef(1.0f, -1.0f, 1.0f);
 	}
 

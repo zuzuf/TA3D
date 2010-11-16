@@ -115,6 +115,8 @@ namespace TA3D
 		int get_size();
 		void print(float x, float y, float z, const String &text);
 
+		void setBold(bool bBold)	{	this->bBold = bBold;	}
+
 		//! \name Operators
 		//@{
 		//! Operator =
@@ -139,6 +141,8 @@ namespace TA3D
 		String pFontFilename;
 		//! Type of the font
 		Type pType;
+		//! Bold style
+		bool bBold;
 		// Friend
 		friend class GFX;
 
