@@ -28,6 +28,7 @@
 # include <list>
 # include <misc/camera.h>
 # include <mesh/mesh.h>
+# include "texture.h"
 
 
 namespace TA3D
@@ -153,11 +154,11 @@ namespace TA3D
         //!
 		File* fx_data;
         //!
-        GLuint flash_tex;
+		Interfaces::GfxTexture flash_tex;
         //!
-        GLuint wave_tex[3];
+		Interfaces::GfxTexture wave_tex[3];
         //!
-        GLuint ripple_tex;
+		Interfaces::GfxTexture ripple_tex;
 
     private:
         /*!
