@@ -25,6 +25,10 @@
 namespace TA3D
 {
 
+	//! String
+	// TODO CustomString should be used instead
+	typedef Yuni::StringBase<>  String;
+
 
 	int ASCIItoUTF8(const byte c, byte *out);
 
