@@ -17,6 +17,10 @@ SET(TA3D_VERSION_PATCH  "0")
 SET(TA3D_VERSION_TAG    "WIP")
 
 
+IF (NOT CMAKE_BUILD_TYPE)
+	SET(CMAKE_BUILD_TYPE "debug")
+ENDIF()
+
 #
 # Getting the latest revision number
 #
