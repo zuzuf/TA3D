@@ -19,6 +19,9 @@
 #include "stdafx.h"
 #include <iostream>
 #include "misc/string.h"
+#include <SDL/SDL_sgui.h>
+#include "TA3D_NameSpace.h"
+#include "misc/paths.h"
 
 
 // Signals should be disabled under OS X, since the system already produces a crash report
@@ -27,8 +30,6 @@
 #ifndef TA3D_PLATFORM_DARWIN
 
 
-# include "TA3D_NameSpace.h"
-# include "misc/paths.h"
 # include "gfx/gui/area.h"
 # include "backtrace.h"
 # include "network/socket.tcp.h"
@@ -46,7 +47,6 @@
 # include <stdlib.h>
 # include <yuni/core/io/file/stream.h>
 # include "sdl.h"
-# include <SDL/SDL_sgui.h>
 
 /*! \brief a small function implementing an automatic bug reporter
  * Declaration of the bug reporter. It's here because it should be visible only
