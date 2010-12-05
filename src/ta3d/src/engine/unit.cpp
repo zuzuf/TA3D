@@ -1117,7 +1117,7 @@ namespace TA3D
                 if (!pType->emitting_points_computed ) // Compute model emitting points if not already done, do it here in Unit::Locked code ...
 				{
                     pType->emitting_points_computed = true;
-					int first = runScriptFunction( SCRIPT_QueryNanoPiece );;
+					int first = runScriptFunction( SCRIPT_QueryNanoPiece );
 					int current;
 					int i = 0;
 					do
