@@ -75,7 +75,7 @@ CHINESE=开启;
 {
     CHINESE=打开这个选项可以看到整个地图上物件，没有地平线限制
 }
-[audio]
+[Audio]
 {
     CHINESE=音乐;
 }
@@ -157,7 +157,7 @@ CHINESE=开启;
 }
 [Low definition map]
 {
-    CHINESE=精简型单位标示;
+    CHINESE=低质量地图;
 }
 [Render sky]
 {
@@ -165,7 +165,7 @@ CHINESE=开启;
 }
 [Loading maps, please wait ...]
 {
-    CHINESE=载入地图，请等待...;
+    CHINESE=正载入地图，请等待...;
 }
 [Please wait ...]
 {
@@ -173,7 +173,7 @@ CHINESE=开启;
 }
 [enable if you want to be\nvisible from Internet]
 {
-   CHINESE=如果你想在战网\n中隐身，打开这个;
+   CHINESE=如果你想在战网\n中隐身，开启这个;
 }
 [Advertise on Internet]
 {
@@ -213,7 +213,7 @@ CHINESE=开启;
 }
 [host a game]
 {
-   CHINESE=建主;
+   CHINESE=建立游戏;
 }
 [Enter server IP/Name]
 {
@@ -221,7 +221,7 @@ CHINESE=开启;
 }
 [Join IP]
 {
-   CHINESE=用IP加入;
+   CHINESE=加入目标IP的游戏;
 }
 [Join]
 {
@@ -237,7 +237,7 @@ CHINESE=开启;
 }
 [warning: you might have texturing\nissues with this!!]
 {
-   CHINESE=警告:也许会导致贴图\n消失;
+   CHINESE=警告:也许会导致贴图\n消失等问题;
 }
 [Pause the game]
 {
@@ -261,27 +261,27 @@ CHINESE=开启;
 }
 [click on this button\nto show game\noptions]
 {
-   CHINESE=单击此按钮\n以显示游戏选项;
+   CHINESE=打开游戏选项;
 }
 [click on this button\nto show audio\noptions]
 {
-   CHINESE=单击此按钮\n以显示声音选项;
+   CHINESE=打开声音选项;
 }
 [click on this button\nto show display\noptions]
 {
-   CHINESE=单击此按钮\n以显示画质选项;
+   CHINESE=打开画质选项;
 }
 [click to change\nthe map]
 {
-   CHINESE=选择地图;
+   CHINESE=设置地图;
 }
 [click to change\nthe script]
 {
-    CHINESE=选择脚本;
+    CHINESE=设置脚本;
 }
 [click to set\nthe fog of war]
 {
-   CHINESE=选择雾;
+   CHINESE=设置雾;
 }
 [Display]
 {
@@ -293,7 +293,7 @@ CHINESE=开启;
 }
 [Ok]
 {
-   CHINESE=好;
+   CHINESE=确定;
 }
 [Change map]
 {
@@ -321,11 +321,11 @@ CHINESE=开启;
 }
 [player name]
 {
-   CHINESE=我的名字;
+   CHINESE=玩家名字;
 }
 [Current mod]
 {
-   CHINESE=使用mod:;
+   CHINESE=正使用的mod;
 }
 [Off]
 {
@@ -377,7 +377,7 @@ CHINESE=开启;
 }
 [No server found]
 {
-   CHINESE=刷新不到房间;
+   CHINESE=找不到服务器;
 }
 [computer]
 {
@@ -389,19 +389,19 @@ CHINESE=开启;
 }
 [[C]Eazy]
 {
-   CHINESE=简单;
+   CHINESE=[C]简单;
 }
 [[C]medium]
 {
-   CHINESE=中等;
+   CHINESE=[C]中等;
 }
 [[c]hard]
 {
-   CHINESE=困难;
+   CHINESE=[C]困难;
 }
 [[c]bloody]
 {
-   CHINESE=冷酷;
+   CHINESE=[C]冷酷;
 }
 [show fps]
 {
@@ -413,7 +413,7 @@ CHINESE=开启;
 }
 [wireframe]
 {
-   CHINESE=贴图面积;
+   CHINESE=显示贴图面积;
 }
 [particles]
 {
@@ -421,7 +421,7 @@ CHINESE=开启;
 }
 [waves]
 {
-    CHINESE=水浪;
+    CHINESE=海浪;
 }
 [shadows]
 {
@@ -433,11 +433,11 @@ CHINESE=开启;
 }
 [detail texture]
 {
-   CHINESE=更丰富贴图细节;
+   CHINESE=更丰富的贴图细节;
 }
 [draw console while loading]
 {
-   CHINESE=载入游戏时显示cosole窗体;
+   CHINESE=载入游戏时显示命令行窗口;
 }
 [full screen]
 {
@@ -477,7 +477,7 @@ CHINESE=开启;
 }
 [RESOURCES ERROR]
 {
-   CHINESE=缺少资源文件.TA3D需要TA CD/试用版/TA MODs中的\n.ccx/.hpi/.gp*文件以运行.;
+   CHINESE=缺少资源文件.TA3D需要TA CD或者TA试用版\n或者TA MODs中的.ccx/.hpi/.gp*文件以运行.;
 }
 [UNITTYPE_NAME]
 {
@@ -501,31 +501,31 @@ CHINESE=开启;
 }
 [Loading color palette]
 {
-   CHINESE=加载色彩;
+   CHINESE=正在载入调色板;
 }
 [Starting intro]
 {
-   CHINESE=前言;
+   CHINESE=开始介绍;
 }
 [Initialising engine]
 {
-   CHINESE=初始化引擎;
+   CHINESE=正在初始化引擎;
 }
 [Initialising the random number generator]
 {
-   CHINESE=初始化随机生成器;
+   CHINESE=正在初始化随机生成器;
 }
 [Launching main menu]
 {
-   CHINESE=载入主菜单;
+   CHINESE=正在载入主菜单;
 }
 [Starting a game]
 {
-   CHINESE=开始游戏;
+   CHINESE=正在开始游戏;
 }
 [End of program]
 {
-   CHINESE=结束游戏;
+   CHINESE=结束;
 }
 [Maps]
 {
@@ -537,48 +537,45 @@ CHINESE=开启;
 }
 [Enter a value for %s]
 {
-   CHINESE=输入将作为%s;
+   CHINESE=输入一个值作为%s;
 }
 [Loading textures]
 {
-   CHINESE=载入贴图;
+   CHINESE=正在载入贴图;
 }
 [Loading 3D Models]
 {
-   CHINESE=载入模型;
+   CHINESE=正在载入模型;
 }
 [Loading GUI]
 {
-   CHINESE=载入控制界面;
+   CHINESE=正在载入控制界面;
 }
 [Loading graphical features]
 {
-   CHINESE=载入视图框架;
+   CHINESE=正在载入图像部分;
 }
 [Loading weapons]
 {
-   CHINESE=载入武器;
+   CHINESE=正在载入武器;
 }
 [Loading units]
 {
-   CHINESE=载入单位;
+   CHINESE=正在载入单位;
 }
 [Free unused memory]
 {
-   CHINESE=释放无用内存;
+   CHINESE=释放内存;
 }
 [Loading the map]
 {
-   CHINESE=载入地图;
+   CHINESE=正在载入地图;
 }
 [Load finished]
 {
-   CHINESE=载入完成;
+   CHINESE=加载完成;
 }
-[weapon]
-{
-   CHINESE=武器;
-}
+
 [Scores]
 {
    CHINESE=评分;
@@ -589,7 +586,7 @@ CHINESE=开启;
 }
 [Kills]
 {
-   CHINESE=消灭;
+   CHINESE=歼灭;
 }
 [Battle room]
 {
@@ -597,7 +594,7 @@ CHINESE=开启;
 }
 [Internal name]
 {
-   CHINESE=内部名称;
+   CHINESE=单位ID;
 }
 [Name]
 {
@@ -637,11 +634,11 @@ CHINESE=开启;
 }
 [Scripts available]
 {
-   CHINESE=脚本可用;
+   CHINESE=可用脚本;
 }
 [CHINESE]
 {
-   CHINESE=法语;
+   CHINESE=汉语;
 }
 [German]
 {
@@ -669,7 +666,7 @@ CHINESE=开启;
 }
 [What do you want to do?]
 {
-   CHINESE=你想做什么?
+   CHINESE=你想做什么?;
 }
 [Return to game]
 {
@@ -709,11 +706,11 @@ CHINESE=开启;
 }
 [Sound volume:]
 {
-   CHINESE=音效响度:;
+   CHINESE=音效:;
 }
 [Music volume:]
 {
-   CHINESE=音乐响度:;
+   CHINESE=音乐:;
 }
 [game speed]
 {
@@ -725,7 +722,7 @@ CHINESE=开启;
 }
 [Click on this button\n to show advanced \noptions]
 {
-	CHINESE=单击此按钮\n以显示高级选项;
+	CHINESE=设置高级选项;
 }
 [en.ta3d.txt]
 {
@@ -733,5 +730,25 @@ CHINESE=开启;
 }
 [Shadow map size]
 {
-	CHINESE=阴影贴图大小
+	CHINESE=阴影贴图大小;
+}
+[Weapon]
+{
+	CHINESE=武器;
+}
+[Build menus tool tips]
+{
+	CHINESE=建筑菜单帮助;
+}
+[Enables tool tips on build menus]
+{
+	CHINESE=开启此选项会在建筑菜\n单上的按钮显示单位属性等;
+}
+[Developer mode]
+{
+	CHINESE=MOD作者模式;
+}
+[Developer mode disables caching]
+{
+	CHINESE=MOD作者模式会禁止掉\nTA3D的文件缓冲，保证载入\n的总是最新放入TA3D目录\n的文件;
 }
