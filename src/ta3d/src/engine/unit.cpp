@@ -5318,8 +5318,6 @@ script_exec:
 			return;
 
 		const int maxdmg = unit_manager.unit_type[render.type_id]->MaxDamage;
-		const int px = render.px >> 1;
-		const int py = render.py >> 1;
 		Vector3D vPos = render.Pos;
 		const float size = unit_manager.unit_type[render.type_id]->model->size2 * 0.5f;
 
