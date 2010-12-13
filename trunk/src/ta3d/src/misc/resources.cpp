@@ -19,6 +19,7 @@
 #include "paths.h"
 #include <logs/logs.h>
 #include <threads/mutex.h>
+#include <TA3D_NameSpace.h>
 
 
 
@@ -80,8 +81,11 @@ namespace Resources
 			AddSearchPath("/usr/share/games/ta3d/resources/");
 			AddSearchPath("/opt/share/games/ta3d/");
 			AddSearchPath("/opt/share/games/ta3d/resources/");
-			AddSearchPath(Paths::ApplicationRoot);
-			AddSearchPath(Paths::ApplicationRoot + "resources/");
+			if (VARS::lp_CONFIG->bUseWorkingDirectory)
+			{
+				AddSearchPath(Paths::ApplicationRoot);
+				AddSearchPath(Paths::ApplicationRoot + "resources/");
+			}
 		}
 
 # else // ifndef TA3D_PLATFORM_DARWIN
@@ -98,8 +102,11 @@ namespace Resources
 			AddSearchPath(home + "/.ta3d/resources/");
 			// If using MacPorts
 			AddSearchPath("/opt/local/share/ta3d/");
-			AddSearchPath(Paths::ApplicationRoot + "/resources/"); // TODO : Should be removed (need a fully working Application bundle)
-			AddSearchPath(Paths::ApplicationRoot);
+			if (VARS::lp_CONFIG->bUseWorkingDirectory)
+			{
+				AddSearchPath(Paths::ApplicationRoot + "/resources/");
+				AddSearchPath(Paths::ApplicationRoot);
+			}
 		}
 
 # endif // ifndef TA3D_PLATFORM_DARWIN

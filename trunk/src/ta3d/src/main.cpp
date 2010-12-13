@@ -203,6 +203,12 @@ YUNI_MAIN()
 	// Constructing config
 	TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
 
+	// Special command line parameter: --working-directory
+	// it enables the working directory as a path to look for resources
+	for(int i = 1 ; i < argc ; ++i)
+		if (strcmp(argv[i], "--working-directory") == 0)
+			lp_CONFIG->bUseWorkingDirectory = true;
+
 	// Initialize all modules used by ta3d
 	TA3D::Initialize(argc, argv);
 
@@ -211,31 +217,49 @@ YUNI_MAIN()
 	if (ParseCommandLine(argc, argv))
 		return 1;
 
-	// Initializing the TA3D Engine
-	TA3D::Engine engine;
-	InitializeTheEngine(engine);
+	try
+	{
+		// Initializing the TA3D Engine
+		TA3D::Engine engine;
+		InitializeTheEngine(engine);
 
-	// ok, if we are here, our thread in engine class is running
-	// and doing some work loading up alot of crap so while its doing that
-	// we are going to show our intro, but first we need to start our timer.
-	start = msec_timer; // Initalize timer.
+		// ok, if we are here, our thread in engine class is running
+		// and doing some work loading up alot of crap so while its doing that
+		// we are going to show our intro, but first we need to start our timer.
+		start = msec_timer; // Initalize timer.
 
-	// Make some initialization which must be done in the main thread only
-	engine.initializationFromTheMainThread();
+		// Make some initialization which must be done in the main thread only
+		engine.initializationFromTheMainThread();
 
-	// while our engine does some loading and intializing, lets show our intro.
-	if (!lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
-		Menus::Intro::Execute();
+		// while our engine does some loading and intializing, lets show our intro.
+		if (!lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
+			Menus::Intro::Execute();
 
-	// The main menu call will eventually not be here, instead
-	// we will turn control over to our engine, but for now we'll call the
-	// menu this way.
-	TA3D::Menus::MainMenu::Execute();
+		// The main menu call will eventually not be here, instead
+		// we will turn control over to our engine, but for now we'll call the
+		// menu this way.
+		TA3D::Menus::MainMenu::Execute();
 
-	// if we get here its time to exit, so delete the engine, the engine should clean itself
-	//   up and we are outa here, but first lets save our config file, we
-	//   need to try/catch this but no worries for now since its not doing anything.
-	TA3D::Settings::Save();
+		// if we get here its time to exit, so delete the engine, the engine should clean itself
+		//   up and we are outa here, but first lets save our config file, we
+		//   need to try/catch this but no worries for now since its not doing anything.
+		TA3D::Settings::Save();
+	}
+	catch(const char *msg)
+	{
+		criticalMessage(msg);
+		return 1;
+	}
+	catch(const TA3D::String &msg)
+	{
+		criticalMessage(msg);
+		return 1;
+	}
+	catch(const std::exception &e)
+	{
+		criticalMessage(TA3D::String("Uncaught exception: ") << e.what());
+		return 1;
+	}
 
 	return 0;
 }

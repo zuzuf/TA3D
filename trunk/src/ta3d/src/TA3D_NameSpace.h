@@ -134,6 +134,7 @@ namespace TA3D
 		bool    enable_shortcuts;           // Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
 		bool	no_sound;
 		bool	first_start;
+		bool	bUseWorkingDirectory;		// Use working directory as resource folder
 
 		TA3DCONFIG();
 

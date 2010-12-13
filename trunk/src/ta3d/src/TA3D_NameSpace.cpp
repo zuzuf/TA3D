@@ -37,6 +37,8 @@ namespace TA3D
 
 	TA3DCONFIG::TA3DCONFIG()
 	{
+		bUseWorkingDirectory = false;
+
 		unitTextureQuality = 3;
 
 		developerMode = false;
