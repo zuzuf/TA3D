@@ -118,6 +118,8 @@ namespace Menus
 
 		// Load all text files
 		File *file = VFS::Instance()->readFile("intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"));
+		if (file == NULL)
+			throw(String("Intro file not found! (") << "intro" << Paths::SeparatorAsString << I18N::Translate("en.ta3d.txt") << ')');
 		if (file->size() <= 5 * 1024)
 			file->load(pContent);
 		delete file;
