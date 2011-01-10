@@ -182,7 +182,8 @@ namespace TA3D
 
 		if (ai_script && AI.size() > 6)
 		{
-			String filename = "scripts/ai/" + AI.substr(6, AI.size() - 6) + ".lua";
+			String filename;
+			filename << "scripts/ai/" << Substr(AI, 6, AI.size() - 6) << ".lua";
 			ai_script->load(filename);
 		}
 	}

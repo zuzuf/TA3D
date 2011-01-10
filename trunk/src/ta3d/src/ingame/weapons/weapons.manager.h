@@ -62,7 +62,7 @@ namespace TA3D
         */
         int get_weapon_index(const String &name)
         {
-			return (name.empty() || nb_weapons <= 0) ? -1 : (weapon_hashtable[String::ToLower(name)] - 1);
+			return (name.empty() || nb_weapons <= 0) ? -1 : (weapon_hashtable[ToLower(name)] - 1);
         }
 
 

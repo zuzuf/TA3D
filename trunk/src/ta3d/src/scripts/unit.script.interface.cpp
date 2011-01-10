@@ -45,7 +45,7 @@ namespace TA3D
     {
         if (caller)
             return (static_cast<UnitScriptInterface*>(caller))->getReturnValue( name );
-		return return_value[String::ToUpper(name)];
+		return return_value[ToUpper(name)];
     }
 
     void UnitScriptInterface::setReturnValue(const String &name, int value)
@@ -53,7 +53,7 @@ namespace TA3D
         if (caller)
             (static_cast<UnitScriptInterface*>(caller))->setReturnValue( name, value );
         else
-			return_value[String::ToUpper(name)] = value;
+			return_value[ToUpper(name)] = value;
     }
 
     const char *UnitScriptInterface::script_name[] =

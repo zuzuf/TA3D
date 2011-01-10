@@ -70,14 +70,12 @@ namespace TA3D
 	TDFParser::TDFParser()
 		: pIgnoreCase(true), special_section()
 	{
-		pTable.set_empty_key(String());
 	}
 
 
 	TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
 		: pIgnoreCase(!caSensitive), special_section()
 	{
-		pTable.set_empty_key(String());
 		loadFromFile(filename, true, toUTF8, gadgetMode, realFS, widgetMode);
 	}
 
@@ -326,14 +324,14 @@ namespace TA3D
 			String keyToFind(key);
 			keyToFind.toLower();
 			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			if (entry == pTable.end() || entry->second.empty())
+			if (entry == pTable.end() || entry->empty())
 				return def;
-			return entry->second.to<float>(f) ? f : def;
+			return entry->to<float>(f) ? f : def;
 		}
 		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		if (entry == pTable.end() || entry->second.empty())
+		if (entry == pTable.end() || entry->empty())
 			return def;
-		return entry->second.to<float>(f) ? f : def;
+		return entry->to<float>(f) ? f : def;
 
 	}
 
@@ -345,14 +343,14 @@ namespace TA3D
 			String keyToFind(key);
 			keyToFind.toLower();
 			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			if (entry == pTable.end() || entry->second.empty())
+			if (entry == pTable.end() || entry->empty())
 				return def;
-			return entry->second.to<bool>();
+			return entry->to<bool>();
 		}
 		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		if (entry == pTable.end() || entry->second.empty())
+		if (entry == pTable.end() || entry->empty())
 			return def;
-		return entry->second.to<bool>();
+		return entry->to<bool>();
 
 	}
 

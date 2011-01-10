@@ -156,7 +156,6 @@ namespace TA3D
 
 	FeatureManager::FeatureManager()
 	{
-		feature_hashtable.set_empty_key(String());
 		init();
 	}
 
@@ -179,7 +178,7 @@ namespace TA3D
 	{
 		if (name.empty())
 			return -1;
-		return feature_hashtable[String::ToLower(name)] - 1;
+		return feature_hashtable[ToLower(name)] - 1;
 	}
 
 
@@ -188,7 +187,7 @@ namespace TA3D
 		++nb_features;
 		feature.push_back(new Feature);
 		feature.back()->name = name;
-		feature_hashtable[String::ToLower(name)] = nb_features;
+		feature_hashtable[ToLower(name)] = nb_features;
 		return nb_features - 1;
 	}
 
@@ -301,7 +300,7 @@ namespace TA3D
 				feature[i]->vent = feature[i]->category.find("vents") != String::npos;
 			if (!feature[i]->filename.empty() && !feature[i]->seqname.empty() && !feature[i]->m3d)
 			{
-				if (model_manager.get_model(feature[i]->filename + "-" + feature[i]->seqname) != NULL) // Check if there is a 3do version of it
+				if (model_manager.get_model(String(feature[i]->filename) << '-' << feature[i]->seqname) != NULL) // Check if there is a 3do version of it
 				{
 					feature[i]->model=NULL;
 					feature[i]->m3d=true;
@@ -312,7 +311,7 @@ namespace TA3D
 				{
 					feature[i]->not_loaded=true;
 					if (feature[i]->height<=10.0f && feature[i]->height>1.0f && feature[i]->blocking
-						&& String::ToLower(feature[i]->description) != "metal") // Tente une conversion en 3d
+						&& ToLower(feature[i]->description) != "metal") // Tente une conversion en 3d
 					{
 						String tmp("anims\\");
 						tmp << feature[i]->filename << ".gaf";
@@ -397,7 +396,7 @@ namespace TA3D
 				tmp << "-" << feature->seqname;
 				feature->model = model_manager.get_model(tmp);
 				if (feature->model == NULL)
-					feature->model = model_manager.get_model(String("objects3d\\")+tmp);
+					feature->model = model_manager.get_model(String("objects3d\\") << tmp);
 			}
 			else
 			{

@@ -169,7 +169,7 @@ namespace Menus
 		if (l < 9)
 			return;
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "autoSelectMap()");
-		const String& s = shortName.substr(5, l - 9);
+		const String& s = Substr(shortName, 5, l - 9);
 		int indx(0);
 		const ListOfMaps::const_iterator end = pListOfMaps.end();
 		for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != end; ++i, ++indx)
@@ -351,7 +351,7 @@ namespace Menus
 				const String::size_type l(it->length());
 				if (l < 9)
 					continue;
-				const String& newMapName = it->substr(5, l - 9);
+				const String& newMapName = Substr(*it, 5, l - 9);
 				if (MapSelector::MapIsForNetworkGame(newMapName))
 					out.push_back(newMapName);
 			}

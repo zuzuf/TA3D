@@ -170,10 +170,14 @@ namespace TA3D
 					if (!r.empty())
                     {
 						ApplicationRoot = ExtractFilePath(r);
-                        if (ApplicationRoot.size() > 3 && ApplicationRoot.substr(ApplicationRoot.size() - 3) == "/./")
-                            ApplicationRoot.chop(2);
                     }
 				}
+				if (ApplicationRoot.endsWith("/./"))
+					ApplicationRoot.chop(2);
+				else if (ApplicationRoot.endsWith("/."))
+					ApplicationRoot.chop(1);
+				else if (!ApplicationRoot.empty() && ApplicationRoot.last() != '/' && ApplicationRoot.last() != '\\')
+					ApplicationRoot << '/';
 			}
 
 
@@ -183,27 +187,43 @@ namespace TA3D
 
 		String ExtractFilePath(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::IO::ExtractFilePath(p, systemDependant);
+			String out;
+			Yuni::Core::IO::ExtractFilePath(out, p, systemDependant);
+			return out;
 		}
 
 		String ExtractFileName(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::IO::ExtractFileName(p, systemDependant);
+			String out;
+			Yuni::Core::IO::ExtractFileName(out, p, systemDependant);
+			return out;
 		}
 
 		void ExtractFileName(String::List& p, const bool systemDependant)
 		{
-			return Yuni::Core::IO::ExtractFileName(p, systemDependant);
+			for(String::List::iterator i = p.begin() ; i != p.end() ; ++i)
+			{
+				String out;
+				Yuni::Core::IO::ExtractFileName(out, *i, systemDependant);
+				*i = out;
+			}
 		}
 
 		void ExtractFileName(String::Vector& p, const bool systemDependant)
 		{
-			return Yuni::Core::IO::ExtractFileName(p, systemDependant);
+			for(String::Vector::iterator i = p.begin() ; i != p.end() ; ++i)
+			{
+				String out;
+				Yuni::Core::IO::ExtractFileName(out, *i, systemDependant);
+				*i = out;
+			}
 		}
 
 		String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant)
 		{
-			return Yuni::Core::IO::ExtractFileNameWithoutExtension(p, systemDependant);
+			String out;
+			Yuni::Core::IO::ExtractFileNameWithoutExtension(out, p, systemDependant);
+			return out;
 		}
 
 
@@ -350,8 +370,10 @@ namespace TA3D
 
 			String root = ExtractFilePath(pattern);
 			String root_path = root;
-			if (root.size() > 1 && (root[ root.size() - 1 ] == '/' || root[ root.size() - 1 ] == '\\'))
+			if (root.size() > 1 && (root.last() == '/' || root.last() == '\\'))
 				root_path.removeLast();
+			else if (!root.empty())
+				root << Separator;
 
 			# ifdef TA3D_PLATFORM_WINDOWS
 			String strFilePath; // Filepath
@@ -405,11 +427,11 @@ namespace TA3D
 
 			while ((dirp = readdir(dp)) != NULL)
 			{
-				String name = dirp->d_name;
+				String name = (char*)(dirp->d_name);
 				if (dirp->d_type == 0)
 				{
 					DIR *dp2;
-					if ((dp2  = opendir((root + name).c_str())))
+					if ((dp2  = opendir((String(root) << name).c_str())))
 					{
 						closedir(dp2);
 						dirp->d_type |= FA_DIREC;
@@ -418,12 +440,12 @@ namespace TA3D
 						dirp->d_type |= FA_FILE;
 				}
 
-				if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).glob(filename_pattern))
+				if ((dirp->d_type & required) == required && name != "." && name != ".." && ToUpper(name).glob(filename_pattern))
 				{
 					if (relative)
 						out.push_back(name);
 					else
-						out.push_back(root + name);
+						out.push_back(String(root) << name);
 				}
 			}
 			closedir(dp);

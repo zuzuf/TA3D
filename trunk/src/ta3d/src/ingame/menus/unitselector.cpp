@@ -202,7 +202,7 @@ namespace Menus
 				String UnitName = pUnitListObj->Text[ pLastUnitIndex ];
 				if (UnitName.size() > 0 && UnitName[0] == '<')
 				{
-					UnitName = UnitName.substr( 3, UnitName.size() - 3);
+					UnitName = Substr(UnitName, 3, UnitName.size() - 3);
 					pUnitListObj->Text[ pLastUnitIndex ] = UnitName;
 				}
 			}
@@ -243,7 +243,7 @@ namespace Menus
 			String UnitName = pUnitListObj->Text[ pLastUnitIndex ];
 			if (UnitName.size() > 0 && UnitName[0] == '<')
 			{
-				UnitName = UnitName.substr( 3, UnitName.size() - 3);
+				UnitName = Substr(UnitName, 3, UnitName.size() - 3);
 				pArea->set_state("unitsetup.c_enabled", true);
 			}
 			else
@@ -265,11 +265,12 @@ namespace Menus
 	{
 		TA3D::Paths::MakeDir(TA3D::Paths::Resources + "useonly");
 		pUseOnly = "useonly/useonly.tdf";
-		String filename = TA3D::Paths::Resources + pUseOnly;
+		String filename;
+		filename << TA3D::Paths::Resources << pUseOnly;
 
 		String s;
 		s << "// Use Only file\n"
-			<< "\n";
+		  << "\n";
 
 		String UnitName;
 		for (unsigned int i = 0; i < pUnitListObj->Text.size(); ++i)            // For each selected unit
@@ -277,7 +278,7 @@ namespace Menus
 			if (pUnitListObj->Text[i][0] == '<')                        // create an empty section with the unit name
 			{
 				UnitName = pUnitListObj->Text[i];
-				s   << '[' << UnitName.substr( 3, UnitName.size() - 3) << "]\n"
+				s   << '[' << Substr(UnitName, 3, UnitName.size() - 3) << "]\n"
 					<< "{\n}\n";
 			}
 		}

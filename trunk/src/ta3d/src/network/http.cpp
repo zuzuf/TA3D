@@ -155,7 +155,7 @@ namespace TA3D
 						if (offset != String::npos)
 						{
 							header.erase(0, offset + 16);
-							header.trimRight();
+							header.trimRight(" \n\t");
 							size = header.to<int>();
 							LOG_DEBUG("header = " << header);
 							LOG_DEBUG("Http: size = " << size);
@@ -197,8 +197,9 @@ namespace TA3D
 		String tmp = url;
 		if (tmp.startsWith("http://"))
 			tmp.erase(0, 7);
-		this->servername = tmp.substr(0, tmp.find_first_of("/"));
-		this->_request = tmp.erase(0, this->servername.size());
+		this->servername = Substr(tmp, 0, tmp.find_first_of("/"));
+		tmp.erase(0, this->servername.size());
+		this->_request = tmp;
 
 		bStop = false;
 		pos = 0;

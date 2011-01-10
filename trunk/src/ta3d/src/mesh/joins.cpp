@@ -18,9 +18,6 @@ namespace TA3D
 		ObjectMap objects;
 		ObjectSet rootObjects;
 		ObjectPos objectPos;
-		objects.set_empty_key(String());
-		rootObjects.set_deleted_key(NULL);
-		objectPos.set_empty_key(NULL);
 
 		// Link all objects to their name
 		std::vector<Mesh*> queue;
@@ -43,34 +40,34 @@ namespace TA3D
 		// Break the structure
 		for(ObjectMap::iterator i = objects.begin() ; i != objects.end() ; ++i)
 		{
-			i->second->child = NULL;
-			i->second->next = NULL;
-			rootObjects.insert(i->second);
-			objectPos[i->second].reset();
+			i.value()->child = NULL;
+			i.value()->next = NULL;
+			rootObjects.insert(*i);
+			objectPos[*i].reset();
 		}
 
 		// Build the new structure
 		for(ObjectMap::iterator i = objects.begin() ; i != objects.end() ; ++i)
 		{
 			// If we have a "linker", remove it and link its 2 objects
-			if (!i->first.contains('_') || i->second == NULL)
+			if (!i.key().contains('_') || *i == NULL)
 				continue;
 			String::Vector elts;
-			i->first.explode(elts, '_', false, false, true);
+			i.key().explode(elts, '_', false, false, true);
 			if (elts.size() != 2) // WOW, that's not supposed to happen!
 			{
-				LOG_ERROR("[mesh] [joins] model structure is broken ! ('" << i->first << "') (" << filename << ')');
-				if (rootObjects.count(i->second) > 0)
-					rootObjects.erase(i->second);
+				LOG_ERROR("[mesh] [joins] model structure is broken ! ('" << i.key() << "') (" << filename << ')');
+				if (rootObjects.count(*i) > 0)
+					rootObjects.erase(*i);
 
-				delete i->second;
-				i->second = NULL;
+				delete *i;
+				*i = NULL;
 				continue;
 			}
 			Vector3D pos;
-			for(int j = 0 ; j < i->second->nb_vtx ; ++j)
-				pos += i->second->points[j];
-			pos = 1.0f / i->second->nb_vtx  * pos;
+			for(int j = 0 ; j < i.value()->nb_vtx ; ++j)
+				pos += i.value()->points[j];
+			pos = 1.0f / i.value()->nb_vtx  * pos;
 
 			Mesh *parent = objects[elts[0]];
 			Mesh *child = objects[elts[1]];
@@ -110,11 +107,11 @@ namespace TA3D
 			if (rootObjects.count(child) > 0)
 				rootObjects.erase(child);
 
-			if (rootObjects.count(i->second) > 0)
-				rootObjects.erase(i->second);
+			if (rootObjects.count(*i) > 0)
+				rootObjects.erase(*i);
 
-			delete i->second;
-			i->second = NULL;
+			delete *i;
+			*i = NULL;
 		}
 
 		Mesh *root = NULL;

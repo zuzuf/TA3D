@@ -58,7 +58,7 @@ namespace Menus
 		**
 		** This method must be called from the main thread.
 		*/
-		virtual void operator()(const float percent, const String &caption);
+		virtual void operator()(const float percent, const String &message);
 		//@}
 
 	private:

@@ -190,10 +190,10 @@ namespace TA3D
 				name.clear();
 				for (i = 0 ; i < 100 && f[ i + 10 ] != '"' ; ++i)
 					name << f[ i + 10 ];
-				if (!VFS::Instance()->fileExists(path + name))
-					name = "scripts/" + name;
+				if (!VFS::Instance()->fileExists(String(path) << name))
+					name = String("scripts/") << name;
 				else
-					name = path + name;
+					name = String(path) << name;
 				file = VFS::Instance()->readFile(name);
 				if (file)
 				{

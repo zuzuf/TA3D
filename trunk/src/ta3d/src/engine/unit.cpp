@@ -3321,7 +3321,7 @@ namespace TA3D
 									{
 										bool success = false;
 										String wreckage_name = feature->name;
-										wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
+										wreckage_name = Substr(wreckage_name, 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
 
 										int wreckage_type_id = unit_manager.get_unit_index( wreckage_name );
 										Vector3D obj_pos = features.feature[mission->getData()].Pos;

@@ -94,22 +94,22 @@ namespace Menus
 	}
 
 
-	void Loading::operator()(const float percent, const String &caption)
+	void Loading::operator()(const float percent, const String &message)
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (Yuni::Math::Equals(pLastPercent, percent) && caption == pLastCaption)
+		if (Yuni::Math::Equals(pLastPercent, percent) && message == pLastCaption)
 			return;
 
 		// Notice other players about the progression
 		doNoticeOtherPlayers(percent);
 
 		// Update the message list
-		if (caption != pLastCaption)
+		if (message != pLastCaption)
 		{
 			if (!pLastCaption.empty())
 				pMessages.front() << " - " << I18N::Translate("done");
-			pMessages.push_front(caption);
+			pMessages.push_front(message);
 		}
 
 		glDisable(GL_LIGHTING);
@@ -154,12 +154,12 @@ namespace Menus
 		// Draw the caption (horizontally centered)
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
-		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(caption) + 1.0f,
+		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message) + 1.0f,
 				   830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f + 1.0f,0.0f, makeacol(0, 0, 0, 0xFF),
-				   caption);
-		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(caption),
+				   message);
+		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message),
 				   830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f,0.0f,0xFFFFFFFF,
-				   caption);
+				   message);
 		glDisable(GL_BLEND);
 
 		glPopMatrix();
@@ -168,7 +168,7 @@ namespace Menus
 		gfx->flip();
 
 		pLastPercent = percent;
-		pLastCaption = caption;
+		pLastCaption = message;
 	}
 
 

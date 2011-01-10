@@ -119,9 +119,9 @@ namespace TA3D
 				return;
 			state = CONNECTING;
 			if (bRegister)
-				sendMessage("REGISTER " + login + " " + password);
+				sendMessage(String("REGISTER ") << login << ' ' << password);
 			else
-				sendMessage("LOGIN " + login + " " + password);
+				sendMessage(String("LOGIN ") << login << ' ' << password);
 			uint32 timer = msec_timer;
 			bool done = false;
 			while (msec_timer - timer < 10000 && !done)   // 10s timeout

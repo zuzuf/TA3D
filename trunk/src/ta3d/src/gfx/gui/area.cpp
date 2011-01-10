@@ -253,7 +253,7 @@ namespace Gui
 			newWindow->Name = name;
 
 		vec_z_order[0] = wnd_idx;
-		String key = String::ToLower(newWindow->Name);
+		String key = ToLower(newWindow->Name);
 		if (!key.empty())
 			wnd_hashtable[key] = wnd_idx + 1;	// + 1 because it returns 0 on Find failure
 		return wnd_idx;
@@ -342,7 +342,7 @@ namespace Gui
 			{
 				int name_len = Paths::ExtractFileName(background_name).size();
 				if (name_len > 0)
-					background_name = background_name.substr(0, background_name.size() - name_len) << skin->prefix() << Paths::ExtractFileName(background_name);
+					background_name = Substr(background_name, 0, background_name.size() - name_len) << skin->prefix() << Paths::ExtractFileName(background_name);
 				else
 					background_name += skin->prefix();
 			}
@@ -370,9 +370,6 @@ namespace Gui
 	AREA::AREA(const String& nm)
 		:scrolling(false), background(0), name(nm), skin(NULL), gui_hashtable(), wnd_hashtable()
 	{
-		wnd_hashtable.set_empty_key(String());
-		gui_hashtable.set_empty_key(String());
-
 		amx = mouse_x;
 		amy = mouse_y;
 		amz = mouse_z;
@@ -461,8 +458,8 @@ namespace Gui
 		String::size_type i = message.find('.');
 		if (i != String::npos)
 		{
-			String key = message.substr(0, i); // Extracts the key
-			message = message.substr(i + 1, message.size() - i - 1); // Extracts the end of the message
+			String key = Substr(message, 0, i); // Extracts the key
+			message = Substr(message, i + 1, message.size() - i - 1); // Extracts the end of the message
 
 			WND::Ptr the_wnd = getWindowWL(key);
 			if (the_wnd)
@@ -494,8 +491,8 @@ namespace Gui
 		String::size_type i = message.find('.');
 		if (i != String::npos)
 		{
-			String key = message.substr(0, i); // Extracts the key
-			String obj_name = message.substr(i + 1, message.size() - i - 1);
+			String key = Substr(message, 0, i); // Extracts the key
+			String obj_name = Substr(message, i + 1, message.size() - i - 1);
 
 			if (key == "*")
 			{
@@ -548,8 +545,8 @@ namespace Gui
 		String::size_type i = message.find('.');
 		if (i != String::npos)
 		{
-			String key = message.substr(0, i);
-			String obj_name = message.substr(i + 1, message.size() - i - 1);
+			String key = Substr(message, 0, i);
+			String obj_name = Substr(message, i + 1, message.size() - i - 1);
 			if (key == "*")
 			{
 				const WindowList::iterator end = pWindowList.end();
@@ -579,8 +576,8 @@ namespace Gui
 		String::size_type i = message.find('.');
 		if (String::npos != i)
 		{
-			String key = message.substr(0, i);						// Extracts the key
-			String obj_name = message.substr(i + 1, message.size() - i - 1);
+			String key = Substr(message, 0, i);						// Extracts the key
+			String obj_name = Substr(message, i + 1, message.size() - i - 1);
 			if (!key.empty() && key == "*")
 			{
 				const WindowList::iterator end = pWindowList.end();
@@ -621,8 +618,8 @@ namespace Gui
 		String::size_type i = message.find('.');
 		if (i != String::npos)
 		{
-			String key = message.substr(0, i);						// Extracts the key
-			String obj_name = message.substr(i + 1, message.size() - i -1);
+			String key = Substr(message, 0, i);						// Extracts the key
+			String obj_name = Substr(message, i + 1, message.size() - i -1);
 			if (key == "*")
 			{
 				const WindowList::iterator end = pWindowList.end();

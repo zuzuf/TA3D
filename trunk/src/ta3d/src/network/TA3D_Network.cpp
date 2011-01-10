@@ -113,7 +113,7 @@ namespace TA3D
 							pMutex.lock();
 							if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
 								messages.pop_front();
-							msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
+							msg = String("<") << game_data->player_names[ player_id ] << "> " << msg;
 							messages.push_back( NetworkMessage( msg, msec_timer ) );
 							pMutex.unlock();
 						}
@@ -155,7 +155,7 @@ namespace TA3D
 				pMutex.lock();
 				if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
 					messages.pop_front();
-				chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
+				chat_msg = String("<") << game_data->player_names[ player_id ] << "> " << chat_msg;
 				messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
 				pMutex.unlock();
 			}

@@ -87,7 +87,7 @@ namespace TA3D
 	void I18N::resetPrefix()
 	{
 		pLanguageSuffix = ".";
-		pLanguageSuffix += String::ToLower(pCurrentLanguage->englishCaption());
+		pLanguageSuffix += ToLower(pCurrentLanguage->englishCaption());
 	}
 
 	I18N::Language* I18N::addNewLanguageWL(const String& englishID, const String& translatedName)
@@ -116,7 +116,7 @@ namespace TA3D
 		LOG_ASSERT(NULL != pDefaultLanguage /* initializeAllLanguages() must be called before */ );
 		if (locale.empty())
 			return pDefaultLanguage;
-		String s(locale.substr(0, 5));
+		String s(Substr(locale, 0, 5));
 		s.trim();
 		s.toLower();
 

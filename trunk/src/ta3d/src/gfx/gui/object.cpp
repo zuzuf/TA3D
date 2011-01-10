@@ -63,7 +63,7 @@ namespace Gui
 		if (lw.startsWith("caption=")) // Change the GUIOBJ's caption
 		{
 			if (!Text.empty())
-				Text[0] = message.substr(8, message.size() - 8);
+				Text[0] = Substr(message, 8, message.size() - 8);
 			return INTERFACE_RESULT_HANDLED;
 		}
 		if (lw == "focus" && !Focus)

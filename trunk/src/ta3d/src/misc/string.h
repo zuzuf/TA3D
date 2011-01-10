@@ -26,9 +26,28 @@ namespace TA3D
 {
 
 	//! String
-	// TODO CustomString should be used instead
-	typedef Yuni::StringBase<>  String;
+	typedef Yuni::String	String;
 
+	inline String Substr(const String &str, unsigned int start, unsigned int len = 0xFFFFFFFF)
+	{
+		len = std::min<unsigned int>(len, str.size() - start);
+		return String(str.data() + start, len);
+	}
+
+	inline String SubstrUTF8(const String &str, unsigned int start, unsigned int len = 0xFFFFFFFF)
+	{
+		return String(str.utf8begin() + start, str.utf8begin() + start + std::min<unsigned int>(len, str.utf8size() - start));
+	}
+
+	inline String ToUpper(const String &str)
+	{
+		return String(str).toUpper();
+	}
+
+	inline String ToLower(const String &str)
+	{
+		return String(str).toLower();
+	}
 
 	int ASCIItoUTF8(const byte c, byte *out);
 

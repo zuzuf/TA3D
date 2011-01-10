@@ -14,10 +14,10 @@ namespace TA3D
 			String keyToFind(key);
 			keyToFind.toLower();
 			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			return (entry == pTable.end() || entry->second.empty() ? def : entry->second.to<sint32>());
+			return (entry == pTable.end() || entry->empty() ? def : entry->to<sint32>());
 		}
 		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		return (entry == pTable.end() || entry->second.empty() ? def : entry->second.to<sint32>());
+		return (entry == pTable.end() || entry->empty() ? def : entry->to<sint32>());
 	}
 
 
@@ -29,10 +29,10 @@ namespace TA3D
 			String keyToFind(key);
 			keyToFind.toLower();
 			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			return (entry == pTable.end() || entry->second.empty() ? 0 : entry->second.to<sint32>());
+			return (entry == pTable.end() || entry->empty() ? 0 : entry->to<sint32>());
 		}
 		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		return (entry == pTable.end() || entry->second.empty() ? 0 : entry->second.to<sint32>());
+		return (entry == pTable.end() || entry->empty() ? 0 : entry->to<sint32>());
 	}
 
 
@@ -44,10 +44,10 @@ namespace TA3D
 			String keyToFind(key);
 			keyToFind.toLower();
 			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			return entry == pTable.end() ? def : entry->second;
+			return entry == pTable.end() ? def : entry.value();
 		}
 		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		return (entry != pTable.end()) ? entry->second : def;
+		return (entry != pTable.end()) ? entry.value() : def;
 	}
 
 
@@ -59,10 +59,10 @@ namespace TA3D
 			String keyToFind(key);
 			keyToFind.toLower();
 			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			return entry == pTable.end() ? nullptr : entry->second;
+			return entry == pTable.end() ? nullptr : entry.value();
 		}
 		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		return (entry != pTable.end()) ? entry->second : nullptr;
+		return (entry != pTable.end()) ? entry.value() : nullptr;
 	}
 
 

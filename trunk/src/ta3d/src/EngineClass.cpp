@@ -834,7 +834,7 @@ namespace TA3D
 			specialWhat.toLower();
 			if (specialWhat.startsWith("startpos"))
 			{
-				int index = String(specialWhat.substr(8, specialWhat.size() - 8)).to<int>() - 1;
+				int index = Substr(specialWhat, 8, specialWhat.size() - 8).to<int>() - 1;
 				startX[index] = parser.pullAsInt(key + "xpos");
 				startZ[index] = parser.pullAsInt(key + "zpos");
 			}

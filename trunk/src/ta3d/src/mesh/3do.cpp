@@ -425,8 +425,8 @@ namespace TA3D
 							 texture_manager.tex[index_tex[i]].bmp[f]->h);
 					}
 					cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
-					if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
-						SaveTex( bmp, TA3D::Paths::Caches + cache_filename );
+					if (!TA3D::Paths::Exists( String(TA3D::Paths::Caches) << cache_filename ))
+						SaveTex( bmp, String(TA3D::Paths::Caches) << cache_filename );
 				}
 				tex_cache_name.push_back( cache_filename );
 			}

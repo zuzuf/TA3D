@@ -153,7 +153,6 @@ namespace TA3D
 
 	FontManager::FontManager()
 	{
-		font_table.set_empty_key(String());
 	}
 
 	FontManager::~FontManager()

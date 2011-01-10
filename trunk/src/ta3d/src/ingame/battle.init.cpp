@@ -104,18 +104,17 @@ namespace TA3D
         water(0),
         water_sim(0),
         water_sim2(0),
-        height_tex(0),
+		escMenuWasVisible(false),
+		height_tex(0),
         transtex(0),
         reflectex(0),
         first_pass(0),
         second_pass(0),
-		water_color(0),
-		escMenuWasVisible(false)
+		water_color(0)
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
 		grab_mouse(lp_CONFIG->grab_inputs);
 		pInstance = this;
-		toBeLoadedMenuSet.set_deleted_key(String());
     }
 
 	Battle::~Battle()
@@ -470,9 +469,9 @@ namespace TA3D
 
 		try
 		{
-			pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "gen.gui"); // Load the order interface
-			pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.hide" );	// Hide it
-			pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.enableScrolling" );	// Enable scrolling
+			pArea.load_window(String(ta3dSideData.guis_dir) << ta3dSideData.side_pref[players.side_view] << "gen.gui"); // Load the order interface
+			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "gen.hide" );	// Hide it
+			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "gen.enableScrolling" );	// Enable scrolling
 		}
 		catch(...)
 		{
@@ -481,26 +480,26 @@ namespace TA3D
 
 		try
 		{
-			pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "dl.gui");			// Load the default build interface
-			pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.hide" );	// Hide it
-			pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.enableScrolling" );	// Enable scrolling
+			pArea.load_window(String(ta3dSideData.guis_dir) << ta3dSideData.side_pref[players.side_view] << "dl.gui");			// Load the default build interface
+			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "dl.hide" );	// Hide it
+			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "dl.enableScrolling" );	// Enable scrolling
 		}
 		catch(...)
 		{
 			LOG_WARNING(LOG_PREFIX_BATTLE << "`dl.gui` is missing or can not be loaded");
 		}
 
-		const String sideName = String::ToLower(ta3dSideData.side_name[players.side_view]);
+		const String sideName = ToLower(ta3dSideData.side_name[players.side_view]);
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
 		{
 			if (!(i & 0xF))
 				(*loading)((550.0f + 50.0f * i / (unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
-			if (String::ToLower(unit_manager.unit_type[i]->side) == sideName)
+			if (ToLower(unit_manager.unit_type[i]->side) == sideName)
 			{
 				int e(1);
-				while (VFS::Instance()->fileExists(String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui"))
+				while (VFS::Instance()->fileExists(String(ta3dSideData.guis_dir) << unit_manager.unit_type[i]->Unitname << e << ".gui"))
 				{
-					toBeLoadedMenuSet.insert(String::ToLower(String(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname) << e << ".gui"));
+					toBeLoadedMenuSet.insert(ToLower(String(ta3dSideData.guis_dir) << unit_manager.unit_type[i]->Unitname << e << ".gui"));
 					++e;
 				}
 			}
@@ -576,7 +575,7 @@ namespace TA3D
 	bool Battle::initTheSky()
 	{
 		// The sky
-		sky.choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), String::ToLower(map->ota_data.planet));
+		sky.choose_a_sky(Paths::ExtractFileName(pGameData->map_filename), ToLower(map->ota_data.planet));
 
 		sky_angle = sky.rotationOffset();
 		return true;
@@ -937,7 +936,7 @@ namespace TA3D
 		do
 		{
 			nb_shoot = (nb_shoot + 1) % 1000000;
-		}while (TA3D::Paths::Exists(TA3D::Paths::Screenshots + String::Format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
+		}while (TA3D::Paths::Exists(String(TA3D::Paths::Screenshots) << String().format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
 
 		return true;
 	}

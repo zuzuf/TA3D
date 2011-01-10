@@ -167,7 +167,7 @@ namespace Menus
 				LOG_DEBUG("client received game status : " << status);
 				if (!status.empty())
 				{
-					status = Paths::Savegames + "multiplayer" + Paths::Separator + status;
+					status = String(Paths::Savegames) << "multiplayer" << Paths::Separator << status;
 					saved_game = status;
 				}
 				else
@@ -217,7 +217,7 @@ namespace Menus
 			game_data.map_filename = *(map_list.begin());
 			map_list.clear();
 		}
-		if (!VFS::Instance()->fileExists(game_data.game_script) || String::ToLower(Paths::ExtractFileExt(game_data.game_script)) != ".lua")
+		if (!VFS::Instance()->fileExists(game_data.game_script) || ToLower(Paths::ExtractFileExt(game_data.game_script)) != ".lua")
 		{
 			if (VFS::Instance()->fileExists("scripts\\game\\default.lua"))
 				game_data.game_script = "scripts\\game\\default.lua";
@@ -464,7 +464,7 @@ namespace Menus
 					if (pArea->caption(String("gamesetup.name") << f) == player_str[2])
 						++nb_open;
 				}
-				NetClient::instance()->sendMessage("SERVER MAP \"" + Escape(Paths::ExtractFileNameWithoutExtension(game_data.map_filename)) + "\" SLOTS " + String(nb_open));
+				NetClient::instance()->sendMessage(String("SERVER MAP \"") << Escape(Paths::ExtractFileNameWithoutExtension(game_data.map_filename)) << "\" SLOTS " << nb_open);
 			}
 		}
 
@@ -983,7 +983,7 @@ namespace Menus
 								{
 									if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
 									String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
-									int side_id = String::FindInList(side_str, game_data.player_sides[i]);
+									int side_id = std::find(side_str.begin(), side_str.end(), game_data.player_sides[i]) - side_str.begin();
 									msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
 										<< side_id << " "
 										<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FixBlank(game_data.ai_level[i]))
@@ -1202,7 +1202,7 @@ namespace Menus
 										String sMpN(new_map_name);
 										sMpN.replace('\\', '/');
 										previous_tnt_port = network_manager.getFile( 1, sMpN);
-										network_manager.sendSpecial( "REQUEST FILE " + FixBlank(new_map_name) + " " + previous_tnt_port );
+										network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_tnt_port );
 									}
 
 									new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
@@ -1213,7 +1213,7 @@ namespace Menus
 										sMpN.replace('\\', '/');
 
 										previous_ota_port = network_manager.getFile( 1, sMpN);
-										network_manager.sendSpecial( "REQUEST FILE " + FixBlank(new_map_name) + " " + previous_ota_port );
+										network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_ota_port );
 									}
 								}
 							}
@@ -1234,7 +1234,7 @@ namespace Menus
 										sSpS.replace('\\', '/');
 
 										previous_lua_port = network_manager.getFile( 1, sSpS);
-										network_manager.sendSpecial("REQUEST FILE " + FixBlank(script_name) + " " + previous_lua_port);
+										network_manager.sendSpecial(String("REQUEST FILE ") << FixBlank(script_name) << ' ' << previous_lua_port);
 									}
 								}
 							}

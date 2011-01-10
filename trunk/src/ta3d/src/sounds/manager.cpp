@@ -45,8 +45,6 @@ namespace Audio
         pMusic( NULL ), bPlayMusic(false), pBasicSound( NULL ),
         pCurrentItemToPlay(-1), pCurrentItemPlaying(-1)
 	{
-		pSoundList.set_empty_key(String());
-
 		pMinTicks = 500;
 
 		doStartUpAudio();
@@ -130,7 +128,7 @@ namespace Audio
 		for (String::Vector::iterator i = file_list.begin() ; i != file_list.end() ; ++i) // Add missing files
 		{
 			*i = Paths::ExtractFileName(*i);
-			if (String::ToLower(*i) == "playlist.txt" || (*i)[0] == '.')
+			if (ToLower(*i) == "playlist.txt" || (*i)[0] == '.')
 				continue;
 
 			filename = *i;
@@ -793,7 +791,7 @@ namespace Audio
 				return INTERFACE_RESULT_HANDLED; // Oups badly written things
 
 			// Get the string associated with the signal
-			String message(String::ToLower(msg));
+			String message(ToLower(msg));
 
 			if (message == "music play")
 			{
@@ -969,7 +967,7 @@ namespace Audio
 		Mix_HaltChannel(-1);
 
 		for(TA3D::UTILS::HashMap<SoundItemList*>::Dense::iterator it = pSoundList.begin() ; it != pSoundList.end() ; ++it)
-			delete it->second;
+			delete *it;
 		pSoundList.clear();
 		pTable.clear();
 		pWorkList.clear();
@@ -1039,7 +1037,7 @@ namespace Audio
 	void Manager::playTDFSoundNow(const String& Key, const Vector3D* vec)
 	{
 		pMutex.lock();
-		String szWav = pTable.pullAsString(String::ToLower(Key)); // copy string to szWav so we can work with it.
+		String szWav = pTable.pullAsString(ToLower(Key)); // copy string to szWav so we can work with it.
 		String::size_type i = szWav.toLower().find(".wav");
 		if (i != String::npos)
 			szWav.truncate(szWav.length() - 4);

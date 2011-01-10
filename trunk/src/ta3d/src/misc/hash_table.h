@@ -20,10 +20,8 @@
 
 # include <stdafx.h>
 # include "string.h"
-# include <google/dense_hash_map>
-# include <google/sparse_hash_map>
-# include <google/dense_hash_set>
-# include <google/sparse_hash_set>
+# include <zuzuf/hashmap.h>
+# include <zuzuf/hashset.h>
 
 namespace TA3D
 {
@@ -33,6 +31,8 @@ namespace TA3D
 				class hash
 		{
 		public:
+			inline hash()	{}
+
 			inline size_t operator()(const T& key) const
 			{
 				return size_t(key);
@@ -43,8 +43,13 @@ namespace TA3D
 				class hash<String>
 		{
 		public:
+			inline hash()	{}
+
 			inline size_t operator()(const String& key) const
 			{
+				if (key.empty())
+					return 0U;
+
 				// implementation of MurmurHash2 by Austin Appleby
 
 				// 'm' and 'r' are mixing constants generated offline.
@@ -101,16 +106,16 @@ namespace TA3D
 				class HashMap
 		{
 		public:
-			typedef google::dense_hash_map<K, T, TA3D::UTILS::hash<K> >	Dense;
-			typedef google::sparse_hash_map<K, T, TA3D::UTILS::hash<K> >	Sparse;
+			typedef zuzuf::hashmap<K, T, TA3D::UTILS::hash<K> >			Dense;
+			typedef zuzuf::hashmap<K, T, TA3D::UTILS::hash<K>, 250 >	Sparse;
 		};
 
 		template<typename K = String>
 				class HashSet
 		{
 		public:
-			typedef google::dense_hash_set<K, TA3D::UTILS::hash<K> >	Dense;
-			typedef google::sparse_hash_set<K, TA3D::UTILS::hash<K> >	Sparse;
+			typedef zuzuf::hashset<K, TA3D::UTILS::hash<K> >		Dense;
+			typedef zuzuf::hashset<K, TA3D::UTILS::hash<K>, 250 >	Sparse;
 		};
 
 		template<class T, class U>
@@ -124,10 +129,10 @@ namespace TA3D
 			String::size_type iFind = pattern.find('*');
 			if (iFind != String::npos)
 			{
-				first = pattern.substr(0, iFind);
+				first = Substr(pattern, 0, iFind);
 				first.toLower();
 				++iFind;
-				last = pattern.substr(iFind);
+				last = Substr(pattern, iFind);
 				last.toLower();
 			}
 			else
@@ -142,14 +147,14 @@ namespace TA3D
 			String::size_type lastLen = last.length();
 			for (typename T::const_iterator cur = container.begin() ; cur != container.end() ; ++cur)
 			{
-				String f = cur->first;
+				const String f = cur.key();
 				String::size_type fLen = f.length();
 				if (fLen < firstLen || fLen < lastLen)
 					continue;
 
-				if (f.substr(0, firstLen) == first)
+				if (Substr(f, 0, firstLen) == first)
 				{
-					if (f.substr(fLen - lastLen, lastLen) == last)
+					if (Substr(f, fLen - lastLen, lastLen) == last)
 					{
 						li.push_back(f);
 						++nb;

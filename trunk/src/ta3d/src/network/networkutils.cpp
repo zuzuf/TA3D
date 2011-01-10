@@ -356,7 +356,7 @@ namespace TA3D
 		sockid = ((struct net_thread_params*)param)->sockid;
 
 		//blank file open for writing
-		filename = Paths::Resources + ((struct net_thread_params*)param)->filename;
+		filename = String(Paths::Resources) << ((struct net_thread_params*)param)->filename;
 		const String path = Paths::ExtractFilePath(filename);
 		if (!path.empty())
 			Paths::MakeDir(path);

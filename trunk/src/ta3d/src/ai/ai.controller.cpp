@@ -69,7 +69,7 @@ namespace TA3D
 
 			for (int i = 0 ; i < unit_manager.nb_unit ; ++i)
 			{
-				if ( String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(players.side[ playerID ]))
+				if ( ToLower(unit_manager.unit_type[i]->side) == ToLower(players.side[ playerID ]))
 				{
 					weights[ i ].type = 0;
 

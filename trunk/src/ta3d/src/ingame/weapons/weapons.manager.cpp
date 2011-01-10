@@ -28,7 +28,6 @@ namespace TA3D
 	WeaponManager::WeaponManager()
         :nb_weapons(0), weapon()
     {
-		weapon_hashtable.set_empty_key(String());
         cannonshell.init();
     }
 
@@ -65,7 +64,7 @@ namespace TA3D
         weapon[nb_weapons-1].internal_name = name;
 		weapon[nb_weapons-1].nb_id = short(nb_weapons - 1);
 
-		weapon_hashtable[String::ToLower(name)] = nb_weapons;
+		weapon_hashtable[ToLower(name)] = nb_weapons;
 
         return nb_weapons-1;
     }
@@ -95,35 +94,35 @@ namespace TA3D
 				for (uint32 i = 1; i < damage_vector.size() ; ++i)        // Since it also contains its name as first element start searching at 1
 				{
 					if (damage_vector[i] != "default")
-						weapon[index].damage_hashtable[ damage_vector[i] ] = parser.pullAsInt(key + "damage." + damage_vector[i]);
+						weapon[index].damage_hashtable[ damage_vector[i] ] = parser.pullAsInt(String(key) << "damage." << damage_vector[i]);
 				}
-                weapon[index].damage = parser.pullAsInt( key + "damage.default", weapon[index].damage );
-                weapon[index].name = parser.pullAsString( key + "name", weapon[index].name );
-				weapon[index].weapon_id = short(parser.pullAsInt( key + "id", weapon[index].weapon_id ));
-				weapon[index].rendertype = byte(parser.pullAsInt( key + "rendertype", weapon[index].rendertype ));
-                weapon[index].ballistic = parser.pullAsBool( key + "ballistic", weapon[index].ballistic );
-                weapon[index].turret = parser.pullAsBool( key + "turret", weapon[index].turret );
-                weapon[index].noautorange = parser.pullAsBool( key + "noautorange", weapon[index].noautorange );
-                weapon[index].range = parser.pullAsInt( key + "range", weapon[index].range );
+				weapon[index].damage = parser.pullAsInt( String(key) << "damage.default", weapon[index].damage );
+				weapon[index].name = parser.pullAsString( String(key) << "name", weapon[index].name );
+				weapon[index].weapon_id = short(parser.pullAsInt( String(key) << "id", weapon[index].weapon_id ));
+				weapon[index].rendertype = byte(parser.pullAsInt( String(key) << "rendertype", weapon[index].rendertype ));
+				weapon[index].ballistic = parser.pullAsBool( String(key) << "ballistic", weapon[index].ballistic );
+				weapon[index].turret = parser.pullAsBool( String(key) << "turret", weapon[index].turret );
+				weapon[index].noautorange = parser.pullAsBool( String(key) << "noautorange", weapon[index].noautorange );
+				weapon[index].range = parser.pullAsInt( String(key) << "range", weapon[index].range );
 				weapon[index].time_to_range *= float(weapon[index].range);
-                weapon[index].reloadtime = parser.pullAsFloat( key + "reloadtime", weapon[index].reloadtime );
-				weapon[index].weaponvelocity = parser.pullAsFloat( key + "weaponvelocity", weapon[index].weaponvelocity * 2.0f ) * 0.5f;
+				weapon[index].reloadtime = parser.pullAsFloat( String(key) << "reloadtime", weapon[index].reloadtime );
+				weapon[index].weaponvelocity = parser.pullAsFloat( String(key) << "weaponvelocity", weapon[index].weaponvelocity * 2.0f ) * 0.5f;
                 weapon[index].time_to_range /= weapon[index].weaponvelocity;
-				weapon[index].burst = short(parser.pullAsInt( key + "burst", weapon[index].burst ));
-				weapon[index].areaofeffect = short(parser.pullAsInt( key + "areaofeffect", weapon[index].areaofeffect ));
-                weapon[index].startsmoke = parser.pullAsBool( key + "startsmoke", weapon[index].startsmoke );
-                weapon[index].endsmoke = parser.pullAsBool( key + "endsmoke", weapon[index].endsmoke );
-				weapon[index].firestarter = byte(parser.pullAsInt( key + "firestarter", weapon[index].firestarter ));
-                weapon[index].accuracy = parser.pullAsInt( key + "accuracy", weapon[index].accuracy );
-                weapon[index].aimrate = parser.pullAsInt( key + "aimrate", weapon[index].aimrate );
-                weapon[index].tolerance = parser.pullAsInt( key + "tolerance", weapon[index].tolerance );
-				weapon[index].holdtime = short(parser.pullAsInt( key + "holdtime", weapon[index].holdtime ));
-                weapon[index].energypershot = parser.pullAsInt( key + "energypershot", weapon[index].energypershot );
-                weapon[index].metalpershot = parser.pullAsInt( key + "metalpershot", weapon[index].metalpershot );
-                weapon[index].minbarrelangle = parser.pullAsInt( key + "minbarrelangle", weapon[index].minbarrelangle );
-                weapon[index].unitsonly = parser.pullAsBool( key + "unitsonly", weapon[index].unitsonly );
-                weapon[index].edgeeffectiveness = parser.pullAsFloat( key + "edgeeffectiveness", weapon[index].edgeeffectiveness );
-                weapon[index].lineofsight = parser.pullAsBool( key + "lineofsight", weapon[index].lineofsight );
+				weapon[index].burst = short(parser.pullAsInt( String(key) << "burst", weapon[index].burst ));
+				weapon[index].areaofeffect = short(parser.pullAsInt( String(key) << "areaofeffect", weapon[index].areaofeffect ));
+				weapon[index].startsmoke = parser.pullAsBool( String(key) << "startsmoke", weapon[index].startsmoke );
+				weapon[index].endsmoke = parser.pullAsBool( String(key) << "endsmoke", weapon[index].endsmoke );
+				weapon[index].firestarter = byte(parser.pullAsInt( String(key) << "firestarter", weapon[index].firestarter ));
+				weapon[index].accuracy = parser.pullAsInt( String(key) << "accuracy", weapon[index].accuracy );
+				weapon[index].aimrate = parser.pullAsInt( String(key) << "aimrate", weapon[index].aimrate );
+				weapon[index].tolerance = parser.pullAsInt( String(key) << "tolerance", weapon[index].tolerance );
+				weapon[index].holdtime = short(parser.pullAsInt( String(key) << "holdtime", weapon[index].holdtime ));
+				weapon[index].energypershot = parser.pullAsInt( String(key) << "energypershot", weapon[index].energypershot );
+				weapon[index].metalpershot = parser.pullAsInt( String(key) << "metalpershot", weapon[index].metalpershot );
+				weapon[index].minbarrelangle = parser.pullAsInt( String(key) << "minbarrelangle", weapon[index].minbarrelangle );
+				weapon[index].unitsonly = parser.pullAsBool( String(key) << "unitsonly", weapon[index].unitsonly );
+				weapon[index].edgeeffectiveness = parser.pullAsFloat( String(key) << "edgeeffectiveness", weapon[index].edgeeffectiveness );
+				weapon[index].lineofsight = parser.pullAsBool( String(key) << "lineofsight", weapon[index].lineofsight );
                 {
                     int c = parser.pullAsInt( key + "color" );
                     weapon[index].color[0] = makecol(pal[c].r,pal[c].g,pal[c].b);

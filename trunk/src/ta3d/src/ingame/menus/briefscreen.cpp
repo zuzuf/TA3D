@@ -70,11 +70,11 @@ namespace Menus
 			GameData game_data;
 
 			// Generate the script which will be removed later
-			TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game");
-			TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts" + Paths::SeparatorAsString + "game" + Paths::SeparatorAsString + "__campaign_script.lua", ota_parser, schema);
+			TA3D::Paths::MakeDir(String(TA3D::Paths::Resources) << "scripts" << Paths::SeparatorAsString << "game");
+			TA3D::generate_script_from_mission(String(TA3D::Paths::Resources) << "scripts" << Paths::SeparatorAsString << "game" << Paths::SeparatorAsString << "__campaign_script.lua", ota_parser, schema);
 
 			game_data.game_script = "scripts/game/__campaign_script.lua";
-			game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";     // Remember the last map we played
+			game_data.map_filename = Substr(map_filename, 0, map_filename.size() - 3 ) << "tnt";     // Remember the last map we played
 			game_data.fog_of_war = FOW_ALL;
 
 			game_data.nb_players = ota_parser.pullAsInt("GlobalHeader.numplayers", 2);
@@ -157,16 +157,16 @@ namespace Menus
 
 		{
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the .txt
-				brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.pullAsString( "GlobalHeader.brief");
+				brief_file = String("camps\\briefs") << language_suffix << "\\" << ota_parser.pullAsString( "GlobalHeader.brief");
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
-				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";
+				brief_file = String("camps\\briefs\\") << ota_parser.pullAsString( "GlobalHeader.brief" ) << ".txt";
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
-				brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief");
+				brief_file = String("camps\\briefs\\") << ota_parser.pullAsString( "GlobalHeader.brief");
 			File *file = VFS::Instance()->readFile(brief_file);
 			if (file)
 			{
 				String brief_info = (const char*)file->data();
-				brief_info.toUTF8();
+				brief_info = ConvertToUTF8(brief_info);
 				pArea->caption( "brief.info", brief_info);
 				delete file;
 			}
@@ -189,7 +189,7 @@ namespace Menus
 		else if (planet_file == "water world" )         planet_file = "anims\\waterbrief.gaf";
 
 		if (planet_file.size() > 4)
-			planet_animation.loadGAFFromDirectory(planet_file.substr(0, planet_file.size() - 4), true);
+			planet_animation.loadGAFFromDirectory(Substr(planet_file,0, planet_file.size() - 4), true);
 		if (planet_animation.size() == 0)
 		{
 			File *file = VFS::Instance()->readFile(planet_file);
@@ -223,10 +223,10 @@ namespace Menus
 		rotate_id = 0;
 		for (int i = 0; i < planet_animation.size(); ++i)
 		{
-			if (String::ToLower(planet_animation[i].name.substr(planet_animation[i].name.size() - 3, 3)) == "pan")
+			if (ToLower(Substr(planet_animation[i].name,planet_animation[i].name.size() - 3, 3)) == "pan")
 				pan_id = i;
 			else
-				if (String::ToLower(planet_animation[i].name.substr(planet_animation[i].name.size() - 6, 6)) == "rotate")
+				if (ToLower(Substr(planet_animation[i].name,planet_animation[i].name.size() - 6, 6)) == "rotate")
 					rotate_id = i;
 		}
 

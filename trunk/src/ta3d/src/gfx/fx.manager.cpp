@@ -64,7 +64,7 @@ namespace TA3D
 		if (anm_idx == -1)
 		{
 			File *file;
-			if (String::ToLower(filename) != "fx")
+			if (ToLower(filename) != "fx")
 				file = VFS::Instance()->readFile(tmp);
 			else
 				file = fx_data;
@@ -216,7 +216,6 @@ namespace TA3D
 		cacheName.clear();
 		cacheAnm.clear();
 		use.clear();
-		hashName.set_deleted_key(String());
 
 		flash_tex = 0;
 		wave_tex[0] = 0;
@@ -437,7 +436,7 @@ namespace TA3D
 		HashMap<int>::Sparse::const_iterator it = hashName.find(filename);
 		if (it == hashName.end())
 			return -1;
-		return it->second;
+		return *it;
 	}
 
 

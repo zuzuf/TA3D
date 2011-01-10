@@ -94,7 +94,7 @@ namespace Menus
 		campaign_list.sort();
 		for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
 		{
-			if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)
+			if (SearchString(Substr(*i, 6, i->size() - 6), "/", true) != -1 || SearchString(Substr(*i, 6, i->size() - 6), "\\", true ) != -1)
 				campaign_list.erase(i++);
 			else
 				++i;
@@ -107,7 +107,7 @@ namespace Menus
 			guiobj->Text.resize(campaign_list.size());
 			int n = 0;
 			for (String::List::const_iterator i = campaign_list.begin(); i != campaign_list.end(); ++i, ++n)
-				guiobj->Text[n] = i->substr(6, i->size() - 10);
+				guiobj->Text[n] = Substr(*i, 6, i->size() - 10);
 		}
 
 		side_logos.loadGAFFromDirectory("anims\\newgame", true);
@@ -182,7 +182,7 @@ namespace Menus
 					guiobj->Data = 0;
 					for (int i = 0 ; i < ta3dSideData.nb_side ; ++i)
 					{
-						if (String::ToLower(ta3dSideData.side_name[i] ) == String::ToLower(campaign_parser->pullAsString("HEADER.campaignside")))
+						if (ToLower(ta3dSideData.side_name[i] ) == ToLower(campaign_parser->pullAsString("HEADER.campaignside")))
 						{
 							if (side_logos.size() > i)
 								guiobj->Data = side_logos[i].glbmp[0];
