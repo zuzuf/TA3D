@@ -272,7 +272,7 @@ namespace TA3D
         ** \param cat The category to check
         */
 		bool checkCategory(const String &cat)
-		{ return !cat.empty() && Category.count(String::ToLower(cat)) != 0; }
+		{ return !cat.empty() && Category.count(ToLower(cat)) != 0; }
 
         /*!
         ** \brief Inits all the variables
@@ -368,7 +368,7 @@ namespace TA3D
 
         inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {
-			return unit_hashtable[String::ToLower(unit_name)] - 1;
+			return unit_hashtable[ToLower(unit_name)] - 1;
         }
 
     private:

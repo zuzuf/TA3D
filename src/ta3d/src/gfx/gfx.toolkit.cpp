@@ -853,7 +853,7 @@ namespace TA3D
 
 	void save_bitmap(const String &filename, SDL_Surface* bmp)
 	{
-		String ext = String::ToLower( Paths::ExtractFileExt(filename) );
+		String ext = ToLower( Paths::ExtractFileExt(filename) );
 		if (ext == ".bmp")
 			SDL_SaveBMP(bmp, filename.c_str());
 		else if (ext == ".tex")                      // This is for cached texture data

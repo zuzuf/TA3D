@@ -100,7 +100,7 @@ namespace TA3D
 				HPIFile.close();
 
 			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
-				delete i->second;
+				delete *i;
             files.clear();
         }
 
@@ -112,17 +112,17 @@ namespace TA3D
 				processRoot(String(), header.Start);
             }
 			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
-                lFiles.push_back(i->second);
+				lFiles.push_back(*i);
         }
 
 		File* Hpi::readFile(const String& filename)
         {
-            String key = String::ToLower(filename);
+			String key = ToLower(filename);
             key.convertSlashesIntoBackslashes();
 			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
-			return readFile(item->second);
+			return readFile(*item);
         }
 
 		File* Hpi::readFile(const FileInfo *file)
@@ -191,12 +191,12 @@ namespace TA3D
 
 		File* Hpi::readFileRange(const String& filename, const uint32 start, const uint32 length)
         {
-            String key = String::ToLower(filename);
+			String key = ToLower(filename);
             key.convertSlashesIntoBackslashes();
 			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
-			return readFileRange(item->second, start, length);
+			return readFileRange(*item, start, length);
         }
 
 		File* Hpi::readFileRange(const FileInfo *file, const uint32 start, const uint32 length)
@@ -429,7 +429,7 @@ namespace TA3D
                 else
                 {
                     HpiFile *li = new HpiFile;
-                    String f(String::ToLower(m_cDir + (char *)Name));
+					String f(ToLower(m_cDir + (char *)Name));
                     li->setName(f);
                     li->setParent(this);
                     li->setPriority(priority);
@@ -469,7 +469,7 @@ namespace TA3D
                 else
                 {
                     HpiFile *li = new HpiFile;
-                    String f(String::ToLower(m_cDir + (char *)Name));
+					String f(ToLower(m_cDir + (char *)Name));
                     li->setName(f);
                     li->setParent(this);
                     li->setPriority(priority);

@@ -193,7 +193,7 @@ namespace Gui
             pCacheDrawTextStr = Entry[e];
 			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
-				pCacheDrawTextStr = pCacheDrawTextStr.substr(3, pCacheDrawTextStr.size() - 3);
+				pCacheDrawTextStr = Substr(pCacheDrawTextStr, 3, pCacheDrawTextStr.size() - 3);
 				glDisable(GL_TEXTURE_2D);
 				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line,
 					x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (line+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
@@ -224,7 +224,7 @@ namespace Gui
 					while (top != bottom)
 					{
 						const int mid = (top + bottom) >> 1;
-						pCacheDrawTextStr = rest.substr(0, mid);
+						pCacheDrawTextStr = Substr(rest, 0, mid);
 						if (gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
 							top = mid;
 						else
@@ -234,8 +234,8 @@ namespace Gui
 							bottom = mid;
 						}
 					}
-					pCacheDrawTextStr = rest.substr(0, bottom);
-					rest = rest.substr(bottom);
+					pCacheDrawTextStr = Substr(rest, 0, bottom);
+					rest = Substr(rest, bottom);
 				}
 				else
 					rest.clear();
@@ -272,7 +272,7 @@ namespace Gui
 				while (top != bottom)
 				{
 					int mid = (top + bottom) >> 1;
-					line = rest.substr(0, mid);
+					line = Substr(rest, 0, mid);
 					if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
 						top = mid;
 					else
@@ -282,8 +282,8 @@ namespace Gui
 						bottom = mid;
 					}
 				}
-				line = rest.substr(0, bottom);
-				rest = rest.substr(bottom);
+				line = Substr(rest, 0, bottom);
+				rest = Substr(rest, bottom);
 			}
 			else
 				rest.clear();
@@ -304,14 +304,14 @@ namespace Gui
 		{
 			if (msg[i] == '\n')
 			{
-				Entry.push_back(msg.substr(last, i - last));
+				Entry.push_back(Substr(msg, last, i - last));
 				x2 = Math::Max(x2, x1 + gui_font->length(Entry.back()));
 				last = i + 1;
 			}
 		}
 		if (last + 1 < msg.length())
 		{
-			Entry.push_back( msg.substr( last, msg.length() - last));
+			Entry.push_back( Substr(msg, last, msg.length() - last));
 			x2 = Math::Max(x2, x1 + gui_font->length(Entry.back()));
 		}
 
@@ -426,7 +426,7 @@ namespace Gui
 		float maxheight = y2 - y1 + text_background.y2 - text_background.y1 - text_y_offset;
 		int H = Math::Max( row - (int)(0.5f * maxheight / pCacheFontHeight), 0);
 		int y = 0;
-		int row_size = Entry[row].sizeUTF8();
+		int row_size = Entry[row].utf8size();
 		while (pCacheFontHeight * (y+1) <= maxheight && y + H < (int)Entry.size())
 		{
 			String strtoprint;
@@ -438,18 +438,18 @@ namespace Gui
 					++k;
 				if (k)
 				{
-					buf = buf.substr(k);
+					buf = Substr(buf, k);
 					x += k;
 				}
 
-				int len = buf.sizeUTF8();
+				int len = buf.utf8size();
 				int smax = len + 1;
 				int smin = 0;
 				int s = (smax + smin) >> 1;
 				do
 				{
 					s = (smax + smin) >> 1;
-					strtoprint = buf.substrUTF8(0, s);
+					strtoprint = SubstrUTF8(buf, 0, s);
 					if (s == smin)
 						break;
 
@@ -458,28 +458,28 @@ namespace Gui
 					else
 						smin = s;
 					if (smax == smin)
-						strtoprint = buf.substrUTF8(0, smin);
+						strtoprint = SubstrUTF8(buf, 0, smin);
 				} while(smax != smin);
 
-				if (len > s && strtoprint.substrUTF8(s-1,1) != " " && buf.substrUTF8(s,1) != " ")		// We're splitting a word :s
+				if (len > s && SubstrUTF8(strtoprint,s-1,1) != " " && SubstrUTF8(buf,s,1) != " ")		// We're splitting a word :s
 				{
 					int olds = s;
-					while (s > 0 && strtoprint.substrUTF8(s-1,1) != " " && buf.substrUTF8(s,1) != " ")
+					while (s > 0 && SubstrUTF8(strtoprint,s-1,1) != " " && SubstrUTF8(buf,s,1) != " ")
 						--s;
 					if (s == 0)
 						s = olds;
 					else
-						strtoprint = buf.substrUTF8(0, s);
+						strtoprint = SubstrUTF8(buf, 0, s);
 				}
 
-				buf = buf.substrUTF8(s);
+				buf = SubstrUTF8(buf, s);
 
 				gfx->print( gui_font,x1+text_background.x1,
 							y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
 							0.0f,White,strtoprint);
 				if (row == y + H && x <= col && col < x + s && blink)
 				{
-					gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(strtoprint.substrUTF8(0, col - x)),
+					gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(SubstrUTF8(strtoprint, 0, col - x)),
 								y1 + text_background.y1 + text_y_offset + pCacheFontHeight * y,
 								0.0f, White, "_");
 				}
@@ -520,11 +520,11 @@ namespace Gui
 
 		const float maxlength = x2 - x1 + text_background.x2 - text_background.x1 - gui_font->length( "_");
 		int dec = 0;
-		String strtoprint = Caption.substr( dec, Caption.length() - dec);
-		while (gui_font->length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < (int)Caption.length())
+		String strtoprint = Substr(Caption, dec, Caption.length() - dec);
+		while (gui_font->length( Substr(Caption, dec, Caption.length() - dec ) ) >= maxlength && dec < (int)Caption.length())
 		{
 			++dec;
-			strtoprint = Caption.substr(dec, Caption.length() - dec);
+			strtoprint = Substr(Caption, dec, Caption.length() - dec);
 		}
 
 		gfx->print(gui_font,x1+text_background.x1,y1+text_background.y1+text_y_offset,0.0f,White,strtoprint);

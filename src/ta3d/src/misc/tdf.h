@@ -190,7 +190,7 @@ namespace TA3D
 		template<typename C> void forEach(C callback)
 		{
 			for(TA3D::UTILS::HashMap<String>::Dense::iterator it = pTable.begin() ; it != pTable.end() ; ++it)
-				callback(it->first, it->second);
+				callback(it.key(), it.value());
 		}
 
 		//@}

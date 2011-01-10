@@ -153,7 +153,7 @@ namespace TA3D
 		}
 		// Now try to open it as a GAF-like directory
 		String::Vector folderList;
-		VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+		VFS::Instance()->getFilelist(String(filename) << '\\' << imgname << "\\*", folderList);
 		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
 		{
 			sort(folderList.begin(), folderList.end());
@@ -175,7 +175,7 @@ namespace TA3D
 	GLuint Gaf::ToTexture(String filename, const String& imgname, int* w, int* h, const bool truecolor, const int filter)
 	{
 		// Remove GAF extension
-		if (filename.size() >= 4 || filename.substr(filename.size() - 4, 4).toLower() == ".gaf")
+		if (filename.size() >= 4 || Substr(filename, filename.size() - 4, 4).toLower() == ".gaf")
 			filename.erase(filename.size(), 4);
 
 		String cache_filename;
@@ -193,7 +193,7 @@ namespace TA3D
 
 		// Now try to open it as a GAF-like directory
 		String::Vector folderList;
-		VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+		VFS::Instance()->getFilelist(String(filename) << '\\' << imgname << "\\*", folderList);
 		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
 		{
 			sort(folderList.begin(), folderList.end());
@@ -641,7 +641,7 @@ namespace TA3D
 		filename = folderName;
 
 		String::Vector files;
-		VFS::Instance()->getFilelist(folderName + '\\' + entryName + "\\*", files);
+		VFS::Instance()->getFilelist(String(folderName) << '\\' << entryName << "\\*", files);
 		sort(files.begin(), files.end());
 
 		nb_bmp = files.size();

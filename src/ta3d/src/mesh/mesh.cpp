@@ -327,7 +327,7 @@ namespace TA3D
 			else
 				gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
-			SDL_Surface *bmp = LoadTex( TA3D::Paths::Caches + tex_cache_name[id] );
+			SDL_Surface *bmp = LoadTex( String(TA3D::Paths::Caches) << tex_cache_name[id] );
 			GLuint texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
 			gltex[id] = texid;
 
@@ -1375,9 +1375,9 @@ namespace TA3D
 
 	void Mesh::hideFlares()
 	{
-		if ((String::ToLower(name).find("flare") != String::npos
-			|| String::ToLower(name).find("flash") != String::npos
-			|| String::ToLower(name).find("fire") != String::npos) && !child)
+		if ((ToLower(name).find("flare") != String::npos
+			|| ToLower(name).find("flash") != String::npos
+			|| ToLower(name).find("fire") != String::npos) && !child)
 			nb_t_index = 0;
 		if (child)
 			child->hideFlares();
@@ -1391,7 +1391,7 @@ namespace TA3D
 		if (name.empty())
 			return NULL;
 
-		const String l = String::ToLower(name);
+		const String l = ToLower(name);
 
 		int e = model_hashtable[l] - 1;
 		if (e >= 0)
@@ -1404,7 +1404,7 @@ namespace TA3D
 				if (e >= 0)
 					return model[e];
 
-				e = model_hashtable[l + *ext] - 1;
+				e = model_hashtable[String(l) << *ext] - 1;
 				if (e >= 0)
 					return model[e];
 			}
@@ -1449,7 +1449,7 @@ namespace TA3D
 	void ModelManager::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const String& filename)
 	{
 		name.push_back(filename);
-		model_hashtable[String::ToLower(filename)] = nb_models;
+		model_hashtable[ToLower(filename)] = nb_models;
 
 		Model *pModel = new Model;
 		pModel->create_from_2d(bmp,w,h,max_h);
@@ -1461,7 +1461,7 @@ namespace TA3D
 		if (lMeshExtension == NULL)
 			return;
 		for(String::Vector::iterator ext = lMeshExtension->begin() ; ext != lMeshExtension->end() ; ++ext)
-			VFS::Instance()->getFilelist(ta3dSideData.model_dir + '*' + *ext, filelist);
+			VFS::Instance()->getFilelist(String(ta3dSideData.model_dir) << '*' << *ext, filelist);
 	}
 
 	int ModelManager::load_all(ProgressNotifier *progress)
@@ -1489,13 +1489,13 @@ namespace TA3D
 				++n;
 				name.push_back(*e);
 
-				if (get_model(e->substr(0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
+				if (get_model(Substr(*e, 0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
 				{
 					Model *pModel = MeshTypeManager::load(*e);
 					if (pModel)
 					{
 						model.push_back(pModel);
-						model_hashtable[String::ToLower(*e)] = model.size();
+						model_hashtable[ToLower(*e)] = model.size();
 					}
 					else
 					{
@@ -1662,6 +1662,5 @@ namespace TA3D
 
 	ModelManager::ModelManager() : nb_models(0), model()
 	{
-		model_hashtable.set_empty_key(String());
 	}
 }

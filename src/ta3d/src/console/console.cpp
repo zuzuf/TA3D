@@ -145,7 +145,7 @@ namespace TA3D
 				for(int i = pInputText.size() - 1 ; i >= 0 ; --i)
 					if (delimiters.contains(pInputText[i]))
 					{
-						tmp = pInputText.substr(i + 1);
+						tmp = Substr(pInputText, i + 1);
 						break;
 					}
 				if (!tmp.empty())
@@ -155,8 +155,8 @@ namespace TA3D
 					for(int i = tmp.size() - 1 ; i >= 0 ; --i)
 						if (tmp[i] == '.')
 						{
-							obj = tmp.substr(0, i + 1);
-							param = tmp.substr(i + 1);
+							obj = Substr(tmp, 0, i + 1);
+							param = Substr(tmp, i + 1);
 							break;
 						}
 
@@ -173,13 +173,13 @@ namespace TA3D
 							String longest = candidateList.front();
 							for(String::List::iterator it = candidateList.begin() ; it != candidateList.end() ; ++it)
 							{
-								while(!longest.empty() && it->substr(0, longest.size()) != longest)
+								while(!longest.empty() && Substr(*it, 0, longest.size()) != longest)
 									longest.removeLast();
 							}
 							if (longest.size() > param.size())
 							{
-								pInputText << longest.substr(param.size());
-								cursorPos = pInputText.sizeUTF8();
+								pInputText << Substr(longest, param.size());
+								cursorPos = pInputText.utf8size();
 							}
 							if (candidateList.size() > 1)
 							{
@@ -220,16 +220,16 @@ namespace TA3D
 		case KEY_BACKSPACE:
 			if (pInputText.size() > 0 && cursorPos > 0)
 			{
-				pInputText = pInputText.substrUTF8(0, cursorPos - 1) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
+				pInputText = SubstrUTF8(pInputText, 0, cursorPos - 1) << SubstrUTF8(pInputText, cursorPos, pInputText.utf8size() - cursorPos);
 				cursorPos--;
 			}
 			break;
 		case KEY_DEL:
-			if (cursorPos < pInputText.sizeUTF8())
-				pInputText = pInputText.substrUTF8(0, cursorPos) + pInputText.substrUTF8(cursorPos + 1, pInputText.sizeUTF8() - cursorPos);
+			if (cursorPos < pInputText.utf8size())
+				pInputText = SubstrUTF8(pInputText, 0, cursorPos) << SubstrUTF8(pInputText, cursorPos + 1, pInputText.utf8size() - cursorPos);
 			break;
 		case KEY_END:
-			cursorPos = uint32(pInputText.sizeUTF8());
+			cursorPos = uint32(pInputText.utf8size());
 			break;
 		case KEY_HOME:
 			cursorPos = 0;
@@ -239,7 +239,7 @@ namespace TA3D
 				cursorPos--;
 			break;
 		case KEY_RIGHT:
-			if (cursorPos < pInputText.sizeUTF8())
+			if (cursorPos < pInputText.utf8size())
 				cursorPos++;
 			break;
 		case KEY_UP:
@@ -247,7 +247,7 @@ namespace TA3D
 			{
 				--pHistoryPos;
 				pInputText = pLastCommands[pHistoryPos];
-				cursorPos = uint32(pInputText.sizeUTF8());
+				cursorPos = uint32(pInputText.utf8size());
 			}
 			break;
 		case KEY_DOWN:
@@ -258,7 +258,7 @@ namespace TA3D
 					pInputText = pLastCommands[pHistoryPos];
 				else
 					pInputText.clear();
-				cursorPos = uint32(pInputText.sizeUTF8());
+				cursorPos = uint32(pInputText.utf8size());
 			}
 			break;
 		case KEY_ESC:
@@ -267,9 +267,9 @@ namespace TA3D
 			if (pInputText.empty())     // If text input is empty, then we're just closing the console
 				break;
 		default:
-			if (keyb != 0 && pInputText.sizeUTF8() < 199)
+			if (keyb != 0 && pInputText.utf8size() < 199)
 			{
-				pInputText = pInputText.substrUTF8(0, cursorPos) + InttoUTF8(keyb) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
+				pInputText = SubstrUTF8(pInputText, 0, cursorPos) << InttoUTF8(keyb) << SubstrUTF8(pInputText, cursorPos, pInputText.utf8size() - cursorPos);
 				cursorPos++;
 			}
 		};
@@ -334,10 +334,10 @@ namespace TA3D
 		}
 
 		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
-		gfx->print(fnt, 1.0f + fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
+		gfx->print(fnt, 1.0f + fnt->length(String(">") << SubstrUTF8(pInputText, 0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
 
-		gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText );
-		gfx->print(fnt, fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
+		gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, String(">") << pInputText );
+		gfx->print(fnt, fnt->length(String(">") << SubstrUTF8(pInputText, 0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
 
 		if (pHistoryPos < 0)
 			pHistoryPos = 0;

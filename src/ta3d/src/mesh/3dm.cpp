@@ -691,8 +691,8 @@ namespace TA3D
 			if (!gfx->is_texture_in_cache(cache_filename))
 			{
 				cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
-				if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
-					SaveTex( tex, TA3D::Paths::Caches + cache_filename );
+				if (!TA3D::Paths::Exists( String(TA3D::Paths::Caches) << cache_filename ))
+					SaveTex( tex, String(TA3D::Paths::Caches) << cache_filename );
 			}
 			tex_cache_name.push_back( cache_filename );
 

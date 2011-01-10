@@ -59,7 +59,7 @@ namespace TA3D
 	void GFX::detectDefaultSettings()
 	{
 		const GLubyte *glStr = glGetString(GL_VENDOR);
-		String glVendor = glStr ? String::ToUpper((const char*)glStr) : String();
+		String glVendor = glStr ? ToUpper((const char*)glStr) : String();
 
 		enum VENDOR { Unknown, Ati, Nvidia, Sis, Intel };
 
@@ -540,9 +540,9 @@ namespace TA3D
 	bool GFX::checkVideoCardWorkaround() const
 	{
 		// Check for ATI workarounds (if an ATI card is present)
-		bool workaround = String::ToUpper((const char*)glGetString(GL_VENDOR)).substr(0,3) == "ATI";
+		bool workaround = Substr(ToUpper((const char*)glGetString(GL_VENDOR)),0,3) == "ATI";
 		// Check for SIS workarounds (if an SIS card is present) (the same than ATI)
-		workaround |= String::ToUpper((const char*)glGetString(GL_VENDOR)).find("SIS") != String::npos;
+		workaround |= ToUpper((const char*)glGetString(GL_VENDOR)).find("SIS") != String::npos;
 		return workaround;
 	}
 
@@ -557,9 +557,6 @@ namespace TA3D
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
 		defaultRGBTextureFormat(GL_RGB8), defaultRGBATextureFormat(GL_RGBA8)
 	{
-		textureIDs.set_deleted_key(String());
-		textureLoad.set_deleted_key(0);
-		textureFile.set_deleted_key(0);
 		// Initialize the GFX Engine
 		if (lp_CONFIG->first_start)
 		{
@@ -1720,18 +1717,18 @@ namespace TA3D
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
 
-		const String upfile = String::ToUpper(file) << " (" << texFormat << "-" << (int)filter_type << ')';
+		const String upfile = ToUpper(file) << " (" << texFormat << "-" << (int)filter_type << ')';
 		HashMap<Interfaces::GfxTexture>::Sparse::iterator it = textureIDs.find(upfile);
-		if (it != textureIDs.end() && it->second.tex > 0)		// File already loaded
+		if (it != textureIDs.end() && it->tex > 0)		// File already loaded
 		{
-			if (textureLoad[it->second.tex] > 0)
+			if (textureLoad[it->tex] > 0)
 			{
-				++textureLoad[it->second.tex];
+				++textureLoad[it->tex];
 				if (width)
-					*width = it->second.width;
+					*width = it->width;
 				if (height)
-					*height = it->second.height;
-				return it->second.tex;
+					*height = it->height;
+				return it->tex;
 			}
 		}
 
@@ -1872,7 +1869,7 @@ namespace TA3D
 			cache_file.read((char*)&mod_hash, sizeof( mod_hash ));
 			cache_file.close();
 
-			return mod_hash == TA3D_CURRENT_MOD.hashValue(); // Check if it corresponds to current mod
+			return mod_hash == hash<String>()(TA3D_CURRENT_MOD); // Check if it corresponds to current mod
 		}
 		return false;
 	}
@@ -1896,7 +1893,7 @@ namespace TA3D
 			uint32 mod_hash;
 			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
 
-			if (mod_hash != TA3D_CURRENT_MOD.hashValue()) // Doesn't correspond to current mod
+			if (mod_hash != hash<String>()(TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
 			{
 				cache_file.close();
 				return 0;
@@ -2008,7 +2005,7 @@ namespace TA3D
 		   || lp_CONFIG->developerMode)
 			return;
 
-		file = TA3D::Paths::Caches + file;
+		file = String(TA3D::Paths::Caches) << file;
 
 		int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
 
@@ -2023,7 +2020,7 @@ namespace TA3D
 		if (!cache_file.opened())
 			return;
 
-		uint32 mod_hash = TA3D_CURRENT_MOD.hashValue(); // Save a hash of current mod
+		uint32 mod_hash = hash<String>()(TA3D_CURRENT_MOD); // Save a hash of current mod
 
 		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 
@@ -2124,8 +2121,8 @@ namespace TA3D
 			HashMap<int, GLuint>::Sparse::iterator it = textureLoad.find(gltex);
 			if (it != textureLoad.end())
 			{
-				--(it->second);			// Update load info
-				if (it->second > 0)		// Still used elsewhere, so don't delete it
+				--(*it);			// Update load info
+				if (*it > 0)		// Still used elsewhere, so don't delete it
 				{
 					gltex = 0;
 					return;
@@ -2135,8 +2132,8 @@ namespace TA3D
 				HashMap<String, GLuint>::Sparse::iterator file_it = textureFile.find(gltex);
 				if (file_it != textureFile.end())
 				{
-					if (!file_it->second.empty())
-						textureIDs.erase(file_it->second);
+					if (!file_it->empty())
+						textureIDs.erase(*file_it);
 					textureFile.erase(file_it);
 				}
 			}

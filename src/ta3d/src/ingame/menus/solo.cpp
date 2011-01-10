@@ -164,7 +164,7 @@ namespace Menus
 			if (guiObj->Pos < guiObj->Text.size())
 			{
 				GameData game_data;
-				bool network = load_game_data(TA3D::Paths::Savegames + guiObj->Text[guiObj->Pos], &game_data);
+				bool network = load_game_data(String(TA3D::Paths::Savegames) << guiObj->Text[guiObj->Pos], &game_data);
 
 				if (!game_data.saved_file.empty() && !network)
 				{

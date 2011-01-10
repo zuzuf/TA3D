@@ -174,14 +174,14 @@ namespace TA3D
 		GLuint tex = 0;
 		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 
-		String key = String::ToUpper(name);
+		String key = ToUpper(name);
 		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(key);
 		if (item != unit_manager.name2gaf.end())
 		{
 			String::Vector test;
-			if (String::ToUpper(item->second) != String::ToUpper(gafFileName))
+			if (ToUpper(*item) != ToUpper(gafFileName))
 				test.push_back(gafFileName);
-			test.push_back(item->second);
+			test.push_back(*item);
 			for(String::Vector::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
 			{
 				if (it->find(".gaf") != String::npos)						// Is it a normal GAF ?
@@ -221,7 +221,7 @@ namespace TA3D
 		while (first >= 0 && number[first] >= '0' && number[first] <= '9')
 			--first;
 		++first;
-		number = number.substr(first, number.size() - first);
+		number = Substr(number,first, number.size() - first);
 
 		int page = number.to<int>() - 1;		// Extract the page number
 
@@ -302,15 +302,15 @@ namespace TA3D
 		unit_type.push_back(new UnitType());
 		int result =  unit_type[nb_unit]->load(filename);
 		if (!unit_type[nb_unit]->Unitname.empty())
-			unit_hashtable[String::ToLower(unit_type[nb_unit]->Unitname)] = nb_unit + 1;
+			unit_hashtable[ToLower(unit_type[nb_unit]->Unitname)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->name.empty())
-			unit_hashtable[String::ToLower(unit_type[nb_unit]->name)] = nb_unit + 1;
+			unit_hashtable[ToLower(unit_type[nb_unit]->name)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->ObjectName.empty())
-			unit_hashtable[String::ToLower(unit_type[nb_unit]->ObjectName)] = nb_unit + 1;
+			unit_hashtable[ToLower(unit_type[nb_unit]->ObjectName)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->Description.empty())
-			unit_hashtable[String::ToLower(unit_type[nb_unit]->Description)] = nb_unit + 1;
+			unit_hashtable[ToLower(unit_type[nb_unit]->Description)] = nb_unit + 1;
 		if (!unit_type[nb_unit]->Designation_Name.empty())
-			unit_hashtable[String::ToLower(unit_type[nb_unit]->Designation_Name)] = nb_unit + 1;
+			unit_hashtable[ToLower(unit_type[nb_unit]->Designation_Name)] = nb_unit + 1;
 		nb_unit++;
 		return result;
 	}
@@ -372,10 +372,10 @@ namespace TA3D
 		for (int i = 0 ; i < nb_unit; ++i)
 		{
 			int n = 1;
-			while(!sidedata_parser.pullAsString(String::ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) ).empty())  n++;
+			while(!sidedata_parser.pullAsString(ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) ).empty())  n++;
 
 			n--;
-			String canbuild = sidedata_parser.pullAsString(String::ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) );
+			String canbuild = sidedata_parser.pullAsString(ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) );
 			while (n > 0)
 			{
 				int idx = get_unit_index( canbuild );
@@ -627,17 +627,17 @@ namespace TA3D
 
 	void UnitType::show_info()
 	{
-		Gui::AREA::current()->caption("unit_info.tName", I18N::Translate("Name") + ": " + name);
-		Gui::AREA::current()->caption("unit_info.tInternalName", I18N::Translate("Internal name") + ": " + Unitname);
+		Gui::AREA::current()->caption("unit_info.tName", I18N::Translate("Name") << ": " << name);
+		Gui::AREA::current()->caption("unit_info.tInternalName", I18N::Translate("Internal name") << ": " << Unitname);
 		Gui::AREA::current()->caption("unit_info.tDescription", Description);
-		Gui::AREA::current()->caption("unit_info.tHP", I18N::Translate("HP") + ": " + String(MaxDamage));
-		Gui::AREA::current()->caption("unit_info.tCost", I18N::Translate("Cost") + ": E " + String(BuildCostEnergy) + " M " + String(BuildCostMetal));
-		Gui::AREA::current()->caption("unit_info.tBuildTime", I18N::Translate("Build time") + ": " + String(BuildTime));
+		Gui::AREA::current()->caption("unit_info.tHP", I18N::Translate("HP") << ": " << MaxDamage);
+		Gui::AREA::current()->caption("unit_info.tCost", I18N::Translate("Cost") << ": E " << BuildCostEnergy << " M " << BuildCostMetal);
+		Gui::AREA::current()->caption("unit_info.tBuildTime", I18N::Translate("Build time") << ": " << BuildTime);
 
 		String tWeapons;
 		for( std::vector<WeaponDef*>::iterator i = weapon.begin() ; i != weapon.end() ; ++i )
 			if (*i)
-				tWeapons << (*i)->name + ": " + String( (*i)->damage) << "\n";
+				tWeapons << (*i)->name << ": " << (*i)->damage << "\n";
 		Gui::AREA::current()->caption("unit_info.tWeaponList", tWeapons);
 		Gui::GUIOBJ::Ptr image = Gui::AREA::current()->get_object("unit_info.unitpic");
 		if (image)
@@ -726,7 +726,7 @@ namespace TA3D
 		NoChaseCategory = parseString("UNITINFO.NoChaseCategory");
 		BadTargetCategory = parseString("UNITINFO.BadTargetCategory");
 
-		String category = String::ToLower( parseString("UNITINFO.Category") );
+		String category = ToLower( parseString("UNITINFO.Category") );
 		Category.clear();
 		categories.clear();
 		category.explode(categories, ' ');
@@ -784,7 +784,7 @@ namespace TA3D
 		FireStandOrders = byte(parseIntDef("UNITINFO.firestandorders", 1));
 		WaterLine = parseFloat("UNITINFO.WaterLine");
 
-		String TEDclassString = String::ToLower( parseString("UNITINFO.TEDClass") );
+		String TEDclassString = ToLower( parseString("UNITINFO.TEDClass") );
 		if (TEDclassString.find("water") != String::npos)           TEDclass = CLASS_WATER;
 		else if (TEDclassString.find("ship") != String::npos)       TEDclass = CLASS_SHIP;
 		else if (TEDclassString.find("energy") != String::npos)     TEDclass = CLASS_ENERGY;
@@ -851,7 +851,7 @@ namespace TA3D
 		SelfDestructAs = parseString("UNITINFO.SelfDestructAs");
 		ManeuverLeashLength = short(parseIntDef("UNITINFO.maneuverleashlength", 640));
 
-		String DefaultMissionTypeString = String::ToLower( parseString("UNITINFO.DefaultMissionType") );
+		String DefaultMissionTypeString = ToLower( parseString("UNITINFO.DefaultMissionType") );
 		if (DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
 		else if (DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
 		else if (DefaultMissionTypeString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
@@ -965,22 +965,22 @@ namespace TA3D
 		if (side.empty())
 			return;
 		dl_data = NULL;
-		if (unit_manager.h_dl_data.count(String::ToLower(side)) != 0)
-			dl_data = unit_manager.h_dl_data[String::ToLower(side)];
+		if (unit_manager.h_dl_data.count(ToLower(side)) != 0)
+			dl_data = unit_manager.h_dl_data[ToLower(side)];
 
 		if (dl_data)
 			return;			// Ok it's already loaded
 
 		int side_id = -1;
 		for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
-			if (String::ToLower( ta3dSideData.side_name[ i ] ) == String::ToLower( side ) )
+			if (ToLower( ta3dSideData.side_name[ i ] ) == ToLower( side ) )
 				side_id = i;
 		if (side_id == -1)
 			return;
 
 
 		TDFParser dl_parser;
-		if (dl_parser.loadFromFile(ta3dSideData.guis_dir + ta3dSideData.side_pref[side_id] + "dl.gui", false, false, true))
+		if (dl_parser.loadFromFile(String(ta3dSideData.guis_dir) << ta3dSideData.side_pref[side_id] << "dl.gui", false, false, true))
 		{
 			dl_data = new DlData;
 			int NbObj = dl_parser.pullAsInt( "gadget0.totalgadgets" );
@@ -1003,7 +1003,7 @@ namespace TA3D
 				}
 			}
 
-			unit_manager.h_dl_data[String::ToLower(side)] = dl_data;
+			unit_manager.h_dl_data[ToLower(side)] = dl_data;
 		}
 		else
 		{
@@ -1029,7 +1029,7 @@ namespace TA3D
 		unit_hashtable.clear();
 
 		for (HashMap< DlData* >::Dense::iterator i = h_dl_data.begin() ; i != h_dl_data.end() ; ++i)
-			delete i->second;
+			delete *i;
 		h_dl_data.clear();
 
 		for (UnitList::iterator i = unit_type.begin(); i != unit_type.end(); ++i)
@@ -1203,7 +1203,7 @@ namespace TA3D
 			else
 			{	// Print info at the bottom of the screen
 				gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF,
-						   unit_type[sel]->name + " M:" + String(unit_type[sel]->BuildCostMetal)+" E:"+String(unit_type[sel]->BuildCostEnergy)+" HP:"+String(unit_type[sel]->MaxDamage) );
+						   String(unit_type[sel]->name) << " M:" << unit_type[sel]->BuildCostMetal  << " E:" << unit_type[sel]->BuildCostEnergy << " HP:" << unit_type[sel]->MaxDamage );
 
 				if (!unit_type[sel]->Description.empty())
 					gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,unit_type[sel]->Description );
@@ -1225,7 +1225,7 @@ namespace TA3D
 		unit_manager.init();
 		int nb_inconnu=0;
 		String::Vector file_list;
-		VFS::Instance()->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
+		VFS::Instance()->getFilelist( String(ta3dSideData.unit_dir) << '*' << ta3dSideData.unit_ext, file_list);
 
 		int n = 0;
 
@@ -1235,7 +1235,7 @@ namespace TA3D
 				(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
 			++n;
 
-			const String nom = String::ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
+			const String nom = ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
 
 			if (unit_manager.get_unit_index(nom) == -1)
 			{
@@ -1278,9 +1278,6 @@ namespace TA3D
 
 	UnitManager::UnitManager()
 	{
-		unit_hashtable.set_empty_key(String());
-		h_dl_data.set_empty_key(String());
-		name2gaf.set_empty_key(String());
 		init();
 	}
 
@@ -1294,7 +1291,6 @@ namespace TA3D
 
 	UnitType::UnitType()
 	{
-		Category.set_empty_key(String());
 		init();
 	}
 
@@ -1326,7 +1322,7 @@ namespace TA3D
 		{
 			if (!unit_manager.unit_type[i]->MovementClass.empty())
 			{
-				const String movementclass = String::ToUpper(unit_manager.unit_type[i]->MovementClass);
+				const String movementclass = ToUpper(unit_manager.unit_type[i]->MovementClass);
 				for (int e = 0; e < n; ++e)
 				{
 					if (parser.pullAsString(String("CLASS") << e << ".name") == movementclass)

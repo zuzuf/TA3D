@@ -167,13 +167,13 @@ namespace Menus
 			if (msg.startsWith("MESSAGE"))
 			{
 				pArea->title("popup", I18N::Translate("Server message"));
-				pArea->caption("popup.msg", I18N::Translate(msg.substr(8)));
+				pArea->caption("popup.msg", I18N::Translate(Substr(msg,8)));
 				pArea->msg("popup.show");
 			}
 			else if (msg.startsWith("ERROR"))
 			{
 				pArea->title("popup", I18N::Translate("Server error"));
-				pArea->caption("popup.msg", I18N::Translate(msg.substr(6)));
+				pArea->caption("popup.msg", I18N::Translate(Substr(msg,6)));
 				pArea->msg("popup.show");
 			}
 			else if (msg.startsWith("MSG"))
@@ -181,7 +181,8 @@ namespace Menus
 				String::Vector args = SplitCommand(msg);
 				if (args.size() >= 3)
 				{
-					String message = args[1] + " > " + args[2];
+					String message;
+					message << args[1] << " > " << args[2];
 					addChatMessage(message);
 				}
 			}
@@ -347,7 +348,7 @@ namespace Menus
 			}		// Enf of if (pArea->get_state("netgames"))
 			if (pArea->get_state("hosting.b_ok"))
 			{
-				NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"" + Escape(TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.size() - 6)) + "\"");
+				NetClient::instance()->sendMessage(String("SERVER NAME \"") << Escape(pArea->caption("hosting.t_hostname")) << "\" MOD \"" << Escape(Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.size() - 6)) << "\"");
 				pArea->set_state("hosting.b_ok", false);
 			}
 			else if (NetClient::instance()->getHostAck())		// NetServer is ready, let's go!
@@ -374,7 +375,8 @@ namespace Menus
 					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar"
 						|| ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
 					{
-						String command = lp_CONFIG->system7zCommand + " x \"" + filename + "\" -o\"" + Paths::ExtractFilePath(filename) + "\"";
+						String command;
+						command << lp_CONFIG->system7zCommand << " x \"" << filename << "\" -o\"" << Paths::ExtractFilePath(filename) << '"';
 						LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
 						if (system(command.c_str()))
 						{
@@ -595,20 +597,20 @@ namespace Menus
 							if (msg.startsWith("/CHAN"))      // Change chan (this is done using NetClient interface)
 							{
 								if (msg.size() > 6)
-									NetClient::instance()->changeChan(msg.substr(6));
+									NetClient::instance()->changeChan(Substr(msg,6));
 								else
 									NetClient::instance()->changeChan("*");
 							}
 							else
 							{
-								NetClient::instance()->sendMessage(msg.substr(1));       // send the command to server
-								addChatMessage(msg.substr(1));
+								NetClient::instance()->sendMessage(Substr(msg,1));       // send the command to server
+								addChatMessage(Substr(msg,1));
 							}
 						}
 						else                    // Chat mode
 						{
 							NetClient::instance()->sendChan(msg);       // send the message to all users of this chan except us
-							addChatMessage(NetClient::instance()->getLogin() + " > " + msg);    // so we have to add it manually
+							addChatMessage(String(NetClient::instance()->getLogin()) << " > " << msg);    // so we have to add it manually
 						}
 					}
 				}

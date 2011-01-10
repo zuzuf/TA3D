@@ -84,7 +84,8 @@ namespace TA3D
         name = file.pullAsString("mod.name");
         version = file.pullAsString("mod.version");
         author = file.pullAsString("mod.author");
-		comment = file.pullAsString("mod.comment").replace("\\n", "\n");
+		comment = file.pullAsString("mod.comment");
+		comment.replace("\\n", "\n");
         url = file.pullAsString("mod.url");
 		installed = file.pullAsBool("mod.installed", false);
     }
@@ -102,6 +103,8 @@ namespace TA3D
             return;
 
 		String filename = getPathToMod() << Paths::Separator << "info.mod";
+		String tmp(comment);
+		tmp.replace("\n", "\\n");
 
         String file;
         file << "// TA3D Mod info file\n"
@@ -112,7 +115,7 @@ namespace TA3D
         << "    name = " << name << ";\n"
         << "    version = " << version << ";\n"
         << "    author = " << author << ";\n"
-		<< "    comment = " << String(comment).replace("\n", "\\n") << ";\n"
+		<< "    comment = " << tmp << ";\n"
         << "    url = " << url << ";\n"
 		<< "    installed = " << installed << ";\n"
         << "}";

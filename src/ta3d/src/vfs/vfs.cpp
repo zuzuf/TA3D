@@ -65,13 +65,13 @@ namespace UTILS
 			archive->getFileList(archiveFiles);
 			LOG_DEBUG(LOG_PREFIX_VFS << "inserting archive files into file hash table");
 
-			pFiles.resize(pFiles.size() + archiveFiles.size());
+			pFiles.rehash(pFiles.size() + archiveFiles.size());
 			const std::deque<Archive::FileInfo*>::iterator end = archiveFiles.end();
 			for (std::deque<Archive::FileInfo*>::iterator i = archiveFiles.begin() ; i != end; ++i)
 			{
 				(*i)->setPriority((*i)->getPriority() + priority); // Update file priority
 
-				Archive::FileInfo* file = (pFiles.find((*i)->getName()) == pFiles.end()) ? NULL : pFiles[(*i)->getName()];
+				Archive::FileInfo* file = pFiles.contains((*i)->getName()) ? pFiles[(*i)->getName()] : NULL;
 				if (!file || (file->getPriority() < (*i)->getPriority()))
 					pFiles[(*i)->getName()] = *i;
 			}
@@ -98,8 +98,6 @@ namespace UTILS
 	// constructor:
 	VFS::VFS()
 	{
-		pFiles.set_empty_key(String());
-		pDirs.set_empty_key(String());
 	}
 
 	VFS::~VFS()
@@ -172,7 +170,7 @@ namespace UTILS
 		{
 			LOG_DEBUG(LOG_PREFIX_VFS << "browse mod archives");
 			for (String::Vector::iterator i = pPaths.begin(); i != pPaths.end(); ++i)
-				locateAndReadArchives(*i + TA3D_CURRENT_MOD, 0x10000);
+				locateAndReadArchives(String(*i) << TA3D_CURRENT_MOD, 0x10000);
 		}
 		buildDirMap();
 		LOG_DEBUG(LOG_PREFIX_VFS << "VFS loaded");
@@ -231,7 +229,7 @@ namespace UTILS
 
 		CacheFileData newentry;
 
-		newentry.name = String::ToLower(filename);			// Store a copy of the data
+		newentry.name = ToLower(filename);			// Store a copy of the data
 		newentry.length = file->size();
 		newentry.data = new byte[file->size()];
 		file->read(newentry.data, file->size());
@@ -332,8 +330,8 @@ namespace UTILS
 
 		if (itFile != pFiles.end())
 		{
-			File *file = itFile->second->read();
-			if (itFile->second->needsCaching())
+			File *file = itFile.value()->read();
+			if (itFile.value()->needsCaching())
 				putInCache( key, file );
 			return file;
 		}
@@ -373,7 +371,7 @@ namespace UTILS
 		TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense::iterator itFile = pFiles.find(key);
 		if (itFile == pFiles.end())
 			return NULL;
-		return itFile->second ? itFile->second->readRange(start, length) : NULL;
+		return *itFile ? itFile.value()->readRange(start, length) : NULL;
 	}
 
 
@@ -401,7 +399,7 @@ namespace UTILS
 		ThreadingPolicy::MutexLocker locker(*this);
 		HashMap<Archive::FileInfo*>::Dense::iterator file = pFiles.find(key);
 		// If it doesn't exist it has a lower priority than anything else
-		return (file != pFiles.end() && file->second != NULL) ? file->second->getPriority() : -0xFFFFFF;
+		return (file != pFiles.end() && *file != NULL) ? file.value()->getPriority() : -0xFFFFFF;
 	}
 
 
@@ -458,15 +456,16 @@ namespace UTILS
 		pDirs.clear();
 		for(FileInfoMap::iterator i = pFiles.begin() ; i != pFiles.end() ; ++i)
 		{
-			String cur = Paths::ExtractFilePath('\\' + i->first);
+			String cur = Paths::ExtractFilePath('\\' + i.key());
 			for ( ; !cur.empty() && cur != "\\" ; )
 			{
-				cur.removeLast();
+				if (cur.last() == '\\')
+					cur.removeLast();
 				String parent = Paths::ExtractFilePath(cur);
 				if (parent.empty())
 					parent = '\\';
 
-				cur = cur.substr(1);
+				cur = Substr(cur, 1);
 				pDirs[parent][cur] = true;
 
 				cur = parent;
@@ -477,7 +476,7 @@ namespace UTILS
 	String VFS::extractFile(const String& filename)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		String targetName = Paths::Caches + Paths::ExtractFileName(filename);
+		String targetName = String(Paths::Caches) << Paths::ExtractFileName(filename);
 		Stream file(targetName, Yuni::Core::IO::OpenMode::write);
 		if (!file.opened())
 		{

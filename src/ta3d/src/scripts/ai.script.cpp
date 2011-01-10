@@ -729,7 +729,6 @@ namespace TA3D
         lua_newtable(L);
 
 		HashSet<int>::Dense seen;
-		seen.set_empty_key(-1);
         int n = 1;
         the_map->lock();
         for(int y = y0 ; y < y1 ; ++y)

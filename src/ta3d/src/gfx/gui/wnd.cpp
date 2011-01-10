@@ -43,7 +43,6 @@ namespace TA3D
 			background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
 			ingame_window(false)
 		{
-			obj_hashtable.set_empty_key(String());
 			color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
 			pCacheFontHeight = gui_font ->height();
 			scrolling = 0;
@@ -62,7 +61,6 @@ namespace TA3D
 		{
 			scrolling = 0;
 			scrollable = false;
-			obj_hashtable.set_empty_key(String());
 			color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
 			pCacheFontHeight = gui_font ->height();
 			load_tdf(filename);
@@ -207,19 +205,19 @@ namespace TA3D
 					String cutTitle = Title;
 					if (gui_font->length(cutTitle) > maxTitleLength)
 					{
-						int smax = Title.sizeUTF8();
+						int smax = Title.utf8size();
 						int smin = 0;
 						int s = (smin + smax) >> 1;
 						do
 						{
 							s = (smin + smax) >> 1;
-							cutTitle = Title.substrUTF8(0, s) + "...";
+							cutTitle = SubstrUTF8(Title, 0, s) + "...";
 							bool test = gui_font->length(cutTitle) > maxTitleLength;
 							if (test)
 							{
 								if (smax == smin + 1)
 								{
-									cutTitle = Title.substrUTF8(0, smin) + "...";
+									cutTitle = SubstrUTF8(Title, 0, smin) + "...";
 									break;
 								}
 								smax = s;
@@ -796,11 +794,11 @@ namespace TA3D
 							case KEY_ENTER:
 								object->Etat=true;
 								if (object->Func!=NULL)
-									(*object->Func)(object->Text[0].sizeUTF8());
+									(*object->Func)(object->Text[0].utf8size());
 								break;
 								case KEY_BACKSPACE:
-								if (object->Text[0].sizeUTF8()>0)
-									object->Text[0] = object->Text[0].substrUTF8(0, object->Text[0].sizeUTF8() - 1);
+								if (object->Text[0].utf8size()>0)
+									object->Text[0] = SubstrUTF8(object->Text[0], 0, object->Text[0].utf8size() - 1);
 								break;
 								case KEY_TAB:
 								case KEY_ESC:
@@ -813,7 +811,7 @@ namespace TA3D
 								case 0:
 									break;
 								default:
-									if (object->Text[0].sizeUTF8() + 1 < object->Data)
+									if (object->Text[0].utf8size() + 1 < object->Data)
 										object->Text[0] << InttoUTF8( Key);
 								}
 							}
@@ -828,8 +826,8 @@ namespace TA3D
 						if (object->Data >= object->Text.size())
 							object->Data = object->Text.size() - 1;
 
-						if(object->Pos > object->Text[object->Data].sizeUTF8())
-							object->Pos = object->Text[object->Pos].sizeUTF8();
+						if(object->Pos > object->Text[object->Data].utf8size())
+							object->Pos = object->Text[object->Pos].utf8size();
 						object->Etat = false;
 						if (object->Focus && keypressed())
 						{
@@ -852,20 +850,20 @@ namespace TA3D
 										object->Text[e] = object->Text[e-1];
 								}
 
-								if (object->Text[ object->Data ].sizeUTF8() - object->Pos > 0)
-									object->Text[ object->Data + 1 ] = object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+								if (object->Text[ object->Data ].utf8size() - object->Pos > 0)
+									object->Text[ object->Data + 1 ] = SubstrUTF8(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].utf8size() - object->Pos);
 								else
 									object->Text[ object->Data + 1 ].clear();
-								object->Text[ object->Data ] = object->Text[ object->Data ].substrUTF8( 0, object->Pos);
+								object->Text[ object->Data ] = SubstrUTF8(object->Text[ object->Data ], 0, object->Pos);
 								object->Pos = 0;
 								object->Data++;
 								break;
 							case KEY_DEL:
 								// Remove next character
-								if (object->Pos < object->Text[object->Data].sizeUTF8())
+								if (object->Pos < object->Text[object->Data].utf8size())
 								{
-									object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos)
-																 + object->Text[object->Data].substrUTF8(object->Pos+1, object->Text[object->Data].sizeUTF8() - object->Pos-1);
+									object->Text[object->Data] = SubstrUTF8(object->Text[object->Data],0,object->Pos)
+																 << SubstrUTF8(object->Text[object->Data],object->Pos+1, object->Text[object->Data].utf8size() - object->Pos-1);
 								}
 								else if (object->Data + 1 < object->Text.size())
 								{
@@ -878,14 +876,14 @@ namespace TA3D
 							case KEY_BACKSPACE:                                 // Remove previous character
 								if (object->Pos > 0)
 								{
-									object->Text[object->Data] = object->Text[object->Data].substrUTF8(0,object->Pos-1)
-																 + object->Text[object->Data].substrUTF8(object->Pos, object->Text[object->Data].sizeUTF8() - object->Pos);
+									object->Text[object->Data] = SubstrUTF8(object->Text[object->Data],0,object->Pos-1)
+																 << SubstrUTF8(object->Text[object->Data], object->Pos, object->Text[object->Data].utf8size() - object->Pos);
 									object->Pos--;
 								}
 								else if (object->Data > 0)
 								{
 									object->Data--;
-									object->Pos = object->Text[object->Data].sizeUTF8();
+									object->Pos = object->Text[object->Data].utf8size();
 									object->Text[object->Data] << object->Text[object->Data + 1];
 									for (unsigned int e = object->Data + 1 ; e < object->Text.size() - 1; ++e)
 										object->Text[e] = object->Text[e + 1];
@@ -898,11 +896,11 @@ namespace TA3D
 								else if (object->Data > 0)
 								{
 									object->Data--;
-									object->Pos = object->Text[object->Data].sizeUTF8();
+									object->Pos = object->Text[object->Data].utf8size();
 								}
 								break;
 							case KEY_RIGHT:            // Right
-								if (object->Pos < object->Text[object->Data].sizeUTF8())
+								if (object->Pos < object->Text[object->Data].utf8size())
 									object->Pos++;
 								else if (object->Data + 1 < object->Text.size())
 								{
@@ -914,14 +912,14 @@ namespace TA3D
 								if (object->Data > 0)
 								{
 									object->Data--;
-									object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
+									object->Pos = Math::Min( (uint32)object->Text[object->Data].utf8size(), object->Pos);
 								}
 								break;
 							case KEY_DOWN:            // Down
 								if (object->Data + 1 < object->Text.size())
 								{
 									object->Data++;
-									object->Pos = Math::Min( (uint32)object->Text[object->Data].sizeUTF8(), object->Pos);
+									object->Pos = Math::Min( (uint32)object->Text[object->Data].utf8size(), object->Pos);
 								}
 								break;
 							default:
@@ -931,9 +929,9 @@ namespace TA3D
 								case 27:
 									break;
 								default:
-									object->Text[object->Data] = object->Text[ object->Data ].substrUTF8( 0, object->Pos )
-																 + InttoUTF8( Key )
-																 + object->Text[ object->Data ].substrUTF8( object->Pos, object->Text[ object->Data ].sizeUTF8() - object->Pos);
+									object->Text[object->Data] = SubstrUTF8(object->Text[ object->Data ], 0, object->Pos )
+																 << InttoUTF8( Key )
+																 << SubstrUTF8(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].utf8size() - object->Pos);
 									object->Pos++;
 								}
 							}
@@ -1315,10 +1313,10 @@ namespace TA3D
 					String::size_type e = object->SendDataTo[cur].find('.');
 					if (e != String::npos)
 					{
-						unsigned int target = object->SendDataTo[cur].substr(0, e).to<unsigned int>();
+						unsigned int target = Substr(object->SendDataTo[cur], 0, e).to<unsigned int>();
 						if (target < pObjects.size())
 						{
-							if (object->SendDataTo[cur].substr(e+1, object->SendDataTo[cur].length()-e) == "data")
+							if (Substr(object->SendDataTo[cur], e+1, object->SendDataTo[cur].length()-e) == "data")
 								pObjects[target]->Data = object->Data;
 							else
 								pObjects[target]->Pos = object->Data;
@@ -1330,10 +1328,10 @@ namespace TA3D
 					String::size_type e = object->SendPosTo[cur].find('.');
 					if (e != String::npos)
 					{
-						unsigned int target = object->SendPosTo[cur].substr(0, e).to<unsigned int>();
+						unsigned int target = Substr(object->SendPosTo[cur], 0, e).to<unsigned int>();
 						if (target < pObjects.size())
 						{
-							if (object->SendPosTo[cur].substr(e+1, object->SendPosTo[cur].length()-e) == "data")
+							if (Substr(object->SendPosTo[cur], e+1, object->SendPosTo[cur].length()-e) == "data")
 								pObjects[target]->Data = object->Pos;
 							else
 								pObjects[target]->Pos = object->Pos;
@@ -1364,28 +1362,28 @@ namespace TA3D
 
 			if (i != String::npos) // When it targets a subobject
 			{
-				GUIOBJ::Ptr obj = doGetObject(message.substr(0, i));
+				GUIOBJ::Ptr obj = doGetObject(Substr(message, 0, i));
 				if (obj)
-					return obj->msg(message.substr(i + 1, message.size() - i - 1), this);
+					return obj->msg(Substr(message, i + 1, message.size() - i - 1), this);
 			}
 			else // When it targets the window itself
 			{
-				if (String::ToLower(message) == "show")
+				if (ToLower(message) == "show")
 				{
 					hidden = false;
 					return INTERFACE_RESULT_HANDLED;
 				}
-				if (String::ToLower(message) == "hide")
+				if (ToLower(message) == "hide")
 				{
 					hidden = true;
 					return INTERFACE_RESULT_HANDLED;
 				}
-				if (String::ToLower(message) == "enablescrolling")
+				if (ToLower(message) == "enablescrolling")
 				{
 					scrollable = true;
 					return INTERFACE_RESULT_HANDLED;
 				}
-				if (String::ToLower(message) == "disablescrolling")
+				if (ToLower(message) == "disablescrolling")
 				{
 					scrollable = false;
 					return INTERFACE_RESULT_HANDLED;
@@ -1442,7 +1440,7 @@ namespace TA3D
 			if (message.empty())
 				return GUIOBJ::Ptr();
 
-			const sint16 e = obj_hashtable[String::ToLower(message)] - 1;
+			const sint16 e = obj_hashtable[ToLower(message)] - 1;
 			return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
 		}
 
@@ -1450,7 +1448,7 @@ namespace TA3D
 		{
 			if (message.empty())
 				return GUIOBJ::Ptr();
-			String lowered = String::ToLower(message);
+			String lowered = ToLower(message);
 			if (obj_hashtable.count(lowered) == 0)
 				return GUIOBJ::Ptr();
 
@@ -1534,7 +1532,7 @@ namespace TA3D
 				int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 
 				object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
-				obj_hashtable[String::ToLower(object->Name)] = i + 1;
+				obj_hashtable[ToLower(object->Name)] = i + 1;
 
 				int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
 				int Y1 = (int)(wndFile.pullAsInt(obj_key + "common.ypos")   * y_factor);
@@ -1771,7 +1769,7 @@ namespace TA3D
 				pObjects.push_back(object);
 
 				object->Name = wndFile.pullAsString(obj_key + "name", String("widget") << i);
-				obj_hashtable[String::ToLower(object->Name)] = i + 1;
+				obj_hashtable[ToLower(object->Name)] = i + 1;
 				object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 
 				float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF

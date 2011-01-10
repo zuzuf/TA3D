@@ -30,7 +30,6 @@ namespace Gui
 
 	SKIN_MANAGER::SKIN_MANAGER()
 	{
-		hash_skin.set_empty_key(String());
 		init();
 	}
 
@@ -55,7 +54,7 @@ namespace Gui
 	Skin *SKIN_MANAGER::load(const String& filename, const float scale)
 	{
 		String key(filename);
-		key << String::Format("-%.2f", scale);
+		key.appendFormat("-%.2f", scale);
 		Skin *pSkin = hash_skin[key];
 		if (!pSkin)
 		{

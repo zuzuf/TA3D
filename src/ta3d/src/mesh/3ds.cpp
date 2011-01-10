@@ -151,7 +151,6 @@ namespace TA3D
 		Mesh3DS *read_obj = NULL;
 		HashMap<Material*>::Dense material;
 		Material *currentMat = NULL;
-		material.set_empty_key(String());
 		Vector3D local[4];
 		while (!file->eof())
 		{
@@ -265,7 +264,7 @@ namespace TA3D
 						currentMat->texmap = read_percent_chunk( file );
 						currentMat->mapname = read_MatMapname_chunk( file );
 					}
-					currentMat->mapname = String("textures/") + currentMat->mapname;
+					currentMat->mapname = String("textures/") << currentMat->mapname;
 					PRINT_DEBUG("texmap : " << currentMat->mapname);
 				}
 				else
@@ -490,8 +489,8 @@ namespace TA3D
 		if (currentMat && currentMat->name.empty())
 			delete currentMat;
 		for(HashMap<Material*>::Dense::iterator it = material.begin() ; it != material.end() ; ++it)
-			if (it->second)
-				delete it->second;
+			if (*it)
+				delete *it;
 
 		delete file;
 

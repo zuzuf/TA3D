@@ -49,7 +49,7 @@ namespace TA3D
 			if (!files.empty())
 			{
 				for (HashMap<RealFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
-					delete i->second;
+					delete *i;
             	files.clear();
 			}
         }
@@ -65,7 +65,8 @@ namespace TA3D
                 String::List fileList;
                 while (!dirs.empty())
                 {
-                    String current = dirs.front() + Paths::Separator + "*";
+					String current;
+					current << dirs.front() << Paths::Separator << "*";
                     dirs.pop_front();
 
                     Paths::GlobFiles(fileList, current, false, false);
@@ -85,8 +86,8 @@ namespace TA3D
 
                     if (i->find("/.svn/") != String::npos
                         || i->find("\\.svn\\") != String::npos
-						|| (i->size() >= 5 && i->substr(0, 5) == ".svn/")
-						|| (i->size() >= 5 && i->substr(0, 5) == ".svn\\")
+						|| (i->size() >= 5 && Substr(*i, 0, 5) == ".svn/")
+						|| (i->size() >= 5 && Substr(*i, 0, 5) == ".svn\\")
                         || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
                         continue;
 
@@ -100,12 +101,12 @@ namespace TA3D
                     file->setPriority(0xFFFF);
 					HashMap<RealFile*>::Sparse::iterator it = files.find(*i);
                     if (it != files.end())          // On some platform we can have files with the same VFS name (because of different cases resulting in different file names)
-						delete it->second;
+						delete *it;
 					files[*i] = file;
                 }
             }
 			for(HashMap<RealFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
-                lFiles.push_back(i->second);
+				lFiles.push_back(*i);
         }
 
 		File* RealFS::readFile(const String& filename)
@@ -114,7 +115,7 @@ namespace TA3D
 			{
 				HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
 				if (file != files.end())
-					return readFile(file->second);
+					return readFile(*file);
 			}
 			return NULL;
 		}
@@ -127,7 +128,7 @@ namespace TA3D
 			String root = name;
 			root.removeTrailingSlash();
 
-			unixFilename = root + Paths::SeparatorAsString + unixFilename;
+			unixFilename = String(root) << Paths::SeparatorAsString << unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
 		}
@@ -136,7 +137,7 @@ namespace TA3D
         {
 			HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
             if (file != files.end())
-				return readFileRange(file->second, start, length);
+				return readFileRange(*file, start, length);
             else
                 return NULL;
         }
@@ -149,7 +150,7 @@ namespace TA3D
             String root = name;
             root.removeTrailingSlash();
 
-            unixFilename = root + Paths::SeparatorAsString + unixFilename;
+			unixFilename = String(root) << Paths::SeparatorAsString << unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
         }

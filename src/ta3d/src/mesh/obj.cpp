@@ -96,7 +96,6 @@ namespace TA3D
 		vector<int>			face;
 		HashMap<Material>::Dense	mtllib;
 		Material                    currentMtl;
-		mtllib.set_empty_key(String());
 
 		while (!file->eof()) // Reads the whole file
 		{

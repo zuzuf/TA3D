@@ -1253,7 +1253,7 @@ namespace TA3D
 		{
 			for (int i = 0; i < ta3dSideData.nb_side; ++i)
 			{
-				if (String::ToLower(ta3dSideData.side_name[i]) == String::ToLower(players.side[ player_id ]) )
+				if (ToLower(ta3dSideData.side_name[i]) == ToLower(players.side[ player_id ]) )
 				{
 					lua_pushstring(L, ta3dSideData.side_com[i].c_str() );
 					break;
@@ -1546,7 +1546,7 @@ namespace TA3D
 					for (int i = params.size() - 1; i > 0; ++i)
 						if (i == 1)
 						{
-							params[ 1 ] = params[ 0 ].substr( 1, params[ 0 ].size() - 1 );
+							params[ 1 ] = Substr(params[ 0 ], 1, params[ 0 ].size() - 1 );
 							params[ 0 ] = params[ 0 ][ 0 ];
 						}
 						else
@@ -1924,7 +1924,7 @@ namespace TA3D
 			String::Vector params;
 			ota_parser.pullAsString("GlobalHeader.MoveUnitToRadius").explode(params, ',');
 			m_File << "	for i = 0, get_max_unit_number() do\n";
-			if (String::ToLower(params[0]) == "anytype")
+			if (ToLower(params[0]) == "anytype")
 				m_File << "		if get_unit_owner( i ) == 0 then\n";
 			else
 				m_File << "		if get_unit_owner( i ) == 0 and is_unit_of_type( i, \"" << params[0] << "\" ) then\n";

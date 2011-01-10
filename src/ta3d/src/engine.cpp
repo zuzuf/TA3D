@@ -44,7 +44,7 @@ namespace TA3D
 		void showError(const String& s, const String& additional = String())
 		{
 			LOG_ERROR(I18N::Translate(s));
-			criticalMessage(I18N::Translate(s) + additional);
+			criticalMessage(I18N::Translate(s) << additional);
 		}
 
 		void showWarning(const String& s, const String& additional = String())
@@ -52,7 +52,7 @@ namespace TA3D
 			LOG_WARNING(I18N::Translate(s));
 			Gui::AREA::Ptr pArea = new Gui::AREA();
 			pArea->load_tdf("gui/empty.area");
-			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) + additional);
+			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) << additional);
 		}
 	}
 

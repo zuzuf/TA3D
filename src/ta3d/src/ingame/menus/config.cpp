@@ -303,14 +303,14 @@ namespace Menus
 			else
 				obj->Text.resize(1);
 
-			String current_selection = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
+			String current_selection = TA3D_CURRENT_MOD.length() > 6 ? Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
 			String::List mod_list = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
 			mod_list.sort();
 			mod_list.unique();
 			for (String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
 			{
 				obj->Text.push_back( *i );
-				if (String::ToLower( *i ) == String::ToLower(current_selection))
+				if (ToLower( *i ) == ToLower(current_selection))
 					obj->Text[0] = *i;
 			}
 		}
@@ -333,7 +333,7 @@ namespace Menus
 			{
 				skin_name = Paths::ExtractFileName(*i, false);
 				obj->Text.push_back(skin_name);
-				if ("gui/" + String::ToLower(skin_name) == String::ToLower(lp_CONFIG->skin_name))
+				if ("gui/" + ToLower(skin_name) == ToLower(lp_CONFIG->skin_name))
 					obj->Text[0] = skin_name;
 			}
 		}

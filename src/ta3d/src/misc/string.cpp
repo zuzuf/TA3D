@@ -13,8 +13,8 @@ namespace TA3D
 
 		if(ignoreCase)
 		{
-			sz1 = String::ToUpper(s);
-			sz2 = String::ToUpper(stringToSearch);
+			sz1 = ToUpper(s);
+			sz2 = ToUpper(stringToSearch);
 		}
 		else
 		{
@@ -218,6 +218,9 @@ namespace TA3D
 
 	String Escape(const String& s)
 	{
-		return String(s).replace("\\", "\\\\").replace("\"", "\\\"");
+		String r(s);
+		r.replace("\\", "\\\\");
+		r.replace("\"", "\\\"");
+		return r;
 	}
 }

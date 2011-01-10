@@ -128,7 +128,7 @@ namespace Menus
 		pCurrentModCaption.clear();
 
 		if (TA3D_CURRENT_MOD.length() > 6)
-			pCurrentMod += TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.length() - 6);
+			pCurrentMod += Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.length() - 6);
 		if (!pCurrentMod.empty())
 			pCurrentModCaption << "MOD: " << pCurrentMod;
 	}

@@ -114,9 +114,6 @@ namespace TA3D
 
 	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0), nbCores(), pSync(2)
 	{
-		hQuadMap.set_empty_key(String());
-		stasks.set_empty_key(-1);
-		stasks.set_deleted_key(-2);
 		nbCores = Yuni::System::CPU::Count();
 	}
 
@@ -144,7 +141,7 @@ namespace TA3D
 		const bool found = (pos != stasks.end());
 
 		if (found)		// If it's in the queue, then change the request
-			tasks[pos->second - taskOffset] = t;
+			tasks[*pos - taskOffset] = t;
 		// Otherwise add a new request to the task list
 		else
 		{
@@ -185,8 +182,8 @@ namespace TA3D
 		destroyThread();
 
 		for(HashMap<QuadMap*>::Dense::iterator it = hQuadMap.begin() ; it != hQuadMap.end() ; ++it)
-			if (it->second)
-				delete it->second;
+			if (*it)
+				delete *it;
 	}
 
 	void Pathfinder::proc(void*)
@@ -699,8 +696,8 @@ namespace TA3D
 	void Pathfinder::computeWalkableAreas()
 	{
 		for(HashMap<QuadMap*>::Dense::iterator it = hQuadMap.begin() ; it != hQuadMap.end() ; ++it)
-			if (it->second)
-				delete it->second;
+			if (*it)
+				delete *it;
 		hQuadMap.clear();
 		int memoryUsed = 0;
 		for(uint32 i = 0 ; i < unit_manager.unit_type.size() ; ++i)

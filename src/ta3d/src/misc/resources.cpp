@@ -179,7 +179,7 @@ namespace Resources
 			out.clear();
 		gResourcesMutex.lock();
 		for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-			Paths::Glob(out, *i + pattern, false);
+			Paths::Glob(out, String(*i) << pattern, false);
 		gResourcesMutex.unlock();
 		return !out.empty();
 	}
@@ -190,7 +190,7 @@ namespace Resources
 			out.clear();
 		gResourcesMutex.lock();
 		for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-			Paths::Glob(out, *i + pattern, false);
+			Paths::Glob(out, String(*i) << pattern, false);
 		gResourcesMutex.unlock();
 		return !out.empty();
 	}
@@ -202,7 +202,7 @@ namespace Resources
 			out.clear();
 		gResourcesMutex.lock();
 		for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-			Paths::GlobDirs(out, *i + pattern, false);
+			Paths::GlobDirs(out, String(*i) << pattern, false);
 		gResourcesMutex.unlock();
 		return !out.empty();
 	}
@@ -213,7 +213,7 @@ namespace Resources
 			out.clear();
 		gResourcesMutex.lock();
 		for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-			Paths::GlobDirs(out, *i + pattern, false);
+			Paths::GlobDirs(out, String(*i) << pattern, false);
 		gResourcesMutex.unlock();
 		return !out.empty();
 	}

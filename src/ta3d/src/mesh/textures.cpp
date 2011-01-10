@@ -12,7 +12,6 @@ namespace TA3D
 
 	TEXTURE_MANAGER::TEXTURE_MANAGER() : nbtex(0), tex(NULL)
 	{
-		tex_hashtable.set_empty_key(String());
 	}
 
 
@@ -36,7 +35,7 @@ namespace TA3D
 	{
 		if (nbtex == 0)
 			return -1;
-		return tex_hashtable[ String::ToUpper(texture_name) ] - 1;
+		return tex_hashtable[ ToUpper(texture_name) ] - 1;
 	}
 
 
@@ -87,7 +86,7 @@ namespace TA3D
 			for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 			{
 				File *file = VFS::Instance()->readFile(*cur_file);
-				String filename = String::ToUpper(Paths::ExtractFileName(*cur_file));
+				String filename = ToUpper(Paths::ExtractFileName(*cur_file));
 				load_gaf(file, filename == "LOGOS.GAF" || filename == "LOGOS");
 				delete file;
 			}
@@ -98,7 +97,7 @@ namespace TA3D
 			const String::Vector::const_iterator end = file_list.end();
 			for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 			{
-				String filename = String::ToUpper(Paths::ExtractFileName(*cur_file));
+				String filename = ToUpper(Paths::ExtractFileName(*cur_file));
 				load_gaf(*cur_file, filename == "LOGOS.GAF" || filename == "LOGOS");
 			}
 		}
@@ -123,7 +122,7 @@ namespace TA3D
 		{
 			tex[nbtex + i].loadGAFFromRawData(file, i, false);
 			tex[nbtex + i].logo = logo;
-			tex_hashtable[String::ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
+			tex_hashtable[ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
 		}
 		nbtex += nb_entry;
 	}
@@ -146,7 +145,7 @@ namespace TA3D
 		{
 			tex[nbtex + i].loadGAFFromDirectory(filename, Paths::ExtractFileName(elts[i]));
 			tex[nbtex + i].logo = logo;
-			tex_hashtable[String::ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
+			tex_hashtable[ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
 		}
 		nbtex += nb_entry;
 	}

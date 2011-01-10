@@ -809,12 +809,12 @@ namespace TA3D
 				if (unit[index].owner_id == players.local_human_id  )
 				{
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,String::Format("+%.2f",unit[index].cur_metal_prod));
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,String::Format("-%.2f",unit[index].cur_metal_cons));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f, String().format("+%.2f",unit[index].cur_metal_prod));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,String().format("-%.2f",unit[index].cur_metal_cons));
 
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,String::Format("+%.2f",unit[index].cur_energy_prod));
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,String::Format("-%.2f",unit[index].cur_energy_cons));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,String().format("+%.2f",unit[index].cur_energy_prod));
+					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,String().format("-%.2f",unit[index].cur_energy_cons));
 				}
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -1650,7 +1650,7 @@ namespace TA3D
 		{
 			if (msg.empty())
 				return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-			String message(String::ToLower(msg));				// Get the string associated with the signal
+			String message(ToLower(msg));				// Get the string associated with the signal
 			if (!message.empty())
 			{
 				if (message == "pause game")

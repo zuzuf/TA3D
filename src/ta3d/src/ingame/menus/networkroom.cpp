@@ -138,7 +138,7 @@ namespace Menus
 					String host_address = network_manager.getLastMessageAddress();
 					int nb_open = params[5].to<sint32>();
 
-					if (version.substr(0, 3) == String(TA3D_ENGINE_VERSION).substr(0, 3) && version.size() == String(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
+					if (Substr(version, 0, 3) == Substr(TA3D_ENGINE_VERSION, 0, 3) && version.size() == String(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
 					{
 						bool updated = false;
 						for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )       // Update the list
@@ -259,7 +259,7 @@ namespace Menus
 			{
 				GameData game_data;
 				String host = obj->Text[obj->Pos];
-				bool network = load_game_data(TA3D::Paths::Savegames + "multiplayer" + Paths::Separator + obj->Text[obj->Pos], &game_data);
+				bool network = load_game_data(String(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << obj->Text[obj->Pos], &game_data);
 
 				if (!game_data.saved_file.empty() && network)
 				{

@@ -41,7 +41,7 @@ namespace TA3D
         uint32                  unitID;
 		UTILS::HashMap<int>::Dense  return_value;
     public:
-		inline UnitScriptInterface() { return_value.set_empty_key(String()); }
+		inline UnitScriptInterface() {}
         virtual ~UnitScriptInterface()  {}
 
         virtual void setUnitID(uint32 ID) = 0;

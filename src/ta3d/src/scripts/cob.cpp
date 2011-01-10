@@ -180,7 +180,7 @@ namespace TA3D
 	{
 		for (int i = 0; i < nb_piece; ++i)
 		{
-			if (String::ToLower(name) == String::ToLower(piece_name[i])) // Pièce identifiée / Identified :)
+			if (ToLower(name) == ToLower(piece_name[i])) // Pièce identifiée / Identified :)
 				return i;
 		}
 		return -1;

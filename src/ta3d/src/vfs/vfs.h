@@ -221,7 +221,7 @@ namespace UTILS
 		typedef TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense FileInfoMap;
 		FileInfoMap pFiles;
 		//!
-		typedef TA3D::UTILS::HashMap< std::map<String, bool> >::Dense DirMap;
+		typedef TA3D::UTILS::HashMap< TA3D::UTILS::HashMap<bool>::Sparse >::Dense DirMap;
 		DirMap pDirs;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
