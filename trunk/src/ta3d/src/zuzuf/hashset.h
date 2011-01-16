@@ -305,7 +305,7 @@ namespace zuzuf
 
 		const HFn hash;
 		size_t h = (hash(v) << 1) & _mask;
-		size_t first_suitable_place = -1;
+		size_t first_suitable_place = size_t(-1);
 		do
 		{
 			switch(usemask[h])
@@ -316,14 +316,14 @@ namespace zuzuf
 				h = (h + 1U) & _mask;
 				continue;
 			case Deleted:
-				if (first_suitable_place == -1)
+				if (first_suitable_place == size_t(-1))
 					first_suitable_place = h;
 				h = (h + 1U) & _mask;
 				continue;
 			}
 			break;
 		} while(true);
-		if (first_suitable_place != -1)
+		if (first_suitable_place != size_t(-1))
 			h = first_suitable_place;
 		++_size;
 		++_used;
