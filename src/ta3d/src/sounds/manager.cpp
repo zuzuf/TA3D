@@ -133,17 +133,17 @@ namespace Audio
 
 			filename = *i;
 
-			Playlist::const_iterator i;
-			for (i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
+			Playlist::const_iterator j;
+			for (j = pPlaylist.begin(); j != pPlaylist.end(); ++j)
 			{
-				if ((*i)->filename == filename)
+				if ((*j)->filename == filename)
 				{
-					(*i)->checked = true;
+					(*j)->checked = true;
 					break;
 				}
 			}
 
-			if (i == pPlaylist.end()) // It's missing, add it
+			if (j == pPlaylist.end()) // It's missing, add it
 			{
 				PlaylistItem *m_Tune = new PlaylistItem();
 				m_Tune->battleTune = false;
