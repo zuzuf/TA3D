@@ -132,7 +132,7 @@ namespace zuzuf
 					do
 					{
 						--idx;
-					} while(idx < hmap->_capacity && hmap->usemask[idx] != Used);
+					} while(idx > 0 && hmap->usemask[idx] != Used);
 				return old;
 			}
 
@@ -328,6 +328,7 @@ namespace zuzuf
 
 		const HFn hash;
 		size_t h = (hash(key) << 1) & _mask;
+		size_t first_suitable_place = -1;
 		do
 		{
 			switch(usemask[h])
@@ -342,11 +343,15 @@ namespace zuzuf
 				h = (h + 1U) & _mask;
 				continue;
 			case Deleted:
+				if (first_suitable_place == -1)
+					first_suitable_place = h;
 				h = (h + 1U) & _mask;
 				continue;
 			}
 			break;
 		} while(true);
+		if (first_suitable_place != -1)
+			h = first_suitable_place;
 		++_size;
 		++_used;
 		usemask[h] = Used;
@@ -412,6 +417,7 @@ namespace zuzuf
 
 		const HFn hash;
 		size_t h = (hash(key) << 1) & _mask;
+		size_t first_suitable_place = -1;
 		do
 		{
 			switch(usemask[h])
@@ -422,11 +428,15 @@ namespace zuzuf
 				h = (h + 1U) & _mask;
 				continue;
 			case Deleted:
+				if (first_suitable_place == -1)
+					first_suitable_place = h;
 				h = (h + 1U) & _mask;
 				continue;
 			}
 			break;
 		} while(true);
+		if (first_suitable_place != -1)
+			h = first_suitable_place;
 		++_size;
 		++_used;
 		usemask[h] = Used;

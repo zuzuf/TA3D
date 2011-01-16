@@ -86,6 +86,28 @@ namespace zuzuf
 				return old;
 			}
 
+			tpl_iterator operator+(int n) const
+			{
+				tpl_iterator ret(*this);
+				for(; n > 0 ; --n)
+					do
+					{
+						++ret.idx;
+					} while(ret.idx < hset->_capacity && hset->usemask[ret.idx] != Used);
+				return ret;
+			}
+
+			tpl_iterator operator-(int n) const
+			{
+				tpl_iterator ret(*this);
+				for(; n > 0 && ret.idx > 0 ; --n)
+					do
+					{
+						--ret.idx;
+					} while(ret.idx > 0 && hset->usemask[ret.idx] != Used);
+				return ret;
+			}
+
 			void operator--()
 			{
 				if (idx > 0)
@@ -102,7 +124,7 @@ namespace zuzuf
 					do
 					{
 						--idx;
-					} while(idx < hset->_capacity && hset->usemask[idx] != Used);
+					} while(idx > 0 && hset->usemask[idx] != Used);
 				return old;
 			}
 
@@ -283,6 +305,7 @@ namespace zuzuf
 
 		const HFn hash;
 		size_t h = (hash(v) << 1) & _mask;
+		size_t first_suitable_place = -1;
 		do
 		{
 			switch(usemask[h])
@@ -293,11 +316,15 @@ namespace zuzuf
 				h = (h + 1U) & _mask;
 				continue;
 			case Deleted:
+				if (first_suitable_place == -1)
+					first_suitable_place = h;
 				h = (h + 1U) & _mask;
 				continue;
 			}
 			break;
 		} while(true);
+		if (first_suitable_place != -1)
+			h = first_suitable_place;
 		++_size;
 		++_used;
 		usemask[h] = Used;
