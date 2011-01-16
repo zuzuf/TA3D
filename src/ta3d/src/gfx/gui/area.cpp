@@ -298,7 +298,7 @@ namespace Gui
 	{
 		destroy();		// In case there is an area loaded so we don't waste memory
 
-		String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : "";
+		String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : String();
 		if (!skin_name.empty() && VFS::Instance()->fileExists(skin_name))
 			skin = skin_manager.load(skin_name, 1.0f);
 
@@ -306,7 +306,7 @@ namespace Gui
 		if (skin && !skin->prefix().empty())
 		{
 			real_filename.clear();
-			real_filename << Paths::ExtractFilePath(filename) << skin->prefix() << Paths::ExtractFileName(filename);
+			real_filename << Paths::ExtractFilePath(filename) << Paths::Separator << skin->prefix() << Paths::ExtractFileName(filename);
 			if (!VFS::Instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
