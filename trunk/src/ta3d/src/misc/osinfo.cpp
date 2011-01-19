@@ -22,9 +22,6 @@
 #include <sdl.h>
 
 
-# define CPU_MODEL_ATHLON64_N 15
-
-
 
 namespace TA3D
 {
