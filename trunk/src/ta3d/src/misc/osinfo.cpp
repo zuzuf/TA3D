@@ -34,16 +34,44 @@ namespace System
 
     namespace // anonymous
     {
+		String run_command(const char *cmd)
+		{
+#ifdef TA3D_PLATFORM_LINUX
+			FILE *pipe = popen(cmd, "r");
+			if (!pipe)
+				return String();
+			String result;
+			while(!feof(pipe))
+			{
+				int c = fgetc(pipe);
+				if (c == -1)
+					return result;
+				result << (char)c;
+			}
+			pclose(pipe);
+			return result;
+#else
+			return String();
+#endif
+		}
 
-        const char* CPUName()
+		String CPUName()
         {
-            return "Unknown";
+#ifdef TA3D_PLATFORM_LINUX
+			return run_command("cat /proc/cpuinfo | grep \"model name\" | head -n 1 | tail -c +14 | tr -d \"\\n\"");
+#else
+			return "Unknown";
+#endif
         }
 
 
-        const char* CPUCapabilities()
+		String CPUCapabilities()
         {
+#ifdef TA3D_PLATFORM_LINUX
+			return run_command("cat /proc/cpuinfo | grep flags | head -n 1 | tail -c +10 | tr -d \"\\n\"");
+#else
             return "None";
+#endif
         }
 
         void displayScreenResolution()
@@ -81,6 +109,10 @@ namespace System
 	{
 		// Vendor
 		String vendorName;
+#ifdef TA3D_PLATFORM_LINUX
+		vendorName = run_command("cat /proc/cpuinfo | grep vendor_id | head -n 1 | awk '{ print $3 }' | tr -d \"\\n\"");
+#else
+#endif
 		logs.notice() << LOG_PREFIX_SYSTEM << YUNI_OS_NAME << ", Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
 			<< " " << CPUName()
 			<< " (" << CPUCapabilities() << ")";
