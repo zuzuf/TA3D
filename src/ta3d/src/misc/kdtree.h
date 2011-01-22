@@ -35,7 +35,7 @@ namespace TA3D
 	private:
 		std::vector<T> elements;
 		Vec P;
-		Vec N;
+		unsigned int N;
 		KDTree<T, TKit>	*lChild;
 		KDTree<T, TKit>	*rChild;
 	};

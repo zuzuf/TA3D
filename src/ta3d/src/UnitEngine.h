@@ -67,9 +67,9 @@ namespace TA3D
 
 		struct Comparator
 		{
-			const int D;
+			const unsigned int D;
 
-			inline Comparator(const Vec &N) : D(N.x != 0.0f ? 0 : N.y != 0.0f ? 1 : 2)	{}
+			inline Comparator(const unsigned int N) : D(N)	{}
 
 			inline bool operator() (const T &i, const T &j) const
 			{
@@ -91,19 +91,19 @@ namespace TA3D
 	public:
 		static const Vec &pos(const T &elt)	{	return elt->Pos;	}
 		static inline void getTopBottom(const std::vector<T> &elts, Vec &top, Vec &bottom);
-		static Vec getPrincipalDirection(const Vec &v)
+		static unsigned int getPrincipalDirection(const Vec &v)
 		{
 			if (fabsf(v.x) > fabsf(v.y))
 			{
 				if (fabsf(v.x) > fabsf(v.z))
-					return Vec(1.0f, 0.0f, 0.0f);
+					return 0U;
 				if (fabsf(v.y) > fabsf(v.z))
-					return Vec(0.0f, 1.0f, 0.0f);
-				return Vec(0.0f, 0.0f, 1.0f);
+					return 1U;
+				return 2U;
 			}
 			if (fabsf(v.y) > fabsf(v.z))
-				return Vec(0.0f, 1.0f, 0.0f);
-			return Vec(0.0f, 0.0f, 1.0f);
+				return 1U;
+			return 2U;
 		}
 	};
 
