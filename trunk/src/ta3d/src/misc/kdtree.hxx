@@ -53,7 +53,7 @@ namespace TA3D
 			return;
 		}
 
-		float proj = ((float*)&(P - center))[N];
+		float proj = (P - center)[N];
 
 		if (proj >= 0.0f || -proj < maxDist)
 			rChild->maxDistanceQuery(result, center, maxDist);
