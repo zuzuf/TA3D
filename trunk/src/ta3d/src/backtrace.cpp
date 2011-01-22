@@ -189,6 +189,7 @@ void criticalMessage(const String &msg)
 {
 	std::cerr << msg << std::endl;      // Output error message to stderr
 
+	SDL_SetVideoMode(0,0,0,0);
 	Gui::Utils::message("TA3D - Critical Error", msg.c_str());
 }
 
