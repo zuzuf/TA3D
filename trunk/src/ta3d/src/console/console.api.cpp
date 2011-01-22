@@ -91,7 +91,7 @@ namespace TA3D
 	{
 		if (lua_gettop(L) > 0)
 		{
-			lp_CONFIG->sound_volume = lua_tointeger(L, -1);
+			lp_CONFIG->sound_volume = (int)lua_tointeger(L, -1);
 			sound_manager->setVolume( lp_CONFIG->sound_volume );
 		}
 		lua_pushinteger(L, lp_CONFIG->sound_volume);
@@ -102,7 +102,7 @@ namespace TA3D
 	{
 		if (lua_gettop(L) > 0)
 		{
-			lp_CONFIG->music_volume = lua_tointeger(L, -1);
+			lp_CONFIG->music_volume = (int)lua_tointeger(L, -1);
 			sound_manager->setMusicVolume( lp_CONFIG->music_volume );
 		}
 		lua_pushinteger(L, lp_CONFIG->music_volume);
@@ -156,8 +156,8 @@ namespace TA3D
 		int h = SCREEN_H;
 		if (lua_gettop(L) >= 2)
 		{
-			w = lua_tointeger(L, 1);
-			h = lua_tointeger(L, 2);
+			w = (int)lua_tointeger(L, 1);
+			h = (int)lua_tointeger(L, 2);
 		}
 		Battle::Instance()->makePoster(w, h);
 		return 0;
@@ -226,7 +226,7 @@ namespace TA3D
 	int CAPI::setPriority(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
-			lp_CONFIG->priority_level = lua_tointeger(L, -1);
+			lp_CONFIG->priority_level = (sint16)lua_tointeger(L, -1);
 		lua_pushinteger(L, lp_CONFIG->priority_level);
 		return 1;
 	}
@@ -234,7 +234,7 @@ namespace TA3D
 	int CAPI::setWaterQuality(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
-			lp_CONFIG->water_quality = lua_tointeger(L, -1) % 6;
+			lp_CONFIG->water_quality = (sint16)lua_tointeger(L, -1) % 6;
 		lua_pushinteger(L, lp_CONFIG->water_quality);
 		return 1;
 	}
@@ -243,7 +243,7 @@ namespace TA3D
 	{
 		if (lua_gettop(L) > 0)
 		{
-			lp_CONFIG->shadow_quality = lua_tointeger(L, -1);
+			lp_CONFIG->shadow_quality = (sint16)lua_tointeger(L, -1);
 			gfx->delete_shadow_map();
 		}
 		lua_pushinteger(L, lp_CONFIG->shadow_quality);
@@ -254,7 +254,7 @@ namespace TA3D
 	{
 		if (lua_gettop(L) > 0)
 		{
-			lp_CONFIG->shadowmap_size = lua_tointeger(L, -1);
+			lp_CONFIG->shadowmap_size = (uint8)lua_tointeger(L, -1);
 			gfx->delete_shadow_map();
 		}
 		lua_pushinteger(L, lp_CONFIG->shadowmap_size);
@@ -338,7 +338,7 @@ namespace TA3D
 	{
 		if (lua_gettop(L) > 0)
 		{
-			Battle::Instance()->speed_limit = lua_tonumber(L, -1);
+			Battle::Instance()->speed_limit = (float)lua_tonumber(L, -1);
 			if (Yuni::Math::Zero(Battle::Instance()->speed_limit))
 				Battle::Instance()->speed_limit = -1.0f;
 			Battle::Instance()->delay = 1.0f / Battle::Instance()->speed_limit;
@@ -355,9 +355,9 @@ namespace TA3D
 		unit_type = lua_gettop(L) > 0 ? unit_manager.get_unit_index( lua_tostring(L, 1) ) : -1;
 		if (lua_gettop(L) >= 2)
 		{
-			player_id = lua_tointeger(L, 2);
+			player_id = (int)lua_tointeger(L, 2);
 			if (lua_gettop(L) >= 3)
-				nb_to_spawn = lua_tointeger(L, 3);
+				nb_to_spawn = (int)lua_tointeger(L, 3);
 		}
 		units.lock();
 		for (int i = 0; i < nb_to_spawn; ++i)
@@ -374,8 +374,8 @@ namespace TA3D
 
 			do
 			{
-				units.unit[id].Pos.x = (TA3D_RAND() % the_map->map_w) - the_map->map_w_d;
-				units.unit[id].Pos.z = (TA3D_RAND() % the_map->map_h) - the_map->map_h_d;
+				units.unit[id].Pos.x = (float)((TA3D_RAND() % the_map->map_w) - the_map->map_w_d);
+				units.unit[id].Pos.z = (float)((TA3D_RAND() % the_map->map_h) - the_map->map_h_d);
 				++e;
 			} while (e < 100 && !can_be_built(units.unit[id].Pos, units.unit[id].type_id, player_id));
 
@@ -387,16 +387,16 @@ namespace TA3D
 			else
 			{								// Compute unit's Y coordinate
 				Vector3D target_pos(units.unit[id].Pos);
-				target_pos.x = ((int)(target_pos.x) + the_map->map_w_d) >> 3;
-				target_pos.z = ((int)(target_pos.z) + the_map->map_h_d) >> 3;
+				target_pos.x = (float)(((int)(target_pos.x) + the_map->map_w_d) >> 3);
+				target_pos.z = (float)(((int)(target_pos.z) + the_map->map_h_d) >> 3);
 				target_pos.y = Math::Max(the_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
 															 unit_manager.unit_type[ units.unit[id].type_id ]->FootprintX,
 															 unit_manager.unit_type[ units.unit[id].type_id ]->FootprintZ),
 										 the_map->sealvl);
 
 				units.unit[id].Pos.y  = target_pos.y;
-				units.unit[id].cur_px = (int)target_pos.x;
-				units.unit[id].cur_py = (int)target_pos.z;
+				units.unit[id].cur_px = (sint16)target_pos.x;
+				units.unit[id].cur_py = (sint16)target_pos.z;
 				units.unit[id].draw_on_map();
 
 				if (unit_manager.unit_type[units.unit[id].type_id]->ActivateWhenBuilt)// Start activated
@@ -417,7 +417,7 @@ namespace TA3D
 	int CAPI::setTimeFactor(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
-			lp_CONFIG->timefactor = lua_tonumber(L, -1);
+			lp_CONFIG->timefactor = (float)lua_tonumber(L, -1);
 		lua_pushnumber(L, lp_CONFIG->timefactor);
 		return 1;
 	}
@@ -428,20 +428,20 @@ namespace TA3D
 			return 0;
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			const int value = lua_tointeger(L, 1);
+			const int value = (int)lua_tointeger(L, 1);
 			units.lock();
 			for (unsigned int e = 0; e < units.index_list_size; ++e)
 			{
 				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
-					units.unit[i].hp += value;
+					units.unit[i].hp += (float)value;
 					if (units.unit[i].hp < 0)
 						units.unit[i].hp = 0;
 					else
 					{
 						if (units.unit[i].hp > unit_manager.unit_type[units.unit[i].type_id]->MaxDamage)
-							units.unit[i].hp = unit_manager.unit_type[units.unit[i].type_id]->MaxDamage;
+							units.unit[i].hp = (float)unit_manager.unit_type[units.unit[i].type_id]->MaxDamage;
 					}
 				}
 			}
@@ -593,10 +593,10 @@ namespace TA3D
 		bool success = false;
 		if (lua_gettop(L) == 3)
 		{
-			const unsigned int playerID = lua_tointeger(L, 2);
+			const unsigned int playerID = (unsigned int)lua_tointeger(L, 2);
 			if (playerID < players.count())
 			{
-				const int amount = lua_tointeger(L, 3);
+				const float amount = (float)lua_tointeger(L, 3);
 				String type = lua_tostring(L, 1);
 				if (type == "metal" || type == "both")
 				{
@@ -647,7 +647,7 @@ namespace TA3D
 			Battle::Instance()->debugInfo.process = &(Battle::Instance()->game_script);
 		else if (context == "AI")
 		{
-			int pid = lua_gettop(L) > 1 ? lua_tointeger(L, 2) : -1;
+			int pid = lua_gettop(L) > 1 ? (int)lua_tointeger(L, 2) : -1;
 			if (pid >= 0 && pid < (int)players.count())
 				Battle::Instance()->debugInfo.process = AiScript::Ptr::WeakPointer(players.ai_command[pid].getAiScript());
 			else

@@ -77,7 +77,8 @@ namespace TA3D
 
 	void Mission::Target::save(gzFile file) const
 	{
-		SAVE(type);
+		uint8 t = type;
+		SAVE(t);
 		SAVE(idx);
 		SAVE(UID);
 		SAVE(Pos);
@@ -85,7 +86,9 @@ namespace TA3D
 
 	void Mission::Target::load(gzFile file)
 	{
-		LOAD(type);
+		uint8 t;
+		LOAD(t);
+		type = (Type)t;
 		LOAD(idx);
 		LOAD(UID);
 		LOAD(Pos);

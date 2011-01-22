@@ -54,7 +54,7 @@ namespace zuzuf
 
 	template<> inline size_t hash<std::string>::operator()(const std::string &v) const
 	{
-		return MurmurHash2(v.data(), v.size());
+		return MurmurHash2(v.data(), (unsigned int)v.size());
 	}
 }
 
