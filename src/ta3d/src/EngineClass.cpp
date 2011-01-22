@@ -191,18 +191,20 @@ namespace TA3D
 
 	float MAP::get_unit_h(float x,float y)
 	{
+		if (isNaN(x) || isNaN(y))
+			return 0.0f;
 		x = (x + map_w_d) * 0.125f;		// Convertit les coordonnées
 		y = (y + map_h_d) * 0.125f;
-		int lx = bloc_w_db - 1;
-		int ly = bloc_h_db - 1;
+		const int lx = bloc_w_db - 1;
+		const int ly = bloc_h_db - 1;
 		if (x < 0.0f) x = 0.0f;
 		else if (x >= lx) x = bloc_w_db - 2;
 		if (y < 0.0f) y = 0.0f;
 		else if (y >= ly) y = bloc_h_db - 2;
 		float h[4];
-		int X = (int)x, Y = (int)y;
-		float dx = x - X;
-		float dy = y - Y;
+		const int X = (int)x, Y = (int)y;
+		const float dx = x - X;
+		const float dy = y - Y;
 		h[0] = h_map(X, Y);
 		if (X + 1 < lx)
 			h[1] = h_map(X + 1, Y) - h[0];

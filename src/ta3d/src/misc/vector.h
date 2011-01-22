@@ -172,6 +172,27 @@ namespace TA3D
         inline Vector3D& operator = (const Vector3D& rhs)
 		{ x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
 
+		inline float operator[](int n) const
+		{
+			switch(n)
+			{
+			case 0:	return x;
+			case 1:	return y;
+			case 2:	return z;
+			default:	return 0.0f;
+			}
+		}
+
+		inline float &operator[](int n)
+		{
+			switch(n)
+			{
+			case 0:	return x;
+			case 1:	return y;
+			case 2:	return z;
+			default:	return x;
+			}
+		}
 		//@}
 
 	public:
