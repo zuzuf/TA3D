@@ -395,14 +395,14 @@ namespace TA3D
 							if (relative)
 								out.push_back(name);
 							else
-								out.push_back(root + name);
+								out.push_back(String(root) << name);
 						}
 						else if (!(required & FA_DIREC) && (fileAttribs & FA_FILE))
 						{
 							if (relative)
 								out.push_back(name);
 							else
-								out.push_back(root + name);
+								out.push_back(String(root) << name);
 						}
 					}
 				} while(::FindNextFile(hFile, &FileInformation) == TRUE);
