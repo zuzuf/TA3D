@@ -2583,23 +2583,29 @@ namespace TA3D
 
 								Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
 								target_pos_on_unit.reset();
+								Model *pModel = NULL;
+								Vector3D pos_of_target_unit;
 								if (target_unit != NULL)
 								{
 									target_unit->lock();
-									Model *pModel = target_unit->model;
-									if (weapon[i].data == -1 && pModel && pModel->nb_obj > 0)
-										weapon[i].data = Math::RandomTable() % pModel->nb_obj;
-									if (weapon[i].data >= 0)
+									if (target_unit->flags & 1)
 									{
-										target_unit->compute_model_coord();
-										if (target_unit->flags & 1)
+										pos_of_target_unit = target_unit->Pos;
+										pModel = target_unit->model;
+										if (weapon[i].data == -1 && pModel && pModel->nb_obj > 0)
+											weapon[i].data = Math::RandomTable() % pModel->nb_obj;
+										if (weapon[i].data >= 0)
 										{
-											if (pModel && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
-												target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
+											target_unit->compute_model_coord();
+											if (target_unit->flags & 1)
+											{
+												if (pModel && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
+													target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
+											}
 										}
+										else if (pModel)
+											target_pos_on_unit = pModel->center;
 									}
-									else if (pModel)
-										target_pos_on_unit = pModel->center;
 									target_unit->unlock();
 								}
 
@@ -2642,7 +2648,7 @@ namespace TA3D
 												 ? ( target_weapon == NULL
 													 ? Pos + data.data[start_piece].tpos - weapon[i].target_pos
 													 : (Pos + data.data[start_piece].tpos - target_weapon->Pos) )
-												 : (Pos + data.data[start_piece].tpos - target_unit->Pos - target_pos_on_unit);
+												 : (Pos + data.data[start_piece].tpos - pos_of_target_unit - target_pos_on_unit);
 									D.y = 0.0f;
 									float v;
                                     if (pType->weapon[ i ]->startvelocity == 0.0f)
@@ -2656,10 +2662,10 @@ namespace TA3D
 										else
 											aiming[1] = (int)(ballistic_angle(v,the_map->ota_data.gravity,D.norm(),(Pos + data.data[start_piece].tpos).y,target_weapon->Pos.y)*DEG2TA);
 									}
-									else
+									else if (pModel)
 										aiming[1] = (int)(ballistic_angle(v, the_map->ota_data.gravity, D.norm(),
 																		  (Pos + data.data[start_piece].tpos).y,
-																		  target_unit->Pos.y + target_unit->model->center.y * 0.5f) * DEG2TA);
+																		  pos_of_target_unit.y + pModel->center.y * 0.5f) * DEG2TA);
 								}
 								else
 								{
