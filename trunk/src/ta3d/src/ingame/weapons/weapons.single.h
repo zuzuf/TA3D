@@ -55,7 +55,7 @@ namespace TA3D
 
     public:
         //! Weapon unique id
-        short weapon_id;
+		int weapon_id;
         //! Position
         Vector3D Pos;
         //! Speed
@@ -64,7 +64,7 @@ namespace TA3D
         //!
         Vector3D target_pos;			// Position ciblée
         //!
-        short target;				// Unité ciblée (dans le tableau des unités)
+		int target;				// Unité ciblée (dans le tableau des unités)
         //!
         float stime;				// Temps écoulé depuis le lancement
         //!
@@ -78,9 +78,9 @@ namespace TA3D
         //!
         float a_time;				// Temps d'activité
         //!
-        short anim_sprite;		// Position dans l'animation
+		int anim_sprite;		// Position dans l'animation
         //!
-        short shooter_idx;		// Unité qui a tiré l'arme (ne peut pas se tirer dessus)
+		int shooter_idx;		// Unité qui a tiré l'arme (ne peut pas se tirer dessus)
         //!
         byte phase;
         //!

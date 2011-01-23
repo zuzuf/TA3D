@@ -95,23 +95,22 @@ namespace TA3D
 			idx_list.push_back(i);
 			++nb_weapon;
 			weapon[i].init();
-			weapon[i].weapon_id = short(weapon_id);
-			weapon[i].shooter_idx = short(shooter);
+			weapon[i].weapon_id = weapon_id;
+			weapon[i].shooter_idx = shooter;
 			weapon[i].idx = i;
 			weapon[i].f_time = weapon_manager.weapon[weapon_id].flighttime;
 			return i;
 		}
 		weapon.resize( weapon.size() + 1 );
 
-		weapon[ weapon.size()-1 ].weapon_id = -1;
 		uint32 index = uint32(weapon.size() - 1);
 		idx_list.push_back( index );
 		++nb_weapon;
-		weapon[index].init();
-		weapon[index].weapon_id = short(weapon_id);
-		weapon[index].shooter_idx = short(shooter);
-		weapon[index].idx=index;
-		weapon[index].f_time=weapon_manager.weapon[weapon_id].flighttime;
+		weapon.back().init();
+		weapon.back().weapon_id = weapon_id;
+		weapon.back().shooter_idx = shooter;
+		weapon.back().idx = index;
+		weapon.back().f_time = weapon_manager.weapon[weapon_id].flighttime;
 		return index;
 	}
 
