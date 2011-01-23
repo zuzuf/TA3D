@@ -388,7 +388,7 @@ namespace TA3D
 				{
 					if (FileInformation.cFileName[0] != '.')
 					{
-						String name = FileInformation.cFileName;
+						String name = (const char*)FileInformation.cFileName;
 
 						if((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fileAttribs & FA_DIREC) && !(required & FA_FILE))
 						{
