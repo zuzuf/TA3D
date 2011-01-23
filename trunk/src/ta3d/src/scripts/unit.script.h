@@ -86,6 +86,7 @@ namespace TA3D
     private:
         static lua_State *pLuaVM;
         static lua_State *luaVM();
+		static Mutex mLuaVM;
     };
 
 }
