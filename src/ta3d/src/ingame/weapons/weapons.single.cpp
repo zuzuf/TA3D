@@ -686,6 +686,9 @@ namespace TA3D
 
 	void Weapon::draw()				// Dessine les objets produits par les armes
 	{
+		if (weapon_id < 0)
+			return;
+
 		visible = false;
 
 		int px = ((int)(Pos.x + 0.5f) + the_map->map_w_d) >> 4;
