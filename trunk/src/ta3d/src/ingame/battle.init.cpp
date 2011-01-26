@@ -746,7 +746,7 @@ namespace TA3D
 			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
-				first_pass = gfx->create_texture_RGBA32F(512, 512, FILTER_NONE, false);
+				first_pass = gfx->create_texture_RGBA32F(512, 512, FILTER_LINEAR, false);
 			else
 				first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
@@ -756,7 +756,8 @@ namespace TA3D
 				second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			water_color = gfx->make_texture( tmp, FILTER_LINEAR);
-            // Water simulation data			if (lp_CONFIG->water_quality >= 5)
+			// Water simulation data
+			if (lp_CONFIG->water_quality >= 5)
 			{
 				last_water_refresh = msec_timer;
 				const int simulation_w = 256;
@@ -815,7 +816,7 @@ namespace TA3D
 						file.close();
 					}
 				}
-				water_sim = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
+				water_sim = gfx->make_texture_RGBA32F(256,256,data,FILTER_LINEAR,false);
 				DELETE_ARRAY(data);
 
 				//  Let's create the height map texture used to render progressive water effects using water depth

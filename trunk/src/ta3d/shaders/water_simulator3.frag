@@ -6,9 +6,9 @@ const vec2 dv = vec2(0.0, 0.00390625);
 
 void main()
 {
-    vec4 P0 = texture2DLod( sim, t_coord, 0.0 );
-    vec4 PU = texture2DLod( sim, t_coord + du, 0.0 );
-    vec4 PV = texture2DLod( sim, t_coord + dv, 0.0 );
+    vec4 P0 = texture2D( sim, t_coord );
+    vec4 PU = texture2D( sim, t_coord + du );
+    vec4 PV = texture2D( sim, t_coord + dv );
 	vec3 normal = normalize( vec3( PU.y - P0.y, 0.1, PV.y - P0.y ) );
     gl_FragColor = vec4(normal, 0.0);
 }

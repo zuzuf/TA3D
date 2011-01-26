@@ -7,9 +7,9 @@ const vec2 dv = vec2(0.0, 0.00390625);
 
 void main()
 {
-    vec4 P0 = texture2DLod( sim, t_coord, 0.0 );
-    vec4 PU = texture2DLod( sim, t_coord - du, 0.0 );
-    vec4 PV = texture2DLod( sim, t_coord - dv, 0.0 );
+    vec4 P0 = texture2D( sim, t_coord );
+    vec4 PU = texture2D( sim, t_coord - du );
+    vec4 PV = texture2D( sim, t_coord - dv );
     P0.y += dt * (P0.x + P0.z - PU.x - PV.z);
     gl_FragColor = P0;
 }
