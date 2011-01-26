@@ -27,7 +27,7 @@
 #include <misc/settings.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
-#include <yuni/core/sleep.h>
+#include <yuni/core/suspend.h>
 #include <gfx/video.h>
 
 

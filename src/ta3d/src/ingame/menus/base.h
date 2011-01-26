@@ -23,7 +23,7 @@
 # include <gfx/gui/area.h>
 # include <misc/string.h>
 # include <yuni/core/smartptr/smartptr.h>
-# include <yuni/core/sleep.h>
+# include <yuni/core/suspend.h>
 
 
 # define TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING  16

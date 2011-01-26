@@ -52,7 +52,7 @@ namespace Menus
 		// Wait for user to release ESC
 		while (key[KEY_ESC])
 		{
-			SleepMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+			SuspendMilliSeconds(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 		clear_keybuf();
