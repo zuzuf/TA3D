@@ -65,6 +65,8 @@ namespace TA3D
 		{
 			FogD = 0.3f;
 			FogFar = lp_CONFIG->far_sight ? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h ) : cam.zfar;
+			if (cam.rpos.y > gfx->low_def_limit)
+				FogFar *= 2.0f - std::exp(-0.01f * (cam.rpos.y - gfx->low_def_limit));
 			FogNear = FogFar * 0.5f;
 			FogMode = GL_LINEAR;
 
