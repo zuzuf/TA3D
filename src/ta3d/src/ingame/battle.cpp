@@ -2455,7 +2455,8 @@ namespace TA3D
 		circle_texture.destroy();
 		pause_tex.destroy();
 		gfx->destroy_texture(water);
-		gfx->destroy_texture(water_sim);
+		gfx->destroy_texture(water_sim0);
+		gfx->destroy_texture(water_sim1);
 		gfx->destroy_texture(water_sim2);
 		gfx->destroy_texture(water_color);
 		gfx->destroy_texture(first_pass);

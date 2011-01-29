@@ -481,7 +481,6 @@ namespace TA3D
 			{
 				// Run water simulation entirely on the GPU
 				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_sim,0);
 
 				glViewport(0,0,256,256);
 
@@ -495,7 +494,6 @@ namespace TA3D
 
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,water_sim);
 
 				const float time_step = 0.02f;
 				const float time_to_simulate = Math::Min( dt * units.apparent_timefactor, time_step * 3.0f );
@@ -503,6 +501,9 @@ namespace TA3D
 				// Simulate water
 				for(float real_time = 0.0f ; real_time < time_to_simulate ; real_time += time_step)
 				{
+					glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_sim0,0);
+					glBindTexture(GL_TEXTURE_2D,water_sim1);
+
 					bool refresh = false;
 					if (msec_timer - last_water_refresh >= 100000)
 					{
@@ -524,6 +525,9 @@ namespace TA3D
 
 					water_simulator_shader.off();
 
+					glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_sim1,0);
+					glBindTexture(GL_TEXTURE_2D,water_sim0);
+
 					water_simulator_shader2.on();
 					water_simulator_shader2.setvar1i("sim",0);
 					water_simulator_shader2.setvar1f("dt", dt_step);
@@ -542,7 +546,7 @@ namespace TA3D
 
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,water_sim);
+				glBindTexture(GL_TEXTURE_2D,water_sim1);
 
 				water_simulator_shader3.on();
 				water_simulator_shader3.setvar1i("sim",0);
