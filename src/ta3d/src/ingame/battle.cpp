@@ -2318,9 +2318,7 @@ namespace TA3D
 
 			if (show_timefactor > 0.0f)
 			{
-				String value = String("x ") << lp_CONFIG->timefactor;
-				if (value.find('.') != String::npos)
-					value.truncate(value.find('.') + 2);
+				String value = String().format("x %.1f", lp_CONFIG->timefactor);
 				if (show_timefactor > 0.5f)
 				{
 					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, makeacol32(0,0,0,0xFF), value);
