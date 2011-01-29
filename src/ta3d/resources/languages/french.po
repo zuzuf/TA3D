@@ -203,7 +203,7 @@
 {
 	FRENCH=fermé;
 }
-[warning: you might have texturing\nissues with this!!]
+[warning: you might have texturing\nissues with this]
 {
 	FRENCH=attention: vous pouvez avoir des problèmes\nde textures avec cette option!!;
 }
@@ -818,4 +818,16 @@
 [Developer mode disables caching]
 {
 	FRENCH=Le mode développeur désactive\nles caches disque;
+}
+[Good luck commander!]
+{
+    FRENCH=Bonne chance commandeur!;
+}
+[Texture quality]
+{
+    FRENCH=Détails des textures;
+}
+[More detailed textures require more video memory]
+{
+    FRENCH=Des textures plus détaillées nécessitent plus de mémoire vidéo;
 }

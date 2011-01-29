@@ -10,7 +10,7 @@ end
 
 local_player = local_player()
 
-text_print( 296, 236, "Starting benchmark!" )
+text_print( -320, -240, "Starting benchmark!" )
 
 set_cam_pos( local_player, start_x( local_player ), start_z( local_player ) + 64 )
 

@@ -9,7 +9,7 @@ end
 
 local_player = local_player()
 
-text_print( 296, 236, "Welcome" )
+text_print( -320, -240, "Good luck commander!" )
 timer = time()
 cleared = false
 end_signal = 0
@@ -36,12 +36,14 @@ while true do
 	    elseif end_signal ~= 0 then
 	    else
 	        if not has_unit( local_player, commander( local_player ) ) then
-		        draw_image( "gfx/defeat.png", 145, 190, 495, 290 )
+                local w, h = get_image_size( "gfx/defeat.png" )
+                draw_image( "gfx/defeat.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5)
 		        timer = time()
 		        end_signal = SIGNAL_DEFEAT
 	        elseif current_level >= 3 and annihilated( 1 ) then
 		        play( "VICTORY2" )
-		        draw_image( "gfx/victory.png", 145, 190, 495, 290 )
+                local w, h = get_image_size( "gfx/victory.png" )
+                draw_image( "gfx/victory.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5)
 		        timer = time()
 		        end_signal = SIGNAL_VICTORY
 	        end

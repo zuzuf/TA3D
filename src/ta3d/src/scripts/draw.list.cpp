@@ -116,8 +116,16 @@ namespace TA3D
             case DRAW_TYPE_TEXT:
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                gfx->print(fnt,prim.x[0] * SCREEN_W / 640.0f + 1,prim.y[0] * SCREEN_H / 480.0f + 1,0.0f,makeacol32(0,0,0, 0xFF),prim.text);
-                gfx->print(fnt,prim.x[0] * SCREEN_W / 640.0f,prim.y[0] * SCREEN_H / 480.0f,0.0f,makeacol32((int)(prim.r[0]*255.0f),(int)(prim.g[0]*255.0f),(int)(prim.b[0]*255.0f), 0xFF),prim.text);
+				{
+					float x = prim.x[0] * SCREEN_W / 640.0f;
+					float y = prim.y[0] * SCREEN_H / 480.0f;
+					if (x < 0.0f)
+						x += SCREEN_W - 0.5f * fnt->length(prim.text);
+					if (y < 0.0f)
+						y += SCREEN_H - 0.5f * fnt->height();
+					gfx->print(fnt, x + 1, y + 1, 0.0f, makeacol32(0,0,0, 0xFF), prim.text);
+					gfx->print(fnt, x, y, 0.0f, makeacol32((int)(prim.r[0]*255.0f),(int)(prim.g[0]*255.0f),(int)(prim.b[0]*255.0f), 0xFF), prim.text);
+				}
                 glDisable(GL_BLEND);
                 break;
             case DRAW_TYPE_BITMAP:
