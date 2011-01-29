@@ -489,7 +489,7 @@ namespace TA3D
 		bool IsAbsolute(const String& p)
 		{
 			# ifdef TA3D_PLATFORM_WINDOWS
-			return (p.empty() || (p.size() > 2 && ':' == p[1] && '\\' == p[2]));
+			return (p.empty() || (p.size() > 2 && ':' == p[1] && ('\\' == p[2] || '/' == p[2])));
 			# else
 			return ('/' == p.first());
 			# endif
