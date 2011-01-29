@@ -75,6 +75,7 @@ namespace TA3D
         //! Position
         Vector3D Pos;
         float size;		// Taille (proportion de l'image d'origine)
+		float angle;	// Angle
         int anm;		// Animation
 
     private:
