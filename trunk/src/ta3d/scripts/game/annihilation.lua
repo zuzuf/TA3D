@@ -1,6 +1,6 @@
 #include "signals.lh"
 
-text_print( 296, 236, "Welcome" )
+text_print( -320, -240, "Good luck commander!" )
 timer = time()
 cleared = false
 
@@ -53,12 +53,14 @@ while true do
 					    end_signal[ current_player ] = SIGNAL_NUL
 				    else
 					    play_for( "VICTORY2", current_player )
-					    draw_image_for( "gfx/victory.png", 145, 190, 495, 290, current_player )
+                        local w, h = get_image_size( "gfx/victory.png" )
+					    draw_image_for( "gfx/victory.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5, current_player )
 					    player_timer[ current_player ] = time()
 					    end_signal[ current_player ] = SIGNAL_VICTORY
 				    end
 			    elseif annihilated( current_player ) then
-					    draw_image_for( "gfx/defeat.png", 145, 190, 495, 290, current_player )
+                        local w, h = get_image_size( "gfx/defeat.png" )
+					    draw_image_for( "gfx/defeat.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5, current_player )
 					    player_timer[ current_player ] = time()
 					    end_signal[ current_player ] = SIGNAL_DEFEAT
 			    end

@@ -86,6 +86,7 @@ namespace TA3D
 	int program_time(lua_State *L);
 	int program_draw_image(lua_State *L);
 	int program_draw_image_for(lua_State *L);
+	int program_get_image_size(lua_State *L);
 	int program_nb_players(lua_State *L);
 	int program_get_unit_number_for_player(lua_State *L);
 	int program_get_unit_owner(lua_State *L);

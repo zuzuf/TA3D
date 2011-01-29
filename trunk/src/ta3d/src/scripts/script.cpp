@@ -265,6 +265,24 @@ namespace TA3D
 		return 0;
 	}
 
+	int program_get_image_size(lua_State *L)
+	{
+		SDL_Surface *img = gfx->load_image(lua_tostring(L, 1) );
+		lua_pop(L, 1);
+		if (img)
+		{
+			lua_pushinteger(L, img->w);
+			lua_pushinteger(L, img->h);
+			SDL_FreeSurface(img);
+		}
+		else
+		{
+			lua_pushinteger(L, 0);
+			lua_pushinteger(L, 0);
+		}
+		return 2;
+	}
+
 	int program_nb_players( lua_State *L )		// nb_players()
 	{
 		lua_pushinteger( L, NB_PLAYERS );
@@ -1356,6 +1374,7 @@ namespace TA3D
 		lua_register( L, "time", program_time );
 		lua_register( L, "draw_image", program_draw_image );
 		lua_register( L, "draw_image_for", program_draw_image_for );
+		lua_register( L, "get_image_size", program_get_image_size );
 		lua_register( L, "nb_players", program_nb_players );
 		lua_register( L, "get_unit_number_for_player", program_get_unit_number_for_player );
 		lua_register( L, "get_unit_owner", program_get_unit_owner );

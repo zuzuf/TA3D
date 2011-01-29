@@ -683,7 +683,7 @@ namespace Gui
 						}
 						if (pCacheDrawTextStr == "&")
 						{
-							gfx->print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * (e - pos), 0.0f, current_color, buf);
+							text_color.print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * (e - pos), current_color, buf);
 							x_offset += gui_font->length( buf);
 							buf.clear();
 
