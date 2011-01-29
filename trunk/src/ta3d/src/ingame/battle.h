@@ -295,7 +295,9 @@ namespace TA3D
 		//!
 		GLuint	water;
 		//!
-		GLuint	water_sim;
+		GLuint	water_sim0;
+		//!
+		GLuint	water_sim1;
 		//!
 		GLuint	water_sim2;
 		//!

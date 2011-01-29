@@ -102,8 +102,9 @@ namespace TA3D
 		map(NULL),
 		sky(),
         water(0),
-        water_sim(0),
-        water_sim2(0),
+		water_sim0(0),
+		water_sim1(0),
+		water_sim2(0),
 		escMenuWasVisible(false),
 		height_tex(0),
         transtex(0),
@@ -192,8 +193,9 @@ namespace TA3D
 		circle_texture.destroy();
 		pause_tex.destroy();
 		water = 0;
-        water_sim = 0;
-        water_sim2 = 0;
+		water_sim0 = 0;
+		water_sim1 = 0;
+		water_sim2 = 0;
         height_tex = 0;
         transtex = 0;
         reflectex = 0;
@@ -698,7 +700,7 @@ namespace TA3D
 	{
 		water_obj = new WATER();
         water_obj->build(map->map_w, map->map_h, 1000.0f);
-        water_sim = water_sim2 = 0;
+		water_sim0 = water_sim1 = water_sim2 = 0;
 
 		if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
 		{
@@ -816,7 +818,8 @@ namespace TA3D
 						file.close();
 					}
 				}
-				water_sim = gfx->make_texture_RGBA32F(256,256,data,FILTER_LINEAR,false);
+				water_sim0 = gfx->make_texture_RGBA32F(256,256,data,FILTER_LINEAR,false);
+				water_sim1 = gfx->make_texture_RGBA32F(256,256,data,FILTER_LINEAR,false);
 				DELETE_ARRAY(data);
 
 				//  Let's create the height map texture used to render progressive water effects using water depth
