@@ -75,7 +75,8 @@ namespace TA3D
 			typePolygon = 0x0,
 			typeTexture = 0x1,
 			typeBitmap  = 0x2,
-			typePixmap  = 0x3
+			typePixmap  = 0x3,
+			typeTextures = 0x4
 		};
 
 	public:

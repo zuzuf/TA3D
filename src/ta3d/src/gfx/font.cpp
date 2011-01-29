@@ -274,6 +274,9 @@ namespace TA3D
 				case typePolygon:
 					font = new FTPolygonFont(filename.c_str());
 					break;
+				case typeTextures:
+					font = new FTTextureFont(filename.c_str());
+					break;
 				case typeTexture:
 				default:
 #ifdef __FTGL__lower__

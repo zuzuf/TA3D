@@ -621,17 +621,17 @@ namespace TA3D
 	void GFX::loadFonts()
 	{
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-		normal_font = font_manager.find("FreeSans", 10, Font::typeTexture);
+		normal_font = font_manager.find("FreeSans", 10, Font::typeTextures);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-		small_font = font_manager.find("FreeMono", 8, Font::typeTexture);
+		small_font = font_manager.find("FreeMono", 8, Font::typeTextures);
 		small_font->setBold(true);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
 		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-		ta3d_gui_font = font_manager.find("FreeSerif", 10 * height / 480, Font::typeTexture);
+		ta3d_gui_font = font_manager.find("FreeSerif", 10 * height / 480, Font::typeTextures);
 		Gui::gui_font = ta3d_gui_font;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
