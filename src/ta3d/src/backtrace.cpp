@@ -47,6 +47,7 @@
 # include <stdlib.h>
 # include <yuni/core/io/file/stream.h>
 # include "sdl.h"
+# include "misc/osinfo.h"
 
 /*! \brief a small function implementing an automatic bug reporter
  * Declaration of the bug reporter. It's here because it should be visible only
@@ -140,8 +141,22 @@ void backtrace_handler (int signum)
 
 
 
-int init_signals (void)
+void init_signals (void)
 {
+	// On Linux, get the command of the parent process.
+	// If we're running in GDB, then don't override it!!
+	#ifdef TA3D_PLATFORM_LINUX
+	// Get TA3D's PID
+	pid_t mypid = getpid();
+	const TA3D::String ppid = TA3D::System::run_command(TA3D::String("ps -o ppid -p ") << mypid << " | tail -n 1");
+	const TA3D::String parent = TA3D::System::run_command(TA3D::String("ps -o command -p ") << ppid);
+	if (parent.contains("gdb"))
+	{
+		std::cerr << "Running under GDB, not overriding signals handlers" << std::endl;
+		return;
+	}
+	#endif
+
 	// Signals should be disabled under OS X, since the system already produces a crash report
 	// More information are available here :
 	// http://developer.apple.com/technotes/tn2004/tn2123.html
@@ -161,7 +176,6 @@ int init_signals (void)
 	}
 
 	#endif // ifdef TA3D_PLATFORM_DARWIN
-	return 0; // TODO missing value ?
 }
 
 void clear_signals (void)

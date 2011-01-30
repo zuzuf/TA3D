@@ -21,7 +21,7 @@
 # define __TA3D_BACKTRACE_H__
 
 
-int init_signals (void);
+void init_signals (void);
 void clear_signals (void);
 void criticalMessage(const String &msg);
 
