@@ -89,12 +89,6 @@ namespace Interfaces
 		gfx->drawtexture_flip(tex, x1 - 0.5f * scale * width, y1 - 0.5f * scale * height, x1 + 0.5f * scale * width, y1 + 0.5f * scale * height, col);
 	}
 
-	GfxTexture::GfxTexture(const GLuint gltex)
-	{
-		destroy_tex = true;
-		set( gltex );
-	}
-
 	GfxTexture::GfxTexture(GLuint gltex, uint32 w, uint32 h)
 	{
 		destroy_tex = false;
