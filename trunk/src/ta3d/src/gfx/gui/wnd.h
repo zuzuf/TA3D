@@ -181,6 +181,10 @@ namespace Gui
 		int scrolling;
 		//! Scrollable
 		bool scrollable;
+		//! background size when clamped
+		int background_width;
+		int background_height;
+		bool background_clamp;
 
 		//! Title
 		String  Title;
