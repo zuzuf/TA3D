@@ -49,32 +49,37 @@ namespace TA3D
 		const int dx = int((tu - float(x)) * 65536.0f);
 		const int dy = int((tv - float(y)) * 65536.0f);
 
-		uint32 c[4];
-		c[0] = getpixel(bmp, x % bmp->w, y % bmp->h);
-		c[1] = getpixel(bmp, (x + 1) % bmp->w, y % bmp->h);
-		c[2] = getpixel(bmp, x % bmp->w, (y + 1) % bmp->h);
-		c[3] = getpixel(bmp, (x + 1) % bmp->w, (y + 1) % bmp->h);
+		uint32 c0, c1, c2, c3;
+		byte r0, r1, r2, r3;
+		byte g0, g1, g2, g3;
+		byte b0, b1, b2, b3;
+		byte a0, a1, a2, a3;
+		c0 = SurfaceInt(bmp, (x % bmp->w), (y % bmp->h));
+		c1 = SurfaceInt(bmp, ((x + 1) % bmp->w), (y % bmp->h));
+		c2 = SurfaceInt(bmp, (x % bmp->w), ((y + 1) % bmp->h));
+		c3 = SurfaceInt(bmp, ((x + 1) % bmp->w), ((y + 1) % bmp->h));
 
-		int r[4], g[4], b[4];
-		for(int i = 0 ; i < 4 ; ++i)
-		{
-			r[i] = getr(c[i]);
-			g[i] = getg(c[i]);
-			b[i] = getb(c[i]);
-		}
-		r[0] = r[0] + ((r[1] - r[0]) * dx >> 16);
-		r[2] = r[2] + ((r[3] - r[2]) * dx >> 16);
-		r[0] = r[0] + ((r[2] - r[0]) * dy >> 16);
+		r0 = getr(c0);	g0 = getg(c0);	b0 = getb(c0);	a0 = geta(c0);
+		r1 = getr(c1);	g1 = getg(c1);	b1 = getb(c1);	a1 = geta(c1);
+		r2 = getr(c2);	g2 = getg(c2);	b2 = getb(c2);	a2 = geta(c2);
+		r3 = getr(c3);	g3 = getg(c3);	b3 = getb(c3);	a3 = geta(c3);
 
-		g[0] = g[0] + ((g[1] - g[0]) * dx >> 16);
-		g[2] = g[2] + ((g[3] - g[2]) * dx >> 16);
-		g[0] = g[0] + ((g[2] - g[0]) * dy >> 16);
+		r0 = r0 + ((r1 - r0) * dx >> 16);
+		r2 = r2 + ((r3 - r2) * dx >> 16);
+		r0 = r0 + ((r2 - r0) * dy >> 16);
 
-		b[0] = b[0] + ((b[1] - b[0]) * dx >> 16);
-		b[2] = b[2] + ((b[3] - b[2]) * dx >> 16);
-		b[0] = b[0] + ((b[2] - b[0]) * dy >> 16);
+		g0 = g0 + ((g1 - g0) * dx >> 16);
+		g2 = g2 + ((g3 - g2) * dx >> 16);
+		g0 = g0 + ((g2 - g0) * dy >> 16);
 
-		return makecol(r[0], g[0], b[0]);
+		b0 = b0 + ((b1 - b0) * dx >> 16);
+		b2 = b2 + ((b3 - b2) * dx >> 16);
+		b0 = b0 + ((b2 - b0) * dy >> 16);
+
+		a0 = a0 + ((a1 - a0) * dx >> 16);
+		a2 = a2 + ((a3 - a2) * dx >> 16);
+		a0 = a0 + ((a2 - a0) * dy >> 16);
+		return makeacol32(r0, g0, b0, a0);
 	}
 
 	void Sky::build(int d,float size)
@@ -87,7 +92,7 @@ namespace TA3D
 		if (stex)
 		{
 			stex = convert_format(stex);
-			const int skyRes = 1024;
+#define skyRes 1024
 			SDL_Surface *img[6];
 			for(int i = 0 ; i < 6 ; ++i)
 				img[i] = gfx->create_surface(skyRes, skyRes);
@@ -115,17 +120,17 @@ namespace TA3D
 						if (!skyInfo->full_sphere)
 							beta *= 2.0f;
 						beta = Math::Clamp(beta, 0.0f, 1.0f);
-						putpixel(img[0], x, y, getpixelBL(stex, alpha + 1.0f, beta));
-						putpixel(img[1], x, y, getpixelBL(stex, alpha + 1.25f, beta));
-						putpixel(img[2], x, y, getpixelBL(stex, alpha + 1.5f, beta));
-						putpixel(img[3], x, y, getpixelBL(stex, alpha + 1.75f, beta));
+						SurfaceInt(img[0], x, y) = getpixelBL(stex, alpha + 1.0f, beta);
+						SurfaceInt(img[1], x, y) = getpixelBL(stex, alpha + 1.25f, beta);
+						SurfaceInt(img[2], x, y) = getpixelBL(stex, alpha + 1.5f, beta);
+						SurfaceInt(img[3], x, y) = getpixelBL(stex, alpha + 1.75f, beta);
 					}
 					else
 					{
-						putpixel(img[0], x, y, fcol);
-						putpixel(img[1], x, y, fcol);
-						putpixel(img[2], x, y, fcol);
-						putpixel(img[3], x, y, fcol);
+						SurfaceInt(img[0], x, y) = fcol;
+						SurfaceInt(img[1], x, y) = fcol;
+						SurfaceInt(img[2], x, y) = fcol;
+						SurfaceInt(img[3], x, y) = fcol;
 					}
 
 					alpha = std::atan2(fy, fx) / (2.0f * float(M_PI));
@@ -134,11 +139,12 @@ namespace TA3D
 						beta *= 2.0f;
 
 					if (!skyInfo->full_sphere)
-						putpixel(img[4], x, y, fcol);
+						SurfaceInt(img[4], x, y) = fcol;
 					else
-						putpixel(img[4], x, y, getpixelBL(stex, alpha + 1.75f, Math::Clamp(1.0f - beta, 0.0f, 1.0f)));
-					putpixel(img[5], x, y, getpixelBL(stex, alpha + 1.25f, Math::Clamp(beta, 0.0f, 1.0f)));
+						SurfaceInt(img[4], x, y) = getpixelBL(stex, alpha + 1.75f, Math::Clamp(1.0f - beta, 0.0f, 1.0f));
+					SurfaceInt(img[5], x, y) = getpixelBL(stex, alpha + 1.25f, Math::Clamp(beta, 0.0f, 1.0f));
 				}
+#undef skyRes
 			}
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
