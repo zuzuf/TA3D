@@ -47,6 +47,9 @@ namespace TA3D
 			pCacheFontHeight = gui_font ->height();
 			scrolling = 0;
 			scrollable = false;
+			background_clamp = false;
+			background_width = 1;
+			background_height = 1;
 		}
 
 
@@ -173,10 +176,15 @@ namespace TA3D
 			else
 			{
 				gfx->set_color(color);
-				if (repeat_bkg)
-					gfx->drawtexture(background, x, y, x + width, y + height, 0.0f, 0.0f, ((float)width) / bkg_w, ((float)height) / bkg_h);
+				if (background_clamp)
+					gfx->drawtexture(background, x, y, x + background_width, y + background_height);
 				else
-					gfx->drawtexture(background, x, y, x + width, y + height);
+				{
+					if (repeat_bkg)
+						gfx->drawtexture(background, x, y, x + width, y + height, 0.0f, 0.0f, ((float)width) / bkg_w, ((float)height) / bkg_h);
+					else
+						gfx->drawtexture(background, x, y, x + width, y + height);
+				}
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 			glDisable(GL_BLEND);
@@ -536,6 +544,7 @@ namespace TA3D
 				delete_gltex = false;
 			}
 			background = 0;
+			background_clamp = false;
 			pObjects.clear();
 			pMutex.unlock();
 		}
@@ -1512,6 +1521,9 @@ namespace TA3D
 				if (background)
 					gfx->save_texture_to_cache(panel, background, w, h);
 			}
+			background_clamp = true;
+			background_width = w;
+			background_height = h;
 
 			delete_gltex = background;
 			background_wnd = background;
