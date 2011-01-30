@@ -39,20 +39,20 @@ namespace TA3D
 	inline uint32 &SurfaceInt(SDL_Surface *img, int x, int y)
 	{
 		LOG_ASSERT(x >= 0 && y >= 0 && (x << 2) < img->pitch && y < img->h);
-		return ((uint32*)(img->pixels))[(y * img->pitch >> 2) + x];
+		return *(uint32*)((byte*)(img->pixels) + (y * img->pitch) + (x << 2));
 	}
 
 	inline uint16 &SurfaceShort(SDL_Surface *img, int x, int y)
 	{
 		LOG_ASSERT(x >= 0 && y >= 0 && (x << 1) < img->pitch && y < img->h);
-		return ((uint16*)(img->pixels))[(y * img->pitch >> 1) + x];
+		return *(uint16*)((byte*)(img->pixels) + (y * img->pitch) + (x << 1));
 	}
 
 	template<typename T>
 			inline T &SurfaceType(SDL_Surface *img, int x, int y)
 	{
 		LOG_ASSERT(x >= 0 && y >= 0 && x * sizeof(T) < img->pitch && y < img->h);
-		return ((T*)(img->pixels))[y * img->pitch / sizeof(T) + x];
+		return *(T*)((byte*)(img->pixels) + (y * img->pitch) + (x * sizeof(T)));
 	}
 }
 
