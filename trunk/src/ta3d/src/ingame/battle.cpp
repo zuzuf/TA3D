@@ -2147,9 +2147,9 @@ namespace TA3D
 					}
 					if (prev >= 0)
 					{
-						int type = units.unit[cur_sel_index].mission->getUnit()->type_id;
-						float metal_to_give_back = units.unit[cur_sel_index].mission->getUnit()->build_percent_left * unit_manager.unit_type[type]->BuildCostMetal;
-						int p_id = units.unit[cur_sel_index].owner_id;
+						const int type = units.unit[cur_sel_index].mission->getUnit()->type_id;
+						const float metal_to_give_back = (1.0f - units.unit[cur_sel_index].mission->getUnit()->build_percent_left * 0.01f) * unit_manager.unit_type[type]->BuildCostMetal;
+						const int p_id = units.unit[cur_sel_index].owner_id;
 						units.unit[cur_sel_index].mission->getUnit()->clear_from_map();
 						units.unit[cur_sel_index].mission->getUnit()->flags = 0;               // Don't count it as a loss
 						units.kill(units.unit[cur_sel_index].mission->getUnit()->idx, prev);
