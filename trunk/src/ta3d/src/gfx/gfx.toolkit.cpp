@@ -21,6 +21,7 @@
 #include "gfx.h"
 #include <zlib.h>
 #include <yuni/core/io/file/stream.h>
+#include <misc/grid.h>
 
 using namespace Yuni::Core::IO::File;
 using namespace Yuni::Core::IO;
@@ -457,22 +458,49 @@ namespace TA3D
 		// Gaussian blur pass to remove HF components
 		const float sigx = float(in->w) / w - 1.0f;
 		const float sigy = float(in->h) / h - 1.0f;
-		const int sx = (sigx + 1.0f) * 3.0f;
-		const int sy = (sigy + 1.0f) * 3.0f;
-		float *kerX = new float[sx];
-		float *kerY = new float[sy];
+		const int sx = (sigx + 1.0f) * 2.0f;
+		const int sy = (sigy + 1.0f) * 2.0f;
+		const int sx2 = 2 * sx - 1;
+		const int sy2 = 2 * sy - 1;
+		uint32 *kerX = new uint32[sx];
+		uint32 *kerY = new uint32[sy];
 		if (sigx > 0.0f)
+		{
+			uint32 sum = 0U;
 			for(int i = 0 ; i < sx ; ++i)
-				kerX[i] = std::exp(-i * i / (2.0f * sigx * sigx));
+			{
+				kerX[i] = uint32(std::exp(-i * i / (2.0f * sigx * sigx)) * 0x10000);
+				sum += kerX[i];
+				if (i)	sum += kerX[i];
+			}
+			for(int i = 0 ; i < sx ; ++i)
+				kerX[i] = uint32(double(kerX[i]) * 0x10000 / sum);
+		}
 		else
 			for(int i = 0 ; i < sx ; ++i)
-				kerX[i] = i == 0 ? 1.0f : 0.0f;
+				kerX[i] = i == 0 ? 0x10000U : 0U;
 		if (sigy > 0.0f)
+		{
+			uint32 sum = 0U;
 			for(int i = 0 ; i < sy ; ++i)
-				kerY[i] = std::exp(-i * i / (2.0f * sigy * sigy));
+			{
+				kerY[i] = uint32(std::exp(-i * i / (2.0f * sigy * sigy)) * 0x10000);
+				sum += kerY[i];
+				if (i)	sum += kerY[i];
+			}
+			for(int i = 0 ; i < sy ; ++i)
+				kerY[i] = uint32(double(kerY[i]) * 0x10000 / sum);
+		}
 		else
 			for(int i = 0 ; i < sy ; ++i)
-				kerY[i] = i == 0 ? 1.0f : 0.0f;
+				kerY[i] = i == 0 ? 0x10000U : 0U;
+
+		const int twm1 = tmp->w - 1;
+		const int thm1 = tmp->h - 1;
+		const int owm1 = out->w - 1;
+		const int ohm1 = out->h - 1;
+		const uint32 mx = 0x10000U * twm1 / owm1;
+		const uint32 my = 0x10000U * thm1 / ohm1;
 
 		switch(in->format->BitsPerPixel)
 		{
@@ -481,51 +509,81 @@ namespace TA3D
 			{
 				for(int	x = 0 ; x < out->w ; ++x)
 				{
-					const int X = x * (tmp->w - 1) / (out->w - 1);
+					const int X = x * mx >> 16;
 					byte *p = (byte*)tmp->pixels + y * tmp->pitch + X * 3;
-					float col[3] = { 0, 0, 0 };
-					float sum = 0.0f;
-					int start = std::max(-sx + 1, -X);
-					int end = std::min(sx, in->w - X);
+					uint32 col[3] = { 0U, 0U, 0U };
+					const int start = std::max(-sx + 1, -X);
+					const int end = std::min(sx, in->w - X);
 					byte *c = (byte*)in->pixels + y * in->pitch + (X + start) * 3;
-					for(int i = start ; i < end ; ++i, c += 3)
+					if (end - start == sx2)
 					{
-						const float f = kerX[abs(i)];
-						col[0] += f * c[0];
-						col[1] += f * c[1];
-						col[2] += f * c[2];
-						sum += f;
+						for(int i = -sx + 1 ; i < sx ; ++i, c += 3)
+						{
+							const uint32 f = kerX[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+						}
+						p[0] = byte(col[0] >> 16);
+						p[1] = byte(col[1] >> 16);
+						p[2] = byte(col[2] >> 16);
 					}
-					sum = 1.0f / sum;
-					p[0] = byte(col[0] * sum);
-					p[1] = byte(col[1] * sum);
-					p[2] = byte(col[2] * sum);
+					else
+					{
+						uint32 sum = 0U;
+						for(int i = start ; i < end ; ++i, c += 3)
+						{
+							const uint32 f = kerX[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+							sum += f;
+						}
+						p[0] = byte(col[0] / sum);
+						p[1] = byte(col[1] / sum);
+						p[2] = byte(col[2] / sum);
+					}
 				}
 			}
 			for(int	x = 0 ; x < out->w ; ++x)
 			{
-				const int X = x * (tmp->w - 1) / (out->w - 1);
+				const int X = x * mx >> 16;
 				byte *p = (byte*)out->pixels + x * 3;
 				for(int	y = 0 ; y < out->h ; ++y, p += out->pitch)
 				{
-					const int Y = y * (tmp->h - 1) / (out->h - 1);
-					float col[3] = { 0, 0, 0 };
-					float sum = 0.0f;
-					int start = std::max(-sy + 1, -Y);
-					int end = std::min(sy, in->h - Y);
+					const int Y = y * my >> 16;
+					uint32 col[3] = { 0U, 0U, 0U };
+					const int start = std::max(-sy + 1, -Y);
+					const int end = std::min(sy, in->h - Y);
 					byte *c = (byte*)tmp->pixels + (Y + start) * tmp->pitch + X * 3;
-					for(int i = start ; i < end ; ++i, c += tmp->pitch)
+					if (end - start == sy2)
 					{
-						const float f = kerY[abs(i)];
-						col[0] += f * c[0];
-						col[1] += f * c[1];
-						col[2] += f * c[2];
-						sum += f;
+						for(int i = -sy + 1 ; i < sy ; ++i, c += tmp->pitch)
+						{
+							const uint32 f = kerY[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+						}
+						p[0] = byte(col[0] >> 16);
+						p[1] = byte(col[1] >> 16);
+						p[2] = byte(col[2] >> 16);
 					}
-					sum = 1.0f / sum;
-					p[0] = byte(col[0] * sum);
-					p[1] = byte(col[1] * sum);
-					p[2] = byte(col[2] * sum);
+					else
+					{
+						uint32 sum = 0U;
+						for(int i = start ; i < end ; ++i, c += tmp->pitch)
+						{
+							const uint32 f = kerY[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+							sum += f;
+						}
+						p[0] = byte(col[0] / sum);
+						p[1] = byte(col[1] / sum);
+						p[2] = byte(col[2] / sum);
+					}
 				}
 			}
 			break;
@@ -534,55 +592,89 @@ namespace TA3D
 			{
 				for(int	x = 0 ; x < out->w ; ++x)
 				{
-					const int X = x * (tmp->w - 1) / (out->w - 1);
+					const int X = x * mx >> 16;
 					byte *p = (byte*)tmp->pixels + y * tmp->pitch + (X << 2);
-					float col[4] = { 0, 0, 0, 0 };
-					float sum = 0.0f;
-					int start = std::max(-sx + 1, -X);
-					int end = std::min(sx, in->w - X);
+					uint32 col[4] = { 0U, 0U, 0U, 0U };
+					const int start = std::max(-sx + 1, -X);
+					const int end = std::min(sx, in->w - X);
 					byte *c = (byte*)in->pixels + y * in->pitch + (X + start << 2);
-					for(int i = start ; i < end ; ++i, c += 4)
+					if (end - start == sx2)
 					{
-						const float f = kerX[abs(i)];
-						col[0] += f * c[0];
-						col[1] += f * c[1];
-						col[2] += f * c[2];
-						col[3] += f * c[3];
-						sum += f;
+						for(int i = -sx + 1 ; i < sx ; ++i, c += 4)
+						{
+							const uint32 f = kerX[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+							col[3] += f * c[3];
+						}
+						p[0] = byte(col[0] >> 16);
+						p[1] = byte(col[1] >> 16);
+						p[2] = byte(col[2] >> 16);
+						p[3] = byte(col[3] >> 16);
 					}
-					sum = 1.0f / sum;
-					p[0] = byte(col[0] * sum);
-					p[1] = byte(col[1] * sum);
-					p[2] = byte(col[2] * sum);
-					p[3] = byte(col[3] * sum);
+					else
+					{
+						uint32 sum = 0U;
+						for(int i = start ; i < end ; ++i, c += 4)
+						{
+							const uint32 f = kerX[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+							col[3] += f * c[3];
+							sum += f;
+						}
+						p[0] = byte(col[0] / sum);
+						p[1] = byte(col[1] / sum);
+						p[2] = byte(col[2] / sum);
+						p[3] = byte(col[3] / sum);
+					}
 				}
 			}
 			for(int	x = 0 ; x < out->w ; ++x)
 			{
-				const int X = x * (tmp->w - 1) / (out->w - 1);
+				const int X = x * mx >> 16;
 				byte *p = (byte*)out->pixels + (x << 2);
 				for(int	y = 0 ; y < out->h ; ++y, p += out->pitch)
 				{
-					const int Y = y * (tmp->h - 1) / (out->h - 1);
-					float col[4] = { 0, 0, 0, 0 };
-					float sum = 0.0f;
-					int start = std::max(-sy + 1, -Y);
-					int end = std::min(sy, in->h - Y);
+					const int Y = y * my >> 16;
+					uint32 col[4] = { 0U, 0U, 0U, 0U };
+					const int start = std::max(-sy + 1, -Y);
+					const int end = std::min(sy, in->h - Y);
 					byte *c = (byte*)tmp->pixels + (Y + start) * tmp->pitch + (X << 2);
-					for(int i = start ; i < end ; ++i, c += tmp->pitch)
+					if (end - start == sy2)
 					{
-						const float f = kerY[abs(i)];
-						col[0] += f * c[0];
-						col[1] += f * c[1];
-						col[2] += f * c[2];
-						col[3] += f * c[3];
-						sum += f;
+						for(int i = -sy + 1 ; i < sy ; ++i, c += tmp->pitch)
+						{
+							const uint32 f = kerY[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+							col[3] += f * c[3];
+						}
+						p[0] = byte(col[0] >> 16);
+						p[1] = byte(col[1] >> 16);
+						p[2] = byte(col[2] >> 16);
+						p[3] = byte(col[3] >> 16);
 					}
-					sum = 1.0f / sum;
-					p[0] = byte(col[0] * sum);
-					p[1] = byte(col[1] * sum);
-					p[2] = byte(col[2] * sum);
-					p[3] = byte(col[3] * sum);
+					else
+					{
+						uint32 sum = 0U;
+						for(int i = start ; i < end ; ++i, c += tmp->pitch)
+						{
+							const uint32 f = kerY[abs(i)];
+							col[0] += f * c[0];
+							col[1] += f * c[1];
+							col[2] += f * c[2];
+							col[3] += f * c[3];
+							sum += f;
+						}
+						p[0] = byte(col[0] / sum);
+						p[1] = byte(col[1] / sum);
+						p[2] = byte(col[2] / sum);
+						p[3] = byte(col[3] / sum);
+					}
 				}
 			}
 			break;
