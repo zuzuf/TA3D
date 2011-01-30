@@ -746,14 +746,22 @@ namespace TA3D
 			transtex = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water reflection
 			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
+			int ln2w = Math::Log2(SCREEN_W);
+			int ln2h = Math::Log2(SCREEN_H);
+			if ((1 << ln2w) < SCREEN_W)
+				++ln2w;
+			if ((1 << ln2h) < SCREEN_H)
+				++ln2h;
+			const int workwidth = g_useNonPowerOfTwoTextures ? SCREEN_W : 1 << ln2w;
+			const int workheight = g_useNonPowerOfTwoTextures ? SCREEN_H : 1 << ln2h;
 			// Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
-				first_pass = gfx->create_texture_RGBA32F(512, 512, FILTER_NONE, false);
+				first_pass = gfx->create_texture_RGBA32F(workwidth, workheight, FILTER_NONE, false);
 			else
 				first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
-				second_pass = gfx->create_texture_RGBA16F(512, 512, FILTER_LINEAR, false);
+				second_pass = gfx->create_texture_RGBA16F(workwidth, workheight, FILTER_LINEAR, false);
 			else
 				second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection

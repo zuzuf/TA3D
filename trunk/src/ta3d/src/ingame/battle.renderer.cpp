@@ -571,7 +571,16 @@ namespace TA3D
 
 				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-				glViewport(0,0,512,512);
+				int ln2w = Math::Log2(SCREEN_W);
+				int ln2h = Math::Log2(SCREEN_H);
+				if ((1 << ln2w) < SCREEN_W)
+					++ln2w;
+				if ((1 << ln2h) < SCREEN_H)
+					++ln2h;
+				const int workwidth = g_useNonPowerOfTwoTextures ? SCREEN_W : 1 << ln2w;
+				const int workheight = g_useNonPowerOfTwoTextures ? SCREEN_H : 1 << ln2h;
+
+				glViewport(0,0,workwidth,workheight);
 
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
