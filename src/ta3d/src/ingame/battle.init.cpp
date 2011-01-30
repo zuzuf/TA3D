@@ -748,7 +748,7 @@ namespace TA3D
 			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
-				first_pass = gfx->create_texture_RGBA32F(512, 512, FILTER_LINEAR, false);
+				first_pass = gfx->create_texture_RGBA16F(512, 512, FILTER_LINEAR, false);
 			else
 				first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
@@ -766,8 +766,10 @@ namespace TA3D
 				const int simulation_h = 256;
 				water_sim2 = gfx->create_texture_RGBA16F(simulation_w, simulation_h, FILTER_LINEAR, false);
 				float *data = new float[ simulation_w * simulation_h * 4 ];
-				int water_map_size = simulation_w * simulation_h;
-				int water_map_size4 = simulation_w * simulation_h * 4;
+				const int water_map_size = simulation_w * simulation_h;
+				const int water_map_size4 = simulation_w * simulation_h * 4;
+				const uint32 water_map_size4m = water_map_size4 - 1U;
+				const uint32 simulation_w4 = simulation_w * 4;
 				memset(data, 0, water_map_size4 * sizeof(float));
 
 				String water_cache = TA3D::Paths::Caches + "water_cache.sim";
@@ -781,16 +783,16 @@ namespace TA3D
                             data[(e << 2) + 1] += (float(rand() % 2000) * 0.000001f - 0.001f) * coef;
 						for( int e = 0 ; e < water_map_size ; e++ )
 						{
-							int offset = (e << 2) | 1;
+							uint32 offset = (e << 2) | 1u;
 							data[offset] = (data[offset] * 4.0f
-											+ data[(offset + 4) % water_map_size4]
-											+ data[(offset + simulation_w * 4) % water_map_size4]
-											+ data[(offset + water_map_size4 - 4) % water_map_size4]
-											+ data[(offset + water_map_size4 - simulation_w * 4) % water_map_size4]
-											+ data[(offset + 4 + simulation_w * 4) % water_map_size4] * 0.25f
-											+ data[(offset + 4 + water_map_size4 - simulation_w * 4) % water_map_size4] * 0.25f
-											+ data[(offset + water_map_size4 - 4 + simulation_w * 4) % water_map_size4] * 0.25f
-											+ data[(offset + water_map_size4 - 4 - simulation_w * 4) % water_map_size4] * 0.25f) * 0.11111111111111111f;
+											+ data[(offset + 4) & water_map_size4m]
+											+ data[(offset + simulation_w4) & water_map_size4m]
+											+ data[(offset + water_map_size4 - 4) & water_map_size4m]
+											+ data[(offset + water_map_size4 - simulation_w * 4) & water_map_size4m]
+											+ (data[(offset + 4 + simulation_w4) & water_map_size4m]
+											+ data[(offset + 4 + water_map_size4 - simulation_w4) & water_map_size4m]
+											+ data[(offset + water_map_size4 - 4 + simulation_w4) & water_map_size4m]
+											+ data[(offset + water_map_size4 - 4 - simulation_w4) & water_map_size4m]) * 0.25f) * 0.11111111111111111f;
 						}
 					}
 					float sum = 0.0f;
@@ -818,8 +820,8 @@ namespace TA3D
 						file.close();
 					}
 				}
-				water_sim0 = gfx->make_texture_RGBA32F(256,256,data,FILTER_LINEAR,false);
-				water_sim1 = gfx->make_texture_RGBA32F(256,256,data,FILTER_LINEAR,false);
+				water_sim0 = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
+				water_sim1 = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
 				DELETE_ARRAY(data);
 
 				//  Let's create the height map texture used to render progressive water effects using water depth
