@@ -28,30 +28,29 @@ namespace TA3D
 namespace System
 {
 
+	String run_command(const String &cmd)
+	{
+#ifdef TA3D_PLATFORM_LINUX
+		FILE *pipe = popen(cmd.c_str(), "r");
+		if (!pipe)
+			return String();
+		String result;
+		while(!feof(pipe))
+		{
+			int c = fgetc(pipe);
+			if (c == -1)
+				return result;
+			result << (char)c;
+		}
+		pclose(pipe);
+		return result;
+#else
+		return String();
+#endif
+	}
 
     namespace // anonymous
     {
-		String run_command(const char *cmd)
-		{
-#ifdef TA3D_PLATFORM_LINUX
-			FILE *pipe = popen(cmd, "r");
-			if (!pipe)
-				return String();
-			String result;
-			while(!feof(pipe))
-			{
-				int c = fgetc(pipe);
-				if (c == -1)
-					return result;
-				result << (char)c;
-			}
-			pclose(pipe);
-			return result;
-#else
-			return String();
-#endif
-		}
-
 		String CPUName()
         {
 #ifdef TA3D_PLATFORM_LINUX
