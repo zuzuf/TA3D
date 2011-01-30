@@ -220,9 +220,9 @@ namespace TA3D
 		//!
 		TA3DNetwork::Ptr ta3d_network;
 		//!
-		bool thread_is_running;
+		volatile bool thread_is_running;
 		//!
-		bool thread_ask_to_stop;
+		volatile bool thread_ask_to_stop;
 
 	private:
 		//! Player count (hard limit: TA3D_PLAYERS_HARD_LIMIT)

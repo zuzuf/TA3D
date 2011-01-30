@@ -179,8 +179,8 @@ namespace TA3D
 
 		/*----------------------- Variables reserved to thread management --------------------------*/
 
-		bool	thread_running;
-		bool	thread_ask_to_stop;
+		volatile bool	thread_running;
+		volatile bool	thread_ask_to_stop;
 		bool	wind_change;
 		MAP		*map;
 		uint32	next_unit_ID;			// Used to make it unique

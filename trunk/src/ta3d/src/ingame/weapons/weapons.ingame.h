@@ -94,9 +94,9 @@ namespace TA3D
 
     protected:
         //!
-        bool thread_running;
+		volatile bool thread_running;
         //!
-        bool thread_ask_to_stop;
+		volatile bool thread_ask_to_stop;
         //!
         void proc(void*);
         //!
