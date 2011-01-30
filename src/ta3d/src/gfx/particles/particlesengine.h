@@ -157,8 +157,8 @@ namespace TA3D
         GLubyte		*color;			// Color array
 
     protected:
-        bool  thread_running;
-        bool  thread_ask_to_stop;
+		volatile bool  thread_running;
+		volatile bool  thread_ask_to_stop;
         Vector3D* p_wind_dir;
         float* p_g;
         std::vector<ParticlesSystem*> particle_systems;
