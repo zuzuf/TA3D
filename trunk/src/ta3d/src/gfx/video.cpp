@@ -168,7 +168,7 @@ namespace TA3D
 			if (msec_timer - timer > 100)
 			{
 				poll_inputs();
-				if (keypressed())
+				if (keypressed() || mouse_b != 0)
 					break;
 				timer = msec_timer;
 			}

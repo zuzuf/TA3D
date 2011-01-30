@@ -60,7 +60,7 @@ namespace Menus
 
 	bool MainMenu::doInitialize()
 	{
-		// Play intro movie if one
+		// Play intro movie if any
 		if (!lp_CONFIG->quickstart)
 			Video::play("video/intro.mpg");
 
