@@ -31,7 +31,6 @@ namespace Interfaces
 	{
 	public:
 		GfxTexture();
-		GfxTexture(const GLuint gltex);
 		GfxTexture(const GLuint gltex, const uint32 w, const uint32 h);
 		~GfxTexture();
 

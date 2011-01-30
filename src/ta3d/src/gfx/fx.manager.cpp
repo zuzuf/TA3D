@@ -105,7 +105,7 @@ namespace TA3D
 			wave_tex[0].load("gfx/wave0.tga");
 		if (!wave_tex[1].get())
 			wave_tex[1].load("gfx/wave1.tga");
-		if (wave_tex[2].get())
+		if (!wave_tex[2].get())
 			wave_tex[2].load("gfx/wave2.tga");
 		pMutex.unlock();
 	}
@@ -217,11 +217,11 @@ namespace TA3D
 		cacheAnm.clear();
 		use.clear();
 
-		flash_tex = 0;
-		wave_tex[0] = 0;
-		wave_tex[1] = 0;
-		wave_tex[2] = 0;
-		ripple_tex = 0;
+		flash_tex.destroy();
+		wave_tex[0].destroy();
+		wave_tex[1].destroy();
+		wave_tex[2].destroy();
+		ripple_tex.destroy();
 	}
 
 

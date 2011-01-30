@@ -143,7 +143,7 @@ namespace TA3D
         glTexCoord2f(0.0f,dec+1.0f );  glVertex3f(-wsize,0.0f,hsize);
         glEnd();
 
-        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+		glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
         glPopMatrix();
     }
 

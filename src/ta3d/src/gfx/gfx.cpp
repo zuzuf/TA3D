@@ -1725,9 +1725,9 @@ namespace TA3D
 			{
 				++textureLoad[it->tex];
 				if (width)
-					*width = it->width;
+					*width = it->getWidth();
 				if (height)
-					*height = it->height;
+					*height = it->getHeight();
 				return it->tex;
 			}
 		}
