@@ -748,7 +748,7 @@ namespace TA3D
 			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			if (lp_CONFIG->water_quality >= 5)
-				first_pass = gfx->create_texture_RGBA16F(512, 512, FILTER_LINEAR, false);
+				first_pass = gfx->create_texture_RGBA32F(512, 512, FILTER_NONE, false);
 			else
 				first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
