@@ -81,6 +81,8 @@ namespace TA3D
 		water_simulator_shader3.load("shaders/water_simulator3.frag","shaders/water_simulator.vert");
 		water_simulator_shader4.destroy();
 		water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");
+		water_distortions_shader.destroy();
+		water_distortions_shader.load("shaders/water_distortions.frag","shaders/water_distortions.vert");
 		water_simulator_reflec.destroy();
 		if (map->ota_data.whitefog)
 			water_simulator_reflec.load("shaders/water_sim_fog.frag","shaders/water.vert");
@@ -105,6 +107,7 @@ namespace TA3D
 		water_sim0(0),
 		water_sim1(0),
 		water_sim2(0),
+		water_distortions(0),
 		escMenuWasVisible(false),
 		height_tex(0),
         transtex(0),
@@ -732,6 +735,7 @@ namespace TA3D
 				water_simulator_shader2.load("shaders/water_simulator2.frag","shaders/water_simulator.vert");   // Compute variation
 				water_simulator_shader3.load("shaders/water_simulator3.frag","shaders/water_simulator.vert");   // Copy to a normal RGB filtered texture (faster than filtering an RGB32F texture)
 				water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");  // Compute normals on screen
+				water_distortions_shader.load("shaders/water_distortions.frag","shaders/water_distortions.vert");	// Distortions renderer
 				if (map->ota_data.whitefog)
 					water_simulator_reflec.load("shaders/water_sim_fog.frag","shaders/water.vert");
 				else
@@ -773,6 +777,7 @@ namespace TA3D
 				const int simulation_w = 256;
 				const int simulation_h = 256;
 				water_sim2 = gfx->create_texture_RGBA16F(simulation_w, simulation_h, FILTER_LINEAR, false);
+				water_distortions = gfx->create_texture_RGB16F(workwidth, workheight, FILTER_NONE, false);
 				float *data = new float[ simulation_w * simulation_h * 4 ];
 				const int water_map_size = simulation_w * simulation_h;
 				const int water_map_size4 = simulation_w * simulation_h * 4;

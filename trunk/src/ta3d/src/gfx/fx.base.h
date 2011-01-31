@@ -66,6 +66,11 @@ namespace TA3D
         */
 		void draw(Camera& cam, const std::vector<Gaf::Animation*> &anims);
 
+		/*!
+		** \brief
+		**
+		*/
+		void drawWaterDistortions();
 
     public:
         //! Effect duration
