@@ -831,3 +831,11 @@
 {
     FRENCH=Des textures plus détaillées nécessitent plus de mémoire vidéo;
 }
+[Success]
+{
+    FRENCH=Succès;
+}
+[Mod loaded]
+{
+    FRENCH=Mod chargé;
+}
