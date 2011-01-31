@@ -18,7 +18,9 @@ void main()
 		gl_FragColor = vec4(0.0,0.0,0.0,1.0);
 	else
 	{
-    	vec3 N = texture2DLod(normal_map, 5.0 * bump_vec.xy, 0.0).xyz;
+    	vec3 N = normalize( texture2D(normal_map, 5.0 * bump_vec.xy).xyz
+                 + 0.75 * texture2D(normal_map, 1.111 * bump_vec.xy).xyz
+                 + 0.5 * texture2D(normal_map, 0.3333 * bump_vec.xy).xyz );
     	vec2 map_coord = (bump_vec.xy - vec2(0.5,0.5)) * factor + vec2(0.5,0.5);
 
 		vec3 D = 2.0 * texture2D( view, t_coord ).xyz - vec3(1.0,1.0,1.0);
