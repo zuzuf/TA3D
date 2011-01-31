@@ -301,6 +301,8 @@ namespace TA3D
 		//!
 		GLuint	water_sim2;
 		//!
+		GLuint	water_distortions;
+		//!
 		Interfaces::GfxTexture	pause_tex;
 		//@}
 
@@ -476,6 +478,8 @@ namespace TA3D
 		Shader water_simulator_shader3;
 		//!
 		Shader water_simulator_shader4;
+		//!
+		Shader water_distortions_shader;
 		//!
 		Shader water_simulator_reflec;
 		//!

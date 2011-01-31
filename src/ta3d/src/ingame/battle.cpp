@@ -2447,6 +2447,7 @@ namespace TA3D
 			water_simulator_shader3.destroy();
 			water_simulator_shader4.destroy();
 			water_simulator_reflec.destroy();
+			water_distortions_shader.destroy();
 		}
 
 		freecam_on.destroy();
@@ -2458,6 +2459,7 @@ namespace TA3D
 		gfx->destroy_texture(water_sim0);
 		gfx->destroy_texture(water_sim1);
 		gfx->destroy_texture(water_sim2);
+		gfx->destroy_texture(water_distortions);
 		gfx->destroy_texture(water_color);
 		gfx->destroy_texture(first_pass);
 		gfx->destroy_texture(second_pass);

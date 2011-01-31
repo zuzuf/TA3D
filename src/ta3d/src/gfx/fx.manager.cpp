@@ -306,6 +306,29 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
+	void FXManager::drawWaterDistortions()
+	{
+		pMutex.lock();
+
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		for(int i = 0; i < max_fx; ++i)
+			if (fx[i].playing)
+				fx[i].drawWaterDistortions();
+		glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+
+		pMutex.unlock();
+	}
+
 	void FXManager::addParticle(const Vector3D& p, const Vector3D& s, const float l)
 	{
 		if (lp_CONFIG->explosion_particles)

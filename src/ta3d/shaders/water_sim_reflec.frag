@@ -6,6 +6,7 @@ uniform sampler2D view;
 uniform sampler2D water_color;
 uniform sampler2D normal_map;
 uniform sampler2D height_map;
+uniform sampler2D distort_map;
 uniform vec2 coef;
 uniform vec2 factor;
 uniform float cam_h_factor;
@@ -18,9 +19,10 @@ void main()
 		gl_FragColor = vec4(0.0,0.0,0.0,1.0);
 	else
 	{
+        vec3 DN = texture2D(distort_map, t_coord).rgb;
     	vec3 N = normalize( texture2D(normal_map, 5.0 * bump_vec.xy).xyz
                  + 0.75 * texture2D(normal_map, 1.111 * bump_vec.xy).xyz
-                 + 0.5 * texture2D(normal_map, 0.3333 * bump_vec.xy).xyz );
+                 + 0.5 * texture2D(normal_map, 0.3333 * bump_vec.xy).xyz + DN );
     	vec2 map_coord = (bump_vec.xy - vec2(0.5,0.5)) * factor + vec2(0.5,0.5);
 
 		vec3 D = 2.0 * texture2D( view, t_coord ).xyz - vec3(1.0,1.0,1.0);
@@ -29,7 +31,7 @@ void main()
 		vec2 dec = 0.3 * (R.xz - D.xz);
 		vec2 scr_pos_r = clamp( t_coord + dec, 0.0, 1.0 );
 
-		float depth = clamp( texture2DLod( height_map, map_coord, 0.0 ).w * 3.0, 0.0, 1.0);
+		float depth = clamp( texture2D( height_map, map_coord ).w * 3.0, 0.0, 1.0);
 
 		vec4 ref = texture2D( sky, scr_pos_r );
 		float trans = clamp( clamp( dot(D,N), 0.0, 1.0) + 1.0 - clamp( 10.0 * depth, 0.0, 1.0 ), 0.0, 1.0);
@@ -39,7 +41,7 @@ void main()
         const vec3 light = vec3( 0.57735026918962576451, -0.57735026918962576451, -0.57735026918962576451 );
 		vec4 scr_col = texture2D( rtex, scr_pos );
 		vec4 lava_col = vec4(1.0,0.2,0.2,1.0) * scr_col;
-		vec3 water_col = 2.0 * texture2DLod( water_color, t_coord, 0.0 ).rgb;
+		vec3 water_col = 2.0 * texture2D( water_color, t_coord ).rgb;
 		vec4 procedural_texture = clamp( clamp( -dot(N, light) + light.y, -1.0, 1.0)  * vec4( 3.0, 3.0, 5.0, 1.0 ) + vec4( pow( clamp( dot( R, light ), 0.0, 1.0 ), 20.0 ) ), -1.0, 1.0 );
 
         procedural_texture -= vec4(0.1 * depth);
@@ -50,6 +52,7 @@ void main()
         f = (f <= f2) ? pow(clamp(f,0.0,1.0),10.0) : f;
         f *= (0.5 * cos(t+0.2) + 0.5);
         procedural_texture += vec4( coast_factor * coast_factor * pow(f * 0.5 + 0.5, 10.0) );
+        procedural_texture += vec4( 0.5 * length(DN.xz) );
 
 		gl_FragColor = mix(ref,scr_col,trans) + procedural_texture;
 

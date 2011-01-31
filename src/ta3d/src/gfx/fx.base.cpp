@@ -167,8 +167,8 @@ namespace TA3D
         glTexCoord2f(0.0f,1.0f ); glVertex3f( -rsize, 0.0f,  rsize);
         glEnd();
 
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        glPopMatrix();
+		glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+		glPopMatrix();
     }
 
 	void FX::doDrawAnimDefault(Camera& cam, const std::vector<Gaf::Animation*> &anims)
@@ -247,11 +247,28 @@ namespace TA3D
                       // Waves
             case -2 :
             case -3 :
-            case -4 : { doDrawAnimWave(anm); break; }
-            case -5 : { doDrawAnimRipple(); break; }
+			case -4 :
+				if (lp_CONFIG->water_quality < 5)
+					doDrawAnimWave(anm);
+				break;
+			case -5 :
+				if (lp_CONFIG->water_quality < 5)
+					doDrawAnimRipple();
+				break;
             default : doDrawAnimDefault(cam, anims);
         }
     }
 
+	void FX::drawWaterDistortions()
+	{
+		switch (anm)
+		{
+					  // Waves
+			case -2 :
+			case -3 :
+			case -4 : { doDrawAnimWave(anm); break; }
+			case -5 : { doDrawAnimRipple(); break; }
+		}
+	}
 
 } // namespace TA3D

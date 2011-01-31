@@ -565,12 +565,6 @@ namespace TA3D
 
 				glEnable(GL_DEPTH_TEST);
 
-				// First pass of water rendering, store reflection vector
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,first_pass,0);
-
-				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
-
 				int ln2w = Math::Log2(SCREEN_W);
 				int ln2h = Math::Log2(SCREEN_H);
 				if ((1 << ln2w) < SCREEN_W)
@@ -581,6 +575,28 @@ namespace TA3D
 				const int workheight = g_useNonPowerOfTwoTextures ? SCREEN_H : 1 << ln2h;
 
 				glViewport(0,0,workwidth,workheight);
+
+				// Render water distortion effects (ripples, waves, ...)
+				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_distortions,0);
+				glClearColor(0,0,0,0);
+				glClear(GL_COLOR_BUFFER_BIT);		// Efface la texture tampon
+
+				cam.setView(true);
+				water_distortions_shader.on();
+				fx_manager.drawWaterDistortions();
+				water_distortions_shader.off();
+
+				glMatrixMode (GL_PROJECTION);
+				glLoadIdentity ();
+				glMatrixMode (GL_MODELVIEW);
+				glLoadIdentity();
+
+				// First pass of water rendering, store reflection vector
+				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,first_pass,0);
+
+				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
@@ -689,6 +705,10 @@ namespace TA3D
 				glBindTexture(GL_TEXTURE_2D,water_sim2);
 				glEnable(GL_TEXTURE_2D);
 
+				glActiveTextureARB(GL_TEXTURE7_ARB);
+				glBindTexture(GL_TEXTURE_2D,water_distortions);
+				glEnable(GL_TEXTURE_2D);
+
 				water_simulator_reflec.on();
 				water_simulator_reflec.setvar1i("sky",0);
 				water_simulator_reflec.setvar1i("rtex",1);
@@ -697,6 +717,7 @@ namespace TA3D
 				water_simulator_reflec.setvar1i("water_color",4);
 				water_simulator_reflec.setvar1i("height_map",5);
 				water_simulator_reflec.setvar1i("normal_map",6);
+				water_simulator_reflec.setvar1i("distort_map",7);
 				water_simulator_reflec.setvar2f("coef", (float)SCREEN_W / wx, (float)SCREEN_H / wy);
 				water_simulator_reflec.setvar1f("cam_h_factor", 1.0f / cam.rpos.y);
 				water_simulator_reflec.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
@@ -722,6 +743,12 @@ namespace TA3D
 				glEnd();
 				glDisable(GL_STENCIL_TEST);
 				glEnable(GL_DEPTH_TEST);
+
+				glActiveTextureARB(GL_TEXTURE7_ARB);
+				if (lp_CONFIG->shadow_quality >= 2 && cam.rpos.y <= gfx->low_def_limit)
+					glBindTexture(GL_TEXTURE_2D, gfx->get_shadow_map());
+				else
+					glDisable(GL_TEXTURE_2D);
 
 				water_simulator_reflec.off();
 			}
