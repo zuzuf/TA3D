@@ -11,7 +11,8 @@ void main()
 	float lava = bump_vec.w;
 	if (lava == 0.0)
 		gl_FragColor = vec4(0.0,0.0,0.0,1.0);
-	else {
+	else
+    {
 		vec3 N = 2.0 * bump_vec.xyz - vec3(1.0,1.0,1.0);
 		vec3 D = 2.0 * texture2D( view, t_coord ).xyz - vec3(1.0,1.0,1.0);
 		vec3 R = reflect( D, N );
@@ -24,10 +25,14 @@ void main()
 		vec2 scr_pos = clamp( t_coord * coef - 0.005 * R.xz, 0.0, 1.0 );
 
 		vec4 scr_col = texture2D( rtex, scr_pos );
+        if (dot(scr_col.rgb,scr_col.rgb) == 0.0)
+            gl_FragColor = vec4(0.0);
+        else
+        {
+            gl_FragColor = vec4(mix(ref,scr_col,trans).rgb,0.8);
 
-		gl_FragColor = vec4(mix(ref,scr_col,trans).rgb,0.8);
-
-		vec4 lava_col = vec4(1.0,0.2,0.2,1.0)*texture2D(rtex,scr_pos);
-		gl_FragColor = mix(gl_FragColor,lava_col,lava * 2.0 - 1.0);
-		}
+            vec4 lava_col = vec4(1.0,0.2,0.2,1.0)*texture2D(rtex,scr_pos);
+            gl_FragColor = mix(gl_FragColor,lava_col,lava * 2.0 - 1.0);
+        }
+	}
 }
