@@ -1537,7 +1537,7 @@ namespace TA3D
 			if (lp_CONFIG->paused)
 			{
 				gfx->set_alpha_blending();
-				pause_tex.drawCentered(0.5f * SCREEN_W, 0.5f * SCREEN_H, 0xFFFFFFFFU, SCREEN_H / 480.0f);
+				pause_tex.drawCentered(0.5f * SCREEN_W, 0.5f * SCREEN_H, 0xFFFFFFFFU, 1.0f);
 				gfx->unset_alpha_blending();
 			}
 
