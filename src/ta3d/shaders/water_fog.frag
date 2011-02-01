@@ -6,6 +6,11 @@ uniform sampler2D view;
 uniform sampler2D water_color;
 uniform vec2 coef;
 
+float f(vec3 v)
+{
+    return dot(v,v) == 0.0 ? 0.0 : 1.0;
+}
+
 void main()
 {
 	vec4 bump_vec = texture2D( bump,t_coord );
@@ -24,9 +29,13 @@ void main()
         vec2 scr_pos2 = clamp( t_coord * coef + dec, 0.0, 1.0 );
         vec2 scr_pos3 = clamp( t_coord * coef - dec, 0.0, 1.0 );
 
-		vec4 lava_col = 0.25 * (texture2D( rtex, scr_pos0 ) + texture2D( rtex, scr_pos1 ) + texture2D( rtex, scr_pos2 ) + texture2D( rtex, scr_pos3 ));
+        vec4 p[4] = {texture2D( rtex, scr_pos0 ),
+                    texture2D( rtex, scr_pos1 ),
+                    texture2D( rtex, scr_pos2 ),
+                    texture2D( rtex, scr_pos3 ) };
+		vec4 lava_col = 0.25 * (p[0] + p[1] + p[2] + p[3]);
 		vec4 water_col = vec4( texture2D( water_color, t_coord ).rgb, 1.0 );
 
-		gl_FragColor = mix(lava_col, water_col, 0.25);
+		gl_FragColor = mix(lava_col, water_col, 0.25) * (f(p[0].rgb) + f(p[1].rgb) + f(p[2].rgb) + f(p[3].rgb)) * 0.25;
 	}
 }

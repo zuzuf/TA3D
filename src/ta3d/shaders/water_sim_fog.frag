@@ -12,6 +12,11 @@ uniform vec2 factor;
 uniform float cam_h_factor;
 uniform float t;
 
+float f(vec3 v)
+{
+    return dot(v,v) == 0.0 ? 0.0 : 1.0;
+}
+
 void main()
 {
 	vec4 bump_vec = texture2D( bump, t_coord );
@@ -32,31 +37,30 @@ void main()
         vec2 ts_coord = t_coord * coef;
 		vec2 scr_pos0 = clamp( ts_coord - dec, 0.0, 1.0 );
         vec2 scr_pos1 = clamp( ts_coord + dec, 0.0, 1.0 );
-        vec2 scr_pos0h = clamp( ts_coord - 2.0 * dec, 0.0, 1.0 );
-        vec2 scr_pos1h = clamp( ts_coord + 2.0 * dec, 0.0, 1.0 );
+        vec2 scr_pos0h = clamp( ts_coord - 3.0 * dec, 0.0, 1.0 );
+        vec2 scr_pos1h = clamp( ts_coord + 3.0 * dec, 0.0, 1.0 );
         dec.x = -dec.x;
         vec2 scr_pos2 = clamp( ts_coord - dec, 0.0, 1.0 );
         vec2 scr_pos3 = clamp( ts_coord + dec, 0.0, 1.0 );
-        vec2 scr_pos2h = clamp( ts_coord - 2.0 * dec, 0.0, 1.0 );
-        vec2 scr_pos3h = clamp( ts_coord + 2.0 * dec, 0.0, 1.0 );
+        vec2 scr_pos2h = clamp( ts_coord - 3.0 * dec, 0.0, 1.0 );
+        vec2 scr_pos3h = clamp( ts_coord + 3.0 * dec, 0.0, 1.0 );
 
-		vec4 scr_col = 0.125 * (texture2D( rtex, scr_pos0 )
-                                + texture2D( rtex, scr_pos1 )
-                                + texture2D( rtex, scr_pos2 )
-                                + texture2D( rtex, scr_pos3 )
-                                + texture2D( rtex, scr_pos0h )
-                                + texture2D( rtex, scr_pos1h )
-                                + texture2D( rtex, scr_pos2h )
-                                + texture2D( rtex, scr_pos3h ));
+        vec4 p[8] = {texture2D( rtex, scr_pos0 ),
+                     texture2D( rtex, scr_pos1 ),
+                     texture2D( rtex, scr_pos2 ),
+                     texture2D( rtex, scr_pos3 ),
+                     texture2D( rtex, scr_pos0h ),
+                     texture2D( rtex, scr_pos1h ),
+                     texture2D( rtex, scr_pos2h ),
+                     texture2D( rtex, scr_pos3h )};
+        
+		vec4 scr_col = 0.125 * (p[0] + p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]);
         vec4 fuzzy;
         vec2 q = map_coord - vec2(0.5,0.5);
         q *= q;
         float depthCoef = 1.0 - exp(-depth * 2.0);
         if (max(q.x, q.y) > 0.25)
-        {
             gl_FragColor = texture2D(rtex, t_coord * coef);
-            return;
-        }
         else
         {
             fuzzy = texture2D(water_color, t_coord);
@@ -64,5 +68,14 @@ void main()
 
             gl_FragColor = mix(scr_col, vec4(1.0,1.0,1.0,1.0), depthCoef);
         }
+        float l =  (f(p[4].rgb)
+                    + f(p[5].rgb)
+                    + f(p[6].rgb)
+                    + f(p[7].rgb)
+                    + f(p[0].rgb)
+                    + f(p[1].rgb)
+                    + f(p[2].rgb)
+                    + f(p[3].rgb)) * 0.125;
+        gl_FragColor *= l;
 	}
 }

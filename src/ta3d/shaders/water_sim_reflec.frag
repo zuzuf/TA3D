@@ -12,6 +12,11 @@ uniform vec2 factor;
 uniform float cam_h_factor;
 uniform float t;
 
+float f(vec3 v)
+{
+    return dot(v,v) == 0.0 ? 0.0 : 1.0;
+}
+
 void main()
 {
 	vec4 bump_vec = texture2D( bump, t_coord );
@@ -49,5 +54,12 @@ void main()
 		gl_FragColor = mix(ref,scr_col,trans) + procedural_texture;
 
 		gl_FragColor = mix(gl_FragColor,lava_col,bump_vec.w * 2.0 - 1.0);
+
+        float l = (f(scr_col.rgb)
+                    + f(texture2D(rtex, scr_pos + vec2(0.01, 0.0)).rgb)
+                    + f(texture2D(rtex, scr_pos - vec2(0.01, 0.0)).rgb)
+                    + f(texture2D(rtex, scr_pos + vec2(0.0, 0.01)).rgb)
+                    + f(texture2D(rtex, scr_pos - vec2(0.0, 0.01)).rgb)) * 0.2;
+        gl_FragColor *= l;
 	}
 }
