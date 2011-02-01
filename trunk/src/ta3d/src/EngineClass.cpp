@@ -87,7 +87,7 @@ namespace TA3D
 		missiondescription.clear();
 		numplayers.clear();
 		map_size.clear();
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			startX[i] = startZ[i] = 0;
 		tidalstrength = 0;
 		solarstrength = 22;
@@ -2324,10 +2324,32 @@ namespace TA3D
 		if (shaded)
 		{
 			glBegin(GL_QUADS);
-			glTexCoord2f(-map_w/w+0.5f,-map_h/w+0.5f);		glVertex3f(-map_w,0.0f,-map_h);
-			glTexCoord2f(map_w/w+0.5f,-map_h/w+0.5f);		glVertex3f(map_w,0.0f,-map_h);
-			glTexCoord2f(map_w/w+0.5f,map_h/w+0.5f);		glVertex3f(map_w,0.0f,map_h);
-			glTexCoord2f(-map_w/w+0.5f,map_h/w+0.5f);		glVertex3f(-map_w,0.0f,map_h);
+			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex3f(-map_w,0.0f,-map_h);
+			glTexCoord3f(map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex3f(map_w,0.0f,-map_h);
+			glTexCoord3f(map_w/w+0.5f,map_h/w+0.5f,1.0f);		glVertex3f(map_w,0.0f,map_h);
+			glTexCoord3f(-map_w/w+0.5f,map_h/w+0.5f,1.0f);		glVertex3f(-map_w,0.0f,map_h);
+
+			glTexCoord2f(-1.0f,-1.0f);
+
+			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex4f(-map_w,0.0f,-map_h,1.0f);
+			glTexCoord3f(map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex4f(map_w,0.0f,-map_h,1.0f);
+			glTexCoord3f(map_w/w+0.5f,-map_h/w+0.5f,0.0f);		glVertex4f(map_w,0.0f,-map_h,0.0f);
+			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,0.0f);		glVertex4f(-map_w,0.0f,-map_h,0.0f);
+
+			glTexCoord3f(map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex4f(map_w,0.0f,-map_h,1.0f);
+			glTexCoord3f(map_w/w+0.5f,map_h/w+0.5f,1.0f);		glVertex4f(map_w,0.0f,map_h,1.0f);
+			glTexCoord3f(map_w/w+0.5f,map_h/w+0.5f,0.0f);		glVertex4f(map_w,0.0f,map_h,0.0f);
+			glTexCoord3f(map_w/w+0.5f,-map_h/w+0.5f,0.0f);		glVertex4f(map_w,0.0f,-map_h,0.0f);
+
+			glTexCoord3f(map_w/w+0.5f,map_h/w+0.5f,1.0f);		glVertex4f(map_w,0.0f,map_h,1.0f);
+			glTexCoord3f(-map_w/w+0.5f,map_h/w+0.5f,1.0f);		glVertex4f(-map_w,0.0f,map_h,1.0f);
+			glTexCoord3f(-map_w/w+0.5f,map_h/w+0.5f,0.0f);		glVertex4f(-map_w,0.0f,map_h,0.0f);
+			glTexCoord3f(map_w/w+0.5f,map_h/w+0.5f,0.0f);		glVertex4f(map_w,0.0f,map_h,0.0f);
+
+			glTexCoord3f(-map_w/w+0.5f,map_h/w+0.5f,1.0f);		glVertex4f(-map_w,0.0f,map_h,1.0f);
+			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,1.0f);		glVertex4f(-map_w,0.0f,-map_h,1.0f);
+			glTexCoord3f(-map_w/w+0.5f,-map_h/w+0.5f,0.0f);		glVertex4f(-map_w,0.0f,-map_h,0.0f);
+			glTexCoord3f(-map_w/w+0.5f,map_h/w+0.5f,0.0f);		glVertex4f(-map_w,0.0f,map_h,0.0f);
 			glEnd();
 			return;
 		}
@@ -2336,10 +2358,12 @@ namespace TA3D
 		glTexCoord2f(1.0f,0.0f);		glVertex3f(map_w*0.5f,0.0f,-map_h*0.5f);
 		glTexCoord2f(1.0f,1.0f);		glVertex3f(map_w*0.5f,0.0f,map_h*0.5f);
 		glTexCoord2f(0.0f,1.0f);		glVertex3f(-map_w*0.5f,0.0f,map_h*0.5f);
+		glEnd();
 
 		glDisable( GL_TEXTURE_2D );
-		glColor4f(0.0f,0.0f,0.0f,1.0f);
+		glColor4ub(0,0,0,0xFF);
 
+		glBegin(GL_QUADS);
 		glVertex3f(-map_w,0.0f,-map_h);
 		glVertex3f(map_w,0.0f,-map_h);
 		glVertex3f(map_w,0.0f,-map_h*0.5f);
