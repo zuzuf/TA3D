@@ -635,6 +635,8 @@ namespace TA3D
 
 				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
+				glViewport(0,0,512,512);
+
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
 				glBindTexture(GL_TEXTURE_2D,map->low_tex);
@@ -644,6 +646,7 @@ namespace TA3D
 				water_obj->draw(t, false);
 
 				gfx->renderToTexture( 0 );
+				glViewport(0,0,workwidth,workheight);
 
 				float logw = logf((float)SCREEN_W) / logf(2.0f);
 				float logh = logf((float)SCREEN_H) / logf(2.0f);
