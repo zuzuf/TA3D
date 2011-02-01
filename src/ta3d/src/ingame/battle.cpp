@@ -27,7 +27,6 @@
 #include <misc/files.h>
 #include <misc/camera.h>
 #include <languages/i18n.h>
-#include <list>
 #include <vector>
 #include "menus/statistics.h"
 #include <misc/math.h>

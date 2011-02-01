@@ -783,7 +783,7 @@ namespace TA3D
 	sint32 Gaf::AnimationList::loadGAFFromDirectory(const String &folderName, const bool doConvert)
 	{
 		String::Vector entries;
-		VFS::Instance()->getDirlist(folderName + "\\*", entries);
+		VFS::Instance()->getDirlist(String(folderName) << "\\*", entries);
 		pList.clear();
 		pList.resize(entries.size());
 		for (uint32 i = 0 ; i < pList.size() ; ++i)

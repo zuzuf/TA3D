@@ -26,7 +26,6 @@
 
 #include "stdafx.h"
 #include <vector>
-#include <list>
 #include <algorithm>
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"

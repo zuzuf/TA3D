@@ -29,7 +29,7 @@ namespace TA3D
 		bool                    key[0x1000];
 		bool                    prevkey_down[0x1000];
 		bool                    prevkey_up[0x1000];
-		std::list<uint32>       keybuf;
+		std::deque<uint32>      keybuf;
 		int                     remap[0x1000];
 	}
 

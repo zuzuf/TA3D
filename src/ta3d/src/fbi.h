@@ -29,7 +29,6 @@
 
 # include "scripts/script.data.h"
 # include <vector>
-# include <list>
 # include <map>
 # include "ingame/weapons/weapons.h"
 # include "ingame/sidedata.h"
