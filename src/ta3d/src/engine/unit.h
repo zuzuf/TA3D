@@ -112,7 +112,7 @@ namespace TA3D
 
 		void draw(float t, bool height_line = true);
 
-		void drawHealthBar();
+		void drawHealthBar() const;
 
 		void draw_shadow(const Vector3D& Dir);
 

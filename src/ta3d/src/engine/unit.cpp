@@ -4477,8 +4477,8 @@ namespace TA3D
 			else
 			{
                 if (pType->canmove && pType->BMcode )
-					V.y-=units.g_dt;			// L'unité subit la force de gravitation
-				Pos = Pos+dt*V;			// Déplace l'unité
+					V.y -= units.g_dt;			// L'unité subit la force de gravitation
+				Pos += dt * V;			// Déplace l'unité
 				cur_px = ((int)(Pos.x)+the_map->map_w_d+4)>>3;
 				cur_py = ((int)(Pos.z)+the_map->map_h_d+4)>>3;
 			}
@@ -5318,9 +5318,9 @@ script_exec:
         return pType->sweetspot_cached;
     }
 
-	void Unit::drawHealthBar()
+	void Unit::drawHealthBar() const
 	{
-		if (render.type_id < 0 || (unit_manager.unit_type[render.type_id]->HideDamage && owner_id != players.local_human_id) || render.UID != ID)
+		if (render.type_id < 0 || owner_id != players.local_human_id || render.UID != ID)
 			return;
 
 		const int maxdmg = unit_manager.unit_type[render.type_id]->MaxDamage;
@@ -5342,7 +5342,16 @@ script_exec:
 		if (hp <= 0.0f)
 			return;
 
-		float pw = w * (2.0f * (hp / maxdmg) - 1.0f);
+		uint32 color = makeacol(0x50, 0xD0, 0x50, 0xFF);
+		if (hp <= (maxdmg >> 2))
+			color = makeacol(0xFF, 0x46, 0x00, 0xFF);
+		else if (hp <= (maxdmg >> 1))
+			color = makeacol(0xFF, 0xD0, 0x00, 0xFF);
+		units.hbars_color.push_back(color);
+		units.hbars_color.push_back(color);
+		units.hbars_color.push_back(color);
+		units.hbars_color.push_back(color);
+		const float pw = w * (2.0f * (hp / maxdmg) - 1.0f);
 		units.hbars.push_back(vPos - w * Camera::inGame->side + h * Camera::inGame->up);
 		units.hbars.push_back(vPos + pw * Camera::inGame->side + h * Camera::inGame->up);
 		units.hbars.push_back(vPos + pw * Camera::inGame->side - h * Camera::inGame->up);

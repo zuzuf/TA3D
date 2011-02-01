@@ -1863,6 +1863,7 @@ namespace TA3D
 
 		hbars.clear();
 		hbars_bkg.clear();
+		hbars_color.clear();
 
 		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 			unit[*e].drawHealthBar();
@@ -1873,8 +1874,11 @@ namespace TA3D
 		glDrawArrays(GL_QUADS, 0, hbars_bkg.size());
 
 		glVertexPointer(3, GL_FLOAT, 0, &(hbars.front()));
-		glColor4ub(0xFF,0xFF,0,0xFF);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(hbars_color.front()));
 		glDrawArrays(GL_QUADS, 0, hbars.size());
+
+		glDisableClientState(GL_COLOR_ARRAY);
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_FOG);
