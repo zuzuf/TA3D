@@ -135,6 +135,7 @@ namespace TA3D
 	int program_has_mobile_units(lua_State *L);
 	int program_send_signal(lua_State *L);
 	int program_allied(lua_State *L);
+	int program_get_screen_size(lua_State *L);
 } // namespace TA3D
 
 #endif

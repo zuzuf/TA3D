@@ -37,12 +37,16 @@ while true do
 	    else
 	        if not has_unit( local_player, commander( local_player ) ) then
                 local w, h = get_image_size( "gfx/defeat.png" )
+                local sw, sh = get_screen_size()
+                w, h = w * 640 / sw, h * 480 / sh
                 draw_image( "gfx/defeat.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5)
 		        timer = time()
 		        end_signal = SIGNAL_DEFEAT
 	        elseif current_level >= 3 and annihilated( 1 ) then
 		        play( "VICTORY2" )
                 local w, h = get_image_size( "gfx/victory.png" )
+                local sw, sh = get_screen_size()
+                w, h = w * 640 / sw, h * 480 / sh
                 draw_image( "gfx/victory.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5)
 		        timer = time()
 		        end_signal = SIGNAL_VICTORY

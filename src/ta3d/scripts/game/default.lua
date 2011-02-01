@@ -66,12 +66,16 @@ while true do
 				    else
 					    play_for( "VICTORY2", current_player )
                         local w, h = get_image_size( "gfx/victory.png" )
+                        local sw, sh = get_screen_size()
+                        w, h = w * 640 / sw, h * 480 / sh
                         draw_image_for( "gfx/victory.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5, current_player )
 					    player_timer[ current_player ] = time()
 					    end_signal[ current_player ] = SIGNAL_VICTORY
 				    end
 			    elseif not has_unit( current_player, commander( current_player ) ) then
                         local w, h = get_image_size( "gfx/defeat.png" )
+                        local sw, sh = get_screen_size()
+                        w, h = w * 640 / sw, h * 480 / sh
                         draw_image_for( "gfx/defeat.png", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5, current_player )
 					    player_timer[ current_player ] = time()
 					    end_signal[ current_player ] = SIGNAL_DEFEAT

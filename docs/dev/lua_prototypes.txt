@@ -21,8 +21,9 @@ create_unit( player_id, unit_type_id, x, z )
 draw_image_for( str image_name, x1, y1, x2, y2, player_id )
 draw_image( str image_name, x1, y1, x2, y2 )
 fillbox( x1,y1,x2,y2,r,g,b )
-get_image_size( str image_name )
+get_image_size( str image_name )		// returns w, h
 get_max_unit_number()
+get_screen_size()				// returns w, h
 get_unit_health( unit_id )
 get_unit_number()
 get_unit_number_for_player( player_id )

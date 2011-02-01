@@ -283,6 +283,13 @@ namespace TA3D
 		return 2;
 	}
 
+	int program_get_screen_size(lua_State *L)
+	{
+		lua_pushinteger(L, SCREEN_W);
+		lua_pushinteger(L, SCREEN_H);
+		return 2;
+	}
+
 	int program_nb_players( lua_State *L )		// nb_players()
 	{
 		lua_pushinteger( L, NB_PLAYERS );
@@ -1375,6 +1382,7 @@ namespace TA3D
 		lua_register( L, "draw_image", program_draw_image );
 		lua_register( L, "draw_image_for", program_draw_image_for );
 		lua_register( L, "get_image_size", program_get_image_size );
+		lua_register( L, "get_screen_size", program_get_screen_size );
 		lua_register( L, "nb_players", program_nb_players );
 		lua_register( L, "get_unit_number_for_player", program_get_unit_number_for_player );
 		lua_register( L, "get_unit_owner", program_get_unit_owner );
@@ -1736,7 +1744,11 @@ namespace TA3D
 
 		if (ota_parser.pullAsInt( "GlobalHeader.DeathTimerRunsOut" ) > 0 ) {
 			m_File << "	if time() >= " << ota_parser.pullAsString( "GlobalHeader.DeathTimerRunsOut" ) << " then\n";
-			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
+			m_File << "     local sw, sh = get_screen_size()\n";
+			m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5 )\n";
+			m_File << "		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
@@ -1751,7 +1763,11 @@ namespace TA3D
 				m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
 				m_File << "	end\n";
 				m_File << "	if UnitTypeKilled_count >= " << params[ 1 ] << " then\n";
-				m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+				m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
+				m_File << "     local sw, sh = get_screen_size()\n";
+				m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
+				m_File << "		draw_image( \"gfx/defeat.png\", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5 )\n";
+				m_File << "		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 				m_File << "	end\n";
 				m_File << "	UnitTypeKilled_nb = new_UnitTypeKilled_nb\n\n";
 			}
@@ -1760,20 +1776,32 @@ namespace TA3D
 		if (ota_parser.pullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 )
 		{
 			m_File << "	if annihilated( 0 ) then\n";
-			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
+			m_File << "     local sw, sh = get_screen_size()\n";
+			m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5 )\n";
+			m_File << "		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
 		if (!ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
 			String type = ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" );
 			m_File << "	if not has_unit( 0, \"" << type << "\" ) and not has_unit( 1, \"" << type << "\" ) then\n";
-			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
+			m_File << "     local sw, sh = get_screen_size()\n";
+			m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5 )\n";
+			m_File << "		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
 		if (ota_parser.pullAsInt( "GlobalHeader.CommanderKilled" ) == 1 ) {
 			m_File << "	if not has_unit( 0, commander( 0 ) ) then\n";
-			m_File << "		draw_image( \"gfx/defeat.png\", 145, 190, 495, 290 )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
+			m_File << "     local sw, sh = get_screen_size()\n";
+			m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
+			m_File << "		draw_image( \"gfx/defeat.png\", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5 )\n";
+			m_File << "		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n\n";
 		}
 
@@ -1964,7 +1992,10 @@ namespace TA3D
 
 		m_File << "	if victory_conditions == " << nb_victory_conditions << " then\n";
 		m_File << "		play( \"VICTORY2\" )\n";
-		m_File << "		draw_image( \"gfx/victory.png\", 145, 190, 495, 290 )\n";
+		m_File << "     local w, h = get_image_size( \"gfx/victory.png\" )\n";
+		m_File << "     local sw, sh = get_screen_size()\n";
+		m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
+		m_File << "		draw_image( \"gfx/victory.png\", 320 - w * 0.5, 240 - h * 0.5, 320 + w * 0.5, 240 + h * 0.5 )\n";
 		m_File << "		timer = time()\n";
 		m_File << "		end_signal = SIGNAL_VICTORY\n";
 		m_File << "	end\n";
