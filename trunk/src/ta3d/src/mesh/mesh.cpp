@@ -327,17 +327,22 @@ namespace TA3D
 			else
 				gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
-			SDL_Surface *bmp = LoadTex( String(TA3D::Paths::Caches) << tex_cache_name[id] );
-			GLuint texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
-			gltex[id] = texid;
+			String filename(TA3D::Paths::Caches);
+			filename << tex_cache_name[id];
+			SDL_Surface *bmp = LoadTex( filename );
 
 			if (bmp)
 			{
+				GLuint texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
+				gltex[id] = texid;
 				gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp->w, bmp->h);
 				SDL_FreeSurface( bmp );
 			}
 			else
-				LOG_WARNING(LOG_PREFIX_3DO << "could not load texture : " << tex_cache_name[id]);
+			{
+				gltex[id] = 0;
+				LOG_WARNING(LOG_PREFIX_3DO << "could not load texture : " << filename);
+			}
 
 			tex_cache_name[id].clear();
 		}
@@ -1489,7 +1494,7 @@ namespace TA3D
 				++n;
 				name.push_back(*e);
 
-				if (get_model(Substr(*e, 0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
+				if (get_model(Substr(*e, 0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déj�  chargé
 				{
 					Model *pModel = MeshTypeManager::load(*e);
 					if (pModel)
