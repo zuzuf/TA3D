@@ -197,6 +197,7 @@ namespace TA3D
 
 		std::vector<Vector3D>	hbars_bkg;
 		std::vector<Vector3D>	hbars;
+		std::vector<uint32>		hbars_color;
 
 	public:
 

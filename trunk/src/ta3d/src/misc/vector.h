@@ -130,7 +130,17 @@ namespace TA3D
         inline float norm() const { return sqrtf(x*x + y*y + z*z); }
 
 		// Rend le vecteur unitaire si possible(de norme 1)
-		void unit();
+		inline void unit()
+		{
+			float n = norm(); // Inverse de la norme du vecteur
+			if (!Yuni::Math::Zero(n))
+			{
+				n = 1.0f / n;
+				x *= n;
+				y *= n;
+				z *= n;
+			}
+		}
 
 
 		/*!

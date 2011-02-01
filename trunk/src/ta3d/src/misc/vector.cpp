@@ -33,24 +33,5 @@ namespace TA3D
 		}
 	}
 
-
-	void Vector3D::unit()
-	{
-		if(!isNull()) // Si le vecteur n'est pas nul
-		{
-			float n = norm(); // Inverse de la norme du vecteur
-            if (!Yuni::Math::Zero(n))
-			{
-				n = 1.0f / n;
-				x *= n;
-				y *= n;
-				z *= n;
-			}
-		}
-	}
-
-
-
-
 } // namespace TA3D
 
