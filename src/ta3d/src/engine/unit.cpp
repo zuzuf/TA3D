@@ -4734,23 +4734,23 @@ script_exec:
 		}
 		Vector3D p_target = Pos;
 		Vector3D n_target = Pos;
-		float rab = (msec_timer % 1000) * 0.001f;
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const float rab = (msec_timer % 1000) * 0.001f;
+		const UnitType *pType = unit_manager.unit_type[type_id];
         uint32	remaining_build_commands = !(pType->BMcode) ? 0 : 0xFFFFFFF;
 
-		std::list<Vector3D>	points;
+		std::vector<Vector3D>	points;
 
 		while(cur != end)
 		{
 			Unit *p = cur->lastStep().getTarget().getUnit();
 			if (!only_build_commands)
 			{
-				int curseur = anim_cursor(CURSOR_CROSS_LINK);
-				float dx = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_x[curseur];
-				float dz = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_y[curseur];
+				const int curseur = anim_cursor(CURSOR_CROSS_LINK);
+				const float dx = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_x[curseur];
+				const float dz = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_y[curseur];
 				float x,y,z;
-				float dist = ((Vector3D)(cur->lastStep().getTarget().getPos() - p_target)).norm();
-				int rec = (int)(dist / 30.0f);
+				const float dist = ((Vector3D)(cur->lastStep().getTarget().getPos() - p_target)).norm();
+				const int rec = (int)(dist / 30.0f);
 				switch (cur->lastMission())
 				{
 					case MISSION_LOAD:
@@ -4797,21 +4797,6 @@ script_exec:
 							}
 							else
 							{
-								// Temporary code for debugging purposes
-								if (!cur->Path().empty())
-								{
-									for(AI::Path::iterator i = cur->Path().begin() ; i != cur->Path().end() ; ++i)
-									{
-										x = float((i->x() << 3) + 4 - the_map->map_w_d);
-										z = float((i->z() << 3) + 4 - the_map->map_h_d);
-										y = Math::Max(the_map->get_unit_h( x, z ), the_map->sealvl);
-										y += 0.75f;
-										x -= dx;
-										z -= dz;
-										points.push_back(Vector3D(x, y, z));
-									}
-								}
-								else
 								for (int i = 0; i < rec; ++i)
 								{
 									x = p_target.x + (n_target.x - p_target.x) * (i + rab) / rec;
@@ -4838,15 +4823,10 @@ script_exec:
 						&& cur->lastStep().getData() < unit_manager.nb_unit
 						&& remaining_build_commands > 0)
 					{
-						remaining_build_commands--;
-						float DX = (unit_manager.unit_type[cur->lastStep().getData()]->FootprintX<<2);
-						float DZ = (unit_manager.unit_type[cur->lastStep().getData()]->FootprintZ<<2);
-						float blue = 0.0f, green = 1.0f;
-						if (only_build_commands)
-						{
-							blue = 1.0f;
-							green = 0.0f;
-						}
+						--remaining_build_commands;
+						const float DX = (unit_manager.unit_type[cur->lastStep().getData()]->FootprintX<<2);
+						const float DZ = (unit_manager.unit_type[cur->lastStep().getData()]->FootprintZ<<2);
+						const byte blue = only_build_commands ? 0xFF : 0x00, green = only_build_commands ? 0x00 : 0xFF;
 						glPushMatrix();
 						glTranslatef(target.x,Math::Max( target.y, the_map->sealvl ), target.z);
 						glDisable(GL_CULL_FACE);
@@ -4854,24 +4834,24 @@ script_exec:
 						glEnable(GL_BLEND);
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 						glBegin(GL_QUADS);
-						glColor4f(0.0f,green,blue,1.0f);
+						glColor4ub(0x00,green,blue,0xFF);
 						glVertex3f(-DX,0.0f,-DZ);			// First quad
 						glVertex3f(DX,0.0f,-DZ);
-						glColor4f(0.0f,green,blue,0.0f);
+						glColor4ub(0x00,green,blue,0x00);
 						glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
 						glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
 
-						glColor4f(0.0f,green,blue,1.0f);
+						glColor4ub(0x00,green,blue,0xFF);
 						glVertex3f(-DX,0.0f,-DZ);			// Second quad
 						glVertex3f(-DX,0.0f,DZ);
-						glColor4f(0.0f,green,blue,0.0f);
+						glColor4ub(0x00,green,blue,0x00);
 						glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
 						glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
 
-						glColor4f(0.0f,green,blue,1.0f);
+						glColor4ub(0x00,green,blue,0xFF);
 						glVertex3f(DX,0.0f,-DZ);			// Third quad
 						glVertex3f(DX,0.0f,DZ);
-						glColor4f(0.0f,green,blue,0.0f);
+						glColor4ub(0x00,green,blue,0x00);
 						glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
 						glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
 
@@ -4887,7 +4867,7 @@ script_exec:
 							glEnable(GL_DEPTH_TEST);
 							glPushMatrix();
 							glTranslatef(target.x, target.y, target.z);
-							glColor4f(0.0f,green,blue,0.5f);
+							glColor4ub(0x00,green,blue,0x7F);
 							glDepthFunc( GL_GREATER );
 							unit_manager.unit_type[cur->lastStep().getData()]->model->mesh->draw(0.0f,NULL,false,false,false);
 							glDepthFunc( GL_LESS );
@@ -4907,10 +4887,10 @@ script_exec:
 						glEnable(GL_BLEND);
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 						glBegin(GL_QUADS);
-						glColor4f(0.0f,green,blue,1.0f);
+						glColor4ub(0x00,green,blue,0xFF);
 						glVertex3f(-DX,0.0f,DZ);			// Fourth quad
 						glVertex3f(DX,0.0f,DZ);
-						glColor4f(0.0f,green,blue,0.0f);
+						glColor4ub(0x00,green,blue,0x00);
 						glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
 						glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
 						glEnd();
@@ -4921,7 +4901,7 @@ script_exec:
 						else
 							glEnable(GL_TEXTURE_2D);
 						glDisable(GL_CULL_FACE);
-						glColor4f(1.0f,1.0f,1.0f,1.0f);
+						glColor4ub(0xFF,0xFF,0xFF,0xFF);
 					}
 					break;
 				case MISSION_UNLOAD:
@@ -4954,12 +4934,12 @@ script_exec:
 							case MISSION_REVIVE:	cursor_type = CURSOR_REVIVE;	break;
 							case MISSION_CAPTURE:	cursor_type = CURSOR_CAPTURE;	break;
 						}
-						int curseur = anim_cursor( cursor_type );
-						float x = target.x - 0.5f * cursor[cursor_type].ofs_x[curseur];
-						float y = target.y + 1.0f;
-						float z = target.z - 0.5f * cursor[cursor_type].ofs_y[curseur];
-						float sx = 0.5f * (cursor[cursor_type].bmp[curseur]->w - 1);
-						float sy = 0.5f * (cursor[cursor_type].bmp[curseur]->h - 1);
+						const int curseur = anim_cursor( cursor_type );
+						const float x = target.x - 0.5f * cursor[cursor_type].ofs_x[curseur];
+						const float y = target.y + 1.0f;
+						const float z = target.z - 0.5f * cursor[cursor_type].ofs_y[curseur];
+						const float sx = 0.5f * (cursor[cursor_type].bmp[curseur]->w - 1);
+						const float sy = 0.5f * (cursor[cursor_type].bmp[curseur]->h - 1);
 						if (low_def)
 							glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, cursor[cursor_type].glbmp[curseur]);
@@ -4980,30 +4960,30 @@ script_exec:
 
 		if (!points.empty())
 		{
-			int curseur = anim_cursor(CURSOR_CROSS_LINK);
-			float sx = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->w - 1);
-			float sy = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->h - 1);
+			const int curseur = anim_cursor(CURSOR_CROSS_LINK);
+			const float sx = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->w - 1);
+			const float sy = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->h - 1);
 
 			Vector3D* P = new Vector3D[points.size() << 2];
 			float* T = new float[points.size() << 3];
 
 			int n = 0;
-			for (std::list<Vector3D>::const_iterator i = points.begin(); i != points.end(); ++i)
+			for (std::vector<Vector3D>::const_iterator i = points.begin(); i != points.end(); ++i)
 			{
 				P[n] = *i;
-				T[n<<1] = 0.0f;		T[(n<<1)+1] = 0.0f;
+				T[n<<1] = 0.0f;		T[(n<<1)|1] = 0.0f;
 				++n;
 
 				P[n] = *i;	P[n].x += sx;
-				T[n<<1] = 1.0f;		T[(n<<1)+1] = 0.0f;
+				T[n<<1] = 1.0f;		T[(n<<1)|1] = 0.0f;
 				++n;
 
 				P[n] = *i;	P[n].x += sx;	P[n].z += sy;
-				T[n<<1] = 1.0f;		T[(n<<1)+1] = 1.0f;
+				T[n<<1] = 1.0f;		T[(n<<1)|1] = 1.0f;
 				++n;
 
 				P[n] = *i;	P[n].z += sy;
-				T[n<<1] = 0.0f;		T[(n<<1)+1] = 1.0f;
+				T[n<<1] = 0.0f;		T[(n<<1)|1] = 1.0f;
 				++n;
 			}
 
