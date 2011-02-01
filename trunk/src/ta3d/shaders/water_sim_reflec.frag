@@ -21,8 +21,8 @@ void main()
 	{
         vec3 DN = texture2D(distort_map, t_coord).rgb;
     	vec3 N = normalize( texture2D(normal_map, 5.0 * bump_vec.xy).xyz
-                 + 0.75 * texture2D(normal_map, 1.111 * bump_vec.xy).xyz
-                 + 0.5 * texture2D(normal_map, 0.3333 * bump_vec.xy).xyz + DN );
+                 + 0.66 * texture2D(normal_map, 1.111 * bump_vec.xy).xyz
+                 + 0.33 * texture2D(normal_map, 0.3333 * bump_vec.xy).xyz + DN );
     	vec2 map_coord = (bump_vec.xy - vec2(0.5,0.5)) * factor + vec2(0.5,0.5);
 
 		vec3 D = 2.0 * texture2D( view, t_coord ).xyz - vec3(1.0,1.0,1.0);
@@ -45,13 +45,6 @@ void main()
 		vec4 procedural_texture = clamp( clamp( -dot(N, light) + light.y, -1.0, 1.0)  * vec4( 3.0, 3.0, 5.0, 1.0 ) + vec4( pow( clamp( dot( R, light ), 0.0, 1.0 ), 20.0 ) ), -1.0, 1.0 );
 
         procedural_texture -= vec4(0.1 * depth);
-        float coast_factor = clamp( 1.0 - 8.0 * depth, 0.0, 1.0 );
-        float offset = coast_factor * 3.14 - cos(t) * 1.57 - 2.0;
-        float f = cos( offset );
-        float f2 = cos( offset - 0.2 );
-        f = (f <= f2) ? pow(clamp(f,0.0,1.0),10.0) : f;
-        f *= (0.5 * cos(t+0.2) + 0.5);
-        procedural_texture += vec4( coast_factor * coast_factor * pow(f * 0.5 + 0.5, 10.0) );
         procedural_texture += vec4( 0.5 * length(DN.xz) );
 
 		gl_FragColor = mix(ref,scr_col,trans) + procedural_texture;
