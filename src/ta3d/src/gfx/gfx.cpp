@@ -1152,29 +1152,30 @@ namespace TA3D
 			int w = bmp->w << 1;
 			int h = bmp->h << 1;
 			int level = 0;
-			do
-			{
-				w = Math::Max(w / 2, 1);
-				h = Math::Max(h / 2, 1);
-				SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
-				stretch_blit(bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, w, h);
-				switch (tmp->format->BitsPerPixel)
+			if (w >= 1 && h >= 1)
+				do
 				{
-					case 8:
-                        glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
-						break;
-					case 24:
-                        glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp->pixels);
-						break;
-					case 32:
-                        glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
-						break;
-					default:
-						LOG_DEBUG("SDL_Surface format not supported by texture loader: " << (int) tmp->format->BitsPerPixel << " bpp" );
-				}
-				SDL_FreeSurface(tmp);
-				++level;
-			} while(w > 1 || h > 1);
+					w = Math::Max(w / 2, 1);
+					h = Math::Max(h / 2, 1);
+					SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
+					stretch_blit(bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, w, h);
+					switch (tmp->format->BitsPerPixel)
+					{
+						case 8:
+							glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
+							break;
+						case 24:
+							glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp->pixels);
+							break;
+						case 32:
+							glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
+							break;
+						default:
+							LOG_DEBUG("SDL_Surface format not supported by texture loader: " << (int) tmp->format->BitsPerPixel << " bpp" );
+					}
+					SDL_FreeSurface(tmp);
+					++level;
+				} while(w > 1 || h > 1);
 		}
 
 		if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
