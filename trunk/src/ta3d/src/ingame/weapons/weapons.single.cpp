@@ -19,7 +19,6 @@
 #include <UnitEngine.h>
 #include <gfx/fx.h>
 #include <misc/camera.h>
-#include <list>
 #include <misc/math.h>
 #include <sounds/manager.h>
 #include <ingame/players.h>

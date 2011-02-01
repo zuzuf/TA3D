@@ -20,7 +20,6 @@
 # include <stdafx.h>
 # include <threads/mutex.h>
 # include <misc/string.h>
-# include <list>
 # include <sdl.h>
 # include <misc/progressnotifier.h>
 

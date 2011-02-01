@@ -25,7 +25,6 @@
 # include "fx.base.h"
 # include "fx.particle.h"
 # include "fx.electric.h"
-# include <list>
 # include <misc/camera.h>
 # include <mesh/mesh.h>
 # include "texture.h"

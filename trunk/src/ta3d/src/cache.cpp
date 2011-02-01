@@ -47,9 +47,9 @@ namespace Cache
 
 		if (rebuild_cache)
 		{
-			String::List file_list;
+			String::Vector file_list;
 			Paths::GlobFiles(file_list, Paths::Caches + "*");
-			for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
+			for (String::Vector::iterator i = file_list.begin(); i != file_list.end(); ++i)
 				remove(i->c_str());
 			// Update cache date
 			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::write);

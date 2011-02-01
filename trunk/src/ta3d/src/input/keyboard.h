@@ -18,7 +18,7 @@
 #ifndef __TA3D_KEYBOARD_H__
 # define __TA3D_KEYBOARD_H__
 
-# include <list>
+# include <deque>
 # include <stdafx.h>
 
 
@@ -31,7 +31,7 @@ namespace TA3D
 		extern bool                             key[0x1000];
 		extern bool                             prevkey_down[0x1000];
 		extern bool                             prevkey_up[0x1000];
-		extern std::list<uint32>                keybuf;
+		extern std::deque<uint32>               keybuf;
 		extern int                              remap[0x1000];
 	}
 

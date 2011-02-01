@@ -25,7 +25,6 @@
 # include <misc/camera.h>
 # include "particlessystem.h"
 # include "particle.h"
-# include <list>
 # include <vector>
 
 

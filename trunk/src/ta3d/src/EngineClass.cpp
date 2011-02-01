@@ -31,7 +31,6 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "gfx/fx.h"
-#include <list>
 #include "misc/math.h"
 #include "logs/logs.h"
 #include "misc/tdf.h"
