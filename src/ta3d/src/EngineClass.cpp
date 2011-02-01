@@ -1324,10 +1324,10 @@ namespace TA3D
 		}
 		else
 		{
-			bool bFarSight = lp_CONFIG->far_sight && !cam->mirror;
-			float zfar = cam->zfar;
-			float cam_h = cam->rpos.y - get_unit_h(cam->rpos.x, cam->rpos.z);
-			float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+			const bool bFarSight = lp_CONFIG->far_sight && !cam->mirror;
+			const float zfar = cam->zfar;
+			const float cam_h = cam->rpos.y - get_unit_h(cam->rpos.x, cam->rpos.z);
+			const float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
 			if (bFarSight)      // Far sight mode: renders low definition map under the HD version in order to show the whole map at the horizon
 			{
 				cam->setView(true);
