@@ -60,6 +60,10 @@ namespace TA3D
         Vector3D Pos;
         //! Speed
         Vector3D V;
+		//! Start position
+		Vector3D start_pos;
+		//!
+		bool bInit;
 
         //!
         Vector3D target_pos;			// Position ciblée

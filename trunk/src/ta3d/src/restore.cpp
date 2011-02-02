@@ -223,6 +223,8 @@ namespace TA3D
 			writestring(file, weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name);
 
 			SAVE( weapons.weapon[i].Pos );
+			SAVE( weapons.weapon[i].bInit );
+			SAVE( weapons.weapon[i].start_pos );
 			SAVE( weapons.weapon[i].V );
 			SAVE( weapons.weapon[i].target_pos );
 			SAVE( weapons.weapon[i].target );
@@ -681,6 +683,8 @@ namespace TA3D
 			weapons.weapon[i].weapon_id = short(weapon_manager.get_weapon_index( readstring( file ) ));
 
 			LOAD( weapons.weapon[i].Pos );
+			LOAD( weapons.weapon[i].bInit );
+			LOAD( weapons.weapon[i].start_pos );
 			LOAD( weapons.weapon[i].V );
 			LOAD( weapons.weapon[i].target_pos );
 			LOAD( weapons.weapon[i].target );
