@@ -440,9 +440,7 @@ namespace TA3D
 		FeaturesList  sinking_features;	// because it's faster that way
 
 		//!
-		int* list;				// Liste d'objets à afficher
-		//!
-		int list_size;
+		std::vector<int> list;				// Liste d'objets à afficher
 
 	protected:
 		//!

@@ -176,8 +176,8 @@ namespace TA3D
 						glPolygonOffset(3.0f, 1.0f);
 
 						// Render all visible features from light's point of view
-						for(int i=0;i<features.list_size;i++)
-							features.feature[features.list[i]].draw = true;
+						for(std::vector<int>::iterator i = features.list.begin() ; i != features.list.end() ; ++i)
+							features.feature[*i].draw = true;
 						features.draw(render_time, true);
 
 						glEnable(GL_POLYGON_OFFSET_FILL);

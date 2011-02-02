@@ -58,33 +58,33 @@ namespace TA3D
 
 	void Feature::init()
 	{
-		not_loaded=true;
-		need_convert=true;
-		flamable=false;
+		not_loaded = true;
+		need_convert = true;
+		flamable = false;
 		burnmin = 0;
 		burnmax = 0;
 		sparktime = 0;
 		spreadchance = 0;
 
-		geothermal=false;
-		blocking=false;
-		reclaimable=false;
-        autoreclaimable=true;
-		energy=0;
-		converted=false;
-		m3d=false;
-		model=NULL;
-		vent=false;
-		animating=false;
-		footprintx=0;
-		footprintz=0;
-		height=0;
-		animtrans=false;
-		shadtrans=false;
-		hitdensity=0;
-		metal=0;
-		damage=100;
-		indestructible=false;
+		geothermal = false;
+		blocking = false;
+		reclaimable = false;
+		autoreclaimable = true;
+		energy = 0;
+		converted = false;
+		m3d = false;
+		model = NULL;
+		vent = false;
+		animating = false;
+		footprintx = 0;
+		footprintz = 0;
+		height = 0;
+		animtrans = false;
+		shadtrans = false;
+		hitdensity = 0;
+		metal = 0;
+		damage = 100;
+		indestructible = false;
 
 		burnweapon.clear();
 		feature_reclamate.clear();
@@ -270,10 +270,10 @@ namespace TA3D
 
 			// Build the repulsion grid
 			pFeature->gRepulsion.resize(pFeature->footprintx * 5, pFeature->footprintz * 5);
-			float sigx = pFeature->footprintx;
-			float sigz = pFeature->footprintz;
-			float sigx2 = -0.5f / (sigx * sigx);
-			float sigz2 = -0.5f / (sigz * sigz);
+			const float sigx = pFeature->footprintx;
+			const float sigz = pFeature->footprintz;
+			const float sigx2 = -0.5f / (sigx * sigx);
+			const float sigz2 = -0.5f / (sigz * sigz);
 			for(int z = 0 ; z < pFeature->gRepulsion.getHeight() ; ++z)
 			{
 				float dz = z - pFeature->gRepulsion.getHeight() * 0.5f;
@@ -302,14 +302,14 @@ namespace TA3D
 			{
 				if (model_manager.get_model(String(feature[i]->filename) << '-' << feature[i]->seqname) != NULL) // Check if there is a 3do version of it
 				{
-					feature[i]->model=NULL;
-					feature[i]->m3d=true;
-					feature[i]->converted=false;
-					feature[i]->not_loaded=false;
+					feature[i]->model = NULL;
+					feature[i]->m3d = true;
+					feature[i]->converted = false;
+					feature[i]->not_loaded = false;
 				}
 				else
 				{
-					feature[i]->not_loaded=true;
+					feature[i]->not_loaded = true;
 					if (feature[i]->height<=10.0f && feature[i]->height>1.0f && feature[i]->blocking
 						&& ToLower(feature[i]->description) != "metal") // Tente une conversion en 3d
 					{
@@ -410,8 +410,7 @@ namespace TA3D
 
 	Features::Features()
 		:nb_features(0), max_features(0), feature(NULL), min_idx(0), max_idx(0),
-		burning_features(), sinking_features(),
-		list(NULL), list_size(0)
+		burning_features(), sinking_features()
 	{}
 
 
@@ -429,8 +428,7 @@ namespace TA3D
 		feature = NULL;
 		min_idx = 0;
 		max_idx = 0;
-		list = NULL;
-		list_size = 0;
+		list.clear();
 	}
 
 
@@ -448,7 +446,7 @@ namespace TA3D
 			}
 			DELETE_ARRAY(feature);
 		}
-		DELETE_ARRAY(list);
+		list.clear();
 		init();
 		burning_features.clear();
 		sinking_features.clear();
@@ -543,13 +541,13 @@ namespace TA3D
         float ticks2sec = 1.0f / TICKS_PER_SEC;
 
 		pMutex.lock();
-		for (int e = 0; e < list_size; ++e)
+		for (uint32 e = 0U ; e < list.size() ; ++e)
 		{
 			if (!(e & 15))
 			{
 				pMutex.unlock();
 				pMutex.lock();
-				if (e >= list_size)         // We need this because of the unlock/lock calls above
+				if (e >= list.size())         // We need this because of the unlock/lock calls above
 					break;
 			}
 			int i = list[e];
@@ -748,11 +746,11 @@ namespace TA3D
         float ticks2sec = 1.0f / TICKS_PER_SEC;
 
         pMutex.lock();
-		for (int e = 0; e < list_size; ++e)
+		for (uint32 e = 0U ; e < list.size() ; ++e)
 		{
 			pMutex.unlock();
 			pMutex.lock();
-			if (e >= list_size)         // We need this because of the unlock/lock calls above
+			if (e >= list.size())         // We need this because of the unlock/lock calls above
 				break;
 			int i = list[e];
 			if(feature[i].type < 0)
@@ -816,9 +814,9 @@ namespace TA3D
 
 		pMutex.lock();
 
-		for (int e = 0; e < list_size; ++e)
+		for (std::vector<int>::const_iterator e = list.begin() ; e != list.end() ; ++e)
 		{
-			int i = list[e];
+			const int i = *e;
 			if (feature[i].type < 0)
 				continue;
 			if (feature[i].hp <= 0.0f && !feature[i].burning)
@@ -1104,9 +1102,7 @@ namespace TA3D
 
 	void Features::resetListOfItemsToDisplay()
 	{
-		DELETE_ARRAY(list);
-		list = new int[max_features];
-		list_size = 0;
+		list.clear();
 	}
 
 	int Features::add_feature(const Vector3D& Pos, const int type)

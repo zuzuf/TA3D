@@ -1657,7 +1657,7 @@ namespace TA3D
 				memset(&(view(ox1, y)), 0, ox2 - ox1 + 1);
 			features.min_idx = features.nb_features - 1;
 			features.max_idx = 0;
-			features.list_size = 0;
+			features.list.clear();
 			ox1 = x1;	ox2 = x2;
 			oy1 = y1;	oy2 = y2;
 		}
@@ -1667,17 +1667,17 @@ namespace TA3D
 			{
 				x1 = ox1;	x2 = ox2;
 				y1 = oy1;	y2 = oy2;
-				for (int i = 0 ; i < features.list_size; ++i)
-					features.feature[features.list[i]].draw = true;
+				for (std::vector<int>::iterator i = features.list.begin() ; i != features.list.end() ; ++i)
+					features.feature[*i].draw = true;
 			}
 		}
-		int lavaprob = (int)(1000 * dt);
+		const int lavaprob = (int)(1000 * dt);
 		Vector3D buf_p[4500]; // Tampon qui accumule les blocs pour les dessiner en chaîne
 		float	buf_t[9000];
 		uint8	buf_c[18000];
-		short	buf_size=0;				// in blocs
-		uint16	index_size=0;
-		bool	was_flat=false;
+		short	buf_size = 0;				// in blocs
+		uint16	index_size = 0;
+		bool	was_flat = false;
 		glDisableClientState(GL_NORMAL_ARRAY);		// we don't need normal data
 		glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
 		glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
@@ -1787,8 +1787,8 @@ namespace TA3D
 							else
 							{
 								features.feature[map_data(X, Y).stuff].draw = true;
-								features.feature[map_data(X, Y).stuff].grey = (view(x, y)&2) == 2;
-								features.list[features.list_size++] = map_data(X, Y).stuff;
+								features.feature[map_data(X, Y).stuff].grey = (view(x, y) & 2) == 2;
+								features.list.push_back(map_data(X, Y).stuff);
 							}
 						}
 						if (map_data(X | 1, Y).stuff >= 0 && map_data(X | 1, Y).stuff < features.max_features)
@@ -1798,8 +1798,8 @@ namespace TA3D
 							else
 							{
 								features.feature[map_data(X | 1, Y).stuff].draw = true;
-								features.feature[map_data(X | 1, Y).stuff].grey = (view(x, y)&2) == 2;
-								features.list[features.list_size++] = map_data(X | 1, Y).stuff;
+								features.feature[map_data(X | 1, Y).stuff].grey = (view(x, y) & 2) == 2;
+								features.list.push_back(map_data(X | 1, Y).stuff);
 							}
 						}
 						if (map_data(X, Y | 1).stuff >= 0 && map_data(X, Y | 1).stuff < features.max_features)
@@ -1809,8 +1809,8 @@ namespace TA3D
 							else
 							{
 								features.feature[map_data(X, Y | 1).stuff].draw = true;
-								features.feature[map_data(X, Y | 1).stuff].grey = (view(x, y)&2) == 2;
-								features.list[features.list_size++] = map_data(X, Y | 1).stuff;
+								features.feature[map_data(X, Y | 1).stuff].grey = (view(x, y) & 2) == 2;
+								features.list.push_back(map_data(X, Y | 1).stuff);
 							}
 						}
 						if (map_data(X | 1, Y | 1).stuff >= 0 && map_data(X | 1, Y | 1).stuff < features.max_features)
@@ -1820,8 +1820,8 @@ namespace TA3D
 							else
 							{
 								features.feature[map_data(X | 1, Y | 1).stuff].draw = true;
-								features.feature[map_data(X | 1, Y | 1).stuff].grey = (view(x, y)&2) == 2;
-								features.list[features.list_size++] = map_data(X | 1, Y | 1).stuff;
+								features.feature[map_data(X | 1, Y | 1).stuff].grey = (view(x, y) & 2) == 2;
+								features.list.push_back(map_data(X | 1, Y | 1).stuff);
 							}
 						}
 					}
