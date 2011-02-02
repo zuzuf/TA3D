@@ -50,7 +50,7 @@ namespace TA3D
 	byte player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 
-	float	player_color[TA3D_PLAYERS_HARD_LIMIT * 3]=
+	const float	player_color[TA3D_PLAYERS_HARD_LIMIT * 3] =
 	{	0.11f,	0.28f,	0.91f,
 		0.83f,	0.17f,	0.0f,
 		1.0f,	1.0f,	1.0f,
@@ -1484,10 +1484,10 @@ namespace TA3D
 		cam->getFrustum(frustum);
 
 		const int nLinks = 18;
-		int fLink[][2] = { {0, 1}, {1, 2}, {2, 3}, {0, 2}, {1, 3},     // Front face
-			{4, 5}, {5, 6}, {6, 7}, {4, 6}, {5, 7},     // Back face
-			{0, 4}, {1, 5}, {2, 6}, {3, 7},             // Sides
-			{0, 6}, {1, 7}, {0, 5}, {2, 7} };           // NB: fLink[i][0] < fLink[i][1] for all possible i
+		const int fLink[][2] = { {0, 1}, {1, 2}, {2, 3}, {0, 2}, {1, 3},     // Front face
+								{4, 5}, {5, 6}, {6, 7}, {4, 6}, {5, 7},     // Back face
+								{0, 4}, {1, 5}, {2, 6}, {3, 7},             // Sides
+								{0, 6}, {1, 7}, {0, 5}, {2, 7} };           // NB: fLink[i][0] < fLink[i][1] for all possible i
 
 		// Once we have the frustum volume, we compute the intersection between this volume and the map "plane" (y = ymin, then y = ymax)
 		// So we need to know what is below yref and what is above (maybe we'll have nothing to render)
@@ -1621,7 +1621,7 @@ namespace TA3D
 			flat[8].x = 16.0f;		flat[8].y=flat[0].y;				flat[8].z=16.0f;
 		}
 
-		bool enable_details = !cam->mirror && (lp_CONFIG->detail_tex || lp_CONFIG->shadow_quality >= 2);
+		const bool enable_details = !cam->mirror && (lp_CONFIG->detail_tex || lp_CONFIG->shadow_quality >= 2);
 
 		if (ntex > 0 && !depth_only)
 		{
