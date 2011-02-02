@@ -150,31 +150,46 @@ namespace TA3D
     void QUAD_TABLE::draw_all()
     {
         uint32	max_size = 0;
-        for (uint16 i = 0; i < DrawingTable_SIZE ; ++i)
+		for (uint32 i = 0U ; i < DrawingTable_SIZE ; ++i)
         {
             for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
         }
+		if (max_size == 0U)
+			return;
 
-        Vector3D	*P = new Vector3D[ max_size << 2 ];
-        uint32	*C = new uint32[ max_size << 2 ];
-        GLfloat	*T = new GLfloat[ max_size << 3 ];
+		static Vector3D	*P = NULL;
+		static uint32	*C = NULL;
+		static GLfloat	*T = NULL;
+		static uint32 capacity = 0U;
 
-        int e = 0;
-        for (unsigned int i = 0 ; i < max_size; ++i)
-        {
-            T[e << 1] = 0.0f;  T[(e<<1)+1] = 0.0f;
-            ++e;
+		if (max_size > capacity)
+		{
+			if (capacity)
+			{
+				delete P;
+				delete C;
+				delete T;
+			}
+			capacity = 2 << Math::Log2(max_size);
+			P = new Vector3D[ capacity << 2 ];
+			C = new uint32[ capacity << 2 ];
+			T = new GLfloat[ capacity << 3 ];
+			for (GLfloat *i = T, *end = T + (capacity << 3) ; i != end ; ++i)
+			{
+				*i = 0.0f;	++i;
+				*i = 0.0f;	++i;
 
-            T[e << 1] = 1.0f;  T[(e<<1)+1] = 0.0f;
-            ++e;
+				*i = 1.0f;	++i;
+				*i = 0.0f;	++i;
 
-            T[e << 1] = 1.0f;  T[(e<<1)+1] = 1.0f;
-            ++e;
+				*i = 1.0f;	++i;
+				*i = 1.0f;	++i;
 
-            T[e << 1] = 0.0f;  T[(e<<1)+1] = 1.0f;
-            ++e;
-        }
+				*i = 0.0f;	++i;
+				*i = 1.0f;
+			}
+		}
 
         glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
         glEnableClientState(GL_COLOR_ARRAY);
@@ -184,7 +199,7 @@ namespace TA3D
         glVertexPointer( 3, GL_FLOAT, 0, P);
         glTexCoordPointer(2, GL_FLOAT, 0, T);
 
-        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
+		for (uint32 i = 0; i < DrawingTable_SIZE ; ++i)
         {
             for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 (*e)->draw_queue(P, C);
@@ -192,9 +207,6 @@ namespace TA3D
 
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		DELETE_ARRAY(P);
-		DELETE_ARRAY(C);
-		DELETE_ARRAY(T);
     }
 
 
@@ -210,26 +222,30 @@ namespace TA3D
             p->x = e->pos.x - e->size_x;
             p->y = e->pos.y;
             p->z = e->pos.z - e->size_z;
-            *c++ = e->col;
+			*c = e->col;
+			++c;
             ++p;
 
             p->x = e->pos.x + e->size_x;
             p->y = e->pos.y;
             p->z = e->pos.z - e->size_z;
-            *c++ = e->col;
-            ++p;
+			*c = e->col;
+			++c;
+			++p;
 
             p->x = e->pos.x + e->size_x;
             p->y = e->pos.y;
             p->z = e->pos.z + e->size_z;
-            *c++ = e->col;
-            ++p;
+			*c = e->col;
+			++c;
+			++p;
 
             p->x = e->pos.x - e->size_x;
             p->y = e->pos.y;
             p->z = e->pos.z + e->size_z;
-            *c++ = e->col;
-            ++p;
+			*c = e->col;
+			++c;
+			++p;
         }
         glBindTexture( GL_TEXTURE_2D, texture_id );
         glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
@@ -237,7 +253,7 @@ namespace TA3D
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {
             p = P;
-            int i = 0;
+			uint32 i = 0U;
             for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
             {
                 if (e->pos.y >= INSTANCING::sealvl) continue;
@@ -262,11 +278,12 @@ namespace TA3D
                 ++p;
                 ++i;
             }
-            memset(C, 0x7F, i * 16);
 
             if (i > 0)
             {
-                glEnable( GL_BLEND );
+				glColor4ub(0x7F,0x7F,0x7F,0x7F);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glEnable( GL_BLEND );
                 glDisable( GL_TEXTURE_2D );
                 glBlendFunc( GL_ONE, GL_ONE );
                 glDepthFunc( GL_EQUAL );
@@ -274,7 +291,8 @@ namespace TA3D
                 glDepthFunc( GL_LESS );
                 glEnable( GL_TEXTURE_2D );
                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-            }
+				glEnableClientState(GL_COLOR_ARRAY);
+			}
         }
     }
 
