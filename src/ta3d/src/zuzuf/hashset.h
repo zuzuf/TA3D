@@ -44,6 +44,7 @@ namespace zuzuf
 		{
 			friend class tpl_iterator<hashset, T>;
 			friend class tpl_iterator<hashset const, const T>;
+			friend class hashset<T, HFn, MaxLoad>;
 		public:
 			tpl_iterator(HT *hset, size_t idx) : hset(hset), idx(idx)	{}
 			tpl_iterator(const tpl_iterator &it) : hset(it.hset), idx(it.idx)	{}

@@ -419,7 +419,7 @@ namespace TA3D
 
 	public:
 		//! \brief List of feature
-		typedef std::list<uint32> FeaturesList;
+		typedef std::vector<uint32> FeaturesList;
 
 	public:
 		//!
