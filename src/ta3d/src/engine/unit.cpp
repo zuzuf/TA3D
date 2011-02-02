@@ -3824,14 +3824,17 @@ namespace TA3D
 											g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
 										}
 
-										float conso_energy = ((float)(pType->WorkerTime * unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy)) / unit_manager.unit_type[target_unit->type_id]->BuildTime;
+										const float conso_energy = ((float)(pType->WorkerTime * unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy)) / unit_manager.unit_type[target_unit->type_id]->BuildTime;
 										TA3D::players.requested_energy[owner_id] += conso_energy;
 										if (players.energy[owner_id] >= (energy_cons + conso_energy * TA3D::players.energy_factor[owner_id]) * dt)
 										{
 											energy_cons += conso_energy * TA3D::players.energy_factor[owner_id];
-                                            target_unit->hp += dt * TA3D::players.energy_factor[owner_id] * pType->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+											const UnitType *pTargetType = unit_manager.unit_type[target_unit->type_id];
+											const float maxdmg = float(pTargetType->MaxDamage);
+											target_unit->hp = std::min(maxdmg,
+																	   target_unit->hp + dt * TA3D::players.energy_factor[owner_id] * pType->WorkerTime * maxdmg / pTargetType->BuildTime);
 										}
-										target_unit->built=true;
+										target_unit->built = true;
 									}
 								}
 							}
@@ -3909,10 +3912,13 @@ namespace TA3D
 								if (players.metal[owner_id]>= (metal_cons + conso_metal * resource_min_factor) * dt
 									&& players.energy[owner_id]>= (energy_cons + conso_energy * resource_min_factor) * dt)
 								{
-									metal_cons+=conso_metal * resource_min_factor;
-									energy_cons+=conso_energy * resource_min_factor;
-                                    target_unit->build_percent_left-=dt*resource_min_factor*pType->WorkerTime*100.0f/unit_manager.unit_type[target_unit->type_id]->BuildTime;
-                                    target_unit->hp+=dt*resource_min_factor*pType->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+									metal_cons += conso_metal * resource_min_factor;
+									energy_cons += conso_energy * resource_min_factor;
+									const UnitType *pTargetType = unit_manager.unit_type[target_unit->type_id];
+									const float base = dt * resource_min_factor * pType->WorkerTime;
+									const float maxdmg = float(pTargetType->MaxDamage);
+									target_unit->build_percent_left = std::max(0.0f, target_unit->build_percent_left - base * 100.0f / pTargetType->BuildTime);
+									target_unit->hp = std::min(maxdmg, target_unit->hp + base * maxdmg / pTargetType->BuildTime);
 								}
                                 if (!pType->BMcode)
 								{
