@@ -79,6 +79,8 @@ namespace TA3D
 		a0 = a0 + ((a1 - a0) * dx >> 16);
 		a2 = a2 + ((a3 - a2) * dx >> 16);
 		a0 = a0 + ((a2 - a0) * dy >> 16);
+		if (r0 == 0 && g0 == 0 && b0 == 0)
+			return makeacol32(1,1,1,a0);
 		return makeacol32(r0, g0, b0, a0);
 	}
 
