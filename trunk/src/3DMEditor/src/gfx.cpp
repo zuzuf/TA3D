@@ -388,21 +388,8 @@ void Gfx::mouseMoveEvent(QMouseEvent *event)
         {
             if (event->buttons() == Qt::LeftButton)         // Rotate the camera
             {
-                float r = 20.0f;
                 Vec center;
-                if (!Mesh::instance()->isEmpty())
-                {
-                    Vec p;
-                    Matrix inv = Invert( Transpose(meshMatrix) );
-                    Vec pos = Camera::inGame->rpos * inv;
-                    Vec dir = Camera::inGame->getScreenVector( ((float)previousMousePos.x()) / width(), ((float)previousMousePos.y()) / height()) * inv;
-                    if (Mesh::instance()->hit(pos, dir, p) >= 0)
-                    {
-                        r = p.norm();
-                    }
-                    else
-                        r = Mesh::instance()->getSize();
-                }
+				const float r = 0.75f * Camera::inGame->rpos.norm();
                 arcballMove(center, r, previousMousePos, event->pos());
             }
             else if (event->buttons() == Qt::RightButton)     // Move camera // to viewing plane
