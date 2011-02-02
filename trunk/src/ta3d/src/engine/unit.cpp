@@ -3419,15 +3419,18 @@ namespace TA3D
 								break;
 							}
 						}
-						if (((Vector3D)(Pos - mission->getUnit()->Pos)).sq() >= 25600.0f) // On reste assez près
+						if (!pType->canfly)
 						{
-							mission->Flags() |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
-							mission->setMoveData(10);
-							c_time = 0.0f;
-							break;
+							if (((Vector3D)(Pos - mission->getUnit()->Pos)).sq() >= 25600.0f) // On reste assez près
+							{
+								mission->Flags() |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
+								mission->setMoveData(10);
+								c_time = 0.0f;
+								break;
+							}
+							else if (mission->getFlags() & MISSION_FLAG_MOVE)
+								stopMoving();
 						}
-						else if (mission->getFlags() & MISSION_FLAG_MOVE)
-							stopMoving();
 					}
 					else
 						next_mission();
@@ -4210,7 +4213,48 @@ namespace TA3D
                         V = pType->MaxVelocity / V.norm() * V;
                 }
                 break;
-            }
+			case MISSION_GUARD:
+				if (pType->canfly)             // Aircrafts fly around guarded units
+				{
+					activate();
+					mission->Flags() &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
+					Vector3D J = mission->getTarget().getPos() - Pos;
+					J.y = 0.0f;
+					const float dist = J.norm();
+					if (dist > 0.0f)
+						J = 1.0f / dist * J;
+					b_TargetAngle = true;
+					f_TargetAngle = acosf(J.z) * RAD2DEG;
+					if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
+					const float ideal_dist = pType->SightDistance;
+
+					Vector3D acc;
+					if (dist > 2.0f * ideal_dist)
+						acc = pType->Acceleration * J;
+					else
+					{
+						f_TargetAngle += 90.0f;
+						acc = pType->Acceleration * (10.0f * (dist - ideal_dist) * J + Vector3D(J.z, 0.0f, -J.x));
+						if (acc.sq() >= pType->Acceleration * pType->Acceleration)
+						{
+							acc.unit();
+							acc *= pType->Acceleration;
+						}
+					}
+					V += dt * acc;
+
+					J.z = sinf(Angle.y * DEG2RAD);
+					J.x = -cosf(Angle.y * DEG2RAD);
+					J.y = 0.0f;
+					J = (J % V) * J;
+					V = (V - J) + units.exp_dt_4 * J;
+
+					const float speed = V.sq();
+					if (speed > pType->MaxVelocity * pType->MaxVelocity)
+						V = pType->MaxVelocity / sqrtf(speed) * V;
+				}
+				break;
+			}
 
 			if (( (mission->getFlags() & MISSION_FLAG_MOVE) || !local ) && !jump_commands )// Set unit orientation if it's on the ground
 			{
@@ -4553,6 +4597,7 @@ script_exec:
 						 || mission->mission() == MISSION_REPAIR
 						 || mission->mission() == MISSION_ATTACK
 						 || mission->mission() == MISSION_MOVE
+						 || mission->mission() == MISSION_GUARD
 						 || mission->mission() == MISSION_GET_REPAIRED
 						 || mission->mission() == MISSION_PATROL
 						 || mission->mission() == MISSION_RECLAIM
