@@ -1094,7 +1094,7 @@ namespace TA3D
 				glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
 				glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
 				glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
-                float scale = pType->Scale;
+				const float scale = pType->Scale;
 				glScalef(scale,scale,scale);
 
 				//            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
@@ -1261,6 +1261,8 @@ namespace TA3D
 
 				if (build_percent_left == 0.0f)
 				{
+					if (pType->onoffable && !port[ACTIVATION])
+						t = 0.0f;
 					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
 					the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, cloaked, src, src_data);
