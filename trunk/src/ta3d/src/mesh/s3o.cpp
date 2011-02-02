@@ -131,7 +131,7 @@ namespace TA3D
 							s3oShader.setvar1i( "tex0", 0 );
 							s3oShader.setvar1i( "tex1", 1 );
 							s3oShader.setvar1i( "shadowMap", 7 );
-							s3oShader.setvar1f( "t", 0.5f + 0.5f * cosf(t * PI) );
+							s3oShader.setvar1f( "t", 0.5f - 0.5f * cosf(t * PI) );
 							s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
 							s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
 
@@ -273,7 +273,7 @@ namespace TA3D
 							if (pTex->size() > 2)		// Third pass : light emission
 							{
 								glBindTexture(GL_TEXTURE_2D, (*pTex)[2]);		// Alpha texture
-								float c = 0.5f + 0.5f * cosf(t * PI);
+								const float c = 0.5f - 0.5f * cosf(t * PI);
 								glColor4f(c, c, c, 1.0f);
 								glBlendFunc(GL_SRC_COLOR, GL_ONE);
 								glDisable(GL_LIGHTING);
