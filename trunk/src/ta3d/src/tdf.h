@@ -430,11 +430,6 @@ namespace TA3D
 		FeatureData* feature;			// Eléments
 
 		//!
-		int min_idx;			// Indices des premiers et derniers éléments du tableau à être affichés
-		//!
-		int max_idx;
-
-		//!
 		FeaturesList  burning_features;	// because it's faster that way
 		//!
 		FeaturesList  sinking_features;	// because it's faster that way

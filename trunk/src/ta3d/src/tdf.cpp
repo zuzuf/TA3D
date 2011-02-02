@@ -409,7 +409,7 @@ namespace TA3D
 
 
 	Features::Features()
-		:nb_features(0), max_features(0), feature(NULL), min_idx(0), max_idx(0),
+		:nb_features(0), max_features(0), feature(NULL),
 		burning_features(), sinking_features()
 	{}
 
@@ -426,8 +426,6 @@ namespace TA3D
 		nb_features  = 0;
 		max_features = 0;
 		feature = NULL;
-		min_idx = 0;
-		max_idx = 0;
 		list.clear();
 	}
 

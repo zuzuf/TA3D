@@ -1655,8 +1655,6 @@ namespace TA3D
 		{
 			for (int y = oy1; y <= oy2; ++y)
 				memset(&(view(ox1, y)), 0, ox2 - ox1 + 1);
-			features.min_idx = features.nb_features - 1;
-			features.max_idx = 0;
 			features.list.clear();
 			ox1 = x1;	ox2 = x2;
 			oy1 = y1;	oy2 = y2;
