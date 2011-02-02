@@ -930,29 +930,32 @@ namespace TA3D
 		bool erased = false;
 
 		// Makes fire spread 8)
-		for (FeaturesList::iterator i = burning_features.begin() ; i != burning_features.end() ; )
+		for (uint32 i = 0U ; i < burning_features.size() ; )
 		{
 			++CS_count;
 			if (!CS_count)
 			{
 				pMutex.unlock();
 				pMutex.lock();
+				if (i >= burning_features.size())
+					break;
 			}
-			feature[*i].burning_time += dt;
-			Feature *pFeature = feature_manager.getFeaturePointer(features.feature[*i].type);
-			if (feature[*i].burning_time >= feature[*i].time_to_burn) // If we aren't burning anymore :(
+			const uint32 e = burning_features[i];
+			feature[e].burning_time += dt;
+			Feature *pFeature = feature_manager.getFeaturePointer(features.feature[e].type);
+			if (feature[e].burning_time >= feature[e].time_to_burn) // If we aren't burning anymore :(
 			{
 				if (network_manager.isServer())
-					g_ta3d_network->sendFeatureDeathEvent(*i);
+					g_ta3d_network->sendFeatureDeathEvent(e);
 
-				feature[*i].burning = false;
-				feature[*i].hp = 0.0f;
+				feature[e].burning = false;
+				feature[e].hp = 0.0f;
 
-				int sx = feature[*i].px; // Delete the feature
-				int sy = feature[*i].py;
+				const int sx = feature[e].px; // Delete the feature
+				const int sy = feature[e].py;
 				// Remove it from map
-				const Vector3D Pos = feature[*i].Pos;
-				delete_feature(*i);
+				const Vector3D Pos = feature[e].Pos;
+				delete_feature(e);
 
 				// Replace the feature if needed (with the burnt feature)
 				if (!pFeature->feature_burnt.empty())
@@ -970,40 +973,42 @@ namespace TA3D
 					}
 				}
 
-				i = burning_features.erase(i);
+				if (i + 1 != burning_features.size())
+					burning_features[i] = burning_features.back();
+				burning_features.pop_back();
 				erased = true;
 			}
 			else
 			{
 				erased = false;	// Still there
 
-				if (feature[*i].BW_idx >= 0 && !feature[*i].weapon_counter) // Don't stop damaging things before the end!!
+				if (feature[e].BW_idx >= 0 && !feature[e].weapon_counter) // Don't stop damaging things before the end!!
 				{
 					pMutex.unlock();
-					int w_idx = weapons.add_weapon( feature[ *i ].BW_idx, -1);
+					const int w_idx = weapons.add_weapon( feature[ e ].BW_idx, -1);
 					pMutex.lock();
 					if (w_idx >= 0)
 					{
 						weapons.weapon[w_idx].just_explode = true;
-						weapons.weapon[w_idx].Pos = feature[*i].Pos;
+						weapons.weapon[w_idx].Pos = feature[e].Pos;
 						weapons.weapon[w_idx].owner = 0xFF;
 						weapons.weapon[w_idx].local = true;
 					}
 				}
 
-				feature[*i].weapon_counter = byte(( feature[*i].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC);
+				feature[e].weapon_counter = byte(( feature[e].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC);
 
 				if (!network_manager.isConnected() || network_manager.isServer())
 				{
-					feature[*i].last_spread += dt;
-					if (feature[*i].burning_time >= pFeature->sparktime && feature[*i].last_spread >= 0.1f) // Can spread
+					feature[e].last_spread += dt;
+					if (feature[e].burning_time >= pFeature->sparktime && feature[e].last_spread >= 0.1f) // Can spread
 					{
-						feature[*i].last_spread = 0.0f;
-						int spread_score = Math::RandomTable() % 100;
+						feature[e].last_spread = 0.0f;
+						const int spread_score = Math::RandomTable() % 100;
 						if (spread_score < pFeature->spreadchance)// It tries to spread :)
 						{
-							int rnd_x = feature[*i].px + (Math::RandomTable() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
-							int rnd_y = feature[*i].py + (Math::RandomTable() % 12) - 6 + wind_z;
+							const int rnd_x = feature[e].px + (Math::RandomTable() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
+							const int rnd_y = feature[e].py + (Math::RandomTable() % 12) - 6 + wind_z;
 
 							if (rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) 	// Check coordinates are valid
 							{
@@ -1027,7 +1032,16 @@ namespace TA3D
 				Feature *pFeature = feature_manager.getFeaturePointer(feature[*i].type);
                 if (pFeature == NULL)
                 {
-                    sinking_features.erase(i++);
+					if (i + 1 != sinking_features.end())
+					{
+						*i = sinking_features.back();
+						sinking_features.pop_back();
+					}
+					else
+					{
+						sinking_features.pop_back();
+						break;
+					}
                     continue;
                 }
 				if (feature[*i].angle_x > -45.0f && !feature[*i].dive)
@@ -1037,7 +1051,7 @@ namespace TA3D
 				}
 				else
 					feature[*i].dive = true;
-				float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
+				const float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
 				if (sea_ground < feature[*i].Pos.y )
 				{
 					if (sinf(-feature[*i].angle_x * DEG2RAD) * float(pFeature->footprintx) * 8.0f > feature[*i].Pos.y - sea_ground)
@@ -1057,7 +1071,18 @@ namespace TA3D
 				++i;
 			}
 			else
-				sinking_features.erase(i++);
+			{
+				if (i + 1 != sinking_features.end())
+				{
+					*i = sinking_features.back();
+					sinking_features.pop_back();
+				}
+				else
+				{
+					sinking_features.pop_back();
+					break;
+				}
+			}
 		}
 		pMutex.unlock();
 	}
@@ -1092,7 +1117,15 @@ namespace TA3D
 			feature[index].delete_shadow_dlist = true;
 
 		if (feature[index].burning)		// Remove it form the burning features list
-			burning_features.remove(index);
+		{
+			std::vector<uint32>::iterator it = std::find(burning_features.begin(), burning_features.end(), index);
+			if (it != burning_features.end())
+			{
+				if (it + 1 != burning_features.end())
+					*it = burning_features.back();
+				burning_features.pop_back();
+			}
+		}
 
 		--nb_features;
 		feature[index].type = -1;		// On efface l'objet
