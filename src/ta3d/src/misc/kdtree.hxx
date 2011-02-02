@@ -42,18 +42,18 @@ namespace TA3D
 	}
 
 	template<typename T, class TKit>
-		void KDTree<T, TKit>::maxDistanceQuery(std::deque<T> &result, const Vec &center, float maxDist)
+		inline void KDTree<T, TKit>::maxDistanceQuery(std::deque<T> &result, const Vec &center, float maxDist) const
 	{
 		if (rChild == NULL && lChild == NULL)
 		{
-			float dist2 = maxDist * maxDist;
-			for(typename std::vector<T>::iterator i = elements.begin() ; i != elements.end() ; ++i)
+			const float dist2 = maxDist * maxDist;
+			for(typename std::vector<T>::const_iterator i = elements.begin() ; i != elements.end() ; ++i)
 				if ((TKit::pos(*i) - center).sq() <= dist2)
 					result.push_back(*i);
 			return;
 		}
 
-		float proj = (P - center)[N];
+		const float proj = (P - center)[N];
 
 		if (proj >= 0.0f || -proj < maxDist)
 			rChild->maxDistanceQuery(result, center, maxDist);
