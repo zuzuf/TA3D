@@ -69,19 +69,21 @@ namespace TA3D
 				pos += i.value()->points[j];
 			pos = 1.0f / i.value()->nb_vtx  * pos;
 
-			Mesh *parent = objects[elts[0]];
-			Mesh *child = objects[elts[1]];
+			ObjectMap::iterator it_parent = objects.find(elts[0]);
+			ObjectMap::iterator it_child = objects.find(elts[1]);
 
-			if (parent == NULL)		// Object missing ?
+			if (it_parent == objects.end())		// Object missing ?
 			{
 				LOG_WARNING("[mesh] [joins] object not found : '" << elts[0] << "' (" << filename << ')');
 				continue;
 			}
-			if (child == NULL)		// Object missing ?
+			if (it_child == objects.end())		// Object missing ?
 			{
 				LOG_WARNING("[mesh] [joins] object not found : '" << elts[1] << "' (" << filename << ')');
 				continue;
 			}
+			Mesh *parent = it_parent.value();
+			Mesh *child = it_child.value();
 
 			child->pos_from_parent = pos - objectPos[parent];
 			objectPos[child] = pos;
