@@ -30,7 +30,7 @@ namespace TA3D
 		KDTree(std::vector<T> &elts);
 		virtual ~KDTree();
 
-		void maxDistanceQuery(std::deque<T> &result, const Vec &center, float maxDist);
+		inline void maxDistanceQuery(std::deque<T> &result, const Vec &center, float maxDist) const;
 
 	private:
 		std::vector<T> elements;
