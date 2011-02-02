@@ -839,10 +839,11 @@ namespace TA3D
 				if (yardmap[e] == ' ')
 					i++;
 				else
-					yardmap[e-i] = yardmap[e];
-			yardmap.truncate(yardmap.size() - i);
-			while (yardmap.size() < FootprintX * FootprintZ)     // Complete the yardmap if needed
-				yardmap += yardmap.at(yardmap.size() - 1);
+					yardmap[e - i] = yardmap[e];
+			yardmap = Substr(yardmap, 0, yardmap.size() - i);
+			if (!yardmap.empty())
+				while (yardmap.size() < FootprintX * FootprintZ)     // Complete the yardmap if needed
+					yardmap += yardmap.last();
 		}
 
 		CruiseAlt = short(parseInt("UNITINFO.cruisealt"));
