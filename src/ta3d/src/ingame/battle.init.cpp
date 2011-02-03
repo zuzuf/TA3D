@@ -845,6 +845,8 @@ namespace TA3D
 					for(int x = 0 ; x < h_w ; x++)
 						data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) * 0.00392156862745098f;	// / 255
 				height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true );
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
 				DELETE_ARRAY(data);
 			}
 
