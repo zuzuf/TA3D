@@ -136,8 +136,8 @@ namespace UTILS
 		LOG_DEBUG(LOG_PREFIX_VFS << "closing and freeing archives");
 		if (!archives.empty())
 		{
-			const std::list<Archive*>::iterator end = archives.end();
-			for (std::list<Archive*>::iterator i = archives.begin() ; i != end; ++i)
+			const std::vector<Archive*>::iterator end = archives.end();
+			for (std::vector<Archive*>::iterator i = archives.begin() ; i != end; ++i)
 				delete *i;
 			archives.clear();
 		}
@@ -508,7 +508,7 @@ namespace UTILS
 
 	uint32 VFS::getArchivelist(String::Vector& li) const
 	{
-		for(std::list<Archive*>::const_iterator it = archives.begin() ; it != archives.end() ; ++it)
+		for(std::vector<Archive*>::const_iterator it = archives.begin() ; it != archives.end() ; ++it)
 			li.push_back((*it)->getName());
 		return archives.size();
 	}
