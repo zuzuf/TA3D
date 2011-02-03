@@ -227,7 +227,7 @@ namespace UTILS
 		//! The cache is used to speed up things when a file is loaded multiple times
 		std::list<CacheFileData>  fileCache;
 		//! A list of Archive*, needed only for cleanup.
-		std::list<Archive*> archives;
+		std::vector<Archive*> archives;
 
 	
 	}; // class VFS;
