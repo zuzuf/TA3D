@@ -124,10 +124,10 @@ namespace TA3D
 			}
 			Vector3D c_pos(Mz * Dir + 0.5f * (mx + Mx) * Side + 0.5f * (my + My) * Up);
 
-			float zfar = Mz - mz;
-			float znear = 0.0f;
-			float widthFactor = (Mx - mx) / (My - my);
-			float f = 0.5f * (My - my);
+			const float zfar = Mz - mz;
+			const float znear = -128.0f;
+			const float widthFactor = (Mx - mx) / (My - my);
+			const float f = 0.5f * (My - my);
 
 			glMatrixMode (GL_PROJECTION);
 			glLoadIdentity ();
