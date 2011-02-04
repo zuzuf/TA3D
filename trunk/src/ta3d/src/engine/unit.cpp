@@ -1031,22 +1031,25 @@ namespace TA3D
 			glBindTexture( GL_TEXTURE_2D, units.icons[ unit_nature ] );
 			glDisable( GL_CULL_FACE );
 			glDisable(GL_LIGHTING);
-			glDisable(GL_BLEND);
 			glTranslatef( model->center.x, model->center.y, model->center.z );
 			if (player_color[player_color_map[owner_id]*3] != 0.0f || player_color[player_color_map[owner_id]*3+1] != 0.0f || player_color[player_color_map[owner_id]*3+2] != 0.0f)
 			{
-				glColor3f(player_color[player_color_map[owner_id]*3],player_color[player_color_map[owner_id]*3+1],player_color[player_color_map[owner_id]*3+2]);
+				glColor4f(player_color[player_color_map[owner_id]*3],player_color[player_color_map[owner_id]*3+1],player_color[player_color_map[owner_id]*3+2], 1.0f);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
 				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
 				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
 				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
 				glEnd();
+				glDisable(GL_BLEND);
 			}
 			else
 			{								// If it's black, then invert colors
-				glColor3ub(0xFF,0xFF,0xFF);
+				glColor4ub(0xFF,0xFF,0xFF,0xFF);
 				glDisable(GL_TEXTURE_2D);
+				glDisable(GL_BLEND);
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
 				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
