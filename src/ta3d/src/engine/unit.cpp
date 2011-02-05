@@ -3496,6 +3496,7 @@ namespace TA3D
 							const int dx = pType->SightDistance;
 							std::deque<UnitTKit::T> friends;
 							units.kdTreeFriends[owner_id]->maxDistanceQuery(friends, Pos, dx);
+							bool done = false;
 
 							for(std::deque<UnitTKit::T>::const_iterator i = friends.begin() ; i != friends.end() ; ++i)
 							{
@@ -3507,9 +3508,12 @@ namespace TA3D
 								if (pFriendType && (pUnit->flags & 1) && pUnit->hp < pFriendType->MaxDamage)
 								{
 									add_mission(MISSION_REPAIR, &(pUnit->Pos), true, 0, (void*)pUnit);
+									done = true;
 									break;
 								}
 							}
+							if (done)
+								break;
 						}
 
 						mission->Flags() |= MISSION_FLAG_CAN_ATTACK;
