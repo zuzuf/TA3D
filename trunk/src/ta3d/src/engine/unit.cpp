@@ -2154,9 +2154,9 @@ namespace TA3D
 			return	-1;		// Should NEVER happen
 		}
 
-		const UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType* const pType = unit_manager.unit_type[type_id];
 
-        float resource_min_factor = TA3D::Math::Min(TA3D::players.energy_factor[owner_id], TA3D::players.metal_factor[owner_id]);
+		const float resource_min_factor = TA3D::Math::Min(TA3D::players.energy_factor[owner_id], TA3D::players.metal_factor[owner_id]);
 
         if (build_percent_left == 0.0f && pType->isfeature) // Turn this unit into a feature
 		{
@@ -2500,7 +2500,7 @@ namespace TA3D
 					break;
 				case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
                     if (jump_commands)	break;
-					if (!(mission->getFlags() & MISSION_FLAG_CAN_ATTACK))
+					if (!(mission->getFlags() & MISSION_FLAG_CAN_ATTACK) || (weapon[i].target == NULL && pType->weapon[i]->toairweapon))
 					{
 						weapon[i].data = -1;
 						weapon[i].state = WEAPON_FLAG_IDLE;
@@ -3667,7 +3667,7 @@ namespace TA3D
 								{
 									if (Dir % V < 0.0f)
 										allowed_to_fire = false;
-									float t = 2.0f / the_map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
+									const float t = 2.0f / the_map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
 									cur_mindist = (int)sqrtf(t * V.sq()) - ((pType->attackrunlength + 1)>>1);
 									cur_maxdist = cur_mindist + pType->attackrunlength;
 								}
@@ -3675,7 +3675,7 @@ namespace TA3D
 								{
 									if (Dir % V < 0.0f)
 										allowed_to_fire = false;
-									float t = 2.0f / the_map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
+									const float t = 2.0f / the_map->ota_data.gravity * fabsf(Pos.y - mission->getTarget().getPos().y);
 									cur_maxdist = (int)sqrtf(t*V.sq()) + (pType->weapon[ i ]->range >> 1);
 									cur_mindist = 0;
 								}
@@ -4336,6 +4336,7 @@ namespace TA3D
 				// Si l'unité peut attaquer d'elle même les unités enemies proches, elle le fait / Attack nearby enemies
 
                 bool can_fire = pType->AutoFire && pType->canattack;
+				bool canTargetGround = false;
 
 				if (!can_fire)
 				{
@@ -4347,7 +4348,11 @@ namespace TA3D
 				{
 					can_fire = false;
 					for (uint32 i = 0 ; i < weapon.size() && !can_fire ; ++i)
+					{
                         can_fire =  pType->weapon[i] != NULL && weapon[i].state == WEAPON_FLAG_IDLE;
+						if (pType->weapon[i])
+							canTargetGround |= !pType->weapon[i]->toairweapon;
+					}
 				}
 
 				if (can_fire)
@@ -4371,19 +4376,22 @@ namespace TA3D
 
 					for(std::deque<UnitTKit::T>::iterator i = possibleTargets.begin() ; enemy_idx == -1 && i != possibleTargets.end() ; ++i)
 					{
-						int cur_idx = (*i)->idx;
-						int x = (*i)->cur_px;
-						int y = (*i)->cur_py;
+						const int cur_idx = (*i)->idx;
+						const int x = (*i)->cur_px;
+						const int y = (*i)->cur_py;
+						const int cur_type_id = units.unit[cur_idx].type_id;
 						if (x < 0
 							|| x >= the_map->bloc_w_db - 1
 							|| y < 0
-							|| y >= the_map->bloc_h_db - 1)
+							|| y >= the_map->bloc_h_db - 1
+							|| cur_type_id == -1)
 							continue;
 						if (units.unit[cur_idx].flags
 							&& ( units.unit[cur_idx].is_on_radar( mask ) ||
 								 ( (SurfaceByte(the_map->sight_map, x >> 1, y >> 1) & mask)
 								   && !units.unit[cur_idx].cloaked ) )
-							&& !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( pType->NoChaseCategory ) )
+							&& (canTargetGround || units.unit[cur_idx].flying)
+							&& !unit_manager.unit_type[ cur_type_id ]->checkCategory( pType->NoChaseCategory ) )
 							//                                             && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( pType->BadTargetCategory ) )
 						{
 							if (returning_fire)
