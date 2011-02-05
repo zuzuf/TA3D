@@ -3004,6 +3004,8 @@ namespace TA3D
 								}
 							}
 						}
+						else
+							stopMoving();
 					}
 					else
 						next_mission();
@@ -3099,6 +3101,8 @@ namespace TA3D
 									next_mission();
 							}
 						}
+						else
+							stopMoving();
 					}
 					else
 						next_mission();
@@ -3164,6 +3168,8 @@ namespace TA3D
 									next_mission();
 							}
 						}
+						else
+							stopMoving();
 					}
 					else
 						next_mission();

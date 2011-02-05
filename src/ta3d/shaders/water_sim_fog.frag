@@ -45,14 +45,15 @@ void main()
         vec2 scr_pos2h = clamp( ts_coord - 3.0 * dec, 0.0, 1.0 );
         vec2 scr_pos3h = clamp( ts_coord + 3.0 * dec, 0.0, 1.0 );
 
-        vec4 p[8] = {texture2D( rtex, scr_pos0 ),
-                     texture2D( rtex, scr_pos1 ),
-                     texture2D( rtex, scr_pos2 ),
-                     texture2D( rtex, scr_pos3 ),
-                     texture2D( rtex, scr_pos0h ),
-                     texture2D( rtex, scr_pos1h ),
-                     texture2D( rtex, scr_pos2h ),
-                     texture2D( rtex, scr_pos3h )};
+        vec4 p[8];
+        p[0] = texture2D( rtex, scr_pos0 );
+        p[1] = texture2D( rtex, scr_pos1 );
+        p[2] = texture2D( rtex, scr_pos2 );
+        p[3] = texture2D( rtex, scr_pos3 );
+        p[4] = texture2D( rtex, scr_pos0h );
+        p[5] = texture2D( rtex, scr_pos1h );
+        p[6] = texture2D( rtex, scr_pos2h );
+        p[7] = texture2D( rtex, scr_pos3h );
         
 		vec4 scr_col = 0.125 * (p[0] + p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]);
         vec4 fuzzy;

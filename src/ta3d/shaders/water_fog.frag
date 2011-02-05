@@ -29,10 +29,11 @@ void main()
         vec2 scr_pos2 = clamp( t_coord * coef + dec, 0.0, 1.0 );
         vec2 scr_pos3 = clamp( t_coord * coef - dec, 0.0, 1.0 );
 
-        vec4 p[4] = {texture2D( rtex, scr_pos0 ),
-                    texture2D( rtex, scr_pos1 ),
-                    texture2D( rtex, scr_pos2 ),
-                    texture2D( rtex, scr_pos3 ) };
+        vec4 p[4];
+        p[0] = texture2D( rtex, scr_pos0 );
+        p[1] = texture2D( rtex, scr_pos1 );
+        p[2] = texture2D( rtex, scr_pos2 );
+        p[3] = texture2D( rtex, scr_pos3 );
 		vec4 lava_col = 0.25 * (p[0] + p[1] + p[2] + p[3]);
 		vec4 water_col = vec4( texture2D( water_color, t_coord ).rgb, 1.0 );
 
