@@ -3456,13 +3456,13 @@ namespace TA3D
                             && (players.r_energy[owner_id] >= players.energy_t[owner_id]
                                 || players.r_metal[owner_id] >= players.metal_t[owner_id]))
                         {
-                            bool energyLack = players.r_energy[owner_id] >= players.energy_t[owner_id];
-                            bool metalLack = players.r_metal[owner_id] >= players.metal_t[owner_id];
-                            int dx = pType->SightDistance >> 3;
-                            int dx2 = SQUARE(dx);
-                            int feature_idx = -1;
-                            int sx = Math::RandomTable()&0xF;
-                            int sy = Math::RandomTable()&0xF;
+							const bool energyLack = players.r_energy[owner_id] >= players.energy_t[owner_id];
+							const bool metalLack = players.r_metal[owner_id] >= players.metal_t[owner_id];
+							const int dx = pType->SightDistance >> 3;
+							const int dx2 = SQUARE(dx);
+							int feature_idx = -1;
+							const int sx = Math::RandomTable() & 0xF;
+							const int sy = Math::RandomTable() & 0xF;
                             for(int y = cur_py - dx + sy ; y <= cur_py + dx && feature_idx == -1 ; y += 0x8)
                             {
 								if (y >= 0 && y < the_map->bloc_h_db - 1)
@@ -3472,7 +3472,7 @@ namespace TA3D
                                         if (SQUARE(cur_px - x) + SQUARE(cur_py - y) > dx2)  continue;
 										if (x >= 0 && x < the_map->bloc_w_db - 1)
                                         {
-											int cur_idx = the_map->map_data(x, y).stuff;
+											const int cur_idx = the_map->map_data(x, y).stuff;
                                             if (cur_idx >= 0)      // There is a feature
                                             {
                                                 Feature *pFeature = feature_manager.getFeaturePointer(features.feature[cur_idx].type);
@@ -3491,6 +3491,26 @@ namespace TA3D
                                 break;
                             }
                         }
+						if (pType->Builder)									// Repair units if we can
+						{
+							const int dx = pType->SightDistance;
+							std::deque<UnitTKit::T> friends;
+							units.kdTreeFriends[owner_id]->maxDistanceQuery(friends, Pos, dx);
+
+							for(std::deque<UnitTKit::T>::const_iterator i = friends.begin() ; i != friends.end() ; ++i)
+							{
+								const Unit* const pUnit = *i;
+								const int friend_type_id = pUnit->type_id;
+								if (friend_type_id == -1)
+									continue;
+								const UnitType* const pFriendType = unit_manager.unit_type[friend_type_id];
+								if (pFriendType && (pUnit->flags & 1) && pUnit->hp < pFriendType->MaxDamage)
+								{
+									add_mission(MISSION_REPAIR, &(pUnit->Pos), true, 0, (void*)pUnit);
+									break;
+								}
+							}
+						}
 
 						mission->Flags() |= MISSION_FLAG_CAN_ATTACK;
 						if (pType->canfly) // Don't stop moving and check if it can be repaired

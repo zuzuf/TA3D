@@ -300,7 +300,7 @@ namespace TA3D
 
 		sound_min_ticks = 500;
 		index_list_size = 0;
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			free_index_size[i] = 0;
 		idx_list = free_idx = NULL;
 		page = 0;
@@ -923,19 +923,27 @@ namespace TA3D
 		// Build a KDTree to allow fast look ups when looking for targets
 		pMutex.lock();
 		std::vector<UnitTKit::T> detectableUnits[10];
-		for (unsigned int e = 0; e < index_list_size; ++e) // Compte les stocks de ressources et les productions
+		std::vector<UnitTKit::T> allUnits[10];
+		for (uint32 e = 0U ; e < index_list_size ; ++e) // Compte les stocks de ressources et les productions
 		{
-			uint32 i = idx_list[e];
-			if (!(unit[i].flags & 1))
+			const uint32 i = idx_list[e];
+			const Unit* const pUnit = &(unit[i]);
+			if (!(pUnit->flags & 1))
 				continue;
-			int type = unit[i].type_id;
+			const int owner = pUnit->owner_id;
+			const int type = pUnit->type_id;
+			if (type >= 0 && owner < 10)
+				allUnits[owner].push_back(pUnit);
 			if (type < 0 || (!shootallMode && !unit_manager.unit_type[type]->ShootMe))
 				continue;
-			if (unit[i].owner_id < 10)
-				detectableUnits[unit[i].owner_id].push_back(&(unit[i]));
+			if (owner < 10)
+				detectableUnits[owner].push_back(pUnit);
 		}
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
+		{
 			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i]);
+			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i]);
+		}
 		pMutex.unlock();
 
 		players.clear();		// Réinitialise le compteur de ressources
@@ -1139,7 +1147,9 @@ namespace TA3D
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 		{
 			delete kdTree[i];
+			delete kdTreeFriends[i];
 			kdTree[i] = NULL;
+			kdTreeFriends[i] = NULL;
 		}
 	}
 
