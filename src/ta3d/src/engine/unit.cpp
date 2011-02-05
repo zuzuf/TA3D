@@ -3270,6 +3270,8 @@ namespace TA3D
 									}
 								}
 							}
+							else
+								stopMoving();
 						}
 						else
 							next_mission();
@@ -3391,6 +3393,8 @@ namespace TA3D
 								}
 							}
 						}
+						else
+							stopMoving();
 						if (feature_locked)
 							features.unlock();
 					}
@@ -3846,7 +3850,10 @@ namespace TA3D
 								else
 								{
 									if (mission->getFlags() & MISSION_FLAG_MOVE) // Stop moving if needed
+									{
 										stopMoving();
+										break;
+									}
 									if (mission->getData() == 0)
 									{
 										mission->setData(1);
@@ -4007,8 +4014,8 @@ namespace TA3D
 					{
 						Vector3D Dir = mission->getTarget().getPos() - Pos;
 						Dir.y = 0.0f;
-						float dist = Dir.sq();
-                        int maxdist = (int)(pType->BuildDistance
+						const float dist = Dir.sq();
+						const int maxdist = (int)(pType->BuildDistance
 											+ ( (unit_manager.unit_type[mission->getData()]->FootprintX + unit_manager.unit_type[mission->getData()]->FootprintZ) << 1 ) );
 						if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 						{
@@ -4018,7 +4025,10 @@ namespace TA3D
 						else
 						{
 							if (mission->getFlags() & MISSION_FLAG_MOVE) // Stop moving if needed
+							{
 								stopMoving();
+								break;
+							}
 							if (!pType->BMcode)
 							{
 								int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
@@ -4030,9 +4040,6 @@ namespace TA3D
 							}
 							if (port[ INBUILDSTANCE ] && (pType->BMcode || (!pType->BMcode && port[YARD_OPEN] && !port[BUGGER_OFF])))
 							{
-								/*								pMutex.unlock();
-																draw_on_map();
-																pMutex.lock();*/
 								V.x = 0.0f;
 								V.y = 0.0f;
 								V.z = 0.0f;
