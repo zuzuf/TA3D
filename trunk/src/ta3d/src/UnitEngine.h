@@ -63,8 +63,8 @@ namespace TA3D
 	class UnitTKit
 	{
 	public:
-		typedef Vector3D	Vec;
-		typedef Unit*		T;
+		typedef Vector3D		Vec;
+		typedef const Unit*		T;
 
 		struct Comparator
 		{
@@ -194,6 +194,7 @@ namespace TA3D
 
 		std::vector< uint16 >			visible_unit;   // A list to store visible units
 		KDTree< UnitTKit::T, UnitTKit >	*kdTree[10];	// A KDTree filled with units to speed up target detection (one per player)
+		KDTree< UnitTKit::T, UnitTKit >	*kdTreeFriends[10];	// A KDTree filled with units to speed up friend detection (one per player)
 		bool	shootallMode;
 
 		std::vector<Vector3D>	hbars_bkg;
