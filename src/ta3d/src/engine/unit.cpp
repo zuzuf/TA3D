@@ -555,9 +555,9 @@ namespace TA3D
 
 			while (cur != mission.end()) 	// Reads the mission list
 			{
-				float x_space = fabsf(cur->lastStep().getTarget().getPos().x - target->x);
-				float z_space = fabsf(cur->lastStep().getTarget().getPos().z - target->z);
-				int cur_data = cur->lastStep().getData();
+				const float x_space = fabsf(cur->lastStep().getTarget().getPos().x - target->x);
+				const float z_space = fabsf(cur->lastStep().getTarget().getPos().z - target->z);
+				const int cur_data = cur->lastStep().getData();
 				if (cur->lastMission() == MISSION_BUILD && cur_data >= 0 && cur_data < unit_manager.nb_unit
 					&& x_space < ((unit_manager.unit_type[ dat ]->FootprintX + unit_manager.unit_type[ cur_data ]->FootprintX) << 2)
 					&& z_space < ((unit_manager.unit_type[ dat ]->FootprintZ + unit_manager.unit_type[ cur_data ]->FootprintZ) << 2) ) // Remove it
@@ -2031,10 +2031,10 @@ namespace TA3D
 						}
 						else if (!flying && local )
 						{
-							if (Pos.x<-the_map->map_w_d
-								|| Pos.x>the_map->map_w_d
-								|| Pos.z<-the_map->map_h_d
-								|| Pos.z>the_map->map_h_d)
+							if (Pos.x < -the_map->map_w_d
+								|| Pos.x > the_map->map_w_d
+								|| Pos.z < -the_map->map_h_d
+								|| Pos.z > the_map->map_h_d)
 							{
 								Vector3D target = Pos;
 								if (target.x < -the_map->map_w_d+256)
@@ -2050,7 +2050,7 @@ namespace TA3D
 							}
 							else
 							{
-								if (!can_be_there( cur_px, cur_py, type_id, owner_id, idx ))
+								if (!can_be_there( cur_px, cur_py, type_id, owner_id, idx ) && !flying)
 								{
 									NPos = Pos;
 									n_px = cur_px;
@@ -2068,6 +2068,7 @@ namespace TA3D
 						&& pType->canfly
 								&& (!mission
 									|| (mission->mission() != MISSION_MOVE
+										&& mission->mission() != MISSION_GUARD
 										&& mission->mission() != MISSION_ATTACK)))
 						flags |= 64;
 				}
@@ -4635,11 +4636,7 @@ script_exec:
 					else				// There is someone there, find an other place to land
 					{
 						flying = true;
-						if (!mission.empty()
-							|| (mission->mission() != MISSION_STOP
-								&& mission->mission() != MISSION_VTOL_STANDBY
-								&& mission->mission() != MISSION_STANDBY)
-							|| mission->getData() > 5)   // Wait for MISSION_STOP to check if we have some work to do
+						if (do_nothing())   // Wait for MISSION_STOP to check if we have some work to do
 						{                                                                               // This prevents planes from keeping looking for a place to land
 							Vector3D next_target = Pos;                                                 // instead of going back to work :/
 							float find_angle = (Math::RandomTable() % 360) * DEG2RAD;
