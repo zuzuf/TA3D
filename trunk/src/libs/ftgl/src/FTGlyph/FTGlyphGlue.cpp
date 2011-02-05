@@ -2,7 +2,7 @@
  * FTGL - OpenGL font library
  *
  * Copyright (c) 2001-2004 Henry Maddocks <ftgl@opengl.geek.nz>
- * Copyright (c) 2008 Sam Hocevar <sam@zoy.org>
+ * Copyright (c) 2008 Sam Hocevar <sam@hocevar.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -150,7 +150,7 @@ void ftglDestroyGlyph(FTGLglyph *g)
 {
     if(!g || !g->ptr)
     {
-        fprintf(stderr, "FTGL warning: NULL pointer in %s\n", __FUNCTION__);
+        fprintf(stderr, "FTGL warning: NULL pointer in %s\n", __FUNC__);
         return;
     }
     delete g->ptr;

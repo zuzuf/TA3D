@@ -32,6 +32,8 @@ SET(ftgl_SOURCES
 		FTLayout/FTLayoutGlue.cpp
 		FTLayout/FTLayout.cpp
 		FTLibrary.cpp
+		FTGL.cpp
+		FTCleanup.cpp
 		FTPoint.cpp
 		FTSize.cpp
 		FTVectoriser.cpp
@@ -83,6 +85,7 @@ SET(ftgl_SOURCES
 		FTLayout/FTSimpleLayoutImpl.h
 		FTLayout/FTLayoutImpl.h
 		FTLibrary.h
+		FTCleanup.h
 		FTList.h
 		FTSize.h
 		FTUnicode.h

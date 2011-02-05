@@ -1,7 +1,7 @@
 /*
  * FTGL - OpenGL font library
  *
- * Copyright (c) 2008 Sam Hocevar <sam@zoy.org>
+ * Copyright (c) 2008 Sam Hocevar <sam@hocevar.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -90,6 +90,8 @@ FTBufferGlyphImpl::~FTBufferGlyphImpl()
 
 const FTPoint& FTBufferGlyphImpl::RenderImpl(const FTPoint& pen, int renderMode)
 {
+    (void)renderMode;
+
     if(has_bitmap)
     {
         FTPoint pos(buffer->Pos() + pen + corner);

@@ -2,7 +2,7 @@
  * FTGL - OpenGL font library
  *
  * Copyright (c) 2001-2004 Henry Maddocks <ftgl@opengl.geek.nz>
- * Copyright (c) 2008 Sam Hocevar <sam@zoy.org>
+ * Copyright (c) 2008 Sam Hocevar <sam@hocevar.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -33,11 +33,30 @@
 #include "FTInternals.h"
 #include "FTTextureGlyphImpl.h"
 
+#define FTGL_ASSERTS_SHOULD_SOFT_FAIL
+
+#ifdef FTGL_ASSERTS_SHOULD_SOFT_FAIL
+#   define FTASSERT_FAIL do {} while(0)
+#else
+#   define FTASSERT_FAIL do { int *a = (int*)0x0; *a = 0xD15EA5ED; } while(0)
+#endif
+
+#define FTASSERT(x) \
+    if (!(x)) \
+    { \
+        static int count = 0; \
+        if (count++ < 8) \
+            fprintf(stderr, "ASSERTION FAILED (%s:%d): %s\n", \
+                    __FILE__, __LINE__, #x); \
+        FTASSERT_FAIL; \
+        if (count == 8) \
+            fprintf(stderr, "\\__ last warning for this assertion\n"); \
+    }
+
 
 //
 //  FTGLTextureGlyph
 //
-
 
 FTTextureGlyph::FTTextureGlyph(FT_GlyphSlot glyph, int id, int xOffset,
                                int yOffset, int width, int height) :
@@ -59,7 +78,6 @@ const FTPoint& FTTextureGlyph::Render(const FTPoint& pen, int renderMode)
 //
 //  FTGLTextureGlyphImpl
 //
-
 
 GLint FTTextureGlyphImpl::activeTextureID = 0;
 
@@ -88,16 +106,40 @@ FTTextureGlyphImpl::FTTextureGlyphImpl(FT_GlyphSlot glyph, int id, int xOffset,
     if(destWidth && destHeight)
     {
         glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+
         glPixelStorei(GL_UNPACK_LSB_FIRST, GL_FALSE);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+        GLint w,h;
+
         glBindTexture(GL_TEXTURE_2D, glTextureID);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, xOffset, yOffset, destWidth, destHeight, GL_ALPHA, GL_UNSIGNED_BYTE, bitmap.buffer);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
+
+        FTASSERT(xOffset >= 0);
+        FTASSERT(yOffset >= 0);
+        FTASSERT(destWidth >= 0);
+        FTASSERT(destHeight >= 0);
+        FTASSERT(xOffset + destWidth <= w);
+        FTASSERT(yOffset + destHeight <= h);
+
+        if (yOffset + destHeight > h)
+        {
+            // We'll only get here if we are soft-failing our asserts. In that
+            // case, since the data we're trying to put into our texture is
+            // too long, we'll only copy a portion of the image.
+            destHeight = h - yOffset;
+        }
+        if (destHeight >= 0)
+        {
+            glTexSubImage2D(GL_TEXTURE_2D, 0, xOffset, yOffset,
+                            destWidth, destHeight, GL_ALPHA, GL_UNSIGNED_BYTE,
+                            bitmap.buffer);
+        }
 
         glPopClientAttrib();
     }
-
 
 //      0
 //      +----+
@@ -136,16 +178,16 @@ const FTPoint& FTTextureGlyphImpl::RenderImpl(const FTPoint& pen,
 
     glBegin(GL_QUADS);
         glTexCoord2f(uv[0].Xf(), uv[0].Yf());
-        glVertex2f(dx, dy);
+        glVertex3f(dx, dy, pen.Zf());
 
         glTexCoord2f(uv[0].Xf(), uv[1].Yf());
-        glVertex2f(dx, dy - destHeight);
+        glVertex3f(dx, dy - destHeight, pen.Zf());
 
         glTexCoord2f(uv[1].Xf(), uv[1].Yf());
-        glVertex2f(dx + destWidth, dy - destHeight);
+        glVertex3f(dx + destWidth, dy - destHeight, pen.Zf());
 
         glTexCoord2f(uv[1].Xf(), uv[0].Yf());
-        glVertex2f(dx + destWidth, dy);
+        glVertex3f(dx + destWidth, dy, pen.Zf());
     glEnd();
 
     return advance;
