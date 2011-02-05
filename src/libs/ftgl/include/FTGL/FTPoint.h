@@ -2,7 +2,7 @@
  * FTGL - OpenGL font library
  *
  * Copyright (c) 2001-2004 Henry Maddocks <ftgl@opengl.geek.nz>
- * Copyright (c) 2008 Sam Hocevar <sam@zoy.org>
+ * Copyright (c) 2008 Sam Hocevar <sam@hocevar.net>
  * Copyright (c) 2008 Sean Morrison <learner@brlcad.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -74,8 +74,8 @@ class FTGL_EXPORT FTPoint
          */
         inline FTPoint(const FT_Vector& ft_vector)
         {
-            values[0] = FTGL_DOUBLE(ft_vector.x);
-            values[1] = FTGL_DOUBLE(ft_vector.y);
+            values[0] = ft_vector.x;
+            values[1] = ft_vector.y;
             values[2] = 0;
         }
 

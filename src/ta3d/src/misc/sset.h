@@ -51,7 +51,7 @@ namespace TA3D
 			data.push_front(value);
 		}
 
-		void isIn(const T &value) const
+		bool isIn(const T &value) const
 		{
 			const const_iterator end = this->end();
 			for (const_iterator i = begin(); i != end; ++i)
