@@ -996,7 +996,7 @@ namespace TA3D
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
 			// In orthographic mode we need another formula
-			float size = lp_CONFIG->ortho_camera
+			const float size = lp_CONFIG->ortho_camera
 						 ? Camera::inGame->zoomFactor * 9.0f
 						 : (D % Camera::inGame->dir) * 12.0f / gfx->height;
 
@@ -1028,7 +1028,9 @@ namespace TA3D
             else if (!( pType->fastCategory & CATEGORY_NOTSUB ) )
 				unit_nature = ICON_SUBUNIT;
 
-			glBindTexture( GL_TEXTURE_2D, units.icons[ unit_nature ] );
+			const float sizew = size * units.icons[ unit_nature ].getWidth() / 24.0f;
+			const float sizeh = size * units.icons[ unit_nature ].getHeight() / 24.0f;
+			glBindTexture( GL_TEXTURE_2D, units.icons[ unit_nature ].get() );
 			glDisable( GL_CULL_FACE );
 			glDisable(GL_LIGHTING);
 			glTranslatef( model->center.x, model->center.y, model->center.z );
@@ -1038,10 +1040,10 @@ namespace TA3D
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
-				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
-				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
-				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
+				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -sizew, 0.0f, -sizeh);
+				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  sizew, 0.0f, -sizeh);
+				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  sizew, 0.0f,  sizeh);
+				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -sizew, 0.0f,  sizeh);
 				glEnd();
 				glDisable(GL_BLEND);
 			}
@@ -1051,19 +1053,19 @@ namespace TA3D
 				glDisable(GL_TEXTURE_2D);
 				glDisable(GL_BLEND);
 				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
-				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
-				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
-				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
+				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -sizew, 0.0f, -sizeh);
+				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  sizew, 0.0f, -sizeh);
+				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  sizew, 0.0f,  sizeh);
+				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -sizew, 0.0f,  sizeh);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
 				glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 				glEnable(GL_BLEND);
 				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
-				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
-				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
-				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
+				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -sizew, 0.0f, -sizeh);
+				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  sizew, 0.0f, -sizeh);
+				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  sizew, 0.0f,  sizeh);
+				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -sizew, 0.0f,  sizeh);
 				glEnd();
 				glDisable(GL_BLEND);
 			}
@@ -1073,10 +1075,10 @@ namespace TA3D
 				glDisable( GL_TEXTURE_2D );
 				glColor3ub(0xFF,0xFF,0);
 				glBegin(GL_LINE_LOOP);
-				glVertex3f( -size, 0.0f, -size);
-				glVertex3f(  size, 0.0f, -size);
-				glVertex3f(  size, 0.0f,  size);
-				glVertex3f( -size, 0.0f,  size);
+				glVertex3f( -sizew, 0.0f, -sizeh);
+				glVertex3f(  sizew, 0.0f, -sizeh);
+				glVertex3f(  sizew, 0.0f,  sizeh);
+				glVertex3f( -sizew, 0.0f,  sizeh);
 				glEnd();
 			}
 			glEnable(GL_DEPTH_TEST);

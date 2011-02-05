@@ -37,6 +37,7 @@
 # include "engine/mission.h"
 # include "engine/unit.h"
 # include "misc/kdtree.h"
+# include "gfx/texture.h"
 
 
 
@@ -167,7 +168,7 @@ namespace TA3D
 
 		/*----------------------- Variables reserved to texture data -------------------------------*/
 
-		GLuint	icons[13];
+		Interfaces::GfxTexture	icons[13];
 
 		/*----------------------- Variables reserved to precalculations ----------------------------*/
 
