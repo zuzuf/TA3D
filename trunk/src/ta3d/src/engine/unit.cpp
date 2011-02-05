@@ -945,7 +945,7 @@ namespace TA3D
 		if (!(flags & 1) || type_id == -1 || ID != render.UID)
 			return;
 
-        UnitType *pType = unit_manager.unit_type[type_id];
+		UnitType* const pType = unit_manager.unit_type[type_id];
         visible = false;
 		on_radar = false;
 		on_mini_radar = false;
@@ -953,24 +953,24 @@ namespace TA3D
 		if (!model || hidden)
 			return;		// S'il n'y a pas de modèle associé, on quitte la fonction
 
-		int px = render.px >> 1;
-		int py = render.py >> 1;
+		const int px = render.px >> 1;
+		const int py = render.py >> 1;
 		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			return;	// Unité hors de la carte
-		byte player_mask = 1 << players.local_human_id;
+		const byte player_mask = 1 << players.local_human_id;
 
 		on_radar = on_mini_radar = is_on_radar( player_mask );
 		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(the_map->sight_map, px, py) & player_mask) ) )
 			return;	// Unit is not visible
 
-		bool radar_detected = on_radar;
+		const bool radar_detected = on_radar;
 
 		on_radar &= the_map->view(px, py) > 1;
 
 		Vector3D D (render.Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
-		float dist = D.sq();
-		float p = D % Camera::inGame->dir;
+		const float dist = D.sq();
+		const float p = D % Camera::inGame->dir;
 		if (dist >= 16384.0f && p <= 0.0f)
 			return;
 		if (p > Camera::inGame->zfar2)
@@ -1114,7 +1114,7 @@ namespace TA3D
 				AnimationData *src_data = NULL;
 				Vector3D v_target;				// Needed in network mode
 				Unit *unit_target = NULL;
-				Model *the_model = model;
+				Model* const the_model = model;
 				drawing = true;
 
                 if (!pType->emitting_points_computed ) // Compute model emitting points if not already done, do it here in Unit::Locked code ...
@@ -1259,7 +1259,7 @@ namespace TA3D
 					}
 				}
 
-				bool old_mode = gfx->getShadowMapMode();
+				const bool old_mode = gfx->getShadowMapMode();
                 glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
 
 				if (build_percent_left == 0.0f)
@@ -1268,7 +1268,9 @@ namespace TA3D
 						t = 0.0f;
 					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
+					glDisable(GL_CULL_FACE);
 					the_model->draw(t, &render.Anim, owner_id == players.local_human_id && sel, false, c_part, build_part, target, &upos, &M, size, center, reverse, owner_id, cloaked, src, src_data);
+					glEnable(GL_CULL_FACE);
 					if (cloaked || ( cloaking && owner_id != players.local_human_id ))
 						gfx->set_color( 0xFFFFFFFF );
                     if (height_line && h>1.0f && pType->canfly) // For flying units, draw a line that shows how high is the unit
