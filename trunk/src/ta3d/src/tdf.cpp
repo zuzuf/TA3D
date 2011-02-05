@@ -714,7 +714,7 @@ namespace TA3D
 		glDisable(GL_BLEND);
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_LIGHTING);
-		glEnable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 
 		if (gfx->getShadowMapMode())
 		{
@@ -729,6 +729,7 @@ namespace TA3D
 
 		gfx->disable_model_shading();
 
+		glEnable(GL_CULL_FACE);
 		glDisable(GL_ALPHA_TEST);
 		glDepthFunc( GL_LESS );
 		glEnable(GL_TEXTURE_2D);
