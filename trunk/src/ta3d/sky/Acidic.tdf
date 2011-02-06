@@ -1,0 +1,14 @@
+[sky]
+{
+	planet=acid;
+	map=;
+	fog R=0.477;
+	fog G=0.509;
+	fog B=0.430;
+	fog A=1;
+	texture name=gfx/sky/Acidic.jpg;
+	spherical=true;
+	full sphere=true;
+	rotation speed=0.0;
+	rotation offset=50.0;
+}
