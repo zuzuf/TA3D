@@ -51,6 +51,7 @@ namespace TA3D
 {
 
 	class Font;
+	class Vector3D;
 
 
 	class GFX : public ObjectSync, protected IInterface
@@ -163,6 +164,8 @@ namespace TA3D
 		*/
 		float get_a(const uint32 col) const {return (float)geta(col) * BYTE_TO_FLOAT;}
 
+		inline void loadVertex(const Vector3D &v) const
+		{	glVertex3fv((const GLfloat*)&v);	}
 
 		/*!
 		**
