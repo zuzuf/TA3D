@@ -4361,12 +4361,11 @@ namespace TA3D
 				{
 					can_fire = false;
 					for (uint32 i = 0 ; i < weapon.size() && !can_fire ; ++i)
-					{
                         can_fire =  pType->weapon[i] != NULL && weapon[i].state == WEAPON_FLAG_IDLE;
-						if (pType->weapon[i])
-							canTargetGround |= !pType->weapon[i]->toairweapon;
-					}
 				}
+				for (uint32 i = 0 ; i < weapon.size() && !canTargetGround ; ++i)
+					if (pType->weapon[i] && weapon[i].state == WEAPON_FLAG_IDLE)
+						canTargetGround |= !pType->weapon[i]->toairweapon;
 
 				if (can_fire)
 				{
