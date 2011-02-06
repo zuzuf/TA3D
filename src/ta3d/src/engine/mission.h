@@ -154,8 +154,8 @@ namespace TA3D
 		//! Operator =
 		Mission& operator = (const Mission& rhs);
 
-		bool empty()	{	return qStep.empty();	}
-		int size()		{	return int(qStep.size());	}
+		bool empty() const	{	return qStep.empty();	}
+		int size() const		{	return int(qStep.size());	}
 		void addStep()	{	qStep.push(MissionStep());	}
 
 		void next()
@@ -164,13 +164,13 @@ namespace TA3D
 				qStep.pop();
 		}
 
-		uint8 operator[](int n)
+		uint8 operator[](int n) const
 		{
 			if (n < 0 || n >= size())	return 0;
 			return qStep[n].getType();
 		}
 
-		bool hasNext()		{	return qStep.size() > 1;	}
+		bool hasNext() const		{	return qStep.size() > 1;	}
 
 		MissionStep &lastStep()	{	return qStep.bottom();	}
 		uint8 lastMission() const	{	return qStep.bottom().getType();	}
@@ -223,6 +223,7 @@ namespace TA3D
 	public:
 		typedef std::list<Mission> Container;
 		typedef Container::iterator iterator;
+		typedef Container::const_iterator const_iterator;
 	public:
 		bool empty() const	{	return sMission.empty();	}
 		bool operator!() const	{	return sMission.empty();	}
@@ -230,6 +231,8 @@ namespace TA3D
 
 		iterator begin()	{	return sMission.begin();	}
 		iterator end()	{	return sMission.end();	}
+		const_iterator begin() const	{	return sMission.begin();	}
+		const_iterator end() const	{	return sMission.end();	}
 		iterator erase(iterator &it)	{	return sMission.erase(it);	}
 		void clear()	{	sMission.clear();	}
 		void add()		{	sMission.push_back(Mission()); front().addStep();	}
@@ -244,12 +247,27 @@ namespace TA3D
 			return sMission.front();
 		}
 
+		const Mission& front() const
+		{
+			return sMission.front();
+		}
+
 		Mission& back()
 		{
 			return sMission.back();
 		}
 
+		const Mission& back() const
+		{
+			return sMission.back();
+		}
+
 		Mission* operator->()
+		{
+			return &(sMission.front());
+		}
+
+		const Mission* operator->() const
 		{
 			return &(sMission.front());
 		}
@@ -262,16 +280,24 @@ namespace TA3D
 			return *i;
 		}
 
-		uint8 operator()(int n)
+		const Mission& operator[](int n) const
 		{
-			iterator i = begin();
+			const_iterator i = begin();
+			for(;n > 0 && i != end() ; --n)
+				++i;
+			return *i;
+		}
+
+		uint8 operator()(int n) const
+		{
+			const_iterator i = begin();
 			for(;n > 0 && i != end() ; --n, ++i)
 				if (i->size() > n)
 					return (*i)[n];
 			return 0;
 		}
 
-		bool hasNext()
+		bool hasNext() const
 		{
 			return !sMission.empty() && (sMission.front().size() > 1 || sMission.size() > 1);
 		}
@@ -288,8 +314,9 @@ namespace TA3D
 			}
 		}
 
-		bool doNothing();
-		bool doNothingAI();
+		bool doNothing() const;
+		bool doingNothing() const;
+		bool doNothingAI() const;
 
 		void save(gzFile file);
 		void load(gzFile file);

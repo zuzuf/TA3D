@@ -55,7 +55,7 @@ namespace TA3D
 		return Pos;
 	}
 
-	bool MissionStack::doNothing()
+	bool MissionStack::doNothing() const
 	{
 		return empty() || ((this->mission() == MISSION_STOP
 							 || this->mission() == MISSION_STANDBY
@@ -63,7 +63,14 @@ namespace TA3D
 							&& size() == 1 && front().size() == 1);
 	}
 
-	bool MissionStack::doNothingAI()
+	bool MissionStack::doingNothing() const
+	{
+		return empty() || (this->mission() == MISSION_STOP
+							 || this->mission() == MISSION_STANDBY
+							 || this->mission() == MISSION_VTOL_STANDBY);
+	}
+
+	bool MissionStack::doNothingAI() const
 	{
 		return empty() || ((this->mission() == MISSION_STOP
 							|| this->mission() == MISSION_STANDBY

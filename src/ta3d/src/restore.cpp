@@ -334,6 +334,7 @@ namespace TA3D
 			SAVE( units.unit[i].cloaking );
 			SAVE( units.unit[i].drawn_open );
 			SAVE( units.unit[i].drawn_flying );
+			SAVE( units.unit[i].drawn_obstacle );
 			SAVE( units.unit[i].drawn_x );
 			SAVE( units.unit[i].drawn_y );
 			SAVE( units.unit[i].drawn );
@@ -832,6 +833,7 @@ namespace TA3D
 			LOAD( units.unit[i].cloaking );
 			LOAD( units.unit[i].drawn_open );
 			LOAD( units.unit[i].drawn_flying );
+			LOAD( units.unit[i].drawn_obstacle );
 			LOAD( units.unit[i].drawn_x );
 			LOAD( units.unit[i].drawn_y );
 			LOAD( units.unit[i].drawn );
