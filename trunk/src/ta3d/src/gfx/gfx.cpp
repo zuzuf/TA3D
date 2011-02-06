@@ -1729,6 +1729,8 @@ namespace TA3D
 					*width = it->getWidth();
 				if (height)
 					*height = it->getHeight();
+				if (useAlpha)
+					*useAlpha = textureAlpha.contains(it->tex);
 				return it->tex;
 			}
 		}
@@ -1739,7 +1741,7 @@ namespace TA3D
 		cache_filename.replace('\\', 'S');
 		if (compressible)
 		{
-			GLuint gltex = load_texture_from_cache(cache_filename, filter_type, width, height, clamp);
+			GLuint gltex = load_texture_from_cache(cache_filename, filter_type, width, height, clamp, useAlpha);
 			if (gltex)
 				return gltex;
 		}
@@ -1797,9 +1799,11 @@ namespace TA3D
 			textureIDs[upfile] = Interfaces::GfxTexture(gl_tex, bmp->w, bmp->h);
 			textureFile[gl_tex] = upfile;
 			textureLoad[gl_tex] = 1;
+			if (with_alpha)
+				textureAlpha.insert(gl_tex);
 
 			if (compressible)
-				save_texture_to_cache(cache_filename, gl_tex, bmp->w, bmp->h);
+				save_texture_to_cache(cache_filename, gl_tex, bmp->w, bmp->h, with_alpha);
 		}
 		SDL_FreeSurface(bmp);
 		return gl_tex;
@@ -1876,7 +1880,7 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture_from_cache(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+	GLuint GFX::load_texture_from_cache(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
 	{
 		if (ati_workaround
 			|| !lp_CONFIG->use_texture_cache
@@ -1899,6 +1903,11 @@ namespace TA3D
 				cache_file.close();
 				return 0;
 			}
+
+			if (useAlpha)
+				*useAlpha = cache_file.get();
+			else
+				cache_file.get();
 
 			uint32 rw, rh;
 			cache_file.read((char*)&rw, 4);
@@ -1996,7 +2005,7 @@ namespace TA3D
 	}
 
 
-	void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
+	void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height, bool useAlpha )
 	{
 		if(ati_workaround
 		   || !lp_CONFIG->use_texture_cache
@@ -2025,6 +2034,7 @@ namespace TA3D
 
 		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 
+		cache_file.put(useAlpha);
 		cache_file.write( (const char*)&width, 4 );
 		cache_file.write( (const char*)&height, 4 );
 
@@ -2129,6 +2139,7 @@ namespace TA3D
 					return;
 				}
 				textureLoad.erase(it);
+				textureAlpha.erase(gltex);
 
 				HashMap<String, GLuint>::Sparse::iterator file_it = textureFile.find(gltex);
 				if (file_it != textureFile.end())

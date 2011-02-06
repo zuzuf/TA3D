@@ -232,9 +232,9 @@ namespace TA3D
 		void	blit_texture( SDL_Surface *src, GLuint dst);
 		GLuint	load_texture(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
 		GLuint	load_texture_mask(const String& file, uint32 level, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
-		GLuint	load_texture_from_cache(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
+		GLuint	load_texture_from_cache(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
 		GLuint	load_masked_texture( String file, String mask, byte filter_type = FILTER_TRILINEAR);
-		void	save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height);
+		void	save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height, bool useAlpha);
 		uint32	texture_width(const GLuint gltex);
 		uint32	texture_height(const GLuint gltex);
 		void	destroy_texture( GLuint &gltex);
@@ -376,6 +376,8 @@ namespace TA3D
 		UTILS::HashMap<Interfaces::GfxTexture>::Sparse	textureIDs;
 		//! And for each texture ID, how many times it is used
 		UTILS::HashMap<int, GLuint>::Sparse				textureLoad;
+		//! And for each texture ID, if there is alpga
+		UTILS::HashSet<GLuint>::Sparse					textureAlpha;
 		//! And for each texture ID the file which contains the original texture
 		UTILS::HashMap<String, GLuint>::Sparse			textureFile;
 	}; // class GFX

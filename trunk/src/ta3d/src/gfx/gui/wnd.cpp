@@ -1519,7 +1519,7 @@ namespace TA3D
 					}
 				}
 				if (background)
-					gfx->save_texture_to_cache(panel, background, w, h);
+					gfx->save_texture_to_cache(panel, background, w, h, false);
 			}
 			background_clamp = true;
 			background_width = w;
