@@ -348,7 +348,10 @@ namespace Menus
 			}		// Enf of if (pArea->get_state("netgames"))
 			if (pArea->get_state("hosting.b_ok"))
 			{
-				NetClient::instance()->sendMessage(String("SERVER NAME \"") << Escape(pArea->caption("hosting.t_hostname")) << "\" MOD \"" << Escape(Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.size() - 6)) << "\"");
+				if (TA3D_CURRENT_MOD.empty())
+					NetClient::instance()->sendMessage(String("SERVER NAME \"") << Escape(pArea->caption("hosting.t_hostname")) << "\" MOD \"\"");
+				else
+					NetClient::instance()->sendMessage(String("SERVER NAME \"") << Escape(pArea->caption("hosting.t_hostname")) << "\" MOD \"" << Escape(Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.size() - 6)) << "\"");
 				pArea->set_state("hosting.b_ok", false);
 			}
 			else if (NetClient::instance()->getHostAck())		// NetServer is ready, let's go!
