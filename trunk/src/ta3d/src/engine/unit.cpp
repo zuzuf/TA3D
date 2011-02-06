@@ -366,6 +366,7 @@ namespace TA3D
 		drawn_open = drawn_flying = false;
 		drawn_x = drawn_y = 0;
 		drawn = false;
+		drawn_obstacle = false;
 
 		old_px = old_py = -10000;
 
@@ -4724,7 +4725,12 @@ script_exec:
 			script->run(dt);
 		yardmap_timer--;
 		if (hp > 0.0f &&
-			(((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f) || !drawn))
+			(((o_px != cur_px
+			   || o_py != cur_py
+			   || first_move
+			   || (was_flying ^ flying)
+			   || ((port[YARD_OPEN] != 0.0f) ^ was_open)
+			   || yardmap_timer == 0) && build_percent_left <= 0.0f) || !drawn || (drawn && drawn_obstacle != is_obstacle())))
 		{
 			first_move = build_percent_left > 0.0f;
 			pMutex.unlock();
@@ -5194,6 +5200,7 @@ script_exec:
 		if (drawn)	clear_from_map();
 		if (attached)	return;
 
+		drawn_obstacle = is_obstacle();
 		drawn_flying = flying;
 		UnitType *pType = unit_manager.unit_type[type];
 		if (flying)
@@ -5258,7 +5265,7 @@ script_exec:
 			}
 			pMutex.unlock();
 
-			if (!(pType->canmove && pType->BMcode))
+			if (!(pType->canmove && pType->BMcode) || drawn_obstacle)
 				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
 										cur_py - (pType->FootprintZ >> 1),
 										pType->FootprintX, pType->FootprintZ, true,
@@ -5296,7 +5303,7 @@ script_exec:
 								 idx, true );
 		else
 		{
-			if (!(pType->canmove && pType->BMcode))
+			if (!(pType->canmove && pType->BMcode) || drawn_obstacle)
 				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
 										cur_py - (pType->FootprintZ >> 1),
 										pType->FootprintX, pType->FootprintZ, false,

@@ -150,12 +150,30 @@ namespace TA3D
 
 		void explode();
 
-		inline bool do_nothing()
+		inline bool do_nothing() const
 		{
 			return mission.doNothing() && !port[INBUILDSTANCE];
 		}
 
-		inline bool do_nothing_ai()
+		inline bool is_obstacle() const
+		{
+			return (!(mission.doingNothing() && !port[INBUILDSTANCE])
+					&& !(mission->getFlags() & MISSION_FLAG_MOVE)
+					&& mission->mission() != MISSION_MOVE
+					&& mission->mission() != MISSION_BUILD
+					&& mission->mission() != MISSION_REPAIR
+					&& mission->mission() != MISSION_ATTACK
+					&& mission->mission() != MISSION_CAPTURE
+					&& mission->mission() != MISSION_RECLAIM
+					&& mission->mission() != MISSION_REVIVE
+					&& mission->mission() != MISSION_GUARD
+					&& mission->mission() != MISSION_LOAD
+					&& mission->mission() != MISSION_UNLOAD
+					&& mission->mission() != MISSION_PATROL)
+					|| build_percent_left > 0.0f;
+		}
+
+		inline bool do_nothing_ai() const
 		{
 			return mission.doNothingAI() && !port[INBUILDSTANCE];
 		}
@@ -178,7 +196,7 @@ namespace TA3D
 		Vector3D				V_Angle;		// Variation de l'orientation dans l'espace
 		bool					sel;			// Unité sélectionnée?
 		AnimationData           data;			// Données pour l'animation de l'unité par le script
-		bool					drawing;
+		volatile bool			drawing;
 		bool					movingAnimation;
 		bool					requestedMovingAnimationState;
 		sint16					*port;			// Ports
@@ -240,6 +258,7 @@ namespace TA3D
 		// Following variables are used to control the drawing of the unit on the presence maps
 		bool			drawn_open;			// Used to store the last state the unit was drawn on the presence map (opened or closed)
 		bool			drawn_flying;
+		bool			drawn_obstacle;		// Was the unit considered an obstacle
 		sint32			drawn_x, drawn_y;
 		bool			drawn;
 

@@ -649,7 +649,7 @@ namespace TA3D
 		}
 	}
 
-	bool Pathfinder::checkRectFast(const int x1, const int y1, const UnitType *pType)
+	inline bool Pathfinder::checkRectFast(const int x1, const int y1, const UnitType *pType)
 	{
 		const int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
 		const int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
