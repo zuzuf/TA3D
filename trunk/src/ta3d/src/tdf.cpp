@@ -620,7 +620,7 @@ namespace TA3D
 					glScalef(dw,h,dw);
 					if (lp_CONFIG->shadow_quality >= 2)
 						glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-					glDrawElements(GL_QUADS, 28,GL_UNSIGNED_BYTE,index);		// draw it
+					glDrawRangeElements(GL_QUADS, 0, 17, 28,GL_UNSIGNED_BYTE,index);		// draw it
 					glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 					glPopMatrix();
 				}
@@ -642,7 +642,7 @@ namespace TA3D
 			{
 				if (pFeature->m3d && pFeature->model != NULL)
 				{
-					if (!pFeature->model->animated && !feature[i].sinking)
+					if (!pFeature->model->animated && !feature[i].sinking && pFeature->model->useDL)
 					{
 						DrawingTable.queue_Instance( pFeature->model->id,
                                                      Instance(feature[i].Pos, feature[i].grey ? 0xFF7F7F7F : 0xFFFFFFFF,

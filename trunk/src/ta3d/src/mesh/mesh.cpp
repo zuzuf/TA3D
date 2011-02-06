@@ -71,7 +71,7 @@ namespace TA3D
 
 	void AnimationData::load(const int nb)
 	{
-		destroy();		// Au cas où
+		destroy();		// Au cas oÃ¹
 		nb_piece = nb;
 		data.resize(nb);
 		for (DataVector::iterator i = data.begin() ; i != data.end() ; ++i)
@@ -393,9 +393,9 @@ namespace TA3D
 	}
 
 
-	void Mesh::Identify(ScriptData *script)			// Identifie les pièces utilisées par le script
+	void Mesh::Identify(ScriptData *script)			// Identifie les piÃ¨ces utilisÃ©es par le script
 	{
-		script_index = -1;				// Pièce non utilisée / Unused piece
+		script_index = -1;				// PiÃ¨ce non utilisÃ©e / Unused piece
 		if (!name.empty())
 			script_index = script->identify(name);
 		if (next)
@@ -405,7 +405,7 @@ namespace TA3D
 	}
 
 
-	void Mesh::compute_center(Vector3D *center, const Vector3D &dec, int *coef) const		// Calcule les coordonnées du centre de l'objet, objets liés compris
+	void Mesh::compute_center(Vector3D *center, const Vector3D &dec, int *coef) const		// Calcule les coordonnÃ©es du centre de l'objet, objets liÃ©s compris
 	{
 		for (int i = 0; i < nb_vtx; ++i)
 		{
@@ -421,7 +421,7 @@ namespace TA3D
 	}
 
 
-	float Mesh::compute_size_sq(const Vector3D &center) const		// Carré de la taille(on fera une racine après)
+	float Mesh::compute_size_sq(const Vector3D &center) const		// CarrÃ© de la taille(on fera une racine aprÃ¨s)
 	{
 		float size = 0.0f;
 		for (int i = 0; i < nb_vtx; ++i)
@@ -685,7 +685,7 @@ namespace TA3D
 					shadow_index = new GLushort[nb_t_index * 12];
 				uint16 nb_idx = 0;
 
-				if (t_line == NULL) // Repère les arêtes
+				if (t_line == NULL) // RepÃ¨re les arÃªtes
 				{
 					t_line = new short[nb_t_index];
 					line_v_idx[0] = new short[nb_t_index];
@@ -843,7 +843,7 @@ namespace TA3D
 					shadow_index = new GLushort[nb_t_index * 12];
 				uint16 nb_idx = 0;
 
-				if (t_line == NULL) // Repère les arêtes
+				if (t_line == NULL) // RepÃ¨re les arÃªtes
 				{
 					t_line = new short[nb_t_index];
 					line_v_idx[0] = new short[nb_t_index];
@@ -921,7 +921,7 @@ namespace TA3D
 				else
 					nb_idx = last_nb_idx;
 				glVertexPointer( 3, GL_FLOAT, 0, points);
-				glFrontFace(GL_CW);						// 1ère passe
+				glFrontFace(GL_CW);						// 1Ã¨re passe
 				glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
 				glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
 
@@ -1494,7 +1494,7 @@ namespace TA3D
 				++n;
 				name.push_back(*e);
 
-				if (get_model(Substr(*e, 0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déj�  chargé
+				if (get_model(Substr(*e, 0, e->size() - 4)) == NULL) 	// VÃ©rifie si le modÃ¨le n'est pas dÃ©jÃ  chargÃ©
 				{
 					Model *pModel = MeshTypeManager::load(*e);
 					if (pModel)
@@ -1555,7 +1555,7 @@ namespace TA3D
 		center.reset();
 		mesh->compute_center(&center,O,&coef);
 		center = (1.0f / coef) * center;
-		size = 2.0f * mesh->compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
+		size = 2.0f * mesh->compute_size_sq(center);			// On garde le carrÃ© pour les comparaisons et on prend une marge en multipliant par 2.0f
 		size2 = sqrtf(0.5f * size);
 		mesh->compute_emitter();
 		compute_topbottom();

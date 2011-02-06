@@ -818,6 +818,23 @@ namespace TA3D
 		model->mesh = mesh;
 		model->postLoadComputations();
 		Joins::computeSelection(model);
+		std::deque<Mesh3DM*> qmesh;
+		qmesh.push_back(mesh);
+		while(!qmesh.empty())
+		{
+			Mesh3DM *cur = qmesh.front();
+			qmesh.pop_front();
+			if (cur->child)
+				qmesh.push_back((Mesh3DM*)(cur->child));
+			if (cur->next)
+				qmesh.push_back((Mesh3DM*)(cur->next));
+			const std::vector<GLuint> *pTex = (cur->Flag & SURFACE_ROOT_TEXTURE) ? &(cur->root->gltex) : &(cur->gltex);
+			if (pTex->size() > 1)
+			{
+				model->useDL = false;
+				break;
+			}
+		}
 		return model;
 	}
 
