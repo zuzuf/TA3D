@@ -261,7 +261,7 @@ namespace TA3D
 			units.unit[task.idx].unlock();
 
 		// Get the precomputed walkable area quadmap
-		QuadMap *qmap = Pathfinder::instance()->hQuadMap[pType->getMoveStringID()];
+		const QuadMap *qmap = Pathfinder::instance()->hQuadMap[pType->getMoveStringID()];
 		if (!qmap)
 		{
 			LOG_ERROR(LOG_PREFIX_PATHS << "path request for a unit without precomputed walkable area quadmap");
@@ -477,8 +477,8 @@ namespace TA3D
 			nextPass.reserve(nodes.size() * 4);
 			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
 			{
-				int x = cur->x();
-				int z = cur->z();
+				const int x = cur->x();
+				const int z = cur->z();
 				zone(x, z) = 1;
 				if (x > 0)
 					nextPass.push_back(AI::Path::Node(x - 1, z));
@@ -492,14 +492,14 @@ namespace TA3D
 			std::vector<AI::Path::Node> curPass;
 			for(int i = 0 ; i < SEARCH_AREA_WIDTH ; ++i)
 			{
-				bool last = (i + 1) == SEARCH_AREA_WIDTH;
+				const bool last = (i + 1) == SEARCH_AREA_WIDTH;
 				curPass.swap(nextPass);
 				nextPass.reserve(curPass.size() * 4);
 				nextPass.clear();
 				for(std::vector<AI::Path::Node>::iterator it = curPass.begin() ; it != curPass.end() ; ++it)
 				{
-					int x = it->x();
-					int z = it->z();
+					const int x = it->x();
+					const int z = it->z();
 					if (zone(x, z))	continue;
 					if (!(*qmap)(x, z) || !checkRectFast(x - mw_h, z - mh_h, pType))	continue;
 					zone(x, z) = 1;
@@ -535,7 +535,7 @@ namespace TA3D
 				{
 					if (end_z + z < 0 || end_z + z >= the_map->bloc_h_db)
 						continue;
-					int dx = int(sqrtf(float(m_dist - z * z)) + 0.5f);
+					const int dx = int(sqrtf(float(m_dist - z * z)) + 0.5f);
 					for(int x = -dx ; x <= dx && end_x + x < the_map->bloc_w_db ; ++x)
 						if (end_x + x >= 0 && zone(end_x + x, end_z + z) == 1)
 						{
@@ -550,14 +550,14 @@ namespace TA3D
 				AI::Path::Node cur = qNode.front();
 				qNode.pop_front();
 
-				int ref = zone(cur.x(), cur.z());
+				const int ref = zone(cur.x(), cur.z());
 				for(int i = 0 ; i < 8 ; ++i)
 				{
 					if (cur.x() + order_dx[i] < 0 || cur.x() + order_dx[i] >= the_map->bloc_w_db
 						|| cur.z() + order_dz[i] < 0 || cur.z() + order_dz[i] >= the_map->bloc_h_db)
 						continue;
-					int t = zone(cur.x() + order_dx[i], cur.z() + order_dz[i]);
-					int r = ref + order_d[i];
+					const int t = zone(cur.x() + order_dx[i], cur.z() + order_dz[i]);
+					const int r = ref + order_d[i];
 					if (t == 1 || t > r)
 					{
 						zone(cur.x() + order_dx[i], cur.z() + order_dz[i]) = r;
@@ -655,11 +655,11 @@ namespace TA3D
 		const int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
 		const Grid<bool> &obstacles = the_map->obstacles;
 		const int x0 = Math::Max(x1, 0);
-		for(int y = Math::Max(y1, 0) ; y < fy ; ++y)
-			for(int x = x0 ; x < fx ; ++x)
-				if (obstacles(x,y))
-					return false;
-		return true;
+		bool result = true;
+		for(int y = Math::Max(y1, 0) ; y < fy && result ; ++y)
+			for(int x = x0 ; x < fx && result ; ++x)
+				result = !obstacles(x,y);
+		return result;
 	}
 
 	bool Pathfinder::checkRectFull(int x1, int y1, const UnitType *pType)
@@ -672,19 +672,15 @@ namespace TA3D
 		const int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
 		y1 = Math::Max(y1, 0);
 		x1 = Math::Max(x1, 0);
-		for(int y = y1 ; y < fy ; ++y)
-		{
-			for(int x = x1 ; x < fx ; ++x)
-			{
-				if ((the_map->slope(x,y) > dh_max
-					 && the_map->h_map(x, y) > hover_h)
-					|| the_map->map_data(x, y).lava
-							|| the_map->h_map(x, y) < h_min
-							|| the_map->h_map(x, y) > h_max)
-					return false;
-			}
-		}
-		return true;
+		bool result = true;
+		for(int y = y1 ; y < fy && result ; ++y)
+			for(int x = x1 ; x < fx && result ; ++x)
+				result = !((the_map->slope(x,y) > dh_max
+							&& the_map->h_map(x, y) > hover_h)
+						   || the_map->map_data(x, y).lava
+						   || the_map->h_map(x, y) < h_min
+						   || the_map->h_map(x, y) > h_max);
+		return result;
 	}
 
 	void Pathfinder::signalExitThread()
@@ -702,7 +698,7 @@ namespace TA3D
 		int memoryUsed = 0;
 		for(uint32 i = 0 ; i < unit_manager.unit_type.size() ; ++i)
 		{
-			UnitType *pType = unit_manager.unit_type[i];
+			const UnitType* const pType = unit_manager.unit_type[i];
 			if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
 				continue;
 			const String key = pType->getMoveStringID();

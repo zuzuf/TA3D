@@ -88,8 +88,11 @@ namespace TA3D
 			void load(gzFile file);
 
 			typedef std::deque<Node>::iterator iterator;
+			typedef std::deque<Node>::const_iterator const_iterator;
 			iterator begin()	{	return nodes.begin();	}
 			iterator end()	{	return nodes.end();	}
+			const_iterator begin() const	{	return nodes.begin();	}
+			const_iterator end() const	{	return nodes.end();	}
 		private:
 			void computeCoord();
 
