@@ -139,7 +139,7 @@ namespace TA3D
 						gfx->set_texture_format(with_alpha ? gfx->defaultTextureFormat_RGBA() : gfx->defaultTextureFormat_RGB());
 
 					*i = gfx->make_texture(img,filter);
-					gfx->save_texture_to_cache(cache_filename, *i, img->w, img->h);
+					gfx->save_texture_to_cache(cache_filename, *i, img->w, img->h, with_alpha);
 					SDL_FreeSurface(img);
 				}
 				else
@@ -227,7 +227,7 @@ namespace TA3D
 						gfx->set_texture_format(with_alpha ? gfx->defaultTextureFormat_RGBA() : gfx->defaultTextureFormat_RGB());
 
 					GLuint gl_img = gfx->make_texture(img,filter);
-					gfx->save_texture_to_cache(cache_filename, gl_img, img->w, img->h);
+					gfx->save_texture_to_cache(cache_filename, gl_img, img->w, img->h, with_alpha);
 
 					SDL_FreeSurface(img);
 					delete file;
@@ -749,7 +749,7 @@ namespace TA3D
 					gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 				glbmp[i] = gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
 				if (!filename.empty())
-					gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h);
+					gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h, true);
 			}
 		}
 	}
