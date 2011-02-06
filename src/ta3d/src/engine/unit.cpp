@@ -4428,6 +4428,11 @@ namespace TA3D
 					{
 						if (do_nothing())
                             set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]));
+						else if (!mission.empty() && mission->mission() == MISSION_PATROL)
+						{
+							add_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &(Pos), true, 0);
+							add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO, &(units.unit[enemy_idx].Pos), true, 0, &(units.unit[enemy_idx]));
+						}
 						else
 							for (uint32 i = 0 ; i < weapon.size() ; ++i)
                                 if (weapon[i].state == WEAPON_FLAG_IDLE && pType->weapon[ i ] != NULL
