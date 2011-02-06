@@ -830,6 +830,13 @@ namespace TA3D
 
 		renderWater();
 
+		// Render map object icons (if in tactical mode)
+		if (cam.rpos.y > gfx->low_def_limit)
+		{
+			cam.setView(true);
+			features.draw_icons();
+		}
+
 		cam.setView(lp_CONFIG->shadow_quality < 2);
 		if (lp_CONFIG->shadow_quality >= 2)
 			glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);

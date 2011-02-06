@@ -410,6 +410,11 @@ namespace TA3D
         void draw_shadow(float t, const Vector3D& Dir);
 
 		/*!
+		** \brief Draw icons for all features in symbolic_features
+		*/
+		void draw_icons();
+
+		/*!
 		** \brief
 		** \param idx Index of the feature
 		*/
@@ -420,6 +425,8 @@ namespace TA3D
 	public:
 		//! \brief List of feature
 		typedef std::vector<uint32> FeaturesList;
+		//! \brief Set of feature
+		typedef HashSet<uint32>::Dense FeaturesSet;
 
 	public:
 		//!
@@ -436,6 +443,12 @@ namespace TA3D
 
 		//!
 		std::vector<int> list;				// Liste d'objets à afficher
+
+		//! features to render as icons in tactical mode
+		FeaturesSet symbolic_features;
+
+		//! icons
+		Interfaces::GfxTexture icons[2];
 
 	protected:
 		//!
