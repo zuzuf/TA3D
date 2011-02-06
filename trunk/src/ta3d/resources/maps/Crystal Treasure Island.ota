@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Crystal Treasure Island;
+	missiondescription=12 X 13  Crystal map with metal-rich islands in the center.;
+	planet=Crystal;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=1;
+	mapping=1;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=0;
+	maxwindspeed=4000;
+	gravity=112;
+	maxunits=200;
+	waterdoesdamage=0;
+	waterdamage=100;
+	numplayers=2, 4, 6;
+	size=12 x 13;
+	memory=32 mb;
+	useonlyunits=Crystal Treasure Island.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=DEFAULT;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=400;
+				ZPos=6240;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=5744;
+				ZPos=384;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=5776;
+				ZPos=6064;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=464;
+				ZPos=256;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=1072;
+				ZPos=3456;
+				}
+			[special5]
+				{
+				specialwhat=StartPos7;
+				XPos=3056;
+				ZPos=1040;
+				}
+			[special6]
+				{
+				specialwhat=StartPos8;
+				XPos=3024;
+				ZPos=2272;
+				}
+			[special7]
+				{
+				specialwhat=StartPos9;
+				XPos=3072;
+				ZPos=3440;
+				}
+			[special8]
+				{
+				specialwhat=StartPos10;
+				XPos=3024;
+				ZPos=5184;
+				}
+			[special9]
+				{
+				specialwhat=StartPos6;
+				XPos=4464;
+				ZPos=3248;
+				}
+			}
+		}
+	}

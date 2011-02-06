@@ -1,0 +1,106 @@
+[GlobalHeader]
+	{
+	missionname=Red Planet;
+	missiondescription=9 X 9   Many small hills and pools;
+	planet=Red Planet;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=0;
+	mapping=0;
+	tidalstrength=0;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=400;
+	maxwindspeed=3200;
+	gravity=112;
+	numplayers=2, 4;
+	size=9 x 9;
+	memory=16 mb;
+	useonlyunits=Red Planet.tdf;
+	DestroyAllUnits=1;
+	AllUnitsKilled=1;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=DEFAULT;
+		SurfaceMetal=3;
+		MohoMetal=50;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=4017;
+				ZPos=2143;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=615;
+				ZPos=2342;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=1980;
+				ZPos=184;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=2199;
+				ZPos=4367;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=4248;
+				ZPos=209;
+				}
+			[special5]
+				{
+				specialwhat=StartPos6;
+				XPos=464;
+				ZPos=4231;
+				}
+			[special6]
+				{
+				specialwhat=StartPos7;
+				XPos=232;
+				ZPos=291;
+				}
+			[special7]
+				{
+				specialwhat=StartPos8;
+				XPos=4263;
+				ZPos=4233;
+				}
+			[special8]
+				{
+				specialwhat=StartPos9;
+				XPos=2711;
+				ZPos=1506;
+				}
+			[special9]
+				{
+				specialwhat=StartPos10;
+				XPos=1452;
+				ZPos=3274;
+				}
+			}
+		}
+	}

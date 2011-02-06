@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Mounds of Mars;
+	missiondescription=8 X 17  For more than two players, play teams, North vs. South.;
+	planet=red planet;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=1;
+	mapping=1;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=1500;
+	maxwindspeed=2250;
+	gravity=112;
+	maxunits=200;
+	waterdoesdamage=0;
+	waterdamage=100;
+	numplayers=2, 4;
+	size=8 x 17;
+	memory=16 mb;
+	useonlyunits=Mounds of Mars.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=DEFAULT;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=1968;
+				ZPos=464;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=2464;
+				ZPos=8176;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=2032;
+				ZPos=3408;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=2048;
+				ZPos=5424;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=3360;
+				ZPos=2160;
+				}
+			[special5]
+				{
+				specialwhat=StartPos7;
+				XPos=656;
+				ZPos=1760;
+				}
+			[special6]
+				{
+				specialwhat=StartPos9;
+				XPos=2000;
+				ZPos=1696;
+				}
+			[special7]
+				{
+				specialwhat=StartPos6;
+				XPos=496;
+				ZPos=6368;
+				}
+			[special8]
+				{
+				specialwhat=StartPos8;
+				XPos=3584;
+				ZPos=6192;
+				}
+			[special9]
+				{
+				specialwhat=StartPos10;
+				XPos=2080;
+				ZPos=6672;
+				}
+			}
+		}
+	}

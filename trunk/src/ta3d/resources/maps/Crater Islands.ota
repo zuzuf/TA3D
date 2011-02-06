@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Crater Islands;
+	missiondescription=10 X 8  Fight your way across these shallow waters.;
+	planet=green planet;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=1;
+	mapping=1;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=0;
+	maxwindspeed=4000;
+	gravity=112;
+	maxunits=200;
+	waterdoesdamage=0;
+	waterdamage=0;
+	numplayers=2, 3, 4, 6, 8;
+	size=10 x 8;
+	memory=16 mb;
+	useonlyunits=Crater Islands.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=SeaBattle;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=400;
+				ZPos=320;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=4560;
+				ZPos=3488;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=3712;
+				ZPos=416;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=1312;
+				ZPos=3024;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=2976;
+				ZPos=2688;
+				}
+			[special5]
+				{
+				specialwhat=StartPos6;
+				XPos=1616;
+				ZPos=1440;
+				}
+			[special6]
+				{
+				specialwhat=StartPos7;
+				XPos=4400;
+				ZPos=1440;
+				}
+			[special7]
+				{
+				specialwhat=StartPos8;
+				XPos=2864;
+				ZPos=1744;
+				}
+			[special8]
+				{
+				specialwhat=StartPos10;
+				XPos=2640;
+				ZPos=3600;
+				}
+			[special9]
+				{
+				specialwhat=StartPos9;
+				XPos=1936;
+				ZPos=2032;
+				}
+			}
+		}
+	}

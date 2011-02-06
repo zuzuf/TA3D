@@ -2,7 +2,6 @@
 {
 	planet=red planet;
 	map=;
-	default=true;
 	fog R=0.3843;
 	fog G=0.3157;
 	fog B=0.2019;
