@@ -56,7 +56,7 @@ namespace Menus
 	}
 
 	SetupGame::SetupGame(bool client, const String &host, const String &saved_game, bool bNetServer, bool instantStart)
-		:Abstract(), client(client), host(host), saved_game(saved_game), bNetServer(bNetServer), instantStart(instantStart)
+		:Abstract(), client(client), host(host), saved_game(saved_game), bNetServer(bNetServer), instantStart(instantStart), start_game(false)
 	{
 		map_data = new MAP_OTA;
 	}
@@ -386,9 +386,9 @@ namespace Menus
 		}
 
 		if (!host)
-			for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 				pArea->msg(String("gamesetup.ready") << i << ".hide");
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			player_timer[i] = msec_timer;
 
 		if (host.notEmpty() && my_player_id == -1) // Leave now, we aren't connected but we're in network mode
@@ -416,7 +416,7 @@ namespace Menus
 			pArea->msg("gamesetup.b_units.disable");
 			pArea->msg("gamesetup.change_map.disable");
 			pArea->msg("gamesetup.FOW.disable");
-			for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			{
 				Gui::GUIOBJ::Ptr obj = pArea->get_object(String("gamesetup.team") << i);
 				if (obj)
@@ -525,7 +525,7 @@ namespace Menus
 	{
 		if (instantStart)
 		{
-			LOG_DEBUG("[menu::setupgame] " << "instand start");
+			LOG_DEBUG("[menu::setupgame] " << "instant start");
 			return true;
 		}
 
