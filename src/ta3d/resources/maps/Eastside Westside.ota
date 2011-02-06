@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Eastside Westside;
+	missiondescription=19 X 19  Find a park or reclaim large structures for metal.;
+	planet=Urban;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=1;
+	mapping=1;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=4000;
+	maxwindspeed=5000;
+	gravity=112;
+	maxunits=200;
+	waterdoesdamage=0;
+	waterdamage=0;
+	numplayers=2, 4, 6;
+	size=19 x 19;
+	memory=32 mb;
+	useonlyunits=Eastside Westside.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=Urban;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos3;
+				XPos=8688;
+				ZPos=592;
+				}
+			[special1]
+				{
+				specialwhat=StartPos5;
+				XPos=272;
+				ZPos=4096;
+				}
+			[special2]
+				{
+				specialwhat=StartPos6;
+				XPos=8816;
+				ZPos=3856;
+				}
+			[special3]
+				{
+				specialwhat=StartPos10;
+				XPos=4288;
+				ZPos=7936;
+				}
+			[special4]
+				{
+				specialwhat=StartPos1;
+				XPos=2304;
+				ZPos=944;
+				}
+			[special5]
+				{
+				specialwhat=StartPos2;
+				XPos=7936;
+				ZPos=8992;
+				}
+			[special6]
+				{
+				specialwhat=StartPos4;
+				XPos=1280;
+				ZPos=8480;
+				}
+			[special7]
+				{
+				specialwhat=StartPos7;
+				XPos=2288;
+				ZPos=2880;
+				}
+			[special8]
+				{
+				specialwhat=StartPos8;
+				XPos=6384;
+				ZPos=3760;
+				}
+			[special9]
+				{
+				specialwhat=StartPos9;
+				XPos=4160;
+				ZPos=2832;
+				}
+			}
+		}
+	}

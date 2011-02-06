@@ -1,6 +1,6 @@
 [sky]
 {
-	planet=green planet,archipelago,ice,urban,wet desert,lush,archipelago,crystal,slate;
+	planet=green planet,archipelago,ice,urban,wet desert,lush,archipelago,crystal,slate,Water World;
 	map=;
 	default=true;
 	fog R=0.3843;

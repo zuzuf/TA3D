@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Town & Country;
+	missiondescription=17 X 17  Urban vs. rural.;
+	planet=Urban;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=1;
+	mapping=1;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=25;
+	maxwindspeed=5000;
+	gravity=112;
+	maxunits=250;
+	waterdoesdamage=0;
+	waterdamage=100;
+	numplayers=2, 3, 4, 5, 6, 10;
+	size=17 x 17;
+	memory=32 mb;
+	useonlyunits=Town & Country.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=Urban;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=352;
+				ZPos=4384;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=8400;
+				ZPos=4384;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=4336;
+				ZPos=304;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=3840;
+				ZPos=8000;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=432;
+				ZPos=560;
+				}
+			[special5]
+				{
+				specialwhat=StartPos6;
+				XPos=8192;
+				ZPos=7984;
+				}
+			[special6]
+				{
+				specialwhat=StartPos7;
+				XPos=416;
+				ZPos=7984;
+				}
+			[special7]
+				{
+				specialwhat=StartPos8;
+				XPos=8160;
+				ZPos=1088;
+				}
+			[special8]
+				{
+				specialwhat=StartPos9;
+				XPos=6368;
+				ZPos=304;
+				}
+			[special9]
+				{
+				specialwhat=StartPos10;
+				XPos=6768;
+				ZPos=6768;
+				}
+			}
+		}
+	}

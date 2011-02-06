@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Polyp Fields;
+	missiondescription=27 X 22  Large geometric polyps litter this battlefield.;
+	planet=Water World;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=1;
+	mapping=1;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=25;
+	maxwindspeed=5000;
+	gravity=112;
+	maxunits=200;
+	waterdoesdamage=0;
+	waterdamage=100;
+	numplayers=2, 4, 6;
+	size=27 x 22;
+	memory=32 mb;
+	useonlyunits=Polyp.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=Waterwrld;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=1072;
+				ZPos=1456;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=12720;
+				ZPos=9632;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=768;
+				ZPos=9680;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=12864;
+				ZPos=2000;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=6608;
+				ZPos=9072;
+				}
+			[special5]
+				{
+				specialwhat=StartPos6;
+				XPos=6720;
+				ZPos=1488;
+				}
+			[special6]
+				{
+				specialwhat=StartPos7;
+				XPos=2896;
+				ZPos=5600;
+				}
+			[special7]
+				{
+				specialwhat=StartPos8;
+				XPos=10896;
+				ZPos=5600;
+				}
+			[special8]
+				{
+				specialwhat=StartPos9;
+				XPos=6656;
+				ZPos=6992;
+				}
+			[special9]
+				{
+				specialwhat=StartPos10;
+				XPos=7264;
+				ZPos=3840;
+				}
+			}
+		}
+	}

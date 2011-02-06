@@ -1,0 +1,107 @@
+[GlobalHeader]
+	{
+	missionname=Assault on Suburbia;
+	missiondescription=16 X 16 Crush 'em.;
+	planet=urban;
+	missionhint=;
+	brief=;
+	narration=;
+	glamour=;
+	lineofsight=0;
+	mapping=0;
+	tidalstrength=20;
+	solarstrength=20;
+	lavaworld=0;
+	killmul=50;
+	timemul=0;
+	minwindspeed=2500;
+	maxwindspeed=5000;
+	gravity=112;
+	maxunits=200;
+	waterdoesdamage=0;
+	waterdamage=100;
+	numplayers=2, 3, 4, 6;
+	size=16 x 16;
+	memory=32 mb;
+	useonlyunits=Assault on Suburbia.tdf;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+		aiprofile=Hover;
+		SurfaceMetal=3;
+		MohoMetal=40;
+		HumanMetal=1000;
+		ComputerMetal=1000;
+		HumanEnergy=1000;
+		ComputerEnergy=1000;
+		MeteorWeapon=;
+		MeteorRadius=0;
+		MeteorDensity=0;
+		MeteorDuration=0;
+		MeteorInterval=0;
+		[specials]
+			{
+			[special0]
+				{
+				specialwhat=StartPos1;
+				XPos=464;
+				ZPos=7568;
+				}
+			[special1]
+				{
+				specialwhat=StartPos2;
+				XPos=7648;
+				ZPos=816;
+				}
+			[special2]
+				{
+				specialwhat=StartPos3;
+				XPos=752;
+				ZPos=816;
+				}
+			[special3]
+				{
+				specialwhat=StartPos4;
+				XPos=7568;
+				ZPos=7584;
+				}
+			[special4]
+				{
+				specialwhat=StartPos5;
+				XPos=272;
+				ZPos=3600;
+				}
+			[special5]
+				{
+				specialwhat=StartPos6;
+				XPos=7424;
+				ZPos=3664;
+				}
+			[special6]
+				{
+				specialwhat=StartPos9;
+				XPos=7456;
+				ZPos=5440;
+				}
+			[special7]
+				{
+				specialwhat=StartPos10;
+				XPos=528;
+				ZPos=4976;
+				}
+			[special8]
+				{
+				specialwhat=StartPos7;
+				XPos=5248;
+				ZPos=2576;
+				}
+			[special9]
+				{
+				specialwhat=StartPos8;
+				XPos=4256;
+				ZPos=4240;
+				}
+			}
+		}
+	}
