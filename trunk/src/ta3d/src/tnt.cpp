@@ -570,6 +570,7 @@ namespace TA3D
         for (y = 0; y < (map->bloc_h << 1); ++y)
             for (x = 0; x < (map->bloc_w << 1); ++x)
 				map->map_data(x, y).stuff = -1;
+		features.destroy();
         for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)

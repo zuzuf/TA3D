@@ -417,6 +417,8 @@ namespace TA3D
 	Features::~Features()
 	{
 		destroy();
+		icons[0].destroy();
+		icons[1].destroy();
 	}
 
 
@@ -427,6 +429,9 @@ namespace TA3D
 		max_features = 0;
 		feature = NULL;
 		list.clear();
+		symbolic_features.clear();
+		icons[0].load("gfx\\tactical_icons\\metal_deposit.tga");
+		icons[1].load("gfx\\tactical_icons\\geothermal.tga");
 	}
 
 
@@ -448,6 +453,7 @@ namespace TA3D
 		init();
 		burning_features.clear();
 		sinking_features.clear();
+		symbolic_features.clear();
 	}
 
 
@@ -1115,7 +1121,7 @@ namespace TA3D
 		if (feature[index].shadow_dlist != 0)
 			feature[index].delete_shadow_dlist = true;
 
-		if (feature[index].burning)		// Remove it form the burning features list
+		if (feature[index].burning)		// Remove it from the burning features list
 		{
 			std::vector<uint32>::iterator it = std::find(burning_features.begin(), burning_features.end(), index);
 			if (it != burning_features.end())
@@ -1125,6 +1131,8 @@ namespace TA3D
 				burning_features.pop_back();
 			}
 		}
+
+		symbolic_features.remove(index);
 
 		--nb_features;
 		feature[index].type = -1;		// On efface l'objet
@@ -1177,12 +1185,13 @@ namespace TA3D
 				}
 			}
 		}
+		const Feature* const pFeature = feature_manager.getFeaturePointer(type);
 		feature[idx].Pos = Pos;
         feature[idx].timeRef = Math::RandomTable() % 100000;
 		feature[idx].type = type;
 		feature[idx].frame = 0;
 		feature[idx].draw = false;
-		feature[idx].hp = float(feature_manager.getFeaturePointer(type)->damage);
+		feature[idx].hp = float(pFeature->damage);
 		feature[idx].grey = false;
 		feature[idx].dt = 0.0f;
 		feature[idx].angle = 0.0f;
@@ -1196,6 +1205,9 @@ namespace TA3D
 		feature[idx].angle_x = 0.0f;
 		feature[idx].shadow_dlist = 0;
 		compute_on_map_pos(idx);
+
+		if (!pFeature->reclaimable && !pFeature->blocking && (pFeature->metal > 0 || pFeature->geothermal))
+			symbolic_features.insert(idx);
 		return idx;
 	}
 
@@ -1206,11 +1218,11 @@ namespace TA3D
 		if (idx < 0 || idx >= max_features || feature[idx].drawnOnMap)
 			return;
 		compute_on_map_pos(idx);
-		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+		const Feature* const pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 		if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
 		{
-			int X = pFeature->footprintx;
-			int Z = pFeature->footprintz;
+			const int X = pFeature->footprintx;
+			const int Z = pFeature->footprintz;
 			the_map->obstaclesRect( feature[idx].px - (X >> 1),
 									feature[idx].py - (Z >> 1),
 									X, Z, true);
@@ -1230,11 +1242,11 @@ namespace TA3D
 		MutexLocker mLock(pMutex);
 		if (idx < 0 || idx >= max_features || !feature[idx].drawnOnMap)
 			return;
-		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+		const Feature* const pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 		if (pFeature && pFeature->blocking)        // Check if it is a blocking feature
 		{
-			int X = pFeature->footprintx;
-			int Z = pFeature->footprintz;
+			const int X = pFeature->footprintx;
+			const int Z = pFeature->footprintz;
 			the_map->obstaclesRect(feature[idx].px - (X >> 1), feature[idx].py - (Z >> 1), X, Z, false);
 			the_map->rect(feature[idx].px - (X >> 1), feature[idx].py - (Z >> 1), X, Z, -1);
 			the_map->energy.sub(pFeature->gRepulsion,
@@ -1246,6 +1258,97 @@ namespace TA3D
 	}
 
 
+	void Features::draw_icons()
+	{
+		static std::vector<Vector3D> metal, geothermal;
+		static std::vector<Vector2D> metalUV, geothermalUV;
+		metal.clear();
+		geothermal.clear();
+		metalUV.clear();
+		geothermalUV.clear();
+		const Vector3D side = Camera::inGame->side;
+		const Vector3D up = Camera::inGame->up;
+		const float wmetal = icons[0].getWidth() / 24.0f;
+		const float hmetal = icons[0].getHeight() / 24.0f;
+		const float wgeothermal = icons[1].getWidth() / 24.0f;
+		const float hgeothermal = icons[1].getHeight() / 24.0f;
+		const Vector3D camdir = 12.0f / gfx->height * Camera::inGame->dir;
+		const float camzoom = Camera::inGame->zoomFactor * 9.0f;
+		pMutex.lock();
+		for(FeaturesSet::const_iterator it = symbolic_features.begin() ; it != symbolic_features.end() ; ++it)
+		{
+			const FeatureData* const pFeature = &(feature[*it]);
+			const Feature* const pFeatureType = feature_manager.getFeaturePointer(pFeature->type);
+			if (pFeatureType == NULL)
+				continue;
+			const Vector3D D (pFeature->Pos - Camera::inGame->pos);
+			const float size = lp_CONFIG->ortho_camera ? camzoom : (D % camdir);
+			if (pFeatureType->geothermal)
+			{
+				const float sizew = size * wgeothermal;
+				const float sizeh = size * hgeothermal;
+				geothermal.push_back(-sizew * side + sizeh * up + pFeature->Pos);
+				geothermal.push_back(sizew * side + sizeh * up + pFeature->Pos);
+				geothermal.push_back(sizew * side - sizeh * up + pFeature->Pos);
+				geothermal.push_back(-sizew * side - sizeh * up + pFeature->Pos);
+				geothermalUV.push_back(Vector2D(0.0f,0.0f));
+				geothermalUV.push_back(Vector2D(1.0f,0.0f));
+				geothermalUV.push_back(Vector2D(1.0f,1.0f));
+				geothermalUV.push_back(Vector2D(0.0f,1.0f));
+			}
+			else
+			{
+				const float sizew = size * wmetal;
+				const float sizeh = size * hmetal;
+				metal.push_back(-sizew * side + sizeh * up + pFeature->Pos);
+				metal.push_back(sizew * side + sizeh * up + pFeature->Pos);
+				metal.push_back(sizew * side - sizeh * up + pFeature->Pos);
+				metal.push_back(-sizew * side - sizeh * up + pFeature->Pos);
+				metalUV.push_back(Vector2D(0.0f,0.0f));
+				metalUV.push_back(Vector2D(1.0f,0.0f));
+				metalUV.push_back(Vector2D(1.0f,1.0f));
+				metalUV.push_back(Vector2D(0.0f,1.0f));
+			}
+		}
+		pMutex.unlock();
+
+		gfx->ReInitTexSys(true);
+
+		glDisable( GL_CULL_FACE );
+		glDisable(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_ALPHA_TEST);
+		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnable(GL_TEXTURE_2D);
+		if (!metal.empty())
+		{
+			glBindTexture( GL_TEXTURE_2D, icons[0].get() );
+			glVertexPointer(3, GL_FLOAT, 0, &(metal.front()));
+			glTexCoordPointer(2, GL_FLOAT, 0, &(metalUV.front()));
+			glDrawArrays(GL_QUADS, 0, metal.size());
+		}
+		if (!geothermal.empty())
+		{
+			glBindTexture( GL_TEXTURE_2D, icons[1].get() );
+			glVertexPointer(3, GL_FLOAT, 0, &(geothermal.front()));
+			glTexCoordPointer(2, GL_FLOAT, 0, &(geothermalUV.front()));
+			glDrawArrays(GL_QUADS, 0, geothermal.size());
+		}
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		glDisable(GL_BLEND);
+		glEnable( GL_CULL_FACE );
+		glEnable(GL_LIGHTING);
+		glEnable(GL_DEPTH_TEST);
+	}
 
 } // namespace TA3D
 
