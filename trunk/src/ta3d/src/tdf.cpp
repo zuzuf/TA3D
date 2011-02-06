@@ -1275,11 +1275,14 @@ namespace TA3D
 		const Vector3D camdir = 12.0f / gfx->height * Camera::inGame->dir;
 		const float camzoom = Camera::inGame->zoomFactor * 9.0f;
 		pMutex.lock();
+		const uint32 player_mask = 1 << players.local_human_id;
 		for(FeaturesSet::const_iterator it = symbolic_features.begin() ; it != symbolic_features.end() ; ++it)
 		{
 			const FeatureData* const pFeature = &(feature[*it]);
 			const Feature* const pFeatureType = feature_manager.getFeaturePointer(pFeature->type);
 			if (pFeatureType == NULL)
+				continue;
+			if (!(SurfaceByte(the_map->view_map, pFeature->px >> 1, pFeature->py >> 1) & player_mask))
 				continue;
 			const Vector3D D (pFeature->Pos - Camera::inGame->pos);
 			const float size = lp_CONFIG->ortho_camera ? camzoom : (D % camdir);
