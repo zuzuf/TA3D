@@ -792,6 +792,8 @@ namespace TA3D
 			}
 			sky.draw();
 		}
+		else
+			gfx->clearScreen();
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_CULL_FACE);
