@@ -108,7 +108,8 @@ namespace TA3D
 		fx_manager.flash_tex.bind();
         glBlendFunc(GL_ONE,GL_ONE);
 
-        float rsize = -4.0f * time * ( time - 1.0f ) * size;
+		const float t = std::min(time, 1.0f);
+		const float rsize = -4.0f * t * ( t - 1.0f ) * size;
 
         glBegin(GL_QUADS);
         glTexCoord2f(0.0f,0.0f);	glVertex3f(Pos.x - rsize,Pos.y,Pos.z - rsize);
