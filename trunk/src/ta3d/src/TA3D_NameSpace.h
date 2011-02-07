@@ -125,13 +125,13 @@ namespace TA3D
 		int		unitTextureQuality;			// Maximum resolution of unit textures (0->64x64, 1->128x128, 2->256x256, 3->512x512, 4->1024x1024, 5->no limit)
 
 		// Variables used to communicate with all the code
-		bool    quickrestart;                // Should be false, set to true when need to restart to enable options/parameters
-		bool    quickstart;                    // Tell to speed up the starting process
-		bool    restorestart;                // Tell it's a restart to restore previous config file
-		bool    pause;                        // Tell the engine it's in pause mode, so wait for this to be false again
-		bool    paused;                        // The engine writes its current state here, used by save/load code
-		String  file_param;                    // File parameter (command line parameter), used to give complex instructions
-		bool    enable_shortcuts;           // Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
+		bool    quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
+		bool    quickstart;					// Tell to speed up the starting process
+		bool    restorestart;				// Tell it's a restart to restore previous config file
+		volatile bool	pause;				// Tell the engine it's in pause mode, so wait for this to be false again
+		volatile bool	paused;				// The engine writes its current state here, used by save/load code
+		String  file_param;					// File parameter (command line parameter), used to give complex instructions
+		volatile bool    enable_shortcuts;	// Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
 		bool	no_sound;
 		bool	first_start;
 		bool	bUseWorkingDirectory;		// Use working directory as resource folder
