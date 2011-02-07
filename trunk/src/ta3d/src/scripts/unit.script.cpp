@@ -389,10 +389,18 @@ namespace TA3D
 
 	void UnitScript::lua_getUnitTable()
 	{
-		lua_getglobal(L, "__units");
-		lua_pushinteger(L, unitID);
-		lua_gettable(L, -2);
-		lua_remove(L, -2);
+		try
+		{
+			lua_getglobal(L, "__units");
+			lua_pushinteger(L, unitID);
+			lua_gettable(L, -2);
+			lua_remove(L, -2);
+		}
+		catch(...)
+		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
+			throw 0;
+		}
 	}
 
 	void UnitScript::register_info()
@@ -445,10 +453,10 @@ namespace TA3D
 		}
 		catch(...)
 		{
-			LOG_ERROR(LOG_PREFIX_LUA << "error in UnitScript::getNbPieces()");
+			LOG_ERROR(LOG_PREFIX_LUA << "error in UnitScript::getNbPieces()" << " (" << name << ')');
 			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 			{
-				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << ')');
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 			}
 			return 0;
@@ -485,7 +493,7 @@ namespace TA3D
 			if (header_buffer == NULL)
 			{
 				if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1) << " (" << filename << ')');
 
 				DELETE_ARRAY(buffer);
 				return;
@@ -504,7 +512,7 @@ namespace TA3D
 			{
 				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				{
-					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << filename << ')');
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
 					LOG_ERROR(LOG_PREFIX_LUA << filesize << " -> " << (int)buffer[filesize-1]);
 					LOG_ERROR((const char*) buffer);
@@ -556,7 +564,7 @@ namespace TA3D
 			{
 				if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
 				{
-					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << ')');
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 				}
 				running = false;
@@ -599,9 +607,10 @@ namespace TA3D
 		}
 		catch(...)
 		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
 			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 			{
-				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << ')');
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 			}
 			running = false;
@@ -626,7 +635,7 @@ namespace TA3D
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
 				lua_pop(L, 1);
-				LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`");
+				LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`" << " (" << name << " : " << functionName << ')');
 				return;
 			}
 
@@ -640,6 +649,7 @@ namespace TA3D
 		}
 		catch(...)
 		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << " : " << functionName << ')');
 			LOG_ERROR(LOG_PREFIX_LUA << "call: error calling function `" << functionName << "`");
 			lua_settop(L, 0);
 		}
@@ -656,15 +666,16 @@ namespace TA3D
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
 				lua_pop(L, 1);
-				LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
+				LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`" << " (" << name << " : " << functionName << ')');
 				return -2;
 			}
 		}
 		catch(...)
 		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << " : " << functionName << ')');
 			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 			{
-				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << " : " << functionName << ')');
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 			}
 			running = false;
@@ -673,17 +684,17 @@ namespace TA3D
 
 		if (parameters == NULL)
 			nb_params = 0;
-		lua_getUnitTable();         // the this parameter
-		for(int i = 0 ; i < nb_params ; i++)
-			lua_pushinteger(L, parameters[i]);
-		++nb_params;
 		try
 		{
+			lua_getUnitTable();         // the this parameter
+			for(int i = 0 ; i < nb_params ; i++)
+				lua_pushinteger(L, parameters[i]);
+			++nb_params;
 			if (lua_pcall( L, nb_params, 1, 0))
 			{
 				if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
 				{
-					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << " : " << functionName << ')');
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 				}
 				running = false;
@@ -692,9 +703,10 @@ namespace TA3D
 		}
 		catch(...)
 		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << " : " << functionName << ')');
 			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 			{
-				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+				LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << " : " << functionName << ')');
 				LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 			}
 			running = false;
@@ -703,7 +715,7 @@ namespace TA3D
 
 		if (lua_gettop(L) > 0)
 		{
-			int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : lua_tointeger( L, -1 );    // Read the result
+			const int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : lua_tointeger( L, -1 );    // Read the result
 			lua_pop( L, 1 );
 			return result;
 		}
@@ -734,6 +746,7 @@ namespace TA3D
 				}
 				catch(...)
 				{
+					LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
 					delete newThread;
 					return NULL;
 				};
@@ -772,6 +785,7 @@ namespace TA3D
 		}
 		catch(...)
 		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
 			delete newThread;
 			return NULL;
 		};
@@ -807,6 +821,7 @@ namespace TA3D
 		}
 		catch(...)
 		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
 			newThread->running = false;
 		}
 
@@ -863,14 +878,14 @@ namespace TA3D
 				return;
 			}
 
-			lua_getUnitTable();         // the this parameter
 			try
 			{
+				lua_getUnitTable();         // the this parameter
 				if (lua_pcall( L, 1, 1, 0))
 				{
 					if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
 					{
-						LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+						LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << ')');
 						LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 					}
 					int size = 0;
@@ -880,6 +895,7 @@ namespace TA3D
 			}
 			catch(...)
 			{
+				LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
 				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				{
 					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
@@ -921,7 +937,7 @@ namespace TA3D
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
 				lua_pop(L, 1);
-				LOG_DEBUG(LOG_PREFIX_LUA << "save_thread_state: function not found `Restore`");
+				LOG_DEBUG(LOG_PREFIX_LUA << "save_thread_state: function not found `Restore`" << " (" << name << ')');
 				DELETE_ARRAY(buf);
 				return;
 			}
@@ -934,7 +950,7 @@ namespace TA3D
 				{
 					if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
 					{
-						LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+						LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << ')');
 						LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 					}
 					DELETE_ARRAY(buf);
@@ -943,9 +959,10 @@ namespace TA3D
 			}
 			catch(...)
 			{
+				LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught" << " (" << name << ')');
 				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				{
-					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
+					LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__ << " (" << name << ')');
 					LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
 				}
 				DELETE_ARRAY(buf);

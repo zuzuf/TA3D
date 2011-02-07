@@ -43,10 +43,20 @@ namespace TA3D
 
     LuaThread *lua_threadID( lua_State *L )
 	{
-		lua_getfield(L, LUA_REGISTRYINDEX, "threadID");
-		LuaThread *p = (LuaThread*) lua_touserdata( L, -1 );
-		lua_pop(L, 1);
-		return p;
+		try
+		{
+			lua_getfield(L, LUA_REGISTRYINDEX, "threadID");
+			LuaThread *p = (LuaThread*) lua_touserdata( L, -1 );
+			lua_pop(L, 1);
+			return p;
+		}
+		catch(...)
+		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught");
+			throw 0;
+		}
+
+		return NULL;
 	}
 
 	void lua_pushvector( lua_State *L, const Vector3D &vec )
@@ -504,7 +514,8 @@ namespace TA3D
         }
 		catch(...)
 		{
-            if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught");
+			if (lua_gettop(L) > 0 && !lua_isnoneornil(L, -1) && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
             {
                 LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
@@ -518,8 +529,8 @@ namespace TA3D
 
 	int LuaThread::run()                          // Run the script, using default delay
 	{
-		uint32 timer = msec_timer;
-		float dt = (float)(timer - last);
+		const uint32 timer = msec_timer;
+		const float dt = (float)(timer - last);
 		last = timer;
 		return run(dt);
 	}
@@ -592,21 +603,29 @@ namespace TA3D
 
         crashed = false;
 
-		lua_settop(L, 0);
-		lua_getglobal( L, functionName.c_str() );
-		if (lua_isnil( L, -1 ))     // Function not found
+		try
 		{
-			lua_pop(L, 1);
-			LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`");
-			return;
-		}
+			lua_settop(L, 0);
+			lua_getglobal( L, functionName.c_str() );
+			if (lua_isnil( L, -1 ))     // Function not found
+			{
+				lua_pop(L, 1);
+				LOG_DEBUG(LOG_PREFIX_LUA << "call: function not found `" << functionName << "`");
+				return;
+			}
 
-		if (parameters == NULL)
-			nb_params = 0;
-		for(int i = 0 ; i < nb_params ; i++)
-			lua_pushinteger(L, parameters[i]);
-		n_args = nb_params;
-		running = true;
+			if (parameters == NULL)
+				nb_params = 0;
+			for(int i = 0 ; i < nb_params ; i++)
+				lua_pushinteger(L, parameters[i]);
+			n_args = nb_params;
+			running = true;
+		}
+		catch(...)
+		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught");
+			running = false;
+		}
 	}
 
 	int LuaThread::execute(const String &functionName, int *parameters, int nb_params)
@@ -615,21 +634,21 @@ namespace TA3D
 
         crashed = false;
 
-        lua_settop(L, 0);
-		lua_getglobal( L, functionName.c_str() );
-		if (lua_isnil( L, -1 ))     // Function not found
-		{
-			lua_pop(L, 1);
-			LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
-            return -2;
-		}
-
-		if (parameters == NULL)
-			nb_params = 0;
-		for(int i = 0 ; i < nb_params ; i++)
-			lua_pushinteger(L, parameters[i]);
 		try
 		{
+			lua_settop(L, 0);
+			lua_getglobal( L, functionName.c_str() );
+			if (lua_isnil( L, -1 ))     // Function not found
+			{
+				lua_pop(L, 1);
+				LOG_DEBUG(LOG_PREFIX_LUA << "execute: function not found `" << functionName << "`");
+				return -2;
+			}
+
+			if (parameters == NULL)
+				nb_params = 0;
+			for(int i = 0 ; i < nb_params ; i++)
+				lua_pushinteger(L, parameters[i]);
 			if (lua_pcall( L, nb_params, 1, 0))
 			{
                 if (lua_gettop(L) > 0 && lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
@@ -643,7 +662,8 @@ namespace TA3D
 		}
 		catch(...)
 		{
-            if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught");
+			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
             {
                 LOG_ERROR(LOG_PREFIX_LUA << __FILE__ << " l." << __LINE__);
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
@@ -682,11 +702,19 @@ namespace TA3D
 
 	void LuaThread::setThreadID()
 	{
-		lua_pushlightuserdata( L, (void*)this );            // The pointer itself
-		lua_setfield(L, LUA_REGISTRYINDEX, "threadID");     // Save this at the first position on the stack :), this identifies the
-		// LuaThread associated with this Lua_State object
-		if (lua_threadID(L) == NULL)
-			LOG_ERROR(LOG_PREFIX_LUA << "impossible to write LuaThread pointer into Lua_State stack !!");
+		try
+		{
+			lua_pushlightuserdata( L, (void*)this );            // The pointer itself
+			lua_setfield(L, LUA_REGISTRYINDEX, "threadID");     // Save this at the first position on the stack :), this identifies the
+			// LuaThread associated with this Lua_State object
+			if (lua_threadID(L) == NULL)
+				LOG_ERROR(LOG_PREFIX_LUA << "impossible to write LuaThread pointer into Lua_State stack !!");
+		}
+		catch(...)
+		{
+			LOG_ERROR(__FILE__ << " l." << __LINE__ << " : Lua exception caught");
+			throw 0;
+		}
 	}
 
 	void LuaThread::save_thread_state(gzFile file)

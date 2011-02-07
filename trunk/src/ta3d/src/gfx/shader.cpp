@@ -56,10 +56,16 @@ namespace TA3D
 			{
 				// compilation error! Check compiler log!
 				LOG_ERROR(LOG_PREFIX_SHADER << "Pixel shader: the compilation has failed");
-				char log[10000];
-				GLsizei len = 0;
-				glGetInfoLogARB(shader, 10000, &len, log);
-				LOG_ERROR(LOG_PREFIX_SHADER << log);
+#define GET_LOG(X)\
+				do {\
+					char log[10240];\
+					memset(log, 0, 10240);\
+					GLsizei len = 0;\
+					glGetInfoLogARB(X, 10240, &len, log);\
+					log[std::min(len, 10239)] = 0;\
+					LOG_ERROR(LOG_PREFIX_SHADER << (const char*)log);\
+				} while(false)
+				GET_LOG(shader);
 			}
 			return shader;
 		}
@@ -85,10 +91,7 @@ namespace TA3D
 			{
 				// compilation error! Check compiler log!
 				LOG_ERROR(LOG_PREFIX_SHADER << "Vertex shader: the compilation has failed");
-				char log[10000];
-				GLsizei len=0;
-				glGetInfoLogARB(shader, 10000, &len, log);
-				LOG_ERROR(LOG_PREFIX_SHADER << log);
+				GET_LOG(shader);
 			}
 			return shader;
 		}
@@ -124,10 +127,7 @@ namespace TA3D
 			{
 				// compilation error! Check compiler log!
 				LOG_ERROR(LOG_PREFIX_SHADER << "Fragment shader: `" << filename << "` failed to compile");
-				char log[10000];
-				GLsizei len = 0;
-				glGetInfoLogARB(shader, 10000, &len, log);
-				LOG_ERROR(LOG_PREFIX_SHADER << log);
+				GET_LOG(shader);
 			}
 			delete file;
 			return shader;
@@ -166,10 +166,7 @@ namespace TA3D
 			{
 				// compilation error! Check compiler log!
 				LOG_ERROR(LOG_PREFIX_SHADER << "Vertex sharder: `" << filename << "` failed to compile");
-				char log[10000];
-				GLsizei len = 0;
-				glGetInfoLogARB(shader, 10000, &len, log);
-				LOG_ERROR(LOG_PREFIX_SHADER << log);
+				GET_LOG(shader);
 			}
 			delete file;
 			return shader;
@@ -222,10 +219,7 @@ namespace TA3D
 		else
 		{
 			LOG_ERROR(LOG_PREFIX_SHADER << "Object Link (ARB): Failure");
-			char log[10000];
-			GLsizei len = 0;
-			glGetInfoLogARB(pShaderProgram, 10000, &len, log);
-			LOG_ERROR(LOG_PREFIX_SHADER << log);
+			GET_LOG(pShaderProgram);
 			pLoaded = false;
 		}
 	}
@@ -256,10 +250,7 @@ namespace TA3D
 		else
 		{
 			LOG_ERROR(LOG_PREFIX_SHADER << "Failed to load shader: `" << fragmentFilename << "`");
-			char log[10000];
-			GLsizei len = 0;
-			glGetInfoLogARB(pShaderProgram, 10000, &len, log);
-			LOG_ERROR(LOG_PREFIX_SHADER << log);
+			GET_LOG(pShaderProgram);
 			pLoaded = false;
 		}
 	}
