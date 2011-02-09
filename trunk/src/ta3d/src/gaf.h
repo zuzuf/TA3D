@@ -222,7 +222,7 @@ namespace TA3D
 			void init();
 			void destroy();
 
-			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
+			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const String& fname = String());
 
 			void loadGAFFromDirectory(const String &folderName, const String &entryName);
 

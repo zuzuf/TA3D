@@ -355,7 +355,7 @@ namespace TA3D
 		Mutex mLoad;
 #endif
 
-//#pragma omp parallel for
+#pragma omp parallel for
 		for (int i = 0 ; i < files.size() ; ++i)
 		{
 			const String &curFile = files[i];
@@ -379,12 +379,26 @@ namespace TA3D
 			File* file = VFS::Instance()->readFile(curFile);
 			if (file)
 			{
+#ifdef _OPENMP
+				mLoad.lock();
+#endif
 				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << curFile << "`...");
+#ifdef _OPENMP
+				mLoad.unlock();
+#endif
 				feature_manager.load_tdf(file);
 				delete file;
 			}
 			else
+			{
+#ifdef _OPENMP
+				mLoad.lock();
+#endif
 				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << curFile << "` failed");
+#ifdef _OPENMP
+				mLoad.unlock();
+#endif
+			}
 		}
 
 		// Foreach item...

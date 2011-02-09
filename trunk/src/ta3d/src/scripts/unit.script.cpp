@@ -534,6 +534,8 @@ namespace TA3D
 
 	int UnitScript::run(float dt, bool alone)                  // Run the script
 	{
+		MutexLocker mLock(mLuaVM);
+
 		if (!L)
 			return -1;
 
@@ -624,6 +626,7 @@ namespace TA3D
 	{
 		if (running)    return;     // We cannot run several functions at the same time on the same stack
 
+		MutexLocker mLock(mLuaVM);
 		name = functionName;
 
 		try
@@ -657,6 +660,7 @@ namespace TA3D
 
 	int UnitScript::execute(const String &functionName, int *parameters, int nb_params)
 	{
+		MutexLocker mLock(mLuaVM);
 		try
 		{
 			lua_settop(L, 0);
@@ -733,9 +737,9 @@ namespace TA3D
 		UnitScript *newThread = static_cast<UnitScript*>(getFreeThread());
 		if (newThread)
 		{
+			MutexLocker mLock(mLuaVM);
 			if (lua_status(newThread->L) == LUA_YIELD)     // Some work is required
 			{
-				MutexLocker mLock(mLuaVM);
 				try
 				{
 					lua_getUnitTable();
@@ -810,6 +814,7 @@ namespace TA3D
 
 		try
 		{
+			MutexLocker mLock(mLuaVM);
 			if (newThread && lua_isfunction(cL, -n))
 			{
 				lua_xmove(cL, newThread->L, n);
