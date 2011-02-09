@@ -2052,6 +2052,7 @@ namespace TA3D
 			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
 
 			byte *img = new byte[size];
+			memset(img, 0, size);
 
 			glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
 			GLint w,h,border;

@@ -696,15 +696,24 @@ namespace TA3D
 				delete *it;
 		hQuadMap.clear();
 		int memoryUsed = 0;
+		Mutex mLoad;
+#pragma omp parallel for
 		for(uint32 i = 0 ; i < unit_manager.unit_type.size() ; ++i)
 		{
 			const UnitType* const pType = unit_manager.unit_type[i];
 			if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
 				continue;
 			const String key = pType->getMoveStringID();
+			mLoad.lock();
 			if (hQuadMap.count(key))		// Already done ?
+			{
+				mLoad.unlock();
 				continue;
+			}
 			QuadMap *qmap = new QuadMap(the_map->bloc_w_db, the_map->bloc_h_db);
+			hQuadMap[key] = qmap;
+
+			mLoad.unlock();
 
 			const int mwh = pType->FootprintX >> 1;
 			const int mhh = pType->FootprintZ >> 1;
@@ -717,12 +726,12 @@ namespace TA3D
 				}
 			}
 
-			hQuadMap[key] = qmap;
-
+			mLoad.lock();
 			memoryUsed += qmap->getMemoryUse();
+			mLoad.unlock();
 
-			if ((i + 1) * 10 / unit_manager.unit_type.size() != i * 10 / unit_manager.unit_type.size())
-				LOG_INFO(LOG_PREFIX_PATHS << (i + 1) * 100 / unit_manager.unit_type.size() << '%');
+//			if ((i + 1) * 10 / unit_manager.unit_type.size() != i * 10 / unit_manager.unit_type.size())
+//				LOG_INFO(LOG_PREFIX_PATHS << (i + 1) * 100 / unit_manager.unit_type.size() << '%');
 		}
 
 		LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024 << "kb");

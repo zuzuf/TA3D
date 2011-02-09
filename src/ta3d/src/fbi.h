@@ -342,7 +342,9 @@ namespace TA3D
         Interfaces::GfxTexture  panel;          // The texture used by the panel
         Interfaces::GfxTexture  paneltop,panelbottom;
 		HashMap< int >::Dense   unit_hashtable;     // hashtable used to speed up operations on UnitType objects
-		bool ready;
+		volatile bool ready;
+
+		Mutex mInternals;
 
     public:
 
@@ -363,7 +365,7 @@ namespace TA3D
 
 		void load_panel_texture( const String &intgaf );
 
-        int load_unit(const String &filename);         // Ajoute une nouvelle unité
+		UnitType *load_unit(const String &filename);         // Ajoute une nouvelle unité
 
         inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {

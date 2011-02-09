@@ -431,9 +431,10 @@ namespace TA3D
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 2)");
-		for (y = 0 ; y < (map->bloc_h<<1) ; ++y) // Calcule les informations complémentaires sur la carte
+#pragma omp parallel for
+		for (int y = 0 ; y < (map->bloc_h<<1) ; ++y) // Calcule les informations complémentaires sur la carte
 		{
-			for (x = 0; x < (map->bloc_w << 1); ++x)
+			for (int x = 0; x < (map->bloc_w << 1); ++x)
 			{
 				map->map_data(x, y).init();
 				map->map_data(x, y).underwater = (map->h_map(x, y) < map->sealvl);
@@ -522,17 +523,19 @@ namespace TA3D
 			}
 		}
 		LOG_DEBUG("MAP: computing height data (step 5)");
-		for (y = 0; y < (map->bloc_h << 1); ++y)
+#pragma omp parallel for
+		for (int y = 0; y < (map->bloc_h << 1); ++y)
 		{
 			// Compute the second map
-			for (x = 0; x < (map->bloc_w << 1); ++x)
+			for (int x = 0; x < (map->bloc_w << 1); ++x)
 				map->ph_map_2(x, y) = (byte) (map->ph_map(x, y) * 0.125f * tnt_transform_H_DIV + 0.5f);
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 6)");
-		for (y = 0;y < (map->bloc_h << 1); ++y)	 // Compute slopes on the map using height map and projected datas
+#pragma omp parallel for
+		for (int y = 0 ; y < (map->bloc_h << 1); ++y)	 // Compute slopes on the map using height map and projected datas
 		{
-			for (x = 0; x < (map->bloc_w << 1); ++x)
+			for (int x = 0; x < (map->bloc_w << 1); ++x)
 			{
 				float dh = 0.0f;
 				if (y > 0)
@@ -618,9 +621,11 @@ namespace TA3D
 		map->low_tcoord = new float[low_nb_vtx*2];
 		map->low_index = new GLuint[map->low_nb_idx];
 		i = 0;
-		for (y = 0; y <= map->low_h; ++y) // Build the mesh
+#pragma omp parallel for
+		for (int y = 0 ; y <= map->low_h; ++y) // Build the mesh
 		{
-			for (x = 0; x <= map->low_w; ++x)
+			int i = y * (map->low_w + 1);
+			for (int x = 0 ; x <= map->low_w ; ++x)
 			{
 				map->low_vtx[i].x = (float(x) - 0.5f * float(map->low_w)) / float(map->low_w) * float(map->map_w);
 				map->low_vtx[i].z = (float(y) - 0.5f * float(map->low_h)) / float(map->low_h) * float(map->map_h);
@@ -638,11 +643,12 @@ namespace TA3D
 		}
 		if (map->water)
 		{
-			for (y = 1 ; y < map->low_h ; ++y)	// Make sure we'll see what is above water
+#pragma omp parallel for
+			for (int y = 1 ; y < map->low_h ; ++y)	// Make sure we'll see what is above water
 			{
-				for( x = 1 ; x < map->low_w ; ++x)
+				for (int x = 1 ; x < map->low_w ; ++x)
 				{
-					i = x + y * (map->low_w + 1);
+					int i = x + y * (map->low_w + 1);
 					if (tmp_vtx[ i ].y < map->sealvl
 						&& ( tmp_vtx[i - 1].y > map->sealvl ||
 							 tmp_vtx[i + 1].y > map->sealvl ||

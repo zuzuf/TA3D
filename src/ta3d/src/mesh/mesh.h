@@ -435,6 +435,7 @@ namespace TA3D
     private:
         //! hashtable used to speed up operations on MODEL objects
 		HashMap<int>::Dense model_hashtable;
+		Mutex mInternals;
     }; // class MODEL_MANAGER
 
 

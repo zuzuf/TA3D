@@ -240,6 +240,9 @@ namespace TA3D
 		//! All features
 		std::vector<Feature*>   feature;
 
+		//! A mutex to protect internal structures when loading data
+		Mutex mInternals;
+
 	private:
 		//! hashtable used to speed up operations on Feature objects
 		HashMap<int>::Dense  feature_hashtable;

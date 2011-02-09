@@ -30,6 +30,10 @@
 #include <ingame/sidedata.h>
 #include "mesh.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 namespace TA3D
 {
 	std::vector<MeshTypeManager::MeshLoader> *MeshTypeManager::lMeshLoader = NULL;
@@ -1453,12 +1457,16 @@ namespace TA3D
 
 	void ModelManager::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const String& filename)
 	{
+		mInternals.lock();
+
 		name.push_back(filename);
 		model_hashtable[ToLower(filename)] = nb_models;
 
 		Model *pModel = new Model;
-		pModel->create_from_2d(bmp,w,h,max_h);
 		model.push_back(pModel);
+		mInternals.unlock();
+
+		pModel->create_from_2d(bmp,w,h,max_h);
 	}
 
 	void MeshTypeManager::getMeshList(String::Vector &filelist)
@@ -1480,10 +1488,49 @@ namespace TA3D
 		{
 			int n = 0;
 			int progressIncrement = 0;
-			const String::Vector::const_iterator end = file_list.end();
-			for (String::Vector::const_iterator e = file_list.begin(); e != end; ++e)
+
+			String::Vector final_file_list;
+			HashSet<String>::Dense files;
+			for(String::Vector::const_iterator it = file_list.begin(), end = file_list.end() ; it != end ; ++it)
 			{
-				LOG_DEBUG("[Mesh] Loading `" << *e << "`");
+				const String filename = Substr(*it, 0, it->size() - 4).toLower();
+				const String ext = Substr(*it, it->size() - 3, 3).toLower();
+				if (ext == "3do" || files.contains(filename))
+					continue;
+				files.insert(filename);
+				final_file_list.push_back(*it);
+			}
+			for(String::Vector::const_iterator it = file_list.begin(), end = file_list.end() ; it != end ; ++it)
+			{
+				const String filename = Substr(*it, 0, it->size() - 4).toLower();
+				const String ext = Substr(*it, it->size() - 3, 3).toLower();
+				if (ext != "3do" || files.contains(filename))
+					continue;
+				files.insert(filename);
+				final_file_list.push_back(*it);
+			}
+
+			Mutex mLoad;
+// TODO: delay loading of textures for all models to avoid crashes when running in several threads
+#pragma omp parallel for
+			for (int e = 0 ; e < final_file_list.size() ; ++e)
+			{
+				const String &filename = final_file_list[e];
+				mLoad.lock();
+				LOG_DEBUG("[Mesh] Loading `" << filename << "`");
+#ifdef _OPENMP
+				++progressIncrement;
+				if (omp_get_thread_num() == 0)
+					if (progressIncrement >= 25 && progress != NULL)
+					{
+						// Update the progress bar
+						mLoad.unlock();
+						(*progress)((100.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, loading3DModelsText);
+						mLoad.lock();
+						// Reset the increment
+						progressIncrement = 0;
+					}
+#else
 				if (++progressIncrement == 25 && progress != NULL)
 				{
 					// Update the progress bar
@@ -1491,25 +1538,29 @@ namespace TA3D
 					// Reset the increment
 					progressIncrement = 0;
 				}
+#endif
 				++n;
-				name.push_back(*e);
+				name.push_back(filename);
 
-				if (get_model(Substr(*e, 0, e->size() - 4)) == NULL) 	// VÃ©rifie si le modÃ¨le n'est pas dÃ©jÃ  chargÃ©
+				if (get_model(Substr(filename, 0, filename.size() - 4)) == NULL) 	// Check if it's not already loaded
 				{
-					Model *pModel = MeshTypeManager::load(*e);
+					mLoad.unlock();
+					Model *pModel = MeshTypeManager::load(filename);
+					mLoad.lock();
 					if (pModel)
 					{
 						model.push_back(pModel);
-						model_hashtable[ToLower(*e)] = model.size();
+						model_hashtable[ToLower(filename)] = model.size();
 					}
 					else
 					{
 						name.pop_back();
-						LOG_ERROR("could not load model " << *e);
+						LOG_ERROR("could not load model " << filename);
 					}
 				}
 				else
 					name.pop_back();
+				mLoad.unlock();
 			}
 		}
 		return 0;

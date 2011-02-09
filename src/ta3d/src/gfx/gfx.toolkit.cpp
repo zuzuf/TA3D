@@ -228,14 +228,14 @@ namespace TA3D
 	{
 		SDL_LockSurface(in);
 		SDL_LockSurface(out);
-		for(int y = 0 ; y < h ; y++)
+		for(int y = 0 ; y < h ; ++y)
 		{
-			int dy = (y1 + y) * out->pitch;
-			int sy = (y + y0) * in->pitch;
-			for(int x = 0 ; x < w ; x++)
+			const int dy = (y1 + y) * out->pitch;
+			const int sy = (y + y0) * in->pitch;
+			for(int x = 0 ; x < w ; ++x)
 			{
-				int sx = x + x0;
-				int dx = x1 + x;
+				const int sx = x + x0;
+				const int dx = x1 + x;
 				byte b = ((byte*)in->pixels)[sy + sx];
 				if (b)
 					((byte*)out->pixels)[dy + dx] = b;
@@ -255,7 +255,7 @@ namespace TA3D
 			case 8:
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int sy = (y0 + (y * dh >> 16)) * in->pitch;
+					const int sy = (y0 + (y * dh >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + x1 + dy;
 					int sx = (sy + x0) << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -272,7 +272,7 @@ namespace TA3D
 				x1 >>= 1;
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int sy = (y0 + (y * dh >> 16)) * in->pitch >> 1;
+					const int sy = (y0 + (y * dh >> 16)) * in->pitch >> 1;
 					uint16 *d = ((uint16*)out->pixels) + dy + x1;
 					int sx = (sy + x0) << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -288,7 +288,7 @@ namespace TA3D
 				x1 *= 3;
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int sy = (y0 + (y * dh >> 16)) * in->pitch;
+					const int sy = (y0 + (y * dh >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + dy + x1;
 					int sx = x0 << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -306,7 +306,7 @@ namespace TA3D
 				x1 <<= 2;
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int sy = (y0 + (y * dh >> 16)) * in->pitch;
+					const int sy = (y0 + (y * dh >> 16)) * in->pitch;
 					uint32 *d = (uint32*) (((byte*)out->pixels) + dy + x1);
 					int sx = x0 << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -332,8 +332,8 @@ namespace TA3D
 			case 8:
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int gy = y * dh;
-					int sy = (y0 + (gy >> 16)) * in->pitch;
+					const int gy = y * dh;
+					const int sy = (y0 + (gy >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + x1 + dy;
 					int sx = (sy + x0) << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -360,8 +360,8 @@ namespace TA3D
 				x1 *= 3;
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int gy = y * dh;
-					int sy = (y0 + (gy >> 16)) * in->pitch;
+					const int gy = y * dh;
+					const int sy = (y0 + (gy >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + dy + x1;
 					int sx = x0 << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -401,8 +401,8 @@ namespace TA3D
 				x1 <<= 2;
 				for(int y = 0 ; y < h1 ; y++)
 				{
-					int gy = y * dh;
-					int sy = (y0 + (gy >> 16)) * in->pitch;
+					const int gy = y * dh;
+					const int sy = (y0 + (gy >> 16)) * in->pitch;
 					byte *d = ((byte*)out->pixels) + dy + x1;
 					int sx = x0 << 16;
 					for(int x = 0 ; x < w1 ; x++)
@@ -505,6 +505,7 @@ namespace TA3D
 		switch(in->format->BitsPerPixel)
 		{
 		case 24:
+#pragma omp parallel for
 			for(int	y = 0 ; y < in->h ; ++y)
 			{
 				for(int	x = 0 ; x < out->w ; ++x)
@@ -545,6 +546,7 @@ namespace TA3D
 					}
 				}
 			}
+#pragma omp parallel for
 			for(int	x = 0 ; x < out->w ; ++x)
 			{
 				const int X = x * mx >> 16;
@@ -588,6 +590,7 @@ namespace TA3D
 			}
 			break;
 		case 32:
+#pragma omp parallel for
 			for(int	y = 0 ; y < in->h ; ++y)
 			{
 				for(int	x = 0 ; x < out->w ; ++x)
@@ -632,6 +635,7 @@ namespace TA3D
 					}
 				}
 			}
+#pragma omp parallel for
 			for(int	x = 0 ; x < out->w ; ++x)
 			{
 				const int X = x * mx >> 16;
@@ -685,7 +689,7 @@ namespace TA3D
 		return out;
 	}
 
-	void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
+	inline void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
 	{
 		if (x < 0 || y < 0 || x >= bmp->w || y >= bmp->h)   return;
 		switch(bmp->format->BitsPerPixel)

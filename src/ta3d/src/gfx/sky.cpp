@@ -108,6 +108,7 @@ namespace TA3D
 				atanfx[x] = std::atan(fx) / (2.0f * float(M_PI));
 				invsqrtfx[x] = 1.0f / sqrtf(1.0f + fx * fx);
 			}
+#pragma omp parallel for
 			for(int y = 0 ; y < skyRes ; ++y)
 			{
 				const float fy = 2.0f * (float(y) * coef - 0.5f);
