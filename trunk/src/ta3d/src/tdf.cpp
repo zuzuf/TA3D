@@ -37,6 +37,10 @@
 #include "ingame/players.h"
 #include "mesh/instancing.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 
 namespace TA3D
 {
@@ -184,6 +188,7 @@ namespace TA3D
 
 	int FeatureManager::add_feature(const String& name)			// Ajoute un élément
 	{
+		MutexLocker mLock(mInternals);
 		++nb_features;
 		feature.push_back(new Feature);
 		feature.back()->name = name;
@@ -224,14 +229,19 @@ namespace TA3D
 		TDFParser parser;
 		parser.loadFromMemory("TDF",file->data(),file->size(),false,true,true);
 		file->close();
-		int	first = nb_features;
+
+		std::vector<Feature*> vfeats;
 
 		for (int g = 0 ; parser.exists(String("gadget") << g) ; g++)
 		{
 			const String key = String("gadget") << g << '.';
 
-			int index = add_feature( parser.pullAsString(String("gadget") << g) );
+			mInternals.lock();
+			const int index = add_feature( parser.pullAsString(String("gadget") << g) );
 			Feature *pFeature = feature[index];
+			mInternals.unlock();
+
+			vfeats.push_back(pFeature);
 			pFeature->m3d = false;
 			pFeature->world = parser.pullAsString( key + "world", pFeature->world );
 			pFeature->description = parser.pullAsString( key + "description", pFeature->description );
@@ -289,69 +299,46 @@ namespace TA3D
 			}
 		}
 
-		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-			gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
-		else
-			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
-
-		for (int i = first; i < nb_features; ++i)// Charge les fichiers d'animation
+		for (std::vector<Feature*>::iterator i = vfeats.begin() ; i != vfeats.end() ; ++i)// Charge les fichiers d'animation
 		{
-			if (!feature[i]->category.empty())
-				feature[i]->vent = feature[i]->category.find("vents") != String::npos;
-			if (!feature[i]->filename.empty() && !feature[i]->seqname.empty() && !feature[i]->m3d)
+			Feature *pFeature = *i;
+			if (!pFeature->category.empty())
+				pFeature->vent = pFeature->category.find("vents") != String::npos;
+			if (!pFeature->filename.empty() && !pFeature->seqname.empty() && !pFeature->m3d)
 			{
-				if (model_manager.get_model(String(feature[i]->filename) << '-' << feature[i]->seqname) != NULL) // Check if there is a 3do version of it
+				if (model_manager.get_model(String(pFeature->filename) << '-' << pFeature->seqname) != NULL) // Check if there is a 3do version of it
 				{
-					feature[i]->model = NULL;
-					feature[i]->m3d = true;
-					feature[i]->converted = false;
-					feature[i]->not_loaded = false;
+					pFeature->model = NULL;
+					pFeature->m3d = true;
+					pFeature->converted = false;
+					pFeature->not_loaded = false;
 				}
 				else
 				{
-					feature[i]->not_loaded = true;
-					if (feature[i]->height<=10.0f && feature[i]->height>1.0f && feature[i]->blocking
-						&& ToLower(feature[i]->description) != "metal") // Tente une conversion en 3d
+					pFeature->not_loaded = true;
+					if (pFeature->height <= 10.0f && pFeature->height > 1.0f && pFeature->blocking
+						&& ToLower(pFeature->description) != "metal") // Tente une conversion en 3d
 					{
 						String tmp("anims\\");
-						tmp << feature[i]->filename << ".gaf";
+						tmp << pFeature->filename << ".gaf";
 						File* gaf = VFS::Instance()->readFile(tmp);
 						if (gaf)
 						{
-							sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i]->seqname);
+							sint32 index = Gaf::RawDataGetEntryIndex(gaf, pFeature->seqname);
 							if (index >= 0)
-								feature[i]->anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i]->seqname), true, feature[i]->filename);
+								pFeature->anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, pFeature->seqname), true, pFeature->filename);
 							else
-								LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i]->name << "` has no picture to display (" << feature[i]->filename << ".gaf, " << feature[i]->seqname << ") !");
-							feature[i]->not_loaded = false;
+								LOG_WARNING(LOG_PREFIX_TDF << "`" << pFeature->name << "` has no picture to display (" << pFeature->filename << ".gaf, " << pFeature->seqname << ") !");
+							pFeature->not_loaded = false;
 							delete gaf;
-
-							if (index>=0 && feature[i]->anim.nb_bmp>0
-								&& feature[i]->anim.bmp[0]->w>=16 && feature[i]->anim.bmp[0]->h>=16) // Tente une conversion en 3d
-							{
-								String st(feature[i]->filename);
-								st << "-" << feature[i]->seqname;
-								model_manager.create_from_2d(feature[i]->anim.bmp[0],
-															 float(feature[i]->footprintx * 8),
-															 float(feature[i]->footprintz * 8),
-															 float(feature[i]->height) * H_DIV,
-															 st);
-								feature[i]->model = NULL;
-								feature[i]->m3d = true;
-								feature[i]->converted = true;
-								feature[i]->anim.destroy();
-								index = -1;
-							}
-							if (index < 0)
-								feature[i]->need_convert = false;
 						}
 					}
 				}
 			}
 			else
 			{
-				if (!feature[i]->filename.empty() && feature[i]->m3d)
-					feature[i]->model = NULL;
+				if (!pFeature->filename.empty() && pFeature->m3d)
+					pFeature->model = NULL;
 			}
 		}
 	}
@@ -362,37 +349,53 @@ namespace TA3D
 	{
 		String::Vector files;
 		VFS::Instance()->getFilelist("features\\*.tdf", files);
-		int n = 0;
+		int n = 0, m = 0;
 
-		const String::Vector::const_iterator end = files.end();
-		for (String::Vector::const_iterator curFile = files.begin(); curFile != end; ++curFile)
+#ifdef _OPENMP
+		Mutex mLoad;
+#endif
+
+//#pragma omp parallel for
+		for (int i = 0 ; i < files.size() ; ++i)
 		{
+			const String &curFile = files[i];
+#ifdef _OPENMP
+			mLoad.lock();
+			if (omp_get_thread_num() == 0)
+				if (progress != NULL && m >= 0xF)
+				{
+					(*progress)((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
+					m = 0;
+				}
+			++m;
+			++n;
+			mLoad.unlock();
+#else
 			if (progress != NULL && !(n & 0xF))
 				(*progress)((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
-
 			++n;
-			File* file = VFS::Instance()->readFile(*curFile);
+#endif
+
+			File* file = VFS::Instance()->readFile(curFile);
 			if (file)
 			{
-				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << *curFile << "`...");
+				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << curFile << "`...");
 				feature_manager.load_tdf(file);
 				delete file;
 			}
 			else
-				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << *curFile << "` failed");
+				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << curFile << "` failed");
 		}
 
-		// Temporary string - Avoid multiple and unnecessary malloc if outside of the loop
-		String tmp;
-
 		// Foreach item...
+#pragma omp parallel for
 		for (int i = 0 ; i < feature_manager.getNbFeatures() ; ++i)
 		{
 			Feature *feature = feature_manager.getFeaturePointer(i);
 			if (feature->m3d && feature->model == NULL
 				&& !feature->filename.empty() && !feature->seqname.empty())
 			{
-				tmp = feature->filename;
+				String tmp = feature->filename;
 				tmp << "-" << feature->seqname;
 				feature->model = model_manager.get_model(tmp);
 				if (feature->model == NULL)

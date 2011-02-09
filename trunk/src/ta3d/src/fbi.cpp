@@ -43,6 +43,9 @@
 #include "input/mouse.h"
 #include "gfx/gui/area.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 
 namespace TA3D
@@ -296,22 +299,25 @@ namespace TA3D
 
 
 
-	int UnitManager::load_unit(const String &filename)			// Ajoute une nouvelle unité
+	UnitType *UnitManager::load_unit(const String &filename)			// Ajoute une nouvelle unité
 	{
-		unit_type.push_back(new UnitType());
-		int result =  unit_type[nb_unit]->load(filename);
-		if (!unit_type[nb_unit]->Unitname.empty())
-			unit_hashtable[ToLower(unit_type[nb_unit]->Unitname)] = nb_unit + 1;
-		if (!unit_type[nb_unit]->name.empty())
-			unit_hashtable[ToLower(unit_type[nb_unit]->name)] = nb_unit + 1;
-		if (!unit_type[nb_unit]->ObjectName.empty())
-			unit_hashtable[ToLower(unit_type[nb_unit]->ObjectName)] = nb_unit + 1;
-		if (!unit_type[nb_unit]->Description.empty())
-			unit_hashtable[ToLower(unit_type[nb_unit]->Description)] = nb_unit + 1;
-		if (!unit_type[nb_unit]->Designation_Name.empty())
-			unit_hashtable[ToLower(unit_type[nb_unit]->Designation_Name)] = nb_unit + 1;
+		UnitType *pUnitType = new UnitType();
+		int result =  pUnitType->load(filename);
+		mInternals.lock();
+		unit_type.push_back(pUnitType);
+		if (!pUnitType->Unitname.empty())
+			unit_hashtable[ToLower(pUnitType->Unitname)] = nb_unit + 1;
+		if (!pUnitType->name.empty())
+			unit_hashtable[ToLower(pUnitType->name)] = nb_unit + 1;
+		if (!pUnitType->ObjectName.empty())
+			unit_hashtable[ToLower(pUnitType->ObjectName)] = nb_unit + 1;
+		if (!pUnitType->Description.empty())
+			unit_hashtable[ToLower(pUnitType->Description)] = nb_unit + 1;
+		if (!pUnitType->Designation_Name.empty())
+			unit_hashtable[ToLower(pUnitType->Designation_Name)] = nb_unit + 1;
 		nb_unit++;
-		return result;
+		mInternals.unlock();
+		return pUnitType;
 	}
 
 
@@ -641,6 +647,13 @@ namespace TA3D
 		Gui::GUIOBJ::Ptr image = Gui::AREA::current()->get_object("unit_info.unitpic");
 		if (image)
 		{
+			if (unitpic)
+			{
+				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+				glpic = gfx->make_texture(unitpic, FILTER_LINEAR);
+				SDL_FreeSurface(unitpic);
+				unitpic = NULL;
+			}
 			image->x1 = 10;
 			image->y1 = 40;
 			image->x2 = 106;
@@ -1223,46 +1236,53 @@ namespace TA3D
 	int load_all_units(ProgressNotifier *progress)
 	{
 		unit_manager.init();
-		int nb_inconnu=0;
 		String::Vector file_list;
 		VFS::Instance()->getFilelist( String(ta3dSideData.unit_dir) << '*' << ta3dSideData.unit_ext, file_list);
 
-		int n = 0;
+		int n = 0, m = 0;
+		Mutex mLoad;
 
-		for (String::Vector::iterator i = file_list.begin(); i != file_list.end(); ++i)
+#pragma omp parallel for
+		for (int i = 0 ; i < file_list.size() ; ++i)
 		{
+			mLoad.lock();
+#ifdef _OPENMP
+			if (omp_get_thread_num() == 0)
+				if (progress != NULL && m >= 0xF)
+				{
+					(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
+					m = 0;
+				}
+			++m;
+#else
 			if (progress != NULL && !(n & 0xF))
 				(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
+#endif
 			++n;
 
-			const String nom = ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
+			const String nom = ToUpper(Paths::ExtractFileNameWithoutExtension(file_list[i]));			// Vérifie si l'unité n'est pas déjà chargée
 
 			if (unit_manager.get_unit_index(nom) == -1)
 			{
 				LOG_DEBUG("Loading the unit `" << nom << "`...");
-				nb_inconnu += unit_manager.load_unit(*i);
-				if (!unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname.empty())
+				mLoad.unlock();
+				UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
+				mLoad.lock();
+				if (!pUnitType->Unitname.empty())
 				{
 					String nom_pcx;
-					nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname << ".pcx";
-					unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = gfx->load_image(nom_pcx);
-
-					if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
-					{
-						gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-						unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic = gfx->make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic, FILTER_LINEAR);
-						SDL_FreeSurface(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
-						unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = NULL;
-					}
+					nom_pcx << "unitpics\\" << pUnitType->Unitname << ".pcx";
+					pUnitType->unitpic = gfx->load_image(nom_pcx);
 				}
 			}
+			mLoad.unlock();
 		}
 
 		unit_manager.start_threaded_stuffs();
 
 		unit_manager.gather_all_build_data();
 
-		return nb_inconnu;
+		return 0;
 	}
 
 	bool UnitType::canBuild(const int index) const
