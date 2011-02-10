@@ -458,8 +458,8 @@ namespace TA3D
 		// Gaussian blur pass to remove HF components
 		const float sigx = float(in->w) / w - 1.0f;
 		const float sigy = float(in->h) / h - 1.0f;
-		const int sx = (sigx + 1.0f) * 2.0f;
-		const int sy = (sigy + 1.0f) * 2.0f;
+		const int sx = static_cast<int>((sigx + 1.0f) * 2.0f);
+		const int sy = static_cast<int>((sigy + 1.0f) * 2.0f);
 		const int sx2 = 2 * sx - 1;
 		const int sy2 = 2 * sy - 1;
 		uint32 *kerX = new uint32[sx];
