@@ -66,7 +66,7 @@ namespace Files
 			file.seekFromBeginning(0);
 			ssize_t begin_pos = file.tell();
 			file.seekFromEndOfFile(0);
-			if ((file.tell() - begin_pos) > sizeLimit)
+			if (static_cast<uint32>((file.tell() - begin_pos)) > sizeLimit)
 			{
 				LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
 				return false;
