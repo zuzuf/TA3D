@@ -20,7 +20,7 @@ Set(YUNI_PROFILE_NAME "Yuni's profile for TA3D")
 # Uncomment the following line to override the module list
 # Example : `gfx3d,scripts,-net`
 # Note : `cmake -DMODULES=help` to have a list of all available modules
-Set(MODULES "core")
+Set(MODULES "core,net")
 
 
 
