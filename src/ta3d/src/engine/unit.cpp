@@ -2915,6 +2915,11 @@ namespace TA3D
 						next_mission();
 					break;
 				case MISSION_GET_REPAIRED:
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					if (mission->getTarget().isUnit()
 						&& mission->getUnit()
 						&& (mission->getUnit()->flags & 1))
@@ -3111,6 +3116,11 @@ namespace TA3D
 						next_mission();
 					break;
 				case MISSION_LOAD:
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					if (mission->getUnit())
 					{
 						Unit *target_unit = mission->getUnit();
@@ -3181,6 +3191,11 @@ namespace TA3D
 				case MISSION_REVIVE:
 				case MISSION_RECLAIM:
 					selfmove = false;
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					if (mission->getUnit())		// Récupère une unité / It's a unit
 					{
 						Unit *target_unit = mission->getUnit();
@@ -3412,6 +3427,11 @@ namespace TA3D
 					break;
 				case MISSION_GUARD:
 					if (jump_commands)	break;
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					if (mission->getUnit()
 						&& (mission->getUnit()->flags & 1)
 						&& mission->getUnit()->owner_id == owner_id)
@@ -3626,6 +3646,11 @@ namespace TA3D
 						mission->setData(mission->getData() + 1);
 					break;
 				case MISSION_ATTACK:										// Attaque une unité / attack a unit
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					{
 						Unit *target_unit = mission->getUnit();
 						Weapon *target_weapon = mission->getWeapon();
@@ -3829,6 +3854,11 @@ namespace TA3D
 					}
 					break;
 				case MISSION_REPAIR:
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					{
 						Unit *target_unit = mission->getUnit();
 						if (target_unit != NULL
@@ -3919,6 +3949,11 @@ namespace TA3D
 					}
 					break;
 				case MISSION_BUILD_2:
+					if (!mission->getTarget().isValid())
+					{
+						next_mission();
+						break;
+					}
 					{
 						Unit *target_unit = mission->getUnit();
 						if (target_unit && target_unit->flags)
