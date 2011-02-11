@@ -20,6 +20,7 @@
 
 # include <misc/string.h>
 # include "script.interface.h"
+# include "script.data.h"
 # include <misc/hash_table.h>
 
 
@@ -33,7 +34,7 @@ namespace TA3D
 	public:
 		typedef SmartPtr<UnitScriptInterface>	Ptr;
     public:
-		static UnitScriptInterface *instanciate( ScriptData::Ptr &data );
+		static UnitScriptInterface *instanciate( ScriptData::Ptr data );
         static const String get_script_name(int id);
         static int get_script_id(const String &name);
 

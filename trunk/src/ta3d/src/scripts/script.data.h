@@ -80,7 +80,7 @@ namespace TA3D
     class ScriptData
     {
 	public:
-		typedef SmartPtr<ScriptData> Ptr;
+		typedef ScriptData* Ptr;
     private:
         bool                    scriptCache[NB_SCRIPT];
     public:
