@@ -3246,8 +3246,6 @@ namespace TA3D
 									}
 
 									playSound( "working" );
-									// Récupère l'unité
-                                    float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id]->MaxDamage / pType->WorkerTime;
 									if (mission->mission() == MISSION_CAPTURE)
 									{
 										mission->setData( mission->getData() - (int)(dt * 1000.0f + 0.5f) );
@@ -3282,10 +3280,14 @@ namespace TA3D
 									}
 									else
 									{
-										if (recup > target_unit->hp)	recup = target_unit->hp;
+										// Récupère l'unité
+										const UnitType* const pTargetType = unit_manager.unit_type[target_unit->type_id];
+										const float recup = std::min(dt * pType->WorkerTime * pTargetType->MaxDamage * target_unit->damage_modifier() / ((isVeteran() ? 5.5f : 11.0f) * pTargetType->BuildCostMetal),
+																	 target_unit->hp);
+
 										target_unit->hp -= recup;
 										if (dt > 0.0f)
-											metal_prod += recup * unit_manager.unit_type[target_unit->type_id]->BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id]->MaxDamage);
+											metal_prod += recup * pTargetType->BuildCostMetal / (dt * pTargetType->MaxDamage);
 										if (target_unit->hp <= 0.0f)		// Work done
 										{
 											target_unit->flags |= 0x10;			// This unit is being reclaimed it doesn't explode!
@@ -3344,11 +3346,9 @@ namespace TA3D
 
 								playSound( "working" );
 								// Reclaim the object
-								float recup = dt * pType->WorkerTime;
-								if (recup>features.feature[mission->getData()].hp)
-									recup = features.feature[mission->getData()].hp;
-								features.feature[mission->getData()].hp -= recup;
 								Feature *feature = feature_manager.getFeaturePointer(features.feature[mission->getData()].type);
+								const float recup = std::min(dt * pType->WorkerTime * feature->damage / (5.5f * feature->metal), features.feature[mission->getData()].hp);
+								features.feature[mission->getData()].hp -= recup;
 								if (dt > 0.0f && mission->mission() == MISSION_RECLAIM)
 								{
 									metal_prod += recup * feature->metal / (dt * feature->damage);

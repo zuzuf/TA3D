@@ -183,6 +183,8 @@ namespace TA3D
 		void stopMovingAnimation();
 		void startMovingAnimation();
 
+		inline bool isVeteran() const	{	return false;	}
+
 	public:
 		UnitScriptInterface::Ptr script;		// Scripts concernant l'unité
 		RenderData				render;			// Store render data in a sub object
