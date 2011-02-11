@@ -57,12 +57,12 @@ namespace TA3D
 
 	inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )
 	{
-		int w = w1 + w2;
-		int h = h1 + h2;
-		int X1 = Math::Min(x1, x2);
-		int Y1 = Math::Min(y1, y2);
-		int X2 = Math::Max(x1 + w1, x2 + w2);
-		int Y2 = Math::Max(y1 + h1, y2 + h2);
+		const int w = w1 + w2;
+		const int h = h1 + h2;
+		const int X1 = Math::Min(x1, x2);
+		const int Y1 = Math::Min(y1, y2);
+		const int X2 = Math::Max(x1 + w1, x2 + w2);
+		const int Y2 = Math::Max(y1 + h1, y2 + h2);
 		return X2 - X1 < w && Y2 - Y1 < h;
 	}
 
@@ -225,7 +225,7 @@ namespace TA3D
 		++first;
 		number = Substr(number,first, number.size() - first);
 
-		int page = number.to<int>() - 1;		// Extract the page number
+		const int page = number.to<int>() - 1;		// Extract the page number
 
 		const int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 
@@ -252,7 +252,7 @@ namespace TA3D
 				continue;
 			int w = gui_parser.pullAsInt( String("gadget") << i << ".common.width" );
 			int h = gui_parser.pullAsInt( String("gadget") << i << ".common.height" );
-			GLuint tex = loadBuildPic( String("anims\\") << unit_type[unit_index]->Unitname << page + 1 << ".gaf", name, &w, &h);
+			const GLuint tex = loadBuildPic( String("anims\\") << unit_type[unit_index]->Unitname << page + 1 << ".gaf", name, &w, &h);
 			const int x = gui_parser.pullAsInt( String("gadget") << i << ".common.xpos" ) + x_offset;
 			const int y = gui_parser.pullAsInt( String("gadget") << i << ".common.ypos" ) + y_offset;
 			unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
@@ -352,24 +352,12 @@ namespace TA3D
 		VFS::Instance()->getFilelist("anims\\*.gaf", animsList);		// normal GAF files
 		name2gaf.clear();
 
-		String::Vector file_list;
-		VFS::Instance()->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
-
-		String fileUp;
-		String unitnameUp;
-		const String::Vector::const_iterator end = file_list.end();
 		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-		for (String::Vector::const_iterator file = file_list.begin(); file != end; ++file)
+		for (int i = 0; i < nb_unit; ++i)
 		{
-			for (int i = 0; i < nb_unit; ++i)
-			{
-				fileUp = *file;
-				fileUp.toUpper();
-				unitnameUp = unit_type[i]->Unitname;
-				unitnameUp.toUpper();
-				if (fileUp.find(unitnameUp) != String::npos && fileUp.find(unitnameUp + '.') == String::npos)
-					analyse(*file,i);
-			}
+			String name;
+			for(int n = 1 ; VFS::Instance()->fileExists(name = String(ta3dSideData.guis_dir) << unit_type[i]->Unitname << n << ".gui") ; ++n)
+				analyse(name, i);
 		}
 
 		// Fill build menus with information parsed from the sidedata.tdf file
@@ -415,8 +403,8 @@ namespace TA3D
 
 	void UnitManager::load_script_file(const String &unit_name)
 	{
-		String uprname = String(unit_name).toUpper();
-		int unit_index = get_unit_index(uprname);
+		const String uprname = String(unit_name).toUpper();
+		const int unit_index = get_unit_index(uprname);
 		if (unit_index == -1)
 			return;
 
@@ -430,7 +418,7 @@ namespace TA3D
 		for (int i = 0; i < nb_unit; ++i)
 		{
 			if (unit_type[i]->script && unit_type[i]->model)
-				unit_type[i]->model->Identify(ScriptData::Ptr::WeakPointer(unit_type[i]->script));
+				unit_type[i]->model->Identify(unit_type[i]->script);
 		}
 	}
 
@@ -445,6 +433,8 @@ namespace TA3D
 		soundcategory.clear();
 		ExplodeAs.clear();
 		SelfDestructAs.clear();
+		if (script)
+			delete script;
 		script = NULL;
 
 		w_badTargetCategory.clear();
@@ -498,18 +488,18 @@ namespace TA3D
 		emitting_points_computed = false;
 		soundcategory.clear();
 
-		isfeature=false;
-		antiweapons=false;
+		isfeature = false;
+		antiweapons = false;
 
 		weapon.clear();         // No weapons
 		aim_data.clear();
 
-		script=NULL;		// Aucun script
+		script = NULL;		// Aucun script
 
-		page=0;
+		page = 0;
 
 		nb_pages = 0;
-		nb_unit=0;
+		nb_unit = 0;
 		BuildList.clear();
 		PicList.clear();
 		Pic_x.clear();				// Coordinates
@@ -522,111 +512,111 @@ namespace TA3D
 
 		init_cloaked = false;
 		mincloakdistance = 10;
-		DefaultMissionType=MISSION_STANDBY;
-		attackrunlength=0;
+		DefaultMissionType = MISSION_STANDBY;
+		attackrunlength = 0;
 		yardmap.clear();
-		model=NULL;
-		unitpic=NULL;
-		glpic=0;
-		hoverattack=false;
-		SortBias=0;
-		IsAirBase=false;
-		AltFromSeaLevel=0;
-		TransportSize=0;
-		TransportCapacity=0;
-		ManeuverLeashLength=640;
-		CruiseAlt=0;
-		TEDclass=CLASS_UNDEF;
-		WaterLine=0.0f;
-		StandingMoveOrder=1;
-		MobileStandOrders=1;
-		StandingFireOrder=1;
-		FireStandOrders=1;
-		ShootMe=false;
-		ThreeD=true;
-		Builder=false;
+		model = NULL;
+		unitpic = NULL;
+		glpic = 0;
+		hoverattack = false;
+		SortBias = 0;
+		IsAirBase = false;
+		AltFromSeaLevel = 0;
+		TransportSize = 0;
+		TransportCapacity = 0;
+		ManeuverLeashLength = 640;
+		CruiseAlt = 0;
+		TEDclass = CLASS_UNDEF;
+		WaterLine = 0.0f;
+		StandingMoveOrder = 1;
+		MobileStandOrders = 1;
+		StandingFireOrder = 1;
+		FireStandOrders = 1;
+		ShootMe = false;
+		ThreeD = true;
+		Builder = false;
 		Unitname.clear();
 		name.clear();
-		version=0;
+		version = 0;
 		side.clear();
 		ObjectName.clear();
-		FootprintX=0;
-		FootprintZ=0;
+		FootprintX = 0;
+		FootprintZ = 0;
 		Category.clear();
 		categories.clear();
-		fastCategory=0;
-		MaxSlope=255;
-		BMcode=0;
-		norestrict=false;
-		BuildAngle=10;
-		canresurrect=false;
+		fastCategory = 0;
+		MaxSlope = 255;
+		BMcode = 0;
+		norestrict = false;
+		BuildAngle = 10;
+		canresurrect = false;
 		Designation_Name.clear();	// Nom visible de l'unité
 		Description.clear();		// Description
-		BuildCostEnergy=0;		// Energie nécessaire pour la construire
-		BuildCostMetal=0;		// Metal nécessaire pour la construire
-		MaxDamage=10;			// Points de dégats maximum que l'unité peut encaisser
-		EnergyUse=0;			// Energie nécessaire pour faire quelque chose
-		BuildTime=0;			// Temps de construction
-		WorkerTime=1;			// Vitesse de construction
-		AutoFire=false;			// Tire automatique
-		SightDistance=50;		// Distance maximale de vue de l'unité
-		RadarDistance=0;		// Distance maximale de detection radar
-		RadarDistanceJam=0;		// For Radar jammers
-		EnergyStorage=0;		// Quantité d'énergie stockable par l'unité
-		MetalStorage=0;			// Quantité de metal stockable par l'unité
+		BuildCostEnergy = 0;		// Energie nécessaire pour la construire
+		BuildCostMetal = 0;			// Metal nécessaire pour la construire
+		MaxDamage = 10;				// Points de dégats maximum que l'unité peut encaisser
+		EnergyUse = 0;				// Energie nécessaire pour faire quelque chose
+		BuildTime = 0;				// Temps de construction
+		WorkerTime = 1;				// Vitesse de construction
+		AutoFire = false;			// Tire automatique
+		SightDistance = 50;			// Distance maximale de vue de l'unité
+		RadarDistance = 0;			// Distance maximale de detection radar
+		RadarDistanceJam = 0;		// For Radar jammers
+		EnergyStorage = 0;			// Quantité d'énergie stockable par l'unité
+		MetalStorage = 0;			// Quantité de metal stockable par l'unité
 		ExplodeAs.clear();			// Type d'explosion lorsque l'unité est détruite
-		SelfDestructAs.clear();	// Type d'explosion lors de l'autodestruction
-		Corpse.clear();			// Restes de l'unité
-		UnitNumber=0;			// ID de l'unité
-		canmove=false;			// Indique si l'unité peut bouger
-		canpatrol=false;		// si elle peut patrouiller
-		canstop=false;			// si elle peut s'arrêter
-		canguard=false;			// si elle peut garder une autre unité
-		MaxVelocity=1;			// Vitesse maximale
-		BrakeRate=1;			// Vitesse de freinage
-		Acceleration=1;			// Accélération
-		TurnRate=1;				// Vitesse de tournage
-		SteeringMode=0;
-		canfly=false;			// si l'unité peut voler
-		Scale=1.0f;				// Echelle
-		BankScale=0;
-		BuildDistance=0.0f;		// Distance maximale de construction
-		CanReclamate=false;		// si elle peut récupérer
-		EnergyMake=0;			// Production d'énergie de l'unité
-		MetalMake=0.0f;			// Production de métal de l'unité
+		SelfDestructAs.clear();		// Type d'explosion lors de l'autodestruction
+		Corpse.clear();				// Restes de l'unité
+		UnitNumber = 0;				// ID de l'unité
+		canmove = false;			// Indique si l'unité peut bouger
+		canpatrol = false;			// si elle peut patrouiller
+		canstop = false;			// si elle peut s'arrêter
+		canguard = false;			// si elle peut garder une autre unité
+		MaxVelocity = 1;			// Vitesse maximale
+		BrakeRate = 1;				// Vitesse de freinage
+		Acceleration = 1;			// Accélération
+		TurnRate = 1;				// Vitesse de tournage
+		SteeringMode = 0;
+		canfly = false;				// si l'unité peut voler
+		Scale = 1.0f;				// Echelle
+		BankScale = 0;
+		BuildDistance = 0.0f;		// Distance maximale de construction
+		CanReclamate = false;		// si elle peut récupérer
+		EnergyMake = 0;				// Production d'énergie de l'unité
+		MetalMake = 0.0f;			// Production de métal de l'unité
 		MovementClass.clear();		// Type de mouvement
-		Upright=false;			// Si l'unité est debout
+		Upright = false;			// Si l'unité est debout
 		w_badTargetCategory.clear();	// Type d'unité non ciblable par les armes
 		BadTargetCategory.clear();	// Type d'unité non attacable
-		DamageModifier=1.0f;	// How much of the weapon damage it takes
-		canattack=false;			// Si l'unité peut attaquer
-		ActivateWhenBuilt=false;// L'unité s'active lorsqu'elle est achevée
-		onoffable=false;		// (Dés)activable
-		MaxWaterDepth=0;		// Profondeur maximale où l'unité peut aller
-		MinWaterDepth=-0xFFF;	// Profondeur minimale où l'unité peut aller
-		NoShadow=false;			// Si l'unité n'a pas d'ombre
-		canload=false;			// Si elle peut charger d'autres unités
-		WeaponID.clear();		// Arme 2
-		Floater=false;			// Si l'unité flotte
-		canhover=false;			// For hovercrafts
-		NoChaseCategory.clear();		// Type d'unité non chassable
-		SonarDistance=0;		// Portée du sonar
-		SonarDistanceJam=0;		// For Sonar jammers
-		candgun=false;			// si l'unité peut utiliser l'arme ravage
-		CloakCost = 0;			// Coût en energie pour rendre l'unité invisible
-		CloakCostMoving = 0;	// Idem mais quand l'unité bouge
-		HealTime=0;				// Temps nécessaire à l'unité pour se réparer
-		CanCapture=false;		// Si elle peut capturer d'autres unités
-		HideDamage=false;		// Cache la vie de l'unité aux autres joueurs
-		ImmuneToParalyzer=false;	// Immunisation
-		Stealth=false;
-		MakesMetal=0;			// production de métal de l'unité
-		ExtractsMetal=0.0f;		// métal extrait par l'unité
-		TidalGenerator=false;	// Si l'unité est une centrale marée-motrice
-		TransportMaxUnits=0;	// Maximum d'unités transportables
-		kamikaze=false;			// Unité kamikaze
-		kamikazedistance=0;
-		WindGenerator=0;		// Centrale de type Eolienne
+		DamageModifier = 1.0f;		// How much of the weapon damage it takes
+		canattack = false;			// Si l'unité peut attaquer
+		ActivateWhenBuilt = false;	// L'unité s'active lorsqu'elle est achevée
+		onoffable = false;			// (Dés)activable
+		MaxWaterDepth = 0;			// Profondeur maximale où l'unité peut aller
+		MinWaterDepth = -0xFFF;		// Profondeur minimale où l'unité peut aller
+		NoShadow = false;			// Si l'unité n'a pas d'ombre
+		canload = false;			// Si elle peut charger d'autres unités
+		WeaponID.clear();			// Arme 2
+		Floater = false;			// Si l'unité flotte
+		canhover = false;			// For hovercrafts
+		NoChaseCategory.clear();	// Type d'unité non chassable
+		SonarDistance = 0;			// Portée du sonar
+		SonarDistanceJam = 0;		// For Sonar jammers
+		candgun = false;			// si l'unité peut utiliser l'arme ravage
+		CloakCost = 0;				// Coût en energie pour rendre l'unité invisible
+		CloakCostMoving = 0;		// Idem mais quand l'unité bouge
+		HealTime = 0;				// Temps nécessaire à l'unité pour se réparer
+		CanCapture = false;			// Si elle peut capturer d'autres unités
+		HideDamage = false;			// Cache la vie de l'unité aux autres joueurs
+		ImmuneToParalyzer = false;	// Immunisation
+		Stealth = false;
+		MakesMetal = 0;				// production de métal de l'unité
+		ExtractsMetal = 0.0f;		// métal extrait par l'unité
+		TidalGenerator = false;		// Si l'unité est une centrale marée-motrice
+		TransportMaxUnits = 0;		// Maximum d'unités transportables
+		kamikaze = false;			// Unité kamikaze
+		kamikazedistance = 0;
+		WindGenerator = 0;			// Centrale de type Eolienne
 	}
 
 
@@ -948,10 +938,10 @@ namespace TA3D
 			TurnRate = TurnRate * 3; // A hack thanks to Doors
 		// Build the repulsion grid
 		gRepulsion.resize(FootprintX * 3, FootprintZ * 3);
-		float sigx = FootprintX * 0.75f;
-		float sigz = FootprintZ * 0.75f;
-		float sigx2 = -0.5f / (sigx * sigx);
-		float sigz2 = -0.5f / (sigz * sigz);
+		const float sigx = FootprintX * 0.75f;
+		const float sigz = FootprintZ * 0.75f;
+		const float sigx2 = -0.5f / (sigx * sigx);
+		const float sigz2 = -0.5f / (sigz * sigz);
 		for(int z = 0 ; z < gRepulsion.getHeight() ; ++z)
 		{
 			float dz = z - gRepulsion.getHeight() * 0.5f;
@@ -1140,11 +1130,11 @@ namespace TA3D
 		{
 			if (unit_type[index]->Pic_p[i] != page)
 				continue;
-			int px = unit_type[index]->Pic_x[ i ];
-			int py = unit_type[index]->Pic_y[ i ] - scrolling;
-			int pw = unit_type[index]->Pic_w[ i ];
-			int ph = unit_type[index]->Pic_h[ i ];
-			bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
+			const int px = unit_type[index]->Pic_x[ i ];
+			const int py = unit_type[index]->Pic_y[ i ] - scrolling;
+			const int pw = unit_type[index]->Pic_w[ i ];
+			const int ph = unit_type[index]->Pic_h[ i ];
+			const bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
 			if (unused)
 				glColor4ub(0x4C, 0x4C, 0x4C, 0xFF);		// Make it darker
 			else
@@ -1178,10 +1168,10 @@ namespace TA3D
 				glDisable(GL_TEXTURE_2D);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glColor4ub(0xFF, 0xFF, 0xFF, byte(255.0f * unit_type[index]->click_time));
-				float mx = float(px);
-				float my = float(py);
-				float mw = float(pw);
-				float mh = float(ph);
+				const float mx = float(px);
+				const float my = float(py);
+				const float mw = float(pw);
+				const float mh = float(ph);
 				gfx->rectfill( mx, my, mx + mw, my + mh );
 				glColor4ub(0xFF, 0xFF, 0x00, 0xBF);
 				gfx->line( mx, my + mh * unit_type[index]->click_time, mx + mw, my + mh * unit_type[index]->click_time );
