@@ -452,8 +452,12 @@ namespace TA3D
 				weights[ i ].w *= 0.5f;				// Don't need to keep trying to build it if we can't
 			}
 
-		order_weight[ ORDER_FACTORY ] = factory_needed;
-		order_weight[ ORDER_BUILDER ] = builder_needed;
+		int n = 0;
+		for(int i = 0 ; i < weights.size() ; ++i)
+			n += weights[i].nb;
+		const float populationLimit = std::max(0.0f, 1.0f - 2.0f * float(n) / MAX_UNIT_PER_PLAYER);
+		order_weight[ ORDER_FACTORY ] = factory_needed * populationLimit;
+		order_weight[ ORDER_BUILDER ] = builder_needed * populationLimit;
 
 		for(int i = 0 ; i < NB_ORDERS ; ++i)
 		{
