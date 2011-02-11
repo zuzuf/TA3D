@@ -2,7 +2,10 @@
 #include <cstring>
 #include "grid.h"
 #include "math.h"
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 namespace TA3D
 {
