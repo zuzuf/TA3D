@@ -102,6 +102,7 @@ namespace TA3D
 			Unit *getUnit() const;
 			Weapon *getWeapon() const;
 			const Vector3D &getPos() const;
+			bool isValid() const;
 
 			void save(gzFile file) const;
 			void load(gzFile file);
