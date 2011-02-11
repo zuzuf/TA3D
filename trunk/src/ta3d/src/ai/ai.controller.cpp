@@ -385,7 +385,7 @@ namespace TA3D
 			units.unit[ *i ].lock();
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
 			{
-				short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
+				int list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
 				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
 				for (int e = 0; e < list_size; ++e)
 					sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + weights[ BuildList[ e ] ].w;
