@@ -1405,20 +1405,20 @@ namespace TA3D
 
 		const String l = ToLower(name);
 
-		int e = model_hashtable[l] - 1;
-		if (e >= 0)
-			return model[e];
+		HashMap<int>::Dense::iterator e = model_hashtable.find(l);
+		if (e != model_hashtable.end())
+			return model[*e];
 
 		if (MeshTypeManager::lMeshExtension)
 			for(String::Vector::iterator ext = MeshTypeManager::lMeshExtension->begin() ; ext != MeshTypeManager::lMeshExtension->end() ; ++ext)
 			{
-				e = model_hashtable[String("objects3d\\") << l << *ext] - 1;
-				if (e >= 0)
-					return model[e];
+				e = model_hashtable.find(String("objects3d\\") << l << *ext);
+				if (e != model_hashtable.end())
+					return model[*e];
 
-				e = model_hashtable[String(l) << *ext] - 1;
-				if (e >= 0)
-					return model[e];
+				e = model_hashtable.find(String(l) << *ext);
+				if (e != model_hashtable.end())
+					return model[*e];
 			}
 
 		return NULL;
@@ -1462,8 +1462,8 @@ namespace TA3D
 	{
 		mInternals.lock();
 
-		name.push_back(filename);
 		model_hashtable[ToLower(filename)] = nb_models;
+		name.push_back(filename);
 
 		Model *pModel = new Model;
 		model.push_back(pModel);
@@ -1514,7 +1514,6 @@ namespace TA3D
 			}
 
 			Mutex mLoad;
-// TODO: delay loading of textures for all models to avoid crashes when running in several threads
 #pragma omp parallel for
 			for (int e = 0 ; e < final_file_list.size() ; ++e)
 			{
@@ -1552,8 +1551,8 @@ namespace TA3D
 					mLoad.lock();
 					if (pModel)
 					{
-						model.push_back(pModel);
 						model_hashtable[ToLower(filename)] = model.size();
+						model.push_back(pModel);
 					}
 					else
 					{

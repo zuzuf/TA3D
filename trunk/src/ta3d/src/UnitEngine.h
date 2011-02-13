@@ -127,19 +127,19 @@ namespace TA3D
 	void *create_unit(int type_id, int owner, Vector3D pos, bool sync = true, bool script = false);
 
 
-#define	ICON_UNKNOWN		0x0
-#define	ICON_BUILDER		0x1
-#define	ICON_TANK			0x2
-#define	ICON_LANDUNIT		0x3
-#define	ICON_DEFENSE		0x4
-#define	ICON_ENERGY			0x5
-#define	ICON_METAL			0x6
-#define	ICON_WATERUNIT		0x7
-#define	ICON_COMMANDER		0x8
-#define ICON_SUBUNIT		0x9
-#define ICON_AIRUNIT		0xA
-#define ICON_FACTORY		0xB
-#define ICON_KAMIKAZE		0xC
+#define	ICON_UNKNOWN				0x0
+#define	ICON_BUILDER				0x1
+#define	ICON_GROUND_ASSAULT			0x2
+#define	ICON_LANDUNIT				0x3
+#define	ICON_DEFENSE				0x4
+#define	ICON_ENERGY					0x5
+#define	ICON_METAL					0x6
+#define	ICON_WATERUNIT				0x7
+#define	ICON_COMMANDER				0x8
+#define ICON_SUBUNIT				0x9
+#define ICON_AIRUNIT				0xA
+#define ICON_FACTORY				0xB
+#define ICON_KAMIKAZE				0xC
 
 
 	class INGAME_UNITS :	public ObjectSync,			// Class to manage huge number of units during the game

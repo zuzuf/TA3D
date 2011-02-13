@@ -1009,20 +1009,24 @@ namespace TA3D
 				unit_nature = ICON_ENERGY;
             else if (( pType->TEDclass & CLASS_METAL ) == CLASS_METAL)
 				unit_nature = ICON_METAL;
-            else if (( pType->TEDclass & CLASS_TANK ) == CLASS_TANK)
-				unit_nature = ICON_TANK;
-            else if (pType->Builder)
+			else if (pType->Builder)
 			{
-                if (!pType->BMcode)
+				if (!pType->BMcode)
 					unit_nature = ICON_FACTORY;
 				else
 					unit_nature = ICON_BUILDER;
 			}
+			else if (( pType->TEDclass & CLASS_TANK ) == CLASS_TANK)
+				unit_nature = ICON_GROUND_ASSAULT;
+			else if (( pType->TEDclass & CLASS_KBOT ) == CLASS_KBOT)
+				unit_nature = ICON_GROUND_ASSAULT;
             else if (( pType->TEDclass & CLASS_SHIP ) == CLASS_SHIP )
 				unit_nature = ICON_WATERUNIT;
             else if (( pType->TEDclass & CLASS_FORT ) == CLASS_FORT )
 				unit_nature = ICON_DEFENSE;
-            else if (( pType->fastCategory & CATEGORY_NOTAIR ) && ( pType->fastCategory & CATEGORY_NOTSUB ) )
+			else if (pType->checkCategory("KBOT") || pType->checkCategory("TANK") || pType->checkCategory("HOVER"))
+				unit_nature = ICON_GROUND_ASSAULT;
+			else if (( pType->fastCategory & CATEGORY_NOTAIR ) && ( pType->fastCategory & CATEGORY_NOTSUB ) )
 				unit_nature = ICON_LANDUNIT;
             else if (!( pType->fastCategory & CATEGORY_NOTAIR ) )
 				unit_nature = ICON_AIRUNIT;
@@ -5239,9 +5243,9 @@ script_exec:
 		drawn_obstacle = is_obstacle();
 		pMutex.unlock();
 		drawn_flying = flying;
-		UnitType *pType = unit_manager.unit_type[type];
+		const UnitType* const pType = unit_manager.unit_type[type];
 		if (flying)
-			the_map->air_rect( cur_px-(pType->FootprintX>>1), cur_py-(pType->FootprintZ>>1), pType->FootprintX, pType->FootprintZ, idx );
+			the_map->air_rect( cur_px - (pType->FootprintX >> 1), cur_py - (pType->FootprintZ >> 1), pType->FootprintX, pType->FootprintZ, idx );
 		else
 		{
 			// First check we're on a "legal" place if it can move

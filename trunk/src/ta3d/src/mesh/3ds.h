@@ -138,6 +138,8 @@ namespace TA3D
 	public:
 		Mesh3DS();
 		virtual ~Mesh3DS() {}
+
+		virtual void load_texture_id(int id);
 	public:
 		static Model *load(const String &filename);
 		static const char *getExt();

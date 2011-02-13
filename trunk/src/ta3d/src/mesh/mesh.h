@@ -236,7 +236,7 @@ namespace TA3D
     public:
 
         void check_textures();
-        void load_texture_id(int id);
+		virtual void load_texture_id(int id);
 
         uint16 set_obj_id( uint16 id );
 
