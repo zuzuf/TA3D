@@ -607,10 +607,10 @@ namespace TA3D
                 case SCRIPT_ATTACH_UNIT:
                     {
                         DEBUG_PRINT_CODE("ATTACH_UNIT");
-                        /*int v3 =*/ sStack.pop();
+						/*int v3 =*/ sStack.pop();
 						const int v2 = sStack.pop();
 						const int v1 = sStack.pop();
-                        pUnit->script_attach_unit(v1, v2);
+						pUnit->script_attach_unit(v1, v2);
                         break;	//added
                     }
                 case SCRIPT_DROP_UNIT:
