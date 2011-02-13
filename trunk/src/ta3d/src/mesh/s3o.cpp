@@ -70,8 +70,67 @@ namespace TA3D
 		bool set = false;
 		if ( !tex_cache_name.empty() )
 		{
-			for(uint32 i = 0 ; i < tex_cache_name.size() ; ++i)
-				load_texture_id(i);
+			if (!tex_cache_name[0].empty())
+			{
+				const String &textureName = tex_cache_name[0];
+				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
+				{
+					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
+					if (tex)
+						gltex.push_back(tex);
+				}
+				else		// Fixed pipeline
+				{
+					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed(), NULL, true);
+					if (tex)
+					{
+						gltex.push_back(tex);
+						tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_ALPHA8, NULL, true);
+						if (tex)
+							gltex.push_back(tex);
+					}
+				}
+			}
+			if (tex_cache_name.size() == 2)
+			{
+				const String &textureName = tex_cache_name[1];
+				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
+				{
+					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
+					if (tex)
+						gltex.push_back(tex);
+				}
+				else		// Fixed pipeline
+				{
+					// Get the RED channel
+					SDL_Surface *bmp = gfx->load_image(textureName);
+					if (bmp)
+					{
+						if (std::max(bmp->w, bmp->h) > lp_CONFIG->getMaxTextureSizeAllowed())
+						{
+							const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
+							SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h, maxTextureSizeAllowed));
+							SDL_FreeSurface(bmp);
+							bmp = tmp;
+						}
+
+						SDL_Surface *red = gfx->create_surface_ex(8, bmp->w, bmp->h);
+
+						for(int y = 0 ; y < bmp->h ; ++y)
+							for(int x = 0 ; x < bmp->w ; ++x)
+								SurfaceByte(red, x, y) = getr32(getpixel(bmp, x, y));
+
+						gfx->set_texture_format(GL_LUMINANCE8);
+						GLuint tex = gfx->make_texture(red, FILTER_TRILINEAR, true);
+						if (tex)
+							gltex.push_back(tex);
+						gfx->set_texture_format(0);
+
+						SDL_FreeSurface(red);
+						SDL_FreeSurface(bmp);
+					}
+				}
+			}
 			tex_cache_name.clear();
 		}
 
@@ -528,65 +587,16 @@ namespace TA3D
 		if (header.texture1 > 0)
 		{
 			file->seek(header.texture1);
-			String textureName = String("textures/") << file->getString();
-			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
-			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
-				if (tex)
-					model->gltex.push_back(tex);
-			}
-			else		// Fixed pipeline
-			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed(), NULL, true);
-				if (tex)
-				{
-					model->gltex.push_back(tex);
-					tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, GL_ALPHA8, NULL, true);
-					if (tex)
-						model->gltex.push_back(tex);
-				}
-			}
+			const String textureName = String("textures/") << file->getString();
+			model->tex_cache_name.push_back(textureName);
 		}
 		if (header.texture2 > 0)
 		{
 			file->seek(header.texture2);
-			String textureName = String("textures/") << file->getString();
-			if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
-			{
-				GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
-				if (tex)
-					model->gltex.push_back(tex);
-			}
-			else		// Fixed pipeline
-			{
-				// Get the RED channel
-				SDL_Surface *bmp = gfx->load_image(textureName);
-				if (bmp)
-				{
-					if (std::max(bmp->w, bmp->h) > lp_CONFIG->getMaxTextureSizeAllowed())
-					{
-						const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
-						SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h, maxTextureSizeAllowed));
-						SDL_FreeSurface(bmp);
-						bmp = tmp;
-					}
-
-					SDL_Surface *red = gfx->create_surface_ex(8, bmp->w, bmp->h);
-
-					for(int y = 0 ; y < bmp->h ; ++y)
-						for(int x = 0 ; x < bmp->w ; ++x)
-							SurfaceByte(red, x, y) = getr32(getpixel(bmp, x, y));
-
-					gfx->set_texture_format(GL_LUMINANCE8);
-					GLuint tex = gfx->make_texture(red, FILTER_TRILINEAR, true);
-					if (tex)
-						model->gltex.push_back(tex);
-					gfx->set_texture_format(0);
-
-					SDL_FreeSurface(red);
-					SDL_FreeSurface(bmp);
-				}
-			}
+			const String textureName = String("textures/") << file->getString();
+			if (model->tex_cache_name.empty())
+				model->tex_cache_name.push_back(String());
+			model->tex_cache_name.push_back(textureName);
 		}
 
 		file->seek(header.rootPiece);
