@@ -285,7 +285,7 @@ namespace TA3D
 
 			icons[ ICON_UNKNOWN ].load( "gfx/tactical_icons/unknown.tga" );
 			icons[ ICON_BUILDER ].load( "gfx/tactical_icons/builder.tga" );
-			icons[ ICON_TANK ].load( "gfx/tactical_icons/tank.tga" );
+			icons[ ICON_GROUND_ASSAULT ].load( "gfx/tactical_icons/tank.tga" );
 			icons[ ICON_LANDUNIT ].load( "gfx/tactical_icons/landunit.tga" );
 			icons[ ICON_DEFENSE ].load( "gfx/tactical_icons/defense.tga" );
 			icons[ ICON_ENERGY ].load( "gfx/tactical_icons/energy.tga" );

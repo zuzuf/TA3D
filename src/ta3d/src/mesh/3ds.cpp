@@ -139,6 +139,16 @@ namespace TA3D
 		Color = 0xFFFFFFFF;
 	}
 
+	void Mesh3DS::load_texture_id(int id)
+	{
+		if (id < 0 || id >= tex_cache_name.size())
+			return;
+		bool useAlpha(false);
+		gltex.push_back(gfx->load_texture(tex_cache_name[id], FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha, true));
+		if (useAlpha)
+			Flag |= SURFACE_BLENDED;
+	}
+
 	Model *Mesh3DS::load(const String &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
@@ -394,10 +404,7 @@ namespace TA3D
 							read_obj->Flag |= SURFACE_TEXTURED;
 							String name = cur_mat->mapname;
 							name.trim();
-							bool useAlpha(false);
-							read_obj->gltex.push_back(gfx->load_texture(name, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha, true));
-							if (useAlpha)
-								read_obj->Flag |= SURFACE_BLENDED;
+							read_obj->tex_cache_name.push_back(name);
 						}
 						if (cur_mat->transparency > 0.0f)
 						{

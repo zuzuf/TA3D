@@ -67,22 +67,28 @@ namespace TA3D
 		Color = 0xFFFFFFFF;
 		if (mtl)
 		{
-			bool useAlpha(false);
-			LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << mtl->textureName << "' (" << filename << ')');
-			gltex.push_back( gfx->load_texture( mtl->textureName, FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha, true ) );
-			if (gltex[0])
-			{
-				Flag |= SURFACE_TEXTURED;
-				if (useAlpha)
-					Flag |= SURFACE_BLENDED;
-			}
-			else
-				LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture ! (" << filename << ')');
+			tex_cache_name.push_back(mtl->textureName);
 			if (mtl->name == "team")				// The magic team material
 				Flag |= SURFACE_PLAYER_COLOR;
 		}
 	}
 
+	void MeshOBJ::load_texture_id(int id)
+	{
+		if (id < 0 || id >= tex_cache_name.size())
+			return;
+		bool useAlpha(false);
+		LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << tex_cache_name[id] << "'");
+		gltex.push_back( gfx->load_texture( tex_cache_name[id], FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha, true ) );
+		if (gltex.back())
+		{
+			Flag |= SURFACE_TEXTURED;
+			if (useAlpha)
+				Flag |= SURFACE_BLENDED;
+		}
+		else
+			LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture ! (" << tex_cache_name[id] << ')');
+	}
 
 	void MeshOBJ::load(File *file, const String &filename)
 	{

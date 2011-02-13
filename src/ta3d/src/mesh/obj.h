@@ -40,6 +40,8 @@ namespace TA3D
 		MeshOBJ();
 		virtual ~MeshOBJ() {}
 
+		virtual void load_texture_id(int id);
+
 		void load(File *file, const String &filename);
 	private:
 		void obj_finalize(const String &filename, const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
