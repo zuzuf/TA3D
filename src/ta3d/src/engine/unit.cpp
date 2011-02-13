@@ -5235,7 +5235,9 @@ script_exec:
 		if (drawn)	clear_from_map();
 		if (attached)	return;
 
+		pMutex.lock();
 		drawn_obstacle = is_obstacle();
+		pMutex.unlock();
 		drawn_flying = flying;
 		UnitType *pType = unit_manager.unit_type[type];
 		if (flying)
