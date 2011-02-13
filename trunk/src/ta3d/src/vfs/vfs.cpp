@@ -336,6 +336,8 @@ namespace UTILS
 			return file;
 		}
 
+		LOG_DEBUG(LOG_PREFIX_VFS << "file not found (" << filename << ')');
+
 		return NULL;
 	}
 

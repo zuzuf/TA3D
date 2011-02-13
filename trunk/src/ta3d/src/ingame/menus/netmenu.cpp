@@ -43,8 +43,8 @@ namespace Menus
     {
         if (Gui::AREA::current())
         {
-            int idx = Gui::AREA::current()->load_window("gui/progress.tdf", String("dl") << wndNumber++);
-            wnd = Gui::AREA::current()->get_window_name(idx);
+			int idx = Gui::AREA::current()->load_window("gui/progress.tdf", String("dl") << wndNumber++);
+			wnd = Gui::AREA::current()->get_window_name(idx);
             Gui::AREA::current()->title(wnd, url);
             Gui::AREA::current()->set_data(wnd + ".progress", 0);
             Gui::AREA::current()->msg(wnd + ".show");
