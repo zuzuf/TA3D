@@ -1241,6 +1241,15 @@ namespace TA3D
 		{
 			units.visible_unit.push_back(idx);
 			units.unit[idx].visibility_checked = true;
+			for (int i = 0 ; i < units.unit[idx].nb_attached ; ++i)
+			{
+				const int attached_idx = units.unit[idx].attached_list[i];
+				if (attached_idx >= 0 && !units.unit[attached_idx].visibility_checked)
+				{
+					units.visible_unit.push_back(attached_idx);
+					units.unit[attached_idx].visibility_checked = true;
+				}
+			}
 		}
 		airIdxSet &airSet = map_data(x, y).air_idx;
         if (airSet.empty())
@@ -1254,6 +1263,15 @@ namespace TA3D
 			{
 				units.visible_unit.push_back(idx);
 				units.unit[idx].visibility_checked = true;
+				for (int i = 0 ; i < units.unit[idx].nb_attached ; ++i)
+				{
+					const int attached_idx = units.unit[idx].attached_list[i];
+					if (attached_idx >= 0 && !units.unit[attached_idx].visibility_checked)
+					{
+						units.visible_unit.push_back(attached_idx);
+						units.unit[attached_idx].visibility_checked = true;
+					}
+				}
 			}
 			++cur;
 		}
