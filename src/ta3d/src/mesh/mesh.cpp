@@ -567,7 +567,10 @@ namespace TA3D
 				}
 				else
 					data_s->data[script_index].dir.reset();
-				data_s->data[script_index].pos = *pos;
+				if (nb_l_index == 2 && nb_prim == 1)
+					data_s->data[script_index].pos = *pos + points[l_index[0]] * (*M);
+				else
+					data_s->data[script_index].pos = *pos;
 				if (child)
 					data_s->data[script_index].tpos = *pos + child->pos_from_parent * (*M);
 				else

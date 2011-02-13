@@ -220,7 +220,7 @@ namespace TA3D
             compute_model_coord();
 			if (data.data[from_piece].dir.x != 0.0f || data.data[from_piece].dir.y != 0.0f || data.data[from_piece].dir.z != 0.0f)
             {
-				Vector3D &dir = data.data[from_piece].dir;
+				const Vector3D &dir = data.data[from_piece].dir;
                 switch(smoke_type)
                 {
                     case 0:
