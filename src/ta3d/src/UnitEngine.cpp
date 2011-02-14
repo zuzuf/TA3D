@@ -577,6 +577,9 @@ namespace TA3D
 		const float max_depth = the_map->check_max_depth(x,y,w,h);
 		const float min_depth = the_map->check_min_depth(x,y,w,h);
 
+		if (max_depth > 0.0f && the_map->ota_data.whitefog)
+			return false;
+
 		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
 			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= the_map->sealvl ) )
 			return false;	// Check the slope, check if hovering too
@@ -601,19 +604,22 @@ namespace TA3D
 		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
 
-		int w = unit_manager.unit_type[unit_type_id]->FootprintX;
-		int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
-		int x = px - (w>>1);
-		int y = py - (h>>1);
+		const int w = unit_manager.unit_type[unit_type_id]->FootprintX;
+		const int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
+		const int x = px - (w>>1);
+		const int y = py - (h>>1);
 		if (x < 0 || y < std::max(0, (((int)the_map->get_zdec(x,0) + 7) >> 3)) || x + w >= the_map->bloc_w_db - 1 || y + h >= the_map->bloc_h_db - 1)
 			return false;	// check if it is inside the map
 
 		if (!the_map->check_rect(x,y,w,h,unit_id))
 			return false;		// There is already something
 
-		float dh = fabsf(the_map->check_rect_dh(x,y,w,h));
-		float max_depth = the_map->check_max_depth(x,y,w,h);
-		float min_depth = the_map->check_min_depth(x,y,w,h);
+		const float dh = fabsf(the_map->check_rect_dh(x,y,w,h));
+		const float max_depth = the_map->check_max_depth(x,y,w,h);
+		const float min_depth = the_map->check_min_depth(x,y,w,h);
+
+		if (max_depth > 0.0f && the_map->ota_data.whitefog)
+			return false;
 
 		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
 			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= the_map->sealvl ) )
@@ -638,18 +644,21 @@ namespace TA3D
 		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
 
-		int w = unit_manager.unit_type[unit_type_id]->FootprintX;
-		int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
-		int x = (((int)(Pos.x) + the_map->map_w_d+4)>>3)-(w>>1);
-		int y = (((int)(Pos.z) + the_map->map_h_d+4)>>3)-(h>>1);
-		if (x < 0 || y < (((int)the_map->get_zdec(x,0)+7)>>3) || x + w >= the_map->bloc_w_db - 1 || y + h >= the_map->bloc_h_db - 1)
+		const int w = unit_manager.unit_type[unit_type_id]->FootprintX;
+		const int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
+		const int x = (((int)(Pos.x) + the_map->map_w_d + 4) >> 3) - (w >> 1);
+		const int y = (((int)(Pos.z) + the_map->map_h_d + 4) >> 3) - (h >> 1);
+		if (x < 0 || y < (((int)the_map->get_zdec(x, 0) + 7) >> 3) || x + w >= the_map->bloc_w_db - 1 || y + h >= the_map->bloc_h_db - 1)
 			return false;	// check if it is inside the map
 
-		if (!the_map->check_rect(x,y,w,h,-1))
+		if (!the_map->check_rect(x, y, w, h, -1))
 			return false;		// There already something
-		float dh = fabsf(the_map->check_rect_dh(x,y,w,h));
-		float max_depth = the_map->check_max_depth(x,y,w,h);
-		float min_depth = the_map->check_min_depth(x,y,w,h);
+		const float dh = fabsf(the_map->check_rect_dh(x, y, w, h));
+		const float max_depth = the_map->check_max_depth(x, y, w, h);
+		const float min_depth = the_map->check_min_depth(x, y, w, h);
+
+		if (max_depth > 0.0f && the_map->ota_data.whitefog)
+			return false;
 
 		if (!the_map->check_rect_discovered( x, y, w, h, 1 << player_id ) )
 			return false;

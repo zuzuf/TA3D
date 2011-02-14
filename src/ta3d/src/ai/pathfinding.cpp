@@ -670,16 +670,23 @@ namespace TA3D
 		const float hover_h = pType->canhover ? the_map->sealvl : -100.0f;
 		const int fy = Math::Min(y1 + pType->FootprintZ, the_map->bloc_h_db);
 		const int fx = Math::Min(x1 + pType->FootprintX, the_map->bloc_w_db);
+		const bool bfog = the_map->ota_data.whitefog;
 		y1 = Math::Max(y1, 0);
 		x1 = Math::Max(x1, 0);
 		bool result = true;
 		for(int y = y1 ; y < fy && result ; ++y)
+		{
 			for(int x = x1 ; x < fx && result ; ++x)
+			{
+				const float h = the_map->h_map(x, y);
 				result = !((the_map->slope(x,y) > dh_max
-							&& the_map->h_map(x, y) > hover_h)
+							&& h > hover_h)
 						   || the_map->map_data(x, y).lava
-						   || the_map->h_map(x, y) < h_min
-						   || the_map->h_map(x, y) > h_max);
+						   || (h < the_map->sealvl && bfog)
+						   || h < h_min
+						   || h > h_max);
+			}
+		}
 		return result;
 	}
 
