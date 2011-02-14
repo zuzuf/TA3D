@@ -254,40 +254,40 @@ namespace TA3D
 
 		void draw_mini(int x1=0,int y1=0,int w=252,int h=252, Camera *cam=NULL, byte player_mask=0xFF ); // Dessine la mini-carte
 
-		float get_unit_h(float x,float y);
+		float get_unit_h(float x, float y) const;
 
-		float get_h(int x,int y);
+		inline float get_h(const int x, const int y) const;
 
-		float get_max_h(int x,int y);
+		float get_max_h(int x,int y) const;
 
-		float get_max_rect_h(int x,int y, int w, int h);
+		float get_max_rect_h(int x,int y, int w, int h) const;
 
-		float get_zdec(int x,int y);
+		inline float get_zdec(const int x, const int y) const;
 
 #define get_zdec_notest(x, y)	ph_map_2(x, y)
 
-		float get_nh(int x,int y);
+		inline float get_nh(const int x, const int y) const;
 
 		void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open = false);
 		void obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap = String(),bool open = false);
 
-		void air_rect( int x1, int y1, int w, int h, short c, bool remove = false);
+		void air_rect( int x1, int y1, int w, int h, const short c, const bool remove = false);
 
-		bool check_rect(int x1,int y1,int w,int h,int c);
+		bool check_rect(int x1,int y1,int w,int h, const int c) const;
 
-		bool check_rect_discovered(int x1,int y1,int w,int h,int c); // Check if the area has been fully discovered
+		bool check_rect_discovered(int x1,int y1,int w,int h,const int c) const; // Check if the area has been fully discovered
 
-		float check_rect_dh(int x1,int y1,int w,int h);
+		float check_rect_dh(int x1,int y1,int w,int h) const;
 
-		float check_max_depth(int x1,int y1,int w,int h);
+		float check_max_depth(int x1,int y1,int w,int h) const;
 
-		float check_min_depth(int x1,int y1,int w,int h);
+		float check_min_depth(int x1,int y1,int w,int h) const;
 
-		bool check_vents(int x1,int y1,int w,int h,const String &yard_map);
+		bool check_vents(int x1,int y1,int w,int h,const String &yard_map) const;
 
-		bool check_lava(int x1,int y1,int w,int h);
+		bool check_lava(int x1,int y1,int w,int h) const;
 
-		int check_metal(int x1, int y1, int unit_idx, int *stuff_id = NULL );
+		int check_metal(int x1, int y1, int unit_idx, int *stuff_id = NULL) const;
 
 		void draw_LD(byte player_mask,bool FLAT = false, float niv=0.f, float t = 0.f);
 		void draw_HD(Camera* cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
@@ -295,6 +295,10 @@ namespace TA3D
 
 		Vector3D hit(Vector3D Pos,Vector3D Dir,bool water = true, float length = 200000.0f, bool allow_out = false);			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
 	};
+
+	inline float MAP::get_nh(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
+	inline float MAP::get_zdec(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2)) * tnt_transform_H_DIV;	}
+	inline float MAP::get_h(const int x, const int y) const	{	return h_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
 
 	extern MAP *the_map;
 
