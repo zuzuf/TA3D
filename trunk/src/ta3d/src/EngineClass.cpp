@@ -534,10 +534,10 @@ namespace TA3D
 		if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
 		float depth = -sealvl;
 		if (y2<=y1 || x2<=x1)	return depth + sealvl;
-		for(int y=y1;y<y2;y++)
+		for(int y = y1 ; y < y2 ; ++y)
 			for(int x = x1; x < x2; ++x)
 			{
-				float d = -h_map(x, y);
+				const float d = -h_map(x, y);
 				if (d > depth)
 					depth = d;
 			}
