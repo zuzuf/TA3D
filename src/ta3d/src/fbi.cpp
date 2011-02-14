@@ -824,7 +824,7 @@ namespace TA3D
 		WindGenerator = short(parseInt("UNITINFO.WindGenerator"));
 		onoffable = parseBool("UNITINFO.onoffable");
 		kamikaze = parseBool("UNITINFO.kamikaze");
-		kamikazedistance = uint16(parseInt("UNITINFO.kamikazedistance") >> 1);
+		kamikazedistance = uint16(parseIntDef("UNITINFO.kamikazedistance", SightDistance << 1) >> 1);
 
 		unsigned int i = 1;
 		while (i <= 3 || !parseString( String("UNITINFO.Weapon") << i ).empty())

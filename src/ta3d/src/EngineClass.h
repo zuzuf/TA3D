@@ -248,7 +248,9 @@ namespace TA3D
 
 		void check_unit_visibility(int x, int y);
 
-		std::vector<Vector3D> get_visible_volume();
+		std::vector<Vector3D> get_visible_volume() const;
+
+		void drawCircleOnMap(const float x, const float y, const float radius, const uint32 color, const float thickness = 5.0f) const;
 
 		void update_player_visibility( int player_id, int px, int py, int r, int rd, int sn, int rd_j, int sn_j, bool jamming=false, bool black=false );	// r -> sight, rd -> radar range, sn -> sonar range, j for jamming ray
 
@@ -293,7 +295,7 @@ namespace TA3D
 		void draw_HD(Camera* cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
 		void draw(Camera* cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
 
-		Vector3D hit(Vector3D Pos,Vector3D Dir,bool water = true, float length = 200000.0f, bool allow_out = false);			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
+		Vector3D hit(Vector3D Pos,Vector3D Dir,bool water = true, float length = 200000.0f, bool allow_out = false) const;			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
 	};
 
 	inline float MAP::get_nh(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
