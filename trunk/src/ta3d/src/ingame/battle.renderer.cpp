@@ -828,6 +828,9 @@ namespace TA3D
 		// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
 		weapons.draw(true);
 
+		if (lp_CONFIG->particle)
+			particle_engine.drawUW();
+
 		renderWater();
 
 		// Render map object icons (if in tactical mode)
