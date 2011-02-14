@@ -166,8 +166,8 @@ namespace TA3D
 		sea_dec = 0.0f;
 		view.resize(0,0);
 		ox1 = ox2 = oy1 = oy2 = 0;
-		short buf_size = 0;
-		for (short int i = 0; i < 6500; ++i)
+		int buf_size = 0;
+		for (int i = 0; i < 6500; ++i)
 		{
 			buf_i[i++] = 0 + buf_size;
 			buf_i[i++] = 1 + buf_size;
@@ -182,13 +182,13 @@ namespace TA3D
 			buf_i[i++] = 1 + buf_size;
 			buf_i[i++] = 2 + buf_size;
 			buf_i[i]   = 2 + buf_size;
-			buf_size+=9;
+			buf_size += 9;
 		}
 	}
 
 
 
-	float MAP::get_unit_h(float x,float y)
+	float MAP::get_unit_h(float x, float y) const
 	{
 		if (isNaN(x) || isNaN(y))
 			return 0.0f;
@@ -228,29 +228,10 @@ namespace TA3D
 	}
 
 
-	float MAP::get_h(int x,int y)
+	float MAP::get_max_h(int x,int y) const
 	{
-        if (x < 0)
-            x = 0;
-        else if (x >= bloc_w_db - 1)
-            x = bloc_w_db - 2;
-        if (y < 0)
-            y = 0;
-        else if (y >= bloc_h_db - 1)
-            y = bloc_h_db - 2;
-		return h_map(x, y);
-	}
-
-	float MAP::get_max_h(int x,int y)
-	{
-        if (x < 0)
-            x = 0;
-        else if (x >= bloc_w_db - 1)
-            x = bloc_w_db - 2;
-        if (y < 0)
-            y = 0;
-        else if (y >= bloc_h_db - 1)
-            y = bloc_h_db - 2;
+		x = Math::Clamp(x, 0, bloc_w_db - 2);
+		y = Math::Clamp(x, 0, bloc_h_db - 2);
 		float h = h_map(x, y);
 		if (x < bloc_w_db - 2)	h = Math::Max(h, h_map(x + 1, y));
         if (y < bloc_h_db - 2)
@@ -263,55 +244,25 @@ namespace TA3D
 	}
 
 
-	float MAP::get_max_rect_h(int x,int y, int w, int h)
+	float MAP::get_max_rect_h(int x,int y, int w, int h) const
 	{
-		int x1 = x - (w>>1);
-		int x2 = x1 + w;
-		int y1 = y - (h>>1);
-		int y2 = y1 + h;
-		if (x1 < 0) x1 = 0;
-		if (y1 < 0) y1 = 0;
-		if (x1 >= bloc_w_db - 1) x1 = bloc_w_db - 2;
-		if (y1 >= bloc_h_db - 1) y1 = bloc_h_db - 2;
-		if (x2 < 0) x2 = 0;
-		if (y2 < 0) y2 = 0;
-		if (x2 >= bloc_w_db - 1) x2 = bloc_w_db - 2;
-		if (y2 >= bloc_h_db - 1) y2 = bloc_h_db - 2;
+		const int x1 = Math::Clamp(x - (w>>1), 0, bloc_w_db - 2);
+		const int x2 = Math::Clamp(x1 + w, 0, bloc_w_db - 2);
+		const int y1 = Math::Clamp(y - (h>>1), 0, bloc_h_db - 2);
+		const int y2 = Math::Clamp(y1 + h, 0, bloc_h_db - 2);
 		float max_h = h_map(x1, y1);
-		for (int Y = y1; Y <= y2 ; ++Y)
-			for (int X = x1; X <= x2 ; ++X)
-			{
-				float h = h_map(X, Y);
-				if (h > max_h)	max_h = h;
-			}
+		for (int Y = y1 ; Y <= y2 ; ++Y)
+			for (int X = x1 ; X <= x2 ; ++X)
+				max_h = std::max(max_h, h_map(X, Y));
 		return max_h;
-	}
-
-	float MAP::get_zdec(int x,int y)
-	{
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
-		if (x >= bloc_w_db - 1) x = bloc_w_db - 2;
-		if (y >= bloc_h_db - 1) y = bloc_h_db - 2;
-		return ph_map(x, y) * tnt_transform_H_DIV;
-	}
-
-
-	float MAP::get_nh(int x,int y)
-	{
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
-		if (x >= bloc_w_db - 1) x = bloc_w_db - 2;
-		if (y >= bloc_h_db - 1) y = bloc_h_db - 2;
-		return ph_map(x, y);
 	}
 
 	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap,bool open)
 	{
 		if (yardmap.empty())
 		{
-			int x2 = Math::Min(x1 + w, bloc_w_db);
-			int y2 = Math::Min(y1 + h, bloc_h_db);
+			const int x2 = Math::Min(x1 + w, bloc_w_db);
+			const int y2 = Math::Min(y1 + h, bloc_h_db);
 			y1 = Math::Max(y1, 0);
 			x1 = Math::Max(x1, 0);
 			for(int y = y1 ; y < y2 ; ++y)
@@ -320,17 +271,18 @@ namespace TA3D
 		}
 		else
 		{
-			int x2 = Math::Min(x1 + w, bloc_w_db);
-			int y2 = Math::Min(y1 + h, bloc_h_db);
-			int oy1 = y1;
-			int ox1 = x1;
+			const int x2 = Math::Min(x1 + w, bloc_w_db);
+			const int y2 = Math::Min(y1 + h, bloc_h_db);
+			const int oy1 = y1;
+			const int ox1 = x1;
 			y1 = Math::Max(y1, 0);
 			x1 = Math::Max(x1, 0);
 			uint32 i = (y1 - oy1) * w + x1 - ox1;
-			uint32 s = w - (x2 - x1);
-			for(int y = y1 ; y < y2 && yardmap.size() > i ; ++y)
+			const uint32 s = w - (x2 - x1);
+			const uint32 l = yardmap.size();
+			for(int y = y1 ; y < y2 && l > i ; ++y)
 			{
-				for(int x = x1 ; x < x2 && yardmap.size() > i ; ++x, ++i)
+				for(int x = x1 ; x < x2 && l > i ; ++x, ++i)
 				{
 					switch(yardmap[i])
 					{
@@ -360,12 +312,10 @@ namespace TA3D
 	{
 		if (yardmap.empty())
 		{
-			int y2 = y1 + h;
-			int x2 = x1 + w;
-			if (y1 < 0)	y1 = 0;
-			if (y2 > bloc_h_db - 1)	y2 = bloc_h_db - 1;
-			if (x1 < 0)	x1 = 0;
-			if (x2 > bloc_w_db - 1)	x2 = bloc_w_db - 1;
+			const int y2 = std::min(y1 + h, bloc_h_db - 1);
+			const int x2 = std::min(x1 + w, bloc_w_db - 1);
+			y1 = std::max(y1, 0);
+			x1 = std::max(x1, 0);
 			if (y2 <= y1 || x2 <= x1)
 				return;
 			pMutex.lock();
@@ -377,29 +327,23 @@ namespace TA3D
 		else
 		{
 			uint32 i = 0;
-			int y2 = y1 + h;
-			int x2 = x1 + w;
-			if (y1<0)
-			{
-				i -= y1 * w;
-				y1 = 0;
-			}
-			if (y2 > bloc_h_db - 1)	y2 = bloc_h_db - 1;
-			if (x1 < 0)
-			{
-				i -= x1;
-				x1 = 0;
-			}
-			if (x2 > bloc_w_db - 1)	x2 = bloc_w_db - 1;
-			int dw = w - (x2 - x1);
+			const int y2 = std::min(y1 + h, bloc_h_db - 1);
+			const int x2 = std::min(x1 + w, bloc_w_db - 1);
+			if (y1 < 0)	i -= y1 * w;
+			if (x1 < 0)	i -= x1;
+			y1 = std::max(y1, 0);
+			x1 = std::max(x1, 0);
 			if (y2 <= y1 || x2 <= x1)
 				return;
+
+			const int dw = w - (x2 - x1);
+			const unsigned int l = yardmap.size();
 			pMutex.lock();
 			for (int y = y1; y < y2; ++y)
 			{
 				for (int x = x1; x < x2; ++x)
 				{
-					if (yardmap.size() <= i)
+					if (l <= i)
 					{
 						pMutex.unlock();
 						return;
@@ -431,17 +375,15 @@ namespace TA3D
 	}
 
 
-	void MAP::air_rect( int x1, int y1, int w, int h, short c, bool remove)
+	void MAP::air_rect( int x1, int y1, int w, int h, const short c, const bool remove)
 	{
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+		if (y2 <= y1 || x2 <= x1)	return;
 		if (remove)
 		{
-			int y2=y1+h;
-			int x2=x1+w;
-			if (y1<0)	y1=0;
-			if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-			if (x1<0)	x1=0;
-			if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
-			if (y2<=y1 || x2<=x1)	return;
 			pMutex.lock();
 			for(int y = y1 ; y < y2 ; ++y)
 				for(int x = x1 ; x < x2 ; ++x)
@@ -450,14 +392,6 @@ namespace TA3D
 		}
 		else
 		{
-			int y2=y1+h;
-			int x2=x1+w;
-			if (y1<0)	y1=0;
-			if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-			if (x1<0)	x1=0;
-			if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
-			if (y2<=y1 || x2<=x1)
-				return;
 			pMutex.lock();
 			for(int y = y1 ; y < y2 ;++y)
 				for(int x = x1 ; x < x2 ; ++x)
@@ -466,55 +400,52 @@ namespace TA3D
 		}
 	}
 
-	bool MAP::check_rect(int x1,int y1,int w,int h,int c)
+	bool MAP::check_rect(int x1, int y1, int w, int h, const int c) const
 	{
-		int y2=y1+h;
-		int x2=x1+w;
-		if (y1<0)	y1=0;
-		if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-		if (x1<0)	x1=0;
-		if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
-		if (y2<=y1 || x2<=x1)	return false;
-		for(int y=y1;y<y2;y++)
-			for(int x=x1;x<x2;x++)
-				if (map_data(x, y).unit_idx!=c && map_data(x, y).unit_idx!=-1)
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+		if (y2 <= y1 || x2 <= x1)	return false;
+		for(int y = y1 ; y < y2 ; ++y)
+			for(int x = x1 ; x < x2 ; ++x)
+			{
+				const int idx = map_data(x, y).unit_idx;
+				if (idx != c && idx != -1)
 					return false;
+			}
 		return true;
 	}
 
-	bool MAP::check_rect_discovered(int x1,int y1,int w,int h,int c)		// Check if the area has been fully discovered
+	bool MAP::check_rect_discovered(int x1,int y1,int w,int h,const int c) const		// Check if the area has been fully discovered
 	{
-		int y2=(y1+h+1)>>1;
-		int x2=(x1+w+1)>>1;
-		x1>>=1;
-		y1>>=1;
-		if (y1<0)	y1=0;
-		if (y2>bloc_h-1)	y2=bloc_h-1;
-		if (x1<0)	x1=0;
-		if (x2>bloc_w-1)	x2=bloc_w-1;
-		if (y2<=y1 || x2<=x1)
+		const int y2 = std::min((y1 + h + 1) >> 1, bloc_h - 1);
+		const int x2 = std::min((x1 + w + 1) >> 1, bloc_w - 1);
+		x1 >>= 1;
+		y1 >>= 1;
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+		if (y2 <= y1 || x2 <= x1)
 			return false;
-		for(int y=y1;y<y2;y++)
-			for(int x=x1;x<x2;x++)
-				if (!(SurfaceByte(view_map,x,y) & c) )
+		for(int y = y1 ; y < y2 ; ++y)
+			for(int x = x1 ; x < x2 ; ++x)
+				if (!(SurfaceByte(view_map,x,y) & c))
 					return false;
 		return true;
 	}
 
 
-	float MAP::check_rect_dh(int x1,int y1,int w,int h)
+	float MAP::check_rect_dh(int x1,int y1,int w,int h) const
 	{
-		int y2=y1+h;
-		int x2=x1+w;
-		if (y1<0)	y1=0;
-		if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-		if (x1<0)	x1=0;
-		if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
-		float max_dh=0.0f;
-		bool on_water=false;
-		if (y2<=y1 || x2<=x1)	return max_dh;
-		for (int y = y1; y < y2; ++y)
-			for (int x = x1; x < x2; ++x)
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+		if (y2 <= y1 || x2 <= x1)	return 0.0f;
+		float max_dh = 0.0f;
+		bool on_water = false;
+		for (int y = y1 ; y < y2 ; ++y)
+			for (int x = x1 ; x < x2 ; ++x)
 			{
 				max_dh = Math::Max(max_dh, slope(x,y));
 				on_water |= map_data(x, y).underwater;
@@ -524,81 +455,65 @@ namespace TA3D
 		return max_dh;
 	}
 
-	float MAP::check_max_depth(int x1,int y1,int w,int h)
+	float MAP::check_max_depth(int x1,int y1,int w,int h) const
 	{
-		int y2=y1+h;
-		int x2=x1+w;
-		if (y1<0)	y1=0;
-		if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-		if (x1<0)	x1=0;
-		if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+		if (y2 <= y1 || x2 <= x1)	return 0.0f;
 		float depth = -sealvl;
-		if (y2<=y1 || x2<=x1)	return depth + sealvl;
 		for(int y = y1 ; y < y2 ; ++y)
-			for(int x = x1; x < x2; ++x)
-			{
-				const float d = -h_map(x, y);
-				if (d > depth)
-					depth = d;
-			}
+			for(int x = x1 ; x < x2 ; ++x)
+				depth = std::max(depth, -h_map(x, y));
 		return depth + sealvl;
 	}
 
 
-	float MAP::check_min_depth(int x1,int y1,int w,int h)
+	float MAP::check_min_depth(int x1, int y1, int w, int h) const
 	{
-		int y2=y1+h;
-		int x2=x1+w;
-		if (y1<0)	y1=0;
-		if (y2>bloc_h_db-1)	y2=bloc_h_db-1;
-		if (x1<0)	x1=0;
-		if (x2>bloc_w_db-1)	x2=bloc_w_db-1;
-		float depth=255.0f-sealvl;
-		if (y2<=y1 || x2<=x1)	return depth + sealvl;
-		for(int y=y1;y<y2;y++)
-			for(int x=x1;x<x2;x++)
-			{
-				float d = -h_map(x, y);
-				if (d<depth)
-					depth=d;
-			}
-		return depth+sealvl;
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+		if (y2 <= y1 || x2 <= x1)	return 255.0f;
+		float depth = 255.0f - sealvl;
+		for(int y = y1 ; y < y2 ; ++y)
+			for(int x = x1 ; x < x2 ; ++x)
+				depth = std::min(depth, -h_map(x, y));
+		return depth + sealvl;
 	}
 
 
-	bool MAP::check_vents(int x1,int y1,int w,int h,const String &yard_map)
+	bool MAP::check_vents(int x1, int y1, int w, int h, const String &yard_map) const
 	{
 		if (yard_map.empty())
 			return true;
-		int y2=y1+h;
-		int x2=x1+w;
-		if (y1<0)
-			y1=0;
-		if (y2 > bloc_h_db - 1)
-			y2 = bloc_h_db - 1;
-		if (x1 < 0)
-			x1 = 0;
-		if (x2>bloc_w_db-1)
-			x2=bloc_w_db-1;
-		if (y2<=y1 || x2<=x1)
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+
+		if (y2 <= y1 || x2 <= x1)
 			return false;
 
-		int dw = w - (x2-x1);
+		const int dw = w - (x2-x1);
+		const unsigned int l = yard_map.size();
 		int i = 0;
 		bool ok = true;
-		for (int y = y1; y < y2; ++y)
+		for (int y = y1 ; y < y2 ; ++y)
 		{
-			for (int x = x1; x < x2; ++x)
+			for (int x = x1 ; x < x2 ; ++x)
 			{
-				if (yard_map.size() <= (unsigned int)i)
+				if (l <= (unsigned int)i)
 					return ok;
-				if (yard_map[i]=='G')
+				if (yard_map[i] == 'G')
 				{
 					ok = false;
-					if (map_data(x, y).stuff >= 0)
+					const int feature_id = map_data(x, y).stuff;
+					if (feature_id >= 0)
 					{
-						int feature_id = map_data(x, y).stuff;
-                        Feature *pFeature = feature_manager.getFeaturePointer(features.feature[feature_id].type);
+						const Feature* const pFeature = feature_manager.getFeaturePointer(features.feature[feature_id].type);
                         if (pFeature && pFeature->geothermal)
 							return true;
 					}
@@ -611,23 +526,18 @@ namespace TA3D
 	}
 
 
-	bool MAP::check_lava(int x1,int y1,int w,int h)
+	bool MAP::check_lava(int x1, int y1, int w, int h) const
 	{
-		int y2=y1+h;
-		int x2=x1+w;
-		if (y1<0)
-			y1 = 0;
-		if (y2 > bloc_h - 1)
-			y2 = bloc_h - 1;
-		if (x1 < 0)
-			x1 = 0;
-		if (x2 > bloc_w - 1)
-			x2 = bloc_w - 1;
+		const int y2 = std::min(y1 + h, bloc_h_db - 1);
+		const int x2 = std::min(x1 + w, bloc_w_db - 1);
+		y1 = std::max(y1, 0);
+		x1 = std::max(x1, 0);
+
 		if (y2 <= y1 || x2 <= x1)
 			return false;
-		for (int y = y1; y < y2; ++y)
+		for (int y = y1 ; y < y2 ; ++y)
 		{
-			for (int x = x1; x < x2; ++x)
+			for (int x = x1 ; x < x2 ; ++x)
 			{
 				if (bloc[bmap(x, y)].lava)
 					return true;
@@ -2287,37 +2197,38 @@ namespace TA3D
 
 
 
-	int MAP::check_metal(int x1, int y1, int unit_idx, int *stuff_id )
+	int MAP::check_metal(int x1, int y1, int unit_idx, int *stuff_id) const
 	{
 		if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
 			return 0;
 
-		int w = unit_manager.unit_type[ unit_idx ]->FootprintX;
-		int h = unit_manager.unit_type[ unit_idx ]->FootprintZ;
+		const int w = unit_manager.unit_type[ unit_idx ]->FootprintX;
+		const int h = unit_manager.unit_type[ unit_idx ]->FootprintZ;
 		int metal_base = 0;
-		int end_y = y1 + (h >> 1);
-		int end_x = x1 + (w >> 1);
-		int start_x = x1 - (w >> 1);
-		for (int ry = y1 - (h >> 1 ); ry <= end_y; ++ry)
+		const int end_y = y1 + (h >> 1);
+		const int end_x = x1 + (w >> 1);
+		const int start_x = x1 - (w >> 1);
+		for (int ry = y1 - (h >> 1); ry <= end_y ; ++ry)
 		{
 			if (ry >= 0 && ry < bloc_h_db)
 			{
-				for( int rx = start_x; rx <= end_x; ++rx)
+				for (int rx = start_x ; rx <= end_x ; ++rx)
 				{
-					if (rx >= 0 && rx < bloc_w_db )
+					if (rx >= 0 && rx < bloc_w_db)
 					{
-						if (map_data(rx, ry).stuff >=0 )
+						if (map_data(rx, ry).stuff >=0)
 						{
                             features.lock();
-							if (map_data(rx, ry).stuff >=0 )            // We have to recheck this in case it has changed before locking
+							const int ID = map_data(rx, ry).stuff;
+							if (ID >= 0)            // We have to recheck this in case it has changed before locking
                             {
-								int type = features.feature[ map_data(rx, ry).stuff ].type;
-                                Feature *feature = feature_manager.getFeaturePointer(type);
+								const int type = features.feature[ ID ].type;
+								const Feature* const feature = feature_manager.getFeaturePointer(type);
                                 if (feature && !feature->reclaimable && !feature->blocking)
                                 {
                                     metal_base += feature->metal;
                                     if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
-										*stuff_id = map_data(rx, ry).stuff;
+										*stuff_id = ID;
                                 }
                             }
                             features.unlock();
