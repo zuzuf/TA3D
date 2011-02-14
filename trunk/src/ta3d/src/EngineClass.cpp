@@ -1188,13 +1188,13 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	std::vector<Vector3D> MAP::get_visible_volume()
+	std::vector<Vector3D> MAP::get_visible_volume() const
 	{
 		std::vector<Vector3D>  volume;
-		bool bFarSight = lp_CONFIG->far_sight && !Camera::inGame->mirror;
-		float zfar = Camera::inGame->zfar;
-		float cam_h = Camera::inGame->rpos.y - get_unit_h(Camera::inGame->rpos.x, Camera::inGame->rpos.z);
-		float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
+		const bool bFarSight = lp_CONFIG->far_sight && !Camera::inGame->mirror;
+		const float zfar = Camera::inGame->zfar;
+		const float cam_h = Camera::inGame->rpos.y - get_unit_h(Camera::inGame->rpos.x, Camera::inGame->rpos.z);
+		const float map_zfar = 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
 		if (bFarSight)
 			Camera::inGame->zfar = map_zfar;
 		Camera::inGame->getFrustum(volume);
@@ -1204,14 +1204,14 @@ namespace TA3D
 		for(int i = 4 ; i < 8; ++i)
 		{
 			dir = volume[i] - volume[i-4];
-			float dist_max = dir.norm();
+			const float dist_max = dir.norm();
 			dir = 1.0f / dist_max * dir;;
 			if (dir.y > 0.0f)       // Heading up
 			{
 				volume[i] += (512.0f * H_DIV - volume[i].y) * dir;
 				continue;
 			}
-			Vector3D map_hit = hit( volume[i-4], dir, false, dist_max, true) + 30.0f * dir;
+			const Vector3D map_hit = hit( volume[i-4], dir, false, dist_max, true) + 30.0f * dir;
 			if ( (map_hit - volume[i-4]) % dir < dist_max)
 				volume[i] = map_hit;
 		}
@@ -2126,7 +2126,7 @@ namespace TA3D
 		glPopMatrix();
 	}
 
-	Vector3D MAP::hit(Vector3D Pos, Vector3D Dir, bool water, float length, bool allow_out)			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
+	Vector3D MAP::hit(Vector3D Pos, Vector3D Dir, bool water, float length, bool allow_out) const			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
 	{
 		if (Yuni::Math::Zero(Dir.x) && Yuni::Math::Zero(Dir.z)) // Solution triviale
 		{
@@ -2148,8 +2148,8 @@ namespace TA3D
 		}
 		int nb = 0;
 		int nb_limit = (int)(Pos.y) + 1000;
-		float dwm = map_w_d;
-		float dhm = map_h_d;
+		const float dwm = map_w_d;
+		const float dhm = map_h_d;
 		Dir = (1.0f * step) * Dir;
 		float len_step = Dir.norm();
 		while (((sealvl<Pos.y && water) || !water) && get_max_h((int)(Pos.x+map_w_d)>>3,(int)(Pos.z+map_h_d)>>3)<Pos.y)
@@ -2242,7 +2242,63 @@ namespace TA3D
 		return metal_base;
 	}
 
+	void MAP::drawCircleOnMap(const float x, const float y, const float radius, const uint32 color, const float thickness) const
+	{
+		const int steps = std::max(5, int(radius * 2.0f));
+		const float f = 2.0f * M_PI / steps;
+		std::vector<Vector3D> vertices0, vertices1;
+		std::vector<uint32> colors0, colors1;
+		vertices0.reserve(steps * 2 + 2);
+		vertices1.reserve(steps * 2 + 2);
+		colors0.reserve(steps * 2 + 2);
+		colors1.reserve(steps * 2 + 2);
+		const uint32 mask = makeacol(0xFF,0xFF,0xFF,0x0);
+		for(int i = 0 ; i <= steps ; ++i)
+		{
+			const float _cos = std::cos(i * f);
+			const float _sin = std::sin(i * f);
+			const float tx = x + (radius + thickness) * _cos;
+			const float tz = y + (radius + thickness) * _sin;
+			const float ty = get_unit_h(tx, tz) + 1.0f;
+			const float mx = x + radius * _cos;
+			const float mz = y + radius * _sin;
+			const float my = get_unit_h(mx, mz) + 1.0f;
+			const float bx = x + (radius - thickness) * _cos;
+			const float bz = y + (radius - thickness) * _sin;
+			const float by = get_unit_h(bx, bz) + 1.0f;
+			const Vector3D T(tx, ty, tz);
+			const Vector3D M(mx, my, mz);
+			const Vector3D B(bx, by, bz);
 
+			vertices0.push_back(T);		colors0.push_back(color & mask);
+			vertices0.push_back(M);		colors0.push_back(color);
+
+			vertices1.push_back(M);		colors1.push_back(color);
+			vertices1.push_back(B);		colors1.push_back(color & mask);
+		}
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glVertexPointer(3, GL_FLOAT, 0, &(vertices0.front()));
+		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors0.front()));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices0.size());
+
+		glVertexPointer(3, GL_FLOAT, 0, &(vertices1.front()));
+		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors1.front()));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices1.size());
+
+		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+	}
 
 	void WATER::draw(float t, bool shaded)
 	{

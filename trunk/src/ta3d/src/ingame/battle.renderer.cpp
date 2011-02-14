@@ -894,8 +894,8 @@ namespace TA3D
 
 				glTranslatef(target.x,target.y,target.z);
 				glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
-				float DX = (unit_manager.unit_type[build]->FootprintX<<2);
-				float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
+				const float DX = (unit_manager.unit_type[build]->FootprintX<<2);
+				const float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
 				if (unit_manager.unit_type[build]->model)
 				{
 					glEnable(GL_CULL_FACE);
@@ -909,7 +909,7 @@ namespace TA3D
 					glDepthFunc( GL_LESS );
 					unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
 
-					bool old_mode = gfx->getShadowMapMode();
+					const bool old_mode = gfx->getShadowMapMode();
 					gfx->setShadowMapMode(true);
 					double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - target.y };
 					glClipPlane(GL_CLIP_PLANE2, eqn);
@@ -930,11 +930,11 @@ namespace TA3D
 				}
 				cam.setView();
 				glTranslatef(target.x,Math::Max( target.y, map->sealvl ),target.z);
-				float red=1.0f, green=0.0f;
+				int red = 0xFF, green = 0x00;
 				if (can_be_there)
 				{
-					green = 1.0f;
-					red   = 0.0f;
+					green = 0xFF;
+					red   = 0x00;
 				}
 				glDisable(GL_CULL_FACE);
 				glDisable(GL_TEXTURE_2D);
@@ -942,31 +942,31 @@ namespace TA3D
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_QUADS);
-				glColor4f(red,green,0.0f,1.0f);
+				glColor4ub(red,green,0x00,0xFF);
 				glVertex3f(-DX,0.0f,-DZ);			// First quad
 				glVertex3f(DX,0.0f,-DZ);
-				glColor4f(red,green,0.0f,0.0f);
+				glColor4ub(red,green,0x00,0x00);
 				glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
 				glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
 
-				glColor4f(red,green,0.0f,1.0f);
+				glColor4ub(red,green,0x00,0xFF);
 				glVertex3f(-DX,0.0f,-DZ);			// Second quad
 				glVertex3f(-DX,0.0f,DZ);
-				glColor4f(red,green,0.0f,0.0f);
+				glColor4ub(red,green,0x00,0x00);
 				glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
 				glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
 
-				glColor4f(red,green,0.0f,1.0f);
+				glColor4ub(red,green,0x00,0xFF);
 				glVertex3f(DX,0.0f,-DZ);			// Third quad
 				glVertex3f(DX,0.0f,DZ);
-				glColor4f(red,green,0.0f,0.0f);
+				glColor4ub(red,green,0x00,0x00);
 				glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
 				glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
 
-				glColor4f(red,green,0.0f,1.0f);
+				glColor4ub(red,green,0x00,0xFF);
 				glVertex3f(-DX,0.0f,DZ);			// Fourth quad
 				glVertex3f(DX,0.0f,DZ);
-				glColor4f(red,green,0.0f,0.0f);
+				glColor4ub(red,green,0x00,0x00);
 				glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
 				glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
 				glEnd();
@@ -978,20 +978,42 @@ namespace TA3D
 		}
 
 
-		if (selected && TA3D_SHIFT_PRESSED)
+		if ((selected || units.last_on >= 0) && TA3D_SHIFT_PRESSED)
 		{
 			glDisable(GL_FOG);
 			cam.setView();
 			bool builders = false;
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			const float t = msec_timer * 0.001f;
+			const float mt = std::fmod(0.5f * t, 1.0f);
+			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
+			for (unsigned int e = 0; e < units.index_list_size ; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1)
 					&& units.unit[i].owner_id == players.local_human_id
-							&& units.unit[i].sel)
+					&& (units.unit[i].sel || i == units.last_on))
+				{
+					const int type_id = units.unit[i].type_id;
+					if (type_id >= 0)
 					{
-					builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
-					units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité / Draw given orders
+						const UnitType* const pType = unit_manager.unit_type[type_id];
+						builders |= pType->Builder;
+
+						const float x = units.unit[i].render.Pos.x;
+						const float z = units.unit[i].render.Pos.z;
+						if (pType->kamikaze)
+						{
+							the_map->drawCircleOnMap(x, z, pType->kamikazedistance, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
+							const int idx = weapon_manager.get_weapon_index(pType->SelfDestructAs);
+							const WeaponDef* const pWeapon = idx >= 0 && idx < weapon_manager.nb_weapons ? &(weapon_manager.weapon[idx]) : NULL;
+							if (pWeapon)
+								the_map->drawCircleOnMap(x, z, pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
+						}
+						if (pType->mincloakdistance && units.unit[i].cloaked)
+							the_map->drawCircleOnMap(x, z, pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
+					}
+					if (units.unit[i].sel)
+						units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité / Draw given orders
 				}
 			}
 
@@ -999,11 +1021,64 @@ namespace TA3D
 			{
 				for (unsigned int e = 0; e < units.index_list_size; ++e)
 				{
-					int i = units.idx_list[e];
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && !units.unit[i].sel
-						&& unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+					const int i = units.idx_list[e];
+					const int type_id = units.unit[i].type_id;
+					if (type_id < 0)
+						continue;
+					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && !units.unit[i].sel
+						&& unit_manager.unit_type[type_id]->Builder && unit_manager.unit_type[type_id]->BMcode)
 					{
 						units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité / Draw given orders
+					}
+				}
+			}
+			glEnable(GL_FOG);
+		}
+		if ((selected || units.last_on >= 0) && TA3D_CTRL_PRESSED)
+		{
+			glDisable(GL_FOG);
+			cam.setView();
+			const float t = msec_timer * 0.001f;
+			const float mt = std::fmod(0.5f * t, 1.0f);
+			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
+			for (unsigned int e = 0; e < units.index_list_size ; ++e)
+			{
+				const int i = units.idx_list[e];
+				if ((units.unit[i].flags & 1)
+					&& units.unit[i].owner_id == players.local_human_id
+					&& (units.unit[i].sel || i == units.last_on))
+				{
+					const int type_id = units.unit[i].type_id;
+					if (type_id >= 0)
+					{
+						const UnitType* const pType = unit_manager.unit_type[type_id];
+
+						const float x = units.unit[i].render.Pos.x;
+						const float z = units.unit[i].render.Pos.z;
+						if (!TA3D_SHIFT_PRESSED)
+						{
+							if (pType->kamikaze)
+							{
+								the_map->drawCircleOnMap(x, z, pType->kamikazedistance, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
+								const int idx = weapon_manager.get_weapon_index(pType->SelfDestructAs);
+								const WeaponDef* const pWeapon = idx >= 0 && idx < weapon_manager.nb_weapons ? &(weapon_manager.weapon[idx]) : NULL;
+								if (pWeapon)
+									the_map->drawCircleOnMap(x, z, pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
+							}
+							if (pType->mincloakdistance && units.unit[i].cloaked)
+								the_map->drawCircleOnMap(x, z, pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
+						}
+						if (!pType->onoffable || units.unit[i].port[ACTIVATION])
+						{
+							if (pType->RadarDistance)
+								the_map->drawCircleOnMap(x, z, pType->RadarDistance * mt, makeacol(0x00,0x00,0xFF,0xFF), 1.0f);
+							if (pType->RadarDistanceJam)
+								the_map->drawCircleOnMap(x, z, pType->RadarDistanceJam * mt, makeacol(0x00,0x00,0x00,0xFF), 1.0f);
+							if (pType->SonarDistance)
+								the_map->drawCircleOnMap(x, z, pType->SonarDistance * mt2, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
+							if (pType->SonarDistanceJam)
+								the_map->drawCircleOnMap(x, z, pType->SonarDistanceJam * mt2, makeacol(0x7F,0x7F,0x7F,0xFF), 1.0f);
+						}
 					}
 				}
 			}
