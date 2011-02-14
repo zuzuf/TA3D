@@ -130,16 +130,13 @@ namespace TA3D
 
         /*!
         ** \brief
-        **
-        ** \param cam
-        ** \param map_w
-        ** \param map_h
-        ** \param bloc_w
-        ** \param bloc_h
-        ** \param bmap
         */
 		void draw(Camera *cam);
 
+		/*!
+		** \brief
+		*/
+		void drawUW();
 
     public:
         uint32		nb_part;		// Nombre de particules

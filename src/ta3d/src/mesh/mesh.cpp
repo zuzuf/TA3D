@@ -1489,8 +1489,8 @@ namespace TA3D
 
 		if (!file_list.empty())
 		{
-			int n = 0;
-			int progressIncrement = 0;
+			volatile int n = 0;
+			volatile int progressIncrement = 0;
 
 			String::Vector final_file_list;
 			HashSet<String>::Dense files;
@@ -1527,7 +1527,7 @@ namespace TA3D
 					{
 						// Update the progress bar
 						mLoad.unlock();
-						(*progress)((100.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, loading3DModelsText);
+						(*progress)((100.0f + n * 50.0f / (final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
 						mLoad.lock();
 						// Reset the increment
 						progressIncrement = 0;
@@ -1536,7 +1536,7 @@ namespace TA3D
 				if (++progressIncrement == 25 && progress != NULL)
 				{
 					// Update the progress bar
-					(*progress)((100.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, loading3DModelsText);
+					(*progress)((100.0f + n * 50.0f / (final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
 					// Reset the increment
 					progressIncrement = 0;
 				}

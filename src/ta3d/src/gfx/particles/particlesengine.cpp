@@ -759,6 +759,73 @@ namespace TA3D
 		glEnable(GL_CULL_FACE);
 	}
 
+	void PARTICLE_ENGINE::drawUW()
+	{
+		if (particle_systems.empty())	// no need to run the code if there is nothing to draw
+			return;
+
+		Camera::inGame->setView(true);
+
+		gfx->ReInitAllTex(true);
+
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_CULL_FACE);
+		glDepthMask(GL_FALSE);
+		glEnable(GL_BLEND);
+
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_VERTEX_ARRAY);				// Vertices
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+
+		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / (SCREEN_H * SCREEN_H)};
+		if (lp_CONFIG->ortho_camera)
+		{
+			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
+			coeffs[1] = 0.0f;
+			coeffs[2] = 0.0f;
+			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+		}
+		else
+			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+
+		// Point size
+		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
+		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
+
+		// Set the texture center on the point
+		glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+
+		// We're using point sprites
+		glEnable (GL_POINT_SPRITE);
+
+		double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl };
+
+		glClipPlane(GL_CLIP_PLANE1, eqn);
+		glEnable(GL_CLIP_PLANE1);
+
+		pMutex.lock();
+		for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
+			(*i)->draw();
+		pMutex.unlock();
+
+		glDisable(GL_CLIP_PLANE1);
+
+		glDisable (GL_POINT_SPRITE);
+		coeffs[0] = 1.0f;
+		coeffs[1] = 0.0f;
+		coeffs[2] = 0.0f;
+		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+		glPointSize(1.0f);
+
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
+		glEnable(GL_CULL_FACE);
+	}
+
 	void PARTICLE_ENGINE::init(bool load)
 	{
 		pMutex.lock();
