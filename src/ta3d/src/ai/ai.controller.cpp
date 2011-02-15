@@ -306,7 +306,7 @@ namespace TA3D
 
 			if (player_target >= 0 ) // If we've someone to attack
 			{
-				for (std::vector<uint16>::iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
+				for (std::vector<uint16>::const_iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
 				{
 					suspend(1);
 					units.unit[ *i ].lock();
@@ -343,18 +343,18 @@ namespace TA3D
 			}
 		}
 
-		for (std::vector<uint16>::iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
+		for (std::vector<uint16>::const_iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
 		{
 			suspend(1);
 			units.unit[ *i ].lock();
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
 			{
-				short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
+				const int list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
 				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
 				for (int e = 0 ; e < list_size ; ++e)
 					sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
-				float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
+				const float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
 				if (sw[ list_size - 1 ] > 0.1f)
 					for (int e = 0 ; e < list_size ; ++e)
 					{
@@ -378,19 +378,19 @@ namespace TA3D
 		}
 
 		// Give instructions to idle builders
-		for (std::vector<uint16>::iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
+		for (std::vector<uint16>::const_iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
 		{
 			suspend(1);
 
 			units.unit[ *i ].lock();
 			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
 			{
-				int list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
+				const int list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
 				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
-				for (int e = 0; e < list_size; ++e)
+				for (int e = 0 ; e < list_size ; ++e)
 					sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
-				float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
+				const float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
 				if (sw[ list_size - 1 ] > 0.1f)
 					for (int e = 0 ; e < list_size ; ++e)
 					{
@@ -441,7 +441,7 @@ namespace TA3D
 							weights[i].built_by.push_back(e);
 					}
 				}
-				for (std::vector<uint16>::iterator e = weights[ i ].built_by.begin() ; e != weights[ i ].built_by.end() ; ++e )
+				for (std::vector<uint16>::const_iterator e = weights[ i ].built_by.begin() ; e != weights[ i ].built_by.end() ; ++e )
 				{
 					if (weights[ *e ].type & AI_UNIT_TYPE_FACTORY)
 						factory_needed += weights[ i ].w;
@@ -675,21 +675,21 @@ namespace TA3D
         bool found = false;
         int best_metal = 0;
         int metal_stuff_id = -1;
-        bool extractor = unit_manager.unit_type[unit_idx]->ExtractsMetal > 0.0f;
-        for (int r = minRadius ; r < radius && !found; ++r) // Circular check
+		const bool extractor = unit_manager.unit_type[unit_idx]->ExtractsMetal > 0.0f;
+		for (int r = minRadius ; r < radius && !found ; ++r) // Circular check
         {
-            int r2 = r * r;
-            for (int y = (r >> 1); y <= r && !found; ++y)
+			const int r2 = r * r;
+			for (int y = (r >> 1) ; y <= r && !found ; ++y)
             {
-                int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
+				const int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
 
-                int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
-                int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
+				const int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
+				const int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
                 int rand_t[8];
                 int rand_t2[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
                 for (int e = 0 ; e < 8 ; ++e)
                 {
-					int t = Math::RandomTable() % (8 - e);
+					const int t = Math::RandomTable() % (8 - e);
                     rand_t[e] = rand_t2[t];
                     for (int f = t; f < 7 - e; ++f)
                         rand_t2[f] = rand_t2[f + 1];
@@ -697,11 +697,11 @@ namespace TA3D
 
                 for (int f = 0; f < 8; ++f)
                 {
-                    int e = rand_t[ f ];
+					const int e = rand_t[ f ];
 					if (can_be_there_ai( px + cx[e], py + cy[e], unit_idx, playerID ))
                     {
                         int stuff_id = -1;
-                        int metal_found = extractor ? the_map->check_metal( px + cx[e], py + cy[e], unit_idx, &stuff_id ) : 0;
+						const int metal_found = extractor ? the_map->check_metal( px + cx[e], py + cy[e], unit_idx, &stuff_id ) : 0;
                         if ((extractor && metal_found > best_metal) || !extractor)
                         {
                             // Prevent AI from filling a whole area with metal extractors
@@ -739,8 +739,8 @@ namespace TA3D
                 px = features.feature[ metal_stuff_id ].px;
                 py = features.feature[ metal_stuff_id ].py;
             }
-			target.x = (px << 3) - the_map->map_w_d - 4;
-			target.z = (py << 3) - the_map->map_h_d - 4;
+			target.x = (px << 3) - the_map->map_w_d;
+			target.z = (py << 3) - the_map->map_h_d;
             target.y = Math::Max( the_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[unit_idx]->FootprintX, unit_manager.unit_type[unit_idx]->FootprintZ ), the_map->sealvl);
             return true;
         }

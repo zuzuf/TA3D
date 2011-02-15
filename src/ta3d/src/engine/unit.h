@@ -78,7 +78,7 @@ namespace TA3D
 
 		void draw_on_FOW(bool jamming = false);
 
-		bool is_on_radar(byte p_mask);
+		bool is_on_radar(byte p_mask) const;
 
 		void start_mission_script(int mission_type);
 

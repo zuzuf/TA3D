@@ -397,6 +397,8 @@ namespace TA3D
 				units.unit[id].Pos.y  = target_pos.y;
 				units.unit[id].cur_px = (sint16)target_pos.x;
 				units.unit[id].cur_py = (sint16)target_pos.z;
+				units.unit[id].Pos.x  = target_pos.x * 8.0f - the_map->map_w_d;
+				units.unit[id].Pos.z  = target_pos.z * 8.0f - the_map->map_h_d;
 				units.unit[id].draw_on_map();
 
 				if (unit_manager.unit_type[units.unit[id].type_id]->ActivateWhenBuilt)// Start activated

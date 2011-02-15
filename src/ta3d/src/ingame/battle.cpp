@@ -58,7 +58,7 @@ namespace TA3D
 	int fire;
 	int build_part;
 
-	int start=0;
+	int start = 0;
 
 
 	Battle *Battle::pInstance = NULL;
