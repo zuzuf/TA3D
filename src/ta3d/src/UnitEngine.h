@@ -91,7 +91,7 @@ namespace TA3D
 
 	public:
 		static const Vec &pos(const T &elt)	{	return elt->Pos;	}
-		static inline void getTopBottom(const std::vector<T> &elts, Vec &top, Vec &bottom);
+		static inline void getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom);
 		static unsigned int getPrincipalDirection(const Vec &v)
 		{
 			if (fabsf(v.x) > fabsf(v.y))
@@ -108,10 +108,10 @@ namespace TA3D
 		}
 	};
 
-	void UnitTKit::getTopBottom(const std::vector<UnitTKit::T> &elts, UnitTKit::Vec &top, UnitTKit::Vec &bottom)
+	inline void UnitTKit::getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom)
 	{
-		top = bottom = elts.front()->Pos;
-		for(std::vector<UnitTKit::T>::const_iterator i = elts.begin() ; i != elts.end() ; ++i)
+		top = bottom = (*begin)->Pos;
+		for(std::vector<UnitTKit::T>::const_iterator i = begin ; i != end ; ++i)
 		{
 			top.x = Math::Max(top.x, (*i)->Pos.x);
 			top.y = Math::Max(top.y, (*i)->Pos.y);

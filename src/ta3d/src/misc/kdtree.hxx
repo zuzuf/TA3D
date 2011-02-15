@@ -11,25 +11,26 @@
 namespace TA3D
 {
 	template<typename T, class TKit>
-		KDTree<T, TKit>::KDTree(std::vector<T> &elts) : lChild(NULL), rChild(NULL)
+		KDTree<T, TKit>::KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end) : lChild(NULL), rChild(NULL)
 	{
-		if (elts.size() <= KDTREE_MAX_SET_SIZE)
+		const int size = end - begin;
+		if (size <= KDTREE_MAX_SET_SIZE)
 		{
-			elements.insert(elements.end(), elts.begin(), elts.end());
+//			elements.insert(elements.end(), begin, end);
+			elements_begin = begin;
+			elements_end = end;
 			return;
 		}
 		Vec top, bottom;
-		TKit::getTopBottom(elts, top, bottom);
+		TKit::getTopBottom(begin, end, top, bottom);
 		N = TKit::getPrincipalDirection(top - bottom);
 
-		std::sort(elts.begin(), elts.end(), typename TKit::Comparator(N));
-		int mid = (elts.size() - 1) / 2;
-		P = TKit::pos(elts[mid]);
-		std::vector<T> lower(elts.begin(), elts.begin() + mid - 1);
-		std::vector<T> upper(elts.begin() + mid, elts.end());
+		std::sort(begin, end, typename TKit::Comparator(N));
+		const int mid = (size - 1) >> 1;
+		P = TKit::pos(*(begin + mid));
 
-		lChild = new KDTree<T, TKit>(upper);
-		rChild = new KDTree<T, TKit>(lower);
+		lChild = new KDTree<T, TKit>(begin + mid, end);
+		rChild = new KDTree<T, TKit>(begin, begin + (mid - 1));
 	}
 
 	template<typename T, class TKit>
@@ -42,12 +43,12 @@ namespace TA3D
 	}
 
 	template<typename T, class TKit>
-		inline void KDTree<T, TKit>::maxDistanceQuery(std::deque<T> &result, const Vec &center, float maxDist) const
+		inline void KDTree<T, TKit>::maxDistanceQuery(std::deque<T> &result, const Vec &center, const float maxDist) const
 	{
 		if (rChild == NULL && lChild == NULL)
 		{
 			const float dist2 = maxDist * maxDist;
-			for(typename std::vector<T>::const_iterator i = elements.begin() ; i != elements.end() ; ++i)
+			for(typename std::vector<T>::const_iterator i = elements_begin ; i != elements_end ; ++i)
 				if ((TKit::pos(*i) - center).sq() <= dist2)
 					result.push_back(*i);
 			return;
@@ -55,9 +56,17 @@ namespace TA3D
 
 		const float proj = (P - center)[N];
 
-		if (proj >= 0.0f || -proj < maxDist)
+		if (proj >= 0.0f)
+		{
 			rChild->maxDistanceQuery(result, center, maxDist);
-		if (proj <= 0.0f || proj < maxDist)
+			if (proj < maxDist)
+				lChild->maxDistanceQuery(result, center, maxDist);
+		}
+		else
+		{
 			lChild->maxDistanceQuery(result, center, maxDist);
+			if (-proj < maxDist)
+				rChild->maxDistanceQuery(result, center, maxDist);
+		}
 	}
 }
