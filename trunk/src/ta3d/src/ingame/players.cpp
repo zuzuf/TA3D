@@ -154,7 +154,7 @@ namespace TA3D
 		glBegin(GL_QUADS);			// Dessine les barres de metal et d'énergie
 		gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
 
-		if (metal_s[0])
+		if (metal_s[_id])
 		{
 			float metal_percent = metal_s[_id] ? metal[_id] / float(metal_s[_id]) : 0.0f;
 			glVertex2f( ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1, ta3dSideData.side_int_data[ players.side_view ].MetalBar.y1 );
@@ -166,7 +166,7 @@ namespace TA3D
 		}
 
 		gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
-		if (energy_s[0])
+		if (energy_s[_id])
 		{
 			float energy_percent = energy_s[_id] ? energy[_id] / float(energy_s[_id]) : 0.0f;
 			glVertex2f(ta3dSideData.side_int_data[players.side_view].EnergyBar.x1, ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y1 );
