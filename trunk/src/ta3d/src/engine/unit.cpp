@@ -469,12 +469,14 @@ namespace TA3D
 
 
 
-	bool Unit::is_on_radar(byte p_mask)
+	bool Unit::is_on_radar(byte p_mask) const
 	{
-        UnitType *pType = unit_manager.unit_type[type_id];
-        int px = cur_px>>1;
-		int py = cur_py>>1;
-		if (px >= 0 && py >= 0 && px < the_map->radar_map->w && py < the_map->radar_map->h && type_id != -1)
+		if (type_id == -1)
+			return false;
+		const UnitType* const pType = unit_manager.unit_type[type_id];
+		const int px = cur_px >> 1;
+		const int py = cur_py >> 1;
+		if (px >= 0 && py >= 0 && px < the_map->radar_map->w && py < the_map->radar_map->h)
 			return ( (SurfaceByte(the_map->radar_map,px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
 				|| ( (SurfaceByte(the_map->sonar_map,px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
 		return false;
@@ -488,7 +490,7 @@ namespace TA3D
 		if (command_locked && !(mission_type & MISSION_FLAG_AUTO))
 			return;
 
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType* const pType = unit_manager.unit_type[type_id];
         mission_type &= ~MISSION_FLAG_AUTO;
 
 		uint32 target_ID = 0;
@@ -4069,7 +4071,7 @@ namespace TA3D
 							}
 							if (!pType->BMcode)
 							{
-								int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
+								const int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
 								if (buildinfo >= 0)
 								{
 									compute_model_coord();
@@ -4081,7 +4083,7 @@ namespace TA3D
 								V.x = 0.0f;
 								V.y = 0.0f;
 								V.z = 0.0f;
-								Vector3D target = mission->getTarget().getPos();
+								const Vector3D target = mission->getTarget().getPos();
 								if (the_map->check_rect((((int)(target.x) + the_map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintX>>1),
 													(((int)(target.z) + the_map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->getData()]->FootprintZ>>1),
 													unit_manager.unit_type[mission->getData()]->FootprintX,
