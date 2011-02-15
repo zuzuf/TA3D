@@ -950,8 +950,8 @@ namespace TA3D
 		}
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 		{
-			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i]);
-			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i]);
+			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i].begin(), detectableUnits[i].end());
+			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i].begin(), allUnits[i].end());
 		}
 		pMutex.unlock();
 

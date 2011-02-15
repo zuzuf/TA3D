@@ -156,7 +156,7 @@ namespace TA3D
 
 		if (metal_s[_id])
 		{
-			float metal_percent = metal_s[_id] ? metal[_id] / float(metal_s[_id]) : 0.0f;
+			const float metal_percent = metal_s[_id] ? metal[_id] / float(metal_s[_id]) : 0.0f;
 			glVertex2f( ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1, ta3dSideData.side_int_data[ players.side_view ].MetalBar.y1 );
 			glVertex2f( float(ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1) + metal_percent * float(ta3dSideData.side_int_data[ players.side_view ].MetalBar.x2 - ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1),
 						ta3dSideData.side_int_data[ players.side_view ].MetalBar.y1 );
@@ -168,7 +168,7 @@ namespace TA3D
 		gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
 		if (energy_s[_id])
 		{
-			float energy_percent = energy_s[_id] ? energy[_id] / float(energy_s[_id]) : 0.0f;
+			const float energy_percent = energy_s[_id] ? energy[_id] / float(energy_s[_id]) : 0.0f;
 			glVertex2f(ta3dSideData.side_int_data[players.side_view].EnergyBar.x1, ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y1 );
 			glVertex2f(float(ta3dSideData.side_int_data[players.side_view].EnergyBar.x1) + energy_percent * float(ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x2 - ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1),
 					   ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y1 );
@@ -180,7 +180,7 @@ namespace TA3D
 		units.unlock();
 
 		glEnd();
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
+		glColor4ub(0xFF,0xFF,0xFF,0xFF);
 	}
 
 
@@ -201,7 +201,7 @@ namespace TA3D
 			SocketTCP::disableFlush();
 			for (int e = 0; e < units.nb_unit; ++e)
 			{
-				int i = units.idx_list[e];
+				const int i = units.idx_list[e];
 				if (i < 0 || i >= units.max_unit)
 					continue;		// Error !!
 				units.unlock();
@@ -240,7 +240,7 @@ namespace TA3D
 						if (g_ta3d_network->isRemoteHuman(f))
 							latest_sync = Math::Min(latest_sync, units.unit[i].last_synctick[f]);
 
-					bool sync_needed = NeedSynchronization(sync, units.unit[i].previous_sync);
+					const bool sync_needed = NeedSynchronization(sync, units.unit[i].previous_sync);
 
 					if (sync_needed)
 					{
