@@ -66,7 +66,6 @@ namespace TA3D
 
 
 	INGAME_UNITS::INGAME_UNITS()
-		: repair_pads()
 	{
 		init();
 	}
@@ -265,8 +264,6 @@ namespace TA3D
 		next_unit_ID = 1;
 		mini_pos = NULL;
 		mini_col = NULL;
-		repair_pads.clear();
-		repair_pads.resize(TA3D_PLAYERS_HARD_LIMIT);
 
 		last_on = -1;
 		current_tick = 0;
@@ -933,6 +930,7 @@ namespace TA3D
 		pMutex.lock();
 		std::vector<UnitTKit::T> detectableUnits[10];
 		std::vector<UnitTKit::T> allUnits[10];
+		std::vector<UnitTKit::T> repairPads[10];
 		for (uint32 e = 0U ; e < index_list_size ; ++e) // Compte les stocks de ressources et les productions
 		{
 			const uint32 i = idx_list[e];
@@ -941,9 +939,14 @@ namespace TA3D
 				continue;
 			const int owner = pUnit->owner_id;
 			const int type = pUnit->type_id;
+			const UnitType* const pUnitType = type >= 0 ? unit_manager.unit_type[type] : NULL;
 			if (type >= 0 && owner < 10)
+			{
 				allUnits[owner].push_back(pUnit);
-			if (type < 0 || (!shootallMode && !unit_manager.unit_type[type]->ShootMe))
+				if (pUnitType->IsAirBase)
+					repairPads[owner].push_back(pUnit);
+			}
+			if (type < 0 || (!shootallMode && !pUnitType->ShootMe))
 				continue;
 			if (owner < 10)
 				detectableUnits[owner].push_back(pUnit);
@@ -952,6 +955,7 @@ namespace TA3D
 		{
 			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i].begin(), detectableUnits[i].end());
 			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i].begin(), allUnits[i].end());
+			kdTreeRepairPads[i] = new KDTree<UnitTKit::T, UnitTKit>(repairPads[i].begin(), repairPads[i].end());
 		}
 		pMutex.unlock();
 
@@ -1157,8 +1161,10 @@ namespace TA3D
 		{
 			delete kdTree[i];
 			delete kdTreeFriends[i];
+			delete kdTreeRepairPads[i];
 			kdTree[i] = NULL;
 			kdTreeFriends[i] = NULL;
+			kdTreeRepairPads[i] = NULL;
 		}
 	}
 
@@ -1226,9 +1232,6 @@ namespace TA3D
 		unit[unit_index].Angle.y = (((sint32)(Math::RandomTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG;
 
 		idx_list[index_list_size++] = unit_index;
-
-		if (unit_manager.unit_type[type_id]->IsAirBase)			// Say we're here !
-			repair_pads[ owner ].push_front(unit_index);
 
 		players.nb_unit[owner]++;
 		pMutex.unlock();
@@ -1418,22 +1421,6 @@ namespace TA3D
 			event.type = EVENT_UNIT_DEATH;
 			event.opt1 = index;
 			network_manager.sendEvent( &event );
-		}
-
-		if (unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ]->IsAirBase ) // Remove it from repair_pads list
-		{
-			int owner_id = unit[ index ].owner_id;
-
-			pMutex.lock();
-			for (std::list<uint16>::iterator i = repair_pads[owner_id].begin(); i != repair_pads[owner_id].end(); ++i)
-			{
-				if (*i == index)
-				{
-					repair_pads[owner_id].erase(i);
-					break;
-				}
-			}
-			pMutex.unlock();
 		}
 
 		if (unit[index].flags & 1 )

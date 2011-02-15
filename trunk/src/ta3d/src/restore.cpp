@@ -248,14 +248,6 @@ namespace TA3D
 		SAVE( units.max_unit );
 		SAVE( units.next_unit_ID );
 
-		for (INGAME_UNITS::RepairPodsList::iterator pad_list = units.repair_pads.begin(); units.repair_pads.end() != pad_list; ++pad_list)
-		{
-			int list_size = int(pad_list->size());
-			SAVE(list_size);
-			for (std::list<uint16>::iterator i = pad_list->begin(); pad_list->end() != i; ++i)
-				SAVE(*i);
-		}
-
 		for (int e = 0 ; e < units.nb_unit ; ++e)
 		{
 			int i = units.idx_list[ e ];
@@ -716,15 +708,6 @@ namespace TA3D
 		LOAD( units.nb_unit );
 		LOAD( units.max_unit );
 		LOAD( units.next_unit_ID );
-
-		for (INGAME_UNITS::RepairPodsList::iterator pad_list = units.repair_pads.begin(); units.repair_pads.end() != pad_list; ++pad_list)
-		{
-			int list_size;
-			LOAD( list_size );
-			pad_list->resize( list_size );
-			for (std::list<uint16>::iterator i = pad_list->begin(); pad_list->end() != i; ++i)
-				LOAD( *i );
-		}
 
 		units.lock();
 

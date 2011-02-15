@@ -2939,13 +2939,13 @@ namespace TA3D
 						}
 
 						target_unit->compute_model_coord();
-						int piece_id = mission->getData() >= 0 ? mission->getData() : (-mission->getData() - 1);
-						Vector3D target = target_unit->Pos + target_unit->data.data[piece_id].pos;
+						const int piece_id = mission->getData() >= 0 ? mission->getData() : (-mission->getData() - 1);
+						const Vector3D target = target_unit->Pos + target_unit->data.data[piece_id].pos;
 
 						Vector3D Dir = target - Pos;
 						Dir.y = 0.0f;
-						float dist = Dir.sq();
-						int maxdist = 6;
+						const float dist = Dir.sq();
+						const int maxdist = 6;
 						if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 						{
 							mission->Flags() &= ~MISSION_FLAG_BEING_REPAIRED;
@@ -2984,7 +2984,8 @@ namespace TA3D
 									mission->setData( -mission->getData() - 1 );
 								}
 							}
-							else {						// being repaired
+							else
+							{						// being repaired
 								Pos = target;
 								V.reset();;
 
@@ -3538,6 +3539,8 @@ namespace TA3D
 							for(std::deque<UnitTKit::T>::const_iterator i = friends.begin() ; i != friends.end() ; ++i)
 							{
 								const Unit* const pUnit = *i;
+								if (pUnit == this)		// No self-healing
+									continue;
 								const int friend_type_id = pUnit->type_id;
 								if (friend_type_id == -1)
 									continue;
@@ -3558,46 +3561,33 @@ namespace TA3D
 						{
 							mission->Flags() |= MISSION_FLAG_DONT_STOP_MOVE;
 
-                            if (hp < pType->MaxDamage && !attacked && pad_timer >= 5.0f ) // Check if a repair pad is free
+							if (hp < pType->MaxDamage * 0.75f && !attacked && pad_timer >= 5.0f ) // Check if a repair pad is free
 							{
 								bool attacking = false;
-								for (int i = 0 ; i < 3; ++i)
+								for (uint32 i = 0 ; i < weapon.size() ; ++i)
 								{
-									if (weapon[i].state != WEAPON_FLAG_IDLE )
+									if (weapon[i].state != WEAPON_FLAG_IDLE)
 									{
 										attacking = true;
 										break;
 									}
 								}
-								if (!attacking )
+								if (!attacking)
 								{
 									pad_timer = 0.0f;
 									bool going_to_repair_pad = false;
-									pMutex.unlock();
-									units.lock();
-									for (std::list<uint16>::iterator i = units.repair_pads[owner_id].begin(); i != units.repair_pads[owner_id].end(); ++i)
+									std::deque<UnitTKit::T> repair_pads;
+									units.kdTreeRepairPads[owner_id]->maxDistanceQuery(repair_pads, Pos, pType->ManeuverLeashLength);
+									for (std::deque<UnitTKit::T>::const_iterator i = repair_pads.begin(); i != repair_pads.end() && !going_to_repair_pad ; ++i)
 									{
-										units.unit[ *i ].lock();
-										Vector3D Dir = units.unit[ *i ].Pos - Pos;
-										Dir.y = 0.0f;
-										if ((units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
-                                            && Dir.sq() <= SQUARE(pType->ManeuverLeashLength)) // He can repair us :)
+										const Unit* const pUnit = (Unit*)*i;
+										if ((pUnit->pad1 == 0xFFFF || pUnit->pad2 == 0xFFFF) && pUnit->build_percent_left == 0.0f) // He can repair us :)
 											{
-												int target_idx = *i;
-												units.unit[ target_idx ].unlock();
-												pMutex.lock();
-                                                add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]));
-												pMutex.unlock();
-												units.repair_pads[ owner_id ].erase(i);
-												units.repair_pads[ owner_id ].push_back( target_idx );		// So we don't try it before others :)
+												add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &(pUnit->Pos), true, 0, (void*)pUnit);
 												going_to_repair_pad = true;
-												break;
 											}
-										units.unit[ *i ].unlock();
 									}
-									units.unlock();
-									pMutex.lock();
-									if (going_to_repair_pad )
+									if (going_to_repair_pad)
 										break;
 								}
 							}
