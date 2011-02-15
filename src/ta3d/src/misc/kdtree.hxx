@@ -16,7 +16,6 @@ namespace TA3D
 		const int size = end - begin;
 		if (size <= KDTREE_MAX_SET_SIZE)
 		{
-//			elements.insert(elements.end(), begin, end);
 			elements_begin = begin;
 			elements_end = end;
 			return;
