@@ -6,17 +6,24 @@
 
 namespace TA3D
 {
+	template<class T>	struct GridDataType {	typedef T type;	};
+	template<>	struct GridDataType<bool> {	typedef unsigned char type;	};
+
 	template<class T>
 			class Grid
 	{
 	public:
-		typedef T Type;
-		typedef typename std::vector<T> Container;
-		typedef typename Container::reference reference;
-		typedef typename Container::const_reference const_reference;
+		typedef typename GridDataType<T>::type Type;
+		typedef typename std::vector<Type> Container;
+		typedef Type& reference;
+		typedef const Type& const_reference;
 	public:
 		Grid();
 		Grid(int w, int h);
+	private:
+		Grid(const Grid&)	{}
+		Grid &operator=(const Grid&)	{}
+	public:
 		~Grid();
 		void resize(int w, int h);
 

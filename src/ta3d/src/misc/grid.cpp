@@ -11,7 +11,7 @@ namespace TA3D
 {
 	void gaussianFilter(Grid<float> &grid, float sigma)
 	{
-		int s = 1 + int(3.0f * sigma);
+		const int s = 1 + int(3.0f * sigma);
 
 #ifdef _OPENMP
 		const int nb_threads = omp_get_max_threads();
