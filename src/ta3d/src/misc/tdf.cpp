@@ -99,7 +99,7 @@ namespace TA3D
 			file = VFS::Instance()->readFile(filename);
 			if (file && file->size())
 			{
-				bool res = loadFromMemory("hpi://" + filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
+				bool res = loadFromMemory(String("hpi://") << filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
 				delete file;
 				return res;
 			}
@@ -296,7 +296,7 @@ namespace TA3D
 						stack.value.replace("\\n", "\n");
 						stack.value.replace("\\r", "\r");
 
-						if (!special_section.empty() && (stack.currentSection.glob("*." + special_section) || stack.currentSection == special_section))
+						if (!special_section.empty() && (stack.currentSection.glob(String("*.") << special_section) || stack.currentSection == special_section))
 							pTable[stack.currentSection] = (pullAsString(stack.currentSection) << "," << stack.key);
 
 						String realKey(stack.currentSection);

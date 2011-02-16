@@ -490,7 +490,7 @@ namespace TA3D
 		{
 			String modelname = args[0];
 			String filename = args[1];
-			String outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) + ".tga";
+			String outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) << ".tga";
 
 			// Starts a minimal TA3D environnement
 			InterfaceManager = new IInterfaceManager();

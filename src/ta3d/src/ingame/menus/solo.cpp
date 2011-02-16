@@ -134,7 +134,7 @@ namespace Menus
 		if (obj)
 		{
 			String::List fileList;
-			Paths::Glob(fileList, TA3D::Paths::Savegames + "*.sav");
+			Paths::Glob(fileList, String(TA3D::Paths::Savegames) << "*.sav");
 			fileList.sort();
 			obj->Text.clear();
 			obj->Text.reserve(fileList.size());

@@ -69,7 +69,7 @@ namespace TA3D
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 		if (sock.isOpen())
-			sock.send((msg + "\n").c_str(), msg.size() + 1);
+			sock.send((String(msg) << "\n").data(), msg.size() + 1);
 		else
 		{
 			state = DISCONNECTED;
@@ -361,7 +361,7 @@ namespace TA3D
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 		currentChan = chan.empty() ? "*" : chan;
-		sendMessage("CHAN " + chan);
+		sendMessage(String("CHAN ") << chan);
 		sendMessage("GET USER LIST");
 		peerList.clear();
 	}
@@ -370,7 +370,7 @@ namespace TA3D
 	void NetClient::sendChan(const String &msg)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		sendMessage("SENDALL " + msg);
+		sendMessage(String("SENDALL ") << msg);
 	}
 
 

@@ -131,7 +131,7 @@ namespace TA3D
 	void TEXTURE_MANAGER::load_gaf(const String &filename, bool logo)
 	{
 		String::Vector elts;
-		sint32 nb_entry = VFS::Instance()->getDirlist(filename + "\\*", elts);
+		sint32 nb_entry = VFS::Instance()->getDirlist(String(filename) << "\\*", elts);
 		int n_nbtex = nbtex + nb_entry;
 		Gaf::Animation* n_tex = new Gaf::Animation[n_nbtex];
 		for (int i = 0; i < nbtex; ++i)

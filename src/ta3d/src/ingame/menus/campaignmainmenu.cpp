@@ -158,7 +158,7 @@ namespace Menus
 			{
 				last_campaign_id = guiobj->Pos;
 				mission_id = -1;
-				campaign_name = "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf";
+				campaign_name = String("camps\\") << guiobj->Text[ guiobj->Pos ] << ".tdf";
 				campaign_parser = new TDFParser( campaign_name);
 
 				guiobj = pArea->get_object("campaign.mission_list");

@@ -20,9 +20,9 @@ namespace Cache
 			? String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : " << lp_CONFIG->last_MOD << '\n'
 			: String("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : \n") << "Texture Quality : " << lp_CONFIG->unitTextureQuality;
 
-		if (Paths::Exists(Paths::Caches + "cache_info.txt") && !force)
+		if (Paths::Exists(String(Paths::Caches) << "cache_info.txt") && !force)
 		{
-			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::read);
+			Stream cache_info(String(Paths::Caches) << "cache_info.txt", Yuni::Core::IO::OpenMode::read);
 			if (cache_info.opened())
 			{
 				char *buf = new char[cache_info_data.size() + 1];
@@ -48,11 +48,11 @@ namespace Cache
 		if (rebuild_cache)
 		{
 			String::Vector file_list;
-			Paths::GlobFiles(file_list, Paths::Caches + "*");
+			Paths::GlobFiles(file_list, String(Paths::Caches) << "*");
 			for (String::Vector::iterator i = file_list.begin(); i != file_list.end(); ++i)
 				remove(i->c_str());
 			// Update cache date
-			Stream cache_info(Paths::Caches + "cache_info.txt", Yuni::Core::IO::OpenMode::write);
+			Stream cache_info(String(Paths::Caches) << "cache_info.txt", Yuni::Core::IO::OpenMode::write);
 			if (cache_info.opened())
 			{
 				cache_info.write(cache_info_data.c_str(), cache_info_data.size());

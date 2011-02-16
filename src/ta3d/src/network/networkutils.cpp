@@ -360,7 +360,7 @@ namespace TA3D
 		const String path = Paths::ExtractFilePath(filename);
 		if (!path.empty())
 			Paths::MakeDir(path);
-		Stream file( filename + ".part", Yuni::Core::IO::OpenMode::write );
+		Stream file( String(filename) << ".part", Yuni::Core::IO::OpenMode::write );
 
 		delete((struct net_thread_params*)param);
 		param = NULL;
@@ -388,7 +388,7 @@ namespace TA3D
 			LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (0)");
 			pDead = 1;
 			file.close();
-			remove( (filename + ".part").c_str() );
+			remove( (String(filename) << ".part").c_str() );
 			network->setFileDirty();
 			DELETE_ARRAY(buffer);
 			network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
@@ -409,7 +409,7 @@ namespace TA3D
 				LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (1)");
 				pDead = 1;
 				file.close();
-				remove( (filename + ".part").c_str() );
+				remove( (String(filename) << ".part").c_str() );
 				network->setFileDirty();
 				DELETE_ARRAY(buffer);
 				network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
@@ -439,10 +439,10 @@ namespace TA3D
 
 		file.close();
 		if( pDead && sofar < length )				// Delete the file if transfer has been aborted
-			remove( (filename + ".part").c_str() );
+			remove( (String(filename) << ".part").c_str() );
 		else
 		{
-			rename( (filename + ".part").c_str(), filename.c_str() );
+			rename( (String(filename) << ".part").c_str(), filename.c_str() );
 			VFS::Instance()->reload();
 		}
 

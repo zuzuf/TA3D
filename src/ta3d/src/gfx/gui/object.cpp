@@ -86,18 +86,18 @@ namespace Gui
 		switch (Type)
 		{
 			case OBJ_OPTIONC:
-			case OBJ_OPTIONB: x2 = x1 + (int)gui_font->length(caption) + 4;
+			case OBJ_OPTIONB:	x2 = x1 + (int)gui_font->length(caption) + 4;
 			case OBJ_TEXT:
 			case OBJ_MENU:
 			case OBJ_FMENU:
 			case OBJ_TEXTBAR:
 			case OBJ_BUTTON:
-							  if (Flag & FLAG_CENTERED)
-							  {
-								  x1 += (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
-								  x2 -= (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
-							  }
-							  Text[0] = caption;
+				if (Flag & FLAG_CENTERED)
+				{
+					x1 += (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
+					x2 -= (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
+				}
+				Text[0] = caption;
 		}
 		switch (Type)
 		{

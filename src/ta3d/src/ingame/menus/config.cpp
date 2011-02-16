@@ -333,7 +333,7 @@ namespace Menus
 			{
 				skin_name = Paths::ExtractFileName(*i, false);
 				obj->Text.push_back(skin_name);
-				if ("gui/" + ToLower(skin_name) == ToLower(lp_CONFIG->skin_name))
+				if (String("gui/") << ToLower(skin_name) == ToLower(lp_CONFIG->skin_name))
 					obj->Text[0] = skin_name;
 			}
 		}
@@ -607,7 +607,7 @@ namespace Menus
 			if (obj && obj->Value != -1)
 			{
 				obj->Text[0] = obj->Text[ 1 + obj->Value];
-				lp_CONFIG->last_MOD = obj->Value > 0 ? "mods/" + obj->Text[0] + "/" : "";
+				lp_CONFIG->last_MOD = obj->Value > 0 ? String("mods/") << obj->Text[0] << '/' : String();
 			}
 		}
 		if (pArea->get_value( "*.skin" ) >= 0)
@@ -616,7 +616,7 @@ namespace Menus
 			if (obj && obj->Value != -1)
 			{
 				obj->Text[0] = obj->Text[1 + obj->Value];
-				lp_CONFIG->skin_name = obj->Value >= 0 ? "gui/" + obj->Text[0] : "";
+				lp_CONFIG->skin_name = obj->Value >= 0 ? String("gui/") << obj->Text[0] : String();
 			}
 		}
 

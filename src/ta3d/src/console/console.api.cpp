@@ -66,7 +66,7 @@ namespace TA3D
 		SDL_Surface *bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
 		SDL_FillRect(bmp, NULL, 0);
 		glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->pixels);
-		//                        save_bitmap( TA3D::Paths::Screenshots + "z.tga",bmp);
+		//                        save_bitmap(String(TA3D::Paths::Screenshots) << "z.tga",bmp);
 		SDL_FreeSurface(bmp);
 		return 0;
 	}

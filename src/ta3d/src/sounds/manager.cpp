@@ -84,7 +84,7 @@ namespace Audio
 			i->clear();
 			String name = pPlaylist[indx]->filename;
 			if (pPlaylist[indx]->cdromID >= 0)
-				name = "[CD] " + name;
+				name = String("[CD] ") << name;
 			if (pPlaylist[indx]->battleTune)
 				*i << "[B] " << name;
 			else
@@ -555,13 +555,13 @@ namespace Audio
 					if ((*cur)->cdromID >= 0)
 						szResult = (*cur)->filename;
 					else
-						szResult = VFS::Instance()->extractFile("music/" + (*cur)->filename);
+						szResult = VFS::Instance()->extractFile(String("music/") << (*cur)->filename);
 					break;
 				}
 				else
 				{
 					if ((*cur)->battleTune) // Take the last one that can be taken if we try to go too far
-						szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : VFS::Instance()->extractFile("music/" + (*cur)->filename);
+						szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : VFS::Instance()->extractFile(String("music/") << (*cur)->filename);
 				}
 			}
 			return szResult;
@@ -581,7 +581,7 @@ namespace Audio
 
 			if (pCurrentItemToPlay <= mCount || pCurrentItemToPlay <= 0)
 			{
-				szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : VFS::Instance()->extractFile("music/" + (*cur)->filename);
+				szResult = (*cur)->cdromID >= 0 ? (*cur)->filename : VFS::Instance()->extractFile(String("music/") << (*cur)->filename);
 				pCurrentItemToPlay = mCount + 1;
 				found = true;
 				break;
@@ -863,23 +863,8 @@ namespace Audio
 		filename.toLower();
 
 		// if it has a .wav extension then remove it.
-		String::size_type i = filename.find(".wav");
-		if (i != String::npos)
-			filename.truncate(filename.length() - 4);
-		else
-		{
-			// if it has a .ogg extension then remove it.
-			i = filename.find(".ogg");
-			if (i != String::npos)
-				filename.truncate(filename.length() - 4);
-			else
-			{
-				// if it has a .mp3 extension then remove it.
-				i = filename.find(".mp3");
-				if (i != String::npos)
-					filename.truncate(filename.length() - 4);
-			}
-		}
+		if (filename.endsWith(".wav") || filename.endsWith(".ogg") || filename.endsWith(".mp3"))
+			filename = Substr(filename, 0, filename.length() - 4);
 
 		// if its already loaded return true.
 		if (pSoundList.count(filename) != 0)
@@ -890,15 +875,15 @@ namespace Audio
 		// pull the data from hpi.
 		String theSound;
 		theSound << "sounds\\" << filename;
-		if (VFS::Instance()->fileExists(theSound + ".wav"))
+		if (VFS::Instance()->fileExists(String(theSound) << ".wav"))
 			theSound << ".wav";
 		else
 		{
-			if (VFS::Instance()->fileExists(theSound + ".ogg"))
+			if (VFS::Instance()->fileExists(String(theSound) << ".ogg"))
 				theSound << ".ogg";
 			else
 			{
-				if (VFS::Instance()->fileExists(theSound + ".mp3"))
+				if (VFS::Instance()->fileExists(String(theSound) << ".mp3"))
 					theSound << ".mp3";
 			}
 		}

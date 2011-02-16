@@ -48,7 +48,7 @@ namespace Resources
 
 		void initForWindows()
 		{
-			AddSearchPath(Paths::ApplicationRoot + "resources\\");
+			AddSearchPath(String(Paths::ApplicationRoot) << "resources\\");
 			AddSearchPath(Paths::ApplicationRoot);
 		}
 
@@ -58,9 +58,9 @@ namespace Resources
 		void initForDefaultUnixes()
 		{
 			String home = getenv("HOME");
-			home += "/.ta3d/";
+			home << "/.ta3d/";
 
-			AddSearchPath(home + "resources/");
+			AddSearchPath(String(home) << "resources/");
 			AddSearchPath("/usr/local/games/ta3d/");
             AddSearchPath("/usr/local/games/ta3d/resources/");
             AddSearchPath("/usr/local/share/ta3d/");
@@ -84,7 +84,7 @@ namespace Resources
 			if (VARS::lp_CONFIG->bUseWorkingDirectory)
 			{
 				AddSearchPath(Paths::ApplicationRoot);
-				AddSearchPath(Paths::ApplicationRoot + "resources/");
+				AddSearchPath(String(Paths::ApplicationRoot) << "resources/");
 			}
 		}
 
@@ -94,17 +94,17 @@ namespace Resources
 		{
 			String home = getenv("HOME");
 
-			Paths::MakeDir(home + "/Library/Application Support/ta3d/");
+			Paths::MakeDir(String(home) << "/Library/Application Support/ta3d/");
 			// Relative folder for the Application bundle
-			AddSearchPath(Paths::ApplicationRoot + "/../Resources/");
-			AddSearchPath(home + "/Library/Application Support/ta3d/");
+			AddSearchPath(String(Paths::ApplicationRoot) << "/../Resources/");
+			AddSearchPath(String(home) << "/Library/Application Support/ta3d/");
 			// Unix compatibility
-			AddSearchPath(home + "/.ta3d/resources/");
+			AddSearchPath(String(home) << "/.ta3d/resources/");
 			// If using MacPorts
 			AddSearchPath("/opt/local/share/ta3d/");
 			if (VARS::lp_CONFIG->bUseWorkingDirectory)
 			{
-				AddSearchPath(Paths::ApplicationRoot + "/resources/");
+				AddSearchPath(String(Paths::ApplicationRoot) << "/resources/");
 				AddSearchPath(Paths::ApplicationRoot);
 			}
 		}
@@ -135,7 +135,7 @@ namespace Resources
 		for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
 		{
 			out = *i;
-			out += relFilename;
+			out << relFilename;
 			if (Paths::Exists(out))
 				return true;
 		}
@@ -158,7 +158,7 @@ namespace Resources
 				if (folder == *i)
 					return false;
 			}
-            pResourcesFolders.push_back(folder + TA3D::Paths::Separator);
+			pResourcesFolders.push_back(String(folder) << TA3D::Paths::Separator);
             LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << TA3D::Paths::Separator << "`");
 			return true;
 		}

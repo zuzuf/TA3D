@@ -117,7 +117,7 @@ namespace Menus
 			game_data.campaign = true;
 			game_data.use_only = ota_parser.pullAsString( "GlobalHeader.useonlyunits");
 			if (!game_data.use_only.empty())
-				game_data.use_only = "camps\\useonly\\" + game_data.use_only;
+				game_data.use_only = String("camps\\useonly\\") << game_data.use_only;
 
 			exit_mode = Battle::Execute(&game_data);
 
@@ -151,7 +151,7 @@ namespace Menus
 		String narration_file;
 		narration_file << "camps\\briefs\\" << ota_parser.pullAsString("GlobalHeader.narration" ) << ".wav"; // The narration file
 
-		String language_suffix = (lp_CONFIG->Lang == "english") ? nullptr : ("-" + lp_CONFIG->Lang);
+		String language_suffix = (lp_CONFIG->Lang == "english") ? nullptr : (String("-") << lp_CONFIG->Lang);
 		String brief_file;
 		brief_file << "camps\\briefs" << language_suffix << "\\" << ota_parser.pullAsString("GlobalHeader.brief") << ".txt"; // The brief file
 

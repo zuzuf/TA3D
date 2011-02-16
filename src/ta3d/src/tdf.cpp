@@ -127,7 +127,7 @@ namespace TA3D
 		{
 			not_loaded = false;
 						// Try a GAF-like directory
-			anim.loadGAFFromDirectory("anims\\" + filename, seqname);
+			anim.loadGAFFromDirectory(String("anims\\") << filename, seqname);
 			if (anim.nb_bmp == 0)
 			{
 				String tmp("anims\\");
@@ -243,40 +243,40 @@ namespace TA3D
 
 			vfeats.push_back(pFeature);
 			pFeature->m3d = false;
-			pFeature->world = parser.pullAsString( key + "world", pFeature->world );
-			pFeature->description = parser.pullAsString( key + "description", pFeature->description );
-			pFeature->category = parser.pullAsString( key + "category", pFeature->category );
-			pFeature->filename = parser.pullAsString( key + "object" );
+			pFeature->world = parser.pullAsString( String(key) << "world", pFeature->world );
+			pFeature->description = parser.pullAsString( String(key) << "description", pFeature->description );
+			pFeature->category = parser.pullAsString( String(key) << "category", pFeature->category );
+			pFeature->filename = parser.pullAsString( String(key) << "object" );
 			pFeature->m3d = !pFeature->filename.empty();
 			if (!pFeature->m3d)
 			{
-				pFeature->filename = parser.pullAsString( key + "filename");
-				pFeature->seqname = parser.pullAsString( key + "seqname");
+				pFeature->filename = parser.pullAsString( String(key) << "filename");
+				pFeature->seqname = parser.pullAsString( String(key) << "seqname");
 			}
-			pFeature->animating = parser.pullAsBool( key + "animating",pFeature->animating );
-			pFeature->animating |= (pFeature->animtrans = parser.pullAsBool( key + "animtrans", pFeature->animtrans ));
-			pFeature->shadtrans = parser.pullAsBool( key + "shadtrans", pFeature->shadtrans );
-			pFeature->indestructible = parser.pullAsBool( key + "indestructible", pFeature->indestructible );
-			pFeature->height = parser.pullAsInt( key + "height", pFeature->height );
-			pFeature->hitdensity = parser.pullAsInt( key + "hitdensity", pFeature->hitdensity );
-			pFeature->metal = parser.pullAsInt( key + "metal", pFeature->metal );
-			pFeature->energy = parser.pullAsInt( key + "energy", pFeature->energy );
-			pFeature->damage = parser.pullAsInt( key + "damage", pFeature->damage );
-			pFeature->footprintx = parser.pullAsInt( key + "footprintx", pFeature->footprintx );
-			pFeature->footprintz = parser.pullAsInt( key + "footprintz", pFeature->footprintz );
-			pFeature->reclaimable = parser.pullAsBool( key + "reclaimable", pFeature->reclaimable );
-            pFeature->autoreclaimable = parser.pullAsBool( key + "autoreclaimable", pFeature->autoreclaimable ) && pFeature->reclaimable;
-			pFeature->blocking = parser.pullAsBool( key + "blocking", pFeature->blocking );
-			pFeature->flamable = parser.pullAsBool( key + "flamable", pFeature->flamable );
-			pFeature->geothermal = parser.pullAsBool( key + "geothermal", pFeature->geothermal );
-			pFeature->feature_dead = parser.pullAsString( key + "featuredead" );
-			pFeature->burnmin = short(parser.pullAsInt( key + "burnmin", pFeature->burnmin ));
-			pFeature->burnmax = short(parser.pullAsInt( key + "burnmax", pFeature->burnmax ));
-			pFeature->sparktime = short(parser.pullAsInt( key + "sparktime", pFeature->sparktime ));
-			pFeature->spreadchance = byte(parser.pullAsInt( key + "spreadchance", pFeature->spreadchance ));
-			pFeature->burnweapon = parser.pullAsString( key + "burnweapon" );
-			pFeature->feature_burnt = parser.pullAsString( key + "featureburnt" );
-			pFeature->feature_reclamate = parser.pullAsString( key + "featurereclamate" );
+			pFeature->animating = parser.pullAsBool( String(key) << "animating",pFeature->animating );
+			pFeature->animating |= (pFeature->animtrans = parser.pullAsBool( String(key) << "animtrans", pFeature->animtrans ));
+			pFeature->shadtrans = parser.pullAsBool( String(key) << "shadtrans", pFeature->shadtrans );
+			pFeature->indestructible = parser.pullAsBool( String(key) << "indestructible", pFeature->indestructible );
+			pFeature->height = parser.pullAsInt( String(key) << "height", pFeature->height );
+			pFeature->hitdensity = parser.pullAsInt( String(key) << "hitdensity", pFeature->hitdensity );
+			pFeature->metal = parser.pullAsInt( String(key) << "metal", pFeature->metal );
+			pFeature->energy = parser.pullAsInt( String(key) << "energy", pFeature->energy );
+			pFeature->damage = parser.pullAsInt( String(key) << "damage", pFeature->damage );
+			pFeature->footprintx = parser.pullAsInt( String(key) << "footprintx", pFeature->footprintx );
+			pFeature->footprintz = parser.pullAsInt( String(key) << "footprintz", pFeature->footprintz );
+			pFeature->reclaimable = parser.pullAsBool( String(key) << "reclaimable", pFeature->reclaimable );
+			pFeature->autoreclaimable = parser.pullAsBool( String(key) << "autoreclaimable", pFeature->autoreclaimable ) && pFeature->reclaimable;
+			pFeature->blocking = parser.pullAsBool( String(key) << "blocking", pFeature->blocking );
+			pFeature->flamable = parser.pullAsBool( String(key) << "flamable", pFeature->flamable );
+			pFeature->geothermal = parser.pullAsBool( String(key) << "geothermal", pFeature->geothermal );
+			pFeature->feature_dead = parser.pullAsString( String(key) << "featuredead" );
+			pFeature->burnmin = short(parser.pullAsInt( String(key) << "burnmin", pFeature->burnmin ));
+			pFeature->burnmax = short(parser.pullAsInt( String(key) << "burnmax", pFeature->burnmax ));
+			pFeature->sparktime = short(parser.pullAsInt( String(key) << "sparktime", pFeature->sparktime ));
+			pFeature->spreadchance = byte(parser.pullAsInt( String(key) << "spreadchance", pFeature->spreadchance ));
+			pFeature->burnweapon = parser.pullAsString( String(key) << "burnweapon" );
+			pFeature->feature_burnt = parser.pullAsString( String(key) << "featureburnt" );
+			pFeature->feature_reclamate = parser.pullAsString( String(key) << "featurereclamate" );
 
 			// Build the repulsion grid
 			pFeature->gRepulsion.resize(pFeature->footprintx * 5, pFeature->footprintz * 5);

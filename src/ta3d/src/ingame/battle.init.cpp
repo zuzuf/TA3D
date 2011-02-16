@@ -785,7 +785,8 @@ namespace TA3D
 				const uint32 simulation_w4 = simulation_w * 4;
 				memset(data, 0, water_map_size4 * sizeof(float));
 
-				String water_cache = TA3D::Paths::Caches + "water_cache.sim";
+				String water_cache;
+				water_cache << TA3D::Paths::Caches << "water_cache.sim";
 
 				if (!TA3D::Paths::Exists(water_cache))
 				{

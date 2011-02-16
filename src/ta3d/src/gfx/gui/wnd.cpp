@@ -219,13 +219,13 @@ namespace TA3D
 						do
 						{
 							s = (smin + smax) >> 1;
-							cutTitle = SubstrUTF8(Title, 0, s) + "...";
+							cutTitle = SubstrUTF8(Title, 0, s) << "...";
 							bool test = gui_font->length(cutTitle) > maxTitleLength;
 							if (test)
 							{
 								if (smax == smin + 1)
 								{
-									cutTitle = SubstrUTF8(Title, 0, smin) + "...";
+									cutTitle = SubstrUTF8(Title, 0, smin) << "...";
 									break;
 								}
 								smax = s;
@@ -1500,9 +1500,9 @@ namespace TA3D
 			background = gfx->load_texture_from_cache(panel, FILTER_LINEAR, (uint32*)&w, (uint32*)&h);
 			if (!background)
 			{
-				background = Gaf::ToTexture("anims\\" + Name, panel, &w, &h, true);
+				background = Gaf::ToTexture(String("anims\\") << Name, panel, &w, &h, true);
 				if (background == 0)		// Try GAF-like directory structure
-					background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
+					background = Gaf::ToTexture(String("anims\\") << Name << ".gaf", panel, &w, &h, true);
 				if (background == 0)		// Try GAF-like directory structure
 					background = Gaf::ToTexture("anims\\commongui", panel, &w, &h, true);
 				if (background == 0)
@@ -1541,15 +1541,15 @@ namespace TA3D
 
 				obj_key.clear();
 				obj_key << "gadget" << i + 1 << ".";
-				int obj_type = wndFile.pullAsInt(obj_key + "common.id");
+				int obj_type = wndFile.pullAsInt(String(obj_key) << "common.id");
 
-				object->Name = wndFile.pullAsString(obj_key + "common.name", String("gadget") << (i + 1));
+				object->Name = wndFile.pullAsString(String(obj_key) << "common.name", String("gadget") << (i + 1));
 				obj_hashtable[ToLower(object->Name)] = i + 1;
 
-				int X1 = (int)(wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
-				int Y1 = (int)(wndFile.pullAsInt(obj_key + "common.ypos")   * y_factor);
-				int W  = (int)(wndFile.pullAsInt(obj_key + "common.width")  * x_factor - 1);
-				int H  = (int)(wndFile.pullAsInt(obj_key + "common.height") * y_factor - 1);
+				int X1 = (int)(wndFile.pullAsInt(String(obj_key) << "common.xpos")   * x_factor); // Reads data from TDF
+				int Y1 = (int)(wndFile.pullAsInt(String(obj_key) << "common.ypos")   * y_factor);
+				int W  = (int)(wndFile.pullAsInt(String(obj_key) << "common.width")  * x_factor - 1);
+				int H  = (int)(wndFile.pullAsInt(String(obj_key) << "common.height") * y_factor - 1);
 
 				//float size = Math::Min(x_factor, y_factor);
 				uint32 obj_flags = 0;
@@ -1559,11 +1559,11 @@ namespace TA3D
 				if (Y1 < 0)
 					Y1 += SCREEN_H;
 
-				if (!wndFile.pullAsBool(obj_key + "common.active"))
+				if (!wndFile.pullAsBool(String(obj_key) << "common.active"))
 					obj_flags |= FLAG_HIDDEN;
 
 				String::Vector Caption;
-				wndFile.pullAsString(obj_key + "text").explode(Caption, ',', true, true, true);
+				wndFile.pullAsString(String(obj_key) << "text").explode(Caption, ',', true, true, true);
 				I18N::Translate(Caption);
 
 				if (TA_ID_BUTTON == obj_type)
@@ -1579,9 +1579,9 @@ namespace TA3D
 
 					if (!result)
 					{
-						Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
+						Gaf::ToTexturesList(gaf_imgs, String("anims\\") << Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
 						if (!gaf_imgs.size())		// Try GAF-like directory
-							Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name + ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
+							Gaf::ToTexturesList(gaf_imgs, String("anims\\") << Name << ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
 						if (!gaf_imgs.size())
 						{
 							Gaf::ToTexturesList(gaf_imgs, "anims\\commongui", object->Name, t_w, t_h, true, FILTER_LINEAR);
@@ -1617,7 +1617,7 @@ namespace TA3D
 						}
 					}
 
-					int nb_stages = wndFile.pullAsInt(obj_key + "stages");
+					const int nb_stages = wndFile.pullAsInt(String(obj_key) << "stages");
 					object->create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
 					if (result == NULL && found_elsewhere)
 						gui_hashtable[key] = &object->gltex_states;
@@ -1630,26 +1630,26 @@ namespace TA3D
 						else
 							object->gltex_states[e].destroy_tex = true;
 					}
-					object->current_state = wndFile.pullAsInt(obj_key + "status");
-					object->shortcut_key = wndFile.pullAsInt(obj_key + "quickkey", -1);
-					if (wndFile.pullAsBool(obj_key + "common.grayedout"))
+					object->current_state = wndFile.pullAsInt(String(obj_key) << "status");
+					object->shortcut_key = wndFile.pullAsInt(String(obj_key) << "quickkey", -1);
+					if (wndFile.pullAsBool(String(obj_key) << "common.grayedout"))
 						object->Flag |= FLAG_DISABLED;
-					if (wndFile.pullAsInt(obj_key + "common.attribs") == 32)
+					if (wndFile.pullAsInt(String(obj_key) << "common.attribs") == 32)
 						object->Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
 				}
 				else
 				{
 					if (obj_type == TA_ID_TEXT_FIELD)
-						object->create_textbar(X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile.pullAsInt(obj_key + "maxchars"), NULL);
+						object->create_textbar(X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile.pullAsInt(String(obj_key) << "maxchars"), NULL);
 					else
 					{
 						if (obj_type == TA_ID_LABEL)
-							object->create_text(X1, Y1, Caption.size() ? Caption[0] : "", 0xFFFFFFFF, 1.0f);
+							object->create_text(X1, Y1, Caption.size() ? Caption[0] : String(), 0xFFFFFFFF, 1.0f);
 						else
 						{
 							if (obj_type == TA_ID_BLANK_IMG || obj_type == TA_ID_IMG)
 							{
-								object->create_img(X1, Y1, X1 + W, Y1 + H, gfx->load_texture(wndFile.pullAsString(obj_key + "source"),FILTER_LINEAR));
+								object->create_img(X1, Y1, X1 + W, Y1 + H, gfx->load_texture(wndFile.pullAsString(String(obj_key) << "source"),FILTER_LINEAR));
 								object->destroy_img = object->Data != 0 ? true : false;
 							}
 							else
@@ -1771,7 +1771,7 @@ namespace TA3D
 				obj_key << "window.widget" << i << ".";
 
 				// Type of the new object
-				obj_type = wndFile.pullAsString(obj_key + "type");
+				obj_type = wndFile.pullAsString(String(obj_key) << "type");
 				if (obj_type.empty())
 					continue;
 				obj_type.toUpper();
@@ -1780,51 +1780,51 @@ namespace TA3D
 				GUIOBJ::Ptr object = new GUIOBJ();
 				pObjects.push_back(object);
 
-				object->Name = wndFile.pullAsString(obj_key + "name", String("widget") << i);
+				object->Name = wndFile.pullAsString(String(obj_key) << "name", String("widget") << i);
 				obj_hashtable[ToLower(object->Name)] = i + 1;
-				object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
+				object->help_msg = I18N::Translate(wndFile.pullAsString(String(obj_key) << "help"));
 
-				float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF
-				float Y1 = wndFile.pullAsFloat(obj_key + "y1") * y_factor;
-				float X2 = wndFile.pullAsFloat(obj_key + "x2") * x_factor;
-				float Y2 = wndFile.pullAsFloat(obj_key + "y2") * y_factor;
-				caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
-				float size_factor = wndFile.pullAsFloat(obj_key + "size", 1.0f);
+				float X1 = wndFile.pullAsFloat(String(obj_key) << "x1") * x_factor;				// Reads data from TDF
+				float Y1 = wndFile.pullAsFloat(String(obj_key) << "y1") * y_factor;
+				float X2 = wndFile.pullAsFloat(String(obj_key) << "x2") * x_factor;
+				float Y2 = wndFile.pullAsFloat(String(obj_key) << "y2") * y_factor;
+				caption = I18N::Translate(wndFile.pullAsString(String(obj_key) << "caption"));
+				float size_factor = wndFile.pullAsFloat(String(obj_key) << "size", 1.0f);
 				float size = size_factor * Math::Min(x_factor, y_factor);
-				int val = wndFile.pullAsInt(obj_key + "value");
+				int val = wndFile.pullAsInt(String(obj_key) << "value");
 				uint32 obj_flags = 0;
 				uint32 obj_negative_flags = 0;
 
-				if (X1<0) X1 += width;
-				if (X2<0) X2 += width;
-				if (Y1<0) Y1 += height;
-				if (Y2<0) Y2 += height;
+				if (X1 < 0) X1 += width;
+				if (X2 < 0) X2 += width;
+				if (Y1 < 0) Y1 += height;
+				if (Y2 < 0) Y2 += height;
 
-				if (wndFile.pullAsBool(obj_key + "can be clicked"))
+				if (wndFile.pullAsBool(String(obj_key) << "can be clicked"))
 					obj_flags |= FLAG_CAN_BE_CLICKED;
-				if (wndFile.pullAsBool(obj_key + "can get focus"))
+				if (wndFile.pullAsBool(String(obj_key) << "can get focus"))
 					obj_flags |= FLAG_CAN_GET_FOCUS;
-				if (wndFile.pullAsBool(obj_key + "highlight"))
+				if (wndFile.pullAsBool(String(obj_key) << "highlight"))
 					obj_flags |= FLAG_HIGHLIGHT;
-				if (wndFile.pullAsBool(obj_key + "fill"))
+				if (wndFile.pullAsBool(String(obj_key) << "fill"))
 					obj_flags |= FLAG_FILL;
-				if (wndFile.pullAsBool(obj_key + "hidden"))
+				if (wndFile.pullAsBool(String(obj_key) << "hidden"))
 					obj_flags |= FLAG_HIDDEN;
-				if (wndFile.pullAsBool(obj_key + "no border"))
+				if (wndFile.pullAsBool(String(obj_key) << "no border"))
 					obj_flags |= FLAG_NO_BORDER;
-				if (wndFile.pullAsBool(obj_key + "cant be clicked"))
+				if (wndFile.pullAsBool(String(obj_key) << "cant be clicked"))
 					obj_negative_flags |= FLAG_CAN_BE_CLICKED;
-				if (wndFile.pullAsBool(obj_key + "cant get focus"))
+				if (wndFile.pullAsBool(String(obj_key) << "cant get focus"))
 					obj_negative_flags |= FLAG_CAN_GET_FOCUS;
 
-				if (wndFile.pullAsBool(obj_key + "centered"))
+				if (wndFile.pullAsBool(String(obj_key) << "centered"))
 				{
 					obj_flags |= FLAG_CENTERED;
 					X1 -= gui_font->length(caption) * 0.5f;
 				}
 
 				entryList.clear();
-				entryList << " " << wndFile.pullAsString(obj_key + "entry");
+				entryList << ' ' << wndFile.pullAsString(String(obj_key) << "entry");
 				entryList.explode(Entry, ',', true, true, true);
 				I18N::Translate(Entry);
 
@@ -1854,7 +1854,7 @@ namespace TA3D
 					{
 						if (obj_type == "HSLIDER")
 						{
-							object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+							object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(String(obj_key) << "min"), wndFile.pullAsInt(String(obj_key) << "max"), val);
 							break;
 						}
 						break;
@@ -1863,7 +1863,7 @@ namespace TA3D
 					{
 						if (obj_type == "IMG")
 						{
-							object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
+							object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(String(obj_key) << "source"))));
 							object->destroy_img = object->Data != 0 ? true : false;
 						}
 						break;
@@ -1981,7 +1981,7 @@ namespace TA3D
 					{
 						if (obj_type == "VSLIDER")
 						{
-							object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
+							object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(String(obj_key) << "min"), wndFile.pullAsInt(String(obj_key) << "max"), val);
 							break;
 						}
 
@@ -1989,10 +1989,10 @@ namespace TA3D
 					}
 				}
 
-				wndFile.pullAsString(obj_key + "on click").explode(object->OnClick, ',', true, true, true);
-				wndFile.pullAsString(obj_key + "on hover").explode(object->OnHover, ',', true, true, true);
-				wndFile.pullAsString(obj_key + "send data to").toLower().explode(object->SendDataTo, ',', true, true, true);
-				wndFile.pullAsString(obj_key + "send pos to").toLower().explode(object->SendPosTo, ',', true, true, true);
+				wndFile.pullAsString(String(obj_key) << "on click").explode(object->OnClick, ',', true, true, true);
+				wndFile.pullAsString(String(obj_key) << "on hover").explode(object->OnHover, ',', true, true, true);
+				wndFile.pullAsString(String(obj_key) << "send data to").toLower().explode(object->SendDataTo, ',', true, true, true);
+				wndFile.pullAsString(String(obj_key) << "send pos to").toLower().explode(object->SendPosTo, ',', true, true, true);
 
 				object->Flag |= obj_flags;
 				object->Flag &= ~obj_negative_flags;

@@ -172,7 +172,7 @@ namespace Menus
 				}
 				else
 				{
-					network_manager.sendSpecial("NOTIFY NEW_PLAYER " + FixBlank(lp_CONFIG->player_name));
+					network_manager.sendSpecial(String("NOTIFY NEW_PLAYER ") << FixBlank(lp_CONFIG->player_name));
 					SuspendMilliSeconds(10);
 					network_manager.sendSpecial( "REQUEST GameData" );
 				}
@@ -584,7 +584,7 @@ namespace Menus
 				pArea->caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ]);
 				game_data.game_script = guiobj->Text[ guiobj->Pos ];
 				if (host.notEmpty())
-					network_manager.sendSpecial("SET SCRIPT " + FixBlank(guiobj->Text[guiobj->Pos]));
+					network_manager.sendSpecial(String("SET SCRIPT ") << FixBlank(guiobj->Text[guiobj->Pos]));
 			}
 		}
 
@@ -838,7 +838,7 @@ namespace Menus
 				{
 					String tmp(new_map);
 					tmp.replace(' ', char(1));
-					network_manager.sendSpecial("SET MAP " + tmp);
+					network_manager.sendSpecial(String("SET MAP ") << tmp);
 				}
 
 				gfx->destroy_texture( glimg);
@@ -1007,14 +1007,14 @@ namespace Menus
 									network_manager.sendSpecial( msg, -1, from);
 
 									network_manager.sendSpecial(String("SET FOW ") << int(game_data.fog_of_war), -1, from);
-									network_manager.sendSpecial("SET SCRIPT " + FixBlank( game_data.game_script), -1, from);
-									network_manager.sendSpecial("SET MAP " + FixBlank( game_data.map_filename), -1, from);
+									network_manager.sendSpecial(String("SET SCRIPT ") << FixBlank( game_data.game_script), -1, from);
+									network_manager.sendSpecial(String("SET MAP ") << FixBlank( game_data.map_filename), -1, from);
 								}
 							}
 							else if (params[1] == "STATUS")
 							{
 								if (saved_game.notEmpty())
-									network_manager.sendSpecial("STATUS SAVED " + FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
+									network_manager.sendSpecial(String("STATUS SAVED ") << FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
 								else
 									network_manager.sendSpecial("STATUS NEW", -1, from);
 							}

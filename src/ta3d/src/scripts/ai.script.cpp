@@ -77,7 +77,7 @@ namespace TA3D
 	void AiScript::save()
 	{
 		String filename;
-		Paths::MakeDir( Paths::Resources + "ai" );
+		Paths::MakeDir( String(Paths::Resources) << "ai" );
 		filename << Paths::Resources << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
 		remove( filename.c_str() );     // We don't want to save anything here, the Lua script is responsible for everything now
 	}

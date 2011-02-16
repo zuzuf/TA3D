@@ -117,7 +117,7 @@ namespace TA3D
 		if (txt.empty())
 			return 0.0f;
 		if (' ' == txt.last())
-			return length(txt + "_") - length("_");
+			return length(String(txt) << "_") - length("_");
 
 		MutexLocker locker(pMutex);
 		if (!font)
@@ -183,7 +183,7 @@ namespace TA3D
 		String comp_name;
 		(comp_name << name << ".ttf").toLower();
 
-		VFS::Instance()->getFilelist(path + "/*", file_list);
+		VFS::Instance()->getFilelist(String(path) << "/*", file_list);
 		// Looking for the file
 		{
 			const String::Vector::iterator end = file_list.end();

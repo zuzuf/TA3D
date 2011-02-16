@@ -87,7 +87,7 @@ namespace TA3D
 
             if (index >= 0)
             {
-                String damage = parser.pullAsString( key + "damage" );
+				String damage = parser.pullAsString( String(key) << "damage" );
                 String::Vector damage_vector;
                 damage.explode(damage_vector, ",");
 				weapon[index].damage_hashtable.clear();
@@ -124,7 +124,7 @@ namespace TA3D
 				weapon[index].edgeeffectiveness = parser.pullAsFloat( String(key) << "edgeeffectiveness", weapon[index].edgeeffectiveness );
 				weapon[index].lineofsight = parser.pullAsBool( String(key) << "lineofsight", weapon[index].lineofsight );
                 {
-                    int c = parser.pullAsInt( key + "color" );
+					const int c = parser.pullAsInt( String(key) << "color" );
                     weapon[index].color[0] = makecol(pal[c].r,pal[c].g,pal[c].b);
                     weapon[index].color[2] = c;
                     if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 )
@@ -136,7 +136,7 @@ namespace TA3D
                     }
                 }
                 {
-                    int c = parser.pullAsInt( key + "color2" );
+					const int c = parser.pullAsInt( String(key) << "color2" );
                     weapon[index].color[1] = makecol(pal[c].r,pal[c].g,pal[c].b);
                     weapon[index].color[3] = c;
                     if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 ) {
@@ -146,58 +146,58 @@ namespace TA3D
                         weapon[index].color[3] = 212;
                     }
                 }
-                weapon[index].burstrate = parser.pullAsFloat( key + "burstrate", weapon[index].burstrate );
-                weapon[index].duration = parser.pullAsFloat( key + "duration", weapon[index].duration );
-                weapon[index].beamweapon = parser.pullAsBool( key + "beamweapon", weapon[index].beamweapon );
-				weapon[index].startvelocity = parser.pullAsFloat( key + "startvelocity", weapon[index].startvelocity * 2.0f ) * 0.5f;
-                weapon[index].weapontimer = parser.pullAsFloat( key + "weapontimer", weapon[index].weapontimer );
-				weapon[index].weaponacceleration = parser.pullAsFloat( key + "weaponacceleration", weapon[index].weaponacceleration * 2.0f ) * 0.5f;
-                weapon[index].turnrate = parser.pullAsInt( key + "turnrate", weapon[index].turnrate );
-                weapon[index].model = model_manager.get_model( parser.pullAsString( key + "model" ) );
-                weapon[index].smokedelay = parser.pullAsFloat( key + "smokedelay", weapon[index].smokedelay );
-                weapon[index].guidance = parser.pullAsInt( key + "guidance", weapon[index].guidance );
-                weapon[index].tracks = parser.pullAsBool( key + "tracks", weapon[index].tracks );
-                weapon[index].selfprop = parser.pullAsBool( key + "selfprop", weapon[index].selfprop );
-                weapon[index].waterweapon = parser.pullAsBool( key + "waterweapon", weapon[index].waterweapon );
-                weapon[index].smoketrail = parser.pullAsBool( key + "smoketrail", weapon[index].smoketrail );
-				weapon[index].flighttime = short(parser.pullAsInt( key + "flighttime", weapon[index].flighttime ));
-				weapon[index].coverage = parser.pullAsFloat( key + "coverage", weapon[index].coverage * 2.0f ) * 0.5f;
-                weapon[index].vlaunch = parser.pullAsBool( key + "vlaunch", weapon[index].vlaunch );
-                weapon[index].paralyzer = parser.pullAsBool( key + "paralyzer", weapon[index].paralyzer );
-                weapon[index].stockpile = parser.pullAsBool( key + "stockpile", weapon[index].stockpile );
-                weapon[index].targetable = parser.pullAsBool( key + "targetable", weapon[index].targetable );
-                weapon[index].interceptor = parser.pullAsBool( key + "interceptor", weapon[index].interceptor );
-                weapon[index].commandfire = parser.pullAsBool( key + "commandfire", weapon[index].commandfire );
-                weapon[index].cruise = parser.pullAsBool( key + "cruise", weapon[index].cruise );
-                weapon[index].propeller = parser.pullAsBool( key + "propeller", weapon[index].propeller );
-                weapon[index].twophase = parser.pullAsBool( key + "twophase", weapon[index].twophase );
-                weapon[index].dropped = parser.pullAsBool( key + "dropped", weapon[index].dropped );
-                weapon[index].burnblow = parser.pullAsBool( key + "burnblow", weapon[index].burnblow );
-                weapon[index].toairweapon = parser.pullAsBool( key + "toairweapon", weapon[index].toairweapon );
-                weapon[index].noexplode = parser.pullAsBool( key + "noexplode", weapon[index].noexplode );
-				weapon[index].shakemagnitude = short(parser.pullAsInt( key + "shakemagnitude", weapon[index].shakemagnitude ));
-                weapon[index].metal = parser.pullAsInt( key + "metal", weapon[index].metal );
-                weapon[index].energy = parser.pullAsInt( key + "energy", weapon[index].energy );
-                weapon[index].shakeduration = parser.pullAsFloat( key + "shakeduration", weapon[index].shakeduration );
-                weapon[index].waterexplosiongaf = parser.pullAsString( key + "waterexplosiongaf", weapon[index].waterexplosiongaf );
-                weapon[index].waterexplosionart = parser.pullAsString( key + "waterexplosionart", weapon[index].waterexplosionart );
-                weapon[index].lavaexplosiongaf = parser.pullAsString( key + "lavaexplosiongaf", weapon[index].lavaexplosiongaf );
-                weapon[index].lavaexplosionart = parser.pullAsString( key + "lavaexplosionart", weapon[index].lavaexplosionart );
-                weapon[index].explosiongaf = parser.pullAsString( key + "explosiongaf", weapon[index].explosiongaf );
-                weapon[index].explosionart = parser.pullAsString( key + "explosionart", weapon[index].explosionart );
-                weapon[index].soundtrigger = parser.pullAsString( key + "soundtrigger", weapon[index].soundtrigger );
+				weapon[index].burstrate = parser.pullAsFloat( String(key) << "burstrate", weapon[index].burstrate );
+				weapon[index].duration = parser.pullAsFloat( String(key) << "duration", weapon[index].duration );
+				weapon[index].beamweapon = parser.pullAsBool( String(key) << "beamweapon", weapon[index].beamweapon );
+				weapon[index].startvelocity = parser.pullAsFloat( String(key) << "startvelocity", weapon[index].startvelocity * 2.0f ) * 0.5f;
+				weapon[index].weapontimer = parser.pullAsFloat( String(key) << "weapontimer", weapon[index].weapontimer );
+				weapon[index].weaponacceleration = parser.pullAsFloat( String(key) << "weaponacceleration", weapon[index].weaponacceleration * 2.0f ) * 0.5f;
+				weapon[index].turnrate = parser.pullAsInt( String(key) << "turnrate", weapon[index].turnrate );
+				weapon[index].model = model_manager.get_model( parser.pullAsString( String(key) << "model" ) );
+				weapon[index].smokedelay = parser.pullAsFloat( String(key) << "smokedelay", weapon[index].smokedelay );
+				weapon[index].guidance = parser.pullAsInt( String(key) << "guidance", weapon[index].guidance );
+				weapon[index].tracks = parser.pullAsBool( String(key) << "tracks", weapon[index].tracks );
+				weapon[index].selfprop = parser.pullAsBool( String(key) << "selfprop", weapon[index].selfprop );
+				weapon[index].waterweapon = parser.pullAsBool( String(key) << "waterweapon", weapon[index].waterweapon );
+				weapon[index].smoketrail = parser.pullAsBool( String(key) << "smoketrail", weapon[index].smoketrail );
+				weapon[index].flighttime = short(parser.pullAsInt( String(key) << "flighttime", weapon[index].flighttime ));
+				weapon[index].coverage = parser.pullAsFloat( String(key) << "coverage", weapon[index].coverage * 2.0f ) * 0.5f;
+				weapon[index].vlaunch = parser.pullAsBool( String(key) << "vlaunch", weapon[index].vlaunch );
+				weapon[index].paralyzer = parser.pullAsBool( String(key) << "paralyzer", weapon[index].paralyzer );
+				weapon[index].stockpile = parser.pullAsBool( String(key) << "stockpile", weapon[index].stockpile );
+				weapon[index].targetable = parser.pullAsBool( String(key) << "targetable", weapon[index].targetable );
+				weapon[index].interceptor = parser.pullAsBool( String(key) << "interceptor", weapon[index].interceptor );
+				weapon[index].commandfire = parser.pullAsBool( String(key) << "commandfire", weapon[index].commandfire );
+				weapon[index].cruise = parser.pullAsBool( String(key) << "cruise", weapon[index].cruise );
+				weapon[index].propeller = parser.pullAsBool( String(key) << "propeller", weapon[index].propeller );
+				weapon[index].twophase = parser.pullAsBool( String(key) << "twophase", weapon[index].twophase );
+				weapon[index].dropped = parser.pullAsBool( String(key) << "dropped", weapon[index].dropped );
+				weapon[index].burnblow = parser.pullAsBool( String(key) << "burnblow", weapon[index].burnblow );
+				weapon[index].toairweapon = parser.pullAsBool( String(key) << "toairweapon", weapon[index].toairweapon );
+				weapon[index].noexplode = parser.pullAsBool( String(key) << "noexplode", weapon[index].noexplode );
+				weapon[index].shakemagnitude = short(parser.pullAsInt( String(key) << "shakemagnitude", weapon[index].shakemagnitude ));
+				weapon[index].metal = parser.pullAsInt( String(key) << "metal", weapon[index].metal );
+				weapon[index].energy = parser.pullAsInt( String(key) << "energy", weapon[index].energy );
+				weapon[index].shakeduration = parser.pullAsFloat( String(key) << "shakeduration", weapon[index].shakeduration );
+				weapon[index].waterexplosiongaf = parser.pullAsString( String(key) << "waterexplosiongaf", weapon[index].waterexplosiongaf );
+				weapon[index].waterexplosionart = parser.pullAsString( String(key) << "waterexplosionart", weapon[index].waterexplosionart );
+				weapon[index].lavaexplosiongaf = parser.pullAsString( String(key) << "lavaexplosiongaf", weapon[index].lavaexplosiongaf );
+				weapon[index].lavaexplosionart = parser.pullAsString( String(key) << "lavaexplosionart", weapon[index].lavaexplosionart );
+				weapon[index].explosiongaf = parser.pullAsString( String(key) << "explosiongaf", weapon[index].explosiongaf );
+				weapon[index].explosionart = parser.pullAsString( String(key) << "explosionart", weapon[index].explosionart );
+				weapon[index].soundtrigger = parser.pullAsString( String(key) << "soundtrigger", weapon[index].soundtrigger );
                 sound_manager->loadSound( weapon[index].soundtrigger , true );
-                weapon[index].soundhit = parser.pullAsString( key + "soundhit", weapon[index].soundhit );
+				weapon[index].soundhit = parser.pullAsString( String(key) << "soundhit", weapon[index].soundhit );
                 sound_manager->loadSound( weapon[index].soundhit , true );
-                weapon[index].soundstart = parser.pullAsString( key + "soundstart", weapon[index].soundstart );
+				weapon[index].soundstart = parser.pullAsString( String(key) << "soundstart", weapon[index].soundstart );
                 sound_manager->loadSound( weapon[index].soundstart , true );
-                weapon[index].soundwater = parser.pullAsString( key + "soundwater", weapon[index].soundwater );
+				weapon[index].soundwater = parser.pullAsString( String(key) << "soundwater", weapon[index].soundwater );
                 sound_manager->loadSound(weapon[index].soundwater , true);
 
 				if (weapon[index].rendertype == RENDER_TYPE_LASER)
 				{
-					weapon[index].laserTex1 = gfx->load_texture(parser.pullAsString( key + "lasertexture1", "gfx/weapons/laser1normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
-					weapon[index].laserTex2 = gfx->load_texture(parser.pullAsString( key + "lasertexture2", "gfx/weapons/laser2normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
+					weapon[index].laserTex1 = gfx->load_texture(parser.pullAsString( String(key) << "lasertexture1", "gfx/weapons/laser1normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
+					weapon[index].laserTex2 = gfx->load_texture(parser.pullAsString( String(key) << "lasertexture2", "gfx/weapons/laser2normal.png" ), FILTER_TRILINEAR, NULL, NULL, true, 0);
 				}
             }
         }

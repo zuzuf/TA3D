@@ -236,7 +236,7 @@ namespace Menus
 			if (obj)
 			{
 				String::List fileList;
-				Paths::Glob(fileList, TA3D::Paths::Savegames + "multiplayer" + Paths::Separator + "*.sav");
+				Paths::Glob(fileList, String(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << "*.sav");
 				fileList.sort();
 				obj->Text.clear();
 				obj->Text.reserve(fileList.size());

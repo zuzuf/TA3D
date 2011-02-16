@@ -38,11 +38,11 @@ namespace Gui
 
 	void TEXT_COLOR::load(TDFParser& parser, const String &prefix, float scale)
 	{
-		font_color = parser.pullAsColor( prefix + "font_color", makeacol(0xFF,0xFF,0xFF,0xFF) );
-		shadow_color = parser.pullAsColor( prefix + "shadow_color", makeacol(0,0,0,0xFF) );
-		shadow = parser.pullAsBool( prefix + "shadow", false );
-		shadow_dx = parser.pullAsFloat( prefix + "shadow_dx", 1.0f ) * scale;
-		shadow_dy = parser.pullAsFloat( prefix + "shadow_dy", 1.0f ) * scale;
+		font_color = parser.pullAsColor( String(prefix) << "font_color", makeacol(0xFF,0xFF,0xFF,0xFF) );
+		shadow_color = parser.pullAsColor( String(prefix) << "shadow_color", makeacol(0,0,0,0xFF) );
+		shadow = parser.pullAsBool( String(prefix) << "shadow", false );
+		shadow_dx = parser.pullAsFloat( String(prefix) << "shadow_dx", 1.0f ) * scale;
+		shadow_dy = parser.pullAsFloat( String(prefix) << "shadow_dy", 1.0f ) * scale;
 	}
 
 
