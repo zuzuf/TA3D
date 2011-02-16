@@ -2347,13 +2347,13 @@ namespace TA3D
 
 		if (cloaking && paralyzed <= 0.0f)
 		{
-			int conso_energy = (!mission || !(mission->getFlags() & MISSION_FLAG_MOVE) ) ? pType->CloakCost : pType->CloakCostMoving;
+			const int conso_energy = (!mission || !(mission->getFlags() & MISSION_FLAG_MOVE) ) ? pType->CloakCost : pType->CloakCostMoving;
 			TA3D::players.requested_energy[owner_id] += conso_energy;
 			if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt)
 			{
 				energy_cons += conso_energy;
-                int dx = pType->mincloakdistance >> 3;
-                int distance = SQUARE(pType->mincloakdistance);
+				const int dx = pType->mincloakdistance >> 3;
+				const int distance = SQUARE(pType->mincloakdistance);
 				// byte mask = 1 << owner_id;
 				bool found = false;
 				for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++)
@@ -2361,7 +2361,7 @@ namespace TA3D
 						for(int x = cur_px - dx ; x <= cur_px + dx ; x++)
 							if (x >= 0 && x < the_map->bloc_w_db - 1)
 							{
-								int cur_idx = the_map->map_data(x, y).unit_idx;
+								const int cur_idx = the_map->map_data(x, y).unit_idx;
 
 								if (cur_idx >= 0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
 									&& distance >= (Pos - units.unit[ cur_idx ].Pos).sq())
@@ -2384,9 +2384,9 @@ namespace TA3D
             if (pType->model)
 			{
 				Vector3D randVec;
-				bool random_vector=false;
+				bool random_vector = false;
 				int n = 0;
-                for ( int base_n = Math::RandomTable() ; !random_vector && n < pType->model->nb_obj ; n++ )
+				for (int base_n = Math::RandomTable() ; !random_vector && n < pType->model->nb_obj ; ++n)
                     random_vector = pType->model->mesh->random_pos( &data, (base_n + n) % pType->model->nb_obj, &randVec );
 				if (random_vector)
 					fx_manager.addElectric( Pos + randVec );
@@ -2430,15 +2430,15 @@ namespace TA3D
 			{
                 if (pType->weapon[i] && pType->weapon[i]->stockpile)
 				{
-					idx=i;
+					idx = i;
 					break;
 				}
 			}
             if (idx != -1 && pType->weapon[idx]->reloadtime != 0.0f)
 			{
-                float dn=dt/pType->weapon[idx]->reloadtime;
-                float conso_metal=((float)pType->weapon[idx]->metalpershot)/pType->weapon[idx]->reloadtime;
-                float conso_energy=((float)pType->weapon[idx]->energypershot)/pType->weapon[idx]->reloadtime;
+				const float dn = dt / pType->weapon[idx]->reloadtime;
+				const float conso_metal = ((float)pType->weapon[idx]->metalpershot) / pType->weapon[idx]->reloadtime;
+				const float conso_energy = ((float)pType->weapon[idx]->energypershot) / pType->weapon[idx]->reloadtime;
 
 				TA3D::players.requested_energy[owner_id] += conso_energy;
 				TA3D::players.requested_metal[owner_id] += conso_metal;
@@ -2449,11 +2449,11 @@ namespace TA3D
 					metal_cons += conso_metal * resource_min_factor;
 					energy_cons += conso_energy * resource_min_factor;
 					planned_weapons -= dn * resource_min_factor;
-					float last=planned_weapons-(int)planned_weapons;
-					if ((last==0.0f && last!=old) || (last>old && old>0.0f) || planned_weapons<=0.0f)		// On en a fini une / one is finished
+					const float last = planned_weapons - (int)planned_weapons;
+					if ((last == 0.0f && last != old) || (last > old && old > 0.0f) || planned_weapons <= 0.0f)		// On en a fini une / one is finished
 						weapon[idx].stock++;
-					if (planned_weapons<0.0f)
-						planned_weapons=0.0f;
+					if (planned_weapons < 0.0f)
+						planned_weapons = 0.0f;
 				}
 			}
 		}
@@ -2539,8 +2539,8 @@ namespace TA3D
 						{
 							bool readyToFire = false;
 
-							Unit *target_unit = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? NULL : (Unit*) weapon[i].target;
-							Weapon *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (Weapon*) weapon[i].target : NULL;
+							Unit* const target_unit = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? NULL : (Unit*) weapon[i].target;
+							const Weapon* const target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (Weapon*) weapon[i].target : NULL;
 
 							Vector3D target = target_unit==NULL ? (target_weapon==NULL ? weapon[i].target_pos-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
 							float dist = target.sq();
@@ -2555,9 +2555,9 @@ namespace TA3D
 									weapon[i].data = -1;
 									break;	// We're not shooting at the target
 								}
-								float t = 2.0f / the_map->ota_data.gravity * fabsf(target.y);
-                                mindist = (int)sqrtf(t*V.sq())-((pType->attackrunlength+1)>>1);
-                                maxdist = mindist+(pType->attackrunlength);
+								const float t = 2.0f / the_map->ota_data.gravity * fabsf(target.y);
+								mindist = (int)sqrtf(t * V.sq())-((pType->attackrunlength + 1) >> 1);
+								maxdist = mindist + (pType->attackrunlength);
 							}
 							else
 							{
@@ -2569,12 +2569,12 @@ namespace TA3D
 										weapon[i].data = -1;
 										break;	// We're not shooting at the target
 									}
-									float t = 2.0f / the_map->ota_data.gravity * fabsf(target.y);
-									mindist = (int)sqrtf(t*V.sq());
-                                    maxdist = mindist + (pType->weapon[ i ]->range>>1);
+									const float t = 2.0f / the_map->ota_data.gravity * fabsf(target.y);
+									mindist = (int)sqrtf(t * V.sq());
+									maxdist = mindist + (pType->weapon[ i ]->range >> 1);
 								}
 								else
-                                    maxdist = pType->weapon[ i ]->range>>1;
+									maxdist = pType->weapon[ i ]->range >> 1;
 							}
 
 							if (dist > maxdist * maxdist || dist < mindist * mindist)
@@ -2593,7 +2593,7 @@ namespace TA3D
 							{
                                 readyToFire = script->getReturnValue( UnitScriptInterface::get_script_name(Aim_script) );
 
-                                int start_piece = weapon[i].aim_piece;
+								int start_piece = weapon[i].aim_piece;
                                 if (weapon[i].aim_piece < 0)
                                     weapon[i].aim_piece = start_piece = runScriptFunction(AimFrom_script);
 								if (start_piece < 0 || start_piece >= data.nb_piece)
@@ -2602,7 +2602,7 @@ namespace TA3D
 
 								Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
 								target_pos_on_unit.reset();
-								Model *pModel = NULL;
+								const Model* pModel = NULL;
 								Vector3D pos_of_target_unit;
 								if (target_unit != NULL)
 								{
@@ -2647,20 +2647,19 @@ namespace TA3D
 
 								dist = target.norm();
 								target = (1.0f / dist) * target;
-								Vector3D I, J, IJ, RT;
-								I.x = 0.0f;     I.z = 1.0f;     I.y = 0.0f;
-								J.x = 1.0f;     J.z = 0.0f;     J.y = 0.0f;
-								IJ.x = 0.0f;    IJ.z = 0.0f;    IJ.y = 1.0f;
-								RT = target;
+								const Vector3D	I(0.0f, 0.0f, 1.0f),
+												J(1.0f, 0.0f, 0.0f),
+												IJ(0.0f, 1.0f, 0.0f);
+								Vector3D RT = target;
 								RT.y = 0.0f;
 								RT.unit();
-								float angle = acosf(I % RT) * RAD2DEG;
-								if (J % RT < 0.0f) angle =- angle;
+								float angle = acosf(RT.z) * RAD2DEG;
+								if (RT.x < 0.0f) angle =- angle;
 								angle -= Angle.y;
 								if (angle < -180.0f)        angle += 360.0f;
 								else if (angle > 180.0f)    angle -= 360.0f;
 
-								int aiming[] = { (int)(angle*DEG2TA), -4096 };
+								int aiming[] = { (int)(angle * DEG2TA), -4096 };
                                 if (pType->weapon[ i ]->ballistic) // Calculs de ballistique / ballistic calculations
 								{
 									Vector3D D = target_unit == NULL
@@ -2688,10 +2687,7 @@ namespace TA3D
 								}
 								else
 								{
-									Vector3D K = target;
-									K.y = 0.0f;
-									K.unit();
-									angle = acosf(K % target) * RAD2DEG;
+									angle = acosf(RT % target) * RAD2DEG;
 									if (target.y < 0.0f)
 										angle = -angle;
 									angle -= Angle.x;
@@ -2703,7 +2699,7 @@ namespace TA3D
 										weapon[i].data = -1;
 										break;
 									}
-									aiming[1] = (int)(angle*DEG2TA);
+									aiming[1] = (int)(angle * DEG2TA);
 								}
                                 if (readyToFire)
                                 {
