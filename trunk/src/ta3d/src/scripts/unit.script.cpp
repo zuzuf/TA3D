@@ -101,7 +101,6 @@ namespace TA3D
 
 			LuaEnv::register_global_functions( pLuaVM );
 			register_functions( pLuaVM );
-			lua_gc(pLuaVM, LUA_GCSTOP, 0);
 		}
 		else
 			LOG_CRITICAL(LOG_PREFIX_LUA << "creating Lua VM for unit scripts failed");
@@ -785,7 +784,6 @@ namespace TA3D
 			newThread->nextID = getNextID();
 			lua_rawseti(L, -2, newThread->nextID);  // We don't want to keep this thread value on top of the stack
 			lua_pop(L, 2);
-			lua_gc(L, LUA_GCCOLLECT, 0);
 		}
 		catch(...)
 		{

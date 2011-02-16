@@ -55,21 +55,25 @@ namespace TA3D
 	template<class T>
 		inline void Grid<T>::add(const Grid<T> &grid, int x, int y)
 	{
-		for(int j = 0 ; j < grid.getHeight() && j + y < h ; ++j)
-			if (j + y >= 0)
-				for(int i = 0 ; i < grid.getWidth() && i + x < w ; ++i)
-					if (i + x >= 0)
-						(*this)(i + x, j + y) += grid(i, j);
+		const int j0 = std::max(0, -y);
+		const int j1 = std::min(grid.getHeight(), h - y);
+		const int i0 = std::max(0, -x);
+		const int i1 = std::min(grid.getWidth(), w - x);
+		for(int j = j0 ; j < j1 ; ++j)
+			for(int i = i0 ; i < i1 ; ++i)
+				(*this)(i + x, j + y) += grid(i, j);
 	}
 
 	template<class T>
 		inline void Grid<T>::sub(const Grid<T> &grid, int x, int y)
 	{
-		for(int j = 0 ; j < grid.getHeight() && j + y < h ; ++j)
-			if (j + y >= 0)
-				for(int i = 0 ; i < grid.getWidth() && i + x < w ; ++i)
-					if (i + x >= 0)
-						(*this)(i + x, j + y) -= grid(i, j);
+		const int j0 = std::max(0, -y);
+		const int j1 = std::min(grid.getHeight(), h - y);
+		const int i0 = std::max(0, -x);
+		const int i1 = std::min(grid.getWidth(), w - x);
+		for(int j = j0 ; j < j1 ; ++j)
+			for(int i = i0 ; i < i1 ; ++i)
+				(*this)(i + x, j + y) -= grid(i, j);
 	}
 }
 

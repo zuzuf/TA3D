@@ -722,9 +722,9 @@ namespace TA3D
 				return (((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]);
 			case 24:
 				{
-					int b = SurfaceByte(bmp, x * 3, y);
-					int g = SurfaceByte(bmp, x * 3 + 1, y);
-					int r = SurfaceByte(bmp, x * 3 + 2, y);
+					const int b = SurfaceByte(bmp, x * 3, y);
+					const int g = SurfaceByte(bmp, x * 3 + 1, y);
+					const int r = SurfaceByte(bmp, x * 3 + 2, y);
 					return makecol24(r,g,b);
 				}
 			case 32:
@@ -733,98 +733,30 @@ namespace TA3D
 		return 0;
 	}
 
-	void line(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col)
+	void circlefill(SDL_Surface *bmp, int x, int y, int r, const uint32 col)
 	{
-		if (abs(x0 - x1) > abs(y0 - y1))
-		{
-			if (x0 > x1)
-			{
-				x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
-				y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
-			}
-			for(int x = x0 ; x <= x1 ; x++)
-				putpixel(bmp, x, y0 + (y1 - y0) * (x - x0) / (x1 - x0), col);
-		}
-		else
-		{
-			if (y0 > y1)
-			{
-				x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
-				y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
-			}
-			for(int y = y0 ; y <= y1 ; y++)
-				putpixel(bmp, x0 + (x1 - x0) * (y - y0) / (y1 - y0), y, col);
-		}
-	}
-
-	void triangle(SDL_Surface *bmp, int x0, int y0, int x1, int y1, int x2, int y2, uint32 col)
-	{
-		if (y0 > y1)
-		{
-			x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
-			y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
-		}
-		if (y1 > y2)
-		{
-			x2 ^= x1;   x1 ^= x2;   x2 ^= x1;
-			y2 ^= y1;   y1 ^= y2;   y2 ^= y1;
-		}
-		if (y0 > y1)
-		{
-			x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
-			y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
-		}
-
-		if (y0 < y1)
-			for(int y = y0 ; y <= y1 ; y++)
-			{
-				int ax = x0 + (x1 - x0) * (y - y0) / (y1 - y0);
-				int bx = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
-				if (ax > bx)
-				{
-					ax ^= bx;   bx ^= ax;   ax ^= bx;
-				}
-				for(int x = ax ; x <= bx ; x++)
-					putpixel(bmp, x, y, col);
-			}
-		if (y1 < y2)
-			for(int y = y1 ; y <= y2 ; y++)
-			{
-				int ax = x1 + (x2 - x1) * (y - y1) / (y2 - y1);
-				int bx = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
-				if (ax > bx)
-				{
-					ax ^= bx;   bx ^= ax;   ax ^= bx;
-				}
-				for(int x = ax ; x <= bx ; x++)
-					putpixel(bmp, x, y, col);
-			}
-	}
-
-	void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col)
-	{
-		int r2 = r * r;
-		int my = Math::Max(-r, -y);
-		int My = Math::Min(r, bmp->h - 1 - y);
+		const int r2 = r * r;
+		const int my = Math::Max(-r, -y);
+		const int My = Math::Min(r, bmp->h - 1 - y);
 		switch(bmp->format->BitsPerPixel)
 		{
 			case 8:
 				for (int sy = my ; sy <= My ; ++sy)
 				{
-					int dx = int(sqrtf(float(r2 - sy * sy)));
-					int ax = Math::Max(x - dx, 0);
-					int bx = Math::Min(x + dx, bmp->w - 1);
+					const int dx = int(sqrtf(float(r2 - sy * sy)));
+					const int ax = Math::Max(x - dx, 0);
+					const int bx = Math::Min(x + dx, bmp->w - 1);
 					memset((byte*)bmp->pixels + ax + (y + sy) * bmp->pitch, col, bx - ax + 1);
 				}
 				break;
 			case 16:
 				{
-					uint16 col16 = uint16(col);
+					const uint16 col16 = uint16(col);
 					for (int sy = my ; sy <= My ; ++sy)
 					{
-						int dx = int(sqrtf(float(r - sy * sy)));
-						int ax = Math::Max(x - dx, 0);
-						int bx = Math::Min(x + dx, bmp->w - 1);
+						const int dx = int(sqrtf(float(r - sy * sy)));
+						const int ax = Math::Max(x - dx, 0);
+						const int bx = Math::Min(x + dx, bmp->w - 1);
 						uint16 *p = (uint16*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 1);
 						for (uint16 *end = p + bx - ax + 1; p != end ; ++p)
 							*p = col16;
@@ -833,14 +765,14 @@ namespace TA3D
 				break;
 			case 24:
 				{
-					byte colb = getb32(col);
-					byte colg = getg32(col);
-					byte colr = getr32(col);
+					const byte colb = getb32(col);
+					const byte colg = getg32(col);
+					const byte colr = getr32(col);
 					for (int sy = my ; sy <= My ; ++sy)
 					{
-						int dx = int(sqrtf(float(r - sy * sy)));
-						int ax = Math::Max(x - dx, 0);
-						int bx = Math::Min(x + dx, bmp->w - 1);
+						const int dx = int(sqrtf(float(r - sy * sy)));
+						const int ax = Math::Max(x - dx, 0);
+						const int bx = Math::Min(x + dx, bmp->w - 1);
 						byte *p = (byte*)bmp->pixels + ax * 3 + (y + sy) * bmp->pitch;
 						for (byte *end = p + (bx - ax + 1) * 3 ; p != end ; ++p)
 						{
@@ -854,9 +786,9 @@ namespace TA3D
 			case 32:
 				for (int sy = my ; sy <= My ; ++sy)
 				{
-					int dx = int(sqrtf(float(r - sy * sy)));
-					int ax = Math::Max(x - dx, 0);
-					int bx = Math::Min(x + dx, bmp->w - 1);
+					const int dx = int(sqrtf(float(r - sy * sy)));
+					const int ax = Math::Max(x - dx, 0);
+					const int bx = Math::Min(x + dx, bmp->w - 1);
 					uint32 *p = (uint32*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 2);
 					for (uint32 *end = p + bx - ax + 1; p != end ; ++p)
 						*p = col;

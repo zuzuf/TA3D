@@ -81,10 +81,6 @@ namespace TA3D
 	void putpixel(SDL_Surface *bmp, int x, int y, uint32 col);
 	uint32 getpixel(SDL_Surface *bmp, int x, int y);
 
-	void line(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col);
-
-	void triangle(SDL_Surface *bmp, int x0, int y0, int x1, int y1, int x2, int y2, uint32 col);
-
 	void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col);
 
 	void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col);

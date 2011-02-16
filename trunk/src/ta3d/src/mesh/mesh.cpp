@@ -121,10 +121,11 @@ namespace TA3D
 			{
                 for (int i = 0; i < 3; ++i)
 				{
+					Axe &axis = e->axe[i];
 					if (i == 1 && (e->explosion_flag & EXPLODE_FALL))
-						e->axe[i].move_speed -= g;
-					e->axe[i].pos += e->axe[i].move_speed * dt;
-					e->axe[i].angle += e->axe[i].rot_speed * dt;
+						axis.move_speed -= g;
+					axis.pos += axis.move_speed * dt;
+					axis.angle += axis.rot_speed * dt;
 					is_moving = true;
 				}
 			}
@@ -132,64 +133,65 @@ namespace TA3D
 			{
                 for (int i = 0; i < 3; ++i)
 				{
-					if (!e->axe[i].is_moving)
+					Axe &axis = e->axe[i];
+					if (!axis.is_moving)
 						continue;
-					e->axe[i].is_moving = false;
-					float a = e->axe[i].move_distance;
+					axis.is_moving = false;
+					float a = axis.move_distance;
 					if (!Yuni::Math::Zero(a))
 					{
-						e->axe[i].is_moving = true;
+						axis.is_moving = true;
 						is_moving = true;
-						float c = e->axe[i].move_speed * dt;
-						e->axe[i].move_distance -= c;
-						e->axe[i].pos += c;
-						if ((a > 0.0f && e->axe[i].move_distance < 0.0f)
-							|| (a < 0.0f && e->axe[i].move_distance > 0.0f))
+						const float c = axis.move_speed * dt;
+						axis.move_distance -= c;
+						axis.pos += c;
+						if ((a > 0.0f && axis.move_distance < 0.0f)
+							|| (a < 0.0f && axis.move_distance > 0.0f))
 						{
-							e->axe[i].pos += e->axe[i].move_distance;
-							e->axe[i].move_distance = 0.0f;
+							axis.pos += axis.move_distance;
+							axis.move_distance = 0.0f;
 						}
 					}
 
-					while (e->axe[i].angle > 180.0f)
-						e->axe[i].angle -= 360.0f;		// Maintient l'angle dans les limites
-					while (e->axe[i].angle < -180.0f)
-						e->axe[i].angle += 360.0f;
+					while (axis.angle > 180.0f)
+						axis.angle -= 360.0f;		// Maintient l'angle dans les limites
+					while (axis.angle < -180.0f)
+						axis.angle += 360.0f;
 
-					a = e->axe[i].rot_angle;
-					if ((!Yuni::Math::Zero(e->axe[i].rot_speed) || !Yuni::Math::Zero(e->axe[i].rot_accel)) && ((!Yuni::Math::Zero(a) && e->axe[i].rot_limit) || !e->axe[i].rot_limit))
+					a = axis.rot_angle;
+					if ((!Yuni::Math::Zero(axis.rot_speed) || !Yuni::Math::Zero(axis.rot_accel)) && ((!Yuni::Math::Zero(a) && axis.rot_limit) || !axis.rot_limit))
 					{
-						e->axe[i].is_moving = true;
+						axis.is_moving = true;
 						is_moving = true;
 
-						float b = e->axe[i].rot_speed;
+						float b = axis.rot_speed;
 						if (b < -7200.0f)
-							b = e->axe[i].rot_speed = -7200.0f;
+							b = axis.rot_speed = -7200.0f;
 						else if (b > 7200.0f)
-							b = e->axe[i].rot_speed = 7200.0f;
+							b = axis.rot_speed = 7200.0f;
 
-						e->axe[i].rot_speed += e->axe[i].rot_accel * dt;
-						if (e->axe[i].rot_speed_limit)
+						axis.rot_speed += axis.rot_accel * dt;
+						if (axis.rot_speed_limit)
 						{
-							if ((b <= e->axe[i].rot_target_speed && e->axe[i].rot_speed >= e->axe[i].rot_target_speed)
-								|| (b >= e->axe[i].rot_target_speed && e->axe[i].rot_speed <= e->axe[i].rot_target_speed))
+							if ((b <= axis.rot_target_speed && axis.rot_speed >= axis.rot_target_speed)
+								|| (b >= axis.rot_target_speed && axis.rot_speed <= axis.rot_target_speed))
 							{
-								e->axe[i].rot_accel = 0.0f;
-								e->axe[i].rot_speed = e->axe[i].rot_target_speed;
-								e->axe[i].rot_speed_limit = false;
+								axis.rot_accel = 0.0f;
+								axis.rot_speed = axis.rot_target_speed;
+								axis.rot_speed_limit = false;
 							}
 						}
-						float c = e->axe[i].rot_speed * dt;
-						e->axe[i].angle += c;
-						if (e->axe[i].rot_limit)
+						const float c = axis.rot_speed * dt;
+						axis.angle += c;
+						if (axis.rot_limit)
 						{
-							e->axe[i].rot_angle -= c;
-							if ((a >= 0.0f && e->axe[i].rot_angle <= 0.0f) || (a <= 0.0f && e->axe[i].rot_angle >= 0.0f))
+							axis.rot_angle -= c;
+							if ((a >= 0.0f && axis.rot_angle <= 0.0f) || (a <= 0.0f && axis.rot_angle >= 0.0f))
 							{
-								e->axe[i].angle += e->axe[i].rot_angle;
-								e->axe[i].rot_angle = 0.0f;
-								e->axe[i].rot_speed = 0.0f;
-								e->axe[i].rot_accel = 0.0f;
+								axis.angle += axis.rot_angle;
+								axis.rot_angle = 0.0f;
+								axis.rot_speed = 0.0f;
+								axis.rot_accel = 0.0f;
 							}
 						}
 					}
@@ -198,7 +200,7 @@ namespace TA3D
 		}
 	}
 
-	void Animation::animate( float &t, Vector3D &R, Vector3D& T)
+	void Animation::animate(const float t, Vector3D &R, Vector3D& T) const
 	{
 		if (type & ROTATION)
 		{
@@ -210,7 +212,7 @@ namespace TA3D
 				else
 				{
 					coef = t * angle_w;
-					int i = (int) coef;
+					const int i = (int) coef;
 					coef = coef - i;
 					coef = (i&1) ? (1.0f - coef) : coef;
 				}
@@ -229,7 +231,7 @@ namespace TA3D
 				else
 				{
 					coef = t * translate_w;
-					int i = (int) coef;
+					const int i = (int) coef;
 					coef = coef - i;
 					coef = (i&1) ? (1.0f - coef) : coef;
 				}
@@ -499,7 +501,7 @@ namespace TA3D
 
 
 
-	int Mesh::random_pos(AnimationData *data_s, const int id, Vector3D* vec) const
+	int Mesh::random_pos(const AnimationData *data_s, const int id, Vector3D* vec) const
 	{
 		if (id == obj_id)
 		{
@@ -540,9 +542,9 @@ namespace TA3D
 
 
 
-	void Mesh::compute_coord(AnimationData* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
-							 Vector3D* upos, Matrix* M, float size, Vector3D* center, bool reverse,
-							 Mesh* src, AnimationData* src_data) const
+	void Mesh::compute_coord(AnimationData* data_s, Vector3D *pos, const bool c_part, const int p_tex, const Vector3D *target,
+							 Vector3D *upos, Matrix *M, const float size, const Vector3D *center, bool reverse,
+							 const Mesh *src, const AnimationData *src_data) const
 	{
 		const Vector3D opos = *pos;
 		const Matrix OM = M ? *M : Matrix();
@@ -551,30 +553,31 @@ namespace TA3D
 			if (M)
 			{
 				Vector3D ipos;
-				ipos.x = data_s->data[script_index].axe[0].pos;
-				ipos.y = data_s->data[script_index].axe[1].pos;
-				ipos.z = data_s->data[script_index].axe[2].pos;
+				AnimationData::Data &data = data_s->data[script_index];
+				ipos.x = data.axe[0].pos;
+				ipos.y = data.axe[1].pos;
+				ipos.z = data.axe[2].pos;
 				*pos = *pos + (pos_from_parent + ipos) * (*M);
-				*M = RotateZYX( data_s->data[script_index].axe[2].angle * DEG2RAD,
-								data_s->data[script_index].axe[1].angle * DEG2RAD,
-								data_s->data[script_index].axe[0].angle * DEG2RAD)
+				*M = RotateZYX( data.axe[2].angle * DEG2RAD,
+								data.axe[1].angle * DEG2RAD,
+								data.axe[0].angle * DEG2RAD)
 					* (*M);
-				data_s->data[script_index].matrix = *M;
+				data.matrix = *M;
 				if (nb_l_index == 2)
 				{
-					data_s->data[script_index].dir = (points[l_index[1]] - points[l_index[0]]) * (*M);
-					data_s->data[script_index].dir.unit();
+					data.dir = (points[l_index[1]] - points[l_index[0]]) * (*M);
+					data.dir.unit();
 				}
 				else
-					data_s->data[script_index].dir.reset();
+					data.dir.reset();
 				if (nb_l_index == 2 && nb_prim == 1)
-					data_s->data[script_index].pos = *pos + points[l_index[0]] * (*M);
+					data.pos = *pos + points[l_index[0]] * (*M);
 				else
-					data_s->data[script_index].pos = *pos;
+					data.pos = *pos;
 				if (child)
-					data_s->data[script_index].tpos = *pos + child->pos_from_parent * (*M);
+					data.tpos = *pos + child->pos_from_parent * (*M);
 				else
-					data_s->data[script_index].tpos = *pos;
+					data.tpos = *pos;
 			}
 		}
 		else if (M)
@@ -582,7 +585,7 @@ namespace TA3D
 		else
 			*pos = *pos + pos_from_parent;
 
-		if (c_part && emitter_point ) // Emit a  particle
+		if (c_part && emitter_point) // Emit a  particle
 		{
 			Vector3D Dir;
 			Vector3D t_mod;

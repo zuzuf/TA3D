@@ -172,7 +172,7 @@ namespace TA3D
             :type(0), angle_w(0.), translate_w(0.)
         {}
 
-        void animate( float &t, Vector3D &R, Vector3D& T);
+		void animate(const float t, Vector3D &R, Vector3D& T) const;
     };
 
 	class Mesh                          // The basic mesh class
@@ -242,16 +242,16 @@ namespace TA3D
 
 		void compute_coord(AnimationData *data_s = NULL,
                            Vector3D *pos = NULL,
-                           bool c_part = false,
-                           int p_tex = 0,
-                           Vector3D *target = NULL,
+						   const bool c_part = false,
+						   const int p_tex = 0,
+						   const Vector3D *target = NULL,
                            Vector3D *upos = NULL,
                            Matrix *M = NULL,
-                           float size = 0.0f,
-                           Vector3D *center = NULL,
-                           bool reverse = false,
-						   Mesh *src = NULL,
-						   AnimationData *src_data = NULL) const;
+						   const float size = 0.0f,
+						   const Vector3D *center = NULL,
+						   const bool reverse = false,
+						   const Mesh *src = NULL,
+						   const AnimationData *src_data = NULL) const;
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false) = 0;
         virtual bool draw_nodl(bool alset = false) = 0;
@@ -264,7 +264,7 @@ namespace TA3D
 
 		bool hit_fast(Vector3D Pos, Vector3D Dir, AnimationData *data_s, Vector3D *I);
 
-		int random_pos( AnimationData *data_s, const int id, Vector3D *vec ) const;
+		int random_pos(const AnimationData *data_s, const int id, Vector3D *vec) const;
 
         bool compute_emitter();
 
