@@ -222,7 +222,7 @@ namespace TA3D
 				{                                   // We can only use units available on all clients, so check the list
 					int type_id = unit_manager.get_unit_index(params[1]);
 					if (type_id == -1 || unit_manager.unit_type[type_id]->not_used)            // Tell it's missing
-						network_manager.sendAll( "MISSING " + params[1]);
+						network_manager.sendAll( String("MISSING ") << params[1]);
 				}
 				else if (params[0] == "MISSING")
 				{

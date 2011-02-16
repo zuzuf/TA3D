@@ -15,9 +15,9 @@ namespace TA3D
         {
             String::List files;
             if (path.last() == Paths::Separator)
-                Paths::GlobFiles(files, path + "*", false, false);
+				Paths::GlobFiles(files, String(path) << "*", false, false);
             else
-                Paths::GlobFiles(files, path + Paths::Separator + "*", false, false);
+				Paths::GlobFiles(files, String(path) << Paths::Separator << "*", false, false);
             for(String::List::iterator i = files.begin() ; i != files.end() ; ++i)
             {
                 String ext = Paths::ExtractFileExt(*i).toLower();
@@ -460,9 +460,9 @@ namespace TA3D
                 {
                     MyPath = startPath;
                     if (MyPath.length())
-                        MyPath += "\\";
+						MyPath << "\\";
                     MyPath += (char *)Name;
-                    m_cDir = MyPath + "\\";
+					m_cDir = String(MyPath) << "\\";
 
                     processSubDir( Entry );
                 }

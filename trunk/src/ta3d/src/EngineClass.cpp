@@ -741,13 +741,13 @@ namespace TA3D
 		for(int s = 0 ; parser.exists( String("globalheader.schema 0.specials.special") << s ) ; s++)
 		{
 			String key = String("GlobalHeader.Schema 0.specials.special") << s << '.';
-			String specialWhat = parser.pullAsString(key + "specialwhat");
+			String specialWhat = parser.pullAsString(String(key) << "specialwhat");
 			specialWhat.toLower();
 			if (specialWhat.startsWith("startpos"))
 			{
 				int index = Substr(specialWhat, 8, specialWhat.size() - 8).to<int>() - 1;
-				startX[index] = parser.pullAsInt(key + "xpos");
-				startZ[index] = parser.pullAsInt(key + "zpos");
+				startX[index] = parser.pullAsInt(String(key) << "xpos");
+				startZ[index] = parser.pullAsInt(String(key) << "zpos");
 			}
 		}
 		waterdoesdamage = parser.pullAsBool("GlobalHeader.waterdoesdamage");

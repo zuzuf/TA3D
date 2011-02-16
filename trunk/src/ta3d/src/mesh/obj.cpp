@@ -130,7 +130,7 @@ namespace TA3D
 				{
 					for(String::Vector::iterator s = args.begin() ; s != args.end() ; ++s)
 					{
-						File *src_mtl = VFS::Instance()->readFile("objects3d/" + *s);
+						File *src_mtl = VFS::Instance()->readFile(String("objects3d/") << *s);
 						if (!src_mtl)
 							continue;
 						Material mtl;
@@ -149,7 +149,7 @@ namespace TA3D
 								{
 									if (args0[0] == "map_Kd")
 									{
-										mtl.textureName = "textures/" + args0[1];
+										mtl.textureName = String("textures/") << args0[1];
 										mtllib[mtl.name] = mtl;
 									}
 								}

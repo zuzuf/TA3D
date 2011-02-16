@@ -36,7 +36,7 @@ namespace Settings
 	bool Backup(const String& filename)
 	{
 		LOG_INFO(LOG_PREFIX_SETTINGS << "Making a backup for `" << filename << "`...");
-		if (Paths::Files::Copy(filename, filename + ".bak"))
+		if (Paths::Files::Copy(filename, String(filename) << ".bak"))
 		{
 			LOG_INFO(LOG_PREFIX_SETTINGS << "The backup is done.");
 			return true;
@@ -127,7 +127,7 @@ namespace Settings
 	bool Restore(const String& filename)
 	{
 		LOG_INFO(LOG_PREFIX_SETTINGS << "Restoring the backup for `" << filename << "`...");
-		if (Paths::Files::Copy(filename + ".bak", filename))
+		if (Paths::Files::Copy(String(filename) << ".bak", filename))
 		{
 			LOG_INFO(LOG_PREFIX_SETTINGS << "The settings have been restored.");
 			return true;

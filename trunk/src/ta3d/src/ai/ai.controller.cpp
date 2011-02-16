@@ -599,7 +599,7 @@ namespace TA3D
 	void AiController::save()
 	{
 		String filename;
-		Paths::MakeDir( Paths::Resources + "ai" );
+		Paths::MakeDir( String(Paths::Resources) << "ai" );
 		filename << Paths::Resources << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
 		Stream file(filename, Yuni::Core::IO::OpenMode::write);
 

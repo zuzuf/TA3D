@@ -96,7 +96,7 @@ namespace TA3D
 		if ('\\' != guis_dir.last())      guis_dir += "\\";
 		if ('\\' != gamedata_dir.last())  gamedata_dir += "\\";
 
-		TDFParser sidedata_parser( gamedata_dir + "sidedata.tdf", false, false, false, false);
+		TDFParser sidedata_parser( String(gamedata_dir) << "sidedata.tdf", false, false, false, false);
 
 		nb_side = 0;
 
@@ -163,10 +163,10 @@ namespace TA3D
 	IntrElementCoords read_gui_element(TDFParser* parser, const String& element, bool bottom)
 	{
 		IntrElementCoords gui_element;
-		gui_element.x1 = parser->pullAsInt(element + ".x1");
-		gui_element.y1 = parser->pullAsInt(element + ".y1");
-		gui_element.x2 = parser->pullAsInt(element + ".x2");
-		gui_element.y2 = parser->pullAsInt(element + ".y2");
+		gui_element.x1 = parser->pullAsInt(String(element) << ".x1");
+		gui_element.y1 = parser->pullAsInt(String(element) << ".y1");
+		gui_element.x2 = parser->pullAsInt(String(element) << ".x2");
+		gui_element.y2 = parser->pullAsInt(String(element) << ".y2");
 		if (bottom)
 		{
 			gui_element.y1 += SCREEN_H - 480;

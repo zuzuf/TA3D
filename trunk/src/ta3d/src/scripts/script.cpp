@@ -1536,24 +1536,24 @@ namespace TA3D
 		while( !(unit_name = ota_parser.pullAsString( String("GlobalHeader.Schema ") << schema << ".units.unit" << i << ".Unitname")).empty())
 		{
 			String unit_key = String("GlobalHeader.Schema ") << schema << ".units.unit" << i;
-			int player_id = ota_parser.pullAsInt( unit_key + ".player" ) - 1;
-			float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 0.5f;
-			float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 0.5f;
+			int player_id = ota_parser.pullAsInt( String(unit_key) << ".player" ) - 1;
+			float x = ota_parser.pullAsFloat( String(unit_key) << ".XPos" ) * 0.5f;
+			float z = ota_parser.pullAsFloat( String(unit_key) << ".ZPos" ) * 0.5f;
 
 			m_File << String("\nunit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 
-			float health = ota_parser.pullAsFloat( unit_key + ".HealthPercentage", -1.0f );
+			float health = ota_parser.pullAsFloat( String(unit_key) << ".HealthPercentage", -1.0f );
 			if (health != -1.0f )
 				m_File << String("set_unit_health( unit_id, ") << health << " )\n";
 
-			String Ident = ota_parser.pullAsString( unit_key + ".Ident" );
+			String Ident = ota_parser.pullAsString( String(unit_key) << ".Ident" );
 			if (!Ident.empty() )
 				m_File << Ident << " = unit_id\n";		// Links the unit_id to the given name
 
 			m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
 
 			String::Vector orders;
-			ota_parser.pullAsString(unit_key + ".InitialMission").explode(orders, ',');
+			ota_parser.pullAsString(String(unit_key) << ".InitialMission").explode(orders, ',');
 
 			bool selectable = false;
 			bool orders_given = false;
@@ -1600,8 +1600,8 @@ namespace TA3D
 				{
 					if (params.size() == 3)			// Factories
 					{
-						m_File << "for i = 1, " + params[ 2 ] + " do\n";
-						m_File << "	add_build_mission( unit_id, unit_x( unit_id ), unit_z( unit_id ), " + params[ 1 ] + " )\n";
+						m_File << "for i = 1, " << params[ 2 ] << " do\n";
+						m_File << "	add_build_mission( unit_id, unit_x( unit_id ), unit_z( unit_id ), " << params[ 1 ] << " )\n";
 						m_File << "end\n";
 					}
 					else if (params.size() == 4)		// Mobile builders
@@ -1669,9 +1669,9 @@ namespace TA3D
 
 		while( !(feature_name = ota_parser.pullAsString( String("GlobalHeader.Schema ") << schema << ".features.feature" << i << ".Featurename")).empty())
 		{
-			String unit_key = String("GlobalHeader.Schema ") << schema << ".features.feature" << i;
-			float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 16.0f;
-			float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 16.0f;
+			const String unit_key = String("GlobalHeader.Schema ") << schema << ".features.feature" << i;
+			const float x = ota_parser.pullAsFloat( String(unit_key) << ".XPos" ) * 16.0f;
+			const float z = ota_parser.pullAsFloat( String(unit_key) << ".ZPos" ) * 16.0f;
 
 			m_File << "\ncreate_feature( \"" << feature_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 			i++;
@@ -1910,7 +1910,7 @@ namespace TA3D
 
 		if (!ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ).empty() )
 		{
-			m_File << "	if has_unit( 0, \"" + ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ) + "\" ) and not BuildUnitType then\n";
+			m_File << "	if has_unit( 0, \"" << ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ) << "\" ) and not BuildUnitType then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 			m_File << "		BuildUnitType = true\n";
 			m_File << "	end\n\n";
@@ -1918,7 +1918,7 @@ namespace TA3D
 
 		if (!ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ).empty() )
 		{
-			m_File << "	if has_unit( 0, \"" + ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ) + "\" ) and not CaptureUnitType then\n";
+			m_File << "	if has_unit( 0, \"" << ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ) << "\" ) and not CaptureUnitType then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 			m_File << "		CaptureUnitType = true\n";
 			m_File << "	end\n\n";
@@ -1944,7 +1944,7 @@ namespace TA3D
 
 		if (!ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ).empty() )
 		{
-			m_File << "	if not has_unit( 1, \"" + ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ) + "\" ) and not KillAllOfType then\n";
+			m_File << "	if not has_unit( 1, \"" << ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ) << "\" ) and not KillAllOfType then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 			m_File << "		KillAllOfType = true\n";
 			m_File << "	end\n\n";

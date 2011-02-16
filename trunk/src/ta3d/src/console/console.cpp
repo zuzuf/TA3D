@@ -210,7 +210,7 @@ namespace TA3D
 		case KEY_ENTER:
 			pLastCommands.push_back(pInputText);
 			pHistoryPos = pLastCommands.size();
-			addEntry(">" + pInputText);
+			addEntry(String(">") << pInputText);
 			execute(pInputText);
 			pInputText.clear();
 			cursorPos = 0;
@@ -333,7 +333,7 @@ namespace TA3D
 			}
 		}
 
-		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
+		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), String(">") << pInputText );
 		gfx->print(fnt, 1.0f + fnt->length(String(">") << SubstrUTF8(pInputText, 0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
 
 		gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, String(">") << pInputText );

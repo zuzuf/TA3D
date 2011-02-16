@@ -100,13 +100,13 @@ namespace TA3D
 				LocalData = localAppData();
 				LocalData += Separator;
 
-				Resources = ApplicationRoot + "resources\\";
-				Caches = ApplicationRoot + "cache\\";
-				Savegames = ApplicationRoot + "savegames\\";
-				Logs = ApplicationRoot + "logs\\";
+				Resources = String(ApplicationRoot) << "resources\\";
+				Caches = String(ApplicationRoot) << "cache\\";
+				Savegames = String(ApplicationRoot) << "savegames\\";
+				Logs = String(ApplicationRoot) << "logs\\";
 
-				Preferences = ApplicationRoot + "settings\\";
-				Screenshots = ApplicationRoot + "screenshots\\";
+				Preferences = String(ApplicationRoot) << "settings\\";
+				Screenshots = String(ApplicationRoot) << "screenshots\\";
 			}
 
 # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -115,14 +115,14 @@ namespace TA3D
 			void initForDefaultUnixes()
 			{
 				String home = getenv("HOME");
-				home += "/.ta3d/";
-				Resources = home + "resources/";
-				Caches = home + "cache/";
-				Savegames = home + "savegames/";
-				Logs = home + "log/";
+				home << "/.ta3d/";
+				Resources = String(home) << "resources/";
+				Caches = String(home) << "cache/";
+				Savegames = String(home) << "savegames/";
+				Logs = String(home) << "log/";
 
 				Preferences = home;
-				Screenshots = home + "screenshots/";
+				Screenshots = String(home) << "screenshots/";
 			}
 
 # else // ifndef TA3D_PLATFORM_DARWIN
@@ -130,13 +130,13 @@ namespace TA3D
 			void initForDarwin()
 			{
 				String home = getenv("HOME");
-				Caches = home + "/Library/Caches/ta3d/";
-				Savegames = home + "/Library/Application Support/ta3d/savegames/";
-				Resources = home + "/Library/Application Support/ta3d/resources/";
-				Logs = home + "/Library/Logs/ta3d/";
+				Caches = String(home) << "/Library/Caches/ta3d/";
+				Savegames = String(home) << "/Library/Application Support/ta3d/savegames/";
+				Resources = String(home) << "/Library/Application Support/ta3d/resources/";
+				Logs = String(home) << "/Library/Logs/ta3d/";
 
-				Preferences = home + "/Library/Preferences/ta3d/";
-				Screenshots = home + "/Downloads/";
+				Preferences = String(home) << "/Library/Preferences/ta3d/";
+				Screenshots = String(home) << "/Downloads/";
 			}
 
 # endif // ifndef TA3D_PLATFORM_DARWIN
@@ -283,7 +283,7 @@ namespace TA3D
 
 			bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
 				&& MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources)
-				&& MakeDir(Savegames + "multiplayer" + Paths::Separator);
+				&& MakeDir(String(Savegames) << "multiplayer" << Paths::Separator);
 			if (!res)
 			{
 				logs.fatal() << "Some paths are missing. Aborting now...";

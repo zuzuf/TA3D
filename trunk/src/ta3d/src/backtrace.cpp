@@ -92,7 +92,7 @@ void backtrace_handler (int signum)
 	char** strings = backtrace_symbols(array, size);
 
     // Try to log it
-	Yuni::Core::IO::File::Stream m_File(TA3D::Paths::Logs + "backtrace.txt", Yuni::Core::IO::OpenMode::write);
+	Yuni::Core::IO::File::Stream m_File(String(TA3D::Paths::Logs) << "backtrace.txt", Yuni::Core::IO::OpenMode::write);
 	if(m_File.opened())
     {
 		m_File << "received signal " << strsignal( signum ) << "\n";
@@ -107,9 +107,10 @@ void backtrace_handler (int signum)
 		for (TA3D::uint32 i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 
-        String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
-            + TA3D::Paths::Logs
-            + "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
+		String szErrReport;
+		szErrReport << "An error has occured.\nDebugging information have been logged to:\n"
+					<< TA3D::Paths::Logs
+					<< "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
 
 		criticalMessage(szErrReport);
 	}
@@ -258,7 +259,7 @@ void bug_reporter()
 	report += '\n';
 	report += '\n';
 
-	const String fBacktrace = TA3D::Paths::Logs + "backtrace.txt";
+	const String fBacktrace = String(TA3D::Paths::Logs) << "backtrace.txt";
 	report += "\nstacktrace:\n";
 	std::string bt;
 	Yuni::Core::IO::File::LoadFromFile(bt, fBacktrace);

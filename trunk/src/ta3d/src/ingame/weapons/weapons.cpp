@@ -35,7 +35,7 @@ namespace TA3D
 	void load_weapons(ProgressNotifier *progress)				// Charge toutes les armes
 	{
 		String::Vector file_list;
-		VFS::Instance()->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
+		VFS::Instance()->getFilelist(String(ta3dSideData.weapon_dir) << "*.tdf", file_list);
 
 		int n = 0;
 

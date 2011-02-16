@@ -511,7 +511,7 @@ namespace TA3D
 
 	int Network::sendAll(const String& msg)
 	{
-		LOG_DEBUG("sendAll(\"" + msg + "\")");
+		LOG_DEBUG(String("sendAll(\"") << msg << "\")");
 		struct chat chat;
 		return sendSpecial( strtochat( &chat, msg ), -1, -1, true);
 	}

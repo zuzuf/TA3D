@@ -46,8 +46,8 @@ namespace Menus
 			int idx = Gui::AREA::current()->load_window("gui/progress.tdf", String("dl") << wndNumber++);
 			wnd = Gui::AREA::current()->get_window_name(idx);
             Gui::AREA::current()->title(wnd, url);
-            Gui::AREA::current()->set_data(wnd + ".progress", 0);
-            Gui::AREA::current()->msg(wnd + ".show");
+			Gui::AREA::current()->set_data(String(wnd) << ".progress", 0);
+			Gui::AREA::current()->msg(String(wnd) << ".show");
 			this->lastProgress = 0;
 		}
 		this->modID = mID;
@@ -63,7 +63,7 @@ namespace Menus
     void NetMenu::Download::stop()
     {
         if (Gui::AREA::current())
-            Gui::AREA::current()->msg(wnd + ".hide");
+			Gui::AREA::current()->msg(String(wnd) << ".hide");
         http.stop();
     }
 
@@ -76,12 +76,12 @@ namespace Menus
 				int p = (int)http.getProgress();
 				if (p != lastProgress)		// Don't update too often, it forces refreshing GUI
 				{
-					Gui::AREA::current()->set_data(wnd + ".progress", p);
+					Gui::AREA::current()->set_data(String(wnd) << ".progress", p);
 					this->lastProgress = p;
 				}
 			}
             else
-                Gui::AREA::current()->msg(wnd + ".hide");
+				Gui::AREA::current()->msg(String(wnd) << ".hide");
         }
     }
 
@@ -241,7 +241,7 @@ namespace Menus
 
 						if (pIdx->isInstalled())
 						{
-							if (TA3D_CURRENT_MOD != "mods/" + pIdx->getName() + "/" && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.empty()))
+							if (TA3D_CURRENT_MOD != (String("mods/") << pIdx->getName() << '/') && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.empty()))
 								pArea->msg("mods.b_load.enable");
 							else
 								pArea->msg("mods.b_load.disable");
@@ -341,7 +341,7 @@ namespace Menus
 						pArea->caption("netgames.server_open_slots", nullptr);
 					}
 					else if (pArea->get_state("netgames.b_join"))
-						NetClient::instance()->sendMessage("JOIN \"" + Escape(serverListObj->Text[idx]) + "\"");
+						NetClient::instance()->sendMessage(String("JOIN \"") << Escape(serverListObj->Text[idx]) << "\"");
 				}
 				if (pArea->get_state("netgames.b_refresh"))     // Refresh server list
 					NetClient::instance()->sendMessage("GET SERVER LIST");
@@ -450,7 +450,7 @@ namespace Menus
 
 							NetClient::instance()->connect(lp_CONFIG->net_server, 4240, login, password);
 							if (NetClient::instance()->getState() == NetClient::CONNECTED)
-								addChatMessage("you are logged as " + NetClient::instance()->getLogin());
+								addChatMessage(String("you are logged as ") << NetClient::instance()->getLogin());
 							netMode = NONE;
 						}
 						break;
@@ -511,8 +511,8 @@ namespace Menus
 							NetClient::instance()->connect(lp_CONFIG->net_server, 4240, login, password, true);
 							if (NetClient::instance()->getState() == NetClient::CONNECTED)
 							{
-								addChatMessage("you successfully registered as " + NetClient::instance()->getLogin());
-								addChatMessage("you are logged as " + NetClient::instance()->getLogin());
+								addChatMessage(String("you successfully registered as ") << NetClient::instance()->getLogin());
+								addChatMessage(String("you are logged as ") << NetClient::instance()->getLogin());
 							}
 							netMode = NONE;
 						}
@@ -664,7 +664,7 @@ namespace Menus
 		SetupGame::Execute(true, host, String(), true);
 
 		lp_CONFIG->player_name = cfgPlayerName;
-		NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");
+		NetClient::instance()->sendMessage(String("UNJOIN \"") << Escape(host) << "\"");
 		NetClient::instance()->clearServerJoined();
 	}
 

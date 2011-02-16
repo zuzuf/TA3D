@@ -142,7 +142,7 @@ namespace TA3D
 			{
 				const String &gafName = *it;
 				String::Vector entries;
-				if (VFS::Instance()->getDirlist(gafName + "\\*", entries))				// GAF-like directory
+				if (VFS::Instance()->getDirlist(String(gafName) << "\\*", entries))				// GAF-like directory
 				{
 					for(uint32 i = 0 ; i < entries.size() ; ++i)
 					{
@@ -302,7 +302,7 @@ namespace TA3D
 	UnitType *UnitManager::load_unit(const String &filename)			// Ajoute une nouvelle unité
 	{
 		UnitType *pUnitType = new UnitType();
-		int result =  pUnitType->load(filename);
+		pUnitType->load(filename);
 		mInternals.lock();
 		unit_type.push_back(pUnitType);
 		if (!pUnitType->Unitname.empty())
@@ -325,7 +325,7 @@ namespace TA3D
 	void UnitManager::gather_build_data()
 	{
 		String::Vector file_list;
-		VFS::Instance()->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
+		VFS::Instance()->getFilelist( String(ta3dSideData.download_dir) << "*.tdf", file_list);
 
 		for (String::Vector::const_iterator f = file_list.begin(); f != file_list.end(); ++f) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
@@ -361,7 +361,7 @@ namespace TA3D
 		}
 
 		// Fill build menus with information parsed from the sidedata.tdf file
-		TDFParser sidedata_parser(ta3dSideData.gamedata_dir + "sidedata.tdf", false, true);
+		TDFParser sidedata_parser(String(ta3dSideData.gamedata_dir) << "sidedata.tdf", false, true);
 		for (int i = 0 ; i < nb_unit; ++i)
 		{
 			int n = 1;
@@ -409,7 +409,7 @@ namespace TA3D
 			return;
 
 		// Everything is done in the SCRIPT_DATA interface, it tries script types in priority order
-		unit_type[unit_index]->script = ScriptData::loadScriptFile("scripts\\" + uprname);
+		unit_type[unit_index]->script = ScriptData::loadScriptFile(String("scripts\\") << uprname);
 	}
 
 
@@ -668,10 +668,10 @@ namespace TA3D
 	{
 		destroy();
 		int nb_inconnu = 0;
-		String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
-		String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
-		String lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
-		String lang_desc_alt = I18N::Translate("UNITTYPE_DESCRIPTION_ALT", "UNITINFO.Description");
+		const String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
+		const String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
+		const String lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
+		const String lang_desc_alt = I18N::Translate("UNITTYPE_DESCRIPTION_ALT", "UNITINFO.Description");
 
 		TDFParser unitParser( filename, true, true );         // FBI files are case sensitive (something related to variable priority)
 		TDFParser unitParser_ci( filename, false, true );     // Case insensitive parser
@@ -1053,14 +1053,14 @@ namespace TA3D
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		int w,h;
-		panel.set(Gaf::ToTexture("anims\\" + intgaf, "PANELSIDE2", &w, &h, true));
+		panel.set(Gaf::ToTexture(String("anims\\") << intgaf, "PANELSIDE2", &w, &h, true));
 		panel.width = w;
 		panel.height = h;
 
-		paneltop.set(Gaf::ToTexture("anims\\" + intgaf, "PANELTOP", &w, &h));
+		paneltop.set(Gaf::ToTexture(String("anims\\") << intgaf, "PANELTOP", &w, &h));
 		paneltop.width = w;
 		paneltop.height = h;
-		panelbottom.set(Gaf::ToTexture("anims\\" + intgaf, "PANELBOT", &w, &h));
+		panelbottom.set(Gaf::ToTexture(String("anims\\") << intgaf, "PANELBOT", &w, &h));
 		panelbottom.width = w;
 		panelbottom.height = h;
 	}
@@ -1323,7 +1323,7 @@ namespace TA3D
 		unit_manager.Identify();
 
 		// Correct some data given in the FBI file using data from the moveinfo.tdf file
-		TDFParser parser(ta3dSideData.gamedata_dir + "moveinfo.tdf");
+		TDFParser parser(String(ta3dSideData.gamedata_dir) << "moveinfo.tdf");
 		int n = 0;
 		while (!parser.pullAsString(String("CLASS") << n << ".name").empty())
 			++n;

@@ -94,7 +94,7 @@ namespace Menus
 			for (int i = 0; i < unit_manager.nb_unit; ++i)
 			{
 				if (!unit_manager.unit_type[i]->not_used)           // Small check to ensure useonly file has an effect :)
-					network_manager.sendAll("USING " + unit_manager.unit_type[i]->Unitname);
+					network_manager.sendAll(String("USING ") << unit_manager.unit_type[i]->Unitname);
 			}
 			network_manager.sendAll("END USING");           // Ok we've finished sending the available unit list
 			network_manager.sendAll("READY");               // Only server can tell he is ready before entering main loop
@@ -221,7 +221,7 @@ namespace Menus
 						{                                   // We can only use units available on all clients, so check the list
 							int type_id = unit_manager.get_unit_index(params[1]);
 							if (type_id == -1)            // Tell it's missing
-								network_manager.sendAll( "MISSING " + params[1]);
+								network_manager.sendAll( String("MISSING ") << params[1]);
 							else
 								unit_manager.unit_type[type_id]->not_used = false;  // Enable this unit
 						}
