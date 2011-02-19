@@ -402,6 +402,8 @@ namespace TA3D
 
 	bool MAP::check_rect(int x1, int y1, int w, int h, const int c) const
 	{
+		if (w == 0 || h == 0)
+			return true;
 		const int y2 = std::min(y1 + h, bloc_h_db - 1);
 		const int x2 = std::min(x1 + w, bloc_w_db - 1);
 		y1 = std::max(y1, 0);

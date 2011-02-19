@@ -279,16 +279,15 @@ namespace TA3D
 		nodes.clear();
 		nodes.push_back(AI::Path::Node(start_x, start_z));
 
-		static int order_p1[] = { 1, 2, 3, 4, 5, 6, 7, 0 };
-		static int order_p2[] = { 2, 3, 4, 5, 6, 7, 0, 1 };
-		static int order_m1[] = { 7, 0, 1, 2, 3, 4, 5, 6 };
-		static int order_m2[] = { 6, 7, 0, 1, 2, 3, 4, 5 };
-		static int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
-		static int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
-		static int order_d[] = { 10, 7, 10, 7, 10, 7, 10, 7 };
+		static const int order_p1[] = { 1, 2, 3, 4, 5, 6, 7, 0 };
+		static const int order_p2[] = { 2, 3, 4, 5, 6, 7, 0, 1 };
+		static const int order_m1[] = { 7, 0, 1, 2, 3, 4, 5, 6 };
+		static const int order_m2[] = { 6, 7, 0, 1, 2, 3, 4, 5 };
+		static const int order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+		static const int order_dz[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+		static const int order_d[] = { 10, 7, 10, 7, 10, 7, 10, 7 };
 
-		int m_dist = task.dist;
-		m_dist *= m_dist;
+		const int m_dist = task.dist * task.dist;
 
 		const int smh = pType->FootprintZ;
 		const int smw = pType->FootprintX;
