@@ -6,19 +6,19 @@
 namespace TA3D
 {
 	template<class T>
-		Grid<T>::Grid() : w(0), h(0), data()
+		Grid<T>::Grid() : w(0U), h(0U), data()
 	{
-		resize(1, 1);
+		resize(1U, 1U);
 	}
 
 	template<class T>
-		Grid<T>::Grid(int w, int h) : w(0), h(0), data()
+		Grid<T>::Grid(unsigned int w, unsigned int h) : w(0U), h(0U), data()
 	{
 		resize(w, h);
 	}
 
 	template<class T>
-		void Grid<T>::resize(int w, int h)
+		void Grid<T>::resize(unsigned int w, unsigned int h)
 	{
 		this->w = w;
 		this->h = h;
@@ -39,40 +39,40 @@ namespace TA3D
 	}
 
 	template<class T>
-		inline typename Grid<T>::const_reference Grid<T>::operator()(int x, int y) const
+		inline typename Grid<T>::const_reference Grid<T>::operator()(const unsigned int x, const unsigned int y) const
 	{
-		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
+		LOG_ASSERT(x < w && y < h);
 		return data[x + y * w];
 	}
 
 	template<class T>
-		inline typename Grid<T>::reference Grid<T>::operator()(int x, int y)
+		inline typename Grid<T>::reference Grid<T>::operator()(const unsigned int x, const unsigned int y)
 	{
-		LOG_ASSERT(x >= 0 && x < w && y >= 0 && y < h);
+		LOG_ASSERT(x < w && y < h);
 		return data[x + y * w];
 	}
 
 	template<class T>
-		inline void Grid<T>::add(const Grid<T> &grid, int x, int y)
+		inline void Grid<T>::add(const Grid<T> &grid, const int x, const int y)
 	{
-		const int j0 = std::max(0, -y);
-		const int j1 = std::min(grid.getHeight(), h - y);
-		const int i0 = std::max(0, -x);
-		const int i1 = std::min(grid.getWidth(), w - x);
-		for(int j = j0 ; j < j1 ; ++j)
-			for(int i = i0 ; i < i1 ; ++i)
+		const unsigned int j0 = std::max(0, -y);
+		const unsigned int j1 = std::min<unsigned int>(grid.getHeight(), h - y);
+		const unsigned int i0 = std::max(0, -x);
+		const unsigned int i1 = std::min<unsigned int>(grid.getWidth(), w - x);
+		for(unsigned int j = j0 ; j < j1 ; ++j)
+			for(unsigned int i = i0 ; i < i1 ; ++i)
 				(*this)(i + x, j + y) += grid(i, j);
 	}
 
 	template<class T>
-		inline void Grid<T>::sub(const Grid<T> &grid, int x, int y)
+		inline void Grid<T>::sub(const Grid<T> &grid, const int x, const int y)
 	{
-		const int j0 = std::max(0, -y);
-		const int j1 = std::min(grid.getHeight(), h - y);
-		const int i0 = std::max(0, -x);
-		const int i1 = std::min(grid.getWidth(), w - x);
-		for(int j = j0 ; j < j1 ; ++j)
-			for(int i = i0 ; i < i1 ; ++i)
+		const unsigned int j0 = std::max(0, -y);
+		const unsigned int j1 = std::min<unsigned int>(grid.getHeight(), h - y);
+		const unsigned int i0 = std::max(0, -x);
+		const unsigned int i1 = std::min<unsigned int>(grid.getWidth(), w - x);
+		for(unsigned int j = j0 ; j < j1 ; ++j)
+			for(unsigned int i = i0 ; i < i1 ; ++i)
 				(*this)(i + x, j + y) -= grid(i, j);
 	}
 }

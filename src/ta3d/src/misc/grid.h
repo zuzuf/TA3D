@@ -19,16 +19,16 @@ namespace TA3D
 		typedef const Type& const_reference;
 	public:
 		Grid();
-		Grid(int w, int h);
+		Grid(unsigned int w, unsigned int h);
 	private:
 		Grid(const Grid&)	{}
 		Grid &operator=(const Grid&)	{}
 	public:
 		~Grid();
-		void resize(int w, int h);
+		void resize(unsigned int w, unsigned int h);
 
-		inline const_reference operator()(int x, int y) const;
-		inline reference operator()(int x, int y);
+		inline const_reference operator()(unsigned int x, unsigned int y) const;
+		inline reference operator()(unsigned int x, unsigned int y);
 
 		inline int getWidth() const {	return w;	}
 		inline int getHeight() const {	return h;	}
@@ -37,8 +37,8 @@ namespace TA3D
 		inline void clear(const T &v = T(0));
 
 	private:
-		int w;
-		int h;
+		unsigned int w;
+		unsigned int h;
 		Container data;
 	};
 

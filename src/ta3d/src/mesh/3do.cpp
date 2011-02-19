@@ -130,7 +130,7 @@ namespace TA3D
 			}
 		}
 		points = new Vector3D[nb_vtx];		// Alloue la mémoire nécessaire pour stocker les points
-		float div = 0.5f / 65536.0f;
+		const float div = 0.5f / 65536.0f;
 		pos_from_parent.x = header.XFromParent * div;
 		pos_from_parent.y = header.YFromParent * div;
 		pos_from_parent.z = -header.ZFromParent * div;
