@@ -3891,7 +3891,7 @@ namespace TA3D
 										start_building(target_unit->Pos - Pos);
 									}
 
-									if (port[ INBUILDSTANCE ] != 0.0f)
+									if (port[ INBUILDSTANCE ] != 0)
 									{
 										if (local && network_manager.isConnected() && nanolathe_target < 0 )		// Synchronize nanolathe emission
 										{
@@ -4074,7 +4074,7 @@ namespace TA3D
 									mission->getTarget().setPos(Pos + data.data[buildinfo].pos);
 								}
 							}
-							if (port[ INBUILDSTANCE ] && (pType->BMcode || (!pType->BMcode && port[YARD_OPEN] && !port[BUGGER_OFF])))
+							if (port[ INBUILDSTANCE ])// && (pType->BMcode || (!pType->BMcode && port[YARD_OPEN] && !port[BUGGER_OFF])))
 							{
 								V.x = 0.0f;
 								V.y = 0.0f;

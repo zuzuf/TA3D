@@ -63,12 +63,12 @@ namespace TA3D
 			return container.size();
 		}
 
-		T& operator[](int idx)
+		T& operator[](unsigned int idx)
 		{
 			return container[idx];
 		}
 
-		const T& operator[](int idx) const
+		const T& operator[](unsigned int idx) const
 		{
 			return container[idx];
 		}
