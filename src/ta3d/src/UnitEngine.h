@@ -64,7 +64,7 @@ namespace TA3D
 	{
 	public:
 		typedef Vector3D		Vec;
-		typedef const Unit*		T;
+		typedef std::pair<const Unit*, Vec>		T;
 
 		struct Comparator
 		{
@@ -74,16 +74,16 @@ namespace TA3D
 
 			inline bool operator() (const T &i, const T &j) const
 			{
-				if (i == j)
+				if (i.first == j.first)
 					return false;
 				switch(D)
 				{
 				case 0:
-					return i->Pos.x < j->Pos.x;
+					return i.second.x < j.second.x;
 				case 1:
-					return i->Pos.y < j->Pos.y;
+					return i.second.y < j.second.y;
 				case 2:
-					return i->Pos.z < j->Pos.z;
+					return i.second.z < j.second.z;
 				};
 				return false;
 			}
@@ -98,12 +98,12 @@ namespace TA3D
 
 			inline bool operator() (const T &i) const
 			{
-				return i->Pos[D] < f;
+				return i.second[D] < f;
 			}
 		};
 
 	public:
-		static const Vec &pos(const T &elt)	{	return elt->Pos;	}
+		static const Vec &pos(const T &elt)	{	return elt.second;	}
 		static inline void getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom);
 		static unsigned int getPrincipalDirection(const Vec &v)
 		{
@@ -123,15 +123,15 @@ namespace TA3D
 
 	inline void UnitTKit::getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom)
 	{
-		top = bottom = (*begin)->Pos;
+		top = bottom = begin->second;
 		for(std::vector<UnitTKit::T>::const_iterator i = begin ; i != end ; ++i)
 		{
-			top.x = Math::Max(top.x, (*i)->Pos.x);
-			top.y = Math::Max(top.y, (*i)->Pos.y);
-			top.z = Math::Max(top.z, (*i)->Pos.z);
-			bottom.x = Math::Min(bottom.x, (*i)->Pos.x);
-			bottom.y = Math::Min(bottom.y, (*i)->Pos.y);
-			bottom.z = Math::Min(bottom.z, (*i)->Pos.z);
+			top.x = Math::Max(top.x, i->second.x);
+			top.y = Math::Max(top.y, i->second.y);
+			top.z = Math::Max(top.z, i->second.z);
+			bottom.x = Math::Min(bottom.x, i->second.x);
+			bottom.y = Math::Min(bottom.y, i->second.y);
+			bottom.z = Math::Min(bottom.z, i->second.z);
 		}
 	}
 
