@@ -299,9 +299,6 @@ namespace TA3D
 		bool			nanolathe_reverse;
 		bool			nanolathe_feature;
 
-		// Following variables are used by the renderer
-		bool            visibility_checked;
-
 	private:
 		void start_building(const Vector3D &dir);
 

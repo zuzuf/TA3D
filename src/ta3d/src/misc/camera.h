@@ -58,6 +58,11 @@ namespace TA3D
 		void setMatrix(const Matrix& v);
 
 		/*!
+		** \brief Get the camera matrix
+		*/
+		Matrix getMatrix() const;
+
+		/*!
 		** \brief Replace the OpenGL camera
 		*/
 		void setView(bool classic = false);

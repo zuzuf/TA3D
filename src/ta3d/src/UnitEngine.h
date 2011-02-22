@@ -148,10 +148,10 @@ namespace TA3D
 	{
 	public:
 		/*----------------------- Variables générales ----------------------------------------------*/
-		uint16	nb_unit;		// Nombre d'unités
-		uint16	max_unit;		// Nombre maximum d'unités stockables dans le tableau
+		uint32	nb_unit;		// Nombre d'unités
+		uint32	max_unit;		// Nombre maximum d'unités stockables dans le tableau
 		Unit	*unit;			// Tableau contenant les références aux unités
-		uint16	index_list_size;
+		uint32	index_list_size;
 		uint16	*idx_list;
 		uint16	*free_idx;
 		uint16	free_index_size[10];
@@ -189,7 +189,7 @@ namespace TA3D
 		uint32	last_tick[5];
 		sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
-		std::vector< uint16 >			visible_unit;   // A list to store visible units
+		std::vector< uint32 >			visible_unit;   // A list to store visible units
 		KDTree< UnitTKit::T, UnitTKit >	*kdTree[10];			// A KDTree filled with units to speed up target detection (one per player)
 		KDTree< UnitTKit::T, UnitTKit >	*kdTreeFriends[10];		// A KDTree filled with units to speed up friend detection (one per player)
 		KDTree< UnitTKit::T, UnitTKit >	*kdTreeRepairPads[10];	// A KDTree filled with units to speed up friend detection (one per player)

@@ -47,7 +47,7 @@ namespace TA3D
 
 
 
-	byte player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	unsigned int player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 
 	const float	player_color[TA3D_PLAYERS_HARD_LIMIT * 3] =
@@ -1145,51 +1145,6 @@ namespace TA3D
 		gfx->unlock();
 	}
 
-	void MAP::check_unit_visibility(int x, int y)
-	{
-        if (y < 0 || y > bloc_h_db - 1 || x < 0 || x > bloc_w_db - 1)	return;
-		int idx = map_data(x, y).unit_idx;
-		if (idx >= 0 && !units.unit[idx].visibility_checked)
-		{
-			units.visible_unit.push_back(idx);
-			units.unit[idx].visibility_checked = true;
-			for (int i = 0 ; i < units.unit[idx].nb_attached ; ++i)
-			{
-				const int attached_idx = units.unit[idx].attached_list[i];
-				if (attached_idx >= 0 && !units.unit[attached_idx].visibility_checked)
-				{
-					units.visible_unit.push_back(attached_idx);
-					units.unit[attached_idx].visibility_checked = true;
-				}
-			}
-		}
-		airIdxSet &airSet = map_data(x, y).air_idx;
-        if (airSet.empty())
-            return;
-        pMutex.lock();
-        airIdxSet::iterator cur = airSet.begin();
-		while(cur != airSet.end())
-		{
-			idx = *cur;
-			if (idx >= 0 && !units.unit[idx].visibility_checked)
-			{
-				units.visible_unit.push_back(idx);
-				units.unit[idx].visibility_checked = true;
-				for (int i = 0 ; i < units.unit[idx].nb_attached ; ++i)
-				{
-					const int attached_idx = units.unit[idx].attached_list[i];
-					if (attached_idx >= 0 && !units.unit[attached_idx].visibility_checked)
-					{
-						units.visible_unit.push_back(attached_idx);
-						units.unit[attached_idx].visibility_checked = true;
-					}
-				}
-			}
-			++cur;
-		}
-		pMutex.unlock();
-	}
-
 	std::vector<Vector3D> MAP::get_visible_volume() const
 	{
 		std::vector<Vector3D>  volume;
@@ -1229,16 +1184,6 @@ namespace TA3D
 			return;
 
 		bool low_def_view = cam->rpos.y > gfx->low_def_limit;		// Low detail map for mega zoom
-
-		if (check_visibility && !FLAT)
-			units.visible_unit.clear();
-
-		if (low_def_view && check_visibility && !FLAT)
-		{
-			// NB: this works because everything is of type uint16 and because we use std::vector objects
-			units.visible_unit.resize(units.index_list_size);
-			memcpy(&(units.visible_unit.front()), units.idx_list, units.index_list_size * sizeof(uint16));
-		}
 
 		if (low_def_view)
 		{
@@ -1384,10 +1329,6 @@ namespace TA3D
 
 	void MAP::draw_HD(Camera* cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
 	{
-		if (check_visibility && !FLAT)
-			units.visible_unit.clear();
-
-
 		glPushMatrix();
 
 		gfx->lock();
@@ -1684,13 +1625,6 @@ namespace TA3D
 							else
 								view(x, y) = 3;
 						}
-                        if ((SurfaceByte(radar_map,x,y) & player_mask) || (SurfaceByte(sonar_map,x,y) & player_mask))       // We need to check that in case there is a radar or a sonar around
-                        {
-                            check_unit_visibility(X, Y);
-                            check_unit_visibility(X, Y|1);
-                            check_unit_visibility(X|1, Y);
-                            check_unit_visibility(X|1, Y|1);
-                        }
 					}
 					else
 					{
@@ -1703,10 +1637,6 @@ namespace TA3D
 						}
 						else
 							view(x, y) = 1;
-						check_unit_visibility(X, Y);
-						check_unit_visibility(X, Y|1);
-						check_unit_visibility(X|1, Y);
-						check_unit_visibility(X|1, Y|1);
 
 						if (map_data(X, Y).stuff >= 0 && map_data(X, Y).stuff < features.max_features) // Flag are visible objects in that bloc
 						{

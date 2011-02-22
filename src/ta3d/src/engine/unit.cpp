@@ -43,9 +43,7 @@ namespace TA3D
 		command_locked(false), yardmap_timer(0), death_timer(0),
 		//
 		sync_hash(0), last_synctick(NULL), local(false), exploding(false), previous_sync(),
-		nanolathe_target(0), nanolathe_reverse(false), nanolathe_feature(false),
-		//
-		visibility_checked(false)
+		nanolathe_target(0), nanolathe_reverse(false), nanolathe_feature(false)
 	{
 	}
 
@@ -328,8 +326,6 @@ namespace TA3D
 		kills = 0;
 		selfmove = false;
 		lastEnergy = 99999999.9f;
-
-		visibility_checked = false;
 
 		ID = 0;
 		paralyzed = 0.0f;
@@ -5484,12 +5480,12 @@ script_exec:
 
 	void Unit::renderTick()
 	{
-		visibility_checked = false;
-
 		render.UID = ID;
 		render.Pos = Pos;
 		render.Angle = Angle;
+		lock();
 		render.Anim = data;
+		unlock();
 		render.px = cur_px;
 		render.py = cur_py;
 		render.type_id = type_id;

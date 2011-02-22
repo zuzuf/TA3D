@@ -173,7 +173,35 @@ namespace TA3D
 		}
 	}
 
+	Matrix Camera::getMatrix() const
+	{
+		glMatrixMode (GL_PROJECTION);
+		glLoadIdentity ();
+		if (lp_CONFIG && lp_CONFIG->ortho_camera)
+			glOrtho(-0.5f * zoomFactor * float(SCREEN_W), 0.5f * zoomFactor * float(SCREEN_W), -0.5f * zoomFactor * float(SCREEN_H), 0.5f * zoomFactor * float(SCREEN_H), znear, zfar);
+		else
+			glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
 
+		const Vector3D FP(rpos + dir + shakeVector);
+		gluLookAt(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z,
+				  FP.x, FP.y, FP.z,
+				  up.x, up.y, up.z);
+
+		if (mirror)
+		{
+			glScalef(1.0f, -1.0f, 1.0f);
+			glTranslatef(0.0f, mirrorPos - 2.0f * shakeVector.y, 0.0f);
+		}
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		Matrix mProj;
+		GLfloat tmp[16];
+		glGetFloatv(GL_PROJECTION_MATRIX, tmp);
+		for(int i = 0 ; i < 16 ; ++i)
+			mProj.E[i % 4][i / 4] = tmp[i];
+		return mProj;
+	}
 
 	void Camera::getFrustum(std::vector<Vector3D>& list)
 	{

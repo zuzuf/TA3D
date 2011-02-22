@@ -319,7 +319,7 @@ namespace TA3D
 	{
 		bool selected = false;
 
-		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
 			unit[*e].lock();
 
@@ -378,7 +378,7 @@ namespace TA3D
 
 		std::vector<uint16> detectable;
 
-		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
 			if (!(unit[*e].flags & 1) || !unit[*e].visible )
 				continue;
@@ -1472,8 +1472,51 @@ namespace TA3D
 		if (nb_unit <= 0 || !unit)
 			return;		// Pas d'unités à dessiner
 
-		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
-			unit[*e].renderTick();
+		const Matrix mCam = Camera::inGame->getMatrix();
+		visible_unit.clear();
+		const int bloc_w = the_map->bloc_w_db;
+		const int bloc_h = the_map->bloc_h_db;
+		const uint32 player_mask = 1 << players.local_human_id;
+		for(uint32 i = 0 ; i < max_unit ; ++i)
+		{
+			unit[i].visible = false;
+			if (!(unit[i].flags & 1))
+				continue;
+			unit[i].renderTick();
+			unit[i].visible = false;
+			const int type_id = unit[i].render.type_id;
+			if (type_id < 0)
+				continue;
+			const UnitType* const pUnitType = unit_manager.unit_type[type_id];
+			if (!pUnitType->model)
+				continue;
+			const int px = unit[i].render.px;
+			const int py = unit[i].render.py;
+			const int px2 = px >> 1;
+			const int py2 = py >> 1;
+			if (px < 0 || py < 0 || px >= bloc_w || py >= bloc_h)
+				continue;
+
+			const Vector3D pos = unit[i].render.Pos + pUnitType->model->center;
+			const Vector3D pPos = glNMult(pos, mCam);
+			if (std::fabs(pPos.x) > 1.0f || std::fabs(pPos.y) > 1.0f || pPos.z <= 0.0f || pPos.z > 1.0f)
+			{
+				const Vector3D rel = pos - Camera::inGame->pos;
+				Vector3D D = rel - (rel % Camera::inGame->dir) * Camera::inGame->dir;
+				D.unit();
+				const Vector3D pos2 = pos - 1.42f * pUnitType->model->size2 * D;
+				const Vector3D pPos2 = glNMult(pos2, mCam);
+				if (std::fabs(pPos2.x) > 1.0f || std::fabs(pPos2.y) > 1.0f || pPos2.z <= 0.0f || pPos2.z > 1.0f)
+					continue;
+			}
+			if (!(SurfaceByte(the_map->view_map, px2, py2) & player_mask))
+			{
+				if (!((SurfaceByte(the_map->radar_map, px2, py2) & player_mask) || (SurfaceByte(the_map->sonar_map, px2, py2) & player_mask)))       // We need to check that in case there is a radar or a sonar around
+					continue;
+			}
+			unit[i].visible = true;
+			visible_unit.push_back(i);
+		}
 	}
 
 
@@ -1496,12 +1539,12 @@ namespace TA3D
 		if (low_def)
 			glDisable(GL_DEPTH_TEST);
 
-        for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 		{
-			uint16 i = *e;
+			const uint32 i = *e;
 
-            Unit *pUnit = &(unit[i]);
-			Model *model = pUnit->model;
+			Unit* const pUnit = &(unit[i]);
+			const Model* const model = pUnit->model;
 
 			if (model
 				&& (low_def || (pUnit->render.Pos.y + model->bottom <= the_map->sealvl && underwater)
@@ -1540,9 +1583,9 @@ namespace TA3D
 			glActiveStencilFaceEXT(GL_BACK);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
-			for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+			for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 			{
-				uint16 i = *e;
+				const uint32 i = *e;
 
 				gfx->lock();
 
@@ -1561,9 +1604,9 @@ namespace TA3D
 			glStencilFunc(GL_ALWAYS,128, 0xffffffff);
 			glEnable(GL_CULL_FACE);
 
-			for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+			for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 			{
-				uint16 i = *e;
+				const uint32 i = *e;
 
 				gfx->lock();
 				unit[i].drawShadowBasic(Dir);
@@ -1871,7 +1914,7 @@ namespace TA3D
 		hbars_bkg.clear();
 		hbars_color.clear();
 
-		for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+		for (std::vector<uint32>::const_iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
 			unit[*e].drawHealthBar();
 
 		glEnableClientState(GL_VERTEX_ARRAY);
