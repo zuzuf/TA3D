@@ -952,14 +952,12 @@ namespace TA3D
 				detectableUnits[owner].push_back(std::make_pair(pUnit, pUnit->Pos));
 		}
 		pMutex.unlock();
-		const uint32 kd_timer = msec_timer;
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 		{
 			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i].begin(), detectableUnits[i].end());
 			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i].begin(), allUnits[i].end());
 			kdTreeRepairPads[i] = new KDTree<UnitTKit::T, UnitTKit>(repairPads[i].begin(), repairPads[i].end());
 		}
-		std::cout << "kdtrees built in " << (msec_timer - kd_timer) << " ms" << std::endl;
 
 		players.clear();		// Réinitialise le compteur de ressources
 
