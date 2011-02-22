@@ -11,10 +11,9 @@
 namespace TA3D
 {
 	template<typename T, class TKit>
-		KDTree<T, TKit>::KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end) : lChild(NULL), rChild(NULL)
+		inline KDTree<T, TKit>::KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end) : lChild(NULL), rChild(NULL)
 	{
-		const int size = end - begin;
-		if (size <= KDTREE_MAX_SET_SIZE)
+		if ((end - begin) <= KDTREE_MAX_SET_SIZE)
 		{
 			elements_begin = begin;
 			elements_end = end;
@@ -24,16 +23,15 @@ namespace TA3D
 		TKit::getTopBottom(begin, end, top, bottom);
 		N = TKit::getPrincipalDirection(top - bottom);
 
-		std::sort(begin, end, typename TKit::Comparator(N));
-		const int mid = (size - 1) >> 1;
-		P = TKit::pos(*(begin + mid));
-
-		lChild = new KDTree<T, TKit>(begin + mid, end);
-		rChild = new KDTree<T, TKit>(begin, begin + (mid - 1));
+		top = 0.5f * (top + bottom);
+		const typename std::vector<T>::iterator mid = std::partition(begin, end, typename TKit::Predicate(top, N));
+		P = top[N];
+		lChild = new KDTree<T, TKit>(mid, end);
+		rChild = new KDTree<T, TKit>(begin, mid);
 	}
 
 	template<typename T, class TKit>
-		KDTree<T, TKit>::~KDTree()
+		inline KDTree<T, TKit>::~KDTree()
 	{
 		if (lChild)
 			delete lChild;
@@ -53,7 +51,7 @@ namespace TA3D
 			return;
 		}
 
-		const float proj = (P - center)[N];
+		const float proj = P - center[N];
 
 		if (proj >= 0.0f)
 		{

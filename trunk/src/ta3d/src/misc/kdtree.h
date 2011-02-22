@@ -27,15 +27,15 @@ namespace TA3D
 	public:
 		typedef typename TKit::Vec	Vec;
 	public:
-		KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end);
-		virtual ~KDTree();
+		inline KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end);
+		inline ~KDTree();
 
 		inline void maxDistanceQuery(std::deque<T> &result, const Vec &center, const float maxDist) const;
 
 	private:
 		typename std::vector<T>::const_iterator elements_begin;
 		typename std::vector<T>::const_iterator elements_end;
-		Vec P;
+		float P;
 		unsigned int N;
 		KDTree<T, TKit>	*lChild;
 		KDTree<T, TKit>	*rChild;
