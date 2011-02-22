@@ -980,12 +980,12 @@ namespace TA3D
 			if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id]->ExtractsMetal) // Compute amount of metal extracted by sec
 			{
 				int metal_base = 0;
-				int px=unit[i].cur_px;
-				int py=unit[i].cur_py;
-				int start_x = px - (unit_manager.unit_type[unit[i].type_id]->FootprintX >> 1 );
-				int start_y = py - (unit_manager.unit_type[unit[i].type_id]->FootprintZ >> 1 );
-				int end_y = start_y + unit_manager.unit_type[unit[i].type_id]->FootprintZ;
-				int end_x = start_x + unit_manager.unit_type[unit[i].type_id]->FootprintX;
+				const int px = unit[i].cur_px;
+				const int py = unit[i].cur_py;
+				const int start_x = px - (unit_manager.unit_type[unit[i].type_id]->FootprintX >> 1 );
+				const int start_y = py - (unit_manager.unit_type[unit[i].type_id]->FootprintZ >> 1 );
+				const int end_y = start_y + unit_manager.unit_type[unit[i].type_id]->FootprintZ;
+				const int end_x = start_x + unit_manager.unit_type[unit[i].type_id]->FootprintX;
 				for (int ry = start_y; ry <= end_y; ++ry)
 				{
 					if (ry >= 0 && ry < map->bloc_h_db)
@@ -996,7 +996,7 @@ namespace TA3D
 							{
 								if (map->map_data(rx, ry).stuff >= 0)
 								{
-									Feature *feature = feature_manager.getFeaturePointer(features.feature[map->map_data(rx, ry).stuff].type);
+									const Feature* const feature = feature_manager.getFeaturePointer(features.feature[map->map_data(rx, ry).stuff].type);
 									metal_base = feature->metal * unit_manager.unit_type[unit[i].type_id]->FootprintZ * unit_manager.unit_type[unit[i].type_id]->FootprintX;
 									ry = end_y;
 									break;
