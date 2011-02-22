@@ -927,10 +927,10 @@ namespace TA3D
 		}
 
 		// Build a KDTree to allow fast look ups when looking for targets
-		pMutex.lock();
 		std::vector<UnitTKit::T> detectableUnits[10];
 		std::vector<UnitTKit::T> allUnits[10];
 		std::vector<UnitTKit::T> repairPads[10];
+		pMutex.lock();
 		for (uint32 e = 0U ; e < index_list_size ; ++e) // Compte les stocks de ressources et les productions
 		{
 			const uint32 i = idx_list[e];
@@ -951,13 +951,13 @@ namespace TA3D
 			if (owner < 10)
 				detectableUnits[owner].push_back(pUnit);
 		}
+		pMutex.unlock();
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 		{
 			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i].begin(), detectableUnits[i].end());
 			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i].begin(), allUnits[i].end());
 			kdTreeRepairPads[i] = new KDTree<UnitTKit::T, UnitTKit>(repairPads[i].begin(), repairPads[i].end());
 		}
-		pMutex.unlock();
 
 		players.clear();		// Réinitialise le compteur de ressources
 
@@ -1482,22 +1482,15 @@ namespace TA3D
 			unit[i].visible = false;
 			if (!(unit[i].flags & 1))
 				continue;
-			unit[i].renderTick();
 			unit[i].visible = false;
-			const int type_id = unit[i].render.type_id;
+			const int type_id = unit[i].type_id;
 			if (type_id < 0)
 				continue;
 			const UnitType* const pUnitType = unit_manager.unit_type[type_id];
 			if (!pUnitType->model)
 				continue;
-			const int px = unit[i].render.px;
-			const int py = unit[i].render.py;
-			const int px2 = px >> 1;
-			const int py2 = py >> 1;
-			if (px < 0 || py < 0 || px >= bloc_w || py >= bloc_h)
-				continue;
 
-			const Vector3D pos = unit[i].render.Pos + pUnitType->model->center;
+			const Vector3D pos = unit[i].Pos + pUnitType->model->center;
 			const Vector3D pPos = glNMult(pos, mCam);
 			if (std::fabs(pPos.x) > 1.0f || std::fabs(pPos.y) > 1.0f || std::fabs(pPos.z) > 1.0f)
 			{
@@ -1512,6 +1505,13 @@ namespace TA3D
 						continue;
 				}
 			}
+			unit[i].renderTick();
+			const int px = unit[i].render.px;
+			const int py = unit[i].render.py;
+			const int px2 = px >> 1;
+			const int py2 = py >> 1;
+			if (px < 0 || py < 0 || px >= bloc_w || py >= bloc_h)
+				continue;
 			if (!(SurfaceByte(the_map->view_map, px2, py2) & player_mask))
 			{
 				if (!((SurfaceByte(the_map->radar_map, px2, py2) & player_mask) || (SurfaceByte(the_map->sonar_map, px2, py2) & player_mask)))       // We need to check that in case there is a radar or a sonar around

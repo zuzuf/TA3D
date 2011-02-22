@@ -89,6 +89,19 @@ namespace TA3D
 			}
 		};
 
+		struct Predicate
+		{
+			const unsigned int D;
+			const float f;
+
+			inline Predicate(const Vec &v, const unsigned int N) : D(N), f(v[N])	{}
+
+			inline bool operator() (const T &i) const
+			{
+				return i->Pos[D] < f;
+			}
+		};
+
 	public:
 		static const Vec &pos(const T &elt)	{	return elt->Pos;	}
 		static inline void getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom);
