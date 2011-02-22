@@ -246,8 +246,6 @@ namespace TA3D
 
 		~MAP() {destroy();}
 
-		void check_unit_visibility(int x, int y);
-
 		std::vector<Vector3D> get_visible_volume() const;
 
 		void drawCircleOnMap(const float x, const float y, const float radius, const uint32 color, const float thickness = 5.0f) const;
