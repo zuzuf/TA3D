@@ -1499,15 +1499,18 @@ namespace TA3D
 
 			const Vector3D pos = unit[i].render.Pos + pUnitType->model->center;
 			const Vector3D pPos = glNMult(pos, mCam);
-			if (std::fabs(pPos.x) > 1.0f || std::fabs(pPos.y) > 1.0f || pPos.z <= 0.0f || pPos.z > 1.0f)
+			if (std::fabs(pPos.x) > 1.0f || std::fabs(pPos.y) > 1.0f || std::fabs(pPos.z) > 1.0f)
 			{
 				const Vector3D rel = pos - Camera::inGame->pos;
-				Vector3D D = rel - (rel % Camera::inGame->dir) * Camera::inGame->dir;
-				D.unit();
-				const Vector3D pos2 = pos - 1.42f * pUnitType->model->size2 * D;
-				const Vector3D pPos2 = glNMult(pos2, mCam);
-				if (std::fabs(pPos2.x) > 1.0f || std::fabs(pPos2.y) > 1.0f || pPos2.z <= 0.0f || pPos2.z > 1.0f)
-					continue;
+				if (rel.sq() > pUnitType->model->size2)
+				{
+					Vector3D D = rel - (rel % Camera::inGame->dir) * Camera::inGame->dir;
+					D.unit();
+					const Vector3D pos2 = pos - 1.42f * pUnitType->model->size2 * D;
+					const Vector3D pPos2 = glNMult(pos2, mCam);
+					if (std::fabs(pPos2.x) > 1.0f || std::fabs(pPos2.y) > 1.0f || std::fabs(pPos2.z) > 1.0f)
+						continue;
+				}
 			}
 			if (!(SurfaceByte(the_map->view_map, px2, py2) & player_mask))
 			{
