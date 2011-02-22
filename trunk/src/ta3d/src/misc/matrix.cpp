@@ -209,9 +209,9 @@ namespace TA3D
 	TA3D::Vector3D glNMult(const TA3D::Vector3D &A,const TA3D::Matrix &B)
 	{
 		TA3D::Vector3D C;
-		C.x = A.x *B.E[0][0] + A.y * B.E[0][1] + A.z * B.E[0][2] + B.E[0][3];
-		C.y = A.x *B.E[1][0] + A.y * B.E[1][1] + A.z * B.E[1][2] + B.E[1][3];
-		C.z = A.x *B.E[2][0] + A.y * B.E[2][1] + A.z * B.E[2][2] + B.E[2][3];
+		C.x = A.x * B.E[0][0] + A.y * B.E[0][1] + A.z * B.E[0][2] + B.E[0][3];
+		C.y = A.x * B.E[1][0] + A.y * B.E[1][1] + A.z * B.E[1][2] + B.E[1][3];
+		C.z = A.x * B.E[2][0] + A.y * B.E[2][1] + A.z * B.E[2][2] + B.E[2][3];
 		const float w = 1.0f / (A.x * B.E[3][0] + A.y * B.E[3][1] + A.z * B.E[3][2] + B.E[3][3]);
 		C.x *= w;
 		C.y *= w;

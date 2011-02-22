@@ -178,7 +178,7 @@ namespace TA3D
 		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();
 		if (lp_CONFIG && lp_CONFIG->ortho_camera)
-			glOrtho(-0.5f * zoomFactor * float(SCREEN_W), 0.5f * zoomFactor * float(SCREEN_W), -0.5f * zoomFactor * float(SCREEN_H), 0.5f * zoomFactor * float(SCREEN_H), znear, zfar);
+			glOrtho(-0.5f * zoomFactor * float(SCREEN_W), 0.5f * zoomFactor * float(SCREEN_W), -0.5f * zoomFactor * float(SCREEN_H), 0.5f * zoomFactor * float(SCREEN_H), -512.0f, zfar);
 		else
 			glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
 
