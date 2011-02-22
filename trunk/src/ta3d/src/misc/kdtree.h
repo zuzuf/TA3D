@@ -18,8 +18,8 @@ namespace TA3D
 	 *
 	 * The TKit class must also provide the following types:
 	 * TKit::Vec - a vector type
-	 * TKit::Comparator - a TKit::Vec comparator type to be used with std::sort
-	 *                    and containing a "TKit::Vec N" normal vector (the direction of the projection)
+	 * TKit::Predicate - a TKit::Vec predicate type to be used with std::partition
+	 *                    and containing the direction of the projection and a position (the split point)
 	 */
 	template<typename T, typename TKit>
 			class KDTree

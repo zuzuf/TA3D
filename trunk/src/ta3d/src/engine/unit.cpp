@@ -3532,7 +3532,7 @@ namespace TA3D
 
 							for(std::deque<UnitTKit::T>::const_iterator i = friends.begin() ; i != friends.end() ; ++i)
 							{
-								const Unit* const pUnit = *i;
+								const Unit* const pUnit = i->first;
 								if (pUnit == this)		// No self-healing
 									continue;
 								const int friend_type_id = pUnit->type_id;
@@ -3574,7 +3574,7 @@ namespace TA3D
 									units.kdTreeRepairPads[owner_id]->maxDistanceQuery(repair_pads, Pos, pType->ManeuverLeashLength);
 									for (std::deque<UnitTKit::T>::const_iterator i = repair_pads.begin(); i != repair_pads.end() && !going_to_repair_pad ; ++i)
 									{
-										const Unit* const pUnit = (Unit*)*i;
+										const Unit* const pUnit = (Unit*)i->first;
 										if ((pUnit->pad1 == 0xFFFF || pUnit->pad2 == 0xFFFF) && pUnit->build_percent_left == 0.0f) // He can repair us :)
 											{
 												add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &(pUnit->Pos), true, 0, (void*)pUnit);
@@ -4414,9 +4414,9 @@ namespace TA3D
 
 					for(std::deque<UnitTKit::T>::iterator i = possibleTargets.begin() ; enemy_idx == -1 && i != possibleTargets.end() ; ++i)
 					{
-						const int cur_idx = (*i)->idx;
-						const int x = (*i)->cur_px;
-						const int y = (*i)->cur_py;
+						const int cur_idx = i->first->idx;
+						const int x = i->first->cur_px;
+						const int y = i->first->cur_py;
 						const int cur_type_id = units.unit[cur_idx].type_id;
 						if (x < 0
 							|| x >= the_map->bloc_w_db - 1
