@@ -975,6 +975,8 @@ namespace TA3D
 
 				const int sx = feature[e].px; // Delete the feature
 				const int sy = feature[e].py;
+				const float angle = feature[e].angle;
+				const float angle_x = feature[e].angle_x;
 				// Remove it from map
 				const Vector3D Pos = feature[e].Pos;
 				delete_feature(e);
@@ -982,12 +984,15 @@ namespace TA3D
 				// Replace the feature if needed (with the burnt feature)
 				if (!pFeature->feature_burnt.empty())
 				{
-					int burnt_type = feature_manager.get_feature_index( pFeature->feature_burnt);
+					const int burnt_type = feature_manager.get_feature_index( pFeature->feature_burnt);
 					if (burnt_type >= 0)
 					{
-						the_map->map_data(sx, sy).stuff = features.add_feature(Pos, burnt_type);
-						if (the_map->map_data(sx, sy).stuff >= 0)
+						const int nid = the_map->map_data(sx, sy).stuff = features.add_feature(Pos, burnt_type);
+						if (nid >= 0)
 						{
+							// Preserve orientation
+							feature[nid].angle = angle;
+							feature[nid].angle_x = angle_x;
 							drawFeatureOnMap(the_map->map_data(sx, sy).stuff);
 							if (network_manager.isServer())
 								g_ta3d_network->sendFeatureCreationEvent(the_map->map_data(sx, sy).stuff);

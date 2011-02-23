@@ -249,14 +249,14 @@ namespace TA3D
 		for (i = 0 ; i < map->nbbloc ; i++) // Crée les blocs
 		{
 			map->bloc[i].init();
-			int tex_num = i >> 5;	// Numéro de la texture associée
-			int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
+			const int tex_num = i >> 5;	// Numéro de la texture associée
+			const int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
 			int r = 0, g = 0, b = 0;
 			for (y = 0; y < 32; ++y)
 			{
 				for (x = tx; x < tx + 32; ++x)
 				{
-					int c = SurfaceByte(bmp_tex[tex_num],x,y);
+					const int c = SurfaceByte(bmp_tex[tex_num],x,y);
 					r += pal[c].r;
 					g += pal[c].g;
 					b += pal[c].b;
@@ -420,7 +420,7 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1);  ++x)
 			{
-				int c = byte(file->getc());
+				const int c = byte(file->getc());
 				if (c < header.sealevel)
 					map->water = true;
 				map->h_map(x, y) = map->ph_map(x, y) = float(c) * H_DIV;
@@ -432,9 +432,9 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: computing height data (step 2)");
 #pragma omp parallel for
-		for (int y = 0 ; y < (map->bloc_h<<1) ; ++y) // Calcule les informations complémentaires sur la carte
+		for (int y = 0 ; y < map->bloc_h_db ; ++y) // Calcule les informations complémentaires sur la carte
 		{
-			for (int x = 0; x < (map->bloc_w << 1); ++x)
+			for (int x = 0 ; x < map->bloc_w_db ; ++x)
 			{
 				map->map_data(x, y).init();
 				map->map_data(x, y).underwater = (map->h_map(x, y) < map->sealvl);
@@ -585,7 +585,7 @@ namespace TA3D
 					Vector3D Pos;
 					Pos.x = float((x << 3) - map->map_w_d) + 8.0f;
 					Pos.z = float((y << 3) - map->map_h_d) + 8.0f;
-                    Feature *feature = feature_manager.getFeaturePointer(TDF_index[type]);
+					const Feature* const feature = feature_manager.getFeaturePointer(TDF_index[type]);
 					if (feature && !feature->m3d)
 						Pos.y = map->get_max_rect_h( x, y, feature->footprintx, feature->footprintz);
 					else
@@ -594,9 +594,10 @@ namespace TA3D
                     {
 						map->map_data(x + 1, y + 1).stuff = features.add_feature(Pos,TDF_index[type]);
 						features.drawFeatureOnMap( map->map_data(x + 1, y + 1).stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
-						if (map->map_data(x + 1, y + 1).stuff >= 0)
+						if (map->map_data(x + 1, y + 1).stuff >= 0 && feature->model)		// Rotate only 3D models
                         {
-                            if (feature_manager.getFeaturePointer(TDF_index[type])->category == "trees")        // Randomize trees angle for more realism
+							if (feature_manager.getFeaturePointer(TDF_index[type])->category == "trees"			// Randomize trees angle for more realism
+								|| feature_manager.getFeaturePointer(TDF_index[type])->category == "rocks")		// Randomize rocks angle for more realism
 								features.feature[ map->map_data(x + 1, y + 1).stuff ].angle = float(TA3D_RAND() % 360);
                         }
                     }
