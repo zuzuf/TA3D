@@ -86,7 +86,8 @@ namespace TA3D
     {
 	private:
 		static Shader s3oShader;
-    public:
+		static Shader s3oShader_woShadows;
+	public:
 		MeshS3O *root;
     public:
 
