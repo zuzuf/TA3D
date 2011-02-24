@@ -74,7 +74,6 @@ namespace TA3D
 		stuff = -1;
 		unit_idx = -1;
 		lava = false;
-		air_idx.clear();
 		flat = false;
 	}
 
@@ -374,31 +373,6 @@ namespace TA3D
 		}
 	}
 
-
-	void MAP::air_rect( int x1, int y1, int w, int h, const short c, const bool remove)
-	{
-		const int y2 = std::min(y1 + h, bloc_h_db - 1);
-		const int x2 = std::min(x1 + w, bloc_w_db - 1);
-		y1 = std::max(y1, 0);
-		x1 = std::max(x1, 0);
-		if (y2 <= y1 || x2 <= x1)	return;
-		if (remove)
-		{
-			pMutex.lock();
-			for(int y = y1 ; y < y2 ; ++y)
-				for(int x = x1 ; x < x2 ; ++x)
-					map_data(x, y).air_idx.remove(c);
-			pMutex.unlock();
-		}
-		else
-		{
-			pMutex.lock();
-			for(int y = y1 ; y < y2 ;++y)
-				for(int x = x1 ; x < x2 ; ++x)
-					map_data(x, y).air_idx.add(c);
-			pMutex.unlock();
-		}
-	}
 
 	bool MAP::check_rect(int x1, int y1, int w, int h, const int c) const
 	{

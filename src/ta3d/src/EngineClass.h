@@ -53,10 +53,6 @@ namespace TA3D
 	extern const float tnt_transform;
 	extern const float tnt_transform_H_DIV;
 
-	typedef sset<sint16>	airIdxSet;
-
-
-
 	class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
 	{
 	public:
@@ -64,7 +60,6 @@ namespace TA3D
 		sint32			stuff;				// Indique l'élément graphique présent sur ce secteur
 		sint32			unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
 		bool			lava;				// Is that under lava ?? Used for pathfinding
-		sset<sint16>	air_idx;			// This is the list that stores indexes of air units
 		bool			flat;				// Used by the map renderer to simplify geometry
 
 		void init();
@@ -270,8 +265,6 @@ namespace TA3D
 
 		void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open = false);
 		void obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap = String(),bool open = false);
-
-		void air_rect( int x1, int y1, int w, int h, const short c, const bool remove = false);
 
 		bool check_rect(int x1,int y1,int w,int h, const int c) const;
 

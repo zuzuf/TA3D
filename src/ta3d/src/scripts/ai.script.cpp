@@ -714,51 +714,43 @@ namespace TA3D
 
     int ai_get_area_units ( lua_State *L )     // get_area_units (nx, ny, sx, sy, Type, playerID)
     {
-        float nx = (float) lua_tonumber(L, 1);
-        float ny = (float) lua_tonumber(L, 2);
-        float sx = (float) lua_tonumber(L, 3);
-        float sy = (float) lua_tonumber(L, 4);
-        int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : lua_tointeger( L, 5 ) ;
-        int player_id = lua_isnoneornil(L, 6) ? -1 : lua_tointeger( L, 6 );
-        int x0 = Math::Min( Math::Max( (int)((nx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
-        int y0 = Math::Min( Math::Max( (int)((ny + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
-        int x1 = Math::Min( Math::Max( (int)((sx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
-        int y1 = Math::Min( Math::Max( (int)((sy + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
+		const float nx = (float) lua_tonumber(L, 1);
+		const float ny = (float) lua_tonumber(L, 2);
+		const float sx = (float) lua_tonumber(L, 3);
+		const float sy = (float) lua_tonumber(L, 4);
+		const int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : lua_tointeger( L, 5 ) ;
+		const int player_id = lua_isnoneornil(L, 6) ? -1 : lua_tointeger( L, 6 );
+		const int x0 = Math::Min( Math::Max( (int)((nx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
+		const int y0 = Math::Min( Math::Max( (int)((ny + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
+		const int x1 = Math::Min( Math::Max( (int)((sx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
+		const int y1 = Math::Min( Math::Max( (int)((sy + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
         lua_pop(L, 6);
 
         lua_newtable(L);
 
 		HashSet<int>::Dense seen;
         int n = 1;
-        the_map->lock();
-        for(int y = y0 ; y < y1 ; ++y)
-            for(int x = x0 ; x < x1 ; ++x)
-            {
-                bool ok = false;
-				airIdxSet &airSet = the_map->map_data(x,y).air_idx;
-				airIdxSet::iterator cur = airSet.begin();
-				while(cur != airSet.end() || !ok)
-                {
-					int idx = cur != airSet.end() ? *cur : the_map->map_data(x,y).unit_idx;
-					if (cur == airSet.end())
-                        ok = true;
-                    else
-						++cur;
-					int type_id = (idx >= 0) ? units.unit[idx].type_id : -1;
-                    if (idx >= 0 && (units.unit[idx].owner_id == player_id || player_id == -1) && type_id >= 0 &&
-                        (unit_type_id == -1 || type_id == unit_type_id ||
-                         (unit_type_id == -2 && unit_manager.unit_type[type_id]->canattack) ||
-                         (unit_type_id == -3 && unit_manager.unit_type[type_id]->Builder)) &&
-						seen.find(idx) == seen.end())
-                    {
-						seen.insert(idx);
-                        lua_pushinteger(L, idx);
-                        ai_get_unit_data(L);
-                        lua_rawseti(L, -2, n++);
-                    }
-                }
-            }
-        the_map->unlock();
+		for(uint32 i = 0 ; i < units.max_unit ; ++i)
+		{
+			const Unit* const pUnit = &(units.unit[i]);
+			if (!(pUnit->flags & 1))
+				continue;
+			if (pUnit->cur_px < x0 || pUnit->cur_px >= x1
+				|| pUnit->cur_py < y0 || pUnit->cur_py >= y1)
+				continue;
+			const int type_id = pUnit->type_id;
+			if ((pUnit->owner_id == player_id || player_id == -1) && type_id >= 0 &&
+				(unit_type_id == -1 || type_id == unit_type_id ||
+				 (unit_type_id == -2 && unit_manager.unit_type[type_id]->canattack) ||
+				 (unit_type_id == -3 && unit_manager.unit_type[type_id]->Builder)) &&
+				!seen.contains(pUnit->idx))
+			{
+				seen.insert(pUnit->idx);
+				lua_pushinteger(L, pUnit->idx);
+				ai_get_unit_data(L);
+				lua_rawseti(L, -2, n++);
+			}
+		}
 
         return 1;
     }
