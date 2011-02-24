@@ -695,16 +695,16 @@ namespace TA3D
 					shadow_index = new GLushort[nb_t_index * 12];
 				uint16 nb_idx = 0;
 
-				if (t_line == NULL) // RepÃ¨re les arÃªtes
+				if (t_line == NULL) // Look for edges
 				{
 					t_line = new short[nb_t_index];
 					line_v_idx[0] = new short[nb_t_index];
 					line_v_idx[1] = new short[nb_t_index];
 					face_reverse = new byte[ nb_t_index ];
-					nb_line=0;
-					for (short i = 0; i < nb_t_index; i += 3)
+					nb_line = 0;
+					for (int i = 0 ; i < nb_t_index ; i += 3)
 					{
-						for (byte a = 0; a < 3; ++a)
+						for (int a = 0 ; a < 3 ; ++a)
 						{
 							short idx = -1;
 							face_reverse[i + a] = 0;
@@ -737,7 +737,9 @@ namespace TA3D
 				if (Dir != last_dir) // Don't need to compute things twice
 				{
 					::memset((byte*)line_on, 0, nb_line);
-					uint16 e = 0;
+					uint32 e = 0;
+					if (F_N == NULL)
+						F_N = new Vector3D[nb_t_index / 3];
 					for (int i = 0; i < nb_t_index; i += 3)
 					{
 						if ((F_N[e++] % Dir) >= 0.0f)
@@ -746,7 +748,7 @@ namespace TA3D
 						line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
 						line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
 					}
-					for (short i = 0; i < nb_line; ++i)
+					for (int i = 0 ; i < nb_line ; ++i)
 					{
 						if (!(line_on[i] & 1))
 							continue;
