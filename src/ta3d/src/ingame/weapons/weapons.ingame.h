@@ -23,10 +23,65 @@
 # include "weapons.single.h"
 # include <misc/camera.h>
 
-
 namespace TA3D
 {
+	template<typename T, typename TKit>	class BVH;
+	class Unit;
 
+	// Define the TKit structure required by the KDTree structure
+	class BVH_UnitTKit
+	{
+	public:
+		typedef Vector3D		Vec;
+		typedef std::pair<const Unit*, std::pair<Vec, float> >		T;
+
+		struct Predicate
+		{
+			const unsigned int D;
+			const float f;
+
+			inline Predicate(const Vec &v, const unsigned int N) : D(N), f(v[N])	{}
+
+			inline bool operator() (const T &i) const
+			{
+				return i.second.first[D] < f;
+			}
+		};
+
+	public:
+		static inline const Vec &pos(const T &elt)	{	return elt.second.first;	}
+		static inline float radius(const T &elt)	{	return elt.second.second;	}
+		static inline void getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom);
+		static inline unsigned int getPrincipalDirection(const Vec &v)
+		{
+			const Vector3D m = TA3D::Math::Abs(v);
+			if (m.x > m.y)
+			{
+				if (m.x > m.z)
+					return 0U;
+				return 2U;
+			}
+			if (m.y > m.z)
+				return 1U;
+			return 2U;
+		}
+	};
+
+	inline void BVH_UnitTKit::getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom)
+	{
+		if (begin == end)
+		{
+			top = bottom = Vector3D();
+			return;
+		}
+		top = bottom = begin->second.first;
+		for(std::vector<BVH_UnitTKit::T>::const_iterator i = begin ; i != end ; ++i)
+		{
+			const Vector3D L(i->second.second, i->second.second, i->second.second);
+			top = Math::Max(top, i->second.first + L);
+			bottom = Math::Min(bottom, i->second.first - L);
+		}
+	}
 
 	/*! \class InGameWeapons
     **
@@ -91,6 +146,8 @@ namespace TA3D
         std::vector< uint32 > idx_list;
         //!
         std::vector< uint32 > free_idx;
+		//! A BVH structure to store units (for fast collision detection)
+		BVH< BVH_UnitTKit::T, BVH_UnitTKit > *bvhUnits;
 
     protected:
         //!

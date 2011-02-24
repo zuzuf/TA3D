@@ -77,6 +77,7 @@ SET(SRC_MISC
 		misc/application.h misc/application.cpp
 		misc/point.h misc/rect.h
 		misc/kdtree.h misc/kdtree.hxx
+		misc/bvh.h misc/bvh.hxx
 		misc/quadmap.h misc/quadmap.cpp
 
 		misc/vector.cpp misc/vector.h

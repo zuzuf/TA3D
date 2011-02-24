@@ -103,19 +103,23 @@ namespace TA3D
 		};
 
 	public:
-		static const Vec &pos(const T &elt)	{	return elt.second;	}
-		static inline void getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom);
-		static unsigned int getPrincipalDirection(const Vec &v)
+		static inline const Vec &pos(const T &elt)	{	return elt.second;	}
+		static inline float radius(const T &elt)
 		{
-			if (fabsf(v.x) > fabsf(v.y))
+			const Model* const model = elt.first->model;
+			return model ? model->size2 : 0.0f;
+		}
+		static inline void getTopBottom(const std::vector<T>::const_iterator &begin, const std::vector<T>::const_iterator &end, Vec &top, Vec &bottom);
+		static inline unsigned int getPrincipalDirection(const Vec &v)
+		{
+			const Vector3D m = TA3D::Math::Abs(v);
+			if (m.x > m.y)
 			{
-				if (fabsf(v.x) > fabsf(v.z))
+				if (m.x > m.z)
 					return 0U;
-				if (fabsf(v.y) > fabsf(v.z))
-					return 1U;
 				return 2U;
 			}
-			if (fabsf(v.y) > fabsf(v.z))
+			if (m.y > m.z)
 				return 1U;
 			return 2U;
 		}
@@ -126,12 +130,8 @@ namespace TA3D
 		top = bottom = begin->second;
 		for(std::vector<UnitTKit::T>::const_iterator i = begin ; i != end ; ++i)
 		{
-			top.x = Math::Max(top.x, i->second.x);
-			top.y = Math::Max(top.y, i->second.y);
-			top.z = Math::Max(top.z, i->second.z);
-			bottom.x = Math::Min(bottom.x, i->second.x);
-			bottom.y = Math::Min(bottom.y, i->second.y);
-			bottom.z = Math::Min(bottom.z, i->second.z);
+			top = Math::Max(top, i->second);
+			bottom = Math::Min(bottom, i->second);
 		}
 	}
 
