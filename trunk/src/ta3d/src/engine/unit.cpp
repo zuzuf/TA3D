@@ -5216,7 +5216,7 @@ script_exec:
 
 	void Unit::draw_on_map()
 	{
-		int type = type_id;
+		const int type = type_id;
 		if (type == -1 || !(flags & 1) )
 			return;
 
@@ -5228,9 +5228,7 @@ script_exec:
 		pMutex.unlock();
 		drawn_flying = flying;
 		const UnitType* const pType = unit_manager.unit_type[type];
-		if (flying)
-			the_map->air_rect( cur_px - (pType->FootprintX >> 1), cur_py - (pType->FootprintZ >> 1), pType->FootprintX, pType->FootprintZ, idx );
-		else
+		if (!flying)
 		{
 			// First check we're on a "legal" place if it can move
 			pMutex.lock();
@@ -5314,19 +5312,14 @@ script_exec:
 		if (!drawn)
 			return;
 
-		int type = type_id;
+		const int type = type_id;
 
 		if (type == -1 || !(flags & 1) )
 			return;
 
-		UnitType *pType = unit_manager.unit_type[type];
+		const UnitType* const pType = unit_manager.unit_type[type];
 		drawn = false;
-		if (drawn_flying)
-			the_map->air_rect( drawn_x - (pType->FootprintX >> 1),
-								 drawn_y - (pType->FootprintZ >> 1),
-								 pType->FootprintX, pType->FootprintZ,
-								 idx, true );
-		else
+		if (!drawn_flying)
 		{
 			if (!(pType->canmove && pType->BMcode) || drawn_obstacle)
 				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
