@@ -2614,7 +2614,7 @@ namespace TA3D
 											target_unit->compute_model_coord();
 											if (target_unit->flags & 1)
 											{
-												if (pModel && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
+												if (pModel && target_unit->data.data.size() < weapon[i].data && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
 													target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
 											}
 										}
