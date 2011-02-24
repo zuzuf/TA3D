@@ -2579,31 +2579,31 @@ namespace TA3D
 			return;
 		switch(lp_CONFIG->shadow_quality)
 		{
-			case 3:
-			case 2:
-				{
-					switch(mode)
+		case 3:
+		case 2:
+			switch(mode)
+			{
+				case 0:
+				case 1:
 					{
-						case 0:
-						case 1:
-							{
-								#ifndef TA3D_PLATFORM_MAC
-								if (!model_shader.isLoaded())
-									model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
-								if (model_shader.isLoaded())
-								{
-									model_shader.on();
-									model_shader.setvar1i("shadowMap", 7);
-									model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
-								}
-								# endif
-								break;
-							}
-						default:
-							model_shader.off();
+						#ifndef TA3D_PLATFORM_MAC
+						if (!model_shader.isLoaded())
+							model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
+						if (model_shader.isLoaded())
+						{
+							model_shader.on();
+							model_shader.setvar1i("shadowMap", 7);
+							model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
+						}
+						# endif
+						break;
 					}
-					break;
-				}
+				default:
+					model_shader.off();
+			}
+			break;
+		default:
+			model_shader.off();
 		}
 	}
 
