@@ -203,6 +203,16 @@ namespace TA3D
 			default:	return x;
 			}
 		}
+
+		inline float min() const
+		{
+			return std::min(x, std::min(y, z));
+		}
+
+		inline float max() const
+		{
+			return std::max(x, std::max(y, z));
+		}
 		//@}
 
 	public:
@@ -216,11 +226,7 @@ namespace TA3D
 	}; // class Vector3D
 
 
-
 } // namespace TA3D
-
-
-
 
 
 //! \name Operators for Vectors
@@ -275,5 +281,27 @@ inline float VAngle(const TA3D::Vector3D& A, const TA3D::Vector3D& B)
 	return isNaN(a) ? 0.0f : a;
 }
 
+namespace TA3D
+{
+	namespace Math
+	{
+		inline Vector3D Abs(const TA3D::Vector3D &a)
+		{
+			return Vector3D(std::fabs(a.x), std::fabs(a.y), std::fabs(a.z));
+		}
+
+		inline Vector3D Max(const TA3D::Vector3D &a, const TA3D::Vector3D &b)
+		{
+			const Vector3D mid = 0.5f * (a + b);
+			return mid + Abs(a - mid);
+		}
+
+		inline Vector3D Min(const Vector3D &a, const Vector3D &b)
+		{
+			const Vector3D mid = 0.5f * (a + b);
+			return mid - Abs(a - mid);
+		}
+	}
+}
 
 #endif // __TA3D_XX_MISC_VECTOR_H__

@@ -7,13 +7,14 @@
 #include <algorithm>
 
 #define KDTREE_MAX_SET_SIZE		8
+#define KDTREE_MAX_DEPTH		48
 
 namespace TA3D
 {
 	template<typename T, class TKit>
-		inline KDTree<T, TKit>::KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end) : lChild(NULL), rChild(NULL)
+		inline KDTree<T, TKit>::KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l) : lChild(NULL), rChild(NULL)
 	{
-		if ((end - begin) <= KDTREE_MAX_SET_SIZE)
+		if ((end - begin) <= KDTREE_MAX_SET_SIZE || l >= KDTREE_MAX_DEPTH)
 		{
 			elements_begin = begin;
 			elements_end = end;
@@ -26,8 +27,8 @@ namespace TA3D
 		top = 0.5f * (top + bottom);
 		const typename std::vector<T>::iterator mid = std::partition(begin, end, typename TKit::Predicate(top, N));
 		P = top[N];
-		lChild = new KDTree<T, TKit>(mid, end);
-		rChild = new KDTree<T, TKit>(begin, mid);
+		lChild = new KDTree<T, TKit>(mid, end, l + 1U);
+		rChild = new KDTree<T, TKit>(begin, mid, l + 1U);
 	}
 
 	template<typename T, class TKit>
@@ -67,3 +68,6 @@ namespace TA3D
 		}
 	}
 }
+
+#undef KDTREE_MAX_SET_SIZE
+#undef KDTREE_MAX_DEPTH

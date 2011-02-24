@@ -21,7 +21,8 @@
 #include <misc/camera.h>
 #include <gfx/gfx.h>
 #include <engine.h>
-
+#include <misc/bvh.h>
+#include <UnitEngine.h>
 
 namespace TA3D
 {
@@ -116,10 +117,29 @@ namespace TA3D
 
 	void InGameWeapons::move(float dt)
 	{
+		if (nb_weapon <= 0 || weapon.size() <= 0)
+			return;
+
+		std::vector<BVH_UnitTKit::T> allUnits;
+		for (uint32 i = 0U ; i < units.max_unit ; ++i) // Compte les stocks de ressources et les productions
+		{
+			const Unit* const pUnit = &(units.unit[i]);
+			if (!(pUnit->flags & 1))
+				continue;
+			const int type = pUnit->type_id;
+			const UnitType* const pUnitType = (type >= 0) ? unit_manager.unit_type[type] : NULL;
+			if (type < 0 || !pUnitType->model)
+				continue;
+			allUnits.push_back(std::make_pair(pUnit, std::make_pair(pUnit->Pos, pUnitType->model->size2)));
+		}
+
+		bvhUnits = new BVH<BVH_UnitTKit::T, BVH_UnitTKit>(allUnits.begin(), allUnits.end());
+
 		pMutex.lock();
 		if (nb_weapon <= 0 || weapon.size() <= 0)
 		{
 			pMutex.unlock();
+			delete bvhUnits;
 			return;
 		}
 
@@ -131,7 +151,7 @@ namespace TA3D
 			if (e >= idx_list.size())
 				break;
 
-			uint32 i = idx_list[e];
+			const uint32 i = idx_list[e];
 			weapon[i].move(dt);
 			if (weapon[i].weapon_id < 0) // Remove it from the "alive" list
 			{
@@ -144,6 +164,7 @@ namespace TA3D
 				++e;
 		}
 		pMutex.unlock();
+		delete bvhUnits;
 	}
 
 
