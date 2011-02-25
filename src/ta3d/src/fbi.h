@@ -103,118 +103,118 @@ namespace TA3D
 		Model   *model;					// Modèle associé à l'unité
 		SDL_Surface *unitpic;			// Image de l'unité / Unit picture
 		bool    isfeature;				// tell if we must turn this unit into a feature
-        byte    SortBias;
-        short   AltFromSeaLevel;
-        bool    Builder;
-        bool    ThreeD;
-        String  Unitname;
-        byte    FootprintX;
-        byte    FootprintZ;
+		byte    SortBias;
+		short   AltFromSeaLevel;
+		bool    Builder;
+		bool    ThreeD;
+		String  Unitname;
+		byte    FootprintX;
+		byte    FootprintZ;
 		Grid<float> gRepulsion;
 		HashSet<>::Dense Category;
-        String::Vector categories;
-        uint32  fastCategory;
-        short   MaxSlope;
-        byte    BMcode;
-        bool    ShootMe;
-        bool    norestrict;
-        byte    StandingMoveOrder;
-        byte    MobileStandOrders;
-        byte    StandingFireOrder;
-        byte    FireStandOrders;
-        float   WaterLine;
-        int     TEDclass;
-        int     BuildAngle;
-        short   CruiseAlt;
-        short   ManeuverLeashLength;
-        byte    DefaultMissionType;
+		String::Vector categories;
+		uint32  fastCategory;
+		short   MaxSlope;
+		byte    BMcode;
+		bool    ShootMe;
+		bool    norestrict;
+		byte    StandingMoveOrder;
+		byte    MobileStandOrders;
+		byte    StandingFireOrder;
+		byte    FireStandOrders;
+		float   WaterLine;
+		int     TEDclass;
+		int     BuildAngle;
+		short   CruiseAlt;
+		short   ManeuverLeashLength;
+		byte    DefaultMissionType;
 		int     TransportSize;
 		int     TransportCapacity;
-        bool    IsAirBase;
-        bool    hoverattack;
-        bool    canresurrect;       // Can this unit resurrect wreckages
-        bool    commander;          // Is that a commander unit ?
-        String  name;              // Nom de l'unité
-        byte    version;            // Version
-        String  side;              // Camp de l'unité
-        String  ObjectName;        // Nom du modèle 3D
-        String  Designation_Name;  // Nom visible de l'unité
-        String  Description;       // Description
-        int     BuildCostEnergy;    // Energie nécessaire pour la construire
-        int     BuildCostMetal;     // Metal nécessaire pour la construire
-        int     MaxDamage;          // Points de dégats maximum que l'unité peut encaisser
-        int     EnergyUse;          // Energie nécessaire pour faire quelque chose
-        int     BuildTime;          // Temps de construction
-        int     WorkerTime;         // Vitesse de construction
-        bool    AutoFire;           // Tire automatique
-        int     SightDistance;      // Distance maximale de vue de l'unité
-        int     RadarDistance;      // Distance maximale de detection radar
-        int     RadarDistanceJam;   // For Radar Jammers
-        int     EnergyStorage;      // Quantité d'énergie stockable par l'unité
-        int     MetalStorage;       // Quantité de metal stockable par l'unité
-        String  ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
-        String  SelfDestructAs;    // Type d'explosion lors de l'autodestruction
-        String  Corpse;            // Restes de l'unité
-        short   UnitNumber;         // ID de l'unité
-        bool    canmove;            // Indique si l'unité peut bouger
-        bool    canpatrol;          // si elle peut patrouiller
-        bool    canstop;            // si elle peut s'arrêter
-        bool    canguard;           // si elle peut garder une autre unité
-        float   MaxVelocity;        // Vitesse maximale
-        float   BrakeRate;          // Vitesse de freinage
-        float   Acceleration;       // Accélération
-        float   TurnRate;           // Vitesse de tournage
-        byte    SteeringMode;
-        bool    canfly;             // si l'unité peut voler
-        float   Scale;              // Echelle
-        byte    BankScale;
-        float   BuildDistance;      // Distance maximale de construction
-        bool    CanReclamate;       // si elle peut récupérer
-        short   EnergyMake;         // Production d'énergie de l'unité
-        float   MetalMake;          // Production de métal de l'unité
-        String  MovementClass;     // Type de mouvement
-        bool    Upright;            // Si l'unité est debout
-        std::vector<int>     WeaponID;            // Weapon IDs
-        String  BadTargetCategory;     // Type d'unité non attaquable
-        float   DamageModifier;
-        bool    canattack;          // Si l'unité peut attaquer
-        bool    ActivateWhenBuilt;  // L'unité s'active lorsqu'elle est achevée
-        bool    onoffable;          // (Dés)activable
-        short   MaxWaterDepth;      // Profondeur maximale où l'unité peut aller
-        short   MinWaterDepth;      // Profondeur minimale où l'unité peut aller
-        bool    NoShadow;           // Si l'unité n'a pas d'ombre
-        bool    canload;            // Si elle peut charger d'autres unités
-        String::Vector  w_badTargetCategory;    // Unités non ciblable par les armes
-        bool    Floater;            // Si l'unité flotte
-        bool    canhover;           // For hovercrafts
-        String  NoChaseCategory;   // Type d'unité non chassable
-        int     SonarDistance;      // Portée du sonar
-        int     SonarDistanceJam;   // For Sonar Jammers
-        bool    candgun;            // si l'unité peut utiliser l'arme ravage
-        int     CloakCost;          // Coût en energie pour rendre l'unité invisible
-        int     CloakCostMoving;    // Idem mais quand l'unité bouge
-        int     HealTime;           // Temps nécessaire à l'unité pour se réparer (cf commandeurs)
-        bool    CanCapture;         // Si elle peut capturer d'autres unités
-        bool    HideDamage;         // Cache la vie de l'unité aux autres joueurs
-        bool    ImmuneToParalyzer;  // Immunisation
-        bool    Stealth;
-        float   MakesMetal;         // Si l'unité produit du métal
-        float   ExtractsMetal;      // métal extrait par l'unité
-        bool    TidalGenerator;     // Si l'unité est une centrale marée-motrice
+		bool    IsAirBase;
+		bool    hoverattack;
+		bool    canresurrect;       // Can this unit resurrect wreckages
+		bool    commander;          // Is that a commander unit ?
+		String  name;              // Nom de l'unité
+		byte    version;            // Version
+		String  side;              // Camp de l'unité
+		String  ObjectName;        // Nom du modèle 3D
+		String  Designation_Name;  // Nom visible de l'unité
+		String  Description;       // Description
+		int     BuildCostEnergy;    // Energie nécessaire pour la construire
+		int     BuildCostMetal;     // Metal nécessaire pour la construire
+		int     MaxDamage;          // Points de dégats maximum que l'unité peut encaisser
+		int     EnergyUse;          // Energie nécessaire pour faire quelque chose
+		int     BuildTime;          // Temps de construction
+		int     WorkerTime;         // Vitesse de construction
+		bool    AutoFire;           // Tire automatique
+		int     SightDistance;      // Distance maximale de vue de l'unité
+		int     RadarDistance;      // Distance maximale de detection radar
+		int     RadarDistanceJam;   // For Radar Jammers
+		int     EnergyStorage;      // Quantité d'énergie stockable par l'unité
+		int     MetalStorage;       // Quantité de metal stockable par l'unité
+		String  ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
+		String  SelfDestructAs;    // Type d'explosion lors de l'autodestruction
+		String  Corpse;            // Restes de l'unité
+		short   UnitNumber;         // ID de l'unité
+		bool    canmove;            // Indique si l'unité peut bouger
+		bool    canpatrol;          // si elle peut patrouiller
+		bool    canstop;            // si elle peut s'arrêter
+		bool    canguard;           // si elle peut garder une autre unité
+		float   MaxVelocity;        // Vitesse maximale
+		float   BrakeRate;          // Vitesse de freinage
+		float   Acceleration;       // Accélération
+		float   TurnRate;           // Vitesse de tournage
+		byte    SteeringMode;
+		bool    canfly;             // si l'unité peut voler
+		float   Scale;              // Echelle
+		byte    BankScale;
+		float   BuildDistance;      // Distance maximale de construction
+		bool    CanReclamate;       // si elle peut récupérer
+		short   EnergyMake;         // Production d'énergie de l'unité
+		float   MetalMake;          // Production de métal de l'unité
+		String  MovementClass;     // Type de mouvement
+		bool    Upright;            // Si l'unité est debout
+		std::vector<int>     WeaponID;            // Weapon IDs
+		String  BadTargetCategory;     // Type d'unité non attaquable
+		float   DamageModifier;
+		bool    canattack;          // Si l'unité peut attaquer
+		bool    ActivateWhenBuilt;  // L'unité s'active lorsqu'elle est achevée
+		bool    onoffable;          // (Dés)activable
+		short   MaxWaterDepth;      // Profondeur maximale où l'unité peut aller
+		short   MinWaterDepth;      // Profondeur minimale où l'unité peut aller
+		bool    NoShadow;           // Si l'unité n'a pas d'ombre
+		bool    canload;            // Si elle peut charger d'autres unités
+		String::Vector  w_badTargetCategory;    // Unités non ciblable par les armes
+		bool    Floater;            // Si l'unité flotte
+		bool    canhover;           // For hovercrafts
+		String  NoChaseCategory;   // Type d'unité non chassable
+		int     SonarDistance;      // Portée du sonar
+		int     SonarDistanceJam;   // For Sonar Jammers
+		bool    candgun;            // si l'unité peut utiliser l'arme ravage
+		int     CloakCost;          // Coût en energie pour rendre l'unité invisible
+		int     CloakCostMoving;    // Idem mais quand l'unité bouge
+		int     HealTime;           // Temps nécessaire à l'unité pour se réparer (cf commandeurs)
+		bool    CanCapture;         // Si elle peut capturer d'autres unités
+		bool    HideDamage;         // Cache la vie de l'unité aux autres joueurs
+		bool    ImmuneToParalyzer;  // Immunisation
+		bool    Stealth;
+		float   MakesMetal;         // Si l'unité produit du métal
+		float   ExtractsMetal;      // métal extrait par l'unité
+		bool    TidalGenerator;     // Si l'unité est une centrale marée-motrice
 		int     TransportMaxUnits;  // Maximum d'unités transportables
-        bool    kamikaze;           // Unité kamikaze
-        uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
-        short   WindGenerator;      // Centrale de type Eolienne
-        String  yardmap;           // To tell where the unit is on the map
+		bool    kamikaze;           // Unité kamikaze
+		uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
+		short   WindGenerator;      // Centrale de type Eolienne
+		String  yardmap;           // To tell where the unit is on the map
 		std::vector<WeaponDef*>  weapon;     // Weapons
-        int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
-        bool    antiweapons;
-        bool    emitting_points_computed;   // Just to test if we need to get emitting point from script
-        uint8   selfdestructcountdown;
-        bool    init_cloaked;
-        int     mincloakdistance;
+		int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
+		bool    antiweapons;
+		bool    emitting_points_computed;   // Just to test if we need to get emitting point from script
+		uint8   selfdestructcountdown;
+		bool    init_cloaked;
+		int     mincloakdistance;
 		bool	bomber;				// Is this a bomber ?
-        std::vector<AimData> aim_data;
+		std::vector<AimData> aim_data;
 
         /*-----------------------------------------------------------------------*/
 

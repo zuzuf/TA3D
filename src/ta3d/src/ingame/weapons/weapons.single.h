@@ -54,8 +54,6 @@ namespace TA3D
 
 
     public:
-        //! Weapon unique id
-		int weapon_id;
         //! Position
         Vector3D Pos;
         //! Speed
@@ -63,44 +61,47 @@ namespace TA3D
 		//! Start position
 		Vector3D start_pos;
 		//!
-		bool bInit;
+		Vector3D target_pos;			// Position ciblée
 
-        //!
-        Vector3D target_pos;			// Position ciblée
-        //!
+		//! Weapon unique id
+		int weapon_id;
+		//!
 		int target;				// Unité ciblée (dans le tableau des unités)
-        //!
-        float stime;				// Temps écoulé depuis le lancement
-        //!
-        float killtime;			// Temps écoulé depuis la destruction de l'arme
-        //!
-        bool dying;
-        //!
-        float smoke_time;			// Temps écoulé depuis la dernière émission de fumée
-        //!
-        float f_time;				// Temps de vol
-        //!
-        float a_time;				// Temps d'activité
-        //!
+		//!
+		float stime;				// Temps écoulé depuis le lancement
+		//!
+		float killtime;			// Temps écoulé depuis la destruction de l'arme
+		//!
+		float smoke_time;			// Temps écoulé depuis la dernière émission de fumée
+		//!
+		float f_time;				// Temps de vol
+		//!
+		float a_time;				// Temps d'activité
+		//!
 		int anim_sprite;		// Position dans l'animation
-        //!
+		//!
 		int shooter_idx;		// Unité qui a tiré l'arme (ne peut pas se tirer dessus)
+		//!
+		float damage;
+		//!
+		uint32 last_timestamp;
+		//!
+		uint32 idx;
+
         //!
         byte phase;
         //!
         byte owner;
         //!
-        uint32 idx;
-        //!
         bool visible;
-        //!
-        float damage;
         //!
         bool just_explode;		// When set the weapon behaves as if it had hit something
         //!
         bool local;
-        //!
-        uint32 last_timestamp;
+		//!
+		bool bInit;
+		//!
+		bool dying;
 
 	}; // class Weapon
 

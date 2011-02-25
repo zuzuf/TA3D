@@ -70,11 +70,9 @@ namespace TA3D
 
 	void SECTOR::init()
 	{
-		underwater = false;
 		stuff = -1;
 		unit_idx = -1;
-		lava = false;
-		flat = false;
+		flags = 0U;
 	}
 
 	void MAP_OTA::init()
@@ -424,7 +422,7 @@ namespace TA3D
 			for (int x = x1 ; x < x2 ; ++x)
 			{
 				max_dh = Math::Max(max_dh, slope(x,y));
-				on_water |= map_data(x, y).underwater;
+				on_water |= map_data(x, y).isUnderwater();
 			}
 		if (on_water)
 			max_dh = -max_dh;
@@ -1594,7 +1592,7 @@ namespace TA3D
 					{
 						if (water)
 						{
-							if (map_data(X, Y).underwater && map_data(X, Y | 1).underwater && map_data(X | 1, Y).underwater && map_data(X | 1, Y | 1).underwater)
+							if (map_data(X, Y).isUnderwater() && map_data(X, Y | 1).isUnderwater() && map_data(X | 1, Y).isUnderwater() && map_data(X | 1, Y | 1).isUnderwater())
 								view(x, y) = 2;
 							else
 								view(x, y) = 3;
@@ -1604,7 +1602,7 @@ namespace TA3D
 					{
 						if (!(SurfaceByte(sight_map,x,y) & player_mask))
 						{
-							if (map_data(X, Y).underwater || map_data(X, Y | 1).underwater || map_data(X | 1, Y).underwater || map_data(X | 1, Y | 1).underwater)
+							if (map_data(X, Y).isUnderwater() || map_data(X, Y | 1).isUnderwater() || map_data(X | 1, Y).isUnderwater() || map_data(X | 1, Y | 1).isUnderwater())
 								view(x, y) = 2;
 							else
 								view(x, y) = 3;
@@ -1668,7 +1666,7 @@ namespace TA3D
 						view(x, y) = 2;
 					if (view(x, y)==2 && FLAT)
 						view(x, y)=0;
-					if (cam->mirror && map_data(X, Y).flat)
+					if (cam->mirror && map_data(X, Y).isFlat())
 						continue;
 				}
 				// Si le joueur ne peut pas voir ce morceau, on ne le dessine pas en clair
@@ -1705,7 +1703,7 @@ namespace TA3D
 						}
 						else
 						{
-							if (!map_data( X, Y).lava && water && !ota_data.lavaworld && !ota_data.whitefog && !under_water && !lp_CONFIG->pause &&										// A wave
+							if (!map_data( X, Y).isLava() && water && !ota_data.lavaworld && !ota_data.whitefog && !under_water && !lp_CONFIG->pause &&										// A wave
 								(h_map(X | 1, Y | 1) < sealvl || h_map(X | 1, Y) < sealvl || h_map(X, Y | 1) < sealvl || h_map(X, Y) < sealvl) &&
 								(h_map(X | 1, Y | 1) >= sealvl || h_map(X, Y | 1) >= sealvl || h_map(X | 1, Y) >= sealvl || h_map(X, Y) >= sealvl) &&
 								(Math::RandomTable() % 4000) <= lavaprob &&
@@ -1783,12 +1781,12 @@ namespace TA3D
 							bloc[i].point[7].y=get_h(X|1,Y+2);
 							bloc[i].point[8].y=get_h(X+2,Y+2);
 						}
-						map_data(X, Y).flat = true;
+						map_data(X, Y).setFlat();
 						for (int f = 1; f < 9; ++f)			// Check if it's flat
 						{
 							if (!Yuni::Math::Equals(bloc[i].point[0].y, bloc[i].point[f].y))
 							{
-								map_data(X, Y).flat = false;
+								map_data(X, Y).unsetFlat();
 								break;
 							}
 						}
@@ -1804,7 +1802,7 @@ namespace TA3D
 					was_flat = false;
 					if (old_tex != bloc[i].tex)
 					{
-						old_tex=bloc[i].tex;
+						old_tex = bloc[i].tex;
 						glBindTexture(GL_TEXTURE_2D,bloc[i].tex);
 					}
 				}
@@ -1814,7 +1812,7 @@ namespace TA3D
 				if (!FLAT)
 				{
 					for (int e = 0; e < 9; ++e) // Copie le bloc
-						buf_p[buf_pos+e]=bloc[i].point[e];
+						buf_p[buf_pos + e] = bloc[i].point[e];
 				}
 				else
 				{
@@ -1865,7 +1863,7 @@ namespace TA3D
 						}
 					}
 					is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );
-					if (!FLAT && !map_data(X, Y).flat && !lp_CONFIG->low_definition_map )
+					if (!FLAT && !map_data(X, Y).isFlat() && !lp_CONFIG->low_definition_map )
 					{
 						color[4]=color[5]=color[6]= (color[0] + color[8]) >> 1;
 						color[12]=color[13]=color[14]= (color[0] + color[24]) >> 1;
@@ -1876,9 +1874,9 @@ namespace TA3D
 				}
 
 #if !defined DEBUG_UNIT_POS && !defined DEBUG_ENERGY
-				if (FLAT || map_data(X, Y).flat || lp_CONFIG->low_definition_map )
+				if (FLAT || map_data(X, Y).isFlat() || lp_CONFIG->low_definition_map )
 				{
-					if (was_flat && bloc[i].tex_x == bloc[ bmap(x - 1, y) ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data(X, Y).flat) )
+					if (was_flat && bloc[i].tex_x == bloc[ bmap(x - 1, y) ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data(X, Y).isFlat()) )
 					{
 						buf_i[ index_size-4 ] = 2+buf_pos;
 						buf_i[ index_size-2 ] = 8+buf_pos;
@@ -1891,7 +1889,7 @@ namespace TA3D
 						buf_i[ index_size++ ] = 6+buf_pos;
 						buf_i[ index_size++ ] = 8+buf_pos;
 						buf_i[ index_size++ ] = 2+buf_pos;
-						was_flat = FLAT || map_data(X, Y).flat;     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
+						was_flat = FLAT || map_data(X, Y).isFlat();     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
 					}
 				}
 				else

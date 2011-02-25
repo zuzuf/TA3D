@@ -54,11 +54,24 @@ namespace TA3D
 	class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
 	{
 	public:
-		bool			underwater;			// indique si le bloc est sous l'eau
 		sint32			stuff;				// Indique l'élément graphique présent sur ce secteur
 		sint32			unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
-		bool			lava;				// Is that under lava ?? Used for pathfinding
-		bool			flat;				// Used by the map renderer to simplify geometry
+		uint32			flags;				// underwater, lava, flat
+
+		inline bool isUnderwater()	const	{	return flags & 1U;	}	// is the bloc under water ?
+		inline bool isLava()		const	{	return flags & 2U;	}	// is the bloc under lava ? used for pathfinding
+		inline bool isFlat()		const	{	return flags & 4U;	}	// is the bloc flat ? used in the renderer to simplify geometry
+
+		inline void setUnderwater()		{	flags |= 1U;	}
+		inline void setLava()			{	flags |= 2U;	}
+		inline void setFlat()			{	flags |= 4U;	}
+		inline void unsetUnderwater()	{	flags &= ~1U;	}
+		inline void unsetLava()			{	flags &= ~2U;	}
+		inline void unsetFlat()			{	flags &= ~4U;	}
+
+		inline void setUnderwater(bool b)	{	flags = b ? (flags | 1U) : (flags & ~1U);	}
+		inline void setLava(bool b)			{	flags = b ? (flags | 2U) : (flags & ~2U);	}
+		inline void setFlat(bool b)			{	flags = b ? (flags | 4U) : (flags & ~4U);	}
 
 		void init();
 	};
@@ -118,22 +131,22 @@ namespace TA3D
 	class BLOC				// Blocs composant la carte
 	{
 	public:
-		byte		nbindex;	// Nombre d'indices	/ Number of indexes
-		byte		nbpoint;	// Nombre de points / Number of points
 		Vector3D	*point;		// Points du bloc / Array of points
 		float		*texcoord;	// Coordonnées de texture / Texture coordinates
 		GLuint		tex;		// Indice de texture OpenGl / OpenGL texture handle
+		byte		nbindex;	// Nombre d'indices	/ Number of indexes
+		byte		nbpoint;	// Nombre de points / Number of points
 		bool		lava;		// Indique si le bloc est de type lave / Is that a lava bloc ?
 		byte		tex_x;
 
 		void init()
 		{
-			nbindex=nbpoint=0;
-			point=NULL;
-			texcoord=NULL;
-			tex=0;
-			lava=false;
-			tex_x=0;
+			nbindex = nbpoint = 0;
+			point = NULL;
+			texcoord = NULL;
+			tex = 0;
+			lava = false;
+			tex_x = 0;
 		}
 
 		BLOC()

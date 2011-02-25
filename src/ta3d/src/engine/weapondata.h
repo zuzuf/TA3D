@@ -56,30 +56,28 @@ namespace TA3D
 		//@}
 
 	public:
-		//! Delay
-		float delay;
-		//! Time
-		float time;
-		//! Burst
-		uint16 burst;
-		//! Stock
-		uint16 stock;
-		//! State
-		byte state;
-		//! Flags
-		byte flags;
+		//! Aim direction
+		Vector3D aim_dir;
 		//! Position of the target
 		Vector3D target_pos;
 		//! Target
 		void *target;
+		//! Delay
+		float delay;
+		//! Time
+		float time;
+		//! Piece from where weapon aims
+		int aim_piece;
+		//! Burst
+		uint16 burst;
+		//! Stock
+		uint16 stock;
 		//! Data
 		sint16	data;
-		//! Aim direction
-		Vector3D aim_dir;
-        //! Piece from where weapon aims
-        int aim_piece;
-
-
+		//! State
+		byte state;
+		//! Flags
+		byte flags;
 	}; // class WeaponData
 
 
