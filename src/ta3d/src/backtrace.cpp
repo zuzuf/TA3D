@@ -149,8 +149,8 @@ void init_signals (void)
 	#ifdef TA3D_PLATFORM_LINUX
 	// Get TA3D's PID
 	pid_t mypid = getpid();
-	const TA3D::String ppid = TA3D::System::run_command(TA3D::String("ps -o ppid -p ") << mypid << " | tail -n 1");
-	const TA3D::String parent = TA3D::System::run_command(TA3D::String("ps -o command -p ") << ppid);
+	const String ppid = TA3D::System::run_command(String("ps -o ppid -p ") << mypid << " | tail -n 1");
+	const String parent = TA3D::System::run_command(String("ps -o command -p ") << ppid);
 	if (parent.contains("gdb"))
 	{
 		std::cerr << "Running under GDB, not overriding signals handlers" << std::endl;

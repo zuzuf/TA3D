@@ -80,9 +80,13 @@ namespace TA3D
 						|| i->last() == '~'
 						|| Paths::ExtractFileExt(*i).toLower() == ".bak")      // Don't take useless files into account
                         continue;
-                    i->erase(0, root.size() + 1);   // Remove root path + path separator since we don't need them in VFS name and we can add them when accessing the files
-                    while(!i->empty() && (i->first() == '/' || i->first() == '\\'))
-                        i->erase(0, 1);
+					*i = Substr(*i, root.size() + 1);	// Remove root path + path separator since we don't need them in VFS name and we can add them when accessing the files
+					if (!i->empty())
+					{
+						const String::size_type s = i->find_first_not_of("/\\");
+						if (s != String::npos)
+							*i = Substr(*i, s);
+					}
 
                     if (i->find("/.svn/") != String::npos
                         || i->find("\\.svn\\") != String::npos
