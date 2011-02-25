@@ -49,7 +49,7 @@ using namespace Yuni::Core::IO::File;
 #   define PREFIX "  --"
 # endif
 
-static TA3D::String appName;
+static String appName;
 
 void configWindow();
 

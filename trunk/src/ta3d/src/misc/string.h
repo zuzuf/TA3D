@@ -24,10 +24,6 @@
 
 namespace TA3D
 {
-
-	//! String
-	typedef Yuni::String	String;
-
 	inline String Substr(const String &str, unsigned int start, unsigned int len = 0xFFFFFFFF)
 	{
 		len = std::min<unsigned int>(len, str.size() - start);

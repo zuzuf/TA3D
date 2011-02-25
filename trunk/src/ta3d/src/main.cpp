@@ -143,8 +143,8 @@ static int ParseCommandLine(int argc, char *argv[])
 
 	if (argc > 1)
 	{
-		// Argument converted to a TA3D::String
-		TA3D::String arg;
+		// Argument converted to a String
+		String arg;
 
 		for (int i = 1 ; i < argc ; ++i)
 		{
@@ -250,14 +250,14 @@ YUNI_MAIN()
 		criticalMessage(msg);
 		return 1;
 	}
-	catch(const TA3D::String &msg)
+	catch(const String &msg)
 	{
 		criticalMessage(msg);
 		return 1;
 	}
 	catch(const std::exception &e)
 	{
-		criticalMessage(TA3D::String("Uncaught exception: ") << e.what());
+		criticalMessage(String("Uncaught exception: ") << e.what());
 		return 1;
 	}
 

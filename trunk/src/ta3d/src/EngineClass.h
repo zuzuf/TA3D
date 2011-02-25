@@ -35,8 +35,6 @@
 # include <vector>
 # include "misc/math.h"
 # include "misc/string.h"
-# include "misc/slist.h"
-# include "misc/sset.h"
 # include "misc/grid.h"
 
 

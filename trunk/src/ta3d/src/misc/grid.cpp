@@ -69,7 +69,8 @@ namespace TA3D
 
 #ifdef _OPENMP
 		for(int i = 0 ; i < nb_threads ; ++i)
-			delete backups[i];
+			if (backups[i])
+				delete[] backups[i];
 		delete[] backups;
 #else
 		delete[] backup;

@@ -64,8 +64,6 @@ SET(SRC_THREADS
 SET(SRC_MISC
 		misc/string.h misc/string.cpp
 		misc/stack.hxx
-		misc/slist.h
-		misc/sset.h
 		misc/progressnotifier.h
 		misc/paths.h misc/paths.cpp
 		misc/files.h misc/files.cpp
