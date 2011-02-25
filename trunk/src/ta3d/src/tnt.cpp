@@ -437,32 +437,32 @@ namespace TA3D
 			for (int x = 0 ; x < map->bloc_w_db ; ++x)
 			{
 				map->map_data(x, y).init();
-				map->map_data(x, y).underwater = (map->h_map(x, y) < map->sealvl);
-				map->map_data(x, y).lava = map->bmap(x >> 1, y >> 1) < map->nbbloc ? map->bloc[ map->bmap(x >> 1, y >> 1) ].lava : false;
-				if (!map->map_data(x, y).lava && (x>>1) + 1 < map->bloc_w && map->bmap((x >> 1) + 1, y >> 1) < map->nbbloc)
+				map->map_data(x, y).setUnderwater(map->h_map(x, y) < map->sealvl);
+				map->map_data(x, y).setLava(map->bmap(x >> 1, y >> 1) < map->nbbloc ? map->bloc[ map->bmap(x >> 1, y >> 1) ].lava : false);
+				if (!map->map_data(x, y).isLava() && (x>>1) + 1 < map->bloc_w && map->bmap((x >> 1) + 1, y >> 1) < map->nbbloc)
 				{
-					map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) + 1, y >> 1) ].lava;
-					if (!map->map_data(x, y).lava && (y>>1) + 1 < map->bloc_h && map->bmap( (x >> 1) + 1, (y >> 1) + 1) < map->nbbloc)
-						map->map_data(x, y).lava = map->bloc[ map->bmap( (x >> 1) + 1, (y >> 1) + 1) ].lava;
-					if (!map->map_data(x, y).lava && (y>>1) - 1 >= 0 && map->bmap((x >> 1) + 1, (y >> 1) - 1) < map->nbbloc)
-						map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) + 1, (y >> 1) - 1) ].lava;
+					map->map_data(x, y).setLava(map->bloc[ map->bmap((x >> 1) + 1, y >> 1) ].lava);
+					if (!map->map_data(x, y).isLava() && (y>>1) + 1 < map->bloc_h && map->bmap( (x >> 1) + 1, (y >> 1) + 1) < map->nbbloc)
+						map->map_data(x, y).setLava( map->bloc[ map->bmap( (x >> 1) + 1, (y >> 1) + 1) ].lava );
+					if (!map->map_data(x, y).isLava() && (y>>1) - 1 >= 0 && map->bmap((x >> 1) + 1, (y >> 1) - 1) < map->nbbloc)
+						map->map_data(x, y).setLava( map->bloc[ map->bmap((x >> 1) + 1, (y >> 1) - 1) ].lava );
 				}
-				if (!map->map_data(x, y).lava && (x>>1) - 1 >= 0 && map->bmap((x >> 1) - 1, y >> 1) < map->nbbloc)
+				if (!map->map_data(x, y).isLava() && (x>>1) - 1 >= 0 && map->bmap((x >> 1) - 1, y >> 1) < map->nbbloc)
 				{
-					map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) - 1, y >> 1) ].lava;
-					if (!map->map_data(x, y).lava && (y>>1) + 1 < map->bloc_h && map->bmap( (x >> 1) - 1, (y >> 1) + 1) < map->nbbloc)
-						map->map_data(x, y).lava = map->bloc[ map->bmap( (x >> 1) - 1, (y >> 1) + 1) ].lava;
-					if (!map->map_data(x, y).lava && (y>>1) - 1 >= 0 && map->bmap((x >> 1) - 1, (y >> 1) - 1) < map->nbbloc)
-						map->map_data(x, y).lava = map->bloc[ map->bmap((x >> 1) - 1, (y >> 1) - 1) ].lava;
+					map->map_data(x, y).setLava( map->bloc[ map->bmap((x >> 1) - 1, y >> 1) ].lava );
+					if (!map->map_data(x, y).isLava() && (y>>1) + 1 < map->bloc_h && map->bmap( (x >> 1) - 1, (y >> 1) + 1) < map->nbbloc)
+						map->map_data(x, y).setLava( map->bloc[ map->bmap( (x >> 1) - 1, (y >> 1) + 1) ].lava );
+					if (!map->map_data(x, y).isLava() && (y>>1) - 1 >= 0 && map->bmap((x >> 1) - 1, (y >> 1) - 1) < map->nbbloc)
+						map->map_data(x, y).setLava( map->bloc[ map->bmap((x >> 1) - 1, (y >> 1) - 1) ].lava );
 				}
-				if (!map->map_data(x, y).lava && (y>>1) + 1 < map->bloc_h && map->bmap(x >> 1, (y >> 1) + 1) < map->nbbloc)
-					map->map_data(x, y).lava = map->bloc[ map->bmap(x >> 1, (y >> 1) + 1) ].lava;
-				if (!map->map_data(x, y).lava && (y>>1) - 1 >= 0 && map->bmap(x >> 1, (y >> 1) - 1) < map->nbbloc)
-					map->map_data(x, y).lava = map->bloc[ map->bmap(x >> 1, (y >> 1) - 1) ].lava;
+				if (!map->map_data(x, y).isLava() && (y>>1) + 1 < map->bloc_h && map->bmap(x >> 1, (y >> 1) + 1) < map->nbbloc)
+					map->map_data(x, y).setLava( map->bloc[ map->bmap(x >> 1, (y >> 1) + 1) ].lava );
+				if (!map->map_data(x, y).isLava() && (y>>1) - 1 >= 0 && map->bmap(x >> 1, (y >> 1) - 1) < map->nbbloc)
+					map->map_data(x, y).setLava( map->bloc[ map->bmap(x >> 1, (y >> 1) - 1) ].lava );
 			}
 		}
 
-		LOG_INFO("Env created in " << float(msec_timer-event_timer) * 0.001f << "s.");
+		LOG_INFO("Env created in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		LOG_DEBUG("MAP: computing height data (step 3)");

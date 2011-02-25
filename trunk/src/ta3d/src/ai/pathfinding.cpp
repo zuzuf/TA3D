@@ -680,7 +680,7 @@ namespace TA3D
 				const float h = the_map->h_map(x, y);
 				result = !((the_map->slope(x,y) > dh_max
 							&& h > hover_h)
-						   || the_map->map_data(x, y).lava
+						   || the_map->map_data(x, y).isLava()
 						   || (h < the_map->sealvl && bfog)
 						   || h < h_min
 						   || h > h_max);

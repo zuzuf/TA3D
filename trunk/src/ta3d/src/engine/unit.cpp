@@ -4618,7 +4618,7 @@ namespace TA3D
 				cur_py = ((int)(Pos.z)+the_map->map_h_d+4)>>3;
 			}
 			if (units.current_tick - ripple_timer >= (lp_CONFIG->water_quality >= 5 ? 1 : 7) && Pos.y <= the_map->sealvl && Pos.y + model->top >= the_map->sealvl && (pType->fastCategory & CATEGORY_NOTSUB)
-				&& cur_px >= 0 && cur_py >= 0 && cur_px < the_map->bloc_w_db && cur_py < the_map->bloc_h_db && !the_map->map_data(cur_px, cur_py).lava && the_map->water )
+				&& cur_px >= 0 && cur_py >= 0 && cur_px < the_map->bloc_w_db && cur_py < the_map->bloc_h_db && !the_map->map_data(cur_px, cur_py).isLava() && the_map->water )
 			{
 				Vector3D Diff = OPos - Pos;
 				Diff.y = 0.0f;

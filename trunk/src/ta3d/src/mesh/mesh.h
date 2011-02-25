@@ -75,11 +75,11 @@ namespace TA3D
         float	rot_accel;
         float	angle;
         float	pos;
-        bool	rot_limit;
+		float	rot_target_speed;
+		float	explode_time;
+		bool	rot_limit;
         bool	rot_speed_limit;
-        float	rot_target_speed;
         bool	is_moving;
-        float	explode_time;
 
         void reset()
         {
@@ -114,12 +114,12 @@ namespace TA3D
 		struct Data
 		{
 			Axe axe[3];				// 3 axis (in following order : x,y,z)
-			short flag;
-			short explosion_flag;
 			Vector3D tpos;
 			Vector3D pos;
 			Vector3D dir;			// Object orientation (when there is a single line in the model part)
 			Matrix matrix;			// Local matrix
+			short flag;
+			short explosion_flag;
 		};
     public:
 		int nb_piece;
