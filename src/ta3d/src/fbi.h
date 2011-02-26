@@ -369,7 +369,10 @@ namespace TA3D
 
         inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {
-			return unit_hashtable[ToLower(unit_name)] - 1;
+			HashMap< int >::Dense::const_iterator it = unit_hashtable.find(ToLower(unit_name));
+			if (it == unit_hashtable.end())
+				return -1;
+			return it.value();
         }
 
     private:
