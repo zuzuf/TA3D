@@ -559,9 +559,8 @@ namespace TA3D
 									weapons.weapon[w_idx].target_pos = target_pos;
 								weapons.weapon[w_idx].stime = 0.0f;
 								weapons.weapon[w_idx].visible = true;
-
-								for (uint32 i = event_msg.opt3 ; i < units.current_tick && weapons.weapon[w_idx].weapon_id >= 0 ; i++ )		// Guess what happened (compensate latency)
-									weapons.weapon[w_idx].move(tick_conv);
+								if (event_msg.opt3 < units.current_tick)
+									weapons.weapon[w_idx].ticks_to_compute = units.current_tick - event_msg.opt3;		// Guess what happened (compensate latency)
 							}
 							else
 								LOG_WARNING(LOG_PREFIX_NET << "couldn't create weapon '" << (char*)event_msg.str << "'" );

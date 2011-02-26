@@ -33,6 +33,7 @@ namespace TA3D
 
 	void Weapon::init()
 	{
+		ticks_to_compute = 0U;
 		last_timestamp = 0;
 		just_explode = false;
 		damage = -1;
