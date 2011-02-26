@@ -46,7 +46,7 @@ namespace TA3D
         metal.resize(TA3D_PLAYERS_HARD_LIMIT);
         ready.resize(TA3D_PLAYERS_HARD_LIMIT);
         player_network_id.resize(TA3D_PLAYERS_HARD_LIMIT);
-        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
             energy[i] = metal[i] = 10000;
             player_network_id[i] = -1;
@@ -81,9 +81,9 @@ namespace TA3D
 
     int GameData::net2id(const int id ) const
     {
-        for( int i = 0 ; i < nb_players ; ++i)
+		for( int i = 0 ; i < TA3D_PLAYERS_HARD_LIMIT ; ++i)
         {
-            if( player_network_id[i] == id )
+			if (player_network_id[i] == id && (player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN))
                 return i;
         }
         return -1;
