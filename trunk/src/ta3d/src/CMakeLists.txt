@@ -366,17 +366,16 @@ ELSE(NOT APPLE)
 	# Ta3d mod
 	BUNDLE_BASIC_INSTALL("./" "MacOS" "ta3d.mod")
 	# Misc
-	BUNDLE_BASIC_INSTALL("./" "./" "README")
-	BUNDLE_BASIC_INSTALL("./" "./" "AUTHORS")
+	BUNDLE_BASIC_INSTALL("../../" "./" "AUTHORS")
 	# License
-	BUNDLE_BASIC_INSTALL("./" "./" "COPYING")
+	BUNDLE_BASIC_INSTALL("../../" "./" "COPYING")
 
-	Set(ExternalLibs libz.1.dylib libpng12.0.dylib libfreetype.6.dylib libtiff.3.dylib
-		libSDL-1.2.0.dylib libSDL_mixer-1.2.0.dylib libSDL_image-1.2.0.dylib libSDL_net-1.2.0.dylib
-		libGLEW.1.5.7.dylib
-		libjpeg.8.dylib
-		libftgl.2.dylib
-		libsmpeg-0.4.0.dylib
+	Set(ExternalLibs libz.dylib libpng.dylib libfreetype.dylib libtiff.dylib
+		libSDL.dylib libSDL_mixer.dylib libSDL_image.dylib libSDL_net.dylib
+		libGLEW.dylib
+		libjpeg.dylib
+		libftgl.dylib
+		libsmpeg.dylib
 		)
 
 
