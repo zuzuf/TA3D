@@ -320,6 +320,12 @@ namespace TA3D
 					int n = SDLNet_TCP_Recv(sock, pIn++, 1);
 					if (n == 1)
 						zRecv->avail_in++;
+					else if (n == 0)
+					{
+						LOG_ERROR(LOG_PREFIX_NET << "connection closed by peer");
+						close();
+						return size - zRecv->avail_out;
+					}
 					else
 					{
 						ret = inflate(zRecv, Z_SYNC_FLUSH);
@@ -364,6 +370,12 @@ namespace TA3D
 						data++;
 						pos++;
 					}
+					else if (n == 0)
+					{
+						LOG_ERROR(LOG_PREFIX_NET << "connectio closed by peer");
+						close();
+						return pos;
+					}
 					else
 					{
 						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
@@ -379,6 +391,12 @@ namespace TA3D
 			if (n < 0)
 			{
 				LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+				close();
+				return -1;
+			}
+			if (n == 0)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "connection closed by peer");
 				close();
 				return -1;
 			}
