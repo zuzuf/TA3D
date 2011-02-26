@@ -1334,7 +1334,7 @@ namespace Menus
 					{
 						if (params[0] == "PLAYERCOLORMAP")
 						{
-							for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+							for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 							{
 								player_color_map[i] = byte(params[i + 1].to<sint32>());
 								Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
