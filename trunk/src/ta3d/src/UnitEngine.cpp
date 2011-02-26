@@ -1787,17 +1787,13 @@ namespace TA3D
 							min_tick = Math::Min(min_tick, client_tick[i]);
 				}
 				else
-				{
-					for (unsigned int i = 0 ; i < players.count(); ++i)
-						if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0)
-							min_tick = Math::Min(min_tick, client_tick[i]);
-				}
+					min_tick = Math::Min(min_tick, client_tick[0]);
 			}
 			min_tick /= 1000;
 
 			if (network_manager.isConnected() && min_tick > current_tick )
 			{
-				int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
+				const int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
 				tick += delay;
 			}
 
@@ -1824,11 +1820,14 @@ namespace TA3D
 			if (network_manager.isConnected())
 			{
 				net_timer = msec_timer - net_timer;
-				for (unsigned int i = 0 ; i < players.count(); ++i)
-				{
-					if (g_ta3d_network->isRemoteHuman(i))
-						client_tick[i] += client_speed[i] * net_timer / (1000 * TICKS_PER_SEC);
-				}
+				if (network_manager.isServer())
+					for (unsigned int i = 0 ; i < players.count(); ++i)
+					{
+						if (g_ta3d_network->isRemoteHuman(i))
+							client_tick[i] += client_speed[i] * net_timer / (1000 * TICKS_PER_SEC);
+					}
+				else
+					client_tick[0] += client_speed[0] * net_timer / (1000 * TICKS_PER_SEC);
 
 				net_timer = msec_timer;
 
@@ -1859,11 +1858,7 @@ namespace TA3D
 						}
 						else
 						{
-							for (unsigned int i = 0; i < players.count(); ++i)
-							{
-								if (g_ta3d_network->isRemoteHuman(i) && client_tick[i] > 0)
-									min_tick = Math::Min(min_tick, client_tick[i]);
-							}
+							min_tick = Math::Min(min_tick, client_tick[0]);
 						}
 						min_tick /= 1000;
 					}

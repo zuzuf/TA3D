@@ -60,14 +60,20 @@ namespace TA3D
 		tibrp = 1;
 		if (g_ta3d_network && g_ta3d_network->game_data)
 		{
-			const int player_id = g_ta3d_network->game_data->net2id( from );
-			if (player_id >= 0)
+			if (network_manager.isServer())
 			{
-				units.client_tick[ player_id ] = getLong() * 1000;
-				units.client_speed[ player_id ] = getShort();
+				const int player_id = g_ta3d_network->game_data->net2id( from );
+				if (player_id >= 0)
+				{
+					units.client_tick[ player_id ] = getLong() * 1000;
+					units.client_speed[ player_id ] = getShort();
+				}
+				else
+					LOG_ERROR(LOG_PREFIX_NET_SOCKET << "makeTick: cannot identify sender (" << from << "," << player_id << ')');
 			}
 			else
-				LOG_ERROR(LOG_PREFIX_NET_SOCKET << "makeTick: cannot identify sender (" << from << "," << player_id << ')');
+				units.client_tick[ 0 ] = getLong() * 1000;
+				units.client_speed[ 0 ] = getShort();
 		}
 		tibp = 0;
 		tiremain = -1;

@@ -67,6 +67,8 @@ namespace Menus
 		if (!network_manager.isConnected())
 			return false;
 
+		lp_CONFIG->timefactor = 1.0f;		// Start at normal game speed (this forces all players to start at the same speed)
+
 		for (int i = game_data->nb_players; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
 			dead_player[i] = true;
