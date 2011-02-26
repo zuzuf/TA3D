@@ -306,15 +306,15 @@ namespace TA3D
 		mInternals.lock();
 		unit_type.push_back(pUnitType);
 		if (!pUnitType->Unitname.empty())
-			unit_hashtable[ToLower(pUnitType->Unitname)] = nb_unit + 1;
+			unit_hashtable[ToLower(pUnitType->Unitname)] = nb_unit;
 		if (!pUnitType->name.empty())
-			unit_hashtable[ToLower(pUnitType->name)] = nb_unit + 1;
+			unit_hashtable[ToLower(pUnitType->name)] = nb_unit;
 		if (!pUnitType->ObjectName.empty())
-			unit_hashtable[ToLower(pUnitType->ObjectName)] = nb_unit + 1;
+			unit_hashtable[ToLower(pUnitType->ObjectName)] = nb_unit;
 		if (!pUnitType->Description.empty())
-			unit_hashtable[ToLower(pUnitType->Description)] = nb_unit + 1;
+			unit_hashtable[ToLower(pUnitType->Description)] = nb_unit;
 		if (!pUnitType->Designation_Name.empty())
-			unit_hashtable[ToLower(pUnitType->Designation_Name)] = nb_unit + 1;
+			unit_hashtable[ToLower(pUnitType->Designation_Name)] = nb_unit;
 		nb_unit++;
 		mInternals.unlock();
 		return pUnitType;
