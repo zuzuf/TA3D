@@ -130,6 +130,9 @@ namespace TA3D
 
 	void set_key_down(uint16 keycode)
 	{
+		if (keycode >= 0x1000)
+			return;
+
 		if (remap[keycode])
 			VARS::key[remap[keycode]] = true;
 		VARS::key[keycode] = true;
@@ -138,6 +141,9 @@ namespace TA3D
 
 	void set_key_up(uint16 keycode)
 	{
+		if (keycode >= 0x1000)
+			return;
+
 		if (remap[keycode])
 			VARS::key[remap[keycode]] = false;
 		VARS::key[keycode] = false;
@@ -146,6 +152,9 @@ namespace TA3D
 
 	bool key_down_event(uint16 keycode)
 	{
+		if (keycode >= 0x1000)
+			return false;
+
 		if (!prevkey_down[keycode] && key[keycode])
 		{
 			prevkey_down[keycode] = true;
@@ -158,6 +167,9 @@ namespace TA3D
 
 	bool key_up_event(uint16 keycode)
 	{
+		if (keycode >= 0x1000)
+			return false;
+
 		if (prevkey_up[keycode] && !key[keycode])
 		{
 			prevkey_up[keycode] = false;
