@@ -954,16 +954,16 @@ namespace Menus
 
 		while (!special_msg.empty()) // Special receiver (sync config data)
 		{
-			int from = received_special_msg.from;
+			const int from = received_special_msg.from;
 			String::Vector params;
-			LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << (char*)(received_special_msg.message) << "'");
+			LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << (char*)(received_special_msg.message) << "' from " << from << " [" << game_data.net2id(from) << ']');
 			String((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
 			if (params.size() == 1)
 			{
 				if (params[0] == "PONG")
 				{
-					int player_id = game_data.net2id(from);
-					if (player_id >= 0 )
+					const int player_id = game_data.net2id(from);
+					if (player_id >= 0)
 						player_timer[ player_id ] = msec_timer;
 				}
 			}
@@ -979,7 +979,7 @@ namespace Menus
 							if (params[1] == "GameData") // Sending game information
 							{
 								network_manager.sendSpecial(String("SET UNIT LIMIT ") << game_data.max_unit_per_player);
-								for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
+								for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
 								{
 									if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
 									String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
@@ -1002,7 +1002,7 @@ namespace Menus
 								if (!client)  // Send server to client specific information (player colors, map name, ...)
 								{
 									String msg("PLAYERCOLORMAP");
-									for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+									for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 										msg += String(" ") << int(player_color_map[i]);
 									network_manager.sendSpecial( msg, -1, from);
 
@@ -1032,7 +1032,7 @@ namespace Menus
 									LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
 									network_manager.dropPlayer(from);
 									network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
-									for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+									for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 									{
 										if (game_data.player_network_id[i] == from)
 										{
