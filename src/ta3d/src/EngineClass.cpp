@@ -228,7 +228,7 @@ namespace TA3D
 	float MAP::get_max_h(int x,int y) const
 	{
 		x = Math::Clamp(x, 0, bloc_w_db - 2);
-		y = Math::Clamp(x, 0, bloc_h_db - 2);
+		y = Math::Clamp(y, 0, bloc_h_db - 2);
 		float h = h_map(x, y);
 		if (x < bloc_w_db - 2)	h = Math::Max(h, h_map(x + 1, y));
         if (y < bloc_h_db - 2)
@@ -2034,9 +2034,8 @@ namespace TA3D
 	{
 		if (Yuni::Math::Zero(Dir.x) && Yuni::Math::Zero(Dir.z)) // Solution triviale
 		{
-			Vector3D P(Pos);
-			P.y = get_unit_h(P.x, P.z);
-			return P;
+			Pos.y = get_unit_h(Pos.x, Pos.z);
+			return Pos;
 		}
 
 		if (get_unit_h(Pos.x,Pos.z) > Pos.y)		// Cas non traité
@@ -2056,27 +2055,27 @@ namespace TA3D
 		const float dhm = map_h_d;
 		Dir = (1.0f * step) * Dir;
 		float len_step = Dir.norm();
-		while (((sealvl<Pos.y && water) || !water) && get_max_h((int)(Pos.x+map_w_d)>>3,(int)(Pos.z+map_h_d)>>3)<Pos.y)
+		while (((sealvl < Pos.y && water) || !water) && get_max_h((int)(Pos.x + map_w_d) >> 3,(int)(Pos.z + map_h_d) >> 3) < Pos.y)
 		{
-			if (nb >= nb_limit || length<0.0f)
+			if (nb >= nb_limit || length < 0.0f)
 				return Pos;
 			length -= len_step;
 			nb++;
 			Pos += Dir;
-			if ((fabsf(Pos.x) > dwm || fabsf(Pos.z) > dhm) && !allow_out) // Pas de résultat
+			if (!allow_out && (fabsf(Pos.x) > dwm || fabsf(Pos.z) > dhm)) // Pas de résultat
 				return Pos;
 		}
 		length += len_step;
 		Pos -= Dir;
 
-		while (((sealvl<Pos.y && water) || !water) && get_unit_h(Pos.x, Pos.z) < Pos.y)
+		while (((sealvl < Pos.y && water) || !water) && get_unit_h(Pos.x, Pos.z) < Pos.y)
 		{
 			if (nb >= nb_limit || length < 0.0f)
 				return Pos;
 			length -= len_step;
 			++nb;
 			Pos += Dir;
-			if ((fabsf(Pos.x) > dwm || fabsf(Pos.z)>dhm) && !allow_out) // Pas de résultat
+			if (!allow_out && (fabsf(Pos.x) > dwm || fabsf(Pos.z) > dhm)) // Pas de résultat
 				return Pos;
 		}
 
@@ -2084,7 +2083,7 @@ namespace TA3D
 		{
 			length += len_step;
 			Pos -= Dir; 	// On recommence la dernière opération mais avec plus de précision
-			Dir = 0.5f * Dir;
+			Dir *= 0.5f;
 			len_step *= 0.5f;
 			nb = 0;
 			while (((sealvl < Pos.y && water) || !water) && get_unit_h(Pos.x, Pos.z) < Pos.y)
