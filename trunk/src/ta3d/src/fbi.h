@@ -270,7 +270,7 @@ namespace TA3D
         ** \brief Check if the unit belongs to the cat category
         ** \param cat The category to check
         */
-		bool checkCategory(const String &cat)
+		bool checkCategory(const String &cat) const
 		{ return !cat.empty() && Category.count(ToLower(cat)) != 0; }
 
         /*!
