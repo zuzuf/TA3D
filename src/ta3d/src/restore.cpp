@@ -386,17 +386,10 @@ namespace TA3D
 
 		if (game_data->fog_of_war)      // Save fog of war state
 		{
-			for (int y = 0 ; y < the_map->view_map->h ; y++)
-				gzwrite(file, (char*)the_map->view_map->pixels + y * the_map->view_map->pitch, (the_map->view_map->format->BitsPerPixel >> 3) * the_map->view_map->w);
-
-			for (int y = 0 ; y < the_map->sight_map->h ; y++)
-				gzwrite(file, (char*)the_map->sight_map->pixels + y * the_map->sight_map->pitch, (the_map->sight_map->format->BitsPerPixel >> 3) * the_map->sight_map->w);
-
-			for (int y = 0 ; y < the_map->radar_map->h ; y++)
-				gzwrite(file, (char*)the_map->radar_map->pixels + y * the_map->radar_map->pitch, (the_map->radar_map->format->BitsPerPixel >> 3) * the_map->radar_map->w);
-
-			for (int y = 0 ; y < the_map->sonar_map->h ; y++)
-				gzwrite(file, (char*)the_map->sonar_map->pixels + y * the_map->sonar_map->pitch, (the_map->sonar_map->format->BitsPerPixel >> 3) * the_map->sonar_map->w);
+			gzwrite(file, the_map->view_map.getData(), the_map->view_map.getSize());
+			gzwrite(file, the_map->sight_map.getData(), the_map->sight_map.getSize());
+			gzwrite(file, the_map->radar_map.getData(), the_map->radar_map.getSize());
+			gzwrite(file, the_map->sonar_map.getData(), the_map->sonar_map.getSize());
 		}
 
 		gzclose( file );
@@ -892,17 +885,10 @@ namespace TA3D
 
 		if (game_data->fog_of_war)      // Load fog of war state
 		{
-			for (int y = 0 ; y < the_map->view_map->h ; y++)
-				gzread(file, (char*)the_map->view_map->pixels + y * the_map->view_map->pitch, (the_map->view_map->format->BitsPerPixel >> 3) * the_map->view_map->w);
-
-			for (int y = 0 ; y < the_map->sight_map->h ; y++)
-				gzread(file, (char*)the_map->sight_map->pixels + y * the_map->sight_map->pitch, (the_map->sight_map->format->BitsPerPixel >> 3) * the_map->sight_map->w);
-
-			for (int y = 0 ; y < the_map->radar_map->h ; y++)
-				gzread(file, (char*)the_map->radar_map->pixels + y * the_map->radar_map->pitch, (the_map->radar_map->format->BitsPerPixel >> 3) * the_map->radar_map->w);
-
-			for (int y = 0 ; y < the_map->sonar_map->h ; y++)
-				gzread(file, (char*)the_map->sonar_map->pixels + y * the_map->sonar_map->pitch, (the_map->sonar_map->format->BitsPerPixel >> 3) * the_map->sonar_map->w);
+			gzread(file, the_map->view_map.getData(), the_map->view_map.getSize());
+			gzread(file, the_map->sight_map.getData(), the_map->sight_map.getSize());
+			gzread(file, the_map->radar_map.getData(), the_map->radar_map.getSize());
+			gzread(file, the_map->sonar_map.getData(), the_map->sonar_map.getSize());
 		}
 
 		game_data->saved_file.clear();

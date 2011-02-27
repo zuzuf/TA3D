@@ -540,14 +540,14 @@ namespace TA3D
 					if (pointing == -1) 				// Is the cursor on a rock, tree, ...?
 					{
 						Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
-						int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
-						int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
+						const int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
+						const int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
 
 						if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db
-							&& (SurfaceByte(map->view_map, px>>1, py>>1) & (1<<players.local_human_id)) )
+							&& (map->view_map(px >> 1, py >> 1) & (1 << players.local_human_id)) )
 						{
 							int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
-							if (idx<0 || features.feature[idx].type<0)
+							if (idx < 0 || features.feature[idx].type < 0)
 							{
 								units.last_on = -1;
 								for (int dy = -7 ; dy < 8 ; ++dy)	// Look for things like metal patches
@@ -558,11 +558,11 @@ namespace TA3D
 										{
 											if (px + dx >= 0 && px + dx < map->bloc_w_db)
 											{
-												int feature_idx = map->map_data(px + dx, py + dy).stuff;    // This is thread-safe
+												const int feature_idx = map->map_data(px + dx, py + dy).stuff;    // This is thread-safe
                                                 if (feature_idx >= 0)
 												{
                                                     idx = feature_idx;
-													Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+													const Feature* const feature = feature_manager.getFeaturePointer(features.feature[idx].type);
 													if (feature
 														&& feature->footprintx + 1 >= (abs(dx) << 1)
 														&& feature->footprintz + 1 >= (abs(dy) << 1))
@@ -1106,27 +1106,27 @@ namespace TA3D
 
 				if (units.last_on == -1) // Is the cursor on a rock, tree, ...?
 				{
-					Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
-					int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
-					int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
-					if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (SurfaceByte(map->view_map, px >> 1, py >> 1) & (1 << players.local_human_id)))
+					const Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
+					const int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
+					const int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
+					if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (map->view_map(px >> 1, py >> 1) & (1 << players.local_human_id)))
 					{
 						int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
 						if (idx < 0 || features.feature[idx].type < 0)
 						{
 							units.last_on = -1;
-							for (short int dy = -7; dy < 8; ++dy) // Look for things like metal patches
+							for (int dy = -7 ; dy < 8 ; ++dy) // Look for things like metal patches
 							{
 								if (py + dy >= 0 && py + dy < map->bloc_h_db)
 								{
-									for (short int dx = -7; dx < 8; ++dx)
+									for (int dx = -7 ; dx < 8 ; ++dx)
 									{
 										if (px + dx >= 0 && px + dx < map->bloc_w_db)
 										{
 											if (map->map_data(px + dx, py + dy).stuff >= 0)
 											{
 												idx = map->map_data(px + dx, py + dy).stuff;
-												Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+												const Feature* const feature = feature_manager.getFeaturePointer(features.feature[idx].type);
 												if (feature
 													&& feature->footprintx + 1 >= (abs(dx) << 1)
 													&& feature->footprintz + 1 >= (abs(dy) << 1))

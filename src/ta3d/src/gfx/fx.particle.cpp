@@ -39,12 +39,9 @@ namespace TA3D
         timer += dt;
 
         Speed.y -= dt * the_map->ota_data.gravity;		// React to gravity
-//        Pos = Pos + dt * Speed;
-        Pos.x += dt * Speed.x;
-        Pos.y += dt * Speed.y;
-        Pos.z += dt * Speed.z;
+		Pos += dt * Speed;
 
-        float min_h = the_map->get_unit_h(Pos.x, Pos.z);
+		const float min_h = the_map->get_unit_h(Pos.x, Pos.z);
         if (Pos.y < min_h) // Bouncing on the map :)
         {
             Pos.y = 2.0f * min_h - Pos.y;
@@ -78,7 +75,7 @@ namespace TA3D
 			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
 			const byte player_mask = byte(1 << players.local_human_id);
 			if (the_map->view(px, py) != 1
-               || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))	return;
+			   || !(the_map->sight_map(px, py) & player_mask))	return;
         }
         renderQueue.queue.push_back( Instance( Pos, 0xFFFFFFFF, 0.0f ) );
     }

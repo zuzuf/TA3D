@@ -472,9 +472,9 @@ namespace TA3D
 		const UnitType* const pType = unit_manager.unit_type[type_id];
 		const int px = cur_px >> 1;
 		const int py = cur_py >> 1;
-		if (px >= 0 && py >= 0 && px < the_map->radar_map->w && py < the_map->radar_map->h)
-			return ( (SurfaceByte(the_map->radar_map,px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
-				|| ( (SurfaceByte(the_map->sonar_map,px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
+		if (px >= 0 && py >= 0 && px < the_map->radar_map.getWidth() && py < the_map->radar_map.getHeight())
+			return ( (the_map->radar_map(px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
+				|| ( (the_map->sonar_map(px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
 		return false;
 	}
 
@@ -959,7 +959,7 @@ namespace TA3D
 		const byte player_mask = 1 << players.local_human_id;
 
 		on_radar = on_mini_radar = is_on_radar( player_mask );
-		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(the_map->sight_map, px, py) & player_mask) ) )
+		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) || ( !on_radar && !(the_map->sight_map(px, py) & player_mask) ) )
 			return;	// Unit is not visible
 
 		const bool radar_detected = on_radar;
@@ -4426,7 +4426,7 @@ namespace TA3D
 							continue;
 						if (units.unit[cur_idx].flags
 							&& ( units.unit[cur_idx].is_on_radar( mask ) ||
-								 ( (SurfaceByte(the_map->sight_map, x >> 1, y >> 1) & mask)
+								 ( (the_map->sight_map(x >> 1, y >> 1) & mask)
 								   && !units.unit[cur_idx].cloaked ) )
 							&& (canTargetGround || units.unit[cur_idx].flying)
 							&& !unit_manager.unit_type[ cur_type_id ]->checkCategory( pType->NoChaseCategory ) )

@@ -121,10 +121,10 @@ namespace TA3D
 				macro_h = 0;*/
 
 		/*---------------------------------------------------------------------------*/
-		view_map = NULL;
-		sight_map = NULL;
-		radar_map = NULL;
-		sonar_map = NULL;
+		view_map.clear();
+		sight_map.clear();
+		radar_map.clear();
+		sonar_map.clear();
 
 		shadow2_shader.load("shaders/map_shadow.frag", "shaders/map_shadow.vert");
 		detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
@@ -403,7 +403,7 @@ namespace TA3D
 			return false;
 		for(int y = y1 ; y < y2 ; ++y)
 			for(int x = x1 ; x < x2 ; ++x)
-				if (!(SurfaceByte(view_map,x,y) & c))
+				if (!(view_map(x,y) & c))
 					return false;
 		return true;
 	}
@@ -548,10 +548,10 @@ namespace TA3D
 			}*/
 		/*---------------------------------------------------------------------------*/
 
-		if (view_map )		SDL_FreeSurface( view_map );
-		if (sight_map )		SDL_FreeSurface( sight_map );
-		if (radar_map )		SDL_FreeSurface( radar_map );
-		if (sonar_map )		SDL_FreeSurface( sonar_map );
+		view_map.resize(0,0);
+		sight_map.resize(0,0);
+		radar_map.resize(0,0);
+		sonar_map.resize(0,0);
 
 		detail_shader.destroy();
 		shadow2_shader.destroy();
@@ -610,18 +610,18 @@ namespace TA3D
 		fog_of_war = FOW_flags;
 
 		if (fog_of_war & FOW_BLACK)
-			memset( view_map->pixels, 0, view_map->w * view_map->h );
+			view_map.clear(0);
 		else
-			memset( view_map->pixels, 0xFF, view_map->w * view_map->h );
+			view_map.clear(0xFF);
 		if (fog_of_war & FOW_GREY)
-			memset( sight_map->pixels, 0, sight_map->w * sight_map->h );
+			sight_map.clear(0);
 		else
-			memset( sight_map->pixels, 0xFF, sight_map->w * sight_map->h );
+			sight_map.clear(0xFF);
 
 		if (fog_of_war == FOW_DISABLED)
 		{
-			memset( radar_map->pixels, 0xFF, radar_map->w * radar_map->h );
-			memset( sonar_map->pixels, 0xFF, sonar_map->w * sonar_map->h );
+			radar_map.clear(0xFF);
+			sonar_map.clear(0xFF);
 		}
 	}
 
@@ -743,12 +743,12 @@ namespace TA3D
 
 		gfx->set_color(0xFFFFFFFF);
 
-		int rw = w * mini_w / 252;
-		int rh = h * mini_h / 252;
+		const int rw = w * mini_w / 252;
+		const int rh = h * mini_h / 252;
 		x1 += (w - rw) >> 1;
 		y1 += (h - rh) >> 1;
-		float lw = mini_w / 252.0f;
-		float lh = mini_h / 252.0f;
+		const float lw = mini_w / 252.0f;
+		const float lh = mini_h / 252.0f;
 		gfx->drawtexture(glmini, x1, y1, x1 + rw, y1 + rh, 0.0f, 0.0f, lw, lh);
 
 		if (rh == 0 || rw == 0) return;
@@ -761,23 +761,23 @@ namespace TA3D
 			glBegin( GL_LINES );
 
 			int MY = 0;
-			int DY = 0x10000 * ( bloc_h_db - 2 ) / rh;
-			int DX = 0x10000 * ( bloc_w_db - 2 ) / rw;
+			const int DY = 0x10000 * ( bloc_h_db - 2 ) / rh;
+			const int DX = 0x10000 * ( bloc_w_db - 2 ) / rw;
 
 			gfx->lock();
 
 			for (int y = 0; y < rh; ++y)
 			{
-				int my = MY >> 17;
+				const int my = MY >> 17;
 				MY += DY;
 				int old_col = -1;
 				int old_x = -1;
 				int MX = 0;
 				for (int x = 0 ; x < rw; ++x)
 				{
-					int mx = MX >> 17;
+					const int mx = MX >> 17;
 					MX += DX;
-					if (!(SurfaceByte(view_map,mx,my) & player_mask))
+					if (!(view_map(mx,my) & player_mask))
 					{
 						if (old_col != 0 )
 						{
@@ -793,7 +793,7 @@ namespace TA3D
 					}
 					else
 					{
-						if (!(SurfaceByte(sight_map,mx,my) & player_mask))
+						if (!(sight_map(mx,my) & player_mask))
 						{
 							if (old_col != 1 )
 							{
@@ -928,17 +928,16 @@ namespace TA3D
 		py >>= 1;
 
 		// Update jamming maps
-		if (jamming )
+		if (jamming)
 		{
-			if (rd_j > 0 )
-				circlefill( radar_map, px, py, rd_j, 0 );
-			if (sn_j > 0 )
-				circlefill( sonar_map, px, py, sn_j, 0 );
+			if (rd_j > 0)
+				radar_map.circlefill(px, py, rd_j, 0);
+			if (sn_j > 0)
+				sonar_map.circlefill(px, py, sn_j, 0);
 		}
 		else
 		{
-			byte mask = 1 << player_id;
-			uint32 mask32 = 0x01010101 << player_id;
+			const byte mask = 1 << player_id;
 			int r2 = r * r;
 			int rd2 = rd * rd;
 			int sn2 = sn * sn;
@@ -946,170 +945,96 @@ namespace TA3D
 			if (sn > 0)
 				for (int y = 0; y <= sn; ++y) // Update sonar data
 				{
-					int x=(int)(0.5f+sqrtf((float)(sn2-y*y)));
-					int ry=py-y;
-					if (ry >= 0 && ry < sonar_map->h)
+					const int x = (int)(0.5f + std::sqrt((float)(sn2 - y * y)));
+					int ry = py - y;
+					if (ry >= 0 && ry < sonar_map.getHeight())
 					{
-						int rx=px-x;
-						int lx=px+x;
-						if (rx<0)	rx=0;
-						if (lx>=sonar_map->w)	lx=sonar_map->w-1;
-						for(; (rx & 3) && rx < view_map->w ; rx++ )
-							SurfaceByte(sonar_map,rx,ry) |= mask;
-						rx >>= 2;
-						int lx2 = lx >> 2;
-						for(;rx<lx2;rx++)
-							SurfaceInt(sonar_map,rx,ry) |= mask32;
-						rx <<= 2;
-						for(; rx <= lx ; rx++ )
-							SurfaceByte(sonar_map,rx,ry) |= mask;
+						int rx = std::max<int>(0, px - x);
+						const int lx = std::min<int>(px + x, sonar_map.getWidth() - 1);
+						for( ; rx <= lx ; ++rx)
+							sonar_map(rx, ry) |= mask;
 					}
 					if (y != 0)
 					{
 						ry = py + y;
-						if (ry >= 0 && ry < sonar_map->h)
+						if (ry >= 0 && ry < sonar_map.getHeight())
 						{
-							int rx = px - x;
-							int lx = px + x;
-							if (rx < 0)
-								rx = 0;
-							if (lx >= sonar_map->w)
-								lx = sonar_map->w - 1;
-							for(; (rx & 3) && rx < view_map->w ; ++rx)
-								SurfaceByte(sonar_map,rx,ry) |= mask;
-							rx >>= 2;
-							int lx2 = lx >> 2;
-							for(;rx<lx2;rx++)
-								SurfaceInt(sonar_map,rx,ry) |= mask32;
-							rx <<= 2;
-							for(; rx <= lx ; rx++ )
-								SurfaceByte(sonar_map,rx,ry) |= mask;
+							int rx = std::max<int>(0, px - x);
+							const int lx = std::min<int>(px + x, sonar_map.getWidth() - 1);
+							for( ; rx <= lx ; ++rx)
+								sonar_map(rx, ry) |= mask;
 						}
 					}
 				}
 			if (rd > 0 )
 				for (int y = 0; y <= rd; ++y) // Update radar data
 				{
-					int x=(int)(0.5f+sqrtf((float)(rd2-y*y)));
-					int ry=py-y;
-					if (ry >= 0 && ry < radar_map->h)
+					const int x = (int)(0.5f + std::sqrt((float)(rd2 - y * y)));
+					int ry = py - y;
+					if (ry >= 0 && ry < radar_map.getHeight())
 					{
-						int rx=px-x;
-						int lx=px+x;
-						if (rx<0)	rx=0;
-						if (lx>=radar_map->w)	lx=radar_map->w-1;
-						for(; (rx & 3) && rx < view_map->w ; rx++ )
-							SurfaceByte(radar_map,rx,ry) |= mask;
-						rx >>= 2;
-						int lx2 = lx >> 2;
-						for(;rx<lx2;rx++)
-							SurfaceInt(radar_map,rx,ry) |= mask32;
-						rx <<= 2;
-						for(; rx <= lx ; rx++ )
-							SurfaceByte(radar_map,rx,ry) |= mask;
+						int rx = std::max<int>(0, px - x);
+						const int lx = std::min<int>(px + x, radar_map.getWidth() - 1);
+						for( ; rx <= lx ; ++rx)
+							radar_map(rx, ry) |= mask;
 					}
 					if (y != 0)
 					{
 						ry = py + y;
-						if (ry >= 0 && ry < radar_map->h)
+						if (ry >= 0 && ry < radar_map.getHeight())
 						{
-							int rx=px-x;
-							int lx=px+x;
-							if (rx<0)	rx=0;
-							if (lx>=radar_map->w)	lx=radar_map->w-1;
-							for(; (rx & 3) && rx < view_map->w ; rx++ )
-								SurfaceByte(radar_map,rx,ry) |= mask;
-							rx >>= 2;
-							int lx2 = lx >> 2;
-							for(;rx<lx2;rx++)
-								SurfaceInt(radar_map,rx,ry) |= mask32;
-							rx <<= 2;
-							for(; rx <= lx ; rx++ )
-								SurfaceByte(radar_map,rx,ry) |= mask;
+							int rx = std::max<int>(0, px - x);
+							const int lx = std::min<int>(px + x, radar_map.getWidth() - 1);
+							for( ; rx <= lx ; ++rx)
+								radar_map(rx,ry) |= mask;
 						}
 					}
 				}
 			if (fog_of_war & FOW_GREY)
 				for(int y = 0; y <= r; ++y) // Update view data
 				{
-					int x=(int)(0.5f+sqrtf((float)(r2-y*y)));
-					int ry=py-y;
-					if (ry >= 0 && ry < sight_map->h)
+					const int x = (int)(0.5f + std::sqrt((float)(r2 - y * y)));
+					int ry = py - y;
+					if (ry >= 0 && ry < sight_map.getHeight())
 					{
-						int rx=px-x;
-						int lx=px+x;
-						if (rx<0)	rx=0;
-						if (lx>=sight_map->w)	lx=sight_map->w-1;
-						for(; (rx & 3) && rx < view_map->w ; rx++ )
-							SurfaceByte(sight_map,rx,ry) |= mask;
-						rx >>= 2;
-						int lx2 = lx >> 2;
-						for(;rx<lx2;rx++)
-							SurfaceInt(sight_map,rx,ry) |= mask32;
-						rx <<= 2;
-						for(; rx <= lx ; rx++ )
-							SurfaceByte(sight_map,rx,ry) |= mask;
+						int rx = std::max<int>(0, px - x);
+						const int lx = std::min<int>(px + x, sight_map.getWidth() - 1);
+						for( ; rx <= lx ; ++rx)
+							sight_map(rx,ry) |= mask;
 					}
 					if (y != 0)
 					{
 						ry = py + y;
-						if (ry >= 0 && ry<sight_map->h)
+						if (ry >= 0 && ry < sight_map.getHeight())
 						{
-							int rx=px-x;
-							int lx=px+x;
-							if (rx<0)	rx=0;
-							if (lx>=sight_map->w)	lx=sight_map->w-1;
-							for(; (rx & 3) && rx < view_map->w ; rx++ )
-								SurfaceByte(sight_map,rx,ry) |= mask;
-							rx >>= 2;
-							int lx2 = lx >> 2;
-							for(;rx<lx2;rx++)
-								SurfaceInt(sight_map,rx,ry) |= mask32;
-							rx <<= 2;
-							for(; rx <= lx ; rx++ )
-								SurfaceByte(sight_map,rx,ry) |= mask;
+							int rx = std::max<int>(0, px - x);
+							const int lx = std::min<int>(px + x, sight_map.getWidth() - 1);
+							for( ; rx <= lx ; ++rx)
+								sight_map(rx, ry) |= mask;
 						}
 					}
 				}
 			if (black && (fog_of_war & FOW_BLACK))
 				for (int y = 0; y <= r; ++y) // Update view data
 				{
-					int x=(int)(0.5f+sqrtf((float)(r2-y*y)));
-					int ry=py-y;
-					if (ry >= 0 && ry < view_map->h)
+				int x = (int)(0.5f + std::sqrt((float)(r2 - y * y)));
+					int ry = py - y;
+					if (ry >= 0 && ry < view_map.getHeight())
 					{
-						int rx=px-x;
-						int lx=px+x;
-						if (rx<0)	rx=0;
-						if (lx>=view_map->w)	lx=view_map->w-1;
-						for(; (rx & 3) && rx < view_map->w ; rx++ )
-							SurfaceByte(view_map,rx,ry) |= mask;
-						rx >>= 2;
-						int lx2 = lx >> 2;
-						for(;rx<lx2;rx++)
-							SurfaceInt(view_map,rx,ry) |= mask32;
-						rx <<= 2;
-						for(; rx <= lx ; rx++ )
-							SurfaceByte(view_map,rx,ry) |= mask;
+						int rx = std::max<int>(0, px - x);
+						const int lx = std::min<int>(px + x, view_map.getWidth() - 1);
+						for( ; rx <= lx ; ++rx)
+							view_map(rx, ry) |= mask;
 					}
 					if (y != 0)
 					{
 						ry = py + y;
-						if (ry >= 0 && ry < view_map->h)
+						if (ry >= 0 && ry < view_map.getHeight())
 						{
-							int rx=px-x;
-							int lx=px+x;
-							if (rx<0)	rx=0;
-							if (lx>=view_map->w)	lx=view_map->w-1;
-							for(; (rx & 3) && rx < view_map->w ; rx++ )
-								SurfaceByte(view_map,rx,ry) |= mask;
-							rx >>= 2;
-							int lx2 = lx >> 2;
-							for(;rx<lx2;rx++)
-								SurfaceInt(view_map,rx,ry) |= mask32;
-							rx <<= 2;
-							for(; rx <= lx ; rx++ )
-								SurfaceByte(view_map,rx,ry) |= mask;
+							int rx = std::max<int>(0, px - x);
+							const int lx = std::min<int>(px + x, view_map.getWidth() - 1);
+							for( ; rx <= lx ; ++rx)
+								view_map(rx, ry) |= mask;
 						}
 					}
 				}
@@ -1230,12 +1155,12 @@ namespace TA3D
 				int Z = Y + get_zdec_notest(X,Y);
 				if (Z >= bloc_h_db - 1)
 					Z = bloc_h_db - 2;
-				if (!(SurfaceByte(view_map, X >> 1, Z >> 1) & player_mask))
+				if (!(view_map(X >> 1, Z >> 1) & player_mask))
 					low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = low_col[(i << 2) + 3] = 0;
 				else
 				{
 					low_col[(i << 2) + 3] = 255;
-					if (!(SurfaceByte(sight_map,X>>1,Z>>1) & player_mask))
+					if (!(sight_map(X >> 1, Z >> 1) & player_mask))
 						low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 127;
 					else
 						low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 255;
@@ -1588,7 +1513,7 @@ namespace TA3D
 				int X = x << 1;
 				if (!FLAT && check_visibility)
 				{
-					if (!(SurfaceByte(view_map,x,y) & player_mask))
+					if (!(view_map(x, y) & player_mask))
 					{
 						if (water)
 						{
@@ -1600,7 +1525,7 @@ namespace TA3D
 					}
 					else
 					{
-						if (!(SurfaceByte(sight_map,x,y) & player_mask))
+						if (!(sight_map(x, y) & player_mask))
 						{
 							if (map_data(X, Y).isUnderwater() || map_data(X, Y | 1).isUnderwater() || map_data(X | 1, Y).isUnderwater() || map_data(X | 1, Y | 1).isUnderwater())
 								view(x, y) = 2;
@@ -1707,7 +1632,7 @@ namespace TA3D
 								(h_map(X | 1, Y | 1) < sealvl || h_map(X | 1, Y) < sealvl || h_map(X, Y | 1) < sealvl || h_map(X, Y) < sealvl) &&
 								(h_map(X | 1, Y | 1) >= sealvl || h_map(X, Y | 1) >= sealvl || h_map(X | 1, Y) >= sealvl || h_map(X, Y) >= sealvl) &&
 								(Math::RandomTable() % 4000) <= lavaprob &&
-								(SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves)
+								(view_map(x, y) & player_mask) && lp_CONFIG->waves)
 							{
 								Vector3D grad;
 								for(int dz = -2 ; dz <= 2 ; ++dz)
@@ -1841,35 +1766,35 @@ namespace TA3D
 					int Z;
 					int grey = 0;
 					int black = 0;
-					Z=Y+get_zdec_notest(X,Y);									    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-					if (!(SurfaceByte(view_map,x,Z>>1) & player_mask))				{	color[0]=color[1]=color[2]=0;	black++;	}
-					else if (!(SurfaceByte(sight_map,x,Z>>1) & player_mask))		    {	color[0]=color[1]=color[2]=127;	grey++;		}
-					if (X + 2 < bloc_w_db )
+					Z = Y + get_zdec_notest(X, Y);							if (Z >= bloc_h_db - 1)	Z = bloc_h_db - 2;
+					if (!(view_map(x, Z >> 1) & player_mask))				{	color[0] = color[1] = color[2] = 0;	++black;	}
+					else if (!(sight_map(x, Z >> 1) & player_mask))		    {	color[0] = color[1] = color[2] = 127;	++grey;		}
+					if (X + 2 < bloc_w_db)
 					{
-						Z=Y+get_zdec_notest(X+2,Y);								    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-						if (!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[8]=color[9]=color[10]=0;		black++;	}
-						else if (!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[8]=color[9]=color[10]=127;	grey++;		}
+						Z = Y + get_zdec_notest(X + 2, Y);					if (Z >= bloc_h_db - 1)	Z = bloc_h_db - 2;
+						if (!(view_map(x + 1, Z >> 1) & player_mask))	    {	color[8] = color[9] = color[10] = 0;		++black;	}
+						else if (!(sight_map(x + 1, Z >> 1) & player_mask))	{	color[8] = color[9] = color[10] = 127;	++grey;		}
 					}
 					if (Y + 2 < bloc_h_db )
 					{
-						Z=Y+2+get_zdec_notest(X,Y+2);							if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-						if (!(SurfaceByte(view_map,x,Z>>1) & player_mask))		{	color[24]=color[25]=color[26]=0;	black++;	}
-						else if (!(SurfaceByte(sight_map,x,Z>>1) & player_mask))	{	color[24]=color[25]=color[26]=127;	grey++;		}
-						if (X + 2 < bloc_w_db )
+						Z = Y + 2 + get_zdec_notest(X, Y + 2);				if (Z >= bloc_h_db - 1)	Z = bloc_h_db - 2;
+						if (!(view_map(x, Z >> 1) & player_mask))			{	color[24] = color[25] = color[26] = 0;	++black;	}
+						else if (!(sight_map(x, Z >> 1) & player_mask))		{	color[24] = color[25] = color[26] = 127;	++grey;		}
+						if (X + 2 < bloc_w_db)
 						{
-							Z=Y+2+get_zdec_notest(X+2,Y+2);							    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-							if (!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[32]=color[33]=color[34]=0;	black++;	}
-							else if (!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[32]=color[33]=color[34]=127;	grey++;		}
+							Z = Y + 2 + get_zdec_notest(X + 2, Y + 2);			if (Z >= bloc_h_db - 1)	Z = bloc_h_db - 2;
+							if (!(view_map(x + 1, Z >> 1) & player_mask))		{	color[32] = color[33] = color[34] = 0;	++black;	}
+							else if (!(sight_map(x + 1, Z >> 1) & player_mask))	{	color[32] = color[33] = color[34] = 127;	++grey;		}
 						}
 					}
 					is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );
-					if (!FLAT && !map_data(X, Y).isFlat() && !lp_CONFIG->low_definition_map )
+					if (!FLAT && !map_data(X, Y).isFlat() && !lp_CONFIG->low_definition_map)
 					{
-						color[4]=color[5]=color[6]= (color[0] + color[8]) >> 1;
-						color[12]=color[13]=color[14]= (color[0] + color[24]) >> 1;
-						color[20]=color[21]=color[22]= (color[8] + color[32]) >> 1;
-						color[16]=color[17]=color[18]= (color[12] + color[20]) >> 1;
-						color[28]=color[29]=color[30]= (color[24] + color[32]) >> 1;
+						color[4]  = color[5]  = color[6]  = (color[0] + color[8]) >> 1;
+						color[12] = color[13] = color[14] = (color[0] + color[24]) >> 1;
+						color[20] = color[21] = color[22] = (color[8] + color[32]) >> 1;
+						color[16] = color[17] = color[18] = (color[12] + color[20]) >> 1;
+						color[28] = color[29] = color[30] = (color[24] + color[32]) >> 1;
 					}
 				}
 
