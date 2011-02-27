@@ -1515,11 +1515,16 @@ namespace TA3D
 			const int py2 = py >> 1;
 			if (px < 0 || py < 0 || px >= bloc_w || py >= bloc_h)
 				continue;
+			gfx->lock();
 			if (!(the_map->view_map(px2, py2) & player_mask))
 			{
 				if (!((the_map->radar_map(px2, py2) & player_mask) || (the_map->sonar_map(px2, py2) & player_mask)))       // We need to check that in case there is a radar or a sonar around
+				{
+					gfx->unlock();
 					continue;
+				}
 			}
+			gfx->unlock();
 			unit[i].visible = true;
 			visible_unit.push_back(i);
 		}

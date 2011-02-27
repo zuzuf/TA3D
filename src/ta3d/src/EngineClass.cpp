@@ -758,11 +758,14 @@ namespace TA3D
 			glEnable( GL_BLEND );
 			glBlendFunc( GL_ZERO, GL_SRC_COLOR );			// Special blending function
 			glDisable( GL_TEXTURE_2D );
-			glBegin( GL_LINES );
 
 			int MY = 0;
 			const int DY = 0x10000 * ( bloc_h_db - 2 ) / rh;
 			const int DX = 0x10000 * ( bloc_w_db - 2 ) / rw;
+
+			std::vector<Vector2D> lines;
+			std::vector<uint32> colors;
+			uint32 col = 0U;
 
 			gfx->lock();
 
@@ -783,10 +786,12 @@ namespace TA3D
 						{
 							if (old_x != -1 )
 							{
-								glVertex2i( x1+old_x, y1+y );
-								glVertex2i( x1+x, y1+y );
+								lines.push_back( Vector2D(x1 + old_x, y1 + y) );
+								lines.push_back( Vector2D(x1 + x, y1 + y) );
+								colors.push_back(col);
+								colors.push_back(col);
 							}
-							glColor3ub( 0, 0, 0 );
+							col = 0x00000000U;
 							old_col = 0;
 							old_x = x;
 						}
@@ -795,26 +800,30 @@ namespace TA3D
 					{
 						if (!(sight_map(mx,my) & player_mask))
 						{
-							if (old_col != 1 )
+							if (old_col != 1)
 							{
-								if (old_x != -1 )
+								if (old_x != -1)
 								{
-									glVertex2i( x1+old_x, y1+y );
-									glVertex2i( x1+x, y1+y );
+									lines.push_back( Vector2D(x1 + old_x, y1 + y) );
+									lines.push_back( Vector2D(x1 + x, y1 + y) );
+									colors.push_back(col);
+									colors.push_back(col);
 								}
-								glColor3ub( 0x7F, 0x7F, 0x7F );
+								col = 0x7F7F7F7FU;
 								old_x = x;
 								old_col = 1;
 							}
 						}
 						else
 						{
-							if (old_col != 2 )
+							if (old_col != 2)
 							{
-								if (old_x != -1 )
+								if (old_x != -1)
 								{
-									glVertex2i( x1+old_x, y1+y );
-									glVertex2i( x1+x, y1+y );
+									lines.push_back( Vector2D(x1 + old_x, y1 + y) );
+									lines.push_back( Vector2D(x1 + x, y1 + y) );
+									colors.push_back(col);
+									colors.push_back(col);
 								}
 								old_x = -1;
 								old_col = 2;
@@ -824,12 +833,21 @@ namespace TA3D
 				}
 				if (old_x != -1)
 				{
-					glVertex2i( x1+old_x, y1+y );
-					glVertex2i( x1+rw, y1+y );
+					lines.push_back( Vector2D(x1 + old_x, y1 + y) );
+					lines.push_back( Vector2D(x1 + rw, y1 + y) );
+					colors.push_back(col);
+					colors.push_back(col);
 				}
 			}
 
-			glEnd();
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glVertexPointer(2, GL_FLOAT, 0, &(lines.front()));
+			glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors.front()));
+
+			glDrawArrays(GL_LINES, 0, lines.size());
+
+			glDisableClientState(GL_COLOR_ARRAY);
 			glDisable(GL_BLEND);
 
 			gfx->unlock();

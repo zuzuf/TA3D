@@ -472,9 +472,15 @@ namespace TA3D
 		const UnitType* const pType = unit_manager.unit_type[type_id];
 		const int px = cur_px >> 1;
 		const int py = cur_py >> 1;
+		gfx->lock();
 		if (px >= 0 && py >= 0 && px < the_map->radar_map.getWidth() && py < the_map->radar_map.getHeight())
-			return ( (the_map->radar_map(px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
-				|| ( (the_map->sonar_map(px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
+		{
+			const bool r = ( (the_map->radar_map(px,py) & p_mask) && !pType->Stealth && (pType->fastCategory & CATEGORY_NOTSUB) )
+						   || ( (the_map->sonar_map(px,py) & p_mask) && !(pType->fastCategory & CATEGORY_NOTSUB) );
+			gfx->unlock();
+			return r;
+		}
+		gfx->unlock();
 		return false;
 	}
 
@@ -941,7 +947,7 @@ namespace TA3D
 	{
 		MutexLocker locker(pMutex);
 
-		if (!(flags & 1) || type_id == -1 || ID != render.UID)
+		if (!(flags & 1) || type_id == -1 || ID != render.UID || !visible)
 			return;
 
 		UnitType* const pType = unit_manager.unit_type[type_id];
@@ -959,8 +965,19 @@ namespace TA3D
 		const byte player_mask = 1 << players.local_human_id;
 
 		on_radar = on_mini_radar = is_on_radar( player_mask );
-		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) || ( !on_radar && !(the_map->sight_map(px, py) & player_mask) ) )
+		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) )
 			return;	// Unit is not visible
+
+		if (!on_radar)
+		{
+			gfx->lock();
+			if (!(the_map->sight_map(px, py) & player_mask))
+			{
+				gfx->unlock();
+				return;
+			}
+			gfx->unlock();
+		}
 
 		const bool radar_detected = on_radar;
 
@@ -1124,7 +1141,7 @@ namespace TA3D
 				Model* const the_model = model;
 				drawing = true;
 
-                if (!pType->emitting_points_computed ) // Compute model emitting points if not already done, do it here in Unit::Locked code ...
+				if (!pType->emitting_points_computed) // Compute model emitting points if not already done, do it here in Unit::Locked code ...
 				{
                     pType->emitting_points_computed = true;
 					int first = runScriptFunction( SCRIPT_QueryNanoPiece );
@@ -1187,8 +1204,8 @@ namespace TA3D
 							if (mission->mission() == MISSION_RECLAIM
 								|| mission->mission() == MISSION_REVIVE ) // Reclaiming features
 							{
-								int feature_type = features.feature[ mission->getData() ].type;
-								Feature *feature = feature_manager.getFeaturePointer(feature_type);
+								const int feature_type = features.feature[ mission->getData() ].type;
+								const Feature* const feature = feature_manager.getFeaturePointer(feature_type);
 								if (mission->getData() >= 0 && feature && feature->model )
 								{
 									size = feature->model->size2;
@@ -1244,9 +1261,9 @@ namespace TA3D
 							}
 							else // Reclaiming features
 							{
-								int feature_type = features.feature[ nanolathe_target ].type;
+								const int feature_type = features.feature[ nanolathe_target ].type;
 								v_target = features.feature[ nanolathe_target ].Pos;
-								Feature *feature = feature_manager.getFeaturePointer(feature_type);
+								const Feature* const feature = feature_manager.getFeaturePointer(feature_type);
 								if (feature && feature->model)
 								{
 									size = feature->model->size2;
@@ -1397,7 +1414,7 @@ namespace TA3D
 			return;
 		}
 
-		if (cloaked && owner_id != players.local_human_id ) // Unit is cloaked
+		if (cloaked && owner_id != players.local_human_id) // Unit is cloaked
 		{
 			pMutex.unlock();
 			return;
@@ -1405,9 +1422,9 @@ namespace TA3D
 
 		if (!visible)
 		{
-			Vector3D S_Pos = render.Pos - (h / Dir.y) * Dir;//the_map->hit(Pos,Dir);
-			int px = ((int)(S_Pos.x) + the_map->map_w_d) >> 4;
-			int py = ((int)(S_Pos.z) + the_map->map_h_d) >> 4;
+			const Vector3D S_Pos = render.Pos - (h / Dir.y) * Dir;//the_map->hit(Pos,Dir);
+			const int px = ((int)(S_Pos.x) + the_map->map_w_d) >> 4;
+			const int py = ((int)(S_Pos.z) + the_map->map_h_d) >> 4;
 			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			{
 				pMutex.unlock();
@@ -1420,7 +1437,7 @@ namespace TA3D
 			}
 		}
 
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType* const pType = unit_manager.unit_type[type_id];
         drawing = true;			// Prevent the model to be set to NULL and the data structure from being reset
 		pMutex.unlock();
 
@@ -1429,7 +1446,7 @@ namespace TA3D
 		glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
 		glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
 		glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
-        float scale = pType->Scale;
+		const float scale = pType->Scale;
 		glScalef(scale,scale,scale);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
@@ -1437,7 +1454,7 @@ namespace TA3D
 		{
 			Vector3D H = render.Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
-			Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
+			const Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
 		model->draw_shadow(shadow_scale_dir * Dir * RotateXZY(-render.Angle.x * DEG2RAD, -render.Angle.z * DEG2RAD, -render.Angle.y * DEG2RAD), 0.0f, &render.Anim);
@@ -1477,9 +1494,9 @@ namespace TA3D
 
 		if (!visible)
 		{
-			Vector3D S_Pos (render.Pos - (h / Dir.y) * Dir);//the_map->hit(Pos,Dir);
-			int px = ((int)(S_Pos.x + the_map->map_w_d)) >> 4;
-			int py = ((int)(S_Pos.z + the_map->map_h_d)) >> 4;
+			const Vector3D S_Pos (render.Pos - (h / Dir.y) * Dir);//the_map->hit(Pos,Dir);
+			const int px = ((int)(S_Pos.x + the_map->map_w_d)) >> 4;
+			const int py = ((int)(S_Pos.z + the_map->map_h_d)) >> 4;
 			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			{
 				pMutex.unlock();
@@ -1491,7 +1508,7 @@ namespace TA3D
 				return;	// Unvisible shadow
 			}
 		}
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType* const pType = unit_manager.unit_type[type_id];
         drawing = true;			// Prevent the model to be set to NULL and the data structure from being reset
 		pMutex.unlock();
 
@@ -1500,14 +1517,14 @@ namespace TA3D
 		glRotatef(render.Angle.x,1.0f,0.0f,0.0f);
 		glRotatef(render.Angle.z,0.0f,0.0f,1.0f);
 		glRotatef(render.Angle.y,0.0f,1.0f,0.0f);
-        float scale = pType->Scale;
+		const float scale = pType->Scale;
 		glScalef(scale,scale,scale);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-        if (pType->canmove || shadow_scale_dir < 0.0f )
+		if (pType->canmove || shadow_scale_dir < 0.0f)
 		{
 			Vector3D H = render.Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
-			Vector3D D = the_map->hit( H, Dir, true, 2000.0f);
+			const Vector3D D = the_map->hit(H, Dir, true, 2000.0f);
 			shadow_scale_dir = (D - H).norm();
 		}
 		model->draw_shadow_basic(shadow_scale_dir * Dir * RotateXZY(-render.Angle.x * DEG2RAD, -render.Angle.z * DEG2RAD, -render.Angle.y * DEG2RAD), 0.0f, &render.Anim);
@@ -1521,7 +1538,7 @@ namespace TA3D
 	void Unit::explode()
 	{
 		exploding = true;
-        UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType* const pType = unit_manager.unit_type[type_id];
         if (local && network_manager.isConnected() ) // Sync unit destruction (and corpse creation ;) )
 		{
 			struct event explode_event;
@@ -1534,7 +1551,7 @@ namespace TA3D
 			network_manager.sendEvent( &explode_event );
 		}
 
-        int power = Math::Max(pType->FootprintX, pType->FootprintZ);
+		const int power = Math::Max(pType->FootprintX, pType->FootprintZ);
 		fx_manager.addFlash( Pos, power * 32 );
 		fx_manager.addExplosion( Pos, V, power * 3, power * 10 );
 
@@ -1542,7 +1559,7 @@ namespace TA3D
 		int corpse_type = runScriptFunction(SCRIPT_killed, 2, param);
 		if (attached)
 			corpse_type = 3;			// When we were flying we just disappear
-		bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
+		const bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
 
 		switch( corpse_type )
 		{
@@ -1603,7 +1620,7 @@ namespace TA3D
 				pMutex.lock();
 		}
 		pMutex.unlock();
-        int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? pType->SelfDestructAs : pType->ExplodeAs ),idx);
+		const int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? pType->SelfDestructAs : pType->ExplodeAs ),idx);
 		pMutex.lock();
 		if (w_id >= 0)
 		{
