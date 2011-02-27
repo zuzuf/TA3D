@@ -1303,7 +1303,7 @@ namespace TA3D
 			const Feature* const pFeatureType = feature_manager.getFeaturePointer(pFeature->type);
 			if (pFeatureType == NULL)
 				continue;
-			if (!(SurfaceByte(the_map->view_map, pFeature->px >> 1, pFeature->py >> 1) & player_mask))
+			if (!(the_map->view_map(pFeature->px >> 1, pFeature->py >> 1) & player_mask))
 				continue;
 			const Vector3D D (pFeature->Pos - Camera::inGame->pos);
 			const float size = lp_CONFIG->ortho_camera ? camzoom : (D % camdir);

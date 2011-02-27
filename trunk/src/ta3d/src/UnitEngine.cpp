@@ -482,8 +482,8 @@ namespace TA3D
 					pMutex.lock();
 					continue;	// Out of the map
 				}
-				if (!( SurfaceByte(map->view_map,px,py) & player_mask ) && !(SurfaceByte(map->sight_map,px,py) & player_mask)
-					&& !unit[i].is_on_radar( player_mask ) )
+				if (!(map->view_map(px, py) & player_mask) && !(map->sight_map(px,py) & player_mask)
+					&& !unit[i].is_on_radar( player_mask ))
 				{
 					unit[ i ].unlock();
 					pMutex.lock();
@@ -491,8 +491,8 @@ namespace TA3D
 				}
 			}
 
-			int x = (int)(unit[i].Pos.x * conv_x + 64.5f);
-			int y = (int)(unit[i].Pos.z * conv_z + 64.5f);
+			const int x = (int)(unit[i].Pos.x * conv_x + 64.5f);
+			const int y = (int)(unit[i].Pos.z * conv_z + 64.5f);
 
 			if (x == mouse_x && y == mouse_y )
 			{
@@ -1291,7 +1291,10 @@ namespace TA3D
 					pMutex.lock();
 					continue;
 				}
-                if ((!(SurfaceByte(map->view_map,px>>1,py>>1) & mask) || !(SurfaceByte(map->sight_map,px>>1,py>>1) & mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].is_on_radar(player_mask) )
+				if ((!(map->view_map(px >> 1, py >> 1) & mask)
+					|| !(map->sight_map(px >> 1, py >> 1) & mask)
+					|| (unit[i].cloaked && unit[i].owner_id != players.local_human_id))
+					&& !unit[i].is_on_radar(player_mask))
 				{
 					units.unit[ i ].unlock();
 					pMutex.lock();
@@ -1512,9 +1515,9 @@ namespace TA3D
 			const int py2 = py >> 1;
 			if (px < 0 || py < 0 || px >= bloc_w || py >= bloc_h)
 				continue;
-			if (!(SurfaceByte(the_map->view_map, px2, py2) & player_mask))
+			if (!(the_map->view_map(px2, py2) & player_mask))
 			{
-				if (!((SurfaceByte(the_map->radar_map, px2, py2) & player_mask) || (SurfaceByte(the_map->sonar_map, px2, py2) & player_mask)))       // We need to check that in case there is a radar or a sonar around
+				if (!((the_map->radar_map(px2, py2) & player_mask) || (the_map->sonar_map(px2, py2) & player_mask)))       // We need to check that in case there is a radar or a sonar around
 					continue;
 			}
 			unit[i].visible = true;
@@ -1762,9 +1765,9 @@ namespace TA3D
 				gfx->lock();
 
 				if (map->fog_of_war & FOW_GREY)
-					memset( map->sight_map->pixels, 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
-				memset( map->radar_map->pixels, 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
-				memset( map->sonar_map->pixels, 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
+					map->sight_map.clear(0);
+				map->radar_map.clear(0);		// Clear radar map
+				map->sonar_map.clear(0);		// Clear sonar map
 
 				for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
 					unit[ idx_list[ i ] ].draw_on_FOW();

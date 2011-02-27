@@ -180,10 +180,10 @@ namespace TA3D
 		Grid<float>	energy;			// Energy of the map used by the pathfinder and units when following a path
 		Grid<bool>	obstacles;		// A map used by the pathfinder to detect blocking objets
 
-		SDL_Surface *view_map;		// Map of what has been discovered
-		SDL_Surface *sight_map;		// Map of who is viewing
-		SDL_Surface *radar_map;		// Radar map
-		SDL_Surface *sonar_map;		// Sonar map
+		Grid<byte> view_map;		// Map of what has been discovered
+		Grid<byte> sight_map;		// Map of who is viewing
+		Grid<byte> radar_map;		// Radar map
+		Grid<byte> sonar_map;		// Sonar map
 
 		int			map_w;			// Largeur de la carte en 16ème de bloc
 		int			map_h;			// Hauteur de la carte en 16ème de bloc

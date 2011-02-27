@@ -223,14 +223,14 @@ namespace TA3D
 		map->obstacles.clear();
 
 		LOG_DEBUG("MAP: creating FOW maps");
-		map->sight_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);		// FOW maps
-		map->view_map  = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);
-		map->radar_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);
-		map->sonar_map = gfx->create_surface_ex( 8, map->bloc_w, map->bloc_h);
-		SDL_FillRect( map->view_map, NULL, 0);
-		SDL_FillRect( map->sight_map, NULL, 0);
-		SDL_FillRect( map->radar_map, NULL, 0);
-		SDL_FillRect( map->sonar_map, NULL, 0);
+		map->sight_map.resize(map->bloc_w, map->bloc_h);		// FOW maps
+		map->view_map.resize(map->bloc_w, map->bloc_h);
+		map->radar_map.resize(map->bloc_w, map->bloc_h);
+		map->sonar_map.resize(map->bloc_w, map->bloc_h);
+		map->view_map.clear(0);
+		map->sight_map.clear(0);
+		map->radar_map.clear(0);
+		map->sonar_map.clear(0);
 
 		LOG_DEBUG("MAP: allocating height maps");
 		map->h_map.resize(map->bloc_w_db, map->bloc_h_db);

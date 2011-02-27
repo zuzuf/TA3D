@@ -346,26 +346,26 @@ namespace TA3D
 
 		if (the_map)            // Visibility test
 		{
-			int px=((int)(p.x+0.5f) + the_map->map_w_d)>>4;
-			int py=((int)(p.z+0.5f) + the_map->map_h_d)>>4;
-			if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
-			byte player_mask = 1 << players.local_human_id;
+			const int px = ((int)(p.x+0.5f) + the_map->map_w_d)>>4;
+			const int py = ((int)(p.z+0.5f) + the_map->map_h_d)>>4;
+			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
+			const byte player_mask = 1 << players.local_human_id;
 			if (the_map->view(px, py) != 1
-				|| !(SurfaceByte(the_map->sight_map, px, py ) & player_mask))	return;
+				|| !(the_map->sight_map(px, py ) & player_mask))	return;
 		}
 
 		pMutex.lock();
-		float rev = 5.0f / (the_map->ota_data.gravity + 0.1f);
+		const float rev = 5.0f / (the_map->ota_data.gravity + 0.1f);
 		for (int i = 0 ; i < n ; ++i)
 		{
-			float a = (Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
-			float b = (Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
-			float s = power * ((Math::RandomTable() % 9001) * 0.0001f + 0.1f);
-			float scosb = s * cosf(b);
-			Vector3D vs(cosf(a) * scosb,
-						s * sinf(b),
-						sinf(a) * scosb);
-			float l = (Math::RandomTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
+			const float a = (Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
+			const float b = (Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
+			const float s = power * ((Math::RandomTable() % 9001) * 0.0001f + 0.1f);
+			const float scosb = s * cosf(b);
+			const Vector3D vs(cosf(a) * scosb,
+							  s * sinf(b),
+							  sinf(a) * scosb);
+			const float l = (Math::RandomTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
 
 			pParticles.push_back(FXParticle(p, vs, l));
 		}
@@ -385,7 +385,7 @@ namespace TA3D
 			if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 				return;
 			byte player_mask = 1 << players.local_human_id;
-			if (the_map->view(px, py) != 1 || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))
+			if (the_map->view(px, py) != 1 || !(the_map->sight_map(px, py) & player_mask))
 				return;
 		}
 
