@@ -58,11 +58,6 @@ namespace TA3D
 
 	void AiController::scan_unit()							// Scan the units the AI player currently has
 	{
-		if (enemy_table.empty())
-		{
-			enemy_table.resize(units.max_unit, 0);
-		}
-
 		if (weights.empty())
 		{
 			weights.resize(unit_manager.nb_unit);
@@ -147,7 +142,7 @@ namespace TA3D
 		units.lock();
 		for (e = unit_id ; e < units.nb_unit && e < unit_id + 10 ; ++e )
 		{
-			int i = units.idx_list[e];
+			const int i = units.idx_list[e];
 			if (i < 0 || i >= units.max_unit)	continue;		// Error
 			units.unlock();
 			units.unit[i].lock();
@@ -167,10 +162,10 @@ namespace TA3D
 				{
 					nb_units[ AI_UNIT_TYPE_ENEMY ]++;
 					nb_enemy[ units.unit[ i ].owner_id ]++;
-					if (!enemy_table[i])
+					if (!enemy_table.contains(i))
 					{
 						enemy_list[ units.unit[ i ].owner_id ].push_back( WeightCoef( i, 0 ) );
-						enemy_table[ i ] = true;
+						enemy_table.insert(i);
 					}
 				}
 			}
@@ -319,7 +314,7 @@ namespace TA3D
 							if (!(units.unit[ target_id ].flags & 1) || units.unit[ target_id ].type_id < 0
 								|| units.unit[ target_id ].type_id >= unit_manager.nb_unit || units.unit[ target_id ].owner_id != player_target )
 							{
-								enemy_table[ target_id ] = false;
+								enemy_table.remove(target_id);
 								target_id = -1;
 								enemy_list[ player_target ].pop_front();		// Remove what we've just read
 							}
@@ -327,7 +322,7 @@ namespace TA3D
 							{
 								if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar( 1 << playerID ) ) // This one is cloaked, not on radar
 								{
-									enemy_table[ target_id ] = false;
+									enemy_table.remove(target_id);
 									target_id = -1;
 									enemy_list[ player_target ].pop_front();		// Remove what we've just read
 									continue;
@@ -589,7 +584,7 @@ namespace TA3D
 		weights.clear();
 	}
 
-	void AiController::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
+	void AiController::changeName(const String& newName)		// Change le nom de l'IA (conduit �  la création d'un nouveau fichier)
 	{
 		pMutex.lock();
 		name = newName;

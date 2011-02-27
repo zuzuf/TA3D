@@ -29,6 +29,7 @@
 # include <threads/thread.h>
 # include "brain.h"
 # include "weight.h"
+# include <misc/hash_table.h>
 
 namespace TA3D
 {
@@ -64,7 +65,7 @@ namespace TA3D
 	public:
 		typedef SmartPtr<AiController>	Ptr;
     private:
-        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ã  l'IA (faut sauvegarder les cervelles)
+        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ã  l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)
         uint16			unit_id;		// Unit index to run throught the unit array
         uint16			total_unit;
@@ -72,7 +73,7 @@ namespace TA3D
         byte			AI_type;		// Which AI do we have to use?
 
 		std::vector<AiWeight> weights;		// Vector of weights used to decide what to build
-		std::vector<bool> enemy_table;   // A table used to speed up some look up
+		UTILS::HashSet<int>::Dense enemy_table;   // A table used to speed up some look up
         uint16			nb_units[ NB_AI_UNIT_TYPE ];
         uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
         float			order_weight[NB_ORDERS];	// weights of orders
