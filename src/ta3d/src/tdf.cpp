@@ -433,9 +433,7 @@ namespace TA3D
 
 	Features::~Features()
 	{
-		destroy();
-		icons[0].destroy();
-		icons[1].destroy();
+		destroy(false);
 	}
 
 
@@ -452,7 +450,7 @@ namespace TA3D
 	}
 
 
-	void Features::destroy()
+	void Features::destroy(bool bInit)
 	{
 		if (feature)
 		{
@@ -467,7 +465,8 @@ namespace TA3D
 			DELETE_ARRAY(feature);
 		}
 		list.clear();
-		init();
+		if (bInit)
+			init();
 		burning_features.clear();
 		sinking_features.clear();
 		symbolic_features.clear();

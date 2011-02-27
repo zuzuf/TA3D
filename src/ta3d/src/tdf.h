@@ -340,7 +340,7 @@ namespace TA3D
 
 
 		void init();
-		void destroy();
+		void destroy(bool bInit = true);
 
 		/*!
 		** \brief Set the wind direction
@@ -433,7 +433,7 @@ namespace TA3D
 
 	public:
 		//!
-		int nb_features;		// Nombre d'éléments à gérer
+		int nb_features;		// Nombre d'éléments �  gérer
 		//!
 		int max_features;		// Quantité maximale d'éléments que l'on peut charger dans la mémoire allouée
 		//!
@@ -445,7 +445,7 @@ namespace TA3D
 		FeaturesList  sinking_features;	// because it's faster that way
 
 		//!
-		std::vector<int> list;				// Liste d'objets à afficher
+		std::vector<int> list;				// Liste d'objets �  afficher
 
 		//! features to render as icons in tactical mode
 		FeaturesSet symbolic_features;
