@@ -152,7 +152,7 @@ namespace TA3D
 				break;
 
 			const uint32 i = idx_list[e];
-			for ( ; weapon[i].ticks_to_compute > 0U && weapon[i].weapon_id >= 0U ; --weapon[i].ticks_to_compute)
+			for ( ; weapon[i].ticks_to_compute > 0U && weapon[i].weapon_id >= 0 ; --weapon[i].ticks_to_compute)
 				weapon[i].move(dt);
 			weapon[i].move(dt);
 			if (weapon[i].weapon_id < 0) // Remove it from the "alive" list
