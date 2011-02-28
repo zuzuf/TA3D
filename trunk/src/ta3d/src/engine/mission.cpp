@@ -19,29 +19,34 @@ namespace TA3D
 		return p;
 	}
 
+
 	bool Mission::Target::isUnit() const
 	{
 		return type == TargetUnit && idx >= 0 && idx < units.max_unit && units.unit[idx].ID == UID;
 	}
+
 
 	bool Mission::Target::isWeapon() const
 	{
 		return type == TargetWeapon && idx >= 0 && idx < weapons.weapon.size();
 	}
 
+
 	bool Mission::Target::isValid() const
 	{
 		switch(type)
 		{
-		case TargetNone:
-		case TargetStatic:
-			return true;
-		case TargetUnit:
-			return idx >= 0 && idx < units.max_unit && units.unit[idx].ID == UID;
-		case TargetWeapon:
-			return idx >= 0 && idx < weapons.weapon.size();
+			case TargetNone:
+			case TargetStatic:
+				return true;
+			case TargetUnit:
+				return idx >= 0 && idx < units.max_unit && units.unit[idx].ID == UID;
+			case TargetWeapon:
+				return idx >= 0 && idx < weapons.weapon.size();
 		}
+		return false;
 	}
+
 
 	const Vector3D &Mission::Target::getPos() const
 	{
