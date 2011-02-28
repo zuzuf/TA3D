@@ -96,20 +96,27 @@ namespace TA3D
             glPopMatrix();
             glPushMatrix();
             glTranslatef( i->pos.x, i->pos.y, i->pos.z );
-            glRotatef( i->angle, 0.0f, 1.0f, 0.0f );
-            glColor4ubv( (GLubyte*) &i->col );
-            glCallList( model->dlist );
-            if (lp_CONFIG->underwater_bright && INSTANCING::water && i->pos.y < INSTANCING::sealvl)
-            {
-                glEnable( GL_BLEND );
-                glBlendFunc( GL_ONE, GL_ONE );
-                glDepthFunc( GL_EQUAL );
-                glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-                model->draw(0.0f, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
-                glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
-                glDepthFunc( GL_LESS );
-                glDisable( GL_BLEND );
-            }
+			if (lp_CONFIG->underwater_bright && INSTANCING::water && i->pos.y < INSTANCING::sealvl)
+			{
+				double eqn[4]= { 0.0f, -1.0f, 0.0f, INSTANCING::sealvl - i->pos.y };
+				glClipPlane(GL_CLIP_PLANE2, eqn);
+			}
+			glRotatef( i->angle, 0.0f, 1.0f, 0.0f );
+			glColor4ubv( (GLubyte*) &i->col );
+			glCallList( model->dlist );
+			if (lp_CONFIG->underwater_bright && INSTANCING::water && i->pos.y < INSTANCING::sealvl)
+			{
+				glEnable(GL_CLIP_PLANE2);
+				glEnable( GL_BLEND );
+				glBlendFunc( GL_ONE, GL_ONE );
+				glDepthFunc( GL_EQUAL );
+				glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+				model->draw(0.0f, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
+				glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+				glDepthFunc( GL_LESS );
+				glDisable( GL_BLEND );
+				glDisable(GL_CLIP_PLANE2);
+			}
         }
 
         if (model->from_2d)
