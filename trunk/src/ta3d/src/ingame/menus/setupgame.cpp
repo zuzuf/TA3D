@@ -953,379 +953,366 @@ namespace Menus
 			String::Vector params;
 			LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << (char*)(received_special_msg.message) << "' from " << from << " [" << game_data.net2id(from) << ']');
 			String((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
-				if (params.size() == 2)
+			switch(params.size())
+			{
+			case 2:
+				if (params[0] == "REQUEST")
 				{
-					if (params[0] == "REQUEST")
+					if (params[1] == "PLAYER_ID")                  // Sending player's network ID
+						network_manager.sendSpecial( String("RESPONSE PLAYER_ID ") << from, -1, from);
+					else if (params[1] == "GameData") // Sending game information
 					{
-						if (params[1] == "PLAYER_ID")                  // Sending player's network ID
-							network_manager.sendSpecial( String("RESPONSE PLAYER_ID ") << from, -1, from);
-						else
+						network_manager.sendSpecial(String("SET UNIT LIMIT ") << game_data.max_unit_per_player);
+						for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
 						{
-							if (params[1] == "GameData") // Sending game information
+							if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
+							String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
+							int side_id = std::find(side_str.begin(), side_str.end(), game_data.player_sides[i]) - side_str.begin();
+							msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
+								<< side_id << " "
+								<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FixBlank(game_data.ai_level[i]))
+								<< " " << game_data.metal[i] << " " << game_data.energy[i] << " "
+								<< FixBlank(game_data.player_names[i]) << " " << (int)game_data.ready[i];
+							network_manager.sendSpecial( msg, -1, from);
+
+							Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.team") << i);
+							if (guiobj)
 							{
-								network_manager.sendSpecial(String("SET UNIT LIMIT ") << game_data.max_unit_per_player);
-								for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
-								{
-									if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
-									String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
-									int side_id = std::find(side_str.begin(), side_str.end(), game_data.player_sides[i]) - side_str.begin();
-									msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
-										<< side_id << " "
-										<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FixBlank(game_data.ai_level[i]))
-										<< " " << game_data.metal[i] << " " << game_data.energy[i] << " "
-										<< FixBlank(game_data.player_names[i]) << " " << (int)game_data.ready[i];
-									network_manager.sendSpecial( msg, -1, from);
-
-									Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.team") << i);
-									if (guiobj)
-									{
-										msg.clear();
-										msg << "CHANGE TEAM " << i << " " << (int)(guiobj->current_state);
-										network_manager.sendSpecial( msg, -1, from);
-									}
-								}
-								if (!client)  // Send server to client specific information (player colors, map name, ...)
-								{
-									String msg("PLAYERCOLORMAP");
-									for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-										msg += String(" ") << int(player_color_map[i]);
-									network_manager.sendSpecial( msg, -1, from);
-
-									network_manager.sendSpecial(String("SET FOW ") << int(game_data.fog_of_war), -1, from);
-									network_manager.sendSpecial(String("SET SCRIPT ") << FixBlank( game_data.game_script), -1, from);
-									network_manager.sendSpecial(String("SET MAP ") << FixBlank( game_data.map_filename), -1, from);
-								}
+								msg.clear();
+								msg << "CHANGE TEAM " << i << " " << (int)(guiobj->current_state);
+								network_manager.sendSpecial( msg, -1, from);
 							}
-							else if (params[1] == "STATUS")
+						}
+						if (!client)  // Send server to client specific information (player colors, map name, ...)
+						{
+							String msg("PLAYERCOLORMAP");
+							for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+								msg << ' ' << int(player_color_map[i]);
+							network_manager.sendSpecial( msg, -1, from);
+
+							network_manager.sendSpecial(String("SET FOW ") << int(game_data.fog_of_war), -1, from);
+							network_manager.sendSpecial(String("SET SCRIPT ") << FixBlank( game_data.game_script), -1, from);
+							network_manager.sendSpecial(String("SET MAP ") << FixBlank( game_data.map_filename), -1, from);
+						}
+					}
+					else if (params[1] == "STATUS")
+					{
+						if (saved_game.notEmpty())
+							network_manager.sendSpecial(String("STATUS SAVED ") << FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
+						else
+							network_manager.sendSpecial("STATUS NEW", -1, from);
+					}
+				}
+				else if (params[0] == "NOTIFY")
+				{
+					if (params[1] == "UPDATE")
+						network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
+					else if (params[1] == "PLAYER_LEFT")
+					{
+						LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
+						network_manager.dropPlayer(from);
+						network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
+						for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+						{
+							if (game_data.player_network_id[i] == from)
 							{
 								if (saved_game.notEmpty())
-									network_manager.sendSpecial(String("STATUS SAVED ") << FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
+								{
+									pArea->set_state(String("gamesetup.ready") << i,false);
+									game_data.ready[i] = false;
+								}
 								else
-									network_manager.sendSpecial("STATUS NEW", -1, from);
+								{
+									game_data.player_network_id[i] = -1;
+									game_data.player_control[i] = player_control[2];
+									game_data.player_names[i] = player_str[2];
+
+									pArea->caption(String("gamesetup.name") << i, game_data.player_names[i]);
+
+									Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i );
+									if (guiobj)
+										guiobj->Flag |= FLAG_HIDDEN;
+								}
+								break;
 							}
 						}
+					}
+					else if (params[1] == "START") // Game is starting ...
+					{
+						clear_keybuf();
+						start_game = true;
+						return true;      // If user click "OK" or hit enter then leave the window
+					}
+				}
+				break;
+			case 3:
+				if (params[0] == "NOTIFY")
+				{
+					if (params[1] == "NEW_PLAYER" && !saved_game) // Add new player
+					{
+						int slot = -1;
+						for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+						{
+							if (game_data.player_control[i] == PLAYER_CONTROL_NONE)
+							{
+								slot = i;
+								break;
+							}
+						}
+						if (slot >= 0)
+						{
+							game_data.player_network_id[slot] = from;
+							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
+							game_data.player_names[slot] = UnfixBlank( params[2] );
+							pArea->caption( String("gamesetup.name") << slot, game_data.player_names[slot]);                      // Update gui
+
+							Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << slot);
+							if (guiobj)
+							{
+								guiobj->Data = gfx->makeintcol( player_color[player_color_map[slot] * 3],
+																player_color[player_color_map[slot] * 3 + 1],
+																player_color[player_color_map[slot] * 3 + 2]);           // Update gui
+								guiobj->Flag &= ~FLAG_HIDDEN;
+							}
+							network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
+						}
+						else
+						{
+							LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
+							network_manager.dropPlayer(from);      // No more room for this player !!
+						}
+					}
+					else if (params[1] == "PLAYER_BACK" && saved_game.notEmpty()) // A player is back in the game :), let's find who it is
+					{
+						LOG_DEBUG("received identifier from " << from << " : " << params[2].to<sint32>());
+						int slot = -1;
+						for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+						{
+							if (net_id_table[i] == params[2].to<sint32>())
+							{
+								slot = i;
+								break;
+							}
+						}
+						if (slot >= 0)
+						{
+							game_data.player_network_id[slot] = from;
+							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
+
+							network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
+						}
+						else
+						{
+							LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__ << " because it couldn't be identified");
+							network_manager.dropPlayer(from);      // No more room for this player !!
+						}
+					}
+					else if (params[1] == "COLORCHANGE")
+					{
+						int i = params[2].to<sint32>();
+						if (!client) // From client to server only
+						{
+							byte e = player_color_map[i];
+							int f = -1;
+							for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
+							{
+								if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+									f = g;
+							}
+							if (f == -1)
+							{
+								for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
+								{
+									if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
+										f = g;
+								}
+							}
+							if (f != -1)
+							{
+								byte g = player_color_map[f];
+								player_color_map[i] = g;                                // update game data
+								player_color_map[f] = e;
+
+								Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.color") << i);
+								if (guiobj)
+									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
+								guiobj = pArea->get_object( String("gamesetup.color") << f);
+								if (guiobj)
+									guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
+							}
+							network_manager.sendSpecial("NOTIFY UPDATE");
+						}
+					}
+				}
+				else if (params[0] == "SET")
+				{
+					if (params[1] == "FOW")
+					{
+						int value = params[2].to<sint32>();
+						Gui::GUIOBJ::Ptr obj = pArea->get_object( "gamesetup.FOW");
+						if (obj && value >= 0 && value < 4)
+						{
+							obj->Value = value;
+							obj->Text[0] = obj->Text[1 + obj->Value];
+							game_data.fog_of_war = uint8(obj->Value);
+						}
+					}
+					else if (params[1] == "MAP")
+					{
+						set_map = UnfixBlank( params[2] );
+						if (set_map != game_data.map_filename )
+						{
+							if (!previous_tnt_port.empty() )
+								network_manager.stopFileTransfer( previous_tnt_port);
+							if (!previous_ota_port.empty())
+								network_manager.stopFileTransfer(previous_ota_port);
+							previous_ota_port.empty();
+							previous_tnt_port.empty();
+							String new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
+							if (client && !VFS::Instance()->fileExists( new_map_name ))
+							{
+								String sMpN(new_map_name);
+								sMpN.replace('\\', '/');
+								previous_tnt_port = network_manager.getFile( 1, sMpN);
+								network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_tnt_port );
+							}
+
+							new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
+
+							if (client && !VFS::Instance()->fileExists( new_map_name ))
+							{
+								String sMpN(new_map_name);
+								sMpN.replace('\\', '/');
+
+								previous_ota_port = network_manager.getFile( 1, sMpN);
+								network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_ota_port );
+							}
+						}
+					}
+					else if (params[1] == "SCRIPT")
+					{
+						String script_name = UnfixBlank( params[2] );
+						if (script_name != game_data.game_script)
+						{
+							pArea->caption( "gamesetup.script_name", script_name);
+							game_data.game_script = script_name;
+
+							if (client && !VFS::Instance()->fileExists( script_name ))
+							{
+								if (!previous_lua_port.empty())
+									network_manager.stopFileTransfer( previous_lua_port);
+
+								String sSpS(script_name);
+								sSpS.replace('\\', '/');
+
+								previous_lua_port = network_manager.getFile( 1, sSpS);
+								network_manager.sendSpecial(String("REQUEST FILE ") << FixBlank(script_name) << ' ' << previous_lua_port);
+							}
+						}
+					}
+				}
+				break;
+			case 4:
+				if (params[0] == "REQUEST") // REQUEST FILE filename port
+				{
+					if (params[1] == "FILE")
+					{
+						String file_name = UnfixBlank( params[2] );
+						LOG_DEBUG(LOG_PREFIX_NET << "received file request : '" << file_name << "'");
+						network_manager.stopFileTransfer( params[3], from);
+						network_manager.sendFile( from, file_name, params[3]);
+					}
+				}
+				else if (params[0] == "CHANGE")
+				{
+					if (params[1] == "TEAM")
+					{
+						int i = params[2].to<sint32>();
+						int n_team = params[3].to<sint32>();
+						if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
+						{
+							Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.team") << i );
+							if (guiobj)
+							{
+								guiobj->current_state = byte(n_team);
+								game_data.team[i] = short(1 << n_team);
+							}
+						}
+					}
+				}
+				else if (params[0] == "SET")
+				{
+					if (params[1] == "UNIT" && params[2] == "LIMIT")
+					{
+						game_data.max_unit_per_player = params[3].to<sint32>();
+						Gui::GUIOBJ::Ptr obj = pArea->get_object("gamesetup.max_units");
+						if (obj)
+							obj->Text[0] = String() << game_data.max_unit_per_player;
+					}
+				}
+				break;
+			case 9:
+				if (params[0] == "PLAYER_INFO") // We've received player information, let's update :)
+				{
+					int i = params[1].to<sint32>();
+					int n_id = params[2].to<sint32>();
+					if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == n_id)) // Server doesn't accept someone telling him what to do
+					{
+						int side_id  = params[3].to<sint32>();
+						int metal_q  = params[5].to<sint32>();
+						int energy_q = params[6].to<sint32>();
+						bool ready   = params[8].to<sint32>();
+						game_data.player_network_id[i] = n_id;
+						game_data.player_sides[i] = side_str[ side_id ];
+						game_data.ai_level[i] = UnfixBlank( params[4] );
+						game_data.metal[i] = metal_q;
+						game_data.energy[i] = energy_q;
+						game_data.player_names[i] = UnfixBlank( params[7] );
+						game_data.ready[i] = ready;
+						if (n_id < 0 && game_data.ai_level[i].size() >= 4)
+							game_data.player_control[i] = PLAYER_CONTROL_REMOTE_AI;     // AIs are on the server, no need to replicate them
+						else if (n_id < 0 && game_data.ai_level[i].size() < 4)
+							game_data.player_control[i] = PLAYER_CONTROL_NONE;
+						else
+							game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
+
+						pArea->caption( String("gamesetup.name") << i, game_data.player_names[i]);                                 // Update gui
+						AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
+						pArea->set_entry( String("gamesetup.ai") << i, AI_list);
+						pArea->caption( String("gamesetup.side") << i, side_str[side_id]);                         // Update gui
+						pArea->caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);         // Update gui
+						pArea->caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);               // Update gui
+						pArea->set_state( String("gamesetup.ready") << i, ready);                                           // Update gui
+
+						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
+						if (guiobj)
+						{
+							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
+							if (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED )
+								guiobj->Flag |= FLAG_HIDDEN;
+							else
+								guiobj->Flag &= ~FLAG_HIDDEN;
+						}
+						if (!client)
+							network_manager.sendSpecial("NOTIFY UPDATE", from);
 					}
 					else
-						if (params[0] == "NOTIFY")
-						{
-							if (params[1] == "UPDATE")
-								network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
-							else
-							{
-								if (params[1] == "PLAYER_LEFT")
-								{
-									LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
-									network_manager.dropPlayer(from);
-									network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
-									for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-									{
-										if (game_data.player_network_id[i] == from)
-										{
-											if (saved_game.notEmpty())
-											{
-												pArea->set_state(String("gamesetup.ready") << i,false);
-												game_data.ready[i] = false;
-											}
-											else
-											{
-												game_data.player_network_id[i] = -1;
-												game_data.player_control[i] = player_control[2];
-												game_data.player_names[i] = player_str[2];
-
-												pArea->caption(String("gamesetup.name") << i, game_data.player_names[i]);
-
-												Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i );
-												if (guiobj)
-													guiobj->Flag |= FLAG_HIDDEN;
-											}
-											break;
-										}
-									}
-								}
-								else
-								{
-									if (params[1] == "START") // Game is starting ...
-									{
-										clear_keybuf();
-										start_game = true;
-										return true;      // If user click "OK" or hit enter then leave the window
-									}
-								}
-							}
-						}
+						LOG_ERROR("Packet error : " << received_special_msg.message);
 				}
-				else
-					if (params.size() == 3)
+				break;
+			case 11:
+				if (params[0] == "PLAYERCOLORMAP")
+				{
+					for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 					{
-						if (params[0] == "NOTIFY")
-						{
-							if (params[1] == "NEW_PLAYER" && !saved_game) // Add new player
-							{
-								int slot = -1;
-								for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-								{
-									if (game_data.player_control[i] == PLAYER_CONTROL_NONE)
-									{
-										slot = i;
-										break;
-									}
-								}
-								if (slot >= 0)
-								{
-									game_data.player_network_id[slot] = from;
-									game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
-									game_data.player_names[slot] = UnfixBlank( params[2] );
-									pArea->caption( String("gamesetup.name") << slot, game_data.player_names[slot]);                      // Update gui
-
-									Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << slot);
-									if (guiobj)
-									{
-										guiobj->Data = gfx->makeintcol( player_color[player_color_map[slot] * 3],
-																		player_color[player_color_map[slot] * 3 + 1],
-																		player_color[player_color_map[slot] * 3 + 2]);           // Update gui
-										guiobj->Flag &= ~FLAG_HIDDEN;
-									}
-									network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
-								}
-								else
-								{
-									LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
-									network_manager.dropPlayer(from);      // No more room for this player !!
-								}
-							}
-							else if (params[1] == "PLAYER_BACK" && saved_game.notEmpty()) // A player is back in the game :), let's find who it is
-							{
-								LOG_DEBUG("received identifier from " << from << " : " << params[2].to<sint32>());
-								int slot = -1;
-								for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-								{
-									if (net_id_table[i] == params[2].to<sint32>())
-									{
-										slot = i;
-										break;
-									}
-								}
-								if (slot >= 0)
-								{
-									game_data.player_network_id[slot] = from;
-									game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
-
-									network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
-								}
-								else
-								{
-									LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__ << " because it couldn't be identified");
-									network_manager.dropPlayer(from);      // No more room for this player !!
-								}
-							}
-							else if (params[1] == "COLORCHANGE")
-							{
-								int i = params[2].to<sint32>();
-								if (!client) // From client to server only
-								{
-									byte e = player_color_map[i];
-									int f = -1;
-									for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
-									{
-										if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
-											f = g;
-									}
-									if (f == -1)
-									{
-										for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
-										{
-											if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
-												f = g;
-										}
-									}
-									if (f != -1)
-									{
-										byte g = player_color_map[f];
-										player_color_map[i] = g;                                // update game data
-										player_color_map[f] = e;
-
-										Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.color") << i);
-										if (guiobj)
-											guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-										guiobj = pArea->get_object( String("gamesetup.color") << f);
-										if (guiobj)
-											guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
-									}
-									network_manager.sendSpecial("NOTIFY UPDATE");
-								}
-							}
-						}
-						else if (params[0] == "SET")
-						{
-							if (params[1] == "FOW")
-							{
-								int value = params[2].to<sint32>();
-								Gui::GUIOBJ::Ptr obj = pArea->get_object( "gamesetup.FOW");
-								if (obj && value >= 0 && value < 4)
-								{
-									obj->Value = value;
-									obj->Text[0] = obj->Text[1 + obj->Value];
-									game_data.fog_of_war = uint8(obj->Value);
-								}
-							}
-							else if (params[1] == "MAP")
-							{
-								set_map = UnfixBlank( params[2] );
-								if (set_map != game_data.map_filename )
-								{
-									if (!previous_tnt_port.empty() )
-										network_manager.stopFileTransfer( previous_tnt_port);
-									if (!previous_ota_port.empty())
-										network_manager.stopFileTransfer(previous_ota_port);
-									previous_ota_port.empty();
-									previous_tnt_port.empty();
-									String new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
-									if (client && !VFS::Instance()->fileExists( new_map_name ))
-									{
-										String sMpN(new_map_name);
-										sMpN.replace('\\', '/');
-										previous_tnt_port = network_manager.getFile( 1, sMpN);
-										network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_tnt_port );
-									}
-
-									new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
-
-									if (client && !VFS::Instance()->fileExists( new_map_name ))
-									{
-										String sMpN(new_map_name);
-										sMpN.replace('\\', '/');
-
-										previous_ota_port = network_manager.getFile( 1, sMpN);
-										network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_ota_port );
-									}
-								}
-							}
-							else if (params[1] == "SCRIPT")
-							{
-								String script_name = UnfixBlank( params[2] );
-								if (script_name != game_data.game_script)
-								{
-									pArea->caption( "gamesetup.script_name", script_name);
-									game_data.game_script = script_name;
-
-									if (client && !VFS::Instance()->fileExists( script_name ))
-									{
-										if (!previous_lua_port.empty())
-											network_manager.stopFileTransfer( previous_lua_port);
-
-										String sSpS(script_name);
-										sSpS.replace('\\', '/');
-
-										previous_lua_port = network_manager.getFile( 1, sSpS);
-										network_manager.sendSpecial(String("REQUEST FILE ") << FixBlank(script_name) << ' ' << previous_lua_port);
-									}
-								}
-							}
-						}
+						player_color_map[i] = byte(params[i + 1].to<sint32>());
+						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
+						if (guiobj)
+							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
 					}
-					else if (params.size() == 4)
-					{
-						if (params[0] == "REQUEST") // REQUEST FILE filename port
-						{
-							if (params[1] == "FILE")
-							{
-								String file_name = UnfixBlank( params[2] );
-								LOG_DEBUG(LOG_PREFIX_NET << "received file request : '" << file_name << "'");
-								network_manager.stopFileTransfer( params[3], from);
-								network_manager.sendFile( from, file_name, params[3]);
-							}
-						}
-						else if (params[0] == "CHANGE")
-						{
-							if (params[1] == "TEAM")
-							{
-								int i = params[2].to<sint32>();
-								int n_team = params[3].to<sint32>();
-								if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
-								{
-									Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.team") << i );
-									if (guiobj)
-									{
-										guiobj->current_state = byte(n_team);
-										game_data.team[i] = short(1 << n_team);
-									}
-								}
-							}
-						}
-						else if (params[0] == "SET")
-						{
-							if (params[1] == "UNIT" && params[2] == "LIMIT")
-							{
-								game_data.max_unit_per_player = params[3].to<sint32>();
-								Gui::GUIOBJ::Ptr obj = pArea->get_object("gamesetup.max_units");
-								if (obj)
-									obj->Text[0] = String() << game_data.max_unit_per_player;
-							}
-						}
-					}
-					else if (params.size() == 9)
-					{
-						if (params[0] == "PLAYER_INFO") // We've received player information, let's update :)
-						{
-							int i = params[1].to<sint32>();
-							int n_id = params[2].to<sint32>();
-							if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == n_id)) // Server doesn't accept someone telling him what to do
-							{
-								int side_id  = params[3].to<sint32>();
-								int metal_q  = params[5].to<sint32>();
-								int energy_q = params[6].to<sint32>();
-								bool ready   = params[8].to<sint32>();
-								game_data.player_network_id[i] = n_id;
-								game_data.player_sides[i] = side_str[ side_id ];
-								game_data.ai_level[i] = UnfixBlank( params[4] );
-								game_data.metal[i] = metal_q;
-								game_data.energy[i] = energy_q;
-								game_data.player_names[i] = UnfixBlank( params[7] );
-								game_data.ready[i] = ready;
-								if (n_id < 0 && game_data.ai_level[i].size() >= 4)
-									game_data.player_control[i] = PLAYER_CONTROL_REMOTE_AI;     // AIs are on the server, no need to replicate them
-								else if (n_id < 0 && game_data.ai_level[i].size() < 4)
-									game_data.player_control[i] = PLAYER_CONTROL_NONE;
-								else
-									game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
-
-								pArea->caption( String("gamesetup.name") << i, game_data.player_names[i]);                                 // Update gui
-								AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
-								pArea->set_entry( String("gamesetup.ai") << i, AI_list);
-								pArea->caption( String("gamesetup.side") << i, side_str[side_id]);                         // Update gui
-								pArea->caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);         // Update gui
-								pArea->caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);               // Update gui
-								pArea->set_state( String("gamesetup.ready") << i, ready);                                           // Update gui
-
-								Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
-								if (guiobj)
-								{
-									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-									if (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED )
-										guiobj->Flag |= FLAG_HIDDEN;
-									else
-										guiobj->Flag &= ~FLAG_HIDDEN;
-								}
-								if (!client)
-									network_manager.sendSpecial("NOTIFY UPDATE", from);
-							}
-							else
-								LOG_ERROR("Packet error : " << received_special_msg.message);
-						}
-					}
-					else if (params.size() == 11)
-					{
-						if (params[0] == "PLAYERCOLORMAP")
-						{
-							for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-							{
-								player_color_map[i] = byte(params[i + 1].to<sint32>());
-								Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
-								if (guiobj)
-									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-							}
-						}
-					}
+				}
+				break;
+			}
 
 			if (network_manager.getNextSpecial(&received_special_msg) == 0)
 				special_msg = (char*)received_special_msg.message;

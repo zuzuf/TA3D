@@ -481,24 +481,24 @@ namespace TA3D
 			case 1:						// Server
 				return nullptr;
 			case 2:						// Client
-				if (sendSpecial( "REQUEST STATUS" ))
+				if (sendSpecial("REQUEST STATUS"))
 					return nullptr;
 				else
 				{
 					struct chat special_msg;
 					int timeout = 5000;
 					String status;
-					while( status.empty() && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() )
+					while (status.empty() && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen())
 					{
 						rest(1);
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
 							String::Vector params;
                             String((char*)(special_msg.message)).explode(params, ' ');
-							if( params.size() == 3 && params[0] == "STATUS")
+							if (params.size() == 2 && params[0] == "STATUS")
 							{
 								if (params[1] == "NEW")
-									status = "";
+									status.clear();
 								else if (params[1] == "SAVED")
 								{
 									status = params[2];
@@ -507,7 +507,7 @@ namespace TA3D
 								break;
 							}
 						}
-                        if( (timeout % 1000) == 0 )				// Resend
+						if ((timeout % 1000) == 0)				// Resend
 							sendSpecial( strtochat( &special_msg, "REQUEST STATUS" ) );
 					}
 					return (!timeout) ? nullptr /* timeout reached*/ : status;
