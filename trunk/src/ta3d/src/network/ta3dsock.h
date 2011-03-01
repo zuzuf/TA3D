@@ -211,6 +211,7 @@ namespace TA3D
 		//these are for outgoing packets
 		int sendSpecial(struct chat* chat, bool all=false);
 		int sendPing();
+		int sendPong();
 		int sendChat(struct chat* chat);
 		int sendOrder(struct order* order);
 		int sendSync(struct sync* sync);
@@ -225,6 +226,7 @@ namespace TA3D
 		int makeSync(struct sync* sync);
 		int makeEvent(struct event* event);
 		int makePing();
+		int makePong();
 		void makeTick(int from);
 
 		int getFilePort();				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer

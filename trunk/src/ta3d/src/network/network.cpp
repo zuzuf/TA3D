@@ -119,6 +119,9 @@ namespace TA3D
 			return -1;
 		}
 
+		ping_timer.clear();
+		ping_delay.clear();
+
 		//spawn listening thread
 		net_thread_params *params = new net_thread_params;
 		params->network = this;
@@ -162,6 +165,9 @@ namespace TA3D
 			myMode = 0;
 			return -1;
 		}
+
+		ping_timer.clear();
+		ping_delay.clear();
 
 		addPlayer( tohost_socket );
 
@@ -216,6 +222,9 @@ namespace TA3D
 		myMode = 0;
 
 		tohost_socket = NULL;
+
+		ping_timer.clear();
+		ping_delay.clear();
 	}
 
 	void Network::stopFileTransfer( const String &port, int to_id )
@@ -550,19 +559,45 @@ namespace TA3D
 	{
 		if (myMode == 1)				// Server mode
 		{
+			const uint32 timer = msec_timer;
+			phmutex.lock();
 			int v = 0;
-			for (int i = 1 ; i <= players.getMaxId() ; i++)
+			for (int i = 1 ; i <= players.getMaxId() ; ++i)
 			{
-				TA3DSock *sock = players.getSock( i );
-				if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
+				TA3DSock *sock = players.getSock(i);
+				if (sock && i != src_id && ( dst_id == -1 || i == dst_id ))
+				{
 					v += sock->sendPing();
+					ping_timer[i].push_back(timer);
+				}
 			}
+			phmutex.unlock();
 			return v;
 		}
 		else if (myMode == 2 && src_id == -1)			// Client mode
 		{
 			if( tohost_socket == NULL || !tohost_socket->isOpen() )	return -1;
+			phmutex.lock();
+			ping_timer[0].push_back(msec_timer);
+			phmutex.unlock();
 			return tohost_socket->sendPing();
+		}
+		return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
+	}
+
+	int Network::sendPong(int dst_id)
+	{
+		if (myMode == 1)				// Server mode
+		{
+			TA3DSock *sock = players.getSock( dst_id );
+			if (sock)
+				return sock->sendPong();
+			return 0;
+		}
+		else if (myMode == 2)			// Client mode
+		{
+			if (tohost_socket == NULL || !tohost_socket->isOpen())	return -1;
+			return tohost_socket->sendPong();
 		}
 		return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 	}
@@ -915,6 +950,29 @@ namespace TA3D
 		transfer_progress.push_back( info );
 
 		ft2mutex.unlock();
+	}
+
+	uint32 Network::getPingForPlayer(int id)
+	{
+		MutexLocker mLock(phmutex);
+		if (myMode == 2)
+			return ping_delay[0];
+		return ping_delay[id];
+	}
+
+	void Network::processPong(int id)
+	{
+		if (myMode == 2)
+			id = 0;
+		phmutex.lock();
+		std::deque<uint32> &times = ping_timer[id];
+		if (!times.empty())
+		{
+			const uint32 t = times.front();
+			times.pop_front();
+			ping_delay[id] = msec_timer - t;
+		}
+		phmutex.unlock();
 	}
 } // namespace TA3D
 

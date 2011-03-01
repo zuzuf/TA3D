@@ -168,7 +168,7 @@ namespace TA3D
 
 #ifndef TA3D_MSEC_TIMER
 #define TA3D_MSEC_TIMER
-#define msec_timer  (SDL_GetTicks())
+#define msec_timer  SDL_GetTicks()
 #endif
 
 // TODO Must be removed

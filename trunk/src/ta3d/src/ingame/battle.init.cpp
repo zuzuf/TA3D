@@ -393,7 +393,7 @@ namespace TA3D
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Loading units...");
 		(*loading)(300.0f / 7.0f, I18N::Translate("Loading units"));
-		load_all_units(loading);
+		unit_manager.load_all_units(loading);
 		return true;
 	}
 

@@ -417,6 +417,16 @@ namespace TA3D
 		return 1; // TODO Check this value is correct
 	}
 
+	int TA3DSock::sendPong()
+	{
+		tcpmutex.lock();
+		putByte('p');
+		putByte(0);
+		send();
+		tcpmutex.unlock();
+		return 1; // TODO Check this value is correct
+	}
+
 	int TA3DSock::sendEvent(struct event* event)
 	{
 		tcpmutex.lock();
@@ -573,6 +583,21 @@ namespace TA3D
 		if (tcpinbuf[0] != 'P')
 		{
 			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with a 'P'");
+			return -1;
+		}
+		if (tiremain == -1)
+			return -1;
+		tibp = 0;
+		tiremain = -1;
+
+		return 0;
+	}
+
+	int TA3DSock::makePong()
+	{
+		if (tcpinbuf[0] != 'p')
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with a 'p'");
 			return -1;
 		}
 		if (tiremain == -1)

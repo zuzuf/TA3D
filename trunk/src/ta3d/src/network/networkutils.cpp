@@ -86,7 +86,7 @@ namespace TA3D
 		{
 			//sleep until data is coming
 			sock->check(10);
-			if(pDead) break;
+			if (pDead) break;
 
 			//ready for reading, absorb some bytes
 			sock->pumpIn();
@@ -96,107 +96,108 @@ namespace TA3D
 
 			switch(packtype)
 			{
-				case 'P':		// ping
-					if (sockid != -1)
-						network->sendSpecial("PONG", -1, sockid);
-					sock->makePing();
-					break;
-				case 'T':       // Tick synchronization
-					sock->makeTick(sockid);
-					break;
-				case 'A'://special (resend to all!!)
-				case 'X'://special
-					network->xqmutex.lock();
-					if (pDead || sock->makeSpecial(&chat) == -1)
-					{
-						network->xqmutex.unlock();
-						break;
-					}
-					if (packtype != 'A' && network->isServer())
-						chat.from = sockid;
-					network->specialq.push_back(chat);
+			case 'P':		// ping
+				if (sockid != -1)
+					network->sendPong(sockid);
+				sock->makePing();
+				break;
+			case 'p':		// pong
+				network->processPong(sockid);
+				break;
+			case 'T':       // Tick synchronization
+				sock->makeTick(sockid);
+				break;
+			case 'A'://special (resend to all!!)
+			case 'X'://special
+				network->xqmutex.lock();
+				if (pDead || sock->makeSpecial(&chat) == -1)
+				{
 					network->xqmutex.unlock();
-					if (packtype == 'A' && network->isServer())
-						network->sendSpecial( &chat, sockid, -1, true );
 					break;
-				case 'C'://chat
-					network->cqmutex.lock();
-					if (pDead || sock->makeChat(&chat) == -1)
-					{
-						network->cqmutex.unlock();
-						break;
-					}
-					network->chatq.push_back(chat);
+				}
+				if (packtype != 'A' && network->isServer())
+					chat.from = sockid;
+				network->specialq.push_back(chat);
+				network->xqmutex.unlock();
+				if (packtype == 'A' && network->isServer())
+					network->sendSpecial( &chat, sockid, -1, true );
+				break;
+			case 'C'://chat
+				network->cqmutex.lock();
+				if (pDead || sock->makeChat(&chat) == -1)
+				{
 					network->cqmutex.unlock();
-					if( network->isServer() )
-						network->sendChat(&chat, sockid);
 					break;
-				case 'S'://sync
-					network->sqmutex.lock();
-					if (pDead || sock->makeSync(&sync) == -1)
-					{
-						network->sqmutex.unlock();
-						break;
-					}
-					network->syncq.push_back(sync);
+				}
+				network->chatq.push_back(chat);
+				network->cqmutex.unlock();
+				if( network->isServer() )
+					network->sendChat(&chat, sockid);
+				break;
+			case 'S'://sync
+				network->sqmutex.lock();
+				if (pDead || sock->makeSync(&sync) == -1)
+				{
 					network->sqmutex.unlock();
-					if( network->isServer() )
-						network->sendSync(&sync, sockid);
 					break;
-				case 'E'://event
-					network->eqmutex.lock();
-					if (pDead || sock->makeEvent(&event) == -1)
-					{
-						network->eqmutex.unlock();
+				}
+				network->syncq.push_back(sync);
+				network->sqmutex.unlock();
+				if( network->isServer() )
+					network->sendSync(&sync, sockid);
+				break;
+			case 'E'://event
+				network->eqmutex.lock();
+				if (pDead || sock->makeEvent(&event) == -1)
+				{
+					network->eqmutex.unlock();
+					break;
+				}
+				network->eventq.push_back(event);
+				network->eqmutex.unlock();
+				if( network->isServer() )
+					network->sendEvent(&event, sockid);
+			case 0:
+				break;
+
+				// For file transfert
+			case 'F':						// File data
+				{
+					int port = sock->getFilePort();
+					for(std::list< GetFileThread* >::iterator i = network->getfile_thread.begin() ; i != network->getfile_thread.end() ; i++ )
+						if ((*i)->port == port)
+						{
+						port = -1;
+						while( !(*i)->ready && !(*i)->isDead() )	suspend(1);
+						if (!(*i)->isDead())
+						{
+							(*i)->buffer_size = sock->getFileData( (*i)->buffer );
+							(*i)->ready = false;
+						}
 						break;
 					}
-					network->eventq.push_back(event);
-					network->eqmutex.unlock();
-					if( network->isServer() )
-						network->sendEvent(&event, sockid);
-				case 0:
-					break;
-
-					// For file transfert
-				case 'F':						// File data
-					{
-						int port = sock->getFilePort();
-						for(std::list< GetFileThread* >::iterator i = network->getfile_thread.begin() ; i != network->getfile_thread.end() ; i++ )
-							if ((*i)->port == port)
-							{
-								port = -1;
-								while( !(*i)->ready && !(*i)->isDead() )	suspend(1);
-								if (!(*i)->isDead())
-								{
-									(*i)->buffer_size = sock->getFileData( (*i)->buffer );
-									(*i)->ready = false;
-								}
-								break;
-							}
-						if (port != -1)
-							sock->getFileData( NULL );
+					if (port != -1)
+						sock->getFileData( NULL );
+				}
+				break;
+			case 'R':						// File response (send back the amount of data that has been received)
+				{
+					int port = sock->getFilePort();
+					for(std::list< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
+						if ((*i)->port == port && (*i)->player_id == sockid)
+						{
+						port = -1;
+						sock->getFileData( (byte*)&((*i)->progress) );
+						break;
 					}
-					break;
-				case 'R':						// File response (send back the amount of data that has been received)
-					{
-						int port = sock->getFilePort();
-						for(std::list< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
-							if ((*i)->port == port && (*i)->player_id == sockid)
-							{
-								port = -1;
-								sock->getFileData( (byte*)&((*i)->progress) );
-								break;
-							}
-						if (port != -1)
-							sock->getFileData( NULL );
-					}
-					break;
+					if (port != -1)
+						sock->getFileData( NULL );
+				}
+				break;
 
-				default:
-					sock->cleanPacket();
+			default:
+				sock->cleanPacket();
 			}
-
-
 		}
 
 		pDead = 1;

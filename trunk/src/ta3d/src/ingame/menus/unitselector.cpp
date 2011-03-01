@@ -72,7 +72,7 @@ namespace Menus
 
 		loadAreaFromTDF("unit setup", "gui/unitsetup.area");
 		// Load all units, if any
-		load_all_units();
+		unit_manager.load_all_units();
 		if (!unit_manager.nb_unit) // should abort if no map is present
 			return false;
 

@@ -1753,7 +1753,7 @@ namespace TA3D
 		float step = 1.0f;
 		if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
 		current_tick = 0;
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			client_tick[i] = client_speed[i] = 0;
 		apparent_timefactor = lp_CONFIG->timefactor;
 
@@ -1786,12 +1786,12 @@ namespace TA3D
 			pMutex.unlock();
 
 			uint32 min_tick = 1000 * current_tick + 30000;
-			if (network_manager.isConnected() )
+			if (network_manager.isConnected())
 			{
-				if (network_manager.isServer() )
+				if (network_manager.isServer())
 				{
 					for (unsigned int i = 0 ; i < players.count(); ++i)
-						if (g_ta3d_network->isRemoteHuman( i ) )
+						if (g_ta3d_network->isRemoteHuman( i ))
 							min_tick = Math::Min(min_tick, client_tick[i]);
 				}
 				else
@@ -1840,6 +1840,7 @@ namespace TA3D
 				net_timer = msec_timer;
 
 				network_manager.sendTick(current_tick + 1, (uint16)(1000.0f * apparent_timefactor));		// + 1 to prevent it from running too slow
+				network_manager.sendPing();
 				if (current_tick > min_tick + TICKS_PER_SEC )
 				{
 					while (current_tick > min_tick && !thread_ask_to_stop)
@@ -1853,6 +1854,7 @@ namespace TA3D
 
 						players.ta3d_network->check();
 						network_manager.sendTick(current_tick + 1, (uint16)(1000.0f * apparent_timefactor));		// + 1 to prevent it from running too slow
+						network_manager.sendPing();
 						suspend(1);
 
 						min_tick = current_tick * 1000;
