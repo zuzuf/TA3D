@@ -1223,19 +1223,18 @@ namespace TA3D
 		return sel;
 	}
 
-	int load_all_units(ProgressNotifier *progress)
+	int UnitManager::load_all_units(ProgressNotifier *progress)
 	{
-		unit_manager.init();
+		init();
 		String::Vector file_list;
 		VFS::Instance()->getFilelist( String(ta3dSideData.unit_dir) << '*' << ta3dSideData.unit_ext, file_list);
 
 		int n = 0, m = 0;
-		Mutex mLoad;
 
 #pragma omp parallel for
 		for (int i = 0 ; i < file_list.size() ; ++i)
 		{
-			mLoad.lock();
+			mInternals.lock();
 #ifdef _OPENMP
 			if (omp_get_thread_num() == 0)
 				if (progress != NULL && m >= 0xF)
@@ -1255,17 +1254,17 @@ namespace TA3D
 			if (unit_manager.get_unit_index(nom) == -1)
 			{
 				LOG_DEBUG("Loading the unit `" << nom << "`...");
-				mLoad.unlock();
+				mInternals.unlock();
 				UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
-				mLoad.lock();
 				if (!pUnitType->Unitname.empty())
 				{
 					String nom_pcx;
 					nom_pcx << "unitpics\\" << pUnitType->Unitname << ".pcx";
 					pUnitType->unitpic = gfx->load_image(nom_pcx);
 				}
+				continue;
 			}
-			mLoad.unlock();
+			mInternals.unlock();
 		}
 
 		unit_manager.start_threaded_stuffs();

@@ -28,6 +28,7 @@
 # include "networkutils.h"
 # include "socketlist.h"
 # include <list>
+# include <misc/hash_table.h>
 
 
 namespace TA3D
@@ -103,6 +104,9 @@ namespace TA3D
         int myMode;             //0 off, 1 'server', 2 client
         int myID;               //your id in everyone elses socklist
 
+		UTILS::HashMap<std::deque<uint32>, int>::Dense	ping_timer;
+		UTILS::HashMap<uint32, int>::Dense				ping_delay;
+
         //these 5 things need to be syncronized with a mutex
         SockList players;
 		std::deque<chat> specialq;
@@ -121,6 +125,7 @@ namespace TA3D
         Mutex eqmutex;
         Mutex ftmutex;
 		Mutex ft2mutex;
+		Mutex phmutex;
 
         bool playerDirty;
         bool fileDirty;
@@ -128,6 +133,7 @@ namespace TA3D
 
         int addPlayer(TA3DSock* sock);
         void updateFileTransferInformation( String id, int size, int pos );
+		void processPong(int id);
 
         //this stuff places specific events in the event queue
         void eventFileComing(int player);
@@ -153,8 +159,11 @@ namespace TA3D
 
         void InitBroadcast(uint16 port);
 
-        int sendPing( int src_id = -1, int dst_id = -1 );
-        int sendAll(const String& msg);
+		uint32 getPingForPlayer(int id);
+
+		int sendPing(int src_id = -1, int dst_id = -1);
+		int sendPong(int dst_id);
+		int sendAll(const String& msg);
         int sendSpecial( String msg, int src_id = -1, int dst_id = -1);
         int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
         int sendChat(struct chat* chat, int src_id = -1);

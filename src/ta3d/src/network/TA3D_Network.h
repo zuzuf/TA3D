@@ -21,7 +21,7 @@
 # include <ta3dbase.h>
 # include <threads/thread.h>
 # include <ingame/gamedata.h>
-# include <list>
+# include <deque>
 # include <gfx/gui/area.h>
 # include <misc/string.h>
 
@@ -45,9 +45,9 @@ namespace TA3D
 			~NetworkMessage() {text.clear();}
 		};
 
-		std::list<NetworkMessage>   messages;
+		std::deque<NetworkMessage>	messages;
 		bool						enter;
-		Gui::AREA						*area;
+		Gui::AREA					*area;
 	public:
 		GameData					*game_data;
 	private:

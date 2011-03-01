@@ -86,8 +86,6 @@ namespace TA3D
 
 	TA3DNetwork::~TA3DNetwork()
 	{
-		for (std::list<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); ++i)
-			i->text.clear();
 		messages.clear();
 	}
 
@@ -101,21 +99,21 @@ namespace TA3D
 
 		if (key[KEY_ENTER] && !Console::Instance()->activated())
 		{
-			if (!enter )
+			if (!enter)
 			{
-				if (area->get_state("chat") ) // Chat is visible, so hide it and send the message is not empty
+				if (area->get_state("chat"))	// Chat is visible, so hide it and send the message is not empty
 				{
 					area->msg("chat.hide");
 					String msg = area->caption("chat.msg");
-					area->caption("chat.msg", "");
+					area->caption("chat.msg", String());
 
-					if (!msg.empty() ) // If not empty send the message
+					if (!msg.empty()) // If not empty send the message
 					{
 						struct chat chat;
 						strtochat( &chat, msg );
 						network_manager.sendChat( &chat );
 
-						int player_id = game_data->net2id( chat.from );
+						const int player_id = game_data->net2id( chat.from );
 						if (player_id >= 0 )
 						{
 							pMutex.lock();
@@ -157,11 +155,11 @@ namespace TA3D
 			else
 				break;
 
-			int player_id = game_data->net2id( received_chat_msg.from );
-			if (player_id >= 0 )
+			const int player_id = game_data->net2id( received_chat_msg.from );
+			if (player_id >= 0)
 			{
 				pMutex.lock();
-				if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
+				if (messages.size() > CHAT_MAX_MESSAGES)		// Prevent flooding the screen with chat messages
 					messages.pop_front();
 				chat_msg = String("<") << game_data->player_names[ player_id ] << "> " << chat_msg;
 				messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
@@ -170,13 +168,8 @@ namespace TA3D
 		}
 
 		pMutex.lock();
-		for (std::list<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); )
-		{
-			if (msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT)
-				messages.erase(i++);
-			else
-				++i;
-		}
+		while(!messages.empty() && msec_timer - messages.front().timer >= CHAT_MESSAGE_TIMEOUT)
+			messages.pop_front();
 		pMutex.unlock();
 
 		n = 100;
@@ -244,7 +237,7 @@ namespace TA3D
 					sParam.replace(char(1), ' ');
 					String filename;
 					filename << Paths::Savegames << "multiplayer" << Paths::Separator
-						<< Paths::Files::ReplaceExtension(sParam, ".sav");
+							 << Paths::Files::ReplaceExtension(sParam, ".sav");
 					save_game(filename, game_data); // Save the game using filename given by server
 				}
 			}
@@ -657,13 +650,14 @@ namespace TA3D
 			const float Y_ref = 32 + gfx->TA_font->height();
 			float Y = Y_ref;
 			const uint32 shadowmask = makeacol(0, 0, 0, 0xFF);
-			for (std::list<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+			const uint32 timer = msec_timer;
+			for (std::deque<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
 			{
 				uint32 color = 0xFFFFFFFF;
-				if ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0)
+				if ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0)
 				{
-					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
-					Y -= Math::Min(1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
+					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
+					Y -= Math::Min(1.0f, ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
 				}
 				gfx->print(Gui::gui_font, 137, Y + 1, 0.0f, color & shadowmask, i->text);
 				gfx->print(Gui::gui_font, 136, Y, 0.0f, color, i->text);

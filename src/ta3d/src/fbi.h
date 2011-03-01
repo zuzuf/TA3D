@@ -404,7 +404,9 @@ namespace TA3D
 		int unit_build_menu(int index,int omb,float &dt,int scrolling,bool GUI);                // Affiche et gère le menu des unités
 
         void Identify();            // Identifie les pièces aux quelles les scripts font référence
-    };
+
+		int load_all_units(ProgressNotifier *progress = NULL);
+	};
 
 	class UnitDataLoader : public Thread
 	{
@@ -414,8 +416,6 @@ namespace TA3D
 
 		virtual void proc(void*);
 	};
-
-	int load_all_units(ProgressNotifier *progress = NULL);
 
     extern UnitManager unit_manager;
 

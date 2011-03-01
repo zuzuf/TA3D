@@ -79,7 +79,6 @@ namespace Menus
 
 		for (int i = 0; i < game_data->nb_players; ++i)
 		{
-			player_timer[i] = msec_timer;
 			dead_player[i] = false;
 			if ((game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI) || game_data->player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN )
 			{
@@ -155,9 +154,9 @@ namespace Menus
 
 			if (network_manager.isServer())
 			{
-				for (short int i = 0; i < game_data->nb_players; ++i) // Ping time out
+				for (int i = 0; i < game_data->nb_players; ++i) // Ping time out
 				{
-					if (game_data->player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000)
+					if (game_data->player_network_id[i] > 0 && network_manager.getPingForPlayer(game_data->player_network_id[i]) > 10000)
 						network_manager.dropPlayer(game_data->player_network_id[i]);
 				}
 			}
@@ -177,34 +176,26 @@ namespace Menus
 
 		while (!special_msg.empty())    // Special receiver (sync config data)
 		{
-			int from = received_special_msg.from;
-			int player_id = game_data->net2id(from);
+			const int from = received_special_msg.from;
+			const int player_id = game_data->net2id(from);
 			String::Vector params;
 			String((char*)received_special_msg.message).explode(params, ' ');
 			if (params.size() == 1)
 			{
-				if (params[0] == "PONG" )
-				{
-					if (player_id >= 0 )
-						player_timer[player_id] = msec_timer;
-				}
+				if (params[0] == "NOT_READY")
+					pArea->set_state(String("wait.ready") << player_id, false);
 				else
 				{
-					if (params[0] == "NOT_READY")
-						pArea->set_state(String("wait.ready") << player_id, false);
+					if (params[0] == "READY")
+					{
+						pArea->set_data(String("wait.progress") << player_id, 100);
+						pArea->set_state(String("wait.ready") << player_id, true);
+						check_ready = true;
+					}
 					else
 					{
-						if (params[0] == "READY")
-						{
-							pArea->set_data(String("wait.progress") << player_id, 100);
-							pArea->set_state(String("wait.ready") << player_id, true);
-							check_ready = true;
-						}
-						else
-						{
-							if (params[0] == "START")
-								return true;
-						}
+						if (params[0] == "START")
+							return true;
 					}
 				}
 			}

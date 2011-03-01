@@ -388,8 +388,6 @@ namespace Menus
 		if (!host)
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 				pArea->msg(String("gamesetup.ready") << i << ".hide");
-		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-			player_timer[i] = msec_timer;
 
 		if (host.notEmpty() && my_player_id == -1) // Leave now, we aren't connected but we're in network mode
 		{
@@ -818,8 +816,6 @@ namespace Menus
 				String newMapName;
 				Menus::MapSelector::Execute(game_data.map_filename, newMapName);
 				new_map = newMapName;
-				for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-					player_timer[i] = msec_timer;
 				pArea->msg("popup.hide");
 			}
 			else
@@ -891,12 +887,11 @@ namespace Menus
 
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // ping time out
 			{
-				if (game_data.player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000)
+				if (game_data.player_network_id[i] > 0 && network_manager.getPingForPlayer(i) > 10000U)
 				{
 					LOG_DEBUG("dropping player " << game_data.player_network_id[i] << "[" << i << "] from " << __FILE__ << " l." << __LINE__);
 					network_manager.dropPlayer(game_data.player_network_id[i]);
 					playerDropped = true;
-					player_timer[i] = msec_timer;
 				}
 			}
 		}
@@ -958,16 +953,6 @@ namespace Menus
 			String::Vector params;
 			LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << (char*)(received_special_msg.message) << "' from " << from << " [" << game_data.net2id(from) << ']');
 			String((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
-			if (params.size() == 1)
-			{
-				if (params[0] == "PONG")
-				{
-					const int player_id = game_data.net2id(from);
-					if (player_id >= 0)
-						player_timer[ player_id ] = msec_timer;
-				}
-			}
-			else
 				if (params.size() == 2)
 				{
 					if (params[0] == "REQUEST")
@@ -1087,7 +1072,6 @@ namespace Menus
 								}
 								if (slot >= 0)
 								{
-									player_timer[ slot ] = msec_timer;              // If we forget this, player will be droped immediately
 									game_data.player_network_id[slot] = from;
 									game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 									game_data.player_names[slot] = UnfixBlank( params[2] );
@@ -1123,7 +1107,6 @@ namespace Menus
 								}
 								if (slot >= 0)
 								{
-									player_timer[ slot ] = msec_timer;              // If we forget this, player will be droped immediately
 									game_data.player_network_id[slot] = from;
 									game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 

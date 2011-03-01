@@ -48,7 +48,6 @@ namespace Menus
 	private:
 		GameData *game_data;
 		bool dead_player[TA3D_PLAYERS_HARD_LIMIT];
-		uint32 player_timer[TA3D_PLAYERS_HARD_LIMIT];
 		uint32 ping_timer;
 
 		String special_msg;

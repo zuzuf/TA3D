@@ -70,8 +70,6 @@ namespace Menus
 		MAP_OTA *map_data;
 
 
-		uint32 player_timer[TA3D_PLAYERS_HARD_LIMIT];
-
 		//! minimap stuffs
 		Gui::GUIOBJ::Ptr minimap_obj;
 		float mini_map_x1;
