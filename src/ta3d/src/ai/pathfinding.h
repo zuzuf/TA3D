@@ -34,11 +34,12 @@
 
 namespace TA3D
 {
-	class QuadMap;
+	class BitMap;
 
 	class UnitType;
 
 	class Pathfinder;
+
 	namespace AI
 	{
 		class Path
@@ -136,7 +137,7 @@ namespace TA3D
 		int taskOffset;
 		int nbCores;
 		Synchronizer pSync;
-		HashMap<QuadMap*>::Dense hQuadMap;
+		HashMap<BitMap*>::Dense hBitMap;
 
 	private:
 		static inline bool checkRectFast(const int x1, const int y1, const UnitType *pType);

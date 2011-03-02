@@ -34,7 +34,7 @@
 #include <UnitEngine.h>
 #include <yuni/thread/thread.h>
 #include <misc/usectimer.h>
-#include <misc/quadmap.h>
+#include <misc/bitmap.h>
 
 #define PATHFINDER_MAX_LENGTH			500000
 
@@ -44,7 +44,7 @@ namespace TA3D
 {
 	inline int sq(int a)
 	{
-		return a*a;
+		return a * a;
 	}
 
 	Mutex Pathfinder::sMutex;
@@ -181,7 +181,7 @@ namespace TA3D
 	{
 		destroyThread();
 
-		for(HashMap<QuadMap*>::Dense::iterator it = hQuadMap.begin() ; it != hQuadMap.end() ; ++it)
+		for(HashMap<BitMap*>::Dense::iterator it = hBitMap.begin() ; it != hBitMap.end() ; ++it)
 			if (*it)
 				delete *it;
 	}
@@ -261,8 +261,8 @@ namespace TA3D
 			units.unit[task.idx].unlock();
 
 		// Get the precomputed walkable area quadmap
-		const QuadMap *qmap = Pathfinder::instance()->hQuadMap[pType->getMoveStringID()];
-		if (!qmap)
+		const BitMap *bmap = Pathfinder::instance()->hBitMap[pType->getMoveStringID()];
+		if (!bmap)
 		{
 			LOG_ERROR(LOG_PREFIX_PATHS << "path request for a unit without precomputed walkable area quadmap");
 			return;
@@ -343,7 +343,7 @@ namespace TA3D
 					continue;		// Instead of looping we restart from a Node in the qNode
 				}
 
-				if (zone( nx, nz ) || !(*qmap)(nx, nz) || !checkRectFast( nx - mw_h, nz - mh_h, pType ))
+				if (zone( nx, nz ) || !(*bmap)(nx, nz) || !checkRectFast( nx - mw_h, nz - mh_h, pType ))
 				{
 					float dist[ 8 ];
 					float rdist[ 8 ];
@@ -357,7 +357,7 @@ namespace TA3D
 						if (nx < 0 || nz < 0 || nx >= the_map->bloc_w_db || nz >= the_map->bloc_h_db)
 							continue;
 						zoned[ e ] = zone(nx, nz);
-						if (!zoned[e] && !(*qmap)(nx, nz))
+						if (!zoned[e] && !(*bmap)(nx, nz))
 								continue;
 						if (!zoned[e] && !checkRectFast(nx - mw_h, nz - mh_h, pType))
 							continue;
@@ -500,7 +500,7 @@ namespace TA3D
 					const int x = it->x();
 					const int z = it->z();
 					if (zone(x, z))	continue;
-					if (!(*qmap)(x, z) || !checkRectFast(x - mw_h, z - mh_h, pType))	continue;
+					if (!(*bmap)(x, z) || !checkRectFast(x - mw_h, z - mh_h, pType))	continue;
 					zone(x, z) = 1;
 					cleanList.push_back(*it);
 
@@ -697,10 +697,10 @@ namespace TA3D
 
 	void Pathfinder::computeWalkableAreas()
 	{
-		for(HashMap<QuadMap*>::Dense::iterator it = hQuadMap.begin() ; it != hQuadMap.end() ; ++it)
+		for(HashMap<BitMap*>::Dense::iterator it = hBitMap.begin() ; it != hBitMap.end() ; ++it)
 			if (*it)
 				delete *it;
-		hQuadMap.clear();
+		hBitMap.clear();
 		int memoryUsed = 0;
 		Mutex mLoad;
 #pragma omp parallel for
@@ -711,13 +711,13 @@ namespace TA3D
 				continue;
 			const String key = pType->getMoveStringID();
 			mLoad.lock();
-			if (hQuadMap.count(key))		// Already done ?
+			if (hBitMap.count(key))		// Already done ?
 			{
 				mLoad.unlock();
 				continue;
 			}
-			QuadMap *qmap = new QuadMap(the_map->bloc_w_db, the_map->bloc_h_db);
-			hQuadMap[key] = qmap;
+			BitMap *bmap = new BitMap(the_map->bloc_w_db, the_map->bloc_h_db);
+			hBitMap[key] = bmap;
 
 			mLoad.unlock();
 
@@ -728,12 +728,12 @@ namespace TA3D
 			{
 				for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
 				{
-					qmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
+					bmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
 				}
 			}
 
 			mLoad.lock();
-			memoryUsed += qmap->getMemoryUse();
+			memoryUsed += bmap->getMemoryUse();
 			mLoad.unlock();
 
 //			if ((i + 1) * 10 / unit_manager.unit_type.size() != i * 10 / unit_manager.unit_type.size())
