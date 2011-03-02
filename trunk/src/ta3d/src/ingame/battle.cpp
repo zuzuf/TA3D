@@ -2276,7 +2276,7 @@ namespace TA3D
 				unit_info_id = -1;
 			}
 
-			if (last_on != -1 && show_mission_info) // Sur les unitÃ©s sÃ©lectionnÃ©es
+			if (last_on != -1 && show_mission_info) // Sur les unités sélectionnées / on selected units
 			{
 				static const char *unit_info[] =
 				{
@@ -2313,11 +2313,27 @@ namespace TA3D
 				}
 			}
 
+			if (bShowPing)
+			{
+				float y(32.0f);
+				for(int i = 0 ; i < TA3D_PLAYERS_HARD_LIMIT ; ++i)
+				{
+					const uint32 ping = network_manager.getPingForPlayer(i);
+					if (ping)
+					{
+						const String text = String("ping for player[") << i << "] = " << ping << "ms";
+						gfx->print(gfx->normal_font,129.0f,y+1.0f,0.0f,0xFF000000U, text);
+						gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFFU, text);
+						y += gfx->normal_font->height();
+					}
+				}
+			}
+
 			glDisable(GL_BLEND);
 
 			if (show_timefactor > 0.0f)
 			{
-				String value = String().format("x %.1f", lp_CONFIG->timefactor);
+				const String value = String().format("x %.1f", lp_CONFIG->timefactor);
 				if (show_timefactor > 0.5f)
 				{
 					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, makeacol32(0,0,0,0xFF), value);
@@ -2325,7 +2341,7 @@ namespace TA3D
 				}
 				else
 				{
-					uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
+					const uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
 					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, c & makeacol32(0,0,0,0xFF), value);
 					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, c, value);
 				}

@@ -53,6 +53,14 @@ namespace TA3D
 		return 0;
 	}
 
+	int CAPI::setShowPing(lua_State *L)
+	{
+		if (lua_gettop(L) > 0)
+			Battle::Instance()->setShowPing(lua_toboolean(L, -1));
+		lua_pushboolean(L, Battle::Instance()->getShowPing());
+		return 1;
+	}
+
 	int CAPI::setFps(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
@@ -883,6 +891,7 @@ namespace TA3D
 		CAPI_REGISTER(setMetalCheat);
 		CAPI_REGISTER(setEnergyCheat);
 		CAPI_REGISTER(setGUIalpha);
+		CAPI_REGISTER(setShowPing);
 
 		// ---------------    Debug commands    ---------------
 		CAPI_REGISTER(_debugSetContext);

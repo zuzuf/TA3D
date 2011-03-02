@@ -80,6 +80,9 @@ namespace TA3D
 		void setCameraDirection(const Vector3D &dir);
 		void setFreeCamera(bool fc);
 
+		void setShowPing(bool b)	{	bShowPing = b;	}
+		bool getShowPing() const	{	return bShowPing;	}
+
 	private:
 		/*!
 		** \brief Reset the cache for the GUI name
@@ -520,6 +523,9 @@ namespace TA3D
 
 		//! pointer to loading screen
 		Menus::Loading *loading;
+
+		//! show players ping
+		bool bShowPing;
 
 	private:
 		static Battle *pInstance;
