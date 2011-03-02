@@ -103,6 +103,7 @@ namespace TA3D
 				break;
 			case 'p':		// pong
 				network->processPong(sockid);
+				sock->makePong();
 				break;
 			case 'T':       // Tick synchronization
 				sock->makeTick(sockid);
@@ -115,6 +116,7 @@ namespace TA3D
 					network->xqmutex.unlock();
 					break;
 				}
+				LOG_DEBUG(LOG_PREFIX_NET << "received special message: '" << (char*)chat.message << "'");
 				if (packtype != 'A' && network->isServer())
 					chat.from = sockid;
 				network->specialq.push_back(chat);
@@ -129,6 +131,7 @@ namespace TA3D
 					network->cqmutex.unlock();
 					break;
 				}
+				LOG_DEBUG(LOG_PREFIX_NET << "received chat message: '" << (char*)chat.message << "'");
 				network->chatq.push_back(chat);
 				network->cqmutex.unlock();
 				if( network->isServer() )
