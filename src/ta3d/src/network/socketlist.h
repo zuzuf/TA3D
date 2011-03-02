@@ -1,16 +1,4 @@
 /*  TA3D, a remake of Total Annihilation
-    Copyright (C) 2005  Roland BROCHARD
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
@@ -22,52 +10,48 @@
 # include <threads/thread.h>
 # include "ta3dsock.h"
 # include "networkutils.h"
-
+# include <misc/hash_table.h>
+# include <threads/mutex.h>
 
 namespace TA3D
 {
 
-/*!
-** \brief SockList - a C-style linked list of socket/thread pairs
+	/*!
+** \brief SockList - a structure to manage of socket/thread pairs
 */
-class SocketListNode
-{
-public:
-	SocketListNode() :next(NULL){}
-	~SocketListNode();
+	class SockList : public Mutex
+	{
+	private:
+		class SocketNode
+		{
+		public:
+			~SocketNode();
 
-	int id;
-	TA3DSock* sock;
-	SocketThread thread;
-	SocketListNode* next;
-};
+			TA3DSock* sock;
+			SocketThread thread;
+		};
+	private:
+		typedef UTILS::HashMap<SocketNode*, int>::Dense SockType;
+		SockType sockets;
+		int maxid;
 
+	public:
+		SockList();
+		virtual ~SockList();
 
+		int getMaxId() const {	return maxid;	}
+		int Add(TA3DSock* sock);
+		int Remove(const int id);
 
-
-class SockList
-{
-private:
-    SocketListNode* list;
-	int maxid;
-
-public:
-	SockList();
-	~SockList();
-
-	int getMaxId() {return maxid;}
-	int Add(TA3DSock* sock);
-	int Remove(const int id);
-
-    /*!
+		/*!
     ** \brief Close all opened sockets
     */
-	void Shutdown();
+		void Shutdown();
 
-	TA3DSock* getSock(const int id) const;
-    SocketThread* getThread(int id) const;
+		TA3DSock* getSock(const int id);
+		SocketThread* getThread(const int id);
 
-}; // class SockList
+	}; // class SockList
 
 
 

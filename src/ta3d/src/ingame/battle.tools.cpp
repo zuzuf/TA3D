@@ -24,6 +24,12 @@ namespace TA3D
 		freecam = fc;
 	}
 
+	void Battle::setTimeFactor(const float f)
+	{
+		lp_CONFIG->timefactor = f;
+		show_timefactor = 1.0f;
+	}
+
 	Vector3D Battle::cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map)
 	{
 		if (on_mini_map) // If the cursor is on the mini_map;

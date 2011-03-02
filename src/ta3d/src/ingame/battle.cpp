@@ -247,6 +247,8 @@ namespace TA3D
 				{
 					lp_CONFIG->timefactor++;
 					show_timefactor = 1.0f;
+					if (network_manager.isConnected())
+						network_manager.sendAll(String("TIMEFACTOR ") << lp_CONFIG->timefactor);
 				}
 				speed_changed = true;
 			}
@@ -258,6 +260,8 @@ namespace TA3D
 					if (!speed_changed && lp_CONFIG->timefactor > 1.0f)
 					{
 						lp_CONFIG->timefactor--;
+						if (network_manager.isConnected())
+							network_manager.sendAll(String("TIMEFACTOR ") << lp_CONFIG->timefactor);
 						show_timefactor = 1.0f;
 					}
 					speed_changed = true;

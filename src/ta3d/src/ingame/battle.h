@@ -83,6 +83,8 @@ namespace TA3D
 		void setShowPing(bool b)	{	bShowPing = b;	}
 		bool getShowPing() const	{	return bShowPing;	}
 
+		void setTimeFactor(const float f);
+
 	private:
 		/*!
 		** \brief Reset the cache for the GUI name
