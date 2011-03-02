@@ -2,12 +2,12 @@
 #include <logs/logs.h>
 #include "socket.tcp.h"
 
-#define TCP_BUFFER_SIZE			2048
+#define TCP_BUFFER_SIZE			32
 #define TCP_COMPRESSION_LEVEL	6
 
 namespace TA3D
 {
-	bool SocketTCP::forceFlush = true;
+	volatile bool SocketTCP::forceFlush = true;
 
 	void SocketTCP::enableFlush()
 	{
@@ -248,17 +248,17 @@ namespace TA3D
 			zSend->avail_in = size;
 			zSend->avail_out = 0;
 			bytesProcessed += size;
-			int flush = forceFlush ? Z_SYNC_FLUSH : Z_NO_FLUSH;
+			const int flush = forceFlush ? Z_SYNC_FLUSH : Z_NO_FLUSH;
 			while (zSend->avail_in > 0 || zSend->avail_out == 0)
 			{
 				zSend->next_out = sendBuf;
 				zSend->avail_out = TCP_BUFFER_SIZE;
 				deflate(zSend, flush);
-				int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
+				const int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
 				bytesSent += sent;
 				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
 				{
-					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
+					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size << ")");
 					close();
 					return;
 				}
@@ -266,7 +266,7 @@ namespace TA3D
 		}
 		else
 		{
-			int sent = SDLNet_TCP_Send(sock, data, size);
+			const int sent = SDLNet_TCP_Send(sock, data, size);
 			bytesSent += sent;
 
 			if (sent < size)

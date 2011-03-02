@@ -114,7 +114,8 @@ namespace TA3D
         reflectex(0),
         first_pass(0),
         second_pass(0),
-		water_color(0)
+		water_color(0),
+		bShowPing(false)
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
 		grab_mouse(lp_CONFIG->grab_inputs);
