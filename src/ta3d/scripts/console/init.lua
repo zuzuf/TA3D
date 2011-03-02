@@ -33,6 +33,7 @@ __fn_state["pause"] = setPause;
 __fn_state["metalCheat"] = setMetalCheat;
 __fn_state["energyCheat"] = setEnergyCheat;
 __fn_state["fullscreen"] = setFullscreen;
+__fn_state["showPing"] = setShowPing;
 
 debug = {}
 debug["setContext"] = _debugSetContext
