@@ -515,7 +515,7 @@ namespace TA3D
 
 	void *create_unit( int type_id, int owner, Vector3D pos, bool sync, bool script )
 	{
-		int id = units.create(type_id,owner);
+		const int id = units.create(type_id,owner);
 		if (id >= 0)
 		{
 			// In order to avoid race conditions we have to update it now !
@@ -1170,15 +1170,15 @@ namespace TA3D
 
 	int INGAME_UNITS::create(int type_id,int owner)
 	{
-		if (type_id<0 || type_id>=unit_manager.nb_unit)	return -1;
-		if (owner<0 || owner>=NB_PLAYERS)	return -1;
-		if (nb_unit>=MAX_UNIT_PER_PLAYER*NB_PLAYERS)		return -1;
+		if (type_id < 0 || type_id >= unit_manager.nb_unit)	return -1;
+		if (owner < 0 || owner >= NB_PLAYERS)	return -1;
+		if (nb_unit >= MAX_UNIT_PER_PLAYER * NB_PLAYERS)	return -1;
 		if (free_index_size[owner] <= 0 && max_unit > 0 )	return -1;
 
 		pMutex.lock();
 
 		nb_unit++;
-		if (nb_unit>max_unit && max_unit == 0)
+		if (nb_unit > max_unit && max_unit == 0)
 		{
 			DELETE_ARRAY(mini_col);
 			DELETE_ARRAY(mini_pos);
@@ -1191,7 +1191,7 @@ namespace TA3D
 			Unit *n_unit = new Unit[max_unit];
 			uint16	*n_idx = new uint16[max_unit];
 			uint16	*n_new_idx = new uint16[max_unit];
-			if (index_list_size>0)
+			if (index_list_size > 0)
 				memcpy(n_idx,idx_list,index_list_size << 1);
 			if (free_idx)
 				memcpy(n_new_idx,free_idx,max_unit << 1);
@@ -1199,33 +1199,34 @@ namespace TA3D
 			DELETE_ARRAY(free_idx);
 			idx_list = n_idx;
 			free_idx = n_new_idx;
-			for(uint16 i = 0; i<max_unit;i++)
+			for(uint32 i = 0 ; i < max_unit ; ++i)
 				free_idx[i] = i;
-			for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT ; ++i)
 				free_index_size[i] = MAX_UNIT_PER_PLAYER;
 			for (int i = 0; i < max_unit; ++i)
 			{
-				n_unit[i].init(-1,-1,i>=nb_unit-1);
-				n_unit[i].flags=0;
-				n_unit[i].idx=i;
+				n_unit[i].init(-1, -1, i >= nb_unit - 1);
+				n_unit[i].flags = 0;
+				n_unit[i].idx = i;
 			}
 			if (unit)
 			{
-				memcpy(n_unit,unit,sizeof(Unit)*(nb_unit-1));
+				memcpy(n_unit, unit, sizeof(Unit) * (nb_unit - 1));
 				DELETE_ARRAY(unit);
 			}
 			unit = n_unit;
 		}
 		if (!unit)
 			LOG_CRITICAL("Memory alloc failed");
-		if (free_index_size[owner]<=0) {
+		if (free_index_size[owner] <= 0)
+		{
 			pMutex.unlock();
 			LOG_WARNING("Unit limit reached !");
 			return -1;
 		}
-		int unit_index = free_idx[owner*MAX_UNIT_PER_PLAYER+free_index_size[owner]-1];
+		const int unit_index = free_idx[owner * MAX_UNIT_PER_PLAYER + free_index_size[owner] - 1];
 		free_index_size[owner]--;
-		unit[unit_index].init(type_id,owner);
+		unit[unit_index].init(type_id, owner);
 		unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 
 		// Angle de 10° maximum
@@ -1413,7 +1414,7 @@ namespace TA3D
 
 	void INGAME_UNITS::kill(int index,int prev,bool sync)			// Détruit une unité
 	{
-		if (index<0 || index>=max_unit || prev<0 || prev>=index_list_size)	// On ne peut pas détruire une unité qui n'existe pas
+		if (index < 0 || index >= max_unit || prev < 0 || prev >= index_list_size)	// On ne peut pas détruire une unité qui n'existe pas
 			return;
 
 		unit[index].lock();
@@ -1426,7 +1427,7 @@ namespace TA3D
 			network_manager.sendEvent( &event );
 		}
 
-		if (unit[index].flags & 1 )
+		if (unit[index].flags & 1)
 		{
 			if (!unit[ index ].mission.empty()
 				&& !unit_manager.unit_type[ unit[ index ].type_id ]->BMcode
@@ -1462,7 +1463,7 @@ namespace TA3D
 
 		pMutex.lock();
 
-		uint16 owner = index/MAX_UNIT_PER_PLAYER;
+		const uint16 owner = index / MAX_UNIT_PER_PLAYER;
 		free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = index;
 		idx_list[ prev ] = idx_list[ --index_list_size ];
 		--nb_unit; // Unité détruite

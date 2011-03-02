@@ -324,35 +324,38 @@ namespace TA3D
 					if (event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1))
 					{
 						units.unit[ event_msg.opt1 ].lock();
-						if (event_msg.opt2 & 4)		// Stop nanolathing
-							units.unit[ event_msg.opt1 ].nanolathe_target = -1;
-						else
-						{							// Start nanolathing
-							units.unit[ event_msg.opt1 ].nanolathe_reverse = event_msg.opt2 & 2;
-							units.unit[ event_msg.opt1 ].nanolathe_feature = event_msg.opt2 & 1;
-							if (event_msg.opt2 & 1)
-							{		// It's a feature
-								int sx = event_msg.opt3;
-								int sy = event_msg.opt4;
-								units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data(sx, sy).stuff;
+						if (units.unit[ event_msg.opt1 ].flags & 1)
+						{
+							if (event_msg.opt2 & 4)		// Stop nanolathing
+								units.unit[ event_msg.opt1 ].nanolathe_target = -1;
+							else
+							{							// Start nanolathing
+								units.unit[ event_msg.opt1 ].nanolathe_reverse = event_msg.opt2 & 2;
+								units.unit[ event_msg.opt1 ].nanolathe_feature = event_msg.opt2 & 1;
+								if (event_msg.opt2 & 1)
+								{		// It's a feature
+									const int sx = event_msg.opt3;
+									const int sy = event_msg.opt4;
+									units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data(sx, sy).stuff;
+								}
+								else							// It's a unit
+									units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt3;
 							}
-							else							// It's a unit
-								units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt3;
 						}
 						units.unit[ event_msg.opt1 ].unlock();
 					}
 					break;
 				case EVENT_FEATURE_CREATION:
 					{
-						int sx = event_msg.opt3;		// Burn the object
-						int sy = event_msg.opt4;
+						const int sx = event_msg.opt3;		// Burn the object
+						const int sy = event_msg.opt4;
 						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db)
 						{
-							int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
+							const int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
 							if (type >= 0)
 							{
-								Feature *feature = feature_manager.getFeaturePointer(type);
-								Vector3D feature_pos( event_msg.x, event_msg.y, event_msg.z );
+								const Feature* const feature = feature_manager.getFeaturePointer(type);
+								const Vector3D feature_pos( event_msg.x, event_msg.y, event_msg.z );
 								the_map->map_data(sx, sy).stuff = features.add_feature( feature_pos, type );
 								if(feature->blocking)
 									the_map->rect(sx - (feature->footprintx >> 1), sy - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -2 - the_map->map_data(sx, sy).stuff);
@@ -362,11 +365,11 @@ namespace TA3D
 					break;
 				case EVENT_FEATURE_FIRE:
 					{
-						int sx = event_msg.opt3;		// Burn the object
-						int sy = event_msg.opt4;
+						const int sx = event_msg.opt3;		// Burn the object
+						const int sy = event_msg.opt4;
 						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db)
 						{
-							int idx = the_map->map_data(sx, sy).stuff;
+							const int idx = the_map->map_data(sx, sy).stuff;
 							if (!features.feature[idx].burning)
 								features.burn_feature( idx );
 						}
@@ -374,14 +377,14 @@ namespace TA3D
 					break;
 				case EVENT_FEATURE_DEATH:
 					{
-						int sx = event_msg.opt3;		// Remove the object
-						int sy = event_msg.opt4;
+						const int sx = event_msg.opt3;		// Remove the object
+						const int sy = event_msg.opt4;
 						if (sx < the_map->bloc_w_db && sy < the_map->bloc_h_db)
 						{
-							int idx = the_map->map_data(sx, sy).stuff;
+							const int idx = the_map->map_data(sx, sy).stuff;
 							if (idx >= 0)
 							{
-								Feature *feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+								const Feature* const feature = feature_manager.getFeaturePointer(features.feature[idx].type);
 								the_map->rect(sx - (feature->footprintx >> 1), sy - (feature->footprintz >> 1), feature->footprintx, feature->footprintz, -1);
 								features.delete_feature(idx);			// Delete it
 							}
@@ -393,7 +396,7 @@ namespace TA3D
 						g_ta3d_network->set_signal( event_msg.opt2 );
 					break;
 				case EVENT_UNIT_EXPLODE:				// BOOOOM and corpse creation :)
-					if (event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ))
+					if (event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1))
 					{		// If it's false then game is out of sync !!
 						units.unit[ event_msg.opt1 ].lock();
 
@@ -408,7 +411,7 @@ namespace TA3D
 					}
 					break;
 				case EVENT_CLS:
-					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF )
+					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF)
 					{			// Do it only if the packet is for us
 						LuaProgram::inGame->lock();
 						LuaProgram::inGame->draw_list.destroy();
@@ -416,7 +419,7 @@ namespace TA3D
 					}
 					break;
 				case EVENT_DRAW:
-					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF )
+					if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF)
 					{			// Do it only if the packet is for us
 						DrawObject draw_obj;
 						draw_obj.type = DRAW_TYPE_BITMAP;
@@ -469,11 +472,11 @@ namespace TA3D
 					}
 					break;
 				case EVENT_UNIT_SYNCED:
-					if (event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ))
+					if (event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1))
 					{
 						units.unit[ event_msg.opt1 ].lock();
 
-						int player_id = game_data->net2id( event_msg.opt2 );
+						const int player_id = game_data->net2id( event_msg.opt2 );
 
 						if (player_id >= 0 )
 							units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.opt3;
@@ -508,7 +511,7 @@ namespace TA3D
 							units.unit[ event_msg.opt1 ].unlock();
 							break;
 						}
-						float damage = event_msg.opt2 / 16.0f;
+						const float damage = event_msg.opt2 / 16.0f;
 
 						units.unit[ event_msg.opt1 ].hp -= damage;
 
@@ -521,16 +524,16 @@ namespace TA3D
 					break;
 				case EVENT_WEAPON_CREATION:
 					{
-						Vector3D target_pos( event_msg.x, event_msg.y, event_msg.z );
-						Vector3D Dir( event_msg.dx / 16384.0f, event_msg.dy / 16384.0f, event_msg.dz / 16384.0f );
-						Vector3D startpos( event_msg.vx, event_msg.vy, event_msg.vz );
+						const Vector3D target_pos( event_msg.x, event_msg.y, event_msg.z );
+						const Vector3D Dir( event_msg.dx / 16384.0f, event_msg.dy / 16384.0f, event_msg.dz / 16384.0f );
+						const Vector3D startpos( event_msg.vx, event_msg.vy, event_msg.vz );
 
-						int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
+						const int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
 						if (w_type >= 0)
 						{
 							weapons.lock();
-							int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
-							int player_id = event_msg.opt5;
+							const int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
+							const int player_id = event_msg.opt5;
 
 							if(weapon_manager.weapon[w_type].startsmoke)
 								particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
@@ -603,7 +606,7 @@ namespace TA3D
 					{
 						units.lock();
 
-						int idx = unit_manager.get_unit_index( (char*)event_msg.str );
+						const int idx = unit_manager.get_unit_index( (char*)event_msg.str );
 						if (idx >= 0)
 						{
 							Vector3D pos;
