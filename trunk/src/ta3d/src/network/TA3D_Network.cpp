@@ -33,6 +33,7 @@
 #include <misc/files.h>
 #include <restore.h>
 #include <input/keyboard.h>
+#include <ingame/battle.h>
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -239,6 +240,10 @@ namespace TA3D
 					filename << Paths::Savegames << "multiplayer" << Paths::Separator
 							 << Paths::Files::ReplaceExtension(sParam, ".sav");
 					save_game(filename, game_data); // Save the game using filename given by server
+				}
+				else if (params[0] == "TIMEFACTOR")
+				{
+					Battle::Instance()->setTimeFactor(params[1].to<float>());
 				}
 			}
 		}
