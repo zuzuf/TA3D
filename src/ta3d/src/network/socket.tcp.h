@@ -49,7 +49,7 @@ namespace TA3D
 
 		String getLine();
 	private:
-		static bool forceFlush;
+		static volatile bool forceFlush;
 	public:
 		static void enableFlush();
 		static void disableFlush();
