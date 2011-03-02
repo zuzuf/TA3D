@@ -26,7 +26,7 @@ namespace TA3D
         String getString();
 
         virtual void check(uint32 msec) = 0;
-        virtual bool ready() const = 0;
+		virtual bool ready() = 0;
 
         virtual IPaddress getIP_sdl() const;
         virtual String getIPstr() const;

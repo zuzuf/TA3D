@@ -24,7 +24,7 @@ namespace TA3D
         virtual void close();
 
         virtual void check(uint32 msec);
-        virtual bool ready() const;
+		virtual bool ready();
 
         virtual void send(const String &str);
         virtual void send(const char *data, int size);

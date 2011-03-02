@@ -41,7 +41,7 @@ namespace TA3D
         SocketTCP *accept();
 
         /*virtual*/ void check(uint32 msec);
-        /*virtual*/ bool ready() const;
+		/*virtual*/ bool ready();
 
         /*virtual*/ void send(const String &str);
         /*virtual*/ void send(const char *data, int size);
