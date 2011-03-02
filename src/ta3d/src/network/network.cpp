@@ -576,7 +576,7 @@ namespace TA3D
 		}
 		else if (myMode == 2 && src_id == -1)			// Client mode
 		{
-			if( tohost_socket == NULL || !tohost_socket->isOpen() )	return -1;
+			if (tohost_socket == NULL || !tohost_socket->isOpen())	return -1;
 			phmutex.lock();
 			ping_timer[0].push_back(msec_timer);
 			phmutex.unlock();
