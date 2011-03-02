@@ -70,55 +70,88 @@ namespace TA3D
     {
         if (!sock)  return;
 
-        UDPpacket packet;
+		try
+		{
+			UDPpacket packet;
 
-        packet.channel = -1;
-        packet.data = (Uint8*) data;
-        packet.len = size;
-        packet.maxlen = size;
-        packet.address = IP;
+			packet.channel = -1;
+			packet.data = (Uint8*) data;
+			packet.len = size;
+			packet.maxlen = size;
+			packet.address = IP;
 
-        SDLNet_UDP_Send(sock, packet.channel, &packet);
-    }
+			SDLNet_UDP_Send(sock, packet.channel, &packet);
+		}
+		catch(std::exception &e)
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+		}
+	}
 
     int SocketUDP::recv(char *data, int size)
     {
         if (!sock)  return 0;
 
-        UDPpacket packet;
-        packet.data = (Uint8*) data;
-        packet.len = 0;
-        packet.maxlen = size;
+		try
+		{
+			UDPpacket packet;
+			packet.data = (Uint8*) data;
+			packet.len = 0;
+			packet.maxlen = size;
 
-        if (SDLNet_UDP_Recv(sock, &packet) == -1)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error receiving data from UDP socket : " << SDLNet_GetError());
-            close();
-            return 0;
-        }
+			if (SDLNet_UDP_Recv(sock, &packet) == -1)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "error receiving data from UDP socket : " << SDLNet_GetError());
+				close();
+				return 0;
+			}
 
-        remoteIP = packet.address;
+			remoteIP = packet.address;
 
-        return packet.len;
-    }
+			return packet.len;
+		}
+		catch(std::exception &e)
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+			return 0;
+		}
+	}
 
     void SocketUDP::check(uint32 msec)
     {
-        if (set)
-        {
-            SDLNet_CheckSockets(set, msec);
-            checked = true;
-        }
-        else
-            SDL_Delay(msec);
-    }
+		try
+		{
+			if (set)
+			{
+				SDLNet_CheckSockets(set, msec);
+				checked = true;
+			}
+			else
+				SDL_Delay(msec);
+		}
+		catch(std::exception &e)
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+		}
+	}
 
-    bool SocketUDP::ready() const
+	bool SocketUDP::ready()
     {
-        if (set && sock && checked)
-            return SDLNet_SocketReady(sock);
-        return false;
-    }
+		try
+		{
+			if (set && sock && checked)
+				return SDLNet_SocketReady(sock);
+		}
+		catch(std::exception &e)
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+		}
+		return false;
+	}
 
     IPaddress SocketUDP::getRemoteIP_sdl() const
     {

@@ -202,36 +202,45 @@ namespace TA3D
 
     SocketTCP *SocketTCP::accept()
     {
-        TCPsocket child = SDLNet_TCP_Accept(sock);
-        if (child == NULL)
-            return NULL;
-		SocketTCP *newSock = new SocketTCP(compression);
-        newSock->sock = child;
-        IPaddress *remote_addr = SDLNet_TCP_GetPeerAddress( child );
-        if (remote_addr == NULL)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error getting remote address : " << SDLNet_GetError());
-            newSock->close();
-            return NULL;
-        }
-        newSock->IP = *remote_addr;
+		try
+		{
+			TCPsocket child = SDLNet_TCP_Accept(sock);
+			if (child == NULL)
+				return NULL;
+			SocketTCP *newSock = new SocketTCP(compression);
+			newSock->sock = child;
+			IPaddress *remote_addr = SDLNet_TCP_GetPeerAddress( child );
+			if (remote_addr == NULL)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "error getting remote address : " << SDLNet_GetError());
+				newSock->close();
+				return NULL;
+			}
+			newSock->IP = *remote_addr;
 
-        newSock->set = SDLNet_AllocSocketSet(1);
-        if (newSock->set == NULL)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error creating socket set : " << SDLNet_GetError());
-            newSock->close();
-            return NULL;
-        }
-        if (SDLNet_TCP_AddSocket(newSock->set, newSock->sock) == -1)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error filling socket set : " << SDLNet_GetError());
-            newSock->close();
-            return NULL;
-        }
+			newSock->set = SDLNet_AllocSocketSet(1);
+			if (newSock->set == NULL)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "error creating socket set : " << SDLNet_GetError());
+				newSock->close();
+				return NULL;
+			}
+			if (SDLNet_TCP_AddSocket(newSock->set, newSock->sock) == -1)
+			{
+				LOG_ERROR(LOG_PREFIX_NET << "error filling socket set : " << SDLNet_GetError());
+				newSock->close();
+				return NULL;
+			}
 
-        return newSock;
-    }
+			return newSock;
+		}
+		catch(std::exception &e)
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+			return NULL;
+		}
+	}
 
     void SocketTCP::send(const String &str)
     {
@@ -242,40 +251,48 @@ namespace TA3D
     {
         if (!sock)  return;
 
-		if (compression)
+		try
 		{
-			zSend->next_in = (Bytef*)data;
-			zSend->avail_in = size;
-			zSend->avail_out = 0;
-			bytesProcessed += size;
-			const int flush = forceFlush ? Z_SYNC_FLUSH : Z_NO_FLUSH;
-			while (zSend->avail_in > 0 || zSend->avail_out == 0)
+			if (compression)
 			{
-				zSend->next_out = sendBuf;
-				zSend->avail_out = TCP_BUFFER_SIZE;
-				deflate(zSend, flush);
-				const int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
-				bytesSent += sent;
-				if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
+				zSend->next_in = (Bytef*)data;
+				zSend->avail_in = size;
+				zSend->avail_out = 0;
+				bytesProcessed += size;
+				const int flush = forceFlush ? Z_SYNC_FLUSH : Z_NO_FLUSH;
+				while (zSend->avail_in > 0 || zSend->avail_out == 0)
 				{
-					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size << ")");
+					zSend->next_out = sendBuf;
+					zSend->avail_out = TCP_BUFFER_SIZE;
+					deflate(zSend, flush);
+					const int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
+					bytesSent += sent;
+					if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
+					{
+						LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size << ")");
+						close();
+						return;
+					}
+				}
+			}
+			else
+			{
+				const int sent = SDLNet_TCP_Send(sock, data, size);
+				bytesSent += sent;
+
+				if (sent < size)
+				{
+					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
 					close();
-					return;
 				}
 			}
 		}
-		else
+		catch(std::exception &e)
 		{
-			const int sent = SDLNet_TCP_Send(sock, data, size);
-			bytesSent += sent;
-
-			if (sent < size)
-			{
-				LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
-				close();
-			}
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
 		}
-    }
+	}
 
 	inline void zStreamError(int ret, char *msg)
 	{
@@ -305,132 +322,159 @@ namespace TA3D
     {
         if (!sock)  return -1;
 
-		if (compression)
+		try
 		{
-			zRecv->avail_out = size;
-			zRecv->next_out = (Bytef*)data;
-
-			int ret = Z_OK;
-			do
+			if (compression)
 			{
-				check(0);
-				byte *pIn = zRecv->next_in + zRecv->avail_in;
-				while(ready() && zRecv->avail_in < TCP_BUFFER_SIZE)
+				zRecv->avail_out = size;
+				zRecv->next_out = (Bytef*)data;
+
+				int ret = Z_OK;
+				do
 				{
-					int n = SDLNet_TCP_Recv(sock, pIn++, 1);
-					if (n == 1)
-						zRecv->avail_in++;
-					else if (n == 0)
+					check(0);
+					byte *pIn = zRecv->next_in + zRecv->avail_in;
+					while(ready() && zRecv->avail_in < TCP_BUFFER_SIZE)
 					{
-						LOG_ERROR(LOG_PREFIX_NET << "connection closed by peer");
-						close();
-						return size - zRecv->avail_out;
+						const int n = SDLNet_TCP_Recv(sock, pIn++, 1);
+						if (n == 1)
+							zRecv->avail_in++;
+						else if (n == 0)
+						{
+							LOG_ERROR(LOG_PREFIX_NET << "connection closed by peer");
+							close();
+							return size - zRecv->avail_out;
+						}
+						else
+						{
+							ret = inflate(zRecv, Z_SYNC_FLUSH);
+							zStreamError(ret, zRecv->msg);
+							LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+							close();
+							return size - zRecv->avail_out;
+						}
+						check(0);
 					}
-					else
+					ret = inflate(zRecv, Z_NO_FLUSH);
+					if (ret != Z_OK)
 					{
-						ret = inflate(zRecv, Z_SYNC_FLUSH);
 						zStreamError(ret, zRecv->msg);
-						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
-						close();
-						return size - zRecv->avail_out;
+						if (ret != Z_BUF_ERROR)
+						{
+							LOG_DEBUG("in = " << zRecv->avail_in);
+							LOG_DEBUG("out/size = " << zRecv->avail_out << "/" << size);
+							LOG_ERROR(LOG_PREFIX_NET << "closing compressed socket because of decompression error");
+							close();
+							return size - zRecv->avail_out;
+						}
 					}
-					check(0);
-				}
-				ret = inflate(zRecv, Z_NO_FLUSH);
-				if (ret != Z_OK)
+
+					if (zRecv->avail_in > 0)
+						memmove(recvBuf, zRecv->next_in, zRecv->avail_in);
+					zRecv->next_in = recvBuf;
+				} while (!nonBlockingMode && zRecv->avail_out > 0 && ret != Z_BUF_ERROR);
+				return size - zRecv->avail_out;
+			}
+			else
+			{
+				if (nonBlockingMode)
 				{
-					zStreamError(ret, zRecv->msg);
-					if (ret != Z_BUF_ERROR)
+					int pos = 0;
+					check(0);
+					while(ready() && pos < size)
 					{
-						LOG_DEBUG("in = " << zRecv->avail_in);
-						LOG_DEBUG("out/size = " << zRecv->avail_out << "/" << size);
-						LOG_ERROR(LOG_PREFIX_NET << "closing compressed socket because of decompression error");
-						close();
-						return size - zRecv->avail_out;
+						const int n = SDLNet_TCP_Recv(sock, data, 1);
+						if (n == 1)
+						{
+							data++;
+							pos++;
+						}
+						else if (n == 0)
+						{
+							LOG_ERROR(LOG_PREFIX_NET << "connectio closed by peer");
+							close();
+							return pos;
+						}
+						else
+						{
+							LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+							close();
+							return pos;
+						}
+						check(0);
 					}
+					return pos;
 				}
 
-				if (zRecv->avail_in > 0)
-					memmove(recvBuf, zRecv->next_in, zRecv->avail_in);
-				zRecv->next_in = recvBuf;
-			} while (!nonBlockingMode && zRecv->avail_out > 0 && ret != Z_BUF_ERROR);
-			return size - zRecv->avail_out;
+				const int n = SDLNet_TCP_Recv(sock, data, size);
+				if (n < 0)
+				{
+					LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+					close();
+					return -1;
+				}
+				if (n == 0)
+				{
+					LOG_ERROR(LOG_PREFIX_NET << "connection closed by peer");
+					close();
+					return -1;
+				}
+
+				return n;
+			}
 		}
-		else
+		catch(std::exception &e)
 		{
-			if (nonBlockingMode)
-			{
-				int pos = 0;
-				check(0);
-				while(ready() && pos < size)
-				{
-					int n = SDLNet_TCP_Recv(sock, data, 1);
-					if (n == 1)
-					{
-						data++;
-						pos++;
-					}
-					else if (n == 0)
-					{
-						LOG_ERROR(LOG_PREFIX_NET << "connectio closed by peer");
-						close();
-						return pos;
-					}
-					else
-					{
-						LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
-						close();
-						return pos;
-					}
-					check(0);
-				}
-				return pos;
-			}
-
-			int n = SDLNet_TCP_Recv(sock, data, size);
-			if (n < 0)
-			{
-				LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
-				close();
-				return -1;
-			}
-			if (n == 0)
-			{
-				LOG_ERROR(LOG_PREFIX_NET << "connection closed by peer");
-				close();
-				return -1;
-			}
-
-			return n;
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+			return -1;
 		}
-    }
+	}
 
     void SocketTCP::check(uint32 msec)
     {
         if (set)
         {
-            SDLNet_CheckSockets(set, msec);
-            checked = true;
+			try
+			{
+				SDLNet_CheckSockets(set, msec);
+			}
+			catch(std::exception &e)
+			{
+				LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+				close();
+				return;
+			}
+			checked = true;
         }
         else
             SDL_Delay(msec);
     }
 
-    bool SocketTCP::ready() const
+	bool SocketTCP::ready()
     {
-        if (set && sock && checked)
-            return SDLNet_SocketReady(sock);
+		try
+		{
+			if (set && sock && checked)
+				return SDLNet_SocketReady(sock);
+		}
+		catch(std::exception &e)
+		{
+			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+			close();
+		}
+
         return false;
     }
 
 	String SocketTCP::getLine()
 	{
-		if (!ready())
-			return String();
 		String line;
-		char c;
+		if (!ready())
+			return line;
 		while(this->isOpen())
 		{
+			char c;
 			recv(&c, 1);
 			if (c == '\n')
 				break;

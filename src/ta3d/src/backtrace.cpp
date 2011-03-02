@@ -22,6 +22,7 @@
 #include <SDL/SDL_sgui.h>
 #include "TA3D_NameSpace.h"
 #include "misc/paths.h"
+#include <exception>
 
 
 // Signals should be disabled under OS X, since the system already produces a crash report
@@ -42,9 +43,9 @@
 #	include <execinfo.h>
 # endif
 
-# include <signal.h>
-# include <stdio.h>
-# include <stdlib.h>
+# include <csignal>
+# include <cstdio>
+# include <cstdlib>
 # include <yuni/core/io/file/stream.h>
 # include "sdl.h"
 # include "misc/osinfo.h"
@@ -138,12 +139,29 @@ void backtrace_handler (int signum)
 
 #endif // ifdef TA3D_PLATFORM_DARWIN
 
+class sigpipe_exception : public std::exception
+{
+public:
+	virtual ~sigpipe_exception() throw()	{}
+	virtual const char* sigpipe_what() const throw()
+	{
+		return "broken pipe";
+	}
+};
 
-
+void sigpipe_handler (int signum)
+{
+	throw sigpipe_exception();
+}
 
 
 void init_signals (void)
 {
+	// On all platforms, SIGPIPE must not end the program
+	// since it's likely to happen when sockets are
+	// disconnected, so let's convert it to an exception
+	signal (SIGPIPE, sigpipe_handler);
+
 	// On Linux, get the command of the parent process.
 	// If we're running in GDB, then don't override it!!
 	#ifdef TA3D_PLATFORM_LINUX
