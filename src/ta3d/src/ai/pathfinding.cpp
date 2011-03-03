@@ -469,12 +469,14 @@ namespace TA3D
 
 		if (!nodes.empty() && pathFound)
 		{
-			std::vector<AI::Path::Node> cleanList;
-			std::vector<AI::Path::Node> nextPass;
+			static std::vector<AI::Path::Node> cleanList;
+			static std::vector<AI::Path::Node> nextPass;
+			cleanList.clear();
+			nextPass.clear();
 #define SEARCH_AREA_WIDTH	16
 			cleanList.reserve(nodes.size() * (2 * SEARCH_AREA_WIDTH + 1));
 			nextPass.reserve(nodes.size() * 4);
-			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
+			for (std::vector<AI::Path::Node>::const_iterator cur = nodes.begin(), end = nodes.end() ; cur != end ; ++cur)		// Mark the path with a special pattern
 			{
 				const int x = cur->x();
 				const int z = cur->z();
@@ -488,14 +490,15 @@ namespace TA3D
 				if (z + 1 < zone.getHeight())
 					nextPass.push_back(AI::Path::Node(x, z + 1));
 			}
-			std::vector<AI::Path::Node> curPass;
+			static std::vector<AI::Path::Node> curPass;
+			curPass.clear();
 			for(int i = 0 ; i < SEARCH_AREA_WIDTH ; ++i)
 			{
 				const bool last = (i + 1) == SEARCH_AREA_WIDTH;
 				curPass.swap(nextPass);
 				nextPass.reserve(curPass.size() * 4);
 				nextPass.clear();
-				for(std::vector<AI::Path::Node>::iterator it = curPass.begin() ; it != curPass.end() ; ++it)
+				for(std::vector<AI::Path::Node>::const_iterator it = curPass.begin(), end = curPass.end() ; it != end ; ++it)
 				{
 					const int x = it->x();
 					const int z = it->z();
@@ -573,7 +576,8 @@ namespace TA3D
 					SurfaceInt(bmp, x, z) = zone(x,z) | makeacol32(0, 0, 0, 0xFF);
 #endif
 
-			std::vector<AI::Path::Node> tmp;
+			static std::vector<AI::Path::Node> tmp;
+			tmp.clear();
 			tmp.swap(nodes);
 			nodes.reserve(tmp.size());
 			nodes.push_back(AI::Path::Node(start_x, start_z));
@@ -618,20 +622,20 @@ namespace TA3D
 
 			SDL_FreeSurface(bmp);
 #endif
-			for (std::vector<AI::Path::Node>::iterator cur = tmp.begin() ; cur != tmp.end() ; ++cur)		// Do some cleaning
+			for (std::vector<AI::Path::Node>::const_iterator cur = tmp.begin(), end = tmp.end() ; cur != end ; ++cur)		// Do some cleaning
 				zone(cur->x(), cur->z()) = 0;
-			for (std::vector<AI::Path::Node>::iterator cur = cleanList.begin() ; cur != cleanList.end() ; ++cur)		// Do some cleaning
+			for (std::vector<AI::Path::Node>::const_iterator cur = cleanList.begin(), end = cleanList.end() ; cur != end ; ++cur)		// Do some cleaning
 				zone(cur->x(), cur->z()) = 0;
 
 			path.clear();
-			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)
+			for (std::vector<AI::Path::Node>::const_iterator cur = nodes.begin(), end = nodes.end() ; cur != end ; ++cur)
 			{
 				if (path.empty())
 				{
 					path.push_back(*cur);
 					continue;
 				}
-				std::vector<AI::Path::Node>::iterator next = cur;
+				std::vector<AI::Path::Node>::const_iterator next = cur;
 				++next;
 				if (next == nodes.end() ||
 					(next->x() - path.back().x()) * (cur->z() - path.back().z()) != (cur->x() - path.back().x()) * (next->z() - path.back().z()))	// Remove useless points
@@ -642,7 +646,7 @@ namespace TA3D
 		}
 		else
 		{
-			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Clean the map data
+			for (std::vector<AI::Path::Node>::const_iterator cur = nodes.begin(), end = nodes.end() ; cur != end ; ++cur)		// Clean the map data
 				zone(cur->x(), cur->z()) = 0;
 			path.clear();
 		}
