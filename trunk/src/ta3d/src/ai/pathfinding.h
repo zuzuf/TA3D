@@ -53,8 +53,8 @@ namespace TA3D
 				Node(int x, int z) : _x(x), _z(z)	{}
 				int &x() {	return _x;	}
 				int &z() {	return _z;	}
-				const int &x() const {	return _x;	}
-				const int &z() const {	return _z;	}
+				int x() const {	return _x;	}
+				int z() const {	return _z;	}
 			private:
 				int _x, _z;
 			};
