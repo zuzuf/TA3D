@@ -235,7 +235,6 @@ namespace TA3D
 		LOG_DEBUG("MAP: allocating height maps");
 		map->h_map.resize(map->bloc_w_db, map->bloc_h_db);
 		map->ph_map.resize(map->bloc_w_db, map->bloc_h_db);
-		map->ph_map_2.resize(map->bloc_w_db, map->bloc_h_db);
 
 		LOG_DEBUG("MAP: initialising map data");
 		map->path.clear();
@@ -280,8 +279,9 @@ namespace TA3D
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets SDL_Surface
 		{
-			bmp_tex[i] = convert_format_24( bmp_tex[i] );
-			map->tex[i] = gfx->make_texture(bmp_tex[i]);
+			SDL_Surface *tmp = convert_format_24_copy(bmp_tex[i]);
+			map->tex[i] = gfx->make_texture(tmp);
+			SDL_FreeSurface(tmp);
 		}
 		LOG_INFO("Textures for blocks in " << float(msec_timer - event_timer) * 0.001f << "s.");
 
@@ -353,25 +353,21 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: creating low definition texture and lava map");
 
-		SDL_Surface *low_def = gfx->create_surface_ex(24, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
+		SDL_Surface *low_def = gfx->create_surface_ex(8, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
 		SDL_FillRect(low_def, NULL, 0x0);
 		file->seek(header.PTRmapdata);
+		file->read(map->bmap.getData(), map->bmap.getSize());
 		for (y = 0; y < map->bloc_h; ++y)
 		{
 			for (x = 0; x < map->bloc_w; ++x)
 			{
-				*file >> map->bmap(x, y);
-
 				if (map->bmap(x, y) >= map->nbbloc)			// To add some security
 					map->bmap(x, y) = 0;
 
 				/*---------- code to build the low def map (mega zoom) ---------------*/
 				i = map->bmap(x, y);
-				int tex_num = i >> 5;	// Numéro de la texture associée
-				int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
-
-				if (bmp_tex[tex_num]->format->BitsPerPixel != 24)
-					bmp_tex[tex_num] = convert_format_24(bmp_tex[tex_num]);
+				const int tex_num = i >> 5;	// Numéro de la texture associée
+				const int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
 
 				stretch_blit(bmp_tex[tex_num], low_def, tx, 0, 32, 32,
 					x * (low_def->w - 1) / map->bloc_w, y * (low_def->h - 1) / map->bloc_h,
@@ -385,6 +381,7 @@ namespace TA3D
 
 		for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
 			SDL_FreeSurface(bmp_tex[i]);
+		low_def = convert_format_24(low_def);
 		gfx->set_texture_format(GL_RGB5);
 		map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
 		SDL_FreeSurface(low_def);
@@ -522,16 +519,8 @@ namespace TA3D
 				}
 			}
 		}
-		LOG_DEBUG("MAP: computing height data (step 5)");
-#pragma omp parallel for
-		for (int y = 0; y < (map->bloc_h << 1); ++y)
-		{
-			// Compute the second map
-			for (int x = 0; x < (map->bloc_w << 1); ++x)
-				map->ph_map_2(x, y) = (byte) (map->ph_map(x, y) * 0.125f * tnt_transform_H_DIV + 0.5f);
-		}
 
-		LOG_DEBUG("MAP: computing height data (step 6)");
+		LOG_DEBUG("MAP: computing height data (step 5)");
 #pragma omp parallel for
 		for (int y = 0 ; y < (map->bloc_h << 1); ++y)	 // Compute slopes on the map using height map and projected datas
 		{
@@ -561,7 +550,7 @@ namespace TA3D
 				map->energy(x,y) = dh;
 			}
 		}
-		LOG_DEBUG("MAP: computing height data (step 7)");
+		LOG_DEBUG("MAP: computing height data (step 6)");
 		gaussianFilter(map->energy, 3.0f);
 
 		LOG_INFO("relief : " << float(msec_timer - event_timer) * 0.001f << "s.");

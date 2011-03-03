@@ -232,7 +232,7 @@ namespace TA3D
 		const int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
 		const int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
-		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+		gfx->set_texture_format(GL_RGB5);
 		String name;
 		for (int i = 1; i <= NbObj; ++i)
 		{
@@ -639,7 +639,7 @@ namespace TA3D
 		{
 			if (unitpic)
 			{
-				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+				gfx->set_texture_format(GL_RGB5);
 				glpic = gfx->make_texture(unitpic, FILTER_LINEAR);
 				SDL_FreeSurface(unitpic);
 				unitpic = NULL;

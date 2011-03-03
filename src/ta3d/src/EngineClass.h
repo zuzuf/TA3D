@@ -47,9 +47,10 @@
 namespace TA3D
 {
 
-
-	extern const float tnt_transform;
-	extern const float tnt_transform_H_DIV;
+// tnt_transform = 1.0f / tanf(63.44f * DEG2RAD) / H_DIV;
+#define tnt_transform			0.99977961f
+// tnt_transform_H_DIV = 1.0f / tanf(63.44f * DEG2RAD);
+#define tnt_transform_H_DIV		0.49988981f
 
 	class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
 	{
@@ -172,7 +173,6 @@ namespace TA3D
 		Grid<uint16>	bmap;		// Tableau d'indice des blocs
 		Grid<float>	h_map;		// Tableau de l'élévation du terrain
 		Grid<float>	ph_map;		// Tableau du relief projeté pour le calcul inverse(projection) lors de l'affichage
-		Grid<byte>	ph_map_2;		// Tableau du relief projeté (multiplié par un facteur flottant) pour le calcul inverse(projection) lors de l'affichage
 		Grid<SECTOR>	map_data;		// Tableau d'informations sur le terrain
 		Grid<byte>	view;			// Indique quels sont les parcelles de terrain visibles à l'écran
 		Grid<int>	path;			// Tableau pour le pathfinding
@@ -270,7 +270,7 @@ namespace TA3D
 
 		inline float get_zdec(const int x, const int y) const;
 
-#define get_zdec_notest(x, y)	ph_map_2(x, y)
+		inline int get_zdec_notest(const int x, const int y) const;
 
 		inline float get_nh(const int x, const int y) const;
 
@@ -302,6 +302,7 @@ namespace TA3D
 
 	inline float MAP::get_nh(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
 	inline float MAP::get_zdec(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2)) * tnt_transform_H_DIV;	}
+	inline int MAP::get_zdec_notest(const int x, const int y) const	{	return 	ph_map(x, y) * (0.125f * tnt_transform_H_DIV) + 0.5f;	}
 	inline float MAP::get_h(const int x, const int y) const	{	return h_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
 
 	extern MAP *the_map;

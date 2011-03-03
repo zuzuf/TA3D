@@ -94,14 +94,14 @@ namespace TA3D
 		if (stex)
 		{
 			stex = convert_format(stex);
-#define skyRes 1024
+			const int skyRes  = std::min<int>(1024, lp_CONFIG->getMaxTextureSizeAllowed());
 			SDL_Surface *img[6];
 			for(int i = 0 ; i < 6 ; ++i)
 				img[i] = gfx->create_surface(skyRes, skyRes);
 			const uint32 fcol = makeacol32(int(skyInfo->FogColor[0] * 255.0f), int(skyInfo->FogColor[1] * 255.0f), int(skyInfo->FogColor[2] * 255.0f), int(skyInfo->FogColor[3] * 255.0f));
 			const float coef = 1.0f / (skyRes - 1);
-			float atanfx[skyRes];
-			float invsqrtfx[skyRes];
+			float atanfx[8192];
+			float invsqrtfx[8192];
 			for(int x = 0 ; x < skyRes ; ++x)
 			{
 				const float fx = 2.0f * (float(x) * coef - 0.5f);
@@ -147,10 +147,9 @@ namespace TA3D
 						SurfaceInt(img[4], x, y) = getpixelBL(stex, alpha + 1.75f, Math::Clamp(1.0f - beta, 0.0f, 1.0f));
 					SurfaceInt(img[5], x, y) = getpixelBL(stex, alpha + 1.25f, Math::Clamp(beta, 0.0f, 1.0f));
 				}
-#undef skyRes
 			}
 
-			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+			gfx->set_texture_format(gfx->defaultTextureFormat_RGB_compressed());
 			for(int i = 0 ; i < 6 ; ++i)
 			{
 				tex[i] = gfx->make_texture(img[i], FILTER_TRILINEAR, true);

@@ -40,13 +40,6 @@
 
 namespace TA3D
 {
-
-	const float tnt_transform       = 1.0f / tanf(63.44f * DEG2RAD) / H_DIV;
-	const float tnt_transform_H_DIV = 1.0f / tanf(63.44f * DEG2RAD);
-
-
-
-
 	unsigned int player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 
@@ -153,7 +146,6 @@ namespace TA3D
 		bmap.resize(0,0);
 		h_map.resize(0,0);
 		ph_map.resize(0,0);
-		ph_map_2.resize(0,0);
 		map_data.resize(0,0);
 		sealvl = 0.0f;
 		glmini = 0;
@@ -569,7 +561,6 @@ namespace TA3D
 		view.resize(0, 0);
 		map_data.resize(0, 0);
 		ph_map.resize(0, 0);
-		ph_map_2.resize(0, 0);
 		h_map.resize(0, 0);
 		bmap.resize(0, 0);
 		if (ntex > 0)

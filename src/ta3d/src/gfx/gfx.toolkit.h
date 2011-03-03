@@ -86,6 +86,8 @@ namespace TA3D
 	void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col);
 
 	SDL_Surface *convert_format_copy(SDL_Surface *bmp);
+	SDL_Surface *convert_format_24_copy(SDL_Surface *bmp);
+	SDL_Surface *convert_format_16_copy(SDL_Surface *bmp);
 
 	SDL_Surface *convert_format(SDL_Surface *bmp);
 	SDL_Surface *convert_format_24(SDL_Surface *bmp);
