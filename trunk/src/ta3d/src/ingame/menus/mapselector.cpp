@@ -155,7 +155,7 @@ namespace Menus
 			pMapListObj->Text.resize(pCachedSizeOfListOfMaps);
 			int indx(0);
 			for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != pListOfMaps.end(); ++i, ++indx)
-				pMapListObj->Text[indx] = *i;
+				pMapListObj->Text[indx] = i->utf8valid() ? *i : ConvertToUTF8(*i);
 		}
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
 	}
@@ -317,7 +317,7 @@ namespace Menus
 			title << "\n" << mapOTA.missiondescription;
 
 		// Change the caption
-		pArea->caption("mapsetup.map_info", title);
+		pArea->caption("mapsetup.map_info", title.utf8valid() ? title : ConvertToUTF8(title));
 	}
 
 

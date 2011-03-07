@@ -128,7 +128,7 @@ namespace TA3D
 				}
 				else if (args[0] == "mtllib" && args.size() > 1)        // Read given material libraries
 				{
-					for(String::Vector::iterator s = args.begin() ; s != args.end() ; ++s)
+					for(String::Vector::iterator s = args.begin() + 1 ; s != args.end() ; ++s)
 					{
 						File *src_mtl = VFS::Instance()->readFile(String("objects3d/") << *s);
 						if (!src_mtl)
