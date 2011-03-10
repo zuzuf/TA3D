@@ -706,17 +706,18 @@ namespace TA3D
 					{
 						for (int a = 0 ; a < 3 ; ++a)
 						{
-							short idx = -1;
+							int idx = -1;
 							face_reverse[i + a] = 0;
-							for (short e = 0; e < nb_line; ++e)
+							for (int e = 0; e < nb_line; ++e)
 							{
 								if (line_v_idx[0][e] == t_index[i + a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
 								{
 									idx = e;
 									break;
 								}
-								else if (line_v_idx[0][e]==t_index[i+((a+1)%3)] && line_v_idx[1][e]==t_index[i+a]) {
-									idx=e;
+								else if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i + a])
+								{
+									idx = e;
 									face_reverse[ i + a ] = 2;
 									break;
 								}
@@ -752,15 +753,15 @@ namespace TA3D
 					{
 						if (!(line_on[i] & 1))
 							continue;
-						points[line_v_idx[0][i]+nb_vtx]=points[line_v_idx[0][i]]+Dir;		// Projection
-						points[line_v_idx[1][i]+nb_vtx]=points[line_v_idx[1][i]]+Dir;
+						points[line_v_idx[0][i] + nb_vtx] = points[line_v_idx[0][i]] + Dir;		// Projection
+						points[line_v_idx[1][i] + nb_vtx] = points[line_v_idx[1][i]] + Dir;
 
 						if (line_on[i] & 2)
 						{
 							shadow_index[nb_idx++] = line_v_idx[1][i];
 							shadow_index[nb_idx++] = line_v_idx[0][i];
-							shadow_index[nb_idx++] = line_v_idx[0][i]+nb_vtx;
-							shadow_index[nb_idx++] = line_v_idx[1][i]+nb_vtx;
+							shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
+							shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
 						}
 						else
 						{
@@ -784,7 +785,7 @@ namespace TA3D
 			if (child && !(explodes && !exploding_parts))
 			{
 				glPushMatrix();
-				alset=child->draw_shadow(Dir,t,data_s,alset,exploding_parts & !explodes);
+				alset = child->draw_shadow(Dir,t,data_s,alset,exploding_parts & !explodes);
 				glPopMatrix();
 			}
 		}
@@ -792,7 +793,7 @@ namespace TA3D
 		{
 			glPopMatrix();
 			glPushMatrix();
-			alset=next->draw_shadow(ODir,t,data_s,alset,exploding_parts);
+			alset = next->draw_shadow(ODir,t,data_s,alset,exploding_parts);
 			glPopMatrix();
 		}
 		else

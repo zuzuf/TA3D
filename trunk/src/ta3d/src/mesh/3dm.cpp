@@ -114,7 +114,7 @@ namespace TA3D
 				glRotatef(R.z, 0.0f, 0.0f, 1.0f);
 			}
 
-			std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+			const std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
 
 			hide |= explodes ^ exploding_parts;
 			if (chg_col)

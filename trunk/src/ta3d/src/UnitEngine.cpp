@@ -1545,9 +1545,9 @@ namespace TA3D
 
 		glDisable(GL_BLEND);
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-		float sea_lvl = limit ? the_map->sealvl - 5.0f : the_map->sealvl;
-		float virtual_t = ((float)current_tick) / TICKS_PER_SEC;
-		bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
+		const float sea_lvl = limit ? the_map->sealvl - 5.0f : the_map->sealvl;
+		const float virtual_t = ((float)current_tick) / TICKS_PER_SEC;
+		const bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
 		if (low_def)
 			glDisable(GL_DEPTH_TEST);
 
