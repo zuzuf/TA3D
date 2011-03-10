@@ -86,7 +86,10 @@ const FTGlyph* const FTGlyphContainer::Glyph(const unsigned int charCode) const
 
 FTBBox FTGlyphContainer::BBox(const unsigned int charCode) const
 {
-    return Glyph(charCode)->BBox();
+	const FTGlyph *glyph = Glyph(charCode);
+	if (glyph)
+		return glyph->BBox();
+	return FTBBox();
 }
 
 
