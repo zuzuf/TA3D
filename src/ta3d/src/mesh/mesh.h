@@ -215,7 +215,7 @@ namespace TA3D
         GLushort    *shadow_index;		// Pour la géométrie du volume d'ombre
         short   *t_line;				// Repère les arêtes
         short   *line_v_idx[2];
-        short   nb_line;
+		int		nb_line;
         byte    *line_on;
         byte    *face_reverse;
         GLuint  type;                   // Tell which type of geometric data we have here (triangles, quads, triangle strips)

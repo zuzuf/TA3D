@@ -3556,7 +3556,9 @@ namespace TA3D
 								if (friend_type_id == -1)
 									continue;
 								const UnitType* const pFriendType = unit_manager.unit_type[friend_type_id];
-								if (pFriendType && (pUnit->flags & 1) && pUnit->hp < pFriendType->MaxDamage)
+								if (pFriendType->BMcode && pUnit->build_percent_left > 0.0f)		// Don't help factories
+									continue;
+								if ((pUnit->flags & 1) && pUnit->hp < pFriendType->MaxDamage)
 								{
 									add_mission(MISSION_REPAIR, &(pUnit->Pos), true, 0, (void*)pUnit);
 									done = true;
