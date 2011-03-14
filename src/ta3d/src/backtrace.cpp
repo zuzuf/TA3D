@@ -157,10 +157,13 @@ void sigpipe_handler (int signum)
 
 void init_signals (void)
 {
-	// On all platforms, SIGPIPE must not end the program
-	// since it's likely to happen when sockets are
-	// disconnected, so let's convert it to an exception
+	// On all platforms that supports it, SIGPIPE must
+	// not end the program since it's likely to happen
+	// when sockets are disconnected, so let's convert
+	// it to an exception
+#if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_DARWIN
 	signal (SIGPIPE, sigpipe_handler);
+#endif
 
 	// On Linux, get the command of the parent process.
 	// If we're running in GDB, then don't override it!!
