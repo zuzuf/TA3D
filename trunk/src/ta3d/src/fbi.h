@@ -375,16 +375,6 @@ namespace TA3D
 			return it.value();
         }
 
-    private:
-        inline char *get_line(char *data)
-        {
-            int pos=0;
-            while(data[pos]!=0 && data[pos]!=13 && data[pos]!=10)   pos++;
-            char *d=new char[pos+1];
-            memcpy(d,data,pos);
-            d[pos]=0;
-            return d;
-        }
     public:
 
 		void analyse(const String &filename, const int unit_index);
