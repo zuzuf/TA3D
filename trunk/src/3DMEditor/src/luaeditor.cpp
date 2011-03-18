@@ -10,6 +10,10 @@
 #include <QLineEdit>
 #include "scripts/unit.script.h"
 #include "logs.h"
+#include <QTextEdit>
+#include <QStatusBar>
+#include <QMenu>
+#include <QMenuBar>
 
 using namespace TA3D;
 
@@ -34,10 +38,14 @@ LuaEditor *LuaEditor::instance()
 
 LuaEditor::LuaEditor()
 {
+	filename.clear();
+
     updating = true;
     code = new QTextEdit;
     output = new QTextEdit;
     output->setReadOnly(true);
+
+	setStatusBar(new QStatusBar);
 
     code->setWordWrapMode(QTextOption::NoWrap);
     code->setTabStopWidth(23);
@@ -48,22 +56,25 @@ LuaEditor::LuaEditor()
     output->setPalette(pal);
     new LuaSyntaxHighlighter(code);
 
-    setLayout( new QVBoxLayout );
+	setCentralWidget(new QWidget);
+	centralWidget()->setLayout( new QVBoxLayout );
     QTabWidget *tabs = new QTabWidget;
-    layout()->addWidget(tabs);
+	centralWidget()->layout()->addWidget(tabs);
 
     QWidget *codeTab = new QWidget;
     QVBoxLayout *curLayout = new QVBoxLayout;
     codeTab->setLayout( curLayout );
     curLayout->addWidget(code);
-    QHBoxLayout *codeLayout = new QHBoxLayout;
-    QPushButton *bSave = new QPushButton(QIcon("icons/save.png"), tr("&save program"));
-    QPushButton *bLoad = new QPushButton(QIcon("icons/open.png"), tr("&load program"));
-    QPushButton *bNew = new QPushButton(QIcon("icons/new.png"), tr("&load template"));
-    codeLayout->addWidget(bSave);
-    codeLayout->addWidget(bLoad);
-    codeLayout->addWidget(bNew);
-    curLayout->addLayout(codeLayout);
+
+	QMenu *mnuFile = new QMenu(tr("&File"));
+	mnuFile->addAction(QIcon("icons/new.png"), tr("&load template"), this, SLOT(loadTemplate()),QKeySequence(Qt::CTRL + Qt::Key_N));
+	mnuFile->addAction(QIcon("icons/open.png"), tr("&open program"), this, SLOT(loadProgram()),QKeySequence(Qt::CTRL + Qt::Key_O));
+	mnuFile->addAction(QIcon("icons/save.png"), tr("&save program"), this, SLOT(saveProgram()),QKeySequence(Qt::CTRL + Qt::Key_S));
+	mnuFile->addSeparator();
+	mnuFile->addAction(QIcon("icons/exit.png"), tr("&close"), this, SLOT(close()),QKeySequence(Qt::CTRL + Qt::Key_W));
+	setMenuBar(new QMenuBar);
+	menuBar()->addMenu(mnuFile);
+
     tabs->addTab( codeTab, tr("&Code"));
 
     QWidget *outputTab = new QWidget;
@@ -97,10 +108,6 @@ LuaEditor::LuaEditor()
     connect(bOutput, SIGNAL(clicked()), this, SLOT(compileCode()));
     connect(bRun, SIGNAL(toggled(bool)), this, SLOT(toggleTimer(bool)));
     connect(bStep, SIGNAL(clicked()), this, SLOT(runLuaCode()));
-
-    connect(bSave, SIGNAL(clicked()), this, SLOT(saveProgram()));
-    connect(bLoad, SIGNAL(clicked()), this, SLOT(loadProgram()));
-    connect(bNew, SIGNAL(clicked()), this, SLOT(loadTemplate()));
 
     luaTimer.setInterval(1000 / 30);            // Run at game speed 30 ticks/sec
     luaTimer.setSingleShot(false);
@@ -146,6 +153,7 @@ void LuaEditor::compileCode()
     UnitScript::instance()->load(code->toPlainText());
     UnitScript::runCommand("this = __units[0]");
     LOG_INFO(tr("done"));
+	statusBar()->showMessage(tr("Code loaded"), 5000);
     updateGUI();
 }
 
@@ -154,15 +162,28 @@ void LuaEditor::saveProgram()
     QString filename = QFileDialog::getSaveFileName(this, tr("save Lua progam as"), QString(), tr("all files(*.*);;Lua programs(*.lua)"));
     if (filename.isEmpty())
         return;
-    QFile file(filename);
-    file.open(QIODevice::WriteOnly);
-    if (!file.exists() || !file.isOpen())
-    {
-        QMessageBox::critical(this, tr("Error opening file"), tr("Error: could not open file %1 for writing").arg(filename));
-        return;
-    }
-    file.write(code->toPlainText().toAscii());
-    file.close();
+	this->filename = filename;
+	quickSave();
+}
+
+void LuaEditor::quickSave()
+{
+	if (filename.isEmpty())
+	{
+		filename = QFileDialog::getSaveFileName(this, tr("save Lua progam as"), QString(), tr("all files(*.*);;Lua programs(*.lua)"));
+		if (filename.isEmpty())
+			return;
+	}
+	QFile file(filename);
+	file.open(QIODevice::WriteOnly);
+	if (!file.exists() || !file.isOpen())
+	{
+		QMessageBox::critical(this, tr("Error opening file"), tr("Error: could not open file %1 for writing").arg(filename));
+		return;
+	}
+	file.write(code->toPlainText().toAscii());
+	file.close();
+	statusBar()->showMessage(tr("Code saved to ") + filename, 5000);
 }
 
 void LuaEditor::loadProgram()
@@ -179,6 +200,8 @@ void LuaEditor::loadProgram()
     }
     code->setPlainText(QString(file.readAll()));
     file.close();
+	this->filename = filename;
+	statusBar()->showMessage(tr("Code loaded from ") + filename, 5000);
 }
 
 void LuaSyntaxHighlighter::highlightBlock(const QString &text)
@@ -354,4 +377,6 @@ void LuaEditor::loadTemplate()
     }
     code->setPlainText(QString(file.readAll()));
     file.close();
+	this->filename.clear();
+	statusBar()->showMessage(tr("Template loaded"), 5000);
 }
