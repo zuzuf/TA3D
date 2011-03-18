@@ -385,11 +385,11 @@ namespace TA3D
 							unit_type[i]->AddUnitBuild(idx, px, py, 64, 64, p, tex);
 						}
 						else
-						{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
+						{	LOG_DEBUG("unit '" << canbuild << "' picture not found in build menu for unit '" << unit_type[i]->Unitname << "'");	}
 					}
 				}
 				else
-				{	LOG_DEBUG("unit '" << canbuild << "' not found");	}
+				{	LOG_DEBUG("unit '" << canbuild << "' not found (" << __FILE__ << " l." << __LINE__ << ')');	}
 				--n;
 				canbuild = sidedata_parser.pullAsString( String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n );
 			}
