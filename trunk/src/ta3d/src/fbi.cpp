@@ -286,6 +286,13 @@ namespace TA3D
 				if (!unit_type[unit_index]->canBuild(idx))
 				{
 					GLuint tex = loadBuildPic( String("anims\\") << unitname << "_gadget.gaf", unitname);
+					if (!tex && !unit_type[idx]->glpic && unit_type[idx]->unitpic)
+					{
+						gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+						unit_type[idx]->glpic = gfx->make_texture(unit_type[idx]->unitpic, FILTER_LINEAR, true);
+						SDL_FreeSurface(unit_type[idx]->unitpic);
+						unit_type[idx]->unitpic = NULL;
+					}
 					if (tex || unit_type[idx]->glpic)
 						unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
 					else
@@ -377,6 +384,13 @@ namespace TA3D
 					if (!unit_type[i]->canBuild(idx))		// Check if it's already in the list
 					{
 						GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget", canbuild);
+						if (!tex && !unit_type[idx]->glpic && unit_type[idx]->unitpic)
+						{
+							unit_type[idx]->glpic = gfx->make_texture(unit_type[idx]->unitpic, FILTER_LINEAR, true);
+							SDL_FreeSurface(unit_type[idx]->unitpic);
+							unit_type[idx]->unitpic = NULL;
+							gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
+						}
 						if (unit_type[idx]->glpic || tex)
 						{
 							const int px = ((n - 1) & 1) * 64;
