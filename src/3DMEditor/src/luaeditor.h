@@ -1,14 +1,15 @@
 #ifndef LUAEDITOR_H
 #define LUAEDITOR_H
 
-#include <QWidget>
-#include <QTextEdit>
+#include <QMainWindow>
 #include <QTextStream>
 #include <QTimer>
-#include <QPushButton>
-#include <QLineEdit>
 
-class LuaEditor : public QWidget
+class QPushButton;
+class QTextEdit;
+class QLineEdit;
+
+class LuaEditor : public QMainWindow
 {
     Q_OBJECT;
 public:
@@ -24,12 +25,14 @@ private:
     QTimer    luaTimer;
     QPushButton *bRun;
     QLineEdit *commandInput;
+	QString filename;
 
 public slots:
     void updateWindowTitle();
     void updateGUI();
     void compileCode();
     void saveProgram();
+	void quickSave();
     void loadProgram();
     void runLuaCode();
     void runLuaCommand();
