@@ -9,7 +9,7 @@ namespace TA3D
 	template<class U> inline void ResetTheLoggingMecanism(const U& logfile)
 	{
 		logs.applicationName("ta3d");
-		logs.outputFilename(logfile);
+		logs.logfile(logfile);
 	}
 
 

@@ -277,9 +277,9 @@ namespace TA3D
 
 			// Informations about the log file
 			if (!logs.logFileIsOpened())
-				logs.error() << "Logs: Impossible to open `" << logs.outputFilename() << "`";
+				logs.error() << "Logs: Impossible to open `" << logs.logfile() << "`";
 			else
-				logs.info() << "Opened the log file: `" << logs.outputFilename() << "`";
+				logs.info() << "Opened the log file: `" << logs.logfile() << "`";
 
 			bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
 				&& MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources)
