@@ -20,8 +20,7 @@
 
 # include <yuni/yuni.h>
 # include <yuni/core/logs.h>
-# include <yuni/core/logs/handlers/stdcout.h>
-# include <yuni/core/logs/handlers/file.h>
+# include <yuni/core/logs/handler/file.h>
 # include <yuni/core/logs/decorators/applicationname.h>
 
 
