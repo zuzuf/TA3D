@@ -592,7 +592,7 @@ namespace TA3D
 		LOAD( features.max_features );
 
 		features.feature = new FeatureData[features.max_features];
-		for (int i = features.nb_features - 1; i < features.max_features; ++i)
+		for (int i = std::max(0, features.nb_features - 1) ; i < features.max_features ; ++i)
 		{
 			features.feature[i].type = -1;
 			features.feature[i].shadow_dlist = 0;
