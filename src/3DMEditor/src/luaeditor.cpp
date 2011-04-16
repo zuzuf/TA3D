@@ -44,6 +44,8 @@ LuaEditor::LuaEditor()
     code = new QTextEdit;
     output = new QTextEdit;
     output->setReadOnly(true);
+	code->setFontFamily("Monospace");
+	output->setFontFamily("Monospace");
 
 	setStatusBar(new QStatusBar);
 
@@ -67,9 +69,10 @@ LuaEditor::LuaEditor()
     curLayout->addWidget(code);
 
 	QMenu *mnuFile = new QMenu(tr("&File"));
-	mnuFile->addAction(QIcon("icons/new.png"), tr("&load template"), this, SLOT(loadTemplate()),QKeySequence(Qt::CTRL + Qt::Key_N));
-	mnuFile->addAction(QIcon("icons/open.png"), tr("&open program"), this, SLOT(loadProgram()),QKeySequence(Qt::CTRL + Qt::Key_O));
-	mnuFile->addAction(QIcon("icons/save.png"), tr("&save program"), this, SLOT(saveProgram()),QKeySequence(Qt::CTRL + Qt::Key_S));
+	mnuFile->addAction(QIcon("icons/new.png"), tr("&new"), this, SLOT(loadTemplate()),QKeySequence(Qt::CTRL + Qt::Key_N));
+	mnuFile->addAction(QIcon("icons/open.png"), tr("&open"), this, SLOT(loadProgram()),QKeySequence(Qt::CTRL + Qt::Key_O));
+	mnuFile->addAction(QIcon("icons/save.png"), tr("&save"), this, SLOT(quickSave()),QKeySequence(Qt::CTRL + Qt::Key_S));
+	mnuFile->addAction(QIcon("icons/save.png"), tr("&save as"), this, SLOT(saveProgram()));
 	mnuFile->addSeparator();
 	mnuFile->addAction(QIcon("icons/exit.png"), tr("&close"), this, SLOT(close()),QKeySequence(Qt::CTRL + Qt::Key_W));
 	setMenuBar(new QMenuBar);
@@ -233,7 +236,8 @@ void LuaSyntaxHighlighter::highlightBlock(const QString &text)
                       "|\\belse\\b"
                       "|\\belseif\\b"
                       "|\\bfor\\b"
-                      "|\\bfunction\\b"
+					  "|\\bwhile\\b"
+					  "|\\bfunction\\b"
                       "|\\breturn\\b"
                       "|\\bbreak\\b"
                       "|\\band\\b"

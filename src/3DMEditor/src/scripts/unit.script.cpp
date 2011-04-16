@@ -448,6 +448,7 @@ namespace TA3D
 
             L = NULL;
             buffer = NULL;
+			return;
         }
         else
         {
