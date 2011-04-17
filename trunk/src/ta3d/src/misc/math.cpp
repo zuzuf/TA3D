@@ -16,6 +16,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include <stdafx.h>
+#include <cstdlib>
+#include <ctime>
 #include "math.h"
 
 
@@ -43,6 +45,17 @@ namespace Math
     }
 
 
+	PreCachedRandomNumbers::PreCachedRandomNumbers()
+	{
+		reset();
+	}
+
+	void PreCachedRandomNumbers::reset()
+	{
+		srand((unsigned int)time(NULL));
+		for(size_t i = 0U ; i < TA3D_MATH_RANDOM_TABLE_SIZE ; ++i)
+			pCache[i] = TA3D_RAND();
+	}
 
 
 } // namespace Math

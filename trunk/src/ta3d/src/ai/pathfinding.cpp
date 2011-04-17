@@ -112,7 +112,7 @@ namespace TA3D
 		}
 	}
 
-	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0), nbCores(), pSync(2)
+	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0), nbCores(), pSync(2), bRunning(false)
 	{
 		nbCores = Yuni::System::CPU::Count();
 	}
@@ -188,6 +188,7 @@ namespace TA3D
 
 	void Pathfinder::proc(void*)
 	{
+		bRunning = true;
 		while (!pDead)
 		{
 			lock();
@@ -238,9 +239,13 @@ namespace TA3D
 	
 			// We don't want to use more than 25% of the CPU here
 			if (suspend((nbCores == 1) ? ((msec_timer - start_timer) << 2) : 0))
+			{
 				// The thread should stop as soon as possible
+				bRunning = false;
 				return;
+			}
 		}
+		bRunning = false;
 	}
 
 	void Pathfinder::findPath( AI::Path &path, const Task &task )
@@ -696,7 +701,11 @@ namespace TA3D
 	void Pathfinder::signalExitThread()
 	{
 		pDead = 1;
-		pSync.release();
+		while(bRunning)
+		{
+			pSync.release();
+			rest(1);
+		}
 	}
 
 	void Pathfinder::computeWalkableAreas()

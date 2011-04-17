@@ -584,7 +584,7 @@ namespace TA3D
 		weights.clear();
 	}
 
-	void AiController::changeName(const String& newName)		// Change le nom de l'IA (conduit �  la création d'un nouveau fichier)
+	void AiController::changeName(const String& newName)		// Change le nom de l'IA (conduit Ã  la crÃ©ation d'un nouveau fichier)
 	{
 		pMutex.lock();
 		name = newName;

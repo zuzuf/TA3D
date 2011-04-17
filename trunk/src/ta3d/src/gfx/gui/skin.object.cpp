@@ -75,18 +75,18 @@ namespace Gui
 		{
 			tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
 
-			x1 = parser.pullAsInt(String(prefix) << "x1");
-			y1 = parser.pullAsInt(String(prefix) << "y1");
-			x2 = parser.pullAsInt(String(prefix) << "x2");
-			y2 = parser.pullAsInt(String(prefix) << "y2");
+			x1 = (float)parser.pullAsInt(String(prefix) << "x1");
+			y1 = (float)parser.pullAsInt(String(prefix) << "y1");
+			x2 = (float)parser.pullAsInt(String(prefix) << "x2");
+			y2 = (float)parser.pullAsInt(String(prefix) << "y2");
 
-			t_x1 = w ? ((float)x1) / w : 0.0f;
-			t_x2 = w ? ((float)x2) / w : 0.0f;
-			t_y1 = h ? ((float)y1) / h : 0.0f;
-			t_y2 = h ? ((float)y2) / h : 0.0f;
+			t_x1 = w ? ((float)x1) / (float)w : 0.0f;
+			t_x2 = w ? ((float)x2) / (float)w : 0.0f;
+			t_y1 = h ? ((float)y1) / (float)h : 0.0f;
+			t_y2 = h ? ((float)y2) / (float)h : 0.0f;
 
-			x2 -= w;
-			y2 -= h;
+			x2 -= (float)w;
+			y2 -= (float)h;
 
 			borderSize *= parser.pullAsFloat(String(prefix) << "scale", 1.0f);		// Allow scaling the widgets
 
@@ -94,8 +94,8 @@ namespace Gui
 			y1 *= borderSize;
 			x2 *= borderSize;
 			y2 *= borderSize;
-			sw = w * borderSize;
-			sh = h * borderSize;
+			sw = (float)w * borderSize;
+			sh = (float)h * borderSize;
 		}
 	}
 

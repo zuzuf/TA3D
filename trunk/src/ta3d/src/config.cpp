@@ -113,21 +113,21 @@ void configWindow()
 
 	if (bOk)
 	{
-		lp_CONFIG->screen_width = SPINBOX(width)->getValue();
-		lp_CONFIG->screen_height = SPINBOX(height)->getValue();
-		lp_CONFIG->color_depth = SPINBOX(bpp)->getValue();
-		lp_CONFIG->fsaa = SPINBOX(fsaa)->getValue();
+		lp_CONFIG->screen_width = static_cast<TA3D::uint16>(SPINBOX(width)->getValue());
+		lp_CONFIG->screen_height = static_cast<TA3D::uint16>(SPINBOX(height)->getValue());
+		lp_CONFIG->color_depth = static_cast<TA3D::uint8>(SPINBOX(bpp)->getValue());
+		lp_CONFIG->fsaa = static_cast<TA3D::sint16>(SPINBOX(fsaa)->getValue());
 		lp_CONFIG->fullscreen = CHECKBOX(fullscreen)->getState();
-		lp_CONFIG->anisotropy = SPINBOX(anisotropy)->getValue();
-		lp_CONFIG->shadow_quality = SPINBOX(shadows)->getValue();
-		lp_CONFIG->water_quality = SPINBOX(water)->getValue();
-		lp_CONFIG->shadowmap_size = SPINBOX(shadowmap)->getValue();
+		lp_CONFIG->anisotropy = static_cast<TA3D::sint16>(SPINBOX(anisotropy)->getValue());
+		lp_CONFIG->shadow_quality = static_cast<TA3D::sint16>(SPINBOX(shadows)->getValue());
+		lp_CONFIG->water_quality = static_cast<TA3D::sint16>(SPINBOX(water)->getValue());
+		lp_CONFIG->shadowmap_size = static_cast<TA3D::uint8>(SPINBOX(shadowmap)->getValue());
 		lp_CONFIG->use_texture_cache = CHECKBOX(texturecache)->getState();
 		lp_CONFIG->use_texture_compression = CHECKBOX(texturecompression)->getState();
 		lp_CONFIG->far_sight = CHECKBOX(farsight)->getState();
 
-		lp_CONFIG->sound_volume = SPINBOX(soundvolume)->getValue();
-		lp_CONFIG->music_volume = SPINBOX(musicvolume)->getValue();
+		lp_CONFIG->sound_volume = static_cast<int>(SPINBOX(soundvolume)->getValue());
+		lp_CONFIG->music_volume = static_cast<int>(SPINBOX(musicvolume)->getValue());
 
 		lp_CONFIG->player_name = std::string(LINEINPUT(playername)->getText());
 		lp_CONFIG->Lang = std::string(LINEINPUT(language)->getText());

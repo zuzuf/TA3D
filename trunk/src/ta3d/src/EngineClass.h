@@ -302,7 +302,7 @@ namespace TA3D
 
 	inline float MAP::get_nh(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
 	inline float MAP::get_zdec(const int x, const int y) const	{	return ph_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2)) * tnt_transform_H_DIV;	}
-	inline int MAP::get_zdec_notest(const int x, const int y) const	{	return 	ph_map(x, y) * (0.125f * tnt_transform_H_DIV) + 0.5f;	}
+	inline int MAP::get_zdec_notest(const int x, const int y) const	{	return 	static_cast<int>(ph_map(x, y) * (0.125f * tnt_transform_H_DIV) + 0.5f);	}
 	inline float MAP::get_h(const int x, const int y) const	{	return h_map(Math::Clamp(x, 0, bloc_w_db - 2), Math::Clamp(y, 0, bloc_h_db - 2));	}
 
 	extern MAP *the_map;

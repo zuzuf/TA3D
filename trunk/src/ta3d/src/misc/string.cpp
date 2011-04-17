@@ -39,7 +39,7 @@ namespace TA3D
 		if (c < 0x800)
 		{
 			String str;
-			byte b = 0xC0 | (c >> 6);
+			int b = 0xC0 | (c >> 6);
 			str << (char)b;
 
 			b = 0x80 | (c & 0x3F);
@@ -48,7 +48,7 @@ namespace TA3D
 		}
 
 		String str;
-		byte b = 0xC0 | (c >> 12);
+		int b = 0xC0 | (c >> 12);
 		str << (char)b;
 
 		b = 0x80 | ((c >> 6) & 0x3F);
@@ -75,7 +75,7 @@ namespace TA3D
 			return 2;
 		}
 		out[0] = 0xC3;
-		out[1] = c - 0x40;
+		out[1] = static_cast<byte>(c - 0x40);
 		return 2;
 	}
 
@@ -91,13 +91,13 @@ namespace TA3D
 		return ret;
 	}
 
-	char* ConvertToUTF8(const char* s, const uint32 len)
+	char* ConvertToUTF8(const char* s, const size_t len)
 	{
 		uint32 nws;
 		return ConvertToUTF8(s, len, nws);
 	}
 
-	char* ConvertToUTF8(const char* s, uint32 size, uint32& newSize)
+	char* ConvertToUTF8(const char* s, size_t size, uint32& newSize)
 	{
 		if (NULL == s || '\0' == *s)
 		{
@@ -108,7 +108,7 @@ namespace TA3D
 		}
 		byte tmp[4];
 		newSize = 1;
-		uint32 n = size;
+		size_t n = size;
 		for(byte *p = (byte*)s ; *p && n ; ++p, --n)
 			newSize += ASCIItoUTF8(*p, tmp);
 
@@ -153,7 +153,7 @@ namespace TA3D
 
     void WString::fromUtf8(const char* str, size_t length)
     {
-        int len = 0;
+		size_t len = 0;
         for (size_t i = 0 ; i < length; i++)
         {
             if (((byte)str[i]) < 0x80)

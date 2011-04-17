@@ -74,9 +74,9 @@ class FTGL_EXPORT FTPoint
          */
         inline FTPoint(const FT_Vector& ft_vector)
         {
-            values[0] = ft_vector.x;
-            values[1] = ft_vector.y;
-            values[2] = 0;
+			values[0] = static_cast<FTGL_DOUBLE>(ft_vector.x);
+			values[1] = static_cast<FTGL_DOUBLE>(ft_vector.y);
+			values[2] = FTGL_DOUBLE(0);
         }
 
         /**

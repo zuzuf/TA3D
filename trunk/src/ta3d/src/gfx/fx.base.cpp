@@ -96,9 +96,9 @@ namespace TA3D
         destroy();
         anm = anim;
         Pos = p;
-        size = s*0.25f;
+		size = s * 0.25f;
         time = 0.0f;
-		angle = (TA3D::Math::RandomTable() % 3600) * 0.1f;
+		angle = float(TA3D::Math::RandomTable() % 3600) * 0.1f;
         playing = true;
     }
 
@@ -131,8 +131,8 @@ namespace TA3D
         glTranslatef(Pos.x, Pos.y, Pos.z);
         glRotatef(size, 0.0f, 1.0f, 0.0f);
 
-		const float wsize = 0.25f * fx_manager.wave_tex[animIndx + 4].getWidth();
-		const float hsize = 0.25f * fx_manager.wave_tex[animIndx + 4].getHeight();
+		const float wsize = 0.25f * float(fx_manager.wave_tex[animIndx + 4].getWidth());
+		const float hsize = 0.25f * float(fx_manager.wave_tex[animIndx + 4].getHeight());
 		const float dec = time * 0.125f;
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - 0.5f * fabsf( 2.0f - time ) );

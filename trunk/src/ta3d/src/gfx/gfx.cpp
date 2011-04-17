@@ -404,7 +404,7 @@ namespace TA3D
 		}
 
         // We want a centered window
-		SDL_putenv("SDL_VIDEO_CENTERED=1");
+		SDL_putenv(const_cast<char*>("SDL_VIDEO_CENTERED=1"));
 
 		SDL_Surface *icon = load_image("gfx\\icon.png");
 		if (icon)
@@ -2030,7 +2030,7 @@ namespace TA3D
 		if (!cache_file.opened())
 			return;
 
-		uint32 mod_hash = hash<String>()(TA3D_CURRENT_MOD); // Save a hash of current mod
+		uint32 mod_hash = static_cast<uint32>(hash<String>()(TA3D_CURRENT_MOD)); // Save a hash of current mod
 
 		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 

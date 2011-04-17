@@ -209,7 +209,7 @@ namespace TA3D
 			break;
 		case KEY_ENTER:
 			pLastCommands.push_back(pInputText);
-			pHistoryPos = pLastCommands.size();
+			pHistoryPos = static_cast<int>(pLastCommands.size());
 			addEntry(String(">") << pInputText);
 			execute(pInputText);
 			pInputText.clear();
@@ -275,17 +275,17 @@ namespace TA3D
 		};
 
 		const float fsize = fnt->height();
-		const float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
+		const float maxh = fsize * static_cast<float>(pLastEntries.size()) * pVisible + 5.0f;
 
 		glEnable(GL_BLEND);		// Dessine le cadre de la console
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glColor4f(0.75f, 0.75f, 0.608f, 0.5f);
 
-		gfx->rectfill(0,0,SCREEN_W,maxh);
+		gfx->rectfill(0.0f, 0.0f, static_cast<float>(SCREEN_W), maxh);
 
 		glColor4f(0.75f, 0.75f, 0.608f, 0.75f);
-		gfx->line(SCREEN_W, maxh, 0, maxh);
+		gfx->line(static_cast<float>(SCREEN_W), maxh, 0.0f, maxh);
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -318,17 +318,17 @@ namespace TA3D
 				i_entry->explode(cols, '|', true, false, true);
 				for(uint32 k = 0 ; k < cols.size() ; ++k)
 				{
-					gfx->print(fnt, tableWidth * k + 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+					gfx->print(fnt, tableWidth * float(k) + 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
 							   makeacol32(0,0,0,0xFF), cols[k]);
-					gfx->print(fnt, tableWidth * k + 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+					gfx->print(fnt, tableWidth * float(k) + 0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
 							   makeacol32(0xFF, 0xFF, 0, 0xFF), cols[k]);
 				}
 			}
 			else
 			{
-				gfx->print(fnt, 1.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+				gfx->print(fnt, 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
 						   makeacol32(0,0,0,0xFF), *i_entry);
-				gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+				gfx->print(fnt, 0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
 						   0xDFDFDFDF, *i_entry);
 			}
 		}
@@ -344,7 +344,7 @@ namespace TA3D
 		else
 		{
 			if (pHistoryPos > (int)pLastCommands.size())
-				pHistoryPos = pLastCommands.size();
+				pHistoryPos = int(pLastCommands.size());
 		}
 
 		glDisable(GL_BLEND);

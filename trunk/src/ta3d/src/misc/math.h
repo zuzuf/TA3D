@@ -20,10 +20,9 @@
 
 # include <cmath>
 # include <math.h>
-# include <yuni/core/math/random/default.h>
-# include <yuni/core/math/random/table.h>
 
-#define TA3D_MATH_RANDOM_TABLE_SIZE		0x100000
+#define TA3D_MATH_RANDOM_TABLE_SIZE		0x100000U
+#define TA3D_MATH_RANDOM_TABLE_MASK		0x0FFFFFU
 
 namespace TA3D
 {
@@ -66,12 +65,22 @@ namespace Math
     //! \name Random table
     //@{
 	//! A table for precached random numbers
-	typedef Yuni::Math::Random::Table<
-		Yuni::Math::Random::Default,   // The distribution to use for generating the random numbers
-		TA3D_MATH_RANDOM_TABLE_SIZE,   // Arbitrary number of precached numbers
-		true,                          // Cyclic, the numbers are always re-used
-		Yuni::Policy::SingleThreaded   // The Threading Policy - No lock should be good enough for our needs
-		>   PreCachedRandomNumbers;
+	class PreCachedRandomNumbers
+	{
+	public:
+		PreCachedRandomNumbers();
+
+		void reset();
+
+		inline int operator()() const
+		{
+			return pCache[++pOffset & TA3D_MATH_RANDOM_TABLE_MASK];
+		}
+
+	private:
+		mutable size_t pOffset;
+		int pCache[TA3D_MATH_RANDOM_TABLE_SIZE];
+	};
 
 	/*!
 	** \brief A pre-cached table for random numbers 
@@ -88,23 +97,6 @@ namespace Math
 
 } // namespace Math
 } // namespace TA3D
-
-
-namespace Yuni
-{
-namespace Math
-{
-namespace Random
-{
-	template<>
-			inline const TA3D::Math::PreCachedRandomNumbers::Value
-			TA3D::Math::PreCachedRandomNumbers::next()
-	{
-		return pCache[++pOffset & (tableSize - 1)];
-	}
-}
-}
-}
 
 
 //! Alias to the isnan() function

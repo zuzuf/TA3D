@@ -25,9 +25,9 @@ namespace TA3D
     FXElectric::FXElectric(const Vector3D& P)
         : Pos(P), life(1.0f)
     {
-        U.x = (Math::RandomTable() % 201) * 0.01f - 1.0f;
-        U.y = (Math::RandomTable() % 201) * 0.01f - 1.0f;
-        U.z = (Math::RandomTable() % 201) * 0.01f - 1.0f;
+		U.x = static_cast<float>(Math::RandomTable() % 201) * 0.01f - 1.0f;
+		U.y = static_cast<float>(Math::RandomTable() % 201) * 0.01f - 1.0f;
+		U.z = static_cast<float>(Math::RandomTable() % 201) * 0.01f - 1.0f;
 
         V.x = 1.0f; V.y = 0.0f; V.z = 0.0f;
         V = V * U;
@@ -58,16 +58,18 @@ namespace TA3D
         glBegin(GL_LINE_STRIP);
         for (float i = start; i <= end; i += step)
         {
-            glColor4ub(0x70 + (Math::RandomTable() & 0x1F), 0x70 + (Math::RandomTable() & 0x1F),
-				0xFF - ((int)Math::RandomTable() & 0xF), 0xFF);
+			glColor4ub(static_cast<GLubyte>(0x70 + (Math::RandomTable() & 0x1F)),
+					   static_cast<GLubyte>(0x70 + (Math::RandomTable() & 0x1F)),
+					   static_cast<GLubyte>(0xFF - ((int)Math::RandomTable() & 0xF)),
+					   0xFF);
 
 			p = Pos;
 			p += (cosf(i) * 2.0f) * V;
 			p += (sinf(i) * 2.0f) * U;
-            p.x += (Math::RandomTable() % 61) * 0.01f - 0.3f;
-            p.y += (Math::RandomTable() % 61) * 0.01f - 0.3f;
-            p.z += (Math::RandomTable() % 61) * 0.01f - 0.3f;
-            glVertex3fv((GLfloat*)& p);
+			p.x += static_cast<float>(Math::RandomTable() % 61) * 0.01f - 0.3f;
+			p.y += static_cast<float>(Math::RandomTable() % 61) * 0.01f - 0.3f;
+			p.z += static_cast<float>(Math::RandomTable() % 61) * 0.01f - 0.3f;
+			glVertex3fv((const GLfloat*) &p);
         }
         glEnd();
     }

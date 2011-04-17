@@ -86,7 +86,7 @@ namespace Gui
 		switch (Type)
 		{
 			case OBJ_OPTIONC:
-			case OBJ_OPTIONB:	x2 = x1 + (int)gui_font->length(caption) + 4;
+			case OBJ_OPTIONB:	x2 = x1 + gui_font->length(caption) + 4.0f;
 			case OBJ_TEXT:
 			case OBJ_MENU:
 			case OBJ_FMENU:
@@ -103,7 +103,7 @@ namespace Gui
 		{
 			case OBJ_OPTIONC:
 			case OBJ_OPTIONB:
-				x2 = x1 + (int)gui_font->length(caption) + 4;
+				x2 = x1 + gui_font->length(caption) + 4.0f;
 		}
 		if (Type == OBJ_TEXTBAR && Text[0].size() >= Data)
 			Text[0].truncate(Data - 1);
@@ -123,15 +123,15 @@ namespace Gui
 		y1 = Y1;
 		if (!gltex_states.empty())
 		{
-			x2 = X1 + gltex_states[0].width;
-			y2 = Y1 + gltex_states[0].height;
+			x2 = X1 + float(gltex_states[0].width);
+			y2 = Y1 + float(gltex_states[0].height);
 		}
 		else
 		{
 			x2 = X1;
 			y2 = Y1;
 		}
-		nb_stages = nb_st;
+		nb_stages = byte(nb_st);
 		Etat = false;
 		Focus = false;
 		current_state = 0;
@@ -167,7 +167,7 @@ namespace Gui
 		x1 = X1;
 		y1 = Y1;
 
-		x2 = X1 +(int)(gui_font->length(caption)) + 4;
+		x2 = X1 + gui_font->length(caption) + 4.0f;
 		y2 = Y1;
 
 		if (skin && skin->checkbox[0].tex && skin->checkbox[1].tex)
@@ -198,7 +198,7 @@ namespace Gui
 		x1 = X1;
 		y1 = Y1;
 
-		x2 = X1 + (int)(gui_font->length(Caption)) + 4;
+		x2 = X1 + gui_font->length(Caption) + 4.0f;
 		y2 = Y1;
 
 		if (skin && skin->option[0].tex && skin->option[1].tex)
@@ -277,7 +277,7 @@ namespace Gui
 		x1 = X1;
 		y1 = Y1;
 		x2 = X1 + 168;
-		y2 = (int)(Y1 + gui_font->height() * Entry.size() + gui_font->height());
+		y2 = Y1 + gui_font->height() * float(Entry.size()) + gui_font->height();
 		Etat = false;
 		Focus = false;
 		Text = Entry;
@@ -337,8 +337,8 @@ namespace Gui
 		Type = OBJ_TEXT;
 		x1 = X1;
 		y1 = Y1;
-		x2 = (int)(X1 + gui_font->length(Caption));
-		y2 = (int)(Y1 + gui_font->height());
+		x2 = X1 + gui_font->length(Caption);
+		y2 = Y1 + gui_font->height();
 		Etat = false;
 		Focus = false;
 		Text.clear();
