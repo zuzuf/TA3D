@@ -5,7 +5,7 @@ namespace TA3D
 {
 	Unit *Mission::Target::getUnit() const
 	{
-		if (type != TargetUnit || idx < 0 || idx >= units.max_unit)
+		if (type != TargetUnit || idx < 0 || idx >= (int)units.max_unit)
 			return NULL;
 		Unit *p = &(units.unit[idx]);
 		return (p->ID == UID) ? p : NULL;
@@ -13,7 +13,7 @@ namespace TA3D
 
 	Weapon *Mission::Target::getWeapon() const
 	{
-		if (type != TargetWeapon || idx < 0 || idx >= weapons.weapon.size())
+		if (type != TargetWeapon || idx < 0 || idx >= (int)weapons.weapon.size())
 			return NULL;
 		Weapon *p = &(weapons.weapon[idx]);
 		return p;
@@ -22,13 +22,13 @@ namespace TA3D
 
 	bool Mission::Target::isUnit() const
 	{
-		return type == TargetUnit && idx >= 0 && idx < units.max_unit && units.unit[idx].ID == UID;
+		return type == TargetUnit && idx >= 0 && idx < (int)units.max_unit && units.unit[idx].ID == UID;
 	}
 
 
 	bool Mission::Target::isWeapon() const
 	{
-		return type == TargetWeapon && idx >= 0 && idx < weapons.weapon.size();
+		return type == TargetWeapon && idx >= 0 && idx < (int)weapons.weapon.size();
 	}
 
 
@@ -40,9 +40,9 @@ namespace TA3D
 			case TargetStatic:
 				return true;
 			case TargetUnit:
-				return idx >= 0 && idx < units.max_unit && units.unit[idx].ID == UID;
+				return idx >= 0 && idx < (int)units.max_unit && units.unit[idx].ID == UID;
 			case TargetWeapon:
-				return idx >= 0 && idx < weapons.weapon.size();
+				return idx >= 0 && idx < (int)weapons.weapon.size();
 		}
 		return false;
 	}
@@ -54,14 +54,14 @@ namespace TA3D
 		{
 		case TargetUnit:
 			{
-				Unit *p = getUnit();
+				const Unit *p = getUnit();
 				if (p)
 					return p->Pos;
 			}
 			break;
 		case TargetWeapon:
 			{
-				Weapon *p = getWeapon();
+				const Weapon *p = getWeapon();
 				if (p)
 					return p->Pos;
 			}
@@ -146,7 +146,7 @@ namespace TA3D
 
 		SAVE(node);
 
-		int s = qStep.size();
+		const int s = (int)qStep.size();
 		SAVE(s);
 		for(int i = 0 ; i < s ; ++i)
 			qStep[i].save(file);

@@ -512,7 +512,7 @@ namespace UTILS
 	{
 		for(std::vector<Archive*>::const_iterator it = archives.begin() ; it != archives.end() ; ++it)
 			li.push_back((*it)->getName());
-		return archives.size();
+		return (uint32)archives.size();
 	}
 
 	bool load_palette(SDL_Color *pal, const String& filename)
@@ -545,7 +545,7 @@ namespace UTILS
 			LOG_WARNING("Impossible to open the file `" << filename << "`");
 			return false;
 		}
-		if (sizeLimit && file->size() > sizeLimit)
+		if (sizeLimit && (uint32)file->size() > sizeLimit)
 		{
 			delete file;
 			LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");

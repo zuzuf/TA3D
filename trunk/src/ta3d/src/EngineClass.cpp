@@ -158,19 +158,19 @@ namespace TA3D
 		int buf_size = 0;
 		for (int i = 0; i < 6500; ++i)
 		{
-			buf_i[i++] = 0 + buf_size;
-			buf_i[i++] = 1 + buf_size;
-			buf_i[i++] = 3 + buf_size;
-			buf_i[i++] = 4 + buf_size;
-			buf_i[i++] = 6 + buf_size;
-			buf_i[i++] = 7 + buf_size;
-			buf_i[i++] = 7 + buf_size;
-			buf_i[i++] = 8 + buf_size;
-			buf_i[i++] = 4 + buf_size;
-			buf_i[i++] = 5 + buf_size;
-			buf_i[i++] = 1 + buf_size;
-			buf_i[i++] = 2 + buf_size;
-			buf_i[i]   = 2 + buf_size;
+			buf_i[i++] = GLushort(0 + buf_size);
+			buf_i[i++] = GLushort(1 + buf_size);
+			buf_i[i++] = GLushort(3 + buf_size);
+			buf_i[i++] = GLushort(4 + buf_size);
+			buf_i[i++] = GLushort(6 + buf_size);
+			buf_i[i++] = GLushort(7 + buf_size);
+			buf_i[i++] = GLushort(7 + buf_size);
+			buf_i[i++] = GLushort(8 + buf_size);
+			buf_i[i++] = GLushort(4 + buf_size);
+			buf_i[i++] = GLushort(5 + buf_size);
+			buf_i[i++] = GLushort(1 + buf_size);
+			buf_i[i++] = GLushort(2 + buf_size);
+			buf_i[i]   = GLushort(2 + buf_size);
 			buf_size += 9;
 		}
 	}
@@ -181,18 +181,18 @@ namespace TA3D
 	{
 		if (isNaN(x) || isNaN(y))
 			return 0.0f;
-		x = (x + map_w_d) * 0.125f;		// Convertit les coordonnées
-		y = (y + map_h_d) * 0.125f;
+		x = (x + (float)map_w_d) * 0.125f;		// Convertit les coordonnées
+		y = (y + (float)map_h_d) * 0.125f;
 		const int lx = bloc_w_db - 1;
 		const int ly = bloc_h_db - 1;
 		if (x < 0.0f) x = 0.0f;
-		else if (x >= lx) x = bloc_w_db - 2;
+		else if (x >= lx) x = (float)bloc_w_db - 2.0f;
 		if (y < 0.0f) y = 0.0f;
-		else if (y >= ly) y = bloc_h_db - 2;
+		else if (y >= ly) y = (float)bloc_h_db - 2.0f;
 		float h[4];
 		const int X = (int)x, Y = (int)y;
-		const float dx = x - X;
-		const float dy = y - Y;
+		const float dx = x - (float)X;
+		const float dy = y - (float)Y;
 		h[0] = h_map(X, Y);
 		if (X + 1 < lx)
 			h[1] = h_map(X + 1, Y) - h[0];
@@ -657,7 +657,7 @@ namespace TA3D
 # endif
 			if (!average)
 				average = 1;
-			color_factor = 255.0f / average;
+			color_factor = 255.0f / (float)average;
 			details_tex = gfx->make_texture(tex, FILTER_TRILINEAR, false);
 			SDL_FreeSurface(tex);
 		}
@@ -695,10 +695,10 @@ namespace TA3D
 		tidalstrength = parser.pullAsInt("GlobalHeader.tidalstrength");
 		solarstrength = parser.pullAsInt("GlobalHeader.solarstrength");
 		lavaworld = parser.pullAsBool("GlobalHeader.lavaworld");
-		killmul = parser.pullAsInt("GlobalHeader.killmul", 50);
+		killmul = (short)parser.pullAsInt("GlobalHeader.killmul", 50);
 		minwindspeed = parser.pullAsInt("GlobalHeader.minwindspeed");
 		maxwindspeed = parser.pullAsInt("GlobalHeader.maxwindspeed");
-		gravity = parser.pullAsInt("GlobalHeader.gravity") * 0.1f;
+		gravity = (float)parser.pullAsInt("GlobalHeader.gravity") * 0.1f;
 		numplayers = parser.pullAsString("GlobalHeader.numplayers");
 		map_size = parser.pullAsString("GlobalHeader.size");
 		SurfaceMetal = parser.pullAsInt("GlobalHeader.Schema 0.SurfaceMetal");
@@ -738,9 +738,9 @@ namespace TA3D
 		const int rh = h * mini_h / 252;
 		x1 += (w - rw) >> 1;
 		y1 += (h - rh) >> 1;
-		const float lw = mini_w / 252.0f;
-		const float lh = mini_h / 252.0f;
-		gfx->drawtexture(glmini, x1, y1, x1 + rw, y1 + rh, 0.0f, 0.0f, lw, lh);
+		const float lw = (float)mini_w / 252.0f;
+		const float lh = (float)mini_h / 252.0f;
+		gfx->drawtexture(glmini, (float)x1, (float)y1, (float)x1 + (float)rw, (float)y1 + (float)rh, 0.0f, 0.0f, lw, lh);
 
 		if (rh == 0 || rw == 0) return;
 
@@ -777,8 +777,8 @@ namespace TA3D
 						{
 							if (old_x != -1 )
 							{
-								lines.push_back( Vector2D(x1 + old_x, y1 + y) );
-								lines.push_back( Vector2D(x1 + x, y1 + y) );
+								lines.push_back( Vector2D(float(x1 + old_x), float(y1 + y)) );
+								lines.push_back( Vector2D(float(x1 + x), float(y1 + y)) );
 								colors.push_back(col);
 								colors.push_back(col);
 							}
@@ -795,8 +795,8 @@ namespace TA3D
 							{
 								if (old_x != -1)
 								{
-									lines.push_back( Vector2D(x1 + old_x, y1 + y) );
-									lines.push_back( Vector2D(x1 + x, y1 + y) );
+									lines.push_back( Vector2D(float(x1 + old_x), float(y1 + y)) );
+									lines.push_back( Vector2D(float(x1 + x), float(y1 + y)) );
 									colors.push_back(col);
 									colors.push_back(col);
 								}
@@ -811,8 +811,8 @@ namespace TA3D
 							{
 								if (old_x != -1)
 								{
-									lines.push_back( Vector2D(x1 + old_x, y1 + y) );
-									lines.push_back( Vector2D(x1 + x, y1 + y) );
+									lines.push_back( Vector2D(float(x1 + old_x), float(y1 + y)) );
+									lines.push_back( Vector2D(float(x1 + x), float(y1 + y)) );
 									colors.push_back(col);
 									colors.push_back(col);
 								}
@@ -824,8 +824,8 @@ namespace TA3D
 				}
 				if (old_x != -1)
 				{
-					lines.push_back( Vector2D(x1 + old_x, y1 + y) );
-					lines.push_back( Vector2D(x1 + rw, y1 + y) );
+					lines.push_back( Vector2D(float(x1 + old_x), float(y1 + y)) );
+					lines.push_back( Vector2D(float(x1 + rw), float(y1 + y)) );
 					colors.push_back(col);
 					colors.push_back(col);
 				}
@@ -836,7 +836,7 @@ namespace TA3D
 			glVertexPointer(2, GL_FLOAT, 0, &(lines.front()));
 			glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors.front()));
 
-			glDrawArrays(GL_LINES, 0, lines.size());
+			glDrawArrays(GL_LINES, 0, (GLsizei)lines.size());
 
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisable(GL_BLEND);
@@ -854,10 +854,10 @@ namespace TA3D
 		if (lp_CONFIG->ortho_camera)
 		{
 			A = B = C = D = cam->dir;
-			PA = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
-			PB = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
-			PC = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
-			PD = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
+			PA = cam->pos + cam->zoomFactor * ( -(float)gfx->SCREEN_W_HALF * cam->side - (float)gfx->SCREEN_H_HALF * cam->up );
+			PB = cam->pos + cam->zoomFactor * (  (float)gfx->SCREEN_W_HALF * cam->side - (float)gfx->SCREEN_H_HALF * cam->up );
+			PC = cam->pos + cam->zoomFactor * (  (float)gfx->SCREEN_W_HALF * cam->side + (float)gfx->SCREEN_H_HALF * cam->up );
+			PD = cam->pos + cam->zoomFactor * ( -(float)gfx->SCREEN_W_HALF * cam->side + (float)gfx->SCREEN_H_HALF * cam->up );
 		}
 		else
 		{
@@ -868,35 +868,35 @@ namespace TA3D
 			PA = PB = PC = PD = cam->pos;
 		}
 		const int nmax = 64;
-		float cx[4*nmax+4],cy[4*nmax+4];
-		if (A.y<0.0f) {
-			P = PA + PA.y / fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
-		else {
-			P = PA + 10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
-		if (B.y<0.0f) {
-			P = PB + PB.y / fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
-		else {
-			P = PB + 10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
-		if (C.y<0.0f) {
-			P = PC + PC.y / fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
-		else {
-			P = PC + 10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
-		if (D.y<0.0f) {
-			P = PD + PD.y / fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
-		else {
-			P = PD + 10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
+		float cx[4 * nmax + 4], cy[4 * nmax + 4];
+		if (A.y < 0.0f)
+		{	P = PA + PA.y / fabsf(A.y) * A;	cx[0] = P.x;	cy[0] = P.z; }
+		else
+		{	P = PA + 10000.0f * A;	cx[0] = P.x;	cy[0] = P.z; }
+		if (B.y < 0.0f)
+		{	P = PB + PB.y / fabsf(B.y) * B;	cx[1] = P.x;	cy[1] = P.z; }
+		else
+		{	P = PB + 10000.0f * B;	cx[1] = P.x;	cy[1] = P.z; }
+		if (C.y < 0.0f)
+		{	P = PC + PC.y / fabsf(C.y) * C;	cx[2] = P.x;	cy[2] = P.z; }
+		else
+		{	P = PC + 10000.0f * C;	cx[2] = P.x;	cy[2] = P.z; }
+		if (D.y < 0.0f)
+		{	P = PD + PD.y / fabsf(D.y) * D;	cx[3] = P.x;	cy[3] = P.z; }
+		else
+		{	P = PD + 10000.0f * D;	cx[3] = P.x;	cy[3] = P.z; }
 
 		for (int i = 0; i < 4; ++i)
 		{
-			cx[i] = (cx[i] + 0.5f * map_w) * rw / map_w;
-			cy[i] = (cy[i] + 0.5f * map_h) * rh / map_h;
+			cx[i] = (cx[i] + 0.5f * (float)map_w) * (float)rw / (float)map_w;
+			cy[i] = (cy[i] + 0.5f * (float)map_h) * (float)rh / (float)map_h;
 		}
 		for (int i = 0; i < 4; ++i)
 		{
 			for (int e = 0; e < nmax; ++e)
 			{
-				cx[i * nmax + e + 4] = (cx[i] * (nmax - e) + cx[(i + 1) % 4] * (e + 1)) / (nmax + 1);
-				cy[i * nmax + e + 4] = (cy[i] * (nmax - e) + cy[(i + 1) % 4] * (e + 1)) / (nmax + 1);
+				cx[i * nmax + e + 4] = (cx[i] * float(nmax - e) + cx[(i + 1) % 4] * float(e + 1)) / float(nmax + 1);
+				cy[i * nmax + e + 4] = (cy[i] * float(nmax - e) + cy[(i + 1) % 4] * float(e + 1)) / float(nmax + 1);
 			}
 		}
 		for (int i = 0; i < 4 + (nmax << 2); ++i)
@@ -905,22 +905,22 @@ namespace TA3D
 				cx[i] = 0.0f;
 			else
 				if (cx[i] > rw)
-					cx[i] = rw;
+					cx[i] = (float)rw;
 			if (cy[i] < 0.0f)
 				cy[i] = 0.0f;
 			else
 				if (cy[i] > rh)
-					cy[i] = rh;
+					cy[i] = (float)rh;
 		}
 
 		glDisable(GL_TEXTURE_2D);
-		glColor3ub(0xE5,0xE5,0x66);
+		glColor3ub(0xE5, 0xE5, 0x66);
 		glBegin(GL_LINE_LOOP);
 		for (int i = 0; i < 4; ++i)
 		{
-			glVertex2f(cx[i] + x1,  cy[i] + y1);
+			glVertex2f(cx[i] + (float)x1,  cy[i] + (float)y1);
 			for (int e = 0; e < nmax; ++e)
-				glVertex2f(x1 + cx[i * nmax + e + 4],  y1 + cy[i * nmax + e + 4]);
+				glVertex2f((float)x1 + cx[i * nmax + e + 4],  (float)y1 + cy[i * nmax + e + 4]);
 		}
 		glEnd();
 		glColor3ub(0xFF,0xFF,0xFF);
@@ -946,10 +946,10 @@ namespace TA3D
 		}
 		else
 		{
-			const byte mask = 1 << player_id;
-			int r2 = r * r;
-			int rd2 = rd * rd;
-			int sn2 = sn * sn;
+			const byte mask = byte(1 << player_id);
+			const int r2 = r * r;
+			const int rd2 = rd * rd;
+			const int sn2 = sn * sn;
 			// Update detector maps
 			if (sn > 0)
 				for (int y = 0; y <= sn; ++y) // Update sonar data
@@ -1026,7 +1026,7 @@ namespace TA3D
 			if (black && (fog_of_war & FOW_BLACK))
 				for (int y = 0; y <= r; ++y) // Update view data
 				{
-				int x = (int)(0.5f + std::sqrt((float)(r2 - y * y)));
+					const int x = (int)(0.5f + std::sqrt((float)(r2 - y * y)));
 					int ry = py - y;
 					if (ry >= 0 && ry < view_map.getHeight())
 					{
@@ -1093,7 +1093,7 @@ namespace TA3D
 
 		if (low_def_view)
 		{
-			cam->zfar = sqrtf( map_w * map_w + map_h * map_h + cam->rpos.y * cam->rpos.y);      // We want to see everything
+			cam->zfar = sqrtf( float(map_w * map_w + map_h * map_h) + cam->rpos.y * cam->rpos.y);      // We want to see everything
             cam->setView(true);
 			draw_LD(player_mask, FLAT, niv, t);
 
@@ -1281,8 +1281,8 @@ namespace TA3D
 		float ymax = 0.0f;
 		for (unsigned int i = 0 ; i < frustum.size(); ++i)
 		{
-			int x = (int)((frustum[i].x + map_w_d) * 0.0625f);
-			int y = (int)((frustum[i].z + map_h_d) * 0.0625f);
+			const int x = (int)((frustum[i].x + (float)map_w_d) * 0.0625f);
+			const int y = (int)((frustum[i].z + (float)map_h_d) * 0.0625f);
 			x1 = Math::Min(x1, x);
 			y1 = Math::Min(y1, y);
 			x2 = Math::Max(x2, x);
@@ -1295,8 +1295,8 @@ namespace TA3D
 		ymin = Math::Max(ymin, 0.0f);
 		ymax = Math::Min(ymax, 255.0f * H_DIV);
 		{
-			float my = ymin;
-			float My = ymax;
+			const float my = ymin;
+			const float My = ymax;
 			ymin = 0.9f * my + 0.1f * My;
 			ymax = 0.1f * my + 0.9f * My;
 		}
@@ -1311,7 +1311,7 @@ namespace TA3D
 			bool bFrustum[8];
 			for (unsigned int i = 0 ; i < frustum.size(); ++i)
 			{
-				if (bFrustum[i] = (frustum[i].y > yref))
+				if ((bFrustum[i] = (frustum[i].y > yref)))
 					++n;
 			}
 			if (!n)
@@ -1331,8 +1331,8 @@ namespace TA3D
 						continue;
 					Vector3D I = A + (yref - A.y) / (B.y - A.y) * (B - A);
 					I.z -= zOffset;
-                    int X0 = (int)((I.x + map_w_d) * 0.0625f + 0.5f);
-                    int Y0 = (int)((I.z + map_h_d) * 0.0625f + 0.5f);
+					const int X0 = (int)((I.x + (float)map_w_d) * 0.0625f + 0.5f);
+					const int Y0 = (int)((I.z + (float)map_h_d) * 0.0625f + 0.5f);
 					x1 = Math::Min(x1, X0);
 					y1 = Math::Min(y1, Y0);
 					x2 = Math::Max(x2, X0);
@@ -1348,8 +1348,8 @@ namespace TA3D
 								continue;
 							Vector3D J = C + (yref - C.y) / (D.y - C.y) * (D - C);
 							J.z -= zOffset;
-                            int X1 = (int)((J.x + map_w_d) * 0.0625f + 0.5f);
-                            int Y1 = (int)((J.z + map_h_d) * 0.0625f + 0.5f);
+							const int X1 = (int)((J.x + (float)map_w_d) * 0.0625f + 0.5f);
+							const int Y1 = (int)((J.z + (float)map_h_d) * 0.0625f + 0.5f);
 							x1 = Math::Min(x1, X1);
 							y1 = Math::Min(y1, Y1);
 							x2 = Math::Max(x2, X1);
@@ -1498,12 +1498,12 @@ namespace TA3D
 		Vector3D V;
 		for (int y = y1 ; y <= y2 ; ++y) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
 		{
-			int pre_y = y<< 4;
-			int Y = y << 1;
-			int pre_y2 = y * bloc_w;
-			T.x = -map_w_d;
+			const int pre_y = y << 4;
+			const int Y = y << 1;
+			const int pre_y2 = y * bloc_w;
+			T.x = (float)-map_w_d;
 			T.y = 0.0f;
-			T.z = pre_y - map_h_d;
+			T.z = float(pre_y - map_h_d);
 			buf_size = 0;
 			ox = x1;
 			bool was_clean = false;
@@ -1604,8 +1604,8 @@ namespace TA3D
 						continue;
 				}
 				// Si le joueur ne peut pas voir ce morceau, on ne le dessine pas en clair
-				T.x += x << 4;
-				int i = bmap(x, y);
+				T.x += float(x << 4);
+				const int i = bmap(x, y);
 				if (FLAT)
 				{
 					bloc[i].point = lvl[pre_y2 + x];
@@ -1615,7 +1615,7 @@ namespace TA3D
 						bloc[i].point = flat;
 					else
 					{
-						T.x -= x << 4;
+						T.x -= float(x << 4);
 						continue;
 					}
 				}
@@ -1628,12 +1628,12 @@ namespace TA3D
 						if ((bloc[i].lava || (under_water && ota_data.lavaworld) ) && !ota_data.whitefog && !lp_CONFIG->pause
 							&& (Math::RandomTable() % 1000000) <= lavaprob)		// Lava emiting code moved here because of lava effect using fragment program
 						{
-							Vector3D POS( (x<<4) - map_w_d + 8.0f, sealvl - 5.0f, pre_y - map_h_d + 8.0f );
-							V.x = (((int)(Math::RandomTable() % 201)) - 100);
-							V.y = (((int)(Math::RandomTable() % 51)) + 50);
-							V.z = (((int)(Math::RandomTable() % 201)) - 100);
+							Vector3D POS( float((x << 4) - map_w_d) + 8.0f, sealvl - 5.0f, float(pre_y - map_h_d) + 8.0f );
+							V.x = float(((int)(Math::RandomTable() % 201)) - 100);
+							V.y = float(((int)(Math::RandomTable() % 51)) + 50);
+							V.z = float(((int)(Math::RandomTable() % 201)) - 100);
 							V.unit();
-							particle_engine.emit_lava(POS, V, 1, 10, (Math::RandomTable() % 1000) * 0.01f + 30.0f);
+							particle_engine.emit_lava(POS, V, 1, 10, float(Math::RandomTable() % 1000) * 0.01f + 30.0f);
 						}
 						else
 						{
@@ -1652,17 +1652,17 @@ namespace TA3D
 											if (X + dx < 0 || X + dx >= h_map.getWidth())
 												continue;
 											const float v = h_map(X + dx, Y + dz) - sealvl;
-											grad.x += dx * std::exp(0.125f * (dx * dx + dz * dz)) * v;
-											grad.z += dz * std::exp(0.125f * (dx * dx + dz * dz)) * v;
+											grad.x += (float)dx * std::exp(0.125f * float(dx * dx + dz * dz)) * v;
+											grad.z += (float)dz * std::exp(0.125f * float(dx * dx + dz * dz)) * v;
 										}
 								}
 								const float grad_len = grad.sq();
 								if (grad_len > 0.0f)
 								{
 									const Vector3D pos(
-											(x << 4) - map_w_d + 8.0f,
+											float((x << 4) - map_w_d) + 8.0f,
                                             sealvl + 0.1f,
-                                            pre_y - map_h_d + 8.0f);
+											float(pre_y - map_h_d) + 8.0f);
                                     grad = (1.0f / sqrtf( grad_len )) * grad;
 									fx_manager.addWave(pos - 16.0f * grad, RAD2DEG * std::atan2(-grad.x, -grad.z));
 								}
@@ -1742,7 +1742,7 @@ namespace TA3D
 				}
 				ox = x;
 
-				uint16 buf_pos = buf_size * 9;
+				size_t buf_pos = buf_size * 9U;
 				if (!FLAT)
 				{
 					for (int e = 0; e < 9; ++e) // Copie le bloc
@@ -1758,16 +1758,16 @@ namespace TA3D
 					}
 				}
 
-				uint8 *color=buf_c+(buf_pos<<2);
+				uint8 *color = buf_c + (buf_pos << 2);
 				if (FLAT )
-					for(int e=0;e<36;e+=4)
+					for(int e = 0 ; e < 36 ; e += 4)
 					{
 						color[e] = color[e|1] = color[e|2] = 255;
 						color[e|3] = 192;
 					}
 				else
-					for(int e=0;e<36;e+=4)
-						color[e]=color[e|1]=color[e|2]=color[e|3]=255;
+					for(int e = 0 ; e < 36 ; e += 4)
+						color[e] = color[e|1] = color[e|2] = color[e|3] = 255;
 
 				bool is_clean = true;
 				if (fog_of_war != FOW_DISABLED )
@@ -1799,11 +1799,11 @@ namespace TA3D
 					is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );
 					if (!FLAT && !map_data(X, Y).isFlat() && !lp_CONFIG->low_definition_map)
 					{
-						color[4]  = color[5]  = color[6]  = (color[0] + color[8]) >> 1;
-						color[12] = color[13] = color[14] = (color[0] + color[24]) >> 1;
-						color[20] = color[21] = color[22] = (color[8] + color[32]) >> 1;
-						color[16] = color[17] = color[18] = (color[12] + color[20]) >> 1;
-						color[28] = color[29] = color[30] = (color[24] + color[32]) >> 1;
+						color[4]  = color[5]  = color[6]  = uint8((color[0] + color[8]) >> 1);
+						color[12] = color[13] = color[14] = uint8((color[0] + color[24]) >> 1);
+						color[20] = color[21] = color[22] = uint8((color[8] + color[32]) >> 1);
+						color[16] = color[17] = color[18] = uint8((color[12] + color[20]) >> 1);
+						color[28] = color[29] = color[30] = uint8((color[24] + color[32]) >> 1);
 					}
 				}
 
@@ -1812,17 +1812,17 @@ namespace TA3D
 				{
 					if (was_flat && bloc[i].tex_x == bloc[ bmap(x - 1, y) ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data(X, Y).isFlat()) )
 					{
-						buf_i[ index_size-4 ] = 2+buf_pos;
-						buf_i[ index_size-2 ] = 8+buf_pos;
-						buf_i[ index_size-1 ] = 2+buf_pos;
+						buf_i[ index_size-4 ] = GLushort(2 + buf_pos);
+						buf_i[ index_size-2 ] = GLushort(8 + buf_pos);
+						buf_i[ index_size-1 ] = GLushort(2 + buf_pos);
 					}
 					else
 					{
-						buf_i[ index_size++ ] = buf_pos;
-						buf_i[ index_size++ ] = 2+buf_pos;
-						buf_i[ index_size++ ] = 6+buf_pos;
-						buf_i[ index_size++ ] = 8+buf_pos;
-						buf_i[ index_size++ ] = 2+buf_pos;
+						buf_i[ index_size++ ] = GLushort(buf_pos);
+						buf_i[ index_size++ ] = GLushort(2 + buf_pos);
+						buf_i[ index_size++ ] = GLushort(6 + buf_pos);
+						buf_i[ index_size++ ] = GLushort(8 + buf_pos);
+						buf_i[ index_size++ ] = GLushort(2 + buf_pos);
 						was_flat = FLAT || map_data(X, Y).isFlat();     // If it's only lp_CONFIG->low_definition_map, it cannot be considered flat
 					}
 				}
@@ -1830,30 +1830,30 @@ namespace TA3D
 				{
 #endif
 					was_flat = false;
-					buf_i[ index_size++ ] = buf_pos;
-					buf_i[ index_size++ ] = 1+buf_pos;
-					buf_i[ index_size++ ] = 3+buf_pos;
-					buf_i[ index_size++ ] = 4+buf_pos;
-					buf_i[ index_size++ ] = 6+buf_pos;
-					buf_i[ index_size++ ] = 7+buf_pos;
-					buf_i[ index_size++ ] = 7+buf_pos;
-					buf_i[ index_size++ ] = 8+buf_pos;
-					buf_i[ index_size++ ] = 4+buf_pos;
-					buf_i[ index_size++ ] = 5+buf_pos;
-					buf_i[ index_size++ ] = 1+buf_pos;
-					buf_i[ index_size++ ] = 2+buf_pos;
+					buf_i[ index_size++ ] = GLushort(buf_pos);
+					buf_i[ index_size++ ] = GLushort(1 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(3 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(4 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(6 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(7 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(7 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(8 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(4 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(5 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(1 + buf_pos);
+					buf_i[ index_size++ ] = GLushort(2 + buf_pos);
 #if !defined DEBUG_UNIT_POS && !defined DEBUG_ENERGY
 				}
 #endif
 				was_clean = is_clean;
-				T.x-=x<<4;
-				memcpy(buf_t+(buf_pos<<1),bloc[i].texcoord,72);		// texture
+				T.x -= float(x << 4);
+				memcpy(buf_t + (buf_pos << 1), bloc[i].texcoord, 72);		// texture
 
 #ifdef DEBUG_UNIT_POS
 				int Z;
-				Z=Y+get_zdec_notest(X,Y);					if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-				Z&=0xFFFFFE;
-				X&=0xFFFFFE;
+				Z = Y + get_zdec_notest(X, Y);					if (Z >= bloc_h_db - 1)	Z = bloc_h_db - 2;
+				Z &= 0xFFFFFE;
+				X &= 0xFFFFFE;
 				if (map_data(X,Z).unit_idx != -1)		// Shows unit's pos on map
 				{
 					color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
@@ -1985,11 +1985,11 @@ namespace TA3D
 		}
 		int nb = 0;
 		int nb_limit = (int)(Pos.y) + 1000;
-		const float dwm = map_w_d;
-		const float dhm = map_h_d;
+		const float dwm = (float)map_w_d;
+		const float dhm = (float)map_h_d;
 		Dir = (1.0f * step) * Dir;
 		float len_step = Dir.norm();
-		while (((sealvl < Pos.y && water) || !water) && get_max_h((int)(Pos.x + map_w_d) >> 3,(int)(Pos.z + map_h_d) >> 3) < Pos.y)
+		while (((sealvl < Pos.y && water) || !water) && get_max_h((int)(Pos.x + (float)map_w_d) >> 3,(int)(Pos.z + (float)map_h_d) >> 3) < Pos.y)
 		{
 			if (nb >= nb_limit || length < 0.0f)
 				return Pos;
@@ -2082,7 +2082,7 @@ namespace TA3D
 	void MAP::drawCircleOnMap(const float x, const float y, const float radius, const uint32 color, const float thickness) const
 	{
 		const int steps = std::max(5, int(radius * 2.0f));
-		const float f = 2.0f * M_PI / steps;
+		const float f = 2.0f * (float)M_PI / (float)steps;
 		std::vector<Vector3D> vertices0, vertices1;
 		std::vector<uint32> colors0, colors1;
 		vertices0.reserve(steps * 2 + 2);
@@ -2092,8 +2092,8 @@ namespace TA3D
 		const uint32 mask = makeacol(0xFF,0xFF,0xFF,0x0);
 		for(int i = 0 ; i <= steps ; ++i)
 		{
-			const float _cos = std::cos(i * f);
-			const float _sin = std::sin(i * f);
+			const float _cos = std::cos((float)i * f);
+			const float _sin = std::sin((float)i * f);
 			const float tx = x + (radius + thickness) * _cos;
 			const float tz = y + (radius + thickness) * _sin;
 			const float ty = get_unit_h(tx, tz) + 1.0f;
@@ -2125,11 +2125,11 @@ namespace TA3D
 
 		glVertexPointer(3, GL_FLOAT, 0, &(vertices0.front()));
 		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors0.front()));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices0.size());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)vertices0.size());
 
 		glVertexPointer(3, GL_FLOAT, 0, &(vertices1.front()));
 		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(colors1.front()));
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices1.size());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)vertices1.size());
 
 		glDepthMask(GL_TRUE);
 		glEnable(GL_DEPTH_TEST);
