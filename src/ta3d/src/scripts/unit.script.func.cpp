@@ -37,20 +37,20 @@ namespace TA3D
         {
             compute_model_coord();
 			particle_engine.make_fire( Pos + data.data[obj].pos,1,10,45.0f);
-            int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
-			Vector3D P = Pos + data.data[obj].pos;
-            fx_manager.addExplosion( P, V, power * 3, power * 10.0f );
+			const int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
+			const Vector3D P = Pos + data.data[obj].pos;
+			fx_manager.addExplosion( P, V, power * 3, float(power) * 10.0f );
         }
 		if (!(explosion_type & EXPLODE_BITMAPONLY))
 		{
 			data.data[obj].flag |= FLAG_EXPLODE;
-			data.data[obj].explosion_flag    = explosion_type;
-			data.data[obj].axe[0].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
-			data.data[obj].axe[0].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
-			data.data[obj].axe[1].move_speed = 25.0f + (Math::RandomTable() % 2501) * 0.01f;
-			data.data[obj].axe[1].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
-			data.data[obj].axe[2].move_speed = (25.0f + (Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
-			data.data[obj].axe[2].rot_speed  = (Math::RandomTable() % 7201) * 0.1f - 360.0f;
+			data.data[obj].explosion_flag    = (short)explosion_type;
+			data.data[obj].axe[0].move_speed = (25.0f + float(Math::RandomTable() % 2501) * 0.01f) * (Math::RandomTable() & 1 ? 1.0f : -1.0f);
+			data.data[obj].axe[0].rot_speed  = float(Math::RandomTable() % 7201) * 0.1f - 360.0f;
+			data.data[obj].axe[1].move_speed = 25.0f + float(Math::RandomTable() % 2501) * 0.01f;
+			data.data[obj].axe[1].rot_speed  = float(Math::RandomTable() % 7201) * 0.1f - 360.0f;
+			data.data[obj].axe[2].move_speed = (25.0f + float(Math::RandomTable() % 2501) * 0.01f) * float(Math::RandomTable() & 1 ? 1.0f : -1.0f);
+			data.data[obj].axe[2].rot_speed  = float(Math::RandomTable() % 7201) * 0.1f - 360.0f;
 			data.explode = true;
 			data.explode_time = 1.0f;
 		}
@@ -114,24 +114,24 @@ namespace TA3D
             case ATAN:
                 if (param)
                 {
-                    int v1 = param[1];
-                    int v2 = param[0];
-                    return (int)(atanf((float)v1/v2)+0.5f);
+					const int v1 = param[1];
+					const int v2 = param[0];
+					return (int)(atanf((float)v1 / float(v2)) + 0.5f);
                 }
                 else
                     return 0;
             case HYPOT:
                 if (param)
                 {
-                    int v1 = param[1];
-                    int v2 = param[0];
+					const int v1 = param[1];
+					const int v2 = param[0];
                     return (int)(sqrtf((float)(v1 * v1 + v2 * v2)) + 0.5f);
                 }
                 else
                     return 0;
             case BUGGER_OFF:
-                return the_map->check_rect((((int)(Pos.x + the_map->map_w_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintX >> 1),
-                                            (((int)(Pos.z + the_map->map_h_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintZ >> 1),
+				return the_map->check_rect((((int)(Pos.x + (float)the_map->map_w_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintX >> 1),
+											(((int)(Pos.z + (float)the_map->map_h_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintZ >> 1),
                                             unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx) ? 0 : 1;
             case BUILD_PERCENT_LEFT:
 				return (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0 );
@@ -169,7 +169,7 @@ namespace TA3D
 		data.data[obj].axe[axis].rot_limit = false;
 		data.data[obj].axe[axis].rot_speed_limit = true;
 		data.data[obj].axe[axis].rot_target_speed = target_speed;
-        if (accel != 0.0f)
+		if (!Yuni::Math::Zero(accel))
         {
 			if (data.data[obj].axe[axis].rot_target_speed > data.data[obj].axe[axis].rot_speed)
 				data.data[obj].axe[axis].rot_accel = fabsf(accel);
@@ -218,7 +218,9 @@ namespace TA3D
         if (visible)
         {
             compute_model_coord();
-			if (data.data[from_piece].dir.x != 0.0f || data.data[from_piece].dir.y != 0.0f || data.data[from_piece].dir.z != 0.0f)
+			if (!Yuni::Math::Zero(data.data[from_piece].dir.x)
+				|| !Yuni::Math::Zero(data.data[from_piece].dir.y)
+				|| !Yuni::Math::Zero(data.data[from_piece].dir.z))
             {
 				const Vector3D &dir = data.data[from_piece].dir;
                 switch(smoke_type)
@@ -260,7 +262,7 @@ namespace TA3D
 		data.data[obj].axe[axis].rot_limit = false;
 		data.data[obj].axe[axis].rot_speed_limit = true;
 		data.data[obj].axe[axis].rot_target_speed = 0.0f;
-        if (speed == 0.0f)
+		if (Yuni::Math::Zero(speed))
         {
 			data.data[obj].axe[axis].rot_speed = 0.0f;
 			data.data[obj].axe[axis].rot_accel = 0.0f;
@@ -312,19 +314,19 @@ namespace TA3D
             case MY_ID:
                 return idx;
             case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
-                if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[ v1 ].flags & 1) )
                     return units.unit[ v1 ].owner_id;
                 else
                     return -1;
             case UNIT_BUILD_PERCENT_LEFT:		// basically BUILD_PERCENT_LEFT, but comes with a unit parameter
-                if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[ v1 ].flags & 1) )
                     return (int)units.unit[ v1 ].build_percent_left + ( (units.unit[ v1 ].build_percent_left > (int)units.unit[ v1 ].build_percent_left) ? 1 : 0);
                 else
                     return 0;
             case UNIT_ALLIED:		// is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
                 return !isEnemy( v1 );
             case UNIT_IS_ON_THIS_COMP:		// indicates if the 1st parameter(a unit ID) is local to this computer
-                if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[ v1 ].flags & 1) )
                     return !(players.control[ units.unit[ v1 ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE);
                 else
                     return 0;
@@ -342,22 +344,22 @@ namespace TA3D
                 return (int)port[type];
             case PIECE_XZ:
                 compute_model_coord();
-				return PACKXZ((data.data[v1].pos.x + Pos.x) * 2.0f + the_map->map_w, (data.data[v1].pos.z + Pos.z) * 2.0f + the_map->map_h);
+				return PACKXZ((data.data[v1].pos.x + Pos.x) * 2.0f + (float)the_map->map_w, (data.data[v1].pos.z + Pos.z) * 2.0f + (float)the_map->map_h);
             case PIECE_Y:
                 compute_model_coord();
 				return (int)((data.data[v1].pos.y + Pos.y) * 2.0f) << 16;
             case UNIT_XZ:
-                if (v1 >= 0 && v1 < units.max_unit && (units.unit[v1].flags & 1) )
-                    return PACKXZ( units.unit[v1].Pos.x * 2.0f + the_map->map_w, units.unit[v1].Pos.z * 2.0f + the_map->map_h );
+				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[v1].flags & 1) )
+					return PACKXZ( units.unit[v1].Pos.x * 2.0f + (float)the_map->map_w, units.unit[v1].Pos.z * 2.0f + (float)the_map->map_h );
                 else
-                    return PACKXZ( Pos.x * 2.0f + the_map->map_w, Pos.z * 2.0f + the_map->map_h );
+					return PACKXZ( Pos.x * 2.0f + (float)the_map->map_w, Pos.z * 2.0f + (float)the_map->map_h );
             case UNIT_Y:
-                if (v1 >= 0 && v1 < units.max_unit && (units.unit[v1].flags & 1) )
+				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[v1].flags & 1) )
                     return (int)(units.unit[v1].Pos.y * 2.0f) << 16;
                 else
                     return (int)(Pos.y * 2.0f) << 16;
             case UNIT_HEIGHT:
-                if (v1 >= 0 && v1 < units.max_unit && (units.unit[v1].flags & 1) )
+				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[v1].flags & 1) )
                     return (int)(units.unit[v1].model->top * 2.0f) << 16;
                 else
                     return (int)(model->top * 2.0f) << 16;
@@ -366,11 +368,11 @@ namespace TA3D
             case XZ_HYPOT:
                 return (int)hypotf( UNPACKX(v1), UNPACKZ(v1) ) << 16;
             case ATAN:
-                return (int)(atan2f(v1,v2) * RAD2TA );
+				return (int)(atan2f(float(v1), float(v2)) * RAD2TA );
             case HYPOT:
-                return (int)hypotf(v1,v2);
+				return (int)hypotf(float(v1), float(v2));
             case GROUND_HEIGHT:
-                return (int)(the_map->get_unit_h(( UNPACKX(v1) - the_map->map_w) * 0.5f,( UNPACKZ(v1) - the_map->map_h) * 0.5f) * 2.0f) << 16;
+				return (int)(the_map->get_unit_h(( UNPACKX(v1) - (float)the_map->map_w) * 0.5f,( UNPACKZ(v1) - (float)the_map->map_h) * 0.5f) * 2.0f) << 16;
             default:
                 LOG_DEBUG(LOG_PREFIX_SCRIPT << "GET unknown constant " << type);
         }
@@ -388,18 +390,18 @@ namespace TA3D
                     activate();
                 break;
             case YARD_OPEN:
-                port[type] = v;
-                if (!the_map->check_rect((((int)(Pos.x + the_map->map_w_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintX >> 1),
-                                        (((int)(Pos.z + the_map->map_h_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintZ >> 1),
+				port[type] = sint16(v);
+				if (!the_map->check_rect((((int)(Pos.x + (float)the_map->map_w_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintX >> 1),
+										(((int)(Pos.z + (float)the_map->map_h_d)) >> 3) - (unit_manager.unit_type[type_id]->FootprintZ >> 1),
                                         unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx))
                     port[type] ^= 1;
                 break;
             case BUGGER_OFF:
-                port[type] = v;
+				port[type] = sint16(v);
                 if (port[type])
                 {
-                    int px = ((int)(Pos.x) + the_map->map_w_d) >> 3;
-                    int py = ((int)(Pos.z) + the_map->map_h_d) >> 3;
+					const int px = ((int)(Pos.x) + the_map->map_w_d) >> 3;
+					const int py = ((int)(Pos.z) + the_map->map_h_d) >> 3;
                     for(int y = py - (unit_manager.unit_type[type_id]->FootprintZ >> 1) ; y <= py + (unit_manager.unit_type[type_id]->FootprintZ >> 1) ; y++)
                     {
                         if (y >= 0 && y < (the_map->bloc_h << 1) - 1)
@@ -408,17 +410,17 @@ namespace TA3D
                             {
                                 if (x >= 0 && x < (the_map->bloc_w << 1) - 1)
                                 {
-									int cur_idx = the_map->map_data(x,y).unit_idx;
-									if (cur_idx >= 0 && cur_idx < units.max_unit && cur_idx != idx)
+									const int cur_idx = the_map->map_data(x,y).unit_idx;
+									if (cur_idx >= 0 && cur_idx < (int)units.max_unit && cur_idx != idx)
 									{
 										units.unit[cur_idx].lock();
-										int type = units.unit[cur_idx].type_id;
-										UnitType *tType = type >= 0 ? unit_manager.unit_type[type] : NULL;
+										const int type = units.unit[cur_idx].type_id;
+										const UnitType* const tType = type >= 0 ? unit_manager.unit_type[type] : NULL;
 										if (units.unit[cur_idx].owner_id == owner_id
 											&& tType != NULL
 											&& tType->canmove
 											&& tType->BMcode == 1
-											&& units.unit[cur_idx].build_percent_left == 0.0f
+											&& Yuni::Math::Zero(units.unit[cur_idx].build_percent_left)
 											&& (!units.unit[cur_idx].mission
 												|| (units.unit[cur_idx].mission->mission() & 0xFF) != MISSION_MOVE))
 										{
@@ -436,17 +438,17 @@ namespace TA3D
                 break;
 			case ARMORED:
 			case INBUILDSTANCE:
-				port[type] = v;
+				port[type] = sint16(v);
 				break;
 			default:
 				LOG_DEBUG(LOG_PREFIX_SCRIPT << "SET_VALUE unknown constant " << type);
-				port[type] = v;
+				port[type] = sint16(v);
         }
     }
 
     void Unit::script_attach_unit(int unit_id, int piece_id)
     {
-        if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags)
         {
             Unit *target_unit = &(units.unit[unit_id]);
             target_unit->hidden = (piece_id < 0);
@@ -457,12 +459,12 @@ namespace TA3D
                     if (attached_list[ i ] == unit_id)
                     {
                         already_in = true;
-                        link_list[ i ] = piece_id;
+						link_list[ i ] = short(piece_id);
                     }
                 }
             if (!already_in)
             {
-                link_list[nb_attached] = piece_id;
+				link_list[nb_attached] = short(piece_id);
                 attached_list[nb_attached++] = target_unit->idx;
             }
             target_unit->attached = true;
@@ -473,7 +475,7 @@ namespace TA3D
 
     void Unit::script_drop_unit(int unit_id)
     {
-        if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags)
         {
             Unit *target_unit = &(units.unit[unit_id]);
             target_unit->attached = false;
@@ -497,10 +499,12 @@ namespace TA3D
 
     bool Unit::script_is_turning(int obj, int axis)
     {
-		float a = data.data[obj].axe[axis].rot_angle;
-		if ((data.data[obj].axe[axis].rot_speed != 0.0f || data.data[obj].axe[axis].rot_accel != 0.0f) && (a != 0.0f && data.data[obj].axe[axis].rot_limit))
+		const float a = data.data[obj].axe[axis].rot_angle;
+		if ((!Yuni::Math::Zero(data.data[obj].axe[axis].rot_speed) || !Yuni::Math::Zero(data.data[obj].axe[axis].rot_accel))
+			&& (!Yuni::Math::Zero(a) && data.data[obj].axe[axis].rot_limit))
             return true;
-		else if (data.data[obj].axe[axis].rot_speed != data.data[obj].axe[axis].rot_target_speed && data.data[obj].axe[axis].rot_speed_limit)
+		else if (data.data[obj].axe[axis].rot_speed != data.data[obj].axe[axis].rot_target_speed
+				 && data.data[obj].axe[axis].rot_speed_limit)
             return true;
 		data.data[obj].axe[axis].rot_speed = 0.0f;
 		data.data[obj].axe[axis].rot_accel = 0.0f;
@@ -509,6 +513,6 @@ namespace TA3D
 
     bool Unit::script_is_moving(int obj, int axis)
     {
-		return (data.data[obj].axe[axis].move_distance != 0.0f);
+		return !Yuni::Math::Zero(data.data[obj].axe[axis].move_distance);
     }
 }

@@ -705,7 +705,7 @@ namespace TA3D
 				float l = sqrtf((float)(d_h0 * d_h0  +  d_h1 * d_h1));
 				float dhx;
 				float dhy;
-				if (l == 0.0f)
+				if (Yuni::Math::Zero(l))
 					dhx = dhy = 0.0f;
 				else
 				{
@@ -731,7 +731,7 @@ namespace TA3D
 			if (minh>points[i].y)  minh = points[i].y;
 			if (maxh<points[i].y)  maxh = points[i].y;
 		}
-		if (maxh == minh || maxh == 0.0f)
+		if (maxh == minh || Yuni::Math::Zero(maxh))
 		{
 			for (i = 0; i < 64; ++i)
 				points[i].y = 0.0f;

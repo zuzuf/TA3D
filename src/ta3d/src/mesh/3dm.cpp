@@ -125,11 +125,11 @@ namespace TA3D
 			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !pTex->empty())
 			{
-				texID = ((int)(t * 10.0f)) % pTex->size();
+				texID = ((int)(t * 10.0f)) % (int)pTex->size();
 				disableDL = false;
 				animatedTex = true;
 			}
-			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && !disableDL)
+			if ((int)gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && !disableDL)
 			{
 				glCallList( gl_dlist[ texID ] );
 				alset = false;
@@ -138,7 +138,7 @@ namespace TA3D
 			else if (!hide)
 			{
 				bool creating_list = false;
-				if (gl_dlist.size() <= texID)
+				if ((int)gl_dlist.size() <= texID)
 					gl_dlist.resize(texID + 1);
 				if (!chg_col && !notex && gl_dlist[texID] == 0 && !disableDL)
 				{
@@ -158,7 +158,7 @@ namespace TA3D
 					if (!chg_col || !notex)
 					{
 						if (Flag & SURFACE_PLAYER_COLOR)
-							glColor4f(player_color[side * 3], player_color[side * 3 + 1], player_color[side * 3 + 2], (Color & 0xFF) / 255.0f);		// Couleur de matière
+							glColor4f(player_color[side * 3], player_color[side * 3 + 1], player_color[side * 3 + 2], float(Color & 0xFF) / 255.0f);		// Couleur de matière
 						else
 							glColor4ubv((GLubyte*)&Color);		// Couleur de matière
 					}
@@ -168,12 +168,12 @@ namespace TA3D
 							glColor4f(player_color[player_color_map[side] * 3] * color_factor[0],
 									  player_color[player_color_map[side] * 3 + 1] * color_factor[1],
 									  player_color[player_color_map[side] * 3 + 2] * color_factor[2],
-									  geta32(Color) / 255.0f * color_factor[3]);		// Couleur de matière
+									  (float)geta32(Color) / 255.0f * color_factor[3]);		// Couleur de matière
 						else
-							glColor4f(getr32(Color) / 255.0f * color_factor[0],
-									  getg32(Color) / 255.0f * color_factor[1],
-									  getb32(Color) / 255.0f * color_factor[2],
-									  geta32(Color) / 255.0f * color_factor[3]);		// Couleur de matière
+							glColor4f((float)getr32(Color) / 255.0f * color_factor[0],
+									  (float)getg32(Color) / 255.0f * color_factor[1],
+									  (float)getb32(Color) / 255.0f * color_factor[2],
+									  (float)geta32(Color) / 255.0f * color_factor[3]);		// Couleur de matière
 					}
 
 					if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
@@ -199,7 +199,7 @@ namespace TA3D
 						{
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 							glEnable(GL_BLEND);
-							glAlphaFunc( GL_GREATER, 0.1 );
+							glAlphaFunc( GL_GREATER, 0.1f );
 							glEnable( GL_ALPHA_TEST );
 						}
 						else
@@ -235,10 +235,10 @@ namespace TA3D
 								glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
 								glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
 								glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND2_RGB_EXT, GL_SRC_COLOR);
-								float RColorf[4] = { getr32(RColor) / 255.0f,
-									getg32(RColor) / 255.0f,
-									getb32(RColor) / 255.0f,
-									geta32(RColor) / 255.0f};
+								float RColorf[4] = { (float)getr32(RColor) / 255.0f,
+													 (float)getg32(RColor) / 255.0f,
+													 (float)getb32(RColor) / 255.0f,
+													 (float)geta32(RColor) / 255.0f};
 								glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR, RColorf);
 							}
 							else
@@ -333,11 +333,11 @@ namespace TA3D
 				glTranslatef( 0.0f, -2.0f, 0.0f );
 				if (notex)
 				{
-					int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
-					glColor3ub(0,var,0);
+					const byte var = (byte)abs(0xFF - (msec_timer % 1000) * 0x200 / 1000);
+					glColor3ub(0, var, 0);
 				}
 				else
-					glColor3ub(0xFF,0xFF,0xFF);
+					glColor3ub(0xFF, 0xFF, 0xFF);
 				alset = false;
 				gfx->enable_model_shading();
 				glEnable(GL_FOG);
@@ -389,7 +389,7 @@ namespace TA3D
 			{
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 				glEnable(GL_BLEND);
-				glAlphaFunc( GL_GREATER, 0.1 );
+				glAlphaFunc( GL_GREATER, 0.1f );
 				glEnable( GL_ALPHA_TEST );
 			}
 			else
@@ -398,9 +398,9 @@ namespace TA3D
 				glDisable(GL_BLEND);
 			}
 
-			glClientActiveTextureARB(GL_TEXTURE0_ARB + pTex->size());
+			glClientActiveTextureARB(GL_TEXTURE0_ARB + (int)pTex->size());
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glActiveTextureARB(GL_TEXTURE0_ARB + pTex->size());
+			glActiveTextureARB(GL_TEXTURE0_ARB + (int)pTex->size());
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, glColorTexture);
 			glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
@@ -429,10 +429,10 @@ namespace TA3D
 					glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
 					glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
 					glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND2_RGB_EXT, GL_SRC_COLOR);
-					float RColorf[4] = { getr32(RColor) / 255.0f,
-						getg32(RColor) / 255.0f,
-						getb32(RColor) / 255.0f,
-						geta32(RColor) / 255.0f};
+					float RColorf[4] = { (float)getr32(RColor) / 255.0f,
+										 (float)getg32(RColor) / 255.0f,
+										 (float)getb32(RColor) / 255.0f,
+										 (float)geta32(RColor) / 255.0f};
 					glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR, RColorf);
 				}
 			}
@@ -491,7 +491,7 @@ namespace TA3D
 		if (file == NULL)
 			return;
 
-		uint8 len = file->getc();
+		const uint8 len = (uint8)file->getc();
 		char tmp[257];
 		memset(tmp, 0, 257);
 		file->read(tmp, len);
@@ -531,12 +531,12 @@ namespace TA3D
 		if (nb_vtx > 0)
 		{
 			points = new Vector3D[nb_vtx<<1];
-			file->read(points,sizeof(Vector3D)*nb_vtx);
+			file->read(points, (int)sizeof(Vector3D) * nb_vtx);
 		}
 		else
 			points = NULL;
 
-		file->read(sel, sizeof(GLushort) * 4);
+		file->read(sel, (int)sizeof(GLushort) * 4);
 
 		file->read(nb_p_index); // Read point data
 		if (nb_p_index < 0)
@@ -550,7 +550,7 @@ namespace TA3D
 		if (nb_p_index > 0)
 		{
 			p_index = new GLushort[nb_p_index];
-			file->read(p_index, sizeof(GLushort) * nb_p_index);
+			file->read(p_index, (int)sizeof(GLushort) * nb_p_index);
 		}
 		else
 			p_index = NULL;
@@ -568,7 +568,7 @@ namespace TA3D
 		if (nb_l_index > 0)
 		{
 			l_index = new GLushort[nb_l_index];
-			file->read(l_index, sizeof(GLushort) * nb_l_index);
+			file->read(l_index, (int)sizeof(GLushort) * nb_l_index);
 		}
 		else
 			l_index = NULL;
@@ -587,18 +587,18 @@ namespace TA3D
 		if (nb_t_index > 0)
 		{
 			t_index = new GLushort[nb_t_index];
-			file->read(t_index, sizeof(GLushort) * nb_t_index);
+			file->read(t_index, (int)sizeof(GLushort) * nb_t_index);
 		}
 		else
 			t_index = NULL;
 
 		tcoord = new float[nb_vtx << 1];
-		file->read(tcoord, sizeof(float) * nb_vtx << 1);
+		file->read(tcoord, (int)sizeof(float) * nb_vtx << 1);
 
 		float Colorf[4];
 		float RColorf[4];
-		file->read(Colorf, sizeof(float) * 4);	// Read surface data
-		file->read(RColorf, sizeof(float) * 4);
+		file->read(Colorf, (int)sizeof(float) * 4);	// Read surface data
+		file->read(RColorf, (int)sizeof(float) * 4);
 		Color = makeacol32((int)(Colorf[0] * 255), (int)(Colorf[1] * 255), (int)(Colorf[2] * 255), (int)(Colorf[3] * 255));
 		RColor = makeacol32((int)(RColorf[0] * 255), (int)(RColorf[1] * 255), (int)(RColorf[2] * 255), (int)(RColorf[3] * 255));
 		file->read(Flag);
@@ -621,9 +621,9 @@ namespace TA3D
 		sint8 NbTex = 0;
 		file->read(NbTex);
 		bool compressed = NbTex < 0;
-		NbTex = abs( NbTex );
+		NbTex = (sint8)abs( NbTex );
 		gltex.resize(NbTex);
-		for (uint8 i = 0; i < NbTex; ++i)
+		for (int i = 0; i < NbTex; ++i)
 		{
 			SDL_Surface *tex;
 			if (!compressed)
@@ -740,7 +740,7 @@ namespace TA3D
 				N[i].unit();
 		}
 
-		byte link = file->getc();
+		byte link = (byte)file->getc();
 
 		if (link == 2) // Load animation data if present
 		{
@@ -753,7 +753,7 @@ namespace TA3D
 			file->read( animation_data->translate_1 );
 			file->read( animation_data->translate_w );
 
-			link = file->getc();
+			link = (byte)file->getc();
 		}
 
 		if (link)
@@ -770,7 +770,7 @@ namespace TA3D
 		else
 			child = NULL;
 
-		link = file->getc();
+		link = (byte)file->getc();
 		if (link)
 		{
 			Mesh3DM *pNext = new Mesh3DM;

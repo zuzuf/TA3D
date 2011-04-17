@@ -49,7 +49,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		void create(const uint16 nb, GLuint gltex);
+		void create(const uint32 nb, GLuint gltex);
 
 		/*!
 		** \brief

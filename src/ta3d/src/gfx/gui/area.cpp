@@ -274,7 +274,7 @@ namespace Gui
 		if (!pWindowList.empty())
 		{
 			pCacheHelpMsg.clear();
-			unsigned int i = pWindowList.size();
+			unsigned int i = (unsigned int)pWindowList.size();
 			do
 			{
 				--i;

@@ -238,12 +238,12 @@ namespace TA3D
 				WorkListItem() :sound(NULL), vec(NULL) {}
 				//! Constructor by copy
 				WorkListItem(const WorkListItem& c) : sound(c.sound), vec(c.vec) {}
-				WorkListItem(SoundItemList* s, Vector3D* v) : sound(s), vec(v) {}
+				WorkListItem(SoundItemList* s, const Vector3D* v) : sound(s), vec(v) {}
 
 				//!
 				SoundItemList* sound;
 				//! Vector
-				Vector3D* vec;
+				const Vector3D* vec;
 
 			}; // class WorkListItem
 
@@ -332,9 +332,9 @@ namespace TA3D
 			Mix_Chunk   *pBasicSound;
 
 			//! Current index to play (-1 means `none`)
-			sint16  pCurrentItemToPlay;
+			sint32  pCurrentItemToPlay;
             //! Current index to play (-1 means `none`)
-            sint16  pCurrentItemPlaying;
+			sint32  pCurrentItemPlaying;
             //!
 			uint32  pMinTicks;
 

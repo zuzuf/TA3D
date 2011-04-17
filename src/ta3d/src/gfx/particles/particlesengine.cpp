@@ -100,33 +100,33 @@ namespace TA3D
 			new_part.gltex = tex;
 			if (white)
 			{
-				new_part.col[0]=1.0f;
-				new_part.col[1]=1.0f;
-				new_part.col[2]=1.0f;
-				new_part.col[3]=trans_factor;
+				new_part.col[0] = 1.0f;
+				new_part.col[1] = 1.0f;
+				new_part.col[2] = 1.0f;
+				new_part.col[3] = trans_factor;
 			}
 			else
 			{
-				new_part.col[0]=0.8f;
-				new_part.col[1]=0.8f;
-				new_part.col[2]=1.0f;
-				new_part.col[3]=trans_factor;
+				new_part.col[0] = 0.8f;
+				new_part.col[1] = 0.8f;
+				new_part.col[2] = 1.0f;
+				new_part.col[3] = trans_factor;
 			}
-			new_part.dcol[0]=0.0f;
-			new_part.dcol[1]=0.0f;
-			new_part.dcol[2]=0.0f;
-			if (life>0.0f)
-				new_part.dcol[3]=-trans_factor/life;
+			new_part.dcol[0] = 0.0f;
+			new_part.dcol[1] = 0.0f;
+			new_part.dcol[2] = 0.0f;
+			if (life > 0.0f)
+				new_part.dcol[3] = -trans_factor / life;
 			else
-				new_part.dcol[3]=-0.1f;
-			new_part.angle=0.0f;
-			new_part.v_rot = (Math::RandomTable() % 200) * 0.01f - 0.1f;
-			new_part.size=psize;
-			new_part.use_wind=false;
-			new_part.dsize=0.0f;
-			new_part.ddsize=0.0f;
-			new_part.light_emitter=false;
-			new_part.slow_down=false;
+				new_part.dcol[3] = -0.1f;
+			new_part.angle = 0.0f;
+			new_part.v_rot = float(Math::RandomTable() % 200) * 0.01f - 0.1f;
+			new_part.size = psize;
+			new_part.use_wind = false;
+			new_part.dsize = 0.0f;
+			new_part.ddsize = 0.0f;
+			new_part.light_emitter = false;
+			new_part.slow_down = false;
 			part.push_back(new_part);
 			++nb_part;
 		}
@@ -203,40 +203,40 @@ namespace TA3D
 	{
 		if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
 			return;
-		if (Camera::inGame!=NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
+		if (Camera::inGame!=NULL && (Camera::inGame->pos - pos).sq() >= Camera::inGame->zfar2)
 			return;
 
 		pMutex.lock();
 
-		for (int i=0;i<nb; ++i)
+		for (int i = 0 ; i < nb ; ++i)
 		{
 			PARTICLE new_part;
 			new_part.px = -1;
 			new_part.py = 0;
 			new_part.slow_factor = 0.0f;
 			new_part.Pos=pos;
-			float speed_mul = ((Math::RandomTable() % 100) * 0.01f + 0.01f);
-			new_part.V=speed_mul*speed*Dir;
-			new_part.life=life;
-			new_part.mass=1.0f;
-			new_part.smoking=-1.0f;
-			new_part.gltex=tex;
-			new_part.col[0]=1.0f;
-			new_part.col[1]=0.5f;
-			new_part.col[2]=0.5f;
-			new_part.col[3]=1.0f;
-			new_part.dcol[0]=0.0f;
-			new_part.dcol[1]=0.0f;
-			new_part.dcol[2]=0.0f;
-			new_part.dcol[3]=-1.0f/life;
-			new_part.angle=0.0f;
-			new_part.v_rot = (Math::RandomTable() % 200) * 0.01f - 0.1f;
-			new_part.size=10.0f*(1.0f-speed_mul*0.9f);
-			new_part.use_wind=false;
-			new_part.dsize=0.0f;
-			new_part.ddsize=0.0f;
-			new_part.light_emitter=false;
-			new_part.slow_down=false;
+			float speed_mul = (float(Math::RandomTable() % 100) * 0.01f + 0.01f);
+			new_part.V = speed_mul * speed * Dir;
+			new_part.life = life;
+			new_part.mass = 1.0f;
+			new_part.smoking = -1.0f;
+			new_part.gltex = tex;
+			new_part.col[0] = 1.0f;
+			new_part.col[1] = 0.5f;
+			new_part.col[2] = 0.5f;
+			new_part.col[3] = 1.0f;
+			new_part.dcol[0] = 0.0f;
+			new_part.dcol[1] = 0.0f;
+			new_part.dcol[2] = 0.0f;
+			new_part.dcol[3] = -1.0f / life;
+			new_part.angle = 0.0f;
+			new_part.v_rot = float(Math::RandomTable() % 200) * 0.01f - 0.1f;
+			new_part.size = 10.0f * (1.0f - speed_mul * 0.9f);
+			new_part.use_wind = false;
+			new_part.dsize = 0.0f;
+			new_part.ddsize = 0.0f;
+			new_part.light_emitter = false;
+			new_part.slow_down = false;
 			part.push_back(new_part);
 			++nb_part;
 		}
@@ -252,39 +252,39 @@ namespace TA3D
 
 		pMutex.lock();
 
-		float pre=speed*0.01f;
-		for (int i=0; i < nb; ++i)
+		float pre = speed * 0.01f;
+		for (int i = 0 ; i < nb ; ++i)
 		{
 			if (nb_part > 20000)
 				break;
 
 			PARTICLE new_part;
-			new_part.px=-1;
-			new_part.Pos=pos;
+			new_part.px = -1;
+			new_part.Pos = pos;
 			new_part.V.y = 0.0f;
-			new_part.V.x = (((sint32)(Math::RandomTable() % 2001)) - 1000);
-			new_part.V.z = (((sint32)(Math::RandomTable() % 2001)) - 1000);
+			new_part.V.x = float(((sint32)(Math::RandomTable() % 2001)) - 1000);
+			new_part.V.z = float(((sint32)(Math::RandomTable() % 2001)) - 1000);
 			new_part.V.unit();
-			new_part.V=(powf((float)(Math::RandomTable()%100),2.0f)*0.0050f*(((Math::RandomTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*new_part.V;
-			if (tex==0)
-				new_part.life=3.0f+(Math::RandomTable()%200)*0.01f;
+			new_part.V = (powf(float(Math::RandomTable() % 100), 2.0f) * 0.0050f * (((Math::RandomTable() % 2) == 0) ? -1.0f : 1.0f) + 50.0f) * pre * new_part.V;
+			if (tex == 0)
+				new_part.life = 3.0f + float(Math::RandomTable() % 200) * 0.01f;
 			else
-				new_part.life=3.0f;
-			new_part.mass=0.0f;
+				new_part.life = 3.0f;
+			new_part.mass = 0.0f;
 			new_part.smoking = -1.0f;
 			new_part.gltex = 0;
-			new_part.col[0]=8.0f;
-			new_part.col[1]=8.0f;
-			new_part.col[2]=8.0f;
-			new_part.col[3]=1.2f;
-			new_part.dcol[0]=-0.3f/new_part.life;
-			new_part.dcol[1]=-0.3f/new_part.life;
-			new_part.dcol[2]=-0.3f/new_part.life;
-			new_part.dcol[3]=-1.2f/new_part.life;
-			new_part.angle=0.0f;
-			new_part.v_rot=(Math::RandomTable()%200)*0.01f-0.1f;
-			new_part.size=1.0f;
-			new_part.use_wind=false;
+			new_part.col[0] = 8.0f;
+			new_part.col[1] = 8.0f;
+			new_part.col[2] = 8.0f;
+			new_part.col[3] = 1.2f;
+			new_part.dcol[0] = -0.3f / new_part.life;
+			new_part.dcol[1] = -0.3f / new_part.life;
+			new_part.dcol[2] = -0.3f / new_part.life;
+			new_part.dcol[3] = -1.2f / new_part.life;
+			new_part.angle = 0.0f;
+			new_part.v_rot = float(Math::RandomTable() % 200) * 0.01f - 0.1f;
+			new_part.size = 1.0f;
+			new_part.use_wind = false;
 			if (tex == 1)
 			{
 				new_part.dsize = 0.0f;
@@ -321,31 +321,31 @@ namespace TA3D
 
 			PARTICLE new_part;
 
-			new_part.px=-1;
-			new_part.Pos=pos;
-			new_part.V.y=(Math::RandomTable()%9001)+1000;
-			new_part.V.x=(((sint32)(Math::RandomTable()%2001))-1000);
-			new_part.V.z=(((sint32)(Math::RandomTable()%2001))-1000);
+			new_part.px = -1;
+			new_part.Pos = pos;
+			new_part.V.y = float(Math::RandomTable() % 9001) + 1000.0f;
+			new_part.V.x = float(((sint32)(Math::RandomTable() % 2001)) - 1000);
+			new_part.V.z = float(((sint32)(Math::RandomTable() % 2001)) - 1000);
 			new_part.V.unit();
-			new_part.V=(100.0f - powf((float)(Math::RandomTable()%100),2.0f)*0.01f)*pre*new_part.V;
-			new_part.life=3.0f + new_part.V.sq() * 0.0001f;
-			new_part.mass=1.0f;
-			new_part.smoking=-1.0f;
-			new_part.gltex=tex;
-			new_part.col[0]=1.0f;
-			new_part.col[1]=1.0f;
-			new_part.col[2]=1.0f;
-			new_part.col[3]=1.0f;
-			new_part.dcol[0]=0.0f;
-			new_part.dcol[1]=-0.8f/new_part.life;
-			new_part.dcol[2]=0.0f;
-			new_part.dcol[3]=-1.0f/new_part.life;
-			new_part.angle=0.0f;
-			new_part.v_rot = ((Math::RandomTable()%200)*0.01f-0.1f) * new_part.V.norm() * 0.015f / pre;
-			new_part.size=4.0f;
-			new_part.use_wind=true;
-			new_part.dsize=10.0f;
-			new_part.ddsize=0.0f;
+			new_part.V = (100.0f - powf(float(Math::RandomTable() % 100), 2.0f) * 0.01f) * pre * new_part.V;
+			new_part.life = 3.0f + new_part.V.sq() * 0.0001f;
+			new_part.mass = 1.0f;
+			new_part.smoking = -1.0f;
+			new_part.gltex = tex;
+			new_part.col[0] = 1.0f;
+			new_part.col[1] = 1.0f;
+			new_part.col[2] = 1.0f;
+			new_part.col[3] = 1.0f;
+			new_part.dcol[0] = 0.0f;
+			new_part.dcol[1] = -0.8f / new_part.life;
+			new_part.dcol[2] = 0.0f;
+			new_part.dcol[3] = -1.0f / new_part.life;
+			new_part.angle = 0.0f;
+			new_part.v_rot = (float(Math::RandomTable() % 200) * 0.01f - 0.1f) * new_part.V.norm() * 0.015f / pre;
+			new_part.size = 4.0f;
+			new_part.use_wind = true;
+			new_part.dsize = 10.0f;
+			new_part.ddsize = 0.0f;
 			new_part.light_emitter = (i & 1);
 			new_part.slow_down = true;
 			new_part.slow_factor = 1.0f;
@@ -369,13 +369,13 @@ namespace TA3D
 		{
 			PARTICLE new_part;
 
-			new_part.px=-1;
-			new_part.Pos=pos;
-			new_part.V.y  =((Math::RandomTable()%1000)+1)*0.001f;
-			new_part.V.x  =(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
-			new_part.V.z  =(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
+			new_part.px = -1;
+			new_part.Pos = pos;
+			new_part.V.y = float((Math::RandomTable() % 1000) + 1) * 0.001f;
+			new_part.V.x = float(((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+			new_part.V.z = float(((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
 			new_part.V.unit();
-			new_part.V=((Math::RandomTable()%100)+1)*pre*new_part.V;
+			new_part.V = float((Math::RandomTable() % 100) + 1) * pre * new_part.V;
 
 			new_part.life          = 3.0f;
 			new_part.mass          = mass;
@@ -390,7 +390,7 @@ namespace TA3D
 			new_part.dcol[2]       = 0.0f;
 			new_part.dcol[3]       = -0.3333f * alpha;
 			new_part.angle         = 0.0f;
-			new_part.v_rot         = (Math::RandomTable() % 200) * 0.01f - 0.1f;
+			new_part.v_rot         = float(Math::RandomTable() % 200) * 0.01f - 0.1f;
 			new_part.size          = 1.0f;
 			new_part.use_wind      = ((!Yuni::Math::Zero(mass)) ? true : false);
 			new_part.dsize         = 10.0f;
@@ -407,43 +407,43 @@ namespace TA3D
 	{
 		if (!lp_CONFIG->particle) // If particles are OFF don't add particles
 			return;
-		if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
+		if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq() >= Camera::inGame->zfar2)
 			return;
 
 		pMutex.lock();
 
 		float pre = speed * 0.01f;
-		for(int i=0;i<nb;i++)
+		for(int i = 0 ; i < nb ; ++i)
 		{
 			PARTICLE new_part;
 
-			new_part.px=-1;
-			new_part.Pos=pos;
-			new_part.V.y=((Math::RandomTable()%1000)+1)*0.001f;
-			new_part.V.x=(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
-			new_part.V.z=(((sint32)(Math::RandomTable()%2001))-1000)*0.001f;
+			new_part.px = -1;
+			new_part.Pos = pos;
+			new_part.V.y = float((Math::RandomTable() % 1000) + 1) * 0.001f;
+			new_part.V.x = float(((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+			new_part.V.z = float(((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
 			new_part.V.unit();
-			new_part.V=((Math::RandomTable()%100)+1)*pre*new_part.V;
-			new_part.life=1.0f;
-			new_part.mass=mass;
-			new_part.smoking=-1.0f;
-			new_part.gltex=tex;
-			new_part.col[0]=0.2f;
-			new_part.col[1]=0.2f;
-			new_part.col[2]=0.2f;
-			new_part.col[3]=alpha;
-			new_part.dcol[0]=0.0f;
-			new_part.dcol[1]=0.0f;
-			new_part.dcol[2]=0.0f;
-			new_part.dcol[3]=-alpha;
-			new_part.angle=0.0f;
-			new_part.v_rot=(Math::RandomTable()%200)*0.01f-0.1f;
-			new_part.size=1.0f;
+			new_part.V = float((Math::RandomTable() % 100) + 1) * pre * new_part.V;
+			new_part.life = 1.0f;
+			new_part.mass = mass;
+			new_part.smoking = -1.0f;
+			new_part.gltex = tex;
+			new_part.col[0] = 0.2f;
+			new_part.col[1] = 0.2f;
+			new_part.col[2] = 0.2f;
+			new_part.col[3] = alpha;
+			new_part.dcol[0] = 0.0f;
+			new_part.dcol[1] = 0.0f;
+			new_part.dcol[2] = 0.0f;
+			new_part.dcol[3] = -alpha;
+			new_part.angle = 0.0f;
+			new_part.v_rot = float(Math::RandomTable() % 200) * 0.01f - 0.1f;
+			new_part.size = 1.0f;
 			new_part.use_wind = (!Yuni::Math::Zero(mass) ? true : false);
-			new_part.dsize=3.0f;
-			new_part.ddsize=ddsize;
-			new_part.light_emitter=false;
-			new_part.slow_down=false;
+			new_part.dsize = 3.0f;
+			new_part.ddsize = ddsize;
+			new_part.light_emitter = false;
+			new_part.slow_down = false;
 			part.push_back( new_part );
 			++nb_part;
 		}
@@ -465,14 +465,14 @@ namespace TA3D
 
 			new_part.px = -1;
 			new_part.Pos = pos;
-			new_part.V.y = ((Math::RandomTable() % 1000) + 5000) * 0.001f;
-			new_part.V.x = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
-			new_part.V.z = (((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+			new_part.V.y = float((Math::RandomTable() % 1000) + 5000) * 0.001f;
+			new_part.V.x = float(((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+			new_part.V.z = float(((sint32)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
 			new_part.V.unit();
-			new_part.V = ((Math::RandomTable() % 50) + 51) * 0.01f * speed * new_part.V;
+			new_part.V = float((Math::RandomTable() % 50) + 51) * 0.01f * speed * new_part.V;
 			new_part.life = 1.5f;
 			new_part.mass = -1.0f;
-			new_part.smoking = (Math::RandomTable()%60)*0.01f;
+			new_part.smoking = float(Math::RandomTable() % 60) * 0.01f;
 			new_part.gltex = tex;
 			new_part.col[0] = 1.0f;
 			new_part.col[1] = 1.0f;
@@ -483,7 +483,7 @@ namespace TA3D
 			new_part.dcol[2] = -0.5f;
 			new_part.dcol[3] = -0.666667f;
 			new_part.angle = 0.0f;
-			new_part.v_rot = (Math::RandomTable()%200)*0.01f-0.1f;
+			new_part.v_rot = float(Math::RandomTable() % 200) * 0.01f - 0.1f;
 			new_part.size = 5.0f;
 			new_part.use_wind = true;
 			new_part.dsize = 15.0f;
@@ -505,12 +505,10 @@ namespace TA3D
 			return;
 		}
 
-		Vector3D G;
-		G.x = G.z = 0.0f;
-		G.y = dt * g;
-		float factor = expf(-0.1f * dt);
-		float factor2 = expf(-dt);
-		float dt_reduced = dt * 0.0025f;
+		const Vector3D G(0.0f, dt * g, 0.0f);
+		const float factor = expf(-0.1f * dt);
+		const float factor2 = expf(-dt);
+		const float dt_reduced = dt * 0.0025f;
 
 		for (std::vector< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
 		{
@@ -520,7 +518,7 @@ namespace TA3D
 			else
 			{
 				delete *i;
-				bool quit = (i + 1 == particle_systems.end());
+				const bool quit = (i + 1 == particle_systems.end());
 				*i = particle_systems.back();
 				particle_systems.pop_back();
 				if (quit)
@@ -531,7 +529,7 @@ namespace TA3D
 		pMutex.unlock();
 		pMutex.lock();
 
-		Vector3D w_dir = dt * wind_dir;
+		const Vector3D w_dir = dt * wind_dir;
 
 		Vector3D RAND;
 		for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ;)
@@ -547,9 +545,9 @@ namespace TA3D
 					break;
 				continue;
 			}
-			RAND.x = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
-			RAND.y = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
-			RAND.z = (((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+			RAND.x = float(((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+			RAND.y = float(((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+			RAND.z = float(((sint32)(Math::RandomTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
 			if (e->use_wind)
 				e->V = e->V - e->mass * G + RAND + w_dir;
 			else
@@ -631,8 +629,8 @@ namespace TA3D
 			Vector3D A;
 			Vector3D B;
 			float oangle = 0.0f;
-			int h_map_w = the_map->map_w >> 1;
-			int h_map_h = the_map->map_h >> 1;
+			const int h_map_w = the_map->map_w >> 1;
+			const int h_map_h = the_map->map_h >> 1;
 			for (std::vector<PARTICLE>::iterator e = part.begin(); e != part.end(); ++e) // Calcule la position des points
 			{
 				if (e->light_emitter != light_emitters) // Two passes, one for normal particles, the second for particles that emits light
@@ -640,8 +638,8 @@ namespace TA3D
 
 				if (e->px == -1)
 				{
-					e->px = ((int)(e->Pos.x) + h_map_w) >> 4;
-					e->py = ((int)(e->Pos.z) + h_map_h) >> 4;
+					e->px = short(((int)(e->Pos.x) + h_map_w) >> 4);
+					e->py = short(((int)(e->Pos.z) + h_map_h) >> 4);
 				}
 				if (e->px >= 0 && e->px < the_map->bloc_w && e->py >= 0 && e->py < the_map->bloc_h)
 				{
@@ -654,8 +652,8 @@ namespace TA3D
 				if (!j || !Yuni::Math::Equals(oangle, e->angle))
 				{
 					oangle = e->angle;
-					float cosinus = cosf(e->angle);
-					float sinus = sinf(e->angle);
+					const float cosinus = cosf(e->angle);
+					const float sinus = sinf(e->angle);
 					A = (cosinus - sinus) * cam->side + (sinus + cosinus) * cam->up;
 					B = (cosinus + sinus) * cam->side + (sinus - cosinus) * cam->up;
 					if (cam->mirror)
@@ -671,8 +669,8 @@ namespace TA3D
 				point[i_bis] = e->Pos - e->size * A;
 
 				int i_ter = j << 3;
-				float px = 0.25f * (e->gltex & 3) + 0.001f;
-				float py = 0.25f * (e->gltex >> 2) + 0.001f;
+				const float px = 0.25f * float(e->gltex & 3) + 0.001f;
+				const float py = 0.25f * float(e->gltex >> 2) + 0.001f;
 				texcoord[i_ter++] = px;			texcoord[i_ter++] = py;
 				texcoord[i_ter++] = px+0.248f;	texcoord[i_ter++] = py;
 				texcoord[i_ter++] = px+0.248f;	texcoord[i_ter++] = py+0.248f;
@@ -721,7 +719,7 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 
-		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / (SCREEN_H * SCREEN_H)};
+		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
 		if (lp_CONFIG->ortho_camera)
 		{
 			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
@@ -780,7 +778,7 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 
-		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / (SCREEN_H * SCREEN_H)};
+		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
 		if (lp_CONFIG->ortho_camera)
 		{
 			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
@@ -911,7 +909,7 @@ namespace TA3D
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;
-		LOG_INFO("Particle engine: " << (float)(counter * 1000) / (msec_timer - particle_timer) << " ticks/sec.");
+		LOG_INFO("Particle engine: " << (float)(counter * 1000) / float(msec_timer - particle_timer) << " ticks/sec.");
 	}
 
 

@@ -88,7 +88,7 @@ namespace TA3D
 		File* file = VFS::Instance()->readFile(filename);
 
 		// Length of the name
-		byte l = file->getc();
+		byte l = (byte)file->getc();
 
 		// Reading the name
 		char* n = new char[l+1];
@@ -106,7 +106,7 @@ namespace TA3D
 	int lua_currentPlayerID(lua_State *L)
 	{
 		lua_getfield(L, LUA_REGISTRYINDEX, "playerID");
-		int playerID = lua_tointeger(L, -1);
+		const int playerID = (int)lua_tointeger(L, -1);
 		lua_pop(L, 1);
 		return playerID;
 	}
@@ -147,18 +147,18 @@ namespace TA3D
 
     int ai_add_area_build_mission( lua_State *L )		// add_area_build_mission( unit_id, pos_x, pos_z, radius, unit_type )
     {
-        int unit_id = lua_tointeger( L, 1 );
-        float pos_x = (float) lua_tonumber( L, 2 );
-        float pos_z = (float) lua_tonumber( L, 3 );
-        float radius = (float) lua_tonumber( L, 4 );
-        int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : lua_tointeger( L, 5 ) ;
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
+		const float radius = (float) lua_tonumber( L, 4 );
+		const int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : (int)lua_tointeger( L, 5 ) ;
         lua_pop( L, 5 );
 
-        if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
             && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder)
         {
             Vector3D target(pos_x, 0.0f, pos_z);
-			bool ok = AiController::findBuildPlace(target, unit_type_id, lua_currentPlayerID(L), 5, radius);
+			const bool ok = AiController::findBuildPlace(target, unit_type_id, lua_currentPlayerID(L), 5, (int)radius);
 
             if (ok)
             {
@@ -177,21 +177,21 @@ namespace TA3D
 
     int ai_add_build_mission( lua_State *L )		// add_build_mission( unit_id, pos_x, pos_z, unit_type )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float pos_x = (float) lua_tonumber( L, 2 );
-		float pos_z = (float) lua_tonumber( L, 3 );
-		int unit_type_id = lua_isstring( L, 4 ) ? unit_manager.get_unit_index( lua_tostring( L, 4 ) ) : lua_tointeger( L, 4 ) ;
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
+		const int unit_type_id = lua_isstring( L, 4 ) ? unit_manager.get_unit_index( lua_tostring( L, 4 ) ) : (int)lua_tointeger( L, 4 ) ;
 		lua_pop( L, 4 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
 			&& unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder)
 		{
 			Vector3D target;
-			target.x = ((int)(pos_x) + the_map->map_w_d) >> 3;
-			target.z = ((int)(pos_z) + the_map->map_h_d) >> 3;
+			target.x = float(((int)(pos_x) + the_map->map_w_d) >> 3);
+			target.z = float(((int)(pos_z) + the_map->map_h_d) >> 3);
 			target.y = Math::Max(the_map->get_max_rect_h((int)target.x, (int)target.z, unit_manager.unit_type[unit_type_id]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ), the_map->sealvl);
-			target.x = target.x*8.0f-the_map->map_w_d;
-			target.z = target.z*8.0f-the_map->map_h_d;
+			target.x = target.x * 8.0f - (float)the_map->map_w_d;
+			target.z = target.z * 8.0f - (float)the_map->map_h_d;
 
 			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags )
@@ -204,12 +204,12 @@ namespace TA3D
 
 	int ai_add_move_mission( lua_State *L )		// add_move_mission( unit_id, pos_x, pos_z )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float pos_x = (float) lua_tonumber( L, 2 );
-		float pos_z = (float) lua_tonumber( L, 3 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
 		lua_pop( L, 3 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
 			Vector3D target;
 			target.x = pos_x;
@@ -227,12 +227,12 @@ namespace TA3D
 
 	int ai_add_attack_mission( lua_State *L )		// add_attack_mission( unit_id, target_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int target_id = lua_tointeger( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int target_id = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
-			&& target_id >= 0 && target_id < units.max_unit)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
+			&& target_id >= 0 && target_id < (int)units.max_unit)
 		{
 			Vector3D target(units.unit[ target_id ].Pos);
 
@@ -247,12 +247,12 @@ namespace TA3D
 
 	int ai_add_patrol_mission( lua_State *L )		// add_patrol_mission( unit_id, pos_x, pos_z )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float pos_x = (float) lua_tonumber( L, 2 );
-		float pos_z = (float) lua_tonumber( L, 3 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
 		lua_pop( L, 3 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
 			Vector3D target;
 			target.x = pos_x;
@@ -270,11 +270,11 @@ namespace TA3D
 
 	int ai_add_wait_mission( lua_State *L )		// add_wait_mission( unit_id, time )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float time = (float) lua_tonumber( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float time = (float) lua_tonumber( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
 			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
@@ -287,12 +287,12 @@ namespace TA3D
 
 	int ai_add_guard_mission( lua_State *L )		// add_guard_mission( unit_id, target_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int target_id = lua_tointeger( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int target_id = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
-			&& target_id >= 0 && target_id < units.max_unit)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L)
+			&& target_id >= 0 && target_id < (int)units.max_unit)
 		{
 			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
@@ -305,18 +305,18 @@ namespace TA3D
 
 	int ai_set_standing_orders( lua_State *L )		// set_standing_orders( unit_id, move_order, fire_order )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int move_order = lua_tointeger( L, 2 );
-		int fire_order = lua_tointeger( L, 3 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int move_order = (int)lua_tointeger( L, 2 );
+		const int fire_order = (int)lua_tointeger( L, 3 );
 		lua_pop( L, 3 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
 			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
 			{
-				units.unit[ unit_id ].port[ STANDINGMOVEORDERS ] = move_order;
-				units.unit[ unit_id ].port[ STANDINGFIREORDERS ] = fire_order;
+				units.unit[ unit_id ].port[ STANDINGMOVEORDERS ] = sint16(move_order);
+				units.unit[ unit_id ].port[ STANDINGFIREORDERS ] = sint16(fire_order);
 			}
 			units.unit[ unit_id ].unlock();
 		}
@@ -326,14 +326,14 @@ namespace TA3D
 
 	int ai_get_unit_health( lua_State *L )		// get_unit_health( unit_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[unit_id].owner_id == lua_currentPlayerID(L))
 		{
 			units.unit[ unit_id ].lock();
 			if (units.unit[ unit_id ].flags)
-				lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage );
+				lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / (float)unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage );
 			else
 				lua_pushnumber( L, 0.0 );
 			units.unit[ unit_id ].unlock();
@@ -356,7 +356,7 @@ namespace TA3D
 
 	int ai_player_side( lua_State *L )		// player_side( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
 		if (player_id >= 0 && player_id < NB_PLAYERS)
@@ -369,8 +369,8 @@ namespace TA3D
 
 	int ai_allied( lua_State *L )		// allied( id0, id1 )
 	{
-		int player_id0 = lua_tointeger( L, 1 );
-		int player_id1 = lua_tointeger( L, 2 );
+		const int player_id0 = (int)lua_tointeger( L, 1 );
+		const int player_id1 = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
 		if (player_id0 >= 0 && player_id0 < NB_PLAYERS && player_id1 >= 0 && player_id1 < NB_PLAYERS)
@@ -383,10 +383,10 @@ namespace TA3D
 
 	int ai_unit_position( lua_State *L )		// unit_position( unit_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags)
 		{
 			units.unit[ unit_id ].lock();
 			lua_pushvector( L, units.unit[ unit_id ].Pos );
@@ -400,10 +400,10 @@ namespace TA3D
 
 	int ai_self_destruct_unit( lua_State *L )		// self_destruct_unit( unit_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags)
 		{
 
 			units.unit[ unit_id ].lock();
@@ -416,12 +416,12 @@ namespace TA3D
 
 	int ai_attack( lua_State *L )					// attack( attacker_id, target_id )
 	{
-		int attacker_idx = lua_tointeger( L, 1 );
-		int target_idx = lua_tointeger( L, 2 );
+		const int attacker_idx = (int)lua_tointeger( L, 1 );
+		const int target_idx = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
-		if (attacker_idx >= 0 && attacker_idx < units.max_unit && units.unit[attacker_idx].owner_id == lua_currentPlayerID(L) && units.unit[ attacker_idx ].flags)		// make sure we have an attacker and a target
-			if (target_idx >= 0 && target_idx < units.max_unit && units.unit[ target_idx ].flags)
+		if (attacker_idx >= 0 && attacker_idx < (int)units.max_unit && units.unit[attacker_idx].owner_id == lua_currentPlayerID(L) && units.unit[ attacker_idx ].flags)		// make sure we have an attacker and a target
+			if (target_idx >= 0 && target_idx < (int)units.max_unit && units.unit[ target_idx ].flags)
 			{
 				units.unit[ attacker_idx ].lock();
 				units.unit[ attacker_idx ].set_mission( MISSION_ATTACK,&(units.unit[ target_idx ].Pos),false,0,true,&(units.unit[ target_idx ]) );
@@ -432,7 +432,7 @@ namespace TA3D
 
 	int ai_get_build_list( lua_State *L )           // get_build_list( type )
 	{
-		int type = lua_tointeger(L, -1);
+		const int type = (int)lua_tointeger(L, -1);
 		lua_pop(L, 1);
 
 		if (type >= 0 && type < unit_manager.nb_unit)
@@ -453,7 +453,7 @@ namespace TA3D
 
 	int ai_get_type_data( lua_State *L )        // get_type_data( type )
 	{
-		int type = lua_tointeger(L, -1);
+		const int type = (int)lua_tointeger(L, -1);
 		lua_pop(L, 1);
 
 		if (type >= 0 && type < unit_manager.nb_unit)
@@ -497,7 +497,7 @@ namespace TA3D
 			lua_pushinteger(L, pType->MaxDamage);   // max hit points
 			lua_setfield(L, -2, "maxhp");
 
-			lua_pushinteger(L, pType->MaxVelocity);     // speed
+			lua_pushinteger(L, (int)pType->MaxVelocity);     // speed
 			lua_setfield(L, -2, "speed");
 
 			lua_pushinteger(L, type);
@@ -513,7 +513,7 @@ namespace TA3D
 			lua_pushinteger(L, pType->EnergyMake);     // energy make
 			lua_setfield(L, -2, "energymake");
 
-			lua_pushinteger(L, pType->MetalMake);     // metal make
+			lua_pushinteger(L, (int)pType->MetalMake);     // metal make
 			lua_setfield(L, -2, "metalmake");
 
 			lua_pushinteger(L, pType->EnergyUse);     // energy use
@@ -547,10 +547,10 @@ namespace TA3D
 
 	int ai_get_unit_data( lua_State *L )        // get_unit_data( index )
 	{
-		int idx = lua_tointeger(L, -1);
+		const int idx = (int)lua_tointeger(L, -1);
 		lua_pop(L, 1);
 
-		if (idx >= 0 && idx < units.max_unit)
+		if (idx >= 0 && idx < (int)units.max_unit)
 		{
 			Unit *pUnit = &(units.unit[idx]);
 			pUnit->lock();
@@ -582,7 +582,7 @@ namespace TA3D
 
 	int ai_get_unit_list( lua_State *L )        // get_unit_list( player_id ), if player_id == -1 or unset, returns all units
 	{
-		int player_id = lua_isnoneornil(L, 1) ? -1 : lua_tointeger( L, 1 );
+		const int player_id = lua_isnoneornil(L, 1) ? -1 : (int)lua_tointeger( L, 1 );
 		if (!lua_isnone(L, 1))
 			lua_pop( L, 1 );
 
@@ -590,9 +590,9 @@ namespace TA3D
         int n = 1;
 
 		units.lock();
-		for(int i = 0 ; i < units.index_list_size ; i++)
+		for(int i = 0 ; i < (int)units.index_list_size ; i++)
 		{
-			int e = units.idx_list[i];
+			const uint32 e = units.idx_list[i];
 			units.unlock();
 
 			Unit *pUnit = &(units.unit[e]);
@@ -613,8 +613,8 @@ namespace TA3D
 
 	int ai_kmeans( lua_State *L )        // kmeans( array_of_vectors, k ), returns k centroids
 	{
-		int k = lua_tointeger( L, 2 );
-		int n = lua_objlen(L, 1);
+		const int k = (int)lua_tointeger( L, 2 );
+		const int n = (int)lua_objlen(L, 1);
 
 		std::vector<Vector3D> points;       // Read vector data
 		points.resize(n);
@@ -634,19 +634,19 @@ namespace TA3D
 		for (int i = 0 ; i < k ; i++)
 			centroids.push_back(points[i % n]);
 
-		for (int i = 0 ; i < k + 2 ; k++)           // k + 2 steps for k centroids
+		for (int i = 0 ; i < k + 2 ; ++i)           // k + 2 steps for k centroids
 		{
 			std::vector<Vector3D> newCentroids;
 			std::vector<int> clusterSize;
 			newCentroids.resize(k);
 			clusterSize.resize(k);
-			for(int j = 0 ; j < n ; j++)
+			for(int j = 0 ; j < n ; ++j)
 			{
 				int clusterID = -1;
 				float best = 0.0f;
-				for(int l = 0 ; l < k ; l++)
+				for(int l = 0 ; l < k ; ++l)
 				{
-					float dist = (points[j] - centroids[l]).sq();
+					const float dist = (points[j] - centroids[l]).sq();
 					if (dist < best || clusterID == -1)
 					{
 						best = dist;
@@ -656,8 +656,8 @@ namespace TA3D
 					clusterSize[clusterID]++;
 				}
 			}
-			for(int j = 0 ; j < k ; j++)
-				centroids[j] = clusterSize[j] ? 1.0f / clusterSize[j] * newCentroids[j] : newCentroids[j];
+			for(int j = 0 ; j < k ; ++j)
+				centroids[j] = clusterSize[j] ? 1.0f / (float)clusterSize[j] * newCentroids[j] : newCentroids[j];
 		}
 
 		lua_newtable(L);
@@ -679,13 +679,13 @@ namespace TA3D
 
     int ai_get_path_length_for_unit_type( lua_State *L )    // get_path_length_for_unit_type( start_x, start_z, end_x, end_z, unit_id, max_dist ) = path length if any, -1 if none was found
     {
-        float start_x = (float) lua_tonumber( L, 1 );
-        float start_z = (float) lua_tonumber( L, 2 );
-        float end_x = (float) lua_tonumber( L, 3 );
-        float end_z = (float) lua_tonumber( L, 4 );
-        int unit_id = lua_tointeger( L, 5 );
-        int max_dist = (float) lua_tonumber( L, 6 );
-        int type_id = unit_id < 0 || unit_id >= units.max_unit ? -1 : units.unit[unit_id].type_id;
+		const float start_x = (float) lua_tonumber( L, 1 );
+		const float start_z = (float) lua_tonumber( L, 2 );
+		const float end_x = (float) lua_tonumber( L, 3 );
+		const float end_z = (float) lua_tonumber( L, 4 );
+		const int unit_id = (int)lua_tointeger( L, 5 );
+		const int max_dist = (int) lua_tointeger( L, 6 );
+		const int type_id = unit_id < 0 || (uint32)unit_id >= units.max_unit ? -1 : units.unit[unit_id].type_id;
         lua_pop( L, 6 );
 
         if (type_id >= 0)
@@ -718,12 +718,12 @@ namespace TA3D
 		const float ny = (float) lua_tonumber(L, 2);
 		const float sx = (float) lua_tonumber(L, 3);
 		const float sy = (float) lua_tonumber(L, 4);
-		const int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : lua_tointeger( L, 5 ) ;
-		const int player_id = lua_isnoneornil(L, 6) ? -1 : lua_tointeger( L, 6 );
-		const int x0 = Math::Min( Math::Max( (int)((nx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
-		const int y0 = Math::Min( Math::Max( (int)((ny + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
-		const int x1 = Math::Min( Math::Max( (int)((sx + the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
-		const int y1 = Math::Min( Math::Max( (int)((sy + the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
+		const int unit_type_id = lua_isstring( L, 5 ) ? unit_manager.get_unit_index( lua_tostring( L, 5 ) ) : (int)lua_tointeger( L, 5 ) ;
+		const int player_id = lua_isnoneornil(L, 6) ? -1 : (int)lua_tointeger( L, 6 );
+		const int x0 = Math::Min( Math::Max( (int)((nx + (float)the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
+		const int y0 = Math::Min( Math::Max( (int)((ny + (float)the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
+		const int x1 = Math::Min( Math::Max( (int)((sx + (float)the_map->map_w_d) * 0.125f), 0 ), the_map->bloc_w_db );
+		const int y1 = Math::Min( Math::Max( (int)((sy + (float)the_map->map_h_d) * 0.125f), 0 ), the_map->bloc_h_db );
         lua_pop(L, 6);
 
         lua_newtable(L);
@@ -757,10 +757,10 @@ namespace TA3D
 
     int ai_get_player_resources ( lua_State *L )     // get_player_resources (playerID)
     {
-        int player_id = lua_isnoneornil(L, 1) ? -1 : lua_tointeger( L, 1 );
+		const int player_id = lua_isnoneornil(L, 1) ? -1 : (int)lua_tointeger( L, 1 );
         lua_pop(L, 1);
 
-        if (player_id >= 0 && player_id < players.count())
+		if (player_id >= 0 && player_id < (int)players.count())
         {
             lua_newtable(L);
 

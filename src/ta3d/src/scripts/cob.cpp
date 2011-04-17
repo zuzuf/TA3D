@@ -128,7 +128,7 @@ namespace TA3D
 		script_code = new int*[nb_script];
 		dec_offset = new int[nb_script];
 		file->seek(header.OffsetToScriptCodeIndexArray);
-		file->read(dec_offset, sizeof(int) * nb_script);
+		file->read(dec_offset, (int)sizeof(int) * nb_script);
 		for (i = 0; i < nb_script; ++i)
 		{
 			file->seek(4 * dec_offset[i]);
