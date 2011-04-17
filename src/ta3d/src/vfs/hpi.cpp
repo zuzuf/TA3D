@@ -79,12 +79,12 @@ namespace TA3D
 
 			HPIFile.read((char*)&header, sizeof(HPIHEADER));
             if (header.Key)
-                key = (header.Key * 4) | (header.Key >> 6);
+				key = sint8((header.Key * 4) | (header.Key >> 6));
             else
                 key = 0;
 
-            int start = header.Start;
-            int size = header.DirectorySize;
+			const int start = header.Start;
+			const int size = header.DirectorySize;
 
             directory = new sint8 [size];
 
@@ -155,7 +155,7 @@ namespace TA3D
 
                 DeSize = new sint32[DeCount];
 
-                DeLen = DeCount * sizeof(sint32);
+				DeLen = DeCount * (int)sizeof(sint32);
 
                 readAndDecrypt(Offset, (byte *) DeSize, DeLen);
 
@@ -225,7 +225,7 @@ namespace TA3D
                     DeCount++;
 
                 DeSize = new sint32 [ DeCount ];
-                DeLen = DeCount * sizeof(sint32);
+				DeLen = DeCount * (int)sizeof(sint32);
 
                 readAndDecrypt(Offset, (byte *) DeSize, DeLen);
                 Offset += DeLen;
@@ -271,7 +271,7 @@ namespace TA3D
             if (key)
             {
                 for (byte *end = buff + buffsize ; buff != end ; ++buff, ++fpos)
-                    *buff ^= fpos ^ key;
+					*buff ^= byte(fpos ^ key);
             }
             return result;
         }
@@ -347,7 +347,7 @@ namespace TA3D
                     in += 2;
                     int DPtr = count >> 4;
                     if (DPtr == 0)
-                        return out - out0;
+						return sint32(out - out0);
                     else
                     {
                         count = (count & 0x0f) + 2;
@@ -370,7 +370,7 @@ namespace TA3D
                     work3 = *in++;
                 }
             }
-            return out - out0;
+			return sint32(out - out0);
         }
 
         sint32 Hpi::decompress(byte *out, byte *in, HPICHUNK* Chunk)
@@ -380,7 +380,7 @@ namespace TA3D
             {
                 Checksum += (byte) in[x];
                 if (Chunk->Encrypt)
-                    in[x] = (in[x] - x) ^ x;
+					in[x] = byte((in[x] - x) ^ x);
             }
 
             if (Chunk->Checksum != Checksum)
