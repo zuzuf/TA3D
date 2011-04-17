@@ -213,7 +213,7 @@ namespace TA3D
 				{
 					coef = t * angle_w;
 					const int i = (int) coef;
-					coef = coef - i;
+					coef = coef - float(i);
 					coef = (i&1) ? (1.0f - coef) : coef;
 				}
 				R = coef * angle_0 + (1.0f - coef) * angle_1;
@@ -232,7 +232,7 @@ namespace TA3D
 				{
 					coef = t * translate_w;
 					const int i = (int) coef;
-					coef = coef - i;
+					coef = coef - float(i);
 					coef = (i&1) ? (1.0f - coef) : coef;
 				}
 				T = coef * translate_0 + (1.0f - coef) * translate_1;
@@ -399,9 +399,9 @@ namespace TA3D
 	}
 
 
-	void Mesh::Identify(ScriptData *script)			// Identifie les piÃ¨ces utilisÃ©es par le script
+	void Mesh::Identify(ScriptData *script)			// Identifie les pièces utilisées par le script
 	{
-		script_index = -1;				// PiÃ¨ce non utilisÃ©e / Unused piece
+		script_index = -1;				// Pièce non utilisée / Unused piece
 		if (!name.empty())
 			script_index = script->identify(name);
 		if (next)
@@ -486,7 +486,7 @@ namespace TA3D
 		return false;
 	}
 
-	uint16 Mesh::set_obj_id(uint16 id)
+	sint32 Mesh::set_obj_id(sint32 id)
 	{
 		nb_sub_obj = id;
 		if (next)
@@ -494,7 +494,7 @@ namespace TA3D
 		obj_id = id++;
 		if (child)
 			id = child->set_obj_id(id);
-		nb_sub_obj = id - nb_sub_obj;
+		nb_sub_obj = uint32(id - nb_sub_obj);
 		return id;
 	}
 
@@ -508,8 +508,8 @@ namespace TA3D
 			if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->data[script_index].flag & FLAG_HIDE)) )
 			{
 				const int rnd_idx = (Math::RandomTable() % (nb_t_index / 3)) * 3;
-				const float a = (Math::RandomTable() & 0xFF) / 255.0f;
-				const float b = (1.0f - a) * (Math::RandomTable() & 0xFF) / 255.0f;
+				const float a = float(Math::RandomTable() & 0xFF) / 255.0f;
+				const float b = (1.0f - a) * float(Math::RandomTable() & 0xFF) / 255.0f;
 				const float c = 1.0f - a - b;
 				*vec = a * points[ t_index[rnd_idx]] + b * points[t_index[rnd_idx + 1]] + c * points[t_index[rnd_idx + 2]];
 				if (data_s && script_index >= 0)
@@ -597,16 +597,16 @@ namespace TA3D
 				bool random_vector = true;
 				if (src != NULL)
 				{
-					for (int base_n = Math::RandomTable(), n = 0; random_vector && n < src->nb_sub_obj; ++n)
+					for (uint32 base_n = Math::RandomTable(), n = 0; random_vector && n < src->nb_sub_obj; ++n)
 						random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
 				}
 				if (random_vector)
 				{
-					t_mod.x = (((int)(Math::RandomTable()%2001)) - 1000) * 0.001f;
-					t_mod.y = (((int)(Math::RandomTable()%2001)) - 1000) * 0.001f;
-					t_mod.z = (((int)(Math::RandomTable()%2001)) - 1000) * 0.001f;
+					t_mod.x = float(((int)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+					t_mod.y = float(((int)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
+					t_mod.z = float(((int)(Math::RandomTable() % 2001)) - 1000) * 0.001f;
 					t_mod.unit();
-					t_mod = (Math::RandomTable() % 1001) * 0.001f * size * t_mod;
+					t_mod = float(Math::RandomTable() % 1001) * 0.001f * size * t_mod;
 					if (center)
 						t_mod = t_mod + (*center);
 				}
@@ -617,7 +617,7 @@ namespace TA3D
 					Dir.x += upos->x;
 					Dir.y += upos->y;
 					Dir.z += upos->z;
-					system = particle_engine.emit_part_fast( system, t_mod+*target,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
+					system = particle_engine.emit_part_fast( system, t_mod + *target, Dir, p_tex, i == 0 ? -nb : 1, speed, life, 2.0f, true);
 				}
 				else
 				{
@@ -625,17 +625,17 @@ namespace TA3D
 					Dir.x -= upos->x;
 					Dir.y -= upos->y;
 					Dir.z -= upos->z;
-					system = particle_engine.emit_part_fast( system, *upos+*pos,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
+					system = particle_engine.emit_part_fast( system, *upos + *pos, Dir, p_tex, i == 0 ? -nb : 1, speed, life, 2.0f, true);
 				}
 			}
 		}
 		if (child)
-			child->compute_coord(data_s,pos,c_part,p_tex,target,upos,M,size,center,reverse,src,src_data);
+			child->compute_coord(data_s, pos, c_part, p_tex, target, upos, M, size, center, reverse, src, src_data);
 		*pos = opos;
 		if (M)
 			*M = OM;
 		if (next)
-			next->compute_coord(data_s,pos,c_part,p_tex,target,upos,M,size,center,reverse,src,src_data);
+			next->compute_coord(data_s, pos, c_part, p_tex, target, upos, M, size, center, reverse, src, src_data);
 	}
 
 
@@ -729,7 +729,7 @@ namespace TA3D
 								idx = nb_line;
 								++nb_line;
 							}
-							t_line[i + a] = idx;
+							t_line[i + a] = (short)idx;
 						}
 					}
 					line_on = new byte[nb_line];
@@ -745,9 +745,9 @@ namespace TA3D
 					{
 						if ((F_N[e++] % Dir) >= 0.0f)
 							continue;	// Use face normal
-						line_on[t_line[i]]   = ((line_on[t_line[i]]   ^ 1) & 1) | face_reverse[i];
-						line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
-						line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
+						line_on[t_line[i]]   = byte(((line_on[t_line[i]]   ^ 1) & 1) | face_reverse[i]);
+						line_on[t_line[i+1]] = byte(((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1]);
+						line_on[t_line[i+2]] = byte(((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2]);
 					}
 					for (int i = 0 ; i < nb_line ; ++i)
 					{
@@ -760,15 +760,15 @@ namespace TA3D
 						{
 							shadow_index[nb_idx++] = line_v_idx[1][i];
 							shadow_index[nb_idx++] = line_v_idx[0][i];
-							shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
-							shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
+							shadow_index[nb_idx++] = GLushort(line_v_idx[0][i] + nb_vtx);
+							shadow_index[nb_idx++] = GLushort(line_v_idx[1][i] + nb_vtx);
 						}
 						else
 						{
 							shadow_index[nb_idx++] = line_v_idx[0][i];
 							shadow_index[nb_idx++] = line_v_idx[1][i];
-							shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
-							shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
+							shadow_index[nb_idx++] = GLushort(line_v_idx[1][i] + nb_vtx);
+							shadow_index[nb_idx++] = GLushort(line_v_idx[0][i] + nb_vtx);
 						}
 					}
 					last_nb_idx = nb_idx;
@@ -863,33 +863,36 @@ namespace TA3D
 					line_v_idx[1] = new short[nb_t_index];
 					face_reverse = new byte[nb_t_index];
 					nb_line = 0;
-					for (short i = 0; i < nb_t_index; i += 3)
-						for (byte a = 0; a < 3; ++a)
+					for (int i = 0; i < nb_t_index; i += 3)
+					{
+						for (int a = 0; a < 3; ++a)
 						{
-							short idx=-1;
+							int idx = -1;
 							face_reverse[ i + a ] = 0;
-							for (short e = 0;e < nb_line; ++e)
+							for (int e = 0 ; e < nb_line ; ++e)
+							{
 								if (line_v_idx[0][e] == t_index[i+a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
 								{
 									idx=e;
 									break;
 								}
-								else
-									if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i+a])
-									{
-										idx=e;
-										face_reverse[ i + a ] = 2;
-										break;
-									}
+								else if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i+a])
+								{
+									idx=e;
+									face_reverse[ i + a ] = 2;
+									break;
+								}
+							}
 							if (idx == -1)
 							{
-								line_v_idx[0][nb_line]=t_index[i+a];
-								line_v_idx[1][nb_line]=t_index[i+((a+1)%3)];
+								line_v_idx[0][nb_line] = t_index[i + a];
+								line_v_idx[1][nb_line] = t_index[i + ((a + 1) % 3)];
 								idx = nb_line;
 								++nb_line;
 							}
-							t_line[i+a]=idx;
+							t_line[i + a] = (short)idx;
 						}
+					}
 					line_on = new byte[nb_line];
 				}
 
@@ -902,13 +905,13 @@ namespace TA3D
 					{
 						if ((F_N[e++] % Dir ) >= 0.0f)
 							continue;	// Use face normal
-						line_on[t_line[i]] = ((line_on[t_line[i]] ^ 1) & 1) | face_reverse[i];
-						line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
-						line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
+						line_on[t_line[i]] = byte(((line_on[t_line[i]] ^ 1) & 1) | face_reverse[i]);
+						line_on[t_line[i+1]] = byte(((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1]);
+						line_on[t_line[i+2]] = byte(((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2]);
 					}
-					for (short i = 0; i < nb_line; ++i)
+					for (int i = 0 ; i < nb_line ; ++i)
 					{
-						if (!(line_on[i]&1))
+						if (!(line_on[i] & 1))
 							continue;
 						points[line_v_idx[0][i] + nb_vtx] = points[line_v_idx[0][i]] + Dir; // Projection calculations
 						points[line_v_idx[1][i] + nb_vtx] = points[line_v_idx[1][i]] + Dir;
@@ -917,15 +920,15 @@ namespace TA3D
 						{
 							shadow_index[nb_idx++] = line_v_idx[1][i];
 							shadow_index[nb_idx++] = line_v_idx[0][i];
-							shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
-							shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
+							shadow_index[nb_idx++] = GLushort(line_v_idx[0][i] + nb_vtx);
+							shadow_index[nb_idx++] = GLushort(line_v_idx[1][i] + nb_vtx);
 						}
 						else
 						{
 							shadow_index[nb_idx++] = line_v_idx[0][i];
 							shadow_index[nb_idx++] = line_v_idx[1][i];
-							shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
-							shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
+							shadow_index[nb_idx++] = GLushort(line_v_idx[1][i] + nb_vtx);
+							shadow_index[nb_idx++] = GLushort(line_v_idx[0][i] + nb_vtx);
 						}
 					}
 					last_nb_idx = nb_idx;
@@ -934,7 +937,7 @@ namespace TA3D
 				else
 					nb_idx = last_nb_idx;
 				glVertexPointer( 3, GL_FLOAT, 0, points);
-				glFrontFace(GL_CW);						// 1Ã¨re passe
+				glFrontFace(GL_CW);						// 1ère passe / first pass
 				glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
 				glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
 
@@ -1520,8 +1523,9 @@ namespace TA3D
 			}
 
 			Mutex mLoad;
+			const size_t __end = final_file_list.size();
 #pragma omp parallel for
-			for (int e = 0 ; e < final_file_list.size() ; ++e)
+			for (size_t e = 0 ; e < __end ; ++e)
 			{
 				const String &filename = final_file_list[e];
 				mLoad.lock();
@@ -1533,7 +1537,7 @@ namespace TA3D
 					{
 						// Update the progress bar
 						mLoad.unlock();
-						(*progress)((100.0f + n * 50.0f / (final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
+						(*progress)((100.0f + float(n) * 50.0f / float(final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
 						mLoad.lock();
 						// Reset the increment
 						progressIncrement = 0;
@@ -1557,7 +1561,7 @@ namespace TA3D
 					mLoad.lock();
 					if (pModel)
 					{
-						model_hashtable[ToLower(filename)] = model.size();
+						model_hashtable[ToLower(filename)] = (int)model.size();
 						model.push_back(pModel);
 					}
 					else
@@ -1612,8 +1616,8 @@ namespace TA3D
 		Vector3D O;
 		int coef(0);
 		center.reset();
-		mesh->compute_center(&center,O,&coef);
-		center = (1.0f / coef) * center;
+		mesh->compute_center(&center, O, &coef);
+		center = (1.0f / float(coef)) * center;
 		size = 2.0f * mesh->compute_size_sq(center);			// On garde le carrÃ© pour les comparaisons et on prend une marge en multipliant par 2.0f
 		size2 = sqrtf(0.5f * size);
 		mesh->compute_emitter();
@@ -1634,8 +1638,8 @@ namespace TA3D
 			glDisable(GL_TEXTURE_2D);
 		if (chg_col && notex)
 		{
-			byte var = abs(255 - (((int)(t * 256) & 0xFF)<<1));
-			glColor3ub(0,var,0);
+			const byte var = (byte)abs(255 - (((int)(t * 256) & 0xFF) << 1));
+			glColor3ub(0, var, 0);
 		}
 
 		if (data_s == NULL && animated)

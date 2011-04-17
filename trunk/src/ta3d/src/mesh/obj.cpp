@@ -16,10 +16,10 @@ namespace TA3D
 	/*!
 * \brief fill the Mesh with gathered data
 */
-	void MeshOBJ::obj_finalize(const String &filename, const vector<int> &face, const vector<Vector3D> &vertex, const vector<Vector2D> &tcoord, Material* mtl)
+	void MeshOBJ::obj_finalize(const String &, const vector<int> &face, const vector<Vector3D> &vertex, const vector<Vector2D> &tcoord, Material* mtl)
 	{
-		nb_vtx = face.size() >> 1;
-		nb_t_index = face.size() >> 1;
+		nb_vtx = short(face.size() >> 1);
+		nb_t_index = short(face.size() >> 1);
 		this->t_index = new GLushort[nb_t_index];
 		this->points = new Vector3D[nb_vtx * 2];
 		this->tcoord = new float[2 * nb_vtx];
@@ -38,10 +38,10 @@ namespace TA3D
 				this->tcoord[i * 2] = tcoord[ face[i * 2 + 1]].x;
 				this->tcoord[i * 2 + 1] = 1.0f - tcoord[face[i * 2 + 1]].y;
 			}
-			this->t_index[i] = i;
+			this->t_index[i] = GLushort(i);
 		}
 
-		N = new Vector3D[nb_vtx << 1]; // Calculate normals
+		N = new Vector3D[nb_vtx << 1]; // Compute normals
 		if (nb_t_index > 0 && t_index != NULL)
 		{
 			F_N = new Vector3D[nb_t_index / 3];
@@ -75,7 +75,7 @@ namespace TA3D
 
 	void MeshOBJ::load_texture_id(int id)
 	{
-		if (id < 0 || id >= tex_cache_name.size())
+		if (id < 0 || id >= (int)tex_cache_name.size())
 			return;
 		bool useAlpha(false);
 		LOG_DEBUG(LOG_PREFIX_OBJ << "loading texture : '" << tex_cache_name[id] << "'");

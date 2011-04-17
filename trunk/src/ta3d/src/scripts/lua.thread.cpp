@@ -397,7 +397,7 @@ namespace TA3D
 	{
 		LuaThread *lua_thread = lua_threadID(L);
 		if (lua_thread)
-			lua_thread->processSignal( lua_tointeger(L, 1) );
+			lua_thread->processSignal( (uint32)lua_tointeger(L, 1) );
 		lua_settop(L, 0);
 		return 0;
 	}
@@ -441,9 +441,9 @@ namespace TA3D
 		if (caller == NULL && !alone)
 		{
 			clean();
-			for (int i = childs.size() - 1 ; i >= 0 ; i--)
+			for (int i = (int)childs.size() - 1 ; i >= 0 ; --i)
 			{
-				int sig = childs[i]->run(dt);
+				const int sig = childs[i]->run(dt);
 				if (sig > 0 || sig < -3)
 					return sig;
 			}
@@ -486,7 +486,7 @@ namespace TA3D
 					switch(result)
 					{
 						case 0:
-							result = lua_tointeger(L, -1);
+							result = (int)lua_tointeger(L, -1);
 							break;
 						case 1:             // sleep
 							pause( (float)lua_tonumber(L, -1) );
@@ -497,7 +497,7 @@ namespace TA3D
 							result = 0;
 							break;
 						case 3:             // set_signal_mask
-							setSignalMask( lua_tointeger(L, -1) );
+							setSignalMask( (uint32)lua_tointeger(L, -1) );
 							result = 0;
 							break;
 						case 4:             // end_thread
@@ -674,7 +674,7 @@ namespace TA3D
 
         if (lua_gettop(L) > 0)
         {
-            int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : lua_tointeger( L, -1 );    // Read the result
+			const int result = lua_isboolean(L,-1) ? lua_toboolean(L,-1) : (int)lua_tointeger( L, -1 );    // Read the result
             lua_pop( L, 1 );
             return result;
         }
@@ -717,11 +717,11 @@ namespace TA3D
 		}
 	}
 
-	void LuaThread::save_thread_state(gzFile file)
+	void LuaThread::save_thread_state(gzFile /*file*/)
 	{
 	}
 
-	void LuaThread::restore_thread_state(gzFile)
+	void LuaThread::restore_thread_state(gzFile /*file*/)
 	{
 	}
 

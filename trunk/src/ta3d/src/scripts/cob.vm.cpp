@@ -101,9 +101,9 @@ namespace TA3D
         if (caller == NULL && !alone)
         {
             clean();
-            for (int i = childs.size() - 1 ; i >= 0 ; i--)
+			for (int i = (int)childs.size() - 1 ; i >= 0 ; --i)
             {
-                int sig = childs[i]->run(dt);
+				const int sig = childs[i]->run(dt);
                 if (sig > 0 || sig < -3)
                     return sig;
             }
@@ -130,8 +130,8 @@ namespace TA3D
             return -1;
         }
 
-        sint16 script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-        sint16 pos = (cur.top() >> 8);
+		sint32 script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+		sint32 pos = (cur.top() >> 8);
         if (script_id < 0 || script_id >= script->nb_script)
         {
             running = false;
@@ -169,7 +169,7 @@ namespace TA3D
 						const int axis = script->script_code[script_id][pos++];
 						const int v1 = sStack.pop();
 						const int v2 = sStack.pop();
-                        pUnit->script_move_object(obj, axis, v1 * div, v2 * div);
+						pUnit->script_move_object(obj, axis, float(v1) * div, float(v2) * div);
                         break;
                     }
                 case SCRIPT_WAIT_FOR_TURN:
@@ -231,7 +231,7 @@ namespace TA3D
 						const int axis = script->script_code[script_id][pos++];
 						const int v1 = sStack.pop();
 						const int v2 = sStack.pop();
-                        pUnit->script_turn_object(obj, axis, v1 * TA2DEG, v2 * TA2DEG);
+						pUnit->script_turn_object(obj, axis, float(v1) * TA2DEG, float(v2) * TA2DEG);
                         break;
                     }
                 case SCRIPT_WAIT_FOR_MOVE:
@@ -295,13 +295,13 @@ namespace TA3D
 						const int axis = script->script_code[script_id][pos++];
 						const int v1 = sStack.pop();
 						const int v2 = sStack.pop();
-                        pUnit->script_spin_object(obj, axis, v1 * TA2DEG, v2 * TA2DEG);
+						pUnit->script_spin_object(obj, axis, float(v1) * TA2DEG, float(v2) * TA2DEG);
                     }
                     break;
                 case SCRIPT_SLEEP:
                     {
                         DEBUG_PRINT_CODE("SLEEP");
-                        pause( sStack.pop() * 0.001f );
+						pause( (float)sStack.pop() * 0.001f );
                         done = true;
                         break;
                     }
@@ -429,8 +429,8 @@ namespace TA3D
                     {
                         DEBUG_PRINT_CODE("SET_VAR (" << script->script_code[script_id][pos] << ")");
 						const int v_id = script->script_code[script_id][pos];
-                        if (local_env.top().size() <= v_id)
-                            local_env.top().resize(v_id+1);
+						if ((int)local_env.top().size() <= v_id)
+							local_env.top().resize(v_id + 1);
                         local_env.top()[v_id] = sStack.pop();
                         ++pos;
                         break;
@@ -519,7 +519,7 @@ namespace TA3D
 						const int obj = script->script_code[script_id][pos++];
 						const int axis = script->script_code[script_id][pos++];
 						const int v = sStack.pop();
-                        pUnit->script_stop_spin(obj, axis, v * TA2DEG);
+						pUnit->script_stop_spin(obj, axis, float(v) * TA2DEG);
                         break;
                     }
                 case SCRIPT_DIVIDE:
@@ -536,7 +536,7 @@ namespace TA3D
 						const int obj = script->script_code[script_id][pos++];
 						const int axis = script->script_code[script_id][pos++];
 						const int pos = sStack.pop();
-                        pUnit->script_move_piece_now(obj, axis, pos * div);
+						pUnit->script_move_piece_now(obj, axis, float(pos) * div);
                         break;
                     }
                 case SCRIPT_TURN_PIECE_NOW:
@@ -545,7 +545,7 @@ namespace TA3D
 						const int obj = script->script_code[script_id][pos++];
 						const int axis = script->script_code[script_id][pos++];
 						const int v = sStack.pop();
-                        pUnit->script_turn_piece_now(obj, axis, v * TA2DEG);
+						pUnit->script_turn_piece_now(obj, axis, float(v) * TA2DEG);
                         break;
                     }
                 case SCRIPT_CACHE:
@@ -789,29 +789,29 @@ namespace TA3D
         if (caller == NULL)
         {
             gzputc(file, 1);
-            int t = script->nbStaticVar;
-            gzwrite(file, &t, sizeof(t));
-            gzwrite(file, global_env, t * sizeof(int));
+			const int t = script->nbStaticVar;
+			gzwrite(file, &t, (int)sizeof(t));
+			gzwrite(file, global_env, t * (int)sizeof(int));
         }
         else
             gzputc(file, 0);
 
-        int t = cur.size();
+		int t = (int)cur.size();
         gzwrite(file, &t, sizeof(t));
         for (int i = 0 ; i < t ; i++)
             gzwrite(file, &(cur[i]), sizeof(int));
 
-        t = sStack.size();
+		t = (int)sStack.size();
         gzwrite(file, &t, sizeof(t));
         for (int i = 0 ; i < t ; i++)
             gzwrite(file, &(sStack[i]), sizeof(int));
 
-        t = local_env.size();
+		t = (int)local_env.size();
         gzwrite(file, &t, sizeof(t));
         for (int i = 0 ; i < t ; i++)
         {
-            int f = local_env[i].size();
-            gzwrite(file, &f, sizeof(t));
+			const int f = (int)local_env[i].size();
+			gzwrite(file, &f, sizeof(f));
             for (int e = 0 ; e < f ; e++)
                 gzwrite(file, &(local_env[i][e]), sizeof(int));
         }
@@ -826,7 +826,7 @@ namespace TA3D
             gzread(file, &t, sizeof(t));
 			DELETE_ARRAY(global_env);
             global_env = new int[t];
-            gzread(file, global_env, t * sizeof(int));
+			gzread(file, global_env, t * (int)sizeof(int));
         }
 
         int t;

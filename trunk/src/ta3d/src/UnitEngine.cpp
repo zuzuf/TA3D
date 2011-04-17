@@ -90,7 +90,7 @@ namespace TA3D
 		DELETE_ARRAY(idx_list);
 		DELETE_ARRAY(free_idx);
 		if (max_unit > 0 && unit)			// Destroy all units
-			for(int i = 0; i < max_unit; ++i)
+			for(size_t i = 0; i < max_unit; ++i)
 				unit[i].destroy(true);
 		DELETE_ARRAY(unit);
 		pMutex.unlock();
@@ -105,7 +105,11 @@ namespace TA3D
 		for (uint32 e = 0U ; e < index_list_size ; ++e)
 		{
 			uint32 i = idx_list[e];
-			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canmove)
+			if ((unit[i].flags & 1)
+				&& unit[i].owner_id == player_id
+				&& unit[i].sel
+				&& Yuni::Math::Zero(unit[i].build_percent_left)
+				&& unit_manager.unit_type[unit[i].type_id]->canmove)
 			{
 				if (set)
 					unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, flags);
@@ -125,7 +129,11 @@ namespace TA3D
 		for (uint16 e = 0; e < index_list_size; ++e)
 		{
 			uint16 i = idx_list[e];
-			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canpatrol)
+			if ((unit[i].flags & 1)
+				&& unit[i].owner_id == player_id
+				&& unit[i].sel
+				&& Yuni::Math::Zero(unit[i].build_percent_left)
+				&& unit_manager.unit_type[unit[i].type_id]->canpatrol)
 			{
 				if (set)
 					unit[i].set_mission(MISSION_PATROL, &target, false, 0, true, NULL);
@@ -145,7 +153,11 @@ namespace TA3D
 		for (uint16 e = 0; e < index_list_size; ++e)
 		{
 			uint16 i = idx_list[e];
-			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canguard)
+			if ((unit[i].flags & 1)
+				&& unit[i].owner_id == player_id
+				&& unit[i].sel
+				&& Yuni::Math::Zero(unit[i].build_percent_left)
+				&& unit_manager.unit_type[unit[i].type_id]->canguard)
 			{
 				if (set)
                     unit[i].set_mission(MISSION_GUARD,&unit[target].Pos,false,0,true,&(unit[target]));
@@ -162,10 +174,14 @@ namespace TA3D
 	void INGAME_UNITS::give_order_unload(int player_id, const Vector3D& target, bool set)
 	{
 		pMutex.lock();
-		for (uint16 e = 0; e < index_list_size; ++e)
+		for (uint32 e = 0; e < index_list_size; ++e)
 		{
-			uint16 i = idx_list[e];
-			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canload
+			const uint32 i = idx_list[e];
+			if ((unit[i].flags & 1)
+				&& unit[i].owner_id == player_id
+				&& unit[i].sel
+				&& Yuni::Math::Zero(unit[i].build_percent_left)
+				&& unit_manager.unit_type[unit[i].type_id]->canload
 				&& unit_manager.unit_type[unit[i].type_id]->BMcode && unit[i].nb_attached > 0 )
 			{
 				if (set)
@@ -202,10 +218,14 @@ namespace TA3D
 				return;
 				break;
 		}
-		for (uint16 e = 0; e < index_list_size; ++e)
+		for (uint32 e = 0; e < index_list_size; ++e)
 		{
-			uint16 i = idx_list[e];
-			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canload
+			const uint32 i = idx_list[e];
+			if ((unit[i].flags & 1)
+				&& unit[i].owner_id == player_id
+				&& unit[i].sel
+				&& Yuni::Math::Zero(unit[i].build_percent_left)
+				&& unit_manager.unit_type[unit[i].type_id]->canload
 				&& unit_manager.unit_type[unit[i].type_id]->BMcode)
 			{
 				if (set)
@@ -228,20 +248,20 @@ namespace TA3D
 			return;
 
 		Vector3D t(target);
-		t.x = ((int)(t.x) + map->map_w_d) >> 3;
-		t.z = ((int)(t.z) + map->map_h_d) >> 3;
+		t.x = float(((int)(t.x) + map->map_w_d) >> 3);
+		t.z = float(((int)(t.z) + map->map_h_d) >> 3);
 		t.y = map->get_max_rect_h((int)t.x, (int)t.z, unit_manager.unit_type[unit_type_id]->FootprintX,
 								  unit_manager.unit_type[unit_type_id]->FootprintZ);
 		if (unit_manager.unit_type[unit_type_id]->floatting())
 			t.y = Math::Max(t.y,map->sealvl+(unit_manager.unit_type[unit_type_id]->AltFromSeaLevel-unit_manager.unit_type[unit_type_id]->WaterLine)*H_DIV);
-		t.x = t.x * 8.0f - map->map_w_d;
-		t.z = t.z * 8.0f - map->map_h_d;
+		t.x = t.x * 8.0f - (float)map->map_w_d;
+		t.z = t.z * 8.0f - (float)map->map_h_d;
 
 		pMutex.lock();
-		for( uint16 e = 0; e < index_list_size; ++e)
+		for (uint32 e = 0; e < index_list_size; ++e)
 		{
-			uint16 i = idx_list[e];
-			if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->Builder)
+			const uint32 i = idx_list[e];
+			if ((unit[i].flags & 1) && unit[i].owner_id == player_id && unit[i].sel && Yuni::Math::Zero(unit[i].build_percent_left) && unit_manager.unit_type[unit[i].type_id]->Builder)
 			{
 				if (set)
 					unit[i].set_mission(MISSION_BUILD, &t, false, unit_type_id);
@@ -324,7 +344,9 @@ namespace TA3D
 			unit[*e].lock();
 
 			// Select only units completely built and visible
-			if (unit[*e].owner_id == players.local_human_id && (unit[*e].flags & 1) && unit[*e].build_percent_left == 0.0f
+			if (unit[*e].owner_id == players.local_human_id
+				&& (unit[*e].flags & 1)
+				&& Yuni::Math::Zero(unit[*e].build_percent_left)
 				&& unit[*e].visible)
 			{
 				if (TA3D_SHIFT_PRESSED && unit[*e].sel)
@@ -365,13 +387,13 @@ namespace TA3D
 		if (lp_CONFIG->ortho_camera)
 		{
 			Dir = cam.dir;
-			CamPos = cam.pos + cam.zoomFactor * ((mouse_x - gfx->SCREEN_W_HALF) * cam.side - (mouse_y - gfx->SCREEN_H_HALF) * cam.up);
+			CamPos = cam.pos + cam.zoomFactor * (float(mouse_x - gfx->SCREEN_W_HALF) * cam.side - float(mouse_y - gfx->SCREEN_H_HALF) * cam.up);
 		}
 		else
 		{
 			CamPos = cam.pos;
-			Dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
-				* cam.side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
+			Dir = cam.dir + cam.widthFactor * 2.0f * float(mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
+				* cam.side - 1.5f * float(mouse_y - gfx->SCREEN_H_HALF)
 				* gfx->SCREEN_H_INV * cam.up;
 			Dir.unit();		// Direction pointée par le curseur
 		}
@@ -395,7 +417,7 @@ namespace TA3D
 			float dist = center.sq();
 			if (dist < size)
 			{
-				detectable.push_back(*e);
+				detectable.push_back(uint16(*e));
 				unit[*e].flags |= 0x2;		// Unité détectable
 			}
 			unit[*e].unlock();
@@ -451,17 +473,15 @@ namespace TA3D
 		if (last_on != -1 )
 			return last_on;
 
-		int i;
+		const float conv_x = ((float)map->mini_w) / (float)map->map_w * 128.0f / 252.0f;
+		const float conv_z = ((float)map->mini_h) / (float)map->map_h * 128.0f / 252.0f;
 
-		float conv_x = ((float)map->mini_w) / map->map_w * 128.0f / 252.0f;
-		float conv_z = ((float)map->mini_h) / map->map_h * 128.0f / 252.0f;
-
-		byte player_mask = 1 << players.local_human_id;
+		const byte player_mask = byte(1 << players.local_human_id);
 
 		pMutex.lock();
-		for(uint16 e = 0 ; e < index_list_size ; ++e)
+		for(uint32 e = 0 ; e < index_list_size ; ++e)
 		{
-			i = idx_list[e];
+			const uint32 i = idx_list[e];
 			pMutex.unlock();
 
 			unit[ i ].lock();
@@ -529,8 +549,8 @@ namespace TA3D
 				{
 					struct event event;
 					event.type = EVENT_UNIT_CREATION;
-					event.opt1 = id;
-					event.opt2 = script ? (owner | 0x1000) : owner;
+					event.opt1 = uint16(id);
+					event.opt2 = uint16(script ? (owner | 0x1000) : owner);
 					event.x = pos.x;
 					event.z = pos.z;
 					memcpy( event.str, unit_manager.unit_type[type_id]->Unitname.c_str(), unit_manager.unit_type[type_id]->Unitname.size() + 1 );
@@ -540,9 +560,9 @@ namespace TA3D
 
 			units.unit[id].Pos = pos;
 			units.unit[id].build_percent_left = 100.0f;
-			units.unit[id].cur_px = ((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3;
-			units.unit[id].cur_py = ((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3;
-			units.unit[id].birthTime = float(units.current_tick) / TICKS_PER_SEC;
+			units.unit[id].cur_px = sint16(((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3);
+			units.unit[id].cur_py = sint16(((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3);
+			units.unit[id].birthTime = float(units.current_tick) / float(TICKS_PER_SEC);
 			units.unit[id].unlock();
 
 			units.unit[id].draw_on_map();
@@ -554,7 +574,7 @@ namespace TA3D
 
 
 	bool can_be_there_ai(const int px, const int py, const int unit_type_id,
-						 const int player_id, const int unit_id, const bool leave_space )
+						 const int, const int unit_id, const bool leave_space )
 	{
 		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
@@ -563,7 +583,7 @@ namespace TA3D
 		const int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
 		const int x = px - (w>>1);
 		const int y = py - (h>>1);
-		const int side = unit_manager.unit_type[unit_type_id]->ExtractsMetal == 0.0f ? 12 : leave_space ? 12 : 0;
+		const int side = Yuni::Math::Zero(unit_manager.unit_type[unit_type_id]->ExtractsMetal) ? 12 : leave_space ? 12 : 0;
 		if (x < 0 || y < std::max(0, (((int)the_map->get_zdec(x, 0) + 7) >> 3))
 			|| x + w >= the_map->bloc_w_db - 1 || y + h >= the_map->bloc_h_db - 5 - std::max(0, (((int)the_map->get_zdec(x, the_map->bloc_h_db - 2) + 7) >> 3)))
 			return false;	// check if it is inside the map
@@ -596,7 +616,7 @@ namespace TA3D
 	}
 
 	bool can_be_there( const int px, const int py, const int unit_type_id,
-					   const int player_id, const int unit_id )
+					   const int, const int unit_id )
 	{
 		if (unit_type_id < 0 || unit_type_id >= unit_manager.nb_unit)
 			return false;
@@ -682,16 +702,16 @@ namespace TA3D
 	void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 	{
 		bool pointed_only = false;
-		if (last_on >= 0 && ( last_on >= max_unit || unit[ last_on ].flags == 0 )) 	last_on = -1;
-		if (index >= 0 && index < max_unit)
+		if (last_on >= 0 && ( last_on >= (int)max_unit || unit[ last_on ].flags == 0 )) 	last_on = -1;
+		if (index >= 0 && (uint32)index < max_unit)
 			unit[index].lock();
-		if (index<0 || index>=max_unit || unit[index].flags==0 || unit[index].type_id < 0)
+		if (index < 0 || index >= (int)max_unit || unit[index].flags == 0 || unit[index].type_id < 0)
 		{
 			if (last_on >= 0 )
 				pointed_only = true;
 			else
 			{
-				if (index >= 0 && index < max_unit)
+				if (index >= 0 && (uint32)index < max_unit)
 					unit[index].unlock();
 				return;		// On n'affiche que des données sur les unités EXISTANTES
 			}
@@ -741,29 +761,41 @@ namespace TA3D
 					{
 						String buf;
 						buf << nb;
-						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-						gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
-						gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						gfx->print(gfx->TA_font,
+								   float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+								   float(py + 1) + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+								   0.0f, Black, buf);
+						gfx->print(gfx->TA_font,
+								   (float)px + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+								   (float)py + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+								   0.0f, 0xFFFFFFFFU, buf);
 					}
 					else
 					{
 						if (unit_manager.unit_type[unit[index].type_id]->BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
 						{
 							String buf;
-							if ((int)unit[index].planned_weapons==unit[index].planned_weapons)
+							if (float(int(unit[index].planned_weapons)) == unit[index].planned_weapons)
 								buf << (int)unit[index].planned_weapons << '(' << stock << ')';
 							else
-								buf << (int)unit[index].planned_weapons+1 << '(' << stock << ')';
+								buf << (int)unit[index].planned_weapons + 1 << '(' << stock << ')';
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-							gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
-							gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
+							gfx->print(gfx->TA_font,
+									   float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+									   float(py + 1) + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+									   0.0f, Black, buf);
+							gfx->print(gfx->TA_font,
+									   (float)px + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+									   (float)py + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+									   0.0f, 0xFFFFFFFFU, buf);
 						}
 					}
 				}
 			}
 		}
 
-		if (index >= 0 && index < max_unit)
+		if (index >= 0 && (uint32)index < max_unit)
 			unit[index].unlock();
 
 		if (last_on >= 0 )
@@ -870,10 +902,16 @@ namespace TA3D
 
 				if (unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage ) )
 				{
-					glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
-					glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
-					glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
-					glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
+					const UnitType* const pType = unit_manager.unit_type[unit[index].type_id];
+					const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+					glVertex2f( side_data.DamageBar.x1,
+								side_data.DamageBar.y1 );
+					glVertex2f( side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
+								side_data.DamageBar.y1 );
+					glVertex2f( side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
+								side_data.DamageBar.y2 );
+					glVertex2f( side_data.DamageBar.x1,
+								side_data.DamageBar.y2 );
 				}
 
 				if (unit[index].owner_id == players.local_human_id)
@@ -884,24 +922,33 @@ namespace TA3D
 						target->lock();
 						if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage && target->hp > 0)
 						{
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+							const UnitType* const pType = unit_manager.unit_type[target->type_id];
+							const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+							glVertex2f( side_data.DamageBar2.x1,
+										side_data.DamageBar2.y1 );
+							glVertex2f( side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+										side_data.DamageBar2.y1 );
+							glVertex2f( side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+										side_data.DamageBar2.y2 );
+							glVertex2f( side_data.DamageBar2.x1,
+										side_data.DamageBar2.y2 );
 						}
 						target->unlock();
 						unit[index].lock();
 					}
-					else
-						if (unit[index].planned_weapons > 0.0f) 	// construit une arme / build a weapon
+					else if (unit[index].planned_weapons > 0.0f) 	// construit une arme / build a weapon
 						{
-							float p = 1.0f - (unit[index].planned_weapons - int(unit[index].planned_weapons));
+							float p = 1.0f - (unit[index].planned_weapons - float(int(unit[index].planned_weapons)));
 							if (p == 1.0f)
 								p = 0.0f;
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-							glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+							const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+							glVertex2f( side_data.DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+							glVertex2f( side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+										side_data.DamageBar2.y1 );
+							glVertex2f( side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+										side_data.DamageBar2.y2 );
+							glVertex2f( side_data.DamageBar2.x1,
+										side_data.DamageBar2.y2 );
 						}
 				}
 
@@ -977,7 +1024,8 @@ namespace TA3D
 				continue;
 			}
 
-			if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id]->ExtractsMetal) // Compute amount of metal extracted by sec
+			if (unit[i].just_created
+				&& !Yuni::Math::Zero(unit_manager.unit_type[unit[i].type_id]->ExtractsMetal)) // Compute amount of metal extracted by sec
 			{
 				int metal_base = 0;
 				const int px = unit[i].cur_px;
@@ -1007,47 +1055,47 @@ namespace TA3D
 						}
 					}
 				}
-				unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
+				unit[i].metal_extracted = float(metal_base) * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
 
 				int param[] = { metal_base << 2 };
 				unit[i].launchScript( SCRIPT_SetSpeed, 1, param);
 				unit[i].just_created = false;
 			}
 
-			if (unit[i].build_percent_left == 0.0f)
+			if (Yuni::Math::Zero(unit[i].build_percent_left))
 			{
-				unit[i].metal_prod=0.0f;
-				unit[i].metal_cons=0.0f;
-				unit[i].energy_prod=0.0f;
-				unit[i].energy_cons=0.0f;
-				players.c_metal_s[unit[i].owner_id]+=unit_manager.unit_type[unit[i].type_id]->MetalStorage;
-				players.c_energy_s[unit[i].owner_id]+=unit_manager.unit_type[unit[i].type_id]->EnergyStorage;
-				players.c_commander[unit[i].owner_id]|=(unit_manager.unit_type[unit[i].type_id]->TEDclass==CLASS_COMMANDER);
-				unit[i].energy_prod+=unit_manager.unit_type[unit[i].type_id]->EnergyMake;
+				unit[i].metal_prod = 0.0f;
+				unit[i].metal_cons = 0.0f;
+				unit[i].energy_prod = 0.0f;
+				unit[i].energy_cons = 0.0f;
+				players.c_metal_s[unit[i].owner_id] += unit_manager.unit_type[unit[i].type_id]->MetalStorage;
+				players.c_energy_s[unit[i].owner_id] += unit_manager.unit_type[unit[i].type_id]->EnergyStorage;
+				players.c_commander[unit[i].owner_id] |= (unit_manager.unit_type[unit[i].type_id]->TEDclass == CLASS_COMMANDER);
+				unit[i].energy_prod += unit_manager.unit_type[unit[i].type_id]->EnergyMake;
 				if ((unit[i].port[ACTIVATION] || !unit_manager.unit_type[unit[i].type_id]->onoffable)
 					&& unit_manager.unit_type[unit[i].type_id]->EnergyUse<=players.energy[unit[i].owner_id])
 				{
-					unit[i].metal_prod+=unit_manager.unit_type[unit[i].type_id]->MakesMetal+unit_manager.unit_type[unit[i].type_id]->MetalMake;
-					if (unit_manager.unit_type[unit[i].type_id]->ExtractsMetal)	// Extracteur de métal
+					unit[i].metal_prod += unit_manager.unit_type[unit[i].type_id]->MakesMetal + unit_manager.unit_type[unit[i].type_id]->MetalMake;
+					if (!Yuni::Math::Zero(unit_manager.unit_type[unit[i].type_id]->ExtractsMetal))	// Extracteur de métal
 						unit[i].metal_prod += unit[i].metal_extracted;
 					if (unit_manager.unit_type[unit[i].type_id]->WindGenerator) // Wind Generator
 					{
-						unit[i].energy_prod+=map->wind*unit_manager.unit_type[unit[i].type_id]->WindGenerator*0.0002f;
+						unit[i].energy_prod += map->wind * unit_manager.unit_type[unit[i].type_id]->WindGenerator * 0.0002f;
 						if (wind_change)
 						{
-							int param[] = { (int)(map->wind*50.0f) };
+							int param[] = { (int)(map->wind * 50.0f) };
 							unit[i].launchScript( SCRIPT_SetSpeed, 1, param);
-							param[0]=(int)((map->wind_dir-unit[i].Angle.y)*DEG2TA);
+							param[0] = (int)((map->wind_dir - unit[i].Angle.y) * DEG2TA);
 							unit[i].launchScript(SCRIPT_SetDirection, 1, param);
 							unit[i].launchScript(SCRIPT_go);
 						}
 					}
 					if (unit_manager.unit_type[unit[i].type_id]->TidalGenerator)	// Tidal Generator
-						unit[i].energy_prod+=map->ota_data.tidalstrength;
-					if (unit_manager.unit_type[unit[i].type_id]->EnergyUse<0)
-						unit[i].energy_prod-=unit_manager.unit_type[unit[i].type_id]->EnergyUse;
+						unit[i].energy_prod += float(map->ota_data.tidalstrength);
+					if (unit_manager.unit_type[unit[i].type_id]->EnergyUse < 0)
+						unit[i].energy_prod -= float(unit_manager.unit_type[unit[i].type_id]->EnergyUse);
 					else
-						unit[i].energy_cons=unit_manager.unit_type[unit[i].type_id]->EnergyUse;
+						unit[i].energy_cons = (float)unit_manager.unit_type[unit[i].type_id]->EnergyUse;
 					TA3D::players.requested_energy[unit[i].owner_id] += unit[i].energy_cons;
 					TA3D::players.requested_metal[unit[i].owner_id] += unit[i].metal_cons;
 				}
@@ -1137,20 +1185,20 @@ namespace TA3D
 		}
 		for (i = 0; i < players.count(); ++i)
 		{
-			players.c_metal[i]+=dt*(players.c_metal_t[i]-players.c_metal_u[i]);
-			players.c_energy[i]+=dt*(players.c_energy_t[i]-players.c_energy_u[i]);
-			players.metal_total[i]+=dt*players.metal_t[i];
-			players.energy_total[i]+=dt*players.energy_t[i];
-			if (players.c_metal[i]<0.0f)
-				players.c_metal[i]=0.0f;
+			players.c_metal[i] += dt * (players.c_metal_t[i] - players.c_metal_u[i]);
+			players.c_energy[i] += dt * (players.c_energy_t[i] - players.c_energy_u[i]);
+			players.metal_total[i] += dt * players.metal_t[i];
+			players.energy_total[i] += dt * players.energy_t[i];
+			if (players.c_metal[i] < 0.0f)
+				players.c_metal[i] = 0.0f;
 			else
-				if (players.c_metal[i]>players.c_metal_s[i])
-					players.c_metal[i]=players.c_metal_s[i];
-			if (players.c_energy[i]<0.0f)
-				players.c_energy[i]=0.0f;
+				if (players.c_metal[i] > players.c_metal_s[i])
+					players.c_metal[i] = float(players.c_metal_s[i]);
+			if (players.c_energy[i] < 0.0f)
+				players.c_energy[i] = 0.0f;
 			else
-				if (players.c_energy[i]>players.c_energy_s[i])
-					players.c_energy[i]=players.c_energy_s[i];
+				if (players.c_energy[i] > players.c_energy_s[i])
+					players.c_energy[i] = float(players.c_energy_s[i]);
 		}
 
 		players.refresh();
@@ -1172,7 +1220,7 @@ namespace TA3D
 	{
 		if (type_id < 0 || type_id >= unit_manager.nb_unit)	return -1;
 		if (owner < 0 || owner >= NB_PLAYERS)	return -1;
-		if (nb_unit >= MAX_UNIT_PER_PLAYER * NB_PLAYERS)	return -1;
+		if (nb_unit >= uint32(MAX_UNIT_PER_PLAYER * NB_PLAYERS))	return -1;
 		if (free_index_size[owner] <= 0 && max_unit > 0 )	return -1;
 
 		pMutex.lock();
@@ -1200,14 +1248,14 @@ namespace TA3D
 			idx_list = n_idx;
 			free_idx = n_new_idx;
 			for(uint32 i = 0 ; i < max_unit ; ++i)
-				free_idx[i] = i;
+				free_idx[i] = (uint16)i;
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT ; ++i)
-				free_index_size[i] = MAX_UNIT_PER_PLAYER;
-			for (int i = 0; i < max_unit; ++i)
+				free_index_size[i] = (uint16)MAX_UNIT_PER_PLAYER;
+			for (size_t i = 0 ; i < max_unit ; ++i)
 			{
 				n_unit[i].init(-1, -1, i >= nb_unit - 1);
 				n_unit[i].flags = 0;
-				n_unit[i].idx = i;
+				n_unit[i].idx = uint16(i);
 			}
 			if (unit)
 			{
@@ -1230,9 +1278,9 @@ namespace TA3D
 		unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 
 		// Angle de 10° maximum
-		unit[unit_index].Angle.y = (((sint32)(Math::RandomTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG;
+		unit[unit_index].Angle.y = float(((sint32)(Math::RandomTable() % 20001)) - 10000) * 0.0001f * (float)unit_manager.unit_type[type_id]->BuildAngle * TA2DEG;
 
-		idx_list[index_list_size++] = unit_index;
+		idx_list[index_list_size++] = uint16(unit_index);
 
 		players.nb_unit[owner]++;
 		pMutex.unlock();
@@ -1248,20 +1296,20 @@ namespace TA3D
 			return;		// Pas d'unités à dessiner
 		}
 
-		float rw = 128.0f * mini_w / 252 / map_w;
-		float rh = 128.0f * mini_h / 252 / map_h;
+		const float rw = 128.0f * (float)mini_w / 252.0f / (float)map_w;
+		const float rh = 128.0f * (float)mini_h / 252.0f / (float)map_h;
 
 		glDisable(GL_TEXTURE_2D);
 		glPointSize(3.0f);
 
-		byte mask=1<<players.local_human_id;
+		const byte mask = byte(1 << players.local_human_id);
 		int b_w = (int) map_w >> 3;
 		int b_h = (int) map_h >> 3;
 		int nb = 0;
 
 		uint32 player_col_32[TA3D_PLAYERS_HARD_LIMIT];
 		uint32 player_col_32_h[TA3D_PLAYERS_HARD_LIMIT];
-		for (uint32 i = 0; i < players.count(); ++i)
+		for (uint32 i = 0 ; i < players.count() ; ++i)
 		{
 			player_col_32[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
 										  (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),
@@ -1274,19 +1322,19 @@ namespace TA3D
 		}
 
 		pMutex.lock();
-        byte player_mask = 1 << players.local_human_id;
+		const byte player_mask = byte(1 << players.local_human_id);
 		for (unsigned int e = 0; e < index_list_size; ++e)
 		{
-			uint16 i = idx_list[e];
+			const size_t i = idx_list[e];
 			pMutex.unlock();
 
 			units.unit[ i ].lock();
 
-			if (unit[i].flags&1)
+			if (unit[i].flags & 1)
 			{
-				int px=unit[i].cur_px;
-				int py=unit[i].cur_py;
-				if (px<0 || py<0 || px>=b_w || py>=b_h)
+				const int px = unit[i].cur_px;
+				const int py = unit[i].cur_py;
+				if (px < 0 || py < 0 || px >= b_w || py >= b_h)
 				{
 					units.unit[ i ].unlock();
 					pMutex.lock();
@@ -1378,15 +1426,15 @@ namespace TA3D
 					glPointSize(1.0f);
 				}
 				if (unit[i].radar_range > 0)
-					gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
+					gfx->circle_zoned( pos_x, pos_y, float(unit[i].radar_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
 				if (unit[i].sonar_range > 0)
-					gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
+					gfx->circle_zoned( pos_x, pos_y, float(unit[i].sonar_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
 				if (unit[i].radar_jam_range > 0)
-					gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_jam_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
+					gfx->circle_zoned( pos_x, pos_y, float(unit[i].radar_jam_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
 				if (unit[i].sonar_jam_range > 0)
-					gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_jam_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
+					gfx->circle_zoned( pos_x, pos_y, float(unit[i].sonar_jam_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
 				if (anti_missile)
-					gfx->dot_circle_zoned( msec_timer * 0.001f, pos_x, pos_y, unit_manager.unit_type[ unit[i].type_id ]->weapon[0]->coverage * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
+					gfx->dot_circle_zoned( float(msec_timer) * 0.001f, pos_x, pos_y, (float)unit_manager.unit_type[ unit[i].type_id ]->weapon[0]->coverage * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
 				if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0 || anti_missile)
 				{
 					glPointSize(3.0f);
@@ -1414,7 +1462,7 @@ namespace TA3D
 
 	void INGAME_UNITS::kill(int index,int prev,bool sync)			// Détruit une unité
 	{
-		if (index < 0 || index >= max_unit || prev < 0 || prev >= index_list_size)	// On ne peut pas détruire une unité qui n'existe pas
+		if (index < 0 || index >= (int)max_unit || prev < 0 || prev >= (int)index_list_size)	// On ne peut pas détruire une unité qui n'existe pas
 			return;
 
 		unit[index].lock();
@@ -1423,7 +1471,7 @@ namespace TA3D
 		{
 			struct event event;
 			event.type = EVENT_UNIT_DEATH;
-			event.opt1 = index;
+			event.opt1 = uint16(index);
 			network_manager.sendEvent( &event );
 		}
 
@@ -1463,8 +1511,8 @@ namespace TA3D
 
 		pMutex.lock();
 
-		const uint16 owner = index / MAX_UNIT_PER_PLAYER;
-		free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = index;
+		const uint32 owner = index / MAX_UNIT_PER_PLAYER;
+		free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = uint16(index);
 		idx_list[ prev ] = idx_list[ --index_list_size ];
 		--nb_unit; // Unité détruite
 
@@ -1645,10 +1693,10 @@ namespace TA3D
 		glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
 		glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-		glTexCoord2f(1.0f,1.0f);	glVertex3f(SCREEN_W,0,0);
-		glTexCoord2f(1.0f,0.0f);	glVertex3f(SCREEN_W,SCREEN_H,0);
-		glTexCoord2f(0.0f,0.0f);	glVertex3f(0,SCREEN_H,0);
+		glTexCoord2f(0.0f, 1.0f);	glVertex3f(0, 0, 0);
+		glTexCoord2f(1.0f, 1.0f);	glVertex3f(float(SCREEN_W), 0, 0);
+		glTexCoord2f(1.0f, 0.0f);	glVertex3f(float(SCREEN_W), float(SCREEN_H), 0);
+		glTexCoord2f(0.0f, 0.0f);	glVertex3f(0, float(SCREEN_H), 0);
 		glEnd();
 		glDepthMask(GL_TRUE);
 		glEnable(GL_DEPTH_TEST);
@@ -1671,7 +1719,7 @@ namespace TA3D
 			if ((unit[i].flags & 1)
 				&& !unit[i].command_locked && unit[i].owner_id == player_id
 				&& unit[i].sel
-				&& unit[i].build_percent_left == 0.0f)
+				&& Yuni::Math::Zero(unit[i].build_percent_left))
 			{
 				MissionStack &mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
 				MissionStack::iterator cur = mission.begin();
@@ -1775,10 +1823,10 @@ namespace TA3D
 				map->radar_map.clear(0);		// Clear radar map
 				map->sonar_map.clear(0);		// Clear sonar map
 
-				for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
+				for (size_t i = 0 ; i < index_list_size ; ++i)			// update fog of war, radar and sonar data
 					unit[ idx_list[ i ] ].draw_on_FOW();
 
-				for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
+				for (size_t i = 0 ; i < index_list_size ; ++i)			// update radar and sonar jamming data
 					unit[ idx_list[ i ] ].draw_on_FOW( true );
 				gfx->unlock();
 			}
@@ -1806,10 +1854,10 @@ namespace TA3D
 				tick += delay;
 			}
 
-			while (msec_timer - tick_timer + 1 < tick)
+			while (msec_timer - tick_timer + 1 < (uint32)tick)
 				suspend(1);
 
-			while (msec_timer - tick_timer >= tick + 200) // Prevent the game from running too fast for too long, we don't have to speed up to compute what we hadn't time to
+			while (msec_timer - tick_timer >= (uint32)tick + 200U) // Prevent the game from running too fast for too long, we don't have to speed up to compute what we hadn't time to
 			{
 				counter += 1.0f;
 				tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
@@ -1891,12 +1939,12 @@ namespace TA3D
 			last_tick[ 4 ] = msec_timer;
 
 			if (last_tick[ 0 ] != 0 && last_tick[4] != last_tick[0])
-				apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
+				apparent_timefactor = 4000.0f / float((last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC);
 		}
 
 		thread_running = false;
 		thread_ask_to_stop = false;
-		LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / (msec_timer - unit_timer) << " ticks/sec");
+		LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / float(msec_timer - unit_timer) << " ticks/sec");
 	}
 
 	void INGAME_UNITS::signalExitThread()
@@ -1929,12 +1977,12 @@ namespace TA3D
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, &(hbars_bkg.front()));
 		glColor4ub(0,0,0,0xFF);
-		glDrawArrays(GL_QUADS, 0, hbars_bkg.size());
+		glDrawArrays(GL_QUADS, 0, (GLsizei)hbars_bkg.size());
 
 		glVertexPointer(3, GL_FLOAT, 0, &(hbars.front()));
 		glEnableClientState(GL_COLOR_ARRAY);
 		glColorPointer(4, GL_UNSIGNED_BYTE, 0, &(hbars_color.front()));
-		glDrawArrays(GL_QUADS, 0, hbars.size());
+		glDrawArrays(GL_QUADS, 0, (GLsizei)hbars.size());
 
 		glDisableClientState(GL_COLOR_ARRAY);
 

@@ -177,7 +177,7 @@ namespace TA3D
 							glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
 							glEnableClientState(GL_NORMAL_ARRAY);
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-							glAlphaFunc( GL_GREATER, 0.1 );
+							glAlphaFunc( GL_GREATER, 0.1f );
 							glEnable(GL_LIGHTING);
 							alset = true;
 							set = true;
@@ -392,11 +392,11 @@ namespace TA3D
 				glTranslatef( 0.0f, -2.0f, 0.0f );
 				if (notex)
 				{
-					int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
-					glColor3ub(0,var,0);
+					byte var = (byte)abs(0xFF - (msec_timer % 1000) * 0x200 / 1000);
+					glColor3ub(0, var, 0);
 				}
 				else
-					glColor3ub(0xFF,0xFF,0xFF);
+					glColor3ub(0xFF, 0xFF, 0xFF);
 				alset = false;
 				gfx->enable_model_shading();
 				glEnable(GL_FOG);
@@ -425,7 +425,7 @@ namespace TA3D
 				glEnableClientState(GL_NORMAL_ARRAY);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glAlphaFunc( GL_GREATER, 0.1 );
+				glAlphaFunc( GL_GREATER, 0.1f );
 				glEnable( GL_ALPHA_TEST );
 				glEnable(GL_LIGHTING);
 				alset = true;
@@ -509,7 +509,7 @@ namespace TA3D
 
 		// retrieve each vertex
 
-		piece->nb_vtx = fp.numVertices;
+		piece->nb_vtx = (short)fp.numVertices;
 		piece->points = new Vector3D[piece->nb_vtx];
 		piece->N = new Vector3D[piece->nb_vtx];
 		piece->tcoord = new float[2 * piece->nb_vtx];
@@ -556,14 +556,14 @@ namespace TA3D
 			}
 		}
 
-		piece->nb_t_index = index.size();
+		piece->nb_t_index = (short)index.size();
 		piece->t_index = new GLushort[piece->nb_t_index];
-		for(uint32 i = 0 ; i < index.size() ; ++i)
-			piece->t_index[i] = index[i];
+		for(size_t i = 0 ; i < index.size() ; ++i)
+			piece->t_index[i] = GLushort(index[i]);
 
 		for (int a = 0; a < fp.numChilds; ++a)
 		{
-			file->seek(fp.childs + a * sizeof(int));
+			file->seek(fp.childs + a * (int)sizeof(int));
 			int childOffset;
 			*file >> childOffset;
 

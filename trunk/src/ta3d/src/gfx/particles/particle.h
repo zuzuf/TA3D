@@ -24,12 +24,12 @@ namespace TA3D
 		float		smoking;		// Produit de la fumée?
 		float		angle;			// Angle
 		float		v_rot;			// Vitesse de rotation
+		float		slow_factor;
 		short		px;				// Coordonnées du bloc de référence pour la visibilité
 		short		py;
 		bool		use_wind;		// Affected by wind ?
 		bool		light_emitter;	// For fire effects
 		bool		slow_down;		// Decrease speed ?
-		float		slow_factor;
 	};
 
 

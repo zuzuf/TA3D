@@ -141,7 +141,7 @@ namespace TA3D
 
 	void Mesh3DS::load_texture_id(int id)
 	{
-		if (id < 0 || id >= tex_cache_name.size())
+		if (id < 0 || id >= (int)tex_cache_name.size())
 			return;
 		bool useAlpha(false);
 		gltex.push_back(gfx->load_texture(tex_cache_name[id], FILTER_TRILINEAR, NULL, NULL, true, 0, &useAlpha, true));
@@ -375,7 +375,7 @@ namespace TA3D
 							read_obj->tcoord[ (i << 1) + 1 ] = 0.0f;
 						}
 					}
-					file->read( (char*)read_obj->points, sizeof( Vector3D ) * nb_vtx );
+					file->read( (char*)read_obj->points, (int)sizeof( Vector3D ) * nb_vtx );
 					for (int i = 0 ; i < read_obj->nb_vtx ; ++i)
 					{
 						read_obj->points[ i ] = read_obj->points[ i ].x * local[ 0 ] + read_obj->points[ i ].y * local[ 1 ] + read_obj->points[ i ].z * local[ 2 ] + local[ 3 ];
@@ -435,7 +435,7 @@ namespace TA3D
 					*file >> nb_vtx;
 					if (read_obj->tcoord == NULL)
 						read_obj->tcoord = new float[2 * nb_vtx];
-					file->read( (char*)read_obj->tcoord, 2 * sizeof( float ) * nb_vtx );
+					file->read( (char*)read_obj->tcoord, 2 * (int)sizeof( float ) * nb_vtx );
 					for( int i = 0 ; i < nb_vtx ; i++ )
 						read_obj->tcoord[ i * 2 + 1 ] = 1.0f - read_obj->tcoord[ i * 2 + 1 ];
 				}
@@ -444,7 +444,7 @@ namespace TA3D
 				PRINT_DEBUG("-TRI_FACEL1 (" << chunk.ID << ',' << chunk.length << ')');
 				uint16 nb_index;
 				*file >> nb_index;
-				read_obj->nb_t_index = nb_index * 3;
+				read_obj->nb_t_index = short(nb_index * 3);
 				read_obj->t_index = new GLushort[nb_index * 3];
 				for( int i = 0 ; i < nb_index * 3 ; i += 3 )
 				{

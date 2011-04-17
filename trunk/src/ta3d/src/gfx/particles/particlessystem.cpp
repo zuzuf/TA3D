@@ -42,7 +42,7 @@ namespace TA3D
 
 
 
-    void ParticlesSystem::create(const uint16 nb, GLuint gltex)
+	void ParticlesSystem::create(const uint32 nb, GLuint gltex)
     {
         nb_particles = nb;
         pos = new Vector3D[nb];

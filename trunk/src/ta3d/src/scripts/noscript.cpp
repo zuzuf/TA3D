@@ -28,7 +28,7 @@ namespace TA3D
 	{
 	}
 
-	void NoScript::setUnitID(uint32 ID)
+	void NoScript::setUnitID(uint32)
 	{
 	}
 
@@ -37,21 +37,21 @@ namespace TA3D
 		return 0;
 	}
 
-	void NoScript::load(ScriptData *data)
+	void NoScript::load(ScriptData *)
 	{
 	}
 
-	int NoScript::run(float dt, bool alone)                  // Run the script
+	int NoScript::run(float, bool)                  // Run the script
 	{
 		return -1;
 	}
 
 	//! functions used to call/run functions
-	void NoScript::call(const String &functionName, int *parameters, int nb_params)
+	void NoScript::call(const String &, int *, int)
 	{
 	}
 
-	int NoScript::execute(const String &functionName, int *parameters, int nb_params)
+	int NoScript::execute(const String &, int *, int)
 	{
 		return 0;
 	}
@@ -62,17 +62,17 @@ namespace TA3D
 		return NULL;
 	}
 
-	NoScript *NoScript::fork(const String &functionName, int *parameters, int nb_params)
+	NoScript *NoScript::fork(const String &, int *, int)
 	{
 		return NULL;
 	}
 
 	//! functions used to save/restore scripts state
-	void NoScript::save_thread_state(gzFile file)
+	void NoScript::save_thread_state(gzFile)
 	{
 	}
 
-	void NoScript::restore_thread_state(gzFile file)
+	void NoScript::restore_thread_state(gzFile)
 	{
 	}
 }

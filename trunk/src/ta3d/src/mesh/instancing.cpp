@@ -255,7 +255,7 @@ namespace TA3D
 			++p;
         }
         glBindTexture( GL_TEXTURE_2D, texture_id );
-        glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
+		glDrawArrays(GL_QUADS, 0, (GLsizei)queue.size() << 2);		// draw those quads
 
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {

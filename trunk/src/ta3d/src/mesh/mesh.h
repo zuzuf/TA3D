@@ -201,7 +201,7 @@ namespace TA3D
         String::Vector  tex_cache_name; // Used for on-the-fly loading
         float       *tcoord;			// Tableau de coordonnées de texture
         GLushort    sel[4];				// Primitive de sélection
-        sint16      script_index;		// Indice donné par le script associé à l'unité
+		sint32      script_index;		// Indice donné par le script associé à l'unité
         bool        emitter;			// This object can or has sub-objects which can emit particles
         bool        emitter_point;		// This object directly emits particles
         std::vector<GLuint> gl_dlist;   // Display lists to speed up the drawing process
@@ -220,25 +220,26 @@ namespace TA3D
         byte    *face_reverse;
         GLuint  type;                   // Tell which type of geometric data we have here (triangles, quads, triangle strips)
         Vector3D    last_dir;			// To speed up things when shadow has already been cast
-        uint16  last_nb_idx;			// Remember how many things we have drawn last time
 
         float   min_x, max_x;		// Used by hit_fast
         float   min_y, max_y;
         float   min_z, max_z;
-        bool    compute_min_max;
 
-        uint16  obj_id;				// Used to generate a random position on the object
+		sint32  obj_id;				// Used to generate a random position on the object
+	public:
+		uint32  nb_sub_obj;
+	protected:
 
-        bool    fixed_textures;
-    public:
-        uint16  nb_sub_obj;
+		uint16  last_nb_idx;			// Remember how many things we have drawn last time
+		bool    compute_min_max;
+		bool    fixed_textures;
 
     public:
 
         void check_textures();
 		virtual void load_texture_id(int id);
 
-        uint16 set_obj_id( uint16 id );
+		sint32 set_obj_id( sint32 id );
 
 		void compute_coord(AnimationData *data_s = NULL,
                            Vector3D *pos = NULL,
@@ -388,9 +389,9 @@ namespace TA3D
         uint32	id;					// ID of the model in the model array
 
         GLuint	dlist;				// Display list to speed up drawings operations when no position data is given (trees, ...)
-        bool	animated;
+		uint32	nb_obj;
+		bool	animated;
         bool	from_2d;
-        uint16	nb_obj;
 		bool	useDL;				// Are display lists safe ?
     }; // class MODEL
 

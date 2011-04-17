@@ -74,7 +74,7 @@ namespace TA3D
 			{
 				struct event print_event;
 				print_event.type = EVENT_PRINT;
-				print_event.opt1 = (lua_tointeger( L, 4 )) == -1 ? 0xFFFF : lua_tointeger( L, 4 );
+				print_event.opt1 = (lua_tointeger( L, 4 )) == -1 ? (uint16)0xFFFF : (uint16)lua_tointeger( L, 4 );
 				print_event.x = (float) lua_tonumber( L, 1 );
 				print_event.y = (float) lua_tonumber( L, 2 );
 				memcpy( print_event.str, str, strlen( str ) + 1 );
@@ -157,7 +157,7 @@ namespace TA3D
 		{
 			struct event cls_event;
 			cls_event.type = EVENT_CLS;
-			cls_event.opt1 = (lua_tointeger( L, 1 )) == -1 ? 0xFFFF : lua_tointeger( L, 1 );
+			cls_event.opt1 = (lua_tointeger( L, 1 )) == -1 ? (uint16)0xFFFF : (uint16)lua_tointeger( L, 1 );
 
 			network_manager.sendEvent( &cls_event );
 		}
@@ -243,7 +243,7 @@ namespace TA3D
 		{
 			struct event draw_event;
 			draw_event.type = EVENT_DRAW;
-			draw_event.opt1 = (lua_tointeger( L, 6 )) == -1 ? 0xFFFF : lua_tointeger( L, 6 );
+			draw_event.opt1 = (lua_tointeger( L, 6 )) == -1 ? (uint16)0xFFFF : (uint16)lua_tointeger( L, 6 );
 			draw_event.x = (float) lua_tonumber( L, 3 );
 			draw_event.y = (float) lua_tonumber( L, 4 );
 			draw_event.z = (float) lua_tonumber( L, 5 );
@@ -298,14 +298,14 @@ namespace TA3D
 
 	int program_get_unit_number_for_player( lua_State *L )		// get_unit_number_for_player( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 		if (player_id >= 0 && player_id < NB_PLAYERS)
 		{
 			int n = 0;
-			for (uint16 e = 0 ; e < units.index_list_size ; e++)
+			for (uint32 e = 0 ; e < units.index_list_size ; e++)
 			{
-				uint16 i = units.idx_list[ e ];
+				const uint32 i = units.idx_list[ e ];
 				if (units.unit[i].flags != 0 && units.unit[ i ].owner_id == player_id )
 					n++;
 			}
@@ -318,9 +318,9 @@ namespace TA3D
 
 	int program_get_unit_owner( lua_State *L )		// get_unit_owner( unit_id )
 	{
-		int unit_idx = lua_tointeger( L, 1 );
+		const int unit_idx = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
-		if (unit_idx >= 0 && unit_idx < units.max_unit)
+		if (unit_idx >= 0 && unit_idx < (int)units.max_unit)
 		{
 			if (units.unit[ unit_idx ].flags)
 				lua_pushinteger( L, units.unit[ unit_idx ].owner_id );
@@ -346,7 +346,7 @@ namespace TA3D
 
 	int program_annihilated( lua_State *L )		// annihilated( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 		if (player_id >= 0 && player_id < NB_PLAYERS )
 			lua_pushboolean( L, players.annihilated[ player_id ] );
@@ -357,16 +357,16 @@ namespace TA3D
 
 	int program_has_unit( lua_State *L )		// has_unit( player_id, unit_type_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		if (player_id >= 0 && player_id < NB_PLAYERS)
 		{
-			int unit_type = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : lua_tointeger( L, 2 ) ;
+			const int unit_type = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : (int)lua_tointeger( L, 2 ) ;
 			bool has = false;
-			uint16 last_possible_idx = Math::Min((int)units.max_unit, (player_id + 1) * MAX_UNIT_PER_PLAYER);
-			for( uint16 i = player_id * MAX_UNIT_PER_PLAYER; i < last_possible_idx; ++i)
+			const uint32 last_possible_idx = Math::Min((int)units.max_unit, (player_id + 1) * MAX_UNIT_PER_PLAYER);
+			for (uint32 i = player_id * MAX_UNIT_PER_PLAYER ; i < last_possible_idx ; ++i)
 				if (units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type)
 				{
-					has=true;
+					has = true;
 					break;
 				}
 			lua_pop( L, 2 );
@@ -382,14 +382,14 @@ namespace TA3D
 
 	int program_nb_unit_of_type( lua_State *L )		// nb_unit_of_type( player_id, unit_type_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		if (player_id >= 0 && player_id < NB_PLAYERS)
 		{
-			int unit_type = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : lua_tointeger( L, 2 ) ;
+			const int unit_type = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : (int)lua_tointeger( L, 2 ) ;
 			int nb = 0;
-			uint16 last_possible_idx = Math::Min((int)units.max_unit, (player_id + 1) * MAX_UNIT_PER_PLAYER);
-			for( uint16 i = player_id * MAX_UNIT_PER_PLAYER ; i < last_possible_idx ; i++ )
-				if (units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type )
+			const uint32 last_possible_idx = Math::Min((int)units.max_unit, (player_id + 1) * MAX_UNIT_PER_PLAYER);
+			for (uint32 i = player_id * MAX_UNIT_PER_PLAYER ; i < last_possible_idx ; ++i)
+				if (units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type)
 					nb++;
 			lua_pop( L, 2 );
 			lua_pushinteger( L, nb );
@@ -404,10 +404,10 @@ namespace TA3D
 
 	int program_is_unit_of_type( lua_State *L )		// is_unit_of_type( unit_id, unit_type_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		if (unit_id >= 0 && unit_id < units.max_unit)
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		if (unit_id >= 0 && unit_id < (int)units.max_unit)
 		{
-			int unit_type = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : lua_tointeger( L, 2 ) ;
+			const int unit_type = lua_isstring( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : (int)lua_tointeger( L, 2 ) ;
 			lua_pop( L, 2 );
 			lua_pushboolean( L, (units.unit[unit_id].flags & 1) && units.unit[unit_id].type_id == unit_type );
 		}
@@ -421,17 +421,17 @@ namespace TA3D
 
 	int program_has_mobile_units( lua_State *L ) 		// has_mobile_units( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 		if (player_id >= 0 && player_id < NB_PLAYERS )
 		{
 			bool result = false;
-			for( uint16 e = 0 ; e < units.index_list_size && !result ; e++ )
+			for (uint32 e = 0 ; e < units.index_list_size && !result ; ++e)
 			{
-				uint16 i = units.idx_list[ e ];
+				const uint32 i = units.idx_list[ e ];
 				if ((units.unit[ i ].flags & 1) && units.unit[ i ].owner_id == player_id )
 				{
-					int type = units.unit[ i ].type_id;
+					const int type = units.unit[ i ].type_id;
 					if (type >= 0 && type < unit_manager.nb_unit && unit_manager.unit_type[type]->canmove && unit_manager.unit_type[type]->BMcode)
 						result = true;
 				}
@@ -445,9 +445,9 @@ namespace TA3D
 
 	int program_move_unit( lua_State *L )		// move_unit( unit_id, x, z )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		int unit_id = (int)lua_tointeger( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags && !LuaProgram::passive)
 		{
 			units.lock();
 
@@ -458,17 +458,17 @@ namespace TA3D
 			units.unit[ unit_id ].lastEnergy = 999999999.99f;
 			units.unit[ unit_id ].selfmove = false;
 
-			int PX = ((int)(units.unit[ unit_id ].Pos.x + the_map->map_w_d)>>3);
-			int PY = ((int)(units.unit[ unit_id ].Pos.z + the_map->map_h_d)>>3);
+			int PX = ((int)(units.unit[ unit_id ].Pos.x + (float)the_map->map_w_d) >> 3);
+			int PY = ((int)(units.unit[ unit_id ].Pos.z + (float)the_map->map_h_d) >> 3);
 			if (!can_be_there( PX, PY, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 			{
 				bool found = false;
 				for (int r = 1 ; r < 120 && !found ; r++)		// Circular check
 				{
-					int r2 = r * r;
+					const int r2 = r * r;
 					for (int y = 0 ; y <= r ; y++)
 					{
-						int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
+						const int x = (int)(sqrtf( float(r2 - y * y) ) + 0.5f);
 						if (can_be_there( PX+x, PY+y, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
 						{
 							PX += x;
@@ -501,18 +501,18 @@ namespace TA3D
 				}
 				if (found)
 				{
-					units.unit[ unit_id ].Pos.x = (PX<<3) + 8 - the_map->map_w_d;
-					units.unit[ unit_id ].Pos.z = (PY<<3) + 8 - the_map->map_h_d;
+					units.unit[ unit_id ].Pos.x = float((PX << 3) + 8 - the_map->map_w_d);
+					units.unit[ unit_id ].Pos.z = float((PY << 3) + 8 - the_map->map_h_d);
 					if (!units.unit[ unit_id ].mission.empty() && (units.unit[ unit_id ].mission->getFlags() & MISSION_FLAG_MOVE))
 						units.unit[ unit_id ].mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				}
 				else
 				{
 					int prev = 0;
-					for (int i = 0 ; i < units.nb_unit ; ++i)
+					for (unsigned int i = 0 ; i < units.nb_unit ; ++i)
 						if (units.idx_list[ i ] == unit_id)
 						{
-							prev = i;
+							prev = (int)i;
 							break;
 						}
 					units.kill(unit_id, prev);
@@ -521,12 +521,12 @@ namespace TA3D
 			}
 			if (unit_id >= 0)
 			{
-				units.unit[ unit_id ].cur_px = PX;
-				units.unit[ unit_id ].cur_py = PY;
+				units.unit[ unit_id ].cur_px = sint16(PX);
+				units.unit[ unit_id ].cur_py = sint16(PY);
 
 				Vector3D target_pos = units.unit[ unit_id ].Pos;
-				target_pos.x=((int)(target_pos.x) + the_map->map_w_d)>>3;
-				target_pos.z=((int)(target_pos.z) + the_map->map_h_d)>>3;
+				target_pos.x = float(((int)(target_pos.x) + the_map->map_w_d) >> 3);
+				target_pos.z = float(((int)(target_pos.z) + the_map->map_h_d) >> 3);
 				target_pos.y = Math::Max(the_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
 																 unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintX,
 																 unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintZ),
@@ -544,12 +544,12 @@ namespace TA3D
 
 	int program_create_unit( lua_State *L )		// create_unit( player_id, unit_type_id, x, z )
 	{
-		int player_id = lua_tointeger( L, 1 );
-		int unit_type_id = !lua_isnumber( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : lua_tointeger( L, 2 ) ;
+		const int player_id = (int)lua_tointeger( L, 1 );
+		int unit_type_id = !lua_isnumber( L, 2 ) ? unit_manager.get_unit_index( lua_tostring( L, 2 ) ) : (int)lua_tointeger( L, 2 ) ;
 		if (lua_isnumber(L, 2) && unit_type_id == -1)
-			unit_type_id = Math::RandomTable() % unit_manager.nb_unit;
-		float x = (float) lua_tonumber( L, 3 );
-		float z = (float) lua_tonumber( L, 4 );
+			unit_type_id = Math::RandomTable() % (int)unit_manager.nb_unit;
+		const float x = (float) lua_tonumber( L, 3 );
+		const float z = (float) lua_tonumber( L, 4 );
 
 		lua_pop( L, 4 );
 
@@ -565,7 +565,7 @@ namespace TA3D
 			if (unit)
 			{
 				unit->lock();
-				unit->hp = unit_manager.unit_type[unit_type_id]->MaxDamage;
+				unit->hp = (float)unit_manager.unit_type[unit_type_id]->MaxDamage;
 				unit->build_percent_left = 0.0f;
 				if (unit_manager.unit_type[ unit_type_id ]->ActivateWhenBuilt) // Start activated
 				{
@@ -578,7 +578,7 @@ namespace TA3D
 			}
 			units.unlock();
 
-			if (idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags)
+			if (idx >= 0 && idx < (int)units.max_unit && units.unit[ idx ].flags)
 				lua_pushinteger( L, idx );
 			else
 				lua_pushinteger( L, -1 );
@@ -591,14 +591,14 @@ namespace TA3D
 
 	int program_change_unit_owner( lua_State *L )		// change_unit_owner( unit_id, player_id )
 	{
-		int player_id = lua_tointeger( L, 2 );
-		int unit_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && player_id >= 0 && player_id < NB_PLAYERS && units.unit[ unit_id ].flags && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && player_id >= 0 && player_id < NB_PLAYERS && units.unit[ unit_id ].flags && !LuaProgram::passive)
 		{
 			units.lock();
-			units.unit[ unit_id ].owner_id = player_id;
+			units.unit[ unit_id ].owner_id = (byte)player_id;
 			units.unlock();
 		}
 
@@ -607,15 +607,15 @@ namespace TA3D
 
 	int program_set_unit_health( lua_State *L )		// set_unit_health( unit_id, health_percentage )
 	{
-		float health = (float) lua_tonumber( L, 2 ) * 0.01f;
-		int unit_id = lua_tointeger( L, 1 );
+		const float health = (float) lua_tonumber( L, 2 ) * 0.01f;
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 2 );
 
 		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
-				units.unit[ unit_id ].hp = health * unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage;
+				units.unit[ unit_id ].hp = health * (float)unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage;
 			units.unlock();
 		}
 
@@ -624,20 +624,20 @@ namespace TA3D
 
 	int program_add_build_mission( lua_State *L )		// add_build_mission( unit_id, pos_x, pos_z, unit_type )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float pos_x = (float) lua_tonumber( L, 2 );
-		float pos_z = (float) lua_tonumber( L, 3 );
-		int unit_type_id = lua_isstring( L, 4 ) ? unit_manager.get_unit_index( lua_tostring( L, 4 ) ) : lua_tointeger( L, 4 ) ;
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
+		const int unit_type_id = lua_isstring( L, 4 ) ? unit_manager.get_unit_index( lua_tostring( L, 4 ) ) : (int)lua_tointeger( L, 4 ) ;
 		lua_pop( L, 4 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder && !LuaProgram::passive)
 		{
 			Vector3D target;
-			target.x = ((int)(pos_x) + the_map->map_w_d) >> 3;
-			target.z = ((int)(pos_z) + the_map->map_h_d) >> 3;
+			target.x = float(((int)(pos_x) + the_map->map_w_d) >> 3);
+			target.z = float(((int)(pos_z) + the_map->map_h_d) >> 3);
 			target.y = Math::Max(the_map->get_max_rect_h((int)target.x, (int)target.z, unit_manager.unit_type[unit_type_id]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ), the_map->sealvl);
-			target.x = target.x * 8.0f - the_map->map_w_d;
-			target.z = target.z * 8.0f - the_map->map_h_d;
+			target.x = target.x * 8.0f - (float)the_map->map_w_d;
+			target.z = target.z * 8.0f - (float)the_map->map_h_d;
 
 			units.lock();
 			if (units.unit[ unit_id ].flags )
@@ -650,9 +650,9 @@ namespace TA3D
 
 	int program_add_move_mission( lua_State *L )		// add_move_mission( unit_id, pos_x, pos_z )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float pos_x = (float) lua_tonumber( L, 2 );
-		float pos_z = (float) lua_tonumber( L, 3 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
 		lua_pop( L, 3 );
 
 		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
@@ -673,11 +673,11 @@ namespace TA3D
 
 	int program_add_attack_mission( lua_State *L )		// add_attack_mission( unit_id, target_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int target_id = lua_tointeger( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int target_id = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && target_id >= 0 && target_id < units.max_unit && !LuaProgram::passive)
 		{
 			Vector3D target(units.unit[ target_id ].Pos);
 
@@ -692,12 +692,12 @@ namespace TA3D
 
 	int program_add_patrol_mission( lua_State *L )		// add_patrol_mission( unit_id, pos_x, pos_z )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float pos_x = (float) lua_tonumber( L, 2 );
-		float pos_z = (float) lua_tonumber( L, 3 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float pos_x = (float) lua_tonumber( L, 2 );
+		const float pos_z = (float) lua_tonumber( L, 3 );
 		lua_pop( L, 3 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && !LuaProgram::passive)
 		{
 			Vector3D target;
 			target.x = pos_x;
@@ -715,11 +715,11 @@ namespace TA3D
 
 	int program_add_wait_mission( lua_State *L )		// add_wait_mission( unit_id, time )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		float time = (float) lua_tonumber( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const float time = (float) lua_tonumber( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && !LuaProgram::passive)
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags )
@@ -732,11 +732,11 @@ namespace TA3D
 
 	int program_add_wait_attacked_mission( lua_State *L )		// add_wait_attacked_mission( unit_id, target_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int target_id = lua_tointeger( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int target_id = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && target_id >= 0 && target_id < units.max_unit && !LuaProgram::passive)
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
@@ -749,11 +749,11 @@ namespace TA3D
 
 	int program_add_guard_mission( lua_State *L )		// add_guard_mission( unit_id, target_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int target_id = lua_tointeger( L, 2 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int target_id = (int)lua_tointeger( L, 2 );
 		lua_pop( L, 2 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && target_id >= 0 && target_id < units.max_unit && !LuaProgram::passive)
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
@@ -766,12 +766,12 @@ namespace TA3D
 
 	int program_set_standing_orders( lua_State *L )		// set_standing_orders( unit_id, move_order, fire_order )
 	{
-		int unit_id = lua_tointeger( L, 1 );
-		int move_order = lua_tointeger( L, 2 );
-		int fire_order = lua_tointeger( L, 3 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
+		const int move_order = (int)lua_tointeger( L, 2 );
+		const int fire_order = (int)lua_tointeger( L, 3 );
 		lua_pop( L, 3 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && !LuaProgram::passive)
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags)
@@ -787,10 +787,10 @@ namespace TA3D
 
 	int program_lock_orders( lua_State *L )		// lock_orders( unit_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && !LuaProgram::passive)
 			units.unit[ unit_id ].lock_command();
 
 		return 0;
@@ -798,10 +798,10 @@ namespace TA3D
 
 	int program_unlock_orders( lua_State *L )		// unlock_orders( unit_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit && !LuaProgram::passive)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit && !LuaProgram::passive)
 			units.unit[ unit_id ].unlock_command();
 
 		return 0;
@@ -809,14 +809,14 @@ namespace TA3D
 
 	int program_get_unit_health( lua_State *L )		// get_unit_health( unit_id )
 	{
-		int unit_id = lua_tointeger( L, 1 );
+		const int unit_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
-		if (unit_id >= 0 && unit_id < units.max_unit)
+		if (unit_id >= 0 && unit_id < (int)units.max_unit)
 		{
 			units.lock();
 			if (units.unit[ unit_id ].flags )
-				lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage );
+				lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / (float)unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage );
 			else
 				lua_pushnumber( L, 0 );
 			units.unlock();
@@ -845,7 +845,7 @@ namespace TA3D
 
 	int program_player_side( lua_State *L )		// player_side( player_id )
 	{
-		int player_id = lua_tointeger( L, 1 );
+		const int player_id = (int)lua_tointeger( L, 1 );
 		lua_pop( L, 1 );
 
 		if (player_id >= 0 && player_id < NB_PLAYERS)

@@ -40,7 +40,7 @@ namespace TA3D
 			DELETE_ARRAY(chunk->buffer);
         }
         memcpy(nBuf + chunk->size, p, size);
-        chunk->size += size;
+		chunk->size += (uint32)size;
         chunk->buffer = nBuf;
         return 0;
     }

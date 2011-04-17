@@ -176,11 +176,11 @@ namespace TA3D
 		model->mesh->points[pos++] = Vector3D(s, 1.0f, -s);
 		model->mesh->points[pos++] = Vector3D(s, 1.0f, s);
 		model->mesh->points[pos++] = Vector3D(-s, 1.0f, s);
-		model->mesh->sel[0] = pos - 4;
-		model->mesh->sel[1] = pos - 3;
-		model->mesh->sel[2] = pos - 2;
-		model->mesh->sel[3] = pos - 1;
-		model->mesh->nb_vtx += 4;
+		model->mesh->sel[0] = GLushort(pos - 4);
+		model->mesh->sel[1] = GLushort(pos - 3);
+		model->mesh->sel[2] = GLushort(pos - 2);
+		model->mesh->sel[3] = GLushort(pos - 1);
+		model->mesh->nb_vtx = short(model->mesh->nb_vtx + 4);
 		model->mesh->selprim = 0;
 	}
 }
