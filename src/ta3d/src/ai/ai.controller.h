@@ -65,7 +65,7 @@ namespace TA3D
 	public:
 		typedef SmartPtr<AiController>	Ptr;
     private:
-        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ã  l'IA (faut sauvegarder les cervelles)
+        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ãƒ  l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)
         uint16			unit_id;		// Unit index to run throught the unit array
         uint16			total_unit;
@@ -90,8 +90,8 @@ namespace TA3D
         void	proc(void*);
         void	signalExitThread();
 
-        bool	thread_running;
-        bool	thread_ask_to_stop;
+		volatile bool	thread_running;
+		volatile bool	thread_ask_to_stop;
 
     public:
 

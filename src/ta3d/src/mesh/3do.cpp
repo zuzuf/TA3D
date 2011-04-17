@@ -95,8 +95,8 @@ namespace TA3D
 			return -1;
 		int i;
 
-		nb_vtx = header.NumberOfVertexes;
-		nb_prim = header.NumberOfPrimitives;
+		nb_vtx = (short)header.NumberOfVertexes;
+		nb_prim = (short)header.NumberOfPrimitives;
 		file->seek(header.OffsetToObjectName);
 		name = file->getString();
 #ifdef DEBUG_MODE
@@ -131,18 +131,18 @@ namespace TA3D
 		}
 		points = new Vector3D[nb_vtx];		// Alloue la mémoire nécessaire pour stocker les points
 		const float div = 0.5f / 65536.0f;
-		pos_from_parent.x = header.XFromParent * div;
-		pos_from_parent.y = header.YFromParent * div;
-		pos_from_parent.z = -header.ZFromParent * div;
+		pos_from_parent.x = (float)header.XFromParent * div;
+		pos_from_parent.y = (float)header.YFromParent * div;
+		pos_from_parent.z = -(float)header.ZFromParent * div;
 		file->seek(header.OffsetToVertexArray);
 
 		for (i = 0; i < nb_vtx; ++i) // Lit le tableau de points stocké dans le fichier
 		{
 			tagVertex vertex;
 			*file >> vertex;
-			points[i].x = vertex.x  * div;
-			points[i].y = vertex.y  * div;
-			points[i].z = -vertex.z * div;
+			points[i].x = (float)vertex.x  * div;
+			points[i].y = (float)vertex.y  * div;
+			points[i].z = -(float)vertex.z * div;
 		}
 
 		int n_index = 0;
@@ -151,14 +151,14 @@ namespace TA3D
 		for (i = 0; i < nb_prim; ++i)// Compte le nombre de primitive de chaque sorte
 		{
 			tagPrimitive primitive;
-			file->seek(header.OffsetToPrimitiveArray + i * sizeof(tagPrimitive));
+			file->seek(header.OffsetToPrimitiveArray + i * (int)sizeof(tagPrimitive));
 			*file >> primitive;
 
 			switch(primitive.NumberOfVertexIndexes)
 			{
 			case 0:                      break;
 			case 1:		++nb_p_index;    break;
-			case 2:		nb_l_index += 2; break;
+			case 2:		nb_l_index = (short)(nb_l_index + 2); break;
 			default:
 				if (i == header.OffsetToselectionPrimitive)
 				{
@@ -205,7 +205,7 @@ namespace TA3D
 		for (i = 0; i < nb_prim; ++i) // Compte le nombre de primitive de chaque sorte
 		{
 			tagPrimitive primitive;
-			file->seek(header.OffsetToPrimitiveArray + i * sizeof(tagPrimitive));
+			file->seek(header.OffsetToPrimitiveArray + i * (int)sizeof(tagPrimitive));
 			*file >> primitive;
 
 			switch (primitive.NumberOfVertexIndexes)
@@ -250,7 +250,7 @@ namespace TA3D
 					}
 					break;
 				}
-				nb_index[cur] = primitive.NumberOfVertexIndexes;
+				nb_index[cur] = (short)primitive.NumberOfVertexIndexes;
 				file->seek(primitive.OffsetToTextureName);
 				tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
 				usetex[cur] = 1;
@@ -449,35 +449,35 @@ namespace TA3D
 		for (i = 0; i < nb_total_point - nb_l_index - prim_dec; ++i)
 		{
 			p[i + nb_total_point]  = p[i] = points[t_index[i]];
-			t_index[i] = i;
+			t_index[i] = (GLushort)i;
 		}
 		if (selprim >= 0)
 		{
-			p[nb_total_point - nb_l_index - prim_dec]     = points[sel[0]];  sel[0] = nb_total_point - nb_l_index - prim_dec;
-			p[nb_total_point - nb_l_index - prim_dec + 1] = points[sel[1]];  sel[1] = nb_total_point - nb_l_index - prim_dec + 1;
-			p[nb_total_point - nb_l_index - prim_dec + 2] = points[sel[2]];  sel[2] = nb_total_point - nb_l_index - prim_dec + 2;
-			p[nb_total_point - nb_l_index - prim_dec + 3] = points[sel[3]];  sel[3] = nb_total_point - nb_l_index - prim_dec + 3;
+			p[nb_total_point - nb_l_index - prim_dec]     = points[sel[0]];  sel[0] = (GLushort)(nb_total_point - nb_l_index - prim_dec);
+			p[nb_total_point - nb_l_index - prim_dec + 1] = points[sel[1]];  sel[1] = (GLushort)(nb_total_point - nb_l_index - prim_dec + 1);
+			p[nb_total_point - nb_l_index - prim_dec + 2] = points[sel[2]];  sel[2] = (GLushort)(nb_total_point - nb_l_index - prim_dec + 2);
+			p[nb_total_point - nb_l_index - prim_dec + 3] = points[sel[3]];  sel[3] = (GLushort)(nb_total_point - nb_l_index - prim_dec + 3);
 		}
 		for (i = nb_total_point - nb_l_index; i < nb_total_point; ++i)
 		{
-			int e = i - nb_total_point + nb_l_index;
+			const int e = i - nb_total_point + nb_l_index;
 			p[i + nb_total_point] = p[i] = points[l_index[e]];
-			l_index[e] = i;
+			l_index[e] = (GLushort)i;
 		}
 		if (nb_l_index == 2)
 		{
 			if (p[l_index[0]].x < 0.0f)
 			{
-				int tmp=l_index[0];
-				l_index[0]=l_index[1];
-				l_index[1]=tmp;
+				const GLushort tmp = l_index[0];
+				l_index[0] = l_index[1];
+				l_index[1] = tmp;
 			}
 		}
 		DELETE_ARRAY(points);
 		points = p;
-		nb_vtx = nb_total_point;
+		nb_vtx = (short)nb_total_point;
 
-		int nb_triangle=0;
+		int nb_triangle = 0;
 		for (i = 0; i < nb_t_index; ++i)
 			nb_triangle += nb_index[i] - 2;
 		GLushort *index = new GLushort[nb_triangle * 3];
@@ -514,18 +514,18 @@ namespace TA3D
 					switch (e & 3)
 					{
 					case 1:
-						tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
+						tcoord[curt]     += (float)(texture_manager.tex[tex[i]].bmp[0]->w - 1) / float(mx - 1);
 						break;
 					case 2:
-						tcoord[curt]     += ((float)texture_manager.tex[tex[i]].bmp[0]->w-1)/(mx-1);
-						tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
+						tcoord[curt]     += (float)(texture_manager.tex[tex[i]].bmp[0]->w - 1) / float(mx - 1);
+						tcoord[curt + 1] += (float)(texture_manager.tex[tex[i]].bmp[0]->h - 1) / float(my - 1);
 						break;
 					case 3:
-						tcoord[curt + 1] += ((float)texture_manager.tex[tex[i]].bmp[0]->h-1)/(my-1);
+						tcoord[curt + 1] += (float)(texture_manager.tex[tex[i]].bmp[0]->h - 1) / float(my - 1);
 						break;
 					};
-					tcoord[curt]     += ((float)px[indx] + 0.5f) / (mx - 1);
-					tcoord[curt + 1] += ((float)py[indx] + 0.5f) / (my - 1);
+					tcoord[curt]     += ((float)px[indx] + 0.5f) / float(mx - 1);
+					tcoord[curt + 1] += ((float)py[indx] + 0.5f) / float(my - 1);
 				}
 				++cur;
 				curt += 2;
@@ -537,7 +537,7 @@ namespace TA3D
 			index[cur + 1] = index[cur + 2];
 			index[cur + 2] = t;
 		}
-		nb_t_index = nb_triangle * 3;
+		nb_t_index = short(nb_triangle * 3);
 		DELETE_ARRAY(t_index);
 		t_index = index;
 		DELETE_ARRAY(usetex);
@@ -605,15 +605,15 @@ namespace TA3D
 
 		for (y = 0; y < 8; ++y) // Maillage (sommets)
 		{
-			uint16 seg = y << 3;
+			const uint16 seg = uint16(y << 3);
 			float yy = y * 0.1333333333333f;
-			for (x = 0; x < 8; ++x)
+			for (x = 0 ; x < 8 ; ++x)
 			{
-				uint16	offset = seg+x;
-				points[offset].x=(x-3.5f)*ww;
-				points[offset].z=(y-3.5f)*hh;
-				tcoord[ offset<<1   ]=x*0.1333333333333f;
-				tcoord[(offset<<1)+1]=yy;
+				const uint16 offset = uint16(seg + x);
+				points[offset].x = (x - 3.5f) * ww;
+				points[offset].z = (y - 3.5f) * hh;
+				tcoord[ offset << 1     ] = x * 0.1333333333333f;
+				tcoord[(offset << 1) + 1] = yy;
 			}
 		}
 		uint16 offset = 0;
@@ -621,25 +621,25 @@ namespace TA3D
 		{
 			if (y & 1)
 			{
-				t_index[offset++] = ( y      << 3);
-				t_index[offset++] = ((y + 1) << 3);
+				t_index[offset++] = GLushort( y      << 3);
+				t_index[offset++] = GLushort((y + 1) << 3);
 				for (x = 0; x < 7; ++x)
 				{
-					t_index[offset++]=( y   <<3)+x+1;
-					t_index[offset++]=((y+1)<<3)+x+1;
+					t_index[offset++] = GLushort(( y      << 3) + x + 1);
+					t_index[offset++] = GLushort(((y + 1) << 3) + x + 1);
 				}
-				t_index[offset++]=((y+1)<<3)+7;
+				t_index[offset++] = GLushort(((y + 1) << 3) + 7);
 			}
 			else
 			{
-				t_index[offset++]=( y   <<3)+7;
-				t_index[offset++]=((y+1)<<3)+7;
+				t_index[offset++] = GLushort(( y      << 3 ) + 7);
+				t_index[offset++] = GLushort(((y + 1) << 3 ) + 7);
 				for (x = 0; x < 7; ++x)
 				{
-					t_index[offset++] = ( y      << 3) + 6 - x;
-					t_index[offset++] = ((y + 1) << 3) + 6 - x;
+					t_index[offset++] = GLushort(( y      << 3) + 6 - x);
+					t_index[offset++] = GLushort(((y + 1) << 3) + 6 - x);
 				}
-				t_index[offset++] = ((y + 1) << 3);
+				t_index[offset++] = GLushort((y + 1) << 3);
 			}
 		}
 
@@ -709,8 +709,8 @@ namespace TA3D
 					dhx = dhy = 0.0f;
 				else
 				{
-					dhx = d_h * abs(d_h0) / l;
-					dhy = d_h * abs(d_h1) / l;
+					dhx = float(d_h * abs(d_h0)) / l;
+					dhy = float(d_h * abs(d_h1)) / l;
 				}
 				points[(y << 3) + x].y = (points[(y << 3) + x - 1].y + dhx + points[((y - 1) << 3) + x].y + dhy) * 0.5f;
 			}
@@ -731,7 +731,7 @@ namespace TA3D
 			if (minh>points[i].y)  minh = points[i].y;
 			if (maxh<points[i].y)  maxh = points[i].y;
 		}
-		if (maxh == minh || maxh == 0.0f )
+		if (maxh == minh || maxh == 0.0f)
 		{
 			for (i = 0; i < 64; ++i)
 				points[i].y = 0.0f;
@@ -810,8 +810,8 @@ namespace TA3D
 			int texID = player_color_map[side];
 			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !gltex.empty())
-				texID = ((int)(t * 10.0f)) % gltex.size();
-			if (gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
+				texID = (int)(((int)(t * 10.0f)) % gltex.size());
+			if ((int)gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
 			{
 				glCallList( gl_dlist[ texID ] );
 				alset = false;
@@ -820,7 +820,7 @@ namespace TA3D
 			else if (!hide)
 			{
 				bool creating_list = false;
-				if (gl_dlist.size() <= texID)
+				if ((int)gl_dlist.size() <= texID)
 					gl_dlist.resize(texID + 1);
 				if (!chg_col && !notex && gl_dlist[texID] == 0 && false)
 				{
@@ -866,7 +866,7 @@ namespace TA3D
 					}
 					if (!notex && !gltex.empty())
 					{
-						if (texID < gltex.size() && texID >= 0)
+						if (texID < (int)gltex.size() && texID >= 0)
 							glBindTexture(GL_TEXTURE_2D, gltex[texID]);
 						else
 							glBindTexture(GL_TEXTURE_2D,gltex[0]);
@@ -920,11 +920,11 @@ namespace TA3D
 				glTranslatef( 0.0f, -2.0f, 0.0f );
 				if (notex)
 				{
-					int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
-					glColor3ub(0,var,0);
+					const int var = abs(0xFF - (msec_timer % 1000) * 0x200 / 1000);
+					glColor3ub(0, GLubyte(var), 0);
 				}
 				else
-					glColor3ub(0xFF,0xFF,0xFF);
+					glColor3ub(0xFF, 0xFF, 0xFF);
 				alset = false;
 				gfx->enable_model_shading();
 				glEnable(GL_FOG);

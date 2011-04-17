@@ -63,8 +63,8 @@ namespace TA3D
 	** \param[out] The new size
 	** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
 	*/
-	char* ConvertToUTF8(const char* s, const uint32 len);
-	char* ConvertToUTF8(const char* s, const uint32 len, uint32& newSize);
+	char* ConvertToUTF8(const char* s, const size_t len);
+	char* ConvertToUTF8(const char* s, const size_t len, uint32& newSize);
 
 	/*!
 	** \brief Convert a string from ASCII to UTF8

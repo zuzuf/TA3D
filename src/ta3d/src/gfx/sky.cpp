@@ -50,10 +50,10 @@ namespace TA3D
 		const int dy = int((tv - float(y)) * 65536.0f);
 
 		uint32 c0, c1, c2, c3;
-		byte r0, r1, r2, r3;
-		byte g0, g1, g2, g3;
-		byte b0, b1, b2, b3;
-		byte a0, a1, a2, a3;
+		sint32 r0, r1, r2, r3;
+		sint32 g0, g1, g2, g3;
+		sint32 b0, b1, b2, b3;
+		sint32 a0, a1, a2, a3;
 		c0 = SurfaceInt(bmp, (x % bmp->w), (y % bmp->h));
 		c1 = SurfaceInt(bmp, ((x + 1) % bmp->w), (y % bmp->h));
 		c2 = SurfaceInt(bmp, (x % bmp->w), ((y + 1) % bmp->h));
@@ -84,7 +84,7 @@ namespace TA3D
 		return makeacol32(r0, g0, b0, a0);
 	}
 
-	void Sky::build(int d,float size)
+	void Sky::build(int d, float size)
 	{
 		s = d;
 		w = size;
@@ -99,7 +99,7 @@ namespace TA3D
 			for(int i = 0 ; i < 6 ; ++i)
 				img[i] = gfx->create_surface(skyRes, skyRes);
 			const uint32 fcol = makeacol32(int(skyInfo->FogColor[0] * 255.0f), int(skyInfo->FogColor[1] * 255.0f), int(skyInfo->FogColor[2] * 255.0f), int(skyInfo->FogColor[3] * 255.0f));
-			const float coef = 1.0f / (skyRes - 1);
+			const float coef = 1.0f / float(skyRes - 1);
 			float atanfx[8192];
 			float invsqrtfx[8192];
 			for(int x = 0 ; x < skyRes ; ++x)

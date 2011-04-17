@@ -214,7 +214,7 @@ namespace Gui
 		if (!Console::Instance()->activated())
 			clear_keybuf();
 
-		return is_on_gui;
+		return (uint16)is_on_gui;
 	}
 
 
@@ -234,7 +234,7 @@ namespace Gui
 		ThreadingPolicy::MutexLocker locker(*this);
 
 		WND::Ptr newWindow = new WND();
-		uint16 wnd_idx = pWindowList.size();
+		uint16 wnd_idx = (uint16)pWindowList.size();
 
 		pWindowList.push_back(newWindow);				// Adds a window to the vector
 		vec_z_order.push_back(wnd_idx);
@@ -266,7 +266,7 @@ namespace Gui
 
 		if (background)
 		{
-			gfx->drawtexture(background, 0, 0, gfx->width, gfx->height);
+			gfx->drawtexture(background, 0.0f, 0.0f, (float)gfx->width, (float)gfx->height);
 			glDisable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
@@ -283,7 +283,7 @@ namespace Gui
 
 			// Display the popup menu
 			if (pCacheHelpMsg.notEmpty())
-				skin->PopupMenu(mouse_x + 20, mouse_y + 20, pCacheHelpMsg);
+				skin->PopupMenu((float)mouse_x + 20.0f, (float)mouse_y + 20.0f, pCacheHelpMsg);
 		}
 	}
 
@@ -325,7 +325,7 @@ namespace Gui
 		{
 			const int area_width   = areaFile.pullAsInt("area.width", SCREEN_W);
 			const int area_height  = areaFile.pullAsInt("area.height", SCREEN_W);
-			const float skin_scale = Math::Min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
+			const float skin_scale = Math::Min((float)SCREEN_H / (float)area_height, (float)SCREEN_W / (float)area_width);
 			skin = skin_manager.load(skin_name, skin_scale);
 		}
 

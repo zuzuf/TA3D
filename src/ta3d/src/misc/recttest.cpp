@@ -37,8 +37,8 @@ namespace TA3D
 		modelView = Transpose(modelView);
 		project = Transpose(project);
 
-		VW =  (viewportCoords[2] - viewportCoords[0]) * 0.5f;
-		VH = -(viewportCoords[3] - viewportCoords[1]) * 0.5f;
+		VW =  static_cast<float>(viewportCoords[2] - viewportCoords[0]) * 0.5f;
+		VH = -static_cast<float>(viewportCoords[3] - viewportCoords[1]) * 0.5f;
 
 		T = modelView * project; // Matrice de transformation
 

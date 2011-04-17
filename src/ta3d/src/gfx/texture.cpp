@@ -58,13 +58,13 @@ namespace Interfaces
 	void GfxTexture::draw(const float x1, const float y1, const uint32 col, const float scale)
 	{
 		glDisable(GL_LIGHTING);
-		gfx->drawtexture(tex, x1, y1, x1 + scale * width, y1 + scale * height, col);
+		gfx->drawtexture(tex, x1, y1, x1 + scale * float(width), y1 + scale * float(height), col);
 	}
 
 	void GfxTexture::drawCentered(const float x1, const float y1, const uint32 col, const float scale)
 	{
 		glDisable(GL_LIGHTING);
-		gfx->drawtexture(tex, x1 - 0.5f * scale * width, y1 - 0.5f * scale * height, x1 + 0.5f * scale * width, y1 + 0.5f * scale * height, col);
+		gfx->drawtexture(tex, x1 - 0.5f * scale * float(width), y1 - 0.5f * scale * float(height), x1 + 0.5f * scale * float(width), y1 + 0.5f * scale * float(height), col);
 	}
 
 	void GfxTexture::drawRotated(const float x1, const float y1, const float angle, const uint32 col, const float scale)
@@ -73,20 +73,20 @@ namespace Interfaces
 		glPushMatrix();
 		glTranslatef(x1, y1, 0.0f);
 		glRotatef(angle, 0.0f, 0.0f, 1.0f);
-		gfx->drawtexture(tex, -0.5f * scale * width, -0.5f * scale * height, 0.5f * scale * width, 0.5f * scale * height, col);
+		gfx->drawtexture(tex, -0.5f * scale * float(width), -0.5f * scale * float(height), 0.5f * scale * float(width), 0.5f * scale * float(height), col);
 		glPopMatrix();
 	}
 
 	void GfxTexture::drawFlipped(const float x1, const float y1, const uint32 col, const float scale)
 	{
 		glDisable(GL_LIGHTING);
-		gfx->drawtexture_flip(tex, x1, y1, x1 + scale * width, y1 + scale * height, col);
+		gfx->drawtexture_flip(tex, x1, y1, x1 + scale * float(width), y1 + scale * float(height), col);
 	}
 
 	void GfxTexture::drawFlippedCentered(const float x1, const float y1, const uint32 col, const float scale)
 	{
 		glDisable(GL_LIGHTING);
-		gfx->drawtexture_flip(tex, x1 - 0.5f * scale * width, y1 - 0.5f * scale * height, x1 + 0.5f * scale * width, y1 + 0.5f * scale * height, col);
+		gfx->drawtexture_flip(tex, x1 - 0.5f * scale * float(width), y1 - 0.5f * scale * float(height), x1 + 0.5f * scale * float(width), y1 + 0.5f * scale * float(height), col);
 	}
 
 	GfxTexture::GfxTexture(GLuint gltex, uint32 w, uint32 h)

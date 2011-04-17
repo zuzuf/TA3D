@@ -138,6 +138,7 @@ namespace TA3D
 		int nbCores;
 		Synchronizer pSync;
 		HashMap<BitMap*>::Dense hBitMap;
+		volatile bool bRunning;
 
 	private:
 		static inline bool checkRectFast(const int x1, const int y1, const UnitType *pType);

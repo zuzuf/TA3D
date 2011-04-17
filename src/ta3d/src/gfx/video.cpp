@@ -133,9 +133,9 @@ namespace TA3D
 		SMPEG_scaleXY(mpeg, img->w, img->h);
 
 		// Those special 5/4 modes are native 4/3 monitor modes with rectangular pixels
-		const float aspectRatio = (SCREEN_W * 4 == SCREEN_H * 5) ? 4.0f / 3.0f : float(SCREEN_W) / SCREEN_H;
-		const float screenRatio = float(SCREEN_W) / SCREEN_H;
-		const float movieRatio = float(info.width) / info.height;
+		const float aspectRatio = (SCREEN_W * 4 == SCREEN_H * 5) ? 4.0f / 3.0f : float(SCREEN_W) / float(SCREEN_H);
+		const float screenRatio = float(SCREEN_W) / float(SCREEN_H);
+		const float movieRatio = float(info.width) / float(info.height);
 
 		gfx->SetDefState();
 		gfx->set_2D_mode();
@@ -146,6 +146,8 @@ namespace TA3D
 		mpegSynchronizer.setNbThreadsToSync(2);
 		SMPEG_play(mpeg);
 		uint32 timer = msec_timer;
+		const float screen_w = static_cast<float>(SCREEN_W);
+		const float screen_h = static_cast<float>(SCREEN_H);
 		while (SMPEG_status(mpeg) == SMPEG_PLAYING)
 		{
 			mpegSynchronizer.sync();
@@ -155,13 +157,13 @@ namespace TA3D
 
 			if (aspectRatio >= movieRatio)
 			{
-				float vw = movieRatio * screenRatio / aspectRatio * SCREEN_H;
-				gfx->drawtexture(gltex, 0.5f * (SCREEN_W - vw), 0.0f, 0.5f * (SCREEN_W + vw), SCREEN_H);
+				const float vw = movieRatio * screenRatio / aspectRatio * screen_h;
+				gfx->drawtexture(gltex, 0.5f * (screen_w - vw), 0.0f, 0.5f * (screen_w + vw), screen_h);
 			}
 			else
 			{
-				float vh = aspectRatio/ (movieRatio * screenRatio) * SCREEN_W;
-				gfx->drawtexture(gltex, 0.0f, 0.5f * (SCREEN_H - vh), SCREEN_W, 0.5f * (SCREEN_H + vh));
+				const float vh = aspectRatio / (movieRatio * screenRatio) * screen_w;
+				gfx->drawtexture(gltex, 0.0f, 0.5f * (screen_h - vh), screen_w, 0.5f * (screen_h + vh));
 			}
 			gfx->flip();
 

@@ -207,15 +207,17 @@ namespace TA3D
 	{
 		if (lp_CONFIG && lp_CONFIG->ortho_camera)
 		{
-			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
-			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
-			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
-			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
+			const Vector3D wside = static_cast<float>(SCREEN_W) * side;
+			const Vector3D hup = static_cast<float>(SCREEN_H) * up;
+			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (-wside + hup) );
+			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (wside + hup) );
+			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (-wside - hup) );
+			list.push_back( rpos + znear * dir + 0.5f * zoomFactor * (wside - hup) );
 
-			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
-			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
-			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
-			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
+			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (-wside + hup) );
+			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (wside + hup) );
+			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (-wside - hup) );
+			list.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (wside - hup) );
 		}
 		else
 		{

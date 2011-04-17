@@ -109,7 +109,7 @@ namespace Gui
 		pName = skinFile.pullAsString("skin.name", tmp); // The TDF may override the skin name
 
 		pPrefix = skinFile.pullAsString("skin.prefix", String()); // The pPrefix to use for
-		text_y_offset = skinFile.pullAsInt("skin.text.y offset", 0) * scale;
+		text_y_offset = float(skinFile.pullAsInt("skin.text.y offset", 0)) * scale;
 
 		wnd_border.load(skinFile, "skin.window.border.", scale);
 		wnd_title_bar.load(skinFile, "skin.window.title.", scale);
@@ -161,9 +161,9 @@ namespace Gui
 		{
 			const TEXT_COLOR &color = enabled ? button_color : button_color_disabled;
 			if (State)
-				color.print(gui_font, (int)((x + x2) * 0.5f - (gui_font->length(Title) * 0.5f) + 1), (int)((y + y2 - (int)(pCacheFontHeight)) * 0.5f + 1), Title);
+				color.print(gui_font, (x + x2) * 0.5f - (gui_font->length(Title) * 0.5f) + 1.0f, (y + y2 - pCacheFontHeight) * 0.5f + 1.0f, Title);
 			else
-				color.print(gui_font, (int)((x + x2) * 0.5f - (gui_font->length(Title) * 0.5f)), (int)(y + y2 - (int)(pCacheFontHeight)) * 0.5f, Title);
+				color.print(gui_font, (x + x2) * 0.5f - (gui_font->length(Title) * 0.5f), (y + y2 - pCacheFontHeight) * 0.5f, Title);
 		}
 	}
 
@@ -189,14 +189,14 @@ namespace Gui
 		for (unsigned int i = 0; i < Entry.size(); ++i, ++line)
 		{
 			int e = i + Scroll;
-			if (e >= (int)Entry.size() || pCacheFontHeight * (line+1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
+			if (e >= (int)Entry.size() || pCacheFontHeight * float(line + 1) > y2 - y1 - text_background.y1 + text_background.y2) break;		// If we are out break the loop
             pCacheDrawTextStr = Entry[e];
 			if (pCacheDrawTextStr.size() > 3 && pCacheDrawTextStr[0] == '<'  && pCacheDrawTextStr[1] == 'H' && pCacheDrawTextStr[2] == '>')       // Highlight this line
 			{
 				pCacheDrawTextStr = Substr(pCacheDrawTextStr, 3, pCacheDrawTextStr.size() - 3);
 				glDisable(GL_TEXTURE_2D);
-				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line,
-					x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (line+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
+				gfx->rectfill(x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * float(line),
+					x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * float(line+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ));
 			}
 			rest.clear();
 			do
@@ -207,15 +207,15 @@ namespace Gui
 					pCacheDrawTextStr = rest;
 					rest.clear();
 				}
-				if (pCacheFontHeight * (line+1) > y2 - y1 - text_background.y1 + text_background.y2)
+				if (pCacheFontHeight * float(line + 1) > y2 - y1 - text_background.y1 + text_background.y2)
 					break;		// If we are out break the loop
 				if (e == Index)
 				{
 					gfx->set_alpha_blending();
-					selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line, x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * (line+1));
+					selection_gfx.draw( x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * float(line), x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1 + pCacheFontHeight * float(line + 1));
 					gfx->unset_alpha_blending();
 				}
-				if (gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+				if (gui_font->length(pCacheDrawTextStr) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10.0f)
 				{
 					// Dychotomic search of the longest string that fits
 					rest = pCacheDrawTextStr;
@@ -239,18 +239,18 @@ namespace Gui
 				}
 				else
 					rest.clear();
-				gfx->print(gui_font, 10 + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * line,
+				gfx->print(gui_font, 10.0f + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * float(line),
 					0.0f, White, pCacheDrawTextStr);
 			} while(!rest.empty());
 		}
 
-		int TotalScroll = Entry.size() - (int)((y2 - y1 - text_background.y1 + text_background.y2) / pCacheFontHeight);
+		int TotalScroll = (int)Entry.size() - (int)((y2 - y1 - text_background.y1 + text_background.y2) / pCacheFontHeight);
 		if (TotalScroll < 0)
 			TotalScroll = 0;
 
 		ScrollBar(	x2 + text_background.x2 - scroll[ 0 ].sw, y1 + text_background.y1,
 					x2 + text_background.x2, y2 + text_background.y2,
-					TotalScroll ? ((float)Scroll) / TotalScroll : 0.0f, true);
+					TotalScroll ? ((float)Scroll) / (float)TotalScroll : 0.0f, true);
 	}
 
 	void Skin::AppendLineToListBox(String::Vector &Entry, float x1, float x2, String line) const
@@ -263,17 +263,17 @@ namespace Gui
 				line = rest;
 				rest.clear();
 			}
-			if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+			if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10.0f)
 			{
 				// Dychotomic search of the longest string that fits
 				rest = line;
-				int top = rest.size();
+				int top = (int)rest.size();
 				int bottom = 0;
 				while (top != bottom)
 				{
 					int mid = (top + bottom) >> 1;
 					line = Substr(rest, 0, mid);
-					if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10)
+					if (gui_font->length(line) >= x2 - x1 - text_background.x1 + text_background.x2 - scroll[0].sw - 10.0f)
 						top = mid;
 					else
 					{
@@ -316,16 +316,18 @@ namespace Gui
 		}
 
 		x2 += menu_background.x1 - menu_background.x2;
-		float y2 = y1 + menu_background.y1 - menu_background.y2 + pCacheFontHeight * Entry.size();
-		if (x2 >= SCREEN_W)
+		float y2 = y1 + menu_background.y1 - menu_background.y2 + pCacheFontHeight * (float)Entry.size();
+		const float screen_w = static_cast<float>(SCREEN_W);
+		const float screen_h = static_cast<float>(SCREEN_H);
+		if (x2 >= screen_w)
 		{
-			x1 += SCREEN_W - x2 - 1;
-			x2 = SCREEN_W - 1;
+			x1 += screen_w - x2 - 1;
+			x2 = screen_w - 1;
 		}
-		if (y2 >= SCREEN_H)
+		if (y2 >= screen_h)
 		{
-			y1 += SCREEN_H - y2 - 1;
-			y2 = SCREEN_H - 1;
+			y1 += screen_h - y2 - 1;
+			y2 = screen_h - 1;
 		}
 
 		ObjectShadow( x1, y1,
@@ -340,7 +342,7 @@ namespace Gui
 		gfx->unset_alpha_blending();
 
 		for (unsigned int e = 0; e < Entry.size(); ++e)
-			text_color.print(gui_font,x1 + menu_background.x1, y1 + menu_background.y1 + pCacheFontHeight * e,Entry[e]);
+			text_color.print(gui_font, x1 + menu_background.x1, y1 + menu_background.y1 + pCacheFontHeight * float(e), Entry[e]);
 		Entry.clear();
 	}
 
@@ -359,20 +361,20 @@ namespace Gui
 			width += menu_background.x1 - menu_background.x2;
 
 			ObjectShadow( x, y,
-						  x + width, y + menu_background.y1 - menu_background.y2 + pCacheFontHeight * (Entry.size() - StartEntry),
+						  x + width, y + menu_background.y1 - menu_background.y2 + pCacheFontHeight * float(Entry.size() - StartEntry),
 						  2, 2,
 						  0.5f, 4.0f);
 
 			gfx->set_color( 0xFFFFFFFF);
 			gfx->set_alpha_blending();
-			menu_background.draw( x, y, x + width, y + menu_background.y1 - menu_background.y2 + pCacheFontHeight * (Entry.size() - StartEntry));
+			menu_background.draw( x, y, x + width, y + menu_background.y1 - menu_background.y2 + pCacheFontHeight * float(Entry.size() - StartEntry));
 
 			for (unsigned int i = 0; i < Entry.size() - StartEntry; ++i)
 			{
 				unsigned int e = i + StartEntry;
 				if (e == (uint32)Index)
-					selection_gfx.draw( x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * i, x + width + menu_background.x2, y + menu_background.y1 + pCacheFontHeight * (i + 1));
-				gfx->print(gui_font, x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * i, 0.0f, White, Entry[e]);
+					selection_gfx.draw( x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * float(i), x + width + menu_background.x2, y + menu_background.y1 + pCacheFontHeight * float(i + 1));
+				gfx->print(gui_font, x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * float(i), 0.0f, White, Entry[e]);
 			}
 			gfx->unset_alpha_blending();
 		}
@@ -427,7 +429,7 @@ namespace Gui
 		int H = Math::Max( row - (int)(0.5f * maxheight / pCacheFontHeight), 0);
 		int y = 0;
 		int row_size = Entry[row].utf8size();
-		while (pCacheFontHeight * (y+1) <= maxheight && y + H < (int)Entry.size())
+		while (pCacheFontHeight * float(y + 1) <= maxheight && y + H < (int)Entry.size())
 		{
 			String strtoprint;
 			String buf = Entry[y+H];
@@ -474,13 +476,16 @@ namespace Gui
 
 				buf = SubstrUTF8(buf, s);
 
-				gfx->print( gui_font,x1+text_background.x1,
-							y1+text_background.y1+text_y_offset+pCacheFontHeight * y,
-							0.0f,White,strtoprint);
+				gfx->print( gui_font,
+							x1 + text_background.x1,
+							y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
+							0.0f,
+							White,
+							strtoprint);
 				if (row == y + H && x <= col && col < x + s && blink)
 				{
 					gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(SubstrUTF8(strtoprint, 0, col - x)),
-								y1 + text_background.y1 + text_y_offset + pCacheFontHeight * y,
+								y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
 								0.0f, White, "_");
 				}
 				x += s;
@@ -489,13 +494,13 @@ namespace Gui
 					y++;
 					H--;
 				}
-				if (pCacheFontHeight * (y + 1) >= maxheight)
+				if (pCacheFontHeight * float(y + 1) >= maxheight)
 					break;
 			}
 			if (y + H == row && col == row_size && blink)
 			{
 				gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(strtoprint),
-							y1 + text_background.y1 + text_y_offset + pCacheFontHeight * y,
+							y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
 							0.0f, White, "_");
 			}
 			++y;
@@ -572,7 +577,7 @@ namespace Gui
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
 		progress_bar[0].draw( x1, y1, x2, y2);
-		progress_bar[1].draw( x1 + progress_bar[0].x1, y1 + progress_bar[0].y1, x1 + progress_bar[0].x1 + (progress_bar[0].x2 + x2 - x1 - progress_bar[0].x1) * Value * 0.01f, y2 + progress_bar[0].y2);			// Draw the bar
+		progress_bar[1].draw( x1 + progress_bar[0].x1, y1 + progress_bar[0].y1, x1 + progress_bar[0].x1 + (progress_bar[0].x2 + x2 - x1 - progress_bar[0].x1) * float(Value) * 0.01f, y2 + progress_bar[0].y2);			// Draw the bar
 		gfx->unset_alpha_blending();
 
 		String Buf;
@@ -664,7 +669,7 @@ namespace Gui
 			for (unsigned int e = pos ; e < pCacheDrawTextVector.size() ; ++e)
 			{
 				const String& item = pCacheDrawTextVector[e];
-				if (y1 + pCacheFontHeight * (e + 1 - pos) <= y2)
+				if (y1 + pCacheFontHeight * float(e + 1 - pos) <= y2)
 				{
 					float x_offset = 0.0f;
 					String buf;
@@ -683,7 +688,7 @@ namespace Gui
 						}
 						if (pCacheDrawTextStr == "&")
 						{
-							text_color.print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * (e - pos), current_color, buf);
+							text_color.print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * float(e - pos), current_color, buf);
 							x_offset += gui_font->length( buf);
 							buf.clear();
 
@@ -705,7 +710,7 @@ namespace Gui
 						else
 							buf << pCacheDrawTextStr;
 					}
-					text_color.print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * (e - pos), current_color, buf);
+					text_color.print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * float(e - pos), current_color, buf);
 				}
 			}
 		}
@@ -713,12 +718,12 @@ namespace Gui
 		{
 			for (unsigned int e = pos; e < pCacheDrawTextVector.size(); ++e)
 			{
-				if (y1 + pCacheFontHeight * (e + 1 - pos) <= y2)
-					text_color.print(gui_font, x1, y1 + pCacheFontHeight * (e - pos), pCacheDrawTextVector[e]);
+				if (y1 + pCacheFontHeight * float(e + 1 - pos) <= y2)
+					text_color.print(gui_font, x1, y1 + pCacheFontHeight * float(e - pos), pCacheDrawTextVector[e]);
 			}
 		}
 
-		return pCacheDrawTextVector.size();
+		return (int)pCacheDrawTextVector.size();
 	}
 
 
@@ -726,9 +731,9 @@ namespace Gui
 	void Skin::ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy) const
 	{
 		// Normalize shadow offsets
-		dx *= SCREEN_W / 800.0f;
-		dy *= SCREEN_H / 800.0f;
-		fuzzy *= SCREEN_H / 800.0f;
+		dx *= float(SCREEN_W) / 800.0f;
+		dy *= float(SCREEN_H) / 800.0f;
+		fuzzy *= float(SCREEN_H) / 800.0f;
 
 		x1 += dx;
 		y1 += dy;

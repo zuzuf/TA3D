@@ -89,7 +89,7 @@ void backtrace_handler (int signum)
 # ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
 	// Retrieving a backtrace
 	void *array[400];
-	size_t size = backtrace (array, 400);
+	int size = backtrace (array, 400);
 	char** strings = backtrace_symbols(array, size);
 
     // Try to log it
@@ -98,14 +98,14 @@ void backtrace_handler (int signum)
     {
 		m_File << "received signal " << strsignal( signum ) << "\n";
 		m_File << "Obtained " << size << " stack frames.\n";
-		for (TA3D::uint32 i = 0; i < size; ++i)
+		for (int i = 0; i < size; ++i)
 			m_File << strings[i] << "\n";
 		m_File.flush();
 		m_File.close();
 
 		printf("received signal %s\n", strsignal( signum ));
-		printf ("Obtained %zd stack frames.\n", size);
-		for (TA3D::uint32 i = 0; i < size; ++i)
+		printf ("Obtained %d stack frames.\n", static_cast<int>(size));
+		for (int i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 
 		String szErrReport;
@@ -121,8 +121,8 @@ void backtrace_handler (int signum)
         // The backtrace will be directly to stdout instead.
 		printf("received signal %s\n", strsignal(signum));
 		printf("couldn't open file for writing!!\n");
-		printf ("Obtained %zd stack frames.\n", size);
-		for (TA3D::uint32 i = 0; i < size; ++i)
+		printf ("Obtained %d stack frames.\n", static_cast<int>(size));
+		for (int i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 	}
 	free(strings);
@@ -149,7 +149,7 @@ public:
 	}
 };
 
-void sigpipe_handler (int signum)
+void sigpipe_handler (int /*signum*/)
 {
 	throw sigpipe_exception();
 }

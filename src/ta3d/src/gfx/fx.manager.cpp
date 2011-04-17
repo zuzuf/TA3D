@@ -349,7 +349,7 @@ namespace TA3D
 			const int px = ((int)(p.x+0.5f) + the_map->map_w_d)>>4;
 			const int py = ((int)(p.z+0.5f) + the_map->map_h_d)>>4;
 			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
-			const byte player_mask = 1 << players.local_human_id;
+			const byte player_mask = byte(1 << players.local_human_id);
 			if (the_map->view(px, py) != 1
 				|| !(the_map->sight_map(px, py ) & player_mask))	return;
 		}
@@ -358,14 +358,14 @@ namespace TA3D
 		const float rev = 5.0f / (the_map->ota_data.gravity + 0.1f);
 		for (int i = 0 ; i < n ; ++i)
 		{
-			const float a = (Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
-			const float b = (Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
-			const float s = power * ((Math::RandomTable() % 9001) * 0.0001f + 0.1f);
+			const float a = static_cast<float>(Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
+			const float b = static_cast<float>(Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
+			const float s = power * (static_cast<float>(Math::RandomTable() % 9001) * 0.0001f + 0.1f);
 			const float scosb = s * cosf(b);
 			const Vector3D vs(cosf(a) * scosb,
 							  s * sinf(b),
 							  sinf(a) * scosb);
-			const float l = (Math::RandomTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
+			const float l = static_cast<float>(Math::RandomTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
 
 			pParticles.push_back(FXParticle(p, vs, l));
 		}
@@ -380,11 +380,11 @@ namespace TA3D
 
 		if (the_map)            // Visibility test
 		{
-			int px = ((int)(p.x + 0.5f) + the_map->map_w_d) >> 4;
-			int py = ((int)(p.z + 0.5f) + the_map->map_h_d) >> 4;
-			if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
+			const int px = ((int)(p.x + 0.5f) + the_map->map_w_d) >> 4;
+			const int py = ((int)(p.z + 0.5f) + the_map->map_h_d) >> 4;
+			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 				return;
-			byte player_mask = 1 << players.local_human_id;
+			const byte player_mask = byte(1 << players.local_human_id);
 			if (the_map->view(px, py) != 1 || !(the_map->sight_map(px, py) & player_mask))
 				return;
 		}
@@ -402,9 +402,9 @@ namespace TA3D
 		// Foreach particle
 		for (int i = 0; i < n; ++i)
 		{
-			a     = (Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
-			b     = (Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
-			speed = power * ((Math::RandomTable() % 9001) * 0.0001f + 0.1f);
+			a     = static_cast<float>(Math::RandomTable() % 36000) * 0.01f * DEG2RAD;
+			b     = static_cast<float>(Math::RandomTable() % 18000) * 0.01f * DEG2RAD;
+			speed = power * (static_cast<float>(Math::RandomTable() % 9001) * 0.0001f + 0.1f);
 			vs.x  = speed * cosf(a) * cosf(b);
 			vs.y  = speed * sinf(b);
 			vs.z  = speed * sinf(a) * cosf(b);
@@ -435,7 +435,7 @@ namespace TA3D
 		int idx = -1;
 		if (freeSlot.empty())
 		{
-			idx = cacheAnm.size();
+			idx = int(cacheAnm.size());
 			cacheName.push_back(String());
 			cacheAnm.push_back(NULL);
 			use.push_back(0);
