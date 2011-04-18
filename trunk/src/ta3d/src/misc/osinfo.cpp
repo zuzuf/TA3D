@@ -21,6 +21,15 @@
 #include <logs/logs.h>
 #include <sdl.h>
 
+#ifdef TA3D_PLATFORM_LINUX
+#define POPEN	popen
+#define PCLOSE	pclose
+
+#elif defined TA3D_PLATFORM_WINDOWS
+#define POPEN	_popen
+#define PCLOSE	_pclose
+
+#endif
 
 
 namespace TA3D
@@ -30,19 +39,19 @@ namespace System
 
 	String run_command(const String &cmd)
 	{
-#ifdef TA3D_PLATFORM_LINUX
-		FILE *pipe = popen(cmd.c_str(), "r");
-		if (!pipe)
-			return String();
+#if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_WINDOWS
 		String result;
+		FILE *pipe = POPEN(cmd.c_str(), "r");
+		if (!pipe)
+			return result;
 		while(!feof(pipe))
 		{
-			int c = fgetc(pipe);
+			const int c = fgetc(pipe);
 			if (c == -1)
 				return result;
 			result << (char)c;
 		}
-		pclose(pipe);
+		PCLOSE(pipe);
 		return result;
 #else
 		return String();
