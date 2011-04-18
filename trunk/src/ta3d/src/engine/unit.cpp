@@ -1762,7 +1762,7 @@ namespace TA3D
 							if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
 								|| pType->canfly)
 							{
-								unsetFlag(mission->Flags(), ~MISSION_FLAG_REFRESH_PATH);
+								unsetFlag(mission->Flags(), MISSION_FLAG_REFRESH_PATH);
 
 								move_target_computed = mission->getTarget().getPos();
 								last_path_refresh = 0.0f;
