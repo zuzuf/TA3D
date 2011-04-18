@@ -31,7 +31,7 @@
 
 
 
-#define SAVE( i )	gzwrite( file, &(i), sizeof( i ) )
+#define SAVE( i )	gzwrite( file, (void*)&(i), sizeof( i ) )
 #define LOAD( i )	gzread( file, &(i), sizeof( i ) )
 
 

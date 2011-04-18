@@ -158,7 +158,7 @@ namespace TA3D
             //			uint32 code = script->script_code[script_id][pos];			// Lit un code
             //			pos++;
 			++nb_code;
-            if (nb_code >= MAX_CODE_PER_TICK) done = true;			// Pour éviter que le programme ne fige à cause d'un script
+            if (nb_code >= MAX_CODE_PER_TICK) done = true;			// Pour éviter que le programme ne fige �  cause d'un script
             //			switch(code)			// Code de l'interpréteur
             switch(script->script_code[script_id][pos++])
             {
@@ -456,7 +456,7 @@ namespace TA3D
                         sStack.push(v1 | v2);
                         break;
                     }
-                case SCRIPT_START_SCRIPT:				// Transfère l'éxecution à un autre script
+                case SCRIPT_START_SCRIPT:				// Transfère l'éxecution �  un autre script
                     {
                         DEBUG_PRINT_CODE("START_SCRIPT");
 						const int function_id = script->script_code[script_id][pos++];			// Lit un code
@@ -790,7 +790,7 @@ namespace TA3D
         {
             gzputc(file, 1);
 			const int t = script->nbStaticVar;
-			gzwrite(file, &t, (int)sizeof(t));
+			gzwrite(file, const_cast<void*>((const void*)&t), (int)sizeof(t));
 			gzwrite(file, global_env, t * (int)sizeof(int));
         }
         else
@@ -811,7 +811,7 @@ namespace TA3D
         for (int i = 0 ; i < t ; i++)
         {
 			const int f = (int)local_env[i].size();
-			gzwrite(file, &f, sizeof(f));
+			gzwrite(file, const_cast<void*>((const void*)&f), sizeof(f));
             for (int e = 0 ; e < f ; e++)
                 gzwrite(file, &(local_env[i][e]), sizeof(int));
         }
