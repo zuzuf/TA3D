@@ -521,8 +521,8 @@ namespace TA3D
 			}
 			if (unit_id >= 0)
 			{
-				units.unit[ unit_id ].cur_px = sint16(PX);
-				units.unit[ unit_id ].cur_py = sint16(PY);
+				units.unit[ unit_id ].cur_px = PX;
+				units.unit[ unit_id ].cur_py = PY;
 
 				Vector3D target_pos = units.unit[ unit_id ].Pos;
 				target_pos.x = float(((int)(target_pos.x) + the_map->map_w_d) >> 3);

@@ -50,7 +50,7 @@ namespace TA3D
 			memset(dt, 0, 33);
 			file->read(dt, 32);
 			dt[32] = '\0';
-			out.assign(dt, strlen(dt));
+			out.assign(dt, (uint32)strlen(dt));
 		}
 
 	}
@@ -138,7 +138,7 @@ namespace TA3D
 					else
 						gfx->set_texture_format(with_alpha ? gfx->defaultTextureFormat_RGBA() : gfx->defaultTextureFormat_RGB());
 
-					*i = gfx->make_texture(img,filter);
+					*i = gfx->make_texture(img, filter);
 					gfx->save_texture_to_cache(cache_filename, *i, img->w, img->h, with_alpha);
 					SDL_FreeSurface(img);
 				}
@@ -253,7 +253,7 @@ namespace TA3D
 
 		sint32 *pointers = new sint32[header.Entries];
 
-		file->read(pointers, header.Entries * sizeof(sint32));
+		file->read(pointers, header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -293,7 +293,7 @@ namespace TA3D
 			return 0;
 
 		sint32* pointers = new sint32[header.Entries];
-		file->read(pointers, header.Entries * sizeof(sint32));
+		file->read(pointers, header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -318,7 +318,7 @@ namespace TA3D
 			return NULL;
 
 		sint32 *pointers = new sint32[header.Entries];
-		file->read(pointers, header.Entries * sizeof(sint32));
+		file->read(pointers, header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -429,7 +429,7 @@ namespace TA3D
 							int e(0);
 							do
 							{
-								byte mask = file->getc();
+								const byte mask = (byte)file->getc();
 								++e;
 								if (mask & 0x01)
 								{
@@ -440,7 +440,7 @@ namespace TA3D
 										int l = mask >> 1;
 										while (l > 0 && x < img->w)
 										{
-											SurfaceInt(img, x++, i) = 0x00000000;
+											SurfaceInt(img, x++, i) = 0x00000000U;
 											--l;
 										}
 									}
@@ -450,7 +450,8 @@ namespace TA3D
 									if (mask & 0x02)
 									{
 										int l = (mask >> 2) + 1;
-										byte c = file->getc();
+										const byte c = (byte)file->getc();
+										const uint32 c32 = makeacol32(pal[c].r, pal[c].g, pal[c].b,0xFF);
 										while (l > 0 && x < img->w)
 										{
 											if (!truecolor)
@@ -459,7 +460,7 @@ namespace TA3D
 												x++;
 											}
 											else
-												SurfaceInt(img,x++,i) = makeacol32(pal[c].r, pal[c].g, pal[c].b,0xFF);
+												SurfaceInt(img, x++, i) = c32;
 											--l;
 										}
 										++e;
@@ -471,7 +472,7 @@ namespace TA3D
 										{
 											if (truecolor)
 											{
-												byte c = file->getc();
+												const byte c = (byte)file->getc();
 												SurfaceInt(img, x++, i) = makeacol32(pal[c].r, pal[c].g, pal[c].b, 0xFF);
 											}
 											else
@@ -619,8 +620,8 @@ namespace TA3D
 		{
 			if ((bmp[i-f] = Gaf::RawDataToBitmap(file, entry_idx, i, &(ofs_x[i-f]), &(ofs_y[i-f]), truecolor)) != NULL)
 			{
-				w[i-f] = bmp[i-f]->w;
-				h[i-f] = bmp[i-f]->h;
+				w[i-f] = (short)bmp[i-f]->w;
+				h[i-f] = (short)bmp[i-f]->h;
 				if (!truecolor)
 					bmp[i-f] = convert_format(bmp[i-f]);
 			}
@@ -644,7 +645,7 @@ namespace TA3D
 		VFS::Instance()->getFilelist(String(folderName) << '\\' << entryName << "\\*", files);
 		sort(files.begin(), files.end());
 
-		nb_bmp = files.size();
+		nb_bmp = (sint32)files.size();
 
 		bmp.resize(nb_bmp, NULL);
 		glbmp.resize(nb_bmp, 0);
@@ -661,8 +662,8 @@ namespace TA3D
 		{
 			if ((bmp[i-f] = gfx->load_image(files[i])) != NULL)
 			{
-				w[i-f] = bmp[i-f]->w;
-				h[i-f] = bmp[i-f]->h;
+				w[i-f] = (short)bmp[i-f]->w;
+				h[i-f] = (short)bmp[i-f]->h;
 				ofs_x[i-f] = 0;
 				ofs_y[i-f] = 0;
 			}
@@ -775,7 +776,7 @@ namespace TA3D
 				pList[i].loadGAFFromRawData(file, i, true, fname);
 			if (doConvert)
 				convert();
-			return pList.size();
+			return (sint32)pList.size();
 		}
 		return 0;
 	}
@@ -790,7 +791,7 @@ namespace TA3D
 			pList[i].loadGAFFromDirectory(folderName, Paths::ExtractFileName(entries[i]));
 		if (doConvert)
 			convert();
-		return pList.size();
+		return (sint32)pList.size();
 	}
 
 	sint32 Gaf::AnimationList::findByName(const String& name) const

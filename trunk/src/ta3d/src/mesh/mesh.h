@@ -319,8 +319,8 @@ namespace TA3D
         ** \brief
         */
 		void draw(float t, AnimationData* data_s = NULL, bool sel = false, bool notex = false,
-                  bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
-                  Matrix* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
+				  bool c_part = false, int p_tex = 0, const Vector3D *target = NULL, Vector3D* upos = NULL,
+				  Matrix* M = NULL, float Size = 0.0f, const Vector3D* Center = NULL, bool reverse = false,
 				  int side = 0, bool chg_col = true, Mesh* src = NULL, AnimationData* src_data = NULL);
 
         /*!

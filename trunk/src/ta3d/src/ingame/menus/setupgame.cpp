@@ -112,7 +112,7 @@ namespace Menus
 								game_data.ai_level[game_data.nb_players] = game_data.ai_level[i];
 								game_data.energy[game_data.nb_players] = game_data.energy[i];
 								game_data.metal[game_data.nb_players] = game_data.metal[i];
-								byte e = player_color_map[game_data.nb_players];
+								const unsigned int e = player_color_map[game_data.nb_players];
 								player_color_map[game_data.nb_players] = player_color_map[i];
 								player_color_map[i] = e;
 							}
@@ -319,7 +319,7 @@ namespace Menus
 			}
 			guiobj = pArea->get_object( String("gamesetup.team") << i );
 			if (guiobj)
-				guiobj->current_state = Math::Log2(game_data.team[i]);
+				guiobj->current_state = (byte)Math::Log2(game_data.team[i]);
 			pArea->caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);
 			pArea->caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);
 		}
@@ -549,10 +549,10 @@ namespace Menus
 
 			if (chat_list)
 			{
-				const int lastSize = chat_list->Text.size();
+				const int lastSize = (int)chat_list->Text.size();
 				pArea->append("gamesetup.chat_list", message);
 				if (chat_list->Text.size() > 5)
-					chat_list->Data += chat_list->Text.size() - lastSize;
+					chat_list->Data += (int)chat_list->Text.size() - lastSize;
 				chat_list->Pos = uint32(chat_list->Text.size() - 1);
 			}
 
@@ -733,7 +733,7 @@ namespace Menus
 			{
 				if (client)
 					network_manager.sendSpecial(String("NOTIFY COLORCHANGE ") << i);
-				byte e = player_color_map[i];
+				const unsigned int e = player_color_map[i];
 				int f = -1;
 				for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
 				{
@@ -753,7 +753,7 @@ namespace Menus
 				}
 				if (f != -1)
 				{
-					byte g = player_color_map[f];
+					const unsigned int g = player_color_map[f];
 					player_color_map[i] = g;                                // update game data
 					player_color_map[f] = e;
 
@@ -967,7 +967,7 @@ namespace Menus
 						{
 							if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
 							String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
-							int side_id = std::find(side_str.begin(), side_str.end(), game_data.player_sides[i]) - side_str.begin();
+							const int side_id = int(std::find(side_str.begin(), side_str.end(), game_data.player_sides[i]) - side_str.begin());
 							msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
 								<< side_id << " "
 								<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FixBlank(game_data.ai_level[i]))
@@ -1112,7 +1112,7 @@ namespace Menus
 						int i = params[2].to<sint32>();
 						if (!client) // From client to server only
 						{
-							byte e = player_color_map[i];
+							const unsigned int e = player_color_map[i];
 							int f = -1;
 							for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
 							{
@@ -1129,7 +1129,7 @@ namespace Menus
 							}
 							if (f != -1)
 							{
-								byte g = player_color_map[f];
+								const unsigned int g = player_color_map[f];
 								player_color_map[i] = g;                                // update game data
 								player_color_map[f] = e;
 
@@ -1327,10 +1327,10 @@ namespace Menus
 			Gui::GUIOBJ::Ptr chat_list = pArea->get_object("gamesetup.chat_list");
 			if (chat_list)
 			{
-				const int lastSize = chat_list->Text.size();
+				const int lastSize = (int)chat_list->Text.size();
 				pArea->append("gamesetup.chat_list", chat_msg);
 				if (chat_list->Text.size() > 5)
-					chat_list->Data += chat_list->Text.size() - lastSize;
+					chat_list->Data += (int)chat_list->Text.size() - lastSize;
 				chat_list->Pos = uint32(chat_list->Text.size() - 1);
 			}
 

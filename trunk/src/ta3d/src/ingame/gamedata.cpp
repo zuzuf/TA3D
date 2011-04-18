@@ -51,7 +51,7 @@ namespace TA3D
             energy[i] = metal[i] = 10000;
             player_network_id[i] = -1;
             ready[i] = false;
-            team[i] = 1 << i;
+			team[i] = uint16(1 << i);
 			player_control[i] = PLAYER_CONTROL_NONE;
 			player_names[i] = I18N::Translate("open");
         }
@@ -125,9 +125,9 @@ namespace TA3D
 		map_filename = args[1];
 		game_script = args[2];
 		use_only = args[3];
-		fog_of_war = args[4].to<int>();
+		fog_of_war = (uint8)args[4].to<int>();
 		nb_players = args[5].to<int>();
-		if (args.size() < 6 + nb_players * 7)
+		if ((int)args.size() < 6 + nb_players * 7)
 		{
 			LOG_ERROR(LOG_PREFIX_GAMEDATA << "player data missing");
 			return;
@@ -136,11 +136,11 @@ namespace TA3D
 		{
 			player_names[i] = args[6 + i * 7];
 			player_sides[i] = args[7 + i * 7];
-			player_control[i] = args[8 + i * 7].to<int>();
+			player_control[i] = (byte)args[8 + i * 7].to<int>();
 			ai_level[i] = args[9 + i * 7];
 			energy[i] = args[10 + i * 7].to<int>();
 			metal[i] = args[11 + i * 7].to<int>();
-			team[i] = args[12 + i * 7].to<int>();
+			team[i] = (uint8)args[12 + i * 7].to<int>();
 		}
 	}
 } // namespace TA3D

@@ -499,7 +499,7 @@ namespace TA3D
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
 		{
 			if (!(i & 0xF))
-				(*loading)((550.0f + 50.0f * i / (unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
+				(*loading)((550.0f + 50.0f * (float)i / float(unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
 			if (ToLower(unit_manager.unit_type[i]->side) == sideName)
 			{
 				int e(1);
@@ -516,7 +516,7 @@ namespace TA3D
 			Gui::GUIOBJ::Ptr obj = pArea.get_object(String("playerstats.team") << i);
 			if (obj)
 			{
-				obj->current_state = TA3D::Math::Log2(players.team[i]);
+				obj->current_state = (byte)TA3D::Math::Log2(players.team[i]);
 				obj->Flag &= ~FLAG_HIDDEN;
 				obj->Flag &= ~FLAG_CAN_BE_CLICKED;
 			}
@@ -660,7 +660,7 @@ namespace TA3D
 		wind_t = 0.0f; // To handle wind variations
 		wind_change = false;
 		if (map->ota_data.maxwindspeed != map->ota_data.minwindspeed)
-			map->wind = (TA3D_RAND() % (map->ota_data.maxwindspeed - map->ota_data.minwindspeed)) + map->ota_data.minwindspeed;
+			map->wind = float((TA3D_RAND() % (map->ota_data.maxwindspeed - map->ota_data.minwindspeed)) + map->ota_data.minwindspeed);
 		return true;
 	}
 
@@ -703,7 +703,7 @@ namespace TA3D
 	bool Battle::initTheWater()
 	{
 		water_obj = new WATER();
-        water_obj->build(map->map_w, map->map_h, 1000.0f);
+		water_obj->build((float)map->map_w, (float)map->map_h, 1000.0f);
 		water_sim0 = water_sim1 = water_sim2 = 0;
 
 		if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)

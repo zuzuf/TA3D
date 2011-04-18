@@ -198,8 +198,8 @@ namespace TA3D
         String getLastMessageAddress();
         bool BroadcastedMessages();
 
-        int sendFileData( int player, uint16 port, byte *data, int size );
-        int sendFileResponse( int player, uint16 port, byte *data, int size );
+		int sendFileData( int player, uint16 port, const byte *data, int size );
+		int sendFileResponse( int player, uint16 port, const byte *data, int size );
 
     }; // class Network
 

@@ -1319,7 +1319,7 @@ namespace TA3D
 									&& object->Etat)
 								{
 									index = (int)(((float)mouse_y - (float)y - object->y2 - 5.0f - (skin ? skin->menu_background.y1 : 0.0f)) / pCacheFontHeight + (float)object->Pos);
-									if (index >= (int)(object->Text.size() - 1))
+									if (index >= (unsigned int)(object->Text.size() - 1))
 										index = (int)object->Text.size() - 2;
 									if (object->Func != NULL)
 										(*object->Func)(index);		// Lance la fonction associée

@@ -487,7 +487,7 @@ namespace Menus
 			sound_manager->setMusicVolume(lp_CONFIG->music_volume);
 		}
 		lp_CONFIG->unitTextureQuality = pArea->get_value("*.texture_quality");
-		lp_CONFIG->menuTransparency = float(pArea->get_value("*.interface_transparency") / 255.0f);
+		lp_CONFIG->menuTransparency = float(pArea->get_value("*.interface_transparency")) / 255.0f;
 		lp_CONFIG->shadowmap_size = uint8(pArea->get_value("*.shadow_map_size"));
 		lp_CONFIG->far_sight = pArea->get_state("*.far_sight");
 		lp_CONFIG->anisotropy = sint16(pArea->get_value("*.anisotropy"));

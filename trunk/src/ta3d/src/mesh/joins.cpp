@@ -67,7 +67,7 @@ namespace TA3D
 			Vector3D pos;
 			for(int j = 0 ; j < i.value()->nb_vtx ; ++j)
 				pos += i.value()->points[j];
-			pos = 1.0f / i.value()->nb_vtx  * pos;
+			pos = 1.0f / (float)i.value()->nb_vtx  * pos;
 
 			ObjectMap::iterator it_parent = objects.find(elts[0]);
 			ObjectMap::iterator it_child = objects.find(elts[1]);

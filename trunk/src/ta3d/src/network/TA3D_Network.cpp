@@ -292,12 +292,12 @@ namespace TA3D
 
 
 				if (sync_msg.mask & SYNC_MASK_O)
-					pUnit->Angle.y = sync_msg.orientation * 360.0f / 65536.0f;
+					pUnit->Angle.y = (float)sync_msg.orientation * 360.0f / 65536.0f;
 
 				if (sync_msg.mask & SYNC_MASK_HP)
 					pUnit->hp = sync_msg.hp;
 				if (sync_msg.mask & SYNC_MASK_BPL)
-					pUnit->build_percent_left = sync_msg.build_percent_left / 2.55f;
+					pUnit->build_percent_left = (float)sync_msg.build_percent_left / 2.55f;
 
 				pUnit->clear_from_map();
 				updateList.push_back(pUnit);
@@ -423,7 +423,7 @@ namespace TA3D
 					{			// Do it only if the packet is for us
 						DrawObject draw_obj;
 						draw_obj.type = DRAW_TYPE_BITMAP;
-						draw_obj.x[0] = event_msg.opt3 / 16384.0f;
+						draw_obj.x[0] = (float)event_msg.opt3 / 16384.0f;
 						draw_obj.y[0] = event_msg.x;
 						draw_obj.x[1] = event_msg.y;
 						draw_obj.y[1] = event_msg.z;
@@ -453,15 +453,15 @@ namespace TA3D
 				case EVENT_CLF:
 					the_map->clear_FOW();
 					units.lock();
-					for (int i = 0 ; i < units.index_list_size ; i++)
+					for (uint32 i = 0 ; i < units.index_list_size ; ++i)
 						units.unit[ units.idx_list[ i ] ].old_px = -10000;
 					units.unlock();
 					break;
 				case EVENT_INIT_RES:
 					for (unsigned int i = 0; i < players.count(); ++i)
 					{
-						players.metal[i] = players.com_metal[i];
-						players.energy[i] = players.com_energy[i];
+						players.metal[i] = (float)players.com_metal[i];
+						players.energy[i] = (float)players.com_energy[i];
 					}
 					break;
 				case EVENT_CAMERA_POS:
@@ -494,7 +494,7 @@ namespace TA3D
 							units.unit[ event_msg.opt1 ].unlock();
 							break;
 						}
-						float damage = event_msg.opt2 / 3600.0f;
+						const float damage = (float)event_msg.opt2 / 3600.0f;
 
 						units.unit[ event_msg.opt1 ].paralyzed = damage;
 
@@ -511,7 +511,7 @@ namespace TA3D
 							units.unit[ event_msg.opt1 ].unlock();
 							break;
 						}
-						const float damage = event_msg.opt2 / 16.0f;
+						const float damage = (float)event_msg.opt2 / 16.0f;
 
 						units.unit[ event_msg.opt1 ].hp -= damage;
 
@@ -525,7 +525,7 @@ namespace TA3D
 				case EVENT_WEAPON_CREATION:
 					{
 						const Vector3D target_pos( event_msg.x, event_msg.y, event_msg.z );
-						const Vector3D Dir( event_msg.dx / 16384.0f, event_msg.dy / 16384.0f, event_msg.dz / 16384.0f );
+						const Vector3D Dir( (float)event_msg.dx / 16384.0f, (float)event_msg.dy / 16384.0f, (float)event_msg.dz / 16384.0f );
 						const Vector3D startpos( event_msg.vx, event_msg.vy, event_msg.vz );
 
 						const int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
@@ -542,7 +542,7 @@ namespace TA3D
 							{
 								weapons.weapon[w_idx].local = false;
 
-								weapons.weapon[w_idx].damage = event_msg.opt4;
+								weapons.weapon[w_idx].damage = (float)event_msg.opt4;
 								weapons.weapon[w_idx].Pos = startpos;
 								weapons.weapon[w_idx].local = false;
 								if (Yuni::Math::Zero(weapon_manager.weapon[w_type].startvelocity) && !weapon_manager.weapon[w_type].selfprop)
@@ -556,7 +556,7 @@ namespace TA3D
 										weapons.weapon[w_idx].V = weapons.weapon[w_idx].V + units.unit[ event_msg.opt1 ].V;
 									units.unit[ event_msg.opt1 ].unlock();
 								}
-								weapons.weapon[w_idx].owner = player_id;
+								weapons.weapon[w_idx].owner = (byte)player_id;
 								weapons.weapon[w_idx].target = event_msg.opt2;
 								if (event_msg.opt2 < weapons.weapon.size() ) {
 									if(weapon_manager.weapon[w_type].interceptor)
@@ -588,11 +588,11 @@ namespace TA3D
 						int e = -1;
 						units.lock();
 
-						for (int i = 0 ; i < units.max_unit ; i++)
+						for (uint32 i = 0 ; i < units.max_unit ; i++)
 						{
 							if (units.idx_list[ i ] == event_msg.opt1)
 							{
-								e = i;
+								e = (int)i;
 								break;
 							}
 						}
@@ -620,7 +620,7 @@ namespace TA3D
 
 								if (event_msg.opt2 & 0x1000) // Created by a script, so give it 100% HP
 								{
-									unit->hp = unit_manager.unit_type[idx]->MaxDamage;
+									unit->hp = (float)unit_manager.unit_type[idx]->MaxDamage;
 									unit->built = false;
 									unit->build_percent_left = 0.0f;
 								}
@@ -665,10 +665,10 @@ namespace TA3D
 				if ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0)
 				{
 					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
-					Y -= Math::Min(1.0f, ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
+					Y -= Math::Min(1.0f, float((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
 				}
-				gfx->print(Gui::gui_font, 137, Y + 1, 0.0f, color & shadowmask, i->text);
-				gfx->print(Gui::gui_font, 136, Y, 0.0f, color, i->text);
+				gfx->print(Gui::gui_font, 137.0f, Y + 1.0f, 0.0f, color & shadowmask, i->text);
+				gfx->print(Gui::gui_font, 136.0f, Y, 0.0f, color, i->text);
 				Y += Gui::gui_font->height();
 			}
 		}
@@ -692,8 +692,8 @@ namespace TA3D
 	{
 		struct event event;
 		event.type = EVENT_UNIT_DAMAGE;
-		event.opt1 = idx;
-		event.opt2 = (int)(damage * 16.0f);
+		event.opt1 = (uint16)idx;
+		event.opt2 = (uint16)(damage * 16.0f);
 		network_manager.sendEvent( &event );
 	}
 
@@ -701,8 +701,8 @@ namespace TA3D
 	{
 		struct event event;
 		event.type = EVENT_UNIT_PARALYZE;
-		event.opt1 = idx;
-		event.opt2 = (int)(damage * 60.0f);
+		event.opt1 = (uint16)idx;
+		event.opt2 = (uint16)(damage * 60.0f);
 		network_manager.sendEvent( &event );
 	}
 
@@ -748,12 +748,12 @@ namespace TA3D
 
 	void TA3DNetwork::sendUnitNanolatheEvent( int idx, int target, bool feature, bool reverse )
 	{
-		if (idx < 0 || idx >= units.max_unit || !( units.unit[ idx ].flags & 1 ) )	return;
+		if (idx < 0 || idx >= (int)units.max_unit || !( units.unit[ idx ].flags & 1 ) )	return;
 
 		struct event event;
 		event.type = EVENT_UNIT_NANOLATHE;
-		event.opt1 = idx;
-		event.opt2 = (reverse ? 1 : 0) | (feature ? 2 : 0) | (target < 0 ? 4 : 0);
+		event.opt1 = (uint16)idx;
+		event.opt2 = (uint16)((reverse ? 1 : 0) | (feature ? 2 : 0) | (target < 0 ? 4 : 0));
 		if (feature ) {
 			if (target < 0 || target >= features.max_features || features.feature[ target ].type < 0 )	return;
 			event.opt3 = features.feature[ target ].px;
@@ -766,7 +766,7 @@ namespace TA3D
 
 	int TA3DNetwork::getNetworkID( int unit_id )
 	{
-		if (unit_id >= units.max_unit )
+		if (unit_id >= (int)units.max_unit )
 			return -1;
 		units.unit[ unit_id ].lock();
 		if (!(units.unit[ unit_id ].flags & 1))

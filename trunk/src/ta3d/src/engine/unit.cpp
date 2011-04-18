@@ -195,7 +195,7 @@ namespace TA3D
 	void Unit::init_alloc_data()
 	{
 		port = new sint16[21];				// Ports
-		memory = new int[TA3D_PLAYERS_HARD_LIMIT];				// Pour se rappeler sur quelles armes on a déjà tiré
+		memory = new uint32[TA3D_PLAYERS_HARD_LIMIT];				// Pour se rappeler sur quelles armes on a déjà tiré
 		attached_list = new short[20];
 		link_list = new short[20];
 		last_synctick = new uint32[TA3D_PLAYERS_HARD_LIMIT];
@@ -211,9 +211,9 @@ namespace TA3D
 			self_destruct = -1.0f;
 	}
 
-	bool Unit::isEnemy(const int t)
+	bool Unit::isEnemy(const int t) const
 	{
-		return t >= 0 && t < units.max_unit && !(players.team[units.unit[t].owner_id] & players.team[owner_id]);
+		return t >= 0 && t < (int)units.max_unit && !(players.team[units.unit[t].owner_id] & players.team[owner_id]);
 	}
 
 	int Unit::runScriptFunction(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
@@ -247,7 +247,7 @@ namespace TA3D
 	{
 		if (mission->getFlags() & MISSION_FLAG_MOVE)
 		{
-			mission->Flags() &= ~MISSION_FLAG_MOVE;
+			unsetFlag(mission->Flags(), MISSION_FLAG_MOVE);
 			if (!mission->Path().empty())
 			{
 				mission->Path().clear();
@@ -378,8 +378,8 @@ namespace TA3D
 		last_time_sound = msec_timer;
 		ripple_timer = msec_timer;
 		was_moving = false;
-		cur_px=0;
-		cur_py=0;
+		cur_px = 0;
+		cur_py = 0;
 		sight = 0;
 		radar_range = 0;
 		sonar_range = 0;
@@ -404,7 +404,7 @@ namespace TA3D
 		sel = false;
 		script = NULL;
 		model = NULL;
-		owner_id = owner;
+		owner_id = (byte)owner;
 		type_id = -1;
 		hp = 0.0f;
 		V.reset();
@@ -431,10 +431,10 @@ namespace TA3D
 				set_mission(MISSION_STANDBY);
 				pMutex.lock();
 			}
-            UnitType *pType = unit_manager.unit_type[type_id];
+			const UnitType* const pType = unit_manager.unit_type[type_id];
             model = pType->model;
             weapon.resize(pType->weapon.size());
-            hp = pType->MaxDamage;
+			hp = (float)pType->MaxDamage;
             script = UnitScriptInterface::instanciate( pType->script );
             port[STANDINGMOVEORDERS] = pType->StandingMoveOrder;
             port[STANDINGFIREORDERS] = pType->StandingFireOrder;
@@ -581,7 +581,7 @@ namespace TA3D
 		Mission &new_mission = step ? (def_mode ? def_mission.front() : mission.front()) : tmp;
 
 		new_mission.addStep();
-		new_mission.setMissionType(mission_type);
+		new_mission.setMissionType((uint8)mission_type);
 		new_mission.getTarget().set(targetType, targetIdx, target_ID);
 		if (target)
 			new_mission.getTarget().setPos(*target);
@@ -591,7 +591,7 @@ namespace TA3D
 		new_mission.setLastD(9999999.0f);
 		new_mission.setFlags(m_flags);
 		new_mission.setMoveData(move_data);
-		new_mission.setNode(patrol_node);
+		new_mission.setNode((uint16)patrol_node);
 
 		if (!step && patrol_node == -1 && mission_type == MISSION_PATROL)
 		{
@@ -610,7 +610,7 @@ namespace TA3D
 					}
 					++cur;
 				}
-				new_mission.setNode(patrol_node + 1);
+				new_mission.setNode(uint16(patrol_node + 1));
 
 				if (last != mission_base.end())
 					++last;
@@ -649,7 +649,7 @@ namespace TA3D
 			{
 				new_mission.addStep();
 				new_mission.setMissionType(MISSION_STOP);
-				new_mission.setFlags(m_flags & ~MISSION_FLAG_MOVE);
+				new_mission.setFlags(byte(m_flags & ~MISSION_FLAG_MOVE));
 			}
 			if (!step)
 			{
@@ -665,7 +665,7 @@ namespace TA3D
 
 
 
-	void Unit::set_mission(int mission_type, const Vector3D* target, bool step, int dat, bool stopit,
+	void Unit::set_mission(int mission_type, const Vector3D* target, bool /*step*/, int dat, bool stopit,
 						   void* pointer, byte m_flags, int move_data)
 	{
 		MutexLocker locker(pMutex);
@@ -812,7 +812,7 @@ namespace TA3D
 			def_mission.clear();
 			def_mission.add();
 
-			def_mission->setMissionType(mission_type);
+			def_mission->setMissionType((uint8)mission_type);
 			def_mission->getTarget().set(targetType, targetIdx, target_ID);
 			def_mission->setData(dat);
 			def_mission->Path().clear();
@@ -829,7 +829,7 @@ namespace TA3D
 				def_mission->setMissionType(MISSION_STOP);
 				def_mission->setData(0);
 				def_mission->Path().clear();
-				def_mission->setFlags(m_flags & ~MISSION_FLAG_MOVE);
+				def_mission->setFlags(uint8(m_flags & ~MISSION_FLAG_MOVE));
 			}
 		}
 		else
@@ -837,7 +837,7 @@ namespace TA3D
 			mission.clear();
 			mission.add();
 
-			mission->setMissionType(mission_type);
+			mission->setMissionType(uint8(mission_type));
 			mission->getTarget().set(targetType, targetIdx, target_ID);
 			mission->setData(dat);
 			mission->Path().clear();
@@ -962,7 +962,7 @@ namespace TA3D
 		const int py = render.py >> 1;
 		if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			return;	// Unité hors de la carte
-		const byte player_mask = 1 << players.local_human_id;
+		const byte player_mask = byte(1 << players.local_human_id);
 
 		on_radar = on_mini_radar = is_on_radar( player_mask );
 		if (the_map->view(px, py) == 0 || ( the_map->view(px, py) > 1 && !on_radar ) )
@@ -1014,7 +1014,7 @@ namespace TA3D
 			// In orthographic mode we need another formula
 			const float size = lp_CONFIG->ortho_camera
 						 ? Camera::inGame->zoomFactor * 9.0f
-						 : (D % Camera::inGame->dir) * 12.0f / gfx->height;
+						 : (D % Camera::inGame->dir) * 12.0f / float(gfx->height);
 
             if (pType->fastCategory & CATEGORY_KAMIKAZE)
 				unit_nature = ICON_KAMIKAZE;
@@ -1048,17 +1048,22 @@ namespace TA3D
             else if (!( pType->fastCategory & CATEGORY_NOTSUB ) )
 				unit_nature = ICON_SUBUNIT;
 
-			const float sizew = size * units.icons[ unit_nature ].getWidth() / 24.0f;
-			const float sizeh = size * units.icons[ unit_nature ].getHeight() / 24.0f;
+			const float sizew = size * (float)units.icons[ unit_nature ].getWidth() / 24.0f;
+			const float sizeh = size * (float)units.icons[ unit_nature ].getHeight() / 24.0f;
 			glBindTexture( GL_TEXTURE_2D, units.icons[ unit_nature ].get() );
 			glDisable( GL_CULL_FACE );
 			glDisable(GL_LIGHTING);
 			glTranslatef( model->center.x, model->center.y, model->center.z );
 			const Vector3D side = Camera::inGame->side;
 			const Vector3D up = Camera::inGame->up;
-			if (player_color[player_color_map[owner_id]*3] != 0.0f || player_color[player_color_map[owner_id]*3+1] != 0.0f || player_color[player_color_map[owner_id]*3+2] != 0.0f)
+			if (!Yuni::Math::Zero(player_color[player_color_map[owner_id] * 3])
+				|| !Yuni::Math::Zero(player_color[player_color_map[owner_id] * 3 + 1])
+				|| !Yuni::Math::Zero(player_color[player_color_map[owner_id] * 3 + 2]))
 			{
-				glColor4f(player_color[player_color_map[owner_id]*3],player_color[player_color_map[owner_id]*3+1],player_color[player_color_map[owner_id]*3+2], 1.0f);
+				glColor4f(player_color[player_color_map[owner_id] * 3],
+						  player_color[player_color_map[owner_id] * 3 + 1],
+						  player_color[player_color_map[owner_id] * 3 + 2],
+						  1.0f);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_QUADS);
@@ -1129,7 +1134,7 @@ namespace TA3D
 							  render.Angle.z * DEG2RAD,
 							  render.Angle.x * DEG2RAD) * Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 
-				Vector3D *target = NULL, *center = NULL;
+				const Vector3D *target = NULL, *center = NULL;
 				Vector3D upos;
 				bool c_part = false;
 				bool reverse = false;
@@ -1156,7 +1161,7 @@ namespace TA3D
 					} while( first != current && i < 1000 );
 				}
 
-				if (build_percent_left == 0.0f && !mission.empty() && port[ INBUILDSTANCE ] != 0 && local )
+				if (Yuni::Math::Zero(build_percent_left) && !mission.empty() && port[ INBUILDSTANCE ] != 0 && local )
 				{
 					if (c_time >= 0.125f)
 					{
@@ -1223,7 +1228,7 @@ namespace TA3D
 							else
 								c_part = false;
 						}
-						target = (Vector3D*)&(mission->getTarget().getPos());
+						target = &(mission->getTarget().getPos());
 					}
 				}
 				else
@@ -1286,7 +1291,7 @@ namespace TA3D
 				const bool old_mode = gfx->getShadowMapMode();
                 glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
 
-				if (build_percent_left == 0.0f)
+				if (Yuni::Math::Zero(build_percent_left))
 				{
 					if (pType->onoffable && !port[ACTIVATION])
 						t = 0.0f;
@@ -1495,8 +1500,8 @@ namespace TA3D
 		if (!visible)
 		{
 			const Vector3D S_Pos (render.Pos - (h / Dir.y) * Dir);//the_map->hit(Pos,Dir);
-			const int px = ((int)(S_Pos.x + the_map->map_w_d)) >> 4;
-			const int py = ((int)(S_Pos.z + the_map->map_h_d)) >> 4;
+			const int px = ((int)(S_Pos.x + (float)the_map->map_w_d)) >> 4;
+			const int py = ((int)(S_Pos.z + (float)the_map->map_h_d)) >> 4;
 			if (px < 0 || py < 0 || px >= the_map->bloc_w || py >= the_map->bloc_h)
 			{
 				pMutex.unlock();
@@ -1544,7 +1549,7 @@ namespace TA3D
 			struct event explode_event;
 			explode_event.type = EVENT_UNIT_EXPLODE;
 			explode_event.opt1 = idx;
-			explode_event.opt2 = severity;
+			explode_event.opt2 = (uint16)severity;
 			explode_event.x = Pos.x;
 			explode_event.y = Pos.y;
 			explode_event.z = Pos.z;
@@ -1552,8 +1557,8 @@ namespace TA3D
 		}
 
 		const int power = Math::Max(pType->FootprintX, pType->FootprintZ);
-		fx_manager.addFlash( Pos, power * 32 );
-		fx_manager.addExplosion( Pos, V, power * 3, power * 10 );
+		fx_manager.addFlash( Pos, float(power * 32) );
+		fx_manager.addExplosion( Pos, V, power * 3, float(power * 10) );
 
         int param[] = { severity * 100 / pType->MaxDamage, 0 };
 		int corpse_type = runScriptFunction(SCRIPT_killed, 2, param);
@@ -1620,7 +1625,7 @@ namespace TA3D
 				pMutex.lock();
 		}
 		pMutex.unlock();
-		const int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? pType->SelfDestructAs : pType->ExplodeAs ),idx);
+		const int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( Yuni::Math::Zero(self_destruct) ? pType->SelfDestructAs : pType->ExplodeAs ),idx);
 		pMutex.lock();
 		if (w_id >= 0)
 		{
@@ -1639,13 +1644,13 @@ namespace TA3D
 	//! Ballistic calculations take place here
 	float ballistic_angle(float v, float g, float d, float y_s, float y_e) // Calculs de ballistique pour l'angle de tir
 	{
-		float v2 = v*v;
-		float gd = g*d;
-		float v2gd = v2/gd;
-		float a = v2gd*(4.0f*v2gd-8.0f*(y_e-y_s)/d)-4.0f;
-		if (a<0.0f)				// Pas de solution
+		const float v2 = v * v;
+		const float gd = g * d;
+		const float v2gd = v2 / gd;
+		const float a = v2gd * (4.0f * v2gd - 8.0f * (y_e - y_s) / d) - 4.0f;
+		if (a < 0.0f)				// Pas de solution
 			return 360.0f;
-		return RAD2DEG*atanf(v2gd-0.5f*sqrtf(a));
+		return RAD2DEG * atanf(v2gd - 0.5f * sqrtf(a));
 	}
 
 	//! Compute the local map energy WITHOUT current unit contribution (it assumes (x,y) is on pType->gRepulsion)
@@ -1654,7 +1659,7 @@ namespace TA3D
 		if (x < 0 || y < 0 || x >= the_map->bloc_w_db || y >= the_map->bloc_h_db)
 			return 999999999.0f;
 		float e = the_map->energy(x, y);
-		UnitType *pType = unit_manager.unit_type[type_id];
+		const UnitType *pType = unit_manager.unit_type[type_id];
 		e -= pType->gRepulsion( x - cur_px + (pType->gRepulsion.getWidth() >> 1),
 								y - cur_py + (pType->gRepulsion.getHeight() >> 1) );
 		return e;
@@ -1672,7 +1677,7 @@ namespace TA3D
 		const UnitType *pType = unit_manager.unit_type[type_id];
 		if (moving)
 		{
-			const float dist = sqrtf(SQUARE(cur_px - x) + SQUARE(cur_py - z));
+			const float dist = sqrtf(float(SQUARE(cur_px - x) + SQUARE(cur_py - z)));
 			if (dist < 64.0f)
 				E *= dist * 0.015625f;
 			E += 80.0f * float(pType->MaxSlope) * dist;
@@ -1682,7 +1687,7 @@ namespace TA3D
 			float e = getLocalMapEnergy(cur_px + order_dx[i], cur_py + order_dz[i]);
 			if (moving)
 			{
-				const float dist = sqrtf(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z));
+				const float dist = sqrtf(float(SQUARE(cur_px + order_dx[i] - x) + SQUARE(cur_py + order_dz[i] - z)));
 				if (dist < 64.0f)
 					e *= dist * 0.015625f;
 				e += 80.0f * float(pType->MaxSlope) * dist;
@@ -1697,7 +1702,7 @@ namespace TA3D
 			dir.reset();
 		else
 		{
-			dir = Vector3D(order_dx[b], 0.0f, order_dz[b]);
+			dir = Vector3D((float)order_dx[b], 0.0f, (float)order_dz[b]);
 			dir.unit();
 		}
 	}
@@ -1757,7 +1762,7 @@ namespace TA3D
 							if ((last_path_refresh >= 5.0f && !requesting_pathfinder)
 								|| pType->canfly)
 							{
-								mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
+								unsetFlag(mission->Flags(), ~MISSION_FLAG_REFRESH_PATH);
 
 								move_target_computed = mission->getTarget().getPos();
 								last_path_refresh = 0.0f;
@@ -1770,7 +1775,7 @@ namespace TA3D
 									{
 										Vector3D Dir = mission->getTarget().getPos() - Pos;
 										Dir.unit();
-										mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - (mission->getMoveData() << 3) * Dir);
+										mission->Path() = Pathfinder::directPath(mission->getTarget().getPos() - float(mission->getMoveData() << 3) * Dir);
 									}
 								}
 								else
@@ -1816,10 +1821,10 @@ namespace TA3D
 								if (!(mission->getFlags() & MISSION_FLAG_DONT_STOP_MOVE)
 									&& (!mission.empty() || mission->mission() != MISSION_PATROL))
 									playSound( "arrived1" );
-								mission->Flags() &= ~MISSION_FLAG_MOVE;
+								unsetFlag(mission->Flags(), MISSION_FLAG_MOVE);
 							}
 							else										// We are not where we are supposed to be !!
-								mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
+								setFlag(mission->Flags(), MISSION_FLAG_REFRESH_PATH);
 							if (!( pType->canfly && nb_attached > 0 ))		// Once charged with units the Atlas cannot land
 							{
 								stopMovingAnimation();
@@ -1836,7 +1841,7 @@ namespace TA3D
 								return;
 						}
 						else				// If we managed to get there you can forget path refresh order
-							mission->Flags() &= ~MISSION_FLAG_REFRESH_PATH;
+							unsetFlag(mission->Flags(), MISSION_FLAG_REFRESH_PATH);
 					}
 					else
 						mission->setLastD(dist);
@@ -1983,21 +1988,21 @@ namespace TA3D
 			}
 
 			NPos = Pos + dt * V;			// Check if the unit can go where V brings it
-			if (was_locked) // Random move to solve the unit lock problem
+			if (!Yuni::Math::Zero(was_locked)) // Random move to solve the unit lock problem
 			{
 				if (V.x > 0.0f)
-					NPos.x += (Math::RandomTable() % 101) * 0.01f;
+					NPos.x += float(Math::RandomTable() % 101) * 0.01f;
 				else
-					NPos.x -= (Math::RandomTable() % 101) * 0.01f;
+					NPos.x -= float(Math::RandomTable() % 101) * 0.01f;
 				if (V.z > 0.0f)
-					NPos.z += (Math::RandomTable() % 101) * 0.01f;
+					NPos.z += float(Math::RandomTable() % 101) * 0.01f;
 				else
-					NPos.z -= (Math::RandomTable() % 101) * 0.01f;
+					NPos.z -= float(Math::RandomTable() % 101) * 0.01f;
 
 				if (was_locked >= 5.0f)
 				{
 					was_locked = 5.0f;
-					mission->Flags() |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
+					setFlag(mission->Flags(), MISSION_FLAG_REFRESH_PATH);			// Refresh path because this shouldn't happen unless
 																			// obstacles have moved
 				}
 			}
@@ -2019,7 +2024,7 @@ namespace TA3D
 							if (cur_px != n_px
 								&& can_be_there( cur_px, n_py, type_id, owner_id, idx ))
 							{
-								V.z = (V.z != 0.0f)
+								V.z = !Yuni::Math::Zero(V.z)
 									  ? (V.z < 0.0f
 										 ? -sqrtf( SQUARE(V.z) + SQUARE(V.x) )
 										 : sqrtf( SQUARE(V.z) + SQUARE(V.x) ) )
@@ -2030,7 +2035,7 @@ namespace TA3D
 							}
 							else if (cur_py != n_py && can_be_there( n_px, cur_py, type_id, owner_id, idx ))
 							{
-								V.x = (V.x != 0.0)
+								V.x = !Yuni::Math::Zero(V.x)
 									  ? ((V.x < 0.0f)
 										 ? -sqrtf(SQUARE(V.z) + SQUARE(V.x))
 										 : sqrtf(SQUARE(V.z) + SQUARE(V.x)))
@@ -2059,14 +2064,14 @@ namespace TA3D
 								|| Pos.z > the_map->map_h_d)
 							{
 								Vector3D target = Pos;
-								if (target.x < -the_map->map_w_d+256)
-									target.x = -the_map->map_w_d+256;
-								else if (target.x > the_map->map_w_d-256)
-									target.x = the_map->map_w_d-256;
-								if (target.z < -the_map->map_h_d+256)
-									target.z = -the_map->map_h_d+256;
-								else if (target.z > the_map->map_h_d-256)
-									target.z = the_map->map_h_d-256;
+								if (target.x < -the_map->map_w_d + 256)
+									target.x = float(-the_map->map_w_d + 256);
+								else if (target.x > the_map->map_w_d - 256)
+									target.x = float(the_map->map_w_d - 256);
+								if (target.z < -the_map->map_h_d + 256)
+									target.z = float(-the_map->map_h_d + 256);
+								else if (target.z > the_map->map_h_d - 256)
+									target.z = float(the_map->map_h_d - 256);
 								next_mission();
 								add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
 							}
@@ -2078,9 +2083,9 @@ namespace TA3D
 									n_px = cur_px;
 									n_py = cur_py;
 									Vector3D target = Pos;
-									target.x += ((sint32)(Math::RandomTable()&0x1F))-16;		// Look for a place to land
-									target.z += ((sint32)(Math::RandomTable()&0x1F))-16;
-									mission->Flags() |= MISSION_FLAG_MOVE;
+									target.x += float(((sint32)(Math::RandomTable() & 0x1F)) - 16);		// Look for a place to land
+									target.z += float(((sint32)(Math::RandomTable() & 0x1F)) - 16);
+									setFlag(mission->Flags(), MISSION_FLAG_MOVE);
 									mission->Path() = Pathfinder::directPath( target );
 								}
 							}
@@ -2096,7 +2101,7 @@ namespace TA3D
 				}
 				else
 				{
-					bool place_is_empty = the_map->check_rect(n_px-(pType->FootprintX>>1),n_py-(pType->FootprintZ>>1),pType->FootprintX,pType->FootprintZ,idx);
+					const bool place_is_empty = the_map->check_rect(n_px-(pType->FootprintX>>1),n_py-(pType->FootprintZ>>1),pType->FootprintX,pType->FootprintZ,idx);
 					if (!place_is_empty)
 					{
 						pMutex.unlock();
@@ -2124,13 +2129,13 @@ namespace TA3D
 			if (Pos.x<-the_map->map_w_d || Pos.x>the_map->map_w_d || Pos.z<-the_map->map_h_d || Pos.z>the_map->map_h_d)
 			{
 				if (Pos.x < -the_map->map_w_d)
-					V.x += dt * ( -the_map->map_w_d - Pos.x ) * 0.1f;
+					V.x += dt * ( -(float)the_map->map_w_d - Pos.x ) * 0.1f;
 				else if (Pos.x > the_map->map_w_d)
-					V.x -= dt * ( Pos.x - the_map->map_w_d ) * 0.1f;
+					V.x -= dt * ( Pos.x - (float)the_map->map_w_d ) * 0.1f;
 				if (Pos.z < -the_map->map_h_d)
-					V.z += dt * ( -the_map->map_h_d - Pos.z ) * 0.1f;
+					V.z += dt * ( -(float)the_map->map_h_d - Pos.z ) * 0.1f;
 				else if (Pos.z > the_map->map_h_d)
-					V.z -= dt * ( Pos.z - the_map->map_h_d ) * 0.1f;
+					V.z -= dt * ( Pos.z - (float)the_map->map_h_d ) * 0.1f;
 				float speed = V.norm();
 				if (speed > pType->MaxVelocity && speed > 0.0f)
 				{
@@ -2180,13 +2185,13 @@ namespace TA3D
 
 		const float resource_min_factor = TA3D::Math::Min(TA3D::players.energy_factor[owner_id], TA3D::players.metal_factor[owner_id]);
 
-        if (build_percent_left == 0.0f && pType->isfeature) // Turn this unit into a feature
+		if (Yuni::Math::Zero(build_percent_left) && pType->isfeature) // Turn this unit into a feature
 		{
-			if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1) )
+			if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w << 1) && cur_py < (the_map->bloc_h << 1) )
 			{
 				if (the_map->map_data(cur_px, cur_py).stuff == -1)
 				{
-                    int type = feature_manager.get_feature_index(pType->Corpse);
+					const int type = feature_manager.get_feature_index(pType->Corpse);
 					if (type >= 0)
 					{
 						features.lock();
@@ -2211,11 +2216,11 @@ namespace TA3D
 		}
 
 		if (the_map->ota_data.waterdoesdamage && Pos.y < the_map->sealvl)		// The unit is damaged by the "acid" water
-			hp -= dt*the_map->ota_data.waterdamage;
+			hp -= dt * float(the_map->ota_data.waterdamage);
 
-		const bool jump_commands = (((idx+key_frame)&0xF) == 0);		// Saute certaines commandes / Jump some commands so it runs faster with lots of units
+		const bool jump_commands = (((idx + key_frame) & 0xF) == 0);		// Saute certaines commandes / Jump some commands so it runs faster with lots of units
 
-		if (build_percent_left == 0.0f && self_destruct >= 0.0f) // Self-destruction code
+		if (Yuni::Math::Zero(build_percent_left) && self_destruct >= 0.0f) // Self-destruction code
 		{
 			const int old = (int)self_destruct;
 			self_destruct -= dt;
@@ -2255,7 +2260,7 @@ namespace TA3D
 			{
 				case 1:				// Début de la mort de l'unité	(Lance le script)
 					flags = 4;		// Don't remove the data on the position map because they will be replaced
-					if (build_percent_left == 0.0f && local)
+					if (Yuni::Math::Zero(build_percent_left) && local)
 						explode();
 					else
 						flags = 1;
@@ -2289,7 +2294,7 @@ namespace TA3D
 					clear_from_map();
 					return -1;
 			}
-			if (data.nb_piece > 0 && build_percent_left == 0.0f)
+			if (data.nb_piece > 0 && Yuni::Math::Zero(build_percent_left))
 			{
 				data.move(dt,the_map->ota_data.gravity);
 				if (c_time >= 0.1f)
@@ -2318,15 +2323,15 @@ namespace TA3D
 			if (Pos.x<-the_map->map_w_d || Pos.x>the_map->map_w_d || Pos.z<-the_map->map_h_d || Pos.z>the_map->map_h_d)
 			{
 				Vector3D target = Pos;
-				if (target.x < -the_map->map_w_d+256)
-					target.x = -the_map->map_w_d+256;
-				else if (target.x > the_map->map_w_d-256)
-					target.x = the_map->map_w_d-256;
-				if (target.z < -the_map->map_h_d+256)
-					target.z = -the_map->map_h_d+256;
-				else if (target.z > the_map->map_h_d-256)
-					target.z = the_map->map_h_d-256;
-				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,0,1);		// Stay on map
+				if (target.x < -the_map->map_w_d + 256)
+					target.x = float(-the_map->map_w_d + 256);
+				else if (target.x > the_map->map_w_d - 256)
+					target.x = float(the_map->map_w_d - 256);
+				if (target.z < -the_map->map_h_d + 256)
+					target.z = float(-the_map->map_h_d + 256);
+				else if (target.z > the_map->map_h_d - 256)
+					target.z = float(the_map->map_h_d - 256);
+				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, true, 0, NULL, 0, 1);		// Stay on map
 			}
 
 		flags &= 0xEF;		// To fix a bug
@@ -2335,10 +2340,10 @@ namespace TA3D
 		{
 			if (!built && local)
 			{
-                float frac = 1000.0f / ( 6 * pType->BuildTime );
-                metal_prod = frac * pType->BuildCostMetal;
+				float frac = 1000.0f / float(6 * pType->BuildTime);
+				metal_prod = frac * (float)pType->BuildCostMetal;
 				frac *= dt;
-                hp -= frac * pType->MaxDamage;
+				hp -= frac * (float)pType->MaxDamage;
 				build_percent_left += frac * 100.0f;
 			}
 			else
@@ -2349,9 +2354,9 @@ namespace TA3D
 		{
             if (hp < pType->MaxDamage && pType->HealTime > 0)
 			{
-                hp += pType->MaxDamage * dt / pType->HealTime;
-                if (hp > pType->MaxDamage )
-                    hp = pType->MaxDamage;
+				hp += (float)pType->MaxDamage * dt / (float)pType->HealTime;
+				if (hp > (float)pType->MaxDamage )
+					hp = (float)pType->MaxDamage;
 			}
 		}
 
@@ -2361,10 +2366,10 @@ namespace TA3D
 		if (cloaking && paralyzed <= 0.0f)
 		{
 			const int conso_energy = (!mission || !(mission->getFlags() & MISSION_FLAG_MOVE) ) ? pType->CloakCost : pType->CloakCostMoving;
-			TA3D::players.requested_energy[owner_id] += conso_energy;
-			if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt)
+			TA3D::players.requested_energy[owner_id] += (float)conso_energy;
+			if (players.energy[ owner_id ] >= (energy_cons + (float)conso_energy) * dt)
 			{
-				energy_cons += conso_energy;
+				energy_cons += (float)conso_energy;
 				const int dx = pType->mincloakdistance >> 3;
 				const int distance = SQUARE(pType->mincloakdistance);
 				// byte mask = 1 << owner_id;
@@ -2376,7 +2381,7 @@ namespace TA3D
 							{
 								const int cur_idx = the_map->map_data(x, y).unit_idx;
 
-								if (cur_idx >= 0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
+								if (cur_idx >= 0 && cur_idx < (int)units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
 									&& distance >= (Pos - units.unit[ cur_idx ].Pos).sq())
 								{
 									found = true;
@@ -2399,8 +2404,8 @@ namespace TA3D
 				Vector3D randVec;
 				bool random_vector = false;
 				int n = 0;
-				for (int base_n = Math::RandomTable() ; !random_vector && n < pType->model->nb_obj ; ++n)
-                    random_vector = pType->model->mesh->random_pos( &data, (base_n + n) % pType->model->nb_obj, &randVec );
+				for (int base_n = Math::RandomTable() ; !random_vector && n < (int)pType->model->nb_obj ; ++n)
+					random_vector = pType->model->mesh->random_pos( &data, (base_n + n) % (int)pType->model->nb_obj, &randVec );
 				if (random_vector)
 					fx_manager.addElectric( Pos + randVec );
 			}
@@ -2420,8 +2425,8 @@ namespace TA3D
 				if (units.unit[attached_list[i]].flags)
 				{
 					units.unit[attached_list[i]].Pos = Pos + data.data[link_list[i]].pos;
-					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x) + the_map->map_w_d)>>3;
-					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z) + the_map->map_h_d)>>3;
+					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x) + the_map->map_w_d) >> 3;
+					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z) + the_map->map_h_d) >> 3;
 					units.unit[attached_list[i]].Angle = Angle;
 				}
 				else
@@ -2437,7 +2442,7 @@ namespace TA3D
 
 		if (planned_weapons > 0.0f)	// Construit des armes / build weapons
 		{
-			const float old = planned_weapons - (int)planned_weapons;
+			const float old = planned_weapons - float(int(planned_weapons));
 			int idx = -1;
             for (unsigned int i = 0; i < pType->weapon.size(); ++i)
 			{
@@ -2447,7 +2452,7 @@ namespace TA3D
 					break;
 				}
 			}
-            if (idx != -1 && pType->weapon[idx]->reloadtime != 0.0f)
+			if (idx != -1 && !Yuni::Math::Zero(pType->weapon[idx]->reloadtime))
 			{
 				const float dn = dt / pType->weapon[idx]->reloadtime;
 				const float conso_metal = ((float)pType->weapon[idx]->metalpershot) / pType->weapon[idx]->reloadtime;
@@ -2462,8 +2467,8 @@ namespace TA3D
 					metal_cons += conso_metal * resource_min_factor;
 					energy_cons += conso_energy * resource_min_factor;
 					planned_weapons -= dn * resource_min_factor;
-					const float last = planned_weapons - (int)planned_weapons;
-					if ((last == 0.0f && last != old) || (last > old && old > 0.0f) || planned_weapons <= 0.0f)		// On en a fini une / one is finished
+					const float last = planned_weapons - float(int(planned_weapons));
+					if ((Yuni::Math::Zero(last) && last != old) || (last > old && old > 0.0f) || planned_weapons <= 0.0f)		// On en a fini une / one is finished
 						weapon[idx].stock++;
 					if (planned_weapons < 0.0f)
 						planned_weapons = 0.0f;
@@ -2534,7 +2539,7 @@ namespace TA3D
 						|| ((weapon[i].state & WEAPON_FLAG_WEAPON) != WEAPON_FLAG_WEAPON && (((Unit*)(weapon[i].target))->flags & 1)))
 					{
 						if ((weapon[i].state & WEAPON_FLAG_WEAPON) != WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((Unit*)(weapon[i].target))->cloaked
-							&& ((Unit*)(weapon[i].target))->owner_id != owner_id && !((Unit*)(weapon[i].target))->is_on_radar( 1 << owner_id))
+							&& ((const Unit*)(weapon[i].target))->owner_id != owner_id && !((const Unit*)(weapon[i].target))->is_on_radar(byte(1 << owner_id)))
 						{
 							weapon[i].data = -1;
 							weapon[i].state = WEAPON_FLAG_IDLE;
@@ -2625,13 +2630,13 @@ namespace TA3D
 										pos_of_target_unit = target_unit->Pos;
 										pModel = target_unit->model;
 										if (weapon[i].data == -1 && pModel && pModel->nb_obj > 0)
-											weapon[i].data = Math::RandomTable() % pModel->nb_obj;
+											weapon[i].data = sint16(Math::RandomTable() % pModel->nb_obj);
 										if (weapon[i].data >= 0)
 										{
 											target_unit->compute_model_coord();
 											if (target_unit->flags & 1)
 											{
-												if (pModel && target_unit->data.data.size() < weapon[i].data && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
+												if (pModel && (int)target_unit->data.data.size() < weapon[i].data && pModel->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
 													target_pos_on_unit = target_unit->data.data[weapon[i].data].tpos;
 											}
 										}
@@ -2682,7 +2687,7 @@ namespace TA3D
 												 : (Pos + data.data[start_piece].tpos - pos_of_target_unit - target_pos_on_unit);
 									D.y = 0.0f;
 									float v;
-                                    if (pType->weapon[ i ]->startvelocity == 0.0f)
+									if (Yuni::Math::Zero(pType->weapon[ i ]->startvelocity))
                                         v = pType->weapon[ i ]->weaponvelocity;
 									else
                                         v = pType->weapon[ i ]->startvelocity;
@@ -2731,9 +2736,9 @@ namespace TA3D
                                         weapon[i].aim_dir.unit();
                                     }
                                     else
-                                        weapon[i].aim_dir = cosf(aiming[1] * TA2RAD) * (cosf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
-                                                                                        + sinf(aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
-                                            + sinf(aiming[1] * TA2RAD) * IJ;
+										weapon[i].aim_dir = cosf((float)aiming[1] * TA2RAD) * (cosf((float)aiming[0] * TA2RAD + Angle.y * DEG2RAD) * I
+																							   + sinf((float)aiming[0] * TA2RAD + Angle.y * DEG2RAD) * J)
+															+ sinf((float)aiming[1] * TA2RAD) * IJ;
                                 }
 								else
                                     launchScript(Aim_script, 2, aiming);
@@ -2763,7 +2768,7 @@ namespace TA3D
 									{
 										Vector3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
 										if (weapon[i].data == -1)
-											weapon[i].data = target_unit->get_sweet_spot();
+											weapon[i].data = (sint16)target_unit->get_sweet_spot();
 										if (weapon[i].data >= 0)
 										{
 											if (target_unit->model && target_unit->model->mesh->random_pos( &(target_unit->data), weapon[i].data, &target_pos_on_unit ))
@@ -2842,8 +2847,8 @@ namespace TA3D
 								weapon[i].stock--;
 							else
 							{													// We use energy and metal only for weapons with no prebuilt ammo
-                                players.c_metal[owner_id] -= pType->weapon[ i ]->metalpershot;
-                                players.c_energy[owner_id] -= pType->weapon[ i ]->energypershot;
+								players.c_metal[owner_id] -= (float)pType->weapon[ i ]->metalpershot;
+								players.c_energy[owner_id] -= (float)pType->weapon[ i ]->energypershot;
 							}
 							launchScript( Fire_script );			// Run the fire animation script
                             if (!pType->weapon[ i ]->soundstart.empty())	sound_manager->playSound(pType->weapon[i]->soundstart, &Pos);
@@ -2918,12 +2923,12 @@ namespace TA3D
 			{
 				case MISSION_WAIT:					// Wait for a specified time (campaign)
 					mission->setFlags(0);			// Don't move, do not shoot !! just wait
-					if (mission->getTime() >= mission->getData() * 0.001f )	// Done :)
+					if (mission->getTime() >= (float)mission->getData() * 0.001f )	// Done :)
 						next_mission();
 					break;
 				case MISSION_WAIT_ATTACKED:			// Wait until a specified unit is attacked (campaign)
 					if (mission->getData() < 0
-						|| mission->getData() >= units.max_unit
+						|| mission->getData() >= (int)units.max_unit
 						|| !(units.unit[ mission->getData() ].flags & 1))
 						next_mission();
 					else if (units.unit[ mission->getData() ].attacked)
@@ -2959,9 +2964,9 @@ namespace TA3D
 						const int maxdist = 6;
 						if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 						{
-							mission->Flags() &= ~MISSION_FLAG_BEING_REPAIRED;
+							unsetFlag(mission->Flags(), MISSION_FLAG_BEING_REPAIRED);
 							c_time = 0.0f;
-							mission->Flags() |= MISSION_FLAG_MOVE;
+							setFlag(mission->Flags(), MISSION_FLAG_MOVE);
 							mission->setMoveData( maxdist * 8 / 80 );
 							if (!mission->Path().empty())
 								mission->Path().setPos( target );			// Update path in real time!
@@ -2972,7 +2977,7 @@ namespace TA3D
 							f_TargetAngle = target_unit->Angle.y;
 							if (mission->getData() >= 0)
 							{
-								mission->Flags() |= MISSION_FLAG_BEING_REPAIRED;
+								setFlag(mission->Flags(), MISSION_FLAG_BEING_REPAIRED);
 								Dir = target - Pos;
 								Pos = Pos + 3.0f * dt * Dir;
 								Pos.x = target.x;
@@ -2989,8 +2994,9 @@ namespace TA3D
 										break;
 									}
 									if (target_unit->pad1 == 0xFFFF)			// tell others we're here
-										target_unit->pad1 = piece_id;
-									else target_unit->pad2 = piece_id;
+										target_unit->pad1 = (uint16)piece_id;
+									else
+										target_unit->pad2 = (uint16)piece_id;
 									target_unit->unlock();
 									mission->setData( -mission->getData() - 1 );
 								}
@@ -2998,22 +3004,22 @@ namespace TA3D
 							else
 							{						// being repaired
 								Pos = target;
-								V.reset();;
+								V.reset();
 
 								if (target_unit->port[ ACTIVATION ])
 								{
-                                    float conso_energy=((float)(unit_manager.unit_type[target_unit->type_id]->WorkerTime * pType->BuildCostEnergy)) / pType->BuildTime;
+									const float conso_energy = float(unit_manager.unit_type[target_unit->type_id]->WorkerTime * pType->BuildCostEnergy) / float(pType->BuildTime);
 									TA3D::players.requested_energy[owner_id] += conso_energy;
 									if (players.energy[owner_id] >= (energy_cons + conso_energy * TA3D::players.energy_factor[owner_id]) * dt)
 									{
 										target_unit->lock();
 										target_unit->energy_cons += conso_energy * TA3D::players.energy_factor[owner_id];
 										target_unit->unlock();
-                                        hp += dt * TA3D::players.energy_factor[owner_id] * unit_manager.unit_type[target_unit->type_id]->WorkerTime * pType->MaxDamage / pType->BuildTime;
+										hp += dt * TA3D::players.energy_factor[owner_id] * float(unit_manager.unit_type[target_unit->type_id]->WorkerTime * pType->MaxDamage) / (float)pType->BuildTime;
 									}
                                     if (hp >= pType->MaxDamage) // Unit has been repaired
 									{
-                                        hp = pType->MaxDamage;
+										hp = (float)pType->MaxDamage;
 										target_unit->lock();
 										if (target_unit->pad1 == piece_id )			// tell others we've left
 											target_unit->pad1 = 0xFFFF;
@@ -3048,18 +3054,18 @@ namespace TA3D
 								for(int x = cur_px - dx + sx ; x <= cur_px + dx ; x += 2)
 									if (x >= 0 && x < the_map->bloc_w_db - 1)
 									{
-										int cur_idx = the_map->map_data(x, y).unit_idx;
-										if (cur_idx >= 0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
+										const int cur_idx = the_map->map_data(x, y).unit_idx;
+										if (cur_idx >= 0 && cur_idx < (int)units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
 											&& unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe )		// This unit is on the sight_map since dx = sightdistance !!
 										{
 											enemy_idx = cur_idx;
 											break;
 										}
 									}
-							if (enemy_idx>=0)	break;
+							if (enemy_idx >= 0)	break;
 							sx ^= 1;
 						}
-						if (enemy_idx >= 0 )					// Annihilate it !!!
+						if (enemy_idx >= 0)					// Annihilate it !!!
 							toggle_self_destruct();
 					}
 					break;
@@ -3086,7 +3092,7 @@ namespace TA3D
 							{
 								if (pType->TransportMaxUnits == 1)// Code for units like the arm atlas
 								{
-									if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
+									if (attached_list[0] >= 0 && attached_list[0] < (int)units.max_unit				// Check we can do that
 										&& units.unit[ attached_list[0] ].flags && can_be_built( Pos, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
 										launchScript(SCRIPT_EndTransport);
 
@@ -3098,7 +3104,7 @@ namespace TA3D
 										target_unit->draw_on_map();
 										pMutex.lock();
 									}
-									else if (attached_list[0] < 0 || attached_list[0] >= units.max_unit
+									else if (attached_list[0] < 0 || attached_list[0] >= (int)units.max_unit
 											 || units.unit[ attached_list[0] ].flags == 0 )
 										nb_attached = 0;
 
@@ -3106,13 +3112,13 @@ namespace TA3D
 								}
 								else
 								{
-									if (attached_list[ nb_attached - 1 ] >= 0 && attached_list[ nb_attached - 1 ] < units.max_unit				// Check we can do that
+									if (attached_list[ nb_attached - 1 ] >= 0 && attached_list[ nb_attached - 1 ] < (int)units.max_unit				// Check we can do that
 										&& units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->getTarget().getPos(), units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
-										int idx = attached_list[ nb_attached - 1 ];
-										int param[]= { idx, PACKXZ( mission->getTarget().getPos().x * 2.0f + the_map->map_w, mission->getTarget().getPos().z * 2.0f + the_map->map_h ) };
+										const int idx = attached_list[ nb_attached - 1 ];
+										int param[] = { idx, PACKXZ( mission->getTarget().getPos().x * 2.0f + (float)the_map->map_w, mission->getTarget().getPos().z * 2.0f + (float)the_map->map_h ) };
 										launchScript(SCRIPT_TransportDrop, 2, param);
 									}
-									else if (attached_list[ nb_attached - 1 ] < 0 || attached_list[ nb_attached - 1 ] >= units.max_unit
+									else if (attached_list[ nb_attached - 1 ] < 0 || attached_list[ nb_attached - 1 ] >= (int)units.max_unit
 											 || units.unit[ attached_list[ nb_attached - 1 ] ].flags == 0 )
 										nb_attached--;
 								}
@@ -3172,7 +3178,7 @@ namespace TA3D
 										launchScript(SCRIPT_BeginTransport, 1, param);
 										runScriptFunction( SCRIPT_QueryTransport, 1, param);
 										target_unit->attached = true;
-										link_list[nb_attached] = param[0];
+										link_list[nb_attached] = (short)param[0];
 										target_unit->hidden = param[0] < 0;
 										attached_list[nb_attached++] = target_unit->idx;
 										target_unit->clear_from_map();
@@ -3298,12 +3304,12 @@ namespace TA3D
 									{
 										// Récupère l'unité
 										const UnitType* const pTargetType = unit_manager.unit_type[target_unit->type_id];
-										const float recup = std::min(dt * pType->WorkerTime * pTargetType->MaxDamage * target_unit->damage_modifier() / ((isVeteran() ? 5.5f : 11.0f) * pTargetType->BuildCostMetal),
+										const float recup = std::min(dt * float(pType->WorkerTime * pTargetType->MaxDamage) * target_unit->damage_modifier() / ((isVeteran() ? 5.5f : 11.0f) * (float)pTargetType->BuildCostMetal),
 																	 target_unit->hp);
 
 										target_unit->hp -= recup;
 										if (dt > 0.0f)
-											metal_prod += recup * pTargetType->BuildCostMetal / (dt * pTargetType->MaxDamage);
+											metal_prod += recup * (float)pTargetType->BuildCostMetal / (dt * (float)pTargetType->MaxDamage);
 										if (target_unit->hp <= 0.0f)		// Work done
 										{
 											target_unit->flags |= 0x10;			// This unit is being reclaimed it doesn't explode!
@@ -3362,13 +3368,13 @@ namespace TA3D
 
 								playSound( "working" );
 								// Reclaim the object
-								Feature *feature = feature_manager.getFeaturePointer(features.feature[mission->getData()].type);
-								const float recup = std::min(dt * pType->WorkerTime * feature->damage / (5.5f * feature->metal), features.feature[mission->getData()].hp);
+								const Feature *feature = feature_manager.getFeaturePointer(features.feature[mission->getData()].type);
+								const float recup = std::min(dt * float(pType->WorkerTime * feature->damage) / (5.5f * (float)feature->metal), features.feature[mission->getData()].hp);
 								features.feature[mission->getData()].hp -= recup;
 								if (dt > 0.0f && mission->mission() == MISSION_RECLAIM)
 								{
-									metal_prod += recup * feature->metal / (dt * feature->damage);
-									energy_prod += recup * feature->energy / (dt * feature->damage);
+									metal_prod += recup * (float)feature->metal / (dt * (float)feature->damage);
+									energy_prod += recup * (float)feature->energy / (dt * (float)feature->damage);
 								}
 								if (features.feature[mission->getData()].hp <= 0.0f)		// Job done
 								{
@@ -3544,7 +3550,7 @@ namespace TA3D
 						{
 							const int dx = pType->SightDistance;
 							std::deque<UnitTKit::T> friends;
-							units.kdTreeFriends[owner_id]->maxDistanceQuery(friends, Pos, dx);
+							units.kdTreeFriends[owner_id]->maxDistanceQuery(friends, Pos, (float)dx);
 							bool done = false;
 
 							for(std::deque<UnitTKit::T>::const_iterator i = friends.begin() ; i != friends.end() ; ++i)
@@ -3574,7 +3580,7 @@ namespace TA3D
 						{
 							mission->Flags() |= MISSION_FLAG_DONT_STOP_MOVE;
 
-							if (hp < pType->MaxDamage * 0.75f && !attacked && pad_timer >= 5.0f ) // Check if a repair pad is free
+							if (hp < (float)pType->MaxDamage * 0.75f && !attacked && pad_timer >= 5.0f ) // Check if a repair pad is free
 							{
 								bool attacking = false;
 								for (uint32 i = 0 ; i < weapon.size() ; ++i)
@@ -3593,8 +3599,8 @@ namespace TA3D
 									units.kdTreeRepairPads[owner_id]->maxDistanceQuery(repair_pads, Pos, pType->ManeuverLeashLength);
 									for (std::deque<UnitTKit::T>::const_iterator i = repair_pads.begin(); i != repair_pads.end() && !going_to_repair_pad ; ++i)
 									{
-										const Unit* const pUnit = (Unit*)i->first;
-										if ((pUnit->pad1 == 0xFFFF || pUnit->pad2 == 0xFFFF) && pUnit->build_percent_left == 0.0f) // He can repair us :)
+										const Unit* const pUnit = i->first;
+										if ((pUnit->pad1 == 0xFFFF || pUnit->pad2 == 0xFFFF) && Yuni::Math::Zero(pUnit->build_percent_left)) // He can repair us :)
 											{
 												add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &(pUnit->Pos), true, 0, (void*)pUnit);
 												going_to_repair_pad = true;
@@ -3667,7 +3673,7 @@ namespace TA3D
 						{
 							if (target_unit)				// Check if we can target the unit
 							{
-								byte mask = 1 << owner_id;
+								const byte mask = byte(1 << owner_id);
 								if (target_unit->cloaked && !target_unit->is_on_radar( mask ))
 								{
 									for (uint32 i = 0 ; i < weapon.size() ; ++i)
@@ -3804,8 +3810,8 @@ namespace TA3D
 					}
 					break;
 				case MISSION_GUARD_NOMOVE:
-					mission->Flags() |= MISSION_FLAG_CAN_ATTACK;
-					mission->Flags() &= ~MISSION_FLAG_MOVE;
+					setFlag(mission->Flags(), MISSION_FLAG_CAN_ATTACK);
+					unsetFlag(mission->Flags(), MISSION_FLAG_MOVE);
 					if (mission.hasNext())
 						next_mission();
 					break;
@@ -3870,22 +3876,22 @@ namespace TA3D
 						Unit *target_unit = mission->getUnit();
 						if (target_unit != NULL
 							&& (target_unit->flags & 1)
-							&& target_unit->build_percent_left == 0.0f)
+							&& Yuni::Math::Zero(target_unit->build_percent_left))
 						{
 							if (target_unit->hp >= unit_manager.unit_type[target_unit->type_id]->MaxDamage
 								|| !pType->BMcode)
 							{
                                 if (pType->BMcode)
-									target_unit->hp = unit_manager.unit_type[target_unit->type_id]->MaxDamage;
+									target_unit->hp = (float)unit_manager.unit_type[target_unit->type_id]->MaxDamage;
 								next_mission();
 							}
 							else
 							{
 								Vector3D Dir = target_unit->Pos - Pos;
 								Dir.y = 0.0f;
-								float dist = Dir.sq();
-								int maxdist = (int)(pType->BuildDistance
-												  + ( (unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1 ) );
+								const float dist = Dir.sq();
+								const int maxdist = (int)pType->BuildDistance
+													+ ((unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1);
 								if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 								{
 									mission->Flags() |= MISSION_FLAG_MOVE;
@@ -3914,7 +3920,7 @@ namespace TA3D
 											g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
 										}
 
-										const float conso_energy = ((float)(pType->WorkerTime * unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy)) / unit_manager.unit_type[target_unit->type_id]->BuildTime;
+										const float conso_energy = ((float)(pType->WorkerTime * unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy)) / (float)unit_manager.unit_type[target_unit->type_id]->BuildTime;
 										TA3D::players.requested_energy[owner_id] += conso_energy;
 										if (players.energy[owner_id] >= (energy_cons + conso_energy * TA3D::players.energy_factor[owner_id]) * dt)
 										{
@@ -3922,7 +3928,7 @@ namespace TA3D
 											const UnitType *pTargetType = unit_manager.unit_type[target_unit->type_id];
 											const float maxdmg = float(pTargetType->MaxDamage);
 											target_unit->hp = std::min(maxdmg,
-																	   target_unit->hp + dt * TA3D::players.energy_factor[owner_id] * pType->WorkerTime * maxdmg / pTargetType->BuildTime);
+																	   target_unit->hp + dt * TA3D::players.energy_factor[owner_id] * (float)pType->WorkerTime * maxdmg / (float)pTargetType->BuildTime);
 										}
 										target_unit->built = true;
 									}
@@ -3933,9 +3939,9 @@ namespace TA3D
 						{
 							Vector3D Dir = target_unit->Pos - Pos;
 							Dir.y = 0.0f;
-							float dist = Dir.sq();
-							int maxdist = (int)(pType->BuildDistance
-											  + ( (unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1 ));
+							const float dist = Dir.sq();
+							const int maxdist = (int)pType->BuildDistance
+												+ ((unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1);
 							if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 							{
 								c_time = 0.0f;
@@ -3996,10 +4002,10 @@ namespace TA3D
 									g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
 								}
 
-								mission->Flags() &= ~MISSION_FLAG_CAN_ATTACK;			// Don't attack when building
+								unsetFlag(mission->Flags(), MISSION_FLAG_CAN_ATTACK);			// Don't attack when building
 
-                                float conso_metal=((float)(pType->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostMetal))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
-                                float conso_energy=((float)(pType->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+								const float conso_metal = ((float)(pType->WorkerTime * unit_manager.unit_type[target_unit->type_id]->BuildCostMetal)) / (float)unit_manager.unit_type[target_unit->type_id]->BuildTime;
+								const float conso_energy = ((float)(pType->WorkerTime * unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy)) / (float)unit_manager.unit_type[target_unit->type_id]->BuildTime;
 
 								TA3D::players.requested_energy[owner_id] += conso_energy;
 								TA3D::players.requested_metal[owner_id] += conso_metal;
@@ -4010,14 +4016,14 @@ namespace TA3D
 									metal_cons += conso_metal * resource_min_factor;
 									energy_cons += conso_energy * resource_min_factor;
 									const UnitType *pTargetType = unit_manager.unit_type[target_unit->type_id];
-									const float base = dt * resource_min_factor * pType->WorkerTime;
+									const float base = dt * resource_min_factor * (float)pType->WorkerTime;
 									const float maxdmg = float(pTargetType->MaxDamage);
-									target_unit->build_percent_left = std::max(0.0f, target_unit->build_percent_left - base * 100.0f / pTargetType->BuildTime);
-									target_unit->hp = std::min(maxdmg, target_unit->hp + base * maxdmg / pTargetType->BuildTime);
+									target_unit->build_percent_left = std::max(0.0f, target_unit->build_percent_left - base * 100.0f / (float)pTargetType->BuildTime);
+									target_unit->hp = std::min(maxdmg, target_unit->hp + base * maxdmg / (float)pTargetType->BuildTime);
 								}
                                 if (!pType->BMcode)
 								{
-									int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
+									const int buildinfo = runScriptFunction(SCRIPT_QueryBuildInfo);
 									if (buildinfo >= 0)
 									{
 										compute_model_coord();
@@ -4032,8 +4038,8 @@ namespace TA3D
 										}
 										else
 										{
-											target_unit->cur_px = ((int)(target_unit->Pos.x)+the_map->map_w_d+4)>>3;
-											target_unit->cur_py = ((int)(target_unit->Pos.z)+the_map->map_h_d+4)>>3;
+											target_unit->cur_px = ((int)(target_unit->Pos.x) + the_map->map_w_d + 4) >> 3;
+											target_unit->cur_py = ((int)(target_unit->Pos.z) + the_map->map_h_d + 4) >> 3;
 										}
 										target_unit->Angle = Angle;
 										target_unit->Angle.y += data.data[buildinfo].axe[1].angle;
@@ -4066,11 +4072,11 @@ namespace TA3D
 						Vector3D Dir = mission->getTarget().getPos() - Pos;
 						Dir.y = 0.0f;
 						const float dist = Dir.sq();
-						const int maxdist = (int)(pType->BuildDistance
-											+ ( (unit_manager.unit_type[mission->getData()]->FootprintX + unit_manager.unit_type[mission->getData()]->FootprintZ) << 1 ) );
+						const int maxdist = (int)pType->BuildDistance
+											+ ((unit_manager.unit_type[mission->getData()]->FootprintX + unit_manager.unit_type[mission->getData()]->FootprintZ) << 1);
 						if (dist > maxdist * maxdist && pType->BMcode)	// Si l'unité est trop loin du chantier
 						{
-							mission->Flags() |= MISSION_FLAG_MOVE;
+							setFlag(mission->Flags(), MISSION_FLAG_MOVE);
 							mission->setMoveData( maxdist * 7 / 80 );
 						}
 						else
@@ -4223,16 +4229,16 @@ namespace TA3D
                 if (pType->canfly && !pType->hoverattack)			// Un avion?? / A plane ?
                 {
                     activate();
-					mission->Flags() &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
-					Vector3D J,I,K(0.0f, 1.0f, 0.0f);
+					unsetFlag(mission->Flags(), MISSION_FLAG_MOVE);			// We're doing it here, so no need to do it twice
+					Vector3D J, I, K(0.0f, 1.0f, 0.0f);
 					Vector3D Target = mission->getTarget().getPos();
 					J = Target - Pos;
                     J.y = 0.0f;
-                    float dist = J.norm();
+					const float dist = J.norm();
 					mission->setLastD(dist);
                     if (dist > 0.0f)
                         J = 1.0f / dist * J;
-                    if (dist > pType->ManeuverLeashLength * 0.5f)
+					if (dist > (float)pType->ManeuverLeashLength * 0.5f)
                     {
                         b_TargetAngle = true;
                         f_TargetAngle = acosf(J.z) * RAD2DEG;
@@ -4247,7 +4253,7 @@ namespace TA3D
                     I.x = J.z;
                     I.y = 0.0f;
 					V = (V % K) * K + (V % J) * J + units.exp_dt_4 * (V % I) * I;
-                    float speed = V.sq();
+					const float speed = V.sq();
                     if (speed < pType->MaxVelocity * pType->MaxVelocity)
 						V = V + pType->Acceleration * dt * J;
                 }
@@ -4261,18 +4267,18 @@ namespace TA3D
                 if (flying)             // Brawler and construction aircrafts animation
                 {
                     activate();
-					mission->Flags() &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
+					unsetFlag(mission->Flags(), MISSION_FLAG_MOVE);			// We're doing it here, so no need to do it twice
                     Vector3D K(0.0f, 1.0f, 0.0f);
 					Vector3D J = mission->getTarget().getPos() - Pos;
                     J.y = 0.0f;
-                    float dist = J.norm();
+					const float dist = J.norm();
                     if (dist > 0.0f)
                         J = 1.0f / dist * J;
                     b_TargetAngle = true;
                     f_TargetAngle = acosf(J.z) * RAD2DEG;
                     if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
 
-                    float ideal_dist = pType->SightDistance * 0.25f;
+					float ideal_dist = (float)pType->SightDistance * 0.25f;
 					switch (mission->mission())
                     {
                     case MISSION_BUILD_2:
@@ -4290,7 +4296,7 @@ namespace TA3D
                         J.z = sinf(Angle.y * DEG2RAD);
                         J.x = -cosf(Angle.y * DEG2RAD);
                         J.y = 0.0f;
-                        V = units.exp_dt_4 * V + (dt * dist * Math::Max(8.0f * (cosf(PI * ((float)units.current_tick) / TICKS_PER_SEC) - 0.5f), 0.0f)) * J;
+						V = units.exp_dt_4 * V + (dt * dist * Math::Max(8.0f * (cosf(PI * ((float)units.current_tick) / (float)TICKS_PER_SEC) - 0.5f), 0.0f)) * J;
                     }
                     else
                     {
@@ -4300,7 +4306,7 @@ namespace TA3D
                         J = (J % V) * J;
                         V = (V - J) + units.exp_dt_4 * J;
                     }
-                    float speed = V.sq();
+					const float speed = V.sq();
                     if (speed > pType->MaxVelocity * pType->MaxVelocity)
                         V = pType->MaxVelocity / V.norm() * V;
                 }
@@ -4309,7 +4315,7 @@ namespace TA3D
 				if (pType->canfly)             // Aircrafts fly around guarded units
 				{
 					activate();
-					mission->Flags() &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
+					unsetFlag(mission->Flags(), MISSION_FLAG_MOVE);			// We're doing it here, so no need to do it twice
 					Vector3D J = mission->getTarget().getPos() - Pos;
 					J.y = 0.0f;
 					const float dist = J.norm();
@@ -4318,7 +4324,7 @@ namespace TA3D
 					b_TargetAngle = true;
 					f_TargetAngle = acosf(J.z) * RAD2DEG;
 					if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
-					const float ideal_dist = pType->SightDistance;
+					const float ideal_dist = (float)pType->SightDistance;
 
 					Vector3D acc;
 					if (dist > 2.0f * ideal_dist)
@@ -4355,13 +4361,13 @@ namespace TA3D
 					&& !( pType->canhover && Pos.y <= the_map->sealvl ))
 				{
 					Vector3D I,J,K,A,B,C;
-					Matrix M = RotateY((Angle.y+90.0f)*DEG2RAD);
+					Matrix M = RotateY((Angle.y + 90.0f) * DEG2RAD);
 					I.x = 4.0f;
 					J.z = 4.0f;
 					K.y = 1.0f;
 					A = Pos - pType->FootprintZ * I * M;
-                    B = Pos + (pType->FootprintX*I-pType->FootprintZ*J)*M;
-                    C = Pos + (pType->FootprintX*I+pType->FootprintZ*J)*M;
+					B = Pos + (pType->FootprintX * I - pType->FootprintZ * J) * M;
+					C = Pos + (pType->FootprintX * I + pType->FootprintZ * J) * M;
 					A.y = the_map->get_unit_h(A.x,A.z);	// Projete le triangle
 					B.y = the_map->get_unit_h(B.x,B.z);
 					C.y = the_map->get_unit_h(C.x,C.z);
@@ -4369,16 +4375,16 @@ namespace TA3D
 					if (D.y >= 0.0f) // On ne met pas une unité à l'envers!!
 					{
 						D.unit();
-						float dist_sq = sqrtf( D.y*D.y+D.z*D.z );
-						float angle_1= dist_sq != 0.0f ? acosf( D.y / dist_sq )*RAD2DEG : 0.0f;
-						if (D.z<0.0f)	angle_1=-angle_1;
-						D=D*RotateX(-angle_1*DEG2RAD);
-						float angle_2=VAngle(D,K)*RAD2DEG;
-						if (D.x>0.0f)	angle_2=-angle_2;
+						const float dist_sq = sqrtf( D.y * D.y + D.z * D.z );
+						float angle_1 = !Yuni::Math::Zero(dist_sq) ? acosf( D.y / dist_sq ) * RAD2DEG : 0.0f;
+						if (D.z < 0.0f)	angle_1 = -angle_1;
+						D = D * RotateX(-angle_1 * DEG2RAD);
+						float angle_2 = VAngle(D, K) * RAD2DEG;
+						if (D.x > 0.0f)	angle_2 = -angle_2;
 						if (fabsf(angle_1 - Angle.x) <= 180.0f && fabsf(angle_2 - Angle.z) <= 180.0f)
 						{
-							Angle.x=angle_1;
-							Angle.z=angle_2;
+							Angle.x = angle_1;
+							Angle.z = angle_2;
 						}
 					}
 				}
@@ -4424,12 +4430,12 @@ namespace TA3D
 							dx = pType->weapon[i]->range >> 1;
 					if (pType->kamikaze && pType->kamikazedistance > dx)
 						dx = pType->kamikazedistance;
-					const byte mask = 1 << owner_id;
+					const byte mask = byte(1 << owner_id);
 
 					std::deque<UnitTKit::T> possibleTargets;
 					for(int i = 0 ; i < NB_PLAYERS ; ++i)
 						if (i != owner_id && !(players.team[owner_id] & players.team[i]))
-							units.kdTree[i]->maxDistanceQuery(possibleTargets, Pos, dx);
+							units.kdTree[i]->maxDistanceQuery(possibleTargets, Pos, float(dx));
 
 					for(std::deque<UnitTKit::T>::iterator i = possibleTargets.begin() ; enemy_idx == -1 && i != possibleTargets.end() ; ++i)
 					{
@@ -4494,13 +4500,13 @@ namespace TA3D
 				}
                 if (weapon.size() > 0 && pType->antiweapons && pType->weapon[0])
 				{
-					float coverage = pType->weapon[0]->coverage*pType->weapon[0]->coverage;
-					float range = pType->weapon[0]->range*pType->weapon[0]->range >> 2;
+					const float coverage = pType->weapon[0]->coverage * pType->weapon[0]->coverage;
+					const float range = float(pType->weapon[0]->range * pType->weapon[0]->range >> 2);
 					int enemy_idx = -1;
 					int e = 0;
 					for(int i = 0 ; i + e < mem_size ; ++i)
 					{
-						if (memory[i + e] < 0 || memory[i + e] >= weapons.nb_weapon || weapons.weapon[memory[i + e]].weapon_id == -1)
+						if (memory[i + e] >= weapons.nb_weapon || weapons.weapon[memory[i + e]].weapon_id == -1)
 						{
 							++e;
 							--i;
@@ -4513,29 +4519,29 @@ namespace TA3D
 					weapons.lock();
 					for(std::vector<uint32>::iterator f = weapons.idx_list.begin() ; f != weapons.idx_list.end() ; ++f)
 					{
-						uint32 i = *f;
+						const uint32 i = *f;
 						// Yes we don't defend against allies :D, can lead to funny situations :P
-						if (weapons.weapon[i].weapon_id!=-1 && !(players.team[ units.unit[weapons.weapon[i].shooter_idx].owner_id ] & players.team[ owner_id ])
+						if (weapons.weapon[i].weapon_id != -1 && !(players.team[ units.unit[weapons.weapon[i].shooter_idx].owner_id ] & players.team[ owner_id ])
 							&& weapon_manager.weapon[weapons.weapon[i].weapon_id].targetable)
 						{
-							if (((Vector3D)(weapons.weapon[i].target_pos-Pos)).sq()<=coverage
-								&& ((Vector3D)(weapons.weapon[i].Pos-Pos)).sq()<=range)
+							if (((Vector3D)(weapons.weapon[i].target_pos-Pos)).sq() <= coverage
+								&& ((Vector3D)(weapons.weapon[i].Pos-Pos)).sq() <= range)
 							{
-								int idx=-1;
-								for (e = 0; e < mem_size; ++e)
+								int idx = -1;
+								for (e = 0 ; e < mem_size ; ++e)
 								{
 									if (memory[e] == i)
 									{
-										idx=i;
+										idx = i;
 										break;
 									}
 								}
 								if (idx == -1)
 								{
-									enemy_idx=i;
+									enemy_idx = i;
 									if (mem_size < TA3D_PLAYERS_HARD_LIMIT)
 									{
-										memory[mem_size]=i;
+										memory[mem_size] = i;
 										mem_size++;
 									}
 									break;
@@ -4545,7 +4551,7 @@ namespace TA3D
 					}
 					weapons.unlock();
 					lock();
-					if (enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
+					if (enemy_idx >= 0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
 						add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,
 									&(weapons.weapon[enemy_idx].Pos),
 									false, 0, &(weapons.weapon[enemy_idx]), 12);	// 12 = 4 | 8, targets a weapon and automatic fire
@@ -4562,32 +4568,32 @@ namespace TA3D
 			virtual_G.x = virtual_G.z = 0.0f;		// Standard gravity vector
 			virtual_G.y = -4.0f * units.g_dt;
 			float d = J.sq();
-			if (d)
+			if (!Yuni::Math::Zero(d))
 				virtual_G = virtual_G + (((old_V - V) % J) / d) * J;		// Add the opposite of the speed derivative projected on the side of the unit
 
 			d = virtual_G.norm();
-			if (d)
+			if (!Yuni::Math::Zero(d))
 			{
 				virtual_G = -1.0f / d * virtual_G;
 
 				d = sqrtf(virtual_G.y*virtual_G.y+virtual_G.z*virtual_G.z);
-				float angle_1 = (d != 0.0f) ? acosf(virtual_G.y/d)*RAD2DEG : 0.0f;
-				if (virtual_G.z<0.0f)	angle_1 = -angle_1;
+				float angle_1 = !Yuni::Math::Zero(d) ? acosf(virtual_G.y / d) * RAD2DEG : 0.0f;
+				if (virtual_G.z < 0.0f)	angle_1 = -angle_1;
 				virtual_G = virtual_G * RotateX(-angle_1*DEG2RAD);
 				float angle_2 = acosf( virtual_G % K )*RAD2DEG;
 				if (virtual_G.x > 0.0f)	angle_2 = -angle_2;
 
-				if (fabsf( angle_1 - Angle.x ) < 360.0f )
-                    Angle.x += 5.0f * dt * ( angle_1 - Angle.x );				// We need something continuous
-				if (fabsf( angle_2 - Angle.z ) < 360.0f )
-                    Angle.z += 5.0f * dt * ( angle_2 - Angle.z );
+				if (fabsf( angle_1 - Angle.x ) < 360.0f)
+					Angle.x += 5.0f * dt * (angle_1 - Angle.x);				// We need something continuous
+				if (fabsf( angle_2 - Angle.z ) < 360.0f)
+					Angle.z += 5.0f * dt * (angle_2 - Angle.z);
 
-				if (Angle.x < -360.0f || Angle.x > 360.0f )		Angle.x = 0.0f;
-				if (Angle.z < -360.0f || Angle.z > 360.0f )		Angle.z = 0.0f;
+				if (Angle.x < -360.0f || Angle.x > 360.0f)		Angle.x = 0.0f;
+				if (Angle.z < -360.0f || Angle.z > 360.0f)		Angle.z = 0.0f;
 			}
 		}
 
-		if (build_percent_left==0.0f)
+		if (Yuni::Math::Zero(build_percent_left))
 		{
 
 			// Change the unit's angle the way we need it to be changed
@@ -4646,7 +4652,7 @@ namespace TA3D
 					ripple_timer = units.current_tick;
 					Vector3D ripple_pos = Pos;
 					ripple_pos.y = the_map->sealvl + 1.0f;
-					fx_manager.addRipple( ripple_pos, ( ((sint32)(Math::RandomTable() % 201)) - 100 ) * 0.0001f );
+					fx_manager.addRipple( ripple_pos, float(((sint32)(Math::RandomTable() % 201)) - 100) * 0.0001f );
 				}
 			}
 		}
@@ -4656,7 +4662,7 @@ script_exec:
 			bool hover_on_water = false;
 			float min_h = the_map->get_unit_h(Pos.x,Pos.z);
 			h = Pos.y - min_h;
-            if (!pType->Floater && !pType->canfly && !pType->canhover && h > 0.0f && pType->WaterLine == 0.0f )
+			if (!pType->Floater && !pType->canfly && !pType->canhover && h > 0.0f && Yuni::Math::Zero(pType->WaterLine))
 				Pos.y = min_h;
 			else if (pType->canhover && Pos.y <= the_map->sealvl)
 			{
@@ -4667,13 +4673,13 @@ script_exec:
 			}
             else if (pType->Floater)
 			{
-				Pos.y = the_map->sealvl + pType->AltFromSeaLevel * H_DIV;
+				Pos.y = the_map->sealvl + (float)pType->AltFromSeaLevel * H_DIV;
 				V.y = 0.0f;
 			}
-            else if (pType->WaterLine)
+			else if (!Yuni::Math::Zero(pType->WaterLine))
 			{
 				Pos.y = the_map->sealvl - pType->WaterLine * H_DIV;
-				V.y=0.0f;
+				V.y = 0.0f;
 			}
 			else if (!pType->canfly && Pos.y > Math::Max( min_h, the_map->sealvl ) && pType->BMcode)	// Prevent non flying units from "jumping"
 			{
@@ -4692,7 +4698,7 @@ script_exec:
 				if (V.y < 0.0f)
 					V.y = 0.0f;
 			}
-			if (pType->canfly && build_percent_left == 0.0f && local)
+			if (pType->canfly && Yuni::Math::Zero(build_percent_left) && local)
 			{
 				if (!mission.empty()
 					&& ( (mission->getFlags() & MISSION_FLAG_MOVE)
@@ -4714,7 +4720,7 @@ script_exec:
 					if (!(mission->mission() == MISSION_GET_REPAIRED
 						  && (mission->getFlags() & MISSION_FLAG_BEING_REPAIRED) ) )
 					{
-						float ideal_h = Math::Max(min_h, the_map->sealvl) + pType->CruiseAlt * H_DIV;
+						const float ideal_h = Math::Max(min_h, the_map->sealvl) + (float)pType->CruiseAlt * H_DIV;
 						V.y = (ideal_h - Pos.y) * 2.0f;
 					}
 					flying = true;
@@ -4733,17 +4739,17 @@ script_exec:
 						if (do_nothing())   // Wait for MISSION_STOP to check if we have some work to do
 						{                                                                               // This prevents planes from keeping looking for a place to land
 							Vector3D next_target = Pos;                                                 // instead of going back to work :/
-							float find_angle = (Math::RandomTable() % 360) * DEG2RAD;
-                            next_target.x += cosf( find_angle ) * (32.0f + pType->FootprintX * 8.0f);
-                            next_target.z += sinf( find_angle ) * (32.0f + pType->FootprintZ * 8.0f);
+							const float find_angle = float(Math::RandomTable() % 360) * DEG2RAD;
+							next_target.x += cosf( find_angle ) * float(32 + pType->FootprintX * 8);
+							next_target.z += sinf( find_angle ) * float(32 + pType->FootprintZ * 8);
 							add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
 						}
 					}
 				}
 			}
-			port[GROUND_HEIGHT] = (int)(Pos.y - min_h + 0.5f);
+			port[GROUND_HEIGHT] = (sint16)(Pos.y - min_h + 0.5f);
 		}
-		port[HEALTH] = (int)hp * 100 / pType->MaxDamage;
+		port[HEALTH] = (sint16)((int)hp * 100 / pType->MaxDamage);
 
 		// Update moving animation state
 		if (requestedMovingAnimationState ^ movingAnimation)
@@ -4771,7 +4777,7 @@ script_exec:
 			   || o_py != cur_py
 			   || first_move
 			   || (was_flying ^ flying)
-			   || ((port[YARD_OPEN] != 0.0f) ^ was_open)
+			   || (!Yuni::Math::Zero(port[YARD_OPEN]) ^ was_open)
 			   || yardmap_timer == 0) && build_percent_left <= 0.0f) || !drawn || (drawn && drawn_obstacle != is_obstacle())))
 		{
 			first_move = build_percent_left > 0.0f;
@@ -4890,7 +4896,7 @@ script_exec:
 		}
 		Vector3D p_target = Pos;
 		Vector3D n_target = Pos;
-		const float rab = (msec_timer % 1000) * 0.001f;
+		const float rab = float(msec_timer % 1000) * 0.001f;
 		const UnitType *pType = unit_manager.unit_type[type_id];
         uint32	remaining_build_commands = !(pType->BMcode) ? 0 : 0xFFFFFFF;
 
@@ -4902,8 +4908,8 @@ script_exec:
 			if (!only_build_commands)
 			{
 				const int curseur = anim_cursor(CURSOR_CROSS_LINK);
-				const float dx = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_x[curseur];
-				const float dz = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_y[curseur];
+				const float dx = 0.5f * (float)cursor[CURSOR_CROSS_LINK].ofs_x[curseur];
+				const float dz = 0.5f * (float)cursor[CURSOR_CROSS_LINK].ofs_y[curseur];
 				float x,y,z;
 				const float dist = ((Vector3D)(cur->lastStep().getTarget().getPos() - p_target)).norm();
 				const int rec = (int)(dist / 30.0f);
@@ -4955,8 +4961,8 @@ script_exec:
 							{
 								for (int i = 0; i < rec; ++i)
 								{
-									x = p_target.x + (n_target.x - p_target.x) * (i + rab) / rec;
-									z = p_target.z + (n_target.z - p_target.z) * (i + rab) / rec;
+									x = p_target.x + (n_target.x - p_target.x) * ((float)i + rab) / (float)rec;
+									z = p_target.z + (n_target.z - p_target.z) * ((float)i + rab) / (float)rec;
 									y = Math::Max(the_map->get_unit_h( x, z ), the_map->sealvl);
 									y += 0.75f;
 									x -= dx;
@@ -4980,8 +4986,8 @@ script_exec:
 						&& remaining_build_commands > 0)
 					{
 						--remaining_build_commands;
-						const float DX = (unit_manager.unit_type[cur->lastStep().getData()]->FootprintX<<2);
-						const float DZ = (unit_manager.unit_type[cur->lastStep().getData()]->FootprintZ<<2);
+						const float DX = float(unit_manager.unit_type[cur->lastStep().getData()]->FootprintX << 2);
+						const float DZ = float(unit_manager.unit_type[cur->lastStep().getData()]->FootprintZ << 2);
 						const byte blue = only_build_commands ? 0xFF : 0x00, green = only_build_commands ? 0x00 : 0xFF;
 						glPushMatrix();
 						glTranslatef(target.x,Math::Max( target.y, the_map->sealvl ), target.z);
@@ -5091,11 +5097,11 @@ script_exec:
 							case MISSION_CAPTURE:	cursor_type = CURSOR_CAPTURE;	break;
 						}
 						const int curseur = anim_cursor( cursor_type );
-						const float x = target.x - 0.5f * cursor[cursor_type].ofs_x[curseur];
+						const float x = target.x - 0.5f * (float)cursor[cursor_type].ofs_x[curseur];
 						const float y = target.y + 1.0f;
-						const float z = target.z - 0.5f * cursor[cursor_type].ofs_y[curseur];
-						const float sx = 0.5f * (cursor[cursor_type].bmp[curseur]->w - 1);
-						const float sy = 0.5f * (cursor[cursor_type].bmp[curseur]->h - 1);
+						const float z = target.z - 0.5f * (float)cursor[cursor_type].ofs_y[curseur];
+						const float sx = 0.5f * float(cursor[cursor_type].bmp[curseur]->w - 1);
+						const float sy = 0.5f * float(cursor[cursor_type].bmp[curseur]->h - 1);
 						if (low_def)
 							glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, cursor[cursor_type].glbmp[curseur]);
@@ -5117,8 +5123,8 @@ script_exec:
 		if (!points.empty())
 		{
 			const int curseur = anim_cursor(CURSOR_CROSS_LINK);
-			const float sx = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->w - 1);
-			const float sy = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->h - 1);
+			const float sx = 0.5f * float(cursor[CURSOR_CROSS_LINK].bmp[curseur]->w - 1);
+			const float sy = 0.5f * float(cursor[CURSOR_CROSS_LINK].bmp[curseur]->h - 1);
 
 			Vector3D* P = new Vector3D[points.size() << 2];
 			float* T = new float[points.size() << 3];
@@ -5186,7 +5192,7 @@ script_exec:
 			struct event event;
 			event.type = EVENT_WEAPON_CREATION;
 			event.opt1 = idx;
-			event.opt2 = target;
+			event.opt2 = (uint16)target;
 			event.opt3 = units.current_tick; // Will be used to extrapolate those data on client side
 			event.opt4 = pW->damage;
 			event.opt5 = owner_id;
@@ -5204,18 +5210,18 @@ script_exec:
 			network_manager.sendEvent( &event );
 		}
 
-		weapons.weapon[w_idx].damage = pW->damage;
+		weapons.weapon[w_idx].damage = (float)pW->damage;
 		weapons.weapon[w_idx].Pos = startpos;
 		weapons.weapon[w_idx].local = local;
-		if (pW->startvelocity==0.0f && !pW->selfprop)
-			weapons.weapon[w_idx].V = pW->weaponvelocity*Dir;
+		if (Yuni::Math::Zero(pW->startvelocity) && !pW->selfprop)
+			weapons.weapon[w_idx].V = pW->weaponvelocity * Dir;
 		else
-			weapons.weapon[w_idx].V = pW->startvelocity*Dir;
+			weapons.weapon[w_idx].V = pW->startvelocity * Dir;
 		//        if (pW->dropped || !pW->lineofsight)
-		weapons.weapon[w_idx].V = weapons.weapon[w_idx].V+V;
-		weapons.weapon[w_idx].owner = owner;
-		weapons.weapon[w_idx].target=target;
-		if (target >= 0 )
+		weapons.weapon[w_idx].V = weapons.weapon[w_idx].V + V;
+		weapons.weapon[w_idx].owner = (byte)owner;
+		weapons.weapon[w_idx].target = target;
+		if (target >= 0)
 		{
 			if (pW->interceptor)
 				weapons.weapon[w_idx].target_pos = weapons.weapon[target].Pos;
@@ -5259,32 +5265,32 @@ script_exec:
 				bool found = false;
 				for( int r = 1 ; r < 20 && !found ; r++ ) // Circular check
 				{
-					int r2 = r * r;
-					for( int y = 0 ; y <= r ; y++ )
+					const int r2 = r * r;
+					for (int y = 0 ; y <= r ; ++y)
 					{
-						int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
-						if (can_be_there( cur_px+x, cur_py+y, type_id, owner_id ) )
+						const int x = (int)(sqrtf(float(r2 - y * y)) + 0.5f);
+						if (can_be_there( cur_px + x, cur_py + y, type_id, owner_id ) )
 						{
 							cur_px += x;
 							cur_py += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px-x, cur_py+y, type_id, owner_id ) )
+						if (can_be_there( cur_px - x, cur_py + y, type_id, owner_id ) )
 						{
 							cur_px -= x;
 							cur_py += y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px+x, cur_py-y, type_id, owner_id ) )
+						if (can_be_there( cur_px + x, cur_py - y, type_id, owner_id ) )
 						{
 							cur_px += x;
 							cur_py -= y;
 							found = true;
 							break;
 						}
-						if (can_be_there( cur_px-x, cur_py-y, type_id, owner_id ) )
+						if (can_be_there( cur_px - x, cur_py - y, type_id, owner_id ) )
 						{
 							cur_px -= x;
 							cur_py -= y;
@@ -5295,8 +5301,8 @@ script_exec:
 				}
 				if (found)
 				{
-					Pos.x = (cur_px<<3) + 4 - the_map->map_w_d;
-					Pos.z = (cur_py<<3) + 4 - the_map->map_h_d;
+					Pos.x = float((cur_px << 3) + 4 - the_map->map_w_d);
+					Pos.z = float((cur_py << 3) + 4 - the_map->map_h_d);
 					if (!mission.empty() && (mission->getFlags() & MISSION_FLAG_MOVE))
 						mission->Flags() |= MISSION_FLAG_REFRESH_PATH;
 				}
@@ -5311,15 +5317,15 @@ script_exec:
 				the_map->obstaclesRect( cur_px - (pType->FootprintX >> 1),
 										cur_py - (pType->FootprintZ >> 1),
 										pType->FootprintX, pType->FootprintZ, true,
-										pType->yardmap, port[YARD_OPEN] != 0.0f);
+										pType->yardmap, !Yuni::Math::Zero(port[YARD_OPEN]));
 			the_map->rect( cur_px - (pType->FootprintX >> 1),
 							 cur_py - (pType->FootprintZ >> 1),
 							 pType->FootprintX, pType->FootprintZ,
-							 idx, pType->yardmap, port[YARD_OPEN] != 0.0f );
+							 idx, pType->yardmap, !Yuni::Math::Zero(port[YARD_OPEN]) );
 			the_map->energy.add(pType->gRepulsion,
 								  cur_px - (pType->gRepulsion.getWidth() >> 1),
 								  cur_py - (pType->gRepulsion.getHeight() >> 1));
-			drawn_open = port[YARD_OPEN]!=0.0f;
+			drawn_open = !Yuni::Math::Zero(port[YARD_OPEN]);
 		}
 		drawn_x = cur_px;
 		drawn_y = cur_py;
@@ -5357,14 +5363,14 @@ script_exec:
 
 	void Unit::draw_on_FOW( bool jamming )
 	{
-		if (hidden || build_percent_left != 0.0f )
+		if (hidden || !Yuni::Math::Zero(build_percent_left))
 			return;
 
-		int unit_type = type_id;
+		const int unit_type = type_id;
 
 		if (flags == 0 || unit_type == -1)  return;
 
-		bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[unit_type]->onoffable) || !unit_manager.unit_type[unit_type]->onoffable;
+		const bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[unit_type]->onoffable) || !unit_manager.unit_type[unit_type]->onoffable;
 
 		if (jamming )
 		{
@@ -5375,11 +5381,11 @@ script_exec:
 		}
 		else
 		{
-			sint16 cur_sight = ((int)h + unit_manager.unit_type[unit_type]->SightDistance) >> 4;
+			uint32 cur_sight = ((int)h + unit_manager.unit_type[unit_type]->SightDistance) >> 4;
 			radar_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistance >> 4) : 0;
 			sonar_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistance >> 4) : 0;
 
-			the_map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
+			the_map->update_player_visibility(owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight);
 
 			sight = cur_sight;
 			old_px = cur_px;
@@ -5392,10 +5398,10 @@ script_exec:
 	void Unit::playSound(const String &key)
 	{
 		pMutex.lock();
-		if (owner_id == players.local_human_id && msec_timer - last_time_sound >= units.sound_min_ticks )
+		if (owner_id == players.local_human_id && int(msec_timer - last_time_sound) >= units.sound_min_ticks )
 		{
 			last_time_sound = msec_timer;
-            UnitType *pType = unit_manager.unit_type[type_id];
+			const UnitType *pType = unit_manager.unit_type[type_id];
             sound_manager->playTDFSound(pType->soundcategory, key , &Pos);
 		}
 		pMutex.unlock();
@@ -5405,7 +5411,7 @@ script_exec:
 
 	int Unit::launchScript(const int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
 	{
-        int type = type_id;
+		const int type = type_id;
         if (!script || type == -1 || !unit_manager.unit_type[type]->script || !unit_manager.unit_type[type]->script->isCached(id))
             return -2;
         const String& f_name = UnitScriptInterface::get_script_name(id);
@@ -5419,7 +5425,7 @@ script_exec:
 			struct event event;
 			event.type = EVENT_UNIT_SCRIPT;
 			event.opt1 = idx;
-			event.opt2 = id;
+			event.opt2 = (uint16)id;
 			event.opt3 = nb_param;
 			memcpy(event.str, param, sizeof(int) * nb_param);
 			network_manager.sendEvent(&event);
@@ -5483,7 +5489,7 @@ script_exec:
 		units.hbars_color.push_back(color);
 		units.hbars_color.push_back(color);
 		units.hbars_color.push_back(color);
-		const float pw = w * (2.0f * (hp / maxdmg) - 1.0f);
+		const float pw = w * (2.0f * (hp / (float)maxdmg) - 1.0f);
 		units.hbars.push_back(vPos - w * Camera::inGame->side + h * Camera::inGame->up);
 		units.hbars.push_back(vPos + pw * Camera::inGame->side + h * Camera::inGame->up);
 		units.hbars.push_back(vPos + pw * Camera::inGame->side - h * Camera::inGame->up);

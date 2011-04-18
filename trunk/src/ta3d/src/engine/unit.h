@@ -71,7 +71,7 @@ namespace TA3D
 		float damage_modifier() const
 		{return port[ARMORED] ? unit_manager.unit_type[type_id]->DamageModifier : 1.0f;}
 
-		bool isEnemy(const int t);
+		bool isEnemy(const int t) const;
 
 		void draw_on_map();
 		void clear_from_map();
@@ -190,7 +190,7 @@ namespace TA3D
 		RenderData				render;			// Store render data in a sub object
 		Model					*model;			// Modèle représentant l'objet
 		byte					owner_id;		// Numéro du propriétaire de l'unité
-		short					type_id;		// Type d'unité
+		int						type_id;		// Type d'unité
 		float					hp;				// Points de vie restant à l'unité
 		Vector3D				Pos;			// Vecteur position
 		Vector3D				V;				// Vitesse de l'unité
@@ -224,17 +224,17 @@ namespace TA3D
 		bool					built;			// Indique si l'unité est en cours de construction (par une autre unité)
 		bool					attacked;		// Indique si l'unité est attaquée
 		float					planned_weapons;	// Armes en construction / all is in the name
-		int						*memory;		// Pour se rappeler sur quelles armes on a déjà tiré
-		byte					mem_size;
+		uint32					*memory;		// Pour se rappeler sur quelles armes on a déjà tiré
+		int						mem_size;
 		bool					attached;
 		short					*attached_list;
 		short					*link_list;
-		byte					nb_attached;
+		int						nb_attached;
 		bool					just_created;
 		bool					first_move;
 		int						severity;
-		sint16					cur_px;
-		sint16					cur_py;
+		int						cur_px;
+		int						cur_py;
 		float					metal_prod;
 		float					metal_cons;
 		float					energy_prod;
@@ -265,13 +265,13 @@ namespace TA3D
 		bool			drawn;
 
 		// Following variables are used to control the drawing of FOW data
-		uint16			sight;
-		uint16			radar_range;
-		uint16			sonar_range;
-		uint16			radar_jam_range;
-		uint16			sonar_jam_range;
-		sint16			old_px;
-		sint16			old_py;
+		uint32			sight;
+		uint32			radar_range;
+		uint32			sonar_range;
+		uint32			radar_jam_range;
+		uint32			sonar_jam_range;
+		sint32			old_px;
+		sint32			old_py;
 
 		Vector3D		move_target_computed;
 		float			was_locked;
@@ -286,8 +286,8 @@ namespace TA3D
 
 		bool			command_locked;		// Used for missions
 
-		uint8			yardmap_timer;		// To redraw the unit on yardmap periodically
-		uint8			death_timer;		// To remove dead units
+		uint32			yardmap_timer;		// To redraw the unit on yardmap periodically
+		uint32			death_timer;		// To remove dead units
 
 		// Following variables are used to control the synchronization of data between game clients
 		uint32			sync_hash;

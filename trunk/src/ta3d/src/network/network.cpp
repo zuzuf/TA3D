@@ -534,10 +534,10 @@ namespace TA3D
 	int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all)
 	{
 		if (src_id == -1)
-			chat->from = myID;
+			chat->from = (uint16)myID;
 		if (myMode == 1)
 		{				// Server mode
-			if( chat == NULL )	return -1;
+			if (chat == NULL)	return -1;
 			int v = 0;
 			for(int i = 1 ; i <= players.getMaxId() ; i++)
 			{
@@ -605,7 +605,7 @@ namespace TA3D
 	int Network::sendChat(struct chat* chat, int src_id)
 	{
 		if (src_id == -1)
-			chat->from = myID;
+			chat->from = (uint16)myID;
 		if (myMode == 1)				// Server mode
 		{
 			if (chat == NULL)	return -1;
@@ -626,7 +626,7 @@ namespace TA3D
 		return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 	}
 
-	int Network::sendFileData( int player, uint16 port, byte *data, int size )
+	int Network::sendFileData( int player, uint16 port, const byte *data, int size )
 	{
 		TA3DSock *sock = players.getSock( player );
 		if (sock)
@@ -642,7 +642,7 @@ namespace TA3D
 		return -1;
 	}
 
-	int Network::sendFileResponse( int player, uint16 port, byte *data, int size )
+	int Network::sendFileResponse( int player, uint16 port, const byte *data, int size )
 	{
 		TA3DSock *sock = players.getSock( player );
 		if (sock)
@@ -927,7 +927,7 @@ namespace TA3D
 		}
 
 		ft2mutex.unlock();
-		return size ? 100.0f * pos / size : 100.0f;
+		return size ? 100.0f * (float)pos / (float)size : 100.0f;
 	}
 
 	void Network::updateFileTransferInformation( String id, int size, int pos )
