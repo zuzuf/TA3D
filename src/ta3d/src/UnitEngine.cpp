@@ -253,7 +253,7 @@ namespace TA3D
 		t.y = map->get_max_rect_h((int)t.x, (int)t.z, unit_manager.unit_type[unit_type_id]->FootprintX,
 								  unit_manager.unit_type[unit_type_id]->FootprintZ);
 		if (unit_manager.unit_type[unit_type_id]->floatting())
-			t.y = Math::Max(t.y,map->sealvl+(unit_manager.unit_type[unit_type_id]->AltFromSeaLevel-unit_manager.unit_type[unit_type_id]->WaterLine)*H_DIV);
+			t.y = Math::Max(t.y, map->sealvl + ((float)unit_manager.unit_type[unit_type_id]->AltFromSeaLevel - (float)unit_manager.unit_type[unit_type_id]->WaterLine) * H_DIV);
 		t.x = t.x * 8.0f - (float)map->map_w_d;
 		t.z = t.z * 8.0f - (float)map->map_h_d;
 
@@ -560,8 +560,8 @@ namespace TA3D
 
 			units.unit[id].Pos = pos;
 			units.unit[id].build_percent_left = 100.0f;
-			units.unit[id].cur_px = sint16(((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3);
-			units.unit[id].cur_py = sint16(((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3);
+			units.unit[id].cur_px = ((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3;
+			units.unit[id].cur_py = ((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3;
 			units.unit[id].birthTime = float(units.current_tick) / float(TICKS_PER_SEC);
 			units.unit[id].unlock();
 
@@ -597,13 +597,13 @@ namespace TA3D
 		if (max_depth > 0.0f && the_map->ota_data.whitefog)
 			return false;
 
-		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
+		if (dh > (float)unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
 			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= the_map->sealvl ) )
 			return false;	// Check the slope, check if hovering too
 
 		// Check if unit can be there
-		if (min_depth < unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
-			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth > unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV))
+		if (min_depth < (float)unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
+			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth > (float)unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV))
 			return false;
 
 		if (!the_map->check_vents(x, y, w, h, unit_manager.unit_type[unit_type_id]->yardmap))
@@ -638,19 +638,19 @@ namespace TA3D
 		if (max_depth > 0.0f && the_map->ota_data.whitefog)
 			return false;
 
-		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
+		if (dh > (float)unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV
 			&& !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= the_map->sealvl ) )
 			return false;	// Check the slope, check if hovering too
 
 		// Check if unit can be there
-		if (min_depth < unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
-			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth > unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV))
+		if (min_depth < (float)unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
+			|| (!unit_manager.unit_type[unit_type_id]->canhover && max_depth > (float)unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV))
 			return false;
 
 		if (!the_map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
 			return false;
 
-		if (the_map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
+		if (the_map->check_lava((x + 1) >> 1, (y + 1) >> 1, (w + 1) >> 1, (h + 1) >> 1))
 			return false;
 
 		return true;
@@ -680,12 +680,12 @@ namespace TA3D
 		if (!the_map->check_rect_discovered( x, y, w, h, 1 << player_id ) )
 			return false;
 
-		if (dh > unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV)
+		if (dh > (float)unit_manager.unit_type[unit_type_id]->MaxSlope * H_DIV)
 			return false;	// Check the slope
 
 		// Check if unit can be there
-		if (min_depth < unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
-			|| max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV)
+		if (min_depth < (float)unit_manager.unit_type[unit_type_id]->MinWaterDepth * H_DIV
+			|| max_depth > (float)unit_manager.unit_type[unit_type_id]->MaxWaterDepth * H_DIV)
 			return false;
 		//	if (depth>0 && (unit_manager.unit_type[unit_type_id]->Category&NOTSUB))	return false;
 
@@ -820,7 +820,10 @@ namespace TA3D
 			if (unit[index].type_id >= 0 && (unit[index].flags & 1) )
 			{
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id]->name);
+				gfx->print_center(gfx->normal_font,
+								  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName.x1,
+								  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,
+								  0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id]->name);
 				if (target && !unit[index].mission.empty()
 					&& (unit[index].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
 				{
@@ -829,17 +832,22 @@ namespace TA3D
 					if ((target->flags & 1) && target->type_id >= 0 )
 					{
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-						gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id]->name);
+						gfx->print_center(gfx->normal_font,
+										  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1,
+										  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,
+										  0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id]->name);
 					}
 					target->unlock();
 					unit[index].lock();
 				}
-				else
-					if (unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id )
-					{
-						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-						gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,I18N::Translate("weapon"));
-					}
+				else if (unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id )
+				{
+					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+					gfx->print_center(gfx->normal_font,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,
+									  0.0f,0xFFFFFFFF,I18N::Translate("weapon"));
+				}
 
 				glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 				glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
@@ -847,12 +855,24 @@ namespace TA3D
 				if (unit[index].owner_id == players.local_human_id  )
 				{
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f, String().format("+%.2f",unit[index].cur_metal_prod));
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,String().format("-%.2f",unit[index].cur_metal_cons));
+					gfx->print_center(gfx->small_font,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,
+									  0.0f, String().format("+%.2f",unit[index].cur_metal_prod));
+					gfx->print_center(gfx->small_font,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,
+									  0.0f,String().format("-%.2f",unit[index].cur_metal_cons));
 
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,String().format("+%.2f",unit[index].cur_energy_prod));
-					gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,String().format("-%.2f",unit[index].cur_energy_cons));
+					gfx->print_center(gfx->small_font,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,
+									  0.0f,String().format("+%.2f",unit[index].cur_energy_prod));
+					gfx->print_center(gfx->small_font,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1,
+									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,
+									  0.0f,String().format("-%.2f",unit[index].cur_energy_cons));
 				}
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -888,14 +908,13 @@ namespace TA3D
 						target->unlock();
 						unit[index].lock();
 					}
-					else
-						if (unit[index].planned_weapons>0.0f )
-						{
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-						}
+					else if (unit[index].planned_weapons>0.0f )
+					{
+						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+					}
 				}
 
 				glColor3ub(0,0xFF,0);
@@ -904,14 +923,14 @@ namespace TA3D
 				{
 					const UnitType* const pType = unit_manager.unit_type[unit[index].type_id];
 					const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-					glVertex2f( side_data.DamageBar.x1,
-								side_data.DamageBar.y1 );
-					glVertex2f( side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
-								side_data.DamageBar.y1 );
-					glVertex2f( side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
-								side_data.DamageBar.y2 );
-					glVertex2f( side_data.DamageBar.x1,
-								side_data.DamageBar.y2 );
+					glVertex2f( (float)side_data.DamageBar.x1,
+								(float)side_data.DamageBar.y1 );
+					glVertex2f( (float)side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
+								(float)side_data.DamageBar.y1 );
+					glVertex2f( (float)side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
+								(float)side_data.DamageBar.y2 );
+					glVertex2f( (float)side_data.DamageBar.x1,
+								(float)side_data.DamageBar.y2 );
 				}
 
 				if (unit[index].owner_id == players.local_human_id)
@@ -924,32 +943,33 @@ namespace TA3D
 						{
 							const UnitType* const pType = unit_manager.unit_type[target->type_id];
 							const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-							glVertex2f( side_data.DamageBar2.x1,
-										side_data.DamageBar2.y1 );
-							glVertex2f( side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-										side_data.DamageBar2.y1 );
-							glVertex2f( side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-										side_data.DamageBar2.y2 );
-							glVertex2f( side_data.DamageBar2.x1,
-										side_data.DamageBar2.y2 );
+							glVertex2f( (float)side_data.DamageBar2.x1,
+										(float)side_data.DamageBar2.y1 );
+							glVertex2f( (float)side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+										(float)side_data.DamageBar2.y1 );
+							glVertex2f( (float)side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+										(float)side_data.DamageBar2.y2 );
+							glVertex2f( (float)side_data.DamageBar2.x1,
+										(float)side_data.DamageBar2.y2 );
 						}
 						target->unlock();
 						unit[index].lock();
 					}
 					else if (unit[index].planned_weapons > 0.0f) 	// construit une arme / build a weapon
-						{
-							float p = 1.0f - (unit[index].planned_weapons - float(int(unit[index].planned_weapons)));
-							if (p == 1.0f)
-								p = 0.0f;
-							const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-							glVertex2f( side_data.DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2f( side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-										side_data.DamageBar2.y1 );
-							glVertex2f( side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-										side_data.DamageBar2.y2 );
-							glVertex2f( side_data.DamageBar2.x1,
-										side_data.DamageBar2.y2 );
-						}
+					{
+						float p = 1.0f - (unit[index].planned_weapons - float(int(unit[index].planned_weapons)));
+						if (p == 1.0f)
+							p = 0.0f;
+						const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+						glVertex2f( (float)side_data.DamageBar2.x1,
+									(float)side_data.DamageBar2.y1 );
+						glVertex2f( (float)side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+									(float)side_data.DamageBar2.y1 );
+						glVertex2f( (float)side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+									(float)side_data.DamageBar2.y2 );
+						glVertex2f( (float)side_data.DamageBar2.x1,
+									(float)side_data.DamageBar2.y2 );
+					}
 				}
 
 				glEnd();
@@ -1071,7 +1091,7 @@ namespace TA3D
 				players.c_metal_s[unit[i].owner_id] += unit_manager.unit_type[unit[i].type_id]->MetalStorage;
 				players.c_energy_s[unit[i].owner_id] += unit_manager.unit_type[unit[i].type_id]->EnergyStorage;
 				players.c_commander[unit[i].owner_id] |= (unit_manager.unit_type[unit[i].type_id]->TEDclass == CLASS_COMMANDER);
-				unit[i].energy_prod += unit_manager.unit_type[unit[i].type_id]->EnergyMake;
+				unit[i].energy_prod += (float)unit_manager.unit_type[unit[i].type_id]->EnergyMake;
 				if ((unit[i].port[ACTIVATION] || !unit_manager.unit_type[unit[i].type_id]->onoffable)
 					&& unit_manager.unit_type[unit[i].type_id]->EnergyUse<=players.energy[unit[i].owner_id])
 				{
@@ -1080,7 +1100,7 @@ namespace TA3D
 						unit[i].metal_prod += unit[i].metal_extracted;
 					if (unit_manager.unit_type[unit[i].type_id]->WindGenerator) // Wind Generator
 					{
-						unit[i].energy_prod += map->wind * unit_manager.unit_type[unit[i].type_id]->WindGenerator * 0.0002f;
+						unit[i].energy_prod += map->wind * (float)unit_manager.unit_type[unit[i].type_id]->WindGenerator * 0.0002f;
 						if (wind_change)
 						{
 							int param[] = { (int)(map->wind * 50.0f) };

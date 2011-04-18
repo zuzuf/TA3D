@@ -30,9 +30,9 @@ namespace TA3D
 	{
 		MutexLocker locker(pMutex);
 		char buf[2049];
-		int size = recv(buf, 2048);
+		const int size = recv(buf, 2048);
 		if (size > 0)
-			return String(buf, strlen(buf));
+			return String(buf, (uint32)strlen(buf));
 		return String();
 	}
 }

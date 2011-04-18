@@ -108,7 +108,7 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdListFiles(String::Vector &args)
+	static bool hpiviewCmdListFiles(String::Vector &/*args*/)
 	{
 		String::Vector lArchives;
 
@@ -557,7 +557,7 @@ namespace TA3D
 
 				gfx->set_2D_mode();
 				GLuint tex = gfx->make_texture(background);
-				gfx->drawtexture(tex, 0.0f, 0.0f, background->w, background->h, 0xFFFFFFFF);
+				gfx->drawtexture(tex, 0.0f, 0.0f, (float)background->w, (float)background->h, 0xFFFFFFFF);
 				gfx->destroy_texture(tex);
 				gfx->unset_2D_mode();
 

@@ -124,19 +124,18 @@ namespace TA3D
 				if (weapon_def->tracks && target >= 0)
 				{
 					Vector3D target_V;
-					if (weapon_def->interceptor && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
+					if (weapon_def->interceptor && (uint32)target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
 					{
 						target_pos = weapons.weapon[target].Pos;
 						target_V = weapons.weapon[target].V;
 					}
+					else if (!weapon_def->interceptor && (uint32)target < units.max_unit && (units.unit[target].flags & 1)) // Met à jour les coordonnées de la cible
+					{
+						target_pos = units.unit[target].Pos;
+						target_V = units.unit[target].V;
+					}
 					else
-						if (!weapon_def->interceptor && target < units.max_unit && (units.unit[target].flags & 1)) // Met à jour les coordonnées de la cible
-						{
-							target_pos = units.unit[target].Pos;
-							target_V = units.unit[target].V;
-						}
-						else
-							target = -1;
+						target = -1;
 					const float speed = V.sq();
 					const float target_speed = target_V.sq();
 					if (speed > 0.0f && target_speed > 0.0f) // Make it aim better
@@ -227,7 +226,7 @@ namespace TA3D
 		{
 			hit = true;
 			hit_vec = Pos;
-			if (target >= 0 && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
+			if (target >= 0 && (uint32)target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
 			{
 				weapons.weapon[target].dying = true;
 				weapons.weapon[target].killtime = 0.0f;
@@ -251,7 +250,7 @@ namespace TA3D
 				if ((it->first->owner_id != owner || target == t_idx) && (it->first->flags & 1) ) // No Friendly Fire
 				{
 					Vector3D t_vec;
-					u_hit = ((Unit*)(it->first))->hit_fast(OPos, Dir, &t_vec, length);
+					u_hit = const_cast<Unit*>(it->first)->hit_fast(OPos, Dir, &t_vec, length);
 					if (u_hit)
 					{
 						if ((t_vec - Pos) % V <= 0.0f) // Touché
@@ -311,7 +310,7 @@ namespace TA3D
 					{
 						pUnit->hp -= damage;		// L'unité touchée encaisse les dégats
 						pUnit->flags &= 0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-						if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && pUnit->hp <= 0.0f && units.unit[shooter_idx].owner_id < players.count()
+						if (ok && shooter_idx >= 0 && (uint32)shooter_idx < units.max_unit && pUnit->hp <= 0.0f && units.unit[shooter_idx].owner_id < players.count()
 						   && pUnit->owner_id != units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 						{
 							players.kills[units.unit[shooter_idx].owner_id]++;
@@ -398,7 +397,7 @@ namespace TA3D
 			weapons.bvhUnits->boxCollisionQuery(neighbors, Pos, std::sqrt(float(d)));
 			for(std::deque<BVH_UnitTKit::T>::const_iterator it = neighbors.begin() ; it != neighbors.end() ; ++it)
 			{
-				Unit* const pUnit = (Unit*)(it->first);
+				Unit* const pUnit = const_cast<Unit*>(it->first);
 				if (pUnit->idx == shooter_idx)
 					continue;
 				pUnit->lock();
@@ -419,8 +418,8 @@ namespace TA3D
 					else
 					{
 						pUnit->hp -= cur_damage;		// L'unité touchée encaisse les dégats
-						pUnit->flags &= 0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-						if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && pUnit->hp <= 0.0f && units.unit[shooter_idx].owner_id < players.count()
+						unsetFlag(pUnit->flags, 0x10);		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
+						if (ok && shooter_idx >= 0 && (uint32)shooter_idx < units.max_unit && pUnit->hp <= 0.0f && units.unit[shooter_idx].owner_id < players.count()
 							&& pUnit->owner_id != units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 						{
 							players.kills[units.unit[shooter_idx].owner_id]++;
@@ -527,7 +526,7 @@ namespace TA3D
 				int e = 0;
 				for(int i = 0 ; i + e < units.unit[shooter_idx].mem_size ; ++i)
 				{
-					if (units.unit[shooter_idx].memory[i + e] == target)
+					if (units.unit[shooter_idx].memory[i + e] == (uint32)target)
 					{
 						++e;
 						--i;
@@ -541,7 +540,7 @@ namespace TA3D
 		}
 
 		const float travelled = (Pos - start_pos).sq();
-		const bool rangeReached = travelled >= (weapon_def->range * weapon_def->range * 0.25f);
+		const bool rangeReached = travelled >= (float(weapon_def->range * weapon_def->range) * 0.25f);
 
 		if ((((stime > 0.5f * weapon_def->time_to_range || rangeReached) && (!weapon_def->noautorange || weapon_def->burnblow))
 			|| hit) && !dying)
@@ -692,7 +691,7 @@ namespace TA3D
 					}
 					else
 					{
-						byte a = weapon_def->laserTex2 ? int(0xFF * coef) : 0xFF;
+						byte a = byte(weapon_def->laserTex2 ? int(0xFF * coef) : 0xFF);
 						glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, weapon_def->laserTex1);
 						glColor4ub(r,g,b,a);
@@ -706,7 +705,7 @@ namespace TA3D
 						if (a != 0xFF)
 						{
 							glDepthFunc(GL_LEQUAL);
-							a = 0xFF - a;
+							a = byte(0xFF - a);
 							glBindTexture(GL_TEXTURE_2D, weapon_def->laserTex2);
 							glColor4ub(r,g,b,a);
 							glBegin(GL_QUADS);

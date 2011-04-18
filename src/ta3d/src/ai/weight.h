@@ -66,11 +66,11 @@ namespace TA3D
 	class WeightCoef
     {
     public:
-        uint16	idx;
+		uint32	idx;
         uint32	c;
 
 		WeightCoef();
-		WeightCoef( uint16 a, uint32 b );
+		WeightCoef( uint32 a, uint32 b );
     };
 
 	inline bool operator<( const WeightCoef &a, const WeightCoef &b )		{	return a.c > b.c;	}

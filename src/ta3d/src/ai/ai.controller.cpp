@@ -38,7 +38,7 @@ namespace TA3D
 
 	//#define AI_DEBUG
 
-	static byte int2brain_value(int a)	// Convert an integer into a value a neural network can understand
+/*	static byte int2brain_value(int a)	// Convert an integer into a value a neural network can understand
 	{
 		if (a == 0)  return BRAIN_VALUE_NULL;
 		if (a <= 5)  return BRAIN_VALUE_LOW;
@@ -53,7 +53,7 @@ namespace TA3D
 		for (int i = 0; i < BRAIN_VALUE_BITS; ++i)
 			bits[pos++] = ((v >> i) & 1) ? 1.0f : 0.0f;
 		return pos;
-	}
+	}*/
 
 
 	void AiController::scan_unit()							// Scan the units the AI player currently has
@@ -88,31 +88,31 @@ namespace TA3D
 						|| unit_manager.unit_type[i]->MakesMetal > 0.0f || unit_manager.unit_type[i]->ExtractsMetal > 0.0f)
 					{
 						weights[ i ].type |= AI_FLAG_METAL_P;
-						weights[ i ].metal_s = unit_manager.unit_type[i]->MetalStorage * 0.001f;
+						weights[ i ].metal_s = (float)unit_manager.unit_type[i]->MetalStorage * 0.001f;
 						weights[ i ].metal_p = (unit_manager.unit_type[i]->MetalMake + unit_manager.unit_type[i]->MakesMetal) * 10.0f
-							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse * 0.5f;
+							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - (float)unit_manager.unit_type[i]->EnergyUse * 0.5f;
 					}
 					if (unit_manager.unit_type[i]->MetalStorage)
 					{
 						weights[ i ].type |= AI_FLAG_METAL_S;
-						weights[ i ].metal_s = unit_manager.unit_type[i]->MetalStorage * 0.001f;
+						weights[ i ].metal_s = (float)unit_manager.unit_type[i]->MetalStorage * 0.001f;
 						weights[ i ].metal_p = (unit_manager.unit_type[i]->MetalMake + unit_manager.unit_type[i]->MakesMetal) * 10.0f
-							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse * 0.5f;
+							+ 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - (float)unit_manager.unit_type[i]->EnergyUse * 0.5f;
 					}
 					if (unit_manager.unit_type[i]->EnergyMake || unit_manager.unit_type[i]->EnergyUse < 0.0f
 						|| unit_manager.unit_type[i]->TidalGenerator || unit_manager.unit_type[i]->WindGenerator)
 					{
 						weights[ i ].type |= AI_FLAG_ENERGY_P;
-						weights[ i ].energy_s = unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
-						weights[ i ].energy_p = (unit_manager.unit_type[i]->EnergyMake + unit_manager.unit_type[i]->TidalGenerator
-												 + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.1f;
+						weights[ i ].energy_s = (float)unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
+						weights[ i ].energy_p = ((float)unit_manager.unit_type[i]->EnergyMake + (float)unit_manager.unit_type[i]->TidalGenerator
+												 + (float)unit_manager.unit_type[i]->WindGenerator - (float)unit_manager.unit_type[i]->EnergyUse) * 0.1f;
 					}
 					if (unit_manager.unit_type[i]->EnergyStorage)
 					{
 						weights[ i ].type |= AI_FLAG_ENERGY_S;
-						weights[ i ].energy_s = unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
-						weights[ i ].energy_p = (unit_manager.unit_type[i]->EnergyMake + unit_manager.unit_type[i]->TidalGenerator
-												 + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.1f;
+						weights[ i ].energy_s = (float)unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
+						weights[ i ].energy_p = ((float)unit_manager.unit_type[i]->EnergyMake + (float)unit_manager.unit_type[i]->TidalGenerator
+												 + (float)unit_manager.unit_type[i]->WindGenerator - (float)unit_manager.unit_type[i]->EnergyUse) * 0.1f;
 					}
 				}
 				else
@@ -138,12 +138,12 @@ namespace TA3D
 				nb_enemy[i] = 0;
 		}
 
-		int e;
+		uint32 e;
 		units.lock();
 		for (e = unit_id ; e < units.nb_unit && e < unit_id + 10 ; ++e )
 		{
-			const int i = units.idx_list[e];
-			if (i < 0 || i >= units.max_unit)	continue;		// Error
+			const uint32 i = units.idx_list[e];
+			if (i >= units.max_unit)	continue;		// Error
 			units.unlock();
 			units.unit[i].lock();
 			if ((units.unit[ i ].flags & 1) && units.unit[ i ].type_id >= 0)
@@ -199,7 +199,7 @@ namespace TA3D
 		for (uint16 i = 0 ; i < unit_manager.nb_unit ; ++i )
 			total_unit += weights[ i ].nb;
 
-		float total_unit_inv = 2.0f / (total_unit + 1);
+		const float total_unit_inv = 2.0f / float(total_unit + 1);
 
 		for (uint16 i = 0 ; i < unit_manager.nb_unit ; ++i )
 		{
@@ -208,42 +208,42 @@ namespace TA3D
 				if (weights[ i ].type & AI_FLAG_ARMY)
 				{
 					nb_units[ AI_UNIT_TYPE_ARMY ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_ARMY ] * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_ARMY ];
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_ARMY ] * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_ARMY ];
 				}
 				if (weights[ i ].type & AI_FLAG_DEFENSE)
 				{
 					nb_units[ AI_UNIT_TYPE_DEFENSE ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_DEFENSE ] * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_DEFENSE ];
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_DEFENSE ] * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_DEFENSE ];
 				}
 				if (weights[ i ].type & AI_FLAG_BUILDER)
 				{
 					nb_units[ AI_UNIT_TYPE_BUILDER ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_BUILDER ] * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_BUILDER ];
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_BUILDER ] * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_BUILDER ];
 				}
 				if (weights[ i ].type & AI_FLAG_FACTORY)
 				{
 					nb_units[ AI_UNIT_TYPE_FACTORY ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_FACTORY ] * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_FACTORY ];
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_FACTORY ] * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_FACTORY ];
 				}
 				if (weights[ i ].type & AI_FLAG_METAL_P)
 				{
 					nb_units[ AI_UNIT_TYPE_METAL ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_METAL_P ] * weights[ i ].metal_p * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_METAL_P ] * weights[ i ].metal_p;
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_METAL_P ] * weights[ i ].metal_p * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_METAL_P ] * weights[ i ].metal_p;
 				}
 				if (weights[ i ].type & AI_FLAG_METAL_S)
 				{
 					nb_units[ AI_UNIT_TYPE_METAL ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_METAL_S ] * weights[ i ].metal_s * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_METAL_S ] * weights[ i ].metal_s;
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_METAL_S ] * weights[ i ].metal_s * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_METAL_S ] * weights[ i ].metal_s;
 				}
 				if (weights[ i ].type & AI_FLAG_ENERGY_P)
 				{
 					nb_units[ AI_UNIT_TYPE_ENERGY ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_ENERGY_P ] * weights[ i ].energy_p * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_ENERGY_P ] * weights[ i ].energy_p;
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_ENERGY_P ] * weights[ i ].energy_p * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_ENERGY_P ] * weights[ i ].energy_p;
 				}
 				if (weights[ i ].type & AI_FLAG_ENERGY_S)
 				{
 					nb_units[ AI_UNIT_TYPE_ENERGY ] += weights[ i ].nb;
-					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_ENERGY_S ] * weights[ i ].energy_s * 0.1f + 1.0f - weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_ENERGY_S ] * weights[ i ].energy_s;
+					weights[ i ].w = (weights[ i ].w + order_weight[ ORDER_ENERGY_S ] * weights[ i ].energy_s * 0.1f + 1.0f - (float)weights[ i ].nb * total_unit_inv) * expf( -0.1f * weights[ i ].w ) + 0.1f * order_weight[ ORDER_ENERGY_S ] * weights[ i ].energy_s;
 				}
 				if (weights[ i ].w < 0.0f)
 					weights[ i ].w = 0.0f;
@@ -259,18 +259,18 @@ namespace TA3D
 		srand( msec_timer );
 
 		order_weight[ ORDER_METAL_P ] = Math::Max(0.0f, players.metal_u[ playerID ] - players.metal_t[playerID]) * 10.0f
-			+ Math::Max(0.0f, players.metal[ playerID ] - (players.metal_s[ playerID ] >> 1) ) * 0.01f;
+			+ Math::Max(0.0f, players.metal[ playerID ] - float(players.metal_s[ playerID ] >> 1) ) * 0.01f;
 		order_weight[ ORDER_ENERGY_P ] = Math::Max(0.0f, players.energy_u[ playerID ] * 2 - players.energy_t[playerID]) * 10.0f
-			+ Math::Max(0.0f, (players.energy_s[ playerID ] >> 1) - players.energy[ playerID ] ) * 0.1f;
-		order_weight[ ORDER_METAL_S ] = Math::Max(0.0f, players.metal[ playerID ] - (players.metal_s[ playerID] * 15 >> 4) ) * 0.001f;
-		order_weight[ ORDER_ENERGY_S ] = Math::Max(0.0f, players.energy[ playerID ] - (players.energy_s[ playerID ] * 15 >> 4) ) * 0.001f;
+			+ Math::Max(0.0f, float(players.energy_s[ playerID ] >> 1) - players.energy[ playerID ] ) * 0.1f;
+		order_weight[ ORDER_METAL_S ] = Math::Max(0.0f, players.metal[ playerID ] - float(players.metal_s[ playerID] * 15 >> 4) ) * 0.001f;
+		order_weight[ ORDER_ENERGY_S ] = Math::Max(0.0f, players.energy[ playerID ] - float(players.energy_s[ playerID ] * 15 >> 4) ) * 0.001f;
 
-		order_weight[ ORDER_ARMY ] = (nb_units[ AI_UNIT_TYPE_ENEMY ] - nb_units[ AI_UNIT_TYPE_ARMY ]) * 0.15f;
-		order_weight[ ORDER_DEFENSE ] = (nb_units[ AI_UNIT_TYPE_ENEMY ] - nb_units[ AI_UNIT_TYPE_DEFENSE ]) * 0.1f;
+		order_weight[ ORDER_ARMY ] = float(nb_units[ AI_UNIT_TYPE_ENEMY ] - nb_units[ AI_UNIT_TYPE_ARMY ]) * 0.15f;
+		order_weight[ ORDER_DEFENSE ] = float(nb_units[ AI_UNIT_TYPE_ENEMY ] - nb_units[ AI_UNIT_TYPE_DEFENSE ]) * 0.1f;
 
-		for (uint16 i = 0; i < 10; ++i)
+		for (size_t i = 0; i < 10; ++i)
 		{
-			order_attack[i] = nb_enemy[i] > 0 ? (3 * nb_units[AI_UNIT_TYPE_ARMY] - nb_enemy[i]) * 0.1f : 0.0f;
+			order_attack[i] = nb_enemy[i] > 0 ? float(3 * nb_units[AI_UNIT_TYPE_ARMY] - nb_enemy[i]) * 0.1f : 0.0f;
 			if (order_attack[i] < 0.0f)
 				order_attack[i] = 0.0f;
 			order_attack[i] = (1.0f - expf( -order_attack[i])) * 30.0f;
@@ -287,7 +287,7 @@ namespace TA3D
 		float sw[ 10000 ];			// Used to compute the units that are built
 
 		{
-			sint16 player_target = -1;
+			int player_target = -1;
 			float best_weight = 15.0f;
 			for (unsigned int e = 0 ; e < players.count(); ++e)				// Who can we attack ?
 			{
@@ -301,13 +301,13 @@ namespace TA3D
 
 			if (player_target >= 0 ) // If we've someone to attack
 			{
-				for (std::vector<uint16>::const_iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
+				for (std::vector<uint32>::const_iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
 				{
 					suspend(1);
 					units.unit[ *i ].lock();
 					if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
 					{
-						sint16 target_id = -1;
+						int target_id = -1;
 						while (!enemy_list[ player_target ].empty() && target_id == -1)
 						{
 							target_id = enemy_list[ player_target ].begin()->idx;
@@ -320,7 +320,7 @@ namespace TA3D
 							}
 							else
 							{
-								if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar( 1 << playerID ) ) // This one is cloaked, not on radar
+								if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar(byte(1 << playerID) ) ) // This one is cloaked, not on radar
 								{
 									enemy_table.remove(target_id);
 									target_id = -1;
@@ -338,7 +338,7 @@ namespace TA3D
 			}
 		}
 
-		for (std::vector<uint16>::const_iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
+		for (std::vector<uint32>::const_iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
 		{
 			suspend(1);
 			units.unit[ *i ].lock();
@@ -349,7 +349,7 @@ namespace TA3D
 				for (int e = 0 ; e < list_size ; ++e)
 					sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
-				const float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
+				const float selection = float(TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
 				if (sw[ list_size - 1 ] > 0.1f)
 					for (int e = 0 ; e < list_size ; ++e)
 					{
@@ -373,7 +373,7 @@ namespace TA3D
 		}
 
 		// Give instructions to idle builders
-		for (std::vector<uint16>::const_iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
+		for (std::vector<uint32>::const_iterator i = builder_list.begin() ; i != builder_list.end() ; ++i )
 		{
 			suspend(1);
 
@@ -385,7 +385,7 @@ namespace TA3D
 				for (int e = 0 ; e < list_size ; ++e)
 					sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
-				const float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
+				const float selection = float(TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
 				if (sw[ list_size - 1 ] > 0.1f)
 					for (int e = 0 ; e < list_size ; ++e)
 					{
@@ -448,9 +448,9 @@ namespace TA3D
 			}
 
 		int n = 0;
-		for(int i = 0 ; i < weights.size() ; ++i)
+		for(size_t i = 0 ; i < weights.size() ; ++i)
 			n += weights[i].nb;
-		const float populationLimit = std::max(0.0f, 1.0f - 2.0f * float(n) / MAX_UNIT_PER_PLAYER);
+		const float populationLimit = std::max(0.0f, 1.0f - 2.0f * float(n) / (float)MAX_UNIT_PER_PLAYER);
 		order_weight[ ORDER_FACTORY ] = factory_needed * populationLimit;
 		order_weight[ ORDER_BUILDER ] = builder_needed * populationLimit;
 
@@ -475,14 +475,14 @@ namespace TA3D
 	{
 		thread_running = true;
 		thread_ask_to_stop = false;
-		int speed = 10000;
+		uint32 speed = 10000U;
 		uint32 timer = msec_timer;
 		switch (AI_type)
 		{
-			case AI_TYPE_EASY    :speed = 10000; break;
-			case AI_TYPE_MEDIUM  :speed = 5000;  break;
-			case AI_TYPE_HARD    :speed = 2000;  break;
-			case AI_TYPE_BLOODY  :speed = 1000;  break;
+			case AI_TYPE_EASY    :speed = 10000U; break;
+			case AI_TYPE_MEDIUM  :speed = 5000U;  break;
+			case AI_TYPE_HARD    :speed = 2000U;  break;
+			case AI_TYPE_BLOODY  :speed = 1000U;  break;
 		}
 		LOG_INFO(LOG_PREFIX_AI << "Started for player " << (int)playerID);
 		while (!thread_ask_to_stop)
@@ -506,7 +506,7 @@ namespace TA3D
 			}
 
 			float time_factor = units.apparent_timefactor;
-			while ((time_factor == 0.0f || lp_CONFIG->pause) && !thread_ask_to_stop)
+			while ((Yuni::Math::Zero(time_factor) || lp_CONFIG->pause) && !thread_ask_to_stop)
 			{
 				time_factor = units.apparent_timefactor;
 				suspend(10);
@@ -610,10 +610,10 @@ namespace TA3D
 		File* file = VFS::Instance()->readFile(filename);
 
 		// Length of the name
-		byte l = file->getc();
+		const int l = file->getc();
 
 		// Reading the name
-		char* n = new char[l+1];
+		char* n = new char[l + 1];
         n[l] = 0;
 		file->read(n, l);
 		name = n;
@@ -648,7 +648,7 @@ namespace TA3D
 	void AiController::setType(int type)
 	{
 		lock();
-		AI_type = type;
+		AI_type = (byte)type;
 		unlock();
 	}
 
@@ -662,8 +662,8 @@ namespace TA3D
         if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
             return false;
 
-		int px = (int)(target.x + the_map->map_w_d + 4) >> 3;
-		int py = (int)(target.z + the_map->map_h_d + 4) >> 3;
+		int px = (int)(target.x + (float)the_map->map_w_d + 4.0f) >> 3;
+		int py = (int)(target.z + (float)the_map->map_h_d + 4.0f) >> 3;
 
         int spx = px;
         int spy = py;
@@ -676,7 +676,7 @@ namespace TA3D
 			const int r2 = r * r;
 			for (int y = (r >> 1) ; y <= r && !found ; ++y)
             {
-				const int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
+				const int x = (int)(sqrtf(float(r2 - y * y)) + 0.5f);
 
 				const int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
 				const int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
@@ -734,8 +734,8 @@ namespace TA3D
                 px = features.feature[ metal_stuff_id ].px;
                 py = features.feature[ metal_stuff_id ].py;
             }
-			target.x = (px << 3) - the_map->map_w_d;
-			target.z = (py << 3) - the_map->map_h_d;
+			target.x = float((px << 3) - the_map->map_w_d);
+			target.z = float((py << 3) - the_map->map_h_d);
             target.y = Math::Max( the_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[unit_idx]->FootprintX, unit_manager.unit_type[unit_idx]->FootprintZ ), the_map->sealvl);
             return true;
         }

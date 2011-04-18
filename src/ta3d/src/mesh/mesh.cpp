@@ -1625,8 +1625,8 @@ namespace TA3D
 	}
 
 	void Model::draw(float t,AnimationData *data_s,bool sel,bool notex,
-					 bool c_part,int p_tex,Vector3D *target,Vector3D *upos,
-					 Matrix *M,float Size,Vector3D* Center,bool reverse,int side,
+					 bool c_part,int p_tex,const Vector3D *target,Vector3D *upos,
+					 Matrix *M,float Size,const Vector3D* Center,bool reverse,int side,
 					 bool chg_col,Mesh *src,AnimationData *src_data)
 	{
 		if (!mesh)  return;

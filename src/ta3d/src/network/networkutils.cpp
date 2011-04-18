@@ -117,7 +117,7 @@ namespace TA3D
 					break;
 				}
 				if (packtype != 'A' && network->isServer())
-					chat.from = sockid;
+					chat.from = (uint16)sockid;
 				network->specialq.push_back(chat);
 				network->xqmutex.unlock();
 				if (packtype == 'A' && network->isServer())
@@ -282,26 +282,26 @@ namespace TA3D
 
 		length = file->size();
 
-		int timer = msec_timer;
+		uint32 timer = msec_timer;
 
 		int real_length = length;
 
 		int pos = 0;
 		progress = 0;
 
-		network->sendFileData(sockid,port,(byte*)&length,4);
+		network->sendFileData(sockid, (uint16)port, (const byte*)&length, 4);
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
 		while (!pDead)
 		{
 			n = file->read(buffer, FILE_TRANSFER_BUFFER_SIZE);            // Read data into the buffer
-			network->sendFileData(sockid, port, buffer, n);
+			network->sendFileData(sockid, (uint16)port, buffer, n);
 			if (n > 0)
 			{
 				pos += n;
 				network->updateFileTransferInformation( String(filename) << sockid, real_length, pos );
 
-				int timer = msec_timer;
+				const uint32 timer = msec_timer;
 				while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000 )
 					suspend(0);
 				if (msec_timer - timer >= 60000)
@@ -427,8 +427,8 @@ namespace TA3D
 
 				file.write((const char*)buffer, buffer_size);       // Write data
 
-				int pos = sofar;
-				network->sendFileResponse(sockid, port, (byte*)&pos, 4);
+				const int pos = sofar;
+				network->sendFileResponse(sockid, (uint16)port, (const byte*)&pos, 4);
 			}
 			if(sofar >= length)
 				break;

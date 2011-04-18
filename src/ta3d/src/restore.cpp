@@ -248,9 +248,9 @@ namespace TA3D
 		SAVE( units.max_unit );
 		SAVE( units.next_unit_ID );
 
-		for (int e = 0 ; e < units.nb_unit ; ++e)
+		for (size_t e = 0 ; e < units.nb_unit ; ++e)
 		{
-			int i = units.idx_list[ e ];
+			const int i = units.idx_list[ e ];
 			SAVE( i );
 			SAVE( units.unit[i].flags );
 			SAVE( units.unit[i].type_id );
@@ -711,9 +711,9 @@ namespace TA3D
 		units.idx_list = new uint16[units.max_unit];
 		units.free_idx = new uint16[units.max_unit];
 
-		for (short int i = 0; i < 10; ++i)
+		for (size_t i = 0; i < 10; ++i)
 			units.free_index_size[i] = 0;
-		for(int i = 0 ; i < units.max_unit; ++i)
+		for(size_t i = 0 ; i < units.max_unit; ++i)
 		{
 			units.unit[i].init(-1, -1, true);
 			units.unit[i].flags = 0;
@@ -721,13 +721,13 @@ namespace TA3D
 		}
 
 		units.index_list_size = 0;
-		for (int e = 0 ; e < units.nb_unit ; ++e)
+		for (size_t e = 0 ; e < units.nb_unit ; ++e)
 		{
 			int i;
 			LOAD( i );
 			LOAD( units.unit[i].flags );
 			LOAD( units.unit[i].type_id );
-			int player_id = i / MAX_UNIT_PER_PLAYER;
+			const int player_id = (int)i / MAX_UNIT_PER_PLAYER;
 
 			if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )
 				continue;
@@ -872,9 +872,9 @@ namespace TA3D
 			}
 		}
 
-		for( int i = 0 ; i < units.max_unit ; i++ )	// Build the free index list
+		for (size_t i = 0 ; i < units.max_unit ; i++ )	// Build the free index list
 		{
-			int player_id = i / MAX_UNIT_PER_PLAYER;
+			const int player_id = (int)i / MAX_UNIT_PER_PLAYER;
 			if (units.unit[i].type_id < 0 || !(units.unit[i].flags & 1))
 				units.free_idx[ player_id * MAX_UNIT_PER_PLAYER + (units.free_index_size[player_id]++) ] = uint16(i);
 		}

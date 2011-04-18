@@ -62,30 +62,30 @@ namespace TA3D
 	{
 		destroy();
 		q = rg;
-		nb_neuron = q+nb_in+nb_out;		// Number of layers * number of input NEURONs + number of output NEURONs
+		nb_neuron = q + nb_in + nb_out;		// Number of layers * number of input NEURONs + number of output NEURONs
 		n = nb_in;
 		p = nb_out;
 		neuron = new NEURON[nb_neuron];
 		n_out = new float[nb_out];
 		for(int i = 0; i < nb_neuron; ++i)
 		{
-			neuron[i].var=0.0f;
-			neuron[i].weight=NULL;
-			if (i<nb_out)
-				n_out[i]=0.0f;
-			if (i>=n && i<nb_neuron-p)
+			neuron[i].var = 0.0f;
+			neuron[i].weight = NULL;
+			if (i < nb_out)
+				n_out[i] = 0.0f;
+			if (i >= n && i < nb_neuron - p)
 			{
 				neuron[i].weight = new float[n];
-				for(int e=0;e<n;e++)
-					neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
+				for(int e = 0 ; e < n ; ++e)
+					neuron[i].weight[e] = float(TA3D_RAND() % 2001) * 0.001f - 1.0f;
 			}
 			else
 			{
-				if (i>=n)
+				if (i >= n)
 				{
 					neuron[i].weight = new float[q];
-					for(int e=0;e<q;e++)
-						neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
+					for(int e = 0 ; e < q ; ++e)
+						neuron[i].weight[e] = float(TA3D_RAND() % 2001) * 0.001f - 1.0f;
 				}
 			}
 		}
@@ -143,7 +143,7 @@ namespace TA3D
 			mod_w=TA3D_RAND() % n;
 		else
 			mod_w = TA3D_RAND() % q;
-		neuron[index].weight[mod_w] += ((TA3D_RAND() % 200001) - 100000) * 0.00001f;
+		neuron[index].weight[mod_w] += float((TA3D_RAND() % 200001) - 100000) * 0.00001f;
 	}
 
 
@@ -220,12 +220,12 @@ namespace TA3D
 			if (i<n+q)
 			{
 				neuron[i].weight = new float[n];
-				file->read(neuron[i].weight, sizeof(float) * n);
+				file->read(neuron[i].weight, (int)sizeof(float) * n);
 			}
 			else
 			{
 				neuron[i].weight = new float[q];
-				file->read(neuron[i].weight, sizeof(float) * q);
+				file->read(neuron[i].weight, (int)sizeof(float) * q);
 			}
 		}
 		return 0;

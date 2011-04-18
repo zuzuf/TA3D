@@ -1019,7 +1019,7 @@ namespace TA3D
 		return max_tex_size;
 	}
 
-	GLuint GFX::make_texture(SDL_Surface *bmp, byte filter_type, bool clamp )
+	GLuint GFX::make_texture(SDL_Surface *bmp, int filter_type, bool clamp )
 	{
 		if (bmp == NULL)
 		{
@@ -1185,7 +1185,7 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::make_texture_A32F( int w, int h, float *data, byte filter_type, bool clamp )
+	GLuint GFX::make_texture_A32F( int w, int h, float *data, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1250,7 +1250,7 @@ namespace TA3D
 
 
 
-	GLuint GFX::make_texture_A16F( int w, int h, float *data, byte filter_type, bool clamp )
+	GLuint GFX::make_texture_A16F( int w, int h, float *data, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1312,7 +1312,7 @@ namespace TA3D
 
 		return gl_tex;
 	}
-	GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, byte filter_type, bool clamp )
+	GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1375,7 +1375,7 @@ namespace TA3D
 		return gl_tex;
 	}
 
-	GLuint GFX::make_texture_RGBA16F( int w, int h, float *data, byte filter_type, bool clamp )
+	GLuint GFX::make_texture_RGBA16F( int w, int h, float *data, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1438,7 +1438,7 @@ namespace TA3D
 		return gl_tex;
 	}
 
-	GLuint GFX::make_texture_RGB32F( int w, int h, float *data, byte filter_type, bool clamp )
+	GLuint GFX::make_texture_RGB32F( int w, int h, float *data, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1501,7 +1501,7 @@ namespace TA3D
 		return gl_tex;
 	}
 
-	GLuint GFX::make_texture_RGB16F( int w, int h, float *data, byte filter_type, bool clamp )
+	GLuint GFX::make_texture_RGB16F( int w, int h, float *data, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1587,7 +1587,7 @@ namespace TA3D
         return gl_tex;
     }
 
-	GLuint GFX::create_texture(int w, int h, byte filter_type, bool clamp )
+	GLuint GFX::create_texture(int w, int h, int filter_type, bool clamp )
 	{
 		MutexLocker locker(pMutex);
 
@@ -1643,25 +1643,25 @@ namespace TA3D
 		return gl_tex;
 	}
 
-	GLuint GFX::create_texture_RGB32F(int w, int h, byte filter_type, bool clamp )
+	GLuint GFX::create_texture_RGB32F(int w, int h, int filter_type, bool clamp )
 	{
 		GLuint tex = this->make_texture_RGB32F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 
-	GLuint GFX::create_texture_RGBA32F(int w, int h, byte filter_type, bool clamp )
+	GLuint GFX::create_texture_RGBA32F(int w, int h, int filter_type, bool clamp )
 	{
 		GLuint tex = this->make_texture_RGBA32F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 
-	GLuint GFX::create_texture_RGB16F(int w, int h, byte filter_type, bool clamp )
+	GLuint GFX::create_texture_RGB16F(int w, int h, int filter_type, bool clamp )
 	{
 		GLuint tex = this->make_texture_RGB16F(w, h, NULL, filter_type, clamp);
 		return tex;
 	}
 
-	GLuint GFX::create_texture_RGBA16F(int w, int h, byte filter_type, bool clamp )
+	GLuint GFX::create_texture_RGBA16F(int w, int h, int filter_type, bool clamp )
 	{
 		GLuint tex = this->make_texture_RGBA16F(w, h, NULL, filter_type, clamp);
 		return tex;
@@ -1713,7 +1713,7 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
+	GLuint GFX::load_texture(const String& file, int filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
@@ -1810,7 +1810,7 @@ namespace TA3D
 	}
 
 
-	GLuint	GFX::load_texture_mask(const String& file, uint32 level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+	GLuint	GFX::load_texture_mask(const String& file, uint32 level, int filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
 			return 0;
@@ -1880,7 +1880,7 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture_from_cache(const String& file, byte filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
+	GLuint GFX::load_texture_from_cache(const String& file, int filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
 	{
 		if (ati_workaround
 			|| !lp_CONFIG->use_texture_cache
@@ -2075,7 +2075,7 @@ namespace TA3D
 
 
 
-	GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
+	GLuint GFX::load_masked_texture(String file, String mask, int filter_type )
 	{
 		if ( (!VFS::Instance()->fileExists(file)) || (!VFS::Instance()->fileExists(mask)))
 			return 0; // The file doesn't exist
@@ -2155,7 +2155,7 @@ namespace TA3D
 		gltex = 0;						// The texture is destroyed
 	}
 
-	GLuint GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data from screen to a texture
+	GLuint GFX::make_texture_from_screen( int filter_type)				// Copy pixel data from screen to a texture
 	{
 		GLuint gltex = create_texture(width, height, filter_type);
 

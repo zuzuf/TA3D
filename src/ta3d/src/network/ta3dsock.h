@@ -201,7 +201,7 @@ namespace TA3D
 		int accept(TA3DSock** sock,int timeout);
 		void close();
 
-		void send(byte *data, int size);
+		void send(const byte *data, int size);
 
 		String getAddress() const {return tcpsock.getIPstr();}
 		uint16 getPort() const {return tcpsock.getPort();}

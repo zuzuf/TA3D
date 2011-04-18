@@ -598,21 +598,21 @@ namespace TA3D
 			LOG_CRITICAL("Not enough memory !");
 
 		uint16	i;
-		uint8	x,y;
+		int	x,y;
 
-		float ww = w * 0.1333333333333f;
-		float hh = h * 0.1333333333333f;
+		const float ww = w * 0.1333333333333f;
+		const float hh = h * 0.1333333333333f;
 
 		for (y = 0; y < 8; ++y) // Maillage (sommets)
 		{
-			const uint16 seg = uint16(y << 3);
-			float yy = y * 0.1333333333333f;
+			const size_t seg = y << 3;
+			const float yy = (float)y * 0.1333333333333f;
 			for (x = 0 ; x < 8 ; ++x)
 			{
-				const uint16 offset = uint16(seg + x);
-				points[offset].x = (x - 3.5f) * ww;
-				points[offset].z = (y - 3.5f) * hh;
-				tcoord[ offset << 1     ] = x * 0.1333333333333f;
+				const size_t offset = seg + x;
+				points[offset].x = ((float)x - 3.5f) * ww;
+				points[offset].z = ((float)y - 3.5f) * hh;
+				tcoord[ offset << 1     ] = (float)x * 0.1333333333333f;
 				tcoord[(offset << 1) + 1] = yy;
 			}
 		}
@@ -718,18 +718,18 @@ namespace TA3D
 
 		for (y = 1; y < 8; ++y)
 			for (x = 1; x < 8; ++x)
-				points[(y << 3) + x].y -= (x / 7.0f) * points[(y << 3) + 7].y;
+				points[(y << 3) + x].y -= ((float)x / 7.0f) * points[(y << 3) + 7].y;
 
 		for (x = 1; x < 8; ++x)
 			for (y = 1; y < 8; ++y)
-				points[(y << 3) + x].y -= (y / 7.0f) * points[(7 << 3) + x].y;
+				points[(y << 3) + x].y -= ((float)y / 7.0f) * points[(7 << 3) + x].y;
 
 		float maxh = 0.0f;
 		float minh = 0.0f;
 		for (i = 0; i < 64; ++i)
 		{
-			if (minh>points[i].y)  minh = points[i].y;
-			if (maxh<points[i].y)  maxh = points[i].y;
+			if (minh > points[i].y)  minh = points[i].y;
+			if (maxh < points[i].y)  maxh = points[i].y;
 		}
 		if (maxh == minh || Yuni::Math::Zero(maxh))
 		{

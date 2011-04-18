@@ -226,14 +226,14 @@ namespace TA3D
 		void print_right(Font *font, const float x, const float y, const float z, const uint32 col, const String &text);
 		//@} // Text manipilation
 
-		GLuint	make_texture( SDL_Surface *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
+		GLuint	make_texture( SDL_Surface *bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
 		GLuint	create_color_texture(uint32 color);
-		GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true);
+		GLuint	create_texture( int w, int h, int filter_type = FILTER_TRILINEAR, bool clamp = true);
 		void	blit_texture( SDL_Surface *src, GLuint dst);
-		GLuint	load_texture(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
-		GLuint	load_texture_mask(const String& file, uint32 level, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
-		GLuint	load_texture_from_cache(const String& file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
-		GLuint	load_masked_texture( String file, String mask, byte filter_type = FILTER_TRILINEAR);
+		GLuint	load_texture(const String& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
+		GLuint	load_texture_mask(const String& file, uint32 level, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
+		GLuint	load_texture_from_cache(const String& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
+		GLuint	load_masked_texture( String file, String mask, int filter_type = FILTER_TRILINEAR);
 		void	save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height, bool useAlpha);
 		uint32	texture_width(const GLuint gltex);
 		uint32	texture_height(const GLuint gltex);
@@ -243,20 +243,20 @@ namespace TA3D
 		bool    is_texture_in_cache(const String& file);
 		int     max_texture_size();
 
-		GLuint  make_texture_RGB32F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_RGBA32F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_RGB16F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_RGBA16F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_A16F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_A32F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false);
+		GLuint  make_texture_RGB32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+		GLuint  make_texture_RGBA32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+		GLuint  make_texture_RGB16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+		GLuint  make_texture_RGBA16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+		GLuint  make_texture_A16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+		GLuint  make_texture_A32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
 
-		GLuint	create_texture_RGB32F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true);
-		GLuint	create_texture_RGBA32F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true);
-		GLuint	create_texture_RGB16F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true);
-		GLuint	create_texture_RGBA16F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true);
+		GLuint	create_texture_RGB32F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
+		GLuint	create_texture_RGBA32F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
+		GLuint	create_texture_RGB16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
+		GLuint	create_texture_RGBA16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
 		GLuint  create_shadow_map(int w, int h);
 
-		GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
+		GLuint make_texture_from_screen(int filter_type = FILTER_NONE);
 
 		GLuint get_shadow_map();
 		void delete_shadow_map();

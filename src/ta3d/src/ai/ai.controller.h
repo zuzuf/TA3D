@@ -67,23 +67,23 @@ namespace TA3D
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ã  l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)
-        uint16			unit_id;		// Unit index to run throught the unit array
-        uint16			total_unit;
+		uint32			unit_id;		// Unit index to run throught the unit array
+		uint32			total_unit;
 
         byte			AI_type;		// Which AI do we have to use?
 
 		std::vector<AiWeight> weights;		// Vector of weights used to decide what to build
 		UTILS::HashSet<int>::Dense enemy_table;   // A table used to speed up some look up
-        uint16			nb_units[ NB_AI_UNIT_TYPE ];
-        uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
+		uint32			nb_units[ NB_AI_UNIT_TYPE ];
+		uint32			nb_enemy[ 10 ];				// Hom many units has each enemy ?
         float			order_weight[NB_ORDERS];	// weights of orders
         float			order_attack[ 10 ];			// weights of attack order per enemy player
-		std::vector<uint16>	builder_list;
-		std::vector<uint16>	factory_list;
-		std::vector<uint16>	army_list;
-		std::vector<uint16>	wip_builder_list;
-		std::vector<uint16>	wip_factory_list;
-		std::vector<uint16>	wip_army_list;
+		std::vector<uint32>	builder_list;
+		std::vector<uint32>	factory_list;
+		std::vector<uint32>	army_list;
+		std::vector<uint32>	wip_builder_list;
+		std::vector<uint32>	wip_factory_list;
+		std::vector<uint32>	wip_army_list;
 		std::vector< std::deque<WeightCoef> > enemy_list;
 
     protected:

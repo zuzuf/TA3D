@@ -37,7 +37,7 @@ namespace TA3D
 		inline void clear(const T &v = T(0));
 
 		inline void *getData()	{	return &(data.front());	}
-		inline unsigned int getSize() const	{	return data.size() * sizeof(T);	}
+		inline unsigned int getSize() const	{	return (unsigned int)(data.size() * sizeof(T));	}
 
 		inline void hline(const int x0, const int x1, const int y, const T& col);
 		inline void circlefill(const int x, const int y, const int r, const T& col);

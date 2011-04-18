@@ -40,5 +40,5 @@ namespace TA3D
     }
 
 	WeightCoef::WeightCoef()	{	idx = 0;	c = 0;	}
-	WeightCoef::WeightCoef( uint16 a, uint32 b )	{	idx = a;	c = b;	}
+	WeightCoef::WeightCoef( uint32 a, uint32 b )	{	idx = a;	c = b;	}
 }

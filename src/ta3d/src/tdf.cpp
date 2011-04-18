@@ -280,21 +280,21 @@ namespace TA3D
 
 			// Build the repulsion grid
 			pFeature->gRepulsion.resize(pFeature->footprintx * 5, pFeature->footprintz * 5);
-			const float sigx = pFeature->footprintx;
-			const float sigz = pFeature->footprintz;
+			const float sigx = (float)pFeature->footprintx;
+			const float sigz = (float)pFeature->footprintz;
 			const float sigx2 = -0.5f / (sigx * sigx);
 			const float sigz2 = -0.5f / (sigz * sigz);
 			for(int z = 0 ; z < pFeature->gRepulsion.getHeight() ; ++z)
 			{
-				float dz = z - pFeature->gRepulsion.getHeight() * 0.5f;
-				dz = Math::Sgn(dz) * Math::Max(fabsf(dz) - pFeature->footprintz * 0.5f, 0.0f);
+				float dz = (float)z - (float)pFeature->gRepulsion.getHeight() * 0.5f;
+				dz = (float)Math::Sgn(dz) * Math::Max(fabsf(dz) - (float)pFeature->footprintz * 0.5f, 0.0f);
 				dz *= dz;
 				for(int x = 0 ; x < pFeature->gRepulsion.getWidth() ; ++x)
 				{
-					float dx = x - pFeature->gRepulsion.getWidth() * 0.5f;
-					dx = Math::Sgn(dx) * Math::Max(fabsf(dx) - pFeature->footprintx * 0.5f, 0.0f);
+					float dx = (float)x - (float)pFeature->gRepulsion.getWidth() * 0.5f;
+					dx = (float)Math::Sgn(dx) * Math::Max(fabsf(dx) - (float)pFeature->footprintx * 0.5f, 0.0f);
 					dx *= dx;
-					pFeature->gRepulsion(x,z) = 2550.0f * expf(sigx2 * dx + sigz2 * dz);
+					pFeature->gRepulsion(x,z) = 2550.0f * std::exp(sigx2 * dx + sigz2 * dz);
 				}
 			}
 		}
@@ -356,7 +356,7 @@ namespace TA3D
 #endif
 
 #pragma omp parallel for
-		for (int i = 0 ; i < files.size() ; ++i)
+		for (size_t i = 0 ; i < files.size() ; ++i)
 		{
 			const String &curFile = files[i];
 #ifdef _OPENMP
@@ -868,8 +868,8 @@ namespace TA3D
 					if (pFeature->m3d && pFeature->model != NULL)
 					{
 						Mesh::Ptr obj = pFeature->model->mesh;
-                        for (int base_n = Math::RandomTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
-							random_vector = obj->random_pos(NULL, (base_n + n) % obj->nb_sub_obj, &t_mod);
+						for (int base_n = Math::RandomTable(), n = 0 ; random_vector && n < (int)obj->nb_sub_obj ; ++n)
+							random_vector = obj->random_pos(NULL, (base_n + n) % (int)obj->nb_sub_obj, &t_mod);
 					}
 					else
 						random_vector = false;
@@ -1126,14 +1126,21 @@ namespace TA3D
 		if (idx < 0 || idx >= max_features || feature[idx].type < 0)
 			return; // Nothing to display
 
-		Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
+		const Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 
 		if (!pFeature->description.empty())
 		{
+			const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
 			if (pFeature->reclaimable)
-				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) << " M:" << pFeature->metal << " E:" << pFeature->energy );
+				gfx->print(gfx->normal_font,
+						   (float)side_data.Description.x1,
+						   (float)side_data.Description.y1,
+						   0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) << " M:" << pFeature->metal << " E:" << pFeature->energy );
 			else
-				gfx->print(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].Description.x1, ta3dSideData.side_int_data[ players.side_view ].Description.y1, 0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) );
+				gfx->print(gfx->normal_font,
+						   (float)side_data.Description.x1,
+						   (float)side_data.Description.y1,
+						   0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) );
 		}
 		glDisable(GL_BLEND);
 	}
@@ -1296,11 +1303,11 @@ namespace TA3D
 		geothermalUV.clear();
 		const Vector3D side = Camera::inGame->side;
 		const Vector3D up = Camera::inGame->up;
-		const float wmetal = icons[0].getWidth() / 24.0f;
-		const float hmetal = icons[0].getHeight() / 24.0f;
-		const float wgeothermal = icons[1].getWidth() / 24.0f;
-		const float hgeothermal = icons[1].getHeight() / 24.0f;
-		const Vector3D camdir = 12.0f / gfx->height * Camera::inGame->dir;
+		const float wmetal = (float)icons[0].getWidth() / 24.0f;
+		const float hmetal = (float)icons[0].getHeight() / 24.0f;
+		const float wgeothermal = (float)icons[1].getWidth() / 24.0f;
+		const float hgeothermal = (float)icons[1].getHeight() / 24.0f;
+		const Vector3D camdir = 12.0f / (float)gfx->height * Camera::inGame->dir;
 		const float camzoom = Camera::inGame->zoomFactor * 9.0f;
 		pMutex.lock();
 		const uint32 player_mask = 1 << players.local_human_id;
@@ -1363,14 +1370,14 @@ namespace TA3D
 			glBindTexture( GL_TEXTURE_2D, icons[0].get() );
 			glVertexPointer(3, GL_FLOAT, 0, &(metal.front()));
 			glTexCoordPointer(2, GL_FLOAT, 0, &(metalUV.front()));
-			glDrawArrays(GL_QUADS, 0, metal.size());
+			glDrawArrays(GL_QUADS, 0, (GLsizei)metal.size());
 		}
 		if (!geothermal.empty())
 		{
 			glBindTexture( GL_TEXTURE_2D, icons[1].get() );
 			glVertexPointer(3, GL_FLOAT, 0, &(geothermal.front()));
 			glTexCoordPointer(2, GL_FLOAT, 0, &(geothermalUV.front()));
-			glDrawArrays(GL_QUADS, 0, geothermal.size());
+			glDrawArrays(GL_QUADS, 0, (GLsizei)geothermal.size());
 		}
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);

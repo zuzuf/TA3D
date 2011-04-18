@@ -952,25 +952,25 @@ namespace TA3D
 			TurnRate = TurnRate * 3; // A hack thanks to Doors
 		// Build the repulsion grid
 		gRepulsion.resize(FootprintX * 3, FootprintZ * 3);
-		const float sigx = FootprintX * 0.75f;
-		const float sigz = FootprintZ * 0.75f;
+		const float sigx = (float)FootprintX * 0.75f;
+		const float sigz = (float)FootprintZ * 0.75f;
 		const float sigx2 = -0.5f / (sigx * sigx);
 		const float sigz2 = -0.5f / (sigz * sigz);
 		for(int z = 0 ; z < gRepulsion.getHeight() ; ++z)
 		{
-			float dz = z - gRepulsion.getHeight() * 0.5f;
+			float dz = (float)z - (float)gRepulsion.getHeight() * 0.5f;
 			// Distance to the unit, not its center of gravity if it's a building
 			if (!BMcode)
-				dz = Math::Sgn(dz) * Math::Max(fabsf(dz) - FootprintZ * 0.5f, 0.0f);
+				dz = (float)Math::Sgn(dz) * Math::Max(fabsf(dz) - (float)FootprintZ * 0.5f, 0.0f);
 			dz *= dz;
 			for(int x = 0 ; x < gRepulsion.getWidth() ; ++x)
 			{
-				float dx = x - gRepulsion.getWidth() * 0.5f;
+				float dx = (float)x - (float)gRepulsion.getWidth() * 0.5f;
 				// Distance to the unit, not its center of gravity if it's a building
 				if (!BMcode)
-					dx = Math::Sgn(dx) * Math::Max(fabsf(dx) - FootprintX * 0.5f, 0.0f);
+					dx = (float)Math::Sgn(dx) * Math::Max(fabsf(dx) - (float)FootprintX * 0.5f, 0.0f);
 				dx *= dx;
-				gRepulsion(x,z) = 2550.0f * expf(sigx2 * dx + sigz2 * dz);
+				gRepulsion(x,z) = 2550.0f * std::exp(sigx2 * dx + sigz2 * dz);
 			}
 		}
 		load_dl();
@@ -1087,7 +1087,7 @@ namespace TA3D
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		gfx->ReInitTexSys();
-		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
+		glColor4ub(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
 		if (GUI)
 		{
 			if (panel.tex)
@@ -1113,7 +1113,7 @@ namespace TA3D
 			}
 
 			glDisable(GL_TEXTURE_2D);
-			glColor4ub(0x0, 0x0, 0x0, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
+			glColor4ub(0x0, 0x0, 0x0, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
 			glBegin(GL_QUADS);
 			glVertex2i(0, 0);			// Barre latérale gauche
 			glVertex2i(128, 0);
@@ -1125,7 +1125,7 @@ namespace TA3D
 			glVertex2i(128, SCREEN_H);
 			glVertex2i(0, SCREEN_H);
 			glEnd();
-			glColor4ub(0xFF, 0xFF, 0xFF, 0xFF - byte(lp_CONFIG->menuTransparency * 0xFF));
+			glColor4ub(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
 			return 0;
 		}
 
@@ -1215,15 +1215,22 @@ namespace TA3D
 						<< " HP:" << unit_type[sel]->MaxDamage;
 				if (!unit_type[sel]->Description.empty())
 					message << '\n' << unit_type[sel]->Description;
-				Gui::AREA::current()->getSkin()->PopupMenu(mouse_x + 20, mouse_y + 20, message);
+				Gui::AREA::current()->getSkin()->PopupMenu((float)mouse_x + 20.0f, (float)mouse_y + 20.0f, message);
 			}
 			else
 			{	// Print info at the bottom of the screen
-				gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF,
+				const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+				gfx->print(gfx->normal_font,
+						   (float)side_data.Name.x1,
+						   (float)side_data.Name.y1,
+						   0.0f, 0xFFFFFFFF,
 						   String(unit_type[sel]->name) << " M:" << unit_type[sel]->BuildCostMetal  << " E:" << unit_type[sel]->BuildCostEnergy << " HP:" << unit_type[sel]->MaxDamage );
 
 				if (!unit_type[sel]->Description.empty())
-					gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,unit_type[sel]->Description );
+					gfx->print(gfx->normal_font,
+							   (float)side_data.Description.x1,
+							   (float)side_data.Description.y1,
+							   0.0f,0xFFFFFFFF,unit_type[sel]->Description );
 			}
 			glDisable(GL_BLEND);
 		}
@@ -1246,7 +1253,7 @@ namespace TA3D
 		int n = 0, m = 0;
 
 #pragma omp parallel for
-		for (int i = 0 ; i < file_list.size() ; ++i)
+		for (size_t i = 0 ; i < file_list.size() ; ++i)
 		{
 			mInternals.lock();
 #ifdef _OPENMP

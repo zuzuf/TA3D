@@ -86,7 +86,7 @@ namespace TA3D
 			{
 				unsigned char c;
 				*src >> c;
-				color[ i ] = c / 255.0f;
+				color[ i ] = (float)c / 255.0f;
 			}
 			break;
     default:

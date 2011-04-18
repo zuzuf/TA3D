@@ -34,20 +34,20 @@ namespace TA3D
 	{
 		if (on_mini_map) // If the cursor is on the mini_map;
 		{
-			float x = (mouse_x - 64) * 252.0f / 128.0f * map.map_w / map.mini_w;
-			float z = (mouse_y - 64) * 252.0f / 128.0f * map.map_h / map.mini_h;
-			float y = map.get_unit_h(x, z);
+			const float x = float(mouse_x - 64) * 252.0f / 128.0f * (float)map.map_w / (float)map.mini_w;
+			const float z = float(mouse_y - 64) * 252.0f / 128.0f * (float)map.map_h / (float)map.mini_h;
+			const float y = map.get_unit_h(x, z);
 			return Vector3D(x, y, z);
 		}
 		if (lp_CONFIG->ortho_camera)        // Orthographic camera
 		{
-			Vector3D cur_pos = cam.pos + cam.zoomFactor * ( (mouse_x - gfx->SCREEN_W_HALF) * cam.side
-															- (mouse_y - gfx->SCREEN_H_HALF) * cam.up );
+			const Vector3D cur_pos = cam.pos + cam.zoomFactor * ( float(mouse_x - gfx->SCREEN_W_HALF) * cam.side
+																  - float(mouse_y - gfx->SCREEN_H_HALF) * cam.up );
 			return map.hit(cur_pos, cam.dir, true, 2000000000.0f, true);
 		}
 		// Normal perspective code
-		Vector3D cur_dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side
-			- 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
+		Vector3D cur_dir = cam.dir + cam.widthFactor * 2.0f * float(mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side
+						   - 1.5f * float(mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
 		cur_dir.unit();		// Direction pointée par le curseur
 		return map.hit(cam.pos, cur_dir, true, 2000000000.0f, true);
 	}
@@ -70,7 +70,7 @@ namespace TA3D
 		else
 		{
 			FogD = 0.3f;
-			FogFar = lp_CONFIG->far_sight ? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h ) : cam.zfar;
+			FogFar = lp_CONFIG->far_sight ? std::sqrt(float(map->map_w * map->map_w + map->map_h * map->map_h)) : cam.zfar;
 			if (cam.rpos.y > gfx->low_def_limit)
 				FogFar *= 2.0f - std::exp(-0.01f * (cam.rpos.y - gfx->low_def_limit));
 			FogNear = FogFar * 0.5f;
@@ -94,7 +94,7 @@ namespace TA3D
 	{
 		cam.zfar = (lp_CONFIG->far_sight)
 			// We want to see everything
-			? sqrtf( map->map_w * map->map_w + map->map_h * map->map_h + cam.rpos.y * cam.rpos.y)
+			? std::sqrt(float(map->map_w * map->map_w + map->map_h * map->map_h) + cam.rpos.y * cam.rpos.y)
 			: 600.0f + Math::Max((cam_h - 150.0f) * 2.0f, 0.0f);
 		// Set View
 		cam.setView();
@@ -106,7 +106,7 @@ namespace TA3D
 	{
 		Gui::WND::Ptr statuswnd = pArea.get_wnd("gamestatus");
 		if (statuswnd)
-			statuswnd->y = (int)(SCREEN_H - (statuswnd->height + 32) * show_gamestatus);
+			statuswnd->y = (int)((float)SCREEN_H - float(statuswnd->height + 32) * show_gamestatus);
 
 		uint32 game_time = units.current_tick / TICKS_PER_SEC;
 
@@ -136,7 +136,7 @@ namespace TA3D
 
 		statuswnd = pArea.get_wnd("playerstats");
 		if (statuswnd)
-			statuswnd->x = (int)(SCREEN_W - (statuswnd->width + 10) * show_gamestatus);
+			statuswnd->x = (int)((float)SCREEN_W - float(statuswnd->width + 10) * show_gamestatus);
 
         if (pArea.get_state("playerstats"))                         // Don't update things if we don't display them
             for (unsigned int i = 0; i < players.count(); ++i)

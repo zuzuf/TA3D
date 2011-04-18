@@ -602,7 +602,7 @@ namespace TA3D
 						|| nz < 0 || nz >= the_map->bloc_h_db)
 						continue;
 					const int t = zone(nx, nz);
-					const float f = t + coef * energy(nx, nz);
+					const float f = (float)t + coef * energy(nx, nz);
 					if (t > 0 && (f < m || b == -1))
 					{
 						b = i;
@@ -714,7 +714,7 @@ namespace TA3D
 			if (*it)
 				delete *it;
 		hBitMap.clear();
-		int memoryUsed = 0;
+		size_t memoryUsed = 0U;
 		Mutex mLoad;
 #pragma omp parallel for
 		for(uint32 i = 0 ; i < unit_manager.unit_type.size() ; ++i)
@@ -753,7 +753,7 @@ namespace TA3D
 //				LOG_INFO(LOG_PREFIX_PATHS << (i + 1) * 100 / unit_manager.unit_type.size() << '%');
 		}
 
-		LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024 << "kb");
+		LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024U << "kb");
 	}
 } // namespace TA3D
 

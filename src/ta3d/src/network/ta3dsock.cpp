@@ -160,16 +160,16 @@ namespace TA3D
 
 	void TA3DSock::putString(const char* x)
 	{
-		int n = strlen(x);
-		if(n < TA3DSOCK_BUFFER_SIZE - obp - 1)
+		const size_t n = strlen(x);
+		if(n < size_t(TA3DSOCK_BUFFER_SIZE - obp - 1))
 		{
-			memcpy(outbuf+obp,x,n);
-			obp+=n;
+			memcpy(outbuf + obp, x, n);
+			obp += (int)n;
 		}
 		else
 		{
-			memcpy(outbuf+obp,x,TA3DSOCK_BUFFER_SIZE - obp - 1);
-			obp+=TA3DSOCK_BUFFER_SIZE - obp - 1;
+			memcpy(outbuf + obp, x, TA3DSOCK_BUFFER_SIZE - obp - 1);
+			obp += TA3DSOCK_BUFFER_SIZE - obp - 1;
 		}
 		putByte('\0');
 	}
@@ -257,16 +257,16 @@ namespace TA3D
 	}
 
 
-	void TA3DSock::send(byte *data, int size)
+	void TA3DSock::send(const byte *data, int size)
 	{
 		tcpmutex.lock();
 
-		uint16 length = size;
-		tcpsock.send( (char*)&length, 2 );
-		tcpsock.send( (char*)data, size );
+		const uint16 length = (uint16)size;
+		tcpsock.send( (const char*)&length, 2 );
+		tcpsock.send( (const char*)data, size );
 		if (dump_file.opened())
 		{
-			dump_file.write((char*)data, size);
+			dump_file.write((const char*)data, size);
 			dump_file.flush();
 		}
 
@@ -277,8 +277,8 @@ namespace TA3D
 	{
 		tcpmutex.lock();
 
-		uint16 length = obp;
-		tcpsock.send((char*)&length, 2);
+		const uint16 length = (uint16)obp;
+		tcpsock.send((const char*)&length, 2);
 		tcpsock.send(outbuf, obp);
 		if (dump_file.opened())
 		{
@@ -517,8 +517,8 @@ namespace TA3D
 				break;
 			case EVENT_UNIT_SCRIPT:
 				putShort(event->opt1);
-				putByte(event->opt2);
-				putByte(event->opt3);
+				putByte((uint8)event->opt2);
+				putByte((uint8)event->opt3);
 				for (unsigned int i = 0 ; i < event->opt3 ; ++i)
 					putLong(((sint32*)(event->str))[i]);
 				break;

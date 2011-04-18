@@ -159,6 +159,14 @@ namespace TA3D
 		#define TICKS_PER_SEC                30
 	}
 
+	template<class T>
+	inline void setFlag(T &out, const int flag)	{	out = T(out | flag);	}
+
+	template<class T>
+	inline void unsetFlag(T &out, const int flag)	{	out = T(out & ~flag);	}
+
+	template<class T>
+	inline bool isFlagSet(const T &in, const int flag)	{	return (in & flag) != 0;	}
 } // namespace TA3D
 
 

@@ -372,7 +372,7 @@ namespace TA3D
             case HYPOT:
 				return (int)hypotf(float(v1), float(v2));
             case GROUND_HEIGHT:
-				return (int)(the_map->get_unit_h(( UNPACKX(v1) - (float)the_map->map_w) * 0.5f,( UNPACKZ(v1) - (float)the_map->map_h) * 0.5f) * 2.0f) << 16;
+				return (int)(the_map->get_unit_h(float(UNPACKX(v1) - the_map->map_w) * 0.5f, float(UNPACKZ(v1) - the_map->map_h) * 0.5f) * 2.0f) << 16;
             default:
                 LOG_DEBUG(LOG_PREFIX_SCRIPT << "GET unknown constant " << type);
         }
