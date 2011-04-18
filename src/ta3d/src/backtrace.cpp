@@ -54,7 +54,7 @@
  * Declaration of the bug reporter. It's here because it should be visible only
  * from this module.
  */
-void bug_reporter();
+void bug_reporter(const String &trace);
 
 /*!
  * \brief Obtain a backtrace and print it to stdout.
@@ -76,12 +76,39 @@ void backtrace_handler (int signum)
 	// Get TA3D's PID
 	pid_t mypid = getpid();
 	// Try to get a stack trace from GDB
-	String cmd;
-	cmd << "gdb --pid=" << mypid << " -ex \"info threads\" -ex bt > \"" << TA3D::Paths::Logs << "backtrace.txt\" --batch";
-	if (system(cmd.c_str()) == 0)
+	String::Vector threads;
+	TA3D::System::run_command(String("gdb --pid=") << mypid << " -ex \"info threads\" --batch").split(threads, "\n");
+	if (!threads.empty())
 	{
-		bug_reporter();
-		exit(-1);
+		String cmd;
+		cmd << "gdb --pid="
+			<< mypid
+			<< " -ex \"info threads\"";
+		for(size_t i = 0 ; i < threads.size() ; ++i)
+		{
+			String &line = threads[i];
+			if (line.startsWith('[')
+				|| line.startsWith("0x")
+				|| line.startsWith('#'))
+				continue;
+			if (line.startsWith('*'))
+			{
+				line[0] = ' ';
+				line.trimLeft(' ');
+			}
+			const int id = line.to<int>();
+			if (id <= 0)
+				continue;
+			std::cout << "thread id = " << id << std::endl;
+			cmd	<< " -ex \"thread " << id << "\" -ex bt";
+		}
+		cmd	<< " --batch";
+		const String trace = TA3D::System::run_command(cmd);
+		if (!trace.empty())
+		{
+			bug_reporter(trace);
+			exit(-1);
+		}
 	}
 
 	// If GDB is not available or returned an error we must find another way ... this is now platform dependent
@@ -235,7 +262,7 @@ void criticalMessage(const String &msg)
  * crash report that would be sent to the bug report server. The user can accept to send the
  * report or not.
  */
-void bug_reporter()
+void bug_reporter(const String &trace)
 {
 	bool bSendReport = false;
 	std::string report;
@@ -280,12 +307,8 @@ void bug_reporter()
 	report += '\n';
 	report += '\n';
 
-	const String fBacktrace = String(TA3D::Paths::Logs) << "backtrace.txt";
 	report += "\nstacktrace:\n";
-	std::string bt;
-	Yuni::Core::IO::File::LoadFromFile(bt, fBacktrace);
-
-	report += bt;
+	report += trace.c_str();
 
 	Gui::Window wnd("Bug report", 640, 240, Gui::Window::MOVEABLE);
 	wnd.addChild(Gui::TabWidget_("tabs")
