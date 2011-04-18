@@ -113,7 +113,7 @@ namespace TA3D
 				if (lp_CONFIG->wireframe)
 					glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-				map->draw(&refcam, (1 << players.local_human_id),  false, 0.0f, t,
+				map->draw(&refcam, byte(1 << players.local_human_id),  false, 0.0f, t,
 						  dt * units.apparent_timefactor,
 						  false, false, false);
 
@@ -328,7 +328,7 @@ namespace TA3D
 					water_pass1_low.setvar1i("lava",0);
 					water_pass1_low.setvar1i("map",1);
 					water_pass1_low.setvar1f("t",t);
-					water_pass1_low.setvar2f("factor", water_obj->w / map->map_w, water_obj->w / map->map_h);
+					water_pass1_low.setvar2f("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 				}
 				else
 				{
@@ -336,7 +336,7 @@ namespace TA3D
 					water_pass1.setvar1i("lava",0);
 					water_pass1.setvar1i("map",1);
 					water_pass1.setvar1f("t",t);
-					water_pass1.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
+					water_pass1.setvar2f("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 				}
 
 				cam.setView(true);
@@ -442,7 +442,7 @@ namespace TA3D
 					water_shader.setvar1i("rtex",1);
 					water_shader.setvar1i("bump",2);
 					water_shader.setvar1i("view",3);
-					water_shader.setvar2f("coef", (float)SCREEN_W / wx, (float)SCREEN_H / wy);
+					water_shader.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
 				}
 				else
 				{
@@ -456,7 +456,7 @@ namespace TA3D
 					water_shader_reflec.setvar1i("bump",2);
 					water_shader_reflec.setvar1i("view",3);
 					water_shader_reflec.setvar1i("water_color",4);
-					water_shader_reflec.setvar2f("coef", (float)SCREEN_W / wx, (float)SCREEN_H / wy);
+					water_shader_reflec.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
 				}
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -473,9 +473,9 @@ namespace TA3D
 				glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-				glTexCoord2f(1.0f,1.0f);	glVertex3f(SCREEN_W,0,0);
-				glTexCoord2f(1.0f,0.0f);	glVertex3f(SCREEN_W,SCREEN_H,0);
-				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,SCREEN_H,0);
+				glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
+				glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
+				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
 				glEnd();
 				glDisable(GL_STENCIL_TEST);
 				glEnable(GL_DEPTH_TEST);
@@ -613,7 +613,7 @@ namespace TA3D
 				water_simulator_shader4.on();
 				water_simulator_shader4.setvar1i("lava",0);
 				water_simulator_shader4.setvar1f("t",t);
-				water_simulator_shader4.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
+				water_simulator_shader4.setvar2f("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
@@ -729,9 +729,9 @@ namespace TA3D
 				water_simulator_reflec.setvar1i("height_map",5);
 				water_simulator_reflec.setvar1i("normal_map",6);
 				water_simulator_reflec.setvar1i("distort_map",7);
-				water_simulator_reflec.setvar2f("coef", (float)SCREEN_W / wx, (float)SCREEN_H / wy);
+				water_simulator_reflec.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
 				water_simulator_reflec.setvar1f("cam_h_factor", 1.0f / cam.rpos.y);
-				water_simulator_reflec.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
+				water_simulator_reflec.setvar2f("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 				water_simulator_reflec.setvar1f("t", t);
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -748,9 +748,9 @@ namespace TA3D
 				glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
-				glTexCoord2f(1.0f,1.0f);	glVertex3f(SCREEN_W,0,0);
-				glTexCoord2f(1.0f,0.0f);	glVertex3f(SCREEN_W,SCREEN_H,0);
-				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,SCREEN_H,0);
+				glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
+				glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
+				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
 				glEnd();
 				glDisable(GL_STENCIL_TEST);
 				glEnable(GL_DEPTH_TEST);
@@ -795,7 +795,7 @@ namespace TA3D
 			glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
 			if (lp_CONFIG->ortho_camera)
 			{
-				float scale = cam.zoomFactor / 800.0f * sqrtf(SCREEN_H * SCREEN_H + SCREEN_W * SCREEN_W);
+				const float scale = cam.zoomFactor / 800.0f * std::sqrt(float(SCREEN_H * SCREEN_H + SCREEN_W * SCREEN_W));
 				glScalef( scale, scale, scale );
 			}
 			sky.draw();
@@ -812,7 +812,7 @@ namespace TA3D
 		if (lp_CONFIG->wireframe)
 			glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-		map->draw(&cam,1<<players.local_human_id,false,0.0f,t,dt*units.apparent_timefactor);
+		map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units.apparent_timefactor);
 
 		if (lp_CONFIG->wireframe)
 			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -881,8 +881,8 @@ namespace TA3D
 
 			for (int c = 0; c <= d; ++c)
 			{
-				target.x = pMouseRectSelection.x1 + (pMouseRectSelection.x2 - pMouseRectSelection.x1) * c / Math::Max(d, 1);
-				target.z = pMouseRectSelection.y1 + (pMouseRectSelection.y2 - pMouseRectSelection.y1) * c / Math::Max(d, 1);
+				target.x = float(pMouseRectSelection.x1 + (pMouseRectSelection.x2 - pMouseRectSelection.x1) * c / Math::Max(d, 1));
+				target.z = float(pMouseRectSelection.y1 + (pMouseRectSelection.y2 - pMouseRectSelection.y1) * c / Math::Max(d, 1));
 
 				if (abs( ox - (int)target.x) < unit_manager.unit_type[build]->FootprintX
 					&& abs( oy - (int)target.z) < unit_manager.unit_type[build]->FootprintZ)
@@ -892,9 +892,9 @@ namespace TA3D
 
 				target.y = map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ);
 				if (unit_manager.unit_type[build]->floatting())
-					target.y = Math::Max(target.y,map->sealvl+(unit_manager.unit_type[build]->AltFromSeaLevel-unit_manager.unit_type[build]->WaterLine)*H_DIV);
-				target.x = target.x * 8.0f - map->map_w_d;
-				target.z = target.z * 8.0f - map->map_h_d;
+					target.y = Math::Max(target.y, map->sealvl + ((float)unit_manager.unit_type[build]->AltFromSeaLevel - (float)unit_manager.unit_type[build]->WaterLine) * H_DIV);
+				target.x = target.x * 8.0f - (float)map->map_w_d;
+				target.z = target.z * 8.0f - (float)map->map_h_d;
 
 				can_be_there = can_be_built(target, build, players.local_human_id);
 
@@ -902,8 +902,8 @@ namespace TA3D
 
 				glTranslatef(target.x,target.y,target.z);
 				glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
-				const float DX = (unit_manager.unit_type[build]->FootprintX<<2);
-				const float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
+				const float DX = float(unit_manager.unit_type[build]->FootprintX << 2);
+				const float DZ = float(unit_manager.unit_type[build]->FootprintZ << 2);
 				if (unit_manager.unit_type[build]->model)
 				{
 					glEnable(GL_CULL_FACE);
@@ -938,7 +938,7 @@ namespace TA3D
 				}
 				cam.setView();
 				glTranslatef(target.x,Math::Max( target.y, map->sealvl ),target.z);
-				int red = 0xFF, green = 0x00;
+				byte red = 0xFF, green = 0x00;
 				if (can_be_there)
 				{
 					green = 0xFF;
@@ -991,9 +991,8 @@ namespace TA3D
 			glDisable(GL_FOG);
 			cam.setView();
 			bool builders = false;
-			const float t = msec_timer * 0.001f;
+			const float t = (float)msec_timer * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
-			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
 			for (unsigned int e = 0; e < units.index_list_size ; ++e)
 			{
 				const int i = units.idx_list[e];
@@ -1015,10 +1014,10 @@ namespace TA3D
 							const int idx = weapon_manager.get_weapon_index(pType->SelfDestructAs);
 							const WeaponDef* const pWeapon = idx >= 0 && idx < weapon_manager.nb_weapons ? &(weapon_manager.weapon[idx]) : NULL;
 							if (pWeapon)
-								the_map->drawCircleOnMap(x, z, pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
+								the_map->drawCircleOnMap(x, z, (float)pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
 						}
 						if (pType->mincloakdistance && units.unit[i].cloaked)
-							the_map->drawCircleOnMap(x, z, pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
+							the_map->drawCircleOnMap(x, z, (float)pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
 					}
 					if (units.unit[i].sel)
 						units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité / Draw given orders
@@ -1046,7 +1045,7 @@ namespace TA3D
 		{
 			glDisable(GL_FOG);
 			cam.setView();
-			const float t = msec_timer * 0.001f;
+			const float t = (float)msec_timer * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
 			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
 			for (unsigned int e = 0; e < units.index_list_size ; ++e)
@@ -1071,21 +1070,21 @@ namespace TA3D
 								const int idx = weapon_manager.get_weapon_index(pType->SelfDestructAs);
 								const WeaponDef* const pWeapon = idx >= 0 && idx < weapon_manager.nb_weapons ? &(weapon_manager.weapon[idx]) : NULL;
 								if (pWeapon)
-									the_map->drawCircleOnMap(x, z, pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
+									the_map->drawCircleOnMap(x, z, (float)pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
 							}
 							if (pType->mincloakdistance && units.unit[i].cloaked)
-								the_map->drawCircleOnMap(x, z, pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
+								the_map->drawCircleOnMap(x, z, (float)pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
 						}
 						if (!pType->onoffable || units.unit[i].port[ACTIVATION])
 						{
 							if (pType->RadarDistance)
-								the_map->drawCircleOnMap(x, z, pType->RadarDistance * mt, makeacol(0x00,0x00,0xFF,0xFF), 1.0f);
+								the_map->drawCircleOnMap(x, z, (float)pType->RadarDistance * mt, makeacol(0x00,0x00,0xFF,0xFF), 1.0f);
 							if (pType->RadarDistanceJam)
-								the_map->drawCircleOnMap(x, z, pType->RadarDistanceJam * mt, makeacol(0x00,0x00,0x00,0xFF), 1.0f);
+								the_map->drawCircleOnMap(x, z, (float)pType->RadarDistanceJam * mt, makeacol(0x00,0x00,0x00,0xFF), 1.0f);
 							if (pType->SonarDistance)
-								the_map->drawCircleOnMap(x, z, pType->SonarDistance * mt2, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
+								the_map->drawCircleOnMap(x, z, (float)pType->SonarDistance * mt2, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
 							if (pType->SonarDistanceJam)
-								the_map->drawCircleOnMap(x, z, pType->SonarDistanceJam * mt2, makeacol(0x7F,0x7F,0x7F,0xFF), 1.0f);
+								the_map->drawCircleOnMap(x, z, (float)pType->SonarDistanceJam * mt2, makeacol(0x7F,0x7F,0x7F,0xFF), 1.0f);
 						}
 					}
 				}
@@ -1153,8 +1152,8 @@ namespace TA3D
 				// Set camera to current part of the scene
 				cam.rpos = camBak.rpos
 						   + camBak.zoomFactor
-							* ((x - w / 2 - SCREEN_W / 4) * camBak.side
-							   + (z - h / 2 - SCREEN_H / 4) * camBak.up);
+							* (float(x - w / 2 - SCREEN_W / 4) * camBak.side
+							   + float(z - h / 2 - SCREEN_H / 4) * camBak.up);
 				if (!Yuni::Math::Zero(camBak.dir.y))
 					cam.rpos = cam.rpos + ((camBak.rpos - cam.rpos).y / camBak.dir.y) * camBak.dir;
 

@@ -236,7 +236,7 @@ namespace TA3D
 
         /*-----------------------------------------------------------------------*/
 
-        byte    page;               // Pour le menu de construction
+		int		page;               // Pour le menu de construction
         float   click_time;         // To have a nice animation when click on a button :-)
         sint16  last_click;         // What was clicked
 

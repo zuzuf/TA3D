@@ -163,7 +163,7 @@ namespace TA3D
 			preflightVars();
 
 			// Wind - Make a change every 10 sec. (simulation time)
-			if (wind_change = (t - wind_t >= 10.0f))
+			if ((wind_change = (t - wind_t >= 10.0f)))
 				preflightChangeWindSpeedAndDirection();
 
 			// Update 3D sounds
@@ -179,9 +179,9 @@ namespace TA3D
 			bool rope_selection = pMouseSelecting && (abs(pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs(pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
 			if (selected && build < 0 && (!IsOnGUI || IsOnMinimap) && !rope_selection)
 			{
-				for (int i = 0; i < units.index_list_size; ++i)
+				for (size_t i = 0; i < units.index_list_size; ++i)
 				{
-					uint32 e = units.idx_list[i];
+					const uint32 e = units.idx_list[i];
 					if ((units.unit[e].flags & 1) && units.unit[e].owner_id == players.local_human_id
 						&& units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id]->canmove)
 					{
@@ -194,7 +194,7 @@ namespace TA3D
 				cursor_type = CURSOR_DEFAULT;
 
 
-            dt = (msec_timer - count) * 0.001f; // Regulate frame rate
+			dt = float(msec_timer - count) * 0.001f; // Regulate frame rate
 			while (dt < delay)
 			{
 				switch (lp_CONFIG->priority_level)
@@ -202,7 +202,7 @@ namespace TA3D
 					case 0: rest(1); break;
 					case 1: rest(0); break;
 				}
-                dt = (msec_timer - count) * 0.001f;
+				dt = float(msec_timer - count) * 0.001f;
 			}
 			count = msec_timer;
 
@@ -270,7 +270,7 @@ namespace TA3D
 					speed_changed = false;
 			}
 
-			if (track_mode >= 0 && track_mode <= units.max_unit)
+			if (track_mode >= 0 && track_mode <= (int)units.max_unit)
 			{
 				if (!(units.unit[ track_mode ].flags & 1)) // Leave tracking mode
 				{
@@ -288,10 +288,10 @@ namespace TA3D
 			else
 				track_mode = -1;
 
-			if (track_mode >= 0 && ( cur_sel_index < 0 || cur_sel_index >= units.max_unit || track_mode != cur_sel_index))
+			if (track_mode >= 0 && ( cur_sel_index < 0 || cur_sel_index >= (int)units.max_unit || track_mode != cur_sel_index))
 				track_mode = -1;
 
-			if (key[KEY_T] && !Console::Instance()->activated() && cur_sel_index>=0 && cur_sel_index<units.max_unit)
+			if (key[KEY_T] && !Console::Instance()->activated() && cur_sel_index >= 0 && cur_sel_index < (int)units.max_unit)
 			{
 				if (!last_time_activated_track_mode)
 					track_mode = track_mode == cur_sel_index ? -1 : cur_sel_index;
@@ -323,8 +323,8 @@ namespace TA3D
 			if (mouse_x < 128.0f && mouse_y < 128.0f && mouse_x >= 0.0f && mouse_y >= 0.0f
 				&& ((mouse_b == 2 && !lp_CONFIG->right_click_interface) || (mouse_b == 1 && lp_CONFIG->right_click_interface)))
 			{
-				cam.rpos.x = (mouse_x - 64) * map->map_w / 128.0f * 252.0f / map->mini_w;
-				cam.rpos.z = (mouse_y - 64) * map->map_h / 128.0f * 252.0f / map->mini_h;
+				cam.rpos.x = float((mouse_x - 64) * map->map_w) / 128.0f * 252.0f / (float)map->mini_w;
+				cam.rpos.z = float((mouse_y - 64) * map->map_h) / 128.0f * 252.0f / (float)map->mini_h;
 				cam_has_target = false;
 			}
 			if (mouse_x < 2)
@@ -378,8 +378,8 @@ namespace TA3D
 					get_mouse_mickeys(&mx,&my);
 					if (omb == mouse_b)
 					{
-						r2 -= mx;
-						r1 -= my;
+						r2 -= (float)mx;
+						r1 -= (float)my;
 					}
 					position_mouse(gfx->SCREEN_W_HALF, gfx->SCREEN_H_HALF);
 				}
@@ -399,8 +399,8 @@ namespace TA3D
 						if (omb == mouse_b)
 						{
 							track_mode = -1;
-							cam.rpos.x += mx * cam_h / 151.0f;
-							cam.rpos.z += my * cam_h / 151.0f;
+							cam.rpos.x += (float)mx * cam_h / 151.0f;
+							cam.rpos.z += (float)my * cam_h / 151.0f;
 							cam_has_target = false;
 						}
 						position_mouse(gfx->SCREEN_W_HALF, gfx->SCREEN_H_HALF);
@@ -439,29 +439,29 @@ namespace TA3D
 
 			if (cam.rpos.x < -map->map_w_d)
 			{
-				cam.rpos.x = -map->map_w_d;
+				cam.rpos.x = (float)-map->map_w_d;
 				cam_has_target = false;
 			}
 			if (cam.rpos.x > map->map_w_d)
 			{
-				cam.rpos.x = map->map_w_d;
+				cam.rpos.x = (float)map->map_w_d;
 				cam_has_target = false;
 			}
-			if (cam.rpos.z < -map->map_h_d + 200.0f)
+			if (cam.rpos.z < (float)-map->map_h_d + 200.0f)
 			{
-				cam.rpos.z = -map->map_h_d + 200.0f;
+				cam.rpos.z = (float)-map->map_h_d + 200.0f;
 				cam_has_target = false;
 			}
 			if (cam.rpos.z > map->map_h_d && !cam_has_target)
-				cam.rpos.z = map->map_h_d;
-			if (cam.rpos.z > map->map_h_d + 200.0f)
-				cam.rpos.z = map->map_h_d + 200.0f;
+				cam.rpos.z = (float)map->map_h_d;
+			if (cam.rpos.z > (float)map->map_h_d + 200.0f)
+				cam.rpos.z = (float)map->map_h_d + 200.0f;
 
 			Matrix Rotation;
 			if (lp_CONFIG->camera_zoom == ZOOM_NORMAL)
-				Rotation = RotateX( r1 * DEG2RAD) * RotateY( r2 * DEG2RAD) * RotateZ( r3 * DEG2RAD);
+				Rotation = RotateX(r1 * DEG2RAD) * RotateY(r2 * DEG2RAD) * RotateZ(r3 * DEG2RAD);
 			else
-				Rotation = RotateX( -lp_CONFIG->camera_def_angle * DEG2RAD) * RotateY( r2 * DEG2RAD) * RotateZ( r3 * DEG2RAD);
+				Rotation = RotateX(-lp_CONFIG->camera_def_angle * DEG2RAD) * RotateY(r2 * DEG2RAD) * RotateZ(r3 * DEG2RAD);
 
 			cam.setMatrix(Rotation);
 			cam.updateShake(dt);
@@ -473,11 +473,11 @@ namespace TA3D
 				if (lp_CONFIG->ortho_camera)
 				{
 					cur_dir = cam.dir;
-					m_pos = cam.pos + cam.zoomFactor * ( (cam_target_mx - gfx->SCREEN_W_HALF) * cam.side - (cam_target_my - gfx->SCREEN_H_HALF) * cam.up ) + cam.znear * cam.dir;
+					m_pos = cam.pos + cam.zoomFactor * ( float(cam_target_mx - gfx->SCREEN_W_HALF) * cam.side - float(cam_target_my - gfx->SCREEN_H_HALF) * cam.up ) + cam.znear * cam.dir;
 				}
 				else
 				{
-					cur_dir = cam.dir + cam.widthFactor * 2.0f * (cam_target_mx - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side - 1.5f * (cam_target_my - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
+					cur_dir = cam.dir + cam.widthFactor * 2.0f * float(cam_target_mx - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side - 1.5f * float(cam_target_my - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
 					m_pos = cam.rpos;
 				}
 				cur_dir.unit();		// Direction pointÃ©e par le curseur
@@ -485,9 +485,9 @@ namespace TA3D
 				moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
 				if (lp_CONFIG->ortho_camera)
 				{
-					float d = moving_target.sq();
+					const float d = moving_target.sq();
 					moving_target.y = 0.0f;
-					float D = moving_target.sq();
+					const float D = moving_target.sq();
 					if (Yuni::Math::Zero(D))
 						cam_has_target = false;
 					else
@@ -544,8 +544,8 @@ namespace TA3D
 					if (pointing == -1) 				// Is the cursor on a rock, tree, ...?
 					{
 						Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
-						const int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
-						const int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
+						const int px = ((int)(cur_pos.x + (float)map->map_w_d)) >> 3;
+						const int py = ((int)(cur_pos.z + (float)map->map_h_d)) >> 3;
 
 						if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db
 							&& (map->view_map(px >> 1, py >> 1) & (1 << players.local_human_id)) )
@@ -649,10 +649,10 @@ namespace TA3D
 					if (cursor_type != CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
 					{
 						Vector3D target(cursorOnMap(cam, *map));
-						target.x = ((int)(target.x) + map->map_w_d) >> 3;
-						target.z = ((int)(target.z) + map->map_h_d) >> 3;
-						target.x = target.x * 8.0f - map->map_w_d;
-						target.z = target.z * 8.0f - map->map_h_d;
+						target.x = float(((int)(target.x) + map->map_w_d) >> 3);
+						target.z = float(((int)(target.z) + map->map_h_d) >> 3);
+						target.x = target.x * 8.0f - (float)map->map_w_d;
+						target.z = target.z * 8.0f - (float)map->map_h_d;
 						target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
 						order_removed = units.remove_order(players.local_human_id, target);
 					}
@@ -684,30 +684,30 @@ namespace TA3D
 											break;
 										}
 									if (TA3D_SHIFT_PRESSED)
-										units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),commandfire);
+										units.unit[i].add_mission(MISSION_ATTACK, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), (byte)commandfire);
 									else
-										units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),commandfire);
+										units.unit[i].set_mission(MISSION_ATTACK, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), (byte)commandfire);
 								}
 								units.unit[i].unlock();
 							}
-							if (!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
+							if (!TA3D_SHIFT_PRESSED)	current_order = SIGNAL_ORDER_NONE;
 							click_activated = true;
 						}
 						else
 							if (cursor_type == CURSOR_CAPTURE && can_be_captured)
 							{
-								for (unsigned int e = 0 ; e < units.index_list_size ; e++)
+								for (size_t e = 0 ; e < units.index_list_size ; e++)
 								{
 									units.lock();
-									int i = units.idx_list[e];
+									const size_t i = units.idx_list[e];
 									units.unlock();
 									units.unit[i].lock();
 									if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
 									{
 										if (TA3D_SHIFT_PRESSED)
-                                            units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]));
+											units.unit[i].add_mission(MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]));
 										else
-                                            units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]));
+											units.unit[i].set_mission(MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]));
 									}
 									units.unit[i].unlock();
 								}
@@ -817,9 +817,9 @@ namespace TA3D
 												break;
 											}
 										if (TA3D_SHIFT_PRESSED)
-											units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL, commandfire);
+											units.unit[i].add_mission(MISSION_ATTACK, &(cursor_pos), false, 0, NULL, (byte)commandfire);
 										else
-											units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,commandfire);
+											units.unit[i].set_mission(MISSION_ATTACK, &(cursor_pos), false, 0, true, NULL, (byte)commandfire);
 									}
 									units.unit[i].unlock();
 								}
@@ -835,10 +835,10 @@ namespace TA3D
 			if (cursor_type!=CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED && !order_removed) // Remove commands from queue
 			{
 				Vector3D target(cursorOnMap(cam, *map));
-				target.x = ((int)(target.x) + map->map_w_d) >> 3;
-				target.z = ((int)(target.z) + map->map_h_d) >> 3;
-				target.x = target.x * 8.0f - map->map_w_d;
-				target.z = target.z * 8.0f - map->map_h_d;
+				target.x = float(((int)(target.x) + map->map_w_d) >> 3);
+				target.z = float(((int)(target.z) + map->map_h_d) >> 3);
+				target.x = target.x * 8.0f - (float)map->map_w_d;
+				target.z = target.z * 8.0f - (float)map->map_h_d;
 				target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
 				order_removed = units.remove_order(players.local_human_id, target);
 			}
@@ -939,8 +939,8 @@ namespace TA3D
 
 				for (int c = 0; c <= d; ++c)
 				{
-					target.x = pMouseRectSelection.x1 + (pMouseRectSelection.x2 - pMouseRectSelection.x1) * c / Math::Max(d, 1);
-					target.z = pMouseRectSelection.y1 + (pMouseRectSelection.y2 - pMouseRectSelection.y1) * c / Math::Max(d, 1);
+					target.x = float(pMouseRectSelection.x1 + (pMouseRectSelection.x2 - pMouseRectSelection.x1) * c / Math::Max(d, 1));
+					target.z = float(pMouseRectSelection.y1 + (pMouseRectSelection.y2 - pMouseRectSelection.y1) * c / Math::Max(d, 1));
 
 					if (abs( ox - (int)target.x) < unit_manager.unit_type[build]->FootprintX
 						&& abs( oy - (int)target.z) < unit_manager.unit_type[build]->FootprintZ)	continue;
@@ -949,9 +949,9 @@ namespace TA3D
 
 					target.y = map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ);
 					if (unit_manager.unit_type[build]->floatting())
-						target.y = Math::Max(target.y,map->sealvl+(unit_manager.unit_type[build]->AltFromSeaLevel-unit_manager.unit_type[build]->WaterLine)*H_DIV);
-					target.x = target.x * 8.0f - map->map_w_d;
-					target.z = target.z * 8.0f - map->map_h_d;
+						target.y = Math::Max(target.y, map->sealvl + ((float)unit_manager.unit_type[build]->AltFromSeaLevel - (float)unit_manager.unit_type[build]->WaterLine) * H_DIV);
+					target.x = target.x * 8.0f - (float)map->map_w_d;
+					target.z = target.z * 8.0f - (float)map->map_h_d;
 
 					can_be_there = can_be_built(target, build, players.local_human_id);
 
@@ -1111,8 +1111,8 @@ namespace TA3D
 				if (units.last_on == -1) // Is the cursor on a rock, tree, ...?
 				{
 					const Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
-					const int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
-					const int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
+					const int px = ((int)(cur_pos.x + (float)map->map_w_d)) >> 3;
+					const int py = ((int)(cur_pos.z + (float)map->map_h_d)) >> 3;
 					if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (map->view_map(px >> 1, py >> 1) & (1 << players.local_human_id)))
 					{
 						int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
@@ -1290,9 +1290,9 @@ namespace TA3D
 									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
 									{
 										if (units.unit[i].sel)
-											units.unit[i].groupe|=grpe;
+											setFlag(units.unit[i].groupe, grpe);
 										else if (!TA3D_SHIFT_PRESSED)
-											units.unit[i].groupe&=~grpe;
+											unsetFlag(units.unit[i].groupe, grpe);
 									}
 								}
 							}
@@ -1523,7 +1523,7 @@ namespace TA3D
 					break;
 			}
 
-			if (cur_sel_index >= 0 && cur_sel_index < units.max_unit && !(units.unit[cur_sel_index].flags & 1))
+			if (cur_sel_index >= 0 && cur_sel_index < (int)units.max_unit && !(units.unit[cur_sel_index].flags & 1))
 			{
 				cur_sel = -1;
 				cur_sel_index = -1;
@@ -1541,7 +1541,7 @@ namespace TA3D
 			if (lp_CONFIG->paused)
 			{
 				gfx->set_alpha_blending();
-				pause_tex.drawCentered(0.5f * SCREEN_W, 0.5f * SCREEN_H, 0xFFFFFFFFU, 1.0f);
+				pause_tex.drawCentered(0.5f * (float)SCREEN_W, 0.5f * (float)SCREEN_H, 0xFFFFFFFFU, 1.0f);
 				gfx->unset_alpha_blending();
 			}
 
@@ -1682,11 +1682,11 @@ namespace TA3D
 						candgun    |= unit_manager.unit_type[units.unit[i].type_id]->candgun;
 
 						if (unit_manager.unit_type[units.unit[i].type_id]->canattack)
-							sforder |= units.unit[i].port[ STANDINGFIREORDERS ];
+							setFlag(sforder, units.unit[i].port[ STANDINGFIREORDERS ]);
 						if (unit_manager.unit_type[units.unit[i].type_id]->canmove)
-							smorder |= units.unit[i].port[ STANDINGMOVEORDERS ];
+							setFlag(smorder, units.unit[i].port[ STANDINGMOVEORDERS ]);
 						if (unit_manager.unit_type[units.unit[i].type_id]->onoffable)
-							onoff_state |= units.unit[ i ].port[ ACTIVATION ] ? 2 : 1;
+							setFlag(onoff_state, units.unit[ i ].port[ ACTIVATION ] ? 2 : 1);
 					}
 					units.unit[i].unlock();
 				}
@@ -1735,7 +1735,7 @@ namespace TA3D
 					onoff_gui = pArea.get_object(String(pCurrentGUI) << ".ARMONOFF");
 
 				if (onoff_gui)
-					onoff_gui->current_state = onoff_state - 1;
+					onoff_gui->current_state = byte(onoff_state - 1);
 
 				Gui::GUIOBJ::Ptr sorder_gui = pArea.get_object(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "FIREORD");
 				if (!sorder_gui)
@@ -1814,7 +1814,7 @@ namespace TA3D
 						onoff_gui = pArea.get_object(String(genGUI) << ".ARMONOFF");
 
 					if (onoff_gui)
-						onoff_gui->current_state = onoff_state - 1;
+						onoff_gui->current_state = byte(onoff_state - 1);
 
 					sorder_gui = pArea.get_object( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "FIREORD");
 					if (sorder_gui == NULL)
@@ -1908,7 +1908,7 @@ namespace TA3D
 			{
 				sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL);
 				if (unit_manager.unit_type[old_gui_sel]->nb_pages > 0)
-					unit_manager.unit_type[old_gui_sel]->page = (unit_manager.unit_type[old_gui_sel]->page + unit_manager.unit_type[old_gui_sel]->nb_pages-1)%unit_manager.unit_type[old_gui_sel]->nb_pages;
+					unit_manager.unit_type[old_gui_sel]->page = (unit_manager.unit_type[old_gui_sel]->page + unit_manager.unit_type[old_gui_sel]->nb_pages - 1) % unit_manager.unit_type[old_gui_sel]->nb_pages;
 			}
 			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "NEXT")
 				|| pArea.get_state( String(pCurrentGUI) << ".ARMNEXT"))
@@ -2151,7 +2151,7 @@ namespace TA3D
 					if (prev >= 0)
 					{
 						const int type = units.unit[cur_sel_index].mission->getUnit()->type_id;
-						const float metal_to_give_back = (1.0f - units.unit[cur_sel_index].mission->getUnit()->build_percent_left * 0.01f) * unit_manager.unit_type[type]->BuildCostMetal;
+						const float metal_to_give_back = (1.0f - units.unit[cur_sel_index].mission->getUnit()->build_percent_left * 0.01f) * (float)unit_manager.unit_type[type]->BuildCostMetal;
 						const int p_id = units.unit[cur_sel_index].owner_id;
 						units.unit[cur_sel_index].mission->getUnit()->clear_from_map();
 						units.unit[cur_sel_index].mission->getUnit()->flags = 0;               // Don't count it as a loss
@@ -2183,9 +2183,9 @@ namespace TA3D
 			glEnable(GL_BLEND);
 			glEnable(GL_TEXTURE_2D);
 			if (freecam)
-				freecam_on.drawCentered(64.0f, SCREEN_H - 32.0f);
+				freecam_on.drawCentered(64.0f, (float)SCREEN_H - 32.0f);
 			else
-				freecam_off.drawCentered(64.0f, SCREEN_H - 32.0f);
+				freecam_off.drawCentered(64.0f, (float)SCREEN_H - 32.0f);
 			glDisable(GL_BLEND);
 
 			if (mouse_x >= 32 && mouse_x <= 95 && mouse_y >= SCREEN_H - 64 && omb2 == 0)
@@ -2210,19 +2210,19 @@ namespace TA3D
 
 			int last_on = units.last_on;
 
-			map->draw_mini(0,0,128,128,&cam,1<<players.local_human_id);	// Mini-carte
-			units.draw_mini(map->map_w,map->map_h,map->mini_w,map->mini_h);
-			weapons.draw_mini(map->map_w,map->map_h,map->mini_w,map->mini_h);
+			map->draw_mini(0,0,128,128,&cam, byte(1 << players.local_human_id));	// Mini-carte
+			units.draw_mini((float)map->map_w,(float)map->map_h,map->mini_w,map->mini_h);
+			weapons.draw_mini((float)map->map_w,(float)map->map_h,map->mini_w,map->mini_h);
 
 			if (!freecam && mouse_b == 4) // Moving the cam around
 			{
 				gfx->set_alpha_blending();
 				gfx->set_color(0xFFFFFFFF);
-				circle_texture.drawCentered(0.5f * gfx->width, 0.5f * gfx->height);
-				arrow_texture.drawRotated(0.5f * gfx->width, 0.5f * arrow_texture.getHeight(), 0.0f);
-				arrow_texture.drawRotated(0.5f * gfx->width, gfx->height - 0.5f * arrow_texture.getHeight(), 180.0f);
-				arrow_texture.drawRotated(0.5f * arrow_texture.getHeight(), 0.5f * gfx->height, -90.0f);
-				arrow_texture.drawRotated(gfx->width - 0.5f * arrow_texture.getHeight(), 0.5f * gfx->height, 90.0f);
+				circle_texture.drawCentered(0.5f * (float)gfx->width, 0.5f * (float)gfx->height);
+				arrow_texture.drawRotated(0.5f * (float)gfx->width, 0.5f * (float)arrow_texture.getHeight(), 0.0f);
+				arrow_texture.drawRotated(0.5f * (float)gfx->width, (float)gfx->height - 0.5f * (float)arrow_texture.getHeight(), 180.0f);
+				arrow_texture.drawRotated(0.5f * (float)arrow_texture.getHeight(), 0.5f * (float)gfx->height, -90.0f);
+				arrow_texture.drawRotated((float)gfx->width - 0.5f * (float)arrow_texture.getHeight(), 0.5f * (float)gfx->height, 90.0f);
 				gfx->unset_alpha_blending();
 			}
 
@@ -2231,16 +2231,16 @@ namespace TA3D
 				glDisable(GL_TEXTURE_2D);
 				glColor3f(1.0f,1.0f,1.0f);
 				glBegin(GL_POINTS);
-				float rw = 128.0f * map->mini_w / 252 / map->bloc_w;
-				float rh = 128.0f * map->mini_h / 252 / map->bloc_h;
-				float dw = 64.0f - 0.5f * map->bloc_w * rw;
-				float dh = 64.0f - 0.5f * map->bloc_h * rh;
+				const float rw = 128.0f * (float)map->mini_w / 252.0f / (float)map->bloc_w;
+				const float rh = 128.0f * (float)map->mini_h / 252.0f / (float)map->bloc_h;
+				const float dw = 64.0f - 0.5f * (float)map->bloc_w * rw;
+				const float dh = 64.0f - 0.5f * (float)map->bloc_h * rh;
 				for (int y = 0; y < map->bloc_h; ++y)
 				{
 					for (int x = 0; x < map->bloc_w; ++x)
 					{
 						if (map->view(x, y))
-							glVertex2f(x*rw+dw,y*rh+dh);
+							glVertex2f((float)x * rw + dw, (float)y * rh + dh);
 					}
 				}
 				glEnd();
@@ -2250,8 +2250,8 @@ namespace TA3D
 			glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 			glEnable(GL_BLEND);
 
-			if (show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel]->model)
-				unit_manager.unit_type[cur_sel]->model->print_struct(32.0f,128.0f,gfx->normal_font);
+			if (show_model && cur_sel >= 0 && unit_manager.unit_type[cur_sel]->model)
+				unit_manager.unit_type[cur_sel]->model->print_struct(32.0f, 128.0f, gfx->normal_font);
 
 			if (internal_name && last_on >= 0)
 			{
@@ -2291,10 +2291,10 @@ namespace TA3D
 					"MISSION_UNLOAD","MISSION_STANDBY_MINE"
 				};
 				float y(32.0f);
-				for (int i = 0; i < units.max_unit; ++i)
+				for (size_t i = 0; i < units.max_unit; ++i)
 				{
 					units.unit[i].lock();
-					if ((units.unit[i].flags & 1) && last_on == i)
+					if ((units.unit[i].flags & 1) && last_on == (int)i)
 					{
 						if (!units.unit[i].mission.empty() && units.unit[i].mission->mission() <= 0x0E)
 						{
@@ -2340,14 +2340,14 @@ namespace TA3D
 				const String value = String().format("x %.1f", lp_CONFIG->timefactor);
 				if (show_timefactor > 0.5f)
 				{
-					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, makeacol32(0,0,0,0xFF), value);
-					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value);
+					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, 0.0f, makeacol32(0,0,0,0xFF), value);
+					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value)) >> 1), (float)SCREEN_H - 80.0f, 0.0f, 0xFFFFFFFF, value);
 				}
 				else
 				{
 					const uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
-					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value) + 2)>>1, SCREEN_H-79, 0.0f, c & makeacol32(0,0,0,0xFF), value);
-					gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, c, value);
+					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, 0.0f, c & makeacol32(0,0,0,0xFF), value);
+					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value)) >> 1), (float)SCREEN_H - 80.0f, 0.0f, c, value);
 				}
 				show_timefactor -= dt;
 			}
@@ -2389,9 +2389,9 @@ namespace TA3D
 			gfx->flip();
 
 			if (cheat_metal)
-				players.metal[players.local_human_id] = players.c_metal[players.local_human_id]=players.metal_s[players.local_human_id];					// cheat codes
+				players.metal[players.local_human_id] = players.c_metal[players.local_human_id] = (float)players.metal_s[players.local_human_id];					// cheat codes
 			if (cheat_energy)
-				players.energy[players.local_human_id] = players.c_energy[players.local_human_id]=players.energy_s[players.local_human_id];				// cheat codes
+				players.energy[players.local_human_id] = players.c_energy[players.local_human_id] = (float)players.energy_s[players.local_human_id];				// cheat codes
 			if (key[KEY_F12])
 				shoot = true;
 
@@ -2402,7 +2402,7 @@ namespace TA3D
 				bool win = true;
 				for (unsigned int i = 0; i != players.count(); ++i)
 				{
-					if (!players.annihilated[i] && i != players.local_human_id)
+					if (!players.annihilated[i] && (int)i != players.local_human_id)
 					{
 						win = false;
 						break;
@@ -2505,7 +2505,7 @@ namespace TA3D
 						GLuint	glamour_tex = gfx->load_texture(String("bitmaps\\glamour\\") << map->ota_data.glamour << ".pcx");
 						enable_TA_palette();
 						gfx->set_2D_mode();
-						gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
+						gfx->drawtexture( glamour_tex, 0, 0, (float)SCREEN_W, (float)SCREEN_H);
 						gfx->destroy_texture( glamour_tex);
 						gfx->unset_2D_mode();
 						gfx->flip();
@@ -2538,12 +2538,12 @@ namespace TA3D
 	{
 		glDisable(GL_TEXTURE_2D);
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-		gfx->rect(pMouseRectSelection.x1 + 1, pMouseRectSelection.y1 + 1,
-				  pMouseRectSelection.x2 + 1, pMouseRectSelection.y2 + 1);
+		gfx->rect((float)pMouseRectSelection.x1 + 1.0f, (float)pMouseRectSelection.y1 + 1.0f,
+				  (float)pMouseRectSelection.x2 + 1.0f, (float)pMouseRectSelection.y2 + 1.0f);
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		gfx->rect(pMouseRectSelection.x1, pMouseRectSelection.y1,
-				  pMouseRectSelection.x2, pMouseRectSelection.y2);
+		gfx->rect((float)pMouseRectSelection.x1, (float)pMouseRectSelection.y1,
+				  (float)pMouseRectSelection.x2, (float)pMouseRectSelection.y2);
 	}
 
 
