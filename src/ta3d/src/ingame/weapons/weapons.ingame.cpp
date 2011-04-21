@@ -120,6 +120,8 @@ namespace TA3D
 		if (nb_weapon <= 0 || weapon.size() <= 0)
 			return;
 
+		static MemoryPool<BVH<BVH_UnitTKit::T, BVH_UnitTKit> > pool(256000U);
+
 		std::vector<BVH_UnitTKit::T> allUnits;
 		for (uint32 i = 0U ; i < units.max_unit ; ++i) // Compte les stocks de ressources et les productions
 		{
@@ -133,13 +135,14 @@ namespace TA3D
 			allUnits.push_back(std::make_pair(pUnit, std::make_pair(pUnit->Pos, pUnitType->model->size2)));
 		}
 
-		bvhUnits = new BVH<BVH_UnitTKit::T, BVH_UnitTKit>(allUnits.begin(), allUnits.end());
+		pool.reset();
+		bvhUnits = BVH<BVH_UnitTKit::T, BVH_UnitTKit>::create(&pool, allUnits.begin(), allUnits.end());
 
 		pMutex.lock();
 		if (nb_weapon <= 0 || weapon.size() <= 0)
 		{
 			pMutex.unlock();
-			delete bvhUnits;
+			pool.release(bvhUnits);
 			return;
 		}
 
@@ -166,7 +169,7 @@ namespace TA3D
 				++e;
 		}
 		pMutex.unlock();
-		delete bvhUnits;
+		pool.release(bvhUnits);
 	}
 
 

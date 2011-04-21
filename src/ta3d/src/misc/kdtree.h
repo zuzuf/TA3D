@@ -4,6 +4,7 @@
 #include "vector.h"
 #include <vector>
 #include <deque>
+#include "mempool.h"
 
 namespace TA3D
 {
@@ -27,10 +28,19 @@ namespace TA3D
 	public:
 		typedef typename TKit::Vec	Vec;
 	public:
-		inline KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l = 0U);
+		inline KDTree() : lChild(NULL), rChild(NULL)	{}
+
+		inline void build(MemoryPool< KDTree<T, TKit> > *pool, const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l = 0U);
 		inline ~KDTree();
 
 		inline void maxDistanceQuery(std::deque<T> &result, const Vec &center, const float maxDist) const;
+
+		static inline KDTree *create(MemoryPool< KDTree<T, TKit> > *pool, const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end)
+		{
+			KDTree *tree = pool->alloc();
+			tree->build(pool, begin, end);
+			return tree;
+		}
 
 	private:
 		typename std::vector<T>::const_iterator elements_begin;
@@ -39,6 +49,7 @@ namespace TA3D
 		unsigned int N;
 		KDTree<T, TKit>	*lChild;
 		KDTree<T, TKit>	*rChild;
+		MemoryPool< KDTree<T, TKit> > *pool;
 	};
 }
 

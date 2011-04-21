@@ -12,8 +12,9 @@
 namespace TA3D
 {
 	template<typename T, class TKit>
-		inline KDTree<T, TKit>::KDTree(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l) : lChild(NULL), rChild(NULL)
+		inline void KDTree<T, TKit>::build(MemoryPool< KDTree<T, TKit> > *pool, const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l)
 	{
+		this->pool = pool;
 		if ((end - begin) <= KDTREE_MAX_SET_SIZE || l >= KDTREE_MAX_DEPTH)
 		{
 			elements_begin = begin;
@@ -27,17 +28,19 @@ namespace TA3D
 		top = 0.5f * (top + bottom);
 		const typename std::vector<T>::iterator mid = std::partition(begin, end, typename TKit::Predicate(top, N));
 		P = top[N];
-		lChild = new KDTree<T, TKit>(mid, end, l + 1U);
-		rChild = new KDTree<T, TKit>(begin, mid, l + 1U);
+		lChild = pool->alloc();
+		lChild->build(pool, mid, end, l + 1U);
+		rChild = pool->alloc();
+		rChild->build(pool, begin, mid, l + 1U);
 	}
 
 	template<typename T, class TKit>
 		inline KDTree<T, TKit>::~KDTree()
 	{
 		if (lChild)
-			delete lChild;
+			pool->release(lChild);
 		if (rChild)
-			delete rChild;
+			pool->release(rChild);
 	}
 
 	template<typename T, class TKit>
