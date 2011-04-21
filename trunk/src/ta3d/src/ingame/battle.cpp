@@ -1205,30 +1205,31 @@ namespace TA3D
 				}
 			}
 			else
-				if (TA3D_CTRL_PRESSED && key[KEY_Z]) // SÃ©letionne toutes les unitÃ©s dont le type est dÃ©jÃ  sÃ©lectionnÃ© / Select units of the same type
+				if (TA3D_CTRL_PRESSED && key[KEY_Z]) // Sélectionne toutes les unités dont le type est déjà sélectionné / Select units of the same type
 				{
-					bool *sel_type = new bool[unit_manager.nb_unit];
+					std::vector<bool> sel_type;
+					sel_type.resize(unit_manager.nb_unit);
 					for (int i = 0; i < unit_manager.nb_unit; ++i)
 						sel_type[i] = false;
 					for (unsigned int e = 0; e < units.index_list_size; ++e)
 					{
-						int i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-							sel_type[units.unit[i].type_id]=true;
+						const size_t i = units.idx_list[e];
+						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+							sel_type[units.unit[i].type_id] = true;
 					}
 					for (unsigned int e = 0; e < units.index_list_size; ++e)
 					{
-						int i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && Yuni::Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id==players.local_human_id && sel_type[units.unit[i].type_id])
-							units.unit[i].sel=true;
+						const size_t i = units.idx_list[e];
+						if ((units.unit[i].flags & 1) && Yuni::Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id && sel_type[units.unit[i].type_id])
+							units.unit[i].sel = true;
 					}
 					cur_sel = -1;
 					cur_sel_index = -1;
 					for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
 					{
-						int i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-							cur_sel= (cur_sel==-1) ? i : -2;
+						const size_t i = units.idx_list[e];
+						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+							cur_sel = (cur_sel == -1) ? (int)i : -2;
 					}
 					selected = (cur_sel != -1);
 					build = -1;
@@ -1237,7 +1238,6 @@ namespace TA3D
 						cur_sel_index = cur_sel;
 						cur_sel = units.unit[cur_sel].type_id;
 					}
-					DELETE_ARRAY(sel_type);
 				}
 				else
 				{

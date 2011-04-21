@@ -204,20 +204,21 @@ namespace TA3D
 		float rw = 128.0f * float(mini_w) / (252.0f * map_w);
 		float rh = 128.0f * float(mini_h) / (252.0f * map_h);
 
-		Vector2D *points = new Vector2D[ idx_list.size() ];
+		static std::vector<Vector2D> points;
+		points.resize(idx_list.size());
 		uint32 n(0);
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 		glEnable(GL_TEXTURE_2D);
 		for (std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
 		{
-			uint32 i = *e;
+			const uint32 i = *e;
 			if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor)
 			{
 				glEnable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				int idx = weapon[i].owner;
+				const int idx = weapon[i].owner;
 				GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x * rw + 64.0f - float(nuclogo.ofs_x[idx]),
 										  weapon[i].Pos.z * rh + 64.0f - float(nuclogo.ofs_y[idx]),
 										  weapon[i].Pos.x * rw + 63.0f - float(nuclogo.ofs_x[idx] + nuclogo.w[idx]),
@@ -226,8 +227,8 @@ namespace TA3D
 			}
 			else
 			{
-				points[n].x = weapon[i].Pos.x*rw+64.0f;
-				points[n].y = weapon[i].Pos.z*rh+64.0f;
+				points[n].x = weapon[i].Pos.x * rw + 64.0f;
+				points[n].y = weapon[i].Pos.z * rh + 64.0f;
 				++n;
 			}
 		}
@@ -237,13 +238,11 @@ namespace TA3D
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer( 2, GL_FLOAT, 0, points);
+		glVertexPointer( 2, GL_FLOAT, 0, &(points.front()));
 
 		glDrawArrays( GL_POINTS, 0, n );
 
 		glEnable(GL_TEXTURE_2D);
-
-		DELETE_ARRAY(points);
 	}
 
 

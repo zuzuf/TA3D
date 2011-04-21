@@ -739,21 +739,21 @@ namespace TA3D
 
 	void GFX::circle(const float x, const float y, const float r)
 	{
-		float d_alpha = DB_PI/(r+1.0f);
+		float d_alpha = DB_PI / (r + 1.0f);
 		int n = (int)(DB_PI / d_alpha) + 1;
 		float *points = new float[n * 2];
 		int i = 0;
-		for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
+		for (float alpha = 0.0f ; alpha <= DB_PI ; alpha += d_alpha)
 		{
-			points[i++] = x+r*cosf(alpha);
-			points[i++] = y+r*sinf(alpha);
+			points[i++] = x + r * cosf(alpha);
+			points[i++] = y + r * sinf(alpha);
 		}
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
+		glDrawArrays( GL_LINE_LOOP, 0, i >> 1 );
 		DELETE_ARRAY(points);
 	}
 	void GFX::circle(const float x, const float y, const float r, const uint32 col)
@@ -866,22 +866,6 @@ namespace TA3D
 	{
 		set_color(col);
 		rectdot(x1,y1,x2,y2);
-	}
-
-
-	void GFX::putpixel(const float x, const float y, const uint32 col)
-	{
-		set_color(col);
-		glBegin(GL_POINTS);
-		glVertex2f(x,y);
-		glEnd();
-	}
-
-	uint32 GFX::getpixel(const sint32 x, const sint32 y) const
-	{
-		uint32 col;
-		glReadPixels(x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &col);
-		return col;
 	}
 
 
@@ -1019,7 +1003,7 @@ namespace TA3D
 		return max_tex_size;
 	}
 
-	GLuint GFX::make_texture(SDL_Surface *bmp, int filter_type, bool clamp )
+	GLuint GFX::make_texture(SDL_Surface *bmp, int filter_type, bool clamp)
 	{
 		if (bmp == NULL)
 		{
@@ -1028,7 +1012,7 @@ namespace TA3D
 		}
 		MutexLocker locker(pMutex);
 
-		if (bmp->w > max_tex_size || bmp->h > max_tex_size )
+		if (bmp->w > max_tex_size || bmp->h > max_tex_size)
 		{
 			SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel,
 												  Math::Min(bmp->w, max_tex_size), Math::Min(bmp->h, max_tex_size));
