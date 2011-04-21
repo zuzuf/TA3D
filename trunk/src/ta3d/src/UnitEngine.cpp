@@ -1018,12 +1018,14 @@ namespace TA3D
 			if (owner < 10)
 				detectableUnits[owner].push_back(std::make_pair(pUnit, pUnit->Pos));
 		}
+		static MemoryPool<KDTree<UnitTKit::T, UnitTKit> > pool(32768U);
+		pool.reset();
 		pMutex.unlock();
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 		{
-			kdTree[i] = new KDTree<UnitTKit::T, UnitTKit>(detectableUnits[i].begin(), detectableUnits[i].end());
-			kdTreeFriends[i] = new KDTree<UnitTKit::T, UnitTKit>(allUnits[i].begin(), allUnits[i].end());
-			kdTreeRepairPads[i] = new KDTree<UnitTKit::T, UnitTKit>(repairPads[i].begin(), repairPads[i].end());
+			kdTree[i] = KDTree<UnitTKit::T, UnitTKit>::create(&pool, detectableUnits[i].begin(), detectableUnits[i].end());
+			kdTreeFriends[i] = KDTree<UnitTKit::T, UnitTKit>::create(&pool, allUnits[i].begin(), allUnits[i].end());
+			kdTreeRepairPads[i] = KDTree<UnitTKit::T, UnitTKit>::create(&pool, repairPads[i].begin(), repairPads[i].end());
 		}
 
 		players.clear();		// Réinitialise le compteur de ressources
@@ -1227,9 +1229,9 @@ namespace TA3D
 		// Now that it is obsolete let's delete this kdTree
 		for(int i = 0 ; i < NB_PLAYERS ; ++i)
 		{
-			delete kdTree[i];
-			delete kdTreeFriends[i];
-			delete kdTreeRepairPads[i];
+			pool.release(kdTree[i]);
+			pool.release(kdTreeFriends[i]);
+			pool.release(kdTreeRepairPads[i]);
 			kdTree[i] = NULL;
 			kdTreeFriends[i] = NULL;
 			kdTreeRepairPads[i] = NULL;

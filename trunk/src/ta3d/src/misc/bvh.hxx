@@ -13,8 +13,9 @@
 namespace TA3D
 {
 	template<typename T, class TKit>
-		inline BVH<T, TKit>::BVH(const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l) : lChild(NULL), rChild(NULL)
+		inline void BVH<T, TKit>::build(MemoryPool<BVH<T, TKit> > *pool, const typename std::vector<T>::iterator &begin, const typename std::vector<T>::iterator &end, const unsigned int l)
 	{
+		this->pool = pool;
 		TKit::getTopBottom(begin, end, top, bottom);
 		if ((end - begin) <= BVH_MAX_SET_SIZE || l >= BVH_MAX_DEPTH)
 		{
@@ -26,17 +27,19 @@ namespace TA3D
 
 		const Vec M = 0.5f * (top + bottom);
 		const typename std::vector<T>::iterator mid = std::partition(begin, end, typename TKit::Predicate(M, N));
-		lChild = new BVH<T, TKit>(mid, end, l + 1U);
-		rChild = new BVH<T, TKit>(begin, mid, l + 1U);
+		lChild = pool->alloc();
+		lChild->build(pool, mid, end, l + 1U);
+		rChild = pool->alloc(),
+		rChild->build(pool, begin, mid, l + 1U);
 	}
 
 	template<typename T, class TKit>
 		inline BVH<T, TKit>::~BVH()
 	{
 		if (lChild)
-			delete lChild;
+			pool->release(lChild);
 		if (rChild)
-			delete rChild;
+			pool->release(rChild);
 	}
 
 	template<typename T, class TKit>
