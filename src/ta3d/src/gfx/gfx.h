@@ -211,8 +211,6 @@ namespace TA3D
 		void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
 		void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
 		void drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
-		void putpixel(const float x, const float y, const uint32 col);
-		uint32 getpixel(const sint32 x, const sint32 y) const;
 
 		//! \name Text manipulation
 		//@{
