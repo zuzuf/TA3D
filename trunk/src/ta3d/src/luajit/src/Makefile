@@ -162,7 +162,7 @@ XCFLAGS=
 #   CFLAGS   HOST_CFLAGS   TARGET_CFLAGS
 #   LDFLAGS  HOST_LDFLAGS  TARGET_LDFLAGS  TARGET_SHLDFLAGS
 #   LIBS     HOST_LIBS     TARGET_LIBS
-#   CROSS    HOST_SYS      TARGET_SYS
+#   CROSS    HOST_SYS      TARGET_SYS      TARGET_FLAGS
 #
 # Cross-compilation examples:
 #   make HOST_CC="gcc -m32" CROSS=i586-mingw32msvc- TARGET_SYS=Windows
@@ -206,9 +206,9 @@ TARGET_DYNXLDOPTS=
 TARGET_XCFLAGS= -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -U_FORTIFY_SOURCE
 TARGET_XLDFLAGS=
 TARGET_XLIBS= -lm
-TARGET_ACFLAGS= $(CCOPTIONS) $(TARGET_XCFLAGS) $(TARGET_ARCH) $(TARGET_CFLAGS)
-TARGET_ALDFLAGS= $(LDOPTIONS) $(TARGET_XLDFLAGS) $(TARGET_LDFLAGS)
-TARGET_ASHLDFLAGS= $(LDOPTIONS) $(TARGET_XSHLDFLAGS) $(TARGET_SHLDFLAGS)
+TARGET_ACFLAGS= $(CCOPTIONS) $(TARGET_XCFLAGS) $(TARGET_ARCH) $(TARGET_FLAGS) $(TARGET_CFLAGS)
+TARGET_ALDFLAGS= $(LDOPTIONS) $(TARGET_XLDFLAGS) $(TARGET_FLAGS) $(TARGET_LDFLAGS)
+TARGET_ASHLDFLAGS= $(LDOPTIONS) $(TARGET_XSHLDFLAGS) $(TARGET_FLAGS) $(TARGET_SHLDFLAGS)
 TARGET_ALIBS= $(TARGET_XLIBS) $(LIBS) $(TARGET_LIBS)
 
 ifneq (,$(findstring stack-protector,$(shell $(TARGET_CC) -dumpspecs)))
@@ -308,6 +308,7 @@ DASM_DISTFLAGS= -LN
 DASM_FLAGS_X86=
 DASM_FLAGS_X64= -D X64
 DASM_FLAGS_X64WIN= -D X64 -D X64WIN
+DASM_FLAGS_ARM=
 DASM_FLAGS_PPCSPE= -D SPE
 
 BUILDVM_O= buildvm.o buildvm_asm.o buildvm_peobj.o buildvm_lib.o buildvm_fold.o
@@ -353,7 +354,8 @@ LUAJIT_T= luajit
 ALL_T= $(LUAJIT_T) $(LUAJIT_A) $(LUAJIT_SO) $(BUILDVM_T)
 ALL_HDRGEN= lj_bcdef.h lj_ffdef.h lj_libdef.h lj_recdef.h lj_folddef.h
 ALL_GEN= $(LJVM_S) $(ALL_HDRGEN) $(LIB_VMDEFP)
-ALL_DYNGEN= buildvm_x86.h buildvm_x64.h buildvm_x64win.h buildvm_ppcspe.h
+ALL_DYNGEN= buildvm_x86.h buildvm_x64.h buildvm_x64win.h buildvm_arm.h \
+	    buildvm_ppcspe.h
 WIN_RM= *.obj *.lib *.exp *.dll *.exe *.manifest *.pdb *.ilk
 ALL_RM= $(ALL_T) $(ALL_GEN) *.o $(WIN_RM)
 
@@ -436,6 +438,7 @@ distclean:	clean
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_X86) -o buildvm_x86.h buildvm_x86.dasc
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_X64) -o buildvm_x64.h buildvm_x86.dasc
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_X64WIN) -o buildvm_x64win.h buildvm_x86.dasc
+	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_ARM) -o buildvm_arm.h buildvm_arm.dasc
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_PPCSPE) -o buildvm_ppcspe.h buildvm_ppc.dasc
 
 depend:
@@ -467,6 +470,10 @@ buildvm_x64.h: buildvm_x86.dasc
 buildvm_x64win.h: buildvm_x86.dasc
 	$(E) "DYNASM    $@"
 	$(Q)$(DASM) $(DASM_FLAGS) $(DASM_FLAGS_X64WIN) -o $@ buildvm_x86.dasc
+
+buildvm_arm.h: buildvm_arm.dasc
+	$(E) "DYNASM    $@"
+	$(Q)$(DASM) $(DASM_FLAGS) $(DASM_FLAGS_ARM) -o $@ buildvm_arm.dasc
 
 buildvm_ppcspe.h: buildvm_ppc.dasc
 	$(E) "DYNASM    $@"

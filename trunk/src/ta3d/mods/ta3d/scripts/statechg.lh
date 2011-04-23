@@ -30,7 +30,7 @@ __this.RequestState = function ( this, requestedstate )
     if this.statechg_StateChanging then
         -- Then just tell it how we want to end up.  A script is already running and will take care of it.
         this.statechg_DesiredState = requestedstate
-        return 0
+        return
     end
 
     -- Keep everybody else out
