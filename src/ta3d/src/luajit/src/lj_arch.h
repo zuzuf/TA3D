@@ -107,6 +107,7 @@
 #define LJ_TARGET_EHRETREG	0
 #define LJ_TARGET_MASKSHIFT	1
 #define LJ_TARGET_MASKROT	1
+#define LJ_ARCH_DUALNUM		1
 
 #elif LUAJIT_TARGET == LUAJIT_ARCH_X64
 
@@ -120,10 +121,10 @@
 #define LJ_TARGET_EHRETREG	0
 #define LJ_TARGET_MASKSHIFT	1
 #define LJ_TARGET_MASKROT	1
+#define LJ_ARCH_DUALNUM		1
 
 #elif LUAJIT_TARGET == LUAJIT_ARCH_ARM
 
-#error "No support for ARM CPUs (yet)"
 #define LJ_ARCH_NAME		"arm"
 #define LJ_ARCH_BITS		32
 #define LJ_ARCH_ENDIAN		LUAJIT_LE
@@ -134,7 +135,7 @@
 #define LJ_TARGET_EHRETREG	0
 #define LJ_TARGET_MASKSHIFT	0
 #define LJ_TARGET_MASKROT	1
-#define LJ_ARCH_NOFFI		1
+#define LJ_ARCH_DUALNUM		2
 #define LJ_ARCH_NOJIT		1
 
 #elif LUAJIT_TARGET == LUAJIT_ARCH_PPC
@@ -154,6 +155,8 @@
 #define LJ_TARGET_EHRETREG	3
 #define LJ_TARGET_MASKSHIFT	0
 #define LJ_TARGET_MASKROT	1
+#define LJ_ARCH_DUALNUM		0
+#define LJ_ARCH_NOFFI		1	/* NYI: comparisons, calls. */
 #define LJ_ARCH_NOJIT		1
 
 #else
@@ -187,9 +190,6 @@
 #if defined(__ARMEB__)
 #error "No support for big-endian ARM"
 #endif
-#if defined(__thumb__) || defined(__thumb2__)
-#error "No support for Thumb instruction set (yet)"
-#endif
 #if !__ARM_EABI__
 #error "Only ARM EABI is supported"
 #endif
@@ -204,6 +204,14 @@
 #error "No support for PowerPC 64 bit mode"
 #endif
 #endif
+#endif
+
+/* Enable or disable the dual-number VM. */
+#if LJ_ARCH_DUALNUM == 2 || \
+    (defined(LUAJIT_ENABLE_DUALNUM) && LJ_ARCH_DUALNUM == 1)
+#define LJ_DUALNUM		1
+#else
+#define LJ_DUALNUM		0
 #endif
 
 /* Disable or enable the JIT compiler. */

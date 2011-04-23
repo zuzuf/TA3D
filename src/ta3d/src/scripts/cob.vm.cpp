@@ -130,14 +130,14 @@ namespace TA3D
             return -1;
         }
 
-		sint32 script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+		sint32 script_id = (cur.top() & 0xFF);			// RÃ©cupÃ¨re l'identifiant du script en cours d'Ã©xecution et la position d'Ã©xecution
 		sint32 pos = (cur.top() >> 8);
         if (script_id < 0 || script_id >= script->nb_script)
         {
             running = false;
             cur.clear();
             local_env.clear();
-            return -1;		// Erreur, ce n'est pas un script repertorié
+            return -1;		// Erreur, ce n'est pas un script repertoriÃ©
         }
 
         Unit *pUnit = &(units.unit[ unitID ]);
@@ -158,8 +158,8 @@ namespace TA3D
             //			uint32 code = script->script_code[script_id][pos];			// Lit un code
             //			pos++;
 			++nb_code;
-            if (nb_code >= MAX_CODE_PER_TICK) done = true;			// Pour éviter que le programme ne fige �  cause d'un script
-            //			switch(code)			// Code de l'interpréteur
+            if (nb_code >= MAX_CODE_PER_TICK) done = true;			// Pour Ã©viter que le programme ne fige Ã  cause d'un script
+            //			switch(code)			// Code de l'interprÃ©teur
             switch(script->script_code[script_id][pos++])
             {
                 case SCRIPT_MOVE_OBJECT:
@@ -322,7 +322,7 @@ namespace TA3D
                         cur.push( function_id );
                         local_env.push( SCRIPT_ENV() );
                         local_env.top().resize( num_param );
-                        for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
+                        for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramÃ¨tres
                             local_env.top()[i] = sStack.pop();
                         pos = 0;
                         script_id = function_id;
@@ -358,7 +358,7 @@ namespace TA3D
                         else
                         {
 							const int target_offset = script->script_code[script_id][pos];        // Lit un code
-                            pos = target_offset - script->dec_offset[script_id];            // Déplace l'éxecution
+                            pos = target_offset - script->dec_offset[script_id];            // DÃ©place l'Ã©xecution
                         }
                         break;
                     }
@@ -456,7 +456,7 @@ namespace TA3D
                         sStack.push(v1 | v2);
                         break;
                     }
-                case SCRIPT_START_SCRIPT:				// Transfère l'éxecution �  un autre script
+                case SCRIPT_START_SCRIPT:				// TransfÃ¨re l'Ã©xecution Ã  un autre script
                     {
                         DEBUG_PRINT_CODE("START_SCRIPT");
 						const int function_id = script->script_code[script_id][pos++];			// Lit un code
@@ -466,18 +466,18 @@ namespace TA3D
                         {
                             p_cob->call(function_id, NULL, 0);
                             p_cob->local_env.top().resize( num_param );
-                            for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
+                            for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramÃ¨tres
                                 p_cob->local_env.top()[i] = sStack.pop();
                             p_cob->setSignalMask( signal_mask );
                         }
                         else
                         {
-                            for (int i = 0 ; i < num_param ; ++i)		// Enlève les paramètres de la pile
+                            for (int i = 0 ; i < num_param ; ++i)		// EnlÃ¨ve les paramÃ¨tres de la pile
                                 sStack.pop();
                         }
                         break;
                     }
-                case SCRIPT_RETURN:		// Retourne au script précédent
+                case SCRIPT_RETURN:		// Retourne au script prÃ©cÃ©dent
                     {
                         DEBUG_PRINT_CODE("RETURN");
                         cur.pop();
@@ -487,11 +487,11 @@ namespace TA3D
                                 pParam[i] = local_env.top().size() > i ? local_env.top()[i] : 0;
 
                         local_env.pop();
-						const int value = sStack.pop();		// Enlève la valeur retournée / Pops the return value
+						const int value = sStack.pop();		// EnlÃ¨ve la valeur retournÃ©e / Pops the return value
                         setReturnValue( script->names[script_id], value );      // Set the return value
                         if (!cur.empty())
                         {
-                            script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+                            script_id = (cur.top() & 0xFF);			// RÃ©cupÃ¨re l'identifiant du script en cours d'Ã©xecution et la position d'Ã©xecution
                             pos = (cur.top() >> 8);
                         }
                         else
@@ -502,7 +502,7 @@ namespace TA3D
                     {
                         DEBUG_PRINT_CODE("JUMP");
 						const int target_offset = script->script_code[script_id][pos];        // Lit un code
-                        pos = target_offset - script->dec_offset[script_id];            // Déplace l'éxecution
+                        pos = target_offset - script->dec_offset[script_id];            // DÃ©place l'Ã©xecution
                         break;
                     }
                 case SCRIPT_ADD:
@@ -576,7 +576,7 @@ namespace TA3D
                         cur.top() = script_id + (pos << 8);
                         local_env.push( SCRIPT_ENV() );
                         local_env.top().resize(num_param);
-                        for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
+                        for (int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramÃ¨tres
                             local_env.top()[i] = sStack.pop();
                         done = true;
                         pos = 0;
@@ -634,7 +634,7 @@ namespace TA3D
                     }
                     if (!cur.empty())
                     {
-                        script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+                        script_id = (cur.top() & 0xFF);			// RÃ©cupÃ¨re l'identifiant du script en cours d'Ã©xecution et la position d'Ã©xecution
                         pos = (cur.top() >> 8);
                     }
                     else

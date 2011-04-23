@@ -4797,12 +4797,9 @@ script_exec:
 
 	bool Unit::hit(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, const float length)
 	{
-		pMutex.lock();
-		if (!(flags&1))
-		{
-			pMutex.unlock();
+		MutexLocker mLock(pMutex);
+		if (!(flags & 1))
 			return false;
-		}
 		if (model)
 		{
 			const Vector3D c_dir = model->center + Pos - P;
@@ -4819,22 +4816,17 @@ script_exec:
 					*hit_vec = ((*hit_vec - P) % Dir) * Dir + P;
 				}
 
-				pMutex.unlock();
 				return is_hit;
 			}
 		}
-		pMutex.unlock();
 		return false;
 	}
 
 	bool Unit::hit_fast(const Vector3D &P, const Vector3D &Dir, Vector3D* hit_vec, const float length)
 	{
-		pMutex.lock();
+		MutexLocker mLock(pMutex);
 		if (!(flags&1))
-		{
-			pMutex.unlock();
 			return false;
-		}
 		if (model)
 		{
 			const Vector3D c_dir = model->center + Pos - P;
@@ -4851,11 +4843,9 @@ script_exec:
 					*hit_vec = ((*hit_vec - P) % Dir) * Dir + P;
 				}
 
-				pMutex.unlock();
 				return is_hit;
 			}
 		}
-		pMutex.unlock();
 		return false;
 	}
 
