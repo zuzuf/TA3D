@@ -422,7 +422,8 @@ static LoopEvent rec_for(jit_State *J, const BCIns *fori, int isforl)
   } else {  /* Handle FORI/JFORI opcodes. */
     BCReg i;
     lj_meta_for(J->L, tv);
-    t = lj_opt_narrow_forl(J, tv);
+    t = (LJ_DUALNUM || tref_isint(tr[FORL_IDX])) ? lj_opt_narrow_forl(J, tv) :
+						   IRT_NUM;
     for (i = FORL_IDX; i <= FORL_STEP; i++) {
       lua_assert(tref_isnumber_str(tr[i]));
       if (tref_isstr(tr[i]))
@@ -521,7 +522,7 @@ static void rec_loop_interp(jit_State *J, const BCIns *pc, LoopEvent ev)
       */
       if (!innerloopleft(J, pc))
 	lj_trace_err(J, LJ_TRERR_LINNER);  /* Root trace hit an inner loop. */
-      if ((J->loopref && J->cur.nins - J->loopref > 8) || --J->loopunroll < 0)
+      if ((J->loopref && J->cur.nins - J->loopref > 24) || --J->loopunroll < 0)
 	lj_trace_err(J, LJ_TRERR_LUNROLL);  /* Limit loop unrolling. */
       J->loopref = J->cur.nins;
     }
@@ -664,7 +665,8 @@ void lj_record_ret(jit_State *J, BCReg rbase, ptrdiff_t gotresults)
     GCproto *pt = funcproto(frame_func(frame - (cbase+1)));
     if (J->framedepth == 0 && J->pt && frame == J->L->base - 1) {
       if (check_downrec_unroll(J, pt)) {
-	J->maxslot = (BCReg)(rbase + nresults);
+	J->maxslot = (BCReg)(rbase + gotresults);
+	lj_snap_purge(J);
 	rec_stop(J, J->cur.traceno);  /* Down-recursion. */
 	return;
       }
