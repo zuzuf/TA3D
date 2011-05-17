@@ -99,7 +99,6 @@ void backtrace_handler (int signum)
 			const int id = line.to<int>();
 			if (id <= 0)
 				continue;
-			std::cout << "thread id = " << id << std::endl;
 			cmd	<< " -ex \"thread " << id << "\" -ex bt";
 		}
 		cmd	<< " --batch";
