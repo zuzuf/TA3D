@@ -86,6 +86,8 @@ namespace TA3D
 				load_texture_id(i);
 			tex_cache_name.clear();
 		}
+		if (!glColorTexture)
+			glColorTexture = gfx->create_color_texture(Color);
 
 		if (!(explodes && !exploding_parts))
 		{
@@ -356,6 +358,9 @@ namespace TA3D
 
 	bool Mesh3DM::draw_nodl(bool alset)
 	{
+		if (!glColorTexture)
+			glColorTexture = gfx->create_color_texture(Color);
+
 		glPushMatrix();
 
 		glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
@@ -615,8 +620,6 @@ namespace TA3D
 			file->close();
 			return;
 		}
-
-		glColorTexture = gfx->create_color_texture(Color);
 
 		sint8 NbTex = 0;
 		file->read(NbTex);
