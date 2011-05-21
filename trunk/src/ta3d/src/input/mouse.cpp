@@ -121,6 +121,9 @@ namespace TA3D
 			SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
 		old_mx = mouse_x;
 		old_my = mouse_y;
+
+		if (lp_CONFIG->fullscreen && key[KEY_ALT] && key[KEY_TAB]&& (SDL_GetAppState() & SDL_APPACTIVE))
+			SDL_WM_IconifyWindow();
 	}
 
 	int mouse_lx = 0;
