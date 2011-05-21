@@ -371,11 +371,11 @@ namespace Menus
 				Gui::GUIOBJ::Ptr pbar = pArea->get_object( "config_confirm.p_wait");
 				if (pbar)
 				{
-					uint32 new_value = (msec_timer - timer) / 50;
+					const uint32 new_value = (msec_timer - timer) / 50;
 					if (new_value != pbar->Data)
 					{
 						pbar->Data = new_value;
-						if (new_value == 100)
+						if (new_value >= 100)
 							time_out = true;
 						break;
 					}
