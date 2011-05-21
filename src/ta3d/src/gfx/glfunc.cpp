@@ -100,6 +100,7 @@ namespace TA3D
 			CHECK_OPENGL_FUNCTION( GLSL, glUniform2iARB, g_useProgram )
 			CHECK_OPENGL_FUNCTION( GLSL, glUniform3iARB, g_useProgram )
 			CHECK_OPENGL_FUNCTION( GLSL, glUniform4iARB, g_useProgram )
+			CHECK_OPENGL_FUNCTION( GLSL, glUniformMatrix4fv, g_useProgram )
 			CHECK_OPENGL_FUNCTION( GLSL, glGetUniformLocationARB, g_useProgram )
 			if (!g_useProgram)
 				LOG_WARNING( LOG_PREFIX_OPENGL << "GLSL support will be disbaled");
