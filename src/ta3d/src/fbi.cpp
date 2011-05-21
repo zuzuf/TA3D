@@ -1250,40 +1250,44 @@ namespace TA3D
 		String::Vector file_list;
 		VFS::Instance()->getFilelist( String(ta3dSideData.unit_dir) << '*' << ta3dSideData.unit_ext, file_list);
 
-		int n = 0, m = 0;
+		volatile int n = 0, m = 0;
 
-#pragma omp parallel for
-		for (size_t i = 0 ; i < file_list.size() ; ++i)
+		const size_t end = file_list.size();
+#pragma omp parallel
 		{
 			mInternals.lock();
-#ifdef _OPENMP
-			if (omp_get_thread_num() == 0)
-				if (progress != NULL && m >= 0xF)
-				{
-					(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
-					m = 0;
-				}
-			++m;
-#else
-			if (progress != NULL && !(n & 0xF))
-				(*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
-#endif
-			++n;
-
-			const String nom = ToUpper(Paths::ExtractFileNameWithoutExtension(file_list[i]));			// Vérifie si l'unité n'est pas déjà chargée
-
-			if (unit_manager.get_unit_index(nom) == -1)
+			while (n < end)
 			{
-				LOG_DEBUG("Loading the unit `" << nom << "`...");
-				mInternals.unlock();
-				UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
-				if (!pUnitType->Unitname.empty())
+#ifdef _OPENMP
+				if (omp_get_thread_num() == 0)
+					if (progress != NULL && m >= 0xF)
+					{
+						(*progress)((300.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading units"));
+						m = 0;
+					}
+				++m;
+#else
+				if (progress != NULL && !(n & 0xF))
+					(*progress)((300.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading units"));
+#endif
+				const size_t i = n;
+				const String nom = ToUpper(Paths::ExtractFileNameWithoutExtension(file_list[i]));			// Vérifie si l'unité n'est pas déjà chargée
+				++n;
+
+				if (unit_manager.get_unit_index(nom) == -1)
 				{
-					String nom_pcx;
-					nom_pcx << "unitpics\\" << pUnitType->Unitname << ".pcx";
-					pUnitType->unitpic = gfx->load_image(nom_pcx);
+					LOG_DEBUG("Loading the unit `" << nom << "`...");
+					mInternals.unlock();
+					UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
+					if (!pUnitType->Unitname.empty())
+					{
+						String nom_pcx;
+						nom_pcx << "unitpics\\" << pUnitType->Unitname << ".pcx";
+						pUnitType->unitpic = gfx->load_image(nom_pcx);
+					}
+					mInternals.lock();
+					continue;
 				}
-				continue;
 			}
 			mInternals.unlock();
 		}

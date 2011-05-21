@@ -349,56 +349,66 @@ namespace TA3D
 	{
 		String::Vector files;
 		VFS::Instance()->getFilelist("features\\*.tdf", files);
-		int n = 0, m = 0;
+		volatile int n = 0, m = 0;
+
+		const size_t end = files.size();
 
 #ifdef _OPENMP
 		Mutex mLoad;
 #endif
 
-#pragma omp parallel for
-		for (size_t i = 0 ; i < files.size() ; ++i)
+		volatile size_t i = 0;
+#pragma omp parallel
 		{
-			const String &curFile = files[i];
 #ifdef _OPENMP
 			mLoad.lock();
-			if (omp_get_thread_num() == 0)
-				if (progress != NULL && m >= 0xF)
-				{
-					(*progress)((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
-					m = 0;
-				}
-			++m;
-			++n;
-			mLoad.unlock();
+#endif
+			while (i < end)
+			{
+#ifdef _OPENMP
+				const String &curFile = files[i++];
+				if (omp_get_thread_num() == 0)
+					if (progress != NULL && m >= 0xF)
+					{
+						(*progress)((200.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
+						m = 0;
+					}
+				++m;
+				++n;
+				mLoad.unlock();
 #else
-			if (progress != NULL && !(n & 0xF))
-				(*progress)((200.0f + float(n) * 50.0f / float(files.size() + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
-			++n;
+				const String &curFile = files[i];
+				if (progress != NULL && !(n & 0xF))
+					(*progress)((200.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
+				++n;
 #endif
 
-			File* file = VFS::Instance()->readFile(curFile);
-			if (file)
-			{
+				File* file = VFS::Instance()->readFile(curFile);
+				if (file)
+				{
 #ifdef _OPENMP
+					mLoad.lock();
+#endif
+					LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << curFile << "`...");
+#ifdef _OPENMP
+					mLoad.unlock();
+#endif
+					feature_manager.load_tdf(file);
+					delete file;
+				}
+				else
+				{
+#ifdef _OPENMP
+					mLoad.lock();
+#endif
+					LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << curFile << "` failed");
+#ifdef _OPENMP
+					mLoad.unlock();
+#endif
+				}
 				mLoad.lock();
-#endif
-				LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << curFile << "`...");
-#ifdef _OPENMP
-				mLoad.unlock();
-#endif
-				feature_manager.load_tdf(file);
-				delete file;
 			}
-			else
-			{
-#ifdef _OPENMP
-				mLoad.lock();
-#endif
-				LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << curFile << "` failed");
-#ifdef _OPENMP
-				mLoad.unlock();
-#endif
-			}
+			mLoad.unlock();
 		}
 
 		// Foreach item...
