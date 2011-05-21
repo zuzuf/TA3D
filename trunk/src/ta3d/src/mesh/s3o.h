@@ -108,6 +108,7 @@ namespace TA3D
     public:
 		static Model *load(const String &filename);
 		static const char *getExt();
+		static void init_shaders();
 	};
 } // namespace TA3D
 

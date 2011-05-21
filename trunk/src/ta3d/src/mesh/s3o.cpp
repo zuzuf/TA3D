@@ -66,6 +66,7 @@ namespace TA3D
 
 	bool MeshS3O::draw(float t, AnimationData *data_s, bool sel_primitive, bool alset, bool notex, int side, bool chg_col, bool exploding_parts)
 	{
+		init_shaders();
 		bool explodes = script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_EXPLODE);
 		bool hide = false;
 		bool set = false;
@@ -413,6 +414,7 @@ namespace TA3D
 
 	bool MeshS3O::draw_nodl(bool alset)
 	{
+		init_shaders();
 		glPushMatrix();
 
 		glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
@@ -617,11 +619,6 @@ namespace TA3D
 
 	Model *MeshS3O::load(const String &filename)
 	{
-		if (!s3oShader.isLoaded())
-			s3oShader.load("shaders/s3o.frag", "shaders/s3o.vert");
-		if (!s3oShader_woShadows.isLoaded())
-			s3oShader_woShadows.load("shaders/s3o_wos.frag", "shaders/s3o_wos.vert");
-
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
 		{
@@ -642,6 +639,12 @@ namespace TA3D
 	}
 
 
-
+	void MeshS3O::init_shaders()
+	{
+		if (!s3oShader.isLoaded())
+			s3oShader.load("shaders/s3o.frag", "shaders/s3o.vert");
+		if (!s3oShader_woShadows.isLoaded())
+			s3oShader_woShadows.load("shaders/s3o_wos.frag", "shaders/s3o_wos.vert");
+	}
 } // namespace TA3D
 

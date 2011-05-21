@@ -716,41 +716,45 @@ namespace TA3D
 		hBitMap.clear();
 		size_t memoryUsed = 0U;
 		Mutex mLoad;
-#pragma omp parallel for
-		for(uint32 i = 0 ; i < unit_manager.unit_type.size() ; ++i)
+		const size_t end = unit_manager.unit_type.size();
+		volatile size_t i = 0;
+#pragma omp parallel
 		{
-			const UnitType* const pType = unit_manager.unit_type[i];
-			if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
-				continue;
-			const String key = pType->getMoveStringID();
 			mLoad.lock();
-			if (hBitMap.count(key))		// Already done ?
+			while(i < end)
 			{
+				const size_t e = i++;
 				mLoad.unlock();
-				continue;
-			}
-			BitMap *bmap = new BitMap(the_map->bloc_w_db, the_map->bloc_h_db);
-			hBitMap[key] = bmap;
-
-			mLoad.unlock();
-
-			const int mwh = pType->FootprintX >> 1;
-			const int mhh = pType->FootprintZ >> 1;
-
-			for(int y = 0 ; y < the_map->bloc_h_db ; ++y)
-			{
-				for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
+				const UnitType* const pType = unit_manager.unit_type[e];
+				if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
 				{
-					bmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
+					mLoad.lock();
+					continue;
 				}
+				const String key = pType->getMoveStringID();
+				mLoad.lock();
+				if (hBitMap.count(key))		// Already done ?
+					continue;
+				BitMap *bmap = new BitMap(the_map->bloc_w_db, the_map->bloc_h_db);
+				hBitMap[key] = bmap;
+
+				mLoad.unlock();
+
+				const int mwh = pType->FootprintX >> 1;
+				const int mhh = pType->FootprintZ >> 1;
+
+				for(int y = 0 ; y < the_map->bloc_h_db ; ++y)
+				{
+					for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
+					{
+						bmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
+					}
+				}
+
+				mLoad.lock();
+				memoryUsed += bmap->getMemoryUse();
 			}
-
-			mLoad.lock();
-			memoryUsed += bmap->getMemoryUse();
 			mLoad.unlock();
-
-//			if ((i + 1) * 10 / unit_manager.unit_type.size() != i * 10 / unit_manager.unit_type.size())
-//				LOG_INFO(LOG_PREFIX_PATHS << (i + 1) * 100 / unit_manager.unit_type.size() << '%');
 		}
 
 		LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024U << "kb");
