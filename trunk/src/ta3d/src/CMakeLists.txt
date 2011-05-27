@@ -387,17 +387,17 @@ ELSE(NOT APPLE)
 
 	# --- Resources ---
 	# Sky
-	Message(STATUS "[bundle] Adding resources 'sky'...")
+	Message(STATUS "[osx-bundle] Adding resources 'sky'...")
 	BUNDLE_INSTALL_GLOB("sky" "sky" "*.tdf")
 	# Shaders
-	Message(STATUS "[bundle] Adding resources 'shaders'...")
+	Message(STATUS "[osx-bundle] Adding resources 'shaders'...")
 	BUNDLE_INSTALL_GLOB("shaders" "shaders" "*.vert")
 	BUNDLE_INSTALL_GLOB("shaders" "shaders" "*.frag")
 	# ai
-	Message(STATUS "[bundle] Adding resources 'ai'...")
+	Message(STATUS "[osx-bundle] Adding resources 'ai'...")
 	BUNDLE_INSTALL_GLOB("ai" "ai" "*.ai")
 	# Gfx
-	Message(STATUS "[bundle] Adding resources 'gfx'...")
+	Message(STATUS "[osx-bundle] Adding resources 'gfx'...")
 	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.jpg")
 	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.png")
 	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.tga")
@@ -416,30 +416,30 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("gfx/teams" "gfx/teams" "*.tga")
 	BUNDLE_INSTALL_GLOB("gfx/tactical_icons" "gfx/tactical_icons/" "*.tga")
 	# gui
-	Message(STATUS "[bundle] Adding resources 'gui'...")
+	Message(STATUS "[osx-bundle] Adding resources 'gui'...")
 	BUNDLE_INSTALL_GLOB("gui" "gui" "*.tdf")
 	BUNDLE_INSTALL_GLOB("gui" "gui" "*.area")
 	BUNDLE_INSTALL_GLOB("gui" "gui" "*.skn")
 	# Mods
-	Message(STATUS "[bundle] Adding resources 'mods'...")
+	Message(STATUS "[osx-bundle] Adding resources 'mods'...")
 	BUNDLE_INSTALL("mods/ta3d" "mods/ta3d" "files.txt")
 	BUNDLE_INSTALL_GLOB("mods/ta3d/objects3d" "mods/ta3d/objects3d" "*.3dm")
 	BUNDLE_INSTALL_GLOB("mods/ta3d/objects3d" "mods/ta3d/objects3d" "*.3do")
 	# objects3d
-	Message(STATUS "[bundle] Adding resources 'objects3d'...")
+	Message(STATUS "[osx-bundle] Adding resources 'objects3d'...")
 	BUNDLE_INSTALL_GLOB("objects3d" "objects3d" "*.3dm")
 	BUNDLE_INSTALL_GLOB("objects3d" "objects3d" "*.3do")
 	# Fonts
-	Message(STATUS "[bundle] Adding resources 'fonts'...")
+	Message(STATUS "[osx-bundle] Adding resources 'fonts'...")
 	BUNDLE_INSTALL_GLOB("fonts" "fonts" "*.ttf")
 	# Scripts
-	Message(STATUS "[bundle] Adding resources 'scripts'...")
+	Message(STATUS "[osx-bundle] Adding resources 'scripts'...")
 	BUNDLE_INSTALL_GLOB("scripts" "scripts" "*.lua")
 	BUNDLE_INSTALL_GLOB("scripts/game" "scripts/game" "*.lua")
 	BUNDLE_INSTALL_GLOB("scripts/game/ai" "scripts/ai" "*.lua")
 	BUNDLE_INSTALL_GLOB("scripts" "scripts" "*.lh")
 	# Pictures
-	Message(STATUS "[bundle] Adding resources 'pictures'...")
+	Message(STATUS "[osx-bundle] Adding resources 'pictures'...")
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.jpg")
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.ico")
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.png")
@@ -447,10 +447,10 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.tga")
 	BUNDLE_INSTALL_GLOB("pictures" "." "*.icns")
 	# Intro
-	Message(STATUS "[bundle] Adding resources 'intro'...")
+	Message(STATUS "[osx-bundle] Adding resources 'intro'...")
 	BUNDLE_INSTALL_GLOB("resources/intro" "intro" "*.txt")
 	# Translations
-	Message(STATUS "[bundle] Adding resources 'languages'...")
+	Message(STATUS "[osx-bundle] Adding resources 'languages'...")
 	BUNDLE_INSTALL_GLOB("resources/languages" "languages" "*.po")
 
 	# OS X specific

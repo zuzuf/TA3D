@@ -53,7 +53,7 @@ namespace Math
     { return (rad * 57.29578122f); }
 
 	template<typename T> inline int Sgn(const T a)
-	{ return a < 0 ? -1 : a == 0 ? 0 : 1; }
+	{ return (a < 0) ? -1 : ((a > 0) ? 1 : 0); }
 
 	/*!
     ** \brief Get log2(n)

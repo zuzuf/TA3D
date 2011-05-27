@@ -2468,7 +2468,7 @@ namespace TA3D
 					energy_cons += conso_energy * resource_min_factor;
 					planned_weapons -= dn * resource_min_factor;
 					const float last = planned_weapons - float(int(planned_weapons));
-					if ((Yuni::Math::Zero(last) && last != old) || (last > old && old > 0.0f) || planned_weapons <= 0.0f)		// On en a fini une / one is finished
+					if ((Yuni::Math::Zero(last) && !Yuni::Math::Equals(last, old)) || (last > old && old > 0.0f) || planned_weapons <= 0.0f)		// On en a fini une / one is finished
 						weapon[idx].stock++;
 					if (planned_weapons < 0.0f)
 						planned_weapons = 0.0f;

@@ -1260,11 +1260,13 @@ namespace TA3D
 			{
 #ifdef _OPENMP
 				if (omp_get_thread_num() == 0)
+				{
 					if (progress != NULL && m >= 0xF)
 					{
 						(*progress)((300.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading units"));
 						m = 0;
 					}
+				}
 				++m;
 #else
 				if (progress != NULL && !(n & 0xF))
@@ -1299,6 +1301,7 @@ namespace TA3D
 		return 0;
 	}
 
+
 	bool UnitType::canBuild(const int index) const
 	{
 		for (int i = 0; i < nb_unit; ++i)
@@ -1315,6 +1318,7 @@ namespace TA3D
 		init();
 	}
 
+
 	void UnitManager::init()
 	{
 		nb_unit = 0;
@@ -1323,21 +1327,25 @@ namespace TA3D
 		panelbottom.init();
 	}
 
+
 	UnitType::UnitType()
 	{
 		init();
 	}
 
+
 	void UnitManager::waitUntilReady() const
 	{
-		while(!ready)
+		while (!ready)
 			rest(10);
 	}
+
 
 	UnitDataLoader::UnitDataLoader()
 	{
 		start();
 	}
+
 
 	void UnitDataLoader::proc(void *)
 	{

@@ -1,23 +1,23 @@
 PROJECT(TA3D)
 cmake_minimum_required(VERSION 2.6)
 
-Message(STATUS "")
-Message(STATUS "--- TA3D ---")
-Message(STATUS "")
+message(STATUS "")
+message(STATUS "--- TA3D ---")
+message(STATUS "")
 
 
 #
 # --- Settings ---
 #
 # The maximum players
-SET(TA3D_MAX_PLAYERS_HARD_LIMIT  10)
+set(TA3D_MAX_PLAYERS_HARD_LIMIT  10)
 
-SET(CPACK_PACKAGE_VERSION_MAJOR "${TA3D_VERSION_HI}")
-SET(CPACK_PACKAGE_VERSION_MINOR "${TA3D_VERSION_LO}")
-SET(CPACK_PACKAGE_VERSION_PATCH "${TA3D_VERSION_PATCH}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${TA3D_VERSION_HI}")
+set(CPACK_PACKAGE_VERSION_MINOR "${TA3D_VERSION_LO}")
+set(CPACK_PACKAGE_VERSION_PATCH "${TA3D_VERSION_PATCH}")
 
-SET(CPACK_PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_PATCH}.${TA3D_VERSION_TAG}")
-SET(CPACK_PACKAGE_NAME "TA3D")
+set(CPACK_PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_PATCH}.${TA3D_VERSION_TAG}")
+set(CPACK_PACKAGE_NAME "TA3D")
 
 
 
@@ -27,19 +27,29 @@ SET(CPACK_PACKAGE_NAME "TA3D")
 # -----------------------------------------------------------------------------
 #
 
-IF(SVN_REV)
-	SET(CPACK_PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_PATCH}.${TA3D_VERSION_TAG}.r${SVN_REV}")
-ENDIF(SVN_REV)
+if(SVN_REV)
+	set(CPACK_PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_PATCH}.${TA3D_VERSION_TAG}.r${SVN_REV}")
+endif(SVN_REV)
 
 
 
 # Initialization
-SET(LIBS "")
-SET(PACKAGE_BUGREPORT "${TA3D_MAIL_BUGREPORT}")
-SET(PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_PATCH} ${TA3D_VERSION_TAG}")
-SET(PACKAGE_STRING "TA3D ${PACKAGE_VERSION}")
-SET(TA3D_ENGINE_VERSION "${PACKAGE_STRING}")
+set(LIBS "")
+set(PACKAGE_BUGREPORT "${TA3D_MAIL_BUGREPORT}")
+set(PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_PATCH} ${TA3D_VERSION_TAG}")
+set(PACKAGE_STRING "TA3D ${PACKAGE_VERSION}")
+set(TA3D_ENGINE_VERSION "${PACKAGE_STRING}")
 
+
+set(TA3D_COMMON_CPP_FLAGS  "")
+if(NOT WIN32 OR MINGW)
+	set(TA3D_COMMON_CPP_FLAGS  "${TA3D_COMMON_CPP_FLAGS} -W -Wextra -Wall -Wfloat-equal -Woverloaded-virtual")
+	set(TA3D_COMMON_CPP_FLAGS  "${TA3D_COMMON_CPP_FLAGS} -Wconversion")
+endif()
+if(APPLE)
+	set(TA3D_COMMON_CPP_FLAGS  "${TA3D_COMMON_CPP_FLAGS} -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64")
+	set(TA3D_COMMON_CPP_FLAGS  "${TA3D_COMMON_CPP_FLAGS} -fvisibility=hidden")
+endif()
 
 
 #
@@ -47,69 +57,50 @@ SET(TA3D_ENGINE_VERSION "${PACKAGE_STRING}")
 #
 # Ex: cmake . -DCMAKE_BUILD_TYPE=release
 #
-IF("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
 	#
 	# Build Configuration: Release
 	#
-	Message(STATUS "Build Configuration: Release")
+	message(STATUS "Build Configuration: Release")
 
-	IF(NOT WIN32)
-		String(LENGTH "${CMAKE_CXX_FLAGS}" VA)
-		IF(${VA} EQUAL 0)
-			Set(CMAKE_CXX_FLAGS "-O2 -fomit-frame-pointer -Wall  -Wextra -mfpmath=sse -msse -msse2 -Wuninitialized -Wunused-parameter -Winit-self")
-		ENDIF(${VA} EQUAL 0)
-		Message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
+	if(NOT WIN32)
+		Set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} -O2 -fomit-frame-pointer -mfpmath=sse -msse -msse2")
+		message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
 	Else(NOT WIN32)
-		IF(MINGW)
-			Set(CMAKE_CXX_OTHER_FLAGS "-O2 -fomit-frame-pointer -Wextra ")
-			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
-			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
-		ENDIF(MINGW)
-		IF(MSVC)
-            Set(CMAKE_CXX_OTHER_FLAGS "/Ob2 /Ot /O2 /MDd /Wp64 /Oy /MT /GL /GS-")
-			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
-			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
-		ENDIF(MSVC)
-	ENDIF(NOT WIN32)
-	ADD_DEFINITIONS("-DNDEBUG") # Remove asserts
+		if(MINGW)
+			set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} -O2 -fomit-frame-pointer")
+		endif(MINGW)
+		if(MSVC)
+			set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} /Ob2 /Ot /O2 /MDd /Wp64 /Oy /MT /GL /GS-")
+		endif(MSVC)
+	endif(NOT WIN32)
+	add_definitions("-DNDEBUG") # Remove asserts
 
 Else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
 	#
 	# Build Configuration: Debug
 	#
-	Message(STATUS "Build Configuration: Debug")
+	message(STATUS "Build Configuration: Debug")
 
-	IF(NOT WIN32)
-		String(LENGTH "${CMAKE_CXX_FLAGS}" VA)
-		IF(${VA} EQUAL 0)
-			Set(CMAKE_CXX_FLAGS "-g -ggdb2 -Wall -Woverloaded-virtual -Wextra -Wconversion -Wredundant-decls -Wundef -Wcast-align -Wcast-qual -Wfloat-equal -Wunused-parameter")
-			If(APPLE)
-				Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gfull")
-			ENdif(APPLE)
-		ENDIF(${VA} EQUAL 0)
-		Message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
-	Else(NOT WIN32)
-		IF(MINGW)
-			Set(CMAKE_CXX_OTHER_FLAGS "-g2 -Woverloaded-virtual -Wextra -Wconversion")
-			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
-			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
-		ENDIF(MINGW)
-		IF(MSVC)
-			Set(CMAKE_CXX_OTHER_FLAGS "/GR /Ob2 /Ot /MDd /MTd /fp:except")
-			Message(STATUS "Added C++ flags `${CMAKE_CXX_OTHER_FLAGS}`")
-			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_OTHER_FLAGS}")
-		ENDIF(MSVC)
-	ENDIF(NOT WIN32)
-	ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
+	if(NOT WIN32)
+		Set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} -g -ggdb2")
+		If(APPLE)
+			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gfull")
+		ENdif(APPLE)
+	else(NOT WIN32)
+		if(MINGW)
+			Set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} -g2")
+		endif(MINGW)
+		if(MSVC)
+			Set(CMAKE_CXX_FLAGS "/GR /Ob2 /Ot /MDd /MTd /fp:except")
+		endif(MSVC)
+	endif(NOT WIN32)
+	add_definitions("-DLOGS_USE_DEBUG")
 
-EndIF("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+Endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
-
-IF(APPLE)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-ENDIF(APPLE)
 
 
 
@@ -117,17 +108,17 @@ ENDIF(APPLE)
 #
 # Platform
 #
-IF(NOT WIN32)
-	IF(APPLE)
-		ADD_DEFINITIONS("-DTA3D_PLATFORM_DARWIN -DTA3D_PLATFORM_MAC")
-	ELSE(APPLE)
-		SET(LINUX 1)
-		ADD_DEFINITIONS("-DTA3D_PLATFORM_LINUX")
-	ENDIF(APPLE)
-	ADD_DEFINITIONS("-DTA3D_PLATFORM_UNIX -DTA3D_PLATFORM_GCC")
-ELSE(NOT WIN32)
-	ADD_DEFINITIONS("-DTA3D_PLATFORM_WINDOWS -DTA3D_PLATFORM_WIN32")
-ENDIF(NOT WIN32)
+if(NOT WIN32)
+	if(APPLE)
+		add_definitions("-DTA3D_PLATFORM_DARWIN -DTA3D_PLATFORM_MAC")
+	else(APPLE)
+		set(LINUX 1)
+		add_definitions("-DTA3D_PLATFORM_LINUX")
+	endif(APPLE)
+	add_definitions("-DTA3D_PLATFORM_UNIX -DTA3D_PLATFORM_GCC")
+else(NOT WIN32)
+	add_definitions("-DTA3D_PLATFORM_WINDOWS -DTA3D_PLATFORM_WIN32")
+endif(NOT WIN32)
 
 
 Include(CheckIncludeFile)
@@ -136,7 +127,7 @@ Include(CheckIncludeFile)
 #
 # --- SDL ---
 #
-SET(SDL_PREFIX "[SDL]")
+set(SDL_PREFIX "[SDL]")
 Include(FindSDL)
 Include(FindSDL_image)
 Include(FindSDL_mixer)
@@ -145,50 +136,50 @@ Include(FindSDL_net)
 # Manual setup for mingw32 (all required files are included in source tree)
 IF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
-	SET( SDL_FOUND included )
-	SET( SDLIMAGE_FOUND included )
-	SET( SDLMIXER_FOUND included )
-	SET( SDLNET_FOUND included )
-	SET( SMPEG_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libsmpeg.a )
+	set( SDL_FOUND included )
+	set( SDLIMAGE_FOUND included )
+	set( SDLMIXER_FOUND included )
+	set( SDLNET_FOUND included )
+	set( SMPEG_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libsmpeg.a )
 
-	INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include" )
+	include_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include" )
 
-	SET( SDL_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-	SET( SDLIMAGE_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-	SET( SDLMIXER_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-	SET( SDLNET_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
+	set( SDL_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
+	set( SDLIMAGE_include_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
+	set( SDLMIXER_include_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
+	set( SDLNET_include_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
 
-	SET( SDL_LIBRARY "mingw32;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libSDLmain.a;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL.dll")
-	SET( SDLIMAGE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_image.dll")
-	SET( SDLMIXER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_mixer.dll")
-	SET( SDLNET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_net.dll")
+	set( SDL_LIBRARY "mingw32;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libSDLmain.a;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL.dll")
+	set( SDLIMAGE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_image.dll")
+	set( SDLMIXER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_mixer.dll")
+	set( SDLNET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_net.dll")
 
-ENDIF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+endif (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
 	find_library(SMPEG_LIBRARY smpeg)
-	MESSAGE(STATUS "${SDL_PREFIX} SDL: ${SDL_FOUND}")
-	MESSAGE(STATUS "${SDL_PREFIX} SDL_image: ${SDLIMAGE_FOUND}")
-	MESSAGE(STATUS "${SDL_PREFIX} SDL_mixer: ${SDLMIXER_FOUND}")
-	MESSAGE(STATUS "${SDL_PREFIX} SDL_net: ${SDLNET_FOUND}")
-	MESSAGE(STATUS "${SDL_PREFIX} SMPEG: ${SMPEG_LIBRARY}")
-	MESSAGE(STATUS "${SDL_PREFIX} Include dir: ${SDL_INCLUDE_DIR}")
-	MESSAGE(STATUS "${SDL_PREFIX} The SDL library: ${SDL_LIBRARY}")
-	MESSAGE(STATUS "${SDL_PREFIX} The SDL_image library: ${SDLIMAGE_LIBRARY}")
-	MESSAGE(STATUS "${SDL_PREFIX} The SDL_mixer library: ${SDLMIXER_LIBRARY}")
-	MESSAGE(STATUS "${SDL_PREFIX} The SDL_net library: ${SDLNET_LIBRARY}")
+	message(STATUS "${SDL_PREFIX} SDL: ${SDL_FOUND}")
+	message(STATUS "${SDL_PREFIX} SDL_image: ${SDLIMAGE_FOUND}")
+	message(STATUS "${SDL_PREFIX} SDL_mixer: ${SDLMIXER_FOUND}")
+	message(STATUS "${SDL_PREFIX} SDL_net: ${SDLNET_FOUND}")
+	message(STATUS "${SDL_PREFIX} SMPEG: ${SMPEG_LIBRARY}")
+	message(STATUS "${SDL_PREFIX} Include dir: ${SDL_INCLUDE_DIR}")
+	message(STATUS "${SDL_PREFIX} The SDL library: ${SDL_LIBRARY}")
+	message(STATUS "${SDL_PREFIX} The SDL_image library: ${SDLIMAGE_LIBRARY}")
+	message(STATUS "${SDL_PREFIX} The SDL_mixer library: ${SDLMIXER_LIBRARY}")
+	message(STATUS "${SDL_PREFIX} The SDL_net library: ${SDLNET_LIBRARY}")
 
-IF(NOT SDL_FOUND)
-	MESSAGE(FATAL_ERROR "SDL not found, SDL is required")
-ENDIF(NOT SDL_FOUND)
-IF(NOT SDLIMAGE_FOUND)
-	MESSAGE(FATAL_ERROR "SDL_image not found, SDL_image is required")
-ENDIF(NOT SDLIMAGE_FOUND)
-IF(NOT SDLMIXER_FOUND)
-	MESSAGE(FATAL_ERROR "SDL_mixer not found, SDL_mixer is required")
-ENDIF(NOT SDLMIXER_FOUND)
-IF(NOT SDLNET_FOUND)
-	MESSAGE(FATAL_ERROR "SDL_net not found, SDL_net is required")
-ENDIF(NOT SDLNET_FOUND)
+if(NOT SDL_FOUND)
+	message(FATAL_ERROR "SDL not found, SDL is required")
+endif(NOT SDL_FOUND)
+if(NOT SDLIMAGE_FOUND)
+	message(FATAL_ERROR "SDL_image not found, SDL_image is required")
+endif(NOT SDLIMAGE_FOUND)
+if(NOT SDLMIXER_FOUND)
+	message(FATAL_ERROR "SDL_mixer not found, SDL_mixer is required")
+endif(NOT SDLMIXER_FOUND)
+if(NOT SDLNET_FOUND)
+	message(FATAL_ERROR "SDL_net not found, SDL_net is required")
+endif(NOT SDLNET_FOUND)
 
 LINK_LIBRARIES(${SDL_LIBRARY})
 LINK_LIBRARIES(${SDLIMAGE_LIBRARY})
@@ -196,10 +187,10 @@ LINK_LIBRARIES(${SDLMIXER_LIBRARY})
 LINK_LIBRARIES(${SDLNET_LIBRARY})
 LINK_LIBRARIES(${SMPEG_LIBRARY})
 
-INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${SDLIMAGE_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${SDLMIXER_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(${SDLNET_INCLUDE_DIR})
+include_DIRECTORIES(${SDL_INCLUDE_DIR})
+include_DIRECTORIES(${SDLIMAGE_include_DIR})
+include_DIRECTORIES(${SDLMIXER_include_DIR})
+include_DIRECTORIES(${SDLNET_include_DIR})
 
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/src/lua/")
 
@@ -207,209 +198,212 @@ link_directories("${CMAKE_CURRENT_SOURCE_DIR}/src/lua/")
 #
 # --- LUA / LUAJIT ---
 #
-IF(APPLE)
-	# On OS X, it seems that LuaJIT is not really gently with OSAtomicDecrement32
-	# (the given pointer is invalid)
-	SET(LUA_NOJIT 1)
-ENDIF(APPLE)
-IF(LUA_NOJIT)
-	IF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+if(APPLE)
+	# On OS X, we will directly use luajit from macports
+	set(LUA_NOJIT 0)
+	EXECUTE_PROCESS(COMMAND pkg-config luajit --cflags OUTPUT_VARIABLE LUA_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	EXECUTE_PROCESS(COMMAND pkg-config luajit --libs OUTPUT_VARIABLE LUA_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LUA_CFLAGS}")
+	set(LIBS "${LUA_LIBS}")
+	message(STATUS "luajit cflags : ${LUA_CFLAGS}")
+	message(STATUS "luajit libs   : ${LUA_LIBS}")
+else()
+	if(LUA_NOJIT)
+		if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
-		IF( CMAKE_CROSSCOMPILING )
-			SET( target i586-mingw32msvc- )
-			SET( MAKE_WIN "make")
-			SET( RANLIB_WIN "${target}ranlib")
-		ELSE( CMAKE_CROSSCOMPILING )
-			FIND_PROGRAM(MAKE_WIN "mingw32-make.exe")
-			FIND_PROGRAM(RANLIB_WIN "ranlib.exe")
-		ENDIF( CMAKE_CROSSCOMPILING )
+			if( CMAKE_CROSSCOMPILING )
+				set( target i586-mingw32msvc- )
+				set( MAKE_WIN "make")
+				set( RANLIB_WIN "${target}ranlib")
+			else( CMAKE_CROSSCOMPILING )
+				FIND_PROGRAM(MAKE_WIN "mingw32-make.exe")
+				FIND_PROGRAM(RANLIB_WIN "ranlib.exe")
+			endif( CMAKE_CROSSCOMPILING )
 
-		IF( NOT BUILT_LUA )
-			Message(STATUS "Building Lua")
-			EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/lua" COMMAND ${MAKE_WIN} clean)
-			EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/lua" COMMAND ${MAKE_WIN} mingw CC=${CMAKE_C_COMPILER} RANLIB=${RANLIB_WIN})
-			SET( BUILT_LUA 1 CACHE BOOL "Lua has been built" )
-		ENDIF( NOT BUILT_LUA )
+			if( NOT BUILT_LUA )
+				message(STATUS "Building Lua")
+				EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/lua" COMMAND ${MAKE_WIN} clean)
+				EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/lua" COMMAND ${MAKE_WIN} mingw CC=${CMAKE_C_COMPILER} RANLIB=${RANLIB_WIN})
+				set( BUILT_LUA 1 CACHE BOOL "Lua has been built" )
+			endif( NOT BUILT_LUA )
 
-		EXECUTE_PROCESS( COMMAND cp "${CMAKE_CURRENT_SOURCE_DIR}/src/lua/lua51.dll" "${CMAKE_CURRENT_SOURCE_DIR}/" )
+			EXECUTE_PROCESS( COMMAND cp "${CMAKE_CURRENT_SOURCE_DIR}/src/lua/lua51.dll" "${CMAKE_CURRENT_SOURCE_DIR}/" )
 
-		IF( NOT BUILT_LUA )
-			EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/lua/" clean)
-			EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/lua/" mingw)
-			SET( BUILT_LUA 1 CACHE BOOL "Lua has been built")
-		ENDIF( NOT BUILT_LUA )
+			if( NOT BUILT_LUA )
+				EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/lua/" clean)
+				EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/lua/" mingw)
+				set( BUILT_LUA 1 CACHE BOOL "Lua has been built")
+			endif( NOT BUILT_LUA )
 
-		SET( LIBS "-L./lua -llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz")
+			set( LIBS "-L./lua -llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz")
 
-		IF(NOT CMAKE_CROSSCOMPILING)
-			SET( LIBS "${LIBS} -lSDLmain")
-		ENDIF(NOT CMAKE_CROSSCOMPILING)
+			if(NOT CMAKE_CROSSCOMPILING)
+				set( LIBS "${LIBS} -lSDLmain")
+			endif(NOT CMAKE_CROSSCOMPILING)
+
+			LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/")
+
+		else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+
+			if(NOT APPLE)
+				if( NOT BUILT_LUA )
+					EXECUTE_PROCESS( COMMAND make -C "ta3d/src/lua/" clean )
+					EXECUTE_PROCESS( COMMAND make -C "ta3d/src/lua/" linux CC=${CMAKE_C_COMPILER} )
+					set( BUILT_LUA 1 CACHE BOOL "Lua has been built" )
+				endif( NOT BUILT_LUA )
+			endif(NOT APPLE)
+
+			set(LIBS "-llua -lz -ldl")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
+
+		endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+	else(LUA_NOJIT)			# LuaJIT 2
+		if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+			if( CMAKE_CROSSCOMPILING )
+				set( target i586-mingw32msvc- )
+				set( MAKE_WIN "make")
+				set( RANLIB_WIN "${target}ranlib")
+			else( CMAKE_CROSSCOMPILING )
+				FIND_PROGRAM(MAKE_WIN "mingw32-make.exe")
+				FIND_PROGRAM(RANLIB_WIN "ranlib.exe")
+			endif( CMAKE_CROSSCOMPILING )
+
+			if( NOT BUILT_LUAJIT )
+				message(STATUS "Building LuaJIT")
+				EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit" COMMAND ${MAKE_WIN} clean)
+				EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit" COMMAND ${MAKE_WIN} CC=${CMAKE_C_COMPILER} RANLIB=${RANLIB_WIN})
+				set( BUILT_LUAJIT 1 CACHE BOOL "LuaJIT has been built" )
+			endif( NOT BUILT_LUAJIT )
+
+			set( LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -luser32 -lgdi32 -lopengl32 -lglu32 -lz")
+
+			if(NOT CMAKE_CROSSCOMPILING)
+				set( LIBS "${LIBS} -lSDLmain")
+			endif(NOT CMAKE_CROSSCOMPILING)
 
 		LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/")
 
-	ELSE(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+		else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
-		IF(NOT APPLE)
-			IF( NOT BUILT_LUA )
-				EXECUTE_PROCESS( COMMAND make -C "ta3d/src/lua/" clean )
-				EXECUTE_PROCESS( COMMAND make -C "ta3d/src/lua/" linux CC=${CMAKE_C_COMPILER} )
-				SET( BUILT_LUA 1 CACHE BOOL "Lua has been built" )
-			ENDIF( NOT BUILT_LUA )
-		ENDIF(NOT APPLE)
+			if( NOT BUILT_LUAJIT )
+				EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/" clean )
+				if(CMAKE_CROSSCOMPILING)
+					set(HOST_CC gcc)
+				else(CMAKE_CROSSCOMPILING)
+					set(HOST_CC ${CMAKE_C_COMPILER})
+				endif(CMAKE_CROSSCOMPILING)
+				EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/" CC=${CMAKE_C_COMPILER} HOST_CC=${HOST_CC} )
+				set( BUILT_LUAJIT 1 CACHE BOOL "LuaJIT has been built" )
+			endif( NOT BUILT_LUAJIT )
 
-                SET(LIBS "-llua -lz -ldl")
-		IF(NOT APPLE)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
-		ENDIF(NOT APPLE)
+			set(LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -lz -ldl")
+			if(NOT APPLE)
+				set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
+			endif(NOT APPLE)
 
-	ENDIF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-ELSE(LUA_NOJIT)			# LuaJIT 2
-	IF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-		IF( CMAKE_CROSSCOMPILING )
-			SET( target i586-mingw32msvc- )
-			SET( MAKE_WIN "make")
-			SET( RANLIB_WIN "${target}ranlib")
-		ELSE( CMAKE_CROSSCOMPILING )
-			FIND_PROGRAM(MAKE_WIN "mingw32-make.exe")
-			FIND_PROGRAM(RANLIB_WIN "ranlib.exe")
-		ENDIF( CMAKE_CROSSCOMPILING )
-
-		IF( NOT BUILT_LUAJIT )
-			Message(STATUS "Building LuaJIT")
-			EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit" COMMAND ${MAKE_WIN} clean)
-			EXECUTE_PROCESS(WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit" COMMAND ${MAKE_WIN} CC=${CMAKE_C_COMPILER} RANLIB=${RANLIB_WIN})
-			SET( BUILT_LUAJIT 1 CACHE BOOL "LuaJIT has been built" )
-		ENDIF( NOT BUILT_LUAJIT )
-
-		SET( LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -luser32 -lgdi32 -lopengl32 -lglu32 -lz")
-
-		IF(NOT CMAKE_CROSSCOMPILING)
-			SET( LIBS "${LIBS} -lSDLmain")
-		ENDIF(NOT CMAKE_CROSSCOMPILING)
-
-		LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/")
-
-	ELSE(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-
-		IF( NOT BUILT_LUAJIT )
-			EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/" clean )
-			IF(CMAKE_CROSSCOMPILING)
-				SET(HOST_CC gcc)
-			ELSE(CMAKE_CROSSCOMPILING)
-				SET(HOST_CC ${CMAKE_C_COMPILER})
-			ENDIF(CMAKE_CROSSCOMPILING)
-			EXECUTE_PROCESS( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/" CC=${CMAKE_C_COMPILER} HOST_CC=${HOST_CC} )
-			SET( BUILT_LUAJIT 1 CACHE BOOL "LuaJIT has been built" )
-		ENDIF( NOT BUILT_LUAJIT )
-
-                SET(LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -lz -ldl")
-		IF(NOT APPLE)
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
-		ENDIF(NOT APPLE)
-
-	ENDIF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-ENDIF(LUA_NOJIT)
-
+		endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+	endif(LUA_NOJIT)
+endif()
 
 
 
 #
 # --- GLEW ---
 #
-IF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-	SET(GLEW_LIB "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libglew32.dll.a")
-ELSE(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+	set(GLEW_LIB "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libglew32.dll.a")
+else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 	find_library(GLEW_LIB GLEW)
-	IF(NOT GLEW_LIB)
+	if(NOT GLEW_LIB)
 		find_library(GLEW_LIB glew)
-	ENDIF(NOT GLEW_LIB)
-ENDIF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+	endif(NOT GLEW_LIB)
+endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
-Message(STATUS "GLEW Library : ${GLEW_LIB}")
-SET(LIBS "${LIBS} ${GLEW_LIB}")
+message(STATUS "GLEW Library : ${GLEW_LIB}")
+set(LIBS "${LIBS} ${GLEW_LIB}")
 
 #
 # --- GLU ---
 #
-IF(UNIX)
+if(UNIX)
 	find_library(GLU_LIB GLU)
-	IF(NOT GLU_LIB)
+	if(NOT GLU_LIB)
 		find_library(GLEW_LIB glu)
-	ENDIF(NOT GLU_LIB)
-	Message(STATUS "GLU Library : ${GLU_LIB}")
-	SET(LIBS "${LIBS} ${GLU_LIB}")
-ENDIF(UNIX)
+	endif(NOT GLU_LIB)
+	message(STATUS "GLU Library : ${GLU_LIB}")
+	set(LIBS "${LIBS} ${GLU_LIB}")
+endif(UNIX)
 
 
 #
 # --- FTGL ---
 #
-IF(NOT APPLE)
-    IF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-        SET( FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/freetype2/")
-        SET( FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libfreetype.dll.a")
-        Message(STATUS "FreeType Library : ${FREETYPE_LIBRARIES}")
-    ELSE(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+if(NOT APPLE)
+    if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+        set( FREETYPE_include_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/freetype2/")
+        set( FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libfreetype.dll.a")
+        message(STATUS "FreeType Library : ${FREETYPE_LIBRARIES}")
+    else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
         FIND_PACKAGE(Freetype)
-    ENDIF(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
+    endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
-    include_directories( ${FREETYPE_INCLUDE_DIRS} )
+    include_directories( ${FREETYPE_include_DIRS} )
 
-    SET(FTGL_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/lib/libftgl.a)
+    set(FTGL_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/lib/libftgl.a)
     include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/include )
-    SET(__FTGL__lower__ true)
+    set(__FTGL__lower__ true)
 
-    Message(STATUS "FTGL Library : ${FTGL_LIB}")
-    SET(LIBS "${LIBS} ${FTGL_LIB}")
+    message(STATUS "FTGL Library : ${FTGL_LIB}")
+    set(LIBS "${LIBS} ${FTGL_LIB}")
 
-ELSE(NOT APPLE)
+else(NOT APPLE)
 
 	Execute_process(COMMAND pkg-config --libs  ftgl OUTPUT_VARIABLE FTGL_LIB OUTPUT_STRIP_TRAILING_WHITESPACE)
 	Execute_process(COMMAND pkg-config --cflags  ftgl OUTPUT_VARIABLE FTGL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-	Message(STATUS "FTGL Library : ${FTGL_LIB}")
-	Message(STATUS "FTGL CFLags : ${FTGL_CFLAGS}")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FTGL_CFLAGS}")
-	SET(LIBS "${LIBS} ${FTGL_LIB}")
-	SET(__FTGL__lower__ false)
+	message(STATUS "FTGL Library : ${FTGL_LIB}")
+	message(STATUS "FTGL CFLags : ${FTGL_CFLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FTGL_CFLAGS}")
+	set(LIBS "${LIBS} ${FTGL_LIB}")
+	set(__FTGL__lower__ false)
 
-ENDIF(NOT APPLE)
+endif(NOT APPLE)
 
 
 #
 # --- SDL_sgui ---
 #
-SET(SDL_SGUI_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/libSDL_sgui.a)
+set(SDL_SGUI_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/libSDL_sgui.a)
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/include )
 
-Message(STATUS "SDL_sgui Library : ${SDL_SGUI_LIB}")
-SET(LIBS "${LIBS} ${SDL_SGUI_LIB}")
+message(STATUS "SDL_sgui Library : ${SDL_SGUI_LIB}")
+set(LIBS "${LIBS} ${SDL_SGUI_LIB}")
 
 
 #
 # --- ZLib ---
 #
-IF(WIN32)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/zlib")
-ENDIF(WIN32)
+if(WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/zlib")
+endif(WIN32)
 
 #
 # --- OpenMP ---
 #
 Include(FindOpenMP)
-IF(DISABLE_OPENMP)
-	SET(OPENMP_FOUND 0)
-ENDIF(DISABLE_OPENMP)
+if(DISABLE_OPENMP)
+	set(OPENMP_FOUND 0)
+endif(DISABLE_OPENMP)
 
-IF(OPENMP_FOUND)
-	Message(STATUS "OpenMP found")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-ELSE(OPENMP_FOUND)
-	Message(STATUS "OpenMP not found")
-ENDIF(OPENMP_FOUND)
+if(OPENMP_FOUND)
+	message(STATUS "OpenMP found")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else(OPENMP_FOUND)
+	message(STATUS "OpenMP not found")
+endif(OPENMP_FOUND)
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # for compatibility with old versions of cmake
-SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 #
@@ -420,14 +414,14 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 # A graphical application is only working if launched from its bundle.
 # So We cannot wait to install the application to be able to run it.
 #
-IF(NOT APPLE)
+if(NOT APPLE)
 
-	IF(NOT WIN32 AND UNIX)
+	if(NOT WIN32 AND UNIX)
 		message("-- TA3D will be installed in: ${CMAKE_INSTALL_PREFIX}")
-	ENDIF(NOT WIN32 AND UNIX)
+	endif(NOT WIN32 AND UNIX)
 
-	SET(TA3D_RESOURCES_INSTALL_PATH "share/games/ta3d")
-	SET(TA3D_BINARIES_INSTALL_PATH "games")
+	set(TA3D_RESOURCES_INSTALL_PATH "share/games/ta3d")
+	set(TA3D_BINARIES_INSTALL_PATH "games")
 
 	install(DIRECTORY ../../docs DESTINATION ${TA3D_RESOURCES_INSTALL_PATH} PATTERN ".*" EXCLUDE PATTERN "*~" EXCLUDE)
 	install(DIRECTORY fonts DESTINATION ${TA3D_RESOURCES_INSTALL_PATH} PATTERN ".*" EXCLUDE PATTERN "*~" EXCLUDE)
@@ -461,49 +455,49 @@ IF(NOT APPLE)
 	#
 	STRING(TOLOWER ${CMAKE_BUILD_TYPE} BTYPE)
 
-	SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TA3D (Total Annihilation 3D), RTS Engine")
-	SET(CPACK_PACKAGE_VENDOR "the TA3D team")
-	SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../README")
-	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../../COPYING")
-	SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${PACKAGE_STRING}")
-	SET(CPACK_GENERATOR "STGZ;DEB;RPM")
-	SET(CPACK_PACKAGE_CONTACT "${TA3D_MAIL_BUGREPORT}")
-	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Roland Brochard")
-	SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
-	IF(NOT ${BTYPE} STREQUAL "debug")
-		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar")
-	ELSE(NOT ${BTYPE} STREQUAL "debug")
-		SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar, gdb")
-	ENDIF(NOT ${BTYPE} STREQUAL "debug")
+	set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TA3D (Total Annihilation 3D), RTS Engine")
+	set(CPACK_PACKAGE_VENDOR "the TA3D team")
+	set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../README")
+	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../../COPYING")
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${PACKAGE_STRING}")
+	set(CPACK_GENERATOR "STGZ;DEB;RPM")
+	set(CPACK_PACKAGE_CONTACT "${TA3D_MAIL_BUGREPORT}")
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Roland Brochard")
+	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
+	if(NOT ${BTYPE} STREQUAL "debug")
+		set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar")
+	else(NOT ${BTYPE} STREQUAL "debug")
+		set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar, gdb")
+	endif(NOT ${BTYPE} STREQUAL "debug")
 
-	IF(NOT WIN32 AND UNIX)
-		IF(NOT ${BTYPE} STREQUAL "debug")
-			SET(CPACK_STRIP_FILES "ta3d")
-		ENDIF(NOT ${BTYPE} STREQUAL "debug")
-		SET(CPACK_SOURCE_STRIP_FILES "")
-	ENDIF(NOT WIN32 AND UNIX)
-	SET(CPACK_PACKAGE_EXECUTABLES "ta3d")
-	INCLUDE(CPack)
+	if(NOT WIN32 AND UNIX)
+		if(NOT ${BTYPE} STREQUAL "debug")
+			set(CPACK_STRIP_FILES "ta3d")
+		endif(NOT ${BTYPE} STREQUAL "debug")
+		set(CPACK_SOURCE_STRIP_FILES "")
+	endif(NOT WIN32 AND UNIX)
+	set(CPACK_PACKAGE_EXECUTABLES "ta3d")
+	include(CPack)
 
-ELSE(NOT APPLE)
+else(NOT APPLE)
 
 	# Specific Settings for the OS X Bundle
-	SET(GUI_TYPE MACOSX_BUNDLE)
-	SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
-	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
+	set(GUI_TYPE MACOSX_BUNDLE)
+	set(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
+	set(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
 
-ENDIF(NOT APPLE)
+endif(NOT APPLE)
 
 
 
 #
 # --- config.h ---
 #
-CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/config.h )
-IF(APPLE)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/config.h )
+if(APPLE)
 	# Version given by Informations that CMake already has
-	CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/distrib/macos/version.cmake ${CMAKE_CURRENT_SOURCE_DIR}/distrib/macos/config.sh )
-ENDIF(APPLE)
+	configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/distrib/macos/version.cmake ${CMAKE_CURRENT_SOURCE_DIR}/distrib/macos/config.sh )
+endif(APPLE)
 
 
 

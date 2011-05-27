@@ -497,19 +497,24 @@ namespace TA3D
         }
     }
 
+
     bool Unit::script_is_turning(int obj, int axis)
     {
 		const float a = data.data[obj].axe[axis].rot_angle;
 		if ((!Yuni::Math::Zero(data.data[obj].axe[axis].rot_speed) || !Yuni::Math::Zero(data.data[obj].axe[axis].rot_accel))
 			&& (!Yuni::Math::Zero(a) && data.data[obj].axe[axis].rot_limit))
             return true;
-		else if (data.data[obj].axe[axis].rot_speed != data.data[obj].axe[axis].rot_target_speed
+		else
+		{
+			if (!Yuni::Math::Equals(data.data[obj].axe[axis].rot_speed, data.data[obj].axe[axis].rot_target_speed)
 				 && data.data[obj].axe[axis].rot_speed_limit)
             return true;
+		}
 		data.data[obj].axe[axis].rot_speed = 0.0f;
 		data.data[obj].axe[axis].rot_accel = 0.0f;
         return false;
     }
+
 
     bool Unit::script_is_moving(int obj, int axis)
     {
