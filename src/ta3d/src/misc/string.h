@@ -90,8 +90,12 @@ namespace TA3D
 	*/
 	String Escape(const String& s);
 
+
+
+
 	/*!
 	** \brief Convert an UTF-8 String into a WideChar String
+	**
 	** \todo This class is here only to provide compatibility with FTGL 2.1.2 API which doesn't support UTF-8 encoding :/
 	**  everyone will agree it's nasty, but it'll remain here until we get something better
 	*/
@@ -109,6 +113,10 @@ namespace TA3D
 		wchar_t pBuffer[5120];
 
 	}; // class WString
+
+
+
+
 
 
 } // namespace TA3D

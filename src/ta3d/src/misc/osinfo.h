@@ -18,7 +18,9 @@
 #ifndef __TA3D_XX_MISC_OS_INFORMATIONS_H__
 # define __TA3D_XX_MISC_OS_INFORMATIONS_H__
 
-#include <misc/string.h>
+#include "string.h"
+
+
 
 namespace TA3D
 {
@@ -32,7 +34,7 @@ namespace System
 	/*!
 	** \brief Run the given command and returns its standard output as a String
 	*/
-	String run_command(const String &cmd);
+	String run_command(const String& cmd);
 
     /*!
     ** \brief Write informations about the current OS to the console

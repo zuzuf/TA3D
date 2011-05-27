@@ -21,15 +21,22 @@
 #include <logs/logs.h>
 #include <sdl.h>
 
-#ifdef TA3D_PLATFORM_LINUX
-#define POPEN	popen
-#define PCLOSE	pclose
-
-#elif defined TA3D_PLATFORM_WINDOWS
-#define POPEN	_popen
-#define PCLOSE	_pclose
-
+#ifdef YUNI_OS_MACOS
+# include <stdio.h>
+# define TA3D_POPEN   popen
+# define TA3D_PCLOSE  pclose
 #endif
+#ifdef TA3D_PLATFORM_LINUX
+# define TA3D_POPEN   popen
+# define TA3D_PCLOSE  pclose
+#elif defined TA3D_PLATFORM_WINDOWS
+# define TA3D_POPEN   _popen
+# define TA3D_PCLOSE	 _pclose
+#endif
+
+
+using namespace Yuni;
+
 
 
 namespace TA3D
@@ -37,46 +44,56 @@ namespace TA3D
 namespace System
 {
 
+
 	String run_command(const String &cmd)
 	{
-#if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_WINDOWS
+		if (!cmd)
+			return nullptr;
+		# ifdef TA3D_POPEN
 		String result;
-		FILE *pipe = POPEN(cmd.c_str(), "r");
+		FILE* pipe = TA3D_POPEN(cmd.c_str(), "r");
 		if (!pipe)
 			return result;
-		while(!feof(pipe))
+
+		while (!feof(pipe))
 		{
 			const int c = fgetc(pipe);
 			if (c == -1)
 				return result;
 			result << (char)c;
 		}
-		PCLOSE(pipe);
+
+		TA3D_PCLOSE(pipe);
 		return result;
-#else
-		return String();
-#endif
+
+		# else
+		PleaseImplementRunCommandForTheCurrentOS;
+		return nullptr;
+		# endif
 	}
+
+
+
 
     namespace // anonymous
     {
 		String CPUName()
         {
-#ifdef TA3D_PLATFORM_LINUX
+			# ifdef TA3D_PLATFORM_LINUX
 			return run_command("cat /proc/cpuinfo | grep \"model name\" | head -n 1 | tail -c +14 | tr -d \"\\n\"");
-#else
+			# else
 			return "Unknown";
-#endif
+			# endif
         }
 
 
 		String CPUCapabilities()
         {
-#ifdef TA3D_PLATFORM_LINUX
+			# ifdef TA3D_PLATFORM_LINUX
 			return run_command("cat /proc/cpuinfo | grep flags | head -n 1 | tail -c +10 | tr -d \"\\n\"");
-#else
+			# else
             return "None";
-#endif
+			# endif
         }
 
         void displayScreenResolution()
