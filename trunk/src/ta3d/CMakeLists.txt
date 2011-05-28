@@ -340,14 +340,14 @@ endif(UNIX)
 #
 if(NOT APPLE)
     if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-        set( FREETYPE_include_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/freetype2/")
+        set( FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/freetype2/")
         set( FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libfreetype.dll.a")
         message(STATUS "FreeType Library : ${FREETYPE_LIBRARIES}")
     else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
         FIND_PACKAGE(Freetype)
     endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
-    include_directories( ${FREETYPE_include_DIRS} )
+    include_directories( ${FREETYPE_INCLUDE_DIRS} )
 
     set(FTGL_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/lib/libftgl.a)
     include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/include )
