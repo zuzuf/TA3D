@@ -185,12 +185,10 @@ namespace TA3D
 		y = (y + (float)map_h_d) * 0.125f;
 		const int lx = bloc_w_db - 1;
 		const int ly = bloc_h_db - 1;
-		if (x < 0.0f) x = 0.0f;
-		else if (x >= lx) x = (float)bloc_w_db - 2.0f;
-		if (y < 0.0f) y = 0.0f;
-		else if (y >= ly) y = (float)bloc_h_db - 2.0f;
+		x = Math::Clamp(x, 0.0f, float(bloc_w_db - 2));
+		y = Math::Clamp(y, 0.0f, float(bloc_h_db - 2));
 		float h[4];
-		const int X = (int)x, Y = (int)y;
+		const int X = Math::Clamp((int)x, 0, lx - 1), Y = Math::Clamp((int)y, 0, ly - 1);
 		const float dx = x - (float)X;
 		const float dy = y - (float)Y;
 		h[0] = h_map(X, Y);
