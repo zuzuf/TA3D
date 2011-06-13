@@ -108,7 +108,11 @@ namespace TA3D
 		else if (angleX < -180)	angleX += 360;
 		int param[] = { (int)(angle * DEG2TA), (int)(angleX * DEG2TA) };
 		launchScript(SCRIPT_startbuilding, 2, param );
-		playSound( "build" );
+		if (!(mission->getFlags() & MISSION_FLAG_COMMAND_FIRED))
+		{
+			if (playSound( "build" ))
+				mission->Flags() |= MISSION_FLAG_COMMAND_FIRED;
+		}
 	}
 
 
@@ -5385,16 +5389,19 @@ script_exec:
 
 
 
-	void Unit::playSound(const String &key)
+	bool Unit::playSound(const String &key)
 	{
+		bool bPlayed = false;
 		pMutex.lock();
 		if (owner_id == players.local_human_id && int(msec_timer - last_time_sound) >= units.sound_min_ticks )
 		{
 			last_time_sound = msec_timer;
 			const UnitType *pType = unit_manager.unit_type[type_id];
             sound_manager->playTDFSound(pType->soundcategory, key , &Pos);
+			bPlayed = true;
 		}
 		pMutex.unlock();
+		return bPlayed;
 	}
 
 
