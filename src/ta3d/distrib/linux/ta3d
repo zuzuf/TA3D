@@ -1,3 +1,6 @@
-?package(ta3d) section="Games/Strategy"\
-  title="TA3D" command="/usr/games/ta3d" \
-  icon="/usr/share/games/ta3d/ta3d.png"
+?package(ta3d):\
+	needs="X11"\
+	section="Games/Strategy"\
+	title="TA3D"\
+	command="/usr/games/ta3d"\
+	icon="/usr/share/games/ta3d/ta3d.png"
