@@ -286,6 +286,11 @@ else()
 		else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
 			if( NOT BUILT_LUAJIT )
+				execute_process(COMMAND lua -v RESULT_VARIABLE LUA_PROGRAM_ERROR)
+				if (LUA_PROGRAM_ERROR)
+					message(FATAL_ERROR "No Lua interpreter found! A Lua interpreter is required to build LuaJIT")
+				endif (LUA_PROGRAM_ERROR)
+
 				execute_process( COMMAND make -C "${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/" clean )
 				if(CMAKE_CROSSCOMPILING)
 					set(HOST_CC gcc)
