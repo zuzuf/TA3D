@@ -52,6 +52,7 @@ CCOPT= -O2 -fomit-frame-pointer
 CCOPT_X86= -march=i686
 CCOPT_X64=
 CCOPT_ARM=
+CCOPT_PPC=
 CCOPT_PPCSPE=
 #
 CCDEBUG=
@@ -71,10 +72,10 @@ CCWARN= -Wall
 # as dynamic mode.
 #
 # Mixed mode creates a static + dynamic library and a statically linked luajit.
-#BUILDMODE= mixed
+BUILDMODE= mixed
 #
 # Static mode creates a static library and a statically linked luajit.
-BUILDMODE= static
+#BUILDMODE= static
 #
 # Dynamic mode creates a dynamic library and a dynamically linked luajit.
 # Note: this executable will only run when the library is installed!
@@ -116,6 +117,12 @@ XCFLAGS=
 # (before Pentium Pro, or on the VIA C3). This generally slows down the
 # interpreter. Don't bother if your OS wouldn't run on them, anyway.
 #XCFLAGS+= -DLUAJIT_CPU_NOCMOV
+#
+# Some architectures (e.g. PPC) can use either single-number (1) or
+# dual-number (2) mode. Uncomment one of these lines to override the
+# default mode. Please see LJ_ARCH_NUMMODE in lj_arch.h for details.
+#XCFLAGS+= -DLUAJIT_NUMMODE=1
+#XCFLAGS+= -DLUAJIT_NUMMODE=2
 #
 ##############################################################################
 
@@ -198,7 +205,8 @@ TARGET_AR= $(CROSS)ar rcus
 TARGET_STRIP= $(CROSS)strip
 
 TARGET_SONAME= libluajit-$(ABIVER).so.$(MAJVER)
-TARGET_DYLIBNAME= libluajit-$(NODOTABIVER).$(MAJVER).$(MINVER).$(RELVER).dylib
+TARGET_DYLIBNAME= libluajit-$(NODOTABIVER).$(MAJVER).dylib
+TARGET_DYLIBPATH= $(or $(PREFIX),/usr/local)/lib/$(TARGET_DYLIBNAME)
 TARGET_DLLNAME= lua$(NODOTABIVER).dll
 TARGET_XSHLDFLAGS= -shared -fPIC -Wl,-soname,$(TARGET_SONAME)
 TARGET_DYNXLDOPTS=
@@ -228,11 +236,16 @@ ifneq (,$(findstring LJ_TARGET_ARM ,$(TARGET_TESTARCH)))
   TARGET_CCARCH= arm
   TARGET_XCFLAGS+= $(CCOPT_ARM)
 else
+ifneq (,$(findstring LJ_TARGET_PPC ,$(TARGET_TESTARCH)))
+  TARGET_CCARCH= ppc
+  TARGET_XCFLAGS+= $(CCOPT_PPC)
+else
 ifneq (,$(findstring LJ_TARGET_PPCSPE ,$(TARGET_TESTARCH)))
   TARGET_CCARCH= ppcspe
   TARGET_XCFLAGS+= $(CCOPT_PPCSPE)
 else
   $(error Unsupported target architecture)
+endif
 endif
 endif
 endif
@@ -274,10 +287,8 @@ ifeq (Darwin,$(TARGET_SYS))
   TARGET_STRIP+= -x
   TARGET_AR+= 2>/dev/null
   TARGET_XSHLDFLAGS= -dynamiclib -single_module -undefined dynamic_lookup -fPIC
-  ifneq (,$(TARGET_DYNXLDOPTS))
-    TARGET_DYNXLDOPTS=
-    TARGET_XSHLDFLAGS+= -install_name $(PREFIX)/lib/$(TARGET_DYLIBNAME)
-  endif
+  TARGET_DYNXLDOPTS=
+  TARGET_XSHLDFLAGS+= -install_name $(TARGET_DYLIBPATH) -compatibility_version $(MAJVER).$(MINVER) -current_version $(MAJVER).$(MINVER).$(RELVER)
   ifeq (x64,$(TARGET_CCARCH))
     TARGET_XLDFLAGS+= -pagezero_size 10000 -image_base 100000000
     TARGET_XSHLDFLAGS+= -image_base 7fff04c4a000
@@ -287,12 +298,12 @@ ifeq (iOS,$(TARGET_SYS))
   TARGET_STRIP+= -x
   TARGET_AR+= 2>/dev/null
   TARGET_XSHLDFLAGS= -dynamiclib -single_module -undefined dynamic_lookup -fPIC
-  ifneq (,$(TARGET_DYNXLDOPTS))
-    TARGET_DYNXLDOPTS=
-    TARGET_XSHLDFLAGS+= -install_name $(PREFIX)/lib/$(TARGET_DYLIBNAME)
-  endif
+  TARGET_DYNXLDOPTS=
+  TARGET_XSHLDFLAGS+= -install_name $(TARGET_DYLIBPATH) -compatibility_version $(MAJVER).$(MINVER) -current_version $(MAJVER).$(MINVER).$(RELVER)
 else
-  TARGET_XLDFLAGS+= -Wl,-E
+  ifneq (SunOS,$(TARGET_SYS))
+    TARGET_XLDFLAGS+= -Wl,-E
+  endif
   ifeq (Linux,$(TARGET_SYS))
     TARGET_XLIBS+= -ldl
   endif
@@ -339,7 +350,8 @@ DASM_FLAGS_X86=
 DASM_FLAGS_X64= -D X64
 DASM_FLAGS_X64WIN= -D X64 -D X64WIN
 DASM_FLAGS_ARM=
-DASM_FLAGS_PPCSPE= -D SPE
+DASM_FLAGS_PPC=
+DASM_FLAGS_PPCSPE=
 
 BUILDVM_O= buildvm.o buildvm_asm.o buildvm_peobj.o buildvm_lib.o buildvm_fold.o
 BUILDVM_T= buildvm
@@ -358,15 +370,15 @@ LJLIB_O= lib_base.o lib_math.o lib_bit.o lib_string.o lib_table.o \
 LJLIB_C= $(LJLIB_O:.o=.c)
 
 LJCORE_O= lj_gc.o lj_err.o lj_char.o lj_bc.o lj_obj.o \
-	  lj_str.o lj_tab.o lj_func.o lj_udata.o lj_meta.o \
-	  lj_state.o lj_dispatch.o lj_vmevent.o lj_api.o \
-	  lj_lex.o lj_parse.o \
+	  lj_str.o lj_tab.o lj_func.o lj_udata.o lj_meta.o lj_debug.o \
+	  lj_state.o lj_dispatch.o lj_vmevent.o lj_vmmath.o lj_api.o \
+	  lj_lex.o lj_parse.o lj_bcread.o lj_bcwrite.o \
 	  lj_ir.o lj_opt_mem.o lj_opt_fold.o lj_opt_narrow.o \
 	  lj_opt_dce.o lj_opt_loop.o lj_opt_split.o \
 	  lj_mcode.o lj_snap.o lj_record.o lj_crecord.o lj_ffrecord.o \
 	  lj_asm.o lj_trace.o lj_gdbjit.o \
-	  lj_ctype.o lj_cdata.o lj_cconv.o lj_ccall.o lj_carith.o lj_clib.o \
-	  lj_cparse.o \
+	  lj_ctype.o lj_cdata.o lj_cconv.o lj_ccall.o lj_ccallback.o \
+	  lj_carith.o lj_clib.o lj_cparse.o \
 	  lj_lib.o lj_alloc.o lib_aux.o \
 	  $(LJLIB_O) lib_init.o
 
@@ -385,7 +397,7 @@ ALL_T= $(LUAJIT_T) $(LUAJIT_A) $(LUAJIT_SO) $(BUILDVM_T)
 ALL_HDRGEN= lj_bcdef.h lj_ffdef.h lj_libdef.h lj_recdef.h lj_folddef.h
 ALL_GEN= $(LJVM_S) $(ALL_HDRGEN) $(LIB_VMDEFP)
 ALL_DYNGEN= buildvm_x86.h buildvm_x64.h buildvm_x64win.h buildvm_arm.h \
-	    buildvm_ppcspe.h
+	    buildvm_ppc.h buildvm_ppcspe.h
 WIN_RM= *.obj *.lib *.exp *.dll *.exe *.manifest *.pdb *.ilk
 ALL_RM= $(ALL_T) $(ALL_GEN) *.o $(WIN_RM)
 
@@ -419,6 +431,9 @@ ifeq (Darwin,$(TARGET_SYS))
 endif
 ifeq (iOS,$(TARGET_SYS))
   LJVM_MODE= machasm
+endif
+ifeq (SunOS,$(TARGET_SYS))
+  BUILDMODE= static
 endif
 
 ifeq (static,$(BUILDMODE))
@@ -473,7 +488,8 @@ distclean:	clean
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_X64) -o buildvm_x64.h buildvm_x86.dasc
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_X64WIN) -o buildvm_x64win.h buildvm_x86.dasc
 	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_ARM) -o buildvm_arm.h buildvm_arm.dasc
-	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_PPCSPE) -o buildvm_ppcspe.h buildvm_ppc.dasc
+	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_PPC) -o buildvm_ppc.h buildvm_ppc.dasc
+	$(Q)$(DASM) $(DASM_DISTFLAGS) $(DASM_FLAGS_PPCSPE) -o buildvm_ppcspe.h buildvm_ppcspe.dasc
 
 depend:
 	@for file in $(ALL_HDRGEN) $(ALL_DYNGEN); do \
@@ -482,7 +498,9 @@ depend:
 	@$(HOST_CC) $(HOST_ACFLAGS) -MM *.c | \
 	  sed -e "s| [^ ]*/dasm_\S*\.h||g" \
 	      -e "s| buildvm_\S*\.h||g" \
-	      -e "s| lj_target_\S*\.h| lj_target_*.h|g" >Makefile.dep
+	      -e "s| lj_target_\S*\.h| lj_target_*.h|g" \
+	      -e "s| lj_emit_\S*\.h| lj_emit_*.h|g" \
+	      -e "s| lj_asm_\S*\.h| lj_asm_*.h|g" >Makefile.dep
 	@for file in $(ALL_HDRGEN) $(ALL_DYNGEN); do \
 	  test -s $$file || $(HOST_RM) $$file; \
 	  done
@@ -509,9 +527,13 @@ buildvm_arm.h: buildvm_arm.dasc
 	$(E) "DYNASM    $@"
 	$(Q)$(DASM) $(DASM_FLAGS) $(DASM_FLAGS_ARM) -o $@ buildvm_arm.dasc
 
-buildvm_ppcspe.h: buildvm_ppc.dasc
+buildvm_ppc.h: buildvm_ppc.dasc
 	$(E) "DYNASM    $@"
-	$(Q)$(DASM) $(DASM_FLAGS) $(DASM_FLAGS_PPCSPE) -o $@ buildvm_ppc.dasc
+	$(Q)$(DASM) $(DASM_FLAGS) $(DASM_FLAGS_PPC) -o $@ buildvm_ppc.dasc
+
+buildvm_ppcspe.h: buildvm_ppcspe.dasc
+	$(E) "DYNASM    $@"
+	$(Q)$(DASM) $(DASM_FLAGS) $(DASM_FLAGS_PPCSPE) -o $@ buildvm_ppcspe.dasc
 
 buildvm.o: $(ALL_DYNGEN) $(DASM_DIR)/dasm_*.h
 

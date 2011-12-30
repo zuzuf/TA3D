@@ -264,7 +264,11 @@ static CPToken cp_string(CPState *cp)
 static void cp_comment_c(CPState *cp)
 {
   do {
-    if (cp_get(cp) == '*' && cp_get(cp) == '/') { cp_get(cp); break; }
+    if (cp_get(cp) == '*') {
+      do {
+	if (cp_get(cp) == '/') { cp_get(cp); return; }
+      } while (cp->c == '*');
+    }
     if (cp_iseol(cp->c)) cp_newline(cp);
   } while (cp->c != '\0');
 }
@@ -364,7 +368,7 @@ static void cp_init(CPState *cp)
   cp->depth = 0;
   cp->curpack = 0;
   cp->packstack[0] = 255;
-  lj_str_initbuf(cp->L, &cp->sb);
+  lj_str_initbuf(&cp->sb);
   lj_str_resizebuf(cp->L, &cp->sb, LJ_MIN_SBUF);
   lua_assert(cp->p != NULL);
   cp_get(cp);  /* Read-ahead first char. */
