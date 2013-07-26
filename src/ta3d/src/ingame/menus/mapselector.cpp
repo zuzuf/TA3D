@@ -70,7 +70,7 @@ namespace Menus
 		:Abstract(),
 		pSelectedMap(), pDefaultSelectedMap(""), pCachedSizeOfListOfMaps(0),
 		pMiniMapTexture(0),
-		pLastMapIndex(-1), pMiniMapObj(NULL), dx(0), dy(0),
+		pLastMapIndex(-1), pMiniMapObj((Gui::GUIOBJ*)NULL), dx(0), dy(0),
 		pMiniMapX1(0.0f), pMiniMapY1(0.0f), pMiniMapX2(0.0f), pMiniMapY2(0.0f)
 	{}
 
@@ -79,7 +79,7 @@ namespace Menus
 		:Abstract(),
 		pSelectedMap(), pDefaultSelectedMap(preSelectedMap), pCachedSizeOfListOfMaps(0),
 		pMiniMapTexture(0),
-		pLastMapIndex(-1), pMiniMapObj(NULL), dx(0), dy(0),
+		pLastMapIndex(-1), pMiniMapObj((Gui::GUIOBJ*)NULL), dx(0), dy(0),
 		pMiniMapX1(0.0f), pMiniMapY1(0.0f), pMiniMapX2(0.0f), pMiniMapY2(0.0f)
 	{}
 

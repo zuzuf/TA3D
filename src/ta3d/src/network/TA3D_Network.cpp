@@ -43,7 +43,7 @@ namespace TA3D
 {
 
 
-	TA3DNetwork::Ptr g_ta3d_network = NULL;
+	TA3DNetwork::Ptr g_ta3d_network = (TA3DNetwork*)NULL;
 
 	const float	tick_conv = 1.0f / TICKS_PER_SEC;
 
