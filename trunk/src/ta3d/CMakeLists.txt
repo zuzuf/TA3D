@@ -355,7 +355,7 @@ else()
 			find_library(GLEW_LIB glu)
 		endif(NOT GLU_LIB)
 		message(STATUS "GLU Library : ${GLU_LIB}")
-		set(LIBS "${LIBS} ${GLU_LIB}")
+        set(LIBS "${LIBS} ${GLU_LIB} -lGL")
 	endif(UNIX)
 endif()
 

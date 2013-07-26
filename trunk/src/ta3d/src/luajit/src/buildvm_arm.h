@@ -9,9 +9,19 @@
 #error "Version mismatch between DynASM and included encoding engine"
 #endif
 
+# 1 "buildvm_arm.dasc"
+//|// Low-level VM code for ARM CPUs.
+//|// Bytecode interpreter, fast functions and helper functions.
+//|// Copyright (C) 2005-2011 Mike Pall. See Copyright Notice in luajit.h
+//|
+//|.arch arm
+//|.section code_op, code_sub
 #define DASM_SECTION_CODE_OP	0
 #define DASM_SECTION_CODE_SUB	1
 #define DASM_MAXSECTION		2
+# 7 "buildvm_arm.dasc"
+//|
+//|.actionlist build_actionlist
 static const unsigned int build_actionlist[5777] = {
 0x00010001,
 0x00060014,
@@ -5792,6 +5802,8 @@ static const unsigned int build_actionlist[5777] = {
 0x00010000
 };
 
+# 9 "buildvm_arm.dasc"
+//|.globals GLOB_
 enum {
   GLOB_vm_returnp,
   GLOB_cont_dispatch,
@@ -5941,6 +5953,8 @@ enum {
   GLOB_BC_RETV1_Z,
   GLOB__MAX
 };
+# 10 "buildvm_arm.dasc"
+//|.globalnames globnames
 static const char *const globnames[] = {
   "vm_returnp",
   "cont_dispatch",
@@ -6090,6 +6104,8 @@ static const char *const globnames[] = {
   "BC_RETV1_Z",
   (const char *)0
 };
+# 11 "buildvm_arm.dasc"
+//|.externnames extnames
 static const char *const extnames[] = {
   "lj_state_growstack",
   "lj_meta_tget",
@@ -6153,23 +6169,248 @@ static const char *const extnames[] = {
   "lj_tab_reasize",
   (const char *)0
 };
+# 12 "buildvm_arm.dasc"
+//|
+//|// Note: The ragged indentation of the instructions is intentional.
+//|//       The starting columns indicate data dependencies.
+//|
+//|//-----------------------------------------------------------------------
+//|
+//|// Fixed register assignments for the interpreter.
+//|
+//|// The following must be C callee-save.
+//|.define MASKR8,	r4	// 255*8 constant for fast bytecode decoding.
+//|.define KBASE,		r5	// Constants of current Lua function.
+//|.define PC,		r6	// Next PC.
+//|.define DISPATCH,	r7	// Opcode dispatch table.
+//|.define LREG,		r8	// Register holding lua_State (also in SAVE_L).
+//|
+//|// C callee-save in EABI, but often refetched. Temporary in iOS 3.0+.
+//|.define BASE,		r9	// Base of current Lua stack frame.
+//|
+//|// The following temporaries are not saved across C calls, except for RA/RC.
+//|.define RA,		r10	// Callee-save.
+//|.define RC,		r11	// Callee-save.
+//|.define RB,		r12
+//|.define OP,		r12	// Overlaps RB, must not be lr.
+//|.define INS,		lr
+//|
+//|// Calling conventions. Also used as temporaries.
+//|.define CARG1,		r0
+//|.define CARG2,		r1
+//|.define CARG3,		r2
+//|.define CARG4,		r3
+//|.define CARG12,	r0	// For 1st soft-fp double.
+//|.define CARG34,	r2	// For 2nd soft-fp double.
+//|
+//|.define CRET1,		r0
+//|.define CRET2,		r1
+//|
+//|// Stack layout while in interpreter. Must match with lj_frame.h.
+//|.define CFRAME_SPACE,	#28
+//|.define SAVE_ERRF,	[sp, #24]
+//|.define SAVE_NRES,	[sp, #20]
+//|.define SAVE_CFRAME,	[sp, #16]
+//|.define SAVE_L,	[sp, #12]
+//|.define SAVE_PC,	[sp, #8]
+//|.define SAVE_MULTRES,	[sp, #4]
+//|.define ARG5,		[sp]
+//|
+//|.define TMPDhi,	[sp, #4]
+//|.define TMPDlo,	[sp]
+//|.define TMPD,		[sp]
+//|.define TMPDp,		sp
+//|
+//|.macro saveregs
+//|  push {r4, r5, r6, r7, r8, r9, r10, r11, lr}
+//|  sub sp, sp, CFRAME_SPACE
+//|.endmacro
+//|.macro restoreregs_ret
+//|  add sp, sp, CFRAME_SPACE
+//|  pop {r4, r5, r6, r7, r8, r9, r10, r11, pc}
+//|.endmacro
+//|
+//|// Type definitions. Some of these are only used for documentation.
+//|.type L,		lua_State,	LREG
 #define Dt1(_V) (int)(ptrdiff_t)&(((lua_State *)0)_V)
+# 74 "buildvm_arm.dasc"
+//|.type GL,		global_State
 #define Dt2(_V) (int)(ptrdiff_t)&(((global_State *)0)_V)
+# 75 "buildvm_arm.dasc"
+//|.type TVALUE,		TValue
 #define Dt3(_V) (int)(ptrdiff_t)&(((TValue *)0)_V)
+# 76 "buildvm_arm.dasc"
+//|.type GCOBJ,		GCobj
 #define Dt4(_V) (int)(ptrdiff_t)&(((GCobj *)0)_V)
+# 77 "buildvm_arm.dasc"
+//|.type STR,		GCstr
 #define Dt5(_V) (int)(ptrdiff_t)&(((GCstr *)0)_V)
+# 78 "buildvm_arm.dasc"
+//|.type TAB,		GCtab
 #define Dt6(_V) (int)(ptrdiff_t)&(((GCtab *)0)_V)
+# 79 "buildvm_arm.dasc"
+//|.type LFUNC,		GCfuncL
 #define Dt7(_V) (int)(ptrdiff_t)&(((GCfuncL *)0)_V)
+# 80 "buildvm_arm.dasc"
+//|.type CFUNC,		GCfuncC
 #define Dt8(_V) (int)(ptrdiff_t)&(((GCfuncC *)0)_V)
+# 81 "buildvm_arm.dasc"
+//|.type PROTO,		GCproto
 #define Dt9(_V) (int)(ptrdiff_t)&(((GCproto *)0)_V)
+# 82 "buildvm_arm.dasc"
+//|.type UPVAL,		GCupval
 #define DtA(_V) (int)(ptrdiff_t)&(((GCupval *)0)_V)
+# 83 "buildvm_arm.dasc"
+//|.type NODE,		Node
 #define DtB(_V) (int)(ptrdiff_t)&(((Node *)0)_V)
+# 84 "buildvm_arm.dasc"
+//|.type NARGS8,		int
 #define DtC(_V) (int)(ptrdiff_t)&(((int *)0)_V)
+# 85 "buildvm_arm.dasc"
+//|.type TRACE,		GCtrace
 #define DtD(_V) (int)(ptrdiff_t)&(((GCtrace *)0)_V)
+# 86 "buildvm_arm.dasc"
+//|
+//|//-----------------------------------------------------------------------
+//|
+//|// Trap for not-yet-implemented parts.
+//|.macro NYI; ud; .endmacro
+//|
+//|//-----------------------------------------------------------------------
+//|
+//|// Access to frame relative to BASE.
+//|.define FRAME_FUNC,	#-8
+//|.define FRAME_PC,	#-4
+//|
+//|.macro decode_RA8, dst, ins; and dst, MASKR8, ins, lsr #5; .endmacro
+//|.macro decode_RB8, dst, ins; and dst, MASKR8, ins, lsr #21; .endmacro
+//|.macro decode_RC8, dst, ins; and dst, MASKR8, ins, lsr #13; .endmacro
+//|.macro decode_RD, dst, ins; lsr dst, ins, #16; .endmacro
+//|.macro decode_OP, dst, ins; and dst, ins, #255; .endmacro
+//|
+//|// Instruction fetch.
+//|.macro ins_NEXT1
+//|  ldrb OP, [PC]
+//|.endmacro
+//|.macro ins_NEXT2
+//|   ldr INS, [PC], #4
+//|.endmacro
+//|// Instruction decode+dispatch.
+//|.macro ins_NEXT3
+//|  ldr OP, [DISPATCH, OP, lsl #2]
+//|   decode_RA8 RA, INS
+//|   decode_RD RC, INS
+//|  bx OP
+//|.endmacro
+//|.macro ins_NEXT
+//|  ins_NEXT1
+//|  ins_NEXT2
+//|  ins_NEXT3
+//|.endmacro
+//|
+//|// Instruction footer.
+//|.if 1
+//|  // Replicated dispatch. Less unpredictable branches, but higher I-Cache use.
+//|  .define ins_next, ins_NEXT
+//|  .define ins_next_, ins_NEXT
+//|  .define ins_next1, ins_NEXT1
+//|  .define ins_next2, ins_NEXT2
+//|  .define ins_next3, ins_NEXT3
+//|.else
+//|  // Common dispatch. Lower I-Cache use, only one (very) unpredictable branch.
+//|  // Affects only certain kinds of benchmarks (and only with -j off).
+//|  .macro ins_next
+//|    b ->ins_next
+//|  .endmacro
+//|  .macro ins_next1
+//|  .endmacro
+//|  .macro ins_next2
+//|  .endmacro
+//|  .macro ins_next3
+//|    b ->ins_next
+//|  .endmacro
+//|  .macro ins_next_
+//|  ->ins_next:
+//|    ins_NEXT
+//|  .endmacro
+//|.endif
+//|
+//|// Avoid register name substitution for field name.
 #define field_pc	pc
+//|
+//|// Call decode and dispatch.
+//|.macro ins_callt
+//|  // BASE = new base, CARG3 = LFUNC/CFUNC, RC = nargs*8, FRAME_PC(BASE) = PC
+//|  ldr PC, LFUNC:CARG3->field_pc
+//|  ldrb OP, [PC]  // STALL: load PC. early PC.
+//|   ldr INS, [PC], #4
+//|  ldr OP, [DISPATCH, OP, lsl #2]  // STALL: load OP. early OP.
+//|   decode_RA8 RA, INS
+//|   add RA, RA, BASE
+//|  bx OP
+//|.endmacro
+//|
+//|.macro ins_call
+//|  // BASE = new base, CARG3 = LFUNC/CFUNC, RC = nargs*8, PC = caller PC
+//|  str PC, [BASE, FRAME_PC]
+//|  ins_callt  // STALL: locked PC.
+//|.endmacro
+//|
+//|//-----------------------------------------------------------------------
+//|
+//|// Macros to test operand types.
+//|.macro checktp, reg, tp; cmn reg, #-tp; .endmacro
+//|.macro checktpeq, reg, tp; cmneq reg, #-tp; .endmacro
+//|.macro checktpne, reg, tp; cmnne reg, #-tp; .endmacro
+//|.macro checkstr, reg, target; checktp reg, LJ_TSTR; bne target; .endmacro
+//|.macro checktab, reg, target; checktp reg, LJ_TTAB; bne target; .endmacro
+//|.macro checkfunc, reg, target; checktp reg, LJ_TFUNC; bne target; .endmacro
+//|
+//|// Assumes DISPATCH is relative to GL.
 #define DISPATCH_GL(field)	(GG_DISP2G + (int)offsetof(global_State, field))
 #define DISPATCH_J(field)	(GG_DISP2J + (int)offsetof(jit_State, field))
+//|
 #define PC2PROTO(field)  ((int)offsetof(GCproto, field)-(int)sizeof(GCproto))
+//|
+//|.macro hotcheck, delta
+//|  lsr CARG1, PC, #1
+//|  and CARG1, CARG1, #126
+//|  sub CARG1, CARG1, #-GG_DISP2HOT
+//|  ldrh CARG2, [DISPATCH, CARG1]
+//|  subs CARG2, CARG2, #delta
+//|  strh CARG2, [DISPATCH, CARG1]
+//|.endmacro
+//|
+//|.macro hotloop
+//|  hotcheck HOTCOUNT_LOOP
+//|  blo ->vm_hotloop
+//|.endmacro
+//|
+//|.macro hotcall
+//|  hotcheck HOTCOUNT_CALL
+//|  blo ->vm_hotcall
+//|.endmacro
+//|
+//|// Set current VM state.
+//|.macro mv_vmstate, reg, st; mvn reg, #LJ_VMST_..st; .endmacro
+//|.macro st_vmstate, reg; str reg, [DISPATCH, #DISPATCH_GL(vmstate)]; .endmacro
+//|
+//|// Move table write barrier back. Overwrites mark and tmp.
+//|.macro barrierback, tab, mark, tmp
+//|  ldr tmp, [DISPATCH, #DISPATCH_GL(gc.grayagain)]
+//|   bic mark, mark, #LJ_GC_BLACK		// black2gray(tab)
+//|  str tab, [DISPATCH, #DISPATCH_GL(gc.grayagain)]
+//|   strb mark, tab->marked
+//|  str tmp, tab->gclist
+//|.endmacro
+//|
+//|.macro IOS, a, b
+//||if (LJ_TARGET_OSX) {
+//|  a, b
+//||}
+//|.endmacro
+//|
+//|//-----------------------------------------------------------------------
 
 #if !LJ_DUALNUM
 #error "Only dual-number mode supported for ARM target"
@@ -6179,127 +6420,1314 @@ static const char *const extnames[] = {
 /* The .code_sub section should be last to help static branch prediction. */
 static void build_subroutines(BuildCtx *ctx)
 {
+  //|.code_sub
   dasm_put(Dst, 0);
+# 237 "buildvm_arm.dasc"
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Return handling ----------------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->vm_returnp:
+  //|  // See vm_return. Also: RB = previous base.
+  //|  tst PC, #FRAME_P
+  //|  beq ->cont_dispatch
+  //|
+  //|  // Return from pcall or xpcall fast func.
+  //|  ldr PC, [RB, FRAME_PC]		// Fetch PC of previous frame.
+  //|   mvn CARG2, #~LJ_TTRUE
+  //|  mov BASE, RB
+  //|  // Prepending may overwrite the pcall frame, so do it at the end.
+  //|   str CARG2, [RA, FRAME_PC]		// Prepend true to results.
+  //|  sub RA, RA, #8
+  //|
+  //|->vm_returnc:
+  //|  add RC, RC, #8			// RC = (nresults+1)*8.
+  //|   ands CARG1, PC, #FRAME_TYPE
+  //|  str RC, SAVE_MULTRES
+  //|   beq ->BC_RET_Z			// Handle regular return to Lua.
+  //|
+  //|->vm_return:
+  //|  // BASE = base, RA = resultptr, RC/MULTRES = (nresults+1)*8, PC = return
+  //|  // CARG1 = PC & FRAME_TYPE
+  //|  bic RB, PC, #FRAME_TYPEP
+  //|   cmp CARG1, #FRAME_C
+  //|  sub RB, BASE, RB			// RB = previous base.
+  //|   bne ->vm_returnp
+  //|
+  //|  str RB, L->base
+  //|   ldr KBASE, SAVE_NRES
+  //|    mv_vmstate CARG4, C
+  //|   sub BASE, BASE, #8
+  //|  subs CARG3, RC, #8
+  //|   lsl KBASE, KBASE, #3		// KBASE = (nresults_wanted+1)*8
+  //|    st_vmstate CARG4
+  //|  beq >2
+  //|1:
+  //|  subs CARG3, CARG3, #8
+  //|   ldrd CARG12, [RA], #8
+  //|   strd CARG12, [BASE], #8
+  //|  bne <1
+  //|2:
+  //|  cmp KBASE, RC			// More/less results wanted?
+  //|  bne >6
+  //|3:
+  //|  str BASE, L->top			// Store new top.
+  //|
+  //|->vm_leave_cp:
+  //|  ldr RC, SAVE_CFRAME		// Restore previous C frame.
   dasm_put(Dst, 1, FRAME_P, ~LJ_TTRUE, FRAME_TYPE, FRAME_TYPEP, FRAME_C, Dt1(->base), LJ_VMST_C, DISPATCH_GL(vmstate), Dt1(->top));
+# 290 "buildvm_arm.dasc"
+  //|   mov CRET1, #0			// Ok return status for vm_pcall.
+  //|  str RC, L->cframe
+  //|
+  //|->vm_leave_unw:
+  //|  restoreregs_ret
+  //|
+  //|6:
+  //|  blt >7				// Less results wanted?
+  //|  // More results wanted. Check stack size and fill up results with nil.
+  //|  ldr CARG3, L->maxstack
+  //|   mvn CARG2, #~LJ_TNIL
+  //|  cmp BASE, CARG3
+  //|  bhs >8
+  //|   str CARG2, [BASE, #4]
+  //|  add RC, RC, #8
+  //|  add BASE, BASE, #8
+  //|  b <2
+  //|
+  //|7:  // Less results wanted.
+  //|  sub CARG1, RC, KBASE
+  //|  cmp KBASE, #0			// LUA_MULTRET+1 case?
+  //|  subne BASE, BASE, CARG1		// Either keep top or shrink it.
+  //|  b <3
+  //|
+  //|8:  // Corner case: need to grow stack for filling up results.
+  //|  // This can happen if:
+  //|  // - A C function grows the stack (a lot).
+  //|  // - The GC shrinks the stack in between.
+  //|  // - A return back from a lua_call() with (high) nresults adjustment.
+  //|  str BASE, L->top			// Save current top held in BASE (yes).
+  //|  mov CARG2, KBASE
+  //|  mov CARG1, L
+  //|  bl extern lj_state_growstack	// (lua_State *L, int n)
+  //|  ldr BASE, L->top			// Need the (realloced) L->top in BASE.
+  //|  b <2
+  //|
+  //|->vm_unwind_c:			// Unwind C stack, return from vm_pcall.
+  //|  // (void *cframe, int errcode)
+  //|  mov sp, CARG1
+  //|  mov CRET1, CARG2
+  //|->vm_unwind_c_eh:			// Landing pad for external unwinder.
+  //|  ldr L, SAVE_L
+  //|   mv_vmstate CARG4, C
+  //|  ldr GL:CARG3, L->glref
+  //|   str CARG4, GL:CARG3->vmstate
+  //|  b ->vm_leave_unw
+  //|
+  //|->vm_unwind_ff:			// Unwind C stack, return from ff pcall.
+  //|  // (void *cframe)
+  //|  bic CARG1, CARG1, #~CFRAME_RAWMASK	// Use two steps: bic sp is deprecated.
   dasm_put(Dst, 54, Dt1(->cframe), Dt1(->maxstack), ~LJ_TNIL, Dt1(->top), Dt1(->top), LJ_VMST_C, Dt1(->glref), Dt2(->vmstate));
+# 340 "buildvm_arm.dasc"
+  //|  mov sp, CARG1
+  //|->vm_unwind_ff_eh:			// Landing pad for external unwinder.
+  //|  ldr L, SAVE_L
+  //|   mov MASKR8, #255
+  //|    mov RC, #16			// 2 results: false + error message.
+  //|   lsl MASKR8, MASKR8, #3		// MASKR8 = 255*8.
+  //|  ldr BASE, L->base
+  //|   ldr DISPATCH, L->glref		// Setup pointer to dispatch table.
+  //|    mvn CARG1, #~LJ_TFALSE
+  //|  sub RA, BASE, #8			// Results start at BASE-8.
+  //|  ldr PC, [BASE, FRAME_PC]		// Fetch PC of previous frame.
+  //|   add DISPATCH, DISPATCH, #GG_G2DISP
+  //|   mv_vmstate CARG2, INTERP
+  //|    str CARG1, [BASE, #-4]		// Prepend false to error message.
+  //|   st_vmstate CARG2
+  //|  b ->vm_returnc
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Grow stack for calls -----------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->vm_growstack_c:			// Grow stack for C function.
+  //|  // CARG1 = L
+  //|  mov CARG2, #LUA_MINSTACK
+  //|  b >2
+  //|
+  //|->vm_growstack_l:			// Grow stack for Lua function.
+  //|  // BASE = new base, RA = BASE+framesize*8, RC = nargs*8, PC = first PC
+  //|  add RC, BASE, RC
+  //|   sub RA, RA, BASE
+  //|    mov CARG1, L
+  //|  str BASE, L->base
+  //|   add PC, PC, #4			// Must point after first instruction.
+  //|  str RC, L->top
+  //|   lsr CARG3, RA, #3
+  //|2:
+  //|  // L->base = new base, L->top = top
+  //|  str PC, SAVE_PC
+  //|  bl extern lj_state_growstack	// (lua_State *L, int n)
+  //|  ldr BASE, L->base
+  //|   ldr RC, L->top
+  //|  ldr LFUNC:CARG3, [BASE, FRAME_FUNC]
+  //|   sub NARGS8:RC, RC, BASE
+  //|  // BASE = new base, RB = LFUNC/CFUNC, RC = nargs*8, FRAME_PC(BASE) = PC
+  //|  ins_callt				// Just retry the call.
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Entry points into the assembler VM ---------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->vm_resume:				// Setup C frame and resume thread.
+  //|  // (lua_State *L, TValue *base, int nres1 = 0, ptrdiff_t ef = 0)
+  //|  saveregs
+  //|  mov L, CARG1
+  //|    ldr DISPATCH, L:CARG1->glref	// Setup pointer to dispatch table.
+  //|  mov BASE, CARG2
   dasm_put(Dst, 108, ~CFRAME_RAWMASK, Dt1(->base), Dt1(->glref), ~LJ_TFALSE, GG_G2DISP, LJ_VMST_INTERP, DISPATCH_GL(vmstate), LUA_MINSTACK, Dt1(->base), Dt1(->top), Dt1(->base), Dt1(->top), Dt7(->field_pc), Dt1(->glref));
+# 396 "buildvm_arm.dasc"
+  //|    add DISPATCH, DISPATCH, #GG_G2DISP
+  //|   str L, SAVE_L
+  //|  mov PC, #FRAME_CP
+  //|   str CARG3, SAVE_NRES
+  //|    add CARG2, sp, #CFRAME_RESUME
+  //|  ldrb CARG1, L->status
+  //|   str CARG3, SAVE_ERRF
+  //|    str CARG2, L->cframe
+  //|   str CARG3, SAVE_CFRAME
+  //|  cmp CARG1, #0
+  //|   str L, SAVE_PC			// Any value outside of bytecode is ok.
+  //|  beq >3
+  //|
+  //|  // Resume after yield (like a return).
+  //|  mov RA, BASE
+  //|   ldr BASE, L->base
+  //|   ldr CARG1, L->top
+  //|    mov MASKR8, #255
+  //|     strb CARG3, L->status
+  //|   sub RC, CARG1, BASE
+  //|  ldr PC, [BASE, FRAME_PC]
+  //|    lsl MASKR8, MASKR8, #3		// MASKR8 = 255*8.
+  //|     mv_vmstate CARG2, INTERP
+  //|   add RC, RC, #8
+  //|  ands CARG1, PC, #FRAME_TYPE
+  //|     st_vmstate CARG2
+  //|   str RC, SAVE_MULTRES
+  //|  beq ->BC_RET_Z
+  //|  b ->vm_return
+  //|
+  //|->vm_pcall:				// Setup protected C frame and enter VM.
+  //|  // (lua_State *L, TValue *base, int nres1, ptrdiff_t ef)
+  //|  saveregs
+  //|  mov PC, #FRAME_CP
+  //|  str CARG4, SAVE_ERRF
+  //|  b >1
+  //|
+  //|->vm_call:				// Setup C frame and enter VM.
+  //|  // (lua_State *L, TValue *base, int nres1)
+  //|  saveregs
+  //|  mov PC, #FRAME_C
+  //|
+  //|1:  // Entry point for vm_pcall above (PC = ftype).
+  //|  ldr RC, L:CARG1->cframe
+  //|   str CARG3, SAVE_NRES
+  //|    mov L, CARG1
+  //|   str CARG1, SAVE_L
+  //|    mov BASE, CARG2
+  //|  str sp, L->cframe			// Add our C frame to cframe chain.
+  //|    ldr DISPATCH, L->glref		// Setup pointer to dispatch table.
   dasm_put(Dst, 173, GG_G2DISP, FRAME_CP, CFRAME_RESUME, Dt1(->status), Dt1(->cframe), Dt1(->base), Dt1(->top), Dt1(->status), LJ_VMST_INTERP, FRAME_TYPE, DISPATCH_GL(vmstate), FRAME_CP, FRAME_C, Dt1(->cframe), Dt1(->cframe));
+# 446 "buildvm_arm.dasc"
+  //|   str CARG1, SAVE_PC		// Any value outside of bytecode is ok.
+  //|  str RC, SAVE_CFRAME
+  //|    add DISPATCH, DISPATCH, #GG_G2DISP
+  //|
+  //|3:  // Entry point for vm_cpcall/vm_resume (BASE = base, PC = ftype).
+  //|  ldr RB, L->base			// RB = old base (for vmeta_call).
+  //|   ldr CARG1, L->top
+  //|    mov MASKR8, #255
+  //|  add PC, PC, BASE
+  //|    lsl MASKR8, MASKR8, #3		// MASKR8 = 255*8.
+  //|  sub PC, PC, RB			// PC = frame delta + frame type
+  //|    mv_vmstate CARG2, INTERP
+  //|   sub NARGS8:RC, CARG1, BASE
+  //|    st_vmstate CARG2
+  //|
+  //|->vm_call_dispatch:
+  //|  // RB = old base, BASE = new base, RC = nargs*8, PC = caller PC
+  //|  ldrd CARG34, [BASE, FRAME_FUNC]
+  //|  checkfunc CARG4, ->vmeta_call
+  //|
+  //|->vm_call_dispatch_f:
+  //|  ins_call
+  //|  // BASE = new base, CARG3 = func, RC = nargs*8, PC = caller PC
+  //|
+  //|->vm_cpcall:				// Setup protected C frame, call C.
+  //|  // (lua_State *L, lua_CFunction func, void *ud, lua_CPFunction cp)
+  //|  saveregs
+  //|  mov L, CARG1
+  //|   ldr RA, L:CARG1->stack
+  //|  str CARG1, SAVE_L
+  //|   ldr RB, L->top
+  //|  str CARG1, SAVE_PC			// Any value outside of bytecode is ok.
+  //|  ldr RC, L->cframe
+  //|   sub RA, RA, RB			// Compute -savestack(L, L->top).
+  //|  str sp, L->cframe			// Add our C frame to cframe chain.
+  //|  mov RB, #0
+  //|   str RA, SAVE_NRES			// Neg. delta means cframe w/o frame.
+  //|  str RB, SAVE_ERRF			// No error function.
+  //|  str RC, SAVE_CFRAME
+  //|  blx CARG4			// (lua_State *L, lua_CFunction func, void *ud)
+  //|   ldr DISPATCH, L->glref		// Setup pointer to dispatch table.
+  //|  movs BASE, CRET1
+  //|    mov PC, #FRAME_CP
+  //|   add DISPATCH, DISPATCH, #GG_G2DISP
+  //|  bne <3				// Else continue with the call.
+  //|  b ->vm_leave_cp			// No base? Just remove C frame.
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Metamethod handling ------------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|//-- Continuation dispatch ----------------------------------------------
+  //|
+  //|->cont_dispatch:
+  //|  // BASE = meta base, RA = resultptr, RC = (nresults+1)*8
+  //|  ldr LFUNC:CARG3, [RB, FRAME_FUNC]
   dasm_put(Dst, 238, Dt1(->glref), GG_G2DISP, Dt1(->base), Dt1(->top), LJ_VMST_INTERP, DISPATCH_GL(vmstate), -LJ_TFUNC, Dt7(->field_pc), Dt1(->stack), Dt1(->top), Dt1(->cframe), Dt1(->cframe), Dt1(->glref), FRAME_CP, GG_G2DISP);
+# 502 "buildvm_arm.dasc"
+  //|    ldr CARG1, [BASE, #-16]		// Get continuation.
+  //|   mov CARG4, BASE
+  //|   mov BASE, RB			// Restore caller BASE.
   dasm_put(Dst, 307);
+# 505 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|    cmp CARG1, #1
   dasm_put(Dst, 312);
+# 507 "buildvm_arm.dasc"
 #endif
+  //|   ldr PC, [CARG4, #-12]		// Restore PC from [cont|PC].
+  //|  ldr CARG3, LFUNC:CARG3->field_pc
+  //|    mvn INS, #~LJ_TNIL
+  //|    add CARG2, RA, RC
+  //|    str INS, [CARG2, #-4]		// Ensure one valid arg.
   dasm_put(Dst, 314, Dt7(->field_pc), ~LJ_TNIL);
+# 513 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|    bls >1
   dasm_put(Dst, 322);
+# 515 "buildvm_arm.dasc"
 #endif
+  //|  ldr KBASE, [CARG3, #PC2PROTO(k)]
+  //|  // BASE = base, RA = resultptr, CARG4 = meta base
+  //|    bx CARG1
+  //|
   dasm_put(Dst, 325, PC2PROTO(k));
+# 520 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|1:
+  //|  beq ->cont_ffi_callback		// cont = 1: return from FFI callback.
+  //|  // cont = 0: tailcall from C function.
+  //|  ldr CARG3, [BASE, FRAME_FUNC]
+  //|   sub CARG4, CARG4, #16
+  //|   sub RC, CARG4, BASE
+  //|  b ->vm_call_tail
   dasm_put(Dst, 329);
+# 528 "buildvm_arm.dasc"
 #endif
+  //|
+  //|->cont_cat:				// RA = resultptr, CARG4 = meta base
+  //|  ldr INS, [PC, #-4]
+  //|   sub CARG2, CARG4, #16
+  //|   ldrd CARG34, [RA]
+  //|     str BASE, L->base
+  //|  decode_RB8 RC, INS
+  //|   decode_RA8 RA, INS
+  //|  add CARG1, BASE, RC
+  //|  subs CARG1, CARG2, CARG1
+  //|   strdne CARG34, [CARG2]
+  //|   movne CARG3, CARG1
+  //|  bne ->BC_CAT_Z
+  //|   strd CARG34, [BASE, RA]
+  //|  b ->cont_nop
+  //|
+  //|//-- Table indexing metamethods -----------------------------------------
+  //|
+  //|->vmeta_tgets1:
+  //|  add CARG2, BASE, RB
+  //|  b >2
+  //|
+  //|->vmeta_tgets:
+  //|  sub CARG2, DISPATCH, #-DISPATCH_GL(tmptv)
+  //|   mvn CARG4, #~LJ_TTAB
+  //|  str TAB:RB, [CARG2]
+  //|   str CARG4, [CARG2, #4]
+  //|2:
+  //|   mvn CARG4, #~LJ_TSTR
+  //|  str STR:RC, TMPDlo
+  //|   str CARG4, TMPDhi
+  //|  mov CARG3, TMPDp
+  //|  b >1
+  //|
+  //|->vmeta_tgetb:			// RC = index
+  //|  decode_RB8 RB, INS
+  //|   str RC, TMPDlo
+  //|   mvn CARG4, #~LJ_TISNUM
+  //|  add CARG2, BASE, RB
+  //|   str CARG4, TMPDhi
+  //|  mov CARG3, TMPDp
+  //|  b >1
+  //|
+  //|->vmeta_tgetv:
+  //|  add CARG2, BASE, RB
+  //|   add CARG3, BASE, RC
+  //|1:
+  //|   str BASE, L->base
+  //|  mov CARG1, L
+  //|   str PC, SAVE_PC
+  //|  bl extern lj_meta_tget		// (lua_State *L, TValue *o, TValue *k)
+  //|  // Returns TValue * (finished) or NULL (metamethod).
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 338, Dt1(->base), -DISPATCH_GL(tmptv), ~LJ_TTAB, ~LJ_TSTR, ~LJ_TISNUM, Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 395, Dt1(->base));
   }
+# 582 "buildvm_arm.dasc"
+  //|  cmp CRET1, #0
+  //|  beq >3
+  //|  ldrd CARG34, [CRET1]
+  //|   ins_next1
+  //|   ins_next2
+  //|  strd CARG34, [BASE, RA]
+  //|   ins_next3
+  //|
+  //|3:  // Call __index metamethod.
+  //|  // BASE = base, L->top = new base, stack = cont/func/t/k
+  //|   rsb CARG1, BASE, #FRAME_CONT
+  //|  ldr BASE, L->top
+  //|    mov NARGS8:RC, #16		// 2 args for func(t, k).
+  //|    str PC, [BASE, #-12]		// [cont|PC]
+  //|   add PC, CARG1, BASE
+  //|  ldr LFUNC:CARG3, [BASE, FRAME_FUNC]  // Guaranteed to be a function here.
+  //|  b ->vm_call_dispatch_f
+  //|
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->vmeta_tsets1:
+  //|  add CARG2, BASE, RB
+  //|  b >2
+  //|
+  //|->vmeta_tsets:
+  //|  sub CARG2, DISPATCH, #-DISPATCH_GL(tmptv)
+  //|   mvn CARG4, #~LJ_TTAB
+  //|  str TAB:RB, [CARG2]
+  //|   str CARG4, [CARG2, #4]
+  //|2:
+  //|   mvn CARG4, #~LJ_TSTR
+  //|  str STR:RC, TMPDlo
+  //|   str CARG4, TMPDhi
+  //|  mov CARG3, TMPDp
+  //|  b >1
+  //|
+  //|->vmeta_tsetb:			// RC = index
+  //|  decode_RB8 RB, INS
+  //|   str RC, TMPDlo
+  //|   mvn CARG4, #~LJ_TISNUM
+  //|  add CARG2, BASE, RB
+  //|   str CARG4, TMPDhi
+  //|  mov CARG3, TMPDp
+  //|  b >1
+  //|
+  //|->vmeta_tsetv:
+  //|  add CARG2, BASE, RB
+  //|   add CARG3, BASE, RC
+  //|1:
+  //|   str BASE, L->base
+  //|  mov CARG1, L
+  //|   str PC, SAVE_PC
+  //|  bl extern lj_meta_tset		// (lua_State *L, TValue *o, TValue *k)
+  //|  // Returns TValue * (finished) or NULL (metamethod).
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 398, FRAME_CONT, Dt1(->top), -DISPATCH_GL(tmptv), ~LJ_TTAB, ~LJ_TSTR, ~LJ_TISNUM, Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 460, Dt1(->base));
   }
+# 637 "buildvm_arm.dasc"
+  //|  cmp CRET1, #0
+  //|   ldrd CARG34, [BASE, RA]
+  //|  beq >3
+  //|   ins_next1
+  //|  // NOBARRIER: lj_meta_tset ensures the table is not black.
+  //|  strd CARG34, [CRET1]
+  //|   ins_next2
+  //|   ins_next3
+  //|
+  //|3:  // Call __newindex metamethod.
+  //|  // BASE = base, L->top = new base, stack = cont/func/t/k/(v)
+  //|   rsb CARG1, BASE, #FRAME_CONT
+  //|  ldr BASE, L->top
+  //|    mov NARGS8:RC, #24		// 3 args for func(t, k, v).
+  //|   strd CARG34, [BASE, #16]		// Copy value to third argument.
+  //|    str PC, [BASE, #-12]		// [cont|PC]
+  //|   add PC, CARG1, BASE
+  //|  ldr LFUNC:CARG3, [BASE, FRAME_FUNC]  // Guaranteed to be a function here.
+  //|  b ->vm_call_dispatch_f
+  //|
+  //|//-- Comparison metamethods ---------------------------------------------
+  //|
+  //|->vmeta_comp:
+  //|  mov CARG1, L
+  //|   sub PC, PC, #4
+  //|  mov CARG2, RA
+  //|   str BASE, L->base
+  //|  mov CARG3, RC
+  //|   str PC, SAVE_PC
+  //|  decode_OP CARG4, INS
+  //|  bl extern lj_meta_comp  // (lua_State *L, TValue *o1, *o2, int op)
+  //|  // Returns 0/1 or TValue * (metamethod).
+  //|3:
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 463, FRAME_CONT, Dt1(->top), Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 499, Dt1(->base));
   }
+# 671 "buildvm_arm.dasc"
+  //|  cmp CRET1, #1
+  //|  bhi ->vmeta_binop
+  //|4:
+  //|  ldrh RB, [PC, #2]
+  //|   add PC, PC, #4
+  //|  add RB, PC, RB, lsl #2
+  //|  subhs PC, RB, #0x20000
+  //|->cont_nop:
+  //|  ins_next
+  //|
+  //|->cont_ra:				// RA = resultptr
+  //|  ldr INS, [PC, #-4]
+  //|   ldrd CARG12, [RA]
+  //|  decode_RA8 CARG3, INS
+  //|   strd CARG12, [BASE, CARG3]
+  //|  b ->cont_nop
+  //|
+  //|->cont_condt:			// RA = resultptr
+  //|  ldr CARG2, [RA, #4]
+  //|   mvn CARG1, #~LJ_TTRUE
+  //|  cmp CARG1, CARG2			// Branch if result is true.
+  //|  b <4
+  //|
+  //|->cont_condf:			// RA = resultptr
+  //|  ldr CARG2, [RA, #4]
+  //|  checktp CARG2, LJ_TFALSE		// Branch if result is false.
+  //|  b <4
+  //|
+  //|->vmeta_equal:
+  //|  // CARG2, CARG3, CARG4 are already set by BC_ISEQV/BC_ISNEV.
+  //|  sub PC, PC, #4
+  //|   str BASE, L->base
+  //|   mov CARG1, L
+  //|  str PC, SAVE_PC
+  //|  bl extern lj_meta_equal  // (lua_State *L, GCobj *o1, *o2, int ne)
+  //|  // Returns 0/1 or TValue * (metamethod).
+  //|  b <3
+  //|
+  //|->vmeta_equal_cd:
   dasm_put(Dst, 502, ~LJ_TTRUE, -LJ_TFALSE, Dt1(->base));
+# 710 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|  sub PC, PC, #4
+  //|   str BASE, L->base
+  //|   mov CARG1, L
+  //|   mov CARG2, INS
+  //|  str PC, SAVE_PC
+  //|  bl extern lj_meta_equal_cd		// (lua_State *L, BCIns op)
+  //|  // Returns 0/1 or TValue * (metamethod).
+  //|  b <3
   dasm_put(Dst, 549, Dt1(->base));
+# 719 "buildvm_arm.dasc"
 #endif
+  //|
+  //|//-- Arithmetic metamethods ---------------------------------------------
+  //|
+  //|->vmeta_arith_vn:
+  //|  decode_RB8 RB, INS
+  //|   decode_RC8 RC, INS
+  //|  add CARG3, BASE, RB
+  //|   add CARG4, KBASE, RC
+  //|  b >1
+  //|
+  //|->vmeta_arith_nv:
+  //|  decode_RB8 RB, INS
+  //|   decode_RC8 RC, INS
+  //|  add CARG4, BASE, RB
+  //|   add CARG3, KBASE, RC
+  //|  b >1
+  //|
+  //|->vmeta_unm:
+  //|  ldr INS, [PC, #-8]
+  //|   sub PC, PC, #4
+  //|  add CARG3, BASE, RC
+  //|  add CARG4, BASE, RC
+  //|  b >1
+  //|
+  //|->vmeta_arith_vv:
+  //|  decode_RB8 RB, INS
+  //|   decode_RC8 RC, INS
+  //|  add CARG3, BASE, RB
+  //|   add CARG4, BASE, RC
+  //|1:
+  //|  decode_OP OP, INS
+  //|   add CARG2, BASE, RA
+  //|    str BASE, L->base
+  //|   mov CARG1, L
+  //|    str PC, SAVE_PC
+  //|  str OP, ARG5
+  //|  bl extern lj_meta_arith  // (lua_State *L, TValue *ra,*rb,*rc, BCReg op)
+  //|  // Returns NULL (finished) or TValue * (metamethod).
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 560, Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 597, Dt1(->base));
   }
+# 759 "buildvm_arm.dasc"
+  //|  cmp CRET1, #0
+  //|  beq ->cont_nop
+  //|
+  //|  // Call metamethod for binary op.
+  //|->vmeta_binop:
+  //|  // BASE = old base, CRET1 = new base, stack = cont/func/o1/o2
+  //|  sub CARG2, CRET1, BASE
+  //|   str PC, [CRET1, #-12]		// [cont|PC]
+  //|  add PC, CARG2, #FRAME_CONT
+  //|   mov BASE, CRET1
+  //|    mov NARGS8:RC, #16		// 2 args for func(o1, o2).
+  //|  b ->vm_call_dispatch
+  //|
+  //|->vmeta_len:
+  //|  add CARG2, BASE, RC
+  //|   str BASE, L->base
+  //|  mov CARG1, L
+  //|   str PC, SAVE_PC
+  //|  bl extern lj_meta_len		// (lua_State *L, TValue *o)
+  //|  // Returns NULL (retry) or TValue * (metamethod base).
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 600, FRAME_CONT, Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 621, Dt1(->base));
   }
+# 780 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+  //|  cmp CRET1, #0
+  //|  bne ->vmeta_binop			// Binop call for compatibility.
+  //|  ldr TAB:CARG1, [BASE, RC]
+  //|  b ->BC_LEN_Z
   dasm_put(Dst, 624);
+# 785 "buildvm_arm.dasc"
 #else
+  //|  b ->vmeta_binop			// Binop call for compatibility.
   dasm_put(Dst, 631);
+# 787 "buildvm_arm.dasc"
 #endif
+  //|
+  //|//-- Call metamethod ----------------------------------------------------
+  //|
+  //|->vmeta_call:			// Resolve and call __call metamethod.
+  //|  // RB = old base, BASE = new base, RC = nargs*8
+  //|  mov CARG1, L
+  //|   str RB, L->base			// This is the callers base!
+  //|  sub CARG2, BASE, #8
+  //|   str PC, SAVE_PC
+  //|  add CARG3, BASE, NARGS8:RC
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 634, Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 642);
   }
+# 799 "buildvm_arm.dasc"
+  //|  bl extern lj_meta_call	// (lua_State *L, TValue *func, TValue *top)
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 644);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 647);
   }
+# 801 "buildvm_arm.dasc"
+  //|  ldr LFUNC:CARG3, [BASE, FRAME_FUNC]  // Guaranteed to be a function here.
+  //|   add NARGS8:RC, NARGS8:RC, #8	// Got one more argument now.
+  //|  ins_call
+  //|
+  //|->vmeta_callt:			// Resolve __call for BC_CALLT.
+  //|  // BASE = old base, RA = new base, RC = nargs*8
+  //|  mov CARG1, L
+  //|   str BASE, L->base
+  //|  sub CARG2, RA, #8
+  //|   str PC, SAVE_PC
+  //|  add CARG3, RA, NARGS8:RC
+  //|  bl extern lj_meta_call	// (lua_State *L, TValue *func, TValue *top)
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 649, Dt7(->field_pc), Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 670, Dt1(->base));
   }
+# 814 "buildvm_arm.dasc"
+  //|  ldr LFUNC:CARG3, [RA, FRAME_FUNC]  // Guaranteed to be a function here.
+  //|   ldr PC, [BASE, FRAME_PC]
+  //|    add NARGS8:RC, NARGS8:RC, #8	// Got one more argument now.
+  //|  b ->BC_CALLT2_Z
+  //|
+  //|//-- Argument coercion for 'for' statement ------------------------------
+  //|
+  //|->vmeta_for:
+  //|  mov CARG1, L
+  //|   str BASE, L->base
+  //|  mov CARG2, RA
+  //|   str PC, SAVE_PC
+  //|  bl extern lj_meta_for	// (lua_State *L, TValue *base)
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 673, Dt1(->base));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 687, Dt1(->base));
   }
+# 828 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|   ldrb OP, [PC, #-4]
   dasm_put(Dst, 690);
+# 830 "buildvm_arm.dasc"
 #endif
+  //|  ldr INS, [PC, #-4]
   dasm_put(Dst, 692);
+# 832 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|   cmp OP, #BC_JFORI
   dasm_put(Dst, 694, BC_JFORI);
+# 834 "buildvm_arm.dasc"
 #endif
+  //|  decode_RA8 RA, INS
+  //|  decode_RD RC, INS
   dasm_put(Dst, 697);
+# 837 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|   beq =>BC_JFORI
   dasm_put(Dst, 700, BC_JFORI);
+# 839 "buildvm_arm.dasc"
 #endif
+  //|  b =>BC_FORI
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Fast functions -----------------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|.macro .ffunc, name
+  //|->ff_ .. name:
+  //|.endmacro
+  //|
+  //|.macro .ffunc_1, name
+  //|->ff_ .. name:
+  //|  ldrd CARG12, [BASE]
+  //|   cmp NARGS8:RC, #8
+  //|   blo ->fff_fallback
+  //|.endmacro
+  //|
+  //|.macro .ffunc_2, name
+  //|->ff_ .. name:
+  //|  ldrd CARG12, [BASE]
+  //|   ldrd CARG34, [BASE, #8]
+  //|    cmp NARGS8:RC, #16
+  //|    blo ->fff_fallback
+  //|.endmacro
+  //|
+  //|.macro .ffunc_n, name
+  //|  .ffunc_1 name
+  //|  checktp CARG2, LJ_TISNUM
+  //|  bhs ->fff_fallback
+  //|.endmacro
+  //|
+  //|.macro .ffunc_nn, name
+  //|  .ffunc_2 name
+  //|  checktp CARG2, LJ_TISNUM
+  //|  cmnlo CARG4, #-LJ_TISNUM
+  //|  bhs ->fff_fallback
+  //|.endmacro
+  //|
+  //|// Inlined GC threshold check. Caveat: uses CARG1 and CARG2.
+  //|.macro ffgccheck
+  //|  ldr CARG1, [DISPATCH, #DISPATCH_GL(gc.total)]
+  //|  ldr CARG2, [DISPATCH, #DISPATCH_GL(gc.threshold)]
+  //|  cmp CARG1, CARG2
+  //|  blge ->fff_gcstep
+  //|.endmacro
+  //|
+  //|//-- Base library: checks -----------------------------------------------
+  //|
+  //|.ffunc_1 assert
+  //|  checktp CARG2, LJ_TTRUE
+  //|  bhi ->fff_fallback
+  //|   ldr PC, [BASE, FRAME_PC]
+  //|  strd CARG12, [BASE, #-8]
+  //|  mov RB, BASE
+  //|  subs RA, NARGS8:RC, #8
+  //|   add RC, NARGS8:RC, #8		// Compute (nresults+1)*8.
+  //|  beq ->fff_res			// Done if exactly 1 argument.
+  //|1:
+  //|   ldrd CARG12, [RB, #8]
+  //|  subs RA, RA, #8
+  //|   strd CARG12, [RB], #8
+  //|  bne <1
+  //|  b ->fff_res
+  //|
+  //|.ffunc type
+  //|  ldr CARG2, [BASE, #4]
+  //|   cmp NARGS8:RC, #8
+  //|   blo ->fff_fallback
+  //|  checktp CARG2, LJ_TISNUM
+  //|  mvnlo CARG2, #~LJ_TISNUM
+  //|  rsb CARG4, CARG2, #(int)(offsetof(GCfuncC, upvalue)>>3)-1
+  //|  lsl CARG4, CARG4, #3
+  //|  ldrd CARG12, [CFUNC:CARG3, CARG4]
+  //|  b ->fff_restv
+  //|
+  //|//-- Base library: getters and setters ---------------------------------
+  //|
+  //|.ffunc_1 getmetatable
+  //|  checktp CARG2, LJ_TTAB
+  //|  cmnne CARG2, #-LJ_TUDATA
+  //|  bne >6
+  //|1:  // Field metatable must be at same offset for GCtab and GCudata!
+  //|  ldr TAB:RB, TAB:CARG1->metatable
+  //|2:
+  //|   mvn CARG2, #~LJ_TNIL
   dasm_put(Dst, 703, BC_FORI, -LJ_TTRUE, -LJ_TISNUM, ~LJ_TISNUM, (int)(offsetof(GCfuncC, upvalue)>>3)-1, -LJ_TTAB, -LJ_TUDATA, Dt6(->metatable));
+# 925 "buildvm_arm.dasc"
+  //|   ldr STR:RC, [DISPATCH, #DISPATCH_GL(gcroot[GCROOT_MMNAME+MM_metatable])]
+  //|  cmp TAB:RB, #0
+  //|  beq ->fff_restv
+  //|  ldr CARG3, TAB:RB->hmask
+  //|   ldr CARG4, STR:RC->hash
+  //|    ldr NODE:INS, TAB:RB->node
+  //|  and CARG3, CARG3, CARG4		// idx = str->hash & tab->hmask
+  //|  add CARG3, CARG3, CARG3, lsl #1
+  //|    add NODE:INS, NODE:INS, CARG3, lsl #3	// node = tab->node + idx*3*8
+  //|3:  // Rearranged logic, because we expect _not_ to find the key.
+  //|  ldrd CARG34, NODE:INS->key  // STALL: early NODE:INS.
+  //|   ldrd CARG12, NODE:INS->val
+  //|    ldr NODE:INS, NODE:INS->next
+  //|  cmp CARG3, STR:RC
+  //|  checktpeq CARG4, LJ_TSTR
+  //|  beq >5
+  //|  cmp NODE:INS, #0
+  //|  bne <3
+  //|4:
+  //|  mov CARG1, RB			// Use metatable as default result.
+  //|  mvn CARG2, #~LJ_TTAB
+  //|  b ->fff_restv
+  //|5:
+  //|  checktp CARG2, LJ_TNIL
+  //|  bne ->fff_restv
+  //|  b <4
+  //|
+  //|6:
+  //|  checktp CARG2, LJ_TISNUM
+  //|  mvnhs CARG2, CARG2
   dasm_put(Dst, 760, ~LJ_TNIL, DISPATCH_GL(gcroot[GCROOT_MMNAME+MM_metatable]), Dt6(->hmask), Dt5(->hash), Dt6(->node), DtB(->key), DtB(->val), DtB(->next), -LJ_TSTR, ~LJ_TTAB, -LJ_TNIL, -LJ_TISNUM);
+# 955 "buildvm_arm.dasc"
+  //|  movlo CARG2, #~LJ_TISNUM
+  //|  add CARG4, DISPATCH, CARG2, lsl #2
+  //|  ldr TAB:RB, [CARG4, #DISPATCH_GL(gcroot[GCROOT_BASEMT])]
+  //|  b <2
+  //|
+  //|.ffunc_2 setmetatable
+  //|  // Fast path: no mt for table yet and not clearing the mt.
+  //|  checktp CARG2, LJ_TTAB
+  //|   ldreq TAB:RB, TAB:CARG1->metatable
+  //|  checktpeq CARG4, LJ_TTAB
+  //|    ldrbeq CARG4, TAB:CARG1->marked
+  //|   cmpeq TAB:RB, #0
+  //|  bne ->fff_fallback
+  //|    tst CARG4, #LJ_GC_BLACK		// isblack(table)
+  //|     str TAB:CARG3, TAB:CARG1->metatable
+  //|    beq ->fff_restv
+  //|  barrierback TAB:CARG1, CARG4, CARG3
+  //|  b ->fff_restv
+  //|
+  //|.ffunc rawget
+  //|  ldrd CARG34, [BASE]
+  //|   cmp NARGS8:RC, #16
+  //|   blo ->fff_fallback
+  //|   mov CARG2, CARG3
+  //|  checktab CARG4, ->fff_fallback
   dasm_put(Dst, 808, ~LJ_TISNUM, DISPATCH_GL(gcroot[GCROOT_BASEMT]), -LJ_TTAB, Dt6(->metatable), -LJ_TTAB, Dt6(->marked), LJ_GC_BLACK, Dt6(->metatable), DISPATCH_GL(gc.grayagain), LJ_GC_BLACK, DISPATCH_GL(gc.grayagain), Dt6(->marked), Dt6(->gclist), -LJ_TTAB);
+# 980 "buildvm_arm.dasc"
+  //|   mov CARG1, L
+  //|   add CARG3, BASE, #8
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 860);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 865);
   }
+# 983 "buildvm_arm.dasc"
+  //|  bl extern lj_tab_get  // (lua_State *L, GCtab *t, cTValue *key)
+  //|  // Returns cTValue *.
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 867);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 870);
   }
+# 986 "buildvm_arm.dasc"
+  //|  ldrd CARG12, [CRET1]
+  //|  b ->fff_restv
+  //|
+  //|//-- Base library: conversions ------------------------------------------
+  //|
+  //|.ffunc_1 tonumber
+  //|  // Only handles the number case inline (without a base argument).
+  //|  checktp CARG2, LJ_TISNUM
+  //|  bls ->fff_restv
+  //|  b ->fff_fallback
+  //|
+  //|.ffunc_1 tostring
+  //|  // Only handles the string or number case inline.
+  //|  checktp CARG2, LJ_TSTR
+  //|  // A __tostring method in the string base metatable is ignored.
+  //|  beq ->fff_restv
+  //|  // Handle numbers inline, unless a number base metatable is present.
+  //|  ldr CARG4, [DISPATCH, #DISPATCH_GL(gcroot[GCROOT_BASEMT_NUM])]
+  //|   str BASE, L->base
+  //|  checktp CARG2, LJ_TISNUM
+  //|  cmpls CARG4, #0
+  //|   str PC, SAVE_PC			// Redundant (but a defined value).
+  //|  bhi ->fff_fallback
+  //|  ffgccheck
+  //|  mov CARG1, L
+  //|  mov CARG2, BASE
+  //|  bl extern lj_str_fromnumber	// (lua_State *L, cTValue *o)
+  //|  // Returns GCstr *.
+  //|  ldr BASE, L->base
+  //|  mvn CARG2, #~LJ_TSTR
+  //|  b ->fff_restv
+  //|
+  //|//-- Base library: iterators -------------------------------------------
+  //|
+  //|.ffunc_1 next
   dasm_put(Dst, 872, -LJ_TISNUM, -LJ_TSTR, DISPATCH_GL(gcroot[GCROOT_BASEMT_NUM]), Dt1(->base), -LJ_TISNUM, DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold), Dt1(->base), ~LJ_TSTR);
+# 1021 "buildvm_arm.dasc"
+  //|   mvn CARG4, #~LJ_TNIL
+  //|  checktab CARG2, ->fff_fallback
+  //|   strd CARG34, [BASE, NARGS8:RC]	// Set missing 2nd arg to nil.
+  //|   ldr PC, [BASE, FRAME_PC]
+  //|  mov CARG2, CARG1
+  //|    str BASE, L->base		// Add frame since C call can throw.
+  //|  mov CARG1, L
+  //|    str BASE, L->top			// Dummy frame length is ok.
+  //|  add CARG3, BASE, #8
+  //|   str PC, SAVE_PC
+  //|  bl extern lj_tab_next	// (lua_State *L, GCtab *t, TValue *key)
+  //|  // Returns 0 at end of traversal.
+  //|  IOS ldr BASE, L->base
   dasm_put(Dst, 924, ~LJ_TNIL, -LJ_TTAB, Dt1(->base), Dt1(->top));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 947, Dt1(->base));
   }
+# 1034 "buildvm_arm.dasc"
+  //|  cmp CRET1, #0
+  //|  mvneq CRET2, #~LJ_TNIL
+  //|  beq ->fff_restv			// End of traversal: return nil.
+  //|  ldrd CARG12, [BASE, #8]		// Copy key and value to results.
+  //|   ldrd CARG34, [BASE, #16]
+  //|    mov RC, #(2+1)*8
+  //|  strd CARG12, [BASE, #-8]
+  //|   strd CARG34, [BASE]
+  //|  b ->fff_res
+  //|
+  //|.ffunc_1 pairs
+  //|  checktab CARG2, ->fff_fallback
   dasm_put(Dst, 950, ~LJ_TNIL, (2+1)*8, -LJ_TTAB);
+# 1046 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+  //|  ldr TAB:RB, TAB:CARG1->metatable
   dasm_put(Dst, 973, Dt6(->metatable));
+# 1048 "buildvm_arm.dasc"
 #endif
+  //|   ldrd CFUNC:CARG34, CFUNC:CARG3->upvalue[0]
+  //|    ldr PC, [BASE, FRAME_PC]
   dasm_put(Dst, 976, Dt8(->upvalue[0]));
+# 1051 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+  //|  cmp TAB:RB, #0
+  //|  bne ->fff_fallback
   dasm_put(Dst, 980);
+# 1054 "buildvm_arm.dasc"
 #endif
+  //|  mvn CARG2, #~LJ_TNIL
+  //|    mov RC, #(3+1)*8
+  //|   strd CFUNC:CARG34, [BASE, #-8]
+  //|  str CARG2, [BASE, #12]
+  //|  b ->fff_res
+  //|
+  //|.ffunc_2 ipairs_aux
+  //|  checktp CARG2, LJ_TTAB
+  //|  checktpeq CARG4, LJ_TISNUM
+  //|  bne ->fff_fallback
+  //|  ldr RB, TAB:CARG1->asize
+  //|   ldr RC, TAB:CARG1->array
+  //|  add CARG3, CARG3, #1
+  //|    ldr PC, [BASE, FRAME_PC]
+  //|  cmp CARG3, RB
+  //|   add RC, RC, CARG3, lsl #3
+  //|  strd CARG34, [BASE, #-8]
+  //|   ldrdlo CARG12, [RC]
+  //|   mov RC, #(0+1)*8
+  //|  bhs >2				// Not in array part?
+  //|1:
+  //|   checktp CARG2, LJ_TNIL
+  //|   movne RC, #(2+1)*8
+  //|   strdne CARG12, [BASE]
+  //|  b ->fff_res
+  //|2:  // Check for empty hash part first. Otherwise call C function.
+  //|  ldr RB, TAB:CARG1->hmask
+  //|   mov CARG2, CARG3
+  //|  cmp RB, #0
+  //|  beq ->fff_res
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 984, ~LJ_TNIL, (3+1)*8, -LJ_TTAB, -LJ_TISNUM, Dt6(->asize), Dt6(->array), (0+1)*8, -LJ_TNIL, (2+1)*8, Dt6(->hmask));
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1034);
   }
+# 1086 "buildvm_arm.dasc"
+  //|  bl extern lj_tab_getinth		// (GCtab *t, int32_t key)
+  //|  // Returns cTValue * or NULL.
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 1036);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1039);
   }
+# 1089 "buildvm_arm.dasc"
+  //|  cmp CRET1, #0
+  //|  beq ->fff_res
+  //|  ldrd CARG12, [CRET1]
+  //|  b <1
+  //|
+  //|.ffunc_1 ipairs
+  //|  checktab CARG2, ->fff_fallback
   dasm_put(Dst, 1041, -LJ_TTAB);
+# 1096 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+  //|  ldr TAB:RB, TAB:CARG1->metatable
   dasm_put(Dst, 1057, Dt6(->metatable));
+# 1098 "buildvm_arm.dasc"
 #endif
+  //|   ldrd CFUNC:CARG34, CFUNC:CARG3->upvalue[0]
+  //|    ldr PC, [BASE, FRAME_PC]
   dasm_put(Dst, 1060, Dt8(->upvalue[0]));
+# 1101 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+  //|  cmp TAB:RB, #0
+  //|  bne ->fff_fallback
   dasm_put(Dst, 1064);
+# 1104 "buildvm_arm.dasc"
 #endif
+  //|  mov CARG1, #0
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|    mov RC, #(3+1)*8
+  //|   strd CFUNC:CARG34, [BASE, #-8]
+  //|  strd CARG12, [BASE, #8]
+  //|  b ->fff_res
+  //|
+  //|//-- Base library: catch errors ----------------------------------------
+  //|
+  //|.ffunc pcall
+  //|  ldrb RA, [DISPATCH, #DISPATCH_GL(hookmask)]
+  //|   cmp NARGS8:RC, #8
+  //|   blo ->fff_fallback
+  //|  tst RA, #HOOK_ACTIVE		// Remember active hook before pcall.
+  //|   mov RB, BASE
+  //|   add BASE, BASE, #8
+  //|  moveq PC, #8+FRAME_PCALL
+  //|  movne PC, #8+FRAME_PCALLH
+  //|   sub NARGS8:RC, NARGS8:RC, #8
+  //|  b ->vm_call_dispatch
+  //|
+  //|.ffunc_2 xpcall
+  //|  ldrb RA, [DISPATCH, #DISPATCH_GL(hookmask)]
+  //|  checkfunc CARG4, ->fff_fallback	// Traceback must be a function.
+  //|   mov RB, BASE
+  //|  strd CARG12, [BASE, #8]		// Swap function and traceback.
+  //|   strd CARG34, [BASE]
+  //|  tst RA, #HOOK_ACTIVE		// Remember active hook before pcall.
+  //|   add BASE, BASE, #16
+  //|  moveq PC, #16+FRAME_PCALL
+  //|  movne PC, #16+FRAME_PCALLH
+  //|   sub NARGS8:RC, NARGS8:RC, #16
+  //|  b ->vm_call_dispatch
+  //|
+  //|//-- Coroutine library --------------------------------------------------
+  //|
+  //|.macro coroutine_resume_wrap, resume
+  //|.if resume
+  //|.ffunc_1 coroutine_resume
+  //|  checktp CARG2, LJ_TTHREAD
+  //|  bne ->fff_fallback
+  //|.else
+  //|.ffunc coroutine_wrap_aux
+  //|  ldr L:CARG1, CFUNC:CARG3->upvalue[0].gcr
+  //|.endif
+  //|   ldr PC, [BASE, FRAME_PC]
+  //|     str BASE, L->base
+  //|  ldr CARG2, L:CARG1->top
+  //|   ldrb RA, L:CARG1->status
+  //|    ldr RB, L:CARG1->base
+  //|  add CARG3, CARG2, NARGS8:RC
+  //|  add CARG4, CARG2, RA
+  //|   str PC, SAVE_PC
+  //|  cmp CARG4, RB
+  //|  beq ->fff_fallback
+  //|   ldr CARG4, L:CARG1->maxstack
+  //|    ldr RB, L:CARG1->cframe
+  //|   cmp RA, #LUA_YIELD
+  //|   cmpls CARG3, CARG4
+  //|    cmpls RB, #0
+  //|    bhi ->fff_fallback
+  //|1:
+  //|.if resume
+  //|  sub CARG3, CARG3, #8		// Keep resumed thread in stack for GC.
+  //|  add BASE, BASE, #8
+  //|  sub NARGS8:RC, NARGS8:RC, #8
+  //|.endif
+  //|  str CARG3, L:CARG1->top
+  //|  str BASE, L->top
+  //|2:  // Move args to coroutine.
+  //|   ldrd CARG34, [BASE, RB]
+  //|  cmp RB, NARGS8:RC
+  //|   strdne CARG34, [CARG2, RB]
+  //|  add RB, RB, #8
+  //|  bne <2
+  //|
+  //|  mov CARG3, #0
+  //|   mov L:RA, L:CARG1
+  //|  mov CARG4, #0
+  //|  bl ->vm_resume			// (lua_State *L, TValue *base, 0, 0)
+  //|  // Returns thread status.
+  //|4:
+  //|  ldr CARG3, L:RA->base
+  //|    mv_vmstate CARG2, INTERP
+  //|  ldr CARG4, L:RA->top
+  //|    st_vmstate CARG2
+  //|   cmp CRET1, #LUA_YIELD
+  //|  ldr BASE, L->base
+  //|   bhi >8
+  //|  subs RC, CARG4, CARG3
+  //|   ldr CARG1, L->maxstack
+  //|   add CARG2, BASE, RC
+  //|  beq >6				// No results?
+  //|  cmp CARG2, CARG1
+  //|   mov RB, #0
+  //|  bhi >9				// Need to grow stack?
+  //|
+  //|  sub CARG4, RC, #8
+  //|   str CARG3, L:RA->top		// Clear coroutine stack.
+  //|5:  // Move results from coroutine.
+  //|   ldrd CARG12, [CARG3, RB]
+  //|  cmp RB, CARG4
+  //|   strd CARG12, [BASE, RB]
+  //|  add RB, RB, #8
+  //|  bne <5
+  //|6:
+  //|.if resume
+  //|  mvn CARG3, #~LJ_TTRUE
+  //|   add RC, RC, #16
+  //|7:
+  //|  str CARG3, [BASE, #-4]		// Prepend true/false to results.
+  //|   sub RA, BASE, #8
+  //|.else
+  //|   mov RA, BASE
+  //|   add RC, RC, #8
+  //|.endif
+  //|  ands CARG1, PC, #FRAME_TYPE
+  //|   str PC, SAVE_PC
+  //|   str RC, SAVE_MULTRES
+  //|  beq ->BC_RET_Z
+  //|  b ->vm_return
+  //|
+  //|8:  // Coroutine returned with error (at co->top-1).
+  //|.if resume
+  //|  ldrd CARG12, [CARG4, #-8]!
+  //|   mvn CARG3, #~LJ_TFALSE
+  //|    mov RC, #(2+1)*8
+  //|  str CARG4, L:RA->top		// Remove error from coroutine stack.
+  //|  strd CARG12, [BASE]		// Copy error message.
+  //|  b <7
+  //|.else
+  //|  mov CARG1, L
+  //|  mov CARG2, L:RA
+  //|  bl extern lj_ffh_coroutine_wrap_err  // (lua_State *L, lua_State *co)
+  //|  // Never returns.
+  //|.endif
+  //|
+  //|9:  // Handle stack expansion on return from yield.
+  //|  mov CARG1, L
+  //|  lsr CARG2, RC, #3
+  //|  bl extern lj_state_growstack	// (lua_State *L, int n)
+  //|  mov CRET1, #0
+  //|  b <4
+  //|.endmacro
+  //|
+  //|  coroutine_resume_wrap 1		// coroutine.resume
   dasm_put(Dst, 1068, ~LJ_TISNUM, (3+1)*8, DISPATCH_GL(hookmask), HOOK_ACTIVE, 8+FRAME_PCALL, 8+FRAME_PCALLH, DISPATCH_GL(hookmask), -LJ_TFUNC, HOOK_ACTIVE, 16+FRAME_PCALL, 16+FRAME_PCALLH, -LJ_TTHREAD);
   dasm_put(Dst, 1127, Dt1(->base), Dt1(->top), Dt1(->status), Dt1(->base), Dt1(->maxstack), Dt1(->cframe), LUA_YIELD, Dt1(->top), Dt1(->top), Dt1(->base), LJ_VMST_INTERP, Dt1(->top), DISPATCH_GL(vmstate), LUA_YIELD);
+# 1251 "buildvm_arm.dasc"
+  //|  coroutine_resume_wrap 0		// coroutine.wrap
   dasm_put(Dst, 1186, Dt1(->base), Dt1(->maxstack), Dt1(->top), ~LJ_TTRUE, FRAME_TYPE, ~LJ_TFALSE, (2+1)*8, Dt1(->top));
   dasm_put(Dst, 1246, Dt8(->upvalue[0].gcr), Dt1(->base), Dt1(->top), Dt1(->status), Dt1(->base), Dt1(->maxstack), Dt1(->cframe), LUA_YIELD, Dt1(->top), Dt1(->top), Dt1(->base), LJ_VMST_INTERP, Dt1(->top), DISPATCH_GL(vmstate), LUA_YIELD);
+# 1252 "buildvm_arm.dasc"
+  //|
+  //|.ffunc coroutine_yield
+  //|  ldr CARG1, L->cframe
+  //|   add CARG2, BASE, NARGS8:RC
+  //|   str BASE, L->base
+  //|  tst CARG1, #CFRAME_RESUME
+  //|   str CARG2, L->top
+  //|    mov CRET1, #LUA_YIELD
   dasm_put(Dst, 1302, Dt1(->base), Dt1(->maxstack), Dt1(->top), FRAME_TYPE, Dt1(->cframe), Dt1(->base), CFRAME_RESUME, Dt1(->top));
+# 1260 "buildvm_arm.dasc"
+  //|   mov CARG3, #0
+  //|  beq ->fff_fallback
+  //|   str CARG3, L->cframe
+  //|    strb CRET1, L->status
+  //|  b ->vm_leave_unw
+  //|
+  //|//-- Math library -------------------------------------------------------
+  //|
+  //|.macro math_round, func
+  //|  .ffunc_1 math_ .. func
+  //|  checktp CARG2, LJ_TISNUM
+  //|  beq ->fff_restv
+  //|  bhi ->fff_fallback
+  //|  // Round FP value and normalize result.
+  //|  lsl CARG3, CARG2, #1
+  //|  adds RB, CARG3, #0x00200000
+  //|  bpl >2				// |x| < 1?
+  //|  mvn CARG4, #0x3e0
+  //|    subs RB, CARG4, RB, asr #21
+  //|  lsl CARG4, CARG2, #11
+  //|   lsl CARG3, CARG1, #11
+  //|  orr CARG4, CARG4, #0x80000000
+  //|   rsb INS, RB, #32
+  //|  orr CARG4, CARG4, CARG1, lsr #21
+  //|    bls >3				// |x| >= 2^31?
+  //|   orr CARG3, CARG3, CARG4, lsl INS
+  //|  lsr CARG1, CARG4, RB
+  //|.if "func" == "floor"
+  //|   tst CARG3, CARG2, asr #31
+  //|   addne CARG1, CARG1, #1
+  //|.else
+  //|   bics CARG3, CARG3, CARG2, asr #31
+  //|   addsne CARG1, CARG1, #1
+  //|   ldrdvs CARG12, >9
+  //|   bvs ->fff_restv
+  //|.endif
+  //|    cmp CARG2, #0
+  //|    rsblt CARG1, CARG1, #0
+  //|1:
+  //|   mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|
+  //|2:  // |x| < 1
+  //|  orr CARG3, CARG3, CARG1		// ztest = abs(hi) | lo
+  //|.if "func" == "floor"
+  //|  tst CARG3, CARG2, asr #31		// return (ztest & sign) == 0 ? 0 : -1
+  //|  moveq CARG1, #0
+  //|  mvnne CARG1, #0
+  //|.else
+  //|  bics CARG3, CARG3, CARG2, asr #31	// return (ztest & ~sign) == 0 ? 0 : 1
+  //|  moveq CARG1, #0
+  //|  movne CARG1, #1
+  //|.endif
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|
+  //|3:  // |x| >= 2^31. Check for x == -(2^31).
+  //|  cmpeq CARG4, #0x80000000
+  //|.if "func" == "floor"
+  //|  cmpeq CARG3, #0
+  //|.endif
+  //|  bne >4
+  //|  cmp CARG2, #0
+  //|  movmi CARG1, #0x80000000
+  //|  bmi <1
+  //|4:
+  //|  bl ->vm_..func
+  //|  b ->fff_restv
+  //|.endmacro
+  //|
+  //|  math_round floor
   dasm_put(Dst, 1361, LUA_YIELD, Dt1(->cframe), Dt1(->status), -LJ_TISNUM, ~LJ_TISNUM, ~LJ_TISNUM);
+# 1331 "buildvm_arm.dasc"
+  //|  math_round ceil
   dasm_put(Dst, 1427, -LJ_TISNUM, ~LJ_TISNUM, ~LJ_TISNUM);
+# 1332 "buildvm_arm.dasc"
+  //|
+  //|.align 8
+  //|9:
+  //|  .long 0x00000000, 0x41e00000	// 2^31.
+  //|
+  //|.ffunc_1 math_abs
+  //|  checktp CARG2, LJ_TISNUM
+  //|  bhi ->fff_fallback
+  //|  bicne CARG2, CARG2, #0x80000000
+  //|  bne ->fff_restv
+  //|  cmp CARG1, #0
+  //|  rsbslt CARG1, CARG1, #0
+  //|  ldrdvs CARG12, <9
+  //|  // Fallthrough.
+  //|
+  //|->fff_restv:
+  //|  // CARG12 = TValue result.
+  //|  ldr PC, [BASE, FRAME_PC]
+  //|  strd CARG12, [BASE, #-8]
+  //|->fff_res1:
+  //|  // PC = return.
+  //|  mov RC, #(1+1)*8
+  //|->fff_res:
+  //|  // RC = (nresults+1)*8, PC = return.
+  //|  ands CARG1, PC, #FRAME_TYPE
+  //|  ldreq INS, [PC, #-4]
+  //|   str RC, SAVE_MULTRES
+  //|  sub RA, BASE, #8
+  //|  bne ->vm_return
+  //|  decode_RB8 RB, INS
+  //|5:
+  //|  cmp RB, RC				// More results expected?
+  //|  bhi >6
+  //|  decode_RA8 CARG1, INS
+  //|   ins_next1
+  //|   ins_next2
+  //|  // Adjust BASE. KBASE is assumed to be set for the calling frame.
+  //|  sub BASE, RA, CARG1
+  //|   ins_next3
+  //|
+  //|6:  // Fill up results with nil.
+  //|  add CARG2, RA, RC
+  //|  mvn CARG1, #~LJ_TNIL
+  //|   add RC, RC, #8
+  //|  str CARG1, [CARG2, #-4]
+  //|  b <5
+  //|
+  //|.macro math_extern, func
+  //|  .ffunc_n math_ .. func
+  //|  IOS mov RA, BASE
+  //|  bl extern func
+  //|  IOS mov BASE, RA
+  //|  b ->fff_restv
+  //|.endmacro
+  //|
+  //|.macro math_extern2, func
+  //|  .ffunc_nn math_ .. func
+  //|  IOS mov RA, BASE
+  //|  bl extern func
+  //|  IOS mov BASE, RA
+  //|  b ->fff_restv
+  //|.endmacro
+  //|
+  //|  math_extern sqrt
   dasm_put(Dst, 1491, -LJ_TISNUM, (1+1)*8, FRAME_TYPE, ~LJ_TNIL);
   dasm_put(Dst, 1555, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
@@ -6309,6 +7737,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1565);
   }
+# 1396 "buildvm_arm.dasc"
+  //|  math_extern log
   dasm_put(Dst, 1567, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1579);
@@ -6317,6 +7747,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1584);
   }
+# 1397 "buildvm_arm.dasc"
+  //|  math_extern log10
   dasm_put(Dst, 1586, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1598);
@@ -6325,6 +7757,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1603);
   }
+# 1398 "buildvm_arm.dasc"
+  //|  math_extern exp
   dasm_put(Dst, 1605, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1617);
@@ -6333,6 +7767,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1622);
   }
+# 1399 "buildvm_arm.dasc"
+  //|  math_extern sin
   dasm_put(Dst, 1624, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1636);
@@ -6341,6 +7777,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1641);
   }
+# 1400 "buildvm_arm.dasc"
+  //|  math_extern cos
   dasm_put(Dst, 1643, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1655);
@@ -6349,6 +7787,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1660);
   }
+# 1401 "buildvm_arm.dasc"
+  //|  math_extern tan
   dasm_put(Dst, 1662, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1674);
@@ -6357,6 +7797,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1679);
   }
+# 1402 "buildvm_arm.dasc"
+  //|  math_extern asin
   dasm_put(Dst, 1681, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1693);
@@ -6365,6 +7807,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1698);
   }
+# 1403 "buildvm_arm.dasc"
+  //|  math_extern acos
   dasm_put(Dst, 1700, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1712);
@@ -6373,6 +7817,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1717);
   }
+# 1404 "buildvm_arm.dasc"
+  //|  math_extern atan
   dasm_put(Dst, 1719, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1731);
@@ -6381,6 +7827,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1736);
   }
+# 1405 "buildvm_arm.dasc"
+  //|  math_extern sinh
   dasm_put(Dst, 1738, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1750);
@@ -6389,6 +7837,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1755);
   }
+# 1406 "buildvm_arm.dasc"
+  //|  math_extern cosh
   dasm_put(Dst, 1757, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1769);
@@ -6397,6 +7847,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1774);
   }
+# 1407 "buildvm_arm.dasc"
+  //|  math_extern tanh
   dasm_put(Dst, 1776, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1788);
@@ -6405,6 +7857,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1793);
   }
+# 1408 "buildvm_arm.dasc"
+  //|  math_extern2 pow
   dasm_put(Dst, 1795, -LJ_TISNUM, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1810);
@@ -6413,6 +7867,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1815);
   }
+# 1409 "buildvm_arm.dasc"
+  //|  math_extern2 atan2
   dasm_put(Dst, 1817, -LJ_TISNUM, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1832);
@@ -6421,6 +7877,8 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1837);
   }
+# 1410 "buildvm_arm.dasc"
+  //|  math_extern2 fmod
   dasm_put(Dst, 1839, -LJ_TISNUM, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1854);
@@ -6429,113 +7887,991 @@ static void build_subroutines(BuildCtx *ctx)
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1859);
   }
+# 1411 "buildvm_arm.dasc"
+  //|
+  //|->ff_math_deg:
+  //|.ffunc_n math_rad
+  //|  ldrd CARG34, CFUNC:CARG3->upvalue[0]
+  //|  bl extern __aeabi_dmul
+  //|  b ->fff_restv
+  //|
+  //|.ffunc_2 math_ldexp
+  //|  checktp CARG2, LJ_TISNUM
+  //|  bhs ->fff_fallback
+  //|  checktp CARG4, LJ_TISNUM
+  //|  bne ->fff_fallback
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 1861, -LJ_TISNUM, Dt8(->upvalue[0]), -LJ_TISNUM, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1894);
   }
+# 1424 "buildvm_arm.dasc"
+  //|  bl extern ldexp			// (double x, int exp)
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 1896);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1899);
   }
+# 1426 "buildvm_arm.dasc"
+  //|  b ->fff_restv
+  //|
+  //|.ffunc_n math_frexp
+  //|  mov CARG3, sp
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 1901, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1914);
   }
+# 1431 "buildvm_arm.dasc"
+  //|  bl extern frexp
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 1916);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1919);
   }
+# 1433 "buildvm_arm.dasc"
+  //|   ldr CARG3, [sp]
+  //|   mvn CARG4, #~LJ_TISNUM
+  //|    ldr PC, [BASE, FRAME_PC]
+  //|  strd CARG12, [BASE, #-8]
+  //|    mov RC, #(2+1)*8
+  //|   strd CARG34, [BASE]
+  //|  b ->fff_res
+  //|
+  //|.ffunc_n math_modf
+  //|  sub CARG3, BASE, #8
+  //|   ldr PC, [BASE, FRAME_PC]
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 1921, ~LJ_TISNUM, (2+1)*8, -LJ_TISNUM);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1943);
   }
+# 1445 "buildvm_arm.dasc"
+  //|  bl extern modf
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 1945);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 1948);
   }
+# 1447 "buildvm_arm.dasc"
+  //|   mov RC, #(2+1)*8
+  //|  strd CARG12, [BASE]
+  //|  b ->fff_res
+  //|
+  //|.macro math_minmax, name, cond, fcond
+  //|  .ffunc_1 name
+  //|  checktp CARG2, LJ_TISNUM
+  //|   mov RA, #8
+  //|  bne >4
+  //|1:  // Handle integers.
+  //|  ldrd CARG34, [BASE, RA]
+  //|   cmp RA, RC
+  //|   bhs ->fff_restv
+  //|  checktp CARG4, LJ_TISNUM
+  //|  bne >3
+  //|  cmp CARG1, CARG3
+  //|   add RA, RA, #8
+  //|  mov..cond CARG1, CARG3
+  //|  b <1
+  //|3:
+  //|  bhi ->fff_fallback
+  //|  // Convert intermediate result to number and continue below.
+  //|  bl extern __aeabi_i2d
+  //|  ldrd CARG34, [BASE, RA]
+  //|  b >6
+  //|
+  //|4:
+  //|  bhi ->fff_fallback
+  //|5:  // Handle numbers.
+  //|  ldrd CARG34, [BASE, RA]
+  //|   cmp RA, RC
+  //|   bhs ->fff_restv
+  //|  checktp CARG4, LJ_TISNUM
+  //|  bhs >7
+  //|6:
+  //|  bl extern __aeabi_cdcmple
+  //|   add RA, RA, #8
+  //|  mov..fcond CARG1, CARG3
+  //|  mov..fcond CARG2, CARG4
+  //|  b <5
+  //|7:  // Convert integer to number and continue above.
+  //|  bhi ->fff_fallback
+  //|  strd CARG12, TMPD
+  //|  mov CARG1, CARG3
+  //|  bl extern __aeabi_i2d
+  //|  ldrd CARG34, TMPD
+  //|  b <6
+  //|.endmacro
+  //|
+  //|  math_minmax math_min, gt, hi
   dasm_put(Dst, 1950, (2+1)*8, -LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM);
+# 1497 "buildvm_arm.dasc"
+  //|  math_minmax math_max, lt, lo
   dasm_put(Dst, 2001, -LJ_TISNUM, -LJ_TISNUM);
+# 1498 "buildvm_arm.dasc"
+  //|
+  //|//-- String library -----------------------------------------------------
+  //|
+  //|.ffunc_1 string_len
+  //|  checkstr CARG2, ->fff_fallback
+  //|  ldr CARG1, STR:CARG1->len
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|
+  //|.ffunc string_byte			// Only handle the 1-arg case here.
+  //|  ldrd CARG12, [BASE]
+  //|    ldr PC, [BASE, FRAME_PC]
+  //|   cmp NARGS8:RC, #8
+  //|   checktpeq CARG2, LJ_TSTR		// Need exactly 1 argument.
+  //|   bne ->fff_fallback
+  //|  ldr CARG3, STR:CARG1->len
+  //|   ldrb CARG1, STR:CARG1[1]		// Access is always ok (NUL at end).
+  //|   mvn CARG2, #~LJ_TISNUM
   dasm_put(Dst, 2055, -LJ_TISNUM, -LJ_TSTR, Dt5(->len), ~LJ_TISNUM, -LJ_TSTR, Dt5(->len), Dt5([1]));
+# 1516 "buildvm_arm.dasc"
+  //|  cmp CARG3, #0
+  //|  moveq RC, #(0+1)*8
+  //|  movne RC, #(1+1)*8
+  //|   strd CARG12, [BASE, #-8]
+  //|  b ->fff_res
+  //|
+  //|.ffunc string_char			// Only handle the 1-arg case here.
+  //|  ffgccheck
+  //|  ldrd CARG12, [BASE]
+  //|    ldr PC, [BASE, FRAME_PC]
+  //|   cmp NARGS8:RC, #8			// Need exactly 1 argument.
+  //|   checktpeq CARG2, LJ_TISNUM
+  //|   bicseq CARG4, CARG1, #255
+  //|  mov CARG3, #1
+  //|   bne ->fff_fallback
+  //|  str CARG1, TMPD
+  //|  mov CARG2, TMPDp			// Points to stack. Little-endian.
+  //|->fff_newstr:
+  //|  // CARG2 = str, CARG3 = len.
+  //|   str BASE, L->base
+  //|  mov CARG1, L
+  //|   str PC, SAVE_PC
+  //|  bl extern lj_str_new		// (lua_State *L, char *str, size_t l)
+  //|  // Returns GCstr *.
+  //|  ldr BASE, L->base
+  //|   mvn CARG2, #~LJ_TSTR
+  //|  b ->fff_restv
+  //|
+  //|.ffunc string_sub
+  //|  ffgccheck
+  //|  ldrd CARG12, [BASE]
+  //|   ldrd CARG34, [BASE, #16]
+  //|    cmp NARGS8:RC, #16
+  //|     mvn RB, #0
+  //|    beq >1
+  //|    blo ->fff_fallback
+  //|   checktp CARG4, LJ_TISNUM
   dasm_put(Dst, 2109, ~LJ_TISNUM, (0+1)*8, (1+1)*8, DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold), -LJ_TISNUM, Dt1(->base), Dt1(->base), ~LJ_TSTR, DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold));
+# 1553 "buildvm_arm.dasc"
+  //|    mov RB, CARG3
+  //|   bne ->fff_fallback
+  //|1:
+  //|  ldrd CARG34, [BASE, #8]
+  //|  checktp CARG2, LJ_TSTR
+  //|   ldreq CARG2, STR:CARG1->len
+  //|  checktpeq CARG4, LJ_TISNUM
+  //|  bne ->fff_fallback
+  //|  // CARG1 = str, CARG2 = str->len, CARG3 = start, RB = end
+  //|  add CARG4, CARG2, #1
+  //|  cmp CARG3, #0			// if (start < 0) start += len+1
+  //|  addlt CARG3, CARG3, CARG4
+  //|  cmp CARG3, #1			// if (start < 1) start = 1
+  //|  movlt CARG3, #1
+  //|  cmp RB, #0				// if (end < 0) end += len+1
+  //|  addlt RB, RB, CARG4
+  //|  bic RB, RB, RB, asr #31		// if (end < 0) end = 0
+  //|  cmp RB, CARG2			// if (end > len) end = len
+  //|   add CARG1, STR:CARG1, #sizeof(GCstr)-1
+  //|  movgt RB, CARG2
+  //|   add CARG2, CARG1, CARG3
+  //|  subs CARG3, RB, CARG3		// len = start - end
+  //|   add CARG3, CARG3, #1		// len += 1
+  //|  bge ->fff_newstr
+  //|->fff_emptystr:
+  //|  sub STR:CARG1, DISPATCH, #-DISPATCH_GL(strempty)
+  //|  mvn CARG2, #~LJ_TSTR
+  //|  b ->fff_restv
+  //|
+  //|.ffunc string_rep			// Only handle the 1-char case inline.
+  //|  ffgccheck
+  //|  ldrd CARG12, [BASE]
+  //|   ldrd CARG34, [BASE, #8]
+  //|    cmp NARGS8:RC, #16
+  //|    blo ->fff_fallback
+  //|  checktp CARG2, LJ_TSTR
+  //|   checktpeq CARG4, LJ_TISNUM
+  //|   bne ->fff_fallback
+  //|  subs CARG4, CARG3, #1
+  //|   ldr CARG2, STR:CARG1->len
+  //|  blt ->fff_emptystr			// Count <= 0?
   dasm_put(Dst, 2168, -LJ_TISNUM, -LJ_TSTR, Dt5(->len), -LJ_TISNUM, sizeof(GCstr)-1, -DISPATCH_GL(strempty), ~LJ_TSTR, DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold), -LJ_TSTR, -LJ_TISNUM, Dt5(->len));
+# 1594 "buildvm_arm.dasc"
+  //|   cmp CARG2, #1
+  //|   blo ->fff_emptystr		// Zero-length string?
+  //|   bne ->fff_fallback		// Fallback for > 1-char strings.
+  //|  ldr RB, [DISPATCH, #DISPATCH_GL(tmpbuf.sz)]
+  //|   ldr CARG2, [DISPATCH, #DISPATCH_GL(tmpbuf.buf)]
+  //|   ldr CARG1, STR:CARG1[1]
+  //|  cmp RB, CARG3
+  //|  blo ->fff_fallback
+  //|1:  // Fill buffer with char.
+  //|   strb CARG1, [CARG2, CARG4]
+  //|  subs CARG4, CARG4, #1
+  //|  bge <1
+  //|  b ->fff_newstr
+  //|
+  //|.ffunc string_reverse
+  //|  ffgccheck
+  //|  ldrd CARG12, [BASE]
+  //|   cmp NARGS8:RC, #8
+  //|   blo ->fff_fallback
+  //|  checkstr CARG2, ->fff_fallback
+  //|  ldr CARG3, STR:CARG1->len
+  //|   ldr RB, [DISPATCH, #DISPATCH_GL(tmpbuf.sz)]
+  //|    ldr CARG2, [DISPATCH, #DISPATCH_GL(tmpbuf.buf)]
+  //|  mov CARG4, CARG3
+  //|  add CARG1, STR:CARG1, #sizeof(GCstr)
+  //|   cmp RB, CARG3
+  //|   blo ->fff_fallback
+  //|1:  // Reverse string copy.
+  //|  ldrb RB, [CARG1], #1
   dasm_put(Dst, 2230, DISPATCH_GL(tmpbuf.sz), DISPATCH_GL(tmpbuf.buf), Dt5([1]), DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold), -LJ_TSTR, Dt5(->len), DISPATCH_GL(tmpbuf.sz), DISPATCH_GL(tmpbuf.buf), sizeof(GCstr));
+# 1623 "buildvm_arm.dasc"
+  //|   subs CARG4, CARG4, #1
+  //|   blt ->fff_newstr
+  //|  strb RB, [CARG2, CARG4]
+  //|  b <1
+  //|
+  //|.macro ffstring_case, name, lo
+  //|  .ffunc name
+  //|  ffgccheck
+  //|  ldrd CARG12, [BASE]
+  //|   cmp NARGS8:RC, #8
+  //|   blo ->fff_fallback
+  //|  checkstr CARG2, ->fff_fallback
+  //|  ldr CARG3, STR:CARG1->len
+  //|   ldr RB, [DISPATCH, #DISPATCH_GL(tmpbuf.sz)]
+  //|    ldr CARG2, [DISPATCH, #DISPATCH_GL(tmpbuf.buf)]
+  //|  mov CARG4, #0
+  //|  add CARG1, STR:CARG1, #sizeof(GCstr)
+  //|   cmp RB, CARG3
+  //|   blo ->fff_fallback
+  //|1:  // ASCII case conversion.
+  //|  ldrb RB, [CARG1, CARG4]
+  //|   cmp CARG4, CARG3
+  //|   bhs ->fff_newstr
+  //|  sub RC, RB, #lo
+  //|  cmp RC, #26
+  //|  eorlo RB, RB, #0x20
+  //|  strb RB, [CARG2, CARG4]
+  //|   add CARG4, CARG4, #1
+  //|  b <1
+  //|.endmacro
+  //|
+  //|ffstring_case string_lower, 65
+  //|ffstring_case string_upper, 97
   dasm_put(Dst, 2283, DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold), -LJ_TSTR, Dt5(->len), DISPATCH_GL(tmpbuf.sz), DISPATCH_GL(tmpbuf.buf), sizeof(GCstr), DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold));
+# 1656 "buildvm_arm.dasc"
+  //|
+  //|//-- Table library ------------------------------------------------------
+  //|
+  //|.ffunc_1 table_getn
+  //|  checktab CARG2, ->fff_fallback
+  //|  IOS mov RA, BASE
   dasm_put(Dst, 2343, -LJ_TSTR, Dt5(->len), DISPATCH_GL(tmpbuf.sz), DISPATCH_GL(tmpbuf.buf), sizeof(GCstr), -LJ_TTAB);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 2381);
   }
+# 1662 "buildvm_arm.dasc"
+  //|  bl extern lj_tab_len		// (GCtab *t)
+  //|  // Returns uint32_t (but less than 2^31).
+  //|  IOS mov BASE, RA
   dasm_put(Dst, 2383);
   if (LJ_TARGET_OSX) {
   dasm_put(Dst, 2386);
   }
+# 1665 "buildvm_arm.dasc"
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|
+  //|//-- Bit library --------------------------------------------------------
+  //|
+  //|// FP number to bit conversion for soft-float. Clobbers r0-r3.
+  //|->vm_tobit_fb:
+  //|  bhi ->fff_fallback
+  //|->vm_tobit:
+  //|  lsl RB, CARG2, #1
+  //|  adds RB, RB, #0x00200000
+  //|  movpl CARG1, #0			// |x| < 1?
+  //|  bxpl lr
+  //|  mvn CARG4, #0x3e0
+  //|  subs RB, CARG4, RB, asr #21
+  //|  bmi >1				// |x| >= 2^32?
+  //|  lsl CARG4, CARG2, #11
+  //|  orr CARG4, CARG4, #0x80000000
+  //|  orr CARG4, CARG4, CARG1, lsr #21
+  //|   cmp CARG2, #0
+  //|  lsr CARG1, CARG4, RB
+  //|   rsblt CARG1, CARG1, #0
+  //|  bx lr
+  //|1:
+  //|  add RB, RB, #21
+  //|  lsr CARG4, CARG1, RB
+  //|  rsb RB, RB, #20
+  //|  lsl CARG1, CARG2, #12
+  //|   cmp CARG2, #0
+  //|  orr CARG1, CARG4, CARG1, lsl RB
+  //|   rsblt CARG1, CARG1, #0
+  //|  bx lr
+  //|
+  //|.macro .ffunc_bit, name
+  //|  .ffunc_1 bit_..name
+  //|  checktp CARG2, LJ_TISNUM
+  //|  blne ->vm_tobit_fb
+  //|.endmacro
+  //|
+  //|.ffunc_bit tobit
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|
+  //|.macro .ffunc_bit_op, name, ins
+  //|  .ffunc_bit name
+  //|  mov CARG3, CARG1
+  //|  mov RA, #8
+  //|1:
+  //|  ldrd CARG12, [BASE, RA]
+  //|   cmp RA, NARGS8:RC
+  //|    add RA, RA, #8
+  //|   bge >2
+  //|  checktp CARG2, LJ_TISNUM
+  //|  blne ->vm_tobit_fb
+  //|  ins CARG3, CARG3, CARG1
+  //|  b <1
+  //|.endmacro
+  //|
+  //|.ffunc_bit_op band, and
+  //|.ffunc_bit_op bor, orr
   dasm_put(Dst, 2388, ~LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM);
+# 1725 "buildvm_arm.dasc"
+  //|.ffunc_bit_op bxor, eor
+  //|
+  //|2:
+  //|  mvn CARG4, #~LJ_TISNUM
+  //|   ldr PC, [BASE, FRAME_PC]
+  //|  strd CARG34, [BASE, #-8]
+  //|  b ->fff_res1
+  //|
+  //|.ffunc_bit bswap
   dasm_put(Dst, 2459, -LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM);
+# 1734 "buildvm_arm.dasc"
+  //|  eor CARG3, CARG1, CARG1, ror #16
+  //|  bic CARG3, CARG3, #0x00ff0000
+  //|  ror CARG1, CARG1, #8
+  //|   mvn CARG2, #~LJ_TISNUM
+  //|  eor CARG1, CARG1, CARG3, lsr #8
+  //|  b ->fff_restv
+  //|
+  //|.ffunc_bit bnot
+  //|  mvn CARG1, CARG1
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|
+  //|.macro .ffunc_bit_sh, name, ins, shmod
+  //|  .ffunc bit_..name
+  //|  ldrd CARG12, [BASE, #8]
+  //|   cmp NARGS8:RC, #16
+  //|   blo ->fff_fallback
+  //|  checktp CARG2, LJ_TISNUM
+  //|  blne ->vm_tobit_fb
+  //|.if shmod == 0
+  //|  and RA, CARG1, #31
+  //|.else
+  //|  rsb RA, CARG1, #0
+  //|.endif
+  //|  ldrd CARG12, [BASE]
+  //|  checktp CARG2, LJ_TISNUM
+  //|  blne ->vm_tobit_fb
+  //|  ins CARG1, CARG1, RA
+  //|  mvn CARG2, #~LJ_TISNUM
+  //|  b ->fff_restv
+  //|.endmacro
+  //|
+  //|.ffunc_bit_sh lshift, lsl, 0
+  //|.ffunc_bit_sh rshift, lsr, 0
   dasm_put(Dst, 2519, -LJ_TISNUM, ~LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM, -LJ_TISNUM);
+# 1768 "buildvm_arm.dasc"
+  //|.ffunc_bit_sh arshift, asr, 0
+  //|.ffunc_bit_sh rol, ror, 1
+  //|.ffunc_bit_sh ror, ror, 0
   dasm_put(Dst, 2575, -LJ_TISNUM, ~LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM);
+# 1771 "buildvm_arm.dasc"
+  //|
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->fff_fallback:			// Call fast function fallback handler.
+  //|  // BASE = new base, RC = nargs*8
+  //|   ldr CARG3, [BASE, FRAME_FUNC]
+  //|  ldr CARG2, L->maxstack
+  //|  add CARG1, BASE, NARGS8:RC
+  //|    ldr PC, [BASE, FRAME_PC]		// Fallback may overwrite PC.
+  //|  str CARG1, L->top
+  //|   ldr CARG3, CFUNC:CARG3->f
+  //|    str BASE, L->base
+  //|  add CARG1, CARG1, #8*LUA_MINSTACK
+  //|    str PC, SAVE_PC			// Redundant (but a defined value).
+  //|  cmp CARG1, CARG2
+  //|   mov CARG1, L
+  //|  bhi >5				// Need to grow stack.
+  //|   blx CARG3				// (lua_State *L)
+  //|  // Either throws an error, or recovers and returns -1, 0 or nresults+1.
+  //|   ldr BASE, L->base
+  //|  cmp CRET1, #0
+  //|   lsl RC, CRET1, #3
+  //|   sub RA, BASE, #8
+  //|  bgt ->fff_res			// Returned nresults+1?
+  //|1:  // Returned 0 or -1: retry fast path.
+  //|   ldr CARG1, L->top
+  //|    ldr LFUNC:CARG3, [BASE, FRAME_FUNC]
+  //|   sub NARGS8:RC, CARG1, BASE
+  //|  bne ->vm_call_tail			// Returned -1?
+  //|  ins_callt				// Returned 0: retry fast path.
+  //|
+  //|// Reconstruct previous base for vmeta_call during tailcall.
+  //|->vm_call_tail:
+  //|  ands CARG1, PC, #FRAME_TYPE
+  //|   bic CARG2, PC, #FRAME_TYPEP
+  //|  ldreq INS, [PC, #-4]
   dasm_put(Dst, 2632, -LJ_TISNUM, -LJ_TISNUM, ~LJ_TISNUM, Dt1(->maxstack), Dt1(->top), Dt8(->f), Dt1(->base), 8*LUA_MINSTACK, Dt1(->base), Dt1(->top), Dt7(->field_pc), FRAME_TYPE, FRAME_TYPEP);
+# 1807 "buildvm_arm.dasc"
+  //|  andeq CARG2, MASKR8, INS, lsr #5	// Conditional decode_RA8.
+  //|  sub RB, BASE, CARG2
+  //|  b ->vm_call_dispatch		// Resolve again for tailcall.
+  //|
+  //|5:  // Grow stack for fallback handler.
+  //|  mov CARG2, #LUA_MINSTACK
+  //|  bl extern lj_state_growstack	// (lua_State *L, int n)
+  //|  ldr BASE, L->base
+  //|  cmp CARG1, CARG1			// Set zero-flag to force retry.
+  //|  b <1
+  //|
+  //|->fff_gcstep:			// Call GC step function.
+  //|  // BASE = new base, RC = nargs*8
+  //|  mov RA, lr
+  //|   str BASE, L->base
+  //|  add CARG2, BASE, NARGS8:RC
+  //|   str PC, SAVE_PC			// Redundant (but a defined value).
+  //|  str CARG2, L->top
+  //|  mov CARG1, L
+  //|  bl extern lj_gc_step		// (lua_State *L)
+  //|   ldr BASE, L->base
+  //|  mov lr, RA				// Help return address predictor.
+  //|   ldr CFUNC:CARG3, [BASE, FRAME_FUNC]
+  //|  bx lr
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Special dispatch targets -------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->vm_record:				// Dispatch target for recording phase.
   dasm_put(Dst, 2695, LUA_MINSTACK, Dt1(->base), Dt1(->base), Dt1(->top), Dt1(->base));
+# 1837 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  ldrb CARG1, [DISPATCH, #DISPATCH_GL(hookmask)]
+  //|  tst CARG1, #HOOK_VMEVENT		// No recording while in vmevent.
+  //|  bne >5
+  //|  // Decrement the hookcount for consistency, but always do the call.
+  //|   ldr CARG2, [DISPATCH, #DISPATCH_GL(hookcount)]
+  //|  tst CARG1, #HOOK_ACTIVE
+  //|  bne >1
+  //|   sub CARG2, CARG2, #1
+  //|  tst CARG1, #LUA_MASKLINE|LUA_MASKCOUNT
+  //|   strne CARG2, [DISPATCH, #DISPATCH_GL(hookcount)]
+  //|  b >1
   dasm_put(Dst, 2729, DISPATCH_GL(hookmask), HOOK_VMEVENT, DISPATCH_GL(hookcount), HOOK_ACTIVE, LUA_MASKLINE|LUA_MASKCOUNT, DISPATCH_GL(hookcount));
+# 1849 "buildvm_arm.dasc"
 #endif
+  //|
+  //|->vm_rethook:			// Dispatch target for return hooks.
+  //|  ldrb CARG1, [DISPATCH, #DISPATCH_GL(hookmask)]
+  //|  tst CARG1, #HOOK_ACTIVE		// Hook already active?
+  //|  beq >1
+  //|5:  // Re-dispatch to static ins.
+  //|  decode_OP OP, INS
+  //|  add OP, DISPATCH, OP, lsl #2
+  //|  ldr pc, [OP, #GG_DISP2STATIC]
+  //|
+  //|->vm_inshook:			// Dispatch target for instr/line hooks.
+  //|  ldrb CARG1, [DISPATCH, #DISPATCH_GL(hookmask)]
+  //|   ldr CARG2, [DISPATCH, #DISPATCH_GL(hookcount)]
+  //|  tst CARG1, #HOOK_ACTIVE		// Hook already active?
+  //|  bne <5
+  //|  tst CARG1, #LUA_MASKLINE|LUA_MASKCOUNT
+  //|  beq <5
+  //|   subs CARG2, CARG2, #1
+  //|   str CARG2, [DISPATCH, #DISPATCH_GL(hookcount)]
+  //|   beq >1
+  //|  tst CARG1, #LUA_MASKLINE
+  //|  beq <5
+  //|1:
+  //|  mov CARG1, L
+  //|   str BASE, L->base
+  //|  mov CARG2, PC
+  //|  // SAVE_PC must hold the _previous_ PC. The callee updates it with PC.
+  //|  bl extern lj_dispatch_ins		// (lua_State *L, const BCIns *pc)
+  //|3:
+  //|  ldr BASE, L->base
+  //|4:  // Re-dispatch to static ins.
+  //|  ldrb OP, [PC, #-4]
   dasm_put(Dst, 2749, DISPATCH_GL(hookmask), HOOK_ACTIVE, GG_DISP2STATIC, DISPATCH_GL(hookmask), DISPATCH_GL(hookcount), HOOK_ACTIVE, LUA_MASKLINE|LUA_MASKCOUNT, DISPATCH_GL(hookcount), LUA_MASKLINE, Dt1(->base), Dt1(->base));
+# 1882 "buildvm_arm.dasc"
+  //|   ldr INS, [PC, #-4]
+  //|  add OP, DISPATCH, OP, lsl #2
+  //|  ldr OP, [OP, #GG_DISP2STATIC]
+  //|   decode_RA8 RA, INS
+  //|   decode_RD RC, INS
+  //|  bx OP
+  //|
+  //|->cont_hook:				// Continue from hook yield.
+  //|  ldr CARG1, [CARG4, #-24]
+  //|   add PC, PC, #4
+  //|  str CARG1, SAVE_MULTRES		// Restore MULTRES for *M ins.
+  //|  b <4
+  //|
+  //|->vm_hotloop:			// Hot loop counter underflow.
   dasm_put(Dst, 2795, GG_DISP2STATIC);
+# 1896 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  ldr LFUNC:CARG3, [BASE, FRAME_FUNC]  // Same as curr_topL(L).
+  //|   sub CARG1, DISPATCH, #-GG_DISP2J
+  //|   str PC, SAVE_PC
+  //|  ldr CARG3, LFUNC:CARG3->field_pc
+  //|   mov CARG2, PC
+  //|   str L, [DISPATCH, #DISPATCH_J(L)]
+  //|  ldrb CARG3, [CARG3, #PC2PROTO(framesize)]
+  //|   str BASE, L->base
+  //|  add CARG3, BASE, CARG3, lsl #3
+  //|  str CARG3, L->top
+  //|  bl extern lj_trace_hot		// (jit_State *J, const BCIns *pc)
+  //|  b <3
   dasm_put(Dst, 2811, -GG_DISP2J, Dt7(->field_pc), DISPATCH_J(L), PC2PROTO(framesize), Dt1(->base), Dt1(->top));
+# 1909 "buildvm_arm.dasc"
 #endif
+  //|
+  //|->vm_callhook:			// Dispatch target for call hooks.
+  //|  mov CARG2, PC
   dasm_put(Dst, 2832);
+# 1913 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  b >1
   dasm_put(Dst, 2835);
+# 1915 "buildvm_arm.dasc"
 #endif
+  //|
+  //|->vm_hotcall:			// Hot call counter underflow.
   dasm_put(Dst, 2838);
+# 1918 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  orr CARG2, PC, #1
+  //|1:
   dasm_put(Dst, 2840);
+# 1921 "buildvm_arm.dasc"
 #endif
+  //|  add CARG4, BASE, RC
+  //|   str PC, SAVE_PC
+  //|    mov CARG1, L
+  //|   str BASE, L->base
+  //|    sub RA, RA, BASE
+  //|  str CARG4, L->top
+  //|  bl extern lj_dispatch_call		// (lua_State *L, const BCIns *pc)
+  //|  // Returns ASMFunction.
+  //|  ldr BASE, L->base
+  //|   ldr CARG4, L->top
+  //|    mov CARG2, #0
+  //|  add RA, BASE, RA
+  //|   sub NARGS8:RC, CARG4, BASE
+  //|    str CARG2, SAVE_PC		// Invalidate for subsequent line hook.
+  //|  ldr LFUNC:CARG3, [BASE, FRAME_FUNC]
+  //|   ldr INS, [PC, #-4]
+  //|  bx CRET1
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Trace exit handler -------------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|->vm_exit_handler:
   dasm_put(Dst, 2843, Dt1(->base), Dt1(->top), Dt1(->base), Dt1(->top));
+# 1945 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  sub sp, sp, #12
+  //|  push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12}
+  //|  ldr CARG1, [sp, #64]	// Load original value of lr.
+  //|   ldr DISPATCH, [lr]	// Load DISPATCH.
+  //|    add CARG3, sp, #64	// Recompute original value of sp.
+  //|   mv_vmstate CARG4, EXIT
+  //|    str CARG3, [sp, #52]	// Store sp in RID_SP
+  //|   st_vmstate CARG4
+  //|  ldr CARG2, [CARG1, #-4]!	// Get exit instruction.
+  //|   str CARG1, [sp, #56]	// Store exit pc in RID_LR and RID_PC.
+  //|   str CARG1, [sp, #60]
+  //|  lsl CARG2, CARG2, #8
+  //|  add CARG1, CARG1, CARG2, asr #6
+  //|   ldr CARG2, [lr, #4]	// Load exit stub group offset.
+  //|   sub CARG1, CARG1, lr
+  //|  ldr L, [DISPATCH, #DISPATCH_GL(jit_L)]
+  //|   add CARG1, CARG2, CARG1, lsr #2	// Compute exit number.
+  //|    ldr BASE, [DISPATCH, #DISPATCH_GL(jit_base)]
+  //|   str CARG1, [DISPATCH, #DISPATCH_J(exitno)]
+  //|   mov CARG4, #0
+  //|  str L, [DISPATCH, #DISPATCH_J(L)]
+  //|    str BASE, L->base
+  //|   str CARG4, [DISPATCH, #DISPATCH_GL(jit_L)]
+  //|  sub CARG1, DISPATCH, #-GG_DISP2J
+  //|  mov CARG2, sp
+  //|  bl extern lj_trace_exit		// (jit_State *J, ExitState *ex)
+  //|  // Returns MULTRES (unscaled) or negated error code.
+  //|  ldr CARG2, L->cframe
+  //|   ldr BASE, L->base
+  //|  bic CARG2, CARG2, #~CFRAME_RAWMASK	// Use two steps: bic sp is deprecated.
+  //|  mov sp, CARG2
+  //|   ldr PC, SAVE_PC			// Get SAVE_PC.
+  //|  str L, SAVE_L			// Set SAVE_L (on-trace resume/yield).
+  //|  b >1
   dasm_put(Dst, 2866, LJ_VMST_EXIT, DISPATCH_GL(vmstate), DISPATCH_GL(jit_L), DISPATCH_GL(jit_base), DISPATCH_J(exitno), DISPATCH_J(L), Dt1(->base), DISPATCH_GL(jit_L), -GG_DISP2J, Dt1(->cframe), Dt1(->base), ~CFRAME_RAWMASK);
+# 1980 "buildvm_arm.dasc"
 #endif
+  //|->vm_exit_interp:
+  //|  // CARG1 = MULTRES or negated error code, BASE, PC and DISPATCH set.
   dasm_put(Dst, 2914);
+# 1983 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  ldr L, SAVE_L
+  //|1:
+  //|  cmp CARG1, #0
+  //|  blt >3				// Check for error from exit.
+  //|   lsl RC, CARG1, #3
+  //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+  //|   str RC, SAVE_MULTRES
+  //|   mov CARG3, #0
+  //|  ldr CARG2, LFUNC:CARG2->field_pc
+  //|   str CARG3, [DISPATCH, #DISPATCH_GL(jit_L)]
+  //|    mv_vmstate CARG4, INTERP
+  //|  ldr KBASE, [CARG2, #PC2PROTO(k)]
+  //|  // Modified copy of ins_next which handles function header dispatch, too.
+  //|  ldrb OP, [PC]
+  //|     mov MASKR8, #255
+  //|   ldr INS, [PC], #4
+  //|     lsl MASKR8, MASKR8, #3		// MASKR8 = 255*8.
+  //|    st_vmstate CARG4
+  //|  cmp OP, #BC_FUNCF			// Function header?
+  //|  ldr OP, [DISPATCH, OP, lsl #2]
+  //|   decode_RA8 RA, INS
+  //|   lsrlo RC, INS, #16	// No: Decode operands A*8 and D.
+  //|   subhs RC, RC, #8
+  //|   addhs RA, RA, BASE	// Yes: RA = BASE+framesize*8, RC = nargs*8
+  //|  bx OP
+  //|
+  //|3:  // Rethrow error from the right C frame.
+  //|  rsb CARG2, CARG1, #0
+  //|  mov CARG1, L
+  //|  bl extern lj_err_throw		// (lua_State *L, int errcode)
   dasm_put(Dst, 2916, Dt7(->field_pc), DISPATCH_GL(jit_L), LJ_VMST_INTERP, PC2PROTO(k), DISPATCH_GL(vmstate), BC_FUNCF);
+# 2014 "buildvm_arm.dasc"
 #endif
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Math helper functions ----------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|// FP value rounding. Called from JIT code.
+  //|//
+  //|// double lj_vm_floor/ceil/trunc(double x);
+  //|.macro vm_round, func
+  //|->vm_ .. func:
+  //|  lsl CARG3, CARG2, #1
+  //|  adds RB, CARG3, #0x00200000
+  //|  bpl >2				// |x| < 1?
+  //|  mvn CARG4, #0x3cc
+  //|  subs RB, CARG4, RB, asr #21	// 2^0: RB = 51, 2^51: RB = 0.
+  //|  bxlo lr				// |x| >= 2^52: done.
+  //|  mvn CARG4, #1
+  //|   bic CARG3, CARG1, CARG4, lsl RB	// ztest = lo & ~lomask
+  //|  and CARG1, CARG1, CARG4, lsl RB	// lo &= lomask
+  //|  subs RB, RB, #32
+  //|   bicpl CARG4, CARG2, CARG4, lsl RB	// |x| <= 2^20: ztest |= hi & ~himask
+  //|   orrpl CARG3, CARG3, CARG4
+  //|   mvnpl CARG4, #1
+  //|  andpl CARG2, CARG2, CARG4, lsl RB	// |x| <= 2^20: hi &= himask
+  //|.if "func" == "floor"
+  //|   tst CARG3, CARG2, asr #31		// iszero = ((ztest & signmask) == 0)
+  //|.else
+  //|   bics CARG3, CARG3, CARG2, asr #31	// iszero = ((ztest & ~signmask) == 0)
+  //|.endif
+  //|  bxeq lr				// iszero: done.
+  //|  mvn CARG4, #1
+  //|  cmp RB, #0
+  //|  lslpl CARG3, CARG4, RB
+  //|  mvnmi CARG3, #0
+  //|  add RB, RB, #32
+  //|  subs CARG1, CARG1, CARG4, lsl RB	// lo = lo-lomask
+  //|  sbc CARG2, CARG2, CARG3		// hi = hi-himask+carry
+  //|  bx lr
+  //|
+  //|2:  // |x| < 1:
+  //|  orr CARG3, CARG3, CARG1		// ztest = (2*hi) | lo
+  //|.if "func" == "floor"
+  //|  tst CARG3, CARG2, asr #31		// iszero = ((ztest & signmask) == 0)
+  //|.else
+  //|  bics CARG3, CARG3, CARG2, asr #31	// iszero = ((ztest & ~signmask) == 0)
+  //|.endif
+  //|  mov CARG1, #0			// lo = 0
+  //|  and CARG2, CARG2, #0x80000000
+  //|  ldrne CARG4, <9			// hi = sign(x) | (iszero ? 0.0 : 1.0)
+  //|  orrne CARG2, CARG2, CARG4
+  //|  bx lr
+  //|.endmacro
+  //|
+  //|9:
+  //|  .long 0x3ff00000			// hiword(1.0)
+  //|  vm_round floor
+  //|  vm_round ceil
+  //|
+  //|->vm_trunc:
   dasm_put(Dst, 2953);
+# 2074 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  lsl CARG3, CARG2, #1
+  //|  adds RB, CARG3, #0x00200000
+  //|  andpl CARG2, CARG2, #0x80000000	// |x| < 1? hi = sign(x), lo = 0.
+  //|  movpl CARG1, #0
+  //|  bxpl lr
+  //|  mvn CARG4, #0x3cc
+  //|  subs RB, CARG4, RB, asr #21	// 2^0: RB = 51, 2^51: RB = 0.
+  //|  bxlo lr				// |x| >= 2^52: already done.
+  //|  mvn CARG4, #1
+  //|  and CARG1, CARG1, CARG4, lsl RB	// lo &= lomask
+  //|  subs RB, RB, #32
+  //|  andpl CARG2, CARG2, CARG4, lsl RB	// |x| <= 2^20: hi &= himask
+  //|  bx lr
   dasm_put(Dst, 3027);
+# 2088 "buildvm_arm.dasc"
 #endif
+  //|
+  //|  // double lj_vm_mod(double dividend, double divisor);
+  //|->vm_mod:
+  //|  push {r0, r1, r2, r3, r4, lr}
+  //|  bl extern __aeabi_ddiv
+  //|  bl ->vm_floor
+  //|  ldrd CARG34, [sp, #8]
+  //|  bl extern __aeabi_dmul
+  //|  ldrd CARG34, [sp]
+  //|  eor CARG2, CARG2, #0x80000000
+  //|  bl extern __aeabi_dadd
+  //|  add sp, sp, #20
+  //|  pop {pc}
+  //|
+  //|  // int lj_vm_modi(int dividend, int divisor);
+  //|->vm_modi:
+  //|  ands RB, CARG1, #0x80000000
+  //|  rsbmi CARG1, CARG1, #0		// a = |dividend|
+  //|  eor RB, RB, CARG2, asr #1		// Keep signdiff and sign(divisor).
+  //|  cmp CARG2, #0
+  //|  rsbmi CARG2, CARG2, #0		// b = |divisor|
+  //|  subs CARG4, CARG2, #1
+  //|  cmpne CARG1, CARG2
+  //|  moveq CARG1, #0			// if (b == 1 || a == b) a = 0
+  //|  tsthi CARG2, CARG4
+  //|  andeq CARG1, CARG1, CARG4		// else if ((b & (b-1)) == 0) a &= b-1
+  //|  bls >1
+  //|  // Use repeated subtraction to get the remainder.
+  //|  clz CARG3, CARG1
+  //|  clz CARG4, CARG2
+  //|  sub CARG4, CARG4, CARG3
+  //|  rsbs CARG3, CARG4, #31		// entry = (31-(clz(b)-clz(a)))*8
+  //|  addne pc, pc, CARG3, lsl #3	// Duff's device.
+  //|  nop
   dasm_put(Dst, 3041);
+# 2123 "buildvm_arm.dasc"
   {
     int i;
     for (i = 31; i >= 0; i--) {
+      //|  cmp CARG1, CARG2, lsl #i
+      //|  subhs CARG1, CARG1, CARG2, lsl #i
       dasm_put(Dst, 3077, i, i);
+# 2128 "buildvm_arm.dasc"
     }
   }
+  //|1:
+  //|  cmp CARG1, #0
+  //|  cmpne RB, #0
+  //|  submi CARG1, CARG1, CARG2		// if (y != 0 && signdiff) y = y - b
+  //|  eors CARG2, CARG1, RB, lsl #1
+  //|  rsbmi CARG1, CARG1, #0		// if (sign(divisor) != sign(y)) y = -y
+  //|  bx lr
+  //|
+  //|// Callable from C: double lj_vm_foldarith(double x, double y, int op)
+  //|// Compute x op y for basic arithmetic operators (+ - * / % ^ and unary -)
+  //|// and basic math functions. ORDER ARITH
+  //|->vm_foldarith:
+  //|  ldr OP, [sp]
+  //|  cmp OP, #1
+  //|  blo extern __aeabi_dadd
+  //|  beq extern __aeabi_dsub
+  //|  cmp OP, #3
+  //|  blo extern __aeabi_dmul
+  //|  beq extern __aeabi_ddiv
+  //|  cmp OP, #5
+  //|  blo ->vm_mod
+  //|  beq extern pow
+  //|  cmp OP, #7
+  //|  eorlo CARG2, CARG2, #0x80000000
+  //|  biceq CARG2, CARG2, #0x80000000
+  //|  bxls lr
   dasm_put(Dst, 3082);
+# 2156 "buildvm_arm.dasc"
 #if LJ_HASJIT
+  //|  cmp OP, #9
+  //|  blo extern atan2
+  //|  beq >9  // No support needed for IR_LDEXP.
+  //|  cmp OP, #11
+  //|  bhi >9
+  //|  push {r4, lr}
+  //|  beq >1
+  //|  // IR_MIN
+  //|  bl extern __aeabi_cdcmple
+  //|  movhi CARG1, CARG3
+  //|  movhi CARG2, CARG4
+  //|  pop {r4, pc}
+  //|9:
+  //|  NYI  // Bad op.
+  //|
+  //|1:  // IR_MAX
+  //|  bl extern __aeabi_cdcmple
+  //|  movlo CARG1, CARG3
+  //|  movlo CARG2, CARG4
+  //|  pop {r4, pc}
   dasm_put(Dst, 3111);
+# 2177 "buildvm_arm.dasc"
 #else
+  //|  NYI  // Other operations only needed by JIT compiler.
   dasm_put(Dst, 3136);
+# 2179 "buildvm_arm.dasc"
 #endif
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- Miscellaneous functions --------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|//-----------------------------------------------------------------------
+  //|//-- FFI helper functions -----------------------------------------------
+  //|//-----------------------------------------------------------------------
+  //|
+  //|// Handler for callback functions.
+  //|// Saveregs already performed. Callback slot number in [sp], g in r12.
+  //|->vm_ffi_callback:
   dasm_put(Dst, 3138);
+# 2192 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|.type CTSTATE, CTState, PC
 #define DtE(_V) (int)(ptrdiff_t)&(((CTState *)0)_V)
+# 2194 "buildvm_arm.dasc"
+  //|  ldr CTSTATE, GL:r12->ctype_state
+  //|   add DISPATCH, r12, #GG_G2DISP
+  //|  strd CARG12, CTSTATE->cb.gpr[0]
+  //|  strd CARG34, CTSTATE->cb.gpr[2]
+  //|  ldr CARG4, [sp]
+  //|   add CARG3, sp, #CFRAME_SIZE
+  //|    mov CARG1, CTSTATE
+  //|  lsr CARG4, CARG4, #3
+  //|   str CARG3, CTSTATE->cb.stack
+  //|    mov CARG2, sp
+  //|  str CARG4, CTSTATE->cb.slot
+  //|  str CTSTATE, SAVE_PC		// Any value outside of bytecode is ok.
+  //|  bl extern lj_ccallback_enter	// (CTState *cts, void *cf)
+  //|  // Returns lua_State *.
+  //|  ldr BASE, L:CRET1->base
+  //|    mv_vmstate CARG2, INTERP
+  //|  ldr RC, L:CRET1->top
+  //|    mov MASKR8, #255
+  //|   ldr LFUNC:CARG3, [BASE, FRAME_FUNC]
+  //|    mov L, CRET1
+  //|  sub RC, RC, BASE
+  //|    lsl MASKR8, MASKR8, #3		// MASKR8 = 255*8.
+  //|    st_vmstate CARG2
+  //|  ins_callt
   dasm_put(Dst, 3140, Dt2(->ctype_state), GG_G2DISP, DtE(->cb.gpr[0]), DtE(->cb.gpr[2]), CFRAME_SIZE, DtE(->cb.stack), DtE(->cb.slot), Dt1(->base), LJ_VMST_INTERP, Dt1(->top), DISPATCH_GL(vmstate), Dt7(->field_pc));
+# 2218 "buildvm_arm.dasc"
 #endif
+  //|
+  //|->cont_ffi_callback:                 // Return from FFI callback.
   dasm_put(Dst, 3183);
+# 2221 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|  ldr CTSTATE, [DISPATCH, #DISPATCH_GL(ctype_state)]
+  //|   str BASE, L->base
+  //|   str CARG4, L->top
+  //|  str L, CTSTATE->L
+  //|  mov CARG1, CTSTATE
+  //|  mov CARG2, RA
+  //|  bl extern lj_ccallback_leave	// (CTState *cts, TValue *o)
+  //|  ldrd CARG12, CTSTATE->cb.gpr[0]
+  //|  b ->vm_leave_unw
   dasm_put(Dst, 3185, DISPATCH_GL(ctype_state), Dt1(->base), Dt1(->top), DtE(->L), DtE(->cb.gpr[0]));
+# 2231 "buildvm_arm.dasc"
 #endif
+  //|
+  //|->vm_ffi_call:			// Call C function via FFI.
+  //|  // Caveat: needs special frame unwinding, see below.
   dasm_put(Dst, 3202);
+# 2235 "buildvm_arm.dasc"
 #if LJ_HASFFI
+  //|  .type CCSTATE, CCallState, r4
 #define DtF(_V) (int)(ptrdiff_t)&(((CCallState *)0)_V)
+# 2237 "buildvm_arm.dasc"
+  //|  push {CCSTATE, r5, r11, lr}
+  //|  mov CCSTATE, CARG1
+  //|  ldr CARG1, CCSTATE:CARG1->spadj
+  //|   ldrb CARG2, CCSTATE->nsp
+  //|    add CARG3, CCSTATE, #offsetof(CCallState, stack)
+  //|  mov r11, sp
+  //|  sub sp, sp, CARG1			// Readjust stack.
+  //|   subs CARG2, CARG2, #1
+  //|    ldr RB, CCSTATE->func
+  //|   bmi >2
+  //|1:  // Copy stack slots.
+  //|  ldr CARG4, [CARG3, CARG2, lsl #2]
+  //|  str CARG4, [sp, CARG2, lsl #2]
+  //|  subs CARG2, CARG2, #1
+  //|  bpl <1
+  //|2:
+  //|  ldr CARG1, CCSTATE->gpr[0]
+  //|  ldr CARG2, CCSTATE->gpr[1]
+  //|  ldr CARG3, CCSTATE->gpr[2]
+  //|  ldr CARG4, CCSTATE->gpr[3]
+  //|  blx RB
+  //|  mov sp, r11
+  //|  str CRET1, CCSTATE->gpr[0]
+  //|  str CRET2, CCSTATE->gpr[1]
+  //|  pop {CCSTATE, r5, r11, pc}
   dasm_put(Dst, 3204, DtF(->spadj), DtF(->nsp), offsetof(CCallState, stack), DtF(->func), DtF(->gpr[0]), DtF(->gpr[1]), DtF(->gpr[2]), DtF(->gpr[3]), DtF(->gpr[0]), DtF(->gpr[1]));
+# 2262 "buildvm_arm.dasc"
 #endif
+  //|// Note: vm_ffi_call must be the last function in this object file!
+  //|
+  //|//-----------------------------------------------------------------------
 }
 
 /* Generate the code for a single instruction. */
 static void build_ins(BuildCtx *ctx, BCOp op, int defop)
 {
   int vk = 0;
+  //|=>defop:
   dasm_put(Dst, 3242, defop);
+# 2273 "buildvm_arm.dasc"
 
   switch (op) {
 
@@ -6544,181 +8880,605 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
   /* Remember: all ops branch for a true comparison, fall through otherwise. */
 
   case BC_ISLT: case BC_ISGE: case BC_ISLE: case BC_ISGT:
+    //|  // RA = src1*8, RC = src2, JMP with RC = target
+    //|   lsl RC, RC, #3
+    //|  ldrd CARG12, [RA, BASE]!
+    //|    ldrh RB, [PC, #2]
+    //|   ldrd CARG34, [RC, BASE]!
+    //|    add PC, PC, #4
+    //|    add RB, PC, RB, lsl #2
+    //|  checktp CARG2, LJ_TISNUM
+    //|  bne >3
+    //|  checktp CARG4, LJ_TISNUM
+    //|  bne >4
+    //|  cmp CARG1, CARG3
     dasm_put(Dst, 3244, -LJ_TISNUM, -LJ_TISNUM);
+# 2293 "buildvm_arm.dasc"
     if (op == BC_ISLT) {
+      //|  sublt PC, RB, #0x20000
       dasm_put(Dst, 3260);
+# 2295 "buildvm_arm.dasc"
     } else if (op == BC_ISGE) {
+      //|  subge PC, RB, #0x20000
       dasm_put(Dst, 3262);
+# 2297 "buildvm_arm.dasc"
     } else if (op == BC_ISLE) {
+      //|  suble PC, RB, #0x20000
       dasm_put(Dst, 3264);
+# 2299 "buildvm_arm.dasc"
     } else {
+      //|  subgt PC, RB, #0x20000
       dasm_put(Dst, 3266);
+# 2301 "buildvm_arm.dasc"
     }
+    //|1:
+    //|  ins_next
+    //|
+    //|3: // CARG12 is not an integer.
+    //|  bhi ->vmeta_comp
+    //|  // CARG12 is a number.
+    //|  checktp CARG4, LJ_TISNUM
+    //|  movlo RA, RB			// Save RB.
+    //|  blo >5
+    //|  // CARG12 is a number, CARG3 is an integer.
+    //|  mov CARG1, CARG3
+    //|  mov RC, RA
+    //|  mov RA, RB			// Save RB.
+    //|  bl extern __aeabi_i2d
+    //|  mov CARG3, CARG1
+    //|  mov CARG4, CARG2
+    //|  ldrd CARG12, [RC]		// Restore first operand.
+    //|  b >5
+    //|4:  // CARG1 is an integer, CARG34 is not an integer.
+    //|  bhi ->vmeta_comp
+    //|  // CARG1 is an integer, CARG34 is a number
+    //|  mov RA, RB			// Save RB.
+    //|  bl extern __aeabi_i2d
+    //|  ldrd CARG34, [RC]		// Restore second operand.
+    //|5:  // CARG12 and CARG34 are numbers.
+    //|  bl extern __aeabi_cdcmple
+    //|  // To preserve NaN semantics GE/GT branch on unordered, but LT/LE don't.
     dasm_put(Dst, 3268, -LJ_TISNUM);
+# 2329 "buildvm_arm.dasc"
     if (op == BC_ISLT) {
+      //|  sublo PC, RA, #0x20000
       dasm_put(Dst, 3304);
+# 2331 "buildvm_arm.dasc"
     } else if (op == BC_ISGE) {
+      //|  subhs PC, RA, #0x20000
       dasm_put(Dst, 3306);
+# 2333 "buildvm_arm.dasc"
     } else if (op == BC_ISLE) {
+      //|  subls PC, RA, #0x20000
       dasm_put(Dst, 3308);
+# 2335 "buildvm_arm.dasc"
     } else {
+      //|  subhi PC, RA, #0x20000
       dasm_put(Dst, 3310);
+# 2337 "buildvm_arm.dasc"
     }
+    //|  b <1
     dasm_put(Dst, 3312);
+# 2339 "buildvm_arm.dasc"
     break;
 
   case BC_ISEQV: case BC_ISNEV:
     vk = op == BC_ISEQV;
+    //|  // RA = src1*8, RC = src2, JMP with RC = target
+    //|   lsl RC, RC, #3
+    //|  ldrd CARG12, [RA, BASE]!
+    //|    ldrh RB, [PC, #2]
+    //|   ldrd CARG34, [RC, BASE]!
+    //|    add PC, PC, #4
+    //|    add RB, PC, RB, lsl #2
+    //|  checktp CARG2, LJ_TISNUM
+    //|  cmnls CARG4, #-LJ_TISNUM
     dasm_put(Dst, 3315, -LJ_TISNUM, -LJ_TISNUM);
+# 2352 "buildvm_arm.dasc"
     if (vk) {
+      //|  bls ->BC_ISEQN_Z
       dasm_put(Dst, 3326);
+# 2354 "buildvm_arm.dasc"
     } else {
+      //|  bls ->BC_ISNEN_Z
       dasm_put(Dst, 3329);
+# 2356 "buildvm_arm.dasc"
     }
+    //|  // Either or both types are not numbers.
     if (LJ_HASFFI) {
+      //|  checktp CARG2, LJ_TCDATA
+      //|  checktpne CARG4, LJ_TCDATA
+      //|  beq ->vmeta_equal_cd
       dasm_put(Dst, 3332, -LJ_TCDATA, -LJ_TCDATA);
+# 2362 "buildvm_arm.dasc"
     }
+    //|  cmp CARG2, CARG4			// Compare types.
+    //|  bne >2				// Not the same type?
+    //|  checktp CARG2, LJ_TISPRI
+    //|  bhs >1				// Same type and primitive type?
+    //|
+    //|  // Same types and not a primitive type. Compare GCobj or pvalue.
+    //|  cmp CARG1, CARG3
     dasm_put(Dst, 3339, -LJ_TISPRI);
+# 2370 "buildvm_arm.dasc"
     if (vk) {
+      //|  bne >3				// Different GCobjs or pvalues?
+      //|1:  // Branch if same.
+      //|  sub PC, RB, #0x20000
+      //|2:  // Different.
+      //|  ins_next
+      //|3:
+      //|  checktp CARG2, LJ_TISTABUD
+      //|  bhi <2				// Different objects and not table/ud?
       dasm_put(Dst, 3348, -LJ_TISTABUD);
+# 2379 "buildvm_arm.dasc"
     } else {
+      //|  beq >1				// Same GCobjs or pvalues?
+      //|  checktp CARG2, LJ_TISTABUD
+      //|  bhi >2				// Different objects and not table/ud?
       dasm_put(Dst, 3365, -LJ_TISTABUD);
+# 2383 "buildvm_arm.dasc"
     }
+    //|  // Different tables or userdatas. Need to check __eq metamethod.
+    //|  // Field metatable must be at same offset for GCtab and GCudata!
+    //|  ldr TAB:RA, TAB:CARG1->metatable
+    //|  cmp TAB:RA, #0
     dasm_put(Dst, 3372, Dt6(->metatable));
+# 2388 "buildvm_arm.dasc"
     if (vk) {
+      //|  beq <2			// No metatable?
       dasm_put(Dst, 3376);
+# 2390 "buildvm_arm.dasc"
     } else {
+      //|  beq >2			// No metatable?
       dasm_put(Dst, 3379);
+# 2392 "buildvm_arm.dasc"
     }
+    //|  ldrb RA, TAB:RA->nomm
+    //|   mov CARG4, #1-vk		// ne = 0 or 1.
+    //|   mov CARG2, CARG1
+    //|  tst RA, #1<<MM_eq
+    //|  beq ->vmeta_equal		// 'no __eq' flag not set?
     dasm_put(Dst, 3382, Dt6(->nomm), 1-vk, 1<<MM_eq);
+# 2398 "buildvm_arm.dasc"
     if (vk) {
+      //|  b <2
       dasm_put(Dst, 3392);
+# 2400 "buildvm_arm.dasc"
     } else {
+      //|2:  // Branch if different.
+      //|  sub PC, RB, #0x20000
+      //|1:  // Same.
+      //|  ins_next
       dasm_put(Dst, 3395);
+# 2405 "buildvm_arm.dasc"
     }
     break;
 
   case BC_ISEQS: case BC_ISNES:
     vk = op == BC_ISEQS;
+    //|  // RA = src*8, RC = str_const (~), JMP with RC = target
+    //|   mvn RC, RC
+    //|  ldrd CARG12, [BASE, RA]
+    //|    ldrh RB, [PC, #2]
+    //|   ldr STR:CARG3, [KBASE, RC, lsl #2]
+    //|    add PC, PC, #4
+    //|    add RB, PC, RB, lsl #2
+    //|  checktp CARG2, LJ_TSTR
     dasm_put(Dst, 3405, -LJ_TSTR);
+# 2418 "buildvm_arm.dasc"
     if (LJ_HASFFI) {
+      //|  bne >7
+      //|  cmp CARG1, CARG3
       dasm_put(Dst, 3414);
+# 2421 "buildvm_arm.dasc"
     } else {
+      //|  cmpeq CARG1, CARG3
       dasm_put(Dst, 3418);
+# 2423 "buildvm_arm.dasc"
     }
     if (vk) {
+      //|  subeq PC, RB, #0x20000
+      //|1:
       dasm_put(Dst, 3420);
+# 2427 "buildvm_arm.dasc"
     } else {
+      //|1:
+      //|  subne PC, RB, #0x20000
       dasm_put(Dst, 3423);
+# 2430 "buildvm_arm.dasc"
     }
+    //|  ins_next
+    //|
     dasm_put(Dst, 3426);
+# 2433 "buildvm_arm.dasc"
     if (LJ_HASFFI) {
+      //|7:
+      //|  checktp CARG2, LJ_TCDATA
+      //|  bne <1
+      //|  b ->vmeta_equal_cd
       dasm_put(Dst, 3433, -LJ_TCDATA);
+# 2438 "buildvm_arm.dasc"
     }
     break;
 
   case BC_ISEQN: case BC_ISNEN:
     vk = op == BC_ISEQN;
+    //|  // RA = src*8, RC = num_const (~), JMP with RC = target
+    //|   lsl RC, RC, #3
+    //|  ldrd CARG12, [RA, BASE]!
+    //|    ldrh RB, [PC, #2]
+    //|   ldrd CARG34, [RC, KBASE]!
+    //|    add PC, PC, #4
+    //|    add RB, PC, RB, lsl #2
     dasm_put(Dst, 3441);
+# 2450 "buildvm_arm.dasc"
     if (vk) {
+      //|->BC_ISEQN_Z:
       dasm_put(Dst, 3448);
+# 2452 "buildvm_arm.dasc"
     } else {
+      //|->BC_ISNEN_Z:
       dasm_put(Dst, 3450);
+# 2454 "buildvm_arm.dasc"
     }
+    //|  checktp CARG2, LJ_TISNUM
+    //|  bne >3
+    //|  checktp CARG4, LJ_TISNUM
+    //|  bne >4
+    //|  cmp CARG1, CARG3
     dasm_put(Dst, 3452, -LJ_TISNUM, -LJ_TISNUM);
+# 2460 "buildvm_arm.dasc"
     if (vk) {
+      //|  subeq PC, RB, #0x20000
+      //|1:
       dasm_put(Dst, 3462);
+# 2463 "buildvm_arm.dasc"
     } else {
+      //|1:
+      //|  subne PC, RB, #0x20000
       dasm_put(Dst, 3465);
+# 2466 "buildvm_arm.dasc"
     }
+    //|2:
+    //|  ins_next
+    //|
+    //|3:  // CARG12 is not an integer.
     dasm_put(Dst, 3468);
+# 2471 "buildvm_arm.dasc"
     if (LJ_HASFFI) {
+      //|  bhi >7
       dasm_put(Dst, 3477);
+# 2473 "buildvm_arm.dasc"
     } else {
       if (!vk) {
+	//|  subhi PC, RB, #0x20000
 	dasm_put(Dst, 3480);
+# 2476 "buildvm_arm.dasc"
       }
+      //|  bhi <2
       dasm_put(Dst, 3482);
+# 2478 "buildvm_arm.dasc"
     }
+    //|  // CARG12 is a number.
+    //|  checktp CARG4, LJ_TISNUM
+    //|  movlo RA, RB			// Save RB.
+    //|  blo >5
+    //|  // CARG12 is a number, CARG3 is an integer.
+    //|  mov CARG1, CARG3
+    //|  mov RC, RA
+    //|4:  // CARG1 is an integer, CARG34 is a number.
+    //|  mov RA, RB			// Save RB.
+    //|  bl extern __aeabi_i2d
+    //|  ldrd CARG34, [RC]		// Restore other operand.
+    //|5:  // CARG12 and CARG34 are numbers.
+    //|  bl extern __aeabi_cdcmpeq
     dasm_put(Dst, 3485, -LJ_TISNUM);
+# 2492 "buildvm_arm.dasc"
     if (vk) {
+      //|  subeq PC, RA, #0x20000
       dasm_put(Dst, 3501);
+# 2494 "buildvm_arm.dasc"
     } else {
+      //|  subne PC, RA, #0x20000
       dasm_put(Dst, 3503);
+# 2496 "buildvm_arm.dasc"
     }
+    //|  b <2
+    //|
     dasm_put(Dst, 3505);
+# 2499 "buildvm_arm.dasc"
     if (LJ_HASFFI) {
+      //|7:
+      //|  checktp CARG2, LJ_TCDATA
+      //|  bne <1
+      //|  b ->vmeta_equal_cd
       dasm_put(Dst, 3508, -LJ_TCDATA);
+# 2504 "buildvm_arm.dasc"
     }
     break;
 
   case BC_ISEQP: case BC_ISNEP:
     vk = op == BC_ISEQP;
+    //|  // RA = src*8, RC = primitive_type (~), JMP with RC = target
+    //|  ldrd CARG12, [BASE, RA]
+    //|   ldrh RB, [PC, #2]
+    //|   add PC, PC, #4
+    //|  mvn RC, RC
+    //|   add RB, PC, RB, lsl #2
     dasm_put(Dst, 3516);
+# 2515 "buildvm_arm.dasc"
     if (LJ_HASFFI) {
+      //|  checktp CARG2, LJ_TCDATA
+      //|  beq ->vmeta_equal_cd
       dasm_put(Dst, 3522, -LJ_TCDATA);
+# 2518 "buildvm_arm.dasc"
     }
+    //|  cmp CARG2, RC
     dasm_put(Dst, 3527);
+# 2520 "buildvm_arm.dasc"
     if (vk) {
+      //|  subeq PC, RB, #0x20000
       dasm_put(Dst, 3529);
+# 2522 "buildvm_arm.dasc"
     } else {
+      //|  subne PC, RB, #0x20000
       dasm_put(Dst, 3531);
+# 2524 "buildvm_arm.dasc"
     }
+    //|  ins_next
     dasm_put(Dst, 3533);
+# 2526 "buildvm_arm.dasc"
     break;
 
   /* -- Unary test and copy ops ------------------------------------------- */
 
   case BC_ISTC: case BC_ISFC: case BC_IST: case BC_ISF:
+    //|  // RA = dst*8 or unused, RC = src, JMP with RC = target
+    //|  add RC, BASE, RC, lsl #3
+    //|   ldrh RB, [PC, #2]
+    //|  ldrd CARG12, [RC]
+    //|   add PC, PC, #4
+    //|   add RB, PC, RB, lsl #2
+    //|  checktp CARG2, LJ_TTRUE
     dasm_put(Dst, 3540, -LJ_TTRUE);
+# 2538 "buildvm_arm.dasc"
     if (op == BC_ISTC || op == BC_IST) {
+      //|  subls PC, RB, #0x20000
       dasm_put(Dst, 3548);
+# 2540 "buildvm_arm.dasc"
       if (op == BC_ISTC) {
+	//|  strdls CARG12, [BASE, RA]
 	dasm_put(Dst, 3550);
+# 2542 "buildvm_arm.dasc"
       }
     } else {
+      //|  subhi PC, RB, #0x20000
       dasm_put(Dst, 3552);
+# 2545 "buildvm_arm.dasc"
       if (op == BC_ISFC) {
+	//|  strdhi CARG12, [BASE, RA]
 	dasm_put(Dst, 3554);
+# 2547 "buildvm_arm.dasc"
       }
     }
+    //|  ins_next
     dasm_put(Dst, 3556);
+# 2550 "buildvm_arm.dasc"
     break;
 
   /* -- Unary ops --------------------------------------------------------- */
 
   case BC_MOV:
+    //|  // RA = dst*8, RC = src
+    //|  lsl RC, RC, #3
+    //|   ins_next1
+    //|  ldrd CARG12, [BASE, RC]
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 3563);
+# 2562 "buildvm_arm.dasc"
     break;
   case BC_NOT:
+    //|  // RA = dst*8, RC = src
+    //|  add RC, BASE, RC, lsl #3
+    //|   ins_next1
+    //|  ldr CARG1, [RC, #4]
+    //|   add RA, BASE, RA
+    //|   ins_next2
+    //|  checktp CARG1, LJ_TTRUE
+    //|  mvnls CARG2, #~LJ_TFALSE
+    //|  mvnhi CARG2, #~LJ_TTRUE
+    //|  str CARG2, [RA, #4]
+    //|   ins_next3
     dasm_put(Dst, 3573, -LJ_TTRUE, ~LJ_TFALSE, ~LJ_TTRUE);
+# 2575 "buildvm_arm.dasc"
     break;
   case BC_UNM:
+    //|  // RA = dst*8, RC = src
+    //|  lsl RC, RC, #3
+    //|  ldrd CARG12, [BASE, RC]
+    //|   ins_next1
+    //|   ins_next2
+    //|  checktp CARG2, LJ_TISNUM
+    //|  bhi ->vmeta_unm
+    //|  eorne CARG2, CARG2, #0x80000000
+    //|  bne >5
+    //|  rsbseq CARG1, CARG1, #0
+    //|  ldrdvs CARG12, >9
+    //|5:
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
+    //|
+    //|.align 8
+    //|9:
+    //|  .long 0x00000000, 0x41e00000	// 2^31.
     dasm_put(Dst, 3590, -LJ_TISNUM);
+# 2595 "buildvm_arm.dasc"
     break;
   case BC_LEN:
+    //|  // RA = dst*8, RC = src
+    //|  lsl RC, RC, #3
+    //|  ldrd CARG12, [BASE, RC]
+    //|  checkstr CARG2, >2
+    //|  ldr CARG1, STR:CARG1->len
+    //|1:
+    //|  mvn CARG2, #~LJ_TISNUM
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
+    //|2:
+    //|  checktab CARG2, ->vmeta_len
     dasm_put(Dst, 3616, -LJ_TSTR, Dt5(->len), ~LJ_TISNUM, -LJ_TTAB);
+# 2610 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+    //|  ldr TAB:CARG3, TAB:CARG1->metatable
+    //|  cmp TAB:CARG3, #0
+    //|  bne >9
+    //|3:
     dasm_put(Dst, 3640, Dt6(->metatable));
+# 2615 "buildvm_arm.dasc"
 #endif
+    //|->BC_LEN_Z:
+    //|  IOS mov RC, BASE
     dasm_put(Dst, 3647);
     if (LJ_TARGET_OSX) {
     dasm_put(Dst, 3649);
     }
+# 2618 "buildvm_arm.dasc"
+    //|  bl extern lj_tab_len		// (GCtab *t)
+    //|  // Returns uint32_t (but less than 2^31).
+    //|  IOS mov BASE, RC
     dasm_put(Dst, 3651);
     if (LJ_TARGET_OSX) {
     dasm_put(Dst, 3654);
     }
+# 2621 "buildvm_arm.dasc"
+    //|  b <1
     dasm_put(Dst, 3656);
+# 2622 "buildvm_arm.dasc"
 #ifdef LUAJIT_ENABLE_LUA52COMPAT
+    //|9:
+    //|  ldrb CARG4, TAB:CARG3->nomm
+    //|  tst CARG4, #1<<MM_len
+    //|  bne <3				// 'no __len' flag set: done.
+    //|  b ->vmeta_len
     dasm_put(Dst, 3659, Dt6(->nomm), 1<<MM_len);
+# 2628 "buildvm_arm.dasc"
 #endif
     break;
 
   /* -- Binary ops -------------------------------------------------------- */
 
+    //|.macro ins_arithcheck, cond, ncond, target
+    //||if (vk == 1) {
+    //|   cmn CARG4, #-LJ_TISNUM
+    //|    cmn..cond CARG2, #-LJ_TISNUM
+    //||} else {
+    //|   cmn CARG2, #-LJ_TISNUM
+    //|    cmn..cond CARG4, #-LJ_TISNUM
+    //||}
+    //|  b..ncond target
+    //|.endmacro
+    //|.macro ins_arithcheck_int, target
+    //|  ins_arithcheck eq, ne, target
+    //|.endmacro
+    //|.macro ins_arithcheck_num, target
+    //|  ins_arithcheck lo, hs, target
+    //|.endmacro
+    //|
+    //|.macro ins_arithpre
+    //|  decode_RB8 RB, INS
+    //|   decode_RC8 RC, INS
+    //|  // RA = dst*8, RB = src1*8, RC = src2*8 | num_const*8
+    //||vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
+    //||switch (vk) {
+    //||case 0:
+    //|   ldrd CARG12, [BASE, RB]
+    //|    ldrd CARG34, [KBASE, RC]
+    //||  break;
+    //||case 1:
+    //|   ldrd CARG34, [BASE, RB]
+    //|    ldrd CARG12, [KBASE, RC]
+    //||  break;
+    //||default:
+    //|   ldrd CARG12, [BASE, RB]
+    //|    ldrd CARG34, [BASE, RC]
+    //||  break;
+    //||}
+    //|.endmacro
+    //|
+    //|.macro ins_arithfallback, ins
+    //||switch (vk) {
+    //||case 0:
+    //|   ins ->vmeta_arith_vn
+    //||  break;
+    //||case 1:
+    //|   ins ->vmeta_arith_nv
+    //||  break;
+    //||default:
+    //|   ins ->vmeta_arith_vv
+    //||  break;
+    //||}
+    //|.endmacro
+    //|
+    //|.macro ins_arithdn, intins, fpcall
+    //|  ins_arithpre
+    //|.if "intins" ~= "vm_modi"
+    //|   ins_next1
+    //|.endif
+    //|  ins_arithcheck_int >5
+    //|.if "intins" == "smull"
+    //|  smull CARG1, RC, CARG3, CARG1
+    //|  cmp RC, CARG1, asr #31
+    //|  ins_arithfallback bne
+    //|.elif "intins" == "vm_modi"
+    //|  movs CARG2, CARG3
+    //|  ins_arithfallback beq
+    //|  bl ->vm_modi
+    //|  mvn CARG2, #~LJ_TISNUM
+    //|.else
+    //|  intins CARG1, CARG1, CARG3
+    //|  ins_arithfallback bvs
+    //|.endif
+    //|4:
+    //|.if "intins" == "vm_modi"
+    //|   ins_next1
+    //|.endif
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
+    //|5:  // FP variant.
+    //|  ins_arithfallback ins_arithcheck_num
+    //|.if "intins" == "vm_modi"
+    //|  bl fpcall
+    //|.else
+    //|  bl fpcall
+    //|   ins_next1
+    //|.endif
+    //|  b <4
+    //|.endmacro
+    //|
+    //|.macro ins_arithfp, fpcall
+    //|  ins_arithpre
+    //|  ins_arithfallback ins_arithcheck_num
+    //|.if "fpcall" == "extern pow"
+    //|  IOS mov RC, BASE
+    //|  bl fpcall
+    //|  IOS mov BASE, RC
+    //|.else
+    //|  bl fpcall
+    //|.endif
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
+    //|.endmacro
 
   case BC_ADDVN: case BC_ADDNV: case BC_ADDVV:
+    //|  ins_arithdn adds, extern __aeabi_dadd
     dasm_put(Dst, 3669);
     vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
     switch (vk) {
@@ -6778,8 +9538,10 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
       break;
     }
     dasm_put(Dst, 3754);
+# 2740 "buildvm_arm.dasc"
     break;
   case BC_SUBVN: case BC_SUBNV: case BC_SUBVV:
+    //|  ins_arithdn subs, extern __aeabi_dsub
     dasm_put(Dst, 3760);
     vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
     switch (vk) {
@@ -6839,8 +9601,10 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
       break;
     }
     dasm_put(Dst, 3845);
+# 2743 "buildvm_arm.dasc"
     break;
   case BC_MULVN: case BC_MULNV: case BC_MULVV:
+    //|  ins_arithdn smull, extern __aeabi_dmul
     dasm_put(Dst, 3851);
     vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
     switch (vk) {
@@ -6900,8 +9664,10 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
       break;
     }
     dasm_put(Dst, 3937);
+# 2746 "buildvm_arm.dasc"
     break;
   case BC_DIVVN: case BC_DIVNV: case BC_DIVVV:
+    //|  ins_arithfp extern __aeabi_ddiv
     dasm_put(Dst, 3943);
     vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
     switch (vk) {
@@ -6942,8 +9708,10 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
       break;
     }
     dasm_put(Dst, 3994);
+# 2749 "buildvm_arm.dasc"
     break;
   case BC_MODVN: case BC_MODNV: case BC_MODVV:
+    //|  ins_arithdn vm_modi, ->vm_mod
     dasm_put(Dst, 4004);
     vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
     switch (vk) {
@@ -7002,8 +9770,11 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
       break;
     }
     dasm_put(Dst, 4092);
+# 2752 "buildvm_arm.dasc"
     break;
   case BC_POW:
+    //|  // NYI: (partial) integer arithmetic.
+    //|  ins_arithfp extern pow
     dasm_put(Dst, 4097);
     vk = ((int)op - BC_ADDVN) / (BC_ADDNV-BC_ADDVN);
     switch (vk) {
@@ -7051,196 +9822,1108 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
     dasm_put(Dst, 4153);
     }
     dasm_put(Dst, 4155);
+# 2756 "buildvm_arm.dasc"
     break;
 
   case BC_CAT:
+    //|  decode_RB8 RC, INS
+    //|   decode_RC8 RB, INS
+    //|  // RA = dst*8, RC = src_start*8, RB = src_end*8  (note: RB/RC swapped!)
+    //|  sub CARG3, RB, RC
+    //|   str BASE, L->base
+    //|  add CARG2, BASE, RB
+    //|->BC_CAT_Z:
+    //|  // RA = dst*8, RC = src_start*8, CARG2 = top-1
+    //|  mov CARG1, L
+    //|   str PC, SAVE_PC
+    //|  lsr CARG3, CARG3, #3
+    //|  bl extern lj_meta_cat		// (lua_State *L, TValue *top, int left)
+    //|  // Returns NULL (finished) or TValue * (metamethod).
+    //|  ldr BASE, L->base
+    //|  cmp CRET1, #0
+    //|  bne ->vmeta_binop
+    //|  ldrd CARG34, [BASE, RC]
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG34, [BASE, RA]		// Copy result to RA.
+    //|   ins_next3
     dasm_put(Dst, 4163, Dt1(->base), Dt1(->base));
+# 2780 "buildvm_arm.dasc"
     break;
 
   /* -- Constant ops ------------------------------------------------------ */
 
   case BC_KSTR:
+    //|  // RA = dst*8, RC = str_const (~)
+    //|  mvn RC, RC
+    //|   ins_next1
+    //|  ldr CARG1, [KBASE, RC, lsl #2]
+    //|  mvn CARG2, #~LJ_TSTR
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 4189, ~LJ_TSTR);
+# 2793 "buildvm_arm.dasc"
     break;
   case BC_KCDATA:
 #if LJ_HASFFI
+    //|  // RA = dst*8, RC = cdata_const (~)
+    //|  mvn RC, RC
+    //|   ins_next1
+    //|  ldr CARG1, [KBASE, RC, lsl #2]
+    //|  mvn CARG2, #~LJ_TCDATA
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 4201, ~LJ_TCDATA);
+# 2804 "buildvm_arm.dasc"
 #endif
     break;
   case BC_KSHORT:
+    //|  // RA = dst*8, (RC = int16_literal)
+    //|  mov CARG1, INS, asr #16			// Refetch sign-extended reg.
+    //|  mvn CARG2, #~LJ_TISNUM
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 4213, ~LJ_TISNUM);
+# 2814 "buildvm_arm.dasc"
     break;
   case BC_KNUM:
+    //|  // RA = dst*8, RC = num_const
+    //|  lsl RC, RC, #3
+    //|   ins_next1
+    //|  ldrd CARG12, [KBASE, RC]
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 4224);
+# 2823 "buildvm_arm.dasc"
     break;
   case BC_KPRI:
+    //|  // RA = dst*8, RC = primitive_type (~)
+    //|  add RA, BASE, RA
+    //|  mvn RC, RC
+    //|   ins_next1
+    //|   ins_next2
+    //|  str RC, [RA, #4]
+    //|   ins_next3
     dasm_put(Dst, 4234);
+# 2832 "buildvm_arm.dasc"
     break;
   case BC_KNIL:
+    //|  // RA = base*8, RC = end
+    //|  add RA, BASE, RA
+    //|   add RC, BASE, RC, lsl #3
+    //|  mvn CARG1, #~LJ_TNIL
+    //|  str CARG1, [RA, #4]
+    //|   add RA, RA, #8
+    //|1:
+    //|  str CARG1, [RA, #4]
+    //|  cmp RA, RC
+    //|   add RA, RA, #8
+    //|  blt <1
+    //|  ins_next_
     dasm_put(Dst, 4244, ~LJ_TNIL);
+# 2846 "buildvm_arm.dasc"
     break;
 
   /* -- Upvalue and function ops ------------------------------------------ */
 
   case BC_UGET:
+    //|  // RA = dst*8, RC = uvnum
+    //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+    //|   lsl RC, RC, #2
+    //|   add RC, RC, #offsetof(GCfuncL, uvptr)
+    //|  ldr UPVAL:CARG2, [LFUNC:CARG2, RC]
+    //|  ldr CARG2, UPVAL:CARG2->v
+    //|  ldrd CARG34, [CARG2]
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG34, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 4263, offsetof(GCfuncL, uvptr), DtA(->v));
+# 2862 "buildvm_arm.dasc"
     break;
   case BC_USETV:
+    //|  // RA = uvnum*8, RC = src
+    //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+    //|   lsr RA, RA, #1
+    //|   add RA, RA, #offsetof(GCfuncL, uvptr)
+    //|    lsl RC, RC, #3
+    //|  ldr UPVAL:CARG2, [LFUNC:CARG2, RA]
+    //|    ldrd CARG34, [BASE, RC]
+    //|  ldrb RB, UPVAL:CARG2->marked
+    //|  ldrb RC, UPVAL:CARG2->closed
+    //|    ldr CARG2, UPVAL:CARG2->v
+    //|  tst RB, #LJ_GC_BLACK		// isblack(uv)
+    //|   add RB, CARG4, #-LJ_TISGCV
+    //|  cmpne RC, #0
+    //|   strd CARG34, [CARG2]
+    //|  bne >2				// Upvalue is closed and black?
+    //|1:
+    //|   ins_next
+    //|
+    //|2:  // Check if new value is collectable.
+    //|  cmn RB, #-(LJ_TISNUM - LJ_TISGCV)
+    //|   ldrbhi RC, GCOBJ:CARG3->gch.marked
+    //|  bls <1				// tvisgcv(v)
+    //|    sub CARG1, DISPATCH, #-GG_DISP2G
+    //|   tst RC, #LJ_GC_WHITES
+    //|  // Crossed a write barrier. Move the barrier forward.
     dasm_put(Dst, 4279, offsetof(GCfuncL, uvptr), DtA(->marked), DtA(->closed), DtA(->v), LJ_GC_BLACK, -LJ_TISGCV, -(LJ_TISNUM - LJ_TISGCV), Dt4(->gch.marked), -GG_DISP2G, LJ_GC_WHITES);
+# 2889 "buildvm_arm.dasc"
     if (LJ_TARGET_OSX) {
+      //|  beq <1
+      //|  mov RC, BASE
+      //|  bl extern lj_gc_barrieruv	// (global_State *g, TValue *tv)
+      //|  mov BASE, RC
       dasm_put(Dst, 4319);
+# 2894 "buildvm_arm.dasc"
     } else {
+      //|  blne extern lj_gc_barrieruv	// (global_State *g, TValue *tv)
       dasm_put(Dst, 4326);
+# 2896 "buildvm_arm.dasc"
     }
+    //|  b <1
     dasm_put(Dst, 4329);
+# 2898 "buildvm_arm.dasc"
     break;
   case BC_USETS:
+    //|  // RA = uvnum*8, RC = str_const (~)
+    //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+    //|   lsr RA, RA, #1
+    //|   add RA, RA, #offsetof(GCfuncL, uvptr)
+    //|    mvn RC, RC
+    //|  ldr UPVAL:CARG2, [LFUNC:CARG2, RA]
+    //|    ldr STR:CARG3, [KBASE, RC, lsl #2]
+    //|    mvn CARG4, #~LJ_TSTR
+    //|  ldrb RB, UPVAL:CARG2->marked
+    //|   ldr CARG2, UPVAL:CARG2->v
+    //|     ldrb RC, UPVAL:CARG2->closed
+    //|  tst RB, #LJ_GC_BLACK		// isblack(uv)
+    //|    ldrb RB, STR:CARG3->marked
+    //|   strd CARG34, [CARG2]
+    //|  bne >2
+    //|1:
+    //|   ins_next
+    //|
+    //|2:  // Check if string is white and ensure upvalue is closed.
+    //|  tst RB, #LJ_GC_WHITES		// iswhite(str)
+    //|  cmpne RC, #0
+    //|   sub CARG1, DISPATCH, #-GG_DISP2G
+    //|  // Crossed a write barrier. Move the barrier forward.
     dasm_put(Dst, 4332, offsetof(GCfuncL, uvptr), ~LJ_TSTR, DtA(->marked), DtA(->v), DtA(->closed), LJ_GC_BLACK, Dt5(->marked), LJ_GC_WHITES, -GG_DISP2G);
+# 2923 "buildvm_arm.dasc"
     if (LJ_TARGET_OSX) {
+      //|  beq <1
+      //|  mov RC, BASE
+      //|  bl extern lj_gc_barrieruv	// (global_State *g, TValue *tv)
+      //|  mov BASE, RC
       dasm_put(Dst, 4368);
+# 2928 "buildvm_arm.dasc"
     } else {
+      //|  blne extern lj_gc_barrieruv	// (global_State *g, TValue *tv)
       dasm_put(Dst, 4375);
+# 2930 "buildvm_arm.dasc"
     }
+    //|  b <1
     dasm_put(Dst, 4378);
+# 2932 "buildvm_arm.dasc"
     break;
   case BC_USETN:
+    //|  // RA = uvnum*8, RC = num_const
+    //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+    //|   lsr RA, RA, #1
+    //|   add RA, RA, #offsetof(GCfuncL, uvptr)
+    //|    lsl RC, RC, #3
+    //|  ldr UPVAL:CARG2, [LFUNC:CARG2, RA]
+    //|    ldrd CARG34, [KBASE, RC]
+    //|  ldr CARG2, UPVAL:CARG2->v
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG34, [CARG2]
+    //|   ins_next3
     dasm_put(Dst, 4381, offsetof(GCfuncL, uvptr), DtA(->v));
+# 2946 "buildvm_arm.dasc"
     break;
   case BC_USETP:
+    //|  // RA = uvnum*8, RC = primitive_type (~)
+    //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+    //|   lsr RA, RA, #1
+    //|   add RA, RA, #offsetof(GCfuncL, uvptr)
+    //|  ldr UPVAL:CARG2, [LFUNC:CARG2, RA]
+    //|   mvn RC, RC
+    //|  ldr CARG2, UPVAL:CARG2->v
+    //|   ins_next1
+    //|   ins_next2
+    //|  str RC, [CARG2, #4]
+    //|   ins_next3
     dasm_put(Dst, 4398, offsetof(GCfuncL, uvptr), DtA(->v));
+# 2959 "buildvm_arm.dasc"
     break;
 
   case BC_UCLO:
+    //|  // RA = level*8, RC = target
+    //|  ldr CARG3, L->openupval
+    //|   add RC, PC, RC, lsl #2
+    //|   str BASE, L->base
+    //|  cmp CARG3, #0
+    //|   sub PC, RC, #0x20000
+    //|  beq >1
+    //|   mov CARG1, L
+    //|   add CARG2, BASE, RA
+    //|  bl extern lj_func_closeuv	// (lua_State *L, TValue *level)
+    //|  ldr BASE, L->base
+    //|1:
+    //|  ins_next
     dasm_put(Dst, 4414, Dt1(->openupval), Dt1(->base), Dt1(->base));
+# 2975 "buildvm_arm.dasc"
     break;
 
   case BC_FNEW:
+    //|  // RA = dst*8, RC = proto_const (~) (holding function prototype)
+    //|  mvn RC, RC
+    //|   str BASE, L->base
+    //|  ldr CARG2, [KBASE, RC, lsl #2]
+    //|   str PC, SAVE_PC
+    //|  ldr CARG3, [BASE, FRAME_FUNC]
+    //|   mov CARG1, L
+    //|  // (lua_State *L, GCproto *pt, GCfuncL *parent)
+    //|  bl extern lj_func_newL_gc
+    //|  // Returns GCfuncL *.
+    //|  ldr BASE, L->base
+    //|  mvn CARG2, #~LJ_TFUNC
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
     dasm_put(Dst, 4437, Dt1(->base), Dt1(->base), ~LJ_TFUNC);
+# 2994 "buildvm_arm.dasc"
     break;
 
   /* -- Table ops --------------------------------------------------------- */
 
   case BC_TNEW:
   case BC_TDUP:
+    //|  // RA = dst*8, RC = (hbits|asize) | tab_const (~)
     if (op == BC_TDUP) {
+      //|  mvn RC, RC
       dasm_put(Dst, 4458);
+# 3003 "buildvm_arm.dasc"
     }
+    //|  ldr CARG3, [DISPATCH, #DISPATCH_GL(gc.total)]
+    //|   ldr CARG4, [DISPATCH, #DISPATCH_GL(gc.threshold)]
+    //|    str BASE, L->base
+    //|    str PC, SAVE_PC
+    //|  cmp CARG3, CARG4
+    //|   mov CARG1, L
+    //|  bhs >5
+    //|1:
     dasm_put(Dst, 4460, DISPATCH_GL(gc.total), DISPATCH_GL(gc.threshold), Dt1(->base));
+# 3012 "buildvm_arm.dasc"
     if (op == BC_TNEW) {
+      //|  lsl CARG2, RC, #21
+      //|   lsr CARG3, RC, #11
+      //|  asr RC, CARG2, #21
+      //|  lsr CARG2, CARG2, #21
+      //|  cmn RC, #1
+      //|  addeq CARG2, CARG2, #2
+      //|  bl extern lj_tab_new  // (lua_State *L, int32_t asize, uint32_t hbits)
+      //|  // Returns GCtab *.
       dasm_put(Dst, 4473);
+# 3021 "buildvm_arm.dasc"
     } else {
+      //|  ldr CARG2, [KBASE, RC, lsl #2]
+      //|  bl extern lj_tab_dup  // (lua_State *L, Table *kt)
+      //|  // Returns GCtab *.
       dasm_put(Dst, 4482);
+# 3025 "buildvm_arm.dasc"
     }
+    //|  ldr BASE, L->base
+    //|  mvn CARG2, #~LJ_TTAB
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG12, [BASE, RA]
+    //|   ins_next3
+    //|5:
+    //|  bl extern lj_gc_step_fixtop  // (lua_State *L)
+    //|  mov CARG1, L
+    //|  b <1
     dasm_put(Dst, 4486, Dt1(->base), ~LJ_TTAB);
+# 3036 "buildvm_arm.dasc"
     break;
 
   case BC_GGET:
+    //|  // RA = dst*8, RC = str_const (~)
   case BC_GSET:
+    //|  // RA = dst*8, RC = str_const (~)
+    //|  ldr LFUNC:CARG2, [BASE, FRAME_FUNC]
+    //|   mvn RC, RC
+    //|  ldr TAB:CARG1, LFUNC:CARG2->env
+    //|   ldr STR:RC, [KBASE, RC, lsl #2]
     dasm_put(Dst, 4504, Dt7(->env));
+# 3046 "buildvm_arm.dasc"
     if (op == BC_GGET) {
+      //|  b ->BC_TGETS_Z
       dasm_put(Dst, 4510);
+# 3048 "buildvm_arm.dasc"
     } else {
+      //|  b ->BC_TSETS_Z
       dasm_put(Dst, 4513);
+# 3050 "buildvm_arm.dasc"
     }
     break;
 
   case BC_TGETV:
+    //|  decode_RB8 RB, INS
+    //|   decode_RC8 RC, INS
+    //|  // RA = dst*8, RB = table*8, RC = key*8
+    //|  ldrd TAB:CARG12, [BASE, RB]
+    //|   ldrd CARG34, [BASE, RC]
+    //|  checktab CARG2, ->vmeta_tgetv  // STALL: load CARG12.
+    //|   checktp CARG4, LJ_TISNUM	// Integer key?
+    //|  ldreq CARG4, TAB:CARG1->array
+    //|    ldreq CARG2, TAB:CARG1->asize
+    //|   bne >9
+    //|
+    //|  add CARG4, CARG4, CARG3, lsl #3
+    //|    cmp CARG3, CARG2		// In array part?
+    //|  ldrdlo CARG34, [CARG4]
+    //|    bhs ->vmeta_tgetv
+    //|   ins_next1  // Overwrites RB!
+    //|  checktp CARG4, LJ_TNIL
+    //|  beq >5
+    //|1:
+    //|   ins_next2
+    //|  strd CARG34, [BASE, RA]
+    //|   ins_next3
+    //|
+    //|5:  // Check for __index if table value is nil.
+    //|  ldr TAB:CARG2, TAB:CARG1->metatable
+    //|  cmp TAB:CARG2, #0
+    //|  beq <1				// No metatable: done.
+    //|  ldrb CARG2, TAB:CARG2->nomm
+    //|  tst CARG2, #1<<MM_index
+    //|  bne <1				// 'no __index' flag set: done.
+    //|  decode_RB8 RB, INS		// Restore RB.
+    //|  b ->vmeta_tgetv
+    //|
+    //|9:
+    //|  checktp CARG4, LJ_TSTR		// String key?
+    //|   moveq STR:RC, CARG3
+    //|  beq ->BC_TGETS_Z
+    //|  b ->vmeta_tgetv
     dasm_put(Dst, 4516, -LJ_TTAB, -LJ_TISNUM, Dt6(->array), Dt6(->asize), -LJ_TNIL, Dt6(->metatable), Dt6(->nomm), 1<<MM_index, -LJ_TSTR);
+# 3092 "buildvm_arm.dasc"
     break;
   case BC_TGETS:
+    //|  decode_RB8 RB, INS
+    //|   and RC, RC, #255
+    //|  // RA = dst*8, RB = table*8, RC = str_const (~)
+    //|  ldrd CARG12, [BASE, RB]
+    //|   mvn RC, RC
+    //|   ldr STR:RC, [KBASE, RC, lsl #2]  // STALL: early RC.
+    //|  checktab CARG2, ->vmeta_tgets1
+    //|->BC_TGETS_Z:
+    //|  // (TAB:RB =) TAB:CARG1 = GCtab *, STR:RC = GCstr *, RA = dst*8
+    //|  ldr CARG3, TAB:CARG1->hmask
+    //|   ldr CARG4, STR:RC->hash
+    //|    ldr NODE:INS, TAB:CARG1->node
+    //|     mov TAB:RB, TAB:CARG1
+    //|  and CARG3, CARG3, CARG4			// idx = str->hash & tab->hmask
+    //|  add CARG3, CARG3, CARG3, lsl #1
+    //|    add NODE:INS, NODE:INS, CARG3, lsl #3	// node = tab->node + idx*3*8
+    //|1:
+    //|  ldrd CARG12, NODE:INS->key  // STALL: early NODE:INS.
+    //|   ldrd CARG34, NODE:INS->val
+    //|    ldr NODE:INS, NODE:INS->next
+    //|  cmp CARG1, STR:RC
+    //|  checktpeq CARG2, LJ_TSTR
+    //|  bne >4
+    //|   checktp CARG4, LJ_TNIL
+    //|   beq >5
+    //|3:
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG34, [BASE, RA]
+    //|   ins_next3
+    //|
+    //|4:  // Follow hash chain.
+    //|  cmp NODE:INS, #0
+    //|  bne <1
+    //|  // End of hash chain: key not found, nil result.
+    //|
+    //|5:  // Check for __index if table value is nil.
+    //|  ldr TAB:CARG1, TAB:RB->metatable
+    //|   mov CARG3, #0  // Optional clear of undef. value (during load stall).
+    //|   mvn CARG4, #~LJ_TNIL
+    //|  cmp TAB:CARG1, #0
+    //|  beq <3				// No metatable: done.
+    //|  ldrb CARG2, TAB:CARG1->nomm
+    //|  tst CARG2, #1<<MM_index
     dasm_put(Dst, 4573, -LJ_TTAB, Dt6(->hmask), Dt5(->hash), Dt6(->node), DtB(->key), DtB(->val), DtB(->next), -LJ_TSTR, -LJ_TNIL, Dt6(->metatable), ~LJ_TNIL, Dt6(->nomm));
+# 3138 "buildvm_arm.dasc"
+    //|  bne <3				// 'no __index' flag set: done.
+    //|  b ->vmeta_tgets
     dasm_put(Dst, 4633, 1<<MM_index);
+# 3140 "buildvm_arm.dasc"
     break;
   case BC_TGETB:
+    //|  decode_RB8 RB, INS
+    //|   and RC, RC, #255
+    //|  // RA = dst*8, RB = table*8, RC = index
+    //|  ldrd CARG12, [BASE, RB]
+    //|  checktab CARG2, ->vmeta_tgetb  // STALL: load CARG12.
+    //|   ldr CARG3, TAB:CARG1->asize
+    //|  ldr CARG4, TAB:CARG1->array
+    //|  lsl CARG2, RC, #3
+    //|   cmp RC, CARG3
+    //|  ldrdlo CARG34, [CARG4, CARG2]
+    //|   bhs ->vmeta_tgetb
+    //|   ins_next1  // Overwrites RB!
+    //|  checktp CARG4, LJ_TNIL
+    //|  beq >5
+    //|1:
+    //|   ins_next2
+    //|  strd CARG34, [BASE, RA]
+    //|   ins_next3
+    //|
+    //|5:  // Check for __index if table value is nil.
+    //|  ldr TAB:CARG2, TAB:CARG1->metatable
+    //|  cmp TAB:CARG2, #0
+    //|  beq <1				// No metatable: done.
+    //|  ldrb CARG2, TAB:CARG2->nomm
+    //|  tst CARG2, #1<<MM_index
+    //|  bne <1				// 'no __index' flag set: done.
+    //|  b ->vmeta_tgetb
     dasm_put(Dst, 4640, -LJ_TTAB, Dt6(->asize), Dt6(->array), -LJ_TNIL, Dt6(->metatable), Dt6(->nomm), 1<<MM_index);
+# 3169 "buildvm_arm.dasc"
     break;
 
   case BC_TSETV:
+    //|  decode_RB8 RB, INS
+    //|   decode_RC8 RC, INS
+    //|  // RA = src*8, RB = table*8, RC = key*8
+    //|  ldrd TAB:CARG12, [BASE, RB]
+    //|   ldrd CARG34, [BASE, RC]
+    //|  checktab CARG2, ->vmeta_tsetv  // STALL: load CARG12.
+    //|   checktp CARG4, LJ_TISNUM	// Integer key?
+    //|  ldreq CARG2, TAB:CARG1->array
+    //|    ldreq CARG4, TAB:CARG1->asize
+    //|   bne >9
+    //|
+    //|  add CARG2, CARG2, CARG3, lsl #3
+    //|    cmp CARG3, CARG4		// In array part?
+    //|  ldrlo INS, [CARG2, #4]
+    //|    bhs ->vmeta_tsetv
+    //|   ins_next1  // Overwrites RB!
+    //|  checktp INS, LJ_TNIL
+    //|  ldrb INS, TAB:CARG1->marked
+    //|   ldrd CARG34, [BASE, RA]
+    //|  beq >5
+    //|1:
+    //|  tst INS, #LJ_GC_BLACK		// isblack(table)
+    //|   strd CARG34, [CARG2]
+    //|  bne >7
+    //|2:
+    //|   ins_next2
+    //|   ins_next3
+    //|
+    //|5:  // Check for __newindex if previous value is nil.
+    //|  ldr TAB:RA, TAB:CARG1->metatable
+    //|  cmp TAB:RA, #0
+    //|  beq <1				// No metatable: done.
+    //|  ldrb RA, TAB:RA->nomm
+    //|  tst RA, #1<<MM_newindex
+    //|  bne <1				// 'no __newindex' flag set: done.
+    //|  ldr INS, [PC, #-4]		// Restore RA and RB.
+    //|  decode_RB8 RB, INS
+    //|  decode_RA8 RA, INS
+    //|  b ->vmeta_tsetv
+    //|
+    //|7:  // Possible table write barrier for the value. Skip valiswhite check.
+    //|  barrierback TAB:CARG1, INS, CARG3
     dasm_put(Dst, 4683, -LJ_TTAB, -LJ_TISNUM, Dt6(->array), Dt6(->asize), -LJ_TNIL, Dt6(->marked), LJ_GC_BLACK, Dt6(->metatable), Dt6(->nomm), 1<<MM_newindex);
+# 3214 "buildvm_arm.dasc"
+    //|  b <2
+    //|
+    //|9:
+    //|  checktp CARG4, LJ_TSTR		// String key?
+    //|   moveq STR:RC, CARG3
+    //|  beq ->BC_TSETS_Z
+    //|  b ->vmeta_tsetv
     dasm_put(Dst, 4743, DISPATCH_GL(gc.grayagain), LJ_GC_BLACK, DISPATCH_GL(gc.grayagain), Dt6(->marked), Dt6(->gclist), -LJ_TSTR);
+# 3221 "buildvm_arm.dasc"
     break;
   case BC_TSETS:
+    //|  decode_RB8 RB, INS
+    //|   and RC, RC, #255
+    //|  // RA = src*8, RB = table*8, RC = str_const (~)
+    //|  ldrd CARG12, [BASE, RB]
+    //|   mvn RC, RC
+    //|   ldr STR:RC, [KBASE, RC, lsl #2]  // STALL: early RC.
+    //|  checktab CARG2, ->vmeta_tsets1
+    //|->BC_TSETS_Z:
+    //|  // (TAB:RB =) TAB:CARG1 = GCtab *, STR:RC = GCstr *, RA = dst*8
+    //|  ldr CARG3, TAB:CARG1->hmask
+    //|   ldr CARG4, STR:RC->hash
+    //|    ldr NODE:INS, TAB:CARG1->node
+    //|     mov TAB:RB, TAB:CARG1
+    //|  and CARG3, CARG3, CARG4			// idx = str->hash & tab->hmask
+    //|  add CARG3, CARG3, CARG3, lsl #1
+    //|   mov CARG4, #0
+    //|    add NODE:INS, NODE:INS, CARG3, lsl #3	// node = tab->node + idx*3*8
+    //|   strb CARG4, TAB:RB->nomm		// Clear metamethod cache.
+    //|1:
+    //|  ldrd CARG12, NODE:INS->key
+    //|   ldr CARG4, NODE:INS->val.it
+    //|    ldr NODE:CARG3, NODE:INS->next
+    //|  cmp CARG1, STR:RC
+    //|  checktpeq CARG2, LJ_TSTR
+    //|  bne >5
+    //|  ldrb CARG2, TAB:RB->marked
+    //|   checktp CARG4, LJ_TNIL		// Key found, but nil value?
+    //|    ldrd CARG34, [BASE, RA]
+    //|   beq >4
+    //|2:
+    //|  tst CARG2, #LJ_GC_BLACK		// isblack(table)
+    //|    strd CARG34, NODE:INS->val
+    //|  bne >7
+    //|3:
+    //|   ins_next
+    //|
+    //|4:  // Check for __newindex if previous value is nil.
+    //|  ldr TAB:CARG1, TAB:RB->metatable
     dasm_put(Dst, 4764, -LJ_TTAB, Dt6(->hmask), Dt5(->hash), Dt6(->node), Dt6(->nomm), DtB(->key), DtB(->val.it), DtB(->next), -LJ_TSTR, Dt6(->marked), -LJ_TNIL, LJ_GC_BLACK, DtB(->val));
+# 3261 "buildvm_arm.dasc"
+    //|  cmp TAB:CARG1, #0
+    //|  beq <2				// No metatable: done.
+    //|  ldrb CARG1, TAB:CARG1->nomm
+    //|  tst CARG1, #1<<MM_newindex
+    //|  bne <2				// 'no __newindex' flag set: done.
+    //|  b ->vmeta_tsets
+    //|
+    //|5:  // Follow hash chain.
+    //|  movs NODE:INS, NODE:CARG3
+    //|  bne <1
+    //|  // End of hash chain: key not found, add a new one.
+    //|
+    //|  // But check for __newindex first.
+    //|  ldr TAB:CARG1, TAB:RB->metatable
+    //|   mov CARG3, TMPDp
+    //|   str PC, SAVE_PC
+    //|  cmp TAB:CARG1, #0		// No metatable: continue.
+    //|   str BASE, L->base
+    //|  ldrbne CARG2, TAB:CARG1->nomm
+    //|   mov CARG1, L
+    //|  beq >6
+    //|  tst CARG2, #1<<MM_newindex
+    //|  beq ->vmeta_tsets		// 'no __newindex' flag NOT set: check.
+    //|6:
+    //|  mvn CARG4, #~LJ_TSTR
+    //|   str STR:RC, TMPDlo
+    //|   mov CARG2, TAB:RB
+    //|  str CARG4, TMPDhi
+    //|  bl extern lj_tab_newkey		// (lua_State *L, GCtab *t, TValue *k)
+    //|  // Returns TValue *.
+    //|  ldr BASE, L->base
+    //|  ldrd CARG34, [BASE, RA]
+    //|  strd CARG34, [CRET1]
+    //|  b <3				// No 2nd write barrier needed.
+    //|
+    //|7:  // Possible table write barrier for the value. Skip valiswhite check.
+    //|  barrierback TAB:RB, CARG2, CARG3
     dasm_put(Dst, 4822, Dt6(->metatable), Dt6(->nomm), 1<<MM_newindex, Dt6(->metatable), Dt1(->base), Dt6(->nomm), 1<<MM_newindex, ~LJ_TSTR, Dt1(->base), DISPATCH_GL(gc.grayagain), LJ_GC_BLACK);
+# 3298 "buildvm_arm.dasc"
+    //|  b <3
     dasm_put(Dst, 4875, DISPATCH_GL(gc.grayagain), Dt6(->marked), Dt6(->gclist));
+# 3299 "buildvm_arm.dasc"
     break;
   case BC_TSETB:
+    //|  decode_RB8 RB, INS
+    //|   and RC, RC, #255
+    //|  // RA = src*8, RB = table*8, RC = index
+    //|  ldrd CARG12, [BASE, RB]
+    //|  checktab CARG2, ->vmeta_tsetb  // STALL: load CARG12.
+    //|   ldr CARG3, TAB:CARG1->asize
+    //|  ldr RB, TAB:CARG1->array
+    //|  lsl CARG2, RC, #3
+    //|   cmp RC, CARG3
+    //|  ldrdlo CARG34, [CARG2, RB]!
+    //|   bhs ->vmeta_tsetb
+    //|   ins_next1  // Overwrites RB!
+    //|  checktp CARG4, LJ_TNIL
+    //|  ldrb INS, TAB:CARG1->marked
+    //|   ldrd CARG34, [BASE, RA]
+    //|  beq >5
+    //|1:
+    //|  tst INS, #LJ_GC_BLACK		// isblack(table)
+    //|    strd CARG34, [CARG2]
+    //|  bne >7
+    //|2:
+    //|   ins_next2
+    //|   ins_next3
+    //|
+    //|5:  // Check for __newindex if previous value is nil.
+    //|  ldr TAB:RA, TAB:CARG1->metatable
+    //|  cmp TAB:RA, #0
+    //|  beq <1				// No metatable: done.
+    //|  ldrb RA, TAB:RA->nomm
+    //|  tst RA, #1<<MM_newindex
+    //|  bne <1				// 'no __newindex' flag set: done.
+    //|  ldr INS, [PC, #-4]		// Restore INS.
+    //|  decode_RA8 RA, INS
+    //|  b ->vmeta_tsetb
+    //|
+    //|7:  // Possible table write barrier for the value. Skip valiswhite check.
+    //|  barrierback TAB:CARG1, INS, CARG3
     dasm_put(Dst, 4884, -LJ_TTAB, Dt6(->asize), Dt6(->array), -LJ_TNIL, Dt6(->marked), LJ_GC_BLACK, Dt6(->metatable), Dt6(->nomm), 1<<MM_newindex, DISPATCH_GL(gc.grayagain), LJ_GC_BLACK);
+# 3338 "buildvm_arm.dasc"
+    //|  b <2
     dasm_put(Dst, 4942, DISPATCH_GL(gc.grayagain), Dt6(->marked), Dt6(->gclist));
+# 3339 "buildvm_arm.dasc"
     break;
 
   case BC_TSETM:
+    //|  // RA = base*8 (table at base-1), RC = num_const (start index)
+    //|  add RA, BASE, RA
+    //|1:
+    //|   ldr RB, SAVE_MULTRES
+    //|  ldr TAB:CARG2, [RA, #-8]		// Guaranteed to be a table.
+    //|  ldr CARG1, [KBASE, RC, lsl #3]	// Integer constant is in lo-word.
+    //|   subs RB, RB, #8
+    //|  ldr CARG4, TAB:CARG2->asize
+    //|   beq >4				// Nothing to copy?
+    //|  add CARG3, CARG1, RB, lsr #3
+    //|  cmp CARG3, CARG4
+    //|   ldr CARG4, TAB:CARG2->array
+    //|    add RB, RA, RB
+    //|  bhi >5
+    //|   add INS, CARG4, CARG1, lsl #3
+    //|    ldrb CARG1, TAB:CARG2->marked
+    //|3:  // Copy result slots to table.
+    //|   ldrd CARG34, [RA], #8
+    //|   strd CARG34, [INS], #8
+    //|  cmp RA, RB
+    //|  blo <3
+    //|    tst CARG1, #LJ_GC_BLACK	// isblack(table)
+    //|    bne >7
+    //|4:
+    //|  ins_next
+    //|
+    //|5:  // Need to resize array part.
+    //|   str BASE, L->base
+    //|  mov CARG1, L
+    //|   str PC, SAVE_PC
+    //|  bl extern lj_tab_reasize         // (lua_State *L, GCtab *t, int nasize)
+    //|  // Must not reallocate the stack.
+    //|  IOS ldr BASE, L->base
     dasm_put(Dst, 4951, Dt6(->asize), Dt6(->array), Dt6(->marked), LJ_GC_BLACK, Dt1(->base));
     if (LJ_TARGET_OSX) {
     dasm_put(Dst, 4996, Dt1(->base));
     }
+# 3375 "buildvm_arm.dasc"
+    //|  b <1
+    //|
+    //|7:  // Possible table write barrier for any value. Skip valiswhite check.
+    //|  barrierback TAB:CARG2, CARG1, CARG3
+    //|  b <4
     dasm_put(Dst, 4999, DISPATCH_GL(gc.grayagain), LJ_GC_BLACK, DISPATCH_GL(gc.grayagain), Dt6(->marked), Dt6(->gclist));
+# 3380 "buildvm_arm.dasc"
     break;
 
   /* -- Calls and vararg handling ----------------------------------------- */
 
   case BC_CALLM:
+    //|  // RA = base*8, (RB = nresults+1,) RC = extra_nargs
+    //|  ldr CARG1, SAVE_MULTRES
+    //|  decode_RC8 NARGS8:RC, INS
+    //|  add NARGS8:RC, NARGS8:RC, CARG1
+    //|  b ->BC_CALL_Z
     dasm_put(Dst, 5015);
+# 3390 "buildvm_arm.dasc"
     break;
   case BC_CALL:
+    //|  decode_RC8 NARGS8:RC, INS
+    //|  // RA = base*8, (RB = nresults+1,) RC = (nargs+1)*8
+    //|->BC_CALL_Z:
+    //|  mov RB, BASE			// Save old BASE for vmeta_call.
+    //|  ldrd CARG34, [BASE, RA]!
+    //|   sub NARGS8:RC, NARGS8:RC, #8
+    //|   add BASE, BASE, #8
+    //|  checkfunc CARG4, ->vmeta_call
+    //|  ins_call
     dasm_put(Dst, 5021, -LJ_TFUNC, Dt7(->field_pc));
+# 3401 "buildvm_arm.dasc"
     break;
 
   case BC_CALLMT:
+    //|  // RA = base*8, (RB = 0,) RC = extra_nargs
+    //|  ldr CARG1, SAVE_MULTRES
+    //|  add NARGS8:RC, CARG1, RC, lsl #3
+    //|  b ->BC_CALLT1_Z
     dasm_put(Dst, 5041);
+# 3408 "buildvm_arm.dasc"
     break;
   case BC_CALLT:
+    //|  lsl NARGS8:RC, RC, #3
+    //|  // RA = base*8, (RB = 0,) RC = (nargs+1)*8
+    //|->BC_CALLT1_Z:
+    //|  ldrd LFUNC:CARG34, [RA, BASE]!
+    //|   sub NARGS8:RC, NARGS8:RC, #8
+    //|   add RA, RA, #8
+    //|  checkfunc CARG4, ->vmeta_callt
+    //|  ldr PC, [BASE, FRAME_PC]
+    //|->BC_CALLT2_Z:
+    //|   mov RB, #0
+    //|   ldrb CARG4, LFUNC:CARG3->ffid
+    //|  tst PC, #FRAME_TYPE
+    //|  bne >7
+    //|1:
+    //|  str LFUNC:CARG3, [BASE, FRAME_FUNC]  // Copy function down, but keep PC.
+    //|  cmp NARGS8:RC, #0
+    //|  beq >3
+    //|2:
+    //|  ldrd CARG12, [RA, RB]
+    //|   add INS, RB, #8
+    //|   cmp INS, NARGS8:RC
+    //|  strd CARG12, [BASE, RB]
+    //|    mov RB, INS
+    //|   bne <2
+    //|3:
+    //|  cmp CARG4, #1			// (> FF_C) Calling a fast function?
+    //|  bhi >5
+    //|4:
+    //|  ins_callt
+    //|
+    //|5:  // Tailcall to a fast function with a Lua frame below.
+    //|  ldr INS, [PC, #-4]
+    //|  decode_RA8 RA, INS
+    //|  sub CARG1, BASE, RA
+    //|  ldr LFUNC:CARG1, [CARG1, #-16]
+    //|  ldr CARG1, LFUNC:CARG1->field_pc
+    //|  ldr KBASE, [CARG1, #PC2PROTO(k)]
+    //|  b <4
+    //|
+    //|7:  // Tailcall from a vararg function.
+    //|  eor PC, PC, #FRAME_VARG
+    //|  tst PC, #FRAME_TYPEP		// Vararg frame below?
+    //|  movne CARG4, #0			// Clear ffid if no Lua function below.
     dasm_put(Dst, 5046, -LJ_TFUNC, Dt7(->ffid), FRAME_TYPE, Dt7(->field_pc), Dt7(->field_pc), PC2PROTO(k), FRAME_VARG, FRAME_TYPEP);
+# 3453 "buildvm_arm.dasc"
+    //|  bne <1
+    //|  sub BASE, BASE, PC
+    //|  ldr PC, [BASE, FRAME_PC]
+    //|  tst PC, #FRAME_TYPE
+    //|  movne CARG4, #0			// Clear ffid if no Lua function below.
+    //|  b <1
     dasm_put(Dst, 5107, FRAME_TYPE);
+# 3459 "buildvm_arm.dasc"
     break;
 
   case BC_ITERC:
+    //|  // RA = base*8, (RB = nresults+1, RC = nargs+1 (2+1))
+    //|  add RA, BASE, RA
+    //|   mov RB, BASE			// Save old BASE for vmeta_call.
+    //|  ldrd CARG34, [RA, #-16]
+    //|   ldrd CARG12, [RA, #-8]
+    //|    add BASE, RA, #8
+    //|  strd CARG34, [RA, #8]		// Copy state.
+    //|   strd CARG12, [RA, #16]		// Copy control var.
+    //|  // STALL: locked CARG34.
+    //|  ldrd LFUNC:CARG34, [RA, #-24]
+    //|    mov NARGS8:RC, #16		// Iterators get 2 arguments.
+    //|  // STALL: load CARG34.
+    //|  strd LFUNC:CARG34, [RA]		// Copy callable.
+    //|  checkfunc CARG4, ->vmeta_call
+    //|  ins_call
     dasm_put(Dst, 5118, -LJ_TFUNC, Dt7(->field_pc));
+# 3477 "buildvm_arm.dasc"
     break;
 
   case BC_ITERN:
+    //|  // RA = base*8, (RB = nresults+1, RC = nargs+1 (2+1))
 #if LJ_HASJIT
+    //|  // NYI: add hotloop, record BC_ITERN.
 #endif
+    //|  add RA, BASE, RA
+    //|  ldr TAB:RB, [RA, #-16]
+    //|  ldr CARG1, [RA, #-8]		// Get index from control var.
+    //|  ldr INS, TAB:RB->asize
+    //|   ldr CARG2, TAB:RB->array
+    //|    add PC, PC, #4
+    //|1:  // Traverse array part.
+    //|  subs RC, CARG1, INS
+    //|   add CARG3, CARG2, CARG1, lsl #3
+    //|  bhs >5				// Index points after array part?
+    //|   ldrd CARG34, [CARG3]
+    //|   checktp CARG4, LJ_TNIL
+    //|   addeq CARG1, CARG1, #1		// Skip holes in array part.
+    //|   beq <1
+    //|  ldrh RC, [PC, #-2]
+    //|   mvn CARG2, #~LJ_TISNUM
+    //|    strd CARG34, [RA, #8]
+    //|  add RC, PC, RC, lsl #2
+    //|    add RB, CARG1, #1
+    //|   strd CARG12, [RA]
+    //|  sub PC, RC, #0x20000
+    //|    str RB, [RA, #-8]		// Update control var.
+    //|3:
+    //|  ins_next
+    //|
+    //|5:  // Traverse hash part.
+    //|  ldr CARG4, TAB:RB->hmask
+    //|   ldr NODE:RB, TAB:RB->node
+    //|6:
+    //|   add CARG1, RC, RC, lsl #1
+    //|  cmp RC, CARG4			// End of iteration? Branch to ITERL+1.
+    //|   add NODE:CARG3, NODE:RB, CARG1, lsl #3  // node = tab->node + idx*3*8
+    //|  bhi <3
+    //|   ldrd CARG12, NODE:CARG3->val
+    //|   checktp CARG2, LJ_TNIL
+    //|   add RC, RC, #1
+    //|   beq <6				// Skip holes in hash part.
+    //|  ldrh RB, [PC, #-2]
+    //|   add RC, RC, INS
+    //|    ldrd CARG34, NODE:CARG3->key
+    //|   str RC, [RA, #-8]		// Update control var.
+    //|   strd CARG12, [RA, #8]
+    //|  add RC, PC, RB, lsl #2
+    //|  sub PC, RC, #0x20000
+    //|    strd CARG34, [RA]
+    //|  b <3
     dasm_put(Dst, 5142, Dt6(->asize), Dt6(->array), -LJ_TNIL, ~LJ_TISNUM, Dt6(->hmask), Dt6(->node), DtB(->val), -LJ_TNIL, DtB(->key));
+# 3530 "buildvm_arm.dasc"
     break;
 
   case BC_ISNEXT:
+    //|  // RA = base*8, RC = target (points to ITERN)
+    //|  add RA, BASE, RA
+    //|     add RC, PC, RC, lsl #2
+    //|  ldrd CFUNC:CARG12, [RA, #-24]
+    //|   ldr CARG3, [RA, #-12]
+    //|    ldr CARG4, [RA, #-4]
+    //|  checktp CARG2, LJ_TFUNC
+    //|  ldrbeq CARG1, CFUNC:CARG1->ffid
+    //|   checktpeq CARG3, LJ_TTAB
+    //|    checktpeq CARG4, LJ_TNIL
+    //|  cmpeq CARG1, #FF_next_N
+    //|     subeq PC, RC, #0x20000
+    //|  bne >5
+    //|   ins_next1
+    //|   ins_next2
+    //|  mov CARG1, #0
+    //|  str CARG1, [RA, #-8]		// Initialize control var.
+    //|1:
+    //|   ins_next3
+    //|5:  // Despecialize bytecode if any of the checks fail.
+    //|  mov CARG1, #BC_JMP
+    //|   mov OP, #BC_ITERC
+    //|  strb CARG1, [PC, #-4]
+    //|   sub PC, RC, #0x20000
+    //|   strb OP, [PC]			// Subsumes ins_next1.
+    //|   ins_next2
+    //|  b <1
     dasm_put(Dst, 5207, -LJ_TFUNC, Dt8(->ffid), -LJ_TTAB, -LJ_TNIL, FF_next_N, BC_JMP, BC_ITERC);
+# 3560 "buildvm_arm.dasc"
     break;
 
   case BC_VARG:
+    //|  decode_RB8 RB, INS
+    //|   decode_RC8 RC, INS
+    //|  // RA = base*8, RB = (nresults+1)*8, RC = numparams*8
+    //|  ldr CARG1, [BASE, FRAME_PC]
+    //|  add RC, BASE, RC
+    //|   add RA, BASE, RA
+    //|  add RC, RC, #FRAME_VARG
+    //|   add CARG4, RA, RB
+    //|  sub CARG3, BASE, #8		// CARG3 = vtop
+    //|  sub RC, RC, CARG1		// RC = vbase
+    //|  // Note: RC may now be even _above_ BASE if nargs was < numparams.
+    //|  cmp RB, #0
+    //|   sub CARG1, CARG3, RC
+    //|  beq >5				// Copy all varargs?
+    //|   sub CARG4, CARG4, #16
+    //|1:  // Copy vararg slots to destination slots.
+    //|  cmp RC, CARG3
+    //|  ldrdlo CARG12, [RC], #8
+    //|  mvnhs CARG2, #~LJ_TNIL
+    //|   cmp RA, CARG4
+    //|  strd CARG12, [RA], #8
+    //|   blo <1
+    //|2:
+    //|  ins_next
+    //|
+    //|5:  // Copy all varargs.
+    //|  ldr CARG4, L->maxstack
+    //|   cmp CARG1, #0
+    //|   movle RB, #8			// MULTRES = (0+1)*8
+    //|   addgt RB, CARG1, #8
+    //|  add CARG2, RA, CARG1
+    //|   str RB, SAVE_MULTRES
+    //|   ble <2
+    //|  cmp CARG2, CARG4
+    //|  bhi >7
+    //|6:
+    //|   ldrd CARG12, [RC], #8
+    //|   strd CARG12, [RA], #8
+    //|  cmp RC, CARG3
+    //|  blo <6
+    //|  b <2
+    //|
+    //|7:  // Grow stack for varargs.
+    //|  lsr CARG2, CARG1, #3
+    //|   str RA, L->top
+    //|  mov CARG1, L
+    //|   str BASE, L->base
+    //|  sub RC, RC, BASE			// Need delta, because BASE may change.
+    //|   str PC, SAVE_PC
+    //|  sub RA, RA, BASE
+    //|  bl extern lj_state_growstack	// (lua_State *L, int n)
+    //|  ldr BASE, L->base
+    //|  add RA, BASE, RA
+    //|  add RC, BASE, RC
+    //|  sub CARG3, BASE, #8
+    //|  b <6
     dasm_put(Dst, 5246, FRAME_VARG, ~LJ_TNIL, Dt1(->maxstack), Dt1(->top), Dt1(->base), Dt1(->base));
+# 3619 "buildvm_arm.dasc"
     break;
 
   /* -- Returns ----------------------------------------------------------- */
 
   case BC_RETM:
+    //|  // RA = results*8, RC = extra results
+    //|  ldr CARG1, SAVE_MULTRES
+    //|   ldr PC, [BASE, FRAME_PC]
+    //|    add RA, BASE, RA
+    //|  add RC, CARG1, RC, lsl #3
+    //|  b ->BC_RETM_Z
     dasm_put(Dst, 5318);
+# 3630 "buildvm_arm.dasc"
     break;
 
   case BC_RET:
+    //|  // RA = results*8, RC = nresults+1
+    //|  ldr PC, [BASE, FRAME_PC]
+    //|   lsl RC, RC, #3
+    //|    add RA, BASE, RA
+    //|->BC_RETM_Z:
+    //|   str RC, SAVE_MULTRES
+    //|1:
+    //|  ands CARG1, PC, #FRAME_TYPE
+    //|   eor CARG2, PC, #FRAME_VARG
+    //|  bne ->BC_RETV2_Z
+    //|
+    //|->BC_RET_Z:
+    //|  // BASE = base, RA = resultptr, RC = (nresults+1)*8, PC = return
+    //|  ldr INS, [PC, #-4]
+    //|  subs CARG4, RC, #8
+    //|   sub CARG3, BASE, #8
+    //|  beq >3
+    //|2:
+    //|  ldrd CARG12, [RA], #8
+    //|   add BASE, BASE, #8
+    //|   subs CARG4, CARG4, #8
+    //|  strd CARG12, [BASE, #-16]
+    //|   bne <2
+    //|3:
+    //|  decode_RA8 RA, INS
+    //|  sub CARG4, CARG3, RA
+    //|   decode_RB8 RB, INS
+    //|  ldr LFUNC:CARG1, [CARG4, FRAME_FUNC]
+    //|5:
+    //|  cmp RB, RC			// More results expected?
+    //|  bhi >6
+    //|  mov BASE, CARG4
+    //|  ldr CARG2, LFUNC:CARG1->field_pc
+    //|   ins_next1
+    //|   ins_next2
+    //|  ldr KBASE, [CARG2, #PC2PROTO(k)]
+    //|   ins_next3
+    //|
+    //|6:  // Fill up results with nil.
+    //|  mvn CARG2, #~LJ_TNIL
+    //|  add BASE, BASE, #8
+    //|   add RC, RC, #8
+    //|  str CARG2, [BASE, #-12]
+    //|  b <5
+    //|
+    //|->BC_RETV1_Z:  // Non-standard return case.
+    //|  add RA, BASE, RA
+    //|->BC_RETV2_Z:
+    //|  tst CARG2, #FRAME_TYPEP
+    //|  bne ->vm_return
+    //|  // Return from vararg function: relocate BASE down.
+    //|  sub BASE, BASE, CARG2
+    //|  ldr PC, [BASE, FRAME_PC]
+    //|  b <1
     dasm_put(Dst, 5325, FRAME_TYPE, FRAME_VARG, Dt7(->field_pc), PC2PROTO(k), ~LJ_TNIL, FRAME_TYPEP);
+# 3687 "buildvm_arm.dasc"
     break;
 
   case BC_RET0: case BC_RET1:
+    //|  // RA = results*8, RC = nresults+1
+    //|  ldr PC, [BASE, FRAME_PC]
+    //|   lsl RC, RC, #3
+    //|   str RC, SAVE_MULTRES
+    //|  ands CARG1, PC, #FRAME_TYPE
+    //|   eor CARG2, PC, #FRAME_VARG
+    //|   ldreq INS, [PC, #-4]
+    //|  bne ->BC_RETV1_Z
     dasm_put(Dst, 5390, FRAME_TYPE, FRAME_VARG);
+# 3698 "buildvm_arm.dasc"
     if (op == BC_RET1) {
+      //|  ldrd CARG12, [BASE, RA]
       dasm_put(Dst, 5401);
+# 3700 "buildvm_arm.dasc"
     }
+    //|  sub CARG4, BASE, #8
+    //|   decode_RA8 RA, INS
     dasm_put(Dst, 5403);
+# 3703 "buildvm_arm.dasc"
     if (op == BC_RET1) {
+      //|  strd CARG12, [CARG4]
       dasm_put(Dst, 5406);
+# 3705 "buildvm_arm.dasc"
     }
+    //|  sub BASE, CARG4, RA
+    //|   decode_RB8 RB, INS
+    //|  ldr LFUNC:CARG1, [BASE, FRAME_FUNC]
+    //|5:
+    //|  cmp RB, RC
+    //|  bhi >6
+    //|  ldr CARG2, LFUNC:CARG1->field_pc
+    //|   ins_next1
+    //|   ins_next2
+    //|  ldr KBASE, [CARG2, #PC2PROTO(k)]
+    //|   ins_next3
+    //|
+    //|6:  // Fill up results with nil.
+    //|  sub CARG2, CARG4, #4
+    //|  mvn CARG3, #~LJ_TNIL
+    //|  str CARG3, [CARG2, RC]
+    //|  add RC, RC, #8
+    //|  b <5
     dasm_put(Dst, 5408, Dt7(->field_pc), PC2PROTO(k), ~LJ_TNIL);
+# 3724 "buildvm_arm.dasc"
     break;
 
   /* -- Loops and branches ------------------------------------------------ */
 
+  //|.define FOR_IDX,  [RA];      .define FOR_TIDX,  [RA, #4]
+  //|.define FOR_STOP, [RA, #8];  .define FOR_TSTOP, [RA, #12]
+  //|.define FOR_STEP, [RA, #16]; .define FOR_TSTEP, [RA, #20]
+  //|.define FOR_EXT,  [RA, #24]; .define FOR_TEXT,  [RA, #28]
 
   case BC_FORL:
 #if LJ_HASJIT
+    //|  hotloop
     dasm_put(Dst, 5434, -GG_DISP2HOT, HOTCOUNT_LOOP);
+# 3736 "buildvm_arm.dasc"
 #endif
+    //|  // Fall through. Assumes BC_IFORL follows.
     break;
 
   case BC_JFORI:
@@ -7250,70 +10933,178 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
 #endif
   case BC_FORI:
   case BC_IFORL:
+    //|  // RA = base*8, RC = target (after end of loop or start of loop)
     vk = (op == BC_IFORL || op == BC_JFORL);
+    //|  ldrd CARG12, [RA, BASE]!
     dasm_put(Dst, 5445);
+# 3750 "buildvm_arm.dasc"
     if (op != BC_JFORL) {
+      //|   add RC, PC, RC, lsl #2
       dasm_put(Dst, 5447);
+# 3752 "buildvm_arm.dasc"
     }
     if (!vk) {
+      //|  ldrd CARG34, FOR_STOP
+      //|   checktp CARG2, LJ_TISNUM
+      //|  ldr RB, FOR_TSTEP
+      //|   bne >5
+      //|  checktp CARG4, LJ_TISNUM
+      //|   ldr CARG4, FOR_STEP
+      //|  checktpeq RB, LJ_TISNUM
+      //|  bne ->vmeta_for
+      //|  cmp CARG4, #0
+      //|  blt >4
+      //|  cmp CARG1, CARG3
       dasm_put(Dst, 5449, -LJ_TISNUM, -LJ_TISNUM, -LJ_TISNUM);
+# 3765 "buildvm_arm.dasc"
     } else {
+      //|  ldrd CARG34, FOR_STEP
+      //|   checktp CARG2, LJ_TISNUM
+      //|   bne >5
+      //|  adds CARG1, CARG1, CARG3
+      //|   ldr CARG4, FOR_STOP
       dasm_put(Dst, 5467, -LJ_TISNUM);
+# 3771 "buildvm_arm.dasc"
       if (op == BC_IFORL) {
+	//|  addvs RC, PC, #0x20000		// Overflow: prevent branch.
 	dasm_put(Dst, 5475);
+# 3773 "buildvm_arm.dasc"
       } else {
+	//|  bvs >2				// Overflow: do not enter mcode.
 	dasm_put(Dst, 5477);
+# 3775 "buildvm_arm.dasc"
       }
+      //|  cmp CARG3, #0
+      //|  blt >4
+      //|  cmp CARG1, CARG4
       dasm_put(Dst, 5480);
+# 3779 "buildvm_arm.dasc"
     }
+    //|1:
     dasm_put(Dst, 5485);
+# 3781 "buildvm_arm.dasc"
     if (op == BC_FORI) {
+      //|  subgt PC, RC, #0x20000
       dasm_put(Dst, 5487);
+# 3783 "buildvm_arm.dasc"
     } else if (op == BC_JFORI) {
+      //|  sub PC, RC, #0x20000
+      //|  ldrhle RC, [PC, #-2]
       dasm_put(Dst, 5489);
+# 3786 "buildvm_arm.dasc"
     } else if (op == BC_IFORL) {
+      //|  suble PC, RC, #0x20000
       dasm_put(Dst, 5492);
+# 3788 "buildvm_arm.dasc"
     }
     if (vk) {
+      //|  strd CARG12, FOR_IDX
       dasm_put(Dst, 5494);
+# 3791 "buildvm_arm.dasc"
     }
+    //|2:
+    //|   ins_next1
+    //|   ins_next2
+    //|  strd CARG12, FOR_EXT
     dasm_put(Dst, 5496);
+# 3796 "buildvm_arm.dasc"
     if (op == BC_JFORI || op == BC_JFORL) {
+      //|  ble =>BC_JLOOP
       dasm_put(Dst, 5501, BC_JLOOP);
+# 3798 "buildvm_arm.dasc"
     }
+    //|3:
+    //|   ins_next3
+    //|
+    //|4:  // Invert check for negative step.
     dasm_put(Dst, 5504);
+# 3803 "buildvm_arm.dasc"
     if (!vk) {
+      //|  cmp CARG3, CARG1
       dasm_put(Dst, 5511);
+# 3805 "buildvm_arm.dasc"
     } else {
+      //|  cmp CARG4, CARG1
       dasm_put(Dst, 5513);
+# 3807 "buildvm_arm.dasc"
     }
+    //|  b <1
+    //|
+    //|5:  // FP loop.
     dasm_put(Dst, 5515);
+# 3811 "buildvm_arm.dasc"
     if (!vk) {
+      //|  cmnlo CARG4, #-LJ_TISNUM
+      //|  cmnlo RB, #-LJ_TISNUM
+      //|  bhs ->vmeta_for
+      //|  cmp RB, #0
+      //|   strd CARG12, FOR_IDX
+      //|   strd CARG12, FOR_EXT
+      //|  blt >8
       dasm_put(Dst, 5519, -LJ_TISNUM, -LJ_TISNUM);
+# 3819 "buildvm_arm.dasc"
     } else {
+      //|  cmp CARG4, #0
+      //|  blt >8
+      //|  bl extern __aeabi_dadd
+      //|   strd CARG12, FOR_IDX
+      //|  ldrd CARG34, FOR_STOP
+      //|   strd CARG12, FOR_EXT
       dasm_put(Dst, 5531);
+# 3826 "buildvm_arm.dasc"
     }
+    //|6:
+    //|  bl extern __aeabi_cdcmple
     dasm_put(Dst, 5540);
+# 3829 "buildvm_arm.dasc"
     if (op == BC_FORI) {
+      //|  subhi PC, RC, #0x20000
       dasm_put(Dst, 5544);
+# 3831 "buildvm_arm.dasc"
     } else if (op == BC_JFORI) {
+      //|  sub PC, RC, #0x20000
+      //|  ldrhls RC, [PC, #-2]
+      //|  bls =>BC_JLOOP
       dasm_put(Dst, 5546, BC_JLOOP);
+# 3835 "buildvm_arm.dasc"
     } else if (op == BC_IFORL) {
+      //|  subls PC, RC, #0x20000
       dasm_put(Dst, 5551);
+# 3837 "buildvm_arm.dasc"
     } else {
+      //|  bls =>BC_JLOOP
       dasm_put(Dst, 5553, BC_JLOOP);
+# 3839 "buildvm_arm.dasc"
     }
+    //|  ins_next1
+    //|  ins_next2
+    //|  b <3
+    //|
+    //|8:  // Invert check for negative step.
     dasm_put(Dst, 5556);
+# 3845 "buildvm_arm.dasc"
     if (vk) {
+      //|  bl extern __aeabi_dadd
+      //|  strd CARG12, FOR_IDX
+      //|  strd CARG12, FOR_EXT
       dasm_put(Dst, 5562);
+# 3849 "buildvm_arm.dasc"
     }
+    //|  mov CARG3, CARG1
+    //|  mov CARG4, CARG2
+    //|  ldrd CARG12, FOR_STOP
+    //|  b <6
     dasm_put(Dst, 5567);
+# 3854 "buildvm_arm.dasc"
     break;
 
   case BC_ITERL:
 #if LJ_HASJIT
+    //|  hotloop
     dasm_put(Dst, 5573, -GG_DISP2HOT, HOTCOUNT_LOOP);
+# 3859 "buildvm_arm.dasc"
 #endif
+    //|  // Fall through. Assumes BC_IITERL follows.
     break;
 
   case BC_JITERL:
@@ -7321,42 +11112,84 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
     break;
 #endif
   case BC_IITERL:
+    //|  // RA = base*8, RC = target
+    //|  ldrd CARG12, [RA, BASE]!
     dasm_put(Dst, 5584);
+# 3870 "buildvm_arm.dasc"
     if (op == BC_JITERL) {
+      //|  cmn CARG2, #-LJ_TNIL		// Stop if iterator returned nil.
+      //|  strdne CARG12, [RA, #-8]
+      //|  bne =>BC_JLOOP
       dasm_put(Dst, 5586, -LJ_TNIL, BC_JLOOP);
+# 3874 "buildvm_arm.dasc"
     } else {
+      //|   add RC, PC, RC, lsl #2
+      //|  // STALL: load CARG12.
+      //|  cmn CARG2, #-LJ_TNIL		// Stop if iterator returned nil.
+      //|  subne PC, RC, #0x20000		// Otherwise save control var + branch.
+      //|  strdne CARG12, [RA, #-8]
       dasm_put(Dst, 5592, -LJ_TNIL);
+# 3880 "buildvm_arm.dasc"
     }
+    //|  ins_next
     dasm_put(Dst, 5598);
+# 3882 "buildvm_arm.dasc"
     break;
 
   case BC_LOOP:
+    //|  // RA = base*8, RC = target (loop extent)
+    //|  // Note: RA/RC is only used by trace recorder to determine scope/extent
+    //|  // This opcode does NOT jump, it's only purpose is to detect a hot loop.
 #if LJ_HASJIT
+    //|  hotloop
     dasm_put(Dst, 5605, -GG_DISP2HOT, HOTCOUNT_LOOP);
+# 3890 "buildvm_arm.dasc"
 #endif
+    //|  // Fall through. Assumes BC_ILOOP follows.
     break;
 
   case BC_ILOOP:
+    //|  // RA = base*8, RC = target (loop extent)
+    //|  ins_next
     dasm_put(Dst, 5616);
+# 3897 "buildvm_arm.dasc"
     break;
 
   case BC_JLOOP:
 #if LJ_HASJIT
+    //|  // RA = base (ignored), RC = traceno
+    //|  ldr CARG1, [DISPATCH, #DISPATCH_J(trace)]
+    //|   mov CARG2, #0  // Traces on ARM don't store the trace number, so use 0.
+    //|  ldr TRACE:RC, [CARG1, RC, lsl #2]
+    //|   st_vmstate CARG2
+    //|  ldr RA, TRACE:RC->mcode
+    //|   str BASE, [DISPATCH, #DISPATCH_GL(jit_base)]
+    //|   str L, [DISPATCH, #DISPATCH_GL(jit_L)]
+    //|  bx RA
     dasm_put(Dst, 5623, DISPATCH_J(trace), DISPATCH_GL(vmstate), DtD(->mcode), DISPATCH_GL(jit_base), DISPATCH_GL(jit_L));
+# 3910 "buildvm_arm.dasc"
 #endif
     break;
 
   case BC_JMP:
+    //|  // RA = base*8 (only used by trace recorder), RC = target
+    //|  add RC, PC, RC, lsl #2
+    //|  sub PC, RC, #0x20000
+    //|  ins_next
     dasm_put(Dst, 5637);
+# 3918 "buildvm_arm.dasc"
     break;
 
   /* -- Function headers -------------------------------------------------- */
 
   case BC_FUNCF:
 #if LJ_HASJIT
+    //|  hotcall
     dasm_put(Dst, 5646, -GG_DISP2HOT, HOTCOUNT_CALL);
+# 3925 "buildvm_arm.dasc"
 #endif
   case BC_FUNCV:  /* NYI: compiled vararg functions. */
+    //|  // Fall through. Assumes BC_IFUNCF/BC_IFUNCV follow.
     break;
 
   case BC_JFUNCF:
@@ -7364,42 +11197,128 @@ static void build_ins(BuildCtx *ctx, BCOp op, int defop)
     break;
 #endif
   case BC_IFUNCF:
+    //|  // BASE = new base, RA = BASE+framesize*8, CARG3 = LFUNC, RC = nargs*8
+    //|  ldr CARG1, L->maxstack
+    //|   ldrb CARG2, [PC, #-4+PC2PROTO(numparams)]
+    //|    ldr KBASE, [PC, #-4+PC2PROTO(k)]
+    //|  cmp RA, CARG1
+    //|  bhi ->vm_growstack_l
     dasm_put(Dst, 5657, Dt1(->maxstack), -4+PC2PROTO(numparams), -4+PC2PROTO(k));
+# 3941 "buildvm_arm.dasc"
     if (op != BC_JFUNCF) {
+      //|  ins_next1
+      //|  ins_next2
       dasm_put(Dst, 5667);
+# 3944 "buildvm_arm.dasc"
     }
+    //|2:
+    //|  cmp NARGS8:RC, CARG2, lsl #3	// Check for missing parameters.
+    //|   mvn CARG4, #~LJ_TNIL
+    //|  ble >3
     dasm_put(Dst, 5670, ~LJ_TNIL);
+# 3949 "buildvm_arm.dasc"
     if (op == BC_JFUNCF) {
+      //|  decode_RD RC, INS
+      //|  b =>BC_JLOOP
       dasm_put(Dst, 5677, BC_JLOOP);
+# 3952 "buildvm_arm.dasc"
     } else {
+      //|  ins_next3
       dasm_put(Dst, 5681);
+# 3954 "buildvm_arm.dasc"
     }
+    //|
+    //|3:  // Clear missing parameters.
+    //|  strd CARG34, [BASE, NARGS8:RC]
+    //|  add NARGS8:RC, NARGS8:RC, #8
+    //|  b <2
     dasm_put(Dst, 5686);
+# 3960 "buildvm_arm.dasc"
     break;
 
   case BC_JFUNCV:
 #if !LJ_HASJIT
     break;
 #endif
+    //|  NYI  // NYI: compiled vararg functions
     dasm_put(Dst, 5692);
+# 3967 "buildvm_arm.dasc"
     break;  /* NYI: compiled vararg functions. */
 
   case BC_IFUNCV:
+    //|  // BASE = new base, RA = BASE+framesize*8, CARG3 = LFUNC, RC = nargs*8
+    //|  ldr CARG1, L->maxstack
+    //|   add CARG4, BASE, RC
+    //|  add RA, RA, RC
+    //|   str LFUNC:CARG3, [CARG4]	// Store copy of LFUNC.
+    //|   add CARG2, RC, #8+FRAME_VARG
+    //|    ldr KBASE, [PC, #-4+PC2PROTO(k)]
+    //|  cmp RA, CARG1
+    //|   str CARG2, [CARG4, #4]		// Store delta + FRAME_VARG.
+    //|  bhs ->vm_growstack_l
+    //|  ldrb RB, [PC, #-4+PC2PROTO(numparams)]
+    //|   mov RA, BASE
+    //|   mov RC, CARG4
+    //|  cmp RB, #0
+    //|   add BASE, CARG4, #8
+    //|  beq >3
+    //|  mvn CARG3, #~LJ_TNIL
+    //|1:
+    //|  cmp RA, RC			// Less args than parameters?
+    //|   ldrdlo CARG12, [RA], #8
+    //|   movhs CARG2, CARG3
+    //|    strlo CARG3, [RA, #-4]		// Clear old fixarg slot (help the GC).
+    //|2:
+    //|  subs RB, RB, #1
+    //|   strd CARG12, [CARG4, #8]!
+    //|  bne <1
+    //|3:
+    //|  ins_next
     dasm_put(Dst, 5694, Dt1(->maxstack), 8+FRAME_VARG, -4+PC2PROTO(k), -4+PC2PROTO(numparams), ~LJ_TNIL);
+# 3998 "buildvm_arm.dasc"
     break;
 
   case BC_FUNCC:
   case BC_FUNCCW:
+    //|  // BASE = new base, RA = BASE+framesize*8, CARG3 = CFUNC, RC = nargs*8
     if (op == BC_FUNCC) {
+      //|  ldr CARG4, CFUNC:CARG3->f
       dasm_put(Dst, 5735, Dt8(->f));
+# 4005 "buildvm_arm.dasc"
     } else {
+      //|  ldr CARG4, [DISPATCH, #DISPATCH_GL(wrapf)]
       dasm_put(Dst, 5738, DISPATCH_GL(wrapf));
+# 4007 "buildvm_arm.dasc"
     }
+    //|   add CARG2, RA, NARGS8:RC
+    //|   ldr CARG1, L->maxstack
+    //|  add RC, BASE, NARGS8:RC
+    //|    str BASE, L->base
+    //|   cmp CARG2, CARG1
+    //|  str RC, L->top
     dasm_put(Dst, 5741, Dt1(->maxstack), Dt1(->base), Dt1(->top));
+# 4014 "buildvm_arm.dasc"
     if (op == BC_FUNCCW) {
+      //|  ldr CARG2, CFUNC:CARG3->f
       dasm_put(Dst, 5751, Dt8(->f));
+# 4016 "buildvm_arm.dasc"
     }
+    //|    mv_vmstate CARG3, C
+    //|  mov CARG1, L
+    //|   bhi ->vm_growstack_c		// Need to grow stack.
+    //|    st_vmstate CARG3
+    //|  blx CARG4			// (lua_State *L [, lua_CFunction f])
+    //|  // Returns nresults.
+    //|  ldr BASE, L->base
+    //|    mv_vmstate CARG3, INTERP
+    //|   ldr CRET2, L->top
+    //|   lsl RC, CRET1, #3
+    //|    st_vmstate CARG3
+    //|  ldr PC, [BASE, FRAME_PC]
+    //|   sub RA, CRET2, RC		// RA = L->top - nresults*8
+    //|  b ->vm_returnc
     dasm_put(Dst, 5754, LJ_VMST_C, DISPATCH_GL(vmstate), Dt1(->base), LJ_VMST_INTERP, Dt1(->top), DISPATCH_GL(vmstate));
+# 4031 "buildvm_arm.dasc"
     break;
 
   /* ---------------------------------------------------------------------- */
@@ -7419,7 +11338,9 @@ static int build_backend(BuildCtx *ctx)
 
   build_subroutines(ctx);
 
+  //|.code_op
   dasm_put(Dst, 5776);
+# 4051 "buildvm_arm.dasc"
   for (op = 0; op < BC__MAX; op++)
     build_ins(ctx, (BCOp)op, op);
 

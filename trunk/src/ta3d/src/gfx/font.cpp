@@ -36,12 +36,12 @@ namespace TA3D
 
 
 	Font::Font()
-		:ObjectSync(), font(NULL), pFontFilename(), pType(typeTexture), bBold(false)
+		:ObjectSync(), font((FTFont*)NULL), pFontFilename(), pType(typeTexture), bBold(false)
 	{}
 
 
 	Font::Font(const Font& rhs)
-		:ObjectSync(), font(NULL), pFontFilename(rhs.pFontFilename), pType(rhs.pType), bBold(false)
+		:ObjectSync(), font((FTFont*)NULL), pFontFilename(rhs.pFontFilename), pType(rhs.pType), bBold(false)
 	{
 		if (!pFontFilename.empty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);

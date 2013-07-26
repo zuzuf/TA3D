@@ -19,7 +19,7 @@ namespace TA3D
 
 
 	Unit::Unit()
-		:script(NULL), render(), model(NULL), owner_id(0), type_id(0),
+		:script((UnitScriptInterface*)NULL), render(), model(NULL), owner_id(0), type_id(0),
 		hp(0.), Pos(), V(), Angle(), V_Angle(), sel(false),
 		data(), drawing(false), port(NULL), mission(), def_mission(),
 		flags(0), kills(0), selfmove(false), lastEnergy(0.0f), c_time(0), compute_coord(false), idx(0), ID(0),

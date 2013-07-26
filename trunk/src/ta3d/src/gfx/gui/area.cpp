@@ -637,7 +637,7 @@ namespace Gui
 					return the_wnd->get_object(obj_name);
 			}
 		}
-		return NULL;
+		return (GUIOBJ*)NULL;
 	}
 
 
