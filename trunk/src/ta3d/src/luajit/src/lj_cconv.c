@@ -1,6 +1,6 @@
 /*
 ** C type conversions.
-** Copyright (C) 2005-2011 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2013 Mike Pall. See Copyright Notice in luajit.h
 */
 
 #include "lj_obj.h"
@@ -38,7 +38,7 @@ LJ_NORET static void cconv_err_convtv(CTState *cts, CType *d, TValue *o,
 				      CTInfo flags)
 {
   const char *dst = strdata(lj_ctype_repr(cts->L, ctype_typeid(cts, d), NULL));
-  const char *src = typename(o);
+  const char *src = lj_typename(o);
   if (CCF_GETARG(flags))
     lj_err_argv(cts->L, CCF_GETARG(flags), LJ_ERR_FFI_BADCONV, src, dst);
   else
@@ -131,21 +131,23 @@ void lj_cconv_ct_ct(CTState *cts, CType *d, CType *s,
   /* Some basic sanity checks. */
   lua_assert(!ctype_isnum(dinfo) || dsize > 0);
   lua_assert(!ctype_isnum(sinfo) || ssize > 0);
-  lua_assert(!ctype_isbool(dinfo) || dsize == 1);
-  lua_assert(!ctype_isbool(sinfo) || ssize == 1);
+  lua_assert(!ctype_isbool(dinfo) || dsize == 1 || dsize == 4);
+  lua_assert(!ctype_isbool(sinfo) || ssize == 1 || ssize == 4);
   lua_assert(!ctype_isinteger(dinfo) || (1u<<lj_fls(dsize)) == dsize);
   lua_assert(!ctype_isinteger(sinfo) || (1u<<lj_fls(ssize)) == ssize);
 
   switch (cconv_idx2(dinfo, sinfo)) {
   /* Destination is a bool. */
   case CCX(B, B):
-    *dp = *sp;  /* Source operand is already normalized. */
+    /* Source operand is already normalized. */
+    if (dsize == 1) *dp = *sp; else *(int *)dp = *sp;
     break;
   case CCX(B, I): {
     MSize i;
     uint8_t b = 0;
     for (i = 0; i < ssize; i++) b |= sp[i];
-    *dp = (b != 0);
+    b = (b != 0);
+    if (dsize == 1) *dp = b; else *(int *)dp = b;
     break;
     }
   case CCX(B, F): {
@@ -153,7 +155,7 @@ void lj_cconv_ct_ct(CTState *cts, CType *d, CType *s,
     if (ssize == sizeof(double)) b = (*(double *)sp != 0);
     else if (ssize == sizeof(float)) b = (*(float *)sp != 0);
     else goto err_conv;  /* NYI: long double. */
-    *dp = b;
+    if (dsize == 1) *dp = b; else *(int *)dp = b;
     break;
     }
 
@@ -372,7 +374,6 @@ int lj_cconv_tv_ct(CTState *cts, CType *s, CTypeID sid,
 		   TValue *o, uint8_t *sp)
 {
   CTInfo sinfo = s->info;
-  lua_assert(!ctype_isenum(sinfo));
   if (ctype_isnum(sinfo)) {
     if (!ctype_isbool(sinfo)) {
       if (ctype_isinteger(sinfo) && s->size > 4) goto copyval;
@@ -391,7 +392,7 @@ int lj_cconv_tv_ct(CTState *cts, CType *s, CTypeID sid,
 	lua_assert(tvisnum(o));
       }
     } else {
-      uint32_t b = (*sp != 0);
+      uint32_t b = s->size == 1 ? (*sp != 0) : (*(int *)sp != 0);
       setboolV(o, b);
       setboolV(&cts->g->tmptv2, b);  /* Remember for trace recorder. */
     }
@@ -492,17 +493,19 @@ static void cconv_substruct_tab(CTState *cts, CType *d, uint8_t *dp,
     id = df->sib;
     if (ctype_isfield(df->info) || ctype_isbitfield(df->info)) {
       TValue *tv;
-      int32_t i = *ip;
+      int32_t i = *ip, iz = i;
       if (!gcref(df->name)) continue;  /* Ignore unnamed fields. */
       if (i >= 0) {
       retry:
 	tv = (TValue *)lj_tab_getint(t, i);
 	if (!tv || tvisnil(tv)) {
 	  if (i == 0) { i = 1; goto retry; }  /* 1-based tables. */
+	  if (iz == 0) { *ip = i = -1; goto tryname; }  /* Init named fields. */
 	  break;  /* Stop at first nil. */
 	}
 	*ip = i + 1;
       } else {
+      tryname:
 	tv = (TValue *)lj_tab_getstr(t, gco2str(gcref(df->name)));
 	if (!tv || tvisnil(tv)) continue;
       }
@@ -512,7 +515,8 @@ static void cconv_substruct_tab(CTState *cts, CType *d, uint8_t *dp,
 	lj_cconv_bf_tv(cts, df, dp+df->size, tv);
       if ((d->info & CTF_UNION)) break;
     } else if (ctype_isxattrib(df->info, CTA_SUBTYPE)) {
-      cconv_substruct_tab(cts, ctype_child(cts, df), dp+df->size, t, ip, flags);
+      cconv_substruct_tab(cts, ctype_rawchild(cts, df),
+			  dp+df->size, t, ip, flags);
     }  /* Ignore all other entries in the chain. */
   }
 }
@@ -523,7 +527,6 @@ static void cconv_struct_tab(CTState *cts, CType *d,
 {
   int32_t i = 0;
   memset(dp, 0, d->size);  /* Much simpler to clear the struct first. */
-  if (t->hmask) i = -1; else if (t->asize == 0) return;  /* Fast exit. */
   cconv_substruct_tab(cts, d, dp, t, &i, flags);
 }
 
@@ -545,7 +548,7 @@ void lj_cconv_ct_tv(CTState *cts, CType *d,
     flags |= CCF_FROMTV;
   } else if (tviscdata(o)) {
     sp = cdataptr(cdataV(o));
-    sid = cdataV(o)->typeid;
+    sid = cdataV(o)->ctypeid;
     s = ctype_get(cts, sid);
     if (ctype_isref(s->info)) {  /* Resolve reference for value. */
       lua_assert(s->size == CTSIZE_PTR);
@@ -601,7 +604,10 @@ void lj_cconv_ct_tv(CTState *cts, CType *d,
     tmpptr = (void *)0;
     flags |= CCF_FROMTV;
   } else if (tvisudata(o)) {
-    tmpptr = uddata(udataV(o));
+    GCudata *ud = udataV(o);
+    tmpptr = uddata(ud);
+    if (ud->udtype == UDTYPE_IO_FILE)
+      tmpptr = *(void **)tmpptr;
   } else if (tvislightud(o)) {
     tmpptr = lightudV(o);
   } else if (tvisfunc(o)) {
@@ -694,7 +700,8 @@ static void cconv_substruct_init(CTState *cts, CType *d, uint8_t *dp,
 	lj_cconv_bf_tv(cts, df, dp+df->size, o + i);
       if ((d->info & CTF_UNION)) break;
     } else if (ctype_isxattrib(df->info, CTA_SUBTYPE)) {
-      cconv_substruct_init(cts, ctype_child(cts, df), dp+df->size, o, len, ip);
+      cconv_substruct_init(cts, ctype_rawchild(cts, df),
+			   dp+df->size, o, len, ip);
     }  /* Ignore all other entries in the chain. */
   }
 }
@@ -714,12 +721,14 @@ static void cconv_struct_init(CTState *cts, CType *d, CTSize sz, uint8_t *dp,
 ** This is true if an aggregate is to be initialized with a value.
 ** Valarrays are treated as values here so ct_tv handles (V|C, I|F).
 */
-int lj_cconv_multi_init(CType *d, TValue *o)
+int lj_cconv_multi_init(CTState *cts, CType *d, TValue *o)
 {
   if (!(ctype_isrefarray(d->info) || ctype_isstruct(d->info)))
     return 0;  /* Destination is not an aggregate. */
   if (tvistab(o) || (tvisstr(o) && !ctype_isstruct(d->info)))
     return 0;  /* Initializer is not a value. */
+  if (tviscdata(o) && lj_ctype_rawref(cts, cdataV(o)->ctypeid) == d)
+    return 0;  /* Source and destination are identical aggregates. */
   return 1;  /* Otherwise the initializer is a value. */
 }
 
@@ -729,7 +738,7 @@ void lj_cconv_ct_init(CTState *cts, CType *d, CTSize sz,
 {
   if (len == 0)
     memset(dp, 0, sz);
-  else if (len == 1 && !lj_cconv_multi_init(d, o))
+  else if (len == 1 && !lj_cconv_multi_init(cts, d, o))
     lj_cconv_ct_tv(cts, d, dp, o, 0);
   else if (ctype_isarray(d->info))  /* Also handles valarray init with len>1. */
     cconv_array_init(cts, d, sz, dp, o, len);

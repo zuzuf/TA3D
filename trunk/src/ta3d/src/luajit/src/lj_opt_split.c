@@ -1,6 +1,6 @@
 /*
 ** SPLIT: Split 64 bit IR instructions into 32 bit IR instructions.
-** Copyright (C) 2005-2011 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2013 Mike Pall. See Copyright Notice in luajit.h
 */
 
 #define lj_opt_split_c
@@ -78,8 +78,7 @@
 ** 0105    int HIOP   0103  +0
 ** 0106    p32 ADD    base  +16
 ** 0107    int XSTORE 0106  0104
-** 0108    p32 ADD    base  +20
-** 0109    int XSTORE 0108  0105
+** 0108    int HIOP   0106  0105
 **
 **         mov eax, [esi+0x8]
 **         mov ecx, [esi+0xc]
@@ -185,6 +184,8 @@ static IRRef split_ptr(jit_State *J, IRIns *oir, IRRef ref)
   IRRef nref = oir[ref].prev;
   IRIns *ir = IR(nref);
   int32_t ofs = 4;
+  if (ir->o == IR_KPTR)
+    return lj_ir_kptr(J, (char *)ir_kptr(ir) + ofs);
   if (ir->o == IR_ADD && irref_isk(ir->op2) && !irt_isphi(oir[ref].t)) {
     /* Reassociate address. */
     ofs += IR(ir->op2)->i;
@@ -192,6 +193,19 @@ static IRRef split_ptr(jit_State *J, IRIns *oir, IRRef ref)
     if (ofs == 0) return nref;
   }
   return split_emit(J, IRTI(IR_ADD), nref, lj_ir_kint(J, ofs));
+}
+
+/* Substitute references of a snapshot. */
+static void split_subst_snap(jit_State *J, SnapShot *snap, IRIns *oir)
+{
+  SnapEntry *map = &J->cur.snapmap[snap->mapofs];
+  MSize n, nent = snap->nent;
+  for (n = 0; n < nent; n++) {
+    SnapEntry sn = map[n];
+    IRIns *ir = &oir[snap_ref(sn)];
+    if (!(LJ_SOFTFP && (sn & SNAP_SOFTFPNUM) && irref_isk(snap_ref(sn))))
+      map[n] = ((sn & 0xffff0000) | ir->prev);
+  }
 }
 
 /* Transform the old IR to the new IR. */
@@ -202,7 +216,8 @@ static void split_ir(jit_State *J)
   MSize need = (irlen+1)*(sizeof(IRIns) + sizeof(IRRef1));
   IRIns *oir = (IRIns *)lj_str_needbuf(J->L, &G(J->L)->tmpbuf, need);
   IRRef1 *hisubst;
-  IRRef ref;
+  IRRef ref, snref;
+  SnapShot *snap;
 
   /* Copy old IR to buffer. */
   memcpy(oir, IR(nk), irlen*sizeof(IRIns));
@@ -229,11 +244,19 @@ static void split_ir(jit_State *J)
   }
 
   /* Process old IR instructions. */
+  snap = J->cur.snap;
+  snref = snap->ref;
   for (ref = REF_FIRST; ref < nins; ref++) {
     IRIns *ir = &oir[ref];
     IRRef nref = lj_ir_nextins(J);
     IRIns *nir = IR(nref);
     IRRef hi = 0;
+
+    if (ref >= snref) {
+      snap->ref = nref;
+      split_subst_snap(J, snap++, oir);
+      snref = snap < &J->cur.snap[J->cur.nsnap] ? snap->ref : ~(IRRef)0;
+    }
 
     /* Copy-substitute old instruction to new instruction. */
     nir->op1 = ir->op1 < nk ? ir->op1 : oir[ir->op1].prev;
@@ -281,7 +304,7 @@ static void split_ir(jit_State *J)
 	      tmp = split_emit(J, IRT(IR_CARG, IRT_NIL), tmp, arg3);
 	      tmp = split_emit(J, IRT(IR_CARG, IRT_NIL), tmp, arg4);
 	      ir->prev = tmp = split_emit(J, IRTI(IR_CALLN), tmp, IRCALL_pow);
-	      hi = split_emit(J, IRT(IR_HIOP, LJ_SOFTFP), tmp, tmp);
+	      hi = split_emit(J, IRT(IR_HIOP, IRT_SOFTFP), tmp, tmp);
 	      break;
 	    }
 	  }
@@ -328,19 +351,9 @@ static void split_ir(jit_State *J)
 #endif
 	break;
 	}
-      case IR_ASTORE: case IR_HSTORE: case IR_USTORE:
+      case IR_ASTORE: case IR_HSTORE: case IR_USTORE: case IR_XSTORE:
 	split_emit(J, IRT(IR_HIOP, IRT_SOFTFP), nir->op1, hisubst[ir->op2]);
 	break;
-      case IR_XSTORE: {
-#if LJ_LE
-	IRRef hiref = hisubst[ir->op2];
-#else
-	IRRef hiref = nir->op2; nir->op2 = hisubst[ir->op2];
-#endif
-	split_emit(J, IRT(IR_XSTORE, IRT_SOFTFP),
-		   split_ptr(J, oir, ir->op1), hiref);
-	break;
-	}
       case IR_CONV: {  /* Conversion to number. Others handled below. */
 	IRType st = (IRType)(ir->op2 & IRCONV_SRCMASK);
 	UNUSED(st);
@@ -364,6 +377,8 @@ static void split_ir(jit_State *J)
 	hi = split_emit(J, IRT(IR_HIOP, IRT_SOFTFP), nref, nref);
 	break;
 	}
+      case IR_CALLN:
+      case IR_CALLL:
       case IR_CALLS:
       case IR_CALLXS:
 	goto split_call;
@@ -373,6 +388,11 @@ static void split_ir(jit_State *J)
 	if (hisubst[ir->op1] != hisubst[ir->op2])
 	  split_emit(J, IRT(IR_PHI, IRT_SOFTFP),
 		     hisubst[ir->op1], hisubst[ir->op2]);
+	break;
+      case IR_HIOP:
+	J->cur.nins--;  /* Drop joining HIOP. */
+	ir->prev = nir->op1;
+	hi = nir->op2;
 	break;
       default:
 	lua_assert(ir->o <= IR_NE || ir->o == IR_MIN || ir->o == IR_MAX);
@@ -432,12 +452,7 @@ static void split_ir(jit_State *J)
 #endif
 	break;
       case IR_XSTORE:
-#if LJ_LE
-	hiref = hisubst[ir->op2];
-#else
-	hiref = nir->op2; nir->op2 = hisubst[ir->op2];
-#endif
-	split_emit(J, IRTI(IR_XSTORE), split_ptr(J, oir, ir->op1), hiref);
+	split_emit(J, IRTI(IR_HIOP), nir->op1, hisubst[ir->op2]);
 	break;
       case IR_CONV: {  /* Conversion to 64 bit integer. Others handled below. */
 	IRType st = (IRType)(ir->op2 & IRCONV_SRCMASK);
@@ -483,6 +498,11 @@ static void split_ir(jit_State *J)
 	  split_emit(J, IRTI(IR_PHI), hiref, hiref2);
 	break;
 	}
+      case IR_HIOP:
+	J->cur.nins--;  /* Drop joining HIOP. */
+	ir->prev = nir->op1;
+	hi = nir->op2;
+	break;
       default:
 	lua_assert(ir->o <= IR_NE);  /* Comparisons. */
 	split_emit(J, IRTGI(IR_HIOP), hiref, hisubst[ir->op2]);
@@ -637,6 +657,10 @@ static void split_ir(jit_State *J)
     }
     hisubst[ref] = hi;  /* Store hiword substitution. */
   }
+  if (snref == nins) {  /* Substitution for last snapshot. */
+    snap->ref = J->cur.nins;
+    split_subst_snap(J, snap, oir);
+  }
 
   /* Add PHI marks. */
   for (ref = J->cur.nins-1; ref >= REF_FIRST; ref--) {
@@ -644,24 +668,6 @@ static void split_ir(jit_State *J)
     if (ir->o != IR_PHI) break;
     if (!irref_isk(ir->op1)) irt_setphi(IR(ir->op1)->t);
     if (ir->op2 > J->loopref) irt_setphi(IR(ir->op2)->t);
-  }
-
-  /* Substitute snapshot maps. */
-  oir[nins].prev = J->cur.nins;  /* Substitution for last snapshot. */
-  {
-    SnapNo i, nsnap = J->cur.nsnap;
-    for (i = 0; i < nsnap; i++) {
-      SnapShot *snap = &J->cur.snap[i];
-      SnapEntry *map = &J->cur.snapmap[snap->mapofs];
-      MSize n, nent = snap->nent;
-      snap->ref = snap->ref == REF_FIRST ? REF_FIRST : oir[snap->ref].prev;
-      for (n = 0; n < nent; n++) {
-	SnapEntry sn = map[n];
-	IRIns *ir = &oir[snap_ref(sn)];
-	if (!(LJ_SOFTFP && (sn & SNAP_SOFTFPNUM) && irref_isk(snap_ref(sn))))
-	  map[n] = ((sn & 0xffff0000) | ir->prev);
-      }
-    }
   }
 }
 
@@ -687,6 +693,8 @@ static int split_needsplit(jit_State *J)
     for (ref = J->chain[IR_SLOAD]; ref; ref = IR(ref)->prev)
       if ((IR(ref)->op2 & IRSLOAD_CONVERT))
 	return 1;
+    if (J->chain[IR_TOBIT])
+      return 1;
   }
   for (ref = J->chain[IR_CONV]; ref; ref = IR(ref)->prev) {
     IRType st = (IR(ref)->op2 & IRCONV_SRCMASK);
