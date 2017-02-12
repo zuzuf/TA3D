@@ -1,0 +1,15 @@
+[test:cout] <begin> With a C[]
+Hello world
+[test:cout] <end,ok> With a C[]
+[test:cout] <begin> With a C*
+Hello world !
+[test:cout] <end,ok> With a C*
+[test:cout] <begin> With another string
+Dummy text
+[test:cout] <end,ok> With another string
+[test:cout] <begin> With a std::string
+Dummy text
+[test:cout] <end,ok> With a std::string
+[test:cout] <begin> With an integer
+42
+[test:cout] <end,ok> With an integer

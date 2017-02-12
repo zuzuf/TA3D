@@ -1,0 +1,27 @@
+
+digraph "Yuni UI Process Flow : window creation"
+{
+	"UI::Window"[shape=box]
+	"Private::UI::Local::IWindow (created)"[shape=box]
+
+	"UI::Window" -> "Private::UI::Local::IWindow (created)" [label="showWindow()"]
+}
+
+digraph "Yuni UI Process Flow : window refresh information"
+{
+	"UI::Window"[shape=box]
+	"Private::UI::Local::IWindow"[shape=box]
+
+	"Private::UI::Local::IWindow" -> "UI::Window" [label="getInfo() [1]"]
+	"UI::Window" -> "Private::UI::Local::IWindow" [label="sendInfo(...) [2]"]
+}
+
+digraph "Yuni UI Process Flow : window modification messages"
+{
+	"UI::Window"[shape=box]
+	"Private::UI::Local::IWindow"[shape=box]
+
+	"UI::Window" -> "Private::UI::Local::IWindow" [label="resize(float,float)"]
+	"UI::Window" -> "Private::UI::Local::IWindow" [label="fullScreen(bool)"]
+	"UI::Window" -> "Private::UI::Local::IWindow" [label="..."]
+}

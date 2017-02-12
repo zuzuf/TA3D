@@ -1,0 +1,51 @@
+
+How to compile Yuni on Mac OS X
+===============================
+
+
+ A - Using Terminal
+ ------------------
+
+Prerequisites:
+ - XCode
+   Xcode Installation Basics :
+   http://developer.apple.com/documentation/Xcode/Conceptual/XcodeCoexistence/Contents/Resources/en.lproj/Basics/Basics.html
+
+ - MacPort : http://www.macports.org/
+   (Installing MacPorts : http://www.macports.org/install.php)
+
+ - CMake, via MacPort
+   $ sudo port install cmake
+
+ - The latest version of Subversion via MacPort (optional)
+   $ sudo port install subversion
+
+ - Make sure /opt/local/bin has been added to your environment path
+   If you are not sure about this, type this before starting :
+   $ export PATH="/opt/local/bin:$PATH"
+
+
+1) Checkout the source code in any folder of your choice :
+  $ svn co http://svn.shikami.org/yuni/trunk yuni
+
+3) Generate the makefiles / projects:
+  $ cd yuni/src
+  $ cmake . -DMODULES=all
+
+  Tips : You can run "cmake --help" for a list of generators for the -G option
+	You can run "cmake ." to activate the default modules in Yuni
+	You can run "cmake . -DMODULES=help" for a list of available Yuni modules
+
+  Other examples:
+	Activate all modules except 3D graphics:
+		$ cmake . -DMODULES="all -gfx3d"
+	Activate the default modules, plus the audio and script modules
+		$ cmake . -DMODULES="+audio +script"
+
+4) To compile, run make :
+  $ make
+
+  Tips : If you have more than one processor/core, you can run more than one job :
+  $ make -j X
+  where X is the number of jobs to run simultaneously.
+

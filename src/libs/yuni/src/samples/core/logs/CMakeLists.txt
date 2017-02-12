@@ -1,0 +1,3 @@
+
+ADD_SUBDIRECTORY(00.simple)
+ADD_SUBDIRECTORY(01.logfile)

@@ -1,0 +1,15 @@
+.leftmenu div {
+	display					:none;
+}
+#toc {
+	display					:none;
+}
+.leftspace {
+	width					:0%;
+}
+#mainmenu {
+	display					:none;
+}
+.space {
+	width:0;
+}

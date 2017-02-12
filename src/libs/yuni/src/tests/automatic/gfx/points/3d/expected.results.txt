@@ -1,0 +1,19 @@
+Simple values (int): 10,42,3
+Simple values (float): 23.4,83.2894,-2.69
+Check ostream printing: (-42,203923,23)
+Must be false (a == b): 0
+Must be true (a == c): 1
+Must be true (a != b): 1
+Assign (1,2): 1,2,1
+sint8 from int (23,56): 23,56
+double from sint8 : (23,56,2)
+Inc with an int (+42): (65,98,44)
+Reset:  (0,0,0)
+Translate:  (12,16.5,4)
+(1,2,0) + (2,4,0) = (3,6,0)
+(float) (1,2,0) + (2,4,0) = (3,6,0)
+f += 3  = (6,9,3)
+(10,10,0) close to (10.1,9.8,0), delta: (int)1 = 1
+(10,10,0) close to (10.1,9.8,0), delta: (int)0 = 0
+(10,10,0) close to (10.1,9.8,0), delta: 0.3f   = 1
+(10,10,0) close to (10.1,9.8,0), delta: 0.1f   = 0

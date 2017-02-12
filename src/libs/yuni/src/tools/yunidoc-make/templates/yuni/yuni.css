@@ -1,0 +1,273 @@
+body,html {
+	background-color		:white;
+	font-family				:'Hiragino Kaku Gothic Pro', Optima, Lucida, 'MgOpen Cosmetica', 'Lucida Sans Unicode', helvetica, arial, sans-serif;
+	color					:#444444;
+	margin					:0;
+	padding					:0;
+	font-size				:9pt;
+}
+.layout {
+	width					:100%;
+	border-collapse			:collapse;
+	padding					:0;
+	margin					:0;
+}
+.space {
+	width					:11%;
+	min-width				:10px;
+}
+.leftspace {
+	width					:240px;
+	min-width				:10px;
+}
+.title {
+	font-size				:12pt;
+	padding-left			:0.7em;
+}
+.path {
+	font-size				:9pt;
+}
+.path a {
+	font-family				:helvetica, tahoma, arial, sans-serif;
+	text-decoration			:none;
+	color					:#766;
+	padding					:0.2em 0.3em 0.2em 0.3em;
+}
+.path a:hover {
+	background-color		:#333;
+	color					:#eee;
+}
+.path span {
+	padding					:0;
+}
+#parent {
+	background-image		:url('arrow.png');
+	background-position		:center left;
+	background-repeat		:no-repeat;
+	padding-left			:20px;
+}
+.logo {
+	/*background-image		:url('logo.png');
+	background-repeat		:no-repeat;
+	background-position		:center center;*/
+	width					:85px;
+	height					:96px;
+	min-width				:85px;
+	min-height				:96px;
+}
+.unbreakable {
+	white-space				:nowrap;
+	color:#933;
+}
+.unbreakable strong {
+	color:black;
+}
+.links {
+	padding					:0 1em 0 1em;
+	text-align				:right;
+	white-space				:nowrap;
+	width					:10px;
+}
+.links a {
+	text-decoration			:none;
+	color					:#766;
+	padding					:0.2em 0.4em 0.2em 0.4em;
+}
+.links a:hover {
+	background-color		:#333;
+	color					:#eee;
+}
+.links span {
+	border					:1px solid #966;
+	border-left-style		:none;
+	border-top-style		:none;
+	border-bottom-style		:none;
+	margin-right			:0.3em;
+}
+.leftmenu {
+	min-width:6em;
+	vertical-align:top;
+	padding					:4em 1em 2em 2em;
+	font-family				:helvetica, tahoma, arial, sans-serif;
+	font-size				:8pt;
+}
+.leftmenu a {
+	text-decoration			:none;
+	color					:#337;
+	padding					:0.2em 0.8em 0.2em 0.5em;
+	display					:block;
+	color					:#697286;
+}
+.leftmenu .selected {
+	font-weight				:bold;
+	color					:#444;
+	color					:#4c556b;
+}
+.leftmenu a:hover {
+	background-color		:black;
+	color					:white;
+}
+.leftmenu ol {
+	padding					:0 0em 2em 1.8em;
+	color:#A88;
+}
+.leftmenu ol li {
+	padding					:0.1em 0em;
+	margin:0;
+}
+.laycontent {
+	padding-left			:1em;
+}
+.laycontent h1 {
+	font-size				:15pt;
+	color					:#000;
+	text-shadow				:2px 2px 2px #999;
+}
+.vspace {
+	height					:22pt;
+}
+.toc {
+	float					:right;
+	border					:1px solid #cce;
+	background-color		:#eef;
+	font-size				:8pt;
+	padding					:0.5em 1em 0 1em;
+	margin					:2em 1.5em 0.7em 1.2em;
+	font-family				:helvetica, tahoma, arial, sans-serif;
+	-moz-box-shadow: 0 0 5px #888;
+	-webkit-box-shadow: 0 0 5px#888;
+	box-shadow: 0 0 5px #888;
+}
+.toc div {
+	padding-bottom			:0.5em;
+}
+.toc div #toclink {
+	color					:#E99;
+	padding-left			:0.7em;
+	padding-right			:0.7em;
+	display					:inline !important;
+}
+.toc div #toclist {
+	padding-top				:1em;
+	padding-bottom			:0;
+}
+.toc ol {
+	padding					:0.2em 1em 0.2em 2em;
+	margin					:0;
+	color					:#933;
+}
+.toc ol li ol {
+	color					:#A99;
+}
+.toc a {
+	text-decoration			:none;
+	color					:#222;
+	display					:block;
+	padding					:0.1em 0.2em;
+}
+.toc a:hover {
+	background-color		:black;
+	color					:white;
+}
+.modified {
+	padding-top				:130pt;
+	font-size				:9pt;
+	text-align				:right;
+	font-style				:italic;
+	font-family				:Optima, Lucida, 'MgOpen Cosmetica', 'Lucida Sans Unicode', helvetica, arial, sans-serif;
+}
+.footer {
+	margin-top				:30pt;
+	width					:100%;
+	border-collapse			:collapse;
+	font-family				:Optima, Lucida, 'MgOpen Cosmetica', 'Lucida Sans Unicode', helvetica, arial, sans-serif;
+	font-size				:9pt;
+	text-align				:right;
+}
+.footerlogo  {
+	background-image		:url('bottom.png');
+	background-repeat		:no-repeat;
+	background-position		:right center;
+	text-align				:right;
+	width					:40px;
+	min-width				:40px;
+	min-height				:36px;
+	height					:36px;
+	margin-top				:30pt;
+}
+.content {
+	font-family				:'Hiragino Kaku Gothic Pro', Optima, Lucida, 'MgOpen Cosmetica', 'Lucida Sans Unicode', helvetica, arial, sans-serif;
+	font-size				:8pt;
+}
+.content h1 {
+	font-size				:12pt;
+	margin					:45pt 0 0 0;
+	text-shadow				:2px 2px 2px #999;
+}
+.content h2 {
+	font-size				:10pt;
+	color					:#245079;
+	padding-left			:2em;
+	margin					:25pt 0 0 0;
+}
+.content p {
+	font-size				:8pt;
+	text-align				:justify;
+	text-justify			:distribute;
+	text-indent				:1.4em;
+}
+.content .class_name_pre {
+	padding					:0.5em 1em 0.5em 1em;
+	margin-left				:3em !important;
+	border					:5px solid #ddd;
+	border-top-style		:none;
+	border-bottom-style		:none;
+	border-right-style		:none;
+}
+.content .class_name_pre table {
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+.content code {
+	color					:#33A;
+}
+.content ul {
+}
+.content table {
+	border-collapse			:collapse;
+	border					:1px solid #99adbc;
+	margin					:0.5em;
+	-moz-box-shadow: 0 0 5px #999;
+	-webkit-box-shadow: 0 0 5px #999;
+	box-shadow: 0 0 5px #999;
+
+}
+.content table tr:hover {
+	background-color		:#eee;
+}
+.content table tr th {
+	background-color		:#c9d5de;
+	color					:black;
+	font-weight				:normal;
+	padding					:0.2em 0.9em;
+	border					:1px solid #99adbc;
+}
+.content table tr td {
+	padding					:0.2em 0.9em;
+	border					:1px solid #99adbc;
+}
+.content a {
+	text-decoration			:none;
+	color					:#c24913;
+	padding					:0.1em 0.2em;
+	border					:1px solid #e9936d;
+	border-left-style		:none;
+	border-right-style		:none;
+	border-top-style		:none;
+}
+.content a:hover {
+	background-color		:black;
+	color					:white;
+	border-color			:black;
+}

@@ -1,0 +1,18 @@
+
+Thread module
+=============
+
+As its name indicates, the Thread module deals with Multi-threading and the
+related problems. Like everything else in Yuni, it is transparently
+cross-platform. It is one of the two modules that are activated by default
+when compiling Yuni (the other being Core).
+
+The Thread module offers the following features :
+ - Yuni::Thread::IThread :
+ Abstract class from which to inherit to make a process run in a particular thread
+ - Yuni::Thread::Array :
+ Container for threads
+ - Yuni::Mutex :
+ Mutual exclusion to synchronize multiple accesses to a resource
+ - Yuni::Thread::Timer :
+ A timer to execute a method every N milliseconds

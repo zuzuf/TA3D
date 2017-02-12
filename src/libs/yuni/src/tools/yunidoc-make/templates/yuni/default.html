@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+<meta name="language" content="en" />
+<title>@{TITLE}</title>
+<meta name="copyright" content="libyuni.org 2011" />
+<meta name="rating" content="general" />
+<meta name="author" content="libyuni.org" />
+<meta name="description" content="@{DESCRIPTION}" />
+<meta name="keywords" content="@{KEYWORDS}" />
+<meta name="viewport" content="width=1024" />
+<meta name="DC.Title" content="@{TITLE}" />
+<meta name="DC.Creator" content="libyuni.org" />
+<meta name="DC.Description" content="@{DESCRIPTION}" />
+<meta name="DC.Type" content="text" />
+<meta name="DC.Format" content="text/html" />
+<meta http-equiv='pragma' content='public' />
+<link rel="icon"  href="favicon.ico" type="image/x-icon" />
+<link rel='stylesheet' type='text/css' media='all' href="yuni.css" />
+<link rel='stylesheet' type='text/css' media='print' href="yuni-print.css" />
+<script type="text/javascript" src="sh/shCore.js"></script>
+<script type="text/javascript" src="sh/shBrushCpp.js"></script>
+<link type="text/css" rel="stylesheet" href="sh/shCoreDefault.css" />
+<link type="text/css" rel="Stylesheet" href="sh/shThemeEclipse.css" />
+</head>
+<body>
+
+
+<!--
+   source : @{URL}
+   description : @{DESCRIPTION}
+-->
+
+
+
+
+<script type="text/javascript">
+<!--
+function toggle_toc() {
+	var e = document.getElementById('toclist');
+	var l = document.getElementById('toclink');
+	if (e && l) {
+		if (e.style.display == 'block') {
+			e.style.display = 'none';
+			l.innerHTML = "[ Show ]";
+		} else {
+			e.style.display = 'block';
+			l.innerHTML = "[ Hide ]";
+		}
+	}
+}
+//-->
+</script>
+
+
+<table class="layout">
+<tr>
+<td class="leftspace"></td>
+<td class="logo"><img src="logo.png" alt="Yuni Logo" /></td>
+<td class="title"><span class="unbreakable"><strong>Yuni </strong>Documentation</span>
+<div class="path">
+	<a href="#">v0.2</a>
+	<span>/</span>
+	<a href="#">en</a>
+	<span>/</span>
+	<a href="#">Programming with Yuni</a>
+	<span>/</span>
+	<a href="#">Threading policies</a>
+</div>
+</td>
+<td class="links">
+<div id="mainmenu">
+	<a href="#">Home</a>
+	<span></span>
+	<a href="#">Documentation</a>
+	<span></span>
+	<a href="#">Developpers</a>
+	<span></span>
+	<a href="#">Download</a>
+	<span></span>
+	<a href="#">Links</a>
+</div>
+</td>
+<td class="space"></td>
+</tr>
+
+<!-- space -->
+<tr>
+<td></td><td></td><td class="vspace"></td><td></td>
+</tr>
+
+<tr>
+<td colspan="2" class="leftmenu">
+<div>
+<a id="parent" href="#" class="selected">Yuni Framework</a>
+<ol>
+	<li><a href="#">What is multithreading</a></li>
+	<li><a class="selected" href="#">Using properly the threading policies</a></li>
+	<li><a href="#">Software transactional memory (STM)</a></li>
+	<li><a href="#">Examples</a></li>
+</ol>
+</div>
+</td>
+<td class="laycontent" colspan="2">
+
+
+<div id="toc" class="toc">
+<div>
+<span><b>&nbsp;TOC</b> <a id="toclink" href="javascript:toggle_toc()">[ Hide ]</a></span>
+<div id="toclist" style="display:block">
+<ol>
+	<li><a href="#">Ownership</a>
+	<ol>
+		<li><a href="#">Reference counted (thread safe)</a></li>
+		<li><a href="#">Reference counted (not thread safe)</a></li>
+	</ol>
+	</li>
+	<li><a href="#">Ownership</a>
+	<ol>
+		<li><a href="#">Reference counted (thread safe)</a></li>
+		<li><a href="#">Reference counted (not thread safe)</a></li>
+	</ol>
+	</li>
+	<li><a href="#">Ownership</a>
+	<ol>
+		<li><a href="#">Reference counted (thread safe)</a></li>
+		<li><a href="#">Reference counted (not thread safe)</a></li>
+	</ol>
+	</li>
+
+</ol>
+</div>
+</div>
+</div>
+
+<h1>Using properly the threading policies</h1>
+
+<div class="content">
+
+<h1>1. Ownership</h1>
+<h2>1.1. Reference counted (thread-safe)</h2>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tristique, purus ac condimentum mollis, massa metus vehicula mauris, sed iaculis libero ipsum sit amet turpis. Quisque tincidunt adipiscing ante sed faucibus. Nulla quis lacus id nunc ullamcorper porta non eget ante. Phasellus elementum facilisis eros, at commodo augue imperdiet vel. Donec ac eros luctus nunc accumsan pretium. In quis lacus ipsum. Pellentesque et nibh nec metus tristique pellentesque et eu arcu. Morbi sed posuere urna. Maecenas bibendum ullamcorper nisl, eu convallis urna sollicitudin at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vestibulum eget scelerisque ante. Nulla sed eros id nulla tempor dignissim. Nam id nisl eu sem condimentum vestibulum. Suspendisse ligula massa, imperdiet id varius at, dignissim ut enim.
+</p>
+<p>
+Nulla porta quam ac velit vestibulum non congue sapien imperdiet. Aenean eros neque, bibendum eu faucibus ac, molestie vel mi. In auctor mi eget magna ullamcorper rhoncus. Vestibulum non purus at lorem pretium semper ut vitae ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam ac lectus eu lorem cursus egestas. Sed commodo ipsum sit amet turpis venenatis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam elementum tristique imperdiet. Donec convallis velit non turpis blandit lacinia. Donec hendrerit interdum lacus ut ultricies. Nullam ut iaculis purus. Aenean sollicitudin lobortis sem quis elementum. Praesent pulvinar varius est, et aliquam tortor egestas vel. Mauris quis mauris risus, sit amet consequat justo. Aliquam quis eros quis lorem sagittis ultricies. Sed eros felis, iaculis a vulputate sed, gravida vel neque. Nulla scelerisque, nulla at vestibulum iaculis, nunc nulla porta erat, eu tincidunt neque justo a lectus.
+</p>
+<p>
+Aenean mattis, nunc vitae mattis pretium, risus erat vulputate metus, vitae accumsan libero nisl eget lacus. Nulla est libero, vulputate nec scelerisque sed, aliquet non diam. Duis ut rhoncus arcu. Phasellus fermentum volutpat lacus eu cursus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse potenti. Integer nibh felis, egestas ut aliquam non, aliquam id mi. Morbi laoreet mauris vitae ante accumsan eu vestibulum tellus vestibulum. Duis pulvinar vulputate tempor. Aenean eleifend diam eget diam ultrices tempor. Mauris eu tellus felis, sit amet gravida risus.
+</p>
+<table>
+<tr>
+<th>RAW Type</th>
+<th>Pikoli</th>
+<th>Pikoli</th>
+</tr>
+<tr>
+<td>Somewhere in the table</td>
+<td>nyu</td>
+<td>nyu</td>
+</tr>
+<tr>
+<td>Somewhere in the table !!! Mouarf</td>
+<td>nyu</td>
+<td>nyu</td>
+</tr>
+
+</table>
+<p>
+Fusce mattis, nisl non dignissim egestas, justo nibh rhoncus orci, quis scelerisque augue leo et odio. Nulla at odio nisl, et commodo est. Nulla placerat rutrum tincidunt. Sed sodales luctus nibh, sed pellentesque erat placerat in. Sed pulvinar massa at ipsum rutrum luctus ultricies erat consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ultricies scelerisque diam, sed pretium elit facilisis in. Curabitur eget lorem sed mi dictum porta viverra id arcu. Nulla rutrum, turpis in vulputate cursus, ipsum ligula feugiat odio, vel hendrerit dui nulla nec arcu. Curabitur id leo elit, ac molestie ipsum.
+</p>
+
+
+<h2>1.2. Reference counted (not thread-safe)</h2>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tristique, purus ac condimentum mollis, massa metus vehicula mauris, sed iaculis libero ipsum sit amet turpis. Quisque tincidunt adipiscing ante sed faucibus. Nulla quis lacus id nunc ullamcorper porta non eget ante. Phasellus elementum facilisis eros, at commodo augue imperdiet vel. Donec ac eros luctus nunc accumsan pretium. In quis lacus ipsum. Pellentesque et nibh nec metus tristique pellentesque et eu arcu. Morbi sed posuere urna. Maecenas bibendum ullamcorper nisl, eu convallis urna sollicitudin at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vestibulum eget scelerisque ante. Nulla sed eros id nulla tempor dignissim. Nam id nisl eu sem condimentum vestibulum. Suspendisse ligula massa, imperdiet id varius at, dignissim ut enim.
+</p>
+
+<h1>2. Dynamic casting</h1>
+<h2>2.1. Reference counted (thread-safe)</h2>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tristique, purus ac condimentum mollis, massa metus vehicula mauris, sed iaculis libero ipsum sit amet turpis. Quisque tincidunt adipiscing ante sed faucibus. Nulla quis lacus id nunc ullamcorper porta non eget ante. Phasellus elementum facilisis eros, at commodo augue imperdiet vel. Donec ac eros luctus nunc accumsan pretium. In quis lacus ipsum. Pellentesque et nibh nec metus tristique pellentesque et eu arcu. Morbi sed posuere urna. Maecenas bibendum ullamcorper nisl, eu convallis urna sollicitudin at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vestibulum eget scelerisque ante. Nulla sed eros id nulla tempor dignissim. Nam id nisl eu sem condimentum vestibulum. Suspendisse ligula massa, imperdiet id varius at, dignissim ut enim.
+</p>
+<p>
+Nulla porta quam ac velit vestibulum non congue sapien imperdiet. Aenean eros neque, bibendum eu faucibus ac, molestie vel mi. In auctor mi eget magna ullamcorper rhoncus. Vestibulum non purus at lorem pretium semper ut vitae ipsum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nam ac lectus eu lorem cursus egestas. Sed commodo ipsum sit amet turpis venenatis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam elementum tristique imperdiet. Donec <a href="#">convallis velit non turpis</a> blandit lacinia. Donec hendrerit interdum lacus ut ultricies. Nullam ut iaculis purus. Aenean sollicitudin lobortis sem quis elementum. Praesent pulvinar varius est, et aliquam tortor egestas vel. Mauris quis mauris risus, sit amet consequat justo. Aliquam quis eros quis lorem sagittis ultricies. Sed eros felis, iaculis a vulputate sed, gravida vel neque. Nulla scelerisque, nulla at vestibulum iaculis, nunc nulla porta erat, eu tincidunt neque justo a lectus.
+</p>
+<p>
+Aenean mattis, nunc vitae mattis pretium, risus erat vulputate metus, vitae accumsan libero nisl eget lacus. Nulla est libero, vulputate nec scelerisque sed, aliquet non diam. Duis ut rhoncus arcu. Phasellus fermentum volutpat lacus eu cursus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse potenti. Integer nibh felis, egestas ut aliquam non, aliquam id mi. Morbi laoreet mauris vitae ante accumsan eu vestibulum tellus vestibulum. Duis pulvinar vulputate tempor. Aenean eleifend diam eget diam ultrices tempor. Mauris eu tellus felis, sit amet gravida risus.
+</p>
+<p>
+Fusce mattis, nisl non dignissim egestas, justo nibh rhoncus orci, quis scelerisque augue leo et odio. Nulla at odio nisl, et commodo est. Nulla placerat rutrum tincidunt. Sed sodales luctus nibh, sed pellentesque erat placerat in. Sed pulvinar massa at ipsum rutrum luctus ultricies erat consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ultricies scelerisque diam, sed pretium elit facilisis in. Curabitur eget lorem sed mi dictum porta viverra id arcu. Nulla rutrum, turpis in vulputate cursus, ipsum ligula feugiat odio, vel hendrerit dui nulla nec arcu. Curabitur id leo elit, ac molestie ipsum.
+</p>
+
+
+<h2>2.2. Reference counted (not thread-safe)</h2>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tristique, purus ac condimentum mollis, massa metus vehicula mauris, sed iaculis libero ipsum sit amet turpis. Quisque tincidunt adipiscing ante sed faucibus. Nulla quis lacus id nunc ullamcorper porta non eget ante. Phasellus elementum facilisis eros, at commodo augue imperdiet vel. Donec ac eros luctus nunc accumsan pretium. In quis lacus ipsum. Pellentesque et nibh nec metus tristique pellentesque et eu arcu. Morbi sed posuere urna. Maecenas bibendum ullamcorper nisl, eu convallis urna sollicitudin at. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vestibulum eget scelerisque ante. Nulla sed eros id nulla tempor dignissim. Nam id nisl eu sem condimentum vestibulum. Suspendisse ligula massa, imperdiet id varius at, dignissim ut enim.
+</p>
+
+<ul>
+	<li>PLorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tristique, purus ac condimentum mollis, massa metus vehicula</li>
+</ul>
+
+<pre class="brush: cpp; gutter: false; class-name: 'class_name_pre'">
+#ifndef __YUNI_CORE_SYSTEM_CPU_H__
+# define __YUNI_CORE_SYSTEM_CPU_H__
+
+# include "../../yuni.h"
+
+
+namespace Yuni
+{
+namespace System
+{
+namespace CPU
+{
+
+	/*!
+	** \brief Get the number of system CPU
+	**
+	** \return The number of CPU (logic or not), 1 when the value is unknown
+	*/
+	unsigned int Count();
+
+
+} // namespace CPU
+} // namespace System
+} // namespace Yuni
+
+#endif // __YUNI_CORE_SYSTEM_CPU_H__
+</pre>
+
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras tristique, <code>purus ac condimentum</code> mollis, massa metus vehicula mauris.
+</p>
+
+
+</div>
+
+
+<div class="modified">
+Last modified : September 11, 2011
+</div>
+
+<table class="footer">
+<tr>
+<td>For any additional informations or technical issues, please contact <a href="#">support@libyuni.org</a></td>
+<td class="footerlogo"></td>
+</tr>
+</table>
+
+</td>
+<td></td>
+</tr>
+</table>
+
+
+
+
+<script type="text/javascript">SyntaxHighlighter.all();</script>
+</body>
+</html>

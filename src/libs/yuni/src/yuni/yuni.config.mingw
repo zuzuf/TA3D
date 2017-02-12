@@ -1,0 +1,9 @@
+[settings]
+path.include:core = /home/roland/progcpp/ta3d/trunk/src/libs/yuni/src/yuni/..
+path.lib:core = /home/roland/progcpp/ta3d/trunk/src/libs/yuni/src/yuni/../build/release/lib
+lib:core = yuni-static-core
+path.include:core = /home/roland/progcpp/ta3d/trunk/src/libs/yuni/src/../devpacks/pthreads/2.8.0/r3/i386/mingw/include
+lib,rawcommand:core = /home/roland/progcpp/ta3d/trunk/src/libs/yuni/src/../devpacks/pthreads/2.8.0/r3/i386/mingw/lib/static/libpthreadGC2.a
+cxxflag:core = -std=c++0x
+lib:net = yuni-static-net
+define:core = YUNI_LIBRARY_STATIC

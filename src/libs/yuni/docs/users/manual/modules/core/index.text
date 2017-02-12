@@ -1,0 +1,45 @@
+
+Core module
+===========
+
+The Core module is the heart of Yuni. It is required as a dependency
+for all the other modules. It includes features that any C++ application
+may have a need for at some point. When compiling Yuni, Core is
+compiled by default.
+
+The Core module offers :
+ - Yuni::Any : Container for any type, with limited behaviour
+ - Yuni::Atomic : Atomic integers for threading
+ - Yuni::Bind : Generic function or method binding
+ - Yuni::Bit : Bit array manipulation
+ - Yuni::Charset : Charset manipulation
+ - Yuni::Color : Generic color manipulation and conversion
+ - Yuni::CustomString : Generic data array manipulation, basis for Yuni::String
+ - Yuni::DynamicLibrary : Dynamic library loading and access
+ - Yuni::Event : Synchronous events management
+ - Yuni::Exceptions : Exception definitions
+ - Yuni::GetOpt : Command-line arguments parser
+ - Yuni::Hash : Hash table and checksum
+ - Yuni::IO : Input / Output management, file and directory access
+ - Yuni::Iterator : Generic iterator for any kind of collection
+ - Yuni::Logs : Logging for output or debug uses
+ - Yuni::Math : Mathematical features
+ - Yuni::Nullable : Generic type to offer nullable semantics to a value type
+ - Yuni::Policies : Set of generic policies for various uses (see the chapter on policies)
+ - Yuni::Predicate : Generic predicates in the form of functors
+ - Yuni::Preprocessor : Set of miscellaneous macros
+ - Yuni::Singleton : Generic singleton pattern
+ - Yuni::SList : Generic single-linked list
+ - Yuni::SmartPtr : Generic smart pointer
+ - Yuni::Static : Set of static (done at compile time)
+ - Yuni::STL : Additional algorithms for the standard template library
+ - Yuni::String : Fast and full-featured character string
+ - Yuni::System : System capabilities detection and replacements, and OS-dependent features
+ - Yuni::Traits : Some C++ traits, mainly for string features
+ - Yuni::Tree : Generic N-tree
+ - Yuni::Unit : Unit conversions
+ - Yuni::Uri : Uniform Resource Identifiers management
+ - Yuni::Utils : Various utilities, for the moment a HexDump
+ - Yuni::Validator : Type validation on a string's value
+ - Yuni::Variant : Container for a limited range of types, also offering conversions
+ - Yuni::Version : Version management (major / minor)
