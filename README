@@ -1,4 +1,4 @@
-TA3D version 0.4.2
+TA3D version 0.6.0
 
 this software is under GPL (see COPYING)
 
@@ -34,28 +34,28 @@ _a system to make the terrain destructible
 
 and probably more!
 
-NB: TA3D requires Allegro v 4.2.2 or better, AllegroGL >= 0.4.0 and zlib
+NB: TA3D requires SDL,SDL_image,SDL_mixer and SDL_net 1.2, GLEW and zlib
 
 -------
 
-ce logiciel est distribué sous licence GPL (voir COPYING)
+ce logiciel est distribuÃ© sous licence GPL (voir COPYING)
 
 TA3D est un "clone" du jeu total annihilation mais en vraie 3D utilisant OpenGl.
-IL n'est bien évidemment pas terminé mais possède déjà quelques fonctions du
+IL n'est bien Ã©videmment pas terminÃ© mais possÃ¨de dÃ©jÃ  quelques fonctions du
 jeu d'origine:
-_gestion de quelques déplacements d'unités
+_gestion de quelques dÃ©placements d'unitÃ©s
 _gestion des constructions
-_animation des unités à l'aide des scripts du jeu(stable mais incomplet)
+_animation des unitÃ©s Ã  l'aide des scripts du jeu(stable mais incomplet)
 _chargement complet des cartes du jeu avec correction de la perspective d'origine
-_ombres portées des unités et bâtiments
-_chargement automatique des unités détectées dans le repertoire du jeu
-_moteur à particules complet et fonctionnel
-_interface utilisateur sur le modèle de celle de total annihilation (non achevée)
-_gestion des intersection rayon/terrain (pour les commandes à la souris)
-_tourne nativement sous Linux(développé sous Linux d'ailleurs)
+_ombres portÃ©es des unitÃ©s et bÃ¢timents
+_chargement automatique des unitÃ©s dÃ©tectÃ©es dans le repertoire du jeu
+_moteur Ã  particules complet et fonctionnel
+_interface utilisateur sur le modÃ¨le de celle de total annihilation (non achevÃ©e)
+_gestion des intersection rayon/terrain (pour les commandes Ã  la souris)
+_tourne nativement sous Linux(dÃ©veloppÃ© sous Linux d'ailleurs)
 _tourne sous windows
 _support des "armes"
-_effets d'explosion améliorés
+_effets d'explosion amÃ©liorÃ©s
 _le mode campagne
 _...
 
@@ -64,16 +64,16 @@ _un effet de fluides pour les océans et les lacs de lave entre autres
 _une console permettant de modifier le déroulement du jeu
 
 en cours:
-_ajout d'une intelligence artificielle (capable d'apprendre à terme)
+_ajout d'une intelligence artificielle (capable d'apprendre Ã  terme)
 
-en projet mais non sûr:
-_un générateur de cartes aléatoires
-_ajout du support d'un format plus détaillé de cartes
-_ajout d'un système de déformation du terrain
+en projet mais non sÃ»r:
+_un générateur de cartes alÃ©atoires
+_ajout du support d'un format plus dÃ©taillÃ© de cartes
+_ajout d'un systÃ¨me de dÃ©formation du terrain
 
-et bien d'autres choses que je n'ai pas à l'esprit en ce moment!
+et bien d'autres choses que je n'ai pas Ã  l'esprit en ce moment!
 
-NB: TA3D nécessite Allegro version 4.2.2 ou plus récente, AllegroGL >= 0.4.0 et la zlib
+NB: TA3D nÃ©cessite SDL,SDL_image,SDL_mixer et SDL_net en version 1.2, GLEW et la zlib
 
 INSTALLATION
 ------------
@@ -92,36 +92,36 @@ If you don't have the first TA CD, you can get *.hpi/*.ufo files which contain m
 
 ----------
 
-Pour les détails concernant la compilation du code voir INSTALL
+Pour les dÃ©tails concernant la compilation du code voir INSTALL
 
-TA3D nécessite les fichiers ressources de TA pour fonctionner, si vous avez le premier CD de TA vous pouvez extraire totala1.hpi et totala2.hpi
+TA3D nÃ©cessite les fichiers ressources de TA pour fonctionner, si vous avez le premier CD de TA vous pouvez extraire totala1.hpi et totala2.hpi
 avec cette commande:
 ./install_sh
 
 qui lancera en fait "./ta3d install"
 
-puis suivez les instructions à l'écran.
+puis suivez les instructions Ã  l'Ã©cran.
 
-Si vous n'avez pas le premier CD de TA, vous pouvez obtenir des fichiers de ressources *.hpi/*.ufo contenant cartes/unités/armes/... depuis un mod ou la démo.
+Si vous n'avez pas le premier CD de TA, vous pouvez obtenir des fichiers de ressources *.hpi/*.ufo contenant cartes/unitÃ©s/armes/... depuis un mod ou la dÃ©mo.
 
 *********************
 
 to launch TA3D just type ./ta3d , it will launch the menu allowing you to launch a game and select a map
 
-console can be enabled with ")".("²" under windows)
+console can be enabled with ")".("Â²" under windows)
 
 this software is still in development and authors cannot be held responsible for any
 consequence of this software on your life, your computer, your dog, ...
 
-PS: si vous aimez ce logiciel faites le connaître :-)
+PS: si vous aimez ce logiciel faites le connaÃ®tre :-)
 ----------
 
 pour lancer ta3d tapez simplement ./ta3d pour lancer le menu vous permettant de lancer une partie et de
 choisir une carte.
 
-la console s'affiche et se cache avec ")".("²" sous windows)
+la console s'affiche et se cache avec ")".("Â²" sous windows)
 
-ce logiciel est en phase de développement et l'auteur ne pourrait être tenu pour responsable
-des conséquences que l'utilisation de ce logiciel pourrait avoir sur votre vie,votre PC,votre chien,...
+ce logiciel est en phase de dÃ©veloppement et l'auteur ne pourrait Ãªtre tenu pour responsable
+des consÃ©quences que l'utilisation de ce logiciel pourrait avoir sur votre vie,votre PC,votre chien,...
 
-PS: si vous aimez ce logiciel faites le connaître :-)
+PS: si vous aimez ce logiciel faites le connaÃ®tre :-)
