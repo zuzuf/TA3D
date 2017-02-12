@@ -1,9 +1,0 @@
-[settings]
-path.include:core = /home/roland/progcpp/ta3d/trunk/src/libs/yuni/src/yuni/..
-path.lib:core = /home/roland/progcpp/ta3d/trunk/src/libs/yuni/src/yuni/../build/release/lib
-lib:core = yuni-static-core
-define:core = _FILE_OFFSET_BITS=64
-lib,rawcommand:core = -lpthread
-cxxflag:core = -std=c++0x
-lib:net = yuni-static-net
-define:core = YUNI_LIBRARY_STATIC
