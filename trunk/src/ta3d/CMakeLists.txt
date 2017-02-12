@@ -310,6 +310,10 @@ else()
 	endif()
 endif()
 
+if(LUA_NOJIT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA_NOJIT")
+endif(LUA_NOJIT)
+
 
 
 #

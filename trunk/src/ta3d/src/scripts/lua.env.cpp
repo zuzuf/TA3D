@@ -23,7 +23,7 @@ namespace TA3D
     LuaEnv::LuaEnv()
     {
         L = lua_open();
-    }
+	}
 
     LuaEnv::~LuaEnv()
     {
