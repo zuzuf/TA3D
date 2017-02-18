@@ -7,6 +7,10 @@
 #include <omp.h>
 #endif
 
+#ifndef M_PI
+#define M_PI    3.141592653589793238462643
+#endif
+
 namespace TA3D
 {
 	void gaussianFilter(Grid<float> &grid, float sigma)

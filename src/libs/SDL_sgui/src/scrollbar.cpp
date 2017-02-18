@@ -28,7 +28,7 @@ namespace Gui
 			arrowright = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0, 0, 0xFF, 0);
 			arrowup = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0, 0, 0xFF, 0);
 			arrowdown = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0, 0, 0xFF, 0);
-			const char *data = header_data;
+            const unsigned char *data = header_data;
 			for(uint32 y = 0 ; y < height ; ++y)
 			{
 				for(uint32 x = 0 ; x < width ; ++x)

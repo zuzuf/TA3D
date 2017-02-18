@@ -14,7 +14,7 @@ SET(TA3D_WEBSITE_NEW_BUGREPORT  "http://trac.ta3d.org/newticket")
 SET(TA3D_VERSION_HI     "0")     # 0.6.0
 SET(TA3D_VERSION_LO     "6")
 SET(TA3D_VERSION_PATCH  "0")
-SET(TA3D_VERSION_TAG    "WIP")
+SET(TA3D_VERSION_TAG    "")
 
 
 IF (NOT CMAKE_BUILD_TYPE)
@@ -84,10 +84,10 @@ ENDIF(NOT APPLE)
 
 # SDL_sgui
 IF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-	SET( SDL_FOUND included )
-	SET( SDL_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/include/SDL")
-	SET( SDL_LIBRARY "mingw32;${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/libs/libSDLmain.a;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL.dll")
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/include)
+#	SET( SDL_FOUND included )
+#	SET( SDL_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/include/SDL")
+#	SET( SDL_LIBRARY "mingw32;${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/libs/libSDLmain.a;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL.dll")
+#	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/include)
 ENDIF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 ADD_SUBDIRECTORY(libs/SDL_sgui)
 

@@ -10,7 +10,7 @@ pixel[0] = pixel[1] = pixel[2] = (unsigned char)*data; \
 ++data; \
 }
 
-static const char header_data[] = { 
+static const unsigned char header_data[] = {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

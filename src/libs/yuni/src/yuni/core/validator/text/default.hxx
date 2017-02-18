@@ -128,7 +128,8 @@ namespace Text
 	template<Yuni::Validator::DefaultPolicy DefaultPolicy>
 	inline ExceptionList<DefaultPolicy>& ExceptionList<DefaultPolicy>::operator += (const String::Vector& rhs)
 	{
-		pExceptionList += rhs;
+                for(const String &s : rhs)
+                pExceptionList.push_back(s);
 		return *this;
 	}
 
@@ -168,7 +169,8 @@ namespace Text
 	template<Yuni::Validator::DefaultPolicy DefaultPolicy>
 	inline ExceptionList<DefaultPolicy>& ExceptionList<DefaultPolicy>::operator << (const String::Vector& rhs)
 	{
-		pExceptionList += rhs;
+            for(const String &s : rhs)
+                pExceptionList.push_back(s);
 		return *this;
 	}
 
