@@ -195,7 +195,7 @@ static void InitializeTheEngine(TA3D::Engine& engine)
 
 
 
-YUNI_MAIN()
+int main(int argc, char **argv)
 {
     setenv("LANG", "C", 1);
 
