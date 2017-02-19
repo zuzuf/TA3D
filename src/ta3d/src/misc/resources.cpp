@@ -131,9 +131,9 @@ namespace Resources
 
 	bool Find(const String& relFilename, String& out)
 	{
-		MutexLocker locker(gResourcesMutex);
+        MutexLocker locker(gResourcesMutex);
 		for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-		{
+        {
 			out = *i;
 			out << relFilename;
 			if (Paths::Exists(out))
@@ -168,7 +168,7 @@ namespace Resources
 
 	String::Vector GetPaths()
 	{
-		MutexLocker locker(gResourcesMutex);
+        MutexLocker locker(gResourcesMutex);
 		return pResourcesFolders;
 	}
 

@@ -18,52 +18,24 @@
 #ifndef __TA3D_THREADS_MUTEX_H__
 # define __TA3D_THREADS_MUTEX_H__
 
-# include <yuni/thread/mutex.h>
-# include <yuni/thread/condition.h>
-
+# include <QMutex>
+# include <QMutexLocker>
+# include <QWaitCondition>
 
 namespace TA3D
 {
 
+    class Mutex : public QMutex
+    {
+    public:
+        Mutex() : QMutex(QMutex::Recursive) {}
+    };
 
-	typedef Yuni::Mutex  Mutex;
-
-
-	/*! \class MutexLocker
-	**
-	** \code
-	**      class Foo
-	**      {
-	**      public:
-	**          Foo() : pValue(42) {}
-	**          ~Foo() {}
-	**          int getValue()
-	**          {
-	**              MutexLocker locker(pMutex);
-	**              return pValue;
-	**          }
-	**          void setValue(const int i)
-	**          {
-	**              pMutex.lock();
-	**              pValue = i;
-	**              pMutex.unlock();
-	**          }
-	**      private:
-	**          int pValue;
-	**          Mutex pMutex;
-	**      };
-	** \endcode
-	*/
-	class MutexLocker
-	{
-	public:
-		MutexLocker(Mutex& m) : pMutex(m) { m.lock(); }
-		~MutexLocker() { pMutex.unlock(); }
-	private:
-		Mutex& pMutex;
-
-	}; // MutexLocker
-
+    class MutexLocker : public QMutexLocker
+    {
+    public:
+        MutexLocker(Mutex &mtx) : QMutexLocker(&mtx)    {}
+    };
 
 	class Synchronizer
 	{
@@ -85,7 +57,7 @@ namespace TA3D
 		Mutex pMutex;
 
 		//! The PThread Condition
-		pthread_cond_t  pCondition;
+        QWaitCondition  pCondition;
 
 		//! Have the condition been really signalled ?
 		volatile unsigned int pSignalled;
