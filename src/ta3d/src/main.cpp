@@ -197,6 +197,8 @@ static void InitializeTheEngine(TA3D::Engine& engine)
 
 YUNI_MAIN()
 {
+    setenv("LANG", "C", 1);
+
     QApplication a(argc, argv);
 
 	// Initialize signals

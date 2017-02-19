@@ -20,20 +20,10 @@
 #include "string.h"
 #include <logs/logs.h>
 #include <sdl.h>
-
-#ifdef YUNI_OS_MACOS
-# include <stdio.h>
-# define TA3D_POPEN   popen
-# define TA3D_PCLOSE  pclose
-#endif
-#ifdef TA3D_PLATFORM_LINUX
-# define TA3D_POPEN   popen
-# define TA3D_PCLOSE  pclose
-#elif defined TA3D_PLATFORM_WINDOWS
-# define TA3D_POPEN   _popen
-# define TA3D_PCLOSE	 _pclose
-#endif
-
+#include <QProcess>
+#include <QSysInfo>
+#include <QScreen>
+#include <QGuiApplication>
 
 using namespace Yuni;
 
@@ -49,27 +39,14 @@ namespace System
 	{
 		if (!cmd)
 			return nullptr;
-		# ifdef TA3D_POPEN
 		String result;
-		FILE* pipe = TA3D_POPEN(cmd.c_str(), "r");
-		if (!pipe)
-			return result;
+        QProcess proc;
+        proc.start(cmd.c_str(), QIODevice::ReadOnly);
+        if (!proc.waitForFinished())
+            return result;
 
-		while (!feof(pipe))
-		{
-			const int c = fgetc(pipe);
-			if (c == -1)
-				return result;
-			result << (char)c;
-		}
-
-		TA3D_PCLOSE(pipe);
+        result = proc.readAllStandardOutput().toStdString();
 		return result;
-
-		# else
-		PleaseImplementRunCommandForTheCurrentOS;
-		return nullptr;
-		# endif
 	}
 
 
@@ -79,11 +56,7 @@ namespace System
     {
 		String CPUName()
         {
-			# ifdef TA3D_PLATFORM_LINUX
-			return run_command("cat /proc/cpuinfo | grep \"model name\" | head -n 1 | tail -c +14 | tr -d \"\\n\"");
-			# else
-			return "Unknown";
-			# endif
+            return QSysInfo::currentCpuArchitecture().toStdString();
         }
 
 
@@ -114,15 +87,13 @@ namespace System
 
 	bool DesktopResolution(int& width, int& height, int& colorDepth)
 	{
-		const SDL_VideoInfo *videoInfo = SDL_GetVideoInfo();
-		if (videoInfo)
-		{
-			width = videoInfo->current_w;
-			height = videoInfo->current_h;
-			colorDepth = videoInfo->vfmt->BitsPerPixel;
-			return true;
-		}
-		return false;
+        QScreen *screen = QGuiApplication::primaryScreen();
+        if (!screen)
+            return false;
+        width = screen->size().width();
+        height = screen->size().height();
+        colorDepth = screen->depth();
+        return true;
 	}
 
 
