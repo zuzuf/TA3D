@@ -1,5 +1,5 @@
 PROJECT(TA3D)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.3)
 
 message(STATUS "")
 message(STATUS "--- TA3D ---")
@@ -57,7 +57,7 @@ endif()
 #
 # Ex: cmake . -DCMAKE_BUILD_TYPE=release
 #
-if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 	#
 	# Build Configuration: Release
@@ -77,7 +77,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 	endif(NOT WIN32)
 	add_definitions("-DNDEBUG") # Remove asserts
 
-Else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+Else("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 	#
 	# Build Configuration: Debug
@@ -99,7 +99,7 @@ Else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 	endif(NOT WIN32)
 	add_definitions("-DLOGS_USE_DEBUG")
 
-Endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+Endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 
 
@@ -123,6 +123,20 @@ endif(NOT WIN32)
 
 Include(CheckIncludeFile)
 
+#
+# --- Qt5 ---
+#
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+include_directories(${Qt5Core_INCLUDE_DIRS})
+include_directories(${Qt5Gui_INCLUDE_DIRS})
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Network_INCLUDE_DIRS})
+LINK_LIBRARIES(Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
+
+set(CMAKE_AUTOMOC ON)
 
 #
 # --- SDL ---
@@ -133,40 +147,17 @@ Include(FindSDL_image)
 Include(FindSDL_mixer)
 Include(FindSDL_net)
 
-# Manual setup for mingw32 (all required files are included in source tree)
-#IF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-
-#	set( SDL_FOUND included )
-#	set( SDLIMAGE_FOUND included )
-#	set( SDLMIXER_FOUND included )
-#	set( SDLNET_FOUND included )
-#	set( SMPEG_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libsmpeg.a )
-
-#	include_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include" )
-
-#	set( SDL_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-#	set( SDLIMAGE_include_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-#	set( SDLMIXER_include_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-#	set( SDLNET_include_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/SDL")
-
-#	set( SDL_LIBRARY "mingw32;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libSDLmain.a;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL.dll")
-#	set( SDLIMAGE_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_image.dll")
-#	set( SDLMIXER_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_mixer.dll")
-#	set( SDLNET_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL_net.dll")
-
-#endif (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-
-	find_library(SMPEG_LIBRARY smpeg)
-	message(STATUS "${SDL_PREFIX} SDL: ${SDL_FOUND}")
-	message(STATUS "${SDL_PREFIX} SDL_image: ${SDLIMAGE_FOUND}")
-	message(STATUS "${SDL_PREFIX} SDL_mixer: ${SDLMIXER_FOUND}")
-	message(STATUS "${SDL_PREFIX} SDL_net: ${SDLNET_FOUND}")
-	message(STATUS "${SDL_PREFIX} SMPEG: ${SMPEG_LIBRARY}")
-	message(STATUS "${SDL_PREFIX} Include dir: ${SDL_INCLUDE_DIR}")
-	message(STATUS "${SDL_PREFIX} The SDL library: ${SDL_LIBRARY}")
-	message(STATUS "${SDL_PREFIX} The SDL_image library: ${SDLIMAGE_LIBRARY}")
-	message(STATUS "${SDL_PREFIX} The SDL_mixer library: ${SDLMIXER_LIBRARY}")
-	message(STATUS "${SDL_PREFIX} The SDL_net library: ${SDLNET_LIBRARY}")
+find_library(SMPEG_LIBRARY smpeg)
+message(STATUS "${SDL_PREFIX} SDL: ${SDL_FOUND}")
+message(STATUS "${SDL_PREFIX} SDL_image: ${SDLIMAGE_FOUND}")
+message(STATUS "${SDL_PREFIX} SDL_mixer: ${SDLMIXER_FOUND}")
+message(STATUS "${SDL_PREFIX} SDL_net: ${SDLNET_FOUND}")
+message(STATUS "${SDL_PREFIX} SMPEG: ${SMPEG_LIBRARY}")
+message(STATUS "${SDL_PREFIX} Include dir: ${SDL_INCLUDE_DIR}")
+message(STATUS "${SDL_PREFIX} The SDL library: ${SDL_LIBRARY}")
+message(STATUS "${SDL_PREFIX} The SDL_image library: ${SDLIMAGE_LIBRARY}")
+message(STATUS "${SDL_PREFIX} The SDL_mixer library: ${SDLMIXER_LIBRARY}")
+message(STATUS "${SDL_PREFIX} The SDL_net library: ${SDLNET_LIBRARY}")
 
 if(NOT SDL_FOUND)
 	message(FATAL_ERROR "SDL not found, SDL is required")
@@ -407,23 +398,6 @@ else(NOT APPLE)
 
 endif(NOT APPLE)
 
-
-#
-# --- SDL_sgui ---
-#
-set(SDL_SGUI_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/libSDL_sgui.a)
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/SDL_sgui/include )
-
-message(STATUS "SDL_sgui Library : ${SDL_SGUI_LIB}")
-set(LIBS "${LIBS} ${SDL_SGUI_LIB}")
-
-
-#
-# --- ZLib ---
-#
-#if(WIN32)
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/zlib")
-#endif(WIN32)
 
 #
 # --- OpenMP ---

@@ -23,8 +23,8 @@
 # include <logs/logs.h>
 
 
-# define makeacol(r,g,b,a)   (((uint32)(a)<<24) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))
-# define makecol24(r,g,b)   (((uint32)0xFF000000) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))
+# define makeacol(r,g,b,a)   (((uint32_t)(a)<<24) | ((uint32_t)(b)<<16) | ((uint32_t)(g)<<8) | (uint32_t)(r))
+# define makecol24(r,g,b)   (((uint32_t)0xFF000000) | ((uint32_t)(b)<<16) | ((uint32_t)(g)<<8) | (uint32_t)(r))
 # define makecol(r,g,b)   makecol24(r,g,b)
 # define makeacol32(r,g,b,a)   makeacol(r,g,b,a)
 

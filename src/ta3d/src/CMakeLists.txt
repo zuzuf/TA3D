@@ -10,6 +10,7 @@ link_libraries("${Yuni_LIBS}")
 
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(TA3D_FORMS)
 
 #
 # STDAFX
@@ -168,8 +169,10 @@ SET(SRC_SOUND
 #
 SET(SRC_DEBUG
 		backtrace.cpp backtrace.h
+                configdialog.cpp configdialog.h
 		config.cpp)
-
+set(TA3D_FORMS ${TA3D_FORMS}
+                configdialog.ui)
 
 #
 # Console
@@ -262,6 +265,7 @@ SET(SRC_INGAME_MENUS
 		ingame/menus/setupgame.h ingame/menus/setupgame.cpp)
 
 
+qt5_wrap_ui(TA3D_UI ${TA3D_FORMS})
 
 # --------------------------------------------------------------------
 # --- TA3D
@@ -285,6 +289,7 @@ SET(TA3D_SOURCES
 		${SRC_NETWORK}
 		${SRC_AI}
 		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
+                ${TA3D_UI}
 		install.cpp
 		restore.cpp restore.h
 		fbi.cpp fbi.h

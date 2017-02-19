@@ -33,7 +33,7 @@
 # include "../config.h"
 
 # include <yuni/yuni.h>
-
+# include <cstdint>
 
 // TODO : Should be removed
 # ifdef YUNI_OS_WINDOWS
@@ -62,14 +62,14 @@ namespace TA3D
 {
 
 	// Fundamental types
-	typedef Yuni::uint64   uint64;
-	typedef Yuni::uint32   uint32;
-	typedef Yuni::uint16   uint16;
-	typedef Yuni::uint8    uint8;
-	typedef Yuni::sint64   sint64;
-	typedef Yuni::sint32   sint32;
-	typedef Yuni::sint16   sint16;
-	typedef Yuni::sint8    sint8;
+    typedef uint64_t   uint64;
+    typedef uint32_t   uint32;
+    typedef uint16_t   uint16;
+    typedef uint8_t    uint8;
+    typedef int64_t    sint64;
+    typedef int32_t    sint32;
+    typedef int16_t    sint16;
+    typedef int8_t     sint8;
 
 	typedef uint8         byte;
 	typedef unsigned char uchar;

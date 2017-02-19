@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConfigDialog</class>
+ <widget class="QDialog" name="ConfigDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>848</width>
+    <height>463</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>TA3D failsafe config tool</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="video">
+      <attribute name="title">
+       <string>video</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Display mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Anti-aliasing</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Fullscreen</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Anisotropy</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Shadows quality</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Water quality</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Shadowmap size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Texture cache</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Texture compression</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Far sight</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="cb_display_mode">
+         <item>
+          <property name="text">
+           <string>640x480 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>640x480 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>800x600 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>800x600 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1024x768 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1024x768 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x720 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x720 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x800 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x800 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x960 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x960 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x1024 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1280x1024 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1440x900 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1440x900 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1600x1200 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1600x1200 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1920x1080 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1920x1080 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2560x1440 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2560x1440 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2560x1600 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2560x1600 32bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>3840x2160 16bits</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>3840x2160 32bits</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="cb_AA">
+         <item>
+          <property name="text">
+           <string>disabled</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2x</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>4x</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>8x</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>16x</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>32x</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QCheckBox" name="cb_fullscreen">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="cb_anisotropy">
+         <item>
+          <property name="text">
+           <string>1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>4</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>8</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>16</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QComboBox" name="cb_shadows_quality">
+         <item>
+          <property name="text">
+           <string>none</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>low</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>normal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>high</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QComboBox" name="cb_water_quality">
+         <item>
+          <property name="text">
+           <string>low</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>normal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>high</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>best</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>extreme</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ultimate</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QComboBox" name="cb_shadowmap_size">
+         <item>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>3</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QCheckBox" name="cb_texture_cache">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QCheckBox" name="cb_texture_compression">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QCheckBox" name="cb_farsight">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="audio">
+      <attribute name="title">
+       <string>audio</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>sound volume</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>music volume</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="sb_sound_volume">
+         <property name="maximum">
+          <number>128</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="sb_music_volume">
+         <property name="maximum">
+          <number>128</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="game">
+      <attribute name="title">
+       <string>game</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Player name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Language</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Mod</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="le_player_name">
+         <property name="text">
+          <string>player</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="cb_language">
+         <item>
+          <property name="text">
+           <string>english</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>french</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>german</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>spanish</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>italian</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>japanese</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="le_mod"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="advanced">
+      <attribute name="title">
+       <string>advanced</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Developer mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>7z command</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string>NetServer</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="cb_dev_mode">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="le_7z_command"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="le_netserver"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ConfigDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ConfigDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

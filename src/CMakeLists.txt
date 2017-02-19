@@ -1,5 +1,5 @@
 PROJECT(TA3DRepository)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.3)
 
 Message(STATUS "")
 Message(STATUS "--- TA3D, Remake of the Total Annihilation engine ---")
@@ -11,10 +11,10 @@ SET(TA3D_WEBSITE_FORUM          "http://www.ta3d.org/forums/")
 SET(TA3D_MAIL_BUGREPORT         "dev@ta3d.org")
 SET(TA3D_WEBSITE_NEW_BUGREPORT  "http://trac.ta3d.org/newticket")
 
-SET(TA3D_VERSION_HI     "0")     # 0.6.0
-SET(TA3D_VERSION_LO     "6")
+SET(TA3D_VERSION_HI     "0")     # 0.7.0
+SET(TA3D_VERSION_LO     "7")
 SET(TA3D_VERSION_PATCH  "0")
-SET(TA3D_VERSION_TAG    "")
+SET(TA3D_VERSION_TAG    "WIP")
 
 
 IF (NOT CMAKE_BUILD_TYPE)
@@ -81,15 +81,6 @@ ENDIF(Yuni_FOUND)
 IF(NOT APPLE)
 	ADD_SUBDIRECTORY(libs/ftgl)
 ENDIF(NOT APPLE)
-
-# SDL_sgui
-IF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-#	SET( SDL_FOUND included )
-#	SET( SDL_INCLUDE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/include/SDL")
-#	SET( SDL_LIBRARY "mingw32;${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/libs/libSDLmain.a;${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/SDL.dll")
-#	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ta3d/src/tools/win32/mingw32/include)
-ENDIF (WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-ADD_SUBDIRECTORY(libs/SDL_sgui)
 
 # TA3D
 ADD_SUBDIRECTORY(ta3d)

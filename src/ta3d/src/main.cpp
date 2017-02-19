@@ -20,6 +20,7 @@
  ** Notes: The applications main entry point.
  */
 
+#include <QApplication>
 #include <yuni/yuni.h>
 #include <yuni/core/system/main.h>
 #include "stdafx.h"					// standard pch inheritance.
@@ -42,8 +43,6 @@
 #include "sounds/manager.h"
 #include "cache.h"
 #include "ingame/menus/setupgame.h"
-
-
 
 namespace TA3D
 {
@@ -198,6 +197,8 @@ static void InitializeTheEngine(TA3D::Engine& engine)
 
 YUNI_MAIN()
 {
+    QApplication a(argc, argv);
+
 	// Initialize signals
 	init_signals();
 	// Constructing config

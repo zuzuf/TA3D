@@ -19,10 +19,10 @@
 #include "stdafx.h"
 #include <iostream>
 #include "misc/string.h"
-#include <SDL/SDL_sgui.h>
 #include "TA3D_NameSpace.h"
 #include "misc/paths.h"
 #include <exception>
+#include <QMessageBox>
 
 
 // Signals should be disabled under OS X, since the system already produces a crash report
@@ -252,7 +252,7 @@ void criticalMessage(const String &msg)
 	std::cerr << msg << std::endl;      // Output error message to stderr
 
 	SDL_SetVideoMode(0,0,0,0);
-	Gui::Utils::message("TA3D - Critical Error", msg.c_str());
+    QMessageBox::critical(NULL, "TA3D - Critical Error", msg.c_str());
 }
 
 /*!
@@ -309,49 +309,49 @@ void bug_reporter(const String &trace)
 	report += "\nstacktrace:\n";
 	report += trace.c_str();
 
-	Gui::Window wnd("Bug report", 640, 240, Gui::Window::MOVEABLE);
-	wnd.addChild(Gui::TabWidget_("tabs")
-				/ (Gui::Spacer_(false) | Gui::Button_("ok", " send report ") | Gui::Spacer_(false) | Gui::Button_("cancel", " don't send ") | Gui::Spacer_(false)));
+//	Gui::Window wnd("Bug report", 640, 240, Gui::Window::MOVEABLE);
+//	wnd.addChild(Gui::TabWidget_("tabs")
+//				/ (Gui::Spacer_(false) | Gui::Button_("ok", " send report ") | Gui::Spacer_(false) | Gui::Button_("cancel", " don't send ") | Gui::Spacer_(false)));
 
-	TABWIDGET(tabs)->addTab("info", Gui::Label_("info")
-									/ Gui::Spacer_(true)
-									/ Gui::Label_("size"));
-	TABWIDGET(tabs)->addTab("report", Gui::ScrollArea_("scroll"));
+//	TABWIDGET(tabs)->addTab("info", Gui::Label_("info")
+//									/ Gui::Spacer_(true)
+//									/ Gui::Label_("size"));
+//	TABWIDGET(tabs)->addTab("report", Gui::ScrollArea_("scroll"));
 
-	SCROLLAREA(scroll)->setCentralWidget(Gui::Label_("text", report));
+//	SCROLLAREA(scroll)->setCentralWidget(Gui::Label_("text", report));
 
-	BUTTON(ok)->addListener(Gui::Utils::actionSetBool(bSendReport));
-	BUTTON(ok)->addListener(Gui::Utils::actionCloseWindow());
-	BUTTON(cancel)->addListener(Gui::Utils::actionCloseWindow());
+//	BUTTON(ok)->addListener(Gui::Utils::actionSetBool(bSendReport));
+//	BUTTON(ok)->addListener(Gui::Utils::actionCloseWindow());
+//	BUTTON(cancel)->addListener(Gui::Utils::actionCloseWindow());
 
-	LABEL(info)->setCaption("An error has occured.\n"
-							"A bug report has been prepared. You can review it in the 'report' tab.\n"
-							"It contains information about your version of TA3D, OS, OpenGL renderer\n"
-							"and a stack trace to help us find what's wrong.\n"
-							"\n"
-							"Do you want to send the bug report ?");
-	String buf;
-	buf << "(report size = " << report.size() << " bytes)";
-	LABEL(size)->setCaption(buf.c_str());
+//	LABEL(info)->setCaption("An error has occured.\n"
+//							"A bug report has been prepared. You can review it in the 'report' tab.\n"
+//							"It contains information about your version of TA3D, OS, OpenGL renderer\n"
+//							"and a stack trace to help us find what's wrong.\n"
+//							"\n"
+//							"Do you want to send the bug report ?");
+//	String buf;
+//	buf << "(report size = " << report.size() << " bytes)";
+//	LABEL(size)->setCaption(buf.c_str());
 
-	wnd();
+//	wnd();
 
-	if (!bSendReport)
-		return;
+//	if (!bSendReport)
+//		return;
 
-	// Send the bug report to the bug server
-	TA3D::SocketTCP sock;
-	sock.open("bugs.ta3d.org", 1905);
-	if (!sock.isOpen())
-	{
-		Gui::Utils::message("Socket error", "Error: could not connect to server.");
-		return;
-	}
-	sock.send("BUG REPORT\n");
-	sock.send(report);
-	sock.send("DISCONNECT");
-	// Wait a bit to make sure all data has been received
-	SDL_Delay(2000);
-	sock.close();
-	Gui::Utils::message("Success", "Bug report has been sent to server.");
+//	// Send the bug report to the bug server
+//	TA3D::SocketTCP sock;
+//	sock.open("bugs.ta3d.org", 1905);
+//	if (!sock.isOpen())
+//	{
+//		Gui::Utils::message("Socket error", "Error: could not connect to server.");
+//		return;
+//	}
+//	sock.send("BUG REPORT\n");
+//	sock.send(report);
+//	sock.send("DISCONNECT");
+//	// Wait a bit to make sure all data has been received
+//	SDL_Delay(2000);
+//	sock.close();
+//	Gui::Utils::message("Success", "Bug report has been sent to server.");
 }
