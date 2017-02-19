@@ -33,7 +33,7 @@ namespace TA3D
 	class TA3DNetwork : public ObjectSync
 	{
 	public:
-		typedef SmartPtr<TA3DNetwork>	Ptr;
+        typedef zuzuf::smartptr<TA3DNetwork>	Ptr;
 	private:
 		class NetworkMessage
 		{

@@ -33,7 +33,7 @@ namespace TA3D
     /*!
     ** This class is an interface for all scripts types
     */
-	class ScriptInterface
+    class ScriptInterface : public virtual zuzuf::ref_count
     {
     protected:
         //! Variables to control thread execution

@@ -21,7 +21,7 @@
 # include <yuni/yuni.h>
 # include <misc/string.h>
 # include "lua.thread.h"
-# include <QSharedPointer>
+# include <zuzuf/smartptr.h>
 
 
 namespace TA3D
@@ -36,7 +36,7 @@ namespace TA3D
 	{
 	public:
 		//! The most suitable smartptr for this class
-        typedef QSharedPointer<AiScript> Ptr;
+        typedef zuzuf::smartptr<AiScript> Ptr;
 
 	public:
 

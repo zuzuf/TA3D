@@ -27,7 +27,7 @@
 #endif
 #endif
 # include <threads/thread.h>
-# include <yuni/core/smartptr/smartptr.h>
+# include <zuzuf/smartptr.h>
 
 namespace TA3D
 {
@@ -38,7 +38,7 @@ namespace TA3D
     class LuaEnv : public ObjectSync
     {
 	public:
-		typedef Yuni::SmartPtr<LuaEnv>	Ptr;
+        typedef zuzuf::smartptr<LuaEnv>	Ptr;
     protected:
         lua_State   *L;             // The global Lua state
     public:

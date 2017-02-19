@@ -304,7 +304,7 @@ namespace TA3D
 			GUIOBJ::Ptr objectPtr = pObjects[i];
 			// For performance reason, we will directly working on the pointer
 			// It is safe due to the reference is guaranted to be valid until the end of the scope
-			GUIOBJ* object = GUIOBJ::Ptr::WeakPointer(objectPtr);
+            GUIOBJ* object = objectPtr.weak();
 
 			if (object->MouseOn && !object->help_msg.empty())
 				helpMsg = object->help_msg;

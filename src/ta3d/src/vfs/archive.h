@@ -26,6 +26,7 @@
 
 # include <misc/string.h>
 # include <deque>
+# include <zuzuf/smartptr.h>
 
 namespace TA3D
 {
@@ -36,7 +37,7 @@ namespace TA3D
         **
         ** \brief abstract class defining the interface required to manipulate archives
         */
-        class Archive
+        class Archive : public zuzuf::ref_count
         {
         public:
 			class FileInfo

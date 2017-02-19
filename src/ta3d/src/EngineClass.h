@@ -309,10 +309,10 @@ namespace TA3D
 
 
 
-	class WATER
+    class WATER : public zuzuf::ref_count
 	{
 	public:
-		typedef SmartPtr<WATER>	Ptr;
+        typedef zuzuf::smartptr<WATER>	Ptr;
 	public:
 		float		map_w;
 		float		map_h;

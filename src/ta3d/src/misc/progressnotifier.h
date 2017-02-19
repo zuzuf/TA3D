@@ -2,11 +2,12 @@
 #define PROGRESSNOTIFIER_H
 
 #include "string.h"
+#include <zuzuf/smartptr.h>
 
 namespace TA3D
 {
 
-	class ProgressNotifier
+    class ProgressNotifier : public zuzuf::ref_count
 	{
 	public:
 		virtual ~ProgressNotifier()	{}

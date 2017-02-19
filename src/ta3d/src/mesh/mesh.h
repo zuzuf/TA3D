@@ -155,10 +155,10 @@ namespace TA3D
 #define MESH_TYPE_TRIANGLES         GL_TRIANGLES
 #define MESH_TYPE_TRIANGLE_STRIP    GL_TRIANGLE_STRIP
 
-	class Animation				// Class used to set default animation to a model, this animation will play if no AnimationData is provided (ie for map features)
+    class Animation : public zuzuf::ref_count				// Class used to set default animation to a model, this animation will play if no AnimationData is provided (ie for map features)
     {
 	public:
-		typedef SmartPtr<Animation> Ptr;
+        typedef zuzuf::smartptr<Animation> Ptr;
     public:
         byte	type;
         Vector3D	angle_0;

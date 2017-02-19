@@ -29,6 +29,7 @@
 #endif
 #endif
 # include "script.data.h"
+# include <zuzuf/smartptr.h>
 
 
 namespace TA3D
@@ -44,7 +45,7 @@ namespace TA3D
 	{
 	public:
 		//! The most suitable smart pointer for the class
-		typedef SmartPtr<LuaChunk>	Ptr;
+        typedef zuzuf::smartptr<LuaChunk>	Ptr;
 
 	public:
 		//! \name Constructors & Destructor

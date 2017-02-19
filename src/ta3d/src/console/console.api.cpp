@@ -659,7 +659,7 @@ namespace TA3D
 		{
 			int pid = lua_gettop(L) > 1 ? (int)lua_tointeger(L, 2) : -1;
 			if (pid >= 0 && pid < (int)players.count())
-                Battle::Instance()->debugInfo.process = players.ai_command[pid].getAiScript().data();
+                Battle::Instance()->debugInfo.process = players.ai_command[pid].getAiScript().weak();
 			else
 				Battle::Instance()->debugInfo.process = NULL;
 		}

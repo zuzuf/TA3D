@@ -32,7 +32,7 @@ namespace TA3D
     class UnitScriptInterface : public ScriptInterface
     {
 	public:
-		typedef SmartPtr<UnitScriptInterface>	Ptr;
+        typedef zuzuf::smartptr<UnitScriptInterface>	Ptr;
     public:
 		static UnitScriptInterface *instanciate( ScriptData::Ptr data );
         static const String get_script_name(int id);

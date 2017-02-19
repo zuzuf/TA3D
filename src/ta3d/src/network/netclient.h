@@ -5,18 +5,18 @@
 # include <misc/string.h>
 # include <mods/modinfo.h>
 # include "socket.tcp.h"
-
+# include <zuzuf/smartptr.h>
 
 
 namespace TA3D
 {
 
 
-    class NetClient : public Yuni::Policy::SingleThreaded<NetClient>
+    class NetClient : public Yuni::Policy::SingleThreaded<NetClient>, public zuzuf::ref_count
     {
 	public:
 		//! The most suitable smartptr for the class
-		typedef SmartPtr<NetClient>	Ptr;
+        typedef zuzuf::smartptr<NetClient>	Ptr;
 		//! The threading policy
 		typedef Yuni::Policy::SingleThreaded<NetClient>  ThreadingPolicy;
 

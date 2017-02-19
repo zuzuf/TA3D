@@ -63,7 +63,7 @@ namespace TA3D
                             public Thread
     {
 	public:
-		typedef SmartPtr<AiController>	Ptr;
+        typedef zuzuf::smartptr<AiController>	Ptr;
     private:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ã  l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)

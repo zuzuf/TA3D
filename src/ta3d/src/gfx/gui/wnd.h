@@ -25,7 +25,7 @@
 # include <misc/hash_table.h>
 # include <misc/interface.h>
 # include <gfx/texture.h>
-# include <yuni/core/smartptr/smartptr.h>
+# include <zuzuf/smartptr.h>
 
 
 
@@ -45,7 +45,7 @@ namespace Gui
 	{
 	public:
 		//! The most suitable smart pointer for a class `WND`
-		typedef Yuni::SmartPtr<WND> Ptr;
+        typedef zuzuf::smartptr<WND> Ptr;
 
 	public:
 		//! \name Constructors & Destructor

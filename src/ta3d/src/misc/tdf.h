@@ -21,6 +21,7 @@
 # include "string.h"
 # include "hash_table.h"
 # include <stack>
+# include <zuzuf/smartptr.h>
 
 
 # define TDFPARSER_HASHTABLE_SIZE       0x400
@@ -34,10 +35,10 @@ namespace TA3D
 	**
 	** This class is not thread-safe.
 	*/
-	class TDFParser
+    class TDFParser : public zuzuf::ref_count
 	{
 	public:
-		typedef SmartPtr<TDFParser>	Ptr;
+        typedef zuzuf::smartptr<TDFParser>	Ptr;
 	public:
 		//! \name Constructors & Destructor
 		//@{

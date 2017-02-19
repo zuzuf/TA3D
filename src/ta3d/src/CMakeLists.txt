@@ -266,6 +266,12 @@ SET(SRC_INGAME_MENUS
 		ingame/menus/config.h ingame/menus/config.cpp
 		ingame/menus/setupgame.h ingame/menus/setupgame.cpp)
 
+SET(SRC_ZUZUF
+                zuzuf/hashfn.h
+                zuzuf/hashmap.h
+                zuzuf/hashset.h
+                zuzuf/murmurhash2.h
+                zuzuf/smartptr.h)
 
 qt5_wrap_ui(TA3D_UI ${TA3D_FORMS})
 
@@ -291,6 +297,7 @@ SET(TA3D_SOURCES
 		${SRC_NETWORK}
 		${SRC_AI}
 		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
+                ${SRC_ZUZUF}
                 ${TA3D_UI}
 		install.cpp
 		restore.cpp restore.h

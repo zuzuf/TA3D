@@ -22,7 +22,7 @@
 # include "wnd.h"
 # include <vector>
 # include <misc/interface.h>
-# include <yuni/core/smartptr/smartptr.h>
+# include <zuzuf/smartptr.h>
 
 
 
@@ -36,13 +36,13 @@ namespace Gui
 	** \brief This class is a window handler, so it will manage windows
 	** and signals given to them
 	*/
-	class AREA:	public Yuni::Policy::ObjectLevelLockable<AREA>, protected IInterface
+    class AREA:	public Yuni::Policy::ObjectLevelLockable<AREA>, protected IInterface, public virtual zuzuf::ref_count
 	{
 	public:
 		//! The threading policy
 		typedef Yuni::Policy::ObjectLevelLockable<AREA> ThreadingPolicy;
 		//! The best suitable smart pointer for an area
-		typedef Yuni::SmartPtr<AREA>  Ptr;
+        typedef zuzuf::smartptr<AREA>  Ptr;
 
 	public:
 		//! \name Constructor && Destructor

@@ -21,6 +21,7 @@
 
 # include <stdafx.h>
 # include <misc/string.h>
+# include <zuzuf/smartptr.h>
 
 # define SCRIPT_QueryPrimary		0x00
 # define SCRIPT_AimPrimary		0x01
@@ -77,10 +78,10 @@ namespace TA3D
 {
 
     //! Abstract class for script storage
-    class ScriptData
+    class ScriptData : public zuzuf::ref_count
     {
 	public:
-		typedef ScriptData* Ptr;
+        typedef zuzuf::smartptr<ScriptData> Ptr;
     private:
         bool                    scriptCache[NB_SCRIPT];
     public:

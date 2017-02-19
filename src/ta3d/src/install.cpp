@@ -29,7 +29,7 @@ namespace TA3D
 
 void install_TA_files( String HPI_file, String filename )
 {
-	SmartPtr<Archive> archive = Archive::load(HPI_file);
+    zuzuf::smartptr<Archive> archive = Archive::load(HPI_file);
 	if (!archive)
     {
         LOG_ERROR("archive not found : '" << HPI_file << "'");

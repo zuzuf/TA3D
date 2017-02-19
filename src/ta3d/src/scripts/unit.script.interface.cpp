@@ -28,13 +28,13 @@ namespace TA3D
     {
         UnitScriptInterface *usi = NULL;
 
-		if ( dynamic_cast<CobScript*>(data) )          // Try CobScript (OTA COB/BOS)
+        if ( data.as<CobScript>() )          // Try CobScript (OTA COB/BOS)
             usi = new CobVm();
-		else if ( dynamic_cast<LuaData*>(data) )       // Try LuaData (Lua)
+        else if ( data.as<LuaData>() )       // Try LuaData (Lua)
             usi = new UnitScript();
 
 		if (usi)
-			usi->load( data );
+            usi->load( data.weak() );
 		else
 			usi = new NoScript();
 		return usi;

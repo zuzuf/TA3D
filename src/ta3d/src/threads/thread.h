@@ -20,7 +20,7 @@
 #define __TA3D_THREAD_H__
 
 #include "mutex.h"
-#include <QSharedPointer>
+#include <zuzuf/smartptr.h>
 #include <QThread>
 
 namespace TA3D
@@ -69,10 +69,10 @@ namespace TA3D
 
 
 
-	class ObjectSync
+    class ObjectSync : public virtual zuzuf::ref_count
 	{
 	public:
-        typedef QSharedPointer<ObjectSync>	Ptr;
+        typedef zuzuf::smartptr<ObjectSync>	Ptr;
 	public:
 		//! \name Constructor & Destructor
 		//@{

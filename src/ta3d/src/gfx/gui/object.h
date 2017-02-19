@@ -19,7 +19,7 @@
 
 # include <stdafx.h>
 # include <vector>
-# include <yuni/core/smartptr/smartptr.h>
+# include <zuzuf/smartptr.h>
 # include <misc/string.h>
 # include "base.h"
 # include <gfx/texture.h>
@@ -41,11 +41,11 @@ namespace Gui
 	**
 	** \brief Objects within Windows
 	*/
-	class GUIOBJ
+    class GUIOBJ : public zuzuf::ref_count
 	{
 	public:
 		//! The most suitable smart pointer
-		typedef Yuni::SmartPtr<GUIOBJ>  Ptr;
+        typedef zuzuf::smartptr<GUIOBJ>  Ptr;
 
 	public:
 		//! \name Constructor & Destructor

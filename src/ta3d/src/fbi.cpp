@@ -432,7 +432,7 @@ namespace TA3D
 		for (int i = 0; i < nb_unit; ++i)
 		{
 			if (unit_type[i]->script && unit_type[i]->model)
-				unit_type[i]->model->Identify(unit_type[i]->script);
+                unit_type[i]->model->Identify(unit_type[i]->script);
 		}
 	}
 
@@ -447,8 +447,6 @@ namespace TA3D
 		soundcategory.clear();
 		ExplodeAs.clear();
 		SelfDestructAs.clear();
-		if (script)
-			delete script;
 		script = NULL;
 
 		w_badTargetCategory.clear();

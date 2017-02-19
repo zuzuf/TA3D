@@ -49,7 +49,7 @@ namespace TA3D
 	};
 
 
-	class IInterface
+    class IInterface : public virtual zuzuf::ref_count
 	{
 		friend class IInterfaceManager;
 
@@ -79,7 +79,7 @@ namespace TA3D
 	class IInterfaceManager : public ObjectSync
 	{
 	public:
-		typedef Yuni::SmartPtr<IInterfaceManager>	Ptr;
+        typedef zuzuf::smartptr<IInterfaceManager>	Ptr;
 	public:
         //! \name Constructor & destructor
         //@{

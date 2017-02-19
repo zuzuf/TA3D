@@ -66,7 +66,7 @@ namespace TA3D
 		friend class LuaChunk;
 		friend class UnitScript;
 	public:
-		typedef SmartPtr<LuaThread>	Ptr;
+        typedef zuzuf::smartptr<LuaThread>	Ptr;
 	protected:
 		byte        *buffer;
 		lua_State   *L;             // The Lua state

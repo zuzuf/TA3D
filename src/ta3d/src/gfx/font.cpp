@@ -49,15 +49,15 @@ namespace TA3D
 
 	Font::~Font()
 	{
-		font = NULL;
+        font.reset();
 	}
 
 
 	Font& Font::operator = (const Font& rhs)
 	{
 		MutexLocker locker(pMutex);
-		font = NULL;
-		pFontFilename = rhs.pFontFilename;
+        font.reset();
+        pFontFilename = rhs.pFontFilename;
 		if (!pFontFilename.empty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
 		return *this;
@@ -67,7 +67,7 @@ namespace TA3D
 	void Font::init()
 	{
 		MutexLocker locker(pMutex);
-		font = NULL;
+        font.reset();
 		pFontFilename.clear();
 	}
 
@@ -107,8 +107,8 @@ namespace TA3D
 	void Font::destroy()
 	{
 		MutexLocker locker(pMutex);
-		font = NULL;
-		pFontFilename.clear();
+        font.reset();
+        pFontFilename.clear();
 	}
 
 
@@ -259,30 +259,30 @@ namespace TA3D
 		pFontFilename = filename;
 		pType = type;
 
-		font = NULL;
-		if (!filename.empty())
+        font.reset();
+        if (!filename.empty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");
 			switch(type)
 			{
 				case typeBitmap:
-					font = new FTBitmapFont(filename.c_str());
+                    font.reset(new FTBitmapFont(filename.c_str()));
 					break;
 				case typePixmap:
-					font = new FTPixmapFont(filename.c_str());
+                    font.reset(new FTPixmapFont(filename.c_str()));
 					break;
 				case typePolygon:
-					font = new FTPolygonFont(filename.c_str());
+                    font.reset(new FTPolygonFont(filename.c_str()));
 					break;
 				case typeTextures:
-					font = new FTTextureFont(filename.c_str());
+                    font.reset(new FTTextureFont(filename.c_str()));
 					break;
 				case typeTexture:
 				default:
 #ifdef __FTGL__lower__
-					font = new FTBufferFont(filename.c_str());
+                    font.reset(new FTBufferFont(filename.c_str()));
 #else
-					font = new FTTextureFont(filename.c_str());
+                    font.reset(new FTTextureFont(filename.c_str()));
 #endif
 			}
 		}

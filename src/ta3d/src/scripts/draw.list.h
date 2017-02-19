@@ -25,8 +25,7 @@
 # define __DrawList_H__
 
 # include <misc/string.h>
-
-
+# include <zuzuf/smartptr.h>
 
 # define DRAW_TYPE_NONE     0x0
 # define DRAW_TYPE_POINT    0x1
@@ -54,10 +53,10 @@ namespace TA3D
         GLuint  tex;
     };
 
-    class DrawList
+    class DrawList : public zuzuf::ref_count
     {
 	public:
-		typedef SmartPtr<DrawList>	Ptr;
+        typedef zuzuf::smartptr<DrawList>	Ptr;
     public:
 		DrawObject			prim;
 		DrawList::Ptr		next;

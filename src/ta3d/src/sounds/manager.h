@@ -39,10 +39,10 @@ namespace TA3D
 		**
 		** \brief The Audio Engine
 		*/
-		class Manager : protected TA3D::IInterface
+        class Manager : public TA3D::IInterface
 		{
 		public:
-			typedef SmartPtr<Manager>	Ptr;
+            typedef zuzuf::smartptr<Manager>	Ptr;
 		public:
 			//! \name Constructor & Destructor
 			//@{
