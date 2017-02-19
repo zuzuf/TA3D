@@ -22,48 +22,38 @@
 #include "mutex.h"
 #include <yuni/core/smartptr/smartptr.h>
 #include <yuni/thread/thread.h>
-
+#include <QThread>
 
 namespace TA3D
 {
 
-	class Thread
+    class Thread : public QThread
 	{
-	private:
-		class ThreadObject : public Yuni::Thread::IThread
-		{
-		public:
-			bool suspend(int ms)	{	return Yuni::Thread::IThread::suspend(ms);	}
-		protected:
-			virtual bool onExecute();
-		public:
-			void *more;
-			Thread *thisthread;
-		};
 	protected:
 		volatile int pDead;
-		ThreadObject threadObj;
 
 	protected:
 		Thread();
 		virtual ~Thread();
 		virtual void proc(void* param) = 0;
 		virtual void signalExitThread() {}
+        virtual void run();
 
 	public:
 		// Call this to end the Thread, it will signal the thread to tell it to end
 		//   and will block until the thread ends.
 		void destroyThread() { join(); }
-		bool isRunning() const    { return pDead == 0;    }
 		bool isDead() const { return !isRunning(); }
 
-		bool suspend(int ms)	{ return threadObj.suspend(ms); }
+        bool suspend(int ms)	{ msleep(ms);   return true; }
 
 		void start()	{	spawn(NULL);	}
 
 		virtual void spawn(void* param);
 		virtual void join();
 
+    private:
+        void *__param;
 	}; // class Thread
 
 

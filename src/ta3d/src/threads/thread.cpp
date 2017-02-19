@@ -22,9 +22,8 @@
 
 namespace TA3D
 {
-	Thread::Thread() : pDead(1), threadObj()
+    Thread::Thread() : pDead(1)
 	{
-		threadObj.thisthread = this;
 	}
 
 	Thread::~Thread()
@@ -34,26 +33,26 @@ namespace TA3D
 
 	void Thread::spawn(void* param)
 	{
-		pDead = 0;
-		threadObj.more = param;
-		threadObj.start();
+        __param = param;
+        pDead = 0;
+        start();
 	}
 
-	bool Thread::ThreadObject::onExecute()
-	{
-		thisthread->proc(more);
-		thisthread->pDead = 1;
 
-		return false;
-	}
+    void Thread::run()
+    {
+        proc(__param);
+        pDead = 1;
+    }
 
-	void Thread::join()
+    void Thread::join()
 	{
 		if (pDead == 0)
 		{
 			signalExitThread();
 			pDead = 1;
-			threadObj.stop();
+            terminate();
+            wait();
 		}
 	}
 } // namespace TA3D
