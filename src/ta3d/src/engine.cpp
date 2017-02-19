@@ -31,7 +31,7 @@
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "backtrace.h"
-
+#include <QThread>
 
 
 
@@ -205,7 +205,7 @@ namespace TA3D
 
 	void rest(uint32 msec)
 	{
-		::SDL_Delay(msec);
+        QThread::msleep(msec);
 	}
 
 

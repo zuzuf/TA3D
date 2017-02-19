@@ -23,6 +23,8 @@
 #include "misc/paths.h"
 #include <exception>
 #include <QMessageBox>
+#include <QThread>
+#include "bugreportdialog.h"
 
 
 // Signals should be disabled under OS X, since the system already produces a crash report
@@ -263,7 +265,6 @@ void criticalMessage(const String &msg)
  */
 void bug_reporter(const String &trace)
 {
-	bool bSendReport = false;
 	std::string report;
 
 	// Engine version
@@ -309,49 +310,26 @@ void bug_reporter(const String &trace)
 	report += "\nstacktrace:\n";
 	report += trace.c_str();
 
-//	Gui::Window wnd("Bug report", 640, 240, Gui::Window::MOVEABLE);
-//	wnd.addChild(Gui::TabWidget_("tabs")
-//				/ (Gui::Spacer_(false) | Gui::Button_("ok", " send report ") | Gui::Spacer_(false) | Gui::Button_("cancel", " don't send ") | Gui::Spacer_(false)));
+    BugReportDialog wnd(QString::fromStdString(report));
+    wnd.exec();
 
-//	TABWIDGET(tabs)->addTab("info", Gui::Label_("info")
-//									/ Gui::Spacer_(true)
-//									/ Gui::Label_("size"));
-//	TABWIDGET(tabs)->addTab("report", Gui::ScrollArea_("scroll"));
+    if (wnd.result() != QDialog::Accepted)
+        return;
 
-//	SCROLLAREA(scroll)->setCentralWidget(Gui::Label_("text", report));
+    // Send the bug report to the bug server
+    TA3D::SocketTCP sock;
+    sock.open("bugs.ta3d.org", 1905);
+    if (!sock.isOpen())
+    {
+        QMessageBox::information(NULL, "Socket error", "Error: could not connect to server.");
+        return;
+    }
+    sock.send("BUG REPORT\n");
+    sock.send(report);
+    sock.send("DISCONNECT");
+    // Wait a bit to make sure all data has been received
 
-//	BUTTON(ok)->addListener(Gui::Utils::actionSetBool(bSendReport));
-//	BUTTON(ok)->addListener(Gui::Utils::actionCloseWindow());
-//	BUTTON(cancel)->addListener(Gui::Utils::actionCloseWindow());
-
-//	LABEL(info)->setCaption("An error has occured.\n"
-//							"A bug report has been prepared. You can review it in the 'report' tab.\n"
-//							"It contains information about your version of TA3D, OS, OpenGL renderer\n"
-//							"and a stack trace to help us find what's wrong.\n"
-//							"\n"
-//							"Do you want to send the bug report ?");
-//	String buf;
-//	buf << "(report size = " << report.size() << " bytes)";
-//	LABEL(size)->setCaption(buf.c_str());
-
-//	wnd();
-
-//	if (!bSendReport)
-//		return;
-
-//	// Send the bug report to the bug server
-//	TA3D::SocketTCP sock;
-//	sock.open("bugs.ta3d.org", 1905);
-//	if (!sock.isOpen())
-//	{
-//		Gui::Utils::message("Socket error", "Error: could not connect to server.");
-//		return;
-//	}
-//	sock.send("BUG REPORT\n");
-//	sock.send(report);
-//	sock.send("DISCONNECT");
-//	// Wait a bit to make sure all data has been received
-//	SDL_Delay(2000);
-//	sock.close();
-//	Gui::Utils::message("Success", "Bug report has been sent to server.");
+    QThread::sleep(2);
+    sock.close();
+    QMessageBox::information(NULL, "Success", "Bug report has been sent to server.");
 }

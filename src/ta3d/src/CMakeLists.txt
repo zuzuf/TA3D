@@ -169,9 +169,11 @@ SET(SRC_SOUND
 #
 SET(SRC_DEBUG
 		backtrace.cpp backtrace.h
+                bugreportdialog.cpp bugreportdialog.h
                 configdialog.cpp configdialog.h
 		config.cpp)
 set(TA3D_FORMS ${TA3D_FORMS}
+                bugreportdialog.ui
                 configdialog.ui)
 
 #
