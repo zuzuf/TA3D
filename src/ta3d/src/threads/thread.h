@@ -20,40 +20,49 @@
 #define __TA3D_THREAD_H__
 
 #include "mutex.h"
-#include <yuni/core/smartptr/smartptr.h>
-#include <yuni/thread/thread.h>
+#include <QSharedPointer>
 #include <QThread>
 
 namespace TA3D
 {
 
-    class Thread : public QThread
+    class Thread
 	{
+        class ThreadType : public QThread
+        {
+        public:
+            ThreadType(Thread *ptr) : ptr(ptr)  {}
+
+            virtual void run();
+
+        public:
+            void *param;
+            Thread *ptr;
+        };
+
 	protected:
 		volatile int pDead;
+        ThreadType _thread;
 
 	protected:
 		Thread();
 		virtual ~Thread();
 		virtual void proc(void* param) = 0;
 		virtual void signalExitThread() {}
-        virtual void run();
 
 	public:
 		// Call this to end the Thread, it will signal the thread to tell it to end
 		//   and will block until the thread ends.
 		void destroyThread() { join(); }
-		bool isDead() const { return !isRunning(); }
+        bool isDead() const { return pDead; }
+        bool isRunning() const  {   return pDead == 0;  }
 
-        bool suspend(int ms)	{ msleep(ms);   return true; }
+        bool suspend(int ms)	{ QThread::msleep(ms);   return false; }
 
 		void start()	{	spawn(NULL);	}
 
 		virtual void spawn(void* param);
 		virtual void join();
-
-    private:
-        void *__param;
 	}; // class Thread
 
 
@@ -63,7 +72,7 @@ namespace TA3D
 	class ObjectSync
 	{
 	public:
-		typedef Yuni::SmartPtr<ObjectSync>	Ptr;
+        typedef QSharedPointer<ObjectSync>	Ptr;
 	public:
 		//! \name Constructor & Destructor
 		//@{
@@ -75,6 +84,12 @@ namespace TA3D
 		void lock() { pMutex.lock(); }
 		//! Unlock the object
 		void unlock() { pMutex.unlock(); }
+
+        //! \brief Don't copy the mutex
+        ObjectSync &operator=(const ObjectSync&)
+        {
+            return *this;
+        }
 
 	protected:
 		//! Mutex

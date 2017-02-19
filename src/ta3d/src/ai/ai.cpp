@@ -61,7 +61,7 @@ namespace TA3D
 	void AI_PLAYER::destroy()
 	{
 		ai_controller = NULL;
-		ai_script = NULL;
+        ai_script.reset();
 		ID = 0;
 	}
 
@@ -83,7 +83,7 @@ namespace TA3D
 			case AI_TYPE_MEDIUM:
 			case AI_TYPE_HARD:
 			case AI_TYPE_BLOODY:
-				ai_script = NULL;
+                ai_script.reset();
 				if (!ai_controller)
 					ai_controller = new AiController();
 				ai_controller->setPlayerID( ID );
@@ -91,7 +91,7 @@ namespace TA3D
 			case AI_TYPE_LUA:
 				ai_controller = NULL;
 				if (!ai_script)
-					ai_script = new AiScript();
+                    ai_script.reset(new AiScript());
 				ai_script->setPlayerID( ID );
 				break;
 		};

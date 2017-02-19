@@ -22,27 +22,27 @@
 
 namespace TA3D
 {
-    Thread::Thread() : pDead(1)
+    Thread::Thread() : pDead(1), _thread(this)
 	{
 	}
 
 	Thread::~Thread()
 	{
-		join();
+        join();
 	}
 
 	void Thread::spawn(void* param)
 	{
-        __param = param;
+        _thread.param = param;
         pDead = 0;
-        start();
+        _thread.start();
 	}
 
 
-    void Thread::run()
+    void Thread::ThreadType::run()
     {
-        proc(__param);
-        pDead = 1;
+        ptr->proc(param);
+        ptr->pDead = 1;
     }
 
     void Thread::join()
@@ -51,8 +51,7 @@ namespace TA3D
 		{
 			signalExitThread();
 			pDead = 1;
-            terminate();
-            wait();
+            _thread.wait();
 		}
 	}
 } // namespace TA3D

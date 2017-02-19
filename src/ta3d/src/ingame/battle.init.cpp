@@ -101,7 +101,7 @@ namespace TA3D
 
 	Battle::Battle(GameData* g)
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
-		map(NULL),
+        map(nullptr),
 		sky(),
         water(0),
 		water_sim0(0),

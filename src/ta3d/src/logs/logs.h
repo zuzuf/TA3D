@@ -34,7 +34,7 @@
 # define LOG_INFO(X)        logs.info() << X
 # define LOG_WARNING(X)     logs.warning() << X
 # define LOG_ERROR(X)       logs.error() << X
-# define LOG_CRITICAL(X)    do { logs.fatal() << X; exit(121); } while(0)
+# define LOG_CRITICAL(X)    do { logs.fatal() << X; ::exit(121); } while(0)
 
 # ifdef LOGS_USE_DEBUG
 #   define LOG_ASSERT(X)        do { \

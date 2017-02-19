@@ -54,7 +54,7 @@ namespace TA3D
 	protected:
 		int nbThreadsToSync;
 		volatile int nbThreadsWaiting;
-		Mutex pMutex;
+        QMutex pMutex;
 
 		//! The PThread Condition
         QWaitCondition  pCondition;
