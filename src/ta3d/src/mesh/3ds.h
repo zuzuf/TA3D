@@ -141,7 +141,7 @@ namespace TA3D
 
 		virtual void load_texture_id(int id);
 	public:
-		static Model *load(const String &filename);
+		static Model *load(const QString &filename);
 		static const char *getExt();
 	};
 }

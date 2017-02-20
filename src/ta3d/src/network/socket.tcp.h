@@ -35,7 +35,7 @@ namespace TA3D
 
         /*virtual*/ bool isOpen() const;
 
-        /*virtual*/ void open(const String &hostname, uint16 port);
+        /*virtual*/ void open(const QString &hostname, uint16 port);
         /*virtual*/ void close();
         void open(uint16 port);
         SocketTCP *accept();
@@ -43,11 +43,11 @@ namespace TA3D
         /*virtual*/ void check(uint32 msec);
 		/*virtual*/ bool ready();
 
-        /*virtual*/ void send(const String &str);
+        /*virtual*/ void send(const QString &str);
         /*virtual*/ void send(const char *data, int size);
         /*virtual*/ int recv(char *data, int size);
 
-		String getLine();
+		QString getLine();
 	private:
 		static volatile bool forceFlush;
 	public:

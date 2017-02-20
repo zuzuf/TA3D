@@ -30,7 +30,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
-#include <yuni/core/io/directory.h>
+#include <QFileInfo>
+#include <QDir>
 
 
 #ifdef TA3D_PLATFORM_WINDOWS
@@ -50,26 +51,26 @@ namespace TA3D
 	namespace Paths
 	{
 
-		String ApplicationRoot;
-		String Caches;
-		String Savegames;
-		String Logs;
-		String LogFile;
-		String Preferences;
-		String ConfigFile;
-		String Screenshots;
-		String Resources;
+		QString ApplicationRoot;
+		QString Caches;
+		QString Savegames;
+		QString Logs;
+		QString LogFile;
+		QString Preferences;
+		QString ConfigFile;
+		QString Screenshots;
+		QString Resources;
 # ifdef TA3D_PLATFORM_WINDOWS
-		String LocalData;
+		QString LocalData;
 # endif
 
 
-		String CurrentDirectory()
+		QString CurrentDirectory()
 		{
 			char* c = getcwd(NULL, 0);
-			String ret(c);
+			QString ret(c);
 			free(c);
-			return String(ret);
+			return QString(ret);
 		}
 
 
@@ -82,7 +83,7 @@ namespace TA3D
 			** \brief Get the absolute path to the local application data folder
 			** (from the Windows registry)
 			*/
-			String localAppData()
+			QString localAppData()
 			{
 				LPITEMIDLIST pidl;
 				HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
@@ -92,7 +93,7 @@ namespace TA3D
 				hr = SHGetMalloc(&pMalloc);
 				pMalloc->Free(pidl);
 				pMalloc->Release();
-				return String(szPath, strlen(szPath));
+				return QString(szPath, strlen(szPath));
 			}
 
 			void initForWindows()
@@ -100,13 +101,13 @@ namespace TA3D
 				LocalData = localAppData();
 				LocalData += Separator;
 
-				Resources = String(ApplicationRoot) << "resources\\";
-				Caches = String(ApplicationRoot) << "cache\\";
-				Savegames = String(ApplicationRoot) << "savegames\\";
-				Logs = String(ApplicationRoot) << "logs\\";
+                Resources = ApplicationRoot + "resources\\";
+                Caches = ApplicationRoot + "cache\\";
+                Savegames = ApplicationRoot + "savegames\\";
+                Logs = ApplicationRoot + "logs\\";
 
-				Preferences = String(ApplicationRoot) << "settings\\";
-				Screenshots = String(ApplicationRoot) << "screenshots\\";
+                Preferences = ApplicationRoot + "settings\\";
+                Screenshots = ApplicationRoot + "screenshots\\";
 			}
 
 # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -114,29 +115,29 @@ namespace TA3D
 # ifndef TA3D_PLATFORM_DARWIN
 			void initForDefaultUnixes()
 			{
-				String home = getenv("HOME");
-				home << "/.ta3d/";
-				Resources = String(home) << "resources/";
-				Caches = String(home) << "cache/";
-				Savegames = String(home) << "savegames/";
-				Logs = String(home) << "log/";
+				QString home = getenv("HOME");
+                home += "/.ta3d/";
+                Resources = home + "resources/";
+                Caches = home + "cache/";
+                Savegames = home + "savegames/";
+                Logs = home + "log/";
 
 				Preferences = home;
-				Screenshots = String(home) << "screenshots/";
+                Screenshots = home + "screenshots/";
 			}
 
 # else // ifndef TA3D_PLATFORM_DARWIN
 
 			void initForDarwin()
 			{
-				String home = getenv("HOME");
-				Caches = String(home) << "/Library/Caches/ta3d/";
-				Savegames = String(home) << "/Library/Application Support/ta3d/savegames/";
-				Resources = String(home) << "/Library/Application Support/ta3d/resources/";
-				Logs = String(home) << "/Library/Logs/ta3d/";
+				QString home = getenv("HOME");
+                Caches = home + "/Library/Caches/ta3d/";
+                Savegames = home + "/Library/Application Support/ta3d/savegames/";
+                Resources = home + "/Library/Application Support/ta3d/resources/";
+                Logs = home + "/Library/Logs/ta3d/";
 
-				Preferences = String(home) << "/Library/Preferences/ta3d/";
-				Screenshots = String(home) << "/Downloads/";
+                Preferences = home + "/Library/Preferences/ta3d/";
+                Screenshots = home + "/Downloads/";
 			}
 
 # endif // ifndef TA3D_PLATFORM_DARWIN
@@ -165,19 +166,16 @@ namespace TA3D
 				else
 				{
 					ApplicationRoot.clear();
-					String r;
-					r << CurrentDirectory() << Separator << argv0;
-					if (!r.empty())
-                    {
+                    QString r = CurrentDirectory() + Separator + argv0;
+                    if (!r.isEmpty())
 						ApplicationRoot = ExtractFilePath(r);
-                    }
 				}
 				if (ApplicationRoot.endsWith("/./"))
 					ApplicationRoot.chop(2);
 				else if (ApplicationRoot.endsWith("/."))
 					ApplicationRoot.chop(1);
-				else if (!ApplicationRoot.empty() && ApplicationRoot.last() != '/' && ApplicationRoot.last() != '\\')
-					ApplicationRoot << '/';
+                else if (!ApplicationRoot.isEmpty() && !ApplicationRoot.endsWith('/') && !ApplicationRoot.endsWith('\\'))
+                    ApplicationRoot += '/';
 			}
 
 
@@ -185,65 +183,41 @@ namespace TA3D
 
 
 
-		String ExtractFilePath(const String& p, const bool systemDependant)
+		QString ExtractFilePath(const QString& p, const bool systemDependant)
 		{
-			String out;
-			Yuni::Core::IO::ExtractFilePath(out, p, systemDependant);
-			return out;
+            return QFileInfo(p).filePath();
 		}
 
-		String ExtractFileName(const String& p, const bool systemDependant)
+		QString ExtractFileName(const QString& p, const bool systemDependant)
 		{
-			String out;
-			Yuni::Core::IO::ExtractFileName(out, p, systemDependant);
-			return out;
+            return QFileInfo(p).fileName();
 		}
 
-		void ExtractFileName(String::List& p, const bool systemDependant)
+        void ExtractFileName(QStringList& p, const bool systemDependant)
 		{
-			for(String::List::iterator i = p.begin() ; i != p.end() ; ++i)
-			{
-				String out;
-				Yuni::Core::IO::ExtractFileName(out, *i, systemDependant);
-				*i = out;
-			}
+            for(QString &i : p)
+                i = QFileInfo(i).fileName();
 		}
 
-		void ExtractFileName(String::Vector& p, const bool systemDependant)
+		QString ExtractFileNameWithoutExtension(const QString& p, const bool systemDependant)
 		{
-			for(String::Vector::iterator i = p.begin() ; i != p.end() ; ++i)
-			{
-				String out;
-				Yuni::Core::IO::ExtractFileName(out, *i, systemDependant);
-				*i = out;
-			}
-		}
-
-		String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant)
-		{
-			String out;
-			Yuni::Core::IO::ExtractFileNameWithoutExtension(out, p, systemDependant);
-			return out;
+            return QFileInfo(p).completeBaseName();
 		}
 
 
 
-		String ExtractFileExt(const String& s)
+		QString ExtractFileExt(const QString& s)
 		{
-			// FIXME This method should be completely removed
-			// The prototype in Yuni::Core::IO has been changed to improve performances
-			String t;
-			Yuni::Core::IO::ExtractExtension(t, s);
-			return t;
+            return QFileInfo(s).completeSuffix();
 		}
 
 
 
 
-		bool Initialize(int /*argc*/, char* argv[], const String& programName)
+		bool Initialize(int /*argc*/, char* argv[], const QString& programName)
 		{
 			LOG_ASSERT(NULL != argv);
-			LOG_ASSERT(!programName.empty());
+            LOG_ASSERT(!programName.isEmpty());
 
 			initApplicationRootPath(argv[0]);
 
@@ -258,12 +232,12 @@ namespace TA3D
 			# endif
 
 			// Initialize the logging mecanism
-			ResetTheLoggingMecanism(Yuni::String(Paths::Logs) <<programName << ".log");
+            logs.openLogFile(Paths::Logs + programName + ".log");
 
 			// Welcome Commander !
 			logs.checkpoint() << "Welcome to TA3D";
 			logs.checkpoint() << "Version: " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << "-" << TA3D_VERSION_TAG
-				<< " (r" << TA3D_CURRENT_REVISION << ")";
+                              << " (r" << TA3D_CURRENT_REVISION << ")";
 			logs.info();
 
 			LOG_INFO(LOG_PREFIX_PATHS << "Started from: `" << ApplicationRoot << "`");
@@ -283,7 +257,7 @@ namespace TA3D
 
 			bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
 				&& MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources)
-				&& MakeDir(String(Savegames) << "multiplayer" << Paths::Separator);
+                && MakeDir(Savegames + "multiplayer" + Paths::Separator);
 			if (!res)
 			{
 				logs.fatal() << "Some paths are missing. Aborting now...";
@@ -294,115 +268,83 @@ namespace TA3D
 		}
 
 
-		bool Exists(const String& p)
+		bool Exists(const QString& p)
 		{
-			if (p.empty())
-				return false;
-			# ifdef TA3D_PLATFORM_WINDOWS
-			// ugly workaround with stat under Windows
-			// FIXME: Find a better way to find driver letters
-			if (p.size() == 2 && ':' == p[1])
-				return true;
-			struct _stat s;
-			if ('\\' != p[p.size() -1])
-				return (_stat(p.c_str(), &s) == 0);
-			return (_stat(String(p, 0, p.size() - 1).c_str(), &s) == 0);
-			# else
-			struct stat s;
-			return (stat(p.c_str(), &s) == 0);
-			# endif
+            return QDir(p).exists();
 		}
 
-		void RemoveDir(const String& p)
+		void RemoveDir(const QString& p)
 		{
-			Yuni::Core::IO::Directory::Remove(p);
+            QDir dir(p);
+            if (dir.isRoot())
+                return;
+            const QString name = dir.dirName();
+            dir.cdUp();
+            dir.rmdir(name);
 		}
 
 
-		bool MakeDir(const String& p)
+		bool MakeDir(const QString& p)
 		{
-			if (p.empty())
+            if (p.isEmpty())
 				return true;
-			// TODO Use the boost library, which has a better implementation that this one
-			String::Vector parts;
-			p.explode(parts, SeparatorAsString, false);
-			String pth;
-			bool hasBeenCreated(false);
-			if (p[0] == '/' || p[0] == '\\')
-				pth += Separator;
 
-			for (String::Vector::const_iterator i = parts.begin(); i != parts.end(); ++i)
-			{
-				pth += *i;
-# ifndef TA3D_PLATFORM_WINDOWS
-				pth += Separator;
-# endif
-				if (!Exists(pth))
-				{
-					LOG_DEBUG(LOG_PREFIX_PATHS << "`" << pth << "` does not exist !");
-# ifdef TA3D_PLATFORM_WINDOWS
-					if (mkdir(pth.c_str()))
-# else
-                        if (mkdir(pth.c_str(), 0755))
-# endif
-						{
-							// TODO Use the logging system instead
-							LOG_ERROR(LOG_PREFIX_PATHS << "Impossible to create the folder `" << pth << "`");
-							return false;
-						}
-						else
-							hasBeenCreated = true;
-				}
-# ifdef TA3D_PLATFORM_WINDOWS
-				pth += Separator;
-# endif
-			}
-			if (hasBeenCreated)
-				LOG_INFO(LOG_PREFIX_PATHS << "Created folder: `" << p << "`");
-			return true;
+            QDir dir(p);
+            QString sub_dir;
+
+            while(!dir.exists())
+            {
+                if (sub_dir.isEmpty())
+                    sub_dir = dir.dirName();
+                else
+                    sub_dir = dir.dirName() + '/' + sub_dir;
+                dir.cdUp();
+            }
+            dir.mkpath(sub_dir);
+            return true;
 		}
 
 		template<class T>
-		bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore, const uint32 fileAttribs = FA_ALL, const uint32 required = 0, const bool relative = false)
+		bool TmplGlob(T& out, const QString& pattern, const bool emptyListBefore, const uint32 fileAttribs = FA_ALL, const uint32 required = 0, const bool relative = false)
 		{
 			if (emptyListBefore)
 				out.clear();
 
-			String root = ExtractFilePath(pattern);
-			String root_path = root;
-			if (root.size() > 1 && (root.last() == '/' || root.last() == '\\'))
-				root_path.removeLast();
-			else if (!root.empty())
-				root << Separator;
+			QString root = ExtractFilePath(pattern);
+			QString root_path = root;
+            if (root.size() > 1 && (root.endsWith('/') || root.endsWith('\\')))
+                root_path.chop(1);
+            else if (!root.isEmpty())
+                root += Separator;
 
 			# ifdef TA3D_PLATFORM_WINDOWS
-			String strFilePath; // Filepath
-			String strExtension; // Extension
+			QString strFilePath; // Filepath
+			QString strExtension; // Extension
 			HANDLE hFile; // Handle to file
 			WIN32_FIND_DATA FileInformation; // File information
 
-			hFile = ::FindFirstFile(pattern.c_str(), &FileInformation);
+            hFile = ::FindFirstFile(pattern.toStdString().c_str(), &FileInformation);
 			if (hFile != INVALID_HANDLE_VALUE)
 			{
 				do
 				{
 					if (FileInformation.cFileName[0] != '.')
 					{
-						String name = (const char*)FileInformation.cFileName;
+						QString name = (const char*)FileInformation.cFileName;
 
 						if((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fileAttribs & FA_DIREC) && !(required & FA_FILE))
 						{
 							if (relative)
 								out.push_back(name);
 							else
-								out.push_back(String(root) << name);
+                                out.push_back(root + name);
 						}
 						else if (!(required & FA_DIREC) && (fileAttribs & FA_FILE))
 						{
 							if (relative)
 								out.push_back(name);
 							else
-								out.push_back(String(root) << name);
+                                out.push_back(root + name);
 						}
 					}
 				} while(::FindNextFile(hFile, &FileInformation) == TRUE);
@@ -414,24 +356,25 @@ namespace TA3D
 			# else /* ifdef WINDOWS */
 
 			(void)fileAttribs;
-			String filename_pattern = ExtractFileName(pattern);
-			filename_pattern.toUpper();
+            QString filename_pattern = ExtractFileName(pattern);
 			DIR *dp;
 			struct dirent *dirp;
-			if ((dp  = opendir(root_path.c_str())) == NULL)
+            if ((dp  = opendir(root_path.toStdString().c_str())) == NULL)
 			{
 				// Following line is commented out because it may be useful later, but for now it only floods the logs
 				//            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
 				return true;
 			}
 
+            QRegExp reg_exp(filename_pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
+
 			while ((dirp = readdir(dp)) != NULL)
 			{
-				String name = (char*)(dirp->d_name);
+				QString name = (char*)(dirp->d_name);
 				if (dirp->d_type == 0)
 				{
 					DIR *dp2;
-					if ((dp2  = opendir((String(root) << name).c_str())))
+                    if ((dp2  = opendir((root + name).toStdString().c_str())))
 					{
 						closedir(dp2);
 						dirp->d_type |= FA_DIREC;
@@ -440,12 +383,12 @@ namespace TA3D
 						dirp->d_type |= FA_FILE;
 				}
 
-				if ((dirp->d_type & required) == required && name != "." && name != ".." && ToUpper(name).glob(filename_pattern))
+                if ((dirp->d_type & required) == required && name != "." && name != ".." && reg_exp.exactMatch(name))
 				{
 					if (relative)
 						out.push_back(name);
 					else
-						out.push_back(String(root) << name);
+                        out.push_back(root + name);
 				}
 			}
 			closedir(dp);
@@ -455,44 +398,24 @@ namespace TA3D
 		}
 
 
-		bool Glob(String::List& out, const String& pattern, const bool emptyListBefore, const bool relative)
+        bool Glob(QStringList &out, const QString& pattern, const bool emptyListBefore, const bool relative)
 		{
-			return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_ALL, 0, relative);
+            return TmplGlob(out, pattern, emptyListBefore, FA_ALL, 0, relative);
 		}
 
-		bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore, const bool relative)
+        bool GlobFiles(QStringList& out, const QString& pattern, const bool emptyListBefore, const bool relative)
 		{
-			return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_ALL, 0, relative);
+            return TmplGlob(out, pattern, emptyListBefore, FA_FILE, FA_FILE, relative);
 		}
 
-		bool GlobFiles(String::List& out, const String& pattern, const bool emptyListBefore, const bool relative)
+        bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore, const bool relative)
 		{
-			return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_FILE, FA_FILE, relative);
+            return TmplGlob(out, pattern, emptyListBefore, FA_ALL, FA_DIREC, relative);
 		}
 
-		bool GlobFiles(String::Vector& out, const String& pattern, const bool emptyListBefore, const bool relative)
+		bool IsAbsolute(const QString& p)
 		{
-			return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_FILE, FA_FILE, relative);
-		}
-
-		bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore, const bool relative)
-		{
-			return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_ALL, FA_DIREC, relative);
-		}
-
-		bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore, const bool relative)
-		{
-			return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_ALL, FA_DIREC, relative);
-		}
-
-
-		bool IsAbsolute(const String& p)
-		{
-			# ifdef TA3D_PLATFORM_WINDOWS
-			return (p.empty() || (p.size() > 2 && ':' == p[1] && ('\\' == p[2] || '/' == p[2])));
-			# else
-			return ('/' == p.first());
-			# endif
+            return QFileInfo(p).isAbsolute();
 		}
 
 

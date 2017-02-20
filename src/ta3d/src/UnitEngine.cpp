@@ -553,7 +553,7 @@ namespace TA3D
 					event.opt2 = uint16(script ? (owner | 0x1000) : owner);
 					event.x = pos.x;
 					event.z = pos.z;
-					memcpy( event.str, unit_manager.unit_type[type_id]->Unitname.c_str(), unit_manager.unit_type[type_id]->Unitname.size() + 1 );
+                    memcpy( event.str, unit_manager.unit_type[type_id]->Unitname.toStdString().c_str(), unit_manager.unit_type[type_id]->Unitname.size() + 1 );
 					network_manager.sendEvent( &event );
 				}
 			}
@@ -759,8 +759,7 @@ namespace TA3D
 					}
 					if (nb > 0)
 					{
-						String buf;
-						buf << nb;
+                        QString buf = QString::number(nb);
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 						gfx->print(gfx->TA_font,
 								   float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
@@ -775,11 +774,11 @@ namespace TA3D
 					{
 						if (unit_manager.unit_type[unit[index].type_id]->BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
 						{
-							String buf;
+							QString buf;
 							if (float(int(unit[index].planned_weapons)) == unit[index].planned_weapons)
-								buf << (int)unit[index].planned_weapons << '(' << stock << ')';
+                                buf = QString("%1(%2)").arg((int)unit[index].planned_weapons).arg(stock);
 							else
-								buf << (int)unit[index].planned_weapons + 1 << '(' << stock << ')';
+                                buf = QString("%1(%2)").arg((int)unit[index].planned_weapons + 1).arg(stock);
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 							gfx->print(gfx->TA_font,
 									   float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
@@ -858,21 +857,21 @@ namespace TA3D
 					gfx->print_center(gfx->small_font,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,
-									  0.0f, String().format("+%.2f",unit[index].cur_metal_prod));
+                                      0.0f, QString::asprintf("+%.2f",unit[index].cur_metal_prod));
 					gfx->print_center(gfx->small_font,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,
-									  0.0f,String().format("-%.2f",unit[index].cur_metal_cons));
+                                      0.0f,QString::asprintf("-%.2f",unit[index].cur_metal_cons));
 
 					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
 					gfx->print_center(gfx->small_font,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,
-									  0.0f,String().format("+%.2f",unit[index].cur_energy_prod));
+                                      0.0f,QString::asprintf("+%.2f",unit[index].cur_energy_prod));
 					gfx->print_center(gfx->small_font,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1,
 									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,
-									  0.0f,String().format("-%.2f",unit[index].cur_energy_cons));
+                                      0.0f,QString::asprintf("-%.2f",unit[index].cur_energy_cons));
 				}
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -1775,14 +1774,14 @@ namespace TA3D
 
 
 
-	uint32 INGAME_UNITS::InterfaceMsg(const uint32 MsgID, const String &msg)
+	uint32 INGAME_UNITS::InterfaceMsg(const uint32 MsgID, const QString &msg)
 	{
 		if (MsgID == TA3D_IM_GUI_MSG )	// for GUI messages, test if it's a message for us
 		{
-			if (msg.empty())
+            if (msg.isEmpty())
 				return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-			String message(ToLower(msg));				// Get the string associated with the signal
-			if (!message.empty())
+            const QString &message = msg.toLower();				// Get the string associated with the signal
+            if (!message.isEmpty())
 			{
 				if (message == "pause game")
 				{

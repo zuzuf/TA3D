@@ -20,19 +20,19 @@ namespace TA3D
         ** \param comment a few things about the mod
         ** \param url where to download the mod
         */
-        ModInfo(const int ID = -1, const String &name = String(), const String &version = String(), const String &author = String(), const String &comment = String(), const String &url = String());
+        ModInfo(const int ID = -1, const QString &name = QString(), const QString &version = QString(), const QString &author = QString(), const QString &comment = QString(), const QString &url = QString());
 
         /*!
         ** \brief Constructor
         ** \param info the mod info line returned by netserver, something like MOD "ID" "version" "name" "url" "author" "comment"
         */
-        ModInfo(const String &info);
+        ModInfo(const QString &info);
 
         /*!
         ** \brief Parse the MOD line returned by netserver
         ** \param info the mod info line returned by netserver, something like MOD "ID" "version" "name" "url" "author" "comment"
         */
-        void parse(const String &info);
+        void parse(const QString &info);
 
         /*!
         ** \brief Write mod information to the associated info.mod file
@@ -43,30 +43,30 @@ namespace TA3D
         ** \brief Load mod information from the given info.mod file
         ** \param modName the name of the mod to read
         */
-        void read(const String &modName);
+        void read(const QString &modName);
 
 		int getID() const			{	return ID;  }
-		String getName() const		{	return name;  }
-		String getVersion() const	{	return version;  }
-		String getAuthor() const	{	return author;  }
-		String getComment() const	{	return comment;  }
-		String getUrl() const		{	return url;  }
-		String getPathToMod() const;
+		QString getName() const		{	return name;  }
+		QString getVersion() const	{	return version;  }
+		QString getAuthor() const	{	return author;  }
+		QString getComment() const	{	return comment;  }
+		QString getUrl() const		{	return url;  }
+		QString getPathToMod() const;
 		bool isInstalled() const	{	return installed;	}
 		bool isUpdateAvailable() const {	return availableUpdate;	}
 		void setUpdateAvailable(bool b)	{	availableUpdate = b;	}
 		void setInstalled(bool b);
 		void uninstall();
 
-		static String cleanStringForPortablePathName(const String &s);
+        static QString cleanStringForPortablePathName(const QString &s);
 
     private:
         int     ID;
-        String  name;
-        String  version;
-        String  author;
-        String  comment;
-        String  url;
+        QString  name;
+        QString  version;
+        QString  author;
+        QString  comment;
+        QString  url;
 		bool	installed;
 		bool	availableUpdate;
     };

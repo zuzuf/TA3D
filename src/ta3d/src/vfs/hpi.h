@@ -138,19 +138,19 @@ namespace TA3D
                 uint64  size;
             public:
                 virtual ~HpiFile() {}
-				inline void setName(const String &name)   {  Archive::FileInfo::name = name; }
+				inline void setName(const QString &name)   {  Archive::FileInfo::name = name; }
 				inline void setParent(Archive *parent)   {  Archive::FileInfo::parent = parent; }
             };
         public:
             //! Constructor
-            Hpi(const String &filename);
+            Hpi(const QString &filename);
             //! Destructor
             virtual ~Hpi();
 
             /*!
             ** \brief Loads an archive
             */
-            virtual void open(const String& filename);
+            virtual void open(const QString& filename);
 
             /*!
             ** \brief Just close the opened archive
@@ -165,7 +165,7 @@ namespace TA3D
             /*!
             ** \brief
             */
-			virtual File* readFile(const String& filename);
+			virtual File* readFile(const QString& filename);
 			virtual File* readFile(const FileInfo *file);
 
             /*!
@@ -175,7 +175,7 @@ namespace TA3D
             ** \param length
             ** \return
             */
-			virtual File* readFileRange(const String& filename, const uint32 start, const uint32 length);
+			virtual File* readFileRange(const QString& filename, const uint32 start, const uint32 length);
 			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length);
 
             /*!
@@ -185,12 +185,12 @@ namespace TA3D
             virtual bool needsCaching();
 
         public:
-            static void finder(String::List &fileList, const String &path);
-            static Archive* loader(const String &filename);
+            static void finder(QStringList &fileList, const QString &path);
+            static Archive* loader(const QString &filename);
 
         private:
             //!
-            String m_cDir;
+            QString m_cDir;
             //!
             HPIHEADER header;
             //!
@@ -211,7 +211,7 @@ namespace TA3D
         ** \param startPath
         ** \param offset
         */
-            void processRoot(const String& startPath, const sint32 offset);
+            void processRoot(const QString& startPath, const sint32 offset);
 
             /*!
         ** \brief

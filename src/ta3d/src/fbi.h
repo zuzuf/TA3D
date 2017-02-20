@@ -107,12 +107,12 @@ namespace TA3D
 		short   AltFromSeaLevel;
 		bool    Builder;
 		bool    ThreeD;
-		String  Unitname;
+        QString  Unitname;
 		byte    FootprintX;
 		byte    FootprintZ;
 		Grid<float> gRepulsion;
 		HashSet<>::Dense Category;
-		String::Vector categories;
+        QStringList categories;
 		uint32  fastCategory;
 		short   MaxSlope;
 		byte    BMcode;
@@ -134,12 +134,12 @@ namespace TA3D
 		bool    hoverattack;
 		bool    canresurrect;       // Can this unit resurrect wreckages
 		bool    commander;          // Is that a commander unit ?
-		String  name;              // Nom de l'unité
+        QString  name;              // Nom de l'unité
 		byte    version;            // Version
-		String  side;              // Camp de l'unité
-		String  ObjectName;        // Nom du modèle 3D
-		String  Designation_Name;  // Nom visible de l'unité
-		String  Description;       // Description
+        QString  side;              // Camp de l'unité
+        QString  ObjectName;        // Nom du modèle 3D
+        QString  Designation_Name;  // Nom visible de l'unité
+        QString  Description;       // Description
 		int     BuildCostEnergy;    // Energie nécessaire pour la construire
 		int     BuildCostMetal;     // Metal nécessaire pour la construire
 		int     MaxDamage;          // Points de dégats maximum que l'unité peut encaisser
@@ -152,9 +152,9 @@ namespace TA3D
 		int     RadarDistanceJam;   // For Radar Jammers
 		int     EnergyStorage;      // Quantité d'énergie stockable par l'unité
 		int     MetalStorage;       // Quantité de metal stockable par l'unité
-		String  ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
-		String  SelfDestructAs;    // Type d'explosion lors de l'autodestruction
-		String  Corpse;            // Restes de l'unité
+        QString  ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
+        QString  SelfDestructAs;    // Type d'explosion lors de l'autodestruction
+        QString  Corpse;            // Restes de l'unité
 		short   UnitNumber;         // ID de l'unité
 		bool    canmove;            // Indique si l'unité peut bouger
 		bool    canpatrol;          // si elle peut patrouiller
@@ -172,10 +172,10 @@ namespace TA3D
 		bool    CanReclamate;       // si elle peut récupérer
 		short   EnergyMake;         // Production d'énergie de l'unité
 		float   MetalMake;          // Production de métal de l'unité
-		String  MovementClass;     // Type de mouvement
+        QString  MovementClass;     // Type de mouvement
 		bool    Upright;            // Si l'unité est debout
 		std::vector<int>     WeaponID;            // Weapon IDs
-		String  BadTargetCategory;     // Type d'unité non attaquable
+        QString  BadTargetCategory;     // Type d'unité non attaquable
 		float   DamageModifier;
 		bool    canattack;          // Si l'unité peut attaquer
 		bool    ActivateWhenBuilt;  // L'unité s'active lorsqu'elle est achevée
@@ -184,10 +184,10 @@ namespace TA3D
 		short   MinWaterDepth;      // Profondeur minimale où l'unité peut aller
 		bool    NoShadow;           // Si l'unité n'a pas d'ombre
 		bool    canload;            // Si elle peut charger d'autres unités
-		String::Vector  w_badTargetCategory;    // Unités non ciblable par les armes
+        QStringList  w_badTargetCategory;    // Unités non ciblable par les armes
 		bool    Floater;            // Si l'unité flotte
 		bool    canhover;           // For hovercrafts
-		String  NoChaseCategory;   // Type d'unité non chassable
+        QString  NoChaseCategory;   // Type d'unité non chassable
 		int     SonarDistance;      // Portée du sonar
 		int     SonarDistanceJam;   // For Sonar Jammers
 		bool    candgun;            // si l'unité peut utiliser l'arme ravage
@@ -205,7 +205,7 @@ namespace TA3D
 		bool    kamikaze;           // Unité kamikaze
 		uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
 		short   WindGenerator;      // Centrale de type Eolienne
-		String  yardmap;           // To tell where the unit is on the map
+        QString  yardmap;           // To tell where the unit is on the map
 		std::vector<WeaponDef*>  weapon;     // Weapons
 		int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
 		bool    antiweapons;
@@ -218,7 +218,7 @@ namespace TA3D
 
         /*-----------------------------------------------------------------------*/
 
-        String  soundcategory;     // Category of sounds to play for that unit
+        QString  soundcategory;     // Category of sounds to play for that unit
 
         /*-----------------------------------------------------------------------*/
 
@@ -270,8 +270,8 @@ namespace TA3D
         ** \brief Check if the unit belongs to the cat category
         ** \param cat The category to check
         */
-		bool checkCategory(const String &cat) const
-		{ return !cat.empty() && Category.count(ToLower(cat)) != 0; }
+        bool checkCategory(const QString &cat) const
+        { return !cat.isEmpty() && Category.count(cat.toLower()) != 0; }
 
         /*!
         ** \brief Inits all the variables
@@ -304,7 +304,7 @@ namespace TA3D
         ** \param data The file buffer
         ** \param size File size
         */
-        int load(const String &filename);
+        int load(const QString &filename);
 
         /*!
         ** \brief Load data contained in `download/ *dl.tdf` files to build extra build menus
@@ -322,9 +322,9 @@ namespace TA3D
 		bool floatting() const;
 
 		/*!
-		** \brief Returns a String identifying the units movement properties
+        ** \brief Returns a QString identifying the units movement properties
 		*/
-		String getMoveStringID() const;
+        QString getMoveQStringID() const;
     };
 
     class UnitManager          // Classe pour charger toutes les données relatives aux unités
@@ -335,8 +335,8 @@ namespace TA3D
     public:
         int         nb_unit;        // Nombre d'unités
         UnitList  unit_type;     // Données sur l'unité
-		String::Vector		animsList;		// the list of GAF files in anims/
-		HashMap< String >::Dense name2gaf;	// a cache to speed up GAF search
+        QStringList		animsList;		// the list of GAF files in anims/
+        HashMap< QString >::Dense name2gaf;	// a cache to speed up GAF search
 
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel
@@ -363,11 +363,11 @@ namespace TA3D
 			h_dl_data.clear();
         }
 
-		void load_panel_texture( const String &intgaf );
+        void load_panel_texture( const QString &intgaf );
 
-		UnitType *load_unit(const String &filename);         // Ajoute une nouvelle unité
+        UnitType *load_unit(const QString &filename);         // Ajoute une nouvelle unité
 
-        inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
+        inline int get_unit_index(const QString &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {
 			HashMap< int >::Dense::const_iterator it = unit_hashtable.find(ToLower(unit_name));
 			if (it == unit_hashtable.end())
@@ -377,7 +377,7 @@ namespace TA3D
 
     public:
 
-		void analyse(const String &filename, const int unit_index);
+        void analyse(const QString &filename, const int unit_index);
 
 		void analyse2(File *file);
 
@@ -387,7 +387,7 @@ namespace TA3D
 
 		void gather_all_build_data();
 
-        void load_script_file(const String &unit_name);
+        void load_script_file(const QString &unit_name);
 
 		void waitUntilReady() const;
 

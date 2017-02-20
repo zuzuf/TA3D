@@ -77,7 +77,7 @@ namespace Menus
 
 	private:
 		//! The scrolling text
-		String::Vector pContent;
+		QStringList pContent;
 		//! Cached size of the content
 		unsigned int pContentSize;
 

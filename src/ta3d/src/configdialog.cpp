@@ -52,14 +52,14 @@ void ConfigDialog::do_config()
     ui->sb_music_volume->setValue(lp_CONFIG->music_volume);
 
     // The game tab
-    ui->le_player_name->setText(lp_CONFIG->player_name.c_str());
-    ui->cb_language->setCurrentText(lp_CONFIG->Lang.c_str());
-    ui->le_mod->setText(lp_CONFIG->last_MOD.c_str());
+    ui->le_player_name->setText(lp_CONFIG->player_name);
+    ui->cb_language->setCurrentText(lp_CONFIG->Lang);
+    ui->le_mod->setText(lp_CONFIG->last_MOD);
 
     // The advanced tab
     ui->cb_dev_mode->setChecked(lp_CONFIG->developerMode);
-    ui->le_7z_command->setText(lp_CONFIG->system7zCommand.c_str());
-    ui->le_netserver->setText(lp_CONFIG->net_server.c_str());
+    ui->le_7z_command->setText(lp_CONFIG->system7zCommand);
+    ui->le_netserver->setText(lp_CONFIG->net_server);
 
     // Run the config window
     exec();
@@ -114,15 +114,15 @@ void ConfigDialog::do_config()
         lp_CONFIG->sound_volume = static_cast<int>(ui->sb_sound_volume->value());
         lp_CONFIG->music_volume = static_cast<int>(ui->sb_music_volume->value());
 
-        lp_CONFIG->player_name = ui->le_player_name->text().toStdString();
-        lp_CONFIG->Lang = ui->cb_language->currentText().toStdString();
-        lp_CONFIG->last_MOD = ui->le_mod->text().toStdString();
+        lp_CONFIG->player_name = ui->le_player_name->text();
+        lp_CONFIG->Lang = ui->cb_language->currentText();
+        lp_CONFIG->last_MOD = ui->le_mod->text();
         TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
 
         lp_CONFIG->developerMode = ui->cb_dev_mode->isChecked();
 
-        lp_CONFIG->system7zCommand = ui->le_7z_command->text().toStdString();
-        lp_CONFIG->net_server = ui->le_netserver->text().toStdString();
+        lp_CONFIG->system7zCommand = ui->le_7z_command->text();
+        lp_CONFIG->net_server = ui->le_netserver->text();
 
         // Save modified settings
         TA3D::Settings::Save();

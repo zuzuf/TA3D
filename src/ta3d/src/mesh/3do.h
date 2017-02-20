@@ -97,7 +97,7 @@ namespace TA3D
     {
     public:
 
-		int load(File *file, int dec = 0, const String &filename = String());
+		int load(File *file, int dec = 0, const QString &filename = QString());
         void create_from_2d(SDL_Surface *bmp,float w,float h,float max_h);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
@@ -112,7 +112,7 @@ namespace TA3D
 		virtual ~Mesh3DO() {destroy3DO();}
 
     public:
-		static Model *load(const String &filename);
+		static Model *load(const QString &filename);
 		static const char *getExt();
 	};
 } // namespace TA3D

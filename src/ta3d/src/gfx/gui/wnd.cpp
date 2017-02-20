@@ -53,7 +53,7 @@ namespace TA3D
 		}
 
 
-		WND::WND(const String& filename)
+		WND::WND(const QString& filename)
 			:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
 			title_h(0), Title(), Name(), obj_hashtable(),
 			background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
@@ -79,11 +79,11 @@ namespace TA3D
 
 
 
-		void WND::draw(String& helpMsg, const bool focus, const bool deg, Skin* skin)
+		void WND::draw(QString& helpMsg, const bool focus, const bool deg, Skin* skin)
 		{
 			/* Asserts */
-			assert(NULL != this);
-			assert(NULL != skin);
+            Q_ASSERT(NULL != this);
+            Q_ASSERT(NULL != skin);
 
 			MutexLocker locker(pMutex);
 			if (!hidden) // If it's hidden don't draw it
@@ -210,22 +210,22 @@ namespace TA3D
 					title_h = (int)(Math::Max(2.0f + pCacheFontHeight, (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
 					skin->wnd_title_bar.draw((float)x + 3.0f, (float)y + 3.0f, (float)(x + width - 4), (float)(y + 3 + title_h));
 					float maxTitleLength = (float)(width - 10) - skin->wnd_title_bar.x1 + skin->wnd_title_bar.x2;
-					String cutTitle = Title;
+					QString cutTitle = Title;
 					if (gui_font->length(cutTitle) > maxTitleLength)
 					{
-						int smax = Title.utf8size();
+                        int smax = Title.size();
 						int smin = 0;
 						int s = (smin + smax) >> 1;
 						do
 						{
 							s = (smin + smax) >> 1;
-							cutTitle = SubstrUTF8(Title, 0, s) << "...";
+                            cutTitle = Substr(Title, 0, s) + "...";
 							bool test = gui_font->length(cutTitle) > maxTitleLength;
 							if (test)
 							{
 								if (smax == smin + 1)
 								{
-									cutTitle = SubstrUTF8(Title, 0, smin) << "...";
+                                    cutTitle = Substr(Title, 0, smin) + "...";
 									break;
 								}
 								smax = s;
@@ -298,7 +298,7 @@ namespace TA3D
 		}
 
 
-		void WND::doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin)
+		void WND::doDrawWindowBackgroundObject(QString& helpMsg, const int i, const bool focus, Skin* skin)
 		{
 			// Keeping a reference to the object
 			GUIOBJ::Ptr objectPtr = pObjects[i];
@@ -306,7 +306,7 @@ namespace TA3D
 			// It is safe due to the reference is guaranted to be valid until the end of the scope
             GUIOBJ* object = objectPtr.weak();
 
-			if (object->MouseOn && !object->help_msg.empty())
+            if (object->MouseOn && !object->help_msg.isEmpty())
 				helpMsg = object->help_msg;
 
 			bool disabled = object->Flag & FLAG_DISABLED;
@@ -819,11 +819,11 @@ namespace TA3D
 							case KEY_ENTER:
 								object->Etat = true;
 								if (object->Func!=NULL)
-									(*object->Func)(object->Text[0].utf8size());
+                                    (*object->Func)(object->Text[0].size());
 								break;
 							case KEY_BACKSPACE:
-								if (object->Text[0].utf8size()>0)
-									object->Text[0] = SubstrUTF8(object->Text[0], 0, object->Text[0].utf8size() - 1);
+                                if (object->Text[0].size()>0)
+                                    object->Text[0] = Substr(object->Text[0], 0, object->Text[0].size() - 1);
 								break;
 							case KEY_TAB:
 							case KEY_ESC:
@@ -836,8 +836,8 @@ namespace TA3D
 								case 0:
 									break;
 								default:
-									if (object->Text[0].utf8size() + 1 < object->Data)
-										object->Text[0] << InttoUTF8( Key);
+                                    if (object->Text[0].size() + 1 < object->Data)
+                                        object->Text[0] += InttoUTF8(Key);
 								}
 							}
 						}
@@ -851,8 +851,8 @@ namespace TA3D
 						if (object->Data >= object->Text.size())
 							object->Data = GLuint(object->Text.size() - 1);
 
-						if(object->Pos > object->Text[object->Data].utf8size())
-							object->Pos = object->Text[object->Pos].utf8size();
+                        if(object->Pos > object->Text[object->Data].size())
+                            object->Pos = object->Text[object->Pos].size();
 						object->Etat = false;
 						if (object->Focus && keypressed())
 						{
@@ -864,7 +864,7 @@ namespace TA3D
 							case KEY_ESC:
 								break;
 							case KEY_TAB:
-								object->Text[object->Data] << "    ";
+                                object->Text[object->Data] += "    ";
 								object->Pos += 4;
 								break;
 							case KEY_ENTER:
@@ -875,44 +875,44 @@ namespace TA3D
 										object->Text[e] = object->Text[e - 1];
 								}
 
-								if (object->Text[ object->Data ].utf8size() - object->Pos > 0)
-									object->Text[ object->Data + 1 ] = SubstrUTF8(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].utf8size() - object->Pos);
+                                if (object->Text[ object->Data ].size() - object->Pos > 0)
+                                    object->Text[ object->Data + 1 ] = Substr(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].size() - object->Pos);
 								else
 									object->Text[ object->Data + 1 ].clear();
-								object->Text[ object->Data ] = SubstrUTF8(object->Text[ object->Data ], 0, object->Pos);
+                                object->Text[ object->Data ] = Substr(object->Text[ object->Data ], 0, object->Pos);
 								object->Pos = 0;
 								object->Data++;
 								break;
 							case KEY_DEL:
 								// Remove next character
-								if (object->Pos < object->Text[object->Data].utf8size())
+                                if (object->Pos < object->Text[object->Data].size())
 								{
-									object->Text[object->Data] = SubstrUTF8(object->Text[object->Data],0,object->Pos)
-																 << SubstrUTF8(object->Text[object->Data],object->Pos+1, object->Text[object->Data].utf8size() - object->Pos-1);
+                                    object->Text[object->Data] = Substr(object->Text[object->Data],0,object->Pos)
+                                            + Substr(object->Text[object->Data],object->Pos+1, object->Text[object->Data].size() - object->Pos-1);
 								}
 								else if (object->Data + 1 < object->Text.size())
 								{
-									object->Text[object->Data] << object->Text[object->Data+1];
+                                    object->Text[object->Data] += object->Text[object->Data+1];
 									for(uint32 e = object->Data + 1 ; e < object->Text.size() - 1 ; e++ )
 										object->Text[e] = object->Text[e+1];
-									object->Text.resize(object->Text.size()-1);
+                                    object->Text.pop_back();
 								}
 								break;
 							case KEY_BACKSPACE:                                 // Remove previous character
 								if (object->Pos > 0)
 								{
-									object->Text[object->Data] = SubstrUTF8(object->Text[object->Data],0,object->Pos-1)
-																 << SubstrUTF8(object->Text[object->Data], object->Pos, object->Text[object->Data].utf8size() - object->Pos);
+                                    object->Text[object->Data] = Substr(object->Text[object->Data],0,object->Pos-1)
+                                            + Substr(object->Text[object->Data], object->Pos, object->Text[object->Data].size() - object->Pos);
 									object->Pos--;
 								}
 								else if (object->Data > 0)
 								{
 									object->Data--;
-									object->Pos = object->Text[object->Data].utf8size();
-									object->Text[object->Data] << object->Text[object->Data + 1];
+                                    object->Pos = object->Text[object->Data].size();
+                                    object->Text[object->Data] += object->Text[object->Data + 1];
 									for (unsigned int e = object->Data + 1 ; e < object->Text.size() - 1; ++e)
 										object->Text[e] = object->Text[e + 1];
-									object->Text.resize(object->Text.size() - 1);
+                                    object->Text.pop_back();
 								}
 								break;
 							case KEY_LEFT:            // Left
@@ -921,11 +921,11 @@ namespace TA3D
 								else if (object->Data > 0)
 								{
 									object->Data--;
-									object->Pos = object->Text[object->Data].utf8size();
+                                    object->Pos = object->Text[object->Data].size();
 								}
 								break;
 							case KEY_RIGHT:            // Right
-								if (object->Pos < object->Text[object->Data].utf8size())
+                                if (object->Pos < object->Text[object->Data].size())
 									object->Pos++;
 								else if (object->Data + 1 < object->Text.size())
 								{
@@ -937,14 +937,14 @@ namespace TA3D
 								if (object->Data > 0)
 								{
 									object->Data--;
-									object->Pos = Math::Min( (uint32)object->Text[object->Data].utf8size(), object->Pos);
+                                    object->Pos = Math::Min( (uint32)object->Text[object->Data].size(), object->Pos);
 								}
 								break;
 							case KEY_DOWN:            // Down
 								if (object->Data + 1 < object->Text.size())
 								{
 									object->Data++;
-									object->Pos = Math::Min( (uint32)object->Text[object->Data].utf8size(), object->Pos);
+                                    object->Pos = Math::Min( (uint32)object->Text[object->Data].size(), object->Pos);
 								}
 								break;
 							default:
@@ -954,9 +954,9 @@ namespace TA3D
 								case 27:
 									break;
 								default:
-									object->Text[object->Data] = SubstrUTF8(object->Text[ object->Data ], 0, object->Pos )
-																 << InttoUTF8( Key )
-																 << SubstrUTF8(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].utf8size() - object->Pos);
+                                    object->Text[object->Data] = Substr(object->Text[ object->Data ], 0, object->Pos )
+                                            + InttoUTF8( Key )
+                                            + Substr(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].size() - object->Pos);
 									object->Pos++;
 								}
 							}
@@ -1344,30 +1344,30 @@ namespace TA3D
 							I_Msg(TA3D::TA3D_IM_GUI_MSG, object->OnHover[cur]);
 				}
 
-				for (unsigned int cur = 0; cur < object->SendDataTo.size(); ++cur) // Send Data to an Object
+                for (const QString &cur : object->SendDataTo) // Send Data to an Object
 				{
-					String::size_type e = object->SendDataTo[cur].find('.');
-					if (e != String::npos)
+                    QString::size_type e = cur.indexOf('.');
+                    if (e != -1)
 					{
-						unsigned int target = Substr(object->SendDataTo[cur], 0, e).to<unsigned int>();
+                        unsigned int target = Substr(cur, 0, e).toUInt();
 						if (target < pObjects.size())
 						{
-							if (Substr(object->SendDataTo[cur], e+1, object->SendDataTo[cur].length()-e) == "data")
+                            if (Substr(cur, e+1, cur.length() - e) == "data")
 								pObjects[target]->Data = object->Data;
 							else
 								pObjects[target]->Pos = object->Data;
 						}
 					}
 				}
-				for (unsigned int cur = 0; cur < object->SendPosTo.size(); ++cur) // Send Pos to an Object
+                for (const QString &cur : object->SendPosTo) // Send Pos to an Object
 				{
-					String::size_type e = object->SendPosTo[cur].find('.');
-					if (e != String::npos)
+                    QString::size_type e = cur.indexOf('.');
+                    if (e != -1)
 					{
-						unsigned int target = Substr(object->SendPosTo[cur], 0, e).to<unsigned int>();
+                        unsigned int target = Substr(cur, 0, e).toUInt();
 						if (target < pObjects.size())
 						{
-							if (Substr(object->SendPosTo[cur], e+1, object->SendPosTo[cur].length()-e) == "data")
+                            if (Substr(cur, e + 1, cur.length() - e) == "data")
 								pObjects[target]->Data = object->Pos;
 							else
 								pObjects[target]->Pos = object->Pos;
@@ -1391,12 +1391,12 @@ namespace TA3D
 
 
 
-		uint32 WND::msg(const String& message)
+		uint32 WND::msg(const QString& message)
 		{
 			MutexLocker locker(pMutex);
-			String::size_type i = message.find('.');
+            QString::size_type i = message.indexOf('.');
 
-			if (i != String::npos) // When it targets a subobject
+            if (i != -1) // When it targets a subobject
 			{
 				GUIOBJ::Ptr obj = doGetObject(Substr(message, 0, i));
 				if (obj)
@@ -1404,22 +1404,23 @@ namespace TA3D
 			}
 			else // When it targets the window itself
 			{
-				if (ToLower(message) == "show")
+                const QString &lower_message = message.toLower();
+                if (lower_message == "show")
 				{
 					hidden = false;
 					return INTERFACE_RESULT_HANDLED;
 				}
-				if (ToLower(message) == "hide")
+                if (lower_message == "hide")
 				{
 					hidden = true;
 					return INTERFACE_RESULT_HANDLED;
 				}
-				if (ToLower(message) == "enablescrolling")
+                if (lower_message == "enablescrolling")
 				{
 					scrollable = true;
 					return INTERFACE_RESULT_HANDLED;
 				}
-				if (ToLower(message) == "disablescrolling")
+                if (lower_message == "disablescrolling")
 				{
 					scrollable = false;
 					return INTERFACE_RESULT_HANDLED;
@@ -1430,72 +1431,72 @@ namespace TA3D
 
 
 
-		bool WND::get_state(const String& message)
+		bool WND::get_state(const QString& message)
 		{
 			MutexLocker locker(pMutex);
 			GUIOBJ::Ptr obj = doGetObject(message);
 			if (obj)
 				return obj->Etat;
-			if (message.empty())
+            if (message.isEmpty())
 				return !hidden;
 			return false;
 		}
 
-		sint32 WND::get_value(const String& message)
+		sint32 WND::get_value(const QString& message)
 		{
 			MutexLocker locker(pMutex);
 			GUIOBJ::Ptr obj = doGetObject(message);
 			return (!obj) ? -1 : obj->Value;
 		}
 
-		String WND::caption(const String& message)
+		QString WND::caption(const QString& message)
 		{
 			MutexLocker locker(pMutex);
 			GUIOBJ::Ptr obj = doGetObject(message);
 			if (obj)
 			{
-				if (!obj->Text.empty())
+                if (!obj->Text.isEmpty())
 				{
 					if (obj->Type == OBJ_TEXTEDITOR)
 					{
-						String result = obj->Text[0];
+						QString result = obj->Text[0];
 						for (size_t i = 1; i < obj->Text.size(); ++i)
-							result << '\n' << obj->Text[i];
+                            result += '\n' + obj->Text[i];
 						return result;
 					}
 					return  obj->Text[0];
 				}
 				return nullptr;
 			}
-			return (message.empty()) ? Title : nullptr;
+            return (message.isEmpty()) ? Title : QString();
 		}
 
 
-		GUIOBJ::Ptr WND::doGetObject(const String &message)
+		GUIOBJ::Ptr WND::doGetObject(const QString &message)
 		{
-			if (message.empty())
+            if (message.isEmpty())
 				return GUIOBJ::Ptr();
 
-			const sint16 e = sint16(obj_hashtable[ToLower(message)] - 1);
+            const int e = obj_hashtable[message.toLower()] - 1;
 			return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
 		}
 
-		GUIOBJ::Ptr WND::get_object(const String &message)
+		GUIOBJ::Ptr WND::get_object(const QString &message)
 		{
-			if (message.empty())
+            if (message.isEmpty())
 				return GUIOBJ::Ptr();
-			String lowered = ToLower(message);
+            const QString &lowered = message.toLower();
 			if (obj_hashtable.count(lowered) == 0)
 				return GUIOBJ::Ptr();
 
 			MutexLocker locker(pMutex);
-			const sint16 e = sint16(obj_hashtable[lowered] - 1);
+            const int e = obj_hashtable[lowered] - 1;
 			return (e >= 0) ? pObjects[e] : GUIOBJ::Ptr();
 		}
 
 
 
-		void WND::load_gui(const String& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense &gui_hashtable)
+		void WND::load_gui(const QString& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense &gui_hashtable)
 		{
 			ingame_window = true;
 
@@ -1521,25 +1522,25 @@ namespace TA3D
 			show_title = false;
 			delete_gltex = false;
 
-			String panel = wndFile.pullAsString("gadget0.panel"); // Look for the panel texture
+			QString panel = wndFile.pullAsString("gadget0.panel"); // Look for the panel texture
 			int w;
 			int h;
 			background = gfx->load_texture_from_cache(panel, FILTER_LINEAR, (uint32*)&w, (uint32*)&h);
 			if (!background)
 			{
-				background = Gaf::ToTexture(String("anims\\") << Name, panel, &w, &h, true);
+                background = Gaf::ToTexture("anims\\" + Name, panel, &w, &h, true);
 				if (background == 0)		// Try GAF-like directory structure
-					background = Gaf::ToTexture(String("anims\\") << Name << ".gaf", panel, &w, &h, true);
+                    background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
 				if (background == 0)		// Try GAF-like directory structure
 					background = Gaf::ToTexture("anims\\commongui", panel, &w, &h, true);
 				if (background == 0)
 					background = Gaf::ToTexture("anims\\commongui.gaf", panel, &w, &h, true);
 				if (background == 0)
 				{
-					String::Vector file_list;
+					QStringList file_list;
 					VFS::Instance()->getDirlist("anims\\*", file_list);				// GAF-like directories
 					VFS::Instance()->getFilelist("anims\\*.gaf", file_list);		// Normal GAF files
-					for (String::Vector::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
+					for (QStringList::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
 					{
 						LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
 						background = Gaf::ToTexture(*i, panel, &w, &h, true, FILTER_LINEAR);
@@ -1560,23 +1561,22 @@ namespace TA3D
 			pObjects.clear();
 			pObjects.reserve(NbObj);
 
-			String obj_key;
+			QString obj_key;
 			for (unsigned int i = 0; i < NbObj ; ++i)
 			{
 				GUIOBJ::Ptr object = new GUIOBJ();
 				pObjects.push_back(object);
 
-				obj_key.clear();
-				obj_key << "gadget" << i + 1 << ".";
-				int obj_type = wndFile.pullAsInt(String(obj_key) << "common.id");
+                obj_key = QString("gadget%1.").arg(i + 1);
+                int obj_type = wndFile.pullAsInt(obj_key + "common.id");
 
-				object->Name = wndFile.pullAsString(String(obj_key) << "common.name", String("gadget") << (i + 1));
+                object->Name = wndFile.pullAsString(obj_key + "common.name", QString("gadget%1").arg(i + 1));
 				obj_hashtable[ToLower(object->Name)] = i + 1;
 
-				int X1 = (int)((float)wndFile.pullAsInt(String(obj_key) << "common.xpos")   * x_factor); // Reads data from TDF
-				int Y1 = (int)((float)wndFile.pullAsInt(String(obj_key) << "common.ypos")   * y_factor);
-				int W  = (int)((float)wndFile.pullAsInt(String(obj_key) << "common.width")  * x_factor - 1);
-				int H  = (int)((float)wndFile.pullAsInt(String(obj_key) << "common.height") * y_factor - 1);
+                int X1 = (int)((float)wndFile.pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
+                int Y1 = (int)((float)wndFile.pullAsInt(obj_key + "common.ypos")   * y_factor);
+                int W  = (int)((float)wndFile.pullAsInt(obj_key + "common.width")  * x_factor - 1);
+                int H  = (int)((float)wndFile.pullAsInt(obj_key + "common.height") * y_factor - 1);
 
 				//float size = Math::Min(x_factor, y_factor);
 				uint32 obj_flags = 0;
@@ -1586,19 +1586,17 @@ namespace TA3D
 				if (Y1 < 0)
 					Y1 += SCREEN_H;
 
-				if (!wndFile.pullAsBool(String(obj_key) << "common.active"))
+                if (!wndFile.pullAsBool(obj_key + "common.active"))
 					obj_flags |= FLAG_HIDDEN;
 
-				String::Vector Caption;
-				wndFile.pullAsString(String(obj_key) << "text").explode(Caption, ',', true, true, true);
+                QStringList Caption = wndFile.pullAsString(obj_key + "text").split(',', QString::SkipEmptyParts);
 				I18N::Translate(Caption);
 
 				if (TA_ID_BUTTON == obj_type)
 				{
 					int t_w[100];
 					int t_h[100];
-					String key(object->Name);
-					key.toLower();
+                    const QString key(object->Name.toLower());
 					std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable[key];
 
 					std::vector<GLuint> gaf_imgs;
@@ -1606,9 +1604,9 @@ namespace TA3D
 
 					if (!result)
 					{
-						Gaf::ToTexturesList(gaf_imgs, String("anims\\") << Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
+                        Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
 						if (!gaf_imgs.size())		// Try GAF-like directory
-							Gaf::ToTexturesList(gaf_imgs, String("anims\\") << Name << ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
+                            Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name + ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
 						if (!gaf_imgs.size())
 						{
 							Gaf::ToTexturesList(gaf_imgs, "anims\\commongui", object->Name, t_w, t_h, true, FILTER_LINEAR);
@@ -1621,10 +1619,10 @@ namespace TA3D
 						}
 						if (!gaf_imgs.size())
 						{
-							String::Vector file_list;
+							QStringList file_list;
 							VFS::Instance()->getDirlist("anims\\*", file_list);				// GAF-like directories
 							VFS::Instance()->getFilelist("anims\\*.gaf", file_list);		// Normal GAF files
-							for (String::Vector::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
+							for (QStringList::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
 							{
 								LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
 								Gaf::ToTexturesList(gaf_imgs, *e, object->Name, t_w, t_h, true, FILTER_LINEAR);
@@ -1636,7 +1634,7 @@ namespace TA3D
 					else
 					{
 						gaf_imgs.resize(result->size());
-						for (unsigned int e = 0 ; e < result->size() ; ++e)
+                        for (int e = 0 ; e < result->size() ; ++e)
 						{
 							gaf_imgs[e] = (*result)[e].tex;
 							t_w[e] = (*result)[e].width;
@@ -1644,7 +1642,7 @@ namespace TA3D
 						}
 					}
 
-					const int nb_stages = wndFile.pullAsInt(String(obj_key) << "stages");
+                    const int nb_stages = wndFile.pullAsInt(obj_key + "stages");
 					object->create_ta_button((float)X1, (float)Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : (int)gaf_imgs.size() - 2);
 					if (result == NULL && found_elsewhere)
 						gui_hashtable[key] = &object->gltex_states;
@@ -1657,26 +1655,26 @@ namespace TA3D
 						else
 							object->gltex_states[e].destroy_tex = true;
 					}
-					object->current_state = (byte)wndFile.pullAsInt(String(obj_key) << "status");
-					object->shortcut_key = (sint16)wndFile.pullAsInt(String(obj_key) << "quickkey", -1);
-					if (wndFile.pullAsBool(String(obj_key) << "common.grayedout"))
+                    object->current_state = (byte)wndFile.pullAsInt(obj_key + "status");
+                    object->shortcut_key = (sint16)wndFile.pullAsInt(obj_key + "quickkey", -1);
+                    if (wndFile.pullAsBool(obj_key + "common.grayedout"))
 						object->Flag |= FLAG_DISABLED;
-					if (wndFile.pullAsInt(String(obj_key) << "common.attribs") == 32)
+                    if (wndFile.pullAsInt(obj_key + "common.attribs") == 32)
 						object->Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
 				}
 				else
 				{
 					if (obj_type == TA_ID_TEXT_FIELD)
-						object->create_textbar((float)X1, (float)Y1, (float)X1 + (float)W, (float)Y1 + (float)H, Caption.size() > 0 ? Caption[0] : "", wndFile.pullAsInt(String(obj_key) << "maxchars"), NULL);
+                        object->create_textbar((float)X1, (float)Y1, (float)X1 + (float)W, (float)Y1 + (float)H, Caption.size() > 0 ? Caption[0] : "", wndFile.pullAsInt(obj_key + "maxchars"), NULL);
 					else
 					{
 						if (obj_type == TA_ID_LABEL)
-							object->create_text((float)X1, (float)Y1, Caption.size() ? Caption[0] : String(), 0xFFFFFFFF, 1.0f);
+							object->create_text((float)X1, (float)Y1, Caption.size() ? Caption[0] : QString(), 0xFFFFFFFF, 1.0f);
 						else
 						{
 							if (obj_type == TA_ID_BLANK_IMG || obj_type == TA_ID_IMG)
 							{
-								object->create_img((float)X1, (float)Y1, (float)X1 + (float)W, (float)Y1 + (float)H, gfx->load_texture(wndFile.pullAsString(String(obj_key) << "source"),FILTER_LINEAR));
+                                object->create_img((float)X1, (float)Y1, (float)X1 + (float)W, (float)Y1 + (float)H, gfx->load_texture(wndFile.pullAsString(obj_key + "source"),FILTER_LINEAR));
 								object->destroy_img = object->Data != 0 ? true : false;
 							}
 							else
@@ -1705,13 +1703,13 @@ namespace TA3D
 			out << "[Window]\n{\n";
 			out << "\tx = " << x << "\n";
 			out << "\ty = " << y << "\n";
-			out << "\tname = " << Name << "\n";
-			out << "\ttitle = " << Title << "\n";
+            out << "\tname = " << Name.toStdString() << "\n";
+            out << "\ttitle = " << Title.toStdString() << "\n";
 			out << "}\n" << std::endl;
 		}
 
 
-		void WND::load_tdf(const String& filename, Skin* skin)
+		void WND::load_tdf(const QString& filename, Skin* skin)
 		{
 			TDFParser wndFile(filename, false, false, false, false, true);
 
@@ -1768,7 +1766,7 @@ namespace TA3D
 			draw_borders = wndFile.pullAsBool("window.draw borders");
 			show_title = wndFile.pullAsBool("window.show title");
 			delete_gltex = false;
-			String backgroundImage = wndFile.pullAsString("window.background");
+			QString backgroundImage = wndFile.pullAsString("window.background");
 			if (VFS::Instance()->fileExists(backgroundImage))
 			{
 				background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
@@ -1786,39 +1784,35 @@ namespace TA3D
 
 			pObjects.clear();
 
-			String obj_key;
-			String obj_type;
-			String caption;
-			String::Vector Entry;
-			String entryList;
+			QString caption;
+			QStringList Entry;
+			QString entryList;
 
-			for (unsigned int i = 0 ; wndFile.exists(String("widget") << i) ; ++i) // Loads each object
+            for (unsigned int i = 0 ; wndFile.exists("widget" + i) ; ++i) // Loads each object
 			{
-				obj_key.clear();
-				obj_key << "window.widget" << i << ".";
+                const QString &obj_key = QString("window.widget%1.").arg(i);
 
 				// Type of the new object
-				obj_type = wndFile.pullAsString(String(obj_key) << "type");
-				if (obj_type.empty())
+                const QString &obj_type = wndFile.pullAsString(obj_key + "type").toUpper();
+                if (obj_type.isEmpty())
 					continue;
-				obj_type.toUpper();
 
 				// Creating a new instance
 				GUIOBJ::Ptr object = new GUIOBJ();
 				pObjects.push_back(object);
 
-				object->Name = wndFile.pullAsString(String(obj_key) << "name", String("widget") << i);
+                object->Name = wndFile.pullAsString(obj_key + "name", QString("widget%1").arg(i));
 				obj_hashtable[ToLower(object->Name)] = i + 1;
-				object->help_msg = I18N::Translate(wndFile.pullAsString(String(obj_key) << "help"));
+                object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 
-				float X1 = wndFile.pullAsFloat(String(obj_key) << "x1") * x_factor;				// Reads data from TDF
-				float Y1 = wndFile.pullAsFloat(String(obj_key) << "y1") * y_factor;
-				float X2 = wndFile.pullAsFloat(String(obj_key) << "x2") * x_factor;
-				float Y2 = wndFile.pullAsFloat(String(obj_key) << "y2") * y_factor;
-				caption = I18N::Translate(wndFile.pullAsString(String(obj_key) << "caption"));
-				float size_factor = wndFile.pullAsFloat(String(obj_key) << "size", 1.0f);
+                float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF
+                float Y1 = wndFile.pullAsFloat(obj_key + "y1") * y_factor;
+                float X2 = wndFile.pullAsFloat(obj_key + "x2") * x_factor;
+                float Y2 = wndFile.pullAsFloat(obj_key + "y2") * y_factor;
+                caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
+                float size_factor = wndFile.pullAsFloat(obj_key + "size", 1.0f);
 				float size = size_factor * Math::Min(x_factor, y_factor);
-				int val = wndFile.pullAsInt(String(obj_key) << "value");
+                int val = wndFile.pullAsInt(obj_key + "value");
 				uint32 obj_flags = 0;
 				uint32 obj_negative_flags = 0;
 
@@ -1827,35 +1821,34 @@ namespace TA3D
 				if (Y1 < 0) Y1 += (float)height;
 				if (Y2 < 0) Y2 += (float)height;
 
-				if (wndFile.pullAsBool(String(obj_key) << "can be clicked"))
+                if (wndFile.pullAsBool(obj_key + "can be clicked"))
 					obj_flags |= FLAG_CAN_BE_CLICKED;
-				if (wndFile.pullAsBool(String(obj_key) << "can get focus"))
+                if (wndFile.pullAsBool(obj_key + "can get focus"))
 					obj_flags |= FLAG_CAN_GET_FOCUS;
-				if (wndFile.pullAsBool(String(obj_key) << "highlight"))
+                if (wndFile.pullAsBool(obj_key + "highlight"))
 					obj_flags |= FLAG_HIGHLIGHT;
-				if (wndFile.pullAsBool(String(obj_key) << "fill"))
+                if (wndFile.pullAsBool(obj_key + "fill"))
 					obj_flags |= FLAG_FILL;
-				if (wndFile.pullAsBool(String(obj_key) << "hidden"))
+                if (wndFile.pullAsBool(obj_key + "hidden"))
 					obj_flags |= FLAG_HIDDEN;
-				if (wndFile.pullAsBool(String(obj_key) << "no border"))
+                if (wndFile.pullAsBool(obj_key + "no border"))
 					obj_flags |= FLAG_NO_BORDER;
-				if (wndFile.pullAsBool(String(obj_key) << "cant be clicked"))
+                if (wndFile.pullAsBool(obj_key + "cant be clicked"))
 					obj_negative_flags |= FLAG_CAN_BE_CLICKED;
-				if (wndFile.pullAsBool(String(obj_key) << "cant get focus"))
+                if (wndFile.pullAsBool(obj_key + "cant get focus"))
 					obj_negative_flags |= FLAG_CAN_GET_FOCUS;
 
-				if (wndFile.pullAsBool(String(obj_key) << "centered"))
+                if (wndFile.pullAsBool(obj_key + "centered"))
 				{
 					obj_flags |= FLAG_CENTERED;
 					X1 -= gui_font->length(caption) * 0.5f;
 				}
 
-				entryList.clear();
-				entryList << ' ' << wndFile.pullAsString(String(obj_key) << "entry");
-				entryList.explode(Entry, ',', true, true, true);
+                entryList = ' ' + wndFile.pullAsString(obj_key + "entry");
+                Entry = entryList.split(',', QString::SkipEmptyParts);
 				I18N::Translate(Entry);
 
-				switch (obj_type.first())
+                switch (obj_type[0].toLatin1())
 				{
 				case 'B' :
 					{
@@ -1881,7 +1874,7 @@ namespace TA3D
 					{
 						if (obj_type == "HSLIDER")
 						{
-							object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(String(obj_key) << "min"), wndFile.pullAsInt(String(obj_key) << "max"), val);
+                            object->create_hslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
 							break;
 						}
 						break;
@@ -1890,7 +1883,7 @@ namespace TA3D
 					{
 						if (obj_type == "IMG")
 						{
-							object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(String(obj_key) << "source"))));
+                            object->create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
 							object->destroy_img = object->Data != 0 ? true : false;
 						}
 						break;
@@ -1904,16 +1897,15 @@ namespace TA3D
 						}
 						if (obj_type == "MULTISTATE")
 						{
-							String::Vector imageNames;
-							caption.explode(imageNames, ',', false, true, true);
+                            const QStringList &imageNames = caption.split(',', QString::SkipEmptyParts);
 							std::vector<GLuint> gl_imgs;
 							std::vector<uint32> t_w;
 							std::vector<uint32> t_h;
 
-							for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
+                            for (const QString &e : imageNames)
 							{
 								uint32 tw, th;
-								GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
+                                GLuint texHandle = gfx->load_texture(e, FILTER_LINEAR, &tw, &th);
 								if (texHandle)
 								{
 									gl_imgs.push_back(texHandle);
@@ -2008,7 +2000,7 @@ namespace TA3D
 					{
 						if (obj_type == "VSLIDER")
 						{
-							object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(String(obj_key) << "min"), wndFile.pullAsInt(String(obj_key) << "max"), val);
+                            object->create_vslider(X1, Y1, X2, Y2, wndFile.pullAsInt(obj_key + "min"), wndFile.pullAsInt(obj_key + "max"), val);
 							break;
 						}
 
@@ -2016,10 +2008,10 @@ namespace TA3D
 					}
 				}
 
-				wndFile.pullAsString(String(obj_key) << "on click").explode(object->OnClick, ',', true, true, true);
-				wndFile.pullAsString(String(obj_key) << "on hover").explode(object->OnHover, ',', true, true, true);
-				wndFile.pullAsString(String(obj_key) << "send data to").toLower().explode(object->SendDataTo, ',', true, true, true);
-				wndFile.pullAsString(String(obj_key) << "send pos to").toLower().explode(object->SendPosTo, ',', true, true, true);
+                object->OnClick = wndFile.pullAsString(obj_key + "on click").split(',', QString::SkipEmptyParts);
+                object->OnHover = wndFile.pullAsString(obj_key + "on hover").split(',', QString::SkipEmptyParts);
+                object->SendDataTo = wndFile.pullAsString(obj_key + "send data to").toLower().split(',', QString::SkipEmptyParts);
+                object->SendPosTo = wndFile.pullAsString(obj_key + "send pos to").toLower().split(',', QString::SkipEmptyParts);
 
 				object->Flag |= obj_flags;
 				object->Flag &= ~obj_negative_flags;
@@ -2053,7 +2045,7 @@ namespace TA3D
 		GUIOBJ::Ptr WND::object(unsigned int indx)
 		{
 			MutexLocker locker(pMutex);
-			assert(indx < pObjects.size());
+            Q_ASSERT(indx < pObjects.size());
 			return pObjects[indx];
 		}
 

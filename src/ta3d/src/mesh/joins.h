@@ -26,7 +26,7 @@ namespace TA3D
 	class Joins
 	{
 	public:
-		static Mesh *computeStructure(Mesh *mesh, const String &filename);
+		static Mesh *computeStructure(Mesh *mesh, const QString &filename);
 		static void computeSelection(Model *model);
 	};
 }

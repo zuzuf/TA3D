@@ -133,12 +133,12 @@ namespace Menus
 		Gui::GUIOBJ::Ptr obj = pArea->get_object("load_menu.l_file");
 		if (obj)
 		{
-			String::List fileList;
-			Paths::Glob(fileList, String(TA3D::Paths::Savegames) << "*.sav");
+			QStringList fileList;
+			Paths::Glob(fileList, QString(TA3D::Paths::Savegames) << "*.sav");
 			fileList.sort();
 			obj->Text.clear();
 			obj->Text.reserve(fileList.size());
-			for (String::List::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
+			for (QStringList::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
 			{
 				// Remove the Savegames path, leaving just the bare file names
 				obj->Text.push_back(Paths::ExtractFileName(*i));
@@ -164,7 +164,7 @@ namespace Menus
 			if (guiObj->Pos < guiObj->Text.size())
 			{
 				GameData game_data;
-				bool network = load_game_data(String(TA3D::Paths::Savegames) << guiObj->Text[guiObj->Pos], &game_data);
+				bool network = load_game_data(QString(TA3D::Paths::Savegames) << guiObj->Text[guiObj->Pos], &game_data);
 
 				if (!game_data.saved_file.empty() && !network)
 				{

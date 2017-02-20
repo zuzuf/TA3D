@@ -9,32 +9,32 @@ namespace TA3D
     namespace UTILS
     {
         //! Magic autoregistration
-        REGISTER_ARCHIVE_TYPE(Hpi);
+        REGISTER_ARCHIVE_TYPE(Hpi)
 
-        void Hpi::finder(String::List &fileList, const String &path)
+        void Hpi::finder(QStringList &fileList, const QString &path)
         {
-            String::List files;
-            if (path.last() == Paths::Separator)
-				Paths::GlobFiles(files, String(path) << "*", false, false);
+            QStringList files;
+            if (path.endsWith(Paths::Separator))
+                Paths::GlobFiles(files, path + "*", false, false);
             else
-				Paths::GlobFiles(files, String(path) << Paths::Separator << "*", false, false);
-            for(String::List::iterator i = files.begin() ; i != files.end() ; ++i)
+                Paths::GlobFiles(files, path + Paths::Separator + "*", false, false);
+            for(QStringList::iterator i = files.begin() ; i != files.end() ; ++i)
             {
-                String ext = Paths::ExtractFileExt(*i).toLower();
+                const QString &ext = Paths::ExtractFileExt(*i).toLower();
                 if (ext == ".hpi" || ext == ".gp3" || ext == ".ccx" || ext == ".ufo")
                     fileList.push_back(*i);
             }
         }
 
-        Archive* Hpi::loader(const String &filename)
+        Archive* Hpi::loader(const QString &filename)
         {
-            String ext = Paths::ExtractFileExt(filename).toLower();
+            const QString &ext = Paths::ExtractFileExt(filename).toLower();
             if (ext == ".hpi" || ext == ".gp3" || ext == ".ccx" || ext == ".ufo")
                 return new Hpi(filename);
             return NULL;
         }
 
-        Hpi::Hpi(const String &filename)
+        Hpi::Hpi(const QString &filename)
         {
             directory = NULL;
             open(filename);
@@ -45,12 +45,12 @@ namespace TA3D
             close();
         }
 
-        void Hpi::open(const String& filename)
+        void Hpi::open(const QString& filename)
         {
             close();
 
             Archive::name = filename;
-            String ext = Paths::ExtractFileExt(filename).toLower();
+            const QString &ext = Paths::ExtractFileExt(filename).toLower();
             priority = 0;
             if (ext == ".ccx")
                 priority = 1;
@@ -109,16 +109,15 @@ namespace TA3D
             if (files.empty())
             {
                 m_cDir.clear();
-				processRoot(String(), header.Start);
+				processRoot(QString(), header.Start);
             }
 			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
 				lFiles.push_back(*i);
         }
 
-		File* Hpi::readFile(const String& filename)
+		File* Hpi::readFile(const QString& filename)
         {
-			String key = ToLower(filename);
-            key.convertSlashesIntoBackslashes();
+            const QString &key = QString(filename).replace('\\', '/');
 			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
@@ -189,11 +188,10 @@ namespace TA3D
 			return new VirtualFile(WriteBuff, Length);
         }
 
-		File* Hpi::readFileRange(const String& filename, const uint32 start, const uint32 length)
+		File* Hpi::readFileRange(const QString& filename, const uint32 start, const uint32 length)
         {
-			String key = ToLower(filename);
-            key.convertSlashesIntoBackslashes();
-			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
+            const QString &key = QString(filename).replace('\\', '/');
+            HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
 			return readFileRange(*item, start, length);
@@ -419,8 +417,8 @@ namespace TA3D
 
                 if (Entry->Flag == 1)
                 {
-                    String sDir = m_cDir; // save directory
-                    m_cDir << (char *)Name << "\\";
+                    QString sDir = m_cDir // save directory
+                            + (char *)Name + "/";
 
                     processSubDir(Entry);     // process new directory
 
@@ -429,23 +427,23 @@ namespace TA3D
                 else
                 {
                     HpiFile *li = new HpiFile;
-					String f(ToLower(m_cDir + (char *)Name));
+                    const QString &f = ToLower(m_cDir + (char *)Name);
                     li->setName(f);
                     li->setParent(this);
                     li->setPriority(priority);
                     li->entry = *Entry;
                     li->size = *FileLength;
-                    files.insert( std::pair<String, HpiFile*>(f, li) );
+                    files.insert( std::pair<QString, HpiFile*>(f, li) );
                 }
                 ++Entry;
             }
         }
 
-        void Hpi::processRoot(const String& startPath, const sint32 offset)
+        void Hpi::processRoot(const QString& startPath, const sint32 offset)
         {
             sint32 *Entries, *FileCount, *FileLength, *EntryOffset;
             schar *Name;
-            String MyPath;
+            QString MyPath;
 
             Entries = (sint32 *)(directory + offset);
             EntryOffset = Entries + 1;
@@ -460,22 +458,22 @@ namespace TA3D
                 {
                     MyPath = startPath;
                     if (MyPath.length())
-						MyPath << "\\";
+                        MyPath += "/";
                     MyPath += (char *)Name;
-					m_cDir = String(MyPath) << "\\";
+                    m_cDir = MyPath + "/";
 
                     processSubDir( Entry );
                 }
                 else
                 {
                     HpiFile *li = new HpiFile;
-					String f(ToLower(m_cDir + (char *)Name));
+                    const QString &f = ToLower(m_cDir + (char *)Name);
                     li->setName(f);
                     li->setParent(this);
                     li->setPriority(priority);
                     li->entry = *Entry;
                     li->size = *FileLength;
-                    files.insert( std::pair<String, HpiFile*>(f, li) );
+                    files.insert( std::pair<QString, HpiFile*>(f, li) );
                 }
                 ++Entry;
             }

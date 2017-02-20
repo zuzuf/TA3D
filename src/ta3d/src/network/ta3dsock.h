@@ -150,9 +150,9 @@ namespace TA3D
 
 	typedef chat special;
 
-	chat* strtochat(struct chat *chat_msg, String msg);
+	chat* strtochat(struct chat *chat_msg, QString msg);
 
-	String chattostr( struct chat *chat_msg );
+	QString chattostr( struct chat *chat_msg );
 
 	//TA3DSock- specialized low-level networking
 	//used internally by Network to send the data
@@ -182,7 +182,7 @@ namespace TA3D
 		uint32	getLong();//uint32
 		uint16	getShort();//uint16
 		byte	getByte();//uint8
-		void	getString(char* x);//null terminated
+		void	getQString(char* x);//null terminated
 		void	getBuffer(char* x, int size);
 		float	getFloat();
 
@@ -195,7 +195,7 @@ namespace TA3D
 		TA3DSock();
 		virtual ~TA3DSock() {}
 
-		int open(const String &hostname, uint16 port);
+		int open(const QString &hostname, uint16 port);
 		int open(uint16 port);
 		int accept(TA3DSock** sock);
 		int accept(TA3DSock** sock,int timeout);
@@ -203,7 +203,7 @@ namespace TA3D
 
 		void send(const byte *data, int size);
 
-		String getAddress() const {return tcpsock.getIPstr();}
+		QString getAddress() const {return tcpsock.getIPstr();}
 		uint16 getPort() const {return tcpsock.getPort();}
 		SocketTCP& getSock() {return tcpsock;}
 		int isOpen();

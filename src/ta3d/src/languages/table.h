@@ -1,7 +1,7 @@
 #ifndef __TA3D_LANGUAGES_TABLE_H__
 # define __TA3D_LANGUAGES_TABLE_H__
 
-# include <yuni/core/string.h>
+# include <QString>
 
 
 namespace TA3D
@@ -11,10 +11,6 @@ namespace TA3D
 	class TranslationTable
 	{
 	public:
-		//! A String with a smaller buffer than usual strings
-		typedef Yuni::StringBase<char, 40> ShortString;
-
-	public:
 		/*!
 		** \brief Update all translations
 		*/
@@ -22,11 +18,11 @@ namespace TA3D
 
 	public:
 		//! Translation of `game time`
-		static ShortString gameTime;
+        static QString gameTime;
 		//! Translation of `units`
-		static ShortString units;
+        static QString units;
 		//! Translation of `speed`
-		static ShortString speed;
+        static QString speed;
 
 	};
 

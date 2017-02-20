@@ -66,7 +66,7 @@ namespace TA3D
 		init3DO();
 	}
 
-	int Mesh3DO::load(File *file, int dec, const String &filename)
+	int Mesh3DO::load(File *file, int dec, const QString &filename)
 	{
 		if (nb_vtx > 0)
 			destroy3DO();					// Au cas où l'objet ne serait pas vierge
@@ -98,7 +98,7 @@ namespace TA3D
 		nb_vtx = (short)header.NumberOfVertexes;
 		nb_prim = (short)header.NumberOfPrimitives;
 		file->seek(header.OffsetToObjectName);
-		name = file->getString();
+        name = file->getString();
 #ifdef DEBUG_MODE
 		/*		for (i=0;i<dec;i++)
 				printf("  ");
@@ -252,7 +252,7 @@ namespace TA3D
 				}
 				nb_index[cur] = (short)primitive.NumberOfVertexIndexes;
 				file->seek(primitive.OffsetToTextureName);
-				tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
+                tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
 				usetex[cur] = 1;
 				if (t_m == -1)
 				{
@@ -407,9 +407,9 @@ namespace TA3D
 				fixed_textures |= texture_manager.tex[index_tex[i]].logo;
 			}
 			gltex.resize(nb_sprites);
-			for (short e = 0; e < nb_sprites; ++e)
+            for (int e = 0; e < nb_sprites; ++e)
 			{
-				String cache_filename = !filename.empty() ? String(filename) << '-' << (!name.empty() ? name : "none") << '-' << e << ".bin" : String();
+                QString cache_filename = !filename.isEmpty() ? filename + '-' + (!name.isEmpty() ? name : "none") + QString("-%1.bin").arg(e) : QString();
 				cache_filename.replace('/', 'S');
 				cache_filename.replace('\\', 'S');
 
@@ -425,8 +425,8 @@ namespace TA3D
 							 texture_manager.tex[index_tex[i]].bmp[f]->h);
 					}
 					cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
-					if (!TA3D::Paths::Exists( String(TA3D::Paths::Caches) << cache_filename ))
-						SaveTex( bmp, String(TA3D::Paths::Caches) << cache_filename );
+                    if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
+                        SaveTex( bmp, TA3D::Paths::Caches + cache_filename );
 				}
 				tex_cache_name.push_back( cache_filename );
 			}
@@ -731,7 +731,7 @@ namespace TA3D
 			if (minh > points[i].y)  minh = points[i].y;
 			if (maxh < points[i].y)  maxh = points[i].y;
 		}
-		if (maxh == minh || Yuni::Math::Zero(maxh))
+        if (maxh == minh || std::fabs(maxh) < 1e-6f)
 		{
 			for (i = 0; i < 64; ++i)
 				points[i].y = 0.0f;
@@ -999,7 +999,7 @@ namespace TA3D
 		return alset;
 	}
 
-	Model *Mesh3DO::load(const String &filename)
+	Model *Mesh3DO::load(const QString &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)

@@ -124,7 +124,7 @@ namespace TA3D
 
 		void resetScript();
 
-		bool playSound(const String& key);
+		bool playSound(const QString& key);
 
 		int move( const float dt, const int key_frame = 0 );
 

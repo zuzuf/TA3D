@@ -93,7 +93,7 @@ namespace TA3D
 	//port is the port the game listens on for connections
 	//proto 4=ipv4only 6=ipv6only 0=automatic
 	//not finished
-	int Network::HostGame(const String &name, uint16 port)
+	int Network::HostGame(const QString &name, uint16 port)
 	{
 		if (myMode == 0)
 		{
@@ -142,7 +142,7 @@ namespace TA3D
 
 
 	//not finished
-	int Network::Connect(const String &target, uint16 port)
+	int Network::Connect(const QString &target, uint16 port)
 	{
 		if (myMode == 0)
 			myMode = 2;
@@ -227,9 +227,9 @@ namespace TA3D
 		ping_delay.clear();
 	}
 
-	void Network::stopFileTransfer( const String &port, int to_id )
+	void Network::stopFileTransfer( const QString &port, int to_id )
 	{
-		if (port.empty())
+        if (port.isEmpty())
 		{
 			ftmutex.lock();
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
@@ -252,7 +252,7 @@ namespace TA3D
 		else
 		{
 			ftmutex.lock();
-			int nb_port = port.to<int>();
+			int nb_port = port.toInt();
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
 			{
 				if ((*i)->port == nb_port)
@@ -289,10 +289,10 @@ namespace TA3D
 		setFileDirty();
 	}
 
-	bool Network::isTransferFinished( const String &port )
+	bool Network::isTransferFinished( const QString &port )
 	{
 		MutexLocker mLock(ftmutex);
-		int nb_port = port.to<int>();
+		int nb_port = port.toInt();
 		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
 			if ((*i)->port == nb_port)
 				return false;
@@ -456,11 +456,10 @@ namespace TA3D
 						rest(1);
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
-							String::Vector params;
-                            String((char*)(special_msg.message)).explode(params, ' ');
+                            const QStringList &params = QString((char*)(special_msg.message)).split(' ', QString::SkipEmptyParts);
 							if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
 							{
-								myID = params[2].to<int>();
+								myID = params[2].toInt();
 								break;
 							}
 						}
@@ -474,7 +473,7 @@ namespace TA3D
 		return -1;	// Not connected
 	}
 
-	String Network::getStatus()
+	QString Network::getStatus()
 	{
 		switch( myMode )
 		{
@@ -487,16 +486,15 @@ namespace TA3D
 				{
 					struct chat special_msg;
 					int timeout = 5000;
-					String status;
-					while (status.empty() && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen())
+					QString status;
+                    while (status.isEmpty() && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen())
 					{
 						rest(1);
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
-							String::Vector params;
-                            String((char*)(special_msg.message)).explode(params, ' ');
+                            const QStringList &params = QString((char*)(special_msg.message)).split(' ', QString::SkipEmptyParts);
 							if (params.size() == 2 && params[0] == "STATUS")
-							{
+                            {
 								if (params[1] == "NEW")
 									status.clear();
 								else if (params[1] == "SAVED")
@@ -518,14 +516,14 @@ namespace TA3D
 	}
 
 
-	int Network::sendAll(const String& msg)
+	int Network::sendAll(const QString& msg)
 	{
-		LOG_DEBUG(String("sendAll(\"") << msg << "\")");
+        LOG_DEBUG(QString("sendAll(\"") << msg << "\")");
 		struct chat chat;
 		return sendSpecial( strtochat( &chat, msg ), -1, -1, true);
 	}
 
-	int Network::sendSpecial( String msg, int src_id, int dst_id)
+	int Network::sendSpecial( QString msg, int src_id, int dst_id)
 	{
 		struct chat chat;
 		return sendSpecial( strtochat( &chat, msg ), src_id, dst_id );
@@ -724,12 +722,12 @@ namespace TA3D
 		return -1;
 	}
 
-	int Network::sendFile(int player, const String &filename, const String &port)
+	int Network::sendFile(int player, const QString &filename, const QString &port)
 	{
 		ftmutex.lock();
 		SendFileThread *thread = new SendFileThread();
 		sendfile_thread.push_back( thread );
-		thread->port = port.to<int>();
+		thread->port = port.toInt();
 		thread->player_id = player;
 
 		net_thread_params *params = new net_thread_params;
@@ -784,7 +782,7 @@ namespace TA3D
 		return 0;
 	}
 
-	String Network::getFile(int player, const String &filename)
+	QString Network::getFile(int player, const QString &filename)
 	{
 		ftmutex.lock();
 
@@ -805,22 +803,22 @@ namespace TA3D
 		thread->spawn(params);
 
 		ftmutex.unlock();
-		return String(port);
+		return QString(port);
 	}
 
 
-	int Network::broadcastMessage( const String &msg )
+	int Network::broadcastMessage( const QString &msg )
 	{
 		if( !broadcast_socket.isOpen() )
 			return -1;
 
-		broadcast_socket.send( msg.c_str(), msg.size() + 1 );
+        broadcast_socket.send( msg.toStdString().c_str(), msg.size() + 1 );
 		return broadcast_socket.isOpen() ? 0 : -1;
 	}
 
-	String Network::getNextBroadcastedMessage()
+	QString Network::getNextBroadcastedMessage()
 	{
-		String msg;
+		QString msg;
 		mqmutex.lock();
 		if (!broadcastq.empty())
 		{
@@ -833,9 +831,9 @@ namespace TA3D
 		return msg;
 	}
 
-	String Network::getLastMessageAddress()
+	QString Network::getLastMessageAddress()
 	{
-		String address;
+		QString address;
 		mqmutex.lock();
 		if( !broadcastaddressq.empty() )
 			address = broadcastaddressq.front();
@@ -930,7 +928,7 @@ namespace TA3D
 		return size ? 100.0f * (float)pos / (float)size : 100.0f;
 	}
 
-	void Network::updateFileTransferInformation( String id, int size, int pos )
+	void Network::updateFileTransferInformation( QString id, int size, int pos )
 	{
 		ft2mutex.lock();
 		for (std::list< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; ++i)

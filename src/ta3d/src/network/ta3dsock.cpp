@@ -20,32 +20,38 @@
 #include <misc/math.h>
 #include <misc/paths.h>
 #include <logs/logs.h>
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
+#include <QFile>
 
 
 namespace TA3D
 {
 
-	Stream dump_file;
+    QFile &dump_file()
+    {
+        static QFile file(TA3D::Paths::Logs + "net.dump");
+        static bool b_init = true;
+        if (file.isOpen() && b_init)
+        {
+            file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+            b_init = false;
+        }
+        return file;
+    }
 
-	chat* strtochat(struct chat *chat_msg, String msg)
+	chat* strtochat(struct chat *chat_msg, QString msg)
 	{
 		if (chat_msg == NULL)
 			return chat_msg;
 		memset( chat_msg->message, 0, 253 );
-		memcpy( chat_msg->message, msg.c_str(), Math::Min(253, (int)msg.size() + 1));
+        memcpy( chat_msg->message, msg.toStdString().c_str(), Math::Min(253, (int)msg.size() + 1));
 		return chat_msg;
 	}
 
-	String chattostr(struct chat *chat_msg)
+	QString chattostr(struct chat *chat_msg)
 	{
 		if (chat_msg == NULL)
-			return "";
-		String msg(chat_msg->message, 253);
-		msg = msg.c_str();								// Make sure it represents a null terminated string
-		return msg;
+            return QString();
+        return QString::fromStdString(std::string(chat_msg->message, 253).c_str());   // Make sure it represents a null terminated string
 	}
 
 	TA3DSock::TA3DSock() : tcpsock(true)		// Enable compression
@@ -55,10 +61,8 @@ namespace TA3D
 		tiremain = -1;
 	}
 
-	int TA3DSock::open(const String &hostname, uint16 port)
+	int TA3DSock::open(const QString &hostname, uint16 port)
 	{
-		if (!dump_file.opened())
-			dump_file.open(String(TA3D::Paths::Logs) << "net.dump", Yuni::Core::IO::OpenMode::write);
 		tcpsock.open(hostname, port);
 		if(!tcpsock.isOpen())
 			return -1;
@@ -68,8 +72,6 @@ namespace TA3D
 
 	int TA3DSock::open(uint16 port)
 	{
-		if (!dump_file.opened())
-			dump_file.open(String(TA3D::Paths::Logs) << "net.dump", Yuni::Core::IO::OpenMode::write);
 		tcpsock.open(port);
 		if(!tcpsock.isOpen())
 			return -1;
@@ -133,8 +135,6 @@ namespace TA3D
 	{
 		if (tcpsock.isOpen())
 			tcpsock.close();
-		if (dump_file.opened())
-			dump_file.close();
 	}
 
 
@@ -158,7 +158,7 @@ namespace TA3D
 		obp += 1;
 	}
 
-	void TA3DSock::putString(const char* x)
+    void TA3DSock::putString(const char* x)
 	{
 		const size_t n = strlen(x);
 		if(n < size_t(TA3DSOCK_BUFFER_SIZE - obp - 1))
@@ -216,7 +216,7 @@ namespace TA3D
 		return result;
 	}
 
-	void TA3DSock::getString(char* x)
+	void TA3DSock::getQString(char* x)
 	{
 		while ((*x = *((char*)(tcpinbuf+tibrp))))
 		{
@@ -264,10 +264,10 @@ namespace TA3D
 		const uint16 length = (uint16)size;
 		tcpsock.send( (const char*)&length, 2 );
 		tcpsock.send( (const char*)data, size );
-		if (dump_file.opened())
+        if (dump_file().isOpen())
 		{
-			dump_file.write((const char*)data, size);
-			dump_file.flush();
+            dump_file().write((const char*)data, size);
+            dump_file().flush();
 		}
 
 		tcpmutex.unlock();
@@ -280,10 +280,10 @@ namespace TA3D
 		const uint16 length = (uint16)obp;
 		tcpsock.send((const char*)&length, 2);
 		tcpsock.send(outbuf, obp);
-		if (dump_file.opened())
+        if (dump_file().isOpen())
 		{
-			dump_file.write(outbuf, obp);
-			dump_file.flush();
+            dump_file().write(outbuf, obp);
+            dump_file().flush();
 		}
 		obp = 0;
 
@@ -357,7 +357,7 @@ namespace TA3D
 		else
 			putByte('X');
 		putShort(chat->from);
-		putString(chat->message);
+        putString(chat->message);
 		send();
 		tcpmutex.unlock();
 		return 0;
@@ -368,7 +368,7 @@ namespace TA3D
 		tcpmutex.lock();
 		putByte('C');
 		putShort(chat->from);
-		putString(chat->message);
+        putString(chat->message);
 		send();
 		tcpmutex.unlock();
 		return 0;
@@ -447,7 +447,7 @@ namespace TA3D
 				putFloat(event->x);
 				putFloat(event->y);
 				putFloat(event->z);
-				putString((const char*)(event->str));
+                putString((const char*)(event->str));
 				break;
 			case EVENT_FEATURE_DEATH:
 			case EVENT_FEATURE_FIRE:
@@ -471,17 +471,17 @@ namespace TA3D
 				putFloat(event->y);
 				putFloat(event->z);
 				putLong(event->opt3);
-				putString((const char*)(event->str));
+                putString((const char*)(event->str));
 				break;
 			case EVENT_PRINT:
 				putShort(event->opt1);
 				putFloat(event->x);
 				putFloat(event->y);
-				putString((const char*)(event->str));
+                putString((const char*)(event->str));
 				break;
 			case EVENT_PLAY:
 				putShort(event->opt1);
-				putString((const char*)(event->str));
+                putString((const char*)(event->str));
 				break;
 			case EVENT_CLS:
 				putShort(event->opt1);
@@ -513,7 +513,7 @@ namespace TA3D
 				putShort(event->dx);
 				putShort(event->dy);
 				putShort(event->dz);
-				putString((const char*)(event->str));
+                putString((const char*)(event->str));
 				break;
 			case EVENT_UNIT_SCRIPT:
 				putShort(event->opt1);
@@ -531,7 +531,7 @@ namespace TA3D
 				putShort(event->opt2);
 				putFloat(event->x);
 				putFloat(event->z);
-				putString((const char*)(event->str));
+                putString((const char*)(event->str));
 				break;
 		};
 		send();

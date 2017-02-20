@@ -55,7 +55,7 @@ namespace TA3D
 	/*!
 		** \brief loads a Lua script, preprocessing to allow including other files and use defines
 		*/
-	byte *loadLuaFile(const String &filename, uint32 &filesize);
+	byte *loadLuaFile(const QString &filename, uint32 &filesize);
 
 	/*!
 		** This class represents a basic Lua thread without specialization
@@ -72,7 +72,7 @@ namespace TA3D
 		lua_State   *L;             // The Lua state
 		int         n_args;         // Number of arguments given to lua_resume
 
-		String      name;
+		QString      name;
 
 		bool        crashed;
 
@@ -96,7 +96,7 @@ namespace TA3D
 		void init();
 		void destroy();
 
-		void load(const String &filename);                    // Load a lua script
+		void load(const QString &filename);                    // Load a lua script
 		virtual void load(ScriptData *data);
 		LuaChunk *dump();
 
@@ -104,12 +104,12 @@ namespace TA3D
 		int run();                          // Run the script with default delay
 
 		//! functions used to call/run Lua functions
-		void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-		int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+		void call(const QString &functionName, int *parameters = NULL, int nb_params = 0);
+		int execute(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 
 		//! functions used to create new threads sharing the same environment
 		virtual LuaThread *fork();
-		virtual LuaThread *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+		virtual LuaThread *fork(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 		virtual LuaThread *fork(lua_State *cL, int n);
 
 		//! functions used to save/restore scripts state
@@ -120,7 +120,7 @@ namespace TA3D
 		inline bool is_crashed()    {   return crashed;  }
 		inline void crash()         {   crashed = true;  }
 		inline void uncrash()       {   crashed = false; }
-		bool runCommand(const String &cmd);
+		bool runCommand(const QString &cmd);
 
 	private:
 		//! functions to manipulate the Lua processes

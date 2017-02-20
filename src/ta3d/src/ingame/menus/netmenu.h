@@ -37,15 +37,15 @@ namespace TA3D
                 typedef std::list<Download*> List;
             public:
                 ~Download();
-				void start(const String &filename, const String &url, const int mID);
+				void start(const QString &filename, const QString &url, const int mID);
                 void stop();
                 void update();
                 bool downloading();
-				String getFilename() {   return filename;    }
+				QString getFilename() {   return filename;    }
 				int getModID()	{	return modID;	}
             private:
-                String filename;
-                String wnd;
+                QString filename;
+                QString wnd;
                 Http http;
 				int modID;
                 static int wndNumber;
@@ -67,7 +67,7 @@ namespace TA3D
             virtual void doFinalize();
             virtual void waitForEvent();
             virtual bool maySwitchToAnotherMenu();
-            virtual void addChatMessage(const String &message);
+            virtual void addChatMessage(const QString &message);
             virtual void parseServerMessages();
             virtual void updateGUI();
 			virtual void hostAGame();
@@ -83,8 +83,8 @@ namespace TA3D
 
             NetMode askMode;
             NetMode netMode;
-            String  login;
-            String  password;
+            QString  login;
+            QString  password;
             Download::List downloadList;
         };
     }

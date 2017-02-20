@@ -16,11 +16,11 @@
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*-----------------------------------------------------------------\
-  |                               tdf.h                              |
-  |   contient toutes les fonctions et classes permettant la gestion |
-  | des fichiers TDF du jeu Total Annihilation qui contienne divers  |
-  | éléments graphiques.                                             |
-  \-----------------------------------------------------------------*/
+|                               tdf.h                              |
+|   contains functions and classes for TDF file management.        |
+| TDF files from Total Annihilation describe various graphical     |
+| elements.                                                        |
+\-----------------------------------------------------------------*/
 
 #ifndef __TA3D_XX_TDF_H__
 # define __TA3D_XX_TDF_H__
@@ -81,13 +81,13 @@ namespace TA3D
 
 	public:
 		//!
-		String	name;		// Nom
+        QString	name;		// Nom
 		//!
-		String	world;
+        QString	world;
 		//!
-		String	description;
+        QString	description;
 		//!
-		String	category;
+        QString	category;
 
 		//!
 		bool	animating;
@@ -100,15 +100,15 @@ namespace TA3D
 		//!
 		int		height;
 		//!
-		String	filename;
+        QString	filename;
 		//!
-		String	seqname;
+        QString	seqname;
 		//!
-		String	feature_dead;
+        QString	feature_dead;
 		//!
-		String	feature_burnt;
+        QString	feature_burnt;
 		//!
-		String	feature_reclamate;
+        QString	feature_reclamate;
 		//!
 		bool	animtrans;
 		//!
@@ -155,7 +155,7 @@ namespace TA3D
 		//!
 		byte	spreadchance;
 		//!
-		String	burnweapon;
+        QString	burnweapon;
 		//!
 		bool	need_convert;
 		//!
@@ -201,7 +201,7 @@ namespace TA3D
 		** \param name
 		** \return
 		*/
-		int add_feature(const String& name);
+        int add_feature(const QString& name);
 
 
 		/*!
@@ -214,7 +214,7 @@ namespace TA3D
 		** \param name
 		** \return The index of the feature (-1 means `not found`)
 		*/
-		int get_feature_index(const String &name);
+        int get_feature_index(const QString &name);
 
 		/*!
 		** \brief returns a pointer to the feature at given index, index = -1 corresponds to no feature type

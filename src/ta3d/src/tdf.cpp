@@ -127,10 +127,10 @@ namespace TA3D
 		{
 			not_loaded = false;
 						// Try a GAF-like directory
-			anim.loadGAFFromDirectory(String("anims\\") << filename, seqname);
+			anim.loadGAFFromDirectory(QString("anims\\") << filename, seqname);
 			if (anim.nb_bmp == 0)
 			{
-				String tmp("anims\\");
+				QString tmp("anims\\");
 				tmp << filename << ".gaf";
 				File* gaf = VFS::Instance()->readFile(tmp);
 				if (gaf)
@@ -178,7 +178,7 @@ namespace TA3D
 	}
 
 
-	int FeatureManager::get_feature_index(const String &name)
+	int FeatureManager::get_feature_index(const QString &name)
 	{
 		if (name.empty())
 			return -1;
@@ -186,7 +186,7 @@ namespace TA3D
 	}
 
 
-	int FeatureManager::add_feature(const String& name)			// Ajoute un élément
+	int FeatureManager::add_feature(const QString& name)			// Ajoute un élément
 	{
 		MutexLocker mLock(mInternals);
 		++nb_features;
@@ -232,51 +232,51 @@ namespace TA3D
 
 		std::vector<Feature*> vfeats;
 
-		for (int g = 0 ; parser.exists(String("gadget") << g) ; g++)
+		for (int g = 0 ; parser.exists(QString("gadget") << g) ; g++)
 		{
-			const String key = String("gadget") << g << '.';
+			const QString key = QString("gadget") << g << '.';
 
 			mInternals.lock();
-			const int index = add_feature( parser.pullAsString(String("gadget") << g) );
+			const int index = add_feature( parser.pullAsString(QString("gadget") << g) );
 			Feature *pFeature = feature[index];
 			mInternals.unlock();
 
 			vfeats.push_back(pFeature);
 			pFeature->m3d = false;
-			pFeature->world = parser.pullAsString( String(key) << "world", pFeature->world );
-			pFeature->description = parser.pullAsString( String(key) << "description", pFeature->description );
-			pFeature->category = parser.pullAsString( String(key) << "category", pFeature->category );
-			pFeature->filename = parser.pullAsString( String(key) << "object" );
+			pFeature->world = parser.pullAsString( key + "world", pFeature->world );
+			pFeature->description = parser.pullAsString( key + "description", pFeature->description );
+			pFeature->category = parser.pullAsString( key + "category", pFeature->category );
+			pFeature->filename = parser.pullAsString( key + "object" );
 			pFeature->m3d = !pFeature->filename.empty();
 			if (!pFeature->m3d)
 			{
-				pFeature->filename = parser.pullAsString( String(key) << "filename");
-				pFeature->seqname = parser.pullAsString( String(key) << "seqname");
+				pFeature->filename = parser.pullAsString( key + "filename");
+				pFeature->seqname = parser.pullAsString( key + "seqname");
 			}
-			pFeature->animating = parser.pullAsBool( String(key) << "animating",pFeature->animating );
-			pFeature->animating |= (pFeature->animtrans = parser.pullAsBool( String(key) << "animtrans", pFeature->animtrans ));
-			pFeature->shadtrans = parser.pullAsBool( String(key) << "shadtrans", pFeature->shadtrans );
-			pFeature->indestructible = parser.pullAsBool( String(key) << "indestructible", pFeature->indestructible );
-			pFeature->height = parser.pullAsInt( String(key) << "height", pFeature->height );
-			pFeature->hitdensity = parser.pullAsInt( String(key) << "hitdensity", pFeature->hitdensity );
-			pFeature->metal = parser.pullAsInt( String(key) << "metal", pFeature->metal );
-			pFeature->energy = parser.pullAsInt( String(key) << "energy", pFeature->energy );
-			pFeature->damage = parser.pullAsInt( String(key) << "damage", pFeature->damage );
-			pFeature->footprintx = parser.pullAsInt( String(key) << "footprintx", pFeature->footprintx );
-			pFeature->footprintz = parser.pullAsInt( String(key) << "footprintz", pFeature->footprintz );
-			pFeature->reclaimable = parser.pullAsBool( String(key) << "reclaimable", pFeature->reclaimable );
-			pFeature->autoreclaimable = parser.pullAsBool( String(key) << "autoreclaimable", pFeature->autoreclaimable ) && pFeature->reclaimable;
-			pFeature->blocking = parser.pullAsBool( String(key) << "blocking", pFeature->blocking );
-			pFeature->flamable = parser.pullAsBool( String(key) << "flamable", pFeature->flamable );
-			pFeature->geothermal = parser.pullAsBool( String(key) << "geothermal", pFeature->geothermal );
-			pFeature->feature_dead = parser.pullAsString( String(key) << "featuredead" );
-			pFeature->burnmin = short(parser.pullAsInt( String(key) << "burnmin", pFeature->burnmin ));
-			pFeature->burnmax = short(parser.pullAsInt( String(key) << "burnmax", pFeature->burnmax ));
-			pFeature->sparktime = short(parser.pullAsInt( String(key) << "sparktime", pFeature->sparktime ));
-			pFeature->spreadchance = byte(parser.pullAsInt( String(key) << "spreadchance", pFeature->spreadchance ));
-			pFeature->burnweapon = parser.pullAsString( String(key) << "burnweapon" );
-			pFeature->feature_burnt = parser.pullAsString( String(key) << "featureburnt" );
-			pFeature->feature_reclamate = parser.pullAsString( String(key) << "featurereclamate" );
+			pFeature->animating = parser.pullAsBool( key + "animating",pFeature->animating );
+			pFeature->animating |= (pFeature->animtrans = parser.pullAsBool( key + "animtrans", pFeature->animtrans ));
+			pFeature->shadtrans = parser.pullAsBool( key + "shadtrans", pFeature->shadtrans );
+			pFeature->indestructible = parser.pullAsBool( key + "indestructible", pFeature->indestructible );
+			pFeature->height = parser.pullAsInt( key + "height", pFeature->height );
+			pFeature->hitdensity = parser.pullAsInt( key + "hitdensity", pFeature->hitdensity );
+			pFeature->metal = parser.pullAsInt( key + "metal", pFeature->metal );
+			pFeature->energy = parser.pullAsInt( key + "energy", pFeature->energy );
+			pFeature->damage = parser.pullAsInt( key + "damage", pFeature->damage );
+			pFeature->footprintx = parser.pullAsInt( key + "footprintx", pFeature->footprintx );
+			pFeature->footprintz = parser.pullAsInt( key + "footprintz", pFeature->footprintz );
+			pFeature->reclaimable = parser.pullAsBool( key + "reclaimable", pFeature->reclaimable );
+			pFeature->autoreclaimable = parser.pullAsBool( key + "autoreclaimable", pFeature->autoreclaimable ) && pFeature->reclaimable;
+			pFeature->blocking = parser.pullAsBool( key + "blocking", pFeature->blocking );
+			pFeature->flamable = parser.pullAsBool( key + "flamable", pFeature->flamable );
+			pFeature->geothermal = parser.pullAsBool( key + "geothermal", pFeature->geothermal );
+			pFeature->feature_dead = parser.pullAsString( key + "featuredead" );
+			pFeature->burnmin = short(parser.pullAsInt( key + "burnmin", pFeature->burnmin ));
+			pFeature->burnmax = short(parser.pullAsInt( key + "burnmax", pFeature->burnmax ));
+			pFeature->sparktime = short(parser.pullAsInt( key + "sparktime", pFeature->sparktime ));
+			pFeature->spreadchance = byte(parser.pullAsInt( key + "spreadchance", pFeature->spreadchance ));
+			pFeature->burnweapon = parser.pullAsString( key + "burnweapon" );
+			pFeature->feature_burnt = parser.pullAsString( key + "featureburnt" );
+			pFeature->feature_reclamate = parser.pullAsString( key + "featurereclamate" );
 
 			// Build the repulsion grid
 			pFeature->gRepulsion.resize(pFeature->footprintx * 5, pFeature->footprintz * 5);
@@ -303,10 +303,10 @@ namespace TA3D
 		{
 			Feature *pFeature = *i;
 			if (!pFeature->category.empty())
-				pFeature->vent = pFeature->category.find("vents") != String::npos;
+				pFeature->vent = pFeature->category.find("vents") != -1;
 			if (!pFeature->filename.empty() && !pFeature->seqname.empty() && !pFeature->m3d)
 			{
-				if (model_manager.get_model(String(pFeature->filename) << '-' << pFeature->seqname) != NULL) // Check if there is a 3do version of it
+				if (model_manager.get_model(QString(pFeature->filename) << '-' << pFeature->seqname) != NULL) // Check if there is a 3do version of it
 				{
 					pFeature->model = NULL;
 					pFeature->m3d = true;
@@ -319,7 +319,7 @@ namespace TA3D
 					if (pFeature->height <= 10.0f && pFeature->height > 1.0f && pFeature->blocking
 						&& ToLower(pFeature->description) != "metal") // Tente une conversion en 3d
 					{
-						String tmp("anims\\");
+						QString tmp("anims\\");
 						tmp << pFeature->filename << ".gaf";
 						File* gaf = VFS::Instance()->readFile(tmp);
 						if (gaf)
@@ -347,7 +347,7 @@ namespace TA3D
 
 	void load_features(ProgressNotifier *progress) // Charge tout les éléments
 	{
-		String::Vector files;
+		QStringList files;
 		VFS::Instance()->getFilelist("features\\*.tdf", files);
 		volatile int n = 0, m = 0;
 
@@ -366,7 +366,7 @@ namespace TA3D
 			while (i < end)
 			{
 #ifdef _OPENMP
-				const String &curFile = files[i++];
+				const QString &curFile = files[i++];
 				if (omp_get_thread_num() == 0)
 					if (progress != NULL && m >= 0xF)
 					{
@@ -377,7 +377,7 @@ namespace TA3D
 				++n;
 				mLoad.unlock();
 #else
-				const String &curFile = files[i];
+				const QString &curFile = files[i];
 				if (progress != NULL && !(n & 0xF))
 					(*progress)((200.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading graphical features"));
 				++n;
@@ -419,11 +419,11 @@ namespace TA3D
 			if (feature->m3d && feature->model == NULL
 				&& !feature->filename.empty() && !feature->seqname.empty())
 			{
-				String tmp = feature->filename;
+				QString tmp = feature->filename;
 				tmp << "-" << feature->seqname;
 				feature->model = model_manager.get_model(tmp);
 				if (feature->model == NULL)
-					feature->model = model_manager.get_model(String("objects3d\\") << tmp);
+					feature->model = model_manager.get_model(QString("objects3d\\") << tmp);
 			}
 			else
 			{

@@ -19,7 +19,7 @@ namespace TA3D
         /*!
          * \brief starts downloading a file in a separate thread
          */
-        void get(const String &filename, const String &url);
+        void get(const QString &filename, const QString &url);
         void stop();
         bool isDownloading() const;
 
@@ -28,18 +28,18 @@ namespace TA3D
 
     public:
         /*!
-         * \brief download a file (as a String or a real file), does the work in current thread so this is blocking
+         * \brief download a file (as a QString or a real file), does the work in current thread so this is blocking
          */
-        static String request( const String &servername, const String &_request );
-        static bool getFile( const String &filename, const String &servername, const String &_request );
+        static QString request( const QString &servername, const QString &_request );
+        static bool getFile( const QString &filename, const QString &servername, const QString &_request );
 
     private:
         bool bStop;
         int pos;
         int size;
-        String filename;
-        String _request;
-        String servername;
+        QString filename;
+        QString _request;
+        QString servername;
     };
 
 

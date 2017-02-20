@@ -36,11 +36,9 @@ namespace Gui
 	** \brief This class is a window handler, so it will manage windows
 	** and signals given to them
 	*/
-    class AREA:	public Yuni::Policy::ObjectLevelLockable<AREA>, protected IInterface, public virtual zuzuf::ref_count
+    class AREA:	protected IInterface, public virtual zuzuf::ref_count
 	{
 	public:
-		//! The threading policy
-		typedef Yuni::Policy::ObjectLevelLockable<AREA> ThreadingPolicy;
 		//! The best suitable smart pointer for an area
         typedef zuzuf::smartptr<AREA>  Ptr;
 
@@ -51,7 +49,7 @@ namespace Gui
 		** \brief Constructor
 		** \param area_name Name of the area
 		*/
-		AREA(const String& nm = "unnamed_area");
+		AREA(const QString& nm = "unnamed_area");
 		//! Destructor
 		virtual ~AREA();
 		//@}
@@ -73,7 +71,7 @@ namespace Gui
         ** \param name is not empty, overrides the window name (allow having multiple copies of the same window)
         ** \return
 		*/
-        uint16 load_window(const String& filename, const String &name = String());
+        uint16 load_window(const QString& filename, const QString &name = QString());
 
         /*!
         ** \brief Returns the name of the idxth window
@@ -81,7 +79,7 @@ namespace Gui
         ** \param idx window number
         ** \return
         */
-        String get_window_name(const int idx);
+        QString get_window_name(const int idx);
 
 		/*!
 		** \brief Check the user interface, manage events
@@ -98,7 +96,7 @@ namespace Gui
 		**
 		** \param filename TDF File to load
 		*/
-		void load_tdf(const String& filename);
+		void load_tdf(const QString& filename);
 
 		/*!
 		** \brief Return the specified window
@@ -107,7 +105,7 @@ namespace Gui
 		**
 		** \param message
 		*/
-		WND::Ptr get_wnd(const String& message);
+		WND::Ptr get_wnd(const QString& message);
 
 		/*!
 		** \brief Return the state of specified object in the specified window
@@ -115,7 +113,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		bool get_state(const String& message);
+		bool get_state(const QString& message);
 
 		/*!
 		** \brief Return true if the given object has its activated flag set (mouse is on and button pressed)
@@ -123,7 +121,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		bool is_activated(const String& message);
+		bool is_activated(const QString& message);
 
 		/*!
 		** \brief Return true if the cursor is over the given object
@@ -131,7 +129,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		bool is_mouse_over(const String& message);
+		bool is_mouse_over(const QString& message);
 
 		/*!
 		** \brief Return the value of specified object in the specified window
@@ -139,7 +137,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		sint32 get_value(const String& message);
+		sint32 get_value(const QString& message);
 
 		/*!
 		** \brief Return a pointer to the specified object
@@ -147,7 +145,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		GUIOBJ::Ptr get_object(const String& message);
+		GUIOBJ::Ptr get_object(const QString& message);
 
 		/*!
 		** \brief Set the state of specified object in the specified window
@@ -155,7 +153,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void set_state(const String& message, const bool state);
+		void set_state(const QString& message, const bool state);
 
 		/*!
 		** \brief Set the value of specified object in the specified window
@@ -163,7 +161,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void set_value(const String& message, const sint32 value);
+		void set_value(const QString& message, const sint32 value);
 
 		/*!
 		** \brief Set the data of specified object in the specified window
@@ -171,7 +169,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void set_data(const String& message, const sint32 data);
+		void set_data(const QString& message, const sint32 data);
 
 		/*!
 		** \brief Set the enabled/disabled state of specified object in the specified window
@@ -179,7 +177,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void set_enable_flag(const String& message, const bool enable);
+		void set_enable_flag(const QString& message, const bool enable);
 
 
 		/*!
@@ -188,7 +186,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		String caption(const String& message);
+		QString caption(const QString& message);
 
 		/*!
 		** \brief Set the caption of specified object in the specified window
@@ -196,7 +194,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void caption(const String& message, const String& caption);
+		void caption(const QString& message, const QString& caption);
 
 		/*!
 		** \brief Set the title of specified window to title
@@ -204,7 +202,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void title(const String& message, const String& title);
+		void title(const QString& message, const QString& title);
 
 		/*!
 		** \brief Set the entry of specified object in the specified window to entry
@@ -212,8 +210,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void set_entry(const String& message, const std::list<String>& entry);
-		void set_entry(const String& message, const std::vector<String>& entry);
+        void set_entry(const QString& message, const QStringList &entry);
 
 		/*!
 		** \brief Append line to the entry of specified object in the specified window
@@ -221,7 +218,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void append(const String& message, const String& line);
+		void append(const QString& message, const QString& line);
 
 		/*!
 		** \brief Set the function pointer of an object, it will be called when the widget is clicked
@@ -229,7 +226,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		void set_action(const String& message, void (*Func)(int));
+		void set_action(const QString& message, void (*Func)(int));
 
 		/*!
 		** \brief Send that message to the area
@@ -237,7 +234,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		int	msg(String message);
+		int	msg(QString message);
 
 		/*!
 		** \brief Display a popup window, locking all other GUI elements until it's closed
@@ -245,7 +242,7 @@ namespace Gui
 		** \param Msg
 		** \return
 		*/
-		void popup(const String &Title, const String &Msg);
+		void popup(const QString &Title, const QString &Msg);
 
 		/*!
 		** \brief Returns a pointer to current skin
@@ -267,24 +264,24 @@ namespace Gui
 		** \param msg
 		** \return
 		*/
-		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg);
+		virtual uint32 InterfaceMsg(const uint32 MsgID, const QString &msg);
 
 		/*!
 		** \brief Same as get_object, but not thread-safe
 		** \see get_object()
 		*/
-		GUIOBJ::Ptr getObjectWL(const String& message);
+		GUIOBJ::Ptr getObjectWL(const QString& message);
 
 		/*!
 		** \brief Same as get_wnd, but not thread-safe
 		** \see get_wnd()
 		*/
-		WND::Ptr getWindowWL(const String& message);
+		WND::Ptr getWindowWL(const QString& message);
 
 		/*!
 		** \brief Same as load_tdf(), but not thread-safe
 		*/
-		void doLoadTDF(const String& filename);
+		void doLoadTDF(const QString& filename);
 
 	private:
 		//! This list stores the stack of all AREA objects so you can grab the current one at any time
@@ -298,7 +295,7 @@ namespace Gui
 		std::vector<uint16> vec_z_order;
 
 		//! Name of the ares
-		String name;
+		QString name;
 
 		//! The last cursor x-position
 		int amx;
@@ -318,7 +315,7 @@ namespace Gui
 		TA3D::UTILS::HashMap<int>::Dense  wnd_hashtable;
 
 		//!
-		String  cached_key;
+		QString  cached_key;
 		//!
 		WND::Ptr cached_wnd;
 
@@ -326,7 +323,7 @@ namespace Gui
 		uint32  scroll_timer;
 
 		//! Message to display as popup hint
-		String pCacheHelpMsg;
+		QString pCacheHelpMsg;
 
 	}; // class AREA
 

@@ -60,7 +60,7 @@ namespace Gui
 		** \param parser
 		** \param borderSize
 		*/
-		void load(TDFParser& parser, const String& prefix, float borderSize = 1.0f );
+		void load(TDFParser& parser, const QString& prefix, float borderSize = 1.0f );
 
 		/*!
 		** \brief

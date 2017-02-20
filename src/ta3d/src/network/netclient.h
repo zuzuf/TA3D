@@ -1,24 +1,21 @@
 #ifndef __TA3D_NETWORK_NETCLIENT_H__
 # define __TA3D_NETWORK_NETCLIENT_H__
 
-# include <yuni/yuni.h>
 # include <misc/string.h>
 # include <mods/modinfo.h>
 # include "socket.tcp.h"
 # include <zuzuf/smartptr.h>
-
+# include <threads/mutex.h>
 
 namespace TA3D
 {
 
 
-    class NetClient : public Yuni::Policy::SingleThreaded<NetClient>, public zuzuf::ref_count
+    class NetClient : public zuzuf::ref_count
     {
 	public:
 		//! The most suitable smartptr for the class
         typedef zuzuf::smartptr<NetClient>	Ptr;
-		//! The threading policy
-		typedef Yuni::Policy::SingleThreaded<NetClient>  ThreadingPolicy;
 
     public:
         enum NetState { CONNECTING,
@@ -27,67 +24,68 @@ namespace TA3D
 		struct GameServer
 		{
 			//! Name of the server
-			String name;
+			QString name;
 			//! Game version being run by the server
-			String version;
+			QString version;
 			//! Mod being run by the server
-			String mod;
+			QString mod;
 			//! Current map on the server
-			String map;
+			QString map;
 			//! Count of opened player slots
-			String nb_open;
+			QString nb_open;
 			//! Host name of this server
-			String host;
+			QString host;
 
-			typedef std::map<String, GameServer> List;
+			typedef std::map<QString, GameServer> List;
 		};
 
 	private:
-		String				server;
+		QString				server;
 		uint16				port;
-		String				login;
-		String				password;
+		QString				login;
+		QString				password;
 		NetState			state;
-		String::List		messages;
-		String::Vector		peerList;
-		String::Vector		chanList;
+        QStringList         messages;
+        QStringList         peerList;
+        QStringList         chanList;
 		GameServer::List	serverList;
 		ModInfo::List		modList;
 		SocketTCP			sock;
 		char				*buffer;
 		int					buffer_pos;
-		String				currentChan;
+		QString				currentChan;
 		bool				modListChanged;
 		bool				serverListChanged;
-		String				serverJoined;
+		QString				serverJoined;
 		bool				hostAck;
+        Mutex               mtx;
 	public:
         NetClient();
         ~NetClient();
 
         void            disconnect();
-        void            connect(const String &server, const uint16 port, const String &login, const String &password, bool bRegister = false);
+        void            connect(const QString &server, const uint16 port, const QString &login, const QString &password, bool bRegister = false);
         void            reconnect();
         NetState        getState() const;
         bool            messageWaiting() const;
-        String          getNextMessage();
-        String::Vector  getPeerList() const;
-        String::Vector  getChanList() const;
-		GameServer::List getServerList();
+        QString          getNextMessage();
+        const QStringList  &getPeerList() const;
+        const QStringList  &getChanList() const;
+        GameServer::List getServerList();
         ModInfo::List   getModList();
         void            clearMessageQueue();
-        void            sendMessage(const String &msg);
-        void            changeChan(const String &chan);
+        void            sendMessage(const QString &msg);
+        void            changeChan(const QString &chan);
         void            receive();
-        void            sendChan(const String &msg);
-        String          getLogin() const;
-        String          getChan() const;
-		String			getServerJoined() const;
+        void            sendChan(const QString &msg);
+        QString          getLogin() const;
+        QString          getChan() const;
+		QString			getServerJoined() const;
 		void			clearServerJoined();
 		bool			getHostAck();
 
     private:
-        void            processMessage(const String &msg);
+        void            processMessage(const QString &msg);
 
     public:
 		static NetClient::Ptr instance();

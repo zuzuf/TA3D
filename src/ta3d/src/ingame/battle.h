@@ -248,9 +248,9 @@ namespace TA3D
 	private:
 		enum CurrentGUICache {cgcDot, cgcShow, cgcHide, cgcEnd};
 		//! The current GUI
-		String pCurrentGUI;
+		QString pCurrentGUI;
 		//!
-		String pCurrentGUICache[cgcEnd];
+		QString pCurrentGUICache[cgcEnd];
 		//!
 		HashSet<>::Sparse toBeLoadedMenuSet;
 

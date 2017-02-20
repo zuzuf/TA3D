@@ -30,14 +30,14 @@ namespace TA3D
 namespace Menus
 {
 
-	Battle::Result BriefScreen::Execute(const String &campaign_name, const int mission_id)
+	Battle::Result BriefScreen::Execute(const QString &campaign_name, const int mission_id)
 	{
 		BriefScreen m(campaign_name, mission_id);
 		m.execute();
 		return m.exit_mode;
 	}
 
-	BriefScreen::BriefScreen(const String &campaign_name, const int mission_id)
+	BriefScreen::BriefScreen(const QString &campaign_name, const int mission_id)
 		: Abstract(), campaign_name(campaign_name), mission_id(mission_id)
 	{}
 
@@ -70,8 +70,8 @@ namespace Menus
 			GameData game_data;
 
 			// Generate the script which will be removed later
-			TA3D::Paths::MakeDir(String(TA3D::Paths::Resources) << "scripts" << Paths::SeparatorAsString << "game");
-			TA3D::generate_script_from_mission(String(TA3D::Paths::Resources) << "scripts" << Paths::SeparatorAsString << "game" << Paths::SeparatorAsString << "__campaign_script.lua", ota_parser, schema);
+			TA3D::Paths::MakeDir(QString(TA3D::Paths::Resources) << "scripts" << Paths::SeparatorAsString << "game");
+			TA3D::generate_script_from_mission(QString(TA3D::Paths::Resources) << "scripts" << Paths::SeparatorAsString << "game" << Paths::SeparatorAsString << "__campaign_script.lua", ota_parser, schema);
 
 			game_data.game_script = "scripts/game/__campaign_script.lua";
 			game_data.map_filename = Substr(map_filename, 0, map_filename.size() - 3 ) << "tnt";     // Remember the last map we played
@@ -84,10 +84,10 @@ namespace Menus
 			game_data.player_control[0] = PLAYER_CONTROL_LOCAL_HUMAN;
 			game_data.player_names[0] = brief_parser.pullAsString( "HEADER.campaignside");
 			game_data.player_sides[0] = brief_parser.pullAsString( "HEADER.campaignside");
-			game_data.energy[0] = ota_parser.pullAsInt( String("GlobalHeader.Schema ") << schema << ".humanenergy" );
-			game_data.metal[0] = ota_parser.pullAsInt( String("GlobalHeader.Schema ") << schema << ".humanmetal" );
+			game_data.energy[0] = ota_parser.pullAsInt( QString("GlobalHeader.Schema ") << schema << ".humanenergy" );
+			game_data.metal[0] = ota_parser.pullAsInt( QString("GlobalHeader.Schema ") << schema << ".humanmetal" );
 
-			String schema_type = ota_parser.pullAsString(String("GlobalHeader.Schema ") << schema << ".Type").toLower();
+			QString schema_type = ota_parser.pullAsString(QString("GlobalHeader.Schema ") << schema << ".Type").toLower();
 
 			if (schema_type == "easy")
 				game_data.ai_level[ 0 ] = "[C] EASY";
@@ -108,8 +108,8 @@ namespace Menus
 				game_data.player_names[ i ] = brief_parser.pullAsString( "HEADER.campaignside");
 				game_data.player_sides[ i ] = brief_parser.pullAsString( "HEADER.campaignside");            // Has no meaning here since we are in campaign mode units are spawned by a script
 				game_data.ai_level[ i ] = game_data.ai_level[ 0 ];
-				game_data.energy[ i ] = ota_parser.pullAsInt( String("GlobalHeader.Schema ") << schema << ".computerenergy" );
-				game_data.metal[ i ] = ota_parser.pullAsInt( String("GlobalHeader.Schema ") << schema << ".computermetal" );
+				game_data.energy[ i ] = ota_parser.pullAsInt( QString("GlobalHeader.Schema ") << schema << ".computerenergy" );
+				game_data.metal[ i ] = ota_parser.pullAsInt( QString("GlobalHeader.Schema ") << schema << ".computermetal" );
 
 				player_color_map[ i ] = byte(i);
 			}
@@ -117,7 +117,7 @@ namespace Menus
 			game_data.campaign = true;
 			game_data.use_only = ota_parser.pullAsString( "GlobalHeader.useonlyunits");
 			if (!game_data.use_only.empty())
-				game_data.use_only = String("camps\\useonly\\") << game_data.use_only;
+				game_data.use_only = QString("camps\\useonly\\") << game_data.use_only;
 
 			exit_mode = Battle::Execute(&game_data);
 
@@ -145,34 +145,34 @@ namespace Menus
 		brief_parser.loadFromFile(campaign_name);           // Loads the campaign file
 
 		map_filename.clear();
-		map_filename << "maps\\" << brief_parser.pullAsString(String("MISSION") << mission_id << ".missionfile");
+		map_filename << "maps\\" << brief_parser.pullAsString(QString("MISSION") << mission_id << ".missionfile");
 		ota_parser.loadFromFile(map_filename);
 
-		String narration_file;
+		QString narration_file;
 		narration_file << "camps\\briefs\\" << ota_parser.pullAsString("GlobalHeader.narration" ) << ".wav"; // The narration file
 
-		String language_suffix = (lp_CONFIG->Lang == "english") ? nullptr : (String("-") << lp_CONFIG->Lang);
-		String brief_file;
+		QString language_suffix = (lp_CONFIG->Lang == "english") ? nullptr : (QString("-") << lp_CONFIG->Lang);
+		QString brief_file;
 		brief_file << "camps\\briefs" << language_suffix << "\\" << ota_parser.pullAsString("GlobalHeader.brief") << ".txt"; // The brief file
 
 		{
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the .txt
-				brief_file = String("camps\\briefs") << language_suffix << "\\" << ota_parser.pullAsString( "GlobalHeader.brief");
+				brief_file = QString("camps\\briefs") << language_suffix << "\\" << ota_parser.pullAsString( "GlobalHeader.brief");
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
-				brief_file = String("camps\\briefs\\") << ota_parser.pullAsString( "GlobalHeader.brief" ) << ".txt";
+				brief_file = QString("camps\\briefs\\") << ota_parser.pullAsString( "GlobalHeader.brief" ) << ".txt";
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
-				brief_file = String("camps\\briefs\\") << ota_parser.pullAsString( "GlobalHeader.brief");
+				brief_file = QString("camps\\briefs\\") << ota_parser.pullAsString( "GlobalHeader.brief");
 			File *file = VFS::Instance()->readFile(brief_file);
 			if (file)
 			{
-				String brief_info = (const char*)file->data();
+				QString brief_info = (const char*)file->data();
 				brief_info = ConvertToUTF8(brief_info);
 				pArea->caption( "brief.info", brief_info);
 				delete file;
 			}
 		}
 
-		String planet_file = ota_parser.pullAsString("GlobalHeader.planet");
+		QString planet_file = ota_parser.pullAsString("GlobalHeader.planet");
 		planet_file.toLower();
 
 		if (planet_file == "green planet" )             planet_file = "anims\\greenbrief.gaf";
@@ -208,7 +208,7 @@ namespace Menus
 			obj->Text.clear();
 			obj->Text.resize(ota_parser.pullAsInt("GlobalHeader.SCHEMACOUNT") + 1);
 			for (unsigned int i = 0 ; i < obj->Text.size() - 1; ++i)
-				obj->Text[i + 1] = I18N::Translate(ota_parser.pullAsString(String("GlobalHeader.Schema ") << i << ".Type"));
+				obj->Text[i + 1] = I18N::Translate(ota_parser.pullAsString(QString("GlobalHeader.Schema ") << i << ".Type"));
 			if (obj->Text.size() > 1)
 				obj->Text[0] = obj->Text[1];
 		}

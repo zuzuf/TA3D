@@ -368,7 +368,7 @@ namespace TA3D
 
 						// Replace the feature if needed
 						Feature *feat2 = feature_manager.getFeaturePointer( feature_type );
-						if (feat2 && !feat2->feature_dead.empty())
+                        if (feat2 && !feat2->feature_dead.isEmpty())
 						{
 							const int type = feature_manager.get_feature_index( feat2->feature_dead );
 							if (type >= 0)
@@ -490,7 +490,7 @@ namespace TA3D
 
 								// Replace the feature if needed
 								Feature *feat2 = feature_manager.getFeaturePointer( feature_type );
-								if (feat2 && !feat2->feature_dead.empty() )
+                                if (feat2 && !feat2->feature_dead.isEmpty() )
 								{
 									const int type = feature_manager.get_feature_index( feat2->feature_dead );
 									if (type >= 0 )
@@ -553,16 +553,16 @@ namespace TA3D
 			}
 			if (Yuni::Math::Equals(Pos.y, the_map->sealvl))
 			{
-				if (!weapon_def->soundwater.empty())
+                if (!weapon_def->soundwater.isEmpty())
 					sound_manager->playSound(weapon_def->soundwater, &Pos);
 			}
 			else
 			{
-				if (!weapon_def->soundhit.empty())
+                if (!weapon_def->soundhit.isEmpty())
 					sound_manager->playSound( weapon_def->soundhit , &Pos );
 			}
 
-			if (hit && !weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty() && !Yuni::Math::Equals(Pos.y, the_map->sealvl))
+            if (hit && !weapon_def->explosiongaf.isEmpty() && !weapon_def->explosionart.isEmpty() && !Yuni::Math::Equals(Pos.y, the_map->sealvl))
 			{
 				if (visible && weapon_def->areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
 					fx_manager.add(weapon_def->explosiongaf, weapon_def->explosionart, Pos, 1.0f);
@@ -576,18 +576,18 @@ namespace TA3D
 					P.y += 3.0f;
 					if (px >= 0 && px < the_map->bloc_w && py >= 0 && py < the_map->bloc_h)
 					{
-						if (the_map->bloc[the_map->bmap(px, py)].lava && !weapon_def->lavaexplosiongaf.empty() && !weapon_def->lavaexplosionart.empty())
+                        if (the_map->bloc[the_map->bmap(px, py)].lava && !weapon_def->lavaexplosiongaf.isEmpty() && !weapon_def->lavaexplosionart.isEmpty())
 						{
 							if (visible)
 								fx_manager.add(weapon_def->lavaexplosiongaf,weapon_def->lavaexplosionart,Pos,1.0f);
 						}
 						else
-							if (!the_map->bloc[the_map->bmap(px, py)].lava && !weapon_def->waterexplosiongaf.empty() && !weapon_def->waterexplosionart.empty())
+                            if (!the_map->bloc[the_map->bmap(px, py)].lava && !weapon_def->waterexplosiongaf.isEmpty() && !weapon_def->waterexplosionart.isEmpty())
 								if (visible)
 									fx_manager.add(weapon_def->waterexplosiongaf,weapon_def->waterexplosionart,Pos,1.0f);
 					}
 					else
-						if (!weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty())
+                        if (!weapon_def->explosiongaf.isEmpty() && !weapon_def->explosionart.isEmpty())
 							if (visible)
 								fx_manager.add(weapon_def->explosiongaf,weapon_def->explosionart,Pos,1.0f);
 				}

@@ -41,18 +41,18 @@ namespace TA3D
 
 	namespace
 	{
-		void showError(const String& s, const String& additional = String())
+		void showError(const QString& s, const QString& additional = QString())
 		{
 			LOG_ERROR(I18N::Translate(s));
-			criticalMessage(I18N::Translate(s) << additional);
+            criticalMessage(I18N::Translate(s) + additional);
 		}
 
-		void showWarning(const String& s, const String& additional = String())
+		void showWarning(const QString& s, const QString& additional = QString())
 		{
 			LOG_WARNING(I18N::Translate(s));
 			Gui::AREA::Ptr pArea = new Gui::AREA();
 			pArea->load_tdf("gui/empty.area");
-			pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) << additional);
+            pArea->popup(I18N::Translate("Warning"), I18N::Translate(s) + additional);
 		}
 	}
 
@@ -167,7 +167,7 @@ namespace TA3D
 		I18N::Instance()->loadFromResources();
 
 		// Apply settings for the current language (required since it failed when loading settings because languages were not loaded)
-		if (!lp_CONFIG->Lang.empty())
+        if (!lp_CONFIG->Lang.isEmpty())
 			I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
 		else
 		{

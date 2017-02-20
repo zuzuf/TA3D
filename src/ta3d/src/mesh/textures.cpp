@@ -31,7 +31,7 @@ namespace TA3D
 
 
 
-	int TEXTURE_MANAGER::get_texture_index(const String& texture_name)
+	int TEXTURE_MANAGER::get_texture_index(const QString& texture_name)
 	{
 		if (nbtex == 0)
 			return -1;
@@ -39,14 +39,14 @@ namespace TA3D
 	}
 
 
-	GLuint TEXTURE_MANAGER::get_gl_texture(const String& texture_name, const int frame)
+	GLuint TEXTURE_MANAGER::get_gl_texture(const QString& texture_name, const int frame)
 	{
 		int index = get_texture_index(texture_name);
 		return (index == -1) ? 0 : tex[index].glbmp[frame];
 	}
 
 
-	SDL_Surface* TEXTURE_MANAGER::get_bmp_texture(const String& texture_name, const int frame)
+	SDL_Surface* TEXTURE_MANAGER::get_bmp_texture(const QString& texture_name, const int frame)
 	{
 		int index = get_texture_index(texture_name);
 		return (index== -1) ? NULL : tex[index].bmp[frame];
@@ -67,7 +67,7 @@ namespace TA3D
 			tex[i].ofs_y.resize(1, 0);
 			tex[i].w.resize(1, 0);
 			tex[i].h.resize(1, 0);
-			tex[i].name = String('_') << i;
+            tex[i].name = QString("_%1").arg(i);
 
 			tex[i].ofs_x[0] = 0;
 			tex[i].ofs_y[0] = 0;
@@ -80,24 +80,24 @@ namespace TA3D
 		}
 
 		{
-			String::Vector file_list;
+			QStringList file_list;
 			VFS::Instance()->getFilelist("textures\\*.gaf", file_list);
-			const String::Vector::const_iterator end = file_list.end();
-			for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+			const QStringList::const_iterator end = file_list.end();
+			for (QStringList::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 			{
 				File *file = VFS::Instance()->readFile(*cur_file);
-				String filename = ToUpper(Paths::ExtractFileName(*cur_file));
+				QString filename = ToUpper(Paths::ExtractFileName(*cur_file));
 				load_gaf(file, filename == "LOGOS.GAF" || filename == "LOGOS");
 				delete file;
 			}
 		}
 		{
-			String::Vector file_list;
+			QStringList file_list;
 			VFS::Instance()->getDirlist("textures\\*", file_list);
-			const String::Vector::const_iterator end = file_list.end();
-			for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+			const QStringList::const_iterator end = file_list.end();
+			for (QStringList::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 			{
-				String filename = ToUpper(Paths::ExtractFileName(*cur_file));
+				QString filename = ToUpper(Paths::ExtractFileName(*cur_file));
 				load_gaf(*cur_file, filename == "LOGOS.GAF" || filename == "LOGOS");
 			}
 		}
@@ -128,10 +128,10 @@ namespace TA3D
 	}
 
 
-	void TEXTURE_MANAGER::load_gaf(const String &filename, bool logo)
+	void TEXTURE_MANAGER::load_gaf(const QString &filename, bool logo)
 	{
-		String::Vector elts;
-		sint32 nb_entry = VFS::Instance()->getDirlist(String(filename) << "\\*", elts);
+		QStringList elts;
+        sint32 nb_entry = VFS::Instance()->getDirlist(filename + "\\*", elts);
 		int n_nbtex = nbtex + nb_entry;
 		Gaf::Animation* n_tex = new Gaf::Animation[n_nbtex];
 		for (int i = 0; i < nbtex; ++i)

@@ -39,12 +39,12 @@ namespace TA3D
 		/*virtual*/ int run(float dt, bool alone = false);                  // Run the script
 
 		//! functions used to call/run functions
-		/*virtual*/ void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-		/*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+		/*virtual*/ void call(const QString &functionName, int *parameters = NULL, int nb_params = 0);
+		/*virtual*/ int execute(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 
 		//! functions used to create new threads sharing the same environment
 		/*virtual*/ NoScript *fork();
-		/*virtual*/ NoScript *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+		/*virtual*/ NoScript *fork(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 
 		//! functions used to save/restore scripts state
 		/*virtual*/ void save_thread_state(gzFile file);

@@ -107,7 +107,7 @@ namespace TA3D
 		if (!pNetworkEnabled || pNetworkIsServer)
 		{
 			gameScript.load(pGameData->game_script);	// Load the script
-			if (!pGameData->saved_file.empty()) 		// We have something to load, so let's run initialization code in passive mode
+            if (!pGameData->saved_file.isEmpty()) 		// We have something to load, so let's run initialization code in passive mode
 			{
 				LuaProgram::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
 				gameScript.run(0.0f);
@@ -116,10 +116,10 @@ namespace TA3D
 			gameScript.start();                        // Start game script thread
 		}
 
-		if (!pGameData->saved_file.empty()) 			// We have something to load
+        if (!pGameData->saved_file.isEmpty()) 			// We have something to load
 		{
 			load_game(pGameData);
-			done = !pGameData->saved_file.empty();		// If loading the game fails, then exit
+            done = !pGameData->saved_file.isEmpty();		// If loading the game fails, then exit
 		}
 
 		// Code Related to Threads
@@ -248,7 +248,7 @@ namespace TA3D
 					lp_CONFIG->timefactor++;
 					show_timefactor = 1.0f;
 					if (network_manager.isConnected())
-						network_manager.sendAll(String("TIMEFACTOR ") << lp_CONFIG->timefactor);
+                        network_manager.sendAll(QString("TIMEFACTOR %1").arg(lp_CONFIG->timefactor));
 				}
 				speed_changed = true;
 			}
@@ -261,7 +261,7 @@ namespace TA3D
 					{
 						lp_CONFIG->timefactor--;
 						if (network_manager.isConnected())
-							network_manager.sendAll(String("TIMEFACTOR ") << lp_CONFIG->timefactor);
+                            network_manager.sendAll(QString("TIMEFACTOR %1").arg(lp_CONFIG->timefactor));
 						show_timefactor = 1.0f;
 					}
 					speed_changed = true;
@@ -1154,7 +1154,7 @@ namespace TA3D
 			// Select CTRL_* category units
 			if (TA3D_CTRL_PRESSED && (key[KEY_C] || key[KEY_F] || key[KEY_V] || key[KEY_B]))
 			{
-				String check_cat = "CTRL_";
+                QString check_cat = "CTRL_";
 				if (key[KEY_C])
 					check_cat += "C";
 				else
@@ -1422,15 +1422,15 @@ namespace TA3D
 				Gui::GUIOBJ::Ptr obj_file_list = pArea.get_object("save_menu.l_file");
 				if (obj_file_list)
 				{
-					String::List file_list;
+                    QStringList file_list;
 					if (network_manager.isConnected())
-						Paths::Glob(file_list, String(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << "*.sav");
+                        Paths::Glob(file_list, TA3D::Paths::Savegames + "multiplayer" + Paths::Separator + "*.sav");
 					else
-						Paths::Glob(file_list, String(TA3D::Paths::Savegames) << "*.sav");
-					file_list.sort();
+                        Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
+                    std::sort(file_list.begin(), file_list.end());
 					obj_file_list->Text.clear();
 					obj_file_list->Text.reserve(file_list.size());
-					for (String::List::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
+                    for (QStringList::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
 						obj_file_list->Text.push_back(Paths::ExtractFileName(*i));
 				}
 			}
@@ -1445,20 +1445,20 @@ namespace TA3D
 			if (pArea.get_state("save_menu.b_save")) // Save the game
 			{
 				pArea.set_state("save_menu.b_save", false);
-				String filename = pArea.caption("save_menu.t_name");
-				if (!filename.empty())
+                QString filename = pArea.caption("save_menu.t_name");
+                if (!filename.isEmpty())
 				{
 					if (network_manager.isServer())          // Ask all clients to save the game too, otherwise they won't be able to load it
 					{
-						String tmp(filename);
+                        QString tmp(filename);
 						tmp.replace(' ', char(1));
-						network_manager.sendSpecial(String("SAVE ") << tmp);
+                        network_manager.sendSpecial("SAVE " + tmp);
 
 						// Save multiplayer games in their own folder
-						filename = String(Paths::Savegames) << "multiplayer" << Paths::Separator << Paths::Files::ReplaceExtension(filename, ".sav");
+                        filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(filename, ".sav");
 					}
 					else
-						filename = String(Paths::Savegames) << Paths::Files::ReplaceExtension(filename, ".sav");
+                        filename = Paths::Savegames + Paths::Files::ReplaceExtension(filename, ".sav");
 					save_game(filename, pGameData); // Save the game
 				}
 				lp_CONFIG->pause = false;
@@ -1549,7 +1549,7 @@ namespace TA3D
 
 			Gui::WND::Ptr pWnd = pArea.get_wnd(pCurrentGUI);
 			int scrolling = pWnd != NULL ? pWnd->scrolling : 0;
-			if (pCurrentGUI != String(ta3dSideData.side_pref[players.side_view]) << "gen")
+            if (pCurrentGUI != ta3dSideData.side_pref[players.side_view] + "gen")
 				unit_manager.unit_build_menu(n, omb2, dt, scrolling, true);	// Draw GUI background
 			else
 				unit_manager.unit_build_menu(-1, omb2, dt, scrolling, true);	// Draw GUI background
@@ -1558,7 +1558,7 @@ namespace TA3D
 
 			/*------------------- End of GUI drawings -------------------------------------------------------*/
 
-			if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) << "gen")
+            if (pCurrentGUI != ta3dSideData.side_pref[players.side_view] + "gen")
 				sel = unit_manager.unit_build_menu(n,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
 			else
 				sel = unit_manager.unit_build_menu(-1,omb2,dt,scrolling,false);	// Menu correspondant à l'unité / Unit's menu
@@ -1585,7 +1585,7 @@ namespace TA3D
 
 			bool refresh_gui(false);
 
-			if (!selected && !pCurrentGUI.empty())
+            if (!selected && !pCurrentGUI.isEmpty())
 			{
 				pArea.msg(pCurrentGUICache[cgcHide]);	// Hide it
 				pCurrentGUI.clear();
@@ -1595,7 +1595,7 @@ namespace TA3D
 			if ((old_gui_sel >= 0 && old_gui_sel != n) || (!old_sel && !selected)) // Update GUI
 			{
 				pArea.msg(pCurrentGUICache[cgcHide]);	// Hide it
-				if (!pCurrentGUI.empty())
+                if (!pCurrentGUI.isEmpty())
 				{
 					pCurrentGUI.clear();
 					updateCurrentGUICacheNames();
@@ -1605,11 +1605,10 @@ namespace TA3D
 			if (n >= 0 && n != old_gui_sel)
 			{
 				pArea.msg(pCurrentGUICache[cgcHide]);	// Hide it
-				pCurrentGUI.clear();
-				pCurrentGUI << unit_manager.unit_type[n]->Unitname << "1";
+                pCurrentGUI = unit_manager.unit_type[n]->Unitname + "1";
 				if (pArea.get_wnd(pCurrentGUI) == NULL)
 				{
-					const String filename = ToLower(String(ta3dSideData.guis_dir) << pCurrentGUI << ".gui");
+                    const QString &filename = (ta3dSideData.guis_dir + pCurrentGUI + ".gui").toLower();
 					if (toBeLoadedMenuSet.count(filename))
 					{
 						pArea.load_window(filename);			// Load the build interface
@@ -1619,9 +1618,9 @@ namespace TA3D
 					{
 						pCurrentGUI.clear();
 						if (unit_manager.unit_type[ n ]->nb_unit > 0)				// The default build page
-							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "dl";
+                            pCurrentGUI = ta3dSideData.side_pref[players.side_view] + "dl";
 						else
-							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+                            pCurrentGUI = ta3dSideData.side_pref[players.side_view] + "gen";
 					}
 				}
 				updateCurrentGUICacheNames();
@@ -1632,8 +1631,7 @@ namespace TA3D
 			{
 				pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
 				old_sel = true;
-				pCurrentGUI.clear();
-				pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+                pCurrentGUI = ta3dSideData.side_pref[players.side_view] + "gen";
 				updateCurrentGUICacheNames();
 				pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
 				refresh_gui = true;
@@ -1694,162 +1692,160 @@ namespace TA3D
 				if (onoff_state == 0)
 					onoff_state = 3;
 
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "BUILD", builders);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ORDERS", builders);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "STOP", canstop);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "MOVE", canmove);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "PATROL", canpatrol);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "DEFEND", canguard);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ATTACK", canattack);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "RECLAIM", canreclam);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "LOAD", canload);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "UNLOAD", canload);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "REPAIR", builders);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ONOFF", onoffable);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "MOVEORD", canmove);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "FIREORD", canattack);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "CAPTURE", cancapture);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "CLOAK", cancloak);
-				pArea.set_enable_flag(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "BLAST", candgun);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BUILD", builders);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ORDERS", builders);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "STOP", canstop);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVE", canmove);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "PATROL", canpatrol);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "DEFEND", canguard);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ATTACK", canattack);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "RECLAIM", canreclam);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "LOAD", canload);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "UNLOAD", canload);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "REPAIR", builders);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF", onoffable);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD", canmove);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD", canattack);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CAPTURE", cancapture);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK", cancloak);
+                pArea.set_enable_flag(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BLAST", candgun);
 
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMBUILD", builders);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMORDERS", builders);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMSTOP", canstop);			// Alternate version to support mods
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMMOVE", canmove);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMPATROL", canpatrol);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMDEFEND", canguard);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMATTACK", canattack);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMRECLAIM", canreclam);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMLOAD", canload);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMUNLOAD", canload);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMREPAIR", builders);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMONOFF", onoffable);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMMOVEORD", canmove);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMFIREORD", canattack);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMCAPTURE", cancapture);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMCLOAK", cancloak);
-				pArea.set_enable_flag(String(pCurrentGUI) << ".ARMBLAST", candgun);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMBUILD", builders);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMORDERS", builders);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMSTOP", canstop);			// Alternate version to support mods
+                pArea.set_enable_flag(pCurrentGUI + ".ARMMOVE", canmove);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMPATROL", canpatrol);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMDEFEND", canguard);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMATTACK", canattack);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMRECLAIM", canreclam);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMLOAD", canload);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMUNLOAD", canload);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMREPAIR", builders);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMONOFF", onoffable);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMMOVEORD", canmove);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMFIREORD", canattack);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMCAPTURE", cancapture);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMCLOAK", cancloak);
+                pArea.set_enable_flag(pCurrentGUI + ".ARMBLAST", candgun);
 
-				Gui::GUIOBJ::Ptr onoff_gui = pArea.get_object(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ONOFF");
+                Gui::GUIOBJ::Ptr onoff_gui = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
 				if (!onoff_gui)
-					onoff_gui = pArea.get_object(String(pCurrentGUI) << ".ARMONOFF");
+                    onoff_gui = pArea.get_object(pCurrentGUI + ".ARMONOFF");
 
 				if (onoff_gui)
 					onoff_gui->current_state = byte(onoff_state - 1);
 
-				Gui::GUIOBJ::Ptr sorder_gui = pArea.get_object(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "FIREORD");
+                Gui::GUIOBJ::Ptr sorder_gui = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
 				if (!sorder_gui)
-					sorder_gui = pArea.get_object(String(pCurrentGUI) << ".ARMFIREORD");
+                    sorder_gui = pArea.get_object(pCurrentGUI + ".ARMFIREORD");
 
 				if (sorder_gui)
 					sorder_gui->current_state = sforder;
 
-				sorder_gui = pArea.get_object( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "MOVEORD");
+                sorder_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
 				if (!sorder_gui)
-					sorder_gui = pArea.get_object( String(pCurrentGUI) << ".ARMMOVEORD");
+                    sorder_gui = pArea.get_object( pCurrentGUI + ".ARMMOVEORD");
 
 				if (sorder_gui)
 					sorder_gui->current_state = smorder;
 
 				if (canload)
 				{
-					pArea.msg( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "LOAD.show" );	// Show it
-					pArea.msg( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "BLAST.hide" );	// Hide it
-					pArea.msg( String(pCurrentGUI) << ".ARMLOAD.show" );	// Show it
-					pArea.msg( String(pCurrentGUI) << ".ARMBLAST.hide" );	// Hide it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "LOAD.show" );	// Show it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BLAST.hide" );	// Hide it
+                    pArea.msg( pCurrentGUI + ".ARMLOAD.show" );	// Show it
+                    pArea.msg( pCurrentGUI + ".ARMBLAST.hide" );	// Hide it
 				}
 				else
 				{
-					pArea.msg( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view ] << "LOAD.hide" );	// Hide it
-					pArea.msg( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view ] << "BLAST.show" );	// Show it
-					pArea.msg( String(pCurrentGUI) << ".ARMLOAD.hide" );	// Hide it
-					pArea.msg( String(pCurrentGUI) << ".ARMBLAST.show" );	// Show it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view ] + "LOAD.hide" );	// Hide it
+                    pArea.msg( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view ] + "BLAST.show" );	// Show it
+                    pArea.msg( pCurrentGUI + ".ARMLOAD.hide" );	// Hide it
+                    pArea.msg( pCurrentGUI + ".ARMBLAST.show" );	// Show it
 				}
 
-				if (pCurrentGUI != (String(ta3dSideData.side_pref[players.side_view]) << "gen"))
+                if (pCurrentGUI != (ta3dSideData.side_pref[players.side_view] + "gen"))
 				{
-					String genGUI;
-					genGUI << ta3dSideData.side_pref[players.side_view] << "gen";
-					String genGUIwDot(genGUI);
-					genGUIwDot << ".";
+                    QString genGUI = ta3dSideData.side_pref[players.side_view] + "gen";
+                    QString genGUIwDot(genGUI + '.');
 
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "BUILD", builders);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "ORDERS", builders);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "STOP", canstop);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "MOVE", canmove);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "PATROL", canpatrol);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "DEFEND", canguard);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "ATTACK", canattack);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "RECLAIM", canreclam);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "LOAD", canload);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "UNLOAD", canload);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "REPAIR", builders);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "ONOFF", onoffable);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "MOVEORD", canmove);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "FIREORD", canattack);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "CAPTURE", cancapture);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "CLOAK", cancloak);
-					pArea.set_enable_flag( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "BLAST", candgun);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BUILD", builders);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ORDERS", builders);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "STOP", canstop);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVE", canmove);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "PATROL", canpatrol);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "DEFEND", canguard);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ATTACK", canattack);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "RECLAIM", canreclam);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD", canload);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "UNLOAD", canload);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "REPAIR", builders);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ONOFF", onoffable);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVEORD", canmove);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "FIREORD", canattack);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "CAPTURE", cancapture);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "CLOAK", cancloak);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST", candgun);
 
-					pArea.set_enable_flag( String(genGUI) << ".ARMBUILD", builders);
-					pArea.set_enable_flag( String(genGUI) << ".ARMORDERS", builders);
-					pArea.set_enable_flag( String(genGUI) << ".ARMSTOP", canstop);
-					pArea.set_enable_flag( String(genGUI) << ".ARMMOVE", canmove);
-					pArea.set_enable_flag( String(genGUI) << ".ARMPATROL", canpatrol);
-					pArea.set_enable_flag( String(genGUI) << ".ARMDEFEND", canguard);
-					pArea.set_enable_flag( String(genGUI) << ".ARMATTACK", canattack);
-					pArea.set_enable_flag( String(genGUI) << ".ARMRECLAIM", canreclam);
-					pArea.set_enable_flag( String(genGUI) << ".ARMLOAD", canload);
-					pArea.set_enable_flag( String(genGUI) << ".ARMUNLOAD", canload);
-					pArea.set_enable_flag( String(genGUI) << ".ARMREPAIR", builders);
-					pArea.set_enable_flag( String(genGUI) << ".ARMONOFF", onoffable);
-					pArea.set_enable_flag( String(genGUI) << ".ARMMOVEORD", canmove);
-					pArea.set_enable_flag( String(genGUI) << ".ARMFIREORD", canattack);
-					pArea.set_enable_flag( String(genGUI) << ".ARMCAPTURE", cancapture);
-					pArea.set_enable_flag( String(genGUI) << ".ARMCLOAK", cancloak);
-					pArea.set_enable_flag( String(genGUI) << ".ARMBLAST", candgun);
+                    pArea.set_enable_flag( genGUI + ".ARMBUILD", builders);
+                    pArea.set_enable_flag( genGUI + ".ARMORDERS", builders);
+                    pArea.set_enable_flag( genGUI + ".ARMSTOP", canstop);
+                    pArea.set_enable_flag( genGUI + ".ARMMOVE", canmove);
+                    pArea.set_enable_flag( genGUI + ".ARMPATROL", canpatrol);
+                    pArea.set_enable_flag( genGUI + ".ARMDEFEND", canguard);
+                    pArea.set_enable_flag( genGUI + ".ARMATTACK", canattack);
+                    pArea.set_enable_flag( genGUI + ".ARMRECLAIM", canreclam);
+                    pArea.set_enable_flag( genGUI + ".ARMLOAD", canload);
+                    pArea.set_enable_flag( genGUI + ".ARMUNLOAD", canload);
+                    pArea.set_enable_flag( genGUI + ".ARMREPAIR", builders);
+                    pArea.set_enable_flag( genGUI + ".ARMONOFF", onoffable);
+                    pArea.set_enable_flag( genGUI + ".ARMMOVEORD", canmove);
+                    pArea.set_enable_flag( genGUI + ".ARMFIREORD", canattack);
+                    pArea.set_enable_flag( genGUI + ".ARMCAPTURE", cancapture);
+                    pArea.set_enable_flag( genGUI + ".ARMCLOAK", cancloak);
+                    pArea.set_enable_flag( genGUI + ".ARMBLAST", candgun);
 
-					onoff_gui = pArea.get_object(String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "ONOFF");
+                    onoff_gui = pArea.get_object(genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ONOFF");
 					if (onoff_gui == NULL)
-						onoff_gui = pArea.get_object(String(genGUI) << ".ARMONOFF");
+                        onoff_gui = pArea.get_object(genGUI + ".ARMONOFF");
 
 					if (onoff_gui)
 						onoff_gui->current_state = byte(onoff_state - 1);
 
-					sorder_gui = pArea.get_object( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "FIREORD");
+                    sorder_gui = pArea.get_object( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "FIREORD");
 					if (sorder_gui == NULL)
-						sorder_gui = pArea.get_object( String(genGUI) << ".ARMFIREORD");
+                        sorder_gui = pArea.get_object( genGUI + ".ARMFIREORD");
 
 					if (sorder_gui)
 						sorder_gui->current_state = sforder;
 
-					sorder_gui = pArea.get_object( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "MOVEORD");
+                    sorder_gui = pArea.get_object( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
 					if (sorder_gui == NULL)
-						sorder_gui = pArea.get_object( String(genGUI) << ".ARMMOVEORD");
+                        sorder_gui = pArea.get_object( genGUI + ".ARMMOVEORD");
 
 					if (sorder_gui)
 						sorder_gui->current_state = smorder;
 
 					if (canload)
 					{
-						pArea.msg( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "LOAD.show" );	// Show it
-						pArea.msg( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "BLAST.hide" );	// Hide it
-						pArea.msg( String(genGUI) << ".ARMLOAD.show" );	// Show it
-						pArea.msg( String(genGUI) << ".ARMBLAST.hide" );	// Hide it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.show" );	// Show it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.hide" );	// Hide it
+                        pArea.msg( genGUI + ".ARMLOAD.show" );	// Show it
+                        pArea.msg( genGUI + ".ARMBLAST.hide" );	// Hide it
 					}
 					else
 					{
-						pArea.msg( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "LOAD.hide" );	// Hide it
-						pArea.msg( String(genGUIwDot) << ta3dSideData.side_pref[players.side_view] << "BLAST.show" );	// Show it
-						pArea.msg( String(genGUI) << ".ARMLOAD.hide" );	// Hide it
-						pArea.msg( String(genGUI) << ".ARMBLAST.show" );	// Show it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.hide" );	// Hide it
+                        pArea.msg( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.show" );	// Show it
+                        pArea.msg( genGUI + ".ARMLOAD.hide" );	// Hide it
+                        pArea.msg( genGUI + ".ARMBLAST.show" );	// Show it
 					}
 				}
 
 				/*------------------- End of GUI update ---------------------------------------------------------*/
 			}
 
-			if (!pCurrentGUI.empty() && pCurrentGUI != (String(ta3dSideData.side_pref[players.side_view]) << "gen")) // Show information about units
+            if (!pCurrentGUI.isEmpty() && pCurrentGUI != (ta3dSideData.side_pref[players.side_view] + "gen")) // Show information about units
 				units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, false);
 			else
 				units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, true);
@@ -1860,31 +1856,29 @@ namespace TA3D
 
 			/*------------------- GUI reacting code ---------------------------------------------------------*/
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ORDERS")
-				|| pArea.get_state(String(pCurrentGUI) << ".ARMORDERS")) // Go to the order menu
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ORDERS")
+                || pArea.get_state(pCurrentGUI + ".ARMORDERS")) // Go to the order menu
 			{
-				pArea.set_state(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ORDERS", false);
-				pArea.set_state(String(pCurrentGUI) << ".ARMORDERS", false);				// Because of mod support
+                pArea.set_state(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ORDERS", false);
+                pArea.set_state(pCurrentGUI + ".ARMORDERS", false);				// Because of mod support
 				sound_manager->playTDFSound( "ORDERSBUTTON", "sound" , NULL);
 				pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
-				pCurrentGUI.clear();
-				pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+                pCurrentGUI = ta3dSideData.side_pref[players.side_view] + "gen";
 				updateCurrentGUICacheNames();
 				pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
 			}
 
-			if (( pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "BUILD") ||
-				  pArea.get_state( String(pCurrentGUI) << ".ARMBUILD")) && old_gui_sel >= 0) // Back to the build menu
+            if (( pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BUILD") ||
+                  pArea.get_state( pCurrentGUI + ".ARMBUILD")) && old_gui_sel >= 0) // Back to the build menu
 			{
-				pArea.set_state(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "BUILD", false);
-				pArea.set_state(String(pCurrentGUI) << ".ARMBUILD", false);
+                pArea.set_state(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BUILD", false);
+                pArea.set_state(pCurrentGUI + ".ARMBUILD", false);
 				sound_manager->playTDFSound( "BUILDBUTTON", "sound" , NULL);
 				pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
-				pCurrentGUI.clear();
-				pCurrentGUI << unit_manager.unit_type[old_gui_sel]->Unitname << '1';
+                pCurrentGUI = unit_manager.unit_type[old_gui_sel]->Unitname + '1';
 				if (pArea.get_wnd(pCurrentGUI) == NULL)
 				{
-					const String filename = ToLower(String(ta3dSideData.guis_dir) << pCurrentGUI << ".gui");
+                    const QString &filename = (ta3dSideData.guis_dir + pCurrentGUI + ".gui").toLower();
 					if (toBeLoadedMenuSet.count(filename))
 					{
 						pArea.load_window(filename);			// Load the build interface
@@ -1894,37 +1888,37 @@ namespace TA3D
 					{
 						pCurrentGUI.clear();
 						if (unit_manager.unit_type[old_gui_sel]->nb_unit > 0) // The default build page
-							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "dl";
+                            pCurrentGUI = ta3dSideData.side_pref[players.side_view] + "dl";
 						else
-							pCurrentGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+                            pCurrentGUI = ta3dSideData.side_pref[players.side_view] + "gen";
 					}
 				}
 				updateCurrentGUICacheNames();
 				pArea.msg( pCurrentGUICache[cgcShow] );	// Show it
 			}
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "PREV")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMPREV"))
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "PREV")
+                || pArea.get_state( pCurrentGUI + ".ARMPREV"))
 			{
 				sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL);
 				if (unit_manager.unit_type[old_gui_sel]->nb_pages > 0)
 					unit_manager.unit_type[old_gui_sel]->page = (unit_manager.unit_type[old_gui_sel]->page + unit_manager.unit_type[old_gui_sel]->nb_pages - 1) % unit_manager.unit_type[old_gui_sel]->nb_pages;
 			}
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "NEXT")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMNEXT"))
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "NEXT")
+                || pArea.get_state( pCurrentGUI + ".ARMNEXT"))
 			{
 				sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL);
 				if (unit_manager.unit_type[old_gui_sel]->nb_pages > 0)
 					unit_manager.unit_type[old_gui_sel]->page = (unit_manager.unit_type[old_gui_sel]->page + 1) % unit_manager.unit_type[old_gui_sel]->nb_pages;
 			}
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ONOFF")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMONOFF")) // Toggle the on/off value
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF")
+                || pArea.get_state( pCurrentGUI + ".ARMONOFF")) // Toggle the on/off value
 			{
 				signal_order = SIGNAL_ORDER_ONOFF;
-				Gui::GUIOBJ::Ptr onoff_obj = pArea.get_object( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ONOFF");
+                Gui::GUIOBJ::Ptr onoff_obj = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
 				if (!onoff_obj)
-					onoff_obj = pArea.get_object( String(pCurrentGUI) << ".ARMONOFF");
+                    onoff_obj = pArea.get_object( pCurrentGUI + ".ARMONOFF");
 				if (onoff_obj)
 				{
 					units.lock();
@@ -1958,12 +1952,12 @@ namespace TA3D
 				}
 			}
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "CLOAK")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMCLOAK")) // Toggle the cloak value
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK")
+                || pArea.get_state( pCurrentGUI + ".ARMCLOAK")) // Toggle the cloak value
 			{
-				Gui::GUIOBJ::Ptr cloak_obj = pArea.get_object( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "CLOAK");
+                Gui::GUIOBJ::Ptr cloak_obj = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CLOAK");
 				if (!cloak_obj)
-					cloak_obj = pArea.get_object( String(pCurrentGUI) << ".ARMCLOAK");
+                    cloak_obj = pArea.get_object( pCurrentGUI + ".ARMCLOAK");
 				if (cloak_obj)
 				{
 					units.lock();
@@ -1989,13 +1983,13 @@ namespace TA3D
 				}
 			}
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "FIREORD")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMFIREORD")) // Toggle the fireorder value
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD")
+                || pArea.get_state( pCurrentGUI + ".ARMFIREORD")) // Toggle the fireorder value
 			{
 				sound_manager->playTDFSound( "SETFIREORDERS", "sound" , NULL);
-				Gui::GUIOBJ::Ptr sorder_obj = pArea.get_object(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "FIREORD");
+                Gui::GUIOBJ::Ptr sorder_obj = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
 				if (!sorder_obj)
-					sorder_obj = pArea.get_object(String(pCurrentGUI) << ".ARMFIREORD");
+                    sorder_obj = pArea.get_object(pCurrentGUI + ".ARMFIREORD");
 				if (sorder_obj)
 				{
 					sorder_obj->current_state %= 3;
@@ -2025,13 +2019,13 @@ namespace TA3D
 				}
 			}
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "MOVEORD")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMMOVEORD")) // Toggle the moveorder value
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD")
+                || pArea.get_state( pCurrentGUI + ".ARMMOVEORD")) // Toggle the moveorder value
 			{
 				sound_manager->playTDFSound("SETMOVEORDERS", "sound" , NULL);
-				Gui::GUIOBJ::Ptr sorder_obj = pArea.get_object(String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "MOVEORD");
+                Gui::GUIOBJ::Ptr sorder_obj = pArea.get_object(pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
 				if (!sorder_obj)
-					sorder_obj = pArea.get_object(String(pCurrentGUI) << ".ARMMOVEORD");
+                    sorder_obj = pArea.get_object(pCurrentGUI + ".ARMMOVEORD");
 				if (sorder_obj)
 				{
 					sorder_obj->current_state %= 3;
@@ -2050,28 +2044,28 @@ namespace TA3D
 				}
 			}
 
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "MOVE")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMMOVE"))													signal_order = SIGNAL_ORDER_MOVE;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "PATROL")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMPATROL"))												signal_order = SIGNAL_ORDER_PATROL;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "STOP")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMSTOP"))													signal_order = SIGNAL_ORDER_STOP;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "DEFEND")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMDEFEND"))												signal_order = SIGNAL_ORDER_GUARD;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "ATTACK")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMATTACK"))												signal_order = SIGNAL_ORDER_ATTACK;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "RECLAIM")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMRECLAIM"))												signal_order = SIGNAL_ORDER_RECLAM;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "LOAD")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMLOAD"))													signal_order = SIGNAL_ORDER_LOAD;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "UNLOAD")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMUNLOAD"))												signal_order = SIGNAL_ORDER_UNLOAD;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "REPAIR")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMREPAIR"))												signal_order = SIGNAL_ORDER_REPAIR;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "CAPTURE")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMCAPTURE"))												signal_order = SIGNAL_ORDER_CAPTURE;
-			if (pArea.get_state( String(pCurrentGUICache[cgcDot]) << ta3dSideData.side_pref[players.side_view] << "BLAST")
-				|| pArea.get_state( String(pCurrentGUI) << ".ARMBLAST"))												signal_order = SIGNAL_ORDER_DGUN;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "MOVE")
+                || pArea.get_state( pCurrentGUI + ".ARMMOVE"))													signal_order = SIGNAL_ORDER_MOVE;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "PATROL")
+                || pArea.get_state( pCurrentGUI + ".ARMPATROL"))												signal_order = SIGNAL_ORDER_PATROL;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "STOP")
+                || pArea.get_state( pCurrentGUI + ".ARMSTOP"))													signal_order = SIGNAL_ORDER_STOP;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "DEFEND")
+                || pArea.get_state( pCurrentGUI + ".ARMDEFEND"))												signal_order = SIGNAL_ORDER_GUARD;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ATTACK")
+                || pArea.get_state( pCurrentGUI + ".ARMATTACK"))												signal_order = SIGNAL_ORDER_ATTACK;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "RECLAIM")
+                || pArea.get_state( pCurrentGUI + ".ARMRECLAIM"))												signal_order = SIGNAL_ORDER_RECLAM;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "LOAD")
+                || pArea.get_state( pCurrentGUI + ".ARMLOAD"))													signal_order = SIGNAL_ORDER_LOAD;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "UNLOAD")
+                || pArea.get_state( pCurrentGUI + ".ARMUNLOAD"))												signal_order = SIGNAL_ORDER_UNLOAD;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "REPAIR")
+                || pArea.get_state( pCurrentGUI + ".ARMREPAIR"))												signal_order = SIGNAL_ORDER_REPAIR;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "CAPTURE")
+                || pArea.get_state( pCurrentGUI + ".ARMCAPTURE"))												signal_order = SIGNAL_ORDER_CAPTURE;
+            if (pArea.get_state( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "BLAST")
+                || pArea.get_state( pCurrentGUI + ".ARMBLAST"))												signal_order = SIGNAL_ORDER_DGUN;
 
 			/*------------------- End of GUI reacting code --------------------------------------------------*/
 
@@ -2256,22 +2250,22 @@ namespace TA3D
 			if (internal_name && last_on >= 0)
 			{
 				units.unit[ last_on ].lock();
-				if (units.unit[ last_on ].type_id >= 0 && !unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname.empty())
-					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String("internal name ") << unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname);
+                if (units.unit[ last_on ].type_id >= 0 && !unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname.isEmpty())
+                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, "internal name " + unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname);
 				units.unit[ last_on ].unlock();
 			}
 			else
 			{
-				if (internal_name && cur_sel >= 0 && !unit_manager.unit_type[cur_sel]->Unitname.empty())
-					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String("internal name ") << unit_manager.unit_type[cur_sel]->Unitname);
+                if (internal_name && cur_sel >= 0 && !unit_manager.unit_type[cur_sel]->Unitname.isEmpty())
+                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, "internal name " + unit_manager.unit_type[cur_sel]->Unitname);
 			}
 
 			if (internal_idx && last_on >= 0)
-				gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String("idx = ") << last_on);
+                gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, QString("idx = %1").arg(last_on));
 			else
 			{
 				if (internal_idx && cur_sel_index >= 0)
-					gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, String("idx = ") << cur_sel_index);
+                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, QString("idx = %1").arg(cur_sel_index));
 			}
 
 			if (unit_info_id >= 0)
@@ -2298,8 +2292,8 @@ namespace TA3D
 					{
 						if (!units.unit[i].mission.empty() && units.unit[i].mission->mission() <= 0x0E)
 						{
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String("MISSION: ") << unit_info[units.unit[i].mission->mission()]);
-							String flags;
+                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: ") + unit_info[units.unit[i].mission->mission()]);
+                            QString flags;
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON)	flags += "TARGET_WEAPON; ";
@@ -2307,10 +2301,10 @@ namespace TA3D
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_MOVE)			flags += "MOVE; ";
 							if (units.unit[i].mission->getFlags() & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
 							y += gfx->normal_font->height();
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String("FLAGS: ") << flags);
+                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, "FLAGS: " + flags);
 						}
 						else
-							gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, String("MISSION: NONE"));
+                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: NONE"));
 						y += gfx->normal_font->height();
 					}
 					units.unit[i].unlock();
@@ -2325,7 +2319,7 @@ namespace TA3D
 					const uint32 ping = network_manager.getPingForPlayer(i);
 					if (ping)
 					{
-						const String text = String("ping for player[") << i << "] = " << ping << "ms";
+                        const QString &text = QString("ping for player[%1] = %2ms").arg(i).arg(ping);
 						gfx->print(gfx->normal_font,129.0f,y+1.0f,0.0f,0xFF000000U, text);
 						gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFFU, text);
 						y += gfx->normal_font->height();
@@ -2337,7 +2331,7 @@ namespace TA3D
 
 			if (show_timefactor > 0.0f)
 			{
-				const String value = String().format("x %.1f", lp_CONFIG->timefactor);
+                const QString &value = QString::asprintf("x %.1f", lp_CONFIG->timefactor);
 				if (show_timefactor > 0.5f)
 				{
 					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, 0.0f, makeacol32(0,0,0,0xFF), value);
@@ -2377,10 +2371,9 @@ namespace TA3D
 				glReadBuffer(GL_BACK);
 				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp->pixels);
 				vflip_bitmap(shoot_bmp);
-				String nom;
-				nom.format("ta3d-shoot%.6d.tga", nb_shoot);
+                QString name = QString::asprintf("ta3d-shoot%.6d.tga", nb_shoot);
 				nb_shoot = (nb_shoot + 1) % 1000000;
-				save_bitmap(String(TA3D::Paths::Screenshots) << nom, shoot_bmp);
+                save_bitmap(TA3D::Paths::Screenshots + name, shoot_bmp);
 				SDL_FreeSurface(shoot_bmp);
 				shoot = false;
 			}
@@ -2498,11 +2491,11 @@ namespace TA3D
 				break;
 			case brVictory:
 				{
-					if (pGameData->campaign && !map->ota_data.glamour.empty() && VFS::Instance()->fileExists( String("bitmaps\\glamour\\") << map->ota_data.glamour << ".pcx"))
+                    if (pGameData->campaign && !map->ota_data.glamour.isEmpty() && VFS::Instance()->fileExists( "bitmaps/glamour/" + map->ota_data.glamour + ".pcx"))
 					{
 						// Disable TA palette since those images have their own palette :)
 						disable_TA_palette();
-						GLuint	glamour_tex = gfx->load_texture(String("bitmaps\\glamour\\") << map->ota_data.glamour << ".pcx");
+                        GLuint	glamour_tex = gfx->load_texture("bitmaps/glamour/" + map->ota_data.glamour + ".pcx");
 						enable_TA_palette();
 						gfx->set_2D_mode();
 						gfx->drawtexture( glamour_tex, 0, 0, (float)SCREEN_W, (float)SCREEN_H);

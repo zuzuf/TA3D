@@ -49,9 +49,9 @@ namespace Menus
 
 		std::list< SERVER_DATA >    servers;                    // the server list
 
-		String sel_index;
-		String o_sel;
-		String join_host;
+		QString sel_index;
+		QString o_sel;
+		QString join_host;
 	};
 
 } // namespace Menus

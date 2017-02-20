@@ -149,7 +149,7 @@ namespace TA3D
 
 #if DEBUG_USE_PRINT_CODE == 1
 //        bool print_code = false;
-        //bool	print_code = String::ToLower( unit_manager.unit_type[type_id]->Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
+        //bool	print_code = QString::ToLower( unit_manager.unit_type[type_id]->Unitname ) == "armtship" && (QString::ToLower( script->name[script_id] ) == "transportpickup" || QString::ToLower( script->name[script_id] ) == "boomcalc" );
         bool	print_code = script->names[script_id] == "MOTIONCONTROL";
 #endif
 
@@ -709,7 +709,7 @@ namespace TA3D
         return newThread;
     }
 
-    CobVm *CobVm::fork(const String &functionName, int *parameters, int nb_params)
+    CobVm *CobVm::fork(const QString &functionName, int *parameters, int nb_params)
     {
         CobVm *newThread = fork();
         if (newThread)
@@ -717,12 +717,12 @@ namespace TA3D
         return newThread;
     }
 
-    void CobVm::call(const String &functionName, int *parameters, int nb_params)
+    void CobVm::call(const QString &functionName, int *parameters, int nb_params)
     {
         call( script->findFromName( functionName ), parameters, nb_params );
     }
 
-    int CobVm::execute(const String &functionName, int *parameters, int nb_params)
+    int CobVm::execute(const QString &functionName, int *parameters, int nb_params)
     {
         int params[1] = {-1};
         if (parameters == NULL || nb_params == 0)
@@ -764,22 +764,22 @@ namespace TA3D
         LOG_DEBUG(LOG_PREFIX_SCRIPT << "CobVm::dumpDebufInfo :");
         LOG_DEBUG(LOG_PREFIX_SCRIPT << childs.size() << " child threads");
 		Console::Instance()->addEntry("CobVm::dumpDebugInfo :");
-		Console::Instance()->addEntry(String() << int(childs.size()) << " child threads");
+        Console::Instance()->addEntry(QString("%1 child threads").arg(int(childs.size())));
 		if (running)
 		{
             logs.debug() << LOG_PREFIX_SCRIPT << "main thread running : " << (script->names[cur.top() & 0xFF]);
-			Console::Instance()->addEntry(String("main thread running : ") << (script->names[cur.top() & 0xFF]));
+            Console::Instance()->addEntry(QString("main thread running : %1").arg((script->names[cur.top() & 0xFF])));
 		}
 		for (uint32 i = 0 ; i < childs.size() ; ++i)
             if (childs[i]->is_running())
             {
-                String state;
+                QString state;
                 if (childs[i]->is_waiting())
-                    state << " (waiting)";
+                    state += " (waiting)";
                 if (childs[i]->is_sleeping())
-                    state << " (sleeping = " << (dynamic_cast<CobVm*>(childs[i]))->sleep_time << ")";
+                    state += QString(" (sleeping = %1)").arg(dynamic_cast<CobVm*>(childs[i])->sleep_time);
                 LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF] << state);
-				Console::Instance()->addEntry(String("child thread ") << i << " running : " << script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF] << state);
+                Console::Instance()->addEntry(QString("child thread %1 running : %2").arg(i).arg(script->names[(dynamic_cast<CobVm*>(childs[i]))->cur.top() & 0xFF]) + state);
 			}
     }
 

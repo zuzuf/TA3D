@@ -1,4 +1,3 @@
-
 #include "table.h"
 #include "i18n.h"
 
@@ -6,9 +5,9 @@
 namespace TA3D
 {
 
-	TranslationTable::ShortString TranslationTable::gameTime;
-	TranslationTable::ShortString TranslationTable::units;
-	TranslationTable::ShortString TranslationTable::speed;
+    QString TranslationTable::gameTime;
+    QString TranslationTable::units;
+    QString TranslationTable::speed;
 
 
 

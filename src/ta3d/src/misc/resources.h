@@ -44,7 +44,7 @@ namespace Resources
     ** \param[out] out The absolute filename that has been found
     ** \return True if the resource has been found, false otherwise
     */
-    bool Find(const String& relFilename, String& out);
+    bool Find(const QString& relFilename, QString& out);
 
 
     /*!
@@ -55,7 +55,7 @@ namespace Resources
     ** \param folder The folder to add
     ** \return True if the folder has been added, false otherwise
     */
-    bool AddSearchPath(String folder);
+    bool AddSearchPath(QString folder);
 
 
     /*!
@@ -67,10 +67,10 @@ namespace Resources
     ** \return True if the operation succeeded and the list is not empty,
     ** false othewise
     **
-    ** String::Vector list;
+    ** QStringList list;
     ** if (Paths::ResourcesGlob(list, "objects/rocks*.3dm"))
     ** {
-    **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+    **      for (QStringList::const_iterator i = list.begin(); i != list.end(); ++i)
     **          std::cout << "3D object found: `" << *i << std::endl;
     ** }
     ** else
@@ -79,10 +79,8 @@ namespace Resources
     ** }
     ** \endcode
     */
-    bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
-    bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true);
-    bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
-    bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore = true);
+    bool Glob(QStringList& out, const QString& pattern, const bool emptyListBefore = true);
+    bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore = true);
 
 
     /*!
@@ -91,7 +89,7 @@ namespace Resources
     ** This method is thread safe
     **
     */
-    String::Vector GetPaths();
+    QStringList GetPaths();
 
 
     /*!

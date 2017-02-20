@@ -71,7 +71,7 @@ namespace TA3D
 			** \param[out] The playlist
 			** \return True if the playlist is not empty, false otherwise
 			*/
-			bool getPlayListFiles(String::Vector& out);
+			bool getPlayListFiles(QStringList& out);
 
 			/*!
 			** \brief Set the properties of a single item in the playlist
@@ -100,7 +100,7 @@ namespace TA3D
 			/*!
 			** \brief Load a single sound file
 			*/
-			bool loadSound(const String& filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
+			bool loadSound(const QString& filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
 
 			//@}
 
@@ -141,26 +141,26 @@ namespace TA3D
 			/*!
 			** \brief Play sound directly from our sound pool
 			*/
-			void playSound(const String& filename, const Vector3D* vec = NULL);
+			void playSound(const QString& filename, const Vector3D* vec = NULL);
 
 			// Play sound from TDF by looking up sound filename from internal hash
-			void playTDFSound(const String& key, const Vector3D* vec = NULL);
+			void playTDFSound(const QString& key, const Vector3D* vec = NULL);
 
 			/*!
 			** \brief Play a sound file from its key
 			**
 			** It is a convenient method to deal with playTDFSound + update3DSound
 			*/
-			void playTDFSoundNow(const String& Key, const Vector3D* vec = NULL);
+			void playTDFSoundNow(const QString& Key, const Vector3D* vec = NULL);
 
 			// keys will be added together and then PlayTDF( key, vec ); called
 			// if either key is null or "" aborts.
-			void playTDFSound(const String& keyA, const String& keyB, const Vector3D* vec = NULL);
+			void playTDFSound(const QString& keyA, const QString& keyB, const Vector3D* vec = NULL);
 
 			/*!
 			** \brief Play a sound file right now
 			*/
-			void playSoundFileNow(const String& filename); // Loads and play a sound
+			void playSoundFileNow(const QString& filename); // Loads and play a sound
 
 			/*!
 			** \brief Stop playing
@@ -193,7 +193,7 @@ namespace TA3D
 				//! Default constructor
                 PlaylistItem() :battleTune(false), disabled(false), checked(false), cdromID(-1), trackID(0), cd(NULL) {}
 				//! Filename
-				String filename;
+				QString filename;
 				//!
 				bool battleTune;
                 //! Only to tell the file is there
@@ -257,7 +257,7 @@ namespace TA3D
 			{
 			public:
 				LoadAllTDFSound(Manager& a) : pAudio(a) {}
-				bool operator () (const String&, const String& value)
+				bool operator () (const QString&, const QString& value)
 				{
 					pAudio.doLoadSound(value, false);
 					return true; // True to not stop the process
@@ -283,13 +283,13 @@ namespace TA3D
 			//! \see savePlaylist()
 			void doSavePlaylist();
 			//! \see loadSound()
-			bool doLoadSound(String filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
+			bool doLoadSound(QString filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
 			//! \see playMusic()
-			void doPlayMusic(const String& filename);
-			//! \see playTDFSoundNow(const String&, const Vector3D*)
-			void doPlayTDFSound(String key, const Vector3D* vec);
-			//! \see playTDFSound(const String&, const String&, const Vector3D*)
-			void doPlayTDFSound(const String& keyA, const String& keyB, const Vector3D* vec);
+			void doPlayMusic(const QString& filename);
+			//! \see playTDFSoundNow(const QString&, const Vector3D*)
+			void doPlayTDFSound(QString key, const Vector3D* vec);
+			//! \see playTDFSound(const QString&, const QString&, const Vector3D*)
+			void doPlayTDFSound(const QString& keyA, const QString& keyB, const Vector3D* vec);
 			//! \see update3DSound()
 			void doUpdate3DSound();
 
@@ -305,11 +305,11 @@ namespace TA3D
 			void doPurgePlaylist();
 
 			//! \brief Get the next music to play in the playlist
-			String doSelectNextMusic();
+			QString doSelectNextMusic();
 
 			//@}
 
-			virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg);
+			virtual uint32 InterfaceMsg(const uint32 MsgID, const QString &msg);
 
 		private:
 			//! Mutex

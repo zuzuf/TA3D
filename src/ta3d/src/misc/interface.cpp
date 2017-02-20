@@ -79,7 +79,7 @@ namespace TA3D
     }
 
 
-	void IInterfaceManager::DispatchMsg(const uint32 mID, const String &msg)
+	void IInterfaceManager::DispatchMsg(const uint32 mID, const QString &msg)
     {
 		pMutex.lock();
 		for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)

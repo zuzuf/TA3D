@@ -16,7 +16,7 @@ namespace TA3D
 		void update();
 		void save();
 		ModInfo::List getModList( const ModType type = MOD_ALL );
-		String::List getModNameList( const ModType type = MOD_ALL );
+		QStringList getModNameList( const ModType type = MOD_ALL );
 		ModInfo *getMod(int ID);
 	private:
 		ModInfo::List mods;

@@ -12,7 +12,7 @@ namespace TA3D
 	public:
 		virtual ~ProgressNotifier()	{}
 
-		virtual void operator()(const float percent, const String &message) = 0;
+		virtual void operator()(const float percent, const QString &message) = 0;
 	};
 
 }

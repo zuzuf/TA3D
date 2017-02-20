@@ -37,7 +37,7 @@ namespace Interfaces
 		void init();
 		void destroy();
 
-		void load(const String &filename);
+        void load(const QString &filename);
 		void set(const GLuint gltex);
 		void draw(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
 		void drawRotated(const float x1, const float y1, const float angle, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);

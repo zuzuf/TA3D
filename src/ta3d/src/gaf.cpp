@@ -44,13 +44,13 @@ namespace TA3D
 		/*!
 		 * \brief Get the name of a GAF entry
 		 */
-		void convertGAFCharToString(File* file, String& out)
+        void convertGAFCharToString(File* file, QString& out)
 		{
 			char dt[33];
 			memset(dt, 0, 33);
 			file->read(dt, 32);
 			dt[32] = '\0';
-			out.assign(dt, (uint32)strlen(dt));
+            out = QString::fromUtf8(dt, (uint32)strlen(dt));
 		}
 
 	}
@@ -84,7 +84,7 @@ namespace TA3D
 	}
 
 
-	void Gaf::ToTexturesList(std::vector<GLuint>& out, const String& filename, const String& imgname,
+    void Gaf::ToTexturesList(std::vector<GLuint>& out, const QString& filename, const QString& imgname,
 							 int* w, int* h, const bool truecolor, const int filter)
 	{
 		out.clear();
@@ -112,8 +112,7 @@ namespace TA3D
 			for (std::vector<GLuint>::iterator i = out.begin(); i != out.end(); ++i, ++indx)
 			{
 				uint32 fw, fh;
-				String cache_filename;
-				cache_filename << filename << "-" << imgname << '-' << indx << ".bin";
+                QString cache_filename = filename + "-" + imgname + QString("-%1.bin").arg(indx);
 				*i = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
 
 				if (!(*i))
@@ -152,13 +151,13 @@ namespace TA3D
 			return;
 		}
 		// Now try to open it as a GAF-like directory
-		String::Vector folderList;
-		VFS::Instance()->getFilelist(String(filename) << '\\' << imgname << "\\*", folderList);
-		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
+        QStringList folderList;
+        VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+        if (!folderList.isEmpty())			// So this is a directory with a GAF-like tree structure
 		{
-			sort(folderList.begin(), folderList.end());
+            std::sort(folderList.begin(), folderList.end());
 			int k = 0;
-			for(String::Vector::iterator i = folderList.begin() ; i != folderList.end() ; ++i, ++k)
+            for(QStringList::iterator i = folderList.begin() ; i != folderList.end() ; ++i, ++k)
 			{
 				uint32 width, height;
 				out.push_back(gfx->load_texture(*i, filter, &width, &height));
@@ -172,14 +171,13 @@ namespace TA3D
 
 
 
-	GLuint Gaf::ToTexture(String filename, const String& imgname, int* w, int* h, const bool truecolor, const int filter)
+    GLuint Gaf::ToTexture(QString filename, const QString& imgname, int* w, int* h, const bool truecolor, const int filter)
 	{
 		// Remove GAF extension
-		if (filename.size() >= 4 || Substr(filename, filename.size() - 4, 4).toLower() == ".gaf")
-			filename.erase(filename.size(), 4);
+        if (filename.endsWith(".gaf"))
+            filename.chop(4);
 
-		String cache_filename;
-		cache_filename << filename << "-" << imgname << ".bin";
+        QString cache_filename = filename + "-" + imgname + ".bin";
 		uint32 fw;
 		uint32 fh;
 		GLuint first_try = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
@@ -192,16 +190,16 @@ namespace TA3D
 		}
 
 		// Now try to open it as a GAF-like directory
-		String::Vector folderList;
-		VFS::Instance()->getFilelist(String(filename) << '\\' << imgname << "\\*", folderList);
-		if (!folderList.empty())			// So this is a directory with a GAF-like tree structure
+        QStringList folderList;
+        VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+        if (!folderList.isEmpty())			// So this is a directory with a GAF-like tree structure
 		{
-			sort(folderList.begin(), folderList.end());
+            std::sort(folderList.begin(), folderList.end());
 			return gfx->load_texture(folderList.front(), filter, (uint32*)w, (uint32*)h);
 		}
 
 		// Add GAF extension
-		filename << ".gaf";
+        filename += ".gaf";
 
 		File *file = VFS::Instance()->readFile(filename);			// Try to open it as file
 		if (file)
@@ -242,7 +240,7 @@ namespace TA3D
 
 
 
-	String Gaf::RawDataGetEntryName(File *file, int entry_idx)
+    QString Gaf::RawDataGetEntryName(File *file, int entry_idx)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0)
@@ -260,22 +258,22 @@ namespace TA3D
 		*file >> entry.Frames;
 		*file >> entry.Unknown1;
 		*file >> entry.Unknown2;
-		convertGAFCharToString(file, entry.name);
+        convertGAFCharToString(file, entry.name);
 
 		DELETE_ARRAY(pointers);
 		return entry.name;
 	}
 
 
-	sint32 Gaf::RawDataGetEntryIndex(File* file, const String& name)
+    sint32 Gaf::RawDataGetEntryIndex(File* file, const QString& name)
 	{
 		LOG_ASSERT(file != NULL);
 		sint32 nb_entry = RawDataEntriesCount(file);
-		String cmpString = name;
-		cmpString.toUpper();
+        QString cmpQString = name;
+        cmpQString.toUpper();
 		for (int i = 0; i < nb_entry; ++i)
 		{
-			if (Gaf::RawDataGetEntryName(file, i).toUpper() == cmpString)
+            if (Gaf::RawDataGetEntryName(file, i).toUpper() == cmpQString)
 				return i;
 		}
 		return -1;
@@ -300,7 +298,7 @@ namespace TA3D
 		*file >> entry.Frames;
 		*file >> entry.Unknown1;
 		*file >> entry.Unknown2;
-		convertGAFCharToString(file, entry.name);
+        convertGAFCharToString(file, entry.name);
 
 		DELETE_ARRAY(pointers);
 		return entry.Frames;
@@ -325,7 +323,7 @@ namespace TA3D
 		*file >> entry.Frames;
 		*file >> entry.Unknown1;
 		*file >> entry.Unknown2;
-		convertGAFCharToString(file, entry.name);
+        convertGAFCharToString(file, entry.name);
 
 		if (entry.Frames <= 0 || img_idx >= entry.Frames)
 		{
@@ -596,7 +594,7 @@ namespace TA3D
 
 
 
-	void Gaf::Animation::loadGAFFromRawData(File *file, const int entry_idx, const bool truecolor, const String& fname)
+    void Gaf::Animation::loadGAFFromRawData(File *file, const int entry_idx, const bool truecolor, const QString& fname)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0 || !file)
@@ -637,13 +635,13 @@ namespace TA3D
 		h.resize(nb_bmp);
 	}
 
-	void Gaf::Animation::loadGAFFromDirectory(const String &folderName, const String &entryName)
+    void Gaf::Animation::loadGAFFromDirectory(const QString &folderName, const QString &entryName)
 	{
 		filename = folderName;
 
-		String::Vector files;
-		VFS::Instance()->getFilelist(String(folderName) << '\\' << entryName << "\\*", files);
-		sort(files.begin(), files.end());
+        QStringList files;
+        VFS::Instance()->getFilelist(folderName + '\\' + entryName + "\\*", files);
+        std::sort(files.begin(), files.end());
 
 		nb_bmp = (sint32)files.size();
 
@@ -733,10 +731,9 @@ namespace TA3D
 		pAnimationConverted = true;
 		for (int i = 0; i < nb_bmp; ++i)
 		{
-			String cache_filename;
-			cache_filename << filename << '-' << (name.empty() ? "none" : name) << '-' << i << ".bin";
+            const QString &cache_filename = filename + '-' + (name.isEmpty() ? "none" : name) + QString("-%1.bin").arg(i);
 
-			if (!filename.empty())
+            if (!filename.isEmpty())
 				glbmp[i] = gfx->load_texture_from_cache(cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
 			else
 				glbmp[i] = 0;
@@ -749,7 +746,7 @@ namespace TA3D
 				else
 					gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 				glbmp[i] = gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
-				if (!filename.empty())
+                if (!filename.isEmpty())
 					gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h, true);
 			}
 		}
@@ -766,7 +763,7 @@ namespace TA3D
 	}
 
 
-	sint32 Gaf::AnimationList::loadGAFFromRawData(File* file, const bool doConvert, const String& fname)
+    sint32 Gaf::AnimationList::loadGAFFromRawData(File* file, const bool doConvert, const QString& fname)
 	{
 		if (file)
 		{
@@ -781,10 +778,10 @@ namespace TA3D
 		return 0;
 	}
 
-	sint32 Gaf::AnimationList::loadGAFFromDirectory(const String &folderName, const bool doConvert)
+    sint32 Gaf::AnimationList::loadGAFFromDirectory(const QString &folderName, const bool doConvert)
 	{
-		String::Vector entries;
-		VFS::Instance()->getDirlist(String(folderName) << "\\*", entries);
+        QStringList entries;
+        VFS::Instance()->getDirlist(folderName + "\\*", entries);
 		pList.clear();
 		pList.resize(entries.size());
 		for (uint32 i = 0 ; i < pList.size() ; ++i)
@@ -794,7 +791,7 @@ namespace TA3D
 		return (sint32)pList.size();
 	}
 
-	sint32 Gaf::AnimationList::findByName(const String& name) const
+    sint32 Gaf::AnimationList::findByName(const QString& name) const
 	{
 		for (uint32 i = 0 ; i < pList.size() ; ++i)
 		{

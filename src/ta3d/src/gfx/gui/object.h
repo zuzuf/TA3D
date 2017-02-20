@@ -64,12 +64,12 @@ namespace Gui
 		/*!
 		** \brief Reacts to a message transfered from the interface
 		*/
-		uint32  msg(const String& message, WND* wnd = NULL);
+		uint32  msg(const QString& message, WND* wnd = NULL);
 
 		/*!
 		** \brief
 		*/
-		void caption(const String& caption);
+		void caption(const QString& caption);
 
 		/*!
 		** \brief
@@ -83,7 +83,7 @@ namespace Gui
 		** \param size
 		*/
 		void create_button(const float X1, const float Y1, const float X2, const float Y2,
-			const String& caption, void (*F)(int), const float size = 1.0f);
+			const QString& caption, void (*F)(int), const float size = 1.0f);
 
 		/*!
 		** \brief Option Checkbox
@@ -96,7 +96,7 @@ namespace Gui
 		** \param skin
 		** \param size
 		*/
-		void create_optionc(const float X1, const float Y1, const String& caption, const bool ETAT,
+		void create_optionc(const float X1, const float Y1, const QString& caption, const bool ETAT,
 							void (*F)(int), Skin *skin = NULL, const float size = 1.0f);
 
 		/*!
@@ -105,7 +105,7 @@ namespace Gui
 		** \param X1
 		** \param Y1
 		*/
-		void create_optionb(const float X1, const float Y1, const String& Caption, const bool ETAT, void (*F)(int),
+		void create_optionb(const float X1, const float Y1, const QString& Caption, const bool ETAT, void (*F)(int),
 							Skin* skin = NULL, const float size = 1.0f);
 
 		/*!
@@ -116,7 +116,7 @@ namespace Gui
 		** \param X2
 		** \param Y2
 		*/
-		void create_textbar(const float X1, const float Y1, const float X2, const float Y2, const String& Caption,
+		void create_textbar(const float X1, const float Y1, const float X2, const float Y2, const QString& Caption,
 							const unsigned int MaxChar, void(*F)(int) = NULL, const float size = 1.0f);
 
 		/*!
@@ -130,7 +130,7 @@ namespace Gui
 		** \param size
 		*/
 		void create_texteditor(const float X1, const float Y1, const float X2, const float Y2,
-							   const String& caption, const float size = 1.0f);
+							   const QString& caption, const float size = 1.0f);
 
 		/*!
 		** \brief Create a floatting menu
@@ -141,7 +141,7 @@ namespace Gui
 		** \param F
 		** \param size
 		*/
-		void create_menu(const float X1, const float Y1, const String::Vector& Entry, void (*F)(int),
+        void create_menu(const float X1, const float Y1, const QStringList& Entry, void (*F)(int),
 						 const float size=1.0f);
 
 		/*!
@@ -155,7 +155,7 @@ namespace Gui
 		** \param F
 		** \param size
 		*/
-		void create_menu(const float X1, const float Y1, const float X2, const float Y2, const String::Vector& Entry,
+        void create_menu(const float X1, const float Y1, const float X2, const float Y2, const QStringList& Entry,
 						 void (*F)(int), const float size = 1.0f);
 
 		/*!
@@ -175,7 +175,7 @@ namespace Gui
 		** \param X1
 		** \param Y1
 		*/
-		void create_text(const float X1, const float Y1,const String& Caption, const int Col = Black, const float size = 1.0f);
+		void create_text(const float X1, const float Y1,const QString& Caption, const int Col = Black, const float size = 1.0f);
 
 		/*!
 		** \brief
@@ -216,7 +216,7 @@ namespace Gui
 		** \param X2
 		** \param Y2
 		*/
-		void create_list(const float X1, const float Y1, const float X2, const float Y2, const String::Vector& Entry, const float size = 1.0f);
+        void create_list(const float X1, const float Y1, const float X2, const float Y2, const QStringList& Entry, const float size = 1.0f);
 
 		/*!
 		** \brief
@@ -227,7 +227,7 @@ namespace Gui
 		** \param states
 		** \param nb_st
 		*/
-		void create_ta_button(const float X1, const float Y1,const String::Vector& Caption,
+        void create_ta_button(const float X1, const float Y1,const QStringList& Caption,
 							  const std::vector<GLuint>& states, const int nb_st);
 
 		/*!
@@ -269,7 +269,7 @@ namespace Gui
 		//!
 		float y2;
 		//!
-		String::Vector Text;			// Text displayed by the object
+        QStringList Text;			// Text displayed by the object
 		//!
 		void (*Func)(int);	// Pointer to linked function
 		//! TODO Must be renammed
@@ -290,18 +290,18 @@ namespace Gui
 		bool  destroy_img;	// For img control, tell to destroy the texture
 
 		//!
-		String::Vector  OnClick;		// Send that signal when clicked
+        QStringList OnClick;		// Send that signal when clicked
 		//!
-		String::Vector  OnHover;		// Send that signal when mouse is over
+        QStringList OnHover;		// Send that signal when mouse is over
 		//!
-		String::Vector  SendDataTo;		// Send Data to that object on the window
+        QStringList SendDataTo;		// Send Data to that object on the window
 		//!
-		String::Vector  SendPosTo;		// Send Pos to that object on the window
+        QStringList SendPosTo;		// Send Pos to that object on the window
 
 		//!
-		String  Name;			// name of the object
+		QString  Name;			// name of the object
 		//!
-		String  help_msg;		// Help message displayed when the mouse cursor is over the object
+		QString  help_msg;		// Help message displayed when the mouse cursor is over the object
 
 		//!
 		float  u1;

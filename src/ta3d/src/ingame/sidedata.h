@@ -120,7 +120,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		int	getSideId(const String& side) const;
+		int	getSideId(const QString& side) const;
 
 		/*!
 		** \brief
@@ -131,29 +131,29 @@ namespace TA3D
 		//!
 		int nb_side;
 		//! The name
-		String side_name[TA3D_PLAYERS_HARD_LIMIT];
+		QString side_name[TA3D_PLAYERS_HARD_LIMIT];
 		//! The prefix
-		String side_pref[TA3D_PLAYERS_HARD_LIMIT];
+		QString side_pref[TA3D_PLAYERS_HARD_LIMIT];
 		//! The commande
-		String side_com[TA3D_PLAYERS_HARD_LIMIT];
+		QString side_com[TA3D_PLAYERS_HARD_LIMIT];
 		//! The GAF interface
-		String side_int[TA3D_PLAYERS_HARD_LIMIT];
+		QString side_int[TA3D_PLAYERS_HARD_LIMIT];
 		//! The interface data (position of the gui elements)
 		InterfaceData side_int_data[TA3D_PLAYERS_HARD_LIMIT];
 		//!
-		String unit_ext;
+		QString unit_ext;
 		//!
-		String unit_dir;
+		QString unit_dir;
 		//!
-		String model_dir;
+		QString model_dir;
 		//!
-		String download_dir;
+		QString download_dir;
 		//!
-		String weapon_dir;
+		QString weapon_dir;
 		//!
-		String guis_dir;
+		QString guis_dir;
 		//!
-		String gamedata_dir;
+		QString gamedata_dir;
 
 	}; // class SideData
 
@@ -164,7 +164,7 @@ namespace TA3D
 	/*!
 	** \brief
 	*/
-	IntrElementCoords read_gui_element(TDFParser* parser, const String& element, bool bottom = false);
+	IntrElementCoords read_gui_element(TDFParser* parser, const QString& element, bool bottom = false);
 
 
 	/*!

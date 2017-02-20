@@ -207,9 +207,9 @@ namespace Menus
 
 		pArea->set_state("*.showfps", lp_CONFIG->showfps);
 		pArea->caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
-		for (String::Vector::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
+		for (QStringList::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
 		{
-			if ( (String() << (int)lp_CONFIG->fps_limit) == *i )
+			if ( (QString() << (int)lp_CONFIG->fps_limit) == *i )
 				pArea->caption("*.fps_limit", *i);
 		}
 		pArea->set_value("*.texture_quality", lp_CONFIG->unitTextureQuality);
@@ -253,9 +253,9 @@ namespace Menus
 		}
 		if (pArea->get_object("*.camera_zoom") )
 			pArea->caption( "*.camera_zoom", pArea->get_object("*.camera_zoom")->Text[1+lp_CONFIG->camera_zoom]);
-		pArea->caption( "*.camera_def_angle", String() << lp_CONFIG->camera_def_angle );
-		pArea->caption( "*.camera_def_h", String() << lp_CONFIG->camera_def_h );
-		pArea->caption( "*.camera_zoom_speed", String() << lp_CONFIG->camera_zoom_speed );
+		pArea->caption( "*.camera_def_angle", QString() << lp_CONFIG->camera_def_angle );
+		pArea->caption( "*.camera_def_h", QString() << lp_CONFIG->camera_def_h );
+		pArea->caption( "*.camera_zoom_speed", QString() << lp_CONFIG->camera_zoom_speed );
 		if (pArea->get_object("*.screenres") )
 		{
 			Gui::GUIOBJ::Ptr obj = pArea->get_object("*.screenres");
@@ -267,9 +267,9 @@ namespace Menus
 					 || res_bpp[ current ] != lp_CONFIG->color_depth ) )
 				current++;
 			if (current >= nb_res ) current = 0;
-			obj->Text.push_back( String() << res_width[ current ] << "x" << res_height[ current ] << "x" << res_bpp[ current ] );
+			obj->Text.push_back( QString() << res_width[ current ] << "x" << res_height[ current ] << "x" << res_bpp[ current ] );
 			for( int i = 0 ; i < nb_res ; i++ )
-				obj->Text.push_back( String() << res_width[ i ] << "x" << res_height[ i ] << "x" << res_bpp[ i ] );
+				obj->Text.push_back( QString() << res_width[ i ] << "x" << res_height[ i ] << "x" << res_bpp[ i ] );
 		}
 		Gui::GUIOBJ::Ptr tmpO = pArea->get_object("*.shadow_quality");
 		if (tmpO)
@@ -279,7 +279,7 @@ namespace Menus
 				pArea->caption("*.shadow_quality", tmpO->Text[indx]);
 		}
 
-		pArea->caption("*.timefactor", String() << (int)lp_CONFIG->timefactor);
+		pArea->caption("*.timefactor", QString() << (int)lp_CONFIG->timefactor);
 		switch( lp_CONFIG->fsaa )
 		{
 			case 2: pArea->caption("*.fsaa", "x2");    break;
@@ -303,11 +303,11 @@ namespace Menus
 			else
 				obj->Text.resize(1);
 
-			String current_selection = TA3D_CURRENT_MOD.length() > 6 ? Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-			String::List mod_list = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
+			QString current_selection = TA3D_CURRENT_MOD.length() > 6 ? Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
+			QStringList mod_list = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
 			mod_list.sort();
 			mod_list.unique();
-			for (String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
+			for (QStringList::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
 			{
 				obj->Text.push_back( *i );
 				if (ToLower( *i ) == ToLower(current_selection))
@@ -324,16 +324,16 @@ namespace Menus
 			obj->Text.resize(1);
 			obj->Text[0] = I18N::Translate( "default.skn");
 
-			String::Vector skin_list;
+			QStringList skin_list;
 			VFS::Instance()->getFilelist("gui\\*.skn", skin_list);
 
-			String skin_name;
-			const String::Vector::iterator end = skin_list.end();
-			for (String::Vector::iterator i = skin_list.begin(); i != end; ++i)
+			QString skin_name;
+			const QStringList::iterator end = skin_list.end();
+			for (QStringList::iterator i = skin_list.begin(); i != end; ++i)
 			{
 				skin_name = Paths::ExtractFileName(*i, false);
 				obj->Text.push_back(skin_name);
-				if (String("gui/") << ToLower(skin_name) == ToLower(lp_CONFIG->skin_name))
+				if (QString("gui/") << ToLower(skin_name) == ToLower(lp_CONFIG->skin_name))
 					obj->Text[0] = skin_name;
 			}
 		}
@@ -524,7 +524,7 @@ namespace Menus
 			if (obj && obj->Value >= 0)
 			{
 				obj->Text[0] = obj->Text[ 1 + obj->Value ];
-				lp_CONFIG->camera_def_angle = obj->Text[0].to<float>();
+				lp_CONFIG->camera_def_angle = obj->Text[0].toFloat();
 			}
 		}
 		if (pArea->get_value( "*.camera_def_h" ) >= 0)
@@ -533,7 +533,7 @@ namespace Menus
 			if (obj && obj->Value >= 0)
 			{
 				obj->Text[0] = obj->Text[1 + obj->Value];
-				lp_CONFIG->camera_def_h = obj->Text[0].to<float>();
+				lp_CONFIG->camera_def_h = obj->Text[0].toFloat();
 			}
 		}
 		if (pArea->get_value( "*.camera_zoom_speed" ) >= 0)
@@ -542,7 +542,7 @@ namespace Menus
 			if (obj && obj->Value >= 0)
 			{
 				obj->Text[0] = obj->Text[ 1 + obj->Value ];
-				lp_CONFIG->camera_zoom_speed = obj->Text[0].to<float>();
+				lp_CONFIG->camera_zoom_speed = obj->Text[0].toFloat();
 			}
 		}
 		if (pArea->get_value( "*.LANG" ) >= 0)
@@ -607,7 +607,7 @@ namespace Menus
 			if (obj && obj->Value != -1)
 			{
 				obj->Text[0] = obj->Text[ 1 + obj->Value];
-				lp_CONFIG->last_MOD = obj->Value > 0 ? String("mods/") << obj->Text[0] << '/' : String();
+				lp_CONFIG->last_MOD = obj->Value > 0 ? QString("mods/") << obj->Text[0] << '/' : QString();
 			}
 		}
 		if (pArea->get_value( "*.skin" ) >= 0)
@@ -616,7 +616,7 @@ namespace Menus
 			if (obj && obj->Value != -1)
 			{
 				obj->Text[0] = obj->Text[1 + obj->Value];
-				lp_CONFIG->skin_name = obj->Value >= 0 ? String("gui/") << obj->Text[0] : String();
+				lp_CONFIG->skin_name = obj->Value >= 0 ? QString("gui/") << obj->Text[0] : QString();
 			}
 		}
 

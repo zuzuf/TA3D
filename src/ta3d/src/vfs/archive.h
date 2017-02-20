@@ -43,12 +43,12 @@ namespace TA3D
 			class FileInfo
             {
             protected:
-                String name;
+                QString name;
                 int priority;
                 Archive *parent;
             public:
 				virtual ~FileInfo() {}
-                inline String getName()  const  {   return name;    }
+                inline QString getName()  const  {   return name;    }
                 inline int getPriority() const  {   return priority;    }
                 inline void setPriority(int p)  {  priority = p;   }
                 inline Archive *getParent() const {   return parent;  }
@@ -57,17 +57,17 @@ namespace TA3D
                 bool needsCaching() const;
             };
         protected:
-            String  name;
+            QString  name;
         public:
             virtual ~Archive() {}
 
             //! \brief returns the name of the opened archive
-            inline String getName() {   return name;    }
+            inline QString getName() {   return name;    }
 
             /*!
             ** \brief Loads an archive
             */
-            virtual void open(const String& filename) = 0;
+            virtual void open(const QString& filename) = 0;
 
             /*!
             ** \brief Just close the opened archive
@@ -82,7 +82,7 @@ namespace TA3D
             /*!
             ** \brief
             */
-			virtual File* readFile(const String& filename) = 0;
+			virtual File* readFile(const QString& filename) = 0;
 			virtual File* readFile(const FileInfo *file) = 0;
 
             /*!
@@ -92,7 +92,7 @@ namespace TA3D
             ** \param length
             ** \return
             */
-			virtual File* readFileRange(const String& filename, const uint32 start, const uint32 length) = 0;
+			virtual File* readFileRange(const QString& filename, const uint32 start, const uint32 length) = 0;
 			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length) = 0;
 
             /*!
@@ -102,16 +102,16 @@ namespace TA3D
             virtual bool needsCaching();
 
         public:
-            typedef void (*ArchiveFinder)(String::List &fileList, const String &path);
-            typedef Archive* (*ArchiveLoader)(const String &filename);
+            typedef void (*ArchiveFinder)(QStringList &fileList, const QString &path);
+            typedef Archive* (*ArchiveLoader)(const QString &filename);
         private:
             static std::list<ArchiveFinder> *listArchiveFinder;
             static std::list<ArchiveLoader> *listArchiveLoader;
         public:
             static void registerArchiveFinder(ArchiveFinder finder);
             static void registerArchiveLoader(ArchiveLoader loader);
-            static Archive *load(const String &filename);
-            static void getArchiveList(String::List &fileList, const String &path);
+            static Archive *load(const QString &filename);
+            static void getArchiveList(QStringList &fileList, const QString &path);
         }; // class Archive
 
         //! A simple macro to auto register Archive classes functionnalities :) (you don't even need to include the headers \o/)

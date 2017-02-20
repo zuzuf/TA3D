@@ -93,8 +93,8 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		int add(const String& name, const String &SIDE, byte _control, unsigned int E = 10000, unsigned int M = 10000,
-			const String &AI_level = "[C] EASY", uint16 teamMask = 0);
+		int add(const QString& name, const QString &SIDE, byte _control, unsigned int E = 10000, unsigned int M = 10000,
+			const QString &AI_level = "[C] EASY", uint16 teamMask = 0);
 
 		/*!
 		** \brief
@@ -124,9 +124,9 @@ namespace TA3D
 		//!
 		byte		    control[TA3D_PLAYERS_HARD_LIMIT];	// Qui controle ce joueur??
 		//!
-		String::Vector	nom;    		// Noms des joueurs
+        QStringList	name;    		// Noms des joueurs
 		//!
-		String::Vector	side;   		// Camp des joueurs
+		QStringList	side;   		// Camp des joueurs
 		//!
 		float		    r_energy[TA3D_PLAYERS_HARD_LIMIT];		// Energy required
 		//!

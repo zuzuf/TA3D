@@ -32,7 +32,7 @@ namespace TA3D
 	TA3D::TA3DCONFIG::Ptr		TA3D::VARS::lp_CONFIG = NULL;
 	TA3D::GFX::Ptr				TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
 	SDL_Color					*TA3D::VARS::pal = NULL;
-	String						TA3D::VARS::TA3D_CURRENT_MOD = "";		// This string stores the path to current mod
+	QString						TA3D::VARS::TA3D_CURRENT_MOD = "";		// This string stores the path to current mod
 	SDL_Surface					*TA3D::VARS::screen = NULL;
 
 	TA3DCONFIG::TA3DCONFIG()

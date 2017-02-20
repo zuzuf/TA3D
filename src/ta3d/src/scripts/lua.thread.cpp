@@ -177,7 +177,7 @@ namespace TA3D
 		destroy();
 	}
 
-	byte *loadLuaFile(const String &filename, uint32 &filesize)
+	byte *loadLuaFile(const QString &filename, uint32 &filesize)
 	{
 		filesize = 0;
 		File *file = VFS::Instance()->readFile(filename);
@@ -190,8 +190,8 @@ namespace TA3D
 			buffer[file->size()] = 0;
 			delete file;
 
-			String path = Paths::ExtractFilePath(filename);
-			String name;
+			QString path = Paths::ExtractFilePath(filename);
+			QString name;
 			int n = 0;
 			char *f = NULL;
 			while ((f = strstr( (char*)buffer, "#include" ) ) != NULL && n < 20)
@@ -199,11 +199,11 @@ namespace TA3D
 				int i;
 				name.clear();
 				for (i = 0 ; i < 100 && f[ i + 10 ] != '"' ; ++i)
-					name << f[ i + 10 ];
-				if (!VFS::Instance()->fileExists(String(path) << name))
-					name = String("scripts/") << name;
+                    name += f[ i + 10 ];
+                if (!VFS::Instance()->fileExists(path + name))
+                    name = "scripts/" + name;
 				else
-					name = String(path) << name;
+                    name = path + name;
 				file = VFS::Instance()->readFile(name);
 				if (file)
 				{
@@ -232,7 +232,7 @@ namespace TA3D
 		return buffer;
 	}
 
-	void LuaThread::load(const String &filename)					// Load a lua script
+	void LuaThread::load(const QString &filename)					// Load a lua script
 	{
 		destroy();			// Maybe we're reusing an old object
 
@@ -277,7 +277,7 @@ namespace TA3D
 			DELETE_ARRAY(tmp);
 
 			name = filename;
-			if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))
+            if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.toStdString().c_str() ))
 			{
                 if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				{
@@ -575,15 +575,15 @@ namespace TA3D
 		newThread->caller = (caller != NULL) ? caller : this;
 
 		newThread->L = lua_newthread(L);
-		String globalName( String("__thread") << getNextID() );
-        lua_setglobal(L, globalName.c_str());  // We don't want to keep this thread value on top of the stack
+        QString globalName( QString("__thread%1").arg(getNextID()) );
+        lua_setglobal(L, globalName.toStdString().c_str());  // We don't want to keep this thread value on top of the stack
 		addThread(newThread);
 
 		pMutex.unlock();
 		return newThread;
 	}
 
-	LuaThread *LuaThread::fork(const String &functionName, int *parameters, int nb_params)
+	LuaThread *LuaThread::fork(const QString &functionName, int *parameters, int nb_params)
 	{
 		pMutex.lock();
 
@@ -595,7 +595,7 @@ namespace TA3D
 		return newThread;
 	}
 
-	void LuaThread::call(const String &functionName, int *parameters, int nb_params)
+	void LuaThread::call(const QString &functionName, int *parameters, int nb_params)
 	{
 		MutexLocker mLocker( pMutex );
 
@@ -606,7 +606,7 @@ namespace TA3D
 		try
 		{
 			lua_settop(L, 0);
-			lua_getglobal( L, functionName.c_str() );
+            lua_getglobal( L, functionName.toStdString().c_str() );
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
 				lua_pop(L, 1);
@@ -628,7 +628,7 @@ namespace TA3D
 		}
 	}
 
-	int LuaThread::execute(const String &functionName, int *parameters, int nb_params)
+	int LuaThread::execute(const QString &functionName, int *parameters, int nb_params)
 	{
 		MutexLocker mLocker( pMutex );
 
@@ -637,7 +637,7 @@ namespace TA3D
 		try
 		{
 			lua_settop(L, 0);
-			lua_getglobal( L, functionName.c_str() );
+            lua_getglobal( L, functionName.toStdString().c_str() );
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
 				lua_pop(L, 1);
@@ -725,13 +725,13 @@ namespace TA3D
 	{
 	}
 
-    bool LuaThread::runCommand(const String &cmd)
+    bool LuaThread::runCommand(const QString &cmd)
     {
         MutexLocker mLocker( pMutex );
         if (L == NULL)
             return false;
 
-        if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), "user command" ))
+        if (luaL_loadbuffer(L, (const char*)cmd.toStdString().c_str(), cmd.size(), "user command" ))
         {
             if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
             {

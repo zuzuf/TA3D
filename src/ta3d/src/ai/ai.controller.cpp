@@ -27,9 +27,8 @@
 #include <ingame/players.h>
 #include "ai.controller.h"
 #include "ai.h"
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
+#include <QFile>
+#include <QDataStream>
 
 namespace TA3D
 {
@@ -584,7 +583,7 @@ namespace TA3D
 		weights.clear();
 	}
 
-	void AiController::changeName(const String& newName)		// Change le nom de l'IA (conduit Ã  la crÃ©ation d'un nouveau fichier)
+	void AiController::changeName(const QString& newName)		// Change le nom de l'IA (conduit Ã  la crÃ©ation d'un nouveau fichier)
 	{
 		pMutex.lock();
 		name = newName;
@@ -593,19 +592,18 @@ namespace TA3D
 
 	void AiController::save()
 	{
-		String filename;
-		Paths::MakeDir( String(Paths::Resources) << "ai" );
-		filename << Paths::Resources << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
-		Stream file(filename, Yuni::Core::IO::OpenMode::write);
+        Paths::MakeDir( Paths::Resources + "ai" );
+        QString filename = Paths::Resources + "ai" + Paths::Separator + name + TA3D_AI_FILE_EXTENSION;
+        QFile file(filename);
+        file.open(QIODevice::WriteOnly);
 
-		byte l = (byte)name.size();
-		file.write((const char*)&l, 1);		// Nom de l'IA
-		file.write(name.c_str(), l);
+        QDataStream stream(&file);
+        stream << name;   // IA's name
 		file.close();
 	}
 
 
-	void AiController::loadAI(const String& filename, const int id)
+	void AiController::loadAI(const QString& filename, const int id)
 	{
 		File* file = VFS::Instance()->readFile(filename);
 

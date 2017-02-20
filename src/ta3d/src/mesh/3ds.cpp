@@ -41,7 +41,7 @@ namespace TA3D
 
 		struct Material
 		{
-			String	name;
+			QString	name;
 			float	ambient[4];
 			float	diffuse[4];
 			float	specular[4];
@@ -51,7 +51,7 @@ namespace TA3D
 			float	transparency;
 			bool	twoSide;
 			float	texmap;
-			String	mapname;
+			QString	mapname;
 
 			Material() :
 					name(), shininess(0.0f),
@@ -119,7 +119,7 @@ namespace TA3D
 		return 0.0f;
 	}
 
-	String read_MatMapname_chunk(File *src)
+	QString read_MatMapname_chunk(File *src)
 	{
 		ChunkData chunk;
 		*src >> chunk.ID;
@@ -131,7 +131,7 @@ namespace TA3D
 		default:
 			src->seek(src->tell() + chunk.length - 6);
 		};
-		return String();
+		return QString();
 	}
 
 	Mesh3DS::Mesh3DS()
@@ -149,7 +149,7 @@ namespace TA3D
 			Flag |= SURFACE_BLENDED;
 	}
 
-	Model *Mesh3DS::load(const String &filename)
+	Model *Mesh3DS::load(const QString &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 
@@ -179,19 +179,19 @@ namespace TA3D
 				break;
 			case EDIT_MATERIAL:
 				PRINT_DEBUG("-EDIT_MATERIAL (" << chunk.ID << ',' << chunk.length << ')');
-				if (currentMat && currentMat->name.empty())
+                if (currentMat && currentMat->name.isEmpty())
 					delete currentMat;
 				currentMat = new Material;
 				break;
 			case MAT_NAME:
 				PRINT_DEBUG("-MAT_NAME (" << chunk.ID << ',' << chunk.length << ')');
 				{
-					String name = file->getString();
+					QString name = file->getString();
 					PRINT_DEBUG("name = " << name);
 					if (currentMat)
 					{
 						currentMat->name = name;
-						if (!name.empty())
+                        if (!name.isEmpty())
 						{
 							if (material.count(name)
 								&& material[name] != currentMat
@@ -274,7 +274,7 @@ namespace TA3D
 						currentMat->texmap = read_percent_chunk( file );
 						currentMat->mapname = read_MatMapname_chunk( file );
 					}
-					currentMat->mapname = String("textures/") << currentMat->mapname;
+                    currentMat->mapname = "textures/" + currentMat->mapname;
 					PRINT_DEBUG("texmap : " << currentMat->mapname);
 				}
 				else
@@ -390,7 +390,7 @@ namespace TA3D
 			case TRI_MATERIAL:
 				PRINT_DEBUG("-TRI_MATERIAL (" << chunk.ID << ',' << chunk.length << ')');
 				{
-					String material_name = file->getString();
+					QString material_name = file->getString();
 					PRINT_DEBUG("material name = " << material_name);
 
 					Material *cur_mat = material[material_name];
@@ -398,12 +398,11 @@ namespace TA3D
 					if (cur_mat)
 					{
 						PRINT_DEBUG("material found");
-						if (!cur_mat->mapname.empty())
+                        if (!cur_mat->mapname.isEmpty())
 						{
 							PRINT_DEBUG("loading texture " << cur_mat->mapname);
 							read_obj->Flag |= SURFACE_TEXTURED;
-							String name = cur_mat->mapname;
-							name.trim();
+                            const QString &name = cur_mat->mapname.trimmed();
 							read_obj->tex_cache_name.push_back(name);
 						}
 						if (cur_mat->transparency > 0.0f)
@@ -493,7 +492,7 @@ namespace TA3D
 				file->seek( file->tell() + chunk.length - 6 );
 			}
 		}
-		if (currentMat && currentMat->name.empty())
+        if (currentMat && currentMat->name.isEmpty())
 			delete currentMat;
 		for(HashMap<Material*>::Dense::iterator it = material.begin() ; it != material.end() ; ++it)
 			if (*it)

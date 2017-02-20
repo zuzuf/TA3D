@@ -108,7 +108,7 @@ namespace TA3D
 			//! Unknown - always 0
 			sint32 Unknown2;
 			//! Name of the entry
-			String name;
+			QString name;
 		};
 
 		struct Frame
@@ -170,7 +170,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		static GLuint ToTexture(String filename, const String& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
+		static GLuint ToTexture(QString filename, const QString& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
 		/*!
 		** \brief Convert all Gaf images into OpenGL textures
@@ -182,7 +182,7 @@ namespace TA3D
 		** \param[out] h The height of the image
 		** \param truecolor
 		*/
-		static void ToTexturesList(std::vector<GLuint>& out, const String& filename, const String &imgname,
+		static void ToTexturesList(std::vector<GLuint>& out, const QString& filename, const QString &imgname,
 								   int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
 		/*!
@@ -196,9 +196,9 @@ namespace TA3D
 		*/
 		static sint32 RawDataEntriesCount(UTILS::File* file);
 
-		static String RawDataGetEntryName(UTILS::File* file, int entry_idx);
+		static QString RawDataGetEntryName(UTILS::File* file, int entry_idx);
 
-		static sint32 RawDataGetEntryIndex(UTILS::File *file, const String& name);
+		static sint32 RawDataGetEntryIndex(UTILS::File *file, const QString& name);
 
 		static sint32 RawDataImageCount(UTILS::File *file, const int entry_idx);
 
@@ -222,9 +222,9 @@ namespace TA3D
 			void init();
 			void destroy();
 
-			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const String& fname = String());
+			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const QString& fname = QString());
 
-			void loadGAFFromDirectory(const String &folderName, const String &entryName);
+			void loadGAFFromDirectory(const QString &folderName, const QString &entryName);
 
 			void convert(bool NO_FILTER = false, bool COMPRESSED = false);
 
@@ -246,9 +246,9 @@ namespace TA3D
 			//!
 			std::vector<GLuint> glbmp;
 			//!
-			String name;
+			QString name;
 			//!
-			String  filename;
+			QString  filename;
 			//!
 			bool    logo;       // Logo flag, used to prevent animated logos
 
@@ -288,7 +288,7 @@ namespace TA3D
 			** \param fname
 			** \return The number of animation found
 			*/
-			sint32 loadGAFFromRawData(UTILS::File* file, const bool doConvert = false, const String& fname = "");
+			sint32 loadGAFFromRawData(UTILS::File* file, const bool doConvert = false, const QString& fname = "");
 
 			/*!
 			** \brief Load all animation from a GAF-like directory
@@ -298,7 +298,7 @@ namespace TA3D
 			** \param fname
 			** \return The number of animation found
 			*/
-			sint32 loadGAFFromDirectory(const String &folderName, const bool doConvert = false);
+			sint32 loadGAFFromDirectory(const QString &folderName, const bool doConvert = false);
 
 			/*!
 			** \brief
@@ -316,7 +316,7 @@ namespace TA3D
 			** \param name The name of the animation to find
 			** \return The index of the animation. -1 if not found
 			*/
-			sint32 findByName(const String& name) const;
+			sint32 findByName(const QString& name) const;
 
 			/*!
 			** \brief The number of Animation in the list

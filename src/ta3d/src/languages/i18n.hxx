@@ -17,6 +17,7 @@
 #ifndef __TA3D_XX_I18N_HXX__
 # define __TA3D_XX_I18N_HXX__
 
+#include "i18n.h"
 
 namespace TA3D
 {
@@ -34,7 +35,7 @@ namespace TA3D
 	}
 
 
-	inline bool I18N::CurrentLanguage(const String& l)
+	inline bool I18N::CurrentLanguage(const QString& l)
 	{
 		return I18N::Instance()->currentLanguage(l);
 	}
@@ -46,7 +47,7 @@ namespace TA3D
 	}
 
 
-	inline bool I18N::LoadFromFile(const String& filename)
+	inline bool I18N::LoadFromFile(const QString& filename)
 	{
 		return I18N::Instance()->loadFromFile(filename);
 	}
@@ -58,31 +59,25 @@ namespace TA3D
 	}
 
 
-	inline String I18N::Translate(const String& key, const String& defaultValue)
+	inline QString I18N::Translate(const QString& key, const QString& defaultValue)
 	{
 		return I18N::Instance()->translate(key, defaultValue);
 	}
 
 
-	inline void I18N::Translate(String::Vector& out)
+    inline void I18N::Translate(QStringList& out)
 	{
 		I18N::Instance()->translate(out);
 	}
 
 
-	inline void I18N::Translate(String::List& out)
-	{
-		I18N::Instance()->translate(out);
-	}
-
-
-	inline bool I18N::currentLanguage(const String& n)
+	inline bool I18N::currentLanguage(const QString& n)
 	{
 		return currentLanguage(language(n));
 	}
 
 
-	inline String I18N::operator [] (const String& key)
+	inline QString I18N::operator [] (const QString& key)
 	{
 		return translate(key);
 	}

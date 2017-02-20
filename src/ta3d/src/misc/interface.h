@@ -68,7 +68,7 @@ namespace TA3D
         ** \param msg The received message
         ** \return The return status
         */
-		virtual uint32 InterfaceMsg(const uint32 MsgID, const String &msg) = 0;
+		virtual uint32 InterfaceMsg(const uint32 MsgID, const QString &msg) = 0;
 
 	}; // class IInterface
 
@@ -100,7 +100,7 @@ namespace TA3D
         **
         ** \see IInterface::InterfaceMsg()
         */
-		void DispatchMsg(const uint32 mID, const String &msg);
+		void DispatchMsg(const uint32 mID, const QString &msg);
 
 	private:
         /*!

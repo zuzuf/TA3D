@@ -34,9 +34,9 @@ namespace Menus
 		/*!
 		** \brief Execute an instance of SetupGame
 		*/
-		static bool Execute(const bool client = false, const String& host = String(), const String &saved_game = String(), const bool bNetServer = false, const bool instantStart = false);
+		static bool Execute(const bool client = false, const QString& host = QString(), const QString &saved_game = QString(), const bool bNetServer = false, const bool instantStart = false);
 	public:
-		SetupGame(const bool client, const String& host, const String &saved_game, const bool bNetServer, const bool instantStart);
+		SetupGame(const bool client, const QString& host, const QString &saved_game, const bool bNetServer, const bool instantStart);
 		//! Destructor
 		virtual ~SetupGame();
 
@@ -49,18 +49,18 @@ namespace Menus
 
 	private:
 		const bool client;
-		const String& host;
-		String saved_game;
+		const QString& host;
+		QString saved_game;
 		const bool bNetServer;
 		const bool instantStart;
 
 		int my_player_id;
-		String status;
+		QString status;
 		uint16  player_str_n;
-		String  player_str[4];
+		QString  player_str[4];
 		byte    player_control[4];
-		String::Vector  side_str;
-		String::Vector  AI_list;
+		QStringList  side_str;
+		QStringList  AI_list;
 		GameData game_data;
 
 		int net_id_table[10];           // Table used to identify players joining a multiplayer saved game
@@ -82,10 +82,10 @@ namespace Menus
 
 		bool start_game;
 
-		String set_map;
-		String previous_tnt_port;
-		String previous_ota_port;
-		String previous_lua_port;
+		QString set_map;
+		QString previous_tnt_port;
+		QString previous_ota_port;
+		QString previous_lua_port;
 
 		int progress_timer;
 		int ping_timer;                    // Used to send simple PING requests in order to detect when a connection fails
@@ -93,9 +93,9 @@ namespace Menus
 		bool statusUpdateRequired;
 
 		//! Network stuffs
-		String broadcast_msg;
-		String chat_msg;
-		String special_msg;
+		QString broadcast_msg;
+		QString chat_msg;
+		QString special_msg;
 		struct chat received_chat_msg;
 		struct chat received_special_msg;
 		bool playerDropped;

@@ -115,9 +115,9 @@ namespace TA3D
 		else
 		{
 			LOG_WARNING(LOG_PREFIX_OPENGL << "GLEW initialization failed!");
-			LOG_WARNING(LOG_PREFIX_OPENGL << "GLEW error: " << (const char*) glewGetErrorString(err));
+            LOG_WARNING(LOG_PREFIX_OPENGL << "GLEW error: " << (const char*) glewGetErrorString(err));
 		}
-		LOG_DEBUG(LOG_PREFIX_OPENGL << "Using GLEW " << (const char*) glewGetString(GLEW_VERSION));
+        LOG_DEBUG(LOG_PREFIX_OPENGL << "Using GLEW " << (const char*) glewGetString(GLEW_VERSION));
 
 		MultiTexturing = GLEW_ARB_multitexture;
 

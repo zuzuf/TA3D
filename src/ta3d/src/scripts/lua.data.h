@@ -27,18 +27,18 @@ namespace TA3D
     class LuaData : public ScriptData
     {
     protected:
-        String          name;
-        String::Vector  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
+        QString          name;
+        QStringList  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
 
     public:
         LuaData();
         virtual ~LuaData();
 
-        /*virtual*/ void load(const String &filename);                    // Load a lua chunk
+        /*virtual*/ void load(const QString &filename);                    // Load a lua chunk
 
-		const String &getName() const;
+		const QString &getName() const;
 
-        virtual int identify(const String &name);
+        virtual int identify(const QString &name);
     private:
         void init();
         void destroy();

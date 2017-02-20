@@ -38,14 +38,14 @@ namespace TA3D
 			:level(0), line(0), gadgetMode(-1)
 		{}
 		//! The full name of the current section
-		String currentSection;
+		QString currentSection;
 		//! The current key
-		String key;
+		QString key;
 		//! The current value
-		String value;
+		QString value;
 
 		//! The stack for all sections
-		std::stack<String> sections;
+		std::stack<QString> sections;
 		//! Stack Level
 		int level;
 
@@ -59,7 +59,7 @@ namespace TA3D
 		std::stack<int> widgetMode;
 
 		//! File name (may not be the real filename)
-		String caption;
+		QString caption;
 
 	}; // class StackInfos
 
@@ -73,7 +73,7 @@ namespace TA3D
 	}
 
 
-	TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
+	TDFParser::TDFParser(const QString& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
 		: pIgnoreCase(!caSensitive), special_section()
 	{
 		loadFromFile(filename, true, toUTF8, gadgetMode, realFS, widgetMode);
@@ -91,7 +91,7 @@ namespace TA3D
 	}
 
 
-	bool TDFParser::loadFromFile(const String& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
+	bool TDFParser::loadFromFile(const QString& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
 	{
 		File* file;
 		if (!realFS)
@@ -99,7 +99,7 @@ namespace TA3D
 			file = VFS::Instance()->readFile(filename);
 			if (file && file->size())
 			{
-				bool res = loadFromMemory(String("hpi://") << filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
+                bool res = loadFromMemory("hpi://" + filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
 				delete file;
 				return res;
 			}
@@ -127,7 +127,7 @@ namespace TA3D
 	}
 
 
-	bool TDFParser::loadFromMemory(const String& caption, const char* data, uint64 size, const bool clearTable,
+	bool TDFParser::loadFromMemory(const QString& caption, const char* data, uint64 size, const bool clearTable,
 								   const bool toUTF8, const bool gadgetMode, const bool widgetMode)
 	{
 		if (NULL == data || 0 == size)
@@ -202,21 +202,20 @@ namespace TA3D
 				stack.value.clear();
 				++p;
 				for (;p < end && *p != ']' ; ++p)
-					stack.value << *p;
+                    stack.value += *p;
 
 				if (pIgnoreCase)
-					stack.value.toLower();
+                    stack.value = stack.value.toLower();
 				stack.sections.push(stack.currentSection);
 
-				stack.value.replace("\\n", "\n");
-				stack.value.replace("\\r", "\r");
+                stack.value.replace("\n", "\\n");
+                stack.value.replace("\r", "\\r");
 
 				if (!stack.level)
 				{
 					if (stack.gadgetMode >= 0)
 					{
-						String gadgetKey("gadget");
-						gadgetKey += stack.gadgetMode;
+                        const QString &gadgetKey = QString("gadget%1").arg(stack.gadgetMode);
 						pTable[gadgetKey] = stack.value;
 						++stack.gadgetMode;
 						stack.value = gadgetKey;
@@ -227,15 +226,14 @@ namespace TA3D
 					stack.currentSection += '.';
 					if (widgetMode)
 					{
-						String widgetKey("widget");
-						widgetKey += stack.widgetMode.top();
+                        const QString &widgetKey = QString("widget%1").arg(stack.widgetMode.top());
 						pTable[widgetKey] = stack.value;
 						++stack.widgetMode.top();
 						stack.value = widgetKey;
 					}
 				}
 				stack.currentSection += stack.value;
-				if (stack.gadgetMode < 0 && !stack.currentSection.empty() && !exists(stack.currentSection))
+                if (stack.gadgetMode < 0 && !stack.currentSection.isEmpty() && !exists(stack.currentSection))
 					pTable[stack.currentSection] = stack.value;
 				++stack.level;
 				stack.widgetMode.push(0);
@@ -264,7 +262,7 @@ namespace TA3D
 				{
 					stack.key.clear();
 					for(; p < end && *p != '=' ; ++p)
-						stack.key << *p;
+                        stack.key += *p;
 					if (p >= end)
 						continue;
 					++p;
@@ -277,30 +275,29 @@ namespace TA3D
 					}
 					stack.value.clear();
 					for(; p < end && *p != ';' ; ++p)
-						stack.value << *p;
+                        stack.value += *p;
 
 					// Raise an error if there is text outside a block
-					if (stack.currentSection.empty())
+                    if (stack.currentSection.isEmpty())
 					{
 						LOG_WARNING(LOG_PREFIX_TDF << stack.caption << ":" << stack.line
 									<< " : The text is outside a section (ignored): " << stack.key);
 						continue;
 					}
 					// Do not store empty keys in the table
-					stack.key.trim();
-					if (!stack.key.empty())
+                    stack.key = stack.key.trimmed();
+                    if (!stack.key.isEmpty())
 					{
 						if (pIgnoreCase)
-							stack.key.toLower();
-						stack.value.trim();
-						stack.value.replace("\\n", "\n");
-						stack.value.replace("\\r", "\r");
+                            stack.key = stack.key.toLower();
+                        stack.value = stack.value.trimmed();
+                        stack.value.replace("\n", "\\n");
+                        stack.value.replace("\r", "\\r");
 
-						if (!special_section.empty() && (stack.currentSection.glob(String("*.") << special_section) || stack.currentSection == special_section))
-							pTable[stack.currentSection] = (pullAsString(stack.currentSection) << "," << stack.key);
+                        if (!special_section.isEmpty() && (QRegExp("*." + special_section, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(stack.currentSection) || stack.currentSection == special_section))
+                            pTable[stack.currentSection] = (pullAsString(stack.currentSection) + "," + stack.key);
 
-						String realKey(stack.currentSection);
-						realKey << "." << stack.key;
+                        const QString &realKey = stack.currentSection + "." + stack.key;
 						pTable[realKey] = stack.value;
 					}
 				}
@@ -311,62 +308,76 @@ namespace TA3D
 		return true;
 	}
 
-	void TDFParser::setSpecialSection(const String &section)
+	void TDFParser::setSpecialSection(const QString &section)
 	{
 		special_section = section;
 	}
 
-	float TDFParser::pullAsFloat(const String& key, const float def)
+	float TDFParser::pullAsFloat(const QString& key, const float def)
 	{
 		float f;
-		if (pIgnoreCase)
-		{
-			String keyToFind(key);
-			keyToFind.toLower();
-			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			if (entry == pTable.end() || entry->empty())
-				return def;
-			return entry->to<float>(f) ? f : def;
-		}
-		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		if (entry == pTable.end() || entry->empty())
-			return def;
-		return entry->to<float>(f) ? f : def;
+        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
+        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
+        if (entry == pTable.end() || entry->isEmpty())
+            return def;
+        bool ok;
+        f = entry->toFloat(&ok);
+        return ok ? f : def;
 
 	}
 
 
-	bool TDFParser::pullAsBool(const String& key, const bool def)
+	bool TDFParser::pullAsBool(const QString& key, const bool def)
 	{
-		if (pIgnoreCase)
-		{
-			String keyToFind(key);
-			keyToFind.toLower();
-			TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(keyToFind);
-			if (entry == pTable.end() || entry->empty())
-				return def;
-			return entry->to<bool>();
-		}
-		TA3D::UTILS::HashMap<String>::Dense::iterator entry = pTable.find(key);
-		if (entry == pTable.end() || entry->empty())
-			return def;
-		return entry->to<bool>();
+        QString keyToFind(pIgnoreCase ? key.toLower() : key);
+        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
+        if (entry == pTable.end() || entry->isEmpty())
+            return def;
+        return entry->toInt();
 
 	}
 
-	uint32 TDFParser::pullAsColor(const String& key, const uint32 def)
+	uint32 TDFParser::pullAsColor(const QString& key, const uint32 def)
 	{
-		const String& str = pullAsString(key);
-		String::Vector params;
-		str.explode(params, ',');
+        const QString& str = pullAsString(key);
+        QStringList params = str.split(',', QString::KeepEmptyParts);
 		if (params.size() < 3)
 			return def;
 		if (params.size() == 3)
-			return makeacol( params[0].to<uint32>(), params[1].to<uint32>(), params[2].to<uint32>(), 0xFF );
-		return makeacol( params[0].to<uint32>(), params[1].to<uint32>(), params[2].to<uint32>(), params[3].to<uint32>() );
+            return makeacol( params[0].toUInt(), params[1].toUInt(), params[2].toUInt(), 0xFF );
+        return makeacol( params[0].toUInt(), params[1].toUInt(), params[2].toUInt(), params[3].toUInt() );
 	}
 
 
+    sint32 TDFParser::pullAsInt(const QString &key, const sint32 def)
+    {
+        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
+        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
+        return (entry == pTable.end() || entry->isEmpty() ? def : entry->toInt());
+    }
+
+    sint32 TDFParser::pullAsInt(const QString& key)
+    {
+        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
+        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
+        return (entry == pTable.end() || entry->isEmpty() ? 0 : entry->toInt());
+    }
+
+
+    QString TDFParser::pullAsString(const QString& key, const QString& def)
+    {
+        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
+        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
+        return entry == pTable.end() ? def : entry.value();
+    }
+
+
+    QString TDFParser::pullAsString(const QString& key)
+    {
+        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
+        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
+        return entry == pTable.end() ? nullptr : entry.value();
+    }
 
 
 } // namespace TA3D

@@ -105,7 +105,7 @@ namespace TA3D
 		class Language
 		{
 		public:
-			typedef String::Vector Locales;
+            typedef QStringList Locales;
 
 		public:
 			//! \name Constructor & Destructor
@@ -116,7 +116,7 @@ namespace TA3D
 			** \param englishID Name of the language in english
 			** \param caption Name of the language
 			*/
-			Language(const int indx, const String& englishID, const String& caption);
+			Language(const int indx, const QString& englishID, const QString& caption);
 			//! Constructor by copy
 			Language(const Language& l);
 			//! Destructor
@@ -127,18 +127,18 @@ namespace TA3D
 			int index() const { return pIndx;}
 
 			//! Name of this language in english
-			const String& englishCaption() const { return pEnglishID; }
+			const QString& englishCaption() const { return pEnglishID; }
 
 			//! Caption of the language
-			const String& caption() const { return pCaption; }
+			const QString& caption() const { return pCaption; }
 
 		private:
 			//! The index for this language
 			int pIndx;
 			//! The english name
-			String pEnglishID;
+			QString pEnglishID;
 			//! The name translated into this language
-			String pCaption;
+			QString pCaption;
 
 		}; // class Language
 
@@ -169,9 +169,9 @@ namespace TA3D
 		** \param l name of the language
 		** \return True if language has been changed, false otherwise
 		**
-		** \see I18N::currentLanguage(const String&)
+		** \see I18N::currentLanguage(const QString&)
 		*/
-		static bool CurrentLanguage(const String& l);
+		static bool CurrentLanguage(const QString& l);
 
 		/*!
 		** \brief Try to find the language according the system settings
@@ -188,7 +188,7 @@ namespace TA3D
 		**
 		** \see I18N::loadFromFile()
 		*/
-		static bool LoadFromFile(const String& filename);
+		static bool LoadFromFile(const QString& filename);
 
 		/*!
 		** \brief Load translations from files within the resources folders (*.po)
@@ -210,19 +210,13 @@ namespace TA3D
 		**
 		** \see I18N::translate()
 		*/
-		static String Translate(const String& key, const String& defaultValue = nullptr);
+		static QString Translate(const QString& key, const QString& defaultValue = nullptr);
 
 		/*!
 		** \brief Translate a list of keywords
 		** \param[in,out] The list of keywords that will be translated
 		*/
-		static void Translate(String::Vector& out);
-
-		/*!
-		** \brief Translate a list of keywords
-		** \param[in,out] The list of keywords that will be translated
-		*/
-		static void Translate(String::List& out);
+        static void Translate(QStringList& out);
 
 
 	public:
@@ -235,14 +229,14 @@ namespace TA3D
 		** \param name Name of the language (can be the english version or the translated one)
 		** \return A pointer to the language that has been found, NULL otherwise
 		*/
-		Language* language(const String& name);
+		Language* language(const QString& name);
 
 		/*!
 		** \brief Try to find the more appropriated language according a given locale
 		** \param locale The locale
 		** \return The language that has been found, the default one otherwise (must never be null)
 		*/
-		const Language* languageFromLocal(const String& locale);
+		const Language* languageFromLocal(const QString& locale);
 
 		/*!
 		** \brief Get the default language
@@ -268,7 +262,7 @@ namespace TA3D
 		** \param name Name of the language (can be the english version or the translated one)
 		** \return True if language has been changed, false otherwise
 		*/
-		bool currentLanguage(const String& n);
+		bool currentLanguage(const QString& n);
 
 		/*!
 		** \brief Try to find out the language according the system settings
@@ -301,19 +295,13 @@ namespace TA3D
 		** \return The translation if the key exists, otherwise the default value is used.
 		** If the default value is empty, the content of the key is copied
 		*/
-		String translate(const String& key, const String& defaultValue = nullptr);
+		QString translate(const QString& key, const QString& defaultValue = nullptr);
 
 		/*!
 		** \brief Translate a list of keywords
 		** \param[in,out] The list of keywords that will be translated
 		*/
-		void translate(String::Vector& out);
-
-		/*!
-		** \brief Translate a list of keywords
-		** \param[in,out] The list of keywords that will be translated
-		*/
-		void translate(String::List& out);
+        void translate(QStringList& out);
 
 
 		/*!
@@ -324,7 +312,7 @@ namespace TA3D
 		** \param inASCII Must Convert character from ascii
 		** \return True if the operation succeeded, false otherwise
 		*/
-		bool loadFromFile(const String& filename, const bool emptyBefore = false, const bool inASCII = false);
+		bool loadFromFile(const QString& filename, const bool emptyBefore = false, const bool inASCII = false);
 
 
 		/*!
@@ -337,7 +325,7 @@ namespace TA3D
 
 
 		//! \see translate()
-		String operator [] (const String& key);
+		QString operator [] (const QString& key);
 
 	private:
 		/*!
@@ -353,7 +341,7 @@ namespace TA3D
 		/*!
 		** \brief Insert a new language in the list
 		*/
-		Language* addNewLanguageWL(const String& englishID, const String& translatedName);
+		Language* addNewLanguageWL(const QString& englishID, const QString& translatedName);
 
 
 	private:
@@ -374,7 +362,7 @@ namespace TA3D
 		//! The current language
 		Language* pCurrentLanguage;
 		//! The suffix to use to find the good language
-		String pLanguageSuffix;
+		QString pLanguageSuffix;
 
 		//! All translations
 		TDFParser pTranslations;

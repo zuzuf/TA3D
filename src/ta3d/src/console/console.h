@@ -71,7 +71,7 @@ namespace TA3D
         /*!
         ** \brief Add an entry in the console
         */
-        void addEntry(const String& newEntry);
+        void addEntry(const QString& newEntry);
 
         /*!
         ** \brief Draw the console
@@ -83,19 +83,19 @@ namespace TA3D
         */
 		void draw(TA3D::Font *fnt, const float dt, const bool forceShow = false);
 
-		String execute(const String &cmd);
+		QString execute(const QString &cmd);
 	private:
 		void registerConsoleAPI();
 		void runInitScript();
 
     private:
-		typedef std::deque<String> EntryList;
+		typedef std::deque<QString> EntryList;
         //! Mutex
         Mutex pMutex;
         //!
 		EntryList pLastEntries;
         //!
-        String::Vector pLastCommands;
+        QStringList pLastCommands;
         //!
         int pHistoryPos;
         //!
@@ -105,7 +105,7 @@ namespace TA3D
         //!
         bool pShow;
         //!
-        String pInputText;
+        QString pInputText;
         //!
 		uint32 cursorPos;
 

@@ -49,7 +49,7 @@ using namespace Yuni::Core::IO::File;
 #   define PREFIX "  --"
 # endif
 
-static String appName;
+static QString appName;
 
 void configWindow();
 
@@ -58,9 +58,9 @@ namespace TA3D
 
 
 
-	void install_TA_files( String HPI_file, String filename );
+	void install_TA_files( QString HPI_file, QString filename );
 
-	static bool hpiviewCmdHelp(String::Vector& /*args*/)
+	static bool hpiviewCmdHelp(QStringList& /*args*/)
 	{
 		std::cout << "Available commands :" << std::endl
 			<< PREFIX << "config         : failsafe config GUI" << std::endl
@@ -87,15 +87,15 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdShow(String::Vector &args)
+	static bool hpiviewCmdShow(QStringList &args)
 	{
 		if (args.size() >= 1 )
 		{
-			String::Vector file_list;
-			String ext = args[0];
+			QStringList file_list;
+			QString ext = args[0];
 			VFS::Instance()->getFilelist(ext, file_list);
 			sort(file_list.begin(), file_list.end());
-			for (String::Vector::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
+			for (QStringList::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
 				std::cout << *cur_file << std::endl;
 
 			args.erase(args.begin());
@@ -108,13 +108,13 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdListFiles(String::Vector &/*args*/)
+	static bool hpiviewCmdListFiles(QStringList &/*args*/)
 	{
-		String::Vector lArchives;
+		QStringList lArchives;
 
 		VFS::Instance()->getArchivelist(lArchives);
 		sort(lArchives.begin(), lArchives.end());
-		for (String::Vector::const_iterator it = lArchives.begin() ; it != lArchives.end() ; ++it)
+		for (QStringList::const_iterator it = lArchives.begin() ; it != lArchives.end() ; ++it)
 			std::cout << *it << std::endl;
 
 		return true;
@@ -123,7 +123,7 @@ namespace TA3D
 	/*!
 	 * \brief Extract a mini map from a .tnt file
 	 */
-	static bool hpiviewCmdMiniMap(String::Vector &args)
+	static bool hpiviewCmdMiniMap(QStringList &args)
 	{
 		if (args.size() >= 2)
 		{
@@ -152,7 +152,7 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdMapDescription(String::Vector &args)
+	static bool hpiviewCmdMapDescription(QStringList &args)
 	{
 		if (args.size() >= 2)
 		{
@@ -164,7 +164,7 @@ namespace TA3D
 			{
 				m_File << "[MAP]\n{\n";
 				m_File << " missionname=" << map_data.missionname << ";\n";
-				String tmp(map_data.missiondescription);
+				QString tmp(map_data.missiondescription);
 				tmp.replace("\n", "\\n");
 				m_File << " missiondescription=" << tmp << ";\n";
 				m_File << " planet=" << map_data.planet << ";\n";
@@ -194,7 +194,7 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdListMods(String::Vector &args)
+	static bool hpiviewCmdListMods(QStringList &args)
 	{
 		if (args.size() >= 1)
 		{
@@ -202,9 +202,9 @@ namespace TA3D
 
 			if (m_File.opened())
 			{
-				String::List modlist = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
+				QStringList modlist = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
 				modlist.sort();
-				for (String::List::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+				for (QStringList::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 				{
 					if (!(i->empty()) && ((*i)[0] != '.'))
 						m_File << *i << "\n";
@@ -223,7 +223,7 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdExtract(String::Vector &args)
+	static bool hpiviewCmdExtract(QStringList &args)
 	{
 		if (args.size() >= 1)
 		{
@@ -231,7 +231,7 @@ namespace TA3D
 
 			if (file)
 			{
-				String name = Paths::ExtractFileName(args[0]);
+				QString name = Paths::ExtractFileName(args[0]);
 				Stream dst(name, Yuni::Core::IO::OpenMode::write);
 				dst.write((const char*)file->data(), file->size());
 				dst.close();
@@ -248,16 +248,16 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdPrint(String::Vector &args)
+	static bool hpiviewCmdPrint(QStringList &args)
 	{
 		if (args.size() >= 1)
 		{
-			String::Vector file_list;
-			String ext = args[0];
+			QStringList file_list;
+			QString ext = args[0];
 			VFS::Instance()->getFilelist(ext, file_list);
 			sort(file_list.begin(), file_list.end());
 
-			for (String::Vector::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
+			for (QStringList::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
 			{
 				File* file = VFS::Instance()->readFile(*cur_file);
 				if (file)
@@ -279,7 +279,7 @@ namespace TA3D
 	/*!
 	 * \brief
 	 */
-	static bool hpiviewCmdInstallTAFiles(String::Vector &args)
+	static bool hpiviewCmdInstallTAFiles(QStringList &args)
 	{
 		if (args.size() >= 2)
 		{
@@ -296,7 +296,7 @@ namespace TA3D
 	/*!
 	 * \brief Extract images from a GAF file
 	 */
-	static bool hpiviewCmdExtractGAF(String::Vector &args)
+	static bool hpiviewCmdExtractGAF(QStringList &args)
 	{
 		if (args.size() >= 1)
 		{
@@ -324,7 +324,7 @@ namespace TA3D
 					m_File << "    name=" << anims[i].name << ";\n";
 					for (int e = 0; e < anims[i].nb_bmp; ++e)
 					{
-						String filename;
+						QString filename;
 						filename << anims[i].name;
 						if (e < 10)
 							filename << "000";
@@ -361,12 +361,12 @@ namespace TA3D
 	/*!
 	 * \brief Create a truecolor GAF from images
 	 */
-	static bool hpiviewCmdCreateGAF(String::Vector &args)
+	static bool hpiviewCmdCreateGAF(QStringList &args)
 	{
 		if (args.size() >= 1)
 		{
 			TDFParser parser( args[0], false, false, true, true );
-			String filename = parser.pullAsString( "gadget0.filename" );
+			QString filename = parser.pullAsString( "gadget0.filename" );
 			Stream gaf_file( Paths::ExtractFileName( filename ), Yuni::Core::IO::OpenMode::write );
 
 			LOG_DEBUG("opening '" << filename << "'");
@@ -395,10 +395,10 @@ namespace TA3D
 
 					Gaf::Entry Entry;
 
-					Entry.Frames = sint16(parser.pullAsInt( String("gadget") << (i + 1) << ".frames" ));
+					Entry.Frames = sint16(parser.pullAsInt( QString("gadget") << (i + 1) << ".frames" ));
 					Entry.Unknown1 = 1;
 					Entry.Unknown2 = 0;
-					Entry.name = parser.pullAsString( String("gadget") << (i + 1) << ".name" );
+					Entry.name = parser.pullAsString( QString("gadget") << (i + 1) << ".name" );
 
 					gaf_file.write( (const char*)&Entry.Frames, 2 );
 					gaf_file.write( (const char*)&Entry.Unknown1, 2 );
@@ -424,13 +424,13 @@ namespace TA3D
 						gaf_file.seekFromBeginning( pos );
 
 						Gaf::Frame::Data FrameData;
-						FrameData.XPos = sint16(parser.pullAsInt( String("gadget") << (i+1) << ".frame" << e << ".XPos" ) );
-						FrameData.YPos = sint16(parser.pullAsInt( String("gadget") << (i+1) << ".frame" << e << ".YPos" ) );
+						FrameData.XPos = sint16(parser.pullAsInt( QString("gadget") << (i+1) << ".frame" << e << ".XPos" ) );
+						FrameData.YPos = sint16(parser.pullAsInt( QString("gadget") << (i+1) << ".frame" << e << ".YPos" ) );
 						FrameData.FramePointers = 0;
 						FrameData.Unknown2 = 0;
 						FrameData.Compressed = 1;
 
-						SDL_Surface *frame_img = IMG_Load( parser.pullAsString( String("gadget") << (i + 1) << ".frame" << e << ".filename" ).c_str() );
+						SDL_Surface *frame_img = IMG_Load( parser.pullAsString( QString("gadget") << (i + 1) << ".frame" << e << ".filename" ).c_str() );
 						if (frame_img)
 						{
 							frame_img = convert_format(frame_img);
@@ -464,7 +464,7 @@ namespace TA3D
 						else
 						{
 							std::cerr << "Error: In frame " << e << ", could not load "
-								<< parser.pullAsString(String("gadget") << (i + 1) << ".frame" << e << ".filename" ) << std::endl;
+								<< parser.pullAsString(QString("gadget") << (i + 1) << ".frame" << e << ".filename" ) << std::endl;
 							i = header.Entries;
 							break;
 						}
@@ -484,13 +484,13 @@ namespace TA3D
 	/*!
 	 * \brief Create a truecolor build picture for the given unit with the given background
 	 */
-	static bool hpiviewCmdCreateBuildPic(String::Vector &args)
+	static bool hpiviewCmdCreateBuildPic(QStringList &args)
 	{
 		if (args.size() >= 2)
 		{
-			String modelname = args[0];
-			String filename = args[1];
-			String outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) << ".tga";
+			QString modelname = args[0];
+			QString filename = args[1];
+			QString outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) << ".tga";
 
 			// Starts a minimal TA3D environnement
 			InterfaceManager = new IInterfaceManager();
@@ -628,13 +628,13 @@ namespace TA3D
 			appName = argv[0];
 
 			// TODO Use a better implementation to parse arguments
-			String::Vector args;
+			QStringList args;
 			for (int i = 1 ; i < argc ; i++)
 				args.push_back(argv[i]);
 			bool ok = false;
 			while (!args.empty())
 			{
-				String act = args.front();
+				QString act = args.front();
 				args.erase(args.begin());
 				if (act == "help" || act == "--help" || act == "/help" || act == "-h" || act == "/?")
 					ok |= hpiviewCmdHelp(args);

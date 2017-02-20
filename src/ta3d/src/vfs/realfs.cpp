@@ -5,7 +5,7 @@
 #include <logs/logs.h>
 #include "realfs.h"
 #include "realfile.h"
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
 
 using namespace Yuni::Core::IO::File;
 
@@ -14,21 +14,21 @@ namespace TA3D
     namespace UTILS
     {
         //! Magic autoregistration
-        REGISTER_ARCHIVE_TYPE(RealFS);
+        REGISTER_ARCHIVE_TYPE(RealFS)
 
-        void RealFS::finder(String::List &fileList, const String &path)
+        void RealFS::finder(QStringList &fileList, const QString &path)
         {
             fileList.push_back(path);       // We consider a path to a directory as an archive of the real filesystem
         }
 
-        Archive* RealFS::loader(const String &filename)
+        Archive* RealFS::loader(const QString &filename)
         {
-            if (!filename.empty() && (filename.last() == '/' || filename.last() == '\\'))
+            if (!filename.isEmpty() && (filename.endsWith('/') || filename.endsWith('\\')))
                 return new RealFS(filename);
             return NULL;
         }
 
-        RealFS::RealFS(const String &filename)
+        RealFS::RealFS(const QString &filename)
         {
             open(filename);
         }
@@ -38,7 +38,7 @@ namespace TA3D
             close();
         }
 
-        void RealFS::open(const String& filename)
+        void RealFS::open(const QString& filename)
         {
             Archive::name = filename;
         }
@@ -58,15 +58,14 @@ namespace TA3D
         {
             if (files.empty())
             {
-                String root = name;
-                root.removeTrailingSlash();
-                String::List dirs;
+                QString root = name;
+                if (root.endsWith('/')) root.chop(1);
+                QStringList dirs;
                 dirs.push_back(root);
-                String::List fileList;
+                QStringList fileList;
                 while (!dirs.empty())
                 {
-					String current;
-					current << dirs.front() << Paths::Separator << "*";
+                    QString current = dirs.front() + Paths::Separator + "*";
                     dirs.pop_front();
 
                     Paths::GlobFiles(fileList, current, false, false);
@@ -74,32 +73,39 @@ namespace TA3D
                     Paths::GlobDirs(dirs, current, false, false);
                 }
 
-                for (String::List::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
+                for (QStringList::iterator i = fileList.begin() ; i != fileList.end() ; ++i)
                 {
 					if (i->size() <= root.size() + 1
-						|| i->last() == '~'
+                        || i->endsWith('~')
 						|| Paths::ExtractFileExt(*i).toLower() == ".bak")      // Don't take useless files into account
                         continue;
 					*i = Substr(*i, root.size() + 1);	// Remove root path + path separator since we don't need them in VFS name and we can add them when accessing the files
-					if (!i->empty())
+                    if (!i->isEmpty())
 					{
-						const String::size_type s = i->find_first_not_of("/\\");
-						if (s != String::npos)
+                        QString::size_type s = 0;
+                        while(s < i->size() && ((*i)[s] == '/' || (*i)[s] == '\\')) ++s;
+                        if (s == i->size())
+                            s = -1;
+						if (s != -1)
 							*i = Substr(*i, s);
 					}
 
-                    if (i->find("/.svn/") != String::npos
-                        || i->find("\\.svn\\") != String::npos
-						|| (i->size() >= 5 && Substr(*i, 0, 5) == ".svn/")
-						|| (i->size() >= 5 && Substr(*i, 0, 5) == ".svn\\")
-                        || i->find("cache") != String::npos)        // Don't include SVN and cache folders (they are huge and useless to us here)
+                    if (i->contains("/.svn/")
+                            || i->contains("\\.svn\\")
+                            || i->contains("\\.git\\")
+                            || i->contains("/.git/")
+                            || i->startsWith(".svn/")
+                            || i->startsWith(".svn\\")
+                            || i->startsWith(".git/")
+                            || i->startsWith(".git\\")
+                            || i->contains("cache"))        // Don't include SVN and cache folders (they are huge and useless to us here)
                         continue;
 
                     RealFile *file = new RealFile;
                     file->pathToFile = *i;      // Store full path here
                     // make VFS path
-                    i->convertSlashesIntoBackslashes();
-                    i->toLower();
+                    i->replace('\\','/');
+                    *i = i->toLower();
                     file->setName(*i);
                     file->setParent(this);
                     file->setPriority(0xFFFF);
@@ -113,9 +119,9 @@ namespace TA3D
 				lFiles.push_back(*i);
         }
 
-		File* RealFS::readFile(const String& filename)
+		File* RealFS::readFile(const QString& filename)
 		{
-			if (!files.empty())
+            if (!files.empty())
 			{
 				HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
 				if (file != files.end())
@@ -126,18 +132,19 @@ namespace TA3D
 
 		File* RealFS::readFile(const FileInfo *file)
 		{
-			String unixFilename = ((const RealFile*)file)->pathToFile;
-			unixFilename.convertBackslashesIntoSlashes();
+			QString unixFilename = ((const RealFile*)file)->pathToFile;
+            unixFilename.replace('\\', '/');
 
-			String root = name;
-			root.removeTrailingSlash();
+			QString root = name;
+            if (root.endsWith('/'))
+                root.chop(1);
 
-			unixFilename = String(root) << Paths::SeparatorAsString << unixFilename;
+            unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
 		}
 
-		File* RealFS::readFileRange(const String& filename, const uint32 start, const uint32 length)
+		File* RealFS::readFileRange(const QString& filename, const uint32 start, const uint32 length)
         {
 			HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
             if (file != files.end())
@@ -148,13 +155,14 @@ namespace TA3D
 
 		File* RealFS::readFileRange(const FileInfo *file, const uint32, const uint32)
         {
-            String unixFilename = ((const RealFile*)file)->pathToFile;
-            unixFilename.convertBackslashesIntoSlashes();
+            QString unixFilename = ((const RealFile*)file)->pathToFile;
+            unixFilename.replace('\\', '/');
 
-            String root = name;
-            root.removeTrailingSlash();
+            QString root = name;
+            if (root.endsWith('/'))
+                root.chop(1);
 
-			unixFilename = String(root) << Paths::SeparatorAsString << unixFilename;
+            unixFilename = root + Paths::SeparatorAsString + unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
         }

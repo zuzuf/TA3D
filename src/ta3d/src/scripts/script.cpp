@@ -849,7 +849,7 @@ namespace TA3D
 		lua_pop( L, 1 );
 
 		if (player_id >= 0 && player_id < NB_PLAYERS)
-			lua_pushstring( L, players.side[ player_id ].c_str() );
+            lua_pushstring( L, players.side[ player_id ].toStdString().c_str() );
 		else
 			lua_pushstring( L, "" );
 
@@ -1280,7 +1280,7 @@ namespace TA3D
 			{
 				if (ToLower(ta3dSideData.side_name[i]) == ToLower(players.side[ player_id ]) )
 				{
-					lua_pushstring(L, ta3dSideData.side_com[i].c_str() );
+                    lua_pushstring(L, ta3dSideData.side_com[i].toStdString().c_str() );
 					break;
 				}
 				else
@@ -1516,60 +1516,60 @@ namespace TA3D
 	}
 
 	// Create the script that will do what the mission description .ota file tells us to do
-	void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema)
+	void generate_script_from_mission( QString Filename, TDFParser& ota_parser, int schema)
 	{
-		Yuni::Core::IO::File::Stream m_File(Filename, Yuni::Core::IO::OpenMode::write);
+        QFile m_FileD(Filename);
+        m_FileD.open(QIODevice::Truncate | QIODevice::WriteOnly);
 
-		if (!m_File.opened())
+        if (!m_FileD.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_SCRIPT << "Could not open file `" << Filename << "` (" << __FILE__ << ", " <<  __LINE__);
 			return;
 		}
+        QTextStream m_File(&m_FileD);
 
 		m_File << "#include \"signals.lh\"\n";
 		m_File << "\nclf()\ninit_res()\n";
 		m_File << "set_cam_pos( 0, start_x( 0 ), start_z( 0 ) )\n";
 
 		int i = 0;
-		String unit_name;
+		QString unit_name;
 
-		while( !(unit_name = ota_parser.pullAsString( String("GlobalHeader.Schema ") << schema << ".units.unit" << i << ".Unitname")).empty())
+        while( !(unit_name = ota_parser.pullAsString( QString("GlobalHeader.Schema %1.units.unit%2.Unitname").arg(schema).arg(i))).isEmpty())
 		{
-			String unit_key = String("GlobalHeader.Schema ") << schema << ".units.unit" << i;
-			int player_id = ota_parser.pullAsInt( String(unit_key) << ".player" ) - 1;
-			float x = ota_parser.pullAsFloat( String(unit_key) << ".XPos" ) * 0.5f;
-			float z = ota_parser.pullAsFloat( String(unit_key) << ".ZPos" ) * 0.5f;
+            const QString &unit_key = QString("GlobalHeader.Schema %1.units.unit%2").arg(schema).arg(i);
+            int player_id = ota_parser.pullAsInt( unit_key + ".player" ) - 1;
+            float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 0.5f;
+            float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 0.5f;
 
-			m_File << String("\nunit_id = create_unit( ") << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
+            m_File << "\nunit_id = create_unit( " << player_id << ", \"" << unit_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 
-			const float health = ota_parser.pullAsFloat( String(unit_key) << ".HealthPercentage", -1.0f );
+            const float health = ota_parser.pullAsFloat( unit_key + ".HealthPercentage", -1.0f );
 			if (health != -1.0f)
-				m_File << String("set_unit_health( unit_id, ") << health << " )\n";
+                m_File << "set_unit_health( unit_id, " << health << " )\n";
 
-			const String Ident = ota_parser.pullAsString( String(unit_key) << ".Ident" );
-			if (!Ident.empty() )
+            const QString Ident = ota_parser.pullAsString( unit_key + ".Ident" );
+            if (!Ident.isEmpty() )
 				m_File << Ident << " = unit_id\n";		// Links the unit_id to the given name
 
 			m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
 
-			String::Vector orders;
-			ota_parser.pullAsString(String(unit_key) << ".InitialMission").explode(orders, ',');
+            QStringList orders = ota_parser.pullAsString(unit_key + ".InitialMission").split(',', QString::SkipEmptyParts);
 
 			bool selectable = false;
 			bool orders_given = false;
 
-			for (String::Vector::const_iterator e = orders.begin(); e != orders.end(); ++e)	// Converts InitialMission to a mission list
+			for (QStringList::const_iterator e = orders.begin(); e != orders.end(); ++e)	// Converts InitialMission to a mission list
 			{
-				String::Vector params;
-				e->explode(params, ' ');
+                QStringList params = e->split(' ', QString::SkipEmptyParts);
 				if (params.empty())
 					continue;
 
-				params[0].toLower();
+                params[0] = params[0].toLower();
 
 				if (params[0][0] == 'p' && params[0].size() > 1) // something like p3000 2000, convert it to p 3000 2000
 				{
-					params.resize( params.size() + 1 );
+                    params.push_back(QString());
 					for (int i = (int)params.size() - 1; i > 0; --i)
 						if (i == 1)
 						{
@@ -1584,9 +1584,9 @@ namespace TA3D
 				{
 					if (params.size() >= 3)
 					{
-						const float pos_x = params[ 1 ].to<float>() * 0.5f;
-						const float pos_z = params[ 2 ].to<float>() * 0.5f;
-						m_File << String("add_move_mission( unit_id, ") << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h() )\n";
+						const float pos_x = params[ 1 ].toFloat() * 0.5f;
+						const float pos_z = params[ 2 ].toFloat() * 0.5f;
+                        m_File << "add_move_mission( unit_id, " << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h() )\n";
 					}
 					orders_given = true;
 				}
@@ -1606,9 +1606,9 @@ namespace TA3D
 					}
 					else if (params.size() == 4)		// Mobile builders
 					{
-						float pos_x = params[ 2 ].to<float>() * 0.5f;
-						float pos_z = params[ 3 ].to<float>() * 0.5f;
-						m_File << "add_build_mission( unit_id, " << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h(), " << params[ 1 ] << " )\n";
+						float pos_x = params[ 2 ].toFloat() * 0.5f;
+						float pos_z = params[ 3 ].toFloat() * 0.5f;
+                        m_File << "add_build_mission( unit_id, " << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h(), " << params[1] << " )\n";
 					}
 					orders_given = true;
 				}
@@ -1619,8 +1619,8 @@ namespace TA3D
 					unsigned int e = 0;
 					while (params.size() >= 3 + e * 2)
 					{
-						float pos_x = params[ 2 * e + 1 ].to<float>() * 0.5f;
-						float pos_z = params[ 2 * e + 2 ].to<float>() * 0.5f;
+						float pos_x = params[ 2 * e + 1 ].toFloat() * 0.5f;
+						float pos_z = params[ 2 * e + 2 ].toFloat() * 0.5f;
 						m_File << "add_patrol_mission( unit_id, " << pos_x << " - 0.5 * map_w(), " << pos_z << " - 0.5 * map_h() )\n";
 						++e;
 					}
@@ -1630,7 +1630,7 @@ namespace TA3D
 				{
 					if (params.size() >= 2)
 					{
-						float time = params[ 1 ].to<float>();
+						float time = params[ 1 ].toFloat();
 						m_File << "add_wait_mission( unit_id, " << time << " )\n";
 					}
 					orders_given = true;
@@ -1665,13 +1665,13 @@ namespace TA3D
 		}
 
 		i = 0;
-		String feature_name;
+		QString feature_name;
 
-		while( !(feature_name = ota_parser.pullAsString( String("GlobalHeader.Schema ") << schema << ".features.feature" << i << ".Featurename")).empty())
+        while( !(feature_name = ota_parser.pullAsString( QString("GlobalHeader.Schema %1.features.feature%2.Featurename").arg(schema).arg(i))).isEmpty())
 		{
-			const String unit_key = String("GlobalHeader.Schema ") << schema << ".features.feature" << i;
-			const float x = ota_parser.pullAsFloat( String(unit_key) << ".XPos" ) * 16.0f;
-			const float z = ota_parser.pullAsFloat( String(unit_key) << ".ZPos" ) * 16.0f;
+            const QString &unit_key = QString("GlobalHeader.Schema %1.features.feature%2").arg(schema).arg(i);
+            const float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 16.0f;
+            const float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 16.0f;
 
 			m_File << "\ncreate_feature( \"" << feature_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
 			i++;
@@ -1697,21 +1697,19 @@ namespace TA3D
 		m_File << "	end\n";
 		m_File << "end\n";
 
-		if (!ota_parser.pullAsString("GlobalHeader.KillUnitType").empty())
+        if (!ota_parser.pullAsString("GlobalHeader.KillUnitType").isEmpty())
 		{
-			String::Vector params;
-			ota_parser.pullAsString("GlobalHeader.KillUnitType").explode(params, ',');
+            const QStringList &params = ota_parser.pullAsString("GlobalHeader.KillUnitType").split(',', QString::SkipEmptyParts);
 			if (params.size() >= 2)
 			{
-				m_File << "\nKillUnitType_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
+                m_File << "\nKillUnitType_nb = nb_unit_of_type( 1, \"" << params[0] << "\" )\n" ;
 				m_File << "local KilledUnitType = 0\n";
 			}
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.UnitTypeKilled" ).empty())
+        if (!ota_parser.pullAsString( "GlobalHeader.UnitTypeKilled" ).isEmpty())
 		{
-			String::Vector params;
-			ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").explode(params, ',');
+            const QStringList &params = ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").split(',', QString::SkipEmptyParts);
 			if (params.size() >= 2)
 			{
 				m_File << "\nUnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
@@ -1742,7 +1740,8 @@ namespace TA3D
 
 		// DEFEAT conditions
 
-		if (ota_parser.pullAsInt( "GlobalHeader.DeathTimerRunsOut" ) > 0 ) {
+        if (ota_parser.pullAsInt( "GlobalHeader.DeathTimerRunsOut" ) > 0 )
+        {
 			m_File << "	if time() >= " << ota_parser.pullAsString( "GlobalHeader.DeathTimerRunsOut" ) << " then\n";
 			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
 			m_File << "     local sw, sh = get_screen_size()\n";
@@ -1752,17 +1751,16 @@ namespace TA3D
 			m_File << "	end\n\n";
 		}
 
-		if (!ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").empty())
+        if (!ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").isEmpty())
 		{
-			String::Vector params;
-			ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").explode(params, ',');
+            const QStringList &params = ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").split(',', QString::SkipEmptyParts);
 			if (params.size() >= 2)
 			{
-				m_File << "	local new_UnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
+                m_File << "	local new_UnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[0] << "\" )\n";
 				m_File << "	if UnitTypeKilled_nb > new_UnitTypeKilled_nb then\n";
 				m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
 				m_File << "	end\n";
-				m_File << "	if UnitTypeKilled_count >= " << params[ 1 ] << " then\n";
+                m_File << "	if UnitTypeKilled_count >= " << params[1] << " then\n";
 				m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
 				m_File << "     local sw, sh = get_screen_size()\n";
 				m_File << "		w, h = w * 640 / sw, h * 480 / sh\n";
@@ -1784,8 +1782,9 @@ namespace TA3D
 			m_File << "	end\n\n";
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
-			String type = ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" );
+        if (!ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" ).isEmpty() )
+        {
+			QString type = ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" );
 			m_File << "	if not has_unit( 0, \"" << type << "\" ) and not has_unit( 1, \"" << type << "\" ) then\n";
 			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
 			m_File << "     local sw, sh = get_screen_size()\n";
@@ -1795,7 +1794,8 @@ namespace TA3D
 			m_File << "	end\n\n";
 		}
 
-		if (ota_parser.pullAsInt( "GlobalHeader.CommanderKilled" ) == 1 ) {
+        if (ota_parser.pullAsInt( "GlobalHeader.CommanderKilled" ) == 1 )
+        {
 			m_File << "	if not has_unit( 0, commander( 0 ) ) then\n";
 			m_File << "     local w, h = get_image_size( \"gfx/defeat.png\" )\n";
 			m_File << "     local sw, sh = get_screen_size()\n";
@@ -1831,27 +1831,25 @@ namespace TA3D
 			m_File << "	end\n";
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty()
-			|| !ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).empty()
-			|| !ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).empty()
-			|| !ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).empty() )
+        if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).isEmpty()
+            || !ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).isEmpty()
+            || !ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).isEmpty()
+            || !ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).isEmpty() )
 		{
 
-			if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).isEmpty() )
 				m_File << "	ZPass0 = 0.5 * ( " << ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ) << " - map_h() )\n";
-			if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).isEmpty() )
 			{
-				String::Vector params;
-				ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").explode(params, ',');
+                const QStringList &params = ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").split(',', QString::SkipEmptyParts);
 				if (params.size() == 2 )
-					m_File << "	ZPass1 = 0.5 * ( " << params[ 1 ] << " - map_h() )\n";
+                    m_File << "	ZPass1 = 0.5 * ( " << params[1] << " - map_h() )\n";
 			}
-			if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).isEmpty() )
 				m_File << "	XPass0 = 0.5 * ( " << ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ) << " - map_w() )\n";
-			if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).isEmpty() )
 			{
-				String::Vector params;
-				ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").explode(params, ',');
+                const QStringList &params = ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").split(',', QString::SkipEmptyParts);
 				if (params.size() == 2)
 					m_File << "	XPass1 = 0.5 * ( " << params[1] << " - map_w() )\n";
 			}
@@ -1860,17 +1858,16 @@ namespace TA3D
 			m_File << "		local z = unit_z( i )\n";
 			m_File << "		local x = unit_x( i )\n";
 			m_File << "		local unit_exist = ( get_unit_owner( i ) ~= -1 )\n";
-			if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).isEmpty() )
 			{
 				m_File << "		if exist[ i ] and unit_exist and (pos_z[ i ] - ZPass0) * (z - ZPass0) <= 0 and not AnyUnitPassesZ then\n";
 				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 				m_File << "			AnyUnitPassesZ = true\n";
 				m_File << "		end\n";
 			}
-			if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).isEmpty() )
 			{
-				String::Vector params;
-				ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").explode(params, ',');
+                const QStringList &params = ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").split(',', QString::SkipEmptyParts);
 				if (params.size() == 2)
 				{
 					m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
@@ -1879,17 +1876,16 @@ namespace TA3D
 					m_File << "		end\n";
 				}
 			}
-			if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).isEmpty() )
 			{
 				m_File << "		if exist[ i ] and unit_exist and (pos_x[ i ] - XPass0) * (x - XPass0) <= 0 and not AnyUnitPassesX then\n";
 				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 				m_File << "			AnyUnitPassesX = true\n";
 				m_File << "		end\n";
 			}
-			if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).empty() )
+            if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).isEmpty() )
 			{
-				String::Vector params;
-				ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").explode(params, ',');
+                const QStringList &params = ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").split(',', QString::SkipEmptyParts);
 				if (params.size() == 2)
 				{
 					m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (x - XPass1) <= 0 and not UnitTypePassesX then\n";
@@ -1908,7 +1904,7 @@ namespace TA3D
 			m_File << "	end\n";
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ).empty() )
+        if (!ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ).isEmpty() )
 		{
 			m_File << "	if has_unit( 0, \"" << ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ) << "\" ) and not BuildUnitType then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -1916,7 +1912,7 @@ namespace TA3D
 			m_File << "	end\n\n";
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ).empty() )
+        if (!ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ).isEmpty() )
 		{
 			m_File << "	if has_unit( 0, \"" << ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ) << "\" ) and not CaptureUnitType then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -1924,13 +1920,12 @@ namespace TA3D
 			m_File << "	end\n\n";
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.KillUnitType" ).empty() )
+        if (!ota_parser.pullAsString( "GlobalHeader.KillUnitType" ).isEmpty() )
 		{
-			String::Vector params;
-			ota_parser.pullAsString("GlobalHeader.KillUnitType").explode(params, ',');
+            const QStringList &params = ota_parser.pullAsString("GlobalHeader.KillUnitType").split(',', QString::SkipEmptyParts);
 			if (params.size() >= 2 )
 			{
-				m_File << "	new_KillUnitType_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
+                m_File << "	new_KillUnitType_nb = nb_unit_of_type( 1, \"" << params[0] << "\" )\n";
 				m_File << "	if KillUnitType_nb > new_KillUnitType_nb then\n";
 				m_File << "		KilledUnitType = KilledUnitType + KillUnitType_nb - new_KillUnitType_nb\n";
 				m_File << "	end\n";
@@ -1942,7 +1937,7 @@ namespace TA3D
 			}
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ).empty() )
+        if (!ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ).isEmpty() )
 		{
 			m_File << "	if not has_unit( 1, \"" << ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ) << "\" ) and not KillAllOfType then\n";
 			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -1966,19 +1961,18 @@ namespace TA3D
 			m_File << "	end\n\n";
 		}
 
-		if (!ota_parser.pullAsString( "GlobalHeader.MoveUnitToRadius" ).empty() )
+        if (!ota_parser.pullAsString( "GlobalHeader.MoveUnitToRadius" ).isEmpty() )
 		{
-			String::Vector params;
-			ota_parser.pullAsString("GlobalHeader.MoveUnitToRadius").explode(params, ',');
+            const QStringList &params = ota_parser.pullAsString("GlobalHeader.MoveUnitToRadius").split(',', QString::SkipEmptyParts);
 			m_File << "	for i = 0, get_max_unit_number() do\n";
-			if (ToLower(params[0]) == "anytype")
+            if (params[0].toLower() == "anytype")
 				m_File << "		if get_unit_owner( i ) == 0 then\n";
 			else
 				m_File << "		if get_unit_owner( i ) == 0 and is_unit_of_type( i, \"" << params[0] << "\" ) then\n";
 			m_File << "			local dx = unit_x( i ) + 0.5 * (map_w() - " << params[ 1 ] << " )\n";
 			m_File << "			local dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
 			m_File << "			local dist = dx * dx + dz * dz\n";
-			const float dist = (float)params[ 3 ].to<sint32>() * 0.5f;
+			const float dist = (float)params[ 3 ].toInt() * 0.5f;
 			m_File << "			if dist <= " << (dist * dist) << " then\n";
 			m_File << "				if not first_launch and not check[ i ] and not MoveUnitToRadius then\n";
 			m_File << "					victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -2012,7 +2006,8 @@ namespace TA3D
 		m_File << "end\n\n";
 
 		m_File.flush();
-		m_File.close();
+        m_FileD.flush();
+        m_FileD.close();
 
 		// Reset the VFS manager (because the VFS doesn't know what we have done)
 		VFS::Instance()->reload();

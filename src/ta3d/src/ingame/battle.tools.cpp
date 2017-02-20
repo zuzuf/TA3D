@@ -110,27 +110,25 @@ namespace TA3D
 
 		uint32 game_time = units.current_tick / TICKS_PER_SEC;
 
-		String tmp;
+		QString tmp;
 
         if (pArea.get_state("gamestatus"))                         // Don't update things if we don't display them
         {
             // Time
-			tmp << TranslationTable::gameTime << " : " << (game_time / 3600) << ':';
-			int minutes = ((game_time / 60) % 60);
-			tmp << (minutes < 10 ? String('0') : String()) << minutes << ':';
-			int seconds = (game_time % 60);
-			tmp << (seconds < 10 ? String('0') : String()) << seconds;
+            const int minutes = ((game_time / 60) % 60);
+            const int seconds = (game_time % 60);
+            tmp =  TranslationTable::gameTime + QString(" : %1:").arg(game_time / 3600);
+            tmp += (minutes < 10 ? QString('0') : QString()) + QString::number(minutes) + ':';
+            tmp += (seconds < 10 ? QString('0') : QString()) + QString::number(seconds);
             pArea.caption("gamestatus.time_label", tmp);
 
             // Units
-            tmp.clear();
-            tmp << TranslationTable::units << " : " << players.nb_unit[players.local_human_id] << '/' << MAX_UNIT_PER_PLAYER;
+            tmp = TranslationTable::units + " : " + QString::number(players.nb_unit[players.local_human_id]) + '/' + QString::number(MAX_UNIT_PER_PLAYER);
             pArea.caption("gamestatus.units_label", tmp);
 
             // Speed
-            tmp.clear();
-            tmp << TranslationTable::speed << " : " << (int)round(lp_CONFIG->timefactor) << '('
-                << (int)round(units.apparent_timefactor) << ')';
+            tmp = TranslationTable::speed + " : " + QString::number((int)round(lp_CONFIG->timefactor)) + '('
+                + QString::number((int)round(units.apparent_timefactor)) + ')';
             pArea.caption("gamestatus.speed_label", tmp);
         }
 
@@ -141,8 +139,7 @@ namespace TA3D
         if (pArea.get_state("playerstats"))                         // Don't update things if we don't display them
             for (unsigned int i = 0; i < players.count(); ++i)
             {
-                tmp.clear();
-				tmp << "playerstats.p" << i << "_box";
+                tmp = QString("playerstats.p%1_box").arg(i);
                 Gui::GUIOBJ::Ptr obj = pArea.get_object(tmp);
                 if (obj)
                 {
@@ -154,11 +151,11 @@ namespace TA3D
                 // Kills
                 tmp.clear();
                 tmp += players.kills[i];
-				pArea.caption(String("playerstats.p") << i << "_kills", tmp);
+                pArea.caption(QString("playerstats.p%1_kills").arg(i), tmp);
                 // Losses
                 tmp.clear();
                 tmp += players.losses[i];
-				pArea.caption(String("playerstats.p") << i << "_losses", tmp);
+                pArea.caption(QString("playerstats.p%1_losses").arg(i), tmp);
             }
 	}
 

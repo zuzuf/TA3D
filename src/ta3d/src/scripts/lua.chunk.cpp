@@ -48,10 +48,10 @@ namespace TA3D
 
     int LuaChunk::load(lua_State *L)
     {
-        return luaL_loadbuffer(L, (char*)buffer, size, name.c_str());
+        return luaL_loadbuffer(L, (char*)buffer, size, name.toStdString().c_str());
     }
 
-    void LuaChunk::dump(lua_State *L, const String &name)
+    void LuaChunk::dump(lua_State *L, const QString &name)
     {
         destroy();
         lua_dump(L, WriterFunc, (void*)this);
@@ -59,7 +59,7 @@ namespace TA3D
     }
 
 
-    void LuaChunk::load(const String &filename)                    // Load a lua chunk
+    void LuaChunk::load(const QString &filename)                    // Load a lua chunk
     {
         destroy();
 
@@ -74,7 +74,7 @@ namespace TA3D
         chunk->buffer = NULL;
     }
 
-    void LuaChunk::save(const String &filename)                    // Save the lua chunk
+    void LuaChunk::save(const QString &filename)                    // Save the lua chunk
     {
         if (buffer == NULL || size == 0)    return;
 
@@ -102,7 +102,7 @@ namespace TA3D
     }
 
 
-    int LuaChunk::identify(const String &name)
+    int LuaChunk::identify(const QString &name)
     {
         if (piece_name.empty())
         {
@@ -114,19 +114,20 @@ namespace TA3D
                 lua_getglobal(thread->L, "__piece_list");
                 if (lua_istable(thread->L, -1))
                 {
-                    piece_name.resize(lua_objlen(thread->L, -1));
-					for(uint32 i = 1 ; i <= piece_name.size() ; i++)
+                    const size_t nb_pieces = lua_objlen(thread->L, -1);
+                    piece_name.clear();
+                    piece_name.reserve(nb_pieces);
+                    for(size_t i = 1 ; i <= nb_pieces ; ++i)
                     {
                         lua_rawgeti(thread->L, -1, i);
-                        piece_name[i-1] = lua_tostring(thread->L, -1);
+                        piece_name.push_back(lua_tostring(thread->L, -1));
                         lua_pop(thread->L, 1);
                     }
                 }
             }
         }
 
-		String query(name);
-		query.toLower();
+        const QString query(name.toLower());
 		for (uint32 i = 0; i < piece_name.size(); ++i)
 		{
             if (piece_name[i] == query)

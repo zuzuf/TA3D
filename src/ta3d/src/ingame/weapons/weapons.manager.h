@@ -49,7 +49,7 @@ namespace TA3D
         ** \param name
         ** \return
         */
-        int add_weapon(const String &name);
+        int add_weapon(const QString &name);
 
         /*!
         ** \brief Load a TDF file
@@ -60,9 +60,9 @@ namespace TA3D
         ** \brief
         ** \param name
         */
-        int get_weapon_index(const String &name)
+        int get_weapon_index(const QString &name)
         {
-			return (name.empty() || nb_weapons <= 0) ? -1 : (weapon_hashtable[ToLower(name)] - 1);
+            return (name.isEmpty() || nb_weapons <= 0) ? -1 : (weapon_hashtable[name.toLower()] - 1);
         }
 
 

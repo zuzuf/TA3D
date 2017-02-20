@@ -62,9 +62,9 @@ namespace Settings
     ** \param filename File which must be copied
     ** \return True if the operation succeeded, false otherwise
     */
-    bool Backup(const String& filename);
+    bool Backup(const QString& filename);
 
-    bool Restore(const String& filename);
+    bool Restore(const QString& filename);
 
 
 

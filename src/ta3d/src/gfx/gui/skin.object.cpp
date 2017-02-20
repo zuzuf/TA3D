@@ -68,17 +68,17 @@ namespace Gui
 
 
 
-	void SKIN_OBJECT::load(TDFParser& parser, const String& prefix, float borderSize)
+	void SKIN_OBJECT::load(TDFParser& parser, const QString& prefix, float borderSize)
 	{
-		const String filename = parser.pullAsString(String(prefix) << "image");
+        const QString filename = parser.pullAsString(prefix + "image");
 		if (VFS::Instance()->fileExists(filename))
 		{
 			tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
 
-			x1 = (float)parser.pullAsInt(String(prefix) << "x1");
-			y1 = (float)parser.pullAsInt(String(prefix) << "y1");
-			x2 = (float)parser.pullAsInt(String(prefix) << "x2");
-			y2 = (float)parser.pullAsInt(String(prefix) << "y2");
+            x1 = (float)parser.pullAsInt(prefix + "x1");
+            y1 = (float)parser.pullAsInt(prefix + "y1");
+            x2 = (float)parser.pullAsInt(prefix + "x2");
+            y2 = (float)parser.pullAsInt(prefix + "y2");
 
 			t_x1 = w ? ((float)x1) / (float)w : 0.0f;
 			t_x2 = w ? ((float)x2) / (float)w : 0.0f;
@@ -88,7 +88,7 @@ namespace Gui
 			x2 -= (float)w;
 			y2 -= (float)h;
 
-			borderSize *= parser.pullAsFloat(String(prefix) << "scale", 1.0f);		// Allow scaling the widgets
+            borderSize *= parser.pullAsFloat(prefix + "scale", 1.0f);		// Allow scaling the widgets
 
 			x1 *= borderSize;
 			y1 *= borderSize;

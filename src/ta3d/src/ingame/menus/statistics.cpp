@@ -46,9 +46,9 @@ namespace Menus
 	{}
 
 
-	void Statistics::doUpdateObject(const String& id, const short indx, const uint32 color, const String& value)
+	void Statistics::doUpdateObject(const QString& id, const short indx, const uint32 color, const QString& value)
 	{
-		String nameID("statistics.");
+		QString nameID("statistics.");
 		nameID << id << indx;
 		pArea->caption(nameID, value);
 		Gui::GUIOBJ::Ptr o = pArea->get_object(nameID);
@@ -70,12 +70,12 @@ namespace Menus
 										   player_color[3 * player_color_map[i] + 1],
 										   player_color[3 * player_color_map[i] + 2]);
 
-			doUpdateObject("player", i, color, players.nom[i]);
+			doUpdateObject("player", i, color, players.name[i]);
 			doUpdateObject("side",   i, color, players.side[i]);
-            doUpdateObject("losses", i, color, String(players.losses[i]));
-            doUpdateObject("kills",  i, color, String(players.kills[i]));
-            doUpdateObject("energy", i, color, String((int)players.energy_total[i]));
-            doUpdateObject("metal",  i, color, String((int)players.metal_total[i]));
+            doUpdateObject("losses", i, color, QString(players.losses[i]));
+            doUpdateObject("kills",  i, color, QString(players.kills[i]));
+            doUpdateObject("energy", i, color, QString((int)players.energy_total[i]));
+            doUpdateObject("metal",  i, color, QString((int)players.metal_total[i]));
 		}
 		return true;
 	}

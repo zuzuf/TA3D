@@ -103,7 +103,7 @@ namespace TA3D
 			return k + n;
 		}
 
-		bool VirtualFile::readLine(String &line)
+		bool VirtualFile::readLine(QString &line)
 		{
 			if (pos == streamSize)
 				return false;
@@ -117,7 +117,7 @@ namespace TA3D
 
 			char *end = (char*)buffer + offset + bufferSize;
 			for(char *p = (char*)buffer + pos ; p != end && *p != 0 && *p != 13 && *p != 10 ; ++pos, ++p)
-				line << *p;
+                line += *p;
 
 			return true;
 		}
@@ -143,9 +143,9 @@ namespace TA3D
 			return false;
 		}
 
-		const String &VirtualFile::getRealFilename() const
+		const QString &VirtualFile::getRealFilename() const
 		{
-			static String empty;
+			static QString empty;
 			return empty;
 		}
 	}

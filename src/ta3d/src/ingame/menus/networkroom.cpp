@@ -31,16 +31,16 @@ using namespace TA3D::VARS;
 
 namespace TA3D
 {
-	static inline String FixBlank(const String& s)
+	static inline QString FixBlank(const QString& s)
 	{
-		String t(s);
+		QString t(s);
 		t.replace(' ', char(1));
 		return t;
 	}
 
-	static inline String UnfixBlank(const String& s)
+	static inline QString UnfixBlank(const QString& s)
 	{
-		String t(s);
+		QString t(s);
 		t.replace(char(1), ' ');
 		return t;
 	}
@@ -123,22 +123,22 @@ namespace Menus
 	{
 		if (network_manager.BroadcastedMessages())
 		{
-			String msg = network_manager.getNextBroadcastedMessage();
+			QString msg = network_manager.getNextBroadcastedMessage();
 			while (!msg.empty())
 			{
-				String::Vector params;
+				QStringList params;
 				msg.explode(params, ' ', true, false, true);
 				if (params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER") // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
 				{
-					String name = UnfixBlank(params[2]);
-					String mod = UnfixBlank(params[3]);
+					QString name = UnfixBlank(params[2]);
+					QString mod = UnfixBlank(params[3]);
 					if (mod == ".")
 						mod.clear();
-					String version = UnfixBlank(params[4]);
-					String host_address = network_manager.getLastMessageAddress();
-					int nb_open = params[5].to<sint32>();
+					QString version = UnfixBlank(params[4]);
+					QString host_address = network_manager.getLastMessageAddress();
+					int nb_open = params[5].toInt();
 
-					if (Substr(version, 0, 3) == Substr(TA3D_ENGINE_VERSION, 0, 3) && version.size() == String(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
+					if (Substr(version, 0, 3) == Substr(TA3D_ENGINE_VERSION, 0, 3) && version.size() == QString(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
 					{
 						bool updated = false;
 						for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )       // Update the list
@@ -180,13 +180,13 @@ namespace Menus
 			if (obj)
 			{
 				obj->Text.resize( servers.size());
-				String::List server_names;
+				QStringList server_names;
 				for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )       // Remove those who timeout
 					server_names.push_back( server_i->name);
 				server_names.sort();
 				int i = 0;
 				// Remove those who timeout
-				for (String::List::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i)
+				for (QStringList::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i)
 					obj->Text[i] = *server_i;
 				if (obj->Text.size() == 0 )
 					obj->Text.push_back(I18N::Translate("No server found"));
@@ -214,12 +214,12 @@ namespace Menus
 			if (obj)
 			{
 				obj->Text.resize(servers.size());
-				String::List server_names;
+				QStringList server_names;
 				for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )       // Remove those who timeout
 					server_names.push_back( server_i->name);
 				server_names.sort();
 				int i = 0;
-				for (String::List::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i) // Remove those who timeout
+				for (QStringList::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i) // Remove those who timeout
 					obj->Text[i] = *server_i;
 				if (obj->Text.size() == 0)
 					obj->Text.push_back(I18N::Translate("No server found"));
@@ -235,12 +235,12 @@ namespace Menus
 			Gui::GUIOBJ::Ptr obj = pArea->get_object("load_menu.l_file");
 			if (obj)
 			{
-				String::List fileList;
-				Paths::Glob(fileList, String(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << "*.sav");
+				QStringList fileList;
+				Paths::Glob(fileList, QString(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << "*.sav");
 				fileList.sort();
 				obj->Text.clear();
 				obj->Text.reserve(fileList.size());
-				for (String::List::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
+				for (QStringList::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
 				{
 					// Remove the Savegames path, leaving just the bare file names
 					obj->Text.push_back(Paths::ExtractFileName(*i));
@@ -258,8 +258,8 @@ namespace Menus
 			if (obj && obj->Pos < obj->Text.size())
 			{
 				GameData game_data;
-				String host = obj->Text[obj->Pos];
-				bool network = load_game_data(String(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << obj->Text[obj->Pos], &game_data);
+				QString host = obj->Text[obj->Pos];
+				bool network = load_game_data(QString(TA3D::Paths::Savegames) << "multiplayer" << Paths::Separator << obj->Text[obj->Pos], &game_data);
 
 				if (!game_data.saved_file.empty() && network)
 				{
@@ -286,7 +286,7 @@ namespace Menus
 			}
 			clear_keybuf();
 			network_manager.Disconnect();
-			String host = pArea->caption( "hosting.t_hostname");
+			QString host = pArea->caption( "hosting.t_hostname");
 
 			SetupGame::Execute(false, host);   // Host a game
 			return true;
@@ -332,7 +332,7 @@ namespace Menus
 		if (pArea->get_object("networkgame.server_list"))
 		{
 			Gui::GUIOBJ::Ptr obj = pArea->get_object("networkgame.server_list");
-			sel_index = (obj->Pos < obj->Text.size()) ? obj->Text[ obj->Pos ] : String("");
+			sel_index = (obj->Pos < obj->Text.size()) ? obj->Text[ obj->Pos ] : QString("");
 
 			if (sel_index != o_sel) // Update displayed server info
 			{
@@ -345,7 +345,7 @@ namespace Menus
 				{
 					pArea->caption("networkgame.server_name", i_server->name);
 					pArea->caption("networkgame.host", i_server->host);
-					pArea->caption("networkgame.open_slots", String() << i_server->nb_open );
+					pArea->caption("networkgame.open_slots", QString() << i_server->nb_open );
 				}
 			}
 		}

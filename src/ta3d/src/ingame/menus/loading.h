@@ -57,7 +57,7 @@ namespace Menus
 		**
 		** This method must be called from the main thread.
 		*/
-		virtual void operator()(const float percent, const String &message);
+		virtual void operator()(const float percent, const QString &message);
 		//@}
 
 	private:
@@ -82,9 +82,9 @@ namespace Menus
 		//! The last percent value
 		float pLastPercent;
 		//! The last caption
-		String pLastCaption;
+		QString pLastCaption;
 		//! All messages
-		String::List pMessages;
+		QStringList pMessages;
 
 		//! The background texture
 		GLuint pBackgroundTexture;

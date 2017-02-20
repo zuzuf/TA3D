@@ -345,7 +345,7 @@ namespace TA3D
 	int unit_set_script_value( lua_State *L )       // set_script_value(unitID, script_name, value)
 	{
 		Unit *pUnit = lua_currentUnit(L, 1);
-		const String scriptName = lua_isstring(L, 2) ? String(lua_tostring(L, 2)) : nullptr;
+		const QString scriptName = lua_isstring(L, 2) ? QString(lua_tostring(L, 2)) : nullptr;
 		const int value = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : (int)lua_tointeger(L, 3);
 		lua_settop(L, 0);
 		if (pUnit && pUnit->script)
@@ -410,7 +410,7 @@ namespace TA3D
 			{
 				L = luaVM();
 				lua_getglobal(L, "cloneUnitScript");
-				lua_pushstring(L, name.c_str());
+                lua_pushstring(L, name.toStdString().c_str());
 				lua_pushinteger(L, unitID);
 				lua_call(L, 2, 0);
 				lua_settop(L, 0);
@@ -473,7 +473,7 @@ namespace TA3D
 		L = NULL;
 	}
 
-	void UnitScript::load(const String &filename)					// Load a lua script
+	void UnitScript::load(const QString &filename)					// Load a lua script
 	{
 		uint32 filesize = 0;
 		byte *buffer = loadLuaFile(filename , filesize);
@@ -507,7 +507,7 @@ namespace TA3D
 			DELETE_ARRAY(header_buffer);
 			DELETE_ARRAY(tmp);
 
-			if (luaL_loadbuffer(L, (const char*)buffer, filesize, filename.c_str() ))
+            if (luaL_loadbuffer(L, (const char*)buffer, filesize, filename.toStdString().c_str() ))
 			{
 				if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				{
@@ -621,7 +621,7 @@ namespace TA3D
 	}
 
 	//! functions used to call/run Lua functions
-	void UnitScript::call(const String &functionName, int *parameters, int nb_params)
+	void UnitScript::call(const QString &functionName, int *parameters, int nb_params)
 	{
 		if (running)    return;     // We cannot run several functions at the same time on the same stack
 
@@ -632,7 +632,7 @@ namespace TA3D
 		{
 			lua_settop(L, 0);
 			lua_getUnitTable();
-			lua_getfield( L, -1, functionName.c_str() );
+            lua_getfield( L, -1, functionName.toStdString().c_str() );
 			lua_remove(L, -2);
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
@@ -657,14 +657,14 @@ namespace TA3D
 		}
 	}
 
-	int UnitScript::execute(const String &functionName, int *parameters, int nb_params)
+	int UnitScript::execute(const QString &functionName, int *parameters, int nb_params)
 	{
 		MutexLocker mLock(mLuaVM);
 		try
 		{
 			lua_settop(L, 0);
 			lua_getUnitTable();
-			lua_getfield( L, -1, functionName.c_str() );
+            lua_getfield( L, -1, functionName.toStdString().c_str() );
 			lua_remove(L, -2);
 			if (lua_isnil( L, -1 ))     // Function not found
 			{
@@ -797,7 +797,7 @@ namespace TA3D
 		return newThread;
 	}
 
-	UnitScript *UnitScript::fork(const String &functionName, int *parameters, int nb_params)
+	UnitScript *UnitScript::fork(const QString &functionName, int *parameters, int nb_params)
 	{
 		UnitScript *newThread = fork();
 		if (newThread)
@@ -909,7 +909,7 @@ namespace TA3D
 				return;
 			}
 
-			String data;
+			QString data;
 			if (lua_gettop(L) > 0)
 			{
 				data = lua_tostring(L,-1) ? lua_tostring(L,-1) : "";    // Read the result
@@ -917,7 +917,7 @@ namespace TA3D
 			}
 			int size = data.size();
 			gzwrite(file, &size, sizeof(size));
-			gzwrite(file, (void*)data.c_str(), size);
+            gzwrite(file, (void*)data.toStdString().c_str(), size);
 		}
 	}
 

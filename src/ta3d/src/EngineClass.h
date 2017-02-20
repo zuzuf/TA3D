@@ -100,13 +100,13 @@ namespace TA3D
 		void destroy();
 
 		void load(File *data);
-		void load(const String& filename);
+		void load(const QString& filename);
 
 	public:
-		String  missionname;
-		String  planet;
-		String  missiondescription;
-		String  glamour;
+		QString  missionname;
+		QString  planet;
+		QString  missiondescription;
+		QString  glamour;
 		int     tidalstrength;
 		int     solarstrength;
 		bool    lavaworld;
@@ -114,8 +114,8 @@ namespace TA3D
 		int     minwindspeed;
 		int     maxwindspeed;
 		float   gravity;
-		String  numplayers;
-		String  map_size;
+		QString  numplayers;
+		QString  map_size;
 		int     SurfaceMetal;
 		int	    MohoMetal;
 		int     startX[TA3D_PLAYERS_HARD_LIMIT];
@@ -240,7 +240,7 @@ namespace TA3D
 
 		void clear_FOW( sint8 FOW_flags = -1 );
 
-		void load_details_texture( const String &filename );
+		void load_details_texture( const QString &filename );
 
 		void init();
 
@@ -274,8 +274,8 @@ namespace TA3D
 
 		inline float get_nh(const int x, const int y) const;
 
-		void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open = false);
-		void obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap = String(),bool open = false);
+		void rect(int x1,int y1,int w,int h,int c,const QString &yardmap = QString(),bool open = false);
+		void obstaclesRect(int x1,int y1,int w,int h, bool b,const QString &yardmap = QString(),bool open = false);
 
 		bool check_rect(int x1,int y1,int w,int h, const int c) const;
 
@@ -287,7 +287,7 @@ namespace TA3D
 
 		float check_min_depth(int x1,int y1,int w,int h) const;
 
-		bool check_vents(int x1,int y1,int w,int h,const String &yard_map) const;
+		bool check_vents(int x1,int y1,int w,int h,const QString &yard_map) const;
 
 		bool check_lava(int x1,int y1,int w,int h) const;
 

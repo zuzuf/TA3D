@@ -62,7 +62,7 @@ namespace TA3D
 
 		TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
 
-		String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
+		QString current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
 		VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
 		VARS::lp_CONFIG->serializedGameData = parser.pullAsString( "TA3D.Game Data", TA3D::VARS::lp_CONFIG->serializedGameData );
@@ -83,17 +83,17 @@ namespace TA3D
 		{
 			if (parser.pullAsBool("TA3D.Server")) // Server code
 			{
-				const String& host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
+				const QString& host_name = parser.pullAsString("TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name);
 				Menus::SetupGame::Execute(false, host_name);		// Start the game in networking mode as server
 			}
 			else // Client code
 			{
-				const String& host_name = parser.pullAsString("TA3D.Server name");
+				const QString& host_name = parser.pullAsString("TA3D.Server name");
 				Menus::SetupGame::Execute(true, host_name);		// Start the game in networking mode as server
 			}
 		}
 		else if (parser.pullAsBool("TA3D.Local game"))
-			Menus::SetupGame::Execute(false, String(), String(), false, parser.pullAsBool("TA3D.Instant start"));		// Start the game in local mode
+			Menus::SetupGame::Execute(false, QString(), QString(), false, parser.pullAsBool("TA3D.Instant start"));		// Start the game in local mode
 
 		TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
 
@@ -142,8 +142,8 @@ static int ParseCommandLine(int argc, char *argv[])
 
 	if (argc > 1)
 	{
-		// Argument converted to a String
-		String arg;
+		// Argument converted to a QString
+		QString arg;
 
 		for (int i = 1 ; i < argc ; ++i)
 		{
@@ -253,14 +253,14 @@ int main(int argc, char **argv)
 		criticalMessage(msg);
 		return 1;
 	}
-	catch(const String &msg)
+	catch(const QString &msg)
 	{
 		criticalMessage(msg);
 		return 1;
 	}
 	catch(const std::exception &e)
 	{
-		criticalMessage(String("Uncaught exception: ") << e.what());
+		criticalMessage(QString("Uncaught exception: ") << e.what());
 		return 1;
 	}
 

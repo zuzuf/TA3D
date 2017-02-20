@@ -183,7 +183,7 @@ namespace TA3D
     protected:
         short       nb_vtx;				// Nombre de points
         short       nb_prim;			// Nombre de primitives
-        String      name;				// Nom de l'objet / Object name
+        QString      name;				// Nom de l'objet / Object name
 		Ptr			next;				// Objet suivant / Next object
 		Ptr			child;				// Objet fils / Child object
         Vector3D    *points;			// Points composant l'objet / Vertices
@@ -198,7 +198,7 @@ namespace TA3D
         Vector3D    *N;					// Tableau de normales pour les sommet
         Vector3D    *F_N;				// face normals
         std::vector<GLuint> gltex;      // Texture pour le dessin de l'objet
-        String::Vector  tex_cache_name; // Used for on-the-fly loading
+        QStringList tex_cache_name; // Used for on-the-fly loading
         float       *tcoord;			// Tableau de coordonnées de texture
         GLushort    sel[4];				// Primitive de sélection
 		sint32      script_index;		// Indice donné par le script associé à l'unité
@@ -411,7 +411,7 @@ namespace TA3D
         void init();
         void destroy();
 
-		Model *get_model(const String& name);
+		Model *get_model(const QString& name);
 
         /*!
         ** \brief
@@ -426,12 +426,12 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void create_from_2d(SDL_Surface *bmp, float w, float h, float max_h, const String& filename);
+        void create_from_2d(SDL_Surface *bmp, float w, float h, float max_h, const QString& filename);
 
     public:
-        int	 nb_models;     // Nombre de modèles
-		std::vector<Model*> model;       // Tableau de modèles
-        String::Vector	name; // Tableau contenant les noms des modèles
+        int	 nb_models;     // Number of models
+        std::vector<Model*> model;       // Model array
+        QStringList name; // Array containing model names
 
     private:
         //! hashtable used to speed up operations on MODEL objects
@@ -446,15 +446,15 @@ namespace TA3D
 	{
 		friend class ModelManager;
 	public:
-		typedef Model* (*MeshLoader)(const String &filename);
+		typedef Model* (*MeshLoader)(const QString &filename);
 	private:
 		static std::vector<MeshLoader> *lMeshLoader;
-		static String::Vector *lMeshExtension;
+        static QStringList *lMeshExtension;
 	public:
 		static void registerMeshLoader(MeshLoader loader);
-		static void registerMeshExtension(const String &ext);
-		static Model *load(const String &filename);
-		static void getMeshList(String::Vector &filelist);
+		static void registerMeshExtension(const QString &ext);
+		static Model *load(const QString &filename);
+        static void getMeshList(QStringList &filelist);
 	}; // class Archive
 
 	//! A simple macro to auto register Mesh classes functionnalities :) (you don't even need to include the headers \o/)

@@ -1171,7 +1171,7 @@ namespace TA3D
 		}
 
 		vflip_bitmap(poster);
-		save_TGA(String(TA3D::Paths::Screenshots) << "poster.tga", poster);
+        save_TGA(TA3D::Paths::Screenshots + "poster.tga", poster);
 
 		SDL_FreeSurface(buf);
 		SDL_FreeSurface(poster);

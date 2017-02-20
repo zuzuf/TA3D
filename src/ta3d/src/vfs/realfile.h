@@ -35,7 +35,7 @@ namespace TA3D
 		{
 		public:
 			RealFile();
-			RealFile(const String &filename);
+			RealFile(const QString &filename);
 
 			//! This is an abstract class, its destructor must be virtual
 			virtual ~RealFile();
@@ -51,7 +51,7 @@ namespace TA3D
 			//! Set absolute position in file
 			virtual void seek(int pos);
 			//! Read a single line from the file, returns true while end of file has not been reached
-			virtual bool readLine(String &line);
+			virtual bool readLine(QString &line);
 			//! Returns true if the file is opened
 			virtual bool isOpen();
 			//! Returns a pointer to a memory buffer containing the file
@@ -61,9 +61,9 @@ namespace TA3D
 			//! Tell if this is a real file (useful for use with external libraries)
 			virtual bool isReal() const;
 			//! Returns the real filename (if it's a real file)
-			virtual const String &getRealFilename() const;
+			virtual const QString &getRealFilename() const;
 
-			void open(const String &filename);
+			void open(const QString &filename);
 
 		private:
 			virtual File &operator=(const File &) {return *this;}
@@ -71,7 +71,7 @@ namespace TA3D
 		private:
 			Yuni::Core::IO::File::Stream	sFile;
 			char *buffer;
-			String realFilename;
+			QString realFilename;
 		};
 	}
 }

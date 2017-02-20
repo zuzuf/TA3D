@@ -79,7 +79,7 @@ namespace TA3D
 		}
 
 
-		SDL_Surface *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
+        SDL_Surface *load_tnt_minimap_fast_raw_bmp(const QString& filename, int& sw, int& sh)
 		{
 			File *headerBytes = VFS::Instance()->readFileRange(filename, 0, sizeof(TNTHEADER));
 			if (headerBytes == NULL)
@@ -147,7 +147,7 @@ namespace TA3D
 		for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
 		{
 			file->seek(header.PTRtileanim + 4 + (i * 132));
-			String fname = file->getString();
+            QString fname = file->getString();
 			TDF_index[i] = feature_manager.get_feature_index(fname);
 			if (TDF_index[i] == -1)
 				LOG_ERROR("tdf not found: " << fname);
@@ -709,7 +709,7 @@ namespace TA3D
 		return texture;
 	}
 
-	GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    GLuint load_tnt_minimap_fast(const QString& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 	{
 		SDL_Surface *bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
@@ -726,7 +726,7 @@ namespace TA3D
 		return texture;
 	}
 
-	SDL_Surface *load_tnt_minimap_fast_bmp(const String& filename)		// Load a minimap into a SDL_Surface* structure from a HPI/UFO archive
+    SDL_Surface *load_tnt_minimap_fast_bmp(const QString& filename)		// Load a minimap into a SDL_Surface* structure from a HPI/UFO archive
 	{
 		int sw, sh;
 		SDL_Surface *fullsize = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);

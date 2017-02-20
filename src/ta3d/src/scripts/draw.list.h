@@ -49,7 +49,7 @@ namespace TA3D
         float   x[4];
         float   y[4];
         float   r[2],g[2],b[2];
-        String  text;
+        QString  text;
         GLuint  tex;
     };
 

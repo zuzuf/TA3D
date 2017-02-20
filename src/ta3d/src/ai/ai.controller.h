@@ -65,7 +65,7 @@ namespace TA3D
 	public:
         typedef zuzuf::smartptr<AiController>	Ptr;
     private:
-        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant Ã  l'IA (faut sauvegarder les cervelles)
+        QString			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant a l'IA (faut sauvegarder les cervelles)
         int			    playerID;		// Identifiant du joueur / all is in the name :)
 		uint32			unit_id;		// Unit index to run throught the unit array
 		uint32			total_unit;
@@ -105,7 +105,7 @@ namespace TA3D
 
         void monitor();
 
-        void changeName(const String& newName);		// Change AI's name (-> creates a new file)
+        void changeName(const QString& newName);		// Change AI's name (-> creates a new file)
         void setPlayerID(int id);
         int getPlayerID();
 
@@ -113,7 +113,7 @@ namespace TA3D
         int getType();
 
         void save();
-        void loadAI(const String& filename, const int id = 0);
+        void loadAI(const QString& filename, const int id = 0);
 
     private:
         void scan_unit();

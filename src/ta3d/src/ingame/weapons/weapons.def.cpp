@@ -136,7 +136,7 @@ namespace TA3D
     }
 
 
-	uint32 WeaponDef::get_damage_for_unit(const String& uname) const
+	uint32 WeaponDef::get_damage_for_unit(const QString& uname) const
     {
 		HashMap<int>::Dense::const_iterator it = damage_hashtable.find(ToLower(uname));
 		if (it != damage_hashtable.end())
@@ -144,7 +144,7 @@ namespace TA3D
         int unit_type = unit_manager.get_unit_index(uname);
         if (unit_type >= 0 && !unit_manager.unit_type[unit_type]->categories.empty())
         {
-            String::Vector::const_iterator i = (unit_manager.unit_type[unit_type]->categories).begin();
+            QStringList::const_iterator i = (unit_manager.unit_type[unit_type]->categories).begin();
             for (; (unit_manager.unit_type[unit_type]->categories).end() != i; ++i)
 			{
 				it = damage_hashtable.find(*i);

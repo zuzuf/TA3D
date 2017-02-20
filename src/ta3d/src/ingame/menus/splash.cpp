@@ -89,9 +89,8 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		String filename;
-		// The background
-		filename << "gfx" << Paths::SeparatorAsString << "splash" << Paths::SeparatorAsString << "loading.jpg";
+        // The background
+        QString filename = "gfx" + Paths::SeparatorAsString + "splash" + Paths::SeparatorAsString + "loading.jpg";
 		ResetTexture(pBackgroundTexture, gfx->load_texture(filename));
 	}
 

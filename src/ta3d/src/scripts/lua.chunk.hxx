@@ -6,13 +6,13 @@
 namespace TA3D
 {
 
-	inline const String& LuaChunk::getName() const
+	inline const QString& LuaChunk::getName() const
 	{
 		return name;
 	}
 
 
-	inline LuaChunk::LuaChunk(lua_State *L, const String& name)
+	inline LuaChunk::LuaChunk(lua_State *L, const QString& name)
 		:buffer(NULL), size(0)
 	{
 		dump(L, name);

@@ -41,22 +41,22 @@ namespace TA3D
 			class RealFile : public Archive::FileInfo
             {
             public:
-                String pathToFile;
+                QString pathToFile;
             public:
                 virtual ~RealFile() {}
-				inline void setName(const String &name)   {  Archive::FileInfo::name = name; }
+				inline void setName(const QString &name)   {  Archive::FileInfo::name = name; }
 				inline void setParent(Archive *parent)   {  Archive::FileInfo::parent = parent; }
             };
         public:
             //! Constructor
-            RealFS(const String &filename);
+            RealFS(const QString &filename);
             //! Destructor
             virtual ~RealFS();
 
             /*!
             ** \brief Loads an archive
             */
-            virtual void open(const String& filename);
+            virtual void open(const QString& filename);
 
             /*!
             ** \brief Just close the opened archive
@@ -71,7 +71,7 @@ namespace TA3D
             /*!
             ** \brief
             */
-			virtual File* readFile(const String& filename);
+			virtual File* readFile(const QString& filename);
 			virtual File* readFile(const FileInfo *file);
 
             /*!
@@ -81,7 +81,7 @@ namespace TA3D
             ** \param length
             ** \return
             */
-			virtual File* readFileRange(const String& filename, const uint32 start, const uint32 length);
+			virtual File* readFileRange(const QString& filename, const uint32 start, const uint32 length);
 			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length);
 
             /*!
@@ -94,8 +94,8 @@ namespace TA3D
 			HashMap<RealFile*>::Sparse files;
 
         public:
-            static void finder(String::List &fileList, const String &path);
-            static Archive* loader(const String &filename);
+            static void finder(QStringList &fileList, const QString &path);
+            static Archive* loader(const QString &filename);
         }; // class RealFS
     } // namespace utils
 } // namespace TA3D

@@ -33,29 +33,29 @@
 
 namespace TA3D
 {
-	static inline String FixBlank(const String& s)
+	static inline QString FixBlank(const QString& s)
 	{
-		String t(s);
+		QString t(s);
 		t.replace(' ', char(1));
 		return t;
 	}
 
-	static inline String UnfixBlank(const String& s)
+	static inline QString UnfixBlank(const QString& s)
 	{
-		String t(s);
+		QString t(s);
 		t.replace(char(1), ' ');
 		return t;
 	}
 namespace Menus
 {
 
-	bool SetupGame::Execute(bool client, const String &host, const String &saved_game, bool bNetServer, bool instantStart)
+	bool SetupGame::Execute(bool client, const QString &host, const QString &saved_game, bool bNetServer, bool instantStart)
 	{
 		SetupGame m(client, host, saved_game, bNetServer, instantStart);
 		return m.execute();
 	}
 
-	SetupGame::SetupGame(bool client, const String &host, const String &saved_game, bool bNetServer, bool instantStart)
+	SetupGame::SetupGame(bool client, const QString &host, const QString &saved_game, bool bNetServer, bool instantStart)
 		:Abstract(), client(client), host(host), saved_game(saved_game), bNetServer(bNetServer), instantStart(instantStart), start_game(false)
 	{
 		map_data = new MAP_OTA;
@@ -167,12 +167,12 @@ namespace Menus
 				LOG_DEBUG("client received game status : " << status);
 				if (!status.empty())
 				{
-					status = String(Paths::Savegames) << "multiplayer" << Paths::Separator << status;
+					status = QString(Paths::Savegames) << "multiplayer" << Paths::Separator << status;
 					saved_game = status;
 				}
 				else
 				{
-					network_manager.sendSpecial(String("NOTIFY NEW_PLAYER ") << FixBlank(lp_CONFIG->player_name));
+					network_manager.sendSpecial(QString("NOTIFY NEW_PLAYER ") << FixBlank(lp_CONFIG->player_name));
 					SuspendMilliSeconds(10);
 					network_manager.sendSpecial( "REQUEST GameData" );
 				}
@@ -203,7 +203,7 @@ namespace Menus
 
 		if (!VFS::Instance()->fileExists(game_data.map_filename))
 		{
-			String::Vector map_list;
+			QStringList map_list;
 			const uint32 n = VFS::Instance()->getFilelist("maps\\*.tnt", map_list);
 
 			if (n == 0)
@@ -223,7 +223,7 @@ namespace Menus
 				game_data.game_script = "scripts\\game\\default.lua";
 			else
 			{
-				String::Vector script_list;
+				QStringList script_list;
 				uint32 n = VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 
 				if (n == 0)
@@ -234,7 +234,7 @@ namespace Menus
 					reset_mouse();
 					return false;
 				}
-				for (String::Vector::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
+				for (QStringList::iterator i = script_list.begin() ; i != script_list.end() ; ++i)
 				{
 					game_data.game_script = *i;
 					if (i->size() > 1 && (*i)[0] != '_')            // Avoid selecting a special file as default script if possible
@@ -251,7 +251,7 @@ namespace Menus
 				game_data.player_names[i] = player_str[2];
 				game_data.player_sides[i] = side_str[0];
 				game_data.player_control[i] = player_control[2];
-				game_data.ai_level[i] = AI_list.empty() ? String("none") : AI_list[0];
+				game_data.ai_level[i] = AI_list.empty() ? QString("none") : AI_list[0];
 			}
 
 			if (lp_CONFIG->serializedGameData.empty())
@@ -262,14 +262,14 @@ namespace Menus
 					game_data.player_sides[0] = side_str[0];
 					game_data.player_control[0] = player_control[0];
 					game_data.player_network_id[0] = my_player_id;
-					game_data.ai_level[0] = AI_list.empty() ? String("none") : AI_list[0];
+					game_data.ai_level[0] = AI_list.empty() ? QString("none") : AI_list[0];
 
 					if (!host)
 					{
 						game_data.player_names[1] = player_str[1];
 						game_data.player_sides[1] = side_str[1];
 						game_data.player_control[1] = player_control[1];
-						game_data.ai_level[1] = AI_list.empty() ? String("none") : AI_list[0];
+						game_data.ai_level[1] = AI_list.empty() ? QString("none") : AI_list[0];
 					}
 				}
 			}
@@ -285,7 +285,7 @@ namespace Menus
 				if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
 					my_old_id = net_id_table[i];
 			}
-			network_manager.sendSpecial( String("NOTIFY PLAYER_BACK ") << my_old_id );
+			network_manager.sendSpecial( QString("NOTIFY PLAYER_BACK ") << my_old_id );
 			SuspendMilliSeconds(10);
 			network_manager.sendSpecial( "REQUEST GameData" );
 		}
@@ -300,34 +300,34 @@ namespace Menus
 		loadAreaFromTDF("setup", "gui/setupgame.area");
 		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
-			pArea->caption( String("gamesetup.name") << i, game_data.player_names[i]);
+			pArea->caption( QString("gamesetup.name") << i, game_data.player_names[i]);
 
-			Gui::GUIOBJ::Ptr guiobj = pArea->get_object(String("gamesetup.side") << i);
+			Gui::GUIOBJ::Ptr guiobj = pArea->get_object(QString("gamesetup.side") << i);
 			if (guiobj)
 			{
 				guiobj->Text.clear();
 				guiobj->Text.push_back( game_data.player_sides[i] );
 				guiobj->Text.insert(guiobj->Text.end(), side_str.begin(), side_str.end());
 			}
-			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
-			pArea->set_entry( String("gamesetup.ai") << i, AI_list);
-			guiobj = pArea->get_object( String("gamesetup.color") << i);
+			AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : QString();
+			pArea->set_entry( QString("gamesetup.ai") << i, AI_list);
+			guiobj = pArea->get_object( QString("gamesetup.color") << i);
 			if (guiobj)
 			{
 				guiobj->Flag |= (game_data.player_control[i] == PLAYER_CONTROL_NONE ? FLAG_HIDDEN : 0);
 				guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3], player_color[player_color_map[i]*3+1], player_color[player_color_map[i]*3+2]);
 			}
-			guiobj = pArea->get_object( String("gamesetup.team") << i );
+			guiobj = pArea->get_object( QString("gamesetup.team") << i );
 			if (guiobj)
 				guiobj->current_state = (byte)Math::Log2(game_data.team[i]);
-			pArea->caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);
-			pArea->caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);
+			pArea->caption( QString("gamesetup.energy") << i, QString() << game_data.energy[i]);
+			pArea->caption( QString("gamesetup.metal") << i, QString() << game_data.metal[i]);
 		}
 
 		if (pArea->get_object("gamesetup.max_units"))
 		{
 			Gui::GUIOBJ::Ptr obj = pArea->get_object("gamesetup.max_units");
-			obj->Text[0] = String() << game_data.max_unit_per_player;
+			obj->Text[0] = QString() << game_data.max_unit_per_player;
 		}
 
 		minimap_obj = pArea->get_object( "gamesetup.minimap");
@@ -361,10 +361,10 @@ namespace Menus
 		Gui::GUIOBJ::Ptr guiobj = pArea->get_object( "scripts.script_list");
 		if (guiobj)
 		{
-			String::Vector script_list;
+			QStringList script_list;
 			VFS::Instance()->getFilelist("scripts\\game\\*.lua", script_list);
 			guiobj->Text.clear();
-			for (String::Vector::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
+			for (QStringList::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
 				guiobj->Text.push_back(*i_script);
 		}
 		pArea->caption( "gamesetup.script_name", game_data.game_script);
@@ -375,7 +375,7 @@ namespace Menus
 		}
 
 		{
-			String map_info;
+			QString map_info;
 			if (!map_data->missionname.empty())
 				map_info << map_data->missionname << "\n";
 			if (!map_data->numplayers.empty())
@@ -387,7 +387,7 @@ namespace Menus
 
 		if (!host)
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-				pArea->msg(String("gamesetup.ready") << i << ".hide");
+				pArea->msg(QString("gamesetup.ready") << i << ".hide");
 
 		if (host.notEmpty() && my_player_id == -1) // Leave now, we aren't connected but we're in network mode
 		{
@@ -416,7 +416,7 @@ namespace Menus
 			pArea->msg("gamesetup.FOW.disable");
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			{
-				Gui::GUIOBJ::Ptr obj = pArea->get_object(String("gamesetup.team") << i);
+				Gui::GUIOBJ::Ptr obj = pArea->get_object(QString("gamesetup.team") << i);
 				if (obj)
 					obj->Flag &= ~FLAG_CAN_BE_CLICKED;
 			}
@@ -438,7 +438,7 @@ namespace Menus
 		{
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 			{
-				Gui::GUIOBJ::Ptr obj = pArea->get_object(String("gamesetup.ready") << i);
+				Gui::GUIOBJ::Ptr obj = pArea->get_object(QString("gamesetup.ready") << i);
 				if (obj)
 				{
 					if (game_data.player_control[i] != PLAYER_CONTROL_LOCAL_HUMAN
@@ -459,10 +459,10 @@ namespace Menus
 				uint16 nb_open = 0;
 				for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
 				{
-					if (pArea->caption(String("gamesetup.name") << f) == player_str[2])
+					if (pArea->caption(QString("gamesetup.name") << f) == player_str[2])
 						++nb_open;
 				}
-				NetClient::instance()->sendMessage(String("SERVER MAP \"") << Escape(Paths::ExtractFileNameWithoutExtension(game_data.map_filename)) << "\" SLOTS " << nb_open);
+				NetClient::instance()->sendMessage(QString("SERVER MAP \"") << Escape(Paths::ExtractFileNameWithoutExtension(game_data.map_filename)) << "\" SLOTS " << nb_open);
 			}
 		}
 
@@ -474,7 +474,7 @@ namespace Menus
 				{
 					if (!game_data.ready[i])
 					{
-						pArea->set_state(String("gamesetup.ready") << i,true);
+						pArea->set_state(QString("gamesetup.ready") << i,true);
 						game_data.ready[i] = true;
 						network_manager.sendSpecial("NOTIFY UPDATE");
 					}
@@ -538,7 +538,7 @@ namespace Menus
 
 		if (key[KEY_ENTER] && !pArea->caption("gamesetup.t_chat").empty())
 		{
-			String message;
+			QString message;
 			message << "<" << lp_CONFIG->player_name << "> " << pArea->caption("gamesetup.t_chat");
 			if (host.notEmpty())
 			{
@@ -567,7 +567,7 @@ namespace Menus
 				obj->Text[0] = obj->Text[1 + obj->Value];
 				game_data.fog_of_war = uint8(obj->Value);
 				if (host.notEmpty())
-					network_manager.sendSpecial(String("SET FOW ") << obj->Value);
+					network_manager.sendSpecial(QString("SET FOW ") << obj->Value);
 			}
 		}
 
@@ -582,7 +582,7 @@ namespace Menus
 				pArea->caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ]);
 				game_data.game_script = guiobj->Text[ guiobj->Pos ];
 				if (host.notEmpty())
-					network_manager.sendSpecial(String("SET SCRIPT ") << FixBlank(guiobj->Text[guiobj->Pos]));
+					network_manager.sendSpecial(QString("SET SCRIPT ") << FixBlank(guiobj->Text[guiobj->Pos]));
 			}
 		}
 
@@ -621,13 +621,13 @@ namespace Menus
 		{
 			Gui::GUIOBJ::Ptr obj = pArea->get_object("gamesetup.max_units");
 			obj->Text[0] = obj->Text[1+obj->Value];
-			game_data.max_unit_per_player = obj->Text[0].to<sint32>();
-			network_manager.sendSpecial(String("SET UNIT LIMIT ") << game_data.max_unit_per_player);
+			game_data.max_unit_per_player = obj->Text[0].toInt();
+			network_manager.sendSpecial(QString("SET UNIT LIMIT ") << game_data.max_unit_per_player);
 		}
 
 		for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
-			if (pArea->get_state( String("gamesetup.ready") << i) != game_data.ready[i])
+			if (pArea->get_state( QString("gamesetup.ready") << i) != game_data.ready[i])
 			{
 				if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN && !saved_game)
 				{
@@ -635,10 +635,10 @@ namespace Menus
 					game_data.ready[i] = !game_data.ready[i];
 				}
 				else
-					pArea->set_state( String("gamesetup.ready") << i, game_data.ready[i]);
+					pArea->set_state( QString("gamesetup.ready") << i, game_data.ready[i]);
 			}
 			if (saved_game.notEmpty()) continue;            // We mustn't change any thing for a saved game
-			Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.team") << i );
+			Gui::GUIOBJ::Ptr guiobj = pArea->get_object( QString("gamesetup.team") << i );
 			if (guiobj != NULL && (1 << guiobj->current_state) != game_data.team[i])           // Change team
 			{
 				if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
@@ -652,7 +652,7 @@ namespace Menus
 			}
 			if (client && game_data.player_network_id[i] != my_player_id )
 				continue;                           // You cannot change other player's settings
-			if (pArea->get_state(String("gamesetup.b_name") << i) && !client ) // Change player type
+			if (pArea->get_state(QString("gamesetup.b_name") << i) && !client ) // Change player type
 			{
 				if (game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) // Kick player !!
 				{
@@ -662,7 +662,7 @@ namespace Menus
 				int e = 0;
 				for (int f = 0; f < player_str_n; ++f)
 				{
-					if (pArea->caption(String("gamesetup.name") << i) == player_str[f])
+					if (pArea->caption(QString("gamesetup.name") << i) == player_str[f])
 					{
 						e = f;
 						break;
@@ -689,10 +689,10 @@ namespace Menus
 				else
 					game_data.player_network_id[i] = -1;
 
-				pArea->caption( String("gamesetup.name") << i, player_str[e]);         // Update gui
-				AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
-				pArea->set_entry( String("gamesetup.ai") << i, AI_list);
-				guiobj = pArea->get_object( String("gamesetup.color") << i);
+				pArea->caption( QString("gamesetup.name") << i, player_str[e]);         // Update gui
+				AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : QString();
+				pArea->set_entry( QString("gamesetup.ai") << i, AI_list);
+				guiobj = pArea->get_object( QString("gamesetup.color") << i);
 				if (guiobj)
 				{
 					if (player_control[e] == PLAYER_CONTROL_NONE || player_control[e] == PLAYER_CONTROL_CLOSED)
@@ -703,10 +703,10 @@ namespace Menus
 				if (host.notEmpty())
 					network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
-			if (pArea->get_value( String("gamesetup.side") << i) >= 0) // Change player side
+			if (pArea->get_value( QString("gamesetup.side") << i) >= 0) // Change player side
 			{
-				int pos = pArea->get_value( String("gamesetup.side") << i) + 1;
-				Gui::GUIOBJ::Ptr guiobj = pArea->get_object(String("gamesetup.side") << i);
+				int pos = pArea->get_value( QString("gamesetup.side") << i) + 1;
+				Gui::GUIOBJ::Ptr guiobj = pArea->get_object(QString("gamesetup.side") << i);
 				guiobj->Text[0] = guiobj->Text[pos];
 
 				game_data.player_sides[i] = side_str[pos - 1];                                // update game data
@@ -714,25 +714,25 @@ namespace Menus
 					network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
 			if (!(game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI))
-				pArea->set_state(String("gamesetup.ai") << i, false);
-			else if (pArea->get_value( String("gamesetup.ai") << i ) >= 0 ) // Change player level (for AI)
+				pArea->set_state(QString("gamesetup.ai") << i, false);
+			else if (pArea->get_value( QString("gamesetup.ai") << i ) >= 0 ) // Change player level (for AI)
 			{
-				int pos = pArea->get_value( String("gamesetup.ai") << i ) + 1;
+				int pos = pArea->get_value( QString("gamesetup.ai") << i ) + 1;
 				if (pos >= 1 && pos < (int)AI_list.size())
 				{
-					String AIlevel = AI_list[pos];
-					AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? AIlevel : String("");
-					pArea->set_entry( String("gamesetup.ai") << i, AI_list);          // Update gui
+					QString AIlevel = AI_list[pos];
+					AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? AIlevel : QString("");
+					pArea->set_entry( QString("gamesetup.ai") << i, AI_list);          // Update gui
 
 					game_data.ai_level[i] = AIlevel;                              // update game data
 					if (host.notEmpty())
 						network_manager.sendSpecial("NOTIFY UPDATE");
 				}
 			}
-			if (pArea->get_state( String("gamesetup.b_color") << i)) // Change player color
+			if (pArea->get_state( QString("gamesetup.b_color") << i)) // Change player color
 			{
 				if (client)
-					network_manager.sendSpecial(String("NOTIFY COLORCHANGE ") << i);
+					network_manager.sendSpecial(QString("NOTIFY COLORCHANGE ") << i);
 				const unsigned int e = player_color_map[i];
 				int f = -1;
 				for (int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
@@ -757,31 +757,31 @@ namespace Menus
 					player_color_map[i] = g;                                // update game data
 					player_color_map[f] = e;
 
-					guiobj =  pArea->get_object( String("gamesetup.color") << i);
+					guiobj =  pArea->get_object( QString("gamesetup.color") << i);
 					if (guiobj )
 						guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-					guiobj =  pArea->get_object( String("gamesetup.color") << f);
+					guiobj =  pArea->get_object( QString("gamesetup.color") << f);
 					if (guiobj )
 						guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
 				}
 				if (host.notEmpty() && !client)
 					network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
-			if (pArea->get_state( String("gamesetup.b_energy") << i ) ) // Change player energy stock
+			if (pArea->get_state( QString("gamesetup.b_energy") << i ) ) // Change player energy stock
 			{
 				game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
 				if (game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
-				pArea->caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);         // Update gui
+				pArea->caption( QString("gamesetup.energy") << i, QString() << game_data.energy[i]);         // Update gui
 				if (host.notEmpty())
 					network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
-			if (pArea->get_state( String("gamesetup.b_metal") << i ) ) // Change player metal stock
+			if (pArea->get_state( QString("gamesetup.b_metal") << i ) ) // Change player metal stock
 			{
 				game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
 				if (game_data.metal[i] == 0 ) game_data.metal[i] = 500;
 
-				pArea->caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);           // Update gui
+				pArea->caption( QString("gamesetup.metal") << i, QString() << game_data.metal[i]);           // Update gui
 				if (host.notEmpty())
 					network_manager.sendSpecial( "NOTIFY UPDATE");
 			}
@@ -796,7 +796,7 @@ namespace Menus
 			( ( ( pArea->get_state( "gamesetup.minimap" ) || pArea->get_state("gamesetup.change_map")) && !client)
 			  || ( client && !set_map.empty() ) ) && !saved_game) // Clic on the mini-map or received map set command
 		{
-			String new_map;
+			QString new_map;
 			if (!client)
 			{
 				pArea->caption("popup.msg", I18N::Translate("Loading maps, please wait ..."));       // Show a small popup displaying a wait message
@@ -813,7 +813,7 @@ namespace Menus
 				gfx->flip();
 				gfx->unset_2D_mode();
 
-				String newMapName;
+				QString newMapName;
 				Menus::MapSelector::Execute(game_data.map_filename, newMapName);
 				new_map = newMapName;
 				pArea->msg("popup.hide");
@@ -832,9 +832,9 @@ namespace Menus
 				set_map.clear();
 				if (host.notEmpty() && !client)
 				{
-					String tmp(new_map);
+					QString tmp(new_map);
 					tmp.replace(' ', char(1));
-					network_manager.sendSpecial(String("SET MAP ") << tmp);
+					network_manager.sendSpecial(QString("SET MAP ") << tmp);
 				}
 
 				gfx->destroy_texture( glimg);
@@ -853,7 +853,7 @@ namespace Menus
 
 				map_data->destroy();
 				map_data->load(Paths::Files::ReplaceExtension(game_data.map_filename, ".ota"));
-				String map_info;
+				QString map_info;
 				if (!map_data->missionname.empty())
 					map_info << map_data->missionname << "\n";
 				if (!map_data->numplayers.empty())
@@ -922,7 +922,7 @@ namespace Menus
 				{
 					if (saved_game.notEmpty())
 					{
-						pArea->set_state(String("gamesetup.ready") << i, false);     // He's not there
+						pArea->set_state(QString("gamesetup.ready") << i, false);     // He's not there
 						game_data.ready[i] = false;
 					}
 					else
@@ -933,12 +933,12 @@ namespace Menus
 						game_data.ai_level[i] = AI_TYPE_EASY;
 						game_data.player_network_id[i] = -1;
 
-						pArea->caption( String("gamesetup.name") << i,game_data.player_names[i]);                                 // Update gui
-						AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
-						pArea->set_entry( String("gamesetup.ai") << i, AI_list);
-						pArea->caption( String("gamesetup.side") << i, side_str[0]);                           // Update gui
+						pArea->caption( QString("gamesetup.name") << i,game_data.player_names[i]);                                 // Update gui
+						AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : QString();
+						pArea->set_entry( QString("gamesetup.ai") << i, AI_list);
+						pArea->caption( QString("gamesetup.side") << i, side_str[0]);                           // Update gui
 
-						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i );
+						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( QString("gamesetup.color") << i );
 						if (guiobj)
 							guiobj->Flag |= FLAG_HIDDEN;
 					}
@@ -950,32 +950,32 @@ namespace Menus
 		while (!special_msg.empty()) // Special receiver (sync config data)
 		{
 			const int from = received_special_msg.from;
-			String::Vector params;
+			QStringList params;
 			LOG_DEBUG(LOG_PREFIX_NET << "parsing '" << (char*)(received_special_msg.message) << "' from " << from << " [" << game_data.net2id(from) << ']');
-			String((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
+			QString((char*)(received_special_msg.message)).explode(params, ' ', true, false, true);
 			switch(params.size())
 			{
 			case 2:
 				if (params[0] == "REQUEST")
 				{
 					if (params[1] == "PLAYER_ID")                  // Sending player's network ID
-						network_manager.sendSpecial( String("RESPONSE PLAYER_ID ") << from, -1, from);
+						network_manager.sendSpecial( QString("RESPONSE PLAYER_ID ") << from, -1, from);
 					else if (params[1] == "GameData") // Sending game information
 					{
-						network_manager.sendSpecial(String("SET UNIT LIMIT ") << game_data.max_unit_per_player);
+						network_manager.sendSpecial(QString("SET UNIT LIMIT ") << game_data.max_unit_per_player);
 						for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
 						{
 							if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we won't update
-							String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
+							QString msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name ready_flag
 							const int side_id = int(std::find(side_str.begin(), side_str.end(), game_data.player_sides[i]) - side_str.begin());
 							msg << "PLAYER_INFO " << i << " " << game_data.player_network_id[i] << " "
 								<< side_id << " "
-								<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? String("[C]") : FixBlank(game_data.ai_level[i]))
+								<< ((game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED || game_data.ai_level[i].empty()) ? QString("[C]") : FixBlank(game_data.ai_level[i]))
 								<< " " << game_data.metal[i] << " " << game_data.energy[i] << " "
 								<< FixBlank(game_data.player_names[i]) << " " << (int)game_data.ready[i];
 							network_manager.sendSpecial( msg, -1, from);
 
-							Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.team") << i);
+							Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( QString("gamesetup.team") << i);
 							if (guiobj)
 							{
 								msg.clear();
@@ -985,20 +985,20 @@ namespace Menus
 						}
 						if (!client)  // Send server to client specific information (player colors, map name, ...)
 						{
-							String msg("PLAYERCOLORMAP");
+							QString msg("PLAYERCOLORMAP");
 							for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 								msg << ' ' << int(player_color_map[i]);
 							network_manager.sendSpecial( msg, -1, from);
 
-							network_manager.sendSpecial(String("SET FOW ") << int(game_data.fog_of_war), -1, from);
-							network_manager.sendSpecial(String("SET SCRIPT ") << FixBlank( game_data.game_script), -1, from);
-							network_manager.sendSpecial(String("SET MAP ") << FixBlank( game_data.map_filename), -1, from);
+							network_manager.sendSpecial(QString("SET FOW ") << int(game_data.fog_of_war), -1, from);
+							network_manager.sendSpecial(QString("SET SCRIPT ") << FixBlank( game_data.game_script), -1, from);
+							network_manager.sendSpecial(QString("SET MAP ") << FixBlank( game_data.map_filename), -1, from);
 						}
 					}
 					else if (params[1] == "STATUS")
 					{
 						if (saved_game.notEmpty())
-							network_manager.sendSpecial(String("STATUS SAVED ") << FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
+							network_manager.sendSpecial(QString("STATUS SAVED ") << FixBlank( Paths::ExtractFileName(saved_game) ), -1, from);
 						else
 							network_manager.sendSpecial("STATUS NEW", -1, from);
 					}
@@ -1018,7 +1018,7 @@ namespace Menus
 							{
 								if (saved_game.notEmpty())
 								{
-									pArea->set_state(String("gamesetup.ready") << i,false);
+									pArea->set_state(QString("gamesetup.ready") << i,false);
 									game_data.ready[i] = false;
 								}
 								else
@@ -1027,9 +1027,9 @@ namespace Menus
 									game_data.player_control[i] = player_control[2];
 									game_data.player_names[i] = player_str[2];
 
-									pArea->caption(String("gamesetup.name") << i, game_data.player_names[i]);
+									pArea->caption(QString("gamesetup.name") << i, game_data.player_names[i]);
 
-									Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i );
+									Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( QString("gamesetup.color") << i );
 									if (guiobj)
 										guiobj->Flag |= FLAG_HIDDEN;
 								}
@@ -1064,9 +1064,9 @@ namespace Menus
 							game_data.player_network_id[slot] = from;
 							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 							game_data.player_names[slot] = UnfixBlank( params[2] );
-							pArea->caption( String("gamesetup.name") << slot, game_data.player_names[slot]);                      // Update gui
+							pArea->caption( QString("gamesetup.name") << slot, game_data.player_names[slot]);                      // Update gui
 
-							Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << slot);
+							Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( QString("gamesetup.color") << slot);
 							if (guiobj)
 							{
 								guiobj->Data = gfx->makeintcol( player_color[player_color_map[slot] * 3],
@@ -1084,11 +1084,11 @@ namespace Menus
 					}
 					else if (params[1] == "PLAYER_BACK" && saved_game.notEmpty()) // A player is back in the game :), let's find who it is
 					{
-						LOG_DEBUG("received identifier from " << from << " : " << params[2].to<sint32>());
+						LOG_DEBUG("received identifier from " << from << " : " << params[2].toInt());
 						int slot = -1;
 						for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 						{
-							if (net_id_table[i] == params[2].to<sint32>())
+							if (net_id_table[i] == params[2].toInt())
 							{
 								slot = i;
 								break;
@@ -1109,7 +1109,7 @@ namespace Menus
 					}
 					else if (params[1] == "COLORCHANGE")
 					{
-						int i = params[2].to<sint32>();
+						int i = params[2].toInt();
 						if (!client) // From client to server only
 						{
 							const unsigned int e = player_color_map[i];
@@ -1133,10 +1133,10 @@ namespace Menus
 								player_color_map[i] = g;                                // update game data
 								player_color_map[f] = e;
 
-								Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.color") << i);
+								Gui::GUIOBJ::Ptr guiobj = pArea->get_object( QString("gamesetup.color") << i);
 								if (guiobj)
 									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-								guiobj = pArea->get_object( String("gamesetup.color") << f);
+								guiobj = pArea->get_object( QString("gamesetup.color") << f);
 								if (guiobj)
 									guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
 							}
@@ -1148,7 +1148,7 @@ namespace Menus
 				{
 					if (params[1] == "FOW")
 					{
-						int value = params[2].to<sint32>();
+						int value = params[2].toInt();
 						Gui::GUIOBJ::Ptr obj = pArea->get_object( "gamesetup.FOW");
 						if (obj && value >= 0 && value < 4)
 						{
@@ -1168,30 +1168,30 @@ namespace Menus
 								network_manager.stopFileTransfer(previous_ota_port);
 							previous_ota_port.empty();
 							previous_tnt_port.empty();
-							String new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
+							QString new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
 							if (client && !VFS::Instance()->fileExists( new_map_name ))
 							{
-								String sMpN(new_map_name);
+								QString sMpN(new_map_name);
 								sMpN.replace('\\', '/');
 								previous_tnt_port = network_manager.getFile( 1, sMpN);
-								network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_tnt_port );
+								network_manager.sendSpecial( QString("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_tnt_port );
 							}
 
 							new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
 
 							if (client && !VFS::Instance()->fileExists( new_map_name ))
 							{
-								String sMpN(new_map_name);
+								QString sMpN(new_map_name);
 								sMpN.replace('\\', '/');
 
 								previous_ota_port = network_manager.getFile( 1, sMpN);
-								network_manager.sendSpecial( String("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_ota_port );
+								network_manager.sendSpecial( QString("REQUEST FILE ") << FixBlank(new_map_name) << ' ' << previous_ota_port );
 							}
 						}
 					}
 					else if (params[1] == "SCRIPT")
 					{
-						String script_name = UnfixBlank( params[2] );
+						QString script_name = UnfixBlank( params[2] );
 						if (script_name != game_data.game_script)
 						{
 							pArea->caption( "gamesetup.script_name", script_name);
@@ -1202,11 +1202,11 @@ namespace Menus
 								if (!previous_lua_port.empty())
 									network_manager.stopFileTransfer( previous_lua_port);
 
-								String sSpS(script_name);
+								QString sSpS(script_name);
 								sSpS.replace('\\', '/');
 
 								previous_lua_port = network_manager.getFile( 1, sSpS);
-								network_manager.sendSpecial(String("REQUEST FILE ") << FixBlank(script_name) << ' ' << previous_lua_port);
+								network_manager.sendSpecial(QString("REQUEST FILE ") << FixBlank(script_name) << ' ' << previous_lua_port);
 							}
 						}
 					}
@@ -1217,7 +1217,7 @@ namespace Menus
 				{
 					if (params[1] == "FILE")
 					{
-						String file_name = UnfixBlank( params[2] );
+						QString file_name = UnfixBlank( params[2] );
 						LOG_DEBUG(LOG_PREFIX_NET << "received file request : '" << file_name << "'");
 						network_manager.stopFileTransfer( params[3], from);
 						network_manager.sendFile( from, file_name, params[3]);
@@ -1227,11 +1227,11 @@ namespace Menus
 				{
 					if (params[1] == "TEAM")
 					{
-						int i = params[2].to<sint32>();
-						int n_team = params[3].to<sint32>();
+						int i = params[2].toInt();
+						int n_team = params[3].toInt();
 						if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
 						{
-							Gui::GUIOBJ::Ptr guiobj = pArea->get_object( String("gamesetup.team") << i );
+							Gui::GUIOBJ::Ptr guiobj = pArea->get_object( QString("gamesetup.team") << i );
 							if (guiobj)
 							{
 								guiobj->current_state = byte(n_team);
@@ -1244,24 +1244,24 @@ namespace Menus
 				{
 					if (params[1] == "UNIT" && params[2] == "LIMIT")
 					{
-						game_data.max_unit_per_player = params[3].to<sint32>();
+						game_data.max_unit_per_player = params[3].toInt();
 						Gui::GUIOBJ::Ptr obj = pArea->get_object("gamesetup.max_units");
 						if (obj)
-							obj->Text[0] = String() << game_data.max_unit_per_player;
+							obj->Text[0] = QString() << game_data.max_unit_per_player;
 					}
 				}
 				break;
 			case 9:
 				if (params[0] == "PLAYER_INFO") // We've received player information, let's update :)
 				{
-					int i = params[1].to<sint32>();
-					int n_id = params[2].to<sint32>();
+					int i = params[1].toInt();
+					int n_id = params[2].toInt();
 					if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == n_id)) // Server doesn't accept someone telling him what to do
 					{
-						int side_id  = params[3].to<sint32>();
-						int metal_q  = params[5].to<sint32>();
-						int energy_q = params[6].to<sint32>();
-						bool ready   = params[8].to<sint32>();
+						int side_id  = params[3].toInt();
+						int metal_q  = params[5].toInt();
+						int energy_q = params[6].toInt();
+						bool ready   = params[8].toInt();
 						game_data.player_network_id[i] = n_id;
 						game_data.player_sides[i] = side_str[ side_id ];
 						game_data.ai_level[i] = UnfixBlank( params[4] );
@@ -1276,15 +1276,15 @@ namespace Menus
 						else
 							game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
 
-						pArea->caption( String("gamesetup.name") << i, game_data.player_names[i]);                                 // Update gui
-						AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : String();
-						pArea->set_entry( String("gamesetup.ai") << i, AI_list);
-						pArea->caption( String("gamesetup.side") << i, side_str[side_id]);                         // Update gui
-						pArea->caption( String("gamesetup.energy") << i, String() << game_data.energy[i]);         // Update gui
-						pArea->caption( String("gamesetup.metal") << i, String() << game_data.metal[i]);               // Update gui
-						pArea->set_state( String("gamesetup.ready") << i, ready);                                           // Update gui
+						pArea->caption( QString("gamesetup.name") << i, game_data.player_names[i]);                                 // Update gui
+						AI_list[0] = (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? game_data.ai_level[i] : QString();
+						pArea->set_entry( QString("gamesetup.ai") << i, AI_list);
+						pArea->caption( QString("gamesetup.side") << i, side_str[side_id]);                         // Update gui
+						pArea->caption( QString("gamesetup.energy") << i, QString() << game_data.energy[i]);         // Update gui
+						pArea->caption( QString("gamesetup.metal") << i, QString() << game_data.metal[i]);               // Update gui
+						pArea->set_state( QString("gamesetup.ready") << i, ready);                                           // Update gui
 
-						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
+						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( QString("gamesetup.color") << i);
 						if (guiobj)
 						{
 							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
@@ -1305,8 +1305,8 @@ namespace Menus
 				{
 					for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 					{
-						player_color_map[i] = byte(params[i + 1].to<sint32>());
-						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( String("gamesetup.color") << i);
+						player_color_map[i] = byte(params[i + 1].toInt());
+						Gui::GUIOBJ::Ptr guiobj =  pArea->get_object( QString("gamesetup.color") << i);
 						if (guiobj)
 							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
 					}
@@ -1344,7 +1344,7 @@ namespace Menus
 
 		while (!broadcast_msg.empty())  // Broadcast message receiver
 		{
-			String::Vector params;
+			QStringList params;
 			broadcast_msg.explode(params, ' ', true, false, true);
 			if (params.size() == 3 && params[0] == "PING" && params[1] == "SERVER")
 			{
@@ -1353,24 +1353,24 @@ namespace Menus
 					uint16 nb_open = 0;
 					for (int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
 					{
-						if (pArea->caption(String("gamesetup.name") << f) == player_str[2])
+						if (pArea->caption(QString("gamesetup.name") << f) == player_str[2])
 							++nb_open;
 					}
 
-					String hostFixed(host);
+					QString hostFixed(host);
 					hostFixed.replace(' ', char(1));
 
-					String engineV(TA3D_ENGINE_VERSION);
+					QString engineV(TA3D_ENGINE_VERSION);
 					engineV.replace(' ', char(1));
 					if (TA3D_CURRENT_MOD.empty())
 					{
-						network_manager.broadcastMessage(String("PONG SERVER ") << hostFixed << " . " << engineV << " " << nb_open);
+						network_manager.broadcastMessage(QString("PONG SERVER ") << hostFixed << " . " << engineV << " " << nb_open);
 					}
 					else
 					{
-						String mod(TA3D_CURRENT_MOD);
+						QString mod(TA3D_CURRENT_MOD);
 						mod.replace(' ', char(1));
-						network_manager.broadcastMessage(String("PONG SERVER ") << hostFixed << " " << mod << " " << engineV << " " << nb_open);
+						network_manager.broadcastMessage(QString("PONG SERVER ") << hostFixed << " " << mod << " " << engineV << " " << nb_open);
 					}
 				}
 			}

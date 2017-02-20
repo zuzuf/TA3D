@@ -26,7 +26,35 @@ namespace TA3D
 	// The unique instance of the ta3d logger
 	Logger logs;
 
+    Logger::Logger()
+        : verbosityLevel(3)
+    {
+    }
 
+    Logger::~Logger()
+    {
+        log_file_stream->flush();
+        log_file.flush();
+    }
 
+    bool Logger::logFileIsOpened() const
+    {
+        return log_file.isOpen();
+    }
+
+    QString Logger::logfile() const
+    {
+        return log_file.fileName();
+    }
+
+    void Logger::openLogFile(const QString &filename)
+    {
+        if (log_file.isOpen())
+            log_file.close();
+        log_file.setFileName(filename);
+        log_file.open(QIODevice::WriteOnly);
+
+        log_file_stream.reset(new QTextStream(&log_file));
+    }
 } // namespace TA3D
 

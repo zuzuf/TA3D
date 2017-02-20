@@ -67,15 +67,15 @@ namespace TA3D
         ** \param uname Name of the unit
         ** \return
         */
-		uint32	get_damage_for_unit(const String &uname) const;
+		uint32	get_damage_for_unit(const QString &uname) const;
 
     public:
         //!
         short weapon_id;			// Numéro identifiant l'arme
         //!
-        String internal_name;		// Nom interne de l'arme
+        QString internal_name;		// Nom interne de l'arme
         //!
-        String name;				// Nom de l'arme
+        QString name;				// Nom de l'arme
 
         //!
         byte rendertype;
@@ -184,25 +184,25 @@ namespace TA3D
         float shakeduration;
 
         //! Sound to play when the weapon is firing
-        String soundstart;
+        QString soundstart;
         //! Sound to play when the weapon is exploding
-        String soundhit;
+        QString soundhit;
         //! Sound to play when the water is reached
-        String soundwater;
+        QString soundwater;
         //! Sound to play when the weapon is firing (in fast mode)
-        String soundtrigger;
+        QString soundtrigger;
         //!
-        String explosiongaf;
+        QString explosiongaf;
         //!
-        String explosionart;
+        QString explosionart;
         //!
-        String waterexplosiongaf;
+        QString waterexplosiongaf;
         //!
-        String waterexplosionart;
+        QString waterexplosionart;
         //!
-        String lavaexplosiongaf;
+        QString lavaexplosiongaf;
         //!
-        String lavaexplosionart;
+        QString lavaexplosionart;
 
         //!
         short nb_id;

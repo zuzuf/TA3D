@@ -47,9 +47,9 @@ namespace TA3D
 		void setType(int type);
 		int getType();
 
-		void changeName(const String& newName);		// Change AI name
+		void changeName(const QString& newName);		// Change AI name
 		void save();
-		void loadAI(const String& filename, const int id);    // Load a saved AI (NB: this is not the same symbol used to load Lua scripts!! so this works :) )
+		void loadAI(const QString& filename, const int id);    // Load a saved AI (NB: this is not the same symbol used to load Lua scripts!! so this works :) )
 
 		void monitor();
 
@@ -62,7 +62,7 @@ namespace TA3D
 
 	private:
 		int         playerID;
-		String      name;
+		QString      name;
 
 	}; // class AiScript
 

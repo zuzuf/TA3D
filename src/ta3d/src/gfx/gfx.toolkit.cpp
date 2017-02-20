@@ -877,7 +877,7 @@ namespace TA3D
             }
     }
 
-	void SaveTex(SDL_Surface *bmp, const String &filename)
+    void SaveTex(SDL_Surface *bmp, const QString &filename)
 	{
 		const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
 		if (std::max(bmp->w, bmp->h) > maxTextureSizeAllowed)
@@ -887,7 +887,7 @@ namespace TA3D
 			SDL_FreeSurface(tmp);
 			return;
 		}
-		gzFile file = gzopen(filename.c_str(), "wb1");
+        gzFile file = gzopen(filename.toStdString().c_str(), "wb1");
 		if (file)
 		{
 			SDL_LockSurface(bmp);
@@ -907,9 +907,9 @@ namespace TA3D
 			LOG_ERROR("could not save file : " << filename);
 	}
 
-	SDL_Surface *LoadTex(const String &filename)
+    SDL_Surface *LoadTex(const QString &filename)
 	{
-		gzFile file = gzopen(filename.c_str(), "rb");
+        gzFile file = gzopen(filename.toStdString().c_str(), "rb");
 		if (file)
 		{
 			int w, h, bpp;
@@ -931,11 +931,11 @@ namespace TA3D
 		return NULL;
 	}
 
-	void save_bitmap(const String &filename, SDL_Surface* bmp)
+    void save_bitmap(const QString &filename, SDL_Surface* bmp)
 	{
-		String ext = ToLower( Paths::ExtractFileExt(filename) );
+        QString ext = ToLower( Paths::ExtractFileExt(filename) );
 		if (ext == ".bmp")
-			SDL_SaveBMP(bmp, filename.c_str());
+            SDL_SaveBMP(bmp, filename.toStdString().c_str());
 		else if (ext == ".tex")                      // This is for cached texture data
 			SaveTex(bmp, filename);
 		else if (ext == ".tga")
@@ -963,7 +963,7 @@ namespace TA3D
 		byte description;
 	};
 
-	void save_TGA(const String &filename, SDL_Surface* bmp, bool compress)
+    void save_TGA(const QString &filename, SDL_Surface* bmp, bool compress)
 	{
 		TGAHeader header;
 

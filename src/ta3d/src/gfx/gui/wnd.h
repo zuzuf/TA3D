@@ -56,7 +56,7 @@ namespace Gui
 		** \brief Constructor
 		** \param filename
 		*/
-		WND(const String& filename);
+        WND(const QString& filename);
 		//! Destructor
 		virtual ~WND();
 		//@}
@@ -69,7 +69,7 @@ namespace Gui
 		** \param[out] helpMsg
 		** \param focus
 		*/
-		void draw(String& helpMsg, const bool focus = true, const bool deg = true, Skin* skin = NULL);
+        void draw(QString& helpMsg, const bool focus = true, const bool deg = true, Skin* skin = NULL);
 
 		/*!
 		** \brief Handles Window's moves
@@ -105,7 +105,7 @@ namespace Gui
 		** \param filename
 		** \param skin
 		*/
-		void load_tdf(const String& filename, Skin* skin = NULL);
+        void load_tdf(const QString& filename, Skin* skin = NULL);
 
 		/*!
 		** \brief Load a window from a TA *.GUI file describing the interface
@@ -113,7 +113,7 @@ namespace Gui
 		** \param filename
 		** \param gui_hashtable
 		*/
-		void load_gui(const String& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense & gui_hashtable);
+        void load_gui(const QString& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense & gui_hashtable);
 
 
 
@@ -123,7 +123,7 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		uint32  msg(const String& message);
+        uint32  msg(const QString& message);
 
 		/*!
 		** \brief State of specified object
@@ -131,28 +131,28 @@ namespace Gui
 		** \param message
 		** \return
 		*/
-		bool  get_state(const String& message);
+        bool  get_state(const QString& message);
 
 		/*!
 		** \brief Value of specified object
 		** \param message
 		** \return
 		*/
-		sint32  get_value(const String& message);
+        sint32  get_value(const QString& message);
 
 		/*!
 		** \brief caption of specified object
 		** \param message
 		** \return
 		*/
-		String  caption(const String& message);
+        QString  caption(const QString& message);
 
 		/*!
 		** \brief pointer to the specified object
 		** \param message
 		** \return
 		*/
-		GUIOBJ::Ptr get_object(const String &message);
+        GUIOBJ::Ptr get_object(const QString &message);
 
 
 		unsigned int count();
@@ -187,9 +187,9 @@ namespace Gui
 		bool background_clamp;
 
 		//! Title
-		String  Title;
+        QString  Title;
 		//! Name of the window
-		String  Name;
+        QString  Name;
 
 		//! hashtable used to speed up operations on GUIOBJ objects
 		TA3D::UTILS::HashMap<int>::Dense  obj_hashtable;
@@ -242,7 +242,7 @@ namespace Gui
 		/*!
 		** \brief Draw a background object
 		*/
-		void doDrawWindowBackgroundObject(String& helpMsg, const int i, const bool focus, Skin* skin);
+        void doDrawWindowBackgroundObject(QString& helpMsg, const int i, const bool focus, Skin* skin);
 		/*!
 		** \brief Draw a foreground object
 		*/
@@ -260,7 +260,7 @@ namespace Gui
 		** \brief Same as get_object
 		** \see get_object()
 		*/
-		GUIOBJ::Ptr doGetObject(const String &message);
+        GUIOBJ::Ptr doGetObject(const QString &message);
 
 		void print(std::ostream& out);
 

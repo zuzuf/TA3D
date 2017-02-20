@@ -41,7 +41,7 @@ SET(SRC_MESHES
 # Logs
 #
 SET(SRC_LOGS
-		logs/logs.h logs/logs.hxx logs/logs.cpp)
+                logs/logs.h logs/logs.cpp)
 
 #
 # Languages
@@ -88,7 +88,7 @@ SET(SRC_MISC
 		misc/usectimer.h misc/usectimer.cpp
 		misc/grid.h misc/grid.hxx misc/grid.cpp
 		misc/math.h misc/math.cpp
-		misc/tdf.h misc/tdf.hxx misc/tdf.cpp)
+                misc/tdf.h misc/tdf.cpp)
 		
 
 #

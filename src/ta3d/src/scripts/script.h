@@ -71,7 +71,7 @@ namespace TA3D
 		static LuaProgram	*inGame;
 	};
 
-	void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema = 0 );
+	void generate_script_from_mission( QString Filename, TDFParser& ota_parser, int schema = 0 );
 
 	int program_print(lua_State *L);
 	int program_print_for(lua_State *L);

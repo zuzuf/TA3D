@@ -52,7 +52,7 @@ namespace TA3D
 
 
 
-	int PLAYERS::add(const String& name, const String &SIDE, byte _control, unsigned int E, unsigned int M, const String &AI_level, uint16 teamMask)
+	int PLAYERS::add(const QString& name, const QString &SIDE, byte _control, unsigned int E, unsigned int M, const QString &AI_level, uint16 teamMask)
 	{
 		if (pPlayerCount >= TA3D_PLAYERS_HARD_LIMIT)
 		{
@@ -76,7 +76,7 @@ namespace TA3D
 		energy_t[pPlayerCount]     = 0.f;
 		kills[pPlayerCount]        = 0;
 		losses[pPlayerCount]       = 0;
-		nom[pPlayerCount]          = name;
+        this->name[pPlayerCount]   = name;
 		control[pPlayerCount]      = _control;
 		nb_unit[pPlayerCount]      = 0;
 		energy_total[pPlayerCount] = 0.0f;
@@ -107,8 +107,7 @@ namespace TA3D
 		}
 		if (_control == PLAYER_CONTROL_LOCAL_AI)
 		{
-			String filename;
-			filename << "ai/" << name << ".ai";
+            QString filename = "ai/" + name + ".ai";
 			if (Paths::Exists(filename)) // Load saved data for AI player
 				ai_command[NB_PLAYERS].load(filename, NB_PLAYERS);
 			else													// Sinon crée un nouveau joueur
@@ -136,16 +135,16 @@ namespace TA3D
 		gfx->print(gfx->small_font,
 				   (float)side_data.MetalNum.x1,
 				   (float)side_data.MetalNum.y1,
-				   0.0f, side_data.metal_color, String() << (int)metal[_id]);
+                   0.0f, side_data.metal_color, QString::number((int)metal[_id]));
 		gfx->print(gfx->small_font,
 				   (float)side_data.MetalProduced.x1,
 				   (float)side_data.MetalProduced.y1,
-				   0.0f, side_data.metal_color, String().format("%.2f", metal_t[_id]));
+                   0.0f, side_data.metal_color, QString::asprintf("%.2f", metal_t[_id]));
 
 		gfx->print(gfx->small_font,
 				   (float)side_data.MetalConsumed.x1,
 				   (float)side_data.MetalConsumed.y1,
-				   0.0f,side_data.metal_color, String().format("%.2f", metal_u[_id]));
+                   0.0f,side_data.metal_color, QString::asprintf("%.2f", metal_u[_id]));
 		gfx->print(gfx->small_font,
 				   (float)side_data.Metal0.x1,
 				   (float)side_data.Metal0.y1,
@@ -153,22 +152,22 @@ namespace TA3D
 		gfx->print_right(gfx->small_font,
 						 (float)side_data.MetalMax.x1,
 						 (float)side_data.MetalMax.y1,
-						 0.0f,side_data.metal_color, String() << metal_s[_id] );
+                         0.0f,side_data.metal_color, QString::number(metal_s[_id]));
 		gfx->print(gfx->small_font,
 				   (float)side_data.EnergyNum.x1,
 				   (float)side_data.EnergyNum.y1,
-				   0.0f,side_data.energy_color, String() << (int)energy[_id]);
+                   0.0f,side_data.energy_color, QString::number((int)energy[_id]));
 
 		gfx->print(gfx->small_font,
 				   (float)side_data.EnergyProduced.x1,
 				   (float)side_data.EnergyProduced.y1, 0.0f,
 				   side_data.energy_color,
-				   String().format("%.2f", energy_t[_id]));
+                   QString::asprintf("%.2f", energy_t[_id]));
 
 		gfx->print(gfx->small_font,
 				   (float)side_data.EnergyConsumed.x1,
 				   (float)side_data.EnergyConsumed.y1,
-				   0.0f,side_data.energy_color, String().format("%.2f", energy_u[_id]));
+                   0.0f,side_data.energy_color, QString::asprintf("%.2f", energy_u[_id]));
 		gfx->print(gfx->small_font,
 				   (float)side_data.Energy0.x1,
 				   (float)side_data.Energy0.y1,
@@ -176,7 +175,7 @@ namespace TA3D
 		gfx->print_right(gfx->small_font,
 						 (float)side_data.EnergyMax.x1,
 						 (float)side_data.EnergyMax.y1,
-						 0.0f,side_data.energy_color, String() << energy_s[_id] );
+                         0.0f,side_data.energy_color, QString::number(energy_s[_id]) );
 
 		glDisable(GL_TEXTURE_2D);
 
@@ -397,10 +396,12 @@ namespace TA3D
 		local_human_id = -1;
 		clear();
 		refresh();
-		nom.resize(TA3D_PLAYERS_HARD_LIMIT);
-		side.resize(TA3D_PLAYERS_HARD_LIMIT);
-		for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+        name.clear();
+        side.clear();
+        for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
+            side.push_back(QString());
+            name.push_back(QString());
 			com_metal[i] = M;
 			com_energy[i] = E;
 			control[i] = PLAYER_CONTROL_NONE;
@@ -455,7 +456,7 @@ namespace TA3D
 			if (ai_command)
 				ai_command[i].destroy();
 		}
-		nom.clear();
+        name.clear();
 		side.clear();
 		init();
 	}
@@ -464,7 +465,7 @@ namespace TA3D
 	PLAYERS::~PLAYERS()
 	{
 		destroy();
-		nom.clear();
+        name.clear();
 		side.clear();
 		DELETE_ARRAY(ai_command);
 		destroyThread();

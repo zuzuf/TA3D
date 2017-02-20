@@ -56,8 +56,8 @@ namespace TA3D
 		**
 		** \see loadFromFile()
 		*/
-		explicit TDFParser(const String& filename, const bool caSensitive = false, const bool toUTF8 = false,
-			const bool gadgetMode = false, const bool realFS = false, const bool widgetMode = false);
+		explicit TDFParser(const QString& filename, const bool caSensitive = false, const bool toUTF8 = false,
+                           const bool gadgetMode = false, const bool realFS = false, const bool widgetMode = false);
 
 		//! Destructor
 		~TDFParser();
@@ -81,7 +81,7 @@ namespace TA3D
 		** \param gadgetMode Mystic mode
 		** \return True if the operation succeeded, False otherwise
 		*/
-		bool loadFromFile(const String& filename, const bool clear = false, const bool toUTF8 = false, const bool gadgetMode = false, const bool realFS = false, const bool widgetMode = false);
+		bool loadFromFile(const QString& filename, const bool clear = false, const bool toUTF8 = false, const bool gadgetMode = false, const bool realFS = false, const bool widgetMode = false);
 
 		/*!
 		** \brief Load data from a buffer
@@ -94,7 +94,7 @@ namespace TA3D
 		** \param gadgetMode Mystic mode
 		** \return True if the operation succeeded, False otherwise
 		*/
-		bool loadFromMemory(const String& caption, const char* data, uint64 size, const bool clear = false,
+		bool loadFromMemory(const QString& caption, const char* data, uint64 size, const bool clear = false,
 							const bool toUTF8 = false, const bool gadgetMode = false, const bool widgetMode = false);
 		//@}
 
@@ -107,8 +107,8 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		template<class K> sint32  pullAsInt(const K& key, const sint32 def);
-		template<class K> sint32  pullAsInt(const K& key);
+        sint32  pullAsInt(const QString& key, const sint32 def);
+        sint32  pullAsInt(const QString& key);
 
 		/*!
 		** \brief Get the value for a given key
@@ -116,7 +116,7 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		float  pullAsFloat(const String& key, const float def = 0.0f);
+		float  pullAsFloat(const QString& key, const float def = 0.0f);
 
 		/*!
 		** \brief Get the value for a given key
@@ -124,8 +124,8 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		template<class K, class V> String pullAsString(const K& key, const V& def);
-		template<class K> String pullAsString(const K& key);
+        QString pullAsString(const QString& key, const QString& def);
+        QString pullAsString(const QString& key);
 
 		/*!
 		** \brief Get the value for a given key
@@ -133,7 +133,7 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		bool pullAsBool(const String& key, const bool def = false);
+		bool pullAsBool(const QString& key, const bool def = false);
 
 		/*!
 		** \brief Get the value for a given key
@@ -141,28 +141,28 @@ namespace TA3D
 		** \param def The default value if the key could not be found
 		** \return The value of the key that has been found, def otherwise
 		*/
-		uint32  pullAsColor(const String& key, const uint32 def = 0);
+		uint32  pullAsColor(const QString& key, const uint32 def = 0);
 
 		/*!
 		** \brief Insert or update the value of a key
 		** \param key The key
 		** \param value The new value of the key
 		*/
-		void insertOrUpdate(const String& key, const String& value) {pTable[key] = value;}
+		void insertOrUpdate(const QString& key, const QString& value) {pTable[key] = value;}
 
 		/*!
 		** \brief Remove a key if exists
 		** \param key The key to remove
 		*/
-		void remove(const String& key) {pTable.erase(key);}
+		void remove(const QString& key) {pTable.erase(key);}
 
-		bool exists(const String& key) {return pTable.count(key) != 0;}
+		bool exists(const QString& key) {return pTable.count(key) != 0;}
 
 		/*!
 		** \brief Set the special section
 		** \param special section name
 		*/
-		void setSpecialSection(const String &section);
+		void setSpecialSection(const QString &section);
 
 		/*!
 		** \brief Call a callback for each key
@@ -172,7 +172,7 @@ namespace TA3D
 		** class Predicate
 		** {
 		** public:
-		**     bool operator () (const String& key, const String& value)
+		**     bool operator () (const QString& key, const QString& value)
 		**     {
 		**         std::cout << "Key: " << key << ", value: " << value << std::endl;
 		**         return true; // False to stop the process
@@ -190,7 +190,7 @@ namespace TA3D
 		*/
 		template<typename C> void forEach(C callback)
 		{
-			for(TA3D::UTILS::HashMap<String>::Dense::iterator it = pTable.begin() ; it != pTable.end() ; ++it)
+			for(TA3D::UTILS::HashMap<QString>::Dense::iterator it = pTable.begin() ; it != pTable.end() ; ++it)
 				callback(it.key(), it.value());
 		}
 
@@ -199,13 +199,13 @@ namespace TA3D
 
 	private:
 		//! The hash table
-		TA3D::UTILS::HashMap<String>::Dense pTable;
+		TA3D::UTILS::HashMap<QString>::Dense pTable;
 
 		//! CharCase
 		bool pIgnoreCase;
 
 		//! Special section for which we keep track of keys
-		String special_section;
+		QString special_section;
 
 	}; // class TDFParser
 
@@ -214,7 +214,5 @@ namespace TA3D
 
 
 } // namespace TA3D
-
-# include "tdf.hxx"
 
 #endif // __TA3D_XX__TDF_H__

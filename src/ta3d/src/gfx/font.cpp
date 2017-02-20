@@ -22,11 +22,8 @@
 #include "gfx.h"
 #include <misc/paths.h>
 #include <logs/logs.h>
-#include <yuni/core/io/file.h>
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
-
+#include <QFile>
+#include <QFileInfo>
 
 namespace TA3D
 {
@@ -43,7 +40,7 @@ namespace TA3D
 	Font::Font(const Font& rhs)
 		:ObjectSync(), font((FTFont*)NULL), pFontFilename(rhs.pFontFilename), pType(rhs.pType), bBold(false)
 	{
-		if (!pFontFilename.empty())
+        if (!pFontFilename.isEmpty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
 	}
 
@@ -58,7 +55,7 @@ namespace TA3D
 		MutexLocker locker(pMutex);
         font.reset();
         pFontFilename = rhs.pFontFilename;
-		if (!pFontFilename.empty())
+        if (!pFontFilename.isEmpty())
 			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
 		return *this;
 	}
@@ -73,9 +70,9 @@ namespace TA3D
 
 
 
-	void Font::print(float x, float y, float z, const String& text)
+    void Font::print(float x, float y, float z, const QString& text)
 	{
-		if (text.empty())
+        if (text.isEmpty())
 			return;
 		MutexLocker locker(pMutex);
 		if (!font)
@@ -85,14 +82,14 @@ namespace TA3D
 		for(int k = 0 ; k < (bBold ? 3 : 1) ; ++k)
 		{
 #ifdef __FTGL__lower__
-			font->Render( text.c_str(), -1,
+            font->Render( text.toStdString().c_str(), -1,
 				FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z),
 				FTPoint(), FTGL::RENDER_ALL);
 #else
 			glPushMatrix();
 			glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
 # ifndef TA3D_PLATFORM_DARWIN
-			WString wstr(text);
+            WQString wstr(text);
 			font->Render(wstr.cw_str());
 # else
 			font->Render(text.c_str());
@@ -112,23 +109,23 @@ namespace TA3D
 	}
 
 
-	float Font::length(const String &txt)
+    float Font::length(const QString &txt)
 	{
-		if (txt.empty())
+        if (txt.isEmpty())
 			return 0.0f;
-		if (' ' == txt.last())
-			return length(String(txt) << "_") - length("_");
+        if (txt.endsWith(' '))
+            return length(txt + "_") - length("_");
 
 		MutexLocker locker(pMutex);
 		if (!font)
 			return 0.0f;
 #ifdef __FTGL__lower__
-		FTBBox box = font->BBox( txt.c_str() );
+        FTBBox box = font->BBox( txt.toStdString().c_str() );
 		return fabsf((box.Upper().Xf() - box.Lower().Xf()));
 #else
 		float x0, y0, z0, x1, y1, z1;
 # ifndef TA3D_PLATFORM_DARWIN
-        WString wstr(txt);
+        WQString wstr(txt);
         font->BBox(wstr.cw_str(), x0, y0, z0, x1, y1, z1);
 # else
 		font->BBox(txt.c_str(), x0, y0, z0, x1, y1, z1);
@@ -173,50 +170,45 @@ namespace TA3D
 
 
 
-	static void find_font(String& out, const String &path, const String &name)
+    static void find_font(QString& out, const QString &path, const QString &name)
 	{
 		LOG_DEBUG(LOG_PREFIX_FONT << "looking for " << name);
 		out.clear();
-		String::Vector file_list;
-		String tmp;
+        QStringList file_list;
+        QString tmp;
 
-		String comp_name;
-		(comp_name << name << ".ttf").toLower();
+        const QString comp_name = (name + ".ttf").toLower();
 
-		VFS::Instance()->getFilelist(String(path) << "/*", file_list);
+        VFS::Instance()->getFilelist(path + "/*", file_list);
 		// Looking for the file
 		{
-			const String::Vector::iterator end = file_list.end();
-			for (String::Vector::iterator i = file_list.begin() ; i != end; ++i)
+            for (const QString &i : file_list)
 			{
-				tmp = Paths::ExtractFileName(*i);
-				tmp.toLower();
-				if (tmp == comp_name)
+                if (Paths::ExtractFileName(i).toLower() == comp_name)
 				{
-					out = *i;
+                    out = i;
 					break;
 				}
 			}
 		}
 
-		if (!out.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
+        if (!out.isEmpty())     // If we have a font in our VFS, then we have to extract it to a temporary location
 		{                       // in order to load it with FTGL
 			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << out);
-			tmp.clear();
-			tmp << TA3D::Paths::Caches << Paths::ExtractFileName(name) << ".ttf";
+            tmp = TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf";
 
 			File *file = VFS::Instance()->readFile(out);
 			if (file)
 			{
 				if (file->isReal())
 					tmp = file->getRealFilename();
-				else if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != (uint32)file->size())
+                else if (!QFileInfo(tmp).exists() || QFileInfo(tmp).size() != (uint32)file->size())
 				{
-					Stream tmp_file;
+                    QFile tmp_file(tmp);
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
 
-					tmp_file.open(tmp, Yuni::Core::IO::OpenMode::write);
-					if (tmp_file.opened())
+                    tmp_file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+                    if (tmp_file.isOpen())
 					{
 						char *buf = new char[10240];
 						for(int i = 0 ; i < file->size() ; i += 10240)
@@ -236,53 +228,49 @@ namespace TA3D
 				{
 					LOG_INFO(LOG_PREFIX_FONT << "`" << name << "`: From cache (`" << tmp << "`)");
 				}
-				out.clear();
-				out << tmp;
-# ifdef TA3D_PLATFORM_WINDOWS
-				out.convertSlashesIntoBackslashes();
-# endif
+                out = tmp.replace('\\','/');
 				delete file;
 			}
 		}
 	}
 
 
-	bool Font::load(const String &filename, const int size, const Font::Type type)
+    bool Font::load(const QString &filename, const int size, const Font::Type type)
 	{
 		MutexLocker locker(pMutex);
 		return this->loadWL(filename, size, type);
 	}
 
 
-	bool Font::loadWL(const String &filename, const int size, const Font::Type type)
+    bool Font::loadWL(const QString &filename, const int size, const Font::Type type)
 	{
 		pFontFilename = filename;
 		pType = type;
 
         font.reset();
-        if (!filename.empty())
+        if (!filename.isEmpty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");
 			switch(type)
 			{
 				case typeBitmap:
-                    font.reset(new FTBitmapFont(filename.c_str()));
+                    font.reset(new FTBitmapFont(filename.toStdString().c_str()));
 					break;
 				case typePixmap:
-                    font.reset(new FTPixmapFont(filename.c_str()));
+                    font.reset(new FTPixmapFont(filename.toStdString().c_str()));
 					break;
 				case typePolygon:
-                    font.reset(new FTPolygonFont(filename.c_str()));
+                    font.reset(new FTPolygonFont(filename.toStdString().c_str()));
 					break;
 				case typeTextures:
-                    font.reset(new FTTextureFont(filename.c_str()));
+                    font.reset(new FTTextureFont(filename.toStdString().c_str()));
 					break;
 				case typeTexture:
 				default:
 #ifdef __FTGL__lower__
-                    font.reset(new FTBufferFont(filename.c_str()));
+                    font.reset(new FTBufferFont(filename.toStdString().c_str()));
 #else
-                    font.reset(new FTTextureFont(filename.c_str()));
+                    font.reset(new FTTextureFont(filename.toStdString().c_str()));
 #endif
 			}
 		}
@@ -300,11 +288,9 @@ namespace TA3D
 
 
 
-	Font *FontManager::find(const String& filename, const int size, const Font::Type type)
+    Font *FontManager::find(const QString& filename, const int size, const Font::Type type)
 	{
-		String key(filename);
-		key << "_" << int(type) << "_" << size;
-		key.toLower();
+        const QString key = filename.toLower() + QString("_%1_%1").arg(int(type), size);
 
 		return (font_table.count(key) != 0)
 			? font_table[key]
@@ -313,13 +299,13 @@ namespace TA3D
 
 
 
-	Font* FontManager::internalRegisterFont(const String& key, const String& filename, const int size,
+    Font* FontManager::internalRegisterFont(const QString& key, const QString& filename, const int size,
 		const Font::Type type)
 	{
-		String foundFilename;
+        QString foundFilename;
 		find_font(foundFilename, TA3D_FONT_PATH, filename);
 
-		if (foundFilename.empty())
+        if (foundFilename.isEmpty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << filename);
 			find_font(foundFilename, TA3D_FONT_PATH, "FreeSerif");

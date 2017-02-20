@@ -48,12 +48,12 @@ namespace TA3D
         /*virtual*/ int run(float dt, bool alone = false);                  // Run the script
 
         //! functions used to call/run Lua functions
-        /*virtual*/ void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ void call(const QString &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ int execute(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
         /*virtual*/ UnitScript *fork();
-        /*virtual*/ UnitScript *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ UnitScript *fork(const QString &functionName, int *parameters = NULL, int nb_params = 0);
         UnitScript *fork(lua_State *cL, int n);
 
         //! functions used to save/restore scripts state
@@ -69,10 +69,10 @@ namespace TA3D
 
         int n_args;
 
-        String name;
+        QString name;
 
     private:
-		static void load(const String &filename);
+		static void load(const QString &filename);
 		static void register_functions(lua_State *L);
         void register_info();
 

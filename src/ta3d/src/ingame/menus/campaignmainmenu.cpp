@@ -92,9 +92,9 @@ namespace Menus
 
 		VFS::Instance()->getFilelist("camps\\*.tdf", campaign_list);
 		campaign_list.sort();
-		for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
+		for (QStringList::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
 		{
-			if (SearchString(Substr(*i, 6, i->size() - 6), "/", true) != -1 || SearchString(Substr(*i, 6, i->size() - 6), "\\", true ) != -1)
+			if (SearchQString(Substr(*i, 6, i->size() - 6), "/", true) != -1 || SearchQString(Substr(*i, 6, i->size() - 6), "\\", true ) != -1)
 				campaign_list.erase(i++);
 			else
 				++i;
@@ -106,7 +106,7 @@ namespace Menus
 			guiobj->Text.clear();
 			guiobj->Text.resize(campaign_list.size());
 			int n = 0;
-			for (String::List::const_iterator i = campaign_list.begin(); i != campaign_list.end(); ++i, ++n)
+			for (QStringList::const_iterator i = campaign_list.begin(); i != campaign_list.end(); ++i, ++n)
 				guiobj->Text[n] = Substr(*i, 6, i->size() - 10);
 		}
 
@@ -158,7 +158,7 @@ namespace Menus
 			{
 				last_campaign_id = guiobj->Pos;
 				mission_id = -1;
-				campaign_name = String("camps\\") << guiobj->Text[ guiobj->Pos ] << ".tdf";
+				campaign_name = QString("camps\\") << guiobj->Text[ guiobj->Pos ] << ".tdf";
 				campaign_parser = new TDFParser( campaign_name);
 
 				guiobj = pArea->get_object("campaign.mission_list");
@@ -167,8 +167,8 @@ namespace Menus
 				{
 					guiobj->Text.clear();
 					int i = 0;
-					String current_name;
-					while (!(current_name = campaign_parser->pullAsString(String("MISSION") << i << ".missionname")).empty())
+					QString current_name;
+					while (!(current_name = campaign_parser->pullAsString(QString("MISSION") << i << ".missionname")).empty())
 					{
 						guiobj->Text.push_back(current_name);
 						++nb_mission;

@@ -77,7 +77,7 @@ namespace TA3D
 		destroy();
 	}
 
-	void CobScript::load(const String &filename)
+    void CobScript::load(const QString &filename)
 	{
 		destroy();				// Au cas où
 
@@ -101,8 +101,10 @@ namespace TA3D
 		nbStaticVar = header.StaticVariableCount;
 		nb_script = header.NumberOfScripts;
 		nb_piece = header.NumberOfPieces;
-		names.resize(nb_script);
-		piece_name.resize( nb_piece );
+        names.clear();
+        piece_name.clear();
+        names.reserve(nb_script);
+        piece_name.reserve(nb_piece);
 
 		int i;
 		for (i = 0; i < nb_script; ++i)
@@ -111,7 +113,7 @@ namespace TA3D
 			int ofs;
 			*file >> ofs;
 			file->seek(ofs);
-			names[i] = file->getString().toUpper();
+            names.push_back(file->getString().toUpper());
 		}
 		for(i = 0; i < nb_piece; ++i)
 		{
@@ -119,7 +121,7 @@ namespace TA3D
 			int ofs;
 			*file >> ofs;
 			file->seek(ofs);
-			piece_name[i] = file->getString();
+            piece_name.push_back(file->getString());
 		}
 		codeSize = header.CodeLength * 4;
 		Data = new byte[codeSize];
@@ -162,12 +164,12 @@ namespace TA3D
 	}
 
 
-	int CobScript::findFromName(const String& name)
+    int CobScript::findFromName(const QString& name)
 	{
-		String nameUpper = name;
+        QString nameUpper = name;
 		nameUpper.toUpper();
 		int indx(0);
-		for (String::Vector::const_iterator i = names.begin(); i != names.end(); ++i, ++indx)
+        for (QStringList::const_iterator i = names.begin(); i != names.end(); ++i, ++indx)
 		{
 			if (*i == nameUpper)
 				return indx;
@@ -176,7 +178,7 @@ namespace TA3D
 	}
 
 
-	int CobScript::identify(const String &name)
+    int CobScript::identify(const QString &name)
 	{
 		for (int i = 0; i < nb_piece; ++i)
 		{

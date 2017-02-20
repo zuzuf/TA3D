@@ -27,7 +27,7 @@ using namespace Yuni::Core::IO::File;
 namespace TA3D
 {
 
-void install_TA_files( String HPI_file, String filename )
+void install_TA_files( QString HPI_file, QString filename )
 {
     zuzuf::smartptr<Archive> archive = Archive::load(HPI_file);
 	if (!archive)
@@ -40,7 +40,7 @@ void install_TA_files( String HPI_file, String filename )
 	File *file = archive->readFile(filename);			// Extract the file
 	if (file)
 	{
-		Stream dst(String(Paths::Resources) << Paths::ExtractFileName(filename), Yuni::Core::IO::OpenMode::write);
+		Stream dst(QString(Paths::Resources) << Paths::ExtractFileName(filename), Yuni::Core::IO::OpenMode::write);
 
 		if (dst.opened())
 		{

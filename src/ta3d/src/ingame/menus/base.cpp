@@ -73,7 +73,7 @@ namespace Menus
 		reset_mouse();
 	}
 
-	void Abstract::loadAreaFromTDF(const String& caption, const String& relFilename)
+	void Abstract::loadAreaFromTDF(const QString& caption, const QString& relFilename)
 	{
 		pArea = new Gui::AREA(caption);
 		pArea->load_tdf(relFilename);

@@ -49,7 +49,7 @@ namespace TA3D
 		pInstance = this;
 
 		pInputText.clear();
-		pLastEntries.resize(pMaxItemsToDisplay, String());
+		pLastEntries.resize(pMaxItemsToDisplay, QString());
 
 		L = lua_open();
 		lua_atpanic(L, lua_panic);	// Just to avoid having Lua exiting TA3D
@@ -67,7 +67,7 @@ namespace TA3D
 
 
 
-	void Console::addEntry(const String& newEntry)
+	void Console::addEntry(const QString& newEntry)
 	{
 		pMutex.lock();
 		pLastEntries.push_back(newEntry);
@@ -80,7 +80,7 @@ namespace TA3D
 	void Console::toggleShow()
 	{
 		pMutex.lock();
-		if (!pShow || pInputText.empty())       // Need to clear the input text before closing console
+        if (!pShow || pInputText.isEmpty())       // Need to clear the input text before closing console
 			pShow ^= true;
 		pMutex.unlock();
 	}
@@ -138,20 +138,20 @@ namespace TA3D
 		switch (keycode)
 		{
 		case KEY_TAB:				// TAB-completion code
-			if (!pInputText.empty() && pInputText.last() != ' ')
+            if (!pInputText.isEmpty() && !pInputText.endsWith(' '))
 			{
-				String tmp = pInputText;
-				const String delimiters(" ()'\"");
+				QString tmp = pInputText;
+				const QString delimiters(" ()'\"");
 				for(int i = pInputText.size() - 1 ; i >= 0 ; --i)
 					if (delimiters.contains(pInputText[i]))
 					{
 						tmp = Substr(pInputText, i + 1);
 						break;
 					}
-				if (!tmp.empty())
+                if (!tmp.isEmpty())
 				{
-					String obj("_G.");
-					String param(tmp);
+					QString obj("_G.");
+					QString param(tmp);
 					for(int i = tmp.size() - 1 ; i >= 0 ; --i)
 						if (tmp[i] == '.')
 						{
@@ -160,37 +160,36 @@ namespace TA3D
 							break;
 						}
 
-					String request = String("return ") << obj << "__tab_complete(\"" << param << "\")";
+                    QString request = "return " + obj + "__tab_complete(\"" + param + "\")";
 
-					const String candidates = execute(request);
-					if (!candidates.empty())
+					const QString candidates = execute(request);
+                    if (!candidates.isEmpty())
 					{
-						String::List candidateList;
-						candidates.explode(candidateList,',',true,false,true);
+                        QStringList candidateList = candidates.split(',',QString::SkipEmptyParts);
 
 						if (!candidateList.empty())
 						{
-							String longest = candidateList.front();
-							for(String::List::iterator it = candidateList.begin() ; it != candidateList.end() ; ++it)
+							QString longest = candidateList.front();
+                            for(const QString &it : candidateList)
 							{
-								while(!longest.empty() && Substr(*it, 0, longest.size()) != longest)
-									longest.removeLast();
+                                while(!longest.isEmpty() && Substr(it, 0, longest.size()) != longest)
+                                    longest.chop(1);
 							}
 							if (longest.size() > param.size())
 							{
-								pInputText << Substr(longest, param.size());
-								cursorPos = pInputText.utf8size();
+                                pInputText += Substr(longest, param.size());
+								cursorPos = pInputText.size();
 							}
 							if (candidateList.size() > 1)
 							{
-								addEntry(String());
-								String buf;
+								addEntry(QString());
+								QString buf;
 								int n = 0;
-								for(String::List::iterator it = candidateList.begin() ; it != candidateList.end() ; ++it)
+                                for(const QString &it : candidateList)
 								{
-									if (!buf.empty())
-										buf << '|';
-									buf << *it;
+                                    if (!buf.isEmpty())
+                                        buf += '|';
+                                    buf += it;
 									++n;
 									if (n == 5)
 									{
@@ -199,7 +198,7 @@ namespace TA3D
 										buf.clear();
 									}
 								}
-								if (!buf.empty())
+                                if (!buf.isEmpty())
 									addEntry('|' + buf);
 							}
 						}
@@ -210,7 +209,7 @@ namespace TA3D
 		case KEY_ENTER:
 			pLastCommands.push_back(pInputText);
 			pHistoryPos = static_cast<int>(pLastCommands.size());
-			addEntry(String(">") << pInputText);
+            addEntry(">" + pInputText);
 			execute(pInputText);
 			pInputText.clear();
 			cursorPos = 0;
@@ -220,16 +219,16 @@ namespace TA3D
 		case KEY_BACKSPACE:
 			if (pInputText.size() > 0 && cursorPos > 0)
 			{
-				pInputText = SubstrUTF8(pInputText, 0, cursorPos - 1) << SubstrUTF8(pInputText, cursorPos, pInputText.utf8size() - cursorPos);
+                pInputText = Substr(pInputText, 0, cursorPos - 1) + Substr(pInputText, cursorPos, pInputText.size() - cursorPos);
 				cursorPos--;
 			}
 			break;
 		case KEY_DEL:
-			if (cursorPos < pInputText.utf8size())
-				pInputText = SubstrUTF8(pInputText, 0, cursorPos) << SubstrUTF8(pInputText, cursorPos + 1, pInputText.utf8size() - cursorPos);
+			if (cursorPos < pInputText.size())
+                pInputText = Substr(pInputText, 0, cursorPos) + Substr(pInputText, cursorPos + 1, pInputText.size() - cursorPos);
 			break;
 		case KEY_END:
-			cursorPos = uint32(pInputText.utf8size());
+			cursorPos = uint32(pInputText.size());
 			break;
 		case KEY_HOME:
 			cursorPos = 0;
@@ -239,7 +238,7 @@ namespace TA3D
 				cursorPos--;
 			break;
 		case KEY_RIGHT:
-			if (cursorPos < pInputText.utf8size())
+			if (cursorPos < pInputText.size())
 				cursorPos++;
 			break;
 		case KEY_UP:
@@ -247,7 +246,7 @@ namespace TA3D
 			{
 				--pHistoryPos;
 				pInputText = pLastCommands[pHistoryPos];
-				cursorPos = uint32(pInputText.utf8size());
+				cursorPos = uint32(pInputText.size());
 			}
 			break;
 		case KEY_DOWN:
@@ -258,18 +257,18 @@ namespace TA3D
 					pInputText = pLastCommands[pHistoryPos];
 				else
 					pInputText.clear();
-				cursorPos = uint32(pInputText.utf8size());
+				cursorPos = uint32(pInputText.size());
 			}
 			break;
 		case KEY_ESC:
 			break;
 		case KEY_TILDE:
-			if (pInputText.empty())     // If text input is empty, then we're just closing the console
+            if (pInputText.isEmpty())     // If text input is empty, then we're just closing the console
 				break;
 		default:
-			if (keyb != 0 && pInputText.utf8size() < 199)
+			if (keyb != 0 && pInputText.size() < 199)
 			{
-				pInputText = SubstrUTF8(pInputText, 0, cursorPos) << InttoUTF8(keyb) << SubstrUTF8(pInputText, cursorPos, pInputText.utf8size() - cursorPos);
+                pInputText = Substr(pInputText, 0, cursorPos) + InttoUTF8(keyb) + Substr(pInputText, cursorPos, pInputText.size() - cursorPos);
 				cursorPos++;
 			}
 		};
@@ -293,30 +292,28 @@ namespace TA3D
 		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 
 		// Print all lines
-		int i = 0;
-		const EntryList::const_iterator end = pLastEntries.end();
 		float tableWidth = 80.0f;
-		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry)
+        for (const QString &i_entry : pLastEntries)
 		{
-			if (i_entry->empty())
+            if (i_entry.isEmpty())
 				continue;
-			if (i_entry->first() == '|')
+            if (i_entry[0] == '|')
 			{
-				String::Vector cols;
-				i_entry->explode(cols, '|', true, false, true);
-				for(uint32 k = 0 ; k < cols.size() ; ++k)
-					tableWidth = Math::Max(tableWidth, fnt->length(cols[k]) + 10.0f);
-			}
+                const QStringList &cols = i_entry.split('|', QString::SkipEmptyParts);
+                for(const QString &k : cols)
+                    tableWidth = Math::Max(tableWidth, fnt->length(k) + 10.0f);
+            }
 		}
-		for (EntryList::const_iterator i_entry = pLastEntries.begin(); i_entry != end; ++i_entry, ++i)
+        int i = -1;
+        for (const QString &i_entry : pLastEntries)
 		{
-			if (i_entry->empty())
+            ++i;
+            if (i_entry.isEmpty())
 				continue;
-			if (i_entry->first() == '|')
+            if (i_entry[0] == '|')
 			{
-				String::Vector cols;
-				i_entry->explode(cols, '|', true, false, true);
-				for(uint32 k = 0 ; k < cols.size() ; ++k)
+                const QStringList &cols = i_entry.split('|', QString::SkipEmptyParts);
+                for(int k = 0 ; k < cols.size() ; ++k)
 				{
 					gfx->print(fnt, tableWidth * float(k) + 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
 							   makeacol32(0,0,0,0xFF), cols[k]);
@@ -327,17 +324,17 @@ namespace TA3D
 			else
 			{
 				gfx->print(fnt, 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
-						   makeacol32(0,0,0,0xFF), *i_entry);
+                           makeacol32(0,0,0,0xFF), i_entry);
 				gfx->print(fnt, 0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-						   0xDFDFDFDF, *i_entry);
+                           0xDFDFDFDF, i_entry);
 			}
 		}
 
-		gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), String(">") << pInputText );
-		gfx->print(fnt, 1.0f + fnt->length(String(">") << SubstrUTF8(pInputText, 0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
+        gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
+        gfx->print(fnt, 1.0f + fnt->length(">" + Substr(pInputText, 0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
 
-		gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, String(">") << pInputText );
-		gfx->print(fnt, fnt->length(String(">") << SubstrUTF8(pInputText, 0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
+        gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText );
+        gfx->print(fnt, fnt->length(">" + Substr(pInputText, 0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
 
 		if (pHistoryPos < 0)
 			pHistoryPos = 0;
@@ -364,20 +361,20 @@ namespace TA3D
 		return (pShow || pVisible > 0.0f);
 	}
 
-	String Console::execute(const String &cmd)
+	QString Console::execute(const QString &cmd)
 	{
 		MutexLocker mLocker(pMutex);
 		if (L == NULL)
-			return String();
+			return QString();
 
 		lua_settop(L, 0);
-		if (luaL_loadbuffer(L, (const char*)cmd.c_str(), cmd.size(), NULL ))
+        if (luaL_loadbuffer(L, (const char*)cmd.toStdString().c_str(), cmd.size(), NULL ))
 		{
 			if (lua_gettop(L) > 0 && lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
 				addEntry(lua_tostring(L, -1));
 			else
 				addEntry("# error running command!");
-			return String();
+			return QString();
 		}
 		else
 		{
@@ -389,7 +386,7 @@ namespace TA3D
 						addEntry(lua_tostring(L, -1));
 					else
 						addEntry("# error running command!");
-					return String();
+					return QString();
 				}
 			}
 			catch(...)
@@ -398,12 +395,12 @@ namespace TA3D
 					addEntry(lua_tostring(L, -1));
 				else
 					addEntry("# error running command!");
-				return String();
+				return QString();
 			}
 		}
-		String result;
+		QString result;
 		if (lua_gettop(L) > 0)
-			result << lua_tostring(L, -1);
+            result = lua_tostring(L, -1);
 		lua_settop(L, 0);
 		return result;
 	}
@@ -414,7 +411,7 @@ namespace TA3D
 			return;
 
 		uint32 filesize = 0;
-		String initScript = "scripts/console/init.lua";
+		QString initScript = "scripts/console/init.lua";
 		byte *buffer = loadLuaFile(initScript , filesize);
 		if (buffer)
 		{

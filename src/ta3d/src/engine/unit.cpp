@@ -225,7 +225,7 @@ namespace TA3D
 		const int type = type_id;
         if (!script || type == -1 || !unit_manager.unit_type[type]->script || !unit_manager.unit_type[type]->script->isCached(id))
             return -1;
-		const String f_name( UnitScriptInterface::get_script_name(id) );
+		const QString f_name( UnitScriptInterface::get_script_name(id) );
 		MutexLocker mLocker( pMutex );
 		if (script)
         {
@@ -1607,7 +1607,7 @@ namespace TA3D
 					if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
 						if (the_map->map_data(cur_px, cur_py).stuff == -1)
 						{
-							int type = feature_manager.get_feature_index( String(pType->name) << "_heap" );
+                            int type = feature_manager.get_feature_index( pType->name + "_heap" );
 							if (type >= 0)
 							{
 								the_map->map_data(cur_px, cur_py).stuff = features.add_feature(Pos,type);
@@ -2229,7 +2229,7 @@ namespace TA3D
 			const int old = (int)self_destruct;
 			self_destruct -= dt;
 			if (old != (int)self_destruct) // Play a sound :-)
-				playSound( String("count") << old );
+                playSound( QString("count%1").arg(old) );
 			if (self_destruct <= 0.0f)
 			{
 				self_destruct = 0.0f;
@@ -2855,7 +2855,7 @@ namespace TA3D
 								players.c_energy[owner_id] -= (float)pType->weapon[ i ]->energypershot;
 							}
 							launchScript( Fire_script );			// Run the fire animation script
-                            if (!pType->weapon[ i ]->soundstart.empty())	sound_manager->playSound(pType->weapon[i]->soundstart, &Pos);
+                            if (!pType->weapon[ i ]->soundstart.isEmpty())	sound_manager->playSound(pType->weapon[i]->soundstart, &Pos);
 
 							if (weapon[i].target == NULL)
 								shoot(-1,Pos + data.data[start_piece].tpos,Dir,i, weapon[i].target_pos );
@@ -3385,10 +3385,10 @@ namespace TA3D
 									features.removeFeatureFromMap( mission->getData() );		// Remove the object from map
 
 									if (mission->mission() == MISSION_REVIVE
-										&& !feature->name.empty())			// Creates the corresponding unit
+                                        && !feature->name.isEmpty())			// Creates the corresponding unit
 									{
 										bool success = false;
-										String wreckage_name = feature->name;
+										QString wreckage_name = feature->name;
 										wreckage_name = Substr(wreckage_name, 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
 
 										int wreckage_type_id = unit_manager.get_unit_index( wreckage_name );
@@ -5199,7 +5199,7 @@ script_exec:
 			event.dx = (sint16)(Dir.x * 16384.0f);
 			event.dy = (sint16)(Dir.y * 16384.0f);
 			event.dz = (sint16)(Dir.z * 16384.0f);
-			memcpy( event.str, pW->internal_name.c_str(), pW->internal_name.size() + 1 );
+            memcpy( event.str, pW->internal_name.toStdString().c_str(), pW->internal_name.size() + 1 );
 
 			network_manager.sendEvent( &event );
 		}
@@ -5389,7 +5389,7 @@ script_exec:
 
 
 
-	bool Unit::playSound(const String &key)
+	bool Unit::playSound(const QString &key)
 	{
 		bool bPlayed = false;
 		pMutex.lock();
@@ -5411,8 +5411,8 @@ script_exec:
 		const int type = type_id;
         if (!script || type == -1 || !unit_manager.unit_type[type]->script || !unit_manager.unit_type[type]->script->isCached(id))
             return -2;
-        const String& f_name = UnitScriptInterface::get_script_name(id);
-		if (f_name.empty())
+        const QString& f_name = UnitScriptInterface::get_script_name(id);
+        if (f_name.isEmpty())
 			return -2;
 
 		MutexLocker locker(pMutex);

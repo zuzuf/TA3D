@@ -247,9 +247,9 @@ namespace TA3D
 		return max_h;
 	}
 
-	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b,const String &yardmap,bool open)
+	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b,const QString &yardmap,bool open)
 	{
-		if (yardmap.empty())
+        if (yardmap.isEmpty())
 		{
 			const int x2 = Math::Min(x1 + w, bloc_w_db);
 			const int y2 = Math::Min(y1 + h, bloc_h_db);
@@ -274,7 +274,7 @@ namespace TA3D
 			{
 				for(int x = x1 ; x < x2 && l > i ; ++x, ++i)
 				{
-					switch(yardmap[i])
+                    switch(yardmap[i].toLatin1())
 					{
 					case 'G':
 					case 'o':
@@ -298,9 +298,9 @@ namespace TA3D
 		}
 	}
 
-	void MAP::rect(int x1,int y1,int w,int h,int c,const String &yardmap,bool open)
+	void MAP::rect(int x1,int y1,int w,int h,int c,const QString &yardmap,bool open)
 	{
-		if (yardmap.empty())
+        if (yardmap.isEmpty())
 		{
 			const int y2 = std::min(y1 + h, bloc_h_db - 1);
 			const int x2 = std::min(x1 + w, bloc_w_db - 1);
@@ -338,7 +338,7 @@ namespace TA3D
 						pMutex.unlock();
 						return;
 					}
-					switch(yardmap[i])
+                    switch(yardmap[i].toLatin1())
 					{
 					case 'G':
 					case 'o':
@@ -452,9 +452,9 @@ namespace TA3D
 	}
 
 
-	bool MAP::check_vents(int x1, int y1, int w, int h, const String &yard_map) const
+	bool MAP::check_vents(int x1, int y1, int w, int h, const QString &yard_map) const
 	{
-		if (yard_map.empty())
+        if (yard_map.isEmpty())
 			return true;
 		const int y2 = std::min(y1 + h, bloc_h_db - 1);
 		const int x2 = std::min(x1 + w, bloc_w_db - 1);
@@ -617,7 +617,7 @@ namespace TA3D
 		}
 	}
 
-	void MAP::load_details_texture( const String &filename )
+	void MAP::load_details_texture( const QString &filename )
 	{
 		SDL_Surface *tex = gfx->load_image(filename);
 		if (tex)
@@ -670,7 +670,7 @@ namespace TA3D
 	}
 
 
-	void MAP_OTA::load(const String& filename)
+	void MAP_OTA::load(const QString& filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (file)
@@ -704,25 +704,23 @@ namespace TA3D
 		map_size = parser.pullAsString("GlobalHeader.size");
 		SurfaceMetal = parser.pullAsInt("GlobalHeader.Schema 0.SurfaceMetal");
 		MohoMetal = parser.pullAsInt("GlobalHeader.Schema 0.MohoMetal");
-		for(int s = 0 ; parser.exists( String("globalheader.schema 0.specials.special") << s ) ; s++)
+        for(int s = 0 ; parser.exists( QString("globalheader.schema 0.specials.special%1").arg(s) ) ; ++s)
 		{
-			String key = String("GlobalHeader.Schema 0.specials.special") << s << '.';
-			String specialWhat = parser.pullAsString(String(key) << "specialwhat");
-			specialWhat.toLower();
+            const QString &key = QString("GlobalHeader.Schema 0.specials.special%1.").arg(s);
+            const QString &specialWhat = parser.pullAsString(key + "specialwhat").toLower();
 			if (specialWhat.startsWith("startpos"))
 			{
-				int index = Substr(specialWhat, 8, specialWhat.size() - 8).to<int>() - 1;
-				startX[index] = parser.pullAsInt(String(key) << "xpos");
-				startZ[index] = parser.pullAsInt(String(key) << "zpos");
+				int index = Substr(specialWhat, 8, specialWhat.size() - 8).toInt() - 1;
+                startX[index] = parser.pullAsInt(key + "xpos");
+                startZ[index] = parser.pullAsInt(key + "zpos");
 			}
 		}
 		waterdoesdamage = parser.pullAsBool("GlobalHeader.waterdoesdamage");
 		waterdamage = parser.pullAsInt("GlobalHeader.waterdamage");
-		String tmp = parser.pullAsString("GlobalHeader.Schema 0.type");
-		tmp.toLower();
+        const QString &tmp = parser.pullAsString("GlobalHeader.Schema 0.type").toLower();
 		network = tmp.startsWith("network");
 		// Special flag for slate world which has a white fog background
-		whitefog = String(planet).toUpper() == "SLATE";
+        whitefog = planet.toUpper() == "SLATE";
 
 		if (waterdamage == 0)
 			waterdoesdamage=false;

@@ -52,7 +52,7 @@ namespace TA3D
 
 
 
-	int PARTICLE_ENGINE::addtex(const String& file, const String& filealpha)
+	int PARTICLE_ENGINE::addtex(const QString& file, const QString& filealpha)
 	{
 		MutexLocker locker(pMutex);
 
@@ -60,7 +60,7 @@ namespace TA3D
 		if (NULL == partbmp)
 			partbmp = gfx->create_surface_ex(32, 256, 256);
 		SDL_Surface* bmp;
-		if (!filealpha.empty())
+        if (!filealpha.isEmpty())
 			bmp = GFX::LoadMaskedTextureToBmp(file, filealpha); // Avec canal alpha séparé
 		else
 			bmp = gfx->load_image(file); // Avec canal alpha intégré ou Sans canal alpha

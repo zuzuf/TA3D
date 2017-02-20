@@ -55,16 +55,16 @@ namespace TA3D
         int net2id(const int id) const;
 
 		/*!
-		** \brief Save and restore game data as a String
+		** \brief Save and restore game data as a QString
 		** \param serialized data
 		** \return serialized data
 		*/
-		String serialize() const;
-		void unserialize(const String &data);
+		QString serialize() const;
+		void unserialize(const QString &data);
 
     public:
         //! Which map to play
-        String map_filename;
+        QString map_filename;
 
         //! How many players
         int	 nb_players;
@@ -73,9 +73,9 @@ namespace TA3D
         int	 max_unit_per_player;
 
         //! Name of players
-        String::Vector player_names;
+        QStringList player_names;
         //! Side of players
-        String::Vector player_sides;
+        QStringList player_sides;
 
         //! Who control them
         std::vector<byte> player_control;
@@ -83,7 +83,7 @@ namespace TA3D
         //! Network ID of players
         std::vector<int> player_network_id;
         //! What's their level (for AI)
-        std::vector<String> ai_level;
+        std::vector<QString> ai_level;
 
         //! How much energy do they have when game starts
         std::vector<uint32> energy;
@@ -95,7 +95,7 @@ namespace TA3D
         //! Who is ready ?
         std::vector<byte> ready;
         //! Which script to run
-        String game_script;
+        QString game_script;
         //! flags to configure FOW
         uint8 fog_of_war;
 
@@ -103,9 +103,9 @@ namespace TA3D
         bool campaign;
 
         //! The use only file to read
-        String use_only;
+        QString use_only;
         //! If not empty it's the name of the file to load
-        String saved_file;
+        QString saved_file;
 
     }; // class GameData
 

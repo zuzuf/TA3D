@@ -92,11 +92,11 @@ namespace Gui
 	}
 
 
-	void Skin::loadTDFFromFile(const String& filename, const float scale)
+	void Skin::loadTDFFromFile(const QString& filename, const float scale)
 	{
 		destroy();		// In case there is a skin loaded so we don't waste memory
 
-		if (filename.empty())
+        if (filename.isEmpty())
 		{
 			LOG_WARNING("TDF: Attempting to load an empty file");
 			return;
@@ -104,11 +104,11 @@ namespace Gui
 		TDFParser skinFile(filename);
 
 		// Grab the skin's name, so we can now if a skin is already in use
-		String tmp(Paths::ExtractFileNameWithoutExtension(filename));
+		QString tmp(Paths::ExtractFileNameWithoutExtension(filename));
 
 		pName = skinFile.pullAsString("skin.name", tmp); // The TDF may override the skin name
 
-		pPrefix = skinFile.pullAsString("skin.prefix", String()); // The pPrefix to use for
+		pPrefix = skinFile.pullAsString("skin.prefix", QString()); // The pPrefix to use for
 		text_y_offset = float(skinFile.pullAsInt("skin.text.y offset", 0)) * scale;
 
 		wnd_border.load(skinFile, "skin.window.border.", scale);
@@ -140,13 +140,13 @@ namespace Gui
 		scroll[1].load(skinFile, "skin.scroll.h.", scale);
 		scroll[2].load(skinFile, "skin.scroll.s.", scale);
 
-		String tex_file_name (skinFile.pullAsString("skin.window.image"));
+		QString tex_file_name (skinFile.pullAsString("skin.window.image"));
 		if (VFS::Instance()->fileExists(tex_file_name))
 			wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR, &bkg_w, &bkg_h, false);
 	}
 
 
-	void Skin::button(const float x, const float y, const float x2, const float y2, const String &Title, const bool State, const bool enabled) const
+	void Skin::button(const float x, const float y, const float x2, const float y2, const QString &Title, const bool State, const bool enabled) const
 	{
 		gfx->set_alpha_blending();
 		if (enabled)
@@ -157,7 +157,7 @@ namespace Gui
 		button_img[(State ? 1 : 0)].draw( x, y, x2, y2);
 		gfx->unset_alpha_blending();
 
-		if (!Title.empty())
+        if (!Title.isEmpty())
 		{
 			const TEXT_COLOR &color = enabled ? button_color : button_color_disabled;
 			if (State)
@@ -172,7 +172,7 @@ namespace Gui
 	|        Draw a list box displaying the content of Entry                     |
 	\---------------------------------------------------------------------------*/
 
-	void Skin::ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, uint32 flags) const
+    void Skin::ListBox(float x1, float y1, float x2, float y2, const QStringList &Entry, int Index, int Scroll, uint32 flags) const
 	{
         gfx->set_color(0xFFFFFFFF);
 
@@ -184,8 +184,8 @@ namespace Gui
 		}
 
 		uint32 line = 0;
-		String rest;
-		String pCacheDrawTextStr;
+		QString rest;
+		QString pCacheDrawTextStr;
 		for (unsigned int i = 0; i < Entry.size(); ++i, ++line)
 		{
 			int e = i + Scroll;
@@ -201,7 +201,7 @@ namespace Gui
 			rest.clear();
 			do
 			{
-				if (!rest.empty())
+                if (!rest.isEmpty())
 				{
 					++line;
 					pCacheDrawTextStr = rest;
@@ -241,7 +241,7 @@ namespace Gui
 					rest.clear();
 				gfx->print(gui_font, 10.0f + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * float(line),
 					0.0f, White, pCacheDrawTextStr);
-			} while(!rest.empty());
+            } while(!rest.isEmpty());
 		}
 
 		int TotalScroll = (int)Entry.size() - (int)((y2 - y1 - text_background.y1 + text_background.y2) / pCacheFontHeight);
@@ -253,12 +253,12 @@ namespace Gui
 					TotalScroll ? ((float)Scroll) / (float)TotalScroll : 0.0f, true);
 	}
 
-	void Skin::AppendLineToListBox(String::Vector &Entry, float x1, float x2, String line) const
+    void Skin::AppendLineToListBox(QStringList &Entry, float x1, float x2, QString line) const
 	{
-		String rest;
+		QString rest;
 		do
 		{
-			if (!rest.empty())
+            if (!rest.isEmpty())
 			{
 				line = rest;
 				rest.clear();
@@ -288,17 +288,17 @@ namespace Gui
 			else
 				rest.clear();
 			Entry.push_back(line);
-		} while(!rest.empty());
+        } while(!rest.isEmpty());
 	}
 
 	/*---------------------------------------------------------------------------\
 	  |        Draw a popup menu displaying the text msg using the skin object     |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::PopupMenu( float x1, float y1, const String &msg) const
+	void Skin::PopupMenu( float x1, float y1, const QString &msg) const
 	{
 		float x2 = x1;
-		std::vector< String > Entry;
+		std::vector< QString > Entry;
 		unsigned int last = 0;
 		for (unsigned int i = 0; i < msg.length(); ++i)
 		{
@@ -350,7 +350,7 @@ namespace Gui
 	  |        Draw a floatting menu with the parameters from Entry[]              |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::FloatMenu(float x, float y, const String::Vector &Entry, int Index, int StartEntry) const
+    void Skin::FloatMenu(float x, float y, const QStringList &Entry, int Index, int StartEntry) const
 	{
 		if (StartEntry < (int)Entry.size())
 		{
@@ -384,7 +384,7 @@ namespace Gui
 	  |        Draw an option button with text Title                               |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::OptionButton(float x,float y,const String &Title,bool State) const
+	void Skin::OptionButton(float x,float y,const QString &Title,bool State) const
 	{
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -399,7 +399,7 @@ namespace Gui
 	  |        Draw an option case with text Title                                 |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::OptionCase(float x,float y,const String &Title,bool State) const
+	void Skin::OptionCase(float x,float y,const QString &Title,bool State) const
 	{
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -414,7 +414,7 @@ namespace Gui
 	  |        Draw a TEXTEDITOR widget (a large text input widget)                |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::TextEditor(float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool State) const
+    void Skin::TextEditor(float x1, float y1, float x2, float y2, const QStringList &Entry, int row, int col, bool State) const
 	{
 		bool blink = State && (msec_timer % 1000) >= 500;
 
@@ -428,12 +428,12 @@ namespace Gui
 		float maxheight = y2 - y1 + text_background.y2 - text_background.y1 - text_y_offset;
 		int H = Math::Max( row - (int)(0.5f * maxheight / pCacheFontHeight), 0);
 		int y = 0;
-		int row_size = Entry[row].utf8size();
+        int row_size = Entry[row].size();
 		while (pCacheFontHeight * float(y + 1) <= maxheight && y + H < (int)Entry.size())
 		{
-			String strtoprint;
-			String buf = Entry[y+H];
-			for(int x = 0; !buf.empty() ; )
+			QString strtoprint;
+			QString buf = Entry[y+H];
+            for(int x = 0; !buf.isEmpty() ; )
 			{
 				uint32 k = 0;
 				while(k < buf.size() && buf[k] == ' ')			// Removes useless spaces (it's unlikely we find any other type of blank character here)
@@ -444,14 +444,14 @@ namespace Gui
 					x += k;
 				}
 
-				int len = buf.utf8size();
+                int len = buf.size();
 				int smax = len + 1;
 				int smin = 0;
 				int s = (smax + smin) >> 1;
 				do
 				{
 					s = (smax + smin) >> 1;
-					strtoprint = SubstrUTF8(buf, 0, s);
+                    strtoprint = Substr(buf, 0, s);
 					if (s == smin)
 						break;
 
@@ -460,21 +460,21 @@ namespace Gui
 					else
 						smin = s;
 					if (smax == smin)
-						strtoprint = SubstrUTF8(buf, 0, smin);
+                        strtoprint = Substr(buf, 0, smin);
 				} while(smax != smin);
 
-				if (len > s && SubstrUTF8(strtoprint,s-1,1) != " " && SubstrUTF8(buf,s,1) != " ")		// We're splitting a word :s
+                if (len > s && Substr(strtoprint,s-1,1) != " " && Substr(buf,s,1) != " ")		// We're splitting a word :s
 				{
 					int olds = s;
-					while (s > 0 && SubstrUTF8(strtoprint,s-1,1) != " " && SubstrUTF8(buf,s,1) != " ")
+                    while (s > 0 && Substr(strtoprint,s-1,1) != " " && Substr(buf,s,1) != " ")
 						--s;
 					if (s == 0)
 						s = olds;
 					else
-						strtoprint = SubstrUTF8(buf, 0, s);
+                        strtoprint = Substr(buf, 0, s);
 				}
 
-				buf = SubstrUTF8(buf, s);
+                buf = Substr(buf, s);
 
 				gfx->print( gui_font,
 							x1 + text_background.x1,
@@ -484,12 +484,12 @@ namespace Gui
 							strtoprint);
 				if (row == y + H && x <= col && col < x + s && blink)
 				{
-					gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(SubstrUTF8(strtoprint, 0, col - x)),
+                    gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(Substr(strtoprint, 0, col - x)),
 								y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
 								0.0f, White, "_");
 				}
 				x += s;
-				if (!buf.empty())
+                if (!buf.isEmpty())
 				{
 					y++;
 					H--;
@@ -513,7 +513,7 @@ namespace Gui
 	  |        Draw a text input bar, a way for user to enter text                 |
 	  \---------------------------------------------------------------------------*/
 
-	void Skin::TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool State) const
+	void Skin::TextBar(float x1,float y1,float x2,float y2,const QString &Caption,bool State) const
 	{
 		bool blink = State && (msec_timer % 1000) >= 500;
 
@@ -525,7 +525,7 @@ namespace Gui
 
 		const float maxlength = x2 - x1 + text_background.x2 - text_background.x1 - gui_font->length( "_");
 		int dec = 0;
-		String strtoprint = Substr(Caption, dec, Caption.length() - dec);
+		QString strtoprint = Substr(Caption, dec, Caption.length() - dec);
 		while (gui_font->length( Substr(Caption, dec, Caption.length() - dec ) ) >= maxlength && dec < (int)Caption.length())
 		{
 			++dec;
@@ -580,8 +580,7 @@ namespace Gui
 		progress_bar[1].draw( x1 + progress_bar[0].x1, y1 + progress_bar[0].y1, x1 + progress_bar[0].x1 + (progress_bar[0].x2 + x2 - x1 - progress_bar[0].x1) * float(Value) * 0.01f, y2 + progress_bar[0].y2);			// Draw the bar
 		gfx->unset_alpha_blending();
 
-		String Buf;
-		Buf << Value << "%";
+        QString Buf = QString::number(Value) + "%";
 
 		gfx->print(gui_font,(x1+x2)*0.5f-gui_font->length(Buf) * 0.5f, (y1 + y2) * 0.5f - pCacheFontHeight * 0.5f, 0.0f, White, Buf);
 	}
@@ -590,25 +589,26 @@ namespace Gui
 	  |        Draw a the given text within the given space                        |
 	  \---------------------------------------------------------------------------*/
 
-	int Skin::draw_text_adjust(float x1, float y1, float x2, float y2, const String& msg, int pos, bool missionMode) const
+	int Skin::draw_text_adjust(float x1, float y1, float x2, float y2, const QString& msg, int pos, bool missionMode) const
 	{
 		int last = 0;
-		String pCacheDrawTextStr;
-		String pCacheDrawTextCurrent;
-		String pCacheDrawTextWord;
-		String::Vector pCacheDrawTextVector;
+		QString pCacheDrawTextStr;
+		QString pCacheDrawTextCurrent;
+		QString pCacheDrawTextWord;
+        QStringList pCacheDrawTextVector;
 
 		for (unsigned int i = 0 ; i < msg.length(); ++i)
 		{
 			pCacheDrawTextStr.clear();
-			if (((byte)msg[i]) < 0x80)
-				pCacheDrawTextStr << msg[i];
+            if (((byte)msg[i].toLatin1()) < 0x80)
+                pCacheDrawTextStr += msg[i];
 			else
 			{
 				if (i + 1 < msg.length())
 				{
-					pCacheDrawTextStr << msg[i] << msg[i+1];
-					i++;
+                    pCacheDrawTextStr += msg[i];
+                    pCacheDrawTextStr += msg[i+1];
+                    i++;
 				}
 			}
 
@@ -616,19 +616,18 @@ namespace Gui
 				continue;
 			else
 			{
-				String tmp;
-				tmp << pCacheDrawTextCurrent << ' ' << pCacheDrawTextWord << pCacheDrawTextStr;
+                QString tmp = pCacheDrawTextCurrent + ' ' + pCacheDrawTextWord + pCacheDrawTextStr;
 				if (pCacheDrawTextStr == "\n" || gui_font->length(tmp) >= x2 - x1)
 				{
 					bool line_too_long = true;
 					if (gui_font->length(tmp) < x2 - x1)
 					{
-						pCacheDrawTextCurrent << ' ' << pCacheDrawTextWord;
+                        pCacheDrawTextCurrent += ' ' + pCacheDrawTextWord;
 						pCacheDrawTextWord.clear();
 						line_too_long = false;
 					}
 					else if (pCacheDrawTextStr != "\n")
-						pCacheDrawTextWord << pCacheDrawTextStr;
+                        pCacheDrawTextWord += pCacheDrawTextStr;
 					pCacheDrawTextVector.push_back(pCacheDrawTextCurrent);
 					last = i + 1;
 					pCacheDrawTextCurrent.clear();
@@ -642,23 +641,23 @@ namespace Gui
 				{
 					if (pCacheDrawTextStr == " ")
 					{
-						if (!pCacheDrawTextCurrent.empty())
-							pCacheDrawTextCurrent << ' ';
-						pCacheDrawTextCurrent << pCacheDrawTextWord;
+                        if (!pCacheDrawTextCurrent.isEmpty())
+                            pCacheDrawTextCurrent += ' ';
+                        pCacheDrawTextCurrent += pCacheDrawTextWord;
 						pCacheDrawTextWord.clear();
 					}
 					else
-						pCacheDrawTextWord << pCacheDrawTextStr;
+                        pCacheDrawTextWord += pCacheDrawTextStr;
 				}
 			}
 		}
 
-		if (!pCacheDrawTextCurrent.empty())
-			pCacheDrawTextCurrent << ' ' << pCacheDrawTextWord;
+        if (!pCacheDrawTextCurrent.isEmpty())
+            pCacheDrawTextCurrent += ' ' + pCacheDrawTextWord;
 		else
-			pCacheDrawTextCurrent << pCacheDrawTextWord;
+            pCacheDrawTextCurrent += pCacheDrawTextWord;
 
-		if (last + 1 < (int)msg.length() && !pCacheDrawTextCurrent.empty())
+        if (last + 1 < (int)msg.length() && !pCacheDrawTextCurrent.isEmpty())
 			pCacheDrawTextVector.push_back(pCacheDrawTextCurrent);
 
 		gfx->set_color( 0xFFFFFFFF);
@@ -668,21 +667,22 @@ namespace Gui
 			uint32	current_color = 0xFFFFFFFF;
 			for (unsigned int e = pos ; e < pCacheDrawTextVector.size() ; ++e)
 			{
-				const String& item = pCacheDrawTextVector[e];
+				const QString& item = pCacheDrawTextVector[e];
 				if (y1 + pCacheFontHeight * float(e + 1 - pos) <= y2)
 				{
 					float x_offset = 0.0f;
-					String buf;
+					QString buf;
 					for (unsigned int i = 0 ; i < item.size(); ++i)
 					{
 						pCacheDrawTextStr.clear();
-						if (((byte)item[i]) < 0x80)
-							pCacheDrawTextStr << item[i];
+                        if (((byte)item[i].toLatin1()) < 0x80)
+                            pCacheDrawTextStr += item[i];
 						else
 						{
 							if (i + 1 < item.size())
 							{
-								pCacheDrawTextStr << item[i] << item[i + 1];
+                                pCacheDrawTextStr += item[i];
+                                pCacheDrawTextStr += item[i + 1];
 								i++;
 							}
 						}
@@ -708,7 +708,7 @@ namespace Gui
 							}
 						}
 						else
-							buf << pCacheDrawTextStr;
+                            buf += pCacheDrawTextStr;
 					}
 					text_color.print( gui_font, x1 + x_offset, y1 + pCacheFontHeight * float(e - pos), current_color, buf);
 				}

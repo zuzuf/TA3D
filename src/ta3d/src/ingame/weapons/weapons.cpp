@@ -34,19 +34,18 @@ namespace TA3D
 
 	void load_weapons(ProgressNotifier *progress)				// Charge toutes les armes
 	{
-		String::Vector file_list;
-		VFS::Instance()->getFilelist(String(ta3dSideData.weapon_dir) << "*.tdf", file_list);
+		QStringList file_list;
+        VFS::Instance()->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
 
 		int n = 0;
 
-		const String::Vector::const_iterator end = file_list.end();
-		for (String::Vector::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+        for (const QString &cur_file : file_list)
 		{
 			if (progress != NULL && !(n & 0xF))
 				(*progress)((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
 			++n;
 
-			File *file = VFS::Instance()->readFile(*cur_file);
+            File *file = VFS::Instance()->readFile(cur_file);
 			if (file)
 			{
 				weapon_manager.load_tdf(file);
@@ -54,7 +53,7 @@ namespace TA3D
 			}
 		}
 
-		fx_manager.fx_data = VFS::Instance()->readFile("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
+        fx_manager.fx_data = VFS::Instance()->readFile("anims/fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
 		if (fx_manager.fx_data)
 		{
 			weapon_manager.cannonshell.loadGAFFromRawData(fx_manager.fx_data, Gaf::RawDataGetEntryIndex(fx_manager.fx_data, "cannonshell"));

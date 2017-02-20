@@ -37,7 +37,7 @@ namespace TA3D
 		//!
 		int lastTime;
 		//!
-		String toStr;
+		QString toStr;
 	};
 
 

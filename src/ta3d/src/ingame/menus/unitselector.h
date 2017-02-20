@@ -42,7 +42,7 @@ namespace Menus
 		**
 		** \return True if selection has been validated by the user, false otherwise
 		*/
-		static bool Execute(const String& preSelectedUnits, String& useOnly);
+		static bool Execute(const QString& preSelectedUnits, QString& useOnly);
 
 	public:
 		//! \name Constructor & Destructor
@@ -53,7 +53,7 @@ namespace Menus
 		** \brief Constructor
 		** \param PreSelected map
 		*/
-		UnitSelector(const String& preSelectedUnits);
+		UnitSelector(const QString& preSelectedUnits);
 		//! Destructor
 		virtual ~UnitSelector();
 		//@}
@@ -66,7 +66,7 @@ namespace Menus
 		**
 		** \return Name of the useOnly file, empty if none has been selected
 		*/
-		const String& selected() const { return pUseOnly; }
+		const QString& selected() const { return pUseOnly; }
 
 
 	protected:
@@ -83,12 +83,12 @@ namespace Menus
 
 	private:
 		//! Name of the UseOnly file
-		String pUseOnly;
+		QString pUseOnly;
 		//! Default Name of the UseOnly file
-		String pDefaultUseOnly;
+		QString pDefaultUseOnly;
 
 		//! List of units
-		String::List pUnitList;
+		QStringList pUnitList;
 
 		//! Reference to the unit picture object (Gui)
 		Gui::GUIOBJ::Ptr pUnitPicObj;

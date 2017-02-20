@@ -18,11 +18,10 @@
 #ifndef __TA3D_LOGS_LOGS_H__
 # define __TA3D_LOGS_LOGS_H__
 
-# include <yuni/yuni.h>
-# include <yuni/core/logs.h>
-# include <yuni/core/logs/handler/file.h>
-# include <yuni/core/logs/decorators/applicationname.h>
-
+# include <QDebug>
+# include <QFile>
+# include <QTextStream>
+# include <QSharedPointer>
 
 
 // FIXME : Those defines are ketp for compatibility reasons and shall be removed as soon as possible
@@ -102,50 +101,81 @@
 namespace TA3D
 {
 
+    class Logger
+    {
+        struct LoggerEntry
+        {
+            LoggerEntry(Logger &logger) : logger(logger)    {}
+            ~LoggerEntry()
+            {
+                logger.write_endl();
+            }
 
-	/*!
-	** \brief A static list of logging Handelrs
-	**
-	** StdCout : Console printing
-	** File : Logging to a file
-	*/
-	typedef Yuni::Logs::StdCout< Yuni::Logs::File<> >  LoggerHandlers;
+            template<typename T>
+            LoggerEntry &operator<<(const T &v)
+            {
+                logger.write(v);
+                return *this;
+            }
 
+        private:
+            Logger &logger;
+        };
 
-	/*!
-	** \brief A static list of decorators for the logger
-	*/
-	typedef Yuni::Logs::Time<          // Date/Time when the event occurs
-		Yuni::Logs::ApplicationName<   // name of the application
-		Yuni::Logs::VerbosityLevel<    // The verbosity level
-		Yuni::Logs::Message<>          // The message itself
-		> > > LoggerDecorators;
+    public:
+        Logger();
+        ~Logger();
 
+        void openLogFile(const QString &filename);
 
+        template<typename T>
+        void write(const T &v)
+        {
+            if (log_file_stream)
+                *log_file_stream << v;
+        }
 
-	/*!
-	** \brief The TA3D logger type
-	*/
-	typedef Yuni::Logs::Logger<LoggerHandlers, LoggerDecorators>  Logger;
+        bool logFileIsOpened() const;
+
+        QString logfile() const;
+
+        void write_endl()
+        {
+            if (log_file_stream)
+            {
+                *log_file_stream << '\n';
+                log_file_stream->flush();
+            }
+        }
+
+#define IMPL(X)\
+        LoggerEntry X()\
+        {\
+            write("[" #X "]");\
+            return LoggerEntry(*this);\
+        }
+        IMPL(info)
+        IMPL(debug)
+        IMPL(warning)
+        IMPL(error)
+        IMPL(fatal)
+        IMPL(notice)
+        IMPL(checkpoint)
+
+#undef IMPL
+
+    public:
+        int verbosityLevel;
+    private:
+        QFile log_file;
+        QSharedPointer<QTextStream> log_file_stream;
+    };
 
 
 	/*!
 	** \brief The global TA3D Logger
 	*/
 	extern Logger logs;
-
-
-
-	/*!
-	** \brief Reset the logging mecanism with the default settings
-	**
-	** \param logfile The new log file to use
-	*/
-	template<class U> void ResetTheLoggingMecanism(const U& logfile);
-
-
 } // namespace TA3D
-
-# include "logs.hxx"
 
 #endif // __TA3D_LOGS_LOGS_H__

@@ -98,8 +98,8 @@ namespace TA3D
         SocketBroadCast broadcast_socket;	// Used to discover LAN servers
         BroadCastThread broadcast_thread;
 
-        String gamename;        //displays on the internet gamelist
-        String creatorName;     //name of the game owner
+        QString gamename;        //displays on the internet gamelist
+        QString creatorName;     //name of the game owner
         int adminDir[10];       //which players are admins
         int myMode;             //0 off, 1 'server', 2 client
         int myID;               //your id in everyone elses socklist
@@ -114,8 +114,8 @@ namespace TA3D
 		std::deque<sync> syncq;
 		std::deque<event> eventq;
 
-		std::deque< String > broadcastq;
-		std::deque< String > broadcastaddressq;
+		std::deque< QString > broadcastq;
+		std::deque< QString > broadcastaddressq;
 
         Mutex slmutex;
         Mutex mqmutex;
@@ -132,7 +132,7 @@ namespace TA3D
         bool playerDropped;
 
         int addPlayer(TA3DSock* sock);
-        void updateFileTransferInformation( String id, int size, int pos );
+        void updateFileTransferInformation( QString id, int size, int pos );
 		void processPong(int id);
 
         //this stuff places specific events in the event queue
@@ -148,8 +148,8 @@ namespace TA3D
         Network();
         ~Network();
 
-        int HostGame(const String &name, uint16 port);
-        int Connect(const String &target, uint16 port);
+        int HostGame(const QString &name, uint16 port);
+        int Connect(const QString &target, uint16 port);
         void Disconnect();
 
         void setPlayerDirty();
@@ -163,13 +163,13 @@ namespace TA3D
 
 		int sendPing(int src_id = -1, int dst_id = -1);
 		int sendPong(int dst_id);
-		int sendAll(const String& msg);
-        int sendSpecial( String msg, int src_id = -1, int dst_id = -1);
+		int sendAll(const QString& msg);
+        int sendSpecial( QString msg, int src_id = -1, int dst_id = -1);
         int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
         int sendChat(struct chat* chat, int src_id = -1);
         int sendSync(struct sync* sync, int src_id = -1);
         int sendEvent(struct event* event, int src_id = -1);
-        int sendFile(int player, const String &filename, const String &port);
+        int sendFile(int player, const QString &filename, const QString &port);
         int sendTick(uint32 tick, uint16 speed);
 
         int dropPlayer(int num);
@@ -181,21 +181,21 @@ namespace TA3D
         int getNextChat(struct chat* chat);
         int getNextSync(struct sync* sync);
         int getNextEvent(struct event* event);
-        String getFile(int player, const String &filename);
+        QString getFile(int player, const QString &filename);
 
-        void stopFileTransfer( const String &port = "", int to_id = -1);
-        bool isTransferFinished( const String &port );
+        void stopFileTransfer( const QString &port = "", int to_id = -1);
+        bool isTransferFinished( const QString &port );
 
         bool isConnected();
         bool isServer();
         int getMyID();
-        String getStatus();
+        QString getStatus();
 
         float getFileTransferProgress();
 
-		int broadcastMessage( const String &msg );
-        String getNextBroadcastedMessage();
-        String getLastMessageAddress();
+		int broadcastMessage( const QString &msg );
+        QString getNextBroadcastedMessage();
+        QString getLastMessageAddress();
         bool BroadcastedMessages();
 
 		int sendFileData( int player, uint16 port, const byte *data, int size );
@@ -212,7 +212,7 @@ namespace TA3D
     {
         Network* network;
         int sockid;
-        String filename;
+        QString filename;
     };
 
 

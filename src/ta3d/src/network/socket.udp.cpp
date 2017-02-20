@@ -22,12 +22,12 @@ namespace TA3D
         return sock != NULL;
     }
 
-    void SocketUDP::open(const String &hostname, uint16 port)
+    void SocketUDP::open(const QString &hostname, uint16 port)
     {
         MutexLocker locker(pMutex);
         close();
 
-        SDLNet_ResolveHost( &IP, hostname.c_str(), port );
+        SDLNet_ResolveHost( &IP, hostname.toStdString().c_str(), port );
         sock = SDLNet_UDP_Open(port);
         if (sock == NULL)
         {
@@ -61,9 +61,9 @@ namespace TA3D
         checked = false;
     }
 
-    void SocketUDP::send(const String &str)
+    void SocketUDP::send(const QString &str)
     {
-        send(str.c_str(), str.size());
+        send(str.toStdString().c_str(), str.size());
     }
 
     void SocketUDP::send(const char *data, int size)
@@ -158,9 +158,9 @@ namespace TA3D
         return remoteIP;
     }
 
-    String SocketUDP::getRemoteIPstr() const
+    QString SocketUDP::getRemoteIPstr() const
     {
-		return String() << (remoteIP.host & 0xFF) << '.' << ((remoteIP.host >> 8) & 0xFF) << '.' << ((remoteIP.host >> 16) & 0xFF) << '.' << (remoteIP.host >> 24);
+        return QString("%1.%2.%3.%4").arg(remoteIP.host & 0xFF).arg((remoteIP.host >> 8) & 0xFF).arg((remoteIP.host >> 16) & 0xFF).arg(remoteIP.host >> 24);
     }
 
     uint32 SocketUDP::getRemoteIP() const

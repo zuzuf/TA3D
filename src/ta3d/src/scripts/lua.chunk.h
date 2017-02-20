@@ -57,26 +57,26 @@ namespace TA3D
 		/*!
 		** \brief Constructor with default values
 		*/
-		LuaChunk(lua_State *L, const String& name);
+		LuaChunk(lua_State *L, const QString& name);
 		//! Destructor
 		virtual ~LuaChunk();
 		//@}
 
-		/*virtual*/ void load(const String &filename);                    // Load a lua chunk
-		void save(const String &filename);                    // Save the lua chunk
+		/*virtual*/ void load(const QString &filename);                    // Load a lua chunk
+		void save(const QString &filename);                    // Save the lua chunk
 
 		int load(lua_State *L);
 
-		void dump(lua_State *L, const String& name);
-		const String& getName() const;
+		void dump(lua_State *L, const QString& name);
+		const QString& getName() const;
 
-		virtual int identify(const String &name);
+		virtual int identify(const QString &name);
 
 	protected:
 		byte* buffer;
 		uint32 size;
-		String name;
-		String::Vector  piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
+		QString name;
+        QStringList piece_name;     // Nom des pièces de l'objet 3d concerné / Name of pieces
 
 	private:
 		void init();

@@ -41,7 +41,7 @@ namespace TA3D
 
 	void NetClient::disconnect()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		sendMessage("DISCONNECT");
 		sock.close();
 		state = DISCONNECTED;
@@ -56,20 +56,20 @@ namespace TA3D
 	}
 
 
-	String NetClient::getNextMessage()
+	QString NetClient::getNextMessage()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-		String msg = messages.front();
+        MutexLocker locker(mtx);
+		QString msg = messages.front();
 		messages.pop_front();
 		return msg;
 	}
 
 
-	void NetClient::sendMessage(const String &msg)
+	void NetClient::sendMessage(const QString &msg)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		if (sock.isOpen())
-			sock.send((String(msg) << "\n").data(), msg.size() + 1);
+            sock.send(msg + "\n");
 		else
 		{
 			state = DISCONNECTED;
@@ -81,7 +81,7 @@ namespace TA3D
 
 	void NetClient::clearMessageQueue()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		messages.clear();
 	}
 
@@ -92,9 +92,9 @@ namespace TA3D
 	}
 
 
-	void NetClient::connect(const String &server, const uint16 port, const String &login, const String &password, bool bRegister)
+	void NetClient::connect(const QString &server, const uint16 port, const QString &login, const QString &password, bool bRegister)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		if (sock.isOpen())
 			disconnect();
 
@@ -114,14 +114,14 @@ namespace TA3D
 			sock.setNonBlockingMode(true);
 			buffer_pos = 0;
 
-			sendMessage(String("CLIENT ") << TA3D_ENGINE_VERSION);
-			if (password.empty())
+            sendMessage(QString("CLIENT ") + TA3D_ENGINE_VERSION);
+            if (password.isEmpty())
 				return;
 			state = CONNECTING;
 			if (bRegister)
-				sendMessage(String("REGISTER ") << login << ' ' << password);
+                sendMessage("REGISTER " + login + ' ' + password);
 			else
-				sendMessage(String("LOGIN ") << login << ' ' << password);
+                sendMessage("LOGIN " + login + ' ' + password);
 			uint32 timer = msec_timer;
 			bool done = false;
 			while (msec_timer - timer < 10000 && !done)   // 10s timeout
@@ -132,9 +132,8 @@ namespace TA3D
 				while (messageWaiting() && i < messages.size())
 				{
 					++i;
-					String::Vector args;
-					String msg = getNextMessage();
-					msg.explode(args, ' ');
+					QString msg = getNextMessage();
+                    const QStringList &args = msg.split(' ', QString::SkipEmptyParts);
 
 					if (args.empty())   continue;
 
@@ -172,7 +171,7 @@ namespace TA3D
 
 	void NetClient::receive()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		if (!sock.isOpen())     // Socket is closed, we can't get anything
 		{
 			state = DISCONNECTED;
@@ -191,7 +190,7 @@ namespace TA3D
 			{
 				if (buffer[i] == '\n')
 				{
-					String msg(buffer + e, i - e);
+                    QString msg = QString::fromLatin1(buffer + e, i - e);
 					e = i + 1;
 					messages.push_back(msg);
 					processMessage(msg);
@@ -209,15 +208,15 @@ namespace TA3D
 	}
 
 
-	void NetClient::processMessage(const String& msg)
+	void NetClient::processMessage(const QString& msg)
 	{
-		if (msg.empty())
+        if (msg.isEmpty())
 			return;
 
 		// We need to split the server command into its parameters
-		String::Vector args = SplitCommand(msg);
+        const QStringList &args = SplitCommand(msg);
 
-		if (args.empty())
+        if (args.isEmpty())
 			return;
 
 		if (args[0] == "USER" && args.size() == 2)
@@ -242,7 +241,7 @@ namespace TA3D
 					found = true;
 					if (i + 1 < peerList.size())
 						peerList[i] = peerList.back();
-					peerList.resize(peerList.size() - 1);
+                    peerList.pop_back();
 				}
 		}
 		else if (args[0] == "CHAN" && args.size() == 2)
@@ -267,7 +266,7 @@ namespace TA3D
 					found = true;
 					if (i + 1 < chanList.size())
 						chanList[i] = chanList.back();
-					chanList.resize(chanList.size() - 1);
+                    chanList.pop_back();
 				}
 		}
 		else if (args[0] == "CLOSE")
@@ -343,7 +342,7 @@ namespace TA3D
 
     ModInfo::List NetClient::getModList()
     {
-        ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		modListChanged = false;
         return modList;
     }
@@ -351,39 +350,39 @@ namespace TA3D
 
 	NetClient::GameServer::List NetClient::getServerList()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		serverListChanged = false;
 		return serverList;
 	}
 
 
-	void NetClient::changeChan(const String &chan)
+	void NetClient::changeChan(const QString &chan)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-		currentChan = chan.empty() ? "*" : chan;
-		sendMessage(String("CHAN ") << chan);
+        MutexLocker locker(mtx);
+        currentChan = chan.isEmpty() ? "*" : chan;
+        sendMessage("CHAN " + chan);
 		sendMessage("GET USER LIST");
 		peerList.clear();
 	}
 
 
-	void NetClient::sendChan(const String &msg)
+	void NetClient::sendChan(const QString &msg)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-		sendMessage(String("SENDALL ") << msg);
+        MutexLocker locker(mtx);
+        sendMessage("SENDALL " + msg);
 	}
 
 
 	void NetClient::clearServerJoined()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		serverJoined.clear();
 	}
 
 
 	bool NetClient::getHostAck()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(mtx);
 		if (hostAck)
 		{
 			hostAck = false;

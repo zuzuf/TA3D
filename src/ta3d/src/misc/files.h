@@ -39,17 +39,6 @@ namespace Paths
 */
 namespace Files
 {
-
-
-	/*!
-	** \brief Get the size of a file
-	** \param filename The file
-	** \param[out] size The size of the file. 0 if any errors has occured
-	** \return True if the operation succeeded, False otherwise
-	*/
-	bool Size(const String& filename, uint64& size);
-
-
 	/*!
 	** \brief Replace the extension
 	**
@@ -62,7 +51,7 @@ namespace Files
 	** \param newExt The new extension (ex: `.ota`)
 	** \return The filename with the new extension
 	*/
-	String ReplaceExtension(const String& filename, const String& newExt);
+    QString ReplaceExtension(const QString& filename, const QString& newExt);
 
 
 
@@ -78,8 +67,7 @@ namespace Files
 	** \param emptyListBefore Empty the list before any operation
 	** \return True if the operation succeeded, False otherwise
 	*/
-	bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
-	bool Load(String::List& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
+    bool Load(QStringList& out, const QString& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
 
 
 	/*!
@@ -90,7 +78,7 @@ namespace Files
 	** \return The content of the file, null terminated , NULL if size > hardlimit or if any errors has occured.
 	** If not NULL, this value must be deleted with the keyword `delete[]`
 	*/
-	UTILS::File* LoadContentInMemory(const String& filename, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
+    UTILS::File* LoadContentInMemory(const QString& filename, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
 
 	/*!
 	** \brief Save the content of a string iinto a file
@@ -99,7 +87,7 @@ namespace Files
 	** \param content The new content of the file
 	** \return True if the operation succeeded, false otherwise
 	*/
-	bool SaveToFile(const String& filename, const String& content);
+    bool SaveToFile(const QString& filename, const QString& content);
 
 	//@}
 
@@ -112,7 +100,7 @@ namespace Files
 	** \param overwrite Overwrite the target file if already exists
 	** \return True if the operation succeeded (or if the target file already exists and `overwrite` = false), false otherwise
 	*/
-	bool Copy(const String& from, const String& to, const bool overwrite = true);
+    bool Copy(const QString& from, const QString& to, const bool overwrite = true);
 
 
 

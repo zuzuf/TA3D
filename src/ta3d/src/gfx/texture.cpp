@@ -41,7 +41,7 @@ namespace Interfaces
 		destroy();
 	}
 
-	void GfxTexture::load(const String &filename)
+    void GfxTexture::load(const QString &filename)
 	{
 		destroy();
 		set(gfx->load_texture(filename, FILTER_TRILINEAR, &width, &height));

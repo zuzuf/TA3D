@@ -65,7 +65,7 @@ namespace UTILS
 		{
 			uint32		length;
 			byte		*data;
-			String		name;
+			QString		name;
 		}; // class CacheFileData
 
 	public:
@@ -84,34 +84,32 @@ namespace UTILS
 		** \brief
 		** \param path
 		*/
-		void searchDirForArchives(const String& path);
+		void searchDirForArchives(const QString& path);
 
 		/*!
 		** \brief
 		** \param s
 		** \param[out] li
 		*/
-		uint32 getFilelist(String pattern, String::List& li);
-		uint32 getFilelist(String pattern, String::Vector& li);
+        uint32 getFilelist(QString pattern, QStringList& li);
 
 		/*!
 		** \brief
 		** \param s
 		** \param[out] li
 		*/
-		uint32 getDirlist(String pattern, String::List& li);
-		uint32 getDirlist(String pattern, String::Vector& li);
+        uint32 getDirlist(QString pattern, QStringList& li);
 
 		/*!
 		** \brief Get the list of all loaded archives
 		** \param[out] li
 		*/
-		uint32 getArchivelist(String::Vector& li) const;
+        uint32 getArchivelist(QStringList& li) const;
 
 		/*!
 		** \brief
 		*/
-		File* readFile(const String& filename);
+		File* readFile(const QString& filename);
 
 		/*!
 		** \brief
@@ -120,28 +118,28 @@ namespace UTILS
 		** \param length
 		** \return
 		*/
-		File* readFileRange(const String& filename, const uint32 start, const uint32 length);
+		File* readFileRange(const QString& filename, const uint32 start, const uint32 length);
 
 		/*!
 		** \brief
 		** \param filename
 		** \return
 		*/
-		bool fileExists(String filename);
+		bool fileExists(QString filename);
 
 		/*!
 		** \brief returns the priority level of a file
 		** \param filename
 		** \return
 		*/
-		int filePriority(const String& filename);
+		int filePriority(const QString& filename);
 
 		/*!
 		** \brief extract the given file and return an absolute path to it
 		** \param filename
 		** \return
 		*/
-		String extractFile(const String& filename);
+		QString extractFile(const QString& filename);
 
 
 	private:
@@ -171,7 +169,7 @@ namespace UTILS
 		** \param filename
 		** \param priority
 		*/
-		void addArchive(const String& filename, const int priority);
+		void addArchive(const QString& filename, const int priority);
 
 		/*!
 		** \brief
@@ -179,7 +177,7 @@ namespace UTILS
 		** \param path
 		** \param priority
 		*/
-		void locateAndReadArchives(const String& path, const int priority);
+		void locateAndReadArchives(const QString& path, const int priority);
 
 		/*!
 		** \brief
@@ -187,13 +185,13 @@ namespace UTILS
 		** \param filesize
 		** /param data
 		*/
-		void putInCache(const String& filename, File* file);
+		void putInCache(const QString& filename, File* file);
 
 		/*!
 		** \brief
 		** \param filename
 		*/
-		CacheFileData* isInCache(const String& filename);
+		CacheFileData* isInCache(const QString& filename);
 
 		/*!
 		** \brief build the table of all dirs from the list of all files
@@ -204,19 +202,19 @@ namespace UTILS
 		void loadWL();
 		void unloadWL();
 
-		CacheFileData* isInCacheWL(const String& filename);
+		CacheFileData* isInCacheWL(const QString& filename);
 
 		/*!
 		** \brief
 		** \param filename
 		** \param filesize
 		*/
-		File *isInDiskCacheWL(const String& filename);
+		File *isInDiskCacheWL(const QString& filename);
 
 
 	private:
 		//! used when looking for files in the real file system
-		String::Vector pPaths;
+        QStringList pPaths;
 		//!
 		typedef TA3D::UTILS::HashMap<Archive::FileInfo*>::Dense FileInfoMap;
 		FileInfoMap pFiles;
@@ -233,10 +231,9 @@ namespace UTILS
 	}; // class VFS;
 
 
-	bool load_palette(SDL_Color *pal, const String& filename = "palettes\\palette.pal");
+	bool load_palette(SDL_Color *pal, const QString& filename = "palettes\\palette.pal");
 
-	bool loadFromFile(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore);
-	bool loadFromFile(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore);
+    bool loadFromFile(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore);
 
 } // namespace utils
 } // namespace TA3D

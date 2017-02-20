@@ -11,42 +11,42 @@ namespace TA3D
 
 	int CAPI::print(lua_State *L)
 	{
-		String tmp;
+        QString tmp;
 		for(int i = 1 ; i <= lua_gettop(L) ; ++i)
 		{
-			if (!tmp.empty())
-				tmp << ' ';
+            if (!tmp.isEmpty())
+                tmp += ' ';
 			switch(lua_type(L, i))
 			{
 			case LUA_TNIL:
-				tmp << "<nil>";
+                tmp += "<nil>";
 				break;
 			case LUA_TNUMBER:
-				tmp << lua_tonumber(L, i);
+                tmp += lua_tonumber(L, i);
 				break;
 			case LUA_TBOOLEAN:
-				tmp << (lua_toboolean(L, i) ? "true" : "false");
+                tmp += (lua_toboolean(L, i) ? "true" : "false");
 				break;
 			case LUA_TSTRING:
-				tmp << lua_tostring(L, i);
+                tmp += lua_tostring(L, i);
 				break;
 			case LUA_TTABLE:
-				tmp << "<table>";
+                tmp += "<table>";
 				break;
 			case LUA_TFUNCTION:
-				tmp << "<function>";
+                tmp += "<function>";
 				break;
 			case LUA_TUSERDATA:
-				tmp << "<userdata>";
+                tmp += "<userdata>";
 				break;
 			case LUA_TTHREAD:
-				tmp << "<thread>";
+                tmp += "<thread>";
 				break;
 			case LUA_TLIGHTUSERDATA:
-				tmp << "<lightuserdata>";
+                tmp += "<lightuserdata>";
 				break;
 			default:
-				tmp << "<unknown>";
+                tmp += "<unknown>";
 			};
 		}
 		Console::Instance()->addEntry(tmp);
@@ -74,7 +74,7 @@ namespace TA3D
 		SDL_Surface *bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
 		SDL_FillRect(bmp, NULL, 0);
 		glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->pixels);
-		//                        save_bitmap(String(TA3D::Paths::Screenshots) << "z.tga",bmp);
+        //                        save_bitmap(QString(TA3D::Paths::Screenshots) << "z.tga",bmp);
 		SDL_FreeSurface(bmp);
 		return 0;
 	}
@@ -528,11 +528,11 @@ namespace TA3D
 				const int i = units.idx_list[e];
 				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 				{
-					Console::Instance()->addEntry(String("flags=") << int(units.unit[i].flags));
-					String tmp;
+                    Console::Instance()->addEntry(QString("flags=%1").arg(int(units.unit[i].flags)));
+                    QString tmp;
 					for (int f = 1; f < 21; ++f)
-						tmp << unit_info[f-1] << '=' << units.unit[i].port[f] << ", ";
-					if (!tmp.empty())
+                        tmp += QString(unit_info[f-1]) + '=' + units.unit[i].port[f] + ", ";
+                    if (!tmp.isEmpty())
 						Console::Instance()->addEntry(tmp);
 				}
 			}
@@ -607,7 +607,7 @@ namespace TA3D
 			if (playerID < players.count())
 			{
 				const float amount = (float)lua_tointeger(L, 3);
-				String type = lua_tostring(L, 1);
+                QString type = lua_tostring(L, 1);
 				if (type == "metal" || type == "both")
 				{
 					players.metal[playerID] = players.c_metal[playerID] = players.c_metal[playerID] + amount;					// cheat codes
@@ -652,7 +652,7 @@ namespace TA3D
 	// ---------------    Debug commands    ---------------
 	int CAPI::_debugSetContext(lua_State *L)			// Switch debug context
 	{
-		const String context = lua_gettop(L) > 0 ? lua_tostring(L, 1) : String();
+        const QString context = lua_gettop(L) > 0 ? lua_tostring(L, 1) : QString();
 		if (context == "mission")
 			Battle::Instance()->debugInfo.process = &(Battle::Instance()->game_script);
 		else if (context == "AI")
@@ -748,7 +748,7 @@ namespace TA3D
 		if (lua_gettop(L) == 0)
 			return 0;
 
-		const String code = lua_tostring(L, 1);
+        const QString code = lua_tostring(L, 1);
 		LOG_INFO(LOG_PREFIX_LUA << "running : '" << code << "'");
 		if (!Battle::Instance()->debugInfo.process->runCommand(code))
 		{
@@ -763,7 +763,7 @@ namespace TA3D
 		if (Battle::Instance()->debugInfo.process == NULL)
 			return 0;
 
-		Console::Instance()->addEntry(String("Lua GC reports ") << Battle::Instance()->debugInfo.process->getMem() << " bytes used");
+        Console::Instance()->addEntry(QString("Lua GC reports %1 bytes used").arg(Battle::Instance()->debugInfo.process->getMem()));
 		return 0;
 	}
 

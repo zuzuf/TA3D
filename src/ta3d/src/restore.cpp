@@ -39,9 +39,9 @@
 namespace TA3D
 {
 
-	static inline String readstring( gzFile file )
+	static inline QString readstring( gzFile file )
 	{
-		String ret;
+		QString ret;
 		for (int f = 0; f < 1024; ++f)
 		{
 			char c = (char)gzgetc(file);
@@ -52,7 +52,7 @@ namespace TA3D
 		return ret;
 	}
 
-	static inline void writestring( gzFile file, const String &str )
+	static inline void writestring( gzFile file, const QString &str )
 	{
 		if (!str.empty())
 			gzputs( file, str.c_str() );
@@ -60,7 +60,7 @@ namespace TA3D
 	}
 
 
-	gzFile TA3D_gzopen(const String &FileName, const String Mode)
+	gzFile TA3D_gzopen(const QString &FileName, const QString Mode)
 	{
 
 		// TODO This should be removed
@@ -69,7 +69,7 @@ namespace TA3D
 		return gzopen(FileName.c_str(), Mode.c_str());
 	}
 
-	void save_game( const String filename, GameData *game_data )
+	void save_game( const QString filename, GameData *game_data )
 	{
 		gzFile file = TA3D_gzopen( filename, "wb" );
 
@@ -111,10 +111,10 @@ namespace TA3D
 		SAVE( game_data->max_unit_per_player );
 
 		// Palyer names
-		for (String::Vector::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+		for (QStringList::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
 			writestring(file, *i);
 		// Player sides
-		for (String::Vector::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+		for (QStringList::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
 			writestring(file, *i);
 		// Player control
 		for (std::vector<byte>::const_iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
@@ -126,7 +126,7 @@ namespace TA3D
 		for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
 			SAVE(*i);
 		// AI Levels
-		for (std::vector<String>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+		for (std::vector<QString>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
 			writestring(file, *i);
 		// Energy
 		for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
@@ -397,7 +397,7 @@ namespace TA3D
 		lp_CONFIG->pause = previous_pause_state;
 	}
 
-	bool load_game_data( const String filename, GameData *game_data, bool loading )
+	bool load_game_data( const QString filename, GameData *game_data, bool loading )
 	{
 		gzFile file = TA3D_gzopen( filename, "rb" );
 
@@ -444,10 +444,10 @@ namespace TA3D
 		LOAD( game_data->max_unit_per_player );
 
 		// Palyer names
-		for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+		for (QStringList::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
 			*i = readstring( file );
 		// Player sides
-		for (String::Vector::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+		for (QStringList::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
 			*i = readstring( file );
 		// Player control
 		for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
@@ -459,7 +459,7 @@ namespace TA3D
 		for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
 			LOAD(*i);
 		// AI Levels
-		for (std::vector<String>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+		for (std::vector<QString>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
 			*i = readstring(file);
 		// Energy
 		for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
@@ -517,10 +517,10 @@ namespace TA3D
 		TA3D::MAX_UNIT_PER_PLAYER = game_data->max_unit_per_player;
 
 		// Palyer names
-		for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+		for (QStringList::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
 			*i = readstring( file );
 		// Player sides
-		for (String::Vector::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+		for (QStringList::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
 			*i = readstring( file );
 		// Player control
 		for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
@@ -532,7 +532,7 @@ namespace TA3D
 		for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
 			LOAD(*i);
 		// AI Levels
-		for (std::vector<String>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+		for (std::vector<QString>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
 			*i = readstring( file );
 		// Energy
 		for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)

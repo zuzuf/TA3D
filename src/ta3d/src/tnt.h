@@ -80,10 +80,10 @@ namespace TA3D
 	GLuint load_tnt_minimap(File *file,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 
                                                                                 // Load a minimap from a map file extracted from a HPI archive
-    GLuint load_tnt_minimap_fast(const String& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    GLuint load_tnt_minimap_fast(const QString& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 
                                                                     // Load a minimap from a map file extracted from a HPI archive
-    SDL_Surface *load_tnt_minimap_fast_bmp(const String& filename);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    SDL_Surface *load_tnt_minimap_fast_bmp(const QString& filename);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 
 
 } // namespace TA3D

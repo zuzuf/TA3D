@@ -57,7 +57,7 @@ namespace Gui
 		**
 		** \param filename
 		*/
-		Skin *load(const String& filename, const float scale = 1.0f);
+		Skin *load(const QString& filename, const float scale = 1.0f);
 
 	private:
 		std::vector<Skin*>  skins;

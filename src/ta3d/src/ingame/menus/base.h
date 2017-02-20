@@ -103,7 +103,7 @@ namespace Menus
 		** \see Gui::AREA::load_tdf()
 		** \see pArea
 		*/
-		void loadAreaFromTDF(const String& caption, const String& relFilename);
+		void loadAreaFromTDF(const QString& caption, const QString& relFilename);
 
 		/*!
 		** \brief Execute another menu according the user inputs
@@ -167,7 +167,7 @@ namespace Menus
 
 	private:
 		//! Cached value for the current class name
-		String pTypeName;
+		QString pTypeName;
 		//! A timer used to wait between checks
 		uint32 timer;
 

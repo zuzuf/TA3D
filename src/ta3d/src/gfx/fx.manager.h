@@ -98,7 +98,7 @@ namespace TA3D
         ** \param size
         ** \return
         */
-        int add(const String& filename, const String& entryName, const Vector3D& Pos, const float size);
+        int add(const QString& filename, const QString& entryName, const Vector3D& Pos, const float size);
 
         /*!
         ** \brief
@@ -171,7 +171,7 @@ namespace TA3D
         ** \return The index of the item, -1 if not found
         ** \warning This method is not thread-safe
         */
-        int findInCache(const String& filename) const;
+        int findInCache(const QString& filename) const;
 
         /*!
         ** \brief
@@ -180,7 +180,7 @@ namespace TA3D
         ** \return
         ** \warning This method is not thread-safe
         */
-        int putInCache(const String& filename, Gaf::Animation* anm);
+        int putInCache(const QString& filename, Gaf::Animation* anm);
 
         /*!
         ** \brief Delete all particles
@@ -215,7 +215,7 @@ namespace TA3D
         std::vector<FX> fx;
 
 		// Cache
-		String::Vector cacheName;
+		QStringList cacheName;
 		HashMap<int>::Sparse hashName;
 		std::vector<Gaf::Animation*> cacheAnm;
 		std::vector<int> use;

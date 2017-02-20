@@ -96,15 +96,15 @@ namespace TA3D
 	void disable_TA_palette();
 	void enable_TA_palette();
 
-	void save_bitmap(const String &filename, SDL_Surface* bmp);
+    void save_bitmap(const QString &filename, SDL_Surface* bmp);
 
     void vflip_bitmap(SDL_Surface* bmp);
     void hflip_bitmap(SDL_Surface* bmp);
 
-	SDL_Surface *LoadTex(const String &filename);
-	void SaveTex(SDL_Surface *bmp, const String &filename);
+    SDL_Surface *LoadTex(const QString &filename);
+    void SaveTex(SDL_Surface *bmp, const QString &filename);
 
-	void save_TGA(const String &filename, SDL_Surface* bmp, bool compress = true);
+    void save_TGA(const QString &filename, SDL_Surface* bmp, bool compress = true);
 }
 
 

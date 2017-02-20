@@ -19,91 +19,67 @@
 # define __TA3D_TOOLBOX_STRING_H__
 
 # include <stdafx.h>
-# include <yuni/core/string.h>
+# include <QString>
+# include <QList>
 
 
 namespace TA3D
 {
-	inline String Substr(const String &str, unsigned int start, unsigned int len = 0xFFFFFFFF)
+    inline QString Substr(const QString &str, int start, int len = -1)
 	{
-		len = std::min<unsigned int>(len, str.size() - start);
-		return String(str.data() + start, len);
+        if (len != -1)
+            len = std::min<int>(len, str.size() - start);
+        return str.mid(start, len);
 	}
 
-	inline String SubstrUTF8(const String &str, unsigned int start, unsigned int len = 0xFFFFFFFF)
+    inline QString ToUpper(const QString &str)
 	{
-		return String(str.utf8begin() + start, str.utf8begin() + start + std::min<unsigned int>(len, str.utf8size() - start));
+        return str.toUpper();
 	}
 
-	inline String ToUpper(const String &str)
+    inline QString ToLower(const QString &str)
 	{
-		return String(str).toUpper();
-	}
-
-	inline String ToLower(const String &str)
-	{
-		return String(str).toLower();
+        return str.toLower();
 	}
 
 	int ASCIItoUTF8(const byte c, byte *out);
 
-	String InttoUTF8(const uint16 c);
+    QString InttoUTF8(const uint16 c);
 
-	/*!
-	** \brief Convert a string from ASCII to UTF8
-	** \param s The string to convert
-	** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
-	*/
-	char* ConvertToUTF8(const char* s);
+    char* ConvertToUTF8(const char* s);
+    char* ConvertToUTF8(const char* s, const size_t len);
+    char* ConvertToUTF8(const char* s, size_t size, uint32& newSize);
 
-	/*!
-	** \brief Convert a string from ASCII to UTF8
-	** \param s The string to convert
-	** \param len The length of the string
-	** \param[out] The new size
-	** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL
-	*/
-	char* ConvertToUTF8(const char* s, const size_t len);
-	char* ConvertToUTF8(const char* s, const size_t len, uint32& newSize);
-
-	/*!
-	** \brief Convert a string from ASCII to UTF8
-	** \param s The string to convert
-	** \return A new String
-	*/
-	String ConvertToUTF8(const String& s);
-
-
-	sint32 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase);
+    sint32 SearchString(const QString& s, const QString& stringToSearch, const bool ignoreCase);
 
 	/*!
 	** \brief explode a command string into a vector of parameters : program param0 "parameter 1" param2 => {"program", "param0", "parameter 1", "param2"}
 	** \brief s The command string to spli
 	** \return The resulting vector of strings
 	*/
-	String::Vector SplitCommand(const String& s);
+    QStringList SplitCommand(const QString& s);
 
 	/*!
-	** \brief Escape a String in order to make it fit nicely between two '"'
+    ** \brief Escape a QString in order to make it fit nicely between two '"'
 	** \param s The string to convert
-	** \return A new String
+    ** \return A new QString
 	*/
-	String Escape(const String& s);
+    QString Escape(const QString& s);
 
 
 
 
 	/*!
-	** \brief Convert an UTF-8 String into a WideChar String
+    ** \brief Convert an UTF-8 QString into a WideChar QString
 	**
 	** \todo This class is here only to provide compatibility with FTGL 2.1.2 API which doesn't support UTF-8 encoding :/
 	**  everyone will agree it's nasty, but it'll remain here until we get something better
 	*/
-	struct WString
+    struct WString
 	{
 	public:
-		WString(const char* s);
-		WString(const String& str);
+        WString(const char* s);
+        WString(const QString& str);
 
 		const wchar_t* cw_str() const {return pBuffer;}
 	private:
@@ -112,7 +88,7 @@ namespace TA3D
 	private:
 		wchar_t pBuffer[5120];
 
-	}; // class WString
+    }; // class WQString
 
 
 

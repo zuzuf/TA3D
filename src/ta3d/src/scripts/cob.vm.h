@@ -103,12 +103,12 @@ namespace TA3D
 
         //! functions used to call/run functions
         void call(const int functionID, int *parameters = NULL, int nb_params = 0);
-        /*virtual*/ void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        /*virtual*/ int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ void call(const QString &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ int execute(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
         /*virtual*/ CobVm *fork();
-        /*virtual*/ CobVm *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        /*virtual*/ CobVm *fork(const QString &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to save/restore scripts state
         /*virtual*/ void save_thread_state(gzFile file);

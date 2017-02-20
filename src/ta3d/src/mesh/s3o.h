@@ -91,7 +91,7 @@ namespace TA3D
 		MeshS3O *root;
     public:
 
-		void load(File *file, const String &filename);
+		void load(File *file, const QString &filename);
 		MeshS3O* LoadPiece(File* file, MeshS3O* model, MeshS3O *root);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
@@ -106,7 +106,7 @@ namespace TA3D
 		virtual ~MeshS3O() {destroyS3O();}
 
     public:
-		static Model *load(const String &filename);
+		static Model *load(const QString &filename);
 		static const char *getExt();
 		static void init_shaders();
 	};

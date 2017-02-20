@@ -15,10 +15,10 @@ namespace TA3D
 		public:
 			float			rotation_speed;
 			float			rotation_offset;	// If you want the sun to match light dir ...
-			String			texture_name;		// Name of the texture used as sky
-			String::Vector	planet;				// Vector of planets that can use this sky
+			QString			texture_name;		// Name of the texture used as sky
+            QStringList     planet;				// Vector of planets that can use this sky
 			float			FogColor[4];		// Color of the fog to use with this sky
-			String::Vector	MapName;			// Name of maps linked with this sky
+            QStringList     MapName;			// Name of maps linked with this sky
 			bool			full_sphere;		// The texture is for the whole sphere
 			bool			def;
 
@@ -26,7 +26,7 @@ namespace TA3D
 			SkyData();
 			~SkyData();
 
-			void load_tdf( const String	&filename );
+            void load_tdf( const QString &filename );
 		};
 
 	private:
@@ -51,7 +51,7 @@ namespace TA3D
 		void draw();
 		GLuint skyTex() const	{	return tex[5];	}
 
-		void choose_a_sky( const String &mapname, const String &planet );
+		void choose_a_sky( const QString &mapname, const QString &planet );
 
 	protected:
 		void build(int d, float size);

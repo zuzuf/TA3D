@@ -40,14 +40,14 @@ namespace TA3D
 		};
 
 		template < >
-				class hash<String>
+				class hash<QString>
 		{
 		public:
 			inline hash()	{}
 
-			inline size_t operator()(const String& key) const
+			inline size_t operator()(const QString& key) const
 			{
-				if (key.empty())
+                if (key.isEmpty())
 					return 0U;
 
 				// implementation of MurmurHash2 by Austin Appleby
@@ -59,7 +59,7 @@ namespace TA3D
 				const int r = 24;
 
 				// Initialize the hash to a 'random' value
-				int len = int(key.size());
+                int len = int(key.size() * sizeof(*key.data()));
 				size_t h = 216 ^ len;
 
 				// Mix 4 bytes at a time into the hash
@@ -102,7 +102,7 @@ namespace TA3D
 			}
 		};
 
-		template<typename T, typename K = String>
+		template<typename T, typename K = QString>
 				class HashMap
 		{
 		public:
@@ -110,7 +110,7 @@ namespace TA3D
 			typedef zuzuf::hashmap<K, T, TA3D::UTILS::hash<K>, 250 >	Sparse;
 		};
 
-		template<typename K = String>
+		template<typename K = QString>
 				class HashSet
 		{
 		public:
@@ -120,14 +120,14 @@ namespace TA3D
 
 		template<class T, class U>
 				uint32
-				wildCardSearch( const T& container, const String& pattern, U& li)
+				wildCardSearch( const T& container, const QString& pattern, U& li)
 		{
 			if (container.empty())
 				return 0;
-			String first;
-			String last;
-			String::size_type iFind = pattern.find('*');
-			if (iFind != String::npos)
+			QString first;
+			QString last;
+            QString::size_type iFind = pattern.indexOf('*');
+            if (iFind != -1)
 			{
 				first = Substr(pattern, 0, iFind);
 				first.toLower();
@@ -143,12 +143,12 @@ namespace TA3D
 			}
 
 			uint32 nb(0);
-			String::size_type firstLen = first.length();
-			String::size_type lastLen = last.length();
+			QString::size_type firstLen = first.length();
+			QString::size_type lastLen = last.length();
 			for (typename T::const_iterator cur = container.begin() ; cur != container.end() ; ++cur)
 			{
-				const String f = cur.key();
-				String::size_type fLen = f.length();
+				const QString f = cur.key();
+				QString::size_type fLen = f.length();
 				if (fLen < firstLen || fLen < lastLen)
 					continue;
 

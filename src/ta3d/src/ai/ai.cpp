@@ -117,7 +117,7 @@ namespace TA3D
 		return ID;
 	}
 
-	void AI_PLAYER::changeName(const String& newName)		// Change AI's name (-> creates a new file)
+    void AI_PLAYER::changeName(const QString& newName)		// Change AI's name (-> creates a new file)
 	{
 		name = newName;
 		if (ai_script)
@@ -136,7 +136,7 @@ namespace TA3D
 	}
 
 
-	void AI_PLAYER::load(const String& filename, const int id)
+    void AI_PLAYER::load(const QString& filename, const int id)
 	{
 		if (ai_script)
 			ai_script->loadAI(filename, id);
@@ -145,15 +145,15 @@ namespace TA3D
 	}
 
 
-	String::Vector AI_PLAYER::getAvailableAIs()
+    QStringList AI_PLAYER::getAvailableAIs()
 	{
-		String::Vector l_AI;
+        QStringList l_AI;
 		VFS::Instance()->getFilelist("scripts/ai/*.lua", l_AI);
 
-		for (String::Vector::iterator i = l_AI.begin() ; i != l_AI.end() ; ++i)
+        for (QString &i : l_AI)
 		{
-			LOG_DEBUG(LOG_PREFIX_AI << "AI script found : " << *i);
-			*i = String("[LUA] ") << Paths::ExtractFileNameWithoutExtension(*i);
+            LOG_DEBUG(LOG_PREFIX_AI << "AI script found : " << i);
+            i = "[LUA] " + Paths::ExtractFileNameWithoutExtension(i);
 		}
 
 		l_AI.push_back("[C] EASY");
@@ -165,7 +165,7 @@ namespace TA3D
 	}
 
 
-	void AI_PLAYER::setAI(const String &AI)
+    void AI_PLAYER::setAI(const QString &AI)
 	{
 		this->AI = AI;
 
@@ -182,8 +182,7 @@ namespace TA3D
 
 		if (ai_script && AI.size() > 6)
 		{
-			String filename;
-			filename << "scripts/ai/" << Substr(AI, 6, AI.size() - 6) << ".lua";
+            QString filename = "scripts/ai/" + Substr(AI, 6, AI.size() - 6) + ".lua";
 			ai_script->load(filename);
 		}
 	}

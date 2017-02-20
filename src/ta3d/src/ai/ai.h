@@ -44,7 +44,7 @@ namespace TA3D
     class AI_PLAYER			// Class to manage players controled by AI
     {
 	public:
-        static String::Vector getAvailableAIs();
+        static QStringList getAvailableAIs();
 
     public:
 		//! \name Constructor & Destructor
@@ -67,25 +67,25 @@ namespace TA3D
 
 		AiScript::Ptr getAiScript() const;
 
-        void setAI(const String &AI);
+        void setAI(const QString &AI);
 
         void setPlayerID(int id);
         int getPlayerID();
 
-        void changeName(const String& newName);		// Change AI's name (-> creates a new file)
+        void changeName(const QString& newName);		// Change AI's name (-> creates a new file)
 
         void save();
-        void load(const String& filename, const int id = 0);
+        void load(const QString& filename, const int id = 0);
 
 
 
 	private:
-        String name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
+        QString name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
 		AiController::Ptr ai_controller;
 		AiScript::Ptr  ai_script;
         int type;
         int ID;
-        String AI;
+        QString AI;
 
     }; // class AI_PLAYER
 

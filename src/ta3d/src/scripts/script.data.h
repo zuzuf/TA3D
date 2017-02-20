@@ -85,14 +85,14 @@ namespace TA3D
     private:
         bool                    scriptCache[NB_SCRIPT];
     public:
-        virtual void load(const String &filename) = 0;
-        virtual int identify(const String &name) = 0;
+        virtual void load(const QString &filename) = 0;
+        virtual int identify(const QString &name) = 0;
 
         //! 2 small functions to cache script searchs (in order to prevent asking Lua for something that doesn't exist)
         inline bool isCached(int id)    { return id >= 0 && id < NB_SCRIPT ? scriptCache[id] : true;    }
         inline void Uncache(int id)     { if (id >= 0 && id < NB_SCRIPT)    scriptCache[id] = false;    }
     public:
-        static ScriptData *loadScriptFile(const String &filename);
+        static ScriptData *loadScriptFile(const QString &filename);
 
 	public:
         inline ScriptData()

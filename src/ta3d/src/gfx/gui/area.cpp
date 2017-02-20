@@ -39,9 +39,9 @@ namespace Gui
 
 
 
-	WND::Ptr AREA::getWindowWL(const String& message)
+	WND::Ptr AREA::getWindowWL(const QString& message)
 	{
-		String lmsg (message);
+		QString lmsg (message);
 		lmsg.toLower();
 		if (lmsg == cached_key && cached_wnd)
 			return cached_wnd;
@@ -61,16 +61,14 @@ namespace Gui
 
 
 
-	WND::Ptr AREA::get_wnd(const String& message)
+	WND::Ptr AREA::get_wnd(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		return getWindowWL(message);
 	}
 
 
-	void AREA::set_enable_flag(const String& message, const bool enable)
+	void AREA::set_enable_flag(const QString& message, const bool enable)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 		{
@@ -82,40 +80,36 @@ namespace Gui
 	}
 
 
-	void AREA::set_state(const String& message, const bool state)
+	void AREA::set_state(const QString& message, const bool state)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Etat = state;
 	}
 
-	void AREA::set_value(const String& message, const sint32 value)
+	void AREA::set_value(const QString& message, const sint32 value)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Value = value;
 	}
 
 
-	void AREA::set_data(const String& message, const sint32 data)
+	void AREA::set_data(const QString& message, const sint32 data)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Data = data;
 	}
 
 
-	void AREA::caption(const String& message, const String& caption)
+	void AREA::caption(const QString& message, const QString& caption)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
         if (guiobj)
 		{
 			if (guiobj->Type == OBJ_TEXTEDITOR)
-                caption.explode(guiobj->Text, '\n', true, true, true);
+                guiobj->Text = caption.split('\n', QString::SkipEmptyParts);//true, true, true);
 			else
 				guiobj->caption(caption);
 		}
@@ -126,47 +120,31 @@ namespace Gui
 	}
 
 
-	void AREA::set_action(const String& message, void (*Func)(int))
+	void AREA::set_action(const QString& message, void (*Func)(int))
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			guiobj->Func = Func;
 	}
 
 
-	void AREA::set_entry(const String& message, const std::list<String>& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
+    void AREA::set_entry(const QString& message, const QStringList& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
-		{
-			guiobj->Text.clear();
-			for (std::list<String>::const_iterator i = entry.begin(); i != entry.end(); ++i)
-				guiobj->Text.push_back(*i);
-		}
+            guiobj->Text = entry;
 	}
 
 
-	void AREA::set_entry(const String& message, const std::vector<String>& entry)	// Set the entry of specified object in the specified window to entry
+	void AREA::append(const QString& message, const QString& line)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-		GUIOBJ::Ptr guiobj = getObjectWL(message);
-		if (guiobj)
-			guiobj->Text = entry;
-	}
-
-	void AREA::append(const String& message, const String& line)
-	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr guiobj = getObjectWL(message);
 		if (guiobj)
 			skin->AppendLineToListBox(guiobj->Text, guiobj->x1, guiobj->x2, line);
 	}
 
-	void AREA::title(const String& message, const String& title)
+	void AREA::title(const QString& message, const QString& title)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		WND::Ptr wnd = getWindowWL(message);
 		if (wnd)
 			wnd->Title = title;
@@ -187,8 +165,6 @@ namespace Gui
 		unsigned int is_on_gui = 0;
 
 		{
-			ThreadingPolicy::MutexLocker locker(*this);
-
 			for (unsigned int i = 0; i < pWindowList.size(); ++i)
 			{
 				if (!is_on_gui || (pWindowList[vec_z_order[i]]->get_focus && !pWindowList[vec_z_order[i]]->hidden))
@@ -218,21 +194,18 @@ namespace Gui
 	}
 
 
-	String AREA::get_window_name(const int idx)
+	QString AREA::get_window_name(const int idx)
 	{
 		if (idx < 0)
 			return nullptr;
-		ThreadingPolicy::MutexLocker locker(*this);
 		if ((unsigned int)idx >= pWindowList.size())
 			return nullptr;
 		return pWindowList[idx]->Name;
 	}
 
 
-	uint16 AREA::load_window(const String& filename, const String &name)
+	uint16 AREA::load_window(const QString& filename, const QString &name)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
 		WND::Ptr newWindow = new WND();
 		uint16 wnd_idx = (uint16)pWindowList.size();
 
@@ -249,12 +222,12 @@ namespace Gui
 		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];
 
-		if (!name.empty())
+        if (!name.isEmpty())
 			newWindow->Name = name;
 
 		vec_z_order[0] = wnd_idx;
-		String key = ToLower(newWindow->Name);
-		if (!key.empty())
+        const QString &key = newWindow->Name.toLower();
+        if (!key.isEmpty())
 			wnd_hashtable[key] = wnd_idx + 1;	// + 1 because it returns 0 on Find failure
 		return wnd_idx;
 	}
@@ -262,8 +235,6 @@ namespace Gui
 
 	void AREA::draw()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
 		if (background)
 		{
 			gfx->drawtexture(background, 0.0f, 0.0f, (float)gfx->width, (float)gfx->height);
@@ -282,31 +253,30 @@ namespace Gui
 			} while (i);
 
 			// Display the popup menu
-			if (pCacheHelpMsg.notEmpty())
+            if (!pCacheHelpMsg.isEmpty())
 				skin->PopupMenu((float)mouse_x + 20.0f, (float)mouse_y + 20.0f, pCacheHelpMsg);
 		}
 	}
 
 
-	void AREA::load_tdf(const String& filename)
+	void AREA::load_tdf(const QString& filename)
 	{
 		doLoadTDF(filename);
 	}
 
 
-	void AREA::doLoadTDF(const String& filename)
+	void AREA::doLoadTDF(const QString& filename)
 	{
 		destroy();		// In case there is an area loaded so we don't waste memory
 
-		String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : String();
-		if (!skin_name.empty() && VFS::Instance()->fileExists(skin_name))
+        QString skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.isEmpty()) ? lp_CONFIG->skin_name : QString();
+        if (!skin_name.isEmpty() && VFS::Instance()->fileExists(skin_name))
 			skin = skin_manager.load(skin_name, 1.0f);
 
-		String real_filename = filename;
-		if (skin && !skin->prefix().empty())
+		QString real_filename = filename;
+        if (skin && !skin->prefix().isEmpty())
 		{
-			real_filename.clear();
-			real_filename << Paths::ExtractFilePath(filename) << Paths::Separator << skin->prefix() << Paths::ExtractFileName(filename);
+            real_filename = Paths::ExtractFilePath(filename) + Paths::Separator + skin->prefix() + Paths::ExtractFileName(filename);
 			if (!VFS::Instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}
@@ -317,7 +287,7 @@ namespace Gui
 		name = Paths::ExtractFileNameWithoutExtension(filename);		// Grab the area's name
 
 		name = areaFile.pullAsString("area.name", name);					// The TDF may override the area name
-		skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty())
+        skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.isEmpty())
 			? lp_CONFIG->skin_name
 			: areaFile.pullAsString("area.skin");
 
@@ -329,20 +299,18 @@ namespace Gui
 			skin = skin_manager.load(skin_name, skin_scale);
 		}
 
-		String::Vector windows_to_load;
-		areaFile.pullAsString("area.windows").explode(windows_to_load, ',', false, true, true);
-		const String::Vector::const_iterator end = windows_to_load.end();
-		for (String::Vector::const_iterator i = windows_to_load.begin(); i != end; ++i)
-			load_window(*i);
+        QStringList windows_to_load = areaFile.pullAsString("area.windows").split(',', QString::SkipEmptyParts);
+        for (const QString &i : windows_to_load)
+            load_window(i.trimmed());
 
-		String background_name = areaFile.pullAsString("area.background", "none");
-		if (!background_name.empty() && background_name.toLower() != "none") // If we have a background set then load it
+		QString background_name = areaFile.pullAsString("area.background", "none");
+        if (!background_name.isEmpty() && background_name.toLower() != "none") // If we have a background set then load it
 		{
-			if (skin && !skin->prefix().empty())
+            if (skin && !skin->prefix().isEmpty())
 			{
 				int name_len = Paths::ExtractFileName(background_name).size();
 				if (name_len > 0)
-					background_name = Substr(background_name, 0, background_name.size() - name_len) << skin->prefix() << Paths::ExtractFileName(background_name);
+                    background_name = Substr(background_name, 0, background_name.size() - name_len) + skin->prefix() + Paths::ExtractFileName(background_name);
 				else
 					background_name += skin->prefix();
 			}
@@ -351,7 +319,7 @@ namespace Gui
 				background = gfx->load_texture(background_name);
 			else
 			{
-				if (skin && !skin->prefix().empty())
+                if (skin && !skin->prefix().isEmpty())
 				{
 					// No prefixed version, retry with default background
 					background_name = areaFile.pullAsString("area.background");
@@ -367,7 +335,7 @@ namespace Gui
 
 
 
-	AREA::AREA(const String& nm)
+	AREA::AREA(const QString& nm)
 		:scrolling(false), background(0), name(nm), skin(NULL), gui_hashtable(), wnd_hashtable()
 	{
 		amx = mouse_x;
@@ -430,12 +398,12 @@ namespace Gui
 	}
 
 
-	uint32 AREA::InterfaceMsg(const uint32 MsgID, const String &msg)
+	uint32 AREA::InterfaceMsg(const uint32 MsgID, const QString &msg)
 	{
 		if (MsgID != TA3D_IM_GUI_MSG) // Only GUI messages
 			return INTERFACE_RESULT_CONTINUE;
 
-		if (msg.empty())
+        if (msg.isEmpty())
 		{
 			LOG_ERROR("AREA : bad format for interface message!");
 			return INTERFACE_RESULT_HANDLED;		// Oups badly written things
@@ -448,17 +416,15 @@ namespace Gui
 	}
 
 
-	int	AREA::msg(String message)				// Send that message to the area
+	int	AREA::msg(QString message)				// Send that message to the area
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
 		uint32 result = INTERFACE_RESULT_CONTINUE;
-		message.toLower(); // Get the string associated with the signal
+        message = message.toLower(); // Get the string associated with the signal
 
-		String::size_type i = message.find('.');
-		if (i != String::npos)
+        QString::size_type i = message.indexOf('.');
+        if (i != -1)
 		{
-			String key = Substr(message, 0, i); // Extracts the key
+			QString key = Substr(message, 0, i); // Extracts the key
 			message = Substr(message, i + 1, message.size() - i - 1); // Extracts the end of the message
 
 			WND::Ptr the_wnd = getWindowWL(key);
@@ -484,15 +450,13 @@ namespace Gui
 	}
 
 
-	bool AREA::get_state(const String& message)
+	bool AREA::get_state(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
-		String::size_type i = message.find('.');
-		if (i != String::npos)
+        QString::size_type i = message.indexOf('.');
+        if (i != -1)
 		{
-			String key = Substr(message, 0, i); // Extracts the key
-			String obj_name = Substr(message, i + 1, message.size() - i - 1);
+			QString key = Substr(message, 0, i); // Extracts the key
+			QString obj_name = Substr(message, i + 1, message.size() - i - 1);
 
 			if (key == "*")
 			{
@@ -521,32 +485,27 @@ namespace Gui
 	}
 
 
-	bool AREA::is_activated(const String& message)
+	bool AREA::is_activated(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		GUIOBJ::Ptr obj = getObjectWL(message);
 		return (obj) ? obj->activated : false;
 	}
 
 
-	bool AREA::is_mouse_over(const String& message)
+	bool AREA::is_mouse_over(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
 		GUIOBJ::Ptr obj = getObjectWL(message);
 		return (!obj) ? false : obj->MouseOn;
 	}
 
 
-	sint32 AREA::get_value(const String& message)
+	sint32 AREA::get_value(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
-		String::size_type i = message.find('.');
-		if (i != String::npos)
+        QString::size_type i = message.indexOf('.');
+        if (i != -1)
 		{
-			String key = Substr(message, 0, i);
-			String obj_name = Substr(message, i + 1, message.size() - i - 1);
+			QString key = Substr(message, 0, i);
+			QString obj_name = Substr(message, i + 1, message.size() - i - 1);
 			if (key == "*")
 			{
 				const WindowList::iterator end = pWindowList.end();
@@ -569,16 +528,14 @@ namespace Gui
 
 
 
-	String AREA::caption(const String& message)
+	QString AREA::caption(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
-
-		String::size_type i = message.find('.');
-		if (String::npos != i)
+        QString::size_type i = message.indexOf('.');
+        if (-1 != i)
 		{
-			String key = Substr(message, 0, i);						// Extracts the key
-			String obj_name = Substr(message, i + 1, message.size() - i - 1);
-			if (!key.empty() && key == "*")
+			QString key = Substr(message, 0, i);						// Extracts the key
+			QString obj_name = Substr(message, i + 1, message.size() - i - 1);
+            if (!key.isEmpty() && key == "*")
 			{
 				const WindowList::iterator end = pWindowList.end();
 				for (WindowList::iterator e = pWindowList.begin(); e != end; ++e)
@@ -590,9 +547,9 @@ namespace Gui
 						{
 							if (the_obj->Type == OBJ_TEXTEDITOR)
 							{
-								String result = the_obj->Text[0];
+								QString result = the_obj->Text[0];
 								for (unsigned int i = 1; i < the_obj->Text.size(); ++i)
-									result << '\n' << the_obj->Text[i];
+                                    result += '\n' + the_obj->Text[i];
 								return result;
 							}
 							return the_obj->Text[0];	// Return what we found
@@ -613,13 +570,13 @@ namespace Gui
 
 
 
-	GUIOBJ::Ptr AREA::getObjectWL(const String& message)
+	GUIOBJ::Ptr AREA::getObjectWL(const QString& message)
 	{
-		String::size_type i = message.find('.');
-		if (i != String::npos)
+        QString::size_type i = message.indexOf('.');
+        if (i != -1)
 		{
-			String key = Substr(message, 0, i);						// Extracts the key
-			String obj_name = Substr(message, i + 1, message.size() - i -1);
+			QString key = Substr(message, 0, i);						// Extracts the key
+			QString obj_name = Substr(message, i + 1, message.size() - i -1);
 			if (key == "*")
 			{
 				const WindowList::iterator end = pWindowList.end();
@@ -642,9 +599,8 @@ namespace Gui
 
 
 
-	GUIOBJ::Ptr AREA::get_object(const String& message)
+	GUIOBJ::Ptr AREA::get_object(const QString& message)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
 		return getObjectWL(message);
 	}
 
@@ -653,7 +609,7 @@ namespace Gui
 	|               Display a popup window with a message and a title            |
 	\---------------------------------------------------------------------------*/
 
-	void AREA::popup(const String &Title, const String &Msg)
+	void AREA::popup(const QString &Title, const QString &Msg)
 	{
 		if (get_wnd( "popup" ) == NULL)            // The window isn't loaded => load it now !
 			load_window( "gui/popup_dialog.tdf" );

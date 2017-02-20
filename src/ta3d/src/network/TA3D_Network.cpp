@@ -105,10 +105,10 @@ namespace TA3D
 				if (area->get_state("chat"))	// Chat is visible, so hide it and send the message is not empty
 				{
 					area->msg("chat.hide");
-					String msg = area->caption("chat.msg");
-					area->caption("chat.msg", String());
+					QString msg = area->caption("chat.msg");
+					area->caption("chat.msg", QString());
 
-					if (!msg.empty()) // If not empty send the message
+                    if (!msg.isEmpty()) // If not empty send the message
 					{
 						struct chat chat;
 						strtochat( &chat, msg );
@@ -120,7 +120,7 @@ namespace TA3D
 							pMutex.lock();
 							if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
 								messages.pop_front();
-							msg = String("<") << game_data->player_names[ player_id ] << "> " << msg;
+                            msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
 							messages.push_back( NetworkMessage( msg, msec_timer ) );
 							pMutex.unlock();
 						}
@@ -148,7 +148,7 @@ namespace TA3D
 		int n = 5;
 		while(n--) // Chat receiver
 		{
-			String chat_msg;
+			QString chat_msg;
 			struct chat received_chat_msg;
 
 			if (network_manager.getNextChat( &received_chat_msg ) == 0 )
@@ -162,7 +162,7 @@ namespace TA3D
 				pMutex.lock();
 				if (messages.size() > CHAT_MAX_MESSAGES)		// Prevent flooding the screen with chat messages
 					messages.pop_front();
-				chat_msg = String("<") << game_data->player_names[ player_id ] << "> " << chat_msg;
+                chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
 				messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
 				pMutex.unlock();
 			}
@@ -176,7 +176,7 @@ namespace TA3D
 		n = 100;
 		while(--n)	// Special message receiver
 		{
-			String special_msg;
+			QString special_msg;
 			special received_special_msg;
 
 			if (network_manager.getNextSpecial( &received_special_msg ) == 0 )
@@ -186,8 +186,7 @@ namespace TA3D
 
 			int player_id = game_data->net2id( received_special_msg.from );
 
-			String::Vector params;
-			special_msg.explode(params, " ");
+            const QStringList &params = special_msg.split(" ", QString::SkipEmptyParts);
 			if (params.size() == 1)
 			{
 				if (params[0] == "GONE")       // Someone tell us he's gone !! Remove it from remote players otherwise game
@@ -224,7 +223,7 @@ namespace TA3D
 				{                                   // We can only use units available on all clients, so check the list
 					int type_id = unit_manager.get_unit_index(params[1]);
 					if (type_id == -1 || unit_manager.unit_type[type_id]->not_used)            // Tell it's missing
-						network_manager.sendAll( String("MISSING ") << params[1]);
+                        network_manager.sendAll( "MISSING " + params[1]);
 				}
 				else if (params[0] == "MISSING")
 				{
@@ -234,16 +233,14 @@ namespace TA3D
 				}
 				else if (params[0] == "SAVE")           // Server order to save the game
 				{
-					String sParam(params[1]);
+					QString sParam(params[1]);
 					sParam.replace(char(1), ' ');
-					String filename;
-					filename << Paths::Savegames << "multiplayer" << Paths::Separator
-							 << Paths::Files::ReplaceExtension(sParam, ".sav");
+                    QString filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(sParam, ".sav");
 					save_game(filename, game_data); // Save the game using filename given by server
 				}
 				else if (params[0] == "TIMEFACTOR")
 				{
-					Battle::Instance()->setTimeFactor(params[1].to<float>());
+					Battle::Instance()->setTimeFactor(params[1].toFloat());
 				}
 			}
 		}
@@ -716,10 +713,10 @@ namespace TA3D
 		event.x = features.feature[ idx ].Pos.x;
 		event.y = features.feature[ idx ].Pos.y;
 		event.z = features.feature[ idx ].Pos.z;
-		String name = feature_manager.getFeaturePointer( features.feature[ idx ].type )->name;
-		if (!name.empty())
+        const QString &name = feature_manager.getFeaturePointer( features.feature[ idx ].type )->name;
+        if (!name.isEmpty())
 		{
-			memcpy( event.str, name.c_str(), name.size() + 1 ) ;
+            memcpy( event.str, name.toStdString().c_str(), name.size() + 1 ) ;
 			network_manager.sendEvent( &event );
 		}
 	}

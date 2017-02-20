@@ -39,9 +39,9 @@ namespace Gui
 
 
 
-	uint32 GUIOBJ::msg(const String& message, WND* wnd)		// Reacts to a message transfered from the Interface
+	uint32 GUIOBJ::msg(const QString& message, WND* wnd)		// Reacts to a message transfered from the Interface
 	{
-		String lw(message);
+		QString lw(message);
 		lw.toLower();
 		bool old_wait_a_turn = wait_a_turn;
 		wait_a_turn = true;
@@ -81,7 +81,7 @@ namespace Gui
 
 
 
-	void GUIOBJ::caption(const String& caption)
+	void GUIOBJ::caption(const QString& caption)
 	{
 		switch (Type)
 		{
@@ -110,7 +110,7 @@ namespace Gui
 	}
 
 
-	void GUIOBJ::create_ta_button(float X1, float Y1, const String::Vector& Caption,
+    void GUIOBJ::create_ta_button(float X1, float Y1, const QStringList& Caption,
 								  const std::vector<GLuint>& states, int nb_st)
 	{
 		gltex_states.clear();
@@ -143,7 +143,7 @@ namespace Gui
 
 
 	void GUIOBJ::create_button(const float X1, const float Y1, const float X2, const float Y2,
-							   const String& caption, void (*F)(int), const float size)
+							   const QString& caption, void (*F)(int), const float size)
 	{
 		Type = OBJ_BUTTON;
 		x1 = X1;
@@ -152,15 +152,15 @@ namespace Gui
 		y2 = Y2;
 		Etat = false;
 		Focus = false;
-		Text.resize(1);
-		Text[0] = caption;
+        Text.clear();
+        Text.push_back(caption);
 		Func = F;
 		s = size;
 		Flag = FLAG_CAN_BE_CLICKED;
 	}
 
 
-	void GUIOBJ::create_optionc(const float X1, const float Y1, const String& caption, const bool ETAT,
+	void GUIOBJ::create_optionc(const float X1, const float Y1, const QString& caption, const bool ETAT,
 								void (*F)(int), Skin *skin, const float size)
 	{
 		Type = OBJ_OPTIONC;
@@ -182,8 +182,8 @@ namespace Gui
 		}
 		Etat = ETAT;
 		Focus = false;
-		Text.resize(1);
-		Text[0] = caption;
+        Text.clear();
+        Text.push_back(caption);
 		Func = F;
 		Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
 		s = size;
@@ -191,7 +191,7 @@ namespace Gui
 
 
 
-	void GUIOBJ::create_optionb(const float X1, const float Y1, const String& Caption, const bool ETAT,
+	void GUIOBJ::create_optionb(const float X1, const float Y1, const QString& Caption, const bool ETAT,
 								void (*F)(int), Skin* skin, const float size)
 	{
 		Type = OBJ_OPTIONB;
@@ -213,15 +213,15 @@ namespace Gui
 		}
 		Etat = ETAT;
 		Focus = false;
-		Text.resize(1);
-		Text[0] = Caption;
+        Text.clear();
+        Text.push_back(Caption);
 		Func = F;
 		Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
 		s = size;
 	}
 
 	void GUIOBJ::create_texteditor(const float X1, const float Y1, const float X2, const float Y2,
-			const String& caption, const float size)
+			const QString& caption, const float size)
 	{
 		Type = OBJ_TEXTEDITOR;
 		x1 = X1;
@@ -230,12 +230,12 @@ namespace Gui
 		y2 = Y2;
 		Etat  = false;
 		Focus = false;
-		Text.resize(1);
-		Text[0].clear();
+        Text.clear();
+        Text.push_back(QString());
 		// TODO This algorithm is not efficient
-		String::const_iterator end = caption.end();
-		String empty;
-		for (String::const_iterator i = caption.begin(); i != end; ++i)
+		QString::const_iterator end = caption.end();
+		QString empty;
+		for (QString::const_iterator i = caption.begin(); i != end; ++i)
 		{
 			if ('\n' == *i)
 				Text.push_back(empty);
@@ -249,7 +249,7 @@ namespace Gui
 		s = size;
 	}
 
-	void GUIOBJ::create_textbar(const float X1, const float Y1, const float X2, const float Y2, const String& Caption,
+	void GUIOBJ::create_textbar(const float X1, const float Y1, const float X2, const float Y2, const QString& Caption,
 								const unsigned int MaxChar, void(*F)(int), const float size)
 	{
 		Type = OBJ_TEXTBAR;
@@ -259,8 +259,8 @@ namespace Gui
 		y2 = Y2;
 		Etat  = false;
 		Focus = false;
-		Text.resize(1);
-		Text[0] = Caption;
+        Text.clear();
+        Text.push_back(Caption);
 		if (Text[0].size() >= MaxChar && MaxChar > 1)
 			Text[0].truncate(MaxChar - 1);
 		Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
@@ -270,7 +270,7 @@ namespace Gui
 	}
 
 
-	void GUIOBJ::create_menu(const float X1, const float Y1,const String::Vector& Entry,
+    void GUIOBJ::create_menu(const float X1, const float Y1,const QStringList& Entry,
 							 void (*F)(int), const float size)
 	{
 		Type = OBJ_FMENU;
@@ -290,8 +290,8 @@ namespace Gui
 
 
 
-	void GUIOBJ::create_menu(const float X1, const float Y1, const float X2, const float Y2,
-							 const String::Vector& Entry, void (*F)(int), const float size)
+    void GUIOBJ::create_menu(const float X1, const float Y1, const float X2, const float Y2,
+                             const QStringList &Entry, void (*F)(int), const float size)
 	{
 		Type = OBJ_MENU;
 		x1 = X1;
@@ -332,7 +332,7 @@ namespace Gui
 
 
 	// Crée un objet text
-	void GUIOBJ::create_text(const float X1, const float Y1, const String& Caption, const int Col, const float size)
+	void GUIOBJ::create_text(const float X1, const float Y1, const QString& Caption, const int Col, const float size)
 	{
 		Type = OBJ_TEXT;
 		x1 = X1;
@@ -396,7 +396,7 @@ namespace Gui
 	}
 
 
-	void GUIOBJ::create_list(const float X1, const float Y1, const float X2, const float Y2, const String::Vector& Entry, const float size)
+    void GUIOBJ::create_list(const float X1, const float Y1, const float X2, const float Y2, const QStringList &Entry, const float size)
 	{
 		Type = OBJ_LIST;
 		x1 = X1;
@@ -459,7 +459,7 @@ namespace Gui
 		out << "\t[object]\n\t{\n";
 		out << "\t\tx = " << x1 << "\n";
 		out << "\t\ty = " << y1 << "\n";
-		out << "\t\tname = " << Name << "\n";
+        out << "\t\tname = " << Name.toStdString() << "\n";
 		out << "\t}\n" << std::endl;
 	}
 

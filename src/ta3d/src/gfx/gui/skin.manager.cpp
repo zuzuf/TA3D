@@ -51,10 +51,10 @@ namespace Gui
 		init();
 	}
 
-	Skin *SKIN_MANAGER::load(const String& filename, const float scale)
+	Skin *SKIN_MANAGER::load(const QString& filename, const float scale)
 	{
-		String key(filename);
-		key.appendFormat("-%.2f", scale);
+		QString key(filename);
+        key += QString::asprintf("-%.2f", scale);
 		Skin *pSkin = hash_skin[key];
 		if (!pSkin)
 		{

@@ -185,8 +185,8 @@ namespace TA3D
 					if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
 					{
 						s_shader.on();
-						for (unsigned int j = 0; j < pTex->size() ; ++j)
-							s_shader.setvar1i( String("tex") << j, j );
+                        for (size_t j = 0; j < pTex->size() ; ++j)
+                            s_shader.setvar1i( QString("tex%1").arg(j), j );
 					}
 
 					if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -381,7 +381,7 @@ namespace TA3D
 			{
 				s_shader.on();
 				for (unsigned int j = 0; j < pTex->size() ; ++j)
-					s_shader.setvar1i( String("tex") << j, j + 1 );
+                    s_shader.setvar1i( QString("tex%1").arg(j), j + 1 );
 			}
 
 			if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -490,7 +490,7 @@ namespace TA3D
 		return alset;
 	}
 
-	void Mesh3DM::load(File *file, const String &filename, Mesh3DM *root)
+	void Mesh3DM::load(File *file, const QString &filename, Mesh3DM *root)
 	{
 		destroy3DM();
 		if (root == NULL)
@@ -504,7 +504,7 @@ namespace TA3D
 		char tmp[257];
 		memset(tmp, 0, 257);
 		file->read(tmp, len);
-		name = String(tmp, len);
+        name = QString::fromLatin1(tmp, len);
 
 		file->read(pos_from_parent.x);
 		if (isNaN(pos_from_parent.x))           // Some error checks
@@ -690,7 +690,7 @@ namespace TA3D
 				DELETE_ARRAY(buffer);
 			}
 
-			String cache_filename = !filename.empty() ? String(filename) << '-' << (!name.empty() ? name : "none") << '-' << int(i) << ".bin" : String();
+            QString cache_filename = !filename.isEmpty() ? filename + '-' + (!name.isEmpty() ? name : "none") + QString("-%1.bin").arg(i) : QString();
 			cache_filename.replace('/', 'S');
 			cache_filename.replace('\\', 'S');
 
@@ -698,8 +698,8 @@ namespace TA3D
 			if (!gfx->is_texture_in_cache(cache_filename))
 			{
 				cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
-				if (!TA3D::Paths::Exists( String(TA3D::Paths::Caches) << cache_filename ))
-					SaveTex( tex, String(TA3D::Paths::Caches) << cache_filename );
+                if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
+                    SaveTex( tex, TA3D::Paths::Caches + cache_filename );
 			}
 			tex_cache_name.push_back( cache_filename );
 
@@ -722,7 +722,9 @@ namespace TA3D
 			file->read(buf,shader_size);
 			frag_shader_src = buf;
 			DELETE_ARRAY(buf);
-			s_shader.load_memory(frag_shader_src.data(),frag_shader_src.size(),vert_shader_src.data(),vert_shader_src.size());
+            const QByteArray &frag_data = frag_shader_src.toLatin1();
+            const QByteArray &vert_data = vert_shader_src.toLatin1();
+            s_shader.load_memory(frag_data.data(), frag_data.size(), vert_data.data(), vert_data.size());
 		}
 
 		N = new Vector3D[nb_vtx << 1]; // Calculate normals
@@ -793,7 +795,7 @@ namespace TA3D
 			next = NULL;
 	}
 
-	Model *Mesh3DM::load(const String &filename)
+	Model *Mesh3DM::load(const QString &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)
@@ -804,9 +806,9 @@ namespace TA3D
 
 		if (file->getc() == 0)       // This is a pointer file
 		{
-			String realFilename = file->data() + 1;
+			QString realFilename = file->data() + 1;
 			delete file;
-			realFilename.trim();
+            realFilename = realFilename.trimmed();
 			LOG_INFO(LOG_PREFIX_3DM << "file '" << filename << "' points to '" << realFilename << "'");
 			file = VFS::Instance()->readFile(realFilename);
 			if (!file)

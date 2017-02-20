@@ -34,7 +34,7 @@ namespace Menus
 {
 
 	//! \brief Predicate to sort a vector of string
-	static inline bool sortForListOfMaps(const String& u, const String& v)
+	static inline bool sortForListOfMaps(const QString& u, const QString& v)
 	{
 		return u < v;
 	}
@@ -53,7 +53,7 @@ namespace Menus
 
 
 
-	bool MapSelector::Execute(const String& preSelectedMap, String& mapName)
+	bool MapSelector::Execute(const QString& preSelectedMap, QString& mapName)
 	{
 		MapSelector m(preSelectedMap);
 		mapName.clear();
@@ -75,7 +75,7 @@ namespace Menus
 	{}
 
 
-	MapSelector::MapSelector(const String& preSelectedMap)
+	MapSelector::MapSelector(const QString& preSelectedMap)
 		:Abstract(),
 		pSelectedMap(), pDefaultSelectedMap(preSelectedMap), pCachedSizeOfListOfMaps(0),
 		pMiniMapTexture(0),
@@ -161,15 +161,15 @@ namespace Menus
 	}
 
 
-	void MapSelector::autoSelectMap(const String& shortName)
+	void MapSelector::autoSelectMap(const QString& shortName)
 	{
 		if (!pMapListObj)
 			return;
-		const String::size_type l = shortName.length();
+		const QString::size_type l = shortName.length();
 		if (l < 9)
 			return;
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "autoSelectMap()");
-		const String& s = Substr(shortName, 5, l - 9);
+		const QString& s = Substr(shortName, 5, l - 9);
 		int indx(0);
 		const ListOfMaps::const_iterator end = pListOfMaps.end();
 		for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != end; ++i, ++indx)
@@ -271,7 +271,7 @@ namespace Menus
 		ResetTexture(pMiniMapTexture, load_tnt_minimap_fast(pSelectedMap, dx, dy));
 
 		// OTA
-		String otaMap;
+		QString otaMap;
 		otaMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".ota";
 		MAP_OTA mapOTA;
 		if (File* file = VFS::Instance()->readFile(otaMap))
@@ -304,7 +304,7 @@ namespace Menus
 
 	void MapSelector::doResetAreaCaptionFromMapOTA(MAP_OTA& mapOTA)
 	{
-		String title;
+		QString title;
 
 		// Name of the mission
 		if(!mapOTA.missionname.empty())
@@ -321,14 +321,14 @@ namespace Menus
 	}
 
 
-	bool MapSelector::MapIsForNetworkGame(const String& mapShortName)
+	bool MapSelector::MapIsForNetworkGame(const QString& mapShortName)
 	{
-		File* file = VFS::Instance()->readFileRange(String("maps\\") << mapShortName << String(".ota"), 0, 10240);
+		File* file = VFS::Instance()->readFileRange(QString("maps\\") << mapShortName << QString(".ota"), 0, 10240);
 		if (file)
 		{
 			TDFParser ota_parser;
 			ota_parser.loadFromMemory(mapShortName, (const char*)file->data(), Math::Min(file->size(), 10240), false, false, false);
-			String tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
+			QString tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
 			tmp.toLower();
 			delete file;
 			return tmp.startsWith("network");
@@ -348,10 +348,10 @@ namespace Menus
 		{
 			for (ListOfMaps::const_iterator it = allMaps.begin(); it != allMaps.end(); ++it)
 			{
-				const String::size_type l(it->length());
+				const QString::size_type l(it->length());
 				if (l < 9)
 					continue;
-				const String& newMapName = Substr(*it, 5, l - 9);
+				const QString& newMapName = Substr(*it, 5, l - 9);
 				if (MapSelector::MapIsForNetworkGame(newMapName))
 					out.push_back(newMapName);
 			}

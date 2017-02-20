@@ -132,7 +132,7 @@ namespace TA3D
                 break;
             case DRAW_TYPE_BITMAP:
 				glScalef(screen_w / 640.0f, screen_h / 480.0f,1.0f);
-                if (prim.tex == 0 && !prim.text.empty())
+                if (prim.tex == 0 && !prim.text.isEmpty())
                 {
                     prim.tex = gfx->load_texture( prim.text );
                     prim.text.clear();

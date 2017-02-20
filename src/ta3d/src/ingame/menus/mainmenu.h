@@ -98,9 +98,9 @@ namespace Menus
 
 	private:
 		//! Current mod
-		String pCurrentMod;
+		QString pCurrentMod;
 		//! Caption for the current mod (Cache)
-		String pCurrentModCaption;
+		QString pCurrentModCaption;
 
 		/*!
 		** Get if we should not wait for an event (mouse,keyboard...) if enabled

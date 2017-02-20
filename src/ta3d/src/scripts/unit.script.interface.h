@@ -35,8 +35,8 @@ namespace TA3D
         typedef zuzuf::smartptr<UnitScriptInterface>	Ptr;
     public:
 		static UnitScriptInterface *instanciate( ScriptData::Ptr data );
-        static const String get_script_name(int id);
-        static int get_script_id(const String &name);
+        static const QString get_script_name(int id);
+        static int get_script_id(const QString &name);
 
     protected:
         uint32                  unitID;
@@ -49,8 +49,8 @@ namespace TA3D
 
         virtual int getNbPieces() = 0;
 
-        int getReturnValue(const String &name);
-        void setReturnValue(const String &name, int value);
+        int getReturnValue(const QString &name);
+        void setReturnValue(const QString &name, int value);
 
     private:
         static const char *script_name[];

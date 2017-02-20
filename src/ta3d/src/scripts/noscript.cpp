@@ -47,11 +47,11 @@ namespace TA3D
 	}
 
 	//! functions used to call/run functions
-	void NoScript::call(const String &, int *, int)
+	void NoScript::call(const QString &, int *, int)
 	{
 	}
 
-	int NoScript::execute(const String &, int *, int)
+	int NoScript::execute(const QString &, int *, int)
 	{
 		return 0;
 	}
@@ -62,7 +62,7 @@ namespace TA3D
 		return NULL;
 	}
 
-	NoScript *NoScript::fork(const String &, int *, int)
+	NoScript *NoScript::fork(const QString &, int *, int)
 	{
 		return NULL;
 	}

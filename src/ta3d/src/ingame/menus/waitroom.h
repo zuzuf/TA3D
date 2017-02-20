@@ -50,7 +50,7 @@ namespace Menus
 		bool dead_player[TA3D_PLAYERS_HARD_LIMIT];
 		uint32 ping_timer;
 
-		String special_msg;
+		QString special_msg;
 		struct chat received_special_msg;
 		bool playerDropped;
 	};

@@ -7,7 +7,7 @@ using namespace std;
 
 namespace TA3D
 {
-	Mesh *Joins::computeStructure(Mesh *mesh, const String &filename)
+	Mesh *Joins::computeStructure(Mesh *mesh, const QString &filename)
 	{
 		if (mesh == NULL)
 			return NULL;
@@ -28,7 +28,7 @@ namespace TA3D
 			queue.pop_back();
 			while(cur)
 			{
-				if (!cur->name.empty())
+                if (!cur->name.isEmpty())
 					objects[cur->name] = cur;
 
 				if (cur->child)
@@ -52,8 +52,7 @@ namespace TA3D
 			// If we have a "linker", remove it and link its 2 objects
 			if (!i.key().contains('_') || *i == NULL)
 				continue;
-			String::Vector elts;
-			i.key().explode(elts, '_', false, false, true);
+            QStringList elts = i.key().split('_', QString::SkipEmptyParts);
 			if (elts.size() != 2) // WOW, that's not supposed to happen!
 			{
 				LOG_ERROR("[mesh] [joins] model structure is broken ! ('" << i.key() << "') (" << filename << ')');

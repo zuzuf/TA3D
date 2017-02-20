@@ -32,7 +32,7 @@ namespace TA3D
 
 
 
-	I18N::Language::Language(const int indx, const String& englishID, const String& caption)
+	I18N::Language::Language(const int indx, const QString& englishID, const QString& caption)
 		:pIndx(indx), pEnglishID(englishID), pCaption(caption)
 	{}
 
@@ -90,7 +90,7 @@ namespace TA3D
 		pLanguageSuffix += ToLower(pCurrentLanguage->englishCaption());
 	}
 
-	I18N::Language* I18N::addNewLanguageWL(const String& englishID, const String& translatedName)
+	I18N::Language* I18N::addNewLanguageWL(const QString& englishID, const QString& translatedName)
 	{
 		I18N::Language* lng = new Language(pNextLangID, englishID, translatedName);
 		++pNextLangID;
@@ -98,9 +98,9 @@ namespace TA3D
 		return lng;
 	}
 
-	I18N::Language* I18N::language(const String& name)
+	I18N::Language* I18N::language(const QString& name)
 	{
-		if (name.empty())
+        if (name.isEmpty())
 			return NULL;
 		ThreadingPolicy::MutexLocker locker(*this);
 		for (Languages::const_iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
@@ -111,14 +111,12 @@ namespace TA3D
 		return NULL;
 	}
 
-	const I18N::Language* I18N::languageFromLocal(const String& locale)
+	const I18N::Language* I18N::languageFromLocal(const QString& locale)
 	{
 		LOG_ASSERT(NULL != pDefaultLanguage /* initializeAllLanguages() must be called before */ );
-		if (locale.empty())
+        if (locale.isEmpty())
 			return pDefaultLanguage;
-		String s(Substr(locale, 0, 5));
-		s.trim();
-		s.toLower();
+        const QString s(Substr(locale, 0, 5).trimmed().toLower());
 
 		// French
 		if (s.contains("fr_fr") || s.contains("fr_ca") || s.contains("fr_ch") || s.contains("fr_be")
@@ -181,8 +179,8 @@ namespace TA3D
 	bool I18N::tryToDetermineTheLanguage()
 	{
 # ifndef TA3D_PLATFORM_WINDOWS
-		String locale = getenv("LC_ALL");
-		if (locale.empty())		locale = getenv("LANG");
+		QString locale = getenv("LC_ALL");
+        if (locale.isEmpty())		locale = getenv("LANG");
 		LOG_INFO(LOG_PREFIX_I18N << "locale = " << locale);
 		return currentLanguage(languageFromLocal(locale));
 # else
@@ -199,36 +197,27 @@ namespace TA3D
 			out.push_back(*(*i));
 	}
 
-	String I18N::translate(const String& key, const String& defaultValue)
+	QString I18N::translate(const QString& key, const QString& defaultValue)
 	{
-		if (key.empty())
+        if (key.isEmpty())
 			return defaultValue;
 
-		String k(key);
-		k.toLower();
+        const QString k(key.toLower() + pLanguageSuffix);
 		ThreadingPolicy::MutexLocker locker(*this);
-		k += pLanguageSuffix;
-		return (defaultValue.empty())
-			? pTranslations.pullAsString(k, key)
-			: pTranslations.pullAsString(k, defaultValue);
+        return (defaultValue.isEmpty())
+            ? pTranslations.pullAsString(k, key)
+            : pTranslations.pullAsString(k, defaultValue);
 	}
 
-	void I18N::translate(String::Vector& out)
+    void I18N::translate(QStringList& out)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		for (String::Vector::iterator i = out.begin(); i != out.end(); ++i)
-			*i = translate(*i);
-	}
-
-	void I18N::translate(String::List& out)
-	{
-		ThreadingPolicy::MutexLocker locker(*this);
-		for (String::List::iterator i = out.begin(); i != out.end(); ++i)
-			*i = translate(*i);
+        for (QString &i : out)
+            i = translate(i);
 	}
 
 
-	bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
+	bool I18N::loadFromFile(const QString& filename, const bool emptyBefore, const bool inASCII)
 	{
 		if (!VFS::Instance()->fileExists(filename))
 		{
@@ -240,10 +229,10 @@ namespace TA3D
 		ThreadingPolicy::MutexLocker locker(*this);
 		// Load the file
 		bool r = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
-		const String &languageEnglishID = pTranslations.pullAsString( "info.name" );
-		const String &languageCaption = pTranslations.pullAsString( "info.caption" );
+        const QString &languageEnglishID = pTranslations.pullAsString( "info.name" );
+        const QString &languageCaption = pTranslations.pullAsString( "info.caption" );
 		// This file register a new language
-		if (!languageEnglishID.empty() && !languageCaption.empty() && language(languageEnglishID) == NULL)
+        if (!languageEnglishID.isEmpty() && !languageCaption.isEmpty() && language(languageEnglishID) == NULL)
 		{
 			(void) addNewLanguageWL(languageEnglishID, languageCaption);
 		}
@@ -259,18 +248,16 @@ namespace TA3D
 	bool I18N::loadFromResources()
 	{
 		// Retrieve the list of all .po files
-		String path;
-		path << "languages" << Core::IO::Separator << "*.po";
-		String::Vector list;
+        QString path = "languages/*.po";
+        QStringList list;
 		VFS::Instance()->getFilelist(path, list);
 
-		if (!list.empty())
+        if (!list.isEmpty())
 		{
 			bool res = false;
-			const String::Vector::const_iterator end = list.end();
-			for (String::Vector::const_iterator i = list.begin(); i != end; ++i)
+            for (const QString &i : list)
 			{
-				path.clear() << "languages" << Core::IO::Separator << Paths::ExtractFileName(*i);
+                path = "languages/" + Paths::ExtractFileName(i);
 				if (loadFromFile(path, false))
 				{
 					// The operation will succeed if at least one .po has been loaded

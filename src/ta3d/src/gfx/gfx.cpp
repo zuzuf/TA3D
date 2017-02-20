@@ -58,19 +58,19 @@ namespace TA3D
 
 	void GFX::detectDefaultSettings()
 	{
-		const GLubyte *glStr = glGetString(GL_VENDOR);
-		String glVendor = glStr ? ToUpper((const char*)glStr) : String();
+        const GLubyte *glStr = glGetString(GL_VENDOR);
+        QString glVendor = glStr ? ToUpper((const char*)glStr) : QString();
 
 		enum VENDOR { Unknown, Ati, Nvidia, Sis, Intel };
 
 		VENDOR glVendorID = Unknown;
-		if (glVendor.find("ATI") != String::npos)
+        if (glVendor.contains("ATI"))
 			glVendorID = Ati;
-		else if (glVendor.find("NVIDIA") != String::npos)
+        else if (glVendor.contains("NVIDIA"))
 			glVendorID = Nvidia;
-		else if (glVendor.find("SIS") != String::npos)
+        else if (glVendor.contains("SIS"))
 			glVendorID = Sis;
-		else if (glVendor.find("INTEL") != String::npos)
+        else if (glVendor.contains("INTEL"))
 			glVendorID = Intel;
 
 #ifdef YUNI_OS_LINUX
@@ -478,7 +478,7 @@ namespace TA3D
 		{
 			LOG_ERROR(LOG_PREFIX_GFX << "Impossible to set OpenGL video mode!");
 			LOG_ERROR(LOG_PREFIX_GFX << "SDL_GetError() = " << SDL_GetError());
-			criticalMessage(String("Impossible to set OpenGL video mode! SDL_GetError() = '") << SDL_GetError() << "'");
+            criticalMessage(QString("Impossible to set OpenGL video mode! SDL_GetError() = '") + SDL_GetError() + "'");
 			exit(1);
 			return;
 		}
@@ -540,9 +540,9 @@ namespace TA3D
 	bool GFX::checkVideoCardWorkaround() const
 	{
 		// Check for ATI workarounds (if an ATI card is present)
-		bool workaround = Substr(ToUpper((const char*)glGetString(GL_VENDOR)),0,3) == "ATI";
+        bool workaround = Substr(ToUpper((const char*)glGetString(GL_VENDOR)),0,3) == "ATI";
 		// Check for SIS workarounds (if an SIS card is present) (the same than ATI)
-		workaround |= ToUpper((const char*)glGetString(GL_VENDOR)).find("SIS") != String::npos;
+        workaround |= ToUpper((const char*)glGetString(GL_VENDOR)).contains("SIS");
 		return workaround;
 	}
 
@@ -935,10 +935,10 @@ namespace TA3D
 		drawtexture_flip(tex, x1, y1, x2, y2);
 	}
 
-	void GFX::print(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
+    void GFX::print(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
 	{
 		assert(NULL != font);
-		if (!text.empty())
+        if (!text.isEmpty())
 		{
 			ReInitTexSys(false);
 			glEnable(GL_BLEND);
@@ -949,13 +949,13 @@ namespace TA3D
 	}
 
 
-	void GFX::print(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
+    void GFX::print(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text)		// Font related routines
 	{
 		set_color(col);
 		print( font, x, y, z, text );
 	}
 
-	void GFX::print_center(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
+    void GFX::print_center(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
 	{
 		if (font)
 		{
@@ -971,14 +971,14 @@ namespace TA3D
 	}
 
 
-	void GFX::print_center(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
+    void GFX::print_center(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text)		// Font related routines
 	{
 		set_color(col);
 		print_center( font, x, y, z, text );
 	}
 
 
-	void GFX::print_right(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
+    void GFX::print_right(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
 	{
 		if (!font)  return;
 
@@ -992,7 +992,7 @@ namespace TA3D
 		font->print(X, y, z, text);
 	}
 
-	void GFX::print_right(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
+    void GFX::print_right(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text)		// Font related routines
 	{
 		set_color(col);
 		print_right( font, x, y, z, text );
@@ -1665,7 +1665,7 @@ namespace TA3D
 		glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, src->w, src->h, GL_RGBA, GL_UNSIGNED_BYTE, src->pixels );
 	}
 
-	SDL_Surface *GFX::load_image(const String &filename)
+    SDL_Surface *GFX::load_image(const QString &filename)
 	{
 		File *vfile = VFS::Instance()->readFile(filename);
 		if (vfile)
@@ -1697,12 +1697,12 @@ namespace TA3D
 	}
 
 
-	GLuint GFX::load_texture(const String& file, int filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
+    GLuint GFX::load_texture(const QString& file, int filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
 
-		const String upfile = ToUpper(file) << " (" << texFormat << "-" << (int)filter_type << ')';
+        const QString upfile = ToUpper(file) + " (" + texFormat + "-" + QString::number(filter_type) + ')';
 		HashMap<Interfaces::GfxTexture>::Sparse::iterator it = textureIDs.find(upfile);
 		if (it != textureIDs.end() && it->tex > 0)		// File already loaded
 		{
@@ -1720,7 +1720,7 @@ namespace TA3D
 		}
 
 		const bool compressible = texFormat == GL_COMPRESSED_RGB || texFormat == GL_COMPRESSED_RGBA || texFormat == 0;
-		String cache_filename = !file.empty() ? String(file) << ".bin" : String();
+        QString cache_filename = !file.isEmpty() ? file + ".bin" : QString();
 		cache_filename.replace('/', 'S');
 		cache_filename.replace('\\', 'S');
 		if (compressible)
@@ -1754,7 +1754,7 @@ namespace TA3D
 			}
 		}
 
-		String ext = Paths::ExtractFileExt(file);
+        QString ext = Paths::ExtractFileExt(file);
 		ext.toLower();
 		bool with_alpha = (ext == ".tga" || ext == ".png" || ext == ".tif");
 		if (with_alpha)
@@ -1794,7 +1794,7 @@ namespace TA3D
 	}
 
 
-	GLuint	GFX::load_texture_mask(const String& file, uint32 level, int filter_type, uint32 *width, uint32 *height, bool clamp )
+    GLuint	GFX::load_texture_mask(const QString& file, uint32 level, int filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
 			return 0;
@@ -1842,14 +1842,14 @@ namespace TA3D
 	}
 
 
-	bool GFX::is_texture_in_cache(const String& file)
+    bool GFX::is_texture_in_cache(const QString& file)
 	{
 		if (ati_workaround
 			|| !lp_CONFIG->use_texture_cache
 			|| !lp_CONFIG->use_texture_compression
 			|| lp_CONFIG->developerMode)
 			return false;
-		String realFile(TA3D::Paths::Caches);
+        QString realFile(TA3D::Paths::Caches);
 		realFile += file;
 		if (TA3D::Paths::Exists(realFile))
 		{
@@ -1858,13 +1858,13 @@ namespace TA3D
 			cache_file.read((char*)&mod_hash, sizeof( mod_hash ));
 			cache_file.close();
 
-			return mod_hash == hash<String>()(TA3D_CURRENT_MOD); // Check if it corresponds to current mod
+            return mod_hash == hash<QString>()(TA3D_CURRENT_MOD); // Check if it corresponds to current mod
 		}
 		return false;
 	}
 
 
-	GLuint GFX::load_texture_from_cache(const String& file, int filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
+    GLuint GFX::load_texture_from_cache(const QString& file, int filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
 	{
 		if (ati_workaround
 			|| !lp_CONFIG->use_texture_cache
@@ -1874,7 +1874,7 @@ namespace TA3D
 			|| lp_CONFIG->developerMode)		// No caching in developer mode
 			return 0;
 
-		String realFile(TA3D::Paths::Caches);
+        QString realFile(TA3D::Paths::Caches);
 		realFile += file;
 		if(TA3D::Paths::Exists(realFile))
 		{
@@ -1882,7 +1882,7 @@ namespace TA3D
 			uint32 mod_hash;
 			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
 
-			if (mod_hash != hash<String>()(TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
+            if (mod_hash != hash<QString>()(TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
 			{
 				cache_file.close();
 				return 0;
@@ -1989,7 +1989,7 @@ namespace TA3D
 	}
 
 
-	void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height, bool useAlpha )
+    void GFX::save_texture_to_cache( QString file, GLuint tex, uint32 width, uint32 height, bool useAlpha )
 	{
 		if(ati_workaround
 		   || !lp_CONFIG->use_texture_cache
@@ -1999,7 +1999,7 @@ namespace TA3D
 		   || lp_CONFIG->developerMode)
 			return;
 
-		file = String(TA3D::Paths::Caches) << file;
+        file = TA3D::Paths::Caches + file;
 
 		int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
 
@@ -2014,7 +2014,7 @@ namespace TA3D
 		if (!cache_file.opened())
 			return;
 
-		uint32 mod_hash = static_cast<uint32>(hash<String>()(TA3D_CURRENT_MOD)); // Save a hash of current mod
+        uint32 mod_hash = static_cast<uint32>(hash<QString>()(TA3D_CURRENT_MOD)); // Save a hash of current mod
 
 		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 
@@ -2059,7 +2059,7 @@ namespace TA3D
 
 
 
-	GLuint GFX::load_masked_texture(String file, String mask, int filter_type )
+    GLuint GFX::load_masked_texture(QString file, QString mask, int filter_type )
 	{
 		if ( (!VFS::Instance()->fileExists(file)) || (!VFS::Instance()->fileExists(mask)))
 			return 0; // The file doesn't exist
@@ -2126,10 +2126,10 @@ namespace TA3D
 				textureLoad.erase(it);
 				textureAlpha.erase(gltex);
 
-				HashMap<String, GLuint>::Sparse::iterator file_it = textureFile.find(gltex);
+                HashMap<QString, GLuint>::Sparse::iterator file_it = textureFile.find(gltex);
 				if (file_it != textureFile.end())
 				{
-					if (!file_it->empty())
+                    if (!file_it->isEmpty())
 						textureIDs.erase(*file_it);
 					textureFile.erase(file_it);
 				}
@@ -2230,7 +2230,7 @@ namespace TA3D
 	}
 
 
-	uint32 GFX::InterfaceMsg(const uint32 MsgID, const String &)
+    uint32 GFX::InterfaceMsg(const uint32 MsgID, const QString &)
 	{
 		if (MsgID != TA3D_IM_GFX_MSG)
 			return INTERFACE_RESULT_CONTINUE;
@@ -2480,7 +2480,7 @@ namespace TA3D
 	{
 	}
 
-	SDL_Surface* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha)
+    SDL_Surface* GFX::LoadMaskedTextureToBmp(const QString& file, const QString& filealpha)
 	{
 		// Load the texture (32Bits)
 		SDL_Surface* bmp = gfx->load_image(file);
@@ -2662,7 +2662,7 @@ namespace TA3D
 
 										if (SDL_SetVideoMode( w, h, bpp, SDL_OPENGL | SDL_HWSURFACE ))
 										{
-											if (String((const char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
+                                            if (QString((const char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
 											{
 												std::cout << "test passed for following settings:" << std::endl;
 												std::cout << "stencil = " << (stencil ? 8 : 0) << std::endl;
@@ -2673,7 +2673,7 @@ namespace TA3D
 												std::cout << "b = " << b << std::endl;
 												std::cout << "a = " << a << std::endl;
 												std::cout << "depth = " << (depth ? 24 : 16) << std::endl;
-												std::cout << "renderer = " << glGetString(GL_RENDERER) << std::endl << std::endl;
+                                                std::cout << "renderer = " << glGetString(GL_RENDERER) << std::endl << std::endl;
 											}
 										}
 									}

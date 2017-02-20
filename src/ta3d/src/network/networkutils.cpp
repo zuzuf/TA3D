@@ -220,7 +220,7 @@ namespace TA3D
 		delete((struct net_thread_params*)param);
 		param = NULL;
 
-		String msg;
+		QString msg;
 
 		pDead = 0;
 
@@ -231,7 +231,7 @@ namespace TA3D
 			if(pDead) break;
 
 			msg = sock->getString();
-			if (!msg.empty())
+            if (!msg.isEmpty())
 			{
 				network->mqmutex.lock();
 				if (pDead)
@@ -261,7 +261,7 @@ namespace TA3D
 		File* file;
 		int length,n;
 		byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
-		String filename;
+		QString filename;
 
 		network = ((struct net_thread_params*)param)->network;
 		sockid = ((struct net_thread_params*)param)->sockid;
@@ -299,7 +299,7 @@ namespace TA3D
 			if (n > 0)
 			{
 				pos += n;
-				network->updateFileTransferInformation( String(filename) << sockid, real_length, pos );
+                network->updateFileTransferInformation( filename + QString::number(sockid), real_length, pos );
 
 				const uint32 timer = msec_timer;
 				while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000 )
@@ -309,7 +309,7 @@ namespace TA3D
 					DELETE_ARRAY(buffer);
 					LOG_DEBUG( LOG_PREFIX_NET_FILE << "file transfert timed out");
 					pDead = 1;
-					network->updateFileTransferInformation(String(filename) << sockid, 0, 0);
+                    network->updateFileTransferInformation(filename + QString::number(sockid), 0, 0);
 					network->setFileDirty();
 					delete file;
 					return;
@@ -328,7 +328,7 @@ namespace TA3D
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
-		network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
+        network->updateFileTransferInformation( filename + QString::number(sockid), 0, 0 );
 		pDead = 1;
 		delete file;
 		network->setFileDirty();
@@ -348,7 +348,7 @@ namespace TA3D
 	{
 		Network* network;
 		int sockid;
-		String filename;
+		QString filename;
 		int length,n,sofar;
 
 		buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE + 12 ];
@@ -358,16 +358,17 @@ namespace TA3D
 		sockid = ((struct net_thread_params*)param)->sockid;
 
 		//blank file open for writing
-		filename = String(Paths::Resources) << ((struct net_thread_params*)param)->filename;
-		const String path = Paths::ExtractFilePath(filename);
-		if (!path.empty())
+        filename = Paths::Resources + ((struct net_thread_params*)param)->filename;
+		const QString path = Paths::ExtractFilePath(filename);
+        if (!path.isEmpty())
 			Paths::MakeDir(path);
-		Stream file( String(filename) << ".part", Yuni::Core::IO::OpenMode::write );
+        QFile file( filename + ".part");
+        file.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
 		delete((struct net_thread_params*)param);
 		param = NULL;
 
-		if (!file.opened())
+        if (!file.isOpen())
 		{
 			LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << ".part'");
 			pDead = 1;
@@ -390,10 +391,10 @@ namespace TA3D
 			LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (0)");
 			pDead = 1;
 			file.close();
-			remove( (String(filename) << ".part").c_str() );
+            file.remove();
 			network->setFileDirty();
 			DELETE_ARRAY(buffer);
-			network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
+            network->updateFileTransferInformation( filename + QString::number(sockid), 0, 0 );
 			return;
 		}
 
@@ -411,10 +412,10 @@ namespace TA3D
 				LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (1)");
 				pDead = 1;
 				file.close();
-				remove( (String(filename) << ".part").c_str() );
+                file.remove();
 				network->setFileDirty();
 				DELETE_ARRAY(buffer);
-				network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
+                network->updateFileTransferInformation( filename + QString::number(sockid), 0, 0 );
 				return;
 			}
 
@@ -423,7 +424,7 @@ namespace TA3D
 				// First we must decompress the data
 
 				sofar += buffer_size;
-				network->updateFileTransferInformation( String(filename) << sockid, length, sofar );
+                network->updateFileTransferInformation( filename + QString::number(sockid), length, sofar );
 
 				file.write((const char*)buffer, buffer_size);       // Write data
 
@@ -437,14 +438,14 @@ namespace TA3D
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
-		network->updateFileTransferInformation( String(filename) << sockid, 0, 0 );
+        network->updateFileTransferInformation( filename + QString::number(sockid), 0, 0 );
 
 		file.close();
 		if( pDead && sofar < length )				// Delete the file if transfer has been aborted
-			remove( (String(filename) << ".part").c_str() );
+            file.remove();
 		else
 		{
-			rename( (String(filename) << ".part").c_str(), filename.c_str() );
+            file.rename(filename);
 			VFS::Instance()->reload();
 		}
 

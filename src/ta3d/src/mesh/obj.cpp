@@ -16,7 +16,7 @@ namespace TA3D
 	/*!
 * \brief fill the Mesh with gathered data
 */
-	void MeshOBJ::obj_finalize(const String &, const vector<int> &face, const vector<Vector3D> &vertex, const vector<Vector2D> &tcoord, Material* mtl)
+	void MeshOBJ::obj_finalize(const QString &, const vector<int> &face, const vector<Vector3D> &vertex, const vector<Vector2D> &tcoord, Material* mtl)
 	{
 		nb_vtx = short(face.size() >> 1);
 		nb_t_index = short(face.size() >> 1);
@@ -90,7 +90,7 @@ namespace TA3D
 			LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture ! (" << tex_cache_name[id] << ')');
 	}
 
-	void MeshOBJ::load(File *file, const String &filename)
+	void MeshOBJ::load(File *file, const QString &filename)
 	{
 		destroy3DM();
 
@@ -105,18 +105,17 @@ namespace TA3D
 
 		while (!file->eof()) // Reads the whole file
 		{
-			String line;
+			QString line;
 			file->readLine(line);
-			line.trim();
-			String::Vector args;
-			line.explode(args, ' ', false, false, true);
-			if (!args.empty())
+            line = line.trimmed();
+            QStringList args = line.split(' ', QString::SkipEmptyParts);
+            if (!args.isEmpty())
 			{
 				if ( (args[0] == "o" || args[0] == "g") && args.size() > 1)      // Creates a new object
 				{
-					if (!face.empty())
+                    if (!face.empty())
 					{
-						if (firstObject && cur->name.empty())
+                        if (firstObject && cur->name.isEmpty())
 							cur->name = "default";
 						cur->obj_finalize( filename, face, lVertex, lTcoord, &currentMtl );
 						face.clear();
@@ -128,20 +127,19 @@ namespace TA3D
 				}
 				else if (args[0] == "mtllib" && args.size() > 1)        // Read given material libraries
 				{
-					for(String::Vector::iterator s = args.begin() + 1 ; s != args.end() ; ++s)
+					for(QStringList::iterator s = args.begin() + 1 ; s != args.end() ; ++s)
 					{
-						File *src_mtl = VFS::Instance()->readFile(String("objects3d/") << *s);
+                        File *src_mtl = VFS::Instance()->readFile("objects3d/" + *s);
 						if (!src_mtl)
 							continue;
 						Material mtl;
 						while (!src_mtl->eof())
 						{
-							String line0;
+							QString line0;
 							src_mtl->readLine(line0);
-							line0.trim();
-							String::Vector args0;
-							line0.explode(args0, ' ', false, false, true);
-							if (!args0.empty())
+                            line0 = line0.trimmed();
+                            const QStringList &args0 = line0.split(' ', QString::SkipEmptyParts);
+                            if (!args0.isEmpty())
 							{
 								if (args0[0] == "newmtl")
 									mtl.name = args0[1];
@@ -149,7 +147,7 @@ namespace TA3D
 								{
 									if (args0[0] == "map_Kd")
 									{
-										mtl.textureName = String("textures/") << args0[1];
+                                        mtl.textureName = "textures/" + args0[1];
 										mtllib[mtl.name] = mtl;
 									}
 								}
@@ -168,17 +166,17 @@ namespace TA3D
 							currentMtl.textureName.clear();
 					}
 					else if (args[0] == "v" && args.size() > 3)  // Add a vertex to current object
-						lVertex.push_back( Vector3D(args[1].to<float>(), args[2].to<float>(), args[3].to<float>()));
+                        lVertex.push_back( Vector3D(args[1].toFloat(), args[2].toFloat(), args[3].toFloat()));
 					else if (args[0] == "vn" && args.size() > 3)  // Add a normal vector to current object
 					{}
 					else if (args[0] == "vt" && args.size() > 2)  // Add a texture coordinate vector to current object
-						lTcoord.push_back( Vector2D( args[1].to<float>(), args[2].to<float>()));
+                        lTcoord.push_back( Vector2D( args[1].toFloat(), args[2].toFloat()));
 					else if (args[0] == "f" && args.size() > 1)  // Add a face to current object
 					{
 						vector<int>  vertex_idx;
 						vector<int>  tcoord_idx;
 						bool first_string = true;
-						for(String::Vector::iterator s = args.begin() ; s != args.end() ; ++s)
+                        for(QString &s : args)
 						{
 							// The first string is crap if we read it as vertex data !!
 							if (first_string)
@@ -187,17 +185,16 @@ namespace TA3D
 								continue;
 							}
 
-							String::Vector data;
-							s->trim();
-							s->explode(data, '/', false, false, true);
+                            s = s.trimmed();
+                            const QStringList &data = s.split('/', QString::SkipEmptyParts);
 
-							if (!data.empty())
+                            if (!data.isEmpty())
 							{
-								vertex_idx.push_back( data[0].to<int>() - 1);
+                                vertex_idx.push_back( data[0].toInt() - 1);
 								if (vertex_idx.back() < 0)
-								{	LOG_DEBUG(LOG_PREFIX_OBJ << "parser : " << line << " -> " << *s << " -> " << vertex_idx.back());	}
+                                {	LOG_DEBUG(LOG_PREFIX_OBJ << "parser : " << line << " -> " << s << " -> " << vertex_idx.back());	}
 								if (data.size() >= 2)
-									tcoord_idx.push_back(data[1].to<int>() - 1);
+                                    tcoord_idx.push_back(data[1].toInt() - 1);
 								else
 									tcoord_idx.push_back(-1);
 							}
@@ -222,7 +219,7 @@ namespace TA3D
 		cur->obj_finalize(filename, face, lVertex, lTcoord, &currentMtl);
 	}
 
-	Model *MeshOBJ::load(const String &filename)
+	Model *MeshOBJ::load(const QString &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)

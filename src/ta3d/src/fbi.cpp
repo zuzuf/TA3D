@@ -129,24 +129,24 @@ namespace TA3D
 		Pic_p.push_back(short(p));
 	}
 
-	GLuint loadBuildPic(const String &gafFileName, const String &name, int *w = NULL, int *h = NULL)
+    GLuint loadBuildPic(const QString &gafFileName, const QString &name, int *w = NULL, int *h = NULL)
 	{
 		if (name.empty())
 			return 0;
 		
 		if (unit_manager.name2gaf.empty())
 		{
-			const String::Vector &animsList = unit_manager.animsList;
+            const QStringList &animsList = unit_manager.animsList;
 
-			for(String::Vector::const_iterator it = animsList.begin() ; it != animsList.end() ; ++it)
+            for(QStringList::const_iterator it = animsList.begin() ; it != animsList.end() ; ++it)
 			{
-				const String &gafName = *it;
-				String::Vector entries;
-				if (VFS::Instance()->getDirlist(String(gafName) << "\\*", entries))				// GAF-like directory
+                const QString &gafName = *it;
+                QStringList entries;
+                if (VFS::Instance()->getDirlist(QString(gafName) << "\\*", entries))				// GAF-like directory
 				{
 					for(uint32 i = 0 ; i < entries.size() ; ++i)
 					{
-						const String key = Paths::ExtractFileName(entries[i]).toUpper();
+                        const QString key = Paths::ExtractFileName(entries[i]).toUpper();
 						if (key.empty())
 							continue;
 						if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
@@ -161,7 +161,7 @@ namespace TA3D
 						const int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
 						for(int i = 0 ; i < nbEntries ; ++i)
 						{
-							const String key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
+                            const QString key = Gaf::RawDataGetEntryName(gaf_file, i).toUpper();
 							if (key.empty())
 								continue;
 							if (unit_manager.name2gaf.find(key) == unit_manager.name2gaf.end())
@@ -176,17 +176,17 @@ namespace TA3D
 		GLuint tex = 0;
 		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 
-		String key = ToUpper(name);
-		HashMap< String >::Dense::iterator item = unit_manager.name2gaf.find(key);
+        QString key = ToUpper(name);
+        HashMap< QString >::Dense::iterator item = unit_manager.name2gaf.find(key);
 		if (item != unit_manager.name2gaf.end())
 		{
-			String::Vector test;
+            QStringList test;
 			if (ToUpper(*item) != ToUpper(gafFileName))
 				test.push_back(gafFileName);
 			test.push_back(*item);
-			for(String::Vector::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
+            for(QStringList::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
 			{
-				if (it->find(".gaf") != String::npos)						// Is it a normal GAF ?
+                if (it->find(".gaf") != -1)						// Is it a normal GAF ?
 				{
 					File* gaf_file = VFS::Instance()->readFile( *it );
 					if (gaf_file)
@@ -214,18 +214,18 @@ namespace TA3D
 		return tex;
 	}
 
-	void UnitManager::analyse(const String &filename,int unit_index)
+    void UnitManager::analyse(const QString &filename,int unit_index)
 	{
 		TDFParser gui_parser(filename, false, false, true);
 
-		String number = Paths::ExtractFileNameWithoutExtension(filename);
+        QString number = Paths::ExtractFileNameWithoutExtension(filename);
 		int first = int(number.size() - 1);
 		while (first >= 0 && number[first] >= '0' && number[first] <= '9')
 			--first;
 		++first;
 		number = Substr(number,first, number.size() - first);
 
-		const int page = number.to<int>() - 1;		// Extract the page number
+		const int page = number.toInt() - 1;		// Extract the page number
 
 		const int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 
@@ -233,13 +233,13 @@ namespace TA3D
 		const int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
 		gfx->set_texture_format(GL_RGB5);
-		String name;
+        QString name;
 		for (int i = 1; i <= NbObj; ++i)
 		{
-			const int attribs = gui_parser.pullAsInt( String("gadget") << i << ".common.commonattribs" );
+            const int attribs = gui_parser.pullAsInt( QString("gadget") << i << ".common.commonattribs" );
 			if (!(attribs & 4) && !(attribs & 8))	// Neither a unit nor a weapon
 				continue;
-			name = gui_parser.pullAsString( String("gadget") << i << ".common.name" );
+            name = gui_parser.pullAsString( QString("gadget") << i << ".common.name" );
 			const int idx = (attribs & 4) ? get_unit_index(name) : -1;		// attribs & 4 ==> unit, attribs & 8 ==> weapon
 			if ((attribs & 4) && idx == -1)
 			{
@@ -250,11 +250,11 @@ namespace TA3D
 
 			if (unit_type[unit_index]->canBuild(idx))
 				continue;
-			int w = gui_parser.pullAsInt( String("gadget") << i << ".common.width" );
-			int h = gui_parser.pullAsInt( String("gadget") << i << ".common.height" );
-			const GLuint tex = loadBuildPic( String("anims\\") << unit_type[unit_index]->Unitname << page + 1 << ".gaf", name, &w, &h);
-			const int x = gui_parser.pullAsInt( String("gadget") << i << ".common.xpos" ) + x_offset;
-			const int y = gui_parser.pullAsInt( String("gadget") << i << ".common.ypos" ) + y_offset;
+            int w = gui_parser.pullAsInt( QString("gadget") << i << ".common.width" );
+            int h = gui_parser.pullAsInt( QString("gadget") << i << ".common.height" );
+            const GLuint tex = loadBuildPic( QString("anims\\") << unit_type[unit_index]->Unitname << page + 1 << ".gaf", name, &w, &h);
+            const int x = gui_parser.pullAsInt( QString("gadget") << i << ".common.xpos" ) + x_offset;
+            const int y = gui_parser.pullAsInt( QString("gadget") << i << ".common.ypos" ) + y_offset;
 			unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
 		}
 	}
@@ -267,10 +267,10 @@ namespace TA3D
 		parser.loadFromMemory("analyse2", file->data(), file->size(), false, false, true);
 		file->close();
 
-		for(int g = 0 ; parser.exists(String("gadget") << g) ; g++)
+        for(int g = 0 ; parser.exists(QString("gadget") << g) ; g++)
 		{
-			String unitmenu = parser.pullAsString(String("gadget") << g << ".unitmenu");
-			String unitname = parser.pullAsString(String("gadget") << g << ".unitname");
+            QString unitmenu = parser.pullAsString(QString("gadget") << g << ".unitmenu");
+            QString unitname = parser.pullAsString(QString("gadget") << g << ".unitname");
 
 			if (unitmenu.empty() || unitname.empty()) continue;
 
@@ -285,7 +285,7 @@ namespace TA3D
 			{
 				if (!unit_type[unit_index]->canBuild(idx))
 				{
-					GLuint tex = loadBuildPic( String("anims\\") << unitname << "_gadget.gaf", unitname);
+                    GLuint tex = loadBuildPic( QString("anims\\") << unitname << "_gadget.gaf", unitname);
 					if (!tex && !unit_type[idx]->glpic && unit_type[idx]->unitpic)
 					{
 						gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
@@ -306,7 +306,7 @@ namespace TA3D
 
 
 
-	UnitType *UnitManager::load_unit(const String &filename)			// Ajoute une nouvelle unité
+    UnitType *UnitManager::load_unit(const QString &filename)			// Ajoute une nouvelle unité
 	{
 		UnitType *pUnitType = new UnitType();
 		pUnitType->load(filename);
@@ -331,10 +331,10 @@ namespace TA3D
 
 	void UnitManager::gather_build_data()
 	{
-		String::Vector file_list;
-		VFS::Instance()->getFilelist( String(ta3dSideData.download_dir) << "*.tdf", file_list);
+        QStringList file_list;
+        VFS::Instance()->getFilelist( QString(ta3dSideData.download_dir) << "*.tdf", file_list);
 
-		for (String::Vector::const_iterator f = file_list.begin(); f != file_list.end(); ++f) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        for (QStringList::const_iterator f = file_list.begin(); f != file_list.end(); ++f) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
 			File* file = VFS::Instance()->readFile(*f);		// Lit le fichier
 			if (file)
@@ -362,20 +362,20 @@ namespace TA3D
 		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		for (int i = 0; i < nb_unit; ++i)
 		{
-			String name;
-			for(int n = 1 ; VFS::Instance()->fileExists(name = String(ta3dSideData.guis_dir) << unit_type[i]->Unitname << n << ".gui") ; ++n)
+            QString name;
+            for(int n = 1 ; VFS::Instance()->fileExists(name = QString(ta3dSideData.guis_dir) << unit_type[i]->Unitname << n << ".gui") ; ++n)
 				analyse(name, i);
 		}
 
 		// Fill build menus with information parsed from the sidedata.tdf file
-		TDFParser sidedata_parser(String(ta3dSideData.gamedata_dir) << "sidedata.tdf", false, true);
+        TDFParser sidedata_parser(QString(ta3dSideData.gamedata_dir) << "sidedata.tdf", false, true);
 		for (int i = 0 ; i < nb_unit; ++i)
 		{
 			int n = 1;
-			while(!sidedata_parser.pullAsString(ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) ).empty())  n++;
+            while(!sidedata_parser.pullAsString(ToLower(QString("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) ).empty())  n++;
 
 			n--;
-			String canbuild = sidedata_parser.pullAsString(ToLower(String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) );
+            QString canbuild = sidedata_parser.pullAsString(ToLower(QString("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n ) );
 			while (n > 0)
 			{
 				int idx = get_unit_index( canbuild );
@@ -383,7 +383,7 @@ namespace TA3D
 				{
 					if (!unit_type[i]->canBuild(idx))		// Check if it's already in the list
 					{
-						GLuint tex = loadBuildPic( String("anims\\") << canbuild << "_gadget", canbuild);
+                        GLuint tex = loadBuildPic( QString("anims\\") << canbuild << "_gadget", canbuild);
 						if (!tex && !unit_type[idx]->glpic && unit_type[idx]->unitpic)
 						{
 							unit_type[idx]->glpic = gfx->make_texture(unit_type[idx]->unitpic, FILTER_LINEAR, true);
@@ -405,7 +405,7 @@ namespace TA3D
 				else
 				{	LOG_DEBUG("unit '" << canbuild << "' not found (" << __FILE__ << " l." << __LINE__ << ')');	}
 				--n;
-				canbuild = sidedata_parser.pullAsString( String("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n );
+                canbuild = sidedata_parser.pullAsString( QString("canbuild.") << unit_type[i]->Unitname << ".canbuild" << n );
 			}
 		}
 
@@ -415,15 +415,15 @@ namespace TA3D
 	}
 
 
-	void UnitManager::load_script_file(const String &unit_name)
+    void UnitManager::load_script_file(const QString &unit_name)
 	{
-		const String uprname = String(unit_name).toUpper();
+        const QString uprname = QString(unit_name).toUpper();
 		const int unit_index = get_unit_index(uprname);
 		if (unit_index == -1)
 			return;
 
 		// Everything is done in the SCRIPT_DATA interface, it tries script types in priority order
-		unit_type[unit_index]->script = ScriptData::loadScriptFile(String("scripts\\") << uprname);
+        unit_type[unit_index]->script = ScriptData::loadScriptFile(QString("scripts\\") << uprname);
 	}
 
 
@@ -641,7 +641,7 @@ namespace TA3D
 		Gui::AREA::current()->caption("unit_info.tCost", I18N::Translate("Cost") << ": E " << BuildCostEnergy << " M " << BuildCostMetal);
 		Gui::AREA::current()->caption("unit_info.tBuildTime", I18N::Translate("Build time") << ": " << BuildTime);
 
-		String tWeapons;
+        QString tWeapons;
 		for( std::vector<WeaponDef*>::iterator i = weapon.begin() ; i != weapon.end() ; ++i )
 			if (*i)
 				tWeapons << (*i)->name << ": " << (*i)->damage << "\n";
@@ -666,35 +666,35 @@ namespace TA3D
 		Gui::AREA::current()->msg("unit_info.show");
 	}
 
-#define parseStringDef(x,y)  (unitParser.pullAsString(x, unitParser_ci.pullAsString(x, y)))
+#define parseQStringDef(x,y)  (unitParser.pullAsString(x, unitParser_ci.pullAsString(x, y)))
 #define parseIntDef(x, y)    (unitParser.pullAsInt(x, unitParser_ci.pullAsInt(x, y)))
 #define parseBoolDef(x, y)   (unitParser.pullAsBool(x, unitParser_ci.pullAsBool(x, y)))
 #define parseFloatDef(x, y)  (unitParser.pullAsFloat(x, unitParser_ci.pullAsFloat(x, y)))
 
-#define parseString(x)  (unitParser.pullAsString(x, unitParser_ci.pullAsString(x)))
+#define parseQString(x)  (unitParser.pullAsString(x, unitParser_ci.pullAsString(x)))
 #define parseInt(x)     (unitParser.pullAsInt(x, unitParser_ci.pullAsInt(x)))
 #define parseBool(x)    (unitParser.pullAsBool(x, unitParser_ci.pullAsBool(x)))
 #define parseFloat(x)   (unitParser.pullAsFloat(x, unitParser_ci.pullAsFloat(x)))
 
-	int UnitType::load(const String &filename)
+    int UnitType::load(const QString &filename)
 	{
 		destroy();
 		int nb_inconnu = 0;
-		const String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
-		const String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
-		const String lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
-		const String lang_desc_alt = I18N::Translate("UNITTYPE_DESCRIPTION_ALT", "UNITINFO.Description");
+        const QString lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
+        const QString lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
+        const QString lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
+        const QString lang_desc_alt = I18N::Translate("UNITTYPE_DESCRIPTION_ALT", "UNITINFO.Description");
 
 		TDFParser unitParser( filename, true, true );         // FBI files are case sensitive (something related to variable priority)
 		TDFParser unitParser_ci( filename, false, true );     // Case insensitive parser
 
-		Unitname = parseString("UNITINFO.UnitName");
+        Unitname = parseQString("UNITINFO.UnitName");
 		version = byte(parseInt("UNITINFO.Version"));
-		side = parseString("UNITINFO.Side");
-		ObjectName = parseString("UNITINFO.Objectname");
-		Designation_Name = parseString("UNITINFO.Designation");
-		Description = parseStringDef( lang_desc, parseStringDef( lang_desc_alt, parseString("UNITINFO.Description") ) );
-		name = parseStringDef( lang_name, parseStringDef(lang_name_alt, parseString("UNITINFO.Name") ) );
+        side = parseQString("UNITINFO.Side");
+        ObjectName = parseQString("UNITINFO.Objectname");
+        Designation_Name = parseQString("UNITINFO.Designation");
+        Description = parseQStringDef( lang_desc, parseQStringDef( lang_desc_alt, parseQString("UNITINFO.Description") ) );
+        name = parseQStringDef( lang_name, parseQStringDef(lang_name_alt, parseQString("UNITINFO.Name") ) );
 
 		FootprintX = byte(parseInt("UNITINFO.FootprintX"));
 		FootprintZ = byte(parseInt("UNITINFO.FootprintZ"));
@@ -712,39 +712,39 @@ namespace TA3D
 		SightDistance = parseIntDef("UNITINFO.SightDistance",100) >> 1;
 		RadarDistance = parseInt("UNITINFO.RadarDistance") >> 1;
 		RadarDistanceJam = parseInt("UNITINFO.RadarDistanceJam") >> 1;
-		soundcategory = parseString("UNITINFO.SoundCategory");
-		if (!parseString("UNITINFO.wthi_badTargetCategory").empty())
+        soundcategory = parseQString("UNITINFO.SoundCategory");
+        if (!parseQString("UNITINFO.wthi_badTargetCategory").empty())
 		{
 			if (w_badTargetCategory.size() < 3)
 				w_badTargetCategory.resize(3);
-			w_badTargetCategory[2] = parseString("UNITINFO.wthi_badTargetCategory");
+            w_badTargetCategory[2] = parseQString("UNITINFO.wthi_badTargetCategory");
 		}
-		if (!parseString("UNITINFO.wsec_badTargetCategory").empty())
+        if (!parseQString("UNITINFO.wsec_badTargetCategory").empty())
 		{
 			if (w_badTargetCategory.size() < 2)
 				w_badTargetCategory.resize(2);
-			w_badTargetCategory[1] = parseString("UNITINFO.wsec_badTargetCategory");
+            w_badTargetCategory[1] = parseQString("UNITINFO.wsec_badTargetCategory");
 		}
-		if (!parseString("UNITINFO.wpri_badTargetCategory").empty())
+        if (!parseQString("UNITINFO.wpri_badTargetCategory").empty())
 		{
 			if (w_badTargetCategory.size() < 1)
 				w_badTargetCategory.resize(1);
-			w_badTargetCategory[0] = parseString("UNITINFO.wpri_badTargetCategory");
+            w_badTargetCategory[0] = parseQString("UNITINFO.wpri_badTargetCategory");
 		}
-		for (unsigned int i = 4 ; !parseString( String("UNITINFO.w") << i << "_badTargetCategory" ).empty() ; ++i)
+        for (unsigned int i = 4 ; !parseQString( QString("UNITINFO.w") << i << "_badTargetCategory" ).empty() ; ++i)
 		{
 			if (w_badTargetCategory.size() < i)
 				w_badTargetCategory.resize(i);
-			w_badTargetCategory[i-1] = parseString(String("UNITINFO.w") << i << "_badTargetCategory");
+            w_badTargetCategory[i-1] = parseQString(QString("UNITINFO.w") << i << "_badTargetCategory");
 		}
-		NoChaseCategory = parseString("UNITINFO.NoChaseCategory");
-		BadTargetCategory = parseString("UNITINFO.BadTargetCategory");
+        NoChaseCategory = parseQString("UNITINFO.NoChaseCategory");
+        BadTargetCategory = parseQString("UNITINFO.BadTargetCategory");
 
-		String category = ToLower( parseString("UNITINFO.Category") );
+        QString category = ToLower( parseQString("UNITINFO.Category") );
 		Category.clear();
 		categories.clear();
 		category.explode(categories, ' ');
-		for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
+        for (QStringList::const_iterator i = categories.begin(); i != categories.end(); ++i)
 			if (!i->empty())
 				Category.insert(*i);
 		fastCategory = 0;
@@ -798,22 +798,22 @@ namespace TA3D
 		FireStandOrders = byte(parseIntDef("UNITINFO.firestandorders", 1));
 		WaterLine = parseFloat("UNITINFO.WaterLine");
 
-		String TEDclassString = ToLower( parseString("UNITINFO.TEDClass") );
-		if (TEDclassString.find("water") != String::npos)           TEDclass = CLASS_WATER;
-		else if (TEDclassString.find("ship") != String::npos)       TEDclass = CLASS_SHIP;
-		else if (TEDclassString.find("energy") != String::npos)     TEDclass = CLASS_ENERGY;
-		else if (TEDclassString.find("vtol") != String::npos)       TEDclass = CLASS_VTOL;
-		else if (TEDclassString.find("kbot") != String::npos)       TEDclass = CLASS_KBOT;
-		else if (TEDclassString.find("plant") != String::npos)      TEDclass = CLASS_PLANT;
-		else if (TEDclassString.find("tank") != String::npos)       TEDclass = CLASS_TANK;
-		else if (TEDclassString.find("special") != String::npos)    TEDclass = CLASS_SPECIAL;
-		else if (TEDclassString.find("fort") != String::npos)       TEDclass = CLASS_FORT;
-		else if (TEDclassString.find("metal") != String::npos)      TEDclass = CLASS_METAL;
-		else if (TEDclassString.find("cnstr") != String::npos)      TEDclass = CLASS_CNSTR;
-		else if (TEDclassString.find("commander") != String::npos)  TEDclass = CLASS_COMMANDER;
-		else if (!TEDclassString.empty())
+        QString TEDclassQString = ToLower( parseQString("UNITINFO.TEDClass") );
+        if (TEDclassQString.find("water") != -1)           TEDclass = CLASS_WATER;
+        else if (TEDclassQString.find("ship") != -1)       TEDclass = CLASS_SHIP;
+        else if (TEDclassQString.find("energy") != -1)     TEDclass = CLASS_ENERGY;
+        else if (TEDclassQString.find("vtol") != -1)       TEDclass = CLASS_VTOL;
+        else if (TEDclassQString.find("kbot") != -1)       TEDclass = CLASS_KBOT;
+        else if (TEDclassQString.find("plant") != -1)      TEDclass = CLASS_PLANT;
+        else if (TEDclassQString.find("tank") != -1)       TEDclass = CLASS_TANK;
+        else if (TEDclassQString.find("special") != -1)    TEDclass = CLASS_SPECIAL;
+        else if (TEDclassQString.find("fort") != -1)       TEDclass = CLASS_FORT;
+        else if (TEDclassQString.find("metal") != -1)      TEDclass = CLASS_METAL;
+        else if (TEDclassQString.find("cnstr") != -1)      TEDclass = CLASS_CNSTR;
+        else if (TEDclassQString.find("commander") != -1)  TEDclass = CLASS_COMMANDER;
+        else if (!TEDclassQString.empty())
 		{
-			LOG_DEBUG("unknown tedclass ID : " << TEDclassString);
+            LOG_DEBUG("unknown tedclass ID : " << TEDclassQString);
 			nb_inconnu++;
 		}
 
@@ -832,21 +832,21 @@ namespace TA3D
 		BankScale = byte(parseInt("UNITINFO.BankScale"));
 		TidalGenerator = parseBool("UNITINFO.TidalGenerator");
 		Scale = 1.0f;//parseFloat("UNITINFO.Scale",1.0f);
-		Corpse = parseString("UNITINFO.Corpse");
+        Corpse = parseQString("UNITINFO.Corpse");
 		WindGenerator = short(parseInt("UNITINFO.WindGenerator"));
 		onoffable = parseBool("UNITINFO.onoffable");
 		kamikaze = parseBool("UNITINFO.kamikaze");
 		kamikazedistance = uint16(parseIntDef("UNITINFO.kamikazedistance", SightDistance << 1) >> 1);
 
 		unsigned int i = 1;
-		while (i <= 3 || !parseString( String("UNITINFO.Weapon") << i ).empty())
+        while (i <= 3 || !parseQString( QString("UNITINFO.Weapon") << i ).empty())
 		{
 			if (WeaponID.size() < i)
 				WeaponID.resize(i,-1);
-			WeaponID[i-1] = weapon_manager.get_weapon_index( parseString( String("UNITINFO.Weapon") << i ) );
+            WeaponID[i-1] = weapon_manager.get_weapon_index( parseQString( QString("UNITINFO.Weapon") << i ) );
 			++i;
 		}
-		yardmap = parseString("UNITINFO.YardMap");
+        yardmap = parseQString("UNITINFO.YardMap");
 		if (!yardmap.empty())
 		{
 			i = 0;
@@ -862,18 +862,18 @@ namespace TA3D
 		}
 
 		CruiseAlt = short(parseInt("UNITINFO.cruisealt"));
-		ExplodeAs = parseString("UNITINFO.ExplodeAs");
-		SelfDestructAs = parseString("UNITINFO.SelfDestructAs");
+        ExplodeAs = parseQString("UNITINFO.ExplodeAs");
+        SelfDestructAs = parseQString("UNITINFO.SelfDestructAs");
 		ManeuverLeashLength = short(parseIntDef("UNITINFO.maneuverleashlength", 640));
 
-		String DefaultMissionTypeString = ToLower( parseString("UNITINFO.DefaultMissionType") );
-		if (DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
-		else if (DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
-		else if (DefaultMissionTypeString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
-		else if (DefaultMissionTypeString == "standby_mine")		DefaultMissionType=MISSION_STANDBY_MINE;
-		else if (!DefaultMissionTypeString.empty())
+        QString DefaultMissionTypeQString = ToLower( parseQString("UNITINFO.DefaultMissionType") );
+        if (DefaultMissionTypeQString == "standby")				DefaultMissionType=MISSION_STANDBY;
+        else if (DefaultMissionTypeQString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
+        else if (DefaultMissionTypeQString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
+        else if (DefaultMissionTypeQString == "standby_mine")		DefaultMissionType=MISSION_STANDBY_MINE;
+        else if (!DefaultMissionTypeQString.empty())
 		{
-			LOG_ERROR("Unknown constant: `" << DefaultMissionTypeString << "`");
+            LOG_ERROR("Unknown constant: `" << DefaultMissionTypeQString << "`");
 			++nb_inconnu;
 		}
 
@@ -884,7 +884,7 @@ namespace TA3D
 		TransportCapacity = parseInt("UNITINFO.transportcapacity");
 		TransportSize = parseInt("UNITINFO.transportsize");
 		AltFromSeaLevel = short(parseInt("UNITINFO.altfromsealevel"));
-		MovementClass = parseString("UNITINFO.MovementClass");
+        MovementClass = parseQString("UNITINFO.MovementClass");
 
 		IsAirBase = parseBool("UNITINFO.IsAirBase");
 		commander = parseBool("UNITINFO.Commander");
@@ -905,19 +905,19 @@ namespace TA3D
 			aim_data[i].check = false;
 			if (WeaponID[i] > -1)
 			{
-				String aimdir = parseString( String("UNITINFO.WeaponMainDir") << i );
+                QString aimdir = parseQString( QString("UNITINFO.WeaponMainDir") << i );
 				if (!aimdir.empty())
 				{
-					String::Vector vec;
+                    QStringList vec;
 					aimdir.explode(vec, ' ');
 					if (vec.size() == 3)
 					{
 						aim_data[i].check = true;
-						aim_data[i].dir.x = vec[0].to<float>();
-						aim_data[i].dir.y = vec[1].to<float>();
-						aim_data[i].dir.z = vec[2].to<float>();
+						aim_data[i].dir.x = vec[0].toFloat();
+						aim_data[i].dir.y = vec[1].toFloat();
+						aim_data[i].dir.z = vec[2].toFloat();
 						// Should read almost every possible case
-						aim_data[i].Maxangledif = parseFloat( String("UNITINFO.Maxangledif") << i );
+                        aim_data[i].Maxangledif = parseFloat( QString("UNITINFO.Maxangledif") << i );
 					}
 					else
 					{	LOG_DEBUG("FBI parser error: '" << aimdir << "' could not be parsed correctly");	}
@@ -995,7 +995,7 @@ namespace TA3D
 
 
 		TDFParser dl_parser;
-		if (dl_parser.loadFromFile(String(ta3dSideData.guis_dir) << ta3dSideData.side_pref[side_id] << "dl.gui", false, false, true))
+        if (dl_parser.loadFromFile(QString(ta3dSideData.guis_dir) << ta3dSideData.side_pref[side_id] << "dl.gui", false, false, true))
 		{
 			dl_data = new DlData;
 			int NbObj = dl_parser.pullAsInt( "gadget0.totalgadgets" );
@@ -1007,13 +1007,13 @@ namespace TA3D
 
 			for (int i = 1; i <= NbObj; ++i)
 			{
-				if (dl_parser.pullAsInt( String("gadget") << i << ".common.attribs" ) == 32 )
+                if (dl_parser.pullAsInt( QString("gadget") << i << ".common.attribs" ) == 32 )
 				{
 					DlDataPic p;
-					p.x = short(dl_parser.pullAsInt(String("gadget") << i << ".common.xpos") + x_offset);
-					p.y = short(dl_parser.pullAsInt(String("gadget") << i << ".common.ypos") + y_offset);
-					p.w = short(dl_parser.pullAsInt(String("gadget") << i << ".common.width"));
-					p.h = short(dl_parser.pullAsInt(String("gadget") << i << ".common.height"));
+                    p.x = short(dl_parser.pullAsInt(QString("gadget") << i << ".common.xpos") + x_offset);
+                    p.y = short(dl_parser.pullAsInt(QString("gadget") << i << ".common.ypos") + y_offset);
+                    p.w = short(dl_parser.pullAsInt(QString("gadget") << i << ".common.width"));
+                    p.h = short(dl_parser.pullAsInt(QString("gadget") << i << ".common.height"));
 					dl_data->push_back(p);
 				}
 			}
@@ -1027,9 +1027,9 @@ namespace TA3D
 		}
 	}
 
-	String UnitType::getMoveStringID() const
+    QString UnitType::getMoveQStringID() const
 	{
-		String buf;
+        QString buf;
 		buf << int(FootprintX);
 		buf << ',' << int(FootprintZ);
 		buf << ',' << MaxSlope;
@@ -1056,7 +1056,7 @@ namespace TA3D
 		init();
 	}
 
-	void UnitManager::load_panel_texture( const String &intgaf )
+    void UnitManager::load_panel_texture( const QString &intgaf )
 	{
 		panel.destroy();
 
@@ -1065,14 +1065,14 @@ namespace TA3D
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		int w,h;
-		panel.set(Gaf::ToTexture(String("anims\\") << intgaf, "PANELSIDE2", &w, &h, true));
+        panel.set(Gaf::ToTexture(QString("anims\\") << intgaf, "PANELSIDE2", &w, &h, true));
 		panel.width = w;
 		panel.height = h;
 
-		paneltop.set(Gaf::ToTexture(String("anims\\") << intgaf, "PANELTOP", &w, &h));
+        paneltop.set(Gaf::ToTexture(QString("anims\\") << intgaf, "PANELTOP", &w, &h));
 		paneltop.width = w;
 		paneltop.height = h;
-		panelbottom.set(Gaf::ToTexture(String("anims\\") << intgaf, "PANELBOT", &w, &h));
+        panelbottom.set(Gaf::ToTexture(QString("anims\\") << intgaf, "PANELBOT", &w, &h));
 		panelbottom.width = w;
 		panelbottom.height = h;
 	}
@@ -1206,7 +1206,7 @@ namespace TA3D
 		{
 			if (lp_CONFIG->tooltips)
 			{	// Tooltip code
-				String message;
+                QString message;
 				message << unit_type[sel]->name
 						<< " M:" << unit_type[sel]->BuildCostMetal
 						<< " E:" << unit_type[sel]->BuildCostEnergy
@@ -1222,7 +1222,7 @@ namespace TA3D
 						   (float)side_data.Name.x1,
 						   (float)side_data.Name.y1,
 						   0.0f, 0xFFFFFFFF,
-						   String(unit_type[sel]->name) << " M:" << unit_type[sel]->BuildCostMetal  << " E:" << unit_type[sel]->BuildCostEnergy << " HP:" << unit_type[sel]->MaxDamage );
+                           QString(unit_type[sel]->name) << " M:" << unit_type[sel]->BuildCostMetal  << " E:" << unit_type[sel]->BuildCostEnergy << " HP:" << unit_type[sel]->MaxDamage );
 
 				if (!unit_type[sel]->Description.empty())
 					gfx->print(gfx->normal_font,
@@ -1245,8 +1245,8 @@ namespace TA3D
 	int UnitManager::load_all_units(ProgressNotifier *progress)
 	{
 		init();
-		String::Vector file_list;
-		VFS::Instance()->getFilelist( String(ta3dSideData.unit_dir) << '*' << ta3dSideData.unit_ext, file_list);
+        QStringList file_list;
+        VFS::Instance()->getFilelist( QString(ta3dSideData.unit_dir) << '*' << ta3dSideData.unit_ext, file_list);
 
 		volatile int n = 0, m = 0;
 
@@ -1271,7 +1271,7 @@ namespace TA3D
 					(*progress)((300.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading units"));
 #endif
 				const size_t i = n;
-				const String nom = ToUpper(Paths::ExtractFileNameWithoutExtension(file_list[i]));			// Vérifie si l'unité n'est pas déjà chargée
+                const QString nom = ToUpper(Paths::ExtractFileNameWithoutExtension(file_list[i]));			// Vérifie si l'unité n'est pas déjà chargée
 				++n;
 
 				if (unit_manager.get_unit_index(nom) == -1)
@@ -1281,7 +1281,7 @@ namespace TA3D
 					UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
 					if (!pUnitType->Unitname.empty())
 					{
-						String nom_pcx;
+                        QString nom_pcx;
 						nom_pcx << "unitpics\\" << pUnitType->Unitname << ".pcx";
 						pUnitType->unitpic = gfx->load_image(nom_pcx);
 					}
@@ -1353,25 +1353,25 @@ namespace TA3D
 		unit_manager.Identify();
 
 		// Correct some data given in the FBI file using data from the moveinfo.tdf file
-		TDFParser parser(String(ta3dSideData.gamedata_dir) << "moveinfo.tdf");
+        TDFParser parser(QString(ta3dSideData.gamedata_dir) << "moveinfo.tdf");
 		int n = 0;
-		while (!parser.pullAsString(String("CLASS") << n << ".name").empty())
+        while (!parser.pullAsString(QString("CLASS") << n << ".name").empty())
 			++n;
 
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
 		{
 			if (!unit_manager.unit_type[i]->MovementClass.empty())
 			{
-				const String movementclass = ToUpper(unit_manager.unit_type[i]->MovementClass);
+                const QString movementclass = ToUpper(unit_manager.unit_type[i]->MovementClass);
 				for (int e = 0; e < n; ++e)
 				{
-					if (parser.pullAsString(String("CLASS") << e << ".name") == movementclass)
+                    if (parser.pullAsString(QString("CLASS") << e << ".name") == movementclass)
 					{
-						unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(String("CLASS") << e << ".footprintx", unit_manager.unit_type[i]->FootprintX ));
-						unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(String("CLASS") << e << ".footprintz", unit_manager.unit_type[i]->FootprintZ ));
-						unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".minwaterdepth", unit_manager.unit_type[i]->MinWaterDepth ));
-						unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(String("CLASS") << e << ".maxwaterdepth", unit_manager.unit_type[i]->MaxWaterDepth ));
-						unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(String("CLASS") << e << ".maxslope", unit_manager.unit_type[i]->MaxSlope ));
+                        unit_manager.unit_type[i]->FootprintX = byte(parser.pullAsInt(QString("CLASS") << e << ".footprintx", unit_manager.unit_type[i]->FootprintX ));
+                        unit_manager.unit_type[i]->FootprintZ = byte(parser.pullAsInt(QString("CLASS") << e << ".footprintz", unit_manager.unit_type[i]->FootprintZ ));
+                        unit_manager.unit_type[i]->MinWaterDepth = short(parser.pullAsInt(QString("CLASS") << e << ".minwaterdepth", unit_manager.unit_type[i]->MinWaterDepth ));
+                        unit_manager.unit_type[i]->MaxWaterDepth = short(parser.pullAsInt(QString("CLASS") << e << ".maxwaterdepth", unit_manager.unit_type[i]->MaxWaterDepth ));
+                        unit_manager.unit_type[i]->MaxSlope = short(parser.pullAsInt(QString("CLASS") << e << ".maxslope", unit_manager.unit_type[i]->MaxSlope ));
 						break;
 					}
 				}

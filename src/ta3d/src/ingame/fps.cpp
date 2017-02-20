@@ -22,8 +22,7 @@ namespace TA3D
 			average = countSinceLastTime * 1000 / (msec_timer - lastTime);
 			countSinceLastTime = 0;
 			lastTime = msec_timer;
-			toStr.clear();
-			toStr << "fps: " << average;
+            toStr += QString("fps: %1").arg(average);
 		}
 	}
 

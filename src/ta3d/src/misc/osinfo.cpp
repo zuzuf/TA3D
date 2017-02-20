@@ -35,18 +35,16 @@ namespace System
 {
 
 
-	String run_command(const String &cmd)
+	QString run_command(const QString &cmd)
 	{
-		if (!cmd)
-			return nullptr;
-		String result;
+        if (cmd.isEmpty())
+            return QString();
         QProcess proc;
-        proc.start(cmd.c_str(), QIODevice::ReadOnly);
+        proc.start(cmd, QIODevice::ReadOnly);
         if (!proc.waitForFinished())
-            return result;
+            return QString();
 
-        result = proc.readAllStandardOutput().toStdString();
-		return result;
+        return QString::fromLocal8Bit(proc.readAllStandardOutput());
 	}
 
 
@@ -54,13 +52,13 @@ namespace System
 
     namespace // anonymous
     {
-		String CPUName()
+		QString CPUName()
         {
-            return QSysInfo::currentCpuArchitecture().toStdString();
+            return QSysInfo::currentCpuArchitecture();
         }
 
 
-		String CPUCapabilities()
+		QString CPUCapabilities()
         {
 			# ifdef TA3D_PLATFORM_LINUX
 			return run_command("cat /proc/cpuinfo | grep flags | head -n 1 | tail -c +10 | tr -d \"\\n\"");
@@ -101,15 +99,15 @@ namespace System
 	void DisplayInformations()
 	{
 		// Vendor
-		String vendorName;
+		QString vendorName;
 #ifdef TA3D_PLATFORM_LINUX
 		vendorName = run_command("cat /proc/cpuinfo | grep vendor_id | head -n 1 | awk '{ print $3 }' | tr -d \"\\n\"");
 #else
 #endif
-		logs.notice() << LOG_PREFIX_SYSTEM << YUNI_OS_NAME << ", Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
-			<< " " << CPUName()
-			<< " (" << CPUCapabilities() << ")";
-		displayScreenResolution();
+        logs.notice() << LOG_PREFIX_SYSTEM << YUNI_OS_NAME << ", Vendor: " << (vendorName.isEmpty() ? "Unknown" : vendorName)
+                      << " " << CPUName()
+                      << " (" << CPUCapabilities() << ")";
+        displayScreenResolution();
 	}
 
 

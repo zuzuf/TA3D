@@ -7,13 +7,12 @@
 #include <smpeg/smpeg.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
+#include <QFileInfo>
 #include <sounds/manager.h>
 #include <threads/mutex.h>
 
 #define LOG_PREFIX_VIDEO "[video] "
-
-using namespace Yuni::Core::IO::File;
 
 namespace TA3D
 {
@@ -33,26 +32,25 @@ namespace TA3D
 		mpegSynchronizer.sync();
 	}
 
-	void Video::play(const String &filename)
+	void Video::play(const QString &filename)
 	{
 		SMPEG_Info info;
 		SMPEG *mpeg;
 
-		String tmp;
-		tmp << TA3D::Paths::Caches << Paths::ExtractFileName(filename) << ".mpg";
+        QString tmp = TA3D::Paths::Caches + Paths::ExtractFileName(filename) + ".mpg";
 
 		File *file = VFS::Instance()->readFile(filename);
 		if (file)
 		{
 			if (file->isReal())					// Check if the file is real
 				tmp = file->getRealFilename();	// if it is we don't need to copy it
-			else if (!Yuni::Core::IO::File::Exists(tmp) || Yuni::Core::IO::File::Size(tmp) != (uint32)file->size())
+            else if (!QFileInfo(tmp).exists() || QFileInfo(tmp).size() != (uint32)file->size())
 			{
-				Stream tmp_file;
+                QFile tmp_file(tmp);
 				LOG_DEBUG(LOG_PREFIX_VIDEO << "Creating temporary file for " << filename << " (" << tmp << ")");
 
-				tmp_file.open(tmp, Yuni::Core::IO::OpenMode::write);
-				if (tmp_file.opened())
+                tmp_file.open(QIODevice::Truncate | QIODevice::WriteOnly);
+                if (tmp_file.isOpen())
 				{
 					char *buf = new char[10240];
 					for(int i = 0 ; i < file->size() ; i += 10240)
@@ -65,7 +63,7 @@ namespace TA3D
 					tmp_file.flush();
 					tmp_file.close();
 # ifdef TA3D_PLATFORM_WINDOWS
-					tmp.convertSlashesIntoBackslashes();
+                    tmp.replace('\\','/');
 # endif
 				}
 				else
@@ -87,7 +85,7 @@ namespace TA3D
 			sound_manager = NULL;
 
 		// Create the MPEG stream
-		mpeg = SMPEG_new(tmp.c_str(), &info, 1);
+        mpeg = SMPEG_new(tmp.toStdString().c_str(), &info, 1);
 
 		if (SMPEG_error(mpeg))
 		{

@@ -40,14 +40,14 @@ namespace TA3D
 		return usi;
     }
 
-    int UnitScriptInterface::getReturnValue(const String &name)
+    int UnitScriptInterface::getReturnValue(const QString &name)
     {
         if (caller)
             return (static_cast<UnitScriptInterface*>(caller))->getReturnValue( name );
 		return return_value[ToUpper(name)];
     }
 
-    void UnitScriptInterface::setReturnValue(const String &name, int value)
+    void UnitScriptInterface::setReturnValue(const QString &name, int value)
     {
         if (caller)
             (static_cast<UnitScriptInterface*>(caller))->setReturnValue( name, value );
@@ -75,33 +75,33 @@ namespace TA3D
         };
 
 
-	const String UnitScriptInterface::get_script_name(int id)
+    const QString UnitScriptInterface::get_script_name(int id)
 	{
 		if (id < 0)
-			return String();
+            return QString();
 		if (id >= NB_SCRIPT)            // Special case for weapons
 		{
 			const int weaponID = (id - NB_SCRIPT) / 4 + 4;
 			switch((id - NB_SCRIPT) % 4)
 			{
 				case 0:         // QueryWeapon
-					return String("QueryWeapon") << weaponID;
+                    return QString("QueryWeapon%1").arg(weaponID);
 				case 1:         // AimWeapon
-					return String("AimWeapon") << weaponID;
+                    return QString("AimWeapon%1").arg(weaponID);
 				case 2:         // AimFromWeapon
-					return String("AimFromWeapon") << weaponID;
+                    return QString("AimFromWeapon%1").arg(weaponID);
 				case 3:         // FireWeapon
-					return String("FireWeapon") << weaponID;
+                    return QString("FireWeapon%1").arg(weaponID);
 			}
 		}
 		return script_name[id];
 	}
 
 
-    int UnitScriptInterface::get_script_id(const String &name)
+    int UnitScriptInterface::get_script_id(const QString &name)
     {
-        for(int id = 0 ; id < NB_SCRIPT ; id++)
-			if (strcasecmp(script_name[id], name.c_str()) == 0)
+        for(int id = 0 ; id < NB_SCRIPT ; ++id)
+            if (name.compare(script_name[id], Qt::CaseInsensitive) == 0)
                 return id;
         return -1;
     }

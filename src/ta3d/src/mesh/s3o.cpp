@@ -72,9 +72,9 @@ namespace TA3D
 		bool set = false;
 		if ( !tex_cache_name.empty() )
 		{
-			if (!tex_cache_name[0].empty())
+            if (!tex_cache_name[0].isEmpty())
 			{
-				const String &textureName = tex_cache_name[0];
+				const QString &textureName = tex_cache_name[0];
 				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 				{
 					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
@@ -95,7 +95,7 @@ namespace TA3D
 			}
 			if (tex_cache_name.size() == 2)
 			{
-				const String &textureName = tex_cache_name[1];
+				const QString &textureName = tex_cache_name[1];
 				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 				{
 					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
@@ -583,7 +583,7 @@ namespace TA3D
 		return piece;
 	}
 
-	void MeshS3O::load(File *file, const String &filename)
+	void MeshS3O::load(File *file, const QString &filename)
 	{
 		destroyS3O();
 
@@ -601,15 +601,15 @@ namespace TA3D
 		if (header.texture1 > 0)
 		{
 			file->seek(header.texture1);
-			const String textureName = String("textures/") << file->getString();
+            const QString textureName = "textures/" + file->getString();
 			model->tex_cache_name.push_back(textureName);
 		}
 		if (header.texture2 > 0)
 		{
 			file->seek(header.texture2);
-			const String textureName = String("textures/") << file->getString();
-			if (model->tex_cache_name.empty())
-				model->tex_cache_name.push_back(String());
+            const QString textureName = "textures/" + file->getString();
+            if (model->tex_cache_name.isEmpty())
+				model->tex_cache_name.push_back(QString());
 			model->tex_cache_name.push_back(textureName);
 		}
 
@@ -617,7 +617,7 @@ namespace TA3D
 		LoadPiece(file, model, this);
 	}
 
-	Model *MeshS3O::load(const String &filename)
+	Model *MeshS3O::load(const QString &filename)
 	{
 		File *file = VFS::Instance()->readFile(filename);
 		if (!file)

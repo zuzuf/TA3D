@@ -56,7 +56,7 @@
  * Declaration of the bug reporter. It's here because it should be visible only
  * from this module.
  */
-void bug_reporter(const String &trace);
+void bug_reporter(const QString &trace);
 
 /*!
  * \brief Obtain a backtrace and print it to stdout.
@@ -78,17 +78,14 @@ void backtrace_handler (int signum)
 	// Get TA3D's PID
 	pid_t mypid = getpid();
 	// Try to get a stack trace from GDB
-	String::Vector threads;
-	TA3D::System::run_command(String("gdb --pid=") << mypid << " -ex \"info threads\" --batch").split(threads, "\n");
-	if (!threads.empty())
+    QStringList threads;
+    TA3D::System::run_command(QString("gdb --pid=") + mypid + " -ex \"info threads\" --batch").split('\n');
+    if (!threads.isEmpty())
 	{
-		String cmd;
-		cmd << "gdb --pid="
-			<< mypid
-			<< " -ex \"info threads\"";
+        QString cmd = QString("gdb --pid=%1 -ex \"info threads\"").arg(mypid);
 		for(size_t i = 0 ; i < threads.size() ; ++i)
 		{
-			String &line = threads[i];
+			QString &line = threads[i];
 			if (line.startsWith('[')
 				|| line.startsWith("0x")
 				|| line.startsWith('#'))
@@ -96,16 +93,16 @@ void backtrace_handler (int signum)
 			if (line.startsWith('*'))
 			{
 				line[0] = ' ';
-				line.trimLeft(' ');
+                line = line.trimmed();
 			}
-			const int id = line.to<int>();
+            const int id = line.toInt();
 			if (id <= 0)
 				continue;
-			cmd	<< " -ex \"thread " << id << "\" -ex bt";
+            cmd	+= QString(" -ex \"thread %1\" -ex bt").arg(id);
 		}
-		cmd	<< " --batch";
-		const String trace = TA3D::System::run_command(cmd);
-		if (!trace.empty())
+        cmd	+= " --batch";
+		const QString trace = TA3D::System::run_command(cmd);
+        if (!trace.isEmpty())
 		{
 			bug_reporter(trace);
 			exit(-1);
@@ -121,13 +118,16 @@ void backtrace_handler (int signum)
 	char** strings = backtrace_symbols(array, size);
 
     // Try to log it
-	Yuni::Core::IO::File::Stream m_File(String(TA3D::Paths::Logs) << "backtrace.txt", Yuni::Core::IO::OpenMode::write);
-	if(m_File.opened())
+    QFile m_File(TA3D::Paths::Logs + "backtrace.txt");
+    m_File.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    if(m_File.isOpen())
     {
-		m_File << "received signal " << strsignal( signum ) << "\n";
-		m_File << "Obtained " << size << " stack frames.\n";
+        QTextStream stream(&m_File);
+        stream << "received signal " << strsignal( signum ) << "\n";
+        stream << "Obtained " << size << " stack frames.\n";
 		for (int i = 0; i < size; ++i)
-			m_File << strings[i] << "\n";
+            stream << strings[i] << "\n";
+        stream.flush();
 		m_File.flush();
 		m_File.close();
 
@@ -136,10 +136,7 @@ void backtrace_handler (int signum)
 		for (int i = 0; i < size; ++i)
 			printf ("%s\n", strings[i]);
 
-		String szErrReport;
-		szErrReport << "An error has occured.\nDebugging information have been logged to:\n"
-					<< TA3D::Paths::Logs
-					<< "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
+        QString szErrReport = "An error has occured.\nDebugging information have been logged to:\n" + TA3D::Paths::Logs + "backtrace.txt\nPlease report to our forums (http://www.ta3d.org/)\nand keep this file, it'll help us debugging.\n";
 
 		criticalMessage(szErrReport);
 	}
@@ -158,7 +155,7 @@ void backtrace_handler (int signum)
 	# else // ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
 
         // The backtrace support is disabled: warns the user
-		String szErrReport = "An error has occured.\nDebugging information could not be logged.\nPlease report to our forums (http://www.ta3d.org/) so we can fix it.";
+		QString szErrReport = "An error has occured.\nDebugging information could not be logged.\nPlease report to our forums (http://www.ta3d.org/) so we can fix it.";
 		criticalMessage(szErrReport);
 
 	# endif // ifdef TA3D_BUILTIN_BACKTRACE_SUPPORT
@@ -198,8 +195,8 @@ void init_signals (void)
 	#ifdef TA3D_PLATFORM_LINUX
 	// Get TA3D's PID
 	pid_t mypid = getpid();
-	const String ppid = TA3D::System::run_command(String("ps -o ppid -p ") << mypid << " | tail -n 1");
-	const String parent = TA3D::System::run_command(String("ps -o command -p ") << ppid);
+    const QString ppid = TA3D::System::run_command(QString("ps -o ppid -p %1 | tail -n 1").arg(mypid));
+    const QString parent = TA3D::System::run_command(QString("ps -o command -p %1").arg(ppid));
 	if (parent.contains("gdb"))
 	{
 		std::cerr << "Running under GDB, not overriding signals handlers" << std::endl;
@@ -249,12 +246,12 @@ void clear_signals (void)
 }
 
 
-void criticalMessage(const String &msg)
+void criticalMessage(const QString &msg)
 {
-	std::cerr << msg << std::endl;      // Output error message to stderr
+    std::cerr << msg.toStdString() << std::endl;      // Output error message to stderr
 
 	SDL_SetVideoMode(0,0,0,0);
-    QMessageBox::critical(NULL, "TA3D - Critical Error", msg.c_str());
+    QMessageBox::critical(NULL, "TA3D - Critical Error", msg);
 }
 
 /*!
@@ -263,9 +260,9 @@ void criticalMessage(const String &msg)
  * crash report that would be sent to the bug report server. The user can accept to send the
  * report or not.
  */
-void bug_reporter(const String &trace)
+void bug_reporter(const QString &trace)
 {
-	std::string report;
+    QString report;
 
 	// Engine version
 	report += TA3D_ENGINE_VERSION;
@@ -276,10 +273,10 @@ void bug_reporter(const String &trace)
 	report += '\n';
 
 	// Current mod
-	if (!TA3D_CURRENT_MOD.empty())
+    if (!TA3D_CURRENT_MOD.isEmpty())
 	{
 		report += "MOD: ";
-		report += TA3D_CURRENT_MOD.c_str();
+        report += TA3D_CURRENT_MOD;
 		report += '\n';
 	}
 
@@ -297,20 +294,20 @@ void bug_reporter(const String &trace)
 
 	// OpenGL info
 	report += "OpenGL Informations :\n";
-	(report += "Vendor: ") += (const char*) glGetString(GL_VENDOR);
-	(report += "\nRenderer: ") += (const char*) glGetString(GL_RENDERER);
-	(report += "\nVersion: ") += (const char*) glGetString(GL_VERSION);
+    (report += "Vendor: ") += (const char*) glGetString(GL_VENDOR);
+    (report += "\nRenderer: ") += (const char*) glGetString(GL_RENDERER);
+    (report += "\nVersion: ") += (const char*) glGetString(GL_VERSION);
 	report += "\nExtensions:\n";
-	const char *ext = (const char*) glGetString(GL_EXTENSIONS);
+    const char *ext = (const char*) glGetString(GL_EXTENSIONS);
 	for(; *ext ; ++ext)
-		report += *ext == ' ' ? '\n' : *ext;
+        report += (*ext == ' ') ? '\n' : *ext;
 	report += '\n';
 	report += '\n';
 
 	report += "\nstacktrace:\n";
-	report += trace.c_str();
+    report += trace;
 
-    BugReportDialog wnd(QString::fromStdString(report));
+    BugReportDialog wnd(report);
     wnd.exec();
 
     if (wnd.result() != QDialog::Accepted)

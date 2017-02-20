@@ -29,8 +29,8 @@ namespace TA3D
 	{
 		struct Material
 		{
-			String name;
-			String textureName;
+			QString name;
+			QString textureName;
 		};
 	}
 
@@ -42,11 +42,11 @@ namespace TA3D
 
 		virtual void load_texture_id(int id);
 
-		void load(File *file, const String &filename);
+		void load(File *file, const QString &filename);
 	private:
-		void obj_finalize(const String &filename, const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
+		void obj_finalize(const QString &filename, const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
 	public:
-		static Model *load(const String &filename);
+		static Model *load(const QString &filename);
 		static const char *getExt();
 	};
 }

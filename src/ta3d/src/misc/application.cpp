@@ -76,10 +76,9 @@ namespace TA3D
 		TA3D::Settings::Load();
 
         // Load additionnal resource paths
-        String::Vector cfgPaths;
-        lp_CONFIG->resourcePaths.explode(cfgPaths, ',', true, true, true);
-        for(String::Vector::iterator i = cfgPaths.begin() ; i != cfgPaths.end() ; ++i)
-            TA3D::Resources::AddSearchPath(*i);
+        QStringList cfgPaths = lp_CONFIG->resourcePaths.split(',', QString::SkipEmptyParts);
+        for(const QString &i : cfgPaths)
+            TA3D::Resources::AddSearchPath(i.trimmed());
 
 		// Display usefull infos for debugging
 		System::DisplayInformations();

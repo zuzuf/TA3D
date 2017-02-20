@@ -77,7 +77,7 @@ namespace Menus
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 			if (!skin.prefix().empty())
-				pBackgroundTexture = gfx->load_texture_mask(String("gfx/") << skin.prefix() << "load.png", 7);
+				pBackgroundTexture = gfx->load_texture_mask(QString("gfx/") << skin.prefix() << "load.png", 7);
 			else
 				pBackgroundTexture = gfx->load_texture_mask("gfx/load.png", 7);
 		}
@@ -90,11 +90,11 @@ namespace Menus
 	{
 		// Broadcast informations
 		if (network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, percent))
-			network_manager.sendAll(String("LOADING ") << percent);
+			network_manager.sendAll(QString("LOADING ") << percent);
 	}
 
 
-	void Loading::operator()(const float percent, const String &message)
+	void Loading::operator()(const float percent, const QString &message)
 	{
 		LOG_ASSERT(NULL != gfx);
 
@@ -125,8 +125,8 @@ namespace Menus
 
 		// Draw all previous messages
 		int indx(0);
-		const String::List::const_iterator end = pMessages.end();
-		for (String::List::const_iterator i = pMessages.begin() ; i != end ; ++i, ++indx)
+		const QStringList::const_iterator end = pMessages.end();
+		for (QStringList::const_iterator i = pMessages.begin() ; i != end ; ++i, ++indx)
 		{
 			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth + 1.0f, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx) + 1.0f, 0.0f, makeacol(0, 0, 0, 0xFF), *i);
 			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx), 0.0f, 0xFFFFFFFF, *i);

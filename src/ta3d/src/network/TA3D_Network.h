@@ -38,10 +38,10 @@ namespace TA3D
 		class NetworkMessage
 		{
 		public:
-			String	text;
+			QString	text;
 			uint32	timer;
 
-			NetworkMessage(const String& m, uint32 t): text(m), timer(t) {}
+			NetworkMessage(const QString& m, uint32 t): text(m), timer(t) {}
 			~NetworkMessage() {text.clear();}
 		};
 

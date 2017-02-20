@@ -57,7 +57,7 @@ namespace TA3D
 		sint16  priority_level; // 0, 1, 2
 		sint16  water_quality;  // 0->4
 		sint16  fsaa;   // ?
-		String  Lang;   // english, french, german, italian, spanish, japanese, chinese, ...
+		QString  Lang;   // english, french, german, italian, spanish, japanese, chinese, ...
 		sint16  anisotropy;     // Level of anisotropy for textures (1->16)
 
 		uint16  screen_width;
@@ -82,17 +82,17 @@ namespace TA3D
 		float   camera_def_h;
 		float   camera_zoom_speed;
 
-		String	serializedGameData;			// Informations about last game
+		QString	serializedGameData;			// Informations about last game
 
-		String  last_MOD;
-		String  player_name;                // Name of local player
+		QString  last_MOD;
+		QString  player_name;                // Name of local player
 
-		String  skin_name;                    // The skin used ( empty means default )
+		QString  skin_name;                    // The skin used ( empty means default )
 
 		bool    use_texture_cache;            // Use the texture cache ? (default : disabled because on some systems it doesn't work)
 		bool    use_texture_compression;    // Use texture compression capabilities of GFX hardware ? (default : enabled because it greatly reduces video memory requirements)
 
-		String  net_server;                    // The server that monitor the game server list
+		QString  net_server;                    // The server that monitor the game server list
 		bool    render_sky;                 // Render the sky ? (on low-end hardware without accelerated T&L it may help to deactivate this)
 		bool    low_definition_map;         // Render map in low definition mode (1 quad instead of 4 for each map bloc)
 
@@ -111,9 +111,9 @@ namespace TA3D
 
 		bool    grab_inputs;                // Capture inputs ?
 
-        String  system7zCommand;            // Command used by system() to run 7zip (used to extract archives when needed by the mods manager)
+        QString  system7zCommand;            // Command used by system() to run 7zip (used to extract archives when needed by the mods manager)
 
-        String  resourcePaths;              // Alternative resource paths to use
+        QString  resourcePaths;              // Alternative resource paths to use
 
 		float	menuTransparency;			// OTA interface transparency in game
 
@@ -130,7 +130,7 @@ namespace TA3D
 		bool    restorestart;				// Tell it's a restart to restore previous config file
 		volatile bool	pause;				// Tell the engine it's in pause mode, so wait for this to be false again
 		volatile bool	paused;				// The engine writes its current state here, used by save/load code
-		String  file_param;					// File parameter (command line parameter), used to give complex instructions
+		QString  file_param;					// File parameter (command line parameter), used to give complex instructions
 		volatile bool    enable_shortcuts;	// Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
 		bool	no_sound;
 		bool	first_start;
@@ -153,7 +153,7 @@ namespace TA3D
 		extern SDL_Color							*pal;
 		extern TA3D::TA3DCONFIG::Ptr				lp_CONFIG;
 
-		extern String								TA3D_CURRENT_MOD;
+		extern QString								TA3D_CURRENT_MOD;
 
 		// Some constant data needed by the engine ( like number of ticks/sec. to simulate )
 		#define TICKS_PER_SEC                30

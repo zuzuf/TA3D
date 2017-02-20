@@ -32,9 +32,9 @@ namespace Menus
 		/*!
 		** \brief Execute an instance of BriefScreen
 		*/
-		static Battle::Result Execute(const String &campaign_name, const int mission_id);
+		static Battle::Result Execute(const QString &campaign_name, const int mission_id);
 	public:
-		BriefScreen(const String &campaign_name, const int mission_id);
+		BriefScreen(const QString &campaign_name, const int mission_id);
 		//! Destructor
 		virtual ~BriefScreen();
 
@@ -45,11 +45,11 @@ namespace Menus
 		virtual bool maySwitchToAnotherMenu();
 
 	private:
-		const String &campaign_name;
+		const QString &campaign_name;
 		const int mission_id;
 
 		Battle::Result exit_mode;
-		String map_filename;
+		QString map_filename;
 		TDFParser ota_parser;
 		TDFParser brief_parser;
 

@@ -429,7 +429,7 @@ namespace TA3D
 
 		if (players.local_human_id >= 0)
 		{
-			String intgaf;
+			QString intgaf;
 			for (int i = 0; i < ta3dSideData.nb_side; ++i)
 			{
 				if (ta3dSideData.side_name[i] == pGameData->player_sides[players.local_human_id])
@@ -438,7 +438,7 @@ namespace TA3D
 					break;
 				}
 			}
-			if (!intgaf.empty())
+            if (!intgaf.isEmpty())
 				unit_manager.load_panel_texture(intgaf);
 		}
 		TA3D::MAX_UNIT_PER_PLAYER = pGameData->max_unit_per_player;
@@ -448,15 +448,15 @@ namespace TA3D
 
 	bool Battle::initRestrictions()
 	{
-		if (!pGameData->use_only.empty()) 			// We are told not to use all units !!
+        if (!pGameData->use_only.isEmpty()) 			// We are told not to use all units !!
 		{
 			LOG_DEBUG(LOG_PREFIX_BATTLE << "Loading restrictions...");
 			TDFParser useonly_parser(pGameData->use_only, false, false, true); // In gadgets mode so we can read the special key :)
 			for (int i = 0; i < unit_manager.nb_unit ; i++)
 				unit_manager.unit_type[i]->not_used = true;
-			String unit_name;
+			QString unit_name;
 			int i = 0;
-			while (!(unit_name = useonly_parser.pullAsString(String("gadget") << i)).empty())
+            while (!(unit_name = useonly_parser.pullAsString(QString("gadget%1").arg(i))).isEmpty())
 			{
 				int idx = unit_manager.get_unit_index( unit_name );
 				if (idx >= 0)
@@ -475,9 +475,9 @@ namespace TA3D
 
 		try
 		{
-			pArea.load_window(String(ta3dSideData.guis_dir) << ta3dSideData.side_pref[players.side_view] << "gen.gui"); // Load the order interface
-			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "gen.hide" );	// Hide it
-			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "gen.enableScrolling" );	// Enable scrolling
+            pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "gen.gui"); // Load the order interface
+            pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.hide" );	// Hide it
+            pArea.msg( ta3dSideData.side_pref[players.side_view] + "gen.enableScrolling" );	// Enable scrolling
 		}
 		catch(...)
 		{
@@ -486,26 +486,26 @@ namespace TA3D
 
 		try
 		{
-			pArea.load_window(String(ta3dSideData.guis_dir) << ta3dSideData.side_pref[players.side_view] << "dl.gui");			// Load the default build interface
-			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "dl.hide" );	// Hide it
-			pArea.msg( String(ta3dSideData.side_pref[players.side_view]) << "dl.enableScrolling" );	// Enable scrolling
+            pArea.load_window(ta3dSideData.guis_dir + ta3dSideData.side_pref[players.side_view] + "dl.gui");			// Load the default build interface
+            pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.hide" );	// Hide it
+            pArea.msg( ta3dSideData.side_pref[players.side_view] + "dl.enableScrolling" );	// Enable scrolling
 		}
 		catch(...)
 		{
 			LOG_WARNING(LOG_PREFIX_BATTLE << "`dl.gui` is missing or can not be loaded");
 		}
 
-		const String sideName = ToLower(ta3dSideData.side_name[players.side_view]);
+        const QString &sideName = ta3dSideData.side_name[players.side_view].toLower();
 		for (int i = 0; i < unit_manager.nb_unit; ++i)
 		{
 			if (!(i & 0xF))
 				(*loading)((550.0f + 50.0f * (float)i / float(unit_manager.nb_unit + 1)) / 7.0f, I18N::Translate("Loading GUI"));
-			if (ToLower(unit_manager.unit_type[i]->side) == sideName)
+            if (unit_manager.unit_type[i]->side.toLower() == sideName)
 			{
 				int e(1);
-				while (VFS::Instance()->fileExists(String(ta3dSideData.guis_dir) << unit_manager.unit_type[i]->Unitname << e << ".gui"))
+                while (VFS::Instance()->fileExists(ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + QString::number(e) + ".gui"))
 				{
-					toBeLoadedMenuSet.insert(ToLower(String(ta3dSideData.guis_dir) << unit_manager.unit_type[i]->Unitname << e << ".gui"));
+                    toBeLoadedMenuSet.insert((ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + QString::number(e) + ".gui").toLower());
 					++e;
 				}
 			}
@@ -513,7 +513,7 @@ namespace TA3D
 
 		for (unsigned int i = 0; i < players.count(); ++i)
 		{
-			Gui::GUIOBJ::Ptr obj = pArea.get_object(String("playerstats.team") << i);
+            Gui::GUIOBJ::Ptr obj = pArea.get_object(QString("playerstats.team%1").arg(i));
 			if (obj)
 			{
 				obj->current_state = (byte)TA3D::Math::Log2(players.team[i]);
@@ -786,8 +786,7 @@ namespace TA3D
 				const uint32 simulation_w4 = simulation_w * 4;
 				memset(data, 0, water_map_size4 * sizeof(float));
 
-				String water_cache;
-				water_cache << TA3D::Paths::Caches << "water_cache.sim";
+                QString water_cache = TA3D::Paths::Caches + "water_cache.sim";
 
 				if (!TA3D::Paths::Exists(water_cache))
 				{
@@ -819,8 +818,9 @@ namespace TA3D
 					for (int y = 0 ; y < simulation_h ; ++y)
 						for (int x = 0 ; x < simulation_w ; ++x)
 							data[(y * simulation_w + x) * 4 + 3] = data[(y * simulation_w + x) * 4 + 1];
-					Stream file(water_cache, Yuni::Core::IO::OpenMode::write);
-					if (file.opened())
+                    QFile file(water_cache);
+                    file.open(QIODevice::WriteOnly);
+                    if (file.isOpen())
 					{
 						file.write((const char*)data, sizeof(float) * water_map_size4);
 						file.close();
@@ -828,8 +828,9 @@ namespace TA3D
 				}
 				else
 				{
-					Stream file(water_cache, Yuni::Core::IO::OpenMode::read);
-					if (file.opened())
+                    QFile file(water_cache);
+                    file.open(QIODevice::ReadOnly);
+                    if (file.isOpen())
 					{
 						file.read((char*)data, sizeof(float) * water_map_size4);
 						file.close();
@@ -959,7 +960,7 @@ namespace TA3D
 		do
 		{
 			nb_shoot = (nb_shoot + 1) % 1000000;
-		}while (TA3D::Paths::Exists(String(TA3D::Paths::Screenshots) << String().format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
+        }while (TA3D::Paths::Exists(TA3D::Paths::Screenshots + QString::asprintf("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
 
 		return true;
 	}
@@ -971,9 +972,9 @@ namespace TA3D
 		for (int i = 0; i < cgcEnd; ++i)
 			pCurrentGUICache[i] = pCurrentGUI;
 		// Each item
-		pCurrentGUICache[cgcDot] << ".";
-		pCurrentGUICache[cgcShow] << ".show";
-		pCurrentGUICache[cgcHide] << ".hide";
+        pCurrentGUICache[cgcDot] += ".";
+        pCurrentGUICache[cgcShow] += ".show";
+        pCurrentGUICache[cgcHide] += ".hide";
 	}
 
 

@@ -35,12 +35,12 @@ namespace TA3D
         destroy();
     }
 
-	const String &LuaData::getName() const
+	const QString &LuaData::getName() const
     {
         return name;
     }
 
-    void LuaData::load(const String &filename)                    // Load a lua chunk
+    void LuaData::load(const QString &filename)                    // Load a lua chunk
     {
         destroy();
 
@@ -63,18 +63,20 @@ namespace TA3D
 		};
 
         lua_getglobal(L, "__name");
-        name = lua_isstring(L, -1) ? String(lua_tostring(L, -1)) : String();
+        name = lua_isstring(L, -1) ? QString(lua_tostring(L, -1)) : QString();
         lua_pop(L, 1);
 
-        lua_getglobal(L, name.c_str());
+        lua_getglobal(L, name.toStdString().c_str());
         lua_getfield(L, -1, "__piece_list");
         if (lua_istable(L, -1))
         {
-            piece_name.resize(lua_objlen(L, -1));
-			for(uint32 i = 1 ; i <= piece_name.size() ; ++i)
+            const size_t nb_pieces = lua_objlen(L, -1);
+            piece_name.clear();
+            piece_name.reserve(nb_pieces);
+            for(uint32 i = 1 ; i <= nb_pieces ; ++i)
             {
                 lua_rawgeti(L, -1, i);
-				piece_name[i - 1] = ToLower( lua_tostring(L, -1) );
+                piece_name.push_back(ToLower( lua_tostring(L, -1) ));
                 lua_pop(L, 1);
             }
         }
@@ -92,9 +94,9 @@ namespace TA3D
         init();
     }
 
-    int LuaData::identify(const String &name)
+    int LuaData::identify(const QString &name)
     {
-		const String query = ToLower(name);
+        const QString &query = name.toLower();
 		for(uint32 i = 0 ; i < piece_name.size() ; ++i)
             if (piece_name[i] == query)
                 return i;

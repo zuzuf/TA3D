@@ -27,16 +27,16 @@ namespace TA3D
 
 		mods.clear();
 
-		String::List mod_list;
+		QStringList mod_list;
 		TA3D::Resources::GlobDirs(mod_list,"mods/*");
-		mod_list.sort();
-		mod_list.unique();
-		for (String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
+        std::sort(mod_list.begin(), mod_list.end());
+        mod_list.erase(std::unique(mod_list.begin(), mod_list.end()), mod_list.end());
+        for (const QString &i : mod_list)
 		{
-			String namae( TA3D::Paths::ExtractFileName(*i) );
+            QString namae( TA3D::Paths::ExtractFileName(i) );
 			if ( namae == ".." || namae == "." )	// Have to exclude both .. & .
 				continue;							// because of windows finding . as something interesting
-			if (Paths::Exists(String(Paths::Resources) << "mods" << Paths::Separator << namae << Paths::Separator << "info.mod"))
+            if (Paths::Exists(Paths::Resources + "mods" + Paths::Separator + namae + Paths::Separator + "info.mod"))
 			{
 				ModInfo mod;
 				mod.read(namae);
@@ -101,9 +101,9 @@ namespace TA3D
 		return modList;
 	}
 
-	String::List Mods::getModNameList(const ModType type)
+	QStringList Mods::getModNameList(const ModType type)
 	{
-		String::List modList;
+		QStringList modList;
 
 		lock();
 

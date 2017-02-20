@@ -13,7 +13,7 @@ namespace TA3D
         std::list<Archive::ArchiveFinder> *Archive::listArchiveFinder = NULL;
         std::list<Archive::ArchiveLoader> *Archive::listArchiveLoader = NULL;
 
-        void Archive::getArchiveList(String::List &fileList, const String &path)
+        void Archive::getArchiveList(QStringList &fileList, const QString &path)
         {
             if (!listArchiveFinder)
                 listArchiveFinder = new std::list<Archive::ArchiveFinder>;
@@ -35,7 +35,7 @@ namespace TA3D
             Archive::listArchiveLoader->push_back(loader);
         }
 
-        Archive *Archive::load(const String &filename)
+        Archive *Archive::load(const QString &filename)
         {
             if (!listArchiveLoader)
                 listArchiveLoader = new std::list<Archive::ArchiveLoader>;

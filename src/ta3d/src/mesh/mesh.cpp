@@ -37,7 +37,7 @@
 namespace TA3D
 {
 	std::vector<MeshTypeManager::MeshLoader> *MeshTypeManager::lMeshLoader = NULL;
-	String::Vector *MeshTypeManager::lMeshExtension = NULL;
+    QStringList *MeshTypeManager::lMeshExtension = NULL;
 
 	void MeshTypeManager::registerMeshLoader(MeshLoader loader)
 	{
@@ -46,10 +46,10 @@ namespace TA3D
 		MeshTypeManager::lMeshLoader->push_back(loader);
 	}
 
-	void MeshTypeManager::registerMeshExtension(const String &ext)
+	void MeshTypeManager::registerMeshExtension(const QString &ext)
 	{
 		if (!lMeshExtension)
-			lMeshExtension = new String::Vector;
+            lMeshExtension = new QStringList;
 		MeshTypeManager::lMeshExtension->push_back(ext);
 	}
 
@@ -326,15 +326,14 @@ namespace TA3D
 	{
 		if (id < 0 || id >= 10)
 			return;
-		if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tex")
+        if (id < (int)tex_cache_name.size() && !tex_cache_name[id].isEmpty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tex")
 		{
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 				gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
 			else
 				gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
-			String filename(TA3D::Paths::Caches);
-			filename << tex_cache_name[id];
+            QString filename(TA3D::Paths::Caches + tex_cache_name[id]);
 			SDL_Surface *bmp = LoadTex( filename );
 
 			if (bmp)
@@ -354,7 +353,7 @@ namespace TA3D
 		}
 		else
 		{
-			if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
+            if (id < (int)tex_cache_name.size() && !tex_cache_name[id].isEmpty() && gfx->is_texture_in_cache(tex_cache_name[id]))
 			{
 				gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
 				tex_cache_name[id].clear();
@@ -364,7 +363,7 @@ namespace TA3D
 
 	void Mesh::check_textures()
 	{
-		if (!tex_cache_name.empty())
+        if (!tex_cache_name.isEmpty())
 		{
 			for (unsigned int i = 0 ; i < tex_cache_name.size() ; ++i)
 				load_texture_id(i);
@@ -402,7 +401,7 @@ namespace TA3D
 	void Mesh::Identify(ScriptData *script)			// Identifie les pièces utilisées par le script
 	{
 		script_index = -1;				// Pièce non utilisée / Unused piece
-		if (!name.empty())
+        if (!name.isEmpty())
 			script_index = script->identify(name);
 		if (next)
 			next->Identify(script);
@@ -1379,12 +1378,12 @@ namespace TA3D
 
 	float Mesh::print_struct(float Y, float X, TA3D::Font *fnt)
 	{
-		gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, String(name) << " [" << script_index << ']');
-		gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, String("(v:") << nb_vtx);
-		gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, String(",p:") << nb_prim);
-		gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, String(",t:") << nb_t_index);
-		gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, String(",l:") << nb_l_index);
-		gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, String(",p:") << nb_p_index);
+        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, name + QString(" [%1]").arg(script_index));
+        gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, QString("(v:%1").arg(nb_vtx));
+        gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, QString(",p:%1").arg(nb_prim));
+        gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, QString(",t:%1").arg(nb_t_index));
+        gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, QString(",l:%1").arg(nb_l_index));
+        gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, QString(",p:%1").arg(nb_p_index));
 		float nwY = Y + 8.0f;
 		if (child)
 			nwY = child->print_struct(nwY, X + 8.0f, fnt);
@@ -1396,9 +1395,10 @@ namespace TA3D
 
 	void Mesh::hideFlares()
 	{
-		if ((ToLower(name).find("flare") != String::npos
-			|| ToLower(name).find("flash") != String::npos
-			|| ToLower(name).find("fire") != String::npos) && !child)
+        const QString &lower_name = name.toLower();
+        if ((lower_name.contains("flare")
+            || lower_name.contains("flash")
+            || lower_name.contains("fire")) && !child)
 			nb_t_index = 0;
 		if (child)
 			child->hideFlares();
@@ -1407,25 +1407,25 @@ namespace TA3D
 	}
 
 
-	Model* ModelManager::get_model(const String& name)
+	Model* ModelManager::get_model(const QString& name)
 	{
-		if (name.empty())
+        if (name.isEmpty())
 			return NULL;
 
-		const String l = ToLower(name);
+        const QString &l = name.toLower();
 
 		HashMap<int>::Dense::iterator e = model_hashtable.find(l);
 		if (e != model_hashtable.end())
 			return model[*e];
 
 		if (MeshTypeManager::lMeshExtension)
-			for(String::Vector::iterator ext = MeshTypeManager::lMeshExtension->begin() ; ext != MeshTypeManager::lMeshExtension->end() ; ++ext)
+            for(QStringList::iterator ext = MeshTypeManager::lMeshExtension->begin() ; ext != MeshTypeManager::lMeshExtension->end() ; ++ext)
 			{
-				e = model_hashtable.find(String("objects3d\\") << l << *ext);
+                e = model_hashtable.find("objects3d\\" + l + *ext);
 				if (e != model_hashtable.end())
 					return model[*e];
 
-				e = model_hashtable.find(String(l) << *ext);
+                e = model_hashtable.find(l + *ext);
 				if (e != model_hashtable.end())
 					return model[*e];
 			}
@@ -1467,11 +1467,11 @@ namespace TA3D
 	}
 
 
-	void ModelManager::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const String& filename)
+	void ModelManager::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const QString& filename)
 	{
 		mInternals.lock();
 
-		model_hashtable[ToLower(filename)] = nb_models;
+        model_hashtable[filename.toLower()] = nb_models;
 		name.push_back(filename);
 
 		Model *pModel = new Model;
@@ -1481,19 +1481,19 @@ namespace TA3D
 		pModel->create_from_2d(bmp,w,h,max_h);
 	}
 
-	void MeshTypeManager::getMeshList(String::Vector &filelist)
+    void MeshTypeManager::getMeshList(QStringList &filelist)
 	{
 		if (lMeshExtension == NULL)
 			return;
-		for(String::Vector::iterator ext = lMeshExtension->begin() ; ext != lMeshExtension->end() ; ++ext)
-			VFS::Instance()->getFilelist(String(ta3dSideData.model_dir) << '*' << *ext, filelist);
+        for(const QString &ext : *lMeshExtension)
+            VFS::Instance()->getFilelist(ta3dSideData.model_dir + '*' + ext, filelist);
 	}
 
 	int ModelManager::load_all(ProgressNotifier *progress)
 	{
-		const String loading3DModelsText = I18N::Translate("Loading 3D Models");
+		const QString loading3DModelsText = I18N::Translate("Loading 3D Models");
 
-		String::Vector file_list;
+        QStringList file_list;
 		MeshTypeManager::getMeshList(file_list);
 
 		if (!file_list.empty())
@@ -1501,25 +1501,25 @@ namespace TA3D
 			volatile int n = 0;
 			volatile int progressIncrement = 0;
 
-			String::Vector final_file_list;
-			HashSet<String>::Dense files;
-			for(String::Vector::const_iterator it = file_list.begin(), end = file_list.end() ; it != end ; ++it)
+            QStringList final_file_list;
+			HashSet<QString>::Dense files;
+            for(const QString &it : file_list)
 			{
-				const String filename = Substr(*it, 0, it->size() - 4).toLower();
-				const String ext = Substr(*it, it->size() - 3, 3).toLower();
+                const QString filename = Substr(it, 0, it.size() - 4).toLower();
+                const QString ext = Substr(it, it.size() - 3, 3).toLower();
 				if (ext == "3do" || files.contains(filename))
 					continue;
 				files.insert(filename);
-				final_file_list.push_back(*it);
+                final_file_list.push_back(it);
 			}
-			for(String::Vector::const_iterator it = file_list.begin(), end = file_list.end() ; it != end ; ++it)
+            for(const QString &it : file_list)
 			{
-				const String filename = Substr(*it, 0, it->size() - 4).toLower();
-				const String ext = Substr(*it, it->size() - 3, 3).toLower();
+                const QString filename = Substr(it, 0, it.size() - 4).toLower();
+                const QString ext = Substr(it, it.size() - 3, 3).toLower();
 				if (ext != "3do" || files.contains(filename))
 					continue;
 				files.insert(filename);
-				final_file_list.push_back(*it);
+                final_file_list.push_back(it);
 			}
 
 			Mutex mLoad;
@@ -1530,7 +1530,7 @@ namespace TA3D
 				mLoad.lock();
 				while (e < __end)
 				{
-					const String &filename = final_file_list[e++];
+					const QString &filename = final_file_list[e++];
 					LOG_DEBUG("[Mesh] Loading `" << filename << "`");
 #ifdef _OPENMP
 					++progressIncrement;
@@ -1716,12 +1716,12 @@ namespace TA3D
 		bottom = mesh->compute_bottom(99999.0f, O);
 	}
 
-	Model *MeshTypeManager::load(const String &filename)
+	Model *MeshTypeManager::load(const QString &filename)
 	{
 		if (lMeshExtension == NULL)
 			return NULL;
 
-		const String ext = Paths::ExtractFileExt(filename).toLower();
+		const QString ext = Paths::ExtractFileExt(filename).toLower();
 		for(uint32 i = 0 ; i < lMeshExtension->size() ; ++i)
 		{
 			if (ext == lMeshExtension->at(i))

@@ -30,7 +30,7 @@ namespace TA3D
 
 
 
-	int FXManager::add(const String& filename, const String& entryName, const Vector3D& pos, const float size)
+	int FXManager::add(const QString& filename, const QString& entryName, const Vector3D& pos, const float size)
 	{
 		if(Camera::inGame != NULL && (pos - Camera::inGame->pos).sq() >= Camera::inGame->zfar2)
 			return -1;
@@ -54,11 +54,11 @@ namespace TA3D
 			}
 		}
 
-		String tmp("anims\\");
-		tmp << filename << ".gaf";
+		QString tmp("anims\\");
+        tmp += filename + ".gaf";
 
-		String fullname(tmp);
-		fullname << "-" << entryName;
+		QString fullname(tmp);
+        fullname += "-" + entryName;
 
 		int anm_idx = findInCache(fullname);
 		if (anm_idx == -1)
@@ -425,7 +425,7 @@ namespace TA3D
 		pMutex.unlock();
 	}
 
-	int FXManager::putInCache(const String& filename, Gaf::Animation* anm)
+	int FXManager::putInCache(const QString& filename, Gaf::Animation* anm)
 	{
 		// Already available in the cache ?
 		const int is_in = findInCache(filename);
@@ -436,7 +436,7 @@ namespace TA3D
 		if (freeSlot.empty())
 		{
 			idx = int(cacheAnm.size());
-			cacheName.push_back(String());
+			cacheName.push_back(QString());
 			cacheAnm.push_back(NULL);
 			use.push_back(0);
 		}
@@ -454,7 +454,7 @@ namespace TA3D
 	}
 
 
-	int FXManager::findInCache(const String& filename) const
+	int FXManager::findInCache(const QString& filename) const
 	{
 		HashMap<int>::Sparse::const_iterator it = hashName.find(filename);
 		if (it == hashName.end())

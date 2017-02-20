@@ -72,9 +72,9 @@ namespace Menus
 		for (int i = game_data->nb_players; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
 		{
 			dead_player[i] = true;
-			pArea->msg(String("wait.name") << i << ".hide");
-			pArea->msg(String("wait.progress") << i << ".hide");
-			pArea->msg(String("wait.ready") << i << ".hide");
+			pArea->msg(QString("wait.name") << i << ".hide");
+			pArea->msg(QString("wait.progress") << i << ".hide");
+			pArea->msg(QString("wait.ready") << i << ".hide");
 		}
 
 		for (int i = 0; i < game_data->nb_players; ++i)
@@ -82,12 +82,12 @@ namespace Menus
 			dead_player[i] = false;
 			if ((game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI) || game_data->player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN )
 			{
-				pArea->set_data( String("wait.progress") << i, 100);
-				pArea->set_state( String("wait.ready") << i, true);
+				pArea->set_data( QString("wait.progress") << i, 100);
+				pArea->set_state( QString("wait.ready") << i, true);
 			}
 			else
-				pArea->set_state( String("wait.ready") << i, false);
-			pArea->caption(String("wait.name") << i, game_data->player_names[i]);
+				pArea->set_state( QString("wait.ready") << i, false);
+			pArea->caption(QString("wait.name") << i, game_data->player_names[i]);
 		}
 
 		if (network_manager.isServer())
@@ -95,7 +95,7 @@ namespace Menus
 			for (int i = 0; i < unit_manager.nb_unit; ++i)
 			{
 				if (!unit_manager.unit_type[i]->not_used)           // Small check to ensure useonly file has an effect :)
-					network_manager.sendAll(String("USING ") << unit_manager.unit_type[i]->Unitname);
+					network_manager.sendAll(QString("USING ") << unit_manager.unit_type[i]->Unitname);
 			}
 			network_manager.sendAll("END USING");           // Ok we've finished sending the available unit list
 			network_manager.sendAll("READY");               // Only server can tell he is ready before entering main loop
@@ -168,9 +168,9 @@ namespace Menus
 				if (game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]))     // A player is disconnected
 				{
 					dead_player[i] = true;
-					pArea->msg(String("wait.name") << i << ".hide");
-					pArea->msg(String("wait.progress") << i << ".hide");
-					pArea->msg(String("wait.ready") << i << ".hide");
+					pArea->msg(QString("wait.name") << i << ".hide");
+					pArea->msg(QString("wait.progress") << i << ".hide");
+					pArea->msg(QString("wait.ready") << i << ".hide");
 				}
 		}
 
@@ -178,18 +178,18 @@ namespace Menus
 		{
 			const int from = received_special_msg.from;
 			const int player_id = game_data->net2id(from);
-			String::Vector params;
-			String((char*)received_special_msg.message).explode(params, ' ');
+			QStringList params;
+			QString((char*)received_special_msg.message).explode(params, ' ');
 			if (params.size() == 1)
 			{
 				if (params[0] == "NOT_READY")
-					pArea->set_state(String("wait.ready") << player_id, false);
+					pArea->set_state(QString("wait.ready") << player_id, false);
 				else
 				{
 					if (params[0] == "READY")
 					{
-						pArea->set_data(String("wait.progress") << player_id, 100);
-						pArea->set_state(String("wait.ready") << player_id, true);
+						pArea->set_data(QString("wait.progress") << player_id, 100);
+						pArea->set_state(QString("wait.ready") << player_id, true);
 						check_ready = true;
 					}
 					else
@@ -205,8 +205,8 @@ namespace Menus
 				{
 					if (params[0] == "LOADING")
 					{
-						int percent = Math::Min(100, Math::Max(0, params[1].to<int>()));
-						pArea->set_data( String("wait.progress") << player_id, percent);
+						int percent = Math::Min(100, Math::Max(0, params[1].toInt()));
+						pArea->set_data( QString("wait.progress") << player_id, percent);
 					}
 					else
 					{
@@ -214,7 +214,7 @@ namespace Menus
 						{                                   // We can only use units available on all clients, so check the list
 							int type_id = unit_manager.get_unit_index(params[1]);
 							if (type_id == -1)            // Tell it's missing
-								network_manager.sendAll( String("MISSING ") << params[1]);
+								network_manager.sendAll( QString("MISSING ") << params[1]);
 							else
 								unit_manager.unit_type[type_id]->not_used = false;  // Enable this unit
 						}
@@ -245,7 +245,7 @@ namespace Menus
 			bool ready = true;
 			for (short int i = 0; i < game_data->nb_players && ready; ++i)
 			{
-				if (!pArea->get_state(String("wait.ready") << i) && !dead_player[i] && game_data->player_network_id[i] > 0)
+				if (!pArea->get_state(QString("wait.ready") << i) && !dead_player[i] && game_data->player_network_id[i] > 0)
 					ready = false;
 			}
 

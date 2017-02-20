@@ -15,10 +15,9 @@ namespace TA3D
 		return IP;
 	}
 
-	String Socket::getIPstr() const
+	QString Socket::getIPstr() const
 	{
-		return String() << (IP.host & 0xFF) << "." << ((IP.host >> 8) & 0xFF) << "." << ((IP.host >> 16) & 0xFF) << "."
-			<< (IP.host >> 24);
+        return QString("%1.%2.%3.%4").arg(IP.host & 0xFF).arg((IP.host >> 8) & 0xFF).arg((IP.host >> 16) & 0xFF).arg(IP.host >> 24);
 	}
 
 	uint32 Socket::getIP() const
@@ -26,13 +25,13 @@ namespace TA3D
 		return IP.host;
 	}
 
-	String Socket::getString()
+	QString Socket::getString()
 	{
 		MutexLocker locker(pMutex);
 		char buf[2049];
 		const int size = recv(buf, 2048);
 		if (size > 0)
-			return String(buf, (uint32)strlen(buf));
-		return String();
+            return QString::fromUtf8(buf, (uint32)strlen(buf));
+		return QString();
 	}
 }

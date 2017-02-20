@@ -97,7 +97,7 @@ namespace TA3D
 		}
 
 
-		GLhandleARB loadFragmentShader(const String& filename)
+		GLhandleARB loadFragmentShader(const QString& filename)
 		{
 			if (lp_CONFIG->disable_GLSL)    return 0;
 
@@ -135,7 +135,7 @@ namespace TA3D
 
 
 
-		GLhandleARB loadVertexShader(const String& filename)
+		GLhandleARB loadVertexShader(const QString& filename)
 		{
 			if (lp_CONFIG->disable_GLSL)
 				return 0;
@@ -226,7 +226,7 @@ namespace TA3D
 
 
 
-	void Shader::load(const String& fragmentFilename, const String& vertexFilename)
+	void Shader::load(const QString& fragmentFilename, const QString& vertexFilename)
 	{
 		if (!g_useProgram || lp_CONFIG->disable_GLSL)
 			return;
@@ -267,58 +267,58 @@ namespace TA3D
 			glUseProgramObjectARB(0);
 	}
 
-	void Shader::setvar1f(const String &var, const float v0)
+	void Shader::setvar1f(const QString &var, const float v0)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform1fARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0);
+            glUniform1fARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0);
 	}
 
-	void Shader::setvar2f(const String &var, const float v0, const float v1)
+	void Shader::setvar2f(const QString &var, const float v0, const float v1)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform2fARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0, v1);
+            glUniform2fARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0, v1);
 	}
 
-	void Shader::setvar3f(const String &var, const float v0, const float v1, const float v2)
+	void Shader::setvar3f(const QString &var, const float v0, const float v1, const float v2)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform3fARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0, v1, v2);
+            glUniform3fARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0, v1, v2);
 	}
 
-	void Shader::setvar4f(const String &var, const float v0, const float v1, const float v2, const float v3)
+	void Shader::setvar4f(const QString &var, const float v0, const float v1, const float v2, const float v3)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform4fARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0, v1, v2, v3);
+            glUniform4fARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0, v1, v2, v3);
 	}
 
-	void Shader::setvar1i(const String &var, const int v0)
+	void Shader::setvar1i(const QString &var, const int v0)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform1iARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0);
+            glUniform1iARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0);
 	}
 
-	void Shader::setvar2i(const String &var, const int v0, const int v1)
+	void Shader::setvar2i(const QString &var, const int v0, const int v1)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform2iARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0, v1);
+            glUniform2iARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0, v1);
 	}
 
-	void Shader::setvar3i(const String &var, const int v0, const int v1, const int v2)
+	void Shader::setvar3i(const QString &var, const int v0, const int v1, const int v2)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform3iARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0, v1, v2);
+            glUniform3iARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0, v1, v2);
 	}
 
-	void Shader::setvar4i(const String &var, const int v0, const int v1, const int v2, const int v3)
+	void Shader::setvar4i(const QString &var, const int v0, const int v1, const int v2, const int v3)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniform4iARB(glGetUniformLocationARB(pShaderProgram, var.c_str()), v0, v1, v2, v3);
+            glUniform4iARB(glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), v0, v1, v2, v3);
 	}
 
-	void Shader::setmat4f(const String &var, const GLfloat *mat)
+	void Shader::setmat4f(const QString &var, const GLfloat *mat)
 	{
 		if (pLoaded && !lp_CONFIG->disable_GLSL)
-			glUniformMatrix4fv(	glGetUniformLocationARB(pShaderProgram, var.c_str()), 1, GL_FALSE, mat);
+            glUniformMatrix4fv(	glGetUniformLocationARB(pShaderProgram, var.toStdString().c_str()), 1, GL_FALSE, mat);
 	}
 
 

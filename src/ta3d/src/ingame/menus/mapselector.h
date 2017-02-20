@@ -45,7 +45,7 @@ namespace Menus
 		**
 		** \return True if a map has been selected by the user, false otherwise
 		*/
-		static bool Execute(const String& preSelectedMap, String& mapName);
+		static bool Execute(const QString& preSelectedMap, QString& mapName);
 
 	public:
 		//! \name Constructor & Destructor
@@ -56,7 +56,7 @@ namespace Menus
 		** \brief Constructor
 		** \param PreSelected map
 		*/
-		MapSelector(const String& preSelectedMap);
+		MapSelector(const QString& preSelectedMap);
 		//! Destructor
 		virtual ~MapSelector();
 		//@}
@@ -70,19 +70,19 @@ namespace Menus
 		**
 		** \return Name of the selected map, empty if none has been selected
 		*/
-		const String& selected() const { return pSelectedMap; }
+		const QString& selected() const { return pSelectedMap; }
 
 
 		/*!
 		** \brief Get the map by default
 		*/
-		const String& mapByDefault() const { return pDefaultSelectedMap; }
+		const QString& mapByDefault() const { return pDefaultSelectedMap; }
 		/*!
 		** \brief Set the map by default
 		**
 		** Nothing will be done until the next call to execute().
 		*/
-		void mapByDefault(const String& m) { pDefaultSelectedMap = m; }
+		void mapByDefault(const QString& m) { pDefaultSelectedMap = m; }
 
 	protected:
 		virtual bool doInitialize();
@@ -95,7 +95,7 @@ namespace Menus
 		** \brief List of maps
 		** \see SortListOfMaps()
 		*/
-		typedef String::Vector  ListOfMaps;
+		typedef QStringList  ListOfMaps;
 
 	private:
 		/*!
@@ -116,7 +116,7 @@ namespace Menus
 		** \param mapShortName Short name of hte map
 		** \return True if the map has been found and is designed for network gaming, false otherwise
 		*/
-		static bool MapIsForNetworkGame(const String& mapShortName);
+		static bool MapIsForNetworkGame(const QString& mapShortName);
 
 
 	private:
@@ -139,7 +139,7 @@ namespace Menus
 		** \brief Auto select a map according its short name
 		** \param shortName Name of the map. Nothing will be done if empty.
 		*/
-		void autoSelectMap(const String& shortName);
+		void autoSelectMap(const QString& shortName);
 
 		/*!
 		** \brief Select a map according its index
@@ -167,9 +167,9 @@ namespace Menus
 
 	private:
 		//! Name of the selected map
-		String pSelectedMap;
+		QString pSelectedMap;
 		//! The map by default
-		String pDefaultSelectedMap;
+		QString pDefaultSelectedMap;
 
 		/*!
 		** \brief List of ordered maps designed for network gaming

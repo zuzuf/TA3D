@@ -47,7 +47,7 @@ namespace Menus
 
 	private:
 		TA3DCONFIG *saved_config;
-		std::vector< String > fps_limits;
+		std::vector< QString > fps_limits;
 		int nb_res;
 		int res_width[100];
 		int res_height[100];

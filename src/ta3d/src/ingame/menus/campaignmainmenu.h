@@ -45,13 +45,13 @@ namespace Menus
 		virtual bool maySwitchToAnotherMenu();
 
 	private:
-		String::List campaign_list;
+		QStringList campaign_list;
 		TDFParser::Ptr campaign_parser;
 		Gaf::AnimationList side_logos;
 
 		bool start_game;
 		uint32 last_campaign_id;
-		String  campaign_name;
+		QString  campaign_name;
 		int mission_id;
 		int nb_mission;
 	};

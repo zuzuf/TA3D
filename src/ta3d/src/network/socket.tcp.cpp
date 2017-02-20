@@ -103,12 +103,12 @@ namespace TA3D
         open("", port);
     }
 
-    void SocketTCP::open(const String &hostname, uint16 port)
+    void SocketTCP::open(const QString &hostname, uint16 port)
     {
         MutexLocker locker(pMutex);
         close();
 
-        SDLNet_ResolveHost( &IP, hostname.c_str(), port );
+        SDLNet_ResolveHost( &IP, hostname.toStdString().c_str(), port );
         sock = SDLNet_TCP_Open(&IP);
         if (sock == NULL)
         {
@@ -242,9 +242,9 @@ namespace TA3D
 		}
 	}
 
-    void SocketTCP::send(const String &str)
+    void SocketTCP::send(const QString &str)
     {
-		send(str.c_str(), int(str.size()));
+        send(str.toStdString().c_str(), int(str.size()));
     }
 
     void SocketTCP::send(const char *data, int size)
@@ -467,9 +467,9 @@ namespace TA3D
         return false;
     }
 
-	String SocketTCP::getLine()
+	QString SocketTCP::getLine()
 	{
-		String line;
+		QString line;
 		if (!ready())
 			return line;
 		while(this->isOpen())
@@ -479,7 +479,7 @@ namespace TA3D
 			if (c == '\n')
 				break;
 			if (c != '\r')
-				line << c;
+                line += c;
 		}
 
 		return line;

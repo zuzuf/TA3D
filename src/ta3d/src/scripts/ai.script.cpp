@@ -67,7 +67,7 @@ namespace TA3D
 		return AI_TYPE_LUA;
 	}
 
-	void AiScript::changeName(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
+	void AiScript::changeName(const QString& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
 	{
 		pMutex.lock();
 		name = newName;
@@ -76,14 +76,13 @@ namespace TA3D
 
 	void AiScript::save()
 	{
-		String filename;
-		Paths::MakeDir( String(Paths::Resources) << "ai" );
-		filename << Paths::Resources << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
-		remove( filename.c_str() );     // We don't want to save anything here, the Lua script is responsible for everything now
+        Paths::MakeDir( Paths::Resources + "ai" );
+        const QString &filename = Paths::Resources + "ai" + Paths::Separator + name + TA3D_AI_FILE_EXTENSION;
+        QFile(filename).remove();     // We don't want to save anything here, the Lua script is responsible for everything now
 	}
 
 
-	void AiScript::loadAI(const String& filename, const int id)
+	void AiScript::loadAI(const QString& filename, const int id)
 	{
 		File* file = VFS::Instance()->readFile(filename);
 
@@ -360,7 +359,7 @@ namespace TA3D
 		lua_pop( L, 1 );
 
 		if (player_id >= 0 && player_id < NB_PLAYERS)
-			lua_pushstring( L, players.side[ player_id ].c_str() );
+            lua_pushstring( L, players.side[ player_id ].toStdString().c_str() );
 		else
 			lua_pushstring( L, "" );
 
@@ -528,7 +527,7 @@ namespace TA3D
 			lua_pushinteger(L, pType->MetalStorage);     // metal storage
 			lua_setfield(L, -2, "metalstorage");
 
-			lua_pushstring(L, pType->name.c_str());     // unit name
+            lua_pushstring(L, pType->name.toStdString().c_str());     // unit name
 			lua_setfield(L, -2, "name");
 
             lua_pushinteger(L, pType->BuildTime);       // build time

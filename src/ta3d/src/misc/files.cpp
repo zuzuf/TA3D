@@ -17,12 +17,10 @@
 
 #include "files.h"
 #include <logs/logs.h>
-#include <yuni/core/io/file/stream.h>
-#include <yuni/core/io/file/file.hxx>
+#include <QFile>
+#include <QFileInfo>
 #include "paths.h"
 #include <vfs/realfile.h>
-
-using namespace Yuni::Core::IO::File;
 
 using namespace TA3D::UTILS;
 
@@ -34,7 +32,7 @@ namespace Files
 {
 
 	template<class T>
-			bool getline(T &file, String &s)
+			bool getline(T &file, QString &s)
 	{
 		s.clear();
 
@@ -45,101 +43,94 @@ namespace Files
 			char c = file.get();
 			if (c == '\n')
 				break;
-			s << c;
+            s.push_back(c);
 		}
 		return true;
 	}
 
 	template<class T>
-	bool TmplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+	bool TmplLoadFromFile(T& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
 		if (emptyListBefore)
 			out.clear();
-		Stream file(filename, Core::IO::OpenMode::read);
-		if (!file.opened())
+        QFile file(filename);
+        file.open(QIODevice::ReadOnly);
+        if (!file.isOpen())
 		{
 			LOG_WARNING("Impossible to open the file `" << filename << "`");
 			return false;
 		}
 		if (sizeLimit)
 		{
-			file.seekFromBeginning(0);
-			ssize_t begin_pos = file.tell();
-			file.seekFromEndOfFile(0);
-			if (static_cast<uint32>((file.tell() - begin_pos)) > sizeLimit)
+            if (file.size() > sizeLimit)
 			{
 				LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
 				return false;
 			}
-			file.seekFromBeginning(0);
 		}
-		String line;
-		while (getline(file, line))
-			out.push_back(line);
+        while (file.canReadLine())
+            out.push_back(file.readLine());
 		return true;
 	}
 
 
-	bool Load(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    bool Load(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
-		return TmplLoadFromFile< String::List >(out, filename, sizeLimit, emptyListBefore);
+        return TmplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
 	}
 
-	bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+	File* LoadContentInMemory(const QString& filename, const uint64 hardlimit)
 	{
-		return TmplLoadFromFile< String::Vector >(out, filename, sizeLimit, emptyListBefore);
-	}
-
-
-	bool Size(const String& filename, uint64& size)
-	{
-		return Yuni::Core::IO::File::Size(filename, size);
-	}
-
-
-	File* LoadContentInMemory(const String& filename, const uint64 hardlimit)
-	{
-		uint64 size;
-		if (Size(filename, size))
-		{
-			if (0 == size)
-				return NULL;
-			if (size > hardlimit)
-			{
-				LOG_ERROR("Impossible to load the file `" << filename << "` in memory. Its size exceeds << "
-						  << hardlimit / 1204 << "Ko");
-				return NULL;
-			}
-			return new UTILS::RealFile(filename);
-		}
-		return NULL;
+        qint64 size = QFileInfo(filename).size();
+        if (0 == size)
+            return NULL;
+        if (size > hardlimit)
+        {
+            LOG_ERROR("Impossible to load the file `" << filename << "` in memory. Its size exceeds << "
+                      << hardlimit / 1024 << "Ko");
+            return NULL;
+        }
+        return new UTILS::RealFile(filename);
 	}
 
 
-	bool SaveToFile(const String& filename, const String& content)
+	bool SaveToFile(const QString& filename, const QString& content)
 	{
-		return Yuni::Core::IO::File::SaveToFile(filename, content);
+        QFile dst(filename);
+        dst.open(QIODevice::Truncate | QIODevice::WriteOnly);
+        dst.write(content.toUtf8());
+        return true;
 	}
 
 
-	String ReplaceExtension(const String& filename, const String& newExt)
+	QString ReplaceExtension(const QString& filename, const QString& newExt)
 	{
-		if (filename.empty())
-			return String();
-		String::size_type p = filename.find_last_of('.');
-		if (p == String::npos)
-			return String(filename) << newExt;
-		String::size_type s = filename.find_last_of("\\/");
-		if (s != String::npos && p < s)
-			return String(filename) << newExt;
-		return Substr(filename, 0, p) << newExt;
+        if (filename.isEmpty())
+			return QString();
+        QString::size_type p = filename.lastIndexOf('.');
+        if (p == -1)
+            return filename + newExt;
+        QString::size_type s = filename.lastIndexOf("\\/");
+        if (s != -1 && p < s)
+            return filename + newExt;
+        return Substr(filename, 0, p) + newExt;
 	}
 
 
 
-	bool Copy(const String& from, const String& to, const bool overwrite)
+	bool Copy(const QString& from, const QString& to, const bool overwrite)
 	{
-		return Yuni::Core::IO::File::Copy(from, to, overwrite) == Yuni::Core::IO::ioErrNone;
+        QFile dst(to);
+        if (dst.exists() && !overwrite)
+            return true;
+        QFile src(from);
+        if (!src.exists())
+            return true;
+        src.open(QIODevice::ReadOnly);
+        dst.open(QIODevice::Truncate | QIODevice::WriteOnly);
+        while(src.bytesAvailable())
+            dst.write(src.read(65536));
+        return false;
 	}
 
 

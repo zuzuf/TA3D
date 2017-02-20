@@ -23,14 +23,14 @@ namespace TA3D
         void destroy();
 
 
-        int get_texture_index(const String& texture_name);
+        int get_texture_index(const QString& texture_name);
 
-        GLuint get_gl_texture(const String& texture_name, const int frame = 0);
+        GLuint get_gl_texture(const QString& texture_name, const int frame = 0);
 
-        SDL_Surface *get_bmp_texture(const String& texture_name, const int frame = 0);
+        SDL_Surface *get_bmp_texture(const QString& texture_name, const int frame = 0);
 
 		void load_gaf(File *data, bool logo);
-		void load_gaf(const String &filename, bool logo);
+		void load_gaf(const QString &filename, bool logo);
 
         int all_texture();
 

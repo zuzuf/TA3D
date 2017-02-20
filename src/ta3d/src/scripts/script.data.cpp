@@ -26,10 +26,10 @@ namespace TA3D
 {
 
 
-	ScriptData *ScriptData::loadScriptFile(const String &filename)
+	ScriptData *ScriptData::loadScriptFile(const QString &filename)
 	{
-		const String tmp_cob = String(filename) << ".cob";
-		const String tmp_lua = String(filename) << ".lua";
+        const QString &tmp_cob = filename + ".cob";
+        const QString &tmp_lua = filename + ".lua";
 		if (VFS::Instance()->fileExists(tmp_lua) && VFS::Instance()->filePriority(tmp_lua) >= VFS::Instance()->filePriority(tmp_cob))
 		{
 			ScriptData *script = new LuaData;

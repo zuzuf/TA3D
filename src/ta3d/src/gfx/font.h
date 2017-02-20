@@ -97,7 +97,7 @@ namespace TA3D
 		/*!
 		** \brief Get the width of a text
 		*/
-		float length(const String &txt);
+        float length(const QString &txt);
 
 		/*!
 		** \brief Get the height the font
@@ -112,10 +112,10 @@ namespace TA3D
 		** \param type Type of the Font (Texture, Pixmap, Bitmap, Polygon)
 		** \return True if the operator succeeded, False otherwise
 		*/
-		bool load( const String &filename, const int size, const Type type);
+        bool load( const QString &filename, const int size, const Type type);
 
 		int get_size();
-		void print(float x, float y, float z, const String &text);
+        void print(float x, float y, float z, const QString &text);
 
 		void setBold(bool bBold)	{	this->bBold = bBold;	}
 
@@ -134,13 +134,13 @@ namespace TA3D
 		** \param type Type of the Font (Texture, Pixmap, Bitmap, Polygon)
 		** \return True if the operator succeeded, False otherwise
 		*/
-		bool loadWL(const String &filename, const int size, const Type type);
+        bool loadWL(const QString &filename, const int size, const Type type);
 
 	private:
 		//! The FT Font
         QSharedPointer<FTFont> font;
 		//! The filename of the font
-		String pFontFilename;
+        QString pFontFilename;
 		//! Type of the font
 		Type pType;
 		//! Bold style
@@ -161,10 +161,10 @@ namespace TA3D
 
 		void destroy();
 
-		Font *find(const String& filename, const int size, const Font::Type type);
+        Font *find(const QString& filename, const int size, const Font::Type type);
 
 	private:
-		Font* internalRegisterFont(const String& key, const String& filename, const int size, const Font::Type type);
+        Font* internalRegisterFont(const QString& key, const QString& filename, const int size, const Font::Type type);
 
 	private:
 		//! Font list

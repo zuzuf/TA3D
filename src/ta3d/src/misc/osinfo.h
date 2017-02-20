@@ -32,9 +32,9 @@ namespace System
 {
 
 	/*!
-	** \brief Run the given command and returns its standard output as a String
+	** \brief Run the given command and returns its standard output as a QString
 	*/
-	String run_command(const String& cmd);
+	QString run_command(const QString& cmd);
 
     /*!
     ** \brief Write informations about the current OS to the console

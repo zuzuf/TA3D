@@ -31,15 +31,9 @@
 #include "virtualfile.h"
 #include "realfile.h"
 
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
+#include <QFile>
 
 #include <zlib.h>
-#if defined TA3D_PLATFORM_WINDOWS
-# pragma comment(lib, "tools/win32/mingw32/libs/zlib.lib")
-#endif
-
 
 
 namespace TA3D
@@ -49,7 +43,7 @@ namespace UTILS
 
 
 	
-	void VFS::addArchive(const String& filename, const int priority)
+	void VFS::addArchive(const QString& filename, const int priority)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
 
@@ -81,17 +75,16 @@ namespace UTILS
 	}
 
 
-	void VFS::locateAndReadArchives(const String& path, const int priority)
+	void VFS::locateAndReadArchives(const QString& path, const int priority)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		String::List fileList;
+        QStringList fileList;
 		LOG_DEBUG(LOG_PREFIX_VFS << "Getting archive list");
 		Archive::getArchiveList(fileList, path);
 		LOG_DEBUG(LOG_PREFIX_VFS << "Adding archives to the VFS");
 
-		String::List::const_iterator end = fileList.end();
-		for (String::List::const_iterator i = fileList.begin() ; i != end ; ++i)
-			addArchive(*i, priority);
+        for (const QString &i : fileList)
+            addArchive(i, priority);
 	}
 
 
@@ -161,16 +154,16 @@ namespace UTILS
 		LOG_DEBUG(LOG_PREFIX_VFS << "reading root path");
 		pPaths = TA3D::Resources::GetPaths();
 		if (pPaths.empty())
-			pPaths.push_back(nullptr);
+            pPaths.push_back(QString());
 		LOG_DEBUG(LOG_PREFIX_VFS << "browse archives");
-		for (String::Vector::iterator i = pPaths.begin(); i != pPaths.end(); ++i)
-			locateAndReadArchives(*i, 0);
+        for (const QString &i : pPaths)
+            locateAndReadArchives(i, 0);
 
-		if (!TA3D_CURRENT_MOD.empty())
+        if (!TA3D_CURRENT_MOD.isEmpty())
 		{
 			LOG_DEBUG(LOG_PREFIX_VFS << "browse mod archives");
-			for (String::Vector::iterator i = pPaths.begin(); i != pPaths.end(); ++i)
-				locateAndReadArchives(String(*i) << TA3D_CURRENT_MOD, 0x10000);
+            for (const QString &i : pPaths)
+                locateAndReadArchives(i + TA3D_CURRENT_MOD, 0x10000);
 		}
 		buildDirMap();
 		LOG_DEBUG(LOG_PREFIX_VFS << "VFS loaded");
@@ -185,22 +178,16 @@ namespace UTILS
 	}
 
 
-	void VFS::putInCache(const String& filename, File* file)
+	void VFS::putInCache(const QString& filename, File* file)
 	{
-		String cacheable_filename(filename);
-		cacheable_filename.toLower();
-		for (String::iterator i = cacheable_filename.begin(); i != cacheable_filename.end(); ++i)
-		{
-			if ('/' == *i || '\\' == *i)
-				*i = 'S';
-		}
+        const QString cacheable_filename(filename.toLower().replace('\\', '/').replace('/', 'S'));
 
 		if (!lp_CONFIG->developerMode)		// Don't fill the cache with files in developer mode, they would not be used anyway
 		{
-			String cache_filename;
-			cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat"; // Save file in disk cache
-			Stream cache_file(cache_filename, Yuni::Core::IO::OpenMode::write);
-			if (cache_file.opened())
+            QString cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat"; // Save file in disk cache
+            QFile cache_file(cache_filename);
+            cache_file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+            if (cache_file.isOpen())
 			{
 				file->seek(0);
 				char *buf = new char[10240];
@@ -229,7 +216,7 @@ namespace UTILS
 
 		CacheFileData newentry;
 
-		newentry.name = ToLower(filename);			// Store a copy of the data
+        newentry.name = filename.toLower();			// Store a copy of the data
 		newentry.length = file->size();
 		newentry.data = new byte[file->size()];
 		file->read(newentry.data, file->size());
@@ -241,26 +228,19 @@ namespace UTILS
 
 
 
-	File* VFS::isInDiskCacheWL(const String& filename)
+	File* VFS::isInDiskCacheWL(const QString& filename)
 	{
 		// In developer mode, the cache is always "empty", we just don't use it
 		if (lp_CONFIG->developerMode)
 			return NULL;
 
 		// May be in cache but doesn't use cache (ie: campaign script)
-		if (SearchString(filename, ".lua", true) >= 0)
+        if (filename.contains(".lua", Qt::CaseInsensitive))
 			return NULL;
 
-		String cacheable_filename(filename);
-		cacheable_filename.toLower();
-		for (String::iterator i = cacheable_filename.begin() ; i != cacheable_filename.end(); ++i)
-		{
-			if ('/' == *i || '\\' == *i)
-				*i = 'S';
-		}
+        const QString &cacheable_filename = filename.toLower().replace('\\', '/').replace('/', 'S');
 
-		String cache_filename;
-		cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat";
+        const QString &cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";
 
 		if (TA3D::Paths::Exists(cache_filename)) // Check disk cache
 		{
@@ -270,22 +250,21 @@ namespace UTILS
 	}
 
 
-	VFS::CacheFileData* VFS::isInCache(const String& filename)
+	VFS::CacheFileData* VFS::isInCache(const QString& filename)
 	{
-		if (!filename)
+        if (filename.isEmpty())
 			return NULL;
 		ThreadingPolicy::MutexLocker locker(*this);
 		return isInCacheWL(filename);
 	}
 
 
-	VFS::CacheFileData* VFS::isInCacheWL(const String& filename)
+	VFS::CacheFileData* VFS::isInCacheWL(const QString& filename)
 	{
 		if (fileCache.empty())
 			return NULL;
 
-		String key(filename);
-		key.toLower();
+        const QString &key = filename.toLower();
 		std::list<CacheFileData>::iterator i;
 		for (i = fileCache.begin() ; i != fileCache.end() ; ++i) // Check RAM Cache
 		{
@@ -301,14 +280,12 @@ namespace UTILS
 	}
 
 
-	File *VFS::readFile(const String& filename)
+	File *VFS::readFile(const QString& filename)
 	{
-		if (filename.empty())
+        if (filename.isEmpty())
 			return NULL;
 
-		String key(filename);
-		key.toLower();
-		key.convertSlashesIntoBackslashes();
+        const QString &key = filename.toLower().replace('\\', '/');
 
 		ThreadingPolicy::MutexLocker locker(*this);
 
@@ -343,18 +320,16 @@ namespace UTILS
 
 
 
-	File* VFS::readFileRange(const String &filename, const uint32 start, const uint32 length)
+	File* VFS::readFileRange(const QString &filename, const uint32 start, const uint32 length)
 	{
-		if (filename.empty())
+        if (filename.isEmpty())
 			return NULL;
 
-		String key(filename);
-		key.toLower();
-		key.convertSlashesIntoBackslashes();
+        const QString &key = filename.toLower().replace('\\', '/');
 
 		ThreadingPolicy::MutexLocker locker(*this);
 
-		CacheFileData *cache = (key.notEmpty()) ? isInCacheWL(key) : NULL;
+        CacheFileData *cache = key.isEmpty() ? NULL : isInCacheWL(key);
 		if (cache)
 		{
 			if (cache->length == 0)
@@ -378,25 +353,22 @@ namespace UTILS
 
 
 
-	bool VFS::fileExists(String filename)
+	bool VFS::fileExists(QString filename)
 	{
-		if (filename.empty())
+        if (filename.isEmpty())
 			return false;
-		filename.toLower();
-		filename.convertSlashesIntoBackslashes();
+        filename = filename.toLower().replace('\\', '/');
 
 		ThreadingPolicy::MutexLocker locker(*this);
 		return pFiles.find(filename) != pFiles.end();
 	}
 
 
-	int VFS::filePriority(const String& filename)
+	int VFS::filePriority(const QString& filename)
 	{
-		if (filename.empty())
+        if (filename.isEmpty())
 			return -0xFFFFFF;
-		String key(filename);
-		key.toLower();
-		key.convertSlashesIntoBackslashes();
+        const QString key(filename.toLower().replace('\\', '/'));
 
 		ThreadingPolicy::MutexLocker locker(*this);
 		HashMap<Archive::FileInfo*>::Dense::iterator file = pFiles.find(key);
@@ -405,31 +377,19 @@ namespace UTILS
 	}
 
 
-	uint32 VFS::getFilelist(String pattern, String::Vector& li)
+    uint32 VFS::getFilelist(QString pattern, QStringList& li)
 	{
-		pattern.toLower();
-		pattern.convertSlashesIntoBackslashes();
+        pattern = pattern.toLower().replace('\\', '/');
 
 		ThreadingPolicy::MutexLocker locker(*this);
 		return wildCardSearch(pFiles, pattern, li);
 	}
 
-
-	uint32 VFS::getFilelist(String pattern, String::List& li)
+	uint32 VFS::getDirlist(QString pattern, QStringList& li)
 	{
-		pattern.toLower();
-		pattern.convertSlashesIntoBackslashes();
+        pattern = pattern.toLower().replace('\\', '/');
 
-		ThreadingPolicy::MutexLocker locker(*this);
-		return wildCardSearch(pFiles, pattern, li);
-	}
-
-	uint32 VFS::getDirlist(String pattern, String::Vector& li)
-	{
-		pattern.toLower();
-		pattern.convertSlashesIntoBackslashes();
-
-		String parent = '\\' + Paths::ExtractFilePath(pattern);
+        QString parent = '/' + Paths::ExtractFilePath(pattern);
 		pattern = Paths::ExtractFileName(pattern);
 
 		ThreadingPolicy::MutexLocker locker(*this);
@@ -438,34 +398,19 @@ namespace UTILS
 		return wildCardSearch(pDirs[parent], pattern, li);
 	}
 
-
-	uint32 VFS::getDirlist(String pattern, String::List& li)
-	{
-		pattern.toLower();
-		pattern.convertSlashesIntoBackslashes();
-
-		String parent = '\\' + Paths::ExtractFilePath(pattern);
-		pattern = Paths::ExtractFileName(pattern);
-
-		ThreadingPolicy::MutexLocker locker(*this);
-		if (pDirs.count(parent) == 0)
-			return 0;
-		return wildCardSearch(pDirs[parent], pattern, li);
-	}
-
-	void VFS::buildDirMap()
+    void VFS::buildDirMap()
 	{
 		pDirs.clear();
 		for(FileInfoMap::iterator i = pFiles.begin() ; i != pFiles.end() ; ++i)
 		{
-			String cur = Paths::ExtractFilePath('\\' + i.key());
-			for ( ; !cur.empty() && cur != "\\" ; )
+            QString cur = Paths::ExtractFilePath('/' + i.key());
+            for ( ; !cur.isEmpty() && cur != "/" ; )
 			{
-				if (cur.last() == '\\')
-					cur.removeLast();
-				String parent = Paths::ExtractFilePath(cur);
-				if (parent.empty())
-					parent = '\\';
+                if (cur.endsWith('/'))
+					cur.chop(1);
+				QString parent = Paths::ExtractFilePath(cur);
+                if (parent.isEmpty())
+                    parent = '/';
 
 				cur = Substr(cur, 1);
 				pDirs[parent][cur] = true;
@@ -475,12 +420,13 @@ namespace UTILS
 		}
 	}
 
-	String VFS::extractFile(const String& filename)
+	QString VFS::extractFile(const QString& filename)
 	{
 		ThreadingPolicy::MutexLocker locker(*this);
-		String targetName = String(Paths::Caches) << Paths::ExtractFileName(filename);
-		Stream file(targetName, Yuni::Core::IO::OpenMode::write);
-		if (!file.opened())
+        QString targetName = Paths::Caches + Paths::ExtractFileName(filename);
+        QFile file(targetName);
+        file.open(QIODevice::Truncate | QIODevice::WriteOnly);
+        if (!file.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_VFS << "impossible to create file '" << targetName << "'");
 			return targetName;
@@ -508,14 +454,14 @@ namespace UTILS
 		return targetName;
 	}
 
-	uint32 VFS::getArchivelist(String::Vector& li) const
+    uint32 VFS::getArchivelist(QStringList &li) const
 	{
-		for(std::vector<Archive*>::const_iterator it = archives.begin() ; it != archives.end() ; ++it)
-			li.push_back((*it)->getName());
+        for(Archive* it : archives)
+            li.push_back(it->getName());
 		return (uint32)archives.size();
 	}
 
-	bool load_palette(SDL_Color *pal, const String& filename)
+	bool load_palette(SDL_Color *pal, const QString& filename)
 	{
 		File* palette = VFS::Instance()->readFile(filename);
 		if (palette == NULL)
@@ -534,7 +480,7 @@ namespace UTILS
 	}
 
 	template<class T>
-			bool tplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+			bool tplLoadFromFile(T& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
 		if (emptyListBefore)
 			out.clear();
@@ -551,19 +497,14 @@ namespace UTILS
 			LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
 			return false;
 		}
-		String line;
+		QString line;
 		while (file->readLine(line))
 			out.push_back(line);
 		delete file;
 		return true;
 	}
 
-	bool loadFromFile(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
-	{
-		return tplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
-	}
-
-	bool loadFromFile(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    bool loadFromFile(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
 		return tplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
 	}

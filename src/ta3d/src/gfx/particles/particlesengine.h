@@ -65,7 +65,7 @@ namespace TA3D
         ** \param file
         ** \param filealpha
         */
-        int addtex(const String& file,const String& filealpha = "");
+        int addtex(const QString& file,const QString& filealpha = "");
 
 
         /*!

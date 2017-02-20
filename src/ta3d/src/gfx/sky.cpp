@@ -225,7 +225,7 @@ namespace TA3D
 		glEndList();
 	}
 
-	void Sky::SkyData::load_tdf(const String& filename)
+	void Sky::SkyData::load_tdf(const QString& filename)
 	{
 		TDFParser parser;
 		if (!parser.loadFromFile(filename))
@@ -235,16 +235,16 @@ namespace TA3D
 		rotation_speed = parser.pullAsFloat("sky.rotation speed");
 		rotation_offset = parser.pullAsFloat("sky.rotation offset");
 		texture_name = parser.pullAsString("sky.texture name");
-		parser.pullAsString("sky.planet").explode(planet, ',');
+        planet = parser.pullAsString("sky.planet").split(',');
 		FogColor[0] = parser.pullAsFloat("sky.fog R");
 		FogColor[1] = parser.pullAsFloat("sky.fog G");
 		FogColor[2] = parser.pullAsFloat("sky.fog B");
 		FogColor[3] = parser.pullAsFloat("sky.fog A");
-		parser.pullAsString("sky.map").explode(MapName, ',');
+        MapName = parser.pullAsString("sky.map").split(',');
 	}
 
 
-	void Sky::choose_a_sky(const String& mapname, const String& planet)
+	void Sky::choose_a_sky(const QString& mapname, const QString& planet)
 	{
 		if (skyInfo)
 			delete skyInfo;
@@ -253,18 +253,18 @@ namespace TA3D
 		std::vector<SkyData*> sky_list;
 		sky_list.clear();
 
-		String::Vector file_list;
+		QStringList file_list;
 		VFS::Instance()->getFilelist("sky\\*.tdf", file_list);
 		uint32	nb_sky = 0;
 
-		for (String::Vector::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+		for (QStringList::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
 		{
 			LOG_DEBUG("loading sky : " << *it);
 			SkyData *sky_data = new SkyData;
 			sky_data->load_tdf(*it);
 
 			bool keep = false;
-			for (String::Vector::const_iterator i = sky_data->MapName.begin(); i != sky_data->MapName.end(); ++i)
+			for (QStringList::const_iterator i = sky_data->MapName.begin(); i != sky_data->MapName.end(); ++i)
 			{
 				if (*i == mapname)
 				{
@@ -274,9 +274,9 @@ namespace TA3D
 			}
 			if (!keep)
 			{
-				String sky;
-				String p;
-				for (String::Vector::const_iterator i = sky_data->planet.begin(); i != sky_data->planet.end(); ++i)
+				QString sky;
+				QString p;
+				for (QStringList::const_iterator i = sky_data->planet.begin(); i != sky_data->planet.end(); ++i)
 				{
 					sky = *i;
 					p = planet;
@@ -299,7 +299,7 @@ namespace TA3D
 		if (nb_sky == 0)    // Look for a default sky
 		{
 			LOG_DEBUG(LOG_PREFIX_GFX << "no sky associated with this map('" << mapname << "') or this planet('" << planet << "') found, looking for default skies");
-			for (String::Vector::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+			for (QStringList::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
 			{
 				SkyData *sky_data = new SkyData;
 				sky_data->load_tdf(*it);

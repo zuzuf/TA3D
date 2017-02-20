@@ -42,14 +42,15 @@ namespace TA3D
 
 		SocketTCP   sock;
 		char		buffer[4096];
-		String      realFilename = filename;
-		String      tmpFile = String(filename) << ".part";
-		Stream		f(tmpFile, Yuni::Core::IO::OpenMode::write);
+		QString      realFilename = filename;
+        QString      tmpFile = filename + ".part";
+        QFile		f(tmpFile);
+        f.open(QIODevice::WriteOnly | QIODevice::Truncate);
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;
 
-		if (!f.opened())
+        if (!f.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open file " << tmpFile << " for writing !");
 			return;        // Error can't open file
@@ -61,14 +62,14 @@ namespace TA3D
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open socket !");
 			f.close();
-			remove(tmpFile.c_str());
+            f.remove();
 			return;
 		}
 
 		sock.setNonBlockingMode(true);      // We want it to be able to detect end of file ;)
 
-		String tmpBuf;
-		tmpBuf << "GET " << _request << " HTTP/1.0\r\nHost:" << servername << "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
+        QByteArray tmpBuf;
+        tmpBuf = "GET " + _request.toUtf8() + " HTTP/1.0\r\nHost:" + servername.toUtf8() + "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
 
 		uint32 timer(msec_timer);
 		sock.send(tmpBuf.data(), tmpBuf.size());
@@ -76,13 +77,13 @@ namespace TA3D
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not send request to server !");
 			f.close();
-			remove(tmpFile.c_str());
+            f.remove();
 			return;
 		}
 
 		pos = 0;
 		size = 0;
-		String header;
+		QString header;
 
 		while (!bStop)
 		{
@@ -96,7 +97,7 @@ namespace TA3D
 					{
 						sock.close();
 						f.close();
-						remove(tmpFile.c_str());
+                        f.remove();
 						return;
 					}
 				}
@@ -114,8 +115,8 @@ namespace TA3D
 					LOG_DEBUG(LOG_PREFIX_NET << "File successfully downloaded : " << realFilename);
 				}
 				else
-				{	LOG_DEBUG(LOG_PREFIX_NET << "Download failed : " << realFilename);	}
-				remove(tmpFile.c_str());
+                    LOG_DEBUG(LOG_PREFIX_NET << "Download failed : " << realFilename);
+                f.remove();
 				return;
 			}
 			if(count > 0)
@@ -127,7 +128,7 @@ namespace TA3D
 
 					for (i = 0; i < count; ++i)
 					{
-						header << buffer[i];
+                        header += buffer[i];
 						if(buffer[i] == 0x0D)
 							++crfound;
 						else
@@ -150,13 +151,13 @@ namespace TA3D
 					}
 					if (lffound >= 2)
 					{
-						header.toLower();
-						String::Size offset = header.find("content-length: ");
-						if (offset != String::npos)
+                        header = header.toLower();
+                        QString::size_type offset = header.indexOf("content-length: ");
+						if (offset != -1)
 						{
-							header.erase(0, offset + 16);
-							header.trimRight(" \n\t");
-							size = header.to<int>();
+                            header.remove(0, offset + 16);
+                            header = header.trimmed();
+							size = header.toInt();
 							LOG_DEBUG("header = " << header);
 							LOG_DEBUG("Http: size = " << size);
 						}
@@ -172,7 +173,7 @@ namespace TA3D
 		}
 		sock.close();
 		f.close();
-		remove(tmpFile.c_str());
+        f.remove();
 		LOG_ERROR(LOG_PREFIX_NET << "Http: Download interrupted!");
 	}
 
@@ -190,15 +191,15 @@ namespace TA3D
 		return isRunning();
 	}
 
-	void Http::get(const String &filename, const String &url)
+	void Http::get(const QString &filename, const QString &url)
 	{
 		destroyThread();
 		this->filename = filename;
-		String tmp = url;
+		QString tmp = url;
 		if (tmp.startsWith("http://"))
-			tmp.erase(0, 7);
-		this->servername = Substr(tmp, 0, tmp.find_first_of("/"));
-		tmp.erase(0, this->servername.size());
+            tmp.remove(0, 7);
+        this->servername = Substr(tmp, 0, tmp.indexOf("/"));
+        tmp.remove(0, this->servername.size());
 		this->_request = tmp;
 
 		bStop = false;
@@ -212,11 +213,11 @@ namespace TA3D
 		destroyThread();
 	}
 
-	String Http::request( const String &servername, const String &_request )
+	QString Http::request( const QString &servername, const QString &_request )
 	{
 		SocketTCP   sock;
 		char        buffer[4096];
-		String      f;
+        QString     f;
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;
@@ -233,8 +234,8 @@ namespace TA3D
 
 		f.clear();
 
-		String tmpBuf;
-		tmpBuf << "GET " << _request << " HTTP/1.0\r\nHost:" << servername << "\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n";
+        QByteArray tmpBuf;
+        tmpBuf = "GET " + _request.toUtf8() + " HTTP/1.0\r\nHost:" + servername.toUtf8() + "\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n";
 
 		uint32 timer(msec_timer);
 		sock.send( tmpBuf.data(), tmpBuf.size());
@@ -300,16 +301,17 @@ namespace TA3D
 		return f;
 	}
 
-	bool Http::getFile( const String &filename, const String &servername, const String &_request )
+	bool Http::getFile( const QString &filename, const QString &servername, const QString &_request )
 	{
 		SocketTCP   sock;
 		char        buffer[4096];
-		Stream		f(filename, Yuni::Core::IO::OpenMode::write);
+        QFile		f(filename);
+        f.open(QIODevice::WriteOnly | QIODevice::Truncate);
 		int         count;
 		int         crfound = 0;
 		int         lffound = 0;
 
-		if (!f.opened())
+        if (!f.isOpen())
 		{
 			LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open file " << filename << " for writing !");
 			return true;        // Error can't open file
@@ -326,8 +328,7 @@ namespace TA3D
 
 		sock.setNonBlockingMode(true);      // We want it to be able to detect end of file ;)
 
-		String tmpBuf;
-		tmpBuf << "GET " << _request << " HTTP/1.0\r\nHost:" << servername << "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
+        QByteArray tmpBuf = "GET " + _request.toUtf8() + " HTTP/1.0\r\nHost:" + servername.toUtf8() + "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
 
 		uint32 timer(msec_timer);
 		sock.send(tmpBuf.data(), tmpBuf.size());

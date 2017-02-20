@@ -39,31 +39,31 @@ namespace Paths
 	//@{
 
 	//! Absolute path where the application is located (extracted from argv)
-	extern String ApplicationRoot;
+	extern QString ApplicationRoot;
 
 	//! Folder for Caches
-	extern String Caches;
+	extern QString Caches;
 
 	//! Folder for Savegames
-	extern String Savegames;
+	extern QString Savegames;
 
 	//! Folder for logs
-	extern String Logs;
+	extern QString Logs;
 	//! Current log file
 	//! \see Logs::writeToFile()
-	extern String LogFile;
+	extern QString LogFile;
 
 	//! Folder for preferences
-	extern String Preferences;
+	extern QString Preferences;
 
 	//! Configuration file
-	extern String ConfigFile;
+	extern QString ConfigFile;
 
 	//! Folder for screenshots
-	extern String Screenshots;
+	extern QString Screenshots;
 
 	//! Folder for game resources
-	extern String Resources;
+	extern QString Resources;
 
 	//@}
 
@@ -80,14 +80,14 @@ namespace Paths
 
 	//! The path-separator character according to the platform (stored in a string instead of a char)
 # ifdef TA3D_PLATFORM_WINDOWS
-	const String SeparatorAsString = "\\";
+    const QString SeparatorAsString = "\\";
 # else
-	const String SeparatorAsString = "/";
+    const QString SeparatorAsString = "/";
 # endif
 
 # ifdef TA3D_PLATFORM_WINDOWS
 	//! The folder for local data (Windows only)
-	extern String LocalData;
+	extern QString LocalData;
 # endif
 
 	//@}
@@ -104,7 +104,7 @@ namespace Paths
 	** \param p The folder/filename to test
 	** \return True if it exists, false otherwise
 	*/
-	bool Exists(const String& p);
+	bool Exists(const QString& p);
 
 	/*!
 	** \brief Create Path Recursively
@@ -112,19 +112,19 @@ namespace Paths
 	** \param p The path to create if it does not exist
 	** return True if the operation succeeded, false otherwise
 	*/
-	bool MakeDir(const String& p);
+	bool MakeDir(const QString& p);
 
     /*!
     ** \brief Remove Folder Recursively
     **
     ** \param p The folder to remove
     */
-    void RemoveDir(const String& p);
+    void RemoveDir(const QString& p);
 
 	/*!
 	** \brief Retrieve the current directory
 	*/
-	String CurrentDirectory();
+	QString CurrentDirectory();
 
 	/*!
 	** \brief Extract the path part of a filename
@@ -141,7 +141,7 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-	String ExtractFilePath(const String& p, const bool systemDependant = false);
+	QString ExtractFilePath(const QString& p, const bool systemDependant = false);
 
 	/*!
 	** \brief Extract the bare file name
@@ -153,9 +153,8 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-	String ExtractFileName(const String& p, const bool systemDependant = false);
-	void ExtractFileName(String::List& p, const bool systemDependant = false);
-	void ExtractFileName(String::Vector& p, const bool systemDependant = false);
+	QString ExtractFileName(const QString& p, const bool systemDependant = false);
+    void ExtractFileName(QStringList& p, const bool systemDependant = false);
 
 	/*!
 	** \brief Extract the bare file name without its extension
@@ -165,7 +164,7 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-    String ExtractFileNameWithoutExtension(const String& p, const bool systemDependant = false);
+    QString ExtractFileNameWithoutExtension(const QString& p, const bool systemDependant = false);
 
 	/*!
 	** \brief Extract the extention of a file name
@@ -177,7 +176,7 @@ namespace Paths
 	**     std::cout << Paths::Files::ExtractFileExt("/usr/folder.foo/file") << std::endl; // ''
 	** \endcode
 	*/
-	String ExtractFileExt(const String& s);
+	QString ExtractFileExt(const QString& s);
 
 
 	/*!
@@ -186,7 +185,7 @@ namespace Paths
 	** \param p The path or the filename to test
 	** \return True if the path is an absolute path or empty, false otherwise
 	*/
-	bool IsAbsolute(const String& p);
+	bool IsAbsolute(const QString& p);
 
 	//@}
 
@@ -205,10 +204,10 @@ namespace Paths
 	** false othewise
 	**
 	** \code
-	** String::Vector list;
+	** QStringList list;
 	** if (Paths::Glob(list, Paths::Savegames + "*.sav"))
 	** {
-	**      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+	**      for (QStringList::const_iterator i = list.begin(); i != list.end(); ++i)
 	**          std::cout << "Savegame found: `" << *i << std::endl;
 	** }
 	** else
@@ -217,8 +216,7 @@ namespace Paths
 	** }
 	** \endcode
 	*/
-	bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore = true, const bool relative = false);
-	bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true, const bool relative = false);
+    bool Glob(QStringList& out, const QString& pattern, const bool emptyListBefore = true, const bool relative = false);
 
 	/*!
 	** \brief Find files matching a pattern
@@ -230,10 +228,10 @@ namespace Paths
 	** false othewise
 	**
 	** \code
-	** String::Vector list;
+	** QStringList list;
 	** if (Paths::GlobFiles(list, Paths::Savegames + "*.sav"))
 	** {
-	**      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+	**      for (QStringList::const_iterator i = list.begin(); i != list.end(); ++i)
 	**          std::cout << "Savegame found: `" << *i << std::endl;
 	** }
 	** else
@@ -242,8 +240,7 @@ namespace Paths
 	** }
 	** \endcode
 	*/
-	bool GlobFiles(String::Vector& out, const String& pattern, const bool emptyListBefore = true, const bool relative = false);
-	bool GlobFiles(String::List& out, const String& pattern, const bool emptyListBefore = true, const bool relative = false);
+    bool GlobFiles(QStringList& out, const QString& pattern, const bool emptyListBefore = true, const bool relative = false);
 
 	/*!
 	** \brief Find directories matching a pattern
@@ -255,10 +252,10 @@ namespace Paths
 	** false othewise
 	**
 	** \code
-	** String::Vector list;
+	** QStringList list;
 	** if (Paths::GlobDirs(list, Paths::LocalData))
 	** {
-	**      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+	**      for (QStringList::const_iterator i = list.begin(); i != list.end(); ++i)
 	**          std::cout << "Sub directory found: `" << *i << std::endl;
 	** }
 	** else
@@ -267,8 +264,7 @@ namespace Paths
 	** }
 	** \endcode
 	*/
-	bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore = true, const bool relative = false);
-	bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore = true, const bool relative = false);
+    bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore = true, const bool relative = false);
 
 	//@} // Globbing
 
@@ -282,7 +278,7 @@ namespace Paths
 	**
 	** return False if any error has occured
 	*/
-	bool Initialize(int argc, char* argv[], const String& programName);
+	bool Initialize(int argc, char* argv[], const QString& programName);
 
 
 } // namespace Paths

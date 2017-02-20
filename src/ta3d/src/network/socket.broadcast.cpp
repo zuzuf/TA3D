@@ -4,7 +4,7 @@
 namespace TA3D
 {
 
-    void SocketBroadCast::open(const String& /*hostname*/, uint16 port)
+    void SocketBroadCast::open(const QString& /*hostname*/, uint16 port)
     {
         open(port);
     }

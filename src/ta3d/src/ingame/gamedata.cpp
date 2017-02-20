@@ -35,11 +35,11 @@ namespace TA3D
         use_only.clear();
         campaign = false;
         fog_of_war = FOW_DISABLED;
-		game_script = "scripts\\game\\default.lua";
+        game_script = "scripts/game/default.lua";
 
         team.resize(TA3D_PLAYERS_HARD_LIMIT);
-        player_names.resize(TA3D_PLAYERS_HARD_LIMIT);
-        player_sides.resize(TA3D_PLAYERS_HARD_LIMIT);
+        player_names.clear();
+        player_sides.clear();
         player_control.resize(TA3D_PLAYERS_HARD_LIMIT);
         ai_level.resize(TA3D_PLAYERS_HARD_LIMIT);
         energy.resize(TA3D_PLAYERS_HARD_LIMIT);
@@ -53,7 +53,8 @@ namespace TA3D
             ready[i] = false;
 			team[i] = uint16(1 << i);
 			player_control[i] = PLAYER_CONTROL_NONE;
-			player_names[i] = I18N::Translate("open");
+            player_names.push_back(I18N::Translate("open"));
+            player_sides.push_back(QString());
         }
     }
 
@@ -89,9 +90,10 @@ namespace TA3D
         return -1;
     }
 
-	String GameData::serialize() const
+	QString GameData::serialize() const
 	{
-		String data;
+        QString _data;
+        QTextStream data(&_data);
 		data << max_unit_per_player << ','
 			 << map_filename << ','
 			 << game_script << ','
@@ -108,25 +110,25 @@ namespace TA3D
 				 << metal[i] << ','
 				 << team[i] << ',';
 		}
-		return data;
+        data.flush();
+        return _data;
 	}
 
-	void GameData::unserialize(const String &data)
+	void GameData::unserialize(const QString &data)
 	{
-		String::Vector args;
-		data.explode(args, ',', false, true, true);
+        const QStringList &args = data.split(',', QString::SkipEmptyParts);
 
 		if (args.size() < 6)		// Not enough fields
 		{
 			LOG_ERROR(LOG_PREFIX_GAMEDATA << "not enought fields");
 			return;
 		}
-		max_unit_per_player = args[0].to<int>();
+		max_unit_per_player = args[0].toInt();
 		map_filename = args[1];
 		game_script = args[2];
 		use_only = args[3];
-		fog_of_war = (uint8)args[4].to<int>();
-		nb_players = args[5].to<int>();
+		fog_of_war = (uint8)args[4].toInt();
+		nb_players = args[5].toInt();
 		if ((int)args.size() < 6 + nb_players * 7)
 		{
 			LOG_ERROR(LOG_PREFIX_GAMEDATA << "player data missing");
@@ -136,11 +138,11 @@ namespace TA3D
 		{
 			player_names[i] = args[6 + i * 7];
 			player_sides[i] = args[7 + i * 7];
-			player_control[i] = (byte)args[8 + i * 7].to<int>();
+			player_control[i] = (byte)args[8 + i * 7].toInt();
 			ai_level[i] = args[9 + i * 7];
-			energy[i] = args[10 + i * 7].to<int>();
-			metal[i] = args[11 + i * 7].to<int>();
-			team[i] = (uint8)args[12 + i * 7].to<int>();
+			energy[i] = args[10 + i * 7].toInt();
+			metal[i] = args[11 + i * 7].toInt();
+			team[i] = (uint8)args[12 + i * 7].toInt();
 		}
 	}
 } // namespace TA3D

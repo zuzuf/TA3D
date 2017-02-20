@@ -64,7 +64,7 @@ namespace Menus
 		** \param color The color of the player
 		** \param value The text
 		*/
-		void doUpdateObject(const String& id, const short indx, const uint32 color, const String& value);
+		void doUpdateObject(const QString& id, const short indx, const uint32 color, const QString& value);
 
 	}; // class Statistics
 

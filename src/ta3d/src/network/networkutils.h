@@ -113,13 +113,13 @@ namespace TA3D
 			:timer(0), nb_open(0), internet(false)
 		{}
         //! Name of the server
-        String name;
+        QString name;
         //! Timeout for this server
         int timer;
         //! Count of opened player slots
         int nb_open;
         //! Host name of this server
-        String host;
+        QString host;
         //! Is an Internet (non-local) server ?
         bool internet;
     };
@@ -130,7 +130,7 @@ namespace TA3D
     */
     struct FileTransferProgress
     {
-        String	id;				// Pointer to transfer thread
+        QString	id;				// Pointer to transfer thread
         int		size;
         int		pos;
     };
