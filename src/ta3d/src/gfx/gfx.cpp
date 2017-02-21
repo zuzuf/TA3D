@@ -1702,7 +1702,7 @@ namespace TA3D
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
             return 0;
 
-        const QString upfile = ToUpper(file) + " (" + texFormat + "-" + QString::number(filter_type) + ')';
+        const QString &upfile = file.toUpper() + " (" + QString::number(texFormat) + "-" + QString::number(filter_type) + ')';
 		HashMap<Interfaces::GfxTexture>::Sparse::iterator it = textureIDs.find(upfile);
 		if (it != textureIDs.end() && it->tex > 0)		// File already loaded
 		{

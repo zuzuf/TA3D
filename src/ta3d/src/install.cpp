@@ -19,10 +19,7 @@
 #include "ta3dbase.h"
 #include "misc/math.h"
 #include "misc/paths.h"
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
-
+#include <QFile>
 
 namespace TA3D
 {
@@ -40,9 +37,10 @@ void install_TA_files( QString HPI_file, QString filename )
 	File *file = archive->readFile(filename);			// Extract the file
 	if (file)
 	{
-		Stream dst(QString(Paths::Resources) << Paths::ExtractFileName(filename), Yuni::Core::IO::OpenMode::write);
+        QFile dst(Paths::Resources + Paths::ExtractFileName(filename));
+        dst.open(QIODevice::WriteOnly);
 
-		if (dst.opened())
+        if (dst.isOpen())
 		{
 			dst.write(file->data(), file->size());
 

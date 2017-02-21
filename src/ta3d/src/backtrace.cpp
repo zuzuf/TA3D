@@ -79,13 +79,13 @@ void backtrace_handler (int signum)
 	pid_t mypid = getpid();
 	// Try to get a stack trace from GDB
     QStringList threads;
-    TA3D::System::run_command(QString("gdb --pid=") + mypid + " -ex \"info threads\" --batch").split('\n');
+    TA3D::System::run_command(QString("gdb --pid=%1").arg(mypid) + " -ex \"info threads\" --batch").split('\n');
     if (!threads.isEmpty())
 	{
         QString cmd = QString("gdb --pid=%1 -ex \"info threads\"").arg(mypid);
 		for(size_t i = 0 ; i < threads.size() ; ++i)
 		{
-			QString &line = threads[i];
+            QString &line = threads[i];
 			if (line.startsWith('[')
 				|| line.startsWith("0x")
 				|| line.startsWith('#'))

@@ -127,11 +127,10 @@ namespace TA3D
 		{
 			not_loaded = false;
 						// Try a GAF-like directory
-			anim.loadGAFFromDirectory(QString("anims\\") << filename, seqname);
+            anim.loadGAFFromDirectory("anims/" + filename, seqname);
 			if (anim.nb_bmp == 0)
 			{
-				QString tmp("anims\\");
-				tmp << filename << ".gaf";
+                const QString &tmp = "anims/" + filename + ".gaf";
 				File* gaf = VFS::Instance()->readFile(tmp);
 				if (gaf)
 				{
@@ -180,9 +179,9 @@ namespace TA3D
 
 	int FeatureManager::get_feature_index(const QString &name)
 	{
-		if (name.empty())
+        if (name.isEmpty())
 			return -1;
-		return feature_hashtable[ToLower(name)] - 1;
+        return feature_hashtable[name.toLower()] - 1;
 	}
 
 
@@ -192,7 +191,7 @@ namespace TA3D
 		++nb_features;
 		feature.push_back(new Feature);
 		feature.back()->name = name;
-		feature_hashtable[ToLower(name)] = nb_features;
+        feature_hashtable[name.toLower()] = nb_features;
 		return nb_features - 1;
 	}
 
@@ -232,12 +231,12 @@ namespace TA3D
 
 		std::vector<Feature*> vfeats;
 
-		for (int g = 0 ; parser.exists(QString("gadget") << g) ; g++)
+        for (int g = 0 ; parser.exists(QString("gadget%1").arg(g)) ; ++g)
 		{
-			const QString key = QString("gadget") << g << '.';
+            const QString &key = QString("gadget%1").arg(g) + '.';
 
 			mInternals.lock();
-			const int index = add_feature( parser.pullAsString(QString("gadget") << g) );
+            const int index = add_feature( parser.pullAsString(QString("gadget%1").arg(g)) );
 			Feature *pFeature = feature[index];
 			mInternals.unlock();
 
@@ -247,7 +246,7 @@ namespace TA3D
 			pFeature->description = parser.pullAsString( key + "description", pFeature->description );
 			pFeature->category = parser.pullAsString( key + "category", pFeature->category );
 			pFeature->filename = parser.pullAsString( key + "object" );
-			pFeature->m3d = !pFeature->filename.empty();
+            pFeature->m3d = !pFeature->filename.isEmpty();
 			if (!pFeature->m3d)
 			{
 				pFeature->filename = parser.pullAsString( key + "filename");
@@ -302,11 +301,11 @@ namespace TA3D
 		for (std::vector<Feature*>::iterator i = vfeats.begin() ; i != vfeats.end() ; ++i)// Charge les fichiers d'animation
 		{
 			Feature *pFeature = *i;
-			if (!pFeature->category.empty())
-				pFeature->vent = pFeature->category.find("vents") != -1;
-			if (!pFeature->filename.empty() && !pFeature->seqname.empty() && !pFeature->m3d)
+            if (!pFeature->category.isEmpty())
+                pFeature->vent = pFeature->category.contains("vents");
+            if (!pFeature->filename.isEmpty() && !pFeature->seqname.isEmpty() && !pFeature->m3d)
 			{
-				if (model_manager.get_model(QString(pFeature->filename) << '-' << pFeature->seqname) != NULL) // Check if there is a 3do version of it
+                if (model_manager.get_model(pFeature->filename + '-' + pFeature->seqname) != NULL) // Check if there is a 3do version of it
 				{
 					pFeature->model = NULL;
 					pFeature->m3d = true;
@@ -317,10 +316,9 @@ namespace TA3D
 				{
 					pFeature->not_loaded = true;
 					if (pFeature->height <= 10.0f && pFeature->height > 1.0f && pFeature->blocking
-						&& ToLower(pFeature->description) != "metal") // Tente une conversion en 3d
+                        && pFeature->description.toLower() != "metal") // Tente une conversion en 3d
 					{
-						QString tmp("anims\\");
-						tmp << pFeature->filename << ".gaf";
+                        const QString &tmp = "anims/" + pFeature->filename + ".gaf";
 						File* gaf = VFS::Instance()->readFile(tmp);
 						if (gaf)
 						{
@@ -337,7 +335,7 @@ namespace TA3D
 			}
 			else
 			{
-				if (!pFeature->filename.empty() && pFeature->m3d)
+                if (!pFeature->filename.isEmpty() && pFeature->m3d)
 					pFeature->model = NULL;
 			}
 		}
@@ -348,7 +346,7 @@ namespace TA3D
 	void load_features(ProgressNotifier *progress) // Charge tout les éléments
 	{
 		QStringList files;
-		VFS::Instance()->getFilelist("features\\*.tdf", files);
+        VFS::Instance()->getFilelist("features/*.tdf", files);
 		volatile int n = 0, m = 0;
 
 		const size_t end = files.size();
@@ -417,17 +415,16 @@ namespace TA3D
 		{
 			Feature *feature = feature_manager.getFeaturePointer(i);
 			if (feature->m3d && feature->model == NULL
-				&& !feature->filename.empty() && !feature->seqname.empty())
+                && !feature->filename.isEmpty() && !feature->seqname.isEmpty())
 			{
-				QString tmp = feature->filename;
-				tmp << "-" << feature->seqname;
+                const QString &tmp = feature->filename + "-" + feature->seqname;
 				feature->model = model_manager.get_model(tmp);
 				if (feature->model == NULL)
-					feature->model = model_manager.get_model(QString("objects3d\\") << tmp);
+                    feature->model = model_manager.get_model("objects3d/" + tmp);
 			}
 			else
 			{
-				if (feature->m3d && feature->model == NULL && !feature->filename.empty())
+                if (feature->m3d && feature->model == NULL && !feature->filename.isEmpty())
 					feature->model = model_manager.get_model(feature->filename);
 			}
 		}
@@ -455,8 +452,8 @@ namespace TA3D
 		feature = NULL;
 		list.clear();
 		symbolic_features.clear();
-		icons[0].load("gfx\\tactical_icons\\metal_deposit.tga");
-		icons[1].load("gfx\\tactical_icons\\geothermal.tga");
+        icons[0].load("gfx/tactical_icons/metal_deposit.tga");
+        icons[1].load("gfx/tactical_icons/geothermal.tga");
 	}
 
 
@@ -930,7 +927,7 @@ namespace TA3D
 				burning_features.push_back(idx);		// It's burning 8)
 
 				// Start doing damages to things around
-				if (!pFeature->burnweapon.empty())
+                if (!pFeature->burnweapon.isEmpty())
 				{
 					int w_idx = weapon_manager.get_weapon_index(pFeature->burnweapon);
 					feature[ idx ].BW_idx = w_idx;
@@ -998,7 +995,7 @@ namespace TA3D
 				delete_feature(e);
 
 				// Replace the feature if needed (with the burnt feature)
-				if (!pFeature->feature_burnt.empty())
+                if (!pFeature->feature_burnt.isEmpty())
 				{
 					const int burnt_type = feature_manager.get_feature_index( pFeature->feature_burnt);
 					if (burnt_type >= 0)
@@ -1138,14 +1135,14 @@ namespace TA3D
 
 		const Feature *pFeature = feature_manager.getFeaturePointer(feature[idx].type);
 
-		if (!pFeature->description.empty())
+        if (!pFeature->description.isEmpty())
 		{
 			const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
 			if (pFeature->reclaimable)
 				gfx->print(gfx->normal_font,
 						   (float)side_data.Description.x1,
 						   (float)side_data.Description.y1,
-						   0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) << " M:" << pFeature->metal << " E:" << pFeature->energy );
+                           0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) + QString(" M:%1 E:%2").arg(pFeature->metal).arg(pFeature->energy) );
 			else
 				gfx->print(gfx->normal_font,
 						   (float)side_data.Description.x1,

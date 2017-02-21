@@ -117,9 +117,9 @@ namespace Menus
 			pContent.push_back(nullptr);
 
 		// Load all text files
-		File *file = VFS::Instance()->readFile(QString("intro") << Paths::SeparatorAsString << I18N::Translate("en.ta3d.txt"));
+        File *file = VFS::Instance()->readFile("intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"));
 		if (file == NULL)
-			throw(QString("Intro file not found! (") << "intro" << Paths::SeparatorAsString << I18N::Translate("en.ta3d.txt") << ')');
+            throw std::runtime_error(("Intro file not found! (intro/" + I18N::Translate("en.ta3d.txt") + ')').toStdString());
 		if (file->size() <= 5 * 1024)
 			file->load(pContent);
 		delete file;
@@ -136,20 +136,18 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (!lp_CONFIG->skin_name.empty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
+        if (!lp_CONFIG->skin_name.isEmpty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
 		{
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
-			if (!skin.prefix().empty())
-				ResetTexture(pBackgroundTexture, gfx->load_texture(QString("gfx") << Paths::SeparatorAsString << skin.prefix() << "intro.jpg"));
+            if (!skin.prefix().isEmpty())
+                ResetTexture(pBackgroundTexture, gfx->load_texture("gfx/" + skin.prefix() + "intro.jpg"));
 			else
-				ResetTexture(pBackgroundTexture, gfx->load_texture(QString("gfx") << Paths::SeparatorAsString << "intro.jpg"));
+                ResetTexture(pBackgroundTexture, gfx->load_texture("gfx/intro.jpg"));
 		}
 		else
-		{
-			ResetTexture(pBackgroundTexture, gfx->load_texture(QString("gfx") << Paths::SeparatorAsString << "intro.jpg"));
-		}
+            ResetTexture(pBackgroundTexture, gfx->load_texture("gfx/intro.jpg"));
 	}
 
 

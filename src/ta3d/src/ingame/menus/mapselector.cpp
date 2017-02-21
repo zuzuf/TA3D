@@ -59,7 +59,7 @@ namespace Menus
 		mapName.clear();
 		if (m.execute())
 			mapName = m.selected();
-		return !mapName.empty();
+        return !mapName.isEmpty();
 	}
 
 
@@ -152,10 +152,10 @@ namespace Menus
 		if (pMapListObj)
 		{
 			// Load all maps
-			pMapListObj->Text.resize(pCachedSizeOfListOfMaps);
-			int indx(0);
-			for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != pListOfMaps.end(); ++i, ++indx)
-				pMapListObj->Text[indx] = i->utf8valid() ? *i : ConvertToUTF8(*i);
+            pMapListObj->Text.clear();
+            pMapListObj->Text.reserve(pCachedSizeOfListOfMaps);
+            for (const QString &i : pListOfMaps)
+                pMapListObj->Text.push_back(i);
 		}
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
 	}
@@ -210,7 +210,7 @@ namespace Menus
 
 	void MapSelector::doFinalize()
 	{
-		if (!pSelectedMap.empty())
+        if (!pSelectedMap.isEmpty())
 			LOG_INFO(LOG_PREFIX_MENU_MAPSELECTOR << "The map `" << pSelectedMap << "` has been selected.");
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "Done.");
 	}
@@ -265,14 +265,12 @@ namespace Menus
 		pLastMapIndex = mapIndex;
 
 		// The new map name
-		pSelectedMap.clear();
-		pSelectedMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".tnt";
+        pSelectedMap = "maps/" + pListOfMaps[mapIndex] + ".tnt";
 		// Reload the mini map
 		ResetTexture(pMiniMapTexture, load_tnt_minimap_fast(pSelectedMap, dx, dy));
 
 		// OTA
-		QString otaMap;
-		otaMap << "maps" << '\\' << pListOfMaps[mapIndex] << ".ota";
+        const QString &otaMap = "maps/" + pListOfMaps[mapIndex] + ".ota";
 		MAP_OTA mapOTA;
 		if (File* file = VFS::Instance()->readFile(otaMap))
 		{
@@ -307,29 +305,28 @@ namespace Menus
 		QString title;
 
 		// Name of the mission
-		if(!mapOTA.missionname.empty())
-			title << mapOTA.missionname << "\n";
+        if(!mapOTA.missionname.isEmpty())
+            title = mapOTA.missionname + "\n";
 		// Maximum allowed players for this map
-		if(!mapOTA.numplayers.empty())
-			title << "\n" << I18N::Translate("players: ") << mapOTA.numplayers << "\n";
+        if(!mapOTA.numplayers.isEmpty())
+            title += "\n" + I18N::Translate("players: ") + mapOTA.numplayers + "\n";
 		// Description
-		if(!mapOTA.missiondescription.empty())
-			title << "\n" << mapOTA.missiondescription;
+        if(!mapOTA.missiondescription.isEmpty())
+            title += "\n" + mapOTA.missiondescription;
 
 		// Change the caption
-		pArea->caption("mapsetup.map_info", title.utf8valid() ? title : ConvertToUTF8(title));
+        pArea->caption("mapsetup.map_info", title);
 	}
 
 
 	bool MapSelector::MapIsForNetworkGame(const QString& mapShortName)
 	{
-		File* file = VFS::Instance()->readFileRange(QString("maps\\") << mapShortName << QString(".ota"), 0, 10240);
+        File* file = VFS::Instance()->readFileRange("maps/" + mapShortName + ".ota", 0, 10240);
 		if (file)
 		{
 			TDFParser ota_parser;
 			ota_parser.loadFromMemory(mapShortName, (const char*)file->data(), Math::Min(file->size(), 10240), false, false, false);
-			QString tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type");
-			tmp.toLower();
+            const QString &tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type").toLower();
 			delete file;
 			return tmp.startsWith("network");
 		}
@@ -344,7 +341,7 @@ namespace Menus
 
 		// Load all available maps, without any distinction
 		ListOfMaps allMaps;
-		if (VFS::Instance()->getFilelist("maps\\*.tnt", allMaps) > 0)
+        if (VFS::Instance()->getFilelist("maps/*.tnt", allMaps) > 0)
 		{
 			for (ListOfMaps::const_iterator it = allMaps.begin(); it != allMaps.end(); ++it)
 			{

@@ -1548,7 +1548,7 @@ namespace TA3D
 			/*------------------- Draw GUI components -------------------------------------------------------*/
 
 			Gui::WND::Ptr pWnd = pArea.get_wnd(pCurrentGUI);
-			int scrolling = pWnd != NULL ? pWnd->scrolling : 0;
+            int scrolling = pWnd ? pWnd->scrolling : 0;
             if (pCurrentGUI != ta3dSideData.side_pref[players.side_view] + "gen")
 				unit_manager.unit_build_menu(n, omb2, dt, scrolling, true);	// Draw GUI background
 			else
@@ -1606,7 +1606,7 @@ namespace TA3D
 			{
 				pArea.msg(pCurrentGUICache[cgcHide]);	// Hide it
                 pCurrentGUI = unit_manager.unit_type[n]->Unitname + "1";
-				if (pArea.get_wnd(pCurrentGUI) == NULL)
+                if (!pArea.get_wnd(pCurrentGUI))
 				{
                     const QString &filename = (ta3dSideData.guis_dir + pCurrentGUI + ".gui").toLower();
 					if (toBeLoadedMenuSet.count(filename))
@@ -1806,21 +1806,21 @@ namespace TA3D
                     pArea.set_enable_flag( genGUI + ".ARMBLAST", candgun);
 
                     onoff_gui = pArea.get_object(genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ONOFF");
-					if (onoff_gui == NULL)
+                    if (!onoff_gui)
                         onoff_gui = pArea.get_object(genGUI + ".ARMONOFF");
 
 					if (onoff_gui)
 						onoff_gui->current_state = byte(onoff_state - 1);
 
                     sorder_gui = pArea.get_object( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "FIREORD");
-					if (sorder_gui == NULL)
+                    if (!sorder_gui)
                         sorder_gui = pArea.get_object( genGUI + ".ARMFIREORD");
 
 					if (sorder_gui)
 						sorder_gui->current_state = sforder;
 
                     sorder_gui = pArea.get_object( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
-					if (sorder_gui == NULL)
+                    if (!sorder_gui)
                         sorder_gui = pArea.get_object( genGUI + ".ARMMOVEORD");
 
 					if (sorder_gui)
@@ -1876,7 +1876,7 @@ namespace TA3D
 				sound_manager->playTDFSound( "BUILDBUTTON", "sound" , NULL);
 				pArea.msg( pCurrentGUICache[cgcHide] );	// Hide it
                 pCurrentGUI = unit_manager.unit_type[old_gui_sel]->Unitname + '1';
-				if (pArea.get_wnd(pCurrentGUI) == NULL)
+                if (!pArea.get_wnd(pCurrentGUI))
 				{
                     const QString &filename = (ta3dSideData.guis_dir + pCurrentGUI + ".gui").toLower();
 					if (toBeLoadedMenuSet.count(filename))

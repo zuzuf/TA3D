@@ -266,7 +266,7 @@ namespace TA3D
 			units.unit[task.idx].unlock();
 
 		// Get the precomputed walkable area quadmap
-        const BitMap *bmap = Pathfinder::instance()->hBitMap[pType->getMoveQStringID()];
+        const BitMap *bmap = Pathfinder::instance()->hBitMap[pType->getMoveStringID()];
 		if (!bmap)
 		{
 			LOG_ERROR(LOG_PREFIX_PATHS << "path request for a unit without precomputed walkable area quadmap");
@@ -731,7 +731,7 @@ namespace TA3D
 					mLoad.lock();
 					continue;
 				}
-                const QString key = pType->getMoveQStringID();
+                const QString key = pType->getMoveStringID();
 				mLoad.lock();
 				if (hBitMap.count(key))		// Already done ?
 					continue;

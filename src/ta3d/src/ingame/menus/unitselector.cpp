@@ -37,7 +37,7 @@ namespace Menus
 		UnitSelector m(preSelectedUnits);
 		bool r = m.execute();
 		useOnly = (r) ? m.selected() : preSelectedUnits;
-		return (r && (!useOnly.empty()));
+        return (r && (!useOnly.isEmpty()));
 	}
 
 
@@ -76,14 +76,14 @@ namespace Menus
 		if (!unit_manager.nb_unit) // should abort if no map is present
 			return false;
 
-		if (!pUseOnly.empty())          // Load previous selection
+        if (!pUseOnly.isEmpty())          // Load previous selection
 		{
 			TDFParser useonly_parser(pUseOnly, false, false, true); // In gadgets mode so we can read the special key :)
 			for (int i = 0; i < unit_manager.nb_unit ; i++)
 				unit_manager.unit_type[i]->not_used = true;
 			QString unit_name;
 			int i = 0;
-            while (!(unit_name = useonly_parser.pullAsString(QString("gadget") << i)).empty())
+            while (!(unit_name = useonly_parser.pullAsString(QString("gadget%1").arg(i))).isEmpty())
 			{
 				int idx = unit_manager.get_unit_index( unit_name );
 				if (idx >= 0)
@@ -102,9 +102,7 @@ namespace Menus
 		if (!pUnitPicObj)
 			LOG_ERROR(LOG_PREFIX_MENU_UNITSELECTOR << "Can not find the GUI object `unitsetup.unitpic`");
 		else
-		{
 			pUnitPicObj->Data = 0;
-		}
 
 		// The control which contains all available maps
 		pUnitListObj = pArea->get_object("unitsetup.unit_list");
@@ -119,14 +117,14 @@ namespace Menus
 		if (pUnitListObj)
 		{
 			// Load all units
-			pUnitListObj->Text.resize(pUnitList.size());
-			QStringList::iterator it = pUnitList.begin();
-			for (unsigned int i = 0 ; i < pUnitList.size() ; ++i, ++it)
+            pUnitListObj->Text.clear();
+            pUnitListObj->Text.reserve(pUnitList.size());
+            for (const QString &i : pUnitList)
 			{
-				pUnitListObj->Text[i] = *it;
-				const int type_id = unit_manager.get_unit_index(*it);
+                pUnitListObj->Text.push_back(i);
+                const int type_id = unit_manager.get_unit_index(i);
 				if (type_id >= 0 && !unit_manager.unit_type[type_id]->not_used)
-					pUnitListObj->Text[i] = QString("<H>") << pUnitListObj->Text[i];
+                    pUnitListObj->Text.back() = "<H>" + pUnitListObj->Text.back();
 			}
 		}
 	}
@@ -190,21 +188,15 @@ namespace Menus
 		{
 			if (pArea->get_state("unitsetup.c_enabled"))        // Enable
 			{
-				QString UnitName = pUnitListObj->Text[ pLastUnitIndex ];
+                QString &UnitName = pUnitListObj->Text[ pLastUnitIndex ];
 				if (UnitName.size() > 0 && UnitName[0] != '<')
-				{
-					UnitName = QString("<H>") << UnitName;
-					pUnitListObj->Text[ pLastUnitIndex ] = UnitName;
-				}
+                    UnitName = "<H>" + UnitName;
 			}
 			else                                                // Disable
 			{
-				QString UnitName = pUnitListObj->Text[ pLastUnitIndex ];
+                QString &UnitName = pUnitListObj->Text[ pLastUnitIndex ];
 				if (UnitName.size() > 0 && UnitName[0] == '<')
-				{
 					UnitName = Substr(UnitName, 3, UnitName.size() - 3);
-					pUnitListObj->Text[ pLastUnitIndex ] = UnitName;
-				}
 			}
 		}
 
@@ -261,8 +253,8 @@ namespace Menus
 				pUnitPicObj->Data = unit_manager.unit_type[type_id]->glpic;
 
 				QString info_string;
-				info_string << unit_manager.unit_type[type_id]->name << "\n\n";
-				info_string << unit_manager.unit_type[type_id]->Description << "\n";
+                info_string += unit_manager.unit_type[type_id]->name + "\n\n";
+                info_string += unit_manager.unit_type[type_id]->Description + "\n";
 				pArea->caption("unitsetup.unit_info", info_string);
 			}
 		}
@@ -270,14 +262,11 @@ namespace Menus
 
 	void UnitSelector::createUseOnlyFile()
 	{
-		TA3D::Paths::MakeDir(QString(TA3D::Paths::Resources) << "useonly");
+        TA3D::Paths::MakeDir(TA3D::Paths::Resources + "useonly");
 		pUseOnly = "useonly/useonly.tdf";
-		QString filename;
-		filename << TA3D::Paths::Resources << pUseOnly;
+        QString filename = TA3D::Paths::Resources + pUseOnly;
 
-		QString s;
-		s << "// Use Only file\n"
-		  << "\n";
+        QString s = "// Use Only file\n\n";
 
 		QString UnitName;
 		for (unsigned int i = 0; i < pUnitListObj->Text.size(); ++i)            // For each selected unit
@@ -285,8 +274,7 @@ namespace Menus
 			if (pUnitListObj->Text[i][0] == '<')                        // create an empty section with the unit name
 			{
 				UnitName = pUnitListObj->Text[i];
-				s   << '[' << Substr(UnitName, 3, UnitName.size() - 3) << "]\n"
-					<< "{\n}\n";
+                s   += '[' + Substr(UnitName, 3, UnitName.size() - 3) + "]\n{\n}\n";
 			}
 		}
 

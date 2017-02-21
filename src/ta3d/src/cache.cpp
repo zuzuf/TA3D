@@ -3,9 +3,7 @@
 #include "misc/string.h"
 #include "misc/paths.h"
 #include "TA3D_NameSpace.h"
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
+#include <QFile>
 
 namespace TA3D
 {
@@ -16,14 +14,15 @@ namespace Cache
 	{
 		bool rebuild_cache = false;
 		// Check cache date
-		const QString cache_info_data = (lp_CONFIG
-			? QString("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : " << lp_CONFIG->last_MOD << '\n'
-			: QString("build info : ") << __DATE__ << " , " << __TIME__ << "\ncurrent mod : \n") << "Texture Quality : " << lp_CONFIG->unitTextureQuality;
+        const QString cache_info_data = lp_CONFIG
+            ? QString("build info : " __DATE__ " , " __TIME__ "\ncurrent mod : ") + lp_CONFIG->last_MOD + '\n'
+            : QString("build info : " __DATE__ " , " __TIME__ "\ncurrent mod : \nTexture Quality : %1").arg(lp_CONFIG->unitTextureQuality);
 
-		if (Paths::Exists(QString(Paths::Caches) << "cache_info.txt") && !force)
+        if (Paths::Exists(Paths::Caches + "cache_info.txt") && !force)
 		{
-			Stream cache_info(QString(Paths::Caches) << "cache_info.txt", Yuni::Core::IO::OpenMode::read);
-			if (cache_info.opened())
+            QFile cache_info(Paths::Caches + "cache_info.txt");
+            cache_info.open(QIODevice::ReadOnly);
+            if (cache_info.isOpen())
 			{
 				char *buf = new char[cache_info_data.size() + 1];
 				if (buf)
@@ -48,15 +47,16 @@ namespace Cache
 		if (rebuild_cache)
 		{
 			QStringList file_list;
-			Paths::GlobFiles(file_list, QString(Paths::Caches) << "*");
-			for (QStringList::iterator i = file_list.begin(); i != file_list.end(); ++i)
-				remove(i->c_str());
+            Paths::GlobFiles(file_list, Paths::Caches + "*");
+            for (const QString &i : file_list)
+                QFile(i).remove();
 			// Update cache date
-			Stream cache_info(QString(Paths::Caches) << "cache_info.txt", Yuni::Core::IO::OpenMode::write);
-			if (cache_info.opened())
+            QFile cache_info(Paths::Caches + "cache_info.txt");
+            cache_info.open(QIODevice::WriteOnly);
+            if (cache_info.isOpen())
 			{
-				cache_info.write(cache_info_data.c_str(), cache_info_data.size());
-				cache_info.put(0);
+                cache_info.write(cache_info_data.toStdString().c_str(), cache_info_data.size());
+                cache_info.putChar(0);
 				cache_info.close();
 			}
 		}

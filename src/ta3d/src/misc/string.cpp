@@ -12,7 +12,23 @@ namespace TA3D
         return ((-1 == iFind) ? -1 : (sint32)iFind);
 	}
 
-
+    int ASCIItoUTF8(const byte c, byte *out)
+    {
+        if (c < 0x80)
+        {
+            *out = c;
+            return 1;
+        }
+        else if(c < 0xC0)
+        {
+            out[0] = 0xC2;
+            out[1] = c;
+            return 2;
+        }
+        out[0] = 0xC3;
+        out[1] = static_cast<byte>(c - 0x40);
+        return 2;
+    }
 
     QString InttoUTF8(const uint16 c)
 	{
@@ -168,8 +184,8 @@ namespace TA3D
     QString Escape(const QString& s)
 	{
         QString r(s);
-        r.replace("\\\\", "\\");
-        r.replace("\\\"", "\"");
+        r.replace("\\", "\\\\");
+        r.replace("\"", "\\\"");
 		return r;
 	}
 }

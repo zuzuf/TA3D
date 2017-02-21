@@ -90,11 +90,11 @@ namespace Menus
 		// Loading the area
 		loadAreaFromTDF("campaign", "gui/campaign.area");
 
-		VFS::Instance()->getFilelist("camps\\*.tdf", campaign_list);
+        VFS::Instance()->getFilelist("camps/*.tdf", campaign_list);
 		campaign_list.sort();
 		for (QStringList::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
 		{
-			if (SearchQString(Substr(*i, 6, i->size() - 6), "/", true) != -1 || SearchQString(Substr(*i, 6, i->size() - 6), "\\", true ) != -1)
+            if (Substr(*i, 6, i->size() - 6).contains("/") || Substr(*i, 6, i->size() - 6).contains("\\"))
 				campaign_list.erase(i++);
 			else
 				++i;
@@ -104,16 +104,15 @@ namespace Menus
 		{
 			Gui::GUIOBJ::Ptr guiobj = pArea->get_object("campaign.campaign_list");
 			guiobj->Text.clear();
-			guiobj->Text.resize(campaign_list.size());
-			int n = 0;
-			for (QStringList::const_iterator i = campaign_list.begin(); i != campaign_list.end(); ++i, ++n)
-				guiobj->Text[n] = Substr(*i, 6, i->size() - 10);
+            guiobj->Text.reserve(campaign_list.size());
+            for (const QString &i : campaign_list)
+                guiobj->Text.push_back(Substr(i, 6, i.size() - 10));
 		}
 
-		side_logos.loadGAFFromDirectory("anims\\newgame", true);
+        side_logos.loadGAFFromDirectory("anims/newgame", true);
 		if (side_logos.size() == 0)
 		{
-			File *file = VFS::Instance()->readFile( "anims\\newgame.gaf");
+            File *file = VFS::Instance()->readFile( "anims/newgame.gaf");
 			side_logos.loadGAFFromRawData(file, true);
 			delete file;
 		}
@@ -158,7 +157,7 @@ namespace Menus
 			{
 				last_campaign_id = guiobj->Pos;
 				mission_id = -1;
-				campaign_name = QString("camps\\") << guiobj->Text[ guiobj->Pos ] << ".tdf";
+                campaign_name = "camps/" + guiobj->Text[ guiobj->Pos ] + ".tdf";
 				campaign_parser = new TDFParser( campaign_name);
 
 				guiobj = pArea->get_object("campaign.mission_list");
@@ -168,7 +167,7 @@ namespace Menus
 					guiobj->Text.clear();
 					int i = 0;
 					QString current_name;
-					while (!(current_name = campaign_parser->pullAsString(QString("MISSION") << i << ".missionname")).empty())
+                    while (!(current_name = campaign_parser->pullAsString(QString("MISSION%1.missionname").arg(i))).isEmpty())
 					{
 						guiobj->Text.push_back(current_name);
 						++nb_mission;
@@ -182,7 +181,7 @@ namespace Menus
 					guiobj->Data = 0;
 					for (int i = 0 ; i < ta3dSideData.nb_side ; ++i)
 					{
-						if (ToLower(ta3dSideData.side_name[i] ) == ToLower(campaign_parser->pullAsString("HEADER.campaignside")))
+                        if (ta3dSideData.side_name[i].toLower() == campaign_parser->pullAsString("HEADER.campaignside").toLower())
 						{
 							if (side_logos.size() > i)
 								guiobj->Data = side_logos[i].glbmp[0];

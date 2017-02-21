@@ -27,6 +27,7 @@
 #include <cache.h>
 #include <ingame/sidedata.h>
 #include "setupgame.h"
+#include <QProcess>
 
 namespace TA3D
 {
@@ -43,11 +44,11 @@ namespace Menus
     {
         if (Gui::AREA::current())
         {
-			int idx = Gui::AREA::current()->load_window("gui/progress.tdf", QString("dl") << wndNumber++);
+            int idx = Gui::AREA::current()->load_window("gui/progress.tdf", QString("dl%1").arg(wndNumber++));
 			wnd = Gui::AREA::current()->get_window_name(idx);
             Gui::AREA::current()->title(wnd, url);
-			Gui::AREA::current()->set_data(QString(wnd) << ".progress", 0);
-			Gui::AREA::current()->msg(QString(wnd) << ".show");
+            Gui::AREA::current()->set_data(wnd + ".progress", 0);
+            Gui::AREA::current()->msg(wnd + ".show");
 			this->lastProgress = 0;
 		}
 		this->modID = mID;
@@ -63,7 +64,7 @@ namespace Menus
     void NetMenu::Download::stop()
     {
         if (Gui::AREA::current())
-			Gui::AREA::current()->msg(QString(wnd) << ".hide");
+            Gui::AREA::current()->msg(wnd + ".hide");
         http.stop();
     }
 
@@ -76,12 +77,12 @@ namespace Menus
 				int p = (int)http.getProgress();
 				if (p != lastProgress)		// Don't update too often, it forces refreshing GUI
 				{
-					Gui::AREA::current()->set_data(QString(wnd) << ".progress", p);
+                    Gui::AREA::current()->set_data(wnd + ".progress", p);
 					this->lastProgress = p;
 				}
 			}
             else
-				Gui::AREA::current()->msg(QString(wnd) << ".hide");
+                Gui::AREA::current()->msg(wnd + ".hide");
         }
     }
 
@@ -178,11 +179,10 @@ namespace Menus
 			}
 			else if (msg.startsWith("MSG"))
 			{
-				QStringList args = SplitCommand(msg);
+                const QStringList &args = SplitCommand(msg);
 				if (args.size() >= 3)
 				{
-					QString message;
-					message << args[1] << " > " << args[2];
+                    const QString &message = args[1] + " > " + args[2];
 					addChatMessage(message);
 				}
 			}
@@ -235,13 +235,12 @@ namespace Menus
 						pArea->caption("mods.m_version", pIdx->getVersion());
 						pArea->caption("mods.m_author", pIdx->getAuthor());
 						pArea->caption("mods.m_comment", pIdx->getComment());
-						QString dir = pIdx->getPathToMod();
-						QString filename = dir;
-						filename << Paths::SeparatorAsString << Paths::ExtractFileName(pIdx->getUrl());
+                        const QString &dir = pIdx->getPathToMod();
+                        const QString &filename = dir + Paths::SeparatorAsString + Paths::ExtractFileName(pIdx->getUrl());
 
 						if (pIdx->isInstalled())
 						{
-							if (TA3D_CURRENT_MOD != (QString("mods/") << pIdx->getName() << '/') && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.empty()))
+                            if (TA3D_CURRENT_MOD != ("mods/" + pIdx->getName() + '/') && (pIdx->getID() != -1 || !TA3D_CURRENT_MOD.isEmpty()))
 								pArea->msg("mods.b_load.enable");
 							else
 								pArea->msg("mods.b_load.disable");
@@ -341,22 +340,22 @@ namespace Menus
 						pArea->caption("netgames.server_open_slots", nullptr);
 					}
 					else if (pArea->get_state("netgames.b_join"))
-						NetClient::instance()->sendMessage(QString("JOIN \"") << Escape(serverListObj->Text[idx]) << "\"");
+                        NetClient::instance()->sendMessage("JOIN \"" + Escape(serverListObj->Text[idx]) + "\"");
 				}
 				if (pArea->get_state("netgames.b_refresh"))     // Refresh server list
 					NetClient::instance()->sendMessage("GET SERVER LIST");
 			}		// Enf of if (pArea->get_state("netgames"))
 			if (pArea->get_state("hosting.b_ok"))
 			{
-				if (TA3D_CURRENT_MOD.empty())
-					NetClient::instance()->sendMessage(QString("SERVER NAME \"") << Escape(pArea->caption("hosting.t_hostname")) << "\" MOD \"\"");
+                if (TA3D_CURRENT_MOD.isEmpty())
+                    NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"\"");
 				else
-					NetClient::instance()->sendMessage(QString("SERVER NAME \"") << Escape(pArea->caption("hosting.t_hostname")) << "\" MOD \"" << Escape(Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.size() - 6)) << "\"");
+                    NetClient::instance()->sendMessage("SERVER NAME \"" + Escape(pArea->caption("hosting.t_hostname")) + "\" MOD \"" + Escape(Substr(TA3D_CURRENT_MOD, 5, TA3D_CURRENT_MOD.size() - 6)) + "\"");
 				pArea->set_state("hosting.b_ok", false);
 			}
 			else if (NetClient::instance()->getHostAck())		// NetServer is ready, let's go!
 				hostAGame();
-			if (!NetClient::instance()->getServerJoined().empty())		// We're free to call the server :)
+            if (!NetClient::instance()->getServerJoined().isEmpty())		// We're free to call the server :)
 				joinAGame();
 		}
 		else
@@ -378,10 +377,9 @@ namespace Menus
 					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar"
 						|| ext == ".gz" || ext == ".bz2" || ext == ".tar.gz" || ext == ".tar.bz2")
 					{
-						QString command;
-						command << lp_CONFIG->system7zCommand << " x \"" << filename << "\" -o\"" << Paths::ExtractFilePath(filename) << '"';
+                        const QString &command = lp_CONFIG->system7zCommand + " x \"" + filename + "\" -o\"" + Paths::ExtractFilePath(filename) + '"';
 						LOG_INFO(LOG_PREFIX_SYSTEM << "running command : '" << command << "'");
-						if (system(command.c_str()))
+                        if (QProcess::execute(command))
 						{
 							LOG_ERROR(LOG_PREFIX_SYSTEM << "error running command!");
 							success = false;
@@ -429,7 +427,7 @@ namespace Menus
 				switch(askMode)
 				{
 					case NONE:
-						if (login.empty())
+                        if (login.isEmpty())
 						{
 							askMode = LOGIN;
 							pArea->title("ask", I18N::Translate("Login"));
@@ -437,7 +435,7 @@ namespace Menus
 							pArea->msg("ask.t_result.focus");
 							pArea->msg("ask.show");
 						}
-						else if (password.empty())
+                        else if (password.isEmpty())
 						{
 							askMode = PASSWORD;
 							pArea->title("ask", I18N::Translate("Password"));
@@ -450,7 +448,7 @@ namespace Menus
 
 							NetClient::instance()->connect(lp_CONFIG->net_server, 4240, login, password);
 							if (NetClient::instance()->getState() == NetClient::CONNECTED)
-								addChatMessage(QString("you are logged as ") << NetClient::instance()->getLogin());
+                                addChatMessage("you are logged as " + NetClient::instance()->getLogin());
 							netMode = NONE;
 						}
 						break;
@@ -490,7 +488,7 @@ namespace Menus
 				switch(askMode)
 				{
 					case NONE:
-						if (login.empty())
+                        if (login.isEmpty())
 						{
 							askMode = LOGIN;
 							pArea->title("ask", I18N::Translate("New account - login"));
@@ -498,7 +496,7 @@ namespace Menus
 							pArea->msg("ask.t_result.focus");
 							pArea->msg("ask.show");
 						}
-						else if (password.empty())
+                        else if (password.isEmpty())
 						{
 							askMode = PASSWORD;
 							pArea->title("ask", I18N::Translate("New account - password"));
@@ -511,8 +509,8 @@ namespace Menus
 							NetClient::instance()->connect(lp_CONFIG->net_server, 4240, login, password, true);
 							if (NetClient::instance()->getState() == NetClient::CONNECTED)
 							{
-								addChatMessage(QString("you successfully registered as ") << NetClient::instance()->getLogin());
-								addChatMessage(QString("you are logged as ") << NetClient::instance()->getLogin());
+                                addChatMessage("you successfully registered as " + NetClient::instance()->getLogin());
+                                addChatMessage("you are logged as " + NetClient::instance()->getLogin());
 							}
 							netMode = NONE;
 						}
@@ -593,9 +591,9 @@ namespace Menus
 				{
 					QString msg = pArea->caption("netmenu.input");
 					pArea->caption("netmenu.input", "");
-					if (!msg.empty())
+                    if (!msg.isEmpty())
 					{
-						if (msg.first() == '/')      // Command mode (IRC like :p)
+                        if (msg.startsWith('/'))      // Command mode (IRC like :p)
 						{
 							if (msg.startsWith("/CHAN"))      // Change chan (this is done using NetClient interface)
 							{
@@ -613,7 +611,7 @@ namespace Menus
 						else                    // Chat mode
 						{
 							NetClient::instance()->sendChan(msg);       // send the message to all users of this chan except us
-							addChatMessage(QString(NetClient::instance()->getLogin()) << " > " << msg);    // so we have to add it manually
+                            addChatMessage(NetClient::instance()->getLogin() + " > " + msg);    // so we have to add it manually
 						}
 					}
 				}
@@ -664,14 +662,14 @@ namespace Menus
 		SetupGame::Execute(true, host, QString(), true);
 
 		lp_CONFIG->player_name = cfgPlayerName;
-		NetClient::instance()->sendMessage(QString("UNJOIN \"") << Escape(host) << "\"");
+        NetClient::instance()->sendMessage("UNJOIN \"" + Escape(host) + "\"");
 		NetClient::instance()->clearServerJoined();
 	}
 
 	void NetMenu::changeMod(const int ID)
 	{
 		ModInfo *inf = Mods::instance()->getMod(ID);
-        QString newMod = (ID < 0 || inf == NULL) ? QString() : (QString("mods/") + ModInfo::cleanStringForPortablePathName(inf->getName()) + "/");
+        QString newMod = (ID < 0 || inf == NULL) ? QString() : ("mods/" + ModInfo::cleanStringForPortablePathName(inf->getName()) + "/");
 		if (TA3D_CURRENT_MOD != newMod) // Refresh the file structure
 		{
 			TA3D_CURRENT_MOD = lp_CONFIG->last_MOD = newMod;

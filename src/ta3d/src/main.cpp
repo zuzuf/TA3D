@@ -55,7 +55,7 @@ namespace TA3D
 	*/
 	void ReadFileParameter()
 	{
-		if (!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
+        if (!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.isEmpty())
 			return;
 
 		LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 		engine.initializationFromTheMainThread();
 
 		// while our engine does some loading and intializing, lets show our intro.
-		if (!lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
+        if (!lp_CONFIG->quickstart && lp_CONFIG->file_param.isEmpty())
 			Menus::Intro::Execute();
 
 		// The main menu call will eventually not be here, instead
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 	}
 	catch(const std::exception &e)
 	{
-		criticalMessage(QString("Uncaught exception: ") << e.what());
+        criticalMessage(QString("Uncaught exception: ") + e.what());
 		return 1;
 	}
 

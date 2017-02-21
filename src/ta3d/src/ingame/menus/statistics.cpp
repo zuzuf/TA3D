@@ -46,10 +46,10 @@ namespace Menus
 	{}
 
 
-	void Statistics::doUpdateObject(const QString& id, const short indx, const uint32 color, const QString& value)
+    void Statistics::doUpdateObject(const QString& id, const int indx, const uint32 color, const QString& value)
 	{
 		QString nameID("statistics.");
-		nameID << id << indx;
+        nameID += id + QString::number(indx);
 		pArea->caption(nameID, value);
 		Gui::GUIOBJ::Ptr o = pArea->get_object(nameID);
 		if (o)
@@ -64,7 +64,7 @@ namespace Menus
 		loadAreaFromTDF("statistics", "gui/statistics.area");
 
 		// Statistics for All players
-		for (short i = 0; i < short(players.count()); ++i)
+        for (int i = 0; i < players.count(); ++i)
 		{
 			uint32 color = gfx->makeintcol(player_color[3 * player_color_map[i]],
 										   player_color[3 * player_color_map[i] + 1],
@@ -72,10 +72,10 @@ namespace Menus
 
 			doUpdateObject("player", i, color, players.name[i]);
 			doUpdateObject("side",   i, color, players.side[i]);
-            doUpdateObject("losses", i, color, QString(players.losses[i]));
-            doUpdateObject("kills",  i, color, QString(players.kills[i]));
-            doUpdateObject("energy", i, color, QString((int)players.energy_total[i]));
-            doUpdateObject("metal",  i, color, QString((int)players.metal_total[i]));
+            doUpdateObject("losses", i, color, QString::number(players.losses[i]));
+            doUpdateObject("kills",  i, color, QString::number(players.kills[i]));
+            doUpdateObject("energy", i, color, QString::number((int)players.energy_total[i]));
+            doUpdateObject("metal",  i, color, QString::number((int)players.metal_total[i]));
 		}
 		return true;
 	}

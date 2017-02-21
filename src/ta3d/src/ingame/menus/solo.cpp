@@ -134,20 +134,16 @@ namespace Menus
 		if (obj)
 		{
 			QStringList fileList;
-			Paths::Glob(fileList, QString(TA3D::Paths::Savegames) << "*.sav");
+            Paths::Glob(fileList, TA3D::Paths::Savegames + "*.sav");
 			fileList.sort();
 			obj->Text.clear();
 			obj->Text.reserve(fileList.size());
-			for (QStringList::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
-			{
+            for (const QString &i : fileList)
 				// Remove the Savegames path, leaving just the bare file names
-				obj->Text.push_back(Paths::ExtractFileName(*i));
-			}
+                obj->Text.push_back(Paths::ExtractFileName(i));
 		}
 		else
-		{
 			LOG_ERROR("Impossible to get an area object : `load_menu.l_file`");
-		}
 		return false;
 	}
 
@@ -156,17 +152,15 @@ namespace Menus
 		pArea->set_state("load_menu.b_load", false);
 		Gui::GUIOBJ::Ptr guiObj = pArea->get_object("load_menu.l_file");
 		if (!guiObj)
-		{
 			LOG_ERROR("Impossible to get an area object : `load_menu.l_file`");
-		}
 		else
 		{
 			if (guiObj->Pos < guiObj->Text.size())
 			{
 				GameData game_data;
-				bool network = load_game_data(QString(TA3D::Paths::Savegames) << guiObj->Text[guiObj->Pos], &game_data);
+                bool network = load_game_data(TA3D::Paths::Savegames + guiObj->Text[guiObj->Pos], &game_data);
 
-				if (!game_data.saved_file.empty() && !network)
+                if (!game_data.saved_file.isEmpty() && !network)
 				{
 					gfx->unset_2D_mode();
 					Battle::Execute(&game_data);

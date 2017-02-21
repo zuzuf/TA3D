@@ -22,7 +22,7 @@ namespace TA3D
                 tmp += "<nil>";
 				break;
 			case LUA_TNUMBER:
-                tmp += lua_tonumber(L, i);
+                tmp += QString::number(lua_tonumber(L, i));
 				break;
 			case LUA_TBOOLEAN:
                 tmp += (lua_toboolean(L, i) ? "true" : "false");
@@ -531,7 +531,7 @@ namespace TA3D
                     Console::Instance()->addEntry(QString("flags=%1").arg(int(units.unit[i].flags)));
                     QString tmp;
 					for (int f = 1; f < 21; ++f)
-                        tmp += QString(unit_info[f-1]) + '=' + units.unit[i].port[f] + ", ";
+                        tmp += QString(unit_info[f-1]) + QString("=%1, ").arg(units.unit[i].port[f]);
                     if (!tmp.isEmpty())
 						Console::Instance()->addEntry(tmp);
 				}

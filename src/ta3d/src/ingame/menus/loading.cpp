@@ -72,12 +72,12 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (!lp_CONFIG->skin_name.empty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
+        if (!lp_CONFIG->skin_name.isEmpty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
 		{
 			Gui::Skin skin;
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
-			if (!skin.prefix().empty())
-				pBackgroundTexture = gfx->load_texture_mask(QString("gfx/") << skin.prefix() << "load.png", 7);
+            if (!skin.prefix().isEmpty())
+                pBackgroundTexture = gfx->load_texture_mask("gfx/" + skin.prefix() + "load.png", 7);
 			else
 				pBackgroundTexture = gfx->load_texture_mask("gfx/load.png", 7);
 		}
@@ -90,7 +90,7 @@ namespace Menus
 	{
 		// Broadcast informations
 		if (network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, percent))
-			network_manager.sendAll(QString("LOADING ") << percent);
+            network_manager.sendAll(QString("LOADING %1").arg(percent));
 	}
 
 
@@ -107,8 +107,8 @@ namespace Menus
 		// Update the message list
 		if (message != pLastCaption)
 		{
-			if (!pLastCaption.empty())
-				pMessages.front() << " - " << I18N::Translate("done");
+            if (!pLastCaption.isEmpty())
+                pMessages.front() += " - " + I18N::Translate("done");
 			pMessages.push_front(message);
 		}
 

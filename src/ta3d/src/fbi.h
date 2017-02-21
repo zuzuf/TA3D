@@ -324,7 +324,7 @@ namespace TA3D
 		/*!
         ** \brief Returns a QString identifying the units movement properties
 		*/
-        QString getMoveQStringID() const;
+        QString getMoveStringID() const;
     };
 
     class UnitManager          // Classe pour charger toutes les données relatives aux unités

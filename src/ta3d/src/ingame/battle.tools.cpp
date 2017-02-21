@@ -149,12 +149,10 @@ namespace TA3D
                         player_color[3 * player_color_map[i] + 2], 0.5f);
                 }
                 // Kills
-                tmp.clear();
-                tmp += players.kills[i];
+                tmp = QString::number(players.kills[i]);
                 pArea.caption(QString("playerstats.p%1_kills").arg(i), tmp);
                 // Losses
-                tmp.clear();
-                tmp += players.losses[i];
+                tmp = QString::number(players.losses[i]);
                 pArea.caption(QString("playerstats.p%1_losses").arg(i), tmp);
             }
 	}

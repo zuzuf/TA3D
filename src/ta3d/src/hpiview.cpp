@@ -37,11 +37,9 @@
 #include "misc/material.light.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
 
 using namespace TA3D;
-
-using namespace Yuni::Core::IO::File;
 
 # ifdef TA3D_PLATFORM_WINDOWS
 #   define PREFIX "  /"
@@ -79,7 +77,7 @@ namespace TA3D
 			<< PREFIX << "quiet          : runs in quiet mode (no logs)" << std::endl
 			<< std::endl
 			<< "For more information on a command type :" << std::endl
-			<< "# " << appName << " command_name" << std::endl;
+            << "# " << appName.toStdString() << " command_name" << std::endl;
 		return true;
 	}
 
@@ -94,14 +92,14 @@ namespace TA3D
 			QStringList file_list;
 			QString ext = args[0];
 			VFS::Instance()->getFilelist(ext, file_list);
-			sort(file_list.begin(), file_list.end());
-			for (QStringList::const_iterator cur_file = file_list.begin() ; cur_file != file_list.end() ; ++cur_file)
-				std::cout << *cur_file << std::endl;
+            std::sort(file_list.begin(), file_list.end());
+            for (const QString &cur_file : file_list)
+                std::cout << cur_file.toStdString() << std::endl;
 
 			args.erase(args.begin());
 			return true;
 		}
-		std::cerr << "SYNTAX: " << appName << " show <pattern>" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " show <pattern>" << std::endl;
 		return true;
 	}
 
@@ -113,9 +111,9 @@ namespace TA3D
 		QStringList lArchives;
 
 		VFS::Instance()->getArchivelist(lArchives);
-		sort(lArchives.begin(), lArchives.end());
-		for (QStringList::const_iterator it = lArchives.begin() ; it != lArchives.end() ; ++it)
-			std::cout << *it << std::endl;
+        std::sort(lArchives.begin(), lArchives.end());
+        for (const QString &it : lArchives)
+            std::cout << it.toStdString() << std::endl;
 
 		return true;
 	}
@@ -134,7 +132,7 @@ namespace TA3D
 			if (minimap)
 			{
 				SDL_SetPalette(minimap, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
-				SDL_SaveBMP( minimap, args[1].c_str() );
+                SDL_SaveBMP( minimap, args[1].toStdString().c_str() );
 			}
 
 			DELETE_ARRAY(TA3D::VARS::pal);
@@ -144,7 +142,7 @@ namespace TA3D
 
 			return true;
 		}
-		std::cerr << "SYNTAX: " << appName << " minimap \"maps\\map.tnt\" minimap_file.jpg" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " minimap \"maps/map.tnt\" minimap_file.jpg" << std::endl;
 		return true;
 	}
 
@@ -158,10 +156,12 @@ namespace TA3D
 		{
 			MAP_OTA map_data;
 			map_data.load( args[0] );
-			Stream m_File(args[1], Yuni::Core::IO::OpenMode::write);
+            QFile m_FileD(args[1]);
+            m_FileD.open(QIODevice::WriteOnly);
 
-			if (m_File.opened())
+            if (m_FileD.isOpen())
 			{
+                QTextStream m_File(&m_FileD);
 				m_File << "[MAP]\n{\n";
 				m_File << " missionname=" << map_data.missionname << ";\n";
 				QString tmp(map_data.missiondescription);
@@ -180,13 +180,14 @@ namespace TA3D
 				m_File << " minwindspeed=" << map_data.minwindspeed << ";\n";
 				m_File << " maxwindspeed=" << map_data.maxwindspeed << ";\n";
 				m_File << "}\n";
-				m_File.close();
+                m_File.flush();
+                m_FileD.close();
 			}
 			args.erase(args.begin());
 			args.erase(args.begin());
 			return true;
 		}
-		std::cerr << "SYNTAX: " << appName << " mapdescription \"maps\\map.ota\" description.tdf" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " mapdescription \"maps\\map.ota\" description.tdf" << std::endl;
 		return true;
 	}
 
@@ -198,23 +199,26 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			Stream m_File( args[0], Yuni::Core::IO::OpenMode::write );
+            QFile m_FileD(args[0]);
+            m_FileD.open(QIODevice::WriteOnly);
 
-			if (m_File.opened())
+            if (m_FileD.isOpen())
 			{
+                QTextStream m_File(&m_FileD);
 				QStringList modlist = Mods::instance()->getModNameList(Mods::MOD_INSTALLED);
-				modlist.sort();
-				for (QStringList::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+                std::sort(modlist.begin(), modlist.end());
+                for (const QString &i : modlist)
 				{
-					if (!(i->empty()) && ((*i)[0] != '.'))
-						m_File << *i << "\n";
+                    if (!(i.isEmpty()) && (i[0] != '.'))
+                        m_File << i << "\n";
 				}
-				m_File.close();
+                m_File.flush();
+                m_FileD.close();
 			}
 			args.erase(args.begin());
 			return true;
 		}
-		LOG_ERROR("Syntax: " << appName << " listmods modlist.txt");
+        LOG_ERROR("Syntax: " << appName << " listmods modlist.txt");
 		return true;
 	}
 
@@ -231,8 +235,9 @@ namespace TA3D
 
 			if (file)
 			{
-				QString name = Paths::ExtractFileName(args[0]);
-				Stream dst(name, Yuni::Core::IO::OpenMode::write);
+                const QString &name = Paths::ExtractFileName(args[0]);
+                QFile dst(name);
+                dst.open(QIODevice::WriteOnly);
 				dst.write((const char*)file->data(), file->size());
 				dst.close();
 				delete file;
@@ -240,7 +245,7 @@ namespace TA3D
 			args.erase(args.begin());
 			return true;
 		}
-		std::cerr << "SYNTAX: " << appName << " extract <filename>" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " extract <filename>" << std::endl;
 		return true;
 	}
 
@@ -255,23 +260,23 @@ namespace TA3D
 			QStringList file_list;
 			QString ext = args[0];
 			VFS::Instance()->getFilelist(ext, file_list);
-			sort(file_list.begin(), file_list.end());
+            std::sort(file_list.begin(), file_list.end());
 
-			for (QStringList::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
+            for (const QString &cur_file : file_list)
 			{
-				File* file = VFS::Instance()->readFile(*cur_file);
+                File* file = VFS::Instance()->readFile(cur_file);
 				if (file)
 				{
 					std::cout << (const char*)file->data() << std::endl;
 					delete file;
 				}
 				else
-					LOG_ERROR("could not open file '" << *cur_file << "'");
+                    LOG_ERROR("could not open file '" << cur_file << "'");
 			}
 			args.erase(args.begin());
 			return true;
 		}
-		std::cerr << "SYNTAX: " << appName << " print pattern" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " print pattern" << std::endl;
 		return true;
 	}
 
@@ -288,7 +293,7 @@ namespace TA3D
 			args.erase(args.begin());
 		}
 		else
-			std::cerr << "SYNTAX: " << appName << " install HPI_file file_in_HPI" << std::endl;
+            std::cerr << "SYNTAX: " << appName.toStdString() << " install HPI_file file_in_HPI" << std::endl;
 		return true;
 	}
 
@@ -310,7 +315,9 @@ namespace TA3D
 
 				Gaf::AnimationList anims;
 				anims.loadGAFFromRawData(file);
-				Stream m_File( (Paths::ExtractFileName(args[0]) << ".txt"), Yuni::Core::IO::OpenMode::write );
+                QFile m_FileD( Paths::ExtractFileName(args[0]) + ".txt");
+                m_FileD.open(QIODevice::WriteOnly);
+                QTextStream m_File(&m_FileD);
 
 				m_File << "[gadget0]\n{\n";
 				m_File << "    filename=" << args[0] << ";\n";
@@ -324,15 +331,14 @@ namespace TA3D
 					m_File << "    name=" << anims[i].name << ";\n";
 					for (int e = 0; e < anims[i].nb_bmp; ++e)
 					{
-						QString filename;
-						filename << anims[i].name;
+                        QString filename = anims[i].name;
 						if (e < 10)
-							filename << "000";
+                            filename += "000";
 						else if (e < 100)
-							filename << "00";
+                            filename += "00";
 						else if (e < 1000)
-							filename << '0';
-						filename << e << ".tga";
+                            filename += '0';
+                        filename += QString("%1.tga").arg(e);
 						m_File << "    [frame" << e << "]\n    {\n";
 						m_File << "        XPos=" << anims[i].ofs_x[ e ] << ";\n";
 						m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
@@ -343,15 +349,16 @@ namespace TA3D
 					m_File << "}\n";
 				}
 
-				m_File.flush();
-				m_File.close();
+                m_File.flush();
+                m_FileD.flush();
+                m_FileD.close();
 				delete file;
 				DELETE_ARRAY(TA3D::VARS::pal);
 			}
 			args.erase(args.begin());
 			return true;
 		}
-		std::cerr << "SYNTAX: " << appName << " extract_gaf <filename.gaf>" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " extract_gaf <filename.gaf>" << std::endl;
 		return true;
 	}
 
@@ -367,13 +374,14 @@ namespace TA3D
 		{
 			TDFParser parser( args[0], false, false, true, true );
 			QString filename = parser.pullAsString( "gadget0.filename" );
-			Stream gaf_file( Paths::ExtractFileName( filename ), Yuni::Core::IO::OpenMode::write );
+            QFile gaf_file( Paths::ExtractFileName( filename ) );
+            gaf_file.open(QIODevice::WriteOnly);
 
 			LOG_DEBUG("opening '" << filename << "'");
 
 			disable_TA_palette();
 
-			if (gaf_file.opened())
+            if (gaf_file.isOpen())
 			{
 				SDL_SetVideoMode(320, 200, 32, 0);
 				Gaf::Header header;
@@ -384,53 +392,53 @@ namespace TA3D
 				gaf_file.write((const char*)&header, 12);
 
 				for (int i = 0; i < header.Entries * 4; ++i)
-					gaf_file.put( 0 );
+                    gaf_file.putChar(0);
 
 				for (int i = 0; i < header.Entries; ++i)
 				{
-					int pos = int(gaf_file.tell());
-					gaf_file.seekFromBeginning( 12 + i * 4 );
+                    int pos = int(gaf_file.pos());
+                    gaf_file.seek( 12 + i * 4 );
 					gaf_file.write( (const char*)&pos, 4 );
-					gaf_file.seekFromBeginning( pos );
+                    gaf_file.seek( pos );
 
 					Gaf::Entry Entry;
 
-					Entry.Frames = sint16(parser.pullAsInt( QString("gadget") << (i + 1) << ".frames" ));
+                    Entry.Frames = sint16(parser.pullAsInt( QString("gadget%1.frames").arg(i + 1)  ));
 					Entry.Unknown1 = 1;
 					Entry.Unknown2 = 0;
-					Entry.name = parser.pullAsString( QString("gadget") << (i + 1) << ".name" );
+                    Entry.name = parser.pullAsString( QString("gadget%1.name").arg(i + 1) );
 
 					gaf_file.write( (const char*)&Entry.Frames, 2 );
 					gaf_file.write( (const char*)&Entry.Unknown1, 2 );
 					gaf_file.write( (const char*)&Entry.Unknown2, 4 );
 					char tmp[32];
 					memset(tmp, 0, 32);
-					memcpy(tmp, Entry.name.c_str(), Math::Min((int)Entry.name.size(), 32));
+                    memcpy(tmp, Entry.name.toStdString().c_str(), Math::Min((int)Entry.name.size(), 32));
 					tmp[31] = 0;
 					gaf_file.write((const char*)tmp, 32);
 
 					Gaf::Frame::Entry FrameEntry;
-					int FrameEntryPos = int(gaf_file.tell());
+                    int FrameEntryPos = int(gaf_file.pos());
 					FrameEntry.PtrFrameTable = 0;
 					for (int e = 0; e < Entry.Frames; ++e)
 						gaf_file.write( (const char*)&(FrameEntry), 8 );
 
 					for (int e = 0; e < Entry.Frames; ++e)
 					{
-						pos = int(gaf_file.tell());
-						gaf_file.seekFromBeginning( FrameEntryPos + e * 8 );
+                        pos = int(gaf_file.pos());
+                        gaf_file.seek( FrameEntryPos + e * 8 );
 						FrameEntry.PtrFrameTable = pos;
 						gaf_file.write( (const char*)&(FrameEntry), 8 );
-						gaf_file.seekFromBeginning( pos );
+                        gaf_file.seek( pos );
 
 						Gaf::Frame::Data FrameData;
-						FrameData.XPos = sint16(parser.pullAsInt( QString("gadget") << (i+1) << ".frame" << e << ".XPos" ) );
-						FrameData.YPos = sint16(parser.pullAsInt( QString("gadget") << (i+1) << ".frame" << e << ".YPos" ) );
+                        FrameData.XPos = sint16(parser.pullAsInt( QString("gadget%1.frame%2.XPos").arg(i+1).arg(e) ) );
+                        FrameData.YPos = sint16(parser.pullAsInt( QString("gadget%1.frame%2.YPos").arg(i+1).arg(e) ) );
 						FrameData.FramePointers = 0;
 						FrameData.Unknown2 = 0;
 						FrameData.Compressed = 1;
 
-						SDL_Surface *frame_img = IMG_Load( parser.pullAsString( QString("gadget") << (i + 1) << ".frame" << e << ".filename" ).c_str() );
+                        SDL_Surface *frame_img = IMG_Load( parser.pullAsString( QString("gadget%1.frame%2.filename").arg(i + 1).arg(e)).toStdString().c_str() );
 						if (frame_img)
 						{
 							frame_img = convert_format(frame_img);
@@ -443,7 +451,7 @@ namespace TA3D
 									alpha |= (getr(SurfaceInt(frame_img, x, y)) != 255);
 							SDL_UnlockSurface(frame_img);
 							FrameData.Transparency = alpha ? 1 : 0;
-							FrameData.PtrFrameData = sint32(gaf_file.tell()) + 24;
+                            FrameData.PtrFrameData = sint32(gaf_file.pos()) + 24;
 
 							gaf_file.write( (const char*)&FrameData, 24 );
 
@@ -464,7 +472,7 @@ namespace TA3D
 						else
 						{
 							std::cerr << "Error: In frame " << e << ", could not load "
-								<< parser.pullAsString(QString("gadget") << (i + 1) << ".frame" << e << ".filename" ) << std::endl;
+                                << parser.pullAsString(QString("gadget%1.frame%2.filename").arg(i + 1).arg(e) ).toStdString() << std::endl;
 							i = header.Entries;
 							break;
 						}
@@ -477,7 +485,7 @@ namespace TA3D
 			args.erase(args.begin());
 		}
 		else
-			std::cerr << "SYNTAX: " << appName << " create_gaf gafdescription.txt" << std::endl;
+            std::cerr << "SYNTAX: " << appName.toStdString() << " create_gaf gafdescription.txt" << std::endl;
 		return true;
 	}
 
@@ -488,24 +496,24 @@ namespace TA3D
 	{
 		if (args.size() >= 2)
 		{
-			QString modelname = args[0];
-			QString filename = args[1];
-			QString outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) << ".tga";
+            const QString &modelname = args[0];
+            const QString &filename = args[1];
+            const QString &outputfilename = Paths::ExtractFileNameWithoutExtension(modelname) + ".tga";
 
 			// Starts a minimal TA3D environnement
 			InterfaceManager = new IInterfaceManager();
 
 			// Initalizing SDL video
 			if (SDL_Init(SDL_INIT_VIDEO) < 0 )
-				throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
+                throw std::runtime_error("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
 
 			// Installing SDL timer
 			if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
-				throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
+                throw std::runtime_error( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
 
 			// Installing SDL timer
 			if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
-				throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
+                throw std::runtime_error( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
 			gfx = new GFX();
 
@@ -590,11 +598,11 @@ namespace TA3D
 			else
 			{
 				if (!model)
-					std::cerr << "error : could not load model file : '" << modelname << "'" << std::endl;
+                    std::cerr << "error : could not load model file : '" << modelname.toStdString() << "'" << std::endl;
 				else
 					delete model;
 				if (!background)
-					std::cerr << "error : could not load background image file : '" << filename << "'" << std::endl;
+                    std::cerr << "error : could not load background image file : '" << filename.toStdString() << "'" << std::endl;
 				else
 					SDL_FreeSurface(background);
 			}
@@ -611,7 +619,7 @@ namespace TA3D
 			args.erase(args.begin());
 		}
 		else
-			std::cerr << "SYNTAX: " << appName << " create_buildpic model.3do/3dm/3so background_image_file" << std::endl;
+            std::cerr << "SYNTAX: " << appName.toStdString() << " create_buildpic model.3do/3dm/3so background_image_file" << std::endl;
 		return true;
 	}
 

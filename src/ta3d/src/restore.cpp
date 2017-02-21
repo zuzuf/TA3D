@@ -47,15 +47,15 @@ namespace TA3D
 			char c = (char)gzgetc(file);
 			if (c == 0)
 				break;
-			ret << c;
+            ret .push_back(c);
 		}
 		return ret;
 	}
 
 	static inline void writestring( gzFile file, const QString &str )
 	{
-		if (!str.empty())
-			gzputs( file, str.c_str() );
+        if (!str.isEmpty())
+            gzputs( file, str.toStdString().c_str() );
 		gzputc( file, 0 );
 	}
 
@@ -66,7 +66,7 @@ namespace TA3D
 		// TODO This should be removed
 		TA3D::Paths::MakeDir(TA3D::Paths::ExtractFilePath(FileName));		// Create tree structure if it doesn't exist
 
-		return gzopen(FileName.c_str(), Mode.c_str());
+        return gzopen(FileName.toStdString().c_str(), Mode.toStdString().c_str());
 	}
 
 	void save_game( const QString filename, GameData *game_data )
@@ -102,7 +102,7 @@ namespace TA3D
 
 		gzputc( file, game_data->fog_of_war );			// flags to configure FOW
 		gzputc( file, game_data->campaign );			// Are we in campaign mode ?
-		if( !game_data->use_only.empty() )			// The use only file to read
+        if( !game_data->use_only.isEmpty() )			// The use only file to read
 			writestring( file, game_data->use_only );
 		else
 			gzputc( file, 0 );
@@ -433,7 +433,7 @@ namespace TA3D
 
 		//----- Load game information --------------------------------------------------------------
 
-		game_data->map_filename = readstring( file ) << ".tnt";
+        game_data->map_filename = readstring( file ) + ".tnt";
 		game_data->game_script = readstring( file );
 
 		game_data->fog_of_war = uint8(gzgetc( file ));			// flags to configure FOW

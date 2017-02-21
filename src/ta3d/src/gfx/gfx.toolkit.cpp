@@ -933,7 +933,7 @@ namespace TA3D
 
     void save_bitmap(const QString &filename, SDL_Surface* bmp)
 	{
-        QString ext = ToLower( Paths::ExtractFileExt(filename) );
+        const QString &ext = Paths::ExtractFileExt(filename).toLower();
 		if (ext == ".bmp")
             SDL_SaveBMP(bmp, filename.toStdString().c_str());
 		else if (ext == ".tex")                      // This is for cached texture data
