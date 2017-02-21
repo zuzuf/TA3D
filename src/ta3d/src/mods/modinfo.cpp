@@ -63,7 +63,7 @@ namespace TA3D
     void ModInfo::read(const QString &modName)
     {
 		name = modName;
-        const QString &filename = getPathToMod() + Paths::Separator + "info.mod";
+        const QString &filename = getPathToMod() + "/info.mod";
 
 		availableUpdate = false;
 
@@ -85,14 +85,14 @@ namespace TA3D
         version = file.pullAsString("mod.version");
         author = file.pullAsString("mod.author");
         comment = file.pullAsString("mod.comment");
-        comment.replace("\n", "\\n");
+        comment.replace("\\n", "\n");
         url = file.pullAsString("mod.url");
 		installed = file.pullAsBool("mod.installed", false);
     }
 
 	QString ModInfo::getPathToMod() const
 	{
-        QString path = Paths::Resources + "mods" + Paths::Separator + cleanStringForPortablePathName(name);
+        QString path = Paths::Resources + "mods/" + cleanStringForPortablePathName(name);
 		return path;
 	}
 
@@ -101,7 +101,7 @@ namespace TA3D
         if (name.isEmpty() || ID == -1)       // Don't save empty data
             return;
 
-        QString filename = getPathToMod() + Paths::Separator + "info.mod";
+        const QString &filename = getPathToMod() + "/info.mod";
 		QString tmp(comment);
 		tmp.replace("\n", "\\n");
 

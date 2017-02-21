@@ -44,7 +44,7 @@ namespace TA3D
 		nuclogo.init();
 		if (real)
 		{
-			File *file = VFS::Instance()->readFile("anims\\fx.gaf");
+            File *file = VFS::Instance()->readFile("anims/fx.gaf");
 			if (file)
 			{
 				nuclogo.loadGAFFromRawData(file, Gaf::RawDataGetEntryIndex(file, "nuclogo"));

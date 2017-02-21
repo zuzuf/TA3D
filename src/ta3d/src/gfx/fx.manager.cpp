@@ -54,17 +54,15 @@ namespace TA3D
 			}
 		}
 
-		QString tmp("anims\\");
-        tmp += filename + ".gaf";
+        const QString &tmp = "anims/" + filename + ".gaf";
 
-		QString fullname(tmp);
-        fullname += "-" + entryName;
+        const QString &fullname = tmp + "-" + entryName;
 
 		int anm_idx = findInCache(fullname);
 		if (anm_idx == -1)
 		{
 			File *file;
-			if (ToLower(filename) != "fx")
+            if (filename.toLower() != "fx")
 				file = VFS::Instance()->readFile(tmp);
 			else
 				file = fx_data;

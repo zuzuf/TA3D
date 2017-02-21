@@ -235,7 +235,7 @@ namespace TA3D
 				{
 					QString sParam(params[1]);
 					sParam.replace(char(1), ' ');
-                    QString filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(sParam, ".sav");
+                    QString filename = Paths::Savegames + "multiplayer/" + Paths::Files::ReplaceExtension(sParam, ".sav");
 					save_game(filename, game_data); // Save the game using filename given by server
 				}
 				else if (params[0] == "TIMEFACTOR")

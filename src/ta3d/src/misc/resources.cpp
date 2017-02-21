@@ -48,7 +48,7 @@ namespace Resources
 
 		void initForWindows()
 		{
-            AddSearchPath(Paths::ApplicationRoot + "resources\\");
+            AddSearchPath(Paths::ApplicationRoot + "resources/");
 			AddSearchPath(Paths::ApplicationRoot);
 		}
 
@@ -154,8 +154,8 @@ namespace Resources
             MutexLocker locker(gResourcesMutex);
             if (pResourcesFolders.contains(folder))
                 return false;
-            pResourcesFolders.push_back(folder + TA3D::Paths::Separator);
-            LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << TA3D::Paths::Separator << "`");
+            pResourcesFolders.push_back(folder + '/');
+            LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << "/`");
 			return true;
 		}
 		return false;

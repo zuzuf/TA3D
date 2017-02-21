@@ -869,7 +869,7 @@ namespace Audio
 		}
 
 		// pull the data from hpi.
-        QString theSound = "sounds\\" + filename;
+        QString theSound = "sounds/" + filename;
         if (VFS::Instance()->fileExists(theSound + ".wav"))
             theSound += ".wav";
 		else

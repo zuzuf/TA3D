@@ -20,12 +20,12 @@
 
 
 #define TA3D_SIDEDATA_DEFAULTUNIT_EXT      ".fbi"
-#define TA3D_SIDEDATA_DEFAULTUNIT_DIR      "units\\"
-#define TA3D_SIDEDATA_DEFAULTUNIT_MODEL    "objects3d\\"
-#define TA3D_SIDEDATA_DEFAULTUNIT_DOWNLOAD "download\\"
-#define TA3D_SIDEDATA_DEFAULTUNIT_WEAPON   "weapons\\"
-#define TA3D_SIDEDATA_DEFAULTUNIT_GUIS     "guis\\"
-#define TA3D_SIDEDATA_DEFAULTUNIT_GAMEDATA "gamedata\\"
+#define TA3D_SIDEDATA_DEFAULTUNIT_DIR      "units/"
+#define TA3D_SIDEDATA_DEFAULTUNIT_MODEL    "objects3d/"
+#define TA3D_SIDEDATA_DEFAULTUNIT_DOWNLOAD "download/"
+#define TA3D_SIDEDATA_DEFAULTUNIT_WEAPON   "weapons/"
+#define TA3D_SIDEDATA_DEFAULTUNIT_GUIS     "guis/"
+#define TA3D_SIDEDATA_DEFAULTUNIT_GAMEDATA "gamedata/"
 
 
 
@@ -83,12 +83,12 @@ namespace TA3D
 
 		TDFParser mod_parser( "ta3d.mod", false, false, false, false);
 		unit_ext = mod_parser.pullAsString( "MOD.unit_ext", ".fbi");
-		unit_dir = mod_parser.pullAsString( "MOD.unit_dir", "units\\");
-		model_dir = mod_parser.pullAsString( "MOD.model_dir", "objects3d\\");
-		download_dir = mod_parser.pullAsString( "MOD.download_dir", "download\\");
-		weapon_dir = mod_parser.pullAsString( "MOD.weapon_dir", "weapons\\");
-		guis_dir = mod_parser.pullAsString( "MOD.guis_dir", "guis\\");
-		gamedata_dir = mod_parser.pullAsString( "MOD.gamedata_dir", "gamedata\\");
+        unit_dir = mod_parser.pullAsString( "MOD.unit_dir", "units/");
+        model_dir = mod_parser.pullAsString( "MOD.model_dir", "objects3d/");
+        download_dir = mod_parser.pullAsString( "MOD.download_dir", "download/");
+        weapon_dir = mod_parser.pullAsString( "MOD.weapon_dir", "weapons/");
+        guis_dir = mod_parser.pullAsString( "MOD.guis_dir", "guis/");
+        gamedata_dir = mod_parser.pullAsString( "MOD.gamedata_dir", "gamedata/");
         if (!unit_dir.endsWith('/'))      unit_dir += "/";
         if (!model_dir.endsWith('/'))     model_dir += "/";
         if (!download_dir.endsWith('/'))  download_dir += "/";

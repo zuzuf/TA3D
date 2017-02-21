@@ -1528,18 +1528,18 @@ namespace TA3D
 			background = gfx->load_texture_from_cache(panel, FILTER_LINEAR, (uint32*)&w, (uint32*)&h);
 			if (!background)
 			{
-                background = Gaf::ToTexture("anims\\" + Name, panel, &w, &h, true);
+                background = Gaf::ToTexture("anims/" + Name, panel, &w, &h, true);
 				if (background == 0)		// Try GAF-like directory structure
-                    background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
+                    background = Gaf::ToTexture("anims/" + Name + ".gaf", panel, &w, &h, true);
 				if (background == 0)		// Try GAF-like directory structure
-					background = Gaf::ToTexture("anims\\commongui", panel, &w, &h, true);
+                    background = Gaf::ToTexture("anims/commongui", panel, &w, &h, true);
 				if (background == 0)
-					background = Gaf::ToTexture("anims\\commongui.gaf", panel, &w, &h, true);
+                    background = Gaf::ToTexture("anims/commongui.gaf", panel, &w, &h, true);
 				if (background == 0)
 				{
 					QStringList file_list;
-					VFS::Instance()->getDirlist("anims\\*", file_list);				// GAF-like directories
-					VFS::Instance()->getFilelist("anims\\*.gaf", file_list);		// Normal GAF files
+                    VFS::Instance()->getDirlist("anims/*", file_list);				// GAF-like directories
+                    VFS::Instance()->getFilelist("anims/*.gaf", file_list);		// Normal GAF files
 					for (QStringList::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
 					{
 						LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
@@ -1604,24 +1604,24 @@ namespace TA3D
 
 					if (!result)
 					{
-                        Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
+                        Gaf::ToTexturesList(gaf_imgs, "anims/" + Name, object->Name, t_w, t_h, true, FILTER_LINEAR);
 						if (!gaf_imgs.size())		// Try GAF-like directory
-                            Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name + ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
+                            Gaf::ToTexturesList(gaf_imgs, "anims/" + Name + ".gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
 						if (!gaf_imgs.size())
 						{
-							Gaf::ToTexturesList(gaf_imgs, "anims\\commongui", object->Name, t_w, t_h, true, FILTER_LINEAR);
+                            Gaf::ToTexturesList(gaf_imgs, "anims/commongui", object->Name, t_w, t_h, true, FILTER_LINEAR);
 							found_elsewhere = true;
 						}
 						if (!gaf_imgs.size())
 						{
-							Gaf::ToTexturesList(gaf_imgs, "anims\\commongui.gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
+                            Gaf::ToTexturesList(gaf_imgs, "anims/commongui.gaf", object->Name, t_w, t_h, true, FILTER_LINEAR);
 							found_elsewhere = true;
 						}
 						if (!gaf_imgs.size())
 						{
 							QStringList file_list;
-							VFS::Instance()->getDirlist("anims\\*", file_list);				// GAF-like directories
-							VFS::Instance()->getFilelist("anims\\*.gaf", file_list);		// Normal GAF files
+                            VFS::Instance()->getDirlist("anims/*", file_list);				// GAF-like directories
+                            VFS::Instance()->getFilelist("anims/*.gaf", file_list);		// Normal GAF files
 							for (QStringList::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
 							{
 								LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");

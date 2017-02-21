@@ -224,7 +224,7 @@ namespace Menus
 		ta3dSideData.loadData();
 
 		// Reloading and creating cursors
-		File *file = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
+        File *file = VFS::Instance()->readFile("anims/cursors.gaf");	// Load cursors
 		cursor.loadGAFFromRawData(file, true);
 		cursor.convert();
 

@@ -65,7 +65,7 @@ namespace TA3D
                 QStringList fileList;
                 while (!dirs.empty())
                 {
-                    QString current = dirs.front() + Paths::Separator + "*";
+                    QString current = dirs.front() + "/*";
                     dirs.pop_front();
 
                     Paths::GlobFiles(fileList, current, false, false);
@@ -139,7 +139,7 @@ namespace TA3D
             if (root.endsWith('/'))
                 root.chop(1);
 
-            unixFilename = root + Paths::SeparatorAsString + unixFilename;
+            unixFilename = root + '/' + unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
 		}
@@ -162,7 +162,7 @@ namespace TA3D
             if (root.endsWith('/'))
                 root.chop(1);
 
-            unixFilename = root + Paths::SeparatorAsString + unixFilename;
+            unixFilename = root + '/' + unixFilename;
 
 			return new UTILS::RealFile(unixFilename);
         }

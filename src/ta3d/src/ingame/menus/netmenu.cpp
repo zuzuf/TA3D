@@ -236,7 +236,7 @@ namespace Menus
 						pArea->caption("mods.m_author", pIdx->getAuthor());
 						pArea->caption("mods.m_comment", pIdx->getComment());
                         const QString &dir = pIdx->getPathToMod();
-                        const QString &filename = dir + Paths::SeparatorAsString + Paths::ExtractFileName(pIdx->getUrl());
+                        const QString &filename = dir + '/' + Paths::ExtractFileName(pIdx->getUrl());
 
 						if (pIdx->isInstalled())
 						{

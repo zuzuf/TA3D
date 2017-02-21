@@ -117,7 +117,7 @@ namespace Menus
 			pContent.push_back(nullptr);
 
 		// Load all text files
-        File *file = VFS::Instance()->readFile("intro" + Paths::SeparatorAsString + I18N::Translate("en.ta3d.txt"));
+        File *file = VFS::Instance()->readFile("intro/" + I18N::Translate("en.ta3d.txt"));
 		if (file == NULL)
             throw std::runtime_error(("Intro file not found! (intro/" + I18N::Translate("en.ta3d.txt") + ')').toStdString());
 		if (file->size() <= 5 * 1024)

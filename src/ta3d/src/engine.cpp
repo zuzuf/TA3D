@@ -62,7 +62,7 @@ namespace TA3D
 		: pSDLRunning(false), pGFXModeActive(false)
 	{
 		// How many CPU we've got ?
-		LOG_INFO("CPU: " << Yuni::System::CPU::Count());
+        LOG_INFO("CPU: " << QThread::idealThreadCount());
 
 		if (gfx)
 			delete gfx;
@@ -73,19 +73,19 @@ namespace TA3D
 
 		// Initalizing SDL video
 		if (::SDL_Init(SDL_INIT_VIDEO))
-			throw ("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
+            throw std::runtime_error("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
 		// Installing SDL timer
 		if (::SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
-			throw ("SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
+            throw std::runtime_error("SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
 		// Initializing SDL Net
 		if (::SDLNet_Init() == -1)
-			throw ("SDLNet_Init() failed.");
+            throw std::runtime_error("SDLNet_Init() failed.");
 
 		// Load the VFS
 		VFS::Instance()->reload();
 
-		if (!VFS::Instance()->fileExists("gamedata\\sidedata.tdf") || !VFS::Instance()->fileExists("gamedata\\allsound.tdf")
-			|| !VFS::Instance()->fileExists("gamedata\\sound.tdf"))
+        if (!VFS::Instance()->fileExists("gamedata/sidedata.tdf") || !VFS::Instance()->fileExists("gamedata/allsound.tdf")
+            || !VFS::Instance()->fileExists("gamedata/sound.tdf"))
 		{
 			showError("RESOURCES ERROR");
 			exit(1);
@@ -163,7 +163,7 @@ namespace TA3D
 	bool Engine::onExecute()
 	{
 		// Creating translation manager
-		I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
+        I18N::Instance()->loadFromFile("gamedata/translate.tdf", true, true);
 		I18N::Instance()->loadFromResources();
 
 		// Apply settings for the current language (required since it failed when loading settings because languages were not loaded)

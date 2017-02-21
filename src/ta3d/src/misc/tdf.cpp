@@ -208,8 +208,8 @@ namespace TA3D
                     stack.value = stack.value.toLower();
 				stack.sections.push(stack.currentSection);
 
-                stack.value.replace("\n", "\\n");
-                stack.value.replace("\r", "\\r");
+                stack.value.replace("\\n", "\n");
+                stack.value.replace("\\r", "\r");
 
 				if (!stack.level)
 				{
@@ -291,8 +291,8 @@ namespace TA3D
 						if (pIgnoreCase)
                             stack.key = stack.key.toLower();
                         stack.value = stack.value.trimmed();
-                        stack.value.replace("\n", "\\n");
-                        stack.value.replace("\r", "\\r");
+                        stack.value.replace("\\n", "\n");
+                        stack.value.replace("\\r", "\r");
 
                         if (!special_section.isEmpty() && (QRegExp("*." + special_section, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(stack.currentSection) || stack.currentSection == special_section))
                             pTable[stack.currentSection] = (pullAsString(stack.currentSection) + "," + stack.key);

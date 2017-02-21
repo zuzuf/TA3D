@@ -153,7 +153,7 @@ namespace UTILS
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "reading root path");
 		pPaths = TA3D::Resources::GetPaths();
-		if (pPaths.empty())
+        if (pPaths.isEmpty())
             pPaths.push_back(QString());
 		LOG_DEBUG(LOG_PREFIX_VFS << "browse archives");
         for (const QString &i : pPaths)
@@ -238,7 +238,8 @@ namespace UTILS
         if (filename.contains(".lua", Qt::CaseInsensitive))
 			return NULL;
 
-        const QString &cacheable_filename = filename.toLower().replace('\\', '/').replace('/', 'S');
+        QString cacheable_filename = filename.toLower();
+        cacheable_filename.replace('\\', '/').replace('/', 'S');
 
         const QString &cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";
 
@@ -285,7 +286,8 @@ namespace UTILS
         if (filename.isEmpty())
 			return NULL;
 
-        const QString &key = filename.toLower().replace('\\', '/');
+        QString key = filename.toLower();
+        key.replace('\\', '/');
 
 		ThreadingPolicy::MutexLocker locker(*this);
 

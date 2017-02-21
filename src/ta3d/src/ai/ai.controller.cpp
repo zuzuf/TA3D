@@ -593,7 +593,7 @@ namespace TA3D
 	void AiController::save()
 	{
         Paths::MakeDir( Paths::Resources + "ai" );
-        QString filename = Paths::Resources + "ai" + Paths::Separator + name + TA3D_AI_FILE_EXTENSION;
+        const QString &filename = Paths::Resources + "ai/" + name + TA3D_AI_FILE_EXTENSION;
         QFile file(filename);
         file.open(QIODevice::WriteOnly);
 

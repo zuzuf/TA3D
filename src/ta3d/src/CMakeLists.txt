@@ -85,6 +85,7 @@ SET(SRC_MISC
 		misc/camera.h misc/camera.cpp
 		misc/recttest.h misc/recttest.cpp
 
+                misc/broadcastingiodevice.h misc/broadcastingiodevice.cpp
 		misc/usectimer.h misc/usectimer.cpp
 		misc/grid.h misc/grid.hxx misc/grid.cpp
 		misc/math.h misc/math.cpp

@@ -14,15 +14,15 @@ namespace TA3D
         void Hpi::finder(QStringList &fileList, const QString &path)
         {
             QStringList files;
-            if (path.endsWith(Paths::Separator))
+            if (path.endsWith('/'))
                 Paths::GlobFiles(files, path + "*", false, false);
             else
-                Paths::GlobFiles(files, path + Paths::Separator + "*", false, false);
-            for(QStringList::iterator i = files.begin() ; i != files.end() ; ++i)
+                Paths::GlobFiles(files, path + "/*", false, false);
+            for(const QString &i : files)
             {
-                const QString &ext = Paths::ExtractFileExt(*i).toLower();
+                const QString &ext = Paths::ExtractFileExt(i).toLower();
                 if (ext == ".hpi" || ext == ".gp3" || ext == ".ccx" || ext == ".ufo")
-                    fileList.push_back(*i);
+                    fileList.push_back(i);
             }
         }
 
@@ -59,11 +59,14 @@ namespace TA3D
             if (Paths::ExtractFileName(filename).toLower() == "ta3d.hpi")
                 priority = 3;
 
-			HPIFile.open(filename, Yuni::Core::IO::OpenMode::read);
-			if (!HPIFile.opened())
+            static int archive_count = 0;
+            archive_count++;
+            HPIFile.setFileName(filename);
+            HPIFile.open(QIODevice::ReadOnly);
+            if (!HPIFile.isOpen())
             {
+                LOG_DEBUG(LOG_PREFIX_VFS << "failed to open hpi file '" << filename << "' for reading with error : '" << HPIFile.errorString() << "'");
                 close();
-                LOG_DEBUG(LOG_PREFIX_VFS << "failed to open hpi file for reading : '" << filename << "'");
                 return;
             }
 
@@ -96,7 +99,7 @@ namespace TA3D
             Archive::name.clear();
 			DELETE_ARRAY(directory);
 
-			if (HPIFile.opened())
+            if (HPIFile.isOpen())
 				HPIFile.close();
 
 			for(HashMap<HpiFile*>::Sparse::iterator i = files.begin() ; i != files.end() ; ++i)
@@ -255,16 +258,16 @@ namespace TA3D
             else
             {
                 // file not compressed
-				readAndDecrypt(Offset+start, WriteBuff+start, Math::Min(Length - start, length));
+                readAndDecrypt(Offset + start, WriteBuff + start, std::min<int>(Length - start, length));
             }
 
-			return new VirtualFile(WriteBuff, Math::Min(length, Length - start), start, Length);
+            return new VirtualFile(WriteBuff, std::min<int>(length, Length - start), start, Length);
         }
 
         sint32  Hpi::readAndDecrypt(sint32 fpos, byte *buff, const sint32 buffsize)
         {
             sint32 result;
-			HPIFile.seekFromBeginning(fpos);
+            HPIFile.seek(fpos);
 			result = (sint32)HPIFile.read((char*)buff, buffsize);
             if (key)
             {

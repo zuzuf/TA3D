@@ -81,7 +81,7 @@ namespace TA3D
 
 		{
 			QStringList file_list;
-			VFS::Instance()->getFilelist("textures\\*.gaf", file_list);
+            VFS::Instance()->getFilelist("textures/*.gaf", file_list);
 			const QStringList::const_iterator end = file_list.end();
 			for (QStringList::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 			{
@@ -93,7 +93,7 @@ namespace TA3D
 		}
 		{
 			QStringList file_list;
-			VFS::Instance()->getDirlist("textures\\*", file_list);
+            VFS::Instance()->getDirlist("textures/*", file_list);
 			const QStringList::const_iterator end = file_list.end();
 			for (QStringList::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
 			{
@@ -131,7 +131,7 @@ namespace TA3D
 	void TEXTURE_MANAGER::load_gaf(const QString &filename, bool logo)
 	{
 		QStringList elts;
-        sint32 nb_entry = VFS::Instance()->getDirlist(filename + "\\*", elts);
+        sint32 nb_entry = VFS::Instance()->getDirlist(filename + "/*", elts);
 		int n_nbtex = nbtex + nb_entry;
 		Gaf::Animation* n_tex = new Gaf::Animation[n_nbtex];
 		for (int i = 0; i < nbtex; ++i)

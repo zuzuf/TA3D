@@ -90,7 +90,7 @@ namespace Menus
 		LOG_ASSERT(NULL != gfx);
 
         // The background
-        QString filename = "gfx" + Paths::SeparatorAsString + "splash" + Paths::SeparatorAsString + "loading.jpg";
+        const QString &filename = "gfx/splash/loading.jpg";
 		ResetTexture(pBackgroundTexture, gfx->load_texture(filename));
 	}
 

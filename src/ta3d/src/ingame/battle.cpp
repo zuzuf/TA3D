@@ -1424,7 +1424,7 @@ namespace TA3D
 				{
                     QStringList file_list;
 					if (network_manager.isConnected())
-                        Paths::Glob(file_list, TA3D::Paths::Savegames + "multiplayer" + Paths::Separator + "*.sav");
+                        Paths::Glob(file_list, TA3D::Paths::Savegames + "multiplayer/*.sav");
 					else
                         Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
                     std::sort(file_list.begin(), file_list.end());
@@ -1455,7 +1455,7 @@ namespace TA3D
                         network_manager.sendSpecial("SAVE " + tmp);
 
 						// Save multiplayer games in their own folder
-                        filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(filename, ".sav");
+                        filename = Paths::Savegames + "multiplayer/" + Paths::Files::ReplaceExtension(filename, ".sav");
 					}
 					else
                         filename = Paths::Savegames + Paths::Files::ReplaceExtension(filename, ".sav");

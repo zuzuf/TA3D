@@ -100,6 +100,7 @@
 
 namespace TA3D
 {
+    class BroadCastingIODevice;
 
     class Logger
     {
@@ -167,7 +168,8 @@ namespace TA3D
     public:
         int verbosityLevel;
     private:
-        QFile log_file;
+        QFile *log_file;
+        BroadCastingIODevice *main_log_device;
         QSharedPointer<QTextStream> log_file_stream;
     };
 

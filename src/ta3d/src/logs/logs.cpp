@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "logs.h"
-
+#include <misc/broadcastingiodevice.h>
 
 
 namespace TA3D
@@ -29,32 +29,47 @@ namespace TA3D
     Logger::Logger()
         : verbosityLevel(3)
     {
+        log_file = nullptr;
+
+        main_log_device = new BroadCastingIODevice;
+        log_file_stream.reset(new QTextStream(main_log_device));
+        QFile *stdoutput = new QFile;
+        stdoutput->open(0, QIODevice::WriteOnly);
+        main_log_device->addSink(stdoutput);
     }
 
     Logger::~Logger()
     {
         log_file_stream->flush();
-        log_file.flush();
+        delete main_log_device;
     }
 
     bool Logger::logFileIsOpened() const
     {
-        return log_file.isOpen();
+        return log_file;
     }
 
     QString Logger::logfile() const
     {
-        return log_file.fileName();
+        return log_file ? log_file->fileName() : QString();
     }
 
     void Logger::openLogFile(const QString &filename)
     {
-        if (log_file.isOpen())
-            log_file.close();
-        log_file.setFileName(filename);
-        log_file.open(QIODevice::WriteOnly);
-
-        log_file_stream.reset(new QTextStream(&log_file));
+        if (log_file)
+        {
+            main_log_device->deleteSink(log_file);
+            log_file = nullptr;
+        }
+        log_file = new QFile(filename);
+        log_file->open(QIODevice::WriteOnly);
+        if (log_file->isOpen())
+            main_log_device->addSink(log_file);
+        else
+        {
+            delete log_file;
+            log_file = nullptr;
+        }
     }
 } // namespace TA3D
 

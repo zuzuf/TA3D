@@ -71,20 +71,6 @@ namespace Paths
 	//! \name System-dependant variables
 	//@{
 
-	//! The path-separator character according to the platform
-# ifdef TA3D_PLATFORM_WINDOWS
-	const char Separator = '\\';
-# else
-	const char Separator = '/';
-# endif
-
-	//! The path-separator character according to the platform (stored in a string instead of a char)
-# ifdef TA3D_PLATFORM_WINDOWS
-    const QString SeparatorAsString = "\\";
-# else
-    const QString SeparatorAsString = "/";
-# endif
-
 # ifdef TA3D_PLATFORM_WINDOWS
 	//! The folder for local data (Windows only)
 	extern QString LocalData;

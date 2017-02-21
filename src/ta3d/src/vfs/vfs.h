@@ -231,7 +231,7 @@ namespace UTILS
 	}; // class VFS;
 
 
-	bool load_palette(SDL_Color *pal, const QString& filename = "palettes\\palette.pal");
+    bool load_palette(SDL_Color *pal, const QString& filename = "palettes/palette.pal");
 
     bool loadFromFile(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore);
 

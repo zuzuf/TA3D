@@ -165,7 +165,7 @@ namespace TA3D
 				m_File << "[MAP]\n{\n";
 				m_File << " missionname=" << map_data.missionname << ";\n";
 				QString tmp(map_data.missiondescription);
-				tmp.replace("\n", "\\n");
+                tmp.replace("\n", "\\n");
 				m_File << " missiondescription=" << tmp << ";\n";
 				m_File << " planet=" << map_data.planet << ";\n";
 				m_File << " tidalstrength=" << map_data.tidalstrength << ";\n";
@@ -187,7 +187,7 @@ namespace TA3D
 			args.erase(args.begin());
 			return true;
 		}
-        std::cerr << "SYNTAX: " << appName.toStdString() << " mapdescription \"maps\\map.ota\" description.tdf" << std::endl;
+        std::cerr << "SYNTAX: " << appName.toStdString() << " mapdescription \"maps/map.ota\" description.tdf" << std::endl;
 		return true;
 	}
 

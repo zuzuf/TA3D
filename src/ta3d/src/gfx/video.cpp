@@ -62,9 +62,7 @@ namespace TA3D
 					delete[] buf;
 					tmp_file.flush();
 					tmp_file.close();
-# ifdef TA3D_PLATFORM_WINDOWS
                     tmp.replace('\\','/');
-# endif
 				}
 				else
 				{

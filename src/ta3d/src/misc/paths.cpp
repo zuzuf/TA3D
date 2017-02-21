@@ -101,13 +101,13 @@ namespace TA3D
 				LocalData = localAppData();
 				LocalData += Separator;
 
-                Resources = ApplicationRoot + "resources\\";
-                Caches = ApplicationRoot + "cache\\";
-                Savegames = ApplicationRoot + "savegames\\";
-                Logs = ApplicationRoot + "logs\\";
+                Resources = ApplicationRoot + "resources/";
+                Caches = ApplicationRoot + "cache/";
+                Savegames = ApplicationRoot + "savegames/";
+                Logs = ApplicationRoot + "logs/";
 
-                Preferences = ApplicationRoot + "settings\\";
-                Screenshots = ApplicationRoot + "screenshots\\";
+                Preferences = ApplicationRoot + "settings/";
+                Screenshots = ApplicationRoot + "screenshots/";
 			}
 
 # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -166,7 +166,7 @@ namespace TA3D
 				else
 				{
 					ApplicationRoot.clear();
-                    QString r = CurrentDirectory() + Separator + argv0;
+                    QString r = CurrentDirectory() + '/' + argv0;
                     if (!r.isEmpty())
 						ApplicationRoot = ExtractFilePath(r);
 				}
@@ -185,7 +185,7 @@ namespace TA3D
 
 		QString ExtractFilePath(const QString& p, const bool systemDependant)
 		{
-            return QFileInfo(p).filePath();
+            return QFileInfo(p).path();
 		}
 
 		QString ExtractFileName(const QString& p, const bool systemDependant)
@@ -208,7 +208,7 @@ namespace TA3D
 
 		QString ExtractFileExt(const QString& s)
 		{
-            return QFileInfo(s).completeSuffix();
+            return '.' + QFileInfo(s).completeSuffix();
 		}
 
 
@@ -257,7 +257,7 @@ namespace TA3D
 
 			bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
 				&& MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources)
-                && MakeDir(Savegames + "multiplayer" + Paths::Separator);
+                && MakeDir(Savegames + "multiplayer/");
 			if (!res)
 			{
 				logs.fatal() << "Some paths are missing. Aborting now...";
@@ -315,7 +315,7 @@ namespace TA3D
             if (root.size() > 1 && (root.endsWith('/') || root.endsWith('\\')))
                 root_path.chop(1);
             else if (!root.isEmpty())
-                root += Separator;
+                root += '/';
 
 			# ifdef TA3D_PLATFORM_WINDOWS
 			QString strFilePath; // Filepath

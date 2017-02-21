@@ -36,7 +36,7 @@ namespace TA3D
             QString namae( TA3D::Paths::ExtractFileName(i) );
 			if ( namae == ".." || namae == "." )	// Have to exclude both .. & .
 				continue;							// because of windows finding . as something interesting
-            if (Paths::Exists(Paths::Resources + "mods" + Paths::Separator + namae + Paths::Separator + "info.mod"))
+            if (Paths::Exists(Paths::Resources + "mods/" + namae + "/info.mod"))
 			{
 				ModInfo mod;
 				mod.read(namae);

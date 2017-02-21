@@ -77,7 +77,7 @@ namespace TA3D
 	void AiScript::save()
 	{
         Paths::MakeDir( Paths::Resources + "ai" );
-        const QString &filename = Paths::Resources + "ai" + Paths::Separator + name + TA3D_AI_FILE_EXTENSION;
+        const QString &filename = Paths::Resources + "ai/" + name + TA3D_AI_FILE_EXTENSION;
         QFile(filename).remove();     // We don't want to save anything here, the Lua script is responsible for everything now
 	}
 

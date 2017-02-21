@@ -276,7 +276,7 @@ namespace Gui
 		QString real_filename = filename;
         if (skin && !skin->prefix().isEmpty())
 		{
-            real_filename = Paths::ExtractFilePath(filename) + Paths::Separator + skin->prefix() + Paths::ExtractFileName(filename);
+            real_filename = Paths::ExtractFilePath(filename) + '/' + skin->prefix() + Paths::ExtractFileName(filename);
 			if (!VFS::Instance()->fileExists(real_filename))	// If it doesn't exist revert to the default name
 				real_filename = filename;
 		}

@@ -152,7 +152,7 @@ namespace TA3D
 		}
 		// Now try to open it as a GAF-like directory
         QStringList folderList;
-        VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+        VFS::Instance()->getFilelist(filename + '/' + imgname + "/*", folderList);
         if (!folderList.isEmpty())			// So this is a directory with a GAF-like tree structure
 		{
             std::sort(folderList.begin(), folderList.end());
@@ -191,7 +191,7 @@ namespace TA3D
 
 		// Now try to open it as a GAF-like directory
         QStringList folderList;
-        VFS::Instance()->getFilelist(filename + '\\' + imgname + "\\*", folderList);
+        VFS::Instance()->getFilelist(filename + '/' + imgname + "/*", folderList);
         if (!folderList.isEmpty())			// So this is a directory with a GAF-like tree structure
 		{
             std::sort(folderList.begin(), folderList.end());
@@ -640,7 +640,7 @@ namespace TA3D
 		filename = folderName;
 
         QStringList files;
-        VFS::Instance()->getFilelist(folderName + '\\' + entryName + "\\*", files);
+        VFS::Instance()->getFilelist(folderName + '/' + entryName + "/*", files);
         std::sort(files.begin(), files.end());
 
 		nb_bmp = (sint32)files.size();
@@ -781,7 +781,7 @@ namespace TA3D
     sint32 Gaf::AnimationList::loadGAFFromDirectory(const QString &folderName, const bool doConvert)
 	{
         QStringList entries;
-        VFS::Instance()->getDirlist(folderName + "\\*", entries);
+        VFS::Instance()->getDirlist(folderName + "/*", entries);
 		pList.clear();
 		pList.resize(entries.size());
 		for (uint32 i = 0 ; i < pList.size() ; ++i)

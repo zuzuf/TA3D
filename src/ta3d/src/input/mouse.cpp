@@ -197,7 +197,7 @@ namespace TA3D
 		SDL_ShowCursor(SDL_DISABLE);
 
 		// Loading and creating cursors
-		File *file = VFS::Instance()->readFile("anims\\cursors.gaf");	// Load cursors
+        File *file = VFS::Instance()->readFile("anims/cursors.gaf");	// Load cursors
 		if (file)
 		{
 			cursor.loadGAFFromRawData(file, false);
@@ -229,7 +229,7 @@ namespace TA3D
 		}
 		else
 		{
-			LOG_DEBUG("RESOURCES ERROR : (anims\\cursors.gaf not found)");
+            LOG_DEBUG("RESOURCES ERROR : (anims/cursors.gaf not found)");
 			exit(2);
 		}
 		cursor_type = CURSOR_DEFAULT;

@@ -254,7 +254,7 @@ namespace TA3D
 		sky_list.clear();
 
 		QStringList file_list;
-		VFS::Instance()->getFilelist("sky\\*.tdf", file_list);
+        VFS::Instance()->getFilelist("sky/*.tdf", file_list);
 		uint32	nb_sky = 0;
 
 		for (QStringList::const_iterator it = file_list.begin(); it != file_list.end(); ++it)

@@ -1421,7 +1421,7 @@ namespace TA3D
 		if (MeshTypeManager::lMeshExtension)
             for(QStringList::iterator ext = MeshTypeManager::lMeshExtension->begin() ; ext != MeshTypeManager::lMeshExtension->end() ; ++ext)
 			{
-                e = model_hashtable.find("objects3d\\" + l + *ext);
+                e = model_hashtable.find("objects3d/" + l + *ext);
 				if (e != model_hashtable.end())
 					return model[*e];
 
