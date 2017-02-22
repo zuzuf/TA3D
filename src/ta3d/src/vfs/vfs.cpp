@@ -41,6 +41,11 @@ namespace TA3D
 namespace UTILS
 {
 
+    VFS* VFS::Instance()
+    {
+        static VFS instance;
+        return &instance;
+    }
 
 	
 	void VFS::addArchive(const QString& filename, const int priority)

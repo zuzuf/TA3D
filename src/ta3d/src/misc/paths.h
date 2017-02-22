@@ -127,7 +127,7 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-	QString ExtractFilePath(const QString& p, const bool systemDependant = false);
+    QString ExtractFilePath(const QString& p);
 
 	/*!
 	** \brief Extract the bare file name
@@ -139,8 +139,8 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-	QString ExtractFileName(const QString& p, const bool systemDependant = false);
-    void ExtractFileName(QStringList& p, const bool systemDependant = false);
+    QString ExtractFileName(const QString& p);
+    void ExtractFileName(QStringList& p);
 
 	/*!
 	** \brief Extract the bare file name without its extension
@@ -150,7 +150,7 @@ namespace Paths
 	**
 	** \see Paths::Separator
 	*/
-    QString ExtractFileNameWithoutExtension(const QString& p, const bool systemDependant = false);
+    QString ExtractFileNameWithoutExtension(const QString& p);
 
 	/*!
 	** \brief Extract the extention of a file name
@@ -202,7 +202,7 @@ namespace Paths
 	** }
 	** \endcode
 	*/
-    bool Glob(QStringList& out, const QString& pattern, const bool emptyListBefore = true, const bool relative = false);
+    bool Glob(QStringList& out, const QString& pattern, const bool emptyListBefore = true);
 
 	/*!
 	** \brief Find files matching a pattern
@@ -226,7 +226,7 @@ namespace Paths
 	** }
 	** \endcode
 	*/
-    bool GlobFiles(QStringList& out, const QString& pattern, const bool emptyListBefore = true, const bool relative = false);
+    bool GlobFiles(QStringList& out, const QString& pattern, const bool emptyListBefore = true);
 
 	/*!
 	** \brief Find directories matching a pattern
@@ -250,7 +250,7 @@ namespace Paths
 	** }
 	** \endcode
 	*/
-    bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore = true, const bool relative = false);
+    bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore = true);
 
 	//@} // Globbing
 

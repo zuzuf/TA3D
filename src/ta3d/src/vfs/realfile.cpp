@@ -4,11 +4,11 @@ namespace TA3D
 {
 	namespace UTILS
 	{
-		RealFile::RealFile() : buffer(NULL)
+        RealFile::RealFile()
 		{
 		}
 
-		RealFile::RealFile(const QString &filename) : buffer(NULL)
+        RealFile::RealFile(const QString &filename)
 		{
 			open(filename);
 		}
@@ -16,65 +16,57 @@ namespace TA3D
 		RealFile::~RealFile()
 		{
 			sFile.close();
-			if (buffer)
-				delete[] buffer;
 		}
 
 		void RealFile::open(const QString &filename)
 		{
 			sFile.close();
-			if (buffer)
-				delete[] buffer;
-			buffer = NULL;
-			sFile.open(filename, Yuni::Core::IO::OpenMode::read);
-			realFilename = filename;
+            buffer.clear();
+            sFile.setFileName(filename);
+            sFile.open(QIODevice::ReadOnly);
 		}
 
 		bool RealFile::isOpen()
 		{
-			return sFile.opened();
+            return sFile.isOpen();
 		}
 
 		bool RealFile::eof()
 		{
-			if (!sFile.opened())
+            if (!sFile.isOpen())
 				return true;
-			return sFile.eof();
+            return sFile.atEnd();
 		}
 
 		int RealFile::size()
 		{
-			if (!sFile.opened())
+            if (!sFile.isOpen())
 				return 0;
-			ssize_t pos = sFile.tell();
-			sFile.seekFromEndOfFile(0);
-			ssize_t s = sFile.tell();
-			sFile.seekFromBeginning(pos);
-			return int(s);
-		}
+            return sFile.size();
+        }
 
 		int RealFile::tell()
 		{
-			if (!sFile.opened())
+            if (!sFile.isOpen())
 				return 0;
-			return int(sFile.tell());
+            return sFile.pos();
 		}
 
 		void RealFile::seek(int pos)
 		{
-			sFile.seekFromBeginning(pos);
+            sFile.seek(pos);
 		}
 
 		int RealFile::read(void *p, int s)
 		{
-			if (!sFile.opened())
+            if (!sFile.isOpen())
 				return 0;
 			return int(sFile.read((char*)p, s));
 		}
 
 		bool RealFile::readLine(QString &line)
 		{
-			if (sFile.eof())
+            if (sFile.atEnd())
 				return false;
 
 			line.clear();
@@ -86,25 +78,21 @@ namespace TA3D
 
 		const char *RealFile::data()
 		{
-			if (buffer)
-				return buffer;
+            if (!buffer.isEmpty())
+                return buffer.data();
 
-			buffer = new char[size() + 1];
 			int pos = tell();
 			seek(0);
-			read(buffer, size());
-			buffer[size()] = 0;
+            buffer = sFile.readAll();
 			seek(pos);
 
-			return buffer;
+            return buffer.data();
 		}
 
 		void RealFile::close()
 		{
 			sFile.close();
-			if (buffer)
-				delete[] buffer;
-			buffer = NULL;
+            buffer.clear();
 		}
 
 		bool RealFile::isReal() const
@@ -112,9 +100,9 @@ namespace TA3D
 			return true;
 		}
 
-		const QString &RealFile::getRealFilename() const
+        QString RealFile::getRealFilename() const
 		{
-			return realFilename;
+            return sFile.fileName();
 		}
 	}
 }

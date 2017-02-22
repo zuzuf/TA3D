@@ -17,33 +17,12 @@
 
 #include <stdafx.h>
 #include "paths.h"
-#ifndef TA3D_PLATFORM_WINDOWS
-# include <stdlib.h>
-#else
-# include <windows.h>
-# include <shlobj.h>
-#endif
-#include <sys/stat.h>
 #include <TA3D_NameSpace.h>
 #include <logs/logs.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <dirent.h>
 #include <errno.h>
 #include <QFileInfo>
 #include <QDir>
-
-
-#ifdef TA3D_PLATFORM_WINDOWS
-# define FA_FILE     1
-# define FA_DIREC    2
-#else
-# define FA_FILE     DT_REG
-# define FA_DIREC    DT_DIR
-#endif
-
-#define FA_ALL      (FA_FILE | FA_DIREC)
-
 
 
 namespace TA3D
@@ -68,9 +47,9 @@ namespace TA3D
 		QString CurrentDirectory()
 		{
 			char* c = getcwd(NULL, 0);
-			QString ret(c);
+            QString ret = QString::fromLocal8Bit(c);
 			free(c);
-			return QString(ret);
+            return ret;
 		}
 
 
@@ -183,23 +162,23 @@ namespace TA3D
 
 
 
-		QString ExtractFilePath(const QString& p, const bool systemDependant)
+        QString ExtractFilePath(const QString& p)
 		{
             return QFileInfo(p).path();
 		}
 
-		QString ExtractFileName(const QString& p, const bool systemDependant)
+        QString ExtractFileName(const QString& p)
 		{
             return QFileInfo(p).fileName();
 		}
 
-        void ExtractFileName(QStringList& p, const bool systemDependant)
+        void ExtractFileName(QStringList& p)
 		{
             for(QString &i : p)
                 i = QFileInfo(i).fileName();
 		}
 
-		QString ExtractFileNameWithoutExtension(const QString& p, const bool systemDependant)
+        QString ExtractFileNameWithoutExtension(const QString& p)
 		{
             return QFileInfo(p).completeBaseName();
 		}
@@ -270,7 +249,7 @@ namespace TA3D
 
 		bool Exists(const QString& p)
 		{
-            return QDir(p).exists();
+            return QDir(p).exists() || QFileInfo(p).exists();
 		}
 
 		void RemoveDir(const QString& p)
@@ -304,114 +283,44 @@ namespace TA3D
             return true;
 		}
 
-		template<class T>
-		bool TmplGlob(T& out, const QString& pattern, const bool emptyListBefore, const uint32 fileAttribs = FA_ALL, const uint32 required = 0, const bool relative = false)
+        bool ImplGlob(QStringList& out, const QString& pattern, const bool emptyListBefore, QDir::Filters filters)
 		{
-			if (emptyListBefore)
-				out.clear();
-
-			QString root = ExtractFilePath(pattern);
-			QString root_path = root;
-            if (root.size() > 1 && (root.endsWith('/') || root.endsWith('\\')))
-                root_path.chop(1);
-            else if (!root.isEmpty())
-                root += '/';
-
-			# ifdef TA3D_PLATFORM_WINDOWS
-			QString strFilePath; // Filepath
-			QString strExtension; // Extension
-			HANDLE hFile; // Handle to file
-			WIN32_FIND_DATA FileInformation; // File information
-
-            hFile = ::FindFirstFile(pattern.toStdString().c_str(), &FileInformation);
-			if (hFile != INVALID_HANDLE_VALUE)
-			{
-				do
-				{
-					if (FileInformation.cFileName[0] != '.')
-					{
-						QString name = (const char*)FileInformation.cFileName;
-
-						if((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fileAttribs & FA_DIREC) && !(required & FA_FILE))
-						{
-							if (relative)
-								out.push_back(name);
-							else
-                                out.push_back(root + name);
-						}
-						else if (!(required & FA_DIREC) && (fileAttribs & FA_FILE))
-						{
-							if (relative)
-								out.push_back(name);
-							else
-                                out.push_back(root + name);
-						}
-					}
-				} while(::FindNextFile(hFile, &FileInformation) == TRUE);
-
-				// Close handle
-				::FindClose(hFile);
-			}
-
-			# else /* ifdef WINDOWS */
-
-			(void)fileAttribs;
-            QString filename_pattern = ExtractFileName(pattern);
-			DIR *dp;
-			struct dirent *dirp;
-            if ((dp  = opendir(root_path.toStdString().c_str())) == NULL)
-			{
-				// Following line is commented out because it may be useful later, but for now it only floods the logs
-				//            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
-				return true;
-			}
-
-            QRegExp reg_exp(filename_pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
-
-			while ((dirp = readdir(dp)) != NULL)
-			{
-				QString name = (char*)(dirp->d_name);
-				if (dirp->d_type == 0)
-				{
-					DIR *dp2;
-                    if ((dp2  = opendir((root + name).toStdString().c_str())))
-					{
-						closedir(dp2);
-						dirp->d_type |= FA_DIREC;
-					}
-					else
-						dirp->d_type |= FA_FILE;
-				}
-
-                if ((dirp->d_type & required) == required && name != "." && name != ".." && reg_exp.exactMatch(name))
-				{
-					if (relative)
-						out.push_back(name);
-					else
-                        out.push_back(root + name);
-				}
-			}
-			closedir(dp);
-			# endif
-
-			return !out.empty();
+            QString path;
+            QString filter;
+            if (pattern.endsWith('/'))
+                path = pattern;
+            else
+            {
+                const QFileInfo pattern_info(pattern);
+                path = pattern_info.path();
+                filter = pattern_info.fileName();
+            }
+            QDir dir(path, filter, QDir::SortFlags( QDir::Name | QDir::IgnoreCase ), filters);
+            if (emptyListBefore)
+                out.clear();
+            QStringList new_entries = dir.entryList();
+            path += '/';
+            for(QString &entry : new_entries)
+                entry = path + entry;
+            out << new_entries;
+            return !new_entries.isEmpty();
 		}
 
 
-        bool Glob(QStringList &out, const QString& pattern, const bool emptyListBefore, const bool relative)
+        bool Glob(QStringList &out, const QString& pattern, const bool emptyListBefore)
 		{
-            return TmplGlob(out, pattern, emptyListBefore, FA_ALL, 0, relative);
+            return ImplGlob(out, pattern, emptyListBefore, QDir::AllEntries | QDir::NoDotAndDotDot);
 		}
 
-        bool GlobFiles(QStringList& out, const QString& pattern, const bool emptyListBefore, const bool relative)
+        bool GlobFiles(QStringList& out, const QString& pattern, const bool emptyListBefore)
 		{
-            return TmplGlob(out, pattern, emptyListBefore, FA_FILE, FA_FILE, relative);
-		}
+            return ImplGlob(out, pattern, emptyListBefore, QDir::Files | QDir::NoDotAndDotDot);
+        }
 
-        bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore, const bool relative)
+        bool GlobDirs(QStringList& out, const QString& pattern, const bool emptyListBefore)
 		{
-            return TmplGlob(out, pattern, emptyListBefore, FA_ALL, FA_DIREC, relative);
-		}
+            return ImplGlob(out, pattern, emptyListBefore, QDir::Dirs | QDir::NoDotAndDotDot);
+        }
 
 		bool IsAbsolute(const QString& p)
 		{

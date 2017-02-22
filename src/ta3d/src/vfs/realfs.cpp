@@ -7,8 +7,6 @@
 #include "realfile.h"
 #include <QFile>
 
-using namespace Yuni::Core::IO::File;
-
 namespace TA3D
 {
     namespace UTILS
@@ -68,9 +66,9 @@ namespace TA3D
                     QString current = dirs.front() + "/*";
                     dirs.pop_front();
 
-                    Paths::GlobFiles(fileList, current, false, false);
+                    Paths::GlobFiles(fileList, current, false);
 
-                    Paths::GlobDirs(dirs, current, false, false);
+                    Paths::GlobDirs(dirs, current, false);
                 }
 
                 for (QStringList::iterator i = fileList.begin() ; i != fileList.end() ; ++i)

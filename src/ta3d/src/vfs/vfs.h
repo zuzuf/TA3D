@@ -238,6 +238,4 @@ namespace UTILS
 } // namespace utils
 } // namespace TA3D
 
-# include "vfs.hxx"
-
 #endif // __TA3D_UTILS_VFS_H__

@@ -328,7 +328,7 @@ namespace Menus
 
             for (const QString &i : skin_list)
 			{
-                const QString &skin_name = Paths::ExtractFileName(i, false);
+                const QString &skin_name = Paths::ExtractFileName(i);
 				obj->Text.push_back(skin_name);
                 if ("gui/" + skin_name.toLower() == lp_CONFIG->skin_name.toLower())
 					obj->Text[0] = skin_name;

@@ -143,10 +143,9 @@ namespace TA3D
 			return false;
 		}
 
-		const QString &VirtualFile::getRealFilename() const
+        QString VirtualFile::getRealFilename() const
 		{
-			static QString empty;
-			return empty;
+            return QString();
 		}
 	}
 }

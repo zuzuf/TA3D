@@ -25,7 +25,8 @@
 # define __TA3D_UTILS_REALFILE_H__
 
 # include "file.h"
-# include <yuni/core/io/file/stream.h>
+# include <QFile>
+# include <QByteArray>
 
 namespace TA3D
 {
@@ -61,7 +62,7 @@ namespace TA3D
 			//! Tell if this is a real file (useful for use with external libraries)
 			virtual bool isReal() const;
 			//! Returns the real filename (if it's a real file)
-			virtual const QString &getRealFilename() const;
+            virtual QString getRealFilename() const;
 
 			void open(const QString &filename);
 
@@ -69,9 +70,8 @@ namespace TA3D
 			virtual File &operator=(const File &) {return *this;}
 
 		private:
-			Yuni::Core::IO::File::Stream	sFile;
-			char *buffer;
-			QString realFilename;
+            QFile sFile;
+            QByteArray buffer;
 		};
 	}
 }

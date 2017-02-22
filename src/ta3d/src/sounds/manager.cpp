@@ -232,7 +232,7 @@ namespace Audio
 	{
         QString targetPlaylist = TA3D::Paths::Resources + "music/playlist.txt";
 		// Make sure the folder exists
-		Paths::MakeDir(Paths::ExtractFilePath(targetPlaylist, true));
+        Paths::MakeDir(Paths::ExtractFilePath(targetPlaylist));
         QFile play_list_file(targetPlaylist);
         play_list_file.open(QIODevice::Truncate | QIODevice::WriteOnly);
         if (!play_list_file.isOpen())

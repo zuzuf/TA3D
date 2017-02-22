@@ -118,7 +118,7 @@ namespace TA3D
                 "    url = " + url + ";\n"
                 "    installed = " + installed + ";\n"
                 "}";
-		Paths::MakeDir(Paths::ExtractFilePath(filename, false));
+        Paths::MakeDir(Paths::ExtractFilePath(filename));
         Paths::Files::SaveToFile(filename, file);
     }
 

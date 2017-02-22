@@ -59,7 +59,7 @@ namespace TA3D
 			//! Tell if this is a real file (useful for use with external libraries)
 			virtual bool isReal() const;
 			//! Returns the real filename (if it's a real file)
-			virtual const QString &getRealFilename() const;
+            virtual QString getRealFilename() const;
 
 			//! Replace current buffer with the one given as parameter (it takes ownership of the new buffer which will be automatically deleted)
 			void setBuffer(byte *buf, int s, int start = 0, int end = -1);

@@ -58,7 +58,7 @@ namespace TA3D
 			//! Tell if this is a real file (useful for use with external libraries)
 			virtual bool isReal() const = 0;
 			//! Returns the real filename (if it's a real file)
-			virtual const QString &getRealFilename() const = 0;
+            virtual QString getRealFilename() const = 0;
 
 			virtual File &operator=(const File &f) = 0;
 

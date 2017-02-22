@@ -32,9 +32,11 @@ namespace TA3D
         log_file = nullptr;
 
         main_log_device = new BroadCastingIODevice;
+        main_log_device->open(QIODevice::WriteOnly);
+
         log_file_stream.reset(new QTextStream(main_log_device));
         QFile *stdoutput = new QFile;
-        stdoutput->open(0, QIODevice::WriteOnly);
+        stdoutput->open(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
         main_log_device->addSink(stdoutput);
     }
 
@@ -62,7 +64,7 @@ namespace TA3D
             log_file = nullptr;
         }
         log_file = new QFile(filename);
-        log_file->open(QIODevice::WriteOnly);
+        log_file->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
         if (log_file->isOpen())
             main_log_device->addSink(log_file);
         else

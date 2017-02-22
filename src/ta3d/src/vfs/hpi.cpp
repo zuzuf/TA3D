@@ -15,9 +15,9 @@ namespace TA3D
         {
             QStringList files;
             if (path.endsWith('/'))
-                Paths::GlobFiles(files, path + "*", false, false);
+                Paths::GlobFiles(files, path + "*", false);
             else
-                Paths::GlobFiles(files, path + "/*", false, false);
+                Paths::GlobFiles(files, path + "/*", false);
             for(const QString &i : files)
             {
                 const QString &ext = Paths::ExtractFileExt(i).toLower();
