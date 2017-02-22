@@ -19,10 +19,8 @@
 #include <logs/logs.h>
 #include <QFile>
 #include <QFileInfo>
+#include <QBuffer>
 #include "paths.h"
-#include <vfs/realfile.h>
-
-using namespace TA3D::UTILS;
 
 namespace TA3D
 {
@@ -31,55 +29,31 @@ namespace Paths
 namespace Files
 {
 
-	template<class T>
-			bool getline(T &file, QString &s)
+    bool Load(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
-		s.clear();
-
-		if (file.eof())
-			return false;
-		while(!file.eof())
-		{
-			char c = file.get();
-			if (c == '\n')
-				break;
-            s.push_back(c);
-		}
-		return true;
-	}
-
-	template<class T>
-	bool TmplLoadFromFile(T& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
-	{
-		if (emptyListBefore)
-			out.clear();
+        if (emptyListBefore)
+            out.clear();
         QFile file(filename);
         file.open(QIODevice::ReadOnly);
         if (!file.isOpen())
-		{
-			LOG_WARNING("Impossible to open the file `" << filename << "`");
-			return false;
-		}
-		if (sizeLimit)
-		{
+        {
+            LOG_WARNING("Impossible to open the file `" << filename << "`");
+            return false;
+        }
+        if (sizeLimit)
+        {
             if (file.size() > sizeLimit)
-			{
-				LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
-				return false;
-			}
-		}
+            {
+                LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
+                return false;
+            }
+        }
         while (file.canReadLine())
             out.push_back(file.readLine());
-		return true;
-	}
+        return true;
+    }
 
-
-    bool Load(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
-	{
-        return TmplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
-	}
-
-	File* LoadContentInMemory(const QString& filename, const uint64 hardlimit)
+    QIODevice* LoadContentInMemory(const QString& filename, const uint64 hardlimit)
 	{
         qint64 size = QFileInfo(filename).size();
         if (0 == size)
@@ -90,7 +64,12 @@ namespace Files
                       << hardlimit / 1024 << "Ko");
             return NULL;
         }
-        return new UTILS::RealFile(filename);
+        QFile file(filename);
+        file.open(QIODevice::ReadOnly);
+        QBuffer *memory_file = new QBuffer;
+        memory_file->setData(file.readAll());
+        memory_file->open(QIODevice::ReadOnly);
+        return memory_file;
 	}
 
 
@@ -127,7 +106,7 @@ namespace Files
         if (!src.exists())
             return true;
         src.open(QIODevice::ReadOnly);
-        dst.open(QIODevice::Truncate | QIODevice::WriteOnly);
+        dst.open(QIODevice::WriteOnly);
         while(src.bytesAvailable())
             dst.write(src.read(65536));
         return false;

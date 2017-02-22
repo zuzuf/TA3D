@@ -66,7 +66,7 @@ namespace TA3D
 		init3DO();
 	}
 
-	int Mesh3DO::load(File *file, int dec, const QString &filename)
+    int Mesh3DO::load(QIODevice *file, int dec, const QString &filename)
 	{
 		if (nb_vtx > 0)
 			destroy3DO();					// Au cas où l'objet ne serait pas vierge
@@ -77,7 +77,8 @@ namespace TA3D
 		int offset = file->tell();
 
 		tagObject header;				// Lit l'en-tête
-		*file >> header;
+#define READ(X) file->read((char*)&X, sizeof(X));
+        READ(&header);
 
 		if (header.NumberOfVertexes + offset < 0)
 			return -1;
@@ -139,7 +140,7 @@ namespace TA3D
 		for (i = 0; i < nb_vtx; ++i) // Lit le tableau de points stocké dans le fichier
 		{
 			tagVertex vertex;
-			*file >> vertex;
+            READ(vertex);
 			points[i].x = (float)vertex.x  * div;
 			points[i].y = (float)vertex.y  * div;
 			points[i].z = -(float)vertex.z * div;
@@ -152,7 +153,7 @@ namespace TA3D
 		{
 			tagPrimitive primitive;
 			file->seek(header.OffsetToPrimitiveArray + i * (int)sizeof(tagPrimitive));
-			*file >> primitive;
+            READ(primitive);
 
 			switch(primitive.NumberOfVertexIndexes)
 			{
@@ -206,7 +207,7 @@ namespace TA3D
 		{
 			tagPrimitive primitive;
 			file->seek(header.OffsetToPrimitiveArray + i * (int)sizeof(tagPrimitive));
-			*file >> primitive;
+            READ(primitive);
 
 			switch (primitive.NumberOfVertexIndexes)
 			{
@@ -216,7 +217,7 @@ namespace TA3D
 				file->seek(primitive.OffsetToVertexIndexArray);
 				{
 					short s;
-					*file >> s;
+                    READ(s);
 					p_index[pos_p++] = s;
 				}
 				break;
@@ -224,9 +225,9 @@ namespace TA3D
 				file->seek(primitive.OffsetToVertexIndexArray);
 				{
 					short s;
-					*file >> s;
+                    READ(s);
 					l_index[pos_l++] = s;
-					*file >> s;
+                    READ(s);
 					l_index[pos_l++] = s;
 				}
 				break;
@@ -245,7 +246,7 @@ namespace TA3D
 					for (int e = 0; e < primitive.NumberOfVertexIndexes && e < 4; ++e)
 					{
 						short s;
-						*file >> s;
+                        READ(s);
 						sel[e] = s;
 					}
 					break;
@@ -281,7 +282,7 @@ namespace TA3D
 				for (int e = 0; e < nb_index[cur]; ++e)
 				{
 					short s;
-					*file >> s;
+                    READ(s);
 					t_index[pos_t++] = s;
 				}
 				++cur;

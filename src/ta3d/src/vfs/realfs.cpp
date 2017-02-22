@@ -4,7 +4,6 @@
 #include <misc/string.h>
 #include <logs/logs.h>
 #include "realfs.h"
-#include "realfile.h"
 #include <QFile>
 
 namespace TA3D
@@ -21,7 +20,7 @@ namespace TA3D
 
         Archive* RealFS::loader(const QString &filename)
         {
-            if (!filename.isEmpty() && (filename.endsWith('/') || filename.endsWith('\\')))
+            if (!filename.isEmpty() && filename.endsWith('/'))
                 return new RealFS(filename);
             return NULL;
         }
@@ -81,7 +80,7 @@ namespace TA3D
                     if (!i->isEmpty())
 					{
                         QString::size_type s = 0;
-                        while(s < i->size() && ((*i)[s] == '/' || (*i)[s] == '\\')) ++s;
+                        while(s < i->size() && (*i)[s] == '/') ++s;
                         if (s == i->size())
                             s = -1;
 						if (s != -1)
@@ -89,20 +88,15 @@ namespace TA3D
 					}
 
                     if (i->contains("/.svn/")
-                            || i->contains("\\.svn\\")
-                            || i->contains("\\.git\\")
                             || i->contains("/.git/")
                             || i->startsWith(".svn/")
-                            || i->startsWith(".svn\\")
                             || i->startsWith(".git/")
-                            || i->startsWith(".git\\")
-                            || i->contains("cache"))        // Don't include SVN and cache folders (they are huge and useless to us here)
+                            || i->contains("cache"))        // Don't include SVN, GIT and cache folders (they are huge and useless to us here)
                         continue;
 
                     RealFile *file = new RealFile;
                     file->pathToFile = *i;      // Store full path here
                     // make VFS path
-                    i->replace('\\','/');
                     *i = i->toLower();
                     file->setName(*i);
                     file->setParent(this);
@@ -117,7 +111,7 @@ namespace TA3D
 				lFiles.push_back(*i);
         }
 
-		File* RealFS::readFile(const QString& filename)
+        QIODevice* RealFS::readFile(const QString& filename)
 		{
             if (!files.empty())
 			{
@@ -128,21 +122,22 @@ namespace TA3D
 			return NULL;
 		}
 
-		File* RealFS::readFile(const FileInfo *file)
+        QIODevice* RealFS::readFile(const FileInfo *file)
 		{
-			QString unixFilename = ((const RealFile*)file)->pathToFile;
-            unixFilename.replace('\\', '/');
+            QString unixFilename = ((const RealFile*)file)->pathToFile;
 
-			QString root = name;
+            QString root = name;
             if (root.endsWith('/'))
                 root.chop(1);
 
             unixFilename = root + '/' + unixFilename;
 
-			return new UTILS::RealFile(unixFilename);
+            QFile *file = new QFile(unixFilename);
+            file->open(QIODevice::ReadOnly);
+            return file;
 		}
 
-		File* RealFS::readFileRange(const QString& filename, const uint32 start, const uint32 length)
+        QIODevice* RealFS::readFileRange(const QString& filename, const uint32 start, const uint32 length)
         {
 			HashMap<RealFile*>::Sparse::iterator file = files.find(filename);
             if (file != files.end())
@@ -151,18 +146,9 @@ namespace TA3D
                 return NULL;
         }
 
-		File* RealFS::readFileRange(const FileInfo *file, const uint32, const uint32)
+        QIODevice* RealFS::readFileRange(const FileInfo *file, const uint32, const uint32)
         {
-            QString unixFilename = ((const RealFile*)file)->pathToFile;
-            unixFilename.replace('\\', '/');
-
-            QString root = name;
-            if (root.endsWith('/'))
-                root.chop(1);
-
-            unixFilename = root + '/' + unixFilename;
-
-			return new UTILS::RealFile(unixFilename);
+            return readFile(file);
         }
 
         bool RealFS::needsCaching()

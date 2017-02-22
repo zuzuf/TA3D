@@ -40,15 +40,10 @@
 #endif
 
 
-
+class QIODevice;
 
 namespace TA3D
 {
-	namespace UTILS
-	{
-		class File;
-	}
-
 	/*!
 	** \brief Toolkit for the GAF file format
 	**
@@ -73,7 +68,7 @@ namespace TA3D
 			/*!
 			** \brief Constructor with RAW data from file
 			*/
-			Header(UTILS::File* file);
+            Header(QIODevice* file);
 			/*!
 			** \brief Constructor
 			*/
@@ -135,7 +130,7 @@ namespace TA3D
 				//! Default constructor
 				Data();
 				//! Constructor from RAW file data
-				Data(UTILS::File* file);
+                Data(QIODevice* file);
 				//@}
 
 				//! Width of the frame
@@ -188,19 +183,19 @@ namespace TA3D
 		/*!
 		** \brief Load a GAF image into a SDL_Surface
 		*/
-		static SDL_Surface* RawDataToBitmap(UTILS::File* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
+        static SDL_Surface* RawDataToBitmap(QIODevice* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
 
 		/*!
 		** \brief Get the number of entries from raw data
 		** \see Gaf::Header
 		*/
-		static sint32 RawDataEntriesCount(UTILS::File* file);
+        static sint32 RawDataEntriesCount(QIODevice* file);
 
-		static QString RawDataGetEntryName(UTILS::File* file, int entry_idx);
+        static QString RawDataGetEntryName(QIODevice* file, int entry_idx);
 
-		static sint32 RawDataGetEntryIndex(UTILS::File *file, const QString& name);
+        static sint32 RawDataGetEntryIndex(QIODevice *file, const QString& name);
 
-		static sint32 RawDataImageCount(UTILS::File *file, const int entry_idx);
+        static sint32 RawDataImageCount(QIODevice *file, const int entry_idx);
 
 
 
@@ -222,7 +217,7 @@ namespace TA3D
 			void init();
 			void destroy();
 
-			void loadGAFFromRawData(UTILS::File *file, const int entry_idx = 0, const bool truecolor = true, const QString& fname = QString());
+            void loadGAFFromRawData(QIODevice *file, const int entry_idx = 0, const bool truecolor = true, const QString& fname = QString());
 
 			void loadGAFFromDirectory(const QString &folderName, const QString &entryName);
 
@@ -288,7 +283,7 @@ namespace TA3D
 			** \param fname
 			** \return The number of animation found
 			*/
-			sint32 loadGAFFromRawData(UTILS::File* file, const bool doConvert = false, const QString& fname = "");
+            sint32 loadGAFFromRawData(QIODevice* file, const bool doConvert = false, const QString& fname = "");
 
 			/*!
 			** \brief Load all animation from a GAF-like directory

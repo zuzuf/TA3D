@@ -2,7 +2,7 @@
 #include <misc/paths.h>
 #include <zlib.h>
 #include <logs/logs.h>
-#include "virtualfile.h"
+#include <QBuffer>
 
 namespace TA3D
 {
@@ -118,16 +118,16 @@ namespace TA3D
 				lFiles.push_back(*i);
         }
 
-		File* Hpi::readFile(const QString& filename)
+        QIODevice* Hpi::readFile(const QString& filename)
         {
-            const QString &key = QString(filename).replace('\\', '/');
+            const QString &key = filename;
 			HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
 			return readFile(*item);
         }
 
-		File* Hpi::readFile(const FileInfo *file)
+        QIODevice* Hpi::readFile(const FileInfo *file)
         {
             const HpiFile *hi = (const HpiFile*)file;
 
@@ -183,24 +183,26 @@ namespace TA3D
 				DELETE_ARRAY(DeSize);
             }
             else
-            {
                 // file not compressed
                 readAndDecrypt(Offset, WriteBuff, Length);
-            }
 
-			return new VirtualFile(WriteBuff, Length);
+            QBuffer *hpi_file = new QBuffer;
+            hpi_file->setData((const char*)WriteBuff, Length);
+            delete[] WriteBuff;
+            hpi_file->open(QIODevice::ReadOnly);
+            return hpi_file;
         }
 
-		File* Hpi::readFileRange(const QString& filename, const uint32 start, const uint32 length)
+        QIODevice* Hpi::readFileRange(const QString& filename, const uint32 start, const uint32 length)
         {
-            const QString &key = QString(filename).replace('\\', '/');
+            const QString &key = filename;
             HashMap<HpiFile*>::Sparse::iterator item = files.find(key);
 			if (item == files.end())
 				return NULL;
 			return readFileRange(*item, start, length);
         }
 
-		File* Hpi::readFileRange(const FileInfo *file, const uint32 start, const uint32 length)
+        QIODevice *Hpi::readFileRange(const FileInfo *file, const uint32 start, const uint32 length)
         {
             const HpiFile *hi = (const HpiFile*)file;
             if (!hi)
@@ -256,12 +258,14 @@ namespace TA3D
 				DELETE_ARRAY(DeSize);
             }
             else
-            {
                 // file not compressed
                 readAndDecrypt(Offset + start, WriteBuff + start, std::min<int>(Length - start, length));
-            }
 
-            return new VirtualFile(WriteBuff, std::min<int>(length, Length - start), start, Length);
+            QBuffer *hpi_file = new QBuffer;
+            hpi_file->setData((const char*)WriteBuff, Length);
+            delete[] WriteBuff;
+            hpi_file->open(QIODevice::ReadOnly);
+            return hpi_file;
         }
 
         sint32  Hpi::readAndDecrypt(sint32 fpos, byte *buff, const sint32 buffsize)

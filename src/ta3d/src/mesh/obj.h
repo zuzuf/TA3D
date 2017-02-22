@@ -19,7 +19,6 @@
 #define __TA3D_MESH_OBJ_H__
 
 #include "3dm.h"
-#include <vfs/file.h>
 
 #define LOG_PREFIX_OBJ               "[obj] "
 
@@ -42,7 +41,7 @@ namespace TA3D
 
 		virtual void load_texture_id(int id);
 
-		void load(File *file, const QString &filename);
+        void load(QIODevice *file, const QString &filename);
 	private:
 		void obj_finalize(const QString &filename, const std::vector<int> &face, const std::vector<Vector3D> &vertex, const std::vector<Vector2D> &tcoord, MOBJ::Material* mtl = NULL);
 	public:

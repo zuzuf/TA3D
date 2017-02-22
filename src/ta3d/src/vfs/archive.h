@@ -27,12 +27,12 @@
 # include <misc/string.h>
 # include <deque>
 # include <zuzuf/smartptr.h>
+# include <QIODevice>
 
 namespace TA3D
 {
     namespace UTILS
     {
-		class File;
         /*! \class Archive
         **
         ** \brief abstract class defining the interface required to manipulate archives
@@ -52,8 +52,8 @@ namespace TA3D
                 inline int getPriority() const  {   return priority;    }
                 inline void setPriority(int p)  {  priority = p;   }
                 inline Archive *getParent() const {   return parent;  }
-				File* read();
-				File* readRange(const uint32 start, const uint32 length);
+                QIODevice* read();
+                QIODevice* readRange(const uint32 start, const uint32 length);
                 bool needsCaching() const;
             };
         protected:
@@ -82,8 +82,8 @@ namespace TA3D
             /*!
             ** \brief
             */
-			virtual File* readFile(const QString& filename) = 0;
-			virtual File* readFile(const FileInfo *file) = 0;
+            virtual QIODevice* readFile(const QString& filename) = 0;
+            virtual QIODevice* readFile(const FileInfo *file) = 0;
 
             /*!
             ** \brief
@@ -92,8 +92,8 @@ namespace TA3D
             ** \param length
             ** \return
             */
-			virtual File* readFileRange(const QString& filename, const uint32 start, const uint32 length) = 0;
-			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length) = 0;
+            virtual QIODevice* readFileRange(const QString& filename, const uint32 start, const uint32 length) = 0;
+            virtual QIODevice* readFileRange(const FileInfo *file, const uint32 start, const uint32 length) = 0;
 
             /*!
             ** \brief returns true if using the cache is a good idea (real FS will return false)

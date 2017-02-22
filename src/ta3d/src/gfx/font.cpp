@@ -197,27 +197,22 @@ namespace TA3D
 			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << out);
             tmp = TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf";
 
-			File *file = VFS::Instance()->readFile(out);
+            QIODevice *file = VFS::Instance()->readFile(out);
 			if (file)
 			{
-				if (file->isReal())
-					tmp = file->getRealFilename();
+                QFile *real_file = dynamic_cast<QFile*>(file);
+                if (real_file)
+                    tmp = real_file->fileName();
                 else if (!QFileInfo(tmp).exists() || QFileInfo(tmp).size() != (uint32)file->size())
 				{
                     QFile tmp_file(tmp);
 					LOG_DEBUG(LOG_PREFIX_FONT << "Creating temporary file for " << name << " (" << tmp << ")");
 
-                    tmp_file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+                    tmp_file.open(QIODevice::WriteOnly);
                     if (tmp_file.isOpen())
 					{
-						char *buf = new char[10240];
-						for(int i = 0 ; i < file->size() ; i += 10240)
-						{
-							const int l = Math::Min(10240, file->size() - i);
-							file->read(buf, l);
-							tmp_file.write(buf, l);
-						}
-						delete[] buf;
+                        while(file->bytesAvailable())
+                            tmp_file.write(file->read(10240));
 						tmp_file.flush();
 						tmp_file.close();
 					}
@@ -228,7 +223,6 @@ namespace TA3D
 				{
 					LOG_INFO(LOG_PREFIX_FONT << "`" << name << "`: From cache (`" << tmp << "`)");
 				}
-                out = tmp.replace('\\','/');
 				delete file;
 			}
 		}

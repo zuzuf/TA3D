@@ -31,9 +31,10 @@
 #include <vector>
 #include "gfx/glfunc.h"
 #include <zlib.h>
-#include <vfs/file.h>
+#include <QIODevice>
 #include <misc/paths.h>
 
+#define READ(X) file->read((char*)&X, sizeof(X))
 
 namespace TA3D
 {
@@ -44,7 +45,7 @@ namespace TA3D
 		/*!
 		 * \brief Get the name of a GAF entry
 		 */
-        void convertGAFCharToString(File* file, QString& out)
+        void convertGAFCharToString(QIODevice* file, QString& out)
 		{
 			char dt[33];
 			memset(dt, 0, 33);
@@ -55,12 +56,12 @@ namespace TA3D
 
 	}
 
-	Gaf::Header::Header(File* file)
+    Gaf::Header::Header(QIODevice* file)
 	{
 		file->seek(0);
-		file->read(IDVersion);
-		file->read(Entries);
-		file->read(Unknown1);
+        READ(IDVersion);
+        READ(Entries);
+        READ(Unknown1);
 	}
 
 	Gaf::Frame::Data::Data()
@@ -68,19 +69,19 @@ namespace TA3D
 		FramePointers(0), Unknown2(0), PtrFrameData(0), Unknown3(0)
 	{}
 
-	Gaf::Frame::Data::Data(File* file)
+    Gaf::Frame::Data::Data(QIODevice* file)
 	{
 		LOG_ASSERT(file != NULL);
-		*file >> Width;
-		*file >> Height;
-		*file >> XPos;
-		*file >> YPos;
-		*file >> Transparency;
-		*file >> Compressed;
-		*file >> FramePointers;
-		*file >> Unknown2;
-		*file >> PtrFrameData;
-		*file >> Unknown3;
+        READ(Width);
+        READ(Height);
+        READ(XPos);
+        READ(YPos);
+        READ(Transparency);
+        READ(Compressed);
+        READ(FramePointers);
+        READ(Unknown2);
+        READ(PtrFrameData);
+        READ(Unknown3);
 	}
 
 
@@ -89,7 +90,7 @@ namespace TA3D
 	{
 		out.clear();
 
-		File* file = VFS::Instance()->readFile(filename);		// Try to open it as a file
+        QIODevice* file = VFS::Instance()->readFile(filename);		// Try to open it as a file
 		if (file)
 		{
 			sint32 idx = RawDataGetEntryIndex(file, imgname);
@@ -112,7 +113,7 @@ namespace TA3D
 			for (std::vector<GLuint>::iterator i = out.begin(); i != out.end(); ++i, ++indx)
 			{
 				uint32 fw, fh;
-                QString cache_filename = filename + "-" + imgname + QString("-%1.bin").arg(indx);
+                const QString &cache_filename = filename + "-" + imgname + QString("-%1.bin").arg(indx);
 				*i = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
 
 				if (!(*i))
@@ -156,9 +157,10 @@ namespace TA3D
         if (!folderList.isEmpty())			// So this is a directory with a GAF-like tree structure
 		{
             std::sort(folderList.begin(), folderList.end());
-			int k = 0;
-            for(QStringList::iterator i = folderList.begin() ; i != folderList.end() ; ++i, ++k)
+            int k = -1;
+            for(const QString &i : folderList)
 			{
+                ++k;
 				uint32 width, height;
 				out.push_back(gfx->load_texture(*i, filter, &width, &height));
 				if (w)
@@ -177,7 +179,7 @@ namespace TA3D
         if (filename.endsWith(".gaf"))
             filename.chop(4);
 
-        QString cache_filename = filename + "-" + imgname + ".bin";
+        const QString &cache_filename = filename + "-" + imgname + ".bin";
 		uint32 fw;
 		uint32 fh;
 		GLuint first_try = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
@@ -201,7 +203,7 @@ namespace TA3D
 		// Add GAF extension
         filename += ".gaf";
 
-		File *file = VFS::Instance()->readFile(filename);			// Try to open it as file
+        QIODevice *file = VFS::Instance()->readFile(filename);			// Try to open it as file
 		if (file)
 		{
 			sint32 idx = file->size() > 0 ? RawDataGetEntryIndex(file, imgname) : -1;
@@ -240,7 +242,7 @@ namespace TA3D
 
 
 
-    QString Gaf::RawDataGetEntryName(File *file, int entry_idx)
+    QString Gaf::RawDataGetEntryName(QIODevice *file, int entry_idx)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0)
@@ -255,9 +257,9 @@ namespace TA3D
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
-		*file >> entry.Frames;
-		*file >> entry.Unknown1;
-		*file >> entry.Unknown2;
+        READ(entry.Frames);
+        READ(entry.Unknown1);
+        READ(entry.Unknown2);
         convertGAFCharToString(file, entry.name);
 
 		DELETE_ARRAY(pointers);
@@ -265,23 +267,20 @@ namespace TA3D
 	}
 
 
-    sint32 Gaf::RawDataGetEntryIndex(File* file, const QString& name)
+    sint32 Gaf::RawDataGetEntryIndex(QIODevice *file, const QString& name)
 	{
 		LOG_ASSERT(file != NULL);
 		sint32 nb_entry = RawDataEntriesCount(file);
-        QString cmpQString = name;
-        cmpQString.toUpper();
+        const QString &cmpQString = name.toUpper();
 		for (int i = 0; i < nb_entry; ++i)
-		{
             if (Gaf::RawDataGetEntryName(file, i).toUpper() == cmpQString)
 				return i;
-		}
 		return -1;
 	}
 
 
 
-	sint32 Gaf::RawDataImageCount(File* file, const int entry_idx)
+    sint32 Gaf::RawDataImageCount(QIODevice *file, const int entry_idx)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0)
@@ -295,9 +294,9 @@ namespace TA3D
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
-		*file >> entry.Frames;
-		*file >> entry.Unknown1;
-		*file >> entry.Unknown2;
+        READ(entry.Frames);
+        READ(entry.Unknown1);
+        READ(entry.Unknown2);
         convertGAFCharToString(file, entry.name);
 
 		DELETE_ARRAY(pointers);
@@ -306,7 +305,7 @@ namespace TA3D
 
 
 
-	SDL_Surface* Gaf::RawDataToBitmap(File* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
+    SDL_Surface* Gaf::RawDataToBitmap(QIODevice* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0 || img_idx < 0)
@@ -320,9 +319,9 @@ namespace TA3D
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
-		*file >> entry.Frames;
-		*file >> entry.Unknown1;
-		*file >> entry.Unknown2;
+        READ(entry.Frames);
+        READ(entry.Unknown1);
+        READ(entry.Unknown2);
         convertGAFCharToString(file, entry.name);
 
 		if (entry.Frames <= 0 || img_idx >= entry.Frames)
@@ -335,8 +334,8 @@ namespace TA3D
 
 		for (sint32 i = 0; i < entry.Frames; ++i)
 		{
-			*file >> frame[i].PtrFrameTable;
-			*file >> frame[i].Unknown1;
+            READ(frame[i].PtrFrameTable);
+            READ(frame[i].Unknown1);
 		}
 
 		SDL_Surface *frame_img = NULL;
@@ -368,7 +367,8 @@ namespace TA3D
 			{
 				file->seek(framedata.PtrFrameData);
 				sint32 img_size = 0;
-				*file >> img_size;
+                READ(img_size);
+                file->read((char*)&img_size, sizeof(img_size));
 				char *buf = new char[img_size];
 				file->read(buf, img_size);
 
@@ -385,20 +385,20 @@ namespace TA3D
 					{
 						uint32 f_pos;
 						file->seek(frames + 4 * subframe);
-						*file >> f_pos;
+                        READ(f_pos);
 						file->seek(f_pos);
 
-						*file >> framedata.Width;
-						*file >> framedata.Height;
-						*file >> framedata.XPos;
-						*file >> framedata.YPos;
+                        READ(framedata.Width);
+                        READ(framedata.Height);
+                        READ(framedata.XPos);
+                        READ(framedata.YPos);
 
-						*file >> framedata.Transparency;
-						*file >> framedata.Compressed;
-						*file >> framedata.FramePointers;
-						*file >> framedata.Unknown2;
-						*file >> framedata.PtrFrameData;
-						*file >> framedata.Unknown3;
+                        READ(framedata.Transparency);
+                        READ(framedata.Compressed);
+                        READ(framedata.FramePointers);
+                        READ(framedata.Unknown2);
+                        READ(framedata.PtrFrameData);
+                        READ(framedata.Unknown3);
 					}
 
 					SDL_Surface *img = NULL;
@@ -422,7 +422,7 @@ namespace TA3D
 						file->seek(framedata.PtrFrameData);
 						for (int i = 0; i < img->h; ++i) // Décode les lignes les unes après les autres
 						{
-							*file >> length;
+                            READ(length);
 							int x(0);
 							int e(0);
 							do
@@ -594,7 +594,7 @@ namespace TA3D
 
 
 
-    void Gaf::Animation::loadGAFFromRawData(File *file, const int entry_idx, const bool truecolor, const QString& fname)
+    void Gaf::Animation::loadGAFFromRawData(QIODevice *file, const int entry_idx, const bool truecolor, const QString& fname)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0 || !file)
@@ -763,7 +763,7 @@ namespace TA3D
 	}
 
 
-    sint32 Gaf::AnimationList::loadGAFFromRawData(File* file, const bool doConvert, const QString& fname)
+    sint32 Gaf::AnimationList::loadGAFFromRawData(QIODevice *file, const bool doConvert, const QString& fname)
 	{
 		if (file)
 		{

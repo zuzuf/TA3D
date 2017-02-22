@@ -99,7 +99,7 @@ namespace TA3D
 
 		void destroy();
 
-		void load(File *data);
+        void load(QIODevice *data);
 		void load(const QString& filename);
 
 	public:

@@ -672,7 +672,7 @@ namespace TA3D
 
 	void MAP_OTA::load(const QString& filename)
 	{
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (file)
 		{
 			load(file);
@@ -681,12 +681,13 @@ namespace TA3D
 	}
 
 
-	void MAP_OTA::load(File *file)
+    void MAP_OTA::load(QIODevice *file)
 	{
 		destroy();
 
 		TDFParser parser;
-		parser.loadFromMemory("OTA",file->data(),file->size(),false,true,false);
+        const QByteArray &buffer = file->readAll();
+        parser.loadFromMemory("OTA", buffer.data(), buffer.size(),false,true,false);
 		file->close();
 
 		missionname = parser.pullAsString("GlobalHeader.missionname");

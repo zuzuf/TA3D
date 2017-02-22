@@ -27,11 +27,9 @@
 #include <misc/resources.h>
 #include <misc/files.h>
 #include "vfs.h"
-#include "file.h"
-#include "virtualfile.h"
-#include "realfile.h"
 
 #include <QFile>
+#include <QBuffer>
 
 #include <zlib.h>
 
@@ -183,26 +181,20 @@ namespace UTILS
 	}
 
 
-	void VFS::putInCache(const QString& filename, File* file)
+    void VFS::putInCache(const QString& filename, QIODevice* file)
 	{
-        const QString cacheable_filename(filename.toLower().replace('\\', '/').replace('/', 'S'));
+        const QString cacheable_filename(filename.toLower().replace('/', 'S'));
 
 		if (!lp_CONFIG->developerMode)		// Don't fill the cache with files in developer mode, they would not be used anyway
 		{
-            QString cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat"; // Save file in disk cache
+            const QString &cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat"; // Save file in disk cache
             QFile cache_file(cache_filename);
-            cache_file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+            cache_file.open(QIODevice::WriteOnly);
             if (cache_file.isOpen())
 			{
 				file->seek(0);
-				char *buf = new char[10240];
-				for(int i = 0 ; i < file->size() ; i += 10240)
-				{
-					int l = Math::Min(10240, file->size() - i);
-					file->read(buf, l);
-					cache_file.write(buf, l);
-				}
-				delete[] buf;
+                while(file->bytesAvailable() > 0)
+                    cache_file.write(file->read(10240));
 				cache_file.close();
 			}
 		}
@@ -214,17 +206,12 @@ namespace UTILS
 		ThreadingPolicy::MutexLocker locker(*this);
 
 		if (fileCache.size() >= 10) // Cycle the data within the list
-		{
-			DELETE_ARRAY(fileCache.front().data);
 			fileCache.pop_front();
-		}
 
 		CacheFileData newentry;
 
         newentry.name = filename.toLower();			// Store a copy of the data
-		newentry.length = file->size();
-		newentry.data = new byte[file->size()];
-		file->read(newentry.data, file->size());
+        newentry.buffer = file->readAll();
 
 		fileCache.push_back(newentry);
 
@@ -233,7 +220,7 @@ namespace UTILS
 
 
 
-	File* VFS::isInDiskCacheWL(const QString& filename)
+    QIODevice* VFS::isInDiskCacheWL(const QString& filename)
 	{
 		// In developer mode, the cache is always "empty", we just don't use it
 		if (lp_CONFIG->developerMode)
@@ -243,15 +230,16 @@ namespace UTILS
         if (filename.contains(".lua", Qt::CaseInsensitive))
 			return NULL;
 
-        QString cacheable_filename = filename.toLower();
-        cacheable_filename.replace('\\', '/').replace('/', 'S');
+        const QString cacheable_filename = filename.toLower().replace('/', 'S');
 
         const QString &cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";
 
 		if (TA3D::Paths::Exists(cache_filename)) // Check disk cache
-		{
-			return new RealFile( cache_filename );
-		}
+        {
+            QFile *file = new QFile( cache_filename );
+            file->open(QIODevice::ReadOnly);
+            return file;
+        }
 		return NULL;
 	}
 
@@ -267,12 +255,11 @@ namespace UTILS
 
 	VFS::CacheFileData* VFS::isInCacheWL(const QString& filename)
 	{
-		if (fileCache.empty())
+        if (fileCache.isEmpty())
 			return NULL;
 
         const QString &key = filename.toLower();
-		std::list<CacheFileData>::iterator i;
-		for (i = fileCache.begin() ; i != fileCache.end() ; ++i) // Check RAM Cache
+        for (QList<CacheFileData>::iterator i = fileCache.begin() ; i != fileCache.end() ; ++i) // Check RAM Cache
 		{
 			if (i->name == key)
 			{
@@ -286,13 +273,12 @@ namespace UTILS
 	}
 
 
-	File *VFS::readFile(const QString& filename)
+    QIODevice *VFS::readFile(const QString& filename)
 	{
         if (filename.isEmpty())
 			return NULL;
 
-        QString key = filename.toLower();
-        key.replace('\\', '/');
+        const QString &key = filename.toLower();
 
 		ThreadingPolicy::MutexLocker locker(*this);
 
@@ -301,12 +287,13 @@ namespace UTILS
 		{
 			if (cache->length == 0)
 				return NULL;
-			VirtualFile *f = new VirtualFile;
-			f->copyBuffer(cache->data, cache->length);
+            QBuffer *f = new QBuffer;
+            f->setData(cache->buffer);
+            f->open(QIODevice::ReadOnly);
 			return f;
 		}
 
-		File* cacheFile = isInDiskCacheWL(key);
+        QIODevice* cacheFile = isInDiskCacheWL(key);
 		if (cacheFile)
 			return cacheFile;
 
@@ -314,7 +301,7 @@ namespace UTILS
 
 		if (itFile != pFiles.end())
 		{
-			File *file = itFile.value()->read();
+            QIODevice *file = itFile.value()->read();
 			if (itFile.value()->needsCaching())
 				putInCache( key, file );
 			return file;
@@ -327,12 +314,12 @@ namespace UTILS
 
 
 
-	File* VFS::readFileRange(const QString &filename, const uint32 start, const uint32 length)
+    QIODevice *VFS::readFileRange(const QString &filename, const uint32 start, const uint32 length)
 	{
         if (filename.isEmpty())
 			return NULL;
 
-        const QString &key = filename.toLower().replace('\\', '/');
+        const QString &key = filename.toLower();
 
 		ThreadingPolicy::MutexLocker locker(*this);
 
@@ -341,13 +328,14 @@ namespace UTILS
 		{
 			if (cache->length == 0)
 				return NULL;
-			VirtualFile *f = new VirtualFile;
-			f->copyBuffer(cache->data, cache->length);
+            QBuffer *f = new QBuffer;
+            f->setData(cache->buffer);
+            f->open(QIODevice::ReadOnly);
 			return f;
 		}
 		else
 		{
-			File* cacheFile = isInDiskCacheWL( key );
+            QIODevice* cacheFile = isInDiskCacheWL( key );
 			if (cacheFile)
 				return cacheFile;
 		}
@@ -364,7 +352,7 @@ namespace UTILS
 	{
         if (filename.isEmpty())
 			return false;
-        filename = filename.toLower().replace('\\', '/');
+        filename = filename.toLower();
 
 		ThreadingPolicy::MutexLocker locker(*this);
 		return pFiles.find(filename) != pFiles.end();
@@ -375,7 +363,7 @@ namespace UTILS
 	{
         if (filename.isEmpty())
 			return -0xFFFFFF;
-        const QString key(filename.toLower().replace('\\', '/'));
+        const QString &key = filename.toLower();
 
 		ThreadingPolicy::MutexLocker locker(*this);
 		HashMap<Archive::FileInfo*>::Dense::iterator file = pFiles.find(key);
@@ -384,17 +372,15 @@ namespace UTILS
 	}
 
 
-    uint32 VFS::getFilelist(QString pattern, QStringList& li)
+    uint32 VFS::getFilelist(const QString &pattern, QStringList& li)
 	{
-        pattern = pattern.toLower().replace('\\', '/');
-
 		ThreadingPolicy::MutexLocker locker(*this);
-		return wildCardSearch(pFiles, pattern, li);
+        return wildCardSearch(pFiles, pattern.toLower(), li);
 	}
 
-	uint32 VFS::getDirlist(QString pattern, QStringList& li)
+    uint32 VFS::getDirlist(QString pattern, QStringList& li)
 	{
-        pattern = pattern.toLower().replace('\\', '/');
+        pattern = pattern.toLower();
 
         QString parent = '/' + Paths::ExtractFilePath(pattern);
 		pattern = Paths::ExtractFileName(pattern);
@@ -402,7 +388,7 @@ namespace UTILS
 		ThreadingPolicy::MutexLocker locker(*this);
 		if (pDirs.count(parent) == 0)
 			return 0;
-		return wildCardSearch(pDirs[parent], pattern, li);
+        return wildCardSearch(pDirs[parent], pattern, li);
 	}
 
     void VFS::buildDirMap()
@@ -438,22 +424,14 @@ namespace UTILS
 			LOG_ERROR(LOG_PREFIX_VFS << "impossible to create file '" << targetName << "'");
 			return targetName;
 		}
-		File *vfile = readFile(filename);
+        QIODevice *vfile = readFile(filename);
 		if (vfile && vfile->isOpen())
 		{
-			char *buf = new char[10240];
-			for(int i = 0 ; i < vfile->size() ; i += 10240)
-			{
-				int l = Math::Min(10240, vfile->size() - i);
-				vfile->read(buf, l);
-				file.write(buf, l);
-			}
-			delete[] buf;
+            while(vfile->bytesAvailable() > 0)
+                file.write(vfile->read(10240));
 		}
 		else
-		{
 			LOG_WARNING(LOG_PREFIX_VFS << "could not extract file '" << filename << "'");
-		}
 		if (vfile)
 			delete vfile;
 		file.flush();
@@ -470,50 +448,43 @@ namespace UTILS
 
 	bool load_palette(SDL_Color *pal, const QString& filename)
 	{
-		File* palette = VFS::Instance()->readFile(filename);
+        QIODevice* palette = VFS::Instance()->readFile(filename);
 		if (palette == NULL)
 			return false;
 
 		for (int i = 0; i < 256; ++i)
 		{
-			*palette >> pal[i].r;
-			*palette >> pal[i].g;
-			*palette >> pal[i].b;
-			char c;
-			*palette >> c;
+            palette->getChar((char*)&(pal[i].r));
+            palette->getChar((char*)&(pal[i].g));
+            palette->getChar((char*)&(pal[i].b));
+            char c;
+            palette->getChar(&c);
 		}
 		delete palette;
 		return true;
 	}
 
-	template<class T>
-			bool tplLoadFromFile(T& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
-	{
-		if (emptyListBefore)
-			out.clear();
-
-		File *file = VFS::Instance()->readFile(filename);
-		if (file == NULL)
-		{
-			LOG_WARNING("Impossible to open the file `" << filename << "`");
-			return false;
-		}
-		if (sizeLimit && (uint32)file->size() > sizeLimit)
-		{
-			delete file;
-			LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
-			return false;
-		}
-		QString line;
-		while (file->readLine(line))
-			out.push_back(line);
-		delete file;
-		return true;
-	}
-
     bool loadFromFile(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore)
 	{
-		return tplLoadFromFile(out, filename, sizeLimit, emptyListBefore);
-	}
+        if (emptyListBefore)
+            out.clear();
+
+        QIODevice *file = VFS::Instance()->readFile(filename);
+        if (file == NULL)
+        {
+            LOG_WARNING("Impossible to open the file `" << filename << "`");
+            return false;
+        }
+        if (sizeLimit && (uint32)file->size() > sizeLimit)
+        {
+            delete file;
+            LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
+            return false;
+        }
+        while (file->canReadLine())
+            out.push_back(QString::fromUtf8(file->readLine()));
+        delete file;
+        return true;
+    }
 } // namespace UTILS
 } // namespace TA3D

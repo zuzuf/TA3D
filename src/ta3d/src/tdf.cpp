@@ -223,7 +223,7 @@ namespace TA3D
 
 
 
-	void FeatureManager::load_tdf(File *file)					// Charge un fichier tdf
+    void FeatureManager::load_tdf(QIODevice *file)					// Charge un fichier tdf
 	{
 		TDFParser parser;
 		parser.loadFromMemory("TDF",file->data(),file->size(),false,true,true);

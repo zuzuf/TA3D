@@ -71,8 +71,8 @@ namespace TA3D
             /*!
             ** \brief
             */
-			virtual File* readFile(const QString& filename);
-			virtual File* readFile(const FileInfo *file);
+            virtual QIODevice* readFile(const QString& filename);
+            virtual QIODevice* readFile(const FileInfo *file);
 
             /*!
             ** \brief
@@ -81,8 +81,8 @@ namespace TA3D
             ** \param length
             ** \return
             */
-			virtual File* readFileRange(const QString& filename, const uint32 start, const uint32 length);
-			virtual File* readFileRange(const FileInfo *file, const uint32 start, const uint32 length);
+            virtual QIODevice* readFileRange(const QString& filename, const uint32 start, const uint32 length);
+            virtual QIODevice* readFileRange(const FileInfo *file, const uint32 start, const uint32 length);
 
             /*!
             ** \brief returns true if using the cache is a good idea (real FS will return false)
@@ -91,7 +91,7 @@ namespace TA3D
             virtual bool needsCaching();
 
         private:
-			HashMap<RealFile*>::Sparse files;
+            HashMap<RealFile*>::Sparse files;
 
         public:
             static void finder(QStringList &fileList, const QString &path);

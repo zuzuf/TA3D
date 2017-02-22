@@ -1667,10 +1667,11 @@ namespace TA3D
 
     SDL_Surface *GFX::load_image(const QString &filename)
 	{
-		File *vfile = VFS::Instance()->readFile(filename);
+        QIODevice *vfile = VFS::Instance()->readFile(filename);
 		if (vfile)
         {
-			SDL_RWops *file = SDL_RWFromMem((void*)vfile->data(), vfile->size());
+            QByteArray buffer = vfile->readAll();
+            SDL_RWops *file = SDL_RWFromMem((void*)buffer.data(), buffer.size());
             SDL_Surface *img = NULL;
             if (Paths::ExtractFileExt(filename).toLower() == ".tga")
                 img = IMG_LoadTGA_RW(file);

@@ -18,15 +18,10 @@
 #include <stdafx.h>
 #include "brain.h"
 #include <misc/math.h>
-#include <vfs/file.h>
-
-using namespace TA3D::UTILS;
+#include <QIODevice>
 
 namespace TA3D
 {
-
-
-
 	void BRAIN::init()
 	{
 		nb_neuron = 0;
@@ -174,7 +169,7 @@ namespace TA3D
 		DELETE_ARRAY(diff);
 	}
 
-	void BRAIN::save(Yuni::Core::IO::File::Stream *file)		// Save the neural network
+    void BRAIN::save(QIODevice *file)		// Save the neural network
 	{
 		file->write("BRAIN",5);			// File format ID
 		file->write((char*)&n,sizeof(int));		// Inputs
@@ -190,7 +185,7 @@ namespace TA3D
 		}
 	}
 
-	int BRAIN::load(File *file)		// Load the neural network
+    int BRAIN::load(QIODevice *file)		// Load the neural network
 	{
 		char tmp[6];
 
@@ -201,9 +196,10 @@ namespace TA3D
 
 		destroy();		// clean the object
 
-		file->read(n);		// Inputs
-		file->read(p);		// Outputs
-		file->read(q);		// Size of middle layer
+#define READ(X) file->read((char*)&X, sizeof(X))
+        READ(n);		// Inputs
+        READ(p);		// Outputs
+        READ(q);		// Size of middle layer
         nb_neuron = p + q + n;
 
 		neuron = new NEURON[nb_neuron];

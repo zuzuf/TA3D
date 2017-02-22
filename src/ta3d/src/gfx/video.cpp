@@ -39,27 +39,22 @@ namespace TA3D
 
         QString tmp = TA3D::Paths::Caches + Paths::ExtractFileName(filename) + ".mpg";
 
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (file)
 		{
-			if (file->isReal())					// Check if the file is real
-				tmp = file->getRealFilename();	// if it is we don't need to copy it
+            QFile *real_file = dynamic_cast<QFile*>(file);
+            if (real_file)					// Check if the file is real
+                tmp = real_file->fileName();	// if it is we don't need to copy it
             else if (!QFileInfo(tmp).exists() || QFileInfo(tmp).size() != (uint32)file->size())
 			{
                 QFile tmp_file(tmp);
 				LOG_DEBUG(LOG_PREFIX_VIDEO << "Creating temporary file for " << filename << " (" << tmp << ")");
 
-                tmp_file.open(QIODevice::Truncate | QIODevice::WriteOnly);
+                tmp_file.open(QIODevice::WriteOnly);
                 if (tmp_file.isOpen())
 				{
-					char *buf = new char[10240];
-					for(int i = 0 ; i < file->size() ; i += 10240)
-					{
-						int l = Math::Min(10240, file->size() - i);
-						file->read(buf, l);
-						tmp_file.write(buf, l);
-					}
-					delete[] buf;
+                    while(file->bytesAvailable())
+                        tmp_file.write(file->read(10240));
 					tmp_file.flush();
 					tmp_file.close();
                     tmp.replace('\\','/');

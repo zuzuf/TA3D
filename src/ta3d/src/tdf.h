@@ -132,7 +132,7 @@ namespace TA3D
 		//!
 		Model	*model;
 		//!
-		bool	converted;		// Indique si l'objet a été converti en 3d depuis un sprite
+        bool	converted;		// Has the object been converted to 3D from a sprite ?
 		//!
 		bool	reclaimable;
 		//!
@@ -207,7 +207,7 @@ namespace TA3D
 		/*!
 		** \brief Load a TDF file
 		*/
-		void load_tdf(File* data);
+        void load_tdf(QIODevice* data);
 
 		/*!
 		** \brief

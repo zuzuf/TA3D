@@ -90,7 +90,7 @@ namespace TA3D
 			LOG_ERROR(LOG_PREFIX_OBJ << "could not load texture ! (" << tex_cache_name[id] << ')');
 	}
 
-	void MeshOBJ::load(File *file, const QString &filename)
+    void MeshOBJ::load(QIODevice *file, const QString &filename)
 	{
 		destroy3DM();
 
@@ -103,7 +103,7 @@ namespace TA3D
 		HashMap<Material>::Dense	mtllib;
 		Material                    currentMtl;
 
-		while (!file->eof()) // Reads the whole file
+        while (!file->atEnd()) // Reads the whole file
 		{
 			QString line;
 			file->readLine(line);

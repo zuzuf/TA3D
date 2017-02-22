@@ -19,7 +19,8 @@
 
 # include <stdafx.h>
 # include "string.h"
-# include <vfs/file.h>
+
+class QIODevice;
 
 
 /*!
@@ -78,7 +79,7 @@ namespace Files
 	** \return The content of the file, null terminated , NULL if size > hardlimit or if any errors has occured.
 	** If not NULL, this value must be deleted with the keyword `delete[]`
 	*/
-    UTILS::File* LoadContentInMemory(const QString& filename, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
+    QIODevice* LoadContentInMemory(const QString& filename, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
 
 	/*!
 	** \brief Save the content of a string iinto a file

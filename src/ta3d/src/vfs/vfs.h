@@ -35,7 +35,7 @@
 # include <misc/string.h>
 # include <sdl.h>
 # include <threads/mutex.h>
-# include "file.h"
+# include <QIODevice>
 
 # ifndef MAX_PATH
 #   define MAX_PATH 260
@@ -63,8 +63,7 @@ namespace UTILS
 		*/
 		struct CacheFileData
 		{
-			uint32		length;
-			byte		*data;
+            QByteArray buffer;
 			QString		name;
 		}; // class CacheFileData
 
@@ -91,7 +90,7 @@ namespace UTILS
 		** \param s
 		** \param[out] li
 		*/
-        uint32 getFilelist(QString pattern, QStringList& li);
+        uint32 getFilelist(const QString &pattern, QStringList& li);
 
 		/*!
 		** \brief
@@ -109,7 +108,7 @@ namespace UTILS
 		/*!
 		** \brief
 		*/
-		File* readFile(const QString& filename);
+        QIODevice* readFile(const QString& filename);
 
 		/*!
 		** \brief
@@ -118,7 +117,7 @@ namespace UTILS
 		** \param length
 		** \return
 		*/
-		File* readFileRange(const QString& filename, const uint32 start, const uint32 length);
+        QIODevice* readFileRange(const QString& filename, const uint32 start, const uint32 length);
 
 		/*!
 		** \brief
@@ -185,7 +184,7 @@ namespace UTILS
 		** \param filesize
 		** /param data
 		*/
-		void putInCache(const QString& filename, File* file);
+        void putInCache(const QString& filename, QIODevice* file);
 
 		/*!
 		** \brief
@@ -209,7 +208,7 @@ namespace UTILS
 		** \param filename
 		** \param filesize
 		*/
-		File *isInDiskCacheWL(const QString& filename);
+        QIODevice *isInDiskCacheWL(const QString& filename);
 
 
 	private:
@@ -223,7 +222,7 @@ namespace UTILS
 		DirMap pDirs;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
-		std::list<CacheFileData>  fileCache;
+        QList<CacheFileData>  fileCache;
 		//! A list of Archive*, needed only for cleanup.
 		std::vector<Archive*> archives;
 

@@ -101,7 +101,7 @@ namespace TA3D
 		{
 			if (lp_CONFIG->disable_GLSL)    return 0;
 
-			File *file = VFS::Instance()->readFile(filename);
+            QIODevice *file = VFS::Instance()->readFile(filename);
 			if (!file)
             {
 				LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
@@ -110,8 +110,9 @@ namespace TA3D
 
 			GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-			GLint filesizeGL = (GLint)file->size();
-			const char *buf = file->data();
+            const QByteArray &buffer = file->readAll();
+            GLint filesizeGL = (GLint)buffer.size();
+            const char *buf = buffer.data();
 			glShaderSourceARB(shader, 1, (const GLcharARB **)&buf, &filesizeGL);
 			glCompileShaderARB(shader);
 
@@ -140,7 +141,7 @@ namespace TA3D
 			if (lp_CONFIG->disable_GLSL)
 				return 0;
 
-			File *file = VFS::Instance()->readFile(filename);
+            QIODevice *file = VFS::Instance()->readFile(filename);
 			if (!file)
 			{
 				LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
@@ -151,8 +152,9 @@ namespace TA3D
 
 			int compiled = 0;
 
-			GLint filesizeGL = (GLint)file->size();
-			const char *buf = file->data();
+            const QByteArray &buffer = file->readAll();
+            GLint filesizeGL = (GLint)buffer.size();
+            const char *buf = buffer.data();
 			glShaderSourceARB(shader, 1, (const GLcharARB **)&buf, &filesizeGL);
 			glCompileShaderARB(shader);
 			glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);

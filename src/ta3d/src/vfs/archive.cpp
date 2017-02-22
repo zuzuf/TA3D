@@ -48,12 +48,12 @@ namespace TA3D
             return NULL;
         }
 
-		File* Archive::FileInfo::read()
+        QIODevice* Archive::FileInfo::read()
         {
 			return parent->readFile(this);
         }
 
-		File* Archive::FileInfo::readRange(const uint32 start, const uint32 length)
+        QIODevice *Archive::FileInfo::readRange(const uint32 start, const uint32 length)
         {
 			return parent->readFileRange(this, start, length);
         }

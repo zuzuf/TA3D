@@ -21,7 +21,7 @@
 #include "files.h"
 #include <ta3dbase.h>
 #include "resources.h"
-#include <vfs/file.h>
+#include <QIODevice>
 
 
 namespace TA3D
@@ -93,13 +93,14 @@ namespace TA3D
 
 	bool TDFParser::loadFromFile(const QString& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS, const bool widgetMode)
 	{
-		File* file;
+        QIODevice* file;
 		if (!realFS)
 		{
 			file = VFS::Instance()->readFile(filename);
 			if (file && file->size())
 			{
-                bool res = loadFromMemory("hpi://" + filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
+                const QByteArray &buffer = file->readAll();
+                bool res = loadFromMemory("hpi://" + filename, buffer.data(), buffer.size(), clear, toUTF8, gadgetMode, widgetMode);
 				delete file;
 				return res;
 			}
@@ -109,7 +110,8 @@ namespace TA3D
 			file = Paths::Files::LoadContentInMemory(filename, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
 			if (file && file->size())
 			{
-				bool res = loadFromMemory(filename, file->data(), file->size(), clear, toUTF8, gadgetMode, widgetMode);
+                const QByteArray &buffer = file->readAll();
+                bool res = loadFromMemory(filename, buffer.data(), buffer.size(), clear, toUTF8, gadgetMode, widgetMode);
 				delete file;
 				return res;
 			}

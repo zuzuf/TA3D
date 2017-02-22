@@ -188,13 +188,10 @@ SET(SRC_CONSOLE
 # VFS (HPI, archives)
 #
 SET(SRC_VFS
-		vfs/vfs.cpp vfs/vfs.h vfs/vfs.hxx
+                vfs/vfs.cpp vfs/vfs.h
 		vfs/archive.cpp vfs/archive.h
 		vfs/hpi.cpp vfs/hpi.h
-		vfs/realfs.cpp vfs/realfs.h
-		vfs/file.h
-		vfs/realfile.cpp vfs/realfile.h
-		vfs/virtualfile.cpp vfs/virtualfile.h)
+                vfs/realfs.cpp vfs/realfs.h)
 
 
 SET(SRC_ENGINE

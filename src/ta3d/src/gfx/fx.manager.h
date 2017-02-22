@@ -156,7 +156,7 @@ namespace TA3D
 
     public:
         //!
-		File* fx_data;
+        QIODevice* fx_data;
         //!
 		Interfaces::GfxTexture flash_tex;
         //!
