@@ -1802,7 +1802,7 @@ namespace TA3D
 				pObjects.push_back(object);
 
                 object->Name = wndFile.pullAsString(obj_key + "name", QString("widget%1").arg(i));
-				obj_hashtable[ToLower(object->Name)] = i + 1;
+                obj_hashtable[object->Name.toLower()] = i + 1;
                 object->help_msg = I18N::Translate(wndFile.pullAsString(obj_key + "help"));
 
                 float X1 = wndFile.pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF

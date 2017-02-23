@@ -38,14 +38,14 @@ namespace TA3D
 			:level(0), line(0), gadgetMode(-1)
 		{}
 		//! The full name of the current section
-		QString currentSection;
+        QByteArray currentSection;
 		//! The current key
-		QString key;
+        QByteArray key;
 		//! The current value
-		QString value;
+        QByteArray value;
 
 		//! The stack for all sections
-		std::stack<QString> sections;
+        std::stack<QByteArray> sections;
 		//! Stack Level
 		int level;
 
@@ -218,9 +218,9 @@ namespace TA3D
 					if (stack.gadgetMode >= 0)
 					{
                         const QString &gadgetKey = QString("gadget%1").arg(stack.gadgetMode);
-						pTable[gadgetKey] = stack.value;
+                        pTable[gadgetKey] = QString::fromUtf8(stack.value);
 						++stack.gadgetMode;
-						stack.value = gadgetKey;
+                        stack.value = gadgetKey.toUtf8();
 					}
 				}
 				else
@@ -229,14 +229,14 @@ namespace TA3D
 					if (widgetMode)
 					{
                         const QString &widgetKey = QString("widget%1").arg(stack.widgetMode.top());
-						pTable[widgetKey] = stack.value;
+                        pTable[widgetKey] = QString::fromUtf8(stack.value);
 						++stack.widgetMode.top();
-						stack.value = widgetKey;
+                        stack.value = widgetKey.toUtf8();
 					}
 				}
 				stack.currentSection += stack.value;
                 if (stack.gadgetMode < 0 && !stack.currentSection.isEmpty() && !exists(stack.currentSection))
-					pTable[stack.currentSection] = stack.value;
+                    pTable[stack.currentSection] = QString::fromUtf8(stack.value);
 				++stack.level;
 				stack.widgetMode.push(0);
 				continue;
@@ -297,10 +297,10 @@ namespace TA3D
                         stack.value.replace("\\r", "\r");
 
                         if (!special_section.isEmpty() && (QRegExp("*." + special_section, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(stack.currentSection) || stack.currentSection == special_section))
-                            pTable[stack.currentSection] = (pullAsString(stack.currentSection) + "," + stack.key);
+                            pTable[stack.currentSection] = (pullAsString(stack.currentSection) + "," + QString::fromUtf8(stack.key));
 
-                        const QString &realKey = stack.currentSection + "." + stack.key;
-						pTable[realKey] = stack.value;
+                        const QString &realKey = QString::fromUtf8(stack.currentSection + "." + stack.key);
+                        pTable[realKey] = QString::fromUtf8(stack.value);
 					}
 				}
 			};
