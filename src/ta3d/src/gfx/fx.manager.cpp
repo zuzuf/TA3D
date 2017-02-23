@@ -61,7 +61,7 @@ namespace TA3D
 		int anm_idx = findInCache(fullname);
 		if (anm_idx == -1)
 		{
-			File *file;
+            QIODevice *file;
             if (filename.toLower() != "fx")
 				file = VFS::Instance()->readFile(tmp);
 			else

@@ -180,17 +180,17 @@ namespace TA3D
 	byte *loadLuaFile(const QString &filename, uint32 &filesize)
 	{
 		filesize = 0;
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		byte *buffer = NULL;
 		if (file)
 		{
 			filesize = file->size();
 			buffer = new byte[file->size() + 1];
-			file->read(buffer, file->size());
+            file->read((char*)buffer, file->size());
 			buffer[file->size()] = 0;
 			delete file;
 
-			QString path = Paths::ExtractFilePath(filename);
+            const QString &path = Paths::ExtractFilePath(filename);
 			QString name;
 			int n = 0;
 			char *f = NULL;
@@ -209,7 +209,7 @@ namespace TA3D
 				{
 					uint32 filesize2 = file->size();
 					byte *buffer2 = new byte[filesize2];
-					file->read(buffer2, file->size());
+                    file->read((char*)buffer2, file->size());
 					delete file;
 					if (buffer2)
 					{

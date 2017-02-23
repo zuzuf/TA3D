@@ -605,10 +605,10 @@ namespace TA3D
 
 	void AiController::loadAI(const QString& filename, const int id)
 	{
-		File* file = VFS::Instance()->readFile(filename);
+        QIODevice* file = VFS::Instance()->readFile(filename);
 
 		// Length of the name
-		const int l = file->getc();
+		const int l = readChar(file);
 
 		// Reading the name
 		char* n = new char[l + 1];

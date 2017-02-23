@@ -51,7 +51,7 @@ namespace TA3D
 			memset(dt, 0, 33);
 			file->read(dt, 32);
 			dt[32] = '\0';
-            out = QString::fromUtf8(dt, (uint32)strlen(dt));
+            out = QString::fromLatin1(dt, (uint32)strlen(dt));
 		}
 
 	}
@@ -162,7 +162,7 @@ namespace TA3D
 			{
                 ++k;
 				uint32 width, height;
-				out.push_back(gfx->load_texture(*i, filter, &width, &height));
+                out.push_back(gfx->load_texture(i, filter, &width, &height));
 				if (w)
 					w[k] = width;
 				if (h)
@@ -253,7 +253,7 @@ namespace TA3D
 
 		sint32 *pointers = new sint32[header.Entries];
 
-		file->read(pointers, header.Entries * (int)sizeof(sint32));
+        file->read((char*)pointers, header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -290,7 +290,7 @@ namespace TA3D
 			return 0;
 
 		sint32* pointers = new sint32[header.Entries];
-		file->read(pointers, header.Entries * (int)sizeof(sint32));
+        file->read((char*)pointers, header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -315,7 +315,7 @@ namespace TA3D
 			return NULL;
 
 		sint32 *pointers = new sint32[header.Entries];
-		file->read(pointers, header.Entries * (int)sizeof(sint32));
+        file->read((char*)pointers, header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -427,7 +427,7 @@ namespace TA3D
 							int e(0);
 							do
 							{
-								const byte mask = (byte)file->getc();
+                                const byte mask = (byte)readChar(file);
 								++e;
 								if (mask & 0x01)
 								{
@@ -448,7 +448,7 @@ namespace TA3D
 									if (mask & 0x02)
 									{
 										int l = (mask >> 2) + 1;
-										const byte c = (byte)file->getc();
+                                        const byte c = (byte)readChar(file);
 										const uint32 c32 = makeacol32(pal[c].r, pal[c].g, pal[c].b,0xFF);
 										while (l > 0 && x < img->w)
 										{
@@ -470,12 +470,12 @@ namespace TA3D
 										{
 											if (truecolor)
 											{
-												const byte c = (byte)file->getc();
+                                                const byte c = (byte)readChar(file);
 												SurfaceInt(img, x++, i) = makeacol32(pal[c].r, pal[c].g, pal[c].b, 0xFF);
 											}
 											else
 											{
-												SurfaceByte(img, x, i) = byte(file->getc());
+                                                SurfaceByte(img, x, i) = byte(readChar(file));
 												x++;
 											}
 											++e;
@@ -484,7 +484,7 @@ namespace TA3D
 									}
 								}
 							} while (e < length && x < img->w);
-							file->seek(file->tell() + length - e);
+                            file->seek(file->pos() + length - e);
 						}
 					}
 					else
@@ -816,11 +816,11 @@ namespace TA3D
 	}
 
 
-	sint32 Gaf::RawDataEntriesCount(File* file)
+    sint32 Gaf::RawDataEntriesCount(QIODevice* file)
 	{
 		file->seek(4);
 		sint32 v;
-		file->read(v);
+        READ(v);
 		return v;
 	}
 

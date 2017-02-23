@@ -17,7 +17,7 @@
 #include "weapons.manager.h"
 #include <sounds/manager.h>
 #include <logs/logs.h>
-#include <vfs/file.h>
+#include <QIODevice>
 
 namespace TA3D
 {
@@ -70,11 +70,12 @@ namespace TA3D
     }
 
 
-	void WeaponManager::load_tdf(File *file)
+    void WeaponManager::load_tdf(QIODevice *file)
     {
         TDFParser parser;
         parser.setSpecialSection("damage");     // We want to get the list of units in damage sections
-		parser.loadFromMemory("weapon",file->data(),file->size(),false,false,true);
+        const QByteArray &buffer = file->readAll();
+        parser.loadFromMemory("weapon",buffer.data(),buffer.size(),false,false,true);
 		file->close();
 
         for (int i = 0; parser.exists(QString("gadget%1").arg(i)); ++i)

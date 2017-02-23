@@ -155,7 +155,7 @@ namespace TA3D
 				}
 				else																	// normal GAF
 				{
-					File* gaf_file = VFS::Instance()->readFile( gafName );
+                    QIODevice* gaf_file = VFS::Instance()->readFile( gafName );
 					if (gaf_file)
 					{
 						const int nbEntries = Gaf::RawDataEntriesCount(gaf_file);
@@ -188,7 +188,7 @@ namespace TA3D
 			{
                 if (it->contains(".gaf"))						// Is it a normal GAF ?
 				{
-					File* gaf_file = VFS::Instance()->readFile( *it );
+                    QIODevice* gaf_file = VFS::Instance()->readFile( *it );
 					if (gaf_file)
 					{
 						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -261,10 +261,11 @@ namespace TA3D
 
 
 
-	void UnitManager::analyse2(File *file)
+    void UnitManager::analyse2(QIODevice *file)
 	{
 		TDFParser parser;
-		parser.loadFromMemory("analyse2", file->data(), file->size(), false, false, true);
+        const QByteArray &buffer = file->readAll();
+        parser.loadFromMemory("analyse2", buffer.data(), buffer.size(), false, false, true);
 		file->close();
 
         for(int g = 0 ; parser.exists(QString("gadget%1").arg(g)) ; ++g)
@@ -336,7 +337,7 @@ namespace TA3D
 
         for (const QString &f : file_list) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
 		{
-            File* file = VFS::Instance()->readFile(f);		// Lit le fichier
+            QIODevice* file = VFS::Instance()->readFile(f);		// Lit le fichier
 			if (file)
 			{
 				analyse2(file);

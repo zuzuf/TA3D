@@ -216,12 +216,12 @@ namespace TA3D
 			if (i<n+q)
 			{
 				neuron[i].weight = new float[n];
-				file->read(neuron[i].weight, (int)sizeof(float) * n);
+                file->read((char*)neuron[i].weight, (int)sizeof(float) * n);
 			}
 			else
 			{
 				neuron[i].weight = new float[q];
-				file->read(neuron[i].weight, (int)sizeof(float) * q);
+                file->read((char*)neuron[i].weight, (int)sizeof(float) * q);
 			}
 		}
 		return 0;

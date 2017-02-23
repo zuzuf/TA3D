@@ -272,7 +272,7 @@ namespace Menus
 		// OTA
         const QString &otaMap = "maps/" + pListOfMaps[mapIndex] + ".ota";
 		MAP_OTA mapOTA;
-		if (File* file = VFS::Instance()->readFile(otaMap))
+        if (QIODevice* file = VFS::Instance()->readFile(otaMap))
 		{
 			mapOTA.load(file);
 			delete file;;
@@ -321,11 +321,12 @@ namespace Menus
 
 	bool MapSelector::MapIsForNetworkGame(const QString& mapShortName)
 	{
-        File* file = VFS::Instance()->readFileRange("maps/" + mapShortName + ".ota", 0, 10240);
+        QIODevice* file = VFS::Instance()->readFileRange("maps/" + mapShortName + ".ota", 0, 10240);
 		if (file)
 		{
 			TDFParser ota_parser;
-			ota_parser.loadFromMemory(mapShortName, (const char*)file->data(), Math::Min(file->size(), 10240), false, false, false);
+            const QByteArray &buffer = file->read(10240);
+            ota_parser.loadFromMemory(mapShortName, (const char*)buffer.data(), buffer.size(), false, false, false);
             const QString &tmp = ota_parser.pullAsString("GlobalHeader.Schema 0.Type").toLower();
 			delete file;
 			return tmp.startsWith("network");

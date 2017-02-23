@@ -34,7 +34,7 @@
 #include "logs/logs.h"
 
 
-
+#define READ(X) file->read((char*)&(X), sizeof(X))
 
 namespace TA3D
 {
@@ -81,13 +81,14 @@ namespace TA3D
 
         SDL_Surface *load_tnt_minimap_fast_raw_bmp(const QString& filename, int& sw, int& sh)
 		{
-			File *headerBytes = VFS::Instance()->readFileRange(filename, 0, sizeof(TNTHEADER));
+            QIODevice *headerBytes = VFS::Instance()->readFileRange(filename, 0, sizeof(TNTHEADER));
 			if (headerBytes == NULL)
 				return 0;
 
-			TNTHEADER *header = &((TNTHEADER_U*)headerBytes->data())->header;
+            const QByteArray &buffer = headerBytes->read(sizeof(TNTHEADER));
+            const TNTHEADER *header = &((const TNTHEADER_U*)buffer.data())->header;
 
-			File *minimapdata = VFS::Instance()->readFileRange(filename, header->PTRminimap, sizeof(TNTMINIMAP));
+            QIODevice *minimapdata = VFS::Instance()->readFileRange(filename, header->PTRminimap, sizeof(TNTMINIMAP));
 			if (!minimapdata)
 			{
 				delete headerBytes;
@@ -96,7 +97,7 @@ namespace TA3D
 
 			minimapdata->seek(header->PTRminimap);
 			TNTMINIMAP minimap;
-			*minimapdata >> minimap;
+            minimapdata->read((char*)&minimap, sizeof(minimap));
 			SDL_Surface	*bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
 
 			delete headerBytes;
@@ -113,7 +114,7 @@ namespace TA3D
 
 
 
-	MAP	*load_tnt_map(File *file)		// Charge une map au format TA, extraite d'une archive HPI/UFO
+    MAP	*load_tnt_map(QIODevice *file)		// Charge une map au format TA, extraite d'une archive HPI/UFO
 	{
 		LOG_DEBUG("MAP: creating MAP object ...");
 		MAP	*map = new MAP;		// Crée une nouvelle carte
@@ -128,7 +129,7 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: reading header");
 
-		*file >> header_u;
+        READ(header_u);
 		TNTHEADER	&header = header_u.header;		// Structure pour l'en-tête du fichier
 
 		# ifdef TNT_DEBUG_MODE
@@ -147,7 +148,7 @@ namespace TA3D
 		for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
 		{
 			file->seek(header.PTRtileanim + 4 + (i * 132));
-            QString fname = file->getString();
+            const QString &fname = QString::fromLatin1(getString(file));
 			TDF_index[i] = feature_manager.get_feature_index(fname);
 			if (TDF_index[i] == -1)
 				LOG_ERROR("tdf not found: " << fname);
@@ -159,8 +160,8 @@ namespace TA3D
 		int event_timer = msec_timer;
 		int w,h;
 		file->seek(header.PTRminimap);
-		*file >> w;
-		*file >> h;
+        READ(w);
+        READ(h);
 		map->mini_w = w;
 		map->mini_h = h;
 		map->mini = gfx->create_surface_ex(8, 252, 252);
@@ -356,7 +357,7 @@ namespace TA3D
 		SDL_Surface *low_def = gfx->create_surface_ex(8, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
 		SDL_FillRect(low_def, NULL, 0x0);
 		file->seek(header.PTRmapdata);
-		file->read(map->bmap.getData(), map->bmap.getSize());
+        file->read((char*)(map->bmap.getData()), map->bmap.getSize());
 		for (y = 0; y < map->bloc_h; ++y)
 		{
 			for (x = 0; x < map->bloc_w; ++x)
@@ -417,13 +418,13 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1);  ++x)
 			{
-				const int c = byte(file->getc());
+				const int c = byte(readChar(file));
 				if (c < header.sealevel)
 					map->water = true;
 				map->h_map(x, y) = map->ph_map(x, y) = float(c) * H_DIV;
-				file->getc();
-				file->getc();
-				file->getc();
+				readChar(file);
+				readChar(file);
+				readChar(file);
 			}
 		}
 
@@ -568,7 +569,7 @@ namespace TA3D
 			for (x = 0; x < (map->bloc_w << 1); ++x)
 			{
 				unsigned short type;
-				*file >> type;
+                READ(type);
 				if (type <= header.tileanims)
 				{
 					Vector3D Pos;
@@ -592,7 +593,7 @@ namespace TA3D
                     }
 				}
 				// Read 2 more bytes
-				*file >> type;
+                READ(type);
 			}
 		}
 		LOG_INFO("Decors : " << float(msec_timer - event_timer) * 0.001f << "s.");
@@ -690,13 +691,13 @@ namespace TA3D
 
 
 
-	GLuint load_tnt_minimap(File *file,int& sw,int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+    GLuint load_tnt_minimap(QIODevice *file, int& sw, int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 	{
 		TNTHEADER header;
-		*file >> header;
+        READ(header);
 		file->seek(header.PTRminimap);
 		TNTMINIMAP minimap;
-		*file >> minimap;
+        READ(minimap);
 		SDL_Surface	*bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)

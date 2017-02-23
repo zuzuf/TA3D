@@ -159,10 +159,10 @@ namespace Menus
                 brief_file = "camps/briefs/" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";
 			if (!VFS::Instance()->fileExists( brief_file ) )         // try without the suffix if we cannot find it
                 brief_file = "camps/briefs/" + ota_parser.pullAsString( "GlobalHeader.brief");
-			File *file = VFS::Instance()->readFile(brief_file);
+            QIODevice *file = VFS::Instance()->readFile(brief_file);
 			if (file)
 			{
-                const QString &brief_info = QString::fromUtf8((const char*)file->data());
+                const QString &brief_info = QString::fromLatin1((const char*)file->readAll());
 				pArea->caption( "brief.info", brief_info);
 				delete file;
 			}
@@ -188,7 +188,7 @@ namespace Menus
 			planet_animation.loadGAFFromDirectory(Substr(planet_file,0, planet_file.size() - 4), true);
 		if (planet_animation.size() == 0)
 		{
-			File *file = VFS::Instance()->readFile(planet_file);
+            QIODevice *file = VFS::Instance()->readFile(planet_file);
 			if (file)
 			{
 				planet_animation.loadGAFFromRawData(file, true);

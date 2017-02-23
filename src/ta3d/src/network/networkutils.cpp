@@ -258,7 +258,7 @@ namespace TA3D
 		Network* network;
 		int sockid;
 
-		File* file;
+        QIODevice* file;
 		int length,n;
 		byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
 		QString filename;
@@ -294,7 +294,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
 		while (!pDead)
 		{
-			n = file->read(buffer, FILE_TRANSFER_BUFFER_SIZE);            // Read data into the buffer
+            n = file->read((char*)buffer, FILE_TRANSFER_BUFFER_SIZE);            // Read data into the buffer
 			network->sendFileData(sockid, (uint16)port, buffer, n);
 			if (n > 0)
 			{
@@ -316,7 +316,7 @@ namespace TA3D
 				}
 			}
 
-			if (file->eof())
+            if (file->atEnd())
 				break;
 
 			suspend(1);

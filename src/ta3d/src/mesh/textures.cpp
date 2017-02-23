@@ -82,11 +82,10 @@ namespace TA3D
 		{
 			QStringList file_list;
             VFS::Instance()->getFilelist("textures/*.gaf", file_list);
-			const QStringList::const_iterator end = file_list.end();
-			for (QStringList::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+            for (const QString &cur_file : file_list)
 			{
-				File *file = VFS::Instance()->readFile(*cur_file);
-				QString filename = ToUpper(Paths::ExtractFileName(*cur_file));
+                QIODevice *file = VFS::Instance()->readFile(cur_file);
+                const QString filename = Paths::ExtractFileName(cur_file).toUpper();
 				load_gaf(file, filename == "LOGOS.GAF" || filename == "LOGOS");
 				delete file;
 			}
@@ -94,11 +93,10 @@ namespace TA3D
 		{
 			QStringList file_list;
             VFS::Instance()->getDirlist("textures/*", file_list);
-			const QStringList::const_iterator end = file_list.end();
-			for (QStringList::const_iterator cur_file = file_list.begin(); cur_file != end; ++cur_file)
+            for (const QString &cur_file : file_list)
 			{
-				QString filename = ToUpper(Paths::ExtractFileName(*cur_file));
-				load_gaf(*cur_file, filename == "LOGOS.GAF" || filename == "LOGOS");
+                const QString filename = Paths::ExtractFileName(cur_file).toUpper();
+                load_gaf(cur_file, filename == "LOGOS.GAF" || filename == "LOGOS");
 			}
 		}
 
@@ -106,7 +104,7 @@ namespace TA3D
 	}
 
 
-	void TEXTURE_MANAGER::load_gaf(File* file, bool logo)
+    void TEXTURE_MANAGER::load_gaf(QIODevice *file, bool logo)
 	{
 		sint32 nb_entry = Gaf::RawDataEntriesCount(file);
 		int n_nbtex = nbtex + nb_entry;
@@ -122,7 +120,7 @@ namespace TA3D
 		{
 			tex[nbtex + i].loadGAFFromRawData(file, i, false);
 			tex[nbtex + i].logo = logo;
-			tex_hashtable[ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
+            tex_hashtable[tex[nbtex + i].name.toUpper()] = nbtex + i + 1;
 		}
 		nbtex += nb_entry;
 	}
@@ -145,7 +143,7 @@ namespace TA3D
 		{
 			tex[nbtex + i].loadGAFFromDirectory(filename, Paths::ExtractFileName(elts[i]));
 			tex[nbtex + i].logo = logo;
-			tex_hashtable[ToUpper(tex[nbtex + i].name)] = nbtex + i + 1;
+            tex_hashtable[tex[nbtex + i].name.toUpper()] = nbtex + i + 1;
 		}
 		nbtex += nb_entry;
 	}

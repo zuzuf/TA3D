@@ -54,7 +54,7 @@ namespace TA3D
         /*!
         ** \brief Load a TDF file
         */
-		void load_tdf(File *file);
+        void load_tdf(QIODevice *file);
 
         /*!
         ** \brief

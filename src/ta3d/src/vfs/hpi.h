@@ -26,6 +26,7 @@
 
 # include "archive.h"
 # include <misc/hash_table.h>
+# include <QFile>
 
 # define HEX_HAPI 0x49504148
 # define HPI_V1 0x00010000

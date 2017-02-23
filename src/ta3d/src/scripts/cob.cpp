@@ -81,13 +81,14 @@ namespace TA3D
 	{
 		destroy();				// Au cas où
 
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 
 		if (file == NULL)
 			return;
 
 		COBHeader header;
-		*file >> header;
+#define READ(X) file->read((char*)&X, sizeof(X))
+        READ(header);
 
 #ifdef DEBUG_MODE
 		/*		printf("header.NumberOfScripts=%d\n",header.NumberOfScripts);
@@ -111,26 +112,26 @@ namespace TA3D
 		{
 			file->seek(header.OffsetToScriptNameOffsetArray + 4 * i);
 			int ofs;
-			*file >> ofs;
+            READ(ofs);
 			file->seek(ofs);
-            names.push_back(file->getString().toUpper());
+            names.push_back(QString::fromLatin1(getString(file)).toUpper());
 		}
 		for(i = 0; i < nb_piece; ++i)
 		{
 			file->seek(header.OffsetToPieceNameOffsetArray + 4 * i);
 			int ofs;
-			*file >> ofs;
+            READ(ofs);
 			file->seek(ofs);
-            piece_name.push_back(file->getString());
+            piece_name.push_back(QString::fromLatin1(getString(file)));
 		}
 		codeSize = header.CodeLength * 4;
 		Data = new byte[codeSize];
 		file->seek(header.OffsetToScriptCode);
-		file->read(Data, codeSize);
+        file->read((char*)Data, codeSize);
 		script_code = new int*[nb_script];
 		dec_offset = new int[nb_script];
 		file->seek(header.OffsetToScriptCodeIndexArray);
-		file->read(dec_offset, (int)sizeof(int) * nb_script);
+        file->read((char*)dec_offset, (int)sizeof(int) * nb_script);
 		for (i = 0; i < nb_script; ++i)
 		{
 			file->seek(4 * dec_offset[i]);
@@ -166,12 +167,12 @@ namespace TA3D
 
     int CobScript::findFromName(const QString& name)
 	{
-        QString nameUpper = name;
-		nameUpper.toUpper();
-		int indx(0);
-        for (QStringList::const_iterator i = names.begin(); i != names.end(); ++i, ++indx)
+        const QString &nameUpper = name.toUpper();
+        int indx(-1);
+        for (const QString &i : names)
 		{
-			if (*i == nameUpper)
+            ++indx;
+            if (i == nameUpper)
 				return indx;
 		}
 		return -1;
@@ -180,9 +181,10 @@ namespace TA3D
 
     int CobScript::identify(const QString &name)
 	{
+        const QString &nameLower = name.toLower();
 		for (int i = 0; i < nb_piece; ++i)
 		{
-			if (ToLower(name) == ToLower(piece_name[i])) // Pièce identifiée / Identified :)
+            if (nameLower == piece_name[i].toLower()) // Pièce identifiée / Identified :)
 				return i;
 		}
 		return -1;

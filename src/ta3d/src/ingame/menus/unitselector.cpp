@@ -278,7 +278,7 @@ namespace Menus
 			}
 		}
 
-		if (Paths::Files::SaveToFile(filename, s))
+        if (Paths::Files::SaveToFile(filename, s.toUtf8()))
 		{
 			LOG_INFO(LOG_PREFIX_MENU_UNITSELECTOR << "The useonly file has been saved.");
 			return;

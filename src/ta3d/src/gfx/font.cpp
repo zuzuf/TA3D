@@ -181,16 +181,14 @@ namespace TA3D
 
         VFS::Instance()->getFilelist(path + "/*", file_list);
 		// Looking for the file
-		{
-            for (const QString &i : file_list)
-			{
-                if (Paths::ExtractFileName(i).toLower() == comp_name)
-				{
-                    out = i;
-					break;
-				}
-			}
-		}
+        for (const QString &i : file_list)
+        {
+            if (Paths::ExtractFileName(i).toLower() == comp_name)
+            {
+                out = i;
+                break;
+            }
+        }
 
         if (!out.isEmpty())     // If we have a font in our VFS, then we have to extract it to a temporary location
 		{                       // in order to load it with FTGL
@@ -220,9 +218,8 @@ namespace TA3D
 						LOG_ERROR(LOG_PREFIX_FONT << "Impossible to create the temporary file `" << tmp << "`");
 				}
 				else
-				{
 					LOG_INFO(LOG_PREFIX_FONT << "`" << name << "`: From cache (`" << tmp << "`)");
-				}
+                out = tmp;
 				delete file;
 			}
 		}
@@ -284,7 +281,7 @@ namespace TA3D
 
     Font *FontManager::find(const QString& filename, const int size, const Font::Type type)
 	{
-        const QString key = filename.toLower() + QString("_%1_%1").arg(int(type), size);
+        const QString key = filename.toLower() + QString("_%1_%2").arg(int(type)).arg(size);
 
 		return (font_table.count(key) != 0)
 			? font_table[key]

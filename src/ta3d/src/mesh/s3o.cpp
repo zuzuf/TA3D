@@ -37,13 +37,14 @@
 #include <zlib.h>
 #include "joins.h"
 
+#define READ(X) file->read((char*)&X, sizeof(X))
 
 namespace TA3D
 {
 	Shader MeshS3O::s3oShader;
 	Shader MeshS3O::s3oShader_woShadows;
 
-	REGISTER_MESH_TYPE(MeshS3O);
+    REGISTER_MESH_TYPE(MeshS3O)
 
 	const char *MeshS3O::getExt()
 	{
@@ -484,14 +485,14 @@ namespace TA3D
 		return alset;
 	}
 
-	MeshS3O* MeshS3O::LoadPiece(File* file, MeshS3O* model, MeshS3O *root)
+    MeshS3O* MeshS3O::LoadPiece(QIODevice *file, MeshS3O* model, MeshS3O *root)
 	{
 		MeshS3O* piece = model ? model : new MeshS3O;
 		piece->type = MESH_TYPE_TRIANGLES;
 		piece->root = root;
 
 		Piece fp;
-		*file >> fp;
+        READ(fp);
 
 		piece->pos_from_parent.x = 0.5f * fp.xoffset;
 		piece->pos_from_parent.y = 0.5f * fp.yoffset;
@@ -507,7 +508,7 @@ namespace TA3D
 				break;
 		};
 		file->seek(fp.name);
-		piece->name = file->getString();
+        piece->name = QString::fromUtf8(getString(file));
 
 		// retrieve each vertex
 
@@ -520,7 +521,7 @@ namespace TA3D
 		for (int a = 0; a < fp.numVertices; ++a)
 		{
 			SS3OVertex v;
-			*file >> v;
+            READ(v);
 			piece->points[a] = 0.5f * v.pos;
 			piece->N[a] = v.normal;
 			piece->tcoord[a * 2] = v.textureX;
@@ -536,7 +537,7 @@ namespace TA3D
 		for (int a = 0; a < fp.vertexTableSize ; ++a)
 		{
 			int vertexDrawIdx;
-			*file >> vertexDrawIdx;
+            READ(vertexDrawIdx);
 
 			index.push_back(vertexDrawIdx);
 			if (fp.primitiveType == S3O_PRIMTYPE_QUADS && (a % 4) == 2)        // QUADS need to be split into triangles (this would be done internally by OpenGL anyway since quads are rendered as 2 triangles)
@@ -551,8 +552,8 @@ namespace TA3D
 				// for triangle strips
 				index.push_back(vertexDrawIdx);
 
-				int pos = file->tell();
-				*file >> vertexDrawIdx;
+                int pos = file->pos();
+                READ(vertexDrawIdx);
 				file->seek(pos);
 				index.push_back(vertexDrawIdx);
 			}
@@ -567,7 +568,7 @@ namespace TA3D
 		{
 			file->seek(fp.childs + a * (int)sizeof(int));
 			int childOffset;
-			*file >> childOffset;
+            READ(childOffset);
 
 			file->seek(childOffset);
 			MeshS3O* childPiece = LoadPiece(file, NULL, root);
@@ -583,12 +584,12 @@ namespace TA3D
 		return piece;
 	}
 
-	void MeshS3O::load(File *file, const QString &filename)
+    void MeshS3O::load(QIODevice *file, const QString &filename)
 	{
 		destroyS3O();
 
 		S3OHeader header;
-		*file >> header;
+        READ(header);
 		if (memcmp(header.magic, "Spring unit\0", 12))      // File corrupt or wrong format
 		{
 			LOG_ERROR(LOG_PREFIX_S3O << "Spring Model Loader error : File is corrupt or in wrong format");
@@ -601,13 +602,13 @@ namespace TA3D
 		if (header.texture1 > 0)
 		{
 			file->seek(header.texture1);
-            const QString textureName = "textures/" + file->getString();
+            const QString textureName = "textures/" + QString::fromUtf8(getString(file));
 			model->tex_cache_name.push_back(textureName);
 		}
 		if (header.texture2 > 0)
 		{
 			file->seek(header.texture2);
-            const QString textureName = "textures/" + file->getString();
+            const QString textureName = "textures/" + QString::fromUtf8(getString(file));
             if (model->tex_cache_name.isEmpty())
 				model->tex_cache_name.push_back(QString());
 			model->tex_cache_name.push_back(textureName);
@@ -619,7 +620,7 @@ namespace TA3D
 
 	Model *MeshS3O::load(const QString &filename)
 	{
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (!file)
 		{
 			LOG_ERROR(LOG_PREFIX_S3O << "could not read file '" << filename << "'");

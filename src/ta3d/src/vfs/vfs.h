@@ -124,7 +124,7 @@ namespace UTILS
 		** \param filename
 		** \return
 		*/
-		bool fileExists(QString filename);
+        bool fileExists(const QString &filename);
 
 		/*!
 		** \brief returns the priority level of a file
@@ -234,6 +234,25 @@ namespace UTILS
 
     bool loadFromFile(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore);
 
+    inline int readChar(QIODevice *dev)
+    {
+        char c(0);
+        if (!dev->getChar(&c))
+            return -1;
+        return c;
+    }
+
+    inline QByteArray getString(QIODevice *dev)
+    {
+        QByteArray buffer;
+        char c;
+        while(dev->getChar(&c))
+            if (c)
+                buffer.push_back(c);
+            else
+                break;
+        return buffer;
+    }
 } // namespace utils
 } // namespace TA3D
 

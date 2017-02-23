@@ -84,10 +84,10 @@ namespace TA3D
 
 	void AiScript::loadAI(const QString& filename, const int id)
 	{
-		File* file = VFS::Instance()->readFile(filename);
+        QIODevice* file = VFS::Instance()->readFile(filename);
 
 		// Length of the name
-		byte l = (byte)file->getc();
+		byte l = (byte)readChar(file);
 
 		// Reading the name
 		char* n = new char[l+1];

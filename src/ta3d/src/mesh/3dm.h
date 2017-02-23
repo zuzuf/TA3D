@@ -57,14 +57,14 @@ namespace TA3D
         uint32  Color;
         uint32  RColor;
         uint32  Flag;
-        QString  frag_shader_src;
-        QString  vert_shader_src;
+        QByteArray frag_shader_src;
+        QByteArray vert_shader_src;
         Shader  s_shader;
         GLuint  glColorTexture;     // This is a small texture filled with color Color (just to prevent rendering color from being changed)
 		Mesh3DM *root;
     public:
 
-		void load(File *file, const QString &filename, Mesh3DM *root = NULL);
+        void load(QIODevice *file, const QString &filename, Mesh3DM *root = NULL);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);

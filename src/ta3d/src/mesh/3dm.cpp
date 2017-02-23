@@ -43,7 +43,7 @@
 namespace TA3D
 {
 
-	REGISTER_MESH_TYPE(Mesh3DM);
+    REGISTER_MESH_TYPE(Mesh3DM)
 
 
 	void Mesh3DM::init3DM()
@@ -490,7 +490,7 @@ namespace TA3D
 		return alset;
 	}
 
-	void Mesh3DM::load(File *file, const QString &filename, Mesh3DM *root)
+    void Mesh3DM::load(QIODevice *file, const QString &filename, Mesh3DM *root)
 	{
 		destroy3DM();
 		if (root == NULL)
@@ -500,13 +500,14 @@ namespace TA3D
 		if (file == NULL)
 			return;
 
-		const uint8 len = (uint8)file->getc();
+        const uint8 len = (uint8)readChar(file);
 		char tmp[257];
 		memset(tmp, 0, 257);
 		file->read(tmp, len);
         name = QString::fromLatin1(tmp, len);
 
-		file->read(pos_from_parent.x);
+#define READ(X) file->read((char*)&(X), sizeof(X))
+        READ(pos_from_parent.x);
 		if (isNaN(pos_from_parent.x))           // Some error checks
 		{
 			name.clear();
@@ -514,7 +515,7 @@ namespace TA3D
 			return;
 		}
 
-		file->read(pos_from_parent.y);
+        READ(pos_from_parent.y);
 		if (isNaN(pos_from_parent.y))           // Some error checks
 		{
 			name.clear();
@@ -522,7 +523,7 @@ namespace TA3D
 			return;
 		}
 
-		file->read(pos_from_parent.z);
+        READ(pos_from_parent.z);
 		if (isNaN(pos_from_parent.z))
 		{
 			name.clear();
@@ -530,7 +531,7 @@ namespace TA3D
 			return;
 		}
 
-		file->read(nb_vtx);
+        READ(nb_vtx);
 		if (nb_vtx < 0)
 		{
 			name.clear();
@@ -540,14 +541,14 @@ namespace TA3D
 		if (nb_vtx > 0)
 		{
 			points = new Vector3D[nb_vtx<<1];
-			file->read(points, (int)sizeof(Vector3D) * nb_vtx);
+            file->read((char*)points, (int)sizeof(Vector3D) * nb_vtx);
 		}
 		else
 			points = NULL;
 
-		file->read(sel, (int)sizeof(GLushort) * 4);
+        file->read((char*)sel, (int)sizeof(GLushort) * 4);
 
-		file->read(nb_p_index); // Read point data
+        READ(nb_p_index); // Read point data
 		if (nb_p_index < 0)
 		{
 			DELETE_ARRAY(points);
@@ -559,12 +560,12 @@ namespace TA3D
 		if (nb_p_index > 0)
 		{
 			p_index = new GLushort[nb_p_index];
-			file->read(p_index, (int)sizeof(GLushort) * nb_p_index);
+            file->read((char*)p_index, (int)sizeof(GLushort) * nb_p_index);
 		}
 		else
 			p_index = NULL;
 
-		file->read(nb_l_index);	// Read line data
+        READ(nb_l_index);	// Read line data
 		if (nb_l_index < 0)
 		{
 			DELETE_ARRAY(points);
@@ -577,7 +578,7 @@ namespace TA3D
 		if (nb_l_index > 0)
 		{
 			l_index = new GLushort[nb_l_index];
-			file->read(l_index, (int)sizeof(GLushort) * nb_l_index);
+            file->read((char*)l_index, (int)sizeof(GLushort) * nb_l_index);
 		}
 		else
 			l_index = NULL;
@@ -596,21 +597,21 @@ namespace TA3D
 		if (nb_t_index > 0)
 		{
 			t_index = new GLushort[nb_t_index];
-			file->read(t_index, (int)sizeof(GLushort) * nb_t_index);
+            file->read((char*)t_index, (int)sizeof(GLushort) * nb_t_index);
 		}
 		else
 			t_index = NULL;
 
 		tcoord = new float[nb_vtx << 1];
-		file->read(tcoord, (int)sizeof(float) * nb_vtx << 1);
+        file->read((char*)tcoord, (int)sizeof(float) * nb_vtx << 1);
 
 		float Colorf[4];
 		float RColorf[4];
-		file->read(Colorf, (int)sizeof(float) * 4);	// Read surface data
-		file->read(RColorf, (int)sizeof(float) * 4);
+        file->read((char*)Colorf, (int)sizeof(float) * 4);	// Read surface data
+        file->read((char*)RColorf, (int)sizeof(float) * 4);
 		Color = makeacol32((int)(Colorf[0] * 255), (int)(Colorf[1] * 255), (int)(Colorf[2] * 255), (int)(Colorf[3] * 255));
 		RColor = makeacol32((int)(RColorf[0] * 255), (int)(RColorf[1] * 255), (int)(RColorf[2] * 255), (int)(RColorf[3] * 255));
-		file->read(Flag);
+        READ(Flag);
 		Flag |= SURFACE_ADVANCED;           // This is default flag ... not very useful now that 3DM and 3DO codes have been separated
 
 		if (Flag >= 0x200)
@@ -626,7 +627,7 @@ namespace TA3D
 		}
 
 		sint8 NbTex = 0;
-		file->read(NbTex);
+        READ(NbTex);
 		bool compressed = NbTex < 0;
 		NbTex = (sint8)abs( NbTex );
 		gltex.resize(NbTex);
@@ -637,8 +638,8 @@ namespace TA3D
 			{
 				int tex_w;
 				int tex_h;
-				file->read(tex_w);
-				file->read(tex_h);
+                READ(tex_w);
+                READ(tex_h);
 
 				tex = gfx->create_surface_ex(32, tex_w, tex_h);
 				if (tex == NULL)
@@ -651,7 +652,7 @@ namespace TA3D
 				{
 					for (int y = 0; y < tex->h; ++y)
 						for (int x = 0; x < tex->w; ++x)
-							file->read(SurfaceInt(tex, x, y));
+                            READ(SurfaceInt(tex, x, y));
 				}
 				catch(...)
 				{
@@ -665,15 +666,15 @@ namespace TA3D
 				int img_size = 0;
 				uint8 bpp;
 				int w, h;
-				file->read(w);
-				file->read(h);
-				file->read(bpp);
-				file->read(img_size);	// Read RGBA data
+                READ(w);
+                READ(h);
+                READ(bpp);
+                READ(img_size);	// Read RGBA data
 				byte *buffer = new byte[ img_size ];
 
 				try
 				{
-					file->read(buffer, img_size);
+                    file->read((char*)buffer, img_size);
 
 					tex = gfx->create_surface_ex( bpp, w, h );
 					uLongf len = tex->w * tex->h * tex->format->BytesPerPixel;
@@ -692,7 +693,6 @@ namespace TA3D
 
             QString cache_filename = !filename.isEmpty() ? filename + '-' + (!name.isEmpty() ? name : "none") + QString("-%1.bin").arg(i) : QString();
 			cache_filename.replace('/', 'S');
-			cache_filename.replace('\\', 'S');
 
 			gltex[i] = 0;
 			if (!gfx->is_texture_in_cache(cache_filename))
@@ -709,26 +709,24 @@ namespace TA3D
 		if (Flag & SURFACE_GLSL) // Fragment & Vertex shaders
 		{
 			uint32 shader_size;
-			file->read(shader_size);
+            READ(shader_size);
 			char *buf = new char[shader_size + 1];
 			buf[shader_size] = 0;
 			file->read(buf, shader_size);
 			vert_shader_src = buf;
 			DELETE_ARRAY(buf);
 
-			file->read(shader_size);
+            READ(shader_size);
 			buf = new char[shader_size + 1];
 			buf[shader_size] = 0;
 			file->read(buf,shader_size);
 			frag_shader_src = buf;
 			DELETE_ARRAY(buf);
-            const QByteArray &frag_data = frag_shader_src.toLatin1();
-            const QByteArray &vert_data = vert_shader_src.toLatin1();
-            s_shader.load_memory(frag_data.data(), frag_data.size(), vert_data.data(), vert_data.size());
+            s_shader.load_memory(frag_shader_src.data(), frag_shader_src.size(), vert_shader_src.data(), vert_shader_src.size());
 		}
 
 		N = new Vector3D[nb_vtx << 1]; // Calculate normals
-		if (nb_t_index>0 && t_index != NULL)
+        if (nb_t_index > 0 && t_index != NULL)
 		{
 			F_N = new Vector3D[nb_t_index / 3];
 			for (int i = 0; i < nb_vtx; ++i)
@@ -749,20 +747,20 @@ namespace TA3D
 				N[i].unit();
 		}
 
-		byte link = (byte)file->getc();
+        byte link = (byte)readChar(file);
 
 		if (link == 2) // Load animation data if present
 		{
 			animation_data = new Animation;
-			file->read( animation_data->type );
-			file->read( animation_data->angle_0 );
-			file->read( animation_data->angle_1 );
-			file->read( animation_data->angle_w );
-			file->read( animation_data->translate_0 );
-			file->read( animation_data->translate_1 );
-			file->read( animation_data->translate_w );
+            READ( animation_data->type );
+            READ( animation_data->angle_0 );
+            READ( animation_data->angle_1 );
+            READ( animation_data->angle_w );
+            READ( animation_data->translate_0 );
+            READ( animation_data->translate_1 );
+            READ( animation_data->translate_w );
 
-			link = (byte)file->getc();
+            link = (byte)readChar(file);
 		}
 
 		if (link)
@@ -779,7 +777,7 @@ namespace TA3D
 		else
 			child = NULL;
 
-		link = (byte)file->getc();
+        link = (byte)readChar(file);
 		if (link)
 		{
 			Mesh3DM *pNext = new Mesh3DM;
@@ -797,18 +795,17 @@ namespace TA3D
 
 	Model *Mesh3DM::load(const QString &filename)
 	{
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (!file)
 		{
 			LOG_ERROR(LOG_PREFIX_3DM << "could not read file '" << filename << "'");
 			return NULL;
 		}
 
-		if (file->getc() == 0)       // This is a pointer file
+        if (readChar(file) == 0)       // This is a pointer file
 		{
-			QString realFilename = file->data() + 1;
+            const QString realFilename = QString::fromUtf8(file->readAll()).trimmed();
 			delete file;
-            realFilename = realFilename.trimmed();
 			LOG_INFO(LOG_PREFIX_3DM << "file '" << filename << "' points to '" << realFilename << "'");
 			file = VFS::Instance()->readFile(realFilename);
 			if (!file)

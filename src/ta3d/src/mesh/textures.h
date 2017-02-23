@@ -29,7 +29,7 @@ namespace TA3D
 
         SDL_Surface *get_bmp_texture(const QString& texture_name, const int frame = 0);
 
-		void load_gaf(File *data, bool logo);
+        void load_gaf(QIODevice *data, bool logo);
 		void load_gaf(const QString &filename, bool logo);
 
         int all_texture();

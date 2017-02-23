@@ -132,9 +132,9 @@ namespace TA3D
 
             unixFilename = root + '/' + unixFilename;
 
-            QFile *file = new QFile(unixFilename);
-            file->open(QIODevice::ReadOnly);
-            return file;
+            QFile *real_file = new QFile(unixFilename);
+            real_file->open(QIODevice::ReadOnly);
+            return real_file;
 		}
 
         QIODevice* RealFS::readFileRange(const QString& filename, const uint32 start, const uint32 length)

@@ -131,7 +131,7 @@ namespace TA3D
 			if (anim.nb_bmp == 0)
 			{
                 const QString &tmp = "anims/" + filename + ".gaf";
-				File* gaf = VFS::Instance()->readFile(tmp);
+                QIODevice* gaf = VFS::Instance()->readFile(tmp);
 				if (gaf)
 				{
 					sint32 index = Gaf::RawDataGetEntryIndex(gaf, seqname);
@@ -226,7 +226,8 @@ namespace TA3D
     void FeatureManager::load_tdf(QIODevice *file)					// Charge un fichier tdf
 	{
 		TDFParser parser;
-		parser.loadFromMemory("TDF",file->data(),file->size(),false,true,true);
+        const QByteArray &buffer = file->readAll();
+        parser.loadFromMemory("TDF",buffer.data(),buffer.size(),false,true,true);
 		file->close();
 
 		std::vector<Feature*> vfeats;
@@ -319,7 +320,7 @@ namespace TA3D
                         && pFeature->description.toLower() != "metal") // Tente une conversion en 3d
 					{
                         const QString &tmp = "anims/" + pFeature->filename + ".gaf";
-						File* gaf = VFS::Instance()->readFile(tmp);
+                        QIODevice* gaf = VFS::Instance()->readFile(tmp);
 						if (gaf)
 						{
 							sint32 index = Gaf::RawDataGetEntryIndex(gaf, pFeature->seqname);
@@ -381,7 +382,7 @@ namespace TA3D
 				++n;
 #endif
 
-				File* file = VFS::Instance()->readFile(curFile);
+                QIODevice* file = VFS::Instance()->readFile(curFile);
 				if (file)
 				{
 #ifdef _OPENMP

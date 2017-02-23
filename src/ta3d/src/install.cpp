@@ -34,7 +34,7 @@ void install_TA_files( QString HPI_file, QString filename )
     }
 	std::deque<Archive::FileInfo*> lFiles;
     archive->getFileList(lFiles);
-	File *file = archive->readFile(filename);			// Extract the file
+    QIODevice *file = archive->readFile(filename);			// Extract the file
 	if (file)
 	{
         QFile dst(Paths::Resources + Paths::ExtractFileName(filename));
@@ -42,7 +42,8 @@ void install_TA_files( QString HPI_file, QString filename )
 
         if (dst.isOpen())
 		{
-			dst.write(file->data(), file->size());
+            while(file->bytesAvailable())
+                dst.write(file->read(10240));
 
 			dst.flush();
 			dst.close();

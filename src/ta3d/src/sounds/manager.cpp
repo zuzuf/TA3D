@@ -815,10 +815,11 @@ namespace Audio
 	{
 		stopSoundFileNow();
 
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (file)
 		{
-			pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem((void*)file->data(), file->size()), 1);
+            const QByteArray &buffer = file->readAll();
+            pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1);
 			delete file;
 			if (pBasicSound == NULL)
 			{
@@ -872,17 +873,11 @@ namespace Audio
         QString theSound = "sounds/" + filename;
         if (VFS::Instance()->fileExists(theSound + ".wav"))
             theSound += ".wav";
-		else
-		{
-            if (VFS::Instance()->fileExists(theSound + ".ogg"))
-                theSound += ".ogg";
-			else
-			{
-                if (VFS::Instance()->fileExists(theSound + ".mp3"))
-                    theSound += ".mp3";
-			}
-		}
-		File* file = VFS::Instance()->readFile(theSound);
+        else if (VFS::Instance()->fileExists(theSound + ".ogg"))
+            theSound += ".ogg";
+        else if (VFS::Instance()->fileExists(theSound + ".mp3"))
+            theSound += ".mp3";
+        QIODevice* file = VFS::Instance()->readFile(theSound);
 		if (!file) // if no data, log a message and return false.
 		{
 			// logs.debug() <<  LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
@@ -893,7 +888,8 @@ namespace Audio
 		LOG_ASSERT(NULL != it);
 
 		// Now get SDL_mixer to load the sample
-		it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem((void*)file->data(), file->size()), 1 );
+        const QByteArray &buffer = file->readAll();
+        it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1 );
 		delete file; // we no longer need this.
 
 		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.

@@ -119,7 +119,7 @@ namespace TA3D
                 "    installed = " + installed + ";\n"
                 "}";
         Paths::MakeDir(Paths::ExtractFilePath(filename));
-        Paths::Files::SaveToFile(filename, file);
+        Paths::Files::SaveToFile(filename, file.toUtf8());
     }
 
 	void ModInfo::setInstalled(bool b)

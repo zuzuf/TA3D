@@ -74,11 +74,11 @@ namespace TA3D
 		if (file == NULL)
 			return -1;
 
-		int offset = file->tell();
+        int offset = file->pos();
 
 		tagObject header;				// Lit l'en-tête
 #define READ(X) file->read((char*)&X, sizeof(X));
-        READ(&header);
+        READ(header);
 
 		if (header.NumberOfVertexes + offset < 0)
 			return -1;
@@ -99,7 +99,7 @@ namespace TA3D
 		nb_vtx = (short)header.NumberOfVertexes;
 		nb_prim = (short)header.NumberOfPrimitives;
 		file->seek(header.OffsetToObjectName);
-        name = file->getString();
+        name = getString(file);
 #ifdef DEBUG_MODE
 		/*		for (i=0;i<dec;i++)
 				printf("  ");
@@ -171,7 +171,7 @@ namespace TA3D
 					if (primitive.IsColored && primitive.ColorIndex == 1)
 						break;
 					file->seek(primitive.OffsetToTextureName);
-					if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
+                    if (!primitive.IsColored && (!primitive.OffsetToTextureName || !readChar(file)))
 						break;
 				}
 				n_index += primitive.NumberOfVertexIndexes;
@@ -237,7 +237,7 @@ namespace TA3D
 					if (primitive.IsColored && primitive.ColorIndex == 1)
 						break;
 					file->seek(primitive.OffsetToTextureName);
-					if (!primitive.IsColored && (!primitive.OffsetToTextureName || !file->getc()))
+                    if (!primitive.IsColored && (!primitive.OffsetToTextureName || !readChar(file)))
 						break;
 				}
 				else
@@ -253,7 +253,7 @@ namespace TA3D
 				}
 				nb_index[cur] = (short)primitive.NumberOfVertexIndexes;
 				file->seek(primitive.OffsetToTextureName);
-                tex[cur] = t_m = texture_manager.get_texture_index(file->getString());
+                tex[cur] = t_m = texture_manager.get_texture_index(QString::fromUtf8(getString(file)));
 				usetex[cur] = 1;
 				if (t_m == -1)
 				{
@@ -1002,7 +1002,7 @@ namespace TA3D
 
 	Model *Mesh3DO::load(const QString &filename)
 	{
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (!file)
 		{
 			LOG_ERROR(LOG_PREFIX_3DO << "could not read file '" << filename << "'");

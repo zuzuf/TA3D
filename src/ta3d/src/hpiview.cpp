@@ -231,14 +231,15 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			File *file = VFS::Instance()->readFile(args[0]);
+            QIODevice *file = VFS::Instance()->readFile(args[0]);
 
 			if (file)
 			{
                 const QString &name = Paths::ExtractFileName(args[0]);
                 QFile dst(name);
                 dst.open(QIODevice::WriteOnly);
-				dst.write((const char*)file->data(), file->size());
+                while(file->bytesAvailable())
+                    dst.write(file->read(10240));
 				dst.close();
 				delete file;
 			}
@@ -264,10 +265,15 @@ namespace TA3D
 
             for (const QString &cur_file : file_list)
 			{
-                File* file = VFS::Instance()->readFile(cur_file);
+                QIODevice* file = VFS::Instance()->readFile(cur_file);
 				if (file)
 				{
-					std::cout << (const char*)file->data() << std::endl;
+                    while(file->bytesAvailable())
+                    {
+                        const QByteArray &buffer = file->read(10240);
+                        std::cout.write(buffer.data(), buffer.size());
+                    }
+                    std::cout << std::endl;
 					delete file;
 				}
 				else
@@ -305,7 +311,7 @@ namespace TA3D
 	{
 		if (args.size() >= 1)
 		{
-			File *file = VFS::Instance()->readFile(args[0]);
+            QIODevice *file = VFS::Instance()->readFile(args[0]);
 
 			if (file)
 			{

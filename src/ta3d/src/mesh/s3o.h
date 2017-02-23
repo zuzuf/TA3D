@@ -91,8 +91,8 @@ namespace TA3D
 		MeshS3O *root;
     public:
 
-		void load(File *file, const QString &filename);
-		MeshS3O* LoadPiece(File* file, MeshS3O* model, MeshS3O *root);
+        void load(QIODevice *file, const QString &filename);
+        MeshS3O* LoadPiece(QIODevice* file, MeshS3O* model, MeshS3O *root);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);

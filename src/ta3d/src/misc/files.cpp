@@ -48,8 +48,8 @@ namespace Files
                 return false;
             }
         }
-        while (file.canReadLine())
-            out.push_back(file.readLine());
+        while (file.bytesAvailable())
+            out.push_back(QString::fromUtf8(file.readLine()));
         return true;
     }
 
@@ -73,11 +73,11 @@ namespace Files
 	}
 
 
-	bool SaveToFile(const QString& filename, const QString& content)
+    bool SaveToFile(const QString& filename, const QByteArray& content)
 	{
         QFile dst(filename);
-        dst.open(QIODevice::Truncate | QIODevice::WriteOnly);
-        dst.write(content.toUtf8());
+        dst.open(QIODevice::WriteOnly);
+        dst.write(content);
         return true;
 	}
 

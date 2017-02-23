@@ -88,7 +88,7 @@ namespace Files
 	** \param content The new content of the file
 	** \return True if the operation succeeded, false otherwise
 	*/
-    bool SaveToFile(const QString& filename, const QString& content);
+    bool SaveToFile(const QString& filename, const QByteArray& content);
 
 	//@}
 

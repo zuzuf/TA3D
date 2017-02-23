@@ -379,7 +379,7 @@ namespace TA3D
 
         void analyse(const QString &filename, const int unit_index);
 
-		void analyse2(File *file);
+        void analyse2(QIODevice *file);
 
         void gather_build_data();
 

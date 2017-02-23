@@ -197,7 +197,7 @@ namespace TA3D
 		SDL_ShowCursor(SDL_DISABLE);
 
 		// Loading and creating cursors
-        File *file = VFS::Instance()->readFile("anims/cursors.gaf");	// Load cursors
+        QIODevice *file = VFS::Instance()->readFile("anims/cursors.gaf");	// Load cursors
 		if (file)
 		{
 			cursor.loadGAFFromRawData(file, false);

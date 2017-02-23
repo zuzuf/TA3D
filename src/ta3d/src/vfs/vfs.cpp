@@ -121,12 +121,7 @@ namespace UTILS
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "freeing VFS cache");
 		if (!fileCache.empty())
-		{
-			const std::list<CacheFileData>::iterator end = fileCache.end();
-			for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != end; ++i)
-				DELETE_ARRAY(i->data);
 			fileCache.clear();
-		}
 
 		// Now close and free archives.
 		LOG_DEBUG(LOG_PREFIX_VFS << "closing and freeing archives");
@@ -285,7 +280,7 @@ namespace UTILS
 		CacheFileData *cache = isInCacheWL(key);
 		if (cache)
 		{
-			if (cache->length == 0)
+            if (cache->buffer.isEmpty())
 				return NULL;
             QBuffer *f = new QBuffer;
             f->setData(cache->buffer);
@@ -326,7 +321,7 @@ namespace UTILS
         CacheFileData *cache = key.isEmpty() ? NULL : isInCacheWL(key);
 		if (cache)
 		{
-			if (cache->length == 0)
+            if (cache->buffer.isEmpty())
 				return NULL;
             QBuffer *f = new QBuffer;
             f->setData(cache->buffer);
@@ -348,14 +343,13 @@ namespace UTILS
 
 
 
-	bool VFS::fileExists(QString filename)
+    bool VFS::fileExists(const QString &filename)
 	{
         if (filename.isEmpty())
 			return false;
-        filename = filename.toLower();
 
 		ThreadingPolicy::MutexLocker locker(*this);
-		return pFiles.find(filename) != pFiles.end();
+        return pFiles.find(filename.toLower()) != pFiles.end();
 	}
 
 
@@ -481,7 +475,7 @@ namespace UTILS
             LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
             return false;
         }
-        while (file->canReadLine())
+        while (file->bytesAvailable())
             out.push_back(QString::fromUtf8(file->readLine()));
         delete file;
         return true;

@@ -129,16 +129,13 @@ namespace TA3D
             QString::size_type iFind = pattern.indexOf('*');
             if (iFind != -1)
 			{
-				first = Substr(pattern, 0, iFind);
-				first.toLower();
+                first = Substr(pattern, 0, iFind).toLower();
 				++iFind;
-				last = Substr(pattern, iFind);
-				last.toLower();
+                last = Substr(pattern, iFind).toLower();
 			}
 			else
 			{
-				first = pattern;
-				first.toLower();
+                first = pattern.toLower();
 				last.clear();
 			}
 

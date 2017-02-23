@@ -531,7 +531,7 @@ namespace TA3D
 		(*loading)(600.0f / 7.0f, I18N::Translate("Loading the map"));
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Extracting `" << pGameData->map_filename << "`...");
 
-		File* map_file = VFS::Instance()->readFile(pGameData->map_filename);
+        QIODevice* map_file = VFS::Instance()->readFile(pGameData->map_filename);
 		if (!map_file)
 			return false;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "`" << pGameData->map_filename << "` extracted");

@@ -45,7 +45,7 @@ namespace TA3D
 				(*progress)((250.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
 			++n;
 
-            File *file = VFS::Instance()->readFile(cur_file);
+            QIODevice *file = VFS::Instance()->readFile(cur_file);
 			if (file)
 			{
 				weapon_manager.load_tdf(file);

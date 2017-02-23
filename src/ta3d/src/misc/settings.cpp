@@ -56,7 +56,7 @@ namespace Settings
 
 		TA3D::VARS::lp_CONFIG->last_MOD = TA3D::VARS::TA3D_CURRENT_MOD;
 
-		QString s;
+        QString s;
         QTextStream stream(&s);
         stream << "// TA3D Settings\n"
                << "\n"
@@ -66,7 +66,7 @@ namespace Settings
                << "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // <= 0 means `unlimited`\n"
                << "              Time Factor = " << TA3D::VARS::lp_CONFIG->timefactor << ";\n"
                << "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps), 3 -> high (shadow maps)\n"
-               << "           ShadowMap Size = " << (int)TA3D::VARS::lp_CONFIG->shadowmap_size << "; // 0 -> lower (256²), 1 -> low (512²), 2 -> normal (1024²), 3 -> high (2048²)\n"
+               << "           ShadowMap Size = " << (int)TA3D::VARS::lp_CONFIG->shadowmap_size << "; // 0 -> lower (256x256), 1 -> low (512x512), 2 -> normal (1024x1024), 3 -> high (2048x2048)\n"
                << "           Priority Level = " << TA3D::VARS::lp_CONFIG->priority_level << "; // 0, 1, 2\n"
                << "                     FSAA = " << TA3D::VARS::lp_CONFIG->fsaa << ";\n"
                << "               Anisotropy = " << TA3D::VARS::lp_CONFIG->anisotropy << ";\n"
@@ -114,7 +114,7 @@ namespace Settings
                << "          Texture Quality = " << TA3D::VARS::lp_CONFIG->unitTextureQuality << ";\n"
                << "}\n";
 
-		if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
+        if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s.toUtf8()))
 		{
 			LOG_INFO(LOG_PREFIX_SETTINGS << "The settings has been saved.");
 			return true;

@@ -105,10 +105,8 @@ namespace TA3D
 
         while (!file->atEnd()) // Reads the whole file
 		{
-			QString line;
-			file->readLine(line);
-            line = line.trimmed();
-            QStringList args = line.split(' ', QString::SkipEmptyParts);
+            const QByteArray &line = file->readLine().trimmed();
+            const QByteArrayList &args = line.split(' ');
             if (!args.isEmpty())
 			{
 				if ( (args[0] == "o" || args[0] == "g") && args.size() > 1)      // Creates a new object
@@ -123,31 +121,29 @@ namespace TA3D
 						cur = static_cast<MeshOBJ*>(cur->child);
 					}
 					firstObject = false;
-					cur->name = args[1];
+                    cur->name = QString::fromLatin1(args[1]);
 				}
 				else if (args[0] == "mtllib" && args.size() > 1)        // Read given material libraries
 				{
-					for(QStringList::iterator s = args.begin() + 1 ; s != args.end() ; ++s)
+                    for(QByteArrayList::const_iterator s = args.begin() + 1 ; s != args.end() ; ++s)
 					{
-                        File *src_mtl = VFS::Instance()->readFile("objects3d/" + *s);
+                        QIODevice *src_mtl = VFS::Instance()->readFile("objects3d/" + *s);
 						if (!src_mtl)
 							continue;
 						Material mtl;
-						while (!src_mtl->eof())
+                        while (!src_mtl->atEnd())
 						{
-							QString line0;
-							src_mtl->readLine(line0);
-                            line0 = line0.trimmed();
-                            const QStringList &args0 = line0.split(' ', QString::SkipEmptyParts);
+                            const QByteArray &line0 = src_mtl->readLine().trimmed();
+                            const QByteArrayList &args0 = line0.split(' ');
                             if (!args0.isEmpty())
 							{
 								if (args0[0] == "newmtl")
-									mtl.name = args0[1];
+                                    mtl.name = QString::fromLatin1(args0[1]);
 								else
 								{
 									if (args0[0] == "map_Kd")
 									{
-                                        mtl.textureName = "textures/" + args0[1];
+                                        mtl.textureName = "textures/" + QString::fromLatin1(args0[1]);
 										mtllib[mtl.name] = mtl;
 									}
 								}
@@ -160,8 +156,8 @@ namespace TA3D
 				{
 					if (args[0] == "usemtl" && args.size() > 1)        // Change current material
 					{
-						if (mtllib.count(args[1]))
-							currentMtl = mtllib[args[1]];
+                        if (mtllib.count(QString::fromLatin1(args[1])))
+                            currentMtl = mtllib[QString::fromLatin1(args[1])];
 						else
 							currentMtl.textureName.clear();
 					}
@@ -176,7 +172,7 @@ namespace TA3D
 						vector<int>  vertex_idx;
 						vector<int>  tcoord_idx;
 						bool first_string = true;
-                        for(QString &s : args)
+                        for(const QByteArray &s : args)
 						{
 							// The first string is crap if we read it as vertex data !!
 							if (first_string)
@@ -185,8 +181,7 @@ namespace TA3D
 								continue;
 							}
 
-                            s = s.trimmed();
-                            const QStringList &data = s.split('/', QString::SkipEmptyParts);
+                            const QByteArrayList &data = s.trimmed().split('/');
 
                             if (!data.isEmpty())
 							{
@@ -221,7 +216,7 @@ namespace TA3D
 
 	Model *MeshOBJ::load(const QString &filename)
 	{
-		File *file = VFS::Instance()->readFile(filename);
+        QIODevice *file = VFS::Instance()->readFile(filename);
 		if (!file)
 		{
 			LOG_ERROR(LOG_PREFIX_OBJ << "could not read file '" << filename << "'");

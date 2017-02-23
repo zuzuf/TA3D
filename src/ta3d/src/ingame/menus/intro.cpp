@@ -114,14 +114,17 @@ namespace Menus
 		pContent.clear();
 		// A big space before
 		for (unsigned int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
-			pContent.push_back(nullptr);
+            pContent.push_back(QString());
 
 		// Load all text files
-        File *file = VFS::Instance()->readFile("intro/" + I18N::Translate("en.ta3d.txt"));
+        QIODevice *file = VFS::Instance()->readFile("intro/" + I18N::Translate("en.ta3d.txt"));
 		if (file == NULL)
             throw std::runtime_error(("Intro file not found! (intro/" + I18N::Translate("en.ta3d.txt") + ')').toStdString());
 		if (file->size() <= 5 * 1024)
-			file->load(pContent);
+        {
+            while(file->bytesAvailable())
+                pContent.push_back(QString::fromUtf8(file->readLine().trimmed()));
+        }
 		delete file;
 		pContentSize = unsigned(pContent.size());
 		if (pContentSize == TA3D_INTRO_MAX_LINES)
