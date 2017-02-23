@@ -741,7 +741,7 @@ namespace TA3D
         NoChaseCategory = parseString("UNITINFO.NoChaseCategory");
         BadTargetCategory = parseString("UNITINFO.BadTargetCategory");
 
-        QString category = parseString("UNITINFO.Category").toLower();
+        const QString category = parseString("UNITINFO.Category").toLower();
 		Category.clear();
         categories = category.split(' ', QString::SkipEmptyParts);
         for (const QString &i : categories)

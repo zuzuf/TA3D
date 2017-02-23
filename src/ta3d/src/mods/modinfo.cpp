@@ -116,7 +116,7 @@ namespace TA3D
                 "    author = " + author + ";\n"
                 "    comment = " + tmp + ";\n"
                 "    url = " + url + ";\n"
-                "    installed = " + installed + ";\n"
+                "    installed = " + QString::number(int(installed)) + ";\n"
                 "}";
         Paths::MakeDir(Paths::ExtractFilePath(filename));
         Paths::Files::SaveToFile(filename, file.toUtf8());

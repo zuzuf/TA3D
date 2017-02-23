@@ -1755,8 +1755,7 @@ namespace TA3D
 			}
 		}
 
-        QString ext = Paths::ExtractFileExt(file);
-		ext.toLower();
+        const QString ext = Paths::ExtractFileExt(file).toLower();
 		bool with_alpha = (ext == ".tga" || ext == ".png" || ext == ".tif");
 		if (with_alpha)
 		{

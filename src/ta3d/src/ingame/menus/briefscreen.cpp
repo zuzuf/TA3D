@@ -168,8 +168,7 @@ namespace Menus
 			}
 		}
 
-		QString planet_file = ota_parser.pullAsString("GlobalHeader.planet");
-		planet_file.toLower();
+        QString planet_file = ota_parser.pullAsString("GlobalHeader.planet").toLower();
 
         if (planet_file == "green planet" )             planet_file = "anims/greenbrief.gaf";
         else if (planet_file == "archipelago" )         planet_file = "anims/archibrief.gaf";

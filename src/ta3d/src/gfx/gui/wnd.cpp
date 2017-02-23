@@ -1788,7 +1788,7 @@ namespace TA3D
 			QStringList Entry;
 			QString entryList;
 
-            for (unsigned int i = 0 ; wndFile.exists("widget" + i) ; ++i) // Loads each object
+            for (unsigned int i = 0 ; wndFile.exists(QString("widget%1").arg(i)) ; ++i) // Loads each object
 			{
                 const QString &obj_key = QString("window.widget%1.").arg(i);
 

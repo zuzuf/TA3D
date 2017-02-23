@@ -335,7 +335,7 @@ namespace TA3D
         TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
         if (entry == pTable.end() || entry->isEmpty())
             return def;
-        return entry->toInt();
+        return (entry->toLower() == "true") || entry->toInt();
 
 	}
 

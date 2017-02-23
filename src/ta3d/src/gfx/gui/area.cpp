@@ -41,8 +41,7 @@ namespace Gui
 
 	WND::Ptr AREA::getWindowWL(const QString& message)
 	{
-		QString lmsg (message);
-		lmsg.toLower();
+        const QString lmsg (message.toLower());
 		if (lmsg == cached_key && cached_wnd)
 			return cached_wnd;
 
@@ -215,9 +214,7 @@ namespace Gui
 		if (Paths::ExtractFileExt(filename) == ".gui")
 			newWindow->load_gui(filename, gui_hashtable); // Loads the window from a *.gui file
 		else
-		{
 			newWindow->load_tdf(filename, skin);	// Loads the window from a *.tdf file
-		}
 
 		for (unsigned int i = wnd_idx; i > 0; --i) // The new window appear on top of the others
 			vec_z_order[i] = vec_z_order[i - 1];

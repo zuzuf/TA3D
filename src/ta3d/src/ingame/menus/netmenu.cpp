@@ -371,7 +371,7 @@ namespace Menus
 				QString filename = (*i)->getFilename();
 				if (Paths::Exists(filename))        // Success, check if this is an RAR, TAR, 7Z, ZIP archive
 				{
-					QString ext = Paths::ExtractFileExt(filename).toLower();
+                    const QString ext = Paths::ExtractFileExt(filename).toLower();
 					LOG_INFO(LOG_PREFIX_SYSTEM << "archive extension is '" << ext << "'");
 					bool success = true;
 					if (ext == ".7z" || ext == ".rar" || ext == ".zip" || ext == ".tar"

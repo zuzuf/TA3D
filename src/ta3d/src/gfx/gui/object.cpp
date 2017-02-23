@@ -41,8 +41,7 @@ namespace Gui
 
 	uint32 GUIOBJ::msg(const QString& message, WND* wnd)		// Reacts to a message transfered from the Interface
 	{
-		QString lw(message);
-		lw.toLower();
+        const QString lw(message.toLower());
 		bool old_wait_a_turn = wait_a_turn;
 		wait_a_turn = true;
 
