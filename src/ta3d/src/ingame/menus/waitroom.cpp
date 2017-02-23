@@ -204,7 +204,7 @@ namespace Menus
 				{
 					if (params[0] == "LOADING")
 					{
-						int percent = Math::Min(100, Math::Max(0, params[1].toInt()));
+						int percent = Math::Min(100, Math::Max(0, params[1].toInt(nullptr, 0)));
                         pArea->set_data( QString("wait.progress%1").arg(player_id), percent);
 					}
 					else

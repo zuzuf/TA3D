@@ -103,7 +103,7 @@ void ConfigDialog::do_config()
         const int AA[] = { 1, 2, 4, 8, 16, 32 };
         lp_CONFIG->fsaa = static_cast<TA3D::sint16>(AA[ui->cb_AA->currentIndex()]);
         lp_CONFIG->fullscreen = ui->cb_fullscreen->isChecked();
-        lp_CONFIG->anisotropy = static_cast<TA3D::sint16>(ui->cb_anisotropy->currentText().toInt());
+        lp_CONFIG->anisotropy = static_cast<TA3D::sint16>(ui->cb_anisotropy->currentText().toInt(nullptr, 0));
         lp_CONFIG->shadow_quality = static_cast<TA3D::sint16>(ui->cb_shadows_quality->currentIndex());
         lp_CONFIG->water_quality = static_cast<TA3D::sint16>(ui->cb_water_quality->currentIndex());
         lp_CONFIG->shadowmap_size = static_cast<TA3D::uint8>(ui->cb_shadowmap_size->currentIndex());

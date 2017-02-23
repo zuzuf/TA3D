@@ -1972,7 +1972,7 @@ namespace TA3D
 			m_File << "			local dx = unit_x( i ) + 0.5 * (map_w() - " << params[ 1 ] << " )\n";
 			m_File << "			local dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
 			m_File << "			local dist = dx * dx + dz * dz\n";
-			const float dist = (float)params[ 3 ].toInt() * 0.5f;
+			const float dist = (float)params[ 3 ].toInt(nullptr, 0) * 0.5f;
 			m_File << "			if dist <= " << (dist * dist) << " then\n";
 			m_File << "				if not first_launch and not check[ i ] and not MoveUnitToRadius then\n";
 			m_File << "					victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;

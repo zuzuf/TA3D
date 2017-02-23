@@ -23,7 +23,6 @@
 #include "resources.h"
 #include <QIODevice>
 
-
 namespace TA3D
 {
 
@@ -236,7 +235,7 @@ namespace TA3D
 				}
 				stack.currentSection += stack.value;
                 if (stack.gadgetMode < 0 && !stack.currentSection.isEmpty() && !exists(stack.currentSection))
-                    pTable[stack.currentSection] = QString::fromUtf8(stack.value);
+                    pTable[QString::fromUtf8(stack.currentSection)] = QString::fromUtf8(stack.value);
 				++stack.level;
 				stack.widgetMode.push(0);
 				continue;
@@ -296,8 +295,8 @@ namespace TA3D
                         stack.value.replace("\\n", "\n");
                         stack.value.replace("\\r", "\r");
 
-                        if (!special_section.isEmpty() && (QRegExp("*." + special_section, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(stack.currentSection) || stack.currentSection == special_section))
-                            pTable[stack.currentSection] = (pullAsString(stack.currentSection) + "," + QString::fromUtf8(stack.key));
+                        if (!special_section.isEmpty() && (QRegExp("*." + special_section, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(QString::fromUtf8(stack.currentSection)) || QString::fromUtf8(stack.currentSection) == special_section))
+                            pTable[QString::fromUtf8(stack.currentSection)] = (pullAsString(QString::fromUtf8(stack.currentSection)) + "," + QString::fromUtf8(stack.key));
 
                         const QString &realKey = QString::fromUtf8(stack.currentSection + "." + stack.key);
                         pTable[realKey] = QString::fromUtf8(stack.value);
@@ -310,7 +309,7 @@ namespace TA3D
 		return true;
 	}
 
-	void TDFParser::setSpecialSection(const QString &section)
+    void TDFParser::setSpecialSection(const QString &section)
 	{
 		special_section = section;
 	}
@@ -345,9 +344,17 @@ namespace TA3D
         QStringList params = str.split(',', QString::KeepEmptyParts);
 		if (params.size() < 3)
 			return def;
+        for(QString &p : params)
+            p = p.trimmed();
 		if (params.size() == 3)
-            return makeacol( params[0].toUInt(), params[1].toUInt(), params[2].toUInt(), 0xFF );
-        return makeacol( params[0].toUInt(), params[1].toUInt(), params[2].toUInt(), params[3].toUInt() );
+            return makeacol( params[0].toUInt(nullptr, 0),
+                             params[1].toUInt(nullptr, 0),
+                             params[2].toUInt(nullptr, 0),
+                             0xFF );
+        return makeacol( params[0].toUInt(nullptr, 0),
+                         params[1].toUInt(nullptr, 0),
+                         params[2].toUInt(nullptr, 0),
+                         params[3].toUInt(nullptr, 0) );
 	}
 
 
@@ -355,14 +362,18 @@ namespace TA3D
     {
         const QString keyToFind(pIgnoreCase ? key.toLower() : key);
         TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
-        return (entry == pTable.end() || entry->isEmpty() ? def : entry->toInt());
+        if (entry == pTable.end() || entry->isEmpty())
+            return def;
+        bool b_ok;
+        sint32 v = entry->toInt(&b_ok, 0);
+        if (!b_ok)
+            v = sint32(entry->toUInt(&b_ok, 0));
+        return b_ok ? v : def;
     }
 
     sint32 TDFParser::pullAsInt(const QString& key)
     {
-        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
-        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
-        return (entry == pTable.end() || entry->isEmpty() ? 0 : entry->toInt());
+        return pullAsInt(key, 0);
     }
 
 
@@ -376,9 +387,7 @@ namespace TA3D
 
     QString TDFParser::pullAsString(const QString& key)
     {
-        const QString keyToFind(pIgnoreCase ? key.toLower() : key);
-        TA3D::UTILS::HashMap<QString>::Dense::iterator entry = pTable.find(keyToFind);
-        return entry == pTable.end() ? nullptr : entry.value();
+        return pullAsString(key, QString());
     }
 
 

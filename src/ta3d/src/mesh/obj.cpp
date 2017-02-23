@@ -185,11 +185,11 @@ namespace TA3D
 
                             if (!data.isEmpty())
 							{
-                                vertex_idx.push_back( data[0].toInt() - 1);
+                                vertex_idx.push_back( data[0].toInt(nullptr, 0) - 1);
 								if (vertex_idx.back() < 0)
                                 {	LOG_DEBUG(LOG_PREFIX_OBJ << "parser : " << line << " -> " << s << " -> " << vertex_idx.back());	}
 								if (data.size() >= 2)
-                                    tcoord_idx.push_back(data[1].toInt() - 1);
+                                    tcoord_idx.push_back(data[1].toInt(nullptr, 0) - 1);
 								else
 									tcoord_idx.push_back(-1);
 							}

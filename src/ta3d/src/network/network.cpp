@@ -252,7 +252,7 @@ namespace TA3D
 		else
 		{
 			ftmutex.lock();
-			int nb_port = port.toInt();
+			int nb_port = port.toInt(nullptr, 0);
 			for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
 			{
 				if ((*i)->port == nb_port)
@@ -292,7 +292,7 @@ namespace TA3D
 	bool Network::isTransferFinished( const QString &port )
 	{
 		MutexLocker mLock(ftmutex);
-		int nb_port = port.toInt();
+		int nb_port = port.toInt(nullptr, 0);
 		for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
 			if ((*i)->port == nb_port)
 				return false;
@@ -459,7 +459,7 @@ namespace TA3D
                             const QStringList &params = QString((char*)(special_msg.message)).split(' ', QString::SkipEmptyParts);
 							if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
 							{
-								myID = params[2].toInt();
+								myID = params[2].toInt(nullptr, 0);
 								break;
 							}
 						}
@@ -727,7 +727,7 @@ namespace TA3D
 		ftmutex.lock();
 		SendFileThread *thread = new SendFileThread();
 		sendfile_thread.push_back( thread );
-		thread->port = port.toInt();
+		thread->port = port.toInt(nullptr, 0);
 		thread->player_id = player;
 
 		net_thread_params *params = new net_thread_params;

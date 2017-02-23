@@ -711,7 +711,7 @@ namespace TA3D
             const QString &specialWhat = parser.pullAsString(key + "specialwhat").toLower();
 			if (specialWhat.startsWith("startpos"))
 			{
-				int index = Substr(specialWhat, 8, specialWhat.size() - 8).toInt() - 1;
+                int index = Substr(specialWhat, 8, specialWhat.size() - 8).toInt(nullptr, 0) - 1;
                 startX[index] = parser.pullAsInt(key + "xpos");
                 startZ[index] = parser.pullAsInt(key + "zpos");
 			}

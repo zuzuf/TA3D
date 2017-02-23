@@ -237,7 +237,7 @@ namespace Settings
 			{
 				lp_CONFIG->first_start = true;		// First start of a >= 0.6 release
 				lp_CONFIG->shadow_quality = sint16(cfgFile.pullAsInt("TA3D.Show Shadows"));
-                int langID = lp_CONFIG->Lang.toInt();     // TA3D used to store language ID instead of language
+                int langID = lp_CONFIG->Lang.toInt(nullptr, 0);     // TA3D used to store language ID instead of language
 				switch( langID )
 				{
 					case 0:     lp_CONFIG->Lang = "english";    break;

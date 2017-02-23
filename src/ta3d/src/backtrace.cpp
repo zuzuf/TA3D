@@ -95,7 +95,7 @@ void backtrace_handler (int signum)
 				line[0] = ' ';
                 line = line.trimmed();
 			}
-            const int id = line.toInt();
+            const int id = line.toInt(nullptr, 0);
 			if (id <= 0)
 				continue;
             cmd	+= QString(" -ex \"thread %1\" -ex bt").arg(id);

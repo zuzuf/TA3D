@@ -1349,7 +1349,7 @@ namespace TA3D
                     QString::size_type e = cur.indexOf('.');
                     if (e != -1)
 					{
-                        unsigned int target = Substr(cur, 0, e).toUInt();
+                        unsigned int target = Substr(cur, 0, e).toUInt(nullptr, 0);
 						if (target < pObjects.size())
 						{
                             if (Substr(cur, e+1, cur.length() - e) == "data")
@@ -1364,7 +1364,7 @@ namespace TA3D
                     QString::size_type e = cur.indexOf('.');
                     if (e != -1)
 					{
-                        unsigned int target = Substr(cur, 0, e).toUInt();
+                        unsigned int target = Substr(cur, 0, e).toUInt(nullptr, 0);
 						if (target < pObjects.size())
 						{
                             if (Substr(cur, e + 1, cur.length() - e) == "data")
@@ -1846,6 +1846,8 @@ namespace TA3D
 
                 entryList = ' ' + wndFile.pullAsString(obj_key + "entry");
                 Entry = entryList.split(',', QString::SkipEmptyParts);
+                for(QString &e : Entry)
+                    e = e.trimmed();
 				I18N::Translate(Entry);
 
                 switch (obj_type[0].toLatin1())
@@ -2009,9 +2011,13 @@ namespace TA3D
 				}
 
                 object->OnClick = wndFile.pullAsString(obj_key + "on click").split(',', QString::SkipEmptyParts);
+                for(QString &s : object->OnClick)   s = s.trimmed();
                 object->OnHover = wndFile.pullAsString(obj_key + "on hover").split(',', QString::SkipEmptyParts);
+                for(QString &s : object->OnHover)   s = s.trimmed();
                 object->SendDataTo = wndFile.pullAsString(obj_key + "send data to").toLower().split(',', QString::SkipEmptyParts);
+                for(QString &s : object->SendDataTo)   s = s.trimmed();
                 object->SendPosTo = wndFile.pullAsString(obj_key + "send pos to").toLower().split(',', QString::SkipEmptyParts);
+                for(QString &s : object->SendPosTo)   s = s.trimmed();
 
 				object->Flag |= obj_flags;
 				object->Flag &= ~obj_negative_flags;

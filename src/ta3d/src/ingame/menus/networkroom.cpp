@@ -135,7 +135,7 @@ namespace Menus
 						mod.clear();
 					QString version = UnfixBlank(params[4]);
 					QString host_address = network_manager.getLastMessageAddress();
-					int nb_open = params[5].toInt();
+					int nb_open = params[5].toInt(nullptr, 0);
 
 					if (Substr(version, 0, 3) == Substr(TA3D_ENGINE_VERSION, 0, 3) && version.size() == QString(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
 					{

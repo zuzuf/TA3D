@@ -225,7 +225,7 @@ namespace TA3D
 		++first;
 		number = Substr(number,first, number.size() - first);
 
-		const int page = number.toInt() - 1;		// Extract the page number
+        const int page = number.toInt(nullptr, 0) - 1;		// Extract the page number
 
 		const int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 

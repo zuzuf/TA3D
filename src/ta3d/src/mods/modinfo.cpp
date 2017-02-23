@@ -50,7 +50,7 @@ namespace TA3D
             return;
         }
 
-        ID = params[0].toInt();
+        ID = params[0].toInt(nullptr, 0);
         version = params[1];
         name = params[2];
         url = params[3];

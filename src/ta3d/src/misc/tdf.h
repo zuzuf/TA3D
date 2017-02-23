@@ -162,7 +162,7 @@ namespace TA3D
 		** \brief Set the special section
 		** \param special section name
 		*/
-		void setSpecialSection(const QString &section);
+        void setSpecialSection(const QString &section);
 
 		/*!
 		** \brief Call a callback for each key
@@ -205,7 +205,7 @@ namespace TA3D
 		bool pIgnoreCase;
 
 		//! Special section for which we keep track of keys
-		QString special_section;
+        QString special_section;
 
 	}; // class TDFParser
 
