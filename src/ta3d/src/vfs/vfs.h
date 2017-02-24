@@ -218,7 +218,7 @@ namespace UTILS
 		DirMap pDirs;
 
 		//! The cache is used to speed up things when a file is loaded multiple times
-        QList<CacheFileData>  fileCache;
+        std::list<CacheFileData>  fileCache;
 		//! A list of Archive*, needed only for cleanup.
 		std::vector<Archive*> archives;
 

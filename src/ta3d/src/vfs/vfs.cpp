@@ -250,11 +250,11 @@ namespace UTILS
 
 	VFS::CacheFileData* VFS::isInCacheWL(const QString& filename)
 	{
-        if (fileCache.isEmpty())
+        if (fileCache.empty())
 			return NULL;
 
         const QString &key = filename.toLower();
-        for (QList<CacheFileData>::iterator i = fileCache.begin() ; i != fileCache.end() ; ++i) // Check RAM Cache
+        for (std::list<CacheFileData>::iterator i = fileCache.begin() ; i != fileCache.end() ; ++i) // Check RAM Cache
 		{
 			if (i->name == key)
 			{

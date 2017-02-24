@@ -18,11 +18,10 @@
 #ifndef __TA3D_LOGS_LOGS_H__
 # define __TA3D_LOGS_LOGS_H__
 
-# include <QDebug>
 # include <QFile>
 # include <QTextStream>
 # include <QSharedPointer>
-
+# include <QMutex>
 
 # ifdef LOGS_USE_DEBUG
 #   define LOG_DEBUG(X)     logs.debug() << X
@@ -99,7 +98,7 @@ namespace TA3D
 {
     class BroadCastingIODevice;
 
-    class Logger
+    class Logger : public QMutex
     {
         struct LoggerEntry
         {
@@ -107,6 +106,7 @@ namespace TA3D
             ~LoggerEntry()
             {
                 logger.write_endl();
+                logger.unlock();
             }
 
             template<typename T>
@@ -149,6 +149,7 @@ namespace TA3D
 #define IMPL(X)\
         LoggerEntry X()\
         {\
+            lock();\
             write("[" #X "]");\
             return LoggerEntry(*this);\
         }

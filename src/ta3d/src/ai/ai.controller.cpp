@@ -609,6 +609,11 @@ namespace TA3D
 
 		// Length of the name
 		const int l = readChar(file);
+        if (l < 0)
+        {
+            delete file;
+            return;
+        }
 
 		// Reading the name
 		char* n = new char[l + 1];

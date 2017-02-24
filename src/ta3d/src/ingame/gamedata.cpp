@@ -116,7 +116,7 @@ namespace TA3D
 
 	void GameData::unserialize(const QString &data)
 	{
-        const QStringList &args = data.split(',', QString::SkipEmptyParts);
+        const QStringList &args = data.split(',', QString::KeepEmptyParts);
 
 		if (args.size() < 6)		// Not enough fields
 		{

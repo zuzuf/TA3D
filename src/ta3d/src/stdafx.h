@@ -35,7 +35,7 @@
 # include <cstdint>
 
 // TODO : Should be removed
-# ifdef YUNI_OS_WINDOWS
+# ifdef TA3D_PLATFORM_WINDOWS
 # 	ifdef YUNI_OS_MSVC
 #		define TA3D_PLATFORM_MSVC
 # 	else
