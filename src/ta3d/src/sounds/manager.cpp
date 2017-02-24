@@ -23,7 +23,7 @@
 #include <logs/logs.h>
 #include <misc/camera.h>
 #include <misc/paths.h>
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
 
 
 using namespace TA3D::Interfaces;

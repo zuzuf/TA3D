@@ -17,7 +17,7 @@
 
 #include <stdafx.h>
 #include <TA3D_NameSpace.h>
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
 #include "lua.chunk.h"
 #include "lua.thread.h"
 

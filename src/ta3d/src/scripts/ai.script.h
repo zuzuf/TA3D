@@ -18,7 +18,6 @@
 #ifndef __AiScript_H__
 #define __AiScript_H__
 
-# include <yuni/yuni.h>
 # include <misc/string.h>
 # include "lua.thread.h"
 # include <zuzuf/smartptr.h>

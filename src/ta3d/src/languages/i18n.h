@@ -17,8 +17,6 @@
 #ifndef __TA3D_XX_I18N_H__
 # define __TA3D_XX_I18N_H__
 
-# include <yuni/yuni.h>
-# include <yuni/core/smartptr/smartptr.h>
 # include <stdafx.h>
 # include <misc/string.h>
 # include <threads/mutex.h>

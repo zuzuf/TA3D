@@ -25,7 +25,6 @@
 # define __TA3D_AI_PATH_FINDING_H__
 
 # include <EngineClass.h>
-# include <yuni/core/smartptr/smartptr.h>
 # include <threads/thread.h>
 # include <threads/mutex.h>
 # include <zlib.h>

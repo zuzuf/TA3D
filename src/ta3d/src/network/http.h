@@ -1,7 +1,6 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#include <yuni/yuni.h>
 #include <misc/string.h>
 #include <threads/thread.h>
 

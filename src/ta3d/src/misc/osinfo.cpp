@@ -94,15 +94,12 @@ namespace System
 
 	void DisplayInformations()
 	{
-		// Vendor
-		QString vendorName;
-#ifdef TA3D_PLATFORM_LINUX
-		vendorName = run_command("cat /proc/cpuinfo | grep vendor_id | head -n 1 | awk '{ print $3 }' | tr -d \"\\n\"");
-#else
-#endif
-        logs.notice() << LOG_PREFIX_SYSTEM << YUNI_OS_NAME << ", Vendor: " << (vendorName.isEmpty() ? "Unknown" : vendorName)
+        logs.notice() << LOG_PREFIX_SYSTEM << qApp->platformName()
                       << " " << CPUName()
                       << " (" << CPUCapabilities() << ")";
+
+        logs.notice() << LOG_PREFIX_SYSTEM << " running Qt " << qVersion();
+        logs.notice() << LOG_PREFIX_SYSTEM << " built with Qt " << QT_VERSION_STR;
         displayScreenResolution();
 	}
 

@@ -21,8 +21,6 @@
  */
 
 #include <QApplication>
-#include <yuni/yuni.h>
-#include <yuni/core/system/main.h>
 #include "stdafx.h"					// standard pch inheritance.
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "engine.h"		       		// The engine class.

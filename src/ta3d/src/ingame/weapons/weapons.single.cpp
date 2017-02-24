@@ -22,7 +22,7 @@
 #include <misc/math.h>
 #include <sounds/manager.h>
 #include <ingame/players.h>
-#include <yuni/core/math.h>
+#include <misc/math.h>
 #include <EngineClass.h>
 #include <misc/bvh.h>
 
