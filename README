@@ -1,4 +1,4 @@
-TA3D version 0.6.0
+TA3D version 0.7.0
 
 this software is under GPL (see COPYING)
 
@@ -34,7 +34,7 @@ _a system to make the terrain destructible
 
 and probably more!
 
-NB: TA3D requires SDL,SDL_image,SDL_mixer and SDL_net 1.2, GLEW and zlib
+NB: TA3D requires Qt5, SDL,SDL_image,SDL_mixer and SDL_net 1.2, GLEW and zlib
 
 -------
 
@@ -73,7 +73,7 @@ _ajout d'un système de déformation du terrain
 
 et bien d'autres choses que je n'ai pas à l'esprit en ce moment!
 
-NB: TA3D nécessite SDL,SDL_image,SDL_mixer et SDL_net en version 1.2, GLEW et la zlib
+NB: TA3D nécessite Qt5, SDL,SDL_image,SDL_mixer et SDL_net en version 1.2, GLEW et la zlib
 
 INSTALLATION
 ------------
