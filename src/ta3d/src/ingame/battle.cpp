@@ -349,7 +349,7 @@ namespace TA3D
 			if (mouse_y < 2)
 			{
 				Vector3D move_dir(cam.up);
-				if (Yuni::Math::Zero(move_dir.x) && Yuni::Math::Zero(move_dir.z))
+				if (Math::Zero(move_dir.x) && Math::Zero(move_dir.z))
 					move_dir = cam.dir;
 				move_dir.y = 0.f;
 				move_dir.unit();
@@ -361,7 +361,7 @@ namespace TA3D
 				if (mouse_y >= SCREEN_H - 2)
 				{
 					Vector3D move_dir(cam.up);
-					if (Yuni::Math::Zero(move_dir.x) && Yuni::Math::Zero(move_dir.z))
+					if (Math::Zero(move_dir.x) && Math::Zero(move_dir.z))
 						move_dir = cam.dir;
 
 					move_dir.y = 0.f;
@@ -488,7 +488,7 @@ namespace TA3D
 					const float d = moving_target.sq();
 					moving_target.y = 0.0f;
 					const float D = moving_target.sq();
-					if (Yuni::Math::Zero(D))
+					if (Math::Zero(D))
 						cam_has_target = false;
 					else
 						moving_target = d / D * moving_target;
@@ -1043,7 +1043,7 @@ namespace TA3D
 										units.unit[i].sel = false;
 								}
 							}
-							if (pointing >= 0 && Yuni::Math::Zero(units.unit[pointing].build_percent_left))	// On ne sÃ©lectionne pas les unitÃ©s en construction
+							if (pointing >= 0 && Math::Zero(units.unit[pointing].build_percent_left))	// On ne sÃ©lectionne pas les unitÃ©s en construction
 								units.unit[pointing].sel ^= true; // SÃ©lectionne/DÃ©sÃ©lectionne si l'unitÃ© est dÃ©jÃ  sÃ©lectionnÃ©e en appuyant sur SHIFT
 							selected = false;
 							for (unsigned int e = 0; e < units.index_list_size; ++e)
@@ -1175,7 +1175,7 @@ namespace TA3D
 				for (unsigned int e = 0 ; e < units.index_list_size; ++e)
 				{
 					int i = units.idx_list[e];
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && Yuni::Math::Zero(units.unit[i].build_percent_left))
+					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && Math::Zero(units.unit[i].build_percent_left))
 					{
 						if (unit_manager.unit_type[units.unit[i].type_id]->checkCategory( check_cat ))
 							units.unit[i].sel = true;
@@ -1220,7 +1220,7 @@ namespace TA3D
 					for (unsigned int e = 0; e < units.index_list_size; ++e)
 					{
 						const size_t i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && Yuni::Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id && sel_type[units.unit[i].type_id])
+						if ((units.unit[i].flags & 1) && Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id && sel_type[units.unit[i].type_id])
 							units.unit[i].sel = true;
 					}
 					cur_sel = -1;
@@ -1246,7 +1246,7 @@ namespace TA3D
 						for (unsigned int e = 0 ; e < units.index_list_size; ++e)
 						{
 							int i = units.idx_list[e];
-							if ((units.unit[i].flags & 1) && Yuni::Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id)
+							if ((units.unit[i].flags & 1) && Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id)
 								units.unit[i].sel = true;
 						}
 						cur_sel = -1;

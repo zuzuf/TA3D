@@ -15,8 +15,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include <yuni/yuni.h>
-#include <yuni/core/io/file.h>
 #include "i18n.h"
 #include <misc/resources.h>
 #include <misc/paths.h>
@@ -28,9 +26,12 @@
 namespace TA3D
 {
 
-	I18N::Ptr I18N::pInstance = NULL;
+    I18N::Ptr I18N::pInstance;
 
-
+    namespace
+    {
+        static QMutex global_locker;
+    }
 
 	I18N::Language::Language(const int indx, const QString& englishID, const QString& caption)
 		:pIndx(indx), pEnglishID(englishID), pCaption(caption)
@@ -48,9 +49,10 @@ namespace TA3D
 		// for this kind of class
 		if (!pInstance)
 		{
-			ThreadingPolicy::MutexLocker locker;
+            global_locker.lock();
 			if (!pInstance)
 				pInstance = new I18N();
+            global_locker.unlock();
 		}
 		return pInstance;
 	}
@@ -80,8 +82,9 @@ namespace TA3D
 
 	void I18N::Destroy()
 	{
-		ThreadingPolicy::MutexLocker locker;
+        global_locker.lock();
 		pInstance = NULL;
+        global_locker.unlock();
 	}
 
 	void I18N::resetPrefix()
@@ -102,7 +105,7 @@ namespace TA3D
 	{
         if (name.isEmpty())
 			return NULL;
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		for (Languages::const_iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
 		{
 			if (name == (*i)->caption() || name == (*i)->englishCaption())
@@ -150,7 +153,7 @@ namespace TA3D
 
 	const I18N::Language* I18N::defaultLanguage()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		return pDefaultLanguage;
 	}
 
@@ -159,7 +162,7 @@ namespace TA3D
 	{
 		if (lng)
 		{
-			ThreadingPolicy::MutexLocker locker(*this);
+            MutexLocker locker(*this);
 			if (lng->englishCaption() != pCurrentLanguage->englishCaption())
 			{
 				pCurrentLanguage = language(lng->caption());
@@ -192,7 +195,7 @@ namespace TA3D
 	void I18N::retrieveAllLanguages(std::vector<I18N::Language>& out)
 	{
 		out.clear();
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		for (Languages::const_iterator i = pLanguages.begin(); i != pLanguages.end(); ++i)
 			out.push_back(*(*i));
 	}
@@ -203,7 +206,7 @@ namespace TA3D
 			return defaultValue;
 
         const QString k(key.toLower() + pLanguageSuffix);
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
         return (defaultValue.isEmpty())
             ? pTranslations.pullAsString(k, key)
             : pTranslations.pullAsString(k, defaultValue);
@@ -211,7 +214,7 @@ namespace TA3D
 
     void I18N::translate(QStringList& out)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
         for (QString &i : out)
             i = translate(i);
 	}
@@ -226,7 +229,7 @@ namespace TA3D
 			return false;
 		}
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		// Load the file
 		bool r = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
         const QString &languageEnglishID = pTranslations.pullAsString( "info.name" );

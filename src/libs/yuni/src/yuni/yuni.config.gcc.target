@@ -1,9 +1,0 @@
-[settings]
-path.include:core = /usr/local/include/yuni/0.1/
-path.lib:core = /usr/local/lib/yuni/0.1/
-lib:core = yuni-static-core
-define:core = _FILE_OFFSET_BITS=64
-lib,rawcommand:core = -lpthread
-cxxflag:core = -std=c++0x
-lib:net = yuni-static-net
-define:core = YUNI_LIBRARY_STATIC

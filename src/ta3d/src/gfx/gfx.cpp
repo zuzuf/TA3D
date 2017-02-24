@@ -35,12 +35,9 @@
 #include <input/mouse.h>
 #include "gui/base.h"
 #include <backtrace.h>
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
 #include <SDL_getenv.h>
-
-using namespace Yuni::Core::IO::File;
-
-
+#include <iostream>
 
 namespace TA3D
 {
@@ -937,7 +934,7 @@ namespace TA3D
 
     void GFX::print(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
 	{
-		assert(NULL != font);
+        Q_ASSERT(NULL != font);
         if (!text.isEmpty())
 		{
 			ReInitTexSys(false);
@@ -1853,7 +1850,8 @@ namespace TA3D
 		realFile += file;
 		if (TA3D::Paths::Exists(realFile))
 		{
-			Stream cache_file(realFile, Yuni::Core::IO::OpenMode::read);
+            QFile cache_file(realFile);
+            cache_file.open(QIODevice::ReadOnly);
 			uint32 mod_hash;
 			cache_file.read((char*)&mod_hash, sizeof( mod_hash ));
 			cache_file.close();
@@ -1878,7 +1876,8 @@ namespace TA3D
 		realFile += file;
 		if(TA3D::Paths::Exists(realFile))
 		{
-			Stream cache_file(realFile, Yuni::Core::IO::OpenMode::read);
+            QFile cache_file(realFile);
+            cache_file.open(QIODevice::ReadOnly);
 			uint32 mod_hash;
 			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
 
@@ -1889,9 +1888,9 @@ namespace TA3D
 			}
 
 			if (useAlpha)
-				*useAlpha = cache_file.get();
+                *useAlpha = readChar(&cache_file);
 			else
-				cache_file.get();
+                readChar(&cache_file);
 
 			uint32 rw, rh;
 			cache_file.read((char*)&rw, 4);
@@ -2009,16 +2008,17 @@ namespace TA3D
 		if(!compressed)
 			return;
 
-		Stream cache_file( file, Yuni::Core::IO::OpenMode::write );
+        QFile cache_file(file);
+        cache_file.open(QIODevice::WriteOnly);
 
-		if (!cache_file.opened())
+        if (!cache_file.isOpen())
 			return;
 
         uint32 mod_hash = static_cast<uint32>(hash<QString>()(TA3D_CURRENT_MOD)); // Save a hash of current mod
 
 		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 
-		cache_file.put(useAlpha);
+        cache_file.putChar(useAlpha);
 		cache_file.write( (const char*)&width, 4 );
 		cache_file.write( (const char*)&height, 4 );
 

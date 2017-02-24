@@ -18,9 +18,7 @@
 #ifndef __TA3D_ENGINE_H__
 # define __TA3D_ENGINE_H__
 
-# include <yuni/yuni.h>
 # include "threads/thread.h"
-# include <yuni/thread/thread.h>
 
 
 
@@ -28,7 +26,7 @@ namespace TA3D
 {
 
 
-	class Engine : public Yuni::Thread::IThread
+    class Engine : public QThread
 	{
 		// These classes need access to the Synchronizer object
 		friend class INGAME_UNITS;
@@ -53,8 +51,9 @@ namespace TA3D
 		*/
 		void initializationFromTheMainThread();
 
+        inline bool started() const {   return bStarted;    }
 	protected:
-		virtual bool onExecute();
+        virtual void run();
 
 	private:
 		/*!
@@ -65,6 +64,7 @@ namespace TA3D
 	private:
 		bool pSDLRunning;
 		bool pGFXModeActive;
+        volatile bool bStarted;
 
 	private:
 		static void sync()

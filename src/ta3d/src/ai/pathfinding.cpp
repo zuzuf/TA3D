@@ -21,8 +21,6 @@
 | en place du pathfinding de TA3D                                  |
 \-----------------------------------------------------------------*/
 
-#include <yuni/yuni.h>
-#include <yuni/core/system/cpu.h>
 #include <stdafx.h>
 #include <misc/matrix.h>
 #include <TA3D_NameSpace.h>
@@ -32,7 +30,6 @@
 #include <EngineClass.h>			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
 #include <misc/math.h>
 #include <UnitEngine.h>
-#include <yuni/thread/thread.h>
 #include <misc/usectimer.h>
 #include <misc/bitmap.h>
 
@@ -114,7 +111,7 @@ namespace TA3D
 
 	Pathfinder::Pathfinder() : tasks(), stasks(), taskOffset(0), nbCores(), pSync(2), bRunning(false)
 	{
-		nbCores = Yuni::System::CPU::Count();
+        nbCores = QThread::idealThreadCount();
 	}
 
 	int Pathfinder::taskCount()

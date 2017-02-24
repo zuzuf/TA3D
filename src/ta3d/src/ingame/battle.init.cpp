@@ -36,13 +36,8 @@
 #include <misc/paths.h>
 #include <misc/files.h>
 #include <input/mouse.h>
-#include <yuni/core/io/file/stream.h>
 #include "menus/loading.h"
 #include <cache.h>
-
-
-using namespace Yuni;
-using namespace Yuni::Core::IO::File;
 
 
 namespace TA3D

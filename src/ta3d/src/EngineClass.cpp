@@ -1718,7 +1718,7 @@ namespace TA3D
 						map_data(X, Y).setFlat();
 						for (int f = 1; f < 9; ++f)			// Check if it's flat
 						{
-							if (!Yuni::Math::Equals(bloc[i].point[0].y, bloc[i].point[f].y))
+                            if (!Math::Equals(bloc[i].point[0].y, bloc[i].point[f].y))
 							{
 								map_data(X, Y).unsetFlat();
 								break;
@@ -1727,7 +1727,7 @@ namespace TA3D
 					}
 				}
 
-				if (bloc[i].tex != old_tex || buf_size>=500 || ox + 1 < x)
+                if (bloc[i].tex != old_tex || buf_size >= 500 || ox + 1 < x)
 				{
 					if (buf_size > 0)
 						glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
@@ -1966,7 +1966,7 @@ namespace TA3D
 
 	Vector3D MAP::hit(Vector3D Pos, Vector3D Dir, bool water, float length, bool allow_out) const			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
 	{
-		if (Yuni::Math::Zero(Dir.x) && Yuni::Math::Zero(Dir.z)) // Solution triviale
+        if (Math::Zero(Dir.x) && Math::Zero(Dir.z)) // Solution triviale
 		{
 			Pos.y = get_unit_h(Pos.x, Pos.z);
 			return Pos;
@@ -1976,7 +1976,7 @@ namespace TA3D
 			return Pos;
 
 		float step = 1.0f;
-		if (!Yuni::Math::Zero(Dir.x) && !Yuni::Math::Zero(Dir.z))
+        if (!Math::Zero(Dir.x) && !Math::Zero(Dir.z))
 		{
 			if (fabsf(Dir.x) < fabsf(Dir.z))
 				step = 1.0f / fabsf(Dir.x);

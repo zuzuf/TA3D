@@ -24,7 +24,6 @@
 # include <QSharedPointer>
 
 
-// FIXME : Those defines are ketp for compatibility reasons and shall be removed as soon as possible
 # ifdef LOGS_USE_DEBUG
 #   define LOG_DEBUG(X)     logs.debug() << X
 # else
@@ -48,8 +47,6 @@
 #   define LOG_ASSERT(X)
 # endif
 
-// Even those defines, they shall be removed as soon as Yuni::Logs::Logger has an efficient way
-// for dealing with components of an application
 # define LOG_PREFIX_3DM               "[3dm] "
 # define LOG_PREFIX_3DO               "[3do] "
 # define LOG_PREFIX_S3O               "[s3o] "

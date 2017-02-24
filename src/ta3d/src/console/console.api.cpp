@@ -347,7 +347,7 @@ namespace TA3D
 		if (lua_gettop(L) > 0)
 		{
 			Battle::Instance()->speed_limit = (float)lua_tonumber(L, -1);
-			if (Yuni::Math::Zero(Battle::Instance()->speed_limit))
+            if (Math::Zero(Battle::Instance()->speed_limit))
 				Battle::Instance()->speed_limit = -1.0f;
 			Battle::Instance()->delay = 1.0f / Battle::Instance()->speed_limit;
 		}

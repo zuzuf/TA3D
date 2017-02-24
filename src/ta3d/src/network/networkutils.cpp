@@ -23,11 +23,7 @@
 #include "TA3D_Network.h"
 #include <logs/logs.h>
 #include <misc/paths.h>
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
-
-
+#include <QFile>
 
 namespace TA3D
 {

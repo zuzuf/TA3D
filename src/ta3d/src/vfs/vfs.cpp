@@ -48,7 +48,7 @@ namespace UTILS
 	
 	void VFS::addArchive(const QString& filename, const int priority)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 
 		LOG_DEBUG(LOG_PREFIX_VFS << "loading archive '" << filename << "'");
 		Archive *archive = Archive::load(filename);
@@ -80,7 +80,7 @@ namespace UTILS
 
 	void VFS::locateAndReadArchives(const QString& path, const int priority)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
         QStringList fileList;
 		LOG_DEBUG(LOG_PREFIX_VFS << "Getting archive list");
 		Archive::getArchiveList(fileList, path);
@@ -104,7 +104,7 @@ namespace UTILS
 
 	void VFS::unload()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		unloadWL();
 	}
 
@@ -138,7 +138,7 @@ namespace UTILS
 
 	void VFS::load()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		loadWL();
 	}
 
@@ -171,7 +171,7 @@ namespace UTILS
 
 	void VFS::reload()
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		loadWL();
 	}
 
@@ -198,7 +198,7 @@ namespace UTILS
 		if (file->size() >= 0x100000)	// Don't store big pFiles to prevent filling memory with cache data ;)
 			return;
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 
 		if (fileCache.size() >= 10) // Cycle the data within the list
 			fileCache.pop_front();
@@ -243,7 +243,7 @@ namespace UTILS
 	{
         if (filename.isEmpty())
 			return NULL;
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		return isInCacheWL(filename);
 	}
 
@@ -275,7 +275,7 @@ namespace UTILS
 
         const QString &key = filename.toLower();
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 
 		CacheFileData *cache = isInCacheWL(key);
 		if (cache)
@@ -316,7 +316,7 @@ namespace UTILS
 
         const QString &key = filename.toLower();
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 
         CacheFileData *cache = key.isEmpty() ? NULL : isInCacheWL(key);
 		if (cache)
@@ -348,7 +348,7 @@ namespace UTILS
         if (filename.isEmpty())
 			return false;
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
         return pFiles.find(filename.toLower()) != pFiles.end();
 	}
 
@@ -359,7 +359,7 @@ namespace UTILS
 			return -0xFFFFFF;
         const QString &key = filename.toLower();
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		HashMap<Archive::FileInfo*>::Dense::iterator file = pFiles.find(key);
 		// If it doesn't exist it has a lower priority than anything else
 		return (file != pFiles.end() && *file != NULL) ? file.value()->getPriority() : -0xFFFFFF;
@@ -368,7 +368,7 @@ namespace UTILS
 
     uint32 VFS::getFilelist(const QString &pattern, QStringList& li)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
         return wildCardSearch(pFiles, pattern.toLower(), li);
 	}
 
@@ -379,7 +379,7 @@ namespace UTILS
         QString parent = '/' + Paths::ExtractFilePath(pattern);
 		pattern = Paths::ExtractFileName(pattern);
 
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
 		if (pDirs.count(parent) == 0)
 			return 0;
         return wildCardSearch(pDirs[parent], pattern, li);
@@ -409,7 +409,7 @@ namespace UTILS
 
 	QString VFS::extractFile(const QString& filename)
 	{
-		ThreadingPolicy::MutexLocker locker(*this);
+        MutexLocker locker(*this);
         QString targetName = Paths::Caches + Paths::ExtractFileName(filename);
         QFile file(targetName);
         file.open(QIODevice::Truncate | QIODevice::WriteOnly);

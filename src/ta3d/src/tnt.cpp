@@ -486,14 +486,14 @@ namespace TA3D
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
 			{
-				if (!y && Yuni::Math::Equals<float>(map->ph_map(x, y), -1.f))
+                if (!y && Math::Equals(map->ph_map(x, y), -1.f))
 				{
 					int cy = 0;
-					while (Yuni::Math::Equals(map->ph_map(x, cy), -1.f))
+                    while (Math::Equals(map->ph_map(x, cy), -1.f))
 						++cy;
 					const float h = map->ph_map(x, cy);
 					cy = 0;
-					while (Yuni::Math::Equals(map->ph_map(x, cy), -1.f))
+                    while (Math::Equals(map->ph_map(x, cy), -1.f))
 					{
 						map->ph_map(x, cy) = h;
 						++cy;
@@ -501,18 +501,18 @@ namespace TA3D
 				}
 				else
 				{
-					if (Yuni::Math::Equals(map->ph_map(x, y), -1.f))
+                    if (Math::Equals(map->ph_map(x, y), -1.f))
 					{
 						float h1 = map->ph_map(x, y - 1);
 						int cy = y;
-						while (cy < (map->bloc_h << 1) && Yuni::Math::Equals(map->ph_map(x, cy), -1.f))
+                        while (cy < (map->bloc_h << 1) && Math::Equals(map->ph_map(x, cy), -1.f))
 							++cy;
 
 						if (cy >= (map->bloc_h << 1))
 							cy = (map->bloc_h << 1) - 1;
 
 						float h2 = map->ph_map(x, cy);
-						if (Yuni::Math::Equals(h2, -1.f))
+                        if (Math::Equals(h2, -1.f))
 							h2 = h1;
 						for (int ry = y; ry < cy; ++ry)
 							map->ph_map(x, ry) = h1 + (h2 - h1) * float(ry - y + 1) / float(cy - y + 1);
@@ -531,21 +531,21 @@ namespace TA3D
 				if (y > 0)
 				{
 					float dz = fabsf( map->get_zdec( x, y) - map->get_zdec( x, y - 1) + 8.0f);
-					dz = (Yuni::Math::Zero(dz)) ? 100000000.f : (8.0f / dz);
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y) - map->h_map(x, y - 1)) * dz);
+                    dz = (Math::Zero(dz)) ? 100000000.f : (8.0f / dz);
+                    dh = Math::Max(dh, std::fabs(float(map->h_map(x, y) - map->h_map(x, y - 1))) * dz);
 				}
 
 				if (y + 1 < (map->bloc_h << 1))
 				{
 					float dz = fabsf( map->get_zdec( x, y + 1) - map->get_zdec( x, y) + 8.0f);
-					dz = (Yuni::Math::Zero(dz)) ? 100000000.f : (8.0f / dz);
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y)-map->h_map(x, y + 1)) * dz);
+                    dz = (Math::Zero(dz)) ? 100000000.f : (8.0f / dz);
+                    dh = Math::Max(dh, std::fabs(float(map->h_map(x, y)-map->h_map(x, y + 1))) * dz);
 				}
 
 				if (x > 0)
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y)-map->h_map(x - 1, y)));
+                    dh = Math::Max(dh, std::fabs(float(map->h_map(x, y)-map->h_map(x - 1, y))));
 				if (x + 1 < (map->bloc_w << 1))
-					dh = Math::Max(dh, Yuni::Math::Abs<float>(map->h_map(x, y)-map->h_map(x + 1, y)));
+                    dh = Math::Max(dh, std::fabs(float(map->h_map(x, y)-map->h_map(x + 1, y))));
 
 				map->slope(x,y) = dh;
 				map->energy(x,y) = dh;

@@ -89,7 +89,7 @@ namespace Menus
 	void Loading::doNoticeOtherPlayers(const float percent)
 	{
 		// Broadcast informations
-		if (network_manager.isConnected() && !Yuni::Math::Equals(pLastPercent, percent))
+		if (network_manager.isConnected() && !Math::Equals(pLastPercent, percent))
             network_manager.sendAll(QString("LOADING %1").arg(percent));
 	}
 
@@ -98,7 +98,7 @@ namespace Menus
 	{
 		LOG_ASSERT(NULL != gfx);
 
-		if (Yuni::Math::Equals(pLastPercent, percent) && message == pLastCaption)
+		if (Math::Equals(pLastPercent, percent) && message == pLastCaption)
 			return;
 
 		// Notice other players about the progression

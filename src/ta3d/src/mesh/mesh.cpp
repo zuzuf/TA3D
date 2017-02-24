@@ -138,7 +138,7 @@ namespace TA3D
 						continue;
 					axis.is_moving = false;
 					float a = axis.move_distance;
-					if (!Yuni::Math::Zero(a))
+					if (!Math::Zero(a))
 					{
 						axis.is_moving = true;
 						is_moving = true;
@@ -159,7 +159,7 @@ namespace TA3D
 						axis.angle += 360.0f;
 
 					a = axis.rot_angle;
-					if ((!Yuni::Math::Zero(axis.rot_speed) || !Yuni::Math::Zero(axis.rot_accel)) && ((!Yuni::Math::Zero(a) && axis.rot_limit) || !axis.rot_limit))
+					if ((!Math::Zero(axis.rot_speed) || !Math::Zero(axis.rot_accel)) && ((!Math::Zero(a) && axis.rot_limit) || !axis.rot_limit))
 					{
 						axis.is_moving = true;
 						is_moving = true;
@@ -1008,7 +1008,7 @@ namespace TA3D
 					const Vector3D AB = B - A;
 					const Vector3D AC = C - A;
 					const Vector3D N  = AB * AC;
-					if (Yuni::Math::Zero(N % Dir))
+					if (Math::Zero(N % Dir))
 						continue;
 					const float dist = -((Pos - A) % N) / (N % Dir);
 					if (dist < 0.0f)
@@ -1023,14 +1023,14 @@ namespace TA3D
 					float c;		// Coefficients pour que P soit le barycentre de A,B,C
 					const Vector3D AP = P_p - A;
 					float pre_cal = AB.x * AC.y - AB.y * AC.x;
-					if (!Yuni::Math::Zero(AC.y) && !Yuni::Math::Zero(pre_cal))
+					if (!Math::Zero(AC.y) && !Math::Zero(pre_cal))
 					{
 						b = (AP.x * AC.y - AP.y * AC.x) / pre_cal;
 						a = (AP.y - b * AB.y) / AC.y;
 					}
 					else
 					{
-						if (!Yuni::Math::Zero(AB.x) && !Yuni::Math::Zero(pre_cal))
+						if (!Math::Zero(AB.x) && !Math::Zero(pre_cal))
 						{
 							a = (AP.y * AB.x - AP.x * AB.y) / pre_cal;
 							b = (AP.x - a * AC.x) / AB.x;
@@ -1038,7 +1038,7 @@ namespace TA3D
 						else
 						{
 							pre_cal = AB.x * AC.z - AB.z * AC.x;
-							if (!Yuni::Math::Zero(AC.z) && !Yuni::Math::Zero(pre_cal))
+							if (!Math::Zero(AC.z) && !Math::Zero(pre_cal))
 							{
 								b=(AP.x*AC.z-AP.z*AC.x)/pre_cal;
 								a=(AP.z-b*AB.z)/AC.z;
@@ -1046,7 +1046,7 @@ namespace TA3D
 							else
 							{
 								pre_cal=-pre_cal;
-								if (!Yuni::Math::Zero(AB.z) && !Yuni::Math::Zero(pre_cal))
+								if (!Math::Zero(AB.z) && !Math::Zero(pre_cal))
 								{
 									a =(AP.x*AB.z-AP.z*AB.x)/pre_cal;
 									b=(AP.z-a*AC.z)/AB.z;
@@ -1054,14 +1054,14 @@ namespace TA3D
 								else
 								{
 									pre_cal = AB.y*AC.x-AB.x*AC.y;
-									if (!Yuni::Math::Zero(AC.x) && !Yuni::Math::Zero(pre_cal))
+									if (!Math::Zero(AC.x) && !Math::Zero(pre_cal))
 									{
 										b=(AP.y*AC.x-AP.x*AC.y)/pre_cal;
 										a=(AP.x-b*AB.x)/AC.x;
 									}
 									else
 									{
-										if (!Yuni::Math::Zero(AB.y) && !Yuni::Math::Zero(pre_cal))
+										if (!Math::Zero(AB.y) && !Math::Zero(pre_cal))
 										{
 											a=(AP.x*AB.y-AP.y*AB.x)/pre_cal;
 											b=(AP.y-a*AC.y)/AB.y;
@@ -1091,7 +1091,7 @@ namespace TA3D
 						const Vector3D AB = B - A;
 						const Vector3D AC = C - A;
 						const Vector3D N  = AB * AC;
-						if (Yuni::Math::Zero(N % Dir))
+						if (Math::Zero(N % Dir))
 							continue;
 						const float dist = -((Pos - A) % N) / (N % Dir);
 						if (dist < 0.0f)
@@ -1104,14 +1104,14 @@ namespace TA3D
 						float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
 						const Vector3D AP = P_p - A;
 						float pre_cal = AB.x * AC.y - AB.y * AC.x;
-						if (!Yuni::Math::Zero(AC.y) && !Yuni::Math::Zero(pre_cal))
+						if (!Math::Zero(AC.y) && !Math::Zero(pre_cal))
 						{
 							b = (AP.x * AC.y - AP.y * AC.x) / pre_cal;
 							a = (AP.y - b * AB.y) / AC.y;
 						}
 						else
 						{
-							if (!Yuni::Math::Zero(AB.x) && !Yuni::Math::Zero(pre_cal))
+							if (!Math::Zero(AB.x) && !Math::Zero(pre_cal))
 							{
 								a = (AP.y * AB.x - AP.x * AB.y) / pre_cal;
 								b = (AP.x - a * AC.x) / AB.x;
@@ -1119,7 +1119,7 @@ namespace TA3D
 							else
 							{
 								pre_cal = AB.x * AC.z - AB.z * AC.x;
-								if (!Yuni::Math::Zero(AC.z) && !Yuni::Math::Zero(pre_cal))
+								if (!Math::Zero(AC.z) && !Math::Zero(pre_cal))
 								{
 									b = (AP.x * AC.z - AP.z * AC.x) / pre_cal;
 									a = (AP.z - b * AB.z) / AC.z;
@@ -1127,7 +1127,7 @@ namespace TA3D
 								else
 								{
 									pre_cal = -pre_cal;
-									if (!Yuni::Math::Zero(AB.z) && !Yuni::Math::Zero(pre_cal))
+									if (!Math::Zero(AB.z) && !Math::Zero(pre_cal))
 									{
 										a = (AP.x * AB.z - AP.z * AB.x) / pre_cal;
 										b = (AP.z - a * AC.z) / AB.z;
@@ -1135,14 +1135,14 @@ namespace TA3D
 									else
 									{
 										pre_cal = AB.y*AC.x-AB.x*AC.y;
-										if (!Yuni::Math::Zero(AC.x) && !Yuni::Math::Zero(pre_cal))
+										if (!Math::Zero(AC.x) && !Math::Zero(pre_cal))
 										{
 											b=(AP.y*AC.x-AP.x*AC.y)/pre_cal;
 											a=(AP.x-b*AB.x)/AC.x;
 										}
 										else
 										{
-											if (!Yuni::Math::Zero(AB.y) && !Yuni::Math::Zero(pre_cal))
+											if (!Math::Zero(AB.y) && !Math::Zero(pre_cal))
 											{
 												a = (AP.x * AB.y - AP.y * AB.x) / pre_cal;
 												b = (AP.y - a * AC.y) / AB.y;

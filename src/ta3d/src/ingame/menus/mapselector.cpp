@@ -192,7 +192,7 @@ namespace Menus
 
 	void MapSelector::scaleAndRePosTheMiniMap(const float coef /* = 504.0f */)
 	{
-		LOG_ASSERT(!Yuni::Math::Zero(coef)); // Division by zero
+		LOG_ASSERT(!Math::Zero(coef)); // Division by zero
 
 		if (pMiniMapObj)
 		{

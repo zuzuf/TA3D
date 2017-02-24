@@ -20,11 +20,8 @@
 #include <TA3D_NameSpace.h>
 #include "gfx.h"
 #include <zlib.h>
-#include <yuni/core/io/file/stream.h>
+#include <QFile>
 #include <misc/grid.h>
-
-using namespace Yuni::Core::IO::File;
-using namespace Yuni::Core::IO;
 
 namespace TA3D
 {
@@ -979,9 +976,10 @@ namespace TA3D
 		header.bpp = bmp->format->BitsPerPixel;
 		header.description = (header.bpp == 32) ? 0x28 : 0x20;
 
-		Stream file( filename, OpenMode::write );
+        QFile file(filename);
+        file.open(QIODevice::WriteOnly);
 
-		if (file.opened())
+        if (file.isOpen())
 		{
 			file.write( (const char*)&header, sizeof(header) );
 			if (!compress)			// Uncompressed
@@ -993,7 +991,7 @@ namespace TA3D
 						switch(bmp->format->BitsPerPixel)
 						{
 						case 8:
-							file.put( static_cast<char>(getpixel(bmp, x, y)) );
+                            file.putChar( static_cast<char>(getpixel(bmp, x, y)) );
 							break;
 						case 16:
 							file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
@@ -1001,18 +999,18 @@ namespace TA3D
 						case 24:
 							{
 								const uint32 c = getpixel(bmp, x, y);
-								file.put( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-								file.put( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-								file.put( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
+                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
+                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
+                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
 							}
 							break;
 						case 32:
 							{
 								const uint32 c = getpixel(bmp, x, y);
-								file.put( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-								file.put( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-								file.put( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-								file.put( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
+                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
+                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
+                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
+                                file.putChar( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
 							}
 							break;
 						};
@@ -1047,7 +1045,7 @@ namespace TA3D
 						|| (type == 1 && c != getpixel(bmp, x, y))
 						|| (type == 0 && c == getpixel(bmp, x, y)))
 					{
-						file.put( static_cast<char>((type << 7) | (len - 1)) );
+                        file.putChar( static_cast<char>((type << 7) | (len - 1)) );
 						const int s = (type == 1) ? i - 1 : i - len;
 
 						for(int j = s ; j < i ; ++j)
@@ -1057,7 +1055,7 @@ namespace TA3D
 							switch(bmp->format->BitsPerPixel)
 							{
 							case 8:
-								file.put( static_cast<char>(getpixel(bmp, x, y)) );
+                                file.putChar( static_cast<char>(getpixel(bmp, x, y)) );
 								break;
 							case 16:
 								file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
@@ -1065,18 +1063,18 @@ namespace TA3D
 							case 24:
 								{
 									const uint32 c = getpixel(bmp, x, y);
-									file.put( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-									file.put( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-									file.put( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
+                                    file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
+                                    file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
+                                    file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
 								}
 								break;
 							case 32:
 								{
 									const uint32 c = getpixel(bmp, x, y);
-									file.put( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-									file.put( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-									file.put( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-									file.put( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
+                                    file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
+                                    file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
+                                    file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
+                                    file.putChar( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
 								}
 								break;
 							};
@@ -1092,7 +1090,7 @@ namespace TA3D
 				}
 				if (len > 0)
 				{
-					file.put( static_cast<char>((type << 7) | (len - 1)) );
+                    file.putChar( static_cast<char>((type << 7) | (len - 1)) );
 					const int i = bmp->w * bmp->h;
 					int s = (type == 1) ? i - 1 : i - len;
 
@@ -1103,7 +1101,7 @@ namespace TA3D
 						switch(bmp->format->BitsPerPixel)
 						{
 						case 8:
-							file.put( static_cast<char>(getpixel(bmp, x, y)) );
+                            file.putChar( static_cast<char>(getpixel(bmp, x, y)) );
 							break;
 						case 16:
 							file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
@@ -1111,18 +1109,18 @@ namespace TA3D
 						case 24:
 							{
 								uint32 c = getpixel(bmp, x, y);
-								file.put( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-								file.put( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-								file.put( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
+                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
+                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
+                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
 							}
 							break;
 						case 32:
 							{
 								uint32 c = getpixel(bmp, x, y);
-								file.put( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-								file.put( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-								file.put( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-								file.put( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
+                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
+                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
+                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
+                                file.putChar( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
 							}
 							break;
 						};

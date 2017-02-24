@@ -542,7 +542,7 @@ namespace TA3D
 								weapons.weapon[w_idx].damage = (float)event_msg.opt4;
 								weapons.weapon[w_idx].Pos = startpos;
 								weapons.weapon[w_idx].local = false;
-								if (Yuni::Math::Zero(weapon_manager.weapon[w_type].startvelocity) && !weapon_manager.weapon[w_type].selfprop)
+								if (Math::Zero(weapon_manager.weapon[w_type].startvelocity) && !weapon_manager.weapon[w_type].selfprop)
 									weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].weaponvelocity*Dir;
 								else
 									weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].startvelocity*Dir;

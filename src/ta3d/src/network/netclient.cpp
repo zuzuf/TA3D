@@ -1,5 +1,3 @@
-
-#include <yuni/yuni.h>
 #include <stdafx.h>
 #include <TA3D_NameSpace.h>
 #include "netclient.h"
@@ -7,9 +5,6 @@
 #include <algorithm>        // We need std::sort
 
 #define BUFFER_SIZE     2048
-
-
-using namespace Yuni;
 
 
 namespace TA3D

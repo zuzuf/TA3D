@@ -195,7 +195,7 @@ namespace TA3D
 				if (!weapon_def->waterweapon && Pos.y <= the_map->sealvl && h < the_map->sealvl)
 				{
 					hit_vec = the_map->hit(Pos,V,!weapon_def->waterweapon,length);
-					if (!Yuni::Math::Zero(V.y))
+					if (!Math::Zero(V.y))
 						hit_vec = Pos - (the_map->sealvl - hit_vec.y ) / V.y * V;
 					else
 						hit_vec = Pos;
@@ -551,7 +551,7 @@ namespace TA3D
 				if (visible)
 					Camera::inGame->setShake( weapon_def->shakeduration, weapon_def->shakemagnitude );
 			}
-			if (Yuni::Math::Equals(Pos.y, the_map->sealvl))
+			if (Math::Equals(Pos.y, the_map->sealvl))
 			{
                 if (!weapon_def->soundwater.isEmpty())
 					sound_manager->playSound(weapon_def->soundwater, &Pos);
@@ -562,13 +562,13 @@ namespace TA3D
 					sound_manager->playSound( weapon_def->soundhit , &Pos );
 			}
 
-            if (hit && !weapon_def->explosiongaf.isEmpty() && !weapon_def->explosionart.isEmpty() && !Yuni::Math::Equals(Pos.y, the_map->sealvl))
+            if (hit && !weapon_def->explosiongaf.isEmpty() && !weapon_def->explosionart.isEmpty() && !Math::Equals(Pos.y, the_map->sealvl))
 			{
 				if (visible && weapon_def->areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
 					fx_manager.add(weapon_def->explosiongaf, weapon_def->explosionart, Pos, 1.0f);
 			}
 			else
-				if (hit && Yuni::Math::Equals(Pos.y, the_map->sealvl))
+				if (hit && Math::Equals(Pos.y, the_map->sealvl))
 				{
 					const int px = ((int)(Pos.x + 0.5f) + the_map->map_w_d) >> 4;
 					const int py = ((int)(Pos.z + 0.5f) + the_map->map_h_d) >> 4;

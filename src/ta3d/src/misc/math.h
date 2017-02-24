@@ -19,7 +19,8 @@
 # define __TA3D_XX__MATH_H__
 
 # include <cmath>
-# include <math.h>
+# include <stddef.h>
+# include <algorithm>
 
 #define TA3D_MATH_RANDOM_TABLE_SIZE		0x100000U
 #define TA3D_MATH_RANDOM_TABLE_MASK		0x0FFFFFU
@@ -40,7 +41,7 @@ namespace Math
     template<typename T> inline T Min(const T a, const T b)
     { return (a > b) ? b : a; }
 
-    template<typename T> inline T Clamp(const T &v, const T m, const T M)
+    template<typename T> inline T Clamp(const T v, const T m, const T M)
     { return (v > M) ? M : v < m ? m : v; }
 
 	inline bool IsPowerOfTwo(const int x)
@@ -54,6 +55,9 @@ namespace Math
 
 	template<typename T> inline int Sgn(const T a)
 	{ return (a < 0) ? -1 : ((a > 0) ? 1 : 0); }
+
+    inline bool Zero(const float x)   {   return std::fabs(x) < 1e-6f;  }
+    inline bool Equals(const float a, const float b)   {   return std::fabs(a - b) < 1e-6f;  }
 
 	/*!
     ** \brief Get log2(n)

@@ -439,7 +439,7 @@ namespace TA3D
 
 	bool UnitType::floatting() const
 	{
-		return Floater || canhover || !Yuni::Math::Zero(WaterLine);
+		return Floater || canhover || !Math::Zero(WaterLine);
 	}
 
 	void UnitType::destroy()
@@ -923,7 +923,7 @@ namespace TA3D
 			}
 		}
 
-		if (canresurrect && Yuni::Math::Zero(BuildDistance))
+		if (canresurrect && Math::Zero(BuildDistance))
 			BuildDistance = float(SightDistance);
 		weapon.resize( WeaponID.size() );
         w_badTargetCategory.clear();

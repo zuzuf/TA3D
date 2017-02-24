@@ -42,11 +42,11 @@ namespace TA3D
 
 		if (IsOnMinimap) // Check if we can project the cursor position on the map
 		{
-			if (Yuni::Math::Abs(float(mouse_x - 64) * 252.0f / 128.0f) > (float)map->mini_w * 0.5f)
+            if (std::fabs(float(mouse_x - 64) * 252.0f / 128.0f) > (float)map->mini_w * 0.5f)
 				IsOnMinimap = false;
 			else
 			{
-				if (Yuni::Math::Abs(float(mouse_y - 64) * 252.0f / 128.0f) > (float)map->mini_h * 0.5f)
+                if (std::fabs(float(mouse_y - 64) * 252.0f / 128.0f) > (float)map->mini_h * 0.5f)
 					IsOnMinimap = false;
 			}
 		}
@@ -137,7 +137,7 @@ namespace TA3D
                 if (camera_zscroll > 20.0f) camera_zscroll = 20.0f;
         }
 
-		if (msec_timer - cam_def_timer >= 1000 && !Yuni::Math::Zero(delta)
+		if (msec_timer - cam_def_timer >= 1000 && !Math::Zero(delta)
 			&& ( ( camera_zscroll > 0.0f && old_zscroll <= 0.0f)
 				 || ( camera_zscroll < 0.0f && old_zscroll >= 0.0f)))			// Just to make it lock near def position
 		{

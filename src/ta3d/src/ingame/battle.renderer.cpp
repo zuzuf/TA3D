@@ -1154,7 +1154,7 @@ namespace TA3D
 						   + camBak.zoomFactor
 							* (float(x - w / 2 - SCREEN_W / 4) * camBak.side
 							   + float(z - h / 2 - SCREEN_H / 4) * camBak.up);
-				if (!Yuni::Math::Zero(camBak.dir.y))
+				if (!Math::Zero(camBak.dir.y))
 					cam.rpos = cam.rpos + ((camBak.rpos - cam.rpos).y / camBak.dir.y) * camBak.dir;
 
 				// Render this part of the scene

@@ -169,7 +169,7 @@ namespace TA3D
 		data.data[obj].axe[axis].rot_limit = false;
 		data.data[obj].axe[axis].rot_speed_limit = true;
 		data.data[obj].axe[axis].rot_target_speed = target_speed;
-		if (!Yuni::Math::Zero(accel))
+		if (!Math::Zero(accel))
         {
 			if (data.data[obj].axe[axis].rot_target_speed > data.data[obj].axe[axis].rot_speed)
 				data.data[obj].axe[axis].rot_accel = fabsf(accel);
@@ -218,9 +218,9 @@ namespace TA3D
         if (visible)
         {
             compute_model_coord();
-			if (!Yuni::Math::Zero(data.data[from_piece].dir.x)
-				|| !Yuni::Math::Zero(data.data[from_piece].dir.y)
-				|| !Yuni::Math::Zero(data.data[from_piece].dir.z))
+			if (!Math::Zero(data.data[from_piece].dir.x)
+				|| !Math::Zero(data.data[from_piece].dir.y)
+				|| !Math::Zero(data.data[from_piece].dir.z))
             {
 				const Vector3D &dir = data.data[from_piece].dir;
                 switch(smoke_type)
@@ -262,7 +262,7 @@ namespace TA3D
 		data.data[obj].axe[axis].rot_limit = false;
 		data.data[obj].axe[axis].rot_speed_limit = true;
 		data.data[obj].axe[axis].rot_target_speed = 0.0f;
-		if (Yuni::Math::Zero(speed))
+		if (Math::Zero(speed))
         {
 			data.data[obj].axe[axis].rot_speed = 0.0f;
 			data.data[obj].axe[axis].rot_accel = 0.0f;
@@ -420,7 +420,7 @@ namespace TA3D
 											&& tType != NULL
 											&& tType->canmove
 											&& tType->BMcode == 1
-											&& Yuni::Math::Zero(units.unit[cur_idx].build_percent_left)
+											&& Math::Zero(units.unit[cur_idx].build_percent_left)
 											&& (!units.unit[cur_idx].mission
 												|| (units.unit[cur_idx].mission->mission() & 0xFF) != MISSION_MOVE))
 										{
@@ -501,12 +501,12 @@ namespace TA3D
     bool Unit::script_is_turning(int obj, int axis)
     {
 		const float a = data.data[obj].axe[axis].rot_angle;
-		if ((!Yuni::Math::Zero(data.data[obj].axe[axis].rot_speed) || !Yuni::Math::Zero(data.data[obj].axe[axis].rot_accel))
-			&& (!Yuni::Math::Zero(a) && data.data[obj].axe[axis].rot_limit))
+		if ((!Math::Zero(data.data[obj].axe[axis].rot_speed) || !Math::Zero(data.data[obj].axe[axis].rot_accel))
+			&& (!Math::Zero(a) && data.data[obj].axe[axis].rot_limit))
             return true;
 		else
 		{
-			if (!Yuni::Math::Equals(data.data[obj].axe[axis].rot_speed, data.data[obj].axe[axis].rot_target_speed)
+			if (!Math::Equals(data.data[obj].axe[axis].rot_speed, data.data[obj].axe[axis].rot_target_speed)
 				 && data.data[obj].axe[axis].rot_speed_limit)
             return true;
 		}
@@ -518,6 +518,6 @@ namespace TA3D
 
     bool Unit::script_is_moving(int obj, int axis)
     {
-		return !Yuni::Math::Zero(data.data[obj].axe[axis].move_distance);
+		return !Math::Zero(data.data[obj].axe[axis].move_distance);
     }
 }

@@ -78,8 +78,9 @@ namespace TA3D
     {
         if (buffer == NULL || size == 0)    return;
 
-		Yuni::Core::IO::File::Stream file(filename, Yuni::Core::IO::OpenMode::write);
-		if (file.opened())
+        QFile file(filename);
+        file.open(QIODevice::WriteOnly);
+        if (file.isOpen())
         {
             file.write((char*)buffer, size);
             file.close();

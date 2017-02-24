@@ -355,12 +355,12 @@ namespace TA3D
 			c_annihilated[i]    = true;
 			c_nb_unit[i]        = 0;
 
-			if (r_energy[i] <= energy[i] || Yuni::Math::Zero(r_energy[i]))
+			if (r_energy[i] <= energy[i] || Math::Zero(r_energy[i]))
 				energy_factor[i] = 1.0f;
 			else
 				energy_factor[i] = 0.9f * energy[i] / r_energy[i];
 
-			if (r_metal[i] <= metal[i] || Yuni::Math::Zero(r_metal[i]))
+			if (r_metal[i] <= metal[i] || Math::Zero(r_metal[i]))
 				metal_factor[i] = 1.0f;
 			else
 				metal_factor[i] = 0.9f * metal[i] / r_metal[i];

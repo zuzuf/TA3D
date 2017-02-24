@@ -134,7 +134,7 @@ namespace Menus
 			msec = TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING;
 		timer += msec;
 		uint32 tmp = msec_timer;
-		SuspendMilliSeconds(tmp >= timer ? 0 : timer - tmp);
+        rest(tmp >= timer ? 0 : timer - tmp);
 		timer = msec_timer;
 	}
 

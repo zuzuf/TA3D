@@ -15,8 +15,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include <yuni/yuni.h>
-#include <yuni/core/system/cpu.h>
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "threads/thread.h"
@@ -59,7 +57,9 @@ namespace TA3D
 
 
 	Engine::Engine()
-		: pSDLRunning(false), pGFXModeActive(false)
+        : pSDLRunning(false),
+          pGFXModeActive(false),
+          bStarted(false)
 	{
 		// How many CPU we've got ?
         LOG_INFO("CPU: " << QThread::idealThreadCount());
@@ -120,7 +120,7 @@ namespace TA3D
 
 	Engine::~Engine(void)
 	{
-		stop();
+        wait();
 		cursor.clear();
 		ta3dSideData.destroy();
 
@@ -160,7 +160,7 @@ namespace TA3D
 	}
 
 
-	bool Engine::onExecute()
+    void Engine::run()
 	{
 		// Creating translation manager
         I18N::Instance()->loadFromFile("gamedata/translate.tdf", true, true);
@@ -199,7 +199,7 @@ namespace TA3D
 
 		sound_manager->loadTDFSounds(false);
 
-		return false;
+        bStarted = true;
 	}
 
 

@@ -1,3 +1,0 @@
-
-ADD_SUBDIRECTORY(gfx)
-ADD_SUBDIRECTORY(toolbox)

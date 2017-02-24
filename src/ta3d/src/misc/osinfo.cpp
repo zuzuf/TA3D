@@ -25,10 +25,6 @@
 #include <QScreen>
 #include <QGuiApplication>
 
-using namespace Yuni;
-
-
-
 namespace TA3D
 {
 namespace System

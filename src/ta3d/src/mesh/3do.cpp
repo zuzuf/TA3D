@@ -706,7 +706,7 @@ namespace TA3D
 				float l = sqrtf((float)(d_h0 * d_h0  +  d_h1 * d_h1));
 				float dhx;
 				float dhy;
-				if (Yuni::Math::Zero(l))
+				if (Math::Zero(l))
 					dhx = dhy = 0.0f;
 				else
 				{

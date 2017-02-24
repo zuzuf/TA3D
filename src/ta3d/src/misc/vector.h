@@ -21,7 +21,6 @@
 
 # include <stdafx.h>
 # include "math.h"
-# include <yuni/core/math.h>
 
 
 namespace TA3D
@@ -79,7 +78,7 @@ namespace TA3D
 		{ x *= v; y *= v; return (*this); }
 
         inline bool operator == (const Vector2D& rhs) const
-		{ return (Yuni::Math::Equals(x, rhs.x) && Yuni::Math::Equals(y, rhs.y)); }
+        { return (Math::Equals(x, rhs.x) && Math::Equals(y, rhs.y)); }
 
         inline bool operator != (const Vector2D& rhs) const
 		{ return !(*this == rhs); }
@@ -133,7 +132,7 @@ namespace TA3D
 		inline void unit()
 		{
 			float n = norm(); // Inverse de la norme du vecteur
-			if (!Yuni::Math::Zero(n))
+            if (!Math::Zero(n))
 			{
 				n = 1.0f / n;
 				x *= n;
@@ -276,8 +275,8 @@ inline float operator % (const TA3D::Vector3D& lhs, const TA3D::Vector3D& rhs)
 */
 inline float VAngle(const TA3D::Vector3D& A, const TA3D::Vector3D& B)
 {
-	float a = sqrtf(A.sq() * B.sq());
-	a = (Yuni::Math::Zero(a)) ? 0.0f : acosf((A % B) / a);
+    float a = std::sqrt(A.sq() * B.sq());
+    a = (TA3D::Math::Zero(a)) ? 0.0f : std::acos((A % B) / a);
 	return isNaN(a) ? 0.0f : a;
 }
 

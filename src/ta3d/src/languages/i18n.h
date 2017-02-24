@@ -90,13 +90,11 @@ namespace TA3D
 	**      TA3D::I18N::LoadFromResources();
 	** \endcode
 	*/
-	class I18N
+    class I18N : public Mutex, public zuzuf::ref_count
 	{
 	public:
-		//! Threading policy
-		typedef Yuni::Policy::ClassLevelLockable<I18N>  ThreadingPolicy;
 		//! The most suitable smart pointer for the class
-		typedef I18N*	Ptr;
+        typedef zuzuf::smartptr<I18N>	Ptr;
 
 	public:
 		/*!

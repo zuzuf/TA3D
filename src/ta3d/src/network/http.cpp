@@ -4,9 +4,7 @@
 #include "http.h"
 #include <logs/logs.h>
 #include "socket.tcp.h"
-#include <yuni/core/io/file/stream.h>
-
-using namespace Yuni::Core::IO::File;
+#include <QFile>
 
 namespace TA3D
 {
