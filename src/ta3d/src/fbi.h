@@ -205,7 +205,7 @@ namespace TA3D
 		bool    kamikaze;           // Unité kamikaze
 		uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
 		short   WindGenerator;      // Centrale de type Eolienne
-        QString  yardmap;           // To tell where the unit is on the map
+        QByteArray  yardmap;           // To tell where the unit is on the map
 		std::vector<WeaponDef*>  weapon;     // Weapons
 		int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
 		bool    antiweapons;

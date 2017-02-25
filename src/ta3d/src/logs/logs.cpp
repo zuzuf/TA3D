@@ -32,7 +32,7 @@ namespace TA3D
         log_file = nullptr;
 
         main_log_device = new BroadCastingIODevice;
-        main_log_device->open(QIODevice::WriteOnly);
+        main_log_device->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
 
         log_file_stream.reset(new QTextStream(main_log_device));
         QFile *stdoutput = new QFile;

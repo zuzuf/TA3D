@@ -38,7 +38,7 @@
 
 namespace TA3D
 {
-	REGISTER_MESH_TYPE(Mesh3DO);
+    REGISTER_MESH_TYPE(Mesh3DO)
 
 
 	static bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
@@ -99,7 +99,7 @@ namespace TA3D
 		nb_vtx = (short)header.NumberOfVertexes;
 		nb_prim = (short)header.NumberOfPrimitives;
 		file->seek(header.OffsetToObjectName);
-        name = getString(file);
+        name = QString::fromLatin1(getString(file));
 #ifdef DEBUG_MODE
 		/*		for (i=0;i<dec;i++)
 				printf("  ");
@@ -252,8 +252,8 @@ namespace TA3D
 					break;
 				}
 				nb_index[cur] = (short)primitive.NumberOfVertexIndexes;
-				file->seek(primitive.OffsetToTextureName);
-                tex[cur] = t_m = texture_manager.get_texture_index(QString::fromUtf8(getString(file)));
+                file->seek(primitive.OffsetToTextureName);
+                tex[cur] = t_m = texture_manager.get_texture_index(QString::fromLatin1(getString(file)));
 				usetex[cur] = 1;
 				if (t_m == -1)
 				{

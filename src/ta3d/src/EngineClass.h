@@ -274,8 +274,8 @@ namespace TA3D
 
 		inline float get_nh(const int x, const int y) const;
 
-		void rect(int x1,int y1,int w,int h,int c,const QString &yardmap = QString(),bool open = false);
-		void obstaclesRect(int x1,int y1,int w,int h, bool b,const QString &yardmap = QString(),bool open = false);
+        void rect(int x1,int y1,int w,int h,int c,const QByteArray &yardmap = QByteArray(),bool open = false);
+        void obstaclesRect(int x1,int y1,int w,int h, bool b,const QByteArray &yardmap = QByteArray(),bool open = false);
 
 		bool check_rect(int x1,int y1,int w,int h, const int c) const;
 
@@ -287,7 +287,7 @@ namespace TA3D
 
 		float check_min_depth(int x1,int y1,int w,int h) const;
 
-		bool check_vents(int x1,int y1,int w,int h,const QString &yard_map) const;
+        bool check_vents(int x1,int y1,int w,int h,const QByteArray &yard_map) const;
 
 		bool check_lava(int x1,int y1,int w,int h) const;
 

@@ -247,7 +247,7 @@ namespace TA3D
 		return max_h;
 	}
 
-	void MAP::obstaclesRect(int x1,int y1,int w,int h, bool b,const QString &yardmap,bool open)
+    void MAP::obstaclesRect(int x1, int y1, int w, int h, bool b, const QByteArray &yardmap, bool open)
 	{
         if (yardmap.isEmpty())
 		{
@@ -274,7 +274,7 @@ namespace TA3D
 			{
 				for(int x = x1 ; x < x2 && l > i ; ++x, ++i)
 				{
-                    switch(yardmap[i].toLatin1())
+                    switch(yardmap[i])
 					{
 					case 'G':
 					case 'o':
@@ -298,7 +298,7 @@ namespace TA3D
 		}
 	}
 
-	void MAP::rect(int x1,int y1,int w,int h,int c,const QString &yardmap,bool open)
+    void MAP::rect(int x1, int y1, int w, int h, int c, const QByteArray &yardmap, bool open)
 	{
         if (yardmap.isEmpty())
 		{
@@ -338,7 +338,7 @@ namespace TA3D
 						pMutex.unlock();
 						return;
 					}
-                    switch(yardmap[i].toLatin1())
+                    switch(yardmap[i])
 					{
 					case 'G':
 					case 'o':
@@ -452,7 +452,7 @@ namespace TA3D
 	}
 
 
-	bool MAP::check_vents(int x1, int y1, int w, int h, const QString &yard_map) const
+    bool MAP::check_vents(int x1, int y1, int w, int h, const QByteArray &yard_map) const
 	{
         if (yard_map.isEmpty())
 			return true;

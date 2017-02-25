@@ -35,7 +35,7 @@ namespace TA3D
 	{
 		if (nbtex == 0)
 			return -1;
-		return tex_hashtable[ ToUpper(texture_name) ] - 1;
+        return tex_hashtable[ texture_name.toUpper() ] - 1;
 	}
 
 
@@ -76,7 +76,7 @@ namespace TA3D
 			tex[i].bmp[0] = gfx->create_surface_ex(32,16,16);
 			SDL_FillRect(tex[i].bmp[0], NULL, makeacol(pal[i].r, pal[i].g, pal[i].b, 0xFF));
 
-			tex_hashtable[tex[i].name] = i + 1;
+            tex_hashtable[tex[i].name] = i + 1;
 		}
 
 		{

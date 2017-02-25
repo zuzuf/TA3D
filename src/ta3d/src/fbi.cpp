@@ -845,7 +845,7 @@ namespace TA3D
             WeaponID[i-1] = weapon_manager.get_weapon_index( parseString( QString("UNITINFO.Weapon%1").arg(i) ) );
 			++i;
 		}
-        yardmap = parseString("UNITINFO.YardMap");
+        yardmap = parseString("UNITINFO.YardMap").toLatin1();
         if (!yardmap.isEmpty())
 		{
 			i = 0;
@@ -854,7 +854,7 @@ namespace TA3D
 					i++;
 				else
 					yardmap[e - i] = yardmap[e];
-			yardmap = Substr(yardmap, 0, yardmap.size() - i);
+            yardmap.chop(i);
             if (!yardmap.isEmpty())
 				while (yardmap.size() < FootprintX * FootprintZ)     // Complete the yardmap if needed
                     yardmap += *yardmap.rbegin();

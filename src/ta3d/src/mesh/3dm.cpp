@@ -804,7 +804,7 @@ namespace TA3D
 
         if (readChar(file) == 0)       // This is a pointer file
 		{
-            const QString realFilename = QString::fromUtf8(file->readAll()).trimmed();
+            const QString realFilename = QString::fromUtf8(file->readAll()).trimmed().replace('\\', '/');
 			delete file;
 			LOG_INFO(LOG_PREFIX_3DM << "file '" << filename << "' points to '" << realFilename << "'");
 			file = VFS::Instance()->readFile(realFilename);

@@ -98,7 +98,7 @@ namespace TA3D
 			 << map_filename << ','
 			 << game_script << ','
 			 << use_only << ','
-			 << int(fog_of_war) << ','
+             << int(fog_of_war) << ','
 			 << nb_players << ',';
 		for(int i = 0 ; i < nb_players ; ++i)
 		{
