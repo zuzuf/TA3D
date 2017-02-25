@@ -600,7 +600,6 @@ namespace TA3D
 			// Clean everything
 			texture_manager.destroy();
 
-			delete gfx;
 			gfx = NULL;
 
 			InterfaceManager = NULL;

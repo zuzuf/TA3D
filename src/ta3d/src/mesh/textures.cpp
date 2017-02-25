@@ -74,7 +74,7 @@ namespace TA3D
 			tex[i].w[0] = 16;
 			tex[i].h[0] = 16;
 			tex[i].bmp[0] = gfx->create_surface_ex(32,16,16);
-            tex[i].bmp[0].fill(pal[i]);
+            tex[i].bmp[0].fill(pal.at(i));
 
             tex_hashtable[tex[i].name] = i + 1;
 		}

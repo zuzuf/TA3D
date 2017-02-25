@@ -124,24 +124,24 @@ namespace TA3D
                 weapon[index].lineofsight = parser.pullAsBool( key + "lineofsight", weapon[index].lineofsight );
                 {
                     const int c = parser.pullAsInt( key + "color" );
-                    weapon[index].color[0] = pal[c];
+                    weapon[index].color[0] = pal.at(c);
                     weapon[index].color[2] = c;
                     if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 )
                     {
-                        weapon[index].color[0] = pal[ 180 ];
-                        weapon[index].color[1] = pal[ 212 ];
+                        weapon[index].color[0] = pal.at(180);
+                        weapon[index].color[1] = pal.at(212);
                         weapon[index].color[2] = 180;
                         weapon[index].color[3] = 212;
                     }
                 }
                 {
                     const int c = parser.pullAsInt( key + "color2" );
-                    weapon[index].color[1] = pal[c];
+                    weapon[index].color[1] = pal.at(c);
                     weapon[index].color[3] = c;
                     if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 )
                     {
-                        weapon[index].color[0] = pal[ 180 ];
-                        weapon[index].color[1] = pal[ 212 ];
+                        weapon[index].color[0] = pal.at(180);
+                        weapon[index].color[1] = pal.at(212);
                         weapon[index].color[2] = 180;
                         weapon[index].color[3] = 212;
                     }

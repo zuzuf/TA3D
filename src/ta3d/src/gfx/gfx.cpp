@@ -2432,7 +2432,7 @@ namespace TA3D
 			while (keypressed())    readkey();
 		}
 
-		delete gfx;
+        gfx = NULL;
 
 		InterfaceManager = NULL;
 	}

@@ -209,8 +209,7 @@ namespace Menus
 		cursor.clear();               // Destroy cursor data (it's OpenGL textures so they won't survive)
 		ta3dSideData.destroy();       // We're going to reset video settings, so this will become obsolete
 
-		if (gfx)
-			delete gfx;					// Destroy the old GFX object (required for proper cleaning)
+        gfx = NULL;					// Destroy the old GFX object (required for proper cleaning)
 		gfx = new GFX;					// Create a new one with new settings
 		gfx->loadFonts();
 		gfx->loadDefaultTextures();  // Initialize GFX object

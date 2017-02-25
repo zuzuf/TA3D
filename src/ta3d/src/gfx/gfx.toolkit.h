@@ -23,8 +23,8 @@
 # include <logs/logs.h>
 
 
-# define makeacol(r,g,b,a)   (((uint32_t)(a)<<24) | ((uint32_t)(b)<<16) | ((uint32_t)(g)<<8) | (uint32_t)(r))
-# define makecol24(r,g,b)   (((uint32_t)0xFF000000) | ((uint32_t)(b)<<16) | ((uint32_t)(g)<<8) | (uint32_t)(r))
+# define makeacol(r,g,b,a)   qRgba(r, g, b, a)
+# define makecol24(r,g,b)   qRgb(r, g, b)
 # define makecol(r,g,b)   makecol24(r,g,b)
 # define makeacol32(r,g,b,a)   makeacol(r,g,b,a)
 
@@ -32,33 +32,37 @@ namespace TA3D
 {
     inline byte &SurfaceByte(QImage &img, int x, int y)
 	{
-        LOG_ASSERT(x >= 0 && y >= 0 && x < img.width() && y < img.height());
+        LOG_ASSERT(x >= 0 && y >= 0 && x < img.bytesPerLine() && y < img.height());
         return img.scanLine(y)[x];
 	}
     inline byte SurfaceByte(const QImage &img, int x, int y)
     {
-        LOG_ASSERT(x >= 0 && y >= 0 && x < img.width() && y < img.height());
+        LOG_ASSERT(x >= 0 && y >= 0 && x < img.bytesPerLine() && y < img.height());
         return img.scanLine(y)[x];
     }
 
     inline uint32 &SurfaceInt(QImage &img, int x, int y)
 	{
+        LOG_ASSERT(img.depth() == 32);
         LOG_ASSERT(x >= 0 && y >= 0 && x < img.width() && y < img.height());
         return ((uint32*)img.scanLine(y))[x];
 	}
     inline uint32 SurfaceInt(const QImage &img, int x, int y)
     {
+        LOG_ASSERT(img.depth() == 32);
         LOG_ASSERT(x >= 0 && y >= 0 && x < img.width() && y < img.height());
         return ((uint32*)img.scanLine(y))[x];
     }
 
     inline uint16 &SurfaceShort(QImage &img, int x, int y)
 	{
+        LOG_ASSERT(img.depth() == 16);
         LOG_ASSERT(x >= 0 && y >= 0 && x < img.width() && y < img.height());
         return ((uint16*)img.scanLine(y))[x];
 	}
     inline uint16 SurfaceShort(const QImage &img, int x, int y)
     {
+        LOG_ASSERT(img.depth() == 16);
         LOG_ASSERT(x >= 0 && y >= 0 && x < img.width() && y < img.height());
         return ((uint16*)img.scanLine(y))[x];
     }

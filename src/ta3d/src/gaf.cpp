@@ -442,7 +442,7 @@ namespace TA3D
 									{
 										int l = (mask >> 2) + 1;
                                         const byte c = (byte)readChar(file);
-                                        const uint32 c32 = pal[c];
+                                        const uint32 c32 = pal.at(c);
                                         while (l > 0 && x < img.width())
 										{
 											if (!truecolor)
@@ -464,7 +464,7 @@ namespace TA3D
 											if (truecolor)
 											{
                                                 const byte c = (byte)readChar(file);
-                                                SurfaceInt(img, x++, i) = pal[c];
+                                                SurfaceInt(img, x++, i) = pal.at(c);
 											}
 											else
 											{

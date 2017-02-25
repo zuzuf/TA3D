@@ -257,9 +257,10 @@ namespace TA3D
 				for (x = tx; x < tx + 32; ++x)
 				{
 					const int c = SurfaceByte(bmp_tex[tex_num],x,y);
-                    r += qRed(pal[c]);
-                    g += qGreen(pal[c]);
-                    b += qBlue(pal[c]);
+                    const QRgb &qc = pal.at(c);
+                    r += qRed(qc);
+                    g += qGreen(qc);
+                    b += qBlue(qc);
 				}
 			}
 			r >>= 10;

@@ -111,9 +111,9 @@ namespace TA3D
             side_int[ nb_side ] = sidedata_parser.pullAsString( QString("side%1").arg(nb_side) + ".intgaf" );
 
             int pal_id = sidedata_parser.pullAsInt( QString("side%1").arg(nb_side) + ".metalcolor" );
-            side_int_data[ nb_side ].metal_color = pal[ pal_id ];
+            side_int_data[ nb_side ].metal_color = pal.at(pal_id);
             pal_id = sidedata_parser.pullAsInt( QString("side%1").arg(nb_side) + ".energycolor" );
-            side_int_data[ nb_side ].energy_color = pal[ pal_id ];
+            side_int_data[ nb_side ].energy_color = pal.at(pal_id);
 
             side_int_data[ nb_side ].EnergyBar = read_gui_element( &sidedata_parser, QString("side%1").arg(nb_side) + ".energybar" );
             side_int_data[ nb_side ].EnergyNum = read_gui_element( &sidedata_parser, QString("side%1").arg(nb_side) + ".energynum" );

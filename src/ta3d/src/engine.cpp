@@ -64,8 +64,6 @@ namespace TA3D
 		// How many CPU we've got ?
         LOG_INFO("CPU: " << QThread::idealThreadCount());
 
-		if (gfx)
-			delete gfx;
 		gfx = NULL;
 
 		LOG_INFO(TA3D_ENGINE_VERSION << " initializing started:");
@@ -125,8 +123,6 @@ namespace TA3D
 		ta3dSideData.destroy();
 
 		sound_manager = NULL;
-		if (gfx)
-			delete gfx;
 		gfx = NULL;
 		pGFXModeActive = false;
 		InterfaceManager = NULL;
