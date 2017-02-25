@@ -383,7 +383,7 @@ ELSE(NOT APPLE)
 	BUNDLE_BASIC_INSTALL("../../" "./" "COPYING")
 
 	Set(ExternalLibs libz.dylib libpng.dylib libfreetype.dylib libtiff.dylib
-		libSDL.dylib libSDL_mixer.dylib libSDL_image.dylib libSDL_net.dylib
+                libSDL.dylib libSDL_mixer.dylib libSDL_net.dylib
 		libGLEW.dylib
 		libjpeg.dylib
 		libftgl.dylib
