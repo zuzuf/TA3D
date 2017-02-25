@@ -187,7 +187,7 @@ namespace TA3D
 
 		QString ExtractFileExt(const QString& s)
 		{
-            return '.' + QFileInfo(s).completeSuffix();
+            return '.' + QFileInfo(s).suffix();
 		}
 
 

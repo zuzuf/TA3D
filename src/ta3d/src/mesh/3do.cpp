@@ -445,7 +445,7 @@ namespace TA3D
 		if (selprim >= 0)
 			nb_total_point += 4;
 
-		Vector3D *p = new Vector3D[nb_total_point<<1];			// *2 pour le volume d'ombre
+        Vector3D *p = new Vector3D[nb_total_point<<1];			// *2 for shadow volume
 		int prim_dec = selprim >= 0 ? 4 : 0;
 		for (i = 0; i < nb_total_point - nb_l_index - prim_dec; ++i)
 		{
@@ -545,7 +545,7 @@ namespace TA3D
 		DELETE_ARRAY(tex);
 		/*--------------------------------------------------------------------------------------*/
 
-		if (nb_t_index > 0) // Calcule les normales pour l'éclairage
+        if (nb_t_index > 0) // Compute normals for lighting
 		{
 			N = new Vector3D[nb_vtx << 1];
 			F_N = new Vector3D[nb_t_index / 3];
@@ -955,7 +955,7 @@ namespace TA3D
 		{
 			if (!alset)
 			{
-				glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                glEnableClientState(GL_VERTEX_ARRAY);		// Vertices
 				glEnableClientState(GL_NORMAL_ARRAY);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnable(GL_LIGHTING);

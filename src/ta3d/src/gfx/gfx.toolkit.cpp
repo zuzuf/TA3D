@@ -19,8 +19,8 @@
 #include <misc/paths.h>
 #include <TA3D_NameSpace.h>
 #include "gfx.h"
-#include <zlib.h>
 #include <QFile>
+#include <QDataStream>
 #include <misc/grid.h>
 
 namespace TA3D
@@ -884,21 +884,22 @@ namespace TA3D
 			SDL_FreeSurface(tmp);
 			return;
 		}
-        gzFile file = gzopen(filename.toStdString().c_str(), "wb1");
-		if (file)
+        QFile file(filename);
+        file.open(QIODevice::WriteOnly);
+        if (file.isOpen())
 		{
 			SDL_LockSurface(bmp);
 			int w = bmp->w;
 			int h = bmp->h;
 			int bpp = bmp->format->BitsPerPixel;
-			gzwrite( file, &w, sizeof(w));
-			gzwrite( file, &h, sizeof(h));
-			gzwrite( file, &bpp, sizeof(bpp));
+            QDataStream stream(&file);
+            stream << w << h << bpp;
+            QByteArray buffer;
+            buffer.reserve(bmp->w * bmp->h * bmp->format->BytesPerPixel);
 			for(int y = 0 ; y < bmp->h ; y++)
-				gzwrite( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BytesPerPixel);
+                buffer.push_back(QByteArray::fromRawData(((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BytesPerPixel));
+            stream << qCompress(buffer, 1);
 			SDL_UnlockSurface(bmp);
-
-			gzclose( file );
 		}
 		else
 			LOG_ERROR("could not save file : " << filename);
@@ -906,20 +907,22 @@ namespace TA3D
 
     SDL_Surface *LoadTex(const QString &filename)
 	{
-        gzFile file = gzopen(filename.toStdString().c_str(), "rb");
-		if (file)
+        QFile file(filename);
+        file.open(QIODevice::ReadOnly);
+        if (file.isOpen())
 		{
+            QDataStream stream(&file);
 			int w, h, bpp;
-			gzread( file, &w, sizeof(w));
-			gzread( file, &h, sizeof(h));
-			gzread( file, &bpp, sizeof(bpp));
+            stream >> w >> h >> bpp;
+            QByteArray buffer;
+            stream >> buffer;
+            buffer = qUncompress(buffer);
 			SDL_Surface *bmp = gfx->create_surface_ex(bpp, w, h);
 			SDL_LockSurface(bmp);
+            const size_t stride = bmp->w * bmp->format->BytesPerPixel;
 			for(int y = 0 ; y < bmp->h ; y++)
-				gzread( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BytesPerPixel);
+                memcpy(((char*)(bmp->pixels)) + y * bmp->pitch, buffer.data() + y * stride, stride);
 			SDL_UnlockSurface(bmp);
-
-			gzclose( file );
 
 			return bmp;
 		}
