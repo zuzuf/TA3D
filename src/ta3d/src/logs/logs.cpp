@@ -36,7 +36,7 @@ namespace TA3D
 
         log_file_stream.reset(new QTextStream(main_log_device));
         QFile *stdoutput = new QFile;
-        stdoutput->open(stdout, QIODevice::WriteOnly | QIODevice::Unbuffered);
+        stdoutput->open(stderr, QIODevice::WriteOnly | QIODevice::Unbuffered);
         main_log_device->addSink(stdoutput);
     }
 
