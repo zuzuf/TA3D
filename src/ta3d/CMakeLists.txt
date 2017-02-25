@@ -399,21 +399,6 @@ else(NOT APPLE)
 endif(NOT APPLE)
 
 
-#
-# --- OpenMP ---
-#
-Include(FindOpenMP)
-if(DISABLE_OPENMP)
-	set(OPENMP_FOUND 0)
-endif(DISABLE_OPENMP)
-
-if(OPENMP_FOUND)
-	message(STATUS "OpenMP found")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-else(OPENMP_FOUND)
-	message(STATUS "OpenMP not found")
-endif(OPENMP_FOUND)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # for compatibility with old versions of cmake
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})

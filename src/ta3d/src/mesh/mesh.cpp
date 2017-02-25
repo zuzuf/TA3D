@@ -30,10 +30,6 @@
 #include <ingame/sidedata.h>
 #include "mesh.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 namespace TA3D
 {
 	std::vector<MeshTypeManager::MeshLoader> *MeshTypeManager::lMeshLoader = NULL;
@@ -1498,9 +1494,6 @@ namespace TA3D
 
 		if (!file_list.empty())
 		{
-			volatile int n = 0;
-			volatile int progressIncrement = 0;
-
             QStringList final_file_list;
 			HashSet<QString>::Dense files;
             for(const QString &it : file_list)
@@ -1523,60 +1516,46 @@ namespace TA3D
 			}
 
 			Mutex mLoad;
-			const size_t __end = final_file_list.size();
-			volatile size_t e = 0;
-#pragma omp parallel
+            std::atomic<int> n(0);
+            std::atomic<int> progressIncrement(0);
+            QThread * const root_thread = QThread::currentThread();
+            parallel_for<size_t>(0, final_file_list.size(), [&](const size_t e)
 			{
-				mLoad.lock();
-				while (e < __end)
-				{
-					const QString &filename = final_file_list[e++];
-					LOG_DEBUG("[Mesh] Loading `" << filename << "`");
-#ifdef _OPENMP
-					++progressIncrement;
-					if (omp_get_thread_num() == 0)
-						if (progressIncrement >= 25 && progress != NULL)
-						{
-							// Update the progress bar
-							mLoad.unlock();
-							(*progress)((100.0f + float(n) * 50.0f / float(final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
-							mLoad.lock();
-							// Reset the increment
-							progressIncrement = 0;
-						}
-#else
-					if (++progressIncrement == 25 && progress != NULL)
-					{
-						// Update the progress bar
-						(*progress)((100.0f + n * 50.0f / (final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
-						// Reset the increment
-						progressIncrement = 0;
-					}
-#endif
-					++n;
-					name.push_back(filename);
+                const QString &filename = final_file_list[e];
+                LOG_DEBUG("[Mesh] Loading `" << filename << "`");
+                ++progressIncrement;
+                if (QThread::currentThread() == root_thread)
+                    if (progressIncrement >= 25 && progress != NULL)
+                    {
+                        // Update the progress bar
+                        (*progress)((100.0f + float(n) * 50.0f / float(final_file_list.size() + 1)) / 7.0f, loading3DModelsText);
+                        // Reset the increment
+                        progressIncrement -= 25;
+                    }
+                ++n;
+                mLoad.lock();
+                name.push_back(filename);
 
-					if (get_model(Substr(filename, 0, filename.size() - 4)) == NULL) 	// Check if it's not already loaded
-					{
-						mLoad.unlock();
-						Model *pModel = MeshTypeManager::load(filename);
-						mLoad.lock();
-						if (pModel)
-						{
-							model_hashtable[ToLower(filename)] = (int)model.size();
-							model.push_back(pModel);
-						}
-						else
-						{
-							name.pop_back();
-							LOG_ERROR("could not load model " << filename);
-						}
-					}
-					else
-						name.pop_back();
-				}
-				mLoad.unlock();
-			}
+                if (get_model(Substr(filename, 0, filename.size() - 4)) == NULL) 	// Check if it's not already loaded
+                {
+                    mLoad.unlock();
+                    Model *pModel = MeshTypeManager::load(filename);
+                    mLoad.lock();
+                    if (pModel)
+                    {
+                        model_hashtable[ToLower(filename)] = (int)model.size();
+                        model.push_back(pModel);
+                    }
+                    else
+                    {
+                        name.pop_back();
+                        LOG_ERROR("could not load model " << filename);
+                    }
+                }
+                else
+                    name.pop_back();
+                mLoad.unlock();
+            });
 		}
 		return 0;
 	}

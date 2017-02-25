@@ -511,8 +511,8 @@ namespace TA3D
 		const int sy = static_cast<int>((sigy + 1.0f) * 2.0f);
 		const int sx2 = 2 * sx - 1;
 		const int sy2 = 2 * sy - 1;
-		uint32 *kerX = new uint32[sx];
-		uint32 *kerY = new uint32[sy];
+        std::vector<uint32> kerX(sx);
+        std::vector<uint32> kerY(sy);
 		if (sigx > 0.0f)
 		{
 			uint32 sum = 0U;
@@ -554,8 +554,7 @@ namespace TA3D
 		switch(in->format->BitsPerPixel)
 		{
 		case 24:
-#pragma omp parallel for
-			for(int	y = 0 ; y < in->h ; ++y)
+            parallel_for<int>(0, in->h, [&](const int y)
 			{
 				for(int	x = 0 ; x < out->w ; ++x)
 				{
@@ -594,9 +593,8 @@ namespace TA3D
 						p[2] = byte(col[2] / sum);
 					}
 				}
-			}
-#pragma omp parallel for
-			for(int	x = 0 ; x < out->w ; ++x)
+            });
+            parallel_for<int>(0, out->w, [&](const int x)
 			{
 				const int X = x * mx >> 16;
 				byte *p = (byte*)out->pixels + x * 3;
@@ -636,11 +634,10 @@ namespace TA3D
 						p[2] = byte(col[2] / sum);
 					}
 				}
-			}
+            });
 			break;
 		case 32:
-#pragma omp parallel for
-			for(int	y = 0 ; y < in->h ; ++y)
+            parallel_for<int>(0, in->h, [&](const int y)
 			{
 				for(int	x = 0 ; x < out->w ; ++x)
 				{
@@ -683,9 +680,8 @@ namespace TA3D
 						p[3] = byte(col[3] / sum);
 					}
 				}
-			}
-#pragma omp parallel for
-			for(int	x = 0 ; x < out->w ; ++x)
+            });
+            parallel_for<int>(0, out->w, [&](const int x)
 			{
 				const int X = x * mx >> 16;
 				byte *p = (byte*)out->pixels + (x << 2);
@@ -729,12 +725,10 @@ namespace TA3D
 						p[3] = byte(col[3] / sum);
 					}
 				}
-			}
+            });
 			break;
 		}
 		SDL_FreeSurface(tmp);
-		delete[] kerX;
-		delete[] kerY;
 		return out;
 	}
 

@@ -112,8 +112,7 @@ namespace TA3D
 				atanfx[x] = std::atan(fx) / (2.0f * float(M_PI));
 				invsqrtfx[x] = 1.0f / sqrtf(1.0f + fx * fx);
 			}
-#pragma omp parallel for
-			for(int y = 0 ; y < skyRes ; ++y)
+            parallel_for<int>(0, skyRes, [&](const int y)
 			{
 				const float fy = 2.0f * (float(y) * coef - 0.5f);
 				for(int x = 0 ; x < skyRes ; ++x)
@@ -151,7 +150,7 @@ namespace TA3D
 						SurfaceInt(img[4], x, y) = getpixelBL(stex, alpha + 1.75f, Math::Clamp(1.0f - beta, 0.0f, 1.0f));
 					SurfaceInt(img[5], x, y) = getpixelBL(stex, alpha + 1.25f, Math::Clamp(beta, 0.0f, 1.0f));
 				}
-			}
+            });
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB_compressed());
 			for(int i = 0 ; i < 6 ; ++i)

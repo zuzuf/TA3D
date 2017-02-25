@@ -711,50 +711,36 @@ namespace TA3D
 			if (*it)
 				delete *it;
 		hBitMap.clear();
-		size_t memoryUsed = 0U;
-		Mutex mLoad;
-		const size_t end = unit_manager.unit_type.size();
-		volatile size_t i = 0;
-#pragma omp parallel
+        std::atomic<size_t> memoryUsed(0U);
+        QMutex mLoad;
+        parallel_for<size_t>(0, unit_manager.unit_type.size(), [&](const size_t e)
 		{
-			mLoad.lock();
-			while(i < end)
-			{
-				const size_t e = i++;
-				mLoad.unlock();
-				const UnitType* const pType = unit_manager.unit_type[e];
-				if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
-				{
-					mLoad.lock();
-					continue;
-				}
-                const QString key = pType->getMoveStringID();
-				mLoad.lock();
-				if (hBitMap.count(key))		// Already done ?
-					continue;
-				BitMap *bmap = new BitMap(the_map->bloc_w_db, the_map->bloc_h_db);
-				hBitMap[key] = bmap;
+            const UnitType* const pType = unit_manager.unit_type[e];
+            if (!pType || pType->canfly || !pType->BMcode || !pType->canmove)
+                return;
+            const QString &key = pType->getMoveStringID();
+            mLoad.lock();
+            if (hBitMap.count(key))		// Already done ?
+            {
+                mLoad.unlock();
+                return;
+            }
+            BitMap *bmap = new BitMap(the_map->bloc_w_db, the_map->bloc_h_db);
+            hBitMap[key] = bmap;
 
-				mLoad.unlock();
+            mLoad.unlock();
 
-				const int mwh = pType->FootprintX >> 1;
-				const int mhh = pType->FootprintZ >> 1;
+            const int mwh = pType->FootprintX >> 1;
+            const int mhh = pType->FootprintZ >> 1;
 
-				for(int y = 0 ; y < the_map->bloc_h_db ; ++y)
-				{
-					for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
-					{
-						bmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
-					}
-				}
+            for(int y = 0 ; y < the_map->bloc_h_db ; ++y)
+                for(int x = 0 ; x < the_map->bloc_w_db ; ++x)
+                    bmap->set(x, y, checkRectFull(x - mwh, y - mhh, pType));
 
-				mLoad.lock();
-				memoryUsed += bmap->getMemoryUse();
-			}
-			mLoad.unlock();
-		}
+            memoryUsed += bmap->getMemoryUse();
+        });
 
-		LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024U << "kb");
+        LOG_INFO(LOG_PREFIX_PATHS << "walkable areas : " << memoryUsed / 1024U << "kb");
 	}
 } // namespace TA3D
 

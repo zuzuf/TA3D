@@ -43,11 +43,6 @@
 #include "input/mouse.h"
 #include "gfx/gui/area.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
-
 namespace TA3D
 {
 
@@ -1249,48 +1244,38 @@ namespace TA3D
         QStringList file_list;
         VFS::Instance()->getFilelist( ta3dSideData.unit_dir + '*' + ta3dSideData.unit_ext, file_list);
 
-		volatile int n = 0, m = 0;
+        std::atomic<int> n(0), m(0);
 
-		const size_t end = file_list.size();
-#pragma omp parallel
+        QThread * const root_thread = QThread::currentThread();
+        parallel_for<size_t>(0, file_list.size(), [&](const size_t i)
 		{
-			mInternals.lock();
-			while (n < end)
-			{
-#ifdef _OPENMP
-				if (omp_get_thread_num() == 0)
-				{
-					if (progress != NULL && m >= 0xF)
-					{
-						(*progress)((300.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading units"));
-						m = 0;
-					}
-				}
-				++m;
-#else
-				if (progress != NULL && !(n & 0xF))
-					(*progress)((300.0f + float(n) * 50.0f / float(end + 1)) / 7.0f, I18N::Translate("Loading units"));
-#endif
-				const size_t i = n;
-                const QString &nom = Paths::ExtractFileNameWithoutExtension(file_list[i]).toUpper();			// Vérifie si l'unité n'est pas déjà chargée
-				++n;
+            if (QThread::currentThread() == root_thread)
+            {
+                if (progress != NULL && m >= 0xF)
+                {
+                    (*progress)((300.0f + float(n) * 50.0f / float(file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
+                    m -= 0xF;
+                }
+            }
+            ++m;
+            const QString &nom = Paths::ExtractFileNameWithoutExtension(file_list[i]).toUpper();			// Vérifie si l'unité n'est pas déjà chargée
+            ++n;
 
-				if (unit_manager.get_unit_index(nom) == -1)
-				{
-					LOG_DEBUG("Loading the unit `" << nom << "`...");
-					mInternals.unlock();
-					UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
-                    if (!pUnitType->Unitname.isEmpty())
-					{
-                        const QString &pcx_name = "unitpics/" + pUnitType->Unitname + ".pcx";
-                        pUnitType->unitpic = gfx->load_image(pcx_name);
-					}
-					mInternals.lock();
-					continue;
-				}
-			}
-			mInternals.unlock();
-		}
+            mInternals.lock();
+            if (unit_manager.get_unit_index(nom) == -1)
+            {
+                mInternals.unlock();
+                LOG_DEBUG("Loading the unit `" << nom << "`...");
+                UnitType *pUnitType = unit_manager.load_unit(file_list[i]);
+                if (!pUnitType->Unitname.isEmpty())
+                {
+                    const QString &pcx_name = "unitpics/" + pUnitType->Unitname + ".pcx";
+                    pUnitType->unitpic = gfx->load_image(pcx_name);
+                }
+            }
+            else
+                mInternals.unlock();
+        });
 
 		unit_manager.start_threaded_stuffs();
 

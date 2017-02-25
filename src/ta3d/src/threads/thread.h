@@ -22,6 +22,10 @@
 #include "mutex.h"
 #include <zuzuf/smartptr.h>
 #include <QThread>
+#include <QThreadPool>
+#include <QRunnable>
+#include <atomic>
+#include <type_traits>
 
 namespace TA3D
 {
@@ -65,10 +69,6 @@ namespace TA3D
 		virtual void join();
 	}; // class Thread
 
-
-
-
-
     class ObjectSync : public virtual zuzuf::ref_count
 	{
 	public:
@@ -96,10 +96,58 @@ namespace TA3D
 		Mutex pMutex;
 	};
 
+    template<typename Fn>
+    class RunnableFunctor : public QRunnable
+    {
+    public:
+        RunnableFunctor() : f(NULL) {}
+        RunnableFunctor(const Fn *f) : f(f) {}
+        void setFunctor(const Fn *f)    {   this->f = f;    }
+        virtual void run()  {   (*f)();    }
 
+    private:
+        const Fn *f;
+    };
 
+    template<typename Fn>
+    inline void parallel(const Fn &f)
+    {
+        const int nb_tasks = QThread::idealThreadCount() - 1;
+        std::atomic<int> nb_complete(0);
+        const auto &wrapped_f = [&]()
+        {
+            f();
+            ++nb_complete;
+        };
 
+        RunnableFunctor<typename std::remove_reference<decltype(wrapped_f)>::type> tasks[nb_tasks];
+        QThreadPool *pool = QThreadPool::globalInstance();
 
+        for(int i = 0 ; i < nb_tasks ; ++i)
+        {
+            tasks[i].setAutoDelete(false);
+            tasks[i].setFunctor(&wrapped_f);
+            pool->start(&(tasks[i]));
+        }
+        f();
+        while(nb_complete < nb_tasks);
+    }
+
+    template<typename T, typename Fn>
+    inline void parallel_for(const T &begin, const T &end, const Fn &f)
+    {
+        std::atomic<T> i(begin);
+        parallel([&]()
+        {
+            while(true)
+            {
+                const T x = i++;
+                if (x >= end)
+                    break;
+                f(x);
+            }
+        });
+    }
 } // namespace TA3D
 
 #endif      // __TA3D_THREAD_H__

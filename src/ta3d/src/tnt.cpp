@@ -429,8 +429,7 @@ namespace TA3D
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 2)");
-#pragma omp parallel for
-		for (int y = 0 ; y < map->bloc_h_db ; ++y) // Calcule les informations complémentaires sur la carte
+        parallel_for<int>(0, map->bloc_h_db, [&](const int y) // Compute additionnal map informations
 		{
 			for (int x = 0 ; x < map->bloc_w_db ; ++x)
 			{
@@ -458,7 +457,7 @@ namespace TA3D
 				if (!map->map_data(x, y).isLava() && (y>>1) - 1 >= 0 && map->bmap(x >> 1, (y >> 1) - 1) < map->nbbloc)
 					map->map_data(x, y).setLava( map->bloc[ map->bmap(x >> 1, (y >> 1) - 1) ].lava );
 			}
-		}
+        });
 
 		LOG_INFO("Env created in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
@@ -522,8 +521,7 @@ namespace TA3D
 		}
 
 		LOG_DEBUG("MAP: computing height data (step 5)");
-#pragma omp parallel for
-		for (int y = 0 ; y < (map->bloc_h << 1); ++y)	 // Compute slopes on the map using height map and projected datas
+        parallel_for<int>(0, map->bloc_h << 1, [&](const int y)	 // Compute slopes on the map using height map and projected data
 		{
 			for (int x = 0; x < (map->bloc_w << 1); ++x)
 			{
@@ -550,7 +548,7 @@ namespace TA3D
 				map->slope(x,y) = dh;
 				map->energy(x,y) = dh;
 			}
-		}
+        });
 		LOG_DEBUG("MAP: computing height data (step 6)");
 		gaussianFilter(map->energy, 3.0f);
 
@@ -612,8 +610,7 @@ namespace TA3D
 		map->low_tcoord = new float[low_nb_vtx*2];
 		map->low_index = new GLuint[map->low_nb_idx];
 		i = 0;
-#pragma omp parallel for
-		for (int y = 0 ; y <= map->low_h; ++y) // Build the mesh
+        parallel_for<int>(0, map->low_h + 1, [&](const int y) // Build the mesh
 		{
 			int i = y * (map->low_w + 1);
 			for (int x = 0 ; x <= map->low_w ; ++x)
@@ -631,11 +628,10 @@ namespace TA3D
 				map->low_col[(i<<2)+3] = 255;
 				++i;
 			}
-		}
+        });
 		if (map->water)
 		{
-#pragma omp parallel for
-			for (int y = 1 ; y < map->low_h ; ++y)	// Make sure we'll see what is above water
+            parallel_for<int>(1, map->low_h, [&](const int y)	// Make sure we'll see what is above water
 			{
 				for (int x = 1 ; x < map->low_w ; ++x)
 				{
@@ -647,7 +643,7 @@ namespace TA3D
 							 tmp_vtx[i + map->low_w + 1].y > map->sealvl))
 						map->low_vtx[i].y = map->sealvl;
 				}
-			}
+            });
 		}
 		DELETE_ARRAY(tmp_vtx);
 		LOG_DEBUG("MAP: creating low definition geometry (step 2)");
