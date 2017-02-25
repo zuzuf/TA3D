@@ -454,8 +454,8 @@ namespace TA3D
 			}
 		}
 #ifdef DEBUG_AI_PATHFINDER
-		SDL_Surface *bmp = gfx->create_surface_ex(32, zone.getWidth(), zone.getHeight());
-		memset(bmp->pixels, 0, bmp->w * bmp->h * sizeof(int));
+        QImage bmp = gfx->create_surface_ex(32, zone.getWidth(), zone.getHeight());
+        memset(bmp.bits(), 0, bmp.width() * bmp.height() * sizeof(int));
 		for (int z = 0 ; z < the_map->bloc_h_db ; ++z)
 			for (int x = 0 ; x < the_map->bloc_w_db ; ++x)
 				if (!(*qmap)(x,z))
@@ -571,8 +571,8 @@ namespace TA3D
 			}
 //#define DEBUG_AI_PATHFINDER
 #ifdef DEBUG_AI_PATHFINDER
-			SDL_Surface *bmp = gfx->create_surface_ex(32, zone.getWidth(), zone.getHeight());
-			memset(bmp->pixels, 0, bmp->w * bmp->h * sizeof(int));
+            QImage bmp = gfx->create_surface_ex(32, zone.getWidth(), zone.getHeight());
+            memset(bmp.bits(), 0, bmp.width() * bmp.height() * sizeof(int));
 			for (int z = 0 ; z < the_map->bloc_h_db ; ++z)
 				for (int x = 0 ; x < the_map->bloc_w_db ; ++x)
 					SurfaceInt(bmp, x, z) = zone(x,z) | makeacol32(0, 0, 0, 0xFF);

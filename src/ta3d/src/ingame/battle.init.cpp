@@ -556,10 +556,9 @@ namespace TA3D
 			{
 				gfx->destroy_texture(map->lava_map);
 
-				SDL_Surface *tmp = gfx->create_surface_ex(32, 16, 16);
-				SDL_FillRect(tmp, NULL, 0xFFFFFFFF);
+				QImage tmp = gfx->create_surface_ex(32, 16, 16);
+                tmp.fill(0xFFFFFFFF);
 				map->lava_map = gfx->make_texture(tmp);
-				SDL_FreeSurface(tmp);
 			}
 			delete map_file;
 		}
@@ -740,7 +739,7 @@ namespace TA3D
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
-			SDL_Surface* tmp = gfx->create_surface_ex(32,512,512);
+			QImage tmp = gfx->create_surface_ex(32,512,512);
 
 			// Water transparency
 			transtex = gfx->make_texture( tmp, FILTER_LINEAR);
@@ -877,7 +876,6 @@ namespace TA3D
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 			water = gfx->make_texture( tmp, FILTER_LINEAR, false);
-			SDL_FreeSurface(tmp);
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
 			// Enable the texture compression
@@ -955,7 +953,7 @@ namespace TA3D
 		do
 		{
 			nb_shoot = (nb_shoot + 1) % 1000000;
-        }while (TA3D::Paths::Exists(TA3D::Paths::Screenshots + QString::asprintf("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
+        }while (TA3D::Paths::Exists(TA3D::Paths::Screenshots + QString::asprintf("ta3d-shoot%.6d.png", nb_shoot)) && nb_shoot != 999999);
 
 		return true;
 	}

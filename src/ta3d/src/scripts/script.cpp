@@ -267,13 +267,12 @@ namespace TA3D
 
 	int program_get_image_size(lua_State *L)
 	{
-		SDL_Surface *img = gfx->load_image(lua_tostring(L, 1) );
+		QImage img = gfx->load_image(lua_tostring(L, 1) );
 		lua_pop(L, 1);
-		if (img)
+        if (!img.isNull())
 		{
-			lua_pushinteger(L, img->w);
-			lua_pushinteger(L, img->h);
-			SDL_FreeSurface(img);
+			lua_pushinteger(L, img.width());
+			lua_pushinteger(L, img.height());
 		}
 		else
 		{

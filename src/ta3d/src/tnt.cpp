@@ -42,15 +42,15 @@ namespace TA3D
 	namespace
 	{
 
-		SDL_Surface *load_tnt_minimap_bmp(TNTMINIMAP *minimap,int *sw,int *sh)
+        QImage load_tnt_minimap_bmp(TNTMINIMAP *minimap,int *sw,int *sh)
 		{
-			// Copy the mini-map into an 8-bit SDL_Surface
-			SDL_Surface *mini = gfx->create_surface_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
+            // Copy the mini-map into an 8-bit QImage
+            QImage mini = gfx->create_surface_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
 			for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y)
-				memcpy((char*)mini->pixels + y * mini->pitch, minimap->map[y],TNTMINIMAP_WIDTH);
+                memcpy((char*)mini.scanLine(y), minimap->map[y],TNTMINIMAP_WIDTH);
 
 			// Apply the palette -- increase the color depth
-			mini = convert_format(mini);
+            convert_format(mini);
 
 			// Examine the image for a blank-looking bottom or right edge
 			int mini_w = TNTMINIMAP_WIDTH;
@@ -62,13 +62,13 @@ namespace TA3D
 				--mini_w;
 			} while ( mini_w > 0 &&
 					( ( SurfaceInt(mini, mini_w, 0) & mask) == blank_color ||
-						SurfaceInt(mini, mini_w, 0)         == 0));
+                        SurfaceInt(mini, mini_w, 0) == 0));
 			do
 			{
 				--mini_h;
 			} while( mini_h > 0 &&
 				( ( SurfaceInt(mini, 0, mini_h) & mask) == blank_color ||
-				SurfaceInt(mini,0,mini_h)         == 0));
+                SurfaceInt(mini,0,mini_h) == 0));
 			mini_w++;
 			mini_h++;
 
@@ -79,11 +79,11 @@ namespace TA3D
 		}
 
 
-        SDL_Surface *load_tnt_minimap_fast_raw_bmp(const QString& filename, int& sw, int& sh)
+        QImage load_tnt_minimap_fast_raw_bmp(const QString& filename, int& sw, int& sh)
 		{
             QIODevice *headerBytes = VFS::Instance()->readFileRange(filename, 0, sizeof(TNTHEADER));
 			if (headerBytes == NULL)
-				return 0;
+                return QImage();
 
             const QByteArray &buffer = headerBytes->read(sizeof(TNTHEADER));
             const TNTHEADER *header = &((const TNTHEADER_U*)buffer.data())->header;
@@ -92,13 +92,13 @@ namespace TA3D
 			if (!minimapdata)
 			{
 				delete headerBytes;
-				return 0;
+                return QImage();
 			}
 
 			minimapdata->seek(header->PTRminimap);
 			TNTMINIMAP minimap;
             minimapdata->read((char*)&minimap, sizeof(minimap));
-			SDL_Surface	*bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
+            QImage bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
 
 			delete headerBytes;
 			delete minimapdata;
@@ -166,8 +166,8 @@ namespace TA3D
 		map->mini_h = h;
 		map->mini = gfx->create_surface_ex(8, 252, 252);
 		for(y = 0; y < 252; ++y)
-			file->read((char*)map->mini->pixels + y * map->mini->pitch, 252);
-		map->mini = convert_format(map->mini);
+            file->read((char*)map->mini.scanLine(y), 252);
+        convert_format(map->mini);
 		map->mini_w = 251;
 		map->mini_h = 251;
 		uint32 mask = makecol(0xFC, 0xFC, 0xFC);
@@ -188,18 +188,18 @@ namespace TA3D
 		// Lit les différents morceaux
 		LOG_DEBUG("MAP: reading blocs data");
 		event_timer = msec_timer;
-		int n_bmp = (header.tiles+0x3F) >> 5; // Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
-		SDL_Surface **bmp_tex = new SDL_Surface*[n_bmp];
+        int n_bmp = (header.tiles+0x3F) >> 5; // How many 1024x32 textures are required to store all chunks
+        QImage *bmp_tex = new QImage[n_bmp];
 		for (i = 0; i < n_bmp; ++i)
 			bmp_tex[i] = gfx->create_surface_ex(8, 1024, 32);
 
 		file->seek(header.PTRtilegfx);
-		for (i = 0; i < header.tiles; ++i) // Lit tout les morceaux
+        for (i = 0; i < header.tiles; ++i) // Read all the chunks
 		{
-			int tex_num = i>>5;	// Numéro de la texture associée
-			int tx = (i&0x1F)<<5;			// Coordonnées sur la texture
-			for(y = 0; y < 32; ++y)	// Lit le morceau
-				file->read((char*)bmp_tex[tex_num]->pixels + y * bmp_tex[tex_num]->pitch + tx, 32);
+            int tex_num = i>>5;	// Associated texture ID
+            int tx = (i&0x1F)<<5;			// Texture coordinates
+            for(y = 0; y < 32; ++y)	// Read the chunk
+                file->read((char*)bmp_tex[tex_num].scanLine(y) + tx, 32);
 		}
 
 		LOG_DEBUG("MAP: allocating map memory");
@@ -257,9 +257,9 @@ namespace TA3D
 				for (x = tx; x < tx + 32; ++x)
 				{
 					const int c = SurfaceByte(bmp_tex[tex_num],x,y);
-					r += pal[c].r;
-					g += pal[c].g;
-					b += pal[c].b;
+                    r += qRed(pal[c]);
+                    g += qGreen(pal[c]);
+                    b += qBlue(pal[c]);
 				}
 			}
 			r >>= 10;
@@ -278,11 +278,10 @@ namespace TA3D
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-		for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets SDL_Surface
+        for (i = 0; i < n_bmp; ++i) // Finish loading textures
 		{
-			SDL_Surface *tmp = convert_format_24_copy(bmp_tex[i]);
+            QImage tmp = convert_format_24_copy(bmp_tex[i]);
 			map->tex[i] = gfx->make_texture(tmp);
-			SDL_FreeSurface(tmp);
 		}
 		LOG_INFO("Textures for blocks in " << float(msec_timer - event_timer) * 0.001f << "s.");
 
@@ -332,7 +331,7 @@ namespace TA3D
 			for(i=1;i<map->macro_h;i++)
 			map->macro_bloc[i] = &(map->macro_bloc[0][macro_w*i]);
 
-			SDL_Surface *tmp = gfx->create_surface_ex(32,512,512);
+            QImage tmp = gfx->create_surface_ex(32,512,512);
 			for(uint32 y=0;y<map->macro_h;y++)
 			for(uint32 x=0;x<map->macro_w;x++) {
 			for(uint32 py=0;py<16 && (y<<4)+py<map->bloc_h;py++)				// Create texture
@@ -354,8 +353,8 @@ namespace TA3D
 
 		LOG_DEBUG("MAP: creating low definition texture and lava map");
 
-		SDL_Surface *low_def = gfx->create_surface_ex(8, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
-		SDL_FillRect(low_def, NULL, 0x0);
+        QImage low_def = gfx->create_surface_ex(8, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
+        low_def.fill(0x0);
 		file->seek(header.PTRmapdata);
         file->read((char*)(map->bmap.getData()), map->bmap.getSize());
 		for (y = 0; y < map->bloc_h; ++y)
@@ -371,36 +370,32 @@ namespace TA3D
 				const int tx = (i & 0x1F) << 5;			// Coordonnées sur la texture
 
 				stretch_blit(bmp_tex[tex_num], low_def, tx, 0, 32, 32,
-					x * (low_def->w - 1) / map->bloc_w, y * (low_def->h - 1) / map->bloc_h,
-					(x + 1) * (low_def->w - 1) / map->bloc_w - x * (low_def->w - 1) / map->bloc_w,
-					(y + 1) * (low_def->h - 1) / map->bloc_h - y * (low_def->h - 1) / map->bloc_h);
+                    x * (low_def.width() - 1) / map->bloc_w, y * (low_def.height() - 1) / map->bloc_h,
+                    (x + 1) * (low_def.width() - 1) / map->bloc_w - x * (low_def.width() - 1) / map->bloc_w,
+                    (y + 1) * (low_def.height() - 1) / map->bloc_h - y * (low_def.height() - 1) / map->bloc_h);
 				/*--------------------------------------------------------------------*/
 			}
 		}
 		LOG_INFO("Low definition map image built in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
-		for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
-			SDL_FreeSurface(bmp_tex[i]);
-		low_def = convert_format_24(low_def);
+        convert_format_24(low_def);
 		gfx->set_texture_format(GL_RGB5);
 		map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
-		SDL_FreeSurface(low_def);
 
 		LOG_INFO("Low definition texture uploaded in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
-		SDL_Surface *lava_map = gfx->create_surface_ex(8, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
-		SDL_FillRect(lava_map, NULL, 0x0);
+        QImage lava_map = gfx->create_surface_ex(8, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
+        lava_map.fill(0x0);
 		for (y = 0; y < map->bloc_h; ++y)               // Build the lava map
 			for (x = 0; x < map->bloc_w; ++x)
 				if (map->bloc[map->bmap(x, y)].lava)
-					circlefill(lava_map, x * lava_map->w / map->bloc_w, y * lava_map->h / map->bloc_h, 3, 0xFF);
+                    circlefill(lava_map, x * lava_map.width() / map->bloc_w, y * lava_map.height() / map->bloc_h, 3, 0xFF);
 		LOG_INFO("Lava image built in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
 
 		map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
-		SDL_FreeSurface(lava_map);
 
 		LOG_INFO("Lava texture uploaded in " << float(msec_timer - event_timer) * 0.001f << "s.");
 		event_timer = msec_timer;
@@ -694,46 +689,39 @@ namespace TA3D
 		file->seek(header.PTRminimap);
 		TNTMINIMAP minimap;
         READ(minimap);
-		SDL_Surface	*bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
+        QImage bitmap = load_tnt_minimap_bmp(&minimap, &sw, &sh);
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-		GLuint texture = gfx->make_texture(bitmap, FILTER_LINEAR, true);
-
-		SDL_FreeSurface(bitmap);
-		return texture;
+        return gfx->make_texture(bitmap, FILTER_LINEAR, true);
 	}
 
     GLuint load_tnt_minimap_fast(const QString& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 	{
-		SDL_Surface *bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
+        QImage bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
-		if (bitmap == NULL)    return 0;
+        if (bitmap.isNull())    return 0;
 
 		// Convert to a GL texture
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-		GLuint texture = gfx->make_texture(bitmap, FILTER_LINEAR, true);
-
-		SDL_FreeSurface(bitmap);
-		return texture;
+        return gfx->make_texture(bitmap, FILTER_LINEAR, true);
 	}
 
-    SDL_Surface *load_tnt_minimap_fast_bmp(const QString& filename)		// Load a minimap into a SDL_Surface* structure from a HPI/UFO archive
+    QImage load_tnt_minimap_fast_bmp(const QString& filename)		// Load a minimap into a QImage structure from a HPI/UFO archive
 	{
 		int sw, sh;
-		SDL_Surface *fullsize = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
+        QImage fullsize = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
-		if (fullsize == NULL)    return 0;
+        if (fullsize.isNull())    return QImage();
 
 		// Copy the full-sized bitmap down to an exact-sized version
-		SDL_Surface *trimmed = gfx->create_surface(sw, sh);
+        QImage trimmed = gfx->create_surface(sw, sh);
 		blit(fullsize,trimmed,0,0,0,0,sw,sh);
-		SDL_FreeSurface(fullsize);
 
 		return trimmed;
 	}

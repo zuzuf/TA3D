@@ -145,7 +145,7 @@ namespace TA3D
 		tex = NULL;
 		nbbloc = 0;
 		bloc = NULL;
-		mini = NULL;
+        mini = QImage();
 		bmap.resize(0,0);
 		h_map.resize(0,0);
 		ph_map.resize(0,0);
@@ -585,11 +585,7 @@ namespace TA3D
 			}
 			DELETE_ARRAY(bloc);
 		}
-		if (mini)
-		{
-			gfx->destroy_texture( glmini );
-			SDL_FreeSurface(mini);
-		}
+        mini = QImage();
 		init();
 		detail_shader.destroy();		// Because init will reload it
 
@@ -619,22 +615,22 @@ namespace TA3D
 
 	void MAP::load_details_texture( const QString &filename )
 	{
-		SDL_Surface *tex = gfx->load_image(filename);
-		if (tex)
+        QImage tex = gfx->load_image(filename);
+        if (!tex.isNull())
 		{
 			uint32 average = 0;
 # ifndef TA3D_PLATFORM_DARWIN
-            switch(tex->format->BitsPerPixel)
+            switch(tex.depth())
             {
             case 8:
-                for (int y = 0; y < tex->h; ++y)
-                    for (int x = 0; x < tex->w; ++x)
+                for (int y = 0; y < tex.height(); ++y)
+                    for (int x = 0; x < tex.width(); ++x)
                         average += SurfaceByte(tex, x, y) * 3;
                 break;
             case 24:
-                for (int y = 0; y < tex->h; ++y)
+                for (int y = 0; y < tex.height(); ++y)
                 {
-                    for (int x = 0; x < tex->w; ++x)
+                    for (int x = 0; x < tex.width(); ++x)
                     {
                         average += SurfaceByte(tex, x * 3, y);
                         average += SurfaceByte(tex, x * 3 + 1,y);
@@ -643,9 +639,9 @@ namespace TA3D
                 }
                 break;
             case 32:
-                for (int y = 0; y < tex->h; ++y)
+                for (int y = 0; y < tex.height(); ++y)
                 {
-                    for (int x = 0; x < tex->w; ++x)
+                    for (int x = 0; x < tex.width(); ++x)
                     {
                         average += SurfaceByte(tex, (x << 2), y);
                         average += SurfaceByte(tex, (x << 2) + 1,y);
@@ -654,13 +650,12 @@ namespace TA3D
                 }
                 break;
             };
-			average /= tex->w * tex->h * 3;
+            average /= tex.width() * tex.height() * 3;
 # endif
-			if (!average)
+            if (!average)
 				average = 1;
 			color_factor = 255.0f / (float)average;
 			details_tex = gfx->make_texture(tex, FILTER_TRILINEAR, false);
-			SDL_FreeSurface(tex);
 		}
 		else
 		{
@@ -729,7 +724,7 @@ namespace TA3D
 
 	void MAP::draw_mini(int x1,int y1,int w,int h, Camera* cam, byte player_mask)			// Draw the mini-map
 	{
-		if (!mini)
+        if (mini.isNull())
 			return;		// Check if it exists
 
 		gfx->set_color(0xFFFFFFFF);

@@ -34,6 +34,7 @@
 # include <sdl.h>
 # include <threads/mutex.h>
 # include <QIODevice>
+# include <QColor>
 
 # ifndef MAX_PATH
 #   define MAX_PATH 260
@@ -226,7 +227,7 @@ namespace UTILS
 	}; // class VFS;
 
 
-    bool load_palette(SDL_Color *pal, const QString& filename = "palettes/palette.pal");
+    bool load_palette(QVector<QRgb> &pal, const QString& filename = "palettes/palette.pal");
 
     bool loadFromFile(QStringList& out, const QString& filename, const uint32 sizeLimit, const bool emptyListBefore);
 

@@ -32,7 +32,7 @@ namespace TA3D
 {
     namespace VARS
     {
-        extern SDL_Color *pal;
+        extern QVector<QRgb> pal;
     }
 
 	using namespace TA3D::VARS;

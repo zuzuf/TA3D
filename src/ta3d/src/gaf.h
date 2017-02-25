@@ -31,6 +31,7 @@
 # include <vector>
 # include "logs/logs.h"
 # include "sdl.h"
+# include <QImage>
 
 # define TA3D_GAF_STANDARD      0x00010100
 # define TA3D_GAF_TRUECOLOR     0x00010101
@@ -181,9 +182,9 @@ namespace TA3D
 								   int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
 		/*!
-		** \brief Load a GAF image into a SDL_Surface
+        ** \brief Load a GAF image into a QImage
 		*/
-        static SDL_Surface* RawDataToBitmap(QIODevice* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
+        static QImage RawDataToBitmap(QIODevice* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
 
 		/*!
 		** \brief Get the number of entries from raw data
@@ -229,7 +230,7 @@ namespace TA3D
 			//!
 			sint32 nb_bmp;
 			//!
-			std::vector<SDL_Surface*> bmp;
+			std::vector<QImage> bmp;
 			//!
 			std::vector<short> ofs_x;
 			//!

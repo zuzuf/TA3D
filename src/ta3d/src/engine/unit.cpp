@@ -5094,8 +5094,8 @@ script_exec:
 						const float x = target.x - 0.5f * (float)cursor[cursor_type].ofs_x[curseur];
 						const float y = target.y + 1.0f;
 						const float z = target.z - 0.5f * (float)cursor[cursor_type].ofs_y[curseur];
-						const float sx = 0.5f * float(cursor[cursor_type].bmp[curseur]->w - 1);
-						const float sy = 0.5f * float(cursor[cursor_type].bmp[curseur]->h - 1);
+                        const float sx = 0.5f * float(cursor[cursor_type].bmp[curseur].width() - 1);
+                        const float sy = 0.5f * float(cursor[cursor_type].bmp[curseur].height() - 1);
 						if (low_def)
 							glEnable(GL_TEXTURE_2D);
 						glBindTexture(GL_TEXTURE_2D, cursor[cursor_type].glbmp[curseur]);
@@ -5117,8 +5117,8 @@ script_exec:
 		if (!points.empty())
 		{
 			const int curseur = anim_cursor(CURSOR_CROSS_LINK);
-			const float sx = 0.5f * float(cursor[CURSOR_CROSS_LINK].bmp[curseur]->w - 1);
-			const float sy = 0.5f * float(cursor[CURSOR_CROSS_LINK].bmp[curseur]->h - 1);
+            const float sx = 0.5f * float(cursor[CURSOR_CROSS_LINK].bmp[curseur].width() - 1);
+            const float sy = 0.5f * float(cursor[CURSOR_CROSS_LINK].bmp[curseur].height() - 1);
 
 			Vector3D* P = new Vector3D[points.size() << 2];
 			float* T = new float[points.size() << 3];

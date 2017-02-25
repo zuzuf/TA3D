@@ -118,20 +118,20 @@ namespace TA3D
 
 				if (!(*i))
 				{
-					SDL_Surface* img = Gaf::RawDataToBitmap(file, idx, indx, NULL, NULL, truecolor);
+                    QImage img = Gaf::RawDataToBitmap(file, idx, indx, NULL, NULL, truecolor);
 
-					if (!img)
+                    if (img.isNull())
 					{
 						delete file;
 						return;
 					}
 
-					if (w) w[indx] = img->w;
-					if (h) h[indx] = img->h;
+                    if (w) w[indx] = img.width();
+                    if (h) h[indx] = img.height();
 
 					bool with_alpha = false;
-					for (int y = 0; y < img->h && !with_alpha; ++y)
-						for (int x = 0; x < img->w && !with_alpha; ++x)
+                    for (int y = 0; y < img.height() && !with_alpha; ++y)
+                        for (int x = 0; x < img.width() && !with_alpha; ++x)
 							with_alpha |= geta( SurfaceInt(img, x, y) ) != 255;
 					if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 						gfx->set_texture_format(with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB);
@@ -139,8 +139,7 @@ namespace TA3D
 						gfx->set_texture_format(with_alpha ? gfx->defaultTextureFormat_RGBA() : gfx->defaultTextureFormat_RGB());
 
 					*i = gfx->make_texture(img, filter);
-					gfx->save_texture_to_cache(cache_filename, *i, img->w, img->h, with_alpha);
-					SDL_FreeSurface(img);
+                    gfx->save_texture_to_cache(cache_filename, *i, img.width(), img.height(), with_alpha);
 				}
 				else
 				{
@@ -209,16 +208,16 @@ namespace TA3D
 			sint32 idx = file->size() > 0 ? RawDataGetEntryIndex(file, imgname) : -1;
 			if (idx != -1)
 			{
-				SDL_Surface *img = Gaf::RawDataToBitmap(file, idx, 0, NULL, NULL, truecolor);
-				if (img)
+                QImage img = Gaf::RawDataToBitmap(file, idx, 0, NULL, NULL, truecolor);
+                if (!img.isNull())
 				{
-					if (w) *w = img->w;
-					if (h) *h = img->h;
+                    if (w) *w = img.width();
+                    if (h) *h = img.height();
 					bool with_alpha = false;
 
-					for (int y = 0; y < img->h && !with_alpha; ++y)
+                    for (int y = 0; y < img.height() && !with_alpha; ++y)
 					{
-						for (int x = 0; x < img->w && !with_alpha; ++x)
+                        for (int x = 0; x < img.width() && !with_alpha; ++x)
 							with_alpha |= SurfaceByte(img, (x << 2) + 3, y) != 255;
 					}
 					if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -227,9 +226,8 @@ namespace TA3D
 						gfx->set_texture_format(with_alpha ? gfx->defaultTextureFormat_RGBA() : gfx->defaultTextureFormat_RGB());
 
 					GLuint gl_img = gfx->make_texture(img,filter);
-					gfx->save_texture_to_cache(cache_filename, gl_img, img->w, img->h, with_alpha);
+                    gfx->save_texture_to_cache(cache_filename, gl_img, img.width(), img.height(), with_alpha);
 
-					SDL_FreeSurface(img);
 					delete file;
 					return gl_img;
 				}
@@ -305,14 +303,14 @@ namespace TA3D
 
 
 
-    SDL_Surface* Gaf::RawDataToBitmap(QIODevice* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
+    QImage Gaf::RawDataToBitmap(QIODevice* file, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0 || img_idx < 0)
-			return NULL;
+            return QImage();
 		Gaf::Header header(file);
 		if (entry_idx >= header.Entries) // Si le fichier contient moins d'images que img_idx, il y a erreur
-			return NULL;
+            return QImage();
 
 		sint32 *pointers = new sint32[header.Entries];
         file->read((char*)pointers, header.Entries * (int)sizeof(sint32));
@@ -327,7 +325,7 @@ namespace TA3D
 		if (entry.Frames <= 0 || img_idx >= entry.Frames)
 		{
 			DELETE_ARRAY(pointers);
-			return NULL;
+            return QImage();
 		}
 
 		Gaf::Frame::Entry* frame = new Gaf::Frame::Entry[entry.Frames];
@@ -338,7 +336,7 @@ namespace TA3D
             READ(frame[i].Unknown1);
 		}
 
-		SDL_Surface *frame_img = NULL;
+        QImage frame_img;
 
 		try
 		{
@@ -346,7 +344,7 @@ namespace TA3D
 			{
 				DELETE_ARRAY(pointers);
 				DELETE_ARRAY(frame);
-				return NULL;
+                return QImage();
 			}
 			file->seek(frame[img_idx].PtrFrameTable);
 			Gaf::Frame::Data framedata(file);
@@ -373,8 +371,8 @@ namespace TA3D
 				file->read(buf, img_size);
 
 				frame_img = gfx->create_surface_ex( framedata.Transparency ? 32 : 24, framedata.Width, framedata.Height );
-				uLongf len = frame_img->w * frame_img->h * frame_img->format->BytesPerPixel;
-				uncompress ( (Bytef*) frame_img->pixels, &len, (Bytef*) buf, img_size);
+                uLongf len = frame_img.byteCount();
+				uncompress ( (Bytef*) frame_img.bits(), &len, (Bytef*) buf, img_size);
 				delete[] buf;
 			}
 			else
@@ -401,26 +399,21 @@ namespace TA3D
                         READ(framedata.Unknown3);
 					}
 
-					SDL_Surface *img = NULL;
+                    QImage img;
 
 					if (framedata.Compressed) // Si l'image est comprimée
 					{
 						LOG_ASSERT(framedata.Width  >= 0 && framedata.Width  < 4096);
 						LOG_ASSERT(framedata.Height >= 0 && framedata.Height < 4096);
 						if (!truecolor)
-						{
-							img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
-							SDL_FillRect(img, NULL, 0);
-						}
-						else
-						{
-							img = gfx->create_surface_ex(32, framedata.Width, framedata.Height);
-							SDL_FillRect(img, NULL, 0);
-						}
+                            img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
+                        else
+                            img = gfx->create_surface_ex(32, framedata.Width, framedata.Height);
+                        img.fill(0);
 
 						sint16 length;
 						file->seek(framedata.PtrFrameData);
-						for (int i = 0; i < img->h; ++i) // Décode les lignes les unes après les autres
+                        for (int i = 0; i < img.height(); ++i) // Décode les lignes les unes après les autres
 						{
                             READ(length);
 							int x(0);
@@ -436,7 +429,7 @@ namespace TA3D
 									else
 									{
 										int l = mask >> 1;
-										while (l > 0 && x < img->w)
+                                        while (l > 0 && x < img.width())
 										{
 											SurfaceInt(img, x++, i) = 0x00000000U;
 											--l;
@@ -449,8 +442,8 @@ namespace TA3D
 									{
 										int l = (mask >> 2) + 1;
                                         const byte c = (byte)readChar(file);
-										const uint32 c32 = makeacol32(pal[c].r, pal[c].g, pal[c].b,0xFF);
-										while (l > 0 && x < img->w)
+                                        const uint32 c32 = pal[c];
+                                        while (l > 0 && x < img.width())
 										{
 											if (!truecolor)
 											{
@@ -466,12 +459,12 @@ namespace TA3D
 									else
 									{
 										int l = (mask >> 2) + 1;
-										while (l > 0 && x < img->w)
+                                        while (l > 0 && x < img.width())
 										{
 											if (truecolor)
 											{
                                                 const byte c = (byte)readChar(file);
-												SurfaceInt(img, x++, i) = makeacol32(pal[c].r, pal[c].g, pal[c].b, 0xFF);
+                                                SurfaceInt(img, x++, i) = pal[c];
 											}
 											else
 											{
@@ -483,7 +476,7 @@ namespace TA3D
 										}
 									}
 								}
-							} while (e < length && x < img->w);
+                            } while (e < length && x < img.width());
                             file->seek(file->pos() + length - e);
 						}
 					}
@@ -491,20 +484,18 @@ namespace TA3D
 					{
 						// Si l'image n'est pas comprimée
 						img = gfx->create_surface_ex(8, framedata.Width, framedata.Height);
-						SDL_FillRect(img, NULL, 0);
+                        img.fill(0);
 
 						file->seek(framedata.PtrFrameData);
-						SDL_LockSurface(img);
-						for (int i = 0; i < img->h; ++i) // Copie les octets de l'image
-							file->read(((char*)(img->pixels)) + i * img->pitch, img->w);
-						SDL_UnlockSurface(img);
+                        for (int i = 0; i < img.height(); ++i) // Copie les octets de l'image
+                            file->read((char*)img.scanLine(i), img.width());
 
 						if (truecolor)
 						{
-							SDL_Surface *tmp = convert_format_copy(img);
-							for (int y = 0 ; y < tmp->h; ++y)
+                            QImage tmp = convert_format_copy(img);
+                            for (int y = 0 ; y < tmp.height() ; ++y)
 							{
-								for (int x = 0; x < tmp->w; ++x)
+                                for (int x = 0 ; x < tmp.width() ; ++x)
 								{
 									if (SurfaceByte(img, x, y) == framedata.Transparency)
 										SurfaceInt(tmp, x, y) = 0x00000000;
@@ -512,7 +503,6 @@ namespace TA3D
 										SurfaceInt(tmp, x, y) |= makeacol(0,0,0, 0xFF);
 								}
 							}
-							SDL_FreeSurface(img);
 							img = tmp;
 						}
 					}
@@ -526,28 +516,28 @@ namespace TA3D
 							if (!truecolor)
 							{
 								frame_img = gfx->create_surface_ex(8,frame_w,frame_h);
-								SDL_FillRect(frame_img, NULL, 0);
+                                frame_img.fill(0);
 							}
 							else
 							{
 								frame_img = gfx->create_surface_ex(32,frame_w,frame_h);
-								SDL_FillRect(frame_img, NULL, 0);
+                                frame_img.fill(0);
 							}
-							blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h);
+                            blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img.width(), img.height());
 						}
 						else
 						{
 							if (truecolor)
 							{
-								for (int y = 0; y < img->h; ++y)
+                                for (int y = 0; y < img.height(); ++y)
 								{
 									int Y = y + frame_y - framedata.YPos;
-									if (Y < 0 || Y >= frame_img->h)
+                                    if (Y < 0 || Y >= frame_img.height())
 										continue;
 									int X = frame_x - framedata.XPos;
-									for (int x = 0; x < img->w; ++x)
+                                    for (int x = 0; x < img.width(); ++x)
 									{
-										if (X >= 0 && X < frame_img->w)
+                                        if (X >= 0 && X < frame_img.width())
 										{
 											uint32 c = SurfaceInt(frame_img, X, Y);
 											int r = getr(c);
@@ -572,9 +562,8 @@ namespace TA3D
 								}
 							}
 							else
-								masked_blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h );
+                                masked_blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img.width(), img.height() );
 						}
-						SDL_FreeSurface(img);
 					}
 				}
 			}
@@ -584,7 +573,7 @@ namespace TA3D
 			LOG_ERROR("GAF data corrupt!");
 			DELETE_ARRAY(pointers);
 			DELETE_ARRAY(frame);
-			return NULL;
+            return QImage();
 		};
 
 		DELETE_ARRAY(pointers);
@@ -603,7 +592,7 @@ namespace TA3D
 
 		nb_bmp = Gaf::RawDataImageCount(file,entry_idx);
 
-		bmp.resize(nb_bmp, NULL);
+        bmp.resize(nb_bmp, QImage());
 		glbmp.resize(nb_bmp, 0);
 		ofs_x.resize(nb_bmp, 0);
 		ofs_y.resize(nb_bmp, 0);
@@ -616,12 +605,12 @@ namespace TA3D
 		int f(0);
 		for (; i < nb_bmp; ++i)
 		{
-			if ((bmp[i-f] = Gaf::RawDataToBitmap(file, entry_idx, i, &(ofs_x[i-f]), &(ofs_y[i-f]), truecolor)) != NULL)
+            if (!(bmp[i-f] = Gaf::RawDataToBitmap(file, entry_idx, i, &(ofs_x[i-f]), &(ofs_y[i-f]), truecolor)).isNull())
 			{
-				w[i-f] = (short)bmp[i-f]->w;
-				h[i-f] = (short)bmp[i-f]->h;
+                w[i-f] = (short)bmp[i-f].width();
+                h[i-f] = (short)bmp[i-f].height();
 				if (!truecolor)
-					bmp[i-f] = convert_format(bmp[i-f]);
+                    convert_format(bmp[i-f]);
 			}
 			else
 				++f;
@@ -645,7 +634,7 @@ namespace TA3D
 
 		nb_bmp = (sint32)files.size();
 
-		bmp.resize(nb_bmp, NULL);
+        bmp.resize(nb_bmp, QImage());
 		glbmp.resize(nb_bmp, 0);
 		ofs_x.resize(nb_bmp, 0);
 		ofs_y.resize(nb_bmp, 0);
@@ -658,10 +647,10 @@ namespace TA3D
 		int f(0);
 		for (; i < nb_bmp; ++i)
 		{
-			if ((bmp[i-f] = gfx->load_image(files[i])) != NULL)
+            if (!(bmp[i-f] = gfx->load_image(files[i])).isNull())
 			{
-				w[i-f] = (short)bmp[i-f]->w;
-				h[i-f] = (short)bmp[i-f]->h;
+                w[i-f] = (short)bmp[i-f].width();
+                h[i-f] = (short)bmp[i-f].height();
 				ofs_x[i-f] = 0;
 				ofs_y[i-f] = 0;
 			}
@@ -698,9 +687,6 @@ namespace TA3D
 	{
 		filename.clear();
 		name.clear();
-		for (std::vector<SDL_Surface*>::iterator i = bmp.begin() ; i != bmp.end() ; ++i)
-			if (*i)
-				SDL_FreeSurface(*i);
 		for (std::vector<GLuint>::iterator i = glbmp.begin() ; i != glbmp.end() ; ++i)
 			gfx->destroy_texture(*i);
 		w.clear();
@@ -714,12 +700,8 @@ namespace TA3D
 
 	void Gaf::Animation::clean()
 	{
-		for (std::vector<SDL_Surface*>::iterator i = bmp.begin() ; i != bmp.end() ; ++i)
-			if (*i)
-			{
-				SDL_FreeSurface(*i);
-				*i = NULL;
-			}
+        for (std::vector<QImage>::iterator i = bmp.begin() ; i != bmp.end() ; ++i)
+            *i = QImage();
 		name.clear();
 	}
 
@@ -740,14 +722,14 @@ namespace TA3D
 
 			if (!glbmp[i])
 			{
-				bmp[i] = convert_format(bmp[i]);
+                convert_format(bmp[i]);
 				if (g_useTextureCompression && COMPRESSED && lp_CONFIG->use_texture_compression)
 					gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
 				else
 					gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 				glbmp[i] = gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
                 if (!filename.isEmpty())
-					gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h, true);
+                    gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i].width(), bmp[i].height(), true);
 			}
 		}
 	}

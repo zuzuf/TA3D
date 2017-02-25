@@ -57,7 +57,7 @@ namespace TA3D
 	class GFX : public ObjectSync, protected IInterface
 	{
 	public:
-		typedef GFX*	Ptr;
+        typedef zuzuf::smartptr<GFX>	Ptr;
 	public:
 		//! \name 2D/3D Mode
 		//@{
@@ -85,9 +85,9 @@ namespace TA3D
 		**
 		** \param file The texture file
 		** \param filealpha The mask
-		** \return A valid SDL_Surface
+        ** \return A valid QImage
 		*/
-        static SDL_Surface* LoadMaskedTextureToBmp(const QString& file, const QString& filealpha);
+        static QImage LoadMaskedTextureToBmp(const QString& file, const QString& filealpha);
 
 	public:
 		//! \name Constructor & Destructor
@@ -224,15 +224,15 @@ namespace TA3D
         void print_right(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text);
 		//@} // Text manipilation
 
-		GLuint	make_texture( SDL_Surface *bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
+        GLuint	make_texture( const QImage &bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
 		GLuint	create_color_texture(uint32 color);
 		GLuint	create_texture( int w, int h, int filter_type = FILTER_TRILINEAR, bool clamp = true);
-		void	blit_texture( SDL_Surface *src, GLuint dst);
+        void	blit_texture( const QImage &src, GLuint dst);
         GLuint	load_texture(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
         GLuint	load_texture_mask(const QString& file, uint32 level, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
         GLuint	load_texture_from_cache(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
-        GLuint	load_masked_texture( QString file, QString mask, int filter_type = FILTER_TRILINEAR);
-        void	save_texture_to_cache( QString file, GLuint tex, uint32 width, uint32 height, bool useAlpha);
+        GLuint	load_masked_texture( const QString &file, QString mask, int filter_type = FILTER_TRILINEAR);
+        void	save_texture_to_cache(QString file, GLuint tex, uint32 width, uint32 height, bool useAlpha);
 		uint32	texture_width(const GLuint gltex);
 		uint32	texture_height(const GLuint gltex);
 		void	destroy_texture( GLuint &gltex);
@@ -260,7 +260,7 @@ namespace TA3D
 		void delete_shadow_map();
 		void readShadowMapProjectionMatrix();
 
-        SDL_Surface *load_image(const QString &filename);
+        QImage load_image(const QString &filename);
 
 		void set_alpha_blending();
 		void unset_alpha_blending();
@@ -294,8 +294,8 @@ namespace TA3D
 		static void runTests();
 		static void runOpenGLTests();
 
-		SDL_Surface *create_surface_ex(int bpp, int w, int h);
-		SDL_Surface *create_surface(int w, int h);
+        QImage create_surface_ex(int bpp, int w, int h);
+        QImage create_surface(int w, int h);
 
 		/*!
 		** \brief returns default texture formats for RGB and RGBA textures

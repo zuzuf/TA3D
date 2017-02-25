@@ -29,68 +29,41 @@ namespace TA3D
 {
 
 	// global variables:
-	TA3D::TA3DCONFIG::Ptr		TA3D::VARS::lp_CONFIG = NULL;
-	TA3D::GFX::Ptr				TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
-	SDL_Color					*TA3D::VARS::pal = NULL;
+    SDL_Surface                 *TA3D::VARS::screen = NULL;
+    TA3D::TA3DCONFIG::Ptr		TA3D::VARS::lp_CONFIG = NULL;
+    TA3D::GFX::Ptr				TA3D::VARS::gfx;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
+    QVector<QRgb>               TA3D::VARS::pal;
 	QString						TA3D::VARS::TA3D_CURRENT_MOD = "";		// This string stores the path to current mod
-	SDL_Surface					*TA3D::VARS::screen = NULL;
 
 	TA3DCONFIG::TA3DCONFIG()
 	{
 		bUseWorkingDirectory = false;
-
 		unitTextureQuality = 3;
-
 		developerMode = false;
-
 		tooltips = false;
-
 		menuTransparency = 0.0f;
-
 		first_start = false;
-
 		no_sound = false;
-
 		resourcePaths.clear();
-
 		system7zCommand = "7z";
-
 		grab_inputs = false;
-
 		sound_volume = music_volume = 128;
-
 		far_sight = true;
-
 		anisotropy = 1;
-
 		mouse_sensivity = 1.0f;
-
 		ortho_camera = false;
-
 		right_click_interface = false;
-
 		disable_GLSL = false;           // By default we want shaders
-
 		underwater_bright = false;
-
 		use_texture_compression = true;
-
 		low_definition_map = false;
-
 		render_sky = true;
-
 		enable_shortcuts = true;
-
 		net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
-
 		file_param.clear();
-
 		use_texture_cache = false;
-
 		pause = false;
-
 		skin_name = "";
-
 		camera_zoom = ZOOM_NORMAL;
 		camera_def_angle = 63.44f;        // TA angle
 		camera_def_h = 200.0f;

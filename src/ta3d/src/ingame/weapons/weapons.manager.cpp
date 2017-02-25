@@ -124,23 +124,24 @@ namespace TA3D
                 weapon[index].lineofsight = parser.pullAsBool( key + "lineofsight", weapon[index].lineofsight );
                 {
                     const int c = parser.pullAsInt( key + "color" );
-                    weapon[index].color[0] = makecol(pal[c].r,pal[c].g,pal[c].b);
+                    weapon[index].color[0] = pal[c];
                     weapon[index].color[2] = c;
                     if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 )
                     {
-                        weapon[index].color[0] = makecol( pal[ 180 ].r, pal[ 180 ].g, pal[ 180 ].b );
-                        weapon[index].color[1] = makecol( pal[ 212 ].r, pal[ 212 ].g, pal[ 212 ].b );
+                        weapon[index].color[0] = pal[ 180 ];
+                        weapon[index].color[1] = pal[ 212 ];
                         weapon[index].color[2] = 180;
                         weapon[index].color[3] = 212;
                     }
                 }
                 {
                     const int c = parser.pullAsInt( key + "color2" );
-                    weapon[index].color[1] = makecol(pal[c].r,pal[c].g,pal[c].b);
+                    weapon[index].color[1] = pal[c];
                     weapon[index].color[3] = c;
-                    if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 ) {
-                        weapon[index].color[0] = makecol( pal[ 180 ].r, pal[ 180 ].g, pal[ 180 ].b );
-                        weapon[index].color[1] = makecol( pal[ 212 ].r, pal[ 212 ].g, pal[ 212 ].b );
+                    if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 )
+                    {
+                        weapon[index].color[0] = pal[ 180 ];
+                        weapon[index].color[1] = pal[ 212 ];
                         weapon[index].color[2] = 180;
                         weapon[index].color[3] = 212;
                     }

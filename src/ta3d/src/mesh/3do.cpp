@@ -297,108 +297,108 @@ namespace TA3D
 
 		for (i = 0; i < nb_diff_tex; ++i)
 		{
-			int dx = texture_manager.tex[index_tex[i]].bmp[0]->w;
-			int dy = texture_manager.tex[index_tex[i]].bmp[0]->h;
-			px[i]=py[i]=0;
-			if (i!=0)
-				for (int e = 0; e < i; ++e)
-				{
-				int fx = texture_manager.tex[index_tex[e]].bmp[0]->w, fy=texture_manager.tex[index_tex[e]].bmp[0]->h;
-				bool found[3];
-				found[0] = found[1] = found[2] = true;
-				int j;
+            int dx = texture_manager.tex[index_tex[i]].bmp[0].width();
+            int dy = texture_manager.tex[index_tex[i]].bmp[0].height();
+            px[i] = py[i] = 0;
+            if (i != 0)
+                for (int e = 0; e < i; ++e)
+                {
+                    int fx = texture_manager.tex[index_tex[e]].bmp[0].width(), fy=texture_manager.tex[index_tex[e]].bmp[0].height();
+                    bool found[3];
+                    found[0] = found[1] = found[2] = true;
+                    int j;
 
-				px[i] = px[e] + fx;
-				py[i] = py[e];
-				for (j = 0; j < i; ++j)
-				{
-					int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy=texture_manager.tex[index_tex[j]].bmp[0]->h;
-					if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-					{
-						found[0] = false;
-						break;
-					}
-				}
+                    px[i] = px[e] + fx;
+                    py[i] = py[e];
+                    for (j = 0; j < i; ++j)
+                    {
+                        int gx = texture_manager.tex[index_tex[j]].bmp[0].width(), gy=texture_manager.tex[index_tex[j]].bmp[0].height();
+                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                        {
+                            found[0] = false;
+                            break;
+                        }
+                    }
 
-				px[i] = px[e];
-				py[i] = py[e] + fy;
-				for (j = 0; j < i; ++j)
-				{
-					int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-					if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-					{
-						found[2] = false;
-						break;
-					}
-				}
-				px[i] = px[e] + fx;
-				py[i] = 0;
+                    px[i] = px[e];
+                    py[i] = py[e] + fy;
+                    for (j = 0; j < i; ++j)
+                    {
+                        int gx = texture_manager.tex[index_tex[j]].bmp[0].width(), gy = texture_manager.tex[index_tex[j]].bmp[0].height();
+                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                        {
+                            found[2] = false;
+                            break;
+                        }
+                    }
+                    px[i] = px[e] + fx;
+                    py[i] = 0;
 
-				for (j = 0; j < i; ++j)
-				{
-					int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-					if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
-					{
-						found[1] = false;
-						break;
-					}
-				}
-				bool deborde = false;
-				bool found_one = false;
-				int deb = 0;
+                    for (j = 0; j < i; ++j)
+                    {
+                        int gx = texture_manager.tex[index_tex[j]].bmp[0].width(), gy = texture_manager.tex[index_tex[j]].bmp[0].height();
+                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                        {
+                            found[1] = false;
+                            break;
+                        }
+                    }
+                    bool deborde = false;
+                    bool found_one = false;
+                    int deb = 0;
 
-				if (found[1])
-				{
-					px[i] = px[e] + fx;
-					py[i] = 0;
-					deborde = false;
-					if (px[i] + dx > mx || py[i] + dy > my)
-						deborde = true;
-					deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-					found_one = true;
-				}
-				if (found[0] && (!found_one || deborde))
-				{
-					px[i] = px[e]+fx;
-					py[i] = py[e];
-					deborde = false;
-					if (px[i] + dx > mx || py[i] + dy > my)
-						deborde = true;
-					deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-					found_one = true;
-				}
-				if (found[2] && deborde)
-				{
-					int ax = px[i],ay = py[i];
-					px[i] = px[e];
-					py[i] = py[e] + fy;
-					deborde = false;
-					if (px[i]+dx>mx || py[i] + dy > my)
-						deborde = true;
-					int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
-					if (found_one && deb<deb2)
-					{
-						px[i] = ax;
-						py[i] = ay;
-					}
-					else
-						found_one=true;
-				}
-				if (found_one)			// On a trouvé une position qui convient
-					break;
-			}
-			if (px[i] + dx > mx)   mx = px[i] + dx;
+                    if (found[1])
+                    {
+                        px[i] = px[e] + fx;
+                        py[i] = 0;
+                        deborde = false;
+                        if (px[i] + dx > mx || py[i] + dy > my)
+                            deborde = true;
+                        deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+                        found_one = true;
+                    }
+                    if (found[0] && (!found_one || deborde))
+                    {
+                        px[i] = px[e]+fx;
+                        py[i] = py[e];
+                        deborde = false;
+                        if (px[i] + dx > mx || py[i] + dy > my)
+                            deborde = true;
+                        deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+                        found_one = true;
+                    }
+                    if (found[2] && deborde)
+                    {
+                        int ax = px[i],ay = py[i];
+                        px[i] = px[e];
+                        py[i] = py[e] + fy;
+                        deborde = false;
+                        if (px[i]+dx>mx || py[i] + dy > my)
+                            deborde = true;
+                        int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
+                        if (found_one && deb<deb2)
+                        {
+                            px[i] = ax;
+                            py[i] = ay;
+                        }
+                        else
+                            found_one=true;
+                    }
+                    if (found_one)			// On a trouvé une position qui convient
+                        break;
+                }
+            if (px[i] + dx > mx)   mx = px[i] + dx;
 			if (py[i] + dy > my)   my = py[i] + dy;
 		}
 
-		SDL_Surface* bmp = gfx->create_surface_ex(32, mx, my);
-		if (bmp != NULL && mx != 0 && my != 0)
+        QImage bmp = gfx->create_surface_ex(32, mx, my);
+        if (!bmp.isNull() && mx != 0 && my != 0)
 		{
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 				gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 			else
 				gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
-			SDL_FillRect(bmp, NULL, 0);
+            bmp.fill(0);
 			tex_cache_name.clear();
 			gltex.clear();
 			int nb_sprites = 0;
@@ -422,8 +422,8 @@ namespace TA3D
 						int f = e % texture_manager.tex[index_tex[i]].nb_bmp;
 						blit(texture_manager.tex[index_tex[i]].bmp[f], bmp,
 							 0, 0, px[i], py[i],
-							 texture_manager.tex[index_tex[i]].bmp[f]->w,
-							 texture_manager.tex[index_tex[i]].bmp[f]->h);
+                             texture_manager.tex[index_tex[i]].bmp[f].width(),
+                             texture_manager.tex[index_tex[i]].bmp[f].height());
 					}
 					cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
                     if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
@@ -434,8 +434,6 @@ namespace TA3D
 		}
 		else
 			gltex.clear();
-		if (bmp)
-			SDL_FreeSurface(bmp);
 
 		int nb_total_point = 0;
 		for (i = 0; i < nb_t_index; ++i)
@@ -515,14 +513,14 @@ namespace TA3D
 					switch (e & 3)
 					{
 					case 1:
-						tcoord[curt]     += (float)(texture_manager.tex[tex[i]].bmp[0]->w - 1) / float(mx - 1);
+                        tcoord[curt]     += (float)(texture_manager.tex[tex[i]].bmp[0].width() - 1) / float(mx - 1);
 						break;
 					case 2:
-						tcoord[curt]     += (float)(texture_manager.tex[tex[i]].bmp[0]->w - 1) / float(mx - 1);
-						tcoord[curt + 1] += (float)(texture_manager.tex[tex[i]].bmp[0]->h - 1) / float(my - 1);
+                        tcoord[curt]     += (float)(texture_manager.tex[tex[i]].bmp[0].width() - 1) / float(mx - 1);
+                        tcoord[curt + 1] += (float)(texture_manager.tex[tex[i]].bmp[0].height() - 1) / float(my - 1);
 						break;
 					case 3:
-						tcoord[curt + 1] += (float)(texture_manager.tex[tex[i]].bmp[0]->h - 1) / float(my - 1);
+                        tcoord[curt + 1] += (float)(texture_manager.tex[tex[i]].bmp[0].height() - 1) / float(my - 1);
 						break;
 					};
 					tcoord[curt]     += ((float)px[indx] + 0.5f) / float(mx - 1);
@@ -573,7 +571,7 @@ namespace TA3D
 		return 0;
 	}
 
-	void Mesh3DO::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
+    void Mesh3DO::create_from_2d(QImage bmp,float w,float h,float max_h)
 	{
 		destroy(); // Au cas où l'objet ne serait pas vierge
 
@@ -655,9 +653,9 @@ namespace TA3D
 				uint32 c = 0;
 				uint32 n = 0;
 				bool zero = false;
-				for (int py = y * bmp->h >> 3 ; py < (y + 1) * bmp->h >> 3 && !zero ; ++py)
+				for (int py = y * bmp.height() >> 3 ; py < (y + 1) * bmp.height() >> 3 && !zero ; ++py)
 				{
-					for (int px = x * bmp->w >> 3 ; px < (x + 1) * bmp->w >> 3 && !zero ; ++px)
+					for (int px = x * bmp.width() >> 3 ; px < (x + 1) * bmp.width() >> 3 && !zero ; ++px)
 					{
 						uint32 pc = SurfaceInt(bmp, px, py);
 						c += getr(pc) + getg(pc) + getb(pc);
@@ -1024,7 +1022,7 @@ namespace TA3D
 		return ".3do";
 	}
 
-	void Model::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h)
+    void Model::create_from_2d(QImage bmp,float w,float h,float max_h)
 	{
 		Mesh3DO *pMesh = new Mesh3DO;
 		pMesh->create_from_2d(bmp,w,h,max_h);

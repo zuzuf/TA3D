@@ -106,21 +106,19 @@ namespace TA3D
 				else		// Fixed pipeline
 				{
 					// Get the RED channel
-					SDL_Surface *bmp = gfx->load_image(textureName);
-					if (bmp)
+                    QImage bmp = gfx->load_image(textureName);
+                    if (!bmp.isNull())
 					{
-						if (std::max(bmp->w, bmp->h) > lp_CONFIG->getMaxTextureSizeAllowed())
+						if (std::max(bmp.width(), bmp.height()) > lp_CONFIG->getMaxTextureSizeAllowed())
 						{
 							const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
-							SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h, maxTextureSizeAllowed));
-							SDL_FreeSurface(bmp);
-							bmp = tmp;
+                            bmp = shrink(bmp, std::min(bmp.width(), maxTextureSizeAllowed), std::min(bmp.height(), maxTextureSizeAllowed));
 						}
 
-						SDL_Surface *red = gfx->create_surface_ex(8, bmp->w, bmp->h);
+						QImage red = gfx->create_surface_ex(8, bmp.width(), bmp.height());
 
-						for(int y = 0 ; y < bmp->h ; ++y)
-							for(int x = 0 ; x < bmp->w ; ++x)
+						for(int y = 0 ; y < bmp.height() ; ++y)
+							for(int x = 0 ; x < bmp.width() ; ++x)
 								SurfaceByte(red, x, y) = getr32(getpixel(bmp, x, y));
 
 						gfx->set_texture_format(GL_LUMINANCE8);
@@ -128,9 +126,6 @@ namespace TA3D
 						if (tex)
 							gltex.push_back(tex);
 						gfx->set_texture_format(0);
-
-						SDL_FreeSurface(red);
-						SDL_FreeSurface(bmp);
 					}
 				}
 			}

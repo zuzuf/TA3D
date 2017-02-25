@@ -57,9 +57,9 @@ namespace TA3D
 		MutexLocker locker(pMutex);
 
 		dsmoke = true;
-		if (NULL == partbmp)
+        if (partbmp.isNull())
 			partbmp = gfx->create_surface_ex(32, 256, 256);
-		SDL_Surface* bmp;
+		QImage bmp;
         if (!filealpha.isEmpty())
 			bmp = GFX::LoadMaskedTextureToBmp(file, filealpha); // Avec canal alpha séparé
 		else
@@ -67,10 +67,9 @@ namespace TA3D
 
 		gltex.push_back(gfx->make_texture(bmp));
 
-		stretch_blit(bmp, partbmp, 0,0, bmp->w, bmp->h, 64 * (ntex & 3), 64 * (ntex >> 2), 64, 64);
+		stretch_blit(bmp, partbmp, 0,0, bmp.width(), bmp.height(), 64 * (ntex & 3), 64 * (ntex >> 2), 64, 64);
 		++ntex;
-		SDL_FreeSurface(bmp);
-		gfx->destroy_texture(parttex);
+        gfx->destroy_texture(parttex);
 		gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 		parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
 
@@ -836,18 +835,17 @@ namespace TA3D
 		p_wind_dir = NULL;
 		p_g = NULL;
 		dsmoke=load;
-		ntex=0;
-		partbmp=NULL;
+        ntex = 0;
+        partbmp = QImage();
 
 		if (load)
 		{
 			partbmp = gfx->create_surface_ex(32,256,256);
-			SDL_Surface* bmp = gfx->load_image("gfx/smoke.tga");
+			QImage bmp = gfx->load_image("gfx/smoke.tga");
 
 			gltex.push_back(gfx->make_texture(bmp));
-			stretch_blit(bmp, partbmp, 0, 0, bmp->w, bmp->h, 0, 0, 64, 64);
+			stretch_blit(bmp, partbmp, 0, 0, bmp.width(), bmp.height(), 0, 0, 64, 64);
 			ntex = 1;
-			SDL_FreeSurface(bmp);
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 			parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
 		}
@@ -874,9 +872,7 @@ namespace TA3D
 
 		particle_systems.clear();
 
-		if (partbmp)
-			SDL_FreeSurface(partbmp);
-		partbmp = NULL;
+        partbmp = QImage();
 		ntex = 0;
 		gfx->destroy_texture(parttex);
 		dsmoke = false;

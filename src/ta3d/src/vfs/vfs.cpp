@@ -440,19 +440,21 @@ namespace UTILS
 		return (uint32)archives.size();
 	}
 
-	bool load_palette(SDL_Color *pal, const QString& filename)
+    bool load_palette(QVector<QRgb> &pal, const QString& filename)
 	{
         QIODevice* palette = VFS::Instance()->readFile(filename);
 		if (palette == NULL)
 			return false;
 
+        pal.resize(256);
 		for (int i = 0; i < 256; ++i)
 		{
-            palette->getChar((char*)&(pal[i].r));
-            palette->getChar((char*)&(pal[i].g));
-            palette->getChar((char*)&(pal[i].b));
-            char c;
-            palette->getChar(&c);
+            char r, g, b, a;
+            palette->getChar(&r);
+            palette->getChar(&g);
+            palette->getChar(&b);
+            palette->getChar(&a);
+            pal[i] = qRgb(r, g, b);
 		}
 		delete palette;
 		return true;

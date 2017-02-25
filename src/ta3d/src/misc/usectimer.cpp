@@ -7,6 +7,6 @@ namespace TA3D
 	{
 		struct timeval tv;
         gettimeofday(&tv, nullptr);
-		return uint64(tv.tv_sec) * 1000000 + tv.tv_usec;
+        return uint64(tv.tv_sec) * 1000000UL + tv.tv_usec;
 	}
 }

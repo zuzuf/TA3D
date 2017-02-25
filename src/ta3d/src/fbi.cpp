@@ -186,15 +186,14 @@ namespace TA3D
                     QIODevice* gaf_file = VFS::Instance()->readFile( *it );
 					if (gaf_file)
 					{
-						SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
-						if (img)
+                        QImage img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+                        if (!img.isNull())
 						{
 							if (w)
-								*w = img->w;
+								*w = img.width();
 							if (h)
-								*h = img->h;
+								*h = img.height();
 							tex = gfx->make_texture(img, FILTER_LINEAR);
-							SDL_FreeSurface(img);
 						}
 
 						delete gaf_file;
@@ -282,12 +281,11 @@ namespace TA3D
 				if (!unit_type[unit_index]->canBuild(idx))
 				{
                     GLuint tex = loadBuildPic( "anims/" + unitname + "_gadget.gaf", unitname);
-					if (!tex && !unit_type[idx]->glpic && unit_type[idx]->unitpic)
+                    if (!tex && !unit_type[idx]->glpic && !unit_type[idx]->unitpic.isNull())
 					{
 						gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 						unit_type[idx]->glpic = gfx->make_texture(unit_type[idx]->unitpic, FILTER_LINEAR, true);
-						SDL_FreeSurface(unit_type[idx]->unitpic);
-						unit_type[idx]->unitpic = NULL;
+                        unit_type[idx]->unitpic = QImage();
 					}
 					if (tex || unit_type[idx]->glpic)
 						unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
@@ -380,11 +378,10 @@ namespace TA3D
 					if (!unit_type[i]->canBuild(idx))		// Check if it's already in the list
 					{
                         GLuint tex = loadBuildPic( "anims/" + canbuild + "_gadget", canbuild);
-						if (!tex && !unit_type[idx]->glpic && unit_type[idx]->unitpic)
+                        if (!tex && !unit_type[idx]->glpic && !unit_type[idx]->unitpic.isNull())
 						{
 							unit_type[idx]->glpic = gfx->make_texture(unit_type[idx]->unitpic, FILTER_LINEAR, true);
-							SDL_FreeSurface(unit_type[idx]->unitpic);
-							unit_type[idx]->unitpic = NULL;
+                            unit_type[idx]->unitpic = QImage();
 							gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 						}
 						if (unit_type[idx]->glpic || tex)
@@ -466,8 +463,7 @@ namespace TA3D
 
 		yardmap.clear();
 		model = NULL;
-		if (unitpic)
-			SDL_FreeSurface(unitpic);
+        unitpic = QImage();
 		gfx->destroy_texture(glpic);
 		Corpse.clear();
 		Unitname.clear();
@@ -524,7 +520,7 @@ namespace TA3D
 		attackrunlength = 0;
 		yardmap.clear();
 		model = NULL;
-		unitpic = NULL;
+        unitpic = QImage();
 		glpic = 0;
 		hoverattack = false;
 		SortBias = 0;
@@ -645,12 +641,11 @@ namespace TA3D
 		Gui::GUIOBJ::Ptr image = Gui::AREA::current()->get_object("unit_info.unitpic");
 		if (image)
 		{
-			if (unitpic)
+            if (!unitpic.isNull())
 			{
 				gfx->set_texture_format(GL_RGB5);
 				glpic = gfx->make_texture(unitpic, FILTER_LINEAR);
-				SDL_FreeSurface(unitpic);
-				unitpic = NULL;
+                unitpic = QImage();
 			}
 			image->x1 = 10;
 			image->y1 = 40;

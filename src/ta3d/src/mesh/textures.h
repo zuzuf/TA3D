@@ -27,7 +27,7 @@ namespace TA3D
 
         GLuint get_gl_texture(const QString& texture_name, const int frame = 0);
 
-        SDL_Surface *get_bmp_texture(const QString& texture_name, const int frame = 0);
+        QImage get_bmp_texture(const QString& texture_name, const int frame = 0);
 
         void load_gaf(QIODevice *data, bool logo);
 		void load_gaf(const QString &filename, bool logo);

@@ -98,7 +98,7 @@ namespace TA3D
     public:
 
         int load(QIODevice *file, int dec = 0, const QString &filename = QString());
-        void create_from_2d(SDL_Surface *bmp,float w,float h,float max_h);
+        void create_from_2d(QImage bmp,float w,float h,float max_h);
 
 		virtual bool draw(float t, AnimationData *data_s = NULL, bool sel_primitive = false, bool alset = false, bool notex = false, int side = 0, bool chg_col = true, bool exploding_parts = false);
         virtual bool draw_nodl(bool alset = false);

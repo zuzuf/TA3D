@@ -2367,14 +2367,13 @@ namespace TA3D
 
 			if (shoot)
 			{
-				SDL_Surface *shoot_bmp = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
+				QImage shoot_bmp = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
 				glReadBuffer(GL_BACK);
-				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp->pixels);
+                glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp.bits());
 				vflip_bitmap(shoot_bmp);
-                QString name = QString::asprintf("ta3d-shoot%.6d.tga", nb_shoot);
+                QString name = QString::asprintf("ta3d-shoot%.6d.png", nb_shoot);
 				nb_shoot = (nb_shoot + 1) % 1000000;
                 save_bitmap(TA3D::Paths::Screenshots + name, shoot_bmp);
-				SDL_FreeSurface(shoot_bmp);
 				shoot = false;
 			}
 

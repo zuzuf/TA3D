@@ -71,11 +71,10 @@ namespace TA3D
 
 	int CAPI::zshoot(lua_State *)
 	{
-		SDL_Surface *bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
-		SDL_FillRect(bmp, NULL, 0);
-		glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->pixels);
+		QImage bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
+        bmp.fill(0);
+		glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp.bits());
         //                        save_bitmap(QString(TA3D::Paths::Screenshots) << "z.tga",bmp);
-		SDL_FreeSurface(bmp);
 		return 0;
 	}
 

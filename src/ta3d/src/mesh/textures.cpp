@@ -46,10 +46,10 @@ namespace TA3D
 	}
 
 
-	SDL_Surface* TEXTURE_MANAGER::get_bmp_texture(const QString& texture_name, const int frame)
+	QImage TEXTURE_MANAGER::get_bmp_texture(const QString& texture_name, const int frame)
 	{
 		int index = get_texture_index(texture_name);
-		return (index== -1) ? NULL : tex[index].bmp[frame];
+        return (index == -1) ? QImage() : tex[index].bmp[frame];
 	}
 
 
@@ -61,7 +61,7 @@ namespace TA3D
 		for (int i = 0; i < 256; ++i)
 		{
 			tex[i].nb_bmp = 1;
-			tex[i].bmp.resize(1, NULL);
+            tex[i].bmp.resize(1, QImage());
 			tex[i].glbmp.resize(1, 0);
 			tex[i].ofs_x.resize(1, 0);
 			tex[i].ofs_y.resize(1, 0);
@@ -74,7 +74,7 @@ namespace TA3D
 			tex[i].w[0] = 16;
 			tex[i].h[0] = 16;
 			tex[i].bmp[0] = gfx->create_surface_ex(32,16,16);
-			SDL_FillRect(tex[i].bmp[0], NULL, makeacol(pal[i].r, pal[i].g, pal[i].b, 0xFF));
+            tex[i].bmp[0].fill(pal[i]);
 
             tex_hashtable[tex[i].name] = i + 1;
 		}

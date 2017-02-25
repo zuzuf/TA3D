@@ -329,15 +329,14 @@ namespace TA3D
 			else
 				gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 
-            QString filename(TA3D::Paths::Caches + tex_cache_name[id]);
-			SDL_Surface *bmp = LoadTex( filename );
+            const QString &filename = TA3D::Paths::Caches + tex_cache_name[id];
+            const QImage &bmp = LoadTex( filename );
 
-			if (bmp)
+            if (!bmp.isNull())
 			{
 				GLuint texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
 				gltex[id] = texid;
-				gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp->w, bmp->h, true);
-				SDL_FreeSurface( bmp );
+                gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp.width(), bmp.height(), true);
 			}
 			else
 			{
@@ -1463,7 +1462,7 @@ namespace TA3D
 	}
 
 
-	void ModelManager::create_from_2d(SDL_Surface *bmp,float w,float h,float max_h,const QString& filename)
+    void ModelManager::create_from_2d(QImage bmp,float w,float h,float max_h,const QString& filename)
 	{
 		mInternals.lock();
 

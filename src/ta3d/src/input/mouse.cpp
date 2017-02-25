@@ -175,8 +175,8 @@ namespace TA3D
 		}
 		int dx = cursor[cursor_type].ofs_x[curseur];
 		int dy = cursor[cursor_type].ofs_y[curseur];
-		int sx = cursor[cursor_type].bmp[curseur]->w;
-		int sy = cursor[cursor_type].bmp[curseur]->h;
+        int sx = cursor[cursor_type].bmp[curseur].width();
+        int sy = cursor[cursor_type].bmp[curseur].height();
 		gfx->set_color(0xFFFFFFFF);
 		gfx->set_alpha_blending();
 		gfx->drawtexture(cursor[cursor_type].glbmp[curseur],

@@ -633,7 +633,7 @@ namespace TA3D
 		gltex.resize(NbTex);
 		for (int i = 0; i < NbTex; ++i)
 		{
-			SDL_Surface *tex;
+            QImage tex;
 			if (!compressed)
 			{
 				int tex_w;
@@ -642,7 +642,7 @@ namespace TA3D
                 READ(tex_h);
 
 				tex = gfx->create_surface_ex(32, tex_w, tex_h);
-				if (tex == NULL)
+                if (tex.isNull())
 				{
 					destroy();
 					file->close();
@@ -650,8 +650,8 @@ namespace TA3D
 				}
 				try
 				{
-					for (int y = 0; y < tex->h; ++y)
-						for (int x = 0; x < tex->w; ++x)
+                    for (int y = 0 ; y < tex.height() ; ++y)
+                        for (int x = 0 ; x < tex.width() ; ++x)
                             READ(SurfaceInt(tex, x, y));
 				}
 				catch(...)
@@ -677,8 +677,8 @@ namespace TA3D
                     file->read((char*)buffer, img_size);
 
 					tex = gfx->create_surface_ex( bpp, w, h );
-					uLongf len = tex->w * tex->h * tex->format->BytesPerPixel;
-					uncompress ( (Bytef*) tex->pixels, &len, (Bytef*) buffer, img_size);
+                    uLongf len = tex.byteCount();
+                    uncompress ( (Bytef*) tex.bits(), &len, (Bytef*) buffer, img_size);
 				}
 				catch( ... )
 				{
@@ -702,8 +702,6 @@ namespace TA3D
                     SaveTex( tex, TA3D::Paths::Caches + cache_filename );
 			}
 			tex_cache_name.push_back( cache_filename );
-
-			SDL_FreeSurface(tex);
 		}
 
 		if (Flag & SURFACE_GLSL) // Fragment & Vertex shaders

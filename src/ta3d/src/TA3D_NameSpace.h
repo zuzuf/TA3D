@@ -150,7 +150,7 @@ namespace TA3D
 		extern TA3D::IInterfaceManager::Ptr			InterfaceManager;
 		extern TA3D::GFX::Ptr						gfx;
 
-		extern SDL_Color							*pal;
+        extern QVector<QRgb>                        pal;
 		extern TA3D::TA3DCONFIG::Ptr				lp_CONFIG;
 
 		extern QString								TA3D_CURRENT_MOD;

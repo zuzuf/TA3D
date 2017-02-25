@@ -243,12 +243,11 @@ namespace Menus
 			int type_id = unit_manager.get_unit_index( UnitName );
 			if (type_id >= 0)
 			{
-				if (unit_manager.unit_type[type_id]->unitpic)
+                if (!unit_manager.unit_type[type_id]->unitpic.isNull())
 				{
 					gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 					unit_manager.unit_type[type_id]->glpic = gfx->make_texture(unit_manager.unit_type[type_id]->unitpic, FILTER_LINEAR);
-					SDL_FreeSurface(unit_manager.unit_type[type_id]->unitpic);
-					unit_manager.unit_type[type_id]->unitpic = NULL;
+                    unit_manager.unit_type[type_id]->unitpic = QImage();
 				}
 				pUnitPicObj->Data = unit_manager.unit_type[type_id]->glpic;
 

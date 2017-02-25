@@ -21,6 +21,9 @@
 #include "gfx.h"
 #include <QFile>
 #include <QDataStream>
+#include <QImageWriter>
+#include <QFileInfo>
+#include <QPainter>
 #include <misc/grid.h>
 
 namespace TA3D
@@ -40,473 +43,108 @@ namespace TA3D
 
 
 
-	SDL_Surface *convert_format(SDL_Surface *bmp)
+    void convert_format(QImage &bmp)
 	{
-		if (bmp->format->BitsPerPixel != 32
-			|| bmp->format->Rmask != 0x000000FF
-			|| bmp->format->Gmask != 0x0000FF00
-			|| bmp->format->Bmask != 0x00FF0000
-			|| bmp->format->Amask != 0xFF000000)
+        if (bmp.depth() != 32)
 		{
-			SDL_PixelFormat target_format;
-			target_format.palette = NULL;
-			target_format.BitsPerPixel = 32;
-			target_format.BytesPerPixel = 4;
-			target_format.Rloss = target_format.Gloss = target_format.Bloss = target_format.Aloss = 0;
-			target_format.Rmask = 0x000000FF;
-			target_format.Gmask = 0x0000FF00;
-			target_format.Bmask = 0x00FF0000;
-			target_format.Amask = 0xFF000000;
-			target_format.colorkey = 0x00FF00FF;
-			target_format.alpha = 0xFF;
-			target_format.Rshift = 0;
-			target_format.Gshift = 8;
-			target_format.Bshift = 16;
-			target_format.Ashift = 24;
+            if (bmp.depth() == 8 && use_TA_palette)
+                bmp.setColorTable(TA3D::VARS::pal);
 
-			if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
-				SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
-
-			SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
-			SDL_FreeSurface(bmp);
-			bmp = tmp;
+            bmp = bmp.convertToFormat(QImage::Format_RGBA8888);
 		}
-		return bmp;
 	}
 
-	SDL_Surface *convert_format_copy(SDL_Surface *bmp)
+    QImage convert_format_copy(const QImage &bmp)
 	{
-		SDL_PixelFormat target_format;
-		target_format.palette = NULL;
-		target_format.BitsPerPixel = 32;
-		target_format.BytesPerPixel = 4;
-		target_format.Rloss = target_format.Gloss = target_format.Bloss = target_format.Aloss = 0;
-		target_format.Rmask = 0x000000FF;
-		target_format.Gmask = 0x0000FF00;
-		target_format.Bmask = 0x00FF0000;
-		target_format.Amask = 0xFF000000;
-		target_format.colorkey = 0x00FF00FF;
-		target_format.alpha = 0xFF;
-		target_format.Rshift = 0;
-		target_format.Gshift = 8;
-		target_format.Bshift = 16;
-		target_format.Ashift = 24;
+        if (bmp.depth() != 32)
+        {
+//            if (bmp.depth() == 8 && use_TA_palette)
+//                bmp.setColorTable(TA3D::VARS::pal);
 
-		if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
-			SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
+            return bmp.convertToFormat(QImage::Format_RGBA8888);
+        }
+        return bmp;
+    }
 
-		SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
-
-		return tmp;
-	}
-
-	SDL_Surface *convert_format_24(SDL_Surface *bmp)
+    void convert_format_24(QImage &bmp)
 	{
-		if (bmp->format->BitsPerPixel != 24
-			|| bmp->format->Rmask != 0x000000FF
-			|| bmp->format->Gmask != 0x0000FF00
-			|| bmp->format->Bmask != 0x00FF0000)
+        if (bmp.depth() != 24)
 		{
-			SDL_PixelFormat target_format;
-			target_format.palette = NULL;
-			target_format.BitsPerPixel = 24;
-			target_format.BytesPerPixel = 3;
-			target_format.Rloss = target_format.Gloss = target_format.Bloss = 0;
-			target_format.Aloss = 8;
-			target_format.Rmask = 0x000000FF;
-			target_format.Gmask = 0x0000FF00;
-			target_format.Bmask = 0x00FF0000;
-			target_format.Amask = 0x00000000;
-			target_format.colorkey = 0x00FF00FF;
-			target_format.alpha = 0xFF;
-			target_format.Rshift = 0;
-			target_format.Gshift = 8;
-			target_format.Bshift = 16;
-			target_format.Ashift = 24;
+            if (bmp.depth() == 8 && use_TA_palette)
+                bmp.setColorTable(TA3D::VARS::pal);
 
-			if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
-				SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
-
-			SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
-			SDL_FreeSurface(bmp);
-			bmp = tmp;
+            bmp = bmp.convertToFormat(QImage::Format_RGB888);
 		}
-		return bmp;
 	}
 
-	SDL_Surface *convert_format_24_copy(SDL_Surface *bmp)
+    QImage convert_format_24_copy(const QImage &bmp)
 	{
-		SDL_PixelFormat target_format;
-		target_format.palette = NULL;
-		target_format.BitsPerPixel = 24;
-		target_format.BytesPerPixel = 3;
-		target_format.Rloss = target_format.Gloss = target_format.Bloss = 0;
-		target_format.Aloss = 8;
-		target_format.Rmask = 0x000000FF;
-		target_format.Gmask = 0x0000FF00;
-		target_format.Bmask = 0x00FF0000;
-		target_format.Amask = 0x00000000;
-		target_format.colorkey = 0x00FF00FF;
-		target_format.alpha = 0xFF;
-		target_format.Rshift = 0;
-		target_format.Gshift = 8;
-		target_format.Bshift = 16;
-		target_format.Ashift = 24;
+        if (bmp.depth() != 24)
+        {
+//            if (bmp.depth() == 8 && use_TA_palette)
+//                bmp.setColorTable(TA3D::VARS::pal);
 
-		if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
-			SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
+            return bmp.convertToFormat(QImage::Format_RGB888);
+        }
+        return bmp;
+    }
 
-		return SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
-	}
-
-	SDL_Surface *convert_format_16(SDL_Surface *bmp)
+    void convert_format_16(QImage &bmp)
 	{
-		if (bmp->format->BitsPerPixel != 16)
+        if (bmp.depth() != 16)
 		{
-			SDL_PixelFormat target_format;
-			target_format.palette = NULL;
-			target_format.BitsPerPixel = 16;
-			target_format.BytesPerPixel = 2;
-			target_format.Rloss = 3;
-			target_format.Gloss = 2;
-			target_format.Bloss = 3;
-			target_format.Aloss = 8;
-			target_format.Rmask = 0x0000001F;
-			target_format.Gmask = 0x000007E0;
-			target_format.Bmask = 0x0000F800;
-			target_format.Amask = 0x00000000;
-			target_format.colorkey = 0x0000F81F;
-			target_format.alpha = 0xFF;
-			target_format.Rshift = 0;
-			target_format.Gshift = 5;
-			target_format.Bshift = 11;
-			target_format.Ashift = 16;
+            if (bmp.depth() == 8 && use_TA_palette)
+                bmp.setColorTable(TA3D::VARS::pal);
 
-			if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
-				SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
-
-			SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
-			SDL_FreeSurface(bmp);
-			bmp = tmp;
+            bmp = bmp.convertToFormat(QImage::Format_RGB16);
 		}
-		return bmp;
 	}
 
-	SDL_Surface *convert_format_16_copy(SDL_Surface *bmp)
+    QImage convert_format_16_copy(const QImage &bmp)
 	{
-		SDL_PixelFormat target_format;
-		target_format.palette = NULL;
-		target_format.BitsPerPixel = 16;
-		target_format.BytesPerPixel = 2;
-		target_format.Rloss = 3;
-		target_format.Gloss = 2;
-		target_format.Bloss = 3;
-		target_format.Aloss = 8;
-		target_format.Rmask = 0x0000001F;
-		target_format.Gmask = 0x000007E0;
-		target_format.Bmask = 0x0000F800;
-		target_format.Amask = 0x00000000;
-		target_format.colorkey = 0x0000F81F;
-		target_format.alpha = 0xFF;
-		target_format.Rshift = 0;
-		target_format.Gshift = 5;
-		target_format.Bshift = 11;
-		target_format.Ashift = 16;
+        if (bmp.depth() != 16)
+        {
+//            if (bmp.depth() == 8 && use_TA_palette)
+//                bmp.setColorTable(TA3D::VARS::pal);
 
-		if (bmp->format->BitsPerPixel == 8 && use_TA_palette)
-			SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
+            return bmp.convertToFormat(QImage::Format_RGB16);
+        }
+        return bmp;
+    }
 
-		return SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
+    void blit(const QImage &in, QImage &out, int x0, int y0, int x1, int y1, int w, int h)
+	{
+        QPainter painter(&out);
+        painter.drawImage(x1, y1, in, x0, y0, w, h);
 	}
 
-	void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h)
+    void masked_blit(const QImage &in, QImage &out, int x0, int y0, int x1, int y1, int w, int h)
 	{
-		SDL_Surface *tmp = in;
-		if (in->format->BitsPerPixel != out->format->BitsPerPixel)
-		{
-			if (in->format->BitsPerPixel == 8 && use_TA_palette)
-				SDL_SetPalette(in, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
-
-			tmp = SDL_ConvertSurface(in, out->format, SDL_SWSURFACE);
-		}
-
-		SDL_LockSurface(tmp);
-		SDL_LockSurface(out);
-
-		int sx = x0;
-		int dx = x1;
-		int cw = w;
-		if (sx < 0)
-		{
-			dx -= sx;
-			cw += sx;
-			sx = 0;
-		}
-		if (dx < 0)
-		{
-			sx -= dx;
-			cw += dx;
-			dx = 0;
-		}
-
-		if (sx < tmp->w && dx < out->w)
-		{
-			sx *= tmp->format->BytesPerPixel;
-			dx *= tmp->format->BytesPerPixel;
-			cw *= tmp->format->BytesPerPixel;
-			for(int y = 0 ; y < h ; y++)
-			{
-				int dy = y1 + y;
-				int sy = y + y0;
-				if (dy < 0 || dy >= out->h || sy < 0 || sy >= tmp->h)    continue;
-				dy *= out->pitch;
-				sy *= tmp->pitch;
-
-				memcpy( ((byte*)out->pixels) + dy + dx, ((byte*)tmp->pixels) + sy + sx, cw);
-			}
-		}
-
-		SDL_UnlockSurface(tmp);
-		SDL_UnlockSurface(out);
-
-		if (in->format->BitsPerPixel != out->format->BitsPerPixel)
-			SDL_FreeSurface(tmp);
+        QPainter painter(&out);
+        painter.drawImage(x1, y1, in, x0, y0, w, h);
 	}
 
-	void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h)
+    void stretch_blit( const QImage &in, QImage &out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
 	{
-		SDL_LockSurface(in);
-		SDL_LockSurface(out);
-		for(int y = 0 ; y < h ; ++y)
-		{
-			const int dy = (y1 + y) * out->pitch;
-			const int sy = (y + y0) * in->pitch;
-			for(int x = 0 ; x < w ; ++x)
-			{
-				const int sx = x + x0;
-				const int dx = x1 + x;
-				byte b = ((byte*)in->pixels)[sy + sx];
-				if (b)
-					((byte*)out->pixels)[dy + dx] = b;
-			}
-		}
-		SDL_UnlockSurface(in);
-		SDL_UnlockSurface(out);
+        QPainter painter(&out);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+        painter.drawImage(QRect(x1, y1, w1, h1), in, QRect(x0, y0, w0, h0));
 	}
 
-	void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
+    void stretch_blit_smooth(const QImage &in, QImage &out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
 	{
-		sint32 dw = (w0 << 16) / w1;
-		sint32 dh = (h0 << 16) / h1;
-		int dy = y1 * out->pitch;
-		switch(in->format->BitsPerPixel)
-		{
-			case 8:
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int sy = (y0 + (y * dh >> 16)) * in->pitch;
-					byte *d = ((byte*)out->pixels) + x1 + dy;
-					int sx = (sy + x0) << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						*d = ((byte*)in->pixels)[sx >> 16];
-						d++;
-						sx += dw;
-					}
-					dy += out->pitch;
-				}
-				break;
-			case 16:
-				dy >>= 1;
-				x1 >>= 1;
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int sy = (y0 + (y * dh >> 16)) * in->pitch >> 1;
-					uint16 *d = ((uint16*)out->pixels) + dy + x1;
-					int sx = (sy + x0) << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						*d = ((uint16*)in->pixels)[sx >> 16];
-						d++;
-						sx += dw;
-					}
-					dy += out->pitch >> 1;
-				}
-				break;
-			case 24:
-				x1 *= 3;
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int sy = (y0 + (y * dh >> 16)) * in->pitch;
-					byte *d = ((byte*)out->pixels) + dy + x1;
-					int sx = x0 << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						byte *ref = ((byte*)in->pixels) + sy + (sx >> 16) * 3;
-						*(d++) = *(ref++);
-						*(d++) = *(ref++);
-						*(d++) = *(ref++);
-						sx += dw;
-					}
-					dy += out->pitch;
-				}
-				break;
-			case 32:
-				x1 <<= 2;
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int sy = (y0 + (y * dh >> 16)) * in->pitch;
-					uint32 *d = (uint32*) (((byte*)out->pixels) + dy + x1);
-					int sx = x0 << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						*d++ = *(uint32*)(((byte*)in->pixels) + sy + ((sx >> 16) << 2));
-						sx += dw;
-					}
-					dy += out->pitch;
-				}
-				break;
-		};
+        QPainter painter(&out);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter.drawImage(QRect(x1, y1, w1, h1), in, QRect(x0, y0, w0, h0));
 	}
 
-	void stretch_blit_smooth( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
+    QImage shrink(const QImage &in, const int w, const int h)
 	{
-		w0--;
-		h0--;
-		sint32 dw = (w0 << 16) / w1;
-		sint32 dh = (h0 << 16) / h1;
-		int dy = y1 * out->pitch;
-		switch(in->format->BitsPerPixel)
-		{
-			case 8:
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int gy = y * dh;
-					const int sy = (y0 + (gy >> 16)) * in->pitch;
-					byte *d = ((byte*)out->pixels) + x1 + dy;
-					int sx = (sy + x0) << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						byte *ref = ((byte*)in->pixels) + (sx >> 16);
-						int c0 = *ref++, c1, c2, c3;
-						c1 = *ref;
-						ref += in->pitch - 1;
-						c2 = *ref++;
-						c3 = *ref;
-
-						c0 += (c1 - c0) * (sx & 0xFFFF) >> 16;
-						c2 += (c3 - c2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(c0 + ((c2 - c0) * (gy & 0xFFFF) >> 16));
-						sx += dw;
-					}
-					dy += out->pitch;
-				}
-				break;
-			case 16:
-				LOG_DEBUG(LOG_PREFIX_GFX << "stretch_blit_smooth doesn't support 16 bits images");
-				break;
-			case 24:
-				x1 *= 3;
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int gy = y * dh;
-					const int sy = (y0 + (gy >> 16)) * in->pitch;
-					byte *d = ((byte*)out->pixels) + dy + x1;
-					int sx = x0 << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						byte *ref = ((byte*)in->pixels) + sy + (sx >> 16) * 3;
-						int r0 = *ref++, r1, r2, r3;
-						int g0 = *ref++, g1, g2, g3;
-						int b0 = *ref++, b1, b2, b3;
-						r1 = *ref++;
-						g1 = *ref++;
-						b1 = *ref;
-						ref += in->pitch - 5;
-						r2 = *ref++;
-						g2 = *ref++;
-						b2 = *ref++;
-						r3 = *ref++;
-						g3 = *ref++;
-						b3 = *ref;
-
-						r0 += (r1 - r0) * (sx & 0xFFFF) >> 16;
-						r2 += (r3 - r2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16));
-
-						g0 += (g1 - g0) * (sx & 0xFFFF) >> 16;
-						g2 += (g3 - g2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16));
-
-						b0 += (b1 - b0) * (sx & 0xFFFF) >> 16;
-						b2 += (b3 - b2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16));
-						sx += dw;
-					}
-					dy += out->pitch;
-				}
-				break;
-			case 32:
-				x1 <<= 2;
-				for(int y = 0 ; y < h1 ; y++)
-				{
-					const int gy = y * dh;
-					const int sy = (y0 + (gy >> 16)) * in->pitch;
-					byte *d = ((byte*)out->pixels) + dy + x1;
-					int sx = x0 << 16;
-					for(int x = 0 ; x < w1 ; x++)
-					{
-						byte *ref = ((byte*)in->pixels) + sy + ((sx >> 16) << 2);
-
-						int r0 = *ref++, r1, r2, r3;
-						int g0 = *ref++, g1, g2, g3;
-						int b0 = *ref++, b1, b2, b3;
-						int a0 = *ref++, a1, a2, a3;
-						r1 = *ref++;
-						g1 = *ref++;
-						b1 = *ref++;
-						a1 = *ref;
-						ref += in->pitch - 7;
-						r2 = *ref++;
-						g2 = *ref++;
-						b2 = *ref++;
-						a2 = *ref++;
-						r3 = *ref++;
-						g3 = *ref++;
-						b3 = *ref++;
-						a3 = *ref;
-
-						r0 += (r1 - r0) * (sx & 0xFFFF) >> 16;
-						r2 += (r3 - r2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(r0 + ((r2 - r0) * (gy & 0xFFFF) >> 16));
-
-						g0 += (g1 - g0) * (sx & 0xFFFF) >> 16;
-						g2 += (g3 - g2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(byte(g0 + ((g2 - g0) * (gy & 0xFFFF) >> 16)));
-
-						b0 += (b1 - b0) * (sx & 0xFFFF) >> 16;
-						b2 += (b3 - b2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(b0 + ((b2 - b0) * (gy & 0xFFFF) >> 16));
-
-						a0 += (a1 - a0) * (sx & 0xFFFF) >> 16;
-						a2 += (a3 - a2) * (sx & 0xFFFF) >> 16;
-						*d++ = byte(a0 + ((a2 - a0) * (gy & 0xFFFF) >> 16));
-
-						sx += dw;
-					}
-					dy += out->pitch;
-				}
-				break;
-		};
-	}
-
-	SDL_Surface *shrink(const SDL_Surface *in, const int w, const int h)
-	{
-		SDL_Surface *tmp = gfx->create_surface_ex(in->format->BitsPerPixel, in->w, in->h);
-		SDL_Surface *out = gfx->create_surface_ex(in->format->BitsPerPixel, w, h);
+        QImage tmp = gfx->create_surface_ex(in.depth(), in.width(), in.height());
+        QImage out = gfx->create_surface_ex(in.depth(), w, h);
 		// Gaussian blur pass to remove HF components
-		const float sigx = float(in->w) / float(w) - 1.0f;
-		const float sigy = float(in->h) / float(h) - 1.0f;
+        const float sigx = float(in.width()) / float(w) - 1.0f;
+        const float sigy = float(in.height()) / float(h) - 1.0f;
 		const int sx = static_cast<int>((sigx + 1.0f) * 2.0f);
 		const int sy = static_cast<int>((sigy + 1.0f) * 2.0f);
 		const int sx2 = 2 * sx - 1;
@@ -544,26 +182,26 @@ namespace TA3D
 			for(int i = 0 ; i < sy ; ++i)
 				kerY[i] = i == 0 ? 0x10000U : 0U;
 
-		const int twm1 = tmp->w - 1;
-		const int thm1 = tmp->h - 1;
-		const int owm1 = out->w - 1;
-		const int ohm1 = out->h - 1;
+        const int twm1 = tmp.width() - 1;
+        const int thm1 = tmp.height() - 1;
+        const int owm1 = out.width() - 1;
+        const int ohm1 = out.height() - 1;
 		const uint32 mx = 0x10000U * twm1 / owm1;
 		const uint32 my = 0x10000U * thm1 / ohm1;
 
-		switch(in->format->BitsPerPixel)
+        switch(in.depth())
 		{
 		case 24:
-            parallel_for<int>(0, in->h, [&](const int y)
+            parallel_for<int>(0, in.height(), [&](const int y)
 			{
-				for(int	x = 0 ; x < out->w ; ++x)
+                for(int	x = 0 ; x < out.width() ; ++x)
 				{
 					const int X = x * mx >> 16;
-					byte *p = (byte*)tmp->pixels + y * tmp->pitch + X * 3;
+                    byte *p = (byte*)tmp.scanLine(y) + X * 3;
 					uint32 col[3] = { 0U, 0U, 0U };
 					const int start = std::max(-sx + 1, -X);
-					const int end = std::min(sx, in->w - X);
-					byte *c = (byte*)in->pixels + y * in->pitch + (X + start) * 3;
+                    const int end = std::min(sx, in.width() - X);
+                    byte *c = (byte*)in.scanLine(y) + (X + start) * 3;
 					if (end - start == sx2)
 					{
 						for(int i = -sx + 1 ; i < sx ; ++i, c += 3)
@@ -594,20 +232,20 @@ namespace TA3D
 					}
 				}
             });
-            parallel_for<int>(0, out->w, [&](const int x)
+            parallel_for<int>(0, out.width(), [&](const int x)
 			{
 				const int X = x * mx >> 16;
-				byte *p = (byte*)out->pixels + x * 3;
-				for(int	y = 0 ; y < out->h ; ++y, p += out->pitch)
+                byte *p = (byte*)out.scanLine(0) + x * 3;
+                for(int	y = 0 ; y < out.height() ; ++y, p += out.bytesPerLine())
 				{
 					const int Y = y * my >> 16;
 					uint32 col[3] = { 0U, 0U, 0U };
 					const int start = std::max(-sy + 1, -Y);
-					const int end = std::min(sy, in->h - Y);
-					byte *c = (byte*)tmp->pixels + (Y + start) * tmp->pitch + X * 3;
+                    const int end = std::min(sy, in.height() - Y);
+                    byte *c = (byte*)tmp.scanLine(Y + start) + X * 3;
 					if (end - start == sy2)
 					{
-						for(int i = -sy + 1 ; i < sy ; ++i, c += tmp->pitch)
+                        for(int i = -sy + 1 ; i < sy ; ++i, c += tmp.bytesPerLine())
 						{
 							const uint32 f = kerY[abs(i)];
 							col[0] += f * c[0];
@@ -621,7 +259,7 @@ namespace TA3D
 					else
 					{
 						uint32 sum = 0U;
-						for(int i = start ; i < end ; ++i, c += tmp->pitch)
+                        for(int i = start ; i < end ; ++i, c += tmp.bytesPerLine())
 						{
 							const uint32 f = kerY[abs(i)];
 							col[0] += f * c[0];
@@ -637,16 +275,16 @@ namespace TA3D
             });
 			break;
 		case 32:
-            parallel_for<int>(0, in->h, [&](const int y)
+            parallel_for<int>(0, in.height(), [&](const int y)
 			{
-				for(int	x = 0 ; x < out->w ; ++x)
+                for(int	x = 0 ; x < out.width() ; ++x)
 				{
 					const int X = x * mx >> 16;
-					byte *p = (byte*)tmp->pixels + y * tmp->pitch + (X << 2);
+                    byte *p = (byte*)tmp.scanLine(y) + (X << 2);
 					uint32 col[4] = { 0U, 0U, 0U, 0U };
 					const int start = std::max(-sx + 1, -X);
-					const int end = std::min(sx, in->w - X);
-					byte *c = (byte*)in->pixels + y * in->pitch + ((X + start) << 2);
+                    const int end = std::min(sx, in.width() - X);
+                    byte *c = (byte*)in.scanLine(y) + ((X + start) << 2);
 					if (end - start == sx2)
 					{
 						for(int i = -sx + 1 ; i < sx ; ++i, c += 4)
@@ -681,20 +319,20 @@ namespace TA3D
 					}
 				}
             });
-            parallel_for<int>(0, out->w, [&](const int x)
+            parallel_for<int>(0, out.width(), [&](const int x)
 			{
 				const int X = x * mx >> 16;
-				byte *p = (byte*)out->pixels + (x << 2);
-				for(int	y = 0 ; y < out->h ; ++y, p += out->pitch)
+                byte *p = (byte*)out.scanLine(0) + (x << 2);
+                for(int	y = 0 ; y < out.height() ; ++y, p += out.bytesPerLine())
 				{
 					const int Y = y * my >> 16;
 					uint32 col[4] = { 0U, 0U, 0U, 0U };
 					const int start = std::max(-sy + 1, -Y);
-					const int end = std::min(sy, in->h - Y);
-					byte *c = (byte*)tmp->pixels + (Y + start) * tmp->pitch + (X << 2);
+                    const int end = std::min(sy, in.height() - Y);
+                    byte *c = (byte*)tmp.scanLine(Y + start) + (X << 2);
 					if (end - start == sy2)
 					{
-						for(int i = -sy + 1 ; i < sy ; ++i, c += tmp->pitch)
+                        for(int i = -sy + 1 ; i < sy ; ++i, c += tmp.bytesPerLine())
 						{
 							const uint32 f = kerY[abs(i)];
 							col[0] += f * c[0];
@@ -710,7 +348,7 @@ namespace TA3D
 					else
 					{
 						uint32 sum = 0U;
-						for(int i = start ; i < end ; ++i, c += tmp->pitch)
+                        for(int i = start ; i < end ; ++i, c += tmp.bytesPerLine())
 						{
 							const uint32 f = kerY[abs(i)];
 							col[0] += f * c[0];
@@ -728,20 +366,19 @@ namespace TA3D
             });
 			break;
 		}
-		SDL_FreeSurface(tmp);
 		return out;
 	}
 
-	inline void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
+    inline void putpixel(QImage &bmp, int x, int y, uint32 col)
 	{
-		if (x < 0 || y < 0 || x >= bmp->w || y >= bmp->h)   return;
-		switch(bmp->format->BitsPerPixel)
+        if (x < 0 || y < 0 || x >= bmp.width() || y >= bmp.height())   return;
+        switch(bmp.depth())
 		{
 			case 8:
 				SurfaceByte(bmp, x, y) = byte(col);
 				break;
 			case 16:
-				(((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]) = uint16(col);
+                SurfaceShort(bmp, x, y) = uint16(col);
 				break;
 			case 24:
 				SurfaceByte(bmp, x * 3, y) = getb32(col);
@@ -754,15 +391,15 @@ namespace TA3D
 		};
 	}
 
-	uint32 getpixel(SDL_Surface *bmp, int x, int y)
+    uint32 getpixel(const QImage &bmp, int x, int y)
 	{
-		if (x < 0 || y < 0 || x >= bmp->w || y >= bmp->h)   return 0;
-		switch(bmp->format->BitsPerPixel)
+        if (x < 0 || y < 0 || x >= bmp.width()|| y >= bmp.height())   return 0;
+        switch(bmp.depth())
 		{
 			case 8:
 				return SurfaceByte(bmp, x, y);
 			case 16:
-				return (((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]);
+                return SurfaceShort(bmp, x, y);
 			case 24:
 				{
 					const int b = SurfaceByte(bmp, x * 3, y);
@@ -776,20 +413,20 @@ namespace TA3D
 		return 0;
 	}
 
-	void circlefill(SDL_Surface *bmp, int x, int y, int r, const uint32 col)
+    void circlefill(QImage &bmp, int x, int y, int r, const uint32 col)
 	{
 		const int r2 = r * r;
 		const int my = Math::Max(-r, -y);
-		const int My = Math::Min(r, bmp->h - 1 - y);
-		switch(bmp->format->BitsPerPixel)
+        const int My = Math::Min(r, bmp.height() - 1 - y);
+        switch(bmp.depth())
 		{
 			case 8:
 				for (int sy = my ; sy <= My ; ++sy)
 				{
 					const int dx = int(sqrtf(float(r2 - sy * sy)));
 					const int ax = Math::Max(x - dx, 0);
-					const int bx = Math::Min(x + dx, bmp->w - 1);
-					memset((byte*)bmp->pixels + ax + (y + sy) * bmp->pitch, col, bx - ax + 1);
+                    const int bx = Math::Min(x + dx, bmp.width() - 1);
+                    memset((byte*)bmp.scanLine(y + sy) + ax, col, bx - ax + 1);
 				}
 				break;
 			case 16:
@@ -799,8 +436,8 @@ namespace TA3D
 					{
 						const int dx = int(sqrtf(float(r - sy * sy)));
 						const int ax = Math::Max(x - dx, 0);
-						const int bx = Math::Min(x + dx, bmp->w - 1);
-						uint16 *p = (uint16*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 1);
+                        const int bx = Math::Min(x + dx, bmp.width() - 1);
+                        uint16 *p = (uint16*)bmp.scanLine(y + sy) + ax;
 						for (uint16 *end = p + bx - ax + 1; p != end ; ++p)
 							*p = col16;
 					}
@@ -815,8 +452,8 @@ namespace TA3D
 					{
 						const int dx = int(sqrtf(float(r - sy * sy)));
 						const int ax = Math::Max(x - dx, 0);
-						const int bx = Math::Min(x + dx, bmp->w - 1);
-						byte *p = (byte*)bmp->pixels + ax * 3 + (y + sy) * bmp->pitch;
+                        const int bx = Math::Min(x + dx, bmp.width() - 1);
+                        byte *p = (byte*)bmp.scanLine(y + sy) + ax * 3;
 						for (byte *end = p + (bx - ax + 1) * 3 ; p != end ; ++p)
 						{
 							*p++ = colb;
@@ -831,8 +468,8 @@ namespace TA3D
 				{
 					const int dx = int(sqrtf(float(r - sy * sy)));
 					const int ax = Math::Max(x - dx, 0);
-					const int bx = Math::Min(x + dx, bmp->w - 1);
-					uint32 *p = (uint32*)bmp->pixels + ax + (y + sy) * (bmp->pitch >> 2);
+                    const int bx = Math::Min(x + dx, bmp.width() - 1);
+                    uint32 *p = (uint32*)bmp.scanLine(y + sy) + ax;
 					for (uint32 *end = p + bx - ax + 1; p != end ; ++p)
 						*p = col;
 				}
@@ -840,291 +477,116 @@ namespace TA3D
 		};
 	}
 
-	void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col)
+    void rectfill(QImage &bmp, int x0, int y0, int x1, int y1, uint32 col)
 	{
-		SDL_Rect rect = {Sint16(x0), Sint16(y0), Uint16(x1 - x0), Uint16(y1 - y0)};
-		SDL_FillRect(bmp, &rect, col);
+        x0 = std::max(x0, 0);
+        y0 = std::max(y0, 0);
+        x1 = std::min(x1 + 1, bmp.width());
+        y1 = std::min(y1 + 1, bmp.height());
+        switch(bmp.depth())
+        {
+        case 8:
+            for (int y = y0 ; y < y1 ; ++y)
+                memset((byte*)bmp.scanLine(y) + x0, col, x1 - x0);
+            break;
+        case 16:
+            {
+                const uint16 col16 = uint16(col);
+                for (int y = y0 ; y < y1 ; ++y)
+                {
+                    uint16 *p = (uint16*)bmp.scanLine(y) + x0;
+                    for (uint16 *end = p + x1 - x0 ; p != end ; ++p)
+                        *p = col16;
+                }
+            }
+            break;
+        case 24:
+            {
+                const byte colb = getb32(col);
+                const byte colg = getg32(col);
+                const byte colr = getr32(col);
+                for (int y = y0 ; y < y1 ; ++y)
+                {
+                    byte *p = (byte*)bmp.scanLine(y) + x0 * 3;
+                    for (byte *end = p + (x1 - x0) * 3 ; p != end ; ++p)
+                    {
+                        *p++ = colb;
+                        *p++ = colg;
+                        *p = colr;
+                    }
+                }
+            }
+            break;
+        case 32:
+            for (int y = y0 ; y < y1 ; ++y)
+            {
+                uint32 *p = (uint32*)bmp.scanLine(y) + x0;
+                for (uint32 *end = p + x1 - x0 ; p != end ; ++p)
+                    *p = col;
+            }
+            break;
+        };
 	}
 
-    void vflip_bitmap(SDL_Surface* bmp)
+    void vflip_bitmap(QImage &bmp)
     {
-		for(int y = 0 ; y < ((bmp->h + 1) >> 1) ; ++y)
-            for(int x = 0 ; x < bmp->w ; ++x)
-            {
-				const uint32 c = getpixel(bmp, x, y);
-                putpixel(bmp, x, y, getpixel(bmp, x, bmp->h - 1 - y));
-                putpixel(bmp, x, bmp->h - 1 - y, c);
-            }
+        bmp = bmp.mirrored(false, true);
     }
 
-    void hflip_bitmap(SDL_Surface* bmp)
+    void hflip_bitmap(QImage &bmp)
     {
-        for(int y = 0 ; y < bmp->h ; ++y)
-			for(int x = 0 ; x < ((bmp->w + 1) >> 1) ; ++x)
-            {
-				const uint32 c = getpixel(bmp, x, y);
-                putpixel(bmp, x, y, getpixel(bmp, bmp->w - 1 - x, y));
-                putpixel(bmp, bmp->w - 1 - x, y, c);
-            }
+        bmp = bmp.mirrored(true, false);
     }
 
-    void SaveTex(SDL_Surface *bmp, const QString &filename)
+    void SaveTex(const QImage &bmp, const QString &filename)
 	{
 		const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
-		if (std::max(bmp->w, bmp->h) > maxTextureSizeAllowed)
+        if (std::max(bmp.width(), bmp.height()) > maxTextureSizeAllowed)
 		{
-			SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h, maxTextureSizeAllowed));
+            QImage tmp = shrink(bmp, std::min(bmp.width(), maxTextureSizeAllowed), std::min(bmp.height(), maxTextureSizeAllowed));
 			SaveTex(tmp, filename);
-			SDL_FreeSurface(tmp);
 			return;
 		}
         QFile file(filename);
         file.open(QIODevice::WriteOnly);
         if (file.isOpen())
 		{
-			SDL_LockSurface(bmp);
-			int w = bmp->w;
-			int h = bmp->h;
-			int bpp = bmp->format->BitsPerPixel;
-            QDataStream stream(&file);
-            stream << w << h << bpp;
             QByteArray buffer;
-            buffer.reserve(bmp->w * bmp->h * bmp->format->BytesPerPixel);
-			for(int y = 0 ; y < bmp->h ; y++)
-                buffer.push_back(QByteArray::fromRawData(((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BytesPerPixel));
-            stream << qCompress(buffer, 1);
-			SDL_UnlockSurface(bmp);
+            QDataStream stream(&buffer, QIODevice::WriteOnly);
+            stream << bmp;
+            file.write(qCompress(buffer, 1));
 		}
 		else
 			LOG_ERROR("could not save file : " << filename);
 	}
 
-    SDL_Surface *LoadTex(const QString &filename)
+    QImage LoadTex(const QString &filename)
 	{
         QFile file(filename);
         file.open(QIODevice::ReadOnly);
         if (file.isOpen())
 		{
-            QDataStream stream(&file);
-			int w, h, bpp;
-            stream >> w >> h >> bpp;
-            QByteArray buffer;
-            stream >> buffer;
-            buffer = qUncompress(buffer);
-			SDL_Surface *bmp = gfx->create_surface_ex(bpp, w, h);
-			SDL_LockSurface(bmp);
-            const size_t stride = bmp->w * bmp->format->BytesPerPixel;
-			for(int y = 0 ; y < bmp->h ; y++)
-                memcpy(((char*)(bmp->pixels)) + y * bmp->pitch, buffer.data() + y * stride, stride);
-			SDL_UnlockSurface(bmp);
+            const QByteArray &buffer = qUncompress(file.readAll());
+            QDataStream stream(buffer);
+            QImage bmp;
+            stream >> bmp;
 
 			return bmp;
 		}
 		else
 			LOG_ERROR("could not load file : " << filename);
-		return NULL;
+        return QImage();
 	}
 
-    void save_bitmap(const QString &filename, SDL_Surface* bmp)
+    void save_bitmap(const QString &filename, const QImage &bmp)
 	{
-        const QString &ext = Paths::ExtractFileExt(filename).toLower();
-		if (ext == ".bmp")
-            SDL_SaveBMP(bmp, filename.toStdString().c_str());
+        const QString &ext = QFileInfo(filename).suffix().toUpper();
+        const QList<QByteArray> &qt_supported_formats = QImageWriter::supportedImageFormats();
+        if (qt_supported_formats.contains(ext.toLatin1()))
+            bmp.save(filename);
 		else if (ext == ".tex")                      // This is for cached texture data
 			SaveTex(bmp, filename);
-		else if (ext == ".tga")
-			save_TGA(filename, bmp);
 		else
 			LOG_WARNING("save_bitmap : file format not supported : " << ext << " (" << filename << ")");
-	}
-
-	struct TGAHeader
-	{
-		// imagetype 2==truecolour uncompressed,
-		// 3==b+w uncompressed (theres no implementational difference between the two)
-
-		byte id;        // image ID size (between header and image data), here 0, we don't need it
-		byte colormap;
-		byte type;
-		byte colormapSpec[5];
-
-		uint16 x;
-		uint16 y;
-		uint16 w;
-		uint16 h;
-		uint8  bpp;
-
-		byte description;
-	};
-
-    void save_TGA(const QString &filename, SDL_Surface* bmp, bool compress)
-	{
-		TGAHeader header;
-
-		header.id = 0;
-		header.colormap = 0;
-		header.type = compress ? 10 : 2; // 24/32 bits uncompressed image
-		memset( header.colormapSpec, 0, 5 );
-
-		header.x = 0;
-		header.y = 0;
-		header.w = uint16(bmp->w);
-		header.h = uint16(bmp->h);
-		header.bpp = bmp->format->BitsPerPixel;
-		header.description = (header.bpp == 32) ? 0x28 : 0x20;
-
-        QFile file(filename);
-        file.open(QIODevice::WriteOnly);
-
-        if (file.isOpen())
-		{
-			file.write( (const char*)&header, sizeof(header) );
-			if (!compress)			// Uncompressed
-			{
-				for(int y = 0 ; y < bmp->h ; ++y)
-				{
-					for(int x = 0 ; x < bmp->w ; ++x)
-					{
-						switch(bmp->format->BitsPerPixel)
-						{
-						case 8:
-                            file.putChar( static_cast<char>(getpixel(bmp, x, y)) );
-							break;
-						case 16:
-							file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
-							break;
-						case 24:
-							{
-								const uint32 c = getpixel(bmp, x, y);
-                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-							}
-							break;
-						case 32:
-							{
-								const uint32 c = getpixel(bmp, x, y);
-                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-                                file.putChar( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
-							}
-							break;
-						};
-					}
-				}
-			}
-			else					// Compressed
-			{
-				int type = 0;
-				uint32 c = 0;
-				int len = 0;
-				for(int i = 0 ; i < bmp->w * bmp->h ; ++i)
-				{
-					int x = i % bmp->w;
-					int y = i / bmp->w;
-					if (len == 0)
-					{
-						c = getpixel(bmp, x, y);
-						++len;
-						continue;
-					}
-					if (len == 1)
-					{
-						++len;
-						if (c == getpixel(bmp, x, y))
-							type = 1;
-						else
-							type = 0;
-						continue;
-					}
-					if (len == 128
-						|| (type == 1 && c != getpixel(bmp, x, y))
-						|| (type == 0 && c == getpixel(bmp, x, y)))
-					{
-                        file.putChar( static_cast<char>((type << 7) | (len - 1)) );
-						const int s = (type == 1) ? i - 1 : i - len;
-
-						for(int j = s ; j < i ; ++j)
-						{
-							x = j % bmp->w;
-							y = j / bmp->w;
-							switch(bmp->format->BitsPerPixel)
-							{
-							case 8:
-                                file.putChar( static_cast<char>(getpixel(bmp, x, y)) );
-								break;
-							case 16:
-								file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
-								break;
-							case 24:
-								{
-									const uint32 c = getpixel(bmp, x, y);
-                                    file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-                                    file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-                                    file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-								}
-								break;
-							case 32:
-								{
-									const uint32 c = getpixel(bmp, x, y);
-                                    file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-                                    file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-                                    file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-                                    file.putChar( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
-								}
-								break;
-							};
-						}
-
-						len = 0;
-						--i;
-						continue;
-					}
-					if (type == 0)
-						c = getpixel(bmp, x, y);
-					++len;
-				}
-				if (len > 0)
-				{
-                    file.putChar( static_cast<char>((type << 7) | (len - 1)) );
-					const int i = bmp->w * bmp->h;
-					int s = (type == 1) ? i - 1 : i - len;
-
-					for(int j = s ; j < i ; ++j)
-					{
-						int x = j % bmp->w;
-						int y = j / bmp->w;
-						switch(bmp->format->BitsPerPixel)
-						{
-						case 8:
-                            file.putChar( static_cast<char>(getpixel(bmp, x, y)) );
-							break;
-						case 16:
-							file.write( (const char*)bmp->pixels + ((bmp->w * y + x) << 1), 2 );
-							break;
-						case 24:
-							{
-								uint32 c = getpixel(bmp, x, y);
-                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-							}
-							break;
-						case 32:
-							{
-								uint32 c = getpixel(bmp, x, y);
-                                file.putChar( static_cast<char>((bmp->format->Bmask & c) >> bmp->format->Bshift) );
-                                file.putChar( static_cast<char>((bmp->format->Gmask & c) >> bmp->format->Gshift) );
-                                file.putChar( static_cast<char>((bmp->format->Rmask & c) >> bmp->format->Rshift) );
-                                file.putChar( static_cast<char>((bmp->format->Amask & c) >> bmp->format->Ashift) );
-							}
-							break;
-						};
-					}
-				}
-			}
-			file.close();
-		}
 	}
 }

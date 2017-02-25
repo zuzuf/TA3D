@@ -1140,8 +1140,8 @@ namespace TA3D
 		Camera camBak = cam;
 
 		cam.znear = -255.0f;
-		SDL_Surface *poster = gfx->create_surface_ex(24,w,h);
-		SDL_Surface *buf = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
+		QImage poster = gfx->create_surface_ex(24,w,h);
+		QImage buf = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
 
 		for (int z = 0; z < h; z += SCREEN_H / 2)
 		{
@@ -1163,18 +1163,15 @@ namespace TA3D
 				renderScene();
 
 				// Read the pixels
-				glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, buf->pixels);
+                glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, buf.bits());
 
 				// Fill current part of the poster
-				blit(buf, poster, SCREEN_W / 4, SCREEN_H / 4, x, z, Math::Min(SCREEN_W / 2, poster->w - x), Math::Min(SCREEN_H / 2, poster->h - z));
+                blit(buf, poster, SCREEN_W / 4, SCREEN_H / 4, x, z, Math::Min(SCREEN_W / 2, poster.width() - x), Math::Min(SCREEN_H / 2, poster.height() - z));
 			}
 		}
 
 		vflip_bitmap(poster);
-        save_TGA(TA3D::Paths::Screenshots + "poster.tga", poster);
-
-		SDL_FreeSurface(buf);
-		SDL_FreeSurface(poster);
+        save_bitmap(TA3D::Paths::Screenshots + "poster.png", poster);
 
 		cam = camBak;
 

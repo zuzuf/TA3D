@@ -44,10 +44,10 @@ namespace TA3D
 		init();
 	}
 
-	inline uint32 getpixelBL(SDL_Surface *bmp, float u, float v)
+    inline uint32 getpixelBL(const QImage &bmp, float u, float v)
 	{
-		const float tu = u * float(bmp->w);
-		const float tv = v * float(bmp->h);
+        const float tu = u * float(bmp.width());
+        const float tv = v * float(bmp.height());
 		const int x = int(tu);
 		const int y = int(tv);
 		const int dx = int((tu - float(x)) * 65536.0f);
@@ -58,10 +58,14 @@ namespace TA3D
 		sint32 g0, g1, g2, g3;
 		sint32 b0, b1, b2, b3;
 		sint32 a0, a1, a2, a3;
-		c0 = SurfaceInt(bmp, (x % bmp->w), (y % bmp->h));
-		c1 = SurfaceInt(bmp, ((x + 1) % bmp->w), (y % bmp->h));
-		c2 = SurfaceInt(bmp, (x % bmp->w), ((y + 1) % bmp->h));
-		c3 = SurfaceInt(bmp, ((x + 1) % bmp->w), ((y + 1) % bmp->h));
+        const int x0 = x % bmp.width();
+        const int x1 = (x + 1) % bmp.width();
+        const int y0 = y % bmp.height();
+        const int y1 = (y + 1) % bmp.height();
+        c0 = SurfaceInt(bmp, x0, y0);
+        c1 = SurfaceInt(bmp, x1, y0);
+        c2 = SurfaceInt(bmp, x0, y1);
+        c3 = SurfaceInt(bmp, x1, y1);
 
 		r0 = getr(c0);	g0 = getg(c0);	b0 = getb(c0);	a0 = geta(c0);
 		r1 = getr(c1);	g1 = getg(c1);	b1 = getb(c1);	a1 = geta(c1);
@@ -94,12 +98,12 @@ namespace TA3D
 		w = size;
 
 		// Compute the cube map
-		SDL_Surface *stex = gfx->load_image(skyInfo->texture_name);
-		if (stex)
+        QImage stex = gfx->load_image(skyInfo->texture_name);
+        if (!stex.isNull())
 		{
-			stex = convert_format(stex);
+            convert_format(stex);
 			const int skyRes  = std::min<int>(1024, lp_CONFIG->getMaxTextureSizeAllowed());
-			SDL_Surface *img[6];
+            QImage img[6];
 			for(int i = 0 ; i < 6 ; ++i)
 				img[i] = gfx->create_surface(skyRes, skyRes);
 			const uint32 fcol = makeacol32(int(skyInfo->FogColor[0] * 255.0f), int(skyInfo->FogColor[1] * 255.0f), int(skyInfo->FogColor[2] * 255.0f), int(skyInfo->FogColor[3] * 255.0f));
@@ -154,11 +158,7 @@ namespace TA3D
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB_compressed());
 			for(int i = 0 ; i < 6 ; ++i)
-			{
 				tex[i] = gfx->make_texture(img[i], FILTER_TRILINEAR, true);
-				SDL_FreeSurface(img[i]);
-			}
-			SDL_FreeSurface(stex);
 		}
 	}
 

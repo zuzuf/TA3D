@@ -195,7 +195,7 @@ namespace TA3D
 		int			bloc_h_db;
 		float		map2blocdb_w;
 		float		map2blocdb_h;
-		SDL_Surface *mini;			// Minimap
+		QImage mini;			// Minimap
 		GLuint		glmini;			// Texture OpenGl pour la minimap
 		int			mini_w;
 		int			mini_h;

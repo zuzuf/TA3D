@@ -403,11 +403,10 @@ namespace TA3D
         // We want a centered window
 		SDL_putenv(const_cast<char*>("SDL_VIDEO_CENTERED=1"));
 
-        SDL_Surface *icon = load_image("gfx/icon.png");
-		if (icon)
+        QImage icon = load_image("gfx/icon.png");
+        if (!icon.isNull())
 		{
-			SDL_WM_SetIcon(icon, NULL);
-			SDL_FreeSurface(icon);
+//			SDL_WM_SetIcon(icon, NULL);
 		}
 
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -484,7 +483,7 @@ namespace TA3D
 		// Install OpenGL extensions
 		installOpenGLExtensions();
 
-		if (screen->format->BitsPerPixel == 16)
+        if (screen->format->BitsPerPixel == 16)
 		{
 			defaultRGBTextureFormat = GL_RGB5;
 			defaultRGBATextureFormat = GL_RGB5_A1;
@@ -566,10 +565,10 @@ namespace TA3D
 		ati_workaround = checkVideoCardWorkaround();
 
 		LOG_DEBUG("Allocating palette memory...");
-		TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
+        TA3D::VARS::pal.resize(256);      // Allocate a new palette
 
 		LOG_DEBUG("Loading TA's palette...");
-		bool palette = TA3D::UTILS::load_palette(pal);
+        bool palette = TA3D::UTILS::load_palette(pal);
 		if (!palette)
 			LOG_WARNING("Failed to load the palette");
 
@@ -589,8 +588,6 @@ namespace TA3D
 		destroy_texture(textureColor);
 		destroy_texture(shadowMap);
 		destroy_texture(default_texture);
-
-		DELETE_ARRAY(TA3D::VARS::pal);
 
 		normal_font = NULL;
 		small_font = NULL;
@@ -1000,40 +997,37 @@ namespace TA3D
 		return max_tex_size;
 	}
 
-	GLuint GFX::make_texture(SDL_Surface *bmp, int filter_type, bool clamp)
+    GLuint GFX::make_texture(const QImage &bmp, int filter_type, bool clamp)
 	{
-		if (bmp == NULL)
+        if (bmp.isNull())
 		{
-			LOG_WARNING(LOG_PREFIX_GFX << "make_texture used with empty SDL_Surface");
+            LOG_WARNING(LOG_PREFIX_GFX << "make_texture used with empty QImage");
 			return 0;
 		}
 		MutexLocker locker(pMutex);
 
-		if (bmp->w > max_tex_size || bmp->h > max_tex_size)
+        if (bmp.width() > max_tex_size || bmp.height() > max_tex_size)
 		{
-			SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel,
-												  Math::Min(bmp->w, max_tex_size), Math::Min(bmp->h, max_tex_size));
-			stretch_blit( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
-			GLuint tex = make_texture( tmp, filter_type, clamp );
-			SDL_FreeSurface( tmp );
-			return tex;
+            QImage tmp = create_surface_ex( bmp.depth(),
+                                            Math::Min(bmp.width(), max_tex_size),
+                                            Math::Min(bmp.height(), max_tex_size));
+            stretch_blit( bmp, tmp, 0, 0, bmp.width(), bmp.height(), 0, 0, tmp.width(), tmp.height() );
+            return make_texture( tmp, filter_type, clamp );
 		}
 
-		if (!g_useNonPowerOfTwoTextures && (!Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
+        if (!g_useNonPowerOfTwoTextures && (!Math::IsPowerOfTwo(bmp.width()) || !Math::IsPowerOfTwo(bmp.height())))
 		{
-			int w = 1 << Math::Log2(bmp->w);
-			int h = 1 << Math::Log2(bmp->h);
-			if (w < bmp->w) w <<= 1;
-			if (h < bmp->h) h <<= 1;
-			SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
-			stretch_blit_smooth( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
-			GLuint tex = make_texture( tmp, filter_type, clamp );
-			SDL_FreeSurface( tmp );
-			return tex;
+            int w = 1 << Math::Log2(bmp.width());
+            int h = 1 << Math::Log2(bmp.height());
+            if (w < bmp.width()) w <<= 1;
+            if (h < bmp.height()) h <<= 1;
+            QImage tmp = create_surface_ex( bmp.depth(), w, h);
+            stretch_blit_smooth( bmp, tmp, 0, 0, bmp.width(), bmp.height(), 0, 0, tmp.width(), tmp.height() );
+            return make_texture( tmp, filter_type, clamp );
 		}
 
 		if (ati_workaround && filter_type != FILTER_NONE
-			&& ( !Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
+            && ( !Math::IsPowerOfTwo(bmp.width()) || !Math::IsPowerOfTwo(bmp.height())))
 			filter_type = FILTER_LINEAR;
 
 		if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
@@ -1041,7 +1035,7 @@ namespace TA3D
 		else
 			use_mipmapping(true);
 
-		bool can_useGenMipMaps = g_useGenMipMaps && (g_useNonPowerOfTwoTextures || (Math::IsPowerOfTwo(bmp->w) && Math::IsPowerOfTwo(bmp->h)));
+        bool can_useGenMipMaps = g_useGenMipMaps && (g_useNonPowerOfTwoTextures || (Math::IsPowerOfTwo(bmp.width()) && Math::IsPowerOfTwo(bmp.height())));
 
 		GLuint gl_tex = 0;
 		glGenTextures(1,&gl_tex);
@@ -1101,28 +1095,28 @@ namespace TA3D
 				else
 					glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
 			}
-			switch (bmp->format->BitsPerPixel)
+            switch (bmp.depth())
 			{
-				case 8:
-					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-						gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
-					else
-                        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
-					break;
-				case 24:
-					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-						gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
-					else
-                        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
-					break;
-				case 32:
-					if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-						gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
-					else
-                        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
-					break;
-				default:
-					LOG_DEBUG("SDL_Surface format not supported by texture loader: " << (int) bmp->format->BitsPerPixel << " bpp" );
+            case 8:
+                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
+                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp.width(), bmp.height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp.bits());
+                else
+                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp.bits());
+                break;
+            case 24:
+                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
+                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp.width(), bmp.height(), GL_RGB, GL_UNSIGNED_BYTE, bmp.bits());
+                else
+                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.bits());
+                break;
+            case 32:
+                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
+                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp.width(), bmp.height(), GL_RGBA, GL_UNSIGNED_BYTE, bmp.bits());
+                else
+                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.bits());
+                break;
+            default:
+                LOG_DEBUG("QImage format not supported by texture loader: " << (int) bmp.depth() << " bpp" );
 			}
 
 			if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
@@ -1130,31 +1124,30 @@ namespace TA3D
 		}
 		else            // Generate mipmaps here since other methods are unreliable
 		{
-			int w = bmp->w << 1;
-			int h = bmp->h << 1;
+            int w = bmp.width() << 1;
+            int h = bmp.height() << 1;
 			int level = 0;
 			if (w >= 1 && h >= 1)
 				do
 				{
 					w = Math::Max(w / 2, 1);
 					h = Math::Max(h / 2, 1);
-					SDL_Surface *tmp = create_surface_ex( bmp->format->BitsPerPixel, w, h);
-					stretch_blit(bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, w, h);
-					switch (tmp->format->BitsPerPixel)
+                    QImage tmp = create_surface_ex( bmp.depth(), w, h);
+                    stretch_blit(bmp, tmp, 0, 0, bmp.width(), bmp.height(), 0, 0, w, h);
+                    switch (tmp.depth())
 					{
 						case 8:
-							glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp->pixels);
+                            glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp.bits());
 							break;
 						case 24:
-							glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp->pixels);
+                            glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp.bits());
 							break;
 						case 32:
-							glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp->pixels);
+                            glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp.bits());
 							break;
 						default:
-							LOG_DEBUG("SDL_Surface format not supported by texture loader: " << (int) tmp->format->BitsPerPixel << " bpp" );
+                            LOG_DEBUG("QImage format not supported by texture loader: " << (int) tmp.depth() << " bpp" );
 					}
-					SDL_FreeSurface(tmp);
 					++level;
 				} while(w > 1 || h > 1);
 		}
@@ -1648,7 +1641,7 @@ namespace TA3D
 		return tex;
 	}
 
-	void GFX::blit_texture( SDL_Surface *src, GLuint dst )
+    void GFX::blit_texture(const QImage &src, GLuint dst )
 	{
 		if(!dst)
 			return;
@@ -1659,31 +1652,27 @@ namespace TA3D
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
 
-		glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, src->w, src->h, GL_RGBA, GL_UNSIGNED_BYTE, src->pixels );
+        glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, src.width(), src.height(), GL_RGBA, GL_UNSIGNED_BYTE, src.bits() );
 	}
 
-    SDL_Surface *GFX::load_image(const QString &filename)
+    QImage GFX::load_image(const QString &filename)
 	{
         QIODevice *vfile = VFS::Instance()->readFile(filename);
 		if (vfile)
         {
-            QByteArray buffer = vfile->readAll();
-            SDL_RWops *file = SDL_RWFromMem((void*)buffer.data(), buffer.size());
-            SDL_Surface *img = NULL;
-            if (Paths::ExtractFileExt(filename).toLower() == ".tga")
-                img = IMG_LoadTGA_RW(file);
-            else
-                img = IMG_Load_RW(file, 0);
-            SDL_RWclose(file);
+            QImage img;
+            img.loadFromData(vfile->readAll());
 
 			delete vfile;
 
-            if (img)
+            if (!img.isNull())
             {
-				if (img->format->Amask)
-                    img = convert_format(img);
+                if (img.format() == QImage::Format_Indexed8)
+                    img.setColorTable(TA3D::VARS::pal);
+                if (img.hasAlphaChannel())
+                    convert_format(img);
                 else
-                    img = convert_format_24(img);
+                    convert_format_24(img);
             }
             else
                 LOG_ERROR(LOG_PREFIX_GFX << "could not load image file: " << filename << " (vfs)");
@@ -1691,7 +1680,7 @@ namespace TA3D
         }
         else
             LOG_ERROR(LOG_PREFIX_GFX << "could not read image file: " << filename << " (vfs)");
-        return NULL;
+        return QImage();
 	}
 
 
@@ -1728,28 +1717,24 @@ namespace TA3D
 				return gltex;
 		}
 
-		SDL_Surface* bmp = load_image(file);
-		if (bmp == NULL)
+        QImage bmp = load_image(file);
+        if (bmp.isNull())
 		{
 			LOG_ERROR("Failed to load texture `" << file << "`");
 			return 0;
 		}
 
 		if (width)
-			*width = bmp->w;
+            *width = bmp.width();
 		if (height)
-			*height = bmp->h;
-		bmp = convert_format(bmp);
+            *height = bmp.height();
+        convert_format(bmp);
 
 		if (checkSize)
 		{
 			const int maxTextureSizeAllowed = lp_CONFIG->getMaxTextureSizeAllowed();
-			if (std::max(bmp->w, bmp->h) > maxTextureSizeAllowed)
-			{
-				SDL_Surface *tmp = shrink(bmp, std::min(bmp->w, maxTextureSizeAllowed), std::min(bmp->h,maxTextureSizeAllowed));
-				SDL_FreeSurface(bmp);
-				bmp = tmp;
-			}
+            if (std::max(bmp.width(), bmp.height()) > maxTextureSizeAllowed)
+                bmp = shrink(bmp, std::min(bmp.width(), maxTextureSizeAllowed), std::min(bmp.height(),maxTextureSizeAllowed));
 		}
 
         const QString ext = Paths::ExtractFileExt(file).toLower();
@@ -1757,9 +1742,9 @@ namespace TA3D
 		if (with_alpha)
 		{
 			with_alpha = false;
-			for (int y = 0 ; y < bmp->h && !with_alpha; ++y)
+            for (int y = 0 ; y < bmp.height() && !with_alpha; ++y)
 			{
-				for (int x = 0; x < bmp->w && !with_alpha; ++x)
+                for (int x = 0; x < bmp.width() && !with_alpha; ++x)
 					with_alpha |= geta(SurfaceInt(bmp, x, y)) != 255;
 			}
 		}
@@ -1777,16 +1762,15 @@ namespace TA3D
 		GLuint gl_tex = make_texture(bmp, filter_type, clamp);
 		if (gl_tex)
 		{
-			textureIDs[upfile] = Interfaces::GfxTexture(gl_tex, bmp->w, bmp->h);
+            textureIDs[upfile] = Interfaces::GfxTexture(gl_tex, bmp.width(), bmp.height());
 			textureFile[gl_tex] = upfile;
 			textureLoad[gl_tex] = 1;
 			if (with_alpha)
 				textureAlpha.insert(gl_tex);
 
 			if (compressible)
-				save_texture_to_cache(cache_filename, gl_tex, bmp->w, bmp->h, with_alpha);
+                save_texture_to_cache(cache_filename, gl_tex, bmp.width(), bmp.height(), with_alpha);
 		}
-		SDL_FreeSurface(bmp);
 		return gl_tex;
 	}
 
@@ -1796,30 +1780,30 @@ namespace TA3D
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
 			return 0;
 
-		SDL_Surface *bmp = load_image(file);
-		if (bmp == NULL )	return 0;					// Operation failed
-		if (width )		*width = bmp->w;
-		if (height )	*height = bmp->h;
-		if (bmp->format->BitsPerPixel != 32 )
-			bmp = convert_format( bmp );
+        QImage bmp = load_image(file);
+        if (bmp.isNull() )	return 0;					// Operation failed
+        if (width )		*width = bmp.width();
+        if (height )	*height = bmp.height();
+        if (bmp.depth() != 32 )
+            convert_format( bmp );
 		bool with_alpha = (Paths::ExtractFileExt(file).toLower() == "tga");
 		if (with_alpha)
 		{
 			with_alpha = false;
-			for (int y = 0 ; y < bmp->h && !with_alpha ; y++ )
-				for (int x = 0 ; x < bmp->w && !with_alpha ; x++ )
+            for (int y = 0 ; y < bmp.height() && !with_alpha ; y++ )
+                for (int x = 0 ; x < bmp.width() && !with_alpha ; x++ )
 					with_alpha |= (geta(SurfaceInt(bmp,x,y)) != 255);
 		}
 		else
 		{
-			for (int y = 0 ; y < bmp->h ; y++ )
-				for (int x = 0 ; x < bmp->w ; x++ )
+            for (int y = 0 ; y < bmp.height() ; y++ )
+                for (int x = 0 ; x < bmp.width() ; x++ )
 					SurfaceInt(bmp,x,y) |= makeacol(0,0,0,255);
 		}
 
-		for (int y = 0; y < bmp->h; ++y)
+        for (int y = 0; y < bmp.height(); ++y)
 		{
-			for (int x = 0; x < bmp->w; ++x)
+            for (int x = 0; x < bmp.width(); ++x)
 			{
 				const uint32 c = SurfaceInt(bmp,x,y);
 				if (getr(c) < level && getg(c) < level && getb(c) < level)
@@ -1833,9 +1817,7 @@ namespace TA3D
 			set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
 		else
 			set_texture_format( with_alpha ? defaultRGBATextureFormat : defaultRGBTextureFormat );
-		GLuint gl_tex = make_texture( bmp, filter_type, clamp );
-		SDL_FreeSurface(bmp);
-		return gl_tex;
+        return make_texture( bmp, filter_type, clamp );
 	}
 
 
@@ -2059,23 +2041,20 @@ namespace TA3D
 
 
 
-    GLuint GFX::load_masked_texture(QString file, QString mask, int filter_type )
+    GLuint GFX::load_masked_texture(const QString &file, QString mask, int filter_type )
 	{
 		if ( (!VFS::Instance()->fileExists(file)) || (!VFS::Instance()->fileExists(mask)))
 			return 0; // The file doesn't exist
 
-		SDL_Surface *bmp = load_image(file);
-		if (bmp == NULL)
+        QImage bmp = load_image(file);
+        if (bmp.isNull())
 			return 0;					// Operation failed
-		SDL_Surface *alpha = load_image(mask);
-		if(!alpha)
-		{
-			SDL_FreeSurface(bmp);
+        const QImage &alpha = load_image(mask);
+        if(alpha.isNull())
 			return 0;
-		}
-		for (int y = 0; y < bmp->h; ++y)
+        for (int y = 0; y < bmp.height(); ++y)
 		{
-			for (int x = 0; x < bmp->w ; ++x)
+            for (int x = 0; x < bmp.width() ; ++x)
 			{
 				const uint32 c = SurfaceInt(bmp, x, y);
 				SurfaceInt(bmp, x, y) = makeacol( getr(c), getg(c), getb(c), geta(SurfaceInt(alpha,x,y)) );
@@ -2085,10 +2064,7 @@ namespace TA3D
 			set_texture_format(GL_COMPRESSED_RGBA_ARB);
 		else
 			set_texture_format(defaultTextureFormat_RGBA());
-		GLuint gl_tex = make_texture( bmp, filter_type );
-		SDL_FreeSurface(bmp);
-		SDL_FreeSurface(alpha);
-		return gl_tex;
+        return make_texture( bmp, filter_type );
 	}
 
 
@@ -2461,13 +2437,24 @@ namespace TA3D
 		InterfaceManager = NULL;
 	}
 
-	SDL_Surface *GFX::create_surface_ex(int bpp, int w, int h)
+    QImage GFX::create_surface_ex(int bpp, int w, int h)
 	{
-		return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, bpp,
-									0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+        switch(bpp)
+        {
+        case 8:
+            {
+                QImage img(QSize(w, h), QImage::Format_Indexed8);
+                img.setColorTable(TA3D::VARS::pal);
+                return img;
+            }
+        case 16:    return QImage(QSize(w, h), QImage::Format_RGB16);
+        case 24:    return QImage(QSize(w, h), QImage::Format_RGB888);
+        case 32:    return QImage(QSize(w, h), QImage::Format_RGBA8888);
+        }
+        return QImage();
 	}
 
-	SDL_Surface *GFX::create_surface(int w, int h)
+    QImage GFX::create_surface(int w, int h)
 	{
 		return create_surface_ex(32, w, h);
 	}
@@ -2480,24 +2467,23 @@ namespace TA3D
 	{
 	}
 
-    SDL_Surface* GFX::LoadMaskedTextureToBmp(const QString& file, const QString& filealpha)
+    QImage GFX::LoadMaskedTextureToBmp(const QString& file, const QString& filealpha)
 	{
 		// Load the texture (32Bits)
-		SDL_Surface* bmp = gfx->load_image(file);
-		LOG_ASSERT(bmp != NULL);
+        QImage bmp = gfx->load_image(file);
+        LOG_ASSERT(!bmp.isNull());
 
 		// Load the mask
-		SDL_Surface* alpha = gfx->load_image(filealpha);
-		LOG_ASSERT(alpha != NULL);
+        const QImage &alpha = gfx->load_image(filealpha);
+        LOG_ASSERT(!alpha.isNull());
 
 		// Apply the mask, pixel by pixel
-		for (int y = 0; y < bmp->h; ++y)
+        for (int y = 0; y < bmp.height(); ++y)
 		{
-			for (int x = 0; x < bmp->w; ++x)
+            for (int x = 0; x < bmp.width(); ++x)
 				SurfaceByte(bmp, (x << 2) + 3, y) = byte(SurfaceInt(alpha,x,y));
 		}
 
-		SDL_FreeSurface(alpha);
 		return bmp;
 	}
 

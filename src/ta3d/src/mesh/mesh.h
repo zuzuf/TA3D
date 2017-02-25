@@ -313,7 +313,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void create_from_2d(SDL_Surface* bmp, float w, float h, float max_h);
+        void create_from_2d(QImage bmp, float w, float h, float max_h);
 
         /*!
         ** \brief
@@ -426,7 +426,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void create_from_2d(SDL_Surface *bmp, float w, float h, float max_h, const QString& filename);
+        void create_from_2d(QImage bmp, float w, float h, float max_h, const QString& filename);
 
     public:
         int	 nb_models;     // Number of models

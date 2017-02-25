@@ -125,17 +125,11 @@ namespace TA3D
 	{
 		if (args.size() >= 2)
 		{
-			TA3D::VARS::pal = new SDL_Color[256];
 			TA3D::UTILS::load_palette(pal);
 
-			SDL_Surface* minimap = load_tnt_minimap_fast_bmp( args[0] );
-			if (minimap)
-			{
-				SDL_SetPalette(minimap, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
-                SDL_SaveBMP( minimap, args[1].toStdString().c_str() );
-			}
-
-			DELETE_ARRAY(TA3D::VARS::pal);
+			QImage minimap = load_tnt_minimap_fast_bmp( args[0] );
+            if (!minimap.isNull())
+                minimap.save(args[1]);
 
 			args.erase(args.begin());
 			args.erase(args.begin());
@@ -316,7 +310,6 @@ namespace TA3D
 			if (file)
 			{
 				SDL_SetVideoMode(320, 200, 32, 0);
-				TA3D::VARS::pal = new SDL_Color[256];      // Allocate a new palette
 				TA3D::UTILS::load_palette(pal);
 
 				Gaf::AnimationList anims;
@@ -344,7 +337,7 @@ namespace TA3D
                             filename += "00";
 						else if (e < 1000)
                             filename += '0';
-                        filename += QString("%1.tga").arg(e);
+                        filename += QString("%1.png").arg(e);
 						m_File << "    [frame" << e << "]\n    {\n";
 						m_File << "        XPos=" << anims[i].ofs_x[ e ] << ";\n";
 						m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
@@ -359,7 +352,6 @@ namespace TA3D
                 m_FileD.flush();
                 m_FileD.close();
 				delete file;
-				DELETE_ARRAY(TA3D::VARS::pal);
 			}
 			args.erase(args.begin());
 			return true;
@@ -444,41 +436,38 @@ namespace TA3D
 						FrameData.Unknown2 = 0;
 						FrameData.Compressed = 1;
 
-                        SDL_Surface *frame_img = IMG_Load( parser.pullAsString( QString("gadget%1.frame%2.filename").arg(i + 1).arg(e)).toStdString().c_str() );
-						if (frame_img)
+                        QImage frame_img( parser.pullAsString( QString("gadget%1.frame%2.filename").arg(i + 1).arg(e)) );
+                        if (!frame_img.isNull())
 						{
-							frame_img = convert_format(frame_img);
-							FrameData.Width = sint16(frame_img->w);
-							FrameData.Height = sint16(frame_img->h);
+                            convert_format(frame_img);
+                            FrameData.Width = sint16(frame_img.width());
+                            FrameData.Height = sint16(frame_img.height());
 							bool alpha = false;
-							SDL_LockSurface(frame_img);
-							for( int y = 0 ; y < frame_img->h && !alpha ; y++ )
-								for( int x = 0 ; x < frame_img->w && !alpha ; x++ )
+                            for( int y = 0 ; y < frame_img.height() && !alpha ; y++ )
+                                for( int x = 0 ; x < frame_img.width() && !alpha ; x++ )
 									alpha |= (getr(SurfaceInt(frame_img, x, y)) != 255);
-							SDL_UnlockSurface(frame_img);
 							FrameData.Transparency = alpha ? 1 : 0;
                             FrameData.PtrFrameData = sint32(gaf_file.pos()) + 24;
 
 							gaf_file.write( (const char*)&FrameData, 24 );
 
-							int buf_size = frame_img->w * frame_img->h * 5 + 10240;
+                            int buf_size = frame_img.width() * frame_img.height() * 5 + 10240;
 							byte *buffer = new byte[ buf_size ];
 
 							int img_size = buf_size;
 							uLongf __size = img_size;
-							compress2 ( buffer, &__size, (Bytef*) frame_img->pixels, frame_img->w * frame_img->h * frame_img->format->BytesPerPixel, 9);
+                            compress2 ( buffer, &__size, (Bytef*) frame_img.bits(), frame_img.byteCount(), 9);
 							img_size = int(__size);
 
 							gaf_file.write( (const char*)&img_size, sizeof( img_size ) );		// Save the result
 							gaf_file.write( (const char*)buffer, img_size );
 
 							DELETE_ARRAY(buffer);
-							SDL_FreeSurface( frame_img );
 						}
 						else
 						{
 							std::cerr << "Error: In frame " << e << ", could not load "
-                                << parser.pullAsString(QString("gadget%1.frame%2.filename").arg(i + 1).arg(e) ).toStdString() << std::endl;
+                                      << parser.pullAsString(QString("gadget%1.frame%2.filename").arg(i + 1).arg(e) ).toStdString() << std::endl;
 							i = header.Entries;
 							break;
 						}
@@ -530,12 +519,12 @@ namespace TA3D
 				texture_manager.all_texture();
 
 			Model *model = MeshTypeManager::load(modelname);
-			SDL_Surface *background = gfx->load_image(filename);
-			if (model && background)
+			QImage background = gfx->load_image(filename);
+            if (model && !background.isNull())
 			{
-				glViewport(0, 0, background->w, background->h);           // Use picture viewport
-				gfx->width = background->w;
-				gfx->height = background->h;
+                glViewport(0, 0, background.width(), background.height());           // Use picture viewport
+                gfx->width = background.width();
+                gfx->height = background.height();
 
 				Camera cam;
 				HWLight sun;
@@ -571,11 +560,11 @@ namespace TA3D
 
 				gfx->set_2D_mode();
 				GLuint tex = gfx->make_texture(background);
-				gfx->drawtexture(tex, 0.0f, 0.0f, (float)background->w, (float)background->h, 0xFFFFFFFF);
+                gfx->drawtexture(tex, 0.0f, 0.0f, (float)background.width(), (float)background.height(), 0xFFFFFFFF);
 				gfx->destroy_texture(tex);
 				gfx->unset_2D_mode();
 
-				cam.setWidthFactor(background->w, background->h);
+                cam.setWidthFactor(background.width(), background.height());
 				float h = model->top - model->bottom;
 				cam.rpos = Vector3D(0.0f, model->bottom + h * 0.5f, 1.5f * model->size2);
 				cam.znear = 0.001f;
@@ -591,15 +580,12 @@ namespace TA3D
 				model->hideFlares();
 				model->draw(0.0f);
 
-				SDL_Surface *result = gfx->create_surface_ex(24, background->w, background->h);
-				glReadPixels(0, 0, result->w, result->h, GL_BGR, GL_UNSIGNED_BYTE, result->pixels);
+                QImage result = gfx->create_surface_ex(24, background.width(), background.height());
+                glReadPixels(0, 0, result.width(), result.height(), GL_BGR, GL_UNSIGNED_BYTE, result.bits());
 				vflip_bitmap(result);
 				save_bitmap(outputfilename, result);
-				SDL_FreeSurface(result);
 
 				gfx->flip();
-
-				SDL_FreeSurface(background);
 			}
 			else
 			{
@@ -607,11 +593,9 @@ namespace TA3D
                     std::cerr << "error : could not load model file : '" << modelname.toStdString() << "'" << std::endl;
 				else
 					delete model;
-				if (!background)
+                if (background.isNull())
                     std::cerr << "error : could not load background image file : '" << filename.toStdString() << "'" << std::endl;
-				else
-					SDL_FreeSurface(background);
-			}
+            }
 
 			// Clean everything
 			texture_manager.destroy();
