@@ -2,7 +2,10 @@
 #define __SOCKET_UDP_H__
 
 # include <misc/string.h>
-#include "socket.h"
+# include "socket.h"
+# include <QHostAddress>
+
+class QUdpSocket;
 
 namespace TA3D
 {
@@ -10,10 +13,11 @@ namespace TA3D
     class SocketUDP : public Socket
     {
     protected:
-        UDPsocket           sock;
-        SDLNet_SocketSet    set;
+        QUdpSocket          *sock;
         bool                checked;
-        IPaddress           remoteIP;
+        uint16              port;
+        QHostAddress        hostname;
+        QHostAddress        remote_peer;
     public:
         SocketUDP();
         virtual ~SocketUDP();
@@ -26,13 +30,16 @@ namespace TA3D
         virtual void check(uint32 msec);
 		virtual bool ready();
 
-        virtual void send(const QString &str);
+        virtual void send(const QByteArray &str);
         virtual void send(const char *data, int size);
         virtual int recv(char *data, int size);
 
-        IPaddress getRemoteIP_sdl() const;
         QString getRemoteIPstr() const;
         uint32 getRemoteIP() const;
+
+        virtual QString getIPstr() const;
+        virtual uint32 getIP() const;
+        virtual uint16 getPort() const;
     };
 }
 #endif

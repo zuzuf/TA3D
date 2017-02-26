@@ -69,10 +69,6 @@ namespace TA3D
 		LOG_INFO(TA3D_ENGINE_VERSION << " initializing started:");
 		LOG_INFO("Build info : " << __DATE__ << " , " << __TIME__);
 
-		// Initializing SDL Net
-		if (::SDLNet_Init() == -1)
-            throw std::runtime_error("SDLNet_Init() failed.");
-
 		// Load the VFS
 		VFS::Instance()->reload();
 
@@ -111,7 +107,6 @@ namespace TA3D
 		if (pSDLRunning)
 		{
 			pSDLRunning = false;
-			SDLNet_Quit();
 			SDL_Quit();
 		}
 	}

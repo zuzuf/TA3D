@@ -21,7 +21,7 @@
 #include <misc/paths.h>
 #include <logs/logs.h>
 #include <QFile>
-
+#include <QtEndian>
 
 namespace TA3D
 {
@@ -142,13 +142,13 @@ namespace TA3D
 	//byte shuffling
 	void TA3DSock::putLong(uint32_t x)
 	{
-		SDLNet_Write32(x, outbuf + obp);
+        qToLittleEndian(x, outbuf + obp);
 		obp += 4;
 	}
 
 	void TA3DSock::putShort(uint16_t x)
 	{
-		SDLNet_Write16(x, outbuf + obp);
+        qToLittleEndian(x, outbuf + obp);
 		obp += 2;
 	}
 
@@ -176,35 +176,20 @@ namespace TA3D
 
 	void TA3DSock::putFloat(float x)
 	{
-		uint16 test = 1;
-		if (SDLNet_Read16( &test ) != 1)
-		{
-			union { float t;    byte b[4]; } temp;
-			temp.t = x;
-			temp.b[0] ^= temp.b[3];
-			temp.b[3] ^= temp.b[0];
-			temp.b[0] ^= temp.b[3];
-
-			temp.b[1] ^= temp.b[2];
-			temp.b[2] ^= temp.b[1];
-			temp.b[1] ^= temp.b[2];
-			x = temp.t;
-		}
-
-		memcpy(outbuf + obp, &x, 4);
+        qToLittleEndian(x, outbuf + obp);
 		obp += 4;
 	}
 
 	uint32 TA3DSock::getLong()	//uint32
 	{
-		uint32 result = SDLNet_Read32( tcpinbuf + tibrp );
+        const uint32 result = qFromLittleEndian<quint32>(tcpinbuf + tibrp);
 		tibrp += 4;
 		return result;
 	}
 
 	uint16 TA3DSock::getShort()
 	{
-		uint16 result = SDLNet_Read16( tcpinbuf + tibrp );
+        const uint16 result = qFromLittleEndian<quint16>(tcpinbuf + tibrp);
 		tibrp += 2;
 		return result;
 	}
@@ -234,24 +219,7 @@ namespace TA3D
 
 	float TA3DSock::getFloat()
 	{
-		uint16 test = 1;
-		if (SDLNet_Read16( &test ) != 1)
-		{
-			union { float t;    byte b[4]; } temp;
-			temp.t = *((float*)(tcpinbuf+tibrp));
-			temp.b[0] ^= temp.b[3];
-			temp.b[3] ^= temp.b[0];
-			temp.b[0] ^= temp.b[3];
-
-			temp.b[1] ^= temp.b[2];
-			temp.b[2] ^= temp.b[1];
-			temp.b[1] ^= temp.b[2];
-			tibrp += 4;
-
-			return temp.t;
-		}
-
-		float result = *((float*)(tcpinbuf+tibrp));
+        const float result = qFromLittleEndian<float>(tcpinbuf + tibrp);
 		tibrp += 4;
 		return result;
 	}

@@ -321,7 +321,7 @@ void bug_reporter(const QString &trace)
         return;
     }
     sock.send("BUG REPORT\n");
-    sock.send(report);
+    sock.send(report.toUtf8());
     sock.send("DISCONNECT");
     // Wait a bit to make sure all data has been received
 

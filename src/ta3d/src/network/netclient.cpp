@@ -64,7 +64,7 @@ namespace TA3D
 	{
         MutexLocker locker(mtx);
 		if (sock.isOpen())
-            sock.send(msg + "\n");
+            sock.send(msg.toUtf8() + "\n");
 		else
 		{
 			state = DISCONNECTED;

@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include <logs/logs.h>
 #include "socket.udp.h"
+#include <QUdpSocket>
 
 namespace TA3D
 {
@@ -8,7 +9,6 @@ namespace TA3D
     SocketUDP::SocketUDP()
     {
         sock = NULL;
-        set = NULL;
         checked = false;
     }
 
@@ -27,24 +27,13 @@ namespace TA3D
         MutexLocker locker(pMutex);
         close();
 
-        SDLNet_ResolveHost( &IP, hostname.toStdString().c_str(), port );
-        sock = SDLNet_UDP_Open(port);
-        if (sock == NULL)
+        this->hostname = hostname;
+        this->port = port;
+        sock = new QUdpSocket();
+        sock->bind(QHostAddress(hostname), port);
+        if (!sock->isOpen())
         {
-            LOG_ERROR(LOG_PREFIX_NET << "error opening UDP socket : " << SDLNet_GetError());
-            return;
-        }
-        set = SDLNet_AllocSocketSet(1);
-        if (set == NULL)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error creating socket set : " << SDLNet_GetError());
-            close();
-            return;
-        }
-        if (SDLNet_UDP_AddSocket(set, sock) == -1)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error filling socket set : " << SDLNet_GetError());
-            close();
+            LOG_ERROR(LOG_PREFIX_NET << "error opening UDP socket : " << sock->errorString());
             return;
         }
     }
@@ -52,41 +41,26 @@ namespace TA3D
     void SocketUDP::close()
     {
         MutexLocker locker(pMutex);
-        if (set)
-            SDLNet_FreeSocketSet(set);
         if (sock)
-            SDLNet_UDP_Close(sock);
-        set = NULL;
+            delete sock;
         sock = NULL;
         checked = false;
     }
 
-    void SocketUDP::send(const QString &str)
+    void SocketUDP::send(const QByteArray &str)
     {
-        send(str.toStdString().c_str(), str.size());
+        send(str.data(), str.size());
     }
 
     void SocketUDP::send(const char *data, int size)
     {
         if (!sock)  return;
 
-		try
-		{
-			UDPpacket packet;
-
-			packet.channel = -1;
-			packet.data = (Uint8*) data;
-			packet.len = size;
-			packet.maxlen = size;
-			packet.address = IP;
-
-			SDLNet_UDP_Send(sock, packet.channel, &packet);
-		}
-		catch(std::exception &e)
-		{
-			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
-			close();
-		}
+        if (sock->writeDatagram(data, size, hostname, port) == -1)
+        {
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "error writing UDP datagram : " << sock->errorString());
+            close();
+        }
 	}
 
     int SocketUDP::recv(char *data, int size)
@@ -95,21 +69,16 @@ namespace TA3D
 
 		try
 		{
-			UDPpacket packet;
-			packet.data = (Uint8*) data;
-			packet.len = 0;
-			packet.maxlen = size;
 
-			if (SDLNet_UDP_Recv(sock, &packet) == -1)
+            size = sock->readDatagram(data, size, &remote_peer);
+            if (size == -1)
 			{
-				LOG_ERROR(LOG_PREFIX_NET << "error receiving data from UDP socket : " << SDLNet_GetError());
+                LOG_ERROR(LOG_PREFIX_NET << "error receiving data from UDP socket : " << sock->errorString());
 				close();
 				return 0;
 			}
 
-			remoteIP = packet.address;
-
-			return packet.len;
+            return size;
 		}
 		catch(std::exception &e)
 		{
@@ -123,13 +92,13 @@ namespace TA3D
     {
 		try
 		{
-			if (set)
+            if (sock)
 			{
-				SDLNet_CheckSockets(set, msec);
+                sock->waitForReadyRead(msec);
 				checked = true;
 			}
 			else
-				SDL_Delay(msec);
+                QThread::msleep(msec);
 		}
 		catch(std::exception &e)
 		{
@@ -142,8 +111,8 @@ namespace TA3D
     {
 		try
 		{
-			if (set && sock && checked)
-				return SDLNet_SocketReady(sock);
+            if (sock && checked)
+                return sock->hasPendingDatagrams();
 		}
 		catch(std::exception &e)
 		{
@@ -153,18 +122,28 @@ namespace TA3D
 		return false;
 	}
 
-    IPaddress SocketUDP::getRemoteIP_sdl() const
-    {
-        return remoteIP;
-    }
-
     QString SocketUDP::getRemoteIPstr() const
     {
-        return QString("%1.%2.%3.%4").arg(remoteIP.host & 0xFF).arg((remoteIP.host >> 8) & 0xFF).arg((remoteIP.host >> 16) & 0xFF).arg(remoteIP.host >> 24);
+        return remote_peer.toString();
     }
 
     uint32 SocketUDP::getRemoteIP() const
     {
-        return remoteIP.host;
+        return remote_peer.toIPv4Address();
+    }
+
+    QString SocketUDP::getIPstr() const
+    {
+        return hostname.toString();
+    }
+
+    uint32 SocketUDP::getIP() const
+    {
+        return hostname.toIPv4Address();
+    }
+
+    uint16 SocketUDP::getPort() const
+    {
+        return port;
     }
 }

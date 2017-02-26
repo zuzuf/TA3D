@@ -1,6 +1,8 @@
 #include <stdafx.h>
 #include <logs/logs.h>
 #include "socket.tcp.h"
+#include <QTcpSocket>
+#include <QTcpServer>
 
 #define TCP_BUFFER_SIZE			32
 #define TCP_COMPRESSION_LEVEL	6
@@ -22,7 +24,6 @@ namespace TA3D
 	SocketTCP::SocketTCP(bool enableCompression)
     {
         sock = NULL;
-        set = NULL;
         checked = false;
         nonBlockingMode = false;
 		bytesSent = 0;
@@ -80,8 +81,12 @@ namespace TA3D
     void SocketTCP::reset()
     {
         MutexLocker locker(pMutex);
+        if (sock)
+            delete sock;
+        if (serv)
+            delete serv;
         sock = NULL;
-        set = NULL;
+        serv = NULL;
         checked = false;
         nonBlockingMode = false;
     }
@@ -100,7 +105,16 @@ namespace TA3D
 
     void SocketTCP::open(uint16 port)
     {
-        open("", port);
+        MutexLocker locker(pMutex);
+        close();
+
+        serv = new QTcpServer;
+        if (!serv->listen(QHostAddress::Any, port))
+        {
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "error creating TCP server socket: " << serv->errorString());
+            delete serv;
+            serv = NULL;
+        }
     }
 
     void SocketTCP::open(const QString &hostname, uint16 port)
@@ -108,24 +122,12 @@ namespace TA3D
         MutexLocker locker(pMutex);
         close();
 
-        SDLNet_ResolveHost( &IP, hostname.toStdString().c_str(), port );
-        sock = SDLNet_TCP_Open(&IP);
-        if (sock == NULL)
+        sock = new QTcpSocket();
+        sock->connectToHost(hostname, port);
+        if (!sock->waitForConnected())
         {
-            LOG_ERROR(LOG_PREFIX_NET << "error opening TCP socket : " << SDLNet_GetError());
-            return;
-        }
-        set = SDLNet_AllocSocketSet(1);
-        if (set == NULL)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error creating socket set : " << SDLNet_GetError());
-            close();
-            return;
-        }
-        if (SDLNet_TCP_AddSocket(set, sock) == -1)
-        {
-            LOG_ERROR(LOG_PREFIX_NET << "error filling socket set : " << SDLNet_GetError());
-            close();
+            LOG_ERROR(LOG_PREFIX_NET << "error opening TCP socket : " << sock->errorString());
+            delete sock;
             return;
         }
 
@@ -152,11 +154,11 @@ namespace TA3D
 		}
 
 		MutexLocker locker(pMutex);
-        if (set)
-            SDLNet_FreeSocketSet(set);
+        if (serv)
+            delete serv;
+        serv = NULL;
         if (sock)
-            SDLNet_TCP_Close(sock);
-        set = NULL;
+            delete sock;
         sock = NULL;
         checked = false;
 
@@ -204,33 +206,13 @@ namespace TA3D
     {
 		try
 		{
-			TCPsocket child = SDLNet_TCP_Accept(sock);
+            if (!serv->waitForNewConnection())
+                return NULL;
+            QTcpSocket *child = serv->nextPendingConnection();
 			if (child == NULL)
 				return NULL;
 			SocketTCP *newSock = new SocketTCP(compression);
 			newSock->sock = child;
-			IPaddress *remote_addr = SDLNet_TCP_GetPeerAddress( child );
-			if (remote_addr == NULL)
-			{
-				LOG_ERROR(LOG_PREFIX_NET << "error getting remote address : " << SDLNet_GetError());
-				newSock->close();
-				return NULL;
-			}
-			newSock->IP = *remote_addr;
-
-			newSock->set = SDLNet_AllocSocketSet(1);
-			if (newSock->set == NULL)
-			{
-				LOG_ERROR(LOG_PREFIX_NET << "error creating socket set : " << SDLNet_GetError());
-				newSock->close();
-				return NULL;
-			}
-			if (SDLNet_TCP_AddSocket(newSock->set, newSock->sock) == -1)
-			{
-				LOG_ERROR(LOG_PREFIX_NET << "error filling socket set : " << SDLNet_GetError());
-				newSock->close();
-				return NULL;
-			}
 
 			return newSock;
 		}
@@ -242,9 +224,9 @@ namespace TA3D
 		}
 	}
 
-    void SocketTCP::send(const QString &str)
+    void SocketTCP::send(const QByteArray &str)
     {
-        send(str.toStdString().c_str(), int(str.size()));
+        send(str.data(), str.size());
     }
 
     void SocketTCP::send(const char *data, int size)
@@ -265,11 +247,11 @@ namespace TA3D
 					zSend->next_out = sendBuf;
 					zSend->avail_out = TCP_BUFFER_SIZE;
 					deflate(zSend, flush);
-					const int sent = SDLNet_TCP_Send(sock, sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
+                    const int sent = sock->write((const char*)sendBuf, TCP_BUFFER_SIZE - zSend->avail_out);
 					bytesSent += sent;
 					if (sent < TCP_BUFFER_SIZE - int(zSend->avail_out))
 					{
-						LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size << ")");
+                        LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << sock->errorString() << " (" << sent << " / " << size << ")");
 						close();
 						return;
 					}
@@ -277,12 +259,12 @@ namespace TA3D
 			}
 			else
 			{
-				const int sent = SDLNet_TCP_Send(sock, data, size);
+                const int sent = sock->write((const char*)data, size);
 				bytesSent += sent;
 
 				if (sent < size)
 				{
-					LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << SDLNet_GetError() << " (" << sent << " / " << size<< ")");
+                    LOG_ERROR(LOG_PREFIX_NET << "error sending data to TCP socket : " << sock->error() << " (" << sent << " / " << size<< ")");
 					close();
 				}
 			}
@@ -336,7 +318,7 @@ namespace TA3D
 					byte *pIn = zRecv->next_in + zRecv->avail_in;
 					while(ready() && zRecv->avail_in < TCP_BUFFER_SIZE)
 					{
-						const int n = SDLNet_TCP_Recv(sock, pIn++, 1);
+                        const int n = sock->read((char*)pIn++, 1);
 						if (n == 1)
 							zRecv->avail_in++;
 						else if (n == 0)
@@ -349,7 +331,7 @@ namespace TA3D
 						{
 							ret = inflate(zRecv, Z_SYNC_FLUSH);
 							zStreamError(ret, zRecv->msg);
-							LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+                            LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << sock->error());
 							close();
 							return size - zRecv->avail_out;
 						}
@@ -372,6 +354,8 @@ namespace TA3D
 					if (zRecv->avail_in > 0)
 						memmove(recvBuf, zRecv->next_in, zRecv->avail_in);
 					zRecv->next_in = recvBuf;
+                    if (zRecv->avail_out > 0 && !nonBlockingMode)
+                        sock->waitForReadyRead();
 				} while (!nonBlockingMode && zRecv->avail_out > 0 && ret != Z_BUF_ERROR);
 				return size - zRecv->avail_out;
 			}
@@ -383,7 +367,7 @@ namespace TA3D
 					check(0);
 					while(ready() && pos < size)
 					{
-						const int n = SDLNet_TCP_Recv(sock, data, 1);
+                        const int n = sock->read(data, 1);
 						if (n == 1)
 						{
 							data++;
@@ -397,7 +381,7 @@ namespace TA3D
 						}
 						else
 						{
-							LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+                            LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << sock->errorString());
 							close();
 							return pos;
 						}
@@ -406,10 +390,10 @@ namespace TA3D
 					return pos;
 				}
 
-				const int n = SDLNet_TCP_Recv(sock, data, size);
+                const int n = sock->read(data, size);
 				if (n < 0)
 				{
-					LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << SDLNet_GetError());
+                    LOG_ERROR(LOG_PREFIX_NET << "error receiving data from TCP socket : " << sock->errorString());
 					close();
 					return -1;
 				}
@@ -433,43 +417,31 @@ namespace TA3D
 
     void SocketTCP::check(uint32 msec)
     {
-        if (set)
+        if (sock)
         {
-			try
+            if (!sock->waitForReadyRead(msec) && !sock->isOpen())
 			{
-				SDLNet_CheckSockets(set, msec);
-			}
-			catch(std::exception &e)
-			{
-				LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
+                LOG_ERROR(LOG_PREFIX_NET_SOCKET << "socket error, disconnecting");
 				close();
 				return;
 			}
 			checked = true;
         }
         else
-            SDL_Delay(msec);
+            QThread::msleep(msec);
     }
 
 	bool SocketTCP::ready()
     {
-		try
-		{
-			if (set && sock && checked)
-				return SDLNet_SocketReady(sock);
-		}
-		catch(std::exception &e)
-		{
-			LOG_ERROR(LOG_PREFIX_NET_SOCKET << "exception caught : " << e.what());
-			close();
-		}
+        if (sock && checked)
+            return sock->bytesAvailable() > 0;
 
         return false;
     }
 
-	QString SocketTCP::getLine()
+    QByteArray SocketTCP::getLine()
 	{
-		QString line;
+        QByteArray line;
 		if (!ready())
 			return line;
 		while(this->isOpen())
@@ -484,4 +456,25 @@ namespace TA3D
 
 		return line;
 	}
+
+    QString SocketTCP::getIPstr() const
+    {
+        if (!sock)
+            return QString();
+        return sock->peerAddress().toString();
+    }
+
+    uint32 SocketTCP::getIP() const
+    {
+        if (!sock)
+            return 0;
+        return sock->peerAddress().toIPv4Address();
+    }
+
+    uint16 SocketTCP::getPort() const
+    {
+        if (!sock)
+            return 0;
+        return sock->peerPort();
+    }
 }
