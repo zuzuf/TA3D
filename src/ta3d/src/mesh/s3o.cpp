@@ -36,6 +36,7 @@
 #include <gfx/gl.extensions.h>
 #include <zlib.h>
 #include "joins.h"
+#include <misc/timer.h>
 
 #define READ(X) file->read((char*)&X, sizeof(X))
 
@@ -389,7 +390,7 @@ namespace TA3D
 				glTranslatef( 0.0f, -2.0f, 0.0f );
 				if (notex)
 				{
-					byte var = (byte)abs(0xFF - (msec_timer % 1000) * 0x200 / 1000);
+					byte var = (byte)abs(0xFF - (msectimer() % 1000) * 0x200 / 1000);
 					glColor3ub(0, var, 0);
 				}
 				else

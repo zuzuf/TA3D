@@ -22,9 +22,8 @@
 #include <gfx/gfx.toolkit.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
+#include <misc/timer.h>
 #include <misc/paths.h>
-
-
 
 
 namespace TA3D
@@ -476,9 +475,9 @@ namespace TA3D
                     gfx->glBindTexture(GL_TEXTURE_2D, water_sim1);
 
 					bool refresh = false;
-					if (msec_timer - last_water_refresh >= 100000)
+					if (msectimer() - last_water_refresh >= 100000)
 					{
-						last_water_refresh = msec_timer;
+						last_water_refresh = msectimer();
 						refresh = true;
 					}
 					float dt_step = Math::Min( time_to_simulate - real_time, time_step );
@@ -954,7 +953,7 @@ namespace TA3D
 			glDisable(GL_FOG);
 			cam.setView();
 			bool builders = false;
-			const float t = (float)msec_timer * 0.001f;
+			const float t = (float)msectimer() * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
 			for (unsigned int e = 0; e < units.index_list_size ; ++e)
 			{
@@ -1008,7 +1007,7 @@ namespace TA3D
 		{
 			glDisable(GL_FOG);
 			cam.setView();
-			const float t = (float)msec_timer * 0.001f;
+			const float t = (float)msectimer() * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
 			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
 			for (unsigned int e = 0; e < units.index_list_size ; ++e)

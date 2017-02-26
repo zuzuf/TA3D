@@ -171,11 +171,6 @@ namespace TA3D
 #define SCREEN_H    (TA3D::VARS::gfx->height)
 
 
-#ifndef TA3D_MSEC_TIMER
-#define TA3D_MSEC_TIMER
-#define msec_timer  SDL_GetTicks()
-#endif
-
 // TODO Must be removed
 using namespace TA3D::VARS;
 using namespace TA3D::UTILS;

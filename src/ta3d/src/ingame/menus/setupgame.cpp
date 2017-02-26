@@ -27,6 +27,7 @@
 #include <languages/i18n.h>
 #include <ingame/players.h>
 #include <misc/settings.h>
+#include <misc/timer.h>
 #include <ingame/sidedata.h>
 #include <tnt.h>
 #include <restore.h>
@@ -422,8 +423,8 @@ namespace Menus
 			}
 		}
 
-		progress_timer = msec_timer;
-		ping_timer = msec_timer;                    // Used to send simple PING requests in order to detect when a connection fails
+		progress_timer = msectimer();
+		ping_timer = msectimer();                    // Used to send simple PING requests in order to detect when a connection fails
 
 		statusUpdateRequired = true;
 
@@ -506,7 +507,7 @@ namespace Menus
 			// Wait to reduce CPU consumption
 			wait();
 
-			if (msec_timer - progress_timer >= 500 && Math::Equals(network_manager.getFileTransferProgress(), 100.0f))
+			if (msectimer() - progress_timer >= 500 && Math::Equals(network_manager.getFileTransferProgress(), 100.0f))
 				break;
 
 		} while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
@@ -515,7 +516,7 @@ namespace Menus
 				 && !pArea->key_pressed && !pArea->scrolling
                  && broadcast_msg.isEmpty() && chat_msg.isEmpty() && special_msg.isEmpty()
 				 && !playerDropped
-                 && ( msec_timer - ping_timer < 2000 || host.isEmpty() || client ));
+                 && ( msectimer() - ping_timer < 2000 || host.isEmpty() || client ));
 }
 
 
@@ -878,11 +879,11 @@ namespace Menus
 	{
 		//-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
-        if (!host.isEmpty() && !client && msec_timer - ping_timer >= 2000) // Send a ping request
+        if (!host.isEmpty() && !client && msectimer() - ping_timer >= 2000) // Send a ping request
 		{
 			statusUpdateRequired = true;
 			network_manager.sendPing();
-			ping_timer = msec_timer;
+			ping_timer = msectimer();
 
 			for (int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // ping time out
 			{
@@ -897,7 +898,7 @@ namespace Menus
 
 		if (network_manager.getFileTransferProgress() < 100.0f)
 		{
-			progress_timer = msec_timer;
+			progress_timer = msectimer();
 			Gui::GUIOBJ::Ptr obj = pArea->get_object( "gamesetup.p_transfer");
 			if (obj)
 			{

@@ -22,6 +22,7 @@
 #include <gfx/gui/skin.h>
 #include <input/mouse.h>
 #include <input/keyboard.h>
+#include <misc/timer.h>
 #include <languages/i18n.h>
 #include <TA3D_NameSpace.h>
 
@@ -72,7 +73,7 @@ namespace Menus
 
 		pDelta = 0.0f;
 		pStartIndex = 0;
-		pScrollTimer = msec_timer;
+		pScrollTimer = msectimer();
 
 		return true;
 	}
@@ -81,7 +82,7 @@ namespace Menus
 	{
 		ResetTexture(pBackgroundTexture);
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Done.");
-		pScrollTimer = msec_timer;
+		pScrollTimer = msectimer();
 	}
 
 
@@ -95,8 +96,8 @@ namespace Menus
 
 	bool Intro::maySwitchToAnotherMenu()
 	{
-		pDelta += TA3D_INTRO_SPEED * float(msec_timer - pScrollTimer) * 0.001f;
-		pScrollTimer = msec_timer;
+		pDelta += TA3D_INTRO_SPEED * float(msectimer() - pScrollTimer) * 0.001f;
+		pScrollTimer = msectimer();
 		if (pDelta > pCurrentFontHeight)
 		{
 			pDelta = pCurrentFontHeight - pDelta;

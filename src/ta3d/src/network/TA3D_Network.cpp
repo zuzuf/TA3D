@@ -31,6 +31,7 @@
 #include <ingame/players.h>
 #include <misc/paths.h>
 #include <misc/files.h>
+#include <misc/timer.h>
 #include <restore.h>
 #include <input/keyboard.h>
 #include <ingame/battle.h>
@@ -121,7 +122,7 @@ namespace TA3D
 							if (messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
 								messages.pop_front();
                             msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
-							messages.push_back( NetworkMessage( msg, msec_timer ) );
+							messages.push_back( NetworkMessage( msg, msectimer() ) );
 							pMutex.unlock();
 						}
 					}
@@ -163,13 +164,13 @@ namespace TA3D
 				if (messages.size() > CHAT_MAX_MESSAGES)		// Prevent flooding the screen with chat messages
 					messages.pop_front();
                 chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
-				messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
+				messages.push_back( NetworkMessage( chat_msg, msectimer() ) );
 				pMutex.unlock();
 			}
 		}
 
 		pMutex.lock();
-		while(!messages.empty() && msec_timer - messages.front().timer >= CHAT_MESSAGE_TIMEOUT)
+		while(!messages.empty() && msectimer() - messages.front().timer >= CHAT_MESSAGE_TIMEOUT)
 			messages.pop_front();
 		pMutex.unlock();
 
@@ -655,7 +656,7 @@ namespace TA3D
 			const float Y_ref = 32 + gfx->TA_font->height();
 			float Y = Y_ref;
 			const uint32 shadowmask = makeacol(0, 0, 0, 0xFF);
-			const uint32 timer = msec_timer;
+			const uint32 timer = msectimer();
 			for (std::deque<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
 			{
 				uint32 color = 0xFFFFFFFF;

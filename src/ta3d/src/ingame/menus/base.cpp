@@ -20,6 +20,7 @@
 #include <ta3dbase.h>
 #include <input/mouse.h>
 #include <input/keyboard.h>
+#include <misc/timer.h>
 
 
 namespace TA3D
@@ -27,7 +28,7 @@ namespace TA3D
 namespace Menus
 {
 
-	Abstract::Abstract() : timer(msec_timer)
+	Abstract::Abstract() : timer(msectimer())
 	{
 		pTypeName = typeid(*this).name();
 	}
@@ -133,9 +134,9 @@ namespace Menus
 		if (msec == -1)
 			msec = TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING;
 		timer += msec;
-		uint32 tmp = msec_timer;
+		uint32 tmp = msectimer();
         rest(tmp >= timer ? 0 : timer - tmp);
-		timer = msec_timer;
+		timer = msectimer();
 	}
 
 

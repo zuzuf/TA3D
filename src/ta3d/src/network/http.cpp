@@ -1,6 +1,7 @@
 #include <TA3D_NameSpace.h>
 #include <misc/files.h>
 #include <misc/paths.h>
+#include <misc/timer.h>
 #include "http.h"
 #include <logs/logs.h>
 #include "socket.tcp.h"
@@ -69,7 +70,7 @@ namespace TA3D
         QByteArray tmpBuf;
         tmpBuf = "GET " + _request.toUtf8() + " HTTP/1.0\r\nHost:" + servername.toUtf8() + "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
 
-		uint32 timer(msec_timer);
+		uint32 timer(msectimer());
 		sock.send(tmpBuf.data(), tmpBuf.size());
 		if (!sock.isOpen())
 		{
@@ -85,7 +86,7 @@ namespace TA3D
 
 		while (!bStop)
 		{
-			timer = msec_timer;
+			timer = msectimer();
 			do
 			{
 				count = sock.recv(buffer, sizeof(buffer) - 1);
@@ -100,8 +101,8 @@ namespace TA3D
 					}
 				}
 			}
-			while(count == 0 && msec_timer - timer < 60000 && !bStop);
-			if (msec_timer - timer >= 60000 || bStop)
+			while(count == 0 && msectimer() - timer < 60000 && !bStop);
+			if (msectimer() - timer >= 60000 || bStop)
 				sock.close();
 			if(count < 0)
 			{
@@ -235,7 +236,7 @@ namespace TA3D
         QByteArray tmpBuf;
         tmpBuf = "GET " + _request.toUtf8() + " HTTP/1.0\r\nHost:" + servername.toUtf8() + "\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n";
 
-		uint32 timer(msec_timer);
+		uint32 timer(msectimer());
 		sock.send( tmpBuf.data(), tmpBuf.size());
 		if (!sock.isOpen())
 		{
@@ -245,14 +246,14 @@ namespace TA3D
 
 		while (true)
 		{
-			timer = msec_timer;
+			timer = msectimer();
 			do
 			{
 				count = sock.recv(buffer, sizeof(buffer) - 1);
 				rest(1);
 			}
-			while(count == 0 && msec_timer - timer < 1000);
-			if (msec_timer - timer >= 1000)
+			while(count == 0 && msectimer() - timer < 1000);
+			if (msectimer() - timer >= 1000)
 				sock.close();
 			if(count < 0)
 			{
@@ -328,7 +329,7 @@ namespace TA3D
 
         QByteArray tmpBuf = "GET " + _request.toUtf8() + " HTTP/1.0\r\nHost:" + servername.toUtf8() + "\nAccept: */*\r\nUser-Agent: TA3D\r\nConnection: close\r\n\r\n";
 
-		uint32 timer(msec_timer);
+		uint32 timer(msectimer());
 		sock.send(tmpBuf.data(), tmpBuf.size());
 		if (!sock.isOpen())
 		{
@@ -339,14 +340,14 @@ namespace TA3D
 
 		while (true)
 		{
-			timer = msec_timer;
+			timer = msectimer();
 			do
 			{
 				count = sock.recv(buffer, sizeof(buffer) - 1);
 				rest(1);
 			}
-			while(count == 0 && msec_timer - timer < 1000);
-			if (msec_timer - timer >= 1000)
+			while(count == 0 && msectimer() - timer < 1000);
+			if (msectimer() - timer >= 1000)
 				sock.close();
 			if(count < 0)
 			{

@@ -102,18 +102,5 @@ namespace System
         logs.notice() << LOG_PREFIX_SYSTEM << " built with Qt " << QT_VERSION_STR;
         displayScreenResolution();
 	}
-
-
-
-
-	void DisplayInformationsAboutSDL()
-	{
-		const SDL_version * v = SDL_Linked_Version();
-		logs.info() << LOG_PREFIX_SYSTEM << "SDL version: " << (int)v->major << "." << (int)v->minor << "." << (int)v->patch;
-	}
-
-
-
-
 } // namespace System
 } // namespace TA3D

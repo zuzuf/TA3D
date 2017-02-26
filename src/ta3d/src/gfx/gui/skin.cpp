@@ -19,6 +19,7 @@
 #include <TA3D_NameSpace.h>
 #include <misc/paths.h>
 #include <misc/math.h>
+#include <misc/timer.h>
 #include "base.h"
 
 
@@ -416,7 +417,7 @@ namespace Gui
 
     void Skin::TextEditor(float x1, float y1, float x2, float y2, const QStringList &Entry, int row, int col, bool State) const
 	{
-		bool blink = State && (msec_timer % 1000) >= 500;
+        bool blink = State && (msectimer() % 1000) >= 500;
 
 		gfx->set_color( 0xFFFFFFFF);
 		gfx->set_alpha_blending();
@@ -515,7 +516,7 @@ namespace Gui
 
 	void Skin::TextBar(float x1,float y1,float x2,float y2,const QString &Caption,bool State) const
 	{
-		bool blink = State && (msec_timer % 1000) >= 500;
+        bool blink = State && (msectimer() % 1000) >= 500;
 
 		gfx->set_color(0xFFFFFFFF);
 		gfx->set_alpha_blending();

@@ -44,7 +44,6 @@ namespace TA3D
 		//@}
 
 		bool GFXModeActive() const { return pGFXModeActive; }
-		bool SDLRunning() const { return pSDLRunning; }
 
 		/*!
 		** \brief Make initialization (from the main thread only) after the engine was initialized from another thread
@@ -62,7 +61,6 @@ namespace TA3D
 		void displayInfosAboutOpenGL() const;
 
 	private:
-		bool pSDLRunning;
 		bool pGFXModeActive;
         volatile bool bStarted;
 

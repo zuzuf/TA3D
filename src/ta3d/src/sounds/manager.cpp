@@ -24,6 +24,7 @@
 #include <misc/camera.h>
 #include <misc/paths.h>
 #include <QFile>
+#include <misc/timer.h>
 
 
 using namespace TA3D::Interfaces;
@@ -977,10 +978,10 @@ namespace Audio
 			return;
 		}
 
-		if (msec_timer - sound->lastTimePlayed < pMinTicks)
+        if (msectimer() - sound->lastTimePlayed < pMinTicks)
 			return; // Make sure it doesn't play too often, so it doesn't play too loud!
 
-		sound->lastTimePlayed = msec_timer;
+        sound->lastTimePlayed = msectimer();
 
 		if (!sound->sampleHandle || (sound->is3DSound && !vec))
 		{
@@ -1008,7 +1009,7 @@ namespace Audio
 		SoundItemList* it = pSoundList[szWav];
 		if (it)
 		{
-			it->lastTimePlayed = msec_timer - 1000 - pMinTicks; // Make sure it'll be played
+            it->lastTimePlayed = msectimer() - 1000 - pMinTicks; // Make sure it'll be played
 			doPlayTDFSound(Key, vec);
 		}
 		doUpdate3DSound();

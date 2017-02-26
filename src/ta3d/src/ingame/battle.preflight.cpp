@@ -20,6 +20,8 @@
 #include <UnitEngine.h>
 #include <input/mouse.h>
 #include <input/keyboard.h>
+#include <misc/timer.h>
+#include <misc/timer.h>
 
 
 namespace TA3D
@@ -56,9 +58,9 @@ namespace TA3D
 
 		if (video_shoot)
 		{
-            if (msec_timer - video_timer >= 1000 / 15)
+            if (msectimer() - video_timer >= 1000 / 15)
 			{
-				video_timer = msec_timer;
+				video_timer = msectimer();
 				shoot = true;
 			}
 		}
@@ -137,11 +139,11 @@ namespace TA3D
                 if (camera_zscroll > 20.0f) camera_zscroll = 20.0f;
         }
 
-		if (msec_timer - cam_def_timer >= 1000 && !Math::Zero(delta)
+		if (msectimer() - cam_def_timer >= 1000 && !Math::Zero(delta)
 			&& ( ( camera_zscroll > 0.0f && old_zscroll <= 0.0f)
 				 || ( camera_zscroll < 0.0f && old_zscroll >= 0.0f)))			// Just to make it lock near def position
 		{
-			cam_def_timer = msec_timer;
+			cam_def_timer = msectimer();
 			old_zscroll = 0.0f;
 			if (camera_zscroll > -lp_CONFIG->camera_def_angle)
 				old_zscroll += 0.00001f;
@@ -149,7 +151,7 @@ namespace TA3D
 				old_zscroll -= 0.00001f;
 		}
 
-        if (msec_timer - cam_def_timer < 500)
+        if (msectimer() - cam_def_timer < 500)
 			camera_zscroll = old_zscroll;
 
 		if (lp_CONFIG->ortho_camera)        // 2D zoom with orthographic camera

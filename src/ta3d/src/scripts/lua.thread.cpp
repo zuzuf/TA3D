@@ -23,6 +23,7 @@
 #include "lua.thread.h"
 #include "lua.env.h"
 #include <input/mouse.h>
+#include <misc/timer.h>
 
 
 
@@ -149,7 +150,7 @@ namespace TA3D
 
         crashed = false;
 
-        last = msec_timer;
+        last = msectimer();
 	}
 
 	void LuaThread::destroy()
@@ -299,7 +300,7 @@ namespace TA3D
 
 				running = true;
 				setThreadID();
-                last = msec_timer;
+                last = msectimer();
 			}
 		}
 		else
@@ -389,7 +390,7 @@ namespace TA3D
 
 	int thread_time( lua_State *L )		// time()
 	{
-		lua_pushnumber( L, msec_timer * 0.001 );
+        lua_pushnumber( L, msectimer() * 0.001 );
 		return 1;
 	}
 
@@ -529,7 +530,7 @@ namespace TA3D
 
 	int LuaThread::run()                          // Run the script, using default delay
 	{
-		const uint32 timer = msec_timer;
+        const uint32 timer = msectimer();
 		const float dt = (float)(timer - last);
 		last = timer;
 		return run(dt);

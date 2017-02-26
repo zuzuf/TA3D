@@ -20,6 +20,7 @@
 #include <UnitEngine.h>
 #include "lua.data.h"
 #include "lua.env.h"
+#include <misc/timer.h>
 
 namespace TA3D
 {
@@ -846,7 +847,7 @@ namespace TA3D
 
 		n_args = 0;
 
-		last = msec_timer;
+		last = msectimer();
 	}
 
 	void UnitScript::destroy()

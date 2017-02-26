@@ -5,6 +5,7 @@
 #include <gfx/fx.manager.h>
 #include <sounds/manager.h>
 #include <input/mouse.h>
+#include <misc/timer.h>
 
 
 
@@ -379,8 +380,8 @@ namespace TA3D
 		shadow_scale_dir = -1.0f;
 		last_path_refresh = 0.0f;
 		metal_prod = metal_cons = energy_prod = energy_cons = cur_metal_prod = cur_metal_cons = cur_energy_prod = cur_energy_cons = 0.0f;
-		last_time_sound = msec_timer;
-		ripple_timer = msec_timer;
+		last_time_sound = msectimer();
+		ripple_timer = msectimer();
 		was_moving = false;
 		cur_px = 0;
 		cur_py = 0;
@@ -4745,7 +4746,7 @@ script_exec:
 		}
 		Vector3D p_target = Pos;
 		Vector3D n_target = Pos;
-		const float rab = float(msec_timer % 1000) * 0.001f;
+		const float rab = float(msectimer() % 1000) * 0.001f;
 		const UnitType *pType = unit_manager.unit_type[type_id];
         uint32	remaining_build_commands = !(pType->BMcode) ? 0 : 0xFFFFFFF;
 
@@ -5248,9 +5249,9 @@ script_exec:
 	{
 		bool bPlayed = false;
 		pMutex.lock();
-		if (owner_id == players.local_human_id && int(msec_timer - last_time_sound) >= units.sound_min_ticks )
+		if (owner_id == players.local_human_id && int(msectimer() - last_time_sound) >= units.sound_min_ticks )
 		{
-			last_time_sound = msec_timer;
+			last_time_sound = msectimer();
 			const UnitType *pType = unit_manager.unit_type[type_id];
             sound_manager->playTDFSound(pType->soundcategory, key , &Pos);
 			bPlayed = true;

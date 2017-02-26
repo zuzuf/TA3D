@@ -41,6 +41,7 @@
 #include "sounds/manager.h"
 #include "cache.h"
 #include "ingame/menus/setupgame.h"
+#include "misc/timer.h"
 
 namespace TA3D
 {
@@ -220,7 +221,7 @@ int main(int argc, char **argv)
 		// ok, if we are here, our thread in engine class is running
 		// and doing some work loading up alot of crap so while its doing that
 		// we are going to show our intro, but first we need to start our timer.
-		start = msec_timer; // Initalize timer.
+		start = msectimer(); // Initalize timer.
 
 		// Make some initialization which must be done in the main thread only
 		engine.initializationFromTheMainThread();

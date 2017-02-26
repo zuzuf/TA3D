@@ -30,7 +30,7 @@
 #include <EngineClass.h>			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
 #include <misc/math.h>
 #include <UnitEngine.h>
-#include <misc/usectimer.h>
+#include <misc/timer.h>
 #include <misc/bitmap.h>
 
 #define PATHFINDER_MAX_LENGTH			500000
@@ -202,7 +202,7 @@ namespace TA3D
 			unlock();
 
 			// Here we are free to compute this path
-			const uint32 start_timer = msec_timer;
+            const uint32 start_timer = msectimer();
 			if (cur.idx >= 0
 				&& units.unit[cur.idx].ID == cur.UID
 				&& (units.unit[cur.idx].flags & 1))
@@ -235,7 +235,7 @@ namespace TA3D
 			}
 	
 			// We don't want to use more than 25% of the CPU here
-			if (suspend((nbCores == 1) ? ((msec_timer - start_timer) << 2) : 0))
+            if (suspend((nbCores == 1) ? ((msectimer() - start_timer) << 2) : 0))
 			{
 				// The thread should stop as soon as possible
 				bRunning = false;
@@ -464,9 +464,7 @@ namespace TA3D
 		for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Mark the path with a special pattern
 			SurfaceInt(bmp, cur->x(), cur->z()) = 0xFF0000FF;
 
-		SDL_SaveBMP(bmp, "pathmap.bmp");
-
-		SDL_FreeSurface(bmp);
+        bmp.save("pathmap.bmp");
 #endif
 
 		if (!nodes.empty() && pathFound)
@@ -620,9 +618,7 @@ namespace TA3D
 #ifdef DEBUG_AI_PATHFINDER
 			for (std::vector<AI::Path::Node>::iterator cur = nodes.begin() ; cur != nodes.end() ; ++cur)		// Do some cleaning
 				SurfaceInt(bmp, cur->x(), cur->z()) = 0xFFFFFFFF;
-			SDL_SaveBMP(bmp, "pathmap.bmp");
-
-			SDL_FreeSurface(bmp);
+            bmp.save("pathmap.bmp");
 #endif
 			for (std::vector<AI::Path::Node>::const_iterator cur = tmp.begin(), end = tmp.end() ; cur != end ; ++cur)		// Do some cleaning
 				zone(cur->x(), cur->z()) = 0;

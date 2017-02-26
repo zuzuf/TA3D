@@ -18,6 +18,7 @@
 #include "config.h"
 #include <input/keyboard.h>
 #include <input/mouse.h>
+#include <misc/timer.h>
 #include <TA3D_NameSpace.h>
 #include <mods/mods.h>
 #include <misc/paths.h>
@@ -149,61 +150,31 @@ namespace Menus
 
 		nb_res = 0;
 
-		SDL_Rect **mode_list = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_OPENGL);
-
-		if (mode_list == (SDL_Rect**)0)         // No resolution available (normally this shouldn't be possible if we get here)
-			nb_res = 0;
-		else if (mode_list == (SDL_Rect**)-1)   // Ok, everything is possible so let's use standard sizes
-		{
 #define ADD_RES(w,h)  \
-			res_bpp[nb_res++] = 16;\
-			res_width[nb_res++] = w;\
-			res_height[nb_res++] = h;\
-			res_bpp[nb_res++] = 32;\
-			res_width[nb_res++] = w;\
-			res_height[nb_res++] = h;
+        res_bpp[nb_res++] = 16;\
+        res_width[nb_res++] = w;\
+        res_height[nb_res++] = h;\
+        res_bpp[nb_res++] = 32;\
+        res_width[nb_res++] = w;\
+        res_height[nb_res++] = h;
 
-			ADD_RES(640,480)
-				ADD_RES(800,480)
-				ADD_RES(800,600)
-				ADD_RES(1024,768)
-				ADD_RES(1024,600)
-				ADD_RES(1280,960)
-				ADD_RES(1280,1024)
-				ADD_RES(1440,900)
-				ADD_RES(1680,1050)
-				ADD_RES(1600,1200)
-				ADD_RES(1920,1200)
-				ADD_RES(2560,1600)
-		}
-		else
-		{
-			for (unsigned int i = 0; mode_list[i] != NULL; ++i)
-			{
-				// Reference to the current SDL Rect
-				const SDL_Rect& rect = *(mode_list[i]);
-
-				if (rect.w >= 640 && rect.h >= 480)
-				{
-# ifndef TA3D_PLATFORM_MAC
-					if(SDL_VideoModeOK(rect.w, rect.h, 16, SDL_FULLSCREEN | SDL_OPENGL) == 16)
-					{
-						res_bpp[nb_res]    = 16;
-						res_width[nb_res ] = rect.w;
-						res_height[nb_res] = rect.h;
-						++nb_res;
-					}
-# endif
-					if (SDL_VideoModeOK(rect.w, rect.h, 32, SDL_FULLSCREEN | SDL_OPENGL) == 32)
-					{
-						res_bpp[nb_res]    = 32;
-						res_width[ nb_res] = rect.w;
-						res_height[nb_res] = rect.h;
-						++nb_res;
-					}
-				}
-			}
-		}
+        ADD_RES(640,480)
+        ADD_RES(800,480)
+        ADD_RES(800,600)
+        ADD_RES(1024,768)
+        ADD_RES(1024,600)
+        ADD_RES(1280,720)
+        ADD_RES(1280,800)
+        ADD_RES(1280,960)
+        ADD_RES(1280,1024)
+        ADD_RES(1440,900)
+        ADD_RES(1680,1050)
+        ADD_RES(1600,1200)
+        ADD_RES(1920,1080)
+        ADD_RES(1920,1200)
+        ADD_RES(2560,1440)
+        ADD_RES(2560,1600)
+        ADD_RES(3840,2160)
 
 		pArea->set_state("*.showfps", lp_CONFIG->showfps);
 		pArea->caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
@@ -345,7 +316,7 @@ namespace Menus
 			I_Msg( TA3D::TA3D_IM_GUI_MSG, "config_confirm.show");
 
 		save = false;
-		timer = msec_timer;
+        timer = msectimer();
 
 		return true;
 	}
@@ -368,7 +339,7 @@ namespace Menus
 				Gui::GUIOBJ::Ptr pbar = pArea->get_object( "config_confirm.p_wait");
 				if (pbar)
 				{
-					const uint32 new_value = (msec_timer - timer) / 50;
+                    const uint32 new_value = (msectimer() - timer) / 50;
 					if (new_value != pbar->Data)
 					{
 						pbar->Data = new_value;

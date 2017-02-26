@@ -57,8 +57,7 @@ namespace TA3D
 
 
 	Engine::Engine()
-        : pSDLRunning(false),
-          pGFXModeActive(false),
+        : pGFXModeActive(false),
           bStarted(false)
 	{
 		// How many CPU we've got ?
@@ -78,9 +77,6 @@ namespace TA3D
 			showError("RESOURCES ERROR");
 			exit(1);
 		}
-
-		// set SDL running status;
-		pSDLRunning = true;
 
 		// Creating GFX Interface
 		// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
@@ -103,12 +99,6 @@ namespace TA3D
 		gfx = NULL;
 		pGFXModeActive = false;
 		InterfaceManager = NULL;
-
-		if (pSDLRunning)
-		{
-			pSDLRunning = false;
-			SDL_Quit();
-		}
 	}
 
 

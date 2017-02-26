@@ -3,6 +3,7 @@
 #include "netclient.h"
 #include <mods/mods.h>
 #include <algorithm>        // We need std::sort
+#include <misc/timer.h>
 
 #define BUFFER_SIZE     2048
 
@@ -117,9 +118,9 @@ namespace TA3D
                 sendMessage("REGISTER " + login + ' ' + password);
 			else
                 sendMessage("LOGIN " + login + ' ' + password);
-			uint32 timer = msec_timer;
+            uint32 timer = msectimer();
 			bool done = false;
-			while (msec_timer - timer < 10000 && !done)   // 10s timeout
+            while (msectimer() - timer < 10000 && !done)   // 10s timeout
 			{
 				rest(1);
 				receive();

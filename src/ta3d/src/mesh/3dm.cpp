@@ -34,6 +34,7 @@
 #include <languages/i18n.h>
 #include <misc/math.h>
 #include <misc/paths.h>
+#include <misc/timer.h>
 #include <misc/files.h>
 #include <logs/logs.h>
 #include <gfx/gl.extensions.h>
@@ -339,7 +340,7 @@ namespace TA3D
 				glTranslatef( 0.0f, -2.0f, 0.0f );
 				if (notex)
 				{
-					const byte var = (byte)abs(0xFF - (msec_timer % 1000) * 0x200 / 1000);
+					const byte var = (byte)abs(0xFF - (msectimer() % 1000) * 0x200 / 1000);
 					glColor3ub(0, var, 0);
 				}
 				else

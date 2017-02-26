@@ -22,6 +22,7 @@
 #include <languages/i18n.h>
 #include <ingame/sidedata.h>
 #include <misc/paths.h>
+#include <misc/timer.h>
 #include <sounds/manager.h>
 #include <ingame/players.h>
 
@@ -236,7 +237,7 @@ namespace Menus
 			pan_x2 = pArea->get_object("brief.panning0")->x2;
 		}
 
-		time_ref = msec_timer;
+		time_ref = msectimer();
 
 		return true;
 	}
@@ -257,8 +258,8 @@ namespace Menus
 				 && mouse_b == 0
 				 && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
 				 && !pArea->key_pressed && !pArea->scrolling
-				 && (int)planet_frame == (int)(float(msec_timer - time_ref) * 0.01f));
-		planet_frame = float(msec_timer - time_ref) * 0.01f;
+				 && (int)planet_frame == (int)(float(msectimer() - time_ref) * 0.01f));
+		planet_frame = float(msectimer() - time_ref) * 0.01f;
 	}
 
 

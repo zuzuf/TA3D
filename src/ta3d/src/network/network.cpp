@@ -21,6 +21,7 @@
 #include <misc/math.h>
 #include <logs/logs.h>
 #include "http.h"
+#include <misc/timer.h>
 
 
 namespace TA3D
@@ -557,7 +558,7 @@ namespace TA3D
 	{
 		if (myMode == 1)				// Server mode
 		{
-			const uint32 timer = msec_timer;
+			const uint32 timer = msectimer();
 			phmutex.lock();
 			int v = 0;
 			for (int i = 1 ; i <= players.getMaxId() ; ++i)
@@ -576,7 +577,7 @@ namespace TA3D
 		{
 			if (tohost_socket == NULL || !tohost_socket->isOpen())	return -1;
 			phmutex.lock();
-			ping_timer[0].push_back(msec_timer);
+			ping_timer[0].push_back(msectimer());
 			phmutex.unlock();
 			return tohost_socket->sendPing();
 		}
@@ -968,7 +969,7 @@ namespace TA3D
 		{
 			const uint32 t = times.front();
 			times.pop_front();
-			ping_delay[id] = msec_timer - t;
+			ping_delay[id] = msectimer() - t;
 		}
 		phmutex.unlock();
 	}

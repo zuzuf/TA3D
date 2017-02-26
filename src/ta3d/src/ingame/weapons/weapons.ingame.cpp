@@ -18,6 +18,7 @@
 #include "weapons.ingame.h"
 #include <EngineClass.h>
 #include <misc/camera.h>
+#include <misc/timer.h>
 #include <gfx/gfx.h>
 #include <engine.h>
 #include <misc/bvh.h>
@@ -252,7 +253,7 @@ namespace TA3D
 	{
 		thread_running = true;
 		float dt = 1.0f / TICKS_PER_SEC;
-		int weapon_timer = msec_timer;
+		int weapon_timer = msectimer();
 		int counter = 0;
 
 		while (!thread_ask_to_stop)
@@ -265,7 +266,7 @@ namespace TA3D
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;
-		LOG_INFO("Weapon engine: " << (float)(counter * 1000) / float(msec_timer - weapon_timer) << " ticks/sec");
+		LOG_INFO("Weapon engine: " << (float)(counter * 1000) / float(msectimer() - weapon_timer) << " ticks/sec");
 	}
 
 

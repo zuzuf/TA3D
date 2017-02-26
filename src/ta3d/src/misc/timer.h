@@ -15,14 +15,15 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __TA3D_USECTIMER_H__
-# define __TA3D_USECTIMER_H__
+#ifndef __TA3D_TIMER_H__
+# define __TA3D_TIMER_H__
 
 #include <stdafx.h>
 
 namespace TA3D
 {
-	uint64 usectimer();
+    uint64 msectimer();
+    uint64 usectimer();
 }
 
 #endif

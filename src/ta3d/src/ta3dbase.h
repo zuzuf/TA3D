@@ -44,11 +44,6 @@ namespace TA3D
 
 	extern int expected_players;
 
-#ifndef TA3D_MSEC_TIMER
-#define TA3D_MSEC_TIMER
-#define msec_timer  (SDL_GetTicks())
-#endif
-
 	extern int start;
 
 	extern int fire;

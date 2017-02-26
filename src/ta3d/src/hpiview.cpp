@@ -309,7 +309,6 @@ namespace TA3D
 
 			if (file)
 			{
-				SDL_SetVideoMode(320, 200, 32, 0);
 				TA3D::UTILS::load_palette(pal);
 
 				Gaf::AnimationList anims;
@@ -381,7 +380,6 @@ namespace TA3D
 
             if (gaf_file.isOpen())
 			{
-				SDL_SetVideoMode(320, 200, 32, 0);
 				Gaf::Header header;
 				header.IDVersion = TA3D_GAF_TRUECOLOR;
 				header.Entries   = parser.pullAsInt("gadget0.entries");
@@ -498,18 +496,6 @@ namespace TA3D
 			// Starts a minimal TA3D environnement
 			InterfaceManager = new IInterfaceManager();
 
-			// Initalizing SDL video
-			if (SDL_Init(SDL_INIT_VIDEO) < 0 )
-                throw std::runtime_error("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
-
-			// Installing SDL timer
-			if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
-                throw std::runtime_error( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
-
-			// Installing SDL timer
-			if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
-                throw std::runtime_error( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
-
 			gfx = new GFX();
 
 			init_keyboard();
@@ -617,8 +603,6 @@ namespace TA3D
 	 */
 	int hpiview(int argc, char *argv[])
 	{
-        SDL_Init(SDL_INIT_AUDIO);
-
 		if (argc >= 2)
 		{
 			VFS::Instance()->reload();
@@ -663,7 +647,6 @@ namespace TA3D
 			if (ok)
 				return true;
 		}
-		SDL_Quit();
 		return false;
 	}
 }

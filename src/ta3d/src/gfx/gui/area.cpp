@@ -23,6 +23,7 @@
 #include <TA3D_NameSpace.h>
 #include <misc/math.h>
 #include <misc/tdf.h>
+#include <misc/timer.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
 
@@ -154,10 +155,10 @@ namespace Gui
 	{
 		poll_inputs();
 		key_pressed = keypressed();
-		bool scroll = ((msec_timer - scroll_timer) >= 250);
+		bool scroll = ((msectimer() - scroll_timer) >= 250);
 		if (scroll)
 		{
-			while (msec_timer - scroll_timer >= 250)
+			while (msectimer() - scroll_timer >= 250)
 				scroll_timer += 250;
 		}
 
@@ -340,7 +341,7 @@ namespace Gui
 		amz = mouse_z;
 		amb = mouse_b;
 
-		scroll_timer = msec_timer;
+		scroll_timer = msectimer();
 
 		InitInterface();		// Initialization of the interface
 	}

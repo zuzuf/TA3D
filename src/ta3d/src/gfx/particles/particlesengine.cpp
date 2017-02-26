@@ -20,6 +20,7 @@
 #include <gfx/gl.extensions.h>
 #include "particlesengine.h"
 #include <misc/matrix.h>
+#include <misc/timer.h>
 #include <TA3D_NameSpace.h>
 #include <ta3dbase.h>
 #include <engine.h>
@@ -895,7 +896,7 @@ namespace TA3D
 	{
 		thread_running = true;
 		float dt = 1.0f / TICKS_PER_SEC;
-		int particle_timer = msec_timer;
+		int particle_timer = msectimer();
 		int counter = 0;
 
 		while (!thread_ask_to_stop)
@@ -907,7 +908,7 @@ namespace TA3D
 		}
 		thread_running = false;
 		thread_ask_to_stop = false;
-		LOG_INFO("Particle engine: " << (float)(counter * 1000) / float(msec_timer - particle_timer) << " ticks/sec.");
+		LOG_INFO("Particle engine: " << (float)(counter * 1000) / float(msectimer() - particle_timer) << " ticks/sec.");
 	}
 
 

@@ -21,6 +21,7 @@
 #include <ingame/gamedata.h>
 #include <languages/i18n.h>
 #include <misc/paths.h>
+#include <misc/timer.h>
 #include <restore.h>
 #include "setupgame.h"
 #include <TA3D_NameSpace.h>
@@ -93,7 +94,7 @@ namespace Menus
 
 		network_manager.InitBroadcast(1234);      // broadcast mode
 
-		server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
+		server_list_timer = msectimer() - SERVER_LIST_REFRESH_DELAY;
 
 		return true;
 	}
@@ -115,7 +116,7 @@ namespace Menus
 				 && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
 				 && !pArea->key_pressed && !pArea->scrolling
 				 && !network_manager.BroadcastedMessages()
-				 && msec_timer - server_list_timer < SERVER_LIST_REFRESH_DELAY);
+				 && msectimer() - server_list_timer < SERVER_LIST_REFRESH_DELAY);
 	}
 
 
@@ -145,7 +146,7 @@ namespace Menus
 							if (server_i->name == name)
 							{
 								updated = true;
-								server_i->timer = msec_timer;
+								server_i->timer = msectimer();
 								server_i->nb_open = nb_open;
 								server_i->host = host_address;
 								if (name == o_sel)
@@ -158,7 +159,7 @@ namespace Menus
 							SERVER_DATA new_server;
 							new_server.internet = false;
 							new_server.name = name;
-							new_server.timer = msec_timer;
+							new_server.timer = msectimer();
 							new_server.nb_open = nb_open;
 							new_server.host = host_address;
 							servers.push_back( new_server);
@@ -170,7 +171,7 @@ namespace Menus
 			}
 
 			for (std::list< SERVER_DATA >::iterator server_i = servers.begin(); server_i != servers.end() ;) // Remove those who timeout
-				if (!server_i->internet && msec_timer - server_i->timer >= 30000)
+				if (!server_i->internet && msectimer() - server_i->timer >= 30000)
 					servers.erase(server_i++);
 				else
                     ++server_i;
@@ -199,11 +200,11 @@ namespace Menus
 			servers.clear();
 		}
 
-		if (msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || refresh_all) // Refresh server list
+		if (msectimer() - server_list_timer >= SERVER_LIST_REFRESH_DELAY || refresh_all) // Refresh server list
 		{
 			for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ;)      // Remove those who timeout
 			{
-				if (!server_i->internet && msec_timer - server_i->timer >= 30000)
+				if (!server_i->internet && msectimer() - server_i->timer >= 30000)
 					servers.erase( server_i++);
 				else
 					server_i++;
@@ -224,7 +225,7 @@ namespace Menus
 					obj->Text.push_back(I18N::Translate("No server found"));
 			}
 
-			server_list_timer = msec_timer;
+			server_list_timer = msectimer();
 			if (network_manager.broadcastMessage( "PING SERVER LIST" ) )
 				printf("error : could not broadcast packet to refresh server list!!\n");
 		}

@@ -2,6 +2,7 @@
 #include "fps.h"
 #include <ta3dbase.h>
 #include <gfx/gfx.h>
+#include <misc/timer.h>
 
 
 namespace TA3D
@@ -17,11 +18,11 @@ namespace TA3D
 	void FPSInfos::statisticsAddFrame()
 	{
 		++countSinceLastTime;
-		if (msec_timer - lastTime >= 1000 /* 1s */)
+		if (msectimer() - lastTime >= 1000 /* 1s */)
 		{
-			average = countSinceLastTime * 1000 / (msec_timer - lastTime);
+			average = countSinceLastTime * 1000 / (msectimer() - lastTime);
 			countSinceLastTime = 0;
-			lastTime = msec_timer;
+			lastTime = msectimer();
             toStr = QString("fps: %1").arg(average);
 		}
 	}

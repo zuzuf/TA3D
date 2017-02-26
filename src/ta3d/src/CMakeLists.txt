@@ -86,7 +86,7 @@ SET(SRC_MISC
 		misc/recttest.h misc/recttest.cpp
 
                 misc/broadcastingiodevice.h misc/broadcastingiodevice.cpp
-		misc/usectimer.h misc/usectimer.cpp
+                misc/timer.h misc/timer.cpp
 		misc/grid.h misc/grid.hxx misc/grid.cpp
 		misc/math.h misc/math.cpp
                 misc/tdf.h misc/tdf.cpp)

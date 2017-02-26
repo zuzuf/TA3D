@@ -21,6 +21,7 @@
 #include <languages/i18n.h>
 #include <gfx/gui/skin.h>
 #include <gfx/gui/base.h>
+#include <misc/timer.h>
 
 
 namespace TA3D
@@ -35,7 +36,7 @@ namespace Menus
 		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f)
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
-		pStartTime = msec_timer;
+		pStartTime = msectimer();
 		loadTheBackgroundTexture();
 		initializeDrawing();
 	}
@@ -47,7 +48,7 @@ namespace Menus
 
 		// Loading time
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Done.");
-		LOG_INFO("Time of loading :" << float(msec_timer - pStartTime) * 0.001f << "s");
+		LOG_INFO("Time of loading :" << float(msectimer() - pStartTime) * 0.001f << "s");
 	}
 
 	void Loading::initializeDrawing()

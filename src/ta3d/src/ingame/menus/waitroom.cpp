@@ -18,6 +18,7 @@
 #include "waitroom.h"
 #include <input/keyboard.h>
 #include <input/mouse.h>
+#include <misc/timer.h>
 #include <ingame/players.h>
 #include <fbi.h>
 
@@ -104,7 +105,7 @@ namespace Menus
 			for (int i = 0; i < unit_manager.nb_unit; ++i)      // Clients disable all units and wait for server to enable the ones we're going to use
 				unit_manager.unit_type[i]->not_used = true;
 
-		ping_timer = msec_timer;                    // Used to send simple PING requests in order to detect when a connection fails
+		ping_timer = msectimer();                    // Used to send simple PING requests in order to detect when a connection fails
 
 		return true;
 	}
@@ -133,7 +134,7 @@ namespace Menus
 				 && mouse_b == 0
 				 && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
                  && !pArea->key_pressed && !pArea->scrolling && special_msg.isEmpty() && !playerDropped
-				 && ( msec_timer - ping_timer < 2000 || !network_manager.isServer() ));
+				 && ( msectimer() - ping_timer < 2000 || !network_manager.isServer() ));
 	}
 
 
@@ -146,10 +147,10 @@ namespace Menus
 
 		bool check_ready = false;
 
-		if (network_manager.isServer() && msec_timer - ping_timer >= 2000) // Send a ping request
+		if (network_manager.isServer() && msectimer() - ping_timer >= 2000) // Send a ping request
 		{
 			network_manager.sendPing();
-			ping_timer = msec_timer;
+			ping_timer = msectimer();
 			check_ready = true;
 
 			if (network_manager.isServer())

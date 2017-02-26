@@ -23,6 +23,7 @@
 #include "TA3D_Network.h"
 #include <logs/logs.h>
 #include <misc/paths.h>
+#include <misc/timer.h>
 #include <QFile>
 
 namespace TA3D
@@ -278,7 +279,7 @@ namespace TA3D
 
 		length = file->size();
 
-		uint32 timer = msec_timer;
+		uint32 timer = msectimer();
 
 		int real_length = length;
 
@@ -297,10 +298,10 @@ namespace TA3D
 				pos += n;
                 network->updateFileTransferInformation( filename + QString::number(sockid), real_length, pos );
 
-				const uint32 timer = msec_timer;
-				while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000 )
+				const uint32 timer = msectimer();
+				while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msectimer() - timer < 60000 )
 					suspend(0);
-				if (msec_timer - timer >= 60000)
+				if (msectimer() - timer >= 60000)
 				{
 					DELETE_ARRAY(buffer);
 					LOG_DEBUG( LOG_PREFIX_NET_FILE << "file transfert timed out");
@@ -318,8 +319,8 @@ namespace TA3D
 			suspend(1);
 		}
 
-		timer = msec_timer;
-		while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000)
+		timer = msectimer();
+		while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msectimer() - timer < 60000)
 			suspend(1);		// Wait for client to say ok
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
@@ -375,10 +376,10 @@ namespace TA3D
 
 		LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
 
-		int timer = msec_timer;
+		int timer = msectimer();
 
 		ready = true;
-		while (!pDead && ready && msec_timer - timer < 60000 )
+		while (!pDead && ready && msectimer() - timer < 60000 )
 			suspend(0);
 		memcpy(&length,buffer,4);
 
@@ -399,8 +400,8 @@ namespace TA3D
 		while (!pDead)
 		{
 			ready = true;
-			timer = msec_timer;
-			while( !pDead && ready && msec_timer - timer < 60000 ) suspend( 0 );			// Get paquet data
+			timer = msectimer();
+			while( !pDead && ready && msectimer() - timer < 60000 ) suspend( 0 );			// Get paquet data
 			n = buffer_size;
 
 			if (ready) // Time out

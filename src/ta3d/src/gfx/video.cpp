@@ -136,7 +136,7 @@ namespace TA3D
 //		// Play it, and wait for playback to complete
 //		mpegSynchronizer.setNbThreadsToSync(2);
 //		SMPEG_play(mpeg);
-//		uint32 timer = msec_timer;
+//		uint32 timer = msectimer();
 //		const float screen_w = static_cast<float>(SCREEN_W);
 //		const float screen_h = static_cast<float>(SCREEN_H);
 //		while (SMPEG_status(mpeg) == SMPEG_PLAYING)
@@ -158,12 +158,12 @@ namespace TA3D
 //			}
 //			gfx->flip();
 
-//			if (msec_timer - timer > 100)
+//			if (msectimer() - timer > 100)
 //			{
 //				poll_inputs();
 //				if (keypressed() || mouse_b != 0)
 //					break;
-//				timer = msec_timer;
+//				timer = msectimer();
 //			}
 //		}
 //		mpegSynchronizer.setNbThreadsToSync(0);
