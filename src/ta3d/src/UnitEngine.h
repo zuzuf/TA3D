@@ -244,8 +244,6 @@ namespace TA3D
 
 		void drawHealthBars(); // Draw health bars / dessine les barres de vie
 
-		void draw_shadow(float t, const Vector3D& Dir, float alpha = 0.5f); // Dessine les ombres des unités visibles
-
 		void draw_mini(float map_w, float map_h, int mini_w, int mini_h); // Repère les unités sur la mini-carte
 
 		void move(float dt, int key_frame = 0, bool wind_change = false);

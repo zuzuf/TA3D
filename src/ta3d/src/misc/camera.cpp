@@ -18,6 +18,7 @@
 #include <TA3D_NameSpace.h>
 #include "camera.h"
 #include "math.h"
+#include <QMatrix4x4>
 
 namespace TA3D
 {
@@ -156,9 +157,11 @@ namespace TA3D
 		Vector3D FP(pos);
 		FP += dir;
 		FP += shakeVector;
-		gluLookAt(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z,
-				  FP.x, FP.y, FP.z,
-				  up.x, up.y, up.z);
+        QMatrix4x4 M;
+        M.lookAt(QVector3D(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z),
+                 QVector3D(FP.x, FP.y, FP.z),
+                 QVector3D(up.x, up.y, up.z));
+        glMultMatrixf(M.data());
 
 		if (!classic)
 		{
@@ -183,9 +186,11 @@ namespace TA3D
 			glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
 
 		const Vector3D FP(rpos + dir + shakeVector);
-		gluLookAt(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z,
-				  FP.x, FP.y, FP.z,
-				  up.x, up.y, up.z);
+        QMatrix4x4 M;
+        M.lookAt(QVector3D(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z),
+                 QVector3D(FP.x, FP.y, FP.z),
+                 QVector3D(up.x, up.y, up.z));
+        glMultMatrixf(M.data());
 
 		if (mirror)
 		{

@@ -107,6 +107,11 @@ namespace UTILS
 		*/
         QIODevice* readFile(const QString& filename);
 
+        /*!
+        ** \brief
+        */
+        QByteArray readFileAsBuffer(const QString& filename);
+
 		/*!
 		** \brief
 		** \param filename

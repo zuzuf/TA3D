@@ -298,46 +298,6 @@ if(LUA_NOJIT)
 endif(LUA_NOJIT)
 
 
-
-#
-# --- GLEW ---
-#
-if(NOT APPLE)
-        if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-#                set(GLEW_LIB "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libglew32.dll.a")
-                find_library(GLEW_LIB GLEW32)
-                if(NOT GLEW_LIB)
-                        find_library(GLEW_LIB glew32)
-                endif(NOT GLEW_LIB)
-                find_file(GLEW_HEADER GL/glew.h)
-                if(NOT GLEW_HEADER)
-                        message(FATAL_ERROR "glew.h not found!")
-                endif(NOT GLEW_HEADER)
-                message(STATUS "GLEW Header : ${GLEW_HEADER}")
-        else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-		find_library(GLEW_LIB GLEW)
-		if(NOT GLEW_LIB)
-			find_library(GLEW_LIB glew)
-		endif(NOT GLEW_LIB)
-		find_file(GLEW_HEADER GL/glew.h)
-		if(NOT GLEW_HEADER)
-			message(FATAL_ERROR "glew.h not found!")
-		endif(NOT GLEW_HEADER)
-		message(STATUS "GLEW Header : ${GLEW_HEADER}")
-        endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-        message(STATUS "GLEW Library : ${GLEW_LIB}")
-else()
-	execute_process(COMMAND pkg-config glew --libs    OUTPUT_VARIABLE GLEW_LIB    OUTPUT_STRIP_TRAILING_WHITESPACE)
-	execute_process(COMMAND pkg-config glew --cflags  OUTPUT_VARIABLE GLEW_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-	message(STATUS "GLEW Library : ${GLEW_LIB}")
-	message(STATUS "GLEW CFLags : ${GLEW_CFLAGS}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GLEW_CFLAGS}")
-endif()
-if(NOT GLEW_LIB)
-	message(FATAL_ERROR "GLEW library not found!")
-endif(NOT GLEW_LIB)
-set(LIBS "${LIBS} ${GLEW_LIB}")
-
 #
 # --- GLU ---
 #

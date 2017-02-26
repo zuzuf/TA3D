@@ -718,42 +718,43 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 
-		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
-		if (lp_CONFIG->ortho_camera)
-		{
-			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
-			coeffs[1] = 0.0f;
-			coeffs[2] = 0.0f;
-			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-		}
-		else
-			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+#warning TODO: implement point sprite
+        float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
+//		if (lp_CONFIG->ortho_camera)
+//		{
+//			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
+//			coeffs[1] = 0.0f;
+//			coeffs[2] = 0.0f;
+//            glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+//		}
+//		else
+//			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
 
-		// Point size
-		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
-		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
+//		// Point size
+//		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
+//		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
 
-		// Set the texture center on the point
-		glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+//		// Set the texture center on the point
+//        glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
-		// We're using point sprites
-		glEnable (GL_POINT_SPRITE);
+//		// We're using point sprites
+//        glEnable (GL_POINT_SPRITE);
 
 		pMutex.lock();
 		for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
 			(*i)->draw();
 		pMutex.unlock();
-		glDisable (GL_POINT_SPRITE);
-		coeffs[0] = 1.0f;
-		coeffs[1] = 0.0f;
-		coeffs[2] = 0.0f;
-		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-		glPointSize(1.0f);
+//		glDisable (GL_POINT_SPRITE);
+//		coeffs[0] = 1.0f;
+//		coeffs[1] = 0.0f;
+//		coeffs[2] = 0.0f;
+//		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+//		glPointSize(1.0f);
 
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
-		glEnable(GL_CULL_FACE);
+        glDisableClientState(GL_COLOR_ARRAY);
+        gfx->glDisable(GL_BLEND);
+        gfx->glDepthMask(GL_TRUE);
+        gfx->glEnable(GL_CULL_FACE);
 	}
 
 	void PARTICLE_ENGINE::drawUW()
@@ -778,29 +779,30 @@ namespace TA3D
 		glDisableClientState(GL_COLOR_ARRAY);
 
 		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
-		if (lp_CONFIG->ortho_camera)
-		{
-			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
-			coeffs[1] = 0.0f;
-			coeffs[2] = 0.0f;
-			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-		}
-		else
-			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+#warning TODO: implement point sprite
+//		if (lp_CONFIG->ortho_camera)
+//		{
+//			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
+//			coeffs[1] = 0.0f;
+//			coeffs[2] = 0.0f;
+//			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+//		}
+//		else
+//			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
 
-		// Point size
-		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
-		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
+//		// Point size
+//		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
+//		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
 
-		// Set the texture center on the point
-		glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+//		// Set the texture center on the point
+//		glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
-		// We're using point sprites
-		glEnable (GL_POINT_SPRITE);
+//		// We're using point sprites
+//		glEnable (GL_POINT_SPRITE);
 
 		double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl };
 
-		glClipPlane(GL_CLIP_PLANE1, eqn);
+        glClipPlane(GL_CLIP_PLANE1, eqn);
 		glEnable(GL_CLIP_PLANE1);
 
 		pMutex.lock();
@@ -810,12 +812,12 @@ namespace TA3D
 
 		glDisable(GL_CLIP_PLANE1);
 
-		glDisable (GL_POINT_SPRITE);
-		coeffs[0] = 1.0f;
-		coeffs[1] = 0.0f;
-		coeffs[2] = 0.0f;
-		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-		glPointSize(1.0f);
+//		glDisable (GL_POINT_SPRITE);
+//		coeffs[0] = 1.0f;
+//		coeffs[1] = 0.0f;
+//		coeffs[2] = 0.0f;
+//		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
+//		glPointSize(1.0f);
 
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisable(GL_BLEND);

@@ -44,13 +44,13 @@ namespace TA3D
 		// Copy unit data from simulation
 		units.renderTick();
 
-		glActiveTextureARB(GL_TEXTURE7_ARB);
-		glDisable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
+        gfx->glActiveTexture(GL_TEXTURE7_ARB);
+        gfx->glDisable(GL_TEXTURE_2D);
+        gfx->glBindTexture(GL_TEXTURE_2D, 0);
+        gfx->glActiveTexture(GL_TEXTURE0_ARB);
 		gfx->setShadowMapMode(false);
 		if (g_useProgram)
-			glUseProgramObjectARB(0);
+            gfx->glUseProgram(0);
 	}
 
 
@@ -218,42 +218,6 @@ namespace TA3D
 		}
 	}
 
-	void Battle::renderStencilShadow()
-	{
-		if (lp_CONFIG->shadow_quality > 0 && cam.rpos.y <= gfx->low_def_limit)
-		{
-			switch (lp_CONFIG->shadow_quality)
-			{
-					case 1:                     // Stencil Shadowing (shadow volumes)
-						if (rotate_light)
-						{
-							pSun.Dir.x = -1.0f;
-							pSun.Dir.y = 1.0f;
-							pSun.Dir.z = 1.0f;
-							pSun.Dir.unit();
-							Vector3D Dir(-pSun.Dir);
-							Dir.x = cosf(light_angle);
-							Dir.z = sinf(light_angle);
-							Dir.unit();
-							pSun.Dir = -Dir;
-							units.draw_shadow(render_time, Dir);
-						}
-						else
-						{
-							pSun.Dir.x = -1.0f;
-							pSun.Dir.y = 1.0f;
-							pSun.Dir.z = 1.0f;
-							pSun.Dir.unit();
-							units.draw_shadow(render_time, -pSun.Dir);
-						}
-						break;
-					case 2:                     // Shadow mapping
-					case 3:
-						break;
-					}
-		}
-	}
-
 	void Battle::renderWater()
 	{
 		if (map->water)
@@ -304,23 +268,22 @@ namespace TA3D
 				glDisable(GL_LIGHTING);
 
 				// First pass of water rendering, store reflection vector
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,first_pass,0);
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass, 0);
 
-				//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
-				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-				glViewport(0,0,512,512);
+                gfx->glViewport(0,0,512,512);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,map->lava_map);
-				glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glEnable(GL_TEXTURE_2D);
+                gfx->glBindTexture(GL_TEXTURE_2D, map->lava_map);
+                glClientActiveTexture(GL_TEXTURE0);
 
-				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,water);
-				glClientActiveTextureARB(GL_TEXTURE1_ARB);
+                gfx->glActiveTexture(GL_TEXTURE1);
+                gfx->glEnable(GL_TEXTURE_2D);
+                gfx->glBindTexture(GL_TEXTURE_2D, water);
+                glClientActiveTexture(GL_TEXTURE1);
 
 				if (lp_CONFIG->water_quality == 2)
 				{
@@ -348,16 +311,16 @@ namespace TA3D
 				else
 					water_pass1.off();
 
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,second_pass,0);					// Second pass of water rendering, store viewing vector
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass, 0);					// Second pass of water rendering, store viewing vector
 
 				//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
-				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glDisable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glDisable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glDisable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE1);
+                gfx->glDisable(GL_TEXTURE_2D);
 
 				water_pass2.on();
 
@@ -369,22 +332,22 @@ namespace TA3D
 
 				if (lp_CONFIG->water_quality > 2)
 				{
-					glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_color,0);					// Third pass of water rendering, store water color
+                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color, 0);					// Third pass of water rendering, store water color
 
-					glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                    gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-					glActiveTextureARB(GL_TEXTURE0_ARB);
-					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D,map->low_tex);
+                    gfx->glActiveTexture(GL_TEXTURE0);
+                    gfx->glEnable(GL_TEXTURE_2D);
+                    gfx->glBindTexture(GL_TEXTURE_2D, map->low_tex);
 
 					cam.setView();
 					glTranslatef( 0.0f, map->sealvl, map->sea_dec);
 					water_obj->draw(t, false);
 				}
 
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-				glViewport(0, 0, SCREEN_W, SCREEN_H);
+                gfx->glViewport(0, 0, SCREEN_W, SCREEN_H);
 
 				float logw = logf((float)SCREEN_W) / logf(2.0f);
 				float logh = logf((float)SCREEN_H) / logf(2.0f);
@@ -392,48 +355,48 @@ namespace TA3D
 				int wy = logh>(int)logh ? (int)logh+1 : (int)logh;
 				wx = 1 << wx;
 				wy = 1 << wy;
-				glBindTexture(GL_TEXTURE_2D,transtex);								// Store what's on screen for transparency effect
-				glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, wx, wy, 0);
+                gfx->glBindTexture(GL_TEXTURE_2D, transtex);								// Store what's on screen for transparency effect
+                gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, wx, wy, 0);
 
-				glEnable(GL_STENCIL_TEST);											// Draw basic water in order to have correct texture mapping
-				glClear(GL_STENCIL_BUFFER_BIT);
-				glStencilFunc(GL_ALWAYS,128, 0xffffffff);
-				glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+                gfx->glEnable(GL_STENCIL_TEST);											// Draw basic water in order to have correct texture mapping
+                gfx->glClear(GL_STENCIL_BUFFER_BIT);
+                gfx->glStencilFunc(GL_ALWAYS,128, 0xffffffff);
+                gfx->glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glDisable(GL_TEXTURE_2D);
-				glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glDisable(GL_TEXTURE_2D);
+                glClientActiveTextureARB(GL_TEXTURE0);
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
 				water_obj->draw(t, true);
 
-				glDisable(GL_STENCIL_TEST);
+                gfx->glDisable(GL_STENCIL_TEST);
 
-				glMatrixMode(GL_TEXTURE);
+                glMatrixMode(GL_TEXTURE);
 				glLoadIdentity();
 				glMatrixMode(GL_MODELVIEW);
 
-				glEnable(GL_LIGHTING);
+                gfx->glEnable(GL_LIGHTING);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
+                gfx->glActiveTexture(GL_TEXTURE0);
 				if (map->ota_data.lavaworld)
-					glBindTexture(GL_TEXTURE_2D, sky.skyTex());
+                    gfx->glBindTexture(GL_TEXTURE_2D, sky.skyTex());
 				else
-					glBindTexture(GL_TEXTURE_2D, reflectex);
-				glEnable(GL_TEXTURE_2D);
+                    gfx->glBindTexture(GL_TEXTURE_2D, reflectex);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glBindTexture(GL_TEXTURE_2D,transtex);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE1);
+                gfx->glBindTexture(GL_TEXTURE_2D, transtex);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE2_ARB);
-				glBindTexture(GL_TEXTURE_2D,first_pass);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE2);
+                gfx->glBindTexture(GL_TEXTURE_2D, first_pass);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE3_ARB);
-				glBindTexture(GL_TEXTURE_2D,second_pass);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE3);
+                gfx->glBindTexture(GL_TEXTURE_2D, second_pass);
+                gfx->glEnable(GL_TEXTURE_2D);
 
 				if (lp_CONFIG->water_quality == 2)
 				{
@@ -446,9 +409,9 @@ namespace TA3D
 				}
 				else
 				{
-					glActiveTextureARB(GL_TEXTURE4_ARB);
-					glBindTexture(GL_TEXTURE_2D,water_color);
-					glEnable(GL_TEXTURE_2D);
+                    gfx->glActiveTexture(GL_TEXTURE4);
+                    gfx->glBindTexture(GL_TEXTURE_2D, water_color);
+                    gfx->glEnable(GL_TEXTURE_2D);
 
 					water_shader_reflec.on();
 					water_shader_reflec.setvar1i("sky",0);
@@ -459,8 +422,8 @@ namespace TA3D
 					water_shader_reflec.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
 				}
 
-				glColor4ub(0xFF,0xFF,0xFF,0xFF);
-				glDisable(GL_DEPTH_TEST);
+                glColor4ub(0xFF,0xFF,0xFF,0xFF);
+                gfx->glDisable(GL_DEPTH_TEST);
 
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
@@ -468,17 +431,17 @@ namespace TA3D
 				glMatrixMode(GL_MODELVIEW);
 				glLoadIdentity();
 
-				glEnable(GL_STENCIL_TEST);
-				glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
-				glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-				glBegin(GL_QUADS);
+                gfx->glEnable(GL_STENCIL_TEST);
+                gfx->glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
+                gfx->glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+                glBegin(GL_QUADS);
 				glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
 				glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
 				glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
 				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
 				glEnd();
-				glDisable(GL_STENCIL_TEST);
-				glEnable(GL_DEPTH_TEST);
+                gfx->glDisable(GL_STENCIL_TEST);
+                gfx->glEnable(GL_DEPTH_TEST);
 
 				if (lp_CONFIG->water_quality == 2)
 					water_shader.off();
@@ -488,20 +451,20 @@ namespace TA3D
 			else                            // New Ultimate quality water renderer
 			{
 				// Run water simulation entirely on the GPU
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
 
-				glViewport(0,0,256,256);
+                gfx->glViewport(0,0,256,256);
 
-				glDisable(GL_DEPTH_TEST);
-				glDisable(GL_LIGHTING);
+                gfx->glDisable(GL_DEPTH_TEST);
+                gfx->glDisable(GL_LIGHTING);
 
 				glMatrixMode (GL_PROJECTION);
 				glLoadIdentity ();
 				glMatrixMode (GL_MODELVIEW);
 				glLoadIdentity();
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glEnable(GL_TEXTURE_2D);
 
 				const float time_step = 0.02f;
 				const float time_to_simulate = Math::Min( dt * units.apparent_timefactor, time_step * 3.0f );
@@ -509,8 +472,8 @@ namespace TA3D
 				// Simulate water
 				for(float real_time = 0.0f ; real_time < time_to_simulate ; real_time += time_step)
 				{
-					glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_sim0,0);
-					glBindTexture(GL_TEXTURE_2D,water_sim1);
+                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim0, 0);
+                    gfx->glBindTexture(GL_TEXTURE_2D, water_sim1);
 
 					bool refresh = false;
 					if (msec_timer - last_water_refresh >= 100000)
@@ -533,8 +496,8 @@ namespace TA3D
 
 					water_simulator_shader.off();
 
-					glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_sim1,0);
-					glBindTexture(GL_TEXTURE_2D,water_sim0);
+                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim1, 0);
+                    gfx->glBindTexture(GL_TEXTURE_2D, water_sim0);
 
 					water_simulator_shader2.on();
 					water_simulator_shader2.setvar1i("sim",0);
@@ -550,11 +513,11 @@ namespace TA3D
 					water_simulator_shader2.off();
 				}
 
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_sim2,0);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim2, 0);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,water_sim1);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glEnable(GL_TEXTURE_2D);
+                gfx->glBindTexture(GL_TEXTURE_2D, water_sim1);
 
 				water_simulator_shader3.on();
 				water_simulator_shader3.setvar1i("sim",0);
@@ -568,10 +531,10 @@ namespace TA3D
 
 				water_simulator_shader3.off();
 
-				glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-				glDisable(GL_LIGHTING);
+                glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+                gfx->glDisable(GL_LIGHTING);
 
-				glEnable(GL_DEPTH_TEST);
+                gfx->glEnable(GL_DEPTH_TEST);
 
 				int ln2w = Math::Log2(SCREEN_W);
 				int ln2h = Math::Log2(SCREEN_H);
@@ -582,13 +545,13 @@ namespace TA3D
 				const int workwidth = g_useNonPowerOfTwoTextures ? SCREEN_W : 1 << ln2w;
 				const int workheight = g_useNonPowerOfTwoTextures ? SCREEN_H : 1 << ln2h;
 
-				glViewport(0,0,workwidth,workheight);
+                gfx->glViewport(0,0,workwidth,workheight);
 
 				// Render water distortion effects (ripples, waves, ...)
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_distortions,0);
-				glClearColor(0,0,0,0);
-				glClear(GL_COLOR_BUFFER_BIT);		// Efface la texture tampon
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_distortions, 0);
+                gfx->glClearColor(0,0,0,0);
+                gfx->glClear(GL_COLOR_BUFFER_BIT);		// Efface la texture tampon
 
 				cam.setView(true);
 				water_distortions_shader.on();
@@ -601,14 +564,14 @@ namespace TA3D
 				glLoadIdentity();
 
 				// First pass of water rendering, store reflection vector
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,water_FBO);
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,first_pass,0);
+                gfx->glBindFramebuffer(GL_FRAMEBUFFER, water_FBO);
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, first_pass, 0);
 
-				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,map->lava_map);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glEnable(GL_TEXTURE_2D);
+                gfx->glBindTexture(GL_TEXTURE_2D, map->lava_map);
 
 				water_simulator_shader4.on();
 				water_simulator_shader4.setvar1i("lava",0);
@@ -621,15 +584,15 @@ namespace TA3D
 
 				water_simulator_shader4.off();
 
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,second_pass,0);					// Second pass of water rendering, store viewing vector
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass, 0);					// Second pass of water rendering, store viewing vector
 
-				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glDisable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glDisable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glDisable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE1);
+                gfx->glDisable(GL_TEXTURE_2D);
 
 				water_pass2.on();
 
@@ -639,22 +602,22 @@ namespace TA3D
 
 				water_pass2.off();
 
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_color,0);					// Third pass of water rendering, store water color
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color, 0);					// Third pass of water rendering, store water color
 
-				glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
+                gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
-				glViewport(0,0,512,512);
+                gfx->glViewport(0,0,512,512);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D,map->low_tex);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glEnable(GL_TEXTURE_2D);
+                gfx->glBindTexture(GL_TEXTURE_2D, map->low_tex);
 
 				cam.setView(true);
 				glTranslatef( 0.0f, map->sealvl, map->sea_dec);
 				water_obj->draw(t, false);
 
 				gfx->renderToTexture( 0 );
-				glViewport(0,0,workwidth,workheight);
+                gfx->glViewport(0, 0, workwidth, workheight);
 
 				float logw = logf((float)SCREEN_W) / logf(2.0f);
 				float logh = logf((float)SCREEN_H) / logf(2.0f);
@@ -662,63 +625,63 @@ namespace TA3D
 				int wy = logh>(int)logh ? (int)logh+1 : (int)logh;
 				wx = 1 << wx;
 				wy = 1 << wy;
-				glBindTexture(GL_TEXTURE_2D,transtex);								// Store what's on screen for transparency effect
-				glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, wx, wy, 0);
+                gfx->glBindTexture(GL_TEXTURE_2D, transtex);								// Store what's on screen for transparency effect
+                gfx->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, wx, wy, 0);
 
-				glEnable(GL_STENCIL_TEST);											// Draw basic water in order to have correct texture mapping
-				glClear(GL_STENCIL_BUFFER_BIT);
-				glStencilFunc(GL_ALWAYS,128, 0xffffffff);
-				glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+                gfx->glEnable(GL_STENCIL_TEST);											// Draw basic water in order to have correct texture mapping
+                gfx->glClear(GL_STENCIL_BUFFER_BIT);
+                gfx->glStencilFunc(GL_ALWAYS,128, 0xffffffff);
+                gfx->glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
-				glDisable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE0);
+                gfx->glDisable(GL_TEXTURE_2D);
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
 				water_obj->draw(t, true);
 
-				glDisable(GL_STENCIL_TEST);
+                gfx->glDisable(GL_STENCIL_TEST);
 
 				glMatrixMode(GL_TEXTURE);
 				glLoadIdentity();
 				glMatrixMode(GL_MODELVIEW);
 
-				glEnable(GL_LIGHTING);
+                gfx->glEnable(GL_LIGHTING);
 
-				glActiveTextureARB(GL_TEXTURE0_ARB);
+                gfx->glActiveTexture(GL_TEXTURE0);
 				if (map->ota_data.lavaworld)
-					glBindTexture(GL_TEXTURE_2D, sky.skyTex());
+                    gfx->glBindTexture(GL_TEXTURE_2D, sky.skyTex());
 				else
-					glBindTexture(GL_TEXTURE_2D,reflectex);
-				glEnable(GL_TEXTURE_2D);
+                    gfx->glBindTexture(GL_TEXTURE_2D, reflectex);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE1_ARB);
-				glBindTexture(GL_TEXTURE_2D,transtex);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE1);
+                gfx->glBindTexture(GL_TEXTURE_2D, transtex);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE2_ARB);
-				glBindTexture(GL_TEXTURE_2D,first_pass);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE2);
+                gfx->glBindTexture(GL_TEXTURE_2D, first_pass);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE3_ARB);
-				glBindTexture(GL_TEXTURE_2D,second_pass);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE3);
+                gfx->glBindTexture(GL_TEXTURE_2D, second_pass);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE4_ARB);
-				glBindTexture(GL_TEXTURE_2D,water_color);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE4);
+                gfx->glBindTexture(GL_TEXTURE_2D, water_color);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE5_ARB);
-				glBindTexture(GL_TEXTURE_2D,height_tex);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE5);
+                gfx->glBindTexture(GL_TEXTURE_2D, height_tex);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE6_ARB);
-				glBindTexture(GL_TEXTURE_2D,water_sim2);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE6);
+                gfx->glBindTexture(GL_TEXTURE_2D, water_sim2);
+                gfx->glEnable(GL_TEXTURE_2D);
 
-				glActiveTextureARB(GL_TEXTURE7_ARB);
-				glBindTexture(GL_TEXTURE_2D,water_distortions);
-				glEnable(GL_TEXTURE_2D);
+                gfx->glActiveTexture(GL_TEXTURE7);
+                gfx->glBindTexture(GL_TEXTURE_2D, water_distortions);
+                gfx->glEnable(GL_TEXTURE_2D);
 
 				water_simulator_reflec.on();
 				water_simulator_reflec.setvar1i("sky",0);
@@ -735,7 +698,7 @@ namespace TA3D
 				water_simulator_reflec.setvar1f("t", t);
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
-				glDisable(GL_DEPTH_TEST);
+                gfx->glDisable(GL_DEPTH_TEST);
 
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
@@ -743,23 +706,23 @@ namespace TA3D
 				glMatrixMode(GL_MODELVIEW);
 				glLoadIdentity();
 
-				glEnable(GL_STENCIL_TEST);
-				glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
-				glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+                gfx->glEnable(GL_STENCIL_TEST);
+                gfx->glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
+                gfx->glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
 				glBegin(GL_QUADS);
 				glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
 				glTexCoord2f(1.0f,1.0f);	glVertex3f((float)SCREEN_W,0,0);
 				glTexCoord2f(1.0f,0.0f);	glVertex3f((float)SCREEN_W,(float)SCREEN_H,0);
 				glTexCoord2f(0.0f,0.0f);	glVertex3f(0,(float)SCREEN_H,0);
 				glEnd();
-				glDisable(GL_STENCIL_TEST);
-				glEnable(GL_DEPTH_TEST);
+                gfx->glDisable(GL_STENCIL_TEST);
+                gfx->glEnable(GL_DEPTH_TEST);
 
-				glActiveTextureARB(GL_TEXTURE7_ARB);
+                gfx->glActiveTexture(GL_TEXTURE7);
 				if (lp_CONFIG->shadow_quality >= 2 && cam.rpos.y <= gfx->low_def_limit)
-					glBindTexture(GL_TEXTURE_2D, gfx->get_shadow_map());
+                    gfx->glBindTexture(GL_TEXTURE_2D, gfx->get_shadow_map());
 				else
-					glDisable(GL_TEXTURE_2D);
+                    gfx->glDisable(GL_TEXTURE_2D);
 
 				water_simulator_reflec.off();
 			}
@@ -771,7 +734,7 @@ namespace TA3D
 	void Battle::renderWorld()
 	{
 		gfx->SetDefState();
-		glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
+        gfx->glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
 		gfx->clearDepth();		// Clear screen
 
 		cam.setView();
@@ -783,14 +746,14 @@ namespace TA3D
 
 		cam.zfar *= 100.0f;
 		cam.setView();
-		glDisable(GL_FOG);
+        gfx->glDisable(GL_FOG);
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_BLEND);
+        gfx->glEnable(GL_TEXTURE_2D);
+        gfx->glDisable(GL_BLEND);
 		if (lp_CONFIG->render_sky)
 		{
-			glDisable(GL_LIGHTING);
-			glDepthMask(GL_FALSE);
+            gfx->glDisable(GL_LIGHTING);
+            gfx->glDepthMask(GL_FALSE);
 			glTranslatef(cam.rpos.x, cam.rpos.y + cam.shakeVector.y, cam.rpos.z);
 			glRotatef(sky_angle, 0.0f, 1.0f, 0.0f);
 			if (lp_CONFIG->ortho_camera)
@@ -803,14 +766,14 @@ namespace TA3D
 		else
 			gfx->clearScreen();
 
-		glDepthMask(GL_TRUE);
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_FOG);
+        gfx->glDepthMask(GL_TRUE);
+        gfx->glEnable(GL_CULL_FACE);
+        gfx->glEnable(GL_LIGHTING);
+        gfx->glEnable(GL_FOG);
 		updateZFAR();
 
 		if (lp_CONFIG->wireframe)
-			glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+            glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
 		map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units.apparent_timefactor);
 
@@ -828,7 +791,7 @@ namespace TA3D
 		if (cam.rpos.y <= gfx->low_def_limit)
 		{
 			if (lp_CONFIG->shadow_quality >= 2)
-				glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+                glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
 			units.draw(true, false, true, lp_CONFIG->height_line);
 			glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 		}
@@ -863,7 +826,7 @@ namespace TA3D
 	{
 		if (build >= 0 && !IsOnGUI)	// Display the building we want to build (with nice selection quads)
 		{
-			glDisable(GL_FOG);
+            gfx->glDisable(GL_FOG);
 			Vector3D target(cursorOnMap(cam, *map));
 			pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
 			pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
@@ -906,15 +869,15 @@ namespace TA3D
 				const float DZ = float(unit_manager.unit_type[build]->FootprintZ << 2);
 				if (unit_manager.unit_type[build]->model)
 				{
-					glEnable(GL_CULL_FACE);
+                    gfx->glEnable(GL_CULL_FACE);
 					gfx->ReInitAllTex( true);
 					if (can_be_there)
 						glColor4ub(0xFF,0xFF,0xFF,0xFF);
 					else
 						glColor4ub(0xFF,0,0,0xFF);
-					glDepthFunc( GL_GREATER );
+                    gfx->glDepthFunc( GL_GREATER );
 					unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
-					glDepthFunc( GL_LESS );
+                    gfx->glDepthFunc( GL_LESS );
 					unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
 
 					const bool old_mode = gfx->getShadowMapMode();
@@ -1118,8 +1081,6 @@ namespace TA3D
 		renderShadowMap();
 
 		renderWorld();
-
-		renderStencilShadow();
 
 		renderInfo();
 

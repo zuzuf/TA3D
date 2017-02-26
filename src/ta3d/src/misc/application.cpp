@@ -66,8 +66,6 @@ namespace TA3D
 		// Install our atexit function before SDL
 		// Like this, SDL_Quit() will be called before Finalize()
 		atexit(Finalize);
-		SDL_Init(SDL_INIT_VIDEO);
-		atexit(Finalize);
 
 		// Interface Manager
 		InterfaceManager = new IInterfaceManager();

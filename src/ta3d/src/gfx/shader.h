@@ -19,7 +19,7 @@
 
 # include <stdafx.h>
 # include <misc/string.h>
-
+# include <QOpenGLShaderProgram>
 
 namespace TA3D
 {
@@ -34,7 +34,6 @@ namespace TA3D
 		//@{
 		//! Default constructor
 		Shader()
-			:pLoaded(false)
 		{}
 		//! Destructor
 		~Shader() {destroy();}
@@ -67,16 +66,13 @@ namespace TA3D
 
 		//! \name Variable for the ARB extension
 		//@{
-		void setvar1f(const QString &var, const float v0);
-		void setvar2f(const QString &var, const float v0, const float v1);
-		void setvar3f(const QString &var, const float v0, const float v1, const float v2);
-		void setvar4f(const QString &var, const float v0, const float v1, const float v2, const float v3);
-		void setvar1i(const QString &var, const int v0);
-		void setvar2i(const QString &var, const int v0, const int v1);
-		void setvar3i(const QString &var, const int v0, const int v1, const int v2);
-		void setvar4i(const QString &var, const int v0, const int v1, const int v2, const int v3);
+        void setvar1f(const char *var, const float v0);
+        void setvar2f(const char *var, const float v0, const float v1);
+        void setvar3f(const char *var, const float v0, const float v1, const float v2);
+        void setvar4f(const char *var, const float v0, const float v1, const float v2, const float v3);
+        void setvar1i(const char *var, const int v0);
 
-		void setmat4f(const QString &var, const GLfloat *mat);
+        void setmat4f(const char *var, const GLfloat *mat);
 		//@}
 
 		/*!
@@ -85,19 +81,12 @@ namespace TA3D
 		** \see load()
 		** \see load_memory()
 		*/
-		bool isLoaded() const {return pLoaded;}
+        bool isLoaded() const;
 
 
 	private:
 		//! Is the shader loaded ?
-		bool pLoaded;
-		//!
-		GLhandleARB		pShaderProgram;
-		//!
-		GLhandleARB		pShaderFragment;
-		//!
-		GLhandleARB		pShaderVertex;
-
+        QOpenGLShaderProgram pShaderProgram;
 	}; // class Shader
 
 

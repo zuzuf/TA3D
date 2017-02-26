@@ -19,7 +19,7 @@
 
 # include <stdafx.h>
 # include <misc/vector.h>
-# include <sdl.h>
+# include <QOpenGLFunctions>
 
 
 namespace TA3D

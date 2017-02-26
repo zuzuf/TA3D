@@ -20,7 +20,7 @@
 # include <stdafx.h>
 # include <threads/mutex.h>
 # include <misc/string.h>
-# include <sdl.h>
+# include <QOpenGLFunctions>
 # include <misc/progressnotifier.h>
 
 

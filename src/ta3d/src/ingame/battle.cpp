@@ -2447,7 +2447,7 @@ namespace TA3D
 
 		if (g_useProgram && g_useFBO && map->water)
 		{
-			glDeleteFramebuffersEXT(1, &water_FBO);
+            gfx->glDeleteFramebuffers(1, &water_FBO);
 			water_pass1.destroy();
 			water_pass1_low.destroy();
 			water_pass2.destroy();

@@ -407,12 +407,6 @@ namespace TA3D
         void draw(float t, bool no_flat = false);
 
 		/*!
-		** \brief
-		** \param dir
-		*/
-        void draw_shadow(float t, const Vector3D& Dir);
-
-		/*!
 		** \brief Draw icons for all features in symbolic_features
 		*/
 		void draw_icons();
@@ -433,9 +427,9 @@ namespace TA3D
 
 	public:
 		//!
-		int nb_features;		// Nombre d'éléments �  gérer
+        int nb_features;		// How many elements to handle
 		//!
-		int max_features;		// Quantité maximale d'éléments que l'on peut charger dans la mémoire allouée
+        int max_features;		// Maximum number of elements which can be loaded
 		//!
 		FeatureData* feature;			// Eléments
 
@@ -445,7 +439,7 @@ namespace TA3D
 		FeaturesList  sinking_features;	// because it's faster that way
 
 		//!
-		std::vector<int> list;				// Liste d'objets �  afficher
+        std::vector<int> list;				// List of objects to display
 
 		//! features to render as icons in tactical mode
 		FeaturesSet symbolic_features;

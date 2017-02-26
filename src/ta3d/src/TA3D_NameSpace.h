@@ -146,10 +146,7 @@ namespace TA3D
 
 	namespace VARS
 	{
-		extern SDL_Surface							*screen;
 		extern TA3D::IInterfaceManager::Ptr			InterfaceManager;
-		extern TA3D::GFX::Ptr						gfx;
-
         extern QVector<QRgb>                        pal;
 		extern TA3D::TA3DCONFIG::Ptr				lp_CONFIG;
 

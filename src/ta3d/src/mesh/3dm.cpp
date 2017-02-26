@@ -186,7 +186,7 @@ namespace TA3D
 					{
 						s_shader.on();
                         for (size_t j = 0; j < pTex->size() ; ++j)
-                            s_shader.setvar1i( QString("tex%1").arg(j), j );
+                            s_shader.setvar1i( QString("tex%1").arg(j).toLatin1().data(), j );
 					}
 
 					if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -381,7 +381,7 @@ namespace TA3D
 			{
 				s_shader.on();
 				for (unsigned int j = 0; j < pTex->size() ; ++j)
-                    s_shader.setvar1i( QString("tex%1").arg(j), j + 1 );
+                    s_shader.setvar1i( QString("tex%1").arg(j).toLatin1().data(), j + 1 );
 			}
 
 			if (Flag & SURFACE_GOURAUD)			// Type d'éclairage

@@ -26,7 +26,7 @@
 
 #include <stdafx.h>
 #include "gl.extensions.h"
-#include <stdio.h>
+#include <cstdio>
 
 namespace TA3D
 {

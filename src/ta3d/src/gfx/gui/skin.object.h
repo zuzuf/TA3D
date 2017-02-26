@@ -19,7 +19,7 @@
 
 # include <stdafx.h>
 # include <misc/string.h>
-# include <sdl.h>
+# include <QOpenGLFunctions>
 # include <misc/tdf.h>
 
 

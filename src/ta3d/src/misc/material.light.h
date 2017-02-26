@@ -21,8 +21,7 @@
 # include <stdafx.h>
 # include "vector.h"
 # include "camera.h"
-# include <sdl.h>
-
+# include <gfx/gfx.h>
 
 
 namespace TA3D
@@ -35,20 +34,19 @@ namespace TA3D
 		static HWLight *inGame;
 
 	public:
-		inline HWLight() { init(); }
+        HWLight();
 
 		void init();
 
 		/*!
 		** \brief
 		*/
-		inline void Enable() const
-		{ glEnable (HWNb); glEnable (GL_COLOR_MATERIAL); }
+        void Enable() const;
 
 		/*!
 		** \brief
 		*/
-		inline void Disable() const { glDisable(HWNb); }
+        void Disable() const;
 
 		/*!
 		** \brief

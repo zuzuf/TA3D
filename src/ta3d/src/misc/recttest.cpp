@@ -17,8 +17,7 @@
 
 #include <stdafx.h>
 #include "recttest.h"
-#include <sdl.h>
-
+#include <gfx/gfx.h>
 
 namespace TA3D
 {
@@ -30,9 +29,9 @@ namespace TA3D
 		Matrix project;
 
 		int	viewportCoords[4] = {0, 0, 0, 0};
-		glGetIntegerv(GL_VIEWPORT, viewportCoords);
-		glGetFloatv(GL_MODELVIEW_MATRIX,  (float*)modelView.E);
-		glGetFloatv(GL_PROJECTION_MATRIX, (float*)project.E);
+        VARS::gfx->glGetIntegerv(GL_VIEWPORT, viewportCoords);
+        VARS::gfx->glGetFloatv(GL_MODELVIEW_MATRIX,  (float*)modelView.E);
+        VARS::gfx->glGetFloatv(GL_PROJECTION_MATRIX, (float*)project.E);
 
 		modelView = Transpose(modelView);
 		project = Transpose(project);
@@ -57,7 +56,7 @@ namespace TA3D
 		if (d > 16384.0f && (Vec % cam.dir) <= 0.0f)
 			return false;
 
-		Vector3D UPos (glNMult(point, T));
+        Vector3D UPos (glNMult(point, T));
 		UPos.x = UPos.x * VW + VW;
 		UPos.y = UPos.y * VH - VH;
 		return X1 <= UPos.x && X2 >= UPos.x && Y1 <= UPos.y && Y2 >= UPos.y;

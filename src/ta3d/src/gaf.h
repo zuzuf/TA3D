@@ -30,7 +30,7 @@
 # include "misc/string.h"
 # include <vector>
 # include "logs/logs.h"
-# include "sdl.h"
+# include <QOpenGLFunctions>
 # include <QImage>
 
 # define TA3D_GAF_STANDARD      0x00010100

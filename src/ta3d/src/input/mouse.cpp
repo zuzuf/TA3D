@@ -20,7 +20,7 @@
 #include "mouse.h"
 #include "keyboard.h"
 #include <misc/math.h>
-
+#include <QApplication>
 
 
 
@@ -65,65 +65,30 @@ namespace TA3D
 
 	void poll_inputs()
 	{
-		SDL_Event event;
+        qApp->processEvents();
 
-		while(SDL_PollEvent(&event))
-		{
-			switch(event.type)
-			{
-				case SDL_KEYDOWN:
-					{
-						set_key_down( event.key.keysym.sym );
-						uint32 c = event.key.keysym.unicode;
-						c |= event.key.keysym.sym << 16;
-						if (event.key.keysym.sym == KEY_ENTER_PAD)
-						{
-							c = int('\n') | (KEY_ENTER << 16);
-						}
-						VARS::keybuf.push_back( c );
-					}
-					break;
-				case SDL_MOUSEBUTTONDOWN:
-				case SDL_MOUSEBUTTONUP:
-					switch(event.button.button)
-					{
-						case SDL_BUTTON_WHEELDOWN:
-							if (event.button.state == SDL_PRESSED)
-								mouse_z--;
-							break;
-						case SDL_BUTTON_WHEELUP:
-							if (event.button.state == SDL_PRESSED)
-								mouse_z++;
-							break;
-					};
-					break;
-				case SDL_KEYUP:
-					set_key_up( event.key.keysym.sym );
-					break;
-			};
-		}
-		mouse_b = 0;
-		int dx(0), dy(0);
-		int rmx(0), rmy(0);
-		uint8 m_b = SDL_GetMouseState( &rmx, &rmy );
-		dx = rmx - old_mx;
-		dy = rmy - old_my;
-		fmouse_x += float(dx) * lp_CONFIG->mouse_sensivity;
-		fmouse_y += float(dy) * lp_CONFIG->mouse_sensivity;
-		if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
-		if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
-		if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
-        fmouse_x = Math::Clamp(fmouse_x, 0.f, (float)(SCREEN_W));
-        fmouse_y = Math::Clamp(fmouse_y, 0.f, (float)SCREEN_H);
-		mouse_x = (int)(fmouse_x + 0.5f);
-		mouse_y = (int)(fmouse_y + 0.5f);
-		if (rmx != mouse_x || rmy != mouse_y)
-			SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
-		old_mx = mouse_x;
-		old_my = mouse_y;
+//        mouse_b = 0;
+//		int dx(0), dy(0);
+//		int rmx(0), rmy(0);
+//		uint8 m_b = SDL_GetMouseState( &rmx, &rmy );
+//		dx = rmx - old_mx;
+//		dy = rmy - old_my;
+//		fmouse_x += float(dx) * lp_CONFIG->mouse_sensivity;
+//		fmouse_y += float(dy) * lp_CONFIG->mouse_sensivity;
+//		if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
+//		if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
+//		if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
+//        fmouse_x = Math::Clamp(fmouse_x, 0.f, (float)(SCREEN_W));
+//        fmouse_y = Math::Clamp(fmouse_y, 0.f, (float)SCREEN_H);
+//		mouse_x = (int)(fmouse_x + 0.5f);
+//		mouse_y = (int)(fmouse_y + 0.5f);
+//		if (rmx != mouse_x || rmy != mouse_y)
+//			SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
+//		old_mx = mouse_x;
+//		old_my = mouse_y;
 
-		if (lp_CONFIG->fullscreen && key[KEY_ALT] && key[KEY_TAB]&& (SDL_GetAppState() & SDL_APPACTIVE))
-			SDL_WM_IconifyWindow();
+//		if (lp_CONFIG->fullscreen && key[KEY_ALT] && key[KEY_TAB]&& (SDL_GetAppState() & SDL_APPACTIVE))
+//			SDL_WM_IconifyWindow();
 	}
 
 	int mouse_lx = 0;
@@ -194,8 +159,6 @@ namespace TA3D
 		mouse_b = 0;
 		position_mouse(SCREEN_W >> 1, SCREEN_H >> 1);
 
-		SDL_ShowCursor(SDL_DISABLE);
-
 		// Loading and creating cursors
         QIODevice *file = VFS::Instance()->readFile("anims/cursors.gaf");	// Load cursors
 		if (file)
@@ -237,6 +200,6 @@ namespace TA3D
 
 	void grab_mouse(bool grab)
 	{
-		SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+        gfx->setMouseGrabEnabled(grab);
 	}
 }

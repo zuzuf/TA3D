@@ -772,8 +772,11 @@ namespace TA3D
 #ifdef TA3D_PLATFORM_LINUX
 		if (lua_gettop(L) == 1 && lua_toboolean(L, 1) != lp_CONFIG->fullscreen)
 		{
-			if (SDL_WM_ToggleFullScreen(screen))
-				lp_CONFIG->fullscreen ^= true;
+            lp_CONFIG->fullscreen ^= true;
+            if (lp_CONFIG->fullscreen)
+                gfx->setWindowState(Qt::WindowFullScreen);
+            else
+                gfx->setWindowState(Qt::WindowNoState);
 		}
 #endif
 		lua_pushboolean(L, lp_CONFIG->fullscreen);

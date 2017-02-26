@@ -250,7 +250,6 @@ void criticalMessage(const QString &msg)
 {
     std::cerr << msg.toStdString() << std::endl;      // Output error message to stderr
 
-	SDL_SetVideoMode(0,0,0,0);
     QMessageBox::critical(NULL, "TA3D - Critical Error", msg);
 }
 

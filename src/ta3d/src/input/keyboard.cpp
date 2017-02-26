@@ -30,7 +30,6 @@ namespace TA3D
 		bool                    prevkey_down[0x1000];
 		bool                    prevkey_up[0x1000];
 		std::deque<uint32>      keybuf;
-		int                     remap[0x1000];
 	}
 
 
@@ -56,25 +55,6 @@ namespace TA3D
 
 	void init_keyboard()
 	{
-		// Initialize the SDL Stuff
-		SDL_EnableUNICODE(1);
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
-		// We need some remapping hack to support some keyboards (french keyboards don't access KEY_0..9)
-		memset(remap, 0, 0x1000 * sizeof(int));
-
-		remap[KEY_ENTER_PAD] = KEY_ENTER;
-		remap[38]  = KEY_1;
-		remap[233] = KEY_2;
-		remap[34]  = KEY_3;
-		remap[39]  = KEY_4;
-		remap[40]  = KEY_5;
-		remap[45]  = KEY_6;
-		remap[232] = KEY_7;
-		remap[95]  = KEY_8;
-		remap[231] = KEY_9;
-		remap[224] = KEY_0;
-
 		memset(VARS::key, 0, 0x1000 * sizeof(bool));
 		VARS::keybuf.clear();
 
@@ -133,8 +113,6 @@ namespace TA3D
 		if (keycode >= 0x1000)
 			return;
 
-		if (remap[keycode])
-			VARS::key[remap[keycode]] = true;
 		VARS::key[keycode] = true;
 	}
 
@@ -144,8 +122,6 @@ namespace TA3D
 		if (keycode >= 0x1000)
 			return;
 
-		if (remap[keycode])
-			VARS::key[remap[keycode]] = false;
 		VARS::key[keycode] = false;
 	}
 

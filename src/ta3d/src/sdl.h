@@ -5,10 +5,6 @@
 
 
 /*
-** The OpenGL library
-*/
-#include <GL/glew.h>
-/*
 ** The SDL library
 */
 #include <SDL.h>

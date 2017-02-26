@@ -308,6 +308,16 @@ namespace UTILS
 	}
 
 
+    QByteArray VFS::readFileAsBuffer(const QString& filename)
+    {
+        QIODevice *file = readFile(filename);
+        if (!file)
+            return QByteArray();
+
+        const QByteArray &buffer = file->readAll();
+        delete file;
+        return buffer;
+    }
 
     QIODevice *VFS::readFileRange(const QString &filename, const uint32 start, const uint32 length)
 	{

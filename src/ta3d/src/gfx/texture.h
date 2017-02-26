@@ -17,9 +17,8 @@
 #ifndef __TA3D_GfxTexture_H__
 # define __TA3D_GfxTexture_H__
 
-# include <sdl.h>
+# include <QOpenGLFunctions>
 # include <misc/string.h>
-
 
 namespace TA3D
 {

@@ -36,12 +36,14 @@
 #include "gui/base.h"
 #include <backtrace.h>
 #include <QFile>
-#include <SDL_getenv.h>
 #include <iostream>
+#include <QApplication>
+#include <QScreen>
+#include <QKeyEvent>
 
 namespace TA3D
 {
-
+    TA3D::GFX::Ptr  TA3D::VARS::gfx;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
 
 	void GFX::set_texture_format(GLuint gl_format)
 	{
@@ -385,114 +387,91 @@ namespace TA3D
 #endif
 	}
 
-	void GFX::initSDL()
+    void GFX::initialize()
 	{
-		static bool GLloaded = false;
+        setSurfaceType(OpenGLSurface);
 
-		if (!GLloaded)
-		{
-			// First we need to load the OpenGL library
-			if (SDL_GL_LoadLibrary(NULL))
-			{
-				LOG_CRITICAL(LOG_PREFIX_OPENGL << "could not load OpenGL library!");
-			}
-			else
-				GLloaded = true;
-		}
+        QSurfaceFormat format;
+        format.setStencilBufferSize(8);
+        format.setSamples(std::max<int>(1, TA3D::VARS::lp_CONFIG->fsaa));
+        format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+        if (TA3D::VARS::lp_CONFIG->color_depth == 32)
+        {
+            format.setRedBufferSize(8);
+            format.setGreenBufferSize(8);
+            format.setBlueBufferSize(8);
+            format.setAlphaBufferSize(0);
+        }
+        else
+        {
+            format.setRedBufferSize(5);
+            format.setGreenBufferSize(6);
+            format.setBlueBufferSize(5);
+            format.setAlphaBufferSize(0);
+        }
+        format.setDepthBufferSize(24);
+        setFormat(format);
 
-        // We want a centered window
-		SDL_putenv(const_cast<char*>("SDL_VIDEO_CENTERED=1"));
+        const QSize wnd_size(TA3D::VARS::lp_CONFIG->screen_width,
+                             TA3D::VARS::lp_CONFIG->screen_height);
 
-        QImage icon = load_image("gfx/icon.png");
+        setMinimumSize(wnd_size);
+        setMaximumSize(wnd_size);
+        resize(wnd_size);
+
+        if (TA3D::VARS::lp_CONFIG->fullscreen)
+            showFullScreen();
+        else
+            setVisible(true);
+        qApp->processEvents();
+
+        if (!TA3D::VARS::lp_CONFIG->fullscreen)
+        {
+            // We want a centered window
+            const QRect &visible_area = screen()->geometry();
+            setPosition(visible_area.width() - TA3D::VARS::lp_CONFIG->screen_width >> 1,
+                        visible_area.height() - TA3D::VARS::lp_CONFIG->screen_height >> 1);
+        }
+
+        m_context = new QOpenGLContext(this);
+        m_context->setFormat(requestedFormat());
+        if (!m_context->create())
+        {
+            LOG_ERROR(LOG_PREFIX_GFX << "Impossible to set OpenGL video mode!");
+            criticalMessage("Impossible to set OpenGL video mode!");
+            exit(1);
+            return;
+        }
+        qApp->processEvents();
+
+        if (!m_context->makeCurrent(this))
+        {
+            LOG_ERROR(LOG_PREFIX_GFX << "Impossible make OpenGL context current!");
+            criticalMessage("Impossible make OpenGL context current!");
+            exit(1);
+            return;
+        }
+
+        initializeOpenGLFunctions();
+
+        const QImage &icon = load_image("gfx/icon.png");
         if (!icon.isNull())
-		{
-//			SDL_WM_SetIcon(icon, NULL);
-		}
-
-		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, TA3D::VARS::lp_CONFIG->fsaa > 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
-		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-		if (TA3D::VARS::lp_CONFIG->color_depth == 32)
-		{
-			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-			SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-		}
-		else
-		{
-			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
-			SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-		}
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 0);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 0);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 0);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
-
-		uint32 flags = SDL_OPENGL | SDL_HWSURFACE;
-		if (TA3D::VARS::lp_CONFIG->fullscreen )
-			flags |= SDL_FULLSCREEN;
-
-		screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, flags );
-
-		if (screen == NULL)
-		{
-			LOG_WARNING(LOG_PREFIX_GFX << "SDL_SetVideoMode failed : " << SDL_GetError());
-			LOG_WARNING(LOG_PREFIX_GFX << "retrying with GL_DEPTH_SIZE = 16");
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-			screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, flags );
-		}
-
-		if (screen == NULL)
-		{
-			LOG_WARNING(LOG_PREFIX_GFX << "SDL_SetVideoMode failed : " << SDL_GetError());
-			LOG_WARNING(LOG_PREFIX_GFX << "retrying with GL_DEPTH_SIZE = 24 and current color depth");
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-			screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, flags );
-		}
-
-		if (screen == NULL)
-		{
-			LOG_WARNING(LOG_PREFIX_GFX << "SDL_SetVideoMode failed : " << SDL_GetError());
-			LOG_WARNING(LOG_PREFIX_GFX << "retrying with GL_DEPTH_SIZE = 16 and current color depth");
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-			SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
-			screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, flags );
-		}
-
-		if (screen == NULL)
-		{
-			LOG_ERROR(LOG_PREFIX_GFX << "Impossible to set OpenGL video mode!");
-			LOG_ERROR(LOG_PREFIX_GFX << "SDL_GetError() = " << SDL_GetError());
-            criticalMessage(QString("Impossible to set OpenGL video mode! SDL_GetError() = '") + SDL_GetError() + "'");
-			exit(1);
-			return;
-		}
+            setIcon(QIcon(QPixmap::fromImage(icon)));
 
 		preCalculations();
 		// Install OpenGL extensions
 		installOpenGLExtensions();
 
-        if (screen->format->BitsPerPixel == 16)
+        if (m_context->format().redBufferSize() == 8)
 		{
-			defaultRGBTextureFormat = GL_RGB5;
-			defaultRGBATextureFormat = GL_RGB5_A1;
+            defaultRGBTextureFormat = GL_RGB8;
+            defaultRGBATextureFormat = GL_RGBA8;
 		}
 		else
 		{
-			defaultRGBTextureFormat = GL_RGB8;
-			defaultRGBATextureFormat = GL_RGBA8;
-		}
+            defaultRGBTextureFormat = GL_RGB5;
+            defaultRGBATextureFormat = GL_RGB5_A1;
+        }
 
 		// Check everything is supported
 		checkConfig();
@@ -528,12 +507,12 @@ namespace TA3D
 			lp_CONFIG->use_texture_compression = false;
 # endif
 
-		if (!glewIsSupported("GL_ARB_shadow"))
+        if (!m_context->hasExtension("GL_ARB_shadow"))
 			lp_CONFIG->shadow_quality = Math::Min(lp_CONFIG->shadow_quality, sint16(1));
 	}
 
 
-	bool GFX::checkVideoCardWorkaround() const
+    bool GFX::checkVideoCardWorkaround()
 	{
 		// Check for ATI workarounds (if an ATI card is present)
         bool workaround = Substr(ToUpper((const char*)glGetString(GL_VENDOR)),0,3) == "ATI";
@@ -553,15 +532,16 @@ namespace TA3D
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
 		defaultRGBTextureFormat(GL_RGB8), defaultRGBATextureFormat(GL_RGBA8)
 	{
-		// Initialize the GFX Engine
+        gfx = this;
+
+        initialize();
+        // Initialize the GFX Engine
 		if (lp_CONFIG->first_start)
 		{
-			initSDL();
 			// Guess best settings
 			detectDefaultSettings();
 			lp_CONFIG->first_start = false;
 		}
-		initSDL();
 		ati_workaround = checkVideoCardWorkaround();
 
 		LOG_DEBUG("Allocating palette memory...");
@@ -582,9 +562,9 @@ namespace TA3D
 		DeleteInterface();
 
 		if (textureFBO)
-			glDeleteFramebuffersEXT(1,&textureFBO);
+            glDeleteFramebuffers(1,&textureFBO);
 		if (textureDepth)
-			glDeleteRenderbuffersEXT(1,&textureDepth);
+            glDeleteRenderbuffers(1,&textureDepth);
 		destroy_texture(textureColor);
 		destroy_texture(shadowMap);
 		destroy_texture(default_texture);
@@ -633,7 +613,7 @@ namespace TA3D
 	}
 
 
-	void GFX::set_alpha(const float a) const
+    void GFX::set_alpha(const float a)
 	{
 		float gl_color[4];
 		glGetFloatv(GL_CURRENT_COLOR, gl_color);
@@ -1056,71 +1036,57 @@ namespace TA3D
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 		}
-        if (GLEW_EXT_texture_filter_anisotropic)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
 
 		switch (filter_type)
 		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
+        case FILTER_NONE:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+            break;
+        case FILTER_LINEAR:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+            break;
+        case FILTER_BILINEAR:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+            break;
+        case FILTER_TRILINEAR:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+            break;
 		}
 
 #ifdef TA3D_PLATFORM_WINDOWS
 		bool softMipMaps = build_mipmaps;
 #else
-		bool softMipMaps = false;
+        bool softMipMaps = !can_useGenMipMaps;
 #endif
 
 		//Upload image data to OpenGL
 		if (!softMipMaps)
 		{
-			if (can_useGenMipMaps)        // Automatic mipmaps generation
-			{
-				if (!build_mipmaps || glGenerateMipmapEXT)
-					glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE );
-				else
-					glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
-			}
+            // Automatic mipmaps generation
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE );
             switch (bmp.depth())
 			{
             case 8:
-                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp.width(), bmp.height(), GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp.bits());
-                else
-                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp.bits());
+                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp.bits());
                 break;
             case 24:
-                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp.width(), bmp.height(), GL_RGB, GL_UNSIGNED_BYTE, bmp.bits());
-                else
-                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.bits());
+                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.bits());
                 break;
             case 32:
-                if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
-                    gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp.width(), bmp.height(), GL_RGBA, GL_UNSIGNED_BYTE, bmp.bits());
-                else
-                    glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.bits());
+                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.bits());
                 break;
             default:
                 LOG_DEBUG("QImage format not supported by texture loader: " << (int) bmp.depth() << " bpp" );
 			}
 
-			if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
-				glGenerateMipmapEXT(GL_TEXTURE_2D);
+            if (build_mipmaps)
+                // Automatic mipmaps generation
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
 		}
 		else            // Generate mipmaps here since other methods are unreliable
 		{
@@ -1241,7 +1207,7 @@ namespace TA3D
 		glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW);
 
-		if (clamp )
+        if (clamp)
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -1254,22 +1220,22 @@ namespace TA3D
 
 		switch(filter_type)
 		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
+        case FILTER_NONE:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+            break;
+        case FILTER_LINEAR:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+            break;
+        case FILTER_BILINEAR:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+            break;
+        case FILTER_TRILINEAR:
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+            break;
 		}
 
 		glTexImage2D( GL_TEXTURE_2D,
@@ -1619,26 +1585,22 @@ namespace TA3D
 
 	GLuint GFX::create_texture_RGB32F(int w, int h, int filter_type, bool clamp )
 	{
-		GLuint tex = this->make_texture_RGB32F(w, h, NULL, filter_type, clamp);
-		return tex;
+        return make_texture_RGB32F(w, h, NULL, filter_type, clamp);
 	}
 
 	GLuint GFX::create_texture_RGBA32F(int w, int h, int filter_type, bool clamp )
 	{
-		GLuint tex = this->make_texture_RGBA32F(w, h, NULL, filter_type, clamp);
-		return tex;
+        return make_texture_RGBA32F(w, h, NULL, filter_type, clamp);
 	}
 
 	GLuint GFX::create_texture_RGB16F(int w, int h, int filter_type, bool clamp )
 	{
-		GLuint tex = this->make_texture_RGB16F(w, h, NULL, filter_type, clamp);
-		return tex;
+        return make_texture_RGB16F(w, h, NULL, filter_type, clamp);
 	}
 
 	GLuint GFX::create_texture_RGBA16F(int w, int h, int filter_type, bool clamp )
 	{
-		GLuint tex = this->make_texture_RGBA16F(w, h, NULL, filter_type, clamp);
-		return tex;
+        return make_texture_RGBA16F(w, h, NULL, filter_type, clamp);
 	}
 
     void GFX::blit_texture(const QImage &src, GLuint dst )
@@ -1895,10 +1857,7 @@ namespace TA3D
 				use_mipmapping(true);
 
 			glBindTexture( GL_TEXTURE_2D, tex );
-			if (glGenerateMipmapEXT || !build_mipmaps)
-				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
-			else
-				glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
 
 			for(int lod = 0 ; lod < lod_max ; ++lod)
 			{
@@ -1913,7 +1872,7 @@ namespace TA3D
 				cache_file.read( (char*)&h, sizeof( GLint ) );
 				cache_file.read( (char*)img, size );
 				if (lod == 0)
-					glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
+                    glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
 				else
 					glCompressedTexSubImage2D( GL_TEXTURE_2D, lod, 0, 0, w, h, internal_format, size, img);
 
@@ -1922,7 +1881,7 @@ namespace TA3D
 					break;
 			}
 			if (build_mipmaps)
-				glGenerateMipmapEXT(GL_TEXTURE_2D);
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
 			cache_file.close();
 
@@ -1984,8 +1943,8 @@ namespace TA3D
 
 		int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
 
-		GLint	compressed;
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &compressed );
+        GLint compressed;
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed );
 		// Do not save it if it's not compressed -> save disk space, and it would slow things down
 		if(!compressed)
 			return;
@@ -2020,7 +1979,7 @@ namespace TA3D
 			byte *img = new byte[size];
 			memset(img, 0, size);
 
-			glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
+            glGetCompressedTexImage( GL_TEXTURE_2D, lod, img );
 			GLint w,h,border;
 			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_BORDER, &border );
 			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
@@ -2246,9 +2205,8 @@ namespace TA3D
 
 	void GFX::preCalculations()
 	{
-		const SDL_VideoInfo *info = SDL_GetVideoInfo();
-		width = info->current_w;
-		height = info->current_h;
+        width = QWindow::width();
+        height = QWindow::height();
 		SCREEN_W_HALF = width >> 1;
 		SCREEN_H_HALF = height >> 1;
 		SCREEN_W_INV = 1.0f / float(width);
@@ -2271,7 +2229,7 @@ namespace TA3D
 	{
 		if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
 		{
-			glBindTexture(GL_TEXTURE_2D,textureFBO);        // Copy back buffer to target texture
+            glBindTexture(GL_TEXTURE_2D, textureFBO);        // Copy back buffer to target texture
 			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, texture_width(textureFBO), texture_height(textureFBO), 0);
 			textureFBO = 0;
 			glViewport(0, 0, width, height);           // Use default viewport
@@ -2281,7 +2239,7 @@ namespace TA3D
 		{
 			if (g_useFBO)
 			{
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
+                glBindFramebuffer(GL_FRAMEBUFFER,0);     // Bind the default FBO
 				glViewport(0, 0, width, height);           // Use default viewport
 			}
 		}
@@ -2291,22 +2249,22 @@ namespace TA3D
 			{
 				if (textureFBO == 0)    // Generate a FBO if none has been created yet
 				{
-					glGenFramebuffersEXT(1,&textureFBO);
-					glGenRenderbuffersEXT(1,&textureDepth);
+                    glGenFramebuffers(1,&textureFBO);
+                    glGenRenderbuffers(1,&textureDepth);
 				}
 
-				glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, textureFBO);					                    // Bind the FBO
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,tex,0); // Attach the texture
+                glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0); // Attach the texture
 				if (useDepth)
 				{
-					glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,textureDepth);
-					glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, textureDepth);
-					glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,GL_DEPTH_COMPONENT24, texture_width(tex), texture_height(tex));       // Should be enough
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, textureDepth);
+                    glBindRenderbuffer(GL_RENDERBUFFER, textureDepth);
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, texture_width(tex), texture_height(tex));       // Should be enough
 				}
 				else
 				{
-					glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-					glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,0);
+                    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 				}
 				glViewport(0,0,texture_width(tex),texture_height(tex));                                     // Stretch viewport to texture size
 			}
@@ -2323,7 +2281,7 @@ namespace TA3D
 	{
 		if (tex == 0)       // Release the texture
 		{
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
 			glViewport(0, 0, width, height);           // Use default viewport
 		}
 		else
@@ -2332,8 +2290,8 @@ namespace TA3D
 			int tex_h = texture_height(tex);
 			if (textureFBO == 0)    // Generate a FBO if none has been created yet
 			{
-				glGenFramebuffersEXT(1,&textureFBO);
-				glGenRenderbuffersEXT(1,&textureDepth);
+                glGenFramebuffers(1, &textureFBO);
+                glGenRenderbuffers(1, &textureDepth);
 			}
 			if (textureColor == 0)
 				textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
@@ -2343,9 +2301,9 @@ namespace TA3D
 				glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			}
 
-			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, textureFBO);					                    // Bind the FBO
-			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,textureColor,0);
-			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,tex,0); // Attach the texture
+            glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex, 0); // Attach the texture
 
 			glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
 		}
@@ -2370,71 +2328,6 @@ namespace TA3D
 		glVertex2f(x1, y2);
 		//
 		glEnd();
-	}
-
-
-	void GFX::runTests()
-	{
-		InterfaceManager = new IInterfaceManager();
-
-		// Initalizing SDL video
-		if (SDL_Init(SDL_INIT_VIDEO) < 0 )
-			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
-
-		// Installing SDL timer
-		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
-			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
-
-		// Installing SDL timer
-		if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
-			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
-
-		gfx = new GFX();
-
-		gfx->set_2D_mode();
-		gfx->loadFonts();
-
-		byte        filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
-		const char  *filterInfo[]   = { "FILTER_NONE", "FILTER_LINEAR", "FILTER_BILINEAR", "FILTER_TRILINEAR" };
-
-		for (int e = 0 ; e < 4 ; e++)
-		{
-			GLuint tex[11];
-
-			GLuint  texFormat[] =   { GL_COMPRESSED_RGBA_ARB, GL_COMPRESSED_RGB_ARB, GL_RGB8, GL_RGBA8, GL_RGB5, GL_RGB5_A1, GL_RGB4, GL_RGBA4, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT };
-			const char  *info[] =   { "COMPRESSED_RGBA", "COMPRESSED_RGB", "RGB8", "RGBA8", "RGB5", "RGB5_A1", "RGB4", "RGBA4", "COMPRESSED_RGBA_S3TC_DXT1", "COMPRESSED_RGBA_S3TC_DXT3", "COMPRESSED_RGBA_S3TC_DXT5" };
-
-			for (int i = 0 ; i < 11 ; i++)
-				tex[i] = gfx->load_texture("gfx/mdrn_background.jpg", filter[e], NULL, NULL, true, texFormat[i]);
-
-			while (!keypressed())
-			{
-				poll_inputs();
-				rest( 100 );
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
-				for (int i = 0 ; i < 11 ; i++)
-				{
-					float dx = float((i >> 2) * gfx->width) / 3.0f;
-					float dy = float((i & 3) * gfx->height) * 0.25f;
-					gfx->drawtexture( tex[i], dx, dy, dx + float(gfx->width) / 3.0f, dy + 0.25f * float(gfx->height) );
-					glDisable( GL_TEXTURE_2D );
-					gfx->rect( dx, dy, dx + float(gfx->width) / 3.0f, dy + 0.25f * float(gfx->height), 0xFFFFFFFF );
-					gfx->print( gfx->normal_font, dx + 10.0f, dy + 10.0f, 0.0f, 0xFFFFFFFF, info[i] );
-					gfx->print( gfx->normal_font, dx + 10.0f, dy + 20.0f, 0.0f, 0xFFFFFFFF, filterInfo[e] );
-				}
-
-				gfx->flip();
-			}
-
-			for (int i = 0 ; i < 11 ; i++)
-				gfx->destroy_texture( tex[i] );
-
-			while (keypressed())    readkey();
-		}
-
-        gfx = NULL;
-
-		InterfaceManager = NULL;
 	}
 
     QImage GFX::create_surface_ex(int bpp, int w, int h)
@@ -2593,87 +2486,6 @@ namespace TA3D
 		return shadowMapMode;
 	}
 
-	void GFX::runOpenGLTests()
-	{
-		// Initalizing SDL video
-		if (SDL_Init(SDL_INIT_VIDEO) < 0)
-			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
-
-		// Installing SDL timer
-		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
-			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
-
-		// Installing SDL timer
-		if (SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0)
-			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
-
-		int w = 800;
-		int h = 600;
-		int bpp = 32;
-
-		SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 5);
-		SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
-
-
-		for (int stencil = 0 ; stencil < 2 ; stencil++)
-		{
-			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencil ? 8 : 0);
-			for (int fsaa = 0 ; fsaa < 4; ++fsaa)
-			{
-				SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, fsaa > 1);
-				SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
-				for (int db_buf = 0 ; db_buf < 2 ; db_buf++)
-				{
-					SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, db_buf);
-					for (int r = 8 ; r > 0 ; r--)
-					{
-						SDL_GL_SetAttribute(SDL_GL_RED_SIZE, r);
-						for (int g = 8 ; g > 0 ; g--)
-						{
-							SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, g);
-							for (int b = 8 ; b > 0 ; b--)
-							{
-								SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
-								for (int a = 8 ; a > 0 ; a--)
-								{
-									SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, a);
-
-									for (int depth = 0; depth < 2; ++depth)
-									{
-										SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth ? 24 : 16);
-
-										if (SDL_SetVideoMode( w, h, bpp, SDL_OPENGL | SDL_HWSURFACE ))
-										{
-                                            if (QString((const char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
-											{
-												std::cout << "test passed for following settings:" << std::endl;
-												std::cout << "stencil = " << (stencil ? 8 : 0) << std::endl;
-												std::cout << "fsaa = " << fsaa << std::endl;
-												std::cout << "db_buf = " << db_buf << std::endl;
-												std::cout << "r = " << r << std::endl;
-												std::cout << "g = " << g << std::endl;
-												std::cout << "b = " << b << std::endl;
-												std::cout << "a = " << a << std::endl;
-												std::cout << "depth = " << (depth ? 24 : 16) << std::endl;
-                                                std::cout << "renderer = " << glGetString(GL_RENDERER) << std::endl << std::endl;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		std::cout << "Test finished" << std::endl;
-	}
-
-
 	void GFX::readShadowMapProjectionMatrix()
 	{
 		GLfloat backup[16];
@@ -2691,14 +2503,14 @@ namespace TA3D
 		glMatrixMode(GL_MODELVIEW);
 	}
 
-	void GFX::enableShadowMapping() const
+    void GFX::enableShadowMapping()
 	{
 		glActiveTexture(GL_TEXTURE7);
 		glEnable(GL_TEXTURE_2D);
 		glActiveTexture(GL_TEXTURE0);
 	}
 
-	void GFX::disableShadowMapping() const
+    void GFX::disableShadowMapping()
 	{
 		glActiveTexture(GL_TEXTURE7);
 		glDisable(GL_TEXTURE_2D);
@@ -2712,7 +2524,7 @@ namespace TA3D
 		glActiveTexture(GL_TEXTURE0);
 	}
 
-	void GFX::restoreShadowMappingState() const
+    void GFX::restoreShadowMappingState()
 	{
 		if (shadowMapWasActive)
 			enableShadowMapping();
@@ -2734,4 +2546,18 @@ namespace TA3D
 		return defaultRGBATextureFormat;
 	}
 
+    void GFX::flip()
+    {
+        m_context->swapBuffers(this);
+    }
+
+    void GFX::keyPressEvent(QKeyEvent *e)
+    {
+        set_key_down(e->key());
+    }
+
+    void GFX::keyReleaseEvent(QKeyEvent *e)
+    {
+        set_key_up(e->key());
+    }
 } // namespace TA3D

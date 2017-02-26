@@ -114,10 +114,6 @@ namespace TA3D
 
 		void drawHealthBar() const;
 
-		void draw_shadow(const Vector3D& Dir);
-
-		void drawShadowBasic(const Vector3D& Dir);
-
 		int launchScript(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
 
 		int runScriptFunction(const int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL

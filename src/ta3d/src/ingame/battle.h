@@ -204,7 +204,6 @@ namespace TA3D
 		void initRenderer();
 		void renderScene();
 		void renderReflection();
-		void renderStencilShadow();
 		void renderShadowMap();
 		void renderWater();
 		void renderWorld();

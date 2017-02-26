@@ -69,12 +69,6 @@ namespace TA3D
 		LOG_INFO(TA3D_ENGINE_VERSION << " initializing started:");
 		LOG_INFO("Build info : " << __DATE__ << " , " << __TIME__);
 
-		// Initalizing SDL video
-		if (::SDL_Init(SDL_INIT_VIDEO))
-            throw std::runtime_error("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
-		// Installing SDL timer
-		if (::SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
-            throw std::runtime_error("SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
 		// Initializing SDL Net
 		if (::SDLNet_Init() == -1)
             throw std::runtime_error("SDLNet_Init() failed.");
@@ -92,24 +86,11 @@ namespace TA3D
 		// set SDL running status;
 		pSDLRunning = true;
 
-
-		// Outputs SDL_net version numbers
-		SDL_version compiled_version;
-		const SDL_version *linked_version;
-		SDL_NET_VERSION(&compiled_version);
-		LOG_DEBUG(LOG_PREFIX_NET << "Compiled with SDL_net version: " << (int)compiled_version.major << "." << (int)compiled_version.minor << "." << (int)compiled_version.patch);
-		linked_version = SDLNet_Linked_Version();
-		LOG_DEBUG(LOG_PREFIX_NET << "Running with SDL_net version: " << (int)linked_version->major << "." << (int)linked_version->minor << "." << (int)linked_version->patch);
-
-
 		// Creating GFX Interface
 		// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
 		gfx = new GFX();		// TA3D's main window might lose focus and message may not be shown ...
 		pGFXModeActive = true;
 
-
-		// Title of the Window / Application
-		SDL_WM_SetCaption("Total Annihilation 3D", "TA3D");
 
 		// Display informations about OpenGL
 		displayInfosAboutOpenGL();

@@ -19,7 +19,8 @@
 #include "material.light.h"
 #include "math.h"
 #include "vector.h"
-
+#include <TA3D_NameSpace.h>
+#include <QMatrix4x4>
 
 
 namespace TA3D
@@ -28,7 +29,21 @@ namespace TA3D
 
 	HWLight* HWLight::inGame = NULL;
 
+    HWLight::HWLight()
+    {
+        init();
+    }
 
+    void HWLight::Enable() const
+    {
+        gfx->glEnable(HWNb);
+        gfx->glEnable(GL_COLOR_MATERIAL);
+    }
+
+    void HWLight::Disable() const
+    {
+        glDisable(HWNb);
+    }
 
 	void HWLight::init()
 	{
@@ -134,7 +149,11 @@ namespace TA3D
 			glOrtho(-widthFactor * f, widthFactor * f, -f, f, znear, zfar);
 
 			Vector3D c_at(c_pos - Dir);
-			gluLookAt(c_pos.x, c_pos.y, c_pos.z, c_at.x, c_at.y, c_at.z, Up.x, Up.y, Up.z);
+            QMatrix4x4 M;
+            M.lookAt(QVector3D(c_pos.x, c_pos.y, c_pos.z),
+                     QVector3D(c_at.x, c_at.y, c_at.z),
+                     QVector3D(Up.x, Up.y, Up.z));
+            glMultMatrixf(M.data());
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -152,7 +171,11 @@ namespace TA3D
 
 			Vector3D Up(Pos * Dir);
 			Up.unit();
-			gluLookAt(Pos.x, Pos.y, Pos.z, Dir.x, Dir.y, Dir.z, Up.x, Up.y, Up.z);
+            QMatrix4x4 M;
+            M.lookAt(QVector3D(Pos.x, Pos.y, Pos.z),
+                     QVector3D(Dir.x, Dir.y, Dir.z),
+                     QVector3D(Up.x, Up.y, Up.z));
+            glMultMatrixf(M.data());
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();

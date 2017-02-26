@@ -35,7 +35,9 @@
 # include <threads/thread.h>
 # include <misc/interface.h>
 # include <misc/hash_table.h>
-
+# include <QWindow>
+# include <QOpenGLFunctions>
+# include <QOpenGLContext>
 
 # define FILTER_NONE			0x0
 # define FILTER_LINEAR		    0x1
@@ -54,7 +56,7 @@ namespace TA3D
 	class Vector3D;
 
 
-	class GFX : public ObjectSync, protected IInterface
+    class GFX : public QWindow, public QOpenGLFunctions, public ObjectSync, protected IInterface
 	{
 	public:
         typedef zuzuf::smartptr<GFX>	Ptr;
@@ -78,7 +80,7 @@ namespace TA3D
 		** \param x2 The bottom-right corned X-coordinate
 		** \param x2 The bottom-right corned Y-coordinate
 		*/
-		static void PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2);
+        void PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2);
 
 		/*!
 		** \brief Load a texture with a mask
@@ -145,7 +147,7 @@ namespace TA3D
 		void set_color(const uint32 col) const
 		{ glColor4ub( (GLubyte)getr(col), (GLubyte)getg(col), (GLubyte)getb(col), (GLubyte)geta(col)); }
 
-		void set_alpha(const float a) const;
+        void set_alpha(const float a);
 
 		/*!
 		** \brief
@@ -280,19 +282,13 @@ namespace TA3D
 		/*!
 		** \brief Flip the backbuffer to the screen
 		*/
-		void flip() const { SDL_ShowCursor(SDL_DISABLE);    SDL_GL_SwapBuffers(); }
+        void flip();
 
 		/*!
 		** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)
 		*/
 		void renderToTexture(const GLuint tex = 0, bool useDepth = false);
 		void renderToTextureDepth(const GLuint tex = 0);
-
-		/*!
-		** \brief runs several tests on GFX hardware capabilities, should be used only when calling ta3d with --test
-		*/
-		static void runTests();
-		static void runOpenGLTests();
 
         QImage create_surface_ex(int bpp, int w, int h);
         QImage create_surface(int w, int h);
@@ -305,10 +301,14 @@ namespace TA3D
 		GLuint defaultTextureFormat_RGB_compressed() const;
 		GLuint defaultTextureFormat_RGBA_compressed() const;
 
-		void enableShadowMapping() const;
-		void disableShadowMapping() const;
+        void enableShadowMapping();
+        void disableShadowMapping();
 		void storeShadowMappingState();
-		void restoreShadowMappingState() const;
+        void restoreShadowMappingState();
+
+    protected:
+        virtual void keyPressEvent(QKeyEvent *e);
+        virtual void keyReleaseEvent(QKeyEvent *e);
 
 	public:
 		int			width;				// Size of this window on the screen
@@ -352,17 +352,19 @@ namespace TA3D
         virtual uint32 InterfaceMsg(const uint32 MsgID, const QString &msg);
 
 		void preCalculations();
-		void initSDL();
+        void initialize();
 
 		/*!
 		** \brief Check if we have to deal with some Video card Workaround
 		*/
-		bool checkVideoCardWorkaround() const;
+        bool checkVideoCardWorkaround();
 
 
 	private:
 		// One of our friend
 		friend class Font;
+
+        QOpenGLContext *m_context;
 
 		bool		alpha_blending_set;
 		GLuint      texture_format;
@@ -387,7 +389,10 @@ namespace TA3D
 	void reset_keyboard();
 	void reset_mouse();
 
+    namespace VARS
+    {
+        extern TA3D::GFX::Ptr   gfx;
+    }
 } // namespace TA3D
-
 
 #endif // __TA3D_GFX_H__
