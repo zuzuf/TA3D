@@ -309,6 +309,10 @@ namespace TA3D
     protected:
         virtual void keyPressEvent(QKeyEvent *e);
         virtual void keyReleaseEvent(QKeyEvent *e);
+        virtual void mousePressEvent(QMouseEvent *e);
+        virtual void mouseReleaseEvent(QMouseEvent *e);
+        virtual void wheelEvent(QWheelEvent *e);
+        virtual void mouseMoveEvent(QMouseEvent *e);
 
 	public:
 		int			width;				// Size of this window on the screen

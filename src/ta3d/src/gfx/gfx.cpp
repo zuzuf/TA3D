@@ -40,6 +40,8 @@
 #include <QApplication>
 #include <QScreen>
 #include <QKeyEvent>
+#include <QMouseEvent>
+#include <QWheelEvent>
 
 namespace TA3D
 {
@@ -2551,13 +2553,46 @@ namespace TA3D
         m_context->swapBuffers(this);
     }
 
+    // ---- Input events management ----
     void GFX::keyPressEvent(QKeyEvent *e)
     {
+        QWindow::keyPressEvent(e);
         set_key_down(e->key());
     }
 
     void GFX::keyReleaseEvent(QKeyEvent *e)
     {
+        QWindow::keyReleaseEvent(e);
         set_key_up(e->key());
+    }
+
+    void GFX::mousePressEvent(QMouseEvent *e)
+    {
+        QWindow::mousePressEvent(e);
+        mouse_b = (e->buttons() & 7);
+        mouse_x = e->x();
+        mouse_y = e->y();
+    }
+
+    void GFX::mouseReleaseEvent(QMouseEvent *e)
+    {
+        QWindow::mouseReleaseEvent(e);
+        mouse_b = (e->buttons() & 7);
+        mouse_x = e->x();
+        mouse_y = e->y();
+    }
+
+    void GFX::wheelEvent(QWheelEvent *e)
+    {
+        QWindow::wheelEvent(e);
+        mouse_z += e->delta();
+    }
+
+    void GFX::mouseMoveEvent(QMouseEvent *e)
+    {
+        QWindow::mouseMoveEvent(e);
+        mouse_b = (e->buttons() & 7);
+        mouse_x = e->x();
+        mouse_y = e->y();
     }
 } // namespace TA3D

@@ -18,6 +18,7 @@
 #include <stdafx.h>
 #include "keyboard.h"
 #include "mouse.h"
+#include <QHash>
 
 using namespace TA3D::VARS;
 
@@ -25,11 +26,12 @@ namespace TA3D
 {
 	namespace VARS
 	{
-		int						ascii_to_scancode[ 256 ];
-		bool                    key[0x1000];
-		bool                    prevkey_down[0x1000];
-		bool                    prevkey_up[0x1000];
+        int						ascii_to_scancode[256];
+        bool                    key[256];
+        bool                    prevkey_down[256];
+        bool                    prevkey_up[256];
 		std::deque<uint32>      keybuf;
+        QHash<int, uint16>      qt2Keycode;
 	}
 
 
@@ -55,11 +57,95 @@ namespace TA3D
 
 	void init_keyboard()
 	{
-		memset(VARS::key, 0, 0x1000 * sizeof(bool));
+        memset(VARS::key, 0, sizeof(VARS::key));
 		VARS::keybuf.clear();
 
+        qt2Keycode[Qt::Key_Enter] = KEY_ENTER;
+//        qt2Keycode[Qt::Key_Enter] = KEY_ENTER_PAD;
+        qt2Keycode[Qt::Key_Space] = KEY_SPACE;
+        qt2Keycode[Qt::Key_Left] = KEY_LEFT;
+        qt2Keycode[Qt::Key_Right] = KEY_RIGHT;
+        qt2Keycode[Qt::Key_Up] = KEY_UP;
+        qt2Keycode[Qt::Key_Down] = KEY_DOWN;
+        qt2Keycode[Qt::Key_Tab] = KEY_TAB;
+        qt2Keycode[Qt::Key_Shift] = KEY_LSHIFT;
+//        qt2Keycode[Qt::Key_Shift] = KEY_RSHIFT;
+        qt2Keycode[Qt::Key_Control] = KEY_LCONTROL;
+//        qt2Keycode[Qt::Key_Control] = KEY_RCONTROL;
+        qt2Keycode[Qt::Key_Escape] = KEY_ESC;
+        qt2Keycode[Qt::Key_Backspace] = KEY_BACKSPACE;
+        qt2Keycode[Qt::Key_Delete] = KEY_DEL;
+        qt2Keycode[Qt::Key_Alt] = KEY_ALT;
+        qt2Keycode[Qt::Key_Pause] = KEY_PAUSE;
+
+        qt2Keycode[Qt::Key_F1] = KEY_F1;
+        qt2Keycode[Qt::Key_F2] = KEY_F2;
+        qt2Keycode[Qt::Key_F3] = KEY_F3;
+        qt2Keycode[Qt::Key_F4] = KEY_F4;
+        qt2Keycode[Qt::Key_F5] = KEY_F5;
+        qt2Keycode[Qt::Key_F6] = KEY_F6;
+        qt2Keycode[Qt::Key_F7] = KEY_F7;
+        qt2Keycode[Qt::Key_F8] = KEY_F8;
+        qt2Keycode[Qt::Key_F9] = KEY_F9;
+        qt2Keycode[Qt::Key_F10] = KEY_F10;
+        qt2Keycode[Qt::Key_F11] = KEY_F11;
+        qt2Keycode[Qt::Key_F12] = KEY_F12;
+
+        qt2Keycode[Qt::Key_0] = KEY_0;
+        qt2Keycode[Qt::Key_1] = KEY_1;
+        qt2Keycode[Qt::Key_2] = KEY_2;
+        qt2Keycode[Qt::Key_3] = KEY_3;
+        qt2Keycode[Qt::Key_4] = KEY_4;
+        qt2Keycode[Qt::Key_5] = KEY_5;
+        qt2Keycode[Qt::Key_6] = KEY_6;
+        qt2Keycode[Qt::Key_7] = KEY_7;
+        qt2Keycode[Qt::Key_8] = KEY_8;
+        qt2Keycode[Qt::Key_9] = KEY_9;
+
+        qt2Keycode[Qt::Key_Plus] = KEY_PLUS;
+//        qt2Keycode[Qt::Key_Plus] = KEY_PLUS_PAD;
+        qt2Keycode[Qt::Key_Minus] = KEY_MINUS;
+//        qt2Keycode[Qt::Key_Minus] = KEY_MINUS_PAD;
+
+        qt2Keycode[Qt::Key_A] = KEY_A;
+        qt2Keycode[Qt::Key_B] = KEY_B;
+        qt2Keycode[Qt::Key_C] = KEY_C;
+        qt2Keycode[Qt::Key_D] = KEY_D;
+        qt2Keycode[Qt::Key_E] = KEY_E;
+        qt2Keycode[Qt::Key_F] = KEY_F;
+        qt2Keycode[Qt::Key_G] = KEY_G;
+        qt2Keycode[Qt::Key_H] = KEY_H;
+        qt2Keycode[Qt::Key_I] = KEY_I;
+        qt2Keycode[Qt::Key_J] = KEY_J;
+        qt2Keycode[Qt::Key_K] = KEY_K;
+        qt2Keycode[Qt::Key_L] = KEY_L;
+        qt2Keycode[Qt::Key_M] = KEY_M;
+        qt2Keycode[Qt::Key_N] = KEY_N;
+        qt2Keycode[Qt::Key_O] = KEY_O;
+        qt2Keycode[Qt::Key_P] = KEY_P;
+        qt2Keycode[Qt::Key_Q] = KEY_Q;
+        qt2Keycode[Qt::Key_R] = KEY_R;
+        qt2Keycode[Qt::Key_S] = KEY_S;
+        qt2Keycode[Qt::Key_T] = KEY_T;
+        qt2Keycode[Qt::Key_U] = KEY_U;
+        qt2Keycode[Qt::Key_V] = KEY_V;
+        qt2Keycode[Qt::Key_W] = KEY_W;
+        qt2Keycode[Qt::Key_X] = KEY_X;
+        qt2Keycode[Qt::Key_Y] = KEY_Y;
+        qt2Keycode[Qt::Key_Z] = KEY_Z;
+        qt2Keycode[Qt::Key_PageUp] = KEY_PAGEUP;
+        qt2Keycode[Qt::Key_PageDown] = KEY_PAGEDOWN;
+
+        // This is used to show/hide the console
+        qt2Keycode[Qt::Key_ParenRight] = KEY_TILDE;
+
+        qt2Keycode[Qt::Key_CapsLock] = KEY_CAPSLOCK;
+
+        qt2Keycode[Qt::Key_End] = KEY_END;
+        qt2Keycode[Qt::Key_Home] = KEY_HOME;
+
 		// Initializing the ascii to scancode table
-		memset(ascii_to_scancode, 0, 256 * sizeof(int));
+        memset(ascii_to_scancode, 0, sizeof(ascii_to_scancode));
 
 		ascii_to_scancode[int('a')] = KEY_A;
 		ascii_to_scancode[int('b')] = KEY_B;
@@ -108,27 +194,29 @@ namespace TA3D
 	}
 
 
-	void set_key_down(uint16 keycode)
+    void set_key_down(int key)
 	{
-		if (keycode >= 0x1000)
+        const auto it = qt2Keycode.find(key);
+        if (it == qt2Keycode.end())
+            return;
+
+        VARS::key[it.value()] = true;
+    }
+
+
+    void set_key_up(int key)
+	{
+        const auto it = qt2Keycode.find(key);
+        if (it == qt2Keycode.end())
 			return;
 
-		VARS::key[keycode] = true;
-	}
-
-
-	void set_key_up(uint16 keycode)
-	{
-		if (keycode >= 0x1000)
-			return;
-
-		VARS::key[keycode] = false;
+        VARS::key[it.value()] = false;
 	}
 
 
 	bool key_down_event(uint16 keycode)
 	{
-		if (keycode >= 0x1000)
+        if (keycode >= 256)
 			return false;
 
 		if (!prevkey_down[keycode] && key[keycode])
@@ -143,7 +231,7 @@ namespace TA3D
 
 	bool key_up_event(uint16 keycode)
 	{
-		if (keycode >= 0x1000)
+        if (keycode >= 256)
 			return false;
 
 		if (prevkey_up[keycode] && !key[keycode])

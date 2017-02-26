@@ -23,6 +23,7 @@ namespace TA3D
 
 	SocketTCP::SocketTCP(bool enableCompression)
     {
+        serv = NULL;
         sock = NULL;
         checked = false;
         nonBlockingMode = false;
