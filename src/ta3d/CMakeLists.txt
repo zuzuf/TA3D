@@ -183,12 +183,6 @@ else()
 
 			set( LIBS "-L./lua -llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz")
 
-			if(NOT CMAKE_CROSSCOMPILING)
-				set( LIBS "${LIBS} -lSDLmain")
-			endif(NOT CMAKE_CROSSCOMPILING)
-
-#			LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/")
-
 		else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
 			if(NOT APPLE)
@@ -222,12 +216,6 @@ else()
 			endif( NOT BUILT_LUAJIT )
 
 			set( LIBS "-L${CMAKE_CURRENT_SOURCE_DIR}/src/luajit/src -lluajit -luser32 -lgdi32 -lopengl32 -lglu32 -lz")
-
-			if(NOT CMAKE_CROSSCOMPILING)
-				set( LIBS "${LIBS} -lSDLmain")
-			endif(NOT CMAKE_CROSSCOMPILING)
-
-#		LINK_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/")
 
 		else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
 
@@ -377,16 +365,16 @@ if(NOT APPLE)
 	set(CPACK_PACKAGE_CONTACT "${TA3D_MAIL_BUGREPORT}")
 	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Roland Brochard")
 	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
-	if(NOT ${BTYPE} STREQUAL "debug")
-		set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar")
-	else(NOT ${BTYPE} STREQUAL "debug")
-		set(CPACK_DEBIAN_PACKAGE_DEPENDS "libsdl1.2debian, libsdl-image1.2, libsdl-mixer1.2, libsdl-net1.2, libz1, libglew1.5, libfreetype6, p7zip-full, p7zip-rar, gdb")
-	endif(NOT ${BTYPE} STREQUAL "debug")
+        if(NOT ${BTYPE} STREQUAL "Debug")
+                set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5core, libqt5gui, libqt5widgets, libqt5network, libz1, libglew1.10, libfreetype6, p7zip-full, p7zip-rar")
+        else(NOT ${BTYPE} STREQUAL "Debug")
+                set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5core, libqt5gui, libqt5widgets, libqt5network, libz1, libglew1.10, libfreetype6, p7zip-full, p7zip-rar, gdb")
+        endif(NOT ${BTYPE} STREQUAL "Debug")
 
 	if(NOT WIN32 AND UNIX)
-		if(NOT ${BTYPE} STREQUAL "debug")
+                if(NOT ${BTYPE} STREQUAL "Debug")
 			set(CPACK_STRIP_FILES "ta3d")
-		endif(NOT ${BTYPE} STREQUAL "debug")
+                endif(NOT ${BTYPE} STREQUAL "Debug")
 		set(CPACK_SOURCE_STRIP_FILES "")
 	endif(NOT WIN32 AND UNIX)
 	set(CPACK_PACKAGE_EXECUTABLES "ta3d")

@@ -1,6 +1,6 @@
 
 STRING(STRIP "${LIBS}" LIBS)
-LINK_LIBRARIES("${LIBS} ${SDL_LIBRARY}")
+LINK_LIBRARIES("${LIBS}")
 
 # Yuni Settins
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Yuni_CXXFLAGS}")
@@ -383,11 +383,9 @@ ELSE(NOT APPLE)
 	BUNDLE_BASIC_INSTALL("../../" "./" "COPYING")
 
 	Set(ExternalLibs libz.dylib libpng.dylib libfreetype.dylib libtiff.dylib
-                libSDL.dylib libSDL_mixer.dylib libSDL_net.dylib
 		libGLEW.dylib
 		libjpeg.dylib
 		libftgl.dylib
-		libsmpeg.dylib
 		)
 
 

@@ -47,7 +47,6 @@ namespace Menus
 		virtual ~Loading();
 		//@}
 
-		//! \name SDL interaction
 		//@{
 		/*!
 		** \brief Update percent and caption, redraw the entire screen if required

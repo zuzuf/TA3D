@@ -61,8 +61,6 @@ namespace TA3D
 			exit(1);
 		TA3D::Resources::Initialize();
 
-		// Install our atexit function before SDL
-		// Like this, SDL_Quit() will be called before Finalize()
 		atexit(Finalize);
 
 		// Interface Manager
