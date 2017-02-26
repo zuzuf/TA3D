@@ -514,15 +514,10 @@ namespace TA3D
 						if (subframe == 0)
 						{
 							if (!truecolor)
-							{
 								frame_img = gfx->create_surface_ex(8,frame_w,frame_h);
-                                frame_img.fill(0);
-							}
 							else
-							{
 								frame_img = gfx->create_surface_ex(32,frame_w,frame_h);
-                                frame_img.fill(0);
-							}
+                            frame_img.fill(0);
                             blit(img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img.width(), img.height());
 						}
 						else

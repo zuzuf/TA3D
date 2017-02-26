@@ -75,10 +75,10 @@ namespace TA3D
 	}
 }
 
-# define geta32(x) (((x)>>24) & 0xFF)
-# define getb32(x) (((x)>>16) & 0xFF)
-# define getg32(x) (((x)>>8) & 0xFF)
-# define getr32(x) ((x) & 0xFF)
+# define geta32(x) qAlpha(x)
+# define getb32(x) qBlue(x)
+# define getg32(x) qGreen(x)
+# define getr32(x) qRed(x)
 
 # define getr(x) getr32(x)
 # define getg(x) getg32(x)
@@ -104,9 +104,9 @@ namespace TA3D
 
     void rectfill(QImage &bmp, int x0, int y0, int x1, int y1, uint32 col);
 
-    QImage convert_format_copy(const QImage &bmp);
-    QImage convert_format_24_copy(const QImage &bmp);
-    QImage convert_format_16_copy(const QImage &bmp);
+    QImage convert_format_copy(QImage &bmp);
+    QImage convert_format_24_copy(QImage &bmp);
+    QImage convert_format_16_copy(QImage &bmp);
 
     void convert_format(QImage &bmp);
     void convert_format_24(QImage &bmp);

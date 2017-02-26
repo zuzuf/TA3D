@@ -54,12 +54,12 @@ namespace TA3D
 		}
 	}
 
-    QImage convert_format_copy(const QImage &bmp)
+    QImage convert_format_copy(QImage &bmp)
 	{
         if (bmp.depth() != 32)
         {
-//            if (bmp.depth() == 8 && use_TA_palette)
-//                bmp.setColorTable(TA3D::VARS::pal);
+            if (bmp.depth() == 8 && use_TA_palette)
+                bmp.setColorTable(TA3D::VARS::pal);
 
             return bmp.convertToFormat(QImage::Format_RGBA8888);
         }
@@ -77,12 +77,12 @@ namespace TA3D
 		}
 	}
 
-    QImage convert_format_24_copy(const QImage &bmp)
+    QImage convert_format_24_copy(QImage &bmp)
 	{
         if (bmp.depth() != 24)
         {
-//            if (bmp.depth() == 8 && use_TA_palette)
-//                bmp.setColorTable(TA3D::VARS::pal);
+            if (bmp.depth() == 8 && use_TA_palette)
+                bmp.setColorTable(TA3D::VARS::pal);
 
             return bmp.convertToFormat(QImage::Format_RGB888);
         }
@@ -100,12 +100,12 @@ namespace TA3D
 		}
 	}
 
-    QImage convert_format_16_copy(const QImage &bmp)
+    QImage convert_format_16_copy(QImage &bmp)
 	{
         if (bmp.depth() != 16)
         {
-//            if (bmp.depth() == 8 && use_TA_palette)
-//                bmp.setColorTable(TA3D::VARS::pal);
+            if (bmp.depth() == 8 && use_TA_palette)
+                bmp.setColorTable(TA3D::VARS::pal);
 
             return bmp.convertToFormat(QImage::Format_RGB16);
         }

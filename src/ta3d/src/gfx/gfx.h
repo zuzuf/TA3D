@@ -173,12 +173,12 @@ namespace TA3D
 		**
 		*/
 		uint32 makeintcol(float r, float g, float b) const
-		{ return (uint32)(255.0f * r) | ((uint32)(255.0f * g) << 8) | ((uint32)(255.0f * b) << 16) | 0xFF000000; }
+        { return qRgb(255.0f * r, 255.0f * g, 255.0f * b);  }
 		/*!
 		**
 		*/
 		uint32 makeintcol(float r, float g, float b, float a) const
-		{ return (uint32)(255.0f * r) | ((uint32)(255.0f * g) << 8) | ((uint32)(255.0f * b) << 16) | ((uint32)(255.0f * a) << 24); }
+        { return qRgba(255.0f * r, 255.0f * g, 255.0f * b, 255.0f * a); }
 
 		//@} // Color management
 

@@ -151,11 +151,11 @@ namespace Menus
 		nb_res = 0;
 
 #define ADD_RES(w,h)  \
-        res_bpp[nb_res++] = 16;\
-        res_width[nb_res++] = w;\
+        res_bpp[nb_res] = 16;\
+        res_width[nb_res] = w;\
         res_height[nb_res++] = h;\
-        res_bpp[nb_res++] = 32;\
-        res_width[nb_res++] = w;\
+        res_bpp[nb_res] = 32;\
+        res_width[nb_res] = w;\
         res_height[nb_res++] = h;
 
         ADD_RES(640,480)
