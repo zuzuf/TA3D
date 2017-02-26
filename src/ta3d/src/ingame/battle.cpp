@@ -200,8 +200,8 @@ namespace TA3D
 			{
 				switch (lp_CONFIG->priority_level)
 				{
-					case 0: rest(1); break;
-					case 1: rest(0); break;
+                    case 0: QThread::msleep(1); break;
+                    case 1: QThread::msleep(0); break;
 				}
 				dt = float(msectimer() - count) * 0.001f;
 			}
@@ -2503,7 +2503,7 @@ namespace TA3D
 						gfx->unset_2D_mode();
 						gfx->flip();
 
-						while( !keypressed() && mouse_b == 0) {	rest(1);	poll_inputs();	}
+                        while( !keypressed() && mouse_b == 0) {	QThread::msleep(1);	poll_inputs();	}
 						while( mouse_b)	poll_inputs();
 						while( keypressed())	readkey();
 					}

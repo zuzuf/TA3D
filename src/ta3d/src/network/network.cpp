@@ -454,7 +454,7 @@ namespace TA3D
 					myID = -1;
 					while( myID == -1 && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() )
 					{
-						rest(1);
+                        QThread::msleep(1);
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
                             const QStringList &params = QString((char*)(special_msg.message)).split(' ', QString::SkipEmptyParts);
@@ -490,7 +490,7 @@ namespace TA3D
 					QString status;
                     while (status.isEmpty() && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen())
 					{
-						rest(1);
+                        QThread::msleep(1);
 						if( getNextSpecial( &special_msg ) == 0 )
 						{
                             const QStringList &params = QString((char*)(special_msg.message)).split(' ', QString::SkipEmptyParts);

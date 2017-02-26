@@ -4,7 +4,6 @@
 #include <vfs/vfs.h>
 #include <misc/paths.h>
 #include <misc/math.h>
-#include <smpeg/smpeg.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <QFile>

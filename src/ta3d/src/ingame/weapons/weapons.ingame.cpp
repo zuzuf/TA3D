@@ -260,7 +260,7 @@ namespace TA3D
 		{
 			++counter;
 			move(dt);					// Animate weapons
-			features.move_forest(dt);			// Animate the forest
+            features.move_forest(dt);			// Animate the forest
 
 			Engine::sync();
 		}

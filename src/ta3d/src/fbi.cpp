@@ -1315,7 +1315,7 @@ namespace TA3D
 	void UnitManager::waitUntilReady() const
 	{
 		while (!ready)
-			rest(10);
+			QThread::msleep(10);
 	}
 
 

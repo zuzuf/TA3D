@@ -122,7 +122,7 @@ namespace TA3D
 			bool done = false;
             while (msectimer() - timer < 10000 && !done)   // 10s timeout
 			{
-				rest(1);
+                QThread::msleep(1);
 				receive();
 				uint32 i = 0;
 				while (messageWaiting() && i < messages.size())

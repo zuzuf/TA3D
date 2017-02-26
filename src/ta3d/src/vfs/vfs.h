@@ -31,7 +31,6 @@
 # include "archive.h"
 # include <misc/hash_table.h>
 # include <misc/string.h>
-# include <sdl.h>
 # include <threads/mutex.h>
 # include <QIODevice>
 # include <QColor>

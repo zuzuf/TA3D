@@ -26,9 +26,6 @@
 # include <list>
 # include <vector>
 
-# include <SDL/SDL_mixer.h>
-
-
 namespace TA3D
 {
 	namespace Audio
@@ -180,7 +177,7 @@ namespace TA3D
 			/*!
 			** \brief Get if the system is running
 			*/
-            bool isRunning() {MutexLocker locker(pMutex); return m_SDLMixerRunning;}
+            bool isRunning() {MutexLocker locker(pMutex); return false;}
 
 
 		private:
@@ -205,7 +202,8 @@ namespace TA3D
                 //! What track is it ? (audio cd only)
                 int trackID;
                 //! The SDL CD handler
-                SDL_CD *cd;
+                void *cd;
+//                SDL_CD *cd;
 
 			}; // class PlaylistItem
 
@@ -223,7 +221,8 @@ namespace TA3D
 				~SoundItemList();
 
 				bool is3DSound;
-				Mix_Chunk* sampleHandle;
+                void* sampleHandle;
+//				Mix_Chunk* sampleHandle;
 				uint32 lastTimePlayed;
 
 			}; // class SoundItemList
@@ -317,8 +316,6 @@ namespace TA3D
 			//!
 			TDFParser pTable;
 
-			//! Is SDL_mixer running ?
-			bool m_SDLMixerRunning;
 			//! Are we in battle ?
 			bool m_InBattle;
 			//! Number of battle tunes
@@ -326,10 +323,10 @@ namespace TA3D
 			//! The complete playlist
 			Playlist  pPlaylist;
 
-			Mix_Music   *pMusic;
+//			Mix_Music   *pMusic;
             bool bPlayMusic;
 
-			Mix_Chunk   *pBasicSound;
+//			Mix_Chunk   *pBasicSound;
 
 			//! Current index to play (-1 means `none`)
 			sint32  pCurrentItemToPlay;

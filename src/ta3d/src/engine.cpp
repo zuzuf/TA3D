@@ -164,13 +164,6 @@ namespace TA3D
         bStarted = true;
 	}
 
-
-	void rest(uint32 msec)
-	{
-        QThread::msleep(msec);
-	}
-
-
 	void Engine::displayInfosAboutOpenGL() const
 	{
 		logs.checkpoint() << "OpenGL Informations :";

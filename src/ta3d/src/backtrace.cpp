@@ -49,7 +49,6 @@
 # include <cstdio>
 # include <cstdlib>
 # include <QFile>
-# include "sdl.h"
 # include "misc/osinfo.h"
 
 /*! \brief a small function implementing an automatic bug reporter

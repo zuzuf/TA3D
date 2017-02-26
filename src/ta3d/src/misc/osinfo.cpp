@@ -19,7 +19,6 @@
 #include "osinfo.h"
 #include "string.h"
 #include <logs/logs.h>
-#include <sdl.h>
 #include <QProcess>
 #include <QSysInfo>
 #include <QScreen>

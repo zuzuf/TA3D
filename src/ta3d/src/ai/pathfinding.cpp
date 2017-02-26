@@ -697,7 +697,7 @@ namespace TA3D
 		while(bRunning)
 		{
 			pSync.release();
-			rest(1);
+			QThread::msleep(1);
 		}
 	}
 

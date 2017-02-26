@@ -42,9 +42,11 @@ namespace Audio
 	const int nbChannels = 16;
 
 	Manager::Manager()
-		:m_SDLMixerRunning( false ), m_InBattle(false), pBattleTunesCount(0),
-        pMusic( NULL ), bPlayMusic(false), pBasicSound( NULL ),
-        pCurrentItemToPlay(-1), pCurrentItemPlaying(-1)
+        : m_InBattle(false),
+          pBattleTunesCount(0),
+          bPlayMusic(false),
+          pCurrentItemToPlay(-1),
+          pCurrentItemPlaying(-1)
 	{
 		pMinTicks = 500;
 
@@ -157,50 +159,50 @@ namespace Audio
 			}
 		}
 
-		// Check for audio tracks in cdrom drives
-		int nbDrives = SDL_CDNumDrives();
-		for(int i = 0 ; i < nbDrives ; ++i)
-		{
-			SDL_CD *cd = SDL_CDOpen(i);
-			if (!CD_INDRIVE(SDL_CDStatus(cd)))
-			{
-				SDL_CDClose(cd);
-				continue;
-			}
-			LOG_INFO(LOG_PREFIX_SOUND << "cdrom found : " << SDL_CDName(i));
-			LOG_INFO(LOG_PREFIX_SOUND << cd->numtracks << " tracks found");
-			for(int e = 0 ; e < cd->numtracks ; ++e)
-			{
-				LOG_INFO(LOG_PREFIX_SOUND << "track " << e << " is " << (cd->track[e].type == SDL_AUDIO_TRACK ? "audio" : "data"));
-				if (cd->track[e].type != SDL_AUDIO_TRACK)   continue;
+//		// Check for audio tracks in cdrom drives
+//		int nbDrives = SDL_CDNumDrives();
+//		for(int i = 0 ; i < nbDrives ; ++i)
+//		{
+//			SDL_CD *cd = SDL_CDOpen(i);
+//			if (!CD_INDRIVE(SDL_CDStatus(cd)))
+//			{
+//				SDL_CDClose(cd);
+//				continue;
+//			}
+//			LOG_INFO(LOG_PREFIX_SOUND << "cdrom found : " << SDL_CDName(i));
+//			LOG_INFO(LOG_PREFIX_SOUND << cd->numtracks << " tracks found");
+//			for(int e = 0 ; e < cd->numtracks ; ++e)
+//			{
+//				LOG_INFO(LOG_PREFIX_SOUND << "track " << e << " is " << (cd->track[e].type == SDL_AUDIO_TRACK ? "audio" : "data"));
+//				if (cd->track[e].type != SDL_AUDIO_TRACK)   continue;
 
-                const QString &name = QString(SDL_CDName(i)) + QString("_%1").arg(e);
-                Playlist::const_iterator it;
-                for (it = pPlaylist.begin(); it != pPlaylist.end(); ++it)
-				{
-                    if ((*it)->filename == name)
-					{
-                        (*it)->checked = true;
-						break;
-					}
-				}
+//                const QString &name = QString(SDL_CDName(i)) + QString("_%1").arg(e);
+//                Playlist::const_iterator it;
+//                for (it = pPlaylist.begin(); it != pPlaylist.end(); ++it)
+//				{
+//                    if ((*it)->filename == name)
+//					{
+//                        (*it)->checked = true;
+//						break;
+//					}
+//				}
 
-				PlaylistItem *m_Tune = (it == pPlaylist.end()) ? new PlaylistItem() : *it;      // We have to update things
-				if (it == pPlaylist.end())
-				{
-					m_Tune->battleTune = false;
-					m_Tune->disabled = default_deactivation;
-					m_Tune->checked = true;
-				}
-				m_Tune->filename = name;
-				m_Tune->cdromID = i;
-				m_Tune->trackID = e;
-				if (it == pPlaylist.end()) // It's missing, add it
-					pPlaylist.push_back(m_Tune);
-			}
+//				PlaylistItem *m_Tune = (it == pPlaylist.end()) ? new PlaylistItem() : *it;      // We have to update things
+//				if (it == pPlaylist.end())
+//				{
+//					m_Tune->battleTune = false;
+//					m_Tune->disabled = default_deactivation;
+//					m_Tune->checked = true;
+//				}
+//				m_Tune->filename = name;
+//				m_Tune->cdromID = i;
+//				m_Tune->trackID = e;
+//				if (it == pPlaylist.end()) // It's missing, add it
+//					pPlaylist.push_back(m_Tune);
+//			}
 
-			SDL_CDClose(cd);
-		}
+//			SDL_CDClose(cd);
+//		}
 
 		int e = 0;
 		for (unsigned int i = 0 ; i + e < pPlaylist.size() ; ) // Do some cleaning
@@ -338,8 +340,7 @@ namespace Audio
 
 	void Manager::doShutdownAudio(const bool purgeLoadedData)
 	{
-		if (m_SDLMixerRunning) // only execute stop if we are running.
-			doStopMusic();
+        doStopMusic();
 
 		if (purgeLoadedData)
 		{
@@ -347,18 +348,15 @@ namespace Audio
 			doPurgePlaylist(); // purge play list
 		}
 
-		if (m_SDLMixerRunning)
-		{
-			Mix_AllocateChannels(0);
+//		if (m_SDLMixerRunning)
+//		{
+//			Mix_AllocateChannels(0);
 
-			Mix_CloseAudio();
-			DeleteInterface();
-			m_SDLMixerRunning = false;
-			pMusic = NULL;
-		}
-
-        SDL_QuitSubSystem( SDL_INIT_CDROM );
-        SDL_QuitSubSystem( SDL_INIT_AUDIO );
+//			Mix_CloseAudio();
+//			DeleteInterface();
+//			m_SDLMixerRunning = false;
+//			pMusic = NULL;
+//		}
 	}
 
 
@@ -369,58 +367,20 @@ namespace Audio
 		if (lp_CONFIG->no_sound)
 			return false;
 
-		pMusic = NULL;
 		fCounter = 0;
         bPlayMusic = false;
 
-		if (m_SDLMixerRunning)
-			return true;
-
-		if (!SDL_WasInit(SDL_INIT_AUDIO))
-		{
-			if (SDL_InitSubSystem( SDL_INIT_AUDIO ))
-			{
-				logs.error() << LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_AUDIO ) failed: " << SDL_GetError();
-				return false;
-			}
-		}
-        if (!SDL_WasInit(SDL_INIT_CDROM))
-        {
-            if (SDL_InitSubSystem( SDL_INIT_CDROM ))
-            {
-                logs.error() << LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_CDROM ) failed: " << SDL_GetError();
-                return false;
-            }
-        }
-        if (!SDL_WasInit(SDL_INIT_TIMER))
-        {
-            if (SDL_InitSubSystem( SDL_INIT_TIMER ))
-            {
-                logs.error() << LOG_PREFIX_SOUND << "SDL_InitSubSystem( SDL_INIT_TIMER ) failed: " << SDL_GetError();
-                return false;
-            }
-        }
-
-		// 44.1KHz, signed 16bit, system byte order,
-		// stereo, 4096 bytes for chunks
-        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
-        {
-			logs.error() << LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError();
-			return false;
-		}
+//		// 44.1KHz, signed 16bit, system byte order,
+//		// stereo, 4096 bytes for chunks
+//        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
+//        {
+//			logs.error() << LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError();
+//			return false;
+//		}
+        return false;
 
         pCurrentItemPlaying = -1;
 
-		Mix_AllocateChannels(nbChannels);
-
-		SDL_version compiled_version;
-		const SDL_version *linked_version;
-		MIX_VERSION(&compiled_version);
-		logs.debug() << LOG_PREFIX_SOUND << "compiled with SDL_mixer version: " << (int)compiled_version.major << '.' << (int)compiled_version.minor << '.' << (int)compiled_version.patch;
-		linked_version = Mix_Linked_Version();
-		logs.debug() << LOG_PREFIX_SOUND << "running with SDL_mixer version: " << (int)linked_version->major << '.' << (int)linked_version->minor << '.' << (int)linked_version->patch;
-
-		m_SDLMixerRunning = true;
 		doLoadPlaylist();
 
 		setVolume(lp_CONFIG->sound_volume);
@@ -447,20 +407,20 @@ namespace Audio
 
 	void Manager::doStopMusic()
 	{
-		if (m_SDLMixerRunning && pMusic != NULL)
-		{
-			Mix_HaltMusic();
-			Mix_FreeMusic(pMusic);
-			pMusic = NULL;
-		}
-        else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
-                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
-                 && pPlaylist[pCurrentItemPlaying]->cd)        // We're playing a track from an audio CD
-        {
-            SDL_CDStop(pPlaylist[pCurrentItemPlaying]->cd);
-            SDL_CDClose(pPlaylist[pCurrentItemPlaying]->cd);
-            pPlaylist[pCurrentItemPlaying]->cd = NULL;
-        }
+//		if (m_SDLMixerRunning && pMusic != NULL)
+//		{
+//			Mix_HaltMusic();
+//			Mix_FreeMusic(pMusic);
+//			pMusic = NULL;
+//		}
+//        else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
+//                 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+//                 && pPlaylist[pCurrentItemPlaying]->cd)        // We're playing a track from an audio CD
+//        {
+//            SDL_CDStop(pPlaylist[pCurrentItemPlaying]->cd);
+//            SDL_CDClose(pPlaylist[pCurrentItemPlaying]->cd);
+//            pPlaylist[pCurrentItemPlaying]->cd = NULL;
+//        }
 	}
 
 
@@ -490,22 +450,22 @@ namespace Audio
 	void Manager::togglePauseMusic()
 	{
 		pMutex.lock();
-		if (m_SDLMixerRunning && pMusic != NULL)
-		{
-			if (Mix_PausedMusic())
-				Mix_PauseMusic();
-			else
-				Mix_ResumeMusic();
-		}
-		else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
-				 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
-				 && pPlaylist[pCurrentItemPlaying]->cd)
-		{
-			if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING)
-				SDL_CDPause(pPlaylist[pCurrentItemPlaying]->cd);
-			else if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
-				SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
-		}
+//		if (m_SDLMixerRunning && pMusic != NULL)
+//		{
+//			if (Mix_PausedMusic())
+//				Mix_PauseMusic();
+//			else
+//				Mix_ResumeMusic();
+//		}
+//		else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
+//				 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+//				 && pPlaylist[pCurrentItemPlaying]->cd)
+//		{
+//			if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING)
+//				SDL_CDPause(pPlaylist[pCurrentItemPlaying]->cd);
+//			else if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
+//				SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
+//		}
 		pMutex.unlock();
 	}
 
@@ -520,12 +480,12 @@ namespace Audio
 
 	void Manager::doPauseMusic()
 	{
-		if (m_SDLMixerRunning && pMusic != NULL)
-			Mix_PauseMusic();
-		else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
-				 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
-				 && pPlaylist[pCurrentItemPlaying]->cd)
-			SDL_CDPause(pPlaylist[pCurrentItemPlaying]->cd);
+//		if (m_SDLMixerRunning && pMusic != NULL)
+//			Mix_PauseMusic();
+//		else if (m_SDLMixerRunning && pCurrentItemPlaying >= 0
+//				 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+//				 && pPlaylist[pCurrentItemPlaying]->cd)
+//			SDL_CDPause(pPlaylist[pCurrentItemPlaying]->cd);
 	}
 
 
@@ -613,7 +573,7 @@ namespace Audio
 	{
 		doStopMusic();
 
-        if (!m_SDLMixerRunning || filename.isEmpty())
+        if (filename.isEmpty())
 			return;
 
 		pCurrentItemPlaying = -1;
@@ -628,20 +588,20 @@ namespace Audio
 
 		if (pCurrentItemPlaying >= 0 && pPlaylist[pCurrentItemPlaying]->cdromID >= 0)
 		{
-			SDL_CDClose(NULL);
-			SDL_ClearError();
-			pPlaylist[pCurrentItemPlaying]->cd = SDL_CDOpen(pPlaylist[pCurrentItemPlaying]->cdromID);
-			if (pPlaylist[pCurrentItemPlaying]->cd == NULL)
-				logs.error() << LOG_PREFIX_SOUND << "could not open cdrom " << pPlaylist[pCurrentItemPlaying]->cdromID <<  " : " << SDL_GetError();
-			else
-			{
-				SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd);
-				if (SDL_CDPlayTracks(pPlaylist[pCurrentItemPlaying]->cd, pPlaylist[pCurrentItemPlaying]->trackID, 0, 1, 0))
-					logs.debug() << LOG_PREFIX_SOUND << "Error playing track "  << pPlaylist[pCurrentItemPlaying]->trackID << " from CD " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) << " : " << SDL_GetError();
-				else
-					logs.debug() << LOG_PREFIX_SOUND << "Playing audio cd " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) <<  " track " << pPlaylist[pCurrentItemPlaying]->trackID;
-				setMusicVolume( lp_CONFIG->music_volume );
-			}
+//			SDL_CDClose(NULL);
+//			SDL_ClearError();
+//			pPlaylist[pCurrentItemPlaying]->cd = SDL_CDOpen(pPlaylist[pCurrentItemPlaying]->cdromID);
+//			if (pPlaylist[pCurrentItemPlaying]->cd == NULL)
+//				logs.error() << LOG_PREFIX_SOUND << "could not open cdrom " << pPlaylist[pCurrentItemPlaying]->cdromID <<  " : " << SDL_GetError();
+//			else
+//			{
+//				SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd);
+//				if (SDL_CDPlayTracks(pPlaylist[pCurrentItemPlaying]->cd, pPlaylist[pCurrentItemPlaying]->trackID, 0, 1, 0))
+//					logs.debug() << LOG_PREFIX_SOUND << "Error playing track "  << pPlaylist[pCurrentItemPlaying]->trackID << " from CD " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) << " : " << SDL_GetError();
+//				else
+//					logs.debug() << LOG_PREFIX_SOUND << "Playing audio cd " << SDL_CDName(pPlaylist[pCurrentItemPlaying]->cdromID) <<  " track " << pPlaylist[pCurrentItemPlaying]->trackID;
+//				setMusicVolume( lp_CONFIG->music_volume );
+//			}
 			return;
 		}
 
@@ -652,19 +612,19 @@ namespace Audio
 			return;
 		}
 
-        pMusic = Mix_LoadMUS( filename.toStdString().c_str() );
+//        pMusic = Mix_LoadMUS( filename.toStdString().c_str() );
 
-		if (pMusic == NULL)
-		{
-			logs.error() << LOG_PREFIX_SOUND << "Failed to open music file : `" << filename << "` (" << Mix_GetError() << ')';
-			return;
-		}
+//		if (pMusic == NULL)
+//		{
+//			logs.error() << LOG_PREFIX_SOUND << "Failed to open music file : `" << filename << "` (" << Mix_GetError() << ')';
+//			return;
+//		}
 
-		if (Mix_PlayMusic(pMusic, 0) == -1)
-		{
-			logs.error() << LOG_PREFIX_SOUND << "Failed to play music file : `" << filename << "` (" << Mix_GetError() << ')';
-			return;
-		}
+//		if (Mix_PlayMusic(pMusic, 0) == -1)
+//		{
+//			logs.error() << LOG_PREFIX_SOUND << "Failed to play music file : `" << filename << "` (" << Mix_GetError() << ')';
+//			return;
+//		}
 
 		logs.debug() << LOG_PREFIX_SOUND << "Playing music file " << filename;
 		setMusicVolume( lp_CONFIG->music_volume );
@@ -682,35 +642,35 @@ namespace Audio
 
 	void Manager::doPlayMusic()
 	{
-        if (!m_SDLMixerRunning || !bPlayMusic)
+        if (!bPlayMusic)
 			return;
 
         bool playing = false;
 
-		if (pMusic != NULL)
-		{
-			if (Mix_PausedMusic())
-			{
-				Mix_ResumeMusic();
-				return;
-			}
-            playing = Mix_PlayingMusic();
-		}
-		else
-		{
-			if (pCurrentItemPlaying >= 0
-				&& pPlaylist[pCurrentItemPlaying]->cdromID >= 0 && pPlaylist[pCurrentItemPlaying]->cd)
-			{
-				if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
-				{
-					SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
-					return;
-				}
-				playing = SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING;
-			}
-		}
-		if (!playing)
-			doPlayMusic(doSelectNextMusic());
+//		if (pMusic != NULL)
+//		{
+//			if (Mix_PausedMusic())
+//			{
+//				Mix_ResumeMusic();
+//				return;
+//			}
+//            playing = Mix_PlayingMusic();
+//		}
+//		else
+//		{
+//			if (pCurrentItemPlaying >= 0
+//				&& pPlaylist[pCurrentItemPlaying]->cdromID >= 0 && pPlaylist[pCurrentItemPlaying]->cd)
+//			{
+//				if (SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PAUSED)
+//				{
+//					SDL_CDResume(pPlaylist[pCurrentItemPlaying]->cd);
+//					return;
+//				}
+//				playing = SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) == CD_PLAYING;
+//			}
+//		}
+//		if (!playing)
+//			doPlayMusic(doSelectNextMusic());
 	}
 
 
@@ -739,20 +699,14 @@ namespace Audio
 
 	void Manager::doUpdate3DSound()
 	{
-		if (!m_SDLMixerRunning)
-		{
-			pWorkList.clear();
-			return;
-		}
-
 #warning TODO: implement 3D stereo
 
 		//        pFMODSystem->update();
 
 		for (std::list< WorkListItem >::iterator i = pWorkList.begin(); i != pWorkList.end(); ++i)
 		{
-			if (Mix_PlayChannel(-1, i->sound->sampleHandle, 0) == -1)
-				continue;
+//			if (Mix_PlayChannel(-1, i->sound->sampleHandle, 0) == -1)
+//				continue;
 
 			if (i->sound->is3DSound)
 			{
@@ -768,15 +722,15 @@ namespace Audio
 
 		fCounter = 0;
 
-        if (((pMusic == NULL || !Mix_PlayingMusic()) && (pCurrentItemPlaying == -1 || pPlaylist[pCurrentItemPlaying]->cdromID < 0))
-            || (pCurrentItemPlaying >= 0
-                && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
-                && (pPlaylist[pCurrentItemPlaying]->cd == NULL
-                    || SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) != CD_PLAYING)) )
-		{
-			doPlayMusic();
-			return;
-		}
+//        if (((pMusic == NULL || !Mix_PlayingMusic()) && (pCurrentItemPlaying == -1 || pPlaylist[pCurrentItemPlaying]->cdromID < 0))
+//            || (pCurrentItemPlaying >= 0
+//                && pPlaylist[pCurrentItemPlaying]->cdromID >= 0
+//                && (pPlaylist[pCurrentItemPlaying]->cd == NULL
+//                    || SDL_CDStatus(pPlaylist[pCurrentItemPlaying]->cd) != CD_PLAYING)) )
+//		{
+//			doPlayMusic();
+//			return;
+//		}
 	}
 
 
@@ -820,14 +774,14 @@ namespace Audio
 		if (file)
 		{
             const QByteArray &buffer = file->readAll();
-            pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1);
+//            pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1);
 			delete file;
-			if (pBasicSound == NULL)
-			{
-				logs.error() << LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ')';
-				return;
-			}
-			Mix_PlayChannel(-1, pBasicSound, 0);
+//			if (pBasicSound == NULL)
+//			{
+//				logs.error() << LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ')';
+//				return;
+//			}
+//			Mix_PlayChannel(-1, pBasicSound, 0);
 		}
 	}
 
@@ -835,16 +789,16 @@ namespace Audio
 	void Manager::stopSoundFileNow()
 	{
 		MutexLocker locker(pMutex);
-		if (pBasicSound)
-		{
-			for (int i = 0; i < nbChannels; ++i)
-			{
-				if (Mix_GetChunk(i) == pBasicSound)
-					Mix_HaltChannel(i);
-			}
-			Mix_FreeChunk(pBasicSound);
-		}
-		pBasicSound = NULL;
+//		if (pBasicSound)
+//		{
+//			for (int i = 0; i < nbChannels; ++i)
+//			{
+//				if (Mix_GetChunk(i) == pBasicSound)
+//					Mix_HaltChannel(i);
+//			}
+//			Mix_FreeChunk(pBasicSound);
+//		}
+//		pBasicSound = NULL;
 	}
 
 
@@ -888,19 +842,18 @@ namespace Audio
 		SoundItemList* it = new SoundItemList(LoadAs3D);
 		LOG_ASSERT(NULL != it);
 
-		// Now get SDL_mixer to load the sample
-        const QByteArray &buffer = file->readAll();
-        it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1 );
-		delete file; // we no longer need this.
+//		// Now get SDL_mixer to load the sample
+//        const QByteArray &buffer = file->readAll();
+//        it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1 );
+//		delete file; // we no longer need this.
 
-		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
-		{
-			delete it;  // delete the sound.
-			// log a message and return false;
-			if (m_SDLMixerRunning)
-				logs.debug() << LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.";
-			return false;
-		}
+//		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
+//		{
+//			delete it;  // delete the sound.
+//			// log a message and return false;
+//            logs.debug() << LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.";
+//			return false;
+//		}
 
 		// if its a 3d Sound we need to set min/max distance.
 #warning TODO: implement 3D stereo
@@ -941,7 +894,7 @@ namespace Audio
 	{
 		pMutex.lock();
 
-		Mix_HaltChannel(-1);
+//		Mix_HaltChannel(-1);
 
 		for(TA3D::UTILS::HashMap<SoundItemList*>::Dense::iterator it = pSoundList.begin() ; it != pSoundList.end() ; ++it)
 			delete *it;
@@ -961,8 +914,6 @@ namespace Audio
 
 		MutexLocker locker(pMutex);
 		if (vec && Camera::inGame && ((Vector3D)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
-			return;
-		if (!m_SDLMixerRunning)
 			return;
 
 		QString szWav(filename); // copy string to szWav so we can work with it.
@@ -1064,14 +1015,14 @@ namespace Audio
 
 	Manager::SoundItemList::~SoundItemList()
 	{
-		if (sampleHandle)
-		{
-			for(int i = 0 ; i < nbChannels ; i++)
-				if (Mix_GetChunk(i) == sampleHandle)
-					Mix_HaltChannel(i);
-			Mix_FreeChunk(sampleHandle);
-		}
-		sampleHandle = NULL;
+//		if (sampleHandle)
+//		{
+//			for(int i = 0 ; i < nbChannels ; i++)
+//				if (Mix_GetChunk(i) == sampleHandle)
+//					Mix_HaltChannel(i);
+//			Mix_FreeChunk(sampleHandle);
+//		}
+//		sampleHandle = NULL;
 	}
 
 
@@ -1079,7 +1030,7 @@ namespace Audio
 	{
 		if (!isRunning())
 			return;
-		Mix_Volume(-1, volume);
+//		Mix_Volume(-1, volume);
 	}
 
 
@@ -1087,7 +1038,7 @@ namespace Audio
 	{
 		if (!isRunning())
 			return;
-		Mix_VolumeMusic( volume );
+//		Mix_VolumeMusic( volume );
 	}
 
 

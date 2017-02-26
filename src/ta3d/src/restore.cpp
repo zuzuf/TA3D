@@ -80,7 +80,7 @@ namespace TA3D
 		lp_CONFIG->pause = true;
 
 		while (!lp_CONFIG->paused)
-			rest( 100 );			// Wait for the engine to enter in pause mode so we can save everything we want
+			QThread::msleep( 100 );			// Wait for the engine to enter in pause mode so we can save everything we want
 		// without having the engine accessing its data
 		gzputs( file, "TA3D SAV" );
 

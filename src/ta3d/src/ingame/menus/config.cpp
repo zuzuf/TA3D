@@ -57,7 +57,7 @@ namespace Menus
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+			QThread::msleep(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 		clear_keybuf();

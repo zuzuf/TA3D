@@ -269,7 +269,7 @@ namespace TA3D
 		int p = tcpsock.recv( tcpinbuf + tibp, tiremain == -1 ? 2 : tiremain );
 		if( p <= 0 && tiremain <= 0 )
 		{
-			rest(1);
+            QThread::msleep(1);
 			tiremain = -1;
 			return;
 		}

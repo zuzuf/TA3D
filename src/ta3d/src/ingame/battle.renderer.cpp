@@ -1094,7 +1094,7 @@ namespace TA3D
 		lp_CONFIG->ortho_camera = true;
 
 		while (!lp_CONFIG->paused)
-			rest( 100 );			// Wait for the engine to enter in pause mode so we can assemble several shots
+			QThread::msleep( 100 );			// Wait for the engine to enter in pause mode so we can assemble several shots
 									// of the same game tick
 
 		Camera camBak = cam;

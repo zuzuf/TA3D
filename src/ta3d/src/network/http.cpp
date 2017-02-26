@@ -181,7 +181,7 @@ namespace TA3D
 		while(pDead == 0)
 		{
 			bStop = true;
-			rest(1);
+            QThread::msleep(1);
 		}
 	}
 
@@ -250,7 +250,7 @@ namespace TA3D
 			do
 			{
 				count = sock.recv(buffer, sizeof(buffer) - 1);
-				rest(1);
+                QThread::msleep(1);
 			}
 			while(count == 0 && msectimer() - timer < 1000);
 			if (msectimer() - timer >= 1000)
@@ -344,7 +344,7 @@ namespace TA3D
 			do
 			{
 				count = sock.recv(buffer, sizeof(buffer) - 1);
-				rest(1);
+                QThread::msleep(1);
 			}
 			while(count == 0 && msectimer() - timer < 1000);
 			if (msectimer() - timer >= 1000)

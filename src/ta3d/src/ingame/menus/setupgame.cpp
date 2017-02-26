@@ -75,7 +75,7 @@ namespace Menus
 		reset_mouse();
 		while (key[KEY_ESC])
 		{
-			rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+            QThread::msleep(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 			poll_inputs();
 		}
 		clear_keybuf();
@@ -130,7 +130,7 @@ namespace Menus
 
 			while (key[KEY_ESC])
 			{
-				rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+                QThread::msleep(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 				poll_inputs();
 			}
 		}
@@ -174,7 +174,7 @@ namespace Menus
 				else
 				{
                     network_manager.sendSpecial("NOTIFY NEW_PLAYER " + FixBlank(lp_CONFIG->player_name));
-					rest(10);
+                    QThread::msleep(10);
 					network_manager.sendSpecial( "REQUEST GameData" );
 				}
 			}
@@ -286,7 +286,7 @@ namespace Menus
 					my_old_id = net_id_table[i];
 			}
             network_manager.sendSpecial( QString("NOTIFY PLAYER_BACK %1").arg(my_old_id) );
-			rest(10);
+            QThread::msleep(10);
 			network_manager.sendSpecial( "REQUEST GameData" );
 		}
 
@@ -602,7 +602,7 @@ namespace Menus
 			{
 				while (key[KEY_ENTER])
 				{
-					rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
+                    QThread::msleep(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 					poll_inputs();
 				}
 				clear_keybuf();

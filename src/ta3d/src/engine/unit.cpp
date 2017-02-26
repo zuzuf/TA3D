@@ -63,7 +63,7 @@ namespace TA3D
 	void Unit::destroy(bool full)
 	{
 		while (drawing)
-			rest(0);
+            QThread::msleep(0);
 		pMutex.lock();
 		ID = 0;
 		script = NULL;
