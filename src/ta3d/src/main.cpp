@@ -214,7 +214,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		// Initializing the TA3D Engine
+        // Initializing the TA3D Engine
 		TA3D::Engine engine;
 		InitializeTheEngine(engine);
 

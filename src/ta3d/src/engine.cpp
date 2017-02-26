@@ -86,7 +86,10 @@ namespace TA3D
 
 		// Display informations about OpenGL
 		displayInfosAboutOpenGL();
-	}
+
+        // Creating Sound & Music Interface
+        sound_manager = new TA3D::Audio::Manager();
+    }
 
 
 	Engine::~Engine(void)
@@ -144,9 +147,8 @@ namespace TA3D
 				lp_CONFIG->Lang = I18N::Instance()->currentLanguage()->englishCaption();
 		}
 
-		// Creating Sound & Music Interface
-		sound_manager = new TA3D::Audio::Manager();
-		sound_manager->loadTDFSounds(true);
+        // Load sound & music data
+        sound_manager->loadTDFSounds(true);
 		sound_manager->loadTDFSounds(false);
 
 		model_manager.init();

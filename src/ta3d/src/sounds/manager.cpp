@@ -25,6 +25,9 @@
 #include <misc/paths.h>
 #include <QFile>
 #include <misc/timer.h>
+#include <QAudioFormat>
+#include <QAudioOutput>
+#include "mixerdevice.h"
 
 
 using namespace TA3D::Interfaces;
@@ -48,6 +51,13 @@ namespace Audio
           pCurrentItemToPlay(-1),
           pCurrentItemPlaying(-1)
 	{
+        pFormat = new QAudioFormat;
+        pFormat->setSampleRate(44100);
+        pFormat->setSampleType(QAudioFormat::Float);
+        pFormat->setChannelCount(1);
+        pFormat->setSampleSize(32);
+        pFormat->setCodec("audio/pcm");
+
 		pMinTicks = 500;
 
 		doStartUpAudio();
@@ -55,7 +65,29 @@ namespace Audio
 			InitInterface();
 	}
 
+    const QAudioFormat &Manager::getAudioFormat() const
+    {
+        return *pFormat;
+    }
 
+    void Manager::handleOutputStateChange()
+    {
+        switch(pOutput->state())
+        {
+        case QAudio::ActiveState:
+            LOG_DEBUG(LOG_PREFIX_SOUND << "output active");
+            break;
+        case QAudio::SuspendedState:
+            LOG_DEBUG(LOG_PREFIX_SOUND << "output suspended");
+            pOutput->resume();
+            break;
+        case QAudio::StoppedState:
+        case QAudio::IdleState:
+            LOG_DEBUG(LOG_PREFIX_SOUND << "output stopped/idle");
+            pOutput->start(pMixer);
+            break;
+        }
+    }
 
 
 	void Manager::setPlayListFileMode(const int idx, bool inBattle, bool disabled)
@@ -158,51 +190,6 @@ namespace Audio
 				pPlaylist.push_back(m_Tune);
 			}
 		}
-
-//		// Check for audio tracks in cdrom drives
-//		int nbDrives = SDL_CDNumDrives();
-//		for(int i = 0 ; i < nbDrives ; ++i)
-//		{
-//			SDL_CD *cd = SDL_CDOpen(i);
-//			if (!CD_INDRIVE(SDL_CDStatus(cd)))
-//			{
-//				SDL_CDClose(cd);
-//				continue;
-//			}
-//			LOG_INFO(LOG_PREFIX_SOUND << "cdrom found : " << SDL_CDName(i));
-//			LOG_INFO(LOG_PREFIX_SOUND << cd->numtracks << " tracks found");
-//			for(int e = 0 ; e < cd->numtracks ; ++e)
-//			{
-//				LOG_INFO(LOG_PREFIX_SOUND << "track " << e << " is " << (cd->track[e].type == SDL_AUDIO_TRACK ? "audio" : "data"));
-//				if (cd->track[e].type != SDL_AUDIO_TRACK)   continue;
-
-//                const QString &name = QString(SDL_CDName(i)) + QString("_%1").arg(e);
-//                Playlist::const_iterator it;
-//                for (it = pPlaylist.begin(); it != pPlaylist.end(); ++it)
-//				{
-//                    if ((*it)->filename == name)
-//					{
-//                        (*it)->checked = true;
-//						break;
-//					}
-//				}
-
-//				PlaylistItem *m_Tune = (it == pPlaylist.end()) ? new PlaylistItem() : *it;      // We have to update things
-//				if (it == pPlaylist.end())
-//				{
-//					m_Tune->battleTune = false;
-//					m_Tune->disabled = default_deactivation;
-//					m_Tune->checked = true;
-//				}
-//				m_Tune->filename = name;
-//				m_Tune->cdromID = i;
-//				m_Tune->trackID = e;
-//				if (it == pPlaylist.end()) // It's missing, add it
-//					pPlaylist.push_back(m_Tune);
-//			}
-
-//			SDL_CDClose(cd);
-//		}
 
 		int e = 0;
 		for (unsigned int i = 0 ; i + e < pPlaylist.size() ; ) // Do some cleaning
@@ -348,15 +335,16 @@ namespace Audio
 			doPurgePlaylist(); // purge play list
 		}
 
-//		if (m_SDLMixerRunning)
-//		{
-//			Mix_AllocateChannels(0);
-
-//			Mix_CloseAudio();
-//			DeleteInterface();
-//			m_SDLMixerRunning = false;
-//			pMusic = NULL;
-//		}
+        if (pOutput)
+        {
+            disconnect(pMixer);
+            pOutput->stop();
+            pOutput->deleteLater();
+        }
+        if (pMixer)
+            pMixer->deleteLater();
+        pMixer = NULL;
+        pOutput = NULL;
 	}
 
 
@@ -370,14 +358,16 @@ namespace Audio
 		fCounter = 0;
         bPlayMusic = false;
 
-//		// 44.1KHz, signed 16bit, system byte order,
-//		// stereo, 4096 bytes for chunks
-//        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
-//        {
-//			logs.error() << LOG_PREFIX_SOUND << "Mix_OpenAudio: " << Mix_GetError();
-//			return false;
-//		}
-        return false;
+        if (pMixer)
+            pMixer->deleteLater();
+        pMixer = new MixerDevice;
+
+        if (pOutput)
+            pOutput->deleteLater();
+        pOutput = new QAudioOutput(*pFormat);   // Default output device
+        pOutput->setBufferSize(16384);
+        connect(pOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleOutputStateChange()));
+        pOutput->start(pMixer);
 
         pCurrentItemPlaying = -1;
 
@@ -393,6 +383,8 @@ namespace Audio
 	Manager::~Manager()
 	{
 		doShutdownAudio(true);
+
+        delete pFormat;
 	}
 
 
@@ -701,12 +693,12 @@ namespace Audio
 	{
 #warning TODO: implement 3D stereo
 
-		//        pFMODSystem->update();
-
 		for (std::list< WorkListItem >::iterator i = pWorkList.begin(); i != pWorkList.end(); ++i)
 		{
-//			if (Mix_PlayChannel(-1, i->sound->sampleHandle, 0) == -1)
-//				continue;
+            QIODevice *file = VFS::Instance()->readFile(i->sound->sampleHandle);
+            if (!file)
+                continue;
+            pMixer->addSource(file);
 
 			if (i->sound->is3DSound)
 			{
@@ -772,17 +764,7 @@ namespace Audio
 
         QIODevice *file = VFS::Instance()->readFile(filename);
 		if (file)
-		{
-            const QByteArray &buffer = file->readAll();
-//            pBasicSound = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1);
-			delete file;
-//			if (pBasicSound == NULL)
-//			{
-//				logs.error() << LOG_PREFIX_SOUND << "error loading file `" << filename << "` (" << Mix_GetError() << ')';
-//				return;
-//			}
-//			Mix_PlayChannel(-1, pBasicSound, 0);
-		}
+            pMixer->addSource(file);
 	}
 
 
@@ -832,8 +814,7 @@ namespace Audio
             theSound += ".ogg";
         else if (VFS::Instance()->fileExists(theSound + ".mp3"))
             theSound += ".mp3";
-        QIODevice* file = VFS::Instance()->readFile(theSound);
-		if (!file) // if no data, log a message and return false.
+        if (!VFS::Instance()->fileExists(theSound)) // if no data, log a message and return false.
 		{
 			// logs.debug() <<  LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), no such sound found in HPI.");
 			return false;
@@ -842,18 +823,7 @@ namespace Audio
 		SoundItemList* it = new SoundItemList(LoadAs3D);
 		LOG_ASSERT(NULL != it);
 
-//		// Now get SDL_mixer to load the sample
-//        const QByteArray &buffer = file->readAll();
-//        it->sampleHandle = Mix_LoadWAV_RW( SDL_RWFromMem((void*)buffer.data(), buffer.size()), 1 );
-//		delete file; // we no longer need this.
-
-//		if (it->sampleHandle == NULL) // ahh crap SDL_mixer couln't load it.
-//		{
-//			delete it;  // delete the sound.
-//			// log a message and return false;
-//            logs.debug() << LOG_PREFIX_SOUND << "Manager: LoadSound(" << filename << "), Failed to construct sample.";
-//			return false;
-//		}
+        it->sampleHandle = theSound;
 
 		// if its a 3d Sound we need to set min/max distance.
 #warning TODO: implement 3D stereo
@@ -920,7 +890,7 @@ namespace Audio
         if (szWav.toLower().contains(".wav")           // if it has a .wav/.ogg/.mp3 extension then remove it.
                 || szWav.toLower().contains(".ogg")
                 || szWav.toLower().contains(".mp3"))
-			szWav.truncate(szWav.length() - 4);
+            szWav.chop(4);
 
 		SoundItemList* sound = pSoundList[szWav];
 		if (!sound)
@@ -934,13 +904,13 @@ namespace Audio
 
         sound->lastTimePlayed = msectimer();
 
-		if (!sound->sampleHandle || (sound->is3DSound && !vec))
+        if (sound->sampleHandle.isEmpty() || (sound->is3DSound && !vec))
 		{
-			if (!sound->sampleHandle)
+            if (!sound->sampleHandle.isEmpty())
 				logs.error() << LOG_PREFIX_SOUND << "`" << filename << "` not played the good way";
 			else
 				logs.error() << LOG_PREFIX_SOUND << "`" << filename << "` sound->sampleHandle is false";
-			return;
+            return;
 		}
 
 		pWorkList.push_back(WorkListItem(sound, vec));
@@ -955,7 +925,7 @@ namespace Audio
         if (szWav.toLower().contains(".wav")
                 || szWav.toLower().contains(".ogg")
                 || szWav.toLower().contains(".mp3"))
-			szWav.truncate(szWav.length() - 4);
+            szWav.chop(4);
 
 		SoundItemList* it = pSoundList[szWav];
 		if (it)
@@ -1030,7 +1000,7 @@ namespace Audio
 	{
 		if (!isRunning())
 			return;
-//		Mix_Volume(-1, volume);
+        pOutput->setVolume(volume / 128.f);
 	}
 
 
@@ -1038,6 +1008,7 @@ namespace Audio
 	{
 		if (!isRunning())
 			return;
+        pOutput->setVolume(volume / 128.f);
 //		Mix_VolumeMusic( volume );
 	}
 

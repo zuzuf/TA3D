@@ -25,19 +25,25 @@
 # include <threads/thread.h>
 # include <list>
 # include <vector>
+# include <QObject>
+
+class QAudioFormat;
+class QAudioOutput;
 
 namespace TA3D
 {
-	namespace Audio
+    namespace Audio
 	{
+        class MixerDevice;
 
 
 		/*! \class Manager
 		**
 		** \brief The Audio Engine
 		*/
-        class Manager : public TA3D::IInterface
+        class Manager : public QObject, public TA3D::IInterface
 		{
+            Q_OBJECT
 		public:
             typedef zuzuf::smartptr<Manager>	Ptr;
 		public:
@@ -50,6 +56,8 @@ namespace TA3D
 			//! Destructor
             virtual ~Manager();
 			//@}
+
+            const QAudioFormat &getAudioFormat() const;
 
             /*!
             ** \brief Set sound volume
@@ -177,9 +185,11 @@ namespace TA3D
 			/*!
 			** \brief Get if the system is running
 			*/
-            bool isRunning() {MutexLocker locker(pMutex); return false;}
+            bool isRunning() {MutexLocker locker(pMutex); return pOutput;}
 
 
+        private slots:
+            void handleOutputStateChange();
 		private:
 			/*! \class PlaylistItem
 			**
@@ -216,15 +226,13 @@ namespace TA3D
 			*/
 			struct SoundItemList
 			{
-				SoundItemList() :is3DSound(false), sampleHandle(NULL), lastTimePlayed(0) {}
-				SoundItemList(const bool a3DSound) :is3DSound(a3DSound), sampleHandle(NULL), lastTimePlayed(0) {}
+                SoundItemList() :is3DSound(false), lastTimePlayed(0) {}
+                SoundItemList(const bool a3DSound) : is3DSound(a3DSound), lastTimePlayed(0) {}
 				~SoundItemList();
 
 				bool is3DSound;
-                void* sampleHandle;
-//				Mix_Chunk* sampleHandle;
+                QString sampleHandle;
 				uint32 lastTimePlayed;
-
 			}; // class SoundItemList
 
 
@@ -315,6 +323,15 @@ namespace TA3D
 			Mutex pMutex;
 			//!
 			TDFParser pTable;
+
+            //! \brief the audio format expected by the various components (mixer, decoder, output)
+            QAudioFormat *pFormat = nullptr;
+
+            //! \brief audio mixer object
+            MixerDevice *pMixer = nullptr;
+
+            //! \brief audio output
+            QAudioOutput *pOutput = nullptr;
 
 			//! Are we in battle ?
 			bool m_InBattle;

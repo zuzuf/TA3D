@@ -2,12 +2,6 @@
 STRING(STRIP "${LIBS}" LIBS)
 LINK_LIBRARIES("${LIBS}")
 
-# Yuni Settins
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Yuni_CXXFLAGS}")
-link_libraries("${Yuni_LIBS}")
-
-
-
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(TA3D_FORMS)
@@ -162,7 +156,8 @@ SET(SRC_GFX_PARTICLES
 #
 SET(SRC_SOUND
 		sounds/manager.h sounds/manager.cpp
-		)
+                sounds/mixerdevice.h    sounds/mixerdevice.cpp
+                )
 
 
 #
@@ -383,7 +378,6 @@ ELSE(NOT APPLE)
 	BUNDLE_BASIC_INSTALL("../../" "./" "COPYING")
 
 	Set(ExternalLibs libz.dylib libpng.dylib libfreetype.dylib libtiff.dylib
-		libGLEW.dylib
 		libjpeg.dylib
 		libftgl.dylib
 		)

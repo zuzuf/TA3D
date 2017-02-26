@@ -34,29 +34,6 @@
 
 # include <cstdint>
 
-// TODO : Should be removed
-# ifdef TA3D_PLATFORM_WINDOWS
-# 	ifdef YUNI_OS_MSVC
-#		define TA3D_PLATFORM_MSVC
-# 	else
-# 		define TA3D_PLATFORM_GCC
-#		define TA3D_PLATFORM_MINGW
-# 	endif
-# endif
-
-
-
-
-
-# if defined(TA3D_PLATFORM_MSVC)
-	#define strcasecmp(x,xx) _stricmp( x, xx )
-# endif
-
-
-
-
-
-
 namespace TA3D
 {
 

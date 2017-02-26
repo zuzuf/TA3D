@@ -192,7 +192,7 @@ namespace Menus
 		pArea->set_value("*.mouse_sensitivity", (int)(lp_CONFIG->mouse_sensivity * 100.0f));
 		pArea->set_state("*.disable_perspective", lp_CONFIG->ortho_camera);
 		pArea->set_state("*.right_click_interface", lp_CONFIG->right_click_interface);
-		pArea->set_state("*.disable_GLSL", lp_CONFIG->disable_GLSL);
+        pArea->set_state("*.disable_GLSL", lp_CONFIG->disable_GLSL);
 		pArea->set_state("*.underwater_bright", lp_CONFIG->underwater_bright);
 		pArea->set_state("*.use_texture_compression", lp_CONFIG->use_texture_compression);
 		pArea->set_state("*.low_definition_map", lp_CONFIG->low_definition_map);
