@@ -157,6 +157,7 @@ SET(SRC_GFX_PARTICLES
 SET(SRC_SOUND
 		sounds/manager.h sounds/manager.cpp
                 sounds/mixerdevice.h    sounds/mixerdevice.cpp
+                sounds/wavdecoder.h    sounds/wavdecoder.cpp
                 )
 
 

@@ -54,6 +54,7 @@ namespace Audio
         pFormat = new QAudioFormat;
         pFormat->setSampleRate(44100);
         pFormat->setSampleType(QAudioFormat::Float);
+        pFormat->setByteOrder(QAudioFormat::LittleEndian);
         pFormat->setChannelCount(1);
         pFormat->setSampleSize(32);
         pFormat->setCodec("audio/pcm");
@@ -75,16 +76,18 @@ namespace Audio
         switch(pOutput->state())
         {
         case QAudio::ActiveState:
-            LOG_DEBUG(LOG_PREFIX_SOUND << "output active");
+//            LOG_DEBUG(LOG_PREFIX_SOUND << "output active");
             break;
         case QAudio::SuspendedState:
             LOG_DEBUG(LOG_PREFIX_SOUND << "output suspended");
             pOutput->resume();
             break;
         case QAudio::StoppedState:
+            LOG_DEBUG(LOG_PREFIX_SOUND << "output stopped");
+//            pMixer->setSink(pOutput->start());
+            break;
         case QAudio::IdleState:
-            LOG_DEBUG(LOG_PREFIX_SOUND << "output stopped/idle");
-            pOutput->start(pMixer);
+//            LOG_DEBUG(LOG_PREFIX_SOUND << "output idle");
             break;
         }
     }
@@ -364,10 +367,11 @@ namespace Audio
 
         if (pOutput)
             pOutput->deleteLater();
+
         pOutput = new QAudioOutput(*pFormat);   // Default output device
         pOutput->setBufferSize(16384);
         connect(pOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(handleOutputStateChange()));
-        pOutput->start(pMixer);
+        pMixer->setSink(pOutput->start());
 
         pCurrentItemPlaying = -1;
 

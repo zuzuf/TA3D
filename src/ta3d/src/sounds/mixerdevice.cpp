@@ -1,6 +1,9 @@
 #include "mixerdevice.h"
 #include <QAudioDecoder>
+#include <QIODevice>
 #include "manager.h"
+#include "wavdecoder.h"
+#include <logs/logs.h>
 #include <QTimer>
 
 namespace TA3D
@@ -9,10 +12,13 @@ namespace TA3D
     {
         MixerDevice::MixerDevice()
         {
-            open(QIODevice::ReadOnly);
+            sink = NULL;
 
-            QTimer *timer = new QTimer(this);
-            timer->setInterval(10);
+            clock.start();
+            last_sample = 0;
+
+            QTimer *timer = new QTimer;
+            timer->setInterval(25);
             timer->setSingleShot(false);
             connect(timer, SIGNAL(timeout()), this, SLOT(genBuffer()));
             timer->start();
@@ -20,83 +26,97 @@ namespace TA3D
 
         void MixerDevice::genBuffer()
         {
-            emit readyRead();
+            if (!sink)
+                return;
 
-            int new_samples = 1024;
+            const qint64 tic = clock.elapsed() + 93;
+            const qint64 delta_s = tic * 44100 / 1000 - last_sample;
+            last_sample += delta_s;
+            const int new_samples = delta_s;
             for(int i = 0 ; i < sources.size() ;)
             {
                 QAudioDecoder *decoder = sources[i].first;
-                if (decoder->state() == QAudioDecoder::StoppedState)
+                if (!decoder)
                 {
-                    decoder->deleteLater();
-                    sources[i] = sources.back();
-                    sources.pop_back();
+                    if (sources[i].second.isEmpty())
+                    {
+                        sources[i] = sources.back();
+                        sources.pop_back();
+                    }
+                    else
+                        ++i;
                     continue;
                 }
-                ++i;
+
+                if (decoder->state() == QAudioDecoder::StoppedState && decoder->position() >= 0)
+                {
+                    sources[i] = sources.back();
+                    sources.pop_back();
+//                    decoder->deleteLater();
+                    continue;
+                }
 
                 if(!decoder->bufferAvailable())
+                {
+                    ++i;
                     continue;
+                }
                 const QAudioBuffer &src_buffer = decoder->read();
+                const QAudioFormat &fmt = src_buffer.format();
+                LOG_DEBUG(LOG_PREFIX_SOUND << fmt.channelCount() << " " << fmt.codec() << " " << fmt.sampleRate() << " " << fmt.sampleSize() << " " << src_buffer.sampleCount());
                 sources[i].second.append(QByteArray::fromRawData((const char*)src_buffer.constData(), src_buffer.byteCount()));
-                new_samples = std::min<int>(new_samples, sources[i].second.size() >> 3);
+                ++i;
             }
 
-            if (new_samples == 0 || sources.isEmpty())
-                return;
-
-            const int offset = buffer.size();
-            buffer.resize(buffer.size() + new_samples * (sizeof(float) * 2));
-            float *ptr = (float*)(buffer.data() + offset);
-            new_samples <<= 1;
-            for(int i = 0 ; i < new_samples ; ++i)
-                ptr[i] = 0.f;
+            buffer.clear();
+            buffer.resize(new_samples * sizeof(float));
+            float *ptr = (float*)buffer.data();
+            memset(ptr, 0, new_samples * sizeof(float));
             for(auto &src : sources)
             {
+                if (src.second.isEmpty())
+                    continue;
                 const float *src_ptr = (const float*)src.second.constData();
-                for(int i = 0 ; i < new_samples ; ++i)
+                const int src_samples = std::min<int>(new_samples, src.second.size() >> 2);
+                for(int i = 0 ; i < src_samples ; ++i)
                     ptr[i] += src_ptr[i];
+                const size_t total_sample_data = src_samples * sizeof(float);
+                const size_t total_buffer_data = src.second.size();
+                const size_t data_left = total_buffer_data - total_sample_data;
+                if (data_left > 0)
+                    memmove(src.second.data(), src.second.data() + total_sample_data, data_left);
+                src.second.resize(data_left);
             }
-        }
 
-        qint64 MixerDevice::readData(char *data, qint64 maxlen)
-        {
-            if (maxlen > buffer.size())
-                genBuffer();
-
-            // Produce data no matter what
-            if (maxlen > buffer.size())
-            {
-                memcpy(data, buffer.data(), buffer.size());
-                memset(data + maxlen, 0, maxlen - buffer.size());
-                buffer.clear();
-                return maxlen;
-            }
-            memcpy(data, buffer.data(), maxlen);
-            const qint64 data_left = buffer.size() - maxlen;
-            memmove(buffer.data(), buffer.data() + maxlen, data_left);
-            buffer.resize(data_left);
-            return maxlen;
+            sink->write(buffer);
+            sink->waitForBytesWritten(0);
         }
 
         void MixerDevice::addSource(QIODevice *src)
         {
+            QByteArray data;
+            WAVDecoder wav_decoder(src);
+            wav_decoder.decode(data);
+            if (!data.isEmpty())
+            {
+                delete src;
+                sources.push_back(qMakePair(nullptr, data));
+                LOG_DEBUG(LOG_PREFIX_SOUND << "WAV decoded!");
+                return;
+            }
+
             QAudioDecoder *decoder = new QAudioDecoder(this);
             decoder->setSourceDevice(src);
             decoder->setAudioFormat(VARS::sound_manager->getAudioFormat());
-            connect(decoder, SIGNAL(bufferReady()), this, SLOT(genBuffer()));
+//            connect(decoder, SIGNAL(bufferReady()), this, SLOT(genBuffer()));
+            connect(src, SIGNAL(aboutToClose()), decoder, SLOT(stop()));
             decoder->start();
             sources.push_back(qMakePair(decoder, QByteArray()));
         }
 
-        qint64 MixerDevice::writeData(const char *data, qint64 len)
+        void MixerDevice::setSink(QIODevice *sink)
         {
-            return 0;
-        }
-
-        qint64 MixerDevice::bytesAvailable() const
-        {
-            return 16384;
+            this->sink = sink;
         }
     }
 }
