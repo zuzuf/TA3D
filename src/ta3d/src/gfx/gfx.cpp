@@ -1070,7 +1070,7 @@ namespace TA3D
 		if (!softMipMaps)
 		{
             // Automatic mipmaps generation
-            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE );
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
             switch (bmp.depth())
 			{
             case 8:
@@ -1088,7 +1088,7 @@ namespace TA3D
 
             if (build_mipmaps)
                 // Automatic mipmaps generation
-                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE );
 		}
 		else            // Generate mipmaps here since other methods are unreliable
 		{
@@ -1772,7 +1772,7 @@ namespace TA3D
 				const uint32 c = SurfaceInt(bmp,x,y);
 				if (getr(c) < level && getg(c) < level && getb(c) < level)
 				{
-					SurfaceInt(bmp,x,y) = makeacol(getr(c), getg(c), getb(c), 0);
+                    SurfaceInt(bmp,x,y) = makeacol(getr(c), getg(c), getb(c), 0);
 					with_alpha = true;
 				}
 			}

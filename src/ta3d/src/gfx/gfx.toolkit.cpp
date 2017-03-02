@@ -45,7 +45,7 @@ namespace TA3D
 
     void convert_format(QImage &bmp)
 	{
-        if (bmp.depth() != 32)
+        if (bmp.format() != QImage::Format_RGBA8888)
 		{
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
@@ -56,7 +56,7 @@ namespace TA3D
 
     QImage convert_format_copy(QImage &bmp)
 	{
-        if (bmp.depth() != 32)
+        if (bmp.format() != QImage::Format_RGBA8888)
         {
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
@@ -68,7 +68,7 @@ namespace TA3D
 
     void convert_format_24(QImage &bmp)
 	{
-        if (bmp.depth() != 24)
+        if (bmp.format() != QImage::Format_RGB888)
 		{
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
@@ -79,7 +79,7 @@ namespace TA3D
 
     QImage convert_format_24_copy(QImage &bmp)
 	{
-        if (bmp.depth() != 24)
+        if (bmp.format() != QImage::Format_RGB888)
         {
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
@@ -91,7 +91,7 @@ namespace TA3D
 
     void convert_format_16(QImage &bmp)
 	{
-        if (bmp.depth() != 16)
+        if (bmp.format() != QImage::Format_RGB16)
 		{
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
@@ -102,7 +102,7 @@ namespace TA3D
 
     QImage convert_format_16_copy(QImage &bmp)
 	{
-        if (bmp.depth() != 16)
+        if (bmp.format() != QImage::Format_RGB16)
         {
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
@@ -114,8 +114,17 @@ namespace TA3D
 
     void blit(const QImage &in, QImage &out, int x0, int y0, int x1, int y1, int w, int h)
 	{
-        QPainter painter(&out);
-        painter.drawImage(x1, y1, in, x0, y0, w, h);
+        const int bpp = in.depth() >> 3;
+        const int dw = std::min(w, std::min(in.width() - x0, out.width() - x1));
+        const int copy_size = dw * bpp;
+        for(int y = 0 ; y < h ; ++y)
+        {
+            if (y + y0 >= in.height() || y + y1 >= out.height())
+                break;
+            const void *src = in.constScanLine(y + y0) + x0 * bpp;
+            void *dst = out.scanLine(y + y1) + x1 * bpp;
+            memcpy(dst, src, copy_size);
+        }
 	}
 
     void masked_blit(const QImage &in, QImage &out, int x0, int y0, int x1, int y1, int w, int h)
@@ -126,17 +135,81 @@ namespace TA3D
 
     void stretch_blit( const QImage &in, QImage &out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
 	{
-        QPainter painter(&out);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-        painter.drawImage(QRect(x1, y1, w1, h1), in, QRect(x0, y0, w0, h0));
+        const int bpp = in.depth() >> 3;
+        const int w2 = std::min(w1, out.width() - x1);
+        const int dX = ((w0 - 1) << 16) / std::max<int>(1, w1 - 1);
+        for(int y = 0 ; y < h1 ; ++y)
+        {
+            const int sy = y0 + y * (h0 - 1) / std::max<int>(1, h1 - 1);
+            if (sy >= in.height() || y + y1 >= out.height())
+                break;
+            const uchar *src = in.constScanLine(sy) + x0 * bpp;
+            uchar *dst = out.scanLine(y + y1) + x1 * bpp;
+            int X = 0;
+            for(int x = 0 ; x < w2 ; ++x, dst += bpp, X += dX)
+            {
+                const int x2 = X >> 16;
+                if (x0 + x2 < in.width())
+                    memcpy(dst, src + x2 * bpp, bpp);
+            }
+        }
 	}
 
     void stretch_blit_smooth(const QImage &in, QImage &out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
 	{
-        QPainter painter(&out);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-        painter.drawImage(QRect(x1, y1, w1, h1), in, QRect(x0, y0, w0, h0));
-	}
+        const int sw2 = in.width() - x0;
+        const int w2 = std::min(w1, out.width() - x1);
+        const int h2 = std::min(h1, out.height() - y1);
+        const int dX = ((w0 - 1) << 16) / std::max<int>(1, w1 - 1);
+        const int dY = ((h0 - 1) << 16) / std::max<int>(1, h1 - 1);
+        int Y = 0;
+        switch(in.depth())
+        {
+        default:
+            stretch_blit(in, out, x0, y0, w0, h0, x1, y1, w1, h1);
+            break;
+        case 32:
+            for(int y = 0 ; y < h2 ; ++y, Y += dY)
+            {
+                const int sy = Y >> 16;
+                const int fY = Y & 0xFFFF;
+                if (sy >= in.height())
+                    break;
+                const quint32 *src0 = (const quint32*)in.constScanLine(sy) + x0;
+                const quint32 *src1 = (const quint32*)in.constScanLine(std::min(in.height() - 1, sy + 1)) + x0;
+                quint32 *dst = (quint32*)out.scanLine(y + y1) + x1;
+                int X = 0;
+                for(int x = 0 ; x < w2 ; ++x, ++dst, X += dX)
+                {
+                    const int fX = X & 0xFFFF;
+                    const int x2 = std::min(sw2, X >> 16);
+                    const int x3 = std::min(sw2, x2 + 1);
+                    const quint32 c0 = src0[x2];
+                    const quint32 c1 = src0[x3];
+                    const quint32 c2 = src1[x2];
+                    const quint32 c3 = src1[x3];
+
+                    int r0 = getr(c0), g0 = getg(c0), b0 = getb(c0), a0 = geta(c0);
+                    int r1 = getr(c1), g1 = getg(c1), b1 = getb(c1), a1 = geta(c1);
+                    int r2 = getr(c2), g2 = getg(c2), b2 = getb(c2), a2 = geta(c2);
+                    int r3 = getr(c3), g3 = getg(c3), b3 = getb(c3), a3 = geta(c3);
+
+#define IMPL_CHANNEL(C)\
+                    C##0 += (C##1 - C##0) * fX >> 16;\
+                    C##2 += (C##3 - C##2) * fX >> 16;\
+                    C##0 += (C##2 - C##0) * fY >> 16
+                    IMPL_CHANNEL(r);
+                    IMPL_CHANNEL(g);
+                    IMPL_CHANNEL(b);
+                    IMPL_CHANNEL(a);
+#undef IMPL_CHANNEL
+
+                    *dst = makeacol32(r0, g0, b0, a0);
+                }
+            }
+            break;
+        }
+    }
 
     QImage shrink(const QImage &in, const int w, const int h)
 	{
