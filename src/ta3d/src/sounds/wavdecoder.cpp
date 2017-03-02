@@ -89,7 +89,7 @@ namespace TA3D
                             s += *src;
                         const float x = float(s) * K;
                         for(int i = 0 ; i < scale_factor ; ++i)
-                            *(ptr++) = x;
+                            *(ptr++) = x - 0.5f;
                     }
                 }
                 break;
@@ -121,7 +121,7 @@ namespace TA3D
                             s += ((quint32)src[0] << 16) + ((quint32)src[1] << 8) + src[2];
                         const float x = float(s) * K;
                         for(int i = 0 ; i < scale_factor ; ++i)
-                            *(ptr++) = x;
+                            *(ptr++) = x - 0.5f;
                     }
                 }
                 break;

@@ -52,6 +52,7 @@ namespace TA3D
                 {
                     sources[i] = sources.back();
                     sources.pop_back();
+                    // For unknown reasons this crashes:
 //                    decoder->deleteLater();
                     continue;
                 }
@@ -62,8 +63,6 @@ namespace TA3D
                     continue;
                 }
                 const QAudioBuffer &src_buffer = decoder->read();
-                const QAudioFormat &fmt = src_buffer.format();
-                LOG_DEBUG(LOG_PREFIX_SOUND << fmt.channelCount() << " " << fmt.codec() << " " << fmt.sampleRate() << " " << fmt.sampleSize() << " " << src_buffer.sampleCount());
                 sources[i].second.append(QByteArray::fromRawData((const char*)src_buffer.constData(), src_buffer.byteCount()));
                 ++i;
             }
@@ -97,18 +96,17 @@ namespace TA3D
             QByteArray data;
             WAVDecoder wav_decoder(src);
             wav_decoder.decode(data);
-            if (!data.isEmpty())
+            if (!data.isEmpty())    // For WAV files use TA3D's built-in decoder for reduced latency
             {
                 delete src;
                 sources.push_back(qMakePair(nullptr, data));
-                LOG_DEBUG(LOG_PREFIX_SOUND << "WAV decoded!");
                 return;
             }
 
+            // For other formats, use Qt's decoder (but it spawns threads :()
             QAudioDecoder *decoder = new QAudioDecoder(this);
             decoder->setSourceDevice(src);
             decoder->setAudioFormat(VARS::sound_manager->getAudioFormat());
-//            connect(decoder, SIGNAL(bufferReady()), this, SLOT(genBuffer()));
             connect(src, SIGNAL(aboutToClose()), decoder, SLOT(stop()));
             decoder->start();
             sources.push_back(qMakePair(decoder, QByteArray()));
