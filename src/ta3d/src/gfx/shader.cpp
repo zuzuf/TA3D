@@ -33,7 +33,7 @@ namespace TA3D
 
 	void Shader::load_memory(const char *fragment_data, const int frag_len,const char *vertex_data, const int vert_len)
 	{
-		if(!g_useProgram || lp_CONFIG->disable_GLSL)
+        if(!g_useProgram || lp_CONFIG->disable_GLSL || pShaderProgram.isLinked())
 			return;
 
         if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, QByteArray::fromRawData(vertex_data, vert_len)))
@@ -59,23 +59,29 @@ namespace TA3D
 
 	void Shader::load(const QString& fragmentFilename, const QString& vertexFilename)
 	{
-        if(!g_useProgram || lp_CONFIG->disable_GLSL)
+        if(!g_useProgram || lp_CONFIG->disable_GLSL || pShaderProgram.isLinked())
             return;
 
-        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, VFS::Instance()->readFileAsBuffer(vertexFilename)))
+        const QByteArray &vertex_shader_code = VFS::Instance()->readFileAsBuffer(vertexFilename);
+        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_shader_code))
         {
             LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader compilation error: " << pShaderProgram.log());
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader file:" << vertexFilename);
             return;
         }
-        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, VFS::Instance()->readFileAsBuffer(fragmentFilename)))
+        const QByteArray &fragment_shader_code = VFS::Instance()->readFileAsBuffer(fragmentFilename);
+        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_shader_code))
         {
             LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader compilation error: " << pShaderProgram.log());
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader file:" << fragmentFilename);
             return;
         }
 
         if (!pShaderProgram.link())
         {
             LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link error: " << pShaderProgram.log());
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader file:" << vertexFilename);
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader file:" << fragmentFilename);
             return;
         }
         LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link succes");
