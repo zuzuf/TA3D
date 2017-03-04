@@ -24,6 +24,7 @@
 #include <exception>
 #include <QMessageBox>
 #include <QThread>
+#include <QApplication>
 #include "bugreportdialog.h"
 
 
@@ -248,6 +249,8 @@ void clear_signals (void)
 void criticalMessage(const QString &msg)
 {
     std::cerr << msg.toStdString() << std::endl;      // Output error message to stderr
+
+    qApp->restoreOverrideCursor();
 
     QMessageBox::critical(NULL, "TA3D - Critical Error", msg);
 }

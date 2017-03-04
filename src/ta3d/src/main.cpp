@@ -192,6 +192,7 @@ int main(int argc, char **argv)
 
     a.setApplicationName("Total Annihilation 3D");
     a.setApplicationDisplayName("TA3D");
+    a.setOverrideCursor(QCursor(QPixmap(1,1)));
 
 	// Initialize signals
 	init_signals();
