@@ -280,7 +280,6 @@ namespace TA3D
 		nb_index = NULL;
 		script_index = -1;
 		gltex.clear();
-		gl_dlist.clear();
 	}
 
 	void Mesh::destroy()
@@ -293,10 +292,6 @@ namespace TA3D
 		DELETE_ARRAY(shadow_index);
 		DELETE_ARRAY(tcoord);
 		gltex.clear();
-		for (unsigned int i = 0; i < gl_dlist.size(); i++)
-			if (gl_dlist[i])
-				glDeleteLists(gl_dlist[i], 1);
-		gl_dlist.clear();
 		DELETE_ARRAY(nb_index);
 		DELETE_ARRAY(face_reverse);
 		DELETE_ARRAY(F_N);
@@ -1232,14 +1227,11 @@ namespace TA3D
 
 	void Model::init()
 	{
-		useDL = true;
-
 		nb_obj = 0;
 		mesh = NULL;
 		center.reset();
 		size = 0.0f;
 		size2 = 0.0f;
-		dlist = 0;
 		animated = false;
 		top = bottom = 0.0f;
 		from_2d = false;
@@ -1249,8 +1241,6 @@ namespace TA3D
 
 	void Model::destroy()
 	{
-		if (dlist)
-			glDeleteLists(dlist, 1);
 		if (mesh)
 			delete mesh;
 		init();
@@ -1293,30 +1283,9 @@ namespace TA3D
 			glColor3ub(0, var, 0);
 		}
 
-		if (data_s == NULL && animated)
-			mesh->draw(t, NULL, sel, false, notex, side, chg_col);
-		else
-		{
-			if (data_s == NULL && dlist == 0 && !sel && !notex && !chg_col && useDL)
-			{
-				check_textures();
-				dlist = glGenLists (1);
-				glNewList (dlist, GL_COMPILE_AND_EXECUTE);
-				mesh->draw_nodl();
-				glEndList();
-			}
-			else
-			{
-				if (data_s == NULL && !sel && !notex && !chg_col && useDL)
-					glCallList( dlist );
-				else
-				{
-					mesh->draw(t, data_s, sel, false, notex, side, chg_col);
-					if (data_s && data_s->explode)
-						mesh->draw(t, data_s, sel, false, notex, side, chg_col, true);
-				}
-			}
-		}
+        mesh->draw(t, data_s, sel, false, notex, side, chg_col);
+        if (data_s && data_s->explode)
+            mesh->draw(t, data_s, sel, false, notex, side, chg_col, true);
 
 		gfx->disable_model_shading();
 

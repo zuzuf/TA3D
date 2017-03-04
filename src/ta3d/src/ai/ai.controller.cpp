@@ -139,41 +139,41 @@ namespace TA3D
 		}
 
 		uint32 e;
-		units.lock();
-		for (e = unit_id ; e < units.nb_unit && e < unit_id + 10 ; ++e )
+		units->lock();
+		for (e = unit_id ; e < units->nb_unit && e < unit_id + 10 ; ++e )
 		{
-			const uint32 i = units.idx_list[e];
-			if (i >= units.max_unit)	continue;		// Error
-			units.unlock();
-			units.unit[i].lock();
-			if ((units.unit[ i ].flags & 1) && units.unit[ i ].type_id >= 0)
+            const uint32 i = units->idx_list[e];
+			if (i >= units->max_unit)	continue;		// Error
+			units->unlock();
+			units->unit[i].lock();
+			if ((units->unit[ i ].flags & 1) && units->unit[ i ].type_id >= 0)
 			{
-				if (units.unit[ i ].owner_id == playerID)
+				if (units->unit[ i ].owner_id == playerID)
 				{
-					weights[ units.unit[ i ].type_id ].nb++;
-					if (weights[ units.unit[ i ].type_id ].type & AI_FLAG_ARMY)
+					weights[ units->unit[ i ].type_id ].nb++;
+					if (weights[ units->unit[ i ].type_id ].type & AI_FLAG_ARMY)
 						wip_army_list.push_back( i );
-					if (weights[ units.unit[ i ].type_id ].type & AI_FLAG_BUILDER)
+					if (weights[ units->unit[ i ].type_id ].type & AI_FLAG_BUILDER)
 						wip_builder_list.push_back( i );
-					if (weights[ units.unit[ i ].type_id ].type & AI_FLAG_FACTORY)
+					if (weights[ units->unit[ i ].type_id ].type & AI_FLAG_FACTORY)
 						wip_factory_list.push_back( i );
 				}
 				else
 				{
 					nb_units[ AI_UNIT_TYPE_ENEMY ]++;
-					nb_enemy[ units.unit[ i ].owner_id ]++;
+					nb_enemy[ units->unit[ i ].owner_id ]++;
 					if (!enemy_table.contains(i))
 					{
-						enemy_list[ units.unit[ i ].owner_id ].push_back( WeightCoef( i, 0 ) );
+						enemy_list[ units->unit[ i ].owner_id ].push_back( WeightCoef( i, 0 ) );
 						enemy_table.insert(i);
 					}
 				}
 			}
-			units.unit[ i ].unlock();
-			units.lock();
+			units->unit[ i ].unlock();
+			units->lock();
 		}
-		units.unlock();
-		unit_id = (e >= units.nb_unit) ? 0 : e;
+		units->unlock();
+		unit_id = (e >= units->nb_unit) ? 0 : e;
 
 		if (unit_id == 0)
 		{
@@ -304,15 +304,15 @@ namespace TA3D
 				for (std::vector<uint32>::const_iterator i = army_list.begin() ; i != army_list.end() ; ++i ) // Give instructions to idle army units
 				{
 					suspend(1);
-					units.unit[ *i ].lock();
-					if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
+					units->unit[ *i ].lock();
+					if ((units->unit[ *i ].flags & 1) && units->unit[ *i ].do_nothing_ai() )
 					{
 						int target_id = -1;
 						while (!enemy_list[ player_target ].empty() && target_id == -1)
 						{
 							target_id = enemy_list[ player_target ].begin()->idx;
-							if (!(units.unit[ target_id ].flags & 1) || units.unit[ target_id ].type_id < 0
-								|| units.unit[ target_id ].type_id >= unit_manager.nb_unit || units.unit[ target_id ].owner_id != player_target )
+							if (!(units->unit[ target_id ].flags & 1) || units->unit[ target_id ].type_id < 0
+								|| units->unit[ target_id ].type_id >= unit_manager.nb_unit || units->unit[ target_id ].owner_id != player_target )
 							{
 								enemy_table.remove(target_id);
 								target_id = -1;
@@ -320,7 +320,7 @@ namespace TA3D
 							}
 							else
 							{
-								if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar(byte(1 << playerID) ) ) // This one is cloaked, not on radar
+								if (units->unit[ target_id ].cloaked && !units->unit[ target_id ].is_on_radar(byte(1 << playerID) ) ) // This one is cloaked, not on radar
 								{
 									enemy_table.remove(target_id);
 									target_id = -1;
@@ -331,9 +331,9 @@ namespace TA3D
 							}
 						}
 						if (target_id >= 0 )
-							units.unit[ *i ].set_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, true, (&units.unit[ target_id ]), MISSION_FLAG_COMMAND_FIRE );
+							units->unit[ *i ].set_mission( MISSION_ATTACK, &units->unit[ target_id ].Pos, false, 0, true, (&units->unit[ target_id ]), MISSION_FLAG_COMMAND_FIRE );
 					}
-					units.unit[ *i ].unlock();
+					units->unit[ *i ].unlock();
 				}
 			}
 		}
@@ -341,11 +341,11 @@ namespace TA3D
 		for (std::vector<uint32>::const_iterator i = factory_list.begin() ; i != factory_list.end() ; ++i )	// Give instructions to idle factories
 		{
 			suspend(1);
-			units.unit[ *i ].lock();
-			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
+			units->unit[ *i ].lock();
+			if ((units->unit[ *i ].flags & 1) && units->unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units->unit[*i].type_id]->nb_unit > 0)
 			{
-				const int list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
-				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
+				const int list_size = unit_manager.unit_type[units->unit[*i].type_id]->nb_unit;
+				const std::vector<short> &BuildList = unit_manager.unit_type[units->unit[*i].type_id]->BuildList;
 				for (int e = 0 ; e < list_size ; ++e)
 					sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
@@ -365,11 +365,11 @@ namespace TA3D
 # endif
 				if (selected_idx >= 0)
 				{
-					units.unit[ *i ].add_mission( MISSION_BUILD, &units.unit[ *i ].Pos, false, selected_idx );
+					units->unit[ *i ].add_mission( MISSION_BUILD, &units->unit[ *i ].Pos, false, selected_idx );
 					weights[ selected_idx ].w *= 0.8f;
 				}
 			}
-			units.unit[ *i ].unlock();
+			units->unit[ *i ].unlock();
 		}
 
 		// Give instructions to idle builders
@@ -377,11 +377,11 @@ namespace TA3D
 		{
 			suspend(1);
 
-			units.unit[ *i ].lock();
-			if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
+			units->unit[ *i ].lock();
+			if ((units->unit[ *i ].flags & 1) && units->unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units->unit[*i].type_id]->nb_unit > 0)
 			{
-				const int list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
-				const std::vector<short> &BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
+				const int list_size = unit_manager.unit_type[units->unit[*i].type_id]->nb_unit;
+				const std::vector<short> &BuildList = unit_manager.unit_type[units->unit[*i].type_id]->BuildList;
 				for (int e = 0 ; e < list_size ; ++e)
 					sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + weights[ BuildList[ e ] ].w;
 				int selected_idx = -1;
@@ -397,13 +397,13 @@ namespace TA3D
 					}
 				if (selected_idx >= 0)
 				{
-					Vector3D target = units.unit[ *i ].Pos;
+					Vector3D target = units->unit[ *i ].Pos;
 					if (findBuildPlace(target, selected_idx, playerID, 5, 50))
 					{
-						if (unit_manager.unit_type[units.unit[*i].type_id]->BMcode)
-							units.unit[ *i ].set_mission( MISSION_BUILD, &target, false, selected_idx );
+						if (unit_manager.unit_type[units->unit[*i].type_id]->BMcode)
+							units->unit[ *i ].set_mission( MISSION_BUILD, &target, false, selected_idx );
 						else
-							units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
+							units->unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
 # ifdef AI_DEBUG
 						LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)playerID << "," << msectimer()
 								  << ") -> builder " << *i << " building " << selected_idx);
@@ -417,7 +417,7 @@ namespace TA3D
 # endif
 				}
 			}
-			units.unit[ *i ].unlock();
+			units->unit[ *i ].unlock();
 		}
 
 		float factory_needed = 0.0f;
@@ -505,10 +505,10 @@ namespace TA3D
 				}
 			}
 
-			float time_factor = units.apparent_timefactor;
+            float time_factor = units->apparent_timefactor;
             while ((Math::Zero(time_factor) || lp_CONFIG->pause) && !thread_ask_to_stop)
 			{
-				time_factor = units.apparent_timefactor;
+                time_factor = units->apparent_timefactor;
 				suspend(10);
 			}
 			suspend(100 + (TA3D_RAND() % 100));
@@ -735,8 +735,8 @@ namespace TA3D
         {
             if (metal_stuff_id >= 0)        // We have a valid metal patch
             {
-                px = features.feature[ metal_stuff_id ].px;
-                py = features.feature[ metal_stuff_id ].py;
+                px = features->feature[ metal_stuff_id ].px;
+                py = features->feature[ metal_stuff_id ].py;
             }
 			target.x = float((px << 3) - the_map->map_w_d);
 			target.z = float((py << 3) - the_map->map_h_d);

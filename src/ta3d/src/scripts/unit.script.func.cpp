@@ -104,7 +104,7 @@ namespace TA3D
             case MIN_ID:		// returns the lowest valid unit ID number
                 return 0;
             case MAX_ID:		// returns the highest valid unit ID number
-                return units.max_unit - 1;
+                return units->max_unit - 1;
             case MY_ID:		// returns ID of current unit
                 return idx;
             case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
@@ -310,24 +310,24 @@ namespace TA3D
             case MIN_ID:
                 return 0;
             case MAX_ID:
-                return units.max_unit - 1;
+                return units->max_unit - 1;
             case MY_ID:
                 return idx;
             case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
-				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[ v1 ].flags & 1) )
-                    return units.unit[ v1 ].owner_id;
+				if (v1 >= 0 && v1 < (int)units->max_unit && (units->unit[ v1 ].flags & 1) )
+                    return units->unit[ v1 ].owner_id;
                 else
                     return -1;
             case UNIT_BUILD_PERCENT_LEFT:		// basically BUILD_PERCENT_LEFT, but comes with a unit parameter
-				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[ v1 ].flags & 1) )
-                    return (int)units.unit[ v1 ].build_percent_left + ( (units.unit[ v1 ].build_percent_left > (int)units.unit[ v1 ].build_percent_left) ? 1 : 0);
+				if (v1 >= 0 && v1 < (int)units->max_unit && (units->unit[ v1 ].flags & 1) )
+                    return (int)units->unit[ v1 ].build_percent_left + ( (units->unit[ v1 ].build_percent_left > (int)units->unit[ v1 ].build_percent_left) ? 1 : 0);
                 else
                     return 0;
             case UNIT_ALLIED:		// is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
                 return !isEnemy( v1 );
             case UNIT_IS_ON_THIS_COMP:		// indicates if the 1st parameter(a unit ID) is local to this computer
-				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[ v1 ].flags & 1) )
-                    return !(players.control[ units.unit[ v1 ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE);
+				if (v1 >= 0 && v1 < (int)units->max_unit && (units->unit[ v1 ].flags & 1) )
+                    return !(players.control[ units->unit[ v1 ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE);
                 else
                     return 0;
             case BUILD_PERCENT_LEFT:
@@ -349,18 +349,18 @@ namespace TA3D
                 compute_model_coord();
 				return (int)((data.data[v1].pos.y + Pos.y) * 2.0f) << 16;
             case UNIT_XZ:
-				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[v1].flags & 1) )
-					return PACKXZ( units.unit[v1].Pos.x * 2.0f + (float)the_map->map_w, units.unit[v1].Pos.z * 2.0f + (float)the_map->map_h );
+				if (v1 >= 0 && v1 < (int)units->max_unit && (units->unit[v1].flags & 1) )
+					return PACKXZ( units->unit[v1].Pos.x * 2.0f + (float)the_map->map_w, units->unit[v1].Pos.z * 2.0f + (float)the_map->map_h );
                 else
 					return PACKXZ( Pos.x * 2.0f + (float)the_map->map_w, Pos.z * 2.0f + (float)the_map->map_h );
             case UNIT_Y:
-				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[v1].flags & 1) )
-                    return (int)(units.unit[v1].Pos.y * 2.0f) << 16;
+				if (v1 >= 0 && v1 < (int)units->max_unit && (units->unit[v1].flags & 1) )
+                    return (int)(units->unit[v1].Pos.y * 2.0f) << 16;
                 else
                     return (int)(Pos.y * 2.0f) << 16;
             case UNIT_HEIGHT:
-				if (v1 >= 0 && v1 < (int)units.max_unit && (units.unit[v1].flags & 1) )
-                    return (int)(units.unit[v1].model->top * 2.0f) << 16;
+				if (v1 >= 0 && v1 < (int)units->max_unit && (units->unit[v1].flags & 1) )
+                    return (int)(units->unit[v1].model->top * 2.0f) << 16;
                 else
                     return (int)(model->top * 2.0f) << 16;
             case XZ_ATAN:
@@ -411,24 +411,24 @@ namespace TA3D
                                 if (x >= 0 && x < (the_map->bloc_w << 1) - 1)
                                 {
 									const int cur_idx = the_map->map_data(x,y).unit_idx;
-									if (cur_idx >= 0 && cur_idx < (int)units.max_unit && cur_idx != idx)
+									if (cur_idx >= 0 && cur_idx < (int)units->max_unit && cur_idx != idx)
 									{
-										units.unit[cur_idx].lock();
-										const int type = units.unit[cur_idx].type_id;
+										units->unit[cur_idx].lock();
+										const int type = units->unit[cur_idx].type_id;
 										const UnitType* const tType = type >= 0 ? unit_manager.unit_type[type] : NULL;
-										if (units.unit[cur_idx].owner_id == owner_id
+										if (units->unit[cur_idx].owner_id == owner_id
 											&& tType != NULL
 											&& tType->canmove
 											&& tType->BMcode == 1
-											&& Math::Zero(units.unit[cur_idx].build_percent_left)
-											&& (!units.unit[cur_idx].mission
-												|| (units.unit[cur_idx].mission->mission() & 0xFF) != MISSION_MOVE))
+											&& Math::Zero(units->unit[cur_idx].build_percent_left)
+											&& (!units->unit[cur_idx].mission
+												|| (units->unit[cur_idx].mission->mission() & 0xFF) != MISSION_MOVE))
 										{
-											Vector3D target = units.unit[cur_idx].Pos;
+											Vector3D target = units->unit[cur_idx].Pos;
 											target.z += 100.0f;
-											units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, true);
+											units->unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO, &target, true);
 										}
-										units.unit[cur_idx].unlock();
+										units->unit[cur_idx].unlock();
 									}
 								}
                             }
@@ -448,9 +448,9 @@ namespace TA3D
 
     void Unit::script_attach_unit(int unit_id, int piece_id)
     {
-		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags)
+		if (unit_id >= 0 && unit_id < (int)units->max_unit && units->unit[ unit_id ].flags)
         {
-            Unit *target_unit = &(units.unit[unit_id]);
+            Unit *target_unit = &(units->unit[unit_id]);
             target_unit->hidden = (piece_id < 0);
             bool already_in = false;
             if (target_unit->attached)
@@ -475,9 +475,9 @@ namespace TA3D
 
     void Unit::script_drop_unit(int unit_id)
     {
-		if (unit_id >= 0 && unit_id < (int)units.max_unit && units.unit[ unit_id ].flags)
+		if (unit_id >= 0 && unit_id < (int)units->max_unit && units->unit[ unit_id ].flags)
         {
-            Unit *target_unit = &(units.unit[unit_id]);
+            Unit *target_unit = &(units->unit[unit_id]);
             target_unit->attached = false;
             target_unit->hidden = false;
             nb_attached--;					// Remove the unit from the attached list

@@ -557,7 +557,8 @@ namespace TA3D
         for (y = 0; y < (map->bloc_h << 1); ++y)
             for (x = 0; x < (map->bloc_w << 1); ++x)
 				map->map_data(x, y).stuff = -1;
-		features.destroy();
+        // Create the feature instance manager
+        features = new Features;
         for (y = 0; y < (map->bloc_h << 1); ++y)
 		{
 			for (x = 0; x < (map->bloc_w << 1); ++x)
@@ -576,13 +577,13 @@ namespace TA3D
 						Pos.y = map->get_unit_h( Pos.x, Pos.z);
                     if (x + 1 < map->bloc_w_db && y + 1 < map->bloc_h_db)
                     {
-						map->map_data(x + 1, y + 1).stuff = features.add_feature(Pos,TDF_index[type]);
-						features.drawFeatureOnMap( map->map_data(x + 1, y + 1).stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
+						map->map_data(x + 1, y + 1).stuff = features->add_feature(Pos,TDF_index[type]);
+						features->drawFeatureOnMap( map->map_data(x + 1, y + 1).stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
 						if (map->map_data(x + 1, y + 1).stuff >= 0 && feature->model)		// Rotate only 3D models
                         {
 							if (feature_manager.getFeaturePointer(TDF_index[type])->category == "trees"			// Randomize trees angle for more realism
 								|| feature_manager.getFeaturePointer(TDF_index[type])->category == "rocks")		// Randomize rocks angle for more realism
-								features.feature[ map->map_data(x + 1, y + 1).stuff ].angle = float(TA3D_RAND() % 360);
+								features->feature[ map->map_data(x + 1, y + 1).stuff ].angle = float(TA3D_RAND() % 360);
                         }
                     }
 				}

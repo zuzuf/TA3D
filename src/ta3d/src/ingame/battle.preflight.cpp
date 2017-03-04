@@ -54,7 +54,7 @@ namespace TA3D
 		}
 
 		if (IsOnMinimap)
-			units.pick_minimap(); // Precompute this, we'll need it
+            units->pick_minimap(); // Precompute this, we'll need it
 
 		if (video_shoot)
 		{
@@ -96,17 +96,17 @@ namespace TA3D
 		map->wind_vec.y = 0.0f;
 		map->wind_vec.x = 0.01f * map->wind * cosf(map->wind_dir * DEG2RAD);
 		map->wind_vec.z = 0.01f * map->wind * sinf(map->wind_dir * DEG2RAD);
-		units.set_wind_change();
+        units->set_wind_change();
 	}
 
 
 	void Battle::preflightUpdate3DSounds()
 	{
-		if (units.nb_attacked/(units.nb_attacked + units.nb_built + 1) >= 0.75f)
+        if (units->nb_attacked / (units->nb_attacked + units->nb_built + 1) >= 0.75f)
 			sound_manager->setMusicMode(true);
 		else
 		{
-			if (units.nb_attacked / (units.nb_attacked + units.nb_built + 1) <= 0.25f)
+            if (units->nb_attacked / (units->nb_attacked + units->nb_built + 1) <= 0.25f)
 				sound_manager->setMusicMode(false);
 		}
 		sound_manager->setListenerPos(cam.rpos);

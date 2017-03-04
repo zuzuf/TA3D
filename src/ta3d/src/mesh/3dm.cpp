@@ -123,34 +123,15 @@ namespace TA3D
 			if (chg_col)
 				glGetFloatv(GL_CURRENT_COLOR, color_factor);
 			int texID = player_color_map[side];
-			bool disableDL = ((pTex->size() > 1 && (Flag & SURFACE_TEXTURED)) || Flag & SURFACE_GLSL) && !notex;
 			bool animatedTex = false;
 			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !pTex->empty())
 			{
 				texID = ((int)(t * 10.0f)) % (int)pTex->size();
-				disableDL = false;
 				animatedTex = true;
 			}
-			if ((int)gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && !disableDL)
+            if (!hide)
 			{
-				glCallList( gl_dlist[ texID ] );
-				alset = false;
-				set = false;
-			}
-			else if (!hide)
-			{
-				bool creating_list = false;
-				if ((int)gl_dlist.size() <= texID)
-					gl_dlist.resize(texID + 1);
-				if (!chg_col && !notex && gl_dlist[texID] == 0 && !disableDL)
-				{
-					gl_dlist[texID] = glGenLists(1);
-					glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
-					alset = false;
-					set = false;
-					creating_list = true;
-				}
 				if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 				{
 					bool activated_tex = false;
@@ -321,8 +302,6 @@ namespace TA3D
 						glEnable(GL_TEXTURE_2D);
 					}
 				}
-				if (creating_list)
-					glEndList();
 			}
 			if (sel_primitive && selprim >= 0 && nb_vtx > 0)
 			{
@@ -823,23 +802,6 @@ namespace TA3D
 		model->mesh = mesh;
 		model->postLoadComputations();
 		Joins::computeSelection(model);
-		std::deque<Mesh3DM*> qmesh;
-		qmesh.push_back(mesh);
-		while(!qmesh.empty())
-		{
-			Mesh3DM *cur = qmesh.front();
-			qmesh.pop_front();
-			if (cur->child)
-				qmesh.push_back((Mesh3DM*)(cur->child));
-			if (cur->next)
-				qmesh.push_back((Mesh3DM*)(cur->next));
-            const std::vector<GfxTexture::Ptr> *pTex = (cur->Flag & SURFACE_ROOT_TEXTURE) ? &(cur->root->gltex) : &(cur->gltex);
-			if (pTex->size() > 1)
-			{
-				model->useDL = false;
-				break;
-			}
-		}
 		return model;
 	}
 

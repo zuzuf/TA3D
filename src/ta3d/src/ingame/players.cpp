@@ -126,7 +126,7 @@ namespace TA3D
 		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 		glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 
-		units.lock();
+		units->lock();
 
 		const int _id = (local_human_id != -1) ? local_human_id : 0;
 
@@ -210,7 +210,7 @@ namespace TA3D
 					   (float)side_data.EnergyBar.y2 );
 		}
 
-		units.unlock();
+		units->unlock();
 
 		glEnd();
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -226,67 +226,67 @@ namespace TA3D
 				ai_command[i].monitor();
 		}
 
-		if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected())
+        if( (units->current_tick % 3) == 0 && last_ticksynced != units->current_tick && network_manager.isConnected())
 		{
-			last_ticksynced = units.current_tick;
+            last_ticksynced = units->current_tick;
 
-			units.lock();
+			units->lock();
 			SocketTCP::disableFlush();
-			for (size_t e = 0; e < units.nb_unit; ++e)
+			for (size_t e = 0; e < units->nb_unit; ++e)
 			{
-				const size_t i = units.idx_list[e];
-				if (i >= units.max_unit)
+				const size_t i = units->idx_list[e];
+				if (i >= units->max_unit)
 					continue;		// Error !!
-				units.unlock();
+				units->unlock();
 
-				units.unit[i].lock();
-				if (!(units.unit[i].flags & 1))
+				units->unit[i].lock();
+				if (!(units->unit[i].flags & 1))
 				{
-					units.unit[i].unlock();
-					units.lock();
+					units->unit[i].unlock();
+					units->lock();
 					continue;
 				}
-				if (units.unit[i].local)
+				if (units->unit[i].local)
 				{
 					struct sync sync;
-					sync.timestamp = units.current_tick;
+                    sync.timestamp = units->current_tick;
 					sync.unit = uint16(i);
 					sync.flags = 0;
-					if (units.unit[i].flying)
+					if (units->unit[i].flying)
 						sync.flags |= SYNC_FLAG_FLYING;
-					if( units.unit[i].cloaking)
+					if( units->unit[i].cloaking)
 						sync.flags |= SYNC_FLAG_CLOAKING;
-					sync.x = units.unit[i].Pos.x;
-					sync.y = units.unit[i].Pos.y;
-					sync.z = units.unit[i].Pos.z;
-					sync.vx = units.unit[i].V.x;
-					sync.vz = units.unit[i].V.z;
-					float angle = units.unit[i].Angle.y;
+					sync.x = units->unit[i].Pos.x;
+					sync.y = units->unit[i].Pos.y;
+					sync.z = units->unit[i].Pos.z;
+					sync.vx = units->unit[i].V.x;
+					sync.vz = units->unit[i].V.z;
+					float angle = units->unit[i].Angle.y;
 					while (angle < 0.0f)
 						angle += 360.0f;
 					sync.orientation = (uint16)(angle * 65535.0f / 360.0f);
-					sync.hp = (uint16)units.unit[ i ].hp;
-					sync.build_percent_left = (uint8)(units.unit[ i ].build_percent_left * 2.55f);
+					sync.hp = (uint16)units->unit[ i ].hp;
+					sync.build_percent_left = (uint8)(units->unit[ i ].build_percent_left * 2.55f);
 
-					uint32 latest_sync = units.current_tick;
+                    uint32 latest_sync = units->current_tick;
 					for (int f = 0; f < NB_PLAYERS; ++f)
 						if (g_ta3d_network->isRemoteHuman(f))
-							latest_sync = Math::Min(latest_sync, units.unit[i].last_synctick[f]);
+							latest_sync = Math::Min(latest_sync, units->unit[i].last_synctick[f]);
 
-					const bool sync_needed = NeedSynchronization(sync, units.unit[i].previous_sync);
+					const bool sync_needed = NeedSynchronization(sync, units->unit[i].previous_sync);
 
 					if (sync_needed)
 					{
 						// Don't send what isn't needed
 						network_manager.sendSync(&sync);
-						units.unit[i].previous_sync = sync;
+						units->unit[i].previous_sync = sync;
 					}
 				}
-				units.unit[i].unlock();
-				units.lock();
+				units->unit[i].unlock();
+				units->lock();
 			}
 			SocketTCP::enableFlush();
-			units.unlock();
+			units->unlock();
 		}
 	}
 

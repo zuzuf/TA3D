@@ -204,7 +204,6 @@ namespace TA3D
 		sint32      script_index;		// Indice donné par le script associé à l'unité
         bool        emitter;			// This object can or has sub-objects which can emit particles
         bool        emitter_point;		// This object directly emits particles
-        std::vector<GLuint> gl_dlist;   // Display lists to speed up the drawing process
 
 		Animation::Ptr	animation_data;
 
@@ -374,11 +373,9 @@ namespace TA3D
         float	bottom;				// Min y coordinate found in the model
         uint32	id;					// ID of the model in the model array
 
-        GLuint	dlist;				// Display list to speed up drawings operations when no position data is given (trees, ...)
 		uint32	nb_obj;
 		bool	animated;
         bool	from_2d;
-		bool	useDL;				// Are display lists safe ?
     }; // class MODEL
 
 

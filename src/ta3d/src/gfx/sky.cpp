@@ -28,7 +28,6 @@ namespace TA3D
         skyInfo = nullptr;
 		for(int i = 0 ; i < 6 ; ++i)
             tex[i] = nullptr;
-		dlist = 0;
 		s = 0;
 		w = 1.0f;
 	}
@@ -38,8 +37,6 @@ namespace TA3D
         skyInfo = nullptr;
 		for(int i = 0 ; i < 6 ; ++i)
             tex[i] = nullptr;
-		if (dlist)
-			glDeleteLists(dlist, 1);
 		init();
 	}
 
@@ -164,14 +161,6 @@ namespace TA3D
 
 	void Sky::draw()
 	{
-		if (dlist)
-		{
-			glCallList(dlist);
-			return;
-		}
-		dlist = glGenLists(1);
-		glNewList(dlist, GL_COMPILE_AND_EXECUTE);
-
         tex[3]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(-w, w, w);
@@ -219,8 +208,6 @@ namespace TA3D
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(-w, w, -w);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(w, w, -w);
 		glEnd();
-
-		glEndList();
 	}
 
 	void Sky::SkyData::load_tdf(const QString& filename)

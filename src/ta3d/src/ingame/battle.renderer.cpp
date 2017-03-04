@@ -38,10 +38,10 @@ namespace TA3D
 		gfx->SetDefState();
 		updateFOG();
 
-		render_time = ((float)units.current_tick) / TICKS_PER_SEC;
+		render_time = ((float)units->current_tick) / TICKS_PER_SEC;
 
 		// Copy unit data from simulation
-		units.renderTick();
+        units->renderTick();
 
         gfx->glActiveTexture(GL_TEXTURE7_ARB);
         gfx->glDisable(GL_TEXTURE_2D);
@@ -113,17 +113,17 @@ namespace TA3D
 					glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
 				map->draw(&refcam, byte(1 << players.local_human_id),  false, 0.0f, t,
-						  dt * units.apparent_timefactor,
+						  dt * units->apparent_timefactor,
 						  false, false, false);
 
 				if (lp_CONFIG->wireframe)
 					glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 				// Dessine les éléments "2D" / "sprites"
-				features.draw(render_time);
+				features->draw(render_time);
 				refcam.setView();
 				// Dessine les unités / draw units
-				units.draw(false, true, false, lp_CONFIG->height_line);
+                units->draw(false, true, false, lp_CONFIG->height_line);
 
 				glDisable(GL_CULL_FACE);
 				// Dessine les objets produits par les armes / draw weapons
@@ -183,15 +183,15 @@ namespace TA3D
 				glPolygonOffset(3.0f, 1.0f);
 
 				// Render all visible features from light's point of view
-				for(std::vector<int>::const_iterator i = features.list.begin() ; i != features.list.end() ; ++i)
-					features.feature[*i].draw = true;
-				features.draw(render_time, true);
+				for(std::vector<int>::const_iterator i = features->list.begin() ; i != features->list.end() ; ++i)
+					features->feature[*i].draw = true;
+				features->draw(render_time, true);
 
 				glEnable(GL_POLYGON_OFFSET_FILL);
 				glPolygonOffset(3.0f, 1.0f);
 				// Render all visible units from light's point of view
-				units.draw(true, false, true, false);
-				units.draw(false, false, true, false);
+                units->draw(true, false, true, false);
+                units->draw(false, false, true, false);
 
 				// Render all visible weapons from light's point of view
 				weapons.draw(true);
@@ -466,7 +466,7 @@ namespace TA3D
                 gfx->glEnable(GL_TEXTURE_2D);
 
 				const float time_step = 0.02f;
-				const float time_to_simulate = Math::Min( dt * units.apparent_timefactor, time_step * 3.0f );
+				const float time_to_simulate = Math::Min( dt * units->apparent_timefactor, time_step * 3.0f );
 
 				// Simulate water
 				for(float real_time = 0.0f ; real_time < time_to_simulate ; real_time += time_step)
@@ -774,14 +774,14 @@ namespace TA3D
 		if (lp_CONFIG->wireframe)
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-        map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units.apparent_timefactor);
+        map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units->apparent_timefactor);
 
 		if (lp_CONFIG->wireframe)
 			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 		cam.setView(lp_CONFIG->shadow_quality < 2);
 
-        features.draw(render_time);		// Dessine les éléments "2D"
+        features->draw(render_time);		// Dessine les éléments "2D"
 
 		/*----------------------------------------------------------------------------------------------*/
 
@@ -791,7 +791,7 @@ namespace TA3D
         {
             if (lp_CONFIG->shadow_quality >= 2)
                 glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-            units.draw(true, false, true, lp_CONFIG->height_line);
+            units->draw(true, false, true, lp_CONFIG->height_line);
             glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
         }
 
@@ -807,14 +807,14 @@ namespace TA3D
         if (cam.rpos.y > gfx->low_def_limit)
         {
             cam.setView(true);
-            features.draw_icons();
+            features->draw_icons();
         }
 
         cam.setView(lp_CONFIG->shadow_quality < 2);
         if (lp_CONFIG->shadow_quality >= 2)
             glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
         // Dessine les unités non encore dessinées / Draw units which have not been drawn
-        units.draw(false, false, true, lp_CONFIG->height_line);
+        units->draw(false, false, true, lp_CONFIG->height_line);
         glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 
         // Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
@@ -948,28 +948,28 @@ namespace TA3D
 		}
 
 
-		if ((selected || units.last_on >= 0) && TA3D_SHIFT_PRESSED)
+		if ((selected || units->last_on >= 0) && TA3D_SHIFT_PRESSED)
 		{
 			glDisable(GL_FOG);
 			cam.setView();
 			bool builders = false;
 			const float t = (float)msectimer() * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
-			for (unsigned int e = 0; e < units.index_list_size ; ++e)
+			for (unsigned int e = 0; e < units->index_list_size ; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1)
-					&& units.unit[i].owner_id == players.local_human_id
-					&& (units.unit[i].sel || i == units.last_on))
+				const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1)
+					&& units->unit[i].owner_id == players.local_human_id
+					&& (units->unit[i].sel || i == units->last_on))
 				{
-					const int type_id = units.unit[i].type_id;
+					const int type_id = units->unit[i].type_id;
 					if (type_id >= 0)
 					{
 						const UnitType* const pType = unit_manager.unit_type[type_id];
 						builders |= pType->Builder;
 
-						const float x = units.unit[i].render.Pos.x;
-						const float z = units.unit[i].render.Pos.z;
+						const float x = units->unit[i].render.Pos.x;
+						const float z = units->unit[i].render.Pos.z;
 						if (pType->kamikaze)
 						{
 							the_map->drawCircleOnMap(x, z, pType->kamikazedistance, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
@@ -978,52 +978,52 @@ namespace TA3D
 							if (pWeapon)
 								the_map->drawCircleOnMap(x, z, (float)pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
 						}
-						if (pType->mincloakdistance && units.unit[i].cloaked)
+						if (pType->mincloakdistance && units->unit[i].cloaked)
 							the_map->drawCircleOnMap(x, z, (float)pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
 					}
-					if (units.unit[i].sel)
-						units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité / Draw given orders
+					if (units->unit[i].sel)
+						units->unit[i].show_orders();					// Dessine les ordres reçus par l'unité / Draw given orders
 				}
 			}
 
 			if (builders)
 			{
-				for (unsigned int e = 0; e < units.index_list_size; ++e)
+				for (unsigned int e = 0; e < units->index_list_size; ++e)
 				{
-					const int i = units.idx_list[e];
-					const int type_id = units.unit[i].type_id;
+					const int i = units->idx_list[e];
+					const int type_id = units->unit[i].type_id;
 					if (type_id < 0)
 						continue;
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && !units.unit[i].sel
+					if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && !units->unit[i].sel
 						&& unit_manager.unit_type[type_id]->Builder && unit_manager.unit_type[type_id]->BMcode)
 					{
-						units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité / Draw given orders
+						units->unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité / Draw given orders
 					}
 				}
 			}
 			glEnable(GL_FOG);
 		}
-		if ((selected || units.last_on >= 0) && TA3D_CTRL_PRESSED)
+		if ((selected || units->last_on >= 0) && TA3D_CTRL_PRESSED)
 		{
 			glDisable(GL_FOG);
 			cam.setView();
 			const float t = (float)msectimer() * 0.001f;
 			const float mt = std::fmod(0.5f * t, 1.0f);
 			const float mt2 = std::fmod(0.5f * t + 0.5f, 1.0f);
-			for (unsigned int e = 0; e < units.index_list_size ; ++e)
+			for (unsigned int e = 0; e < units->index_list_size ; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1)
-					&& units.unit[i].owner_id == players.local_human_id
-					&& (units.unit[i].sel || i == units.last_on))
+				const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1)
+					&& units->unit[i].owner_id == players.local_human_id
+					&& (units->unit[i].sel || i == units->last_on))
 				{
-					const int type_id = units.unit[i].type_id;
+					const int type_id = units->unit[i].type_id;
 					if (type_id >= 0)
 					{
 						const UnitType* const pType = unit_manager.unit_type[type_id];
 
-						const float x = units.unit[i].render.Pos.x;
-						const float z = units.unit[i].render.Pos.z;
+						const float x = units->unit[i].render.Pos.x;
+						const float z = units->unit[i].render.Pos.z;
 						if (!TA3D_SHIFT_PRESSED)
 						{
 							if (pType->kamikaze)
@@ -1034,10 +1034,10 @@ namespace TA3D
 								if (pWeapon)
 									the_map->drawCircleOnMap(x, z, (float)pWeapon->areaofeffect * 0.25f * mt, makeacol(0xFF,0x0,0x0,0xFF), 1.0f);
 							}
-							if (pType->mincloakdistance && units.unit[i].cloaked)
+							if (pType->mincloakdistance && units->unit[i].cloaked)
 								the_map->drawCircleOnMap(x, z, (float)pType->mincloakdistance, makeacol(0xFF,0xFF,0xFF,0xFF), 1.0f);
 						}
-						if (!pType->onoffable || units.unit[i].port[ACTIVATION])
+						if (!pType->onoffable || units->unit[i].port[ACTIVATION])
 						{
 							if (pType->RadarDistance)
 								the_map->drawCircleOnMap(x, z, (float)pType->RadarDistance * mt, makeacol(0x00,0x00,0xFF,0xFF), 1.0f);
@@ -1056,7 +1056,7 @@ namespace TA3D
 		if (showHealthBars)
 		{
 			cam.setView();
-			units.drawHealthBars();
+            units->drawHealthBars();
 		}
 	}
 

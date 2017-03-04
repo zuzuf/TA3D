@@ -302,8 +302,8 @@ namespace TA3D
 
 	int CAPI::scriptDumpDebugInfo(lua_State *)
 	{
-		if (Battle::Instance()->cur_sel_index >= 0 && units.unit[Battle::Instance()->cur_sel_index].script)
-			units.unit[Battle::Instance()->cur_sel_index].script->dumpDebugInfo();
+		if (Battle::Instance()->cur_sel_index >= 0 && units->unit[Battle::Instance()->cur_sel_index].script)
+			units->unit[Battle::Instance()->cur_sel_index].script->dumpDebugInfo();
 		return 0;
 	}
 
@@ -366,59 +366,59 @@ namespace TA3D
 			if (lua_gettop(L) >= 3)
 				nb_to_spawn = (int)lua_tointeger(L, 3);
 		}
-		units.lock();
+		units->lock();
 		for (int i = 0; i < nb_to_spawn; ++i)
 		{
 			int id = 0;
 			if (unit_type < 0 || unit_type >= unit_manager.nb_unit)
-				id = units.create( abs( TA3D_RAND()) % unit_manager.nb_unit,player_id);
+                id = units->create( abs( TA3D_RAND()) % unit_manager.nb_unit,player_id);
 			else
-				id = units.create(unit_type,player_id);
+                id = units->create(unit_type,player_id);
 			if (id == -1) // Ho ho no more space to store that unit, limit reached
 				break;
-			units.unit[id].lock();
+			units->unit[id].lock();
 			int e(0);
 
 			do
 			{
-				units.unit[id].Pos.x = (float)((TA3D_RAND() % the_map->map_w) - the_map->map_w_d);
-				units.unit[id].Pos.z = (float)((TA3D_RAND() % the_map->map_h) - the_map->map_h_d);
+				units->unit[id].Pos.x = (float)((TA3D_RAND() % the_map->map_w) - the_map->map_w_d);
+				units->unit[id].Pos.z = (float)((TA3D_RAND() % the_map->map_h) - the_map->map_h_d);
 				++e;
-			} while (e < 100 && !can_be_built(units.unit[id].Pos, units.unit[id].type_id, player_id));
+			} while (e < 100 && !can_be_built(units->unit[id].Pos, units->unit[id].type_id, player_id));
 
-			if (!can_be_built(units.unit[id].Pos, units.unit[id].type_id, player_id))
+			if (!can_be_built(units->unit[id].Pos, units->unit[id].type_id, player_id))
 			{
-				units.unit[id].flags = 4;
-				units.kill(id, units.index_list_size - 1);
+				units->unit[id].flags = 4;
+                units->kill(id, units->index_list_size - 1);
 			}
 			else
 			{								// Compute unit's Y coordinate
-				Vector3D target_pos(units.unit[id].Pos);
+				Vector3D target_pos(units->unit[id].Pos);
 				target_pos.x = (float)(((int)(target_pos.x) + the_map->map_w_d) >> 3);
 				target_pos.z = (float)(((int)(target_pos.z) + the_map->map_h_d) >> 3);
 				target_pos.y = Math::Max(the_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
-															 unit_manager.unit_type[ units.unit[id].type_id ]->FootprintX,
-															 unit_manager.unit_type[ units.unit[id].type_id ]->FootprintZ),
+															 unit_manager.unit_type[ units->unit[id].type_id ]->FootprintX,
+															 unit_manager.unit_type[ units->unit[id].type_id ]->FootprintZ),
 										 the_map->sealvl);
 
-				units.unit[id].Pos.y  = target_pos.y;
-				units.unit[id].cur_px = (int)target_pos.x;
-				units.unit[id].cur_py = (int)target_pos.z;
-				units.unit[id].Pos.x  = target_pos.x * 8.0f - static_cast<float>(the_map->map_w_d);
-				units.unit[id].Pos.z  = target_pos.z * 8.0f - static_cast<float>(the_map->map_h_d);
-				units.unit[id].draw_on_map();
+				units->unit[id].Pos.y  = target_pos.y;
+				units->unit[id].cur_px = (int)target_pos.x;
+				units->unit[id].cur_py = (int)target_pos.z;
+				units->unit[id].Pos.x  = target_pos.x * 8.0f - static_cast<float>(the_map->map_w_d);
+				units->unit[id].Pos.z  = target_pos.z * 8.0f - static_cast<float>(the_map->map_h_d);
+				units->unit[id].draw_on_map();
 
-				if (unit_manager.unit_type[units.unit[id].type_id]->ActivateWhenBuilt)// Start activated
+				if (unit_manager.unit_type[units->unit[id].type_id]->ActivateWhenBuilt)// Start activated
 				{
-					units.unit[id].port[ ACTIVATION ] = 0;
-					units.unit[id].activate();
+					units->unit[id].port[ ACTIVATION ] = 0;
+					units->unit[id].activate();
 				}
-				if (unit_manager.unit_type[units.unit[id].type_id]->init_cloaked)				// Start cloaked
-					units.unit[id].cloaking = true;
+				if (unit_manager.unit_type[units->unit[id].type_id]->init_cloaked)				// Start cloaked
+					units->unit[id].cloaking = true;
 			}
-			units.unit[ id ].unlock();
+			units->unit[ id ].unlock();
 		}
-		units.unlock();
+		units->unlock();
 
 		return 0;
 	}
@@ -438,23 +438,23 @@ namespace TA3D
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
 			const int value = (int)lua_tointeger(L, 1);
-			units.lock();
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			units->lock();
+            for (unsigned int e = 0; e < units->index_list_size; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
 				{
-					units.unit[i].hp += (float)value;
-					if (units.unit[i].hp < 0)
-						units.unit[i].hp = 0;
+					units->unit[i].hp += (float)value;
+					if (units->unit[i].hp < 0)
+						units->unit[i].hp = 0;
 					else
 					{
-						if (units.unit[i].hp > unit_manager.unit_type[units.unit[i].type_id]->MaxDamage)
-							units.unit[i].hp = (float)unit_manager.unit_type[units.unit[i].type_id]->MaxDamage;
+						if (units->unit[i].hp > unit_manager.unit_type[units->unit[i].type_id]->MaxDamage)
+							units->unit[i].hp = (float)unit_manager.unit_type[units->unit[i].type_id]->MaxDamage;
 					}
 				}
 			}
-			units.unlock();
+			units->unlock();
 		}
 		return 0;
 	}
@@ -463,14 +463,14 @@ namespace TA3D
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			units.lock();
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			units->lock();
+            for (unsigned int e = 0; e < units->index_list_size; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-					units.unit[i].deactivate();
+                const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
+					units->unit[i].deactivate();
 			}
-			units.unlock();
+			units->unlock();
 		}
 		return 0;
 	}
@@ -479,14 +479,14 @@ namespace TA3D
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			units.lock();
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			units->lock();
+            for (unsigned int e = 0; e < units->index_list_size; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-					units.unit[i].activate();
+                const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
+					units->unit[i].activate();
 			}
-			units.unlock();
+			units->unlock();
 		}
 		return 0;
 	}
@@ -495,16 +495,16 @@ namespace TA3D
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			units.lock();
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			units->lock();
+            for (unsigned int e = 0; e < units->index_list_size; ++e)
 			{
-				const int i = units.idx_list[e];
-				units.unlock();
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-					units.unit[i].resetScript();
-				units.lock();
+                const int i = units->idx_list[e];
+				units->unlock();
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
+					units->unit[i].resetScript();
+				units->lock();
 			}
-			units.unlock();
+			units->unlock();
 		}
 		return 0;
 	}
@@ -521,21 +521,21 @@ namespace TA3D
 				"HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN",
 				"BUGGER_OFF","ARMORED"
 			};
-			units.lock();
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			units->lock();
+            for (unsigned int e = 0; e < units->index_list_size; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
 				{
-                    Console::Instance()->addEntry(QString("flags=%1").arg(int(units.unit[i].flags)));
+                    Console::Instance()->addEntry(QString("flags=%1").arg(int(units->unit[i].flags)));
                     QString tmp;
 					for (int f = 1; f < 21; ++f)
-                        tmp += QString(unit_info[f-1]) + QString("=%1, ").arg(units.unit[i].port[f]);
+                        tmp += QString(unit_info[f-1]) + QString("=%1, ").arg(units->unit[i].port[f]);
                     if (!tmp.isEmpty())
 						Console::Instance()->addEntry(tmp);
 				}
 			}
-			units.unlock();
+			units->unlock();
 		}
 		return 0;
 	}
@@ -544,19 +544,19 @@ namespace TA3D
 	{
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			units.lock();
-			for (unsigned int e = 0; e < units.index_list_size; ++e)
+			units->lock();
+            for (unsigned int e = 0; e < units->index_list_size; ++e)
 			{
-				const int i = units.idx_list[e];
-				units.unlock();
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                const int i = units->idx_list[e];
+				units->unlock();
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
 				{
-					units.kill(i, e);
+                    units->kill(i, e);
 					--e;
 				}
-				units.lock();
+				units->lock();
 			}
-			units.unlock();
+			units->unlock();
 			Battle::Instance()->selected = false;
 			Battle::Instance()->cur_sel = -1;
 		}
@@ -566,8 +566,8 @@ namespace TA3D
 	int CAPI::setShootall(lua_State *L)
 	{
 		if (lua_gettop(L) > 0)
-			units.shootallMode = lua_toboolean(L, -1);
-		lua_pushboolean(L, units.shootallMode);
+            units->shootallMode = lua_toboolean(L, -1);
+        lua_pushboolean(L, units->shootallMode);
 		return 1;
 	}
 
@@ -577,14 +577,14 @@ namespace TA3D
 			return 0;
 		if (Battle::Instance()->selected) // Sur les unités sélectionnées
 		{
-			units.lock();
-			for (uint32 e = 0 ; e < units.index_list_size ; ++e)
+			units->lock();
+            for (uint32 e = 0 ; e < units->index_list_size ; ++e)
 			{
-				const int i = units.idx_list[e];
-				if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-					units.unit[i].launchScript(UnitScriptInterface::get_script_id(lua_tostring(L, 1)));
+                const int i = units->idx_list[e];
+				if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
+					units->unit[i].launchScript(UnitScriptInterface::get_script_id(lua_tostring(L, 1)));
 			}
-			units.unlock();
+			units->unlock();
 		}
 		return 0;
 	}

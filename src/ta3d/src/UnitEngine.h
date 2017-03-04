@@ -156,9 +156,11 @@ namespace TA3D
 
 
 	class INGAME_UNITS :	public ObjectSync,			// Class to manage huge number of units during the game
-		protected IInterface,				// It inherits from what we need to use threads
-		public Thread
-	{
+            protected IInterface,				// It inherits from what we need to use threads
+            public Thread
+    {
+    public:
+        typedef zuzuf::smartptr<INGAME_UNITS>   Ptr;
 	public:
 		/*----------------------- Variables générales ----------------------------------------------*/
 		uint32	nb_unit;		// Nombre d'unités
@@ -285,7 +287,7 @@ namespace TA3D
 
 
 
-	extern INGAME_UNITS units;
+    extern INGAME_UNITS::Ptr units;
 
 	bool can_be_built(const Vector3D& Pos, const int unit_type_id, const int player_id );
 

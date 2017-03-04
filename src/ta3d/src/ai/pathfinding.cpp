@@ -130,7 +130,7 @@ namespace TA3D
 
 	void Pathfinder::addTask(int idx, int dist, const Vector3D &start, const Vector3D &end)
 	{
-		Task t = { dist, idx, units.unit[idx].ID, start, end };
+		Task t = { dist, idx, units->unit[idx].ID, start, end };
 
 		lock();
 
@@ -204,8 +204,8 @@ namespace TA3D
 			// Here we are free to compute this path
             const uint32 start_timer = msectimer();
 			if (cur.idx >= 0
-				&& units.unit[cur.idx].ID == cur.UID
-				&& (units.unit[cur.idx].flags & 1))
+				&& units->unit[cur.idx].ID == cur.UID
+				&& (units->unit[cur.idx].flags & 1))
 			{
 				AI::Path path;
 #ifdef DEBUG_PATH
@@ -218,7 +218,7 @@ namespace TA3D
 #endif
 				path._ready = true;
 
-				Unit *pUnit = &(units.unit[cur.idx]);
+				Unit *pUnit = &(units->unit[cur.idx]);
 				pUnit->lock();
 				if (pUnit->ID == cur.UID
 					&& (pUnit->flags & 1)
@@ -249,18 +249,18 @@ namespace TA3D
 	{
 		if (task.idx >= 0)
 		{
-			units.unit[task.idx].lock();
-			if (units.unit[task.idx].ID != task.UID || units.unit[task.idx].type_id < 0)
+			units->unit[task.idx].lock();
+			if (units->unit[task.idx].ID != task.UID || units->unit[task.idx].type_id < 0)
 			{
-				units.unit[task.idx].unlock();
+				units->unit[task.idx].unlock();
 				return;
 			}
 		}
 		const UnitType *pType = task.idx >= 0
-						  ? unit_manager.unit_type[units.unit[task.idx].type_id]
+						  ? unit_manager.unit_type[units->unit[task.idx].type_id]
 						  : unit_manager.unit_type[-task.idx];
 		if (task.idx >= 0)
-			units.unit[task.idx].unlock();
+			units->unit[task.idx].unlock();
 
 		// Get the precomputed walkable area quadmap
         const BitMap *bmap = Pathfinder::instance()->hBitMap[pType->getMoveStringID()];

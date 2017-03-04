@@ -41,8 +41,8 @@ namespace TA3D
 {
 
 
-	FeatureManager		feature_manager;
-	Features features;
+    FeatureManager  feature_manager;
+    Features::Ptr   features;
 
 	Feature::Feature()
 	{
@@ -410,7 +410,7 @@ namespace TA3D
 		max_features = 0;
 		feature = NULL;
 		list.clear();
-		symbolic_features.clear();
+        symbolic_features.clear();
         icons[0] = gfx->load_texture("gfx/tactical_icons/metal_deposit.tga");
         icons[1] = gfx->load_texture("gfx/tactical_icons/geothermal.tga");
 	}
@@ -419,25 +419,15 @@ namespace TA3D
 	void Features::destroy(bool bInit)
 	{
 		if (feature)
-		{
-			for (int i = 0 ; i < max_features ; ++i)
-			{
-				if (feature[i].shadow_dlist)
-				{
-					glDeleteLists(feature[i].shadow_dlist, 1);
-					feature[i].shadow_dlist = 0;
-				}
-			}
 			DELETE_ARRAY(feature);
-		}
         icons[0] = nullptr;
         icons[1] = nullptr;
         list.clear();
 		if (bInit)
 			init();
-		burning_features.clear();
-		sinking_features.clear();
-		symbolic_features.clear();
+        burning_features.clear();
+        sinking_features.clear();
+        symbolic_features.clear();
 	}
 
 
@@ -552,15 +542,15 @@ namespace TA3D
 				else
 					Pos.y += float(pFeature->height) * 0.5f;
 
-				const float a = Camera::inGame->rpos.y - units.map->sealvl;
-				const float b = Pos.y - units.map->sealvl;
+                const float a = Camera::inGame->rpos.y - units->map->sealvl;
+                const float b = Pos.y - units->map->sealvl;
 				const float c = a + b;
 				if (Math::Zero(c))
 					continue;
 				Pos = (a / c) * Pos + (b / c) * Camera::inGame->rpos;
-				Pos.y = units.map->get_unit_h( Pos.x, Pos.z );
+                Pos.y = units->map->get_unit_h( Pos.x, Pos.z );
 
-				if (Pos.y > units.map->sealvl)	// If it's not visible don't draw it
+                if (Pos.y > units->map->sealvl)	// If it's not visible don't draw it
 					continue;
 			}
 
@@ -572,7 +562,7 @@ namespace TA3D
 			{
 				pFeature->convert();		// Convert texture data if needed
 
-				feature[i].frame = short(((units.current_tick + feature[i].timeRef) >> 1) % pFeature->anim.nb_bmp);
+                feature[i].frame = short(((units->current_tick + feature[i].timeRef) >> 1) % pFeature->anim.nb_bmp);
 
 				if (!texture_loaded || old != pFeature->anim.glbmp[feature[i].frame])
 				{
@@ -632,61 +622,52 @@ namespace TA3D
 			{
 				if (pFeature->m3d && pFeature->model != NULL)
 				{
-					if (!pFeature->model->animated && !feature[i].sinking && pFeature->model->useDL)
-					{
-						DrawingTable.queue_Instance( pFeature->model->id,
-                                                     Instance(feature[i].Pos, feature[i].grey ? 0xFF7F7F7F : 0xFFFFFFFF,
-															  feature[i].angle)  );
-					}
-					else
-					{
-						if(feature[i].grey)
-							glColor4ub( 127, 127, 127, 255 );
-						else
-							glColor4ub( 255, 255, 255, 255 );
-						glEnable(GL_LIGHTING);
-						glDisable(GL_BLEND);
-						if(!pFeature->converted)				// To fix opacity with converted models
-							glDisable(GL_ALPHA_TEST);
-						glPushMatrix();
-						glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
-						if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
-						{
-							double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - feature[i].Pos.y };
-							glClipPlane(GL_CLIP_PLANE2, eqn);
-						}
-						glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
-						glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-						float lt = t + float(feature[i].timeRef) * ticks2sec;
-                        pFeature->model->draw(lt, NULL, false, false, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, !feature[i].grey);
+                    if(feature[i].grey)
+                        glColor4ub( 127, 127, 127, 255 );
+                    else
+                        glColor4ub( 255, 255, 255, 255 );
+                    glEnable(GL_LIGHTING);
+                    glDisable(GL_BLEND);
+                    if(!pFeature->converted)				// To fix opacity with converted models
+                        glDisable(GL_ALPHA_TEST);
+                    glPushMatrix();
+                    glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
+                    if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
+                    {
+                        double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl - feature[i].Pos.y };
+                        glClipPlane(GL_CLIP_PLANE2, eqn);
+                    }
+                    glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
+                    glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
+                    float lt = t + float(feature[i].timeRef) * ticks2sec;
+                    pFeature->model->draw(lt, NULL, false, false, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, !feature[i].grey);
 
-						if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
-						{
-							glEnable(GL_CLIP_PLANE2);
-							glEnable( GL_BLEND );
-							glBlendFunc( GL_ONE, GL_ONE );
-							glDepthFunc( GL_EQUAL );
-							glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
-                            pFeature->model->draw(lt, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
-							glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
-							glDepthFunc( GL_LESS );
-							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-							glDisable(GL_CLIP_PLANE2);
-						}
+                    if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
+                    {
+                        glEnable(GL_CLIP_PLANE2);
+                        glEnable( GL_BLEND );
+                        glBlendFunc( GL_ONE, GL_ONE );
+                        glDepthFunc( GL_EQUAL );
+                        glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                        pFeature->model->draw(lt, NULL, false, true, false, 0, NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
+                        glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+                        glDepthFunc( GL_LESS );
+                        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                        glDisable(GL_CLIP_PLANE2);
+                    }
 
 
-						gfx->ReInitAllTex( true );
+                    gfx->ReInitAllTex( true );
 
-						glPopMatrix();
-						glEnable(GL_BLEND);
-						if(!pFeature->converted)				// To fix opacity with converted models
-							glEnable(GL_ALPHA_TEST);
-						glDisable(GL_LIGHTING);
-						glDisable(GL_CULL_FACE);
-						glEnable(GL_TEXTURE_2D);
-                        texture_loaded = false;
-                        set = false;
-					}
+                    glPopMatrix();
+                    glEnable(GL_BLEND);
+                    if(!pFeature->converted)				// To fix opacity with converted models
+                        glEnable(GL_ALPHA_TEST);
+                    glDisable(GL_LIGHTING);
+                    glDisable(GL_CULL_FACE);
+                    glEnable(GL_TEXTURE_2D);
+                    texture_loaded = false;
+                    set = false;
 				}
 			}
 		}
@@ -814,7 +795,7 @@ namespace TA3D
 				feature[idx].burning_time = 0.0f;
 				int time_zone = abs( pFeature->burnmax - pFeature->burnmin ) + 1;
 				feature[ idx ].time_to_burn = short((Math::RandomTable() % time_zone ) + pFeature->burnmin);		// How long it burns
-				burning_features.push_back(idx);		// It's burning 8)
+                burning_features.push_back(idx);		// It's burning 8)
 
 				// Start doing damages to things around
                 if (!pFeature->burnweapon.isEmpty())
@@ -837,7 +818,7 @@ namespace TA3D
 		if( idx >= 0 && idx < max_features && feature[idx].type >= 0 && !feature[idx].sinking)
 		{
 			feature[ idx ].sinking = true;
-			sinking_features.push_back(idx);
+            sinking_features.push_back(idx);
 		}
 		pMutex.unlock();
 	}
@@ -855,19 +836,19 @@ namespace TA3D
 		bool erased = false;
 
 		// Makes fire spread 8)
-		for (uint32 i = 0U ; i < burning_features.size() ; )
+        for (uint32 i = 0U ; i < burning_features.size() ; )
 		{
 			++CS_count;
 			if (!CS_count)
 			{
 				pMutex.unlock();
 				pMutex.lock();
-				if (i >= burning_features.size())
+                if (i >= burning_features.size())
 					break;
 			}
 			const uint32 e = burning_features[i];
 			feature[e].burning_time += dt;
-			Feature *pFeature = feature_manager.getFeaturePointer(features.feature[e].type);
+            Feature *pFeature = feature_manager.getFeaturePointer(features->feature[e].type);
 			if (feature[e].burning_time >= feature[e].time_to_burn) // If we aren't burning anymore :(
 			{
 				if (network_manager.isServer())
@@ -890,7 +871,7 @@ namespace TA3D
 					const int burnt_type = feature_manager.get_feature_index( pFeature->feature_burnt);
 					if (burnt_type >= 0)
 					{
-						const int nid = the_map->map_data(sx, sy).stuff = features.add_feature(Pos, burnt_type);
+                        const int nid = the_map->map_data(sx, sy).stuff = features->add_feature(Pos, burnt_type);
 						if (nid >= 0)
 						{
 							// Preserve orientation
@@ -903,9 +884,9 @@ namespace TA3D
 					}
 				}
 
-				if (i + 1 != burning_features.size())
-					burning_features[i] = burning_features.back();
-				burning_features.pop_back();
+                if (i + 1 != burning_features.size())
+                    burning_features[i] = burning_features.back();
+                burning_features.pop_back();
 				erased = true;
 			}
 			else
@@ -942,9 +923,9 @@ namespace TA3D
 
 							if (rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) 	// Check coordinates are valid
 							{
-								burn_feature(units.map->map_data(rnd_x, rnd_y).stuff); // Burn it if there is something to burn 8)
+                                burn_feature(units->map->map_data(rnd_x, rnd_y).stuff); // Burn it if there is something to burn 8)
 								if (network_manager.isServer())
-									g_ta3d_network->sendFeatureFireEvent(units.map->map_data(rnd_x, rnd_y).stuff);
+                                    g_ta3d_network->sendFeatureFireEvent(units->map->map_data(rnd_x, rnd_y).stuff);
 							}
 						}
 					}
@@ -955,21 +936,21 @@ namespace TA3D
 				++i;
 		}
 
-		for (FeaturesList::iterator i = sinking_features.begin() ; i != sinking_features.end() ; ) // A boat is sinking
+        for (FeaturesList::iterator i = sinking_features.begin() ; i != sinking_features.end() ; ) // A boat is sinking
 		{
 			if (feature[*i].sinking)
 			{
 				Feature *pFeature = feature_manager.getFeaturePointer(feature[*i].type);
                 if (pFeature == NULL)
                 {
-					if (i + 1 != sinking_features.end())
+                    if (i + 1 != sinking_features.end())
 					{
-						*i = sinking_features.back();
-						sinking_features.pop_back();
+                        *i = sinking_features.back();
+                        sinking_features.pop_back();
 					}
 					else
 					{
-						sinking_features.pop_back();
+                        sinking_features.pop_back();
 						break;
 					}
                     continue;
@@ -1002,14 +983,14 @@ namespace TA3D
 			}
 			else
 			{
-				if (i + 1 != sinking_features.end())
+                if (i + 1 != sinking_features.end())
 				{
-					*i = sinking_features.back();
-					sinking_features.pop_back();
+                    *i = sinking_features.back();
+                    sinking_features.pop_back();
 				}
 				else
 				{
-					sinking_features.pop_back();
+                    sinking_features.pop_back();
 					break;
 				}
 			}
@@ -1050,21 +1031,18 @@ namespace TA3D
 
 		removeFeatureFromMap(index);
 
-		if (feature[index].shadow_dlist != 0)
-			feature[index].delete_shadow_dlist = true;
-
 		if (feature[index].burning)		// Remove it from the burning features list
 		{
-			std::vector<uint32>::iterator it = std::find(burning_features.begin(), burning_features.end(), index);
-			if (it != burning_features.end())
+            std::vector<uint32>::iterator it = std::find(burning_features.begin(), burning_features.end(), index);
+            if (it != burning_features.end())
 			{
-				if (it + 1 != burning_features.end())
-					*it = burning_features.back();
-				burning_features.pop_back();
+                if (it + 1 != burning_features.end())
+                    *it = burning_features.back();
+                burning_features.pop_back();
 			}
 		}
 
-		symbolic_features.remove(index);
+        symbolic_features.remove(index);
 
 		--nb_features;
 		feature[index].type = -1;		// On efface l'objet
@@ -1096,11 +1074,7 @@ namespace TA3D
 					n_feature[i] = feature[i];
 			}
 			for (int i = nb_features - 1; i < max_features; ++i)
-			{
 				n_feature[i].type = -1;
-				n_feature[i].shadow_dlist = 0;
-				n_feature[i].delete_shadow_dlist = false;
-			}
 			DELETE_ARRAY(feature);
 			feature = n_feature;
 			resetListOfItemsToDisplay();
@@ -1135,11 +1109,10 @@ namespace TA3D
 		feature[idx].dive = false;
 		feature[idx].dive_speed = 0.0f;
 		feature[idx].angle_x = 0.0f;
-		feature[idx].shadow_dlist = 0;
 		compute_on_map_pos(idx);
 
 		if (!pFeature->reclaimable && !pFeature->blocking && (pFeature->metal > 0 || pFeature->geothermal))
-			symbolic_features.insert(idx);
+            symbolic_features.insert(idx);
 		return idx;
 	}
 
@@ -1208,7 +1181,7 @@ namespace TA3D
 		const float camzoom = Camera::inGame->zoomFactor * 9.0f;
 		pMutex.lock();
 		const uint32 player_mask = 1 << players.local_human_id;
-		for(FeaturesSet::const_iterator it = symbolic_features.begin() ; it != symbolic_features.end() ; ++it)
+        for(FeaturesSet::const_iterator it = symbolic_features.begin() ; it != symbolic_features.end() ; ++it)
 		{
 			const FeatureData* const pFeature = &(feature[*it]);
 			const Feature* const pFeatureType = feature_manager.getFeaturePointer(pFeature->type);

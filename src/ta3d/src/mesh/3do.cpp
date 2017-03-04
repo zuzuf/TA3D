@@ -810,25 +810,8 @@ namespace TA3D
 			if (script_index >= 0 && data_s && (data_s->data[script_index].flag & FLAG_ANIMATED_TEXTURE)
 				&& !fixed_textures && !gltex.empty())
 				texID = (int)(((int)(t * 10.0f)) % gltex.size());
-			if ((int)gl_dlist.size() > texID && gl_dlist[texID] && !hide && !chg_col && !notex && false)
+            if (!hide)
 			{
-				glCallList( gl_dlist[ texID ] );
-				alset = false;
-				set = false;
-			}
-			else if (!hide)
-			{
-				bool creating_list = false;
-				if ((int)gl_dlist.size() <= texID)
-					gl_dlist.resize(texID + 1);
-				if (!chg_col && !notex && gl_dlist[texID] == 0 && false)
-				{
-					gl_dlist[texID] = glGenLists(1);
-					glNewList(gl_dlist[texID], GL_COMPILE_AND_EXECUTE);
-					alset = false;
-					set = false;
-					creating_list = true;
-				}
 				if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
 				{
 					if (!alset)
@@ -885,8 +868,6 @@ namespace TA3D
 						break;
 					};
 				}
-				if (creating_list)
-					glEndList();
 			}
 #ifdef DEBUG_MODE_3DO
 			if (nb_l_index > 0 && nb_vtx > 0)

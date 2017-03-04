@@ -307,11 +307,6 @@ namespace TA3D
 		//! Orientation angle
 		float angle_x;
 
-		//! Display list to speed up the shadow rendering
-		GLuint shadow_dlist;
-		//!
-		bool delete_shadow_dlist;
-
         //! Time reference to add some visual complexity to animations
         uint32 timeRef;
 
@@ -329,6 +324,8 @@ namespace TA3D
 	*/
 	class Features : public ObjectSync	// Moteur de gestion des éléments graphiques
 	{
+    public:
+        typedef zuzuf::smartptr<Features>   Ptr;
 	public:
 		//! \name Constructor & Destructor
 		//@{
@@ -456,7 +453,7 @@ namespace TA3D
 
 
 
-	extern Features features;
+    extern Features::Ptr features;
 
 
 

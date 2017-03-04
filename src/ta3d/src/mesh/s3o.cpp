@@ -630,7 +630,6 @@ namespace TA3D
 		Model *model = new Model;
 		model->mesh = mesh;
 		model->postLoadComputations();
-		model->useDL = false;
 		Joins::computeSelection(model);
 		return model;
 	}

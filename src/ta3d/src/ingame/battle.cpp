@@ -126,7 +126,7 @@ namespace TA3D
 		// Code Related to Threads
 
 		// Start the Unit engine
-		units.start();
+        units->start();
 
 		// Start the particle engine
 		particle_engine.set_data( map->ota_data.gravity, map->wind_vec);
@@ -134,7 +134,7 @@ namespace TA3D
 
 		// Start the weapon engine
 		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
-		features.set_data(map->wind_vec);
+        features->set_data(map->wind_vec);
 		weapons.start();
 
 		// Players
@@ -180,11 +180,11 @@ namespace TA3D
 			bool rope_selection = pMouseSelecting && (abs(pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs(pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
 			if (selected && build < 0 && (!IsOnGUI || IsOnMinimap) && !rope_selection)
 			{
-				for (size_t i = 0; i < units.index_list_size; ++i)
+                for (size_t i = 0; i < units->index_list_size; ++i)
 				{
-					const uint32 e = units.idx_list[i];
-					if ((units.unit[e].flags & 1) && units.unit[e].owner_id == players.local_human_id
-						&& units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id]->canmove)
+                    const uint32 e = units->idx_list[i];
+                    if ((units->unit[e].flags & 1) && units->unit[e].owner_id == players.local_human_id
+                        && units->unit[e].sel && unit_manager.unit_type[units->unit[e].type_id]->canmove)
 					{
 						cursor_type = CURSOR_MOVE;
 						break;
@@ -207,12 +207,12 @@ namespace TA3D
 			}
 			count = msectimer();
 
-			sky_angle += sky.rotationSpeed() * dt * units.apparent_timefactor;
+            sky_angle += sky.rotationSpeed() * dt * units->apparent_timefactor;
 
 			if (!lp_CONFIG->pause)
 			{
-				light_angle += dt * units.apparent_timefactor;
-				t += dt * units.apparent_timefactor;
+                light_angle += dt * units->apparent_timefactor;
+                t += dt * units->apparent_timefactor;
 			}
 
 
@@ -229,11 +229,11 @@ namespace TA3D
 			{
 				if (!ordered_destruct)
 				{
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						int i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-							units.unit[i].toggle_self_destruct();
+                        int i = units->idx_list[e];
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
+                            units->unit[i].toggle_self_destruct();
 					}
 					ordered_destruct = true;
 				}
@@ -271,9 +271,9 @@ namespace TA3D
 					speed_changed = false;
 			}
 
-			if (track_mode >= 0 && track_mode <= (int)units.max_unit)
+            if (track_mode >= 0 && track_mode <= (int)units->max_unit)
 			{
-				if (!(units.unit[ track_mode ].flags & 1)) // Leave tracking mode
+                if (!(units->unit[ track_mode ].flags & 1)) // Leave tracking mode
 				{
 					track_mode = -1;
 					cam_has_target = false;
@@ -281,7 +281,7 @@ namespace TA3D
 				else
 				{
 					cam_has_target = true;
-					cam_target = units.unit[ track_mode ].Pos;
+                    cam_target = units->unit[ track_mode ].Pos;
 					cam_target_mx = gfx->SCREEN_W_HALF;
 					cam_target_my = gfx->SCREEN_H_HALF;
 				}
@@ -289,10 +289,10 @@ namespace TA3D
 			else
 				track_mode = -1;
 
-			if (track_mode >= 0 && ( cur_sel_index < 0 || cur_sel_index >= (int)units.max_unit || track_mode != cur_sel_index))
+            if (track_mode >= 0 && ( cur_sel_index < 0 || cur_sel_index >= (int)units->max_unit || track_mode != cur_sel_index))
 				track_mode = -1;
 
-			if (key[KEY_T] && !Console::Instance()->activated() && cur_sel_index >= 0 && cur_sel_index < (int)units.max_unit)
+            if (key[KEY_T] && !Console::Instance()->activated() && cur_sel_index >= 0 && cur_sel_index < (int)units->max_unit)
 			{
 				if (!last_time_activated_track_mode)
 					track_mode = track_mode == cur_sel_index ? -1 : cur_sel_index;
@@ -309,9 +309,9 @@ namespace TA3D
 					last_time_activated_track_mode = false;
 			}
 
-			if (key[KEY_F1] && units.last_on >= 0 && units.unit[ units.last_on ].type_id >= 0)
+            if (key[KEY_F1] && units->last_on >= 0 && units->unit[ units->last_on ].type_id >= 0)
 			{
-				unit_info_id = units.unit[ units.last_on ].type_id;
+                unit_info_id = units->unit[ units->last_on ].type_id;
 			}
 			else
 			{
@@ -523,12 +523,12 @@ namespace TA3D
 				bool canguard = false;
 				bool cancapture = false;
 				bool bombers = false;
-				for (unsigned int e = 0; e < units.index_list_size; ++e)
+                for (unsigned int e = 0; e < units->index_list_size; ++e)
 				{
-					int i = units.idx_list[e];
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                    int i = units->idx_list[e];
+                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
 					{
-						UnitType *pType = unit_manager.unit_type[units.unit[i].type_id];
+                        UnitType *pType = unit_manager.unit_type[units->unit[i].type_id];
 						builders |= pType->Builder;
 						canattack |= pType->canattack;
 						canreclamate |= pType->CanReclamate;
@@ -541,7 +541,7 @@ namespace TA3D
 				int pointing = 0;
 				if (!IsOnGUI)
 				{
-					pointing = units.pick(cam);		// Sur quoi le curseur est-il pointÃ©??
+                    pointing = units->pick(cam);		// Sur quoi le curseur est-il pointÃ©??
 					if (pointing == -1) 				// Is the cursor on a rock, tree, ...?
 					{
 						Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
@@ -552,9 +552,9 @@ namespace TA3D
 							&& (map->view_map(px >> 1, py >> 1) & (1 << players.local_human_id)) )
 						{
 							int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
-							if (idx < 0 || features.feature[idx].type < 0)
+                            if (idx < 0 || features->feature[idx].type < 0)
 							{
-								units.last_on = -1;
+                                units->last_on = -1;
 								for (int dy = -7 ; dy < 8 ; ++dy)	// Look for things like metal patches
 								{
 									if (py + dy >= 0 && py + dy < map->bloc_h_db)
@@ -567,12 +567,12 @@ namespace TA3D
                                                 if (feature_idx >= 0)
 												{
                                                     idx = feature_idx;
-													const Feature* const feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+                                                    const Feature* const feature = feature_manager.getFeaturePointer(features->feature[idx].type);
 													if (feature
 														&& feature->footprintx + 1 >= (abs(dx) << 1)
 														&& feature->footprintz + 1 >= (abs(dy) << 1))
 													{
-														units.last_on = -idx - 2;
+                                                        units->last_on = -idx - 2;
 														dy = 800;
 														break;
 													}
@@ -583,20 +583,20 @@ namespace TA3D
 								}
 							}
 							else
-								units.last_on = -idx - 2;
+                                units->last_on = -idx - 2;
 						}
-						pointing = units.last_on;
+                        pointing = units->last_on;
 					}
 				}
 				else
-					pointing = units.pick_minimap();
+                    pointing = units->pick_minimap();
 
 
 				if (!rope_selection)
 				{
 					if (pointing < -1)
 					{
-						Feature *feature = feature_manager.getFeaturePointer(features.feature[ -pointing - 2 ].type);
+                        Feature *feature = feature_manager.getFeaturePointer(features->feature[ -pointing - 2 ].type);
 						if (feature && canreclamate && feature->reclaimable && build == -1)	cursor_type = CURSOR_RECLAIM;
 						if (feature && canresurrect && feature->reclaimable && build == -1 && CURSOR_REVIVE != CURSOR_RECLAIM)	cursor_type = CURSOR_REVIVE;
 					}
@@ -606,7 +606,7 @@ namespace TA3D
 				{
 					cursor_type = CURSOR_CROSS;
 					bool can_be_captured = false;
-					if (!(players.team[units.unit[pointing].owner_id] & players.team[players.local_human_id]))      // Not allied == enemy
+                    if (!(players.team[units->unit[pointing].owner_id] & players.team[players.local_human_id]))      // Not allied == enemy
 					{
 						can_be_captured = true;
 						if (canattack)
@@ -621,7 +621,7 @@ namespace TA3D
 					}
 					else
 					{
-						if (units.unit[pointing].build_percent_left > 0.0f && builders)
+                        if (units->unit[pointing].build_percent_left > 0.0f && builders)
 							cursor_type = CURSOR_REPAIR;
 					}
 
@@ -655,13 +655,13 @@ namespace TA3D
 						target.x = target.x * 8.0f - (float)map->map_w_d;
 						target.z = target.z * 8.0f - (float)map->map_h_d;
 						target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
-						order_removed = units.remove_order(players.local_human_id, target);
+                        order_removed = units->remove_order(players.local_human_id, target);
 					}
 
 					if (cursor_type == CURSOR_MOVE
 						&& canguard
 						&& pointing != cur_sel_index
-						&& units.unit[pointing].owner_id == players.local_human_id)
+                        && units->unit[pointing].owner_id == players.local_human_id)
 						cursor_type = CURSOR_GUARD;
 					else if (pointing == cur_sel_index)
 						cursor_type = CURSOR_CROSS;
@@ -671,25 +671,25 @@ namespace TA3D
 						order_removed = true;
 						if (cursor_type == CURSOR_ATTACK || cursor_type == CURSOR_BOMB_ATTACK)
 						{
-							for (unsigned int e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units->index_list_size; ++e)
 							{
 								uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
-								int i = units.idx_list[e];
-								units.unit[i].lock();
-								if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack)
+                                int i = units->idx_list[e];
+                                units->unit[i].lock();
+                                if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel && unit_manager.unit_type[units->unit[i].type_id]->canattack)
 								{
-									for (unsigned int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
-										if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
+                                    for (unsigned int f = 0; f < unit_manager.unit_type[units->unit[i].type_id]->weapon.size(); ++f)
+                                        if (unit_manager.unit_type[units->unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units->unit[i].type_id]->weapon[ f ]->stockpile)
 										{
 											commandfire = MISSION_FLAG_COMMAND_FIRE;
 											break;
 										}
 									if (TA3D_SHIFT_PRESSED)
-										units.unit[i].add_mission(MISSION_ATTACK, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), (byte)commandfire);
+                                        units->unit[i].add_mission(MISSION_ATTACK, &(units->unit[pointing].Pos), false, 0, &(units->unit[pointing]), (byte)commandfire);
 									else
-										units.unit[i].set_mission(MISSION_ATTACK, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), (byte)commandfire);
+                                        units->unit[i].set_mission(MISSION_ATTACK, &(units->unit[pointing].Pos), false, 0, true, &(units->unit[pointing]), (byte)commandfire);
 								}
-								units.unit[i].unlock();
+                                units->unit[i].unlock();
 							}
 							if (!TA3D_SHIFT_PRESSED)	current_order = SIGNAL_ORDER_NONE;
 							click_activated = true;
@@ -697,20 +697,20 @@ namespace TA3D
 						else
 							if (cursor_type == CURSOR_CAPTURE && can_be_captured)
 							{
-								for (size_t e = 0 ; e < units.index_list_size ; e++)
+                                for (size_t e = 0 ; e < units->index_list_size ; e++)
 								{
-									units.lock();
-									const size_t i = units.idx_list[e];
-									units.unlock();
-									units.unit[i].lock();
-									if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
+                                    units->lock();
+                                    const size_t i = units->idx_list[e];
+                                    units->unlock();
+                                    units->unit[i].lock();
+                                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel && unit_manager.unit_type[units->unit[i].type_id]->CanCapture)
 									{
 										if (TA3D_SHIFT_PRESSED)
-											units.unit[i].add_mission(MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]));
+                                            units->unit[i].add_mission(MISSION_CAPTURE, &(units->unit[pointing].Pos), false, 0, &(units->unit[pointing]));
 										else
-											units.unit[i].set_mission(MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]));
+                                            units->unit[i].set_mission(MISSION_CAPTURE, &(units->unit[pointing].Pos), false, 0, true, &(units->unit[pointing]));
 									}
-									units.unit[i].unlock();
+                                    units->unit[i].unlock();
 								}
 								if (!TA3D_SHIFT_PRESSED)
 									current_order = SIGNAL_ORDER_NONE;
@@ -720,23 +720,23 @@ namespace TA3D
 							{
 								if (cursor_type == CURSOR_REPAIR)
 								{
-									for (unsigned int e = 0; e < units.index_list_size; ++e)
+                                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 									{
-										units.lock();
-										int i = units.idx_list[e];
-										units.unlock();
-										units.unit[i].lock();
-										if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-											&& unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+                                        units->lock();
+                                        int i = units->idx_list[e];
+                                        units->unlock();
+                                        units->unit[i].lock();
+                                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel
+                                            && unit_manager.unit_type[units->unit[i].type_id]->Builder && unit_manager.unit_type[units->unit[i].type_id]->BMcode)
 										{
 											if (!TA3D_SHIFT_PRESSED)
-												units.unit[i].playSound("repair");
+                                                units->unit[i].playSound("repair");
 											if (TA3D_SHIFT_PRESSED)
-												units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+                                                units->unit[i].add_mission(MISSION_REPAIR,&(units->unit[pointing].Pos),false,0,&(units->unit[pointing]));
 											else
-												units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+                                                units->unit[i].set_mission(MISSION_REPAIR,&(units->unit[pointing].Pos),false,0,true,&(units->unit[pointing]));
 										}
-										units.unit[i].unlock();
+                                        units->unit[i].unlock();
 									}
 									if (!TA3D_SHIFT_PRESSED)
 										current_order=SIGNAL_ORDER_NONE;
@@ -746,21 +746,21 @@ namespace TA3D
 								{
 									if (cursor_type == CURSOR_RECLAIM)
 									{
-										for (unsigned int e = 0; e < units.index_list_size; ++e)
+                                        for (unsigned int e = 0; e < units->index_list_size; ++e)
 										{
-											units.lock();
-											int i = units.idx_list[e];
-											units.unlock();
-											units.unit[i].lock();
-											if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-												&& unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+                                            units->lock();
+                                            int i = units->idx_list[e];
+                                            units->unlock();
+                                            units->unit[i].lock();
+                                            if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel
+                                                && unit_manager.unit_type[units->unit[i].type_id]->CanReclamate && unit_manager.unit_type[units->unit[i].type_id]->BMcode)
 											{
 												if (TA3D_SHIFT_PRESSED)
-													units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+                                                    units->unit[i].add_mission(MISSION_RECLAIM,&(units->unit[pointing].Pos),false,0,&(units->unit[pointing]));
 												else
-													units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+                                                    units->unit[i].set_mission(MISSION_RECLAIM,&(units->unit[pointing].Pos),false,0,true,&(units->unit[pointing]));
 											}
-											units.unit[i].unlock();
+                                            units->unit[i].unlock();
 										}
 										if (!TA3D_SHIFT_PRESSED)
 											current_order=SIGNAL_ORDER_NONE;
@@ -770,7 +770,7 @@ namespace TA3D
 									{
 										if (cursor_type==CURSOR_GUARD) // Le curseur donne un ordre
 										{
-											units.give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+                                            units->give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
 											if (!TA3D_SHIFT_PRESSED)
 												current_order=SIGNAL_ORDER_NONE;
 											click_activated = true;
@@ -779,7 +779,7 @@ namespace TA3D
 										{
 											if (cursor_type==CURSOR_LOAD) 	// Le curseur donne un ordre
 											{
-												units.give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+                                                units->give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
 												if (!TA3D_SHIFT_PRESSED)
 													current_order=SIGNAL_ORDER_NONE;
 												click_activated = true;
@@ -803,26 +803,26 @@ namespace TA3D
 							if (cursor_type == CURSOR_ATTACK || cursor_type == CURSOR_BOMB_ATTACK)
 							{
 								Vector3D cursor_pos(cursorOnMap(cam, *map, IsOnMinimap));
-								for (unsigned int e = 0; e < units.index_list_size; ++e)
+                                for (unsigned int e = 0; e < units->index_list_size; ++e)
 								{
 									uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
-									int i = units.idx_list[e];
-									units.unit[i].lock();
-									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
-										&& ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
+                                    int i = units->idx_list[e];
+                                    units->unit[i].lock();
+                                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel && unit_manager.unit_type[units->unit[i].type_id]->canattack
+                                        && ( unit_manager.unit_type[units->unit[i].type_id]->BMcode || !unit_manager.unit_type[units->unit[i].type_id]->Builder))
 									{
-										for (unsigned int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
-											if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
+                                        for (unsigned int f = 0; f < unit_manager.unit_type[units->unit[i].type_id]->weapon.size(); ++f)
+                                            if (unit_manager.unit_type[units->unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units->unit[i].type_id]->weapon[ f ]->stockpile)
 											{
 												commandfire = MISSION_FLAG_COMMAND_FIRE;
 												break;
 											}
 										if (TA3D_SHIFT_PRESSED)
-											units.unit[i].add_mission(MISSION_ATTACK, &(cursor_pos), false, 0, NULL, (byte)commandfire);
+                                            units->unit[i].add_mission(MISSION_ATTACK, &(cursor_pos), false, 0, NULL, (byte)commandfire);
 										else
-											units.unit[i].set_mission(MISSION_ATTACK, &(cursor_pos), false, 0, true, NULL, (byte)commandfire);
+                                            units->unit[i].set_mission(MISSION_ATTACK, &(cursor_pos), false, 0, true, NULL, (byte)commandfire);
 									}
-									units.unit[i].unlock();
+                                    units->unit[i].unlock();
 								}
 								if (!TA3D_SHIFT_PRESSED)
 									current_order = SIGNAL_ORDER_NONE;
@@ -841,30 +841,30 @@ namespace TA3D
 				target.x = target.x * 8.0f - (float)map->map_w_d;
 				target.z = target.z * 8.0f - (float)map->map_h_d;
 				target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
-				order_removed = units.remove_order(players.local_human_id, target);
+                order_removed = units->remove_order(players.local_human_id, target);
 			}
 
 			if (cursor_type == CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
 			{
 				Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
-				int idx = -units.last_on - 2;
-				if (idx >= 0 && features.feature[idx].type >= 0 && feature_manager.getFeaturePointer(features.feature[idx].type)->reclaimable)
+                int idx = -units->last_on - 2;
+                if (idx >= 0 && features->feature[idx].type >= 0 && feature_manager.getFeaturePointer(features->feature[idx].type)->reclaimable)
 				{
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						units.lock();
-						int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel
-							&& unit_manager.unit_type[units.unit[i].type_id]->canresurrect && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+                        units->lock();
+                        int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel
+                            && unit_manager.unit_type[units->unit[i].type_id]->canresurrect && unit_manager.unit_type[units->unit[i].type_id]->BMcode)
 						{
 							if (TA3D_SHIFT_PRESSED)
-								units.unit[i].add_mission(MISSION_REVIVE,&cur_pos,false,idx,NULL);
+                                units->unit[i].add_mission(MISSION_REVIVE,&cur_pos,false,idx,NULL);
 							else
-								units.unit[i].set_mission(MISSION_REVIVE,&cur_pos,false,idx,true,NULL);
+                                units->unit[i].set_mission(MISSION_REVIVE,&cur_pos,false,idx,true,NULL);
 						}
-						units.unit[i].unlock();
+                        units->unit[i].unlock();
 					}
 				}
 				if (!TA3D_SHIFT_PRESSED)
@@ -876,24 +876,24 @@ namespace TA3D
 			if (cursor_type == CURSOR_RECLAIM && !rope_selection && click_activation && (!IsOnGUI || IsOnMinimap) && !order_removed)
 			{
 				Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
-				int idx = -units.last_on - 2;
-				if (idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.getFeaturePointer(features.feature[ idx ].type)->reclaimable)
+                int idx = -units->last_on - 2;
+                if (idx >= 0 && features->feature[ idx ].type >= 0 && feature_manager.getFeaturePointer(features->feature[ idx ].type)->reclaimable)
 				{
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						units.lock();
-						int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-							&& unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+                        units->lock();
+                        int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel
+                            && unit_manager.unit_type[units->unit[i].type_id]->CanReclamate && unit_manager.unit_type[units->unit[i].type_id]->BMcode)
 						{
 							if (TA3D_SHIFT_PRESSED)
-								units.unit[i].add_mission(MISSION_RECLAIM,&cur_pos,false,idx,NULL);
+                                units->unit[i].add_mission(MISSION_RECLAIM,&cur_pos,false,idx,NULL);
 							else
-								units.unit[i].set_mission(MISSION_RECLAIM,&cur_pos,false,idx,true,NULL);
+                                units->unit[i].set_mission(MISSION_RECLAIM,&cur_pos,false,idx,true,NULL);
 						}
-						units.unit[i].unlock();
+                        units->unit[i].unlock();
 					}
 				}
 				if (!TA3D_SHIFT_PRESSED)
@@ -903,7 +903,7 @@ namespace TA3D
 
 			if (cursor_type==CURSOR_UNLOAD && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed)	// The cursor orders to unload units
 			{
-				units.give_order_unload(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
+                units->give_order_unload(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
 				if (!TA3D_SHIFT_PRESSED)
 					current_order=SIGNAL_ORDER_NONE;
 				click_activated = true;
@@ -911,7 +911,7 @@ namespace TA3D
 
 			if (cursor_type==CURSOR_MOVE && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed) 	// The cursor orders to move
 			{
-				units.give_order_move(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
+                units->give_order_move(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
 				if (!TA3D_SHIFT_PRESSED)
 					current_order=SIGNAL_ORDER_NONE;
 				click_activated = true;
@@ -920,7 +920,7 @@ namespace TA3D
 			// The cursor orders to patrol
 			if (cursor_type == CURSOR_PATROL && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed)
 			{
-				units.give_order_patrol(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
+                units->give_order_patrol(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
 				if (!TA3D_SHIFT_PRESSED)
 					current_order = SIGNAL_ORDER_NONE;
 				click_activated = true;
@@ -958,7 +958,7 @@ namespace TA3D
 
 					if (can_be_there)
 					{
-						units.give_order_build(players.local_human_id,build,target,!( TA3D_SHIFT_PRESSED || c != 0));
+                        units->give_order_build(players.local_human_id,build,target,!( TA3D_SHIFT_PRESSED || c != 0));
 						build_order_given = true;
 					}
 				}
@@ -1014,11 +1014,11 @@ namespace TA3D
 							selected = false;
 							cur_sel = -1;
 							cur_sel_index = -1;
-							for (unsigned int e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units->index_list_size; ++e)
 							{
-								int i = units.idx_list[e];
-								if (units.unit[i].owner_id == players.local_human_id) // On peut dÃ©sÃ©lectionner les morts, Ã§a ne change rien :-)
-									units.unit[i].sel = false;
+                                int i = units->idx_list[e];
+                                if (units->unit[i].owner_id == players.local_human_id) // On peut dÃ©sÃ©lectionner les morts, Ã§a ne change rien :-)
+                                    units->unit[i].sel = false;
 							}
 						}
 					}
@@ -1034,31 +1034,31 @@ namespace TA3D
 					{
 						if (cursor_type == CURSOR_DEFAULT || cursor_type == CURSOR_CROSS)
 						{
-							int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(cam); // Select a unit from a single click
+                            int pointing = IsOnMinimap ? units->pick_minimap() : units->pick(cam); // Select a unit from a single click
 							if (!TA3D_SHIFT_PRESSED)
 							{
-								for (unsigned int e = 0; e < units.index_list_size; ++e)
+                                for (unsigned int e = 0; e < units->index_list_size; ++e)
 								{
-									int i = units.idx_list[e];
-									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
-										units.unit[i].sel = false;
+                                    int i = units->idx_list[e];
+                                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id)
+                                        units->unit[i].sel = false;
 								}
 							}
-							if (pointing >= 0 && Math::Zero(units.unit[pointing].build_percent_left))	// On ne sÃ©lectionne pas les unitÃ©s en construction
-								units.unit[pointing].sel ^= true; // SÃ©lectionne/DÃ©sÃ©lectionne si l'unitÃ© est dÃ©jÃ  sÃ©lectionnÃ©e en appuyant sur SHIFT
+                            if (pointing >= 0 && Math::Zero(units->unit[pointing].build_percent_left))	// On ne sÃ©lectionne pas les unitÃ©s en construction
+                                units->unit[pointing].sel ^= true; // SÃ©lectionne/DÃ©sÃ©lectionne si l'unitÃ© est dÃ©jÃ  sÃ©lectionnÃ©e en appuyant sur SHIFT
 							selected = false;
-							for (unsigned int e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units->index_list_size; ++e)
 							{
-								int i = units.idx_list[e];
-								if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
-									selected|=units.unit[i].sel;
+                                int i = units->idx_list[e];
+                                if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id)
+                                    selected|=units->unit[i].sel;
 							}
 						}
 						else
 							skip = true;
 					}
 					else
-						selected = units.selectUnits(RectTest(cam, pMouseRectSelection));		// SÃ©lÃ©ction au lasso
+                        selected = units->selectUnits(RectTest(cam, pMouseRectSelection));		// SÃ©lÃ©ction au lasso
 
 					if (!skip)
 					{
@@ -1066,18 +1066,18 @@ namespace TA3D
 							old_sel = false;
 						cur_sel = -1;
 						cur_sel_index = -1;
-						for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                        for (unsigned int e = 0; e < units->index_list_size && cur_sel != -2; ++e)
 						{
-							int i = units.idx_list[e];
-							if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                            int i = units->idx_list[e];
+                            if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
 								cur_sel= (cur_sel==-1) ? i : -2;
 						}
 						if (cur_sel >= 0)
 						{
 							cur_sel_index=cur_sel;
-							cur_sel=units.unit[cur_sel].type_id;
+                            cur_sel=units->unit[cur_sel].type_id;
 							// Let's do some noise
-							units.unit[ cur_sel_index ].playSound( "select1");
+                            units->unit[ cur_sel_index ].playSound( "select1");
 						}
 					}
 				}
@@ -1105,11 +1105,11 @@ namespace TA3D
 			if (IsOnGUI && !IsOnMinimap)
 				cursor_type=CURSOR_DEFAULT;
 
-			if (!IsOnGUI && ( cursor_type == CURSOR_DEFAULT || units.last_on == -1))
+            if (!IsOnGUI && ( cursor_type == CURSOR_DEFAULT || units->last_on == -1))
 			{
-				units.pick(cam);		// Let's see what's under the cursor
+                units->pick(cam);		// Let's see what's under the cursor
 
-				if (units.last_on == -1) // Is the cursor on a rock, tree, ...?
+                if (units->last_on == -1) // Is the cursor on a rock, tree, ...?
 				{
 					const Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
 					const int px = ((int)(cur_pos.x + (float)map->map_w_d)) >> 3;
@@ -1117,9 +1117,9 @@ namespace TA3D
 					if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (map->view_map(px >> 1, py >> 1) & (1 << players.local_human_id)))
 					{
 						int idx = -map->map_data(px, py).unit_idx - 2;				// Basic check
-						if (idx < 0 || features.feature[idx].type < 0)
+                        if (idx < 0 || features->feature[idx].type < 0)
 						{
-							units.last_on = -1;
+                            units->last_on = -1;
 							for (int dy = -7 ; dy < 8 ; ++dy) // Look for things like metal patches
 							{
 								if (py + dy >= 0 && py + dy < map->bloc_h_db)
@@ -1131,12 +1131,12 @@ namespace TA3D
 											if (map->map_data(px + dx, py + dy).stuff >= 0)
 											{
 												idx = map->map_data(px + dx, py + dy).stuff;
-												const Feature* const feature = feature_manager.getFeaturePointer(features.feature[idx].type);
+                                                const Feature* const feature = feature_manager.getFeaturePointer(features->feature[idx].type);
 												if (feature
 													&& feature->footprintx + 1 >= (abs(dx) << 1)
 													&& feature->footprintz + 1 >= (abs(dy) << 1))
 												{
-													units.last_on = -idx - 2;
+                                                    units->last_on = -idx - 2;
 													dy = 800;
 													break;
 												}
@@ -1147,7 +1147,7 @@ namespace TA3D
 							}
 						}
 						else
-							units.last_on = -idx - 2;
+                            units->last_on = -idx - 2;
 					}
 				}
 			}
@@ -1173,34 +1173,34 @@ namespace TA3D
 						}
 					}
 				}
-				for (unsigned int e = 0 ; e < units.index_list_size; ++e)
+                for (unsigned int e = 0 ; e < units->index_list_size; ++e)
 				{
-					int i = units.idx_list[e];
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && Math::Zero(units.unit[i].build_percent_left))
+                    int i = units->idx_list[e];
+                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && Math::Zero(units->unit[i].build_percent_left))
 					{
-						if (unit_manager.unit_type[units.unit[i].type_id]->checkCategory( check_cat ))
-							units.unit[i].sel = true;
+                        if (unit_manager.unit_type[units->unit[i].type_id]->checkCategory( check_cat ))
+                            units->unit[i].sel = true;
 						else
 						{
 							if (!TA3D_SHIFT_PRESSED)
-								units.unit[i].sel = false;
+                                units->unit[i].sel = false;
 						}
 					}
 				}
 				cur_sel = -1;
 				cur_sel_index = -1;
 				build = -1;
-				for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                for (unsigned int e = 0; e < units->index_list_size && cur_sel != -2; ++e)
 				{
-					int i = units.idx_list[e];
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+                    int i = units->idx_list[e];
+                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
 						cur_sel= (cur_sel==-1) ? i : -2;
 				}
 				selected = (cur_sel!=-1);
 				if (cur_sel >= 0)
 				{
 					cur_sel_index = cur_sel;
-					cur_sel = units.unit[cur_sel].type_id;
+                    cur_sel = units->unit[cur_sel].type_id;
 					if (check_cat == "CTRL_C")
 						track_mode = cur_sel_index;
 				}
@@ -1212,24 +1212,24 @@ namespace TA3D
 					sel_type.resize(unit_manager.nb_unit);
 					for (int i = 0; i < unit_manager.nb_unit; ++i)
 						sel_type[i] = false;
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						const size_t i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-							sel_type[units.unit[i].type_id] = true;
+                        const size_t i = units->idx_list[e];
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
+                            sel_type[units->unit[i].type_id] = true;
 					}
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						const size_t i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id && sel_type[units.unit[i].type_id])
-							units.unit[i].sel = true;
+                        const size_t i = units->idx_list[e];
+                        if ((units->unit[i].flags & 1) && Math::Zero(units->unit[i].build_percent_left) && units->unit[i].owner_id == players.local_human_id && sel_type[units->unit[i].type_id])
+                            units->unit[i].sel = true;
 					}
 					cur_sel = -1;
 					cur_sel_index = -1;
-					for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                    for (unsigned int e = 0; e < units->index_list_size && cur_sel != -2; ++e)
 					{
-						const size_t i = units.idx_list[e];
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+                        const size_t i = units->idx_list[e];
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
 							cur_sel = (cur_sel == -1) ? (int)i : -2;
 					}
 					selected = (cur_sel != -1);
@@ -1237,25 +1237,25 @@ namespace TA3D
 					if (cur_sel >= 0)
 					{
 						cur_sel_index = cur_sel;
-						cur_sel = units.unit[cur_sel].type_id;
+                        cur_sel = units->unit[cur_sel].type_id;
 					}
 				}
 				else
 				{
 					if (TA3D_CTRL_PRESSED && key[KEY_A]) // Select all the player's units
 					{
-						for (unsigned int e = 0 ; e < units.index_list_size; ++e)
+                        for (unsigned int e = 0 ; e < units->index_list_size; ++e)
 						{
-							int i = units.idx_list[e];
-							if ((units.unit[i].flags & 1) && Math::Zero(units.unit[i].build_percent_left) && units.unit[i].owner_id == players.local_human_id)
-								units.unit[i].sel = true;
+                            int i = units->idx_list[e];
+                            if ((units->unit[i].flags & 1) && Math::Zero(units->unit[i].build_percent_left) && units->unit[i].owner_id == players.local_human_id)
+                                units->unit[i].sel = true;
 						}
 						cur_sel = -1;
 						cur_sel_index = -1;
-						for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                        for (unsigned int e = 0; e < units->index_list_size && cur_sel != -2; ++e)
 						{
-							int i = units.idx_list[e];
-							if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+                            int i = units->idx_list[e];
+                            if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
 								cur_sel= (cur_sel == -1) ? i : -2;
 						}
 						selected = (cur_sel != -1);
@@ -1263,7 +1263,7 @@ namespace TA3D
 						if (cur_sel >= 0)
 						{
 							cur_sel_index = cur_sel;
-							cur_sel = units.unit[cur_sel].type_id;
+                            cur_sel = units->unit[cur_sel].type_id;
 						}
 					}
 					else
@@ -1285,15 +1285,15 @@ namespace TA3D
 							if (grpe >= 0)
 							{
 								grpe = 1 << grpe;
-								for (unsigned int e = 0; e < units.index_list_size; ++e)
+                                for (unsigned int e = 0; e < units->index_list_size; ++e)
 								{
-									int i = units.idx_list[e];
-									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
+                                    int i = units->idx_list[e];
+                                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id)
 									{
-										if (units.unit[i].sel)
-											setFlag(units.unit[i].groupe, grpe);
+                                        if (units->unit[i].sel)
+                                            setFlag(units->unit[i].groupe, grpe);
 										else if (!TA3D_SHIFT_PRESSED)
-											unsetFlag(units.unit[i].groupe, grpe);
+                                            unsetFlag(units->unit[i].groupe, grpe);
 									}
 								}
 							}
@@ -1318,33 +1318,33 @@ namespace TA3D
 								{
 									build=-1;
 									grpe = 1 << grpe;
-									for (unsigned int e = 0; e < units.index_list_size; ++e)
+                                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 									{
-										int i = units.idx_list[e];
-										if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
+                                        int i = units->idx_list[e];
+                                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id)
 										{
-											if (units.unit[i].groupe&grpe)
-												units.unit[i].sel = true;
+                                            if (units->unit[i].groupe&grpe)
+                                                units->unit[i].sel = true;
 											else
 												if (!TA3D_SHIFT_PRESSED)
-													units.unit[i].sel = false;
+                                                    units->unit[i].sel = false;
 										}
 									}
 								}
 
 								cur_sel = -1;
 								cur_sel_index = -1;
-								for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                                for (unsigned int e = 0; e < units->index_list_size && cur_sel != -2; ++e)
 								{
-									int i = units.idx_list[e];
-									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                                    int i = units->idx_list[e];
+                                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id==players.local_human_id && units->unit[i].sel)
 										cur_sel= (cur_sel==-1) ? i : -2;
 								}
 								selected = (cur_sel != -1);
 								if (cur_sel >= 0)
 								{
 									cur_sel_index=cur_sel;
-									cur_sel=units.unit[cur_sel].type_id;
+                                    cur_sel=units->unit[cur_sel].type_id;
 								}
 							}
 						}
@@ -1356,9 +1356,9 @@ namespace TA3D
 			// That code was rewritten multithreaded
 			if (!lp_CONFIG->pause)
 			{
-				const float timetosimulate = dt * units.apparent_timefactor;	// Visual animation takes place here
+                const float timetosimulate = dt * units->apparent_timefactor;	// Visual animation takes place here
 				wind_change = false; // Don't try to run following code in separate thread
-				features.move(timetosimulate); // Animate objects
+                features->move(timetosimulate); // Animate objects
 				fx_manager.move(timetosimulate);
 			}
 
@@ -1524,7 +1524,7 @@ namespace TA3D
 					break;
 			}
 
-			if (cur_sel_index >= 0 && cur_sel_index < (int)units.max_unit && !(units.unit[cur_sel_index].flags & 1))
+            if (cur_sel_index >= 0 && cur_sel_index < (int)units->max_unit && !(units->unit[cur_sel_index].flags & 1))
 			{
 				cur_sel = -1;
 				cur_sel_index = -1;
@@ -1534,7 +1534,7 @@ namespace TA3D
 			int n = cur_sel;
 			if (n == -1)
 				n = -2;
-			if (n >= 0 && units.unit[cur_sel_index].build_percent_left > 0.0f) // Unfinished unit
+            if (n >= 0 && units->unit[cur_sel_index].build_percent_left > 0.0f) // Unfinished unit
 				n = -1;
 			int sel = -1;
 
@@ -1568,17 +1568,17 @@ namespace TA3D
 				if (mouse_b == 1 && omb2 != 1)
 				{
 					if (TA3D_SHIFT_PRESSED)
-						units.unit[cur_sel_index].planned_weapons+=5.0f;
+                        units->unit[cur_sel_index].planned_weapons+=5.0f;
 					else
-						units.unit[cur_sel_index].planned_weapons+=1.0f;
+                        units->unit[cur_sel_index].planned_weapons+=1.0f;
 				}
 				else
 				{
 					if (mouse_b == 2 && omb2 != 2)
 					{
-						units.unit[cur_sel_index].planned_weapons -= (TA3D_SHIFT_PRESSED) ? 5.0f : 1.0f;
-						if (units.unit[cur_sel_index].planned_weapons < 0.0f)
-							units.unit[cur_sel_index].planned_weapons = 0.0f;
+                        units->unit[cur_sel_index].planned_weapons -= (TA3D_SHIFT_PRESSED) ? 5.0f : 1.0f;
+                        if (units->unit[cur_sel_index].planned_weapons < 0.0f)
+                            units->unit[cur_sel_index].planned_weapons = 0.0f;
 					}
 				}
 				sel = -1;
@@ -1659,35 +1659,35 @@ namespace TA3D
 				byte sforder = 0;
 				byte smorder = 0;
 
-				for (unsigned int e = 0; e < units.index_list_size; ++e)
+                for (unsigned int e = 0; e < units->index_list_size; ++e)
 				{
-					units.lock();
-					uint32 i = units.idx_list[e];
-					units.unlock();
-					units.unit[i].lock();
-					if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+                    units->lock();
+                    uint32 i = units->idx_list[e];
+                    units->unlock();
+                    units->unit[i].lock();
+                    if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
 					{
-						onoffable  |= unit_manager.unit_type[units.unit[i].type_id]->onoffable;
-						canstop    |= unit_manager.unit_type[units.unit[i].type_id]->canstop;
-						canmove    |= unit_manager.unit_type[units.unit[i].type_id]->canmove;
-						canpatrol  |= unit_manager.unit_type[units.unit[i].type_id]->canpatrol;
-						canguard   |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
-						canattack  |= unit_manager.unit_type[units.unit[i].type_id]->canattack;
-						canreclam  |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
-						builders   |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
-						canload    |= unit_manager.unit_type[units.unit[i].type_id]->canload;
-						cancapture |= unit_manager.unit_type[units.unit[i].type_id]->CanCapture;
-						cancloak   |= unit_manager.unit_type[units.unit[i].type_id]->CloakCost > 0;
-						candgun    |= unit_manager.unit_type[units.unit[i].type_id]->candgun;
+                        onoffable  |= unit_manager.unit_type[units->unit[i].type_id]->onoffable;
+                        canstop    |= unit_manager.unit_type[units->unit[i].type_id]->canstop;
+                        canmove    |= unit_manager.unit_type[units->unit[i].type_id]->canmove;
+                        canpatrol  |= unit_manager.unit_type[units->unit[i].type_id]->canpatrol;
+                        canguard   |= unit_manager.unit_type[units->unit[i].type_id]->canguard;
+                        canattack  |= unit_manager.unit_type[units->unit[i].type_id]->canattack;
+                        canreclam  |= unit_manager.unit_type[units->unit[i].type_id]->CanReclamate;
+                        builders   |= unit_manager.unit_type[units->unit[i].type_id]->Builder;
+                        canload    |= unit_manager.unit_type[units->unit[i].type_id]->canload;
+                        cancapture |= unit_manager.unit_type[units->unit[i].type_id]->CanCapture;
+                        cancloak   |= unit_manager.unit_type[units->unit[i].type_id]->CloakCost > 0;
+                        candgun    |= unit_manager.unit_type[units->unit[i].type_id]->candgun;
 
-						if (unit_manager.unit_type[units.unit[i].type_id]->canattack)
-							setFlag(sforder, units.unit[i].port[ STANDINGFIREORDERS ]);
-						if (unit_manager.unit_type[units.unit[i].type_id]->canmove)
-							setFlag(smorder, units.unit[i].port[ STANDINGMOVEORDERS ]);
-						if (unit_manager.unit_type[units.unit[i].type_id]->onoffable)
-							setFlag(onoff_state, units.unit[ i ].port[ ACTIVATION ] ? 2 : 1);
+                        if (unit_manager.unit_type[units->unit[i].type_id]->canattack)
+                            setFlag(sforder, units->unit[i].port[ STANDINGFIREORDERS ]);
+                        if (unit_manager.unit_type[units->unit[i].type_id]->canmove)
+                            setFlag(smorder, units->unit[i].port[ STANDINGMOVEORDERS ]);
+                        if (unit_manager.unit_type[units->unit[i].type_id]->onoffable)
+                            setFlag(onoff_state, units->unit[ i ].port[ ACTIVATION ] ? 2 : 1);
 					}
-					units.unit[i].unlock();
+                    units->unit[i].unlock();
 				}
 
 				if (onoff_state == 0)
@@ -1847,12 +1847,12 @@ namespace TA3D
 			}
 
             if (!pCurrentGUI.isEmpty() && pCurrentGUI != (ta3dSideData.side_pref[players.side_view] + "gen")) // Show information about units
-				units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, false);
+                units->complete_menu(cur_sel_index, sel != -1 || units->last_on <= -2, false);
 			else
-				units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, true);
+                units->complete_menu(cur_sel_index, sel != -1 || units->last_on <= -2, true);
 
 			int signal_order = 0;
-			features.display_info( -units.last_on - 2);
+            features->display_info( -units->last_on - 2);
 			players.show_resources();
 
 			/*------------------- GUI reacting code ---------------------------------------------------------*/
@@ -1922,34 +1922,34 @@ namespace TA3D
                     onoff_obj = pArea.get_object( pCurrentGUI + ".ARMONOFF");
 				if (onoff_obj)
 				{
-					units.lock();
-					for (unsigned int e = 0 ; e < units.index_list_size ; ++e)
+                    units->lock();
+                    for (unsigned int e = 0 ; e < units->index_list_size ; ++e)
 					{
-						unsigned int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->onoffable)
+                        unsigned int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel && unit_manager.unit_type[units->unit[i].type_id]->onoffable)
 						{
 							if (onoff_obj->nb_stages > 1)
 							{
 								onoff_obj->current_state &= 1;
 								if (onoff_obj->current_state == 0)
-									units.unit[i].deactivate();
+                                    units->unit[i].deactivate();
 								else
-									units.unit[i].activate();
+                                    units->unit[i].activate();
 							}
 							else
 							{
-								if (units.unit[i].port[ACTIVATION])
-									units.unit[i].deactivate();
+                                if (units->unit[i].port[ACTIVATION])
+                                    units->unit[i].deactivate();
 								else
-									units.unit[i].activate();
+                                    units->unit[i].activate();
 							}
 						}
-						units.unit[i].unlock();
-						units.lock();
+                        units->unit[i].unlock();
+                        units->lock();
 					}
-					units.unlock();
+                    units->unlock();
 				}
 			}
 
@@ -1961,26 +1961,26 @@ namespace TA3D
                     cloak_obj = pArea.get_object( pCurrentGUI + ".ARMCLOAK");
 				if (cloak_obj)
 				{
-					units.lock();
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    units->lock();
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						unsigned int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CloakCost > 0)
+                        unsigned int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel && unit_manager.unit_type[units->unit[i].type_id]->CloakCost > 0)
 						{
 							if (cloak_obj->nb_stages > 1)
 							{
 								cloak_obj->current_state &= 1;
-								units.unit[i].cloaking = cloak_obj->current_state != 0;
+                                units->unit[i].cloaking = cloak_obj->current_state != 0;
 							}
 							else
-								units.unit[i].cloaking ^= true;
+                                units->unit[i].cloaking ^= true;
 						}
-						units.unit[i].unlock();
-						units.lock();
+                        units->unit[i].unlock();
+                        units->lock();
 					}
-					units.unlock();
+                    units->unlock();
 				}
 			}
 
@@ -1994,29 +1994,29 @@ namespace TA3D
 				if (sorder_obj)
 				{
 					sorder_obj->current_state %= 3;
-					units.lock();
-					for (unsigned int e = 0 ; e < units.index_list_size ; ++e)
+                    units->lock();
+                    for (unsigned int e = 0 ; e < units->index_list_size ; ++e)
 					{
-						unsigned int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+                        unsigned int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
 						{
-							units.unit[i].port[STANDINGFIREORDERS] = sorder_obj->current_state;
-							if (SFORDER_FIRE_AT_WILL != units.unit[i].port[STANDINGFIREORDERS])
+                            units->unit[i].port[STANDINGFIREORDERS] = sorder_obj->current_state;
+                            if (SFORDER_FIRE_AT_WILL != units->unit[i].port[STANDINGFIREORDERS])
 							{
-								for (unsigned int f = 0; f < units.unit[i].weapon.size(); ++f)
-									units.unit[i].weapon[f].state = WEAPON_FLAG_IDLE;
-								if (!units.unit[i].mission.empty()
-									&& units.unit[i].mission->mission() == MISSION_ATTACK
-									&& !( units.unit[i].mission->getFlags() & MISSION_FLAG_COMMAND_FIRE))
-									units.unit[i].next_mission();
+                                for (unsigned int f = 0; f < units->unit[i].weapon.size(); ++f)
+                                    units->unit[i].weapon[f].state = WEAPON_FLAG_IDLE;
+                                if (!units->unit[i].mission.empty()
+                                    && units->unit[i].mission->mission() == MISSION_ATTACK
+                                    && !( units->unit[i].mission->getFlags() & MISSION_FLAG_COMMAND_FIRE))
+                                    units->unit[i].next_mission();
 							}
 						}
-						units.unit[i].unlock();
-						units.lock();
+                        units->unit[i].unlock();
+                        units->lock();
 					}
-					units.unlock();
+                    units->unlock();
 				}
 			}
 
@@ -2030,18 +2030,18 @@ namespace TA3D
 				if (sorder_obj)
 				{
 					sorder_obj->current_state %= 3;
-					units.lock();
-					for (unsigned int e = 0 ; e < units.index_list_size; ++e)
+                    units->lock();
+                    for (unsigned int e = 0 ; e < units->index_list_size; ++e)
 					{
-						unsigned int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-							units.unit[i].port[ STANDINGMOVEORDERS ] = sorder_obj->current_state;
-						units.unit[i].unlock();
-						units.lock();
+                        unsigned int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel)
+                            units->unit[i].port[ STANDINGMOVEORDERS ] = sorder_obj->current_state;
+                        units->unit[i].unlock();
+                        units->lock();
 					}
-					units.unlock();
+                    units->unlock();
 				}
 			}
 
@@ -2088,18 +2088,18 @@ namespace TA3D
 					break;
 				case SIGNAL_ORDER_STOP:
 					sound_manager->playTDFSound( "IMMEDIATEORDERS", "sound" , NULL);
-					units.lock();
-					for (unsigned int e = 0; e < units.index_list_size; ++e)
+                    units->lock();
+                    for (unsigned int e = 0; e < units->index_list_size; ++e)
 					{
-						unsigned int i = units.idx_list[e];
-						units.unlock();
-						units.unit[i].lock();
-						if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canstop)
-							units.unit[i].set_mission(MISSION_STOP);
-						units.unit[i].unlock();
-						units.lock();
+                        unsigned int i = units->idx_list[e];
+                        units->unlock();
+                        units->unit[i].lock();
+                        if ((units->unit[i].flags & 1) && units->unit[i].owner_id == players.local_human_id && units->unit[i].sel && unit_manager.unit_type[units->unit[i].type_id]->canstop)
+                            units->unit[i].set_mission(MISSION_STOP);
+                        units->unit[i].unlock();
+                        units->lock();
 					}
-					units.unlock();
+                    units->unlock();
 				case SIGNAL_ORDER_ONOFF:
 					current_order=SIGNAL_ORDER_NONE;
 					break;
@@ -2109,9 +2109,9 @@ namespace TA3D
 
 			if (sel >= 0 && mouse_b == 2 && omb2 != 2)
 			{
-				units.unit[cur_sel_index].lock();
-				MissionStack::iterator cur = units.unit[cur_sel_index].mission.begin();
-				MissionStack::iterator end = units.unit[cur_sel_index].mission.end();
+                units->unit[cur_sel_index].lock();
+                MissionStack::iterator cur = units->unit[cur_sel_index].mission.begin();
+                MissionStack::iterator end = units->unit[cur_sel_index].mission.end();
 				int nb(1);
 				if (TA3D_SHIFT_PRESSED)
 					nb = 5;
@@ -2124,20 +2124,20 @@ namespace TA3D
 					{
 						if (cur->lastMission() == MISSION_BUILD)
 							--nb;
-						cur = units.unit[cur_sel_index].mission.erase(cur);
+                        cur = units->unit[cur_sel_index].mission.erase(cur);
 						if (nb == 0)
 							break;
 						continue;
 					}
 					++cur;
 				}
-				cur = units.unit[cur_sel_index].mission.begin();
+                cur = units->unit[cur_sel_index].mission.begin();
 				if (nb > 0 && cur != end && cur->lastMission() == MISSION_BUILD_2 && cur->lastStep().getData() == sel)
 				{
 					sint32 prev = -1;
-					for (int i = units.nb_unit - 1; i >= 0; --i)
+                    for (int i = units->nb_unit - 1; i >= 0; --i)
 					{
-						if (units.idx_list[i] == units.unit[cur_sel_index].mission->getUnit()->idx)
+                        if (units->idx_list[i] == units->unit[cur_sel_index].mission->getUnit()->idx)
 						{
 							prev = i;
 							break;
@@ -2145,18 +2145,18 @@ namespace TA3D
 					}
 					if (prev >= 0)
 					{
-						const int type = units.unit[cur_sel_index].mission->getUnit()->type_id;
-						const float metal_to_give_back = (1.0f - units.unit[cur_sel_index].mission->getUnit()->build_percent_left * 0.01f) * (float)unit_manager.unit_type[type]->BuildCostMetal;
-						const int p_id = units.unit[cur_sel_index].owner_id;
-						units.unit[cur_sel_index].mission->getUnit()->clear_from_map();
-						units.unit[cur_sel_index].mission->getUnit()->flags = 0;               // Don't count it as a loss
-						units.kill(units.unit[cur_sel_index].mission->getUnit()->idx, prev);
+                        const int type = units->unit[cur_sel_index].mission->getUnit()->type_id;
+                        const float metal_to_give_back = (1.0f - units->unit[cur_sel_index].mission->getUnit()->build_percent_left * 0.01f) * (float)unit_manager.unit_type[type]->BuildCostMetal;
+                        const int p_id = units->unit[cur_sel_index].owner_id;
+                        units->unit[cur_sel_index].mission->getUnit()->clear_from_map();
+                        units->unit[cur_sel_index].mission->getUnit()->flags = 0;               // Don't count it as a loss
+                        units->kill(units->unit[cur_sel_index].mission->getUnit()->idx, prev);
 						players.metal[p_id] += metal_to_give_back;          // Give metal back
 						players.c_metal[p_id] += metal_to_give_back;
 					}
-					units.unit[cur_sel_index].next_mission();
+                    units->unit[cur_sel_index].next_mission();
 				}
-				units.unit[cur_sel_index].unlock();
+                units->unit[cur_sel_index].unlock();
 			}
 
 			if (sel >= 0 && mouse_b == 1 && omb2 != 1)
@@ -2167,9 +2167,9 @@ namespace TA3D
 				{
 					if (TA3D_SHIFT_PRESSED)
 						for (int i = 0; i < 5; ++i)
-							units.give_order_build(players.local_human_id, build, units.unit[cur_sel_index].Pos, false);
+                            units->give_order_build(players.local_human_id, build, units->unit[cur_sel_index].Pos, false);
 					else
-						units.give_order_build(players.local_human_id, build, units.unit[cur_sel_index].Pos, false);
+                        units->give_order_build(players.local_human_id, build, units->unit[cur_sel_index].Pos, false);
 					build = -1;
 				}
 			}
@@ -2203,10 +2203,10 @@ namespace TA3D
 
 			omb2 = mouse_b;
 
-			int last_on = units.last_on;
+            int last_on = units->last_on;
 
 			map->draw_mini(0,0,128,128,&cam, byte(1 << players.local_human_id));	// Mini-carte
-			units.draw_mini((float)map->map_w,(float)map->map_h,map->mini_w,map->mini_h);
+            units->draw_mini((float)map->map_w,(float)map->map_h,map->mini_w,map->mini_h);
 			weapons.draw_mini((float)map->map_w,(float)map->map_h,map->mini_w,map->mini_h);
 
 			if (!freecam && mouse_b == 4) // Moving the cam around
@@ -2250,10 +2250,10 @@ namespace TA3D
 
 			if (internal_name && last_on >= 0)
 			{
-				units.unit[ last_on ].lock();
-                if (units.unit[ last_on ].type_id >= 0 && !unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname.isEmpty())
-                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, "internal name " + unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname);
-				units.unit[ last_on ].unlock();
+                units->unit[ last_on ].lock();
+                if (units->unit[ last_on ].type_id >= 0 && !unit_manager.unit_type[ units->unit[ last_on ].type_id ]->Unitname.isEmpty())
+                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, "internal name " + unit_manager.unit_type[ units->unit[ last_on ].type_id ]->Unitname);
+                units->unit[ last_on ].unlock();
 			}
 			else
 			{
@@ -2286,21 +2286,21 @@ namespace TA3D
 					"MISSION_UNLOAD","MISSION_STANDBY_MINE"
 				};
 				float y(32.0f);
-				for (size_t i = 0; i < units.max_unit; ++i)
+                for (size_t i = 0; i < units->max_unit; ++i)
 				{
-					units.unit[i].lock();
-					if ((units.unit[i].flags & 1) && last_on == (int)i)
+                    units->unit[i].lock();
+                    if ((units->unit[i].flags & 1) && last_on == (int)i)
 					{
-						if (!units.unit[i].mission.empty() && units.unit[i].mission->mission() <= 0x0E)
+                        if (!units->unit[i].mission.empty() && units->unit[i].mission->mission() <= 0x0E)
 						{
-                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: ") + unit_info[units.unit[i].mission->mission()]);
+                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: ") + unit_info[units->unit[i].mission->mission()]);
                             QString flags;
-							if (units.unit[i].mission->getFlags() & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
-							if (units.unit[i].mission->getFlags() & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
-							if (units.unit[i].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON)	flags += "TARGET_WEAPON; ";
-							if (units.unit[i].mission->getFlags() & MISSION_FLAG_COMMAND_FIRE)	flags += "COMMAND_FIRE; ";
-							if (units.unit[i].mission->getFlags() & MISSION_FLAG_MOVE)			flags += "MOVE; ";
-							if (units.unit[i].mission->getFlags() & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
+                            if (units->unit[i].mission->getFlags() & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
+                            if (units->unit[i].mission->getFlags() & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
+                            if (units->unit[i].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON)	flags += "TARGET_WEAPON; ";
+                            if (units->unit[i].mission->getFlags() & MISSION_FLAG_COMMAND_FIRE)	flags += "COMMAND_FIRE; ";
+                            if (units->unit[i].mission->getFlags() & MISSION_FLAG_MOVE)			flags += "MOVE; ";
+                            if (units->unit[i].mission->getFlags() & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
 							y += gfx->normal_font->height();
                             gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, "FLAGS: " + flags);
 						}
@@ -2308,7 +2308,7 @@ namespace TA3D
                             gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: NONE"));
 						y += gfx->normal_font->height();
 					}
-					units.unit[i].unlock();
+                    units->unit[i].unlock();
 				}
 			}
 
@@ -2430,7 +2430,7 @@ namespace TA3D
 		players.destroyThread();				// Shut down the Players thread
 		players.stop_threads();
 		weapons.destroyThread();				// Shut down the Weapon Engine
-		units.destroyThread();					// Shut down the Unit Engine
+        units->destroyThread();					// Shut down the Unit Engine
 		particle_engine.destroyThread();		// Shut down the Particle Engine
 
 		Engine::synchronizer.setNbThreadsToSync(4);

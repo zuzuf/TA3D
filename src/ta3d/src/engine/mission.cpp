@@ -5,9 +5,9 @@ namespace TA3D
 {
 	Unit *Mission::Target::getUnit() const
 	{
-		if (type != TargetUnit || idx < 0 || idx >= (int)units.max_unit)
+		if (type != TargetUnit || idx < 0 || idx >= (int)units->max_unit)
 			return NULL;
-		Unit *p = &(units.unit[idx]);
+		Unit *p = &(units->unit[idx]);
 		return (p->ID == UID) ? p : NULL;
 	}
 
@@ -22,7 +22,7 @@ namespace TA3D
 
 	bool Mission::Target::isUnit() const
 	{
-		return type == TargetUnit && idx >= 0 && idx < (int)units.max_unit && units.unit[idx].ID == UID;
+		return type == TargetUnit && idx >= 0 && idx < (int)units->max_unit && units->unit[idx].ID == UID;
 	}
 
 
@@ -40,7 +40,7 @@ namespace TA3D
 			case TargetStatic:
 				return true;
 			case TargetUnit:
-				return idx >= 0 && idx < (int)units.max_unit && units.unit[idx].ID == UID;
+				return idx >= 0 && idx < (int)units->max_unit && units->unit[idx].ID == UID;
 			case TargetWeapon:
 				return idx >= 0 && idx < (int)weapons.weapon.size();
 		}

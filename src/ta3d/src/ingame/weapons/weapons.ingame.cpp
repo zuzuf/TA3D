@@ -123,9 +123,9 @@ namespace TA3D
 		static MemoryPool<BVH<BVH_UnitTKit::T, BVH_UnitTKit> > pool(256000U);
 
 		std::vector<BVH_UnitTKit::T> allUnits;
-		for (uint32 i = 0U ; i < units.max_unit ; ++i) // Compte les stocks de ressources et les productions
+		for (uint32 i = 0U ; i < units->max_unit ; ++i) // Compte les stocks de ressources et les productions
 		{
-			const Unit* const pUnit = &(units.unit[i]);
+			const Unit* const pUnit = &(units->unit[i]);
 			if (!(pUnit->flags & 1))
 				continue;
 			const int type = pUnit->type_id;
@@ -260,7 +260,7 @@ namespace TA3D
 		{
 			++counter;
 			move(dt);					// Animate weapons
-            features.move_forest(dt);			// Animate the forest
+            features->move_forest(dt);			// Animate the forest
 
 			Engine::sync();
 		}

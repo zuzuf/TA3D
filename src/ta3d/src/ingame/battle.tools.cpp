@@ -108,7 +108,7 @@ namespace TA3D
 		if (statuswnd)
 			statuswnd->y = (int)((float)SCREEN_H - float(statuswnd->height + 32) * show_gamestatus);
 
-		uint32 game_time = units.current_tick / TICKS_PER_SEC;
+		uint32 game_time = units->current_tick / TICKS_PER_SEC;
 
 		QString tmp;
 
@@ -128,7 +128,7 @@ namespace TA3D
 
             // Speed
             tmp = TranslationTable::speed + " : " + QString::number((int)round(lp_CONFIG->timefactor)) + '('
-                + QString::number((int)round(units.apparent_timefactor)) + ')';
+                + QString::number((int)round(units->apparent_timefactor)) + ')';
             pArea.caption("gamestatus.speed_label", tmp);
         }
 

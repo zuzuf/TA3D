@@ -105,7 +105,7 @@ namespace TA3D
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for particle engine");
 		particle_engine.destroy();
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for ingame units");
-		units.destroy();
+        units = nullptr;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for units");
 		unit_manager.destroy();
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for weapons");
@@ -119,7 +119,7 @@ namespace TA3D
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for features");
 		feature_manager.destroy();
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for ingame features");
-		features.destroy();
+        features = nullptr;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for textures");
 		texture_manager.destroy();
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for players...");
@@ -258,29 +258,29 @@ namespace TA3D
 #define TA3D_LOADING_STATS
 #ifdef TA3D_LOADING_STATS
 		LOG_INFO(LOG_PREFIX_BATTLE << "statistics:");
-		const char *functionName[] = {  "initPreflight(g)",
-			"initTextures()",
-			"init3DModels()",
-			"initGraphicalFeatures()",
-			"initWeapons()",
-			"initUnits()",
-			"initIntermediateCleanup()",
-			"initEngine()",
-			"initPlayers()",
-			"initRestrictions()",
-			"initGUI()",
-			"initTheMap()",
-			"initTheSky()",
-			"initTheSun()",
-			"initAllTextures()",
-			"initTheCamera()",
-			"initTheWind()",
-			"initTheFog()",
-			"initParticules()",
-			"initTheWater()",
-			"initPostFlight()",
-			"waitUntilReady()"};
-		for (int i = 0 ; i < 22 ; ++i)
+        const char *functionName[] = {  "initPreflight(g)",
+                                        "initTextures()",
+                                        "init3DModels()",
+                                        "initGraphicalFeatures()",
+                                        "initWeapons()",
+                                        "initUnits()",
+                                        "initIntermediateCleanup()",
+                                        "initEngine()",
+                                        "initPlayers()",
+                                        "initRestrictions()",
+                                        "initGUI()",
+                                        "initTheMap()",
+                                        "initTheSky()",
+                                        "initTheSun()",
+                                        "initAllTextures()",
+                                        "initTheCamera()",
+                                        "initTheWind()",
+                                        "initTheFog()",
+                                        "initParticules()",
+                                        "initTheWater()",
+                                        "initPostFlight()",
+                                        "waitUntilReady()"};
+        for (int i = 0 ; i < 22 ; ++i)
 			LOG_INFO(LOG_PREFIX_BATTLE << functionName[i] << " done in " << timer[i+1] - timer[i] << " msec.");
 #endif
 
@@ -343,7 +343,7 @@ namespace TA3D
 
 	bool Battle::initGraphicalFeatures()
 	{
-		LOG_INFO(LOG_PREFIX_BATTLE << "Loading graphical features...");
+		LOG_INFO(LOG_PREFIX_BATTLE << "Loading graphical features->..");
 		(*loading)(200.0f / 7.0f, I18N::Translate("Loading graphical features"));
 		load_features(loading);
 		feature_manager.clean();
@@ -412,7 +412,8 @@ namespace TA3D
 				unit_manager.load_panel_texture(intgaf);
 		}
 		TA3D::MAX_UNIT_PER_PLAYER = pGameData->max_unit_per_player;
-		units.init(true);
+        units = new INGAME_UNITS;
+        units->init(true);
 		return true;
 	}
 
@@ -516,7 +517,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_BATTLE << "Initialising the Fog Of War...");
 		map->clear_FOW(pGameData->fog_of_war);
 
-        units.map = map; // Setup some useful information
+        units->map = map; // Setup some useful information
 
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, ".ota");
 

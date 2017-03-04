@@ -54,7 +54,7 @@ namespace TA3D
 	int MAX_UNIT_PER_PLAYER = 2000; 		// 2000 Units per player by default
 
 
-	INGAME_UNITS units;
+    INGAME_UNITS::Ptr units;
 
 
 
@@ -536,16 +536,16 @@ namespace TA3D
 
 	void *create_unit( int type_id, int owner, Vector3D pos, bool sync, bool script )
 	{
-		const int id = units.create(type_id,owner);
+        const int id = units->create(type_id,owner);
 		if (id >= 0)
 		{
 			// In order to avoid race conditions we have to update it now !
 			players.annihilated[owner] = false;
-			units.unit[id].lock();
+            units->unit[id].lock();
 
 			if (network_manager.isConnected())
 			{
-				units.unit[id].local = g_ta3d_network->isLocal( owner );
+                units->unit[id].local = g_ta3d_network->isLocal( owner );
 				if (sync) // Send event packet if needed
 				{
 					struct event event;
@@ -559,16 +559,16 @@ namespace TA3D
 				}
 			}
 
-			units.unit[id].Pos = pos;
-			units.unit[id].build_percent_left = 100.0f;
-			units.unit[id].cur_px = ((int)(units.unit[id].Pos.x) + the_map->map_w_d + 4) >> 3;
-			units.unit[id].cur_py = ((int)(units.unit[id].Pos.z) + the_map->map_h_d + 4) >> 3;
-			units.unit[id].birthTime = float(units.current_tick) / float(TICKS_PER_SEC);
-			units.unit[id].unlock();
+            units->unit[id].Pos = pos;
+            units->unit[id].build_percent_left = 100.0f;
+            units->unit[id].cur_px = ((int)(units->unit[id].Pos.x) + the_map->map_w_d + 4) >> 3;
+            units->unit[id].cur_py = ((int)(units->unit[id].Pos.z) + the_map->map_h_d + 4) >> 3;
+            units->unit[id].birthTime = float(units->current_tick) / float(TICKS_PER_SEC);
+            units->unit[id].unlock();
 
-			units.unit[id].draw_on_map();
+            units->unit[id].draw_on_map();
 
-			return &(units.unit[id]);
+            return &(units->unit[id]);
 		}
 		return NULL;
 	}
@@ -1066,7 +1066,7 @@ namespace TA3D
 							{
 								if (map->map_data(rx, ry).stuff >= 0)
 								{
-									const Feature* const feature = feature_manager.getFeaturePointer(features.feature[map->map_data(rx, ry).stuff].type);
+                                    const Feature* const feature = feature_manager.getFeaturePointer(features->feature[map->map_data(rx, ry).stuff].type);
 									metal_base = feature->metal * unit_manager.unit_type[unit[i].type_id]->FootprintZ * unit_manager.unit_type[unit[i].type_id]->FootprintX;
 									ry = end_y;
 									break;
@@ -1350,7 +1350,7 @@ namespace TA3D
 			const size_t i = idx_list[e];
 			pMutex.unlock();
 
-			units.unit[ i ].lock();
+            units->unit[ i ].lock();
 
 			if (unit[i].flags & 1)
 			{
@@ -1358,7 +1358,7 @@ namespace TA3D
 				const int py = unit[i].cur_py;
 				if (px < 0 || py < 0 || px >= b_w || py >= b_h)
 				{
-					units.unit[ i ].unlock();
+                    units->unit[ i ].unlock();
 					pMutex.lock();
 					continue;
 				}
@@ -1367,7 +1367,7 @@ namespace TA3D
 					|| (unit[i].cloaked && unit[i].owner_id != players.local_human_id))
 					&& !unit[i].is_on_radar(player_mask))
 				{
-					units.unit[ i ].unlock();
+                    units->unit[ i ].unlock();
 					pMutex.lock();
 					continue;	// Unité non visible / Unit is not visible
 				}
@@ -1376,7 +1376,7 @@ namespace TA3D
 				mini_pos[ (nb << 1) + 1 ] = unit[i].Pos.z;
 				mini_col[ nb++ ] = player_col_32_h[ unit[i].owner_id ];
 			}
-			units.unit[ i ].unlock();
+            units->unit[ i ].unlock();
 			pMutex.lock();
 		}
 		pMutex.unlock();
@@ -1426,10 +1426,10 @@ namespace TA3D
 			uint16 i = idx_list[e];
 			pMutex.unlock();
 
-			units.unit[ i ].lock();
-			if (units.unit[ i ].cur_px < 0 || units.unit[ i ].cur_py < 0 || units.unit[ i ].cur_px >= b_w || units.unit[ i ].cur_py >= b_h)
+            units->unit[ i ].lock();
+            if (units->unit[ i ].cur_px < 0 || units->unit[ i ].cur_py < 0 || units->unit[ i ].cur_px >= b_w || units->unit[ i ].cur_py >= b_h)
 			{
-				units.unit[ i ].unlock();
+                units->unit[ i ].unlock();
 				pMutex.lock();
 				continue;
 			}
@@ -1471,7 +1471,7 @@ namespace TA3D
 				glColor3f(player_color[3*player_color_map[cur_id]],player_color[3*player_color_map[cur_id]+1],player_color[3*player_color_map[cur_id]+2]);
 				glVertex2f(pos_x,pos_y);
 			}
-			units.unit[ i ].unlock();
+            units->unit[ i ].unlock();
 			pMutex.lock();
 		}
 		pMutex.unlock();

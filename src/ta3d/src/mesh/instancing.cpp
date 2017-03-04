@@ -72,14 +72,6 @@ namespace TA3D
 
         glEnable(GL_LIGHTING);
         glDisable(GL_BLEND);
-		if (!model->dlist)	// Build the display list if necessary
-        {
-            model->check_textures();
-            model->dlist = glGenLists (1);
-            glNewList (model->dlist, GL_COMPILE);
-            model->mesh->draw_nodl();
-            glEndList();
-        }
 
         for (const Instance &i : queue)
         {
@@ -93,7 +85,7 @@ namespace TA3D
 			}
             glRotatef( i.angle, 0.0f, 1.0f, 0.0f );
             glColor4ubv( (GLubyte*) &i.col );
-			glCallList( model->dlist );
+            model->mesh->draw_nodl();
             if (lp_CONFIG->underwater_bright && INSTANCING::water && i.pos.y < INSTANCING::sealvl)
 			{
 				glEnable(GL_CLIP_PLANE2);

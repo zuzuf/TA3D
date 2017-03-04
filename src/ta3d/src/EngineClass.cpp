@@ -479,7 +479,7 @@ namespace TA3D
 					const int feature_id = map_data(x, y).stuff;
 					if (feature_id >= 0)
 					{
-						const Feature* const pFeature = feature_manager.getFeaturePointer(features.feature[feature_id].type);
+                        const Feature* const pFeature = feature_manager.getFeaturePointer(features->feature[feature_id].type);
                         if (pFeature && pFeature->geothermal)
 							return true;
 					}
@@ -1421,7 +1421,7 @@ namespace TA3D
 		{
 			for (int y = oy1; y <= oy2; ++y)
 				memset(&(view(ox1, y)), 0, ox2 - ox1 + 1);
-			features.list.clear();
+            features->list.clear();
 			ox1 = x1;	ox2 = x2;
 			oy1 = y1;	oy2 = y2;
 		}
@@ -1431,8 +1431,8 @@ namespace TA3D
 			{
 				x1 = ox1;	x2 = ox2;
 				y1 = oy1;	y2 = oy2;
-				for (std::vector<int>::iterator i = features.list.begin() ; i != features.list.end() ; ++i)
-					features.feature[*i].draw = true;
+                for (const int i : features->list)
+                    features->feature[i].draw = true;
 			}
 		}
 		const int lavaprob = (int)(1000 * dt);
@@ -1533,50 +1533,27 @@ namespace TA3D
 						else
 							view(x, y) = 1;
 
-						if (map_data(X, Y).stuff >= 0 && map_data(X, Y).stuff < features.max_features) // Flag are visible objects in that bloc
-						{
-							if (features.feature[map_data(X, Y).stuff].type < 0)
-								map_data(X, Y).stuff = -1;
-							else
-							{
-								features.feature[map_data(X, Y).stuff].draw = true;
-								features.feature[map_data(X, Y).stuff].grey = (view(x, y) & 2) == 2;
-								features.list.push_back(map_data(X, Y).stuff);
-							}
-						}
-						if (map_data(X | 1, Y).stuff >= 0 && map_data(X | 1, Y).stuff < features.max_features)
-						{
-							if (features.feature[map_data(X | 1, Y).stuff].type < 0)
-								map_data(X | 1, Y).stuff = -1;
-							else
-							{
-								features.feature[map_data(X | 1, Y).stuff].draw = true;
-								features.feature[map_data(X | 1, Y).stuff].grey = (view(x, y) & 2) == 2;
-								features.list.push_back(map_data(X | 1, Y).stuff);
-							}
-						}
-						if (map_data(X, Y | 1).stuff >= 0 && map_data(X, Y | 1).stuff < features.max_features)
-						{
-							if (features.feature[map_data(X, Y | 1).stuff].type < 0)
-								map_data(X, Y | 1).stuff = -1;
-							else
-							{
-								features.feature[map_data(X, Y | 1).stuff].draw = true;
-								features.feature[map_data(X, Y | 1).stuff].grey = (view(x, y) & 2) == 2;
-								features.list.push_back(map_data(X, Y | 1).stuff);
-							}
-						}
-						if (map_data(X | 1, Y | 1).stuff >= 0 && map_data(X | 1, Y | 1).stuff < features.max_features)
-						{
-							if (features.feature[map_data(X | 1, Y | 1).stuff].type < 0)
-								map_data(X | 1, Y | 1).stuff = -1;
-							else
-							{
-								features.feature[map_data(X | 1, Y | 1).stuff].draw = true;
-								features.feature[map_data(X | 1, Y | 1).stuff].grey = (view(x, y) & 2) == 2;
-								features.list.push_back(map_data(X | 1, Y | 1).stuff);
-							}
-						}
+                        // Flag are visible objects in that bloc
+#define FLAG_VISIBLE_OBJECT(_X, _Y)\
+                        {\
+                            auto &stuff_id = map_data(_X, _Y).stuff;\
+                            if (stuff_id >= 0 && stuff_id < features->max_features)\
+                            {\
+                                if (features->feature[stuff_id].type < 0)\
+                                    stuff_id = -1;\
+                                else\
+                                {\
+                                    features->feature[stuff_id].draw = true;\
+                                    features->feature[stuff_id].grey = (view(x, y) & 2) == 2;\
+                                    features->list.push_back(stuff_id);\
+                                }\
+                            }\
+                        }
+                        FLAG_VISIBLE_OBJECT(X,Y)
+                        FLAG_VISIBLE_OBJECT(X | 1,Y)
+                        FLAG_VISIBLE_OBJECT(X,Y | 1)
+                        FLAG_VISIBLE_OBJECT(X | 1, Y | 1)
+#undef FLAG_VISIBLE_OBJECT
 					}
 				}
 				else
@@ -2044,11 +2021,11 @@ namespace TA3D
 					{
 						if (map_data(rx, ry).stuff >=0)
 						{
-                            features.lock();
+                            features->lock();
 							const int ID = map_data(rx, ry).stuff;
 							if (ID >= 0)            // We have to recheck this in case it has changed before locking
                             {
-								const int type = features.feature[ ID ].type;
+                                const int type = features->feature[ ID ].type;
 								const Feature* const feature = feature_manager.getFeaturePointer(type);
                                 if (feature && !feature->reclaimable && !feature->blocking)
                                 {
@@ -2057,7 +2034,7 @@ namespace TA3D
 										*stuff_id = ID;
                                 }
                             }
-                            features.unlock();
+                            features->unlock();
                         }
 					}
 				}

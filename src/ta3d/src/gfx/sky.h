@@ -35,7 +35,6 @@ namespace TA3D
 		int			s;
 		float		w;
         GfxTexture::Ptr tex[6];			// Our cube textures
-		GLuint		dlist;
         SkyData::Ptr skyInfo;
 
 	public:
