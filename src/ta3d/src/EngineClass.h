@@ -134,7 +134,7 @@ namespace TA3D
 	public:
 		Vector3D	*point;		// Points du bloc / Array of points
 		float		*texcoord;	// Coordonnées de texture / Texture coordinates
-		GLuint		tex;		// Indice de texture OpenGl / OpenGL texture handle
+        GfxTexture::Ptr	tex;		// Indice de texture OpenGl / OpenGL texture handle
 		byte		nbindex;	// Nombre d'indices	/ Number of indexes
 		byte		nbpoint;	// Nombre de points / Number of points
 		bool		lava;		// Indique si le bloc est de type lave / Is that a lava bloc ?
@@ -165,9 +165,10 @@ namespace TA3D
 
 	class MAP : public ObjectSync // Données concernant la carte
 	{
+    public:
+        typedef zuzuf::smartptr<MAP>    Ptr;
 	public:
-		short		ntex;			// Indique si la texture est chargée et doit être détruite
-		GLuint		*tex;			// Texture de surface
+        std::vector<GfxTexture::Ptr>	tex;			// Texture de surface
 		int			nbbloc;			// Nombre de blocs
 		BLOC		*bloc;			// Blocs composant le terrain
 		Grid<uint16>	bmap;		// Tableau d'indice des blocs
@@ -196,7 +197,7 @@ namespace TA3D
 		float		map2blocdb_w;
 		float		map2blocdb_h;
 		QImage mini;			// Minimap
-		GLuint		glmini;			// Texture OpenGl pour la minimap
+        GfxTexture::Ptr		glmini;			// Minimap texture
 		int			mini_w;
 		int			mini_h;
 		float		sealvl;			// Niveau de la mer
@@ -207,8 +208,8 @@ namespace TA3D
 		int			ox1,ox2;		// Coordonnées de la dernière fenêtre de terrain dessinée
 		int			oy1,oy2;
 		GLushort	buf_i[6500];	// Pour accélérer l'affichage
-		GLuint		lava_map;		// texture des zones de lave
-		GLuint		details_tex;	// details texture to show more details when zooming on the map
+        GfxTexture::Ptr	lava_map;		// texture des zones de lave
+        GfxTexture::Ptr	details_tex;	// details texture to show more details when zooming on the map
 		float		color_factor;	// color factor used when details_tex is set with a texture that darken the map
 		Shader		detail_shader;	// pixel shader to add the detail texture correctly
 		Shader		shadow2_shader;	// pixel shader to use the shadow map in light equation(also add the detail texture correctly)
@@ -234,7 +235,7 @@ namespace TA3D
 		float		*low_tcoord;
 		uint8		*low_col;
 		GLuint		*low_index;
-		GLuint		low_tex;
+        GfxTexture::Ptr	low_tex;
 
 		uint8		fog_of_war;
 

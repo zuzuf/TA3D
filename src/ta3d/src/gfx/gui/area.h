@@ -253,7 +253,7 @@ namespace Gui
 		//!
 		bool scrolling;
 		//! Of course we need a background, not a single color :-)
-		GLuint background;
+        GfxTexture::Ptr background;
 		//!
 		bool key_pressed;
 
@@ -310,7 +310,7 @@ namespace Gui
 		Skin* skin;
 
 		//! hashtable used to speed up loading of *.gui files and save memory
-		TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense gui_hashtable;
+        TA3D::UTILS::HashMap< std::vector< TA3D::GfxTexture::Ptr >* >::Dense gui_hashtable;
 		//! hashtable used to speed up operations on WND objects
 		TA3D::UTILS::HashMap<int>::Dense  wnd_hashtable;
 

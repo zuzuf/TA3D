@@ -21,6 +21,7 @@
 # include <misc/string.h>
 # include <QOpenGLFunctions>
 # include <misc/tdf.h>
+# include <gfx/texture.h>
 
 
 namespace TA3D
@@ -75,7 +76,7 @@ namespace Gui
 
 	public:
 		//!
-		GLuint  tex;
+        GfxTexture::Ptr tex;
 
 		//!
 		float x1;

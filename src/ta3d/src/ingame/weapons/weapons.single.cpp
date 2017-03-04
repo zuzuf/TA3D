@@ -675,7 +675,7 @@ namespace TA3D
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-					if (weapon_def->laserTex1 == 0)
+                    if (!weapon_def->laserTex1)
 					{
 						glDisable(GL_TEXTURE_2D);
 						glBegin(GL_QUADS);
@@ -693,7 +693,7 @@ namespace TA3D
 					{
 						byte a = byte(weapon_def->laserTex2 ? int(0xFF * coef) : 0xFF);
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, weapon_def->laserTex1);
+                        weapon_def->laserTex1->bind();
 						glColor4ub(r,g,b,a);
 						glBegin(GL_QUADS);
 							glTexCoord2f(0.0f, 0.0f);	glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);
@@ -706,7 +706,7 @@ namespace TA3D
 						{
 							glDepthFunc(GL_LEQUAL);
 							a = byte(0xFF - a);
-							glBindTexture(GL_TEXTURE_2D, weapon_def->laserTex2);
+                            weapon_def->laserTex2->bind();
 							glColor4ub(r,g,b,a);
 							glBegin(GL_QUADS);
 								glTexCoord2f(0.0f, 0.0f);	glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);

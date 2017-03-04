@@ -75,7 +75,7 @@ namespace Menus
 		//! The Ta3D Engine
 		Engine& pEngine;
 		//! The texture of the background
-		GLuint pBackgroundTexture;
+        GfxTexture::Ptr pBackgroundTexture;
 		//
 		float pLeft;
 		float pTop;

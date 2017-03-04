@@ -39,7 +39,7 @@ namespace Menus
 
 
 	Splash::Splash(Engine& engine)
-		:Abstract(), pEngine(engine), pBackgroundTexture(0)
+        :Abstract(), pEngine(engine)
 	{}
 
 	Splash::~Splash()
@@ -48,7 +48,7 @@ namespace Menus
 
 	bool Splash::doInitialize()
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
 
 		// Load the background
@@ -60,7 +60,7 @@ namespace Menus
 
 	void Splash::doFinalize()
 	{
-		ResetTexture(pBackgroundTexture);
+        pBackgroundTexture = nullptr;
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Done.");
 	}
 
@@ -81,11 +81,11 @@ namespace Menus
 
 	void Splash::loadBackgroundTexture()
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 
         // The background
         const QString &filename = "gfx/splash/loading.jpg";
-		ResetTexture(pBackgroundTexture, gfx->load_texture(filename));
+        pBackgroundTexture = gfx->load_texture(filename);
 	}
 
 

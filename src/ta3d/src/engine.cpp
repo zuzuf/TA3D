@@ -175,7 +175,6 @@ namespace TA3D
 		if (gfx->atiWorkaround())
 			LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
 		LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << (g_useTextureCompression ? "Yes" : "No"));
-		LOG_INFO(LOG_PREFIX_OPENGL << "Stencil Two Side: " << (g_useStencilTwoSide ? "Yes" : "No"));
 		LOG_INFO(LOG_PREFIX_OPENGL << "FBO: " << (g_useFBO ? "Yes" : "No"));
 		LOG_INFO(LOG_PREFIX_OPENGL << "Shaders: " << (g_useProgram ? "Yes" : "No"));
 		LOG_INFO(LOG_PREFIX_OPENGL << "Multi texturing: " << (MultiTexturing ? "Yes" : "No"));

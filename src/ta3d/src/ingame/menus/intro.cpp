@@ -51,7 +51,7 @@ namespace Menus
 
 
 	Intro::Intro()
-		:Abstract(), pContentSize(0), pBackgroundTexture(0),
+        :Abstract(), pContentSize(0),
 		pCurrentFontHeight(1.0f)
 	{}
 
@@ -61,7 +61,7 @@ namespace Menus
 
 	bool Intro::doInitialize()
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
 		if (Gui::gui_font)
 			pCurrentFontHeight = Gui::gui_font->height();
@@ -80,7 +80,7 @@ namespace Menus
 
 	void Intro::doFinalize()
 	{
-		ResetTexture(pBackgroundTexture);
+        pBackgroundTexture = nullptr;
 		LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Done.");
 		pScrollTimer = msectimer();
 	}
@@ -138,7 +138,7 @@ namespace Menus
 
 	void Intro::loadBackgroundTexture()
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 
         if (!lp_CONFIG->skin_name.isEmpty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
 		{
@@ -146,12 +146,12 @@ namespace Menus
 			skin.loadTDFFromFile(lp_CONFIG->skin_name);
 
             if (!skin.prefix().isEmpty())
-                ResetTexture(pBackgroundTexture, gfx->load_texture("gfx/" + skin.prefix() + "intro.jpg"));
+                pBackgroundTexture = gfx->load_texture("gfx/" + skin.prefix() + "intro.jpg");
 			else
-                ResetTexture(pBackgroundTexture, gfx->load_texture("gfx/intro.jpg"));
+                pBackgroundTexture = gfx->load_texture("gfx/intro.jpg");
 		}
 		else
-            ResetTexture(pBackgroundTexture, gfx->load_texture("gfx/intro.jpg"));
+            pBackgroundTexture = gfx->load_texture("gfx/intro.jpg");
 	}
 
 

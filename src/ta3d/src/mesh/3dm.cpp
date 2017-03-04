@@ -56,7 +56,7 @@ namespace TA3D
 		frag_shader_src.clear();
 		vert_shader_src.clear();
 		s_shader.destroy();
-		glColorTexture = 0;
+        glColorTexture = nullptr;
 		root = NULL;
 	}
 
@@ -65,7 +65,7 @@ namespace TA3D
 	void Mesh3DM::destroy3DM()
 	{
 		destroy();
-		gfx->destroy_texture(glColorTexture);
+        glColorTexture = nullptr;
 		Color = 0;
 		RColor = 0;
 		Flag = 0;
@@ -117,7 +117,7 @@ namespace TA3D
 				glRotatef(R.z, 0.0f, 0.0f, 1.0f);
 			}
 
-			const std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+            const std::vector<GfxTexture::Ptr> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
 
 			hide |= explodes ^ exploding_parts;
 			if (chg_col)
@@ -279,7 +279,7 @@ namespace TA3D
 						}
 						glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 						glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
+                        gfx->default_texture->bind();
 					}
 					glVertexPointer(3, GL_FLOAT, 0, points);
 					glNormalPointer(GL_FLOAT, 0, N);
@@ -376,7 +376,7 @@ namespace TA3D
 			glEnableClientState(GL_NORMAL_ARRAY);
 			alset = false;
 
-			std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+            std::vector<GfxTexture::Ptr> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
 
 			if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
 			{
@@ -833,7 +833,7 @@ namespace TA3D
 				qmesh.push_back((Mesh3DM*)(cur->child));
 			if (cur->next)
 				qmesh.push_back((Mesh3DM*)(cur->next));
-			const std::vector<GLuint> *pTex = (cur->Flag & SURFACE_ROOT_TEXTURE) ? &(cur->root->gltex) : &(cur->gltex);
+            const std::vector<GfxTexture::Ptr> *pTex = (cur->Flag & SURFACE_ROOT_TEXTURE) ? &(cur->root->gltex) : &(cur->gltex);
 			if (pTex->size() > 1)
 			{
 				model->useDL = false;
@@ -846,7 +846,7 @@ namespace TA3D
 
 	bool Mesh3DM::has_animation_data() const
 	{
-		const std::vector<GLuint> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
+        const std::vector<GfxTexture::Ptr> *pTex = (Flag & SURFACE_ROOT_TEXTURE) ? &(root->gltex) : &gltex;
 
 		if (animation_data || (Flag & SURFACE_GLSL) || ((Flag & SURFACE_TEXTURED) && pTex->size() > 1))
 			return true;

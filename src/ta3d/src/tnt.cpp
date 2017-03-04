@@ -244,8 +244,7 @@ namespace TA3D
 		map->view.clear(0);
 		map->nbbloc = header.tiles;		// Nombre de blocs nécessaires
 		map->bloc = new BLOC[map->nbbloc];	// Alloue la mémoire pour les blocs
-		map->ntex = short(n_bmp);
-		map->tex = new GLuint[n_bmp];	// Tableau d'indices de texture OpenGl
+        map->tex.resize(n_bmp);	// Tableau d'indices de texture OpenGl
 
 		for (i = 0 ; i < map->nbbloc ; i++) // Crée les blocs
 		{
@@ -683,7 +682,7 @@ namespace TA3D
 
 
 
-    GLuint load_tnt_minimap(QIODevice *file, int& sw, int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+    GfxTexture::Ptr load_tnt_minimap(QIODevice *file, int& sw, int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 	{
 		TNTHEADER header;
         READ(header);
@@ -699,11 +698,11 @@ namespace TA3D
         return gfx->make_texture(bitmap, FILTER_LINEAR, true);
 	}
 
-    GLuint load_tnt_minimap_fast(const QString& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    GfxTexture::Ptr load_tnt_minimap_fast(const QString& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 	{
         QImage bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
-        if (bitmap.isNull())    return 0;
+        if (bitmap.isNull())    return GfxTexture::Ptr();
 
 		// Convert to a GL texture
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)

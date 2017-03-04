@@ -85,8 +85,8 @@ namespace TA3D
 	}
 
 
-    void Gaf::ToTexturesList(std::vector<GLuint>& out, const QString& filename, const QString& imgname,
-							 int* w, int* h, const bool truecolor, const int filter)
+    void Gaf::ToTexturesList(std::vector<GfxTexture::Ptr> &out, const QString& filename, const QString& imgname,
+                             int* w, int* h, const bool truecolor, const int filter)
 	{
 		out.clear();
 
@@ -110,7 +110,7 @@ namespace TA3D
 			out.resize(nb_img);
 
 			int indx(0);
-			for (std::vector<GLuint>::iterator i = out.begin(); i != out.end(); ++i, ++indx)
+            for (std::vector<GfxTexture::Ptr>::iterator i = out.begin(); i != out.end(); ++i, ++indx)
 			{
 				uint32 fw, fh;
                 const QString &cache_filename = filename + "-" + imgname + QString("-%1.bin").arg(indx);
@@ -172,7 +172,7 @@ namespace TA3D
 
 
 
-    GLuint Gaf::ToTexture(QString filename, const QString& imgname, int* w, int* h, const bool truecolor, const int filter)
+    GfxTexture::Ptr Gaf::ToTexture(QString filename, const QString& imgname, int* w, int* h, const bool truecolor, const int filter)
 	{
 		// Remove GAF extension
         if (filename.endsWith(".gaf"))
@@ -181,7 +181,7 @@ namespace TA3D
         const QString &cache_filename = filename + "-" + imgname + ".bin";
 		uint32 fw;
 		uint32 fh;
-		GLuint first_try = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
+        GfxTexture::Ptr first_try = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
 
 		if (first_try)
 		{
@@ -225,7 +225,7 @@ namespace TA3D
 					else
 						gfx->set_texture_format(with_alpha ? gfx->defaultTextureFormat_RGBA() : gfx->defaultTextureFormat_RGB());
 
-					GLuint gl_img = gfx->make_texture(img,filter);
+                    GfxTexture::Ptr gl_img = gfx->make_texture(img,filter);
                     gfx->save_texture_to_cache(cache_filename, gl_img, img.width(), img.height(), with_alpha);
 
 					delete file;
@@ -233,9 +233,9 @@ namespace TA3D
 				}
 			}
 			delete file;
-			return 0;
+            return GfxTexture::Ptr();
 		}
-		return 0;
+        return GfxTexture::Ptr();
 	}
 
 
@@ -244,10 +244,10 @@ namespace TA3D
 	{
 		LOG_ASSERT(file != NULL);
 		if (entry_idx < 0)
-			return nullptr;
+            return QString();
 		Gaf::Header header(file);
 		if (entry_idx >= header.Entries)
-			return nullptr;
+            return QString();
 
 		sint32 *pointers = new sint32[header.Entries];
 
@@ -588,7 +588,7 @@ namespace TA3D
 		nb_bmp = Gaf::RawDataImageCount(file,entry_idx);
 
         bmp.resize(nb_bmp, QImage());
-		glbmp.resize(nb_bmp, 0);
+        glbmp.resize(nb_bmp, GfxTexture::Ptr());
 		ofs_x.resize(nb_bmp, 0);
 		ofs_y.resize(nb_bmp, 0);
 		w.resize(nb_bmp, 0);
@@ -630,7 +630,7 @@ namespace TA3D
 		nb_bmp = (sint32)files.size();
 
         bmp.resize(nb_bmp, QImage());
-		glbmp.resize(nb_bmp, 0);
+        glbmp.resize(nb_bmp, GfxTexture::Ptr());
 		ofs_x.resize(nb_bmp, 0);
 		ofs_y.resize(nb_bmp, 0);
 		w.resize(nb_bmp, 0);
@@ -682,8 +682,6 @@ namespace TA3D
 	{
 		filename.clear();
 		name.clear();
-		for (std::vector<GLuint>::iterator i = glbmp.begin() ; i != glbmp.end() ; ++i)
-			gfx->destroy_texture(*i);
 		w.clear();
 		h.clear();
 		ofs_x.clear();
@@ -713,7 +711,7 @@ namespace TA3D
             if (!filename.isEmpty())
 				glbmp[i] = gfx->load_texture_from_cache(cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
 			else
-				glbmp[i] = 0;
+                glbmp[i] = nullptr;
 
 			if (!glbmp[i])
 			{

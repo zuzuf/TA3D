@@ -38,9 +38,9 @@ namespace TA3D
 		WND::WND()
 			:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
 			title_h(0), Title(), Name(), obj_hashtable(),
-			background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
+            repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
 			draw_borders(true), hidden(false), was_hidden(false), tab_was_pressed(false),
-			background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
+            background_wnd(false), get_focus(false), size_factor(1.),
 			ingame_window(false)
 		{
 			color = makeacol(0x7F, 0x7F, 0x7F, 0xFF); // Default : grey
@@ -56,9 +56,9 @@ namespace TA3D
 		WND::WND(const QString& filename)
 			:x(SCREEN_W >> 2), y(SCREEN_H >> 2), width(SCREEN_W >> 1), height(SCREEN_H >> 1),
 			title_h(0), Title(), Name(), obj_hashtable(),
-			background(0), repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
+            repeat_bkg(false), bkg_w(1), bkg_h(1), Lock(false), show_title(true),
 			draw_borders(true), hidden(false), was_hidden(false), tab_was_pressed(false),
-			background_wnd(false), get_focus(false), delete_gltex(false), size_factor(1.),
+            background_wnd(false), get_focus(false), size_factor(1.),
 			ingame_window(false)
 
 		{
@@ -368,7 +368,7 @@ namespace TA3D
 					{
 						gfx->set_color(0xFFFFFFFF);
 						gfx->set_alpha_blending();
-						object->gltex_states[cur_img].draw(x + object->x1, y + object->y1);
+                        object->gltex_states[cur_img]->draw(x + object->x1, y + object->y1);
 						gfx->unset_alpha_blending();
 					}
 					disabled = false;
@@ -553,12 +553,7 @@ namespace TA3D
 			pMutex.lock();
 			Title.clear();
 			Name.clear();
-			if (delete_gltex)
-			{
-				gfx->destroy_texture(background);
-				delete_gltex = false;
-			}
-			background = 0;
+            background = nullptr;
 			background_clamp = false;
 			pObjects.clear();
 			pMutex.unlock();
@@ -571,8 +566,8 @@ namespace TA3D
 
 			if (object->Type == OBJ_TA_BUTTON && object->current_state < object->gltex_states.size())
 			{
-				object->x2 = object->x1 + float(object->gltex_states[ object->current_state ].width  - 1);
-				object->y2 = object->y1 + float(object->gltex_states[ object->current_state ].height - 1);
+                object->x2 = object->x1 + float(object->gltex_states[ object->current_state ]->width() - 1);
+                object->y2 = object->y1 + float(object->gltex_states[ object->current_state ]->height() - 1);
 			}
 
 			// Vérifie si la souris est sur l'objet
@@ -1496,7 +1491,7 @@ namespace TA3D
 
 
 
-		void WND::load_gui(const QString& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense &gui_hashtable)
+        void WND::load_gui(const QString& filename, TA3D::UTILS::HashMap< std::vector< TA3D::GfxTexture::Ptr >* >::Dense &gui_hashtable)
 		{
 			ingame_window = true;
 
@@ -1520,7 +1515,6 @@ namespace TA3D
 			Lock = true;
 			draw_borders = false;
 			show_title = false;
-			delete_gltex = false;
 
 			QString panel = wndFile.pullAsString("gadget0.panel"); // Look for the panel texture
 			int w;
@@ -1529,18 +1523,18 @@ namespace TA3D
 			if (!background)
 			{
                 background = Gaf::ToTexture("anims/" + Name, panel, &w, &h, true);
-				if (background == 0)		// Try GAF-like directory structure
+                if (!background)		// Try GAF-like directory structure
                     background = Gaf::ToTexture("anims/" + Name + ".gaf", panel, &w, &h, true);
-				if (background == 0)		// Try GAF-like directory structure
+                if (!background)		// Try GAF-like directory structure
                     background = Gaf::ToTexture("anims/commongui", panel, &w, &h, true);
-				if (background == 0)
+                if (!background)
                     background = Gaf::ToTexture("anims/commongui.gaf", panel, &w, &h, true);
-				if (background == 0)
+                if (!background)
 				{
 					QStringList file_list;
                     VFS::Instance()->getDirlist("anims/*", file_list);				// GAF-like directories
                     VFS::Instance()->getFilelist("anims/*.gaf", file_list);		// Normal GAF files
-					for (QStringList::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
+                    for (QStringList::const_iterator i = file_list.begin(); i != file_list.end() && !background ; ++i)
 					{
 						LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
 						background = Gaf::ToTexture(*i, panel, &w, &h, true, FILTER_LINEAR);
@@ -1553,7 +1547,6 @@ namespace TA3D
 			background_width = w;
 			background_height = h;
 
-			delete_gltex = background;
 			background_wnd = background;
 			color = background ? makeacol(0xFF, 0xFF, 0xFF, 0xFF) : 0x0;
 			unsigned int NbObj = wndFile.pullAsInt("gadget0.totalgadgets");
@@ -1597,9 +1590,9 @@ namespace TA3D
 					int t_w[100];
 					int t_h[100];
                     const QString key(object->Name.toLower());
-					std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable[key];
+                    std::vector<TA3D::GfxTexture::Ptr>* result = gui_hashtable[key];
 
-					std::vector<GLuint> gaf_imgs;
+                    std::vector<GfxTexture::Ptr> gaf_imgs;
 					bool found_elsewhere = false;
 
 					if (!result)
@@ -1622,7 +1615,7 @@ namespace TA3D
 							QStringList file_list;
                             VFS::Instance()->getDirlist("anims/*", file_list);				// GAF-like directories
                             VFS::Instance()->getFilelist("anims/*.gaf", file_list);		// Normal GAF files
-							for (QStringList::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
+                            for (QStringList::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
 							{
 								LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
 								Gaf::ToTexturesList(gaf_imgs, *e, object->Name, t_w, t_h, true, FILTER_LINEAR);
@@ -1633,28 +1626,13 @@ namespace TA3D
 					}
 					else
 					{
-						gaf_imgs.resize(result->size());
-                        for (int e = 0 ; e < result->size() ; ++e)
-						{
-							gaf_imgs[e] = (*result)[e].tex;
-							t_w[e] = (*result)[e].width;
-							t_h[e] = (*result)[e].height;
-						}
+                        gaf_imgs = *result;
 					}
 
                     const int nb_stages = wndFile.pullAsInt(obj_key + "stages");
 					object->create_ta_button((float)X1, (float)Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : (int)gaf_imgs.size() - 2);
 					if (result == NULL && found_elsewhere)
 						gui_hashtable[key] = &object->gltex_states;
-					for (unsigned int e = 0; e < object->gltex_states.size(); ++e)
-					{
-						object->gltex_states[e].width = t_w[e];
-						object->gltex_states[e].height = t_h[e];
-						if (result)
-							object->gltex_states[e].destroy_tex = false;
-						else
-							object->gltex_states[e].destroy_tex = true;
-					}
                     object->current_state = (byte)wndFile.pullAsInt(obj_key + "status");
                     object->shortcut_key = (sint16)wndFile.pullAsInt(obj_key + "quickkey", -1);
                     if (wndFile.pullAsBool(obj_key + "common.grayedout"))
@@ -1765,21 +1743,16 @@ namespace TA3D
 			Lock = wndFile.pullAsBool("window.lock");
 			draw_borders = wndFile.pullAsBool("window.draw borders");
 			show_title = wndFile.pullAsBool("window.show title");
-			delete_gltex = false;
 			QString backgroundImage = wndFile.pullAsString("window.background");
 			if (VFS::Instance()->fileExists(backgroundImage))
-			{
 				background = gfx->load_texture(backgroundImage, FILTER_LINEAR, &bkg_w, &bkg_h, false);
-				delete_gltex = true;
-			}
 			else
 			{
 				background = skin->wnd_background;
 				bkg_w = skin->bkg_w;
 				bkg_h = skin->bkg_h;
-				delete_gltex = false;
 			}
-			color = wndFile.pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+            color = wndFile.pullAsInt("window.color", background ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
 			FIX_COLOR(color);
 
 			pObjects.clear();
@@ -1900,14 +1873,14 @@ namespace TA3D
 						if (obj_type == "MULTISTATE")
 						{
                             const QStringList &imageNames = caption.split(',', QString::SkipEmptyParts);
-							std::vector<GLuint> gl_imgs;
+                            std::vector<GfxTexture::Ptr> gl_imgs;
 							std::vector<uint32> t_w;
 							std::vector<uint32> t_h;
 
                             for (const QString &e : imageNames)
 							{
 								uint32 tw, th;
-                                GLuint texHandle = gfx->load_texture(e, FILTER_LINEAR, &tw, &th);
+                                GfxTexture::Ptr texHandle = gfx->load_texture(e.trimmed(), FILTER_LINEAR, &tw, &th);
 								if (texHandle)
 								{
 									gl_imgs.push_back(texHandle);
@@ -1921,9 +1894,8 @@ namespace TA3D
 							{
 								object->x2 = X1 + (float)t_w[e] * size_factor * x_factor;
 								object->y2 = Y1 + (float)t_h[e] * size_factor * y_factor;
-								object->gltex_states[e].width = (int)((float)t_w[e] * size_factor * x_factor);
-								object->gltex_states[e].height = (int)((float)t_h[e] * size_factor * x_factor);
-								object->gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
+//								object->gltex_states[e].width = (int)((float)t_w[e] * size_factor * x_factor);
+//								object->gltex_states[e].height = (int)((float)t_h[e] * size_factor * x_factor);
 							}
 							break;
 						}

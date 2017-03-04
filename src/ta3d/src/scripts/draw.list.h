@@ -26,6 +26,7 @@
 
 # include <misc/string.h>
 # include <zuzuf/smartptr.h>
+# include <gfx/texture.h>
 
 # define DRAW_TYPE_NONE     0x0
 # define DRAW_TYPE_POINT    0x1
@@ -50,7 +51,7 @@ namespace TA3D
         float   y[4];
         float   r[2],g[2],b[2];
         QString  text;
-        GLuint  tex;
+        GfxTexture::Ptr tex;
     };
 
     class DrawList : public zuzuf::ref_count

@@ -31,8 +31,8 @@ namespace Menus
 
 	Loading::Loading()
 		:pLastPercent(-1.0f),
-		pLastCaption(),
-		pBackgroundTexture(0), pCurrentFontHeight(0.0f),
+        pLastCaption(),
+        pCurrentFontHeight(0.0f),
 		pCacheScreenRatioWidth(0.f), pCacheScreenRatioHeight(0.f)
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
@@ -44,7 +44,7 @@ namespace Menus
 	Loading::~Loading()
 	{
 		finalizeDrawing();
-		gfx->destroy_texture(pBackgroundTexture);
+        pBackgroundTexture = nullptr;
 
 		// Loading time
 		LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Done.");
@@ -53,7 +53,7 @@ namespace Menus
 
 	void Loading::initializeDrawing()
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 
 		gfx->set_2D_mode();
 		pCurrentFontHeight = Gui::gui_font->height();
@@ -71,7 +71,7 @@ namespace Menus
 
 	void Loading::loadTheBackgroundTexture()
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 
         if (!lp_CONFIG->skin_name.isEmpty() && VFS::Instance()->fileExists(lp_CONFIG->skin_name))
 		{
@@ -97,7 +97,7 @@ namespace Menus
 
 	void Loading::operator()(const float percent, const QString &message)
 	{
-		LOG_ASSERT(NULL != gfx);
+        LOG_ASSERT(gfx);
 
 		if (Math::Equals(pLastPercent, percent) && message == pLastCaption)
 			return;
@@ -144,13 +144,13 @@ namespace Menus
 		glVertex2f(100.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
 		glEnd();
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4ub(0xFF,0xFF,0xFF,0xFF);
-		gfx->drawtexture(pBackgroundTexture, 100.0f * pCacheScreenRatioWidth, 856.0f * pCacheScreenRatioHeight,
-			1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
-			100.0f / 1280.0f, 856.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
-		glDisable(GL_BLEND);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
+        gfx->drawtexture(pBackgroundTexture, 100.0f * pCacheScreenRatioWidth, 856.0f * pCacheScreenRatioHeight,
+            1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
+            100.0f / 1280.0f, 856.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
+        glDisable(GL_BLEND);
 
 		// Draw the caption (horizontally centered)
 		glEnable(GL_TEXTURE_2D);

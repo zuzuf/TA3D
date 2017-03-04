@@ -28,98 +28,49 @@
 
 namespace TA3D
 {
-namespace Interfaces
-{
+    GfxTexture::GfxTexture(Target target)
+        : QOpenGLTexture(target)
+    {}
 
+    GfxTexture::GfxTexture(const QImage &image, MipMapGeneration genMipMaps)
+        : QOpenGLTexture(image, genMipMaps)
+    {}
 
-	GfxTexture::GfxTexture()
-		:width(0), height(0), tex(0), destroy_tex(false)
-	{}
+    GfxTexture::~GfxTexture()
+    {
+    }
 
-	GfxTexture::~GfxTexture()
-	{
-		destroy();
-	}
+    void GfxTexture::draw(const float x1, const float y1, const uint32 col, const float scale)
+    {
+        glDisable(GL_LIGHTING);
+        gfx->drawtexture(this, x1, y1, x1 + scale * float(width()), y1 + scale * float(height()), col);
+    }
 
-    void GfxTexture::load(const QString &filename)
-	{
-		destroy();
-		set(gfx->load_texture(filename, FILTER_TRILINEAR, &width, &height));
-	}
+    void GfxTexture::drawCentered(const float x1, const float y1, const uint32 col, const float scale)
+    {
+        glDisable(GL_LIGHTING);
+        gfx->drawtexture(this, x1 - 0.5f * scale * float(width()), y1 - 0.5f * scale * float(height()), x1 + 0.5f * scale * float(width()), y1 + 0.5f * scale * float(height()), col);
+    }
 
-	void GfxTexture::init()
-	{
-		width = 0;
-		height = 0;
-		tex = 0;
-		destroy_tex = false;
-	}
+    void GfxTexture::drawRotated(const float x1, const float y1, const float angle, const uint32 col, const float scale)
+    {
+        glDisable(GL_LIGHTING);
+        glPushMatrix();
+        glTranslatef(x1, y1, 0.0f);
+        glRotatef(angle, 0.0f, 0.0f, 1.0f);
+        gfx->drawtexture(this, -0.5f * scale * float(width()), -0.5f * scale * float(height()), 0.5f * scale * float(width()), 0.5f * scale * float(height()), col);
+        glPopMatrix();
+    }
 
-	void GfxTexture::draw(const float x1, const float y1, const uint32 col, const float scale)
-	{
-		glDisable(GL_LIGHTING);
-		gfx->drawtexture(tex, x1, y1, x1 + scale * float(width), y1 + scale * float(height), col);
-	}
+    void GfxTexture::drawFlipped(const float x1, const float y1, const uint32 col, const float scale)
+    {
+        glDisable(GL_LIGHTING);
+        gfx->drawtexture_flip(this, x1, y1, x1 + scale * float(width()), y1 + scale * float(height()), col);
+    }
 
-	void GfxTexture::drawCentered(const float x1, const float y1, const uint32 col, const float scale)
-	{
-		glDisable(GL_LIGHTING);
-		gfx->drawtexture(tex, x1 - 0.5f * scale * float(width), y1 - 0.5f * scale * float(height), x1 + 0.5f * scale * float(width), y1 + 0.5f * scale * float(height), col);
-	}
-
-	void GfxTexture::drawRotated(const float x1, const float y1, const float angle, const uint32 col, const float scale)
-	{
-		glDisable(GL_LIGHTING);
-		glPushMatrix();
-		glTranslatef(x1, y1, 0.0f);
-		glRotatef(angle, 0.0f, 0.0f, 1.0f);
-		gfx->drawtexture(tex, -0.5f * scale * float(width), -0.5f * scale * float(height), 0.5f * scale * float(width), 0.5f * scale * float(height), col);
-		glPopMatrix();
-	}
-
-	void GfxTexture::drawFlipped(const float x1, const float y1, const uint32 col, const float scale)
-	{
-		glDisable(GL_LIGHTING);
-		gfx->drawtexture_flip(tex, x1, y1, x1 + scale * float(width), y1 + scale * float(height), col);
-	}
-
-	void GfxTexture::drawFlippedCentered(const float x1, const float y1, const uint32 col, const float scale)
-	{
-		glDisable(GL_LIGHTING);
-		gfx->drawtexture_flip(tex, x1 - 0.5f * scale * float(width), y1 - 0.5f * scale * float(height), x1 + 0.5f * scale * float(width), y1 + 0.5f * scale * float(height), col);
-	}
-
-	GfxTexture::GfxTexture(GLuint gltex, uint32 w, uint32 h)
-	{
-		destroy_tex = false;
-		set( gltex );
-		width = w;
-		height = h;
-	}
-
-	void GfxTexture::set(const GLuint gltex)
-	{
-		tex = gltex;
-	}
-
-	void GfxTexture::destroy()
-	{
-		width = 0;
-		height = 0;
-		if(destroy_tex)
-		{
-			gfx->destroy_texture(tex);
-			destroy_tex = false;
-		}
-		else
-			tex = 0;
-	}
-
-	void GfxTexture::bind()
-	{
-		glBindTexture(GL_TEXTURE_2D, tex);
-	}
-
-
-} // namespace Interfaces
+    void GfxTexture::drawFlippedCentered(const float x1, const float y1, const uint32 col, const float scale)
+    {
+        glDisable(GL_LIGHTING);
+        gfx->drawtexture_flip(this, x1 - 0.5f * scale * float(width()), y1 - 0.5f * scale * float(height()), x1 + 0.5f * scale * float(width()), y1 + 0.5f * scale * float(height()), col);
+    }
 } // namespace Ta3D

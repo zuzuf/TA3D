@@ -120,13 +120,6 @@ namespace Menus
 		virtual bool doLoop();
 
 		/*!
-		** \brief Destroy a texture if needed and reassign it
-		** \param textVar Reference to the texture to destroy (index)
-		** \param newValue The newValue to assign. `0` means NULL
-		*/
-		static void ResetTexture(GLuint& textVar, const GLuint newValue = 0);
-
-		/*!
 		** \brief Waits until the given number of milliseconds (-1 == default) has elapsed since previous call
 		** \param msec is the delay to wait in milliseconds (-1 == default)
 		*/

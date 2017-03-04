@@ -27,14 +27,6 @@ namespace Gui
 
 	GUIOBJ::~GUIOBJ()
 	{
-		for (TexturesVector::iterator i = gltex_states.begin(); i != gltex_states.end(); ++i)
-			i->destroy();
-		if (destroy_img)
-		{
-			GLuint gl_data = (GLuint) Data;
-			gfx->destroy_texture(gl_data);
-			Data = 0;
-		}
 	}
 
 
@@ -110,20 +102,17 @@ namespace Gui
 
 
     void GUIOBJ::create_ta_button(float X1, float Y1, const QStringList& Caption,
-								  const std::vector<GLuint>& states, int nb_st)
+                                  const std::vector<GfxTexture::Ptr>& states, int nb_st)
 	{
-		gltex_states.clear();
-		gltex_states.resize(states.size());
-		for (unsigned int i = 0 ; i < states.size(); ++i) // Create the texture Vector
-			gltex_states[i].set(states[i]);
+        gltex_states = states;
 
 		Type = OBJ_TA_BUTTON;
 		x1 = X1;
 		y1 = Y1;
 		if (!gltex_states.empty())
 		{
-			x2 = X1 + float(gltex_states[0].width);
-			y2 = Y1 + float(gltex_states[0].height);
+            x2 = X1 + float(gltex_states[0]->width());
+            y2 = Y1 + float(gltex_states[0]->height());
 		}
 		else
 		{

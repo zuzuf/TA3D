@@ -32,6 +32,7 @@
 # include "logs/logs.h"
 # include <QOpenGLFunctions>
 # include <QImage>
+# include <gfx/texture.h>
 
 # define TA3D_GAF_STANDARD      0x00010100
 # define TA3D_GAF_TRUECOLOR     0x00010101
@@ -166,7 +167,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		static GLuint ToTexture(QString filename, const QString& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
+        static TA3D::GfxTexture::Ptr ToTexture(QString filename, const QString& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
 		/*!
 		** \brief Convert all Gaf images into OpenGL textures
@@ -178,7 +179,7 @@ namespace TA3D
 		** \param[out] h The height of the image
 		** \param truecolor
 		*/
-		static void ToTexturesList(std::vector<GLuint>& out, const QString& filename, const QString &imgname,
+        static void ToTexturesList(std::vector<GfxTexture::Ptr>& out, const QString& filename, const QString &imgname,
 								   int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
 		/*!
@@ -240,7 +241,7 @@ namespace TA3D
 			//!
 			std::vector<short> h;
 			//!
-			std::vector<GLuint> glbmp;
+            std::vector<GfxTexture::Ptr> glbmp;
 			//!
 			QString name;
 			//!

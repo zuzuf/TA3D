@@ -99,7 +99,7 @@ namespace TA3D
     {
     public:
 		ScriptData::Ptr script;	// Scripts de l'unité
-		GLuint  glpic;					// Image de l'unité sous forme de texture OpenGl
+        GfxTexture::Ptr glpic;					// Image de l'unité sous forme de texture OpenGl
 		Model   *model;					// Modèle associé à l'unité
         QImage unitpic;			// Image de l'unité / Unit picture
 		bool    isfeature;				// tell if we must turn this unit into a feature
@@ -229,7 +229,7 @@ namespace TA3D
         std::vector<short>  Pic_w;             // Size
         std::vector<short>  Pic_h;
         std::vector<short>  Pic_p;             // Page where the pic has to be shown
-        std::vector<GLuint> PicList;
+        std::vector<GfxTexture::Ptr> PicList;
         short   nb_pages;
 
         DlData *dl_data;
@@ -258,7 +258,7 @@ namespace TA3D
         ** \param p menu ID
         ** \param Pic OpenGL texture ID
         */
-		void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic = 0);
+        void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GfxTexture::Ptr Pic = GfxTexture::Ptr());
 
         /*!
         ** \brief Can the current unit build unit 'index' ?
@@ -339,8 +339,8 @@ namespace TA3D
         HashMap< QString >::Dense name2gaf;	// a cache to speed up GAF search
 
     private:
-        Interfaces::GfxTexture  panel;          // The texture used by the panel
-        Interfaces::GfxTexture  paneltop,panelbottom;
+        GfxTexture::Ptr  panel;          // The texture used by the panel
+        GfxTexture::Ptr  paneltop, panelbottom;
 		HashMap< int >::Dense   unit_hashtable;     // hashtable used to speed up operations on UnitType objects
 		volatile bool ready;
 

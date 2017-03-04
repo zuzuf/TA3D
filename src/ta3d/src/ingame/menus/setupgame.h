@@ -66,7 +66,7 @@ namespace Menus
 		int net_id_table[10];           // Table used to identify players joining a multiplayer saved game
 		float ldx;
 		float ldy;
-		GLuint glimg;
+        GfxTexture::Ptr glimg;
 		MAP_OTA *map_data;
 
 

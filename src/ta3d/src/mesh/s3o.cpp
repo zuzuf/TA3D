@@ -79,13 +79,13 @@ namespace TA3D
 				const QString &textureName = tex_cache_name[0];
 				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 				{
-					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
+                    GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
 					if (tex)
 						gltex.push_back(tex);
 				}
 				else		// Fixed pipeline
 				{
-					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed(), NULL, true);
+                    GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGB_compressed(), NULL, true);
 					if (tex)
 					{
 						gltex.push_back(tex);
@@ -100,7 +100,7 @@ namespace TA3D
 				const QString &textureName = tex_cache_name[1];
 				if (!lp_CONFIG->disable_GLSL && g_useProgram)			// GLSL-enabled code
 				{
-					GLuint tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
+                    GfxTexture::Ptr tex = gfx->load_texture( textureName, FILTER_TRILINEAR, NULL, NULL, true, gfx->defaultTextureFormat_RGBA_compressed(), NULL, true);
 					if (tex)
 						gltex.push_back(tex);
 				}
@@ -123,7 +123,7 @@ namespace TA3D
 								SurfaceByte(red, x, y) = getr32(getpixel(bmp, x, y));
 
 						gfx->set_texture_format(GL_LUMINANCE8);
-						GLuint tex = gfx->make_texture(red, FILTER_TRILINEAR, true);
+                        GfxTexture::Ptr tex = gfx->make_texture(red, FILTER_TRILINEAR, true);
 						if (tex)
 							gltex.push_back(tex);
 						gfx->set_texture_format(0);
@@ -160,7 +160,7 @@ namespace TA3D
 				glRotatef(R.z, 0.0f, 0.0f, 1.0f);
 			}
 
-			std::vector<GLuint> *pTex = &(root->gltex);
+            std::vector<GfxTexture::Ptr> *pTex = &(root->gltex);
 
 			hide |= explodes ^ exploding_parts;
 			if (!hide)
@@ -229,7 +229,7 @@ namespace TA3D
 							}
 							glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 							glEnable(GL_TEXTURE_2D);
-							glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
+                            gfx->default_texture->bind();
 						}
 						glVertexPointer(3, GL_FLOAT, 0, points);
 						glNormalPointer(GL_FLOAT, 0, N);
@@ -430,7 +430,7 @@ namespace TA3D
 				alset = true;
 			}
 
-			std::vector<GLuint> *pTex = &(root->gltex);
+            std::vector<GfxTexture::Ptr> *pTex = &(root->gltex);
 
 			for (uint32 j = 0; j < pTex->size() ; ++j)
 			{

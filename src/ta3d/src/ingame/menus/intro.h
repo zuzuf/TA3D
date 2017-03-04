@@ -84,7 +84,7 @@ namespace Menus
 		uint32 pScrollTimer;
 
 		//! The texture of the background
-		GLuint pBackgroundTexture;
+        GfxTexture::Ptr pBackgroundTexture;
 		//! Current font height
 		float pCurrentFontHeight;
 

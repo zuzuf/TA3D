@@ -1542,7 +1542,7 @@ namespace TA3D
 			if (lp_CONFIG->paused)
 			{
 				gfx->set_alpha_blending();
-				pause_tex.drawCentered(0.5f * (float)SCREEN_W, 0.5f * (float)SCREEN_H, 0xFFFFFFFFU, 1.0f);
+                pause_tex->drawCentered(0.5f * (float)SCREEN_W, 0.5f * (float)SCREEN_H, 0xFFFFFFFFU, 1.0f);
 				gfx->unset_alpha_blending();
 			}
 
@@ -2178,9 +2178,9 @@ namespace TA3D
 			glEnable(GL_BLEND);
 			glEnable(GL_TEXTURE_2D);
 			if (freecam)
-				freecam_on.drawCentered(64.0f, (float)SCREEN_H - 32.0f);
+                freecam_on->drawCentered(64.0f, (float)SCREEN_H - 32.0f);
 			else
-				freecam_off.drawCentered(64.0f, (float)SCREEN_H - 32.0f);
+                freecam_off->drawCentered(64.0f, (float)SCREEN_H - 32.0f);
 			glDisable(GL_BLEND);
 
 			if (mouse_x >= 32 && mouse_x <= 95 && mouse_y >= SCREEN_H - 64 && omb2 == 0)
@@ -2213,11 +2213,11 @@ namespace TA3D
 			{
 				gfx->set_alpha_blending();
 				gfx->set_color(0xFFFFFFFF);
-				circle_texture.drawCentered(0.5f * (float)gfx->width, 0.5f * (float)gfx->height);
-				arrow_texture.drawRotated(0.5f * (float)gfx->width, 0.5f * (float)arrow_texture.getHeight(), 0.0f);
-				arrow_texture.drawRotated(0.5f * (float)gfx->width, (float)gfx->height - 0.5f * (float)arrow_texture.getHeight(), 180.0f);
-				arrow_texture.drawRotated(0.5f * (float)arrow_texture.getHeight(), 0.5f * (float)gfx->height, -90.0f);
-				arrow_texture.drawRotated((float)gfx->width - 0.5f * (float)arrow_texture.getHeight(), 0.5f * (float)gfx->height, 90.0f);
+                circle_texture->drawCentered(0.5f * (float)gfx->width, 0.5f * (float)gfx->height);
+                arrow_texture->drawRotated(0.5f * (float)gfx->width, 0.5f * (float)arrow_texture->height(), 0.0f);
+                arrow_texture->drawRotated(0.5f * (float)gfx->width, (float)gfx->height - 0.5f * (float)arrow_texture->height(), 180.0f);
+                arrow_texture->drawRotated(0.5f * (float)arrow_texture->height(), 0.5f * (float)gfx->height, -90.0f);
+                arrow_texture->drawRotated((float)gfx->width - 0.5f * (float)arrow_texture->height(), 0.5f * (float)gfx->height, 90.0f);
 				gfx->unset_alpha_blending();
 			}
 
@@ -2462,22 +2462,22 @@ namespace TA3D
 			water_distortions_shader.destroy();
 		}
 
-		freecam_on.destroy();
-		freecam_off.destroy();
-		arrow_texture.destroy();
-		circle_texture.destroy();
-		pause_tex.destroy();
-		gfx->destroy_texture(water);
-		gfx->destroy_texture(water_sim0);
-		gfx->destroy_texture(water_sim1);
-		gfx->destroy_texture(water_sim2);
-		gfx->destroy_texture(water_distortions);
-		gfx->destroy_texture(water_color);
-		gfx->destroy_texture(first_pass);
-		gfx->destroy_texture(second_pass);
-		gfx->destroy_texture(reflectex);
-		gfx->destroy_texture(transtex);
-		gfx->destroy_texture(height_tex);
+        freecam_on = nullptr;
+        freecam_off = nullptr;
+        arrow_texture = nullptr;
+        circle_texture = nullptr;
+        pause_tex = nullptr;
+        water = nullptr;
+        water_sim0 = nullptr;
+        water_sim1 = nullptr;
+        water_sim2 = nullptr;
+        water_distortions = nullptr;
+        water_color = nullptr;
+        first_pass = nullptr;
+        second_pass = nullptr;
+        reflectex = nullptr;
+        transtex = nullptr;
+        height_tex = nullptr;
 
 		LOG_INFO("Total Models: " << model_manager.nb_models);
 		LOG_INFO("Total Units: " << unit_manager.nb_unit);
@@ -2495,11 +2495,11 @@ namespace TA3D
 					{
 						// Disable TA palette since those images have their own palette :)
 						disable_TA_palette();
-                        GLuint	glamour_tex = gfx->load_texture("bitmaps/glamour/" + map->ota_data.glamour + ".pcx");
+                        GfxTexture::Ptr	glamour_tex = gfx->load_texture("bitmaps/glamour/" + map->ota_data.glamour + ".pcx");
 						enable_TA_palette();
 						gfx->set_2D_mode();
 						gfx->drawtexture( glamour_tex, 0, 0, (float)SCREEN_W, (float)SCREEN_H);
-						gfx->destroy_texture( glamour_tex);
+                        glamour_tex = nullptr;
 						gfx->unset_2D_mode();
 						gfx->flip();
 

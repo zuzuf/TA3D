@@ -22,7 +22,7 @@
 # include <misc/string.h>
 # include <QOpenGLFunctions>
 # include <misc/progressnotifier.h>
-
+# include <gfx/texture.h>
 
 namespace TA3D
 {
@@ -86,7 +86,7 @@ namespace Menus
 		QStringList pMessages;
 
 		//! The background texture
-		GLuint pBackgroundTexture;
+        GfxTexture::Ptr pBackgroundTexture;
 		//! The height of the font
 		float pCurrentFontHeight;
 

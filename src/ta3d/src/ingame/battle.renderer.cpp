@@ -127,7 +127,7 @@ namespace TA3D
 
 				glDisable(GL_CULL_FACE);
 				// Dessine les objets produits par les armes / draw weapons
-				weapons.draw(map.get());
+                weapons.draw(map);
 				// Dessine les particules
 				refcam.setView(true);
 				glClipPlane(GL_CLIP_PLANE1, eqn);
@@ -200,7 +200,7 @@ namespace TA3D
 				glDisable(GL_POLYGON_OFFSET_FILL);
 				glPolygonOffset(0.0f, 0.0f);
 
-				gfx->renderToTextureDepth(0);
+                gfx->renderToTextureDepth();
 				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 				glActiveTextureARB(GL_TEXTURE7_ARB);
@@ -615,7 +615,7 @@ namespace TA3D
 				glTranslatef( 0.0f, map->sealvl, map->sea_dec);
 				water_obj->draw(t, false);
 
-				gfx->renderToTexture( 0 );
+                gfx->renderToTexture();
                 gfx->glViewport(0, 0, workwidth, workheight);
 
 				float logw = logf((float)SCREEN_W) / logf(2.0f);

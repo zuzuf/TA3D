@@ -178,7 +178,7 @@ namespace TA3D
 
 		/*----------------------- Variables reserved to texture data -------------------------------*/
 
-		Interfaces::GfxTexture	icons[13];
+        GfxTexture::Ptr	icons[13];
 
 		/*----------------------- Variables reserved to precalculations ----------------------------*/
 
@@ -193,7 +193,7 @@ namespace TA3D
 		volatile bool	thread_running;
 		volatile bool	thread_ask_to_stop;
 		bool	wind_change;
-		MAP		*map;
+        MAP::Ptr map;
 		uint32	next_unit_ID;			// Used to make it unique
 		uint32	current_tick;
 		uint32	client_tick[10];

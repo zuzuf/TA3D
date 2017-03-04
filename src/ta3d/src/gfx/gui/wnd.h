@@ -113,7 +113,7 @@ namespace Gui
 		** \param filename
 		** \param gui_hashtable
 		*/
-        void load_gui(const QString& filename, TA3D::UTILS::HashMap< std::vector< TA3D::Interfaces::GfxTexture >* >::Dense & gui_hashtable);
+        void load_gui(const QString& filename, TA3D::UTILS::HashMap< std::vector< TA3D::GfxTexture::Ptr >* >::Dense & gui_hashtable);
 
 
 
@@ -195,7 +195,7 @@ namespace Gui
 		TA3D::UTILS::HashMap<int>::Dense  obj_hashtable;
 
 		//! The texture background
-		GLuint  background;
+        GfxTexture::Ptr background;
 		//! Repeat or scale background
 		bool  repeat_bkg;
 		//!
@@ -266,8 +266,6 @@ namespace Gui
 
 	private:
 		typedef std::vector<GUIOBJ::Ptr> ObjectList;
-		//!
-		bool delete_gltex;
 		//!
 		float size_factor;
 		//!

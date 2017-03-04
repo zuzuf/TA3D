@@ -31,8 +31,7 @@ namespace TA3D
 
     void DrawList::destroy()
     {
-        if (prim.type == DRAW_TYPE_BITMAP)
-			gfx->destroy_texture(prim.tex);
+        prim.tex = nullptr;
         prim.text.clear();
 		next = NULL;
         init();
@@ -132,7 +131,7 @@ namespace TA3D
                 break;
             case DRAW_TYPE_BITMAP:
 				glScalef(screen_w / 640.0f, screen_h / 480.0f,1.0f);
-                if (prim.tex == 0 && !prim.text.isEmpty())
+                if (!prim.tex && !prim.text.isEmpty())
                 {
                     prim.tex = gfx->load_texture( prim.text );
                     prim.text.clear();

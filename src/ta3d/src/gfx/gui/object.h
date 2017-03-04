@@ -228,7 +228,7 @@ namespace Gui
 		** \param nb_st
 		*/
         void create_ta_button(const float X1, const float Y1,const QStringList& Caption,
-							  const std::vector<GLuint>& states, const int nb_st);
+                              const std::vector<GfxTexture::Ptr>& states, const int nb_st);
 
 		/*!
 		** \brief
@@ -250,7 +250,7 @@ namespace Gui
 
 	public:
 		//! List of textures
-		typedef std::vector< TA3D::Interfaces::GfxTexture >   TexturesVector;
+        typedef std::vector< TA3D::GfxTexture::Ptr >   TexturesVector;
 
 	public:
 		//!
@@ -273,8 +273,9 @@ namespace Gui
 		//!
 		void (*Func)(int);	// Pointer to linked function
 		//! TODO Must be renammed
-		GLuint Data;			// Additional data
-		//!
+        uint32 Data;            	// Additional data
+        GfxTexture::Ptr TextureData;	// Additional texture data
+        //!
 		uint32 Pos;			// Position in a list
 		//!
 		sint32 Value;			// Used by floatting menus

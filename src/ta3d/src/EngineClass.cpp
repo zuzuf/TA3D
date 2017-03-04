@@ -133,16 +133,15 @@ namespace TA3D
 		low_tcoord = NULL;
 		low_col = NULL;
 		low_index = NULL;
-		low_tex = 0;
+        low_tex = nullptr;
 
 		wind = 0.0f;
 		wind_dir = 0.0f;
 		wind_vec.reset();
 		ota_data.init();
-		lava_map = 0;
+        lava_map = nullptr;
 		mini_w = mini_h = 252;
-		ntex = 0;
-		tex = NULL;
+        tex.clear();
 		nbbloc = 0;
 		bloc = NULL;
         mini = QImage();
@@ -151,7 +150,7 @@ namespace TA3D
 		ph_map.resize(0,0);
 		map_data.resize(0,0);
 		sealvl = 0.0f;
-		glmini = 0;
+        glmini = nullptr;
 		lvl = NULL;
 		water = true;
 		tnt = false;			// Laisse la possibilité de créer un autre format de cartes
@@ -548,28 +547,23 @@ namespace TA3D
 
 		detail_shader.destroy();
 		shadow2_shader.destroy();
-		gfx->destroy_texture( details_tex );
+        details_tex = nullptr;
 
 		DELETE_ARRAY(low_vtx);
 		DELETE_ARRAY(low_vtx_flat);
 		DELETE_ARRAY(low_tcoord);
 		DELETE_ARRAY(low_col);
 		DELETE_ARRAY(low_index);
-		gfx->destroy_texture(low_tex);
+        low_tex = nullptr;
 
 		ota_data.destroy();
-		gfx->destroy_texture( lava_map );
+        lava_map = nullptr;
 		view.resize(0, 0);
 		map_data.resize(0, 0);
 		ph_map.resize(0, 0);
 		h_map.resize(0, 0);
 		bmap.resize(0, 0);
-		if (ntex > 0)
-		{
-			for(int i = 0 ; i < ntex ; i++)
-				gfx->destroy_texture( tex[i] );
-			DELETE_ARRAY(tex);
-		}
+        tex.clear();
 		if (lvl)
 		{
 			for(int i = 0 ; i < bloc_h * bloc_w ; i++)
@@ -1141,7 +1135,7 @@ namespace TA3D
 
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_LIGHTING);
-		if (!FLAT && ntex > 0)
+        if (!FLAT && !tex.empty())
 			gfx->ReInitAllTex( true );
 		if (!FLAT)
 			glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
@@ -1240,7 +1234,7 @@ namespace TA3D
 		glDisable(GL_LIGHTING);
 		if (!FLAT)
 		{
-			if (ntex > 0)
+            if (!tex.empty())
 				gfx->ReInitAllTex(true);
 			else
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1395,7 +1389,7 @@ namespace TA3D
 
 		const bool enable_details = !cam->mirror && (lp_CONFIG->detail_tex || lp_CONFIG->shadow_quality >= 2);
 
-		if (ntex > 0 && !depth_only)
+        if (!tex.empty() && !depth_only)
 		{
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
@@ -1407,7 +1401,7 @@ namespace TA3D
 				glClientActiveTextureARB(GL_TEXTURE1_ARB);
 				glActiveTextureARB(GL_TEXTURE1_ARB );
 				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, details_tex );
+                details_tex->bind();
 				glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 				glDisable(GL_TEXTURE_GEN_S);
 				glDisable(GL_TEXTURE_GEN_T);
@@ -1420,9 +1414,9 @@ namespace TA3D
 
 		if (FLAT)
 			glTranslatef(cosf(t), 0.0f, sinf(t));
-		GLuint old_tex = bloc[0].tex;
+        GfxTexture::Ptr old_tex = bloc[0].tex;
 		if (!depth_only)
-			glBindTexture(GL_TEXTURE_2D,old_tex);
+            old_tex->bind();
 		if (!FLAT && check_visibility)
 		{
 			for (int y = oy1; y <= oy2; ++y)

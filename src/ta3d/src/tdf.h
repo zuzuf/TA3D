@@ -445,7 +445,7 @@ namespace TA3D
 		FeaturesSet symbolic_features;
 
 		//! icons
-		Interfaces::GfxTexture icons[2];
+        GfxTexture::Ptr icons[2];
 
 	protected:
 		//!

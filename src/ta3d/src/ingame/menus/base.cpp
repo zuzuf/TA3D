@@ -66,7 +66,7 @@ namespace Menus
 
 	void Abstract::doGuardFinalize()
 	{
-		if (pArea && pArea->background == gfx->glfond)
+		if (pArea && pArea->background == gfx->glbackground)
 			pArea->background = 0;
 		doFinalize();
 		reset_keyboard();
@@ -79,7 +79,7 @@ namespace Menus
 		pArea = new Gui::AREA(caption);
 		pArea->load_tdf(relFilename);
 		if (!pArea->background)
-			pArea->background = gfx->glfond;
+			pArea->background = gfx->glbackground;
 	}
 
 
@@ -117,16 +117,6 @@ namespace Menus
 		gfx->flip();
 	}
 
-
-	void Abstract::ResetTexture(GLuint& textVar, const GLuint newValue)
-	{
-		if (textVar)
-		{
-			// ensure the texture for the mini map is destroyed
-			gfx->destroy_texture(textVar);
-		}
-		textVar = newValue;
-	}
 
 
 	void Abstract::wait(int msec)

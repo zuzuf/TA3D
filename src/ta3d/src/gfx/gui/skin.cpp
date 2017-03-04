@@ -32,7 +32,7 @@ namespace Gui
 
 
 	Skin::Skin()
-		:wnd_background(0), bkg_w(0), bkg_h(0), text_y_offset(0.f),
+        : bkg_w(0), bkg_h(0), text_y_offset(0.f),
 		pCacheFontHeight(gui_font-> height())
 	{
 		init();
@@ -60,7 +60,7 @@ namespace Gui
 		for (int i = 0; i < 2; ++i)
 			progress_bar[i].init();
 
-		wnd_background = 0;
+        wnd_background = nullptr;
 		checkbox[1].init();
 		checkbox[0].init();
 		option[1].init();
@@ -89,7 +89,7 @@ namespace Gui
 		selection_gfx.destroy();
 		pPrefix.clear();
 		pName.clear();
-		gfx->destroy_texture(wnd_background);
+        wnd_background = nullptr;
 	}
 
 

@@ -39,10 +39,10 @@ namespace TA3D
 	}
 
 
-	GLuint TEXTURE_MANAGER::get_gl_texture(const QString& texture_name, const int frame)
+    GfxTexture::Ptr TEXTURE_MANAGER::get_gl_texture(const QString& texture_name, const int frame)
 	{
 		int index = get_texture_index(texture_name);
-		return (index == -1) ? 0 : tex[index].glbmp[frame];
+        return (index == -1) ? GfxTexture::Ptr() : tex[index].glbmp[frame];
 	}
 
 
@@ -62,7 +62,7 @@ namespace TA3D
 		{
 			tex[i].nb_bmp = 1;
             tex[i].bmp.resize(1, QImage());
-			tex[i].glbmp.resize(1, 0);
+            tex[i].glbmp.resize(1, GfxTexture::Ptr());
 			tex[i].ofs_x.resize(1, 0);
 			tex[i].ofs_y.resize(1, 0);
 			tex[i].w.resize(1, 0);

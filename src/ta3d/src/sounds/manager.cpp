@@ -30,10 +30,6 @@
 #include "mixerdevice.h"
 
 
-using namespace TA3D::Interfaces;
-
-
-
 TA3D::Audio::Manager::Ptr TA3D::VARS::sound_manager;
 
 

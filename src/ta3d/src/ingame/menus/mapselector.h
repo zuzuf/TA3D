@@ -180,7 +180,7 @@ namespace Menus
 		int pCachedSizeOfListOfMaps;
 
 		//! Texture for the mini map
-		GLuint pMiniMapTexture;
+        GfxTexture::Ptr pMiniMapTexture;
 
 		//! Last index selected in the list of maps (-1 means no map)
 		int pLastMapIndex;

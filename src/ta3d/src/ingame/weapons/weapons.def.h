@@ -224,8 +224,8 @@ namespace TA3D
 		HashMap<int>::Dense damage_hashtable;
 
 		//! Textures for lasers
-		GLuint laserTex1;
-		GLuint laserTex2;
+        GfxTexture::Ptr laserTex1;
+        GfxTexture::Ptr laserTex2;
 	}; // class WeaponDef
 
 

@@ -334,7 +334,7 @@ namespace Gui
 
 
 	AREA::AREA(const QString& nm)
-		:scrolling(false), background(0), name(nm), skin(NULL), gui_hashtable(), wnd_hashtable()
+        :scrolling(false), name(nm), skin(NULL), gui_hashtable(), wnd_hashtable()
 	{
 		amx = mouse_x;
 		amy = mouse_y;
@@ -362,7 +362,7 @@ namespace Gui
 		pWindowList.clear();			// Empty the window vector
 		vec_z_order.clear();		// No more windows at end
 
-		gfx->destroy_texture(background);		// Destroy the texture (using safe destroyer)
+        background = nullptr;		// Destroy the texture (using safe destroyer)
 
 		skin = NULL;
 	}
@@ -389,10 +389,7 @@ namespace Gui
 		pWindowList.clear();			// Empty the window vector
 		vec_z_order.clear();		// No more windows at end
 
-		if (background == gfx->glfond)      // Don't remove the background texture
-			background = 0;
-		else
-			gfx->destroy_texture(background); // Destroy the texture
+        background = nullptr;
 	}
 
 
@@ -609,7 +606,7 @@ namespace Gui
 
 	void AREA::popup(const QString &Title, const QString &Msg)
 	{
-		if (get_wnd( "popup" ) == NULL)            // The window isn't loaded => load it now !
+        if (!get_wnd( "popup" ))            // The window isn't loaded => load it now !
 			load_window( "gui/popup_dialog.tdf" );
 		title("popup", Title);
 

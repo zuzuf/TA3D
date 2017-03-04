@@ -25,9 +25,9 @@ namespace TA3D
 
 	void Sky::init()
 	{
-		skyInfo = NULL;
+        skyInfo = nullptr;
 		for(int i = 0 ; i < 6 ; ++i)
-			tex[i] = 0;
+            tex[i] = nullptr;
 		dlist = 0;
 		s = 0;
 		w = 1.0f;
@@ -35,10 +35,9 @@ namespace TA3D
 
 	void Sky::destroy()
 	{
-		if (skyInfo)
-			delete skyInfo;
+        skyInfo = nullptr;
 		for(int i = 0 ; i < 6 ; ++i)
-			gfx->destroy_texture(tex[i]);
+            tex[i] = nullptr;
 		if (dlist)
 			glDeleteLists(dlist, 1);
 		init();
@@ -173,7 +172,7 @@ namespace TA3D
 		dlist = glGenLists(1);
 		glNewList(dlist, GL_COMPILE_AND_EXECUTE);
 
-		glBindTexture(GL_TEXTURE_2D, tex[3]);
+        tex[3]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(-w, w, w);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(w, w, w);
@@ -181,7 +180,7 @@ namespace TA3D
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(-w, -w, w);
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, tex[2]);
+        tex[2]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(-w, w, -w);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(-w, w, w);
@@ -189,7 +188,7 @@ namespace TA3D
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(-w, -w, -w);
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, tex[1]);
+        tex[1]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(w, w, -w);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(-w, w, -w);
@@ -197,7 +196,7 @@ namespace TA3D
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(w, -w, -w);
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, tex[0]);
+        tex[0]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(w, w, w);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(w, w, -w);
@@ -205,7 +204,7 @@ namespace TA3D
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(w, -w, w);
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, tex[4]);
+        tex[4]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(1.0f, 0.0f);	glVertex3f(-w, -w, w);
 			glTexCoord2f(1.0f, 1.0f);	glVertex3f(w, -w, w);
@@ -213,7 +212,7 @@ namespace TA3D
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(-w, -w, -w);
 		glEnd();
 
-		glBindTexture(GL_TEXTURE_2D, tex[5]);
+        tex[5]->bind();
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);	glVertex3f(w, w, w);
 			glTexCoord2f(0.0f, 1.0f);	glVertex3f(-w, w, w);
@@ -245,27 +244,25 @@ namespace TA3D
 
 	void Sky::choose_a_sky(const QString& mapname, const QString& planet)
 	{
-		if (skyInfo)
-			delete skyInfo;
-		skyInfo = NULL;
+        skyInfo = nullptr;
 
-		std::vector<SkyData*> sky_list;
+        std::vector<SkyData::Ptr> sky_list;
 		sky_list.clear();
 
 		QStringList file_list;
         VFS::Instance()->getFilelist("sky/*.tdf", file_list);
 		uint32	nb_sky = 0;
 
-		for (QStringList::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+        for (const QString &it : file_list)
 		{
-			LOG_DEBUG("loading sky : " << *it);
-			SkyData *sky_data = new SkyData;
-			sky_data->load_tdf(*it);
+            LOG_DEBUG("loading sky : " << it);
+            SkyData::Ptr sky_data = new SkyData;
+            sky_data->load_tdf(it);
 
 			bool keep = false;
-			for (QStringList::const_iterator i = sky_data->MapName.begin(); i != sky_data->MapName.end(); ++i)
+            for (const QString &i : sky_data->MapName)
 			{
-				if (*i == mapname)
+                if (i == mapname)
 				{
 					keep = true;
 					break;
@@ -275,9 +272,9 @@ namespace TA3D
 			{
 				QString sky;
 				QString p;
-				for (QStringList::const_iterator i = sky_data->planet.begin(); i != sky_data->planet.end(); ++i)
+                for (const QString &i : sky_data->planet)
 				{
-					sky = *i;
+                    sky = i;
 					p = planet;
 					if (sky.toLower() == p.toLower())
 					{
@@ -291,17 +288,15 @@ namespace TA3D
 				sky_list.push_back(sky_data);
 				++nb_sky;
 			}
-			else
-				delete sky_data;
 		}
 
 		if (nb_sky == 0)    // Look for a default sky
 		{
 			LOG_DEBUG(LOG_PREFIX_GFX << "no sky associated with this map('" << mapname << "') or this planet('" << planet << "') found, looking for default skies");
-			for (QStringList::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+            for (const QString &it : file_list)
 			{
-				SkyData *sky_data = new SkyData;
-				sky_data->load_tdf(*it);
+                SkyData::Ptr sky_data = new SkyData;
+                sky_data->load_tdf(it);
 
 				bool keep = sky_data->def;
 				if (keep)
@@ -309,32 +304,25 @@ namespace TA3D
 					sky_list.push_back(sky_data);
 					++nb_sky;
 				}
-				else
-					delete sky_data;
 			}
 		}
 
-		SkyData *selected_sky = NULL;
+        SkyData::Ptr selected_sky;
 
 		if (nb_sky > 0)
 		{
 			int select = TA3D_RAND() % nb_sky;
-			for (std::vector<SkyData*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
+            for (const SkyData::Ptr &it : sky_list)
 			{
 				if (select == 0)
 				{
-					selected_sky = *it;
-					*it = NULL;
+                    selected_sky = it;
 					break;
 				}
+                --select;
 			}
 		}
 
-		for (std::vector<SkyData*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
-		{
-			if (*it != NULL )
-				delete *it;
-		}
 		sky_list.clear();
 
 		skyInfo = selected_sky;

@@ -124,8 +124,8 @@ namespace TA3D
 
 	void WeaponDef::destroy()
     {
-		gfx->destroy_texture(laserTex1);
-		gfx->destroy_texture(laserTex2);
+        laserTex1 = nullptr;
+        laserTex2 = nullptr;
 		soundstart.clear();
         soundhit.clear();
         soundwater.clear();

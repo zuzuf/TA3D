@@ -1053,9 +1053,9 @@ namespace TA3D
             else if (!( pType->fastCategory & CATEGORY_NOTSUB ) )
 				unit_nature = ICON_SUBUNIT;
 
-			const float sizew = size * (float)units.icons[ unit_nature ].getWidth() / 24.0f;
-			const float sizeh = size * (float)units.icons[ unit_nature ].getHeight() / 24.0f;
-			glBindTexture( GL_TEXTURE_2D, units.icons[ unit_nature ].get() );
+            const float sizew = size * (float)units.icons[ unit_nature ]->width() / 24.0f;
+            const float sizeh = size * (float)units.icons[ unit_nature ]->height() / 24.0f;
+            units.icons[ unit_nature ]->bind();
 			glDisable( GL_CULL_FACE );
 			glDisable(GL_LIGHTING);
 			glTranslatef( model->center.x, model->center.y, model->center.z );

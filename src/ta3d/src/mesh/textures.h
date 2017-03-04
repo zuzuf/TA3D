@@ -25,7 +25,7 @@ namespace TA3D
 
         int get_texture_index(const QString& texture_name);
 
-        GLuint get_gl_texture(const QString& texture_name, const int frame = 0);
+        GfxTexture::Ptr get_gl_texture(const QString& texture_name, const int frame = 0);
 
         QImage get_bmp_texture(const QString& texture_name, const int frame = 0);
 

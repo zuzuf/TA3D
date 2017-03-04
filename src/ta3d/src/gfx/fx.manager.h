@@ -158,11 +158,11 @@ namespace TA3D
         //!
         QIODevice* fx_data;
         //!
-		Interfaces::GfxTexture flash_tex;
+        GfxTexture::Ptr flash_tex;
         //!
-		Interfaces::GfxTexture wave_tex[3];
+        GfxTexture::Ptr wave_tex[3];
         //!
-		Interfaces::GfxTexture ripple_tex;
+        GfxTexture::Ptr ripple_tex;
 
     private:
         /*!

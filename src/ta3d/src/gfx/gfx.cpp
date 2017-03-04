@@ -487,6 +487,10 @@ namespace TA3D
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
 	}
 
+    void GFX::destroy_background()
+    {
+        glbackground = nullptr;
+    }
 
 	void GFX::checkConfig() const
 	{
@@ -528,7 +532,7 @@ namespace TA3D
 		:width(0), height(0), x(0), y(0),
 		normal_font(NULL), small_font(NULL), TA_font(NULL), ta3d_gui_font(NULL), big_font(NULL),
 		SCREEN_W_HALF(0), SCREEN_H_HALF(0), SCREEN_W_INV(0.), SCREEN_H_INV(0.), SCREEN_W_TO_640(0.), SCREEN_H_TO_480(0.),
-		low_def_limit(600.), glfond(0), textureFBO(0), textureDepth(0), textureColor(0), shadowMap(0),
+        low_def_limit(600.), textureFBO(0),
 		model_shader(),
 		ati_workaround(false), max_tex_size(0), default_texture(0),
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
@@ -563,13 +567,16 @@ namespace TA3D
 	{
 		DeleteInterface();
 
+        if (m_context)
+            m_context->makeCurrent(this);
+
 		if (textureFBO)
             glDeleteFramebuffers(1,&textureFBO);
-		if (textureDepth)
-            glDeleteRenderbuffers(1,&textureDepth);
-		destroy_texture(textureColor);
-		destroy_texture(shadowMap);
-		destroy_texture(default_texture);
+        textureDepth = nullptr;
+
+        textureColor = nullptr;
+        shadowMap = nullptr;
+        default_texture = nullptr;
 
 		normal_font = NULL;
 		small_font = NULL;
@@ -578,6 +585,9 @@ namespace TA3D
 
 		font_manager.destroy();
 		Gui::skin_manager.destroy();
+
+        if (m_context)
+            delete m_context;
 	}
 
 
@@ -845,10 +855,10 @@ namespace TA3D
 	}
 
 
-	void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2)
+    void GFX::drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, tex);
+        tex->bind();
 
 		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
 		const float tcoord[8] = { u1,v1, u2,v1, u2,v2, u1,v2 };
@@ -863,10 +873,10 @@ namespace TA3D
 	}
 
 
-	void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2)
+    void GFX::drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,tex);
+        tex->bind();
 
 		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
 		static const float tcoord[8] = { 0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f };
@@ -881,10 +891,10 @@ namespace TA3D
 	}
 
 
-	void GFX::drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2)
+    void GFX::drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2)
 	{
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,tex);
+        tex->bind();
 
 		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
 		static const float tcoord[8] = {0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f};
@@ -899,13 +909,13 @@ namespace TA3D
 	}
 
 
-	void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
+    void GFX::drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
 		set_color(col);
 		drawtexture( tex, x1, y1, x2, y2 );
 	}
 
-	void GFX::drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
+    void GFX::drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
 		set_color(col);
 		drawtexture_flip(tex, x1, y1, x2, y2);
@@ -979,644 +989,228 @@ namespace TA3D
 		return max_tex_size;
 	}
 
-    GLuint GFX::make_texture(const QImage &bmp, int filter_type, bool clamp)
+    GfxTexture::Ptr GFX::make_texture(const QImage &bmp, int filter_type, bool clamp)
 	{
-        if (bmp.isNull())
-		{
-            LOG_WARNING(LOG_PREFIX_GFX << "make_texture used with empty QImage");
-			return 0;
-		}
-		MutexLocker locker(pMutex);
-
-        if (bmp.width() > max_tex_size || bmp.height() > max_tex_size)
-		{
-            QImage tmp = create_surface_ex( bmp.depth(),
-                                            Math::Min(bmp.width(), max_tex_size),
-                                            Math::Min(bmp.height(), max_tex_size));
-            stretch_blit( bmp, tmp, 0, 0, bmp.width(), bmp.height(), 0, 0, tmp.width(), tmp.height() );
-            return make_texture( tmp, filter_type, clamp );
-		}
-
-        if (!g_useNonPowerOfTwoTextures && (!Math::IsPowerOfTwo(bmp.width()) || !Math::IsPowerOfTwo(bmp.height())))
-		{
-            int w = 1 << Math::Log2(bmp.width());
-            int h = 1 << Math::Log2(bmp.height());
-            if (w < bmp.width()) w <<= 1;
-            if (h < bmp.height()) h <<= 1;
-            QImage tmp = create_surface_ex( bmp.depth(), w, h);
-            stretch_blit_smooth( bmp, tmp, 0, 0, bmp.width(), bmp.height(), 0, 0, tmp.width(), tmp.height() );
-            return make_texture( tmp, filter_type, clamp );
-		}
-
-		if (ati_workaround && filter_type != FILTER_NONE
-            && ( !Math::IsPowerOfTwo(bmp.width()) || !Math::IsPowerOfTwo(bmp.height())))
-			filter_type = FILTER_LINEAR;
-
-		if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
-			use_mipmapping(false);
-		else
-			use_mipmapping(true);
-
-        bool can_useGenMipMaps = g_useGenMipMaps && (g_useNonPowerOfTwoTextures || (Math::IsPowerOfTwo(bmp.width()) && Math::IsPowerOfTwo(bmp.height())));
-
-		GLuint gl_tex = 0;
-		glGenTextures(1,&gl_tex);
-
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp)
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
-
-		switch (filter_type)
-		{
-        case FILTER_NONE:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-            break;
-        case FILTER_LINEAR:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-            break;
-        case FILTER_BILINEAR:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-            break;
-        case FILTER_TRILINEAR:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-            break;
-		}
-
-#ifdef TA3D_PLATFORM_WINDOWS
-		bool softMipMaps = build_mipmaps;
-#else
-        bool softMipMaps = !can_useGenMipMaps;
-#endif
-
-		//Upload image data to OpenGL
-		if (!softMipMaps)
-		{
-            // Automatic mipmaps generation
-            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
-            switch (bmp.depth())
-			{
-            case 8:
-                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp.bits());
-                break;
-            case 24:
-                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, bmp.bits());
-                break;
-            case 32:
-                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp.width(), bmp.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp.bits());
-                break;
-            default:
-                LOG_DEBUG("QImage format not supported by texture loader: " << (int) bmp.depth() << " bpp" );
-			}
-
-            if (build_mipmaps)
-                // Automatic mipmaps generation
-                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE );
-		}
-		else            // Generate mipmaps here since other methods are unreliable
-		{
-            int w = bmp.width() << 1;
-            int h = bmp.height() << 1;
-			int level = 0;
-			if (w >= 1 && h >= 1)
-				do
-				{
-					w = Math::Max(w / 2, 1);
-					h = Math::Max(h / 2, 1);
-                    QImage tmp = create_surface_ex( bmp.depth(), w, h);
-                    stretch_blit(bmp, tmp, 0, 0, bmp.width(), bmp.height(), 0, 0, w, h);
-                    switch (tmp.depth())
-					{
-						case 8:
-                            glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, tmp.bits());
-							break;
-						case 24:
-                            glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, tmp.bits());
-							break;
-						case 32:
-                            glTexImage2D(GL_TEXTURE_2D, level, texture_format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp.bits());
-							break;
-						default:
-                            LOG_DEBUG("QImage format not supported by texture loader: " << (int) tmp.depth() << " bpp" );
-					}
-					++level;
-				} while(w > 1 || h > 1);
-		}
-
-		if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
-			use_mipmapping(true);
-
-		return gl_tex;
-	}
-
-
-	GLuint GFX::make_texture_A32F( int w, int h, float *data, int filter_type, bool clamp )
-	{
-		MutexLocker locker(pMutex);
-
-		set_texture_format(GL_ALPHA32F_ARB);
-
-		use_mipmapping(false);
-
-		GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
-
-		use_mipmapping(true);
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp )
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-
-		switch(filter_type)
-		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-		}
-
-		glTexImage2D( GL_TEXTURE_2D,
-					  0,
-					  GL_ALPHA32F_ARB,
-					  w,
-					  h,
-					  0,
-					  GL_ALPHA,
-					  GL_FLOAT,
-					  data );
-
-		set_texture_format(defaultRGBTextureFormat);
-
-		return gl_tex;
-	}
-
-
-
-	GLuint GFX::make_texture_A16F( int w, int h, float *data, int filter_type, bool clamp )
-	{
-		MutexLocker locker(pMutex);
-
-		set_texture_format(GL_ALPHA16F_ARB);
-
-		use_mipmapping(false);
-
-		GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
-
-		use_mipmapping(true);
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
+        GfxTexture::Ptr tex = new GfxTexture(bmp, filter_type == FILTER_NONE ? QOpenGLTexture::DontGenerateMipMaps : QOpenGLTexture::GenerateMipMaps);
+//        tex->setFormat(QOpenGLTexture::RGB);
         if (clamp)
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
+            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+        else
+            tex->setWrapMode(QOpenGLTexture::Repeat);
 
-		switch(filter_type)
-		{
+        tex->setMaximumAnisotropy(lp_CONFIG->anisotropy);
+
+        switch (filter_type)
+        {
         case FILTER_NONE:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+            tex->setMinificationFilter(QOpenGLTexture::Nearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
             break;
         case FILTER_LINEAR:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+            tex->setMinificationFilter(QOpenGLTexture::Linear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
             break;
         case FILTER_BILINEAR:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
             break;
         case FILTER_TRILINEAR:
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
             break;
-		}
+        }
 
-		glTexImage2D( GL_TEXTURE_2D,
-					  0,
-					  GL_ALPHA16F_ARB,
-					  w,
-					  h,
-					  0,
-					  GL_ALPHA,
-					  GL_FLOAT,
-					  data );
-
-		set_texture_format(defaultRGBTextureFormat);
-
-		return gl_tex;
+        return tex;
 	}
-	GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, int filter_type, bool clamp )
+
+    GfxTexture::Ptr GFX::make_texture_A16F( int w, int h, float *data, int filter_type, bool clamp )
 	{
-		MutexLocker locker(pMutex);
+        GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
+        tex->setFormat(GfxTexture::R16F);
+        tex->setSize(w, h);
+        tex->setData(GfxTexture::Alpha, GfxTexture::Float32, data);
+        if (clamp)
+            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+        else
+            tex->setWrapMode(QOpenGLTexture::Repeat);
 
-		set_texture_format(GL_RGBA32F_ARB);
-
-		use_mipmapping(false);
-
-		GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
-
-		use_mipmapping(true);
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp )
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-
-		switch(filter_type)
-		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-		}
-
-		glTexImage2D( GL_TEXTURE_2D,
-					  0,
-					  GL_RGBA32F_ARB,
-					  w,
-					  h,
-					  0,
-					  GL_RGBA,
-					  GL_FLOAT,
-					  data );
-
-		set_texture_format(defaultRGBTextureFormat);
-
-		return gl_tex;
+        switch (filter_type)
+        {
+        case FILTER_NONE:
+            tex->setMinificationFilter(QOpenGLTexture::Nearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            break;
+        case FILTER_LINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::Linear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_BILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_TRILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        }
+        return tex;
 	}
 
-	GLuint GFX::make_texture_RGBA16F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_RGBA32F( int w, int h, float *data, int filter_type, bool clamp )
 	{
-		MutexLocker locker(pMutex);
+        GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
+        tex->setFormat(GfxTexture::RGBA32F);
+        tex->setSize(w, h);
+        tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
+        if (clamp)
+            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+        else
+            tex->setWrapMode(QOpenGLTexture::Repeat);
 
-		set_texture_format(GL_RGBA16F_ARB);
-
-		use_mipmapping(false);
-
-		GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
-
-		use_mipmapping(true);
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp )
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-
-		switch(filter_type)
-		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-		}
-
-		glTexImage2D( GL_TEXTURE_2D,
-					  0,
-					  GL_RGBA16F_ARB,
-					  w,
-					  h,
-					  0,
-					  GL_RGBA,
-					  GL_FLOAT,
-					  data );
-
-		set_texture_format(defaultRGBTextureFormat);
-
-		return gl_tex;
+        switch (filter_type)
+        {
+        case FILTER_NONE:
+            tex->setMinificationFilter(QOpenGLTexture::Nearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            break;
+        case FILTER_LINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::Linear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_BILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_TRILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        }
+        return tex;
 	}
 
-	GLuint GFX::make_texture_RGB32F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_RGBA16F( int w, int h, float *data, int filter_type, bool clamp )
 	{
-		MutexLocker locker(pMutex);
+        GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
+        tex->setFormat(GfxTexture::RGBA16F);
+        tex->setSize(w, h);
+        tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
+        if (clamp)
+            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+        else
+            tex->setWrapMode(QOpenGLTexture::Repeat);
 
-		set_texture_format(GL_RGB32F_ARB);
-
-		use_mipmapping(false);
-
-		GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
-
-		use_mipmapping(true);
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp )
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-
-		switch(filter_type)
-		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-		}
-
-		glTexImage2D( GL_TEXTURE_2D,
-					  0,
-					  GL_RGB32F_ARB,
-					  w,
-					  h,
-					  0,
-					  GL_RGB,
-					  GL_FLOAT,
-					  data );
-
-		set_texture_format(defaultRGBTextureFormat);
-
-		return gl_tex;
+        switch (filter_type)
+        {
+        case FILTER_NONE:
+            tex->setMinificationFilter(QOpenGLTexture::Nearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            break;
+        case FILTER_LINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::Linear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_BILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_TRILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        }
+        return tex;
 	}
 
-	GLuint GFX::make_texture_RGB16F( int w, int h, float *data, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::make_texture_RGB16F( int w, int h, float *data, int filter_type, bool clamp )
 	{
-		MutexLocker locker(pMutex);
+        GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
+        tex->setFormat(GfxTexture::RGB16F);
+        tex->setSize(w, h);
+        tex->setData(GfxTexture::RGBA, GfxTexture::Float32, data);
+        if (clamp)
+            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+        else
+            tex->setWrapMode(QOpenGLTexture::Repeat);
 
-		set_texture_format(GL_RGB16F_ARB);
-
-		use_mipmapping(false);
-
-		GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
-
-		use_mipmapping(true);
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp )
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-
-		switch(filter_type)
-		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-		}
-
-		glTexImage2D( GL_TEXTURE_2D,
-					  0,
-					  GL_RGB16F_ARB,
-					  w,
-					  h,
-					  0,
-					  GL_RGB,
-					  GL_FLOAT,
-					  data );
-
-		set_texture_format(defaultRGBTextureFormat);
-
-		return gl_tex;
+        switch (filter_type)
+        {
+        case FILTER_NONE:
+            tex->setMinificationFilter(QOpenGLTexture::Nearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            break;
+        case FILTER_LINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::Linear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_BILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_TRILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        }
+        return tex;
 	}
 
-    GLuint GFX::create_color_texture(uint32 color)
+    GfxTexture::Ptr GFX::create_color_texture(uint32 color)
     {
-        MutexLocker locker(pMutex);
-
-        GLuint gl_tex = 0;
-        glGenTextures(1,&gl_tex);
-
-        glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-        glMatrixMode(GL_TEXTURE);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, defaultRGBATextureFormat, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
-
-        return gl_tex;
+        QImage img(QSize(1,1), QImage::Format_RGBA8888);
+        img.setPixel(0,0, color);
+        GfxTexture::Ptr tex = new GfxTexture(img);
+        tex->setWrapMode(QOpenGLTexture::Repeat);
+        tex->setMinificationFilter(QOpenGLTexture::Nearest);
+        tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+        return tex;
     }
 
-	GLuint GFX::create_texture(int w, int h, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::create_texture(int w, int h, int filter_type, bool clamp )
 	{
-		MutexLocker locker(pMutex);
+        GfxTexture::Ptr tex = new GfxTexture(GfxTexture::Target2D);
+        tex->setFormat(GfxTexture::RGB8_UNorm);
+        tex->setSize(w, h);
+        if (clamp)
+            tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+        else
+            tex->setWrapMode(QOpenGLTexture::Repeat);
 
-		if (w > max_tex_size || h > max_tex_size )
-			return create_texture( Math::Min(w, max_tex_size), Math::Min(h, max_tex_size), filter_type, clamp);
-
-		if (ati_workaround && filter_type != FILTER_NONE
-			&& ( !Math::IsPowerOfTwo(w) || !Math::IsPowerOfTwo(h)))
-			filter_type = FILTER_LINEAR;
-
-		GLuint gl_tex = 0;
-		glGenTextures(1,&gl_tex);
-
-		glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-		if (clamp )
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-		}
-
-		switch(filter_type)
-		{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-		}
-
-		glTexImage2D(GL_TEXTURE_2D, 0, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-		return gl_tex;
+        switch (filter_type)
+        {
+        case FILTER_NONE:
+            tex->setMinificationFilter(QOpenGLTexture::Nearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+            break;
+        case FILTER_LINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::Linear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_BILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapNearest);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        case FILTER_TRILINEAR:
+            tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+            tex->setMagnificationFilter(QOpenGLTexture::Linear);
+            break;
+        }
+        return tex;
 	}
 
-	GLuint GFX::create_texture_RGB32F(int w, int h, int filter_type, bool clamp )
-	{
-        return make_texture_RGB32F(w, h, NULL, filter_type, clamp);
-	}
-
-	GLuint GFX::create_texture_RGBA32F(int w, int h, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::create_texture_RGBA32F(int w, int h, int filter_type, bool clamp )
 	{
         return make_texture_RGBA32F(w, h, NULL, filter_type, clamp);
 	}
 
-	GLuint GFX::create_texture_RGB16F(int w, int h, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::create_texture_RGB16F(int w, int h, int filter_type, bool clamp )
 	{
         return make_texture_RGB16F(w, h, NULL, filter_type, clamp);
 	}
 
-	GLuint GFX::create_texture_RGBA16F(int w, int h, int filter_type, bool clamp )
+    GfxTexture::Ptr GFX::create_texture_RGBA16F(int w, int h, int filter_type, bool clamp )
 	{
         return make_texture_RGBA16F(w, h, NULL, filter_type, clamp);
-	}
-
-    void GFX::blit_texture(const QImage &src, GLuint dst )
-	{
-		if(!dst)
-			return;
-
-		glBindTexture( GL_TEXTURE_2D, dst );
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-
-        glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, src.width(), src.height(), GL_RGBA, GL_UNSIGNED_BYTE, src.bits() );
 	}
 
     QImage GFX::load_image(const QString &filename)
@@ -1648,27 +1242,21 @@ namespace TA3D
 	}
 
 
-    GLuint GFX::load_texture(const QString& file, int filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
+    GfxTexture::Ptr GFX::load_texture(const QString& file, int filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat, bool *useAlpha, bool checkSize)
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
-            return 0;
+            return GfxTexture::Ptr();
 
         const QString &upfile = file.toUpper() + " (" + QString::number(texFormat) + "-" + QString::number(filter_type) + ')';
-		HashMap<Interfaces::GfxTexture>::Sparse::iterator it = textureIDs.find(upfile);
-		if (it != textureIDs.end() && it->tex > 0)		// File already loaded
-		{
-			if (textureLoad[it->tex] > 0)
-			{
-				++textureLoad[it->tex];
-				if (width)
-					*width = it->getWidth();
-				if (height)
-					*height = it->getHeight();
-				if (useAlpha)
-					*useAlpha = textureAlpha.contains(it->tex);
-				return it->tex;
-			}
-		}
+        HashMap<GfxTexture::Ptr>::Sparse::iterator it = textureIDs.find(upfile);
+        if (it != textureIDs.end())		// File already loaded
+        {
+            if (width)
+                *width = (*it)->width();
+            if (height)
+                *height = (*it)->height();
+            return *it;
+        }
 
 		const bool compressible = texFormat == GL_COMPRESSED_RGB || texFormat == GL_COMPRESSED_RGBA || texFormat == 0;
         QString cache_filename = !file.isEmpty() ? file + ".bin" : QString();
@@ -1676,7 +1264,7 @@ namespace TA3D
 		cache_filename.replace('\\', 'S');
 		if (compressible)
 		{
-			GLuint gltex = load_texture_from_cache(cache_filename, filter_type, width, height, clamp, useAlpha);
+            GfxTexture::Ptr gltex = load_texture_from_cache(cache_filename, filter_type, width, height, clamp, useAlpha);
 			if (gltex)
 				return gltex;
 		}
@@ -1685,14 +1273,13 @@ namespace TA3D
         if (bmp.isNull())
 		{
 			LOG_ERROR("Failed to load texture `" << file << "`");
-			return 0;
+            return GfxTexture::Ptr();
 		}
 
 		if (width)
             *width = bmp.width();
 		if (height)
             *height = bmp.height();
-        convert_format(bmp);
 
 		if (checkSize)
 		{
@@ -1701,8 +1288,7 @@ namespace TA3D
                 bmp = shrink(bmp, std::min(bmp.width(), maxTextureSizeAllowed), std::min(bmp.height(),maxTextureSizeAllowed));
 		}
 
-        const QString ext = Paths::ExtractFileExt(file).toLower();
-		bool with_alpha = (ext == ".tga" || ext == ".png" || ext == ".tif");
+        bool with_alpha = bmp.hasAlphaChannel();
 		if (with_alpha)
 		{
 			with_alpha = false;
@@ -1723,14 +1309,10 @@ namespace TA3D
 		}
 		else
 			set_texture_format(texFormat);
-		GLuint gl_tex = make_texture(bmp, filter_type, clamp);
+        GfxTexture::Ptr gl_tex = make_texture(bmp, filter_type, clamp);
 		if (gl_tex)
 		{
-            textureIDs[upfile] = Interfaces::GfxTexture(gl_tex, bmp.width(), bmp.height());
-			textureFile[gl_tex] = upfile;
-			textureLoad[gl_tex] = 1;
-			if (with_alpha)
-				textureAlpha.insert(gl_tex);
+            textureIDs[upfile] = gl_tex;
 
 			if (compressible)
                 save_texture_to_cache(cache_filename, gl_tex, bmp.width(), bmp.height(), with_alpha);
@@ -1739,17 +1321,16 @@ namespace TA3D
 	}
 
 
-    GLuint	GFX::load_texture_mask(const QString& file, uint32 level, int filter_type, uint32 *width, uint32 *height, bool clamp )
+    GfxTexture::Ptr	GFX::load_texture_mask(const QString& file, uint32 level, int filter_type, uint32 *width, uint32 *height, bool clamp )
 	{
         if (!VFS::Instance()->fileExists(file)) // The file doesn't exist
-			return 0;
+            return GfxTexture::Ptr();
 
         QImage bmp = load_image(file);
-        if (bmp.isNull() )	return 0;					// Operation failed
+        if (bmp.isNull() )	return GfxTexture::Ptr();					// Operation failed
         if (width )		*width = bmp.width();
         if (height )	*height = bmp.height();
-        if (bmp.depth() != 32 )
-            convert_format( bmp );
+        convert_format( bmp );
 		bool with_alpha = (Paths::ExtractFileExt(file).toLower() == "tga");
 		if (with_alpha)
 		{
@@ -1808,7 +1389,7 @@ namespace TA3D
 	}
 
 
-    GLuint GFX::load_texture_from_cache(const QString& file, int filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
+    GfxTexture::Ptr GFX::load_texture_from_cache(const QString& file, int filter_type, uint32 *width, uint32 *height, bool clamp, bool *useAlpha )
 	{
 		if (ati_workaround
 			|| !lp_CONFIG->use_texture_cache
@@ -1816,122 +1397,123 @@ namespace TA3D
 			|| !g_useGenMipMaps
 			|| !g_useNonPowerOfTwoTextures
 			|| lp_CONFIG->developerMode)		// No caching in developer mode
-			return 0;
+            return GfxTexture::Ptr();
+        return GfxTexture::Ptr();
 
-        QString realFile(TA3D::Paths::Caches);
-		realFile += file;
-		if(TA3D::Paths::Exists(realFile))
-		{
-            QFile cache_file(realFile);
-            cache_file.open(QIODevice::ReadOnly);
-			uint32 mod_hash;
-			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
+//        QString realFile(TA3D::Paths::Caches);
+//		realFile += file;
+//		if(TA3D::Paths::Exists(realFile))
+//		{
+//            QFile cache_file(realFile);
+//            cache_file.open(QIODevice::ReadOnly);
+//			uint32 mod_hash;
+//			cache_file.read((char*)&mod_hash, sizeof(mod_hash));
 
-            if (mod_hash != hash<QString>()(TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
-			{
-				cache_file.close();
-				return 0;
-			}
+//            if (mod_hash != hash<QString>()(TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
+//			{
+//				cache_file.close();
+//                return GfxTexture::Ptr();
+//			}
 
-			if (useAlpha)
-                *useAlpha = readChar(&cache_file);
-			else
-                readChar(&cache_file);
+//			if (useAlpha)
+//                *useAlpha = readChar(&cache_file);
+//			else
+//                readChar(&cache_file);
 
-			uint32 rw, rh;
-			cache_file.read((char*)&rw, 4);
-			cache_file.read((char*)&rh, 4);
-			if(width)  *width = rw;
-			if(height) *height = rh;
+//			uint32 rw, rh;
+//			cache_file.read((char*)&rw, 4);
+//			cache_file.read((char*)&rh, 4);
+//			if(width)  *width = rw;
+//			if(height) *height = rh;
 
-			int lod_max = 0;
-			GLint size, internal_format;
+//			int lod_max = 0;
+//			GLint size, internal_format;
 
-			cache_file.read( (char*)&lod_max, sizeof( lod_max ));
+//			cache_file.read( (char*)&lod_max, sizeof( lod_max ));
 
-			GLuint	tex;
-			glEnable(GL_TEXTURE_2D);
-			glGenTextures(1,&tex);
+//			GLuint	tex;
+//			glEnable(GL_TEXTURE_2D);
+//			glGenTextures(1,&tex);
 
-			if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR)
-				use_mipmapping(false);
-			else
-				use_mipmapping(true);
+//			if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR)
+//				use_mipmapping(false);
+//			else
+//				use_mipmapping(true);
 
-			glBindTexture( GL_TEXTURE_2D, tex );
-            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+//			glBindTexture( GL_TEXTURE_2D, tex );
+//            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
 
-			for(int lod = 0 ; lod < lod_max ; ++lod)
-			{
-				GLint w,h,border;
-				cache_file.read( (char*)&size, sizeof( GLint ) );
+//			for(int lod = 0 ; lod < lod_max ; ++lod)
+//			{
+//				GLint w,h,border;
+//				cache_file.read( (char*)&size, sizeof( GLint ) );
 
-				byte *img = new byte[size];
+//				byte *img = new byte[size];
 
-				cache_file.read( (char*)&internal_format, sizeof( GLint ) );
-				cache_file.read( (char*)&border, sizeof( GLint ) );
-				cache_file.read( (char*)&w, sizeof( GLint ) );
-				cache_file.read( (char*)&h, sizeof( GLint ) );
-				cache_file.read( (char*)img, size );
-				if (lod == 0)
-                    glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
-				else
-					glCompressedTexSubImage2D( GL_TEXTURE_2D, lod, 0, 0, w, h, internal_format, size, img);
+//				cache_file.read( (char*)&internal_format, sizeof( GLint ) );
+//				cache_file.read( (char*)&border, sizeof( GLint ) );
+//				cache_file.read( (char*)&w, sizeof( GLint ) );
+//				cache_file.read( (char*)&h, sizeof( GLint ) );
+//				cache_file.read( (char*)img, size );
+//				if (lod == 0)
+//                    glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
+//				else
+//					glCompressedTexSubImage2D( GL_TEXTURE_2D, lod, 0, 0, w, h, internal_format, size, img);
 
-				DELETE_ARRAY(img);
-				if (!build_mipmaps)
-					break;
-			}
-			if (build_mipmaps)
-                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+//				DELETE_ARRAY(img);
+//				if (!build_mipmaps)
+//					break;
+//			}
+//			if (build_mipmaps)
+//                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
-			cache_file.close();
+//			cache_file.close();
 
-			if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR)
-				use_mipmapping(true);
+//			if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR)
+//				use_mipmapping(true);
 
-			glMatrixMode(GL_TEXTURE);
-			glLoadIdentity();
-			glMatrixMode(GL_MODELVIEW);
+//			glMatrixMode(GL_TEXTURE);
+//			glLoadIdentity();
+//			glMatrixMode(GL_MODELVIEW);
 
-			if (clamp)
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-			}
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
+//			if (clamp)
+//			{
+//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+//			}
+//			else
+//			{
+//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+//			}
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, lp_CONFIG->anisotropy);
 
-			switch (filter_type)
-			{
-			case FILTER_NONE:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-				break;
-			case FILTER_LINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-				break;
-			case FILTER_BILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-				break;
-			case FILTER_TRILINEAR:
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-				break;
-			}
-			return tex;
-		}
-		return 0; // File isn't in cache
+//			switch (filter_type)
+//			{
+//			case FILTER_NONE:
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+//				break;
+//			case FILTER_LINEAR:
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//				break;
+//			case FILTER_BILINEAR:
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+//				break;
+//			case FILTER_TRILINEAR:
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+//				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+//				break;
+//			}
+//			return tex;
+//		}
+//		return 0; // File isn't in cache
 	}
 
 
-    void GFX::save_texture_to_cache( QString file, GLuint tex, uint32 width, uint32 height, bool useAlpha )
+    void GFX::save_texture_to_cache(QString file, GfxTexture::Ptr tex, uint32 width, uint32 height, bool useAlpha )
 	{
 		if(ati_workaround
 		   || !lp_CONFIG->use_texture_cache
@@ -1943,76 +1525,76 @@ namespace TA3D
 
         file = TA3D::Paths::Caches + file;
 
-		int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
+        int rw = tex->width(), rh = tex->height();		// Also binds tex
 
-        GLint compressed;
-        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed );
-		// Do not save it if it's not compressed -> save disk space, and it would slow things down
-		if(!compressed)
-			return;
+//        GLint compressed;
+//        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &compressed );
+//		// Do not save it if it's not compressed -> save disk space, and it would slow things down
+//		if(!compressed)
+//			return;
 
-        QFile cache_file(file);
-        cache_file.open(QIODevice::WriteOnly);
+//        QFile cache_file(file);
+//        cache_file.open(QIODevice::WriteOnly);
 
-        if (!cache_file.isOpen())
-			return;
+//        if (!cache_file.isOpen())
+//			return;
 
-        uint32 mod_hash = static_cast<uint32>(hash<QString>()(TA3D_CURRENT_MOD)); // Save a hash of current mod
+//        uint32 mod_hash = static_cast<uint32>(hash<QString>()(TA3D_CURRENT_MOD)); // Save a hash of current mod
 
-		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
+//		cache_file.write( (const char*)&mod_hash, sizeof( mod_hash ) );
 
-        cache_file.putChar(useAlpha);
-		cache_file.write( (const char*)&width, 4 );
-		cache_file.write( (const char*)&height, 4 );
+//        cache_file.putChar(useAlpha);
+//		cache_file.write( (const char*)&width, 4 );
+//		cache_file.write( (const char*)&height, 4 );
 
-		int lod_max = Math::Max(Math::Log2(rw), Math::Log2(rh));
-		if ((1 << lod_max) < rw && (1 << lod_max) < rh )
-			lod_max++;
+//		int lod_max = Math::Max(Math::Log2(rw), Math::Log2(rh));
+//		if ((1 << lod_max) < rw && (1 << lod_max) < rh )
+//			lod_max++;
 
-		cache_file.write( (const char*)&lod_max, sizeof( lod_max ) );
+//		cache_file.write( (const char*)&lod_max, sizeof( lod_max ) );
 
-		for(int lod = 0 ; lod < lod_max ; ++lod)
-		{
-			GLint size, internal_format;
+//		for(int lod = 0 ; lod < lod_max ; ++lod)
+//		{
+//			GLint size, internal_format;
 
-			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
-			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+//			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
+//			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
 
-			byte *img = new byte[size];
-			memset(img, 0, size);
+//			byte *img = new byte[size];
+//			memset(img, 0, size);
 
-            glGetCompressedTexImage( GL_TEXTURE_2D, lod, img );
-			GLint w,h,border;
-			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_BORDER, &border );
-			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
-			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h );
+//            glGetCompressedTexImage( GL_TEXTURE_2D, lod, img );
+//			GLint w,h,border;
+//			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_BORDER, &border );
+//			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
+//			glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h );
 
-			cache_file.write( (const char*)&size, sizeof( GLint ) );
-			cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
-			cache_file.write( (const char*)&border, sizeof( GLint ) );
-			cache_file.write( (const char*)&w, sizeof( GLint ) );
-			cache_file.write( (const char*)&h, sizeof( GLint ) );
-			cache_file.write( (const char*)img, size );
+//			cache_file.write( (const char*)&size, sizeof( GLint ) );
+//			cache_file.write( (const char*)&internal_format, sizeof( GLint ) );
+//			cache_file.write( (const char*)&border, sizeof( GLint ) );
+//			cache_file.write( (const char*)&w, sizeof( GLint ) );
+//			cache_file.write( (const char*)&h, sizeof( GLint ) );
+//			cache_file.write( (const char*)img, size );
 
-			DELETE_ARRAY(img);
-		}
+//			DELETE_ARRAY(img);
+//		}
 
-		cache_file.close();
+//		cache_file.close();
 	}
 
 
 
-    GLuint GFX::load_masked_texture(const QString &file, QString mask, int filter_type )
+    GfxTexture::Ptr GFX::load_masked_texture(const QString &file, QString mask, int filter_type )
 	{
 		if ( (!VFS::Instance()->fileExists(file)) || (!VFS::Instance()->fileExists(mask)))
-			return 0; // The file doesn't exist
+            return GfxTexture::Ptr(); // The file doesn't exist
 
         QImage bmp = load_image(file);
         if (bmp.isNull())
-			return 0;					// Operation failed
+            return GfxTexture::Ptr();					// Operation failed
         const QImage &alpha = load_image(mask);
         if(alpha.isNull())
-			return 0;
+            return GfxTexture::Ptr();
         for (int y = 0; y < bmp.height(); ++y)
 		{
             for (int x = 0; x < bmp.width() ; ++x)
@@ -2026,64 +1608,6 @@ namespace TA3D
 		else
 			set_texture_format(defaultTextureFormat_RGBA());
         return make_texture( bmp, filter_type );
-	}
-
-
-	uint32 GFX::texture_width(const GLuint gltex)
-	{
-		GLint width;
-		glBindTexture( GL_TEXTURE_2D, gltex);
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width );
-		return width;
-	}
-
-	uint32 GFX::texture_height(const GLuint gltex)
-	{
-		GLint height;
-		glBindTexture( GL_TEXTURE_2D, gltex);
-		glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height );
-		return height;
-	}
-
-
-	void GFX::destroy_texture(GLuint& gltex)
-	{
-		if (gltex)						// Test if the texture exists
-		{
-			// Look for it in the texture table
-			HashMap<int, GLuint>::Sparse::iterator it = textureLoad.find(gltex);
-			if (it != textureLoad.end())
-			{
-				--(*it);			// Update load info
-				if (*it > 0)		// Still used elsewhere, so don't delete it
-				{
-					gltex = 0;
-					return;
-				}
-				textureLoad.erase(it);
-				textureAlpha.erase(gltex);
-
-                HashMap<QString, GLuint>::Sparse::iterator file_it = textureFile.find(gltex);
-				if (file_it != textureFile.end())
-				{
-                    if (!file_it->isEmpty())
-						textureIDs.erase(*file_it);
-					textureFile.erase(file_it);
-				}
-			}
-			glDeleteTextures(1, &gltex);		// Delete the OpenGL object
-		}
-		gltex = 0;						// The texture is destroyed
-	}
-
-	GLuint GFX::make_texture_from_screen( int filter_type)				// Copy pixel data from screen to a texture
-	{
-		GLuint gltex = create_texture(width, height, filter_type);
-
-		glBindTexture(GL_TEXTURE_2D,gltex);
-		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, width, height, 0);
-
-		return gltex;
 	}
 
 
@@ -2221,100 +1745,100 @@ namespace TA3D
 	void GFX::load_background()
 	{
 		if (width > 1024)
-			glfond = load_texture("gfx/menu1280.jpg", FILTER_LINEAR);
+            glbackground = load_texture("gfx/menu1280.jpg", FILTER_LINEAR);
 		else
-			glfond = load_texture(((width <= 800) ? "gfx/menu800.jpg" : "gfx/menu1024.jpg"), FILTER_LINEAR);
+            glbackground = load_texture(((width <= 800) ? "gfx/menu800.jpg" : "gfx/menu1024.jpg"), FILTER_LINEAR);
 	}
 
 
-	void GFX::renderToTexture(const GLuint tex, bool useDepth)
+    void GFX::renderToTexture(const GfxTexture::Ptr tex, bool useDepth)
 	{
-		if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
-		{
-            glBindTexture(GL_TEXTURE_2D, textureFBO);        // Copy back buffer to target texture
-			glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, texture_width(textureFBO), texture_height(textureFBO), 0);
-			textureFBO = 0;
-			glViewport(0, 0, width, height);           // Use default viewport
-		}
+//		if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
+//		{
+//            glBindTexture(GL_TEXTURE_2D, textureFBO);        // Copy back buffer to target texture
+//            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, textureColor->width(), textureColor->height(), 0);
+//			textureFBO = 0;
+//			glViewport(0, 0, width, height);           // Use default viewport
+//		}
 
-		if (tex == 0)       // Release the texture
-		{
-			if (g_useFBO)
-			{
-                glBindFramebuffer(GL_FRAMEBUFFER,0);     // Bind the default FBO
-				glViewport(0, 0, width, height);           // Use default viewport
-			}
-		}
-		else
-		{
-			if (g_useFBO)               // If FBO extension is available then use it
-			{
-				if (textureFBO == 0)    // Generate a FBO if none has been created yet
-				{
-                    glGenFramebuffers(1,&textureFBO);
-                    glGenRenderbuffers(1,&textureDepth);
-				}
+//        if (!tex)       // Release the texture
+//		{
+//			if (g_useFBO)
+//			{
+//                glBindFramebuffer(GL_FRAMEBUFFER,0);     // Bind the default FBO
+//				glViewport(0, 0, width, height);           // Use default viewport
+//			}
+//		}
+//		else
+//		{
+//			if (g_useFBO)               // If FBO extension is available then use it
+//			{
+//				if (textureFBO == 0)    // Generate a FBO if none has been created yet
+//				{
+//                    glGenFramebuffers(1,&textureFBO);
+//                    glGenRenderbuffers(1,&textureDepth);
+//				}
 
-                glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0); // Attach the texture
-				if (useDepth)
-				{
-                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, textureDepth);
-                    glBindRenderbuffer(GL_RENDERBUFFER, textureDepth);
-                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, texture_width(tex), texture_height(tex));       // Should be enough
-				}
-				else
-				{
-                    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-				}
-				glViewport(0,0,texture_width(tex),texture_height(tex));                                     // Stretch viewport to texture size
-			}
-			else                        // We're going to render to back buffer and then copy back our work :)
-			{
-				textureFBO = tex;       // Save this here
-				glViewport(0,0,texture_width(tex),texture_height(tex));                                     // Stretch viewport to texture size
-			}
-		}
+//                glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+//                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0); // Attach the texture
+//				if (useDepth)
+//				{
+//                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, textureDepth);
+//                    glBindRenderbuffer(GL_RENDERBUFFER, textureDepth);
+//                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, tex->width(), tex->height());       // Should be enough
+//				}
+//				else
+//				{
+//                    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+//                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+//				}
+//                glViewport(0,0,tex->width(),tex->height());                                     // Stretch viewport to texture size
+//			}
+//			else                        // We're going to render to back buffer and then copy back our work :)
+//			{
+//				textureFBO = tex;       // Save this here
+//                glViewport(0,0,tex->width(),tex->height());                                     // Stretch viewport to texture size
+//			}
+//		}
 	}
 
 
-	void GFX::renderToTextureDepth(const GLuint tex)
+    void GFX::renderToTextureDepth(const GfxTexture::Ptr tex)
 	{
-		if (tex == 0)       // Release the texture
-		{
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
-			glViewport(0, 0, width, height);           // Use default viewport
-		}
-		else
-		{
-			int tex_w = texture_width(tex);
-			int tex_h = texture_height(tex);
-			if (textureFBO == 0)    // Generate a FBO if none has been created yet
-			{
-                glGenFramebuffers(1, &textureFBO);
-                glGenRenderbuffers(1, &textureDepth);
-			}
-			if (textureColor == 0)
-				textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
-			else
-			{
-				glBindTexture(GL_TEXTURE_2D, textureColor);
-				glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-			}
+//        if (!tex)       // Release the texture
+//		{
+//            glBindFramebuffer(GL_FRAMEBUFFER, 0);     // Bind the default FBO
+//			glViewport(0, 0, width, height);           // Use default viewport
+//		}
+//		else
+//		{
+//            int tex_w = tex->width();
+//            int tex_h = tex->height();
+//            if (!textureFBO)    // Generate a FBO if none has been created yet
+//			{
+//                glGenFramebuffers(1, &textureFBO);
+//                glGenRenderbuffers(1, &textureDepth);
+//			}
+//            if (!textureColor)
+//				textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
+//			else
+//			{
+//                textureColor->bind();
+//				glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+//			}
 
-            glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor, 0);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex, 0); // Attach the texture
+//            glBindFramebuffer(GL_FRAMEBUFFER, textureFBO);					                    // Bind the FBO
+//            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColor, 0);
+//            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex, 0); // Attach the texture
 
-			glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
-		}
+//			glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
+//		}
 	}
 
 
-	void GFX::PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2)
+    void GFX::PutTextureInsideRect(GfxTexture::Ptr texture, const float x1, const float y1, const float x2, const float y2)
 	{
-		glBindTexture(GL_TEXTURE_2D, texture);
+        texture->bind();
 		glBegin(GL_QUADS);
 		//
 		glTexCoord2f(0.0f, 0.0f);
@@ -2382,40 +1906,35 @@ namespace TA3D
 		return bmp;
 	}
 
-	GLuint GFX::create_shadow_map(int w, int h)
+    GfxTexture::Ptr GFX::create_shadow_map(int w, int h)
 	{
-		GLuint shadowMapTexture;
+        GfxTexture::Ptr shadowMapTexture = new GfxTexture(GfxTexture::Target2D);
+        shadowMapTexture->setSize(w, h);
+        shadowMapTexture->setFormat(GfxTexture::D24);
 
-		glGenTextures(1, &shadowMapTexture);
-		glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
-		glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0,
-					  GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 		if (lp_CONFIG->shadow_quality == 2)
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);       // We want fast shadows
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            shadowMapTexture->setMinificationFilter(GfxTexture::Nearest);            // We want fast shadows
+            shadowMapTexture->setMagnificationFilter(GfxTexture::Nearest);
 		}
 		else
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);       // We want smooth shadows
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            shadowMapTexture->setMinificationFilter(GfxTexture::Linear);            // We want smooth shadows
+            shadowMapTexture->setMagnificationFilter(GfxTexture::Linear);
 		}
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        shadowMapTexture->setWrapMode(GfxTexture::ClampToEdge);
 
 		return shadowMapTexture;
 	}
 
 	void GFX::delete_shadow_map()
 	{
-		if (shadowMap)
-			destroy_texture(shadowMap);
-		shadowMap = 0;
+        shadowMap = nullptr;
 	}
 
-	GLuint GFX::get_shadow_map()
+    GfxTexture::Ptr GFX::get_shadow_map()
 	{
-		if (shadowMap == 0)
+        if (!shadowMap)
 		{
 			switch(lp_CONFIG->shadowmap_size)
 			{

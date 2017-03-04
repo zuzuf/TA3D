@@ -37,8 +37,8 @@ namespace TA3D
 
 
 	PARTICLE_ENGINE::PARTICLE_ENGINE()
-		:nb_part(0), size(0), part(), parttex(0), partbmp(NULL), dsmoke(false),
-		ntex(0), gltex(), point(NULL),
+        :nb_part(0), size(0), dsmoke(false),
+        ntex(0), point(NULL),
 		texcoord(NULL), color(NULL), thread_running(false), thread_ask_to_stop(false),
 		p_wind_dir(NULL), p_g(NULL), particle_systems()
 	{
@@ -70,7 +70,7 @@ namespace TA3D
 
 		stretch_blit(bmp, partbmp, 0,0, bmp.width(), bmp.height(), 64 * (ntex & 3), 64 * (ntex >> 2), 64, 64);
 		++ntex;
-        gfx->destroy_texture(parttex);
+        parttex = nullptr;
 		gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());
 		parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
 
@@ -866,8 +866,6 @@ namespace TA3D
 	{
 		pMutex.lock();
 
-		for (unsigned int i = 0 ; i < gltex.size() ; ++i)
-			gfx->destroy_texture(gltex[i]);
 		gltex.clear();
 
 		for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
@@ -877,7 +875,7 @@ namespace TA3D
 
         partbmp = QImage();
 		ntex = 0;
-		gfx->destroy_texture(parttex);
+        parttex = nullptr;
 		dsmoke = false;
 		size = 0;
 		nb_part = 0;

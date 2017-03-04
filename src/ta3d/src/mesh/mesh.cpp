@@ -292,9 +292,6 @@ namespace TA3D
 		DELETE_ARRAY(line_v_idx[1]);
 		DELETE_ARRAY(shadow_index);
 		DELETE_ARRAY(tcoord);
-		for(unsigned int i = 0; i < gltex.size() ; ++i)
-			if (gltex.size() > i)
-				gfx->destroy_texture(gltex[i]);
 		gltex.clear();
 		for (unsigned int i = 0; i < gl_dlist.size(); i++)
 			if (gl_dlist[i])
@@ -334,13 +331,13 @@ namespace TA3D
 
             if (!bmp.isNull())
 			{
-				GLuint texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
+                GfxTexture::Ptr texid = gfx->make_texture(bmp, FILTER_TRILINEAR, true);
 				gltex[id] = texid;
                 gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp.width(), bmp.height(), true);
 			}
 			else
 			{
-				gltex[id] = 0;
+                gltex[id] = nullptr;
 				LOG_WARNING(LOG_PREFIX_3DO << "could not load texture : " << filename);
 			}
 

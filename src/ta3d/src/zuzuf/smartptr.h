@@ -30,17 +30,17 @@ namespace zuzuf
         inline smartptr(T *ptr) : ptr(ptr)
         {
             if (ptr)
-                ptr->retain();
+                ptr->ref_count::retain();
         }
         inline smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))
         {
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
         }
         inline smartptr(smartptr &ptr) : ptr(ptr.ptr)
         {
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
         }
         inline smartptr(smartptr &&ptr) : ptr(ptr.ptr)
         {
@@ -49,19 +49,19 @@ namespace zuzuf
         inline smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))
         {
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
         }
         template<class U>
         inline smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))
         {
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
         }
         template<class U>
         inline smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))
         {
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
         }
         inline ~smartptr()
         {
@@ -84,7 +84,7 @@ namespace zuzuf
             T *old = this->ptr;
             this->ptr = const_cast<T*>(ptr.ptr);
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
             if (old)
                 clear(old);
             return *this;
@@ -123,10 +123,30 @@ namespace zuzuf
             T *old = this->ptr;
             this->ptr = const_cast<T*>(ptr);
             if (this->ptr)
-                this->ptr->retain();
+                this->ptr->ref_count::retain();
             if (old)
                 clear(old);
             return *this;
+        }
+
+        inline bool operator==(const T *rhs) const
+        {
+            return this->ptr == rhs;
+        }
+
+        inline bool operator==(const smartptr &rhs) const
+        {
+            return this->ptr == rhs.ptr;
+        }
+
+        inline bool operator!=(const T *rhs) const
+        {
+            return this->ptr != rhs;
+        }
+
+        inline bool operator!=(const smartptr &rhs) const
+        {
+            return this->ptr != rhs.ptr;
         }
 
         template<class U>
@@ -135,10 +155,8 @@ namespace zuzuf
             return operator=(dynamic_cast<const T*>(ptr));
         }
 
-        inline T *operator->()	{	return ptr;	}
-        inline const T *operator->() const	{	return ptr;	}
-        inline T &operator*()	{	return *ptr;	}
-        inline const T &operator*() const	{	return *ptr;	}
+        inline T *operator->() const	{	return ptr;	}
+        inline T &operator*() const	{	return *ptr;	}
 
         inline operator bool() const	{	return ptr != NULL;	}
 
@@ -156,7 +174,7 @@ namespace zuzuf
     private:
         inline void clear(T *p) const
         {
-            if (p->release() == 0)
+            if (p->ref_count::release() == 0)
                 delete p;
         }
     private:

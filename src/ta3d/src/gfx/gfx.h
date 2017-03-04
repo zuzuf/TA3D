@@ -80,7 +80,7 @@ namespace TA3D
 		** \param x2 The bottom-right corned X-coordinate
 		** \param x2 The bottom-right corned Y-coordinate
 		*/
-        void PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2);
+        void PutTextureInsideRect(GfxTexture::Ptr texture, const float x1, const float y1, const float x2, const float y2);
 
 		/*!
 		** \brief Load a texture with a mask
@@ -112,7 +112,7 @@ namespace TA3D
 
 		void load_background();
 
-		void destroy_background() { destroy_texture(glfond); }
+        void destroy_background();
 
 		/*!
 		** \brief Load the default textures (background + default.png)
@@ -199,9 +199,9 @@ namespace TA3D
 		void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
 		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
 		void rectdot(const float x1, const float y1, const float x2, const float y2);
-		void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2);
-		void drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2);
-		void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2);
+        void drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2);
+        void drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2);
+        void drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2);
 
 		void line(const float x1, const float y1, const float x2, const float y2, const uint32 col);			// Basic drawing routines (with color arguments)
 		void rect(const float x1, const float y1, const float x2, const float y2, const uint32 col);
@@ -211,8 +211,8 @@ namespace TA3D
 		void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
-		void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
-		void drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
 
 		//! \name Text manipulation
 		//@{
@@ -226,39 +226,30 @@ namespace TA3D
         void print_right(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text);
 		//@} // Text manipilation
 
-        GLuint	make_texture( const QImage &bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
-		GLuint	create_color_texture(uint32 color);
-		GLuint	create_texture( int w, int h, int filter_type = FILTER_TRILINEAR, bool clamp = true);
-        void	blit_texture( const QImage &src, GLuint dst);
-        GLuint	load_texture(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
-        GLuint	load_texture_mask(const QString& file, uint32 level, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
-        GLuint	load_texture_from_cache(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
-        GLuint	load_masked_texture( const QString &file, QString mask, int filter_type = FILTER_TRILINEAR);
-        void	save_texture_to_cache(QString file, GLuint tex, uint32 width, uint32 height, bool useAlpha);
-		uint32	texture_width(const GLuint gltex);
-		uint32	texture_height(const GLuint gltex);
-		void	destroy_texture( GLuint &gltex);
+        GfxTexture::Ptr make_texture( const QImage &bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
+        GfxTexture::Ptr create_color_texture(uint32 color);
+        GfxTexture::Ptr create_texture( int w, int h, int filter_type = FILTER_TRILINEAR, bool clamp = true);
+        GfxTexture::Ptr load_texture(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0, bool *useAlpha = NULL, bool checkSize = false);
+        GfxTexture::Ptr load_texture_mask(const QString& file, uint32 level, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
+        GfxTexture::Ptr load_texture_from_cache(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
+        GfxTexture::Ptr load_masked_texture( const QString &file, QString mask, int filter_type = FILTER_TRILINEAR);
+        void	save_texture_to_cache(QString file, GfxTexture::Ptr tex, uint32 width, uint32 height, bool useAlpha);
 		void	disable_texturing();
 		void	enable_texturing();
         bool    is_texture_in_cache(const QString& file);
 		int     max_texture_size();
 
-		GLuint  make_texture_RGB32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_RGBA32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_RGB16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_RGBA16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_A16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
-		GLuint  make_texture_A32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_RGBA32F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_RGB16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_RGBA16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
+        GfxTexture::Ptr make_texture_A16F( int w, int h, float *data, int filter_type = FILTER_NONE, bool clamp = false);
 
-		GLuint	create_texture_RGB32F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
-		GLuint	create_texture_RGBA32F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
-		GLuint	create_texture_RGB16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
-		GLuint	create_texture_RGBA16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
-		GLuint  create_shadow_map(int w, int h);
+        GfxTexture::Ptr create_texture_RGBA32F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
+        GfxTexture::Ptr create_texture_RGB16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
+        GfxTexture::Ptr create_texture_RGBA16F( int w, int h, int filter_type = FILTER_NONE, bool clamp = true);
+        GfxTexture::Ptr create_shadow_map(int w, int h);
 
-		GLuint make_texture_from_screen(int filter_type = FILTER_NONE);
-
-		GLuint get_shadow_map();
+        GfxTexture::Ptr get_shadow_map();
 		void delete_shadow_map();
 		void readShadowMapProjectionMatrix();
 
@@ -287,8 +278,8 @@ namespace TA3D
 		/*!
 		** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)
 		*/
-		void renderToTexture(const GLuint tex = 0, bool useDepth = false);
-		void renderToTextureDepth(const GLuint tex = 0);
+        void renderToTexture(const GfxTexture::Ptr tex = GfxTexture::Ptr(), bool useDepth = false);
+        void renderToTextureDepth(const GfxTexture::Ptr tex = GfxTexture::Ptr());
 
         QImage create_surface_ex(int bpp, int w, int h);
         QImage create_surface(int w, int h);
@@ -333,11 +324,11 @@ namespace TA3D
 
 		float		low_def_limit;
 
-		GLuint		glfond;
+        GfxTexture::Ptr glbackground;
 		GLuint      textureFBO;         // FBO used by renderToTexture functions
-		GLuint      textureDepth;
-		GLuint      textureColor;       // Default color texture used by FBO when rendering to depth texture
-		GLuint      shadowMap;
+        GfxTexture::Ptr textureDepth;
+        GfxTexture::Ptr textureColor;       // Default color texture used by FBO when rendering to depth texture
+        GfxTexture::Ptr shadowMap;
 
 		GLfloat     shadowMapProjectionMatrix[16];
 
@@ -347,7 +338,7 @@ namespace TA3D
 
 		int         max_tex_size;
 		//! A default texture, loaded at initialization, used for rendering non textured objects with some shaders
-		GLuint      default_texture;
+        GfxTexture *default_texture;
 
 		//! A bool to store shadowMap texture ID state
 		bool		shadowMapWasActive;
@@ -377,13 +368,7 @@ namespace TA3D
 		GLuint		defaultRGBTextureFormat;
 		GLuint		defaultRGBATextureFormat;
 		//! Store all texture IDs
-		UTILS::HashMap<Interfaces::GfxTexture>::Sparse	textureIDs;
-		//! And for each texture ID, how many times it is used
-		UTILS::HashMap<int, GLuint>::Sparse				textureLoad;
-		//! And for each texture ID, if there is alpga
-		UTILS::HashSet<GLuint>::Sparse					textureAlpha;
-		//! And for each texture ID the file which contains the original texture
-        UTILS::HashMap<QString, GLuint>::Sparse			textureFile;
+        UTILS::HashMap<GfxTexture::Ptr>::Sparse	textureIDs;
 	}; // class GFX
 
 

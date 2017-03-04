@@ -10,8 +10,10 @@ namespace TA3D
 	class Sky
 	{
 	private:
-		class SkyData
+        class SkyData : public zuzuf::ref_count
 		{
+        public:
+            typedef zuzuf::smartptr<SkyData>    Ptr;
 		public:
 			float			rotation_speed;
 			float			rotation_offset;	// If you want the sun to match light dir ...
@@ -32,9 +34,9 @@ namespace TA3D
 	private:
 		int			s;
 		float		w;
-		GLuint		tex[6];			// Our cube textures
+        GfxTexture::Ptr tex[6];			// Our cube textures
 		GLuint		dlist;
-		SkyData		*skyInfo;
+        SkyData::Ptr skyInfo;
 
 	public:
 		Sky();
@@ -49,7 +51,7 @@ namespace TA3D
 		float rotationSpeed() const	{	return skyInfo->rotation_speed;	}
 
 		void draw();
-		GLuint skyTex() const	{	return tex[5];	}
+        GfxTexture::Ptr skyTex() const	{	return tex[5];	}
 
 		void choose_a_sky( const QString &mapname, const QString &planet );
 

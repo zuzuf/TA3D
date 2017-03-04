@@ -60,7 +60,7 @@ namespace TA3D
         QByteArray frag_shader_src;
         QByteArray vert_shader_src;
         Shader  s_shader;
-        GLuint  glColorTexture;     // This is a small texture filled with color Color (just to prevent rendering color from being changed)
+        GfxTexture::Ptr glColorTexture;     // This is a small texture filled with color Color (just to prevent rendering color from being changed)
 		Mesh3DM *root;
     public:
 

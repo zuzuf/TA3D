@@ -197,7 +197,7 @@ namespace TA3D
         short       *nb_index;			// Nombre d'indices par primitive
         Vector3D    *N;					// Tableau de normales pour les sommet
         Vector3D    *F_N;				// face normals
-        std::vector<GLuint> gltex;      // Texture pour le dessin de l'objet
+        std::vector<GfxTexture::Ptr> gltex;      // Texture pour le dessin de l'objet
         QStringList tex_cache_name; // Used for on-the-fly loading
         float       *tcoord;			// Tableau de coordonnées de texture
         GLushort    sel[4];				// Primitive de sélection

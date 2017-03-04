@@ -545,9 +545,9 @@ namespace TA3D
 				gfx->clearAll();
 
 				gfx->set_2D_mode();
-				GLuint tex = gfx->make_texture(background);
+                GfxTexture::Ptr tex = gfx->make_texture(background);
                 gfx->drawtexture(tex, 0.0f, 0.0f, (float)background.width(), (float)background.height(), 0xFFFFFFFF);
-				gfx->destroy_texture(tex);
+                tex = nullptr;
 				gfx->unset_2D_mode();
 
                 cam.setWidthFactor(background.width(), background.height());

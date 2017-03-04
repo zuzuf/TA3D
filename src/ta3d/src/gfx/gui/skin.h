@@ -88,7 +88,7 @@ namespace Gui
 
 	public:
 		//! Default background for windows
-		GLuint  wnd_background;
+        GfxTexture::Ptr wnd_background;
 		//! Default background width
 		uint32  bkg_w;
 		//! Default background height

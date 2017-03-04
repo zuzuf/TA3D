@@ -35,41 +35,31 @@ namespace TA3D
         float sealvl = 0.0f;
     }
 
+    DrawingTable::DrawingTable()
+    {
+        hash_table.reserve(DrawingTable_SIZE);
+    }
+
     DrawingTable::~DrawingTable()
     {
-		for (std::vector< std::vector< RenderQueue* > >::iterator i = hash_table.begin() ; i != hash_table.end() ; ++i)
-			for (std::vector< RenderQueue* >::iterator e = i->begin(); e != i->end(); ++e)
-				delete *e;
         hash_table.clear();
     }
 
 
 	void DrawingTable::queue_Instance( uint32 model_id, const Instance &instance )
     {
-        uint32	hash = model_id & DrawingTable_MASK;
-        for (std::vector< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
-        {
-            if ((*i)->model_id == model_id)// We found an already existing render queue
-            {
-                (*i)->queue.push_back( instance );
-                return;
-            }
-        }
-        RenderQueue *renderQueue = new RenderQueue( model_id );
-        hash_table[ hash ].push_back( renderQueue );
-        renderQueue->queue.push_back( instance );
+        hash_table[model_id].queue.push_back(instance);
     }
 
 
     void DrawingTable::draw_all()
     {
-		for (std::vector< std::vector< RenderQueue* > >::iterator i = hash_table.begin() ; i != hash_table.end() ; ++i)
-			for (std::vector< RenderQueue* >::iterator e = i->begin() ; e != i->end() ; ++e )
-                (*e)->draw_queue();
+        for(auto rq = hash_table.begin() ; rq != hash_table.end() ; ++rq)
+            rq.value().draw_queue(rq.key());
     }
 
 
-    void RenderQueue::draw_queue()
+    void RenderQueue::draw_queue(uint32 model_id) const
     {
         if (queue.empty())
             return;
@@ -91,20 +81,20 @@ namespace TA3D
             glEndList();
         }
 
-        for (std::vector< Instance >::iterator i = queue.begin() ; i != queue.end() ; ++i)
+        for (const Instance &i : queue)
         {
             glPopMatrix();
             glPushMatrix();
-            glTranslatef( i->pos.x, i->pos.y, i->pos.z );
-			if (lp_CONFIG->underwater_bright && INSTANCING::water && i->pos.y < INSTANCING::sealvl)
+            glTranslatef( i.pos.x, i.pos.y, i.pos.z );
+            if (lp_CONFIG->underwater_bright && INSTANCING::water && i.pos.y < INSTANCING::sealvl)
 			{
-				double eqn[4]= { 0.0f, -1.0f, 0.0f, INSTANCING::sealvl - i->pos.y };
+                double eqn[4]= { 0.0f, -1.0f, 0.0f, INSTANCING::sealvl - i.pos.y };
 				glClipPlane(GL_CLIP_PLANE2, eqn);
 			}
-			glRotatef( i->angle, 0.0f, 1.0f, 0.0f );
-			glColor4ubv( (GLubyte*) &i->col );
+            glRotatef( i.angle, 0.0f, 1.0f, 0.0f );
+            glColor4ubv( (GLubyte*) &i.col );
 			glCallList( model->dlist );
-			if (lp_CONFIG->underwater_bright && INSTANCING::water && i->pos.y < INSTANCING::sealvl)
+            if (lp_CONFIG->underwater_bright && INSTANCING::water && i.pos.y < INSTANCING::sealvl)
 			{
 				glEnable(GL_CLIP_PLANE2);
 				glEnable( GL_BLEND );
@@ -126,42 +116,28 @@ namespace TA3D
     }
 
 
+    QUAD_TABLE::QUAD_TABLE()
+    {
+        hash_table.reserve(DrawingTable_SIZE);
+    }
+
     QUAD_TABLE::~QUAD_TABLE()
     {
-		for (uint32 i = 0 ; i < hash_table.size() ; ++i)
-        {
-            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
-				delete *e;
-        }
         hash_table.clear();
     }
 
 
-	void QUAD_TABLE::queue_quad(GLuint& texture_id, const QUAD &quad)
+    void QUAD_TABLE::queue_quad(const GfxTexture::Ptr &texture_id, const QUAD &quad)
     {
-        uint32	hash = texture_id & DrawingTable_MASK;
-        for (std::vector< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
-        {
-            if ((*i)->texture_id == texture_id ) // We found an already existing render queue
-            {
-                (*i)->queue.push_back( quad );
-                return;
-            }
-        }
-        QUAD_QUEUE *quad_queue = new QUAD_QUEUE(texture_id);
-        hash_table[ hash ].push_back(quad_queue);
-        quad_queue->queue.push_back(quad);
+        hash_table[texture_id].queue.push_back(quad);
     }
 
 
     void QUAD_TABLE::draw_all()
     {
         uint32	max_size = 0;
-		for (uint32 i = 0U ; i < DrawingTable_SIZE ; ++i)
-        {
-            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
-                max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
-        }
+        for (const auto &qq : hash_table)
+            max_size = std::max<uint32>(max_size, qq.queue.size());
 		if (max_size == 0U)
 			return;
 
@@ -206,82 +182,79 @@ namespace TA3D
         glVertexPointer( 3, GL_FLOAT, 0, P);
         glTexCoordPointer(2, GL_FLOAT, 0, T);
 
-		for (uint32 i = 0; i < DrawingTable_SIZE ; ++i)
-        {
-            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
-                (*e)->draw_queue(P, C);
-        }
+        for (auto qq = hash_table.begin() ; qq != hash_table.end() ; ++qq)
+                qq.value().draw_queue(qq.key(), P, C);
 
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
 
-    void QUAD_QUEUE::draw_queue(Vector3D *P, uint32 *C)
+    void QUAD_QUEUE::draw_queue(const GfxTexture::Ptr &texture_id, Vector3D *P, uint32 *C) const
     {
         if (queue.empty())
             return;
 
         Vector3D *p = P;
         uint32 *c = C;
-        for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+        for (const QUAD &e : queue)
         {
-            p->x = e->pos.x - e->size_x;
-            p->y = e->pos.y;
-            p->z = e->pos.z - e->size_z;
-			*c = e->col;
+            p->x = e.pos.x - e.size_x;
+            p->y = e.pos.y;
+            p->z = e.pos.z - e.size_z;
+            *c = e.col;
 			++c;
             ++p;
 
-            p->x = e->pos.x + e->size_x;
-            p->y = e->pos.y;
-            p->z = e->pos.z - e->size_z;
-			*c = e->col;
+            p->x = e.pos.x + e.size_x;
+            p->y = e.pos.y;
+            p->z = e.pos.z - e.size_z;
+            *c = e.col;
 			++c;
 			++p;
 
-            p->x = e->pos.x + e->size_x;
-            p->y = e->pos.y;
-            p->z = e->pos.z + e->size_z;
-			*c = e->col;
+            p->x = e.pos.x + e.size_x;
+            p->y = e.pos.y;
+            p->z = e.pos.z + e.size_z;
+            *c = e.col;
 			++c;
 			++p;
 
-            p->x = e->pos.x - e->size_x;
-            p->y = e->pos.y;
-            p->z = e->pos.z + e->size_z;
-			*c = e->col;
+            p->x = e.pos.x - e.size_x;
+            p->y = e.pos.y;
+            p->z = e.pos.z + e.size_z;
+            *c = e.col;
 			++c;
 			++p;
         }
-        glBindTexture( GL_TEXTURE_2D, texture_id );
+        texture_id->bind();
 		glDrawArrays(GL_QUADS, 0, (GLsizei)queue.size() << 2);		// draw those quads
 
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {
             p = P;
 			uint32 i = 0U;
-            for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+            for (const QUAD &e : queue)
             {
-                if (e->pos.y >= INSTANCING::sealvl) continue;
-                p->x = e->pos.x - e->size_x;
-                p->y = e->pos.y;
-                p->z = e->pos.z - e->size_z;
+                if (e.pos.y >= INSTANCING::sealvl) continue;
+                p->x = e.pos.x - e.size_x;
+                p->y = e.pos.y;
+                p->z = e.pos.z - e.size_z;
                 ++p;
 
-                p->x = e->pos.x + e->size_x;
-                p->y = e->pos.y;
-                p->z = e->pos.z - e->size_z;
+                p->x = e.pos.x + e.size_x;
+                p->y = e.pos.y;
+                p->z = e.pos.z - e.size_z;
                 ++p;
 
-                p->x = e->pos.x + e->size_x;
-                p->y = e->pos.y;
-                p->z = e->pos.z + e->size_z;
+                p->x = e.pos.x + e.size_x;
+                p->y = e.pos.y;
+                p->z = e.pos.z + e.size_z;
                 ++p;
 
-                p->x = e->pos.x - e->size_x;
-                p->y = e->pos.y;
-                p->z = e->pos.z + e->size_z;
+                p->x = e.pos.x - e.size_x;
+                p->y = e.pos.y;
+                p->z = e.pos.z + e.size_z;
                 ++p;
                 ++i;
             }

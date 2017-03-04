@@ -411,8 +411,8 @@ namespace TA3D
 		feature = NULL;
 		list.clear();
 		symbolic_features.clear();
-        icons[0].load("gfx/tactical_icons/metal_deposit.tga");
-        icons[1].load("gfx/tactical_icons/geothermal.tga");
+        icons[0] = gfx->load_texture("gfx/tactical_icons/metal_deposit.tga");
+        icons[1] = gfx->load_texture("gfx/tactical_icons/geothermal.tga");
 	}
 
 
@@ -1198,10 +1198,10 @@ namespace TA3D
 		geothermalUV.clear();
 		const Vector3D side = Camera::inGame->side;
 		const Vector3D up = Camera::inGame->up;
-		const float wmetal = (float)icons[0].getWidth() / 24.0f;
-		const float hmetal = (float)icons[0].getHeight() / 24.0f;
-		const float wgeothermal = (float)icons[1].getWidth() / 24.0f;
-		const float hgeothermal = (float)icons[1].getHeight() / 24.0f;
+        const float wmetal = (float)icons[0]->width() / 24.0f;
+        const float hmetal = (float)icons[0]->height() / 24.0f;
+        const float wgeothermal = (float)icons[1]->width() / 24.0f;
+        const float hgeothermal = (float)icons[1]->height() / 24.0f;
 		const Vector3D camdir = 12.0f / (float)gfx->height * Camera::inGame->dir;
 		const float camzoom = Camera::inGame->zoomFactor * 9.0f;
 		pMutex.lock();
@@ -1262,14 +1262,14 @@ namespace TA3D
 		glEnable(GL_TEXTURE_2D);
 		if (!metal.empty())
 		{
-			glBindTexture( GL_TEXTURE_2D, icons[0].get() );
+            icons[0]->bind();
 			glVertexPointer(3, GL_FLOAT, 0, &(metal.front()));
 			glTexCoordPointer(2, GL_FLOAT, 0, &(metalUV.front()));
 			glDrawArrays(GL_QUADS, 0, (GLsizei)metal.size());
 		}
 		if (!geothermal.empty())
 		{
-			glBindTexture( GL_TEXTURE_2D, icons[1].get() );
+            icons[1]->bind();
 			glVertexPointer(3, GL_FLOAT, 0, &(geothermal.front()));
 			glTexCoordPointer(2, GL_FLOAT, 0, &(geothermalUV.front()));
 			glDrawArrays(GL_QUADS, 0, (GLsizei)geothermal.size());

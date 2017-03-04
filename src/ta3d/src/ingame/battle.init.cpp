@@ -97,20 +97,8 @@ namespace TA3D
 
 	Battle::Battle(GameData* g)
 		:pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
-        map(nullptr),
 		sky(),
-        water(0),
-		water_sim0(0),
-		water_sim1(0),
-		water_sim2(0),
-		water_distortions(0),
 		escMenuWasVisible(false),
-		height_tex(0),
-        transtex(0),
-        reflectex(0),
-        first_pass(0),
-        second_pass(0),
-		water_color(0),
 		bShowPing(false)
 	{
 		LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
@@ -187,11 +175,11 @@ namespace TA3D
 		loading = new Menus::Loading;
         zuzuf::smartptr<Menus::Loading> spLoading = loading;
 
-		freecam_on.destroy();
-		freecam_off.destroy();
-		arrow_texture.destroy();
-		circle_texture.destroy();
-		pause_tex.destroy();
+        freecam_on = nullptr;
+        freecam_off = nullptr;
+        arrow_texture = nullptr;
+        circle_texture = nullptr;
+        pause_tex = nullptr;
 		water = 0;
 		water_sim0 = 0;
 		water_sim1 = 0;
@@ -532,7 +520,7 @@ namespace TA3D
 			return false;
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "`" << pGameData->map_filename << "` extracted");
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "loading map data ...");
-		map.reset(load_tnt_map(map_file));
+        map = load_tnt_map(map_file);
 		LOG_DEBUG(LOG_PREFIX_BATTLE << "map data loaded");
 		delete map_file;
 
@@ -542,7 +530,7 @@ namespace TA3D
 		LOG_INFO(LOG_PREFIX_BATTLE << "Initialising the Fog Of War...");
 		map->clear_FOW(pGameData->fog_of_war);
 
-		units.map = map.get(); // Setup some useful information
+        units.map = map; // Setup some useful information
 
 		pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, ".ota");
 
@@ -555,7 +543,7 @@ namespace TA3D
 
 			if (map->ota_data.lavaworld) // make sure we'll draw lava and not water
 			{
-				gfx->destroy_texture(map->lava_map);
+                map->lava_map = nullptr;
 
 				QImage tmp = gfx->create_surface_ex(32, 16, 16);
                 tmp.fill(0xFFFFFFFF);
@@ -612,11 +600,11 @@ namespace TA3D
 
 	bool Battle::initAllTextures()
 	{
-		freecam_on.load("gfx/freecam_on.tga");
-		freecam_off.load("gfx/freecam_off.tga");
-		arrow_texture.load("gfx/arrow.tga");
-		circle_texture.load("gfx/circle.tga");
-		pause_tex.load("gfx/pause.png");
+        freecam_on = gfx->load_texture("gfx/freecam_on.tga");
+        freecam_off = gfx->load_texture("gfx/freecam_off.tga");
+        arrow_texture = gfx->load_texture("gfx/arrow.tga");
+        circle_texture = gfx->load_texture("gfx/circle.tga");
+        pause_tex = gfx->load_texture("gfx/pause.png");
 		water = 0;
 		return true;
 	}

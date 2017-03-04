@@ -105,7 +105,7 @@ namespace TA3D
     void FX::doDrawAnimFlash()
     {
         glDisable(GL_DEPTH_TEST);
-		fx_manager.flash_tex.bind();
+        fx_manager.flash_tex->bind();
         glBlendFunc(GL_ONE,GL_ONE);
 
 		const float t = std::min(time, 1.0f);
@@ -124,15 +124,15 @@ namespace TA3D
 
     void FX::doDrawAnimWave(const int animIndx)
     {
-		fx_manager.wave_tex[animIndx + 4].bind();
+        fx_manager.wave_tex[animIndx + 4]->bind();
 
         glPushMatrix();
 
         glTranslatef(Pos.x, Pos.y, Pos.z);
         glRotatef(size, 0.0f, 1.0f, 0.0f);
 
-		const float wsize = 0.25f * float(fx_manager.wave_tex[animIndx + 4].getWidth());
-		const float hsize = 0.25f * float(fx_manager.wave_tex[animIndx + 4].getHeight());
+        const float wsize = 0.25f * float(fx_manager.wave_tex[animIndx + 4]->width());
+        const float hsize = 0.25f * float(fx_manager.wave_tex[animIndx + 4]->height());
 		const float dec = time * 0.125f;
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - 0.5f * fabsf( 2.0f - time ) );
@@ -150,7 +150,7 @@ namespace TA3D
 
     void FX::doDrawAnimRipple()
     {
-		fx_manager.ripple_tex.bind();
+        fx_manager.ripple_tex->bind();
 
         glPushMatrix();
 

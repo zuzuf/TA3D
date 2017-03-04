@@ -61,7 +61,7 @@ namespace TA3D
 		return X2 - X1 < w && Y2 - Y1 < h;
 	}
 
-	void UnitType::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic)
+    void UnitType::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GfxTexture::Ptr Pic)
 	{
 		if (index < -1)
 			return;
@@ -71,11 +71,7 @@ namespace TA3D
 			for (int i = 0; i < nb_unit; ++i)
 			{
 				if (BuildList[i] == index) // We already have it so leave now
-				{
-					if (Pic)
-						gfx->destroy_texture(Pic);
 					return;
-				}
 			}
 		}
 
@@ -84,8 +80,6 @@ namespace TA3D
 			if (dl_data == NULL)		// We can't add a menu entry if we don't know where to add it
 			{
 				LOG_ERROR(LOG_PREFIX_RESOURCES << "I can't add this menu entry without a list of available menu buttons");
-				if (Pic)
-					gfx->destroy_texture(Pic);
 				return;
 			}
 			for(int i = 0 ; i <= nb_pages && p == -1 ; ++i)
@@ -124,10 +118,10 @@ namespace TA3D
 		Pic_p.push_back(short(p));
 	}
 
-    GLuint loadBuildPic(const QString &gafFileName, const QString &name, int *w = NULL, int *h = NULL)
+    GfxTexture::Ptr loadBuildPic(const QString &gafFileName, const QString &name, int *w = NULL, int *h = NULL)
 	{
         if (name.isEmpty())
-			return 0;
+            return GfxTexture::Ptr();
 		
         if (unit_manager.name2gaf.empty())
 		{
@@ -168,7 +162,7 @@ namespace TA3D
 			}
 		}
 
-		GLuint tex = 0;
+        GfxTexture::Ptr tex;
 		gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 
         QString key = ToUpper(name);
@@ -179,11 +173,11 @@ namespace TA3D
 			if (ToUpper(*item) != ToUpper(gafFileName))
 				test.push_back(gafFileName);
 			test.push_back(*item);
-            for(QStringList::iterator it = test.begin() ; it != test.end() && tex == 0 ; ++it)
+            for(const QString &it : test)
 			{
-                if (it->contains(".gaf"))						// Is it a normal GAF ?
+                if (it.contains(".gaf"))						// Is it a normal GAF ?
 				{
-                    QIODevice* gaf_file = VFS::Instance()->readFile( *it );
+                    QIODevice* gaf_file = VFS::Instance()->readFile( it );
 					if (gaf_file)
 					{
                         QImage img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -200,9 +194,9 @@ namespace TA3D
 					}
 				}
 				else								// GAF-like directory
-				{
-					tex = Gaf::ToTexture(*it, name, w, h, true, FILTER_LINEAR);
-				}
+                    tex = Gaf::ToTexture(it, name, w, h, true, FILTER_LINEAR);
+                if (tex)
+                    break;
 			}
 		}
 		return tex;
@@ -246,7 +240,7 @@ namespace TA3D
 				continue;
             int w = gui_parser.pullAsInt( QString("gadget%1.common.width").arg(i)  );
             int h = gui_parser.pullAsInt( QString("gadget%1.common.height").arg(i) );
-            const GLuint tex = loadBuildPic( "anims/" + unit_type[unit_index]->Unitname + QString::number(page + 1) + ".gaf", name, &w, &h);
+            GfxTexture::Ptr tex = loadBuildPic( "anims/" + unit_type[unit_index]->Unitname + QString::number(page + 1) + ".gaf", name, &w, &h);
             const int x = gui_parser.pullAsInt( QString("gadget%1.common.xpos").arg(i) ) + x_offset;
             const int y = gui_parser.pullAsInt( QString("gadget%1.common.ypos").arg(i) ) + y_offset;
 			unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
@@ -280,7 +274,7 @@ namespace TA3D
 			{
 				if (!unit_type[unit_index]->canBuild(idx))
 				{
-                    GLuint tex = loadBuildPic( "anims/" + unitname + "_gadget.gaf", unitname);
+                    GfxTexture::Ptr tex = loadBuildPic( "anims/" + unitname + "_gadget.gaf", unitname);
                     if (!tex && !unit_type[idx]->glpic && !unit_type[idx]->unitpic.isNull())
 					{
 						gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
@@ -290,11 +284,11 @@ namespace TA3D
 					if (tex || unit_type[idx]->glpic)
 						unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1, tex);
 					else
-					{	LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");	}
+                        LOG_DEBUG("no build picture found for unit '" << unitname << "', cannot add it to " << unitmenu << " build menu");
 				}
 			}
 			else
-			{	LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");	}
+                LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");
 		}
 	}
 
@@ -377,7 +371,7 @@ namespace TA3D
 				{
 					if (!unit_type[i]->canBuild(idx))		// Check if it's already in the list
 					{
-                        GLuint tex = loadBuildPic( "anims/" + canbuild + "_gadget", canbuild);
+                        GfxTexture::Ptr tex = loadBuildPic( "anims/" + canbuild + "_gadget", canbuild);
                         if (!tex && !unit_type[idx]->glpic && !unit_type[idx]->unitpic.isNull())
 						{
 							unit_type[idx]->glpic = gfx->make_texture(unit_type[idx]->unitpic, FILTER_LINEAR, true);
@@ -392,11 +386,11 @@ namespace TA3D
 							unit_type[i]->AddUnitBuild(idx, px, py, 64, 64, p, tex);
 						}
 						else
-						{	LOG_DEBUG("unit '" << canbuild << "' picture not found in build menu for unit '" << unit_type[i]->Unitname << "'");	}
+                            LOG_DEBUG("unit '" << canbuild << "' picture not found in build menu for unit '" << unit_type[i]->Unitname << "'");
 					}
 				}
 				else
-				{	LOG_DEBUG("unit '" << canbuild << "' not found (" << __FILE__ << " l." << __LINE__ << ')');	}
+                    LOG_DEBUG("unit '" << canbuild << "' not found (" << __FILE__ << " l." << __LINE__ << ')');
 				--n;
                 canbuild = sidedata_parser.pullAsString( "canbuild." + unit_type[i]->Unitname + ".canbuild" + QString::number(n) );
 			}
@@ -454,17 +448,12 @@ namespace TA3D
 		Pic_h.clear();
 		Pic_p.clear();
 
-		if (!PicList.empty())
-		{
-			for (unsigned int i = 0; i < PicList.size(); ++i)
-				gfx->destroy_texture(PicList[i]);
-			PicList.clear();
-		}
+        PicList.clear();
 
 		yardmap.clear();
 		model = NULL;
         unitpic = QImage();
-		gfx->destroy_texture(glpic);
+        glpic = nullptr;
 		Corpse.clear();
 		Unitname.clear();
 		name.clear();
@@ -521,7 +510,7 @@ namespace TA3D
 		yardmap.clear();
 		model = NULL;
         unitpic = QImage();
-		glpic = 0;
+        glpic = nullptr;
 		hoverattack = false;
 		SortBias = 0;
 		IsAirBase = false;
@@ -1039,31 +1028,24 @@ namespace TA3D
 		for (UnitList::iterator i = unit_type.begin(); i != unit_type.end(); ++i)
 			delete *i;
 		unit_type.clear();
-		panel.destroy();
-		paneltop.destroy();
-		panelbottom.destroy();
+        panel = nullptr;
+        paneltop = nullptr;
+        panelbottom = nullptr;
 		init();
 	}
 
     void UnitManager::load_panel_texture( const QString &intgaf )
 	{
-		panel.destroy();
+        panel = nullptr;
 
 		if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 			gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGB());
 		int w,h;
-        panel.set(Gaf::ToTexture("anims/" + intgaf, "PANELSIDE2", &w, &h, true));
-		panel.width = w;
-		panel.height = h;
-
-        paneltop.set(Gaf::ToTexture("anims/" + intgaf, "PANELTOP", &w, &h));
-		paneltop.width = w;
-		paneltop.height = h;
-        panelbottom.set(Gaf::ToTexture("anims/" + intgaf, "PANELBOT", &w, &h));
-		panelbottom.width = w;
-		panelbottom.height = h;
+        panel = Gaf::ToTexture("anims/" + intgaf, "PANELSIDE2", &w, &h, true);
+        paneltop = Gaf::ToTexture("anims/" + intgaf, "PANELTOP", &w, &h);
+        panelbottom = Gaf::ToTexture("anims/" + intgaf, "PANELBOT", &w, &h);
 	}
 
 
@@ -1077,25 +1059,25 @@ namespace TA3D
 		glColor4ub(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
 		if (GUI)
 		{
-			if (panel.tex)
-				gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + float(panel.height) );
+            if (panel)
+                gfx->drawtexture( panel, 0.0f, 128.0f, 128.0f, 128.0f + float(panel->height()) );
 
-			if (paneltop.tex)
+            if (paneltop)
 			{
-				gfx->drawtexture( paneltop.tex, 128.0f, 0.0f, 128.0f + float(paneltop.width), float(paneltop.height) );
-				for (int k = 0 ; 128 + paneltop.width + panelbottom.width * k < uint32(SCREEN_W); ++k)
+                gfx->drawtexture( paneltop, 128.0f, 0.0f, 128.0f + float(paneltop->width()), float(paneltop->height()) );
+                for (int k = 0 ; 128 + paneltop->width() + panelbottom->width() * k < uint32(SCREEN_W); ++k)
 				{
-					gfx->drawtexture(panelbottom.tex, 128.0f + float(paneltop.width + k * panelbottom.width), 0.0f,
-							128.0f + float(paneltop.width + panelbottom.width * (k + 1)), float(panelbottom.height) );
+                    gfx->drawtexture(panelbottom, 128.0f + float(paneltop->width() + k * panelbottom->width()), 0.0f,
+                            128.0f + float(paneltop->width() + panelbottom->width() * (k + 1)), float(panelbottom->height()) );
 				}
 			}
 
-			if (panelbottom.tex)
+            if (panelbottom)
 			{
-				for (int k = 0 ; 128 + panelbottom.width * k < uint32(SCREEN_W) ; ++k)
+                for (int k = 0 ; 128 + panelbottom->width() * k < uint32(SCREEN_W) ; ++k)
 				{
-					gfx->drawtexture( panelbottom.tex, 128.0f + float(k * panelbottom.width),
-							float(SCREEN_H - panelbottom.height), 128.0f + float(panelbottom.width * (k + 1)), float(SCREEN_H) );
+                    gfx->drawtexture( panelbottom, 128.0f + float(k * panelbottom->width()),
+                                      float(SCREEN_H - panelbottom->height()), 128.0f + float(panelbottom->width() * (k + 1)), float(SCREEN_H) );
 				}
 			}
 
@@ -1107,8 +1089,8 @@ namespace TA3D
 			glVertex2i(128, 128);
 			glVertex2i(0, 128);
 
-			glVertex2i(0, 128 + panel.height);			// Barre latérale gauche
-			glVertex2i(128, 128 + panel.height);
+            glVertex2i(0, 128 + panel->height());			// Barre latérale gauche
+            glVertex2i(128, 128 + panel->height());
 			glVertex2i(128, SCREEN_H);
 			glVertex2i(0, SCREEN_H);
 			glEnd();
@@ -1300,9 +1282,9 @@ namespace TA3D
 	void UnitManager::init()
 	{
 		nb_unit = 0;
-		panel.init();
-		paneltop.init();
-		panelbottom.init();
+        panel = nullptr;
+        paneltop = nullptr;
+        panelbottom = nullptr;
 	}
 
 

@@ -91,7 +91,7 @@ namespace Menus
 
 		map_data->destroy();
 
-		gfx->destroy_texture(glimg);
+        glimg = nullptr;
 
 		if (start_game)
 		{
@@ -639,7 +639,7 @@ namespace Menus
 			}
             if (!saved_game.isEmpty()) continue;            // We mustn't change any thing for a saved game
             Gui::GUIOBJ::Ptr guiobj = pArea->get_object( QString("gamesetup.team%1").arg(i) );
-			if (guiobj != NULL && (1 << guiobj->current_state) != game_data.team[i])           // Change team
+            if (guiobj && (1 << guiobj->current_state) != game_data.team[i])           // Change team
 			{
 				if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
 					&& game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED)
@@ -792,7 +792,7 @@ namespace Menus
 			Menus::UnitSelector::Execute(game_data.use_only, game_data.use_only);       // Change unit selection
 		}
 
-		if (minimap_obj != NULL &&
+        if (minimap_obj &&
 			( ( ( pArea->get_state( "gamesetup.minimap" ) || pArea->get_state("gamesetup.change_map")) && !client)
               || ( client && !set_map.isEmpty() ) ) && saved_game.isEmpty()) // Clic on the mini-map or received map set command
 		{
@@ -837,7 +837,7 @@ namespace Menus
                     network_manager.sendSpecial("SET MAP " + tmp);
 				}
 
-				gfx->destroy_texture( glimg);
+                glimg = nullptr;
 
 				game_data.map_filename = new_map;
 				int dx, dy;

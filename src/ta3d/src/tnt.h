@@ -77,10 +77,10 @@ namespace TA3D
     MAP	*load_tnt_map(QIODevice *file);		// Charge une map au format TA, extraite d'une archive HPI/UFO
 
                                                                 // Load a minimap from a map file extracted from a HPI archive
-    GLuint load_tnt_minimap(QIODevice *file,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+    GfxTexture::Ptr load_tnt_minimap(QIODevice *file,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 
                                                                                 // Load a minimap from a map file extracted from a HPI archive
-    GLuint load_tnt_minimap_fast(const QString& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    GfxTexture::Ptr load_tnt_minimap_fast(const QString& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 
                                                                     // Load a minimap from a map file extracted from a HPI archive
     QImage load_tnt_minimap_fast_bmp(const QString& filename);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO

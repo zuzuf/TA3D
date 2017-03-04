@@ -69,7 +69,6 @@ namespace Menus
 	MapSelector::MapSelector()
 		:Abstract(),
 		pSelectedMap(), pDefaultSelectedMap(""), pCachedSizeOfListOfMaps(0),
-		pMiniMapTexture(0),
 		pLastMapIndex(-1), pMiniMapObj((Gui::GUIOBJ*)NULL), dx(0), dy(0),
 		pMiniMapX1(0.0f), pMiniMapY1(0.0f), pMiniMapX2(0.0f), pMiniMapY2(0.0f)
 	{}
@@ -78,7 +77,6 @@ namespace Menus
 	MapSelector::MapSelector(const QString& preSelectedMap)
 		:Abstract(),
 		pSelectedMap(), pDefaultSelectedMap(preSelectedMap), pCachedSizeOfListOfMaps(0),
-		pMiniMapTexture(0),
 		pLastMapIndex(-1), pMiniMapObj((Gui::GUIOBJ*)NULL), dx(0), dy(0),
 		pMiniMapX1(0.0f), pMiniMapY1(0.0f), pMiniMapX2(0.0f), pMiniMapY2(0.0f)
 	{}
@@ -87,7 +85,7 @@ namespace Menus
 	MapSelector::~MapSelector()
 	{
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "reseting mini map texture");
-		ResetTexture(pMiniMapTexture);
+        pMiniMapTexture = nullptr;
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
 	}
 
@@ -103,7 +101,7 @@ namespace Menus
 
 		// Texture for the mini map
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "reseting mini map texture");
-		ResetTexture(pMiniMapTexture);
+        pMiniMapTexture = nullptr;
 		LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
 
 		pSelectedMap = pDefaultSelectedMap;
@@ -267,7 +265,7 @@ namespace Menus
 		// The new map name
         pSelectedMap = "maps/" + pListOfMaps[mapIndex] + ".tnt";
 		// Reload the mini map
-		ResetTexture(pMiniMapTexture, load_tnt_minimap_fast(pSelectedMap, dx, dy));
+        pMiniMapTexture = load_tnt_minimap_fast(pSelectedMap, dx, dy);
 
 		// OTA
         const QString &otaMap = "maps/" + pListOfMaps[mapIndex] + ".ota";
@@ -275,7 +273,7 @@ namespace Menus
         if (QIODevice* file = VFS::Instance()->readFile(otaMap))
 		{
 			mapOTA.load(file);
-			delete file;;
+            delete file;
 		}
 
 		// Update the mini map
@@ -292,8 +290,8 @@ namespace Menus
 		if (pMiniMapObj)
 		{
 			// Swap textures
-			ResetTexture(pMiniMapObj->Data, pMiniMapTexture);
-			pMiniMapTexture = 0;
+            pMiniMapObj->TextureData = pMiniMapTexture;
+            pMiniMapTexture = nullptr;
 
 			// Resizing
 			scaleAndRePosTheMiniMap();

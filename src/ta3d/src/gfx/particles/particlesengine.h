@@ -142,11 +142,11 @@ namespace TA3D
         uint32		nb_part;		// Nombre de particules
         uint32		size;			// Quantité maximale de particules stockables dans le tableau
         std::vector<PARTICLE>	part;	// Liste des particules / Particle list
-        GLuint		parttex;		// Textures des particules
+        GfxTexture::Ptr parttex;		// Textures des particules
         QImage partbmp;		// Textures des particules
         bool		dsmoke;
         uint32		ntex;
-        std::vector< GLuint >	gltex;
+        std::vector<GfxTexture::Ptr>	gltex;
 
         Vector3D	*point;			// Vertex array
         GLfloat		*texcoord;		// Texture coordinates array

@@ -269,7 +269,7 @@ namespace TA3D
 		//! Informations about FPS
 		FPSInfos fps;
         //! The map of the game
-        std::unique_ptr<MAP> map;
+        MAP::Ptr map;
 
 		//! \name Sky
 		//@{
@@ -289,25 +289,25 @@ namespace TA3D
 		//! \name Textures
 		//@{
 		//!
-		Interfaces::GfxTexture	freecam_on;
+        GfxTexture::Ptr	freecam_on;
 		//!
-		Interfaces::GfxTexture	freecam_off;
+        GfxTexture::Ptr	freecam_off;
 		//!
-		Interfaces::GfxTexture	arrow_texture;
+        GfxTexture::Ptr	arrow_texture;
 		//!
-		Interfaces::GfxTexture	circle_texture;
+        GfxTexture::Ptr	circle_texture;
 		//!
-		GLuint	water;
+        GfxTexture::Ptr	water;
 		//!
-		GLuint	water_sim0;
+        GfxTexture::Ptr	water_sim0;
 		//!
-		GLuint	water_sim1;
+        GfxTexture::Ptr	water_sim1;
 		//!
-		GLuint	water_sim2;
+        GfxTexture::Ptr	water_sim2;
 		//!
-		GLuint	water_distortions;
+        GfxTexture::Ptr	water_distortions;
 		//!
-		Interfaces::GfxTexture	pause_tex;
+        GfxTexture::Ptr	pause_tex;
 		//@}
 
 		//! \name Camera
@@ -487,17 +487,17 @@ namespace TA3D
 		//!
 		Shader water_simulator_reflec;
 		//!
-		GLuint height_tex;
+        GfxTexture::Ptr	height_tex;
 		//!
-		GLuint transtex;
+        GfxTexture::Ptr	transtex;
 		//!
-		GLuint reflectex;
+        GfxTexture::Ptr	reflectex;
 		//!
-		GLuint first_pass;
+        GfxTexture::Ptr	first_pass;
 		//!
-		GLuint second_pass;
+        GfxTexture::Ptr	second_pass;
 		//!
-		GLuint water_color;
+        GfxTexture::Ptr	water_color;
 		//!
 		GLuint water_FBO;
 		//!
