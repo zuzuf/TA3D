@@ -2388,7 +2388,7 @@ namespace TA3D
 			if (key[KEY_F12])
 				shoot = true;
 
-			/*------------ Code de gestion du dÃ©roulement de la partie -----------------------------------*/
+            /*------------ Game management code -----------------------------------*/
 
 			if ((!pNetworkEnabled || pNetworkIsServer) && signal == -1)	// Si le script est terminÃ©, on reprend les rÃ¨gles standard
 			{

@@ -224,9 +224,9 @@ namespace TA3D
 							glActiveTextureARB(GL_TEXTURE0_ARB + j);
 							glEnable(GL_TEXTURE_2D);
 							if (animatedTex)
-								glBindTexture(GL_TEXTURE_2D, (*pTex)[texID]);
+                                (*pTex)[texID]->bind();
 							else
-								glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+                                (*pTex)[j]->bind();
 							if (j == pTex->size() - 1 && (Flag & SURFACE_REFLEC))
 							{
 								glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
@@ -412,7 +412,7 @@ namespace TA3D
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glActiveTextureARB(GL_TEXTURE0_ARB + (int)pTex->size());
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, glColorTexture);
+            glColorTexture->bind();
 			glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 
 			for (unsigned int j = 0; j < pTex->size() ; ++j)
@@ -421,7 +421,7 @@ namespace TA3D
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glActiveTextureARB(GL_TEXTURE0_ARB + j);
 				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+                (*pTex)[j]->bind();
 				glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 
 				if (j == pTex->size() - 1 && (Flag & SURFACE_REFLEC))

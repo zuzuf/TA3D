@@ -209,7 +209,7 @@ namespace TA3D
 							{
 								glActiveTextureARB(GL_TEXTURE0_ARB + j);
 								glEnable(GL_TEXTURE_2D);
-								glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+                                (*pTex)[j]->bind();
 							}
 							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 							for (uint32 j = 0; j < pTex->size() ; ++j)
@@ -291,7 +291,7 @@ namespace TA3D
 							// Enable texturing
 							glActiveTextureARB(GL_TEXTURE0_ARB);
 							glEnable(GL_TEXTURE_2D);
-							glBindTexture(GL_TEXTURE_2D, (*pTex)[0]);
+                            (*pTex)[0]->bind();
 							// Set UV array
 							glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 							glClientActiveTextureARB(GL_TEXTURE0_ARB);
@@ -312,7 +312,7 @@ namespace TA3D
 						if (pTex->size() > 1)		// Second and third passes needed only with textures
 						{
 							// Second pass : team color
-							glBindTexture(GL_TEXTURE_2D, (*pTex)[1]);		// Alpha texture
+                            (*pTex)[1]->bind();		// Alpha texture
 							glEnable(GL_BLEND);
 							glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 							glAlphaFunc( GL_GREATER, 0.0 );
@@ -341,7 +341,7 @@ namespace TA3D
 
 							if (pTex->size() > 2)		// Third pass : light emission
 							{
-								glBindTexture(GL_TEXTURE_2D, (*pTex)[2]);		// Alpha texture
+                                (*pTex)[2]->bind();		// Alpha texture
 								const float c = 0.5f - 0.5f * cosf(t * PI);
 								glColor4f(c, c, c, 1.0f);
 								glBlendFunc(GL_SRC_COLOR, GL_ONE);
@@ -438,7 +438,7 @@ namespace TA3D
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glActiveTextureARB(GL_TEXTURE0_ARB);
 				glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, (*pTex)[j]);
+                (*pTex)[j]->bind();
 				glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 			}
 			glVertexPointer(3, GL_FLOAT, 0, points);

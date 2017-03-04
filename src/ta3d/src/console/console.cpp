@@ -125,18 +125,15 @@ namespace TA3D
 			}
 		}
 
-		uint16 keyb = 0;
 		uint32 keycode = 0;
 
 		if (keypressed())
-		{
 			keycode = readkey();
-			keyb = keycode & 0xFFFF;
-			keycode >>= 16;
-		}
 
 		switch (keycode)
 		{
+        case KEY_NONE:
+            break;
 		case KEY_TAB:				// TAB-completion code
             if (!pInputText.isEmpty() && !pInputText.endsWith(' '))
 			{
@@ -266,10 +263,14 @@ namespace TA3D
             if (pInputText.isEmpty())     // If text input is empty, then we're just closing the console
 				break;
 		default:
-			if (keyb != 0 && pInputText.size() < 199)
+            if (pInputText.size() < 199)
 			{
-                pInputText = Substr(pInputText, 0, cursorPos) + InttoUTF8(keyb) + Substr(pInputText, cursorPos, pInputText.size() - cursorPos);
-				cursorPos++;
+                const char c = keycode2char(keycode);
+                if (c)
+                {
+                    pInputText = Substr(pInputText, 0, cursorPos) + c + Substr(pInputText, cursorPos, pInputText.size() - cursorPos);
+                    cursorPos++;
+                }
 			}
 		};
 

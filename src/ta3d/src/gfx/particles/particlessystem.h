@@ -20,7 +20,7 @@
 # include <stdafx.h>
 # include <misc/vector.h>
 # include <QOpenGLFunctions>
-
+# include <gfx/texture.h>
 
 namespace TA3D
 {
@@ -49,7 +49,7 @@ namespace TA3D
 		/*!
 		** \brief
 		*/
-		void create(const uint32 nb, GLuint gltex);
+        void create(const uint32 nb, const GfxTexture::Ptr &gltex);
 
 		/*!
 		** \brief
@@ -74,7 +74,7 @@ namespace TA3D
 		float dcol[4];
 		bool use_wind;
 		bool light_emitter;
-		GLuint tex;
+        GfxTexture::Ptr tex;
 		//! Index to fill the point array
 		uint16 cur_idx;
 

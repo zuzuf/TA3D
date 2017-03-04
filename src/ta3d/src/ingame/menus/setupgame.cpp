@@ -350,7 +350,7 @@ namespace Menus
 			mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
 			mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
 
-			minimap_obj->Data = glimg;
+            minimap_obj->TextureData = glimg;
 			minimap_obj->x1 = mini_map_x - ldx;
 			minimap_obj->y1 = mini_map_y - ldy;
 			minimap_obj->x2 = mini_map_x + ldx;

@@ -187,7 +187,7 @@ namespace TA3D
         }
 		const float wsize = size * float(anims[anm]->w[img]);
 		const float hsize = size * float(anims[anm]->h[img]);
-        glBindTexture(GL_TEXTURE_2D,anims[anm]->glbmp[img]);
+        anims[anm]->glbmp[img]->bind();
 
 		const float hux = hsize * cam.up.x;
 		const float wsx = wsize * cam.side.x;

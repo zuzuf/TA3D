@@ -26,7 +26,7 @@ namespace TA3D
     ParticlesSystem::ParticlesSystem()
 		:nb_particles(0), pos(NULL), V(NULL), common_pos(),
         size(1.0f), dsize(1.0f), mass(1.0f), life(1.0f),
-        use_wind(true), light_emitter(false), tex(0), cur_idx(0)
+        use_wind(true), light_emitter(false), cur_idx(0)
     {}
 
     ParticlesSystem::~ParticlesSystem()
@@ -42,7 +42,7 @@ namespace TA3D
 
 
 
-	void ParticlesSystem::create(const uint32 nb, GLuint gltex)
+    void ParticlesSystem::create(const uint32 nb, const GfxTexture::Ptr &gltex)
     {
         nb_particles = nb;
         pos = new Vector3D[nb];
@@ -81,7 +81,7 @@ namespace TA3D
         glColor4fv(col);
         glPointSize(size);
         glTranslatef(common_pos.x, common_pos.y, common_pos.z );
-        glBindTexture(GL_TEXTURE_2D,tex);
+        tex->bind();
         glVertexPointer(3, GL_FLOAT, 0, pos);
         glDrawArrays(GL_POINTS, 0, nb_particles);
         glPopMatrix();

@@ -178,7 +178,7 @@ namespace Menus
 		}
 
 		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, pBackgroundTexture);
+        pBackgroundTexture->bind();
 		glBegin(GL_QUADS);
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0);

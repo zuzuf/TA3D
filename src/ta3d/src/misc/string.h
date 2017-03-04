@@ -44,8 +44,6 @@ namespace TA3D
 
 	int ASCIItoUTF8(const byte c, byte *out);
 
-    QString InttoUTF8(const uint16 c);
-
     char* ConvertToUTF8(const char* s);
     char* ConvertToUTF8(const char* s, const size_t len);
     char* ConvertToUTF8(const char* s, size_t size, uint32& newSize);

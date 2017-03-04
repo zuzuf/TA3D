@@ -4954,7 +4954,7 @@ script_exec:
                         const float sy = 0.5f * float(cursor[cursor_type].bmp[curseur].height() - 1);
 						if (low_def)
 							glEnable(GL_TEXTURE_2D);
-						glBindTexture(GL_TEXTURE_2D, cursor[cursor_type].glbmp[curseur]);
+                        cursor[cursor_type].glbmp[curseur]->bind();
 						glBegin(GL_QUADS);
 						glTexCoord2f(0.0f,0.0f);  glVertex3f(x,y,z);
 						glTexCoord2f(1.0f,0.0f);  glVertex3f(x+sx,y,z);
@@ -5007,7 +5007,7 @@ script_exec:
 			glVertexPointer( 3, GL_FLOAT, 0, P);
 			glClientActiveTextureARB(GL_TEXTURE0_ARB );
 			glTexCoordPointer(2, GL_FLOAT, 0, T);
-			glBindTexture(GL_TEXTURE_2D, cursor[CURSOR_CROSS_LINK].glbmp[curseur]);
+            cursor[CURSOR_CROSS_LINK].glbmp[curseur]->bind();
 
 			glDrawArrays(GL_QUADS, 0, n);
 

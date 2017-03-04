@@ -866,9 +866,9 @@ namespace TA3D
 					if (!notex && !gltex.empty())
 					{
 						if (texID < (int)gltex.size() && texID >= 0)
-							glBindTexture(GL_TEXTURE_2D, gltex[texID]);
+                            gltex[texID]->bind();
 						else
-							glBindTexture(GL_TEXTURE_2D,gltex[0]);
+                            gltex[0]->bind();
 						glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 					}
 					glVertexPointer(3, GL_FLOAT, 0, points);
@@ -970,7 +970,7 @@ namespace TA3D
 			}
 			if (!gltex.empty())
 			{
-				glBindTexture(GL_TEXTURE_2D,gltex[0]);
+                gltex[0]->bind();
 				glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
 			}
 			glVertexPointer(3, GL_FLOAT, 0, points);

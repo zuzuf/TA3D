@@ -616,7 +616,7 @@ namespace TA3D
 		glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		glBindTexture(GL_TEXTURE_2D,parttex);
+        parttex->bind();
 
 		glVertexPointer( 3, GL_FLOAT, 0, point);
 		glTexCoordPointer(2, GL_FLOAT, 0, texcoord);

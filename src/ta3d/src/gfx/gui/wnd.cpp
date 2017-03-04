@@ -317,11 +317,11 @@ namespace TA3D
 			{
 
 			case OBJ_IMG:
-				if (object->Data)     // Draws the texture associated with the image
+                if (object->TextureData)     // Draws the texture associated with the image
 				{
 					gfx->set_alpha_blending();
 					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D, (GLuint)object->Data);
+                    object->TextureData->bind();
 					gfx->set_color(0xFFFFFFFF);
 					glBegin(GL_QUADS);
 					glTexCoord2f(object->u1,object->v1);  glVertex2f(x+object->x1,y+object->y1);
@@ -634,7 +634,6 @@ namespace TA3D
 
 			// Interactions utilisateur/objets
 			unsigned int index,e;
-			uint16 Key;
 			bool was_on_floating_menu = false;
 			int  on_menu = -1;
 			bool close_all = false;
@@ -806,10 +805,8 @@ namespace TA3D
 						if (object->Focus && keypressed())
 						{
 							const uint32 keyCode = readkey();
-							Key = keyCode & 0xFFFF;
-							const uint16 scancode = uint16(keyCode >> 16);
 
-							switch(scancode)
+                            switch(keyCode)
 							{
 							case KEY_ENTER:
 								object->Etat = true;
@@ -822,18 +819,16 @@ namespace TA3D
 								break;
 							case KEY_TAB:
 							case KEY_ESC:
-								break;
+                            case KEY_NONE:
+                            case KEY_DEL:
+                                break;
 							default:
-								switch (Key)
-								{
-								case 9:
-								case 27:
-								case 0:
-									break;
-								default:
-                                    if (object->Text[0].size() + 1 < object->Data)
-                                        object->Text[0] += InttoUTF8(Key);
-								}
+                                if (object->Text[0].size() + 1 < object->Data)
+                                {
+                                    const char c = keycode2char(keyCode);
+                                    if (c)
+                                        object->Text[0] += c;
+                                }
 							}
 						}
 						break;
@@ -842,7 +837,7 @@ namespace TA3D
 				case OBJ_TEXTEDITOR:				// Permet l'entrée de texte / Enable text input
 					{
 						if (object->Text.empty())
-							object->Text.push_back(nullptr);
+                            object->Text.push_back(QString());
 						if (object->Data >= object->Text.size())
 							object->Data = GLuint(object->Text.size() - 1);
 
@@ -852,10 +847,9 @@ namespace TA3D
 						if (object->Focus && keypressed())
 						{
 							const uint32 keyCode = readkey();
-							Key = keyCode & 0xFFFF;
-							const uint16 scancode = uint16(keyCode >> 16);
-							switch (scancode)
+                            switch (keyCode)
 							{
+                            case KEY_NONE:
 							case KEY_ESC:
 								break;
 							case KEY_TAB:
@@ -943,16 +937,16 @@ namespace TA3D
 								}
 								break;
 							default:
-								switch (Key)
-								{
-								case 0:
-								case 27:
-									break;
-								default:
-                                    object->Text[object->Data] = Substr(object->Text[ object->Data ], 0, object->Pos )
-                                            + InttoUTF8( Key )
-                                            + Substr(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].size() - object->Pos);
-									object->Pos++;
+                                if (true)
+                                {
+                                    const char c = keycode2char(keyCode);
+                                    if (c)
+                                    {
+                                        object->Text[object->Data] = Substr(object->Text[ object->Data ], 0, object->Pos )
+                                                + c
+                                                + Substr(object->Text[ object->Data ], object->Pos, object->Text[ object->Data ].size() - object->Pos);
+                                        object->Pos++;
+                                    }
 								}
 							}
 						}

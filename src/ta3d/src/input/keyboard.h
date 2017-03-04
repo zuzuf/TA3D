@@ -41,6 +41,9 @@ namespace TA3D
 	*/
 	uint32 readkey();
 
+    //! \brief convert a key code to a char representation
+    char keycode2char(int keycode);
+
 	/*!
 	** \brief clears the key code buffer
 	*/
@@ -79,7 +82,8 @@ namespace TA3D
 
 enum KeyCode
 {
-    KEY_0 = 0,
+    KEY_NONE = 0,
+    KEY_0,
     KEY_1,
     KEY_2,
     KEY_3,

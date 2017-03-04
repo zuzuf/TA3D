@@ -1185,7 +1185,7 @@ namespace TA3D
 
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,low_tex);
+        low_tex->bind();
 
 		glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
 
@@ -1726,7 +1726,7 @@ namespace TA3D
 					if (old_tex != bloc[i].tex)
 					{
 						old_tex = bloc[i].tex;
-						glBindTexture(GL_TEXTURE_2D,bloc[i].tex);
+                        bloc[i].tex->bind();
 					}
 				}
 				ox = x;

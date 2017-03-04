@@ -753,7 +753,7 @@ namespace TA3D
 					gfx->set_alpha_blending();
 					gfx->enable_model_shading();
 					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D,weapon_manager.cannonshell.glbmp[anim_sprite]);
+                    weapon_manager.cannonshell.glbmp[anim_sprite]->bind();
 					Vector3D A,B,C,D;
 					A = Pos + ((-0.5f * float(weapon_manager.cannonshell.h[anim_sprite] - weapon_manager.cannonshell.ofs_y[anim_sprite])) * Camera::inGame->up
 							   + (-0.5f * float(weapon_manager.cannonshell.w[anim_sprite] - weapon_manager.cannonshell.ofs_x[anim_sprite])) * Camera::inGame->side);

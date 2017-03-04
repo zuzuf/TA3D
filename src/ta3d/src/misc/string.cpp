@@ -30,37 +30,6 @@ namespace TA3D
         return 2;
     }
 
-    QString InttoUTF8(const uint16 c)
-	{
-		if (c < 0x80)
-		{
-            QString str;
-            str.push_back((char)c);
-			return str;
-		}
-		if (c < 0x800)
-		{
-            QString str;
-			int b = 0xC0 | (c >> 6);
-            str.push_back((char)b);
-
-			b = 0x80 | (c & 0x3F);
-            str.push_back((char)b);
-			return str;
-		}
-
-        QString str;
-		int b = 0xC0 | (c >> 12);
-        str.push_back((char)b);
-
-		b = 0x80 | ((c >> 6) & 0x3F);
-        str.push_back((char)b);
-
-		b = 0x80 | (c & 0x3F);
-        str.push_back((char)b);
-		return str;
-	}
-
     char* ConvertToUTF8(const char* s)
     {
         if (NULL != s && *s != '\0')

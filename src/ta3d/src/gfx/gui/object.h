@@ -206,7 +206,7 @@ namespace Gui
 		** \param Y2
 		*/
 
-		void create_img(const float X1, const float Y1, const float X2, const float Y2, const GLuint img);
+        void create_img(const float X1, const float Y1, const float X2, const float Y2, const GfxTexture::Ptr &img);
 
 		/*!
 		** \brief

@@ -270,7 +270,7 @@ namespace Gui
 		Focus = false;
 		Text = Entry;
 		if (Text.empty())
-			Text.push_back(nullptr);
+            Text.push_back(QString());
 		Func = F;
 		Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
 		s = size;
@@ -290,7 +290,7 @@ namespace Gui
 		Focus = false;
 		Text = Entry;
 		if (Text.empty())
-			Text.push_back(nullptr);
+            Text.push_back(QString());
 		Pos = 0; // Position sur la liste
 		Func = F;
 		Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
@@ -368,7 +368,7 @@ namespace Gui
 
 
 
-	void GUIOBJ::create_img(const float X1, const float Y1, const float X2, const float Y2, const GLuint img)
+    void GUIOBJ::create_img(const float X1, const float Y1, const float X2, const float Y2, const GfxTexture::Ptr &img)
 	{
 		Type = OBJ_IMG;
 		x1 = X1;
@@ -379,7 +379,8 @@ namespace Gui
 		Focus = false;
 		Text.clear();
 		Func = NULL;
-		Data = (uint32)img;
+        Data = 0;
+        TextureData = img;
 		Flag = FLAG_CAN_BE_CLICKED;
 	}
 

@@ -576,7 +576,7 @@ namespace TA3D
 				{
 					old = pFeature->anim.glbmp[feature[i].frame];
 					texture_loaded=true;
-					glBindTexture(GL_TEXTURE_2D, pFeature->anim.glbmp[feature[i].frame]);
+                    pFeature->anim.glbmp[feature[i].frame]->bind();
 				}
 
 				Vector3D Pos(feature[i].Pos);

@@ -855,7 +855,7 @@ namespace TA3D
 	}
 
 
-    void GFX::drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2)
+    void GFX::drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2)
 	{
 		glEnable(GL_TEXTURE_2D);
         tex->bind();
@@ -873,7 +873,7 @@ namespace TA3D
 	}
 
 
-    void GFX::drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2)
+    void GFX::drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2)
 	{
 		glEnable(GL_TEXTURE_2D);
         tex->bind();
@@ -891,7 +891,7 @@ namespace TA3D
 	}
 
 
-    void GFX::drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2)
+    void GFX::drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2)
 	{
 		glEnable(GL_TEXTURE_2D);
         tex->bind();
@@ -909,13 +909,13 @@ namespace TA3D
 	}
 
 
-    void GFX::drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
+    void GFX::drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
 		set_color(col);
 		drawtexture( tex, x1, y1, x2, y2 );
 	}
 
-    void GFX::drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
+    void GFX::drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
 		set_color(col);
 		drawtexture_flip(tex, x1, y1, x2, y2);
@@ -1513,7 +1513,7 @@ namespace TA3D
 	}
 
 
-    void GFX::save_texture_to_cache(QString file, GfxTexture::Ptr tex, uint32 width, uint32 height, bool useAlpha )
+    void GFX::save_texture_to_cache(QString file, const GfxTexture::Ptr &tex, uint32 width, uint32 height, bool useAlpha )
 	{
 		if(ati_workaround
 		   || !lp_CONFIG->use_texture_cache
@@ -1751,7 +1751,7 @@ namespace TA3D
 	}
 
 
-    void GFX::renderToTexture(const GfxTexture::Ptr tex, bool useDepth)
+    void GFX::renderToTexture(const GfxTexture::Ptr &tex, bool useDepth)
 	{
 //		if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
 //		{
@@ -1803,7 +1803,7 @@ namespace TA3D
 	}
 
 
-    void GFX::renderToTextureDepth(const GfxTexture::Ptr tex)
+    void GFX::renderToTextureDepth(const GfxTexture::Ptr &tex)
 	{
 //        if (!tex)       // Release the texture
 //		{
@@ -2104,7 +2104,7 @@ namespace TA3D
     void GFX::wheelEvent(QWheelEvent *e)
     {
         QWindow::wheelEvent(e);
-        mouse_z += e->delta();
+        mouse_z += e->angleDelta().y() / 32;
     }
 
     void GFX::mouseMoveEvent(QMouseEvent *e)

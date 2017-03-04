@@ -199,9 +199,9 @@ namespace TA3D
 		void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
 		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
 		void rectdot(const float x1, const float y1, const float x2, const float y2);
-        void drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2);
-        void drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2);
-        void drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2);
+        void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2);
+        void drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2);
+        void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2);
 
 		void line(const float x1, const float y1, const float x2, const float y2, const uint32 col);			// Basic drawing routines (with color arguments)
 		void rect(const float x1, const float y1, const float x2, const float y2, const uint32 col);
@@ -211,8 +211,8 @@ namespace TA3D
 		void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
-        void drawtexture(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
-        void drawtexture_flip(GfxTexture::Ptr tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
 
 		//! \name Text manipulation
 		//@{
@@ -233,7 +233,7 @@ namespace TA3D
         GfxTexture::Ptr load_texture_mask(const QString& file, uint32 level, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true);
         GfxTexture::Ptr load_texture_from_cache(const QString& file, int filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, bool *useAlpha = NULL);
         GfxTexture::Ptr load_masked_texture( const QString &file, QString mask, int filter_type = FILTER_TRILINEAR);
-        void	save_texture_to_cache(QString file, GfxTexture::Ptr tex, uint32 width, uint32 height, bool useAlpha);
+        void	save_texture_to_cache(QString file, const GfxTexture::Ptr &tex, uint32 width, uint32 height, bool useAlpha);
 		void	disable_texturing();
 		void	enable_texturing();
         bool    is_texture_in_cache(const QString& file);
@@ -278,8 +278,8 @@ namespace TA3D
 		/*!
 		** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)
 		*/
-        void renderToTexture(const GfxTexture::Ptr tex = GfxTexture::Ptr(), bool useDepth = false);
-        void renderToTextureDepth(const GfxTexture::Ptr tex = GfxTexture::Ptr());
+        void renderToTexture(const GfxTexture::Ptr &tex = GfxTexture::Ptr(), bool useDepth = false);
+        void renderToTextureDepth(const GfxTexture::Ptr &tex = GfxTexture::Ptr());
 
         QImage create_surface_ex(int bpp, int w, int h);
         QImage create_surface(int w, int h);

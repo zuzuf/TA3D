@@ -344,7 +344,7 @@ namespace TA3D
 			blit(bmp_tex[tex_num],tmp,tx,ty,px<<4,py<<4,32,32);
 			}
 			map->macro_bloc[y][x].tex = gfx->make_texture(tmp);
-			glBindTexture(GL_TEXTURE_2D,map->macro_bloc[y][x].tex);
+            GL_TEXTURE_2D,map->macro_bloc[y][x].tex->bind();
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
             }*/
