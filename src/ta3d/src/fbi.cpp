@@ -1056,19 +1056,20 @@ namespace TA3D
         gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		gfx->ReInitTexSys();
-		glColor4ub(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
+        uint32 color = makeacol(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
 		if (GUI)
 		{
             if (panel)
-                gfx->drawtexture( panel, 0.0f, 128.0f, 128.0f, 128.0f + float(panel->height()) );
+                gfx->drawtexture( panel, 0.0f, 128.0f, 128.0f, 128.0f + float(panel->height()), color);
 
             if (paneltop)
 			{
-                gfx->drawtexture( paneltop, 128.0f, 0.0f, 128.0f + float(paneltop->width()), float(paneltop->height()) );
+                gfx->drawtexture( paneltop, 128.0f, 0.0f, 128.0f + float(paneltop->width()), float(paneltop->height()), color);
                 for (int k = 0 ; 128 + paneltop->width() + panelbottom->width() * k < uint32(SCREEN_W); ++k)
 				{
                     gfx->drawtexture(panelbottom, 128.0f + float(paneltop->width() + k * panelbottom->width()), 0.0f,
-                            128.0f + float(paneltop->width() + panelbottom->width() * (k + 1)), float(panelbottom->height()) );
+                                     128.0f + float(paneltop->width() + panelbottom->width() * (k + 1)), float(panelbottom->height()),
+                                     color);
 				}
 			}
 
@@ -1077,23 +1078,14 @@ namespace TA3D
                 for (int k = 0 ; 128 + panelbottom->width() * k < uint32(SCREEN_W) ; ++k)
 				{
                     gfx->drawtexture( panelbottom, 128.0f + float(k * panelbottom->width()),
-                                      float(SCREEN_H - panelbottom->height()), 128.0f + float(panelbottom->width() * (k + 1)), float(SCREEN_H) );
+                                      float(SCREEN_H - panelbottom->height()), 128.0f + float(panelbottom->width() * (k + 1)), float(SCREEN_H),
+                                      color);
 				}
 			}
 
-			glDisable(GL_TEXTURE_2D);
-			glColor4ub(0x0, 0x0, 0x0, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
-			glBegin(GL_QUADS);
-			glVertex2i(0, 0);			// Barre latérale gauche
-			glVertex2i(128, 0);
-			glVertex2i(128, 128);
-			glVertex2i(0, 128);
-
-            glVertex2i(0, 128 + panel->height());			// Barre latérale gauche
-            glVertex2i(128, 128 + panel->height());
-			glVertex2i(128, SCREEN_H);
-			glVertex2i(0, SCREEN_H);
-			glEnd();
+            uint32 color = makeacol(0, 0, 0, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
+            gfx->rectfill(0,0,128,128,color);                               // Left bar
+            gfx->rectfill(0,128 + panel->height(), 128, SCREEN_H,color);
 			glColor4ub(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
 			return 0;
 		}
@@ -1118,25 +1110,24 @@ namespace TA3D
 			const int pw = unit_type[index]->Pic_w[ i ];
 			const int ph = unit_type[index]->Pic_h[ i ];
 			const bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
-			if (unused)
-				glColor4ub(0x4C, 0x4C, 0x4C, 0xFF);		// Make it darker
-			else
-				glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+            uint32 color = unused
+                    ? makeacol(0x4C, 0x4C, 0x4C, 0xFF)		// Make it darker;
+                    : makeacol(0xFF, 0xFF, 0xFF, 0xFF);
 
 			if (unit_type[index]->PicList[i])							// If a texture is given use it
-				gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
+                gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph), color);
 			else if (unit_type[index]->BuildList[i] >= 0)
-				gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
+                gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph), color);
 
 			if (mouse_x >= px && mouse_x < px + pw && mouse_y >= py && mouse_y < py + ph && !unused)
 			{
                 gfx->glEnable(GL_BLEND);
                 gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
+                color = makeacol(0xFF, 0xFF, 0xFF, 0xBF);
 				if (unit_type[index]->PicList[i])							// If a texture is given use it
-					gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
+                    gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph), color);
 				else if (unit_type[index]->BuildList[i] >= 0)
-					gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
+                    gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph), color);
                 gfx->glDisable(GL_BLEND);
 				sel = unit_type[index]->BuildList[i];
 				if (sel == -1)
@@ -1150,17 +1141,15 @@ namespace TA3D
                 gfx->glEnable(GL_BLEND);
                 gfx->glDisable(GL_TEXTURE_2D);
                 gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glColor4ub(0xFF, 0xFF, 0xFF, byte(255.0f * unit_type[index]->click_time));
 				const float mx = float(px);
 				const float my = float(py);
 				const float mw = float(pw);
 				const float mh = float(ph);
-				gfx->rectfill( mx, my, mx + mw, my + mh );
-				glColor4ub(0xFF, 0xFF, 0x00, 0xBF);
-				gfx->line( mx, my + mh * unit_type[index]->click_time, mx + mw, my + mh * unit_type[index]->click_time );
-				gfx->line( mx, my + mh * (1.0f - unit_type[index]->click_time), mx + mw, my + mh * (1.0f - unit_type[index]->click_time) );
-				gfx->line( mx + mw * unit_type[index]->click_time, my, mx + mw * unit_type[index]->click_time, my + mh );
-				gfx->line( mx + mw * (1.0f - unit_type[index]->click_time), my, mx + mw * (1.0f - unit_type[index]->click_time), my + mh );
+                gfx->rectfill( mx, my, mx + mw, my + mh, makeacol(0xFF, 0xFF, 0xFF, byte(255.0f * unit_type[index]->click_time)) );
+                gfx->line( mx, my + mh * unit_type[index]->click_time, mx + mw, my + mh * unit_type[index]->click_time, makeacol(0xFF, 0xFF, 0x00, 0xBF) );
+                gfx->line( mx, my + mh * (1.0f - unit_type[index]->click_time), mx + mw, my + mh * (1.0f - unit_type[index]->click_time), makeacol(0xFF, 0xFF, 0x00, 0xBF) );
+                gfx->line( mx + mw * unit_type[index]->click_time, my, mx + mw * unit_type[index]->click_time, my + mh, makeacol(0xFF, 0xFF, 0x00, 0xBF) );
+                gfx->line( mx + mw * (1.0f - unit_type[index]->click_time), my, mx + mw * (1.0f - unit_type[index]->click_time), my + mh, makeacol(0xFF, 0xFF, 0x00, 0xBF) );
 				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
                 gfx->glEnable(GL_TEXTURE_2D);
                 gfx->glDisable(GL_BLEND);

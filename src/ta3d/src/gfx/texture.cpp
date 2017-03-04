@@ -61,16 +61,4 @@ namespace TA3D
         gfx->drawtexture(this, -0.5f * scale * float(width()), -0.5f * scale * float(height()), 0.5f * scale * float(width()), 0.5f * scale * float(height()), col);
         glPopMatrix();
     }
-
-    void GfxTexture::drawFlipped(const float x1, const float y1, const uint32 col, const float scale)
-    {
-        glDisable(GL_LIGHTING);
-        gfx->drawtexture_flip(this, x1, y1, x1 + scale * float(width()), y1 + scale * float(height()), col);
-    }
-
-    void GfxTexture::drawFlippedCentered(const float x1, const float y1, const uint32 col, const float scale)
-    {
-        glDisable(GL_LIGHTING);
-        gfx->drawtexture_flip(this, x1 - 0.5f * scale * float(width()), y1 - 0.5f * scale * float(height()), x1 + 0.5f * scale * float(width()), y1 + 0.5f * scale * float(height()), col);
-    }
 } // namespace Ta3D

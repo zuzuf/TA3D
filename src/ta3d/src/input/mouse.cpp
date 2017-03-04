@@ -143,13 +143,13 @@ namespace TA3D
 		int dy = cursor[cursor_type].ofs_y[curseur];
         int sx = cursor[cursor_type].bmp[curseur].width();
         int sy = cursor[cursor_type].bmp[curseur].height();
-		gfx->set_color(0xFFFFFFFF);
 		gfx->set_alpha_blending();
 		gfx->drawtexture(cursor[cursor_type].glbmp[curseur],
 						 float(mouse_x - dx),
 						 float(mouse_y - dy),
 						 float(mouse_x - dx + sx),
-						 float(mouse_y - dy + sy));
+                         float(mouse_y - dy + sy),
+                         makecol(0xFF,0xFF,0xFF));
 		gfx->unset_alpha_blending();
 	}
 

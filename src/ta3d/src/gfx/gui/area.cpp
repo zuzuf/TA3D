@@ -235,7 +235,7 @@ namespace Gui
 	{
 		if (background)
 		{
-			gfx->drawtexture(background, 0.0f, 0.0f, (float)gfx->width, (float)gfx->height);
+            gfx->drawtexture(background, 0.0f, 0.0f, (float)gfx->width, (float)gfx->height, makecol(0xFF,0xFF,0xFF));
 			glDisable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}

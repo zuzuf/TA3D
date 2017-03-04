@@ -280,12 +280,9 @@ namespace TA3D
 		glEnable(GL_BLEND);		// Dessine le cadre de la console
 		glDisable(GL_TEXTURE_2D);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(0.75f, 0.75f, 0.608f, 0.5f);
 
-		gfx->rectfill(0.0f, 0.0f, static_cast<float>(SCREEN_W), maxh);
-
-		glColor4f(0.75f, 0.75f, 0.608f, 0.75f);
-		gfx->line(static_cast<float>(SCREEN_W), maxh, 0.0f, maxh);
+        gfx->rectfill(0.0f, 0.0f, static_cast<float>(SCREEN_W), maxh, makeacol(192, 192, 155, 127));
+        gfx->line(static_cast<float>(SCREEN_W), maxh, 0.0f, maxh, makeacol(192, 192, 155, 192));
 
 		glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

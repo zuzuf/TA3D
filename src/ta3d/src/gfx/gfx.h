@@ -195,17 +195,9 @@ namespace TA3D
 		void setShadowMapMode(bool mode);
 		bool getShadowMapMode();
 
-		void line(const float x1, const float y1, const float x2, const float y2);			// Basic drawing routines
-		void rect(const float x1, const float y1, const float x2, const float y2);
-		void rectfill(const float x1, const float y1, const float x2, const float y2);
-		void circle(const float x, const float y, const float r);
+        void loadShaders();
+
 		void circlefill(const float x, const float y, const float r);
-		void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
-		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
-		void rectdot(const float x1, const float y1, const float x2, const float y2);
-        void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2);
-        void drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2);
-        void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2);
 
 		void line(const float x1, const float y1, const float x2, const float y2, const uint32 col);			// Basic drawing routines (with color arguments)
 		void rect(const float x1, const float y1, const float x2, const float y2, const uint32 col);
@@ -216,7 +208,7 @@ namespace TA3D
 		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
         void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
-        void drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2, const uint32 col);
 
 		//! \name Text manipulation
 		//@{
@@ -337,6 +329,8 @@ namespace TA3D
 		GLfloat     shadowMapProjectionMatrix[16];
 
         Shader::Ptr model_shader;
+        Shader::Ptr drawing2d_color_shader;
+        Shader::Ptr drawing2d_texture_shader;
 
 		bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 

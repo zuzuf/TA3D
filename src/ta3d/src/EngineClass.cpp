@@ -729,15 +729,15 @@ namespace TA3D
 		y1 += (h - rh) >> 1;
 		const float lw = (float)mini_w / 252.0f;
 		const float lh = (float)mini_h / 252.0f;
-		gfx->drawtexture(glmini, (float)x1, (float)y1, (float)x1 + (float)rw, (float)y1 + (float)rh, 0.0f, 0.0f, lw, lh);
+        gfx->drawtexture(glmini, (float)x1, (float)y1, (float)x1 + (float)rw, (float)y1 + (float)rh, 0.0f, 0.0f, lw, lh, makecol(0xFF,0xFF,0xFF));
 
 		if (rh == 0 || rw == 0) return;
 
 		if (fog_of_war != FOW_DISABLED)
 		{
-			glEnable( GL_BLEND );
-			glBlendFunc( GL_ZERO, GL_SRC_COLOR );			// Special blending function
-			glDisable( GL_TEXTURE_2D );
+            gfx->glEnable( GL_BLEND );
+            gfx->glBlendFunc( GL_ZERO, GL_SRC_COLOR );			// Special blending function
+            gfx->glDisable( GL_TEXTURE_2D );
 
 			int MY = 0;
 			const int DY = 0x10000 * ( bloc_h_db - 2 ) / rh;

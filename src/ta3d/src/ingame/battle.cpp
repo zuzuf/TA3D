@@ -2498,7 +2498,7 @@ namespace TA3D
                         GfxTexture::Ptr	glamour_tex = gfx->load_texture("bitmaps/glamour/" + map->ota_data.glamour + ".pcx");
 						enable_TA_palette();
 						gfx->set_2D_mode();
-						gfx->drawtexture( glamour_tex, 0, 0, (float)SCREEN_W, (float)SCREEN_H);
+                        gfx->drawtexture( glamour_tex, 0, 0, (float)SCREEN_W, (float)SCREEN_H, makecol(0xFF,0xFF,0xFF));
                         glamour_tex = nullptr;
 						gfx->unset_2D_mode();
 						gfx->flip();
@@ -2530,13 +2530,11 @@ namespace TA3D
 	void Battle::draw2DMouseUserSelection()
 	{
 		glDisable(GL_TEXTURE_2D);
-		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		gfx->rect((float)pMouseRectSelection.x1 + 1.0f, (float)pMouseRectSelection.y1 + 1.0f,
-				  (float)pMouseRectSelection.x2 + 1.0f, (float)pMouseRectSelection.y2 + 1.0f);
+                  (float)pMouseRectSelection.x2 + 1.0f, (float)pMouseRectSelection.y2 + 1.0f, makeacol(0,0,0,0xFF));
 
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		gfx->rect((float)pMouseRectSelection.x1, (float)pMouseRectSelection.y1,
-				  (float)pMouseRectSelection.x2, (float)pMouseRectSelection.y2);
+                  (float)pMouseRectSelection.x2, (float)pMouseRectSelection.y2, makeacol(0xFF,0xFF,0xFF,0xFF));
 	}
 
 

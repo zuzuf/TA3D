@@ -54,17 +54,20 @@ namespace TA3D
         if (!addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_data))
         {
             LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader compilation error: " << log());
+            exit(1);
             return;
         }
         if (!addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_data))
         {
             LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader compilation error: " << log());
+            exit(1);
             return;
         }
 
         if (!link())
         {
             LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link error: " << log());
+            exit(1);
             return;
         }
         LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link succes");

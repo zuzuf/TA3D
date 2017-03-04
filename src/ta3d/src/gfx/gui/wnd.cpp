@@ -162,28 +162,20 @@ namespace TA3D
 			if (!background)
 			{
 				if (skin && skin->wnd_background)
-				{
-					gfx->set_color(color);
-					gfx->drawtexture(skin->wnd_background, (float)x, (float)y, (float)(x + width), (float)(y + height));
-					glBindTexture(GL_TEXTURE_2D, 0);
-				}
+                    gfx->drawtexture(skin->wnd_background, (float)x, (float)y, (float)(x + width), (float)(y + height), color);
 				else
-				{
-					glBindTexture(GL_TEXTURE_2D, 0);
 					gfx->rectfill((float)x, (float)y, (float)(x + width), (float)(y + height), color);
-				}
 			}
 			else
 			{
-				gfx->set_color(color);
 				if (background_clamp)
-					gfx->drawtexture(background, (float)x, (float)y, (float)(x + background_width), (float)(y + background_height));
+                    gfx->drawtexture(background, (float)x, (float)y, (float)(x + background_width), (float)(y + background_height), color);
 				else
 				{
 					if (repeat_bkg)
-						gfx->drawtexture(background, (float)x, (float)y, (float)(x + width), (float)(y + height), 0.0f, 0.0f, ((float)width) / (float)bkg_w, ((float)height) / (float)bkg_h);
+                        gfx->drawtexture(background, (float)x, (float)y, (float)(x + width), (float)(y + height), 0.0f, 0.0f, ((float)width) / (float)bkg_w, ((float)height) / (float)bkg_h, color);
 					else
-						gfx->drawtexture(background, (float)x, (float)y, (float)(x + width), (float)(y + height));
+                        gfx->drawtexture(background, (float)x, (float)y, (float)(x + width), (float)(y + height), color);
 				}
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
@@ -470,8 +462,7 @@ namespace TA3D
 				glEnable(GL_BLEND);
 				glDisable(GL_TEXTURE_2D);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-				gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2);
+                gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2, makeacol(0,0,0,127));
 				glEnable(GL_TEXTURE_2D);
 				glDisable(GL_BLEND);
 			}
@@ -482,8 +473,7 @@ namespace TA3D
 				glEnable(GL_BLEND);
 				glDisable(GL_TEXTURE_2D);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-				gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2);
+                gfx->rectfill(x + object->x1, y + object->y1, x + object->x2, y + object->y2, makeacol(0xFF, 0xFF, 0xFF, 127));
 				glEnable(GL_TEXTURE_2D);
 				glDisable(GL_BLEND);
 			}

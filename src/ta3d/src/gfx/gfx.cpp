@@ -485,7 +485,9 @@ namespace TA3D
 		glViewport(0,0,width,height);
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_tex_size);
-	}
+
+        loadShaders();
+    }
 
     void GFX::destroy_background()
     {
@@ -679,145 +681,152 @@ namespace TA3D
 		glPopAttrib();
 	}
 
-	void GFX::line(const float x1, const float y1, const float x2, const float y2)			// Basic drawing routines
-	{
-		float points[4] = { x1,y1, x2,y2 };
-        glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_LINES, 0, 2 );
-	}
 	void GFX::line(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
-		set_color(col);
-		line(x1,y1,x2,y2);
-	}
+        GLfloat points[4] = { x1,y1, x2,y2 };
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, points, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINES, 0, 2);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
 
-
-	void GFX::rect(const float x1, const float y1, const float x2, const float y2)
-	{
-		float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_LINE_LOOP, 0, 4 );
-	}
 	void GFX::rect(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
-		set_color(col);
-		rect(x1,y1,x2,y2);
-	}
+        GLfloat points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, points, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINE_LOOP, 0, 4);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
 
 
-	void GFX::rectfill(const float x1, const float y1, const float x2, const float y2)
-	{
-		float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_QUADS, 0, 4 );
-	}
 	void GFX::rectfill(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
-		set_color(col);
-		rectfill(x1,y1,x2,y2);
-	}
+        GLfloat points[8] = { x1,y1, x2,y1,
+                              x1,y2, x2,y2 };
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, points, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
 
 
-	void GFX::circle(const float x, const float y, const float r)
-	{
-		float d_alpha = DB_PI / (r + 1.0f);
-		int n = (int)(DB_PI / d_alpha) + 1;
-		float *points = new float[n * 2];
-		int i = 0;
-		for (float alpha = 0.0f ; alpha <= DB_PI ; alpha += d_alpha)
-		{
-			points[i++] = x + r * cosf(alpha);
-			points[i++] = y + r * sinf(alpha);
-		}
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_LINE_LOOP, 0, i >> 1 );
-		DELETE_ARRAY(points);
-	}
 	void GFX::circle(const float x, const float y, const float r, const uint32 col)
 	{
-		set_color(col);
-		circle(x,y,r);
-	}
+        float d_alpha = DB_PI / (r + 1.0f);
+        int n = std::max<int>(128, (int)(DB_PI / d_alpha) + 1);
+        d_alpha = DB_PI / (n - 1);
+        GLfloat points[256];
+        int i = 0;
+        for (float alpha = 0.0f ; alpha <= DB_PI ; alpha += d_alpha)
+        {
+            points[i++] = x + r * cosf(alpha);
+            points[i++] = y + r * sinf(alpha);
+        }
 
-	void GFX::circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My)
-	{
-		float d_alpha = DB_PI/(r+1.0f);
-		int n = (int)(DB_PI / d_alpha) + 2;
-		float *points = new float[n * 2];
-		int i = 0;
-		for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
-		{
-			float rx = x+r*cosf(alpha);
-			float ry = y+r*sinf(alpha);
-			if (rx < mx )		rx = mx;
-			else if (rx > Mx )	rx = Mx;
-			if (ry < my )		ry = my;
-			else if (ry > My )	ry = My;
-			points[i++] = rx;
-			points[i++] = ry;
-		}
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
-		DELETE_ARRAY(points);
-	}
-
-	void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My)
-	{
-		float d_alpha = DB_PI/(r+1.0f);
-		int n = (int)(DB_PI / d_alpha) + 2;
-		float *points = new float[n * 2];
-		int i = 0;
-		for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
-		{
-			float rx = x+r*cosf(alpha+t);
-			float ry = y+r*sinf(alpha+t);
-			if (rx < mx )		rx = mx;
-			else if (rx > Mx )	rx = Mx;
-			if (ry < my )		ry = my;
-			else if (ry > My )	ry = My;
-			points[i++] = rx;
-			points[i++] = ry;
-		}
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glDrawArrays( GL_LINES, 0, i>>1 );
-		DELETE_ARRAY(points);
-	}
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, points, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINE_LOOP, 0, n);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
 
 	void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
 	{
-		set_color(col);
-		dot_circle_zoned(t,x,y,r,mx,my,Mx,My);
-	}
+        float d_alpha = DB_PI / (r + 1.0f);
+        int n = std::max<int>(128, (int)(DB_PI / d_alpha) + 1);
+        d_alpha = DB_PI / (n - 1);
+        GLfloat points[256];
+        int i = 0;
+        for (float alpha = 0.0f ; alpha <= DB_PI ; alpha += d_alpha)
+        {
+            float rx = x+r*cosf(alpha+t);
+            float ry = y+r*sinf(alpha+t);
+            if (rx < mx )		rx = mx;
+            else if (rx > Mx )	rx = Mx;
+            if (ry < my )		ry = my;
+            else if (ry > My )	ry = My;
+            points[i++] = rx;
+            points[i++] = ry;
+        }
+
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, points, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINE_LOOP, 0, n);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
 
 	void GFX::circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
 	{
-		set_color(col);
-		circle_zoned(x,y,r,mx,my,Mx,My);
-	}
+        float d_alpha = DB_PI / (r + 1.0f);
+        int n = std::max<int>(128, (int)(DB_PI / d_alpha) + 1);
+        d_alpha = DB_PI / (n - 1);
+        GLfloat points[256];
+        int i = 0;
+        for (float alpha = 0.0f ; alpha <= DB_PI ; alpha += d_alpha)
+        {
+            float rx = x+r*cosf(alpha);
+            float ry = y+r*sinf(alpha);
+            if (rx < mx )		rx = mx;
+            else if (rx > Mx )	rx = Mx;
+            if (ry < my )		ry = my;
+            else if (ry > My )	ry = My;
+            points[i++] = rx;
+            points[i++] = ry;
+        }
+
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, points, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINE_LOOP, 0, n);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
 
 	void GFX::circlefill(const float x, const float y, const float r)
 	{
@@ -848,84 +857,50 @@ namespace TA3D
 	}
 
 
-	void GFX::rectdot(const float x1, const float y1, const float x2, const float y2)
-	{
-		glLineStipple(1, 0x5555);
-		glEnable(GL_LINE_STIPPLE);
-		rect(x1,y1,x2,y2);
-		glDisable(GL_LINE_STIPPLE);
-	}
 	void GFX::rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
-		set_color(col);
-		rectdot(x1,y1,x2,y2);
-	}
+        glLineStipple(1, 0x5555);
+        glEnable(GL_LINE_STIPPLE);
+        rect(x1,y1,x2,y2,col);
+        glDisable(GL_LINE_STIPPLE);
+    }
 
+    void GFX::drawtexture(const GfxTexture::Ptr &tex,
+                          const float x1, const float y1,
+                          const float x2, const float y2,
+                          const uint32 col)
+    {
+        drawtexture(tex, x1, y1, x2, y2, 0, 0, 1, 1, col);
+    }
 
-    void GFX::drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2)
+    void GFX::drawtexture(const GfxTexture::Ptr &tex,
+                          const float x1, const float y1,
+                          const float x2, const float y2,
+                          const float u1, const float v1,
+                          const float u2, const float v2,
+                          const uint32 col)
 	{
-		glEnable(GL_TEXTURE_2D);
-        tex->bind();
+        tex->bind(GL_TEXTURE0);
 
-		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		const float tcoord[8] = { u1,v1, u2,v1, u2,v2, u1,v2 };
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-		glDrawArrays(GL_QUADS, 0, 4);
-	}
-
-
-    void GFX::drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2)
-	{
-		glEnable(GL_TEXTURE_2D);
-        tex->bind();
-
-		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		static const float tcoord[8] = { 0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f };
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-		glDrawArrays( GL_QUADS, 0, 4 );
-	}
-
-
-    void GFX::drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2)
-	{
-		glEnable(GL_TEXTURE_2D);
-        tex->bind();
-
-		const float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
-		static const float tcoord[8] = {0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f};
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(2, GL_FLOAT, 0, points);
-		glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-		glDrawArrays( GL_QUADS, 0, 4 );
-	}
-
-
-    void GFX::drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
-	{
-		set_color(col);
-		drawtexture( tex, x1, y1, x2, y2 );
-	}
-
-    void GFX::drawtexture_flip(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
-	{
-		set_color(col);
-		drawtexture_flip(tex, x1, y1, x2, y2);
+        GLfloat points[8] = { x1,y1, x2,y1,
+                              x1,y2, x2,y2 };
+        GLfloat tcoord[8] = { u1,v1, u2,v1,
+                              u1,v2, u2,v2 };
+        drawing2d_texture_shader->bind();
+        drawing2d_texture_shader->setAttributeArray(0, points, 2);
+        drawing2d_texture_shader->enableAttributeArray(0);
+        drawing2d_texture_shader->disableAttributeArray(1);
+        drawing2d_texture_shader->setAttributeValue(1,
+                                                    getr(col) * (1.f / 255.f),
+                                                    getg(col) * (1.f / 255.f),
+                                                    getb(col) * (1.f / 255.f),
+                                                    geta(col) * (1.f / 255.f));
+        drawing2d_texture_shader->setAttributeArray(2, tcoord, 2);
+        drawing2d_texture_shader->enableAttributeArray(2);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        drawing2d_texture_shader->disableAttributeArray(0);
+        drawing2d_texture_shader->disableAttributeArray(2);
+        drawing2d_texture_shader->release();
 	}
 
     void GFX::print(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
@@ -1997,6 +1972,32 @@ namespace TA3D
             model_shader->release();
 		}
 	}
+
+    void GFX::loadShaders()
+    {
+        if (!drawing2d_color_shader)
+        {
+            drawing2d_color_shader = new Shader("shaders/2d_color.frag", "shaders/2d_color.vert");
+            drawing2d_color_shader->bindAttributeLocation("aVertex", 0);
+            drawing2d_color_shader->bindAttributeLocation("aColor", 1);
+            drawing2d_color_shader->link();
+            drawing2d_color_shader->bind();
+            drawing2d_color_shader->setUniformValue("uMatrix", get2Dmatrix());
+            drawing2d_color_shader->release();
+        }
+        if (!drawing2d_texture_shader)
+        {
+            drawing2d_texture_shader = new Shader("shaders/2d_texture.frag", "shaders/2d_texture.vert");
+            drawing2d_texture_shader->bindAttributeLocation("aVertex", 0);
+            drawing2d_texture_shader->bindAttributeLocation("aColor", 1);
+            drawing2d_texture_shader->bindAttributeLocation("aTexCoord", 2);
+            drawing2d_texture_shader->link();
+            drawing2d_texture_shader->bind();
+            drawing2d_texture_shader->setUniformValue("uMatrix", get2Dmatrix());
+            drawing2d_texture_shader->setUniformValue("uTex", 0);
+            drawing2d_texture_shader->release();
+        }
+    }
 
 
 	void GFX::disable_model_shading()

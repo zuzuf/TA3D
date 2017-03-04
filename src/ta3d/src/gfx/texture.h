@@ -36,8 +36,6 @@ namespace TA3D
 		void draw(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
 		void drawRotated(const float x1, const float y1, const float angle, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
 		void drawCentered(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
-		void drawFlipped(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
-		void drawFlippedCentered(const float x1, const float y1, const uint32 col = 0xFFFFFFFFU, const float scale = 1.0f);
     }; // class GfxTexture
 }
 

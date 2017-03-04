@@ -105,19 +105,19 @@ namespace Gui
 		const float f = l < 0.0f ? (X2 - X1) / (x1 - x2) : 1.0f;
 		const float fu = (1.0f - f * (1.0f - t_x2)) / t_x2;
 
-		gfx->drawtexture(tex, X1, Y1, X1 + f * x1, Y1 + y1, 0.0f, 0.0f, f * t_x1, t_y1);
-		gfx->drawtexture(tex, X1 + f * x1, Y1, X2 + f * x2, Y1 + y1, f * t_x1, 0.0f, fu * t_x2, t_y1);
-		gfx->drawtexture(tex, X2 + f * x2, Y1, X2, Y1 + y1, fu * t_x2, 0.0f, 1.0f, t_y1);
+        gfx->drawtexture(tex, X1, Y1, X1 + f * x1, Y1 + y1, 0.0f, 0.0f, f * t_x1, t_y1, makecol(0xFF,0xFF,0xFF));
+        gfx->drawtexture(tex, X1 + f * x1, Y1, X2 + f * x2, Y1 + y1, f * t_x1, 0.0f, fu * t_x2, t_y1, makecol(0xFF,0xFF,0xFF));
+        gfx->drawtexture(tex, X2 + f * x2, Y1, X2, Y1 + y1, fu * t_x2, 0.0f, 1.0f, t_y1, makecol(0xFF,0xFF,0xFF));
 
-		gfx->drawtexture(tex, X1, Y1 + y1, X1 + f * x1, Y2 + y2, 0.0f, t_y1, f * t_x1, t_y2);
-		gfx->drawtexture(tex, X2 + f * x2, Y1 + y1, X2, Y2 + y2, fu * t_x2, t_y1, 1.0f, t_y2);
+        gfx->drawtexture(tex, X1, Y1 + y1, X1 + f * x1, Y2 + y2, 0.0f, t_y1, f * t_x1, t_y2, makecol(0xFF,0xFF,0xFF));
+        gfx->drawtexture(tex, X2 + f * x2, Y1 + y1, X2, Y2 + y2, fu * t_x2, t_y1, 1.0f, t_y2, makecol(0xFF,0xFF,0xFF));
 
-		gfx->drawtexture(tex, X1, Y2 + y2, X1 + f * x1, Y2, 0.0f, t_y2, f * t_x1, 1.0f);
-		gfx->drawtexture(tex, X1 + f * x1, Y2 + y2, X2 + f * x2, Y2, f * t_x1, t_y2, fu * t_x2, 1.0f);
-		gfx->drawtexture(tex, X2 + f * x2, Y2 + y2, X2, Y2, fu * t_x2, t_y2, 1.0f, 1.0f);
+        gfx->drawtexture(tex, X1, Y2 + y2, X1 + f * x1, Y2, 0.0f, t_y2, f * t_x1, 1.0f, makecol(0xFF,0xFF,0xFF));
+        gfx->drawtexture(tex, X1 + f * x1, Y2 + y2, X2 + f * x2, Y2, f * t_x1, t_y2, fu * t_x2, 1.0f, makecol(0xFF,0xFF,0xFF));
+        gfx->drawtexture(tex, X2 + f * x2, Y2 + y2, X2, Y2, fu * t_x2, t_y2, 1.0f, 1.0f, makecol(0xFF,0xFF,0xFF));
 
 		if (bkg && l > 0.0f)
-			gfx->drawtexture(tex, X1 + x1, Y1 + y1, X2 + x2, Y2 + y2, t_x1, t_y1, t_x2, t_y2);
+            gfx->drawtexture(tex, X1 + x1, Y1 + y1, X2 + x2, Y2 + y2, t_x1, t_y1, t_x2, t_y2, makecol(0xFF,0xFF,0xFF));
 	}
 
 

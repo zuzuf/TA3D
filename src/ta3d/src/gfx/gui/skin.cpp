@@ -751,8 +751,7 @@ namespace Gui
 
 		float fuzzy2 = fuzzy / sqrtf(2.0f);
 
-		gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
-		gfx->rectfill( x1, y1, x2, y2);
+        gfx->rectfill(x1, y1, x2, y2, makeacol(0,0,0,alpha * 255));
 
 		glBegin(GL_QUADS);
 		// Left

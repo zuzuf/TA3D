@@ -138,7 +138,7 @@ namespace TA3D
                 }
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                 glEnable(GL_BLEND);
-                gfx->drawtexture(prim.tex,prim.x[0],prim.y[0],prim.x[1],prim.y[1]);
+                gfx->drawtexture(prim.tex, prim.x[0], prim.y[0], prim.x[1], prim.y[1], makecol(0xFF,0xFF,0xFF));
                 glDisable(GL_BLEND);
                 break;
         }

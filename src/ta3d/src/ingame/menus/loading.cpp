@@ -122,7 +122,7 @@ namespace Menus
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Draw the texture
-		gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, float(SCREEN_W), float(SCREEN_H));
+        gfx->drawtexture(pBackgroundTexture, 0.0f, 0.0f, float(SCREEN_W), float(SCREEN_H), makecol(0xFF,0xFF,0xFF));
 
 		// Draw all previous messages
 		int indx(0);
@@ -148,8 +148,9 @@ namespace Menus
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
         gfx->drawtexture(pBackgroundTexture, 100.0f * pCacheScreenRatioWidth, 856.0f * pCacheScreenRatioHeight,
-            1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
-            100.0f / 1280.0f, 856.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f);
+                         1172.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
+                         100.0f / 1280.0f, 856.0f / 1024.0f, 1172.0f / 1280.0f, 917.0f / 1024.0f,
+                         makecol(0xFF,0xFF,0xFF));
         glDisable(GL_BLEND);
 
 		// Draw the caption (horizontally centered)
