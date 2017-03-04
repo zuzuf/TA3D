@@ -56,8 +56,8 @@ namespace TA3D
 			// Examine the image for a blank-looking bottom or right edge
 			int mini_w = TNTMINIMAP_WIDTH;
 			int mini_h = TNTMINIMAP_HEIGHT;
-			uint32 blank_color = makecol(120,148,252); // approximately
-			uint32 mask = makecol(0xFC, 0xFC, 0xFC); // XXX this assumes 24- or 32-bit pixels
+            const uint32 blank_color = makeacol(252,148,120,0); // approximately
+            const uint32 mask = makeacol(0xFC, 0xFC, 0xFC, 0); // XXX this assumes 24- or 32-bit pixels
 			do
 			{
 				--mini_w;
@@ -171,10 +171,11 @@ namespace TA3D
         convert_format(map->mini);
 		map->mini_w = 251;
 		map->mini_h = 251;
-		uint32 mask = makecol(0xFC, 0xFC, 0xFC);
-		while (map->mini_w > 0 && ( ( SurfaceInt(map->mini,map->mini_w,0) & mask) == makecol(120,148,252) || SurfaceInt(map->mini,map->mini_w,0) == 0))
+        const uint32 mask = makeacol(0xFC, 0xFC, 0xFC, 0);
+        const uint32 nodata_value = makeacol(252,148,120,0);
+        while (map->mini_w > 0 && ( ( SurfaceInt(map->mini,map->mini_w,0) & mask) == nodata_value || SurfaceInt(map->mini,map->mini_w,0) == 0))
 			--(map->mini_w);
-		while (map->mini_h > 0 && ( ( SurfaceInt(map->mini,0,map->mini_h) & mask) == makecol(120,148,252) || SurfaceInt(map->mini,0,map->mini_h) == 0))
+        while (map->mini_h > 0 && ( ( SurfaceInt(map->mini,0,map->mini_h) & mask) == nodata_value || SurfaceInt(map->mini,0,map->mini_h) == 0))
 			--(map->mini_h);
 		++(map->mini_w);
 		++(map->mini_h);
