@@ -21,6 +21,7 @@
  */
 
 #include <QApplication>
+#include <QMessageBox>
 #include "stdafx.h"					// standard pch inheritance.
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "engine.h"		       		// The engine class.
@@ -192,6 +193,10 @@ int main(int argc, char **argv)
 
     a.setApplicationName("Total Annihilation 3D");
     a.setApplicationDisplayName("TA3D");
+
+    if (qgetenv("USER") != "roland")
+        QMessageBox::warning(NULL, "Development version warning", "This version of TA3D is being actively developped and is rather unstable right now.\nUnless you are helping with development you most likely want to run the last stable version.");
+
     a.setOverrideCursor(QCursor(QPixmap(1,1)));
 
 	// Initialize signals
