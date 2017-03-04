@@ -42,8 +42,8 @@
 
 namespace TA3D
 {
-	Shader MeshS3O::s3oShader;
-	Shader MeshS3O::s3oShader_woShadows;
+    Shader::Ptr MeshS3O::s3oShader;
+    Shader::Ptr MeshS3O::s3oShader_woShadows;
 
     REGISTER_MESH_TYPE(MeshS3O)
 
@@ -187,21 +187,21 @@ namespace TA3D
 						{
 							if (lp_CONFIG->shadow_quality >= 2)
 							{
-								s3oShader.on();
-								s3oShader.setvar1i( "tex0", 0 );
-								s3oShader.setvar1i( "tex1", 1 );
-								s3oShader.setvar1i( "shadowMap", 7 );
-								s3oShader.setvar1f( "t", 0.5f - 0.5f * cosf(t * PI) );
-								s3oShader.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
-								s3oShader.setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
+                                s3oShader->bind();
+                                s3oShader->setUniformValue( "tex0", 0 );
+                                s3oShader->setUniformValue( "tex1", 1 );
+                                s3oShader->setUniformValue( "shadowMap", 7 );
+                                s3oShader->setUniformValue( "t", 0.5f - 0.5f * cosf(t * PI) );
+                                s3oShader->setUniformValue( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+                                s3oShader->setmat4f("light_Projection", gfx->shadowMapProjectionMatrix);
 							}
 							else
 							{
-								s3oShader_woShadows.on();
-								s3oShader_woShadows.setvar1i( "tex0", 0 );
-								s3oShader_woShadows.setvar1i( "tex1", 1 );
-								s3oShader_woShadows.setvar1f( "t", 0.5f - 0.5f * cosf(t * PI) );
-								s3oShader_woShadows.setvar4f( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
+                                s3oShader_woShadows->bind();
+                                s3oShader_woShadows->setUniformValue( "tex0", 0 );
+                                s3oShader_woShadows->setUniformValue( "tex1", 1 );
+                                s3oShader_woShadows->setUniformValue( "t", 0.5f - 0.5f * cosf(t * PI) );
+                                s3oShader_woShadows->setUniformValue( "team", player_color[player_color_map[side] * 3], player_color[player_color_map[side] * 3 + 1], player_color[player_color_map[side] * 3 + 2], 1.0f);
 							}
 
 							activated_tex = true;
@@ -265,7 +265,7 @@ namespace TA3D
 							glEnable(GL_TEXTURE_2D);
 						}
 						if (!notex && !lp_CONFIG->disable_GLSL)
-							s3oShader.off();
+                            s3oShader->release();
 						glDisable(GL_BLEND);
 						glDisable(GL_ALPHA_TEST);
 					}
@@ -638,10 +638,10 @@ namespace TA3D
 
 	void MeshS3O::init_shaders()
 	{
-		if (!s3oShader.isLoaded())
-			s3oShader.load("shaders/s3o.frag", "shaders/s3o.vert");
-		if (!s3oShader_woShadows.isLoaded())
-			s3oShader_woShadows.load("shaders/s3o_wos.frag", "shaders/s3o_wos.vert");
+        if (!s3oShader->isLinked())
+            s3oShader->load("shaders/s3o.frag", "shaders/s3o.vert");
+        if (!s3oShader_woShadows->isLinked())
+            s3oShader_woShadows->load("shaders/s3o_wos.frag", "shaders/s3o_wos.vert");
 	}
 } // namespace TA3D
 

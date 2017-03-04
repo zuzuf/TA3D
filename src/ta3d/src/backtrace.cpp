@@ -292,11 +292,11 @@ void bug_reporter(const QString &trace)
 
 	// OpenGL info
 	report += "OpenGL Informations :\n";
-    (report += "Vendor: ") += (const char*) glGetString(GL_VENDOR);
-    (report += "\nRenderer: ") += (const char*) glGetString(GL_RENDERER);
-    (report += "\nVersion: ") += (const char*) glGetString(GL_VERSION);
+    (report += "Vendor: ") += (const char*) gfx->glGetString(GL_VENDOR);
+    (report += "\nRenderer: ") += (const char*) gfx->glGetString(GL_RENDERER);
+    (report += "\nVersion: ") += (const char*) gfx->glGetString(GL_VERSION);
 	report += "\nExtensions:\n";
-    const char *ext = (const char*) glGetString(GL_EXTENSIONS);
+    const char *ext = (const char*) gfx->glGetString(GL_EXTENSIONS);
 	for(; *ext ; ++ext)
         report += (*ext == ' ') ? '\n' : *ext;
 	report += '\n';

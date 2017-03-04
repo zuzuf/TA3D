@@ -430,7 +430,9 @@ namespace TA3D
 			}
 			DELETE_ARRAY(feature);
 		}
-		list.clear();
+        icons[0] = nullptr;
+        icons[1] = nullptr;
+        list.clear();
 		if (bInit)
 			init();
 		burning_features.clear();

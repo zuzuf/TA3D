@@ -534,7 +534,7 @@ namespace TA3D
 		SCREEN_W_HALF(0), SCREEN_H_HALF(0), SCREEN_W_INV(0.), SCREEN_H_INV(0.), SCREEN_W_TO_640(0.), SCREEN_H_TO_480(0.),
         low_def_limit(600.), textureFBO(0),
 		model_shader(),
-		ati_workaround(false), max_tex_size(0), default_texture(0),
+        ati_workaround(false), max_tex_size(0),
 		alpha_blending_set(false), texture_format(0), build_mipmaps(false), shadowMapMode(false),
 		defaultRGBTextureFormat(GL_RGB8), defaultRGBATextureFormat(GL_RGBA8)
 	{
@@ -654,6 +654,13 @@ namespace TA3D
 		glColor4ub(0xFF,0xFF,0xFF,0xFF);
 	}
 
+    QMatrix4x4 GFX::get2Dmatrix()
+    {
+        QMatrix4x4 M;
+        M.ortho(0, width, height, 0, -1.0, 1.0);
+        return M;
+    }
+
 	void GFX::set_2D_clip_rectangle(int x, int y, int w, int h)
 	{
 		if (w == -1 || h == -1)
@@ -675,7 +682,7 @@ namespace TA3D
 	void GFX::line(const float x1, const float y1, const float x2, const float y2)			// Basic drawing routines
 	{
 		float points[4] = { x1,y1, x2,y2 };
-		glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1971,30 +1978,31 @@ namespace TA3D
 				case 1:
 					{
 						#ifndef TA3D_PLATFORM_MAC
-						if (!model_shader.isLoaded())
-							model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
-						if (model_shader.isLoaded())
+                        if (!model_shader)
+                            model_shader = new Shader("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
+                        if (model_shader && model_shader->isLinked())
 						{
-							model_shader.on();
-							model_shader.setvar1i("shadowMap", 7);
-							model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
+                            model_shader->bind();
+                            model_shader->setUniformValue("shadowMap", 7);
+                            model_shader->setmat4f("light_Projection", shadowMapProjectionMatrix);
 						}
 						# endif
 						break;
 					}
 				default:
-					model_shader.off();
+                    model_shader->release();
 			}
 			break;
 		default:
-			model_shader.off();
+            model_shader->release();
 		}
 	}
 
 
 	void GFX::disable_model_shading()
 	{
-		model_shader.off();
+        if (model_shader)
+            model_shader->release();
 	}
 
 	void GFX::setShadowMapMode(bool mode)

@@ -286,19 +286,19 @@ namespace TA3D
 
 				if (lp_CONFIG->water_quality == 2)
 				{
-					water_pass1_low.on();
-					water_pass1_low.setvar1i("lava",0);
-					water_pass1_low.setvar1i("map",1);
-					water_pass1_low.setvar1f("t",t);
-					water_pass1_low.setvar2f("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
+                    water_pass1_low->bind();
+                    water_pass1_low->setUniformValue("lava",0);
+                    water_pass1_low->setUniformValue("map",1);
+                    water_pass1_low->setUniformValue("t",t);
+                    water_pass1_low->setUniformValue("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 				}
 				else
 				{
-					water_pass1.on();
-					water_pass1.setvar1i("lava",0);
-					water_pass1.setvar1i("map",1);
-					water_pass1.setvar1f("t",t);
-					water_pass1.setvar2f("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
+                    water_pass1->bind();
+                    water_pass1->setUniformValue("lava",0);
+                    water_pass1->setUniformValue("map",1);
+                    water_pass1->setUniformValue("t",t);
+                    water_pass1->setUniformValue("factor", (float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 				}
 
 				cam.setView(true);
@@ -306,11 +306,11 @@ namespace TA3D
 				water_obj->draw(t, true);
 
 				if (lp_CONFIG->water_quality == 2)
-					water_pass1_low.off();
+                    water_pass1_low->release();
 				else
-					water_pass1.off();
+                    water_pass1->release();
 
-                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass, 0);					// Second pass of water rendering, store viewing vector
+                gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass->textureId(), 0);					// Second pass of water rendering, store viewing vector
 
 				//			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
                 gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
@@ -321,17 +321,17 @@ namespace TA3D
                 gfx->glActiveTexture(GL_TEXTURE1);
                 gfx->glDisable(GL_TEXTURE_2D);
 
-				water_pass2.on();
+                water_pass2->bind();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
 				water_obj->draw(t, true);
 
-				water_pass2.off();
+                water_pass2->release();
 
 				if (lp_CONFIG->water_quality > 2)
 				{
-                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color, 0);					// Third pass of water rendering, store water color
+                    gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color->textureId(), 0);					// Third pass of water rendering, store water color
 
                     gfx->glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
 
@@ -399,12 +399,12 @@ namespace TA3D
 
 				if (lp_CONFIG->water_quality == 2)
 				{
-					water_shader.on();
-					water_shader.setvar1i("sky",0);
-					water_shader.setvar1i("rtex",1);
-					water_shader.setvar1i("bump",2);
-					water_shader.setvar1i("view",3);
-					water_shader.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
+                    water_shader->bind();
+                    water_shader->setUniformValue("sky",0);
+                    water_shader->setUniformValue("rtex",1);
+                    water_shader->setUniformValue("bump",2);
+                    water_shader->setUniformValue("view",3);
+                    water_shader->setUniformValue("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
 				}
 				else
 				{
@@ -412,13 +412,13 @@ namespace TA3D
                     water_color->bind();
                     gfx->glEnable(GL_TEXTURE_2D);
 
-					water_shader_reflec.on();
-					water_shader_reflec.setvar1i("sky",0);
-					water_shader_reflec.setvar1i("rtex",1);
-					water_shader_reflec.setvar1i("bump",2);
-					water_shader_reflec.setvar1i("view",3);
-					water_shader_reflec.setvar1i("water_color",4);
-					water_shader_reflec.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
+                    water_shader_reflec->bind();
+                    water_shader_reflec->setUniformValue("sky",0);
+                    water_shader_reflec->setUniformValue("rtex",1);
+                    water_shader_reflec->setUniformValue("bump",2);
+                    water_shader_reflec->setUniformValue("view",3);
+                    water_shader_reflec->setUniformValue("water_color",4);
+                    water_shader_reflec->setUniformValue("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
 				}
 
                 glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -443,9 +443,9 @@ namespace TA3D
                 gfx->glEnable(GL_DEPTH_TEST);
 
 				if (lp_CONFIG->water_quality == 2)
-					water_shader.off();
+                    water_shader->release();
 				else
-					water_shader_reflec.off();
+                    water_shader_reflec->release();
 			}
 			else                            // New Ultimate quality water renderer
 			{
@@ -481,10 +481,10 @@ namespace TA3D
 						refresh = true;
 					}
 					float dt_step = Math::Min( time_to_simulate - real_time, time_step );
-					water_simulator_shader.on();
-					water_simulator_shader.setvar1i("sim",0);
-					water_simulator_shader.setvar1f("fluid",50.0f * dt_step);
-					water_simulator_shader.setvar1f("t", refresh ? 1.0f : 0.0f);
+                    water_simulator_shader->bind();
+                    water_simulator_shader->setUniformValue("sim",0);
+                    water_simulator_shader->setUniformValue("fluid",50.0f * dt_step);
+                    water_simulator_shader->setUniformValue("t", refresh ? 1.0f : 0.0f);
 
 					glBegin( GL_QUADS );
 					glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
@@ -493,14 +493,14 @@ namespace TA3D
 					glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
 					glEnd();
 
-					water_simulator_shader.off();
+                    water_simulator_shader->release();
 
                     gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim1->textureId(), 0);
                     water_sim0->bind();
 
-					water_simulator_shader2.on();
-					water_simulator_shader2.setvar1i("sim",0);
-					water_simulator_shader2.setvar1f("dt", dt_step);
+                    water_simulator_shader2->bind();
+                    water_simulator_shader2->setUniformValue("sim",0);
+                    water_simulator_shader2->setUniformValue("dt", dt_step);
 
 					glBegin( GL_QUADS );
 					glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
@@ -509,7 +509,7 @@ namespace TA3D
 					glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
 					glEnd();
 
-					water_simulator_shader2.off();
+                    water_simulator_shader2->release();
 				}
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_sim2->textureId(), 0);
@@ -518,8 +518,8 @@ namespace TA3D
                 gfx->glEnable(GL_TEXTURE_2D);
                 water_sim1->bind();
 
-				water_simulator_shader3.on();
-				water_simulator_shader3.setvar1i("sim",0);
+                water_simulator_shader3->bind();
+                water_simulator_shader3->setUniformValue("sim",0);
 
 				glBegin( GL_QUADS );
 				glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
@@ -528,7 +528,7 @@ namespace TA3D
 				glTexCoord2i( 0, 1 ); glVertex2i( -1, 1 );
 				glEnd();
 
-				water_simulator_shader3.off();
+                water_simulator_shader3->release();
 
                 glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
                 gfx->glDisable(GL_LIGHTING);
@@ -553,9 +553,9 @@ namespace TA3D
                 gfx->glClear(GL_COLOR_BUFFER_BIT);		// Efface la texture tampon
 
 				cam.setView(true);
-				water_distortions_shader.on();
+                water_distortions_shader->bind();
 				fx_manager.drawWaterDistortions();
-				water_distortions_shader.off();
+                water_distortions_shader->release();
 
 				glMatrixMode (GL_PROJECTION);
 				glLoadIdentity ();
@@ -572,16 +572,16 @@ namespace TA3D
                 gfx->glEnable(GL_TEXTURE_2D);
                 map->lava_map->bind();
 
-				water_simulator_shader4.on();
-				water_simulator_shader4.setvar1i("lava",0);
-				water_simulator_shader4.setvar1f("t",t);
-				water_simulator_shader4.setvar2f("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
+                water_simulator_shader4->bind();
+                water_simulator_shader4->setUniformValue("lava",0);
+                water_simulator_shader4->setUniformValue("t",t);
+                water_simulator_shader4->setUniformValue("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
 				water_obj->draw(t, true);
 
-				water_simulator_shader4.off();
+                water_simulator_shader4->release();
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, second_pass, 0);					// Second pass of water rendering, store viewing vector
 
@@ -593,13 +593,13 @@ namespace TA3D
                 gfx->glActiveTexture(GL_TEXTURE1);
                 gfx->glDisable(GL_TEXTURE_2D);
 
-				water_pass2.on();
+                water_pass2->bind();
 
 				cam.setView(true);
 				glTranslatef(0.0f,map->sealvl,0.0f);
 				water_obj->draw(t, true);
 
-				water_pass2.off();
+                water_pass2->release();
 
                 gfx->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, water_color, 0);					// Third pass of water rendering, store water color
 
@@ -682,19 +682,19 @@ namespace TA3D
                 water_distortions->bind();
                 gfx->glEnable(GL_TEXTURE_2D);
 
-				water_simulator_reflec.on();
-				water_simulator_reflec.setvar1i("sky",0);
-				water_simulator_reflec.setvar1i("rtex",1);
-				water_simulator_reflec.setvar1i("bump",2);
-				water_simulator_reflec.setvar1i("view",3);
-				water_simulator_reflec.setvar1i("water_color",4);
-				water_simulator_reflec.setvar1i("height_map",5);
-				water_simulator_reflec.setvar1i("normal_map",6);
-				water_simulator_reflec.setvar1i("distort_map",7);
-				water_simulator_reflec.setvar2f("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
-				water_simulator_reflec.setvar1f("cam_h_factor", 1.0f / cam.rpos.y);
-				water_simulator_reflec.setvar2f("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
-				water_simulator_reflec.setvar1f("t", t);
+                water_simulator_reflec->bind();
+                water_simulator_reflec->setUniformValue("sky",0);
+                water_simulator_reflec->setUniformValue("rtex",1);
+                water_simulator_reflec->setUniformValue("bump",2);
+                water_simulator_reflec->setUniformValue("view",3);
+                water_simulator_reflec->setUniformValue("water_color",4);
+                water_simulator_reflec->setUniformValue("height_map",5);
+                water_simulator_reflec->setUniformValue("normal_map",6);
+                water_simulator_reflec->setUniformValue("distort_map",7);
+                water_simulator_reflec->setUniformValue("coef", (float)SCREEN_W / (float)wx, (float)SCREEN_H / (float)wy);
+                water_simulator_reflec->setUniformValue("cam_h_factor", 1.0f / cam.rpos.y);
+                water_simulator_reflec->setUniformValue("factor",(float)water_obj->w / (float)map->map_w, (float)water_obj->w / (float)map->map_h);
+                water_simulator_reflec->setUniformValue("t", t);
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);
                 gfx->glDisable(GL_DEPTH_TEST);
@@ -723,7 +723,7 @@ namespace TA3D
 				else
                     gfx->glDisable(GL_TEXTURE_2D);
 
-				water_simulator_reflec.off();
+                water_simulator_reflec->release();
 			}
 			gfx->ReInitAllTex(true);
 		}
@@ -774,51 +774,51 @@ namespace TA3D
 		if (lp_CONFIG->wireframe)
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-		map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units.apparent_timefactor);
+        map->draw(&cam, byte(1 << players.local_human_id), false, 0.0f, t, dt * units.apparent_timefactor);
 
 		if (lp_CONFIG->wireframe)
 			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 		cam.setView(lp_CONFIG->shadow_quality < 2);
 
-		features.draw(render_time);		// Dessine les éléments "2D"
+        features.draw(render_time);		// Dessine les éléments "2D"
 
 		/*----------------------------------------------------------------------------------------------*/
 
-		// Dessine les unités sous l'eau / Draw units which are under water
-		cam.setView(lp_CONFIG->shadow_quality < 2);
-		if (cam.rpos.y <= gfx->low_def_limit)
-		{
-			if (lp_CONFIG->shadow_quality >= 2)
+        // Dessine les unités sous l'eau / Draw units which are under water
+        cam.setView(lp_CONFIG->shadow_quality < 2);
+        if (cam.rpos.y <= gfx->low_def_limit)
+        {
+            if (lp_CONFIG->shadow_quality >= 2)
                 glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-			units.draw(true, false, true, lp_CONFIG->height_line);
-			glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-		}
+            units.draw(true, false, true, lp_CONFIG->height_line);
+            glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+        }
 
-		// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
-		weapons.draw(true);
+        // Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
+        weapons.draw(true);
 
-		if (lp_CONFIG->particle)
-			particle_engine.drawUW();
+        if (lp_CONFIG->particle)
+            particle_engine.drawUW();
 
-		renderWater();
+//        renderWater();
 
-		// Render map object icons (if in tactical mode)
-		if (cam.rpos.y > gfx->low_def_limit)
-		{
-			cam.setView(true);
-			features.draw_icons();
-		}
+        // Render map object icons (if in tactical mode)
+        if (cam.rpos.y > gfx->low_def_limit)
+        {
+            cam.setView(true);
+            features.draw_icons();
+        }
 
-		cam.setView(lp_CONFIG->shadow_quality < 2);
-		if (lp_CONFIG->shadow_quality >= 2)
-			glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
-		// Dessine les unités non encore dessinées / Draw units which have not been drawn
-		units.draw(false, false, true, lp_CONFIG->height_line);
-		glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+        cam.setView(lp_CONFIG->shadow_quality < 2);
+        if (lp_CONFIG->shadow_quality >= 2)
+            glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
+        // Dessine les unités non encore dessinées / Draw units which have not been drawn
+        units.draw(false, false, true, lp_CONFIG->height_line);
+        glFogi (GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
 
-		// Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
-		weapons.draw(false);
+        // Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
+        weapons.draw(false);
 	}
 
 	void Battle::renderInfo()
@@ -1075,13 +1075,13 @@ namespace TA3D
 			cam.znear = -512.0f;
 		else
 			cam.znear = 1.0f;
-		renderReflection();
+        renderReflection();
 
-		renderShadowMap();
+        renderShadowMap();
 
-		renderWorld();
+        renderWorld();
 
-		renderInfo();
+        renderInfo();
 
 		renderPostEffects();
 	}

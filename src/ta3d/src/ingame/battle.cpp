@@ -1368,7 +1368,7 @@ namespace TA3D
 
 			initRenderer();
 
-			renderScene();
+            renderScene();
 
 			/*----------------------------------------------------------------------------*/
 
@@ -2449,17 +2449,17 @@ namespace TA3D
 		if (g_useProgram && g_useFBO && map->water)
 		{
             gfx->glDeleteFramebuffers(1, &water_FBO);
-			water_pass1.destroy();
-			water_pass1_low.destroy();
-			water_pass2.destroy();
-			water_shader.destroy();
-			water_shader_reflec.destroy();
-			water_simulator_shader.destroy();
-			water_simulator_shader2.destroy();
-			water_simulator_shader3.destroy();
-			water_simulator_shader4.destroy();
-			water_simulator_reflec.destroy();
-			water_distortions_shader.destroy();
+            water_pass1 = nullptr;
+            water_pass1_low = nullptr;
+            water_pass2 = nullptr;
+            water_shader = nullptr;
+            water_shader_reflec = nullptr;
+            water_simulator_shader = nullptr;
+            water_simulator_shader2 = nullptr;
+            water_simulator_shader3 = nullptr;
+            water_simulator_shader4 = nullptr;
+            water_simulator_reflec = nullptr;
+            water_distortions_shader = nullptr;
 		}
 
         freecam_on = nullptr;

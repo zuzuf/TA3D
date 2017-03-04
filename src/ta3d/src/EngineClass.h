@@ -211,8 +211,8 @@ namespace TA3D
         GfxTexture::Ptr	lava_map;		// texture des zones de lave
         GfxTexture::Ptr	details_tex;	// details texture to show more details when zooming on the map
 		float		color_factor;	// color factor used when details_tex is set with a texture that darken the map
-		Shader		detail_shader;	// pixel shader to add the detail texture correctly
-		Shader		shadow2_shader;	// pixel shader to use the shadow map in light equation(also add the detail texture correctly)
+        Shader::Ptr	detail_shader;	// pixel shader to add the detail texture correctly
+        Shader::Ptr	shadow2_shader;	// pixel shader to use the shadow map in light equation(also add the detail texture correctly)
 
 		MAP_OTA		ota_data;		// Data read from the ota file
 

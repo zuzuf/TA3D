@@ -10,15 +10,15 @@ namespace zuzuf
     class ref_count
     {
     public:
-        inline ref_count() : counter(0)	{}
+        inline ref_count() : _counter(0)	{}
 
         inline ref_count &operator=(const ref_count &)	{	return *this;	}
 
-        inline void retain()	{	++counter;	}
-        inline size_t release()	{	return --counter;	}
-        inline size_t get_ref_count() const	{	return counter;	}
+        inline void _retain()	{	++_counter;	}
+        inline size_t _release()	{	return --_counter;	}
+        inline size_t _get_ref_count() const	{	return _counter;	}
     private:
-        std::atomic<size_t> counter;
+        std::atomic<size_t> _counter;
     };
 
     template<class T>
@@ -30,17 +30,17 @@ namespace zuzuf
         inline smartptr(T *ptr) : ptr(ptr)
         {
             if (ptr)
-                ptr->ref_count::retain();
+                ptr->ref_count::_retain();
         }
         inline smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))
         {
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
         }
         inline smartptr(smartptr &ptr) : ptr(ptr.ptr)
         {
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
         }
         inline smartptr(smartptr &&ptr) : ptr(ptr.ptr)
         {
@@ -49,19 +49,19 @@ namespace zuzuf
         inline smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))
         {
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
         }
         template<class U>
         inline smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))
         {
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
         }
         template<class U>
         inline smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))
         {
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
         }
         inline ~smartptr()
         {
@@ -84,7 +84,7 @@ namespace zuzuf
             T *old = this->ptr;
             this->ptr = const_cast<T*>(ptr.ptr);
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
             if (old)
                 clear(old);
             return *this;
@@ -123,7 +123,7 @@ namespace zuzuf
             T *old = this->ptr;
             this->ptr = const_cast<T*>(ptr);
             if (this->ptr)
-                this->ptr->ref_count::retain();
+                this->ptr->ref_count::_retain();
             if (old)
                 clear(old);
             return *this;
@@ -174,7 +174,7 @@ namespace zuzuf
     private:
         inline void clear(T *p) const
         {
-            if (p->ref_count::release() == 0)
+            if (p->ref_count::_release() == 0)
                 delete p;
         }
     private:

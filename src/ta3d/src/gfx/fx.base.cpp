@@ -104,9 +104,9 @@ namespace TA3D
 
     void FX::doDrawAnimFlash()
     {
-        glDisable(GL_DEPTH_TEST);
+        gfx->glDisable(GL_DEPTH_TEST);
         fx_manager.flash_tex->bind();
-        glBlendFunc(GL_ONE,GL_ONE);
+        gfx->glBlendFunc(GL_ONE,GL_ONE);
 
 		const float t = std::min(time, 1.0f);
 		const float rsize = -4.0f * t * ( t - 1.0f ) * size;
@@ -117,8 +117,8 @@ namespace TA3D
         glTexCoord2f(1.0f,1.0f);	glVertex3f(Pos.x + rsize,Pos.y,Pos.z + rsize);
         glTexCoord2f(0.0f,1.0f);	glVertex3f(Pos.x - rsize,Pos.y,Pos.z + rsize);
         glEnd();
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glEnable( GL_DEPTH_TEST );
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glEnable( GL_DEPTH_TEST );
     }
 
 

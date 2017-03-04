@@ -55,7 +55,7 @@ namespace TA3D
 		Flag = 0;
 		frag_shader_src.clear();
 		vert_shader_src.clear();
-		s_shader.destroy();
+        s_shader = nullptr;
         glColorTexture = nullptr;
 		root = NULL;
 	}
@@ -71,7 +71,7 @@ namespace TA3D
 		Flag = 0;
 		frag_shader_src.clear();
 		vert_shader_src.clear();
-		s_shader.destroy();
+        s_shader = nullptr;
 		root = NULL;
 	}
 
@@ -185,9 +185,9 @@ namespace TA3D
 
 					if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
 					{
-						s_shader.on();
+                        s_shader->bind();
                         for (size_t j = 0; j < pTex->size() ; ++j)
-                            s_shader.setvar1i( QString("tex%1").arg(j).toLatin1().data(), j );
+                            s_shader->setvar1i( QString("tex%1").arg(j).toLatin1().data(), j );
 					}
 
 					if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -298,8 +298,8 @@ namespace TA3D
 					if ((Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD)) == SURFACE_ADVANCED)
 						glShadeModel (GL_SMOOTH);
 					if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
-						s_shader.off();
-					glDisable(GL_ALPHA_TEST);
+                        s_shader->release();
+                    gfx->glDisable(GL_ALPHA_TEST);
 
 					if (activated_tex)
 					{
@@ -380,9 +380,9 @@ namespace TA3D
 
 			if (Flag & SURFACE_GLSL)			// Using vertex and fragment programs
 			{
-				s_shader.on();
+                s_shader->bind();
 				for (unsigned int j = 0; j < pTex->size() ; ++j)
-                    s_shader.setvar1i( QString("tex%1").arg(j).toLatin1().data(), j + 1 );
+                    s_shader->setvar1i( QString("tex%1").arg(j).toLatin1().data(), j + 1 );
 			}
 
 			if (Flag & SURFACE_GOURAUD)			// Type d'éclairage
@@ -463,7 +463,7 @@ namespace TA3D
 			if ((Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD)) == SURFACE_ADVANCED)
 				glShadeModel (GL_SMOOTH);
 			if ((Flag&SURFACE_GLSL) && (Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
-				s_shader.off();
+                s_shader->release();
 
 			for (unsigned int j = 0; j < pTex->size() + 1 ; ++j)
 			{
@@ -721,7 +721,7 @@ namespace TA3D
 			file->read(buf,shader_size);
 			frag_shader_src = buf;
 			DELETE_ARRAY(buf);
-            s_shader.load_memory(frag_shader_src.data(), frag_shader_src.size(), vert_shader_src.data(), vert_shader_src.size());
+            s_shader->load_memory(frag_shader_src, vert_shader_src);
 		}
 
 		N = new Vector3D[nb_vtx << 1]; // Calculate normals

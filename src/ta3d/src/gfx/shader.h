@@ -20,6 +20,7 @@
 # include <stdafx.h>
 # include <misc/string.h>
 # include <QOpenGLShaderProgram>
+# include <zuzuf/smartptr.h>
 
 namespace TA3D
 {
@@ -27,42 +28,25 @@ namespace TA3D
 	/*!
 	** \brief Shader
 	*/
-	class Shader
+    class Shader : public QOpenGLShaderProgram, public zuzuf::ref_count
 	{
+    public:
+        typedef zuzuf::smartptr<Shader> Ptr;
 	public:
-		//! \name Constructor & Destructor
-		//@{
-		//! Default constructor
-		Shader()
-		{}
-		//! Destructor
-		~Shader() {destroy();}
-		//@}
-
-		void destroy();
-
+        Shader();
+        Shader(const char *fragmentFilename, const char *vertexFilename);
+        Shader(const QString& fragmentFilename, const QString& vertexFilename);
+        Shader(const QByteArray &fragment_data, const QByteArray &vertex_data);
 
 		/*!
 		** \brief Load a shader from files
 		*/
-		void load(const QString& pShaderFragmentFilename, const QString& vertexFilename);
+        void load(const QString& fragmentFilename, const QString& vertexFilename);
 
 		/*!
 		** \brief Load a shader from a memory buffer
 		*/
-		void load_memory(const char* pShaderFragment_data, const int frag_len, const char *vertex_data, const int vert_len);
-
-
-		/*!
-		** \brief Enable the shader
-		*/
-		void on();
-
-		/*!
-		** \brief Disable the shader
-		*/
-		void off();
-
+        void load_memory(const QByteArray &fragment_data, const QByteArray &vertex_data);
 
 		//! \name Variable for the ARB extension
 		//@{
@@ -74,19 +58,6 @@ namespace TA3D
 
         void setmat4f(const char *var, const GLfloat *mat);
 		//@}
-
-		/*!
-		** \brief Get if the shader has been loaded by the previous call to `load` or `load_memory`
-		**
-		** \see load()
-		** \see load_memory()
-		*/
-        bool isLoaded() const;
-
-
-	private:
-		//! Is the shader loaded ?
-        QOpenGLShaderProgram pShaderProgram;
 	}; // class Shader
 
 

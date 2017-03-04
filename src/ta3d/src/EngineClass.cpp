@@ -122,8 +122,8 @@ namespace TA3D
 		radar_map.clear();
 		sonar_map.clear();
 
-		shadow2_shader.load("shaders/map_shadow.frag", "shaders/map_shadow.vert");
-		detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
+        shadow2_shader = new Shader("shaders/map_shadow.frag", "shaders/map_shadow.vert");
+        detail_shader = new Shader( "shaders/details.frag", "shaders/details.vert" );
 		details_tex = 0;
 		color_factor = 1.0f;
 
@@ -545,8 +545,8 @@ namespace TA3D
 		radar_map.resize(0,0);
 		sonar_map.resize(0,0);
 
-		detail_shader.destroy();
-		shadow2_shader.destroy();
+        detail_shader = nullptr;
+        shadow2_shader = nullptr;
         details_tex = nullptr;
 
 		DELETE_ARRAY(low_vtx);
@@ -581,7 +581,7 @@ namespace TA3D
 		}
         mini = QImage();
 		init();
-		detail_shader.destroy();		// Because init will reload it
+        detail_shader = nullptr;		// Because init will reload it
 
 		the_map = NULL;
 	}
@@ -1454,16 +1454,16 @@ namespace TA3D
 			{
 				case 3:
 				case 2:
-					shadow2_shader.on();
-					shadow2_shader.setvar1f( "coef", color_factor );
-					shadow2_shader.setvar1i( "details", 1 );
-					shadow2_shader.setvar1i( "shadowMap", 7 );
-					shadow2_shader.setmat4f( "light_Projection", gfx->shadowMapProjectionMatrix);
+                    shadow2_shader->bind();
+                    shadow2_shader->setUniformValue( "coef", color_factor );
+                    shadow2_shader->setUniformValue( "details", 1 );
+                    shadow2_shader->setUniformValue( "shadowMap", 7 );
+                    shadow2_shader->setmat4f( "light_Projection", gfx->shadowMapProjectionMatrix);
 					break;
 				default:
-					detail_shader.on();
-					detail_shader.setvar1f( "coef", color_factor );
-					detail_shader.setvar1i( "details", 1 );
+                    detail_shader->bind();
+                    detail_shader->setUniformValue( "coef", color_factor );
+                    detail_shader->setUniformValue( "details", 1 );
 			}
 		}
 
@@ -1938,7 +1938,7 @@ namespace TA3D
 		}
 		glDisableClientState(GL_COLOR_ARRAY);		// Couleurs(pour le brouillard de guerre)
 
-		detail_shader.off();
+        detail_shader->release();
 
 		gfx->unlock();
 

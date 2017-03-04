@@ -267,6 +267,8 @@ SET(SRC_ZUZUF
                 zuzuf/murmurhash2.h
                 zuzuf/smartptr.h)
 
+file(GLOB SHADER_FILES ../shaders/*.frag ../shaders/*.vert)
+
 qt5_wrap_ui(TA3D_UI ${TA3D_FORMS})
 
 # --------------------------------------------------------------------
@@ -293,6 +295,7 @@ SET(TA3D_SOURCES
 		${SRC_INGAME} ${SRC_INGAME_WEAPONS} ${SRC_INGAME_MENUS}
                 ${SRC_ZUZUF}
                 ${TA3D_UI}
+                ${SHADER_FILES}
 		install.cpp
 		restore.cpp restore.h
 		fbi.cpp fbi.h

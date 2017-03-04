@@ -98,10 +98,10 @@ namespace TA3D
 		cursor.clear();
 		ta3dSideData.destroy();
 
-		sound_manager = NULL;
-		gfx = NULL;
+        sound_manager = nullptr;
+        gfx = nullptr;
 		pGFXModeActive = false;
-		InterfaceManager = NULL;
+        InterfaceManager = nullptr;
 	}
 
 
@@ -169,9 +169,9 @@ namespace TA3D
 	void Engine::displayInfosAboutOpenGL() const
 	{
 		logs.checkpoint() << "OpenGL Informations :";
-		logs.info() << "Vendor: "   << (const char*) glGetString(GL_VENDOR);
-		logs.info() << "Renderer: " << (const char*) glGetString(GL_RENDERER);
-		logs.info() << "Version: "  << (const char*) glGetString(GL_VERSION);
+        logs.info() << "Vendor: "   << (const char*) gfx->glGetString(GL_VENDOR);
+        logs.info() << "Renderer: " << (const char*) gfx->glGetString(GL_RENDERER);
+        logs.info() << "Version: "  << (const char*) gfx->glGetString(GL_VERSION);
 		if (gfx->atiWorkaround())
 			LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
 		LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << (g_useTextureCompression ? "Yes" : "No"));

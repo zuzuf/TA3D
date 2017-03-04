@@ -27,29 +27,44 @@
 namespace TA3D
 {
 
-	void Shader::destroy()
-	{
+    Shader::Shader()
+    {
     }
 
-	void Shader::load_memory(const char *fragment_data, const int frag_len,const char *vertex_data, const int vert_len)
+    Shader::Shader(const char *fragmentFilename, const char *vertexFilename)
+    {
+        load(fragmentFilename, vertexFilename);
+    }
+
+    Shader::Shader(const QString& fragmentFilename, const QString& vertexFilename)
+    {
+        load(fragmentFilename, vertexFilename);
+    }
+
+    Shader::Shader(const QByteArray &fragment_data, const QByteArray &vertex_data)
+    {
+        load_memory(fragment_data, vertex_data);
+    }
+
+    void Shader::load_memory(const QByteArray &fragment_data, const QByteArray &vertex_data)
 	{
-        if(!g_useProgram || lp_CONFIG->disable_GLSL || pShaderProgram.isLinked())
+        if(!g_useProgram || lp_CONFIG->disable_GLSL || isLinked())
 			return;
 
-        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, QByteArray::fromRawData(vertex_data, vert_len)))
+        if (!addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_data))
         {
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader compilation error: " << pShaderProgram.log());
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader compilation error: " << log());
             return;
         }
-        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, QByteArray::fromRawData(fragment_data, frag_len)))
+        if (!addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_data))
         {
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader compilation error: " << pShaderProgram.log());
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader compilation error: " << log());
             return;
         }
 
-        if (!pShaderProgram.link())
+        if (!link())
         {
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link error: " << pShaderProgram.log());
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link error: " << log());
             return;
         }
         LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link succes");
@@ -59,88 +74,49 @@ namespace TA3D
 
 	void Shader::load(const QString& fragmentFilename, const QString& vertexFilename)
 	{
-        if(!g_useProgram || lp_CONFIG->disable_GLSL || pShaderProgram.isLinked())
+        if(!g_useProgram || lp_CONFIG->disable_GLSL || isLinked())
             return;
 
-        const QByteArray &vertex_shader_code = VFS::Instance()->readFileAsBuffer(vertexFilename);
-        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_shader_code))
-        {
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader compilation error: " << pShaderProgram.log());
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader file:" << vertexFilename);
-            return;
-        }
         const QByteArray &fragment_shader_code = VFS::Instance()->readFileAsBuffer(fragmentFilename);
-        if (!pShaderProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_shader_code))
-        {
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader compilation error: " << pShaderProgram.log());
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader file:" << fragmentFilename);
-            return;
-        }
-
-        if (!pShaderProgram.link())
-        {
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link error: " << pShaderProgram.log());
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader file:" << vertexFilename);
-            LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader file:" << fragmentFilename);
-            return;
-        }
-        LOG_DEBUG(LOG_PREFIX_SHADER << "Shader program link succes");
+        const QByteArray &vertex_shader_code = VFS::Instance()->readFileAsBuffer(vertexFilename);
+        load_memory(fragment_shader_code, vertex_shader_code);
     }
-
-	void Shader::on()
-	{
-        if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.bind();
-	}
-
-	void Shader::off()
-	{
-        if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.release();
-	}
 
     void Shader::setvar1f(const char *var, const float v0)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.setUniformValue(var, v0);
+            setUniformValue(var, v0);
 	}
 
     void Shader::setvar2f(const char *var, const float v0, const float v1)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.setUniformValue(var, v0, v1);
+            setUniformValue(var, v0, v1);
     }
 
     void Shader::setvar3f(const char *var, const float v0, const float v1, const float v2)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.setUniformValue(var, v0, v1, v2);
+            setUniformValue(var, v0, v1, v2);
     }
 
     void Shader::setvar4f(const char *var, const float v0, const float v1, const float v2, const float v3)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.setUniformValue(var, v0, v1, v2, v3);
+            setUniformValue(var, v0, v1, v2, v3);
     }
 
     void Shader::setvar1i(const char *var, const int v0)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.setUniformValue(var, v0);
+            setUniformValue(var, v0);
     }
 
     void Shader::setmat4f(const char *var, const GLfloat *mat)
 	{
         if (!lp_CONFIG->disable_GLSL)
-            pShaderProgram.setUniformValue(var, QMatrix4x4(mat));
+            setUniformValue(var, QMatrix4x4(mat));
 	}
-
-    bool Shader::isLoaded() const
-    {
-        return pShaderProgram.isLinked();
-    }
-
-
 
 // } // namespace GFX
 } // namespace TA3D

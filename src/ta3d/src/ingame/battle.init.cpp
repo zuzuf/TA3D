@@ -49,43 +49,29 @@ namespace TA3D
 		if (!g_useProgram)
 			return;
 
-		water_shader.destroy();
 		if (map->ota_data.whitefog)
-			water_shader.load("shaders/water_fog.frag","shaders/water.vert");
+            water_shader = new Shader("shaders/water_fog.frag","shaders/water.vert");
 		else
-			water_shader.load("shaders/water.frag","shaders/water.vert");
-		water_shader_reflec.destroy();
+            water_shader = new Shader("shaders/water.frag","shaders/water.vert");
 		if (map->ota_data.whitefog)
-			water_shader_reflec.load("shaders/water_fog.frag","shaders/water.vert");
+            water_shader_reflec = new Shader("shaders/water_fog.frag","shaders/water.vert");
 		else
-			water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
-		water_pass1.destroy();
-		water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
-		water_pass1_low.destroy();
-		water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
-		water_pass2.destroy();
-		water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
-		map->detail_shader.destroy();
-		map->detail_shader.load( "shaders/details.frag", "shaders/details.vert");
-		map->shadow2_shader.destroy();
-		map->shadow2_shader.load("shaders/map_shadow.frag", "shaders/map_shadow.vert");
-		water_simulator_shader.destroy();
-		water_simulator_shader.load("shaders/water_simulator.frag","shaders/water_simulator.vert");
-		water_simulator_shader2.destroy();
-		water_simulator_shader2.load("shaders/water_simulator2.frag","shaders/water_simulator.vert");
-		water_simulator_shader3.destroy();
-		water_simulator_shader3.load("shaders/water_simulator3.frag","shaders/water_simulator.vert");
-		water_simulator_shader4.destroy();
-		water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");
-		water_distortions_shader.destroy();
-		water_distortions_shader.load("shaders/water_distortions.frag","shaders/water_distortions.vert");
-		water_simulator_reflec.destroy();
+            water_shader_reflec = new Shader("shaders/water_reflec.frag","shaders/water.vert");
+        water_pass1 = new Shader("shaders/water_pass1.frag","shaders/water_pass1.vert");
+        water_pass1_low = new Shader("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+        water_pass2 = new Shader("shaders/water_pass2.frag","shaders/water_pass2.vert");
+        map->detail_shader = new Shader( "shaders/details.frag", "shaders/details.vert");
+        map->shadow2_shader = new Shader("shaders/map_shadow.frag", "shaders/map_shadow.vert");
+        water_simulator_shader = new Shader("shaders/water_simulator.frag","shaders/water_simulator.vert");
+        water_simulator_shader2 = new Shader("shaders/water_simulator2.frag","shaders/water_simulator.vert");
+        water_simulator_shader3 = new Shader("shaders/water_simulator3.frag","shaders/water_simulator.vert");
+        water_simulator_shader4 = new Shader("shaders/water_simulator4.frag","shaders/water_simulator4.vert");
+        water_distortions_shader = new Shader("shaders/water_distortions.frag","shaders/water_distortions.vert");
 		if (map->ota_data.whitefog)
-			water_simulator_reflec.load("shaders/water_sim_fog.frag","shaders/water.vert");
+            water_simulator_reflec = new Shader("shaders/water_sim_fog.frag","shaders/water.vert");
 		else
-			water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
-		gfx->model_shader.destroy();
-		gfx->model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
+            water_simulator_reflec = new Shader("shaders/water_sim_reflec.frag","shaders/water.vert");
+        gfx->model_shader = new Shader("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
 	}
 
 	Battle::Result Battle::Execute(GameData* g)
@@ -694,36 +680,36 @@ namespace TA3D
             gfx->glGenFramebuffers(1, &water_FBO);
 
 			if (2 == lp_CONFIG->water_quality)
-				water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+                water_pass1_low = new Shader("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
 			else
-				water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
-			water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
+                water_pass1 = new Shader("shaders/water_pass1.frag","shaders/water_pass1.vert");
+            water_pass2 = new Shader("shaders/water_pass2.frag","shaders/water_pass2.vert");
 			if (2 == lp_CONFIG->water_quality)
 			{
 				if (map->ota_data.whitefog)
-					water_shader.load("shaders/water_fog.frag","shaders/water.vert");
+                    water_shader = new Shader("shaders/water_fog.frag","shaders/water.vert");
 				else
-					water_shader.load("shaders/water.frag","shaders/water.vert");
+                    water_shader = new Shader("shaders/water.frag","shaders/water.vert");
 			}
 			else
 			{
 				if (map->ota_data.whitefog)
-					water_shader_reflec.load("shaders/water_fog.frag","shaders/water.vert");
+                    water_shader_reflec = new Shader("shaders/water_fog.frag","shaders/water.vert");
 				else
-					water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
+                    water_shader_reflec = new Shader("shaders/water_reflec.frag","shaders/water.vert");
 			}
 
 			if (5 == lp_CONFIG->water_quality)
 			{
-				water_simulator_shader.load("shaders/water_simulator.frag","shaders/water_simulator.vert");     // Compute variation speed
-				water_simulator_shader2.load("shaders/water_simulator2.frag","shaders/water_simulator.vert");   // Compute variation
-				water_simulator_shader3.load("shaders/water_simulator3.frag","shaders/water_simulator.vert");   // Copy to a normal RGB filtered texture (faster than filtering an RGB32F texture)
-				water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");  // Compute normals on screen
-				water_distortions_shader.load("shaders/water_distortions.frag","shaders/water_distortions.vert");	// Distortions renderer
+                water_simulator_shader = new Shader("shaders/water_simulator.frag","shaders/water_simulator.vert");     // Compute variation speed
+                water_simulator_shader2 = new Shader("shaders/water_simulator2.frag","shaders/water_simulator.vert");   // Compute variation
+                water_simulator_shader3 = new Shader("shaders/water_simulator3.frag","shaders/water_simulator.vert");   // Copy to a normal RGB filtered texture (faster than filtering an RGB32F texture)
+                water_simulator_shader4 = new Shader("shaders/water_simulator4.frag","shaders/water_simulator4.vert");  // Compute normals on screen
+                water_distortions_shader = new Shader("shaders/water_distortions.frag","shaders/water_distortions.vert");	// Distortions renderer
 				if (map->ota_data.whitefog)
-					water_simulator_reflec.load("shaders/water_sim_fog.frag","shaders/water.vert");
+                    water_simulator_reflec = new Shader("shaders/water_sim_fog.frag","shaders/water.vert");
 				else
-					water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
+                    water_simulator_reflec = new Shader("shaders/water_sim_reflec.frag","shaders/water.vert");
 			}
 
 			gfx->set_texture_format(gfx->defaultTextureFormat_RGBA());

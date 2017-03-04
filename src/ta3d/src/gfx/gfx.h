@@ -38,6 +38,8 @@
 # include <QWindow>
 # include <QOpenGLFunctions>
 # include <QOpenGLContext>
+# include "shader.h"
+# include <QMatrix4x4>
 
 # define FILTER_NONE			0x0
 # define FILTER_LINEAR		    0x1
@@ -70,6 +72,8 @@ namespace TA3D
 		//! Set the 2D clip rectangle
 		void set_2D_clip_rectangle(int x = 0, int y = 0, int w = -1, int h = -1);
 		//@}
+
+        QMatrix4x4 get2Dmatrix();
 
 		/*!
 		** \brief Draw a texture inside a quad surface
@@ -332,13 +336,13 @@ namespace TA3D
 
 		GLfloat     shadowMapProjectionMatrix[16];
 
-		Shader      model_shader;
+        Shader::Ptr model_shader;
 
 		bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
 		int         max_tex_size;
 		//! A default texture, loaded at initialization, used for rendering non textured objects with some shaders
-        GfxTexture *default_texture;
+        GfxTexture::Ptr default_texture;
 
 		//! A bool to store shadowMap texture ID state
 		bool		shadowMapWasActive;

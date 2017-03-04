@@ -465,27 +465,27 @@ namespace TA3D
 		//!
 		WATER::Ptr water_obj;
 		//!
-		Shader water_shader;
+        Shader::Ptr water_shader;
 		//!
-		Shader water_shader_reflec;
+        Shader::Ptr water_shader_reflec;
 		//!
-		Shader water_pass1;
+        Shader::Ptr water_pass1;
 		//!
-		Shader water_pass1_low;
+        Shader::Ptr water_pass1_low;
 		//!
-		Shader water_pass2;
+        Shader::Ptr water_pass2;
 		//!
-		Shader water_simulator_shader;
+        Shader::Ptr water_simulator_shader;
 		//!
-		Shader water_simulator_shader2;
+        Shader::Ptr water_simulator_shader2;
 		//!
-		Shader water_simulator_shader3;
+        Shader::Ptr water_simulator_shader3;
 		//!
-		Shader water_simulator_shader4;
+        Shader::Ptr water_simulator_shader4;
 		//!
-		Shader water_distortions_shader;
+        Shader::Ptr water_distortions_shader;
 		//!
-		Shader water_simulator_reflec;
+        Shader::Ptr water_simulator_reflec;
 		//!
         GfxTexture::Ptr	height_tex;
 		//!

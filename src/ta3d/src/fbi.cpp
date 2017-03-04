@@ -1052,8 +1052,8 @@ namespace TA3D
 
 	int UnitManager::unit_build_menu(int index,int omb,float &dt, int scrolling, bool GUI)				// Affiche et gère le menu des unités
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glEnable(GL_BLEND);
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		gfx->ReInitTexSys();
 		glColor4ub(0xFF, 0xFF, 0xFF, byte(0xFF - int(lp_CONFIG->menuTransparency * 0xFF)));
@@ -1098,7 +1098,7 @@ namespace TA3D
 			return 0;
 		}
 
-		glEnable(GL_TEXTURE_2D);
+        gfx->glEnable(GL_TEXTURE_2D);
 
 		if (index<0 || index>=nb_unit) return -1;		// L'indice est incorrect
 
@@ -1108,7 +1108,7 @@ namespace TA3D
 
 		gfx->set_2D_clip_rectangle(0, 128, 128, SCREEN_H - 128);
 
-		glDisable(GL_BLEND);
+        gfx->glDisable(GL_BLEND);
 		for( int i = 0 ; i < unit_type[index]->nb_unit ; ++i) // Affiche les différentes images d'unités constructibles
 		{
 			if (unit_type[index]->Pic_p[i] != page)
@@ -1130,14 +1130,14 @@ namespace TA3D
 
 			if (mouse_x >= px && mouse_x < px + pw && mouse_y >= py && mouse_y < py + ph && !unused)
 			{
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+                gfx->glEnable(GL_BLEND);
+                gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
 				if (unit_type[index]->PicList[i])							// If a texture is given use it
 					gfx->drawtexture(unit_type[index]->PicList[i], float(px), float(py), float(px + pw), float(py + ph));
 				else if (unit_type[index]->BuildList[i] >= 0)
 					gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic, float(px), float(py), float(px + pw), float(py + ph));
-				glDisable(GL_BLEND);
+                gfx->glDisable(GL_BLEND);
 				sel = unit_type[index]->BuildList[i];
 				if (sel == -1)
 					sel = -2;
@@ -1147,9 +1147,9 @@ namespace TA3D
 				  || ( unit_type[index]->last_click == -2 && unit_type[index]->BuildList[i] == -1 ) )
 				&& unit_type[index]->click_time > 0.0f )
 			{
-				glEnable(GL_BLEND);
-				glDisable(GL_TEXTURE_2D);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                gfx->glEnable(GL_BLEND);
+                gfx->glDisable(GL_TEXTURE_2D);
+                gfx->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glColor4ub(0xFF, 0xFF, 0xFF, byte(255.0f * unit_type[index]->click_time));
 				const float mx = float(px);
 				const float my = float(py);
@@ -1162,8 +1162,8 @@ namespace TA3D
 				gfx->line( mx + mw * unit_type[index]->click_time, my, mx + mw * unit_type[index]->click_time, my + mh );
 				gfx->line( mx + mw * (1.0f - unit_type[index]->click_time), my, mx + mw * (1.0f - unit_type[index]->click_time), my + mh );
 				glColor4ub(0xFF, 0xFF, 0xFF, 0xBF);
-				glEnable(GL_TEXTURE_2D);
-				glDisable(GL_BLEND);
+                gfx->glEnable(GL_TEXTURE_2D);
+                gfx->glDisable(GL_BLEND);
 			}
 		}
 		gfx->set_2D_clip_rectangle();
