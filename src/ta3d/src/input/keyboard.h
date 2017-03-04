@@ -154,6 +154,11 @@ enum KeyCode
     KEY_PAGEUP,
     KEY_PAGEDOWN,
 
+    KEY_COMMA,
+    KEY_PERIOD,
+    KEY_ASTERISK,
+    KEY_SLASH,
+
     // This is used to show/hide the console
     KEY_TILDE,
 

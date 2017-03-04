@@ -60,8 +60,8 @@ namespace TA3D
         memset(VARS::key, 0, sizeof(VARS::key));
 		VARS::keybuf.clear();
 
-        qt2Keycode[Qt::Key_Enter] = KEY_ENTER;
-//        qt2Keycode[Qt::Key_Enter] = KEY_ENTER_PAD;
+        qt2Keycode[Qt::Key_Return] = KEY_ENTER;
+        qt2Keycode[Qt::Key_Enter] = KEY_ENTER_PAD;
         qt2Keycode[Qt::Key_Space] = KEY_SPACE;
         qt2Keycode[Qt::Key_Left] = KEY_LEFT;
         qt2Keycode[Qt::Key_Right] = KEY_RIGHT;
@@ -77,6 +77,11 @@ namespace TA3D
         qt2Keycode[Qt::Key_Delete] = KEY_DEL;
         qt2Keycode[Qt::Key_Alt] = KEY_ALT;
         qt2Keycode[Qt::Key_Pause] = KEY_PAUSE;
+
+        qt2Keycode[Qt::Key_Comma] = KEY_COMMA;
+        qt2Keycode[Qt::Key_Asterisk] = KEY_ASTERISK;
+        qt2Keycode[Qt::Key_Slash] = KEY_SLASH;
+        qt2Keycode[Qt::Key_Period] = KEY_PERIOD;
 
         qt2Keycode[Qt::Key_F1] = KEY_F1;
         qt2Keycode[Qt::Key_F2] = KEY_F2;
@@ -241,6 +246,15 @@ namespace TA3D
             return '-';
         case KEY_SPACE:
             return ' ';
+        case KEY_COMMA:
+            return ',';
+        case KEY_PERIOD:
+            return '.';
+        case KEY_ASTERISK:
+            return '*';
+        case KEY_SLASH:
+            return '/';
+
         }
         return 0;
     }
