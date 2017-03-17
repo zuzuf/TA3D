@@ -1004,7 +1004,7 @@ namespace TA3D
 	}
 
     GfxTexture::Ptr GFX::make_texture(const QImage &bmp, int filter_type, bool clamp)
-	{
+    {
         GfxTexture::Ptr tex = new GfxTexture(bmp, filter_type == FILTER_NONE ? QOpenGLTexture::DontGenerateMipMaps : QOpenGLTexture::GenerateMipMaps);
 //        tex->setFormat(QOpenGLTexture::RGB);
         if (clamp)
@@ -1862,7 +1862,7 @@ namespace TA3D
             }
         case 16:    return QImage(QSize(w, h), QImage::Format_RGB16);
         case 24:    return QImage(QSize(w, h), QImage::Format_RGB888);
-        case 32:    return QImage(QSize(w, h), QImage::Format_RGBA8888);
+        case 32:    return QImage(QSize(w, h), QImage::Format_ARGB32);
         }
         return QImage();
 	}

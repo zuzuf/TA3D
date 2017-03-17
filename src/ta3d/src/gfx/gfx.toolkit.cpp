@@ -45,23 +45,23 @@ namespace TA3D
 
     void convert_format(QImage &bmp)
 	{
-        if (bmp.format() != QImage::Format_RGBA8888)
+        if (bmp.format() != QImage::Format_ARGB32)
 		{
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
 
-            bmp = bmp.convertToFormat(QImage::Format_RGBA8888);
+            bmp = bmp.convertToFormat(QImage::Format_ARGB32);
 		}
 	}
 
     QImage convert_format_copy(QImage &bmp)
 	{
-        if (bmp.format() != QImage::Format_RGBA8888)
+        if (bmp.format() != QImage::Format_ARGB32)
         {
             if (bmp.depth() == 8 && use_TA_palette)
                 bmp.setColorTable(TA3D::VARS::pal);
 
-            return bmp.convertToFormat(QImage::Format_RGBA8888);
+            return bmp.convertToFormat(QImage::Format_ARGB32);
         }
         return bmp;
     }
