@@ -1333,14 +1333,8 @@ namespace TA3D
 		uint32 player_col_32_h[TA3D_PLAYERS_HARD_LIMIT];
 		for (uint32 i = 0 ; i < players.count() ; ++i)
 		{
-			player_col_32[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
-										  (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),
-										  (int)(player_color[ player_color_map[ i ] * 3 + 2 ] * 255.0f),
-										  i );
-			player_col_32_h[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 127.5f),
-											(int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 127.5f),
-											(int)(player_color[ player_color_map[ i ] * 3 + 2 ] * 127.5f),
-											i );
+            player_col_32[i] =  player_color_rgba[ player_color_map[ i ] ] | (i << 24);
+            player_col_32_h[i] =  player_color_rgba_half[ player_color_map[ i ] ] | (i << 24);
 		}
 
 		pMutex.lock();
@@ -1414,7 +1408,7 @@ namespace TA3D
 		glTranslatef( 64.0f, 64.0f, 0.0f );
 		glScalef( rw, rh, 0.0f );
 		for( int i = 0 ; i < nb ; i++ )
-			mini_col[ i ] = player_col_32[ geta( mini_col[ i ] ) ];
+            mini_col[ i ] = player_col_32[ (mini_col[ i ] >> 24) & 0xFF ];
 		glDrawArrays(GL_POINTS, 0, nb);		// draw the points
 		glPopMatrix();
 

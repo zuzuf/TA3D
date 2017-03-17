@@ -40,7 +40,9 @@ namespace TA3D
 
 
 	extern const float	player_color[30];
-	extern unsigned int	player_color_map[10];
+    extern const quint32 player_color_rgba[10];
+    extern const quint32 player_color_rgba_half[10];
+    extern unsigned int	player_color_map[10];
 
 	extern int expected_players;
 

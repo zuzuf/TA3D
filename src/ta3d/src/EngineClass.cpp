@@ -59,6 +59,37 @@ namespace TA3D
 		0.67f,	0.67f,	0.51f
 	};
 
+#define MAP_TO_RGBA(R, G, B) ((quint32(R * 255.f) << 0) | (quint32(G * 255.f) << 8) | (quint32(B * 255.f) << 16))
+
+    const quint32 player_color_rgba[TA3D_PLAYERS_HARD_LIMIT] =
+    {	MAP_TO_RGBA(0.11f,  0.28f,  0.91f),
+        MAP_TO_RGBA(0.83f,	0.17f,	0.0f),
+        MAP_TO_RGBA(1.0f,	1.0f,	1.0f),
+        MAP_TO_RGBA(0.11f,	0.62f,	0.07f),
+        MAP_TO_RGBA(0.03f,	0.12f,	0.48f),
+        MAP_TO_RGBA(0.5f,	0.34f,	0.62f),
+        MAP_TO_RGBA(1.0f,	1.0f,	0.0f),
+        MAP_TO_RGBA(0.0f,	0.0f,	0.0f),
+        MAP_TO_RGBA(0.61f,	0.8f,	0.87f),
+        MAP_TO_RGBA(0.67f,	0.67f,	0.51f)
+    };
+
+#undef MAP_TO_RGBA
+#define MAP_TO_RGBA(R, G, B) ((quint32(R * 127.5f) << 0) | (quint32(G * 127.5f) << 8) | (quint32(B * 127.5f) << 16))
+
+    const quint32 player_color_rgba_half[TA3D_PLAYERS_HARD_LIMIT] =
+    {	MAP_TO_RGBA(0.11f,  0.28f,  0.91f),
+        MAP_TO_RGBA(0.83f,	0.17f,	0.0f),
+        MAP_TO_RGBA(1.0f,	1.0f,	1.0f),
+        MAP_TO_RGBA(0.11f,	0.62f,	0.07f),
+        MAP_TO_RGBA(0.03f,	0.12f,	0.48f),
+        MAP_TO_RGBA(0.5f,	0.34f,	0.62f),
+        MAP_TO_RGBA(1.0f,	1.0f,	0.0f),
+        MAP_TO_RGBA(0.0f,	0.0f,	0.0f),
+        MAP_TO_RGBA(0.61f,	0.8f,	0.87f),
+        MAP_TO_RGBA(0.67f,	0.67f,	0.51f)
+    };
+#undef MAP_TO_RGBA
 
 
 	MAP* the_map = NULL;

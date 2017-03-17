@@ -41,7 +41,7 @@ namespace TA3D
     REGISTER_MESH_TYPE(Mesh3DO)
 
 
-	static bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
+    static bool intersect(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
 	{
 		int u1=x1, v1=y1, u2=x2+dx2, v2=y2+dy2;
 		if (u1>x2) u1=x2;
@@ -289,9 +289,9 @@ namespace TA3D
 			}
 		}
 
-		/*------------------------------Création de la texture unique pour l'unité--------------*/
+        /*------------------------------Create a unique texture for the unit------------------------------*/
 		int* px = new int[nb_diff_tex];
-		int* py = new int[nb_diff_tex];			// Pour placer les différentes mini-textures sur une grande texture
+        int* py = new int[nb_diff_tex];			// Offset of texture patches in the unit texture space
 		int mx = 0;
 		int my = 0;
 
@@ -313,7 +313,7 @@ namespace TA3D
                     for (j = 0; j < i; ++j)
                     {
                         int gx = texture_manager.tex[index_tex[j]].bmp[0].width(), gy=texture_manager.tex[index_tex[j]].bmp[0].height();
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                        if (intersect(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
                         {
                             found[0] = false;
                             break;
@@ -325,7 +325,7 @@ namespace TA3D
                     for (j = 0; j < i; ++j)
                     {
                         int gx = texture_manager.tex[index_tex[j]].bmp[0].width(), gy = texture_manager.tex[index_tex[j]].bmp[0].height();
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                        if (intersect(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
                         {
                             found[2] = false;
                             break;
@@ -337,13 +337,13 @@ namespace TA3D
                     for (j = 0; j < i; ++j)
                     {
                         int gx = texture_manager.tex[index_tex[j]].bmp[0].width(), gy = texture_manager.tex[index_tex[j]].bmp[0].height();
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
+                        if (intersect(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
                         {
                             found[1] = false;
                             break;
                         }
                     }
-                    bool deborde = false;
+                    bool overflow = false;
                     bool found_one = false;
                     int deb = 0;
 
@@ -351,30 +351,30 @@ namespace TA3D
                     {
                         px[i] = px[e] + fx;
                         py[i] = 0;
-                        deborde = false;
+                        overflow = false;
                         if (px[i] + dx > mx || py[i] + dy > my)
-                            deborde = true;
+                            overflow = true;
                         deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
                         found_one = true;
                     }
-                    if (found[0] && (!found_one || deborde))
+                    if (found[0] && (!found_one || overflow))
                     {
                         px[i] = px[e]+fx;
                         py[i] = py[e];
-                        deborde = false;
+                        overflow = false;
                         if (px[i] + dx > mx || py[i] + dy > my)
-                            deborde = true;
+                            overflow = true;
                         deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
                         found_one = true;
                     }
-                    if (found[2] && deborde)
+                    if (found[2] && overflow)
                     {
                         int ax = px[i],ay = py[i];
                         px[i] = px[e];
                         py[i] = py[e] + fy;
-                        deborde = false;
+                        overflow = false;
                         if (px[i]+dx>mx || py[i] + dy > my)
-                            deborde = true;
+                            overflow = true;
                         int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
                         if (found_one && deb<deb2)
                         {
