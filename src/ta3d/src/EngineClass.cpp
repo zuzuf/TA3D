@@ -902,16 +902,14 @@ namespace TA3D
 					cy[i] = (float)rh;
 		}
 
-		glDisable(GL_TEXTURE_2D);
-		glColor3ub(0xE5, 0xE5, 0x66);
-		glBegin(GL_LINE_LOOP);
+        std::vector<Vector2D> pts;
 		for (int i = 0; i < 4; ++i)
 		{
-			glVertex2f(cx[i] + (float)x1,  cy[i] + (float)y1);
+            pts.push_back(Vector2D(cx[i] + (float)x1,  cy[i] + (float)y1));
 			for (int e = 0; e < nmax; ++e)
-				glVertex2f((float)x1 + cx[i * nmax + e + 4],  (float)y1 + cy[i * nmax + e + 4]);
+                pts.push_back(Vector2D((float)x1 + cx[i * nmax + e + 4],  (float)y1 + cy[i * nmax + e + 4]));
 		}
-		glEnd();
+        gfx->line_loop(pts.data(), pts.size(), makecol(0xE5, 0xE5, 0x66));
 		glColor3ub(0xFF,0xFF,0xFF);
 		glEnable(GL_TEXTURE_2D);
 	}

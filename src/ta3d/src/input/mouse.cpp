@@ -107,6 +107,7 @@ namespace TA3D
 		fmouse_y = float(mouse_y);
 		old_mx = mouse_x;
 		old_my = mouse_y;
+        QCursor::setPos(gfx->mapToGlobal(QPoint(mouse_x, mouse_y)));
 //		SDL_WarpMouse(uint16(mouse_x), uint16(mouse_y));
         poll_inputs();
 	}
@@ -127,30 +128,32 @@ namespace TA3D
 	int anim_cursor(const int type)
 	{
 		return (type < 0)
-            ? ((msectimer()-start) / 100) % cursor[cursor_type].nb_bmp
-            : ((msectimer()-start) / 100) % cursor[type].nb_bmp;
+            ? ((msectimer() - start) / 100) % cursor[cursor_type].nb_bmp
+            : ((msectimer() - start) / 100) % cursor[type].nb_bmp;
 	}
 
 	void draw_cursor()
 	{
-		int curseur = anim_cursor();
-		if (curseur < 0 || curseur >= cursor[cursor_type].nb_bmp)
+        int cursor_id = anim_cursor();
+        if (cursor_id < 0 || cursor_id >= cursor[cursor_type].nb_bmp)
 		{
-			curseur = 0;
+            cursor_id = 0;
             start = msectimer();
 		}
-		int dx = cursor[cursor_type].ofs_x[curseur];
-		int dy = cursor[cursor_type].ofs_y[curseur];
-        int sx = cursor[cursor_type].bmp[curseur].width();
-        int sy = cursor[cursor_type].bmp[curseur].height();
-		gfx->set_alpha_blending();
-		gfx->drawtexture(cursor[cursor_type].glbmp[curseur],
-						 float(mouse_x - dx),
-						 float(mouse_y - dy),
-						 float(mouse_x - dx + sx),
-                         float(mouse_y - dy + sy),
-                         makecol(0xFF,0xFF,0xFF));
-		gfx->unset_alpha_blending();
+        static int prev_cursor_type = -1;
+        static int prev_cursor_id = -1;
+
+        if (prev_cursor_id == cursor_id && prev_cursor_type == cursor_type)
+            return;
+
+        prev_cursor_type = cursor_type;
+        prev_cursor_id = cursor_id;
+
+        const int dx = cursor[cursor_type].ofs_x[cursor_id];
+        const int dy = cursor[cursor_type].ofs_y[cursor_id];
+
+        // Render cursor as system cursor (cursor motion looks smoother that way)
+        qApp->setOverrideCursor(QCursor(QPixmap::fromImage(cursor[cursor_type].bmp[cursor_id]),dx,dy));
 	}
 
 	void init_mouse()

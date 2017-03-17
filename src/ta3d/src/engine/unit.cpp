@@ -1104,15 +1104,15 @@ namespace TA3D
 			glEnable( GL_CULL_FACE );
 			if (owner_id == players.local_human_id && sel)
 			{
-				glDisable( GL_TEXTURE_2D );
-				glColor3ub(0xFF,0xFF,0);
-				glBegin(GL_LINE_LOOP);
-				gfx->loadVertex(-sizew * side + sizeh * up);
-				gfx->loadVertex(sizew * side + sizeh * up);
-				gfx->loadVertex(sizew * side - sizeh * up);
-				gfx->loadVertex(-sizew * side - sizeh * up);
-				glEnd();
-			}
+                glDisable( GL_TEXTURE_2D );
+                glColor3ub(0xFF,0xFF,0);
+                glBegin(GL_LINE_LOOP);
+                gfx->loadVertex(-sizew * side + sizeh * up);
+                gfx->loadVertex(sizew * side + sizeh * up);
+                gfx->loadVertex(sizew * side - sizeh * up);
+                gfx->loadVertex(-sizew * side - sizeh * up);
+                glEnd();
+            }
 			glEnable(GL_DEPTH_TEST);
 		}
 		else

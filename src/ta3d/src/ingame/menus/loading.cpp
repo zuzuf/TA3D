@@ -136,13 +136,9 @@ namespace Menus
 		// Draw the progress bar
 		glDisable(GL_BLEND);
 		glDisable(GL_TEXTURE_2D);
-		glColor3f(0.5f, 0.8f, 0.3f);
-		glBegin(GL_QUADS);
-		glVertex2f(100.0f * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
-		glVertex2f((100.0f + 10.72f * percent) * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight);
-		glVertex2f((100.0f + 10.72f * percent) * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
-		glVertex2f(100.0f * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight);
-		glEnd();
+        gfx->rectfill(100.0f * pCacheScreenRatioWidth, 858.0f * pCacheScreenRatioHeight,
+                      (100.0f + 10.72f * percent) * pCacheScreenRatioWidth, 917.0f * pCacheScreenRatioHeight,
+                      makecol(127, 204, 76));
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

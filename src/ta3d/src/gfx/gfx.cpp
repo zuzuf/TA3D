@@ -681,7 +681,39 @@ namespace TA3D
 		glPopAttrib();
 	}
 
-	void GFX::line(const float x1, const float y1, const float x2, const float y2, const uint32 col)
+    void GFX::line_loop(const Vector2D *pts, const size_t nb_elts, const uint32 col)
+    {
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, (GLfloat*)pts, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINE_LOOP, 0, nb_elts);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
+
+    void GFX::lines(const Vector2D *pts, const size_t nb_elts, const uint32 col)
+    {
+        drawing2d_color_shader->bind();
+        drawing2d_color_shader->setAttributeArray(0, (GLfloat*)pts, 2);
+        drawing2d_color_shader->enableAttributeArray(0);
+        drawing2d_color_shader->disableAttributeArray(1);
+        drawing2d_color_shader->setAttributeValue(1,
+                                            getr(col) * (1.f / 255.f),
+                                            getg(col) * (1.f / 255.f),
+                                            getb(col) * (1.f / 255.f),
+                                            geta(col) * (1.f / 255.f));
+        glDrawArrays(GL_LINES, 0, nb_elts);
+        drawing2d_color_shader->disableAttributeArray(0);
+        drawing2d_color_shader->release();
+    }
+
+    void GFX::line(const float x1, const float y1, const float x2, const float y2, const uint32 col)
 	{
         GLfloat points[4] = { x1,y1, x2,y2 };
         drawing2d_color_shader->bind();
@@ -1817,26 +1849,6 @@ namespace TA3D
 //		}
 	}
 
-
-    void GFX::PutTextureInsideRect(GfxTexture::Ptr texture, const float x1, const float y1, const float x2, const float y2)
-	{
-        texture->bind();
-		glBegin(GL_QUADS);
-		//
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(x1, y1);
-
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(x2, y1);
-
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(x2, y2);
-
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(x1, y2);
-		//
-		glEnd();
-	}
 
     QImage GFX::create_surface_ex(int bpp, int w, int h)
 	{

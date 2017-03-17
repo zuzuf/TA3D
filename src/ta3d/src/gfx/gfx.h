@@ -56,6 +56,7 @@ namespace TA3D
 
 	class Font;
 	class Vector3D;
+    class Vector2D;
 
 
     class GFX : public QWindow, public QOpenGLFunctions, public ObjectSync, protected IInterface
@@ -74,17 +75,6 @@ namespace TA3D
 		//@}
 
         QMatrix4x4 get2Dmatrix();
-
-		/*!
-		** \brief Draw a texture inside a quad surface
-		**
-		** \param texture The texture to draw
-		** \param x1 The top-left corned X-coordinate
-		** \param y1 The top-left corned Y-coordinate
-		** \param x2 The bottom-right corned X-coordinate
-		** \param x2 The bottom-right corned Y-coordinate
-		*/
-        void PutTextureInsideRect(GfxTexture::Ptr texture, const float x1, const float y1, const float x2, const float y2);
 
 		/*!
 		** \brief Load a texture with a mask
@@ -198,6 +188,9 @@ namespace TA3D
         void loadShaders();
 
 		void circlefill(const float x, const float y, const float r);
+
+        void line_loop(const Vector2D *pts, const size_t nb_elts, const uint32 col);			// Basic drawing routines (with color arguments)
+        void lines(const Vector2D *pts, const size_t nb_elts, const uint32 col);			// Basic drawing routines (with color arguments)
 
 		void line(const float x1, const float y1, const float x2, const float y2, const uint32 col);			// Basic drawing routines (with color arguments)
 		void rect(const float x1, const float y1, const float x2, const float y2, const uint32 col);
