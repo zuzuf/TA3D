@@ -394,7 +394,9 @@ namespace TA3D
 	Features::Features()
 		:nb_features(0), max_features(0), feature(NULL),
 		burning_features(), sinking_features()
-	{}
+    {
+        init();
+    }
 
 
 	Features::~Features()
