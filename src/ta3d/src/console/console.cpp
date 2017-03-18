@@ -313,26 +313,26 @@ namespace TA3D
                 const QStringList &cols = i_entry.split('|', QString::SkipEmptyParts);
                 for(int k = 0 ; k < cols.size() ; ++k)
 				{
-					gfx->print(fnt, tableWidth * float(k) + 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+                    fnt->print(tableWidth * float(k) + 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f,
 							   makeacol32(0,0,0,0xFF), cols[k]);
-					gfx->print(fnt, tableWidth * float(k) + 0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+                    fnt->print(tableWidth * float(k) + 0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f,
 							   makeacol32(0xFF, 0xFF, 0, 0xFF), cols[k]);
 				}
 			}
 			else
 			{
-				gfx->print(fnt, 1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f, 0.0f,
+                fnt->print(1.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 4.0f,
                            makeacol32(0,0,0,0xFF), i_entry);
-				gfx->print(fnt, 0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
+                fnt->print(0.0f, maxh - fsize * float(pLastEntries.size() + 1 - i) - 5.0f,
                            0xDFDFDFDF, i_entry);
 			}
 		}
 
-        gfx->print(fnt, 1.0f, maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
-        gfx->print(fnt, 1.0f + fnt->length(">" + Substr(pInputText, 0, cursorPos)), maxh - fsize - 4.0f, 0.0f, makeacol32(0,0,0,0xFF), "_" );
+        fnt->print(1.0f, maxh - fsize - 4.0f, makeacol32(0,0,0,0xFF), ">" + pInputText );
+        fnt->print(1.0f + fnt->length(">" + Substr(pInputText, 0, cursorPos)), maxh - fsize - 4.0f, makeacol32(0,0,0,0xFF), "_" );
 
-        gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText );
-        gfx->print(fnt, fnt->length(">" + Substr(pInputText, 0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
+        fnt->print(0.0f, maxh - fsize - 5.0f, 0xFFFFFFFF, ">" + pInputText );
+        fnt->print(fnt->length(">" + Substr(pInputText, 0, cursorPos)), maxh - fsize - 5.0f, 0xFFFFFFFF, "_" );
 
 		if (pHistoryPos < 0)
 			pHistoryPos = 0;

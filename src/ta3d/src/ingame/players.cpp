@@ -132,50 +132,40 @@ namespace TA3D
 
 		const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
 
-		gfx->print(gfx->small_font,
-				   (float)side_data.MetalNum.x1,
-				   (float)side_data.MetalNum.y1,
-                   0.0f, side_data.metal_color, QString::number((int)metal[_id]));
-		gfx->print(gfx->small_font,
-				   (float)side_data.MetalProduced.x1,
-				   (float)side_data.MetalProduced.y1,
-                   0.0f, side_data.metal_color, QString::asprintf("%.2f", metal_t[_id]));
+        gfx->small_font->print((float)side_data.MetalNum.x1,
+                               (float)side_data.MetalNum.y1,
+                               side_data.metal_color, QString::number((int)metal[_id]));
+        gfx->small_font->print((float)side_data.MetalProduced.x1,
+                               (float)side_data.MetalProduced.y1,
+                               side_data.metal_color, QString::asprintf("%.2f", metal_t[_id]));
 
-		gfx->print(gfx->small_font,
-				   (float)side_data.MetalConsumed.x1,
-				   (float)side_data.MetalConsumed.y1,
-                   0.0f,side_data.metal_color, QString::asprintf("%.2f", metal_u[_id]));
-		gfx->print(gfx->small_font,
-				   (float)side_data.Metal0.x1,
-				   (float)side_data.Metal0.y1,
-				   0.0f,side_data.metal_color,"0");
-		gfx->print_right(gfx->small_font,
-						 (float)side_data.MetalMax.x1,
-						 (float)side_data.MetalMax.y1,
-                         0.0f,side_data.metal_color, QString::number(metal_s[_id]));
-		gfx->print(gfx->small_font,
-				   (float)side_data.EnergyNum.x1,
-				   (float)side_data.EnergyNum.y1,
-                   0.0f,side_data.energy_color, QString::number((int)energy[_id]));
+        gfx->small_font->print((float)side_data.MetalConsumed.x1,
+                               (float)side_data.MetalConsumed.y1,
+                               side_data.metal_color, QString::asprintf("%.2f", metal_u[_id]));
+        gfx->small_font->print((float)side_data.Metal0.x1,
+                               (float)side_data.Metal0.y1,
+                               side_data.metal_color,"0");
+        gfx->small_font->print_right((float)side_data.MetalMax.x1,
+                                     (float)side_data.MetalMax.y1,
+                                     side_data.metal_color, QString::number(metal_s[_id]));
+        gfx->small_font->print((float)side_data.EnergyNum.x1,
+                               (float)side_data.EnergyNum.y1,
+                               side_data.energy_color, QString::number((int)energy[_id]));
 
-		gfx->print(gfx->small_font,
-				   (float)side_data.EnergyProduced.x1,
-				   (float)side_data.EnergyProduced.y1, 0.0f,
-				   side_data.energy_color,
-                   QString::asprintf("%.2f", energy_t[_id]));
+        gfx->small_font->print((float)side_data.EnergyProduced.x1,
+                               (float)side_data.EnergyProduced.y1,
+                               side_data.energy_color,
+                               QString::asprintf("%.2f", energy_t[_id]));
 
-		gfx->print(gfx->small_font,
-				   (float)side_data.EnergyConsumed.x1,
-				   (float)side_data.EnergyConsumed.y1,
-                   0.0f,side_data.energy_color, QString::asprintf("%.2f", energy_u[_id]));
-		gfx->print(gfx->small_font,
-				   (float)side_data.Energy0.x1,
-				   (float)side_data.Energy0.y1,
-				   0.0f,side_data.energy_color,"0");
-		gfx->print_right(gfx->small_font,
-						 (float)side_data.EnergyMax.x1,
-						 (float)side_data.EnergyMax.y1,
-                         0.0f,side_data.energy_color, QString::number(energy_s[_id]) );
+        gfx->small_font->print((float)side_data.EnergyConsumed.x1,
+                               (float)side_data.EnergyConsumed.y1,
+                               side_data.energy_color, QString::asprintf("%.2f", energy_u[_id]));
+        gfx->small_font->print((float)side_data.Energy0.x1,
+                               (float)side_data.Energy0.y1,
+                               side_data.energy_color,"0");
+        gfx->small_font->print_right((float)side_data.EnergyMax.x1,
+                                     (float)side_data.EnergyMax.y1,
+                                     side_data.energy_color, QString::number(energy_s[_id]) );
 
 		glDisable(GL_TEXTURE_2D);
 

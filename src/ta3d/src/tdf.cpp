@@ -1012,16 +1012,16 @@ namespace TA3D
 		{
 			const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
 			if (pFeature->reclaimable)
-				gfx->print(gfx->normal_font,
-						   (float)side_data.Description.x1,
-						   (float)side_data.Description.y1,
-                           0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) + QString(" M:%1 E:%2").arg(pFeature->metal).arg(pFeature->energy) );
-			else
-				gfx->print(gfx->normal_font,
-						   (float)side_data.Description.x1,
-						   (float)side_data.Description.y1,
-						   0.0f, 0xFFFFFFFF, I18N::Translate( pFeature->description ) );
-		}
+                gfx->normal_font->print((float)side_data.Description.x1,
+                                        (float)side_data.Description.y1,
+                                        White,
+                                        I18N::Translate( pFeature->description ) + QString(" M:%1 E:%2").arg(pFeature->metal).arg(pFeature->energy) );
+            else
+                gfx->normal_font->print((float)side_data.Description.x1,
+                                        (float)side_data.Description.y1,
+                                        White,
+                                        I18N::Translate( pFeature->description ) );
+        }
 		glDisable(GL_BLEND);
 	}
 

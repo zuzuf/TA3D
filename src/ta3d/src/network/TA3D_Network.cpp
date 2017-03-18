@@ -665,8 +665,8 @@ namespace TA3D
 					color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
 					Y -= Math::Min(1.0f, float((int)(timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font->height() + Y - Y_ref);
 				}
-				gfx->print(Gui::gui_font, 137.0f, Y + 1.0f, 0.0f, color & shadowmask, i->text);
-				gfx->print(Gui::gui_font, 136.0f, Y, 0.0f, color, i->text);
+                Gui::gui_font->print(137.0f, Y + 1.0f, color & shadowmask, i->text);
+                Gui::gui_font->print(136.0f, Y, color, i->text);
 				Y += Gui::gui_font->height();
 			}
 		}

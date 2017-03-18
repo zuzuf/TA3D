@@ -240,8 +240,8 @@ namespace Gui
 				}
 				else
 					rest.clear();
-				gfx->print(gui_font, 10.0f + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * float(line),
-					0.0f, White, pCacheDrawTextStr);
+                gui_font->print(10.0f + x1 + text_background.x1, y1 + text_background.y1 + pCacheFontHeight * float(line),
+                                White, pCacheDrawTextStr);
             } while(!rest.isEmpty());
 		}
 
@@ -375,7 +375,7 @@ namespace Gui
 				unsigned int e = i + StartEntry;
 				if (e == (uint32)Index)
 					selection_gfx.draw( x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * float(i), x + width + menu_background.x2, y + menu_background.y1 + pCacheFontHeight * float(i + 1));
-				gfx->print(gui_font, x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * float(i), 0.0f, White, Entry[e]);
+                gui_font->print(x + menu_background.x1, y + menu_background.y1 + pCacheFontHeight * float(i), White, Entry[e]);
 			}
 			gfx->unset_alpha_blending();
 		}
@@ -477,18 +477,16 @@ namespace Gui
 
                 buf = Substr(buf, s);
 
-				gfx->print( gui_font,
-							x1 + text_background.x1,
-							y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
-							0.0f,
-							White,
-							strtoprint);
-				if (row == y + H && x <= col && col < x + s && blink)
+                gui_font->print(x1 + text_background.x1,
+                                y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
+                                White,
+                                strtoprint);
+                if (row == y + H && x <= col && col < x + s && blink)
 				{
-                    gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(Substr(strtoprint, 0, col - x)),
-								y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
-								0.0f, White, "_");
-				}
+                    gui_font->print(x1 + text_background.x1 + gui_font->length(Substr(strtoprint, 0, col - x)),
+                                    y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
+                                    White, "_");
+                }
 				x += s;
                 if (!buf.isEmpty())
 				{
@@ -500,10 +498,10 @@ namespace Gui
 			}
 			if (y + H == row && col == row_size && blink)
 			{
-				gfx->print( gui_font, x1 + text_background.x1 + gui_font->length(strtoprint),
-							y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
-							0.0f, White, "_");
-			}
+                gui_font->print(x1 + text_background.x1 + gui_font->length(strtoprint),
+                                y1 + text_background.y1 + text_y_offset + pCacheFontHeight * float(y),
+                                White, "_");
+            }
 			++y;
 		}
 	}
@@ -533,9 +531,13 @@ namespace Gui
 			strtoprint = Substr(Caption, dec, Caption.length() - dec);
 		}
 
-		gfx->print(gui_font,x1+text_background.x1,y1+text_background.y1+text_y_offset,0.0f,White,strtoprint);
+        gui_font->print(x1 + text_background.x1,
+                        y1 + text_background.y1 + text_y_offset,
+                        White, strtoprint);
 		if (blink)
-			gfx->print(gui_font,x1+text_background.x1+gui_font->length( strtoprint ),y1+text_background.y1+text_y_offset,0.0f,White,"_");
+            gui_font->print(x1 + text_background.x1 + gui_font->length(strtoprint),
+                            y1 + text_background.y1 + text_y_offset,
+                            White, "_");
 	}
 
 
@@ -583,7 +585,9 @@ namespace Gui
 
         QString Buf = QString::number(Value) + "%";
 
-		gfx->print(gui_font,(x1+x2)*0.5f-gui_font->length(Buf) * 0.5f, (y1 + y2) * 0.5f - pCacheFontHeight * 0.5f, 0.0f, White, Buf);
+        gui_font->print((x1 + x2) * 0.5f - gui_font->length(Buf) * 0.5f,
+                        (y1 + y2) * 0.5f - pCacheFontHeight * 0.5f,
+                        White, Buf);
 	}
 
 	/*---------------------------------------------------------------------------\

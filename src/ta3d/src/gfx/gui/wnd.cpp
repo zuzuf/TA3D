@@ -230,11 +230,10 @@ namespace TA3D
 							}
 						} while(s > 0 && smin != smax);
 					}
-					gfx->print(gui_font,
-							   (float)(x + 5) + skin->wnd_title_bar.x1,
-							   (float)(y + 3) + ((float)title_h - pCacheFontHeight) * 0.5f,
-							   0, White, cutTitle);
-				}
+                    gui_font->print((float)(x + 5) + skin->wnd_title_bar.x1,
+                                    (float)(y + 3) + ((float)title_h - pCacheFontHeight) * 0.5f,
+                                    White, cutTitle);
+                }
 				glDisable(GL_BLEND);
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
@@ -284,7 +283,7 @@ namespace TA3D
 						else
 							gfx->rectfill((float)(x + 3), (float)(y + 3), (float)(x + width - 4), (float)(y + 5) + pCacheFontHeight, DGray);
 					}
-					gfx->print(gui_font, (float)(x + 4), (float)(y + 4), 0, White, Title);
+                    gui_font->print((float)(x + 4), (float)(y + 4), White, Title);
 				}
 			}
 		}

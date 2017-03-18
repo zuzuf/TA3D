@@ -762,15 +762,13 @@ namespace TA3D
 					{
                         QString buf = QString::number(nb);
 						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-						gfx->print(gfx->TA_font,
-								   float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
-								   float(py + 1) + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
-								   0.0f, Black, buf);
-						gfx->print(gfx->TA_font,
-								   (float)px + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
-								   (float)py + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
-								   0.0f, 0xFFFFFFFFU, buf);
-					}
+                        gfx->TA_font->print(float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+                                            float(py + 1) + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+                                            Black, buf);
+                        gfx->TA_font->print((float)px + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+                                            (float)py + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+                                            0xFFFFFFFFU, buf);
+                    }
 					else
 					{
 						if (unit_manager.unit_type[unit[index].type_id]->BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
@@ -781,15 +779,13 @@ namespace TA3D
 							else
                                 buf = QString("%1(%2)").arg((int)unit[index].planned_weapons + 1).arg(stock);
 							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-							gfx->print(gfx->TA_font,
-									   float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
-									   float(py + 1) + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
-									   0.0f, Black, buf);
-							gfx->print(gfx->TA_font,
-									   (float)px + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
-									   (float)py + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
-									   0.0f, 0xFFFFFFFFU, buf);
-						}
+                            gfx->TA_font->print(float(px + 1) + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+                                                float(py + 1) + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+                                                Black, buf);
+                            gfx->TA_font->print((float)px + (float)pw * 0.5f - 0.5f * gfx->TA_font->length(buf),
+                                                (float)py + (float)ph * 0.5f - 0.5f * gfx->TA_font->height(),
+                                                0xFFFFFFFFU, buf);
+                        }
 					}
 				}
 			}
@@ -820,11 +816,10 @@ namespace TA3D
 			if (unit[index].type_id >= 0 && (unit[index].flags & 1) )
 			{
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				gfx->print_center(gfx->normal_font,
-								  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName.x1,
-								  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,
-								  0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id]->name);
-				if (target && !unit[index].mission.empty()
+                gfx->normal_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitName.x1,
+                                               (float)ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,
+                                               0xFFFFFFFF, unit_manager.unit_type[unit[index].type_id]->name);
+                if (target && !unit[index].mission.empty()
 					&& (unit[index].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
 				{
 					unit[index].unlock();
@@ -832,10 +827,9 @@ namespace TA3D
 					if ((target->flags & 1) && target->type_id >= 0 )
 					{
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-						gfx->print_center(gfx->normal_font,
-										  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1,
-										  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,
-										  0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id]->name);
+                        gfx->normal_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1,
+                                                       (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,
+                                                       0xFFFFFFFF, unit_manager.unit_type[target->type_id]->name);
 					}
 					target->unlock();
 					unit[index].lock();
@@ -843,10 +837,9 @@ namespace TA3D
 				else if (unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id )
 				{
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					gfx->print_center(gfx->normal_font,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,
-									  0.0f,0xFFFFFFFF,I18N::Translate("weapon"));
+                    gfx->normal_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1,
+                                                   (float)ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,
+                                                   0xFFFFFFFF,I18N::Translate("weapon"));
 				}
 
 				glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
@@ -854,25 +847,23 @@ namespace TA3D
 
 				if (unit[index].owner_id == players.local_human_id  )
 				{
-					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
-					gfx->print_center(gfx->small_font,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,
-                                      0.0f, QString::asprintf("+%.2f",unit[index].cur_metal_prod));
-					gfx->print_center(gfx->small_font,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,
-                                      0.0f,QString::asprintf("-%.2f",unit[index].cur_metal_cons));
+                    gfx->small_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1,
+                                                  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,
+                                                  ta3dSideData.side_int_data[ players.side_view ].metal_color,
+                                                  QString::asprintf("+%.2f",unit[index].cur_metal_prod));
+                    gfx->small_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1,
+                                                  (float)ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,
+                                                  ta3dSideData.side_int_data[ players.side_view ].metal_color,
+                                                  QString::asprintf("-%.2f",unit[index].cur_metal_cons));
 
-					gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
-					gfx->print_center(gfx->small_font,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,
-                                      0.0f,QString::asprintf("+%.2f",unit[index].cur_energy_prod));
-					gfx->print_center(gfx->small_font,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1,
-									  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,
-                                      0.0f,QString::asprintf("-%.2f",unit[index].cur_energy_cons));
+                    gfx->small_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1,
+                                                  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,
+                                                  ta3dSideData.side_int_data[ players.side_view ].energy_color,
+                                                  QString::asprintf("+%.2f",unit[index].cur_energy_prod));
+                    gfx->small_font->print_center((float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1,
+                                                  (float)ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,
+                                                  ta3dSideData.side_int_data[ players.side_view ].energy_color,
+                                                  QString::asprintf("-%.2f",unit[index].cur_energy_cons));
 				}
 
 				glColor4ub(0xFF,0xFF,0xFF,0xFF);

@@ -33,8 +33,8 @@ namespace TA3D
 		// Display
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-		gfx->print(gfx->TA_font, 1.0f, 1.0f, 0.0f, 0xFF000000U, toStr);
-		gfx->print(gfx->TA_font, 0.0f, 0.0f, 0.0f, 0xFFFFFFFFU, toStr);
+        gfx->TA_font->print(1.0f, 1.0f, 0xFF000000U, toStr);
+        gfx->TA_font->print(0.0f, 0.0f, 0xFFFFFFFFU, toStr);
 		glDisable(GL_BLEND);
 	}
 

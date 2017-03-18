@@ -897,6 +897,13 @@ namespace TA3D
     }
 
     void GFX::drawtexture(const GfxTexture::Ptr &tex,
+                          const float x, const float y,
+                          const uint32 col)
+    {
+        drawtexture(tex, x, y, x + tex->width(), y + tex->height(), 0, 0, 1, 1, col);
+    }
+
+    void GFX::drawtexture(const GfxTexture::Ptr &tex,
                           const float x1, const float y1,
                           const float x2, const float y2,
                           const uint32 col)
@@ -932,69 +939,6 @@ namespace TA3D
         drawing2d_texture_shader->disableAttributeArray(0);
         drawing2d_texture_shader->disableAttributeArray(2);
         drawing2d_texture_shader->release();
-	}
-
-    void GFX::print(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
-	{
-        Q_ASSERT(NULL != font);
-        if (!text.isEmpty())
-		{
-			ReInitTexSys(false);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			glEnable(GL_TEXTURE_2D);
-			font->print(x, y, z, text);
-		}
-	}
-
-
-    void GFX::print(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text)		// Font related routines
-	{
-		set_color(col);
-		print( font, x, y, z, text );
-	}
-
-    void GFX::print_center(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
-	{
-		if (font)
-		{
-			ReInitTexSys( false );
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-			const float X = x - 0.5f * font->length( text );
-
-			glEnable(GL_TEXTURE_2D);
-			font->print(X, y, z, text);
-		}
-	}
-
-
-    void GFX::print_center(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text)		// Font related routines
-	{
-		set_color(col);
-		print_center( font, x, y, z, text );
-	}
-
-
-    void GFX::print_right(Font *font, const float x, const float y, const float z, const QString &text)		// Font related routines
-	{
-		if (!font)  return;
-
-		ReInitTexSys( false );
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-		float X = x - font->length( text );
-
-		glEnable(GL_TEXTURE_2D);
-		font->print(X, y, z, text);
-	}
-
-    void GFX::print_right(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text)		// Font related routines
-	{
-		set_color(col);
-		print_right( font, x, y, z, text );
 	}
 
 	int GFX::max_texture_size()

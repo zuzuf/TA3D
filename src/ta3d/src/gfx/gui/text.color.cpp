@@ -57,8 +57,10 @@ namespace Gui
 			}
 
 			if (shadow)
-				gfx->print(font, x + shadow_dx, y + shadow_dy, 0.0f, shadow_color, text);
-			gfx->print(font, x, y, 0.0f, font_color, text);
+                font->print(x + shadow_dx,
+                            y + shadow_dy,
+                            shadow_color, text);
+            font->print(x, y, font_color, text);
 		}
 	}
 
@@ -74,9 +76,9 @@ namespace Gui
 			}
 
 			if (shadow)
-				gfx->print(font, x + shadow_dx, y + shadow_dy, 0.0f, shadow_color, text);
+                font->print(x + shadow_dx, y + shadow_dy, shadow_color, text);
 
-			gfx->print(font, x, y, 0.0f, col, text);
+            font->print(x, y, col, text);
 		}
 	}
 

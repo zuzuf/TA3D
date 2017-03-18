@@ -126,11 +126,11 @@ namespace Menus
 
 		// Draw all previous messages
 		int indx(0);
-		const QStringList::const_iterator end = pMessages.end();
-		for (QStringList::const_iterator i = pMessages.begin() ; i != end ; ++i, ++indx)
+        for (const QString &i : pMessages)
 		{
-			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth + 1.0f, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx) + 1.0f, 0.0f, makeacol(0, 0, 0, 0xFF), *i);
-			gfx->print(Gui::gui_font, 105.0f * pCacheScreenRatioWidth, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx), 0.0f, 0xFFFFFFFF, *i);
+            Gui::gui_font->print(105.0f * pCacheScreenRatioWidth + 1.0f, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx) + 1.0f, makeacol(0, 0, 0, 0xFF), i);
+            Gui::gui_font->print(105.0f * pCacheScreenRatioWidth, 175.0f * pCacheScreenRatioHeight + pCurrentFontHeight * float(indx), 0xFFFFFFFF, i);
+            ++indx;
 		}
 
 		// Draw the progress bar
@@ -152,12 +152,14 @@ namespace Menus
 		// Draw the caption (horizontally centered)
 		glEnable(GL_TEXTURE_2D);
 		glEnable(GL_BLEND);
-		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message) + 1.0f,
-				   830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f + 1.0f,0.0f, makeacol(0, 0, 0, 0xFF),
-				   message);
-		gfx->print(Gui::gui_font, 640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message),
-				   830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f,0.0f,0xFFFFFFFF,
-				   message);
+        Gui::gui_font->print(640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message) + 1.0f,
+                             830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f + 1.0f,
+                             makeacol(0, 0, 0, 0xFF),
+                             message);
+        Gui::gui_font->print(640.0f * pCacheScreenRatioWidth - 0.5f * Gui::gui_font->length(message),
+                             830 * pCacheScreenRatioHeight - pCurrentFontHeight * 0.5f,
+                             0xFFFFFFFF,
+                             message);
 		glDisable(GL_BLEND);
 
 		glPopMatrix();

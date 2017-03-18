@@ -2252,21 +2252,21 @@ namespace TA3D
 			{
                 units->unit[ last_on ].lock();
                 if (units->unit[ last_on ].type_id >= 0 && !unit_manager.unit_type[ units->unit[ last_on ].type_id ]->Unitname.isEmpty())
-                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, "internal name " + unit_manager.unit_type[ units->unit[ last_on ].type_id ]->Unitname);
+                    gfx->normal_font->print(128.0f, 32.0f, White, "internal name " + unit_manager.unit_type[ units->unit[ last_on ].type_id ]->Unitname);
                 units->unit[ last_on ].unlock();
 			}
 			else
 			{
                 if (internal_name && cur_sel >= 0 && !unit_manager.unit_type[cur_sel]->Unitname.isEmpty())
-                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, "internal name " + unit_manager.unit_type[cur_sel]->Unitname);
+                    gfx->normal_font->print(128.0f, 32.0f, White, "internal name " + unit_manager.unit_type[cur_sel]->Unitname);
 			}
 
 			if (internal_idx && last_on >= 0)
-                gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, QString("idx = %1").arg(last_on));
+                gfx->normal_font->print(128.0f, 32.0f, White, QString("idx = %1").arg(last_on));
 			else
 			{
 				if (internal_idx && cur_sel_index >= 0)
-                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF, QString("idx = %1").arg(cur_sel_index));
+                    gfx->normal_font->print(128.0f, 32.0f, White, QString("idx = %1").arg(cur_sel_index));
 			}
 
 			if (unit_info_id >= 0)
@@ -2293,7 +2293,7 @@ namespace TA3D
 					{
                         if (!units->unit[i].mission.empty() && units->unit[i].mission->mission() <= 0x0E)
 						{
-                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: ") + unit_info[units->unit[i].mission->mission()]);
+                            gfx->normal_font->print(128.0f, y, White, QString("MISSION: ") + unit_info[units->unit[i].mission->mission()]);
                             QString flags;
                             if (units->unit[i].mission->getFlags() & MISSION_FLAG_CAN_ATTACK)	flags += "CAN_ATTACK; ";
                             if (units->unit[i].mission->getFlags() & MISSION_FLAG_SEARCH_PATH)	flags += "SEARCH_PATH; ";
@@ -2302,10 +2302,10 @@ namespace TA3D
                             if (units->unit[i].mission->getFlags() & MISSION_FLAG_MOVE)			flags += "MOVE; ";
                             if (units->unit[i].mission->getFlags() & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
 							y += gfx->normal_font->height();
-                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, "FLAGS: " + flags);
+                            gfx->normal_font->print(128.0f, y, White, "FLAGS: " + flags);
 						}
 						else
-                            gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF, QString("MISSION: NONE"));
+                            gfx->normal_font->print(128.0f, y, White, QString("MISSION: NONE"));
 						y += gfx->normal_font->height();
 					}
                     units->unit[i].unlock();
@@ -2321,8 +2321,8 @@ namespace TA3D
 					if (ping)
 					{
                         const QString &text = QString("ping for player[%1] = %2ms").arg(i).arg(ping);
-						gfx->print(gfx->normal_font,129.0f,y+1.0f,0.0f,0xFF000000U, text);
-						gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFFU, text);
+                        gfx->normal_font->print(129.0f, y + 1.0f, 0xFF000000U, text);
+                        gfx->normal_font->print(128.0f, y, 0xFFFFFFFFU, text);
 						y += gfx->normal_font->height();
 					}
 				}
@@ -2335,14 +2335,14 @@ namespace TA3D
                 const QString &value = QString::asprintf("x %.1f", lp_CONFIG->timefactor);
 				if (show_timefactor > 0.5f)
 				{
-					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, 0.0f, makeacol32(0,0,0,0xFF), value);
-					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value)) >> 1), (float)SCREEN_H - 80.0f, 0.0f, 0xFFFFFFFF, value);
+                    gfx->TA_font->print(float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, makeacol32(0,0,0,0xFF), value);
+                    gfx->TA_font->print(float((gfx->width - (int)gfx->TA_font->length(value)) >> 1), (float)SCREEN_H - 80.0f, 0xFFFFFFFF, value);
 				}
 				else
 				{
 					const uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
-					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, 0.0f, c & makeacol32(0,0,0,0xFF), value);
-					gfx->print( gfx->TA_font, float((gfx->width - (int)gfx->TA_font->length(value)) >> 1), (float)SCREEN_H - 80.0f, 0.0f, c, value);
+                    gfx->TA_font->print(float((gfx->width - (int)gfx->TA_font->length(value) + 2) >> 1), (float)SCREEN_H - 79.0f, c & makeacol32(0,0,0,0xFF), value);
+                    gfx->TA_font->print(float((gfx->width - (int)gfx->TA_font->length(value)) >> 1), (float)SCREEN_H - 80.0f, c, value);
 				}
 				show_timefactor -= dt;
 			}

@@ -200,20 +200,9 @@ namespace TA3D
 		void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
 		void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture(const GfxTexture::Ptr &tex, const float x, const float y, const uint32 col);
         void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
         void drawtexture(const GfxTexture::Ptr &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2, const uint32 col);
-
-		//! \name Text manipulation
-		//@{
-        void print(Font *font, const float x, const float y, const float z, const QString &text);		// Font related routines
-        void print(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text);
-
-        void print_center(Font *font, const float x, const float y, const float z, const QString &text);		// Font related routines
-        void print_center(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text);
-
-        void print_right(Font *font, const float x, const float y, const float z, const QString &text);		// Font related routines
-        void print_right(Font *font, const float x, const float y, const float z, const uint32 col, const QString &text);
-		//@} // Text manipilation
 
         GfxTexture::Ptr make_texture( const QImage &bmp, int filter_type = FILTER_TRILINEAR, bool clamp = true);
         GfxTexture::Ptr create_color_texture(uint32 color);

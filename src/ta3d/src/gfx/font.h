@@ -23,43 +23,11 @@
 # include <misc/string.h>
 # include <deque>
 # include <QSharedPointer>
+# include <QMap>
+# include "texture.h"
 
-# ifdef __FTGL__lower__
-#	include <FTGL/ftgl.h>
-# else
-#	include <FTGL/ftgl.h>
-#	include <FTGL/FTBBox.h>
-#	include <FTGL/FTGlyph.h>
-#	include <FTGL/FTBitmapGlyph.h>
-#	include <FTGL/FTExtrdGlyph.h>
-#	include <FTGL/FTOutlineGlyph.h>
-#	include <FTGL/FTPixmapGlyph.h>
-#	include <FTGL/FTPolyGlyph.h>
-#	include <FTGL/FTTextureGlyph.h>
-#	include <FTGL/FTFont.h>
-#	include <FTGL/FTGLBitmapFont.h>
-#	include <FTGL/FTGLExtrdFont.h>
-#	include <FTGL/FTGLOutlineFont.h>
-#	include <FTGL/FTGLPixmapFont.h>
-#	include <FTGL/FTGLPolygonFont.h>
-#	include <FTGL/FTGLTextureFont.h>
-
-typedef FTGLTextureFont FTTextureFont;
-typedef FTGLPolygonFont FTPolygonFont;
-typedef FTGLBitmapFont  FTBitmapFont;
-typedef FTGLPixmapFont  FTPixmapFont;
-
-# endif
-
-
-# define FONT_TYPE_POLYGON 			0x0
-# define FONT_TYPE_TEXTURE 			0x1
-# define FONT_TYPE_BITMAP 			0x2
-# define FONT_TYPE_PIXMAP     		0x3
-
-# define TA3D_FONT_PATH  			"fonts"
-
-
+class QFont;
+class QFontMetricsF;
 
 namespace TA3D
 {
@@ -105,7 +73,9 @@ namespace TA3D
         bool load( const QString &filename, const int size);
 
 		int get_size();
-        void print(float x, float y, float z, const QString &text);
+        void print(float x, float y, const quint32 col, const QString &text);
+        void print_center(float x, float y, const quint32 col, const QString &text);
+        void print_right(float x, float y, const quint32 col, const QString &text);
 
 		void setBold(bool bBold)	{	this->bBold = bBold;	}
 
@@ -126,8 +96,12 @@ namespace TA3D
         bool loadWL(const QString &filename, const int size);
 
 	private:
-		//! The FT Font
-        QSharedPointer<FTFont> font;
+        //! The Qt Font
+        QSharedPointer<QFont> font;
+        QSharedPointer<QFontMetricsF> metrics;
+
+        QMap<QChar, GfxTexture::Ptr> glyphs;
+
 		//! The filename of the font
         QString pFontFilename;
 		//! Bold style
@@ -135,7 +109,7 @@ namespace TA3D
 		// Friend
 		friend class GFX;
 
-	}; // class GfxFont
+    }; // class Font
 
 
 

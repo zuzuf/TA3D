@@ -50,11 +50,6 @@ MESSAGE(STATUS "Version : v${TA3D_VERSION_HI}.${TA3D_VERSION_LO}.${TA3D_VERSION_
 # Information about the current Operating System
 Message(STATUS " System : ${CMAKE_SYSTEM} (${CMAKE_SYSTEM_PROCESSOR})")
 
-# FTGL
-IF(NOT APPLE)
-	ADD_SUBDIRECTORY(libs/ftgl)
-ENDIF(NOT APPLE)
-
 # TA3D
 ADD_SUBDIRECTORY(ta3d)
 

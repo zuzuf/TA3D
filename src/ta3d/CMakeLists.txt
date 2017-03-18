@@ -269,41 +269,6 @@ else()
 endif()
 
 
-#
-# --- FTGL ---
-#
-if(NOT APPLE)
-    if(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-#        set( FREETYPE_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/include/freetype2/")
-#        set( FREETYPE_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/src/tools/win32/mingw32/libs/libfreetype.dll.a")
-#        message(STATUS "FreeType Library : ${FREETYPE_LIBRARIES}")
-        FIND_PACKAGE(Freetype)
-    else(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-        FIND_PACKAGE(Freetype)
-    endif(WIN32 OR (CMAKE_CROSSCOMPILING AND NOT UNIX))
-
-    include_directories( ${FREETYPE_INCLUDE_DIRS} )
-
-    set(FTGL_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/lib/libftgl.a)
-    include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../libs/ftgl/include )
-    set(__FTGL__lower__ true)
-
-    message(STATUS "FTGL Library : ${FTGL_LIB}")
-    set(LIBS "${LIBS} ${FTGL_LIB}")
-
-else(NOT APPLE)
-
-	execute_process(COMMAND pkg-config --libs  ftgl OUTPUT_VARIABLE FTGL_LIB OUTPUT_STRIP_TRAILING_WHITESPACE)
-	execute_process(COMMAND pkg-config --cflags  ftgl OUTPUT_VARIABLE FTGL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-	message(STATUS "FTGL Library : ${FTGL_LIB}")
-	message(STATUS "FTGL CFLags : ${FTGL_CFLAGS}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FTGL_CFLAGS}")
-	set(LIBS "${LIBS} ${FTGL_LIB}")
-	set(__FTGL__lower__ false)
-
-endif(NOT APPLE)
-
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # for compatibility with old versions of cmake
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})

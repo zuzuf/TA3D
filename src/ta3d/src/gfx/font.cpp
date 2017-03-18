@@ -17,36 +17,38 @@
 
 #include <stdafx.h>
 #include <TA3D_NameSpace.h>
-#include "glfunc.h"
 #include <gaf.h>
 #include "gfx.h"
 #include <misc/paths.h>
 #include <logs/logs.h>
 #include <QFile>
 #include <QFileInfo>
+#include <QFont>
+#include <QFontMetrics>
+#include <QPainter>
+#include <QImage>
+
+#define TA3D_FONT_PATH  			"fonts"
 
 namespace TA3D
 {
-
 	FontManager font_manager;
 
-
-
 	Font::Font()
-        :ObjectSync(), font((FTFont*)NULL), pFontFilename(), bBold(false)
+        : bBold(false)
 	{}
 
 
 	Font::Font(const Font& rhs)
-        :ObjectSync(), font((FTFont*)NULL), pFontFilename(rhs.pFontFilename), bBold(false)
+        : pFontFilename(rhs.pFontFilename), bBold(false)
 	{
         if (!pFontFilename.isEmpty())
-            this->loadWL(pFontFilename, rhs.font->FaceSize());
+            this->loadWL(pFontFilename, rhs.font->pixelSize());
 	}
 
 	Font::~Font()
 	{
-        font.reset();
+        destroy();
 	}
 
 
@@ -56,7 +58,7 @@ namespace TA3D
         font.reset();
         pFontFilename = rhs.pFontFilename;
         if (!pFontFilename.isEmpty())
-            this->loadWL(pFontFilename, rhs.font->FaceSize());
+            this->loadWL(pFontFilename, rhs.font->pixelSize());
 		return *this;
 	}
 
@@ -64,13 +66,14 @@ namespace TA3D
 	void Font::init()
 	{
 		MutexLocker locker(pMutex);
+        metrics.reset();
         font.reset();
 		pFontFilename.clear();
 	}
 
 
 
-    void Font::print(float x, float y, float z, const QString& text)
+    void Font::print(float x, float y, const quint32 col, const QString& text)
 	{
         if (text.isEmpty())
 			return;
@@ -78,34 +81,57 @@ namespace TA3D
 		if (!font)
 			return;
 
-		glScalef(1.0f, -1.0f, 1.0f);
+        gfx->glEnable(GL_BLEND);
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glScalef(1.0f, -1.0f, 1.0f);
 		for(int k = 0 ; k < (bBold ? 3 : 1) ; ++k)
 		{
-#ifdef __FTGL__lower__
-            font->Render( text.toStdString().c_str(), -1,
-				FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z),
-				FTPoint(), FTGL::RENDER_ALL);
-#else
-			glPushMatrix();
-			glTranslatef( x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z );
-# ifndef TA3D_PLATFORM_DARWIN
-            WQString wstr(text);
-			font->Render(wstr.cw_str());
-# else
-			font->Render(text.c_str());
-# endif
-			glPopMatrix();
-#endif
-		}
+            QPointF pos(x, y + 0.5f * (-metrics->descent() + metrics->ascent()));
+            for(int i = 0 ; i < text.size() ; ++i)
+            {
+                const QChar &c = text[i];
+                if (!glyphs.contains(c))
+                {
+                    const QRectF &c_bbox = metrics->boundingRect(c);
+                    QImage img = gfx->create_surface_ex(32,
+                                                        std::ceil(c_bbox.width()),
+                                                        std::ceil(metrics->height()));
+                    img.fill(0);
+                    QPainter painter(&img);
+                    painter.setPen(Qt::white);
+                    painter.drawText(QPointF(-metrics->leftBearing(c), metrics->ascent()), QString(c));
+
+                    glyphs[c] = gfx->make_texture(img);
+                }
+                GfxTexture::Ptr tex = glyphs[c];
+                gfx->drawtexture(tex, pos.x() + metrics->leftBearing(c), pos.y() - metrics->ascent(), col);
+                pos += QPointF(metrics->width(c), 0);
+            }
+        }
+
 		glScalef(1.0f, -1.0f, 1.0f);
 	}
 
+    void Font::print_center(float x, float y, const quint32 col, const QString &text)
+    {
+        const float X = x - 0.5f * length(text);
+
+        print(X, y, col, text);
+    }
+
+    void Font::print_right(float x, float y, const quint32 col, const QString &text)
+    {
+        const float X = x - length(text);
+        print(X, y, col, text);
+    }
 
 	void Font::destroy()
 	{
 		MutexLocker locker(pMutex);
+        metrics.reset();
         font.reset();
         pFontFilename.clear();
+        glyphs.clear();
 	}
 
 
@@ -119,32 +145,24 @@ namespace TA3D
 		MutexLocker locker(pMutex);
 		if (!font)
 			return 0.0f;
-#ifdef __FTGL__lower__
-        FTBBox box = font->BBox( txt.toStdString().c_str() );
-		return fabsf((box.Upper().Xf() - box.Lower().Xf()));
-#else
-		float x0, y0, z0, x1, y1, z1;
-# ifndef TA3D_PLATFORM_DARWIN
-        WQString wstr(txt);
-        font->BBox(wstr.cw_str(), x0, y0, z0, x1, y1, z1);
-# else
-		font->BBox(txt.c_str(), x0, y0, z0, x1, y1, z1);
-# endif
-		return fabsf(x0 - x1);
-#endif
+        const QRectF &bbox = metrics->boundingRect(txt);
+        return bbox.width();
 	}
 
 
 	float Font::height()
 	{
 		MutexLocker locker(pMutex);
-		return (font) ? font->Ascender() : 0.f;
+        if (!font)
+            return 0.f;
+        QFontMetricsF metrics(*font);
+        return metrics.ascent();
 	}
 
 	int Font::get_size()
 	{
 		MutexLocker locker(pMutex);
-		return (font) ? font->FaceSize() : 0;
+        return (font) ? font->pixelSize() : 0;
 	}
 
 
@@ -230,24 +248,21 @@ namespace TA3D
 
     bool Font::loadWL(const QString &filename, const int size)
 	{
+        destroy();
+
 		pFontFilename = filename;
 
-        font.reset();
         if (!filename.isEmpty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");
-#ifdef __FTGL__lower__
-            font.reset(new FTBufferFont(filename.toStdString().c_str()));
-#else
-            font.reset(new FTTextureFont(filename.toStdString().c_str()));
-#endif
+            font.reset(new QFont(filename));
 		}
 		if (font)
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "'" << filename << "' loaded");
-			font->FaceSize(size);
-			font->UseDisplayList(false);
-		}
+            font->setPixelSize(size);
+            metrics.reset(new QFontMetricsF(*font));
+        }
 		else
 			LOG_ERROR(LOG_PREFIX_FONT << "Could not load file : " << filename);
 
@@ -279,7 +294,8 @@ namespace TA3D
 		}
 
         Font::Ptr font = new Font();
-        font->load(foundFilename, size);
+//        font->load(foundFilename, size);
+        font->load("Helvetica", size);
 
 		pFontList.push_back(font);
 		font_table[key] = font;

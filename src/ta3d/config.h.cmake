@@ -37,14 +37,9 @@
 //! Default server hostname
 # define TA3D_DEFAULT_SERVER_HOSTNAME  "netserver.ta3d.org"
 
-
-
 /*!
 ** \brief The hard limit for the number of players
 */
 # define TA3D_PLAYERS_HARD_LIMIT   @TA3D_MAX_PLAYERS_HARD_LIMIT@
-
-
-#cmakedefine __FTGL__lower__
 
 #endif // __TA3D_CONFIG_FILE_FROM_CMAKE_H__

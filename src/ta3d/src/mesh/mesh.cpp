@@ -1038,12 +1038,12 @@ namespace TA3D
 
 	float Mesh::print_struct(float Y, float X, TA3D::Font *fnt)
 	{
-        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFFFF, name + QString(" [%1]").arg(script_index));
-        gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFFFF, QString("(v:%1").arg(nb_vtx));
-        gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFFFF, QString(",p:%1").arg(nb_prim));
-        gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFFFF, QString(",t:%1").arg(nb_t_index));
-        gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFFFF, QString(",l:%1").arg(nb_l_index));
-        gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFFFF, QString(",p:%1").arg(nb_p_index));
+        fnt->print(X, Y,      0xFFFFFFFF, name + QString(" [%1]").arg(script_index));
+        fnt->print(320.0f, Y, 0xFFFFFFFF, QString("(v:%1").arg(nb_vtx));
+        fnt->print(368.0f, Y, 0xFFFFFFFF, QString(",p:%1").arg(nb_prim));
+        fnt->print(416.0f, Y, 0xFFFFFFFF, QString(",t:%1").arg(nb_t_index));
+        fnt->print(464.0f, Y, 0xFFFFFFFF, QString(",l:%1").arg(nb_l_index));
+        fnt->print(512.0f, Y, 0xFFFFFFFF, QString(",p:%1").arg(nb_p_index));
 		float nwY = Y + 8.0f;
 		if (child)
 			nwY = child->print_struct(nwY, X + 8.0f, fnt);

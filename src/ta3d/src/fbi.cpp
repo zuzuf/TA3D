@@ -1177,21 +1177,20 @@ namespace TA3D
 			else
 			{	// Print info at the bottom of the screen
 				const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-				gfx->print(gfx->normal_font,
-						   (float)side_data.Name.x1,
-						   (float)side_data.Name.y1,
-						   0.0f, 0xFFFFFFFF,
-                           unit_type[sel]->name
-                           + QString(" M:%1").arg(unit_type[sel]->BuildCostMetal)
-                           + QString(" E:%1").arg(unit_type[sel]->BuildCostEnergy)
-                           + QString(" HP:%1").arg(unit_type[sel]->MaxDamage) );
+                gfx->normal_font->print((float)side_data.Name.x1,
+                                        (float)side_data.Name.y1,
+                                        White,
+                                        unit_type[sel]->name
+                                        + QString(" M:%1").arg(unit_type[sel]->BuildCostMetal)
+                                        + QString(" E:%1").arg(unit_type[sel]->BuildCostEnergy)
+                                        + QString(" HP:%1").arg(unit_type[sel]->MaxDamage) );
 
                 if (!unit_type[sel]->Description.isEmpty())
-					gfx->print(gfx->normal_font,
-							   (float)side_data.Description.x1,
-							   (float)side_data.Description.y1,
-							   0.0f,0xFFFFFFFF,unit_type[sel]->Description );
-			}
+                    gfx->normal_font->print((float)side_data.Description.x1,
+                                            (float)side_data.Description.y1,
+                                            White,
+                                            unit_type[sel]->Description );
+            }
 			glDisable(GL_BLEND);
 		}
 

@@ -123,8 +123,8 @@ namespace TA3D
                     x += screen_w - 0.5f * fnt->length(prim.text);
                 if (y < 0.0f)
                     y += screen_h - 0.5f * fnt->height();
-                gfx->print(fnt, x + 1, y + 1, 0.0f, makeacol32(0,0,0, 0xFF), prim.text);
-                gfx->print(fnt, x, y, 0.0f, makeacol32((int)(prim.r[0] * 255.0f), (int)(prim.g[0] * 255.0f), (int)(prim.b[0] * 255.0f), 0xFF), prim.text);
+                fnt->print(x + 1, y + 1, makeacol32(0,0,0, 0xFF), prim.text);
+                fnt->print(x, y, makeacol32((int)(prim.r[0] * 255.0f), (int)(prim.g[0] * 255.0f), (int)(prim.b[0] * 255.0f), 0xFF), prim.text);
             }
             glDisable(GL_BLEND);
             break;

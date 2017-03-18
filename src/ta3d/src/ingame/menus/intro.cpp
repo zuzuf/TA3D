@@ -174,7 +174,7 @@ namespace Menus
 		{
 			unsigned int indx = 0;
 			for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
-				gfx->print(Gui::gui_font, 220.0f * fw, TA3D_INTRO_TOP + float(indx - 1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
+                Gui::gui_font->print(220.0f * fw, TA3D_INTRO_TOP + float(indx - 1) * pCurrentFontHeight - pDelta, White, pContent[i]);
 		}
 
 		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
