@@ -18,7 +18,6 @@
 # define __TA3D_GFX_FONT_H__
 
 # include <stdafx.h>
-# include "gfx.h"
 # include <misc/hash_table.h>
 # include <threads/thread.h>
 # include <misc/string.h>
@@ -67,18 +66,10 @@ namespace TA3D
 	class GFX;
 
 
-	class Font : ObjectSync
+    class Font : public ObjectSync
 	{
-	public:
-		//! Type of a font
-		enum Type
-		{
-			typePolygon = 0x0,
-			typeTexture = 0x1,
-			typeBitmap  = 0x2,
-			typePixmap  = 0x3,
-			typeTextures = 0x4
-		};
+    public:
+        typedef zuzuf::smartptr<Font>   Ptr;
 
 	public:
 		//! \name Constructors & Destructor
@@ -109,10 +100,9 @@ namespace TA3D
 		**
 		** \param filename The filename of the Font
 		** \param size Size of the font
-		** \param type Type of the Font (Texture, Pixmap, Bitmap, Polygon)
 		** \return True if the operator succeeded, False otherwise
 		*/
-        bool load( const QString &filename, const int size, const Type type);
+        bool load( const QString &filename, const int size);
 
 		int get_size();
         void print(float x, float y, float z, const QString &text);
@@ -131,18 +121,15 @@ namespace TA3D
 		**
 		** \param filename The filename of the Font
 		** \param size Size of the font
-		** \param type Type of the Font (Texture, Pixmap, Bitmap, Polygon)
 		** \return True if the operator succeeded, False otherwise
 		*/
-        bool loadWL(const QString &filename, const int size, const Type type);
+        bool loadWL(const QString &filename, const int size);
 
 	private:
 		//! The FT Font
         QSharedPointer<FTFont> font;
 		//! The filename of the font
         QString pFontFilename;
-		//! Type of the font
-		Type pType;
 		//! Bold style
 		bool bBold;
 		// Friend
@@ -161,17 +148,17 @@ namespace TA3D
 
 		void destroy();
 
-        Font *find(const QString& filename, const int size, const Font::Type type);
+        Font::Ptr find(const QString& filename, const int size);
 
 	private:
-        Font* internalRegisterFont(const QString& key, const QString& filename, const int size, const Font::Type type);
+        Font::Ptr internalRegisterFont(const QString& key, const QString& filename, const int size);
 
 	private:
 		//! Font list
-		typedef std::deque<Font*>  FontList;
+        typedef std::deque<Font::Ptr>  FontList;
 
 		FontList  pFontList;
-		UTILS::HashMap<Font*>::Dense    font_table;
+        UTILS::HashMap<Font::Ptr>::Dense    font_table;
 	}; // class FontManager
 
 

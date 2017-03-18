@@ -532,7 +532,6 @@ namespace TA3D
 
 	GFX::GFX()
 		:width(0), height(0), x(0), y(0),
-		normal_font(NULL), small_font(NULL), TA_font(NULL), ta3d_gui_font(NULL), big_font(NULL),
 		SCREEN_W_HALF(0), SCREEN_H_HALF(0), SCREEN_W_INV(0.), SCREEN_H_INV(0.), SCREEN_W_TO_640(0.), SCREEN_H_TO_480(0.),
         low_def_limit(600.), textureFBO(0),
 		model_shader(),
@@ -609,21 +608,21 @@ namespace TA3D
 	void GFX::loadFonts()
 	{
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-		normal_font = font_manager.find("FreeSans", 10, Font::typeTexture);
+        normal_font = font_manager.find("FreeSans", 10);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-		small_font = font_manager.find("FreeMono", 8, Font::typeTexture);
+        small_font = font_manager.find("FreeMono", 8);
 		small_font->setBold(true);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
-		TA_font = font_manager.find("FreeSans", 16, Font::typeTexture);
+        TA_font = font_manager.find("FreeSans", 16);
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-		ta3d_gui_font = font_manager.find("FreeSerif", 10 * height / 480, Font::typeTexture);
+        ta3d_gui_font = font_manager.find("FreeSerif", 10 * height / 480);
 		Gui::gui_font = ta3d_gui_font;
 
 		LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
-		big_font = font_manager.find("FreeSans", 16 * height / 480, Font::typeTexture);
+        big_font = font_manager.find("FreeSans", 16 * height / 480);
 	}
 
 

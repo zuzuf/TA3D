@@ -33,15 +33,15 @@ namespace TA3D
 
 
 	Font::Font()
-		:ObjectSync(), font((FTFont*)NULL), pFontFilename(), pType(typeTexture), bBold(false)
+        :ObjectSync(), font((FTFont*)NULL), pFontFilename(), bBold(false)
 	{}
 
 
 	Font::Font(const Font& rhs)
-		:ObjectSync(), font((FTFont*)NULL), pFontFilename(rhs.pFontFilename), pType(rhs.pType), bBold(false)
+        :ObjectSync(), font((FTFont*)NULL), pFontFilename(rhs.pFontFilename), bBold(false)
 	{
         if (!pFontFilename.isEmpty())
-			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
+            this->loadWL(pFontFilename, rhs.font->FaceSize());
 	}
 
 	Font::~Font()
@@ -56,7 +56,7 @@ namespace TA3D
         font.reset();
         pFontFilename = rhs.pFontFilename;
         if (!pFontFilename.isEmpty())
-			this->loadWL(pFontFilename, rhs.font->FaceSize(), pType);
+            this->loadWL(pFontFilename, rhs.font->FaceSize());
 		return *this;
 	}
 
@@ -159,12 +159,7 @@ namespace TA3D
 
 	void FontManager::destroy()
 	{
-		if (!pFontList.empty())
-		{
-			for (FontList::iterator i = pFontList.begin(); i != pFontList.end(); ++i)
-				delete *i;
-			pFontList.clear();
-		}
+        pFontList.clear();
 		font_table.clear();
 	}
 
@@ -226,44 +221,26 @@ namespace TA3D
 	}
 
 
-    bool Font::load(const QString &filename, const int size, const Font::Type type)
+    bool Font::load(const QString &filename, const int size)
 	{
 		MutexLocker locker(pMutex);
-		return this->loadWL(filename, size, type);
+        return this->loadWL(filename, size);
 	}
 
 
-    bool Font::loadWL(const QString &filename, const int size, const Font::Type type)
+    bool Font::loadWL(const QString &filename, const int size)
 	{
 		pFontFilename = filename;
-		pType = type;
 
         font.reset();
         if (!filename.isEmpty())
 		{
 			LOG_DEBUG(LOG_PREFIX_FONT << "Loading `" << filename << "`");
-			switch(type)
-			{
-				case typeBitmap:
-                    font.reset(new FTBitmapFont(filename.toStdString().c_str()));
-					break;
-				case typePixmap:
-                    font.reset(new FTPixmapFont(filename.toStdString().c_str()));
-					break;
-				case typePolygon:
-                    font.reset(new FTPolygonFont(filename.toStdString().c_str()));
-					break;
-				case typeTextures:
-                    font.reset(new FTTextureFont(filename.toStdString().c_str()));
-					break;
-				case typeTexture:
-				default:
 #ifdef __FTGL__lower__
-                    font.reset(new FTBufferFont(filename.toStdString().c_str()));
+            font.reset(new FTBufferFont(filename.toStdString().c_str()));
 #else
-                    font.reset(new FTTextureFont(filename.toStdString().c_str()));
+            font.reset(new FTTextureFont(filename.toStdString().c_str()));
 #endif
-			}
 		}
 		if (font)
 		{
@@ -279,19 +256,18 @@ namespace TA3D
 
 
 
-    Font *FontManager::find(const QString& filename, const int size, const Font::Type type)
+    Font::Ptr FontManager::find(const QString& filename, const int size)
 	{
-        const QString key = filename.toLower() + QString("_%1_%2").arg(int(type)).arg(size);
+        const QString &key = filename.toLower() + QString("_%1").arg(size);
 
 		return (font_table.count(key) != 0)
 			? font_table[key]
-			: internalRegisterFont(key, filename, size, type);
+            : internalRegisterFont(key, filename, size);
 	}
 
 
 
-    Font* FontManager::internalRegisterFont(const QString& key, const QString& filename, const int size,
-		const Font::Type type)
+    Font::Ptr FontManager::internalRegisterFont(const QString& key, const QString& filename, const int size)
 	{
         QString foundFilename;
 		find_font(foundFilename, TA3D_FONT_PATH, filename);
@@ -302,8 +278,8 @@ namespace TA3D
 			find_font(foundFilename, TA3D_FONT_PATH, "FreeSerif");
 		}
 
-		Font *font = new Font();
-		font->load(foundFilename, size, type);
+        Font::Ptr font = new Font();
+        font->load(foundFilename, size);
 
 		pFontList.push_back(font);
 		font_table[key] = font;

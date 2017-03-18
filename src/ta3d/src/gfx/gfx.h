@@ -298,11 +298,11 @@ namespace TA3D
 		int			width;				// Size of this window on the screen
 		int			height;
 		int			x,y;				// Position on the screen
-		Font        *normal_font;		// Fonts
-		Font        *small_font;
-		Font        *TA_font;
-		Font        *ta3d_gui_font;
-		Font        *big_font;
+        Font::Ptr   normal_font;		// Fonts
+        Font::Ptr   small_font;
+        Font::Ptr   TA_font;
+        Font::Ptr   ta3d_gui_font;
+        Font::Ptr   big_font;
 
 		sint32		SCREEN_W_HALF;
 		sint32		SCREEN_H_HALF;
