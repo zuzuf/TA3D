@@ -93,7 +93,7 @@ namespace TA3D
                     painter.setFont(*font);
                     painter.drawText(QPointF(-metrics->leftBearing(c), metrics->ascent()), QString(c));
 
-                    it = glyphs.insert(c, gfx->make_texture(img));
+                    it = glyphs.insert(c, gfx->make_texture(img, FILTER_NONE));
                 }
                 const GfxTexture::Ptr &tex = it.value();
                 const QPointF origin(pos.x() + metrics->leftBearing(c),

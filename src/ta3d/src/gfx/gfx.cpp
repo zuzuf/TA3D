@@ -948,7 +948,7 @@ namespace TA3D
 
     GfxTexture::Ptr GFX::make_texture(const QImage &bmp, int filter_type, bool clamp)
     {
-        GfxTexture::Ptr tex = new GfxTexture(bmp, filter_type == FILTER_NONE ? QOpenGLTexture::DontGenerateMipMaps : QOpenGLTexture::GenerateMipMaps);
+        GfxTexture::Ptr tex = new GfxTexture(bmp, filter_type <= FILTER_LINEAR ? QOpenGLTexture::DontGenerateMipMaps : QOpenGLTexture::GenerateMipMaps);
 //        tex->setFormat(QOpenGLTexture::RGB);
         if (clamp)
             tex->setWrapMode(QOpenGLTexture::ClampToEdge);
