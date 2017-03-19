@@ -312,8 +312,8 @@ namespace TA3D
 		if (entry_idx >= header.Entries) // Si le fichier contient moins d'images que img_idx, il y a erreur
             return QImage();
 
-		sint32 *pointers = new sint32[header.Entries];
-        file->read((char*)pointers, header.Entries * (int)sizeof(sint32));
+        std::vector<sint32> pointers(header.Entries);
+        file->read((char*)pointers.data(), header.Entries * (int)sizeof(sint32));
 
 		Gaf::Entry entry;
 		file->seek(pointers[entry_idx]);
@@ -323,12 +323,9 @@ namespace TA3D
         convertGAFCharToString(file, entry.name);
 
 		if (entry.Frames <= 0 || img_idx >= entry.Frames)
-		{
-			DELETE_ARRAY(pointers);
             return QImage();
-		}
 
-		Gaf::Frame::Entry* frame = new Gaf::Frame::Entry[entry.Frames];
+        std::vector<Gaf::Frame::Entry> frame(entry.Frames);
 
 		for (sint32 i = 0; i < entry.Frames; ++i)
 		{
@@ -338,15 +335,12 @@ namespace TA3D
 
         QImage frame_img;
 
-		try
-		{
+        try
+        {
 			if (frame[img_idx].PtrFrameTable < 0)
-			{
-				DELETE_ARRAY(pointers);
-				DELETE_ARRAY(frame);
                 return QImage();
-			}
-			file->seek(frame[img_idx].PtrFrameTable);
+
+            file->seek(frame[img_idx].PtrFrameTable);
 			Gaf::Frame::Data framedata(file);
 			uint32 frames = framedata.PtrFrameData;
 
@@ -366,14 +360,11 @@ namespace TA3D
 				file->seek(framedata.PtrFrameData);
 				sint32 img_size = 0;
                 READ(img_size);
-                file->read((char*)&img_size, sizeof(img_size));
-				char *buf = new char[img_size];
-				file->read(buf, img_size);
+                QByteArray buf = file->read(img_size);
 
 				frame_img = gfx->create_surface_ex( framedata.Transparency ? 32 : 24, framedata.Width, framedata.Height );
                 uLongf len = frame_img.byteCount();
-				uncompress ( (Bytef*) frame_img.bits(), &len, (Bytef*) buf, img_size);
-				delete[] buf;
+                uncompress ( (Bytef*) frame_img.bits(), &len, (Bytef*) buf.data(), buf.size());
 			}
 			else
 			{
@@ -562,17 +553,14 @@ namespace TA3D
 					}
 				}
 			}
-		}
-		catch(...)
-		{
-			LOG_ERROR("GAF data corrupt!");
-			DELETE_ARRAY(pointers);
-			DELETE_ARRAY(frame);
+        }
+        catch(const std::exception &e)
+        {
+            LOG_ERROR("Exception caught while decoding GAF: " << e.what());
+            LOG_ERROR("GAF data is likely corrupt!");
             return QImage();
-		};
+        };
 
-		DELETE_ARRAY(pointers);
-		DELETE_ARRAY(frame);
 		return frame_img;
 	}
 
