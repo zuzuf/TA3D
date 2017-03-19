@@ -19,7 +19,6 @@
 
 # include <stdafx.h>
 # include <misc/hash_table.h>
-# include <threads/thread.h>
 # include <misc/string.h>
 # include <deque>
 # include <QSharedPointer>
@@ -34,7 +33,7 @@ namespace TA3D
 	class GFX;
 
 
-    class Font : public ObjectSync
+    class Font : public zuzuf::ref_count
 	{
     public:
         typedef zuzuf::smartptr<Font>   Ptr;
@@ -79,21 +78,8 @@ namespace TA3D
 
 		void setBold(bool bBold)	{	this->bBold = bBold;	}
 
-		//! \name Operators
-		//@{
-		//! Operator =
-		Font& operator = (const Font& rhs);
-		//@}
-
-	private:
-		/*!
-		** \brief Load a font from a file (Without Lock)
-		**
-		** \param filename The filename of the Font
-		** \param size Size of the font
-		** \return True if the operator succeeded, False otherwise
-		*/
-        bool loadWL(const QString &filename, const int size);
+    private:
+        Font& operator = (const Font& rhs); // Forbidden!
 
 	private:
         //! The Qt Font
@@ -106,7 +92,7 @@ namespace TA3D
         QString pFontFilename;
 		//! Bold style
 		bool bBold;
-		// Friend
+        // Friend
 		friend class GFX;
 
     }; // class Font

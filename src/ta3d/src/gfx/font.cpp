@@ -27,6 +27,7 @@
 #include <QFontMetrics>
 #include <QPainter>
 #include <QImage>
+#include <QFontDatabase>
 
 #define TA3D_FONT_PATH  			"fonts"
 
@@ -43,7 +44,7 @@ namespace TA3D
         : pFontFilename(rhs.pFontFilename), bBold(false)
 	{
         if (!pFontFilename.isEmpty())
-            this->loadWL(pFontFilename, rhs.font->pixelSize());
+            this->load(pFontFilename, rhs.font->pixelSize());
 	}
 
 	Font::~Font()
@@ -51,21 +52,14 @@ namespace TA3D
         destroy();
 	}
 
-
 	Font& Font::operator = (const Font& rhs)
 	{
-		MutexLocker locker(pMutex);
-        font.reset();
-        pFontFilename = rhs.pFontFilename;
-        if (!pFontFilename.isEmpty())
-            this->loadWL(pFontFilename, rhs.font->pixelSize());
 		return *this;
 	}
 
 
 	void Font::init()
 	{
-		MutexLocker locker(pMutex);
         metrics.reset();
         font.reset();
 		pFontFilename.clear();
@@ -75,22 +69,19 @@ namespace TA3D
 
     void Font::print(float x, float y, const quint32 col, const QString& text)
 	{
-        if (text.isEmpty())
-			return;
-		MutexLocker locker(pMutex);
-		if (!font)
+        if (text.isEmpty() || !font)
 			return;
 
         gfx->glEnable(GL_BLEND);
         gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glScalef(1.0f, -1.0f, 1.0f);
 		for(int k = 0 ; k < (bBold ? 3 : 1) ; ++k)
 		{
-            QPointF pos(x, y + 0.5f * (-metrics->descent() + metrics->ascent()));
+            QPointF pos(x, y + 0.5f * metrics->height());
             for(int i = 0 ; i < text.size() ; ++i)
             {
                 const QChar &c = text[i];
-                if (!glyphs.contains(c))
+                auto it = glyphs.find(c);
+                if (it == glyphs.end())
                 {
                     const QRectF &c_bbox = metrics->boundingRect(c);
                     QImage img = gfx->create_surface_ex(32,
@@ -99,17 +90,18 @@ namespace TA3D
                     img.fill(0);
                     QPainter painter(&img);
                     painter.setPen(Qt::white);
+                    painter.setFont(*font);
                     painter.drawText(QPointF(-metrics->leftBearing(c), metrics->ascent()), QString(c));
 
-                    glyphs[c] = gfx->make_texture(img);
+                    it = glyphs.insert(c, gfx->make_texture(img));
                 }
-                GfxTexture::Ptr tex = glyphs[c];
-                gfx->drawtexture(tex, pos.x() + metrics->leftBearing(c), pos.y() - metrics->ascent(), col);
+                const GfxTexture::Ptr &tex = it.value();
+                const QPointF origin(pos.x() + metrics->leftBearing(c),
+                                     pos.y() - metrics->ascent());
+                gfx->drawtexture(tex, origin.x(), origin.y(), col);
                 pos += QPointF(metrics->width(c), 0);
             }
         }
-
-		glScalef(1.0f, -1.0f, 1.0f);
 	}
 
     void Font::print_center(float x, float y, const quint32 col, const QString &text)
@@ -127,7 +119,6 @@ namespace TA3D
 
 	void Font::destroy()
 	{
-		MutexLocker locker(pMutex);
         metrics.reset();
         font.reset();
         pFontFilename.clear();
@@ -142,26 +133,21 @@ namespace TA3D
         if (txt.endsWith(' '))
             return length(txt + "_") - length("_");
 
-		MutexLocker locker(pMutex);
 		if (!font)
 			return 0.0f;
-        const QRectF &bbox = metrics->boundingRect(txt);
-        return bbox.width();
+        return metrics->boundingRect(txt).width();
 	}
 
 
 	float Font::height()
 	{
-		MutexLocker locker(pMutex);
         if (!font)
             return 0.f;
-        QFontMetricsF metrics(*font);
-        return metrics.ascent();
+        return metrics->ascent();
 	}
 
 	int Font::get_size()
 	{
-		MutexLocker locker(pMutex);
         return (font) ? font->pixelSize() : 0;
 	}
 
@@ -204,7 +190,7 @@ namespace TA3D
         }
 
         if (!out.isEmpty())     // If we have a font in our VFS, then we have to extract it to a temporary location
-		{                       // in order to load it with FTGL
+        {                       // in order to load it to the QFontDatabase
 			LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << out);
             tmp = TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf";
 
@@ -240,13 +226,6 @@ namespace TA3D
 
 
     bool Font::load(const QString &filename, const int size)
-	{
-		MutexLocker locker(pMutex);
-        return this->loadWL(filename, size);
-	}
-
-
-    bool Font::loadWL(const QString &filename, const int size)
 	{
         destroy();
 
@@ -294,8 +273,8 @@ namespace TA3D
 		}
 
         Font::Ptr font = new Font();
-//        font->load(foundFilename, size);
-        font->load("Helvetica", size);
+        const int font_id = QFontDatabase::addApplicationFont(foundFilename);
+        font->load(QFontDatabase::applicationFontFamilies(font_id).front(), size);
 
 		pFontList.push_back(font);
 		font_table[key] = font;
