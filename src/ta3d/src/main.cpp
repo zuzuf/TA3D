@@ -197,7 +197,9 @@ int main(int argc, char **argv)
     if (qgetenv("USER") != "roland")
         QMessageBox::warning(NULL, "Development version warning", "This version of TA3D is being actively developped and is rather unstable right now.\nUnless you are helping with development you most likely want to run the last stable version.");
 
-    a.setOverrideCursor(QCursor(QPixmap(1,1)));
+    QImage no_cursor(1,1, QImage::Format_ARGB32);
+    no_cursor.fill(0);
+    a.setOverrideCursor(QCursor(QPixmap::fromImage(no_cursor)));
 
 	// Initialize signals
 	init_signals();
