@@ -637,10 +637,10 @@ namespace TA3D
 
 	void MeshS3O::init_shaders()
 	{
-        if (!s3oShader->isLinked())
-            s3oShader->load("shaders/s3o.frag", "shaders/s3o.vert");
-        if (!s3oShader_woShadows->isLinked())
-            s3oShader_woShadows->load("shaders/s3o_wos.frag", "shaders/s3o_wos.vert");
+        if (!s3oShader)
+            s3oShader = new Shader("shaders/s3o.frag", "shaders/s3o.vert");
+        if (!s3oShader_woShadows)
+            s3oShader_woShadows = new Shader("shaders/s3o_wos.frag", "shaders/s3o_wos.vert");
 	}
 } // namespace TA3D
 
