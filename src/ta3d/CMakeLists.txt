@@ -85,7 +85,7 @@ Else("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 	message(STATUS "Build Configuration: Debug")
 
 	if(NOT WIN32)
-		Set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} -g -ggdb2")
+                Set(CMAKE_CXX_FLAGS "${TA3D_COMMON_CPP_FLAGS} -O0 -g")
 		If(APPLE)
 			Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gfull")
 		ENdif(APPLE)
