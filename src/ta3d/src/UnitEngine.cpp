@@ -872,56 +872,50 @@ namespace TA3D
 
 				glDisable(GL_BLEND);
 
-				glBegin(GL_QUADS);
-				glColor4ub(0xFF,0,0,0xFF);
-
 				if (unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage )
 				{
-					glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
-					glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
-					glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
-					glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
+                    const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+                    gfx->rectfill(side_data.DamageBar.x1,
+                                  side_data.DamageBar.y1,
+                                  side_data.DamageBar.x2,
+                                  side_data.DamageBar.y2,
+                                  makeacol(0xFF,0,0,0xFF));
 				}
 
 				if (unit[index].owner_id == players.local_human_id )
 				{
+                    bool b_render = false;
 					if (target && (unit[index].mission->getFlags() & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
 					{
 						unit[index].unlock();
 						target->lock();
-						if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage)	// Si l'unité a une cible
-						{
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-							glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-						}
+                        b_render = ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage);	// If current unit has a target
 						target->unlock();
 						unit[index].lock();
-					}
-					else if (unit[index].planned_weapons>0.0f )
-					{
-						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-						glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
-					}
-				}
+                    }
+                    else
+                        b_render = unit[index].planned_weapons > 0.0f;
 
-				glColor3ub(0,0xFF,0);
+                    if (b_render)
+                    {
+                        const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
+                        gfx->rectfill(side_data.DamageBar2.x1,
+                                      side_data.DamageBar2.y1,
+                                      side_data.DamageBar2.x2,
+                                      side_data.DamageBar2.y2,
+                                      makeacol(0xFF,0,0,0xFF));
+                    }
+				}
 
 				if (unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage ) )
 				{
 					const UnitType* const pType = unit_manager.unit_type[unit[index].type_id];
 					const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-					glVertex2f( (float)side_data.DamageBar.x1,
-								(float)side_data.DamageBar.y1 );
-					glVertex2f( (float)side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
-								(float)side_data.DamageBar.y1 );
-					glVertex2f( (float)side_data.DamageBar.x1 + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
-								(float)side_data.DamageBar.y2 );
-					glVertex2f( (float)side_data.DamageBar.x1,
-								(float)side_data.DamageBar.y2 );
+                    gfx->rectfill(side_data.DamageBar.x1,
+                                  side_data.DamageBar.y1,
+                                  float(side_data.DamageBar.x1) + unit[index].hp / float(pType->MaxDamage) * float(side_data.DamageBar.x2 - side_data.DamageBar.x1),
+                                  side_data.DamageBar.y2,
+                                  makeacol(0,0xFF,0,0xFF));
 				}
 
 				if (unit[index].owner_id == players.local_human_id)
@@ -934,14 +928,11 @@ namespace TA3D
 						{
 							const UnitType* const pType = unit_manager.unit_type[target->type_id];
 							const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-							glVertex2f( (float)side_data.DamageBar2.x1,
-										(float)side_data.DamageBar2.y1 );
-							glVertex2f( (float)side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-										(float)side_data.DamageBar2.y1 );
-							glVertex2f( (float)side_data.DamageBar2.x1 + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-										(float)side_data.DamageBar2.y2 );
-							glVertex2f( (float)side_data.DamageBar2.x1,
-										(float)side_data.DamageBar2.y2 );
+                            gfx->rectfill(side_data.DamageBar2.x1,
+                                          side_data.DamageBar2.y1,
+                                          float(side_data.DamageBar2.x1) + target->hp / float(pType->MaxDamage) * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+                                          side_data.DamageBar2.y2,
+                                          makeacol(0,0xFF,0,0xFF));
 						}
 						target->unlock();
 						unit[index].lock();
@@ -952,18 +943,13 @@ namespace TA3D
 						if (p == 1.0f)
 							p = 0.0f;
 						const InterfaceData &side_data = ta3dSideData.side_int_data[ players.side_view ];
-						glVertex2f( (float)side_data.DamageBar2.x1,
-									(float)side_data.DamageBar2.y1 );
-						glVertex2f( (float)side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-									(float)side_data.DamageBar2.y1 );
-						glVertex2f( (float)side_data.DamageBar2.x1 + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
-									(float)side_data.DamageBar2.y2 );
-						glVertex2f( (float)side_data.DamageBar2.x1,
-									(float)side_data.DamageBar2.y2 );
+                        gfx->rectfill(side_data.DamageBar2.x1,
+                                      side_data.DamageBar2.y1,
+                                      float(side_data.DamageBar2.x1) + p * float(side_data.DamageBar2.x2 - side_data.DamageBar2.x1),
+                                      side_data.DamageBar2.y2,
+                                      makeacol(0,0xFF,0,0xFF));
 					}
 				}
-
-				glEnd();
 			}
 
 			unit[index].unlock();
