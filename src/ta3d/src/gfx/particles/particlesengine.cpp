@@ -605,14 +605,14 @@ namespace TA3D
 
 		gfx->ReInitAllTex(true);
 
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glDepthMask(GL_FALSE);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
+        gfx->glEnable(GL_TEXTURE_2D);
+        gfx->glDisable(GL_LIGHTING);
+        gfx->glDisable(GL_CULL_FACE);
+        gfx->glDepthMask(GL_FALSE);
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        gfx->glEnable(GL_BLEND);
 
-		glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
@@ -647,7 +647,7 @@ namespace TA3D
 						continue;
 				}
 				else
-					continue;	// Particule en dehors de la carte donc hors champ
+                    continue;	// Particule is out of the map so out of field of view
 				++j;
 				if (!j || !Math::Equals(oangle, e->angle))
 				{
@@ -701,58 +701,56 @@ namespace TA3D
 
 				if (j >= 1023 )
 				{
-					glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
+                    gfx->glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
 					j = -1;
 				}
 			}
 			if (j >= 0 )
-				glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
+                gfx->glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
 
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+            gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 		}
 
 		pMutex.unlock();
 
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);				// Vertices
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);				// Vertices
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
 
-#warning TODO: implement point sprite
+        QMatrix4x4 projectionMatrix;
+        QMatrix4x4 modelViewMatrix;
+        cam->setView(projectionMatrix, modelViewMatrix);
+
+        gfx->glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        gfx->particle_shader->bind();
         float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
-//		if (lp_CONFIG->ortho_camera)
-//		{
-//			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
-//			coeffs[1] = 0.0f;
-//			coeffs[2] = 0.0f;
-//            glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-//		}
-//		else
-//			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-
-//		// Point size
-//		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
-//		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
-
-//		// Set the texture center on the point
-//        glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-
-//		// We're using point sprites
-//        glEnable (GL_POINT_SPRITE);
+        if (lp_CONFIG->ortho_camera)
+        {
+            coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
+            coeffs[1] = 0.0f;
+            coeffs[2] = 0.0f;
+        }
+        gfx->particle_shader->setUniformValue("uProjectionMatrix", projectionMatrix);
+        gfx->particle_shader->setUniformValue("uPointDistanceAttenuation", coeffs[0], coeffs[1], coeffs[2]);
+        gfx->particle_shader->enableAttributeArray(0);
+#ifdef GL_VERTEX_PROGRAM_POINT_SIZE
+        gfx->glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);        // This is required for desktop OpenGL
+        gfx->glEnable(GL_POINT_SPRITE);
+#endif
 
 		pMutex.lock();
 		for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
-			(*i)->draw();
+            (*i)->draw(modelViewMatrix);
 		pMutex.unlock();
-//		glDisable (GL_POINT_SPRITE);
-//		coeffs[0] = 1.0f;
-//		coeffs[1] = 0.0f;
-//		coeffs[2] = 0.0f;
-//		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-//		glPointSize(1.0f);
+        gfx->particle_shader->disableAttributeArray(0);
+        gfx->particle_shader->release();
 
-        glDisableClientState(GL_COLOR_ARRAY);
+#ifdef GL_VERTEX_PROGRAM_POINT_SIZE
+        gfx->glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        gfx->glDisable(GL_POINT_SPRITE);
+#endif
         gfx->glDisable(GL_BLEND);
         gfx->glDepthMask(GL_TRUE);
         gfx->glEnable(GL_CULL_FACE);
@@ -767,6 +765,8 @@ namespace TA3D
 
 		gfx->ReInitAllTex(true);
 
+#warning Under water rendering still needs work
+
 		glEnable(GL_TEXTURE_2D);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_CULL_FACE);
@@ -779,52 +779,48 @@ namespace TA3D
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 
-		float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
-#warning TODO: implement point sprite
-//		if (lp_CONFIG->ortho_camera)
-//		{
-//			coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
-//			coeffs[1] = 0.0f;
-//			coeffs[2] = 0.0f;
-//			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-//		}
-//		else
-//			glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-
-//		// Point size
-//		glPointParameterf (GL_POINT_SIZE_MAX, 3200000.0f);
-//		glPointParameterf (GL_POINT_SIZE_MIN, 1.0f);
-
-//		// Set the texture center on the point
-//		glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-
-//		// We're using point sprites
-//		glEnable (GL_POINT_SPRITE);
-
 		double eqn[4]= { 0.0f, -1.0f, 0.0f, the_map->sealvl };
 
         glClipPlane(GL_CLIP_PLANE1, eqn);
-		glEnable(GL_CLIP_PLANE1);
+        gfx->glEnable(GL_CLIP_PLANE1);
 
-		pMutex.lock();
-		for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
-			(*i)->draw();
-		pMutex.unlock();
+        QMatrix4x4 projectionMatrix;
+        QMatrix4x4 modelViewMatrix;
+        Camera::inGame->setView(projectionMatrix, modelViewMatrix);
 
-		glDisable(GL_CLIP_PLANE1);
+        gfx->particle_shader->bind();
+        float coeffs[] = {0.000000000001f, 0.0f, 1.0f / float(SCREEN_H * SCREEN_H)};
+        if (lp_CONFIG->ortho_camera)
+        {
+            coeffs[0] = Camera::inGame->zoomFactor * Camera::inGame->zoomFactor / 2.0f;
+            coeffs[1] = 0.0f;
+            coeffs[2] = 0.0f;
+        }
+        gfx->particle_shader->setUniformValue("uProjectionMatrix", projectionMatrix);
+        gfx->particle_shader->setUniformValue("uPointDistanceAttenuation", coeffs[0], coeffs[1], coeffs[2]);
+        gfx->particle_shader->enableAttributeArray(0);
+#ifdef GL_VERTEX_PROGRAM_POINT_SIZE
+        gfx->glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);        // This is required for desktop OpenGL
+        gfx->glEnable(GL_POINT_SPRITE);
+#endif
 
-//		glDisable (GL_POINT_SPRITE);
-//		coeffs[0] = 1.0f;
-//		coeffs[1] = 0.0f;
-//		coeffs[2] = 0.0f;
-//		glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
-//		glPointSize(1.0f);
+        pMutex.lock();
+        for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
+            (*i)->draw(modelViewMatrix);
+        pMutex.unlock();
+        gfx->particle_shader->disableAttributeArray(0);
+        gfx->particle_shader->release();
 
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
-		glEnable(GL_CULL_FACE);
-	}
+        gfx->glDisable(GL_CLIP_PLANE1);
+
+#ifdef GL_VERTEX_PROGRAM_POINT_SIZE
+        gfx->glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        gfx->glDisable(GL_POINT_SPRITE);
+#endif
+        gfx->glDisable(GL_BLEND);
+        gfx->glDepthMask(GL_TRUE);
+        gfx->glEnable(GL_CULL_FACE);
+    }
 
 	void PARTICLE_ENGINE::init(bool load)
 	{

@@ -21,6 +21,7 @@
 # include <misc/vector.h>
 # include <QOpenGLFunctions>
 # include <gfx/texture.h>
+# include <QMatrix4x4>
 
 namespace TA3D
 {
@@ -59,7 +60,7 @@ namespace TA3D
 		/*!
 		** \brief Draw
 		*/
-		void draw();
+        void draw(QMatrix4x4 modelViewMatrix);
 
 	public:
 		uint32 nb_particles;

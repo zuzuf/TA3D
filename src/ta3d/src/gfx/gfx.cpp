@@ -579,6 +579,11 @@ namespace TA3D
         shadowMap = nullptr;
         default_texture = nullptr;
 
+        model_shader = nullptr;
+        drawing2d_color_shader = nullptr;
+        drawing2d_texture_shader = nullptr;
+        particle_shader = nullptr;
+
 		normal_font = NULL;
 		small_font = NULL;
 		TA_font = NULL;
@@ -1920,11 +1925,13 @@ namespace TA3D
 						break;
 					}
 				default:
-                    model_shader->release();
+                    if (model_shader)
+                        model_shader->release();
 			}
 			break;
 		default:
-            model_shader->release();
+            if (model_shader)
+                model_shader->release();
 		}
 	}
 
@@ -1951,6 +1958,15 @@ namespace TA3D
             drawing2d_texture_shader->setUniformValue("uMatrix", get2Dmatrix());
             drawing2d_texture_shader->setUniformValue("uTex", 0);
             drawing2d_texture_shader->release();
+        }
+        if (!particle_shader)
+        {
+            particle_shader = new Shader("shaders/particle.frag", "shaders/particle.vert");
+            particle_shader->bindAttributeLocation("aVertex", 0);
+            particle_shader->link();
+            particle_shader->bind();
+            particle_shader->setUniformValue("uTex", 0);
+            particle_shader->release();
         }
     }
 

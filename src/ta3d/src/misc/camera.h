@@ -21,6 +21,7 @@
 # include "matrix.h"
 # include "vector.h"
 
+class QMatrix4x4;
 
 namespace TA3D
 {
@@ -66,6 +67,11 @@ namespace TA3D
 		** \brief Replace the OpenGL camera
 		*/
 		void setView(bool classic = false);
+
+        /*!
+        ** \brief Replace the OpenGL camera
+        */
+        void setView(QMatrix4x4 &projectionMatrix, QMatrix4x4 &modelViewMatrix);
 
 		/*!
 		** \brief Reset all data

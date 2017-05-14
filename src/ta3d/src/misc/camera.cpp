@@ -176,7 +176,34 @@ namespace TA3D
 		}
 	}
 
-	Matrix Camera::getMatrix() const
+    void Camera::setView(QMatrix4x4 &projectionMatrix,
+                         QMatrix4x4 &modelViewMatrix)
+    {
+        zfar2 = zfar * zfar;
+
+        projectionMatrix = QMatrix4x4();
+        if (lp_CONFIG && lp_CONFIG->ortho_camera)
+            projectionMatrix.ortho(-0.5f * zoomFactor * float(SCREEN_W), 0.5f * zoomFactor * float(SCREEN_W), -0.5f * zoomFactor * float(SCREEN_H), 0.5f * zoomFactor * float(SCREEN_H), znear, zfar);
+        else
+            projectionMatrix.frustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
+
+        modelViewMatrix = QMatrix4x4();
+        pos = rpos;
+        Vector3D FP(pos);
+        FP += dir;
+        FP += shakeVector;
+        modelViewMatrix.lookAt(QVector3D(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z),
+                               QVector3D(FP.x, FP.y, FP.z),
+                               QVector3D(up.x, up.y, up.z));
+
+        if (mirror)
+        {
+            modelViewMatrix.scale(1.0f, -1.0f, 1.0f);
+            modelViewMatrix.translate(0.0f, mirrorPos - 2.0f * shakeVector.y, 0.0f);
+        }
+    }
+
+    Matrix Camera::getMatrix() const
 	{
 		glMatrixMode (GL_PROJECTION);
 		glLoadIdentity ();

@@ -17,11 +17,11 @@
 
 #include "particlessystem.h"
 #include <logs/logs.h>
-
+#include <gfx/gfx.h>
 
 namespace TA3D
 {
-
+    using namespace VARS;
 
     ParticlesSystem::ParticlesSystem()
 		:nb_particles(0), pos(NULL), V(NULL), common_pos(),
@@ -64,7 +64,7 @@ namespace TA3D
         col[2] += dt * dcol[2];
         col[3] += dt * dcol[3];
 
-        float real_factor = mass > 0.0f ? factor : factor2;
+        const float real_factor = mass > 0.0f ? factor : factor2;
 
         for( uint32 i = 0 ; i < nb_particles ; ++i)
         {
@@ -74,17 +74,17 @@ namespace TA3D
     }
 
 
-    void ParticlesSystem::draw()
+    void ParticlesSystem::draw(QMatrix4x4 modelViewMatrix)
     {
         if (pos == NULL)    return;     // Huh oO ? this is not expected to happen
-        glPushMatrix();
-        glColor4fv(col);
-        glPointSize(size);
-        glTranslatef(common_pos.x, common_pos.y, common_pos.z );
+        modelViewMatrix.translate(common_pos.x, common_pos.y, common_pos.z);
+
+        gfx->particle_shader->setUniformValue("uColor", col[0], col[1], col[2], col[3]);
+        gfx->particle_shader->setUniformValue("uPointSize", size);
+        gfx->particle_shader->setUniformValue("uModelViewMatrix", modelViewMatrix);
         tex->bind();
-        glVertexPointer(3, GL_FLOAT, 0, pos);
-        glDrawArrays(GL_POINTS, 0, nb_particles);
-        glPopMatrix();
+        gfx->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, pos);
+        gfx->glDrawArrays(GL_POINTS, 0, nb_particles);
     }
 
 

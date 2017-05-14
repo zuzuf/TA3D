@@ -313,6 +313,7 @@ namespace TA3D
         Shader::Ptr model_shader;
         Shader::Ptr drawing2d_color_shader;
         Shader::Ptr drawing2d_texture_shader;
+        Shader::Ptr particle_shader;
 
 		bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
